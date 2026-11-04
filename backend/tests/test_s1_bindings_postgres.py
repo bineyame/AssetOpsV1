@@ -362,6 +362,7 @@ class TestReviewM1HistoricalBytesInTheDatabase:
         assert_no_mini_history(engine)
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0003_pinned_binding_snapshots")
             with engine.begin() as connection:
                 connection.execute(text("UPDATE gateway SET gateway_external_id = 'renamed' WHERE site_id = :s"),

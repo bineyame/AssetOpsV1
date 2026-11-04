@@ -150,6 +150,7 @@ def downgrade_refused(site, engine) -> None:  # noqa: F811
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+        __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
         command.downgrade(config, PREVIOUS)
     assert head(engine) == UPGRADED_HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
 
@@ -269,6 +270,7 @@ class TestMigration0026:
         engine.dispose()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS == "0025_w2_ev_session" and not any(table_exists(engine, t) for t in EV_MONEY)
             assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 0
@@ -610,6 +612,7 @@ def test_0026_trigger_only_work_and_exact_conflict_constraint(chain, monkeypatch
     remove_money(engine)
     config = _alembic()
     pg_harness_dispose(built)
+    __import__("pg_harness").clear_event_history(engine)  # CH-1b: 0044 refuses first while events exist
     try:
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS

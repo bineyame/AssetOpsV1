@@ -123,7 +123,9 @@ def below_0026(snapshot: dict) -> dict:
     cons = sorted((t, n, _DIESEL_ONLY.get(n, d)) for t, n, d in snapshot["constraints"]
                   if n not in ("financial_assumption_revision_ev_positive",
                                "financial_assumption_revision_productive_positive"))  # WALK1-3: 0040
-    return {**snapshot, "constraints": cons}
+    # CH-1b: 0044 (above 0026) adds the statement-level outbox producer on financial_assumption_revision.
+    triggers = [t for t in snapshot["triggers"] if t[0] != "financial_assumption_revision_chain_event"]
+    return {**snapshot, "constraints": cons, "triggers": triggers}
 
 
 def insert_consequence(engine, ctx, frev, erev, **over):  # noqa: F811
@@ -197,6 +199,7 @@ class TestMigration0023:
         engine.dispose()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in TABLES)
@@ -452,6 +455,7 @@ class TestTriggerOnlyWork:
         engine.dispose()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             command.upgrade(config, "head")
         finally:
@@ -481,6 +485,7 @@ class TestDowngradeRefusal:
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD  # the whole downgrade rolled back
             assert {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in TABLES} == counts  # nothing deleted

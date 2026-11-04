@@ -176,6 +176,7 @@ class TestMigration0025:
         engine.dispose()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 0 and ev_functions(engine) == 0
@@ -221,6 +222,7 @@ class TestMigration0025:
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and all(table_exists(engine, t) for t in EV)  # nothing dropped
         finally:

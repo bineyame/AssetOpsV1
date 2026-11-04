@@ -446,6 +446,7 @@ class TestIdentityHardening:
         assert_no_mini_history(engine)
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0004_snapshot_canonical_bytes")
             with engine.begin() as connection:
                 connection.execute(text("UPDATE asset SET asset_code = 'drifted' WHERE id = :a"), {"a": asset_id})

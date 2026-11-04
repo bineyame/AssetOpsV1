@@ -456,6 +456,7 @@ class TestMigration0021:
         before = snapshot()
         assert head() == alembic_head()
         config = _alembic()
+        __import__("pg_harness").clear_event_history(engine)  # CH-1b: 0044 refuses first while events exist
         engine.dispose()
         try:
             command.downgrade(config, "0020_w2_source_event")

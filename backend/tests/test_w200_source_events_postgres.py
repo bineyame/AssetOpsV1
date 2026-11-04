@@ -583,6 +583,7 @@ class TestMigration0020:
         assert has_mini_jobs(engine)
         before = (mini_history(engine), rows(engine, "SELECT id FROM accepted_evidence ORDER BY id"),
                   rows(engine, "SELECT id FROM recompute_job ORDER BY id"))
+        __import__("pg_harness").clear_event_history(engine)  # CH-1b: 0044's own refusal comes first
         with pytest.raises(DBAPIError, match=MINI_REFUSED):
             command.downgrade(_alembic(), "0019_verification_core")
         assert head(engine) == alembic_head()
@@ -618,6 +619,7 @@ class TestMigration0020:
         before_rows, before_reads = v3_rows(), v3_reads()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0019_verification_core")
             assert head(engine) == "0019_verification_core" and nullable(engine, "record_kind") is None
             assert v3_rows() == before_rows
@@ -635,6 +637,7 @@ class TestMigration0020:
             _delete_as_replica(engine, ("DELETE FROM recompute_job WHERE domain = 'ev_charging'",))
             with pytest.raises(DBAPIError, match=refused):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0019_verification_core")
             assert head(engine) == alembic_head()
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
@@ -651,6 +654,7 @@ class TestMigration0020:
             # W2-05a: 0024 sits above 0020 and refuses first while an EV measurement exists (its own message).
             with pytest.raises(DBAPIError, match="Downgrade of 0024_w2_ev_config refused"):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
@@ -665,6 +669,7 @@ class TestMigration0020:
             ))
             with pytest.raises(DBAPIError, match=refused):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
@@ -676,6 +681,7 @@ class TestMigration0020:
                     "now() + interval '1 minute', 'PENDING', now(), now())"), {"i": uuid4(), "t": t, "s": s})
             with pytest.raises(DBAPIError, match=refused):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 

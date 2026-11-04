@@ -416,6 +416,7 @@ class TestReviewCarries:
         config.attributes["database_url"] = URL
         site.store.dispose()
         __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+        __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
         command.downgrade(config, "0010_financial_assumptions")
         command.upgrade(config, "head")
         with engine.connect() as c:
@@ -462,6 +463,7 @@ class TestMigration0015Downgrade:
         site.store.dispose()
         with pytest.raises(DBAPIError, match="returning basis"):
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(self._config(), "0014_source_clock_attestation")
         with engine.connect() as c:
             count = c.execute(text("SELECT count(*) FROM finding_revision WHERE finding_id = :f"),
@@ -479,6 +481,7 @@ class TestMigration0015Downgrade:
         config = self._config()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0014_source_clock_attestation")
             assert self._basis_constraint(engine)
         finally:

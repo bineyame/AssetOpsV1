@@ -494,6 +494,7 @@ class TestDatabaseImmutability:
         try:
             with pytest.raises(Exception, match="Downgrade of 0017_evidence_publication refused"):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0016_action_store")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
