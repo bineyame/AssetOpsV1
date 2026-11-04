@@ -165,3 +165,43 @@ labelled keep -> CH-9. New `TickLimits` (60 s, 200 items, 500 events) are declar
 
 The NO_DATA-days reading of "exactly the priced days"; the lifecycle-every-run choice; the trigger-only outbox with
 the single guarded Python writer.
+
+## Fix round Part A (review REVISE; rulings DD0-R, CH1b-R2), head `ce14c45fe`
+
+Code: `85551427a` (paged consume and the rest), `ce14c45fe` (M1 test set-up). Part B (CH-4 `None` sources, L3 rerun) waits for CH-4 to merge.
+
+| Item | Status | Where |
+|---|---|---|
+| DD0-R / R2-1: paged, time-bounded consume | Met. Pages of `chain_consume_events` until the queue is empty or the consume deadline (stage start + `bound_seconds`/2, capped at the shared `deadline_at`). The drain gets its own `Deadline` on the full shared deadline, created after consume. `site_today` is read once per stage run and passed to every page. The stage reports `consume.{ms, select_ms, pages, stopped, deferred}` and `drain.{ms, deferred}` separately. | `chain/events.py` `consume`; `scheduling/stages.py` `chain_snapshots`; `tick.py` passes `bound_seconds` |
+| R2-3: coalesced page write, one transaction | Met. `coalesce` gives one `Mark` per (tenant, Site, day, measure), with `first_event_id` = the page's first event in read order. `EventPort.mark_and_consume_page` writes the multi-row mark upserts and then every consumption row in one transaction, and refuses uncoalesced marks. The memory port implements it. Threads stay one event per transaction. | `events.py`; `postgres_event_store.py` `_values`, `mark_and_consume_page`; `test_ch1b_drain.py` `MemPort` |
+| Review L2: lifecycle consumes exactly its pre-read ids | Met. The stage reads `unconsumed('lifecycle')` before `run_lifecycle` and then calls `consume_exactly`. | `stages.py` `chain_threads`; L0 `test_consume_exactly_records_only_the_events_read_before_the_run` |
+| R2-2: typed index in 0044 | Met. `event_outbox_site_type_order (site_id, type, recorded_at, event_id)` **replaces** `event_outbox_site_order`: every outbox read filters on type, so a second index would only add write cost. No cursor, no pruning. | `0044_chain_events.py:124` |
+| R2-3: guard shapes | Met. The `event_consumption insert` and `snapshot_dirty mark upsert` shapes accept a multi-row VALUES list of literal tuples only (`$valuesRows`). They stay insert-only with the same arbiter. The declared statements remain one-row templates; `_values` repeats the one VALUES tuple at run time. Self-test `test_event_page_writes_accept_multi_row_values_only`: a 2-row literal is accepted; `SELECT ... unnest`, `VALUES (:c, unnest(:ids))`, `INSERT ... SELECT` and a 3-column arbiter are refused. | `configuration-persistence.ps1:904-912`; `test_estate_guard.py` |
+| M1 | Met. L2 (`test_ch1b_fix_postgres.py`): a selection is invisible at `selected_at - 1µs` and visible at `selected_at`; a dispatch job stays pending after a `cold-excursion` selection of its window and clears at its own `dispatch` selection (not 1 µs before it); a job with `available_at > k` is not pending at `k`; on a TUE-only calendar the Kobo Grain-mill measure writes one NOT_EXPECTED row per subject on Monday 12 Oct, the same subjects as Tuesday, and `grade_counts` with a missing second measure gives not_expected 1 and no_data 0. L0 `_counts` test in `test_ch1b_drain.py`. | |
+| M2 | Met for Finding and Action. In `seeded` (real F01/F02 revisions, a real trial and a domain Action on F01), F01's trigger event is consumed out of the way first. The first stage run places only F02 and leaves the Actions PENDING_PLACEMENT (≥2), linking 0. A replayed `finding.revised` naming F01's revisions then places F01 and links 2 in that run. A rerun consumes 0 and writes 0. **No opportunity event is exercised**: the seeded set has none, so that path is covered by Part B's ineligible-opportunity stage test. | `test_m2_...` |
+| Review L1 | Met. `inputs.<m> names no source, so no event ever marks it dirty`, with the mutation `charging_kwh: {}`. | `test_event_register.py` |
+
+**Non-vacuity, each on the committed tree, then reverted with `git checkout`:**
+- dropping `sel.selected_at <= :k` fails residual 1 (line 210);
+- forcing `_subject_instant` to the period start leaves Monday with 0 subjects (line 256);
+- dropping `x.analytic_id = ANY(:an)` lets the cold selection clear the dispatch job (line 220);
+- passing `"f": []` in `unlinked_actions_for` fails the M2 link (line 323).
+
+**DD0-R measurements** (L2, `w402` set-up; outbox rows in the 0044 reading subject shape, 9 s spans, one Site-day; bound 60 s, half 30 s):
+
+| Case | stage ms | consume ms | drain ms | pages | per-page select ms | share of half bound |
+|---|---|---|---|---|---|---|
+| 4,400 events, empty history | 974 | 816 | 89 | 9 | 22-80 (median 25) | 3.2% |
+| 4,400 events after 60,298 consumed | 3,314 | 2,972 | 81 | 9 | 228-359 (median 249) | 11% |
+
+Per-page select cost grows roughly linearly with the consumed history: the anti-join still probes every earlier event of the type. That is 10x at 14 days. One Kobo day stays far below half the bound, so there is no DD-1 cursor item at this size. Extrapolating linearly, the 90-day demo outbox (about 390k events) would cost about 1.6 s per page, or about 15 s per Kobo day, which is still under 30 s. **This is an estimate, not measured.** It is a candidate DD-1 note.
+
+**Checks (Part A, on `ce14c45fe` code):**
+- `test_ch1b_drain.py`, `test_event_register.py`: 34 passed. Then `test_ch1b_drain.py`: 23 passed.
+- `test_ch0_tick_timing`, `test_fix_cold_drain_stage`, `test_w402_mini_stage`, `test_w403_opportunity_stage`, `test_ch1b_register`: 74 passed.
+- `run-host-tests.ps1`:
+  - `test_ch1b_fix_postgres.py` + `test_ch3_lifecycle_postgres.py`: 10 passed (99 s);
+  - `test_ch1b_outbox_postgres.py` + `test_w402_mini_stage_postgres.py`: 7 passed (141 s).
+- Estate and register guard self-tests, in three `-k` runs because of the 10-minute call cap: 16 passed (event + register, 289 s), 7 passed (353 s), 3 passed (168 s). That is all 14 estate tests and all 12 register tests.
+- `check-architecture.ps1` passed (135 s); `check-agent-workflow.ps1` passed.
+- Not run: `test_ch2_thread_store_postgres.py` (its tests call `run_threads`, which is unchanged); the full backend suite.

@@ -285,3 +285,15 @@ Still to do:
 Tick tests, scoped producer tests, guards and the L3 clone proof done; packet `.agent/review-packet-CH-1b.md`.
 Fixes this phase: `test_w402_mini_stage_postgres` stage literal (`d69921778`); stages import `load_event_register`
 through composition (`a2bfd73f8`, architecture guard). Clone `ch1b` dropped.
+
+## Fix round Part A (done, `ce14c45fe`); Part B waits for CH-4 to merge
+
+The landed work is in the packet section "Fix round Part A".
+
+Part B anchors:
+- **The `None` filter.** Filter `None` in `PostgresThreadSources.sources_by_revision` (`chain/adapters/postgres_thread_sources.py:133-145`) and in the `chain_threads` `on_event` (`scheduling/stages.py`, `on_event`).
+  - Count the dropped sources as `skipped_ineligible` in step b's counts.
+  - An event whose only revision is ineligible is still consumed.
+- **The stage test.** Add it to `backend/tests/test_ch1b_fix_postgres.py` next to `test_m2_*`: one ineligible `opportunity.revised` event.
+- **L3.** Re-run L3 with `tools/chain_clone.py` against CH-4's merged `expected-today.json`.
+- **The stage result.** The `chain_snapshots` result now carries `consume.deferred` and `drain.ms`. The L3 report should quote `consume.ms` and `drain.ms`.
