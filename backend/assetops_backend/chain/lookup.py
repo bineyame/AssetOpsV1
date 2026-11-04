@@ -59,7 +59,7 @@ OPPORTUNITY_LOOKUP = (
     "SELECT 'O' AS kind, CAST(oc.opportunity_id AS text) AS ref, CAST(oc.thread_id AS text) AS thread_id, "
     "oc.occurrence_no AS num, (SELECT count(*) FROM oc x WHERE x.thread_id = oc.thread_id) AS cnt, "
     "oc.episode_start AS at1, oc.episode_end AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
-    "CAST(jsonb_build_object('site_id', CAST(oc.site_id AS text), 'site_code', s.site_code, 'site_name', s.site_name, "
+    "CAST(jsonb_build_object('site_id', CAST(oc.site_id AS text), 'site_code', s.site_code, 'site_name', s.name, "
     "'public_no', m.public_no, 'first_day', m.first_day, 'last_day', m.last_day, "
     "'status', r.result->>'status', 'eligible_days', r.result->'eligible_days', "
     "'assessed_days', r.result->'assessed_days', 'headroom_kw', r.result->'headroom_kw', "

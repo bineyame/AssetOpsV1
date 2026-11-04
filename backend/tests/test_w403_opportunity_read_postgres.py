@@ -55,7 +55,7 @@ OBJECT_KEYS = {"id", "code", "revision_id", "revision_no", "first_day", "last_da
 LIST_KEYS = {"schema_version", "window", "status", "currentness", "source_provenance", "selected_source_provenance",
              "pending_source_provenance", "total_count", "rows", "next_cursor", "selection_token"}
 DAY_KEYS = {"local_day", "decision", "opportunity_kwh", "constraints", "evidence_ids", "selection_seq",
-            "mini_revision_id"}
+            "mini_revision_id", "headroom_kw", "window_hours"}
 READ_CODES = {"SELECTION_CHANGED", "RECOMPUTE_PENDING", "SOURCE_STALE", "SCENARIO_BASIS_MISMATCH"}
 #: u5b ruling 1: an authorized non-MINIGRID Site's detail, before the Performance gate and the decision store.
 UNSUPPORTED_DETAIL = {
@@ -508,6 +508,7 @@ def test_list_detail_shape_full_count_pins_decimals_and_provenance(store, engine
     for d, pin, frozen in zip(o["day_rows"], rev.selected_hours, rev.result["day_rows"]):
         assert set(d) == DAY_KEYS and {k: d[k] for k in frozen} == frozen
         assert (d["selection_seq"], d["mini_revision_id"]) == (pin["selection_seq"], pin["mini_revision_id"])
+        assert (d["headroom_kw"], d["window_hours"]) == (d["opportunity_kwh"], 1)  # CH-4 §2.3
         bound = d["opportunity_kwh"]
         assert bound is None or all(isinstance(bound[k], str) and "e" not in bound[k].lower() for k in ("low", "high"))
     assert set(row["currentness"]) == {"state", "job_state", "selection_seq", "selected_at", "windows"}

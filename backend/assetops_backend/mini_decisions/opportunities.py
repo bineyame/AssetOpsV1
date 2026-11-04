@@ -391,7 +391,9 @@ class OpportunityService:
                "headroom_kw": result["headroom_kw"] if result else None,
                "proposed_load_kw": proposed, "gross_sales_scenario": gross, "demand_state": "UNVERIFIED",
                "collection_state": "UNVERIFIED", "scenario_id": scenario_id,
-               "day_rows": [{**r, "selection_seq": p["selection_seq"], "mini_revision_id": p["mini_revision_id"]}
+               # CH-4 §2.3 (R3): each day row also states its one-hour headroom (the `opportunity_kwh` bound).
+               "day_rows": [{**r, "headroom_kw": r.get("opportunity_kwh"), "window_hours": 1,
+                             "selection_seq": p["selection_seq"], "mini_revision_id": p["mini_revision_id"]}
                             for r, p in zip(result["day_rows"], pins)] if result else []}
         windows = [{"local_day": p["local_day"], "selection_seq": p["selection_seq"],
                     "mini_revision_id": p["mini_revision_id"]} for p in pins]
