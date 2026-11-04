@@ -2,7 +2,8 @@
 
     python -m assetops_backend.scheduling.stages <stage> '<json arguments>'
 
-<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|chain_threads|consequence|cold_consequence|ev_consequence
+<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|chain_threads|consequence|cold_consequence|ev_consequence|
+    chain_snapshots
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -191,21 +192,100 @@ def s4(url: str, args: dict[str, Any]) -> dict[str, Any]:
             "deferred_windows": [d.isoformat() for d in out.deferred_windows]}
 
 
-def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
-    """CH-2 (build sheet §4, live path until CH-1b's outbox): this Site's backfill steps (b) and (c), placing its new
-    Finding and opportunity revisions on their threads and linking its unlinked Actions, then CH-3's step (d), the
-    lifecycle run (the fallback until CH-1b's `consume('lifecycle')`; it also runs the time-based causes).
-    Idempotent."""
-    from assetops_backend.chain.backfill import run_threads
-    from assetops_backend.chain.composition import build_thread_sources, build_thread_store
+def _deadline(args: dict[str, Any]) -> Any:
+    """CH-1b: the absolute epoch time (`deadline_at`) the tick passes, so the child stops before its kill."""
+    from assetops_backend.chain.drain import Deadline
 
-    reader, store = build_thread_sources(url), build_thread_store(url)
+    at = args.get("deadline_at")
+    return None if at is None else Deadline(float(at), time.time)
+
+
+def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """CH-1b (build sheet §3, ruling CH1b-R; CH-3 sheet §4): event-driven and incremental.
+
+    - `consume('threads')` over `finding.revised`, `opportunity.revised` and `action.event`: each event places only
+      the revisions it names, then links the unlinked Actions it names or whose origin Finding it just placed. A
+      failure leaves the event unconsumed, so it is retried (the cursor is `event_consumption`).
+    - Then CH-3's step (d), `run_lifecycle`, once per stage run: it applies the lifecycle causes of the consumed
+      `action.event` and `verification.outcome` events and the time-based causes (INCONCLUSIVE_EXPIRED,
+      CLEAN_DAYS); then `consume('lifecycle')` records those events as applied.
+    - A cap or deadline hit defers the rest (`deferred`); the code stays OK, so it never backs off the Site.
+    The full-scan `run_threads` stays for the backfill only. Idempotent."""
+    from assetops_backend.chain.adapters.file_chain_config import load_event_register
+    from assetops_backend.chain.backfill import _lifecycle_report
+    from assetops_backend.chain.composition import build_event_store, build_thread_sources, build_thread_store
+    from assetops_backend.chain.events import SiteInfo, consume
+    from assetops_backend.chain.lifecycle_run import run_lifecycle
+    from assetops_backend.chain.threads import ThreadRegistry
+
+    t, s = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    limit, deadline = int(args.get("limit", 500)), _deadline(args)
+    register = load_event_register()
+    events, reader, store = build_event_store(url), build_thread_sources(url), build_thread_store(url)
     try:
-        steps = run_threads(reader, store, _uuid(args["tenant_id"]), _uuid(args["site_id"]), ("b", "c", "d"),
-                            created_by="tick")
+        site = events.site(t, s)
+        if site is None:
+            return {"code": "FAILED", "error": f"site {s} not found"}
+        info = SiteInfo(site.site_type, site.timezone)
+        registry = ThreadRegistry(store, "tick")
+        placed: dict[str, int] = {}
+        linked: dict[str, int] = {}
+
+        def on_event(ev: Any) -> None:
+            ids = [str(i) for i in ev.subject.get("ids", [])]
+            sources = reader.sources_by_revision(t, s, ids if ev.type == "finding.revised" else [],
+                                                 ids if ev.type == "opportunity.revised" else [])
+            for k, v in registry.place_all(sources).counts.items():
+                placed[k] = placed.get(k, 0) + v
+            action_ids = ev.subject.get("action_ids", []) if ev.type == "action.event" else []
+            finding_ids = [x.finding_id for x in sources if x.finding_id is not None]
+            for k, v in registry.link_all(reader.unlinked_actions_for(t, s, action_ids, finding_ids)).counts.items():
+                linked[k] = linked.get(k, 0) + v
+
+        threads = consume(events, register, "threads", t, s, info, limit, on_event=on_event, deadline=deadline)
+        if deadline is not None and deadline():  # the next run applies the lifecycle; never a failure
+            lifecycle: dict[str, Any] = {"step": "d", "written": 0, "stopped": "deadline"}
+            applied = None
+        else:
+            lifecycle = _lifecycle_report(reader, run_lifecycle(reader, store, t, s), t)
+            applied = consume(events, register, "lifecycle", t, s, info, limit, deadline=deadline)
+        deferred = sum(events.pending(c, t, s, sorted({k.partition("@")[0] for k in register.consumes(c)}))
+                       for c in ("threads", "lifecycle"))
     finally:
-        _dispose(reader, store)
-    return {"code": "OK", "processed": sum(int(s["written"]) for s in steps), "steps": steps}
+        _dispose(events, reader, store)
+    steps = [{"step": "b", "counts": dict(sorted(placed.items())),
+              "written": sum(v for k, v in placed.items() if k not in ("ALREADY_PLACED", "MERGED_INTO"))},
+             {"step": "c", "counts": dict(sorted(linked.items())), "written": linked.get("LINKED", 0)}, lifecycle]
+    return {"code": "OK", "processed": sum(int(x["written"]) for x in steps), "deferred": deferred, "steps": steps,
+            "consumed": {"threads": threads.as_json(), "lifecycle": None if applied is None else applied.as_json()}}
+
+
+def chain_snapshots(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """CH-1b (build sheet §3): `consume('snapshots')` marks this Site's affected Site-local days and measures dirty
+    (up to `consume_limit` events), then `drain` rebuilds up to `items` dirty rows; the fingerprint decides every
+    skip. A cap or deadline hit leaves the rest queued and reports it as `deferred`, never as a failure."""
+    from assetops_backend.chain.adapters.file_chain_config import load_event_register
+    from assetops_backend.chain.composition import build_chain_services
+    from assetops_backend.chain.drain import drain
+    from assetops_backend.chain.events import SiteInfo, consume
+
+    t, s = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    deadline = _deadline(args)
+    register = load_event_register()
+    services = build_chain_services(url)
+    try:
+        site = services.events.site(t, s)
+        if site is None:
+            return {"code": "FAILED", "error": f"site {s} not found"}
+        consumed = consume(services.events, register, "snapshots", t, s, SiteInfo(site.site_type, site.timezone),
+                           int(args.get("consume_limit", 500)), deadline=deadline)
+        drained = drain(services.events, services.builder, t, site, int(args.get("items", 200)), deadline)
+        pending = services.events.pending("snapshots", t, s,
+                                          sorted({k.partition("@")[0] for k in register.consumes("snapshots")}))
+    finally:
+        services.dispose()
+    return {"code": "OK", "processed": drained.processed, "deferred": drained.deferred + pending,
+            "consume": consumed.as_json(), "drain": drained.as_json()}
 
 
 def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
@@ -343,7 +423,7 @@ def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
     "discover": discover, "s3": s3, "cold_assess": cold_assess, "ev_assess": ev_assess, "mini": mini,
     "opportunity": opportunity, "s4": s4, "chain_threads": chain_threads, "consequence": consequence,
-    "cold_consequence": cold_consequence, "ev_consequence": ev_consequence}
+    "cold_consequence": cold_consequence, "ev_consequence": ev_consequence, "chain_snapshots": chain_snapshots}
 
 
 def _peak_rss_kb() -> int | None:

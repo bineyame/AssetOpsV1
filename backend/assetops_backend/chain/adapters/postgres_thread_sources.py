@@ -42,6 +42,15 @@ _UNLINKED = (
     "WHERE thread_id IS NULL AND tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) "
     "ORDER BY kind, id")
 
+# CH-1b §3 (the event-driven `chain_threads` stage): the same rows, restricted to the revision ids an outbox event
+# names; and the unlinked Actions an event names, or whose origin Finding a placement just put on a thread.
+_ONLY_REVISIONS = "AND r.id = ANY(CAST(:ids AS uuid[])) ORDER BY r.created_at, r.id"
+_FINDING_SOURCES_BY_ID = _FINDING_SOURCES.replace("ORDER BY r.created_at, r.id", _ONLY_REVISIONS)
+_OPPORTUNITY_SOURCES_BY_ID = _OPPORTUNITY_SOURCES.replace("ORDER BY r.created_at, r.id", _ONLY_REVISIONS)
+_UNLINKED_FOR = _UNLINKED.replace(
+    "ORDER BY kind, id",
+    "AND (id = ANY(CAST(:a AS uuid[])) OR origin_finding_id = ANY(CAST(:f AS uuid[]))) ORDER BY kind, id")
+
 # CH-3 §4: the lifecycle causes of one Site (SELECT only).
 _CHANGE_OF = ("(SELECT c.effective_from FROM action_policy_change c WHERE c.tenant_id = {a}.tenant_id "
               "AND c.action_id = {a}.action_id ORDER BY c.recorded_at DESC, c.id DESC LIMIT 1)")
@@ -121,6 +130,28 @@ class PostgresThreadSources:
 
     def unlinked_actions(self, tenant_id: UUID, site_id: UUID | None = None) -> list[dict[str, Any]]:
         return self._rows(_UNLINKED, {"t": tenant_id, "s": None if site_id is None else str(site_id)})
+
+    def sources_by_revision(self, tenant_id: UUID, site_id: UUID, finding_revision_ids: Sequence[Any],
+                            opportunity_revision_ids: Sequence[Any]) -> list[Source]:
+        """CH-1b: only the named Finding and opportunity revisions of this Site, in `(created_at, id)` order."""
+        p = {"t": tenant_id, "s": str(site_id), "after": None}
+        out: list[Source] = []
+        if finding_revision_ids:
+            out += [finding_source(r) for r in self._rows(
+                _FINDING_SOURCES_BY_ID, {**p, "ids": [str(i) for i in finding_revision_ids]})]
+        if opportunity_revision_ids:
+            out += [opportunity_source(r) for r in self._rows(
+                _OPPORTUNITY_SOURCES_BY_ID, {**p, "ids": [str(i) for i in opportunity_revision_ids]})]
+        return sorted(out, key=lambda s: (s.created_at, str(s.revision_id)))
+
+    def unlinked_actions_for(self, tenant_id: UUID, site_id: UUID, action_ids: Sequence[Any],
+                             finding_ids: Sequence[Any]) -> list[dict[str, Any]]:
+        """CH-1b: this Site's unlinked Actions named by an event, or whose origin Finding was just placed (an Action
+        recorded before its Finding's placement stays PENDING_PLACEMENT until then)."""
+        if not action_ids and not finding_ids:
+            return []
+        return self._rows(_UNLINKED_FOR, {"t": tenant_id, "s": str(site_id), "a": [str(i) for i in action_ids],
+                                          "f": [str(i) for i in finding_ids]})
 
     def all_actions(self, tenant_id: UUID, site_id: UUID | None = None) -> list[dict[str, Any]]:
         """Both Action tables directly (the `--dry-run` mode: it also reads a database below 0042)."""

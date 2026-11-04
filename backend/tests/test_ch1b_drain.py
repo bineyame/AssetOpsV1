@@ -306,3 +306,58 @@ def test_backfill_step_a_records_one_backfill_event_per_site() -> None:
     assert (tenant, site_id, occurred, subject["site_code"], subject["from"]) == (TENANT, site.site_id, first,
                                                                                  "KOBO-001", "2026-10-01")
     assert key == f"{site.site_id}|2026-10-01|{subject['to']}"
+
+
+# --- the tick (build sheet §3, ruling CH1b-R): a cap hit defers and never backs off; a real error fails the Site --
+
+
+def _tick_with(stage_results):
+    from test_ch0_tick_timing import FakeRunner, FakeStore
+
+    from assetops_backend.scheduling.tick import ScheduleTick, TickLimits
+
+    class Store(FakeStore):
+        released = None
+
+        def release_site(self, *a, **k):
+            Store.released = k
+            return True
+
+    class Runner(FakeRunner):
+        def run(self, stage, args, seconds):
+            out = super().run(stage, args, seconds)
+            self.args = getattr(self, "args", {})
+            self.args[stage] = args
+            return {**out, **stage_results.get(stage, {})}
+
+    runner = Runner()
+    report = ScheduleTick(Store(), runner, TickLimits(), environment="test").tick()
+    return report.selected[0], Store.released, runner
+
+
+def test_tick_limits_declare_the_chain_bounds() -> None:
+    from assetops_backend.scheduling.tick import STAGE_LIMIT_FIELDS, TickLimits
+
+    limits = TickLimits()
+    assert (limits.chain_snapshot_seconds, limits.chain_snapshot_items, limits.chain_consume_events) == (60, 200, 500)
+    assert STAGE_LIMIT_FIELDS["chain_snapshots"] == "chain_snapshot_seconds"
+    assert TickLimits(chain_snapshot_seconds=90).site_lease_seconds == limits.site_lease_seconds + 30
+    for bad in ({"chain_snapshot_items": 0}, {"chain_consume_events": 0}, {"chain_snapshot_seconds": 0},
+                {"chain_snapshot_seconds": 20, "statement_timeout_ms": 25_000}):
+        with pytest.raises(ValueError):
+            TickLimits(**bad)
+
+
+def test_a_cap_hit_in_either_chain_stage_defers_and_never_backs_off_the_site() -> None:
+    deferred = {"code": "OK", "processed": 3, "deferred": 7}
+    site, released, runner = _tick_with({"chain_threads": deferred, "chain_snapshots": deferred})
+    assert site.result == "COMPLETED" and site.failure is None and released["failure"] is None
+    assert site.stages["chain_snapshots"]["deferred"] == 7 and site.stages["chain_threads"]["deferred"] == 7
+    snap, threads = runner.args["chain_snapshots"], runner.args["chain_threads"]
+    assert (snap["consume_limit"], snap["items"], threads["limit"]) == (500, 200, 500)
+    assert snap["deadline_at"] > 0 and threads["deadline_at"] > 0
+
+
+def test_a_real_chain_snapshots_error_fails_the_site() -> None:
+    site, released, _ = _tick_with({"chain_snapshots": {"code": "FAILED", "error": "boom"}})
+    assert site.result == "FAILED" and released["failure"][:2] == ("CHAIN_SNAPSHOTS", "FAILED")

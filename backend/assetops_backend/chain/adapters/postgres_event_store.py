@@ -19,12 +19,19 @@ from sqlalchemy.engine import Engine
 
 from assetops_backend.chain.drain import DirtyRow
 from assetops_backend.chain.events import Event
+from assetops_backend.chain.ports import SiteRef
 
 _UNCONSUMED = (
     "SELECT o.event_id, o.type, o.schema_version, o.occurred_at, o.recorded_at, o.source, o.tenant_id, o.site_id, "
     "o.subject, o.payload FROM event_outbox o WHERE o.tenant_id = :t AND o.site_id = :s AND o.type = ANY(:types) "
     "AND NOT EXISTS (SELECT 1 FROM event_consumption x WHERE x.consumer = :c AND x.event_id = o.event_id) "
     "ORDER BY o.recorded_at, o.event_id LIMIT :n")
+
+_PENDING = (
+    "SELECT count(*) FROM event_outbox o WHERE o.tenant_id = :t AND o.site_id = :s AND o.type = ANY(:types) "
+    "AND NOT EXISTS (SELECT 1 FROM event_consumption x WHERE x.consumer = :c AND x.event_id = o.event_id)")
+
+_SITE = "SELECT id, site_code, site_type, timezone FROM site WHERE tenant_id = :t AND id = :s"
 
 _MARK = (
     "INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "
@@ -73,6 +80,18 @@ class PostgresEventStore:
             payload = r[9] if isinstance(r[9], dict) else json.loads(r[9] or "{}")
             out.append(Event(r[0], r[1], int(r[2]), r[3], r[4], r[5], r[6], r[7], subject, payload))
         return out
+
+    def pending(self, consumer: str, tenant_id: UUID, site_id: UUID, types: Sequence[str]) -> int:
+        """This Site's events of `types` not yet consumed by `consumer` (the tick reports them as deferred)."""
+        with self._engine.connect() as c:
+            return int(c.execute(text(_PENDING), {"t": tenant_id, "s": site_id, "types": list(types),
+                                                  "c": consumer}).scalar_one())
+
+    def site(self, tenant_id: UUID, site_id: UUID) -> SiteRef | None:
+        """The Site the tick stages consume for (type and timezone resolve its events)."""
+        with self._engine.connect() as c:
+            r = c.execute(text(_SITE), {"t": tenant_id, "s": site_id}).first()
+        return None if r is None else SiteRef(tenant_id, r[0], r[1], r[2], r[3])
 
     def mark_and_consume(self, consumer: str, event: Event, marks: Sequence[tuple[date, str]]) -> None:
         with self._engine.begin() as c:

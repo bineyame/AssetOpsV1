@@ -105,7 +105,7 @@ def test_p1_one_tick_assesses_and_drains_cold_work(cold_chain, monkeypatch) -> N
     assert [c for c, s in runner.calls if s in (None, str(built.site_id))] == [
         "discover", "s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "chain_threads", "consequence",
         "cold_consequence",
-        "ev_consequence"]
+        "ev_consequence", "chain_snapshots"]  # CH-1b: the outbox drain after the consequence drains
     assert site.result == "COMPLETED" and site.failure is None, (site.failure, site.stages)
     assess, drain = site.stages["cold_assess"], site.stages["cold_consequence"]
     assert assess["code"] == "OK" and assess["processed"] == len(jobs) and assess["failed"] == 0, assess
@@ -198,7 +198,7 @@ def test_p4_mini_only_site_unchanged_apart_from_four_zero_count_keys(store, engi
     site = tick_site(tick, site_id)
     assert list(site.stages) == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "chain_threads",
                                  "consequence",
-                                 "cold_consequence", "ev_consequence"]
+                                 "cold_consequence", "ev_consequence", "chain_snapshots"]
     for name in ("cold_assess", "ev_assess"):
         r = site.stages[name]
         assert (r["code"], r["processed"], r["failed"], r["deferred"], r["outcomes"], r["live_jobs"]) == (
