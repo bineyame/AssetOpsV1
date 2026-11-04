@@ -10,8 +10,8 @@ Stopped at the context budget after the production wiring commit. Resume at "Rem
   `occurred_at <= k`), `has_change` (EXISTS action_policy_change over `unnest(:ids)`; MappingProxyType, lower-case keys).
 - Guard: `tools/checks/configuration-persistence.ps1` `$pgReaders` gains the module with a ruling comment;
   `tools/checks/test_estate_guard.py` `test_chain_reader_write_rejected` (probe INSERT must be refused). Self-test run
-  was started from the PowerShell tool and had not finished when I stopped (it exceeded 600 s under load; the bash
-  run fails only on ExecutionPolicy for temp copies - environmental). **Re-run it** (command below).
+  run from the PowerShell tool: **15 passed in 1566 s** (incl. the new test). (The bash
+  run fails only on ExecutionPolicy for temp copies - environmental.)
 - `chain/composition.py:115` `build_chain_reader(url, consequences=, verification=) -> (reader, dispose)`; its money
   port returns `{"body": jsonable consequence read, "source": stored_source(...)}` (site_overview/read.py:46).
 - `chain/read.py`: `ChainRequest.day(..., readiness_days=)` (`:225`; mini: gaps over the 31 local work days, readiness
