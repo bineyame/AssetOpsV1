@@ -60,7 +60,7 @@ def test_board_item_text_and_action_name_use_display_codes() -> None:
 def test_warning_ref_labels_use_display_codes() -> None:
     plan = w.PlanCue(plan_id="p1", code="PM-000013", title="Generator service", due_at=None, due_on=None,
                      asset_id=None, link_ref=R.estate_ref("maintenance_preventive"))
-    assert w._plan_ref(plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive",
+    assert w._plan_ref(R, plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive",
                                  "link_ref": R.estate_ref("maintenance_preventive")}
 
 
