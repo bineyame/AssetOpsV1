@@ -492,11 +492,15 @@ class KoboSite:
         out = []
         for study in self.spec["sites"]["kobo"]["studies"]:
             hi = local_instant(self.spec, "kobo", study["to_day"], "24:00")
-            worker = build_worker(self.url, test_lease_clock=lambda at=hi + timedelta(minutes=30): at)
+            # The opportunity job is enqueued at DB time (real), so a story-time lease clock never leases it
+            # (seen: both studies returned []). The lease runs on DB time: the study is recorded at build time,
+            # an R4 writer-without-story-clock fact (-> DD-1), named in the packet.
+            worker = build_worker(self.url)
             try:
-                worker.reconcile(self.spec["sites"]["kobo"]["site_code"],
-                                 local_instant(self.spec, "kobo", study["from_day"], "00:00"), hi)
-                out.append(worker.run_pending())
+                queued = worker.reconcile(self.spec["sites"]["kobo"]["site_code"],
+                                          local_instant(self.spec, "kobo", study["from_day"], "00:00"), hi)
+                out.append({"anchor": study["anchor"], "queued": [repr(q) for q in queued],
+                            "outcomes": [repr(o) for o in worker.run_pending()]})
             finally:
                 pg_harness.dispose(worker.jobs, worker.store, worker.reader)
         return out
@@ -661,7 +665,7 @@ def seed_part(store, engine, day_set: str, steps: list[str], state: dict | None,
                     site.deliver_day(n)
                 site.settle_day(n)
             elif step == "studies":
-                state["studies"] = [repr(r) for r in site.studies()]
+                state["studies"] = site.studies()
             elif step == "derive":
                 chain = derive(site.url, site.tenant, site.site)
                 days = spec["day_sets"][day_set]["kobo"]
