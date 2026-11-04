@@ -227,3 +227,55 @@ literal repair, the L2 outbox tests, then the downgrade-test harness change (see
 - Then the scoped producer-table tests (sheet §6 step 3): evidence ledger, analytic runs, mini depth, financial
   assumptions, foundation, finding store, mini decisions, action store, objectives.
 - Note: a CH-3 agent runs Postgres tests concurrently on this machine; contention may slow runs.
+
+## Phase 2 update (integration after CH-3; PARTIAL, resume at "Still to do")
+
+Head `34c57f1aa` (main `e207f328f` merged; clean). Commits: `8410676ad` (merge `da5b18391`: T1 0044 down → 0045;
+T3 config/composition keep both sides; T2 thread-store tests assert 0044 → 0045 → 0042 refusals in order),
+`a99d5faf5` (step 5), `d0ef43f50` + `73b53ce9e` (step 4 downgrade fixes + stage L2 test).
+
+Step 5 landed:
+- `tick.py`: `chain_snapshot_seconds=60`, `chain_snapshot_items=200`, `chain_consume_events=500` (>=1, positivity,
+  statement-timeout min, lease sum → 1080); `STAGE_LIMIT_FIELDS["chain_snapshots"]`; `_deadline_at(seconds)` =
+  now + bound − min(5 s, bound/10); `chain_snapshots` runs after the consequence drains under CONSEQUENCE, failure
+  marker `CHAIN_SNAPSHOTS` only on a non-OK code.
+- `stages.py`: `chain_threads` = consume('threads') (each event places only its named revisions via
+  `PostgresThreadSources.sources_by_revision`, then links `unlinked_actions_for(action_ids, placed finding ids)` so
+  a PENDING_PLACEMENT action links when its Finding lands), then `run_lifecycle` once per stage run (CH-3 §4:
+  event causes + time-based causes; skipped with `stopped: deadline` if the deadline passed), then
+  consume('lifecycle') records the applied events. `deferred` = unconsumed threads+lifecycle events.
+  `chain_snapshots` = consume('snapshots') then `drain`; `deferred` = queued rows + unconsumed events.
+  No new thread-row writer (placements go through the existing `ThreadRegistry`/store, so T4 known-at holds).
+- Event store: `pending()` count and `site()` lookup (SELECTs only).
+- Tests: `test_ch1b_drain.py` +3 tick tests (limits, cap hit defers/never backs off, real error fails);
+  `test_ch1b_outbox_postgres.py` +1 (real stage bodies: cap defers, consume+drain, rerun 0, threads rerun 0).
+  Fake-runner literals updated in `test_w402_mini_stage.py`, `test_fix_cold_drain_stage.py`,
+  `test_w403_opportunity_stage.py`, `test_ch0_tick_timing.py`, `test_fix_cold_drain_tick_postgres.py`
+  (pre-existing on main: CH-2's `chain_threads` was missing from those fake-runner tests → 17 failures on main).
+
+Checks (counts): pure `test_ch1b_drain/register`, `test_ch0_tick_timing`, `test_fix_cold_drain_stage`,
+`test_w402_mini_stage`: 84 passed; `test_w403_opportunity_stage`, `test_ch1a_reassessment`, `test_ch1a_grading`,
+`test_ch2_threads`, `test_ch3_lifecycle`: 98 passed. Postgres: ch2 thread store + ch1a snapshot 8 passed;
+ch1b outbox 4 passed; ch3 lifecycle + w504 17+2 fixed; w503+w502 24+2 fixed; w501+w403 9 failing → fixed (9 passed
+rerun); w402+w401 migration 10 + 6 fixed (10 passed rerun); w207+w206 16 + 5 fixed (12 passed rerun); w205a+w204
+13 + 1 fixed; w203 (7 with w204 class) passed; w201+w200 30 + 2 fixed (4 passed rerun); s4 evidence work + s4
+consequence store 26 passed; s405 + s2 ledger 54 passed; s1 bindings + w401 18 passed.
+Earlier session: walk1 ×2, out_d1, cc_schema 31 passed.
+
+Still to do:
+1. Postgres tick tests: `test_fix_cold_drain_tick_postgres.py`, `test_s4_schedule_tick_postgres.py -m "not slow"`,
+   `test_w402_mini_stage_postgres.py` (the real tick now runs `chain_snapshots`; check its stage-order literals).
+2. Scoped producer-table tests (sheet §6 step 3) not yet named above: finding store, mini decisions, action store
+   (`test_s6_action_store_postgres`), objectives (`test_out_d2_*`), financial assumptions, foundation.
+3. Guards: `tools/check-architecture.ps1`, `tools/check-agent-workflow.ps1` (PowerShell tool; set
+   `ASSETOPS_GUARD_PYTHON`); the event-store guard must still accept the two new SELECTs.
+4. L3 on a clone: `tools/chain_clone.py create ch1b --migrate`; backfill `--steps a,b,c,d` then rerun (0);
+   `chain_clone.py settle ch1b`; publish a productive price via `python -m assetops_backend.publish_assumption
+   publish --site KOBO-001 --key productive_use_price_per_kwh --change-kind SUCCESSION ... --valid-from
+   2026-10-30T00:00:00+03:00 --expected-prior <current rev>`; run the `chain_snapshots` stage (or a settle tick);
+   compare `site_day_snapshot` revisions per measure before/after; collect
+   (`tools/checks/chain_coherence.py collect --work C:\Users\assef\Bineyame\AssetOpsV1-polC\var\polish_full
+   --database-url <clone url> --out <scratch>`; read-only on polC) and `check --expect
+   tools/checks/fixtures/chain_coherence/expected-today.json`; report outbox/consumption counts and drain time vs
+   60 s; `chain_clone.py drop ch1b`.
+5. Packet `.agent/review-packet-CH-1b.md` (sections per the dispatch), task status, `git add -f`.
