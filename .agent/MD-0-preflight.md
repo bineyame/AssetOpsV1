@@ -105,3 +105,12 @@ The survey agent stalled. This is not blocking for Q1/Q2. It will be answered at
 4. **Q4, Cold time zone.** Cold is Africa/Addis_Ababa, not UTC. **Proposed default:** Cold `days.json` windows are local days expressed in UTC, `[d-1 21:00Z, d 21:00Z)`. The collector's Cold window treatment is a labelled keep → CH-5a1 alongside R10.
 5. **Q5, objective MG-1** has no clock seam. **Proposed default:** it is declared at build time and named in `expected-mechanism.json` only if a check finding results (R4, owner DD-1).
 6. **Q6, work COMPLETE** needs a maintenance record in the case (`B/work/service.py` ~:285). **Proposed default:** ACT-C1 adds the maintenance record through the existing work writer before COMPLETE, at story time D7 09:55. That is a new input with `source: "MD-0 new example content"`.
+
+## Rulings received (MD0-PF, build sheet §14)
+
+- Q1 (a), the registry line, is landed in `7016c0a17`.
+- Q3: the split applies, and MD-0 ships without VERIFIED/CLOSED.
+- Q4, Q5 and Q6: defaults accepted.
+- Q2: pending the owner. The day set is a parameter (`full` / `states`) and batches are capped at 256.
+- P4, answered after the rulings: w4 has only `positive` and `missing-conflicting`, so there is no busy variant (see the handoff).
+- Build progress: `.agent/MD-0-phase-1-handoff.md`.
