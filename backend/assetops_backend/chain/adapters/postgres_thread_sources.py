@@ -248,7 +248,8 @@ class PostgresThreadSources:
                 if c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
                     return thread_lookup([])  # a database below 0042 has no threads
                 rows = c.execute(text(LOOKUP), {"t": tenant_id, "f": [str(x).lower() for x in finding_ids],
-                                                "a": [str(x).lower() for x in action_ids]}).all()
+                                                "a": [str(x).lower() for x in action_ids],
+                                                "k": known_at}).all()
                 subjects = {r[1].lower(): (r[8], r[9]) for r in rows if r[0] == "F"}
                 complete: dict[str, Any] = {}
                 measures = sorted({m for mech, _ in subjects.values() for m in policy.measures_for(mech)})

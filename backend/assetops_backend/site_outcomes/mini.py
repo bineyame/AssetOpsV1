@@ -17,7 +17,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from assetops_backend import perf
+from assetops_backend import perf, read_scope
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
@@ -242,6 +242,7 @@ class Reads:
             entry[0] += 1
             entry[1] += ms
             perf.record(f"read.{name}", ms)
+            read_scope.record(name, args, ms)
         return out
 
     def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any,

@@ -337,7 +337,8 @@ class EstateSnapshot:
         from assetops_backend.chain.composition import thread_lifecycle_policy
         # CH-3 §5: each thread's state on its Site's local day holding `day_at` (else on `day`) as of the cutoff.
         return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
-            "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all(),
+            "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids],
+            "k": known_at}).all(),
             day=day, known_at=known_at, day_at=day_at, close_after=thread_lifecycle_policy().close_after)
 
     def opportunity_threads(self, t: UUID, site_ids: list[Any], from_: datetime, to: datetime,

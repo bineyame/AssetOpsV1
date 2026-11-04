@@ -68,10 +68,6 @@ THREAD_AFTER_NOT_JUDGED = " · after the change: not judged yet, no fully checke
 THREAD_MONITORING = "Fix verified, monitoring ({code}) · {k} more fully checked days to close"
 THREAD_CLOSED = "Fix verified and closed ({code}) · no return in {n} fully checked days"
 THREAD_RECURRED = "Came back on {day} after the fix ({code})"
-#: Thread states (chain/lifecycle.py; this module imports only outcomes/, test_ch3_rows pins the equality).
-THREAD_APPLIED_STATES = ("CHANGE_APPLIED", "RESOLVED_MONITORING", "CLOSED")
-THREAD_VERIFIED_STATES = ("RESOLVED_MONITORING", "CLOSED")
-THREAD_WIRE_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
 TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
@@ -604,8 +600,8 @@ def finding_signal_state(f: FindingFact, linked: Sequence[ActionFact]) -> tuple[
     exact-revision rule is kept."""
     if f.thread is None:
         return f.open, any(a.applied for a in linked)
-    state = f.thread.get("state")
-    return f.open and state not in THREAD_VERIFIED_STATES, state in THREAD_APPLIED_STATES
+    # CH5a-R §A5: the thread view carries its state classes (chain/lookup.py); the board holds no state tuples.
+    return f.open and not f.thread.get("verified"), bool(f.thread.get("applied"))
 
 
 def _short_day(d: Any) -> str:
@@ -641,7 +637,7 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
         if a is None or day is None:
             return None
         return THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code))
-    if state in THREAD_VERIFIED_STATES:
+    if f.thread.get("verified"):
         a = _thread_action(f, facts, earlier=False)
         if a is None:
             return None
@@ -650,10 +646,6 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
             return THREAD_CLOSED.format(code=display_code(a.code), n=n)
         return THREAD_MONITORING.format(code=display_code(a.code), k=max(0, n - int(view.get("checked_days") or 0)))
     return None
-
-
-#: CH3-R M3: the thread states whose line is thread-level (shown after the thread's Finding left the overview day).
-THREAD_LATER_STATES = ("RESOLVED_MONITORING", "CLOSED", "RECURRED")
 
 
 def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
@@ -676,7 +668,7 @@ def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
         acted = {a.thread_id for a in facts.actions if a.thread_id is not None}
         for tid, f in latest.items():
             recent = f.in_work_window or tid in acted
-            if recent and f.thread.get("state") in THREAD_LATER_STATES:  # type: ignore[union-attr]
+            if recent and f.thread.get("later"):  # type: ignore[union-attr]
                 shown.append(f)
     return sorted(shown, key=lambda f: (f.title, f.finding_id))
 
@@ -852,8 +844,10 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     # CH-3 §5: the thread line of each in-window Finding whose primary MOVES outcome is in this row.
     def state_label_on(f: FindingFact, day: Any) -> str | None:
         """Ruling Q2: this row's state label with the Finding's thread state on `day` and the board's verdicts."""
-        st = _state_on(f.lifecycle_view or {}, day)
-        alt = [replace(s, open=f.open and st not in THREAD_VERIFIED_STATES, applied=st in THREAD_APPLIED_STATES)
+        view = f.lifecycle_view or {}
+        st = _state_on(view, day)
+        alt = [replace(s, open=f.open and st not in view.get("verified_states", ()),
+                       applied=st in view.get("applied_states", ()))
                if s.kind == FINDING and s.ref == f.finding_id else s for s in signals]
         alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
                                             readiness=facts.readiness, objective=verdicts.get(o.key),
@@ -909,7 +903,7 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
     return {"kind": "FINDING", "role": role, "text": text, "href": f.href,
             "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
-                    "thread": None if f.thread is None else {k: f.thread[k] for k in THREAD_WIRE_KEYS
+                    "thread": None if f.thread is None else {k: f.thread[k] for k in f.thread.get("wire_keys", ())
                                                              if k in f.thread}}}
 
 

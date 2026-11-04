@@ -28,6 +28,8 @@ from assetops_backend.chain.policy import ChainConfigError
 STARTS = ("OPEN", "RECURRED", "REOPENED")
 APPLIED_OR_LATER = ("CHANGE_APPLIED", "RESOLVED_MONITORING", "CLOSED")
 VERIFIED_STATES = ("RESOLVED_MONITORING", "CLOSED")
+#: CH3-R M3: the states whose board line is thread-level (shown after the Finding left the board day).
+LATER_STATES = ("RESOLVED_MONITORING", "CLOSED", "RECURRED")
 ATTENTION_STATES = ("OPEN", "RECURRED", "REOPENED")
 
 # Causes (build sheet §2).
@@ -330,6 +332,8 @@ def thread_view(events: Sequence[Event], occ: Occurrence, day: date | None, know
             "change_day": change[0] if change else None,
             "first_complete_after_change": next((d for d in complete if change and d >= change[0]), None),
             "checked_days": len(checked), "close_after": close_after,
+            # CH5a-R §A5: the state classes, so a reader of a state on another day needs no tuple of its own.
+            "applied_states": APPLIED_OR_LATER, "verified_states": VERIFIED_STATES,
             "recurred_day": eff if state == "RECURRED" else None,
             "closed_day": closed[-1] if closed else None,
             "events": [(e.seq, e.state, e.effective_day) for e in mine]}
