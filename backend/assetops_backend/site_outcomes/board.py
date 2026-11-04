@@ -707,7 +707,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     issues: list[dict[str, Any]] = []
     for f in open_findings:
         if f in moves_here:
-            issues.append(_finding_issue(f, "MOVES", f.title))
+            issues.append(_finding_issue(f, "MOVES", f.title, _primary(roles[f.finding_id].moves, cat)))
     open_signals = [s for s in facts.signals_extra if s.open]
     for role in ("MOVES", "CHECKED"):
         for s in open_signals:
@@ -717,7 +717,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
                                "ref": None if s.ref is None else dict(s.ref)})
     for f in open_findings:
         if f in checked_here:
-            issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX))
+            issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX, False))
     for role in ("MOVES", "CHECKED"):  # C: warnings last, MOVES then CHECKED, in `evaluate` order
         for w, r in warn_roles:
             if cat in (r.move_cats if role == "MOVES" else r.checked_cats):
@@ -882,8 +882,13 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
     return {c for f in linked for c in roles[f.finding_id].move_cats}, ""
 
 
-def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
-    return {"kind": "FINDING", "role": role, "text": text, **_link(f.link_ref),
+def _primary(moves: Sequence[str], cat: str) -> bool:
+    """CH-5a2 B5 (I-21): the row is the Finding's lens row when its category is the one of `moves[0]`."""
+    return bool(moves) and OUTCOME_BY_KEY[moves[0]].category == cat
+
+
+def _finding_issue(f: FindingFact, role: str, text: str, primary: bool) -> dict[str, Any]:
+    return {"kind": "FINDING", "role": role, "text": text, "primary": primary, **_link(f.link_ref),
             "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
                     "thread": None if f.thread is None else {k: f.thread[k] for k in f.thread.get("wire_keys", ())
                                                              if k in f.thread}}}

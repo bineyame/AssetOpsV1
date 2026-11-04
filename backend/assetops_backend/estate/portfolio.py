@@ -129,24 +129,25 @@ class ActionSelectionError(RuntimeError):
 
 
 def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_rows: list[dict[str, Any]],
-                   req: Any = None, known_at: Any = None) -> None:
+                   req: Any = None, known_at: Any = None, cutoffs: Mapping[str, Any] | None = None) -> None:
     """CH-2 (build sheet §5.1): each Finding row's thread (`_thread`: id, occurrence number, occurrence count) and
     each Action row's thread (`_thread_id`), from one snapshot query. A snapshot without the thread port, or a row
-    with no thread, carries None, and `_action_for` then keeps the exact join alone."""
+    with no thread, carries None, and `_action_for` then matches no Action (CH-5a2 B3: no exact-revision join).
+    `cutoffs` is the Site code -> cutoff map (`select_finding_scope(cutoffs=)`, CH-5a2 B3/R7)."""
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
     segments_at: dict[Any, dict[str, int]] = {}  # cutoff -> {action_id: segment at that cutoff}
     if port is not None and (f_rows or a_rows):
         # CH-3 §5, CH3-R (AG-27, COH-13): the thread state on each Site's local day holding the window's last
-        # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV row's Site
-        # evidence cutoff (`_cutoff`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
+        # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV Site's
+        # evidence cutoff (`cutoffs[site_code]`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
         # coalesce(cause_known_at, recorded_at) <= k); a request's own cutoff, when given, is that envelope value.
         # Review side-question 1: the Action segments are read per cutoff group too, so a row's Finding segment and
         # the Action segment it is compared with (`same_segment`) come from the same cutoff.
         default = known_at if known_at is not None else (None if req is None else req.known_at)
         by_cutoff: dict[Any, list[Any]] = {default: []}
         for r in f_rows:
-            r["_thread_cutoff"] = r.get("_cutoff") or default
+            r["_thread_cutoff"] = (cutoffs or {}).get(r.get("site_code")) or default
             by_cutoff.setdefault(r["_thread_cutoff"], []).append(r["finding_id"])
         for cutoff, fids in by_cutoff.items():
             if not fids and not (cutoff == default and a_rows):
@@ -177,8 +178,9 @@ def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
 
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
     """Closure 4 S9 / r1a Q-1a-1, CH-2 §5.1 (I-03): an Action matches a Finding row when the row's Finding
-    occurrence is on the Action's thread, or (the fallback for data with no threads) on the exact
-    `(origin_finding_id, origin_finding_revision_id)` pair. Several matches choose the latest selected Action event
+    occurrence is on the Action's thread, in the same segment. CH-5a2 B3: the exact
+    `(origin_finding_id, origin_finding_revision_id)` fallback is deleted; an Action without a thread link matches
+    no row (an honest "No action agreed yet"; COH-11 flags it). Several matches choose the latest selected Action event
     `recorded_at`, then `action_id` ascending."""
     thread = (row.get("_thread") or {}).get("id")
     segment = (row.get("_thread") or {}).get("segment_no")
@@ -189,9 +191,7 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
         seg = action_segment_for(a, row)
         return segment is None or seg is None or seg == segment
 
-    matches = [a for a in actions if (a["source_finding_id"], a["source_finding_revision_id"])
-               == (row["finding_id"], row["finding_revision_id"])
-               or (thread is not None and a.get("_thread_id") == thread and same_segment(a))]
+    matches = [a for a in actions if thread is not None and a.get("_thread_id") == thread and same_segment(a)]
     if not matches:
         return None
     if any(a["_raw"].get("_selected_recorded_at") is None for a in matches):
@@ -552,16 +552,25 @@ def _plan_id(plans: list[dict[str, Any]], k: datetime) -> str | None:
 
 
 def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
-             selected_pairs: set[tuple[str, str]]) -> tuple[dict[str, Any], bool]:
+             selected_pairs: set[tuple[str, str]],
+             f_rows: list[dict[str, Any]] | None = None) -> tuple[dict[str, Any], bool]:
     """Closure 1 Q21 / r1b: every full-scope selected Action (several per origin pair, and one whose origin revision
     is no longer selected), `(recorded_at desc nulls last, action_id)`. r1b2 R10 adds the tenth field
     `origin_revision_selected`: the exact origin `(finding_id, finding_revision_id)` is in `selected_pairs`, the full
-    selected Finding revision set before lifecycle/lens/page filtering (a disclosure fact only). Counts only on
+    selected Finding revision set before lifecycle/lens/page filtering (a disclosure fact only). CH-5a2 B6 (I-01,
+    COH-8) adds `origin_selected`: the Action's thread holds, in the Action's segment, a selected Finding (any
+    revision; `f_rows` with their `_thread`); the exact revision stays as the audit fact. Counts only on
     complete applicable Action coverage (cold/EV NOT_APPLICABLE does not force null)."""
     complete = _coverage_state([cov["state"] for _, cov in a_sites]) == "COMPLETE"
+    on_thread = {((r.get("_thread") or {}).get("id"), (r.get("_thread") or {}).get("segment_no"))
+                 for r in f_rows or () if (r.get("_thread") or {}).get("id") is not None}
     rows = []
     for a in a_rows:
         raw = a["_raw"]
+        thread = a.get("_thread_id")
+        segment = action_segment_for(a, {})
+        origin_selected = thread is not None and any(
+            t == thread and (seg is None or segment is None or seg == segment) for t, seg in on_thread)
         at = raw.get("_selected_recorded_at")
         rows.append({"action_id": a["action_id"], "action_code": a["action_code"],
                      "selected_action_event_id": a["selected_event_id"],
@@ -570,7 +579,7 @@ def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
                      "application_state": a["application_state"], "resolution_state": a["resolution_state"],
                      "verification_outcome": a["verification_outcome"], "recorded_at": wire_time(at),
                      "origin_revision_selected": (a["source_finding_id"], a["source_finding_revision_id"])
-                     in selected_pairs, "_at": at})
+                     in selected_pairs, "origin_selected": origin_selected, "_at": at})
     rows.sort(key=lambda r: (r["_at"] is None, 0.0 if r["_at"] is None else -r["_at"].timestamp(), r["action_id"]))
 
     def count(flag: str) -> int | None:
@@ -708,10 +717,11 @@ class EstatePortfolioService(EstateEvidenceService):
         lap = perf.Laps("portfolio")  # QW-1: section timers (no value changes)
         scope = self._scope(snap, tenant_id, req, admit)
         lap("scope")
-        f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
+        cutoffs: dict[str, Any] = {}
+        f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope, cutoffs)
         lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
-        attach_threads(snap, tenant_id, f_rows, a_rows, req, scope["k"])
+        attach_threads(snap, tenant_id, f_rows, a_rows, req, scope["k"], cutoffs)
         opp_items = opportunity_read(snap, tenant_id, scope, req)  # CH-4 §4.2: the Findings items, same call
         lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
@@ -782,7 +792,7 @@ class EstatePortfolioService(EstateEvidenceService):
         empty = count == 0
         gaps = evidence_gap_groups(e_rows_all)
         prog, actions_complete = progress(a_sites, a_rows, scope["k"],
-                                          {(r["finding_id"], r["finding_revision_id"]) for r in f_rows})
+                                          {(r["finding_id"], r["finding_revision_id"]) for r in f_rows}, f_rows)
         thread_counts = thread_progress(f_rows)
         if thread_counts is not None:  # CH-3 §5 (I-24): counts from thread states when the threads are read
             prog["verified_resolution_count"] = thread_counts["verified_resolution_count"]

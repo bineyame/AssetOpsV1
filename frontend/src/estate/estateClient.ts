@@ -365,6 +365,8 @@ export interface EstateProgressRow {
   recorded_at: string | null;
   /** False when this exact origin Finding revision is not among the selected Finding revisions. */
   origin_revision_selected: boolean;
+  /** CH-5a2 B6: the Action's thread holds a selected Finding in its segment (any revision); absent on an older body. */
+  origin_selected?: boolean;
 }
 
 /** One unpaged W3-02 Financials line DTO (the fields the Portfolio page reads). */

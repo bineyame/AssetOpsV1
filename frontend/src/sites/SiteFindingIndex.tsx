@@ -64,6 +64,9 @@ import { UnavailableChip } from "../ui/UnavailableEntry";
 import { CategoryTags } from "./outcomeCategories";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 
+/** CH-5a2 B5: the one lens the server derives from the Finding's primary moved outcome (outcome_map). */
+const LENS_WORDS: Readonly<Record<string, string>> = { COST: "Cost", RISK: "Risk", OPPORTUNITY: "Opportunity" };
+
 /**
  * W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's lens chips and the real window control, at the top
  * of the single Findings panel in every state. Supplied once by the index and read by `View`.
@@ -604,9 +607,17 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
                 Not in this list
               </td>
               <td>
-                <span className="badge badge--not-assessed" data-finding-index-lens data-not-assessed>
-                  Not assessed
-                </span>
+                {row.lens_flags === undefined ? (
+                  <span className="badge badge--not-assessed" data-finding-index-lens data-not-assessed>
+                    Not assessed
+                  </span>
+                ) : (
+                  <span data-finding-index-lens={row.lens_flags.join(" ")}>
+                    {row.lens_flags.length === 0
+                      ? "Not in any category"
+                      : row.lens_flags.map((flag) => LENS_WORDS[flag]).join(", ")}
+                  </span>
+                )}
               </td>
               <td className="finding-index-period">{periodText(row.episode.start, row.episode.end)}</td>
             </tr>

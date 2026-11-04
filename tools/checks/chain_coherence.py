@@ -322,10 +322,14 @@ def _actions(bundle: Bundle, window: str) -> list[dict[str, Any]]:
     return list(out.values())
 
 
-def _board_findings(board: dict) -> Iterator[tuple[str, str]]:
+def _board_findings(board: dict, primary_only: bool = False) -> Iterator[tuple[str, str]]:
+    """The board's FINDING issues as (row category, finding id). CH-5a2 B5: `primary_only` keeps only the
+    issue on the Finding's lens row (`primary` true); a checked-row or secondary appearance is not a lens."""
     for row in board.get("rows") or []:
         for issue in row.get("issues") or []:
             ref = issue.get("ref")
+            if primary_only and issue.get("primary") is not True:
+                continue
             if issue.get("kind") == "FINDING" and isinstance(ref, dict) and ref.get("finding_id"):
                 yield row.get("category"), str(ref["finding_id"])
 
@@ -520,7 +524,7 @@ def coh5_lens(bundle: Bundle) -> list[dict]:
         if not board:
             continue
         index = _finding_rows(bundle, f"day_findings_all.{d}", board.get("site_code"))
-        for category, f in _board_findings(board):
+        for category, f in _board_findings(board, primary_only=True):
             lens = CATEGORY_LENS.get(category)
             row = index.get(f)
             if lens and row is not None and lens not in (row.get("lens_flags") or []) and (d, f, lens) not in seen:
@@ -656,8 +660,8 @@ def coh8_verified(bundle: Bundle) -> list[dict]:
             p = progress.get(a["action_id"])
             if p is None:
                 problems.append("its progress row is missing")
-            elif p.get("origin_revision_selected") is not True:
-                problems.append(f"its progress row has origin_revision_selected {p.get('origin_revision_selected')}")
+            elif p.get("origin_selected") is not True:  # CH-5a2 B6: the thread-based fact, not the exact revision
+                problems.append(f"its progress row has origin_selected {p.get('origin_selected')}")
             if problems:
                 out.append(finding("COH-8", row.get("site_code") or a["site_code"], w, a["action_id"],
                                    f"Action {a['action_id']} is VERIFIED, but " + "; ".join(problems),

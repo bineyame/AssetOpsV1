@@ -14,15 +14,17 @@ T0 = datetime(2026, 11, 1, 12, tzinfo=timezone.utc)
 FINDING, REV, OTHER_REV = "f-1", "r-1", "r-2"
 
 
-def action(aid="a-1", *, app="ACCEPTED", resolution=None, outcome=None, window=False, at=T0, rev=REV):
+def action(aid="a-1", *, app="ACCEPTED", resolution=None, outcome=None, window=False, at=T0, rev=REV, thread=None):
+    # CH-5a2 B3: Actions join Finding rows on their thread only; by default each origin revision has its own thread.
     return {"action_id": aid, "action_title": f"Action {aid}", "selected_event_id": f"e-{aid}",
+            "_thread_id": thread or f"t-{rev}", "_segment_no": 1,
             "source_finding_id": FINDING, "source_finding_revision_id": rev, "application_state": app,
             "resolution_state": resolution, "verification_outcome": outcome,
             "_raw": {"_verification_window": window, "_selected_recorded_at": at, "_plans": [], "_outcome_id": None}}
 
 
-def finding_row(rev=REV):
-    return {"finding_id": FINDING, "finding_revision_id": rev}
+def finding_row(rev=REV, thread=None):
+    return {"finding_id": FINDING, "finding_revision_id": rev, "_thread": {"id": thread or f"t-{rev}", "segment_no": 1}}
 
 
 def test_all_seven_literal_labels_and_precedence() -> None:
@@ -70,7 +72,7 @@ def test_two_actions_one_exact_origin_latest_event_then_id_tie() -> None:
     covered = [({"site_id": "s"}, {"state": "CURRENT"})]
     prog, complete = progress(covered, [older, newer, other], T0 + timedelta(hours=1), {(FINDING, REV)})
     assert complete and [r["action_id"] for r in prog["rows"]] == ["z-9", "a-1", "c-3"]
-    assert prog["rows"][0]["recorded_at"] == "2026-11-01T12:05:00Z" and len(prog["rows"][0]) == 10
+    assert prog["rows"][0]["recorded_at"] == "2026-11-01T12:05:00Z" and len(prog["rows"][0]) == 11
     # r1b2 R10: the server-computed origin disclosure; c-3's origin revision is not in the selected Finding set.
     assert [r["origin_revision_selected"] for r in prog["rows"]] == [True, True, False]
     flipped, _ = progress(covered, [older, newer, other], T0 + timedelta(hours=1), {(FINDING, OTHER_REV)})
@@ -80,8 +82,17 @@ def test_two_actions_one_exact_origin_latest_event_then_id_tie() -> None:
     reordered, _ = progress(covered, [other, newer, older], T0 + timedelta(hours=1), {(FINDING, REV)})
     assert {r["action_id"]: r["origin_revision_selected"] for r in reordered["rows"]} == {
         r["action_id"]: r["origin_revision_selected"] for r in prog["rows"]}
-    # A different revision of the same Finding never joins.
+    # CH-5a2 B6: `origin_selected` reads the thread (any revision): only the rows given count.
+    on_thread, _ = progress(covered, [older, newer, other], T0 + timedelta(hours=1), {(FINDING, REV)}, [finding_row()])
+    assert [r["origin_selected"] for r in on_thread["rows"]] == [True, True, False]
+    any_rev, _ = progress(covered, [older], T0, set(), [finding_row(OTHER_REV, thread=f"t-{REV}")])
+    assert [(r["origin_selected"], r["origin_revision_selected"]) for r in any_rev["rows"]] == [(True, False)]
+    other_seg = finding_row()
+    other_seg["_thread"]["segment_no"] = 2
+    assert progress(covered, [older], T0, set(), [other_seg])[0]["rows"][0]["origin_selected"] is False
+    # A row on another thread never joins; CH-5a2 B3: nor does a row with no thread (no exact-revision fallback).
     assert _action_for(finding_row(OTHER_REV), [older, newer]) is None
+    assert _action_for({"finding_id": FINDING, "finding_revision_id": REV, "_thread": None}, [older]) is None
     assert _action_for(finding_row(OTHER_REV), [action("c-3", rev=OTHER_REV), newer])["action_id"] == "c-3"
     # Absence of the selected event time is an internal selection error, never a silent fallback.
     missing = action("a-0")

@@ -22,15 +22,13 @@ from assetops_backend.estate.scope import (
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
     portfolio_cursor_key, selection_token, token_time, wire_time)
 from assetops_backend.outcomes.display_code import finding_label
-from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, lens_flags
 
 _LOG = logging.getLogger(__name__)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
 LENS_FLAG = {"cost": "COST", "risks": "RISK", "opportunities": "OPPORTUNITY"}
-# CC-R2 (build spec CC-R2 "Lens", Appendix C R5.5): the stored mechanisms that set the RISK lens flag.
-RISK_MECHANISMS = ("COLD_EXCURSION", "COLD_START_FAILURE", "EV_INTERRUPTION")
 Admit = Callable[[str], bool]
 
 
@@ -134,7 +132,7 @@ def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: Esta
 
 
 def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
-                         scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
+                         scope: dict[str, Any], cutoffs: dict[str, Any] | None = None) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
                                                           list[dict[str, Any]]]:
     """W3-03 closure 4 B1/B2: every authorized Site's `(site, domain, cov)` and every selected Finding row (all
     lifecycle heads) before lens/state filtering, sorting and paging, on the caller's one snapshot and `scope`.
@@ -149,14 +147,20 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
         per_site.append((site, domain or NOT_APPLICABLE, cov))
         recorders[str(site["site_id"])] = rec
+        if cutoffs is not None:
+            # CH-5a2 B3 (R7): one cutoff per Site, through the one rule (`chain/read.py` `site_cutoff`): a cold/EV
+            # Site's evidence cutoff (the board's resolved cutoff for that Site), never later than the estate
+            # cutoff; a mini-grid Site has none (the envelope's cutoff applies). It replaces the per-row value.
+            cutoffs[site["site_code"]] = (None if domain in (None, MINI_GRID) or rec is None
+                                          else site_cutoff(domain, None, rec.cutoff, scope["k"]))
     rows: list[dict[str, Any]] = []
     for site, domain, cov in per_site:
         code = site["site_code"]
         rec = recorders[str(site["site_id"])]
         for r in cov["rows"]:
-            # CC-R2 (R5.5): RISK for the cold and EV risk mechanisms; a row may carry both flags.
-            flags = ((["COST"] if r["consequence"]["state"] == "PRICED" else [])
-                     + (["RISK"] if r.get("mechanism") in RISK_MECHANISMS else []))
+            # CH-5a2 B5 (I-21): one lens, the primary moved category's, through outcome_map only (OL-1). The
+            # price stays in the consequence column.
+            flags = lens_flags(finding_signal_key(r.get("mechanism")), domain)
             fid, frid = r["finding_id"], r["finding_revision_id"]
             rows.append({
                 "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
@@ -174,12 +178,7 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
                 "_recurs_after": r.get("recurs_after_finding_id"), "_recurs_after_title": r.get("recurs_after_title"),
                 "_transition": r.get("transition"),
-                "_revision_no": r.get("revision_no"),
-                # CH3-R (COH-13): a cold/EV row's thread state is read at its Site's evidence cutoff (the board's
-                # resolved cutoff for that Site), never later than the estate cutoff.
-                # CH-5a1 R7 (CH5a1-R C5): the value through the one cutoff rule, `chain/read.py` `site_cutoff`.
-                "_cutoff": (None if domain == MINI_GRID or rec is None
-                            else site_cutoff(domain, None, rec.cutoff, scope["k"]))})
+                "_revision_no": r.get("revision_no")})
     return per_site, rows
 
 

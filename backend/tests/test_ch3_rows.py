@@ -261,9 +261,10 @@ def test_attach_threads_reads_actions_in_every_cutoff_group():
                 "actions": {a.lower(): "t1" for a in aids}, "action_segments": {a.lower(): seg for a in aids}}
 
     snap = type("S", (), {"threads": staticmethod(port)})()
-    f_rows = [{"finding_id": "FM"}, {"finding_id": "FC", "_cutoff": cold_k}]
+    # CH-5a2 B3 (R7): the cold Site's cutoff comes from the one Site -> cutoff map, not a per-row value.
+    f_rows = [{"finding_id": "FM", "site_code": "MG"}, {"finding_id": "FC", "site_code": "COLD"}]
     a_rows = [{"action_id": "A1"}]
     req = type("R", (), {"to": k, "known_at": None})()
-    portfolio.attach_threads(snap, "t", f_rows, a_rows, req, k)
+    portfolio.attach_threads(snap, "t", f_rows, a_rows, req, k, {"MG": None, "COLD": cold_k})
     assert all(aids == ("A1",) for _, aids, _ in calls) and len(calls) == 2
     assert a_rows[0]["_segment_no"] == 2 and a_rows[0]["_segment_at"] == {k: 2, cold_k: 1}

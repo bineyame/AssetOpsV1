@@ -316,6 +316,22 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     return (card().textContent ?? "").replace(details?.textContent ?? "", "");
   }
 
+  it("CH-5a2 B5: the Lens cell renders the server's one lens, and an empty lens says so", async () => {
+    const body = indexBody({
+      rows: [
+        indexRow(FID_B, RID_B, "2026-10-25T18:00:00Z", "2026-10-25T19:00:00Z", { lens_flags: ["COST"] }),
+        indexRow(FID_A, RID_A, "2026-10-25T06:00:00Z", "2026-10-25T07:00:00Z", { lens_flags: [] }),
+      ],
+      total_count: 2,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    const cells = Array.from(card().querySelectorAll("[data-finding-index-row] [data-finding-index-lens]"));
+    expect(cells.map((c) => c.textContent)).toEqual(["Cost", "Not in any category"]);
+    expect(card().querySelectorAll("[data-finding-index-row] [data-not-assessed][data-finding-index-lens]")).toHaveLength(0);
+  });
+
   it("populated: leads with the question, the count, a current state line and the rows; references stay closed", async () => {
     const { client } = indexClient(() => ({ status: "loaded", value: ROWS }));
     renderAt(PATH, client);

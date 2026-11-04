@@ -118,7 +118,7 @@ class World:
         return [finding(mg, 1, D0 + timedelta(days=1), flags=("COST",)), finding(co, 2, D0 + timedelta(days=2)),
                 finding(co, 3, None, lifecycle="UNCONFIRMED"), finding(mg, 4, D0 + timedelta(days=2)), merged]
 
-    def select_finding_scope(self, snap, t, req, scope):
+    def select_finding_scope(self, snap, t, req, scope, cutoffs=None):
         per = [(s, "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain",
                 cov(selected_finding_revision_ids=[r["finding_revision_id"] for r in self.rows()
                                                    if r["site_id"] == str(s["site_id"])]))
@@ -470,8 +470,8 @@ def test_out_a2_row_categories_and_category_counts(world, monkeypatch) -> None:
         "ASSURE_PERFORMANCE": {"open_findings": 0, "sites_with_primary_finding": 0}}
     real_scope = world.select_finding_scope
 
-    def unknown(snap, t, req, scope):
-        per, rows = real_scope(snap, t, req, scope)
+    def unknown(snap, t, req, scope, cutoffs=None):
+        per, rows = real_scope(snap, t, req, scope, cutoffs)
         return [(s, d, {**c, "state": "UNKNOWN"}) for s, d, c in per], rows
 
     monkeypatch.setattr(portfolio, "select_finding_scope", unknown)

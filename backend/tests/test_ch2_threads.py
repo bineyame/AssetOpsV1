@@ -205,16 +205,17 @@ def _action(aid, fid, frid, thread=None, at=T0):
             "_raw": {"_selected_recorded_at": at}}
 
 
-def test_portfolio_join_matches_on_thread_with_exact_fallback():
+def test_portfolio_join_matches_on_thread_only():
     from assetops_backend.estate.portfolio import _action_for, attach_threads
 
     row = {"finding_id": "f3", "finding_revision_id": "r3"}
     act = _action("a1", "f1", "r1", thread="t1")
-    assert _action_for(row, [act]) is None  # no thread on the row: the exact join alone
+    assert _action_for(row, [act]) is None  # no thread on the row: no match
     row["_thread"] = {"id": "t1", "occurrence_no": 3, "occurrences": 3}
     assert _action_for(row, [act]) is act
     exact = _action("a2", "f3", "r3")
-    assert _action_for({"finding_id": "f3", "finding_revision_id": "r3", "_thread": None}, [exact]) is exact
+    # CH-5a2 B3: the exact-revision fallback is deleted; an Action without a thread link matches no row.
+    assert _action_for({"finding_id": "f3", "finding_revision_id": "r3", "_thread": None}, [exact]) is None
 
     class Snap:
         def threads(self, t, fids, aids):
@@ -259,8 +260,9 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
             calls.append((sorted(fids), sorted(aids), kw["known_at"]))
             return {"findings": {}, "actions": {}}
 
-    attach_threads(Snap2(), T, [{"finding_id": "f1", "_cutoff": row_k}, {"finding_id": "f2"}], [{"action_id": "a1"}],
-                   Req(), k)
+    # CH-5a2 B3 (R7): the Site -> cutoff map gives f1's Site its cutoff; f2's Site has none.
+    attach_threads(Snap2(), T, [{"finding_id": "f1", "site_code": "COLD"}, {"finding_id": "f2", "site_code": "MG"}],
+                   [{"action_id": "a1"}], Req(), k, {"COLD": row_k, "MG": None})
     # fix round 2: the Actions are read in every cutoff group, so their segments match the row's cutoff
     assert sorted(calls, key=lambda c: c[0]) == [(["f1"], ["a1"], row_k), (["f2"], ["a1"], k)]
 
