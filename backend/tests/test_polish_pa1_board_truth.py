@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+from dataclasses import replace
+
 import test_out_b2_mini as b2
 from test_out_b1_board import F130, rows_by_cat, settled
 from test_out_e4_readback import IMPROVED, action
@@ -24,25 +26,26 @@ UNPRICED_EV_SENTENCE = "Energy cost per km needs odometer readings and a publish
 
 # --------------------------------------------------------------- §1.1 zero priced amount
 
-def _money(**over) -> dict:
-    return dict(b2.OVERVIEW, money={**b2.OVERVIEW["money"], **over})
+def _money(**over):
+    """CH-5a1: the overview money section is the ChainReader `money_head` (CH5a1-R Q5)."""
+    return replace(b2.MONEY, **over)
 
 
 def test_zero_priced_amount_reads_no_fuel_cost_estimated_without_money() -> None:
-    _, rows = b2.run(b2.Fake(overview=_money(amount_low="0", amount_high="0.00")))
+    _, rows = b2.run(b2.Fake(money_head=_money(amount_low="0", amount_high="0.00")))
     assert rows[COST]["headline"] == (
         "No fuel cost estimated: the generator was on but delivered no measured power")
     assert rows[COST]["headline_money"] is None
 
 
 def test_non_zero_priced_amount_keeps_money_and_day_wording() -> None:
-    _, rows = b2.run(b2.Fake(overview=_money(amount_low="0", amount_high="0.01")))
+    _, rows = b2.run(b2.Fake(money_head=_money(amount_low="0", amount_high="0.01")))
     assert rows[COST]["headline"] == "possible extra fuel cost on this day"
     assert rows[COST]["headline_money"] == {"amount_low": "0", "amount_high": "0.01", "currency": "USD"}
 
 
 def test_unpriced_amount_reads_no_fuel_cost_for_this_day() -> None:
-    _, rows = b2.run(b2.Fake(overview=_money(state="NOT_PRICED")))
+    _, rows = b2.run(b2.Fake(money_head=_money(priced=False)))
     assert rows[COST]["headline"] == "No fuel cost estimated for this day" and rows[COST]["headline_money"] is None
 
 
@@ -62,12 +65,17 @@ def test_ev_optimize_sentence_needs_a_priced_tariff() -> None:
 
 # --------------------------------------------------------------- §1.7 MG-7 on a day with no generator run
 
-NO_RUN = dict(b2.OVERVIEW, assessment={"state": "CURRENT", "claim_level": "COMPLETE", "limitations": [],
-                                       "dispatch_intervals": []})
+#: CH5a1-R Q2: the assessment is the dispatch body (status, claim level, limitations, intervals).
+NO_RUN = {"status": "CURRENT", "window_assessment": {"claim_level": "COMPLETE"}, "limitations": [], "intervals": []}
+
+
+def _no_run(dispatch=NO_RUN, readiness=None, settled=True):
+    over = {"dispatch": dispatch, "day": {"readiness": readiness, "settled": settled}}
+    return b2.Fake(**over) if readiness is not None else b2.Fake(refuse=("chain_day",), dispatch=dispatch)
 
 
 def test_complete_zero_interval_day_settles_mg7_with_unknown_readiness() -> None:
-    _, rows = b2.run(b2.Fake(overview=NO_RUN, readiness="UNKNOWN"))
+    _, rows = b2.run(_no_run(readiness="UNKNOWN"))
     assert b2.outcome(rows[ASSURE], "MG-7") == "NO_OBJECTIVE"
     assert rows[ASSURE]["state"] == "NO_OBJECTIVE" and rows[ASSURE]["state_label"] == "No objective declared"
     readings = b2.contributor(rows[ASSURE], "readings")
@@ -81,15 +89,15 @@ def test_complete_zero_interval_day_settles_mg7_with_unknown_readiness() -> None
 
 
 def test_no_run_rule_is_narrow() -> None:
-    one = dict(NO_RUN, assessment={**NO_RUN["assessment"], "dispatch_intervals": [{"revision_id": "r1"}]})
-    limited = dict(NO_RUN, assessment={**NO_RUN["assessment"], "claim_level": "LIMITED"})
-    stale = dict(NO_RUN, freshness={"state": "STALE_PROJECTION"})
-    for overview, readiness in ((one, "UNKNOWN"), (limited, "UNKNOWN"), (stale, "UNKNOWN"), (NO_RUN, None)):
-        _, rows = b2.run(b2.Fake(overview=overview, readiness=readiness))
-        assert b2.outcome(rows[ASSURE], "MG-7") == "UNKNOWN", (overview["assessment"], readiness)
+    one = dict(NO_RUN, intervals=[{"revision_id": "r1"}])
+    limited = dict(NO_RUN, window_assessment={"claim_level": "LIMITED"})
+    cases = ((one, "UNKNOWN", True), (limited, "UNKNOWN", True), (NO_RUN, "UNKNOWN", False), (NO_RUN, None, True))
+    for dispatch, readiness, settled in cases:  # stale = the board day not settled (R4)
+        _, rows = b2.run(_no_run(dispatch, readiness, settled))
+        assert b2.outcome(rows[ASSURE], "MG-7") == "UNKNOWN", (dispatch, readiness, settled)
         assert "Generator not used" not in b2.contributor(rows[ASSURE], "readings")["text"]
     # readiness known: the earlier rule, unchanged
-    _, rows = b2.run(b2.Fake(overview=NO_RUN, readiness="FULL"))
+    _, rows = b2.run(_no_run(readiness="FULL"))
     assert b2.contributor(rows[ASSURE], "readings")["text"] == "Example data · readiness Full"
 
 

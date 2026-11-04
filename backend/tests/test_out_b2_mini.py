@@ -76,8 +76,8 @@ PLANS = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator servi
 
 class Fake:
     """Fake ports; `refuse` names the ports that raise, `calls` records every call. Overrides use the port names;
-    `day` overrides `DayFacts` fields (default: settled, readiness LIMITED, no gaps), `verification` the
-    `ActionFacts.verification_state` (PENDING) and `has_change` its flag (True)."""
+    `day` overrides `DayFacts` fields (default: settled, readiness LIMITED, no gaps), `verification` is the
+    `VerificationService.summary` body `action_facts` reads (default PENDING) and `has_change` its flag (True)."""
 
     def __init__(self, refuse: tuple[str, ...] = (), **over: Any) -> None:
         self.refuse, self.over, self.calls = refuse, over, []
@@ -100,8 +100,9 @@ class Fake:
             return self._go("chain_day", facts, days, readiness_days)
 
         def action_facts(ids):
-            state, change = self.over.get("verification", "PENDING"), self.over.get("has_change", True)
-            return self._go("action_facts", tuple(ActionFacts(i, state, None, None, change) for i in ids), ids)
+            v, change = self.over.get("verification", {"state": "PENDING"}), self.over.get("has_change", True)
+            return self._go("action_facts", tuple(ActionFacts(i, v.get("state"), v.get("cost_check"),
+                                                              v.get("trial_hours"), change) for i in ids), ids)
 
         return MiniPorts(
             source=lambda: self._go("source", (True, "REGISTERED_SIMULATION")),
@@ -393,7 +394,7 @@ def test_limitation_text_never_renders_raw_codes() -> None:
 
 def test_unpriced_money_and_verified_headline() -> None:
     unpriced = replace(MONEY, priced=False)
-    _, rows = run(Fake(money_head=unpriced, verification="VERIFIED"))
+    _, rows = run(Fake(money_head=unpriced, verification={"state": "VERIFIED"}))
     assert rows[COST]["headline"] == "No fuel cost estimated for this day" and rows[COST]["headline_money"] is None
     assert rows[ASSURE]["headline"] == "1 verified result"  # addendum 3 L7
     assert contributor(rows[ASSURE], "verified_results") == {
