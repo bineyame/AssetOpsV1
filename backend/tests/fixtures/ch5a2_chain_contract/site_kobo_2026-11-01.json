@@ -1,0 +1,262 @@
+{
+ "actions": [
+  {
+   "code": "ACT-000001",
+   "id": "a1",
+   "kind": "MINI_TRIAL",
+   "ref": {
+    "id": "a1",
+    "kind": "ACTION",
+    "site": "KOBO-001"
+   },
+   "segment_no": 1,
+   "thread": "00000000-0000-4000-8000-0000000000f1",
+   "verification": "PENDING"
+  }
+ ],
+ "days": [
+  {
+   "day": "2026-11-01",
+   "grade": "PENDING",
+   "measures": {
+    "avoidable_gen_min": "PENDING",
+    "noon_headroom_kw": "COMPLETE",
+    "productive_kwh": "COMPLETE"
+   }
+  }
+ ],
+ "outcomes": [
+  {
+   "category": "GROW_REVENUE",
+   "headline": "18–24.3 kW of daytime solar unused",
+   "refs": [
+    {
+     "capability": "renewable",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001",
+     "window": {
+      "from": "2026-10-27T21:00:00Z",
+      "to": "2026-11-01T21:00:00Z"
+     }
+    },
+    {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "financial_scenarios"
+    },
+    {
+     "capability": "renewable",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    }
+   ],
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "thread_lines": []
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "headline": "No fuel cost estimated for this day",
+   "refs": [
+    {
+     "id": "f2",
+     "kind": "FINDING",
+     "revision": "f2r",
+     "site": "KOBO-001"
+    },
+    {
+     "capability": "renewable",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001",
+     "window": {
+      "from": "2026-10-27T21:00:00Z",
+      "to": "2026-11-01T21:00:00Z"
+     }
+    },
+    {
+     "event_id": "e1",
+     "id": "a1",
+     "kind": "ACTION",
+     "site": "KOBO-001"
+    },
+    {
+     "capability": "dispatch",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    },
+    {
+     "capability": "fuel",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    },
+    {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "financial_assumptions"
+    },
+    {
+     "id": "f2",
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "view": "recommendation"
+    },
+    {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "foundation_changes"
+    }
+   ],
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "thread_lines": []
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "headline": "Battery stayed clear of its reserve in 2 assessed generator periods",
+   "refs": [
+    {
+     "capability": "renewable",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001",
+     "window": {
+      "from": "2026-10-27T21:00:00Z",
+      "to": "2026-11-01T21:00:00Z"
+     }
+    },
+    {
+     "id": "f2",
+     "kind": "FINDING",
+     "revision": "f2r",
+     "site": "KOBO-001"
+    },
+    {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "health"
+    },
+    {
+     "kind": "ESTATE",
+     "view": "maintenance_preventive"
+    },
+    {
+     "capability": "service",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    },
+    {
+     "capability": "backup",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    }
+   ],
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "thread_lines": []
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "headline": "No verified result yet",
+   "refs": [
+    {
+     "event_id": "e1",
+     "id": "a1",
+     "kind": "ACTION",
+     "site": "KOBO-001",
+     "view": "verification"
+    },
+    {
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    },
+    {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "work"
+    }
+   ],
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "thread_lines": []
+  }
+ ],
+ "policy_versions": {
+  "coverage": "coverage-policy/1",
+  "lifecycle": "thread-lifecycle/1",
+  "register": 1,
+  "status": "outcome-status/3"
+ },
+ "schema_version": "outcome-chain-1",
+ "site": {
+  "code": "KOBO-001",
+  "domain": "MINIGRID",
+  "tz": "Africa/Addis_Ababa"
+ },
+ "threads": [
+  {
+   "categories": {
+    "items": [
+     {
+      "category": "OPTIMIZE_COST",
+      "label": "Optimize cost and efficiency",
+      "outcomes": [
+       {
+        "key": "MG-2",
+        "label": "Supply cost per kWh"
+       }
+      ],
+      "role": "MOVES"
+     },
+     {
+      "category": "PROTECT_ASSET",
+      "label": "Protect asset and capital",
+      "outcomes": [
+       {
+        "key": "MG-5",
+        "label": "Reliable service"
+       },
+       {
+        "key": "MG-4",
+        "label": "Battery and generator life"
+       }
+      ],
+      "role": "CHECKED"
+     }
+    ],
+    "policy_version": "outcome-map/1",
+    "state": "MAPPED"
+   },
+   "id": "00000000-0000-4000-8000-0000000000f1",
+   "lens": [
+    "COST"
+   ],
+   "mechanism": "GENERATOR_SUPPORT_CANDIDATE",
+   "occurrences": [
+    {
+     "code": null,
+     "day": "2026-10-31",
+     "finding_id": "f1",
+     "opportunity_id": null
+    },
+    {
+     "code": null,
+     "day": "2026-11-01",
+     "finding_id": "f2",
+     "opportunity_id": null
+    }
+   ],
+   "ref": {
+    "id": "00000000-0000-4000-8000-0000000000f1",
+    "kind": "THREAD",
+    "site": "KOBO-001"
+   },
+   "since": "2026-11-01",
+   "state": "ACTION_IN_HAND",
+   "state_label": "Action agreed"
+  }
+ ],
+ "window": {
+  "from": "2026-10-31T21:00:00Z",
+  "known_at": "2026-11-03T12:00:00Z",
+  "to": "2026-11-01T21:00:00Z"
+ }
+}

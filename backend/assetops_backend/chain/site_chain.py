@@ -1,0 +1,161 @@
+"""CH-5a2a (build sheet Part B §B1): the pure parts of the `outcome-chain-1` bodies.
+
+`days_of` (the window's Site-local day grades from one `ChainRequest.day`), `threads_of` (the Site's threads in a
+window, read on the board's day as of the state cutoff), `actions_of`, `thread_detail` and `outcomes_of` (the board
+composition's rows, reduced to the chain's outcome fields). Categories and lens come only through `outcome_map`
+(OL-1); state words only from `chain/vocabulary.py`. No I/O: the routes (`chain_api.py`) hand in the rows.
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import date, datetime
+from typing import Any, Iterable, Mapping, Sequence
+
+from assetops_backend.chain import lifecycle as lc
+from assetops_backend.chain import refs
+from assetops_backend.chain.read import DayFacts, day_grade, local_days
+from assetops_backend.chain.vocabulary import THREAD_STATE_WORDS
+from assetops_backend.outcomes.outcome_map import categories_for, lens_flags, thread_signal_key
+
+SCHEMA_VERSION = "outcome-chain-1"
+
+
+def _iso(d: date | None) -> str | None:
+    return None if d is None else d.isoformat()
+
+
+def _local(at: datetime | None, tz: str | None) -> date | None:
+    return None if at is None or not tz else lc.local_day(at, tz)
+
+
+def days_of(facts: DayFacts, measures: Sequence[str]) -> list[dict[str, Any]]:
+    """One entry per requested Site-local day: the day grade (`day_grade`, missing rows as CH5a1-R Q9) and each
+    measure's own grade by the same rule."""
+    out = []
+    for d in facts.days:
+        per = {m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures}
+        per = {m: g for m, g in per.items() if g}
+        out.append({"day": d.isoformat(), "grade": day_grade(per, measures),
+                    "measures": {m: day_grade(per, [m]) for m in measures}})
+    return out
+
+
+def _events(rows: Mapping[str, Any]) -> dict[str, list[lc.Event]]:
+    out: dict[str, list[lc.Event]] = {}
+    for e in rows.get("events", ()):
+        out.setdefault(e["thread_id"], []).append(lc.Event(int(e["seq"]), e["state"], e["cause_kind"],
+                                                           str(e["cause_id"]), e["effective_day"],
+                                                           e["recorded_at"], e["cause_known_at"]))
+    return out
+
+
+def _occurrences(rows: Mapping[str, Any]) -> dict[str, list[Mapping[str, Any]]]:
+    out: dict[str, list[Mapping[str, Any]]] = {}
+    for o in rows.get("occurrences", ()):
+        out.setdefault(o["thread_id"], []).append(o)
+    return out
+
+
+def _occurrence_wire(o: Mapping[str, Any], tz: str | None) -> dict[str, Any]:
+    no = o.get("opportunity_no")
+    return {"finding_id": o["finding_id"], "opportunity_id": o["opportunity_id"],
+            # No Finding public code is stored (pre-flight P3); an opportunity shows its CH-4 code.
+            "code": None if no is None else f"OPP-{int(no):06d}",
+            "day": _iso(_local(o["episode_start"], tz))}
+
+
+def _in_window(occs: Iterable[Mapping[str, Any]], evs: Sequence[lc.Event], lo: datetime, hi: datetime,
+               days: Sequence[date]) -> bool:
+    for o in occs:
+        start, end = o["episode_start"], o["episode_end"]
+        if start is not None and start < hi and (end is None or end > lo):
+            return True
+    return bool(days) and any(days[0] <= e.effective_day <= days[-1] for e in evs)
+
+
+def _thread_wire(site: str, tid: str, occs: Sequence[Mapping[str, Any]], evs: Sequence[lc.Event],
+                 state: str | None, since: date | None, domain: str, tz: str | None) -> dict[str, Any]:
+    mechanism = occs[0]["mechanism"] if occs else None
+    key = thread_signal_key(mechanism)
+    return {"id": tid, "mechanism": mechanism, "lens": lens_flags(key, domain),
+            "categories": categories_for(key, domain), "state": state,
+            "state_label": None if state is None else THREAD_STATE_WORDS.get(state),
+            "since": _iso(since), "occurrences": [_occurrence_wire(o, tz) for o in occs],
+            "ref": refs.thread_ref(site, tid)}
+
+
+def threads_of(rows: Mapping[str, Any], *, site: str, domain: str, tz: str | None, lo: datetime, hi: datetime,
+               day: date | None, cutoff: datetime | None) -> list[dict[str, Any]]:
+    """The threads with a visible occurrence whose episode meets `[lo, hi)`, or an event effective on one of the
+    window's Site-local days; each read on `day` (the board's `window_day`) from the events visible at `cutoff`."""
+    days = local_days(lo, hi, tz)
+    events, occs = _events(rows), _occurrences(rows)
+    out = []
+    for tid in sorted(occs):
+        evs = lc.visible(events.get(tid, []), cutoff)
+        if not _in_window(occs[tid], evs, lo, hi, days):
+            continue
+        state, since = lc.state_on(evs, day) if day is not None else (None, None)
+        out.append(_thread_wire(site, tid, occs[tid], evs, state, since, domain, tz))
+    return out
+
+
+def actions_of(rows: Mapping[str, Any], thread_ids: Iterable[str], *, site: str, tz: str | None,
+               cutoff: datetime | None, verification: Mapping[str, str | None]) -> list[dict[str, Any]]:
+    """The linked Actions of the given threads: the segment by `lifecycle.action_segment` (the lookup's rule) and the
+    verification state the caller read (`ChainRequest.action_facts`; None for a domain intent)."""
+    wanted = set(thread_ids)
+    events, occs = _events(rows), _occurrences(rows)
+    out = []
+    for a in rows.get("actions", ()):
+        tid = a["thread_id"]
+        if tid not in wanted:
+            continue
+        evs = lc.visible(events.get(tid, []), cutoff)
+        origin = next((o for o in occs.get(tid, ()) if o["finding_id"] == a["origin_finding_id"]), None)
+        occ = None if origin is None else lc.Occurrence(origin["finding_id"], _local(origin["episode_start"], tz))
+        seg = lc.action_segment(evs, occ, lc.accepted_day([_local(a["accepted_at"], tz)]))
+        out.append({"id": a["action_id"], "code": a["action_code"], "kind": a["kind"], "thread": tid,
+                    "segment_no": seg, "verification": verification.get(a["action_id"]),
+                    "ref": refs.action_ref(site, a["action_id"])})
+    return out
+
+
+def thread_detail(rows: Mapping[str, Any], thread_id: str, *, site: str, domain: str, tz: str | None,
+                  cutoff: datetime | None) -> dict[str, Any] | None:
+    """`/sites/{code}/threads/{id}`: the thread (None when it is not this Site's, or has no visible occurrence),
+    its state from the last visible event, and its visible events."""
+    occs = _occurrences(rows).get(thread_id)
+    if not occs:
+        return None
+    evs = lc.visible(_events(rows).get(thread_id, []), cutoff)
+    last = evs[-1] if evs else None
+    body = _thread_wire(site, thread_id, occs, evs, None if last is None else last.state,
+                        None if last is None else last.effective_day, domain, tz)
+    body["events"] = [{"seq": e.seq, "state": e.state, "state_label": THREAD_STATE_WORDS.get(e.state),
+                       "effective_day": e.effective_day.isoformat(), "cause_kind": e.cause_kind} for e in evs]
+    return body
+
+
+def _row_refs(row: Mapping[str, Any]) -> list[dict[str, Any]]:
+    found: list[Any] = []
+    for key in ("issues", "in_hand", "earlier", "contributors", "options"):
+        found += [item.get("link_ref") for item in row.get(key) or ()]
+    found.append((row.get("evidence_link") or {}).get("link_ref"))
+    seen, out = set(), []
+    for r in found:
+        if not r:
+            continue
+        k = json.dumps(r, sort_keys=True, default=str)
+        if k not in seen:
+            seen.add(k)
+            out.append(r)
+    return out
+
+
+def outcomes_of(board_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """The board composition's rows (`assemble(facts)`), with their link Refs and `thread_lines` (§B1)."""
+    return [{"category": r["category"], "state": r["state"], "state_label": r["state_label"],
+             "headline": r.get("headline"), "thread_lines": list(r.get("thread_lines") or ()),
+             "refs": _row_refs(r)} for r in board_rows]

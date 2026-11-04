@@ -136,6 +136,16 @@ def window_day(lo: datetime | None, hi: datetime | None, tz: str | None) -> date
     return (hi - timedelta(microseconds=1)).astimezone(frame).date()
 
 
+def window_days(lo: datetime, hi: datetime, tz: str | None) -> tuple[date, ...]:
+    """CH-5a2a: the calendar days an estate window names, by `window_day`'s frame rule: a window whose ends are both
+    UTC midnights names its UTC calendar dates (each read as the Site's local day of that date, as the summary card
+    reads it); any other window names the Site-local days it intersects (`local_days`)."""
+    if not (_utc_midnight(lo) and _utc_midnight(hi)):
+        return local_days(lo, hi, tz)
+    first, last = lo.astimezone(timezone.utc).date(), (hi - timedelta(microseconds=1)).astimezone(timezone.utc).date()
+    return tuple(first + timedelta(days=i) for i in range((last - first).days + 1))
+
+
 def local_days(lo: datetime, hi: datetime, tz: str | None) -> tuple[date, ...]:
     """Every Site-local day the window `[lo, hi)` intersects (CH5a1-R Q8)."""
     z = _zone(tz)
@@ -237,6 +247,8 @@ class ChainReadPort(Protocol):
 
     def has_change(self, tenant_id: UUID, action_ids: Sequence[str]) -> Mapping[str, bool]: ...
 
+    def site_threads(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
+
 
 @dataclass(frozen=True)
 class ChainRequest:
@@ -270,6 +282,10 @@ class ChainRequest:
     def findings_settled(self, site_id: UUID) -> bool:
         return bool(read_scope.memo("chain.findings_settled", self.reader.ports.findings_settled, self.tenant_id,
                                     site_id, self.k))
+
+    def threads(self, site_id: UUID) -> Mapping[str, Any]:
+        """CH-5a2a (§B1 `/chain` routes): the Site's thread rows (`ChainReadPort.site_threads`), one memoised call."""
+        return read_scope.memo("chain.threads", self.reader.ports.site_threads, self.tenant_id, site_id, self.k)
 
     def action_facts(self, site_id: UUID, site_code: str, action_ids: Sequence[str]) -> tuple[ActionFacts, ...]:
         """C6: the state, cost check and trial hours from one memoised `VerificationService.summary` per Action;

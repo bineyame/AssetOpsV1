@@ -1,0 +1,101 @@
+{
+ "actions": [],
+ "days": [
+  {
+   "day": "2026-10-31",
+   "grade": "PARTIAL",
+   "measures": {
+    "backup_start_chain": "PARTIAL",
+    "chamber_temp_c": "COMPLETE"
+   }
+  }
+ ],
+ "outcomes": [
+  {
+   "category": "GROW_REVENUE",
+   "headline": null,
+   "refs": [],
+   "state": "NOT_MEASURED",
+   "state_label": "Not measured yet",
+   "thread_lines": []
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "headline": null,
+   "refs": [
+    {
+     "kind": "SITE",
+     "site": "COLD-LAB-001",
+     "view": "financials"
+    }
+   ],
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "thread_lines": []
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "headline": "Chamber above 5°C for 40–55 min",
+   "refs": [
+    {
+     "id": "da1",
+     "kind": "ACTION",
+     "site": "COLD-LAB-001",
+     "view": "verification"
+    },
+    {
+     "kind": "ESTATE",
+     "view": "maintenance_preventive"
+    },
+    {
+     "kind": "SITE",
+     "site": "COLD-LAB-001",
+     "view": "financial_scenarios"
+    },
+    {
+     "kind": "EVIDENCE",
+     "site": "COLD-LAB-001"
+    }
+   ],
+   "state": "NEEDS_ATTENTION",
+   "state_label": "Needs attention",
+   "thread_lines": []
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "headline": "Event partly reconstructed · no verified result yet",
+   "refs": [
+    {
+     "kind": "SITE",
+     "site": "COLD-LAB-001",
+     "view": "work"
+    },
+    {
+     "kind": "EVIDENCE",
+     "site": "COLD-LAB-001"
+    }
+   ],
+   "state": "WATCH",
+   "state_label": "Watch",
+   "thread_lines": []
+  }
+ ],
+ "policy_versions": {
+  "coverage": "coverage-policy/1",
+  "lifecycle": "thread-lifecycle/1",
+  "register": 1,
+  "status": "outcome-status/3"
+ },
+ "schema_version": "outcome-chain-1",
+ "site": {
+  "code": "COLD-LAB-001",
+  "domain": "COLDCHAIN",
+  "tz": "Africa/Addis_Ababa"
+ },
+ "threads": [],
+ "window": {
+  "from": "2026-10-30T21:00:00Z",
+  "known_at": "2026-11-01T00:00:00Z",
+  "to": "2026-10-31T21:00:00Z"
+ }
+}

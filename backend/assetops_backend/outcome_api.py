@@ -100,6 +100,67 @@ def _public(body: dict[str, Any]) -> dict[str, Any]:
     return jsonable_encoder({k: v for k, v in body.items() if not k.startswith("_")})
 
 
+def board_site(admitted: Callable[[Request, str], int | None] | None, registry: ImportedSiteRegistry,
+               site_code: str, what: str, request: Request | None = None) -> SiteRef:
+    """The board route's admission and Site lookup (module doc), shared by the `/chain` routes (CH-5a2a §B1)."""
+    refusal = None if admitted is None else admitted(request, site_code)
+    if refusal == 401:
+        raise _refuse(401, "UNAUTHENTICATED", f"Sign in to read the {what}.", {"WWW-Authenticate": "Bearer"})
+    if refusal == 403:
+        raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site {site_code!r}.")
+    try:
+        tenant_ref = registry.tenant()
+        site = registry.imported(site_code) if tenant_ref is not None else None
+    except (SiteStoreUnavailable, FoundationStoreError) as error:
+        raise _refuse(503, "SITE_STORE_UNAVAILABLE", str(error)) from error
+    ref = None if site is None else site_ref(site)
+    if ref is None or ref.domain is None:
+        raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site {site_code!r} with an outcome board.")
+    return ref
+
+
+def board_window(ref: SiteRef, params: Any) -> tuple[Any, datetime | None, datetime | None, Any]:
+    """The board route's window parsing and refusals: mini -> (`selected_day`, None, None, pin); cold and EV ->
+    (None, from, to, None), at most 31 days (`MAX_WINDOW`)."""
+    if ref.domain == MINI:
+        return selected_day(_mini_day_params(params, ref.timezone)), None, None, _pin(params)  # its own 422s (B-Q5)
+    lo, hi = _instant(params, "from"), _instant(params, "to")
+    if (lo is None) != (hi is None):
+        raise _refuse(422, "PARTIAL_WINDOW", "Give both 'from' and 'to', or neither.")
+    if lo is not None and not (lo < hi and hi - lo <= MAX_WINDOW):
+        raise _refuse(422, "INVALID_WINDOW", "'from' must be before 'to', at most 31 days apart.")
+    return None, lo, hi, None
+
+
+def estate_sites(request: Request, *, authenticate: Authenticate, estate: Any, tenant: Callable[[], UUID | None],
+                 admitted: Callable[[Request, str], int | None], registry: ImportedSiteRegistry,
+                 disclosed: Callable[[SiteRef], bool],
+                 unavailable: tuple[type[BaseException], ...]) -> tuple[list[SiteRef], Any]:
+    """The estate summary's authentication, scope parsing and Site set (module doc), shared by `/estate/chain`.
+    `estate` None (no product database) is the scope's 503."""
+    if authenticate(request) == 401:
+        raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
+                            detail=estate_refusal("UNAUTHENTICATED"))
+    try:
+        parsed = parse_estate("scope", request.query_params.multi_items())
+        if estate is None:
+            raise EstateStoreUnavailable("No product database is configured.")
+        with perf.timed("summary.scope"):
+            scope = estate.site_list(tenant(), parsed, lambda code: admitted(request, code) is None)  # R2
+        sites = []
+        for item in scope["sites"]:
+            site = registry.imported(item["site_code"])
+            if site is not None and disclosed(site_ref(site)):
+                sites.append(site_ref(site))
+    except EstateRefusal as error:
+        headers = {"WWW-Authenticate": "Bearer"} if error.status == 401 else None
+        raise HTTPException(status_code=error.status, detail=estate_refusal(error.code),
+                            headers=headers) from error
+    except (EstateStoreUnavailable, SiteStoreUnavailable, FoundationStoreError, *unavailable) as error:
+        raise HTTPException(status_code=503, detail=estate_refusal("ESTATE_STORE_UNAVAILABLE")) from error
+    return sites, parsed
+
+
 # The cold and EV gates' own disclosure refusals (cold_site_api.build_cold_gate, ev_assessment_api.ev_gate).
 DISCLOSURE_REFUSAL = {COLD: "COLD_SOURCE_DISCLOSURE_FORBIDDEN", EV: "EV_SOURCE_DISCLOSURE_FORBIDDEN"}
 
@@ -128,32 +189,10 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             return _outcome_board(site_code, request)
 
     def _outcome_board(site_code: str, request: Request) -> dict[str, Any]:
-        refusal = admitted(request, site_code)
-        if refusal == 401:
-            raise _refuse(401, "UNAUTHENTICATED", "Sign in to read the Site outcome board.",
-                          {"WWW-Authenticate": "Bearer"})
-        if refusal == 403:
-            raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site {site_code!r}.")
-        try:
-            tenant_ref = registry.tenant()
-            site = registry.imported(site_code) if tenant_ref is not None else None
-        except (SiteStoreUnavailable, FoundationStoreError) as error:
-            raise _refuse(503, "SITE_STORE_UNAVAILABLE", str(error)) from error
-        ref = None if site is None else site_ref(site)
-        if ref is None or ref.domain is None:
-            raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site {site_code!r} with an outcome board.")
+        ref = board_site(admitted, registry, site_code, "Site outcome board", request)
         params = request.query_params
         known_at = _instant(params, "known_at")
-        day = lo = hi = pin = None
-        if ref.domain == MINI:
-            day = selected_day(_mini_day_params(params, ref.timezone))  # its own 422 codes (B-Q5)
-            pin = _pin(params)
-        else:
-            lo, hi = _instant(params, "from"), _instant(params, "to")
-            if (lo is None) != (hi is None):
-                raise _refuse(422, "PARTIAL_WINDOW", "Give both 'from' and 'to', or neither.")
-            if lo is not None and not (lo < hi and hi - lo <= MAX_WINDOW):
-                raise _refuse(422, "INVALID_WINDOW", "'from' must be before 'to', at most 31 days apart.")
+        day, lo, hi, pin = board_window(ref, params)
         if service is None:
             raise _refuse(503, "SITE_OUTCOME_BOARD_UNAVAILABLE", "No product database is configured.")
         if not disclosed(ref):
@@ -171,26 +210,9 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             return _outcome_summary(request)
 
     def _outcome_summary(request: Request) -> dict[str, Any]:
-        if authenticate(request) == 401:
-            raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
-                                detail=estate_refusal("UNAUTHENTICATED"))
-        try:
-            parsed = parse_estate("scope", request.query_params.multi_items())
-            if service is None or estate is None:
-                raise EstateStoreUnavailable("No product database is configured.")
-            with perf.timed("summary.scope"):
-                scope = estate.site_list(tenant(), parsed, lambda code: admitted(request, code) is None)  # R2
-            sites = []
-            for item in scope["sites"]:
-                site = registry.imported(item["site_code"])
-                if site is not None and disclosed(site_ref(site)):
-                    sites.append(site_ref(site))
-        except EstateRefusal as error:
-            headers = {"WWW-Authenticate": "Bearer"} if error.status == 401 else None
-            raise HTTPException(status_code=error.status, detail=estate_refusal(error.code),
-                                headers=headers) from error
-        except (EstateStoreUnavailable, SiteStoreUnavailable, FoundationStoreError, *unavailable) as error:
-            raise HTTPException(status_code=503, detail=estate_refusal("ESTATE_STORE_UNAVAILABLE")) from error
+        sites, parsed = estate_sites(request, authenticate=authenticate, estate=estate if service is not None
+                                     else None, tenant=tenant, admitted=admitted, registry=registry,
+                                     disclosed=disclosed, unavailable=unavailable)
         lo = parsed.from_.astimezone(timezone.utc)
         hi = parsed.to.astimezone(timezone.utc)
         return jsonable_encoder(service.summary(sites, lo, hi, parsed.known_at))
