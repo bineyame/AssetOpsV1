@@ -53,22 +53,19 @@ def _texts(value) -> list[str]:
 
 
 def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeypatch) -> None:
-    from test_out_b4_board_postgres import (
-        _assert_lineage_must_not_harm, _board, _client, _pin_kobo, _record, _serve, _spy_lineage)
+    from test_out_b4_board_postgres import _board, _client, _pin_kobo, _record, _serve, _settle_chain
 
     url, work, spec, declared = kobo_verified
     _record("out_e4_spec", {k: spec.get(k) for k in ("outcome", "outcome_reasons", "pinned_at", "windows")})
     assert any(d.get("outcome_key") == "MG-2" for d in declared), declared
     day = spec["windows"]["later"]["end"][:10]
+    _settle_chain(url, "KOBO-001")  # CH-5a1 R8: the board reads the chain (threads consumed, snapshots)
     _serve(monkeypatch, url, work)
     _pin_kobo(monkeypatch, spec)
-    lineage = _spy_lineage(monkeypatch)
     with _client() as c:
         body, failed = _board(c, "KOBO-001", "out_e4_verified", date=day)
-        # LINK-LINEAGE U3: ACT-000001's origin Finding against its shown revision, by the inline history rule
-        assert lineage, "the mini composer did not run"
-        assert _assert_lineage_must_not_harm(c, "out_e4_verified", lineage[-1], spec["findings"]["2026-10-06"],
-                                             spec["action"], {r["category"]: r for r in body["rows"]}["OPTIMIZE_COST"])
+        # CH-5a1 (lineage deleted, §A4): Must-not-harm follows the thread join (test_out_b4_board_postgres)
+        _record("out_e4_must_not_harm", {r["category"]: r for r in body["rows"]}["OPTIMIZE_COST"]["must_not_harm"])
     _record("out_e4_earlier", {r["category"]: r["earlier"] for r in body["rows"]})
     rows = {r["category"]: r for r in body["rows"]}
     cost = rows["OPTIMIZE_COST"]["earlier"]
