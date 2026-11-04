@@ -6,7 +6,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 import hashlib
 import importlib.util
@@ -141,10 +141,13 @@ def catalog(engine) -> dict:  # noqa: F811
             "narrative": narrative, "head_checks": head_checks}
 
 
-def expected_at_head() -> dict:
+def expected_at_head(latest: bool = False) -> dict:
+    """At 0030 (`HEAD`); `latest=True` at the Alembic head, where CH-1b's 0044 adds the statement-level outbox
+    producer `mini_opportunity_revision_chain_event`."""
+    chain = ["mini_opportunity_revision_chain_event"] if latest else []
     return {"tables": sorted(TABLES), "pk": sorted(f"{t}_pkey" for t in TABLES), "uk": sorted(UNIQUES),
             "fk": sorted(FKS), "ck": sorted(CHECKS), "indexes": sorted(INDEXES),
-            "triggers": sorted(f"{t}_immutable" for t in TABLES), "sequence": 1,
+            "triggers": sorted([f"{t}_immutable" for t in TABLES] + chain), "sequence": 1,
             "stage": f"CHECK ((stage = ANY (ARRAY[{STAGES_AT_HEAD}])))",
             "columns": [("mini_scenario_revision", "narrative", "text", True, None)]
             + [("schedule_site_head", k, "integer", True, "0") for k in COUNTERS],
@@ -178,6 +181,7 @@ def to_0030(config, engine) -> None:  # noqa: F811
     """Downgrade the empty 0033 and 0032 to the 0030 migration under test before any 0030 downgrade."""
     from alembic import command
 
+    clear_event_history(engine)  # CH-1b: 0044 sits above and refuses while any event exists
     engine.dispose()
     command.downgrade(config, HEAD)
     assert head(engine) == HEAD and catalog(engine) == expected_at_head()
@@ -254,7 +258,7 @@ class TestMigration0030:
         config = _alembic()
         script = ScriptDirectory.from_config(config)
         assert script.get_heads() == [LATEST_HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head(latest=True)
         assert (len(TABLES), len(UNIQUES), len(FKS), len(INDEXES), len(CHECKS)) == (10, 22, 20, 5, 45)
         # S3/S4: the selection job FK is the one ordinary, unscoped reference to recompute_job(id).
         with engine.connect() as c:
@@ -278,7 +282,7 @@ class TestMigration0030:
         finally:
             if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
-        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head(latest=True)
 
     def test_counters_zero_on_existing_site_head_and_round_trip(self, ctx, engine) -> None:  # noqa: F811
         """u1: a Site head that exists before 0030 reads zero on all three counters after upgrade; the counters
@@ -297,7 +301,7 @@ class TestMigration0030:
                                "created_at) VALUES (:t, :s, 'MINI', clock_timestamp(), clock_timestamp())"),
                           {"t": t, "s": s})
             command.upgrade(config, "head")
-            assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
+            assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head(latest=True)
             assert head_counters(engine, s) == (0, 0, 0)
         finally:
             if head(engine) != LATEST_HEAD:
@@ -327,7 +331,7 @@ class TestMigration0030:
             holding.rollback()
         finally:
             holder.close()
-        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head(latest=True)
 
     @pytest.mark.parametrize("status", ["PENDING", "DONE", "FAILED"])
     def test_downgrade_refuses_job_only(self, status, ctx, engine) -> None:  # noqa: F811

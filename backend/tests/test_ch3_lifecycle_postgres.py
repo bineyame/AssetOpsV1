@@ -115,6 +115,11 @@ def test_accept_apply_verify_rerun_and_bitemporal_read(seeded, engine) -> None: 
     from alembic import command
 
     engine.dispose()
+    with pytest.raises(DBAPIError, match="event history exists"):  # CH-1b: 0044 sits above 0045 and refuses first
+        command.downgrade(_alembic(), "0042_chain_threads")
+    assert head(engine) == pg_harness.alembic_head()
+    pg_harness.clear_event_history(engine)
+    engine.dispose()
     with pytest.raises(DBAPIError, match="Downgrade of 0045_thread_known_at refused"):
         command.downgrade(_alembic(), "0042_chain_threads")
     assert head(engine) == pg_harness.alembic_head()

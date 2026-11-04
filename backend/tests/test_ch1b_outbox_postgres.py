@@ -124,3 +124,32 @@ def test_event_store_consume_re_mark_and_drain(store, engine) -> None:  # noqa: 
     finally:
         events.dispose()
         snaps.dispose()
+
+
+def test_tick_stages_consume_drain_and_defer_on_a_cap(store, engine) -> None:  # noqa: F811
+    """The real `chain_snapshots` and `chain_threads` stage bodies: the set-up's facts are consumed, the marked days
+    rebuilt, a rerun consumes and writes nothing, and an item cap is an OK result with the rest deferred."""
+    from assetops_backend.scheduling import stages
+
+    _, t, s = w402._setup(store, engine)
+    ids = {"tenant_id": str(t), "site_id": str(s)}
+    from assetops_backend.chain.adapters.file_chain_config import load_event_register
+
+    names = sorted({k.partition("@")[0] for k in load_event_register().consumes("snapshots")})
+    events = PostgresEventStore(URL)
+    try:
+        total = events.pending("snapshots", t, s, names)
+    finally:
+        events.dispose()
+    capped = stages.chain_snapshots(URL, {**ids, "consume_limit": 1, "items": 1})
+    assert capped["code"] == "OK" and capped["consume"]["consumed"] == 1
+    assert capped["deferred"] >= total - 1 > 0  # the unconsumed rest is deferred, never a failure
+    first = stages.chain_snapshots(URL, {**ids, "consume_limit": 500, "items": 500})
+    assert first["code"] == "OK" and first["deferred"] == 0 and first["consume"]["consumed"] == total - 1
+    assert first["drain"]["processed"] >= 1
+    again = stages.chain_snapshots(URL, {**ids, "consume_limit": 500, "items": 500})
+    assert again["code"] == "OK" and again["consume"]["consumed"] == 0 and again["drain"]["processed"] == 0
+    threads = stages.chain_threads(URL, {**ids, "limit": 500})
+    assert threads["code"] == "OK" and threads["deferred"] == 0
+    rerun = stages.chain_threads(URL, {**ids, "limit": 500})
+    assert rerun["code"] == "OK" and rerun["consumed"]["threads"]["consumed"] == 0 and rerun["processed"] == 0
