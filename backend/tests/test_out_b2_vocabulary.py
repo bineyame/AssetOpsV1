@@ -104,12 +104,13 @@ def test_board_and_status_copy_pass_vocabulary() -> None:
 
 
 def test_finding_gap_line_strings_are_scanned() -> None:
-    """IDX-GAPS U2: the three board gap strings are in the scanned set."""
+    """IDX-GAPS U2: the board gap strings are in the scanned set. CH-5a1 (CH5a1-R Q4): the board never withholds
+    Findings next to gap days, so the withheld suffix is no longer board copy (the estate keeps its own)."""
     copy = _constants()
     for text in ("23 of the last 31 days have no checked readings yet",
-                 "Not available yet · 2 of 31 days are not assessed yet",
-                 "; Findings next to those days are not shown yet"):
+                 "Not available yet · 2 of 31 days are not assessed yet"):
         assert text.strip(" ·") in copy, text
+    assert "; Findings next to those days are not shown yet".strip(" ·") not in copy
 
 
 def test_scan_is_not_vacuous() -> None:

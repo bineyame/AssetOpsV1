@@ -9,7 +9,7 @@ from datetime import date, timedelta
 
 from assetops_backend.chain.read import DayFacts
 from assetops_backend.site_outcomes import mini
-from assetops_backend.site_outcomes.mini import GAPS_NO_READINGS, GAPS_NOT_ASSESSED, GAPS_WITHHELD, finding_gap_line
+from assetops_backend.site_outcomes.mini import GAPS_NO_READINGS, GAPS_NOT_ASSESSED, finding_gap_line
 
 DAY = date(2026, 10, 20)
 DAYS = tuple(DAY - timedelta(days=30 - n) for n in range(31))
@@ -48,8 +48,7 @@ def test_index_settledness_is_gone() -> None:
 def test_gap_line_copy_passes_the_vocabulary_scan() -> None:
     from test_out_b2_vocabulary import _patterns
 
-    texts = [GAPS_NO_READINGS.format(g=23, n=31, verb="have"), GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"),
-             GAPS_WITHHELD.strip("; ")]
+    texts = [GAPS_NO_READINGS.format(g=23, n=31, verb="have"), GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is")]
     hits = [(t, name) for t in texts for name, p in _patterns() if p.search(t)]
     assert hits == []
     assert any(p.search("23 of 31 STALE_PROJECTION days") for _, p in _patterns())  # the scan can fail

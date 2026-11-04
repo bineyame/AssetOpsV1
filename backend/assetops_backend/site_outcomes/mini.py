@@ -107,14 +107,10 @@ CLOSED_LABELS = ("Verified", "Resolution withdrawn")  # B-Q18
 SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
-#: Addendum 3 M1: a mini Finding index body in one of these overall states leaves the Finding source unsettled.
-#: IDX-GAPS U2: the dispatch stale status is "STALE_PROJECTION" ("STALE" kept for safety); UNASSESSED never settles.
-UNSETTLED_INDEX_STATUS = ("FAILED", "STALE_PROJECTION", "STALE", "PENDING", "UNASSESSED")
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
 GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
-GAPS_WITHHELD = "; Findings next to those days are not shown yet"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
 FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
@@ -165,7 +161,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
-        GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
+        *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
         SALES_NO_USERS, SALES_NO_READINGS.format(names="Grain mill"),
         SALES_CONFLICT.format(names="Grain mill", verb="has"), SALES_CONFLICT.format(names="A, B", verb="have"),
         SALES_USED.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
