@@ -33,8 +33,8 @@
                                "source": "producer identity: the clinic (critical load) requests what its feeder carries; MD0-S5 M2 (A)"},
         "critical_delivered": {"channel": ["clinic-meter", "delivered-power"], "rule": "feeder:clinic-meter",
                                "source": "producer identity: the clinic is fully served (delivered = its feeder value); MD0-S5 M2 (A)"},
-        "generator_power": {"channel": ["generator-controller", "ac-power"], "rule": "running_kw if RUNNING else zero", "running_kw": "15",
-                            "source": "MD-0b: the bound generator_power role (roles-4 generator-controller/ac-power) every verification slot needs (B/actions/verification_rules.py _SINGLE_POWER_ROLES, window_evidence); producer identity: a stopped generator reports zero output; running_kw copied from backend/conversions/w4-mini-depth-cases-v1.json (generator-controller ac-power kw 15)"},
+        "generator_power": {"channel": ["generator-controller", "ac-power"], "rule": "running_kw if RUNNING at the source time else zero", "running_kw": "15",
+                            "source": "MD-0b: the bound generator_power role (roles-4 generator-controller/ac-power) every verification slot needs (B/actions/verification_rules.py _SINGLE_POWER_ROLES, window_evidence); producer identity: a reading set shares one source time, so the mean ending at a source time is running_kw when the generator status at that source time is RUNNING and zero otherwise (a positive mean after the last ON report would refute the stop between two runs: finding_episode _stop_proof CONTRARY_REPORT); running_kw copied from backend/conversions/w4-mini-depth-cases-v1.json (generator-controller ac-power kw 15)"},
         "source": "build sheet MD-0 §18 MD0-S5 M2 (A): the renewable-hour channels all day, 300 s interval means, derived from the block values (B/mini_depth/rules.py assess_renewable_hour reads pv_power, the charge request and the critical requested/delivered power)"
       },
       "shapes": {"interval_mean": [["pv-inverter-controller", "available-power"], ["battery-pcs-controller", "discharge-capability"],

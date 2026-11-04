@@ -411,7 +411,9 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
             # MD0-S5 M2 (A): the renewable-hour channels, by the fixture's rules (never literals); the busy noon's
             # charge request is the block's own `dis` value (MD-0 new example content).
             charge = values[busy["charge_request"]] if busy_today and busy_lo <= t < busy_hi else None
-            rows += [reading(*channel, t, value) for channel, value in derived(values, feeders, charge)]
+            # a power mean's source time is its end (t + step): the generator status of that same source time
+            at_end = (event if span and span[0] <= t + step <= span[1] else block)["generator"]
+            rows += [reading(*channel, t, value) for channel, value in derived(values, feeders, charge, at_end)]
             t += step
     return rows
 
@@ -419,7 +421,7 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
 #: MD0-S5 M2 (A): the only rules a `derived_channels` entry may name (a renamed or new rule is refused, not guessed).
 DERIVED_RULES = {"pv_power": "min(pv, feeders + charge_request)", "charge_request": "zero",
                  "critical_requested": "feeder:clinic-meter", "critical_delivered": "feeder:clinic-meter",
-                 "generator_power": "running_kw if RUNNING else zero"}  # MD-0b: the bound generator_power role
+                 "generator_power": "running_kw if RUNNING at the source time else zero"}  # MD-0b: the bound generator_power role
 
 
 def _kw(value: Decimal) -> str:
@@ -435,7 +437,8 @@ def derived_rules(k: dict):
         if DERIVED_RULES.get(name) != r["rule"]:
             raise MechanismRefused(f"UNKNOWN_DERIVED_RULE: {name} {r['rule']!r}")
 
-    def evaluate(values: dict, feeders: dict[str, str], busy_charge: str | None) -> list[tuple[tuple, str]]:
+    def evaluate(values: dict, feeders: dict[str, str], busy_charge: str | None,
+                 generator_at_end: str | None = None) -> list[tuple[tuple, str]]:
         out = []
         charge = Decimal(busy_charge) if busy_charge is not None else Decimal(0)  # rule "zero" outside the busy noon
         load = sum((Decimal(v) for v in feeders.values()), Decimal(0))
@@ -445,7 +448,8 @@ def derived_rules(k: dict):
             elif name == "charge_request":
                 value = charge
             elif name == "generator_power":
-                value = Decimal(r["running_kw"]) if values["generator"] == "RUNNING" else Decimal(0)
+                status = values["generator"] if generator_at_end is None else generator_at_end
+                value = Decimal(r["running_kw"]) if status == "RUNNING" else Decimal(0)
             else:
                 value = Decimal(feeders[r["rule"].split(":", 1)[1]])
             out.append((tuple(r["channel"]), _kw(value)))

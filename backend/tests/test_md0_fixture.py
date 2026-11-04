@@ -307,7 +307,11 @@ def test_generator_power_is_the_declared_running_value_while_running_and_zero_ot
     assert len(power) == 288
     running = SPEC["sites"]["kobo"]["derived_channels"]["generator_power"]["running_kw"]
     assert {r.value for r in power} == {"0", running}
-    assert all(r.value == (running if status[r.interval_start] == "RUNNING" else "0") for r in power)
+    # the mean ending at a source time carries the status of that source time (one reading set per source time)
+    assert all(r.value == (running if status[r.source_time] == "RUNNING" else "0") for r in power if r.source_time
+               in status)
+    assert sum(r.value == running for r in power) == sum(v == "RUNNING" for t, v in status.items()
+                                                         if t > min(status))
 
 
 def test_action_hooks_cut_each_day_in_story_order() -> None:
