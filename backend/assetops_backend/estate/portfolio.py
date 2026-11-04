@@ -17,6 +17,7 @@ from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.chain.lookup import public_thread
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
@@ -248,7 +249,7 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "confidence_reasons": list(placed.confidence_reasons),
         "consequence": r["consequence"],
         # CH-2 §5.3: additive; null when the Finding has no thread (CH-5a renders recurrence).
-        "thread": None if r.get("_thread") is None else dict(r["_thread"]),
+        "thread": public_thread(r.get("_thread")),  # CH-5a1 L3: the wire keys only, never the state classes
         # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
         "action_thread_id": None if action is None else action.get("_thread_id"),
         # CH-3 (packet deviation, additive): the matched Action's thread segment, so COH-15 observes the rule.

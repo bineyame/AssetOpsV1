@@ -286,3 +286,20 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
     assert in_hand(before) != in_hand(after)  # unthreaded, the origin is unresolved (suffix or other row)
     refs = [i["ref"] for r in after for i in r["issues"] if i["kind"] == "FINDING"]
     assert all(ref["thread"] == {"id": "t1", "occurrence_no": 2, "occurrences": 2} for ref in refs)
+
+
+def test_portfolio_row_thread_is_the_public_form_only():
+    """CH-5a1 L3: `thread_lookup` now carries the board's state classes (`applied`/`verified`/`later`/`wire_keys`);
+    the Portfolio row's `thread` is `public_thread`, so none of them reaches the wire."""
+    from assetops_backend.chain.lookup import PUBLIC_KEYS, thread_lookup
+    from assetops_backend.estate.portfolio import portfolio_row
+
+    thread = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, None, None, None, None)])["findings"]["abc"]
+    assert {"applied", "verified", "later", "wire_keys"} <= set(thread)
+    r = {"_site": {"site_code": "KOBO-001", "site_code_key": "kobo-001"}, "finding_id": "abc",
+         "finding_revision_id": "r1", "site_id": "S1", "site_code": "KOBO-001", "site_name": "Kobo",
+         "_domain": "MINIGRID", "finding_label": "x", "title": "x", "_mechanism": "GENERATOR_SUPPORT_CANDIDATE",
+         "episode_start": None, "_episode_end": None, "lifecycle": "SUPPORTED", "lens_flags": [], "priority": None,
+         "consequence": None, "source_provenance": None, "links": {"site": "/s", "finding": "/f"}, "_at": T0,
+         "_thread": thread}
+    assert tuple(portfolio_row(r, [])["thread"]) == PUBLIC_KEYS
