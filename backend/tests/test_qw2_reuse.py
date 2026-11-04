@@ -93,7 +93,7 @@ def _readiness_spy(monkeypatch) -> list:
 
     def call(self, name, fn, *args):
         out = real(self, name, fn, *args)
-        if name in ("evidence_readiness", "estate"):
+        if name in ("evidence_readiness", "readiness_of", "estate"):
             seen.append((name, out))
         return out
 
@@ -112,9 +112,11 @@ def test_summary_equal_with_and_without_batching_and_every_port_served(monkeypat
     many = ManyEstate()
     got = SiteOutcomeBoardService(BoardServices(estate=many)).summary(sites, LO, HI, known_at)
     assert got == expected
-    assert seen == expected_seen and len(seen) == 4  # 3 readiness + the mini estate rows, the same values
-    assert plain.single == 7  # 3 windows (ODD too) + 3 readiness + 1 work rows, one Site at a time
-    assert many.single == 1 and many.snapshots == 1 and many.batches == 3  # only ODD, which has no board
+    # CH-5a1 §A4: readiness is `readiness_of` on the ChainReader (no chain reader here: a failed read, None on both
+    # sides), never the estate, so no readiness batch; the estate serves the windows and the mini work rows.
+    assert seen == expected_seen and [n for n, _ in seen] == ["estate", "readiness_of", "readiness_of"]
+    assert plain.single == 4  # 3 windows (ODD too) + 1 work rows, one Site at a time
+    assert many.single == 1 and many.snapshots == 1 and many.batches == 2  # only ODD, which has no board
     cold = next(s for s in got["sites"] if s["site_code"] == "COLD-LAB-001")
     assert cold["window_basis"] == read.WINDOW_BASIS_EVENT  # the batched window choice was used
 
@@ -124,7 +126,7 @@ def test_failed_batch_falls_back_to_the_per_site_reads(monkeypatch, caplog) -> N
     expected = SiteOutcomeBoardService(BoardServices(estate=SingleEstate())).summary(sites, LO, HI)
     failing = ManyEstate(fail=True)
     got = SiteOutcomeBoardService(BoardServices(estate=failing)).summary(sites, LO, HI)
-    assert got == expected and failing.single == 6
+    assert got == expected and failing.single == 3  # CH-5a1: 2 windows (cold, EV) + 1 work rows (no estate readiness)
     assert "fell back to per-Site reads (RuntimeError)" in caplog.text
 
 
@@ -133,4 +135,4 @@ def test_prefetch_is_request_local_and_cleared_after_the_summary() -> None:
     assert read._PREFETCH.get() is None
     leftover = SingleEstate()
     SiteOutcomeBoardService(BoardServices(estate=leftover)).board(KOBO, day=(HI - timedelta(days=1)).date())
-    assert leftover.single == 2  # a board outside a summary reads live
+    assert leftover.single == 1  # a board outside a summary reads live (CH-5a1: work rows only, no readiness)

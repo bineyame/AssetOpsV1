@@ -32,7 +32,8 @@ class Registry:
 
 
 class Estate:
-    def scope(self, tenant, parsed, admit):  # the estate convention: refused Sites are simply absent
+    # CH-5a1 R2 (CH5a1-R Q3): the summary lists its Sites with `site_list` (the estate `_scope` only), not `scope`.
+    def site_list(self, tenant, parsed, admit):  # the estate convention: refused Sites are simply absent
         return {"sites": [{"site_code": c} for c in SITES if admit(c)]}
 
 

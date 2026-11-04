@@ -8,6 +8,7 @@ from uuid import uuid4
 
 import pytest
 
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import EstateRefusal
 from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef, covering_days
@@ -53,33 +54,52 @@ def test_estate_methods_accept_whole_days_and_do_not_widen() -> None:
     assert Estate().site_readiness(T, "EV-LAB-001", at(2026, 10, 6), at(2026, 10, 7)) == "READ"
 
 
+class Reader:
+    """CH-5a1: a fixture ChainReader whose `day` records the Site-local days it is asked for."""
+
+    def __init__(self, seen: list, readiness: str = "FULL") -> None:
+        self.seen, self.readiness = seen, readiness
+
+    def request(self, tenant, k):
+        outer = self
+
+        class Request:
+            def day(self, sid, site_type, days, readiness_days=None):
+                from assetops_backend.chain.read import DayFacts
+                outer.seen.append((sid, site_type, tuple(days)))
+                return DayFacts(tuple(days), {}, True, outer.readiness, ())
+
+        return Request()
+
+
 @pytest.mark.parametrize("site,ports", [(COLD, "cold_ports"), (EV, "ev_ports")])
-def test_cold_and_ev_board_widens_readiness_to_covering_days(site, ports) -> None:
-    seen = []
+def test_cold_and_ev_readiness_reads_every_local_day_the_window_intersects(site, ports) -> None:
+    """CH5a1-R Q8 (E1): `readiness_of` over the Site-local days `[lo, hi)` intersects; the estate readiness (and its
+    `covering_days` widening) is not read."""
+    seen: list = []
 
     class Rec(Estate):
-        def site_readiness(self, *a):
-            seen.append(a)
-            return "FULL"
+        def site_readiness(self, *a):  # pragma: no cover - CH-5a1: never a board read
+            raise AssertionError("estate readiness is not a board read")
 
-    p = getattr(SiteOutcomeBoardService(BoardServices(estate=Rec())), ports)(site)
+    p = getattr(SiteOutcomeBoardService(BoardServices(estate=Rec(), chain_reader=Reader(seen))), ports)(site)
     assert p.readiness(at(2026, 10, 29, 16), at(2026, 10, 29, 17, 5)) == "FULL"
-    assert seen[0][2:4] == (at(2026, 10, 29), at(2026, 10, 30))
+    assert seen == [(site.site_id, SITE_TYPE_OF_DOMAIN[site.domain], (at(2026, 10, 29).date(),))]  # measure registry type
+    seen.clear()
+    p.readiness(at(2026, 10, 6), at(2026, 10, 7))  # midnight end: one day, never the next
+    assert seen[0][2] == (at(2026, 10, 6).date(),)
 
 
 @pytest.mark.parametrize("site", [COLD, EV])
-def test_over_31_covering_days_is_invalid_window_assure_unknown_board_partial(site) -> None:
-    svc = SiteOutcomeBoardService(BoardServices(estate=Estate()))
+def test_unaligned_31_day_window_pools_its_32_local_days_and_is_not_widened(site) -> None:
+    """Formerly the estate refused 32 covering days (INVALID_WINDOW, Assure UNKNOWN). CH5a1-R Q8: readiness is R5 over
+    the local days the window intersects, so it reads them all; the board window itself is still not widened."""
+    seen: list = []
+    svc = SiteOutcomeBoardService(BoardServices(estate=Estate(), chain_reader=Reader(seen)))
     lo, hi = at(2026, 10, 1, 5), at(2026, 11, 1, 5)  # 31 days unaligned: the covering days are 32
-    ports = svc.cold_ports(site) if site is COLD else svc.ev_ports(site)
-    with pytest.raises(EstateRefusal) as e:
-        ports.readiness(lo, hi)
-    assert e.value.args == ("INVALID_WINDOW",)
     comp, window = svc.compose(site, lo=lo, hi=hi)
-    assert "evidence_readiness" in comp.failed and comp.read_state == "PARTIAL"
+    assert "readiness_of" not in comp.failed and "evidence_readiness" not in comp.failed
+    assert len(seen[-1][2]) == 32 and comp.facts.readiness == "FULL"
     assert window["from"] == lo and window["to"] == hi  # the board window is not widened
-    assert comp.facts.readiness is None
     body = svc.board(site, lo=lo, hi=hi)
     assert body["window"]["from"] == "2026-10-01T05:00:00Z"
-    assm = [r for r in body["rows"] if r["category"].upper().startswith("ASSURE")] or body["rows"][3:4]
-    assert assm[0]["state"] == "UNKNOWN"
