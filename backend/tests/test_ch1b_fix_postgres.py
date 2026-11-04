@@ -41,7 +41,7 @@ if URL:
                                                     load_operating_calendar)
     from assetops_backend.chain.events import Event, Mark
     from assetops_backend.chain.measure_impls import build_measure_set
-    from assetops_backend.chain.ports import DayCtx
+    from assetops_backend.chain.ports import DayCtx, SiteRef
     from assetops_backend.chain.reader import SnapshotReader
 
 UTC = timezone.utc
@@ -168,10 +168,18 @@ def _now(engine) -> datetime:
         return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
 
-def _run_id(engine, s):
-    with engine.connect() as c:
-        return c.execute(text("SELECT id FROM analytic_run WHERE site_id = :s ORDER BY knowledge_cutoff LIMIT 1"),
-                         {"s": s}).scalar_one()
+def _run_id(engine, t, s):
+    """A completed analytic run for the selections to reference (TEST-SCOPED; the w402 set-up runs none)."""
+    run = uuid4()
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, window_end, "
+            "knowledge_cutoff, input_sha256, cohort_status, cohort_sha256, cohort, configuration_sha256, "
+            "foundation_revision_ids, binding_set_revision_ids, role_coverage, watermarks, selection, job_id, status, "
+            "started_at, completed_at) VALUES (:id, :t, :s, 'dispatch', 'test', :lo, :hi, :lo, 'x', 'COMPLETE', 'x', "
+            "'{}', 'x', '[]', '[]', '{}', '{}', 'DEFAULT', NULL, 'COMPLETED', :lo, :lo)"),
+            {"id": run, "t": t, "s": s, "lo": datetime(2026, 10, 1, tzinfo=UTC), "hi": datetime(2026, 10, 2, tzinfo=UTC)})
+    return run
 
 
 def _select(engine, t, s, run, analytic: str, lo: datetime, hi: datetime) -> datetime:
@@ -191,11 +199,9 @@ def _job(engine, t, s, domain: str, lo: datetime, hi: datetime, available_at: da
 
 
 def test_m1_selection_and_job_visibility_at_the_cutoff(store, engine) -> None:  # noqa: F811
-    installed, t, s = w402._setup(store, engine)
-    w402._ingest(engine, installed)
-    w402._reconcile(engine, w402.DAYS)
+    _, t, s = w402._setup(store, engine)
     inputs = build_chain_inputs(URL)
-    run = _run_id(engine, s)
+    run = _run_id(engine, t, s)
     lo = datetime(2026, 11, 1, 21, tzinfo=UTC)  # a window no set-up selection covers
     hi = lo + timedelta(days=1)
     try:
@@ -226,17 +232,22 @@ def test_m1_selection_and_job_visibility_at_the_cutoff(store, engine) -> None:  
 
 
 def test_m1_tue_only_asset_measure_writes_not_expected_per_subject_on_a_monday(store, engine) -> None:  # noqa: F811
-    installed, t, s = w402._setup(store, engine)
-    w402._ingest(engine, installed)
+    import test_walk1_productive_producer_postgres as walk1  # the Kobo producer: the Grain mill is productive
+
+    result = walk1.pgb.imported(store, when=walk1.IMPORT_AT)
+    walk1.pgb.convert(store, walk1.pgb.BindingService(store, walk1.pgb.Clock(walk1.INSTALL_AT)), result.tenant,
+                      result.site, walk1.pgb.FIXTURE)
+    walk1.producer.configure_at(store, result, walk1.INSTALL_AT)
+    t, s = result.tenant.id, result.site.id
+    code, zone = result.site.site_code, result.site.timezone
     loaded = load_operating_calendar()
-    tue_only = replace(loaded, sites={**loaded.sites, w402.CODE: replace(loaded.entry_for(w402.CODE),
-                                                                         days=frozenset({"TUE"}))})
+    tue_only = replace(loaded, sites={**loaded.sites, code: replace(loaded.entry_for(code), days=frozenset({"TUE"}))})
     inputs, snaps = build_chain_inputs(URL), PostgresSnapshotStore(URL)
     monday, tuesday = date(2026, 10, 12), date(2026, 10, 13)
     assert monday.weekday() == 0
     try:
         builder = SnapshotBuilder(snaps, build_measure_set(inputs), load_coverage_policy(), tue_only)
-        site = ch1a._site(t, s)
+        site = SiteRef(t, s, code, "MINIGRID", zone)
         on_tuesday = builder.build(t, site, tuesday, "productive_kwh")
         on_monday = builder.build(t, site, monday, "productive_kwh")
         subjects = sorted(w.row.subject_ref for w in on_tuesday)
