@@ -209,3 +209,45 @@ earlier rebuild (before the binding fix) fit one part at 386 s. Clone 0.5 s, der
 **Residual risk / review focus (fix round 1):** deviation 1 (who owns the normal-day noon channels); the
 binding-set-at-day rule in `KoboSite`; COH-7a ownership. CH-5a1 may now write Kobo L2m/L3m expectations against
 this template (R6).
+
+## Fix round 2 (MD0-S5, build sheet §18; review `review-MD-0.md` at `510acfa7c`)
+
+Commit `1549760bb` (code + fixture). Template rebuilt in two parts (494 s, exit 3, then 70 s), seed 542.3 s, 140,890,595 bytes, 32,550 readings in 173 batches, all ACCEPTED. Fingerprint `b23a1ca08fe6…`, 362 traced modules; `status` usable, exit 0.
+
+| Item | Status | Evidence |
+|---|---|---|
+| M2 (A) channels | Done | Fixture `sites.kobo.derived_channels`: `pv_power` = `min(pv, feeders + charge_request)`, `charge_request` = `zero`, clinic `requested`/`delivered` = `feeder:clinic-meter`, each with a `source`. `kobo_rows` evaluates only these rule strings (`DERIVED_RULES`; any other is `UNKNOWN_DERIVED_RULE`). All four are 300 s `INTERVAL_MEAN`s all day (`shapes.interval_mean`). D12/D13 noon keeps the w4 `positive` remap. |
+| M2 (A) busy noon | Done | `noon.busy_noon`: 12:00–13:00 local on every delivered day except `spare_solar_days`, the overrun, recurrence and late-fill days included. The charge request is the block's `dis` (20 kW), source "MD-0 new example content: battery recharging at noon". pv_power there is min(40, 30 + 20) = 40. |
+| M2 expected | **Met, hard-asserted** | Headroom grades and decisions are in the table below. W1 (from 10-19) has 0 eligible days and is not placed (step b `skipped_ineligible 1`). W2 (from 10-28) has 2. Headroom thread OPEN on D14. **No other constraint code** occurred: every busy day carries exactly `[CHARGE_OBLIGATION_ACTIVE]`, and D12/D13 carry `[]`. |
+| M2 invariant | **Met, hard-asserted** | `DISPATCH_BASELINE` (the D4/D11/D14 Findings' latest-revision content and transition lists, SELECTed from the 510acfa7c-derived DB before the rebuild) equals the new clone's: episode 05:30–06:00Z, SUPPORTED, CANDIDATE_AVOIDABLE, 30/0/0 min, OFF_OBSERVED, recurrence NOT_ESTABLISHED/NOT_ESTABLISHED/LINKED, transitions 3/4/1. The late D7 Finding equals D4's content re-dated to 2026-10-25 05:30Z (recurrence LINKED, OPENED). Story order D4, D7, D11, D14. |
+| M1 fingerprint | Done | `loaded_repo_files()` is `sys.modules` filtered to the repo, without `backend/assetops_backend/chain/**`. It is recorded after every build step (`record_inputs`). Data folders: `backend/conversions`, `backend/migrations`, `backend/tests/fixtures`, `config/site-templates`, `contracts`. The tag (schema `/2`) stores `modules`; `check_tag`/`status` re-hash that list plus the folders. Now covered: `test_s1_bindings_postgres.py`, `test_s2_registered_basis_postgres.py`, `host/tests/test_s6_verification_publication.py`, `tools/demo_combined.py`, `pg_harness.py`, `financials/**`, `outcomes/**`, and `fixtures/s1/kobo-001.yaml` (as data). L0 tests: modules and data move the fingerprint, while chain and unloaded modules do not; an added data file moves it; a missing module is `missing`; the trace comes from `sys.modules` without chain; the tag re-hash rejects a changed list. |
+| L1 | Done | Every delivered day asserts `productive_kwh@load-mill` and `avoidable_gen_min@generator` COMPLETE (presence, not only absence of others); so does D7 after the fill. |
+| L2 | Done | `seed-state.json` keeps per-file start hashes (`inputs`). A resume, or the tag, is refused with `TEMPLATE_INPUTS_CHANGED` naming the files (L0 test). The real part-2 resume passed the check. |
+| L3 | Done | The late overrun test asserts the thread event states are unchanged. |
+| L4 | Done | `backend/tests/setup_cache.py` is restored to base: the `seed_database` op, `FINGERPRINT_FILES` and the `backend/conversions` tree are gone, and no other op needed them. |
+| L5 | Done | F2b and F4 now pass, so their xfails are removed. F1 is the remaining xfail, worded "(owner CH-5a1 R5 readiness_of) PENDING on undelivered days after D6"; it records D6 NO_DATA and D7/D8/D9 headroom PENDING. |
+
+**Grades and renewable hour** (L2m clone; `grades()` keys):
+
+| Day | productive_kwh / avoidable_gen_min | noon_headroom_kw | renewable hour |
+|---|---|---|---|
+| D1–D5, D10, D11, D14 | COMPLETE / COMPLETE | COMPLETE | EXCLUDED `[CHARGE_OBLIGATION_ACTIVE]` |
+| D12, D13 | COMPLETE / COMPLETE | COMPLETE | ELIGIBLE `[]` |
+| D7 before fill | NO_DATA / NO_DATA | PENDING (F1) | — |
+| D7 after late normal fill | COMPLETE / COMPLETE | COMPLETE | EXCLUDED `[CHARGE_OBLIGATION_ACTIVE]` |
+
+**Checks (head `1549760bb`):**
+- One run through `tools\run-host-tests.ps1`, DB on 127.0.0.1, covering `test_md0_fixture.py`, `host/tests/test_md0_shape_parity.py`, `tools/checks/test_chain_coherence.py` and `test_md0_mechanism_postgres.py`. Result: **135 passed, 2 xfailed (both F1), 0 failed, 0 skipped**, 325 s pytest, 327 s wall. Clone 1.0 s, derive 44.7 s.
+- L3m: `derive` 58 s (clone 1.2 s, derive 54.4 s, 145,953,251 bytes), then `collect` in process 143 s (40 × 200), then `check --threads var/mechanism/expected-threads.json --expect expected-mechanism.json`.
+  - COH-10 has 0 findings, and every other COH is 0, except **COH-7a ×2, unchanged**: week `[10-31, 11-01)` vs `[10-25, 11-01)`, and month `[11-02, 11-03)` vs `[10-03, 11-03)`.
+  - Their owner is CH-6 under R3, unless CH-5a1's R7 `site_cutoff` closes them.
+  - They are not added to `expected-mechanism.json`, so check exits 1 on these two.
+- Guards: `check-architecture.ps1` passed, and `check-agent-workflow.ps1` passed.
+- Non-vacuity proof: dropping `charge-requested-power` from `shapes.interval_mean` fails 3 of 4 L1 tests. Reverted with `git checkout`.
+
+**Known deviations (fix round 2)**
+1. The ruling's `fixtures/` is read as `backend/tests/fixtures`. The repo has no top-level `fixtures/`, and that folder holds `s1/kobo-001.yaml`, M1's named miss.
+2. The import trace is wider than "writers". The input build loads the API modules (the s6/S3 harness imports the app), so 362 modules are hashed, including `*_api.py` and `estate`/`scenarios`. An edit to one of them forces a template rebuild (about 9 min). This is what the trace says; there is no hand exclusion.
+3. `tools/mechanism_dataset.py` is itself a traced module, so editing `derive`/`status` also stales the template.
+4. L1 parity accepts the four w4-only channels (not in the dispatch mapping) as 300 s means, on the polish measurement cited in review M2. It does not check them against producer code.
+5. The late D7 Finding's baseline is D4's content re-dated, because no earlier late-overrun Finding row was kept. Its recurrence (LINKED) and transitions (OPENED) are recorded, not baselined.
