@@ -81,6 +81,9 @@ def problems(payload, measures=MEASURES, produced=None, fixtures=None) -> list[s
         spec = measures.get(key)
         if spec is None:
             continue
+        if not (rule.roles or rule.analytics or rule.mini_depth or rule.job_domains or rule.assumption_keys
+                or rule.foundation):
+            out.append(f"inputs.{key} names no source, so no event ever marks it dirty")
         for role in sorted(rule.roles - _roles(spec.site_type)):
             out.append(f"inputs.{key}: role {role} is not a {spec.site_type} role")
         for name in sorted(rule.analytics - ANALYTIC_IDS):
@@ -110,6 +113,10 @@ def test_live_register_is_clean() -> None:
 
 def _drop_input(p: dict) -> None:
     del p["inputs"]["charging_kwh"]
+
+
+def _empty_input(p: dict) -> None:
+    p["inputs"]["charging_kwh"] = {}  # review L1: an entry with every key empty and foundation false
 
 
 def _unknown_measure(p: dict) -> None:
@@ -146,6 +153,7 @@ def _unproduced_event(p: dict) -> None:
 
 @pytest.mark.parametrize("mutate, expected", [
     (_drop_input, "measure charging_kwh has no inputs entry"),
+    (_empty_input, "inputs.charging_kwh names no source, so no event ever marks it dirty"),
     (_unknown_measure, "inputs.phantom_kwh names no measure"),
     (_wrong_role, "inputs.chamber_temp_c: role feeder_demand is not a COLDCHAIN role"),
     (_job_domain_as_analytic, "inputs.chamber_temp_c: analytic cold_chain is not an analytic id"),

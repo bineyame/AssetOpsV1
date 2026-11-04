@@ -208,13 +208,14 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
       failure leaves the event unconsumed, so it is retried (the cursor is `event_consumption`).
     - Then CH-3's step (d), `run_lifecycle`, once per stage run: it applies the lifecycle causes of the consumed
       `action.event` and `verification.outcome` events and the time-based causes (INCONCLUSIVE_EXPIRED,
-      CLEAN_DAYS); then `consume('lifecycle')` records those events as applied.
+      CLEAN_DAYS). The lifecycle events are read before the run and exactly those are recorded as applied after it
+      (review L2).
     - A cap or deadline hit defers the rest (`deferred`); the code stays OK, so it never backs off the Site.
     The full-scan `run_threads` stays for the backfill only. Idempotent."""
     from assetops_backend.chain.backfill import _lifecycle_report
     from assetops_backend.chain.composition import (build_event_store, build_thread_sources, build_thread_store,
                                                     load_event_register)
-    from assetops_backend.chain.events import SiteInfo, consume
+    from assetops_backend.chain.events import SiteInfo, consume, consume_exactly
     from assetops_backend.chain.lifecycle_run import run_lifecycle
     from assetops_backend.chain.threads import ThreadRegistry
 
@@ -247,8 +248,12 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
             lifecycle: dict[str, Any] = {"step": "d", "written": 0, "stopped": "deadline"}
             applied = None
         else:
+            # Review L2: read the lifecycle events BEFORE the run and record exactly those as applied, so an event
+            # committed while run_lifecycle read the state stays unconsumed for the next run.
+            seen = events.unconsumed("lifecycle", t, s, sorted({k.partition("@")[0]
+                                                                for k in register.consumes("lifecycle")}), limit)
             lifecycle = _lifecycle_report(reader, run_lifecycle(reader, store, t, s), t)
-            applied = consume(events, register, "lifecycle", t, s, info, limit, deadline=deadline)
+            applied = consume_exactly(events, "lifecycle", seen)
         deferred = sum(events.pending(c, t, s, sorted({k.partition("@")[0] for k in register.consumes(c)}))
                        for c in ("threads", "lifecycle"))
     finally:
@@ -261,30 +266,42 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 
 def chain_snapshots(url: str, args: dict[str, Any]) -> dict[str, Any]:
-    """CH-1b (build sheet §3): `consume('snapshots')` marks this Site's affected Site-local days and measures dirty
-    (up to `consume_limit` events), then `drain` rebuilds up to `items` dirty rows; the fingerprint decides every
-    skip. A cap or deadline hit leaves the rest queued and reports it as `deferred`, never as a failure."""
+    """CH-1b (build sheet §3; rulings DD0-R and CH1b-R2 note 1): `consume('snapshots')` pages this Site's outbox
+    events into the dirty queue until the queue is empty or half the stage bound has passed (the consume deadline,
+    stage start + `bound_seconds`/2, never past the shared `deadline_at`), then `drain` rebuilds up to `items` dirty
+    rows on the full shared deadline, so it keeps at least the other half. The fingerprint decides every skip.
+    `site_today` is read once per stage run and clamps every page. A cap or deadline hit leaves the rest queued and
+    reports it as `deferred` (consume and drain separately), never as a failure."""
     from assetops_backend.chain.composition import build_chain_services, load_event_register
-    from assetops_backend.chain.drain import drain
+    from assetops_backend.chain.drain import Deadline, drain
     from assetops_backend.chain.events import SiteInfo, consume
 
+    started = time.time()
     t, s = _uuid(args["tenant_id"]), _uuid(args["site_id"])
-    deadline = _deadline(args)
+    at = args.get("deadline_at")
+    bound = args.get("bound_seconds")
+    consume_at = None if at is None else float(at) if bound is None else min(float(at), started + float(bound) / 2)
     register = load_event_register()
+    types = sorted({k.partition("@")[0] for k in register.consumes("snapshots")})
     services = build_chain_services(url)
     try:
         site = services.events.site(t, s)
         if site is None:
             return {"code": "FAILED", "error": f"site {s} not found"}
+        today = services.events.site_today(t, s, site.timezone)
         consumed = consume(services.events, register, "snapshots", t, s, SiteInfo(site.site_type, site.timezone),
-                           int(args.get("consume_limit", 500)), deadline=deadline)
-        drained = drain(services.events, services.builder, t, site, int(args.get("items", 200)), deadline)
-        pending = services.events.pending("snapshots", t, s,
-                                          sorted({k.partition("@")[0] for k in register.consumes("snapshots")}))
+                           int(args.get("consume_limit", 500)), today=today,
+                           deadline=None if consume_at is None else Deadline(consume_at, time.time))
+        pending = services.events.pending("snapshots", t, s, types)
+        drain_started = time.perf_counter()
+        drained = drain(services.events, services.builder, t, site, int(args.get("items", 200)),
+                        None if at is None else Deadline(float(at), time.time))
+        drain_ms = (time.perf_counter() - drain_started) * 1000
     finally:
         services.dispose()
     return {"code": "OK", "processed": drained.processed, "deferred": drained.deferred + pending,
-            "consume": consumed.as_json(), "drain": drained.as_json()}
+            "consume": {**consumed.as_json(), "deferred": pending},
+            "drain": {**drained.as_json(), "ms": round(drain_ms, 1)}}
 
 
 def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:

@@ -121,7 +121,7 @@ CREATE TABLE event_outbox (
   idempotency_key text NOT NULL,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT event_outbox_idem UNIQUE (source, idempotency_key));
-CREATE INDEX event_outbox_site_order ON event_outbox (site_id, recorded_at, event_id);
+CREATE INDEX event_outbox_site_type_order ON event_outbox (site_id, type, recorded_at, event_id);
 CREATE TRIGGER event_outbox_immutable BEFORE UPDATE OR DELETE ON event_outbox
   FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
 

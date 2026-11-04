@@ -141,12 +141,18 @@ def test_tick_stages_consume_drain_and_defer_on_a_cap(store, engine) -> None:  #
         total = events.pending("snapshots", t, s, names)
     finally:
         events.dispose()
+    import time
+
+    expired = stages.chain_snapshots(URL, {**ids, "consume_limit": 1, "items": 1, "deadline_at": time.time() - 1})
+    assert expired["code"] == "OK" and expired["consume"]["consumed"] == 0 and expired["consume"]["stopped"] == "deadline"
+    assert expired["deferred"] == expired["consume"]["deferred"] == total > 0  # deferred, never a failure
     capped = stages.chain_snapshots(URL, {**ids, "consume_limit": 1, "items": 1})
-    assert capped["code"] == "OK" and capped["consume"]["consumed"] == 1
-    assert capped["deferred"] >= total - 1 > 0  # the unconsumed rest is deferred, never a failure
+    # pages of one event until the queue is empty (DD0-R), then an item cap on the drain defers the rest
+    assert capped["code"] == "OK" and capped["consume"]["consumed"] == total == capped["consume"]["pages"]
+    assert capped["consume"]["deferred"] == 0 and capped["drain"]["processed"] == 1
     first = stages.chain_snapshots(URL, {**ids, "consume_limit": 500, "items": 500})
-    assert first["code"] == "OK" and first["deferred"] == 0 and first["consume"]["consumed"] == total - 1
-    assert first["drain"]["processed"] >= 1
+    assert first["code"] == "OK" and first["deferred"] == 0 and first["consume"]["consumed"] == 0
+    assert first["drain"]["processed"] == capped["drain"]["deferred"]
     again = stages.chain_snapshots(URL, {**ids, "consume_limit": 500, "items": 500})
     assert again["code"] == "OK" and again["consume"]["consumed"] == 0 and again["drain"]["processed"] == 0
     threads = stages.chain_threads(URL, {**ids, "limit": 500})

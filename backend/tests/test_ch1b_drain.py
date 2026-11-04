@@ -13,7 +13,7 @@ from assetops_backend.chain.adapters.file_chain_config import load_event_registe
 from assetops_backend.chain.builder import SnapshotBuilder
 from assetops_backend.chain.composition import load_coverage_policy, load_operating_calendar
 from assetops_backend.chain.drain import Deadline, DirtyRow, drain
-from assetops_backend.chain.events import Event, SiteInfo, consume
+from assetops_backend.chain.events import Event, SiteInfo, coalesce, consume, consume_exactly
 from assetops_backend.chain.measure_impls import BackupStartChain, ChamberTemperature, build_measure_set
 from assetops_backend.chain.ports import DayCtx, SiteRef
 
@@ -170,7 +170,7 @@ def test_l6_a_skip_reports_the_stored_revision() -> None:
 
 class MemPort:
     def __init__(self, events) -> None:
-        self.events, self.consumed, self.marks = list(events), set(), []
+        self.events, self.consumed, self.marks, self.pages = list(events), set(), [], []
 
     def unconsumed(self, consumer, tenant_id, site_id, types, limit):
         return [e for e in self.events if e.type in types and (consumer, e.event_id) not in self.consumed][:limit]
@@ -178,6 +178,13 @@ class MemPort:
     def mark_and_consume(self, consumer, event, marks) -> None:
         self.marks += list(marks)
         self.consumed.add((consumer, event.event_id))
+
+    def mark_and_consume_page(self, consumer, events, marks) -> None:
+        keys = [(m.tenant_id, m.site_id, m.local_day, m.measure) for m in marks]
+        assert len(set(keys)) == len(keys), "marks must be coalesced before the upsert"
+        self.pages.append(([e.event_id for e in events], list(marks)))
+        self.marks += [(m.local_day, m.measure) for m in marks]
+        self.consumed.update((consumer, e.event_id) for e in events)
 
     def site_today(self, tenant_id, site_id, tz):
         return date(2026, 11, 3)
@@ -200,11 +207,60 @@ def test_consume_is_idempotent_and_marks_once() -> None:
     assert port.marks == [(DAY, "productive_kwh")]
 
 
-def test_consume_cap_leaves_the_rest_for_the_next_tick() -> None:
-    port = MemPort([_ev("reading.accepted", READING) for _ in range(3)])
+def test_consume_pages_until_the_queue_is_empty() -> None:
+    """DD0-R: the page size bounds one transaction, not the run; consume pages until the queue is empty."""
+    events = [_ev("reading.accepted", READING) for _ in range(5)]
+    port = MemPort(events)
+    report = consume(port, load_event_register(), "snapshots", TENANT, SITE_ID, MINI, 2)
+    assert (report.consumed, report.pages, report.stopped) == (5, 3, None)
+    assert [ids for ids, _ in port.pages] == [[e.event_id for e in events[i:i + 2]] for i in (0, 2, 4)]
+    # one coalesced mark per page, whose first event is the page's earliest in read order
+    assert [[(m.local_day, m.measure, m.first_event_id) for m in marks] for _, marks in port.pages] == [
+        [(DAY, "productive_kwh", events[i].event_id)] for i in (0, 2, 4)]
+    assert len(report.select_ms) == 3
+
+
+def test_consume_deadline_leaves_the_rest_for_the_next_tick() -> None:
+    port = MemPort([_ev("reading.accepted", READING) for _ in range(5)])
     register = load_event_register()
-    assert consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 2).consumed == 2
-    assert consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 2).consumed == 1
+    calls = iter([False, True])
+    report = consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 2, deadline=lambda: next(calls))
+    assert (report.consumed, report.pages, report.stopped) == (2, 1, "deadline")
+    assert consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 2).consumed == 3
+
+
+def test_coalesce_keeps_one_mark_per_key_with_the_first_event() -> None:
+    a = _ev("reading.accepted", READING)
+    b = _ev("reading.accepted", READING)
+    other = date(2026, 10, 28)
+    marks = coalesce([(a, [(DAY, "productive_kwh")]), (b, [(other, "productive_kwh"), (DAY, "productive_kwh")])])
+    assert [(m.local_day, m.measure, m.first_event_id) for m in marks] == [
+        (DAY, "productive_kwh", a.event_id), (other, "productive_kwh", b.event_id)]
+
+
+def test_today_is_read_once_per_run_and_a_given_today_is_used() -> None:
+    class Counting(MemPort):
+        reads = 0
+
+        def site_today(self, tenant_id, site_id, tz):
+            Counting.reads += 1
+            return super().site_today(tenant_id, site_id, tz)
+    port = Counting([_ev("reading.accepted", READING) for _ in range(4)])
+    consume(port, load_event_register(), "snapshots", TENANT, SITE_ID, MINI, 1)
+    assert Counting.reads == 1
+    open_ended = _ev("price.revised", {"key": "productive_use_price_per_kwh", "valid": ["2026-10-26T00:00:00Z", None]})
+    port = Counting([open_ended])
+    consume(port, load_event_register(), "snapshots", TENANT, SITE_ID, MINI, 10, today=DAY)
+    assert Counting.reads == 1 and port.marks == [(date(2026, 10, 26), "productive_kwh"), (DAY, "productive_kwh")]
+
+
+def test_consume_exactly_records_only_the_events_read_before_the_run() -> None:
+    first, late = _ev("action.event", {"action_ids": ["a1"]}), _ev("action.event", {"action_ids": ["a2"]})
+    port = MemPort([first])
+    read = port.unconsumed("lifecycle", TENANT, SITE_ID, ["action.event"], 10)
+    port.events.append(late)  # committed while run_lifecycle read the state
+    assert consume_exactly(port, "lifecycle", read).consumed == 1
+    assert port.consumed == {("lifecycle", first.event_id)}
 
 
 def test_a_failing_thread_handler_leaves_the_event_unconsumed() -> None:
@@ -361,3 +417,13 @@ def test_a_cap_hit_in_either_chain_stage_defers_and_never_backs_off_the_site() -
 def test_a_real_chain_snapshots_error_fails_the_site() -> None:
     site, released, _ = _tick_with({"chain_snapshots": {"code": "FAILED", "error": "boom"}})
     assert site.result == "FAILED" and released["failure"][:2] == ("CHAIN_SNAPSHOTS", "FAILED")
+
+
+def test_counts_a_not_expected_day_with_a_missing_measure_is_not_expected() -> None:
+    """Review M1 (L0): a NOT_EXPECTED day with a requested measure missing counts NOT_EXPECTED, never NO_DATA."""
+    from assetops_backend.chain.reader import _counts
+
+    monday, tuesday = date(2026, 10, 12), date(2026, 10, 13)
+    rows = [SimpleNamespace(local_day=monday, measure="productive_kwh", grade="NOT_EXPECTED")]
+    counts = _counts(rows, monday, tuesday, ["productive_kwh", "noon_headroom_kw"])
+    assert (counts.not_expected, counts.no_data, counts.expected, counts.requested) == (1, 1, 1, 2)

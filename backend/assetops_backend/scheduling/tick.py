@@ -510,6 +510,7 @@ class ScheduleTick:
             return
         rs = self.runner.run("chain_snapshots", {**ids, "consume_limit": self.limits.chain_consume_events,
                                                  "items": self.limits.chain_snapshot_items,
+                                                 "bound_seconds": self.limits.chain_snapshot_seconds,
                                                  "deadline_at": _deadline_at(self.limits.chain_snapshot_seconds)},
                              self.limits.chain_snapshot_seconds)
         site.stages["chain_snapshots"] = rs

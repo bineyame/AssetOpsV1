@@ -901,9 +901,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $eventWriter = "$backendRoot/chain/adapters/postgres_event_store.py"
     $eventTables = @('event_outbox', 'event_consumption', 'snapshot_dirty')
     $eventMigration = 'backend/migrations/versions/0044_chain_events.py'
+    # CH1b-R2 note 3: the consumption insert and the mark upsert accept a multi-row VALUES list of literal tuples
+    # only (a page write); never a SELECT, unnest or other row source, still insert-only, same ON CONFLICT arbiter.
+    $valuesRows = '\([^()]*\)(?:\s*,\s*\([^()]*\))*'
     $eventShapes = [ordered]@{
-        'event_consumption insert' = '(?i)^INSERT\s+INTO\s+event_consumption\s*\([^)]*\)\s*VALUES\s*\([^)]*\)\s*;?\s*$'
-        'snapshot_dirty mark upsert' = ('(?i)^INSERT\s+INTO\s+snapshot_dirty\s*\([^)]*\)\s*VALUES\s*\([^)]*\)\s*' +
+        'event_consumption insert' = ('(?i)^INSERT\s+INTO\s+event_consumption\s*\([^)]*\)\s*VALUES\s*' + $valuesRows +
+            '\s*;?\s*$')
+        'snapshot_dirty mark upsert' = ('(?i)^INSERT\s+INTO\s+snapshot_dirty\s*\([^)]*\)\s*VALUES\s*' + $valuesRows + '\s*' +
             'ON\s+CONFLICT\s*\(\s*tenant_id\s*,\s*site_id\s*,\s*local_day\s*,\s*measure\s*\)\s*' +
             'DO\s+UPDATE\s+SET\s+marked_at\s*=\s*clock_timestamp\(\)\s*;?\s*$')
         'snapshot_dirty compare-and-delete' = ('(?i)^DELETE\s+FROM\s+snapshot_dirty\s+WHERE\s+(?:(?!\b(?:OR|SELECT)\b).)*' +

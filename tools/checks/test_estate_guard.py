@@ -259,6 +259,35 @@ def test_event_store_statements_declared_and_not_vacuous() -> None:
     assert any("reading.accepted" in line for line in refused), found
 
 
+EVENT_PAGE_ACCEPT = (
+    '\n_PROBE = text("INSERT INTO event_consumption (consumer, event_id) VALUES (:c_0, :e_0), (:c_1, :e_1)")\n'
+    '_PROBE_2 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "VALUES (:t_0, :s_0, :d_0, :m_0, :e_0), (:t_1, :s_1, :d_1, :m_1, :e_1) "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day, measure) DO UPDATE SET marked_at = clock_timestamp()")\n')
+EVENT_PAGE_REJECT = (
+    '\n_PROBE = text("INSERT INTO event_consumption (consumer, event_id) SELECT :c, unnest(CAST(:ids AS uuid[]))")\n'
+    '_PROBE_2 = text("INSERT INTO event_consumption (consumer, event_id) VALUES (:c, unnest(:ids))")\n'
+    '_PROBE_3 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "SELECT tenant_id, site_id, local_day, measure, first_event_id FROM snapshot_dirty_probe "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day, measure) DO UPDATE SET marked_at = clock_timestamp()")\n'
+    '_PROBE_4 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "VALUES (:t_0, :s_0, :d_0, :m_0, :e_0), (:t_1, :s_1, :d_1, :m_1, :e_1) "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day) DO UPDATE SET marked_at = clock_timestamp()")\n')
+
+
+def test_event_page_writes_accept_multi_row_values_only() -> None:
+    """CH1b-R2 note 3: the page write's multi-row VALUES list is accepted for the consumption insert and the mark
+    upsert; a SELECT, an unnest or another ON CONFLICT arbiter is refused."""
+    accepted = isolated_copy(lambda copy: _append(copy, EVENT_WRITER, EVENT_PAGE_ACCEPT))
+    assert accepted.returncode == 0 and "passed" in accepted.stdout, failures(accepted) or accepted.stdout
+    found = failures(isolated_copy(lambda copy: _append(copy, EVENT_WRITER, EVENT_PAGE_REJECT)))
+    refused = [line for line in found if "event store runs only its four declared statements" in line]
+    assert any("SELECT :c, unnest" in line for line in refused), found
+    assert any("VALUES (:c, unnest(:ids))" in line for line in refused), found
+    assert any("FROM snapshot_dirty_probe" in line for line in refused), found
+    assert any("ON CONFLICT (tenant_id, site_id, local_day) DO UPDATE" in line for line in refused), found
+
+
 def test_event_tables_foreign_write_rejected() -> None:
     """CH-1b §7: another registered writer may not write an event table; the outbox is trigger-written."""
     found = failures(isolated_copy(lambda copy: _append(copy, SNAPSHOT_WRITER,

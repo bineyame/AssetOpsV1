@@ -6,12 +6,14 @@ Site-local days through ``site.timezone``, and a span covering several days mark
 in the register, the events or the resolution (OL-1, plan §2.4): the register names measures only.
 
 ``consume`` (one consumer, one Site, bounded) reads unprocessed outbox events through an ``EventPort`` and, for the
-``snapshots`` consumer, marks the resolved (day, measure) pairs dirty and records the consumption, one event per
-transaction. The ``threads`` consumer is handed the events (``on_event``) and records the consumption after it.
+``snapshots`` consumer, marks the resolved (day, measure) pairs dirty and records the consumption, one page per
+transaction with the page's marks coalesced (ruling CH1b-R2). The ``threads`` consumer is handed the events
+(``on_event``) and records each consumption after it, one event per transaction.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable, Mapping, Protocol, Sequence
@@ -235,9 +237,34 @@ class EventPort(Protocol):
 
     def mark_and_consume(self, consumer: str, event: Event, marks: Sequence[tuple[date, str]]) -> None:
         """In ONE transaction: upsert every mark into ``snapshot_dirty`` (a re-mark refreshes ``marked_at``), then
-        record ``(consumer, event_id)`` in ``event_consumption``."""
+        record ``(consumer, event_id)`` in ``event_consumption``. The per-event form (the threads consumer)."""
+
+    def mark_and_consume_page(self, consumer: str, events: Sequence[Event], marks: Sequence[Mark]) -> None:
+        """In ONE transaction for a whole page (ruling CH1b-R2 note 3): upsert every coalesced mark (distinct on
+        (tenant, Site, day, measure)), then record ``(consumer, event_id)`` for every event of the page."""
 
     def site_today(self, tenant_id: UUID, site_id: UUID, tz: str) -> date: ...
+
+
+@dataclass(frozen=True)
+class Mark:
+    """One coalesced dirty mark of a page; ``first_event_id`` is the page's earliest event (read order) naming it."""
+    tenant_id: UUID
+    site_id: UUID
+    local_day: date
+    measure: str
+    first_event_id: UUID
+
+
+def coalesce(page: Sequence[tuple[Event, Sequence[tuple[date, str]]]]) -> list[Mark]:
+    """A page's marks, one per (tenant, Site, day, measure), each keeping the first event of the page that named it
+    (the page is in read order). Deduplicated before the upsert, which cannot affect one row twice."""
+    first: dict[tuple[UUID, UUID, date, str], UUID] = {}
+    for ev, marks in page:
+        for day, measure in marks:
+            first.setdefault((ev.tenant_id, ev.site_id, day, measure), ev.event_id)
+    ordered = sorted(first.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1]), kv[0][2], kv[0][3]))
+    return [Mark(t, s, d, m, e) for (t, s, d, m), e in ordered]
 
 
 @dataclass
@@ -245,40 +272,90 @@ class ConsumeReport:
     consumer: str
     consumed: int = 0
     marked: int = 0
+    pages: int = 0
+    stopped: str | None = None  # "deadline" | None (the queue was emptied)
+    ms: float = 0.0
+    select_ms: list[float] = field(default_factory=list)
     by_type: dict[str, int] = field(default_factory=dict)
 
     def as_json(self) -> dict[str, Any]:
-        return {"consumer": self.consumer, "consumed": self.consumed, "marked": self.marked,
+        return {"consumer": self.consumer, "consumed": self.consumed, "marked": self.marked, "pages": self.pages,
+                "stopped": self.stopped, "ms": round(self.ms, 1),
+                "select_ms": [round(x, 1) for x in self.select_ms],
                 "by_type": dict(sorted(self.by_type.items()))}
+
+
+def _count(report: ConsumeReport, ev: Event) -> None:
+    report.consumed += 1
+    report.by_type[ev.key] = report.by_type.get(ev.key, 0) + 1
 
 
 def consume(port: EventPort, register: EventRegister, consumer: str, tenant_id: UUID, site_id: UUID,
             site: SiteInfo, limit: int, *, on_event: Callable[[Event], None] | None = None,
-            deadline: Callable[[], bool] | None = None) -> ConsumeReport:
-    """Consume up to `limit` of this Site's events for `consumer`, oldest first. `on_event` (the threads consumer)
-    runs before the consumption is recorded, so a failure leaves the event unconsumed and it is retried."""
+            deadline: Callable[[], bool] | None = None, today: date | None = None) -> ConsumeReport:
+    """Consume this Site's events for `consumer`, oldest first, in pages of `limit`, until the queue is empty or
+    `deadline` passes (ruling DD0-R: the bound limits time, not rows; the rest stays queued, never a failure).
+
+    - ``snapshots``: each page's marks are coalesced and written with every consumption row of the page in ONE
+      transaction (``mark_and_consume_page``). ``today`` (read once per stage run, ruling CH1b-R2 note 1) clamps
+      every page; when not given it is read here once, on the first non-empty page.
+    - ``threads``/``lifecycle``: one event per transaction. `on_event` (the threads consumer) runs before the
+      consumption is recorded, so a failure leaves only that event unconsumed and it is retried."""
     if consumer not in CONSUMERS:
         raise ValueError(f"unknown consumer {consumer!r}")
     report = ConsumeReport(consumer)
     names = sorted({k.partition("@")[0] for k in register.consumes(consumer)})
-    events = port.unconsumed(consumer, tenant_id, site_id, names, limit)
-    today = port.site_today(tenant_id, site_id, site.timezone) if events else None
-    for ev in events:
-        if deadline is not None and deadline():
-            break
-        rule = register.rule(ev.type, ev.schema_version)
-        marks: list[tuple[date, str]] = []
-        if consumer == "snapshots" and rule is not None:
-            marks = resolve(register, ev, site_type=site.site_type, tz=site.timezone, today=today)
-        elif on_event is not None and rule is not None and consumer in rule.consumers:
-            on_event(ev)
-        port.mark_and_consume(consumer, ev, marks)
-        report.consumed += 1
-        report.marked += len(marks)
-        report.by_type[ev.key] = report.by_type.get(ev.key, 0) + 1
+    started = time.perf_counter()
+    try:
+        while True:
+            if deadline is not None and deadline():
+                report.stopped = "deadline"
+                break
+            t0 = time.perf_counter()
+            events = port.unconsumed(consumer, tenant_id, site_id, names, limit)
+            report.select_ms.append((time.perf_counter() - t0) * 1000)
+            if not events:
+                break
+            if consumer == "snapshots":
+                if today is None:
+                    today = port.site_today(tenant_id, site_id, site.timezone)
+                marks = coalesce([(ev, resolve(register, ev, site_type=site.site_type, tz=site.timezone, today=today))
+                                  for ev in events])
+                port.mark_and_consume_page(consumer, events, marks)
+                report.marked += len(marks)
+                for ev in events:
+                    _count(report, ev)
+            else:
+                for ev in events:
+                    if deadline is not None and deadline():
+                        report.stopped = "deadline"
+                        return report
+                    rule = register.rule(ev.type, ev.schema_version)
+                    if on_event is not None and rule is not None and consumer in rule.consumers:
+                        on_event(ev)
+                    port.mark_and_consume(consumer, ev, [])
+                    _count(report, ev)
+            report.pages += 1
+            if len(events) < limit:
+                break
+    finally:
+        report.ms = (time.perf_counter() - started) * 1000
     return report
 
 
-__all__ = ["CONSUMERS", "ConsumeReport", "Event", "EventPort", "EventRegister", "EventRule", "InputRule",
-           "RegisterError", "SiteInfo", "consume", "local_days", "parse_register", "resolve"]
+def consume_exactly(port: EventPort, consumer: str, events: Sequence[Event]) -> ConsumeReport:
+    """Record exactly these events as consumed by `consumer` in one transaction, with no marks. The lifecycle
+    consumer reads its unconsumed ids BEFORE ``run_lifecycle`` and records only those after it (review L2), so an
+    event committed while the run read the state stays unconsumed for the next run."""
+    report = ConsumeReport(consumer)
+    if events:
+        port.mark_and_consume_page(consumer, events, [])
+        report.pages = 1
+    for ev in events:
+        _count(report, ev)
+    return report
 
+
+__all__ = ["CONSUMERS", "ConsumeReport", "Event", "EventPort", "EventRegister", "EventRule", "InputRule", "Mark",
+           "RegisterError", "SiteInfo", "coalesce", "consume", "consume_exactly", "local_days", "parse_register",
+           "resolve"]
