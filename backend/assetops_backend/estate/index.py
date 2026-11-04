@@ -333,7 +333,7 @@ class EstateIndexService:
         # CH4-R R4: opportunity items are a separate, unpaged array (bounded by Sites, one per thread); the Finding
         # rows, order, total_count, token and cursor are unchanged.
         items = opportunity_read(snap, tenant_id, scope, req) if req.lens in ("all", "opportunities") else []
-        summary["opportunity_count"] = None if items is None else len(items)
+        summary["opportunity_count"] = None if items is None or not complete else len(items)  # summary rule: null unless complete
         opportunities = [] if items is None else [
             i for i in items if req.state_filter == "all" or i["filter_state"] == req.state_filter]
         body.update({"lens": req.lens, "state_filter": req.state_filter, "summary": summary, "order": FINDINGS_ORDER,
