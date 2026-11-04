@@ -1,4 +1,4 @@
-"""File reader for the declared chain config (coverage policy, operating calendar).
+"""File reader for the declared chain config (coverage policy, operating calendar, thread lifecycle).
 
 The schema validation lives in ``chain/policy.py``; this adapter only reads the
 JSON file. The shipped files are read once per process.
@@ -18,11 +18,13 @@ from assetops_backend.chain.policy import (
     parse_coverage_policy,
     parse_operating_calendar,
 )
+from assetops_backend.chain.lifecycle import LifecyclePolicy, parse_thread_lifecycle
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_POLICY_PATH = REPO_ROOT / "config" / "chain" / "coverage-policy-v1.json"
 DEFAULT_CALENDAR_PATH = REPO_ROOT / "config" / "chain" / "operating-calendar-v1.json"
 DEFAULT_REGISTER_PATH = REPO_ROOT / "config" / "chain" / "event-register-v1.yaml"  # CH-1b
+DEFAULT_LIFECYCLE_PATH = REPO_ROOT / "config" / "chain" / "thread-lifecycle-v1.json"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -79,3 +81,15 @@ def _register(path: Path):
 @lru_cache(maxsize=1)
 def _default_register():
     return _register(DEFAULT_REGISTER_PATH)
+
+
+def load_thread_lifecycle(path: Path | str | None = None) -> LifecyclePolicy:
+    """CH-3 §1: the declared thread-lifecycle policy (OD-2 close-after days, inconclusive expiry, clean-day measures)."""
+    if path is None:
+        return _default_lifecycle()
+    return parse_thread_lifecycle(_read_json(Path(path)), str(path))
+
+
+@lru_cache(maxsize=1)
+def _default_lifecycle() -> LifecyclePolicy:
+    return parse_thread_lifecycle(_read_json(DEFAULT_LIFECYCLE_PATH), str(DEFAULT_LIFECYCLE_PATH))

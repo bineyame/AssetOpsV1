@@ -140,6 +140,30 @@
    "owner": "CH-2"
   },
   {
+   "rule": "COH-5",
+   "site_code": "KOBO-001",
+   "window": "day:kobo:overuse:2026-10-17",
+   "subject": "4d121cdb-b759-47a7-ae15-9eafaeebd814:RISK",
+   "register": "I-21",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "KOBO-001",
+   "window": "day:kobo:overuse:2026-10-24",
+   "subject": "cbbc4916-4e35-4b98-9126-4e91c0bd407d:RISK",
+   "register": "I-21",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "KOBO-001",
+   "window": "day:kobo:trial-before:2026-10-31",
+   "subject": "706d2f14-4187-4747-b3ff-e06da50d462f:RISK",
+   "register": "I-21",
+   "owner": "CH-5a"
+  },
+  {
    "rule": "COH-6",
    "site_code": "KOBO-001",
    "window": "month",

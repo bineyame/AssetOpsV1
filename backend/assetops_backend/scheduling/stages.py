@@ -193,13 +193,15 @@ def s4(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
     """CH-2 (build sheet §4, live path until CH-1b's outbox): this Site's backfill steps (b) and (c), placing its new
-    Finding and opportunity revisions on their threads and linking its unlinked Actions. Idempotent."""
+    Finding and opportunity revisions on their threads and linking its unlinked Actions, then CH-3's step (d), the
+    lifecycle run (the fallback until CH-1b's `consume('lifecycle')`; it also runs the time-based causes).
+    Idempotent."""
     from assetops_backend.chain.backfill import run_threads
     from assetops_backend.chain.composition import build_thread_sources, build_thread_store
 
     reader, store = build_thread_sources(url), build_thread_store(url)
     try:
-        steps = run_threads(reader, store, _uuid(args["tenant_id"]), _uuid(args["site_id"]), ("b", "c"),
+        steps = run_threads(reader, store, _uuid(args["tenant_id"]), _uuid(args["site_id"]), ("b", "c", "d"),
                             created_by="tick")
     finally:
         _dispose(reader, store)

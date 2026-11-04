@@ -104,3 +104,9 @@ def build_thread_sources(database_url: str | None) -> PostgresThreadSources | No
 def build_event_store(database_url: str | None) -> PostgresEventStore | None:
     """CH-1b: the outbox consumer, dirty queue and backfill-event store; None without a database URL."""
     return PostgresEventStore(database_url) if database_url else None
+
+
+def thread_lifecycle_policy() -> Any:
+    """CH-3: the thread lifecycle policy (`config/chain/thread-lifecycle-v1.json`), for callers outside the adapters."""
+    from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+    return load_thread_lifecycle()

@@ -25,7 +25,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 #: Finding is in view: Protect lists the safeguard check, and the Action reads back under Cost.
 PROTECT = "Reliable service and battery and generator life checked as safeguards in ACT-001"
 COST_DETAIL = ("Estimated effect of the trial (not money saved): 0.042–0.046 USD less supply cost per kWh."
-               " Goal before the trial: missed; after: met.")
+               " Goal before the trial: missed; after: met · checked over 11:00–12:00 on 2 Nov.")  # CH-3 I-11 scope
 ASSURE = ("ACT-001 verified on example data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
           "supply cost per kWh")
 CODES = ("MODELLED_IMPROVEMENT", "MODELLED_NO_IMPROVEMENT", "UNAVAILABLE", "OUTCOME_INCONCLUSIVE",

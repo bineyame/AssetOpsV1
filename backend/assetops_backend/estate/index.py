@@ -144,7 +144,11 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
                 "_recurs_after": r.get("recurs_after_finding_id"), "_recurs_after_title": r.get("recurs_after_title"),
                 "_transition": r.get("transition"),
-                "_revision_no": r.get("revision_no")})
+                "_revision_no": r.get("revision_no"),
+                # CH3-R (COH-13): a cold/EV row's thread state is read at its Site's evidence cutoff (the board's
+                # resolved cutoff for that Site), never later than the estate cutoff.
+                "_cutoff": (None if domain == MINI_GRID or rec is None or rec.cutoff is None
+                            else min(rec.cutoff, scope["k"]))})
     return per_site, rows
 
 

@@ -183,8 +183,12 @@ def test_link_action_pending_then_linked_then_idempotent():
 
 
 def test_lookup_rows_reduce_to_findings_and_actions():
-    out = thread_lookup([("F", "ABC", "t1", 2, 3), ("A", "X", "t1", None, None)])
-    assert out == {"findings": {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3}}, "actions": {"x": "t1"}}
+    # CH-3 widened the row (story start, zone, mechanism, subject, events) and added state and segment.
+    out = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, "UTC", "M", "s", None),
+                         ("A", "X", "t1", None, None, None, None, "UTC", "abc", None, None)])
+    assert out["findings"] == {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3, "segment_no": 1,
+                                       "state": None, "state_effective_day": None, "state_day": None}}
+    assert out["actions"] == {"x": "t1"} and out["action_segments"] == {"x": 1}
 
 
 # --- the two read-path joins ----------------------------------------------------------------------------------
@@ -215,6 +219,43 @@ def test_portfolio_join_matches_on_thread_with_exact_fallback():
     plain = [{"finding_id": "f9"}]
     attach_threads(object(), T, plain, [])
     assert plain[0]["_thread"] is None
+
+
+def test_portfolio_thread_state_uses_the_resolved_cutoff():
+    """CH3-R COH-13: the Portfolio reads thread state at the envelope's resolved `window.known_at` (the board's
+    cutoff), not at the request's absent one."""
+    from datetime import datetime, timezone
+
+    from assetops_backend.estate.portfolio import attach_threads
+
+    seen = {}
+
+    class Snap:
+        def threads(self, t, fids, aids, **kw):
+            seen.update(kw)
+            return {"findings": {}, "actions": {}}
+
+    class Req:
+        to = datetime(2026, 10, 31, 12, tzinfo=timezone.utc)
+        known_at = None
+
+    k = datetime(2026, 10, 31, 11, tzinfo=timezone.utc)
+    attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req(), k)
+    assert seen["known_at"] == k
+    attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req())  # no resolved cutoff given: the request's (None)
+    assert seen["known_at"] is None
+    row_k = datetime(2026, 10, 31, 9, tzinfo=timezone.utc)  # a cold/EV row reads at its Site's evidence cutoff
+    calls = []
+
+    class Snap2:
+        def threads(self, t, fids, aids, **kw):
+            calls.append((sorted(fids), sorted(aids), kw["known_at"]))
+            return {"findings": {}, "actions": {}}
+
+    attach_threads(Snap2(), T, [{"finding_id": "f1", "_cutoff": row_k}, {"finding_id": "f2"}], [{"action_id": "a1"}],
+                   Req(), k)
+    # fix round 2: the Actions are read in every cutoff group, so their segments match the row's cutoff
+    assert sorted(calls, key=lambda c: c[0]) == [(["f1"], ["a1"], row_k), (["f2"], ["a1"], k)]
 
 
 def test_board_lists_a_domain_action_in_hand_by_thread():

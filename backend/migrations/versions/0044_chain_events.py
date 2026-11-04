@@ -20,7 +20,7 @@ Downgrade refuses while `event_outbox` has a row; otherwise it drops the trigger
 from alembic import op
 
 revision = "0044_chain_events"
-down_revision = "0042_chain_threads"
+down_revision = "0045_thread_known_at"
 branch_labels = None
 depends_on = None
 

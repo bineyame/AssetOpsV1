@@ -1071,8 +1071,13 @@ class VerificationService:
             known = m["window_name"] in seconds and m["value_text"] is not None
             if m["metric_key"] == "candidate_avoidable_seconds" and known:
                 seconds[m["window_name"]] = int(m["value_text"])
+        # CH-3 §5 (I-11, additive): the later window the outcome's plan judged, so the board states its scope.
+        plan = next((p for p in self.store.plans(tenant_id, site_id, action_id)
+                     if outcome is not None and str(p["id"]) == str(outcome.get("plan_id"))), None)
         return {"cost_check": cost,
-                "trial_hours": {"before_seconds": seconds["BASELINE"], "after_seconds": seconds["LATER"]}}
+                "trial_hours": {"before_seconds": seconds["BASELINE"], "after_seconds": seconds["LATER"],
+                                "later_start": None if plan is None else _wire(plan["later_start"]),
+                                "later_end": None if plan is None else _wire(plan["later_end"])}}
 
 
 def _source_wire(resolution: dict[str, Any]) -> dict[str, Any]:

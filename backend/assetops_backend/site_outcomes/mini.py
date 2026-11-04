@@ -404,8 +404,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     sales = _productive_sales(reads, ports, c, start, end)
     month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
-    findings = _findings(finding_rows or (), estate, c, start, end)
-    actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
+    findings = _findings(finding_rows or (), estate, c, start, end, work_lo)
+    actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c, site_timezone)
     findings = _lineage(reads, ports, findings, actions)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
@@ -495,7 +495,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       findings_settled=findings_ok, objectives=objectives,
                       finding_gaps=finding_gap_line(first, FINDING_WINDOW_DAYS), readings=readings,
                       objectives_ok=objective_rows is not None,
-                      objective_after={GROW: "productive_sales"})  # WALK1-3b §A2.3: (a), then (b), then (c)
+                      objective_after={GROW: "productive_sales"},
+                      work_window=(work_lo, end))  # WALK1-3b §A2.3: (a), then (b), then (c)
     suffix = "" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -618,7 +619,7 @@ _dispatch_minutes = dispatch_minutes
 
 
 def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
-              end: datetime) -> tuple[FindingFact, ...]:
+              end: datetime, work_lo: datetime | None = None) -> tuple[FindingFact, ...]:
     """Every index head over the work window, closed ones included (M1b). `in_window` = the episode intersects
     the overview day. Confidence: `place(...)` over the estate row of the same revision (addendum 2 item 3)."""
     estate_rows = {str(r["finding_revision_id"]): r for r in (estate or {}).get("findings") or ()}
@@ -639,7 +640,9 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
         title = FINDING_TITLE.get(str(r.get("lifecycle")), FINDING_TITLE_FALLBACK)
         out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), title, FINDING_MECHANISM,
                                r["lifecycle"], (r.get("links") or {}).get("selected_revision"),
-                               confidence_label=confidence, in_window=in_window))
+                               confidence_label=confidence, in_window=in_window,
+                               in_work_window=work_lo is not None and lo is not None and lo < end
+                               and (hi is None or hi > work_lo)))
     return tuple(out)
 
 
@@ -663,7 +666,7 @@ def _lineage(reads: Reads, ports: MiniPorts, findings: tuple[FindingFact, ...],
 
 
 def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
-             c: str) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
+             c: str, site_timezone: str | None = None) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
     """Action index rows; the workflow label from the estate Action of the same id fed to `workflow_label`
     unchanged (addendum 2 item 2); verification from the summary; a Foundation change from the Action read."""
     by_id = {str(a["action_id"]): a for a in (estate or {}).get("actions") or ()}
@@ -692,8 +695,22 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             (r.get("links") or {}).get("selected_event") or f"/sites/{c}/actions/{aid}?event_id={event_id}",
             workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}",
             cost_check=None if summary is None else summary.get("cost_check"),
-            trial_hours=None if summary is None else summary.get("trial_hours")))
+            trial_hours=_trial_hours(summary, site_timezone)))
     return tuple(out), has_change, tuple(missing)
+
+
+def _trial_hours(summary: dict[str, Any] | None, site_timezone: str | None) -> dict[str, Any] | None:
+    """The summary's trial hours, with the Site zone the I-11 scope line reads its later window in (CH-3 §5)."""
+    hours = None if summary is None else summary.get("trial_hours")
+    if hours is None:
+        return None
+    lo, hi = utc(hours.get("later_start")), utc(hours.get("later_end"))
+    if lo is None or hi is None:
+        return dict(hours)
+    if site_timezone:
+        from zoneinfo import ZoneInfo
+        lo, hi = lo.astimezone(ZoneInfo(site_timezone)), hi.astimezone(ZoneInfo(site_timezone))
+    return {**hours, "later_local": {"start": f"{lo:%H:%M}", "end": f"{hi:%H:%M}", "day": lo.date()}}
 
 
 def case_fact(r: dict[str, Any], kind: str, c: str) -> CaseFact:

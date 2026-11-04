@@ -12,11 +12,12 @@ never from the page (`.agent/W3-03-build-spec.md` closure 1 projections, closure
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
@@ -125,18 +126,48 @@ class ActionSelectionError(RuntimeError):
     """An Action row reached the Portfolio join without its selected event time: an internal selection error."""
 
 
-def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_rows: list[dict[str, Any]]) -> None:
+def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_rows: list[dict[str, Any]],
+                   req: Any = None, known_at: Any = None) -> None:
     """CH-2 (build sheet §5.1): each Finding row's thread (`_thread`: id, occurrence number, occurrence count) and
     each Action row's thread (`_thread_id`), from one snapshot query. A snapshot without the thread port, or a row
     with no thread, carries None, and `_action_for` then keeps the exact join alone."""
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
+    segments_at: dict[Any, dict[str, int]] = {}  # cutoff -> {action_id: segment at that cutoff}
     if port is not None and (f_rows or a_rows):
-        found = port(tenant_id, [r["finding_id"] for r in f_rows], [a["action_id"] for a in a_rows])
+        # CH-3 §5, CH3-R (AG-27, COH-13): the thread state on each Site's local day holding the window's last
+        # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV row's Site
+        # evidence cutoff (`_cutoff`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
+        # coalesce(cause_known_at, recorded_at) <= k); a request's own cutoff, when given, is that envelope value.
+        # Review side-question 1: the Action segments are read per cutoff group too, so a row's Finding segment and
+        # the Action segment it is compared with (`same_segment`) come from the same cutoff.
+        default = known_at if known_at is not None else (None if req is None else req.known_at)
+        by_cutoff: dict[Any, list[Any]] = {default: []}
+        for r in f_rows:
+            r["_thread_cutoff"] = r.get("_cutoff") or default
+            by_cutoff.setdefault(r["_thread_cutoff"], []).append(r["finding_id"])
+        for cutoff, fids in by_cutoff.items():
+            if not fids and not (cutoff == default and a_rows):
+                continue
+            kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff}
+            part = port(tenant_id, fids, [a["action_id"] for a in a_rows], **kw)
+            for key in ("findings", "actions"):
+                found.setdefault(key, {}).update(part.get(key) or {})
+            segments_at[cutoff] = part.get("action_segments") or {}
     for r in f_rows:
         r["_thread"] = found["findings"].get(str(r["finding_id"]).lower())
     for a in a_rows:
-        a["_thread_id"] = found["actions"].get(str(a["action_id"]).lower())
+        aid = str(a["action_id"]).lower()
+        a["_thread_id"] = found["actions"].get(aid)
+        a["_segment_no"] = (segments_at.get(default) or {}).get(aid)
+        a["_segment_at"] = {c: seg[aid] for c, seg in segments_at.items() if aid in seg}
+
+
+def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
+    """The Action's thread segment read at the Finding row's cutoff (else at the default cutoff)."""
+    at = a.get("_segment_at") or {}
+    cutoff = row.get("_thread_cutoff")
+    return at[cutoff] if cutoff in at else a.get("_segment_no")
 
 
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -145,9 +176,17 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     `(origin_finding_id, origin_finding_revision_id)` pair. Several matches choose the latest selected Action event
     `recorded_at`, then `action_id` ascending."""
     thread = (row.get("_thread") or {}).get("id")
+    segment = (row.get("_thread") or {}).get("segment_no")
+
+    def same_segment(a: dict[str, Any]) -> bool:
+        """CH-3 §3 (CH-2 L1): on a thread, an Action is current for a Finding only in the Finding's segment, both
+        read at the row's cutoff."""
+        seg = action_segment_for(a, row)
+        return segment is None or seg is None or seg == segment
+
     matches = [a for a in actions if (a["source_finding_id"], a["source_finding_revision_id"])
                == (row["finding_id"], row["finding_revision_id"])
-               or (thread is not None and a.get("_thread_id") == thread)]
+               or (thread is not None and a.get("_thread_id") == thread and same_segment(a))]
     if not matches:
         return None
     if any(a["_raw"].get("_selected_recorded_at") is None for a in matches):
@@ -211,6 +250,8 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "thread": None if r.get("_thread") is None else dict(r["_thread"]),
         # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
         "action_thread_id": None if action is None else action.get("_thread_id"),
+        # CH-3 (packet deviation, additive): the matched Action's thread segment, so COH-15 observes the rule.
+        "action_segment_no": None if action is None else action_segment_for(action, r),
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
         "action_state": None if action is None else action["application_state"],
@@ -500,6 +541,44 @@ def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
             "rows": [public(r) for r in rows]}, complete
 
 
+#: CH-3 §5: thread states (chain/lifecycle.py VERIFIED_STATES / ATTENTION_STATES).
+VERIFIED_THREAD_STATES = ("RESOLVED_MONITORING", "CLOSED")
+ATTENTION_THREAD_STATES = ("OPEN", "RECURRED", "REOPENED")
+
+
+def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
+    """CH-3 §5 (I-24): over the window's Finding rows' threads (state on the window's last day as of its cutoff):
+    `verified_resolution_count` = threads in RESOLVED_MONITORING or CLOSED; `priority_site_count` = Sites with a
+    thread in OPEN, RECURRED or REOPENED. None when no row carries a thread (no thread port, or below 0042)."""
+    # Review L3: one state per thread, independent of row order: the row of the thread's highest segment (its
+    # current state), then the highest occurrence number.
+    best: dict[str, tuple[tuple[int, int], str, Any]] = {}
+    for r in f_rows:
+        t = r.get("_thread")
+        if not t:
+            continue
+        rank = (int(t.get("segment_no") or 0), int(t.get("occurrence_no") or 0))
+        prior = best.get(str(t["id"]))
+        if prior is None or rank > prior[0]:
+            best[str(t["id"])] = (rank, str(r["site_id"]), t.get("state"))
+    threads = {tid: (sid, st) for tid, (_, sid, st) in best.items()}
+    if not threads:
+        return None
+    return {"verified_resolution_count": sum(1 for _, st in threads.values() if st in VERIFIED_THREAD_STATES),
+            "priority_site_count": len({sid for sid, st in threads.values() if st in ATTENTION_THREAD_STATES})}
+
+
+def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """CH-3 §5 (OD-3 / AG-24), CH3-R: the sum per currency of credited amounts (a stored, priced, positive total on
+    a MODELLED_IMPROVEMENT cost check of a VERIFIED outcome), or "No money credited · modelled, not saved". The
+    per-kWh rate is never summed; no priced total is stored today, so this reads not credited."""
+    port = getattr(snap, "cost_checks", None)
+    ids = [str(a["_raw"]["_outcome_id"]) for a in a_rows if a["_raw"].get("_outcome_id") is not None]
+    checks = port(tenant_id, ids) if port is not None and ids else {}
+    return recovered_value([(checks.get(str(a["_raw"].get("_outcome_id")).lower()), a.get("verification_outcome"))
+                            for a in a_rows if a["_raw"].get("_outcome_id") is not None])
+
+
 def _exact(bounds: dict[str, Any] | None) -> bool:
     return bool(bounds) and bounds.get("low") is not None and bounds.get("low") == bounds.get("high")
 
@@ -591,7 +670,7 @@ class EstatePortfolioService(EstateEvidenceService):
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
         lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
-        attach_threads(snap, tenant_id, f_rows, a_rows)
+        attach_threads(snap, tenant_id, f_rows, a_rows, req, scope["k"])
         lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
         lap("evidence")
@@ -662,6 +741,10 @@ class EstatePortfolioService(EstateEvidenceService):
         gaps = evidence_gap_groups(e_rows_all)
         prog, actions_complete = progress(a_sites, a_rows, scope["k"],
                                           {(r["finding_id"], r["finding_revision_id"]) for r in f_rows})
+        thread_counts = thread_progress(f_rows)
+        if thread_counts is not None:  # CH-3 §5 (I-24): counts from thread states when the threads are read
+            prog["verified_resolution_count"] = thread_counts["verified_resolution_count"]
+        prog["recovered_value"] = recovered(snap, tenant_id, a_rows)
         # WALK1-1 (WN-2): counts are claims on complete (or complete-empty) coverage of their root, or, on a PARTIAL
         # estate, over the checked days (a PARTIAL Site's rows already drop every head touching an unchecked day,
         # `coverage.py` §2.5). Nothing is extrapolated; money is unchanged (D-W1-4).
@@ -672,7 +755,8 @@ class EstatePortfolioService(EstateEvidenceService):
         # unchecked days UNASSESSED with no typed gap), so the evidence gap count follows the same rule.
         evidence_known = states["E"] in (COMPLETE, EMPTY) or count_basis == "CHECKED_DAYS"
         summary: dict[str, Any] = {
-            "finding_count": len(members) if finding_known else None, "priority_site_count": None,
+            "finding_count": len(members) if finding_known else None,
+            "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
             "opportunity_count": (sum(1 for r in members if LENS_FLAG["opportunities"] in r["lens_flags"])
                                   if finding_known else None),
             "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,

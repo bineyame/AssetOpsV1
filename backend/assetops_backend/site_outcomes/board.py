@@ -59,6 +59,19 @@ COST_NOT_CALCULATED = "Modelled change not calculated: {words}"
 COST_NOT_YET = "Not calculated yet"
 #: POLISH D-2 (OUT-E L4): a modelled improvement is credited only to a VERIFIED trial.
 COST_NOT_CREDITED = "The trial did not fix the problem, so no cost change is credited to it"
+#: CH-3 §5: the verified claim's scope (I-11), appended to the attributed trial line; the verdict is unchanged.
+TRIAL_SCOPE = " · checked over {start}–{end} on {day}"
+#: CH-3 §5: the four thread lines (row subline of the row where the Finding is the primary MOVES issue).
+THREAD_BEFORE = "Before the change on {e}"
+THREAD_AFTER_JUDGED = " · after the change: {state_label} from {day}"
+THREAD_AFTER_NOT_JUDGED = " · after the change: not judged yet, no fully checked day since {e}"
+THREAD_MONITORING = "Fix verified, monitoring ({code}) · {k} more fully checked days to close"
+THREAD_CLOSED = "Fix verified and closed ({code}) · no return in {n} fully checked days"
+THREAD_RECURRED = "Came back on {day} after the fix ({code})"
+#: Thread states (chain/lifecycle.py; this module imports only outcomes/, test_ch3_rows pins the equality).
+THREAD_APPLIED_STATES = ("CHANGE_APPLIED", "RESOLVED_MONITORING", "CLOSED")
+THREAD_VERIFIED_STATES = ("RESOLVED_MONITORING", "CLOSED")
+THREAD_WIRE_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
 TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
@@ -129,10 +142,15 @@ class FindingFact:
     #: Addendum 2 item 4: False for a Finding read only to resolve a link (outside the overview day). Such a
     #: Finding places linked work but drives no signal, issue or headline.
     in_window: bool = True
+    #: CH3-R M3: the episode intersects the board's 31-day work window (mini; the thread-level line reads it).
+    in_work_window: bool = False
     #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
     refreshed_from: tuple[str, ...] = ()
     #: CH-2 §5.3: the Finding's thread `{id, occurrence_no, occurrences}`; None when it has no thread.
+    #: CH-3 adds `segment_no`, `state` and `state_effective_day` on the board day as of its `known_at`.
     thread: Mapping[str, Any] | None = None
+    #: CH-3: the read-time thread view (`chain/lifecycle.thread_view`); never on the wire.
+    lifecycle_view: Mapping[str, Any] | None = None
 
     @property
     def open(self) -> bool:
@@ -158,6 +176,7 @@ class ActionFact:
     cost_check: Mapping[str, Any] | None = None   # {state, reason, nominal, upper, currency, recorded_at}
     trial_hours: Mapping[str, Any] | None = None  # {before_seconds, after_seconds}
     thread_id: str | None = None                  # CH-2: the Action's `chain_action.thread_id`; None = not linked
+    segment_no: int | None = None                 # CH-3 §3: the Action's thread segment; None = not linked
 
 
 @dataclass(frozen=True)
@@ -250,6 +269,11 @@ class SiteFacts:
     finding_gaps: Mapping[str, Any] | None = None
     #: WALK1-3b §A2.3: per category, the contributor key the "Declared objective" lines follow; absent = after all.
     objective_after: Mapping[str, str] = field(default_factory=dict)
+    #: CH-3 §5: the board's Site-local day and cutoff (the thread state is read on `day` as of `known_at`).
+    day: Any = None        # datetime.date | None (this module imports only outcomes/ and these stdlib modules)
+    known_at: Any = None   # datetime | None
+    #: CH3-R M3: the board's 31-day work window `(work_lo, end)` (mini); None = no thread-level line.
+    work_window: Any = None
 
 
 # ---------------------------------------------------------------- helpers
@@ -414,10 +438,20 @@ def trial_line(a: ActionFact, objective: ObjectiveFact | None) -> str | None:
         return None
     label = OUTCOME_BY_KEY[objective.outcome_key].label
     if a.verification_state == "VERIFIED":
-        return TRIAL_ATTRIBUTED.format(label=label, before=TRIAL_VERDICT[b], after=TRIAL_VERDICT[l])
+        base, scope = TRIAL_ATTRIBUTED.format(label=label, before=TRIAL_VERDICT[b], after=TRIAL_VERDICT[l]), trial_scope(hours)
+        return base[:-1] + scope + "." if scope and base.endswith(".") else base + scope
     if b != l:
         return TRIAL_NOT_ATTRIBUTED
     return TRIAL_UNCHANGED.format(label=label, verdict=TRIAL_VERDICT[b])
+
+
+def trial_scope(hours: Mapping[str, Any]) -> str:
+    """CH-3 §5 (I-11): the later window the verification judged, in Site-local time (the composer's
+    `later_local` `{start, end, day}`); "" when it is not read."""
+    local = hours.get("later_local")
+    if not local:
+        return ""
+    return TRIAL_SCOPE.format(start=local["start"], end=local["end"], day=_short_day(local["day"]))
 
 
 def action_detail(a: ActionFact, cat: str, facts: SiteFacts) -> str | None:
@@ -540,9 +574,9 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     for f in facts.findings:
         if not f.in_window:
             continue
-        applied = any(a.applied for a in linked_actions(f))
+        is_open, applied = finding_signal_state(f, linked_actions(f))
         for i, key in enumerate(roles[f.finding_id].moves):
-            signals.append(Signal(FINDING, key, i == 0, f.open, applied, None, f.finding_id))
+            signals.append(Signal(FINDING, key, i == 0, is_open, applied, None, f.finding_id))
     sig_roles = {s.signal_key: _Roles(s.signal_key, domain) for s in facts.signals_extra}
     for s in facts.signals_extra:
         if not s.open:
@@ -560,6 +594,98 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, linked_actions, warn_roles)
             for cat in CATEGORIES]
     return rows
+
+
+def finding_signal_state(f: FindingFact, linked: Sequence[ActionFact]) -> tuple[bool, bool]:
+    """(open, applied) of a Finding's signal. CH-3 §5 (DS-R1 item 3): with a thread, the thread state on the board
+    day in the Finding's segment decides: applied from CHANGE_APPLIED on, and a verified fix (RESOLVED_MONITORING or
+    CLOSED) gives no open signal (I-02). Without a thread (no thread port, or a database below 0042) the
+    exact-revision rule is kept."""
+    if f.thread is None:
+        return f.open, any(a.applied for a in linked)
+    state = f.thread.get("state")
+    return f.open and state not in THREAD_VERIFIED_STATES, state in THREAD_APPLIED_STATES
+
+
+def _short_day(d: Any) -> str:
+    return f"{d.day} {d:%b}"
+
+
+def _thread_action(f: FindingFact, facts: SiteFacts, earlier: bool) -> ActionFact | None:
+    """The Action of the Finding's segment (or of an earlier segment), verified first, then by code."""
+    seg = (f.thread or {}).get("segment_no")
+    tid = (f.thread or {}).get("id")
+    pool = [a for a in facts.actions if a.thread_id is not None and a.thread_id == tid and a.segment_no is not None
+            and seg is not None and (a.segment_no < seg if earlier else a.segment_no == seg)]
+    pool.sort(key=lambda a: (a.verification_state != "VERIFIED", -(a.segment_no or 0), a.code or "", a.action_id))
+    return pool[0] if pool else None
+
+
+def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) -> str | None:
+    """CH-3 §5: the one thread line that applies to a Finding on the board day, else None."""
+    view, d = f.lifecycle_view, facts.day
+    if view is None or f.thread is None or d is None:
+        return None
+    state, e = f.thread.get("state"), view.get("change_day")
+    if e is not None and d < e:
+        line = THREAD_BEFORE.format(e=_short_day(e))
+        first = view.get("first_complete_after_change")
+        label = None if first is None or state_label_on is None else state_label_on(first)
+        if first is not None and label is not None:
+            return line + THREAD_AFTER_JUDGED.format(state_label=label, day=_short_day(first))
+        return line + THREAD_AFTER_NOT_JUDGED.format(e=_short_day(e))
+    if state == "RECURRED":
+        a = _thread_action(f, facts, earlier=True)
+        day = view.get("recurred_day")
+        if a is None or day is None:
+            return None
+        return THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code))
+    if state in THREAD_VERIFIED_STATES:
+        a = _thread_action(f, facts, earlier=False)
+        if a is None:
+            return None
+        n = int(view.get("close_after") or 0)
+        if state == "CLOSED":
+            return THREAD_CLOSED.format(code=display_code(a.code), n=n)
+        return THREAD_MONITORING.format(code=display_code(a.code), k=max(0, n - int(view.get("checked_days") or 0)))
+    return None
+
+
+#: CH3-R M3: the thread states whose line is thread-level (shown after the thread's Finding left the overview day).
+THREAD_LATER_STATES = ("RESOLVED_MONITORING", "CLOSED", "RECURRED")
+
+
+def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
+    """The Findings whose thread line a board shows, in (title, id) order. Every in-window Finding (CH-3 §5), and,
+    CH3-R M3 (thread-level, mini boards): for a thread with no in-window Finding, its latest occurrence on the
+    board when the thread's latest occurrence or an Action of it lies in the board's 31-day work window
+    (`work_lo`..`end`) and its state on the board day is RESOLVED_MONITORING, CLOSED or RECURRED."""
+    shown = [f for f in facts.findings if f.in_window]
+    if facts.work_window is not None:
+        have = {str(f.thread.get("id")) for f in shown if f.thread is not None}
+        latest: dict[str, FindingFact] = {}
+        for f in facts.findings:
+            if f.in_window or f.thread is None or str(f.thread.get("id")) in have:
+                continue
+            tid = str(f.thread.get("id"))
+            prior = latest.get(tid)
+            if prior is None or (int(f.thread.get("occurrence_no") or 0), f.finding_id) > (
+                    int(prior.thread.get("occurrence_no") or 0), prior.finding_id):  # type: ignore[union-attr]
+                latest[tid] = f
+        acted = {a.thread_id for a in facts.actions if a.thread_id is not None}
+        for tid, f in latest.items():
+            recent = f.in_work_window or tid in acted
+            if recent and f.thread.get("state") in THREAD_LATER_STATES:  # type: ignore[union-attr]
+                shown.append(f)
+    return sorted(shown, key=lambda f: (f.title, f.finding_id))
+
+
+def _state_on(view: Mapping[str, Any], day: Any) -> str | None:
+    last = None
+    for _, state, eff in view.get("events") or ():
+        if eff <= day:
+            last = state
+    return last
 
 
 def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Roles], by_id: dict[str, FindingFact],
@@ -642,6 +768,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         r = roles[origin.finding_id] if origin is not None else None
         move_cats = r.move_cats if r is not None else ["PROTECT_ASSET"]
         result = earlier_result_for_action(a)
+        if result is None and a.open and _earlier_segment(a, facts):
+            result = ACTION_RESULT.get(a.verification_state or "PENDING", ACTION_RESULT["PENDING"])  # CH-3 §3
         if result is not None:
             if cat in move_cats:
                 earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result + suffix,
@@ -719,9 +847,29 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     at = next((i + 1 for i, c in enumerate(domain_lines) if c.key == after), len(domain_lines))
     ordered = (*domain_lines[:at], *objective_lines, *domain_lines[at:])
 
+    # CH-3 §5: the thread line of each in-window Finding whose primary MOVES outcome is in this row.
+    def state_label_on(f: FindingFact, day: Any) -> str | None:
+        """Ruling Q2: this row's state label with the Finding's thread state on `day` and the board's verdicts."""
+        st = _state_on(f.lifecycle_view or {}, day)
+        alt = [replace(s, open=f.open and st not in THREAD_VERIFIED_STATES, applied=st in THREAD_APPLIED_STATES)
+               if s.kind == FINDING and s.ref == f.finding_id else s for s in signals]
+        alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
+                                            readiness=facts.readiness, objective=verdicts.get(o.key),
+                                            objectives_ok=facts.objectives_ok)[0]) for o in outcomes]
+        return STATE_LABEL[roll_up(alt_states)[0]].lower() if alt_states else None
+
+    thread_lines: list[str] = []
+    for f in thread_line_findings(facts):
+        moves = roles[f.finding_id].moves
+        if moves and OUTCOME_BY_KEY[moves[0]].category == cat:
+            line = thread_line(f, facts, lambda day, f=f: state_label_on(f, day))
+            if line and line not in thread_lines:
+                thread_lines.append(line)
+    subline = " · ".join(x for x in (facts.subline.get(cat), *thread_lines) if x) or None
+
     row.update({
         "potential": potential,
-        "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": facts.subline.get(cat),
+        "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": subline,
         "counts": {"issues": len(issues), "in_hand": len(in_hand)}, "must_not_harm": must_not_harm,
         "contributors": [_contributor(c) for c in ordered],
         "issues": issues,
@@ -731,6 +879,16 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             EARLIER_EMPTY_OPEN if any(f.open and f.in_window for f in moves_here) else EARLIER_EMPTY_NONE),
     })
     return row
+
+
+def _earlier_segment(a: ActionFact, facts: SiteFacts) -> bool:
+    """CH-3 §3 (CH-2 L1): an Action linked to an earlier segment of its thread than the segment current on the board
+    day is never in hand; it is listed under Earlier."""
+    if a.thread_id is None or a.segment_no is None:
+        return False
+    current = [int(f.lifecycle_view.get("segment_current") or 0) for f in facts.findings
+               if f.lifecycle_view is not None and f.thread is not None and f.thread.get("id") == a.thread_id]
+    return bool(current) and a.segment_no < max(current)
 
 
 def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[str, _Roles],
@@ -749,16 +907,20 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
     return {"kind": "FINDING", "role": role, "text": text, "href": f.href,
             "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
-                    "thread": None if f.thread is None else dict(f.thread)}}
+                    "thread": None if f.thread is None else {k: f.thread[k] for k in THREAD_WIRE_KEYS
+                                                             if k in f.thread}}}
 
 
 def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> SiteFacts:
     """CH-2: the composition's facts with each Finding's thread and each Action's thread id from one lookup
     (`chain/lookup.py` shape: `{"findings": {id: {...}}, "actions": {id: thread_id}}`)."""
     fs, acts = found.get("findings") or {}, found.get("actions") or {}
+    views, segs = found.get("lifecycle") or {}, found.get("action_segments") or {}
     return replace(facts,
-                   findings=tuple(replace(f, thread=fs.get(f.finding_id.lower())) for f in facts.findings),
-                   actions=tuple(replace(a, thread_id=acts.get(a.action_id.lower())) for a in facts.actions))
+                   findings=tuple(replace(f, thread=fs.get(f.finding_id.lower()),
+                                          lifecycle_view=views.get(f.finding_id.lower())) for f in facts.findings),
+                   actions=tuple(replace(a, thread_id=acts.get(a.action_id.lower()),
+                                         segment_no=segs.get(a.action_id.lower())) for a in facts.actions))
 
 
 def _contributor(c: Contributor) -> dict[str, Any]:
