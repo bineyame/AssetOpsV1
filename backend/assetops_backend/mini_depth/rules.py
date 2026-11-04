@@ -392,13 +392,24 @@ class RenewableCards:
     recurrence_established: bool
 
 
+def observed_headroom_range(values: Sequence[Bound]) -> Bound | None:
+    """CH4-R R3: the observed range over eligible hours (min low, max high): the board and renewable page claim."""
+    return Bound(min(v.low for v in values), max(v.high for v in values)) if values else None
+
+
+def headroom_on_every_eligible_day(bounds: Sequence[Bound]) -> Bound | None:
+    """CH4-R R3: the room available on every eligible day (min low, min high): the opportunity study's value.
+    Moved unchanged from `mini_decisions/projection.frozen_result`; a different claim from the observed range."""
+    if not bounds:
+        return None
+    return Bound(min(b.low for b in bounds), min(b.high for b in bounds))
+
+
 def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) -> RenewableCards:
     """Closure 1 Q4/Q19, closure 2: cards over complete eligible days; the denominator is complete days only."""
     eligible = [h for h in hours if h.decision == "ELIGIBLE"]
     assessed = [h for h in hours if h.decision in ("ELIGIBLE", "EXCLUDED")]
-
-    def span(values: list[Bound]) -> Bound | None:
-        return Bound(min(v.low for v in values), max(v.high for v in values)) if values else None
+    span = observed_headroom_range
 
     used = [h.used_kw for h in eligible if h.used_kw is not None]
     return RenewableCards(

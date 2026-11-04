@@ -103,6 +103,18 @@ def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowReco
     return {"finding": finding, "site": site_home_href(code, domain)}
 
 
+def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> list[dict[str, Any]] | None:
+    """CH-4 §4: the opportunity items of every authorized Site in the request window as of the envelope's
+    `known_at` (Findings and Portfolio share this one call). None only when the read raised."""
+    reader = getattr(snap, "opportunity_threads", None)
+    if reader is None:
+        return []
+    try:
+        return reader(tenant_id, sorted(scope["ids"]), req.from_, req.to, scope["k"])
+    except Exception:  # noqa: BLE001 - stated in the packet: the count reads "Unknown", never a guess
+        return None
+
+
 def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                          scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
                                                           list[dict[str, Any]]]:
@@ -317,7 +329,14 @@ class EstateIndexService:
         body = self._envelope(FINDINGS_SCHEMA, tenant_id, req, scope, covered, _status(scope["historical"], states),
                               {"state": _coverage_state(states),
                                "sites": [_coverage_site(site, cov) for site, _, cov in per_site]})
+        # CH4-R R4: opportunity items are a separate, unpaged array (bounded by Sites, one per thread); the Finding
+        # rows, order, total_count, token and cursor are unchanged.
+        items = opportunity_read(snap, tenant_id, scope, req) if req.lens in ("all", "opportunities") else []
+        summary["opportunity_count"] = None if items is None else len(items)
+        opportunities = [] if items is None else [
+            i for i in items if req.state_filter == "all" or i["filter_state"] == req.state_filter]
         body.update({"lens": req.lens, "state_filter": req.state_filter, "summary": summary, "order": FINDINGS_ORDER,
+                     "opportunities": opportunities,
                      "total_count": len(shown) if complete else None,
                      "rows": [{k: v for k, v in r.items() if not k.startswith("_")} for r in page],
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token, last["_at"],

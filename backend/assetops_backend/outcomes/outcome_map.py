@@ -99,3 +99,25 @@ def categories_for(signal_key: str, domain: str, linked: Sequence[str] = ()) -> 
         return {"policy_version": POLICY_VERSION, "state": "NOT_MAPPED", "items": []}
     return {"policy_version": POLICY_VERSION, "state": "MAPPED",
             "items": _items(moves, "MOVES") + _items(checked, "CHECKED")}
+
+
+#: CH4-R R5: the index lens of each outcome category (ASSURE_PERFORMANCE has none).
+LENS_OF_CATEGORY = {"OPTIMIZE_COST": "COST", "PROTECT_ASSET": "RISK", "GROW_REVENUE": "OPPORTUNITY"}
+#: CH4-R R5: thread mechanisms whose map key is a `SIGNAL:` (not a `FINDING:`) entry.
+_THREAD_SIGNAL_MECHANISMS = ("PRODUCTIVE_USE_HEADROOM",)
+
+
+def thread_signal_key(mechanism: str | None) -> str:
+    """CH4-R R5 (OL-1): the map key of a thread's mechanism. The headroom opportunity thread maps to its signal."""
+    if mechanism in _THREAD_SIGNAL_MECHANISMS:
+        return "SIGNAL:" + str(mechanism)
+    return finding_signal_key(mechanism)
+
+
+def lens_flags(signal_key: str, domain: str) -> list[str]:
+    """CH4-R R5: the lens of the primary moved outcome's category (`moves[0]`); `[]` when unmapped or ASSURE."""
+    moves, _ = outcome_roles(signal_key, domain)
+    if not moves:
+        return []
+    lens = LENS_OF_CATEGORY.get(OUTCOME_BY_KEY[moves[0]].category)
+    return [] if lens is None else [lens]

@@ -27,7 +27,8 @@ from assetops_backend.estate.evidence_money import _groups as evidence_gap_group
 from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
 from assetops_backend.estate.index import (
-    LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, select_action_scope, select_finding_scope)
+    LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, opportunity_read, select_action_scope,
+    select_finding_scope)
 from assetops_backend.estate.placement import GROUPS, place
 from assetops_backend.outcomes.catalogue import CATEGORIES, OUTCOME_BY_KEY
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, outcome_roles
@@ -349,14 +350,18 @@ CARD_SLOTS = {
     ("OPERATING_COST", "NO_LINE"): ("No selected operating-cost consequence", "No value line", "neutral"),
     ("SERVICE_PRODUCT_RISK", "UNKNOWN"): ("No reviewed estate risk classification", "Risk count unavailable",
                                           "neutral"),
-    ("PRODUCTIVE_USE", "UNSUPPORTED"): ("No reviewed opportunity Finding or headroom basis",
-                                        "Demand and scenario basis unavailable", "neutral"),
+    # CH-4 §2.3: from the opportunity items (FOUND/NONE); UNKNOWN only when the opportunity read raised.
+    ("PRODUCTIVE_USE", "FOUND"): (None, "Listed under Findings › Opportunities", "green"),
+    ("PRODUCTIVE_USE", "NONE"): ("No opportunity found in this period", "Listed under Findings › Opportunities",
+                                 "neutral"),
+    ("PRODUCTIVE_USE", "UNKNOWN"): ("Opportunities could not be read", "Listed under Findings › Opportunities",
+                                    "neutral"),
     ("ASSET_LIFE", "UNSUPPORTED"): ("Capacity and life exposure are not assessed", "No reviewed life assessment",
                                     "neutral"),
     ("VERIFIED_RECOVERY", "NOT_ESTABLISHED"): ("Verification outcome is separate from recovered value",
                                                "Completed work does not establish savings", "neutral")}
 CARD_DESTINATION = {"OPERATING_COST": "/financials", "SERVICE_PRODUCT_RISK": "/findings/risks",
-                    "PRODUCTIVE_USE": None, "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
+                    "PRODUCTIVE_USE": "/findings/opportunities", "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
 #: Literal value slots; the bounded amounts of COMPARABLE_GROUP/SITE_OWNED are formatted by the page (S10).
 DISPLAYED_VALUE = {"WITHHELD": "Can't be compared across these sites yet", "NO_LINE": "No supported value",
                    "UNPRICED": "Unpriced", "UNKNOWN": "Not assessed", "UNSUPPORTED": "Not established",
@@ -400,12 +405,30 @@ def operating_cost_card(lines: list[dict[str, Any]], applicable: dict[str, bool]
     return _card("OPERATING_COST", "WITHHELD", line_keys=keys)
 
 
+def productive_use_card(items: list[dict[str, Any]] | None) -> dict[str, Any]:
+    """CH-4 §2.3: FOUND (detail = the items' short labels) or NONE from the opportunity items."""
+    if items is None:
+        return _card("PRODUCTIVE_USE", "UNKNOWN")
+    if not items:
+        return _card("PRODUCTIVE_USE", "NONE")
+    return _card("PRODUCTIVE_USE", "FOUND", detail=" · ".join(i["short_label"] for i in items))
+
+
+def opportunity_block(items: list[dict[str, Any]] | None) -> dict[str, Any]:
+    """CH-4 §2.3: the Portfolio `opportunity` block from the same items as Findings › Opportunities."""
+    found = bool(items)
+    return {"state": "UNKNOWN" if items is None else "FOUND" if found else "NONE", "items": list(items or []),
+            "finding_id": None, "scenario_amount": None,
+            "headroom": items[0]["study"]["headroom_kw"] if found else None,
+            "destination": "/findings/opportunities"}
+
+
 def value_cards(lines: list[dict[str, Any]], applicable: dict[str, bool],
-                groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+                groups: list[dict[str, Any]], opportunities: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     """The five cards in mock order. No reviewed RISK producer exists, so risk is UNKNOWN (closure 4 N4); the other
     three are fixed unsupported/not-established slots that never inherit mock values."""
     return [operating_cost_card(lines, applicable, groups), _card("SERVICE_PRODUCT_RISK", "UNKNOWN"),
-            _card("PRODUCTIVE_USE", "UNSUPPORTED"), _card("ASSET_LIFE", "UNSUPPORTED"),
+            productive_use_card(opportunities), _card("ASSET_LIFE", "UNSUPPORTED"),
             _card("VERIFIED_RECOVERY", "NOT_ESTABLISHED")]
 
 
@@ -671,6 +694,7 @@ class EstatePortfolioService(EstateEvidenceService):
         lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
         attach_threads(snap, tenant_id, f_rows, a_rows, req, scope["k"])
+        opp_items = opportunity_read(snap, tenant_id, scope, req)  # CH-4 §4.2: the Findings items, same call
         lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
         lap("evidence")
@@ -757,8 +781,8 @@ class EstatePortfolioService(EstateEvidenceService):
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None,
             "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
-            "opportunity_count": (sum(1 for r in members if LENS_FLAG["opportunities"] in r["lens_flags"])
-                                  if finding_known else None),
+            "opportunity_count": None if opp_items is None else len(opp_items),
+            "opportunity_labels": None if opp_items is None else [i["short_label"] for i in opp_items],
             "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,
             "accepted_action_count": len(a_rows) if actions_complete else None,
             "verified_resolution_count": prog["verified_resolution_count"],
@@ -790,12 +814,11 @@ class EstatePortfolioService(EstateEvidenceService):
                                      "source_provenance": next(resolved) if ids else None})
         lap("disclosure")
         body.update({"lens": req.lens, "summary": summary,
-                     "value_cards": value_cards(m_lines_all, applicable, groups),
+                     "value_cards": value_cards(m_lines_all, applicable, groups, opp_items),
                      "objectives": [objective(site, evidence_by[str(site["site_id"])], money_by[str(site["site_id"])],
                                               bool(snap.basis_historical)) for site, _, _ in f_sites],
                      "evidence_prompt": evidence_prompt(states["E"], gaps),
-                     "opportunity": {"state": "UNSUPPORTED", "finding_id": None, "scenario_amount": None,
-                                     "headroom": None, "destination": None},
+                     "opportunity": opportunity_block(opp_items),
                      "progress": prog, "footer": footer(m_sites, m_lines_all),
                      "selected_lines": [public(x) for x in m_lines_all],
                      "money": {"groups": [] if empty else groups, "exclusions": [] if empty else exclusions,

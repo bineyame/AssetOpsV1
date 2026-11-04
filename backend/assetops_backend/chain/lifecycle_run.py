@@ -23,6 +23,7 @@ from typing import Any, Sequence
 from uuid import UUID
 
 from assetops_backend.chain import lifecycle as lc
+from assetops_backend.chain.threads import OPP_MECHANISM
 
 
 def _day(at: datetime | None, tz: str) -> date | None:
@@ -82,6 +83,16 @@ def thread_causes(thread: dict[str, Any], site_causes: Sequence[lc.Cause], input
     revs = [inputs["finding_lifecycle"].get(source_id) for source_id, _ in thread["occurrences"]]
     if revs and all(r is not None and r["lifecycle"] == "NO_LONGER_SUPPORTED" for r in revs):
         last = max(revs, key=lambda r: (r["created_at"], str(r["revision_id"])))  # type: ignore[union-attr]
+        out.append(lc.Cause(lc.SUPPORT_LOST, "SUPPORT_LOST", str(last["revision_id"]),  # type: ignore[index]
+                            lc.local_day(last["created_at"], tz), last["created_at"],  # type: ignore[index]
+                            known_at=last["created_at"]))  # type: ignore[index]
+    # CH4-R R6: an opportunity thread whose every occurrence's selected head revision now has 0 eligible days,
+    # with no linked Action, has lost its support (cause id = the latest such revision, known at its created_at).
+    heads = inputs.get("opportunity_heads") or {}
+    opp = [heads.get(source_id) for source_id, _ in thread["occurrences"]]
+    if (thread.get("mechanism") == OPP_MECHANISM and opp and not linked
+            and all(h is not None and int(h["eligible_days"] or 0) == 0 for h in opp)):
+        last = max(opp, key=lambda h: (h["created_at"], str(h["revision_id"])))  # type: ignore[union-attr]
         out.append(lc.Cause(lc.SUPPORT_LOST, "SUPPORT_LOST", str(last["revision_id"]),  # type: ignore[index]
                             lc.local_day(last["created_at"], tz), last["created_at"],  # type: ignore[index]
                             known_at=last["created_at"]))  # type: ignore[index]

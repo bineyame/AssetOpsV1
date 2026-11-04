@@ -21,7 +21,8 @@ from sqlalchemy.exc import DBAPIError, OperationalError
 from assetops_backend.analytics import dispatch as dispatch_contract
 from assetops_backend.analytics.cold_reads import probe_fresh
 from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
-from assetops_backend.chain.lookup import LOOKUP as THREAD_LOOKUP, thread_lookup
+from assetops_backend.chain.lookup import LOOKUP as THREAD_LOOKUP, OPPORTUNITY_LOOKUP, thread_lookup
+from assetops_backend.chain.opportunities import opportunity_items
 from assetops_backend.estate.coverage import COLD, EV
 from assetops_backend.estate.scope import EstateSelectionInconsistent, EstateStoreUnavailable
 from assetops_backend.evidence.public_provenance import (
@@ -338,6 +339,17 @@ class EstateSnapshot:
         return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
             "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all(),
             day=day, known_at=known_at, day_at=day_at, close_after=thread_lifecycle_policy().close_after)
+
+    def opportunity_threads(self, t: UUID, site_ids: list[Any], from_: datetime, to: datetime,
+                            k: datetime | None) -> list[dict[str, Any]]:
+        """CH-4 §3/§4: the opportunity items of the given Sites seen in `[from_, to)` as of `k`, from one
+        `OPPORTUNITY_LOOKUP` (the board thread port runs the same text). Below 0042 there are none."""
+        if not site_ids or self._c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
+            return []
+        from assetops_backend.chain.composition import thread_lifecycle_policy
+        rows = self._c.execute(text(OPPORTUNITY_LOOKUP), {
+            "t": t, "s": [str(x).lower() for x in site_ids], "k": k}).all()
+        return opportunity_items(rows, from_, to, k, thread_lifecycle_policy().close_after)
 
     def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:
         """CH-3 §5 (I-24, OD-3): the latest stored trial cost check of each listed verification outcome (read only;
