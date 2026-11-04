@@ -229,9 +229,13 @@ def _stored_hour(day: date, window: rules.Window, result: dict[str, Any]) -> rul
 
 
 def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] | None]]) -> dict[str, Any]:
-    """q6 ruling 1: the page `status` and five `cards` over the requested days' selected noon hours only."""
-    selected = [_stored_hour(d, w, r) for d, w, r in hours if r is not None]
-    cards = rules.summarize_renewable(selected, requested_days=len(hours))
+    """q6 ruling 1: the page `status` and five `cards` over the requested days' selected hours only.
+
+    CH-9 (CH9-R2 Q2/Q5): a day may hold several daylight hours; a day with any unselected (missing) hour is a
+    missing day, so only complete days feed the cards, and days are counted by their day decision."""
+    missing_days = {d for d, _w, r in hours if r is None}
+    selected = [_stored_hour(d, w, r) for d, w, r in hours if r is not None and d not in missing_days]
+    cards = rules.summarize_renewable(selected, requested_days=len({d for d, _w, _r in hours}))
     decisions = [h.decision for h in selected]
     if len(selected) < len(hours):
         status = "UNKNOWN"

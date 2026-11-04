@@ -405,10 +405,32 @@ def headroom_on_every_eligible_day(bounds: Sequence[Bound]) -> Bound | None:
     return Bound(min(b.low for b in bounds), min(b.high for b in bounds))
 
 
+#: CH9-R2 Q5: a day's decision from its daylight hours' decisions, in this precedence (any ELIGIBLE hour makes an
+#: otherwise clean day ELIGIBLE). A day with a missing hour is missing; callers decide that before calling.
+DAY_PRECEDENCE = ("CONFLICT", "LIMITED", "ELIGIBLE", "EXCLUDED")
+
+
+def day_decision(decisions: Iterable[str]) -> str:
+    """CH9-R2 Q5: CONFLICT > LIMITED > ELIGIBLE(any) > EXCLUDED over one day's hour decisions."""
+    found = set(decisions)
+    for decision in DAY_PRECEDENCE:
+        if decision in found:
+            return decision
+    return "UNKNOWN"
+
+
 def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) -> RenewableCards:
-    """Closure 1 Q4/Q19, closure 2: cards over complete eligible days; the denominator is complete days only."""
-    eligible = [h for h in hours if h.decision == "ELIGIBLE"]
-    assessed = [h for h in hours if h.decision in ("ELIGIBLE", "EXCLUDED")]
+    """Closure 1 Q4/Q19, closure 2: cards over complete eligible days; the denominator is complete days only.
+
+    CH-9 (CH9-R2 Q5): `hours` may hold several daylight hours per day. Days are counted by their day decision;
+    the kW ranges are over the ELIGIBLE hours of ELIGIBLE days. One hour per day reads exactly as before."""
+    by_day: dict[date, list[RenewableHour]] = {}
+    for h in hours:
+        by_day.setdefault(h.day, []).append(h)
+    decided = {d: day_decision(h.decision for h in hs) for d, hs in by_day.items()}
+    eligible_days = [d for d, x in decided.items() if x == "ELIGIBLE"]
+    assessed = [d for d, x in decided.items() if x in ("ELIGIBLE", "EXCLUDED")]
+    eligible = [h for d in eligible_days for h in by_day[d] if h.decision == "ELIGIBLE"]
     span = observed_headroom_range
 
     used = [h.used_kw for h in eligible if h.used_kw is not None]
@@ -416,9 +438,9 @@ def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) 
         capability_kw=span([h.capability_kw for h in eligible if h.capability_kw is not None]),
         used_kw=Bound(min(used), max(used)) if used else None,
         headroom_kw=span([h.headroom_kw for h in eligible if h.headroom_kw is not None]),
-        eligible_days=len(eligible) if assessed else None,
+        eligible_days=len(eligible_days) if assessed else None,
         assessed_days=len(assessed) if assessed else None,
-        recurrence_established=requested_days == 5 and len(hours) == 5 and len(assessed) == 5,
+        recurrence_established=requested_days == 5 and len(by_day) == 5 and len(assessed) == 5,
     )
 
 
