@@ -127,6 +127,7 @@ import {
   siteFoundationHref,
   siteFoundationViewHref,
   sitePerformanceHref,
+  FINDINGS_OPPORTUNITIES_PATH,
   domainWorkQuery,
   siteWorkHref,
   siteWorkIncidentsHref,
@@ -568,6 +569,7 @@ export function SiteFindingsFrame({
                       `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
                       (intervalRevisionId === null ? "" : `&revision=${encodeURIComponent(intervalRevisionId)}`),
                     renewable: sitePerformanceHref(site.site_id, "renewable"),
+                    opportunities: FINDINGS_OPPORTUNITIES_PATH,
                   }
                 : {}),
             }}

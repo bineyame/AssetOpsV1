@@ -10,7 +10,7 @@
   {"name": "ev-interruption", "site_code": "EV-LAB-001", "mechanism": "EV_INTERRUPTION",
    "findings": ["274196f4-3b8d-443b-93b6-7cbeb06e6a0a"]},
   {"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": "PRODUCTIVE_USE_HEADROOM",
-   "opportunities": ["OPP-000001", "OPP-000002", "OPP-000003", "OPP-000004"],
-   "note": "No CH-2 body carries an opportunity's thread (CH-4 adds the screens); the L4/L3 backfill output proves this placement, COH-10 skips it."}
+   "opportunities": ["OPP-000003", "OPP-000004"],
+   "note": "CH-4 R1: only a study with at least one eligible day is placed (OPP-000001 and OPP-000002 have none)."}
  ]
 }

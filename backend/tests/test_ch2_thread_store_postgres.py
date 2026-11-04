@@ -121,7 +121,7 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
     assert dump(engine) == rows
 
     # Property: a shuffled source order (same created_at ties included) gives the same rows.
-    sources = reader.sources(t, s)
+    sources = [x for x in reader.sources(t, s) if x is not None]  # CH-4 R1: an ineligible revision reads as None
     shuffled = sources[:]
     random.Random(11).shuffle(shuffled)
     memory = MemoryThreads()
@@ -167,8 +167,9 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
 
 def test_concurrent_placements_of_one_key_make_one_thread(seeded, engine) -> None:  # noqa: F811
     runner, reader, writer, _, _ = seeded
-    first = reader.sources(runner.tenant, runner.site)[0]
-    later = [x for x in reader.sources(runner.tenant, runner.site) if key_of(x) == key_of(first)
+    placed = [x for x in reader.sources(runner.tenant, runner.site) if x is not None]  # CH-4 R1: drop the Nones
+    first = placed[0]
+    later = [x for x in placed if key_of(x) == key_of(first)
              and x.finding_id != first.finding_id]
     from assetops_backend.chain.threads import plan_place
 

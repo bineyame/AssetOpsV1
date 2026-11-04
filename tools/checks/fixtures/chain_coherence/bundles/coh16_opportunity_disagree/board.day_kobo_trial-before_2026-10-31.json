@@ -1,0 +1,32 @@
+{
+ "rows": [
+  {
+   "category": "GROW_REVENUE",
+   "contributors": [
+    {
+     "text": "2 of the last 5 days"
+    }
+   ],
+   "earlier": [],
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/KOBO-001/opportunities/0a000000-0000-0000-0000-000000000004",
+     "kind": "OPPORTUNITY",
+     "ref": {
+      "code": "OPP-000004",
+      "opportunity_id": "0a000000-0000-0000-0000-000000000004",
+      "thread": {
+       "id": "07000000-0000-0000-0000-000000000004",
+       "occurrence_no": null,
+       "segment_no": null
+      }
+     },
+     "text": "headroom"
+    }
+   ]
+  }
+ ],
+ "site_code": "KOBO-001",
+ "warnings": []
+}

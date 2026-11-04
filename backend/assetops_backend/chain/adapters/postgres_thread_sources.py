@@ -16,7 +16,8 @@ from uuid import UUID
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
-from assetops_backend.chain.lookup import LOOKUP, thread_lookup
+from assetops_backend.chain.lookup import LOOKUP, OPPORTUNITY_LOOKUP, thread_lookup
+from assetops_backend.chain.opportunities import opportunity_items
 from assetops_backend.chain.threads import Source, finding_source, opportunity_source
 
 _FINDING_SOURCES = (
@@ -31,7 +32,8 @@ _FINDING_SOURCES = (
 
 _OPPORTUNITY_SOURCES = (
     "SELECT r.tenant_id, r.site_id, s.timezone AS site_tz, o.id AS opportunity_id, o.first_day, o.last_day, "
-    "r.created_at, r.id AS revision_id FROM mini_opportunity_revision r JOIN mini_opportunity o ON o.tenant_id = r.tenant_id "
+    "r.created_at, r.id AS revision_id, CAST(r.result->>'eligible_days' AS int) AS eligible_days, "
+    "r.result->'day_rows' AS day_rows FROM mini_opportunity_revision r JOIN mini_opportunity o ON o.tenant_id = r.tenant_id "
     "AND o.site_id = r.site_id AND o.id = r.opportunity_id JOIN site s ON s.tenant_id = r.tenant_id "
     "AND s.id = r.site_id WHERE r.tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR r.site_id = CAST(:s AS uuid)) "
     "AND (CAST(:after AS timestamptz) IS NULL OR r.created_at > CAST(:after AS timestamptz)) "
@@ -72,6 +74,12 @@ _FINDING_LIFECYCLE = (
     "SELECT DISTINCT ON (r.finding_id) CAST(r.finding_id AS text) AS finding_id, r.lifecycle, r.id AS revision_id, "
     "r.created_at FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
     "ORDER BY r.finding_id, r.created_at DESC, r.id DESC")
+# CH4-R R6: each opportunity's selected head revision now (its eligible days decide SUPPORT_LOST).
+_OPPORTUNITY_HEADS = (
+    "SELECT DISTINCT ON (x.opportunity_id) CAST(x.opportunity_id AS text) AS opportunity_id, r.id AS revision_id, "
+    "r.created_at, CAST(r.result->>'eligible_days' AS int) AS eligible_days FROM mini_opportunity_selection x "
+    "JOIN mini_opportunity_revision r ON r.tenant_id = x.tenant_id AND r.id = x.revision_id "
+    "WHERE x.tenant_id = :t AND r.site_id = :s ORDER BY x.opportunity_id, x.selected_at DESC, x.seq DESC")
 _SNAPSHOTS = (
     "SELECT DISTINCT ON (measure, local_day, subject_kind, subject_ref) local_day, subject_kind, subject_ref, "
     "measure, grade FROM site_day_snapshot WHERE tenant_id = :t AND site_id = ANY(CAST(:sites AS uuid[])) "
@@ -122,11 +130,15 @@ class PostgresThreadSources:
                           {"t": tenant_id, "c": site_code})
         return [(r["id"], r["site_code"]) for r in rows]
 
-    def sources(self, tenant_id: UUID, site_id: UUID | None = None, after: datetime | None = None) -> list[Source]:
+    def sources(self, tenant_id: UUID, site_id: UUID | None = None,
+                after: datetime | None = None) -> list[Source | None]:
+        """Sources in `(created_at, id)` order, then one None per opportunity revision that is not a Source
+        (CH4-R R1: below the eligible-day minimum); the callers skip and count them (`skipped_ineligible`)."""
         p = {"t": tenant_id, "s": None if site_id is None else str(site_id), "after": after}
-        out = [finding_source(r) for r in self._rows(_FINDING_SOURCES, p)]
+        out: list[Source | None] = [finding_source(r) for r in self._rows(_FINDING_SOURCES, p)]
         out += [opportunity_source(r) for r in self._rows(_OPPORTUNITY_SOURCES, p)]
-        return sorted(out, key=lambda s: (s.created_at, str(s.revision_id)))
+        placed = sorted((s for s in out if s is not None), key=lambda s: (s.created_at, str(s.revision_id)))
+        return [*placed, *([None] * (len(out) - len(placed)))]
 
     def unlinked_actions(self, tenant_id: UUID, site_id: UUID | None = None) -> list[dict[str, Any]]:
         return self._rows(_UNLINKED, {"t": tenant_id, "s": None if site_id is None else str(site_id)})
@@ -179,6 +191,7 @@ class PostgresThreadSources:
                 out = {"tz": tz, "now": now, "site_type": site_type, "action_events": rows(_ACTION_EVENTS), "outcomes": rows(_OUTCOMES),
                        "domain_actions": rows(_DOMAIN_ACTIONS), "case_completions": rows(_CASE_COMPLETIONS),
                        "finding_lifecycle": {r["finding_id"].lower(): r for r in rows(_FINDING_LIFECYCLE)},
+                       "opportunity_heads": {r["opportunity_id"].lower(): r for r in rows(_OPPORTUNITY_HEADS)},
                        "snapshots": []}
                 if not c.execute(text("SELECT to_regclass('site_day_snapshot') IS NULL")).scalar_one():
                     out["snapshots"] = [_Snap(dict(r)) for r in c.execute(
@@ -189,10 +202,38 @@ class PostgresThreadSources:
         rows = self._rows("SELECT id, public_no FROM mini_opportunity WHERE tenant_id = :t", {"t": tenant_id})
         return {str(r["id"]): f"OPP-{int(r['public_no']):06d}" for r in rows}
 
+    def opportunity_threads(self, tenant_id: Any, site_ids: Sequence[Any], from_: datetime, to: datetime,
+                            k: datetime | None) -> list[dict[str, Any]]:
+        """CH-4 §3: the opportunity items of the given Sites seen in `[from_, to)` as of `k` (the estate snapshot
+        runs the same `OPPORTUNITY_LOOKUP` text). Below 0042 there are none."""
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+        if not site_ids:
+            return []
+        with self._connect().connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                if c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
+                    return []
+                rows = c.execute(text(OPPORTUNITY_LOOKUP), {"t": tenant_id, "s": [str(x).lower() for x in site_ids],
+                                                            "k": k}).all()
+        return opportunity_items(rows, from_, to, k, load_thread_lifecycle().close_after)
+
     def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
-               day: Any = None, known_at: datetime | None = None) -> dict[str, Any]:
+               day: Any = None, known_at: datetime | None = None, site_id: Any = None,
+               opportunity_window: tuple[datetime, datetime] | None = None) -> dict[str, Any]:
         """CH-2 §5.2 / CH-3 §3, §5: one thread lookup per board, with each Finding's state on the board `day` as of
-        `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043)."""
+        `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043). CH-4 §4.4:
+        with `site_id` and `opportunity_window` (a mini board's renewable five days), `"opportunities"` holds the
+        Site's opportunity items seen in that window as of `known_at`."""
+        opps: list[dict[str, Any]] = []
+        if site_id is not None and opportunity_window is not None:
+            opps = self.opportunity_threads(tenant_id, [site_id], opportunity_window[0], opportunity_window[1],
+                                            known_at)
+        found = self._lookup(tenant_id, finding_ids, action_ids, day=day, known_at=known_at)
+        return {**found, "opportunities": opps}
+
+    def _lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
+                day: Any = None, known_at: datetime | None = None) -> dict[str, Any]:
         from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
         from assetops_backend.chain.lifecycle import fully_checked_days, local_day
         policy = load_thread_lifecycle()

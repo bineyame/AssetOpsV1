@@ -36,8 +36,9 @@ def run_threads(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None, 
     registry = ThreadRegistry(store, created_by)
     out: list[dict[str, Any]] = []
     if "b" in steps:
-        report = registry.place_all(reader.sources(tenant_id, site_id))
-        out.append({"step": "b", "counts": dict(sorted(report.counts.items())),
+        sources, skipped = _placeable(reader.sources(tenant_id, site_id))
+        report = registry.place_all(sources)
+        out.append({"step": "b", "counts": dict(sorted(report.counts.items())), "skipped_ineligible": skipped,
                     "written": sum(v for k, v in report.counts.items() if k not in ("ALREADY_PLACED", "MERGED_INTO"))})
     if "c" in steps:
         report = registry.link_all(reader.unlinked_actions(tenant_id, site_id))
@@ -46,6 +47,12 @@ def run_threads(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None, 
     if "d" in steps:
         out.append(_lifecycle_report(reader, run_lifecycle(reader, store, tenant_id, site_id), tenant_id))
     return out
+
+
+def _placeable(sources: Sequence[Any]) -> tuple[list[Any], int]:
+    """CH4-R R1: drop the opportunity revisions that are not Sources (None) and count them."""
+    kept = [s for s in sources if s is not None]
+    return kept, len(sources) - len(kept)
 
 
 def _lifecycle_report(reader: Any, report: dict[str, Any], tenant_id: UUID) -> dict[str, Any]:
@@ -63,7 +70,8 @@ def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[
     out: list[dict[str, Any]] = []
     codes = dict((str(sid), code) for sid, code in reader.site_ids(tenant_id))
     if "b" in steps:
-        report = registry.place_all(reader.sources(tenant_id, site_id))
+        sources, skipped = _placeable(reader.sources(tenant_id, site_id))
+        report = registry.place_all(sources)
         labels = reader.opportunity_labels(tenant_id)
         threads = []
         for tid, t in sorted(memory.threads.items(), key=lambda kv: (codes.get(str(kv[1]["site_id"]), ""),
@@ -79,6 +87,7 @@ def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[
                                              "episode_start": None if o["episode_start"] is None
                                              else o["episode_start"].isoformat()} for o in occ]})
         out.append({"step": "b", "dry_run": True, "counts": dict(sorted(report.counts.items())),
+                    "skipped_ineligible": skipped,
                     "threads_planned": len(memory.threads), "occurrences_planned": len(memory.occurrences),
                     "events_planned": len(memory.events), "threads": threads})
     if "c" in steps:

@@ -78,6 +78,7 @@ FUNCTION_OPS = [
     ("test_w402_reads_postgres", "_setup"),
     ("test_w402_reads_postgres", "_ingest"),
     ("test_w402_reads_postgres", "_reconcile"),
+    ("test_ch4_opportunity_postgres", "seed_opportunities"),
 ]
 FINGERPRINT_TREES = ["backend/assetops_backend", "backend/migrations", "host", "gateway/assetops_gateway",
                      "gateway/tests", "simulator/assetops_simulator", "contracts/assetops_contracts", "config",

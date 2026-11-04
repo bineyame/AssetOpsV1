@@ -296,9 +296,10 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
         by_cat.setdefault(line["category"], []).append(line)
     w1 = by_cat["CANDIDATE_OPERATING_COST_EXPOSURE"]
     assert [x["eligibility"] for x in w1] == ["ELIGIBLE"]
-    # Clean card states SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED, cost from W1 only.
+    # Clean card states SITE_OWNED / UNKNOWN / NONE / UNSUPPORTED / NOT_ESTABLISHED, cost from W1 only (CH-4: the
+    # fixture holds no opportunity study, so PRODUCTIVE_USE reads NONE).
     cards = full["value_cards"]
-    assert [x["state"] for x in cards] == ["SITE_OWNED", "UNKNOWN", "UNSUPPORTED", "UNSUPPORTED", "NOT_ESTABLISHED"]
+    assert [x["state"] for x in cards] == ["SITE_OWNED", "UNKNOWN", "NONE", "UNSUPPORTED", "NOT_ESTABLISHED"]
     assert cards[0]["line_keys"] == [w1[0]["line_key"]] and cards[0]["group_key"] == w1[0]["group_key"]
     assert cards[0]["currency"] == w1[0]["amount"]["currency"] and cards[0]["display_value"] is None
     ev = sorted(by_cat["GROSS_TARIFF_SCENARIO"], key=lambda x: x["line_key"])
@@ -333,8 +334,9 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     # B4: no selected Action in the 10-06 window; complete applicable Action coverage gives zero counts.
     assert full["progress"]["rows"] == [] and full["progress"]["pending_trial_count"] == 0
     assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"]["state"] == "NOT_CREDITED"
-    assert full["opportunity"] == {"state": "UNSUPPORTED", "finding_id": None, "scenario_amount": None,
-                                   "headroom": None, "destination": None}
+    assert full["opportunity"] == {"state": "NONE", "items": [], "finding_id": None, "scenario_amount": None,
+                                   "headroom": None, "destination": "/findings/opportunities"}  # CH-4 §2.3
+    assert (full["summary"]["opportunity_count"], full["summary"]["opportunity_labels"]) == (0, [])
     # Footer: the first eligible EV gross-tariff line by (site_code_key, site_id, line_key).
     first = min(ev, key=lambda x: (x["site_code"].lower(), x["site_id"], x["line_key"]))
     assert full["footer"]["line_key"] == first["line_key"] and full["footer"]["destination"] == first["links"][
@@ -435,7 +437,7 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
 
 VARIANTS = ("a_lineless_cold", "b_historical", "c1_unbound", "c2_mixed", "mg_historical_marker")
 OPERATING_COST = "CANDIDATE_OPERATING_COST_EXPOSURE"
-CARD_TAIL = ["UNKNOWN", "UNSUPPORTED", "UNSUPPORTED", "NOT_ESTABLISHED"]
+CARD_TAIL = ["UNKNOWN", "NONE", "UNSUPPORTED", "NOT_ESTABLISHED"]  # CH-4: PRODUCTIVE_USE UNSUPPORTED -> NONE
 
 
 def _declined(body: dict) -> None:

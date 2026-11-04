@@ -1,0 +1,96 @@
+{
+ "coverage": {
+  "sites": [
+   {
+    "days": {
+     "checked": 3,
+     "requested": 7
+    },
+    "site_id": "00000000-0000-0000-0000-00000000c0b0"
+   },
+   {
+    "days": null,
+    "site_id": "00000000-0000-0000-0000-00000000c01d"
+   }
+  ]
+ },
+ "next_cursor": "page-2",
+ "opportunity": {
+  "destination": "/findings/opportunities",
+  "finding_id": null,
+  "headroom": null,
+  "items": [
+   {
+    "domain": "MINIGRID",
+    "evidence": "LIMITED",
+    "evidence_label": "Limited evidence",
+    "filter_state": "unconfirmed",
+    "links": {
+     "opportunity": "/sites/KOBO-001/opportunities/0a000000-0000-0000-0000-000000000004",
+     "site": "/sites/KOBO-001"
+    },
+    "mechanism": "PRODUCTIVE_USE_HEADROOM",
+    "occurrences": 2,
+    "ref": {
+     "id": "0a000000-0000-0000-0000-000000000004",
+     "kind": "OPPORTUNITY",
+     "site": "KOBO-001"
+    },
+    "short_label": "Kobo daytime solar",
+    "site_code": "KOBO-001",
+    "site_id": "00000000-0000-0000-0000-00000000c0b0",
+    "state": "OPEN",
+    "state_label": "Open",
+    "study": {
+     "assessed_days": 4,
+     "code": "OPP-000004",
+     "eligible_days": 2,
+     "first_day": "2026-10-28",
+     "headroom_kw": null,
+     "last_day": "2026-11-01",
+     "opportunity_id": "0a000000-0000-0000-0000-000000000004",
+     "status": "LIMITED",
+     "window_hours": 1
+    },
+    "thread_id": "07000000-0000-0000-0000-000000000004",
+    "thread_ref": {
+     "id": "07000000-0000-0000-0000-000000000004",
+     "kind": "THREAD",
+     "site": "KOBO-001"
+    },
+    "title": "Daytime solar unused at Kobo"
+   }
+  ],
+  "scenario_amount": null,
+  "state": "FOUND"
+ },
+ "progress": {
+  "rows": [
+   {
+    "action_id": "a1000000-0000-0000-0000-000000000001",
+    "origin_revision_selected": true
+   }
+  ]
+ },
+ "rows": [
+  {
+   "action_id": null,
+   "finding_id": "f3000000-0000-0000-0000-000000000003",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/f3000000-0000-0000-0000-000000000003"
+   },
+   "site_code": "KOBO-001",
+   "site_id": "00000000-0000-0000-0000-00000000c0b0",
+   "verification_outcome": null
+  }
+ ],
+ "summary": {
+  "checked_days": [
+   {
+    "checked": 3,
+    "requested": 7,
+    "site_id": "00000000-0000-0000-0000-00000000c0b0"
+   }
+  ]
+ }
+}

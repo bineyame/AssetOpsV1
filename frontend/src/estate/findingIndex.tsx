@@ -16,12 +16,15 @@ import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { useOutcomeSummary } from "./useOutcomeSummary";
 import {
   createEstateClient,
+  findingOpportunities,
+  findingOpportunitiesUnread,
   type EstateClient,
   type EstateConsequence,
   type EstateFindingRow,
   type EstateFindingsBody,
   type EstateLens,
   type EstateLifecycle,
+  type EstateOpportunity,
   type EstateResult,
   type EstateScopeBody,
   type EstateStateFilter,
@@ -351,7 +354,77 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
   );
 }
 
-function FindingRowsTable({ body, linkedIds }: { body: EstateFindingsBody; linkedIds: ReadonlySet<string> }) {
+/** CH-4: the size-unknown words of an opportunity table row. */
+export const OPPORTUNITY_SIZE_UNKNOWN = "Size not worked out yet";
+export const OPPORTUNITY_LIST_TITLE = "Opportunities to grow";
+export const OPPORTUNITIES_UNREAD = "Opportunities could not be read, so none are listed here.";
+export const OPPORTUNITY_LIST_NOTE = "Each opportunity is one row · open it for the detail";
+export const OPPORTUNITY_INSPECT = "Inspect the solar room →";
+
+/** CH-4 (mock `screens.js:812` oppListPanel): one plain row per opportunity thread; limited evidence in words. */
+export function OpportunityList({ items }: { items: readonly EstateOpportunity[] }) {
+  return (
+    <Panel heading={OPPORTUNITY_LIST_TITLE} headingId="estate-opportunity-list-heading" description={OPPORTUNITY_LIST_NOTE}>
+      <ul className="opp-list" data-estate-opportunity-list>
+        {items.map((item) => (
+          <li key={item.thread_id} data-estate-opportunity-item={item.thread_id}>
+            <div>
+              <Link to={item.links.opportunity}>
+                <strong>{item.title}</strong>
+              </Link>
+              <small>
+                {item.seen_line}
+                {item.value_line ? ` · ${item.value_line}` : ""}
+              </small>
+              {item.limit_line ? <small className="opp-limit">{item.limit_line}</small> : null}
+            </div>
+            <Link to={item.links.evidence} data-estate-opportunity-evidence>
+              {OPPORTUNITY_INSPECT}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+function OpportunityRow({ item }: { item: EstateOpportunity }) {
+  return (
+    <tr data-estate-opportunity={item.thread_id}>
+      <td>
+        <Link className="estate-cell__primary" to={item.links.opportunity} data-estate-opportunity-link>
+          {`${item.study.code} · ${item.title}`}
+        </Link>
+        <CategoryTags categories={item.categories} />
+      </td>
+      <td>
+        <Link to={item.links.site} data-estate-site-link>
+          {item.site_code}
+        </Link>
+        <span className="estate-cell__secondary">{item.site_name}</span>
+      </td>
+      <td>Not assessed</td>
+      <td>{item.evidence_label}</td>
+      <td>
+        <span className="estate-chip" data-estate-opportunity-state={item.state}>
+          {item.state_label}
+        </span>
+      </td>
+      <td>{item.value_line ?? OPPORTUNITY_SIZE_UNKNOWN}</td>
+      <td>Opportunity</td>
+    </tr>
+  );
+}
+
+function FindingRowsTable({
+  body,
+  linkedIds,
+  opportunities,
+}: {
+  body: EstateFindingsBody;
+  linkedIds: ReadonlySet<string>;
+  opportunities: readonly EstateOpportunity[];
+}) {
   return (
     <DataTable labelledBy="estate-findings-heading">
       <colgroup>
@@ -371,6 +444,9 @@ function FindingRowsTable({ body, linkedIds }: { body: EstateFindingsBody; linke
       <tbody>
         {body.rows.map((row) => (
           <Row key={row.finding_id} row={row} knownAt={body.window.known_at} linked={findingLinkLive(row, linkedIds)} />
+        ))}
+        {opportunities.map((item) => (
+          <OpportunityRow key={item.thread_id} item={item} />
         ))}
       </tbody>
     </DataTable>
@@ -487,21 +563,33 @@ function Loaded({
   const complete = body.total_count !== null;
   const empty = complete && body.total_count === 0;
   const next = body.next_cursor === null ? null : estateHref(path, query, { state: active, cursor: body.next_cursor });
+  // CH-4: opportunity items join the table on lens All and Opportunities, on page one only, after the Finding rows.
+  const opportunities = (lens === "all" || lens === "opportunities") && query.cursor === null ? findingOpportunities(body) : [];
+  // CH-4 M1: a failed opportunity read is said so on the lenses that list opportunities, never an empty lens.
+  const unread = (lens === "all" || lens === "opportunities") && findingOpportunitiesUnread(body);
   return (
     <>
       <Cards body={body} />
       <StateChips active={active} href={stateHref} />
+      {lens === "opportunities" && opportunities.length > 0 ? <OpportunityList items={opportunities} /> : null}
       <Panel
         heading={PANEL_TITLE[lens]}
         headingId="estate-findings-heading"
         description="Lens is how a finding is read, not a second object · state is a filter"
       >
-        {body.rows.length > 0 ? <FindingRowsTable body={body} linkedIds={linkedIds} /> : null}
-        {empty ? (
+        {body.rows.length > 0 || opportunities.length > 0 ? (
+          <FindingRowsTable body={body} linkedIds={linkedIds} opportunities={opportunities} />
+        ) : null}
+        {empty && opportunities.length === 0 ? (
           <div className="estate-empty" data-estate-empty>
             <p>No findings match.</p>
-            {LENS_EMPTY[lens] === null ? null : <p>{LENS_EMPTY[lens]}</p>}
+            {LENS_EMPTY[lens] === null || (unread && lens === "opportunities") ? null : <p>{LENS_EMPTY[lens]}</p>}
           </div>
+        ) : null}
+        {unread ? (
+          <p className="estate-partial" data-estate-opportunities-unread>
+            {OPPORTUNITIES_UNREAD}
+          </p>
         ) : null}
         {cause.panel.map((line) => (
           <p key={line} className="estate-partial" data-estate-partial>

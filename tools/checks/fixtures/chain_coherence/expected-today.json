@@ -164,54 +164,6 @@
    "owner": "CH-5a"
   },
   {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "month",
-   "subject": "findings:opportunities",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "month",
-   "subject": "portfolio:opportunity",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "week",
-   "subject": "findings:opportunities",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "week",
-   "subject": "portfolio:opportunity",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "S",
-   "subject": "findings:opportunities",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
-   "rule": "COH-6",
-   "site_code": "KOBO-001",
-   "window": "S",
-   "subject": "portfolio:opportunity",
-   "register": "I-06",
-   "owner": "CH-4"
-  },
-  {
    "rule": "COH-7a",
    "site_code": null,
    "window": "week",

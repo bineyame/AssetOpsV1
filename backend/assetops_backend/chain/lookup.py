@@ -14,6 +14,11 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from assetops_backend.chain import lifecycle as lc
 
+#: The E branch (every event of the threads in the `th` CTE), shared by `LOOKUP` and `OPPORTUNITY_LOOKUP`.
+_EVENTS = ("SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.recorded_at, e.cause_known_at, "
+           "e.state, "
+           "e.cause_kind, NULL, e.effective_day, NULL FROM finding_thread_event e WHERE e.thread_id IN (SELECT thread_id FROM th) ")
+
 #: One statement: F (Finding occurrence), E (event of an involved thread) and A (Action link) rows, same columns:
 #: kind, ref, thread_id, num, cnt, at1, at2, txt1, txt2, txt3, day1.
 LOOKUP = (
@@ -27,16 +32,47 @@ LOOKUP = (
     "AS cnt, fo.episode_start AS at1, CAST(NULL AS timestamptz) AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
     "t.subject_ref AS txt3, CAST(NULL AS date) AS day1, s.site_type AS txt4 FROM fo JOIN finding_thread t ON t.id = fo.thread_id "
     "JOIN site s ON s.tenant_id = fo.tenant_id AND s.id = fo.site_id "
-    "UNION ALL SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.recorded_at, e.cause_known_at, "
-    "e.state, "
-    "e.cause_kind, NULL, e.effective_day, NULL FROM finding_thread_event e WHERE e.thread_id IN (SELECT thread_id FROM th) "
-    "UNION ALL SELECT 'A', CAST(al.action_id AS text), CAST(al.thread_id AS text), NULL, NULL, "
+    "UNION ALL " + _EVENTS + "UNION ALL SELECT 'A', CAST(al.action_id AS text), CAST(al.thread_id AS text), NULL, NULL, "
     "CASE WHEN al.action_kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x "
     "WHERE x.tenant_id = al.tenant_id AND x.action_id = al.action_id AND x.kind = 'ACCEPTED') "
     "ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = al.tenant_id AND d.id = al.action_id) END, "
     "(SELECT o.episode_start FROM finding_thread_occurrence o WHERE o.finding_id = al.origin_finding_id), "
     "s.timezone, CAST(al.origin_finding_id AS text), NULL, NULL, NULL FROM al "
     "JOIN site s ON s.tenant_id = al.tenant_id AND s.id = al.site_id")
+
+#: CH-4 §3: one statement for the opportunity threads of the given Sites (`:s`) as of `:k` (None = as known now):
+#: an O row per visible opportunity occurrence with its study head at `:k`, and the E rows of those threads. Same
+#: tuple convention as `LOOKUP` (kind, ref, thread_id, num, cnt, at1 episode_start, at2 episode_end, txt1 timezone,
+#: txt2 mechanism, txt3 the study as JSON text, day1 study last_day, txt4 site_type); `cnt` is NULL (kept for column position; the occurrence count is `len(occs)` in `opportunity_items`).
+OPPORTUNITY_LOOKUP = (
+    "WITH oc AS (SELECT o.thread_id, o.occurrence_no, o.opportunity_id, o.episode_start, o.episode_end, o.joined_at, "
+    "o.source_known_at, o.site_id, o.tenant_id FROM finding_thread_occurrence o "
+    "WHERE o.tenant_id = :t AND o.opportunity_id IS NOT NULL "
+    "AND CAST(o.site_id AS text) = ANY(CAST(:s AS text[])) "
+    "AND (CAST(:k AS timestamptz) IS NULL OR coalesce(o.source_known_at, o.joined_at) <= CAST(:k AS timestamptz))), "
+    "head AS (SELECT DISTINCT ON (x.opportunity_id) x.opportunity_id, x.revision_id, x.selected_at, x.seq "
+    "FROM mini_opportunity_selection x WHERE x.tenant_id = :t "
+    "AND x.opportunity_id IN (SELECT opportunity_id FROM oc) "
+    "AND (CAST(:k AS timestamptz) IS NULL OR x.selected_at <= CAST(:k AS timestamptz)) "
+    "ORDER BY x.opportunity_id, x.selected_at DESC, x.seq DESC), "
+    "th AS (SELECT DISTINCT thread_id FROM oc) "
+    "SELECT 'O' AS kind, CAST(oc.opportunity_id AS text) AS ref, CAST(oc.thread_id AS text) AS thread_id, "
+    "oc.occurrence_no AS num, NULL AS cnt, "
+    "oc.episode_start AS at1, oc.episode_end AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
+    "CAST(jsonb_build_object('site_id', CAST(oc.site_id AS text), 'site_code', s.site_code, 'site_name', s.name, "
+    "'public_no', m.public_no, 'first_day', m.first_day, 'last_day', m.last_day, "
+    "'status', r.result->>'status', 'eligible_days', r.result->'eligible_days', "
+    "'assessed_days', r.result->'assessed_days', 'headroom_kw', r.result->'headroom_kw', "
+    "'limitation_codes', (SELECT jsonb_agg(l->'code') FROM jsonb_array_elements(r.result->'limitations') l), "
+    "'decisions', (SELECT jsonb_agg(d->'decision') FROM jsonb_array_elements(r.result->'day_rows') d), "
+    "'selected_at', h.selected_at, 'seq', h.seq, 'joined_at', oc.joined_at, 'source_known_at', oc.source_known_at) "
+    "AS text) AS txt3, m.last_day AS day1, s.site_type AS txt4 "
+    "FROM oc JOIN head h ON h.opportunity_id = oc.opportunity_id "
+    "JOIN mini_opportunity_revision r ON r.tenant_id = :t AND r.id = h.revision_id "
+    "JOIN mini_opportunity m ON m.tenant_id = :t AND m.id = oc.opportunity_id "
+    "JOIN finding_thread t ON t.id = oc.thread_id "
+    "JOIN site s ON s.tenant_id = :t AND s.id = oc.site_id "
+    "UNION ALL " + _EVENTS)
 
 #: `state_day` (CH-3 packet deviation, additive): the Site-local day the state was read on, so COH-13 can compare a
 #: board and a Portfolio read of one thread taken on different days.
