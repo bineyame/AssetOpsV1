@@ -3,7 +3,7 @@
 - **Branch:** `task/CH-5a2-chain-endpoints`, worktree `AssetOpsV1-ch5a2`.
 - **Base:** main `ff499d54d` (FIX-MAIN-1), merged in at `bf73f236b`.
 - **Authority:** the build sheet `AssetOpsV1-plan2\.agent\build-sheet-CH-5a.md`. Part B is amended by §B13 (CH5a2-R). This packet covers the CH-5a2a cut only.
-- **Status:** ready for review. The sheet sets no USER_REVIEW_REQUIRED flag, so the coordinator decides. Do not merge from here.
+- **Status:** ready for review at `2f8b114d9`. The private DB `assetops_ch5a2_test` is dropped; no clone or L3m DB remains. The sheet sets no USER_REVIEW_REQUIRED flag, so the coordinator decides. Do not merge from here.
 - **Owner decision R7 (Q7), verbatim:** "fix the summary now as recommended". It is built in `eb2378398`.
 
 ## Outcome delivered
@@ -43,7 +43,8 @@ refs phase 1/1b · `bf73f236b` merge main · `6d2d37881` pre-flight.
   - `chain/read.py`: `ChainReadPort.site_threads`, `ChainRequest.threads` and `window_days`;
   - `chain/adapters/postgres_chain_read.py`: three SELECTs on one read-only connection;
   - `outcome_api.py`: `board_site`, `board_window` and `estate_sites`, factored out unchanged;
-  - `main.py`.
+  - `main.py`;
+  - `chain/composition.py`: `chain_policy_versions`, injected.
 - **Test fixtures** following B5:
   - `tests/fixtures/w3/w301-estate-golden.json`;
   - `tests/test_w301_estate_index_postgres.py`.
@@ -72,7 +73,7 @@ refs phase 1/1b · `bf73f236b` merge main · `6d2d37881` pre-flight.
 
 ## Tests run (localised only; no full suite, no demo prepare, no `test_demo_combined_postgres`)
 
-**Phase 3, at `688bb574c`:**
+**Phase 3, at `688bb574c`** (L1 rerun at `2f8b114d9`: 22 passed):
 - L1 `test_ch5a2_contract.py`: 22 passed.
 - L2 `test_ch5a2_chain_api_postgres.py`: 6 passed (32 s).
 - The scoped unit set: 1098 passed, 0 failed (285 s). That is the 69 files matching `grep -lE "site_outcomes|outcomes\.warnings|estate\.|chain\.|chain import|finding_index|chain_coherence|outcome_api|chain_api" tests/*.py | grep -v postgres`, plus `tools/checks/test_chain_structure.py`.
@@ -137,7 +138,13 @@ Phase 3 changed no frontend code.
 
 ## Guards
 
-Guards A, W, N, V, M, L and D are run through `tools/check-all.ps1`. The result is in the coordinator report; see the closing note in this packet's commit.
+Run through `tools/check-all.ps1` (14 guards).
+- **First run at `62cca39d0`: 12 of 14 passed.**
+  - Failed: A (architecture). `chain_api.py` imported `chain.adapters.file_chain_config`, and only `chain/composition.py` may import chain adapters.
+  - Failed: the estate guard self-tests (3, the same cause).
+  - Passed: W (agent workflow), N (navigation truthfulness), V (mock-deviation labels and vocabulary), M (missing-claim scan and fixtures), L (screen ledger), D (dependency registry), delivery and mock-gap fixtures, evidence width, chain-coherence fixtures (98), event register (12).
+- **Fixed in `2f8b114d9`.** `chain.composition.chain_policy_versions` is injected into `build_chain_router` from `main.py`. The L1 goldens are unchanged (22 passed).
+- **Rerun:** guard A passed. The estate guard self-tests passed 15 of 15 (1004 s, run from PowerShell as check-all runs them; a run from Git Bash fails all 15 in 40 s for environment reasons). So all 14 guards pass at `2f8b114d9`.
 
 ## Known deviations
 
