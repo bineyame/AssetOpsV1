@@ -1,4 +1,67 @@
-# CH-9 handoff (PARTIAL: u1 + u1-tail landed, u2 partly; resume at "Resume order for builder 4")
+# CH-9 handoff (PARTIAL: u1, u2, u3, MD-0 Q1 fixture landed; resume at "Resume order for builder 5")
+
+## Status 2026-11-05 (builder 4; stopped at the context cap, no process or DB job left running by me)
+Commits on `149563f7b`: `83037a50d` (u2 /2 + basis), `595ce7bb3` (measure + no-noon test), `fbf8973fe` (u3),
+`905df84fd` (MD-0 Q1). `main` = `692e4d57e`, still an ancestor (no merge needed yet). **No Postgres test has been
+run on builder 4's code**: lane-1 `tools/mechanism_dataset.py build --variant close --budget 540 --resume`
+(PIDs 31352/21808, not mine) was running the whole time.
+
+### Landed by builder 4 (anchors)
+- **/2 bump** `mini_decisions/store.py:32-35` (`OPPORTUNITY_MODEL_VERSION` /2, `LEGACY_...` /1,
+  `READABLE_...`); `opportunity_roots` = `DISTINCT ON (first_day,last_day)` over both, `/2` wins (lexical DESC).
+  `latest_opportunity_sha`/`opportunity_root` stay producer-only (/2), so a /1-only study re-projects as /2.
+  Frontend `MiniOpportunity.tsx` `OPPORTUNITY_MODELS` set (/1,/2) in `matchStudy`.
+- **Basis** `read.py read_selected_renewable_basis(..., windows=None)`: default = per day
+  `daylight_hours(...).study_hours` (new property, `store.py` `DaylightHours.study_hours`); `windows=` reads exact
+  pinned hours. Consumers: `mini_decisions/opportunities.py` `_study` (/2: compares pin keys `(local_day,
+  window_from)` with basis keys -> a changed hour set is SELECTION_CHANGED; /1: `pin_windows(pins)`),
+  `day_read_row()` (day row `window_hours` stored or /1 default; day-level seq/revision only when the day has one
+  pin; `hours[]` carry their pins), top-level `window_hours`, `_compatible` counts distinct days.
+  `scenarios.py` `_pinned_windows` (scenario pins stay one per day, read at their revision's hour; `by_day` keyed
+  `(local_day, window_start)`). **Packet item:** a scenario (one pin/day) is incompatible with a /2 study whose
+  day has several hours -> SCENARIO_BASIS_MISMATCH; changing the scenario pin contract is out of scope.
+- `window_hours: 1` removed: `chain/opportunities.py` `_item` reads stored `window_hours` (lookup SQL adds
+  `window_hours`, `model_version`), /1 -> 1. `VALUE_LINE` = §2 text with `{h}` (`vocabulary.py`).
+- **Measure** `daylight_headroom_kw` (`measures.py`, period operating_hours, 1.0, `mini.daylight_headroom@1`);
+  `PERIOD_MIDDAY`/`MIDDAY_WINDOW_LOCAL` deleted (`policy.py`, `grading.py`); adapter `RenewableHeadroom`
+  (`measure_impls.py`), port `renewable_hours` (`ports.py`, `postgres_chain_inputs.py`). Register: roles
+  `[pv_available_power]` + mini_depth/job_domains; `thread-lifecycle-v1.json` clean-day measure renamed. All test
+  literals renamed (ch1a/ch1b/ch5a1/md0 + ch5a2 fixtures, `tools/checks/test_event_register.py`).
+- **No-noon test** `tests/test_ch9_no_noon_literal.py` (reconcile, hour_windows, basis, day_heads, measure +
+  reader, day_row); `store.NO_PV_BINDING`; `renewable_noon_heads` -> `renewable_hour_heads`. Non-vacuous: adding
+  `# noon` in `day_heads` failed it, reverted.
+- **u3** `critical_served` (`measures.py`, 0.8, `mini.critical_served@1`; `CriticalServed` adapter; port
+  `service_hours`, SQL `_SERVICE_HEADS`); register `critical_served`; `DayFacts.values` (`chain/read.py`);
+  `site_outcomes/mini.py` `critical_served()` + `mini_readings(served=...)`: COMPLETE -> "{kwh} kWh not served over
+  the whole day", PARTIAL/LOW -> `MG5_PARTIAL` "critical demand not measured over the whole day", else unmeasured.
+  The noon depth reads for fuel/service/backup (`_depth`) stay (other board lines use them). CH-6a kpi record:
+  noted for CH-6a. Tests: `tests/test_ch9_measures.py` (L0 truth tables), `test_out_d4_board.py` MG-5 (owned),
+  `test_ch1b_register.py` all-of-site (+critical_served).
+- **MD-0 Q1** `mechanism-v1.json` `busy_noon.window_local` 06:00-18:00 + `window_label` `CH9-R2:Q1`;
+  `tests/mechanism_dataset.py` uses it; `test_md0_fixture.py` owned change (+ label test). 54 passed.
+- Unit runs (all green): ch4_opportunities, w403_opportunity_result, w402_reads, walk1_5, ch9_no_noon, ch9_measures,
+  ch1a_reassessment, ch1b_register/drain, ch5a1_board_contract, out_b2/b4/d4, idx_gaps, md0_fixture, event_register.
+
+## Resume order for builder 5
+1. Check lane-1 processes; when idle run Postgres files one or two per call: `test_w403_opportunity_worker_postgres.py`,
+   `test_w403_opportunity_read_postgres.py`, `test_ch4_opportunity_postgres.py` (value line now "over 1 daylight
+   hours"; `study` dict expects `window_hours` 1 for the seeded /1 study), `test_w403_scenarios_postgres.py`,
+   `test_w402_reads_postgres.py`, `test_ch1a_snapshot_postgres.py`, `test_ch1b_fix_postgres.py`,
+   `test_ch9_daylight_postgres.py`, `test_w403_migration_postgres.py`. Expect exact-shape detail tests to need the
+   new `window_hours`/`hours[]` keys (owned) -- never weaken.
+2. Frontend: `npx tsc --noEmit`; vitest `src/sites/__tests__/miniDecisions.test.tsx`, `src/estate/__tests__/estateRoots.test.tsx`
+   (fixture value_line strings still say "at midday": update to §2 copy), MiniOpportunity tests.
+3. u4: L2 test only for `mill-midday` (add the kind to `backend/conversions/demo-story-days-v1.json` kobo kinds:
+   `kobo-daytime` v1, `D+0d 03:00`-`D+0d 15:00`, received `D+0d 16:00`, assess build; not scheduled in `sites`),
+   prove it resolves (`tools/demo_story_days.py resolve/validate`); Known Deviation (no prepare; owner rule).
+4. u5: domain Action "Run the grain mill at midday on sunny days" ACTION_ACCEPTED -> ACTION_APPLIED
+   (`chain/lifecycle_run.py:62-67` already maps domain_actions/case_completions); add an L0/L2 proof.
+5. MD-0: `status`, rebuild `--budget 540` in parts, L3m `check --threads --variant states` (+close if ensure
+   selects it); 0 unexpected; list each changed MD-0 value old -> new (busy days now day-level EXCLUDED; measure key
+   renamed; critical_served added).
+6. Guards (`tools/check-architecture.ps1`, `tools/check-agent-workflow.ps1`), `git log main` check, packet
+   `.agent/review-packet-CH-9.md` per "Packet (per CH9-R2)" plus the items above (scenario incompatibility, dark
+   covered day = noon placeholder missing head / measure NO_DATA, MG-5 PARTIAL on 8 h days).
 
 ## Status 2026-11-05 (builder 3; stopped at the context cap, no process or DB job left running by me)
 Commits on `7e8bb70ad`: `bc08b81d8` (u1-tail), `badd2fbb9` (u2 partial). Not merged with main yet.
