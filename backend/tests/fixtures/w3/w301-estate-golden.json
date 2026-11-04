@@ -1225,18 +1225,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "ade981ce-072c-4032-bc75-50c3937d29b0",
-                    "kind": "FINDING",
-                    "revision": "c5127e13-09cb-452c-8638-c530a7bbfc45",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -1327,18 +1315,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "804c8871-8a83-4b94-9da5-66a75342d246",
-                    "kind": "FINDING",
-                    "revision": "77cc427f-6c12-4a14-a538-6bb0c7e149fa",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -1512,18 +1488,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "ade981ce-072c-4032-bc75-50c3937d29b0",
-                    "kind": "FINDING",
-                    "revision": "c5127e13-09cb-452c-8638-c530a7bbfc45",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -1694,18 +1658,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "804c8871-8a83-4b94-9da5-66a75342d246",
-                    "kind": "FINDING",
-                    "revision": "77cc427f-6c12-4a14-a538-6bb0c7e149fa",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -2061,18 +2013,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "NO_LONGER_SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "020c023d-9994-4f75-aa61-d4c9f03712e6",
-                    "kind": "FINDING",
-                    "revision": "5c918017-bd8d-4a0a-a367-2c397c59ddf3",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -2322,18 +2262,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "ade981ce-072c-4032-bc75-50c3937d29b0",
-                    "kind": "FINDING",
-                    "revision": "c5127e13-09cb-452c-8638-c530a7bbfc45",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -2424,18 +2352,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "804c8871-8a83-4b94-9da5-66a75342d246",
-                    "kind": "FINDING",
-                    "revision": "77cc427f-6c12-4a14-a538-6bb0c7e149fa",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -2776,18 +2692,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "NO_LONGER_SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "020c023d-9994-4f75-aa61-d4c9f03712e6",
-                    "kind": "FINDING",
-                    "revision": "5c918017-bd8d-4a0a-a367-2c397c59ddf3",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -2988,18 +2892,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "ade981ce-072c-4032-bc75-50c3937d29b0",
-                    "kind": "FINDING",
-                    "revision": "c0b0b271-6472-4343-8533-09e1f0e4981b",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -3090,18 +2982,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "804c8871-8a83-4b94-9da5-66a75342d246",
-                    "kind": "FINDING",
-                    "revision": "4c186e14-4f2a-4786-b4af-b120af233c86",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -3472,18 +3352,6 @@
                 "finding_revision_id": "00000001-0000-4000-8000-0000000004d1",
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "00000001-0000-4000-8000-0000000004cf",
-                    "kind": "FINDING",
-                    "revision": "00000001-0000-4000-8000-0000000004d1",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004cf?revision_id=00000001-0000-4000-8000-0000000004d1",
                   "site": "/sites/KOBO-001"
@@ -3649,18 +3517,6 @@
                 "finding_revision_id": "00000001-0000-4000-8000-0000000004d0",
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "00000001-0000-4000-8000-0000000004ce",
-                    "kind": "FINDING",
-                    "revision": "00000001-0000-4000-8000-0000000004d0",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004ce?revision_id=00000001-0000-4000-8000-0000000004d0",
                   "site": "/sites/KOBO-001"
@@ -4076,18 +3932,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "00000001-0000-4000-8000-0000000004cf",
-                    "kind": "FINDING",
-                    "revision": "00000001-0000-4000-8000-0000000004d1",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
@@ -4178,18 +4022,6 @@
                 },
                 "lens_flags": [],
                 "lifecycle": "SUPPORTED",
-                "link_refs": {
-                  "finding": {
-                    "id": "00000001-0000-4000-8000-0000000004ce",
-                    "kind": "FINDING",
-                    "revision": "00000001-0000-4000-8000-0000000004d0",
-                    "site": "KOBO-001"
-                  },
-                  "site": {
-                    "kind": "SITE",
-                    "site": "KOBO-001"
-                  }
-                },
                 "links": {
                   "finding": {
                     "$derive": "finding_link",
