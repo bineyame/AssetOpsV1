@@ -194,8 +194,6 @@ class PostgresThreadSources:
         `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043). CH-4 §4.4:
         with `site_id` and `opportunity_window` (a mini board's renewable five days), `"opportunities"` holds the
         Site's opportunity items seen in that window as of `known_at`."""
-        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
-        from assetops_backend.chain.lifecycle import fully_checked_days, local_day
         opps: list[dict[str, Any]] = []
         if site_id is not None and opportunity_window is not None:
             opps = self.opportunity_threads(tenant_id, [site_id], opportunity_window[0], opportunity_window[1],

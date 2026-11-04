@@ -375,6 +375,8 @@ function EvidenceAside({ body, window }: { body: EstatePortfolioBody; window: Wi
 
 /** CH-4: the opportunity panel's fixed words (mock `portfolio.js:53` literals; MD-CH4-4 for the right side). */
 export const OPPORTUNITY_NONE = "No opportunity found in this period";
+export const OPPORTUNITY_UNREAD = "Opportunities could not be read";
+export const OPPORTUNITY_UNREAD_DETAIL = "Nothing can be said about opportunities until they can be read";
 export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on the days checked";
 export const OPPORTUNITY_SIZE_UNKNOWN_PANEL = "Size not worked out yet";
 export const OPPORTUNITY_NO_WHAT_IF = "No what-if yet";
@@ -383,12 +385,13 @@ export const OPPORTUNITY_FINDINGS_LINK = "Findings › Opportunities →";
 
 function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window: Window }) {
   const opportunity = portfolioOpportunity(body);
+  const unread = opportunity.state === "UNKNOWN";
   const first = opportunity.state === "FOUND" ? opportunity.items[0] : undefined;
   const more = opportunity.items.length - 1;
   const findingsHref = estateHref(opportunity.destination, window);
   const headroom = first?.study.headroom_kw ?? null;
   return (
-    <section className="panel opportunity-panel" aria-labelledby="portfolio-opportunity-heading" data-portfolio-panel="opportunity" data-portfolio-opportunity-state={first === undefined ? "NONE" : "FOUND"}>
+    <section className="panel opportunity-panel" aria-labelledby="portfolio-opportunity-heading" data-portfolio-panel="opportunity" data-portfolio-opportunity-state={unread ? "UNKNOWN" : first === undefined ? "NONE" : "FOUND"}>
       <div className="panel-head">
         <div>
           <div className="eyebrow">GROW USEFUL DEMAND</div>
@@ -400,8 +403,8 @@ function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window:
         <div data-portfolio-opportunity-quantity>
           {first === undefined ? (
             <>
-              <span className="opportunity-quantity">{OPPORTUNITY_NONE}</span>
-              <p>{OPPORTUNITY_NONE_DETAIL}</p>
+              <span className="opportunity-quantity">{unread ? OPPORTUNITY_UNREAD : OPPORTUNITY_NONE}</span>
+              <p>{unread ? OPPORTUNITY_UNREAD_DETAIL : OPPORTUNITY_NONE_DETAIL}</p>
             </>
           ) : (
             <>
@@ -425,7 +428,7 @@ function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window:
         </div>
       </div>
       <p className="chart-note" data-portfolio-opportunity-note>
-        {first === undefined ? OPPORTUNITY_NOTE : `${first.seen_line}${first.limit_line ? ` · ${first.limit_line}` : ""}`}
+        {first === undefined ? (unread ? OPPORTUNITY_UNREAD_DETAIL : OPPORTUNITY_NOTE) : `${first.seen_line}${first.limit_line ? ` · ${first.limit_line}` : ""}`}
       </p>
       <div className="panel-bottom">
         {first === undefined ? (

@@ -17,6 +17,7 @@ import { useOutcomeSummary } from "./useOutcomeSummary";
 import {
   createEstateClient,
   findingOpportunities,
+  findingOpportunitiesUnread,
   type EstateClient,
   type EstateConsequence,
   type EstateFindingRow,
@@ -356,6 +357,7 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
 /** CH-4: the size-unknown words of an opportunity table row. */
 export const OPPORTUNITY_SIZE_UNKNOWN = "Size not worked out yet";
 export const OPPORTUNITY_LIST_TITLE = "Opportunities to grow";
+export const OPPORTUNITIES_UNREAD = "Opportunities could not be read, so none are listed here.";
 export const OPPORTUNITY_LIST_NOTE = "Each opportunity is one row · open it for the detail";
 export const OPPORTUNITY_INSPECT = "Inspect the solar room →";
 
@@ -563,6 +565,8 @@ function Loaded({
   const next = body.next_cursor === null ? null : estateHref(path, query, { state: active, cursor: body.next_cursor });
   // CH-4: opportunity items join the table on lens All and Opportunities, on page one only, after the Finding rows.
   const opportunities = (lens === "all" || lens === "opportunities") && query.cursor === null ? findingOpportunities(body) : [];
+  // CH-4 M1: a failed opportunity read is said so on the lenses that list opportunities, never an empty lens.
+  const unread = (lens === "all" || lens === "opportunities") && findingOpportunitiesUnread(body);
   return (
     <>
       <Cards body={body} />
@@ -579,8 +583,13 @@ function Loaded({
         {empty && opportunities.length === 0 ? (
           <div className="estate-empty" data-estate-empty>
             <p>No findings match.</p>
-            {LENS_EMPTY[lens] === null ? null : <p>{LENS_EMPTY[lens]}</p>}
+            {LENS_EMPTY[lens] === null || (unread && lens === "opportunities") ? null : <p>{LENS_EMPTY[lens]}</p>}
           </div>
+        ) : null}
+        {unread ? (
+          <p className="estate-partial" data-estate-opportunities-unread>
+            {OPPORTUNITIES_UNREAD}
+          </p>
         ) : null}
         {cause.panel.map((line) => (
           <p key={line} className="estate-partial" data-estate-partial>

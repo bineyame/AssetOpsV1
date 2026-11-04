@@ -7,6 +7,7 @@ runs `work(snapshot)` inside its one transaction; this module holds no storage t
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Any, Callable
 from urllib.parse import quote
@@ -21,6 +22,8 @@ from assetops_backend.estate.scope import (
     portfolio_cursor_key, selection_token, token_time, wire_time)
 from assetops_backend.outcomes.display_code import finding_label
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
+
+_LOG = logging.getLogger(__name__)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
@@ -105,7 +108,8 @@ def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowReco
 
 def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> list[dict[str, Any]] | None:
     """CH-4 §4: the opportunity items of every authorized Site in the request window as of the envelope's
-    `known_at` (Findings and Portfolio share this one call). None only when the read raised."""
+    `known_at` (Findings and Portfolio share this one call). None only when the read raised (logged).
+    One count rule for both: the count is `len(items)`, null only when this returns None."""
     try:
         reader = snap.opportunity_threads
     except (AttributeError, KeyError):  # a snapshot without the read (test fakes) has no opportunity items
@@ -113,6 +117,7 @@ def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: Esta
     try:
         return reader(tenant_id, sorted(scope["ids"]), req.from_, req.to, scope["k"])
     except Exception:  # noqa: BLE001 - stated in the packet: the count reads "Unknown", never a guess
+        _LOG.exception("opportunity read failed; the opportunity count and items are reported as not read")
         return None
 
 
@@ -332,9 +337,13 @@ class EstateIndexService:
                                "sites": [_coverage_site(site, cov) for site, _, cov in per_site]})
         # CH4-R R4: opportunity items are a separate, unpaged array (bounded by Sites, one per thread); the Finding
         # rows, order, total_count, token and cursor are unchanged.
-        items = opportunity_read(snap, tenant_id, scope, req) if req.lens in ("all", "opportunities") else []
-        summary["opportunity_count"] = None if items is None or not complete else len(items)  # summary rule: null unless complete
-        opportunities = [] if items is None else [
+        # COUNT RULE (shared with the Portfolio `summary.opportunity_count`): the count is the number of opportunity
+        # items the read returned, whatever the lens, state filter or Finding-coverage completeness; it is null ONLY
+        # when the opportunity read itself failed (sheet §2.3). A failed read carries `opportunities: null` so the
+        # page says "could not be read" instead of an empty lens.
+        items = opportunity_read(snap, tenant_id, scope, req)
+        summary["opportunity_count"] = None if items is None else len(items)
+        opportunities = None if items is None else [] if req.lens not in ("all", "opportunities") else [
             i for i in items if req.state_filter == "all" or i["filter_state"] == req.state_filter]
         body.update({"lens": req.lens, "state_filter": req.state_filter, "summary": summary, "order": FINDINGS_ORDER,
                      "opportunities": opportunities,

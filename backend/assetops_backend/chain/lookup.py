@@ -43,7 +43,7 @@ LOOKUP = (
 #: CH-4 §3: one statement for the opportunity threads of the given Sites (`:s`) as of `:k` (None = as known now):
 #: an O row per visible opportunity occurrence with its study head at `:k`, and the E rows of those threads. Same
 #: tuple convention as `LOOKUP` (kind, ref, thread_id, num, cnt, at1 episode_start, at2 episode_end, txt1 timezone,
-#: txt2 mechanism, txt3 the study as JSON text, day1 study last_day, txt4 site_type); `cnt` is the visible count.
+#: txt2 mechanism, txt3 the study as JSON text, day1 study last_day, txt4 site_type); `cnt` is NULL (kept for column position; the occurrence count is `len(occs)` in `opportunity_items`).
 OPPORTUNITY_LOOKUP = (
     "WITH oc AS (SELECT o.thread_id, o.occurrence_no, o.opportunity_id, o.episode_start, o.episode_end, o.joined_at, "
     "o.source_known_at, o.site_id, o.tenant_id FROM finding_thread_occurrence o "
@@ -57,7 +57,7 @@ OPPORTUNITY_LOOKUP = (
     "ORDER BY x.opportunity_id, x.selected_at DESC, x.seq DESC), "
     "th AS (SELECT DISTINCT thread_id FROM oc) "
     "SELECT 'O' AS kind, CAST(oc.opportunity_id AS text) AS ref, CAST(oc.thread_id AS text) AS thread_id, "
-    "oc.occurrence_no AS num, (SELECT count(*) FROM oc x WHERE x.thread_id = oc.thread_id) AS cnt, "
+    "oc.occurrence_no AS num, NULL AS cnt, "
     "oc.episode_start AS at1, oc.episode_end AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
     "CAST(jsonb_build_object('site_id', CAST(oc.site_id AS text), 'site_code', s.site_code, 'site_name', s.name, "
     "'public_no', m.public_no, 'first_day', m.first_day, 'last_day', m.last_day, "

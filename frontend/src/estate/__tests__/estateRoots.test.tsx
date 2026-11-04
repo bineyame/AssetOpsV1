@@ -1021,6 +1021,19 @@ describe("CH-4 estate Findings opportunities", () => {
     view.unmount();
   });
 
+  it("ch4M1AFailedOpportunityReadSaysSoInsteadOfTheOrdinaryEmptyLens", async () => {
+    for (const path of ["/findings/opportunities", "/findings"]) {
+      const lens = path === "/findings" ? "all" : "opportunities";
+      const body = findingsBody(lens, { rows: [], total_count: 0, opportunities: null });
+      const view = renderAt(`${path}?${WINDOW}`, fakeClient(() => loaded(body)));
+      await settledScreen();
+      const unread = document.querySelector("[data-estate-opportunities-unread]") as HTMLElement;
+      expect(unread.textContent).toContain("Opportunities could not be read");
+      expect(document.body.textContent).not.toContain("No supported opportunity Finding in this selection.");
+      view.unmount();
+    }
+  });
+
   it("anOlderBodyWithoutOpportunitiesKeepsTodaysEmptyLensWords", async () => {
     const older = findingsBody("opportunities", { rows: [], total_count: 0 });
     delete (older as { opportunities?: unknown }).opportunities;

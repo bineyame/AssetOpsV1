@@ -441,19 +441,28 @@ describe("estate Portfolio page", () => {
     expect(links[2].getAttribute("href")).toMatch(/^\/findings\/opportunities\?from=/);
   });
 
-  it("ch4_opportunity_panel_reads_an_older_or_unknown_body_as_none", async () => {
-    for (const opportunity of [
-      { state: "UNSUPPORTED", finding_id: null, scenario_amount: null, headroom: null, destination: null },
-      { state: "UNKNOWN", items: [], finding_id: null, scenario_amount: null, headroom: null, destination: "/findings/opportunities" },
-    ]) {
-      const older = portfolioBody({ opportunity: opportunity as unknown as ReturnType<typeof portfolioBody>["opportunity"] });
-      renderAt(ENTRY, portfolioClient(loadedPortfolio(older)));
-      await settledScreen();
-      const p = panel("An opportunity beyond reducing cost");
-      expect(p.getAttribute("data-portfolio-opportunity-state")).toBe("NONE");
-      expect(text(p)).toContain("No opportunity found in this period");
-      cleanup();
-    }
+  it("ch4_opportunity_panel_reads_an_older_body_as_none", async () => {
+    const older = portfolioBody({
+      opportunity: { state: "UNSUPPORTED", finding_id: null, scenario_amount: null, headroom: null, destination: null } as unknown as ReturnType<typeof portfolioBody>["opportunity"],
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(older)));
+    await settledScreen();
+    const p = panel("An opportunity beyond reducing cost");
+    expect(p.getAttribute("data-portfolio-opportunity-state")).toBe("NONE");
+    expect(text(p)).toContain("No opportunity found in this period");
+  });
+
+  it("ch4_m1_opportunity_panel_says_a_failed_read_could_not_be_read_not_none", async () => {
+    const failed = portfolioBody({
+      opportunity: { state: "UNKNOWN", items: [], finding_id: null, scenario_amount: null, headroom: null, destination: "/findings/opportunities" } as unknown as ReturnType<typeof portfolioBody>["opportunity"],
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(failed)));
+    await settledScreen();
+    const p = panel("An opportunity beyond reducing cost");
+    expect(p.getAttribute("data-portfolio-opportunity-state")).toBe("UNKNOWN");
+    expect(text(p)).toContain("Opportunities could not be read");
+    expect(text(p)).not.toContain("No opportunity found");
+    expect(text(p)).not.toContain("Nothing seen on the days checked");
   });
 
   it("rendersChangeDisclosureWithoutRecoveredMoney", async () => {

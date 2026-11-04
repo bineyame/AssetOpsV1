@@ -158,7 +158,7 @@ export interface EstateFindingsBody extends EstateEnvelope {
   order: string;
   rows: EstateFindingRow[];
   /** CH-4: the opportunity items (lens all and opportunities); absent on an older body (read as []). */
-  opportunities?: EstateOpportunity[];
+  opportunities?: EstateOpportunity[] | null;
 }
 
 export interface EstateActionRow {
@@ -408,6 +408,11 @@ export function findingOpportunities(body: EstateFindingsBody): EstateOpportunit
   return Array.isArray(body.opportunities) ? body.opportunities : [];
 }
 
+/** CH-4 M1: true when the server could not read the opportunities (`opportunities: null`); never an empty lens. */
+export function findingOpportunitiesUnread(body: EstateFindingsBody): boolean {
+  return body.opportunities === null;
+}
+
 /** CH-4: a Portfolio body's opportunity block; an older or malformed body reads NONE with no items. */
 export function portfolioOpportunity(body: EstatePortfolioBody): EstatePortfolioOpportunity {
   const raw = (body as { opportunity?: unknown }).opportunity;
@@ -447,7 +452,7 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
   value_cards: EstateValueCard[];
   objectives: EstateObjective[];
   evidence_prompt: EstateEvidencePrompt;
-  /** CH-4: from the opportunity items. UNKNOWN when the read failed (shown as NONE, counts "Unknown"); an older
+  /** CH-4: from the opportunity items. UNKNOWN when the read failed (shown as "could not be read", counts "Unknown"); an older
    * body's UNSUPPORTED reads as NONE through `portfolioOpportunity`. */
   opportunity: EstatePortfolioOpportunity;
   progress: {

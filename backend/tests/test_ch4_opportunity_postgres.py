@@ -263,7 +263,7 @@ def test_findings_and_portfolio_bodies_carry_the_item(store, engine, monkeypatch
     findings = ok("findings", **WINDOW, lens="opportunities")
     assert findings["opportunities"] == [item]
     count = findings["summary"]["opportunity_count"]
-    assert count in (1, None), count  # D2: null unless the Finding read is complete
+    assert count == 1, count  # D2: the item count whenever the opportunity read succeeds
     assert ok("findings", **WINDOW, lens="opportunities", state="supported")["opportunities"] == [item]
     assert ok("findings", **WINDOW, lens="opportunities", state="unconfirmed")["opportunities"] == []
     assert ok("findings", **WINDOW, lens="cost")["opportunities"] == []
