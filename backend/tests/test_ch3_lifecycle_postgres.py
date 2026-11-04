@@ -77,6 +77,7 @@ def test_accept_apply_verify_rerun_and_bitemporal_read(seeded, engine) -> None: 
     run_threads(reader, writer, t, s, steps=("b", "c"))
     tid, events, action, accepted = _generator(engine, f01)
     assert [e[1] for e in events] == ["OPEN"] and events[0][3] is not None  # source revision's created_at
+    assert reader.lifecycle_inputs(t, s)["site_type"] == "MINIGRID"  # review L2: the close override's key
 
     # Accept (the real ACCEPTED event): ACTION_IN_HAND, carrying the action event's own recorded time.
     first = run_lifecycle(reader, writer, t, s)
