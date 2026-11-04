@@ -138,3 +138,74 @@ Sizes: template 103,797,219 bytes (21,126 readings, 133 batches); derived L3m DB
 2. Template staleness outside the fingerprint (analytics / mini_depth / mini_decisions).
 3. COH-7a ×2 on Kobo windows, unowned in `expected-mechanism.json`.
 4. The `full` build is unmeasured (estimate only).
+
+## Fix round 1 (MD0-S4 R1-R4, build sheet §17)
+
+Commits: `36427c1b2` producer shapes, DB-now late clocks + DONE/PENDING assertions, fingerprint R2, reserve-20
+removed, L1 parity; `3450fb61b` late fill seals against the binding set in force on the filled day, and every batch
+must accept every reading; `95b81a3fc` L2m hard-asserts the R1.5 acceptance. Not merged.
+
+| Ruling | Status | Evidence |
+|---|---|---|
+| R1.1 power channels 300 s INTERVAL_MEAN | Done | Fixture `sites.kobo.shapes` (pv available-power, PCS discharge-capability, three meter active-power) cites `mappings.py:109-126`, `publish.py:199-203`. `kobo_rows` writes them as w402 `Planned` MEAN `[t, t+5min)`, source time = end, through the existing `cases._envelope` path (no third writer). Status and SoC stay points. Template: `feeder_demand` 8,568 × 300 s, `pv_available_power` 2,856 × 300 s, `pcs_discharge_capability` 2,880 × 300 s, all `interval_end = source_time`. Only the D12/D13 noon remap keeps its w4 60 s rows. 21,126 readings, all ACCEPTED. |
+| R1.2 channels | **None added** (deviation 1) | The two R1.5 measures read only channels MD-0 already sends (`feeder_demand`; dispatch run evidence). |
+| R1.3 L1 shape parity | Done | `host/tests/test_md0_shape_parity.py` (host is the only leaf that may import both simulator and backend). Every generated (device, signal) is a producer channel with the producer's kind; intervals are 300 s ending at source time; noon-remap kinds match where mapped, and unmapped channels must be in a declared w4-only set. **Non-vacuous:** moving `mill-meter/active-power` out of `interval_mean` fails 3 of 4 tests; reverted with `git checkout`. L0 adds tiling, ACT-day cut and fingerprint tests. |
+| R1.4 F5 clocks + assertions | Done | Late path: `Deliverer` takes `decided` from `_db_now` **after** each submit. `settle_day` raises unless at least one DONE dispatch outcome's job overlaps the day. `late_fill` raises on any PENDING/LEASED dispatch job for the day. Mini-depth `all()` now requires a non-empty list. |
+| R1.4 F5 **actual root cause** | Fixed (discovery) | With the DB clock in place the DONE assertion still fired: **every late D7 reading was REJECTED `OUTSIDE_FOUNDATION_PERIOD`** ("2026-10-25T20:20:00Z is outside Foundation v19's registered period [2026-10-29T21:00:00Z, no end)"). The late fill sealed against the newest binding set (pinned to ACT-K1's Foundation v19). The receipt was still `COMPLETED`, so nothing noticed. Fix: `KoboSite(binding_at=...)` picks the unsuperseded set covering the filled day (set v17, Foundation v18), as a gateway that buffered D7 would. Every batch now asserts `counts.accepted == total == len(chunk)`. |
+| R1.5 acceptance | **Met** | Table below. |
+| R2 fingerprint | Done | `INPUT_WRITER_TREES` adds `analytics`, `mini_depth`, `mini_decisions` (the opportunity worker); `chain` stays out (L0 test). |
+| R3 COH-7a ×2 | Persist | See L3m. Not added to `expected-mechanism.json`. |
+| R4 reserve-20 control | Removed | Query: `foundation_revision` via the primary assessment's `analytic_run.foundation_revision_ids`. **Before** (old template): D4 and D11 Findings pin Foundation v15/v19 = 30.0; the inert v17/v18 rows carried 20.0. **After**: no Foundation row carries 20. D4 pins v15/v18 = 30.0; D11 pins v15/v18 = 30.0 (its latest revision also cites v19 = 25.0 after re-assessment); D14 pins v19 = 25.0. ACT-K1 applied v19 = 25.0 effective 2026-10-29T21:00Z (30 → 25). |
+
+**Grades** (L2m on a clone derived from the rebuilt template; keys as `grades()` gives them):
+
+| Day | productive_kwh@load-mill | avoidable_gen_min@generator | noon_headroom_kw |
+|---|---|---|---|
+| D1-D5 (10-19..10-23), D10 (10-28), D11 (10-29), D14 (11-01) | COMPLETE | COMPLETE | NO_DATA |
+| D12, D13 (10-30, 10-31; noon remap) | COMPLETE | COMPLETE | COMPLETE |
+| D7 GAP-K7 before fill | NO_DATA | NO_DATA | PENDING |
+| D7 after late fill (normal or overrun) | COMPLETE | COMPLETE | NO_DATA |
+
+- **D7 late overrun Finding:** one new Finding (`134800af-...` in the final run), from 2,016 readings at the real DB
+  clock. Thread story order is D4, **D7**, D11, D14 (append `occurrence_no` 4). Thread states unchanged
+  (OPEN, ACTION_IN_HAND, CHANGE_APPLIED). Now hard-asserted (was the MD-0-F5 xfail).
+- Late normal fill: no new Finding, thread states unchanged, a new D7 snapshot revision.
+- D-AW-3 record unchanged: `run_lifecycle` skipped 0, causes `[]`. Step b `{ADDED 3, ALREADY_PLACED 5,
+  NEW_THREAD 2}`, `skipped_ineligible 1`; headroom thread OPEN.
+
+**L3m:** `derive` 45 s, then `collect` in process 152 s (40 × 200), then `check --threads
+var/mechanism/expected-threads.json --expect expected-mechanism.json`. COH-10: 0 findings. **COH-7a ×2 persist,
+unchanged**: week summary window `[10-31, 11-01)` vs `[10-25, 11-01)`, month `[11-02, 11-03)` vs `[10-03, 11-03)`.
+Every other COH is 0. So the narrowing is **not** caused by NO_DATA days: every delivered day is now COMPLETE on
+the core measures. Per R3 it is recorded with owner **CH-6** unless CH-5a1's R7 `site_cutoff` closes it; CH-5a1's
+packet must say which.
+
+**Timings:** template rebuild part 1 411 s (exit 3; D11 157 s on a busy machine), part 2 200 s, seed 591.7 s. An
+earlier rebuild (before the binding fix) fit one part at 386 s. Clone 0.5 s, derive 43.3 s. L0+L2m 278 s wall
+(33 passed, 2 xfailed, 0 skipped). Template fingerprint `6126b56b2b2c...`, 103,698,915 bytes. The L3m DB
+`assetops_mechanism_test` (106,959,331 bytes) is kept as the L2m base for the reviewer.
+
+**Checks:** `test_md0_fixture.py` 30 passed; `host/tests/test_md0_shape_parity.py` 4 passed;
+`tools/checks/test_chain_coherence.py` 88 passed; L2m above. Guards: `check-architecture.ps1` passed,
+`check-agent-workflow.ps1` passed. No full backend suite (scoped regression; test-only change).
+
+**Known deviations (fix round 1)**
+1. **No channel added (R1.2).** On non-remap days `noon_headroom_kw` is NO_DATA. The renewable hour
+   (`mini_depth/rules.py:323-345`) needs `pv_power`, `storage_charge_requested_power` and
+   `critical_load_requested/delivered_power`, which MD-0 sends only on D12/D13. Polish (SELECT only) has all of
+   them as 300 s intervals all day. Derived values exist (pv ac-power = min(available 40, load 30) = 30; charge
+   request 0 at constant SoC; clinic requested = delivered = 10). With the declared uncertainty of 3 kW and margin
+   of 5 kW, though, they give headroom [2, 8] kW, so **every normal noon would become ELIGIBLE**. That would change
+   the W1/W2 study contrast and the headroom thread (W1 `skipped_ineligible` would be placed). It is a
+   story-content change, not a shape fix: **Architect/data call**, left unchanged rather than chosen.
+2. `generator_power` and `battery_power` (producer channels) are not sent. No R1.5 measure reads them: dispatch_v3
+   uses `generator_power` only when status is missing, and only mini-depth fuel/service read them.
+3. The noon remap keeps the reviewed w4 fixture's 60 s means; the parity test exempts their length by name.
+4. The producer interval (300 s) is the polish measurement: the mapping fixes the kind, the run's timestep fixes the
+   span. Product note R1 (point power accepted at V3 ingestion) is unchanged (post-demo, SWEEP-DS).
+5. Test environment: `ASSETOPS_TEST_DATABASE_URL` must use `127.0.0.1`. With `localhost` the L2m run stalled
+   (connection fallback on Windows); it was killed by PID and its clone dropped.
+
+**Residual risk / review focus (fix round 1):** deviation 1 (who owns the normal-day noon channels); the
+binding-set-at-day rule in `KoboSite`; COH-7a ownership. CH-5a1 may now write Kobo L2m/L3m expectations against
+this template (R6).
