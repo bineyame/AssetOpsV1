@@ -22,6 +22,7 @@ from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.chain import refs
+from assetops_backend.chain.vocabulary import provenance_suffix
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import action_for, workflow_label
@@ -87,11 +88,11 @@ OPTION_TRIAL = "Trial a lower generator stop setting"
 OPTION_CHANGE = "Proposed setting change"
 OPTION_RESTORE = "Restore battery reporting"
 VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} not yet verified",
-                     "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified on example data",
+                     "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified{suffix}",
                      "INEFFECTIVE": "{code} did not meet its target", "INCONCLUSIVE": "{code} result not determined"}
 #: OUT-E E4: the Verified results line of a VERIFIED Action whose stored cost check shows a modelled improvement.
 #: POLISH Addendum 6 Q6: the verdict and code prefix stay; the cost clause matches board.COST_CHANGE.
-VERIFIED_WITH_COST = ("{code} verified on example data: estimated effect of the trial (not money saved): "
+VERIFIED_WITH_COST = ("{code} verified{suffix}: estimated effect of the trial (not money saved): "
                       "{amount} {currency} less supply cost per kWh")
 PENDING_STATES = ("PENDING", "NO_PLAN", "REASSESSMENT_PENDING")
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
@@ -704,7 +705,8 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             workflow_label=label,
             verification_ref=refs.action_ref(c, aid, view="verification", event_id=event_id or None),
             cost_check=None if summary is None else read_scope.thaw(summary.get("cost_check")),
-            trial_hours=_trial_hours(summary, site_timezone)))
+            trial_hours=_trial_hours(summary, site_timezone),
+            source_class=None if fact is None else fact.source_class))
     return tuple(out), has_change, tuple(missing)
 
 
@@ -948,7 +950,8 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
             text = VERIFIED_WITH_COST.replace("{amount}", per_kwh_amount(cc)).replace(
                 "{currency}", cc.get("currency") or "")
         out.append(Contributor("verified_results", "Verified results",
-                               text.format(code=display_code(a.code)) if text else NOT_LOADED,
+                               text.format(code=display_code(a.code), suffix=provenance_suffix(a.source_class))
+                               if text else NOT_LOADED,
                                PENDING_CHIP if state in PENDING_STATES else None, a.verification_ref))
     out.append(Contributor("actual_against_plan", "Actual against plan", FIXED["plan_target"]))
     if not overview_ok:

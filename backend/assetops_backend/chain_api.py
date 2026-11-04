@@ -15,7 +15,6 @@ summary it sits beside cannot disagree. The count claims (`counts`, `sites[].thr
 """
 from __future__ import annotations
 
-from collections import namedtuple
 from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID
@@ -27,7 +26,7 @@ from assetops_backend import perf, read_scope
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.measures import measures_for
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day, window_days
-from assetops_backend.chain.reader import _counts
+from assetops_backend.chain.reader import grade_counts_of
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.finding_api import Access, development_access
@@ -41,7 +40,6 @@ from assetops_backend.sites.ports import SiteStoreUnavailable
 SITE_CHAIN_ROUTE = "/api/sites/{site_code}/chain"
 ESTATE_CHAIN_ROUTE = "/api/estate/chain"
 THREAD_ROUTE = "/api/sites/{site_code}/threads/{thread_id}"
-_Row = namedtuple("_Row", "local_day measure subject_ref grade")
 
 
 def _versions(chain_versions: Callable[[], dict[str, str | None]]) -> dict[str, str | None]:
@@ -183,9 +181,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             days = window_days(lo, hi, ref.timezone)  # the summary card's frame rule (R7)
             try:
                 facts = req.day(ref.site_id, _site_type(ref), days)
-                pseudo = [_Row(d, m, s, g) for d, per in facts.grades.items() for m, subj in per.items()
-                          for s, g in subj.items()]
-                counts: dict[str, int] | None = _counts(pseudo, days[0], days[-1], _measures(ref)).to_json()
+                counts: dict[str, int] | None = grade_counts_of(facts, _measures(ref)).to_json()  # review L2
             except (SiteStoreUnavailable, *unavailable):
                 counts = None  # the read failed: not known, never zero
             entry = by_code.get(ref.site_code) or {}

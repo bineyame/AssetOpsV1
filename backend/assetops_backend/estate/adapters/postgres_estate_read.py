@@ -418,8 +418,13 @@ class EstateSnapshot:
                 "ORDER BY recorded_at, id"), p):
             out.setdefault(str(aid), {"plans": [], "outcomes": {}})["plans"].append(
                 {"id": str(pid), "recorded_at": recorded, "later_start": start, "later_end": end})
-        for aid, oid, at in self._c.execute(text(
-                "SELECT action_id, id, recorded_at FROM verification_outcome WHERE tenant_id = :t AND site_id = :s "
+        # CH5a2b-R Q6 (additive): each outcome's stored `details.source.source_class` (written on evaluate, never
+        # derived here), so the placement wording reads the verified outcome's source (B7).
+        for aid, oid, at, source_class in self._c.execute(text(
+                "SELECT action_id, id, recorded_at, details->'source'->>'source_class' FROM verification_outcome "
+                "WHERE tenant_id = :t AND site_id = :s "
                 "AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k ORDER BY recorded_at, id"), p):
-            out.setdefault(str(aid), {"plans": [], "outcomes": {}})["outcomes"][str(oid)] = at
+            entry = out.setdefault(str(aid), {"plans": [], "outcomes": {}})
+            entry["outcomes"][str(oid)] = at
+            entry.setdefault("source_classes", {})[str(oid)] = source_class
         return out

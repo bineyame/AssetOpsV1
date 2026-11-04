@@ -222,6 +222,7 @@ class ActionFacts:
     cost_check: Any
     trial_hours: Any
     has_change: bool
+    source_class: str | None = None   # CH5a2-R R2: the selected outcome's stored source class
 
 
 @dataclass(frozen=True)
@@ -299,7 +300,7 @@ class ChainRequest:
             body = read_scope.memo("action_read", self.reader.verification, self.tenant_id, site_id, site_code, aid)
             body = body or {}
             out.append(ActionFacts(aid, body.get("state"), body.get("cost_check"), body.get("trial_hours"),
-                                   bool(changes.get(aid.lower()))))
+                                   bool(changes.get(aid.lower())), body.get("source_class")))
         return tuple(out)
 
     def money_head(self, site_id: UUID, finding_id: str, revision_id: str, *, is_latest: bool,

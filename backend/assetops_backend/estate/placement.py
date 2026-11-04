@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from assetops_backend.chain.vocabulary import provenance_suffix
+
 POLICY_VERSION = "estate-placement/1"
 GROUPS = ("NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "UNPRICED_RISK", "MONITOR")  # group_rank = index + 1
 GROUP_LABEL = {"NEEDS_INVESTIGATION": "Needs investigation first", "ACT_NOW": "Act now",
@@ -39,7 +41,8 @@ REASON_TEXT = {
     "UNPRICED_SERVICE_INTERRUPTION": "Charging service interruption; no price basis",
     "UNPRICED_OTHER": "No price basis for this finding",
     # CC-R1-Q1 ruling: "simulated" stays guarded, so the verified-change text says "example data" (POLISH Addendum 14).
-    "VERIFIED_WATCH_RETURN": "Change verified on example data; watch for it coming back",
+    # CH-5a2b B7 (DS-R1): `{suffix}` is `chain.vocabulary.provenance_suffix` of the verified outcome's source class.
+    "VERIFIED_WATCH_RETURN": "Change verified{suffix}; watch for it coming back",
     "APPLIED_AWAITING_PLAN": "Change applied; no verified result yet",
     "NO_OPEN_SIGNAL": "No open signal",
 }
@@ -84,19 +87,22 @@ class Placement:
                 "reasons": [{"code": r.code, "text": r.text} for r in self.reasons]}
 
 
-def _reason(code: str, row: Mapping[str, Any]) -> Reason:
+def _reason(code: str, row: Mapping[str, Any], suffix: str = "") -> Reason:
+    if code == "VERIFIED_WATCH_RETURN":
+        return Reason(code, REASON_TEXT[code].format(suffix=suffix))
     if code == "RECURRED":
         title = row.get("_recurs_after_title")
         return Reason(code, RECURRED_TITLED.format(other=title) if title else REASON_TEXT[code])
     return Reason(code, REASON_TEXT[code])
 
 
-def _group(name: str, codes: list[str], row: Mapping[str, Any]) -> tuple[str, int, tuple[Reason, ...]]:
-    return name, GROUPS.index(name) + 1, tuple(_reason(c, row) for c in codes)
+def _group(name: str, codes: list[str], row: Mapping[str, Any],
+           suffix: str = "") -> tuple[str, int, tuple[Reason, ...]]:
+    return name, GROUPS.index(name) + 1, tuple(_reason(c, row, suffix) for c in codes)
 
 
 def _rule(row: Mapping[str, Any], label: str, src: str | None, cons: str | None,
-          line_group: str | None) -> tuple[str, int, tuple[Reason, ...]]:
+          line_group: str | None, suffix: str = "") -> tuple[str, int, tuple[Reason, ...]]:
     # 1. NEEDS_INVESTIGATION: all that apply, in order.
     first = ((["EVIDENCE_SOURCE_MIXED"] if src == "MIXED" else [])
              + (["EVIDENCE_SOURCE_UNKNOWN"] if src in (None, "UNKNOWN") else [])
@@ -112,7 +118,7 @@ def _rule(row: Mapping[str, Any], label: str, src: str | None, cons: str | None,
         return _group("ACT_NOW", [*signals, _ACTION_REASON[label]], row)
     # 3. MONITOR for a verified or applied change (before COMPARE_VALUE, Q-C6).
     if label in _MONITOR_REASON:
-        return _group("MONITOR", [_MONITOR_REASON[label]], row)
+        return _group("MONITOR", [_MONITOR_REASON[label]], row, suffix)
     # 4. COMPARE_VALUE for a priced exposure.
     if cons == "PRICED":
         return _group("COMPARE_VALUE", ["PRICED_COMPARABLE" if line_group == "COMPARABLE" else "PRICED_SINGLE"], row)
@@ -150,6 +156,7 @@ def place(row: Mapping[str, Any], action: Mapping[str, Any] | None, site_cov: Ma
     label = workflow_label(action)  # type: ignore[arg-type]
     src = (row.get("source_provenance") or {}).get("state", "UNKNOWN")
     cons = (row.get("consequence") or {}).get("state")
-    group, rank, reasons = _rule(row, label, src, cons, line_group)
+    suffix = provenance_suffix(((action or {}).get("_raw") or {}).get("_source_class"))  # B7: stored class
+    group, rank, reasons = _rule(row, label, src, cons, line_group, suffix)
     confidence, confidence_reasons = _confidence(row, src, cons, site_cov)
     return Placement(group, rank, reasons, confidence, confidence_reasons)

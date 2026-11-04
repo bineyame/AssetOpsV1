@@ -104,7 +104,9 @@ class Fake:
         def action_facts(ids):
             v, change = self.over.get("verification", {"state": "PENDING"}), self.over.get("has_change", True)
             return self._go("action_facts", tuple(ActionFacts(i, v.get("state"), v.get("cost_check"),
-                                                              v.get("trial_hours"), change) for i in ids), ids)
+                                                              v.get("trial_hours"), change,
+                                                              v.get("source_class", "REGISTERED_SIMULATION"))
+                                                  for i in ids), ids)
 
         return MiniPorts(
             source=lambda: self._go("source", (True, "REGISTERED_SIMULATION")),

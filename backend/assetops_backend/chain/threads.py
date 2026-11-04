@@ -82,6 +82,25 @@ class PlacePlan:
     reason: str = ""
 
 
+#: CH5a2-R R3 (CH-5a2b): the three thread classes of the count claims and `thread_progress`.
+OPEN_CLASS = ("OPEN", "RECURRED", "REOPENED")
+IN_HAND_CLASS = ("ACTION_IN_HAND", "CHANGE_APPLIED")
+VERIFIED_CLASS = ("RESOLVED_MONITORING", "CLOSED")
+
+
+def classify(states: Iterable[str | None]) -> dict[str, int]:
+    """The one thread classifier (§B13 R3, §B14 Q7): open, in hand and verified counts over one state per thread."""
+    out = {"open": 0, "in_hand": 0, "verified": 0}
+    for st in states:
+        if st in OPEN_CLASS:
+            out["open"] += 1
+        elif st in IN_HAND_CLASS:
+            out["in_hand"] += 1
+        elif st in VERIFIED_CLASS:
+            out["verified"] += 1
+    return out
+
+
 def finding_source(row: dict[str, Any]) -> Source:
     """A Finding revision row (finding columns + revision columns + `site_tz`) -> its Source, keyed from stored
     columns only. Raises KeyError for a domain without a mapping row (a fourth domain adds one)."""
