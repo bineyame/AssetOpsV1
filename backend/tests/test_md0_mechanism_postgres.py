@@ -256,10 +256,12 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
                           {"s": m["site_id"]}).all()
     assert [(k, str(t)) for k, t in links] == [("MINI_TRIAL", gen["id"])], links
 
-    # 4. Story time: on D11 the thread is ACTION_IN_HAND (accepted 13:00), CHANGE_APPLIED from the D12 effect,
-    # RESOLVED_MONITORING from the D13 evaluation (so on S = D13, §2.6 a).
+    # 4. Story time: on D11 the thread is ACTION_IN_HAND (accepted 13:00); the D12 change effect and the VERIFIED
+    # cause both land on D12 by the product's effective day (the evaluation ran D13 10:00 local): CHANGE_APPLIED then
+    # RESOLVED_MONITORING on D12, so RESOLVED_MONITORING on S = D13 (§2.6 a, "since D12").
     assert _state_on(gen, 11) == "ACTION_IN_HAND", gen["events"]
-    assert _state_on(gen, 12) == "CHANGE_APPLIED", gen["events"]
+    on_d12 = [s for _, s, d in gen["events"] if d == md.day(SPEC, 12)]
+    assert on_d12 == ["CHANGE_APPLIED", "RESOLVED_MONITORING"], gen["events"]
     assert _state_on(gen, 13) == "RESOLVED_MONITORING", gen["events"]
 
     # D-AW-3 (MD0-S2; its lifecycle change is CH-6b R16): the D14 recurrence, verbatim from run_lifecycle(...).
@@ -359,8 +361,10 @@ def test_close_variant_resolves_closes_after_seven_clean_days_and_recurs(mech_cl
     for _, state, d in gen["events"]:
         by_state.setdefault(state, d)
     resolved = by_state.get("RESOLVED_MONITORING")
-    verify = close["sites"]["kobo"]["actions"][0]["verify"]
-    assert resolved == md.day(SPEC, verify["evaluate"]["day"]), gen["events"]
+    action = close["sites"]["kobo"]["actions"][0]
+    record("close_resolved_day", str(resolved))
+    # the product's effective day of the VERIFIED cause: on or after the change's day, by the evaluation's day
+    assert md.day(SPEC, action["effective"]["day"]) <= resolved <= md.day(SPEC, action["verify"]["evaluate"]["day"]),         gen["events"]
     # 7 fully checked days after the verified day (none of D5..D11 has an occurrence): CLOSED on the 7th.
     assert by_state.get("CLOSED") == resolved + timedelta(days=7), gen["events"]
     assert by_state.get("RECURRED") == md.day(SPEC, 13), gen["events"]
