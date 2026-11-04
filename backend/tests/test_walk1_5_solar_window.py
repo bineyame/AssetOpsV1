@@ -109,8 +109,9 @@ def test_productive_use_and_headroom_issue_link_to_the_same_five_local_days() ->
     """M2/L1: Nairobi is UTC+3, so the bounds are local midnights (21:00Z), not UTC midnights."""
     c = cards(hour("ELIGIBLE"), hour("EXCLUDED", head=("-3", "0")), None, hour("ELIGIBLE"), hour("LIMITED"))
     _, row = grow(c)
-    want = (f"/sites/KOBO-001/performance/renewable?from={(DAY - timedelta(days=5)).isoformat()}T21:00:00Z"
-            f"&to={DAY.isoformat()}T21:00:00Z")
+    # CH-5a2a: built by `href_for` (URLSearchParams encoding, `:` as `%3A`; the same instants)
+    want = (f"/sites/KOBO-001/performance/renewable?from={(DAY - timedelta(days=5)).isoformat()}T21%3A00%3A00Z"
+            f"&to={DAY.isoformat()}T21%3A00%3A00Z")
     assert contributor(row, "productive_use")["href"] == want
     assert next(i for i in row["issues"] if i["text"] == "Productive-use headroom")["href"] == want
 

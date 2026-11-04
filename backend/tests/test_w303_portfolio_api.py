@@ -6,6 +6,9 @@ the full-scope `estate-selection/2` token. The persisted proof is `test_w303_por
 
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+from link_parity import checked
+
 import base64
 import json
 from datetime import datetime, timedelta, timezone
@@ -18,7 +21,7 @@ from fastapi.testclient import TestClient
 
 from assetops_backend.estate import portfolio
 from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE
-from assetops_backend.estate.index import _finding_links
+from assetops_backend.estate.index import _finding_link_refs, _links
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import (
     MESSAGES, PORTFOLIO_CURSOR_KEY_ENV, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor,
@@ -75,8 +78,8 @@ def finding(site, n, at, lifecycle="SUPPORTED", flags=()):
             "consequence": {"state": "UNPRICED", "amount": None, "amount_low": None, "amount_high": None},
             "source_provenance": {"classification": "UNKNOWN"}, "episode_start": None if at is None else at.isoformat(),
             # Post-W6 W3-estate: the real `select_finding_scope` link shape (no recorded window: cold/EV null).
-            "links": _finding_links(site["site_code"], DOMAIN_OF_SITE_TYPE[site["site_type"]], FINDING[n],
-                                    FINDING[n + 20], None, READ_AT),
+            **_links(_finding_link_refs(site["site_code"], DOMAIN_OF_SITE_TYPE[site["site_type"]], FINDING[n],
+                                        FINDING[n + 20], None, READ_AT)),
             "_at": at, "_site": site, "_domain": site["site_type"], "_episode_end": None, "_mechanism": None}
 
 
@@ -115,7 +118,7 @@ class World:
         return [finding(mg, 1, D0 + timedelta(days=1), flags=("COST",)), finding(co, 2, D0 + timedelta(days=2)),
                 finding(co, 3, None, lifecycle="UNCONFIRMED"), finding(mg, 4, D0 + timedelta(days=2)), merged]
 
-    def select_finding_scope(self, snap, t, req, scope):
+    def select_finding_scope(self, snap, t, req, scope, cutoffs=None):
         per = [(s, "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain",
                 cov(selected_finding_revision_ids=[r["finding_revision_id"] for r in self.rows()
                                                    if r["site_id"] == str(s["site_id"])]))
@@ -131,8 +134,8 @@ class World:
         row = {"raw_state": "FULL", "readiness": "FULL", "selected_revision_ids": [FINDING[31]],
                "_assessments": [FINDING[31]], "_cited": [FINDING[32]], "_token_cited": [],
                "window_start": None, "window_end": None,
-               "links": {"site": "/sites/X", "site_readiness": "/sites/X",
-                         "site_readiness_label": "Current view"}}
+               **R.split_links({"site": R.site_ref("X"), "site_readiness": R.site_ref("X"),
+                                "site_readiness_label": "Current view"})}
         return [(s, "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain", cov(), [dict(row)])
                 for s in scope["sites"]], []
 
@@ -390,7 +393,7 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert cells[MG] == {"SERVICE_PRODUCT": "UNKNOWN", "BACKUP": "UNKNOWN", "ASSET_CONDITION": "UNKNOWN",
                          "COST_CONTROL": "UNASSESSED", "EVIDENCE": "FULL"}
     assert cells[CO]["COST_CONTROL"] == "NOT_APPLICABLE" and cells[CO]["EVIDENCE"] == "FULL"
-    assert one["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
+    assert checked(one["evidence_prompt"]) == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
                                       "site_id": None, "site_code": None, "gap_code": None, "destination": "/evidence"}
     assert one["progress"] == {"state": "NO_COMPARABLE_BASELINE", "completed_activity_count": None,
                                "pending_trial_count": 0, "verified_resolution_count": 0, "recovered_value": NOT_CREDITED_VALUE,
@@ -467,8 +470,8 @@ def test_out_a2_row_categories_and_category_counts(world, monkeypatch) -> None:
         "ASSURE_PERFORMANCE": {"open_findings": 0, "sites_with_primary_finding": 0}}
     real_scope = world.select_finding_scope
 
-    def unknown(snap, t, req, scope):
-        per, rows = real_scope(snap, t, req, scope)
+    def unknown(snap, t, req, scope, cutoffs=None):
+        per, rows = real_scope(snap, t, req, scope, cutoffs)
         return [(s, d, {**c, "state": "UNKNOWN"}) for s, d, c in per], rows
 
     monkeypatch.setattr(portfolio, "select_finding_scope", unknown)

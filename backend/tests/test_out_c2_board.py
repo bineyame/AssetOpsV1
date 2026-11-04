@@ -1,6 +1,8 @@
 """OUT-C U2: visits read, warnings on the board and the estate summary (build sheet OUT-C §2 U2)."""
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 
@@ -93,9 +95,9 @@ def test_composer_settles_cc3_with_visits_and_findings() -> None:
 F118_KEYS = sum(outcome_roles("FINDING:COLD_START_FAILURE", COLD), ())
 
 
-def repeat_warning(case_ids=("mr1", "mr2"), finding_href="/sites/COLD-LAB-001/findings/f118"):
+def repeat_warning(case_ids=("mr1", "mr2"), finding_href=R.finding_ref("COLD-LAB-001", "f118")):
     vs = tuple(Visit(cid, cid.upper(), "gen", "generator-1", "COMPLETED", TO - timedelta(days=9 - i),
-                     (TO - timedelta(days=9 - i)).date(), ("f118",), f"/maintenance/requests/{cid}")
+                     (TO - timedelta(days=9 - i)).date(), ("f118",), R.case_ref("COLD-LAB-001", cid))
                for i, cid in enumerate(case_ids))
     return evaluate(WarningFacts(COLD, "COLD-LAB-001", TO, TO - timedelta(days=60), TO + timedelta(days=14),
                                  (date(2026, 10, 20),) * 2, visits=vs,
@@ -157,9 +159,9 @@ def test_repeat_visits_are_also_placed_in_cost() -> None:
 
 def test_plan_state_labels_from_due_cue() -> None:
     plan = PlanFact("p1", "PM-1", "Witnessed backup start test", "CALENDAR", date(2026, 10, 17), None, "DRAFT",
-                    "gen", "/maintenance/preventive", TO - timedelta(days=4))
+                    "gen", R.estate_ref("maintenance_preventive"), TO - timedelta(days=4))
     other = PlanFact("p2", "PM-2", "Coil", "CALENDAR", date(2026, 12, 1), None, "DRAFT", "cmp",
-                     "/maintenance/preventive", datetime(2026, 12, 1, tzinfo=timezone.utc))
+                     R.estate_ref("maintenance_preventive"), datetime(2026, 12, 1, tzinfo=timezone.utc))
     (od,) = plan_warnings(TO - timedelta(days=4))
     (soon,) = plan_warnings(TO + timedelta(days=4))
     labels = lambda ws: [i["state_label"] for i in rows_by_cat(cold_facts(plans=(plan, other), warnings=ws))[
@@ -220,7 +222,7 @@ def test_board_and_summary_wire(monkeypatch) -> None:
     w = body["warnings"][0]
     assert set(w) == {"key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                       "persistence_label", "price_needs", "status_effect", "categories", "site_code", "site_name",
-                      "href", "evidence_refs", "count", "subject_label", "fault_name"}
+                      "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name"}
     assert (w["site_code"], w["site_name"]) == ("COLD-LAB-001", "GreenHarvest")
     assert money_hits(body["warnings"]) == []
 

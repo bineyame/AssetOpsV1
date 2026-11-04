@@ -68,7 +68,8 @@
   "rows": [
    {
     "action_id": "a1000000-0000-0000-0000-000000000001",
-    "origin_revision_selected": false
+    "origin_revision_selected": false,
+    "origin_selected": false
    }
   ]
  },

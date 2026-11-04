@@ -5,6 +5,8 @@ Assure count, CC-1 from the chamber range only, a failed objectives read, the bo
 and no measure key, verdict code or policy string in any rendered text."""
 from __future__ import annotations
 
+from link_parity import checked
+
 from dataclasses import replace
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -43,7 +45,7 @@ def run_mini(fake: b2.Fake | None = None, rows: Any = KOBO_OBJECTIVES):
     ports = (fake or b2.Fake()).ports()
     ports = replace(ports, objectives=rows if callable(rows) else (lambda: rows))
     comp = mini.compose(ports, site_code=b2.C, day=b2.DAY, site_timezone=b2.ZONE)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def declared(row: dict) -> list[dict]:
@@ -190,7 +192,7 @@ def run_cold(rows: list, overview: dict | None = None):
     fake = b3.Fake(**({"cold_overview": overview} if overview is not None else {}))
     ports = replace(b3.cold_ports(fake), objectives=lambda: rows)
     comp = cold.compose(ports, site_code=b3.C, lo=b3.LO, hi=b3.HI, site_timezone=b3.ZONE)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def test_cc1_reads_the_chamber_range_only() -> None:
@@ -214,7 +216,7 @@ def test_cc1_on_track_with_no_excursion_and_a_complete_window() -> None:
     fake = b3.Fake(cold_overview=held, cold_findings={"items": [], "next_cursor": None})
     ports = replace(b3.cold_ports(fake), objectives=lambda: [])
     comp = cold.compose(ports, site_code=b3.C, lo=b3.LO, hi=b3.HI, site_timezone=b3.ZONE)
-    rows = {r["category"]: r for r in assemble(comp.facts)}
+    rows = {r["category"]: r for r in checked(assemble(comp.facts))}
     assert {o["outcome_key"]: o["verdict"] for o in objectives_wire(comp.facts)} == {"CC-1": "MET"}
     [line] = declared(rows[PROTECT])
     assert line["text"] == "Stock kept saleable: chamber held between 2 and 5°C · " + cold.CC1_HELD
@@ -241,7 +243,7 @@ def test_cc6_declared_and_contributor_order() -> None:
 def run_ev(rows: list):
     ports = replace(b3.ev_ports(b3.Fake()), objectives=lambda: rows)
     comp = ev.compose(ports, site_code=b3.E, lo=b3.LO, hi=b3.HI, site_timezone=b3.ZONE)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def test_ev1_missed_and_ev2_has_no_line() -> None:

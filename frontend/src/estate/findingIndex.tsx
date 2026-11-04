@@ -29,6 +29,7 @@ import {
   type EstateScopeBody,
   type EstateStateFilter,
 } from "./estateClient";
+import { linkFor } from "../shell/operatorSiteRoutes";
 import {
   EARLIER_CUTOFF,
   EstateDateBar,
@@ -295,24 +296,26 @@ function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
  * own `from`, `to` and `known_at`; the server otherwise sends `null`); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
  */
 export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<string>): boolean {
-  const link: unknown = row.links.finding;
-  if (typeof link !== "string" || link === "") return false;
+  // CH5a2-R4(c): the gate reads the Ref sibling, never the legacy href text.
+  const ref = row.link_refs?.finding;
+  if (!ref || ref.kind !== "FINDING" || !linkFor(ref)) return false;
   if (miniGridIds.has(row.site_id)) return true;
-  if (!link.includes("?")) return false;
-  const params = new URLSearchParams(link.slice(link.indexOf("?") + 1));
-  return params.has("from") && params.has("to") && params.has("known_at");
+  const w = ref.window;
+  return Boolean(w?.from && w.to && w.known_at);
 }
 
 export const FINDING_DETAIL_UNAVAILABLE = "Finding detail unavailable";
 
 function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string; linked: boolean }) {
   const lifecycle = LIFECYCLE_WORDS[row.lifecycle];
+  const finding = linkFor(row.link_refs?.finding);
+  const site = linkFor(row.link_refs?.site);
   const source = SOURCE_WORDS[sourceState(row.source_provenance as unknown as SourceProvenance)];
   return (
     <tr data-estate-finding={row.finding_id}>
       <td>
-        {linked ? (
-          <Link className="estate-cell__primary" to={row.links.finding ?? ""} data-estate-finding-link>
+        {linked && finding ? (
+          <Link className="estate-cell__primary" to={finding} data-estate-finding-link>
             {row.title}
           </Link>
         ) : (
@@ -333,9 +336,13 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
         </TechnicalDetails>
       </td>
       <td>
-        <Link to={row.links.site} data-estate-site-link>
-          {row.site_code}
-        </Link>
+        {site ? (
+          <Link to={site} data-estate-site-link>
+            {row.site_code}
+          </Link>
+        ) : (
+          <span>{row.site_code}</span>
+        )}
         <span className="estate-cell__secondary">{row.site_name}</span>
       </td>
       <td>{row.priority ?? "Not assessed"}</td>

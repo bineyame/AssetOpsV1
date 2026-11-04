@@ -5,10 +5,11 @@ module attributes Findings, signals, Actions, cases and plans to the four catego
 and rolls each row up. It writes no storage and formats no money (B-Q14)."""
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from assetops_backend.chain import refs
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
@@ -92,19 +93,19 @@ PLAN_CUE_LABEL = {PLAN_OVERDUE: "Overdue", PLAN_DUE_SOON: "Due soon"}
 REPAIR_MUST_NOT_HARM = ": a repair counts only when the fault it answers stops"
 
 #: Evidence link per (domain, category); None where the row is not measured (§B.2 table).
-EVIDENCE_LINK: dict[tuple[str, str], tuple[str, str] | None] = {
-    (MINI, "GROW_REVENUE"): ("Renewable evidence", "/sites/{c}/performance/renewable"),
-    (MINI, "OPTIMIZE_COST"): ("Dispatch evidence", "/sites/{c}/performance/dispatch"),
-    (MINI, "PROTECT_ASSET"): ("Battery evidence", "/sites/{c}/health"),
-    (MINI, "ASSURE_PERFORMANCE"): ("Evidence overview", "/sites/{c}/evidence"),
+EVIDENCE_LINK: dict[tuple[str, str], tuple[str, Callable[[str], dict[str, Any]]] | None] = {
+    (MINI, "GROW_REVENUE"): ("Renewable evidence", lambda c: refs.evidence_ref(c, "renewable")),
+    (MINI, "OPTIMIZE_COST"): ("Dispatch evidence", lambda c: refs.evidence_ref(c, "dispatch")),
+    (MINI, "PROTECT_ASSET"): ("Battery evidence", lambda c: refs.site_ref(c, "health")),
+    (MINI, "ASSURE_PERFORMANCE"): ("Evidence overview", lambda c: refs.evidence_ref(c)),
     (COLD, "GROW_REVENUE"): None,
-    (COLD, "OPTIMIZE_COST"): ("Financial bridge", "/sites/{c}/financials"),
-    (COLD, "PROTECT_ASSET"): ("Cold-room evidence", "/sites/{c}/evidence"),
-    (COLD, "ASSURE_PERFORMANCE"): ("Evidence overview", "/sites/{c}/evidence"),
-    (EV, "GROW_REVENUE"): ("Financial bridge", "/sites/{c}/ev/financials"),
+    (COLD, "OPTIMIZE_COST"): ("Financial bridge", lambda c: refs.site_ref(c, "financials")),
+    (COLD, "PROTECT_ASSET"): ("Cold-room evidence", lambda c: refs.evidence_ref(c)),
+    (COLD, "ASSURE_PERFORMANCE"): ("Evidence overview", lambda c: refs.evidence_ref(c)),
+    (EV, "GROW_REVENUE"): ("Financial bridge", lambda c: refs.site_ref(c, "ev_financials")),
     (EV, "OPTIMIZE_COST"): None,
-    (EV, "PROTECT_ASSET"): ("Depot evidence", "/sites/{c}/ev/evidence"),
-    (EV, "ASSURE_PERFORMANCE"): ("Evidence overview", "/sites/{c}/ev/evidence"),
+    (EV, "PROTECT_ASSET"): ("Depot evidence", lambda c: refs.site_ref(c, "ev_evidence")),
+    (EV, "ASSURE_PERFORMANCE"): ("Evidence overview", lambda c: refs.site_ref(c, "ev_evidence")),
 }
 
 #: Confidence chips (§B.2 table).
@@ -132,7 +133,7 @@ class FindingFact:
     title: str
     mechanism: str | None
     lifecycle: str
-    href: str | None
+    link_ref: Mapping[str, Any] | None  # CH-5a2a: a `chain.refs` Ref
     asset_id: str | None = None
     confidence_label: str | None = None
     #: Addendum 2 item 4: False for a Finding read only to resolve a link (outside the overview day). Such a
@@ -161,10 +162,10 @@ class ActionFact:
     applied: bool                      # application_state APPLIED or later (§1.4)
     open: bool                         # workflow_label not in ("Verified", "Resolution withdrawn") (B-Q18)
     verification_state: str | None     # NO_PLAN | PENDING | REASSESSMENT_PENDING | VERIFIED | INEFFECTIVE | ...
-    href: str | None
+    link_ref: Mapping[str, Any] | None
     # Additions recorded in the packet (B1 deviation 2): the inputs the §B.2 labels and links need.
     workflow_label: str | None = None  # mini: estate/portfolio.py:137 text
-    verification_href: str | None = None  # /sites/{c}/actions/{id}/verification?event_id=...
+    verification_ref: Mapping[str, Any] | None = None  # ACTION Ref, view verification, event_id
     is_domain: bool = False            # cold/EV domain Action: in hand only, never applied
     # OUT-E E4: the verification summary's stored cost check and trial hours of the current outcome (last, defaulted)
     cost_check: Mapping[str, Any] | None = None   # {state, reason, nominal, upper, currency, recorded_at}
@@ -184,7 +185,7 @@ class CaseFact:
     asset_label: str | None
     finding_ids: tuple[str, ...]
     occurred_at: Any                   # comparable (datetime); only ordering is used
-    href: str | None
+    link_ref: Mapping[str, Any] | None
 
 
 @dataclass(frozen=True)
@@ -197,11 +198,17 @@ class PlanFact:
     next_due_hours: float | int | None
     state: str
     asset_id: str | None
-    href: str | None
+    link_ref: Mapping[str, Any] | None
     due_at: Any = None                 # C: the UTC instant of `next_due_at` (compared only)
 
 
 #: Issue kind of each non-Finding signal (§B.2): headroom is an opportunity, the evidence gap is a gap.
+def _link(ref: Mapping[str, Any] | None) -> dict[str, Any]:
+    """CH5a2-R4(a): a linked item's `href` (kept until CH-7) built from its sibling `link_ref`, so they cannot
+    disagree. No ref is no link."""
+    return {"href": refs.href_for(ref), "link_ref": None if ref is None else dict(ref)}
+
+
 SIGNAL_ISSUE_KIND = {"SIGNAL:PRODUCTIVE_USE_HEADROOM": "OPPORTUNITY", "SIGNAL:EVIDENCE_GAP": "EVIDENCE_GAP"}
 
 
@@ -211,7 +218,7 @@ class SignalFact:
     signal_key: str                    # a SIGNAL_ISSUE_KIND key
     open: bool
     text: str
-    href: str | None = None
+    link_ref: Mapping[str, Any] | None = None
     ref: Mapping[str, Any] | None = None   # CH-4 §2.3: the OPPORTUNITY issue's study and thread
 
     @property
@@ -225,13 +232,13 @@ class Contributor:
     label: str
     text: str
     confidence: Mapping[str, str] | None = None
-    href: str | None = None
+    link_ref: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
 class Option:
     text: str
-    href: str | None = None
+    link_ref: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -593,32 +600,53 @@ def _thread_action(f: FindingFact, facts: SiteFacts, earlier: bool) -> ActionFac
 
 
 def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) -> str | None:
-    """CH-3 §5: the one thread line that applies to a Finding on the board day, else None."""
+    """CH-3 §5: the one thread line that applies to a Finding on the board day, else None (the text of
+    `thread_line_item`)."""
+    judge = None if state_label_on is None else (lambda day: (None, state_label_on(day)))
+    item = thread_line_item(f, facts, judge)
+    return None if item is None else item["text"]
+
+
+def thread_line_item(f: FindingFact, facts: SiteFacts, judge: Any = None) -> dict[str, Any] | None:
+    """CH-5a2 B4: the structured ThreadLine of a Finding on the board day, else None. `judge(day)` gives the row's
+    `(state, state_label)` on a day after the change; `text` is the CH-3 literal, rendered exactly as before."""
     view, d = f.lifecycle_view, facts.day
     if view is None or f.thread is None or d is None:
         return None
     state, e = f.thread.get("state"), view.get("change_day")
+    tid = str(f.thread.get("id"))
+
+    def item(kind: str, text: str, a: ActionFact | None, effective: Any, after: Any = None,
+             remaining: int | None = None, clean: int | None = None) -> dict[str, Any]:
+        return {"kind": kind, "thread_id": tid, "action_code": None if a is None else a.code,
+                "effective_day": None if effective is None else effective.isoformat(), "after": after,
+                "remaining_days": remaining, "clean_days": clean, "ref": refs.thread_ref(facts.site_code, tid),
+                "text": text}
+
     if e is not None and d < e:
         line = THREAD_BEFORE.format(e=_short_day(e))
         first = view.get("first_complete_after_change")
-        label = None if first is None or state_label_on is None else state_label_on(first)
-        if first is not None and label is not None:
-            return line + THREAD_AFTER_JUDGED.format(state_label=label, day=_short_day(first))
-        return line + THREAD_AFTER_NOT_JUDGED.format(e=_short_day(e))
+        judged = None if first is None or judge is None else judge(first)
+        a = _thread_action(f, facts, earlier=False)
+        if first is not None and judged is not None and judged[1] is not None:
+            return item("BEFORE_CHANGE", line + THREAD_AFTER_JUDGED.format(state_label=judged[1], day=_short_day(first)),
+                        a, e, {"state": judged[0], "day": first.isoformat()})
+        return item("BEFORE_CHANGE", line + THREAD_AFTER_NOT_JUDGED.format(e=_short_day(e)), a, e)
     if state == "RECURRED":
         a = _thread_action(f, facts, earlier=True)
         day = view.get("recurred_day")
         if a is None or day is None:
             return None
-        return THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code))
+        return item("RECURRED", THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code)), a, day)
     if f.thread.get("verified"):
         a = _thread_action(f, facts, earlier=False)
         if a is None:
             return None
         n = int(view.get("close_after") or 0)
         if state == "CLOSED":
-            return THREAD_CLOSED.format(code=display_code(a.code), n=n)
-        return THREAD_MONITORING.format(code=display_code(a.code), k=max(0, n - int(view.get("checked_days") or 0)))
+            return item("CLOSED", THREAD_CLOSED.format(code=display_code(a.code), n=n), a, e, clean=n)
+        k = max(0, n - int(view.get("checked_days") or 0))
+        return item("MONITORING", THREAD_MONITORING.format(code=display_code(a.code), k=k), a, e, remaining=k)
     return None
 
 
@@ -680,10 +708,10 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
         "icon": CATEGORY_ICON[cat], "state": row_state, "state_label": STATE_LABEL[row_state],
         "tone": STATE_TONE[row_state], "lead_outcome": {"key": lead.key, "label": lead.label},
-        "headline": None, "headline_money": None, "subline": None, "not_measured_text": None,
+        "headline": None, "headline_money": None, "subline": None, "thread_lines": [], "not_measured_text": None,
         "counts": {"issues": 0, "in_hand": 0}, "must_not_harm": None,
         "contributors": [], "issues": [], "options": [], "in_hand": [], "earlier": [], "earlier_empty_text": None,
-        "evidence_link": None if link is None else {"label": link[0], "href": link[1].format(c=code)},
+        "evidence_link": None if link is None else {"label": link[0], **_link(link[1](code))},
         "outcomes": [{"key": o.key, "label": o.label, "state": st, "reason": reason} for o, st, reason in states],
         "potential": None,
     }
@@ -700,21 +728,21 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     issues: list[dict[str, Any]] = []
     for f in open_findings:
         if f in moves_here:
-            issues.append(_finding_issue(f, "MOVES", f.title))
+            issues.append(_finding_issue(f, "MOVES", f.title, _primary(roles[f.finding_id].moves, cat)))
     open_signals = [s for s in facts.signals_extra if s.open]
     for role in ("MOVES", "CHECKED"):
         for s in open_signals:
             r = sig_roles[s.signal_key]
             if cat in (r.move_cats if role == "MOVES" else r.checked_cats):
-                issues.append({"kind": s.kind, "role": role, "text": s.text, "href": s.href,
+                issues.append({"kind": s.kind, "role": role, "text": s.text, **_link(s.link_ref),
                                "ref": None if s.ref is None else dict(s.ref)})
     for f in open_findings:
         if f in checked_here:
-            issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX))
+            issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX, False))
     for role in ("MOVES", "CHECKED"):  # C: warnings last, MOVES then CHECKED, in `evaluate` order
         for w, r in warn_roles:
             if cat in (r.move_cats if role == "MOVES" else r.checked_cats):
-                issues.append({"kind": w.badge, "role": role, "text": w.title, "href": w.href, "ref": w.key})
+                issues.append({"kind": w.badge, "role": role, "text": w.title, **_link(w.link_ref), "ref": w.key})
     repeat_cats: dict[str, set[str]] = {}
     for w, r in warn_roles:
         if w.kind == REPEATED:
@@ -740,16 +768,17 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             result = ACTION_RESULT.get(a.verification_state or "PENDING", ACTION_RESULT["PENDING"])  # CH-3 §3
         if result is not None:
             if cat in move_cats:
-                earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result + suffix,
+                earlier.append({"text": _item_text(a.code, a.title), **_link(a.link_ref),
+                                "result_label": result + suffix,
                                 "detail": action_detail(a, cat, facts)})
             elif r is not None and cat in r.checked_cats:
                 names = r.checked_in(cat, exclude_unmeasured=MUST_NOT_HARM_EXCLUDES_UNMEASURED)
                 if names:
                     earlier.append({"text": f"{join_names(names)} checked as safeguards in {_action_name(a)}",
-                                    "href": a.verification_href or a.href, "result_label": result, "detail": None})
+                                    **_link(a.verification_ref or a.link_ref), "result_label": result, "detail": None})
         elif a.open and cat in move_cats:
             label = "Open" if a.is_domain else WORKFLOW_IN_HAND.get(a.workflow_label or "", a.workflow_label or "Open")
-            in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label + suffix})
+            in_hand.append({"text": _item_text(a.code, a.title), **_link(a.link_ref), "state_label": label + suffix})
 
     for case in sorted(facts.cases, key=lambda c: (c.code or "", c.case_id)):
         cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
@@ -757,13 +786,13 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             continue
         if case.state not in CLOSED_CASE_STATES:
             label = _case_label(case) + suffix
-            in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label,
+            in_hand.append({"text": _item_text(case.code, case.title), **_link(case.link_ref), "state_label": label,
                             **_case_wire(case)})
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
         cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats | repeat_cats.get(case.case_id, set()) and result is not None:
-            earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
+            earlier.append({"text": _item_text(case.code, case.title), **_link(case.link_ref),
                             "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else ""), "detail": None,
                             **_case_wire(case)})
 
@@ -772,7 +801,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
             if p.state in ("DRAFT", "ACTIVE"):
                 label = PLAN_CUE_LABEL[cue[p.plan_id]] if p.plan_id in cue else _plan_label(p, facts.date_suffix)
-                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href, "state_label": label,
+                in_hand.append({"text": _item_text(p.code, p.title), **_link(p.link_ref), "state_label": label,
                                 "kind": PLAN_KIND})
 
     # Must not harm (B-Q19, addendum 1): only where a mini Action verification exists.
@@ -783,14 +812,14 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         if checks and names:
             a = checks[0]
             must_not_harm = {"text": f"{join_names(names)} are checked as safeguards when {_action_name(a)} is "
-                                     "verified; a gain that harms them does not count", "href": a.verification_href}
+                                     "verified; a gain that harms them does not count", **_link(a.verification_ref)}
             break
     if must_not_harm is None:  # C: a repeat-visit warning moving this row, checked against outcomes elsewhere
         for w, r in warn_roles:
             names = r.checked_outside(cat)
             if w.kind == REPEATED and cat in r.move_cats and names:
-                finding_href = next((x["href"] for x in w.evidence_refs if x["kind"] == "FINDING"), None)
-                must_not_harm = {"text": join_names(names) + REPAIR_MUST_NOT_HARM, "href": finding_href}
+                finding_link = next((x.get("link_ref") for x in w.evidence_refs if x["kind"] == "FINDING"), None)
+                must_not_harm = {"text": join_names(names) + REPAIR_MUST_NOT_HARM, **_link(finding_link)}
                 break
 
     # Headline: the domain table, else the lead Finding's title on a Finding-driven state.
@@ -816,8 +845,9 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     ordered = (*domain_lines[:at], *objective_lines, *domain_lines[at:])
 
     # CH-3 §5: the thread line of each in-window Finding whose primary MOVES outcome is in this row.
-    def state_label_on(f: FindingFact, day: Any) -> str | None:
-        """Ruling Q2: this row's state label with the Finding's thread state on `day` and the board's verdicts."""
+    def state_on(f: FindingFact, day: Any) -> tuple[str, str] | None:
+        """Ruling Q2: this row's (state, state label) with the Finding's thread state on `day` and the board's
+        verdicts (CH-5a2 B4: the state code is the ThreadLine `after.state`)."""
         view = f.lifecycle_view or {}
         st = _state_on(view, day)
         alt = [replace(s, open=f.open and st not in view.get("verified_states", ()),
@@ -826,24 +856,29 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
                                             readiness=facts.readiness, objective=verdicts.get(o.key),
                                             objectives_ok=facts.objectives_ok)[0]) for o in outcomes]
-        return STATE_LABEL[roll_up(alt_states)[0]].lower() if alt_states else None
+        if not alt_states:
+            return None
+        rolled = roll_up(alt_states)[0]
+        return rolled, STATE_LABEL[rolled].lower()
 
-    thread_lines: list[str] = []
+    # CH-5a2 B4: structured lines; the subline joins their texts exactly as before (one per distinct text).
+    thread_lines: list[dict[str, Any]] = []
     for f in thread_line_findings(facts):
         moves = roles[f.finding_id].moves
         if moves and OUTCOME_BY_KEY[moves[0]].category == cat:
-            line = thread_line(f, facts, lambda day, f=f: state_label_on(f, day))
-            if line and line not in thread_lines:
+            line = thread_line_item(f, facts, lambda day, f=f: state_on(f, day))
+            if line and all(line["text"] != x["text"] for x in thread_lines):
                 thread_lines.append(line)
-    subline = " · ".join(x for x in (facts.subline.get(cat), *thread_lines) if x) or None
+    subline = " · ".join(x for x in (facts.subline.get(cat), *(t["text"] for t in thread_lines)) if x) or None
 
     row.update({
         "potential": potential,
         "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": subline,
+        "thread_lines": thread_lines,
         "counts": {"issues": len(issues), "in_hand": len(in_hand)}, "must_not_harm": must_not_harm,
         "contributors": [_contributor(c) for c in ordered],
         "issues": issues,
-        "options": [{"text": o.text, "href": o.href} for o in facts.options.get(cat, ())],
+        "options": [{"text": o.text, **_link(o.link_ref)} for o in facts.options.get(cat, ())],
         "in_hand": in_hand, "earlier": earlier,
         "earlier_empty_text": None if earlier else (
             EARLIER_EMPTY_OPEN if any(f.open and f.in_window for f in moves_here) else EARLIER_EMPTY_NONE),
@@ -874,8 +909,13 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
     return {c for f in linked for c in roles[f.finding_id].move_cats}, ""
 
 
-def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
-    return {"kind": "FINDING", "role": role, "text": text, "href": f.href,
+def _primary(moves: Sequence[str], cat: str) -> bool:
+    """CH-5a2 B5 (I-21): the row is the Finding's lens row when its category is the one of `moves[0]`."""
+    return bool(moves) and OUTCOME_BY_KEY[moves[0]].category == cat
+
+
+def _finding_issue(f: FindingFact, role: str, text: str, primary: bool) -> dict[str, Any]:
+    return {"kind": "FINDING", "role": role, "text": text, "primary": primary, **_link(f.link_ref),
             "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
                     "thread": None if f.thread is None else {k: f.thread[k] for k in f.thread.get("wire_keys", ())
                                                              if k in f.thread}}}
@@ -894,7 +934,7 @@ def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> Si
                   "state_day": item["state_day"]}
         ref = {"opportunity_id": item["study"]["opportunity_id"], "code": item["study"]["code"], "thread": thread}
         facts = replace(facts, signals_extra=tuple(
-            replace(s, href=item["links"]["opportunity"], ref=ref)
+            replace(s, link_ref=item["link_refs"]["opportunity"], ref=ref)
             if s.signal_key == "SIGNAL:PRODUCTIVE_USE_HEADROOM" else s for s in facts.signals_extra))
     return replace(facts,
                    findings=tuple(replace(f, thread=fs.get(f.finding_id.lower()),
@@ -905,4 +945,4 @@ def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> Si
 
 def _contributor(c: Contributor) -> dict[str, Any]:
     return {"key": c.key, "label": c.label, "text": c.text,
-            "confidence": None if c.confidence is None else dict(c.confidence), "href": c.href}
+            "confidence": None if c.confidence is None else dict(c.confidence), **_link(c.link_ref)}

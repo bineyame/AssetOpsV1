@@ -40,7 +40,7 @@ from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
 from assetops_backend.analytics.finding_episode import MATCHER_VERSION
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.outcomes.catalogue import MINI
-from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, lens_flags
 
 SCHEMA_VERSION = "site-finding-index-2"
 POLICY_VERSION = "finding-index/2"
@@ -456,5 +456,7 @@ class FindingIndexService:
                 "amount": dict(AMOUNT_UNAVAILABLE),
                 # OUT-A2 (ruling A-Q13): the one domain's Findings all carry the S4 matcher mechanism.
                 "categories": categories_for(finding_signal_key(FINDING_MECHANISM), MINI),
+                # CH-5a2 B5 (I-21): the one lens of the primary moved category, from outcome_map only (OL-1).
+                "lens_flags": lens_flags(finding_signal_key(FINDING_MECHANISM), MINI),
             })
         return out

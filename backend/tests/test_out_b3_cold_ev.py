@@ -3,6 +3,8 @@ addenda 2-3: (a) cooling recovery, R551; (b) the route Site zone with the UTC fa
 `denominator`; (d) EV closed Findings through the single `finding(...)` read; M1 the Finding source)."""
 from __future__ import annotations
 
+from link_parity import checked
+
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -97,7 +99,7 @@ def cold_ports(fake: Fake) -> cold.ColdPorts:
 
 def run_cold(fake: Fake | None = None, tz: str | None = ZONE):
     comp = cold.compose(cold_ports(fake or Fake()), site_code=C, lo=LO, hi=HI, site_timezone=tz)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def test_greenharvest_board_from_ports() -> None:
@@ -114,7 +116,7 @@ def test_greenharvest_board_from_ports() -> None:
     assert rows[PROTECT]["headline"] == "Chamber above 5°C for 40–55 min"
     assert rows[PROTECT]["subline"] == cold.PROTECT_SUBLINE_START
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
-        ("Witnessed automatic-start test", f"/sites/{C}/actions/da1"),
+        ("Witnessed automatic-start test", f"/sites/{C}/actions/da1/verification"),  # CH-5a2a: a domain intent
         ("Stock value what-if", f"/sites/{C}/financials/scenarios")]
     assert contributor(rows[ASSURE], "verified_results")["text"] == "MR-005 completed; not yet verified"
     assert contributor(rows[ASSURE], "event_chain")["text"] == "1 step not recorded"  # singular (L7)
@@ -240,7 +242,7 @@ def ev_ports(fake: Fake, single: Any = None) -> ev.EvPorts:
 
 def run_ev(fake: Fake | None = None, tz: str | None = ZONE):
     comp = ev.compose(ev_ports(fake or Fake()), site_code=E, lo=LO, hi=HI, site_timezone=tz)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def test_depot_board_from_ports() -> None:
@@ -270,7 +272,7 @@ def test_depot_board_from_ports() -> None:
     assert rows[PROTECT]["subline"] == ("Connector C2 was out of service for 1 h 30 min; which departures were "
                                         "affected is not known yet. Charger condition is not assessed")
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
-        ("Investigate Connector C2", f"/sites/{E}/actions/ea1")]
+        ("Investigate Connector C2", f"/sites/{E}/actions/ea1/verification")]  # CH-5a2a: a domain intent
     assert contributor(rows[ASSURE], "session_records")["text"] == "1 session has no accepted end"
     assert contributor(rows[ASSURE], "connector_status")["text"] == "Missing 20 Oct 13:00–20 Oct 13:30"  # UTC+3
     assert rows[ASSURE]["headline"] == "Evidence limited · no verified result yet"

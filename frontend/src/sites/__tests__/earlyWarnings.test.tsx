@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
 
 import { boardBody, fakeOutcomeBoard, outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";

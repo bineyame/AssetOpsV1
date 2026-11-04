@@ -78,12 +78,15 @@ def test_board_day_is_the_site_local_day():
         datetime(2026, 10, 31, tzinfo=timezone.utc), datetime(2026, 11, 1, tzinfo=timezone.utc))
 
 
-def test_summary_day_is_the_local_day_of_to_minus_a_microsecond():
+def test_window_day_is_the_board_routes_day_rule():
+    """CH5a2-R R7 (replaces `summary_day`): rule 2 picks the UTC calendar date; rule 3 reads `to` in its midnight
+    frame; rule 1 a Site-local day pair. Each rule has its own test in `test_out_b4_read.py`."""
     midnight = datetime(2026, 11, 1, tzinfo=timezone.utc)
-    assert cr.summary_day(midnight, "Etc/UTC") == D
-    assert cr.summary_day(midnight, "Africa/Addis_Ababa") == date(2026, 11, 1)        # 03:00 local
+    assert cr.window_day(midnight - timedelta(days=1), midnight, "Etc/UTC") == D
+    assert cr.window_day(midnight - timedelta(days=1), midnight, "Africa/Addis_Ababa") == D
     local_midnight = datetime(2026, 10, 31, 21, tzinfo=timezone.utc)                  # 1 Nov 00:00 Addis
-    assert cr.summary_day(local_midnight, "Africa/Addis_Ababa") == D
+    assert cr.window_day(None, local_midnight, "Africa/Addis_Ababa") == D
+    assert cr.window_day(*cr.board_day(D, "Africa/Addis_Ababa"), "Africa/Addis_Ababa") == D
 
 
 def test_local_days_of_a_window():

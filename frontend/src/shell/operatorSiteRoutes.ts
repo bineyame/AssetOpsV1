@@ -1,3 +1,4 @@
+import type { FindingChildView, Ref, RefSiteView, RefEstateView, RefWindow } from "../sites/chainRef";
 /**
  * Where the operator shell puts its site surfaces.
  *
@@ -285,8 +286,7 @@ export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "
  * W4-03 unit 6b adds `alternatives`: the authored alternatives of the exact
  * selected revision, on MINIGRID Sites only (u6 ruling 3).
  */
-export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation", "alternatives"] as const;
-export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
+export { FINDING_CHILD_VIEWS, type FindingChildView } from "../sites/chainRef";
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 
 export function siteFindingViewHref(
@@ -507,4 +507,101 @@ export function siteAssetsHref(siteId: string): string {
 
 export function siteAssetHref(siteId: string, assetId: string): string {
   return `${siteAssetsHref(siteId)}/${encodeURIComponent(assetId)}`;
+}
+
+/**
+ * CH-5a2a (B1, CH5a2-R4(b)): the screen-link reference the server sends beside a legacy `href` as `link_ref`,
+ * mirroring `backend/assetops_backend/chain/refs.py`. `routeFor` is the only client builder of a rendered link;
+ * `__fixtures__/route-refs.json` (read by a vitest and a pytest) pins it to the server's `href_for`.
+ */
+export {
+  REF_ESTATE_VIEWS, REF_SITE_VIEWS,
+  type Ref, type RefActionView, type RefEstateView, type RefSiteView, type RefWindow,
+} from "../sites/chainRef";
+
+function withWindow(path: string, window: RefWindow | undefined): string {
+  if (!window) return path;
+  const query = new URLSearchParams();
+  for (const key of ["from", "to", "known_at"] as const) {
+    const value = window[key];
+    if (value) query.set(key, value);
+  }
+  const text = query.toString();
+  return text ? `${path}?${text}` : path;
+}
+
+const SITE_VIEW_HREF: Record<RefSiteView, (site: string) => string> = {
+  home: siteDetailHref,
+  foundation: siteFoundationHref,
+  foundation_changes: (site) => `${siteFoundationHref(site)}/changes`,
+  findings: siteFindingsHref,
+  financials: (site) => siteFinancialsHref(site),
+  financial_assumptions: (site) => siteFinancialAssumptionsHref(site),
+  financial_scenarios: (site) => siteFinancialScenariosHref(site),
+  ev: (site) => siteEvHref(site, "overview"),
+  ev_evidence: (site) => siteEvHref(site, "evidence"),
+  ev_analysis: (site) => siteEvHref(site, "analysis"),
+  ev_financials: (site) => siteEvHref(site, "financials"),
+  ev_assumptions: (site) => siteEvHref(site, "assumptions"),
+  ev_scenarios: (site) => siteEvHref(site, "scenarios"),
+  work: (site) => siteWorkHref(site),
+  work_incidents: (site) => siteWorkIncidentsHref(site),
+  work_maintenance: (site) => siteWorkMaintenanceHref(site),
+  health: (site) => siteHealthHref(site),
+  assets: siteAssetsHref,
+};
+
+const ESTATE_VIEW_PATH: Record<RefEstateView, string> = {
+  portfolio: PORTFOLIO_ROOT_PATH,
+  findings: FINDINGS_PATH,
+  findings_cost: FINDINGS_COST_PATH,
+  findings_risks: FINDINGS_RISKS_PATH,
+  findings_opportunities: FINDINGS_OPPORTUNITIES_PATH,
+  actions: ACTIONS_PATH,
+  evidence: EVIDENCE_PATH,
+  financials: FINANCIALS_PATH,
+  incidents: INCIDENTS_PATH,
+  maintenance: MAINTENANCE_PATH,
+  maintenance_preventive: MAINTENANCE_PREVENTIVE_PATH,
+  operational_records: OPERATIONAL_RECORDS_PATH,
+};
+
+/** The one CASE builder: a work request's screen (`WORK_REQUEST_ROUTE_PATH`). */
+export function workRequestHref(caseId: string): string {
+  return `${MAINTENANCE_PATH}/requests/${encodeURIComponent(caseId)}`;
+}
+
+/** The screen path of one Ref; null for a THREAD, which has no screen until CH-5b. */
+export function routeFor(r: Ref): string | null {
+  switch (r.kind) {
+    case "THREAD":
+      return null;
+    case "FINDING":
+      if (r.window) {
+        const base = r.view ? siteFindingViewHref(r.site, r.id, r.view) : siteFindingHref(r.site, r.id);
+        return withWindow(base, r.window);
+      }
+      return r.view ? siteFindingViewHref(r.site, r.id, r.view, r.revision) : siteFindingHref(r.site, r.id, r.revision);
+    case "ACTION":
+      return siteActionHref(r.site, r.id, r.view ?? "overview", { eventId: r.event_id, recordedAt: r.recorded_at });
+    case "OPPORTUNITY":
+      return siteOpportunityHref(r.site, r.id, r.known_at);
+    case "CASE":
+      return workRequestHref(r.id);
+    case "EVIDENCE":
+      return withWindow(r.capability ? sitePerformanceHref(r.site, r.capability) : siteEvidenceHref(r.site), r.window);
+    case "SITE":
+      return withWindow(SITE_VIEW_HREF[r.view ?? "home"](r.site), r.window);
+    case "ESTATE":
+      return ESTATE_VIEW_PATH[r.view];
+    default: {
+      const unreachable: never = r;
+      throw new Error(`unknown Ref ${JSON.stringify(unreachable)}`);
+    }
+  }
+}
+
+/** A rendered link from an optional `link_ref`: no ref, or a ref with no screen, is no link (CH5a2-R4(a)). */
+export function linkFor(r: Ref | null | undefined): string | null {
+  return r ? routeFor(r) : null;
 }

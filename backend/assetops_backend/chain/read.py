@@ -1,7 +1,7 @@
 """ChainReader (CH-5a1, build sheet Part A §A2-§A3): the board's chain reads, one indexed query each, memoised
 per request in the read scope (`assetops_backend.read_scope`, CH5a-R R1).
 
-Pure: the rules here (`site_cutoff`, `readiness_of`, `day_settled`, `day_gaps`, `board_day`, `summary_day`,
+Pure: the rules here (`site_cutoff`, `readiness_of`, `day_settled`, `day_gaps`, `board_day`, `window_day`,
 `assessment_state`) and the `ChainReader` that composes its ports. It imports no store, driver or other domain's
 adapter; the SQL lives in `chain/adapters/postgres_chain_read.py` and the composition hands the ports in.
 """
@@ -107,9 +107,43 @@ def board_day(d: date, tz: str | None) -> tuple[datetime, datetime]:
     return lo, hi
 
 
-def summary_day(to: datetime, tz: str | None) -> date:
-    """R6 (the CH3-R `day_at` rule): the summary's mini day is the Site-local day of `to - 1 µs`."""
-    return (to - timedelta(microseconds=1)).astimezone(_zone(tz)).date()
+def _utc_midnight(t: datetime) -> bool:
+    u = t.astimezone(timezone.utc)
+    return (u.hour, u.minute, u.second, u.microsecond) == (0, 0, 0, 0)
+
+
+def window_day(lo: datetime | None, hi: datetime | None, tz: str | None) -> date | None:
+    """CH5a2-R R7 (owner-approved "fix the summary now as recommended"): the ONE day rule of a window, shared by the
+    board route, the board's thread day and the summary card (and imported by COH-7a):
+
+    1. a pair that is exactly one Site-local day selects that local date;
+    2. a UTC-midnight one-day pair selects its UTC calendar date (the date the user picked), read as the Site's
+       local day of that date;
+    3. any other window selects the calendar date of `to - 1 µs` in the frame where `to` is a midnight: UTC when
+       `to` is a UTC midnight, otherwise Site-local.
+
+    None when there is no `to`."""
+    if hi is None:
+        return None
+    z = _zone(tz)
+    if lo is not None:
+        local = lo.astimezone(z).date()
+        if (lo, hi) == board_day(local, tz):
+            return local
+        if _utc_midnight(lo) and hi - lo == timedelta(days=1):
+            return lo.astimezone(timezone.utc).date()
+    frame = timezone.utc if _utc_midnight(hi) else z
+    return (hi - timedelta(microseconds=1)).astimezone(frame).date()
+
+
+def window_days(lo: datetime, hi: datetime, tz: str | None) -> tuple[date, ...]:
+    """CH-5a2a: the calendar days an estate window names, by `window_day`'s frame rule: a window whose ends are both
+    UTC midnights names its UTC calendar dates (each read as the Site's local day of that date, as the summary card
+    reads it); any other window names the Site-local days it intersects (`local_days`)."""
+    if not (_utc_midnight(lo) and _utc_midnight(hi)):
+        return local_days(lo, hi, tz)
+    first, last = lo.astimezone(timezone.utc).date(), (hi - timedelta(microseconds=1)).astimezone(timezone.utc).date()
+    return tuple(first + timedelta(days=i) for i in range((last - first).days + 1))
 
 
 def local_days(lo: datetime, hi: datetime, tz: str | None) -> tuple[date, ...]:
@@ -213,6 +247,8 @@ class ChainReadPort(Protocol):
 
     def has_change(self, tenant_id: UUID, action_ids: Sequence[str]) -> Mapping[str, bool]: ...
 
+    def site_threads(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
+
 
 @dataclass(frozen=True)
 class ChainRequest:
@@ -246,6 +282,10 @@ class ChainRequest:
     def findings_settled(self, site_id: UUID) -> bool:
         return bool(read_scope.memo("chain.findings_settled", self.reader.ports.findings_settled, self.tenant_id,
                                     site_id, self.k))
+
+    def threads(self, site_id: UUID) -> Mapping[str, Any]:
+        """CH-5a2a (§B1 `/chain` routes): the Site's thread rows (`ChainReadPort.site_threads`), one memoised call."""
+        return read_scope.memo("chain.threads", self.reader.ports.site_threads, self.tenant_id, site_id, self.k)
 
     def action_facts(self, site_id: UUID, site_code: str, action_ids: Sequence[str]) -> tuple[ActionFacts, ...]:
         """C6: the state, cost check and trial hours from one memoised `VerificationService.summary` per Action;

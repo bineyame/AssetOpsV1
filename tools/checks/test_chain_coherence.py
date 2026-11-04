@@ -587,13 +587,17 @@ def _summary_variant(tmp_path: Path, site_code: str, domain: str, window: dict) 
     return cc.Bundle(dst)
 
 
-#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `summary_day` = local (Addis) day of 31 Oct 23:59:59Z = 1 Nov.
-KOBO_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
+#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `window_day` rule 3 (CH5a2-R R7) = the UTC date of
+#: 31 Oct 23:59:59Z = 31 Oct, read as Kobo's (Addis) local day [30 Oct 21Z, 31 Oct 21Z).
+KOBO_CARD_DAY = {"from": "2026-10-30T21:00:00Z", "to": "2026-10-31T21:00:00Z"}
+#: The CH-5a1 card day (the Site-local day of `to - 1 µs`, the next local day east of UTC) is no longer expected.
+KOBO_OLD_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
 WEEK = {"from": "2026-10-25T00:00:00Z", "to": "2026-11-01T00:00:00Z"}
 
 
 @pytest.mark.parametrize("site,domain,window,fails", [
-    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (summary_day) is expected
+    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (window_day) is expected
+    (KOBO, "mini_grid", KOBO_OLD_CARD_DAY, True),  # R7: the day after the picked date is not
     (KOBO, "mini_grid", WEEK, True),            # a mini card on the requested window is not its card day
     (COLD, "cold_chain", WEEK, False),          # every other Site: the requested window
     (COLD, "cold_chain", KOBO_CARD_DAY, True),  # ... and only it
@@ -665,3 +669,22 @@ def test_settle_also_accepts_the_mechanism_dbs_only() -> None:
     for name in ("mechanism_x", "assetops_mechanism", "polish_full"):
         with pytest.raises(chain_clone.CloneRefused):
             chain_clone.settle_db(name)
+
+
+def test_coh5_reads_only_primary_issues(tmp_path: Path) -> None:
+    """CH-5a2 B5: a secondary (non-primary) appearance of a Finding on a board row is not a lens claim."""
+    def secondary(body: dict) -> None:
+        for row in body["rows"]:
+            for issue in row.get("issues") or []:
+                if issue.get("kind") == "FINDING":
+                    issue["primary"] = False
+    bundle = _edited(tmp_path, "coh5_lens", **{"board.day_cold_failure_2026-10-31.json": secondary})
+    assert cc.coh5_lens(bundle) == []
+    assert cc.coh5_lens(cc.Bundle(BUNDLES / "coh5_lens")) != []
+
+
+def test_coh14_reads_structured_thread_lines(tmp_path: Path) -> None:
+    """CH-5a2 B4: COH-14 reads `thread_lines` kinds where present, and the copy only on an older body."""
+    assert cc._verified_line({"thread_lines": [{"kind": "MONITORING"}], "subline": None}) is True
+    assert cc._verified_line({"thread_lines": [{"kind": "BEFORE_CHANGE"}], "subline": "Fix verified, x"}) is False
+    assert cc._verified_line({"subline": "a · Fix verified and closed (ACT-1)"}) is True

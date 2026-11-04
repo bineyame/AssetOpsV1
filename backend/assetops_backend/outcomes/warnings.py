@@ -9,6 +9,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
+from assetops_backend.chain import refs
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import categories_for, outcome_roles
 from assetops_backend.outcomes.plan_due import CALENDAR, DUE_SOON, OVERDUE, plan_due_state
@@ -56,6 +57,8 @@ RULE = {
     PEAK: (RISK, "RISK", WATCH),
 }
 PLAN_HREF = "/maintenance/preventive"
+#: CH-5a2a: the PLAN_HREF screen as a Ref (`chain.refs`); every warning link is a `link_ref`.
+PLAN_LINK = refs.estate_ref("maintenance_preventive")
 COMPLETED = "COMPLETED"
 _MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -70,7 +73,7 @@ class Visit:
     occurred_at: Any
     occurred_on: Any
     finding_ids: tuple[str, ...] = ()
-    href: str | None = None
+    link_ref: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -81,7 +84,7 @@ class PlanCue:
     due_at: Any
     due_on: Any
     asset_id: str | None = None
-    href: str | None = PLAN_HREF
+    link_ref: Mapping[str, Any] | None = field(default_factory=lambda: dict(PLAN_LINK))
 
 
 LINKED_FINDING = "linked finding"     # fault_name fallback (Rulings C final review F1)
@@ -119,7 +122,7 @@ class Warning:
     price_needs: str
     status_effect: str
     categories: dict[str, Any]
-    href: str | None
+    link_ref: Mapping[str, Any] | None
     evidence_refs: tuple[dict[str, Any], ...] = ()
     count: int | None = None
     subject_label: str | None = None
@@ -131,7 +134,9 @@ class Warning:
                 "lens": self.lens, "title": self.title, "seen": self.seen, "persistence": self.persistence,
                 "persistence_label": PERSISTENCE_LABEL[self.persistence], "price_needs": self.price_needs,
                 "status_effect": self.status_effect, "categories": self.categories, "site_code": site_code,
-                "site_name": site_name, "href": self.href, "evidence_refs": [dict(r) for r in self.evidence_refs],
+                "site_name": site_name, "href": refs.href_for(self.link_ref),
+                "link_ref": None if self.link_ref is None else dict(self.link_ref),
+                "evidence_refs": [dict(r) for r in self.evidence_refs],
                 "count": self.count, "subject_label": self.subject_label, "fault_name": self.fault_name}
 
 
@@ -151,7 +156,7 @@ def _window_text(f: WarningFacts) -> str:
     return f"between {day_text(d1)} and {day_text(d2)}{f.date_suffix}"
 
 
-def _make(f: WarningFacts, kind: str, subject: str, title: str, seen: str, href: str | None, *,
+def _make(f: WarningFacts, kind: str, subject: str, title: str, seen: str, link_ref: Mapping[str, Any] | None, *,
           linked: tuple[str, ...] = (), refs: list[dict[str, Any]] | None = None, count: int | None = None,
           subject_label: str | None = None, visit_ids: tuple[str, ...] = (),
           fault_name: str | None = None) -> Warning:
@@ -159,7 +164,7 @@ def _make(f: WarningFacts, kind: str, subject: str, title: str, seen: str, href:
     return Warning(kind=kind, key=f"{kind}:{f.site_code}:{subject}", subject=subject, badge=badge, lens=lens,
                    title=title, seen=seen, persistence=RECURRING if kind == REPEATED else OBSERVED,
                    price_needs=PRICE_NEEDS[kind], status_effect=effect,
-                   categories=categories_for("WARNING:" + kind, f.domain, linked), href=href,
+                   categories=categories_for("WARNING:" + kind, f.domain, linked), link_ref=link_ref,
                    evidence_refs=tuple(refs or ()), count=count, subject_label=subject_label, visit_ids=visit_ids,
                    fault_name=fault_name)
 
@@ -194,16 +199,22 @@ def _repeated(f: WarningFacts) -> list[Warning]:
         fault = names.pop() if len(names) == 1 and None not in names else LINKED_FINDING
         seen = (f"{name} visited {len(done)} times in 60 days ({_dates(f, [v.occurred_on for v in done])}); "
                 f"the {fault} is still open")
-        refs = [{"kind": "WORK_CASE", "id": v.case_id, "label": display_code(v.code), "href": v.href} for v in done]
-        refs += [{"kind": "FINDING", "id": fid, "label": None, "href": f.open_findings[fid][1]} for fid in open_ids]
-        out.append(_make(f, REPEATED, asset_id, "Repeated maintenance without a result", seen, latest.href,
-                         linked=tuple(linked), refs=refs, count=len(done), subject_label=name,
+        cited = [_eref("WORK_CASE", v.case_id, display_code(v.code), v.link_ref) for v in done]
+        cited += [_eref("FINDING", fid, None, f.open_findings[fid][1]) for fid in open_ids]
+        out.append(_make(f, REPEATED, asset_id, "Repeated maintenance without a result", seen, latest.link_ref,
+                         linked=tuple(linked), refs=cited, count=len(done), subject_label=name,
                          visit_ids=tuple(v.case_id for v in done), fault_name=fault))
     return out
 
 
+def _eref(kind: str, id_: str, label: str | None, link_ref: Mapping[str, Any] | None) -> dict[str, Any]:
+    """One cited evidence ref; its `href` comes from its `link_ref` (CH5a2-R4(a))."""
+    return {"kind": kind, "id": id_, "label": label, "href": refs.href_for(link_ref),
+            "link_ref": None if link_ref is None else dict(link_ref)}
+
+
 def _plan_ref(p: PlanCue) -> dict[str, Any]:
-    return {"kind": "PLAN", "id": p.plan_id, "label": display_code(p.code), "href": p.href}
+    return _eref("PLAN", p.plan_id, display_code(p.code), p.link_ref)
 
 
 def _overdue(f: WarningFacts) -> list[PlanCue]:
@@ -216,11 +227,11 @@ def _plans(f: WarningFacts) -> list[Warning]:
         state = plan_due_state(CALENDAR, p.due_at, f.to)
         if state == OVERDUE:
             out.append(_make(f, PLAN_OVERDUE, p.plan_id, f"{p.title} overdue",
-                             f"Planned for {day_text(p.due_on)}{f.date_suffix}, not done", PLAN_HREF,
+                             f"Planned for {day_text(p.due_on)}{f.date_suffix}, not done", PLAN_LINK,
                              refs=[_plan_ref(p)]))
         elif state == DUE_SOON:
             out.append(_make(f, PLAN_DUE_SOON, p.plan_id, f"{p.title} due soon",
-                             f"Due {day_text(p.due_on)}{f.date_suffix}", PLAN_HREF, refs=[_plan_ref(p)]))
+                             f"Due {day_text(p.due_on)}{f.date_suffix}", PLAN_LINK, refs=[_plan_ref(p)]))
     return out
 
 
@@ -231,7 +242,7 @@ def _battery(f: WarningFacts) -> list[Warning]:
     seen = (f"During {n} of {m} assessed generator {'period' if m == 1 else 'periods'} on "
             f"{day_text(f.window_days[0])}{f.date_suffix}")
     return [_make(f, BATTERY, "site", "Battery at or near its reserve", seen,
-                  f"/sites/{f.site_code}/performance/dispatch")]
+                  refs.evidence_ref(f.site_code, "dispatch"))]
 
 
 def _faults(f: WarningFacts) -> list[Warning]:
@@ -243,9 +254,9 @@ def _faults(f: WarningFacts) -> list[Warning]:
             continue
         seen = (f"{label} fault recorded in this window · inspection overdue since "
                 f"{day_text(plan.due_on)}{f.date_suffix}")
-        refs = [_plan_ref(plan), {"kind": "ASSET", "id": asset_id, "label": label, "href": None}]
+        cited = [_plan_ref(plan), _eref("ASSET", asset_id, label, None)]
         out.append(_make(f, CHARGER_FAULT, asset_id, "Charger fault and overdue inspection", seen,
-                         f"/sites/{f.site_code}/health", refs=refs, subject_label=label))
+                         refs.site_ref(f.site_code, "health"), refs=cited, subject_label=label))
     return out
 
 
@@ -255,8 +266,8 @@ def _connectors(f: WarningFacts) -> list[Warning]:
         lead = f"{out_text} out and {unknown_text} unknown" if unknown_text else f"{out_text} out"
         name = label if label.lower().startswith("connector") else f"Connector {label}"  # "Connector c1" labels
         out.append(_make(f, CONNECTOR_OUT, asset_id, f"{name} out of service",
-                         f"{lead} {_window_text(f)}", f"/sites/{f.site_code}/performance/availability",
-                         refs=[{"kind": "ASSET", "id": asset_id, "label": label, "href": None}],
+                         f"{lead} {_window_text(f)}", refs.evidence_ref(f.site_code, "availability"),
+                         refs=[_eref("ASSET", asset_id, label, None)],
                          subject_label=label))
     return out
 
@@ -268,7 +279,7 @@ def _peak(f: WarningFacts) -> list[Warning]:
     if not limit or not peak > (1 - PEAK_MARGIN) * limit:  # strictly within the margin (72 of 80 does not fire)
         return []
     return [_make(f, PEAK, "site", "Peak close to the import limit", f"{peak_text} kW against {limit_text} kW",
-                  f"/sites/{f.site_code}/performance/energy")]
+                  refs.evidence_ref(f.site_code, "energy"))]
 
 
 def evaluate(f: WarningFacts) -> tuple[Warning, ...]:

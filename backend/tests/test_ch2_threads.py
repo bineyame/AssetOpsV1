@@ -205,16 +205,17 @@ def _action(aid, fid, frid, thread=None, at=T0):
             "_raw": {"_selected_recorded_at": at}}
 
 
-def test_portfolio_join_matches_on_thread_with_exact_fallback():
+def test_portfolio_join_matches_on_thread_only():
     from assetops_backend.estate.portfolio import _action_for, attach_threads
 
     row = {"finding_id": "f3", "finding_revision_id": "r3"}
     act = _action("a1", "f1", "r1", thread="t1")
-    assert _action_for(row, [act]) is None  # no thread on the row: the exact join alone
+    assert _action_for(row, [act]) is None  # no thread on the row: no match
     row["_thread"] = {"id": "t1", "occurrence_no": 3, "occurrences": 3}
     assert _action_for(row, [act]) is act
     exact = _action("a2", "f3", "r3")
-    assert _action_for({"finding_id": "f3", "finding_revision_id": "r3", "_thread": None}, [exact]) is exact
+    # CH-5a2 B3: the exact-revision fallback is deleted; an Action without a thread link matches no row.
+    assert _action_for({"finding_id": "f3", "finding_revision_id": "r3", "_thread": None}, [exact]) is None
 
     class Snap:
         def threads(self, t, fids, aids):
@@ -259,8 +260,9 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
             calls.append((sorted(fids), sorted(aids), kw["known_at"]))
             return {"findings": {}, "actions": {}}
 
-    attach_threads(Snap2(), T, [{"finding_id": "f1", "_cutoff": row_k}, {"finding_id": "f2"}], [{"action_id": "a1"}],
-                   Req(), k)
+    # CH-5a2 B3 (R7): the Site -> cutoff map gives f1's Site its cutoff; f2's Site has none.
+    attach_threads(Snap2(), T, [{"finding_id": "f1", "site_code": "COLD"}, {"finding_id": "f2", "site_code": "MG"}],
+                   [{"action_id": "a1"}], Req(), k, {"COLD": row_k, "MG": None})
     # fix round 2: the Actions are read in every cutoff group, so their segments match the row's cutoff
     assert sorted(calls, key=lambda c: c[0]) == [(["f1"], ["a1"], row_k), (["f2"], ["a1"], k)]
 
@@ -270,7 +272,10 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
 
     shown = board.FindingFact("f2", "r2", "Start failure", "COLD_START_FAILURE", "SUPPORTED", None,
                               asset_id="asset-7")
-    act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None, "/x", is_domain=True)
+    from assetops_backend.chain import refs as R
+
+    act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None,
+                           R.action_ref("COLD-LAB-001", "a1"), is_domain=True)
     facts = board.SiteFacts(domain="cold_chain", site_code="COLD-LAB-001", findings=(shown,), actions=(act,))
     before = board.assemble(facts)
     # CH5a-R §A5 (CH-5a1): the wire keys come with the thread view (`lookup.PUBLIC_KEYS`), as the lookup gives them.
@@ -292,6 +297,7 @@ def test_portfolio_row_thread_is_the_public_form_only():
     """CH-5a1 L3: `thread_lookup` now carries the board's state classes (`applied`/`verified`/`later`/`wire_keys`);
     the Portfolio row's `thread` is `public_thread`, so none of them reaches the wire."""
     from assetops_backend.chain.lookup import PUBLIC_KEYS, thread_lookup
+    from assetops_backend.chain import refs as R
     from assetops_backend.estate.portfolio import portfolio_row
 
     thread = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, None, None, None, None)])["findings"]["abc"]
@@ -300,6 +306,8 @@ def test_portfolio_row_thread_is_the_public_form_only():
          "finding_revision_id": "r1", "site_id": "S1", "site_code": "KOBO-001", "site_name": "Kobo",
          "_domain": "MINIGRID", "finding_label": "x", "title": "x", "_mechanism": "GENERATOR_SUPPORT_CANDIDATE",
          "episode_start": None, "_episode_end": None, "lifecycle": "SUPPORTED", "lens_flags": [], "priority": None,
-         "consequence": None, "source_provenance": None, "links": {"site": "/s", "finding": "/f"}, "_at": T0,
+         "consequence": None, "source_provenance": None,
+         "link_refs": {"site": R.site_ref("KOBO-001"), "finding": R.finding_ref("KOBO-001", "abc", "r1")},
+         "_at": T0,
          "_thread": thread}
     assert tuple(portfolio_row(r, [])["thread"]) == PUBLIC_KEYS

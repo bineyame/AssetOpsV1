@@ -3,7 +3,7 @@
  * (`finding-index/2`): rows from the checked days, the days not checked yet named, never a zero or proved-empty claim.
  */
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";

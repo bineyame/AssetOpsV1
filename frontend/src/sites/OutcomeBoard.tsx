@@ -14,6 +14,7 @@ import type {
   OutcomeLinkItem,
   OutcomeMoney,
 } from "./outcomeBoardClient";
+import { useLinkFor, type Ref } from "./chainRef";
 import "./outcomes.css";
 
 /**
@@ -90,7 +91,9 @@ export function countsText(issues: number, inHand: number, checkedDaysOnly: bool
   return inHand > 0 ? `${head} · ${inHand} in hand` : head;
 }
 
-function To({ href, children }: { href: string | null; children: ReactNode }) {
+/** CH5a2-R4(c): a link renders only from its `link_ref`; a body without one renders no link. */
+function To({ link, children }: { link: Ref | null | undefined; children: ReactNode }) {
+  const href = useLinkFor()(link);
   return href ? <Link to={href}>{children}</Link> : <>{children}</>;
 }
 
@@ -127,7 +130,7 @@ function ItemList({
     <ul className="ob-list">
       {items.map((item, i) => (
         <li key={i}>
-          <To href={item.href}>{item.text}</To>
+          <To link={item.link_ref}>{item.text}</To>
           {item.note ? <> <span className="oc-state">{item.note}</span></> : null}
           {item.detail ? <> <small>{item.detail}</small></> : null}
         </li>
@@ -174,7 +177,7 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
           <p className="ob-guard" data-outcome-guard>
             <OutcomeGlyph name="guard" className="oc-colic" size={14} />
             <span>
-              <b>Must not harm</b> <To href={row.must_not_harm.href}>{row.must_not_harm.text}</To>
+              <b>Must not harm</b> <To link={row.must_not_harm.link_ref}>{row.must_not_harm.text}</To>
             </span>
           </p>
         ) : null}
@@ -186,7 +189,7 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
                 <li key={`${c.key}-${i}`}>
                   <div>
                     <b>
-                      <To href={c.href}>{c.label}</To>
+                      <To link={c.link_ref}>{c.label}</To>
                     </b>
                     <small>{c.text}</small>
                   </div>
@@ -205,7 +208,7 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
                   const [label, cls] = ISSUE_KIND[issue.kind] ?? ISSUE_KIND.FINDING;
                   return (
                     <li key={i}>
-                      <span className={`oc-kind ${cls}`}>{label}</span> <To href={issue.href}>{issue.text}</To>
+                      <span className={`oc-kind ${cls}`}>{label}</span> <To link={issue.link_ref}>{issue.text}</To>
                     </li>
                   );
                 })}
@@ -227,7 +230,7 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
         </div>
         {row.evidence_link ? (
           <div className="ob-foot">
-            <To href={row.evidence_link.href}>{`${row.evidence_link.label} →`}</To>
+            <To link={row.evidence_link.link_ref}>{`${row.evidence_link.label} →`}</To>
           </div>
         ) : null}
       </div>

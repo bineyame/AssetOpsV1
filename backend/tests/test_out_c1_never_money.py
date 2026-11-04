@@ -9,6 +9,7 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD, EV, MINI
 from assetops_backend.outcomes.outcome_map import outcome_roles
+from assetops_backend.chain import refs as R
 from assetops_backend.outcomes.warnings import KINDS, PRICE_NEEDS, PlanCue, Visit, WarningFacts, evaluate
 
 MONEY_KEYS = {"amount", "amount_low", "amount_high", "currency", "value", "price", "rate"}
@@ -42,11 +43,11 @@ def every_rule() -> list[Any]:
                 window_days=(date(2026, 10, 28), date(2026, 10, 28)))
     keys = outcome_roles("FINDING:COLD_START_FAILURE", COLD)
     visits = tuple(Visit(f"c{i}", f"WR-{i}", "a1", "generator-1", "COMPLETED", TO - timedelta(days=i + 1),
-                         (TO - timedelta(days=i + 1)).date(), ("f1",), f"/work/c{i}") for i in range(2))
+                         (TO - timedelta(days=i + 1)).date(), ("f1",), R.case_ref("S1", f"c{i}")) for i in range(2))
     plans = (PlanCue("p1", "PM-1", "Coil cleaning", TO - timedelta(days=2), date(2026, 10, 27), "c1"),
              PlanCue("p2", "PM-2", "Coil cleaning", TO + timedelta(days=2), date(2026, 10, 31), "a1"))
     out = list(evaluate(WarningFacts(COLD, visits=visits, plans=plans,
-                                     open_findings={"f1": (keys[0] + keys[1], "/f/f1")},
+                                     open_findings={"f1": (keys[0] + keys[1], R.finding_ref("S1", "f1"))},
                                      fault_names={"f1": "automatic start failure"}, **base)))
     out += evaluate(WarningFacts(MINI, reserve=(2, 3), **base))
     out += evaluate(WarningFacts(EV, plans=plans, faults=(("c1", "1"),), connectors_out=(("c1", "1", "2 h", "1 min"),),

@@ -1,6 +1,9 @@
 """OUT-B1: pure board assembly (build spec §B.1/§B.2; rulings B-Q14/Q18/Q19/Q20/Q28, addendum 1)."""
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+from link_parity import checked
+
 import ast
 
 import pytest
@@ -19,7 +22,7 @@ GROW, COST, PROTECT, ASSURE = CATEGORIES
 
 def legacy(items):
     """The pre-Addendum-12 item fields: case/plan items also carry `kind`/`occurred_at` (pinned in test_out_b1_board)."""
-    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at")} for i in items]
+    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at", "link_ref")} for i in items]
 
 
 def t(day: int) -> datetime:
@@ -33,24 +36,24 @@ def settled(domain: str, value: bool = True, **overrides: bool) -> dict[str, boo
 
 
 def rows_by_cat(facts: SiteFacts) -> dict[str, dict]:
-    rows = assemble(facts)
+    rows = checked(assemble(facts))  # CH-5a2a: link parity, then the legacy shape
     assert [r["category"] for r in rows] == list(CATEGORIES)
     return {r["category"]: r for r in rows}
 
 
 F104 = FindingFact("f104", "f104r", "Generator support review", "GENERATOR_SUPPORT_CANDIDATE", "SUPPORTED",
-                   "/sites/KOBO-001/findings/f104", confidence_label="Limited")
+                   R.finding_ref("KOBO-001", "f104"), confidence_label="Limited")
 HEADROOM = SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", True, "Productive-use headroom",
-                      "/sites/KOBO-001/performance/renewable")
+                      R.evidence_ref("KOBO-001", "renewable"))
 GAP = SignalFact("SIGNAL:EVIDENCE_GAP", True, "Battery output not reported limits this conclusion")
 
 
 def act048(**kw) -> ActionFact:
     base = dict(action_id="a48", code="ACT-048", title="",  # no stored Action title (addendum 2 item 1)
                 origin_finding_id="f104", origin_revision_id="f104r", applied=False, open=True,
-                verification_state="PENDING", href="/sites/KOBO-001/actions/a48",
+                verification_state="PENDING", link_ref=R.action_ref("KOBO-001", "a48"),
                 workflow_label="No action agreed yet",
-                verification_href="/sites/KOBO-001/actions/a48/verification?event_id=e1")
+                verification_ref=R.action_ref("KOBO-001", "a48", view="verification", event_id="e1"))
     base.update(kw)
     return ActionFact(**base)
 
@@ -178,16 +181,16 @@ def test_join_names() -> None:
 
 # --------------------------------------------------------------- cold: cases, plans, not measured
 
-F118 = FindingFact("f118", "f118r", "Backup did not start", "COLD_START_FAILURE", "SUPPORTED", "/sites/C/f118",
+F118 = FindingFact("f118", "f118r", "Backup did not start", "COLD_START_FAILURE", "SUPPORTED", R.finding_ref("C", "f118"),
                    asset_id="gen")
-F119 = FindingFact("f119", "f119r", "Chamber above limit", "COLD_EXCURSION", "UNCONFIRMED", "/sites/C/f119")
+F119 = FindingFact("f119", "f119r", "Chamber above limit", "COLD_EXCURSION", "UNCONFIRMED", R.finding_ref("C", "f119"))
 COLD_ACTION = ActionFact("da1", "DA-001", "Witnessed automatic-start test", "f118", "f118r", False, True, None,
-                         "/sites/C/actions/da1", is_domain=True)
+                         R.action_ref("C", "da1"), is_domain=True)
 
 
 def request(cid: str, state: str, day: int, *, asset: str | None = "gen", findings=("f118",)) -> CaseFact:
     return CaseFact(cid, cid.upper(), "MAINTENANCE_REQUEST", f"Inspect {cid}", state, asset, "GEN-1 · generator",
-                    tuple(findings), t(day), f"/maintenance/requests/{cid}")
+                    tuple(findings), t(day), R.case_ref("C", cid))
 
 
 def cold(**kw) -> SiteFacts:
@@ -242,7 +245,7 @@ def test_later_request_on_same_asset_marks_earlier_did_not_fix_it() -> None:
 
 
 def test_incidents_and_closed_cases() -> None:
-    inc = CaseFact("i1", "INC-001", "INCIDENT", "Power cut", "CLOSED", None, None, (), t(3), "/sites/C/work/incidents")
+    inc = CaseFact("i1", "INC-001", "INCIDENT", "Power cut", "CLOSED", None, None, (), t(3), R.site_ref("C", "work_incidents"))
     inc_open = replace(inc, case_id="i2", code="INC-002", state="IN_PROGRESS")
     p = rows_by_cat(cold(cases=(inc, inc_open)))[PROTECT]
     assert p["earlier"] == [] and p["earlier_empty_text"] == EARLIER_EMPTY_OPEN
@@ -260,7 +263,7 @@ def test_case_items_carry_their_stored_kind_and_occurred_at() -> None:
     assert set(earlier) == {"text", "href", "result_label", "detail", "kind", "occurred_at"}
     open_item = next(i for i in p["in_hand"] if i["href"] == "/maintenance/requests/mr3")
     assert (open_item["kind"], open_item["occurred_at"]) == ("MAINTENANCE_REQUEST", "2026-10-08T12:00:00Z")
-    plan = PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive")
+    plan = PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", R.estate_ref("maintenance_preventive"))
     item = rows_by_cat(cold(plans=(plan,), actions=(), cases=()))[PROTECT]["in_hand"][0]
     assert item["kind"] == "PLAN" and "occurred_at" not in item
     action = next(i for i in rows_by_cat(cold())[PROTECT]["in_hand"] if i["href"] == "/sites/C/actions/da1")
@@ -268,7 +271,7 @@ def test_case_items_carry_their_stored_kind_and_occurred_at() -> None:
 
 
 def test_plans_in_hand_on_protect_only() -> None:
-    plans = (PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive"),
+    plans = (PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", R.estate_ref("maintenance_preventive")),
              PlanFact("p2", "PM-002", "Compressor check", "CALENDAR", date(2026, 11, 3), None, "ACTIVE", None, None),
              PlanFact("p3", "PM-003", "Retired", "CALENDAR", date(2026, 11, 3), None, "RETIRED", None, None))
     rows = rows_by_cat(cold(plans=plans, actions=(), cases=()))
@@ -279,15 +282,15 @@ def test_plans_in_hand_on_protect_only() -> None:
 
 # --------------------------------------------------------------- EV: headline, money, contributors, links
 
-F130 = FindingFact("f130", "f130r", "Charging interrupted", "EV_INTERRUPTION", "SUPPORTED", "/sites/EV/f130")
+F130 = FindingFact("f130", "f130r", "Charging interrupted", "EV_INTERRUPTION", "SUPPORTED", R.finding_ref("EV", "f130"))
 
 
 def test_ev_grid_headline_fallback_money_passthrough_and_contributors() -> None:
     money = {"amount_low": "12.40", "amount_high": "12.40", "currency": "USD"}
     contributor = Contributor("charging", "Charging delivered", "40 kWh in 3 complete sessions",
-                              readiness_confidence("FULL"), "/sites/EV-LAB-001/ev/sessions")
+                              readiness_confidence("FULL"), R.evidence_ref("EV-LAB-001", "sessions"))
     facts = SiteFacts(EV, "EV-LAB-001", findings=(F130,), readiness="NONE", settled=settled(EV),
-                      contributors={GROW: (contributor,)}, options={GROW: (Option("Charging what-ifs", "/x"),)},
+                      contributors={GROW: (contributor,)}, options={GROW: (Option("Charging what-ifs", R.site_ref("EV-LAB-001", "ev_scenarios")),)},
                       headline={GROW: "gross tariff estimate"}, headline_money={GROW: money},
                       subline={PROTECT: "Charger condition is not assessed"})
     rows = rows_by_cat(facts)
@@ -299,8 +302,8 @@ def test_ev_grid_headline_fallback_money_passthrough_and_contributors() -> None:
     assert rows[GROW]["contributors"] == [{"key": "charging", "label": "Charging delivered",
                                            "text": "40 kWh in 3 complete sessions",
                                            "confidence": {"label": "High", "tone": "green"},
-                                           "href": "/sites/EV-LAB-001/ev/sessions"}]
-    assert rows[GROW]["options"] == [{"text": "Charging what-ifs", "href": "/x"}]
+                                           "href": "/sites/EV-LAB-001/performance/sessions"}]
+    assert rows[GROW]["options"] == [{"text": "Charging what-ifs", "href": "/sites/EV-LAB-001/ev/financials/scenarios"}]
     assert rows[GROW]["evidence_link"]["href"] == "/sites/EV-LAB-001/ev/financials"
     assert rows[COST]["evidence_link"] is None
     assert rows[COST]["not_measured_text"].startswith("Energy cost per km needs odometer readings")
@@ -339,7 +342,9 @@ def test_board_imports_only_outcomes_and_stdlib() -> None:
     tree = ast.parse(Path(board_module.__file__).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            assert node.module in allowed or node.module.startswith("assetops_backend.outcomes"), node.module
+            # CH-5a2a: the one link builder `chain.refs` (stdlib-only, pinned below) is the sole non-outcomes import.
+            assert (node.module in allowed or node.module.startswith("assetops_backend.outcomes")
+                    or (node.module == "assetops_backend.chain" and [a.name for a in node.names] == ["refs"])),                 node.module
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 assert alias.name in allowed, alias.name
@@ -385,7 +390,7 @@ def test_out_of_window_finding_places_work_but_drives_no_signal_or_issue() -> No
 def test_closed_linked_finding_keeps_case_in_its_outcome() -> None:
     closed = replace(F104, lifecycle="RETIRED")
     case = CaseFact("w1", "MR-007", "MAINTENANCE_REQUEST", "Check generator", "COMPLETED", "gen", None, ("f104",),
-                    t(1), "/maintenance/requests/w1")
+                    t(1), R.case_ref("C", "w1"))
     rows = rows_by_cat(kobo(findings=(closed,), actions=(), cases=(case,)))
     assert [e["result_label"] for e in rows[COST]["earlier"]] == ["Not yet verified"]
     assert rows[PROTECT]["earlier"] == [] and not [i for i in rows[COST]["issues"] if i["kind"] == "FINDING"]

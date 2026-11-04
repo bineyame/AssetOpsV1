@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "days": [
+  {
+   "day": "2026-10-27",
+   "grade": "LOW",
+   "measures": {
+    "charging_kwh": "LOW"
+   }
+  }
+ ],
+ "outcomes": [
+  {
+   "category": "GROW_REVENUE",
+   "headline": "estimated charging income",
+   "refs": [
+    {
+     "id": "ea1",
+     "kind": "ACTION",
+     "site": "EV-LAB-001",
+     "view": "verification"
+    },
+    {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_financials"
+    },
+    {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_scenarios"
+    }
+   ],
+   "state": "WATCH",
+   "state_label": "Watch",
+   "thread_lines": []
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "headline": null,
+   "refs": [],
+   "state": "NOT_MEASURED",
+   "state_label": "Not measured yet",
+   "thread_lines": []
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "headline": "1 interrupted · 1 unknown of 6 sessions",
+   "refs": [
+    {
+     "id": "ea1",
+     "kind": "ACTION",
+     "site": "EV-LAB-001",
+     "view": "verification"
+    },
+    {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_evidence"
+    }
+   ],
+   "state": "NEEDS_ATTENTION",
+   "state_label": "Needs attention",
+   "thread_lines": []
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "headline": "Evidence limited · no verified result yet",
+   "refs": [
+    {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_financials"
+    },
+    {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_evidence"
+    }
+   ],
+   "state": "WATCH",
+   "state_label": "Watch",
+   "thread_lines": []
+  }
+ ],
+ "policy_versions": {
+  "coverage": "coverage-policy/1",
+  "lifecycle": "thread-lifecycle/1",
+  "register": 1,
+  "status": "outcome-status/3"
+ },
+ "schema_version": "outcome-chain-1",
+ "site": {
+  "code": "EV-LAB-001",
+  "domain": "EV_CHARGING",
+  "tz": "Etc/UTC"
+ },
+ "threads": [],
+ "window": {
+  "from": "2026-10-27T08:00:00Z",
+  "known_at": "2026-10-28T00:00:00Z",
+  "to": "2026-10-27T16:00:00Z"
+ }
+}

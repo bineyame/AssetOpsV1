@@ -46,8 +46,8 @@ class StateWorld(World):
         extra = {"job_state": "PENDING"} if st == "PENDING_RECOMPUTE" else {}
         return {**c, "state": st, **extra}
 
-    def select_finding_scope(self, snap, t, req, scope):
-        per, rows = super().select_finding_scope(snap, t, req, scope)
+    def select_finding_scope(self, snap, t, req, scope, cutoffs=None):
+        per, rows = super().select_finding_scope(snap, t, req, scope, cutoffs)
         return [(s, d, self._state(s, c)) for s, d, c in per], rows
 
     def select_evidence_scope(self, snap, t, req, scope):
