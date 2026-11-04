@@ -205,3 +205,55 @@ Per-page select cost grows roughly linearly with the consumed history: the anti-
 - Estate and register guard self-tests, in three `-k` runs because of the 10-minute call cap: 16 passed (event + register, 289 s), 7 passed (353 s), 3 passed (168 s). That is all 14 estate tests and all 12 register tests.
 - `check-architecture.ps1` passed (135 s); `check-agent-workflow.ps1` passed.
 - Not run: `test_ch2_thread_store_postgres.py` (its tests call `run_threads`, which is unchanged); the full backend suite.
+
+## Fix round Part B (after CH-4 merged), head `4471cfe7b`
+
+- **Merge.** `99cddced6` merges main at `d6bbe6f04` (CH-4). It merged cleanly, and migrations are unchanged.
+- **Review M3 / R2-4.**
+  - `sources_by_revision` now returns the placed Sources in `(created_at, id)` order, then one `None` per named ineligible opportunity revision, the same way `sources` returns them.
+  - The `chain_threads` `on_event` drops the `None`s and counts them in step b's `skipped_ineligible`. The event is still consumed, never failed.
+  - Stage test `test_threads_stage_consumes_an_ineligible_opportunity_event_as_skipped` uses CH-4's `seed_opportunities`, where study A is ineligible and study B has 2 revisions. It checks:
+    - 3 `opportunity.revised` events, all consumed, with deferred 0 and `skipped_ineligible` 1;
+    - one occurrence (study B);
+    - A's event recorded in `event_consumption`;
+    - a rerun consumes 0 and writes 0.
+  - Non-vacuity: removing the stage filter fails with `AttributeError: 'NoneType' object has no attribute 'created_at'`, the crash the review predicted.
+- **Index note (accepted by the coordinator).** In 0044, `event_outbox_site_type_order (site_id, type, recorded_at, event_id)` replaces `event_outbox_site_order`. Every outbox read filters on type, so keeping the old index would only add write cost. The L3 clone shows exactly `event_outbox_pkey`, `event_outbox_idem` and `event_outbox_site_type_order`.
+- **DD-1 note: per-page select growth.**
+  - The anti-join's per-page select grows about linearly with the consumed history: median 25 ms at 0 consumed, median 249 ms after 60,298.
+  - Projected, **as an estimate and not measured**: about 1.6 s per page at the 90-day demo outbox (about 390k events), or about 15 s for one Kobo day's consume. That is still under the 30 s half bound.
+  - If DD-1's 90-day data makes this real, a commit-safe cursor (or pruning) is the lever. Measure first.
+
+### L3 on a fresh clone `assetops_chainclone_ch1bb_test` (code `4471cfe7b`, no serve running), dropped at the end
+
+1. `create --migrate`: head `0044_chain_events`, the three outbox indexes listed above.
+2. Backfill `a,b,c,d`:
+   - first run: a=139 (Cold 24, EV 16, Kobo 99), b=9 (`skipped_ineligible` 2, CH-4's 0-eligible studies), c=3 LINKED, d=6;
+   - rerun: a=0, b=0 (13 ALREADY_PLACED, `skipped_ineligible` 2), c=0, d=0.
+3. `settle`: S2 permitted, tick COMPLETED (58 s), performance permitted. Afterwards: 139 rows all at revision 1; outbox `backfill.site` 3; consumption 0; dirty 0.
+4. An idle tick before the publish (the first publish attempt was refused for missing arguments, so nothing was published): every Site `chain_snapshots` OK with processed 0, and `chain_threads` processed 0.
+5. Publish:
+   - command: `publish_assumption publish --site KOBO-001 --key productive_use_price_per_kwh --change-kind CORRECTION --value 0.30 --valid-from 2026-10-30T00:00+03:00 --expected-prior 94bb9036...`;
+   - result: revision 2 `df2c1e94...`;
+   - one `price.revised` event, occurred `2026-10-29T21:00Z`, valid `[that, null]`.
+6. One tick (`--max-sites 5 --s3-jobs 10 --consequence-items 100`, 55 s), all three Sites COMPLETED:
+   - KOBO `chain_snapshots`: OK, processed 6, deferred 0, in 1,905 ms (3.2% of 60 s);
+   - EV and COLD: processed 0;
+   - only `productive_kwh` gained revision 2, on 30 Oct (42.08 to **50.50** USD), 31 Oct and 1 Nov (0.00, now on the new revision), and 2-4 Nov (NO_DATA);
+   - rows went from 139 to 145. Consumption `snapshots` 1; dirty 0.
+   - The tick's per-stage record keeps only code, processed and deferred, so the consume/drain split for L3 is not in its output. That split is measured at L2 (Part A table).
+7. Collect into a scratch work dir holding a copy of polC's `keys.json` (polC itself was not written): 56 requests, all 200.
+8. Check against the merged `expected-today.json`: **0 new** in every rule (COH-1 12, COH-2 2, COH-5 6, COH-7 10, COH-8 3, all expected; COH-6, COH-10 and COH-16 0). Self-check: 33 pass, 0 fail.
+9. `drop ch1bb`: the database was dropped and the 2 settle files were deleted. No `assetops_chainclone%` database remains. `git status` is clean.
+
+### Checks (Part B, on `4471cfe7b`)
+
+- **Pure:** `test_ch1b_drain`, `test_ch1b_register`, `tools/checks/test_chain_coherence.py`, `test_ch0_tick_timing`, `test_fix_cold_drain_stage`, `test_w402_mini_stage`, `test_w403_opportunity_stage`: 181 passed.
+- **Postgres, via `run-host-tests.ps1`:**
+  - `test_ch1b_fix_postgres` + `test_ch2_thread_store_postgres`: 11 passed (191 s);
+  - `test_ch1b_outbox_postgres` + `test_w402_mini_stage_postgres`: 7 passed (104 s);
+  - `test_ch3_lifecycle_postgres` + `test_ch4_opportunity_postgres`: 7 passed (34 s).
+- **Guards:**
+  - Estate event tests + register guard tests: 16 passed (202 s). The guard and the guard tests are unchanged since Part A, where all 14 estate tests passed.
+  - `check-architecture.ps1` passed (123 s); `check-agent-workflow.ps1` passed.
+- **Not run:** the full backend suite (dispatch rule).
