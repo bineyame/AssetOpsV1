@@ -4,7 +4,8 @@
  * card, column, chip, link, empty/partial/historical/refusal string asserted.
  */
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";

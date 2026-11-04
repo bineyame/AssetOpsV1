@@ -501,7 +501,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
                     <span data-portfolio-progress-words>
                       Action {displayCode(r.action_code)} · {progressOutcomeWords(r.verification_outcome)}
                     </span>
-                    {r.origin_revision_selected ? null : (
+                    {(r.origin_selected ?? r.origin_revision_selected) ? null : (
                       <small data-portfolio-origin-unselected> The version of the finding it came from is not the one selected</small>
                     )}
                     <TechnicalDetails name={`portfolio-progress-ids-${r.action_id}`}>
