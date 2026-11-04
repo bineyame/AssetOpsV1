@@ -2,6 +2,7 @@
  * Test-only estate bodies shaped as the reviewed wire (`estate-finding-index-2`, `estate-action-index-1`). IDs are
  * synthetic UUIDs from the spec's injected-test range; no mock F/ACT ID, count or price is used.
  */
+import { withLinkRefs } from "../../test/linkRefs";
 import type {
   EstateActionRow,
   EstateActionsBody,
@@ -44,7 +45,8 @@ export function site(siteId: string, state: EstateCoverageSite["state"]): Estate
 export function findingRow(n: number, over: Partial<EstateFindingRow> = {}): EstateFindingRow {
   const fid = `10000000-0000-4000-8000-0000000001${String(n).padStart(2, "0")}`;
   const frid = `10000000-0000-4000-8000-0000000002${String(n).padStart(2, "0")}`;
-  return {
+  // CH-5a2a: the client links from `link_refs`, derived here from `links` unless the test gives its own.
+  const built: EstateFindingRow = {
     finding_id: fid,
     finding_revision_id: frid,
     site_id: SITE_A,
@@ -71,6 +73,7 @@ export function findingRow(n: number, over: Partial<EstateFindingRow> = {}): Est
     links: { finding: `/sites/KOBO-001/findings/${fid}?revision_id=${frid}`, site: "/sites/KOBO-001" },
     ...over,
   };
+  return over.link_refs ? built : withLinkRefs(built);
 }
 
 export function findingsBody(lens: EstateLens, over: Partial<EstateFindingsBody> = {}): EstateFindingsBody {
@@ -100,7 +103,7 @@ export function findingsBody(lens: EstateLens, over: Partial<EstateFindingsBody>
 }
 
 export function actionRow(over: Partial<EstateActionRow> = {}): EstateActionRow {
-  return {
+  const built: EstateActionRow = {
     action_id: "10000000-0000-4000-8000-000000000201",
     action_code: "ACT-000001",
     site_id: SITE_A,
@@ -126,6 +129,7 @@ export function actionRow(over: Partial<EstateActionRow> = {}): EstateActionRow 
     },
     ...over,
   };
+  return over.link_refs ? built : withLinkRefs(built);
 }
 
 export function actionsBody(over: Partial<EstateActionsBody> = {}): EstateActionsBody {

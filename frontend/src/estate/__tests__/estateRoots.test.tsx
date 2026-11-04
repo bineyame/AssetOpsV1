@@ -314,6 +314,13 @@ describe("W3-01 estate roots", () => {
     expect(sourceCell.textContent).toBe("Source unavailable");
     expect(sourceCell.querySelector("a")).toBeNull();
     view.unmount();
+    // CH5a2-R4(c): a row with its legacy `links` text but no `link_refs` renders no Action or source link.
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(actionsBody({ rows: [actionRow({ link_refs: {} })] })));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-action-link]")).toBeNull();
+    expect(main().querySelector("[data-estate-source-link]")).toBeNull();
+    expect(main().querySelector("tbody tr")?.textContent).toContain("Action ACT-000001");
+    view.unmount();
     const verifiedRow = actionRow({
       action_id: "10000000-0000-4000-8000-000000000241",
       application_state: "APPLIED",

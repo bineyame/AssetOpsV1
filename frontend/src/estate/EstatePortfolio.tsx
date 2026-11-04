@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { formatDayRange, formatDayTime } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { linkFor } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import {
@@ -141,22 +142,28 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
   const episode =
     moneyWindowText(row.episode_start, row.episode_end) ??
     (row.episode_start !== null ? `From ${formatDayTime(row.episode_start)} · no end time yet` : "No time recorded yet");
+  // CH5a2-R4(c): every row link renders from its `link_refs` sibling; a row without one renders no link.
+  const links = {
+    site: linkFor(row.link_refs?.site),
+    finding: linkFor(row.link_refs?.finding),
+    action: linkFor(row.link_refs?.action),
+  };
   return (
     <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
       <td>
-        {row.links.site !== null ? (
-          <Link to={row.links.site} data-portfolio-site-link>
+        {links.site !== null ? (
+          <Link to={links.site} data-portfolio-site-link>
             <strong>{row.site_name}</strong>
           </Link>
         ) : (
           <strong>Site detail unavailable</strong>
         )}
         <small>{DOMAIN_WORD[row.domain] ?? row.domain}</small>
-        {row.links.site !== null ? <small data-portfolio-current-view>{CURRENT_SITE_VIEW}</small> : null}
+        {links.site !== null ? <small data-portfolio-current-view>{CURRENT_SITE_VIEW}</small> : null}
       </td>
       <td>
-        {row.links.finding !== null ? (
-          <Link to={row.links.finding} data-portfolio-finding-link>
+        {links.finding !== null ? (
+          <Link to={links.finding} data-portfolio-finding-link>
             <strong>{row.title}</strong>
           </Link>
         ) : (
@@ -166,7 +173,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           {mechanismWords(row.mechanism)}
         </small>
         <CategoryTags categories={row.categories} />
-        {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
+        {links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>
       <td>
         <strong className="impact" data-portfolio-value>
@@ -185,8 +192,8 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <small>{row.confidence === null ? "No reviewed confidence measure" : row.confidence_reasons.join(" · ")}</small>
       </td>
       <td>
-        {row.action_id !== null && row.links.action !== null ? (
-          <Link to={row.links.action} data-portfolio-action-link>
+        {row.action_id !== null && links.action !== null ? (
+          <Link to={links.action} data-portfolio-action-link>
             <strong>{row.action_title}</strong>
           </Link>
         ) : (
@@ -196,9 +203,9 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           {row.workflow_label}
         </span>
         {row.action_id === null ? (
-          row.links.finding !== null ? (
+          links.finding !== null ? (
             <small>
-              <Link to={row.links.finding}>Review finding</Link>
+              <Link to={links.finding}>Review finding</Link>
             </small>
           ) : (
             <small>Finding detail unavailable</small>

@@ -5,6 +5,7 @@
  * full-precision cutoff), and any lens, state or window change restarts at page one without it.
  */
 
+import type { Ref } from "../shell/operatorSiteRoutes";
 import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
 import type { OutcomeMoney, OutcomeRef, OutcomeState, OutcomeTone, OutcomeWarning } from "../sites/outcomeBoardClient";
 
@@ -99,6 +100,8 @@ export interface EstateFindingRow {
   status: EstateSiteState;
   /** `null` for a cold/EV row without a provable row-local window and cutoff (no `?revision_id=` fallback). */
   links: { finding: string | null; site: string };
+  /** CH5a2-R4: the Refs the links render from (same keys); an absent key renders no link. */
+  link_refs?: { finding?: Ref | null; site?: Ref | null };
   /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
   categories?: OutcomeCategories;
 }
@@ -138,6 +141,8 @@ export interface EstateOpportunity {
   categories?: OutcomeCategories;
   filter_state: EstateStateFilter;
   links: { opportunity: string; evidence: string; site: string };
+  /** CH5a2-R4: the Refs the links render from (same keys); an absent key renders no link. */
+  link_refs?: { opportunity?: Ref | null; evidence?: Ref | null; site?: Ref | null };
   ref: { kind: "OPPORTUNITY"; site: string; id: string };
   thread_ref: { kind: "THREAD"; site: string; id: string };
 }
@@ -180,6 +185,8 @@ export interface EstateActionRow {
   verification_outcome: string | null;
   source_provenance: EstateSourceBlock;
   links: { action: string; source: string | null };
+  /** CH5a2-R4: the Refs the links render from (same keys); an absent key renders no link. */
+  link_refs?: { action?: Ref | null; source?: Ref | null };
 }
 
 export interface EstateActionsBody extends EstateEnvelope {
@@ -290,6 +297,8 @@ export interface EstatePortfolioRow {
   next_move: string | null;
   source_provenance: EstateSourceBlock;
   links: { site: string | null; finding: string | null; action: string | null };
+  /** CH5a2-R4: the Refs the links render from (same keys); an absent key renders no link. */
+  link_refs?: { site?: Ref | null; finding?: Ref | null; action?: Ref | null };
   /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
   categories?: OutcomeCategories;
 }
@@ -317,6 +326,7 @@ export interface EstateValueCard {
   group_key: string | null;
   basis: string | null;
   destination: string | null;
+  link_ref?: Ref | null;
   detail: string | null;
   basis_text: string;
   tone: "amber" | "blue" | "neutral" | "red" | "green";
@@ -330,7 +340,7 @@ export interface EstateObjective {
   site_code: string;
   site_name: string;
   domain: EstateDomain;
-  cells: { key: EstateObjectiveKey; state: EstateObjectiveState; label: string; reason: string; destination: string | null }[];
+  cells: { key: EstateObjectiveKey; state: EstateObjectiveState; label: string; reason: string; destination: string | null; link_ref?: Ref | null }[];
 }
 
 export interface EstateEvidencePrompt {

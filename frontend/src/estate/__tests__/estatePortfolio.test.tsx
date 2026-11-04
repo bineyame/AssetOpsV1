@@ -31,6 +31,7 @@ import {
   STATUS_BODIES,
   withOutcomeSummary,
 } from "./portfolioFixtures";
+import { withLinkRefs } from "../../test/linkRefs";
 
 const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
 
@@ -712,7 +713,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
 
   it("coldAndEvFindingTitlesAreLiveOnlyWithAServerWindowedLink", async () => {
     const coldLink = `/sites/COLD-001/findings/${COLD_ROW.finding_id}?${WIN}`;
-    const live = { ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } };
+    const live = withLinkRefs({ ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } });
     const ev = row({
       site_id: SITES[2].site_id,
       site_code: "EV-LAB-001",
@@ -733,6 +734,21 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(evRow.querySelector("[data-portfolio-finding-link]")).toBeNull();
     expect(text(evRow)).toContain("Finding detail unavailable");
     expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
+  });
+
+  it("rowWithoutLinkRefsRendersNoLinkWhateverItsLinksSay", async () => {
+    // CH5a2-R4(c): the row keeps its legacy `links` text but carries no `link_refs`.
+    const bare = row({ link_refs: {} });
+    expect(bare.links.site).not.toBeNull();
+    expect(bare.links.finding).not.toBeNull();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [bare], total_count: 1 }))));
+    await settledScreen();
+    const tr = panel("Where management should act first").querySelector("[data-portfolio-row]") as HTMLElement;
+    expect(tr).not.toBeNull();
+    expect(tr.querySelector("[data-portfolio-site-link]")).toBeNull();
+    expect(tr.querySelector("[data-portfolio-finding-link]")).toBeNull();
+    expect(tr.querySelectorAll("a[href^='/sites/']")).toHaveLength(0);
+    expect(text(tr)).toContain("Finding detail unavailable");
   });
 
   it("scopeDisclosureSummarisesAssessmentsTranslatesCodesAndNestsLongIds", async () => {
