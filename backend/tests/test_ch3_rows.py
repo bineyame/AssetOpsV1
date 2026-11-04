@@ -12,15 +12,15 @@ from assetops_backend.chain import lifecycle as lc
 from assetops_backend.estate import portfolio
 from assetops_backend.outcomes import credit
 from assetops_backend.site_outcomes import board
+from assetops_backend.chain.lookup import state_classes
 from assetops_backend.site_outcomes.board import ActionFact, FindingFact, SiteFacts
 
 E = date(2026, 11, 1)   # the change's effective day
 
 
 def test_board_and_portfolio_tuple_copies_match_lifecycle():
-    """CH3-R item 4: the board may import only outcomes/ and the stdlib, so it holds copies; CH-5a removes them."""
-    assert board.THREAD_APPLIED_STATES == lc.APPLIED_OR_LATER
-    assert board.THREAD_VERIFIED_STATES == lc.VERIFIED_STATES
+    """CH3-R item 4; CH-5a1 deleted the board's copies (the thread view carries `applied/verified/later`)."""
+    assert not hasattr(board, "THREAD_APPLIED_STATES") and not hasattr(board, "THREAD_VERIFIED_STATES")
     assert portfolio.VERIFIED_THREAD_STATES == lc.VERIFIED_STATES
     assert portfolio.ATTENTION_THREAD_STATES == lc.ATTENTION_STATES
 
@@ -28,7 +28,7 @@ def test_board_and_portfolio_tuple_copies_match_lifecycle():
 def _finding(state, view=None, lifecycle="SUPPORTED", seg=1):
     return FindingFact("F1", "R1", "Generator support", "GENERATOR_SUPPORT_CANDIDATE", lifecycle, None,
                        thread={"id": "t1", "occurrence_no": 1, "occurrences": 1, "segment_no": seg, "state": state,
-                               "state_effective_day": None},
+                               "state_effective_day": None, **state_classes(state)},
                        lifecycle_view=view)
 
 
@@ -39,7 +39,8 @@ def _action(seg=1, code="ACT-000001", verification="VERIFIED", **kw):
 
 def _view(**kw):
     base = {"segment_no": 1, "segment_current": 1, "change_day": E, "first_complete_after_change": None,
-            "checked_days": 0, "close_after": 7, "recurred_day": None, "closed_day": None, "events": []}
+            "checked_days": 0, "close_after": 7, "recurred_day": None, "closed_day": None, "events": [],
+            "applied_states": lc.APPLIED_OR_LATER, "verified_states": lc.VERIFIED_STATES}
     base.update(kw)
     return base
 
@@ -180,10 +181,10 @@ def test_portfolio_action_join_respects_segment():
 
 # ---- fix round 2 ------------------------------------------------------------------------------------------------
 
-def test_thread_wire_keys_copy_matches_the_lookup():
-    """Review L4a: the board's THREAD_WIRE_KEYS is a copy of chain.lookup.PUBLIC_KEYS (CH3-R item 4)."""
+def test_thread_wire_keys_come_with_the_view():
+    """Review L4a / CH-5a1 §A5: the board holds no copy of the wire keys; the thread view hands it PUBLIC_KEYS."""
     from assetops_backend.chain.lookup import PUBLIC_KEYS
-    assert board.THREAD_WIRE_KEYS == PUBLIC_KEYS
+    assert not hasattr(board, "THREAD_WIRE_KEYS") and state_classes("OPEN")["wire_keys"] == PUBLIC_KEYS
 
 
 def _work_facts(f, actions=(), day=date(2026, 11, 1)):
@@ -196,7 +197,7 @@ def _work_facts(f, actions=(), day=date(2026, 11, 1)):
 def _out_of_day(state, view, *, in_work=True):
     return FindingFact("F1", "R1", "Generator support", "GENERATOR_SUPPORT_CANDIDATE", "SUPPORTED", None,
                        thread={"id": "t1", "occurrence_no": 1, "occurrences": 1, "segment_no": 1, "state": state,
-                               "state_effective_day": None, "state_day": None},
+                               "state_effective_day": None, "state_day": None, **state_classes(state)},
                        lifecycle_view=view, in_window=False, in_work_window=in_work)
 
 

@@ -4,7 +4,7 @@ on the end go to the later start), the Overview link carries it, and no window, 
 estate fall back to the period with a plain link. Mini is untouched; `known_at` is passed through, never invented."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -143,7 +143,8 @@ def test_mini_site_unchanged(boards):
     est = Estate([(at(8), at(9))])
     out = summary(est, [KOBO])
     assert est.calls == []
-    assert boards[0]["day"] == D.date() and boards[0]["lo"] is None and boards[0]["hi"] is None
+    # E4 (R6): the summary's mini day is the Site-local day of `to - 1 µs`: 7 Oct 00:00Z is 03:00 local on 7 Oct
+    assert boards[0]["day"] == date(2026, 10, 7) and boards[0]["lo"] is None and boards[0]["hi"] is None
     assert out["sites"][0]["window_basis"] == "DAY" and out["sites"][0]["overview_href"] == "/sites/KOBO-001"
 
 

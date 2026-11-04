@@ -15,7 +15,7 @@ from uuid import UUID
 from assetops_backend.actions.lifecycle import selector
 from assetops_backend.actions.site_index import parse_request as parse_action_index
 from assetops_backend.actions.verification import VerificationService
-from assetops_backend.chain.composition import build_thread_sources
+from assetops_backend.chain.composition import build_chain_reader, build_thread_sources
 from assetops_backend.analytics.finding_index import parse_request as parse_finding_index
 from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.finding_api import ACCESS_BASIS
@@ -52,25 +52,36 @@ def build_outcome_board_service(
         finding_index: Any = None, finding_index_gate: Gate | None = None, assumptions: Any = None,
         actions: Any = None, action_index: Any = None, cold_site: Any = None, cold_reads: Any = None,
         ev_site: Any = None, ev_reads: Any = None, ev_depth: Any = None, domain_actions: Any = None,
-        work_index: Any = None, estate: Any = None,
-        finding_reads: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
+        work_index: Any = None, estate: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
     """Returns the service and its dispose callable (the global work read it opened, if any)."""
     global_work = build_global_work_read(database_url) if database_url else None
     objectives = build_objective_store(database_url)  # OUT-D U4: the declared-objective read (None without a DB)
     threads = build_thread_sources(database_url)  # CH-2 §5.2: the board's one thread lookup (None without a DB)
+    verification = None if actions is None else VerificationService(actions)
+
+    def verify(t: UUID, s: UUID, code: str, action_id: str) -> Any:
+        from fastapi.encoders import jsonable_encoder
+        return jsonable_encoder(verification.summary(t, s, code, UUID(action_id)))  # type: ignore[union-attr]
+
+    # CH-5a1 §A2: the board's chain reads; the consequence read is the overview's own instance (pre-flight P6).
+    # `site_overview` is the `SiteOverviewRoute`; its `read` is the `SiteOverviewRead` holding `consequences` (L3: the
+    # route itself has no `upstream`, which left the money port unbound and every MG-7 source unresolved).
+    chain_reader, chain_dispose = build_chain_reader(
+        database_url, consequences=getattr(getattr(site_overview, "read", None), "consequences", None),
+        verification=None if verification is None else verify)
     services = BoardServices(
         overview=None if site_overview is None else site_overview.read,
         overview_source=None if site_overview is None else overview_source(site_overview, s2_scope),
         mini_depth=mini_depth, dispatch=dispatch, finding_index=finding_index, performance_gate=performance_gate,
         finding_index_gate=finding_index_gate, assumptions=assumptions, action_index=action_index,
-        actions=actions, verification=None if actions is None else VerificationService(actions),
+        actions=actions, verification=verification,
         cold_site=cold_site, cold_reads=cold_reads, ev_site=ev_site, ev_reads=ev_reads, ev_depth=ev_depth,
         domain_actions=domain_actions, work_index=work_index, global_work=global_work,
         select_preventive=select_preventive, estate=estate, parse_finding_index=parse_finding_index,
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
-        work_access_basis=ACCESS_BASIS, objectives=objectives, finding_reads=finding_reads,
-        threads=threads)
+        work_access_basis=ACCESS_BASIS, objectives=objectives,
+        threads=threads, chain_reader=chain_reader)
 
     def dispose() -> None:
         if global_work is not None:
@@ -79,5 +90,6 @@ def build_outcome_board_service(
             objectives.dispose()
         if threads is not None:
             threads.dispose()
+        chain_dispose()
 
     return SiteOutcomeBoardService(services), dispose

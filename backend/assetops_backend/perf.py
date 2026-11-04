@@ -127,8 +127,10 @@ def finish(rec: Recorder, response: Any = None, status: str = "ok") -> None:
 @contextmanager
 def route(name: str, response: Any = None) -> Iterator[Recorder]:
     """`request` plus `finish` for a route body: the line is logged on success and on failure."""
+    from . import read_scope  # CH5a-R R1: one request, one read scope (ledger + memo)
+
     status = "error"
-    with request(name) as rec:
+    with request(name) as rec, read_scope.scope(name):
         try:
             yield rec
             status = "ok"

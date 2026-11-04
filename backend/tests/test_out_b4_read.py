@@ -9,7 +9,8 @@ from uuid import uuid4
 
 from assetops_backend.outcomes.catalogue import CATEGORIES
 from assetops_backend.site_outcomes import read
-from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef, mini_summary_day
+from assetops_backend.chain.read import summary_day
+from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
 
 UTC = timezone.utc
 T, S = uuid4(), uuid4()
@@ -18,17 +19,23 @@ COLD = SiteRef(T, uuid4(), "COLD-LAB-001", "GreenHarvest", "COLDCHAIN", None)
 ODD = SiteRef(T, uuid4(), "ODD-1", "Odd", "UNKNOWN_TYPE", None)
 
 
-def test_mini_summary_day_is_the_utc_day_of_to() -> None:
-    assert mini_summary_day(datetime(2026, 10, 8, tzinfo=UTC)) == date(2026, 10, 7)
-    assert mini_summary_day(datetime(2026, 10, 8, 5, tzinfo=UTC)) == date(2026, 10, 8)
+def test_summary_day_is_the_site_local_day_of_to() -> None:
+    """E4 (R6): `mini_summary_day` (the UTC day of `to - 1 µs`) is replaced by `summary_day` in the Site zone."""
+    assert summary_day(datetime(2026, 10, 8, tzinfo=UTC), "Etc/UTC") == date(2026, 10, 7)
+    assert summary_day(datetime(2026, 10, 8, 5, tzinfo=UTC), None) == date(2026, 10, 8)
+    addis = "Africa/Addis_Ababa"  # UTC+3: 7 Oct 21:00Z is local midnight 8 Oct
+    assert summary_day(datetime(2026, 10, 7, 21, tzinfo=UTC), addis) == date(2026, 10, 7)
+    assert summary_day(datetime(2026, 10, 7, 21, 0, 0, 1, tzinfo=UTC), addis) == date(2026, 10, 8)
+    assert summary_day(datetime(2026, 10, 8, tzinfo=UTC), addis) == date(2026, 10, 8)
 
 
 def test_unconfigured_services_make_a_partial_board_not_a_refusal() -> None:
     body = SiteOutcomeBoardService(BoardServices()).board(KOBO, day=date(2026, 10, 6))
     assert body["read_state"] == "PARTIAL" and [r["category"] for r in body["rows"]] == list(CATEGORIES)
-    assert body["window"] == {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z", "known_at": None}
-    assert body["links"]["self"] == ("/api/sites/KOBO-001/outcome-board?from=2026-10-06T00%3A00%3A00Z"
-                                     "&to=2026-10-07T00%3A00%3A00Z")
+    # E4 (R6): the window is the Site-local day (Africa/Nairobi, UTC+3), not the UTC day.
+    assert body["window"] == {"from": "2026-10-05T21:00:00Z", "to": "2026-10-06T21:00:00Z", "known_at": None}
+    assert body["links"]["self"] == ("/api/sites/KOBO-001/outcome-board?from=2026-10-05T21%3A00%3A00Z"
+                                     "&to=2026-10-06T21%3A00%3A00Z")
     assert all(r["state"] in ("UNKNOWN", "NOT_MEASURED") for r in body["rows"])
 
 
@@ -37,10 +44,23 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
     known = datetime(2026, 10, 9, 12, tzinfo=UTC)
     pin = (uuid4(), uuid4())
 
-    class Overview:
-        def read(self, code, t, s, day, **kw):
-            seen["overview"] = (code, t, s, day, kw["pinned"], kw["source_open"], kw["source_reason"])
-            return {"window": {}}
+    class Request:  # CH-5a1: the ChainReader request; the overview and estate readiness are not read
+        def day(self, sid, site_type, days, readiness_days):
+            seen["day"] = (sid, site_type, days[0], days[-1], len(days), readiness_days)
+            raise RuntimeError("no snapshots in this fake")
+
+        def findings(self, sid, *a):
+            seen["findings"] = (sid, *a)
+            return ()
+
+        def findings_settled(self, sid):
+            seen["settled"] = sid
+            return True
+
+    class Reader:
+        def request(self, tenant, k):
+            seen.setdefault("request", []).append((tenant, k))
+            return Request()
 
     class Depth:
         def read(self, **kw):
@@ -48,21 +68,24 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
             return {"site": {"timezone": "Africa/Nairobi"}, "cards": {}}
 
     class Estate:
-        def site_readiness(self, *a):
-            seen["readiness"] = a
-            return "LIMITED"
+        def site_readiness(self, *a):  # pragma: no cover - CH-5a1: never read by the board
+            raise AssertionError("estate readiness is not a board read")
 
         def site_work_rows(self, *a):
             seen["estate"] = a
             return {"site_cov": {}, "findings": [], "actions": []}
 
     svc = SiteOutcomeBoardService(BoardServices(
-        overview=Overview(), overview_source=lambda c, t, s: (True, "open"), mini_depth=Depth(), estate=Estate()))
+        overview_source=lambda c, t, s: seen.setdefault("source", (c, t, s)) and (True, "open"), mini_depth=Depth(),
+        estate=Estate(), chain_reader=Reader()))
     body = svc.board(KOBO, day=date(2026, 10, 6), known_at=known, pin=pin)
-    assert seen["overview"] == ("KOBO-001", T, S, date(2026, 10, 6), pin, True, "open")
+    assert seen["source"] == ("KOBO-001", T, S)
+    assert svc.mini_ports(KOBO, known, pin).pin == pin
+    assert {r for r in seen["request"]} == {(T, known)}
+    assert seen["day"] == (S, "MINIGRID", date(2026, 9, 6), date(2026, 10, 6), 31, (date(2026, 10, 6),))
+    assert seen["settled"] == S and "findings" not in seen  # no Finding index gate: the heads read is refused
     assert seen["depth"]["known_at"] == known and seen["depth"]["site_id"] == S
-    assert seen["readiness"] == (T, "KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
-                                 known)
+    # The kept estate read stays on the UTC day and the 31 UTC days ending with it (`mini.estate_bounds`).
     assert seen["estate"][1:] == ("KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
                                   datetime(2026, 9, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC), known)
     assert body["window"]["known_at"] == "2026-10-09T12:00:00Z"

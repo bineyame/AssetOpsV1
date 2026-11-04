@@ -58,3 +58,24 @@ def test_the_rule_rejects_each_form(tmp_path: Path) -> None:
     ok.write_text("from assetops_backend.site_outcomes.composition import build\n"
                   "from assetops_backend.estate.portfolio import workflow_label\n", encoding="utf-8")
     assert violations(ok) == []
+
+
+def test_board_chain_reader_gets_the_overview_consequence_read(monkeypatch) -> None:
+    """CH-5a1 L3: the board's money port is bound to the overview read's own consequence read (pre-flight P6);
+    `site_overview` is the route, whose `read` holds `consequences`."""
+    from types import SimpleNamespace
+
+    from assetops_backend.site_outcomes import composition
+
+    seen = {}
+
+    def fake(database_url, *, consequences=None, verification=None):
+        seen["consequences"] = consequences
+        return None, (lambda: None)
+
+    monkeypatch.setattr(composition, "build_chain_reader", fake)
+    monkeypatch.setattr(composition, "build_thread_sources", lambda url: None)
+    consequences = object()
+    route = SimpleNamespace(read=SimpleNamespace(consequences=consequences), gate=None, no_legacy_basis=None)
+    composition.build_outcome_board_service(None, site_overview=route)
+    assert seen["consequences"] is consequences

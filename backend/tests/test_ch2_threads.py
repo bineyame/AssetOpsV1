@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from assetops_backend.chain import threads as th
-from assetops_backend.chain.lookup import thread_lookup
+from assetops_backend.chain.lookup import state_classes, thread_lookup
 
 T, S = UUID(int=1), UUID(int=2)
 T0 = datetime(2026, 10, 17, 6, 0, tzinfo=timezone.utc)
@@ -191,8 +191,10 @@ def test_lookup_rows_reduce_to_findings_and_actions():
     # CH-3 widened the row (story start, zone, mechanism, subject, events) and added state and segment.
     out = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, "UTC", "M", "s", None),
                          ("A", "X", "t1", None, None, None, None, "UTC", "abc", None, None)])
+    # CH5a-R §A5 (CH-5a1): the view also carries its state classes and the public wire keys.
     assert out["findings"] == {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3, "segment_no": 1,
-                                       "state": None, "state_effective_day": None, "state_day": None}}
+                                       "state": None, "state_effective_day": None, "state_day": None,
+                                       **state_classes(None)}}
     assert out["actions"] == {"x": "t1"} and out["action_segments"] == {"x": 1}
 
 
@@ -271,7 +273,9 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
     act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None, "/x", is_domain=True)
     facts = board.SiteFacts(domain="cold_chain", site_code="COLD-LAB-001", findings=(shown,), actions=(act,))
     before = board.assemble(facts)
-    threaded = board.with_threads(facts, {"findings": {"f2": {"id": "t1", "occurrence_no": 2, "occurrences": 2}},
+    # CH5a-R §A5 (CH-5a1): the wire keys come with the thread view (`lookup.PUBLIC_KEYS`), as the lookup gives them.
+    view = {"id": "t1", "occurrence_no": 2, "occurrences": 2, **state_classes(None)}
+    threaded = board.with_threads(facts, {"findings": {"f2": view},
                                           "actions": {"a1": "t1"}})
     after = board.assemble(threaded)
 
@@ -282,3 +286,20 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
     assert in_hand(before) != in_hand(after)  # unthreaded, the origin is unresolved (suffix or other row)
     refs = [i["ref"] for r in after for i in r["issues"] if i["kind"] == "FINDING"]
     assert all(ref["thread"] == {"id": "t1", "occurrence_no": 2, "occurrences": 2} for ref in refs)
+
+
+def test_portfolio_row_thread_is_the_public_form_only():
+    """CH-5a1 L3: `thread_lookup` now carries the board's state classes (`applied`/`verified`/`later`/`wire_keys`);
+    the Portfolio row's `thread` is `public_thread`, so none of them reaches the wire."""
+    from assetops_backend.chain.lookup import PUBLIC_KEYS, thread_lookup
+    from assetops_backend.estate.portfolio import portfolio_row
+
+    thread = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, None, None, None, None)])["findings"]["abc"]
+    assert {"applied", "verified", "later", "wire_keys"} <= set(thread)
+    r = {"_site": {"site_code": "KOBO-001", "site_code_key": "kobo-001"}, "finding_id": "abc",
+         "finding_revision_id": "r1", "site_id": "S1", "site_code": "KOBO-001", "site_name": "Kobo",
+         "_domain": "MINIGRID", "finding_label": "x", "title": "x", "_mechanism": "GENERATOR_SUPPORT_CANDIDATE",
+         "episode_start": None, "_episode_end": None, "lifecycle": "SUPPORTED", "lens_flags": [], "priority": None,
+         "consequence": None, "source_provenance": None, "links": {"site": "/s", "finding": "/f"}, "_at": T0,
+         "_thread": thread}
+    assert tuple(portfolio_row(r, [])["thread"]) == PUBLIC_KEYS

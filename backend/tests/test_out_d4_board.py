@@ -55,7 +55,7 @@ def state(row: dict, key: str) -> tuple[str, str]:
 
 
 def no_finding() -> b2.Fake:
-    return b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [], "next_cursor": None},
+    return b2.Fake(chain_findings=(),
                    estate={"site_cov": {"state": "CURRENT"}, "findings": [], "actions": []},
                    action_index={"rows": [], "next_cursor": None})
 

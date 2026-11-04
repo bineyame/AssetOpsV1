@@ -256,3 +256,17 @@ def test_a_derived_channel_rule_is_evaluated_as_declared_or_refused() -> None:
     del spec["sites"]["kobo"]["derived_channels"]["charge_request"]["source"]
     with pytest.raises(ValueError, match="no source"):
         md.validate(spec)
+
+
+def test_build_work_writes_kobo_days_as_site_local_days(tmp_path) -> None:
+    """CH-5a1 D-2d-1 (closes MD0-R R10): a Kobo `days.json` entry is its Addis local day in UTC, the window
+    `chain_coherence.day_windows` reads; a gap day is still listed (no delivery needed)."""
+    import json
+
+    manifest = {"day_set": "test", "days": [1, 13], "findings": {}}
+    md.build_work("postgresql://unused", tmp_path, manifest)
+    days = json.loads((tmp_path / "days.json").read_text(encoding="utf-8"))["days"]
+    by_day = {d["day"]: d for d in days}
+    assert (by_day["2026-10-19"]["start"], by_day["2026-10-19"]["end"]) == ("2026-10-18T21:00:00Z", "2026-10-19T21:00:00Z")
+    assert (by_day["2026-10-31"]["start"], by_day["2026-10-31"]["end"]) == ("2026-10-30T21:00:00Z", "2026-10-31T21:00:00Z")
+    assert {d["kind"] for d in days if d["day"] == md.day(SPEC, 7).isoformat()} == {"gap"}

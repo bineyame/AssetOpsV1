@@ -5,7 +5,11 @@ threads involved, and each listed Action's link (thread, ACCEPTED time, origin o
 then computes, in pure code, each Finding's segment and its state on a day as of a `known_at` (CH-3 §3: events with
 visible by `known_at` on `coalesce(cause_known_at, recorded_at)`, CH3-R D-b; segments by story time, ruling
 CH3-R) and each Action's segment. Nothing is stored.
-Occurrences are still read as stored now (CH-2 residual risk R-2). Pure: no database driver here."""
+CH2-R L5 (CH-5a1): occurrences and their count are those visible at the bound `:kv` (`coalesce(source_known_at,
+joined_at) <= :kv`; None = as stored now). CH5a1-R2 R-1: `source_known_at` is transaction time (the revision's
+`created_at`, 0045 / CH3-R D-b), so `:kv` is only ever the request's own `known_at`; the story-time Site evidence
+cutoff (`:k`) bounds the thread *state* (events, snapshots) and is never compared with it. Pure: no database driver
+here."""
 
 from __future__ import annotations
 
@@ -23,12 +27,14 @@ _EVENTS = ("SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.re
 #: kind, ref, thread_id, num, cnt, at1, at2, txt1, txt2, txt3, day1.
 LOOKUP = (
     "WITH fo AS (SELECT o.* FROM finding_thread_occurrence o WHERE o.tenant_id = :t "
-    "AND CAST(o.finding_id AS text) = ANY(CAST(:f AS text[]))), "
+    "AND CAST(o.finding_id AS text) = ANY(CAST(:f AS text[])) "
+    "AND (CAST(:kv AS timestamptz) IS NULL OR coalesce(o.source_known_at, o.joined_at) <= CAST(:kv AS timestamptz))), "
     "al AS (SELECT l.* FROM chain_action_thread l WHERE l.tenant_id = :t "
     "AND CAST(l.action_id AS text) = ANY(CAST(:a AS text[]))), "
     "th AS (SELECT thread_id FROM fo UNION SELECT thread_id FROM al) "
     "SELECT 'F' AS kind, CAST(fo.finding_id AS text) AS ref, CAST(fo.thread_id AS text) AS thread_id, "
-    "fo.occurrence_no AS num, (SELECT count(*) FROM finding_thread_occurrence x WHERE x.thread_id = fo.thread_id) "
+    "fo.occurrence_no AS num, (SELECT count(*) FROM finding_thread_occurrence x WHERE x.thread_id = fo.thread_id "
+    "AND (CAST(:kv AS timestamptz) IS NULL OR coalesce(x.source_known_at, x.joined_at) <= CAST(:kv AS timestamptz))) "
     "AS cnt, fo.episode_start AS at1, CAST(NULL AS timestamptz) AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
     "t.subject_ref AS txt3, CAST(NULL AS date) AS day1, s.site_type AS txt4 FROM fo JOIN finding_thread t ON t.id = fo.thread_id "
     "JOIN site s ON s.tenant_id = fo.tenant_id AND s.id = fo.site_id "
@@ -49,7 +55,7 @@ OPPORTUNITY_LOOKUP = (
     "o.source_known_at, o.site_id, o.tenant_id FROM finding_thread_occurrence o "
     "WHERE o.tenant_id = :t AND o.opportunity_id IS NOT NULL "
     "AND CAST(o.site_id AS text) = ANY(CAST(:s AS text[])) "
-    "AND (CAST(:k AS timestamptz) IS NULL OR coalesce(o.source_known_at, o.joined_at) <= CAST(:k AS timestamptz))), "
+    "AND (CAST(:kv AS timestamptz) IS NULL OR coalesce(o.source_known_at, o.joined_at) <= CAST(:kv AS timestamptz))), "
     "head AS (SELECT DISTINCT ON (x.opportunity_id) x.opportunity_id, x.revision_id, x.selected_at, x.seq "
     "FROM mini_opportunity_selection x WHERE x.tenant_id = :t "
     "AND x.opportunity_id IN (SELECT opportunity_id FROM oc) "
@@ -77,6 +83,13 @@ OPPORTUNITY_LOOKUP = (
 #: `state_day` (CH-3 packet deviation, additive): the Site-local day the state was read on, so COH-13 can compare a
 #: board and a Portfolio read of one thread taken on different days.
 PUBLIC_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
+
+
+def state_classes(state: str | None) -> dict[str, Any]:
+    """CH5a-R §A5: the state classes a board reads with a thread (it holds no state tuples of its own), and the
+    wire keys of its public form."""
+    return {"applied": state in lc.APPLIED_OR_LATER, "verified": state in lc.VERIFIED_STATES,
+            "later": state in lc.LATER_STATES, "wire_keys": PUBLIC_KEYS}
 
 
 def _day(at: datetime | None, tz: str | None) -> date | None:
@@ -121,7 +134,8 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
         findings[fid] = {"id": thread_id, "occurrence_no": int(num), "occurrences": int(cnt),
                          "segment_no": view["segment_no"], "state": view["state"],
                          "state_effective_day": None if eff is None else eff.isoformat(),
-                         "state_day": None if on is None else on.isoformat()}
+                         "state_day": None if on is None else on.isoformat(),
+                         **state_classes(view["state"])}
     actions: dict[str, Any] = {}
     segments: dict[str, int] = {}
     for aid, thread_id, accepted, origin_start, tz, origin in act_rows:

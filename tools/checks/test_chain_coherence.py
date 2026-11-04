@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -199,8 +200,11 @@ def test_known_at_reaches_the_board_requests_too(tmp_path: Path) -> None:
 COLD_BOARD = f"/api/sites/{COLD}/outcome-board"
 
 
-def _board_self(tmp_path: Path, value: str | None, nested: str | None = None, params: dict | None = None):
+def _board_self(tmp_path: Path, value: str | None, nested: str | None = None, params: dict | None = None,
+                window: dict | None = None):
     def links(body: dict) -> None:
+        if window is not None:
+            body["window"] = window
         if value is not None:
             body["links"] = {"self": value}
         if nested is not None:
@@ -229,16 +233,28 @@ def test_a_root_self_link_that_is_not_its_own_request_is_a_contradiction(tmp_pat
     assert [f["subject"] for f in _board_self(tmp_path / "e", elsewhere)] == [elsewhere]
 
 
+#: CH-5a1 R6: the Addis local day 2026-10-31 (UTC+3), as the board body names it.
+ADDIS_31 = {"from": "2026-10-30T21:00:00Z", "to": "2026-10-31T21:00:00Z"}
+
+
 def test_a_board_date_request_equals_its_one_day_range_self_link(tmp_path: Path) -> None:
-    own = f"{COLD_BOARD}?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
-    assert _board_self(tmp_path, own, params={"date": "2026-10-31"}) == []
+    """CH-5a1 (intended, R6): `date=D` canonicalises to the body's own window (D's Site-local day)."""
+    own = f"{COLD_BOARD}?from=2026-10-30T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z"
+    assert _board_self(tmp_path, own, params={"date": "2026-10-31"}, window=ADDIS_31) == []
+
+
+def test_a_board_date_request_is_not_its_utc_day_in_addis(tmp_path: Path) -> None:
+    """CH-5a1 R6 (Addis): the UTC-midnight day is no longer the `date=D` read when the body's window is local."""
+    utc = f"{COLD_BOARD}?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+    assert len(_board_self(tmp_path / "a", utc, params={"date": "2026-10-31"}, window=ADDIS_31)) == 1
+    assert len(_board_self(tmp_path / "b", utc, params={"date": "2026-10-31"})) == 1  # no window: no equivalence
 
 
 def test_the_date_equivalence_does_not_widen(tmp_path: Path) -> None:
-    two_days = f"{COLD_BOARD}?from=2026-10-31T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
-    assert len(_board_self(tmp_path / "a", two_days, params={"date": "2026-10-31"})) == 1
-    other_day = f"{COLD_BOARD}?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z"
-    assert len(_board_self(tmp_path / "b", other_day, params={"date": "2026-10-31"})) == 1
+    two_days = f"{COLD_BOARD}?from=2026-10-30T21%3A00%3A00Z&to=2026-11-01T21%3A00%3A00Z"
+    assert len(_board_self(tmp_path / "a", two_days, params={"date": "2026-10-31"}, window=ADDIS_31)) == 1
+    other_day = f"{COLD_BOARD}?from=2026-10-29T21%3A00%3A00Z&to=2026-10-30T21%3A00%3A00Z"
+    assert len(_board_self(tmp_path / "b", other_day, params={"date": "2026-10-31"}, window=ADDIS_31)) == 1
     # a different route: the same equivalence is not applied
     b = cc.Body("x", "/api/sites/X/other", "w", 200, {}, [], {"date": "2026-10-31"})
     assert not cc.is_own_self_link(
@@ -265,16 +281,34 @@ def test_example_data_strings_are_listed_as_info_only(tmp_path: Path) -> None:
 
 
 def test_day_windows_follow_the_board_reads() -> None:
+    """CH-5a1 (intended, R6/Q8, closes MD0-R R10): Kobo and Cold days are their Addis local days; EV unchanged."""
     days = [{"site": "kobo", "kind": "normal", "day": "2026-10-30", "assess": "build",
              "start": "2026-10-30T03:00:00Z", "end": "2026-10-30T11:00:00Z"},
             {"site": "cold", "kind": "failure", "day": "2026-10-31", "assess": "build",
              "start": "2026-10-31T16:00:00Z", "end": "2026-10-31T17:05:00Z"},
+            {"site": "ev", "kind": "normal", "day": "2026-10-27", "assess": "build",
+             "start": "2026-10-27T08:00:00Z", "end": "2026-10-27T16:00:00Z"},
             {"site": "kobo", "kind": "missing", "day": "2026-10-21", "assess": "none", "start": None, "end": None}]
-    kobo, cold = cc.day_windows(days)
+    kobo, cold, ev = cc.day_windows(days)
     assert (kobo["id"], kobo["date"], kobo["from"], kobo["to"]) == (
-        "day:kobo:normal:2026-10-30", "2026-10-30", "2026-10-30T00:00:00Z", "2026-10-31T00:00:00Z")
-    assert (cold["from"], cold["to"], cold["date"]) == ("2026-10-31T16:00:00Z", "2026-10-31T17:05:00Z", None)
-    assert cold["estate"] == ("2026-10-31T00:00:00Z", "2026-11-01T00:00:00Z")  # estate routes need UTC midnights
+        "day:kobo:normal:2026-10-30", "2026-10-30", "2026-10-29T21:00:00Z", "2026-10-30T21:00:00Z")
+    assert (cold["from"], cold["to"], cold["date"]) == ("2026-10-30T21:00:00Z", "2026-10-31T21:00:00Z", None)
+    assert cold["estate"] == ("2026-10-30T00:00:00Z", "2026-11-01T00:00:00Z")  # estate routes need UTC midnights
+    assert kobo["estate"] == ("2026-10-29T00:00:00Z", "2026-10-31T00:00:00Z")
+    assert (ev["from"], ev["to"], ev["date"]) == ("2026-10-27T08:00:00Z", "2026-10-27T16:00:00Z", None)
+    assert ev["estate"] == ("2026-10-27T00:00:00Z", "2026-10-28T00:00:00Z")
+
+
+@pytest.mark.parametrize("site,start,day", [
+    ("kobo", "2026-10-30T22:30:00Z", "2026-10-31"),   # 01:30 Addis: already the next local day
+    ("cold", "2026-10-30T20:59:00Z", "2026-10-30"),   # 23:59 Addis: still the same local day
+])
+def test_day_windows_take_the_addis_local_day_across_utc_midnight(site: str, start: str, day: str) -> None:
+    [w] = cc.day_windows([{"site": site, "kind": "k", "day": day, "assess": "build", "start": start,
+                           "end": start}])
+    lo = datetime.fromisoformat(f"{day}T00:00:00+03:00").astimezone(timezone.utc)
+    assert (w["from"], w["to"]) == (cc.iso(lo), cc.iso(lo + timedelta(days=1)))
+    assert w["date"] == (day if site == "kobo" else None)
 
 
 def test_category_lens_map_is_the_outcome_map_reading() -> None:
@@ -538,6 +572,36 @@ def test_clean_opportunity_bundle_passes_and_judges_the_headroom_thread(tmp_path
     assert [f["subject"] for f in cc.coh10_thread_identity(gone)] == ["kobo-headroom"]
     # An unstamped (pre-CH-4) bundle is not judged by COH-16 or the leg.
     assert cc.coh16_opportunity_agreement(cc.Bundle(BUNDLES / "clean")) == []
+
+
+def _summary_variant(tmp_path: Path, site_code: str, domain: str, window: dict) -> cc.Bundle:
+    """The clean bundle with one summary Site's `domain` and `window` replaced (CH5a1-R2 COH-7a)."""
+    dst = tmp_path / "bundle"
+    shutil.copytree(BUNDLES / "clean", dst)
+    path = dst / "summary.week.json"
+    body = json.loads(path.read_text(encoding="utf-8"))
+    for s in body["sites"]:
+        if s["site_code"] == site_code:
+            s["domain"], s["window"] = domain, window
+    path.write_text(json.dumps(body), encoding="utf-8")
+    return cc.Bundle(dst)
+
+
+#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `summary_day` = local (Addis) day of 31 Oct 23:59:59Z = 1 Nov.
+KOBO_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
+WEEK = {"from": "2026-10-25T00:00:00Z", "to": "2026-11-01T00:00:00Z"}
+
+
+@pytest.mark.parametrize("site,domain,window,fails", [
+    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (summary_day) is expected
+    (KOBO, "mini_grid", WEEK, True),            # a mini card on the requested window is not its card day
+    (COLD, "cold_chain", WEEK, False),          # every other Site: the requested window
+    (COLD, "cold_chain", KOBO_CARD_DAY, True),  # ... and only it
+])
+def test_coh7a_mini_summary_card_is_its_site_local_summary_day(tmp_path: Path, site, domain, window, fails) -> None:
+    report = cc.check(_summary_variant(tmp_path, site, domain, window))
+    hits = [k for k in keys(report) if k[0] == "COH-7a"]
+    assert hits == ([("COH-7a", site, "week", "window")] if fails else []), report["findings"]
 
 
 # ---- MD-0: in-process collect without demo work documents (R8), `check --threads` (R9), the mechanism files ----

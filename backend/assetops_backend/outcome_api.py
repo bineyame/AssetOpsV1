@@ -1,7 +1,8 @@
 """OUT-B4 (§B.1, §B.3): the Site outcome board and the estate outcome summary.
 
-    GET /api/sites/{site_code}/outcome-board     mini: `date` or a one-UTC-day `from`/`to` (`selected_day` and its
-                                                 422 codes), optional `finding_id`/`finding_revision_id` pin;
+    GET /api/sites/{site_code}/outcome-board     mini: `date`, or a `from`/`to` of one UTC day or one Site-local
+                                                 day (R6; `selected_day` and its 422 codes), optional
+                                                 `finding_id`/`finding_revision_id` pin;
                                                  cold and EV: `from`/`to` (at most 31 days); every domain: `known_at`
     GET /api/estate/outcome-summary              `from`/`to`/`known_at`, parsed as the estate scope root
 
@@ -21,11 +22,13 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf
+from assetops_backend.chain.read import board_day
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -55,6 +58,24 @@ def _instant(params: Any, key: str) -> datetime | None:
     if not _INSTANT.fullmatch(value):
         raise _refuse(422, "INVALID_WINDOW", f"'{key}' must be a UTC instant such as 2026-10-06T00:00:00Z.")
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def _mini_day_params(params: Any, tz: str | None) -> Any:
+    """R6: a `from`/`to` pair that is exactly one Site-local day (the board's own `window` and self link, and the
+    summary's Site window) selects that local date, as `date=` does. Any other pair goes to `selected_day` unchanged,
+    so a one-UTC-day pair and every 422 code keep their meaning."""
+    start, end = params.get("from"), params.get("to")
+    if start is None or end is None or not (_INSTANT.fullmatch(start) and _INSTANT.fullmatch(end)):
+        return params
+    lo = datetime.fromisoformat(start.replace("Z", "+00:00"))
+    hi = datetime.fromisoformat(end.replace("Z", "+00:00"))
+    local = lo.astimezone(ZoneInfo(tz)).date() if tz else lo.date()
+    if (lo, hi) != board_day(local, tz) or (lo.hour, lo.minute, lo.second) == (0, 0, 0):
+        return params  # not a Site-local day, or already a UTC day (`selected_day` reads it)
+    text = params.get("date")
+    if text is not None and text != local.isoformat():
+        raise _refuse(422, "CONFLICTING_WINDOW", "date conflicts with from/to")
+    return {"date": local.isoformat()}
 
 
 def _pin(params: Any) -> tuple[UUID, UUID | None] | None:
@@ -123,7 +144,7 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
         known_at = _instant(params, "known_at")
         day = lo = hi = pin = None
         if ref.domain == MINI:
-            day = selected_day(params)  # its own 422 codes (B-Q5)
+            day = selected_day(_mini_day_params(params, ref.timezone))  # its own 422 codes (B-Q5)
             pin = _pin(params)
         else:
             lo, hi = _instant(params, "from"), _instant(params, "to")
@@ -156,7 +177,7 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             if service is None or estate is None:
                 raise EstateStoreUnavailable("No product database is configured.")
             with perf.timed("summary.scope"):
-                scope = estate.scope(tenant(), parsed, lambda code: admitted(request, code) is None)
+                scope = estate.site_list(tenant(), parsed, lambda code: admitted(request, code) is None)  # R2
             sites = []
             for item in scope["sites"]:
                 site = registry.imported(item["site_code"])

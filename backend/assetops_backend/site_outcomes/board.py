@@ -68,10 +68,6 @@ THREAD_AFTER_NOT_JUDGED = " · after the change: not judged yet, no fully checke
 THREAD_MONITORING = "Fix verified, monitoring ({code}) · {k} more fully checked days to close"
 THREAD_CLOSED = "Fix verified and closed ({code}) · no return in {n} fully checked days"
 THREAD_RECURRED = "Came back on {day} after the fix ({code})"
-#: Thread states (chain/lifecycle.py; this module imports only outcomes/, test_ch3_rows pins the equality).
-THREAD_APPLIED_STATES = ("CHANGE_APPLIED", "RESOLVED_MONITORING", "CLOSED")
-THREAD_VERIFIED_STATES = ("RESOLVED_MONITORING", "CLOSED")
-THREAD_WIRE_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
 TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
@@ -144,8 +140,6 @@ class FindingFact:
     in_window: bool = True
     #: CH3-R M3: the episode intersects the board's 31-day work window (mini; the thread-level line reads it).
     in_work_window: bool = False
-    #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
-    refreshed_from: tuple[str, ...] = ()
     #: CH-2 §5.3: the Finding's thread `{id, occurrence_no, occurrences}`; None when it has no thread.
     #: CH-3 adds `segment_no`, `state` and `state_effective_day` on the board day as of its `known_at`.
     thread: Mapping[str, Any] | None = None
@@ -529,35 +523,6 @@ def objectives_wire(facts: SiteFacts) -> list[dict[str, Any]]:
             for f in facts.objectives]
 
 
-BASIS_REFRESHED = "BASIS_REFRESHED"
-
-
-def refresh_chain(revisions: Sequence[Mapping] | None, origin_id: str, shown_id: str) -> bool:
-    """True iff every revision after the origin up to and including the shown one is BASIS_REFRESHED with the
-    origin's lifecycle and episode bounds. `revisions` = history rows in revision_no order (every page).
-    D-2026-10-31-board-action-refresh-lineage; revisions after the shown one are never read."""
-    if not revisions:
-        return False
-    by_id = {str(r.get("id")): r for r in revisions}
-    o, s = by_id.get(str(origin_id)), by_id.get(str(shown_id))
-    if o is None or s is None:
-        return False
-    o_no, s_no = int(o["revision_no"]), int(s["revision_no"])
-    if o_no >= s_no:
-        return False
-    between = sorted((r for r in revisions if o_no < int(r["revision_no"]) <= s_no),
-                     key=lambda r: int(r["revision_no"]))
-    if [int(r["revision_no"]) for r in between] != list(range(o_no + 1, s_no + 1)):
-        return False
-    o_ep = o.get("episode") or {}
-    for r in between:
-        ep = r.get("episode") or {}
-        if (r.get("transition") != BASIS_REFRESHED or r.get("lifecycle") != o.get("lifecycle")
-                or ep.get("start") != o_ep.get("start") or ep.get("end") != o_ep.get("end")):
-            return False
-    return True
-
-
 def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     """The four board rows in canonical category order (§B.1 row shape)."""
     domain, code = facts.domain, facts.site_code
@@ -566,9 +531,14 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     mini_actions = [a for a in facts.actions if not a.is_domain]
 
     def linked_actions(f: FindingFact) -> list[ActionFact]:
-        """Exact revision, or a basis-only refresh chain (D-2026-10-31-board-action-refresh-lineage)."""
-        return [a for a in mini_actions if a.origin_finding_id == f.finding_id
-                and (a.origin_revision_id == f.revision_id or a.origin_revision_id in f.refreshed_from)]
+        """CH-5a1 §A4: an Action belongs to a Finding through its thread and segment (CH-2/CH-3); without a thread
+        (no thread port, or a database below 0042) the exact origin revision is kept."""
+        if f.thread is None:
+            return [a for a in mini_actions if a.origin_finding_id == f.finding_id
+                    and a.origin_revision_id == f.revision_id]
+        tid, seg = f.thread.get("id"), f.thread.get("segment_no")
+        return [a for a in mini_actions if a.thread_id is not None and str(a.thread_id) == str(tid)
+                and seg is not None and a.segment_no == seg]
 
     # status signals
     signals: list[Signal] = []
@@ -604,8 +574,8 @@ def finding_signal_state(f: FindingFact, linked: Sequence[ActionFact]) -> tuple[
     exact-revision rule is kept."""
     if f.thread is None:
         return f.open, any(a.applied for a in linked)
-    state = f.thread.get("state")
-    return f.open and state not in THREAD_VERIFIED_STATES, state in THREAD_APPLIED_STATES
+    # CH5a-R §A5: the thread view carries its state classes (chain/lookup.py); the board holds no state tuples.
+    return f.open and not f.thread.get("verified"), bool(f.thread.get("applied"))
 
 
 def _short_day(d: Any) -> str:
@@ -641,7 +611,7 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
         if a is None or day is None:
             return None
         return THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code))
-    if state in THREAD_VERIFIED_STATES:
+    if f.thread.get("verified"):
         a = _thread_action(f, facts, earlier=False)
         if a is None:
             return None
@@ -650,10 +620,6 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
             return THREAD_CLOSED.format(code=display_code(a.code), n=n)
         return THREAD_MONITORING.format(code=display_code(a.code), k=max(0, n - int(view.get("checked_days") or 0)))
     return None
-
-
-#: CH3-R M3: the thread states whose line is thread-level (shown after the thread's Finding left the overview day).
-THREAD_LATER_STATES = ("RESOLVED_MONITORING", "CLOSED", "RECURRED")
 
 
 def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
@@ -676,7 +642,7 @@ def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
         acted = {a.thread_id for a in facts.actions if a.thread_id is not None}
         for tid, f in latest.items():
             recent = f.in_work_window or tid in acted
-            if recent and f.thread.get("state") in THREAD_LATER_STATES:  # type: ignore[union-attr]
+            if recent and f.thread.get("later"):  # type: ignore[union-attr]
                 shown.append(f)
     return sorted(shown, key=lambda f: (f.title, f.finding_id))
 
@@ -852,8 +818,10 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     # CH-3 §5: the thread line of each in-window Finding whose primary MOVES outcome is in this row.
     def state_label_on(f: FindingFact, day: Any) -> str | None:
         """Ruling Q2: this row's state label with the Finding's thread state on `day` and the board's verdicts."""
-        st = _state_on(f.lifecycle_view or {}, day)
-        alt = [replace(s, open=f.open and st not in THREAD_VERIFIED_STATES, applied=st in THREAD_APPLIED_STATES)
+        view = f.lifecycle_view or {}
+        st = _state_on(view, day)
+        alt = [replace(s, open=f.open and st not in view.get("verified_states", ()),
+                       applied=st in view.get("applied_states", ()))
                if s.kind == FINDING and s.ref == f.finding_id else s for s in signals]
         alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
                                             readiness=facts.readiness, objective=verdicts.get(o.key),
@@ -909,7 +877,7 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
     return {"kind": "FINDING", "role": role, "text": text, "href": f.href,
             "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
-                    "thread": None if f.thread is None else {k: f.thread[k] for k in THREAD_WIRE_KEYS
+                    "thread": None if f.thread is None else {k: f.thread[k] for k in f.thread.get("wire_keys", ())
                                                              if k in f.thread}}}
 
 

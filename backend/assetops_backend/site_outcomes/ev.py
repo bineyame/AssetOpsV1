@@ -88,7 +88,7 @@ class EvPorts:
     domain_actions: Callable[[datetime, datetime, str | None], dict[str, Any]]   # work/domain_action_index.py
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
-    readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
+    readiness: Callable[[datetime, datetime], str | None]                        # readiness_of (CH-5a1)
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
 
 
@@ -116,7 +116,7 @@ def duration_text(seconds: Any) -> str | None:
 def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
             site_timezone: str | None) -> Composition:
     c = site_code
-    reads = Reads()
+    reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     suffix = "" if tz is not None else UTC_SUFFIX
     work_lo = hi - WORK_WINDOW
@@ -126,11 +126,11 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     health = reads.call("ev_depth", ports.health, lo, hi)
     availability = reads.call("ev_availability", ports.availability, lo, hi)
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
-    readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
+    readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
-    objective_rows = reads.call("objectives", ports.objectives)
+    objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
 

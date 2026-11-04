@@ -1,0 +1,384 @@
+{
+ "_short_values": {},
+ "_verified_results": 0,
+ "domain": "cold_chain",
+ "finding_gaps": null,
+ "links": {
+  "self": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-30T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ "objectives": [
+  {
+   "outcome_key": "CC-1",
+   "outcome_label": "Stock kept saleable",
+   "revision_id": null,
+   "source": "DECLARED",
+   "source_note": null,
+   "verdict": "MISSED"
+  }
+ ],
+ "objectives_read": false,
+ "policy_versions": {
+  "catalogue": "outcome-catalogue/2",
+  "finding_index": "finding-index/2",
+  "objectives": "outcome-objectives/2",
+  "outcome_map": "outcome-map/1",
+  "status": "outcome-status/3",
+  "warnings": "early-warnings/1"
+ },
+ "read_state": "PARTIAL",
+ "rows": [
+  {
+   "category": "GROW_REVENUE",
+   "contributors": [],
+   "counts": {
+    "in_hand": 0,
+    "issues": 0
+   },
+   "definition": "Capture more value from existing infrastructure and expand earning potential",
+   "earlier": [],
+   "earlier_empty_text": null,
+   "evidence_link": null,
+   "headline": null,
+   "headline_money": null,
+   "icon": "grow",
+   "in_hand": [],
+   "issues": [],
+   "label": "Grow revenue",
+   "lead_outcome": {
+    "key": "CC-2",
+    "label": "Paid cold-room use"
+   },
+   "must_not_harm": null,
+   "not_measured_text": "Needs occupancy, storage contract, income and sales records",
+   "options": [],
+   "outcomes": [
+    {
+     "key": "CC-2",
+     "label": "Paid cold-room use",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    },
+    {
+     "key": "CC-4",
+     "label": "Market value of produce",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    }
+   ],
+   "potential": null,
+   "state": "NOT_MEASURED",
+   "state_label": "Not measured yet",
+   "subline": null,
+   "tone": "none"
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "contributors": [
+    {
+     "confidence": null,
+     "href": null,
+     "key": "maintenance_effectiveness",
+     "label": "Maintenance effectiveness",
+     "text": "Not available yet · this record could not be loaded"
+    },
+    {
+     "confidence": {
+      "label": "Unknown",
+      "tone": "gray"
+     },
+     "href": "/sites/COLD-LAB-001/financials",
+     "key": "repair_cost",
+     "label": "Repair and call-out",
+     "text": "No repair or call-out cost recorded"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "cooling_energy",
+     "label": "Cooling energy",
+     "text": "Not available yet · no cooling energy meter"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 1
+   },
+   "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/COLD-LAB-001/financials",
+    "label": "Financial bridge"
+   },
+   "headline": null,
+   "headline_money": null,
+   "icon": "cost",
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f118",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f118",
+      "finding_revision_id": "f118r",
+      "thread": null
+     },
+     "role": "CHECKED",
+     "text": "Backup did not start · checked here as a safeguard"
+    }
+   ],
+   "label": "Optimize cost and efficiency",
+   "lead_outcome": {
+    "key": "CC-3",
+    "label": "Cost per cooling unit"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [],
+   "outcomes": [
+    {
+     "key": "CC-3",
+     "label": "Cost per cooling unit",
+     "reason": "PRODUCER_NOT_SETTLED",
+     "state": "UNKNOWN"
+    }
+   ],
+   "potential": null,
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "subline": null,
+   "tone": "gray"
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "chamber_temperature",
+     "label": "Chamber temperature",
+     "text": "Peak 8.4°C against a 5°C limit"
+    },
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "backup_start",
+     "label": "Backup start",
+     "text": "Automatic start failed; started by hand"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "cooling_recovery",
+     "label": "Cooling recovery",
+     "text": "Not available yet · no reading confirms that cooling restarted and the chamber returned to its limits"
+    },
+    {
+     "confidence": null,
+     "href": "/maintenance/preventive",
+     "key": "backup_generator",
+     "label": "Backup generator",
+     "text": "Not available yet · this record could not be loaded"
+    },
+    {
+     "confidence": null,
+     "href": "/maintenance/preventive",
+     "key": "compressor",
+     "label": "Compressor",
+     "text": "Not available yet · this record could not be loaded"
+    },
+    {
+     "confidence": {
+      "label": "Missed",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "declared_objective:CC-1",
+     "label": "Declared objective",
+     "text": "Stock kept saleable: chamber held between 2 and 5°C · above 5°C in this window"
+    }
+   ],
+   "counts": {
+    "in_hand": 1,
+    "issues": 2
+   },
+   "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+   "earlier": [],
+   "earlier_empty_text": "No earlier work has been checked for this",
+   "evidence_link": {
+    "href": "/sites/COLD-LAB-001/evidence",
+    "label": "Cold-room evidence"
+   },
+   "headline": "Chamber above 5°C for 40–55 min",
+   "headline_money": null,
+   "icon": "protect",
+   "in_hand": [
+    {
+     "href": "/sites/COLD-LAB-001/actions/da1",
+     "state_label": "Open",
+     "text": "DA-001 · Witnessed automatic-start test"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f118",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f118",
+      "finding_revision_id": "f118r",
+      "thread": null
+     },
+     "role": "MOVES",
+     "text": "Backup did not start"
+    },
+    {
+     "href": "/sites/COLD-LAB-001/findings/f119",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f119",
+      "finding_revision_id": "f119r",
+      "thread": null
+     },
+     "role": "MOVES",
+     "text": "Chamber above limit"
+    }
+   ],
+   "label": "Protect asset and capital",
+   "lead_outcome": {
+    "key": "CC-1",
+    "label": "Stock kept saleable"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/COLD-LAB-001/actions/da1",
+     "text": "Witnessed automatic-start test"
+    },
+    {
+     "href": "/sites/COLD-LAB-001/financials/scenarios",
+     "text": "Stock value what-if"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "CC-1",
+     "label": "Stock kept saleable",
+     "reason": "PRIMARY_FINDING_OPEN",
+     "state": "NEEDS_ATTENTION"
+    },
+    {
+     "key": "CC-6",
+     "label": "Cooling continuity",
+     "reason": "PRIMARY_FINDING_OPEN",
+     "state": "NEEDS_ATTENTION"
+    },
+    {
+     "key": "CC-5",
+     "label": "Compressor life",
+     "reason": "OBJECTIVES_NOT_READ",
+     "state": "UNKNOWN"
+    }
+   ],
+   "potential": null,
+   "state": "NEEDS_ATTENTION",
+   "state_label": "Needs attention",
+   "subline": "Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed",
+   "tone": "amber"
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "contributors": [
+    {
+     "confidence": null,
+     "href": null,
+     "key": "verified_results",
+     "label": "Verified results",
+     "text": "Not available yet · this record could not be loaded"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "storage_service_level",
+     "label": "Storage service level",
+     "text": "Not available yet · no storage contract recorded"
+    },
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "event_chain",
+     "label": "Power, backup and cooling chain",
+     "text": "1 step not recorded"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "loading_door_records",
+     "label": "Loading and door records",
+     "text": "Not available yet"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 0
+   },
+   "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/COLD-LAB-001/evidence",
+    "label": "Evidence overview"
+   },
+   "headline": "Event partly reconstructed · no verified result yet",
+   "headline_money": null,
+   "icon": "assure",
+   "in_hand": [],
+   "issues": [],
+   "label": "Assure performance and returns",
+   "lead_outcome": {
+    "key": "CC-7",
+    "label": "Evidence quality"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/COLD-LAB-001/work",
+     "text": "Record stock and door log"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "CC-7",
+     "label": "Evidence quality",
+     "reason": "EVIDENCE_READINESS_LIMITED",
+     "state": "WATCH"
+    }
+   ],
+   "potential": null,
+   "state": "WATCH",
+   "state_label": "Watch",
+   "subline": "Loading and door records are not connected, so stock impact cannot be judged",
+   "tone": "blue"
+  }
+ ],
+ "schema_version": "site-outcome-board-1",
+ "site_code": "COLD-LAB-001",
+ "site_id": "00000000-0000-4000-8000-0000000000c1",
+ "site_name": "GreenHarvest",
+ "warnings": [],
+ "window": {
+  "from": "2026-10-30T21:00:00Z",
+  "known_at": "2026-11-01T00:00:00Z",
+  "to": "2026-10-31T21:00:00Z"
+ }
+}

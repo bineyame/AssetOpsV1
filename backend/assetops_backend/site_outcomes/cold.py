@@ -92,7 +92,7 @@ class ColdPorts:
     domain_actions: Callable[[datetime, datetime, str | None], dict[str, Any]]     # work/domain_action_index.py
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]          # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                    # preventive DRAFT, this Site
-    readiness: Callable[[datetime, datetime], str | None]                          # EstateEvidenceService (B4)
+    readiness: Callable[[datetime, datetime], str | None]                          # readiness_of (CH-5a1)
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                    # OUT-D objective store (current)
 
 
@@ -101,7 +101,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     """`lo`/`hi` are the request window, passed unchanged (B-Q7). Findings are read over that window (the selected
     assessment, every lifecycle); work, domain Actions and plans over the 31-day work window ending at `hi`."""
     c = site_code
-    reads = Reads()
+    reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     work_lo = hi - WORK_WINDOW
 
@@ -109,12 +109,12 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     finding_rows = reads.pages("cold_findings", ports.findings, lo, hi, key="items")
     findings_ok = finding_rows is not None
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
-    readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
+    readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
     work_failed = incidents is None or visits is None
-    objective_rows = reads.call("objectives", ports.objectives)
+    objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())

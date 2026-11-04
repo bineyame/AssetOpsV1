@@ -218,25 +218,29 @@ class PostgresThreadSources:
                 if c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
                     return []
                 rows = c.execute(text(OPPORTUNITY_LOOKUP), {"t": tenant_id, "s": [str(x).lower() for x in site_ids],
-                                                            "k": k}).all()
+                                                            "k": k, "kv": k}).all()
         return opportunity_items(rows, from_, to, k, load_thread_lifecycle().close_after)
 
     def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
                day: Any = None, known_at: datetime | None = None, site_id: Any = None,
-               opportunity_window: tuple[datetime, datetime] | None = None) -> dict[str, Any]:
+               opportunity_window: tuple[datetime, datetime] | None = None,
+               visible_at: datetime | None = None) -> dict[str, Any]:
         """CH-2 §5.2 / CH-3 §3, §5: one thread lookup per board, with each Finding's state on the board `day` as of
         `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043). CH-4 §4.4:
         with `site_id` and `opportunity_window` (a mini board's renewable five days), `"opportunities"` holds the
-        Site's opportunity items seen in that window as of `known_at`."""
+        Site's opportunity items seen in that window as of `known_at`. CH5a1-R2 R-1: `known_at` is the board's
+        state cutoff (story time for cold/EV); `visible_at` is the request's own transaction-time `known_at` (None =
+        live, every occurrence visible) and alone bounds which occurrences are seen (`source_known_at`)."""
         opps: list[dict[str, Any]] = []
         if site_id is not None and opportunity_window is not None:
             opps = self.opportunity_threads(tenant_id, [site_id], opportunity_window[0], opportunity_window[1],
-                                            known_at)
-        found = self._lookup(tenant_id, finding_ids, action_ids, day=day, known_at=known_at)
+                                            known_at)  # mini only: its cutoff is the request's (R7)
+        found = self._lookup(tenant_id, finding_ids, action_ids, day=day, known_at=known_at, visible_at=visible_at)
         return {**found, "opportunities": opps}
 
     def _lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
-                day: Any = None, known_at: datetime | None = None) -> dict[str, Any]:
+                day: Any = None, known_at: datetime | None = None,
+                visible_at: datetime | None = None) -> dict[str, Any]:
         from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
         from assetops_backend.chain.lifecycle import fully_checked_days, local_day
         policy = load_thread_lifecycle()
@@ -248,7 +252,8 @@ class PostgresThreadSources:
                 if c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
                     return thread_lookup([])  # a database below 0042 has no threads
                 rows = c.execute(text(LOOKUP), {"t": tenant_id, "f": [str(x).lower() for x in finding_ids],
-                                                "a": [str(x).lower() for x in action_ids]}).all()
+                                                "a": [str(x).lower() for x in action_ids],
+                                                "k": known_at, "kv": visible_at}).all()
                 subjects = {r[1].lower(): (r[8], r[9]) for r in rows if r[0] == "F"}
                 complete: dict[str, Any] = {}
                 measures = sorted({m for mech, _ in subjects.values() for m in policy.measures_for(mech)})
@@ -269,8 +274,9 @@ class PostgresThreadSources:
                             "SELECT CAST(o.thread_id AS text), o.episode_start, s.timezone FROM "
                             "finding_thread_occurrence o JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
                             "WHERE o.tenant_id = :t AND CAST(o.thread_id AS text) = ANY(CAST(:th AS text[]))"
-                            + ("" if known_at is None else " AND coalesce(o.source_known_at, o.joined_at) <= :k")),
-                            {"t": tenant_id, "th": sorted(set(threads.values())), "k": known_at}).all():
+                            # R-1: occurrence visibility is transaction time, bounded by the request only
+                            + ("" if visible_at is None else " AND coalesce(o.source_known_at, o.joined_at) <= :kv")),
+                            {"t": tenant_id, "th": sorted(set(threads.values())), "kv": visible_at}).all():
                         if start is not None and tz:
                             starts.setdefault(tid, []).append(local_day(start, tz))
                     complete = {fid: fully_checked_days(snap, subject, policy.measures_for(mech),

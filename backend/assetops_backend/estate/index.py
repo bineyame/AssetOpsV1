@@ -13,6 +13,7 @@ from typing import Any, Callable
 from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.chain.read import site_cutoff
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     UNKNOWN, not_applicable, site_coverage)
@@ -165,8 +166,9 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "_revision_no": r.get("revision_no"),
                 # CH3-R (COH-13): a cold/EV row's thread state is read at its Site's evidence cutoff (the board's
                 # resolved cutoff for that Site), never later than the estate cutoff.
-                "_cutoff": (None if domain == MINI_GRID or rec is None or rec.cutoff is None
-                            else min(rec.cutoff, scope["k"]))})
+                # CH-5a1 R7 (CH5a1-R C5): the value through the one cutoff rule, `chain/read.py` `site_cutoff`.
+                "_cutoff": (None if domain == MINI_GRID or rec is None
+                            else site_cutoff(domain, None, rec.cutoff, scope["k"]))})
     return per_site, rows
 
 
@@ -392,6 +394,16 @@ class EstateIndexService:
         return body
 
     # --- scope ------------------------------------------------------------------------------------------------
+
+    def site_list(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        """CH-5a1 R2 (CH5a1-R Q3): the summary's Site list: `_scope` only, on the one estate snapshot `scope()`
+        would open, never `_finding_coverage`; so no selection inconsistency (409) can arise from it."""
+        def work(snap: Any) -> dict[str, Any]:
+            scope = self._scope(snap, tenant_id, req, admit)
+            return {"sites": [{"site_id": str(site["site_id"]), "site_code": site["site_code"],
+                               "site_name": site["site_name"]} for site in scope["sites"]],
+                    "known_at": wire_time(scope["k"])}
+        return self._read(work)
 
     def scope(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         def work(snap: Any) -> dict[str, Any]:

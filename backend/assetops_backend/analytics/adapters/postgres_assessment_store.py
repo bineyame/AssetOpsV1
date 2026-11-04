@@ -28,6 +28,7 @@ from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 
 from assetops_contracts.source_envelope_v4 import V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION
 
+from assetops_backend import read_scope
 from assetops_backend.analytics import cold, dispatch_v3, ev
 from assetops_backend.analytics.assessment_worker import DISPATCH_ROLES, DOMAIN as DISPATCH_DOMAIN, input_basis
 from assetops_backend.analytics.dispatch_read import day_window, derive_status
@@ -224,6 +225,10 @@ _LIVE_MINI_JOBS = ("(status IN ('PENDING', 'LEASED') OR (status = 'FAILED' AND N
                    "AND x.selected_at > recompute_job.available_at "
                    "AND x.window_start < recompute_job.window_end AND x.window_end > recompute_job.window_start)))")
 
+
+
+#: the `knowledge_at` placeholder of a live `_window` memo key (CH5a1-R Q12)
+_MEMO_NOW = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 class PostgresAssessmentStore:
     def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None) -> None:
@@ -865,6 +870,17 @@ class PostgresAssessmentStore:
     def _window(self, c: Connection, query: EvidenceQuery, analytic_id: str,
                 basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
                 cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
+        """CH5a-R R1 / CH5a1-R Q10: memoised per request scope (deep-frozen), keyed on every `EvidenceQuery`
+        field plus the analytic, the basis, `cutoff` and `all_jobs`. `knowledge_at` is excluded only when `cutoff`
+        is None: inside one request every live read is the request's "now", and the first read wins (Q12)."""
+        q = query if cutoff is not None else replace(query, knowledge_at=_MEMO_NOW)
+        key = (repr(q), analytic_id, getattr(basis, "__qualname__", repr(basis)), cutoff, all_jobs)
+        return read_scope.memo("assessment._window", lambda: self._window_read(
+            c, query, analytic_id, basis, cutoff=cutoff, all_jobs=all_jobs), key=key)
+
+    def _window_read(self, c: Connection, query: EvidenceQuery, analytic_id: str,
+                     basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
+                     cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
         """`cutoff` (W3-01 q5) keeps only the selection, assessment key heads and jobs recorded at or before it;
         `all_jobs` returns every overlapping job whatever its status, for the caller to reconstruct at the cutoff."""
         w = query.window
@@ -1050,6 +1066,13 @@ class PostgresAssessmentStore:
     def claim_limit_snapshot_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date,
                                 revision_id: UUID | None,
                                 known_at: datetime) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """CH5a1-R Q10: memoised per request scope on its full argument tuple (the connection excluded)."""
+        return read_scope.memo("assessment.claim_limit_snapshot_on", lambda: self._claim_limit_snapshot_on(
+            c, tenant_id, site_id, day, revision_id, known_at), key=(tenant_id, site_id, day, revision_id, known_at))
+
+    def _claim_limit_snapshot_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date,
+                                 revision_id: UUID | None,
+                                 known_at: datetime) -> tuple[dict[str, Any], dict[str, Any] | None]:
         """W3-02 0b: one UTC day's dispatch selection at `known_at` (`select_dispatch_days_on`) and one exact
         revision's detail (`_revision_detail`), both on the caller's connection `c`, with no transaction of its
         own. The detail is not cut off here: the claim-limit read validates its records against `known_at`."""

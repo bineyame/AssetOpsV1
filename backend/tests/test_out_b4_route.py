@@ -32,7 +32,8 @@ class Registry:
 
 
 class Estate:
-    def scope(self, tenant, parsed, admit):  # the estate convention: refused Sites are simply absent
+    # CH-5a1 R2 (CH5a1-R Q3): the summary lists its Sites with `site_list` (the estate `_scope` only), not `scope`.
+    def site_list(self, tenant, parsed, admit):  # the estate convention: refused Sites are simply absent
         return {"sites": [{"site_code": c} for c in SITES if admit(c)]}
 
 
@@ -107,3 +108,36 @@ def test_ev_disclosure_refusal_uses_the_ev_gate_code() -> None:
     assert r.status_code == 403 and r.json()["detail"]["code"] == "EV_SOURCE_DISCLOSURE_FORBIDDEN"
     assert seen[0] == ("EV-LAB-001", T, SITES["EV-LAB-001"].id)
     assert c.get(f"/api/estate/outcome-summary?{WINDOW}").json()["sites"] == ["KOBO-001", "COLD-LAB-001"]
+
+
+def test_mini_accepts_its_own_site_local_day_window() -> None:
+    """CH-5a1 L3 (R6): the board's `window`/self link and the summary's Site window for an Addis mini Site are one
+    Site-local day; the route reads that pair as the local date, keeps a one-UTC-day pair, and refuses the rest."""
+    days: list = []
+
+    class DayService(Service):
+        def board(self, ref, **kw):
+            days.append(kw["day"])
+            return super().board(ref, **kw)
+
+    addis = SimpleNamespace(tenant_id=T, id=uuid4(), site_code="KOBO-ADD", name="KOBO-ADD", site_type="MINIGRID",
+                            timezone="Africa/Addis_Ababa")
+    SITES["KOBO-ADD"] = addis
+    try:
+        app = FastAPI()
+        app.include_router(build_outcome_router(DayService(), Registry(), estate=Estate(), tenant=lambda: T))
+        c = TestClient(app)
+        url = "/api/sites/KOBO-ADD/outcome-board?"
+        assert c.get(url + "from=2026-10-30T21:00:00Z&to=2026-10-31T21:00:00Z").status_code == 200
+        assert c.get(url + "from=2026-10-31T00:00:00Z&to=2026-11-01T00:00:00Z").status_code == 200
+        assert c.get(url + "date=2026-10-31&from=2026-10-30T21:00:00Z&to=2026-10-31T21:00:00Z").status_code == 200
+        assert [d.isoformat() for d in days] == ["2026-10-31"] * 3
+        bad = c.get(url + "date=2026-11-01&from=2026-10-30T21:00:00Z&to=2026-10-31T21:00:00Z")
+        assert (bad.status_code, bad.json()["detail"]["code"]) == (422, "CONFLICTING_WINDOW")
+        bad = c.get(url + "from=2026-10-30T22:00:00Z&to=2026-10-31T22:00:00Z")
+        assert (bad.status_code, bad.json()["detail"]["code"]) == (422, "NOT_ONE_UTC_DAY")
+        # a UTC Site still refuses a non-UTC-midnight pair
+        bad = c.get("/api/sites/KOBO-001/outcome-board?from=2026-10-30T21:00:00Z&to=2026-10-31T21:00:00Z")
+        assert (bad.status_code, bad.json()["detail"]["code"]) == (422, "NOT_ONE_UTC_DAY")
+    finally:
+        del SITES["KOBO-ADD"]
