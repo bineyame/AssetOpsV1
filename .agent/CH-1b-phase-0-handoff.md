@@ -279,3 +279,9 @@ Still to do:
    tools/checks/fixtures/chain_coherence/expected-today.json`; report outbox/consumption counts and drain time vs
    60 s; `chain_clone.py drop ch1b`.
 5. Packet `.agent/review-packet-CH-1b.md` (sections per the dispatch), task status, `git add -f`.
+
+## Phase 3 (done)
+
+Tick tests, scoped producer tests, guards and the L3 clone proof done; packet `.agent/review-packet-CH-1b.md`.
+Fixes this phase: `test_w402_mini_stage_postgres` stage literal (`d69921778`); stages import `load_event_register`
+through composition (`a2bfd73f8`, architecture guard). Clone `ch1b` dropped.
