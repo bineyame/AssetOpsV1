@@ -40,6 +40,9 @@ FAILING = {
     "coh10_thread_occurrence": ("COH-10", KOBO, "week", "f3000000-0000-0000-0000-000000000003"),
     "coh11_action_unlinked": ("COH-11", COLD, "week", A1),
     "coh11_action_link_missing": ("COH-11", COLD, "week", A1),
+    "coh13_lifecycle_disagree": ("COH-13", COLD, DC, F1),
+    "coh14_verified_attention": ("COH-14", COLD, DC, "PROTECT_ASSET:X"),
+    "coh15_earlier_segment": ("COH-15", COLD, "week", A1),
 }
 
 
@@ -343,3 +346,160 @@ def test_coh11_names_an_action_with_no_link_of_its_own() -> None:
     """Review L2: the origin row is threaded and shows the Action, but the Action's own link is absent."""
     found = cc.coh11_actions_linked(cc.Bundle(BUNDLES / "coh11_action_link_missing"))
     assert [f["subject"] for f in found] == [A1] and "no thread link" in found[0]["detail"]
+
+
+def test_lifecycle_bundle_passes_and_compares_pairs() -> None:
+    """CH-3: a lifecycle-stamped bundle with agreeing reads passes; COH-13's compared set is non-empty."""
+    bundle = cc.Bundle(BUNDLES / "clean_lifecycle")
+    assert cc.check(bundle)["findings"] == [] and cc.lifecycle_pairs(bundle) == 2
+    assert cc.coh13_lifecycle_agreement(cc.Bundle(BUNDLES / "clean")) == []  # unstamped: pre-CH-3
+
+
+@pytest.mark.parametrize("hi, lo, ok", [
+    (("OPEN", "2026-10-28"), ("OPEN", "2026-10-28"), True),            # same state both days
+    (("ACTION_IN_HAND", "2026-11-02"), ("OPEN", "2026-10-28"), True),  # hi changed after lo's day
+    (("ACTION_IN_HAND", "2026-11-02"), ("ACTION_IN_HAND", "2026-11-02"), False),  # lo cannot see a later change
+    ((None, None), ("OPEN", "2026-10-28"), False),                    # no state at hi, but one at lo
+])
+def test_coh13_orders_reads_by_their_day(tmp_path: Path, hi: tuple, lo: tuple, ok: bool) -> None:
+    root = tmp_path / "b"
+    shutil.copytree(BUNDLES / "clean_lifecycle", root)
+    board, port = root / "board.day_cold_failure_2026-10-31.json", root / "portfolio.week.p2.json"
+    b, p = json.loads(board.read_text(encoding="utf-8")), json.loads(port.read_text(encoding="utf-8"))
+    for row in b["rows"]:
+        for i in row["issues"]:
+            i["ref"]["thread"].update(state=lo[0], state_effective_day=lo[1])        # board: 31 Oct (lo)
+    p["rows"][0]["thread"].update(state=hi[0], state_effective_day=hi[1], state_day="2026-11-03")
+    board.write_text(json.dumps(b), encoding="utf-8")
+    port.write_text(json.dumps(p), encoding="utf-8")
+    assert (cc.coh13_lifecycle_agreement(cc.Bundle(root)) == []) is ok
+
+
+def test_stamped_bundle_without_the_lifecycle_keys_fails(tmp_path: Path) -> None:
+    """CH-3: the `lifecycle` stamp decides; a dropped `state_day` or `action_segment_no` fails (COH-0 style)."""
+    root = tmp_path / "b"
+    shutil.copytree(BUNDLES / "clean_lifecycle", root)
+    port = root / "portfolio.week.p2.json"
+    p = json.loads(port.read_text(encoding="utf-8"))
+    del p["rows"][0]["thread"]["state_day"], p["rows"][0]["action_segment_no"]
+    port.write_text(json.dumps(p), encoding="utf-8")
+    bundle = cc.Bundle(root)
+    assert [f["subject"] for f in cc.coh13_lifecycle_agreement(bundle)] == ["state_day"]
+    assert [f["subject"] for f in cc.coh15_action_segment(bundle)] == ["action_segment_no"]
+
+
+@pytest.mark.parametrize("name", ["", "CH0", "ch-0", "a" * 21, "x_test", "x; DROP DATABASE assetops", "../x"])
+def test_settle_refuses_non_clone_names_before_any_process(name: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """CH3-R: `settle` ticks only an `assetops_chainclone_*_test` clone; a bad name is refused before a process
+    starts."""
+    import subprocess
+
+    import chain_clone
+
+    def no_process(*_a, **_k):
+        raise AssertionError("settle started a process for a refused name")
+
+    monkeypatch.setattr(subprocess, "Popen", no_process)
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.settle(name)
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.main(["settle", name])
+
+
+def test_settle_env_points_only_at_the_clone() -> None:
+    import chain_clone
+
+    env = chain_clone.settle_env("ch3")
+    assert env["DATABASE_URL"].endswith("/assetops_chainclone_ch3_test")
+    assert env["ASSETOPS_TEST_DATABASE_URL"] == env["DATABASE_URL"]
+    assert chain_clone.TICK[:3] == ("-m", "assetops_backend.scheduling.run", "tick")
+    assert not any(k in env for k in chain_clone.KEY_NAMES)
+
+
+def test_settle_runs_the_comparison_first_and_records_only_the_files_it_created(tmp_path: Path) -> None:
+    """CH3-R M2: settle runs the S2 comparison, then the tick and performance step; it records exactly the files the
+    steps created under var/, and drop's cleanup deletes exactly those, never a file that existed before."""
+    var = tmp_path / "var"
+    old = var / "evidence" / "migration" / "kobo-001" / "old.json"
+    old.parent.mkdir(parents=True)
+    old.write_text("{}", encoding="utf-8")
+    labels = []
+
+    def run(label, argv, env, name):
+        labels.append(label)
+        assert env["DATABASE_URL"].endswith("/assetops_chainclone_t1_test")
+        if label == "s2-comparison":
+            assert argv[:2] == ("-m", "assetops_backend.evidence_migration") and "KOBO-001" in argv
+            (old.parent / "new.json").write_text("{}", encoding="utf-8")
+            (var / "perf" / "deep").mkdir(parents=True)
+            (var / "perf" / "deep" / "x.json").write_text("{}", encoding="utf-8")
+        return 0
+
+    assert chain_clone.settle("t1", var, run) == 0
+    assert labels == ["s2-comparison", "tick", "performance"]
+    record = json.loads(chain_clone.created_record("t1", var).read_text(encoding="utf-8"))
+    assert record["files"] == ["evidence/migration/kobo-001/new.json", "perf/deep/x.json"]
+    assert record["dirs"] == ["perf", "perf/deep"]
+    assert sorted(chain_clone.cleanup("t1", var)) == record["files"]
+    assert old.is_file() and not (old.parent / "new.json").exists() and not (var / "perf").exists()
+    assert not (var / "chainclone_t1").exists()
+    assert chain_clone.cleanup("t1", var) == []
+
+
+def test_cleanup_refuses_a_recorded_path_outside_var(tmp_path: Path) -> None:
+    var = tmp_path / "var"
+    outside = tmp_path / "keep.txt"
+    outside.write_text("x", encoding="utf-8")
+    rec = chain_clone.created_record("t2", var)
+    rec.parent.mkdir(parents=True)
+    rec.write_text(json.dumps({"files": ["../keep.txt"], "dirs": []}), encoding="utf-8")
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.cleanup("t2", var)
+    assert outside.is_file()
+
+
+@pytest.mark.parametrize("name", ["../x", "polish_full", "demo3_full"])
+def test_settle_refuses_a_non_clone_name_before_any_step(name: str, tmp_path: Path) -> None:
+    ran = []
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.settle(name, tmp_path, lambda *a: ran.append(a) or 0)
+    assert ran == [] and not any(tmp_path.iterdir())
+
+
+def test_coh14_verified_line_prefix_is_the_boards_thread_lines() -> None:
+    from assetops_backend.site_outcomes import board
+    assert board.THREAD_MONITORING.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert board.THREAD_CLOSED.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert not board.THREAD_RECURRED.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert not board.THREAD_BEFORE.startswith(cc.VERIFIED_LINE_PREFIX)
+
+
+def _thread_level(verdict: str):
+    """The clean bundle's cold PROTECT_ASSET row as a board day after the Finding left the day: no MOVES Finding, the
+    verified thread-level line in the subline, and the given verdict on its primary outcome."""
+    def edit(body: dict) -> None:
+        row = next(r for r in body["rows"] if r["category"] == "PROTECT_ASSET")
+        row["issues"] = [i for i in row["issues"] if not (i.get("kind") == "FINDING" and i.get("role") == "MOVES")]
+        row["subline"] = "Fix verified, monitoring (ACT-001) · 7 more fully checked days to close"
+        for o in row["outcomes"]:
+            o["state"], o["reason"] = (verdict, "PRIMARY_FINDING_OPEN" if verdict == "NEEDS_ATTENTION" else None)
+    return edit
+
+
+def test_coh14_judges_a_row_by_its_thread_level_verified_line(tmp_path: Path) -> None:
+    """Fix round 2 (CH3-R M3): a row with no MOVES Finding but a verified thread's line is in COH-14's compared set;
+    NEEDS_ATTENTION for an open primary Finding there fails, ON_TRACK passes."""
+    name = "board.day_cold_failure_2026-10-31.json"
+    bad = _edited(tmp_path / "bad", "clean_lifecycle", **{name: _thread_level("NEEDS_ATTENTION")})
+    assert len(list(cc.coh14_rows(bad))) == 1
+    assert [k for k in keys(cc.check(bad)) if k[0] == "COH-14"] == [("COH-14", COLD, DC, "PROTECT_ASSET:" + k)
+                                                                    for k in _protect_keys(bad)]
+    good = _edited(tmp_path / "good", "clean_lifecycle", **{name: _thread_level("ON_TRACK")})
+    assert len(list(cc.coh14_rows(good))) == 1
+    assert [k for k in keys(cc.check(good)) if k[0] == "COH-14"] == []
+
+
+def _protect_keys(bundle: cc.Bundle) -> list[str]:
+    board = bundle.get(f"board.{DC}")
+    row = next(r for r in board["rows"] if r["category"] == "PROTECT_ASSET")
+    return [o["key"] for o in row["outcomes"]]

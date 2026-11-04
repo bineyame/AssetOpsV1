@@ -332,7 +332,7 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert full["summary"]["evidence_gap_site_count"] == len({s for g in evidence["gaps"] for s in g["site_ids"]})
     # B4: no selected Action in the 10-06 window; complete applicable Action coverage gives zero counts.
     assert full["progress"]["rows"] == [] and full["progress"]["pending_trial_count"] == 0
-    assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"] is None
+    assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"]["state"] == "NOT_CREDITED"
     assert full["opportunity"] == {"state": "UNSUPPORTED", "finding_id": None, "scenario_amount": None,
                                    "headroom": None, "destination": None}
     # Footer: the first eligible EV gross-tariff line by (site_code_key, site_id, line_key).

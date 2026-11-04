@@ -157,7 +157,7 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
         assert (pending["progress"]["pending_trial_count"], pending["progress"]["verified_resolution_count"]) == (1, 0)
         assert pending["summary"]["accepted_action_count"] == 1 and pending["status"] == "HISTORICAL"
         assert pending["progress"]["completed_activity_count"] is None
-        assert pending["progress"]["recovered_value"] is None
+        assert pending["progress"]["recovered_value"]["state"] == "NOT_CREDITED"  # CH-3 OD-3
         # r1b2 R10: the F01 origin revision is not a selected Finding revision in the November window. No window of
         # this chain selects both: the Action is created 11-01 and only the one-day 10-06 window selects F01's
         # revisions; `[2026-10-06,2026-11-03)` leaves the mini-grid Finding coverage UNKNOWN (unassessed days), so

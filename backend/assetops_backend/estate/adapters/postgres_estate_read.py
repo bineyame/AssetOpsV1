@@ -326,14 +326,34 @@ class EstateSnapshot:
     def actions(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> dict[str, Any]:
         return self._o.actions.site_window_on(self._c, t, s, from_, to, k)
 
-    def threads(self, t: UUID, finding_ids: list[Any], action_ids: list[Any]) -> dict[str, Any]:
+    def threads(self, t: UUID, finding_ids: list[Any], action_ids: list[Any], *, day: Any = None,
+                known_at: datetime | None = None, day_at: datetime | None = None) -> dict[str, Any]:
         """CH-2 (build sheet §5.1, P3): one tenant-wide query per request for every listed Finding's thread and
         every listed Action's thread. A database below 0042 has no thread tables and reads as no threads."""
         if not finding_ids and not action_ids or self._c.execute(text(
                 "SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
             return thread_lookup([])
+        from assetops_backend.chain.composition import thread_lifecycle_policy
+        # CH-3 §5: each thread's state on its Site's local day holding `day_at` (else on `day`) as of the cutoff.
         return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
-            "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all())
+            "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all(),
+            day=day, known_at=known_at, day_at=day_at, close_after=thread_lifecycle_policy().close_after)
+
+    def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:
+        """CH-3 §5 (I-24, OD-3): the latest stored trial cost check of each listed verification outcome (read only;
+        `{outcome_id: {state, currency}}`). CH3-R: the per-kWh rate is not read as money, and no priced total is
+        stored, so the money rule credits nothing. A database without the table reads as none."""
+        if not outcome_ids or self._c.execute(text(
+                "SELECT to_regclass('trial_cost_comparison_revision') IS NULL")).scalar_one():
+            return {}
+        rows = self._c.execute(text(
+            "SELECT DISTINCT ON (verification_outcome_id) CAST(verification_outcome_id AS text) AS outcome_id, state, "
+            "result -> 'price' ->> 'currency' AS currency "
+            "FROM trial_cost_comparison_revision WHERE tenant_id = :t AND CAST(verification_outcome_id AS text) = "
+            "ANY(CAST(:o AS text[])) ORDER BY verification_outcome_id, revision_no DESC"),
+            {"t": t, "o": [str(x).lower() for x in outcome_ids]}).mappings().all()
+        return {r["outcome_id"].lower(): {"state": r["state"], "currency": r["currency"]}
+                for r in rows}
 
     def action_basis(self, t: UUID, s: UUID, action_ids: list[Any]) -> dict[str, dict[str, Any]]:
         """D3: each Action's stored primary assessment, Foundation revision, basis assessments, basis evidence and

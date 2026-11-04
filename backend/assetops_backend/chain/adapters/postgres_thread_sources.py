@@ -42,6 +42,41 @@ _UNLINKED = (
     "WHERE thread_id IS NULL AND tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) "
     "ORDER BY kind, id")
 
+# CH-3 §4: the lifecycle causes of one Site (SELECT only).
+_CHANGE_OF = ("(SELECT c.effective_from FROM action_policy_change c WHERE c.tenant_id = {a}.tenant_id "
+              "AND c.action_id = {a}.action_id ORDER BY c.recorded_at DESC, c.id DESC LIMIT 1)")
+_ACTION_EVENTS = (
+    "SELECT e.id, e.action_id, e.kind, e.recorded_at, " + _CHANGE_OF.format(a="e") + " AS effective_from "
+    "FROM action_event e WHERE e.tenant_id = :t AND e.site_id = :s "
+    "AND e.kind IN ('ACCEPTED','APPLIED','RESOLUTION_WITHDRAWN') ORDER BY e.recorded_at, e.id")
+_OUTCOMES = (
+    "SELECT o.id, o.action_id, o.outcome, o.recorded_at, p.later_end, " + _CHANGE_OF.format(a="o") +
+    " AS effective_from, EXISTS (SELECT 1 FROM verification_outcome x WHERE x.supersedes_outcome_id = o.id) "
+    "AS superseded FROM verification_outcome o JOIN verification_plan p ON p.id = o.plan_id "
+    "WHERE o.tenant_id = :t AND o.site_id = :s ORDER BY o.recorded_at, o.id")
+_DOMAIN_ACTIONS = "SELECT id, recorded_at FROM domain_action WHERE tenant_id = :t AND site_id = :s"
+_CASE_COMPLETIONS = (
+    "SELECT DISTINCT w.id, l.action_id, w.occurred_at, w.recorded_at FROM domain_action_case_link l "
+    "JOIN work_event w ON w.tenant_id = l.tenant_id AND w.site_id = l.site_id AND w.case_id = l.case_id "
+    "AND w.kind = 'COMPLETE' WHERE l.tenant_id = :t AND l.site_id = :s")
+_FINDING_LIFECYCLE = (
+    "SELECT DISTINCT ON (r.finding_id) CAST(r.finding_id AS text) AS finding_id, r.lifecycle, r.id AS revision_id, "
+    "r.created_at FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+    "ORDER BY r.finding_id, r.created_at DESC, r.id DESC")
+_SNAPSHOTS = (
+    "SELECT DISTINCT ON (measure, local_day, subject_kind, subject_ref) local_day, subject_kind, subject_ref, "
+    "measure, grade FROM site_day_snapshot WHERE tenant_id = :t AND site_id = ANY(CAST(:sites AS uuid[])) "
+    "AND measure = ANY(CAST(:m AS text[])) ORDER BY measure, local_day, subject_kind, subject_ref, revision DESC")
+
+
+class _Snap:
+    __slots__ = ("site_id", "local_day", "subject_kind", "subject_ref", "measure", "grade")
+
+    def __init__(self, r: Any) -> None:
+        for k in self.__slots__:
+            setattr(self, k, r.get(k))
+
+
 class PostgresThreadSources:
     def __init__(self, database_url: str | None) -> None:
         self._database_url = database_url
@@ -96,11 +131,40 @@ class PostgresThreadSources:
             "WHERE tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) ORDER BY 5, 1",
             {"t": tenant_id, "s": None if site_id is None else str(site_id)})
 
+    def lifecycle_inputs(self, tenant_id: UUID, site_id: UUID) -> dict[str, Any]:
+        """CH-3 §4: everything `run_lifecycle` reads for one Site, in one READ ONLY transaction."""
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+        measures = sorted({m for ms in load_thread_lifecycle().clean_day_measures.values() for m in ms})
+        p = {"t": tenant_id, "s": site_id}
+        with self._connect().connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                tz, now, site_type = c.execute(text(
+                    "SELECT s.timezone, now(), s.site_type FROM site s WHERE s.tenant_id = :t AND s.id = :s"), p).one()
+
+                def rows(sql: str) -> list[dict[str, Any]]:
+                    return [dict(r) for r in c.execute(text(sql), p).mappings()]
+
+                out = {"tz": tz, "now": now, "site_type": site_type, "action_events": rows(_ACTION_EVENTS), "outcomes": rows(_OUTCOMES),
+                       "domain_actions": rows(_DOMAIN_ACTIONS), "case_completions": rows(_CASE_COMPLETIONS),
+                       "finding_lifecycle": {r["finding_id"].lower(): r for r in rows(_FINDING_LIFECYCLE)},
+                       "snapshots": []}
+                if not c.execute(text("SELECT to_regclass('site_day_snapshot') IS NULL")).scalar_one():
+                    out["snapshots"] = [_Snap(dict(r)) for r in c.execute(
+                        text(_SNAPSHOTS), {"t": tenant_id, "sites": [str(site_id)], "m": measures}).mappings()]
+        return out
+
     def opportunity_labels(self, tenant_id: UUID) -> dict[str, str]:
         rows = self._rows("SELECT id, public_no FROM mini_opportunity WHERE tenant_id = :t", {"t": tenant_id})
         return {str(r["id"]): f"OPP-{int(r['public_no']):06d}" for r in rows}
 
-    def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any]) -> dict[str, Any]:
+    def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
+               day: Any = None, known_at: datetime | None = None) -> dict[str, Any]:
+        """CH-2 §5.2 / CH-3 §3, §5: one thread lookup per board, with each Finding's state on the board `day` as of
+        `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043)."""
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+        from assetops_backend.chain.lifecycle import fully_checked_days, local_day
+        policy = load_thread_lifecycle()
         if not finding_ids and not action_ids:
             return thread_lookup([])
         with self._connect().connect() as c:
@@ -110,4 +174,31 @@ class PostgresThreadSources:
                     return thread_lookup([])  # a database below 0042 has no threads
                 rows = c.execute(text(LOOKUP), {"t": tenant_id, "f": [str(x).lower() for x in finding_ids],
                                                 "a": [str(x).lower() for x in action_ids]}).all()
-        return thread_lookup(rows)
+                subjects = {r[1].lower(): (r[8], r[9]) for r in rows if r[0] == "F"}
+                complete: dict[str, Any] = {}
+                measures = sorted({m for mech, _ in subjects.values() for m in policy.measures_for(mech)})
+                if subjects and measures and not c.execute(
+                        text("SELECT to_regclass('site_day_snapshot') IS NULL")).scalar_one():
+                    snap = [_Snap(dict(r)) for r in c.execute(text(
+                        "SELECT DISTINCT ON (measure, local_day, subject_kind, subject_ref) local_day, subject_kind, "
+                        "subject_ref, measure, grade FROM site_day_snapshot WHERE tenant_id = :t AND site_id IN "
+                        "(SELECT site_id FROM finding_thread_occurrence WHERE CAST(finding_id AS text) = "
+                        "ANY(CAST(:f AS text[]))) AND measure = ANY(CAST(:m AS text[]))"
+                        + ("" if known_at is None else " AND computed_at <= :k") +
+                        " ORDER BY measure, local_day, subject_kind, subject_ref, revision DESC"),
+                        {"t": tenant_id, "f": list(subjects), "m": measures, "k": known_at}).mappings()]
+                    # CH3-R: one "fully checked day" rule with the close rule (no occurrence of the thread started)
+                    threads = {r[1].lower(): str(r[2]) for r in rows if r[0] == "F"}
+                    starts: dict[str, list[Any]] = {}
+                    for tid, start, tz in c.execute(text(
+                            "SELECT CAST(o.thread_id AS text), o.episode_start, s.timezone FROM "
+                            "finding_thread_occurrence o JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
+                            "WHERE o.tenant_id = :t AND CAST(o.thread_id AS text) = ANY(CAST(:th AS text[]))"
+                            + ("" if known_at is None else " AND coalesce(o.source_known_at, o.joined_at) <= :k")),
+                            {"t": tenant_id, "th": sorted(set(threads.values())), "k": known_at}).all():
+                        if start is not None and tz:
+                            starts.setdefault(tid, []).append(local_day(start, tz))
+                    complete = {fid: fully_checked_days(snap, subject, policy.measures_for(mech),
+                                                        starts.get(threads[fid], ()))
+                                for fid, (mech, subject) in subjects.items()}
+        return thread_lookup(rows, day=day, known_at=known_at, complete=complete, close_after=policy.close_after)

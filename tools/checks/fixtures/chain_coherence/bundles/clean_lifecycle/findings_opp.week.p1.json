@@ -1,0 +1,12 @@
+{
+ "next_cursor": null,
+ "rows": [
+  {
+   "finding_id": "f3000000-0000-0000-0000-000000000003",
+   "lens_flags": [
+    "OPPORTUNITY"
+   ],
+   "site_code": "KOBO-001"
+  }
+ ]
+}

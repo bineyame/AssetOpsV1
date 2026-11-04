@@ -1866,7 +1866,9 @@
     "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim.",
     "trial_hours": {
      "after_seconds": 0,
-     "before_seconds": 2700
+     "before_seconds": 2700,
+     "later_end": "2026-11-02T09:00:00+00:00",
+     "later_start": "2026-11-02T08:00:00+00:00"
     }
    }
   },

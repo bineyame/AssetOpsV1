@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from assetops_backend.outcomes import status
+from assetops_backend.outcomes import credit, status
 from assetops_backend.site_outcomes import board, cold, ev, mini
 from assetops_backend.site_outcomes.board import assemble
 
@@ -71,6 +71,13 @@ def _constants() -> list[str]:
     copy += list(mini.COPY) + list(cold.COPY) + list(ev.COPY) + [board.NOT_LOADED_LINK_SUFFIX]
     copy += [board.COST_NOT_CREDITED, board.COST_CHANGE.format(amount="0.042", currency="USD"),
              board.COST_NO_CHANGE]  # POLISH PA-1 L-1
+    # CH-3 §5: the four thread lines (formatted), the I-11 scope line and the Portfolio's not-credited money text
+    copy += [board.THREAD_BEFORE.format(e="1 Nov")
+             + board.THREAD_AFTER_JUDGED.format(state_label=status.STATE_LABEL[status.ON_TRACK], day="3 Nov"),
+             board.THREAD_BEFORE.format(e="1 Nov") + board.THREAD_AFTER_NOT_JUDGED.format(e="1 Nov"),
+             board.THREAD_MONITORING.format(code="ACT-001", k=7), board.THREAD_CLOSED.format(code="ACT-001", n=7),
+             board.THREAD_RECURRED.format(day="3 Nov", code="ACT-001"),
+             board.TRIAL_SCOPE.format(start="10:00", end="11:00", day="1 Nov"), credit.MONEY_NOT_CREDITED]
     return [c.strip(" ·") for c in copy]
 
 
