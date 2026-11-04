@@ -184,3 +184,27 @@ def test_estate_claims_callable_resolves_codes_and_reads_one_request() -> None:
     assert seen == [("t", None)] and set(out.threads) == {"KOBO-001"}
     assert out.claims["count.opportunities"].value == 1
     assert CL.EstateClaims(lambda: None, lambda: None, lambda c: None)("t", [], _LO, _HI, None) is None
+
+
+# ---- R1 (§B14 Q5): `chain.read.reduce_action_rows` ----------------------------------------------------------
+
+def test_action_rows_reduce_to_the_workflow_label_keys() -> None:
+    from assetops_backend.chain.read import reduce_action_rows
+    from assetops_backend.estate.portfolio import workflow_label
+    t = lambda d, h=0: _dt(2026, 10, d, h, tzinfo=_tz.utc)  # noqa: E731
+    ev = lambda i, a, kind, at, **kw: {"id": i, "action_id": a, "kind": kind, "recorded_at": at,  # noqa: E731
+                                       "failure_code": None, **kw}
+    raw = {"actions": ({"id": "A1"}, {"id": "a2"}, {"id": "a3"}),
+           "events": (ev("e1", "a1", "ACCEPTED", t(1)), ev("e2", "a1", "APPLIED", t(2)),
+                      ev("e3", "a1", "RESOLVED", t(5), verification_outcome_id="o1",
+                         payload={"outcome": "VERIFIED"}),
+                      ev("e4", "a2", "ACCEPTED", t(1)), ev("e5", "a2", "APPLIED", t(2))),
+           "plans": ({"action_id": "a2", "later_start": t(3), "later_end": t(9)},),
+           "outcomes": ({"id": "O1", "source_class": "REGISTERED_SIMULATION"},)}
+    rows = {r["action_id"]: r for r in reduce_action_rows(raw, t(4))}
+    assert set(rows) == {"A1", "a2"}  # a3 has no event by k: absent (the board marks it ACTION_ROW_MISSING)
+    assert rows["A1"]["resolution_state"] == "RESOLVED" and rows["A1"]["verification_outcome"] == "VERIFIED"
+    assert rows["A1"]["_raw"]["_source_class"] == "REGISTERED_SIMULATION"
+    assert rows["a2"]["_raw"]["_verification_window"] is True and rows["a2"]["_raw"]["_source_class"] is None
+    assert workflow_label(rows["A1"]) == "Verified" and workflow_label(rows["a2"]) != "Verified"
+    assert reduce_action_rows(raw, t(10))[1]["_raw"]["_verification_window"] is False  # the window closed

@@ -5,8 +5,9 @@
                                                      cold and EV `from`/`to` at most 31 days; `known_at`
     GET /api/estate/chain                            the estate summary's scope and Site set
                                                      (`outcome_api.estate_sites`)
-    GET /api/sites/{site_code}/threads/{thread_id}   one thread of this Site at `known_at`; another Site's thread,
-                                                     or an unknown id, is 404 THREAD_NOT_FOUND
+    GET /api/sites/{site_code}/threads/{thread_id}   one thread of this Site, its state the last visible event at the
+                                                     board's cutoff (cold/EV: optional `from`/`to`, CH5a2b-R Q11);
+                                                     another Site's thread, or an unknown id, is 404 THREAD_NOT_FOUND
 
 `outcomes` (Site) and `rows` (estate) are the board composition's own rows, so a chain body and the board or the
 summary it sits beside cannot disagree. The count claims (`counts`, `sites[].threads`) come from the one
@@ -139,6 +140,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
     def _thread(site_code: str, thread_id: str, request: Request) -> dict[str, Any]:
         ref = board_site(admitted, registry, site_code, "Site thread", request)
         known_at = _instant(request.query_params, "known_at")
+        _, lo, hi, _ = board_window(ref, request.query_params)  # CH5a2b-R Q11: optional from/to (cold/EV)
         chain_reader = opened(ref)
         try:
             tid = str(UUID(thread_id)).lower()
@@ -147,11 +149,14 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         try:
             req = chain_reader.request(ref.tenant_id, known_at)
             rows = req.threads(ref.site_id) if tid is not None else {}
+            # Q11 (review L3): the board's one cutoff rule (`cold_ev_cutoff` for cold/EV); the state is the last
+            # visible event at that cutoff.
+            cutoff = service.thread_cutoff(ref, lo=lo, hi=hi, known_at=known_at) if rows else known_at
             body = None if tid is None else site_chain.thread_detail(
-                rows, tid, site=ref.site_code, domain=ref.domain, tz=ref.timezone, cutoff=known_at)
+                rows, tid, site=ref.site_code, domain=ref.domain, tz=ref.timezone, cutoff=cutoff)
             if body is not None:
                 body["actions"] = site_chain.actions_of(rows, {tid}, site=ref.site_code, tz=ref.timezone,
-                                                        cutoff=known_at,
+                                                        cutoff=cutoff,
                                                         verification=_verification(req, ref, rows, {tid}))
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error

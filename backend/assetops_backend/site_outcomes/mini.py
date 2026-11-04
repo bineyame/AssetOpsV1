@@ -25,7 +25,7 @@ from assetops_backend.chain import refs
 from assetops_backend.chain.vocabulary import provenance_suffix
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
-from assetops_backend.estate.portfolio import action_for, workflow_label
+from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.display_code import display_code
@@ -119,8 +119,9 @@ FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
                  "NO_LONGER_SUPPORTED": "Extra generator time no longer supported by the latest check",
                  "MERGED": "Generator support review: joined into an earlier finding"}
 FINDING_TITLE_FALLBACK = "Generator support review"
-#: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
-ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
+#: Addendum 3 L3, CH5a2b-R Q4: the diagnostics marker for an Action the Action index returned but `action_rows`
+#: did not (never on the wire).
+ACTION_ROW_MISSING = "ACTION_ROW_MISSING"
 
 #: OUT-D U4: the objective actual texts that carry no number (the numbered ones are templates in `mini_readings`).
 MG1_ACTUAL = "sales not recorded"
@@ -188,7 +189,10 @@ class MiniPorts:
     chain_day: Callable[[tuple[date, ...], tuple[date, ...]], Any]
     chain_findings: Callable[[datetime, datetime], Any]                          # `ChainRequest.findings`
     findings_settled: Callable[[], bool]                                         # R8
-    estate: Callable[[datetime, datetime, datetime, datetime], dict[str, Any]]   # day lo/hi, work lo/hi (add. 5 #2)
+    #: CH-5a2b R1: `ChainRequest.placement_facts(revision_ids)` and `ChainRequest.action_rows()` (the estate
+    #: snapshot read they replace is gone from the board).
+    placement_facts: Callable[[list[str]], Any]
+    action_rows: Callable[[], Any]
     action_index: Callable[[datetime, datetime, str | None], dict[str, Any]]     # actions/site_index.py:160
     action_facts: Callable[[list[str]], Any]                                     # `ChainRequest.action_facts` (C6)
     #: `ChainRequest.money_head(finding_id, revision_id, is_latest, source_open, settled)` (CH5a1-R Q5).
@@ -211,7 +215,7 @@ class MiniComposition:
     read_state: str                                # AVAILABLE | PARTIAL
     failed: tuple[str, ...]                        # port names that refused or failed
     diagnostics: tuple[tuple[str, str], ...]       # unresolved (holder id, Finding id) links and (Action id,
-    #                                                ESTATE_ROW_MISSING); never on the wire
+    #                                                ACTION_ROW_MISSING); never on the wire
     window: dict[str, datetime]                    # the overview day {from, to}
     timezone: str | None                           # the Site zone used for local dates, None = UTC fallback
     #: B-Q27: per category, the Portfolio card's short value ("{low}–{high} kW unused"); mini Grow only.
@@ -366,16 +370,6 @@ def not_available(key: str, label: str, link_ref: dict[str, Any] | None = None) 
 
 # ---------------------------------------------------------------- composer
 
-def estate_bounds(day: date) -> tuple[datetime, datetime, datetime, datetime]:
-    """The kept estate read's bounds (§A4: kept in CH-5a1, CH-5a2 B3 replaces it): the estate window rule takes only
-    UTC-midnight bounds of at most 31 days (`estate/scope.py` `check_window`), so the read stays on the UTC day `D`
-    and the 31 UTC days ending with it, exactly as before R6. Labels and confidence join by id, so the local board
-    day (R6) reads the same estate rows."""
-    lo = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
-    hi = lo + timedelta(days=1)
-    return lo, hi, hi - WORK_WINDOW, hi
-
-
 def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str | None) -> MiniComposition:
     """`day` is the Site-local board day (R6: `selected_day` or `db_today()` read as the Site-local date; the window
     is `[local 00:00 D, local 00:00 D+1)` as UTC instants); `site_timezone` is the zone the route's Site lookup
@@ -397,7 +391,6 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     # R5 / R8 / Q9: one snapshot read over every Site-local day of the work window; readiness on the board day.
     day_facts = reads.call("chain_day", ports.chain_day, local_days(work_lo, end, site_timezone), (day,))
     readiness = None if day_facts is None else day_facts.readiness
-    estate = reads.call("estate", ports.estate, *estate_bounds(day))  # Findings: the day; Actions: 31 days
     heads = reads.call("chain_findings", ports.chain_findings, work_lo, end)
     settled_findings = reads.call("findings_settled", ports.findings_settled)
     findings_ok = heads is not None and bool(settled_findings)
@@ -413,8 +406,12 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     sales = _productive_sales(reads, ports, c, start, end)
     month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
-    findings = _findings(heads or (), estate, c, start, end, work_lo)
-    actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c, site_timezone)
+    # CH-5a2b R1 (§B14 Q3): the chip's placement facts for the board-day heads only; the labels' Action rows.
+    day_ids = [str(h.revision_id) for h in heads or () if _meets(h, start, end)]
+    placements = reads.call("placement_facts", ports.placement_facts, day_ids) if day_ids else {}
+    chain_actions = reads.call("action_rows", ports.action_rows) if action_rows else ()
+    findings = _findings(heads or (), placements, c, start, end, work_lo)
+    actions, has_change, missing_rows = _actions(reads, ports, action_rows or (), chain_actions, c, site_timezone)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
     # CH5a1-R Q2: `base` = the source gate, the settled board day and a dispatch read (CLOSED was the gate).
@@ -523,7 +520,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
         else protect_clear(reserve)})
     failed = tuple(reads.failed)
-    diagnostics = unresolved_links(facts) + tuple((aid, ESTATE_ROW_MISSING) for aid in missing_estate)
+    diagnostics = unresolved_links(facts) + tuple((aid, ACTION_ROW_MISSING) for aid in missing_rows)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
                            {"from": start, "to": end}, zone_name if tz is not None else None,
                            {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {})
@@ -641,24 +638,33 @@ def _productive_month(reads: Reads, ports: MiniPorts, users: list[dict[str, Any]
 _dispatch_minutes = dispatch_minutes
 
 
-def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
+def _meets(head: Any, start: datetime, end: datetime) -> bool:
+    """`in_window`: the head's episode intersects the board day `[start, end)`."""
+    lo, hi = utc(head.episode_start), utc(head.episode_end)
+    return lo is not None and lo < end and (hi is None or hi > start)
+
+
+def _findings(rows: Any, placements: Any, c: str, start: datetime,
               end: datetime, work_lo: datetime | None = None) -> tuple[FindingFact, ...]:
     """Every Finding head over the work window (`ChainRequest.findings`, the index's head rule), closed ones included
-    (M1b). `in_window` = the episode intersects the board day. Confidence: `place(...)` over the estate row of the
-    same revision (addendum 2 item 3)."""
-    estate_rows = {str(r["finding_revision_id"]): r for r in (estate or {}).get("findings") or ()}
-    estate_actions = list((estate or {}).get("actions") or ())
-    site_cov = (estate or {}).get("site_cov") or {}
+    (M1b). `in_window` = the episode intersects the board day. Confidence (CH-5a2b R1, §B14 Q1/Q3): `place(...)`
+    over the revision's chain placement facts (source provenance state, lifecycle, `recurs_after`), for the board-day
+    heads only; None when the facts are missing or their read failed. By F1 the chip reads only the source state
+    and the lifecycle (pinned by `test_cc_placement`), so no consequence, Action or coverage is passed."""
     out = []
     for r in rows:
         lo, hi = utc(r.episode_start), utc(r.episode_end)
-        in_window = lo is not None and lo < end and (hi is None or hi > start)
+        in_window = _meets(r, start, end)
         confidence = None
-        er = estate_rows.get(str(r.revision_id)) if estate is not None else None
-        if er is not None:
+        facts = (placements or {}).get(str(r.revision_id).lower()) if in_window else None
+        if facts is not None:
+            row = {"lifecycle": r.lifecycle, "source_provenance": {"state": facts.get("source_state")},
+                   "_recurs_after": facts.get("recurs_after_finding_id"),
+                   "_recurs_after_title": facts.get("recurs_after_title"), "_transition": r.transition,
+                   "_episode_end": r.episode_end}
             try:
-                confidence = place(er, action_for(er, estate_actions), site_cov, None).confidence
-            except Exception:  # noqa: BLE001 - an unselectable Action leaves the chip null, never the board
+                confidence = place(row, None, {}, None).confidence
+            except Exception:  # noqa: BLE001 - a malformed fact leaves the chip null, never the board
                 confidence = None
         title = FINDING_TITLE.get(str(r.lifecycle), FINDING_TITLE_FALLBACK)
         out.append(FindingFact(str(r.finding_id), str(r.revision_id), title, FINDING_MECHANISM, r.lifecycle,
@@ -669,12 +675,13 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
     return tuple(out)
 
 
-def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
+def _actions(reads: Reads, ports: MiniPorts, rows: Any, chain_rows: Any,
              c: str, site_timezone: str | None = None) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
-    """Action index rows; the workflow label from the estate Action of the same id fed to `workflow_label`
-    unchanged (addendum 2 item 2); verification and the Foundation change from `action_facts` (CH-5a1 C6: one
-    verification summary per Action, one change query for all)."""
-    by_id = {str(a["action_id"]): a for a in (estate or {}).get("actions") or ()}
+    """Action index rows; the workflow label from the chain Action row of the same id (`ChainRequest.action_rows`,
+    CH-5a2b R1) fed to `workflow_label` unchanged (addendum 2 item 2); verification and the Foundation change from
+    `action_facts` (CH-5a1 C6: one verification summary per Action, one change query for all). `chain_rows` None
+    means the `action_rows` read failed."""
+    by_id = {str(a["action_id"]).lower(): a for a in chain_rows or ()}
     out, has_change, missing = [], False, []
     rows = list(rows)
     facts = reads.call("action_facts", ports.action_facts, [str(r["action_id"]) for r in rows]) if rows else ()
@@ -684,12 +691,12 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
         event_id = str((r.get("selected_event") or {}).get("id") or "")
         state = r.get("state") or {}
         resolution = state.get("resolution") or {}
-        estate_action = by_id.get(aid)
-        label = NOT_LOADED if estate is None or estate_action is None else workflow_label(estate_action)
-        if estate is not None and estate_action is None:  # addendum 3 L3: text and notice never disagree
+        chain_action = by_id.get(aid.lower())
+        label = NOT_LOADED if chain_rows is None or chain_action is None else workflow_label(chain_action)
+        if chain_rows is not None and chain_action is None:  # addendum 3 L3: text and notice never disagree
             missing.append(aid)
-            if "estate" not in reads.failed:
-                reads.failed.append("estate")
+            if "action_rows" not in reads.failed:
+                reads.failed.append("action_rows")
         is_open = label not in CLOSED_LABELS if label != NOT_LOADED else resolution.get("state") not in (
             "RESOLVED", "RESOLUTION_WITHDRAWN")
         fact = by_fact.get(aid.lower())

@@ -128,8 +128,13 @@ def build_chain_reader(database_url: str | None, *, consequences: Any = None,
     from assetops_backend.chain.read import ChainReader
     from assetops_backend.site_overview.read import stored_source
 
+    from assetops_backend.actions.composition import build_action_store
+    from assetops_backend.evidence.composition import build_link_rows_many_reader, build_link_rows_reader
+
     store = PostgresSnapshotStore(database_url)
-    port = PostgresChainRead(database_url, snapshots=SnapshotReader(store))
+    actions = build_action_store(database_url)  # CH-5a2b R1: its `site_window_on`, on the chain read connection
+    port = PostgresChainRead(database_url, snapshots=SnapshotReader(store), link_rows=build_link_rows_reader(),
+                             link_rows_many=build_link_rows_many_reader(), action_window=actions.site_window_on)
 
     money = None
     if consequences is not None:
@@ -141,6 +146,7 @@ def build_chain_reader(database_url: str | None, *, consequences: Any = None,
     def dispose() -> None:
         port.dispose()
         store.dispose()
+        getattr(actions, "dispose", lambda: None)()
 
     return ChainReader(port, verification=verification, money=money), dispose
 

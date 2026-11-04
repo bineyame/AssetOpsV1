@@ -8,7 +8,7 @@ Every value handed out is frozen (`FindingHead` dataclasses, tuples, a `MappingP
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 from uuid import UUID
@@ -17,6 +17,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from assetops_backend.chain.read import FindingHead
+from assetops_backend.evidence.public_provenance import (LinkRowsReads, PublicProvenance, estate_projection,
+                                                         finding_row_selection)
 
 #: §A3 Finding heads (CH5a1-R Q6, the finding index's head rule): the latest revision at `k`, merged-away Findings
 #: excluded, the index's domain and analytic only, occurrences visible at `k`, the episode intersecting `[lo, hi)`.
@@ -95,17 +97,54 @@ SELECT max(decided_at) FROM ingestion_disposition
  WHERE tenant_id = :t AND site_id = :s AND (CAST(:k AS timestamptz) IS NULL OR decided_at <= CAST(:k AS timestamptz))
 """)
 
+#: CH-5a2b R1 (§B14 Q1/Q2) `placement_facts`: per selected Finding revision, its cited evidence ids (the lineage
+#: `finding_revision_evidence`, as `coverage.py` reads it) and its Finding's `recurs_after` id and title (the latest
+#: revision's title at `k`, the index head title).
+_PLACEMENT = text("""
+SELECT CAST(r.id AS text) AS revision_id,
+       coalesce((SELECT array_agg(CAST(e.evidence_id AS text) ORDER BY e.evidence_id) FROM finding_revision_evidence e
+                  WHERE e.tenant_id = r.tenant_id AND e.site_id = r.site_id AND e.finding_revision_id = r.id),
+                CAST('{}' AS text[])) AS cited,
+       CAST(f.recurs_after_finding_id AS text) AS recurs_after_finding_id,
+       (SELECT x.title FROM finding_revision x
+         WHERE x.tenant_id = f.tenant_id AND x.site_id = f.site_id AND x.finding_id = f.recurs_after_finding_id
+           AND (CAST(:k AS timestamptz) IS NULL OR x.created_at <= CAST(:k AS timestamptz))
+         ORDER BY x.revision_no DESC LIMIT 1) AS recurs_after_title
+  FROM finding_revision r JOIN finding f ON f.id = r.finding_id AND f.tenant_id = r.tenant_id
+ WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = ANY(CAST(:ids AS uuid[]))
+""")
+
+#: CH-5a2b R1 (§B14 Q5) `action_rows`: the verification plans and outcomes (with the stored source class, R2) of the
+#: Site's Actions recorded by `k`, the estate `verification` read's statements over the whole Site.
+_ACTION_PLANS = text("""
+SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at, later_start, later_end
+  FROM verification_plan WHERE tenant_id = :t AND site_id = :s
+   AND (CAST(:k AS timestamptz) IS NULL OR recorded_at <= CAST(:k AS timestamptz)) ORDER BY recorded_at, id
+""")
+_ACTION_OUTCOMES = text("""
+SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at,
+       details->'source'->>'source_class' AS source_class
+  FROM verification_outcome WHERE tenant_id = :t AND site_id = :s
+   AND (CAST(:k AS timestamptz) IS NULL OR recorded_at <= CAST(:k AS timestamptz)) ORDER BY recorded_at, id
+""")
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_END = datetime(9999, 1, 1, tzinfo=timezone.utc)
+
 
 class PostgresChainRead:
     """The `ChainReadPort` (`chain/read.py`). `snapshots` reuses the snapshot store's latest-row read."""
 
     def __init__(self, database_url: str | None = None, *, engine: Engine | None = None,
-                 snapshots: Any = None) -> None:
+                 snapshots: Any = None, link_rows: Any = None, link_rows_many: Any = None,
+                 action_window: Any = None) -> None:
+        """`link_rows` / `link_rows_many` are the evidence ledger's connection-scoped link-row readers and
+        `action_window` the Action store's `site_window_on`, injected by `chain/composition.py` (R1)."""
         if engine is None and not database_url:
             raise RuntimeError("DATABASE_URL is not set, so the chain read cannot be reached.")
         self._engine = engine or create_engine(database_url, pool_pre_ping=True)
         self._owns_engine = engine is None
         self._snapshots = snapshots
+        self._link_rows, self._link_rows_many, self._action_window = link_rows, link_rows_many, action_window
 
     def dispose(self) -> None:
         if self._owns_engine:
@@ -152,3 +191,51 @@ class PostgresChainRead:
     def evidence_cutoff(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None:
         with self._engine.connect() as c:
             return c.execute(_EVIDENCE_CUTOFF, {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()
+
+    def placement_facts(self, tenant_id: UUID, site_id: UUID, revision_ids: Sequence[str],
+                        known_at: datetime | None) -> Mapping[str, Any]:
+        """CH-5a2b R1 (§B14 Q1/Q2): per Finding revision `{source_state, recurs_after_finding_id,
+        recurs_after_title}`. At most 3 statements on one read-only connection: the cited ids and recurrence facts,
+        one batched link-row read, and the per-Site link-row read only for an id the batch did not return. The
+        source state is `PublicProvenance.cited_set` over the revision's cited set (imported unchanged)."""
+        if not revision_ids:
+            return MappingProxyType({})
+        site = str(site_id).lower()
+        with self._engine.connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                rows = c.execute(_PLACEMENT, {"t": tenant_id, "s": site_id, "k": known_at,
+                                              "ids": [str(r) for r in revision_ids]}).mappings().all()
+                wanted = sorted({str(e).lower() for r in rows for e in r["cited"] or ()})
+                pre = self._link_rows_many(c, tenant_id, [(site_id, wanted)]) if wanted else {}
+
+                def link_rows(t: UUID, s: UUID, ids: list[str]) -> list[Any]:
+                    keys = [(site, str(i).lower()) for i in ids]
+                    if any(k not in pre for k in keys):
+                        return list(self._link_rows(c, t, s, ids))
+                    return [row for k in keys for row in pre[k]]
+
+                public = PublicProvenance(LinkRowsReads(link_rows))
+                out = {}
+                for r in rows:
+                    dto = estate_projection(public.cited_set(tenant_id, site_id, list(r["cited"] or ()),
+                                                             finding_row_selection(r["revision_id"]), detail=False))
+                    out[str(r["revision_id"]).lower()] = MappingProxyType({
+                        "source_state": dto.get("state"), "recurs_after_finding_id": r["recurs_after_finding_id"],
+                        "recurs_after_title": r["recurs_after_title"]})
+        return MappingProxyType(out)
+
+    def action_rows(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]:
+        """CH-5a2b R1 (§B14 Q5): the Site's mini Actions created by `k` with their events recorded by `k` (the
+        Action store's own `site_window_on`, unbounded window), and their verification plans and outcomes by `k`;
+        reduced in pure code (`chain.read.reduce_action_rows`). One read-only connection, four statements."""
+        params = {"t": tenant_id, "s": site_id, "k": known_at}
+        hi = _END if known_at is None else known_at + timedelta(microseconds=1)
+        with self._engine.connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                window = self._action_window(c, tenant_id, site_id, _EPOCH, hi, known_at)
+                plans = tuple(dict(r) for r in c.execute(_ACTION_PLANS, params).mappings().all())
+                outcomes = tuple(dict(r) for r in c.execute(_ACTION_OUTCOMES, params).mappings().all())
+        return MappingProxyType({"actions": tuple(window["actions"]), "events": tuple(window["events"]),
+                                 "plans": plans, "outcomes": outcomes})

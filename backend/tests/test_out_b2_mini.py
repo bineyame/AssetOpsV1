@@ -57,12 +57,12 @@ def head(fid: str, rid: str, lifecycle: str, start: datetime, end: datetime | No
 
 F104 = head("f104", "f104r", "SUPPORTED", T(20, 6), T(20, 9))
 F090 = head("f090", "f090r", "RETIRED", T(2, 6), T(2, 9))
-ESTATE_F104 = {"finding_id": "f104", "finding_revision_id": "f104r", "lifecycle": "SUPPORTED",
-               "source_provenance": {"state": "REGISTERED_SIMULATION"}, "consequence": {"state": "PRICED"},
-               "_episode_end": T(20, 9), "_mechanism": "GENERATOR_SUPPORT_CANDIDATE"}
-ESTATE_A48 = {"action_id": "a48", "source_finding_id": "f104", "source_finding_revision_id": "f104r",
-              "application_state": "PENDING", "resolution_state": None, "verification_outcome": None,
-              "_raw": {"_selected_recorded_at": T(19), "_verification_window": False}}
+#: CH-5a2b R1: `ChainRequest.placement_facts` (per revision id) and `ChainRequest.action_rows` (shaped rows).
+PLACEMENT_F104 = {"f104r": {"source_state": "REGISTERED_SIMULATION", "recurs_after_finding_id": None,
+                            "recurs_after_title": None}}
+CHAIN_A48 = {"action_id": "a48", "application_state": "PENDING", "resolution_state": None,
+             "verification_outcome": None,
+             "_raw": {"_selected_recorded_at": T(19), "_verification_window": False, "_source_class": None}}
 A48 = {"action_id": "a48", "action_code": "ACT-048", "origin": {"finding_id": "f104", "finding_revision_id": "f104r"},
        "selected_event": {"id": "e1"}, "state": {"application": "PENDING"},
        "links": {"selected_event": f"/sites/{C}/actions/a48?event_id=e1"}}
@@ -117,8 +117,9 @@ class Fake:
             chain_day=chain_day,
             chain_findings=lambda lo, hi: self._go("chain_findings", (F104, F090), lo, hi),
             findings_settled=lambda: self._go("findings_settled", True),
-            estate=lambda lo, hi, wlo, whi: self._go("estate", {
-                "site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104], "actions": [ESTATE_A48]}, lo, hi, wlo, whi),
+            placement_facts=lambda ids: self._go("placement_facts",
+                                                 {k: v for k, v in PLACEMENT_F104.items() if k in ids}, tuple(ids)),
+            action_rows=lambda: self._go("action_rows", (CHAIN_A48,)),
             action_index=lambda lo, hi, cur: self._go("action_index", {"rows": [A48], "next_cursor": None}, lo, hi),
             action_facts=action_facts,
             money=lambda fid, rid, latest, src, settled: self._go("money_head", MONEY, fid, rid, latest, src, settled),
@@ -142,7 +143,8 @@ def outcome(row: dict, key: str) -> str:
 
 
 def vocabulary_compositions():
-    return [run()[0], run(Fake(refuse=("depth", "estate", "dispatch", "source")))[0], run(tz=None)[0]]
+    return [run()[0], run(Fake(refuse=("depth", "placement_facts", "action_rows", "dispatch",
+                                                         "source")))[0], run(tz=None)[0]]
 
 
 # --------------------------------------------------------------- happy path
@@ -201,8 +203,9 @@ def test_work_window_is_31_days_ending_with_the_day() -> None:
     for name in ("chain_findings", "action_index", "plans"):
         args = next(a for n, a in fake.calls if n == name)
         assert args[:2] == (HI - timedelta(days=31), HI), name
-    # addendum 5 #2: estate Finding rows and coverage over the board day, Action rows over the work window
-    assert next(a for n, a in fake.calls if n == "estate") == (T(20), T(21), T(21) - timedelta(days=31), T(21))  # UTC (kept)
+    # CH-5a2b R1 (§B14 Q3): placement facts only for the heads on the Site-local board day; Action rows unbounded.
+    assert next(a for n, a in fake.calls if n == "placement_facts") == (("f104r",),)
+    assert next(a for n, a in fake.calls if n == "action_rows") == ()
     # CH5a1-R Q9: one snapshot read over the 31 Site-local days of the work window; readiness on the board day.
     days, ready = next(a for n, a in fake.calls if n == "chain_day")
     assert len(days) == 31 and days[-1] == DAY and ready == (DAY,)
@@ -280,9 +283,10 @@ def test_dispatch_refusal_unsettles_the_measured_outcomes() -> None:
     assert rows[COST]["subline"] is None
 
 
-def test_estate_refusal_labels_not_loaded_and_nulls_confidence() -> None:
-    comp, rows = run(Fake(refuse=("estate",)))
-    assert comp.read_state == "PARTIAL" and comp.failed == ("estate",)
+def test_chain_row_refusal_labels_not_loaded_and_nulls_confidence() -> None:
+    """CH5a2b-R Q4: each R1 port's failure is named in `reads.failed` with the old estate notice behaviour."""
+    comp, rows = run(Fake(refuse=("placement_facts", "action_rows")))
+    assert comp.read_state == "PARTIAL" and comp.failed == ("placement_facts", "action_rows")
     assert rows[COST]["in_hand"][0]["state_label"] == mini.NOT_LOADED
     assert contributor(rows[COST], "generator_use")["confidence"] is None
     assert rows[COST]["state"] == "NEEDS_ATTENTION"  # degrade-only: no UNKNOWN
@@ -358,14 +362,15 @@ def test_unsettled_board_day_unsettles_measured_outcomes() -> None:
         assert outcome(rows[cat], key) == "UNKNOWN", key
 
 
-def test_missing_estate_row_is_partial_and_recorded() -> None:
-    """Addendum 3 L3: the estate read succeeds but lacks the Action, so the text and the notice agree."""
-    estate = {"site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104], "actions": []}
-    comp, rows = run(Fake(estate=estate))
-    assert comp.read_state == "PARTIAL" and comp.failed == ("estate",)
-    assert ("a48", mini.ESTATE_ROW_MISSING) in comp.diagnostics
+def test_missing_action_row_is_partial_and_recorded() -> None:
+    """Addendum 3 L3, CH5a2b-R Q4: `action_rows` succeeds but lacks the Action, so the text and the notice agree."""
+    comp, rows = run(Fake(action_rows=()))
+    assert comp.read_state == "PARTIAL" and comp.failed == ("action_rows",)
+    assert ("a48", mini.ACTION_ROW_MISSING) in comp.diagnostics
     assert rows[COST]["in_hand"][0]["state_label"] == mini.NOT_LOADED
-    assert mini.ESTATE_ROW_MISSING not in str(rows)
+    assert mini.ACTION_ROW_MISSING not in str(rows)
+    _, chip = run(Fake(placement_facts={}))
+    assert contributor(chip[COST], "generator_use")["confidence"] is None  # no facts: a null chip, no failure
 
 
 def test_source_or_day_refusal_or_closed_source_unsettles_everything_measured() -> None:

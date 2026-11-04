@@ -124,6 +124,23 @@ class Port:
         self.calls.append(("has_change", tuple(action_ids)))
         return {str(a).lower(): str(a) == "a1" for a in action_ids}
 
+    # CH-5a2b R1: the chip's placement facts and the labels' Action rows (the estate `site_work_rows` facts the
+    # board read before: f1r Example data; a1 accepted on 30 Oct, no plan, no outcome).
+    def placement_facts(self, tenant_id, site_id, revision_ids, known_at):
+        self.calls.append(("placement_facts", (site_id, tuple(revision_ids))))
+        facts = {"f1r": {"source_state": "REGISTERED_SIMULATION", "recurs_after_finding_id": None,
+                         "recurs_after_title": None}}
+        return {r: facts[r] for r in revision_ids if r in facts} if site_id == KOBO.site_id else {}
+
+    def action_rows(self, tenant_id, site_id, known_at):
+        self.calls.append(("action_rows", (site_id,)))
+        if site_id != KOBO.site_id:
+            return {"actions": (), "events": (), "plans": (), "outcomes": ()}
+        return {"actions": ({"id": "a1"},),
+                "events": ({"id": "e1", "action_id": "a1", "kind": "ACCEPTED", "recorded_at": at(30),
+                            "failure_code": None},),
+                "plans": (), "outcomes": ()}
+
 
 class Never:
     """A deleted read's service: any method call is recorded (and must stay at 0)."""
@@ -174,18 +191,7 @@ def services(port: Port, never: list[str]) -> BoardServices:
             return {"selection": {"state": "PRICED", "price": {"value": "1.45", "currency": "USD"}}}
 
     class Estate:
-        def site_work_rows(self, t, code, lo, hi, wlo, whi, known_at):
-            return {"site_cov": {"state": "CURRENT"},
-                    "findings": [{"finding_id": "f1", "finding_revision_id": "f1r", "lifecycle": "SUPPORTED",
-                                  "source_provenance": {"state": "REGISTERED_SIMULATION"},
-                                  "consequence": {"state": "PRICED"}, "_episode_end": at(31, 7),
-                                  "_mechanism": "GENERATOR_SUPPORT_CANDIDATE"}],
-                    "actions": [{"action_id": "a1", "source_finding_id": "f1", "source_finding_revision_id": "f1r",
-                                 "application_state": "PENDING", "resolution_state": None,
-                                 "verification_outcome": None,
-                                 "_raw": {"_selected_recorded_at": at(30), "_verification_window": False}}]}
-
-        def __getattr__(self, attr):  # site_readiness / site_readiness_many: deleted (E1)
+        def __getattr__(self, attr):  # site_readiness (E1), site_work_rows (CH-5a2b R1): deleted
             return Never("estate", never).__getattr__(attr)
 
     class ActionIndex:

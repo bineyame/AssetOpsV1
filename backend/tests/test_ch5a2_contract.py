@@ -209,3 +209,17 @@ def test_each_route_reads_each_key_at_most_once(name: str, monkeypatch) -> None:
     _get(name)
     assert seen and any(n.startswith("chain.") for n in seen[0].names()), seen
     assert seen[0].max_per_key() == 1, seen[0].repeated()
+
+
+@pytest.mark.parametrize("window", [{}, {"lo": BC.at(30, 21), "hi": BC.at(31, 21)}])
+def test_cold_thread_cutoff_is_the_boards_one_rule(window) -> None:
+    """CH5a2b-R Q11 (review L3): `/threads/{id}` resolves the cold/EV cutoff by the board's one method, so it
+    equals the board window's `known_at` with and without a window; mini keeps the request's cutoff."""
+    from dataclasses import replace
+    from datetime import datetime
+    svc = SiteOutcomeBoardService(replace(BC.services(Port(), []), threads=Threads()))
+    body = svc.board(BC.COLD, **window)
+    known = body["window"]["known_at"]
+    got = svc.thread_cutoff(BC.COLD, **window)
+    assert known is not None and got == datetime.fromisoformat(str(known).replace("Z", "+00:00"))
+    assert svc.thread_cutoff(BC.KOBO, known_at=BC.at(1, 9, month=11)) == BC.at(1, 9, month=11)
