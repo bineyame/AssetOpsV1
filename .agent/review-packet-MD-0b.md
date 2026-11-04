@@ -170,3 +170,20 @@ untouched (no product file in the diff: `git diff ff499d54d --stat -- backend/as
   L3 (`generator_power` leads other channels by one interval; adds 1.25 kWh to baseline `generator_kwh`, outside the
   verdict), L4 (nothing yet tells E1/E4 and post-merge to pass `-Close yes`). Also: CH-5a2a merge deletes the COH-8
   entries and needs L3m rerun for COH-7a.
+
+## Merge prep (main `27aa6a638`, CH-5a2a merged first)
+
+- `git merge main`: no conflicts. Both `MD0b-R:A1` COH-8 wildcards deleted (CH-5a2a B6 resolves them).
+- **N1:** `chain_coherence.check(..., variant=)` and `check --variant` filter expected entries by an optional
+  `variants` list (`applicable()`); an entry without `variants` applies to all, one with it only to a listed variant
+  (none given: it does not apply). The 4 `MD0b-R:A2` COH-6 entries are `variants: ["close"]`. The `rule` text in
+  `expected-mechanism.json` documents it. Test `test_variants_gate_expected_entries`: states run finds COH-6
+  unexpected, close run absorbs it, an ungated entry applies to all.
+- Templates rebuilt at fingerprint `c2615b00` (states 1178 s seed, close 1304 s, both in `--budget 540` parts);
+  derive 62 s / 81 s; no other template appeared during the builds.
+- L3m `check --threads var/<work>/expected-threads.json --expect expected-mechanism.json --variant <v>`:
+  states: 0 unexpected, COH-8 0, COH-7 (7a) 0, 0 resolved; close: 0 unexpected, COH-6 4 expected, COH-8 0,
+  COH-7 (7a) 0, 0 resolved. No RESOLVED-WILDCARD lines.
+- L0/L1 (`test_md0_fixture`, `test_md0b_ensure`, `test_chain_coherence`, `test_chain_structure`): 184 passed.
+  L2m `test_md0_mechanism_postgres.py`: 7 passed, 0 skipped, 421 s. Guards A and W: passed.
+
