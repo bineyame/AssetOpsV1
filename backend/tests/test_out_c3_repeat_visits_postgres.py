@@ -139,4 +139,23 @@ def _spy_selected_windows(monkeypatch) -> list[dict]:
         return out
 
     monkeypatch.setattr(EstateEvidenceService, "site_selected_windows", spy)
+
+    # CH-5a1 (R5, deleted readiness read): the QW-2 prefetch no longer batches readiness, so its one-snapshot batch
+    # now serves the cold window choice instead of falling back to the per-Site read above; each Site's batched
+    # value is recorded the same way (the batch's wall time stands for each Site's windows read).
+    real_many = EstateEvidenceService.site_selected_windows_many
+
+    def spy_many(self, tenant_id, site_codes, from_, to, known_at=None, *, snap=None):
+        start = time.perf_counter()
+        out = real_many(self, tenant_id, site_codes, from_, to, known_at, snap=snap)
+        seconds = round(time.perf_counter() - start, 3)
+        for code, wins in out.items():
+            seen.append({"site_code": code, "from": _z(from_), "to": _z(to),
+                         "windows": None if wins is None else [(_z(w["window_start"]), _z(w["window_end"]))
+                                                               for w in wins],
+                         "latest": None if not wins else tuple(_z(x) for x in latest_window(wins)),
+                         "seconds": seconds})
+        return out
+
+    monkeypatch.setattr(EstateEvidenceService, "site_selected_windows_many", spy_many)
     return seen

@@ -173,35 +173,42 @@ class TestMovingAndBoard:
         assert body["rows"] == [] and body["total_count"] is None and body["next_cursor"] is None
         assert any("SELECTION_MOVED_DURING_READ" in r for r in body["status_reasons"])
 
-    def test_p5_board_settles_on_partial_off_its_own_day_and_names_the_gaps(self, store, engine) -> None:  # noqa: F811
-        from fastapi.encoders import jsonable_encoder
+    def test_p5_board_settles_off_its_own_day_and_names_the_gaps(self, store, engine, monkeypatch) -> None:  # noqa: F811
+        """CH-5a1 (deleted read: the board no longer reads `finding_index`; base R4, gaps R8/Q9 from the chain
+        snapshots via `ChainRequest.day`). Adapted, not loosened: the index-era p5 settled 10-06 on the dispatch
+        assessment; the chain grades measure readings, and this S4 case delivers dispatch blocks only, so step (a)
+        writes NO_DATA snapshots and every window day - 10-06 included - is a "no checked readings" gap and the
+        board day is unsettled. Gap lines over real readings are the L2m mechanism_db cases (MD-0)."""
+        from datetime import timedelta
 
+        from assetops_backend.chain.backfill import main as backfill
+        from assetops_backend.chain.composition import build_chain_reader
         from assetops_backend.site_outcomes import mini
 
+        assert "finding_index" not in mini.MiniPorts.__dataclass_fields__  # the deleted read
         runner = CaseRunner(store, engine)
         f01(runner)
-        index = FindingIndexService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
+        monkeypatch.setenv("DATABASE_URL", URL)
+        assert backfill(["--site", "KOBO-001", "--steps", "a"]) == 0
+        reader, dispose = build_chain_reader(URL)
+        try:
+            request = reader.request(runner.tenant, None)
 
-        def finding_index(lo, hi, cursor):  # as site_outcomes/read.py binds the port
-            req = parse_request(DOMAIN, lo.isoformat().replace("+00:00", "Z"),
-                                hi.isoformat().replace("+00:00", "Z"), None, cursor)
-            return jsonable_encoder(index.read(runner.tenant, runner.site, "KOBO-001", req, access_basis="test"))
+            def facts(board: date):
+                days = tuple(board - timedelta(days=i) for i in range(mini.FINDING_WINDOW_DAYS - 1, -1, -1))
+                return request.day(runner.site, "MINIGRID", days, readiness_days=(board,))
 
-        def refuse(*a):
-            raise RuntimeError("not bound in this test")
-
-        ports = mini.MiniPorts(overview=refuse, depth=refuse, dispatch=refuse, assumption=refuse,
-                               finding_index=finding_index, estate=refuse, action_index=refuse,
-                               verification=refuse, action=refuse, work=refuse, plans=refuse, readiness=refuse)
-        board = mini.compose(ports, site_code="KOBO-001", day=date(2026, 10, 6), site_timezone=None)
-        assert "finding_index" not in board.failed, board.failed  # PARTIAL, board day 10-06 not a gap: settled
-        gaps = board.facts.finding_gaps
-        assert gaps["text"] == "30 of the last 31 days have no checked readings yet"
-        assert len(gaps["days"]) == 30 and "2026-10-06" not in gaps["days"] and gaps["days"][0] == "2026-09-06"
-        # the board day itself a gap (10-07, no evidence): the Finding source is not settled
-        later = mini.compose(ports, site_code="KOBO-001", day=date(2026, 10, 7), site_timezone=None)
-        assert "finding_index" in later.failed
-        assert later.facts.finding_gaps["text"] == "30 of the last 31 days have no checked readings yet"
+            for board in (date(2026, 10, 6), date(2026, 10, 7)):
+                f = facts(board)
+                assert not f.settled and f.readiness in ("NONE", "UNKNOWN"), (board, f.readiness)
+                grades = {g for m in (f.grades.get(date(2026, 10, 6)) or {}).values() for g in m.values()}
+                assert grades == {"NO_DATA"}, grades  # step (a) wrote the day; nothing checked on it
+                gaps = mini.finding_gap_line(f, mini.FINDING_WINDOW_DAYS)
+                assert gaps["text"] == "31 of the last 31 days have no checked readings yet", gaps["text"]
+                assert gaps["days"][0] == (board - timedelta(days=30)).isoformat() and "2026-10-06" in gaps["days"]
+                assert gaps["withheld"] is False
+        finally:
+            dispose()
 
 
 class TestResidualRiskProbe:
