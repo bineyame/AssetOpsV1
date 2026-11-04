@@ -230,3 +230,150 @@ Both trees read the same, so this is environmental. A is main `73a558a1b` (the b
   - COH-13 before the fix: 7 new on the clone (the proof of the check itself); after: 0.
   - Allowing `ACTION_IN_HAND` + SUPPORT_LOST to WITHDRAWN and neutering the Action guard: the L2 test with an Action fails.
   - Dating the SUPPORT_LOST cause after the head was needed: the first version of the "Action" direction passed under that mutation (the cause was skipped as BEFORE_HEAD); it now fails under it.
+
+## Fix round 2 (review REVISE M1-M3, L1-L5; CH3-R consolidated ruling)
+
+Commits: `6865714a9` (code and tests), `e4137cdb2` (L2 Postgres assertion), `68440bd6e` (COH-14 thread-level line), `f573c53c7` (the estate lookup takes the policy through `chain.composition`, because the architecture guard refused the direct adapter import).
+
+### Fixes
+- **M1** `chain/lifecycle.py`:
+  - Causes sort by `cause_order` = (`cause_known_at`, `recorded_at`, id).
+  - BEFORE_HEAD compares `known_time(cause) < known_time(head)`. A planned head uses its cause's known time. A planned CLEAN_DAYS close has no known time and never blocks.
+  - `state_on` is unchanged: the highest seq with `effective_day <= d`, after `visible(k)`.
+  - `lifecycle_run.causes_for_site`: a superseded VERIFIED or INEFFECTIVE outcome gives no cause.
+- **M2** `tools/chain_clone.py`:
+  - `settle` runs `SETTLE_STEPS` in order: s2-comparison (`evidence_migration run --tenant demo --site KOBO-001`), tick, performance.
+  - It diffs `var/` before and after, and writes `var/chainclone_<name>/created.json` (files and dirs), also on failure.
+  - `drop` drops the DB, then `cleanup` deletes exactly the recorded files. It refuses any recorded path outside `var/` before deleting anything. Then it removes the emptied recorded dirs and the record.
+- **M3** `site_outcomes/board.py` `thread_line_findings`:
+  - In-window Findings work as before.
+  - A thread with no in-window Finding also gets a line, from its latest occurrence, when all three hold:
+    - `facts.work_window` is set (mini only);
+    - the thread's occurrence (`FindingFact.in_work_window`) or one of its Actions is in the 31-day work window;
+    - its state on d is RESOLVED_MONITORING, CLOSED or RECURRED.
+  - The line goes in the subline of its primary MOVES row. Earlier is unchanged.
+- **L1** `site_outcomes/read.py` `board_cutoff(known_at, resolved)`: one helper for mini, cold and EV. Mini resolves no cutoff, so None means "as known now" (output unchanged).
+- **L2**:
+  - `lifecycle_inputs` returns `site_type`.
+  - LOOKUP's F rows carry `s.site_type` as a 12th column; 11-column rows still read.
+  - `thread_lookup(close_after=policy.close_after)` reads the per-type count for each Finding.
+- **L3** `portfolio.thread_progress`: one state per thread, taken from its highest (segment_no, occurrence_no) row.
+- **L4**:
+  - `test_thread_wire_keys_copy_matches_the_lookup` added.
+  - EARLIER_SEGMENT is pinned (an Action re-accepted after a REOPENED).
+  - `lc.accepted_day` (the earliest ACCEPTED day) is used by both the lifecycle and the lookup.
+- **L5** `test_ch2_thread_store_postgres`:
+  - The placement test asserts exactly "0045 refused".
+  - New `test_0042_refuses_its_downgrade_while_a_thread_exists` (a thread row with no known time) asserts 0042's own message and an unchanged head.
+- **Action segments per cutoff group** (`portfolio.attach_threads`):
+  - Every cutoff group reads the Actions too, into `_segment_at[cutoff]`.
+  - `action_segment_for(a, row)` serves both `same_segment` and the wire `action_segment_no`.
+- **Found while running the unit scope.** `test_out_a1_outcome_map::test_outcomes_package_is_pure` already failed on `046d29094`, because CH-3's `outcomes/credit.py` imported `decimal` and `fractions`. `credit.py` now uses exact int pairs with a half-even three-decimal wire form, and tests are added.
+
+### L3 clone `assetops_chainclone_rtwo_test`
+From `assetops_polish_full_test`, code `6865714a9`, no serve.
+
+**Create and backfill**
+- Create and migrate to head: 2 s.
+- Backfill a,b,c,d: a 139, b 11, c 3, **d 6** (ACTION_IN_HAND 3, CHANGE_APPLIED 2, RESOLVED_MONITORING 1); skipped 0.
+- Rerun b,c,d: 0 / 0 / 0; skipped 0.
+
+**Thread heads**
+
+| Thread | Head |
+|---|---|
+| Kobo generator | RESOLVED_MONITORING, 1 Nov |
+| Kobo headroom | OPEN, 25 Oct |
+| Cold start | **CHANGE_APPLIED, 31 Oct** |
+| Cold excursion | OPEN, 31 Oct |
+| EV | ACTION_IN_HAND, 2 Nov |
+
+**Settle**
+- s2-comparison: exit 0 in 1 s ("Evidence cutover: permitted").
+- Tick: exit 0 in 39 s (COMPLETED).
+- Performance: exit 0 in 1 s.
+- `created.json` listed 2 files and 2 dirs. The files are one `evidence/migration/kobo-001/...json` and one `evidence/migration-performance/kobo-001/...json`.
+
+**Collect and check**
+- Collect: 56 requests, all 200.
+- Check against `expected-today.json`: every rule 0 new; self-check 39 pass, 0 fail.
+  - COH-1 12/12, COH-2 2/2, COH-5 6/6, COH-6 6/6, COH-7 10/10, COH-8 3/3.
+  - COH-0, 3, 4, 9, 10, 11, 13, 14 and 15: 0.
+
+**Kobo boards** now read AVAILABLE. OPTIMIZE_COST, verbatim:
+- 31 Oct: NEEDS_ATTENTION, subline "Generator stayed on 200 minutes longer than needed · Before the change on 1 Nov · after the change: not judged yet, no fully checked day since 1 Nov".
+- 1 Nov: ON_TRACK, subline "Fix verified, monitoring (ACT-001) · 7 more fully checked days to close"; Earlier lists ACT-001.
+
+**COH-14**
+- 6 rows across the bundle are NEEDS_ATTENTION / PRIMARY_FINDING_OPEN, including Kobo 17, 24 and 31 Oct.
+- None of them has all its MOVES Findings on a verified thread, because a verified fix ends the episode (the M3 cause).
+- With the thread-level extension, COH-14's compared set is **1 row** (Kobo 1 Nov OPTIMIZE_COST, ON_TRACK), and it passes.
+
+**Portfolio**
+- The Kobo generator row reads RESOLVED_MONITORING.
+- `verified_resolution_count` is 1 and `priority_site_count` is 0.
+- Money is NOT_CREDITED.
+
+**Drop**
+- The clone was dropped, and the tool reported "deleted 2 file(s)".
+- A `find var` listing equals the one taken before settle; the 4 earlier `migration-performance` files are kept.
+
+### Known deviations (fix round 2)
+
+**FR2-a: COH-14 extended (Architect or reviewer to confirm).**
+- Without the extension, COH-14 cannot have a non-empty compared set on real data, for the same reason as M3.
+- `coh14_rows` now also judges a row that has no MOVES Finding but whose subline carries the verified thread line.
+- The line is matched by `VERIFIED_LINE_PREFIX = "Fix verified"`, which is pinned against `board.THREAD_MONITORING` and `THREAD_CLOSED`.
+- This strengthens the rule: nothing it judged before is dropped.
+
+**FR2-b: ACT-000002 now applies, so DS-R1's "refused until DD-1" no longer holds.**
+- In known-time order, the cold domain case COMPLETE (recorded after the raise) applies after ACCEPTED.
+- So Cold start reads CHANGE_APPLIED, with `effective_day` 31 Oct (story time). That is before the 2 Nov of its ACTION_IN_HAND.
+- `state_on` takes the highest seq, so from 31 Oct the thread reads CHANGE_APPLIED as known after both causes.
+- At story cutoffs both events stay hidden, because their causes were recorded at build time. So the boards are unchanged (COH-13 0).
+- For the DD-1 inventory, list it as "applied, effective before accept".
+
+**Postgres revision.** The Postgres runs below were at `e4137cdb2`. `f573c53c7` changes only the import path of the same policy object.
+
+### Fix round 2 checks
+
+**Unit (no database), final head**
+- The CH-3, out, portfolio and board scope (46 backend files) plus `tools/checks/test_chain_coherence.py`: 767 passed, 1 skipped.
+- `tools/checks/test_estate_guard.py` through `run-host-tests.ps1`, final head: 9 passed (353 s).
+  - Run directly with pytest from Git Bash, the same 9 fail with "running scripts is disabled" on the temp-dir `.ps1` the test spawns. That is the shell's execution policy, not the code.
+
+**Postgres** (`run-host-tests.ps1`, shared `assetops_test`)
+- `test_ch3_lifecycle_postgres` and `test_ch2_thread_store_postgres`: 8 passed (45 s).
+- `test_ch3_lifecycle_postgres`, `test_out_e4_readback_postgres` and `test_w303_portfolio_scope_snapshot_postgres`: 15 passed (543 s).
+- `test_w303_portfolio_comparison_postgres`: 4 passed (209 s).
+- `test_w303_portfolio_fixture_postgres`: 2 passed (69 s).
+- `test_out_b4_board_postgres`: 5 passed (110 s).
+
+**Guards** (`ASSETOPS_GUARD_PYTHON` = the plan2 venv)
+- `check-architecture.ps1`: passed (after `f573c53c7`).
+- `check-agent-workflow.ps1`: passed.
+
+**Non-vacuity.** Each proof mutated committed code, ran the new tests and restored the file with `git checkout`. The tree was clean after each.
+- Unit: all 18 mutations fail their tests:
+  - the known-time sort;
+  - BEFORE_HEAD by known time (this also fails the two-runs test);
+  - the superseded filter;
+  - accepted day min to max;
+  - the EARLIER_SEGMENT branch;
+  - the site type in the lookup and in run_lifecycle;
+  - the thread-level line turned off;
+  - the work-window condition;
+  - the per-thread rank;
+  - the Action segment at the row's cutoff;
+  - Actions read per cutoff group;
+  - the wire keys;
+  - credit half-even rounding;
+  - the settle comparison step;
+  - recording only created files;
+  - the outside-var refusal;
+  - the COH-14 line branch.
+- Postgres: dropping 0042's `REFUSE_IF_USED` and the `site_type` key fails both new Postgres assertions (2 failed).
+
+**Not run**
+- Frontend: no change this round.
+- Full backend suite: outside the dispatch scope.
