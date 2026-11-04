@@ -33,12 +33,15 @@
                                "source": "producer identity: the clinic (critical load) requests what its feeder carries; MD0-S5 M2 (A)"},
         "critical_delivered": {"channel": ["clinic-meter", "delivered-power"], "rule": "feeder:clinic-meter",
                                "source": "producer identity: the clinic is fully served (delivered = its feeder value); MD0-S5 M2 (A)"},
+        "generator_power": {"channel": ["generator-controller", "ac-power"], "rule": "running_kw if RUNNING else zero", "running_kw": "15",
+                            "source": "MD-0b: the bound generator_power role (roles-4 generator-controller/ac-power) every verification slot needs (B/actions/verification_rules.py _SINGLE_POWER_ROLES, window_evidence); producer identity: a stopped generator reports zero output; running_kw copied from backend/conversions/w4-mini-depth-cases-v1.json (generator-controller ac-power kw 15)"},
         "source": "build sheet MD-0 §18 MD0-S5 M2 (A): the renewable-hour channels all day, 300 s interval means, derived from the block values (B/mini_depth/rules.py assess_renewable_hour reads pv_power, the charge request and the critical requested/delivered power)"
       },
       "shapes": {"interval_mean": [["pv-inverter-controller", "available-power"], ["battery-pcs-controller", "discharge-capability"],
                                    ["residential-meter", "active-power"], ["clinic-meter", "active-power"], ["mill-meter", "active-power"],
                                    ["pv-inverter-controller", "ac-power"], ["battery-pcs-controller", "charge-requested-power"],
-                                   ["clinic-meter", "requested-power"], ["clinic-meter", "delivered-power"]],
+                                   ["clinic-meter", "requested-power"], ["clinic-meter", "delivered-power"],
+                                   ["generator-controller", "ac-power"]],
                  "interval_minutes": 5,
                  "rule": "A power channel is an INTERVAL_MEAN over [t, t + step) with interval_end = source time = t + step and the block value at t; generator status and state-of-charge stay STATE_AT_INSTANT points at t.",
                  "source": "the producer: simulator/assetops_simulator/gateway/mappings.py:109-126 (measurement per channel), gateway/publish.py:199-203 (interval_start = span start, interval_end = source time); polish KOBO-001 power roles measured 300 s ending at source time (build sheet MD-0 §17 F2; MD0-S4 R1)"},
@@ -69,7 +72,10 @@
       "actions": [
         {"anchor": "ACT-K1", "fixture": "reserve-trial-1", "for_event": "K-OVR-D11",
          "accept": {"day": 11, "local": "13:00"}, "apply": {"day": 11, "local": "14:00"}, "effective": {"day": 12, "local": "00:00"},
-         "source": "backend/tests/s6_action_records.py EFFECTIVE shape; MD0-PF Q3: ends at CHANGE_APPLIED (verification is MD-0b)"}
+         "verify": {"baseline": {"day": 11, "local": "08:00"}, "freeze": {"day": 13, "local": "00:30"}, "later": {"day": 13, "local": "08:00"},
+                    "evaluate": {"day": 13, "local": "10:00"},
+                    "source": "MD-0b: SYSTEM VERIFY freeze, later-selection bind and evaluation through the Action API (tools/demo_combined_kobo.py _trial_chain). Baseline = the overrun hour. The freeze waits until the baseline's UTC days are final (a UTC day's dispatch run reads to 06:00Z of the next UTC day, so it is re-selected until then: BASELINE_SELECTION_CHANGED, B/actions/verification.py _assess) and precedes any later-window reading (VERIFICATION_LATER_WINDOW_STARTED, freeze check); the later window is the same UTC clock hour two days on; bind and evaluate once the later window and its UTC days to 06:00Z are delivered"},
+         "source": "backend/tests/s6_action_records.py EFFECTIVE shape; MD-0b: through VERIFIED (MD0-PF Q3)"}
       ],
       "publications": [
         {"kind": "price", "file": "backend/conversions/demo-productive-price-publications.json", "recorded": {"day": 0, "local": "12:00"},
@@ -88,5 +94,21 @@
   ],
   "late_fill": {"gap": "GAP-K7", "decision_clock": "real", "source": "build sheet §4 (FILL-1)"},
   "variants": {"main": {"sites": ["kobo"], "removed": {"sites": ["cold", "ev"], "gaps": ["GAP-C3", "GAP-E2"], "source": "Architect MD0-S2: Kobo-first MD-0; Cold and EV normal data move to DD-1's real baseline"}},
-               "close": {"deferred_to": "MD-0b", "source": "MD0-PF Q3: the pre-ruled split; verification and the close variant move to MD-0b"}}
+               "close": {"days": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "gaps": [], "studies": [],
+                         "events": [
+                           {"anchor": "K-OVR-D2", "kind": "overrun", "day": 2, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+                            "source": "build sheet MD-0 §2.5 (overrun on D2); backend/conversions/s4-finding-cases-v1.json F01 block shape"},
+                           {"anchor": "K-OVR-D13", "kind": "overrun", "day": 13, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+                            "source": "build sheet MD-0 §2.5 (overrun on D13, the recurrence after the close); F01 block shape"}
+                         ],
+                         "actions": [
+                           {"anchor": "ACT-K2", "fixture": "reserve-trial-1", "for_event": "K-OVR-D2",
+                            "accept": {"day": 2, "local": "13:00"}, "apply": {"day": 2, "local": "14:00"}, "effective": {"day": 3, "local": "00:00"},
+                            "verify": {"baseline": {"day": 2, "local": "08:00"}, "freeze": {"day": 4, "local": "00:30"}, "later": {"day": 4, "local": "08:00"},
+                                       "evaluate": {"day": 4, "local": "10:00"},
+                                       "source": "build sheet MD-0 §2.5 (ACT-K1's local times on the D2 overrun) with the main variant's verify rule (freeze after the baseline UTC days are final, later window two days on)"},
+                            "source": "build sheet MD-0 §2.5; backend/tests/s6_action_records.py EFFECTIVE shape"}
+                         ],
+                         "threads": [{"name": "close:kobo-generator", "site": "kobo", "mechanism": "GENERATOR_SUPPORT_CANDIDATE", "events": ["K-OVR-D2", "K-OVR-D13"]}],
+                         "source": "build sheet MD-0 §2.5: Kobo only, its own DB, no D7 gap, overruns D2 and D13, no studies; MD0-PF Q3: MD-0b"}}
 }

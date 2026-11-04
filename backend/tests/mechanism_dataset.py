@@ -32,7 +32,7 @@ DAY_SETS = ("full", "states")
 #: CH5a1-R3 M4: one template per input fingerprint, `assetops_mechanism_tpl_<fp8>_test`, built under a staging name
 #: `assetops_mechanism_tplb_<hex8>_test` and renamed when tagged. `assetops_mechanism_tpl_test` is the legacy
 #: single template (MD-0, CH-5a1): still a mechanism DB, never looked up, pruned or dropped implicitly.
-MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_tpl_[0-9a-f]{8}|_tplb_[0-9a-f]{8}|_c[0-9a-f]{6,16})?_test$")
+MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_tpl_[0-9a-f]{8}|_tplc_[0-9a-f]{8}|_tplb_[0-9a-f]{8}|_c[0-9a-f]{6,16})?_test$")
 WORKER_DB_RE = re.compile(r"^[a-z0-9_]+_pt[0-9a-z]+_(main|tpl|gw[0-9]+)_test$")
 ALWAYS_REFUSED_RE = re.compile(r"^assetops_(polish|demo)")
 PROTECTED = ("assetops_polish_full_test", "assetops_demo3_full_test")  # B/chain/backfill.py:29
@@ -172,6 +172,16 @@ def _value_nodes(spec: dict):
         for key in ("controls", "events", "actions", "studies", "publications"):
             for i, x in enumerate(s.get(key, [])):
                 yield f"{site}.{key}[{i}]", x
+                if isinstance(x.get("verify"), dict):
+                    yield f"{site}.{key}[{i}].verify", x["verify"]
+    close = spec.get("variants", {}).get("close")
+    if isinstance(close, dict):  # MD-0b: the close variant's own declarations (§2.5)
+        yield "variants.close", close
+        for key in ("events", "actions", "studies"):
+            for i, x in enumerate(close.get(key, [])):
+                yield f"variants.close.{key}[{i}]", x
+                if isinstance(x.get("verify"), dict):
+                    yield f"variants.close.{key}[{i}].verify", x["verify"]
 
 
 def _event_and_action_days(spec: dict) -> set[tuple[str, int]]:
@@ -180,7 +190,7 @@ def _event_and_action_days(spec: dict) -> set[tuple[str, int]]:
         for e in s.get("events", []):
             out.add((site, e["day"]))
         for a in s.get("actions", []):
-            for step in a.values():
+            for step in [*a.values(), *(a.get("verify") or {}).values()]:
                 if isinstance(step, dict) and "day" in step:
                     out.add((site, step["day"]))
         for st in s.get("studies", []):
@@ -408,7 +418,8 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
 
 #: MD0-S5 M2 (A): the only rules a `derived_channels` entry may name (a renamed or new rule is refused, not guessed).
 DERIVED_RULES = {"pv_power": "min(pv, feeders + charge_request)", "charge_request": "zero",
-                 "critical_requested": "feeder:clinic-meter", "critical_delivered": "feeder:clinic-meter"}
+                 "critical_requested": "feeder:clinic-meter", "critical_delivered": "feeder:clinic-meter",
+                 "generator_power": "running_kw if RUNNING else zero"}  # MD-0b: the bound generator_power role
 
 
 def _kw(value: Decimal) -> str:
@@ -433,6 +444,8 @@ def derived_rules(k: dict):
                 value = min(Decimal(values["pv"]), load + charge)
             elif name == "charge_request":
                 value = charge
+            elif name == "generator_power":
+                value = Decimal(r["running_kw"]) if values["generator"] == "RUNNING" else Decimal(0)
             else:
                 value = Decimal(feeders[r["rule"].split(":", 1)[1]])
             out.append((tuple(r["channel"]), _kw(value)))
@@ -674,23 +687,47 @@ class KoboSite:
 # --- ACT-K1, the derived chain and the seed (MD0-S2: Kobo only) ------------------------------------------------
 
 
-def act_k1(site: KoboSite) -> dict:
-    """ACT-K1 to CHANGE_APPLIED (MD0-PF Q3): the s6 harness accepts the D11 overrun Finding's recommendation at
-    D11 13:00 local and applies it at D11 14:00 with the change effective D12 00:00 local (the
-    `tools/demo_combined_kobo.py` apply call), then assess + match. VERIFIED and the close variant are MD-0b."""
+def _harness_checked(site: "KoboSite") -> None:
     from sqlalchemy.engine import make_url
 
     from test_s4_finding_store_postgres import URL as HARNESS_URL
-    from test_s6_action_apply_postgres import applying
 
     if make_url(HARNESS_URL).database != make_url(site.url).database:  # the harness reads its module-global URL
         raise MechanismRefused("HARNESS_URL_MISMATCH")
+
+
+def _action_at(site: "KoboSite", spec_action: dict, step: str, sub: str | None = None) -> datetime:
+    node = spec_action[step] if sub is None else spec_action[step][sub]
+    return local_instant(site.spec, "kobo", node["day"], node["local"])
+
+
+def action_hooks(spec: dict) -> dict[int, list[tuple[str, str]]]:
+    """Dn -> [(local cut, hook)] in time order: the accept (+ apply), the VERIFY freeze and the bind + evaluation
+    (MD-0b). The day is delivered up to each cut, settled, then the hook runs (story order)."""
+    out: dict[int, list[tuple[str, str]]] = {}
+    for a in spec["sites"]["kobo"]["actions"]:
+        out.setdefault(a["accept"]["day"], []).append((a["accept"]["local"], "accept"))
+        v = a.get("verify")
+        if v:
+            out.setdefault(v["freeze"]["day"], []).append((v["freeze"]["local"], "freeze"))
+            out.setdefault(v["evaluate"]["day"], []).append((v["evaluate"]["local"], "evaluate"))
+    return {n: sorted(h) for n, h in out.items()}
+
+
+def act_k1(site: KoboSite) -> dict:
+    """ACT-K1 (ACT-K2 in the close variant) to CHANGE_APPLIED: the s6 harness accepts the overrun Finding's
+    recommendation at its accept time and applies it an hour later with the change effective the next local midnight
+    (the `tools/demo_combined_kobo.py` apply call), then assess + match. `verify_freeze` / `verify_evaluate` take it
+    on to the evaluator's verdict (MD-0b)."""
+    from test_s6_action_apply_postgres import applying
+
+    _harness_checked(site)
     k = site.spec["sites"]["kobo"]
     spec_action = k["actions"][0]
     event = next(e for e in k["events"] if e["anchor"] == spec_action["for_event"])
 
     def at(step: str) -> datetime:
-        return local_instant(site.spec, "kobo", spec_action[step]["day"], spec_action[step]["local"])
+        return _action_at(site, spec_action, step)
 
     h = applying(site)
     try:
@@ -700,7 +737,7 @@ def act_k1(site: KoboSite) -> dict:
         rec = h.recommendation(finding)
         assert rec.status_code == 200, rec.text
         proposal = rec.json()["proposal"]
-        made = h.accept(finding, proposal, idempotency_key="mechanism-accept-k1")
+        made = h.accept(finding, proposal, idempotency_key=f"mechanism-accept-{spec_action['anchor'].split('-')[-1].lower()}")
         assert made.status_code == 201, made.text
         action_id = made.json()["action"]["action_id"]
         h.clock.at = max(at("apply"), h.clock.at + timedelta(minutes=1))
@@ -708,7 +745,7 @@ def act_k1(site: KoboSite) -> dict:
             "current_foundation_revision_id"]
         applied = h.client.post(f"/api/sites/KOBO-001/actions/{action_id}/apply", json={
             "expected_foundation_revision_id": current, "value": proposal["proposed_value"],
-            "effective_from": _z(at("effective")), "idempotency_key": "mechanism-apply-k1"})
+            "effective_from": _z(at("effective")), "idempotency_key": f"mechanism-apply-{spec_action['anchor'].split('-')[-1].lower()}"})
         assert applied.status_code == 201, applied.text
         site.now = max(site.now, h.clock.at)
         site.step({"do": "assess"})
@@ -727,6 +764,65 @@ def finding_for(site: KoboSite, event: dict):
     found = [f["id"] for f in site.reload()["findings"] if f["anchor_start"].astimezone(tz).date() == want]
     assert len(found) == 1, (event["anchor"], found)
     return found[0]
+
+
+def _verifying(site: KoboSite):
+    """The DEMO-A SYSTEM VERIFY harness (`tools/demo_combined_kobo.py` `_trial_chain` uses the same one), opened
+    after the Findings it grants are matched, with its Action clock past every fact already written."""
+    from test_s6_verification_plan_postgres import verifying
+
+    _harness_checked(site)
+    h = verifying(site)
+    h.clock.at = site.now + timedelta(minutes=1)
+    return h
+
+
+def verify_freeze(site: KoboSite, action: dict) -> dict:
+    """MD-0b: freeze the reserve-trial verification plan (baseline = the overrun hour on the old Foundation, later =
+    the same UTC clock hour after the change) through `POST .../verification/plans`, at the declared freeze time."""
+    spec_action = site.spec["sites"]["kobo"]["actions"][0]
+    h = _verifying(site)
+    try:
+        h.clock.at = max(_action_at(site, spec_action, "verify", "freeze"), h.clock.at)
+        frozen = h.client.post(f"/api/sites/KOBO-001/actions/{action['action_id']}/verification/plans", json={
+            "baseline_start": _z(_action_at(site, spec_action, "verify", "baseline")),
+            "later_start": _z(_action_at(site, spec_action, "verify", "later")),
+            "idempotency_key": f"mechanism-freeze-{spec_action['anchor'].split('-')[-1].lower()}"})
+        assert frozen.status_code == 201, frozen.text
+        plan = frozen.json()["plan"]
+        site.now = max(site.now, h.clock.at)
+        return {"plan_id": plan["plan_id"], "frozen_at": _z(h.clock.at), "baseline_start": plan["baseline_start"],
+                "later_start": plan["later_start"], "baseline_candidate_seconds": plan.get("baseline_candidate_seconds")}
+    finally:
+        h.close()
+
+
+def verify_evaluate(site: KoboSite, action: dict, plan: dict) -> dict:
+    """MD-0b: bind the later window's selection and request the evaluation; the evaluator decides (no monkeypatch,
+    no replaced window evidence or source resolution). Returns the outcome as the product gives it."""
+    spec_action = site.spec["sites"]["kobo"]["actions"][0]
+    key = spec_action["anchor"].split("-")[-1].lower()
+    base = f"/api/sites/KOBO-001/actions/{action['action_id']}/verification"
+    h = _verifying(site)
+    try:
+        h.clock.at = max(_action_at(site, spec_action, "verify", "evaluate"), h.clock.at)
+        bound = h.client.post(f"{base}/plans/{plan['plan_id']}/later-selection",
+                              json={"idempotency_key": f"mechanism-bind-{key}"})
+        assert bound.status_code == 201, bound.text
+        made = h.client.post(f"{base}/evaluations", json={"idempotency_key": f"mechanism-eval-{key}"})
+        assert made.status_code in (200, 201), made.text
+        body = made.json()
+        outcome = body.get("outcome") or {}
+        events = h.client.get(f"/api/sites/KOBO-001/actions/{action['action_id']}/events").json()["events"]
+        site.now = max(site.now, h.clock.at)
+        return {"evaluated_at": _z(h.clock.at), "state": body.get("state"), "reasons": body.get("reasons"),
+                "outcome": outcome.get("outcome"), "outcome_id": outcome.get("outcome_id"),
+                "outcome_reasons": outcome.get("reasons"),
+                "source_classes": {n: (s or {}).get("state") for n, s in
+                                   ((outcome.get("basis") or {}).get("source_resolutions") or {}).items()},
+                "events": [e["kind"] for e in events]}
+    finally:
+        h.close()
 
 
 def derive(url: str, tenant, site_id) -> dict:
@@ -790,10 +886,60 @@ def _publish(site: KoboSite) -> list[str]:
     return out
 
 
+#: MD-0b: a day set names its variant (the close variant is its own DB with its own day list, §2.5).
+VARIANT_DAY_SETS = {"full": "main", "states": "main", "close": "close"}
+
+
+def variant_spec(spec: dict, day_set: str) -> dict:
+    """The fixture as one variant sees it. `main` is the fixture itself; `close` (§2.5, MD-0b) replaces the Kobo
+    events, actions and studies, the gaps, the threads and the day list with `variants.close`'s declarations."""
+    import copy
+
+    variant = VARIANT_DAY_SETS.get(day_set)
+    if variant is None:
+        raise MechanismRefused(f"VARIANT_UNKNOWN: {day_set!r}")
+    if variant == "main":
+        return spec
+    v = spec["variants"]["close"]
+    out = copy.deepcopy(spec)
+    k = out["sites"]["kobo"]
+    k["events"], k["actions"], k["studies"] = v["events"], v["actions"], v["studies"]
+    out["gaps"], out["threads"] = v["gaps"], v["threads"]
+    out["day_sets"] = {**out["day_sets"], "close": {"kobo": v["days"], "source": v["source"]}}
+    return out
+
+
 def seed_steps(spec: dict, day_set: str) -> list[str]:
     """The seed in story order: `begin` (Site, configuration, controls, prices, objective), one `D<n>` per
-    delivered day, `studies`, then `derive` (step 10 and the manifest)."""
-    return ["begin", *[f"D{n}" for n in spec["day_sets"][day_set]["kobo"]], "studies", "derive"]
+    delivered day, `drain_mini` (CH5a1-R3 M1: the product mini worker over the whole story), `studies`, then
+    `derive` (step 10 and the manifest)."""
+    spec = variant_spec(spec, day_set)
+    return ["begin", *[f"D{n}" for n in spec["day_sets"][day_set]["kobo"]], "drain_mini", "studies", "derive"]
+
+
+def drain_mini(url: str, limit: int = 500) -> dict:
+    """CH5a1-R3 M1 (MD-0b): run the product mini-depth worker's `run_pending` until a pass leaves none due, as the
+    real worker does and as `tools/demo_combined.py` `drain_mini` does through the worker's CLI. No reconcile and
+    nothing special for undelivered days: the jobs the DB triggers queued (at DB time, so due now) simply run."""
+    import pg_harness
+    from assetops_backend.mini_depth.worker import build_worker
+
+    total, statuses = 0, {}
+    worker = build_worker(url)
+    try:
+        while True:
+            outcomes = worker.run_pending(limit)
+            total += len(outcomes)
+            for o in outcomes:
+                statuses[o.status] = statuses.get(o.status, 0) + 1
+            failed = [o for o in outcomes if o.status == "FAILED"]
+            if failed:
+                raise AssertionError(f"mini-depth FAILED: {failed[:3]}")
+            if len(outcomes) < limit:
+                break
+    finally:
+        pg_harness.dispose(*[x for x in (getattr(worker, "jobs", None), getattr(worker, "store", None)) if x])
+    return {"processed": total, "statuses": statuses}
 
 
 def seed_part(store, engine, day_set: str, steps: list[str], state: dict | None, work: Path) -> dict:
@@ -803,10 +949,9 @@ def seed_part(store, engine, day_set: str, steps: list[str], state: dict | None,
 
     require_mechanism_db(engine)
     work.mkdir(parents=True, exist_ok=True)
-    spec = load()
+    spec = variant_spec(load(), day_set)
     k = spec["sites"]["kobo"]
-    act = k["actions"][0]
-    act_day, act_local = act["accept"]["day"], act["accept"]["local"]
+    hooks = action_hooks(spec)
     state = {"timings": {}, "action": None, "published": None} if state is None else dict(state)
     site = KoboSite(spec, store, engine, work, resume=None if steps[0] == "begin" else state["site"])
     try:
@@ -816,22 +961,34 @@ def seed_part(store, engine, day_set: str, steps: list[str], state: dict | None,
                 state["published"] = _publish(site)
             elif step.startswith("D"):
                 n = int(step[1:])
-                if n == act_day:  # the morning (with the overrun) is settled before the accept, in story order
-                    site.deliver_day(n, before_local=act_local)
-                    site.settle_day(n, until_local=act_local, depth=False)
-                    state["action"] = act_k1(site)
-                    site.deliver_day(n, from_local=act_local)
-                else:
-                    site.deliver_day(n)
+                prev = None
+                # Story order: the day is delivered up to each action cut and settled, then the cut's command runs
+                # (the accept + apply, the VERIFY freeze, the bind + evaluation); the rest of the day follows.
+                for cut, hook in hooks.get(n, []):
+                    site.deliver_day(n, before_local=cut, from_local=prev)
+                    site.settle_day(n, until_local=cut, depth=False)
+                    if hook == "accept":
+                        state["action"] = act_k1(site)
+                    elif hook == "freeze":
+                        state["verification"] = {"plan": verify_freeze(site, state["action"])}
+                    else:
+                        state["verification"]["evaluation"] = verify_evaluate(site, state["action"],
+                                                                              state["verification"]["plan"])
+                    prev = cut
+                site.deliver_day(n, from_local=prev)
                 site.settle_day(n)
+            elif step == "drain_mini":
+                state["drain_mini"] = drain_mini(site.url)
             elif step == "studies":
                 state["studies"] = site.studies()
             elif step == "derive":
                 chain = derive(site.url, site.tenant, site.site)
                 days = spec["day_sets"][day_set]["kobo"]
                 state["manifest"] = {
-                    "variant": "main", "day_set": day_set, "days": days, "tenant_id": str(site.tenant),
+                    "variant": VARIANT_DAY_SETS[day_set], "day_set": day_set, "days": days,
+                    "tenant_id": str(site.tenant),
                     "site_id": str(site.site), "action": state["action"], "published": state["published"],
+                    "verification": state.get("verification"), "drain_mini": state.get("drain_mini"),
                     "findings": {e["anchor"]: str(finding_for(site, e)) for e in k["events"] if e["day"] in days},
                     "batches": site.deliverer.batches, "readings": site.deliverer.readings,
                     "role_set": site.kit.doc["mapping"]["role_set"], "noon_dropped": site.noon_dropped,
@@ -850,11 +1007,13 @@ def seed_part(store, engine, day_set: str, steps: list[str], state: dict | None,
 
 def seed_database(store, engine, variant: str = "main", day_set: str = "full") -> dict:
     """The setup_cache function op (R5): seeds the Kobo mechanism dataset in story order and returns a plain
-    manifest keyed by declared anchor. Owns and disposes every resource it opens; no monkeypatch."""
+    manifest keyed by declared anchor. Owns and disposes every resource it opens; no monkeypatch. The close variant
+    (§2.5, MD-0b) is the `close` day set."""
     import tempfile
 
-    if variant != "main":
-        raise MechanismRefused("VARIANT_DEFERRED")  # close -> MD-0b (MD0-PF Q3)
+    if variant not in ("main", "close"):
+        raise MechanismRefused(f"VARIANT_UNKNOWN: {variant!r}")
+    day_set = "close" if variant == "close" else day_set
     require_mechanism_db(engine)
     with tempfile.TemporaryDirectory(prefix="mechanism-") as work:
         state = seed_part(store, engine, day_set, seed_steps(load(), day_set), None, Path(work))
@@ -873,6 +1032,9 @@ def seed_database(store, engine, variant: str = "main", day_set: str = "full") -
 
 LEGACY_TEMPLATE_DB = "assetops_mechanism_tpl_test"
 TEMPLATE_RE = re.compile(r"^assetops_mechanism_tpl_([0-9a-f]{8})_test$")
+#: MD-0b: the close variant's input template (§2.5), one per fingerprint as the main one (M4).
+CLOSE_TEMPLATE_RE = re.compile(r"^assetops_mechanism_tplc_([0-9a-f]{8})_test$")
+TEMPLATE_KINDS = {"states": ("tpl", TEMPLATE_RE), "close": ("tplc", CLOSE_TEMPLATE_RE)}
 TEMPLATES_KEPT = 2  # M4: the two newest, so main and one branch never overwrite each other
 TEMPLATE_DAY_SET = "states"
 TAG_SCHEMA = "assetops-mechanism-template/2"  # /2: MD0-S5 M1 traced module list
@@ -988,11 +1150,13 @@ def _guarded(name: str) -> str:
     return '"' + name + '"'
 
 
-def template_name(fingerprint: str) -> str:
-    """M4: the template database for one input fingerprint."""
+def template_name(fingerprint: str, day_set: str = TEMPLATE_DAY_SET) -> str:
+    """M4: the template database for one input fingerprint (MD-0b: and one variant's day set)."""
     if not re.fullmatch(r"[0-9a-f]{64}", fingerprint or ""):
         raise MechanismRefused(f"MECHANISM_DB_ONLY: not a fingerprint: {fingerprint!r}")
-    return f"assetops_mechanism_tpl_{fingerprint[:8]}_test"
+    if day_set not in TEMPLATE_KINDS:
+        raise MechanismRefused(f"VARIANT_UNKNOWN: no template for day set {day_set!r}")
+    return f"assetops_mechanism_{TEMPLATE_KINDS[day_set][0]}_{fingerprint[:8]}_test"
 
 
 def make_tag(state: dict, day_set: str, modules=(), fingerprint: str | None = None) -> dict:
@@ -1044,28 +1208,29 @@ def check_tag(tag: dict | None, fingerprint: str | None = None) -> dict:
     return tag
 
 
-def templates(admin) -> list[tuple[str, dict | None]]:
-    """M4: every per-fingerprint template on the server, newest first (by the tag's `built_at`; an untagged one
-    sorts last). The legacy `assetops_mechanism_tpl_test` is not listed."""
+def templates(admin, day_set: str = TEMPLATE_DAY_SET) -> list[tuple[str, dict | None]]:
+    """M4: every per-fingerprint template of one day set on the server, newest first (by the tag's `built_at`; an
+    untagged one sorts last). The legacy `assetops_mechanism_tpl_test` is not listed."""
     from sqlalchemy import text
 
+    pattern = TEMPLATE_KINDS[day_set][1]
     with admin.connect() as c:
         names = [r[0] for r in c.execute(text("SELECT datname FROM pg_database WHERE datname ~ :re"),
-                                         {"re": TEMPLATE_RE.pattern})]
-    found = [(n, read_tag(admin, n)) for n in sorted(names) if TEMPLATE_RE.fullmatch(n)]
+                                         {"re": pattern.pattern})]
+    found = [(n, read_tag(admin, n)) for n in sorted(names) if pattern.fullmatch(n)]
     return sorted(found, key=lambda nt: str((nt[1] or {}).get("built_at") or ""), reverse=True)
 
 
-def find_template(admin, fingerprint: str | None = None) -> str:
+def find_template(admin, fingerprint: str | None = None, day_set: str = TEMPLATE_DAY_SET) -> str:
     """M4: the template whose tag matches this checkout (each candidate's own traced module list re-hashed, as
     `check_tag` does) and whose name carries that fingerprint. Else `TEMPLATE_STALE` when some template exists
     (naming the newest), or `TEMPLATE_MISSING`."""
-    found = templates(admin)
+    found = templates(admin, day_set)
     for name, tag in found:
         if tag is None:
             continue
         want = fingerprint or input_fingerprint(tag.get("modules") or ())
-        if tag.get("fingerprint") == want and name == template_name(want):
+        if tag.get("fingerprint") == want and name == template_name(want, day_set) and tag.get("day_set") == day_set:
             return name
     tagged = [tag for _, tag in found if tag is not None]
     check_tag(tagged[0] if tagged else None, fingerprint)  # raises: no match means missing or stale
@@ -1077,7 +1242,7 @@ def publish_template(admin, staging: str, tag: dict, keep: int = TEMPLATES_KEPT)
     fingerprint), then drop all but the `keep` newest per-fingerprint templates. Returns (name, dropped)."""
     from sqlalchemy import text
 
-    name = template_name(tag["fingerprint"])
+    name = template_name(tag["fingerprint"], tag["day_set"])
     tag_template(admin, tag, staging)
     quoted_staging, quoted_name = _guarded(staging), _guarded(name)
     with admin.connect() as c:
@@ -1086,26 +1251,27 @@ def publish_template(admin, staging: str, tag: dict, keep: int = TEMPLATES_KEPT)
         c.execute(text("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = :n "
                        "AND pid <> pg_backend_pid()"), {"n": staging})
         c.execute(text(f"ALTER DATABASE {quoted_staging} RENAME TO {quoted_name}"))
-    dropped = prune_list([n for n, _ in templates(admin)], name, keep)
+    dropped = prune_list([n for n, _ in templates(admin, tag["day_set"])], name, keep,
+                         TEMPLATE_KINDS[tag["day_set"]][1])
     for n in dropped:
         drop_database(admin, n)
     return name, dropped
 
 
-def prune_list(newest_first: list[str], kept: str, keep: int = TEMPLATES_KEPT) -> list[str]:
+def prune_list(newest_first: list[str], kept: str, keep: int = TEMPLATES_KEPT, pattern=TEMPLATE_RE) -> list[str]:
     """Pure (M4): the templates to drop, given every per-fingerprint template newest first: all but `kept` and the
     newest `keep - 1` others. Only per-fingerprint names are ever returned (never the legacy single template)."""
-    others = [n for n in newest_first if n != kept and TEMPLATE_RE.fullmatch(n)]
+    others = [n for n in newest_first if n != kept and pattern.fullmatch(n)]
     return others[max(0, keep - 1):]
 
 
-def clone_template(admin, target: str, template: str | None = None) -> dict:
+def clone_template(admin, target: str, template: str | None = None, day_set: str = TEMPLATE_DAY_SET) -> dict:
     """Refuses a missing or stale template, then `CREATE DATABASE target TEMPLATE template`. Returns the tag. With no
     `template`, the one matching this checkout's fingerprint (`find_template`)."""
     from sqlalchemy import text
 
     if template is None:
-        template = find_template(admin)
+        template = find_template(admin, day_set=day_set)
     tag = check_tag(read_tag(admin, template))
     if target == template:
         raise MechanismRefused("MECHANISM_DB_ONLY")
@@ -1225,7 +1391,7 @@ def build_work(url: str, out: Path, manifest: dict, variant: str = "main") -> No
 
     from demo_combined import KEY_NAMES
 
-    spec = load()
+    spec = variant_spec(load(), "close") if variant == "close" else load()  # MD-0b: the close variant's own
     k = spec["sites"]["kobo"]
     out.mkdir(parents=True, exist_ok=True)
     story = {"S": spec["story"]["S"], "code": "mechanism-v1", "sites": ["kobo"], "label": spec["label"],
