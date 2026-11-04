@@ -800,7 +800,7 @@ def tag_template(admin, tag: dict, name: str = TEMPLATE_DB) -> None:
     quoted = _guarded(name)
     body = json.dumps(tag, separators=(",", ":"), default=str).replace("'", "''")
     with admin.connect() as c:
-        c.execute(text(f"COMMENT ON DATABASE {quoted} IS '{body}'"))
+        c.exec_driver_sql(f"COMMENT ON DATABASE {quoted} IS '{body}'")  # no bind parsing of the JSON
 
 
 def read_tag(admin, name: str = TEMPLATE_DB) -> dict | None:
