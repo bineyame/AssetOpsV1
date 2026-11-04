@@ -211,9 +211,9 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
       CLEAN_DAYS); then `consume('lifecycle')` records those events as applied.
     - A cap or deadline hit defers the rest (`deferred`); the code stays OK, so it never backs off the Site.
     The full-scan `run_threads` stays for the backfill only. Idempotent."""
-    from assetops_backend.chain.adapters.file_chain_config import load_event_register
     from assetops_backend.chain.backfill import _lifecycle_report
-    from assetops_backend.chain.composition import build_event_store, build_thread_sources, build_thread_store
+    from assetops_backend.chain.composition import (build_event_store, build_thread_sources, build_thread_store,
+                                                    load_event_register)
     from assetops_backend.chain.events import SiteInfo, consume
     from assetops_backend.chain.lifecycle_run import run_lifecycle
     from assetops_backend.chain.threads import ThreadRegistry
@@ -264,8 +264,7 @@ def chain_snapshots(url: str, args: dict[str, Any]) -> dict[str, Any]:
     """CH-1b (build sheet §3): `consume('snapshots')` marks this Site's affected Site-local days and measures dirty
     (up to `consume_limit` events), then `drain` rebuilds up to `items` dirty rows; the fingerprint decides every
     skip. A cap or deadline hit leaves the rest queued and reports it as `deferred`, never as a failure."""
-    from assetops_backend.chain.adapters.file_chain_config import load_event_register
-    from assetops_backend.chain.composition import build_chain_services
+    from assetops_backend.chain.composition import build_chain_services, load_event_register
     from assetops_backend.chain.drain import drain
     from assetops_backend.chain.events import SiteInfo, consume
 
