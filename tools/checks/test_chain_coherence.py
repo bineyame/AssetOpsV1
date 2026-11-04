@@ -86,6 +86,18 @@ def test_expect_semantics() -> None:
     assert cc.check(cc.Bundle(BUNDLES / "clean"), [gone])["pass"] is True
 
 
+def test_wildcard_subject_expectation_is_bounded_by_count() -> None:
+    """MD0b-R: subject "*" covers `count` findings of its (rule, site, window), no more, and no other window."""
+    bundle = cc.Bundle(BUNDLES / "coh2_no_action")
+    rule, site, window, _ = FAILING["coh2_no_action"]
+    wild = {"rule": rule, "site_code": site, "window": window, "subject": "*", "count": 1, "register": "MD0b-R:A1"}
+    assert cc.check(bundle, [wild])["pass"] is True
+    assert cc.check(bundle, [{**wild, "count": 0}])["pass"] is False  # beyond the count: unexpected
+    other = {**wild, "window": "no-such-window"}
+    report = cc.check(bundle, [other])
+    assert report["pass"] is False and report["resolved"] == [other]  # another window does not cover it
+
+
 def test_check_cli_exit_codes(tmp_path: Path, capsys) -> None:
     bundle = BUNDLES / "coh2_no_action"
     assert cc.main(["check", "--bundle", str(bundle)]) == 1
@@ -651,7 +663,7 @@ def test_expected_mechanism_loads_and_only_names_declared_gaps() -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     assert data["schema"] == "chain-coherence-expected/1" and "GAP-K7" in data["rule"]
     for e in cc.load_expect(path):
-        assert e["register"].startswith("MD-0:") and e.get("owner"), e
+        assert e["register"].startswith(("MD-0:", "MD0b-R:")) and e.get("owner"), e
 
 
 def test_settle_also_accepts_the_mechanism_dbs_only() -> None:

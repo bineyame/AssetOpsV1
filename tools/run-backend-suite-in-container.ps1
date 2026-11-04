@@ -37,6 +37,7 @@ param(
     [ValidateSet('dedicated', 'shared')][string]$Server = 'dedicated',
     [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all',
     [ValidateSet('on', 'off', 'verify')][string]$Cache = 'on',  # PERF-02: build once, copy per test
+    [ValidateSet('auto', 'yes', 'no')][string]$Close = 'auto',  # MD0b-R: build the close mechanism template (yes at E1/E4 and in the post-merge job)
     [switch]$Attribution  # PERF-01: per-test time attribution (backend/tests/phase_attribution.py) to <run>/attribution
 )
 
@@ -75,6 +76,15 @@ if ($LASTEXITCODE -eq 0 -and $label -ne $project) {
 $runId = '{0}-{1}' -f (Get-Date -Format 'yyyyMMdd-HHmmss'), ([guid]::NewGuid().ToString('N').Substring(0, 6))
 $runDir = Join-Path $worktree "var\test-results\OPS-03\$runId"
 New-Item -ItemType Directory -Path $runDir -ErrorAction Stop | Out-Null
+
+# MD0b-R: the slice's changed paths and the base fixture go into the run folder for `ensure --close auto` (the
+# container has no usable git). A git failure writes nothing, and ensure then builds the close template to be safe.
+$env:ASSETOPS_MECHANISM_CLOSE = $Close
+$baseSha = (& git -C $worktree merge-base HEAD main 2>$null)
+if ($LASTEXITCODE -eq 0 -and $baseSha) {
+    & git -C $worktree diff --name-only $baseSha 2>$null | Set-Content -Path (Join-Path $runDir 'slice-paths.txt') -Encoding utf8
+    & git -C $worktree show "${baseSha}:backend/conversions/mechanism-v1.json" 2>$null | Set-Content -Path (Join-Path $runDir 'base-mechanism-v1.json') -Encoding utf8
+}
 
 $password = $env:ASSETOPS_PG_PASSWORD
 if (-not $password) { $password = 'assetops-local-dev' }

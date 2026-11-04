@@ -5,7 +5,7 @@
     python tools/mechanism_dataset.py build --variant close [--budget 540] [--resume]   # the close input template
     python tools/mechanism_dataset.py derive [--variant states|close]   # clone a template to its L3m DB, derive
     python tools/mechanism_dataset.py status        # the templates against this checkout's input writers
-    python tools/mechanism_dataset.py ensure        # reuse the matching templates, else build them in one go
+    python tools/mechanism_dataset.py ensure [--close auto|yes|no]  # reuse/build the main template; the close one on demand (MD0b-R)
     python tools/mechanism_dataset.py drop [--variant states|full|legacy]
 
 - `states` builds the input template: every seed step but `derive` (INPUTS only) into a staging DB
@@ -171,6 +171,14 @@ def _size(engine) -> int:
         return c.execute(text("SELECT pg_database_size(current_database())")).scalar_one()
 
 
+def _estimate(timings: dict, steps: list[str], step: str) -> float:
+    """The seconds a step is expected to take: its own earlier time, else the longest ordinary step seen (the drain
+    is excluded from that, it runs alone), else 60."""
+    if step in timings:
+        return timings[step]
+    return max([v for k, v in timings.items() if k in steps and k != "drain_mini"] or [60.0])
+
+
 def build(variant: str, budget: float, resume: bool) -> int:
     name, work = db_name(variant), work_dir(variant)
     day_set = VARIANTS[variant][2]
@@ -218,11 +226,14 @@ def build(variant: str, budget: float, resume: bool) -> int:
     templated = VARIANTS[variant][0] is None  # states and close: an input template (no derive)
     steps = md.input_steps(spec, day_set) if templated else md.seed_steps(spec, day_set)
     todo = [s for s in steps if s not in saved["done"]]
-    started, longest = time.perf_counter(), max([v for k, v in saved["timings"].items() if k in steps] or [60.0])
+    started, part_done = time.perf_counter(), 0
     engine, store = create_engine(url), PostgresFoundationStore(url)
     try:
         for step in todo:
-            if saved["done"] and time.perf_counter() - started + longest > budget:
+            # MD0b-R (Known deviation 5): the drain runs in its own part, so a part that ends at D14 is never
+            # followed by the 335-430 s drain inside one foreground budget; its own time is its estimate.
+            if budget != float("inf") and part_done and (
+                    step == "drain_mini" or time.perf_counter() - started + _estimate(saved["timings"], steps, step) > budget):
                 print(f"budget: stopping before {step} ({len(saved['done'])}/{len(steps)} steps done); "
                       f"resume with: python tools/mechanism_dataset.py build --variant {variant} --resume")
                 return EXIT_RESUME
@@ -230,7 +241,7 @@ def build(variant: str, budget: float, resume: bool) -> int:
             saved["state"], saved["done"] = state, saved["done"] + [step]
             saved["inputs"] = md.record_inputs(saved["inputs"])  # MD0-S5 M1: the modules this step loaded
             saved["timings"][step] = state["timings"][step]
-            longest = max(longest, state["timings"][step])
+            part_done += 1
             state_path.write_text(json.dumps(saved, indent=1, default=str), encoding="utf-8")
             print(f"{step}: {state['timings'][step]}s", flush=True)
         size = _size(engine)
@@ -244,7 +255,8 @@ def build(variant: str, budget: float, resume: bool) -> int:
     seed_seconds = round(sum(v for k, v in saved["timings"].items() if k in steps), 1)
     out = {"db": name, "variant": variant, "day_set": day_set, "seed_seconds": seed_seconds,
            "create_migrate_seconds": saved["timings"].get("create+migrate"), "db_bytes": size,
-           "readings": saved["state"]["site"]["readings"], "batches": saved["state"]["site"]["batches"]}
+           "readings": saved["state"]["site"]["readings"], "batches": saved["state"]["site"]["batches"],
+           "step_seconds": {k: v for k, v in saved["timings"].items() if k in steps}}  # MD0b-R: per-step seed timings
     if templated:
         admin = md.admin_engine(url)
         try:
@@ -330,9 +342,84 @@ def status() -> int:
     return 0 if usable else 1
 
 
-def ensure() -> int:
-    """The suite runner's step (FIX-MAIN-1): reuse each matching template, else build it now, with no budget."""
-    for day_set in TEMPLATED:
+#: MD0b-R: a slice that touches one of these needs the close template (the close L2m test clones it)
+CLOSE_PATH_RE = re.compile(
+    r"^(backend/assetops_backend/chain/(lifecycle[^/]*\.py|threads\.py)"
+    r"|backend/assetops_backend/chain/adapters/postgres_thread_store\.py"
+    r"|config/chain/thread-lifecycle-v1\.json"
+    r"|backend/tests/mechanism_dataset\.py|tools/mechanism_dataset\.py)$")
+FIXTURE = "backend/conversions/mechanism-v1.json"
+CLOSE_TEST = ("backend/tests/test_md0_mechanism_postgres.py::"
+              "test_close_variant_resolves_closes_after_seven_clean_days_and_recurs")
+
+
+def close_needed(paths: list[str], base_fixture: str | None, now_fixture: str | None) -> list[str]:
+    """The reasons the slice needs the close template (empty: it does not). `paths` are the slice's changed files;
+    the fixture counts only when its `variants.close` differs from the base's."""
+    reasons = [p for p in paths if CLOSE_PATH_RE.match(p)]
+    if FIXTURE in paths:
+        try:
+            same = json.loads(base_fixture)["variants"]["close"] == json.loads(now_fixture)["variants"]["close"]
+        except (TypeError, ValueError, KeyError):
+            same = False  # unreadable either side: treat as changed
+        if not same:
+            reasons.append(f"{FIXTURE} (variants.close)")
+    return reasons
+
+
+def _git(*args: str) -> str | None:
+    import subprocess
+
+    try:
+        r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return r.stdout if r.returncode == 0 else None
+
+
+def slice_inputs(paths_file: str | None, base_fixture_file: str | None) -> tuple[list[str] | None, str | None, str | None]:
+    """(changed paths, base fixture text, current fixture text), or paths None when the slice diff cannot be read.
+    The host runner writes the two files (the container has no usable git); otherwise git is asked directly."""
+    now = (REPO / FIXTURE).read_text(encoding="utf-8") if (REPO / FIXTURE).is_file() else None
+    if paths_file and Path(paths_file).is_file():
+        base = Path(base_fixture_file).read_text(encoding="utf-8-sig") if base_fixture_file and Path(base_fixture_file).is_file() else None
+        return [p.strip() for p in Path(paths_file).read_text(encoding="utf-8-sig").splitlines() if p.strip()], base, now
+    for ref in ("main", "origin/main"):
+        base_sha = (_git("merge-base", "HEAD", ref) or "").strip()
+        if base_sha:
+            out = _git("diff", "--name-only", base_sha)  # committed and uncommitted changes since the base
+            if out is not None:
+                return [p for p in out.splitlines() if p], _git("show", f"{base_sha}:{FIXTURE}"), now
+    return None, None, now
+
+
+def ensure(close: str = "auto", paths_file: str | None = None, base_fixture_file: str | None = None) -> int:
+    """The suite runner's step (FIX-MAIN-1): reuse each matching template, else build it now, with no budget.
+    MD0b-R: the main template always; the close template only when `close` is `yes`, or `auto` and the slice
+    touches a close input (CLOSE_PATH_RE, `variants.close`), or it already matches (reuse costs nothing). When it is
+    not selected this prints `ensure: close not selected` and the runner deselects the close test; never silent."""
+    wanted = ["states"]
+    paths, base_fx, now_fx = (None, None, None) if close != "auto" else slice_inputs(paths_file, base_fixture_file)
+    if close == "yes":
+        wanted.append("close")
+        print("ensure: close template requested explicitly", flush=True)
+    elif close == "auto":
+        match, _, _ = _match("close")
+        reasons = None if paths is None else close_needed(paths, base_fx, now_fx)
+        if match:
+            wanted.append("close")
+        elif paths is None:
+            wanted.append("close")
+            print("ensure: the slice diff cannot be read; building the close template to be safe", flush=True)
+        elif reasons:
+            wanted.append("close")
+            print(f"ensure: the slice touches close inputs ({', '.join(reasons[:4])}); building the close template",
+                  flush=True)
+    if "close" not in wanted:
+        print(json.dumps({"ensure": "close not selected", "deselect": CLOSE_TEST,
+                          "why": "the slice touches no close input; pass --close yes (E1/E4, the post-merge job) to run it"}),
+              flush=True)
+    for day_set in wanted:
         match, _, _ = _match(day_set)
         if match:
             print(json.dumps({"ensure": "reused", "variant": day_set, "template": match}))
@@ -403,7 +490,11 @@ def main(argv: list[str] | None = None) -> int:
     dv = sub.add_parser("derive")
     dv.add_argument("--variant", default="states")
     sub.add_parser("status")
-    sub.add_parser("ensure")
+    e = sub.add_parser("ensure")
+    e.add_argument("--close", choices=("auto", "yes", "no"), default=os.environ.get("ASSETOPS_MECHANISM_CLOSE", "auto"),
+                   help="build the close template: yes (E1/E4, post-merge), auto (when the slice touches a close input)")
+    e.add_argument("--slice-paths", default=os.environ.get("ASSETOPS_MECHANISM_SLICE_PATHS"))
+    e.add_argument("--base-fixture", default=os.environ.get("ASSETOPS_MECHANISM_BASE_FIXTURE"))
     d = sub.add_parser("drop")
     d.add_argument("--variant", default="full")
     args = parser.parse_args(argv)
@@ -414,7 +505,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "status":
         return status()
     if args.command == "ensure":
-        return ensure()
+        return ensure(args.close, args.slice_paths, args.base_fixture)
     return drop(args.variant)
 
 
