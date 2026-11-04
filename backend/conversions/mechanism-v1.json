@@ -72,9 +72,9 @@
       "actions": [
         {"anchor": "ACT-K1", "fixture": "reserve-trial-1", "for_event": "K-OVR-D11",
          "accept": {"day": 11, "local": "13:00"}, "apply": {"day": 11, "local": "14:00"}, "effective": {"day": 12, "local": "00:00"},
-         "verify": {"baseline": {"day": 11, "local": "08:00"}, "freeze": {"day": 13, "local": "00:30"}, "later": {"day": 13, "local": "08:00"},
+         "verify": {"baseline": {"day": 11, "local": "08:30"}, "freeze": {"day": 13, "local": "00:30"}, "later": {"day": 13, "local": "08:30"},
                     "evaluate": {"day": 13, "local": "10:00"},
-                    "source": "MD-0b: SYSTEM VERIFY freeze, later-selection bind and evaluation through the Action API (tools/demo_combined_kobo.py _trial_chain). Baseline = the overrun hour. The freeze waits until the baseline's UTC days are final (a UTC day's dispatch run reads to 06:00Z of the next UTC day, so it is re-selected until then: BASELINE_SELECTION_CHANGED, B/actions/verification.py _assess) and precedes any later-window reading (VERIFICATION_LATER_WINDOW_STARTED, freeze check); the later window is the same UTC clock hour two days on; bind and evaluate once the later window and its UTC days to 06:00Z are delivered"},
+                    "source": "MD-0b: SYSTEM VERIFY freeze, later-selection bind and evaluation through the Action API (tools/demo_combined_kobo.py _trial_chain). Baseline = the overrun hour from 08:30, after the configured 30 min minimum runtime (its first 30 min are INDETERMINATE, possibly within minimum runtime, so a window holding them is VERIFICATION_BASELINE_UNSUPPORTED; windows start on a 5-min UTC boundary). The freeze waits until the baseline's UTC days are final (a UTC day's dispatch run reads to 06:00Z of the next UTC day, so it is re-selected until then: BASELINE_SELECTION_CHANGED, B/actions/verification.py _assess) and precedes any later-window reading (VERIFICATION_LATER_WINDOW_STARTED, freeze check); the later window is the same UTC clock hour two days on; bind and evaluate once the later window and its UTC days to 06:00Z are delivered"},
          "source": "backend/tests/s6_action_records.py EFFECTIVE shape; MD-0b: through VERIFIED (MD0-PF Q3)"}
       ],
       "publications": [
@@ -104,7 +104,7 @@
                          "actions": [
                            {"anchor": "ACT-K2", "fixture": "reserve-trial-1", "for_event": "K-OVR-D2",
                             "accept": {"day": 2, "local": "13:00"}, "apply": {"day": 2, "local": "14:00"}, "effective": {"day": 3, "local": "00:00"},
-                            "verify": {"baseline": {"day": 2, "local": "08:00"}, "freeze": {"day": 4, "local": "00:30"}, "later": {"day": 4, "local": "08:00"},
+                            "verify": {"baseline": {"day": 2, "local": "08:30"}, "freeze": {"day": 4, "local": "00:30"}, "later": {"day": 4, "local": "08:30"},
                                        "evaluate": {"day": 4, "local": "10:00"},
                                        "source": "build sheet MD-0 §2.5 (ACT-K1's local times on the D2 overrun) with the main variant's verify rule (freeze after the baseline UTC days are final, later window two days on)"},
                             "source": "build sheet MD-0 §2.5; backend/tests/s6_action_records.py EFFECTIVE shape"}

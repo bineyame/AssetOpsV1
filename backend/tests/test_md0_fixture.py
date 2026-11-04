@@ -332,9 +332,12 @@ def test_the_verify_windows_fit_the_product_rules(variant_set) -> None:
     edge = lambda t: datetime.combine(t.date() + md.timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)         + md.timedelta(hours=6)  # noqa: E731
     assert edge(b0) <= at(v["freeze"]) < l0
     assert at(v["evaluate"]) >= max(l0 + md.timedelta(hours=1), edge(l0) - md.timedelta(days=1))
-    # the baseline is the declared overrun hour of the Action's Finding
+    # the baseline starts inside the declared overrun of the Action's Finding, once its configured 30 min minimum
+    # runtime has passed (those minutes are INDETERMINATE, so a window holding them is UNSUPPORTED)
     event = next(e for e in spec["sites"]["kobo"]["events"] if e["anchor"] == a["for_event"])
-    assert (v["baseline"]["day"], v["baseline"]["local"]) == (event["day"], event["from_local"])
+    run_start = md.local_instant(spec, "kobo", event["day"], event["from_local"])
+    assert v["baseline"]["day"] == event["day"]
+    assert run_start + md.timedelta(minutes=30) == b0 < md.local_instant(spec, "kobo", event["day"], event["to_local"])
 
 
 def test_the_close_variant_is_its_own_story() -> None:
