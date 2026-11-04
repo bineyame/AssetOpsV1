@@ -81,6 +81,10 @@ def test_late_fill_refuses_all_but_the_declared_fillable_gap() -> None:
 @pytest.mark.parametrize("name, allowed", [
     ("assetops_mechanism_test", True),
     ("assetops_mechanism_close_test", True),
+    ("assetops_mechanism_tpl_test", True),
+    ("assetops_mechanism_c0a1b2c3d4e_test", True),
+    ("assetops_mechanism_cxyz_test", False),
+    ("assetops_mechanism_other_test", False),
     ("assetops_pt1a2b_main_test", True),
     ("assetops_pt7_gw3_test", True),
     ("assetops_polish_full_test", False),
@@ -92,3 +96,39 @@ def test_late_fill_refuses_all_but_the_declared_fillable_gap() -> None:
 ])
 def test_mechanism_db_only(name, allowed) -> None:
     assert md.mechanism_db_allowed(name) is allowed
+
+
+# --- MD0-S3 Q1: the input template (pure parts) ------------------------------------------------------------------
+
+
+def test_template_holds_inputs_only() -> None:
+    spec = md.load()
+    steps = md.input_steps(spec, "states")
+    assert "derive" not in steps and steps == md.seed_steps(spec, "states")[:-1]
+    assert steps[0] == "begin" and steps[-1] == "studies"
+
+
+def test_check_tag_refuses_missing_and_stale() -> None:
+    with pytest.raises(md.MechanismRefused, match="TEMPLATE_MISSING"):
+        md.check_tag(None, "a" * 64)
+    tag = md.make_tag({"site": {}}, "states", fingerprint="a" * 64)
+    with pytest.raises(md.MechanismRefused, match="TEMPLATE_STALE"):
+        md.check_tag(tag, "b" * 64)
+    assert md.check_tag(tag, "a" * 64) is tag
+
+
+def test_input_fingerprint_moves_with_an_input_writer_only(tmp_path) -> None:
+    """Every input-writer tree and file is hashed; a file outside them (an analytics module) is not."""
+    writers = [*md.INPUT_WRITER_FILES, *(f"{t}/x.py" for t in md.INPUT_WRITER_TREES)]
+    for rel in [*writers, "backend/assetops_backend/analytics/y.py"]:
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(b"v1\n")
+    base = md.input_fingerprint(tmp_path)
+    (tmp_path / "backend/assetops_backend/analytics/y.py").write_bytes(b"v2\n")
+    assert md.input_fingerprint(tmp_path) == base
+    for rel in writers:
+        (tmp_path / rel).write_bytes(b"changed\n")
+        assert md.input_fingerprint(tmp_path) != base, rel
+        (tmp_path / rel).write_bytes(b"v1\n")
+    (tmp_path / "backend/migrations/x.py").write_bytes(b"v1\r\n")  # CRLF == LF
+    assert md.input_fingerprint(tmp_path) == base

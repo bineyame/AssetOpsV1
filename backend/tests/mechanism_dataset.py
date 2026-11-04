@@ -27,7 +27,9 @@ DAY_SETS = ("full", "states")
 
 #: R2 / D-AW-1: the only databases MD-0 may seed or fill. The pg_harness worker pattern is
 #: `<stem>_pt<run>_<tag>_test` (`pg_harness.database_name`).
-MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close)?_test$")
+#: MD0-S3: also the input template `assetops_mechanism_tpl_test` and its per-run clones
+#: `assetops_mechanism_c<hex>_test` (`clone_template`).
+MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_c[0-9a-f]{6,16})?_test$")
 WORKER_DB_RE = re.compile(r"^[a-z0-9_]+_pt[0-9a-z]+_(main|tpl|gw[0-9]+)_test$")
 ALWAYS_REFUSED_RE = re.compile(r"^assetops_(polish|demo)")
 PROTECTED = ("assetops_polish_full_test", "assetops_demo3_full_test")  # B/chain/backfill.py:29
@@ -45,6 +47,13 @@ def mechanism_db_allowed(name: str) -> bool:
     if name in PROTECTED or ALWAYS_REFUSED_RE.match(name):
         return False
     return bool(MECHANISM_DB_RE.match(name) or WORKER_DB_RE.match(name))
+
+
+def _db_now(engine) -> datetime:
+    from sqlalchemy import text
+
+    with engine.connect() as c:
+        return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
 
 def require_mechanism_db(engine) -> str:
@@ -492,10 +501,11 @@ class KoboSite:
         out = []
         for study in self.spec["sites"]["kobo"]["studies"]:
             hi = local_instant(self.spec, "kobo", study["to_day"], "24:00")
-            # The opportunity job is enqueued at DB time (real), so a story-time lease clock never leases it
-            # (seen: both studies returned []). The lease runs on DB time: the study is recorded at build time,
-            # an R4 writer-without-story-clock fact (-> DD-1), named in the packet.
-            worker = build_worker(self.url)
+            # MD0-S3 Q3: the opportunity job is enqueued at DB time (real), so a story-time lease clock never
+            # leases it (seen: both studies returned []). The harness passes the existing `test_lease_clock` seam
+            # with DB now, for this worker only; no product code changes. The studies are therefore recorded at
+            # build time: an R4 build-time fact (-> DD-1b R7, a story-time `available_at` on the enqueue).
+            worker = build_worker(self.url, test_lease_clock=lambda: _db_now(self.engine))
             try:
                 queued = worker.reconcile(self.spec["sites"]["kobo"]["site_code"],
                                           local_instant(self.spec, "kobo", study["from_day"], "00:00"), hi)
@@ -700,6 +710,168 @@ def seed_database(store, engine, variant: str = "main", day_set: str = "full") -
         state = seed_part(store, engine, day_set, seed_steps(load(), day_set), None, Path(work))
     manifest = state["manifest"]
     manifest["timings"] = {**state["timings"], "total": round(sum(state["timings"].values()), 1)}
+    return manifest
+
+
+# --- the input template (Architect MD0-S3 Q1) --------------------------------------------------------------------
+#
+# `tools/mechanism_dataset.py build --variant states` runs every seed step but `derive` into TEMPLATE_DB, in parts,
+# and only then tags it (COMMENT ON DATABASE) with the input-writer fingerprint and the seed state. A slice's L2m
+# clones it (`CREATE DATABASE ... TEMPLATE`, seconds) and runs `derive` (step 10) with its own code. A template whose
+# tag is missing (an unfinished build) or whose fingerprint differs from this checkout's input writers is refused:
+# the slice rebuilds the template, it never uses stale inputs.
+
+TEMPLATE_DB = "assetops_mechanism_tpl_test"
+TEMPLATE_DAY_SET = "states"
+TAG_SCHEMA = "assetops-mechanism-template/1"
+REPO = Path(__file__).resolve().parents[2]
+#: The input writers (MD0-S3 Q1): evidence ledger and publication, the Site configuration and controls, s6
+#: (Actions), work and domain intent, objectives, the schema, the fixture and documents, and the seed modules.
+INPUT_WRITER_TREES = ("backend/assetops_backend/evidence", "backend/assetops_backend/sites",
+                      "backend/assetops_backend/actions", "backend/assetops_backend/work",
+                      "backend/assetops_backend/objectives", "backend/migrations", "backend/conversions",
+                      "contracts/assetops_contracts")
+INPUT_WRITER_FILES = ("backend/assetops_backend/publish_source.py", "backend/assetops_backend/publish_assumption.py",
+                      "backend/assetops_backend/declare_objective.py", "backend/assetops_backend/action_api.py",
+                      "backend/assetops_backend/domain_work_api.py", "backend/tests/mechanism_dataset.py",
+                      "backend/tests/s6_action_records.py", "backend/tests/test_s2_evidence_ledger_postgres.py",
+                      "backend/tests/test_s4_finding_store_postgres.py",
+                      "backend/tests/test_s6_action_store_postgres.py",
+                      "backend/tests/test_s6_action_apply_postgres.py", "tools/demo_combined_kobo.py",
+                      "tools/demo_story_days.py", "tools/w402_mini_depth_cases.py")
+
+
+def input_writer_files(root: Path = REPO) -> list[Path]:
+    files = []
+    for tree in INPUT_WRITER_TREES:
+        files.extend(p for p in (root / tree).rglob("*") if p.is_file() and "__pycache__" not in p.parts
+                     and not p.name.endswith((".pyc", ".sqlite3")))
+    files.extend(root / f for f in INPUT_WRITER_FILES if (root / f).is_file())
+    return sorted(set(files))
+
+
+def input_fingerprint(root: Path = REPO) -> str:
+    """SHA-256 over the input writers' paths and LF-normalised bytes (the setup_cache rule)."""
+    import hashlib
+
+    digest = hashlib.sha256()
+    for path in input_writer_files(root):
+        digest.update(str(path.relative_to(root)).replace("\\", "/").encode())
+        digest.update(b"\0")
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
+    return digest.hexdigest()
+
+
+def input_steps(spec: dict, day_set: str) -> list[str]:
+    """The template's steps: every seed step but `derive` (step 10 runs on the clone, with the branch's code)."""
+    return [s for s in seed_steps(spec, day_set) if s != "derive"]
+
+
+def admin_engine(url: str):
+    """One AUTOCOMMIT engine on the server's `postgres` database (the server of `url`)."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.engine import make_url
+    from sqlalchemy.pool import NullPool
+
+    return create_engine(make_url(url).set(database="postgres"), poolclass=NullPool, isolation_level="AUTOCOMMIT")
+
+
+def database_url(url: str, name: str) -> str:
+    from sqlalchemy.engine import make_url
+
+    return make_url(url).set(database=name).render_as_string(hide_password=False)
+
+
+def _guarded(name: str) -> str:
+    if not mechanism_db_allowed(name) or not MECHANISM_DB_RE.match(name):
+        raise MechanismRefused("MECHANISM_DB_ONLY")
+    return '"' + name + '"'
+
+
+def make_tag(state: dict, day_set: str, fingerprint: str | None = None) -> dict:
+    return {"schema": TAG_SCHEMA, "fingerprint": fingerprint or input_fingerprint(), "day_set": day_set,
+            "state": state}
+
+
+def tag_template(admin, tag: dict, name: str = TEMPLATE_DB) -> None:
+    """Writes the tag as the database comment; called only after every input step has run."""
+    from sqlalchemy import text
+
+    quoted = _guarded(name)
+    body = json.dumps(tag, separators=(",", ":"), default=str).replace("'", "''")
+    with admin.connect() as c:
+        c.execute(text(f"COMMENT ON DATABASE {quoted} IS '{body}'"))
+
+
+def read_tag(admin, name: str = TEMPLATE_DB) -> dict | None:
+    """The template's tag, or None (no such database, or an unfinished build: no comment)."""
+    from sqlalchemy import text
+
+    with admin.connect() as c:
+        raw = c.execute(text("SELECT shobj_description(oid, 'pg_database') FROM pg_database WHERE datname = :n"),
+                        {"n": name}).scalar_one_or_none()
+    if not raw:
+        return None
+    try:
+        tag = json.loads(raw)
+    except ValueError:
+        return None
+    return tag if isinstance(tag, dict) and tag.get("schema") == TAG_SCHEMA else None
+
+
+def check_tag(tag: dict | None, fingerprint: str | None = None) -> dict:
+    """Pure: the usable tag, else `MechanismRefused` with `TEMPLATE_MISSING` (no database or no tag: an unfinished
+    build) or `TEMPLATE_STALE` (the input writers changed since the build)."""
+    if tag is None:
+        raise MechanismRefused("TEMPLATE_MISSING: build it with "
+                               "`python tools/mechanism_dataset.py build --variant states --budget 540`")
+    want = fingerprint or input_fingerprint()
+    if tag.get("fingerprint") != want:
+        raise MechanismRefused(f"TEMPLATE_STALE: template inputs {str(tag.get('fingerprint'))[:12]} != this "
+                               f"checkout {want[:12]}; rebuild with `python tools/mechanism_dataset.py build "
+                               f"--variant states --budget 540`")
+    return tag
+
+
+def clone_template(admin, target: str, template: str = TEMPLATE_DB) -> dict:
+    """Refuses a missing or stale template, then `CREATE DATABASE target TEMPLATE template`. Returns the tag."""
+    from sqlalchemy import text
+
+    tag = check_tag(read_tag(admin, template))
+    if target == template:
+        raise MechanismRefused("MECHANISM_DB_ONLY")
+    quoted_target, quoted_template = _guarded(target), _guarded(template)
+    with admin.connect() as c:
+        c.execute(text(f"DROP DATABASE IF EXISTS {quoted_target} WITH (FORCE)"))
+        c.execute(text(f"CREATE DATABASE {quoted_target} TEMPLATE {quoted_template}"))
+        c.execute(text(f"ALTER DATABASE {quoted_target} SET synchronous_commit = off"))
+    return tag
+
+
+def drop_database(admin, name: str) -> None:
+    from sqlalchemy import text
+
+    quoted = _guarded(name)
+    with admin.connect() as c:
+        c.execute(text(f"DROP DATABASE IF EXISTS {quoted} WITH (FORCE)"))
+
+
+def derive_clone(url: str, tag: dict, work: Path) -> dict:
+    """Step 10 on a clone with this checkout's code: `seed_part([derive])` resumed from the template's seed state.
+    Returns the manifest (as `seed_database`), with the derive time."""
+    from sqlalchemy import create_engine
+
+    import pg_harness
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+
+    engine, store = create_engine(url), PostgresFoundationStore(url)
+    try:
+        state = seed_part(store, engine, tag["day_set"], ["derive"], tag["state"], work)
+    finally:
+        pg_harness.dispose(store)
+        engine.dispose()
+    manifest = state["manifest"]
+    manifest["timings"] = {"derive": state["timings"]["derive"], "template": tag["state"].get("timings")}
     return manifest
 
 
