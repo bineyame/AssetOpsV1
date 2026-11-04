@@ -1,0 +1,65 @@
+# CH-9 handoff (PARTIAL: pre-flight ruled, build not started)
+
+Worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch9`, branch `task/CH-9-measured-daylight`, base main `692e4d57e`.
+Commits: `5af83b877` pre-flight. No product code, no DB touched, no process left running.
+Why stopped: the pre-flight survey used most of the first agent's context, and the 5-unit build needs a fresh one.
+
+## Read first (only these)
+- plan2 `.agent/build-sheet-CH-9.md` §9 (OWN-1104) and **§10 CH9-R2 (wins on conflict)**; §2 copy; §5 ladder.
+- `.agent/CH-9-preflight.md` (this worktree): every `path:line` anchor below is already verified there.
+
+## Build order (ladder L0 -> L4, localised tests only)
+1. **u1: 0046 + daylight helper.**
+   - New `backend/migrations/versions/0046_daylight_enqueue.py`, with `down_revision` = `0045_thread_known_at`.
+   - It does `CREATE OR REPLACE` on the three 0029 functions (`0029_w4_mini_depth.py:190,257,295`; copy their bodies from `:165-310`). Changes:
+     - renewable work is enqueued for an hour holding an accepted `pv_available_power` reading > 0;
+     - the late-feeder case: any renewable-role reading in such an hour also enqueues;
+     - a Site with no in-force `pv_available_power` binding keeps noon;
+     - `:190` refuses an hour with no positive reading.
+   - The downgrade restores the 0029 bodies.
+   - One period helper: the declared operating hours from `config/chain/operating-calendar-v1.json` (Kobo 24 h). `critical_served` shares it.
+   - One function, `daylight_hours(site, day, cutoff)`, in `B/mini_depth/store.py` (or a new pure module plus a store query). It implements the §10 Q2/Q3 rules:
+     - an hour not fully covered by pv readings (clipped union, `rules._coverage`, `received_at <= k`) is a missing hour;
+     - daylight hours are the fully covered hours with every overlapping reading > 0;
+     - it returns `(hours, missing)`;
+     - a Site with no binding gets `(12,)`.
+   - Replace `worker.py:35,117` and `read.py:98-117` (`hour_windows`), and `read.py:510` (`read_selected_renewable_basis`).
+   - Test L2: `backend/tests/test_ch9_daylight_postgres.py` on `pg_harness.fresh_database()`.
+2. **u2: R4 study `/2` (Q5 shape) and the measure.**
+   - Study: `B/mini_decisions/projection.py:78-195` (`day_heads`, `day_row`, `frozen_result`) and `store.py:337` (`renewable_noon_heads` becomes per-day hour heads). Bump `OPPORTUNITY_MODEL_VERSION` to `/2`; `/1` stays readable, branched on `model_version`.
+   - Day decision: CONFLICT > LIMITED > ELIGIBLE(any) > EXCLUDED; any missing hour makes the day missing.
+   - Day headroom: `headroom_on_every_eligible_day` (`rules.py:400`) over the eligible hours; `window_hours` = eligible hours, minimum over eligible days.
+   - Remove the hard-coded `window_hours: 1` at `B/chain/opportunities.py:120` and `B/mini_decisions/opportunities.py:395`.
+   - Measure: `daylight_headroom_kw` replaces `noon_headroom_kw` (`B/chain/measures.py:48`, `PERIOD_MIDDAY` in `policy.py:20-27`; adapter `measure_impls.py:164-193`, reader `chain/adapters/postgres_chain_inputs.py:217,283` + `ports.py:145,161`).
+   - Event register: `config/chain/event-register-v1.yaml:24` and `tools/checks/test_event_register.py:139,161`.
+   - Add an AST/grep test that no noon or daylight literal remains in the five readers (Q4).
+3. **u3: R9 `critical_served`.**
+   - Adapter `mini.critical_served@1`, which sums the stored hourly `mini_service` heads at the cutoff (Q7). An hour with no head counts as uncovered.
+   - Threshold 0.8. Value `{served_kwh, demand_kwh, unserved_kwh}`.
+   - Delete the noon MG-5 read at `B/site_outcomes/mini.py:561,583-586`; MG-5 reads the measure. Word the basis as "over the whole day".
+   - CH-6a is not on main, so the `kpi` record is noted for CH-6a.
+4. **u4: R7 story kind.**
+   - `mill-midday` in `backend/conversions/demo-story-days-v1.json`: `kobo-daytime` v1, start `D+0d 03:00`, end `D+0d 15:00`, received `D+0d 16:00`.
+   - The partial prepare proves the kind, the measured daylight hours (expected 12; report actual) and the Action. The study class is proven at L2m.
+   - **Conflict to raise:** the owner's message forbids "demo prepare". Ask the coordinator whether the §4.4 trimmed partial prepare is allowed. If it isn't, prove the kind with an L2 test only, and record it as a Known Deviation.
+5. **u5: Action and copy.**
+   - The domain Action "Run the grain mill at midday on sunny days" reaches ACTION_ACCEPTED -> ACTION_APPLIED (`B/chain/lifecycle_run.py:62-67`).
+   - `VALUE_LINE` at `B/chain/vocabulary.py:17-18` becomes the §2 text "{lo}–{hi} kW over {h} daylight hours on every eligible day".
+   - Frontend: `frontend/src/sites/MiniOpportunity.tsx:115-130`; vitest related.
+6. **MD-0 (Q1).**
+   - In `backend/conversions/mechanism-v1.json`, `noon.busy_noon` gets a request window 06:00-18:00, labelled `CH9-R2:Q1`. `backend/tests/mechanism_dataset.py:400-415` reads `busy_lo/busy_hi`; check where they come from.
+   - L0 proof: one busy hour among eligible hours gives an ELIGIBLE day with `window_hours` reduced by one.
+   - Then run MD-0 L3m: `status`, then a rebuild with `--budget 540` in parts, then `check --threads --variant states`, expecting 0 unexpected. List every MD-0 value that changes, old -> new.
+
+## Rules (unchanged)
+- No full suite, no `test_demo_combined_postgres`.
+- `*_test` DBs only; never `assetops_demo3_full_test`.
+- One heavy DB job at a time: check for `mechanism_dataset.py`/`chain_clone.py` processes first.
+- Python: plan2 `.venv`, with an absolute PYTHONPATH of the worktree's `backend;contracts;tools;simulator;gateway;host;field`.
+- `git add -f` for `.agent/`. Don't merge.
+
+## Packet (per CH9-R2)
+- Every client-visible change.
+- Every study or thread state that changes on the polish clone. Today's 8-hour Kobo story days become missing study days and MG-5 is PARTIAL on them; these are owned `expected-today.json` changes, owner DD-1.
+- Mini-depth job growth against the CH-1b stage bound.
+- Lane-1 conflicts in `chain/vocabulary.py` and `site_outcomes/mini.py` are resolved by whichever slice merges second.
