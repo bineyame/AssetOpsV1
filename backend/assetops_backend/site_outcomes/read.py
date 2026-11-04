@@ -25,7 +25,7 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend import perf
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, board_day, local_days, site_cutoff, summary_day
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, summary_day
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
@@ -469,9 +469,10 @@ class SiteOutcomeBoardService:
                 "read_snapshot", "site_selected_windows_many", "site_work_rows_many")):
             return {}
         (t,) = tenants
-        # R6: each mini Site's board day is its Site-local day of `to - 1 µs`; CH-5a1 R5: no readiness prefetch
+        # R6: each mini Site's board day is its Site-local day of `to - 1 µs` (the kept estate read is keyed on it,
+        # `mini.estate_bounds`); CH-5a1 R5: no readiness prefetch
         # (readiness is `readiness_of` over the chain snapshots, never the estate evidence selection).
-        days = {x.site_code: board_day(summary_day(hi, x.timezone), x.timezone) for x in sites if x.domain == MINI}
+        estate_days = {x.site_code: summary_day(hi, x.timezone) for x in sites if x.domain == MINI}
         others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
 
         def work(snap: Any) -> dict[tuple, Any]:
@@ -481,7 +482,7 @@ class SiteOutcomeBoardService:
             for code in others:
                 pre[("windows", t, code, lo, hi, known_at)] = wins[code]
             lap("windows")
-            spans = {code: (start, end, end - mini.WORK_WINDOW, end) for code, (start, end) in days.items()}
+            spans = {code: mini.estate_bounds(d) for code, d in estate_days.items()}
             rows = estate.site_work_rows_many(t, spans, known_at, snap=snap) if spans else {}
             for code, value in rows.items():
                 pre[("work_rows", t, code, *spans[code], known_at)] = value

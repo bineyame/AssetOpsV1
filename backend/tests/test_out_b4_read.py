@@ -85,10 +85,9 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
     assert seen["day"] == (S, "MINIGRID", date(2026, 9, 6), date(2026, 10, 6), 31, (date(2026, 10, 6),))
     assert seen["settled"] == S and "findings" not in seen  # no Finding index gate: the heads read is refused
     assert seen["depth"]["known_at"] == known and seen["depth"]["site_id"] == S
-    # E4 (R6): the estate bounds are the Site-local day and the 31 local days ending with it.
-    local = lambda d: datetime(2026, 10, d, 21, tzinfo=UTC) if d > 0 else datetime(2026, 9, 5, 21, tzinfo=UTC)
-    assert seen["estate"][1:] == ("KOBO-001", local(5), local(6), datetime(2026, 9, 5, 21, tzinfo=UTC), local(6),
-                                  known)
+    # The kept estate read stays on the UTC day and the 31 UTC days ending with it (`mini.estate_bounds`).
+    assert seen["estate"][1:] == ("KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
+                                  datetime(2026, 9, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC), known)
     assert body["window"]["known_at"] == "2026-10-09T12:00:00Z"
     assert "finding_id=" in body["links"]["self"] and "known_at=" in body["links"]["self"]
 

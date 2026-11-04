@@ -362,6 +362,16 @@ def not_available(key: str, label: str, href: str | None = None) -> Contributor:
 
 # ---------------------------------------------------------------- composer
 
+def estate_bounds(day: date) -> tuple[datetime, datetime, datetime, datetime]:
+    """The kept estate read's bounds (§A4: kept in CH-5a1, CH-5a2 B3 replaces it): the estate window rule takes only
+    UTC-midnight bounds of at most 31 days (`estate/scope.py` `check_window`), so the read stays on the UTC day `D`
+    and the 31 UTC days ending with it, exactly as before R6. Labels and confidence join by id, so the local board
+    day (R6) reads the same estate rows."""
+    lo = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+    hi = lo + timedelta(days=1)
+    return lo, hi, hi - WORK_WINDOW, hi
+
+
 def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str | None) -> MiniComposition:
     """`day` is the Site-local board day (R6: `selected_day` or `db_today()` read as the Site-local date; the window
     is `[local 00:00 D, local 00:00 D+1)` as UTC instants); `site_timezone` is the zone the route's Site lookup
@@ -383,7 +393,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     # R5 / R8 / Q9: one snapshot read over every Site-local day of the work window; readiness on the board day.
     day_facts = reads.call("chain_day", ports.chain_day, local_days(work_lo, end, site_timezone), (day,))
     readiness = None if day_facts is None else day_facts.readiness
-    estate = reads.call("estate", ports.estate, start, end, work_lo, end)  # Findings: the day; Actions: 31 days
+    estate = reads.call("estate", ports.estate, *estate_bounds(day))  # Findings: the day; Actions: 31 days
     heads = reads.call("chain_findings", ports.chain_findings, work_lo, end)
     settled_findings = reads.call("findings_settled", ports.findings_settled)
     findings_ok = heads is not None and bool(settled_findings)

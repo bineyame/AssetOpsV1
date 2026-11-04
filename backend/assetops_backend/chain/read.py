@@ -228,7 +228,7 @@ class ChainRequest:
         `readiness_days` (default: every day of `days`), so the mini board reads its gap days and its one board
         day's readiness from the same rows."""
         days = tuple(sorted(days))
-        measures = tuple(m.measure for m in measures_for(site_type))
+        measures = tuple(m.key for m in measures_for(site_type))
         rows = read_scope.memo("chain.day", self.reader.ports.snapshots, self.tenant_id, site_id, days[0],
                                days[-1], measures, self.k)
         grades: dict[date, dict[str, dict[str, str]]] = {}

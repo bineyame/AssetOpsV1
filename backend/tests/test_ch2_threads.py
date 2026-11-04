@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from assetops_backend.chain import threads as th
-from assetops_backend.chain.lookup import thread_lookup
+from assetops_backend.chain.lookup import state_classes, thread_lookup
 
 T, S = UUID(int=1), UUID(int=2)
 T0 = datetime(2026, 10, 17, 6, 0, tzinfo=timezone.utc)
@@ -191,8 +191,10 @@ def test_lookup_rows_reduce_to_findings_and_actions():
     # CH-3 widened the row (story start, zone, mechanism, subject, events) and added state and segment.
     out = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, "UTC", "M", "s", None),
                          ("A", "X", "t1", None, None, None, None, "UTC", "abc", None, None)])
+    # CH5a-R §A5 (CH-5a1): the view also carries its state classes and the public wire keys.
     assert out["findings"] == {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3, "segment_no": 1,
-                                       "state": None, "state_effective_day": None, "state_day": None}}
+                                       "state": None, "state_effective_day": None, "state_day": None,
+                                       **state_classes(None)}}
     assert out["actions"] == {"x": "t1"} and out["action_segments"] == {"x": 1}
 
 
@@ -271,7 +273,9 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
     act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None, "/x", is_domain=True)
     facts = board.SiteFacts(domain="cold_chain", site_code="COLD-LAB-001", findings=(shown,), actions=(act,))
     before = board.assemble(facts)
-    threaded = board.with_threads(facts, {"findings": {"f2": {"id": "t1", "occurrence_no": 2, "occurrences": 2}},
+    # CH5a-R §A5 (CH-5a1): the wire keys come with the thread view (`lookup.PUBLIC_KEYS`), as the lookup gives them.
+    view = {"id": "t1", "occurrence_no": 2, "occurrences": 2, **state_classes(None)}
+    threaded = board.with_threads(facts, {"findings": {"f2": view},
                                           "actions": {"a1": "t1"}})
     after = board.assemble(threaded)
 

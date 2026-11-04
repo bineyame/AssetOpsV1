@@ -198,7 +198,7 @@ def test_work_window_is_31_days_ending_with_the_day() -> None:
         args = next(a for n, a in fake.calls if n == name)
         assert args[:2] == (HI - timedelta(days=31), HI), name
     # addendum 5 #2: estate Finding rows and coverage over the board day, Action rows over the work window
-    assert next(a for n, a in fake.calls if n == "estate") == (LO, HI, HI - timedelta(days=31), HI)
+    assert next(a for n, a in fake.calls if n == "estate") == (T(20), T(21), T(21) - timedelta(days=31), T(21))  # UTC (kept)
     # CH5a1-R Q9: one snapshot read over the 31 Site-local days of the work window; readiness on the board day.
     days, ready = next(a for n, a in fake.calls if n == "chain_day")
     assert len(days) == 31 and days[-1] == DAY and ready == (DAY,)
