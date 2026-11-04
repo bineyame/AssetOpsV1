@@ -1,0 +1,133 @@
+{
+ "counts": {
+  "open_threads": null,
+  "opportunities": null,
+  "verified_results": null
+ },
+ "money_total": null,
+ "policy_versions": {
+  "coverage": "coverage-policy/1",
+  "lifecycle": "thread-lifecycle/1",
+  "register": 1,
+  "status": "outcome-status/3"
+ },
+ "schema_version": "outcome-chain-1",
+ "sites": [
+  {
+   "code": "KOBO-001",
+   "days": {
+    "complete": 6,
+    "enough_data_days": 6,
+    "expected": 7,
+    "low": 0,
+    "no_data": 0,
+    "not_expected": 0,
+    "partial": 1,
+    "pending": 0,
+    "requested": 7
+   },
+   "domain": "MINIGRID",
+   "opportunities": [
+    {
+     "site_code": "KOBO-001",
+     "thread_id": "00000000-0000-4000-8000-0000000000f2",
+     "title": "Daytime solar unused at Kobo"
+    }
+   ],
+   "rows": {
+    "ASSURE_PERFORMANCE": {
+     "state": "WATCH",
+     "state_label": "Watch"
+    },
+    "GROW_REVENUE": {
+     "state": "OPPORTUNITY",
+     "state_label": "Opportunity"
+    },
+    "OPTIMIZE_COST": {
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention"
+    },
+    "PROTECT_ASSET": {
+     "state": "UNKNOWN",
+     "state_label": "Unknown"
+    }
+   },
+   "threads": null
+  },
+  {
+   "code": "COLD-LAB-001",
+   "days": {
+    "complete": 0,
+    "enough_data_days": 0,
+    "expected": 7,
+    "low": 0,
+    "no_data": 5,
+    "not_expected": 0,
+    "partial": 2,
+    "pending": 0,
+    "requested": 7
+   },
+   "domain": "COLDCHAIN",
+   "opportunities": [],
+   "rows": {
+    "ASSURE_PERFORMANCE": {
+     "state": "WATCH",
+     "state_label": "Watch"
+    },
+    "GROW_REVENUE": {
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured yet"
+    },
+    "OPTIMIZE_COST": {
+     "state": "UNKNOWN",
+     "state_label": "Unknown"
+    },
+    "PROTECT_ASSET": {
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention"
+    }
+   },
+   "threads": null
+  },
+  {
+   "code": "EV-LAB-001",
+   "days": {
+    "complete": 0,
+    "enough_data_days": 0,
+    "expected": 7,
+    "low": 1,
+    "no_data": 6,
+    "not_expected": 0,
+    "partial": 0,
+    "pending": 0,
+    "requested": 7
+   },
+   "domain": "EV_CHARGING",
+   "opportunities": [],
+   "rows": {
+    "ASSURE_PERFORMANCE": {
+     "state": "WATCH",
+     "state_label": "Watch"
+    },
+    "GROW_REVENUE": {
+     "state": "WATCH",
+     "state_label": "Watch"
+    },
+    "OPTIMIZE_COST": {
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured yet"
+    },
+    "PROTECT_ASSET": {
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention"
+    }
+   },
+   "threads": null
+  }
+ ],
+ "window": {
+  "from": "2026-10-25T00:00:00Z",
+  "known_at": "2026-11-03T12:00:00Z",
+  "to": "2026-11-01T00:00:00Z"
+ }
+}

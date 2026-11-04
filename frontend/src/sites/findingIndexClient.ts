@@ -65,6 +65,8 @@ export interface FindingIndexRow {
   title: string;
   /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
   categories?: OutcomeCategories;
+  /** CH-5a2 B5: the one lens of the primary moved outcome; absent on an older body (renders "Not assessed"). */
+  lens_flags?: ("COST" | "RISK" | "OPPORTUNITY")[];
   episode: { start: string; end: string };
   lifecycle: string;
   transition: string | null;

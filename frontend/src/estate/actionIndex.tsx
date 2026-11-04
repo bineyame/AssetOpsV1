@@ -8,7 +8,7 @@
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { siteDetailHref } from "../shell/operatorSiteRoutes";
+import { linkFor, siteDetailHref } from "../shell/operatorSiteRoutes";
 import { DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import {
   createEstateClient,
@@ -101,12 +101,19 @@ export function actionRowTitle(row: Pick<EstateActionRow, "action_title" | "acti
 
 function Row({ row }: { row: EstateActionRow }) {
   const state = APPLICATION_WORDS[row.application_state];
+  // CH5a2-R4(c): the row links render only from their `link_refs` sibling.
+  const action = linkFor(row.link_refs?.action);
+  const source = linkFor(row.link_refs?.source);
   return (
     <tr data-estate-action={row.action_id}>
       <td>
-        <Link className="estate-cell__primary" to={row.links.action} data-estate-action-link>
-          {actionRowTitle(row)}
-        </Link>
+        {action ? (
+          <Link className="estate-cell__primary" to={action} data-estate-action-link>
+            {actionRowTitle(row)}
+          </Link>
+        ) : (
+          <span className="estate-cell__primary">{actionRowTitle(row)}</span>
+        )}
       </td>
       <td>
         <Link className="estate-cell__primary" to={siteDetailHref(row.site_code)} data-estate-site-link>
@@ -115,8 +122,8 @@ function Row({ row }: { row: EstateActionRow }) {
         <span className="estate-cell__secondary">{row.site_code}</span>
       </td>
       <td>
-        {row.links.source ? (
-          <Link to={row.links.source} title={`Finding ${row.source_finding_id}`} data-estate-source-link>
+        {source ? (
+          <Link to={source} title={`Finding ${row.source_finding_id}`} data-estate-source-link>
             Source finding
           </Link>
         ) : (

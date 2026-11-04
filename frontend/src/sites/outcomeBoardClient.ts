@@ -1,3 +1,4 @@
+import type { Ref } from "./chainRef";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 
 /**
@@ -57,6 +58,8 @@ export interface OutcomeContributor {
   text: string;
   confidence: OutcomeConfidence | null;
   href: string | null;
+  /** CH5a2-R4: the Ref this link renders from; absent or null renders no link. */
+  link_ref?: Ref | null;
 }
 
 export interface OutcomeIssue {
@@ -64,6 +67,8 @@ export interface OutcomeIssue {
   role: "MOVES" | "CHECKED" | string;
   text: string;
   href: string | null;
+  /** CH5a2-R4: the Ref this link renders from; absent or null renders no link. */
+  link_ref?: Ref | null;
   /** OUT-C: an EARLY_WARNING/RISK issue carries its warning key here. */
   ref: OutcomeRef | OutcomeFindingRef | string | null;
 }
@@ -80,6 +85,8 @@ export interface OutcomeWarningRef {
   id: string;
   label: string | null;
   href: string | null;
+  /** CH5a2-R4: the Ref this link renders from; absent or null renders no link. */
+  link_ref?: Ref | null;
 }
 
 /** OUT-C §4: one early warning, board and estate summary alike. Every text is backend data; no money on it. */
@@ -99,6 +106,8 @@ export interface OutcomeWarning {
   site_code: string;
   site_name: string;
   href: string | null;
+  /** CH5a2-R4: the Ref this link renders from; absent or null renders no link. */
+  link_ref?: Ref | null;
   evidence_refs: OutcomeWarningRef[];
   count: number | null;
   subject_label: string | null;
@@ -109,6 +118,8 @@ export interface OutcomeWarning {
 export interface OutcomeLinkItem {
   text: string;
   href: string | null;
+  /** CH5a2-R4: the Ref this link renders from; absent or null renders no link. */
+  link_ref?: Ref | null;
   /** POLISH P-10 (Addendum 12 Q1, PA-3): a case item's stored kind (INCIDENT, WORK_REQUEST or PLAN); absent on an older body. */
   kind?: string;
   /** POLISH P-10 (Addendum 12 Q1, PA-3): when a case item occurred; absent on an older body. */
@@ -145,7 +156,7 @@ export interface OutcomeBoardRow {
   subline: string | null;
   not_measured_text: string | null;
   counts: { issues: number; in_hand: number };
-  must_not_harm: { text: string; href: string | null } | null;
+  must_not_harm: { text: string; href: string | null; link_ref?: Ref | null } | null;
   contributors: OutcomeContributor[];
   issues: OutcomeIssue[];
   options: OutcomeLinkItem[];
@@ -153,7 +164,7 @@ export interface OutcomeBoardRow {
   earlier: OutcomeEarlierItem[];
   /** Addendum 2: set exactly when `earlier` is empty on a measured row; absent on an older body. */
   earlier_empty_text?: string | null;
-  evidence_link: { label: string; href: string | null } | null;
+  evidence_link: { label: string; href: string | null; link_ref?: Ref | null } | null;
   outcomes: { key: string; label: string; state: string; reason: string }[];
   /**
    * WALK1-3b: an open opportunity on a row whose state is not "Opportunity" (the declared objective sets the state);

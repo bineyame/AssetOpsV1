@@ -1,0 +1,103 @@
+{
+ "known_at": "2026-11-03T12:00:00Z",
+ "policy_versions": {
+  "coverage": "coverage-policy/1",
+  "lifecycle": "thread-lifecycle/1",
+  "register": 1,
+  "status": "outcome-status/3"
+ },
+ "schema_version": "outcome-chain-1",
+ "site": "KOBO-001",
+ "thread": {
+  "actions": [
+   {
+    "code": "ACT-000001",
+    "id": "a1",
+    "kind": "MINI_TRIAL",
+    "ref": {
+     "id": "a1",
+     "kind": "ACTION",
+     "site": "KOBO-001"
+    },
+    "segment_no": 1,
+    "thread": "00000000-0000-4000-8000-0000000000f1",
+    "verification": "PENDING"
+   }
+  ],
+  "categories": {
+   "items": [
+    {
+     "category": "OPTIMIZE_COST",
+     "label": "Optimize cost and efficiency",
+     "outcomes": [
+      {
+       "key": "MG-2",
+       "label": "Supply cost per kWh"
+      }
+     ],
+     "role": "MOVES"
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "label": "Protect asset and capital",
+     "outcomes": [
+      {
+       "key": "MG-5",
+       "label": "Reliable service"
+      },
+      {
+       "key": "MG-4",
+       "label": "Battery and generator life"
+      }
+     ],
+     "role": "CHECKED"
+    }
+   ],
+   "policy_version": "outcome-map/1",
+   "state": "MAPPED"
+  },
+  "events": [
+   {
+    "cause_kind": "OCCURRENCE",
+    "effective_day": "2026-10-31",
+    "seq": 1,
+    "state": "OPEN",
+    "state_label": "Open"
+   },
+   {
+    "cause_kind": "ACTION_EVENT",
+    "effective_day": "2026-11-01",
+    "seq": 2,
+    "state": "ACTION_IN_HAND",
+    "state_label": "Action agreed"
+   }
+  ],
+  "id": "00000000-0000-4000-8000-0000000000f1",
+  "lens": [
+   "COST"
+  ],
+  "mechanism": "GENERATOR_SUPPORT_CANDIDATE",
+  "occurrences": [
+   {
+    "code": null,
+    "day": "2026-10-31",
+    "finding_id": "f1",
+    "opportunity_id": null
+   },
+   {
+    "code": null,
+    "day": "2026-11-01",
+    "finding_id": "f2",
+    "opportunity_id": null
+   }
+  ],
+  "ref": {
+   "id": "00000000-0000-4000-8000-0000000000f1",
+   "kind": "THREAD",
+   "site": "KOBO-001"
+  },
+  "since": "2026-11-01",
+  "state": "ACTION_IN_HAND",
+  "state_label": "Action agreed"
+ }
+}

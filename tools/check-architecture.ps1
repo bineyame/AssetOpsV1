@@ -32,7 +32,8 @@ try {
         @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" },
         @{ Seam = "Operator rail guard fixtures";    File = "navigation-rail-fixtures.ps1";  Function = "Invoke-NavigationRailFixturesCheck" },
         @{ Seam = "Shell overflow containment";      File = "shell-overflow.ps1";            Function = "Invoke-ShellOverflowCheck" },
-        @{ Seam = "Analytic capability declaration"; File = "analytic-declaration.ps1";      Function = "Invoke-AnalyticDeclarationCheck" }
+        @{ Seam = "Analytic capability declaration"; File = "analytic-declaration.ps1";      Function = "Invoke-AnalyticDeclarationCheck" },
+        @{ Seam = "Outcome chain structure";         File = "chain-structure.ps1";           Function = "Invoke-ChainStructureCheck" }
     )
 
     if (-not (Test-Path -LiteralPath $checksRoot -PathType Container)) {

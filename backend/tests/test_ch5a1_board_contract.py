@@ -230,7 +230,7 @@ def services(port: Port, never: list[str]) -> BoardServices:
             return {"rows": copy.deepcopy(rows), "next_cursor": None}
 
     return BoardServices(
-        overview=Never("mini_overview", never), finding_index=Never("finding_index", never),
+        overview=Never("mini_overview", never),
         overview_source=open_gate, mini_depth=Depth(), dispatch=Dispatch(), performance_gate=open_gate,
         finding_index_gate=open_gate, assumptions=Assumptions(), action_index=ActionIndex(),
         parse_action_index=lambda *a: a, estate=Estate(), cold_site=ColdSite(), cold_reads=ColdReads(),
@@ -266,6 +266,9 @@ def test_board_equals_its_golden(name: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8", newline="\n")
     assert body == json.loads(path.read_text(encoding="utf-8"))
+    for row in body["rows"]:  # CH-5a2 B4: the subline ends with the structured lines' texts, joined as before
+        texts = [t["text"] for t in row["thread_lines"]]
+        assert not texts or (row["subline"] or "").endswith(" · ".join(texts)), row["category"]
 
 
 @pytest.mark.parametrize("name", sorted(CASES))

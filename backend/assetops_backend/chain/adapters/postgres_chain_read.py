@@ -1,7 +1,8 @@
 """CH-5a1 (build sheet Part A §A3): the ChainReader SQL, SELECT only (registered in `$pgReaders`).
 
 Tables read: `site_day_snapshot` (through the snapshot store), `finding_thread_occurrence`, `finding_thread`,
-`finding`, `finding_revision`, `finding_merge`, `action_policy_change`, `event_outbox`, `event_consumption`.
+`finding`, `finding_revision`, `finding_merge`, `action_policy_change`, `event_outbox`, `event_consumption`, and
+(CH-5a2a `site_threads`) `finding_thread_event`, `mini_opportunity`, `chain_action`, `action_event`, `domain_action`.
 Every value handed out is frozen (`FindingHead` dataclasses, tuples, a `MappingProxyType`), CH5a-R R1.
 """
 
@@ -58,6 +59,37 @@ SELECT CAST(a.id AS text) AS action_id,
 """)
 
 
+#: CH-5a2a §B1 (`/chain` routes): one Site's threads, their occurrences visible at the request's `k` (transaction
+#: time, CH5a1-R2 R-1), every event of those threads (visibility at the state cutoff is applied in pure code,
+#: `lifecycle.visible`) and their linked Actions with the ACCEPTED time `lookup.LOOKUP` reads.
+_SITE_OCCURRENCES = text("""
+SELECT CAST(o.thread_id AS text) AS thread_id, t.mechanism, t.subject_ref, o.occurrence_no,
+       CAST(o.finding_id AS text) AS finding_id, CAST(o.opportunity_id AS text) AS opportunity_id,
+       m.public_no AS opportunity_no, o.episode_start, o.episode_end
+  FROM finding_thread_occurrence o
+  JOIN finding_thread t ON t.id = o.thread_id
+  LEFT JOIN mini_opportunity m ON m.tenant_id = o.tenant_id AND m.id = o.opportunity_id
+ WHERE o.tenant_id = :t AND o.site_id = :s
+   AND (CAST(:k AS timestamptz) IS NULL OR coalesce(o.source_known_at, o.joined_at) <= CAST(:k AS timestamptz))
+ ORDER BY o.thread_id, o.occurrence_no
+""")
+_SITE_EVENTS = text("""
+SELECT CAST(e.thread_id AS text) AS thread_id, e.seq, e.state, e.cause_kind, e.cause_id, e.effective_day,
+       e.recorded_at, e.cause_known_at
+  FROM finding_thread_event e WHERE e.tenant_id = :t AND e.site_id = :s ORDER BY e.thread_id, e.seq
+""")
+_SITE_ACTIONS = text("""
+SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id AS text) AS thread_id,
+       CAST(a.origin_finding_id AS text) AS origin_finding_id,
+       CASE WHEN a.kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x
+              WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
+            ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)
+       END AS accepted_at
+  FROM chain_action a WHERE a.tenant_id = :t AND a.site_id = :s AND a.thread_id IS NOT NULL
+ ORDER BY a.action_code, a.id
+""")
+
+
 class PostgresChainRead:
     """The `ChainReadPort` (`chain/read.py`). `snapshots` reuses the snapshot store's latest-row read."""
 
@@ -98,3 +130,15 @@ class PostgresChainRead:
         with self._engine.connect() as c:
             rows = c.execute(_HAS_CHANGE, {"t": tenant_id, "ids": [str(a) for a in action_ids]}).mappings().all()
         return MappingProxyType({str(r["action_id"]).lower(): bool(r["has_change"]) for r in rows})
+
+    def site_threads(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]:
+        """CH-5a2a: `{"occurrences", "events", "actions"}` of one Site (three statements on one read-only
+        connection, one port call)."""
+        params = {"t": tenant_id, "s": site_id, "k": known_at}
+        with self._engine.connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                out = {name: tuple(dict(r) for r in c.execute(sql, params).mappings().all())
+                       for name, sql in (("occurrences", _SITE_OCCURRENCES), ("events", _SITE_EVENTS),
+                                         ("actions", _SITE_ACTIONS))}
+        return MappingProxyType(out)

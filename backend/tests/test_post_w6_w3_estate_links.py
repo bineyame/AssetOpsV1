@@ -6,6 +6,8 @@ its null cases, and the Portfolio objectives matrix destinations per domain.
 
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+
 from datetime import datetime, timedelta, timezone
 
 from assetops_backend.estate.evidence_money import (
@@ -111,8 +113,9 @@ def test_finding_links_per_domain() -> None:
 
 
 def _evidence_row(readiness, label, start=None, end=None):
+    """`readiness` is the row's `site_readiness` Ref (CH5a2-R4(a)); the wire carries it and its href."""
     return {"window_start": start, "window_end": end,
-            "links": {"site": "x", "site_readiness": readiness, "site_readiness_label": label}}
+            **R.split_links({"site": R.site_ref("x"), "site_readiness": readiness, "site_readiness_label": label})}
 
 
 def test_objective_destinations_per_domain() -> None:
@@ -120,20 +123,20 @@ def test_objective_destinations_per_domain() -> None:
         "SERVICE_PRODUCT": "/sites/KOBO%20001/performance/service",
         "BACKUP": "/sites/KOBO%20001/performance/backup", "ASSET_CONDITION": "/sites/KOBO%20001/health",
         "COST_CONTROL": "/sites/KOBO%20001/financials", "EVIDENCE": "/sites/KOBO%20001/evidence"}
-    unproved = [_evidence_row("/sites/C1", CURRENT_VIEW)]
+    unproved = [_evidence_row(R.site_ref("C1"), CURRENT_VIEW)]
     assert objective_destinations("C1", "cold_chain", unproved) == {
         "SERVICE_PRODUCT": "/sites/C1/performance/temperature", "BACKUP": "/sites/C1/performance/backup",
         "ASSET_CONDITION": "/sites/C1/health", "COST_CONTROL": "/sites/C1", "EVIDENCE": "/sites/C1"}
     older = "from=2026-10-12T00%3A00%3A00.000000Z&to=2026-10-13T00%3A00%3A00.000000Z&known_at=x"
-    cold_rows = [_evidence_row(f"/sites/C1/evidence?{older}", None, "2026-10-12", "2026-10-13"),
-                 _evidence_row(f"/sites/C1/evidence?{QUERY}", None, "2026-10-13", "2026-10-14"), *unproved]
+    cold_rows = [_evidence_row(R.evidence_ref("C1", window=R.query_window(older)), None, "2026-10-12", "2026-10-13"),
+                 _evidence_row(R.evidence_ref("C1", window=R.query_window(QUERY)), None, "2026-10-13", "2026-10-14"), *unproved]
     cold = objective_destinations("C1", "cold_chain", cold_rows)
     assert (cold["COST_CONTROL"], cold["EVIDENCE"]) == (f"/sites/C1/financials?{QUERY}", f"/sites/C1/evidence?{QUERY}")
-    assert objective_destinations("EV-1", "ev_charging", [_evidence_row("/sites/EV-1/ev", CURRENT_VIEW)]) == {
+    assert objective_destinations("EV-1", "ev_charging", [_evidence_row(R.site_ref("EV-1", "ev"), CURRENT_VIEW)]) == {
         "SERVICE_PRODUCT": "/sites/EV-1/performance/sessions", "BACKUP": None, "ASSET_CONDITION": "/sites/EV-1/health",
         "COST_CONTROL": "/sites/EV-1/ev", "EVIDENCE": "/sites/EV-1/ev"}
     ev = objective_destinations("EV-1", "ev_charging",
-                                [_evidence_row(f"/sites/EV-1/ev/evidence?{QUERY}", None, "2026-10-13", "2026-10-14")])
+                                [_evidence_row(R.site_ref("EV-1", "ev_evidence", R.query_window(QUERY)), None, "2026-10-13", "2026-10-14")])
     assert ev["BACKUP"] is None
     assert (ev["COST_CONTROL"], ev["EVIDENCE"]) == (f"/sites/EV-1/ev/financials?{QUERY}",
                                                     f"/sites/EV-1/ev/evidence?{QUERY}")

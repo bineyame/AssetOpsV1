@@ -15,7 +15,7 @@ import logging
 from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from typing import Any
 from urllib.parse import urlencode
 from uuid import UUID
@@ -25,7 +25,7 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend import perf
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, summary_day
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
@@ -97,7 +97,6 @@ class BoardServices:
     overview_source: Callable[[str, UUID, UUID], tuple[bool, str]] | None = None  # S2 basis + gate, as the route
     mini_depth: Any = None            # MiniDepthRead (mini_depth/read.py:338)
     dispatch: Any = None              # DispatchReadService (analytics/dispatch_read.py:123)
-    finding_index: Any = None         # FindingIndexService (analytics/finding_index.py:262)
     performance_gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None = None   # dispatch route gate
     finding_index_gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None = None  # index route gate
     assumptions: Any = None           # AssumptionReadService (financials/assumption_read.py:63)
@@ -119,7 +118,6 @@ class BoardServices:
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
     select_preventive: Callable[..., list[dict[str, Any]]] | None = None  # work/global_index.py:388
     estate: Any = None                # EstatePortfolioService (site_readiness, site_work_rows)
-    parse_finding_index: Callable[..., Any] | None = None   # analytics/finding_index.py:134
     parse_action_index: Callable[..., Any] | None = None    # actions/site_index.py:116
     parse_work_list: Callable[..., Any] | None = None       # work/site_index.py:108
     parse_domain_index: Callable[..., Any] | None = None    # work/domain_action_index.py:86
@@ -147,16 +145,6 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
     permitted, reason = _need(gate, name)(site.site_code, site.tenant_id, site.site_id)
     if not permitted:
         raise PortUnavailable(f"{name} closed: {reason}")
-
-
-def covering_days(lo: datetime, hi: datetime) -> tuple[datetime, datetime]:
-    """OUT-B addendum 7: `[floor_utc_day(lo), ceil_utc_day(hi))`. A bound already at midnight is unchanged. The estate
-    methods never widen; only the composer does, and the estate then applies its own window rule (over 31 days
-    refuses INVALID_WINDOW)."""
-    lo, hi = lo.astimezone(timezone.utc), hi.astimezone(timezone.utc)
-    floor = lo.replace(hour=0, minute=0, second=0, microsecond=0)
-    ceil = hi.replace(hour=0, minute=0, second=0, microsecond=0)
-    return floor, (ceil if ceil == hi else ceil + timedelta(days=1))
 
 
 WINDOW_BASIS_DAY, WINDOW_BASIS_EVENT, WINDOW_BASIS_PERIOD = "DAY", "LATEST_EVENT", "PERIOD"
@@ -386,9 +374,10 @@ class SiteOutcomeBoardService:
         # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
         # was recorded by the story cutoff shows, and one whose cause was recorded at build time stays hidden.
         cutoff = window.get("known_at")  # `board_cutoff`, resolved by `compose` for every domain (review L1)
-        # R6: every board's day is the Site-local day holding the window's last instant (mini: the board day D).
+        # R6, CH5a2-R R7: every board's day is `window_day` of its window (mini: the board day D), the rule the
+        # summary card reads.
         start = mini.utc(window.get("from"))
-        board_day = _last_local_day(window.get("to"), site.timezone)
+        board_day = window_day(start, mini.utc(window.get("to")), site.timezone)
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
             facts = replace(comp.facts, day=board_day, known_at=cutoff)
             extra: dict[str, Any] = {}
@@ -469,10 +458,10 @@ class SiteOutcomeBoardService:
                 "read_snapshot", "site_selected_windows_many", "site_work_rows_many")):
             return {}
         (t,) = tenants
-        # R6: each mini Site's board day is its Site-local day of `to - 1 µs` (the kept estate read is keyed on it,
-        # `mini.estate_bounds`); CH-5a1 R5: no readiness prefetch
+        # R6, CH5a2-R R7: each mini Site's board day is `window_day(lo, hi)`, the board route's rule (the kept estate
+        # read is keyed on it, `mini.estate_bounds`); CH-5a1 R5: no readiness prefetch
         # (readiness is `readiness_of` over the chain snapshots, never the estate evidence selection).
-        estate_days = {x.site_code: summary_day(hi, x.timezone) for x in sites if x.domain == MINI}
+        estate_days = {x.site_code: window_day(lo, hi, x.timezone) for x in sites if x.domain == MINI}
         others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
 
         def work(snap: Any) -> dict[tuple, Any]:
@@ -509,7 +498,7 @@ class SiteOutcomeBoardService:
             # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
             # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
             if site.domain == MINI:
-                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, summary_day(hi, site.timezone), None, None
+                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, window_day(lo, hi, site.timezone), None, None
             else:
                 with perf.timed("summary.event_window"):
                     ev_win = self._event_window(site, lo, hi, known_at)
@@ -582,15 +571,3 @@ def board_cutoff(domain: str | None, known_at: datetime | None, resolved: Any) -
     the request's cutoff (None = as known now); cold/EV -> the read's resolved cutoff (the overview body's
     `window.known_at`) bounded by the request's, else the request's."""
     return site_cutoff(domain, known_at, mini.utc(resolved), known_at)
-
-
-def _last_local_day(to: Any, tz: str | None) -> date | None:
-    """The Site-local day holding the window's last instant (its exclusive end minus a microsecond)."""
-    end = mini.utc(to)
-    if end is None:
-        return None
-    last = end - timedelta(microseconds=1)
-    if tz:
-        from zoneinfo import ZoneInfo
-        return last.astimezone(ZoneInfo(tz)).date()
-    return last.date()

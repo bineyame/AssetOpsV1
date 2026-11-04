@@ -9,6 +9,7 @@ from assetops_backend.outcomes.outcome_map import outcome_roles
 from assetops_backend.outcomes.warnings import (
     BATTERY, CHARGER_FAULT, CONNECTOR_OUT, PEAK, PEAK_MARGIN, PLAN_DUE_SOON, PLAN_OVERDUE, PRICE_NEEDS, REPEATED,
     PlanCue, Visit, WarningFacts, evaluate)
+from assetops_backend.chain import refs as R
 
 TO = datetime(2026, 10, 29, tzinfo=timezone.utc)
 FROM = TO - timedelta(days=60)
@@ -26,10 +27,10 @@ def facts(domain: str = COLD, **kw) -> WarningFacts:
 
 def visit(i: int, at: datetime, *, state: str = "COMPLETED", asset: str | None = "a1", links=("f1",)) -> Visit:
     return Visit(case_id=f"c{i}", code=f"WR-{i}", asset_id=asset, asset_name="generator-1", state=state,
-                 occurred_at=at, occurred_on=at.date(), finding_ids=tuple(links), href=f"/work/c{i}")
+                 occurred_at=at, occurred_on=at.date(), finding_ids=tuple(links), link_ref=R.case_ref("S1", f"c{i}"))
 
 
-OPEN = {"f1": (F_KEYS, "/findings/f1")}
+OPEN = {"f1": (F_KEYS, R.finding_ref("S1", "f1"))}
 
 
 def kinds(ws) -> list[str]:
@@ -43,14 +44,16 @@ def test_repeat_needs_two_completed_visits() -> None:
     assert evaluate(one) == ()
     two = facts(visits=(visit(1, TO - timedelta(days=5)), visit(2, TO - timedelta(days=2))), open_findings=OPEN)
     (w,) = evaluate(two)
-    assert (w.kind, w.key, w.count, w.subject_label, w.href) == (
-        REPEATED, f"{REPEATED}:S1:a1", 2, "generator-1", "/work/c2")
+    assert (w.kind, w.key, w.count, w.subject_label, R.href_for(w.link_ref)) == (
+        REPEATED, f"{REPEATED}:S1:a1", 2, "generator-1", "/maintenance/requests/c2")
     assert (w.badge, w.lens, w.status_effect, w.persistence) == ("RISK", "COST", "NEEDS_ATTENTION", "RECURRING")
     assert w.title == "Repeated maintenance without a result"
     assert w.seen == "generator-1 visited 2 times in 60 days (24 Oct, 27 Oct); the linked finding is still open"
     assert [r["kind"] for r in w.evidence_refs] == ["WORK_CASE", "WORK_CASE", "FINDING"]
-    assert w.evidence_refs[0] == {"kind": "WORK_CASE", "id": "c1", "label": "WR-001", "href": "/work/c1"}
-    assert w.evidence_refs[2] == {"kind": "FINDING", "id": "f1", "label": None, "href": "/findings/f1"}
+    assert w.evidence_refs[0] == {"kind": "WORK_CASE", "id": "c1", "label": "WR-001", "href": "/maintenance/requests/c1",
+                                 "link_ref": R.case_ref("S1", "c1")}
+    assert w.evidence_refs[2] == {"kind": "FINDING", "id": "f1", "label": None, "href": "/sites/S1/findings/f1",
+                                 "link_ref": R.finding_ref("S1", "f1")}
     assert w.visit_ids == ("c1", "c2")
     assert w.fault_name == "linked finding"  # no fault name on record: the fallback
 
@@ -58,7 +61,7 @@ def test_repeat_needs_two_completed_visits() -> None:
 def test_repeat_fault_name_only_when_every_open_link_agrees() -> None:
     """Rulings C final review F1: one shared fault name, else "linked finding"."""
     vs = (visit(1, TO - timedelta(days=5), links=("f1", "f2")), visit(2, TO - timedelta(days=2)))
-    two = {"f1": (F_KEYS, "/findings/f1"), "f2": (F_KEYS, "/findings/f2")}
+    two = {"f1": (F_KEYS, R.finding_ref("S1", "f1")), "f2": (F_KEYS, R.finding_ref("S1", "f2"))}
     start = "automatic start failure"
     (w,) = evaluate(facts(visits=vs, open_findings=two, fault_names={"f1": start, "f2": start}))
     assert w.fault_name == start
@@ -99,7 +102,7 @@ def test_repeat_four_open_three_completed_is_one_warning() -> None:
     vs = tuple(visit(i, TO - timedelta(days=10 - i), state="OPEN") for i in range(4)) + tuple(
         visit(10 + i, TO - timedelta(days=5 - i)) for i in range(3))
     (w,) = evaluate(facts(visits=vs, open_findings=OPEN))
-    assert w.count == 3 and w.visit_ids == ("c10", "c11", "c12") and w.href == "/work/c12"
+    assert w.count == 3 and w.visit_ids == ("c10", "c11", "c12") and R.href_for(w.link_ref) == "/maintenance/requests/c12"
 
 
 def test_repeat_categories_link_excludes_own_key() -> None:
@@ -125,8 +128,9 @@ def test_plan_bounds() -> None:
     (w,) = evaluate(facts(plans=(plan(TO - timedelta(seconds=1)),)))
     assert (w.kind, w.title, w.seen) == (
         PLAN_OVERDUE, "Witnessed backup start test overdue", "Planned for 28 Oct, not done")
-    assert (w.badge, w.lens, w.status_effect, w.href) == ("EARLY_WARNING", "RISK", "WATCH", "/maintenance/preventive")
-    assert w.evidence_refs == ({"kind": "PLAN", "id": "p1", "label": "PM-001", "href": "/maintenance/preventive"},)
+    assert (w.badge, w.lens, w.status_effect, R.href_for(w.link_ref)) == ("EARLY_WARNING", "RISK", "WATCH", "/maintenance/preventive")
+    assert w.evidence_refs == ({"kind": "PLAN", "id": "p1", "label": "PM-001", "href": "/maintenance/preventive",
+                               "link_ref": R.estate_ref("maintenance_preventive")},)
     assert w.key == f"{PLAN_OVERDUE}:S1:p1"
     assert [o["key"] for o in w.categories["items"][0]["outcomes"]] == ["CC-5"]
 
@@ -148,7 +152,7 @@ def test_battery_reserve() -> None:
     (w,) = evaluate(facts(MINI, reserve=(2, 3)))
     assert (w.kind, w.title, w.seen) == (BATTERY, "Battery at or near its reserve",
                                          "During 2 of 3 assessed generator periods on 28 Oct")
-    assert (w.key, w.href, w.badge, w.status_effect) == (
+    assert (w.key, R.href_for(w.link_ref), w.badge, w.status_effect) == (
         f"{BATTERY}:S1:site", "/sites/S1/performance/dispatch", "EARLY_WARNING", "WATCH")
     assert [o["key"] for o in w.categories["items"][0]["outcomes"]] == ["MG-4"]
     (w,) = evaluate(facts(MINI, reserve=(1, 1)))
@@ -168,9 +172,10 @@ def test_charger_fault_needs_overdue_plan_on_same_asset() -> None:
     assert kinds(ws) == [PLAN_OVERDUE, CHARGER_FAULT]  # KINDS order (L2)
     w = ws[1]
     assert w.seen == "Connector 1 fault recorded in this window · inspection overdue since 25 Oct"
-    assert (w.key, w.href, w.subject_label) == (f"{CHARGER_FAULT}:S1:c1", "/sites/S1/health", "Connector 1")
+    assert (w.key, R.href_for(w.link_ref), w.subject_label) == (f"{CHARGER_FAULT}:S1:c1", "/sites/S1/health", "Connector 1")
     assert [r["kind"] for r in w.evidence_refs] == ["PLAN", "ASSET"]
-    assert w.evidence_refs[1] == {"kind": "ASSET", "id": "c1", "label": "Connector 1", "href": None}
+    assert w.evidence_refs[1] == {"kind": "ASSET", "id": "c1", "label": "Connector 1", "href": None,
+                                 "link_ref": None}
     assert [o["key"] for o in w.categories["items"][0]["outcomes"]] == ["EV-4"]
 
 
@@ -181,8 +186,8 @@ def test_connector_out_of_service() -> None:
     (w,) = evaluate(facts(EV, connectors_out=(("c1", "1", "2 h", "15 min"),)))
     assert (w.kind, w.title, w.seen) == (CONNECTOR_OUT, "Connector 1 out of service",
                                          "2 h out and 15 min unknown on 28 Oct")
-    assert (w.badge, w.lens, w.href) == ("RISK", "RISK", "/sites/S1/performance/availability")
-    assert w.evidence_refs == ({"kind": "ASSET", "id": "c1", "label": "1", "href": None},)
+    assert (w.badge, w.lens, R.href_for(w.link_ref)) == ("RISK", "RISK", "/sites/S1/performance/availability")
+    assert w.evidence_refs == ({"kind": "ASSET", "id": "c1", "label": "1", "href": None, "link_ref": None},)
     two_days = facts(EV, connectors_out=(("c1", "1", "2 h", None),), window_days=(DAY, date(2026, 10, 29)))
     (w,) = evaluate(two_days)
     assert w.seen == "2 h out between 28 Oct and 29 Oct" and "None" not in w.seen
@@ -198,7 +203,7 @@ def test_peak_margin() -> None:
     assert evaluate(facts(EV, peak=(72.0, 80.0, "72", "80"))) == ()
     assert evaluate(facts(EV, peak=(60.0, 80.0, "60", "80"))) == ()
     (w,) = evaluate(facts(EV, peak=(76.0, 80.0, "76", "80")))
-    assert (w.kind, w.title, w.seen, w.href) == (PEAK, "Peak close to the import limit", "76 kW against 80 kW",
+    assert (w.kind, w.title, w.seen, R.href_for(w.link_ref)) == (PEAK, "Peak close to the import limit", "76 kW against 80 kW",
                                                  "/sites/S1/performance/energy")
     items = w.categories["items"]
     assert [(i["role"], [o["key"] for o in i["outcomes"]]) for i in items] == [
@@ -236,6 +241,6 @@ def test_wire_keys() -> None:
     body = w.wire("S1", "Kobo Mini-grid")
     assert list(body) == ["key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                           "persistence_label", "price_needs", "status_effect", "categories", "site_code",
-                          "site_name", "href", "evidence_refs", "count", "subject_label", "fault_name"]
+                          "site_name", "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name"]
     assert "subject" not in body and "visit_ids" not in body and "source_label" not in body
     assert (body["badge_label"], body["persistence_label"]) == ("Early warning", "Observed")

@@ -1,0 +1,55 @@
+{
+  "schema": "chain-structure-baseline/1",
+  "rule": "Today's violations of tools/checks/check_chain_structure.py (build sheet CH-5a §B8). This list may only shrink: the slice that removes a violation deletes its entry, and the guard fails on a stale entry.",
+  "entries": [
+    {
+      "rule": "b-call",
+      "path": "assetops_backend/estate/coverage.py",
+      "name": "_days_block",
+      "owner": "CH-6",
+      "why": "SnapshotBuilder day counting (design §5.1); estate coverage reads chain days in CH-6"
+    },
+    {
+      "rule": "b-call",
+      "path": "assetops_backend/site_outcomes/mini.py",
+      "name": "_productive_month",
+      "owner": "CH-6",
+      "why": "SnapshotBuilder day counting (design §5.1); the mini month reads chain days in CH-6"
+    },
+    {
+      "rule": "b-def",
+      "path": "assetops_backend/estate/coverage.py",
+      "name": "_days_block",
+      "owner": "CH-6",
+      "why": "SnapshotBuilder day counting (design §5.1); estate coverage reads chain days in CH-6"
+    },
+    {
+      "rule": "b-def",
+      "path": "assetops_backend/estate/portfolio.py",
+      "name": "_action_for",
+      "owner": "CH-6",
+      "why": "Portfolio from EstateChain (CH-6); B3 deleted its exact-revision fallback"
+    },
+    {
+      "rule": "b-def",
+      "path": "assetops_backend/site_outcomes/board.py",
+      "name": "linked_actions",
+      "owner": "CH-6",
+      "why": "board shrinks to a view over ChainReader with the outcome nodes (CH-6)"
+    },
+    {
+      "rule": "b-def",
+      "path": "assetops_backend/site_outcomes/mini.py",
+      "name": "_productive_month",
+      "owner": "CH-6",
+      "why": "SnapshotBuilder day counting (design §5.1); the mini month reads chain days in CH-6"
+    },
+    {
+      "rule": "b-def",
+      "path": "assetops_backend/site_outcomes/read.py",
+      "name": "latest_window",
+      "owner": "CH-6",
+      "why": "summary window basis (COH-7a, I-04, owner CH-6)"
+    }
+  ]
+}

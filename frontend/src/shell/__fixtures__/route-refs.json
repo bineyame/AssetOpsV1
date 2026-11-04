@@ -1,0 +1,529 @@
+[
+ {
+  "name": "thread",
+  "ref": {
+   "kind": "THREAD",
+   "site": "KOBO-001",
+   "id": "th-1"
+  },
+  "path": null
+ },
+ {
+  "name": "finding",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001"
+ },
+ {
+  "name": "finding revision",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "revision": "rev-9"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001?revision_id=rev-9"
+ },
+ {
+  "name": "finding window",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "window": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z",
+    "known_at": "2026-11-03T12:00:00Z"
+   }
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ {
+  "name": "finding view evidence",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "view": "evidence"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001/evidence"
+ },
+ {
+  "name": "finding view history",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "view": "history"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001/history"
+ },
+ {
+  "name": "finding view recommendation",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "view": "recommendation"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001/recommendation"
+ },
+ {
+  "name": "finding view alternatives",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "view": "alternatives"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001/alternatives"
+ },
+ {
+  "name": "finding view with revision",
+  "ref": {
+   "kind": "FINDING",
+   "site": "KOBO-001",
+   "id": "0b9c0a52-1111-4a1e-9e7d-000000000001",
+   "revision": "rev-9",
+   "view": "evidence"
+  },
+  "path": "/sites/KOBO-001/findings/0b9c0a52-1111-4a1e-9e7d-000000000001/evidence?revision_id=rev-9"
+ },
+ {
+  "name": "action",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002"
+ },
+ {
+  "name": "action event",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "event_id": "ev-3"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002?event_id=ev-3"
+ },
+ {
+  "name": "action recorded_at",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "recorded_at": "2026-10-31T13:00:00Z"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002?recorded_at=2026-10-31T13%3A00%3A00Z"
+ },
+ {
+  "name": "action view verification",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "view": "verification"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002/verification"
+ },
+ {
+  "name": "action view plan",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "view": "plan"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002/plan"
+ },
+ {
+  "name": "action view history",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "view": "history"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002/history"
+ },
+ {
+  "name": "action verification event",
+  "ref": {
+   "kind": "ACTION",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000002",
+   "view": "verification",
+   "event_id": "ev-3"
+  },
+  "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002/verification?event_id=ev-3"
+ },
+ {
+  "name": "opportunity",
+  "ref": {
+   "kind": "OPPORTUNITY",
+   "site": "KOBO-001",
+   "id": "opp-1"
+  },
+  "path": "/sites/KOBO-001/opportunities/opp-1"
+ },
+ {
+  "name": "opportunity known_at",
+  "ref": {
+   "kind": "OPPORTUNITY",
+   "site": "KOBO-001",
+   "id": "opp-1",
+   "known_at": "20261103T120000Z"
+  },
+  "path": "/sites/KOBO-001/opportunities/opp-1?known_at=20261103T120000Z"
+ },
+ {
+  "name": "case",
+  "ref": {
+   "kind": "CASE",
+   "site": "KOBO-001",
+   "id": "case-5"
+  },
+  "path": "/maintenance/requests/case-5"
+ },
+ {
+  "name": "evidence",
+  "ref": {
+   "kind": "EVIDENCE",
+   "site": "KOBO-001"
+  },
+  "path": "/sites/KOBO-001/evidence"
+ },
+ {
+  "name": "evidence window",
+  "ref": {
+   "kind": "EVIDENCE",
+   "site": "KOBO-001",
+   "window": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z",
+    "known_at": "2026-11-03T12:00:00Z"
+   }
+  },
+  "path": "/sites/KOBO-001/evidence?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ {
+  "name": "evidence capability",
+  "ref": {
+   "kind": "EVIDENCE",
+   "site": "KOBO-001",
+   "capability": "dispatch"
+  },
+  "path": "/sites/KOBO-001/performance/dispatch"
+ },
+ {
+  "name": "evidence capability from-to",
+  "ref": {
+   "kind": "EVIDENCE",
+   "site": "KOBO-001",
+   "capability": "renewable",
+   "window": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   }
+  },
+  "path": "/sites/KOBO-001/performance/renewable?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+ },
+ {
+  "name": "site view home",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001"
+  },
+  "path": "/sites/KOBO-001"
+ },
+ {
+  "name": "site view foundation",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "foundation"
+  },
+  "path": "/sites/KOBO-001/foundation"
+ },
+ {
+  "name": "site view foundation_changes",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "foundation_changes"
+  },
+  "path": "/sites/KOBO-001/foundation/changes"
+ },
+ {
+  "name": "site view findings",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "findings"
+  },
+  "path": "/sites/KOBO-001/findings"
+ },
+ {
+  "name": "site view financials",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "financials"
+  },
+  "path": "/sites/KOBO-001/financials"
+ },
+ {
+  "name": "site view financial_assumptions",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "financial_assumptions"
+  },
+  "path": "/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "name": "site view financial_scenarios",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "financial_scenarios"
+  },
+  "path": "/sites/KOBO-001/financials/scenarios"
+ },
+ {
+  "name": "site view ev",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev"
+  },
+  "path": "/sites/KOBO-001/ev"
+ },
+ {
+  "name": "site view ev_evidence",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_evidence"
+  },
+  "path": "/sites/KOBO-001/ev/evidence"
+ },
+ {
+  "name": "site view ev_analysis",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_analysis"
+  },
+  "path": "/sites/KOBO-001/ev/evidence/analysis"
+ },
+ {
+  "name": "site view ev_financials",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_financials"
+  },
+  "path": "/sites/KOBO-001/ev/financials"
+ },
+ {
+  "name": "site view ev_assumptions",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_assumptions"
+  },
+  "path": "/sites/KOBO-001/ev/financial-assumptions"
+ },
+ {
+  "name": "site view ev_scenarios",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_scenarios"
+  },
+  "path": "/sites/KOBO-001/ev/financials/scenarios"
+ },
+ {
+  "name": "site view work",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "work"
+  },
+  "path": "/sites/KOBO-001/work"
+ },
+ {
+  "name": "site view work_incidents",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "work_incidents"
+  },
+  "path": "/sites/KOBO-001/work/incidents"
+ },
+ {
+  "name": "site view work_maintenance",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "work_maintenance"
+  },
+  "path": "/sites/KOBO-001/work/maintenance"
+ },
+ {
+  "name": "site view health",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "health"
+  },
+  "path": "/sites/KOBO-001/health"
+ },
+ {
+  "name": "site view assets",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "assets"
+  },
+  "path": "/sites/KOBO-001/assets"
+ },
+ {
+  "name": "site view financials window",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "financials",
+   "window": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z",
+    "known_at": "2026-11-03T12:00:00Z"
+   }
+  },
+  "path": "/sites/KOBO-001/financials?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ {
+  "name": "site view ev_financials window",
+  "ref": {
+   "kind": "SITE",
+   "site": "KOBO-001",
+   "view": "ev_financials",
+   "window": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z",
+    "known_at": "2026-11-03T12:00:00Z"
+   }
+  },
+  "path": "/sites/KOBO-001/ev/financials?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ {
+  "name": "site code encoded",
+  "ref": {
+   "kind": "SITE",
+   "site": "A B/1"
+  },
+  "path": "/sites/A%20B%2F1"
+ },
+ {
+  "name": "estate view portfolio",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "portfolio"
+  },
+  "path": "/portfolio"
+ },
+ {
+  "name": "estate view findings",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "findings"
+  },
+  "path": "/findings"
+ },
+ {
+  "name": "estate view findings_cost",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "findings_cost"
+  },
+  "path": "/findings/cost"
+ },
+ {
+  "name": "estate view findings_risks",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "findings_risks"
+  },
+  "path": "/findings/risks"
+ },
+ {
+  "name": "estate view findings_opportunities",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "findings_opportunities"
+  },
+  "path": "/findings/opportunities"
+ },
+ {
+  "name": "estate view actions",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "actions"
+  },
+  "path": "/actions"
+ },
+ {
+  "name": "estate view evidence",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "evidence"
+  },
+  "path": "/evidence"
+ },
+ {
+  "name": "estate view financials",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "financials"
+  },
+  "path": "/financials"
+ },
+ {
+  "name": "estate view incidents",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "incidents"
+  },
+  "path": "/incidents"
+ },
+ {
+  "name": "estate view maintenance",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "maintenance"
+  },
+  "path": "/maintenance"
+ },
+ {
+  "name": "estate view maintenance_preventive",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "maintenance_preventive"
+  },
+  "path": "/maintenance/preventive"
+ },
+ {
+  "name": "estate view operational_records",
+  "ref": {
+   "kind": "ESTATE",
+   "view": "operational_records"
+  },
+  "path": "/operational-records"
+ }
+]

@@ -10,9 +10,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from typing import Any, Callable
-from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.chain import refs
 from assetops_backend.chain.read import site_cutoff
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
@@ -22,15 +22,13 @@ from assetops_backend.estate.scope import (
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
     portfolio_cursor_key, selection_token, token_time, wire_time)
 from assetops_backend.outcomes.display_code import finding_label
-from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, lens_flags
 
 _LOG = logging.getLogger(__name__)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
 LENS_FLAG = {"cost": "COST", "risks": "RISK", "opportunities": "OPPORTUNITY"}
-# CC-R2 (build spec CC-R2 "Lens", Appendix C R5.5): the stored mechanisms that set the RISK lens flag.
-RISK_MECHANISMS = ("COLD_EXCURSION", "COLD_START_FAILURE", "EV_INTERRUPTION")
 Admit = Callable[[str], bool]
 
 
@@ -91,20 +89,31 @@ class _WindowRecorder:
         return self.windows
 
 
+def _links(link_refs: dict[str, Any]) -> dict[str, Any]:
+    """CH5a2-R4(a): a row's `links` (unchanged keys) and their `link_refs` sibling, each href from its Ref."""
+    return {"links": refs.links_of(link_refs), "link_refs": link_refs}
+
+
 def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
                    k: datetime) -> dict[str, Any]:
+    """`_finding_link_refs` as the legacy `links` hrefs."""
+    return refs.links_of(_finding_link_refs(code, domain, fid, frid, rec, k))
+
+
+def _finding_link_refs(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
+                       k: datetime) -> dict[str, Any]:
     """The Site home (EV `/sites/{code}/ev`) and the Finding route: mini-grid keeps its exact `revision_id`; a
     cold/EV Finding opens over the one selected Site window holding its winning revision with the proven row-local cutoff, else
     null (closure 5 B5 via `finding_window_href`)."""
-    from assetops_backend.estate.evidence_money import finding_window_href, site_home_href  # import cycle
+    from assetops_backend.estate.evidence_money import finding_window_ref, site_home_ref  # import cycle
     if domain == MINI_GRID:
-        finding = f"/sites/{quote(code, safe='')}/findings/{fid}?revision_id={frid}"
+        finding = refs.finding_ref(code, fid, frid)
     else:
         holding = [w for w in (rec.windows if rec is not None else ())
                    if any(f["finding_revision_id"] == frid for f in w.get("findings") or ())]
-        finding = (finding_window_href(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
-                                       rec.cutoff, k) if len(holding) == 1 else None)
-    return {"finding": finding, "site": site_home_href(code, domain)}
+        finding = (finding_window_ref(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
+                                      rec.cutoff, k) if len(holding) == 1 else None)
+    return {"finding": finding, "site": site_home_ref(code, domain)}
 
 
 def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> list[dict[str, Any]] | None:
@@ -123,7 +132,7 @@ def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: Esta
 
 
 def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
-                         scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
+                         scope: dict[str, Any], cutoffs: dict[str, Any] | None = None) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
                                                           list[dict[str, Any]]]:
     """W3-03 closure 4 B1/B2: every authorized Site's `(site, domain, cov)` and every selected Finding row (all
     lifecycle heads) before lens/state filtering, sorting and paging, on the caller's one snapshot and `scope`.
@@ -138,14 +147,20 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
         per_site.append((site, domain or NOT_APPLICABLE, cov))
         recorders[str(site["site_id"])] = rec
+        if cutoffs is not None:
+            # CH-5a2 B3 (R7): one cutoff per Site, through the one rule (`chain/read.py` `site_cutoff`): a cold/EV
+            # Site's evidence cutoff (the board's resolved cutoff for that Site), never later than the estate
+            # cutoff; a mini-grid Site has none (the envelope's cutoff applies). It replaces the per-row value.
+            cutoffs[site["site_code"]] = (None if domain in (None, MINI_GRID) or rec is None
+                                          else site_cutoff(domain, None, rec.cutoff, scope["k"]))
     rows: list[dict[str, Any]] = []
     for site, domain, cov in per_site:
         code = site["site_code"]
         rec = recorders[str(site["site_id"])]
         for r in cov["rows"]:
-            # CC-R2 (R5.5): RISK for the cold and EV risk mechanisms; a row may carry both flags.
-            flags = ((["COST"] if r["consequence"]["state"] == "PRICED" else [])
-                     + (["RISK"] if r.get("mechanism") in RISK_MECHANISMS else []))
+            # CH-5a2 B5 (I-21): one lens, the primary moved category's, through outcome_map only (OL-1). The
+            # price stays in the consequence column.
+            flags = lens_flags(finding_signal_key(r.get("mechanism")), domain)
             fid, frid = r["finding_id"], r["finding_revision_id"]
             rows.append({
                 "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
@@ -157,18 +172,13 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 # OUT-A2: the outcome categories of the stored mechanism on the coverage domain (NOT_MAPPED when
                 # either is unknown).
                 "categories": categories_for(finding_signal_key(r.get("mechanism")), domain),
-                "links": _finding_links(code, domain, fid, frid, rec, scope["k"]),
+                **_links(_finding_link_refs(code, domain, fid, frid, rec, scope["k"])),
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
                 "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism"),
                 # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
                 "_recurs_after": r.get("recurs_after_finding_id"), "_recurs_after_title": r.get("recurs_after_title"),
                 "_transition": r.get("transition"),
-                "_revision_no": r.get("revision_no"),
-                # CH3-R (COH-13): a cold/EV row's thread state is read at its Site's evidence cutoff (the board's
-                # resolved cutoff for that Site), never later than the estate cutoff.
-                # CH-5a1 R7 (CH5a1-R C5): the value through the one cutoff rule, `chain/read.py` `site_cutoff`.
-                "_cutoff": (None if domain == MINI_GRID or rec is None
-                            else site_cutoff(domain, None, rec.cutoff, scope["k"]))})
+                "_revision_no": r.get("revision_no")})
     return per_site, rows
 
 
@@ -190,10 +200,9 @@ def select_action_scope(snap: Any, tenant_id: Any, req: EstateRequest,
             rows.append({**{k: v for k, v in r.items() if not k.startswith("_")},
                          "site_id": str(site["site_id"]), "site_code": code, "site_name": site["site_name"],
                          "created_at": wire_time(r["created_at"]),
-                         "links": {"action": f"/sites/{code}/actions/{r['action_id']}?event_id="
-                                             f"{r['selected_event_id']}",
-                                   "source": f"/sites/{code}/findings/{r['source_finding_id']}?revision_id="
-                                             f"{r['source_finding_revision_id']}"},
+                         **_links({"action": refs.action_ref(code, r["action_id"], event_id=r["selected_event_id"]),
+                                   "source": None if r.get("source_finding_id") is None else refs.finding_ref(
+                                       code, r["source_finding_id"], r.get("source_finding_revision_id"))}),
                          "_at": r["created_at"], "_raw": r})
     return per_site, rows
 

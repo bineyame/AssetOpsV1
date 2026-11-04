@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from test_out_b3_cold_ev import C, HI, LO, MR5, T, Fake, cold_ports, contributor
+from test_out_b3_cold_ev import C, F118, F119, HI, LO, MR5, T, Fake, cold_ports, contributor
 
 from assetops_backend.site_outcomes import cold
 from assetops_backend.site_outcomes.board import assemble
@@ -31,9 +31,9 @@ def test_repeat_visits_fill_the_cost_row() -> None:
                                "recorded")
     eff = contributor(cost, "maintenance_effectiveness")
     assert eff["text"] == "3 visits (2 Oct, 12 Oct, 20 Oct); the automatic start failure is still open"
-    # H1-4a: the repeat warning reuses Protect's start-test option (same href)
+    # H1-4a: the repeat warning reuses Protect's start-test option (same href); CH-5a2a: a domain intent
     assert [(o["text"], o["href"]) for o in cost["options"]] == [
-        ("Witnessed automatic-start test", f"/sites/{C}/actions/da1")]
+        ("Witnessed automatic-start test", f"/sites/{C}/actions/da1/verification")]
     (w,) = [w for w in comp.facts.warnings if w.kind == "REPEATED_MAINTENANCE_NO_RESULT"]
     assert w.fault_name == "automatic start failure" and w.badge == "RISK"
     assert w.seen.endswith("; the automatic start failure is still open")
@@ -44,7 +44,15 @@ def test_repeat_visits_fill_the_cost_row() -> None:
     cool = contributor(cost, "cooling_energy")
     assert (cool["text"], cool["confidence"], cool["href"]) == (cold.NO_COOLING_METER, None, None)
     assert [e["result_label"] for e in cost["earlier"]] == ["Did not fix it", "Did not fix it", "Not yet verified"]
-    assert cost["must_not_harm"]["href"] == f"/sites/{C}/findings/f118"
+    # CH-5a2a D4 / R5: the shared F118 fixture link carries no window, so it is unproven and renders no link
+    assert cost["must_not_harm"]["href"] is None and cost["must_not_harm"]["link_ref"] is None
+    # with the store row's own proven window and cutoff, the link is the windowed Finding screen
+    lo, hi = (d.strftime("%Y-%m-%dT%H:%M:%SZ") for d in (LO, HI))
+    windowed = dict(F118, links={"finding": f"/api/v1/sites/{C}/findings/f118?from={lo}&to={hi}&known_at={hi}"})
+    _, rows = run([E1, E2, MR5], Fake(cold_findings={"items": [windowed, F119], "next_cursor": None}))
+    assert rows[COST]["must_not_harm"]["href"] == (
+        f"/sites/{C}/findings/f118?from=2026-10-20T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z"
+        "&known_at=2026-10-21T00%3A00%3A00.000000Z")
 
 
 def test_no_repeat_and_failed_visits() -> None:

@@ -12,6 +12,9 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from typing import Any
 
+from assetops_backend.chain import refs
+from assetops_backend.estate.evidence_money import finding_window_ref
+from assetops_backend.work.domain_action_index import W1_DOMAIN
 from assetops_backend.outcomes.catalogue import COLD
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
@@ -117,7 +120,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
-    findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())
+    findings = tuple(_finding(r, lo, hi, c) for r in finding_rows or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
     by_mech = {m: [f for f in sorted(findings, key=lambda f: (f.title, f.finding_id))
                    if f.mechanism == m and f.open and f.in_window] for m in (EXCURSION, START_FAILURE)}
@@ -155,12 +158,12 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     }
     start_action = next((a for a in sorted(actions, key=lambda a: (a.code or "", a.action_id))
                          if start_failure is not None and a.origin_finding_id == start_failure.finding_id), None)
-    start_href = (start_action.href if start_action is not None else
-                  f"/sites/{c}/findings/{start_failure.finding_id}/recommendation" if start_failure else None)
+    start_href = (start_action.link_ref if start_action is not None else
+                  refs.finding_ref(c, start_failure.finding_id, view="recommendation") if start_failure else None)
     options = {GROW: (), COST: (),
                PROTECT: tuple(o for o in (Option(OPTION_START_TEST, start_href) if start_href else None,
-                                          Option(OPTION_STOCK, f"/sites/{c}/financials/scenarios")) if o),
-               ASSURE: (Option(OPTION_LOG, f"/sites/{c}/work"),)}
+                                          Option(OPTION_STOCK, refs.site_ref(c, "financial_scenarios"))) if o),
+               ASSURE: (Option(OPTION_LOG, refs.site_ref(c, "work")),)}
     headline = {PROTECT: _excursion_headline(excursion, claims, high),
                 ASSURE: (None if strip is None else NO_VERIFIED if not strip
                          else ASSURE_FULL if gaps == (0, 0) else ASSURE_PART)}
@@ -202,11 +205,12 @@ def domain_action(r: dict[str, Any], c: str) -> ActionFact:
     return ActionFact(aid, r.get("action_code"), r.get("title") or "",
                       None if origin.get("finding_id") is None else str(origin["finding_id"]),
                       None if origin.get("finding_revision_id") is None else str(origin["finding_revision_id"]),
-                      False, True, None, (r.get("links") or {}).get("action") or f"/sites/{c}/actions/{aid}",
+                      False, True, None,
+                      refs.action_ref(c, aid, view=None if r.get("domain") == W1_DOMAIN else "verification"),
                       is_domain=True)
 
 
-def _finding(r: dict[str, Any], lo: datetime, hi: datetime) -> FindingFact:
+def _finding(r: dict[str, Any], lo: datetime, hi: datetime, c: str) -> FindingFact:
     bounds = r.get("episode_bounds") or {}
     start = utc((bounds.get("start") or {}).get("earliest"))
     end = utc((bounds.get("end") or {}).get("latest"))
@@ -214,9 +218,22 @@ def _finding(r: dict[str, Any], lo: datetime, hi: datetime) -> FindingFact:
     kind = r.get("kind")
     return FindingFact(str(r["finding_id"]), str(r["revision_id"]), r.get("title") or "",
                        COLD_KIND_MECHANISM.get(kind, kind), r.get("lifecycle") or "",
-                       (r.get("links") or {}).get("finding"),
+                       finding_window_link(c, str(r["finding_id"]), r),
                        asset_id=None if r.get("subject_asset_id") is None else str(r["subject_asset_id"]),
                        in_window=in_window)
+
+
+def finding_window_link(c: str, finding_id: str, r: dict[str, Any]) -> dict[str, Any] | None:
+    """CH5a2-R5 (I-08): the FINDING Ref of a cold/EV Finding row over the row's own proven window and cutoff, as
+    `evidence_money.finding_window_ref` takes them. The store's `links` stay untouched until CH-7; their query is
+    the only place the row carries that window and cutoff, so it is read from there, never the `/api` path."""
+    links = r.get("links") or {}
+    link = links.get("finding") or links.get("self")
+    if not isinstance(link, str) or "?" not in link:
+        return None
+    w = refs.query_window(link.split("?", 1)[1]) or {}
+    lo, hi, known = (utc(w.get(key)) for key in refs.WINDOW_KEYS)
+    return finding_window_ref(c, finding_id, lo, hi, known, known, known) if known is not None else None
 
 
 def _peak(f: FindingFact | None, claims: dict[str, dict[str, Any]]) -> str | None:
@@ -306,20 +323,20 @@ def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[C
         dates = ", ".join(day_month(d) for d in days) + wf.date_suffix
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness",
                              f"{repeat.count} visits ({dates}); the {repeat.fault_name or LINKED_FINDING} is still open",
-                             rc, repeat.href)
+                             rc, repeat.link_ref)
     else:
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
     done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))
     repair = Contributor("repair_cost", "Repair and call-out",
                          f"No cost on work record {display_code(done[-1].code)}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
-                         f"/sites/{c}/financials")
+                         refs.site_ref(c, "financials"))
     cooling = Contributor("cooling_energy", "Cooling energy", NO_COOLING_METER)
     return effect, repair, cooling
 
 
 def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, Any], failed: bool,
           suffix: str, to: Any = None) -> Contributor:
-    href = "/maintenance/preventive"
+    href = refs.estate_ref("maintenance_preventive")
     if failed:
         return Contributor(key, label, NOT_LOADED, None, href)
     tokens = PLAN_TYPE_TOKENS[key]
@@ -347,7 +364,7 @@ def _verified(cases: list[CaseFact], failed: bool) -> Contributor:
         return Contributor("verified_results", "Verified results", NO_VERIFIED)
     latest = max(done, key=lambda x: (x.occurred_at is not None, x.occurred_at or datetime.min, x.case_id))
     return Contributor("verified_results", "Verified results", f"{display_code(latest.code)} completed; not yet verified",
-                       PENDING_CHIP, latest.href)
+                       PENDING_CHIP, latest.link_ref)
 
 
 def _chain(strip: Any, gaps: tuple[int, int] | None, rc: Any) -> Contributor:

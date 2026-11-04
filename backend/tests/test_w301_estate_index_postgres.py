@@ -528,8 +528,9 @@ LENSES = ("all", "cost", "risks", "opportunities")
 
 def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
     """One canonical Finding set underlies all four lenses. Without a stored risk or opportunity producer those
-    lenses are truthfully empty over complete coverage (zero only after a complete read); an unpriced Finding and a
-    stored PRICED amount whose source gate withholds money (unbound power) stay in All and never enter Cost."""
+    lenses are truthfully empty over complete coverage (zero only after a complete read). CH-5a2 B5: the lens comes
+    from the chain (the generator mechanism's primary category, COST), never from the price, so an unpriced Finding
+    and a stored PRICED amount whose source gate withholds money (unbound power) are under Cost with no amount."""
     site, rig, estate = power_estate(store, engine, capsys, monkeypatch)
     try:
         days = {"from": iso(POWER_DAY), "to": iso(STATE_DAY + timedelta(days=1))}
@@ -539,8 +540,9 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
         unpriced = estate.ok("findings", **day)
         ((row,),) = (unpriced["rows"],)
         assert row["finding_revision_id"] == str(power["id"]) and row["consequence"]["state"] == "UNPRICED"
-        assert row["consequence"]["amount"] is None and row["lens_flags"] == []
-        assert estate.ok("findings", **day, lens="cost")["rows"] == []
+        assert row["consequence"]["amount"] is None and row["lens_flags"] == ["COST"]
+        assert [r["finding_revision_id"] for r in estate.ok("findings", **day, lens="cost")["rows"]] == [
+            str(power["id"])]
         site.publish("v1")
         rig.run()  # a stored PRICED revision, but the power evidence is unbound: the source gate withholds money
         bodies = {lens: estate.ok("findings", **day, lens=lens) for lens in LENSES}
@@ -550,8 +552,9 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
         assert row["consequence"] == {"state": "UNKNOWN", "amount": None,
                                       "amount_low": None, "amount_high": None, "currency": None,
                                       "source_revision_id": row["consequence"]["source_revision_id"]}
-        assert row["source_provenance"]["state"] != "AUTHORED_DEMONSTRATION" and row["lens_flags"] == []
-        for lens in ("cost", "risks", "opportunities"):
+        assert row["source_provenance"]["state"] != "AUTHORED_DEMONSTRATION" and row["lens_flags"] == ["COST"]
+        assert bodies["cost"]["rows"] == bodies["all"]["rows"] and bodies["cost"]["status"] == "CURRENT"
+        for lens in ("risks", "opportunities"):
             body = bodies[lens]
             assert body["lens"] == lens and body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
             assert body["rows"] == [] and body["total_count"] == 0 and body["summary"]["supported_findings"] == 0
@@ -582,8 +585,9 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
 
 def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
     """W7: Cost lists only the exact selected Finding revision's CURRENT, ELIGIBLE, source-permitted PRICED
-    consequence, as its stored interval (no sum); the state-only Finding stays in All as Unpriced; an explicit
-    earlier cutoff and a stale price selection are UNKNOWN and leave Cost until the consequence is recomputed."""
+    consequence, as its stored interval (no sum); the state-only Finding is Unpriced; an explicit earlier cutoff and
+    a stale price selection are UNKNOWN until the consequence is recomputed. CH-5a2 B5: the lens is the mechanism's
+    (COST for both), never the price, so every row stays under Cost with its money state."""
     from test_s405_publication_postgres import P01
 
     site, rig, estate = power_estate(store, engine, capsys, monkeypatch, lambda device, texts: P01)
@@ -603,12 +607,12 @@ def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monke
         assert consequence["amount"] == consequence["amount_low"]  # the interval's low bound, never a sum
         assert row["source_provenance"]["state"] == "AUTHORED_DEMONSTRATION"
         assert cost["total_count"] == 1 and cost["summary"]["basis_count"] == 1
-        # The state-only Finding: in All as Unpriced, absent from Cost (a complete zero).
+        # The state-only Finding: Unpriced, and under Cost by its mechanism (B5).
         other = {"from": iso(STATE_DAY), "to": iso(STATE_DAY + timedelta(days=1))}
         ((unpriced,),) = (estate.ok("findings", **other)["rows"],)
         assert unpriced["finding_revision_id"] == str(state["id"]) and unpriced["consequence"]["state"] == "UNPRICED"
-        none = estate.ok("findings", **other, lens="cost")
-        assert none["rows"] == [] and none["total_count"] == 0 and none["coverage"]["state"] == "COMPLETE"
+        listed = estate.ok("findings", **other, lens="cost")
+        assert listed["rows"] == [unpriced] and listed["coverage"]["state"] == "COMPLETE"
         # An explicit earlier cutoff never makes a current-money claim: UNKNOWN with the same revision, out of Cost.
         # The consequence is recorded on the database clock, which is not the fixture clock: take the cutoff at its
         # own recorded instant, so it is stored by then yet earlier than the live read (historical, never current).
@@ -617,16 +621,16 @@ def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monke
                                  {"r": consequence["source_revision_id"]}).scalar_one())
         old_all, old_cost = estate.ok("findings", **day, known_at=then), estate.ok("findings", **day, known_at=then,
                                                                                   lens="cost")
-        assert old_all["status"] == "HISTORICAL" and old_cost["rows"] == [] and old_cost["total_count"] == 0
+        assert old_all["status"] == "HISTORICAL" and old_cost["rows"] == old_all["rows"]
         assert old_all["rows"][0]["consequence"] == {"state": "UNKNOWN", "amount": None,
                                                      "amount_low": None, "amount_high": None, "currency": None,
                                                      "source_revision_id": consequence["source_revision_id"]}
         # A backdated price correction: the stored amount is STALE until recomputed, so it leaves Cost.
         site.publish("v4")
         stale = estate.ok("findings", **day)
-        assert stale["rows"][0]["consequence"]["state"] == "UNKNOWN" and stale["rows"][0]["lens_flags"] == []
+        assert stale["rows"][0]["consequence"]["state"] == "UNKNOWN" and stale["rows"][0]["lens_flags"] == ["COST"]
         assert stale["rows"][0]["consequence"]["source_revision_id"] == consequence["source_revision_id"]
-        assert estate.ok("findings", **day, lens="cost")["rows"] == []
+        assert estate.ok("findings", **day, lens="cost")["rows"] == stale["rows"]
         rig.run()
         again = estate.ok("findings", **day, lens="cost")
         ((fresh,),) = (again["rows"],)

@@ -2,6 +2,7 @@
  * W3-03 run 2: a typed Portfolio response shaped like the clean 10-06 four-Site fixture (one W1 mini-grid, one
  * cold-chain, two EV Sites). IDs and amounts are test values, never page copy.
  */
+import { withLinkRefs } from "../../test/linkRefs";
 import type {
   EstateClient,
   EstateCoverageDays,
@@ -69,7 +70,8 @@ export function partialBody(gaps: string[] = ["2026-10-11", "2026-10-12"], reque
 }
 
 export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow {
-  return {
+  // CH-5a2a: the client links from `link_refs`, derived here from `links` unless the test gives its own.
+  const built: EstatePortfolioRow = {
     site_id: SITES[0].site_id,
     site_code: "KOBO-001",
     site_name: "Kobo",
@@ -117,6 +119,7 @@ export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow 
     },
     ...over,
   };
+  return over.link_refs ? built : withLinkRefs(built);
 }
 
 export const COLD_ROW = row({

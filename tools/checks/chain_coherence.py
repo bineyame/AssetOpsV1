@@ -322,10 +322,14 @@ def _actions(bundle: Bundle, window: str) -> list[dict[str, Any]]:
     return list(out.values())
 
 
-def _board_findings(board: dict) -> Iterator[tuple[str, str]]:
+def _board_findings(board: dict, primary_only: bool = False) -> Iterator[tuple[str, str]]:
+    """The board's FINDING issues as (row category, finding id). CH-5a2 B5: `primary_only` keeps only the
+    issue on the Finding's lens row (`primary` true); a checked-row or secondary appearance is not a lens."""
     for row in board.get("rows") or []:
         for issue in row.get("issues") or []:
             ref = issue.get("ref")
+            if primary_only and issue.get("primary") is not True:
+                continue
             if issue.get("kind") == "FINDING" and isinstance(ref, dict) and ref.get("finding_id"):
                 yield row.get("category"), str(ref["finding_id"])
 
@@ -520,7 +524,7 @@ def coh5_lens(bundle: Bundle) -> list[dict]:
         if not board:
             continue
         index = _finding_rows(bundle, f"day_findings_all.{d}", board.get("site_code"))
-        for category, f in _board_findings(board):
+        for category, f in _board_findings(board, primary_only=True):
             lens = CATEGORY_LENS.get(category)
             row = index.get(f)
             if lens and row is not None and lens not in (row.get("lens_flags") or []) and (d, f, lens) not in seen:
@@ -587,18 +591,18 @@ def _coh7a_window(site: dict, requested: dict) -> tuple[str, str]:
     """CH5a1-R2 (COH-7a, Architect 6; supersedes MD0-S4 R3): the expected window of one summary Site card.
 
     A mini Site's summary card is ONE Site-local day by design: `[local 00:00, next local 00:00)` of
-    `chain.read.summary_day(to, tz)` (the CH3-R `day_at` rule, local day of `to - 1 us`). Both rules are imported
-    from the backend, never re-derived here. Every other Site's window must equal the requested window.
+    `chain.read.window_day(from, to, tz)` (CH5a2-R R7, owner-approved: the board route's day rule, so a UTC-midnight
+    one-day pair is the picked calendar date). Both rules are imported from the backend, never re-derived here. Every other Site's window must equal the requested window.
     Merge note: MD-0's branch also edits this file; keep this helper and its one call when resolving."""
     if site.get("domain") != "mini_grid":
         return requested["from"], requested["to"]
     backend = str(TOOLS.parent / "backend")
     if backend not in sys.path:
         sys.path.insert(0, backend)
-    from assetops_backend.chain.read import board_day, summary_day
+    from assetops_backend.chain.read import board_day, window_day
 
     tz = {SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}.get(site.get("site_code"))
-    lo, hi = board_day(summary_day(at(requested["to"]), tz), tz)
+    lo, hi = board_day(window_day(at(requested["from"]), at(requested["to"]), tz), tz)
     return iso(lo), iso(hi)
 
 
@@ -656,8 +660,8 @@ def coh8_verified(bundle: Bundle) -> list[dict]:
             p = progress.get(a["action_id"])
             if p is None:
                 problems.append("its progress row is missing")
-            elif p.get("origin_revision_selected") is not True:
-                problems.append(f"its progress row has origin_revision_selected {p.get('origin_revision_selected')}")
+            elif p.get("origin_selected") is not True:  # CH-5a2 B6: the thread-based fact, not the exact revision
+                problems.append(f"its progress row has origin_selected {p.get('origin_selected')}")
             if problems:
                 out.append(finding("COH-8", row.get("site_code") or a["site_code"], w, a["action_id"],
                                    f"Action {a['action_id']} is VERIFIED, but " + "; ".join(problems),
@@ -996,8 +1000,16 @@ def coh14_rows(bundle: Bundle) -> Iterator[tuple[str, dict, dict]]:
                 if all(isinstance(i["ref"].get("thread"), dict)
                        and i["ref"]["thread"].get("state") in VERIFIED_THREAD_STATES for i in moves):
                     yield d, board, row
-            elif any(part.startswith(VERIFIED_LINE_PREFIX) for part in str(row.get("subline") or "").split(" · ")):
+            elif _verified_line(row):
                 yield d, board, row
+
+
+def _verified_line(row: dict) -> bool:
+    """CH-5a2 B4: a verified thread's line, from the structured `thread_lines` where present (kind MONITORING or
+    CLOSED), else from the copy (an older board body)."""
+    if isinstance(row.get("thread_lines"), list):
+        return any(isinstance(t, dict) and t.get("kind") in ("MONITORING", "CLOSED") for t in row["thread_lines"])
+    return any(part.startswith(VERIFIED_LINE_PREFIX) for part in str(row.get("subline") or "").split(" · "))
 
 
 def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:

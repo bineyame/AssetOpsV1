@@ -3,7 +3,8 @@
  * v69 `portfolio` panels and `.agent/W3-03-build-spec.md` closures 1-5, r1a, r1b, r1b2 and r1b4 literals.
  */
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
@@ -31,6 +32,7 @@ import {
   STATUS_BODIES,
   withOutcomeSummary,
 } from "./portfolioFixtures";
+import { withLinkRefs } from "../../test/linkRefs";
 
 const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
 
@@ -466,7 +468,7 @@ describe("estate Portfolio page", () => {
   });
 
   it("rendersChangeDisclosureWithoutRecoveredMoney", async () => {
-    const progressRow = (id: string, selected: boolean) => ({
+    const progressRow = (id: string, selected: boolean, origin?: boolean) => ({
       action_id: id,
       action_code: "A1",
       selected_action_event_id: "ev",
@@ -477,13 +479,14 @@ describe("estate Portfolio page", () => {
       verification_outcome: null,
       recorded_at: "2026-10-06T10:00:00Z",
       origin_revision_selected: selected,
+      ...(origin === undefined ? {} : { origin_selected: origin }),
     });
     // Page size 1 and a nonmatching lens: the disclosure uses the server boolean, never the paged Finding rows.
     const body = portfolioBody({
       lens: "opportunities",
       rows: [],
       total_count: 0,
-      progress: { ...portfolioBody().progress, pending_trial_count: null, verified_resolution_count: 2, rows: [progressRow("act-1", true), progressRow("act-2", false)] },
+      progress: { ...portfolioBody().progress, pending_trial_count: null, verified_resolution_count: 2, rows: [progressRow("act-1", true), progressRow("act-2", false), progressRow("act-3", false, true), progressRow("act-4", true, false)] },
     });
     renderAt(`${ENTRY}&lens=opportunities`, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
@@ -495,7 +498,10 @@ describe("estate Portfolio page", () => {
     expect(text(progress)).toContain(
       "No previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.",
     );
-    expect(progress.querySelectorAll("[data-portfolio-origin-unselected]")).toHaveLength(1);
+    // CH-5a2 B6: `origin_selected` (thread + segment) decides when present; an older body falls back to the revision flag.
+    expect(progress.querySelectorAll("[data-portfolio-origin-unselected]")).toHaveLength(2);
+    expect(progress.querySelector("[data-portfolio-progress-row='act-3'] [data-portfolio-origin-unselected]")).toBeNull();
+    expect(progress.querySelector("[data-portfolio-progress-row='act-4'] [data-portfolio-origin-unselected]")).not.toBeNull();
     expect(text(progress.querySelector("[data-portfolio-progress-row='act-2']"))).toContain("The version of the finding it came from is not the one selected");
     expect(text(progress.querySelector("[data-portfolio-progress-row='act-1']"))).not.toContain("The version of the finding it came from");
     // POLISH §3 ids: the raw action, event, plan and outcome ids sit only inside Technical details.
@@ -712,7 +718,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
 
   it("coldAndEvFindingTitlesAreLiveOnlyWithAServerWindowedLink", async () => {
     const coldLink = `/sites/COLD-001/findings/${COLD_ROW.finding_id}?${WIN}`;
-    const live = { ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } };
+    const live = withLinkRefs({ ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } });
     const ev = row({
       site_id: SITES[2].site_id,
       site_code: "EV-LAB-001",
@@ -733,6 +739,21 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(evRow.querySelector("[data-portfolio-finding-link]")).toBeNull();
     expect(text(evRow)).toContain("Finding detail unavailable");
     expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
+  });
+
+  it("rowWithoutLinkRefsRendersNoLinkWhateverItsLinksSay", async () => {
+    // CH5a2-R4(c): the row keeps its legacy `links` text but carries no `link_refs`.
+    const bare = row({ link_refs: {} });
+    expect(bare.links.site).not.toBeNull();
+    expect(bare.links.finding).not.toBeNull();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [bare], total_count: 1 }))));
+    await settledScreen();
+    const tr = panel("Where management should act first").querySelector("[data-portfolio-row]") as HTMLElement;
+    expect(tr).not.toBeNull();
+    expect(tr.querySelector("[data-portfolio-site-link]")).toBeNull();
+    expect(tr.querySelector("[data-portfolio-finding-link]")).toBeNull();
+    expect(tr.querySelectorAll("a[href^='/sites/']")).toHaveLength(0);
+    expect(text(tr)).toContain("Finding detail unavailable");
   });
 
   it("scopeDisclosureSummarisesAssessmentsTranslatesCodesAndNestsLongIds", async () => {

@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from assetops_backend.outcomes import warnings as w
+from assetops_backend.chain import refs as R
 from assetops_backend.outcomes.asset_words import asset_label, asset_word
 from assetops_backend.outcomes.plan_due import (
     DUE_SOON, NOT_ASSESSED, NOT_DUE, OVERDUE, plan_due_state, soon_until)
@@ -41,7 +42,7 @@ def test_not_assessed_cases() -> None:
 
 def test_board_warnings_use_the_helper_with_unchanged_behaviour() -> None:
     cue = lambda pid, due: w.PlanCue(plan_id=pid, code="PM-000001", title=f"Service {pid}", due_at=due,
-                                     due_on=due.date(), asset_id=None, href="/maintenance/preventive")
+                                     due_on=due.date(), asset_id=None, link_ref=R.estate_ref("maintenance_preventive"))
     f = w.WarningFacts(domain="MINI_GRID", site_code="S1", to=TO, visits_from=TO - timedelta(days=60),
                        soon_until=soon_until(TO), window_days=(TO.date(), TO.date()),
                        plans=(cue("a", TO - timedelta(days=1)), cue("b", TO), cue("c", TO + timedelta(days=14))))

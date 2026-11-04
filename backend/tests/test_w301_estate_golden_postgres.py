@@ -40,6 +40,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import pytest
+from link_parity import checked as link_parity_checked
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -691,7 +692,9 @@ def replay_case(replay: Replay, case: dict) -> dict:
     resolver = Resolver(replay, req, known)
     k = known or replay.read_clock()
     digests = rebuild(replay, req, body, resolver.reference, k)
-    actual = normalize(body, resolver.code_of)
+    # CH-5a2a: every link_ref/link_refs must equal its legacy href (href_for), then the Ref siblings are stripped,
+    # so the golden keeps pinning the legacy link text and the Refs are proven against it.
+    actual = normalize(link_parity_checked(body), resolver.code_of)
     if body.get("next_cursor"):
         check_cursor(replay, req, body, k, digests)
         replay.cursors[name] = resolver.values["self.next_cursor"] = body["next_cursor"]

@@ -187,6 +187,8 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
+from assetops_backend.chain.composition import chain_policy_versions
+from assetops_backend.chain_api import build_chain_router
 from assetops_backend.outcome_api import build_outcome_router
 from assetops_backend.site_outcomes.composition import build_outcome_board_service
 from assetops_backend.sites_api import build_sites_router
@@ -616,7 +618,7 @@ def create_app(
     outcome_board, outcome_board_dispose = build_outcome_board_service(
         database_url(), site_overview=site_overview if site_overview_read is not None else None,
         s2_scope=imported_reads.scope, mini_depth=mini_reads, dispatch=performance_reads,
-        performance_gate=performance_gate, finding_index=finding_index, finding_index_gate=finding_index_gate,
+        performance_gate=performance_gate, finding_index_gate=finding_index_gate,
         assumptions=assumption_reads, actions=actions, action_index=action_index, cold_site=cold_site_reads,
         cold_reads=cold_reads, ev_site=ev_site_reads, ev_reads=ev_reads, ev_depth=ev_depth_reads,
         domain_actions=domain_action_reads, work_index=work_lists, estate=estate_portfolio)
@@ -624,6 +626,11 @@ def create_app(
     app.include_router(build_outcome_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,)))
+    # CH-5a2a §B1: the `outcome-chain-1` reads over the same board service, admission and estate scope.
+    app.include_router(build_chain_router(
+        outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
+        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
+        policy_versions=chain_policy_versions))
     # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
     # allow defaults too; pass the same callables to the board if that changes.
 

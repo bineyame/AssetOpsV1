@@ -7,6 +7,8 @@ CH-5a1: the fakes are the ChainReader ports (`chain/read.py` `DayFacts`, `Findin
 `verification` + `action` -> `action_facts`. Expected values changed only per §A6 E1-E5, named at each test."""
 from __future__ import annotations
 
+from link_parity import checked
+
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
@@ -24,7 +26,7 @@ C = "KOBO-001"
 
 def legacy(items):
     """The pre-Addendum-12 item fields: case/plan items also carry `kind`/`occurred_at` (pinned in test_out_b1_board)."""
-    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at")} for i in items]
+    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at", "link_ref")} for i in items]
 
 
 def iso(dt: datetime) -> str:
@@ -126,7 +128,7 @@ class Fake:
 
 def run(fake: Fake | None = None, tz: str | None = ZONE):
     comp = compose((fake or Fake()).ports(), site_code=C, day=DAY, site_timezone=tz)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}
+    return comp, {r["category"]: r for r in checked(assemble(comp.facts))}
 
 
 def contributor(row: dict, key: str) -> dict:
