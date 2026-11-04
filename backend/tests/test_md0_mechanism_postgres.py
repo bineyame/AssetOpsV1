@@ -68,6 +68,11 @@ def mech(tmp_path):
         admin.dispose()
 
 
+def _core(key: str) -> bool:
+    """productive_kwh / avoidable_gen_min, Site or per-subject (`measure@ref`): the MD0-S4 R1.5 hard grades."""
+    return key.split("@")[0] in ("productive_kwh", "avoidable_gen_min")
+
+
 def _iso(n: int) -> str:
     return md.day(SPEC, n).isoformat()
 
@@ -112,10 +117,15 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     other = {d: v for d, v in other.items() if v}
     record("grades_gap_day", gap)
     record("grades_not_complete", other)
-    if not gap or set(gap.values()) != {"NO_DATA"}:
+    # MD0-S4 R1.5 (hard): full delivered days grade COMPLETE on productive_kwh and avoidable_gen_min, and GAP-K7
+    # stays NO_DATA/PENDING before any fill. noon_headroom_kw grades as the renewable hour supports: recorded.
+    core = {d: {k: v for k, v in x.items() if _core(k)} for d, x in other.items()}
+    assert not any(core.values()), core
+    assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
+    if set(gap.values()) != {"NO_DATA"}:
         notes.append(f"MD-0-F1 GAP-K7 grades {gap}")
     if other:
-        notes.append(f"MD-0-F2 delivered days graded other than COMPLETE: {other}")
+        notes.append(f"MD-0-F2b noon_headroom_kw on days without the renewable-hour inputs: {other}")
 
     # 3. Threads: one generator thread with occurrences in story order D4, D11, D14 (the recurrence after apply).
     th = threads(engine, m["site_id"])
@@ -176,6 +186,10 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
         {k: [s for _, s, _ in v["events"]] for k, v in before.items()}
     # §2.6 expectations, recorded as the product gives them (R7): D7 NO_DATA at k_before, COMPLETE after.
     record("late_fill_normal_before", [tuple(r) for r in kept])
+    # MD0-S4 R1.5 (hard): NO_DATA/PENDING before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
+    assert {g for _, g in kept} <= {"NO_DATA", "PENDING"}, kept
+    assert all(v == "COMPLETE" for k, v in out["snapshots"].items() if _core(k)), out["snapshots"]
+    assert any(_core(k) for k in out["snapshots"]), out["snapshots"]
     notes = []
     if {g for _, g in kept} != {"NO_DATA"}:
         notes.append(f"MD-0-F1 D7 before the fill {sorted(set(map(tuple, kept)))}")
@@ -193,9 +207,8 @@ def test_late_fill_overrun_joins_the_thread_in_story_order(mech) -> None:
     gen = threads(engine, m["site_id"])[GENERATOR]
     record("late_fill_overrun", {"out": out, "occurrences": gen["occurrences"], "events": gen["events"]})
     f = m["findings"]
-    if len(out["events"]) != 1:  # §2.6 expects one new Finding; recorded as the product gives it (R7)
-        pytest.xfail(f"MD-0-F5 the late D7 overrun produced {len(out['events'])} Findings "
-                     f"({out['readings']} readings, real decision clock); thread order {_story_order(gen)}")
+    # MD0-S4 R1.5 (hard; was MD-0-F5): the late D7 overrun opens exactly one Finding.
+    assert len(out["events"]) == 1, (out["events"], out["readings"], _story_order(gen))
     assert _story_order(gen) == [f["K-OVR-D4"], out["events"][0], f["K-OVR-D11"], f["K-OVR-D14"]]
 
 
