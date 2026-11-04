@@ -52,6 +52,7 @@ services:
       ASSETOPS_TEST_MARKEXPR: ${ASSETOPS_TEST_MARKEXPR:-}
       ASSETOPS_TEST_ATTRIBUTION_ON: ${ASSETOPS_TEST_ATTRIBUTION_ON:-}
       ASSETOPS_SETUP_CACHE_MODE: ${ASSETOPS_SETUP_CACHE_MODE:-on}
+      ASSETOPS_MECHANISM_CLOSE: ${ASSETOPS_MECHANISM_CLOSE:-auto}
       OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
     volumes:
       - type: bind

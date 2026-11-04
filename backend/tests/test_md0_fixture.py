@@ -293,3 +293,74 @@ def test_build_work_writes_kobo_days_as_site_local_days(tmp_path) -> None:
     assert (by_day["2026-10-19"]["start"], by_day["2026-10-19"]["end"]) == ("2026-10-18T21:00:00Z", "2026-10-19T21:00:00Z")
     assert (by_day["2026-10-31"]["start"], by_day["2026-10-31"]["end"]) == ("2026-10-30T21:00:00Z", "2026-10-31T21:00:00Z")
     assert {d["kind"] for d in days if d["day"] == md.day(SPEC, 7).isoformat()} == {"gap"}
+
+
+# --- MD-0b: verification, the close variant, the drained mini queue ---------------------------------------------------
+
+
+def test_generator_power_is_the_declared_running_value_while_running_and_zero_otherwise() -> None:
+    """The bound generator_power role every verification slot needs (`verification_rules._SINGLE_POWER_ROLES`),
+    derived by the fixture's rule from the generator status of the same step."""
+    rows = md.kobo_rows(SPEC, 4, "overrun")
+    status = {r[2]: r[3] for r in rows if isinstance(r, tuple) and r[1] == "status"}
+    power = [r for r in rows if not isinstance(r, tuple) and (r.device, r.signal) == ("generator-controller", "ac-power")]
+    assert len(power) == 288
+    running = SPEC["sites"]["kobo"]["derived_channels"]["generator_power"]["running_kw"]
+    assert {r.value for r in power} == {"0", running}
+    # the mean ending at a source time carries the status of that source time (one reading set per source time)
+    assert all(r.value == (running if status[r.source_time] == "RUNNING" else "0") for r in power if r.source_time
+               in status)
+    assert sum(r.value == running for r in power) == sum(v == "RUNNING" for t, v in status.items()
+                                                         if t > min(status))
+
+
+def test_action_hooks_cut_each_day_in_story_order() -> None:
+    assert md.action_hooks(SPEC) == {11: [("13:00", "accept")], 13: [("00:30", "freeze"), ("10:00", "evaluate")]}
+    close = md.variant_spec(SPEC, "close")
+    assert md.action_hooks(close) == {2: [("13:00", "accept")], 4: [("00:30", "freeze"), ("10:00", "evaluate")]}
+
+
+@pytest.mark.parametrize("variant_set", ["states", "close"])
+def test_the_verify_windows_fit_the_product_rules(variant_set) -> None:
+    """B/actions/verification.py freeze: 60-minute windows on the same UTC clock hour, the baseline ending before the
+    change's effect and the later window after it; the freeze precedes the later window and follows the 06:00Z
+    read edge of the baseline's next UTC day (BASELINE_SELECTION_CHANGED otherwise); the evaluation follows the
+    later window's own 06:00Z edge."""
+    spec = md.variant_spec(SPEC, variant_set)
+    a = spec["sites"]["kobo"]["actions"][0]
+    at = lambda node: md.local_instant(spec, "kobo", node["day"], node["local"])  # noqa: E731
+    v = a["verify"]
+    b0, l0, effective = at(v["baseline"]), at(v["later"]), at(a["effective"])
+    assert b0.minute % 5 == 0 and b0.second == 0 and (l0 - b0) % md.timedelta(days=1) == md.timedelta(0)
+    assert b0 + md.timedelta(hours=1) <= effective <= l0
+    edge = lambda t: datetime.combine(t.date() + md.timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)         + md.timedelta(hours=6)  # noqa: E731
+    assert edge(b0) <= at(v["freeze"]) < l0
+    assert at(v["evaluate"]) >= max(l0 + md.timedelta(hours=1), edge(l0) - md.timedelta(days=1))
+    # the baseline starts inside the declared overrun of the Action's Finding, once its configured 30 min minimum
+    # runtime has passed (those minutes are INDETERMINATE, so a window holding them is UNSUPPORTED)
+    event = next(e for e in spec["sites"]["kobo"]["events"] if e["anchor"] == a["for_event"])
+    run_start = md.local_instant(spec, "kobo", event["day"], event["from_local"])
+    assert v["baseline"]["day"] == event["day"]
+    assert run_start + md.timedelta(minutes=30) == b0 < md.local_instant(spec, "kobo", event["day"], event["to_local"])
+
+
+def test_the_close_variant_is_its_own_story() -> None:
+    close = md.variant_spec(SPEC, "close")
+    k = close["sites"]["kobo"]
+    assert close["gaps"] == [] and k["studies"] == []
+    assert [(e["anchor"], e["day"]) for e in k["events"]] == [("K-OVR-D2", 2), ("K-OVR-D13", 13)]
+    assert md.seed_steps(SPEC, "close") == ["begin", *[f"D{n}" for n in range(1, 15)], "drain_mini", "studies",
+                                            "derive"]
+    assert md.kobo_day_kind(close, 7) == "normal" and md.kobo_day_kind(close, 13) == "overrun"
+    assert SPEC["sites"]["kobo"]["events"][0]["anchor"] == "K-OVR-D4"  # the main fixture is untouched
+    assert md.template_name("ab" * 32, "close") == "assetops_mechanism_tplc_abababab_test"
+    assert md.CLOSE_TEMPLATE_RE.fullmatch(md.template_name("f" * 64, "close"))
+    assert not md.TEMPLATE_RE.fullmatch(md.template_name("f" * 64, "close"))
+    with pytest.raises(md.MechanismRefused, match="VARIANT_UNKNOWN"):
+        md.variant_spec(SPEC, "other")
+
+
+def test_the_drain_runs_before_the_studies_and_never_in_the_derive() -> None:
+    steps = md.seed_steps(SPEC, "states")
+    assert steps.index("drain_mini") == steps.index("studies") - 1 and steps[-1] == "derive"
+    assert "drain_mini" in md.input_steps(SPEC, "states")

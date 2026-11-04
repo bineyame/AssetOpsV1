@@ -1,4 +1,55 @@
-{"schema": "chain-coherence-expected/1",
+{
+ "schema": "chain-coherence-expected/1",
  "basis": "MD-0 L3m: assetops_mechanism_test built by tools/mechanism_dataset.py build (variant main, KOBO-001 only per Architect MD0-S2), collected in process, not ticked",
- "rule": "Entries only for the declared gap day GAP-K7 or a R4 writer-without-clock fact, each naming the owning slice. Any other finding is a regression. The list may only shrink.",
- "expectations": []}
+ "rule": "Entries only for the declared gap day GAP-K7, a R4 writer-without-clock fact, or an Architect-ruled finding naming its MD0b-R (or later) item and owner; each names the owning slice. Any other finding is a regression. The list may only shrink. A subject of \"*\" covers up to `count` findings of that rule, site and window whose subject is a server-generated id and whose detail contains `detail_contains`. An entry may carry `variants` (a list, e.g. [\"close\"]): it applies only to a run of one of those variants (`check --variant`); one without applies to all.",
+ "expectations": [
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "findings:opportunities",
+   "register": "MD0b-R:A2",
+   "owner": "CH-6a",
+   "note": "close variant x4: the board reads eligibility (spare-solar days D12/D13), the lens reads studies (CH4-R R7 keep). Product disagreement, not a fixture fault.",
+   "variants": [
+    "close"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "portfolio:opportunity",
+   "register": "MD0b-R:A2",
+   "owner": "CH-6a",
+   "note": "close variant x4: the board reads eligibility (spare-solar days D12/D13), the lens reads studies (CH4-R R7 keep). Product disagreement, not a fixture fault.",
+   "variants": [
+    "close"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "findings:opportunities",
+   "register": "MD0b-R:A2",
+   "owner": "CH-6a",
+   "note": "close variant x4: the board reads eligibility (spare-solar days D12/D13), the lens reads studies (CH4-R R7 keep). Product disagreement, not a fixture fault.",
+   "variants": [
+    "close"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "portfolio:opportunity",
+   "register": "MD0b-R:A2",
+   "owner": "CH-6a",
+   "note": "close variant x4: the board reads eligibility (spare-solar days D12/D13), the lens reads studies (CH4-R R7 keep). Product disagreement, not a fixture fault.",
+   "variants": [
+    "close"
+   ]
+  }
+ ]
+}

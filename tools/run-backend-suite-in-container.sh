@@ -114,12 +114,21 @@ done
 if [ -n "$needs_template" ]; then
   tpl_start=$(date +%s)
   set +e
+  # MD0b-R: the host runner writes the slice's changed paths and the base fixture into the run folder (the container
+  # has no usable git); ASSETOPS_MECHANISM_CLOSE=yes (E1/E4, the post-merge job) forces the close template.
+  [ -f "$out/slice-paths.txt" ] && export ASSETOPS_MECHANISM_SLICE_PATHS="$out/slice-paths.txt"
+  [ -f "$out/base-mechanism-v1.json" ] && export ASSETOPS_MECHANISM_BASE_FIXTURE="$out/base-mechanism-v1.json"
   ASSETOPS_MECHANISM_SERVER_URL="$ASSETOPS_TEST_DATABASE_URL" \
     /opt/assetops-venv/bin/python tools/mechanism_dataset.py ensure > "$out/mechanism-template.log" 2>&1
   tpl_rc=$?
   set -e
   tail -n 3 "$out/mechanism-template.log"
   echo "mechanism template: exit $tpl_rc in $(( $(date +%s) - tpl_start )) s" | tee -a "$out/mechanism-template.log"
+  # MD0b-R: a close template that was not selected means its L2m test is deselected, loudly (never skipped silently)
+  if grep -q '"ensure": "close not selected"' "$out/mechanism-template.log"; then
+    set -- "$@" --deselect "backend/tests/test_md0_mechanism_postgres.py::test_close_variant_resolves_closes_after_seven_clean_days_and_recurs"
+    echo "CLOSE L2m NOT RUN: the close template was not selected for this slice (ensure --close yes selects it)" | tee -a "$out/mechanism-template.log"
+  fi
   if [ "$tpl_rc" -ne 0 ]; then
     echo "REFUSED: the mechanism template build failed (exit $tpl_rc); see $out/mechanism-template.log" >&2
     exit 2
