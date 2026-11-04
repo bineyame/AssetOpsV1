@@ -602,3 +602,66 @@ def test_coh7a_mini_summary_card_is_its_site_local_summary_day(tmp_path: Path, s
     report = cc.check(_summary_variant(tmp_path, site, domain, window))
     hits = [k for k in keys(report) if k[0] == "COH-7a"]
     assert hits == ([("COH-7a", site, "week", "window")] if fails else []), report["findings"]
+
+
+# ---- MD-0: in-process collect without demo work documents (R8), `check --threads` (R9), the mechanism files ----
+
+
+def test_in_process_collect_reads_only_story_and_days(tmp_path: Path, monkeypatch) -> None:
+    """R8: `collect --database-url` builds the client with `app_client` and reads story.json and days.json itself;
+    it never calls `demo_combined_finish.load`, so a work folder without kobo/cold/ev work documents collects."""
+    import types
+
+    story, days = {"S": "2026-10-31T00:00:00Z", "code": "mechanism-v1"}, [{"site": "kobo", "day": "2026-10-19"}]
+    (tmp_path / "story.json").write_text(json.dumps(story), encoding="utf-8")
+    (tmp_path / "days.json").write_text(json.dumps({"days": days}), encoding="utf-8")
+    fake = types.ModuleType("demo_combined_finish")
+    fake.app_client = lambda url, work: ("client", url, work)
+    fake.load = lambda *a, **k: pytest.fail("collect must not load the demo work documents")
+    monkeypatch.setitem(sys.modules, "demo_combined_finish", fake)
+    seen = {}
+
+    def collect(getter, s, d, out, source, known_at):
+        seen.update(getter=getter, story=s, days=d, source=source)
+        return {"requests": []}
+    monkeypatch.setattr(cc, "collect", collect)
+    assert cc.main(["collect", "--work", str(tmp_path), "--database-url", "postgresql://x/assetops_mechanism_test",
+                    "--out", str(tmp_path / "b")]) == 0
+    assert (seen["story"], seen["days"], seen["source"]) == (story, days, "in-process")
+    assert seen["getter"].client == ("client", "postgresql://x/assetops_mechanism_test", tmp_path)
+
+
+def test_check_threads_replaces_the_expected_threads(tmp_path: Path) -> None:
+    """R9: `check --threads` judges COH-10 against the named file (the mechanism build's), not THREADS_FILE."""
+    bundle = cc.Bundle(BUNDLES / "coh10_thread_occurrence")
+    gone = [{"name": "absent", "site_code": KOBO, "findings": ["ffffffff-0000-0000-0000-000000000000"]}]
+    assert [f["subject"] for f in cc.check(bundle, None, gone)["findings"] if f["rule"] == "COH-10"] == ["absent"]
+    assert not [f for f in cc.check(bundle)["findings"] if f["rule"] == "COH-10" and f["subject"] == "absent"]
+    path = tmp_path / "expected-threads.json"
+    path.write_text(json.dumps({"schema": "chain-coherence-threads/1", "threads": gone}), encoding="utf-8")
+    report = tmp_path / "r.json"
+    cc.main(["check", "--bundle", str(BUNDLES / "coh10_thread_occurrence"), "--threads", str(path),
+             "--report", str(report)])
+    found = json.loads(report.read_text(encoding="utf-8"))["findings"]
+    assert "absent" in [f["subject"] for f in found if f["rule"] == "COH-10"]
+
+
+def test_expected_mechanism_loads_and_only_names_declared_gaps() -> None:
+    path = HERE / "fixtures" / "chain_coherence" / "expected-mechanism.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["schema"] == "chain-coherence-expected/1" and "GAP-K7" in data["rule"]
+    for e in cc.load_expect(path):
+        assert e["register"].startswith("MD-0:") and e.get("owner"), e
+
+
+def test_settle_also_accepts_the_mechanism_dbs_only() -> None:
+    """P7: `settle` ticks `assetops_mechanism(_close)_test` by the names `mechanism`/`mechanism_close`; create and
+    drop keep the chain-clone names, so neither can reach a mechanism DB."""
+    assert chain_clone.settle_db("mechanism") == "assetops_mechanism_test"
+    assert chain_clone.settle_db("mechanism_close") == "assetops_mechanism_close_test"
+    assert chain_clone.settle_db("ch0") == "assetops_chainclone_ch0_test"
+    assert chain_clone.settle_env("mechanism")["DATABASE_URL"].endswith("/assetops_mechanism_test")
+    assert "\"assetops_mechanism_test\"" not in chain_clone.create_sql("mechanism") + chain_clone.drop_sql("mechanism")
+    for name in ("mechanism_x", "assetops_mechanism", "polish_full"):
+        with pytest.raises(chain_clone.CloneRefused):
+            chain_clone.settle_db(name)

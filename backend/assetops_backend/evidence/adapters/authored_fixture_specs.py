@@ -18,6 +18,8 @@ AUTHORED_FIXTURES: dict[str, Path] = {
     "assetops.s4-power-late-demo-cases": _CONVERSIONS / "s4-power-late-demo-cases-v1.json",
     # W4-02 closure 5: the authored MG-W402-001 mini-grid depth cases.
     "assetops.w4-mini-depth-cases": _CONVERSIONS / "w4-mini-depth-cases-v1.json",
+    # MD-0 (MD0-PF Q1): the authored mechanism test dataset, published before ingestion in *_test DBs only.
+    "assetops.mechanism-dataset": _CONVERSIONS / "mechanism-v1.json",
 }
 
 

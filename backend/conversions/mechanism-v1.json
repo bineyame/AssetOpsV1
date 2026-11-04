@@ -1,0 +1,92 @@
+{
+  "schema": {"id": "assetops.mechanism-dataset", "version": 1},
+  "label": "MD-0 mechanism dataset (authored test inputs; not Site truth, not a scenario)",
+  "designation": "AUTHORED TEST INPUTS - published as assetops.mechanism-dataset v1 before ingestion (MD0-PF Q1)",
+  "statement": "Inputs only. Every value names its reviewed source or is tagged MD-0 new example content. Expected outputs live only in backend/tests/test_md0_mechanism_postgres.py and tools/checks/fixtures/chain_coherence/expected-mechanism.json.",
+  "story": {"S": "2026-10-31T00:00:00Z", "day_zero": "2026-10-18", "days": {"D1": "2026-10-19", "D14": "2026-11-01"}},
+  "day_sets": {
+    "full": {"kobo": [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14], 
+             "source": "build sheet MD-0 §2.2; MD0-S2 (Kobo only)"},
+    "states": {"kobo": [1, 2, 3, 4, 5, 10, 11, 12, 13, 14],
+               "source": "MD0-PF Q2: the fewest delivered days that still reach every expected state (W1 D1-D5, W2 D10-D14, overruns D4/D11, ACT-K1 D11-D12, recurrence D14; MD0-S2: Kobo only)"}
+  },
+  "delivery": {"max_envelopes_per_batch": 256, "decided_after_block_minutes": 5, "assess_after_day_minutes": 10,
+               "source": "contracts/assetops_contracts/ingestion_batch_v2.py:203 (256-envelope limit); MD0-PF Q2 batching"},
+  "sites": {
+    "kobo": {
+      "site_code": "KOBO-001", "time_zone": "Africa/Addis_Ababa",
+      "configuration": {"path": "tools/demo_combined_kobo.py configure_at", "install_at": "2026-10-12T00:00:00Z",
+                        "source": "demo Kobo configuration (S3 roles-2, S6 roles-3, supply uses, roles-4)"},
+      "controls": [
+        {"do": "runtime", "value": 0, "effective_from": "2026-10-03T00:00:00Z", "source": "backend/conversions/s4-finding-cases-v1.json setup (the reserve-20 control is removed, MD0-S4 R4: the demo configuration's reserve 30 is in force)"}
+      ],
+      "reading_rules": {"step_minutes": 5, "feeders": ["residential-meter", "clinic-meter", "mill-meter"], "feeder_signal": "active-power", "feeder_kw": "10",
+                        "signals": {"generator": ["generator-controller", "status"], "pv": ["pv-inverter-controller", "available-power"],
+                                    "dis": ["battery-pcs-controller", "discharge-capability"], "soc": ["battery-pcs-controller", "state-of-charge"]},
+                        "source": "backend/conversions/s4-finding-cases-v1.json reading_rules"},
+      "derived_channels": {
+        "pv_power": {"channel": ["pv-inverter-controller", "ac-power"], "rule": "min(pv, feeders + charge_request)",
+                     "source": "producer identity: PV output is the available PV power capped by what the Site takes (the feeder loads plus the battery charge request); MD0-S5 M2 (A)"},
+        "charge_request": {"channel": ["battery-pcs-controller", "charge-requested-power"], "rule": "zero",
+                           "source": "producer identity: no charge is requested at a constant state of charge (the blocks hold soc 80 all day); MD0-S5 M2 (A)"},
+        "critical_requested": {"channel": ["clinic-meter", "requested-power"], "rule": "feeder:clinic-meter",
+                               "source": "producer identity: the clinic (critical load) requests what its feeder carries; MD0-S5 M2 (A)"},
+        "critical_delivered": {"channel": ["clinic-meter", "delivered-power"], "rule": "feeder:clinic-meter",
+                               "source": "producer identity: the clinic is fully served (delivered = its feeder value); MD0-S5 M2 (A)"},
+        "source": "build sheet MD-0 §18 MD0-S5 M2 (A): the renewable-hour channels all day, 300 s interval means, derived from the block values (B/mini_depth/rules.py assess_renewable_hour reads pv_power, the charge request and the critical requested/delivered power)"
+      },
+      "shapes": {"interval_mean": [["pv-inverter-controller", "available-power"], ["battery-pcs-controller", "discharge-capability"],
+                                   ["residential-meter", "active-power"], ["clinic-meter", "active-power"], ["mill-meter", "active-power"],
+                                   ["pv-inverter-controller", "ac-power"], ["battery-pcs-controller", "charge-requested-power"],
+                                   ["clinic-meter", "requested-power"], ["clinic-meter", "delivered-power"]],
+                 "interval_minutes": 5,
+                 "rule": "A power channel is an INTERVAL_MEAN over [t, t + step) with interval_end = source time = t + step and the block value at t; generator status and state-of-charge stay STATE_AT_INSTANT points at t.",
+                 "source": "the producer: simulator/assetops_simulator/gateway/mappings.py:109-126 (measurement per channel), gateway/publish.py:199-203 (interval_start = span start, interval_end = source time); polish KOBO-001 power roles measured 300 s ending at source time (build sheet MD-0 §17 F2; MD0-S4 R1)"},
+      "normal_day": {
+        "blocks": [
+          {"from_local": "00:00", "to_local": "06:00", "generator": "STOPPED", "pv": "0", "dis": "20", "soc": "80", "source": "MD-0 new example content (night: no solar)"},
+          {"from_local": "06:00", "to_local": "18:00", "generator": "STOPPED", "pv": "40", "dis": "20", "soc": "80", "source": "backend/conversions/s4-finding-cases-v1.json F01 block values"},
+          {"from_local": "18:00", "to_local": "24:00", "generator": "STOPPED", "pv": "0", "dis": "20", "soc": "80", "source": "MD-0 new example content (night: no solar)"}
+        ]
+      },
+      "events": [
+        {"anchor": "K-OVR-D4", "kind": "overrun", "day": 4, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+         "source": "backend/conversions/s4-finding-cases-v1.json F01 block shape (stop before/after)"},
+        {"anchor": "K-OVR-D11", "kind": "overrun", "day": 11, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+         "source": "backend/conversions/s4-finding-cases-v1.json F01 block shape (stop before/after)"},
+        {"anchor": "K-OVR-D14", "kind": "overrun", "day": 14, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+         "source": "Architect MD0-S2: one Kobo recurrence day after ACT-K1's apply (the D-AW-3 record); F01 block shape"}
+      ],
+      "noon": {"window_local": ["12:00", "13:00"], "spare_solar_days": [12, 13], "variant": "positive", "omit": ["backup_chain"],
+               "busy_noon": {"charge_request": "dis", "except_days": "spare_solar_days",
+                             "rule": "inside window_local on every delivered day except the spare-solar days (overrun, recurrence and late-fill days included), the charge request takes the block's dis value",
+                             "source": "MD-0 new example content: battery recharging at noon (MD0-S5 M2 (A); B/mini_depth/rules.py CHARGE_OBLIGATION_ACTIVE excludes on any positive request)"},
+               "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive, its means and points re-dated to the local noon hour on KOBO-001's roles-4 bindings, without the MG-W402-001 backup chain (the only spare-solar variant; the other delivered days carry the busy noon below)"},
+      "studies": [
+        {"anchor": "K-W1", "from_day": 1, "to_day": 5, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"},
+        {"anchor": "K-W2", "from_day": 10, "to_day": 14, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"}
+      ],
+      "actions": [
+        {"anchor": "ACT-K1", "fixture": "reserve-trial-1", "for_event": "K-OVR-D11",
+         "accept": {"day": 11, "local": "13:00"}, "apply": {"day": 11, "local": "14:00"}, "effective": {"day": 12, "local": "00:00"},
+         "source": "backend/tests/s6_action_records.py EFFECTIVE shape; MD0-PF Q3: ends at CHANGE_APPLIED (verification is MD-0b)"}
+      ],
+      "publications": [
+        {"kind": "price", "file": "backend/conversions/demo-productive-price-publications.json", "recorded": {"day": 0, "local": "12:00"},
+         "source": "tools/demo_combined_kobo.py publish_price"},
+        {"kind": "objective", "file": "backend/conversions/demo-objectives.json", "recorded": "build time",
+         "source": "B/declare_objective.py (no clock seam; MD0-PF Q5, R4 -> DD-1)"}
+      ]
+    }
+  },
+  "gaps": [
+    {"id": "GAP-K7", "site": "kobo", "day": 7, "kind": "nothing_delivered", "fill": true, "fill_kinds": ["normal", "overrun"], "source": "build sheet §2.2"}
+  ],
+  "threads": [
+    {"name": "kobo-generator", "site": "kobo", "mechanism": "GENERATOR_SUPPORT_CANDIDATE", "events": ["K-OVR-D4", "K-OVR-D11", "K-OVR-D14"]},
+    {"name": "kobo-headroom", "site": "kobo", "mechanism": "PRODUCTIVE_USE_HEADROOM", "studies": ["K-W2"]}
+  ],
+  "late_fill": {"gap": "GAP-K7", "decision_clock": "real", "source": "build sheet §4 (FILL-1)"},
+  "variants": {"main": {"sites": ["kobo"], "removed": {"sites": ["cold", "ev"], "gaps": ["GAP-C3", "GAP-E2"], "source": "Architect MD0-S2: Kobo-first MD-0; Cold and EV normal data move to DD-1's real baseline"}},
+               "close": {"deferred_to": "MD-0b", "source": "MD0-PF Q3: the pre-ruled split; verification and the close variant move to MD-0b"}}
+}

@@ -189,14 +189,6 @@
   },
   {
    "rule": "COH-7a",
-   "site_code": "KOBO-001",
-   "window": "week",
-   "subject": "window",
-   "register": "I-04",
-   "owner": "CH-6"
-  },
-  {
-   "rule": "COH-7a",
    "site_code": null,
    "window": "S",
    "subject": "window_basis",
@@ -230,14 +222,6 @@
   {
    "rule": "COH-7a",
    "site_code": "EV-LAB-001",
-   "window": "month",
-   "subject": "window",
-   "register": "I-04",
-   "owner": "CH-6"
-  },
-  {
-   "rule": "COH-7a",
-   "site_code": "KOBO-001",
    "window": "month",
    "subject": "window",
    "register": "I-04",
