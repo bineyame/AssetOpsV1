@@ -29,6 +29,7 @@
      "href": null,
      "key": "charging_delivered",
      "label": "Charging delivered",
+     "link_ref": null,
      "text": "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
     },
     {
@@ -39,6 +40,11 @@
      "href": "/sites/EV-LAB-001/ev/financials",
      "key": "charging_tariff",
      "label": "Charging tariff",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "EV-LAB-001",
+      "view": "ev_financials"
+     },
      "text": "Declared at 0.30 USD per kWh"
     },
     {
@@ -46,6 +52,7 @@
      "href": null,
      "key": "charger_use",
      "label": "Charger use",
+     "link_ref": null,
      "text": "Not available yet · connector capacity not read"
     },
     {
@@ -53,6 +60,7 @@
      "href": null,
      "key": "energy_billed",
      "label": "Energy billed against metered",
+     "link_ref": null,
      "text": "Not available yet · no settlement records"
     }
    ],
@@ -65,7 +73,12 @@
    "earlier_empty_text": "No earlier work has been checked for this",
    "evidence_link": {
     "href": "/sites/EV-LAB-001/ev/financials",
-    "label": "Financial bridge"
+    "label": "Financial bridge",
+    "link_ref": {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_financials"
+    }
    },
    "headline": "estimated charging income",
    "headline_money": {
@@ -76,15 +89,22 @@
    "icon": "grow",
    "in_hand": [
     {
-     "href": "/sites/EV-LAB-001/actions/ea1",
+     "href": "/sites/EV-LAB-001/actions/ea1/verification",
+     "link_ref": {
+      "id": "ea1",
+      "kind": "ACTION",
+      "site": "EV-LAB-001",
+      "view": "verification"
+     },
      "state_label": "Open",
      "text": "DA-007 · Inspect connector C2"
     }
    ],
    "issues": [
     {
-     "href": "/sites/EV-LAB-001/ev/findings/f130",
+     "href": null,
      "kind": "FINDING",
+     "link_ref": null,
      "ref": {
       "finding_id": "f130",
       "finding_revision_id": "f130r",
@@ -104,6 +124,11 @@
    "options": [
     {
      "href": "/sites/EV-LAB-001/ev/financials/scenarios",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "EV-LAB-001",
+      "view": "ev_scenarios"
+     },
      "text": "Charging what-ifs"
     }
    ],
@@ -176,6 +201,7 @@
      "href": null,
      "key": "session_service",
      "label": "Session service",
+     "link_ref": null,
      "text": "1 fault-aborted session, 1 outcome unknown"
     },
     {
@@ -186,6 +212,7 @@
      "href": null,
      "key": "connector_availability",
      "label": "Connector availability",
+     "link_ref": null,
      "text": "Connector C2: 1 h 30 min out, 30 min unknown"
     },
     {
@@ -196,6 +223,7 @@
      "href": null,
      "key": "charger_condition",
      "label": "Charger condition",
+     "link_ref": null,
      "text": "Fault recorded on C2"
     },
     {
@@ -206,6 +234,7 @@
      "href": null,
      "key": "site_power",
      "label": "Site power",
+     "link_ref": null,
      "text": "Peak 76 kW of the 120 kW import limit"
     },
     {
@@ -213,6 +242,7 @@
      "href": null,
      "key": "warranty",
      "label": "Warranty",
+     "link_ref": null,
      "text": "Not available yet · no warranty record"
     }
    ],
@@ -225,22 +255,34 @@
    "earlier_empty_text": "No earlier work has been checked for this",
    "evidence_link": {
     "href": "/sites/EV-LAB-001/ev/evidence",
-    "label": "Depot evidence"
+    "label": "Depot evidence",
+    "link_ref": {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_evidence"
+    }
    },
    "headline": "1 interrupted · 1 unknown of 6 sessions",
    "headline_money": null,
    "icon": "protect",
    "in_hand": [
     {
-     "href": "/sites/EV-LAB-001/actions/ea1",
+     "href": "/sites/EV-LAB-001/actions/ea1/verification",
+     "link_ref": {
+      "id": "ea1",
+      "kind": "ACTION",
+      "site": "EV-LAB-001",
+      "view": "verification"
+     },
      "state_label": "Open",
      "text": "DA-007 · Inspect connector C2"
     }
    ],
    "issues": [
     {
-     "href": "/sites/EV-LAB-001/ev/findings/f130",
+     "href": null,
      "kind": "FINDING",
+     "link_ref": null,
      "ref": {
       "finding_id": "f130",
       "finding_revision_id": "f130r",
@@ -259,7 +301,13 @@
    "not_measured_text": null,
    "options": [
     {
-     "href": "/sites/EV-LAB-001/actions/ea1",
+     "href": "/sites/EV-LAB-001/actions/ea1/verification",
+     "link_ref": {
+      "id": "ea1",
+      "kind": "ACTION",
+      "site": "EV-LAB-001",
+      "view": "verification"
+     },
      "text": "Investigate Connector C2"
     }
    ],
@@ -297,6 +345,7 @@
      "href": null,
      "key": "departures",
      "label": "Departures against the timetable",
+     "link_ref": null,
      "text": "Not available yet · no bus roster connected"
     },
     {
@@ -304,6 +353,11 @@
      "href": "/sites/EV-LAB-001/ev/financials",
      "key": "energy_billed",
      "label": "Energy billed against metered",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "EV-LAB-001",
+      "view": "ev_financials"
+     },
      "text": "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue"
     },
     {
@@ -314,6 +368,7 @@
      "href": null,
      "key": "session_records",
      "label": "Session records",
+     "link_ref": null,
      "text": "1 session has no accepted end"
     },
     {
@@ -324,6 +379,7 @@
      "href": null,
      "key": "connector_status",
      "label": "Connector status",
+     "link_ref": null,
      "text": "Missing 27 Oct 10:00–27 Oct 10:30"
     }
    ],
@@ -336,7 +392,12 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/EV-LAB-001/ev/evidence",
-    "label": "Evidence overview"
+    "label": "Evidence overview",
+    "link_ref": {
+     "kind": "SITE",
+     "site": "EV-LAB-001",
+     "view": "ev_evidence"
+    }
    },
    "headline": "Evidence limited · no verified result yet",
    "headline_money": null,

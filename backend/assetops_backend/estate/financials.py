@@ -21,12 +21,13 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from assetops_backend.chain import refs
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE,
     not_applicable, site_coverage)
 from assetops_backend.estate.evidence_money import (
-    CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _site_href, _window_state, group_key_for_partition, site_home_href,
-    window_links)
+    CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _window_state, group_key_for_partition, site_home_ref,
+    window_link_refs)
 from assetops_backend.estate.index import _coverage_site, _coverage_state, _status, _token_site
 from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, wire_time
 from assetops_backend.evidence.provenance_read import source_gate
@@ -131,7 +132,7 @@ def _line(site: dict[str, Any], domain: str, category: str, revision_id: str, *,
         "assumption_revision_ids": _ids(assumptions), "assumption_fingerprint": fingerprint,
         "basis_evidence_ids": _ids(cited), "technical_interval_ids": _ids(technical),
         "overlap_group": overlap_group, "eligibility": eligibility, "reason_codes": sorted(set(reasons)),
-        "limit": limit, "source_provenance": provenance, "links": links,
+        "limit": limit, "source_provenance": provenance, **refs.split_links(links),
         "disclosure": {"pinned_amount": amount, **(disclosure or {})},
         "group_key": None,
         "_ws": ws, "_we": we, "_currency": None if amount is None else amount.get("currency"),
@@ -140,27 +141,31 @@ def _line(site: dict[str, Any], domain: str, category: str, revision_id: str, *,
 
 def _money_links(code: str, domain: str, pin: dict[str, Any] | None, cutoff: datetime | None,
                  k: datetime) -> dict[str, Any]:
+    """`money_link_refs` as hrefs (the legacy `links` shape)."""
+    return refs.split_links(money_link_refs(code, domain, pin, cutoff, k))["links"]
+
+
+def money_link_refs(code: str, domain: str, pin: dict[str, Any] | None, cutoff: datetime | None,
+                    k: datetime) -> dict[str, Any]:
     """Closure 4 / closure 5 B5: the server owns links. Mini-grid opens the current Site view without an estate
     cutoff; cold/EV carry only the row's own pinned window and proven row-local cutoff, else the Site home (EV:
     `/sites/{code}/ev`, post-W6 W3-estate Q2/Q9)."""
-    base, home = _site_href(code), site_home_href(code, domain)
+    home = site_home_ref(code, domain)
     if domain == MINI_GRID:
-        return {"site": home, "bridge": f"{base}/financials", "evidence": f"{base}/evidence",
+        return {"site": home, "bridge": refs.site_ref(code, "financials"), "evidence": refs.evidence_ref(code),
                 "current_view_label": CURRENT_VIEW}
-    shown = window_links(code, domain, pin, cutoff, k)
+    shown = window_link_refs(code, domain, pin, cutoff, k)
     if shown["site_readiness_label"] is not None:
         return {"site": home, "bridge": home, "evidence": home, "current_view_label": CURRENT_VIEW}
-    query = shown["site_readiness"].split("?", 1)[1]
-    bridge = f"{base}/financials" if domain == COLD else f"{base}/ev/financials"
-    return {"site": home, "bridge": f"{bridge}?{query}", "evidence": shown["site_readiness"],
-            "current_view_label": None}
+    bridge = refs.site_ref(code, "financials" if domain == COLD else "ev_financials", shown["site_readiness"]["window"])
+    return {"site": home, "bridge": bridge, "evidence": shown["site_readiness"], "current_view_label": None}
 
 
 # --- per-domain selected heads -------------------------------------------------------------------------------
 
 def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any], k: datetime) -> list[dict]:
     lines = []
-    links = _money_links(site["site_code"], MINI_GRID, None, None, k)
+    links = money_link_refs(site["site_code"], MINI_GRID, None, None, k)
     for row in cov.get("rows") or ():
         sel = snap.consequence(t, site["site_id"], row["finding_revision_id"], k)
         cid = sel.get("consequence_revision_id")
@@ -220,7 +225,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
     for pin in pins:
         state = _window_state(snap, site_state, pin.get("state"))
         covered = covered and state in COVERED
-        links = _money_links(site["site_code"], domain, pin, cutoff, k)
+        links = money_link_refs(site["site_code"], domain, pin, cutoff, k)
         common = {"historical": state == HISTORICAL, "pending": state == PENDING}
         if domain == COLD:
             read = snap.cold_money(t, s, pin, k)

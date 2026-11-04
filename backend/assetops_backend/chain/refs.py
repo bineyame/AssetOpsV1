@@ -137,6 +137,19 @@ def href_for(ref: Ref | None) -> str | None:
     raise ValueError(f"unknown Ref kind {kind!r}")
 
 
+def links_of(link_refs: Mapping[str, Ref | None]) -> dict[str, str | None]:
+    """A legacy `links` dict built from its `link_refs` sibling (same keys), so the two cannot disagree."""
+    return {key: href_for(ref) for key, ref in link_refs.items()}
+
+
+def split_links(entries: Mapping[str, Any]) -> dict[str, Any]:
+    """`{"links": ..., "link_refs": ...}` from one dict of Refs (keys ending `_label` are text and stay in `links`
+    only): every href is `href_for` of its Ref."""
+    links = {k: v if k.endswith("_label") else href_for(v) for k, v in entries.items()}
+    link_refs = {k: None if v is None else dict(v) for k, v in entries.items() if not k.endswith("_label")}
+    return {"links": links, "link_refs": link_refs}
+
+
 # --- constructors (the only way body code makes a Ref; None-valued keys are left out) -------------------------
 
 def _ref(kind: str, **fields: Any) -> dict[str, Any]:

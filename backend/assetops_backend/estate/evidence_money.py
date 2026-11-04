@@ -21,6 +21,7 @@ from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote, urlencode
 
 from assetops_backend.analytics import cold, dispatch_v3
+from assetops_backend.chain import refs
 from assetops_backend.analytics import claim_limit_read as w1
 # POLISH Addendum 6 Q5: the cold observation words and their rewrite live with the cold Site read, which also
 # applies them; estate re-exports them unchanged.
@@ -113,8 +114,12 @@ def site_home_href(code: str, domain: str) -> str:
     """Post-W6 W3-estate Q2/Q9: the Site home every estate row links to. An EV Site opens its EV overview
     (`/sites/{code}/ev`); mini-grid and cold-chain keep the base Site route. `domain` is the estate domain constant
     (`EV`) or the stored Site type (`EV_CHARGING`)."""
-    base = _site_href(code)
-    return f"{base}/ev" if DOMAIN_OF_SITE_TYPE.get(domain, domain) == EV else base
+    return refs.href_for(site_home_ref(code, domain))
+
+
+def site_home_ref(code: str, domain: str) -> dict[str, Any]:
+    """`site_home_href`'s SITE Ref (CH5a2-R4(a))."""
+    return refs.site_ref(code, "ev" if DOMAIN_OF_SITE_TYPE.get(domain, domain) == EV else None)
 
 
 #: Post-W6 W3-estate Q10: the longest selected window a Site route accepts.
@@ -139,25 +144,39 @@ def finding_window_href(code: str, finding_id: str, lo: datetime | None, hi: dat
     """Post-W6 W3-estate Q4/Q10: a cold/EV Finding's exact Site route over the selected Site window that holds
     it and the proven row-local cutoff; null when unproved, not a forward span, or longer than 31 days. Never
     episode bounds."""
+    return refs.href_for(finding_window_ref(code, finding_id, lo, hi, known, evidence_cutoff, k, watermark))
+
+
+def finding_window_ref(code: str, finding_id: str, lo: datetime | None, hi: datetime | None,
+                       known: datetime | None, evidence_cutoff: datetime | None, k: datetime,
+                       watermark: datetime | None = None) -> dict[str, Any] | None:
+    """CH-5a2a I-08 / R5: `finding_window_href`'s FINDING Ref, carrying the proven window and row-local cutoff."""
     if lo is None or hi is None or not lo < hi or hi - lo > MAX_WINDOW:
         return None
     query = proven_window_query(lo, hi, known, evidence_cutoff, k, watermark)
-    return None if query is None else f"{_site_href(code)}/findings/{quote(str(finding_id), safe='')}?{query}"
+    return None if query is None else refs.finding_ref(code, str(finding_id), window=refs.query_window(query))
 
 
 def window_links(code: str, domain: str, snap: dict[str, Any] | None, evidence_cutoff: datetime | None,
                  k: datetime) -> dict[str, Any]:
+    """`window_link_refs` as hrefs (the legacy `links` shape)."""
+    return refs.split_links(window_link_refs(code, domain, snap, evidence_cutoff, k))["links"]
+
+
+def window_link_refs(code: str, domain: str, snap: dict[str, Any] | None, evidence_cutoff: datetime | None,
+                     k: datetime) -> dict[str, Any]:
     """Closure 5 B5: a cold/EV row link carries only its own pinned `lo`/`hi` and row-local `known`, and only when
     `known` equals the passed Site evidence cutoff and is at or before both the estate cutoff and the committed
     watermark. Anything unprovable (and every placeholder) is the Site home (EV: `/sites/{code}/ev`), `Opens
     current Site view`."""
-    base, home = _site_href(code), site_home_href(code, domain)
+    home = site_home_ref(code, domain)
     if snap is not None:
         query = proven_window_query(snap.get("lo"), snap.get("hi"), snap.get("known"), evidence_cutoff, k,
                                     snap.get("watermark"))
         if query is not None:
-            path = f"{base}/evidence" if domain == COLD else f"{base}/ev/evidence"
-            return {"site": home, "site_readiness": f"{path}?{query}", "site_readiness_label": None}
+            w = refs.query_window(query)
+            readiness = refs.evidence_ref(code, window=w) if domain == COLD else refs.site_ref(code, "ev_evidence", w)
+            return {"site": home, "site_readiness": readiness, "site_readiness_label": None}
     return {"site": home, "site_readiness": home, "site_readiness_label": CURRENT_VIEW}
 
 
@@ -189,12 +208,14 @@ def _row(site: dict[str, Any], domain: str, key: str, label: str, **values: Any)
            "window_start": None, "window_end": None, "raw_state": UNASSESSED, "readiness": UNKNOWN,
            "current_ceiling": None, "ceiling": None, "ceiling_source": "NONE", "next_evidence": None,
            "gap_codes": [], "selected_revision_ids": [], "source_provenance": dict(NO_PROVENANCE),
-           "links": {"site": site_home_href(site["site_code"], domain),
-                     "site_readiness": site_home_href(site["site_code"], domain),
-                     "site_readiness_label": CURRENT_VIEW},
+           **refs.split_links({"site": site_home_ref(site["site_code"], domain),
+                               "site_readiness": site_home_ref(site["site_code"], domain),
+                               "site_readiness_label": CURRENT_VIEW}),
            "disclosure": {"capability_key": key, "constituents": [], "reasons": [], "historical": None},
            "_key": (str(site["site_code_key"]), str(site["site_id"]).lower(), key), "_gaps": [],
            "_cited": [], "_token_cited": [], "_assessments": []}
+    if "links" in values:  # CH5a2-R4(a): passed as Refs (`window_link_refs`); the wire carries both
+        values = {**values, **refs.split_links(values.pop("links"))}
     row.update(values)
     return row
 
@@ -325,7 +346,7 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
     rows = []
     for pin in pinned:
         suffix = f"@{token_time(pin['lo'])}/{token_time(pin['hi'])}"
-        links = window_links(code, domain, pin, evidence_cutoff, k)
+        links = window_link_refs(code, domain, pin, evidence_cutoff, k)
         state = _window_state(snap, site_state, pin.get("state"))
         if domain == COLD:
             read = snap.cold_capabilities(pin)

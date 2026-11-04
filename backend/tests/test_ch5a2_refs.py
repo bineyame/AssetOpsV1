@@ -49,3 +49,14 @@ def test_refs_module_holds_no_outcome_id():
     text = Path(R.__file__).read_text(encoding="utf-8")
     for outcome in ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"):
         assert outcome not in text
+
+
+def test_refs_module_imports_only_stdlib():
+    """The board's purity guard admits `chain.refs`; this keeps that admission honest."""
+    import ast
+    tree = ast.parse(Path(R.__file__).read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            assert node.module in ("__future__", "typing", "urllib.parse"), node.module
+        elif isinstance(node, ast.Import):
+            assert not node.names, [a.name for a in node.names]

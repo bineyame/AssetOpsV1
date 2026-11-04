@@ -14,16 +14,16 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from typing import Any, Callable, Iterable, Mapping
-from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
     CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, _admit_any, _by_window,
-    select_evidence_scope, site_home_href)
+    select_evidence_scope, site_home_ref)
 from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
 from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
@@ -235,7 +235,6 @@ def line_groups(lines: list[dict[str, Any]], groups: list[dict[str, Any]]) -> di
 def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: dict[str, Any] | None = None,
                   line_group: str | None = None) -> dict[str, Any]:
     site = r["_site"]
-    code = quote(site["site_code"], safe="")
     fid, frid = r["finding_id"], r["finding_revision_id"]
     action = _action_for(r, actions)
     placed = place(r, action, site_cov or {}, line_group)  # CC-R2: row facts only; `priority` stays null
@@ -268,9 +267,9 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         # Post-W6 W3-estate Q2/Q10 (S12 inert restriction removed): the Site home (EV `/sites/{code}/ev`) and the
         # Finding route `select_finding_scope` proved: mini-grid `revision_id`; cold/EV the selected Site window
         # holding the Finding with its proven row-local cutoff, else null.
-        "links": {"site": r["links"]["site"], "finding": r["links"]["finding"],
-                  "action": None if action is None else
-                  f"/sites/{code}/actions/{action['action_id']}?event_id={action['selected_event_id']}"},
+        **refs.split_links({"site": r["link_refs"]["site"], "finding": r["link_refs"]["finding"],
+                            "action": None if action is None else refs.action_ref(
+                                site["site_code"], action["action_id"], event_id=action["selected_event_id"])}),
         "_at": r["_at"],
         "_marker": (placed.group_rank, r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
 
@@ -364,8 +363,10 @@ CARD_SLOTS = {
                                     "neutral"),
     ("VERIFIED_RECOVERY", "NOT_ESTABLISHED"): ("Verification outcome is separate from recovered value",
                                                "Completed work does not establish savings", "neutral")}
-CARD_DESTINATION = {"OPERATING_COST": "/financials", "SERVICE_PRODUCT_RISK": "/findings/risks",
-                    "PRODUCTIVE_USE": "/findings/opportunities", "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
+CARD_DESTINATION = {"OPERATING_COST": refs.estate_ref("financials"),
+                    "SERVICE_PRODUCT_RISK": refs.estate_ref("findings_risks"),
+                    "PRODUCTIVE_USE": refs.estate_ref("findings_opportunities"), "ASSET_LIFE": None,
+                    "VERIFIED_RECOVERY": refs.estate_ref("financials")}
 #: Literal value slots; the bounded amounts of COMPARABLE_GROUP/SITE_OWNED are formatted by the page (S10).
 DISPLAYED_VALUE = {"WITHHELD": "Can't be compared across these sites yet", "NO_LINE": "No supported value",
                    "UNPRICED": "Unpriced", "UNKNOWN": "Not assessed", "UNSUPPORTED": "Not established",
@@ -381,7 +382,7 @@ def _card(key: str, state: str, *, line_keys: Iterable[str] = (), group_key: str
     slot_detail, basis_text, tone = CARD_SLOTS[(key, state)]
     return {"key": key, "state": state, "display_value": DISPLAYED_VALUE.get(state), "currency": currency,
             "line_keys": sorted(line_keys), "group_key": group_key, "basis": None,
-            "destination": CARD_DESTINATION[key], "detail": detail if slot_detail is None else slot_detail,
+            **_destination(CARD_DESTINATION[key]), "detail": detail if slot_detail is None else slot_detail,
             "basis_text": basis_text, "tone": tone}
 
 
@@ -424,7 +425,7 @@ def opportunity_block(items: list[dict[str, Any]] | None) -> dict[str, Any]:
     return {"state": "UNKNOWN" if items is None else "FOUND" if found else "NONE", "items": list(items or []),
             "finding_id": None, "scenario_amount": None,
             "headroom": items[0]["study"]["headroom_kw"] if found else None,
-            "destination": "/findings/opportunities"}
+            **_destination(refs.estate_ref("findings_opportunities"))}
 
 
 def value_cards(lines: list[dict[str, Any]], applicable: dict[str, bool],
@@ -436,41 +437,54 @@ def value_cards(lines: list[dict[str, Any]], applicable: dict[str, bool],
             _card("VERIFIED_RECOVERY", "NOT_ESTABLISHED")]
 
 
-def _cell(key: str, state: str, destination: str | None = None) -> dict[str, Any]:
+def _destination(ref: dict[str, Any] | None) -> dict[str, Any]:
+    """CH5a2-R4(a): a card or cell `destination` (kept until CH-7) and its sibling `link_ref`, one from the other."""
+    return {"destination": refs.href_for(ref), "link_ref": None if ref is None else dict(ref)}
+
+
+def _cell(key: str, state: str, destination: dict[str, Any] | None = None) -> dict[str, Any]:
     return {"key": key, "state": state, "label": OBJECTIVE_LABEL[state], "reason": OBJECTIVE_REASON[(key, state)],
-            "destination": destination}
+            **_destination(destination)}
 
 
 #: Post-W6 W3-estate Q10: the mounted Site route under `/sites/{code}` of each objective with a fixed target per
 #: domain. EV has no configured Backup objective (None: "No configured objective"); Cost control and Evidence
 #: come from the Site's selected window (`objective_destinations`).
-OBJECTIVE_ROUTE = {
-    MINI_GRID: {"SERVICE_PRODUCT": "/performance/service", "BACKUP": "/performance/backup",
-                "ASSET_CONDITION": "/health"},
-    COLD: {"SERVICE_PRODUCT": "/performance/temperature", "BACKUP": "/performance/backup",
-           "ASSET_CONDITION": "/health"},
-    EV: {"SERVICE_PRODUCT": "/performance/sessions", "BACKUP": None, "ASSET_CONDITION": "/health"}}
+OBJECTIVE_ROUTE: dict[str, dict[str, Callable[[str], dict[str, Any]] | None]] = {
+    MINI_GRID: {"SERVICE_PRODUCT": lambda c: refs.evidence_ref(c, "service"),
+                "BACKUP": lambda c: refs.evidence_ref(c, "backup"),
+                "ASSET_CONDITION": lambda c: refs.site_ref(c, "health")},
+    COLD: {"SERVICE_PRODUCT": lambda c: refs.evidence_ref(c, "temperature"),
+           "BACKUP": lambda c: refs.evidence_ref(c, "backup"),
+           "ASSET_CONDITION": lambda c: refs.site_ref(c, "health")},
+    EV: {"SERVICE_PRODUCT": lambda c: refs.evidence_ref(c, "sessions"), "BACKUP": None,
+         "ASSET_CONDITION": lambda c: refs.site_ref(c, "health")}}
 
 
 def objective_destinations(code: str, domain: str, rows: list[dict[str, Any]]) -> dict[str, str | None]:
+    """`objective_destination_refs` as hrefs."""
+    return refs.links_of(objective_destination_refs(code, domain, rows))
+
+
+def objective_destination_refs(code: str, domain: str, rows: list[dict[str, Any]]) -> dict[str, dict[str, Any] | None]:
     """Post-W6 W3-estate Q10: each matrix cell's mounted Site route. Mini-grid Cost control and Evidence open
     `/financials` and `/evidence`; cold/EV reuse the selected-window helpers: the latest evidence row whose
     `window_links` proved its window (closure 5 B5) gives `site_readiness` and the same `_money_links` bridge
     query, else the Site home (EV `/sites/{code}/ev`). An unknown Site configuration has no destination."""
     if domain not in OBJECTIVE_ROUTE:
         return dict.fromkeys(OBJECTIVE_KEYS)
-    base = f"/sites/{quote(code, safe='')}"
-    out = {key: None if route is None else base + route for key, route in OBJECTIVE_ROUTE[domain].items()}
+    out = {key: None if route is None else route(code) for key, route in OBJECTIVE_ROUTE[domain].items()}
     if domain == MINI_GRID:
-        return {**out, "COST_CONTROL": f"{base}/financials", "EVIDENCE": f"{base}/evidence"}
-    home = site_home_href(code, domain)
-    proven = [r for r in rows if r["links"]["site_readiness_label"] is None and "?" in r["links"]["site_readiness"]]
+        return {**out, "COST_CONTROL": refs.site_ref(code, "financials"), "EVIDENCE": refs.evidence_ref(code)}
+    home = site_home_ref(code, domain)
+    proven = [r for r in rows if r["links"]["site_readiness_label"] is None
+              and (r["link_refs"]["site_readiness"] or {}).get("window")]
     if not proven:
         return {**out, "COST_CONTROL": home, "EVIDENCE": home}
     latest = max(proven, key=lambda r: (r["window_end"] or "", r["window_start"] or ""))
-    readiness = latest["links"]["site_readiness"]
-    bridge = f"{base}/financials" if domain == COLD else f"{base}/ev/financials"
-    return {**out, "COST_CONTROL": f"{bridge}?{readiness.split('?', 1)[1]}", "EVIDENCE": readiness}
+    readiness = latest["link_refs"]["site_readiness"]
+    bridge = refs.site_ref(code, "financials" if domain == COLD else "ev_financials", readiness["window"])
+    return {**out, "COST_CONTROL": bridge, "EVIDENCE": readiness}
 
 
 def evidence_cell_state(domain: str, cov: dict[str, Any], rows: list[dict[str, Any]], historical: bool) -> str:
@@ -504,7 +518,7 @@ def objective(site: dict[str, Any], e: tuple, m: tuple, historical: bool) -> dic
     """One matrix item per authorized Site; the first three cells have no reviewed objective producer."""
     _, e_domain, e_cov, e_rows = e
     _, m_domain, m_cov, m_lines = m
-    to = objective_destinations(site["site_code"], DOMAIN_OF_SITE_TYPE.get(site["site_type"], NOT_APPLICABLE),
+    to = objective_destination_refs(site["site_code"], DOMAIN_OF_SITE_TYPE.get(site["site_type"], NOT_APPLICABLE),
                                 e_rows)
     cells = [_cell(key, "UNKNOWN", to[key]) for key in OBJECTIVE_KEYS[:3]]
     cells.append(_cell("COST_CONTROL", cost_cell_state(m_domain, m_cov, m_lines), to["COST_CONTROL"]))
@@ -517,7 +531,7 @@ def evidence_prompt(evidence_state: str, gaps: list[dict[str, Any]]) -> dict[str
     """Closure 2 N5 / closure 4 N5: incomplete coverage wins; else the first canonical gap with a nonnull step and
     its first Site with a code in the group's `(site_code_key, site_id)` order; null-step gaps are skipped."""
     out = {"state": "COVERAGE_INCOMPLETE", "text": INCOMPLETE_TEXT, "site_id": None, "site_code": None,
-           "gap_code": None, "destination": "/evidence"}
+           "gap_code": None, **_destination(refs.estate_ref("evidence"))}
     if evidence_state not in (COMPLETE, EMPTY):
         return out
     for gap in gaps:
@@ -622,7 +636,7 @@ def footer(m_sites: list[tuple], lines: list[dict[str, Any]]) -> dict[str, Any] 
     x = min(eligible, key=lambda x: (keys.get(x["site_id"].lower(), ""), x["site_id"].lower(), x["line_key"]))
     return {"line_key": x["line_key"], "site_name": x["site_name"], "quantity_display": None,
             "amount_display": None, "source_provenance": x["source_provenance"], "window_start": x["window_start"],
-            "window_end": x["window_end"], "destination": x["links"]["evidence"]}
+            "window_end": x["window_end"], **_destination(x["link_refs"]["evidence"])}
 
 
 # --- the service -------------------------------------------------------------------------------------------------

@@ -63,19 +63,19 @@ def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix
     visits = tuple(
         Visit(case_id=c.case_id, code=c.code or "", asset_id=c.asset_id, asset_name=asset_name(c.asset_label),
               state=c.state, occurred_at=c.occurred_at, occurred_on=_local_date(c.occurred_at, tz),
-              finding_ids=c.finding_ids, href=c.href)
+              finding_ids=c.finding_ids, link_ref=c.link_ref)
         for c in facts.cases if c.kind == MAINTENANCE_REQUEST and c.occurred_at is not None)
     plans = tuple(
         PlanCue(plan_id=p.plan_id, code=p.code or "", title=p.title, due_at=p.due_at, due_on=p.next_due_at,
-                asset_id=p.asset_id, href=p.href)
+                asset_id=p.asset_id, link_ref=p.link_ref)
         for p in facts.plans if p.next_due_at is not None
         and plan_due_state(p.trigger_kind, p.due_at, to) != NOT_ASSESSED)
-    open_findings: dict[str, tuple[tuple[str, ...], str | None]] = {}
+    open_findings: dict[str, tuple[tuple[str, ...], Any]] = {}
     fault_names: dict[str, str] = {}
     for f in facts.findings:
         if f.open:
             moves, checked = outcome_roles(finding_signal_key(f.mechanism), facts.domain)
-            open_findings[f.finding_id] = (moves + checked, f.href)
+            open_findings[f.finding_id] = (moves + checked, f.link_ref)
             if f.mechanism in FAULT_NAMES:
                 fault_names[f.finding_id] = FAULT_NAMES[f.mechanism]
     days = (_local_date(lo, tz), _local_date(to - timedelta(microseconds=1), tz))

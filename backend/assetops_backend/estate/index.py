@@ -10,9 +10,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from typing import Any, Callable
-from urllib.parse import quote
 
 from assetops_backend import perf
+from assetops_backend.chain import refs
 from assetops_backend.chain.read import site_cutoff
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
@@ -91,20 +91,31 @@ class _WindowRecorder:
         return self.windows
 
 
+def _links(link_refs: dict[str, Any]) -> dict[str, Any]:
+    """CH5a2-R4(a): a row's `links` (unchanged keys) and their `link_refs` sibling, each href from its Ref."""
+    return {"links": refs.links_of(link_refs), "link_refs": link_refs}
+
+
 def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
                    k: datetime) -> dict[str, Any]:
+    """`_finding_link_refs` as the legacy `links` hrefs."""
+    return refs.links_of(_finding_link_refs(code, domain, fid, frid, rec, k))
+
+
+def _finding_link_refs(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
+                       k: datetime) -> dict[str, Any]:
     """The Site home (EV `/sites/{code}/ev`) and the Finding route: mini-grid keeps its exact `revision_id`; a
     cold/EV Finding opens over the one selected Site window holding its winning revision with the proven row-local cutoff, else
     null (closure 5 B5 via `finding_window_href`)."""
-    from assetops_backend.estate.evidence_money import finding_window_href, site_home_href  # import cycle
+    from assetops_backend.estate.evidence_money import finding_window_ref, site_home_ref  # import cycle
     if domain == MINI_GRID:
-        finding = f"/sites/{quote(code, safe='')}/findings/{fid}?revision_id={frid}"
+        finding = refs.finding_ref(code, fid, frid)
     else:
         holding = [w for w in (rec.windows if rec is not None else ())
                    if any(f["finding_revision_id"] == frid for f in w.get("findings") or ())]
-        finding = (finding_window_href(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
-                                       rec.cutoff, k) if len(holding) == 1 else None)
-    return {"finding": finding, "site": site_home_href(code, domain)}
+        finding = (finding_window_ref(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
+                                      rec.cutoff, k) if len(holding) == 1 else None)
+    return {"finding": finding, "site": site_home_ref(code, domain)}
 
 
 def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> list[dict[str, Any]] | None:
@@ -157,7 +168,7 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 # OUT-A2: the outcome categories of the stored mechanism on the coverage domain (NOT_MAPPED when
                 # either is unknown).
                 "categories": categories_for(finding_signal_key(r.get("mechanism")), domain),
-                "links": _finding_links(code, domain, fid, frid, rec, scope["k"]),
+                **_links(_finding_link_refs(code, domain, fid, frid, rec, scope["k"])),
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
                 "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism"),
                 # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
@@ -190,10 +201,9 @@ def select_action_scope(snap: Any, tenant_id: Any, req: EstateRequest,
             rows.append({**{k: v for k, v in r.items() if not k.startswith("_")},
                          "site_id": str(site["site_id"]), "site_code": code, "site_name": site["site_name"],
                          "created_at": wire_time(r["created_at"]),
-                         "links": {"action": f"/sites/{code}/actions/{r['action_id']}?event_id="
-                                             f"{r['selected_event_id']}",
-                                   "source": f"/sites/{code}/findings/{r['source_finding_id']}?revision_id="
-                                             f"{r['source_finding_revision_id']}"},
+                         **_links({"action": refs.action_ref(code, r["action_id"], event_id=r["selected_event_id"]),
+                                   "source": None if r.get("source_finding_id") is None else refs.finding_ref(
+                                       code, r["source_finding_id"], r.get("source_finding_revision_id"))}),
                          "_at": r["created_at"], "_raw": r})
     return per_site, rows
 

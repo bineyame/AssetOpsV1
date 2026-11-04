@@ -4,6 +4,8 @@ tests (E-change: deleted lineage). An Action belongs to a Finding through the sa
 thread the exact origin revision is kept. No database."""
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+
 from dataclasses import replace
 
 from assetops_backend.outcomes.catalogue import CATEGORIES, MINI, SITE_OUTCOMES
@@ -20,11 +22,11 @@ def _settled() -> dict[str, bool]:
 THREAD = {"id": "t1", "occurrence_no": 1, "occurrences": 1, "segment_no": 1, "state": "APPLIED",
           "applied": True, "verified": False}
 F = FindingFact("f", "r2", "Generator support review", "GENERATOR_SUPPORT_CANDIDATE", "SUPPORTED",
-                "/sites/KOBO-001/findings/f", thread=THREAD)
+                R.finding_ref("KOBO-001", "f"), thread=THREAD)
 #: Raised on an earlier revision r1 of the shown Finding revision r2: linked only through the thread.
 ACT = ActionFact(action_id="a1", code="ACT-000001", title="", origin_finding_id="f", origin_revision_id="r1",
-                 applied=True, open=True, verification_state="PENDING", href="/sites/KOBO-001/actions/a1",
-                 workflow_label="Applied", verification_href="/sites/KOBO-001/actions/a1/verification?event_id=e1",
+                 applied=True, open=True, verification_state="PENDING", link_ref=R.action_ref("KOBO-001", "a1"),
+                 workflow_label="Applied", verification_ref=R.action_ref("KOBO-001", "a1", view="verification", event_id="e1"),
                  thread_id="t1", segment_no=1)
 SAFEGUARDS = ("Reliable service and battery and generator life are checked as safeguards when ACT-001 is "
               "verified; a gain that harms them does not count")
@@ -49,7 +51,7 @@ def test_lineage_symbols_are_deleted() -> None:
 
 def test_t1_same_thread_and_segment_links_across_revisions() -> None:
     cost = board()[COST]
-    assert cost["must_not_harm"] == {"text": SAFEGUARDS, "href": ACT.verification_href}
+    assert cost["must_not_harm"] == {"text": SAFEGUARDS, "href": R.href_for(ACT.verification_ref), "link_ref": ACT.verification_ref}
     assert _finding_reasons(cost) == {"PRIMARY_FINDING_APPLIED"}
 
 
@@ -71,7 +73,7 @@ def test_t4_unthreaded_action_never_links_to_a_threaded_finding() -> None:
 def test_t5_no_thread_keeps_the_exact_revision_rule() -> None:
     unthreaded = replace(F, thread=None)
     exact = board(unthreaded, replace(ACT, thread_id=None, segment_no=None, origin_revision_id="r2"))[COST]
-    assert exact["must_not_harm"] == {"text": SAFEGUARDS, "href": ACT.verification_href}
+    assert exact["must_not_harm"] == {"text": SAFEGUARDS, "href": R.href_for(ACT.verification_ref), "link_ref": ACT.verification_ref}
     assert _finding_reasons(exact) == {"PRIMARY_FINDING_APPLIED"}
     earlier = board(unthreaded, replace(ACT, thread_id=None, segment_no=None))[COST]  # r1 != r2: no link
     assert earlier["must_not_harm"] is None

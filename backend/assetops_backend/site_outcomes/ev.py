@@ -20,7 +20,8 @@ from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
     finding_moved_outcomes, readiness_confidence, unresolved_links)
-from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action
+from assetops_backend.chain import refs
+from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action, finding_window_link
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -135,7 +136,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
 
     findings_ok = finding_rows is not None
-    findings = [_finding(r) for r in finding_rows or ()]
+    findings = [_finding(r, c) for r in finding_rows or ()]
     if findings_ok:  # addendum 3 (d): resolve each linked Finding the SUPPORTED-only list lacks
         known = {f.finding_id for f in findings}
         linked = sorted({a.origin_finding_id for a in actions if a.origin_finding_id}
@@ -149,7 +150,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                     reads.failed.append("ev_findings")
                 continue
             if row is not None:
-                findings.append(_finding(row))
+                findings.append(_finding(row, c))
 
     body = overview or {}
     base = overview is not None and (body.get("currentness") or {}).get("state") in SETTLED_CURRENTNESS
@@ -196,7 +197,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                   Contributor("warranty", "Warranty", NO_WARRANTY)),
         ASSURE: (Contributor("departures", "Departures against the timetable", NO_ROSTER),
                  Contributor("energy_billed", "Energy billed against metered", NO_SETTLEMENT_ASSURE, None,
-                             f"/sites/{c}/ev/financials"),
+                             refs.site_ref(c, "ev_financials")),
                  _session_records(overview is not None, incomplete, rc),
                  _status_gap(availability, connectors, stamp, suffix, rc)),
     }
@@ -235,8 +236,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
     action = next((a for a in sorted(actions, key=lambda a: (a.code or "", a.action_id))
                    if lead is not None and a.origin_finding_id == lead.finding_id), None)
-    investigate = action.href if action is not None else lead.href if lead is not None else None
-    options = {GROW: (Option(OPTION_WHAT_IFS, f"/sites/{c}/ev/financials/scenarios"),), COST: (),
+    investigate = action.link_ref if action is not None else lead.link_ref if lead is not None else None
+    options = {GROW: (Option(OPTION_WHAT_IFS, refs.site_ref(c, "ev_scenarios")),), COST: (),
                PROTECT: (Option(f"Investigate {connector_name(label)}", investigate),) if label and investigate else (),
                ASSURE: ()}
 
@@ -260,10 +261,9 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
 
 
-def _finding(r: dict[str, Any]) -> FindingFact:
-    links = r.get("links") or {}
+def _finding(r: dict[str, Any], c: str) -> FindingFact:
     return FindingFact(str(r["finding_id"]), str(r["revision_id"]), r.get("title") or "", EV_MECHANISM,
-                       r.get("lifecycle") or "", links.get("self") or links.get("finding"))
+                       r.get("lifecycle") or "", finding_window_link(c, str(r["finding_id"]), r))
 
 
 def _charging(ok: bool, kwh: str | None, completed: Any, started: Any, rc: Any) -> Contributor:
@@ -285,7 +285,7 @@ def _tariff(ok: bool, tariff: str | None, currency: Any, c: str, reason: Any) ->
         return Contributor("charging_tariff", "Charging tariff",
                            NO_TARIFF_DECLARED if reason == TARIFF_MISSING else TARIFF_UNKNOWN)
     return Contributor("charging_tariff", "Charging tariff", TARIFF_DECLARED.format(p=tariff, cur=currency), DECLARED,
-                       f"/sites/{c}/ev/financials")
+                       refs.site_ref(c, "ev_financials"))
 
 
 def _session_service(ok: bool, fault: Any, unknown: Any, rc: Any) -> Contributor:

@@ -3,6 +3,8 @@ helpers, the moved headroom rule, the Portfolio block and card, and SUPPORT_LOST
 
 from __future__ import annotations
 
+from assetops_backend.chain import refs as R
+
 import json
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
@@ -120,8 +122,12 @@ def test_item_is_the_latest_seen_study_with_all_visible_occurrences():
     assert item["lens_flags"] == ["OPPORTUNITY"]
     assert item["categories"]["items"][0]["category"] == "GROW_REVENUE"
     assert item["links"]["opportunity"] == f"/sites/KOBO-001/opportunities/{O4}"
-    assert item["links"]["evidence"] == ("/sites/KOBO-001/performance/renewable?from=2026-10-27T21:00:00Z"
-                                         "&to=2026-11-01T21:00:00Z")
+    # CH-5a2a: built by `href_for` (URLSearchParams encoding, `:` as `%3A`; the same instants)
+    assert item["links"]["evidence"] == ("/sites/KOBO-001/performance/renewable?from=2026-10-27T21%3A00%3A00Z"
+                                         "&to=2026-11-01T21%3A00%3A00Z")
+    assert item["link_refs"]["evidence"] == {"kind": "EVIDENCE", "site": "KOBO-001", "capability": "renewable",
+                                             "window": {"from": "2026-10-27T21:00:00Z", "to": "2026-11-01T21:00:00Z"}}
+    assert {k: R.href_for(r) for k, r in item["link_refs"].items()} == item["links"]
     assert item["ref"] == {"kind": "OPPORTUNITY", "site": "KOBO-001", "id": O4}
     assert item["thread_ref"] == {"kind": "THREAD", "site": "KOBO-001", "id": TID}
 

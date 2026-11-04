@@ -79,6 +79,7 @@
      "href": null,
      "key": "maintenance_effectiveness",
      "label": "Maintenance effectiveness",
+     "link_ref": null,
      "text": "Not available yet · this record could not be loaded"
     },
     {
@@ -89,6 +90,11 @@
      "href": "/sites/COLD-LAB-001/financials",
      "key": "repair_cost",
      "label": "Repair and call-out",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "COLD-LAB-001",
+      "view": "financials"
+     },
      "text": "No repair or call-out cost recorded"
     },
     {
@@ -96,6 +102,7 @@
      "href": null,
      "key": "cooling_energy",
      "label": "Cooling energy",
+     "link_ref": null,
      "text": "Not available yet · no cooling energy meter"
     }
    ],
@@ -108,7 +115,12 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/COLD-LAB-001/financials",
-    "label": "Financial bridge"
+    "label": "Financial bridge",
+    "link_ref": {
+     "kind": "SITE",
+     "site": "COLD-LAB-001",
+     "view": "financials"
+    }
    },
    "headline": null,
    "headline_money": null,
@@ -116,8 +128,9 @@
    "in_hand": [],
    "issues": [
     {
-     "href": "/sites/COLD-LAB-001/findings/f118",
+     "href": null,
      "kind": "FINDING",
+     "link_ref": null,
      "ref": {
       "finding_id": "f118",
       "finding_revision_id": "f118r",
@@ -160,6 +173,7 @@
      "href": null,
      "key": "chamber_temperature",
      "label": "Chamber temperature",
+     "link_ref": null,
      "text": "Peak 8.4°C against a 5°C limit"
     },
     {
@@ -170,6 +184,7 @@
      "href": null,
      "key": "backup_start",
      "label": "Backup start",
+     "link_ref": null,
      "text": "Automatic start failed; started by hand"
     },
     {
@@ -177,6 +192,7 @@
      "href": null,
      "key": "cooling_recovery",
      "label": "Cooling recovery",
+     "link_ref": null,
      "text": "Not available yet · no reading confirms that cooling restarted and the chamber returned to its limits"
     },
     {
@@ -184,6 +200,10 @@
      "href": "/maintenance/preventive",
      "key": "backup_generator",
      "label": "Backup generator",
+     "link_ref": {
+      "kind": "ESTATE",
+      "view": "maintenance_preventive"
+     },
      "text": "Not available yet · this record could not be loaded"
     },
     {
@@ -191,6 +211,10 @@
      "href": "/maintenance/preventive",
      "key": "compressor",
      "label": "Compressor",
+     "link_ref": {
+      "kind": "ESTATE",
+      "view": "maintenance_preventive"
+     },
      "text": "Not available yet · this record could not be loaded"
     },
     {
@@ -201,6 +225,7 @@
      "href": null,
      "key": "declared_objective:CC-1",
      "label": "Declared objective",
+     "link_ref": null,
      "text": "Stock kept saleable: chamber held between 2 and 5°C · above 5°C in this window"
     }
    ],
@@ -213,22 +238,33 @@
    "earlier_empty_text": "No earlier work has been checked for this",
    "evidence_link": {
     "href": "/sites/COLD-LAB-001/evidence",
-    "label": "Cold-room evidence"
+    "label": "Cold-room evidence",
+    "link_ref": {
+     "kind": "EVIDENCE",
+     "site": "COLD-LAB-001"
+    }
    },
    "headline": "Chamber above 5°C for 40–55 min",
    "headline_money": null,
    "icon": "protect",
    "in_hand": [
     {
-     "href": "/sites/COLD-LAB-001/actions/da1",
+     "href": "/sites/COLD-LAB-001/actions/da1/verification",
+     "link_ref": {
+      "id": "da1",
+      "kind": "ACTION",
+      "site": "COLD-LAB-001",
+      "view": "verification"
+     },
      "state_label": "Open",
      "text": "DA-001 · Witnessed automatic-start test"
     }
    ],
    "issues": [
     {
-     "href": "/sites/COLD-LAB-001/findings/f118",
+     "href": null,
      "kind": "FINDING",
+     "link_ref": null,
      "ref": {
       "finding_id": "f118",
       "finding_revision_id": "f118r",
@@ -238,8 +274,9 @@
      "text": "Backup did not start"
     },
     {
-     "href": "/sites/COLD-LAB-001/findings/f119",
+     "href": null,
      "kind": "FINDING",
+     "link_ref": null,
      "ref": {
       "finding_id": "f119",
       "finding_revision_id": "f119r",
@@ -258,11 +295,22 @@
    "not_measured_text": null,
    "options": [
     {
-     "href": "/sites/COLD-LAB-001/actions/da1",
+     "href": "/sites/COLD-LAB-001/actions/da1/verification",
+     "link_ref": {
+      "id": "da1",
+      "kind": "ACTION",
+      "site": "COLD-LAB-001",
+      "view": "verification"
+     },
      "text": "Witnessed automatic-start test"
     },
     {
      "href": "/sites/COLD-LAB-001/financials/scenarios",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "COLD-LAB-001",
+      "view": "financial_scenarios"
+     },
      "text": "Stock value what-if"
     }
    ],
@@ -300,6 +348,7 @@
      "href": null,
      "key": "verified_results",
      "label": "Verified results",
+     "link_ref": null,
      "text": "Not available yet · this record could not be loaded"
     },
     {
@@ -307,6 +356,7 @@
      "href": null,
      "key": "storage_service_level",
      "label": "Storage service level",
+     "link_ref": null,
      "text": "Not available yet · no storage contract recorded"
     },
     {
@@ -317,6 +367,7 @@
      "href": null,
      "key": "event_chain",
      "label": "Power, backup and cooling chain",
+     "link_ref": null,
      "text": "1 step not recorded"
     },
     {
@@ -324,6 +375,7 @@
      "href": null,
      "key": "loading_door_records",
      "label": "Loading and door records",
+     "link_ref": null,
      "text": "Not available yet"
     }
    ],
@@ -336,7 +388,11 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/COLD-LAB-001/evidence",
-    "label": "Evidence overview"
+    "label": "Evidence overview",
+    "link_ref": {
+     "kind": "EVIDENCE",
+     "site": "COLD-LAB-001"
+    }
    },
    "headline": "Event partly reconstructed · no verified result yet",
    "headline_money": null,
@@ -353,6 +409,11 @@
    "options": [
     {
      "href": "/sites/COLD-LAB-001/work",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "COLD-LAB-001",
+      "view": "work"
+     },
      "text": "Record stock and door log"
     }
    ],

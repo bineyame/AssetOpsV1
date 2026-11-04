@@ -10,6 +10,7 @@ from typing import Any, Callable, Sequence
 from zoneinfo import ZoneInfo
 
 from assetops_backend.chain import lifecycle as lc
+from assetops_backend.chain import refs
 from assetops_backend.chain import vocabulary as v
 from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE
 from assetops_backend.outcomes.outcome_map import categories_for, lens_flags, thread_signal_key
@@ -102,6 +103,11 @@ def _item(tid: str, oid: str, occurrences: int, view: dict[str, Any], on: date, 
     signal = thread_signal_key(mechanism)
     domain = DOMAIN_OF_SITE_TYPE.get(site_type or "", "")
     study_code = f"OPP-{int(study['public_no']):06d}"
+    # CH5a2-R4(a): `links` keyed as before, each built from its `link_refs` sibling.
+    link_refs = {"opportunity": refs.opportunity_ref(code, oid),
+                 "evidence": refs.evidence_ref(code, "renewable",
+                                               refs.window(_utc_z(first, tz), _utc_z(last + timedelta(days=1), tz))),
+                 "site": refs.site_ref(code)}
     return {
         "thread_id": tid, "site_id": study.get("site_id"), "site_code": code, "site_name": name,
         "mechanism": mechanism, "domain": site_type,
@@ -118,9 +124,7 @@ def _item(tid: str, oid: str, occurrences: int, view: dict[str, Any], on: date, 
         "limit_line": v.limit_line(status, study.get("limitation_codes") or (), study.get("decisions") or ()),
         "lens_flags": lens_flags(signal, domain), "categories": categories_for(signal, domain),
         "filter_state": "no_longer_supported" if state == "WITHDRAWN" else _FILTER_STATE.get(status or "", "unconfirmed"),
-        "links": {"opportunity": f"/sites/{code}/opportunities/{oid}",
-                  "evidence": (f"/sites/{code}/performance/renewable?from={_utc_z(first, tz)}"
-                               f"&to={_utc_z(last + timedelta(days=1), tz)}"),
-                  "site": f"/sites/{code}"},
+        "links": {key: refs.href_for(ref) for key, ref in link_refs.items()},
+        "link_refs": link_refs,
         "ref": {"kind": "OPPORTUNITY", "site": code, "id": oid},
         "thread_ref": {"kind": "THREAD", "site": code, "id": tid}}

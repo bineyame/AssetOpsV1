@@ -20,8 +20,8 @@ from zoneinfo import ZoneInfo
 from assetops_backend import perf, read_scope
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
-from assetops_backend.analytics.finding_index import selected_revision_link
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
+from assetops_backend.chain import refs
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import action_for, workflow_label
@@ -359,8 +359,8 @@ def limitation_text(limitation: str) -> str:
     return GAP_GENERIC
 
 
-def not_available(key: str, label: str, href: str | None = None) -> Contributor:
-    return Contributor(key, label, NOT_LOADED, None, href)
+def not_available(key: str, label: str, link_ref: dict[str, Any] | None = None) -> Contributor:
+    return Contributor(key, label, NOT_LOADED, None, link_ref)
 
 
 # ---------------------------------------------------------------- composer
@@ -442,7 +442,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
 
     signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", eligible is not None and eligible >= 1, HEADROOM_ISSUE,
-                          renewable_href(c, start, site_timezone)),
+                          renewable_ref(c, start, site_timezone)),
                SignalFact("SIGNAL:EVIDENCE_GAP", bool(limitations),
                           (f"{limitation_text(limitations[0])} limits this conclusion"
                            if limitations and limitation_text(limitations[0]) != GAP_GENERIC else GAP_GENERIC)))
@@ -451,18 +451,18 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     reserve = reserve_counts(dispatch)
     contributors = {
         GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"],
-                     renewable_href(c, start, site_timezone)),
+                     renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
                         "action_facts" in reads.failed or action_rows is None, no_run),
     }
-    options = {GROW: (Option(OPTION_WHAT_IF, f"/sites/{c}/financials/scenarios"),),
+    options = {GROW: (Option(OPTION_WHAT_IF, refs.site_ref(c, "financial_scenarios")),),
                COST: tuple(o for o in (
-                   Option(OPTION_TRIAL, f"/sites/{c}/findings/{lead.finding_id}/recommendation") if lead else None,
-                   Option(OPTION_CHANGE, f"/sites/{c}/foundation/changes") if has_change else None) if o),
+                   Option(OPTION_TRIAL, refs.finding_ref(c, lead.finding_id, view="recommendation")) if lead else None,
+                   Option(OPTION_CHANGE, refs.site_ref(c, "foundation_changes")) if has_change else None) if o),
                PROTECT: (),
-               ASSURE: (Option(OPTION_RESTORE, f"/sites/{c}/work"),) if limitations else ()}
+               ASSURE: (Option(OPTION_RESTORE, refs.site_ref(c, "work")),) if limitations else ()}
 
     headroom = renewable.get("headroom_kw") or {}
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
@@ -536,15 +536,20 @@ def renewable_bounds(start: datetime, tz_name: str | None) -> tuple[datetime, da
             local_hour(local_day + timedelta(days=1), 0, name).start)
 
 
-def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
+def renewable_ref(c: str, start: datetime, tz_name: str | None) -> dict[str, Any]:
     """The renewable page opened on the same 5 days the Productive use line describes (M2/L1); bare when refused."""
-    href = f"/sites/{c}/performance/renewable"
     try:
         lo, hi = renewable_bounds(start, tz_name)
     except MiniInputsRefused:
-        return href
+        return refs.evidence_ref(c, "renewable")
     fmt = "%Y-%m-%dT%H:%M:%SZ"
-    return f"{href}?from={lo.astimezone(timezone.utc).strftime(fmt)}&to={hi.astimezone(timezone.utc).strftime(fmt)}"
+    return refs.evidence_ref(c, "renewable", refs.window(lo.astimezone(timezone.utc).strftime(fmt),
+                                                          hi.astimezone(timezone.utc).strftime(fmt)))
+
+
+def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
+    """`renewable_ref`'s screen path."""
+    return refs.href_for(renewable_ref(c, start, tz_name))
 
 
 def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
@@ -656,7 +661,7 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
                 confidence = None
         title = FINDING_TITLE.get(str(r.lifecycle), FINDING_TITLE_FALLBACK)
         out.append(FindingFact(str(r.finding_id), str(r.revision_id), title, FINDING_MECHANISM, r.lifecycle,
-                               selected_revision_link(c, str(r.finding_id), str(r.revision_id)),
+                               refs.finding_ref(c, str(r.finding_id), str(r.revision_id)),
                                confidence_label=confidence, in_window=in_window,
                                in_work_window=work_lo is not None and lo is not None and lo < end
                                and (hi is None or hi > work_lo)))
@@ -695,8 +700,9 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             aid, r.get("action_code"), "", None if origin.get("finding_id") is None else str(origin["finding_id"]),
             None if origin.get("finding_revision_id") is None else str(origin["finding_revision_id"]),
             state.get("application") == "APPLIED", is_open, None if summary is None else summary.get("state"),
-            (r.get("links") or {}).get("selected_event") or f"/sites/{c}/actions/{aid}?event_id={event_id}",
-            workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}",
+            refs.action_ref(c, aid, event_id=event_id or None),
+            workflow_label=label,
+            verification_ref=refs.action_ref(c, aid, view="verification", event_id=event_id or None),
             cost_check=None if summary is None else read_scope.thaw(summary.get("cost_check")),
             trial_hours=_trial_hours(summary, site_timezone)))
     return tuple(out), has_change, tuple(missing)
@@ -718,11 +724,11 @@ def _trial_hours(summary: dict[str, Any] | None, site_timezone: str | None) -> d
 
 def case_fact(r: dict[str, Any], kind: str, c: str) -> CaseFact:
     cid = str(r["case_id"])
-    href = f"/maintenance/requests/{cid}" if kind == MAINTENANCE_REQUEST else f"/sites/{c}/work/incidents"
+    link = refs.case_ref(c, cid) if kind == MAINTENANCE_REQUEST else refs.site_ref(c, "work_incidents")
     fids = tuple(str(x["finding_id"]) for x in r.get("finding_links") or () if x.get("finding_id"))
     return CaseFact(cid, r.get("code"), kind, r.get("title") or "", r.get("state") or "",
                     None if r.get("asset_id") is None else str(r["asset_id"]), r.get("asset_label"), fids,
-                    utc(r.get("occurred_at")), href)
+                    utc(r.get("occurred_at")), link)
 
 
 def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
@@ -731,7 +737,8 @@ def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
     return PlanFact(str(p["canonical_plan_id"]), p.get("code"), p.get("title") or "", p.get("trigger_kind") or "",
                     None if due is None else due.astimezone(tz or timezone.utc).date(),
                     None if hours is None else float(Decimal(str(hours))), p.get("state") or "",
-                    None if p.get("asset_id") is None else str(p["asset_id"]), "/maintenance/preventive", due)
+                    None if p.get("asset_id") is None else str(p["asset_id"]),
+                    refs.estate_ref("maintenance_preventive"), due)
 
 
 # ---------------------------------------------------------------- contributors (§B.4 mini table)
@@ -755,7 +762,7 @@ def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, e
 def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end: datetime,
                     users: list[dict[str, Any]]) -> dict[str, Any]:
     """The §4.4 table for declared productive users (the caller handled the failed and empty user reads)."""
-    price_href = f"/sites/{c}/financials/assumptions"
+    price_href = refs.site_ref(c, "financial_assumptions")
     names = ", ".join(str(u.get("name")) for u in users)
     raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
                      start, end, memo=True)  # CH5a1-R2: the month read shares it on day 1
@@ -794,8 +801,8 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
 
 
 def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
-          sales: tuple[Contributor, ...] = (), href: str | None = None) -> tuple[Contributor, ...]:
-    href = href or f"/sites/{c}/performance/renewable"
+          sales: tuple[Contributor, ...] = (), href: dict[str, Any] | None = None) -> tuple[Contributor, ...]:
+    href = href or refs.evidence_ref(c, "renewable")
     if depth.get("renewable") is None:
         use = not_available("productive_use", "Productive use", href)
     elif eligible is None or assessed is None:
@@ -815,21 +822,21 @@ def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
 def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | None,
           rc: Any) -> tuple[Contributor, ...]:
     a, u = _dispatch_minutes(dispatch)
-    gen_href = f"/sites/{c}/performance/dispatch"
+    gen_href = refs.evidence_ref(c, "dispatch")
     if dispatch is None:
         gen = not_available("generator_use", "Generator use", gen_href)
     else:
         chip = PLACEMENT_CHIP.get(lead.confidence_label) if lead and lead.confidence_label else None
         gen = Contributor("generator_use", "Generator use", f"{num(a)} min avoidable, {num(u)} min unclear",
                           chip, gen_href)
-    fuel_href = f"/sites/{c}/performance/fuel"
+    fuel_href = refs.evidence_ref(c, "fuel")
     if depth.get("fuel") is None:
         fuel = not_available("fuel", "Fuel", fuel_href)
     else:
         opening = (depth["fuel"].get("cards") or {}).get("opening_l")
         fuel = (Contributor("fuel", "Fuel", NO_FUEL_BALANCE, UNKNOWN_CHIP, fuel_href) if opening is None else
                 Contributor("fuel", "Fuel", f"{num(opening)} L at the start of the window", rc, fuel_href))
-    price_href = f"/sites/{c}/financials/assumptions"
+    price_href = refs.site_ref(c, "financial_assumptions")
     if price is None:
         fuel_price = not_available("fuel_price", "Fuel price", price_href)
     else:
@@ -862,7 +869,7 @@ def reserve_counts(dispatch: dict[str, Any] | None) -> tuple[int, int] | None:
 
 
 def _battery(c: str, reserve: tuple[int, int] | None, rc: Any) -> Contributor:
-    href = f"/sites/{c}/health"
+    href = refs.site_ref(c, "health")
     if reserve is None:
         return not_available("battery", "Battery", href)
     n, m = reserve
@@ -880,23 +887,25 @@ def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: boo
     battery = _battery(c, reserve, rc)
     run_hours = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id)) if p.trigger_kind == "RUN_HOURS"]
     if plans_failed:
-        generator = not_available("generator", "Generator", "/maintenance/preventive")
+        generator = not_available("generator", "Generator", refs.estate_ref("maintenance_preventive"))
     elif not run_hours:
-        generator = Contributor("generator", "Generator", NO_GEN_PLAN, PLAN_RECORD, "/maintenance/preventive")
+        generator = Contributor("generator", "Generator", NO_GEN_PLAN, PLAN_RECORD,
+                                refs.estate_ref("maintenance_preventive"))
     else:
         due = run_hours[0].next_due_hours
         generator = Contributor("generator", "Generator",
                                 f"Service due at {num(due)} operating {plural(num(due), 'hour', 'hours')} · hours "
                                 "since service not recorded"
-                                if due is not None else NO_GEN_PLAN, PLAN_RECORD, "/maintenance/preventive")
-    svc_href = f"/sites/{c}/performance/service"
+                                if due is not None else NO_GEN_PLAN, PLAN_RECORD,
+                                refs.estate_ref("maintenance_preventive"))
+    svc_href = refs.evidence_ref(c, "service")
     if depth.get("service") is None:
         service = not_available("service_delivery", "Service delivery", svc_href)
     elif (depth["service"].get("cards") or {}).get("delivered_load_kw") is None:
         service = Contributor("service_delivery", "Service delivery", SERVICE_NOT_READ, None, svc_href)
     else:
         service = Contributor("service_delivery", "Service delivery", SERVICE_MEASURED, UNKNOWN_CHIP, svc_href)
-    bk_href = f"/sites/{c}/performance/backup"
+    bk_href = refs.evidence_ref(c, "backup")
     if depth.get("backup") is None:
         backup = not_available("backup_readiness", "Backup readiness", bk_href)
     else:
@@ -940,21 +949,21 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
                 "{currency}", cc.get("currency") or "")
         out.append(Contributor("verified_results", "Verified results",
                                text.format(code=display_code(a.code)) if text else NOT_LOADED,
-                               PENDING_CHIP if state in PENDING_STATES else None, a.verification_href))
+                               PENDING_CHIP if state in PENDING_STATES else None, a.verification_ref))
     out.append(Contributor("actual_against_plan", "Actual against plan", FIXED["plan_target"]))
     if not overview_ok:
-        out.append(not_available("readings", "Readings", f"/sites/{c}/evidence"))
+        out.append(not_available("readings", "Readings", refs.evidence_ref(c)))
     elif no_run:
         # Addendum 4 item 3: the settled no-run day reads FULL on this line only; the shared readiness is unchanged
         out.append(Contributor("readings", "Readings", NO_RUN_READINGS, readiness_confidence("FULL"),
-                               f"/sites/{c}/evidence"))
+                               refs.evidence_ref(c)))
     else:
         src = ((body.get("money") or {}).get("source_provenance") or {}).get("state")
         word = READINESS_WORD.get(readiness or "UNKNOWN", "Unknown")
         out.append(Contributor("readings", "Readings",
                                f"{SOURCE_TEXT.get(src or 'UNKNOWN', SOURCE_UNRESOLVED)} · readiness {word}",
-                               rc, f"/sites/{c}/evidence"))
+                               rc, refs.evidence_ref(c)))
     if limitations:
         out.append(Contributor("battery_reporting", "Battery reporting", limitation_text(limitations[0]),
-                               HIGH_CHIP, f"/sites/{c}/evidence"))
+                               HIGH_CHIP, refs.evidence_ref(c)))
     return tuple(out)

@@ -35,6 +35,7 @@
      "href": null,
      "key": "productive_sales",
      "label": "Productive-use sales",
+     "link_ref": null,
      "text": "Not available yet · no productive users identified for this site"
     },
     {
@@ -42,9 +43,18 @@
       "label": "Limited",
       "tone": "amber"
      },
-     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z",
      "key": "productive_use",
      "label": "Productive use",
+     "link_ref": {
+      "capability": "renewable",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001",
+      "window": {
+       "from": "2026-10-26T21:00:00Z",
+       "to": "2026-10-31T21:00:00Z"
+      }
+     },
      "text": "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days not checked"
     },
     {
@@ -52,6 +62,7 @@
      "href": null,
      "key": "cash_collected",
      "label": "Cash collected",
+     "link_ref": null,
      "text": "Not available yet · no billing or payment records"
     },
     {
@@ -59,6 +70,7 @@
      "href": null,
      "key": "site_earnings",
      "label": "Site earnings",
+     "link_ref": null,
      "text": "Not available yet · needs site income, operating cost and capital records"
     }
    ],
@@ -71,7 +83,12 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/KOBO-001/performance/renewable",
-    "label": "Renewable evidence"
+    "label": "Renewable evidence",
+    "link_ref": {
+     "capability": "renewable",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    }
    },
    "headline": "18–24.3 kW of daytime solar unused",
    "headline_money": null,
@@ -79,8 +96,17 @@
    "in_hand": [],
    "issues": [
     {
-     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z",
      "kind": "OPPORTUNITY",
+     "link_ref": {
+      "capability": "renewable",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001",
+      "window": {
+       "from": "2026-10-26T21:00:00Z",
+       "to": "2026-10-31T21:00:00Z"
+      }
+     },
      "ref": null,
      "role": "MOVES",
      "text": "Productive-use headroom"
@@ -96,6 +122,11 @@
    "options": [
     {
      "href": "/sites/KOBO-001/financials/scenarios",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "KOBO-001",
+      "view": "financial_scenarios"
+     },
      "text": "Productive-use what-if"
     }
    ],
@@ -136,6 +167,11 @@
      "href": "/sites/KOBO-001/performance/dispatch",
      "key": "generator_use",
      "label": "Generator use",
+     "link_ref": {
+      "capability": "dispatch",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "45 min avoidable, 12 min unclear"
     },
     {
@@ -146,6 +182,11 @@
      "href": "/sites/KOBO-001/performance/fuel",
      "key": "fuel",
      "label": "Fuel",
+     "link_ref": {
+      "capability": "fuel",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "No complete fuel balance yet"
     },
     {
@@ -156,6 +197,11 @@
      "href": "/sites/KOBO-001/financials/assumptions",
      "key": "fuel_price",
      "label": "Fuel price",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "KOBO-001",
+      "view": "financial_assumptions"
+     },
      "text": "Declared at 1.45 USD per litre"
     }
    ],
@@ -168,7 +214,12 @@
    "earlier_empty_text": "No earlier work has been checked for this",
    "evidence_link": {
     "href": "/sites/KOBO-001/performance/dispatch",
-    "label": "Dispatch evidence"
+    "label": "Dispatch evidence",
+    "link_ref": {
+     "capability": "dispatch",
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    }
    },
    "headline": "possible extra fuel cost on this day",
    "headline_money": {
@@ -180,6 +231,12 @@
    "in_hand": [
     {
      "href": "/sites/KOBO-001/actions/a1?event_id=e1",
+     "link_ref": {
+      "event_id": "e1",
+      "id": "a1",
+      "kind": "ACTION",
+      "site": "KOBO-001"
+     },
      "state_label": "Pending",
      "text": "ACT-001"
     }
@@ -188,6 +245,12 @@
     {
      "href": "/sites/KOBO-001/findings/f1?revision_id=f1r",
      "kind": "FINDING",
+     "link_ref": {
+      "id": "f1",
+      "kind": "FINDING",
+      "revision": "f1r",
+      "site": "KOBO-001"
+     },
      "ref": {
       "finding_id": "f1",
       "finding_revision_id": "f1r",
@@ -197,8 +260,17 @@
      "text": "Generator may have been on longer than needed"
     },
     {
-     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z",
      "kind": "OPPORTUNITY",
+     "link_ref": {
+      "capability": "renewable",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001",
+      "window": {
+       "from": "2026-10-26T21:00:00Z",
+       "to": "2026-10-31T21:00:00Z"
+      }
+     },
      "ref": null,
      "role": "CHECKED",
      "text": "Productive-use headroom"
@@ -206,6 +278,7 @@
     {
      "href": null,
      "kind": "EVIDENCE_GAP",
+     "link_ref": null,
      "ref": null,
      "role": "CHECKED",
      "text": "Battery output not reported limits this conclusion"
@@ -218,16 +291,34 @@
    },
    "must_not_harm": {
     "href": "/sites/KOBO-001/actions/a1/verification?event_id=e1",
+    "link_ref": {
+     "event_id": "e1",
+     "id": "a1",
+     "kind": "ACTION",
+     "site": "KOBO-001",
+     "view": "verification"
+    },
     "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count"
    },
    "not_measured_text": null,
    "options": [
     {
      "href": "/sites/KOBO-001/findings/f1/recommendation",
+     "link_ref": {
+      "id": "f1",
+      "kind": "FINDING",
+      "site": "KOBO-001",
+      "view": "recommendation"
+     },
      "text": "Trial a lower generator stop setting"
     },
     {
      "href": "/sites/KOBO-001/foundation/changes",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "KOBO-001",
+      "view": "foundation_changes"
+     },
      "text": "Proposed setting change"
     }
    ],
@@ -256,6 +347,11 @@
      "href": "/sites/KOBO-001/health",
      "key": "battery",
      "label": "Battery",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "KOBO-001",
+      "view": "health"
+     },
      "text": "No generator period at or near the reserve (2 assessed)"
     },
     {
@@ -263,6 +359,10 @@
      "href": "/maintenance/preventive",
      "key": "generator",
      "label": "Generator",
+     "link_ref": {
+      "kind": "ESTATE",
+      "view": "maintenance_preventive"
+     },
      "text": "Not available yet · this record could not be loaded"
     },
     {
@@ -273,6 +373,11 @@
      "href": "/sites/KOBO-001/performance/service",
      "key": "service_delivery",
      "label": "Service delivery",
+     "link_ref": {
+      "capability": "service",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "Delivered power measured; demand not measured"
     },
     {
@@ -283,6 +388,11 @@
      "href": "/sites/KOBO-001/performance/backup",
      "key": "backup_readiness",
      "label": "Backup readiness",
+     "link_ref": {
+      "capability": "backup",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "No backup event in this window"
     }
    ],
@@ -295,7 +405,12 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/KOBO-001/health",
-    "label": "Battery evidence"
+    "label": "Battery evidence",
+    "link_ref": {
+     "kind": "SITE",
+     "site": "KOBO-001",
+     "view": "health"
+    }
    },
    "headline": "Battery stayed clear of its reserve in 2 assessed generator periods",
    "headline_money": null,
@@ -303,8 +418,17 @@
    "in_hand": [],
    "issues": [
     {
-     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z",
      "kind": "OPPORTUNITY",
+     "link_ref": {
+      "capability": "renewable",
+      "kind": "EVIDENCE",
+      "site": "KOBO-001",
+      "window": {
+       "from": "2026-10-26T21:00:00Z",
+       "to": "2026-10-31T21:00:00Z"
+      }
+     },
      "ref": null,
      "role": "CHECKED",
      "text": "Productive-use headroom"
@@ -312,6 +436,12 @@
     {
      "href": "/sites/KOBO-001/findings/f1?revision_id=f1r",
      "kind": "FINDING",
+     "link_ref": {
+      "id": "f1",
+      "kind": "FINDING",
+      "revision": "f1r",
+      "site": "KOBO-001"
+     },
      "ref": {
       "finding_id": "f1",
       "finding_revision_id": "f1r",
@@ -360,6 +490,13 @@
      "href": "/sites/KOBO-001/actions/a1/verification?event_id=e1",
      "key": "verified_results",
      "label": "Verified results",
+     "link_ref": {
+      "event_id": "e1",
+      "id": "a1",
+      "kind": "ACTION",
+      "site": "KOBO-001",
+      "view": "verification"
+     },
      "text": "ACT-001 not yet verified"
     },
     {
@@ -367,6 +504,7 @@
      "href": null,
      "key": "actual_against_plan",
      "label": "Actual against plan",
+     "link_ref": null,
      "text": "Not available yet · declared objectives could not be loaded"
     },
     {
@@ -377,6 +515,10 @@
      "href": "/sites/KOBO-001/evidence",
      "key": "readings",
      "label": "Readings",
+     "link_ref": {
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "Example data · readiness Limited"
     },
     {
@@ -387,6 +529,10 @@
      "href": "/sites/KOBO-001/evidence",
      "key": "battery_reporting",
      "label": "Battery reporting",
+     "link_ref": {
+      "kind": "EVIDENCE",
+      "site": "KOBO-001"
+     },
      "text": "Battery output not reported"
     }
    ],
@@ -399,7 +545,11 @@
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
    "evidence_link": {
     "href": "/sites/KOBO-001/evidence",
-    "label": "Evidence overview"
+    "label": "Evidence overview",
+    "link_ref": {
+     "kind": "EVIDENCE",
+     "site": "KOBO-001"
+    }
    },
    "headline": "No verified result yet",
    "headline_money": null,
@@ -409,6 +559,7 @@
     {
      "href": null,
      "kind": "EVIDENCE_GAP",
+     "link_ref": null,
      "ref": null,
      "role": "MOVES",
      "text": "Battery output not reported limits this conclusion"
@@ -424,6 +575,11 @@
    "options": [
     {
      "href": "/sites/KOBO-001/work",
+     "link_ref": {
+      "kind": "SITE",
+      "site": "KOBO-001",
+      "view": "work"
+     },
      "text": "Restore battery reporting"
     }
    ],
