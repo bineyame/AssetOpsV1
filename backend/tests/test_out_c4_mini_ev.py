@@ -7,6 +7,7 @@ import test_out_b2_mini as b2
 import test_out_b3_cold_ev as b3
 
 from assetops_backend.site_outcomes import ev, mini
+from assetops_backend.chain import refs as R
 
 PROTECT = mini.PROTECT
 
@@ -140,7 +141,7 @@ def test_charger_fault_needs_an_overdue_plan_on_the_faulted_connector() -> None:
     comp, rows = ev_run(plans=OVERDUE_PLAN)
     (w,) = [x for x in comp.facts.warnings if x.kind == "CHARGER_FAULT_OVERDUE_INSPECTION"]
     assert w.seen == "C2 fault recorded in this window · inspection overdue since 15 Oct"
-    assert w.href == f"/sites/{b3.E}/health"
+    assert R.href_for(w.link_ref) == f"/sites/{b3.E}/health"
     issues = [i["text"] for i in rows[PROTECT]["issues"]]
     assert "Charger fault and overdue inspection" in issues and "Connector inspection overdue" in issues
 

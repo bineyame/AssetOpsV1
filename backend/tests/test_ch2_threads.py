@@ -270,7 +270,10 @@ def test_board_lists_a_domain_action_in_hand_by_thread():
 
     shown = board.FindingFact("f2", "r2", "Start failure", "COLD_START_FAILURE", "SUPPORTED", None,
                               asset_id="asset-7")
-    act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None, "/x", is_domain=True)
+    from assetops_backend.chain import refs as R
+
+    act = board.ActionFact("a1", "ACT-000002", "Start test", "f1", "r1", False, True, None,
+                           R.action_ref("COLD-LAB-001", "a1"), is_domain=True)
     facts = board.SiteFacts(domain="cold_chain", site_code="COLD-LAB-001", findings=(shown,), actions=(act,))
     before = board.assemble(facts)
     # CH5a-R §A5 (CH-5a1): the wire keys come with the thread view (`lookup.PUBLIC_KEYS`), as the lookup gives them.
@@ -292,6 +295,7 @@ def test_portfolio_row_thread_is_the_public_form_only():
     """CH-5a1 L3: `thread_lookup` now carries the board's state classes (`applied`/`verified`/`later`/`wire_keys`);
     the Portfolio row's `thread` is `public_thread`, so none of them reaches the wire."""
     from assetops_backend.chain.lookup import PUBLIC_KEYS, thread_lookup
+    from assetops_backend.chain import refs as R
     from assetops_backend.estate.portfolio import portfolio_row
 
     thread = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, None, None, None, None)])["findings"]["abc"]
@@ -300,6 +304,8 @@ def test_portfolio_row_thread_is_the_public_form_only():
          "finding_revision_id": "r1", "site_id": "S1", "site_code": "KOBO-001", "site_name": "Kobo",
          "_domain": "MINIGRID", "finding_label": "x", "title": "x", "_mechanism": "GENERATOR_SUPPORT_CANDIDATE",
          "episode_start": None, "_episode_end": None, "lifecycle": "SUPPORTED", "lens_flags": [], "priority": None,
-         "consequence": None, "source_provenance": None, "links": {"site": "/s", "finding": "/f"}, "_at": T0,
+         "consequence": None, "source_provenance": None,
+         "link_refs": {"site": R.site_ref("KOBO-001"), "finding": R.finding_ref("KOBO-001", "abc", "r1")},
+         "_at": T0,
          "_thread": thread}
     assert tuple(portfolio_row(r, [])["thread"]) == PUBLIC_KEYS

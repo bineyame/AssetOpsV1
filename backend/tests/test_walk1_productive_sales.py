@@ -16,6 +16,7 @@ from assetops_backend.site_outcomes import mini
 from assetops_backend.site_outcomes.board import assemble
 from assetops_backend.site_outcomes.mini import compose
 from assetops_backend.site_outcomes.productive_use import productive_energy
+from link_parity import checked
 from test_out_b2_mini import C, DAY, DEPTH, ZONE, Fake, contributor
 
 GROW = mini.GROW
@@ -131,7 +132,7 @@ def test_measured_use_without_a_price() -> None:
     sales = contributor(row, "productive_sales")
     assert sales["text"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
     assert sales["confidence"] is None
-    assert contributor(row, "productive_price") == {
+    assert checked(contributor(row, "productive_price")) == {
         "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
         "confidence": None, "href": ASSUMPTIONS}
     # WALK1-3b: MG-1 reads month to date (Nairobi local October through the 20th); no objective is declared here
@@ -180,11 +181,11 @@ def test_priced_estimate_leads_the_grow_row() -> None:
                               "per kWh · not billed or collected")
     assert keys(row) == ["productive_sales", "productive_use", "productive_price", "cash_collected",
                          "site_earnings"]  # WALK1-3b §A2.3
-    assert contributor(row, "productive_sales") == {
+    assert checked(contributor(row, "productive_sales")) == {
         "key": "productive_sales", "label": "Productive-use sales",
         "text": "101 kWh used by Grain mill in 8 measured hours",
         "confidence": {"label": "Declared", "tone": "neutral"}, "href": None}
-    assert contributor(row, "productive_price") == {
+    assert checked(contributor(row, "productive_price")) == {
         "key": "productive_price", "label": "Price per kWh", "text": "Declared at 0.25 USD per kWh",
         "confidence": {"label": "Declared", "tone": "neutral"}, "href": ASSUMPTIONS}
     # spare solar stays in its contributor and the Portfolio fallback value

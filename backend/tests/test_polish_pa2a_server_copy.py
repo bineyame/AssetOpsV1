@@ -5,6 +5,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from assetops_backend.analytics import cold_site_reads as csr
+from assetops_backend.chain import refs as R
 from assetops_backend.analytics.finding_episode import (
     MERGED, NO_LONGER_SUPPORTED, SUPPORTED, TITLES, UNCONFIRMED)
 from assetops_backend.estate import evidence_money, placement, portfolio
@@ -58,8 +59,9 @@ def test_board_item_text_and_action_name_use_display_codes() -> None:
 
 def test_warning_ref_labels_use_display_codes() -> None:
     plan = w.PlanCue(plan_id="p1", code="PM-000013", title="Generator service", due_at=None, due_on=None,
-                     asset_id=None, href="/maintenance/preventive")
-    assert w._plan_ref(plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive"}
+                     asset_id=None, link_ref=R.estate_ref("maintenance_preventive"))
+    assert w._plan_ref(plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive",
+                                 "link_ref": R.estate_ref("maintenance_preventive")}
 
 
 def test_mini_verified_results_text_uses_display_code() -> None:
