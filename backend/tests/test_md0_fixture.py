@@ -327,7 +327,7 @@ def test_the_verify_windows_fit_the_product_rules(variant_set) -> None:
     at = lambda node: md.local_instant(spec, "kobo", node["day"], node["local"])  # noqa: E731
     v = a["verify"]
     b0, l0, effective = at(v["baseline"]), at(v["later"]), at(a["effective"])
-    assert b0.minute == 0 and (l0 - b0) % md.timedelta(days=1) == md.timedelta(0)
+    assert b0.minute % 5 == 0 and b0.second == 0 and (l0 - b0) % md.timedelta(days=1) == md.timedelta(0)
     assert b0 + md.timedelta(hours=1) <= effective <= l0
     edge = lambda t: datetime.combine(t.date() + md.timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)         + md.timedelta(hours=6)  # noqa: E731
     assert edge(b0) <= at(v["freeze"]) < l0
