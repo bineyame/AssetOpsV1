@@ -320,7 +320,16 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
     k = spec["sites"]["kobo"]
     rules, step = k["reading_rules"], timedelta(minutes=k["reading_rules"]["step_minutes"])
     sig = rules["signals"]
-    event = None if kind == "normal" else next(e for e in k["events"] if e["day"] == n and e["kind"] == kind)
+    event = None if kind == "normal" else next((e for e in k["events"] if e["day"] == n and e["kind"] == kind),
+                                               None)
+    if kind != "normal" and event is None:
+        # §2.2: an overrun is one declared shape (F01, 08:00-09:00, the same on D4/D11/D14); a late overrun on the
+        # fillable gap day (§4, GAP-K7) uses that shape re-dated, so it needs no event entry of its own.
+        shapes = {json.dumps({x: e[x] for x in ("from_local", "to_local", "generator", "pv", "dis", "soc")})
+                  for e in k["events"] if e["kind"] == kind}
+        if len(shapes) != 1 or spec_gap(spec, "kobo", n) is None:
+            raise MechanismRefused("NO_DECLARED_SHAPE")
+        event = json.loads(shapes.pop())
     span = None if event is None else (local_instant(spec, "kobo", n, event["from_local"]),
                                        local_instant(spec, "kobo", n, event["to_local"]))
     rows = []
@@ -879,17 +888,20 @@ def derive_clone(url: str, tag: dict, work: Path) -> dict:
 
 
 def grades(engine, site_id) -> dict[str, dict[str, str]]:
-    """local day -> measure -> grade of the latest snapshot revision (SITE subject)."""
+    """local day -> measure -> grade of the latest snapshot revision. SITE subjects are keyed by the measure, ASSET
+    subjects by `measure@<asset code>` (productive_kwh and avoidable_gen_min are ASSET measures)."""
     from sqlalchemy import text
 
     with engine.connect() as c:
         rows = c.execute(text(
-            "SELECT DISTINCT ON (local_day, measure) local_day, measure, grade FROM site_day_snapshot "
-            "WHERE site_id = :s AND subject_kind = 'SITE' ORDER BY local_day, measure, revision DESC"),
+            "SELECT DISTINCT ON (s.local_day, s.measure, s.subject_kind, s.subject_ref) s.local_day, s.measure, "
+            "s.subject_kind, coalesce(a.asset_code, s.subject_ref), s.grade FROM site_day_snapshot s "
+            "LEFT JOIN asset a ON s.subject_kind = 'ASSET' AND a.id::text = lower(s.subject_ref) "
+            "WHERE s.site_id = :s ORDER BY s.local_day, s.measure, s.subject_kind, s.subject_ref, s.revision DESC"),
             {"s": site_id}).all()
     out: dict[str, dict[str, str]] = {}
-    for d, measure, grade in rows:
-        out.setdefault(d.isoformat(), {})[measure] = grade
+    for d, measure, kind, ref, grade in rows:
+        out.setdefault(d.isoformat(), {})[measure if kind == "SITE" else f"{measure}@{ref}"] = grade
     return out
 
 
