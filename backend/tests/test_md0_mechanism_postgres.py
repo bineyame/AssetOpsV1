@@ -8,7 +8,8 @@ with this checkout's code, then asserts against the §2.6 expectations. The test
 - `ASSETOPS_MECHANISM_RECORD` names a JSON file the tests write the product's own reports to (the D-AW-3 skip
   report, grades that differ from §2.6, the late-fill occurrence order) for the packet.
 - A disagreement with §2.6 is recorded with `pytest.xfail("MD-0-Fn ...")` after every hard assertion (R7); MD-0
-  never changes a rule.
+  never changes a rule. MD-0b closed MD-0-F1 (its two xfails are hard assertions now) and adds the close variant
+  (its own template `assetops_mechanism_tplc_<fp8>_test`, `build --variant close`).
 
 Requires ASSETOPS_TEST_DATABASE_URL (backend/README-db.md); only its server is used, for the clone.
 """
@@ -19,6 +20,7 @@ import json
 import os
 import secrets
 import time
+from datetime import timedelta
 
 import pytest
 from sqlalchemy import create_engine, text
@@ -50,17 +52,27 @@ def record(key: str, value) -> None:
 @pytest.fixture()
 def mech(tmp_path):
     """(engine, manifest) on a fresh clone of the template, derived with this checkout's code; dropped after."""
+    yield from _derived_clone(tmp_path, "states")
+
+
+@pytest.fixture()
+def mech_close(tmp_path):
+    """MD-0b: the same on the close variant's template (§2.5)."""
+    yield from _derived_clone(tmp_path, "close")
+
+
+def _derived_clone(tmp_path, day_set: str):
     admin = md.admin_engine(URL)
     target = f"assetops_mechanism_c{secrets.token_hex(5)}_test"
     t0 = time.perf_counter()
-    tag = md.clone_template(admin, target)
+    tag = md.clone_template(admin, target, day_set=day_set)
     clone_s = round(time.perf_counter() - t0, 1)
     url = md.database_url(URL, target)
     eng = create_engine(url, poolclass=NullPool)
     try:
         manifest = md.derive_clone(url, tag, tmp_path / "work")
         manifest["timings"]["clone"] = clone_s
-        record("manifest", manifest)
+        record("manifest" if day_set == "states" else f"manifest_{day_set}", manifest)
         yield eng, manifest
     finally:
         eng.dispose()
@@ -149,6 +161,26 @@ def study_eligible_days(engine, site_id) -> dict[str, int]:
     return {d: int(n) for d, n in rows}
 
 
+def readiness(engine, site_id, n: int) -> str:
+    """CH5a1-R R5 `readiness_of` over Dn's latest snapshot rows (the board's rule, pure)."""
+    from assetops_backend.chain.read import readiness_of
+
+    with engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT DISTINCT ON (measure, subject_kind, subject_ref) local_day, measure, grade FROM site_day_snapshot "
+            "WHERE site_id = :s AND local_day = :d ORDER BY measure, subject_kind, subject_ref, revision DESC"),
+            {"s": site_id, "d": md.day(SPEC, n)}).all()
+        measures = sorted(c.execute(text("SELECT DISTINCT measure FROM site_day_snapshot WHERE site_id = :s"),
+                                    {"s": site_id}).scalars())
+    return readiness_of(rows, [md.day(SPEC, n)], measures)
+
+
+def verification_outcomes(engine, site_id) -> list[str]:
+    with engine.connect() as c:
+        return [r[0] for r in c.execute(text("SELECT outcome FROM verification_outcome WHERE site_id = :s "
+                                             "ORDER BY recorded_at"), {"s": site_id})]
+
+
 def _story_order(thread: dict) -> list[str]:
     return [str(f) for _, f, _, _ in sorted(thread["occurrences"], key=lambda r: r[3]) if f is not None]
 
@@ -156,7 +188,7 @@ def _story_order(thread: dict) -> list[str]:
 def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     """§10.2 tests 1, 3 and 4 on one clone, plus the D-AW-3 record (MD0-S2)."""
     engine, m = mech
-    days, notes = m["days"], []
+    days = m["days"]
     assert m["role_set"] == "minigrid-roles-4" and m["published"] == ["price", "objective"]
     assert set(m["findings"]) == {e["anchor"] for e in SPEC["sites"]["kobo"]["events"] if e["day"] in days}
 
@@ -181,8 +213,12 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
     undelivered = {_iso(n): g.get(_iso(n), {}) for n in range(1, 15) if n not in days}
     record("grades_undelivered", undelivered)
-    if any(v == "PENDING" for x in undelivered.values() for v in x.values()):
-        notes.append(f"MD-0-F1 (owner CH-5a1 R5 readiness_of) PENDING on undelivered days after D6: {undelivered}")
+    # MD-0b (CH5a1-R3 M1, was MD-0-F1): the seed drains the product mini worker over the whole story, so no
+    # undelivered day is left PENDING on a queued job: GAP-K7 is NO_DATA on every measure, and readiness NONE.
+    assert not any(v == "PENDING" for x in undelivered.values() for v in x.values()), undelivered
+    assert gap and set(gap.values()) == {"NO_DATA"}, gap
+    assert readiness(engine, m["site_id"], 7) == "NONE", gap
+    assert m["drain_mini"]["processed"] > 0 and set(m["drain_mini"]["statuses"]) == {"DONE"}, m["drain_mini"]
 
     # MD0-S5 M2 (A): EXCLUDED on the busy noons, ELIGIBLE on the spare-solar days D12/D13; codes recorded as found.
     spare = set(SPEC["sites"]["kobo"]["noon"]["spare_solar_days"])
@@ -206,21 +242,32 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     record("generator_thread", gen)
     want = [m["findings"][a] for a in ("K-OVR-D4", "K-OVR-D11", "K-OVR-D14") if a in m["findings"]]
     assert _story_order(gen) == want, gen["occurrences"]
-    # ACT-K1 reaches CHANGE_APPLIED; RESOLVED is not reached (MD0-PF Q3: verification is MD-0b).
+    # MD-0b: ACT-K1 reaches VERIFIED on the seeded readings through the real evaluator (no monkeypatch, no
+    # replaced window evidence or source resolution), with an authored source pair, so the thread resolves.
+    ev = m["verification"]["evaluation"]
+    record("verification", m["verification"])
+    assert ev["outcome"] == "VERIFIED", ev
+    assert ev["source_classes"] == {"baseline": "AUTHORED_DEMONSTRATION", "later": "AUTHORED_DEMONSTRATION"}, ev
+    assert verification_outcomes(engine, m["site_id"]) == ["VERIFIED"]
     states = [s for _, s, _ in gen["events"]]
-    assert "CHANGE_APPLIED" in states and "RESOLVED_MONITORING" not in states, gen["events"]
+    assert "CHANGE_APPLIED" in states and "RESOLVED_MONITORING" in states, gen["events"]
     with engine.connect() as c:
         links = c.execute(text("SELECT action_kind, thread_id FROM chain_action_thread WHERE site_id = :s"),
                           {"s": m["site_id"]}).all()
     assert [(k, str(t)) for k, t in links] == [("MINI_TRIAL", gen["id"])], links
 
-    # 4. Story time: on D11 the thread is ACTION_IN_HAND (accepted 13:00), CHANGE_APPLIED from the D12 effect.
+    # 4. Story time: on D11 the thread is ACTION_IN_HAND (accepted 13:00); the D12 change effect and the VERIFIED
+    # cause both land on D12 by the product's effective day (the evaluation ran D13 10:00 local): CHANGE_APPLIED then
+    # RESOLVED_MONITORING on D12, so RESOLVED_MONITORING on S = D13 (§2.6 a, "since D12").
     assert _state_on(gen, 11) == "ACTION_IN_HAND", gen["events"]
-    assert _state_on(gen, 12) == "CHANGE_APPLIED", gen["events"]
+    on_d12 = [s for _, s, d in gen["events"] if d == md.day(SPEC, 12)]
+    assert on_d12 == ["CHANGE_APPLIED", "RESOLVED_MONITORING"], gen["events"]
+    assert _state_on(gen, 13) == "RESOLVED_MONITORING", gen["events"]
 
-    # D-AW-3 (MD0-S2): the D14 occurrence during CHANGE_APPLIED, verbatim from run_lifecycle(...)["skipped_causes"].
+    # D-AW-3 (MD0-S2; its lifecycle change is CH-6b R16): the D14 recurrence, verbatim from run_lifecycle(...).
     record("d_aw_3", {"skipped": m["lifecycle"]["skipped"], "skipped_causes": m["lifecycle"]["skipped_causes"],
-                      "counts": m["lifecycle"]["counts"], "threads": m["lifecycle"]["threads"]})
+                      "counts": m["lifecycle"]["counts"], "threads": m["lifecycle"]["threads"],
+                      "state_on_d14": _state_on(gen, 14)})
 
     # Headroom (§2.6 b): W1 (0 eligible days) is never placed (skipped_ineligible 1); W2 places one OPEN thread.
     b = next(s for s in m["steps"]["bc"] if s["step"] == "b")
@@ -228,8 +275,6 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     head = th.get(HEADROOM)
     assert head is not None and b["skipped_ineligible"] == 1 and _state_on(head, 14) == "OPEN", \
         (head, b, m["studies"], m["noon_dropped"])
-    if notes:
-        pytest.xfail("; ".join(notes))
 
 
 def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
@@ -258,8 +303,9 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
         {k: [s for _, s, _ in v["events"]] for k, v in before.items()}
     # §2.6 expectations, recorded as the product gives them (R7): D7 NO_DATA at k_before, COMPLETE after.
     record("late_fill_normal_before", [tuple(r) for r in kept])
-    # MD0-S4 R1.5 (hard): NO_DATA/PENDING before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
-    assert {g for _, g in kept} <= {"NO_DATA", "PENDING"}, kept
+    # MD0-S4 R1.5 as amended by CH5a1-R3 M1 (hard; MD-0b drains the mini queue, was MD-0-F1): NO_DATA on every
+    # measure before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
+    assert {g for _, g in kept} == {"NO_DATA"}, kept
     assert all(v == "COMPLETE" for k, v in out["snapshots"].items() if _core(k)), out["snapshots"]
     # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE noon_headroom_kw.
     assert all(out["snapshots"].get(k) == "COMPLETE" for k in CORE), out["snapshots"]
@@ -267,9 +313,6 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
     hours = renewable_hours(engine, m["site_id"])
     record("late_fill_normal_d7_hour", hours.get(_iso(7)))
     assert hours[_iso(7)][0] == "EXCLUDED" and "CHARGE_OBLIGATION_ACTIVE" in hours[_iso(7)][1], hours.get(_iso(7))
-    if {g for _, g in kept} != {"NO_DATA"}:
-        pytest.xfail(f"MD-0-F1 (owner CH-5a1 R5 readiness_of) PENDING on undelivered days after D6: D7 before the "
-                     f"fill {sorted(set(map(tuple, kept)))}")
 
 
 def test_late_fill_overrun_joins_the_thread_in_story_order(mech) -> None:
@@ -292,6 +335,45 @@ def test_late_fill_overrun_joins_the_thread_in_story_order(mech) -> None:
     late = dispatch_content(engine, out["events"][0])
     record("late_d7_finding", late)
     assert late[:8] + (late[9],) == LATE_D7_CONTENT, late  # its recurrence and transitions are recorded
+
+
+def test_close_variant_resolves_closes_after_seven_clean_days_and_recurs(mech_close) -> None:
+    """§10.2 test 8 (MD-0b, §2.6 e): ACT-K2 VERIFIED -> RESOLVED_MONITORING, CLOSED on the 7th fully checked day
+    after it (`close_after_clean_complete_days.default = 7`), RECURRED on the D13 overrun after the close."""
+    engine, m = mech_close
+    close = md.variant_spec(SPEC, "close")
+    assert m["variant"] == "close" and m["days"] == list(range(1, 15)), (m["variant"], m["days"])
+    assert set(m["findings"]) == {"K-OVR-D2", "K-OVR-D13"}, m["findings"]
+    ev = m["verification"]["evaluation"]
+    record("close_verification", m["verification"])
+    assert ev["outcome"] == "VERIFIED", ev
+    assert ev["source_classes"] == {"baseline": "AUTHORED_DEMONSTRATION", "later": "AUTHORED_DEMONSTRATION"}, ev
+    assert verification_outcomes(engine, m["site_id"]) == ["VERIFIED"]
+    g = md.grades(engine, m["site_id"])
+    other = {d: {k: v for k, v in x.items() if v != "COMPLETE"} for d, x in g.items()}
+    record("close_grades_not_complete", {d: v for d, v in other.items() if v})
+    assert all(g.get(_iso(n)) for n in m["days"]), "a delivered day has no snapshot"
+    assert not any(other.get(_iso(n)) for n in m["days"]), other  # every day fully checked (no gap, §2.5)
+    gen = threads(engine, m["site_id"])[GENERATOR]
+    record("close_generator_thread", gen)
+    assert _story_order(gen) == [m["findings"]["K-OVR-D2"], m["findings"]["K-OVR-D13"]], gen["occurrences"]
+    by_state = {}
+    for _, state, d in gen["events"]:
+        by_state.setdefault(state, d)
+    resolved = by_state.get("RESOLVED_MONITORING")
+    action = close["sites"]["kobo"]["actions"][0]
+    record("close_resolved_day", str(resolved))
+    # the product's effective day of the VERIFIED cause: on or after the change's day, by the evaluation's day
+    # §2.6 e / DS-R1: VERIFIED is dated on the change's effective day (D3), so RESOLVED is D3 and CLOSED is D10 exactly.
+    assert resolved == md.day(SPEC, 3), gen["events"]
+    assert md.day(SPEC, action["effective"]["day"]) == resolved, gen["events"]
+    # 7 fully checked days after the verified day (none of D5..D11 has an occurrence): CLOSED on the 7th.
+    assert by_state.get("CLOSED") == md.day(SPEC, 10) == resolved + timedelta(days=7), gen["events"]
+    assert by_state.get("RECURRED") == md.day(SPEC, 13), gen["events"]
+    assert [s for _, s, _ in gen["events"]][-3:] == ["RESOLVED_MONITORING", "CLOSED", "RECURRED"], gen["events"]
+    assert _state_on(gen, 12) == "CLOSED" and _state_on(gen, 14) == "RECURRED", gen["events"]
+    record("close_lifecycle", {"skipped": m["lifecycle"]["skipped"], "skipped_causes": m["lifecycle"]["skipped_causes"],
+                               "counts": m["lifecycle"]["counts"]})
 
 
 def test_late_fill_refuses_any_other_day(engine) -> None:  # noqa: F811

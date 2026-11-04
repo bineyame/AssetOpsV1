@@ -2,9 +2,10 @@
 
     python tools/mechanism_dataset.py build --variant states [--budget 540] [--resume]  # the input template
     python tools/mechanism_dataset.py build --variant full [--budget 540] [--resume]    # the 14-day L3m DB
-    python tools/mechanism_dataset.py derive        # clone the template to the L3m DB, derive, write the work folder
+    python tools/mechanism_dataset.py build --variant close [--budget 540] [--resume]   # the close input template
+    python tools/mechanism_dataset.py derive [--variant states|close]   # clone a template to its L3m DB, derive
     python tools/mechanism_dataset.py status        # the templates against this checkout's input writers
-    python tools/mechanism_dataset.py ensure        # reuse the matching template, else build it in one go
+    python tools/mechanism_dataset.py ensure [--close auto|yes|no]  # reuse/build the main template; the close one on demand (MD0b-R)
     python tools/mechanism_dataset.py drop [--variant states|full|legacy]
 
 - `states` builds the input template: every seed step but `derive` (INPUTS only) into a staging DB
@@ -20,7 +21,9 @@
   (the container runner: postgres-test:5432).
 - `full` builds `assetops_mechanism_test` with the full day set, `derive` included, then the work folder; it runs at
   the gates (G3, G4) and on demand, not per merge. `derive` gives the same L3m DB from the template in minutes.
-- `--variant close` is MD-0b (MD0-PF Q3) and is refused.
+- `--variant close` (MD-0b, build sheet §2.5) builds the close variant's input template the same way, named
+  `assetops_mechanism_tplc_<fp8>_test`; `derive --variant close` clones it to `assetops_mechanism_close_test` with
+  the work folder `var/mechanism_close/` for its L3m collect and check.
 - A build drops and recreates only its own name, migrates it to head, then runs the steps in order, saving the
   seed state after every step to its work folder. It stops before a step that would pass `--budget` seconds and
   exits 3 ("resume"), so no process runs past the 600 s foreground cap. The L3m DB is not ticked (§6);
@@ -77,7 +80,13 @@ class Refused(SystemExit):
 
 #: name None = the staging name of this build, chosen at build start and kept in the seed state for a resume (M4)
 VARIANTS = {"states": (None, "mechanism-tpl", "states"),
+            "close": (None, "mechanism-close-tpl", "close"),
             "full": ("assetops_mechanism_test", "mechanism", "full")}
+#: `derive`: the template's day set -> (the L3m DB, its work folder)
+DERIVED = {"states": ("assetops_mechanism_test", "mechanism"),
+           "close": ("assetops_mechanism_close_test", "mechanism_close")}
+#: the input templates the L2m tests clone (MD-0b: the close variant's too)
+TEMPLATED = ("states", "close")
 
 
 def _checked(name: str) -> str:
@@ -92,7 +101,7 @@ def staging_name() -> str:
 
 def db_name(variant: str) -> str | None:
     if variant not in VARIANTS:
-        raise Refused(f"refused: variant {variant!r} (close is MD-0b, MD0-PF Q3; known: {', '.join(VARIANTS)})")
+        raise Refused(f"refused: variant {variant!r} (known: {', '.join(VARIANTS)})")
     name = VARIANTS[variant][0]
     return None if name is None else _checked(name)
 
@@ -162,6 +171,14 @@ def _size(engine) -> int:
         return c.execute(text("SELECT pg_database_size(current_database())")).scalar_one()
 
 
+def _estimate(timings: dict, steps: list[str], step: str) -> float:
+    """The seconds a step is expected to take: its own earlier time, else the longest ordinary step seen (the drain
+    is excluded from that, it runs alone), else 60."""
+    if step in timings:
+        return timings[step]
+    return max([v for k, v in timings.items() if k in steps and k != "drain_mini"] or [60.0])
+
+
 def build(variant: str, budget: float, resume: bool) -> int:
     name, work = db_name(variant), work_dir(variant)
     day_set = VARIANTS[variant][2]
@@ -206,13 +223,17 @@ def build(variant: str, budget: float, resume: bool) -> int:
                       f"({len(changed)}); start a fresh build: python tools/mechanism_dataset.py build "
                       f"--variant {variant}")
     spec = md.load()
-    steps = md.input_steps(spec, day_set) if variant == "states" else md.seed_steps(spec, day_set)
+    templated = VARIANTS[variant][0] is None  # states and close: an input template (no derive)
+    steps = md.input_steps(spec, day_set) if templated else md.seed_steps(spec, day_set)
     todo = [s for s in steps if s not in saved["done"]]
-    started, longest = time.perf_counter(), max([v for k, v in saved["timings"].items() if k in steps] or [60.0])
+    started, part_done = time.perf_counter(), 0
     engine, store = create_engine(url), PostgresFoundationStore(url)
     try:
         for step in todo:
-            if saved["done"] and time.perf_counter() - started + longest > budget:
+            # MD0b-R (Known deviation 5): the drain runs in its own part, so a part that ends at D14 is never
+            # followed by the 335-430 s drain inside one foreground budget; its own time is its estimate.
+            if budget != float("inf") and part_done and (
+                    step == "drain_mini" or time.perf_counter() - started + _estimate(saved["timings"], steps, step) > budget):
                 print(f"budget: stopping before {step} ({len(saved['done'])}/{len(steps)} steps done); "
                       f"resume with: python tools/mechanism_dataset.py build --variant {variant} --resume")
                 return EXIT_RESUME
@@ -220,7 +241,7 @@ def build(variant: str, budget: float, resume: bool) -> int:
             saved["state"], saved["done"] = state, saved["done"] + [step]
             saved["inputs"] = md.record_inputs(saved["inputs"])  # MD0-S5 M1: the modules this step loaded
             saved["timings"][step] = state["timings"][step]
-            longest = max(longest, state["timings"][step])
+            part_done += 1
             state_path.write_text(json.dumps(saved, indent=1, default=str), encoding="utf-8")
             print(f"{step}: {state['timings'][step]}s", flush=True)
         size = _size(engine)
@@ -234,8 +255,9 @@ def build(variant: str, budget: float, resume: bool) -> int:
     seed_seconds = round(sum(v for k, v in saved["timings"].items() if k in steps), 1)
     out = {"db": name, "variant": variant, "day_set": day_set, "seed_seconds": seed_seconds,
            "create_migrate_seconds": saved["timings"].get("create+migrate"), "db_bytes": size,
-           "readings": saved["state"]["site"]["readings"], "batches": saved["state"]["site"]["batches"]}
-    if variant == "states":
+           "readings": saved["state"]["site"]["readings"], "batches": saved["state"]["site"]["batches"],
+           "step_seconds": {k: v for k, v in saved["timings"].items() if k in steps}}  # MD0b-R: per-step seed timings
+    if templated:
         admin = md.admin_engine(url)
         try:
             if changed := md.inputs_changed(saved["inputs"]):
@@ -252,10 +274,13 @@ def build(variant: str, budget: float, resume: bool) -> int:
     return 0
 
 
-def derive() -> int:
+def derive(variant: str = "states") -> int:
     """MD0-S3 Q1 on the L3m DB: clone the template (refused when missing or stale), derive with this checkout's
-    code, write the work folder. Prints the clone and derive times and `pg_database_size`."""
-    name, work = db_name("full"), work_dir("full")
+    code, write the work folder. Prints the clone and derive times and `pg_database_size`. MD-0b: `close` clones the
+    close template to `assetops_mechanism_close_test`."""
+    if variant not in DERIVED:
+        raise Refused(f"refused: derive variant {variant!r} (known: {', '.join(DERIVED)})")
+    name, work = _checked(DERIVED[variant][0]), REPO / "var" / DERIVED[variant][1]
     url = db_url(name)
     _point_env(url)
     md = _harness()
@@ -264,7 +289,7 @@ def derive() -> int:
     try:
         t0 = time.perf_counter()
         try:
-            template = md.find_template(admin)
+            template = md.find_template(admin, day_set=variant)
             tag = md.clone_template(admin, name, template)
         except md.MechanismRefused as refused:
             raise Refused(f"refused: {refused}") from None
@@ -275,7 +300,7 @@ def derive() -> int:
     t0 = time.perf_counter()
     manifest = md.derive_clone(url, tag, work / "tmp")
     derive_s = round(time.perf_counter() - t0, 1)
-    md.build_work(url, work, manifest, "main")
+    md.build_work(url, work, manifest, manifest["variant"])
     (work / "manifest.json").write_text(json.dumps(manifest, indent=1, default=str), encoding="utf-8")
     from sqlalchemy import create_engine
 
@@ -289,16 +314,16 @@ def derive() -> int:
     return 0
 
 
-def _match() -> tuple[str | None, list[dict], bool]:
+def _match(day_set: str = "states") -> tuple[str | None, list[dict], bool]:
     """(the template matching this checkout or None, every per-fingerprint template, legacy template present)."""
     md = _harness()
 
     admin = md.admin_engine(server_url("postgres"))
     try:
         found = [{"db": n, "tagged": t is not None, "fingerprint": t and t["fingerprint"],
-                  "built_at": t and t.get("built_at")} for n, t in md.templates(admin)]
+                  "built_at": t and t.get("built_at")} for n, t in md.templates(admin, day_set)]
         try:
-            match = md.find_template(admin)
+            match = md.find_template(admin, day_set=day_set)
         except md.MechanismRefused:
             match = None
         legacy = md.read_tag(admin, LEGACY) is not None
@@ -308,26 +333,105 @@ def _match() -> tuple[str | None, list[dict], bool]:
 
 
 def status() -> int:
-    match, found, legacy = _match()
-    print(json.dumps({"usable": match is not None, "template": match, "templates": found,
-                      "legacy_template_present": legacy}))
-    return 0 if match else 1
+    usable = True
+    for day_set in TEMPLATED:
+        match, found, legacy = _match(day_set)
+        usable &= match is not None
+        print(json.dumps({"variant": day_set, "usable": match is not None, "template": match, "templates": found,
+                          "legacy_template_present": legacy}))
+    return 0 if usable else 1
 
 
-def ensure() -> int:
-    """The suite runner's step (FIX-MAIN-1): reuse the matching template, else build one now, with no budget."""
-    match, _, _ = _match()
-    if match:
-        print(json.dumps({"ensure": "reused", "template": match}))
-        return 0
-    print("ensure: no template matches this checkout; building one (about 8 min)", flush=True)
-    code = build("states", float("inf"), False)
-    if code != 0:
-        raise Refused(f"refused: TEMPLATE_BUILD_FAILED (build exit {code})")
-    match, _, _ = _match()
-    if not match:
-        raise Refused("refused: TEMPLATE_BUILD_FAILED: the new template does not match this checkout")
-    print(json.dumps({"ensure": "built", "template": match}))
+#: MD0b-R: a slice that touches one of these needs the close template (the close L2m test clones it)
+CLOSE_PATH_RE = re.compile(
+    r"^(backend/assetops_backend/chain/(lifecycle[^/]*\.py|threads\.py)"
+    r"|backend/assetops_backend/chain/adapters/postgres_thread_store\.py"
+    r"|config/chain/thread-lifecycle-v1\.json"
+    r"|backend/tests/mechanism_dataset\.py|tools/mechanism_dataset\.py)$")
+FIXTURE = "backend/conversions/mechanism-v1.json"
+CLOSE_TEST = ("backend/tests/test_md0_mechanism_postgres.py::"
+              "test_close_variant_resolves_closes_after_seven_clean_days_and_recurs")
+
+
+def close_needed(paths: list[str], base_fixture: str | None, now_fixture: str | None) -> list[str]:
+    """The reasons the slice needs the close template (empty: it does not). `paths` are the slice's changed files;
+    the fixture counts only when its `variants.close` differs from the base's."""
+    reasons = [p for p in paths if CLOSE_PATH_RE.match(p)]
+    if FIXTURE in paths:
+        try:
+            same = json.loads(base_fixture)["variants"]["close"] == json.loads(now_fixture)["variants"]["close"]
+        except (TypeError, ValueError, KeyError):
+            same = False  # unreadable either side: treat as changed
+        if not same:
+            reasons.append(f"{FIXTURE} (variants.close)")
+    return reasons
+
+
+def _git(*args: str) -> str | None:
+    import subprocess
+
+    try:
+        r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return r.stdout if r.returncode == 0 else None
+
+
+def slice_inputs(paths_file: str | None, base_fixture_file: str | None) -> tuple[list[str] | None, str | None, str | None]:
+    """(changed paths, base fixture text, current fixture text), or paths None when the slice diff cannot be read.
+    The host runner writes the two files (the container has no usable git); otherwise git is asked directly."""
+    now = (REPO / FIXTURE).read_text(encoding="utf-8") if (REPO / FIXTURE).is_file() else None
+    if paths_file and Path(paths_file).is_file():
+        base = Path(base_fixture_file).read_text(encoding="utf-8-sig") if base_fixture_file and Path(base_fixture_file).is_file() else None
+        return [p.strip() for p in Path(paths_file).read_text(encoding="utf-8-sig").splitlines() if p.strip()], base, now
+    for ref in ("main", "origin/main"):
+        base_sha = (_git("merge-base", "HEAD", ref) or "").strip()
+        if base_sha:
+            out = _git("diff", "--name-only", base_sha)  # committed and uncommitted changes since the base
+            if out is not None:
+                return [p for p in out.splitlines() if p], _git("show", f"{base_sha}:{FIXTURE}"), now
+    return None, None, now
+
+
+def ensure(close: str = "auto", paths_file: str | None = None, base_fixture_file: str | None = None) -> int:
+    """The suite runner's step (FIX-MAIN-1): reuse each matching template, else build it now, with no budget.
+    MD0b-R: the main template always; the close template only when `close` is `yes`, or `auto` and the slice
+    touches a close input (CLOSE_PATH_RE, `variants.close`), or it already matches (reuse costs nothing). When it is
+    not selected this prints `ensure: close not selected` and the runner deselects the close test; never silent."""
+    wanted = ["states"]
+    paths, base_fx, now_fx = (None, None, None) if close != "auto" else slice_inputs(paths_file, base_fixture_file)
+    if close == "yes":
+        wanted.append("close")
+        print("ensure: close template requested explicitly", flush=True)
+    elif close == "auto":
+        match, _, _ = _match("close")
+        reasons = None if paths is None else close_needed(paths, base_fx, now_fx)
+        if match:
+            wanted.append("close")
+        elif paths is None:
+            wanted.append("close")
+            print("ensure: the slice diff cannot be read; building the close template to be safe", flush=True)
+        elif reasons:
+            wanted.append("close")
+            print(f"ensure: the slice touches close inputs ({', '.join(reasons[:4])}); building the close template",
+                  flush=True)
+    if "close" not in wanted:
+        print(json.dumps({"ensure": "close not selected", "deselect": CLOSE_TEST,
+                          "why": "the slice touches no close input; pass --close yes (E1/E4, the post-merge job) to run it"}),
+              flush=True)
+    for day_set in wanted:
+        match, _, _ = _match(day_set)
+        if match:
+            print(json.dumps({"ensure": "reused", "variant": day_set, "template": match}))
+            continue
+        print(f"ensure: no {day_set} template matches this checkout; building one (15-25 min)", flush=True)
+        code = build(day_set, float("inf"), False)
+        if code != 0:
+            raise Refused(f"refused: TEMPLATE_BUILD_FAILED ({day_set} build exit {code})")
+        match, _, _ = _match(day_set)
+        if not match:
+            raise Refused(f"refused: TEMPLATE_BUILD_FAILED: the new {day_set} template does not match this checkout")
+        print(json.dumps({"ensure": "built", "variant": day_set, "template": match}))
     return 0
 
 
@@ -365,6 +469,14 @@ def drop(variant: str) -> int:
     if work.exists():
         _remove_work(work)
         print(f"removed {work}")
+    if variant == "close":  # MD-0b: also the derived close L3m DB and its work folder (`derive --variant close`)
+        derived, derived_work = _checked(DERIVED["close"][0]), REPO / "var" / DERIVED["close"][1]
+        with _admin() as c:
+            c.execute(f'DROP DATABASE IF EXISTS "{derived}" WITH (FORCE)')
+        print(f"dropped {derived}")
+        if derived_work.exists():
+            _remove_work(derived_work)
+            print(f"removed {derived_work}")
     return 0
 
 
@@ -375,20 +487,25 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--variant", default="states")
     b.add_argument("--budget", type=float, default=540.0)
     b.add_argument("--resume", action="store_true")
-    sub.add_parser("derive")
+    dv = sub.add_parser("derive")
+    dv.add_argument("--variant", default="states")
     sub.add_parser("status")
-    sub.add_parser("ensure")
+    e = sub.add_parser("ensure")
+    e.add_argument("--close", choices=("auto", "yes", "no"), default=os.environ.get("ASSETOPS_MECHANISM_CLOSE", "auto"),
+                   help="build the close template: yes (E1/E4, post-merge), auto (when the slice touches a close input)")
+    e.add_argument("--slice-paths", default=os.environ.get("ASSETOPS_MECHANISM_SLICE_PATHS"))
+    e.add_argument("--base-fixture", default=os.environ.get("ASSETOPS_MECHANISM_BASE_FIXTURE"))
     d = sub.add_parser("drop")
     d.add_argument("--variant", default="full")
     args = parser.parse_args(argv)
     if args.command == "build":
         return build(args.variant, args.budget, args.resume)
     if args.command == "derive":
-        return derive()
+        return derive(args.variant)
     if args.command == "status":
         return status()
     if args.command == "ensure":
-        return ensure()
+        return ensure(args.close, args.slice_paths, args.base_fixture)
     return drop(args.variant)
 
 

@@ -114,3 +114,10 @@
 - L6 backend vs client encoders disagree on `!*'()~`; no live ids use them.
 - Residual: `EarlyWarnings.tsx:116` miniBoardDay is a second client-side day rule outside window_day (predates slice). Owner: CH-6a.
 - Merge trap: MD-0b merges second — delete both MD0b-R:A1 COH-8 entries; L3m COH-8 = 0 on states AND close.
+
+## MD-0b (merged 7b8a22b78, reviews ACCEPT, .agent/review-MD-0b.md)
+- L2 `run-backend-suite-in-container.ps1:85-86` PS 5.1 mangles `§` in the base fixture → spurious close rebuild (~20 min) for slices editing mechanism-v1.json; never skips.
+- L3 derived `generator_power` reads 15 kW one interval before status RUNNING; +1.25 kWh to baseline generator_kwh (cost check only, not verdict).
+- L4 "`-Close yes` at E1/E4 and post-merge" only in comments; add to TESTING.md / end-game runbook (E1/E4).
+- N2 guard A false-fails in a worktree without `.venv` unless ASSETOPS_GUARD_PYTHON is set.
+- Seed timings: drain_mini ≈30–34% of each seed — candidate for an inputs/producers split if rebuild cost matters.

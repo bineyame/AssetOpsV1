@@ -3,10 +3,8 @@ full KOBO-001 mechanism Site, on a fresh clone of the MD-0 input template derive
 (`test_md0_mechanism_postgres.mech`).
 
 - E1 on MD-0 (§A6): every delivered day reads FULL; GAP-K7 (D7) is expected to read NONE.
-- MD-0-F1 (MD0-S5 L5, owner CH-5a1 R5): D7-D9 carry a live `mini_renewable` job for the noon hour (enqueued at the
-  D11 delivery, never reconciled because nothing was delivered), so `noon_headroom_kw` is PENDING there and R5 reads
-  UNKNOWN. That is R5 as written ("any PENDING -> UNKNOWN") and MD0-S4 R1.5 allows "NO_DATA/PENDING before the fill",
-  so it is recorded with `pytest.xfail` after the hard assertions (MD-0 R7 pattern), not changed here.
+- MD-0-F1 closed by MD-0b (CH5a1-R3 M1): the seed now drains the product mini worker over the whole story, so the
+  undelivered days' noon jobs run and GAP-K7 reads NONE (hard, no longer an xfail).
 - R8: settled after the CH-2/CH-3 settle path (the derive step already leaves no unconsumed revision).
 - L5: the dispatch thread's Finding heads at the latest cutoff are the three declared anchors (D4, D11, D14).
 """
@@ -31,7 +29,7 @@ if URL:
     from assetops_backend import read_scope
     from assetops_backend.chain.adapters.postgres_chain_read import PostgresChainRead
     from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
-    from assetops_backend.chain.read import FULL, NONE, UNKNOWN, ChainReader
+    from assetops_backend.chain.read import FULL, NONE, ChainReader
     from assetops_backend.chain.reader import SnapshotReader
 
 SPEC = md.load() if URL else None
@@ -63,9 +61,7 @@ def test_readiness_settledness_and_heads_over_the_mechanism_site(mech) -> None: 
                                    "WHERE site_id = :s AND finding_id IS NOT NULL"),
                               {"s": m["site_id"]}).scalar_one()
         assert heads == len(m["findings"]), (heads, m["findings"])
-        # E1 GAP-K7 (expected NONE): MD-0-F1 reads UNKNOWN while D7's noon job is live.
-        assert per_day[7] in (NONE, UNKNOWN), per_day[7]
-        if per_day[7] == UNKNOWN:
-            pytest.xfail("MD-0-F1: D7 noon_headroom_kw is PENDING (live mini_renewable job), R5 -> UNKNOWN, not NONE")
+        # E1 GAP-K7 (hard since MD-0b drains the mini queue, CH5a1-R3 M1): NONE.
+        assert per_day[7] == NONE, per_day[7]
     finally:
         pg_harness.dispose(port, snapshots)

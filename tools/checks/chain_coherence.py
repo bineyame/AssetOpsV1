@@ -1153,16 +1153,41 @@ def _key(f: dict) -> tuple:
     return (f["rule"], f.get("site_code"), f.get("window"), f.get("subject"))
 
 
-def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None) -> dict[str, Any]:
-    """`threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
+def applicable(expect: list[dict] | None, variant: str | None) -> list[dict]:
+    """MD0b-N1: an entry with `variants` applies only to a run of one of those variants; one without applies to all."""
+    return [e for e in (expect or []) if "variants" not in e or variant in e["variants"]]
+
+
+def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None,
+          variant: str | None = None) -> dict[str, Any]:
+    """`variant` filters the expected entries by their optional `variants` list. `threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
     THREADS_FILE."""
+    expect = applicable(expect, variant)
     findings: list[dict] = []
     for _, rule in RULES:
         findings += rule(bundle, threads) if rule is coh10_thread_identity and threads is not None else rule(bundle)
-    expected = {_key(e): e for e in (expect or [])}
-    found = {_key(f) for f in findings}
-    unexpected = [f for f in findings if _key(f) not in expected]
+    expected = {_key(e): e for e in (expect or []) if e.get("subject") != "*"}
+    # MD0b-R: an entry with subject "*" covers up to `count` findings of its (rule, site, window) whose subject is a
+    # server-generated id that changes on every template rebuild; a finding beyond the count is unexpected.
+    wild = {_key(e)[:3]: e for e in (expect or []) if e.get("subject") == "*"}
+    # M1: a wildcard also needs `detail_contains`, matched against the finding's detail, so a different kind of finding
+    # (a missing progress row, a Portfolio row that lost VERIFIED) stays unexpected.
+    used: dict[tuple, int] = {}
+    unexpected = []
+    found = set()
+    for f in findings:
+        found.add(_key(f))
+        if _key(f) in expected:
+            continue
+        w = wild.get(_key(f)[:3])
+        if (w is not None and w.get("detail_contains") and w["detail_contains"] in f["detail"]
+                and used.get(_key(f)[:3], 0) < int(w.get("count", 1))):
+            used[_key(f)[:3]] = used.get(_key(f)[:3], 0) + 1
+            continue
+        unexpected.append(f)
+    found_wild = {k for k in used}
     resolved = [e for k, e in expected.items() if k not in found]
+    resolved += [e for k, e in wild.items() if k not in found_wild]
     summary: dict[str, int] = {}
     for f in findings:
         summary[f["rule"]] = summary.get(f["rule"], 0) + 1
@@ -1179,16 +1204,17 @@ def load_expect(path: Path) -> list[dict]:
 
 
 def print_report(report: dict[str, Any], expect: list[dict] | None) -> None:
-    expected = {_key(e) for e in (expect or [])}
+    unmatched = [id(f) for f in report["expected_unmatched"]]
     for rule, _ in RULES:  # COH-7 covers COH-7a/COH-7b, COH-9 covers COH-9a
         hits = [f for f in report["findings"] if f["rule"] == rule
                 or (f["rule"].startswith(rule) and f["rule"][len(rule):].isalpha())]
-        new = sum(1 for f in hits if _key(f) not in expected)
+        new = sum(1 for f in hits if id(f) in unmatched)  # L5: agrees with the check's own result
         print(f"{rule}: {len(hits)} finding(s), {len(hits) - new} expected, {new} new")
     for f in report["expected_unmatched"]:
         print(f"  NEW {f['rule']} {f['site_code']} {f['window']} {f['subject']}: {f['detail']}")
     for e in report["resolved"]:
-        print(f"  RESOLVED {e['rule']} {e.get('site_code')} {e.get('window')} {e.get('subject')}")
+        tag = "RESOLVED-WILDCARD (DELETE THIS ENTRY)" if e.get("subject") == "*" else "RESOLVED"
+        print(f"  {tag} {e['rule']} {e.get('site_code')} {e.get('window')} {e.get('subject')}")
     for name, rows in report["info"].items():
         print(f"{name} (info): {len(rows)} item(s)")
     unexpected = len(report["expected_unmatched"])
@@ -1210,6 +1236,7 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--bundle", required=True, type=Path)
     k.add_argument("--expect", type=Path)
     k.add_argument("--report", type=Path)
+    k.add_argument("--variant", help="mechanism variant of this run (states, close); gates expected entries' `variants`")
     k.add_argument("--threads", type=Path, help=f"COH-10 expected threads (default {THREADS_FILE.name})")
     args = parser.parse_args(argv)
     if args.command == "collect":
@@ -1230,7 +1257,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"collected {len(m['requests'])} requests into {args.out}: statuses {statuses}")
         return 0
     expect = load_expect(args.expect) if args.expect else None
-    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None)
+    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None, args.variant)
+    expect = applicable(expect, args.variant)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=1), encoding="utf-8")
