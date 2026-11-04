@@ -25,8 +25,6 @@ from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf, read_scope
 from assetops_backend.chain import site_chain
-from assetops_backend.chain.adapters.file_chain_config import (load_coverage_policy, load_event_register,
-                                                               load_thread_lifecycle)
 from assetops_backend.chain.measures import measures_for
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day, window_days
 from assetops_backend.chain.reader import _counts
@@ -46,10 +44,8 @@ THREAD_ROUTE = "/api/sites/{site_code}/threads/{thread_id}"
 _Row = namedtuple("_Row", "local_day measure subject_ref grade")
 
 
-def policy_versions() -> dict[str, str | None]:
-    return {"coverage": load_coverage_policy().policy_version,
-            "register": load_event_register().register_version,
-            "lifecycle": load_thread_lifecycle().policy_version, "status": POLICY_VERSIONS["status"]}
+def _versions(chain_versions: Callable[[], dict[str, str | None]]) -> dict[str, str | None]:
+    return {**chain_versions(), "status": POLICY_VERSIONS["status"]}
 
 
 def _utc(text: Any) -> datetime | None:
@@ -75,8 +71,10 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
                        access: Access = development_access, work_access: Access = development_access,
                        cold_disclosure: Disclosure = allow_disclosure, ev_disclosure: Disclosure = allow_disclosure,
                        authenticate: Authenticate = development_authenticate,
-                       unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
-    """`service` is the board service the outcome router serves (its `ChainReader` and thread port are the chain's
+                       unavailable: tuple[type[BaseException], ...] = (),
+                       policy_versions: Callable[[], dict[str, str | None]] = lambda: {}) -> APIRouter:
+    """`policy_versions` is `chain.composition.chain_policy_versions` (injected: only the composition imports the
+    chain adapters). `service` is the board service the outcome router serves (its `ChainReader` and thread port are the chain's
     reads); the other arguments are the outcome router's, passed the same values in `main.py`."""
     router = APIRouter()
     disclosures = {COLD: cold_disclosure, EV: ev_disclosure}
@@ -133,7 +131,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             "site": {"code": ref.site_code, "tz": ref.timezone, "domain": _site_type(ref)},
             "window": w, "days": site_chain.days_of(facts, _measures(ref)),
             "outcomes": site_chain.outcomes_of(board["rows"]), "threads": threads, "actions": actions,
-            "policy_versions": policy_versions()})
+            "policy_versions": _versions(policy_versions)})
 
     @router.get(THREAD_ROUTE)
     def thread_route(site_code: str, thread_id: str, request: Request, response: Response) -> dict[str, Any]:
@@ -162,7 +160,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         if body is None:
             raise _refuse(404, "THREAD_NOT_FOUND", f"No thread {thread_id!r} on Site {site_code!r}.")
         return jsonable_encoder({"schema_version": site_chain.SCHEMA_VERSION, "site": ref.site_code,
-                                 "known_at": wire(known_at), "thread": body, "policy_versions": policy_versions()})
+                                 "known_at": wire(known_at), "thread": body, "policy_versions": _versions(policy_versions)})
 
     @router.get(ESTATE_CHAIN_ROUTE)
     def estate_chain_route(request: Request, response: Response) -> dict[str, Any]:
@@ -200,7 +198,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             "schema_version": site_chain.SCHEMA_VERSION,
             "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
             "sites": out, "counts": {"verified_results": None, "open_threads": None, "opportunities": None},
-            "money_total": None, "policy_versions": policy_versions()})
+            "money_total": None, "policy_versions": _versions(policy_versions)})
 
     def _opportunities(sites: list[SiteRef], lo: datetime, hi: datetime,
                        known_at: datetime | None) -> dict[str, list[dict[str, Any]]]:

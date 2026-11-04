@@ -187,6 +187,7 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
+from assetops_backend.chain.composition import chain_policy_versions
 from assetops_backend.chain_api import build_chain_router
 from assetops_backend.outcome_api import build_outcome_router
 from assetops_backend.site_outcomes.composition import build_outcome_board_service
@@ -628,7 +629,8 @@ def create_app(
     # CH-5a2a §B1: the `outcome-chain-1` reads over the same board service, admission and estate scope.
     app.include_router(build_chain_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
-        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
+        policy_versions=chain_policy_versions))
     # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
     # allow defaults too; pass the same callables to the board if that changes.
 

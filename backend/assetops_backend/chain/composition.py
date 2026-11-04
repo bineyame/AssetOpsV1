@@ -12,6 +12,7 @@ from assetops_backend.chain.adapters.file_chain_config import (
     load_coverage_policy,
     load_event_register,
     load_operating_calendar,
+    load_thread_lifecycle,
 )
 from assetops_backend.chain.adapters.postgres_event_store import EventStoreUnavailable, PostgresEventStore
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
@@ -141,3 +142,11 @@ def build_chain_reader(database_url: str | None, *, consequences: Any = None,
         store.dispose()
 
     return ChainReader(port, verification=verification, money=money), dispose
+
+
+def chain_policy_versions() -> dict[str, str | None]:
+    """CH-5a2a §B1: the `policy_versions` of the `outcome-chain-1` bodies, from the loaded chain configuration (the
+    status policy is the board's, added by `chain_api`). Injected into `chain_api.build_chain_router`."""
+    return {"coverage": load_coverage_policy().policy_version,
+            "register": load_event_register().register_version,
+            "lifecycle": load_thread_lifecycle().policy_version}

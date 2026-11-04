@@ -24,6 +24,7 @@ from fastapi.testclient import TestClient
 
 import test_ch5a1_board_contract as BC
 from assetops_backend import read_scope
+from assetops_backend.chain.composition import chain_policy_versions
 from assetops_backend.chain_api import build_chain_router
 from assetops_backend.site_outcomes.read import SiteOutcomeBoardService
 
@@ -94,7 +95,7 @@ def client(port: Port | None = None, seen: list | None = None) -> TestClient:
     services = replace(BC.services(port, []), threads=Threads())
     app = FastAPI()
     app.include_router(build_chain_router(SiteOutcomeBoardService(services), Registry(), estate=EstateScope(),
-                                          tenant=lambda: BC.TENANT))
+                                          tenant=lambda: BC.TENANT, policy_versions=chain_policy_versions))
     return TestClient(app)
 
 
