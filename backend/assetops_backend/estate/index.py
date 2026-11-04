@@ -106,8 +106,9 @@ def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowReco
 def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> list[dict[str, Any]] | None:
     """CH-4 §4: the opportunity items of every authorized Site in the request window as of the envelope's
     `known_at` (Findings and Portfolio share this one call). None only when the read raised."""
-    reader = getattr(snap, "opportunity_threads", None)
-    if reader is None:
+    try:
+        reader = snap.opportunity_threads
+    except (AttributeError, KeyError):  # a snapshot without the read (test fakes) has no opportunity items
         return []
     try:
         return reader(tenant_id, sorted(scope["ids"]), req.from_, req.to, scope["k"])

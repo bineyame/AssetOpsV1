@@ -381,8 +381,8 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert {k: one[k] for k in PROJECTIONS} == {k: four[k] for k in PROJECTIONS}
     assert [(x["key"], x["state"], x["tone"]) for x in one["value_cards"]] == [
         ("OPERATING_COST", "NO_LINE", "neutral"), ("SERVICE_PRODUCT_RISK", "UNKNOWN", "neutral"),
-        ("PRODUCTIVE_USE", "UNSUPPORTED", "neutral"), ("ASSET_LIFE", "UNSUPPORTED", "neutral"),
-        ("VERIFIED_RECOVERY", "NOT_ESTABLISHED", "neutral")]
+        ("PRODUCTIVE_USE", "NONE", "neutral"), ("ASSET_LIFE", "UNSUPPORTED", "neutral"),
+        ("VERIFIED_RECOVERY", "NOT_ESTABLISHED", "neutral")]  # CH-4: PRODUCTIVE_USE UNSUPPORTED -> NONE (no items)
     assert one["value_cards"][0]["display_value"] == "No supported value"  # r3b exact literal
     assert one["value_cards"][1]["destination"] == "/findings/risks"
     assert [o["site_id"] for o in one["objectives"]] == [MG, CO]
@@ -396,6 +396,7 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                                "pending_trial_count": 0, "verified_resolution_count": 0, "recovered_value": NOT_CREDITED_VALUE,
                                "rows": []}
     assert one["summary"] == {"finding_count": 4, "priority_site_count": None, "opportunity_count": 0,
+                              "opportunity_labels": [],
                               "evidence_gap_site_count": 0, "accepted_action_count": 0,
                               "verified_resolution_count": 0, "combined_value": None,
                               "combined_value_state": "NOT_COMPARABLE",

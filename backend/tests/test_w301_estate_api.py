@@ -112,7 +112,8 @@ def test_empty_is_zero_only_after_complete_read() -> None:
         assert findings["coverage"] == {"state": "COMPLETE", "sites": []} and findings["status"] == "CURRENT"
         assert findings["rows"] == [] and findings["total_count"] == 0
         assert findings["summary"] == {"high_priority": None, "low_confidence": None, "awaiting_verification": 0,
-                                       "basis_count": 0, "supported_findings": 0}
+                                       "basis_count": 0, "supported_findings": 0, "opportunity_count": 0}
+        assert findings["opportunities"] == []  # CH-4 §2.3: additive, empty with no opportunity thread
         actions = c.get("/api/estate/actions?" + urlencode(DAY)).json()
         assert actions["summary"] == {"open_actions": 0, "due_overdue": None, "verification_window": 0,
                                       "verified_in_30_days": 0, "basis_count": 0}
