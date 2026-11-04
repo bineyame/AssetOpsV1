@@ -1,8 +1,8 @@
 """W4-03 unit 4: five-day opportunity study identity (`.agent/W4-03-build-spec.md` closure 2 Q4, closure 4 S5/S6,
 u3 "Unit 4 dry-read").
 
-A study is the five contiguous Site-local days ending on a selected renewable noon day. Its job window runs from the
-first day's Site-local midnight to the midnight after the last day, both as UTC. Its physical identity is the S5
+A study is the five contiguous Site-local days ending on a day with a selected renewable hour. Its job window runs
+from the first day's Site-local midnight to the midnight after the last day, both as UTC. Its physical identity is the S5
 `input_sha256`: the canonical hash of each day's selected W4-02 revision ID, input digest, decision and accepted-ID
 set (null/empty for a missing day). Selection seq/time and job ID are excluded, so a same-revision reselection hashes
 identically and enqueues nothing.
@@ -33,7 +33,7 @@ STUDY_DAYS = 5
 
 @dataclass(frozen=True)
 class DayHead:
-    """One study day's selected renewable noon head, or a missing day (every selection field None)."""
+    """One study hour's selected renewable head, or a missing hour (every selection field None)."""
     local_day: date
     window: Window
     selection_seq: int | None = None
@@ -84,9 +84,9 @@ def day_heads(store: Any, c: Any, tenant_id: UUID, site_id: UUID, tz_name: str |
 
     `mini-opportunity/2` (CH-9, CH9-R2 Q4/Q5): a day's hours are `mini_depth.store.daylight_hours` at `cutoff`
     (default: the database clock): its measured daylight hours plus its missing hours (a missing hour is a
-    missing head, so the day is missing); the noon hour for a Site with no `pv_available_power` binding. A day
-    with neither daylight nor missing hours keeps one missing head at noon, so the study keeps five days and that
-    day reads missing (recorded in the CH-9 packet)."""
+    missing head, so the day is missing); the `store.NO_PV_BINDING` hours for a Site with no `pv_available_power`
+    binding. A day with neither daylight nor missing hours keeps the `DaylightHours.study_hours` placeholder as one
+    missing head, so the study keeps five days and that day reads missing (recorded in the CH-9 packet)."""
     from assetops_backend.mini_depth.store import daylight_hours
 
     known = cutoff if cutoff is not None else c.execute(text("SELECT now()")).scalar_one()
@@ -95,7 +95,7 @@ def day_heads(store: Any, c: Any, tenant_id: UUID, site_id: UUID, tz_name: str |
         found = daylight_hours(c, tenant_id, site_id, d, known)
         windows[d] = [local_hour(d, h, tz_name or "") for h in found.study_hours]
     starts = [w.start for ws in windows.values() for w in ws]
-    rows = {r[0]: r for r in store.renewable_noon_heads(c, tenant_id, site_id, starts)}
+    rows = {r[0]: r for r in store.renewable_hour_heads(c, tenant_id, site_id, starts)}
     return [_head(d, w, rows.get(w.start)) for d in days for w in windows[d]]
 
 
@@ -147,13 +147,13 @@ def day_row(d: DayHead) -> dict[str, Any]:
         return {"local_day": day, "decision": None, "opportunity_kwh": None, "constraints": [], "evidence_ids": []}
     where = f"Renewable revision {d.mini_revision_id} for {day}"
     if (d.selection_end, d.revision_window) != (d.window.end, (d.window.start, d.window.end)):
-        raise ProjectionIntegrityError(f"{where}: the selection or revision is not that day's local noon hour")
+        raise ProjectionIntegrityError(f"{where}: the selection or revision is not that study hour")
     rows = (d.result or {}).get("rows")
     if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
-        raise ProjectionIntegrityError(f"{where}: the revision has no single noon row")
+        raise ProjectionIntegrityError(f"{where}: the revision has no single hour row")
     row = rows[0]
     if (row.get("day"), row.get("from"), row.get("to")) != (day, iso(d.window.start), iso(d.window.end)):
-        raise ProjectionIntegrityError(f"{where}: the stored row is not that noon hour")
+        raise ProjectionIntegrityError(f"{where}: the stored row is not that study hour")
     decision = row.get("decision")
     if decision not in DECISIONS or decision != d.decision:
         raise ProjectionIntegrityError(f"{where}: the row decision does not match the revision")

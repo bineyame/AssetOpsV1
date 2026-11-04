@@ -20,7 +20,7 @@
    "grade": "PENDING",
    "measures": {
     "avoidable_gen_min": "PENDING",
-    "noon_headroom_kw": "COMPLETE",
+    "daylight_headroom_kw": "COMPLETE",
     "productive_kwh": "COMPLETE"
    }
   }

@@ -425,5 +425,5 @@ def test_counts_a_not_expected_day_with_a_missing_measure_is_not_expected() -> N
 
     monday, tuesday = date(2026, 10, 12), date(2026, 10, 13)
     rows = [SimpleNamespace(local_day=monday, measure="productive_kwh", grade="NOT_EXPECTED")]
-    counts = _counts(rows, monday, tuesday, ["productive_kwh", "noon_headroom_kw"])
+    counts = _counts(rows, monday, tuesday, ["productive_kwh", "daylight_headroom_kw"])
     assert (counts.not_expected, counts.no_data, counts.expected, counts.requested) == (1, 1, 1, 2)

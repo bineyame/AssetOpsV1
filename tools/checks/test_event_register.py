@@ -136,7 +136,7 @@ def _unknown_job_domain(p: dict) -> None:
 
 
 def _unknown_mini_depth(p: dict) -> None:
-    p["inputs"]["noon_headroom_kw"]["mini_depth"] = ["solar"]
+    p["inputs"]["daylight_headroom_kw"]["mini_depth"] = ["solar"]
 
 
 def _unknown_key(p: dict) -> None:
@@ -158,7 +158,7 @@ def _unproduced_event(p: dict) -> None:
     (_wrong_role, "inputs.chamber_temp_c: role feeder_demand is not a COLDCHAIN role"),
     (_job_domain_as_analytic, "inputs.chamber_temp_c: analytic cold_chain is not an analytic id"),
     (_unknown_job_domain, "inputs.avoidable_gen_min: job domain mini_dispatch is not a recompute-job domain"),
-    (_unknown_mini_depth, "inputs.noon_headroom_kw: mini-depth domain solar does not exist"),
+    (_unknown_mini_depth, "inputs.daylight_headroom_kw: mini-depth domain solar does not exist"),
     (_unknown_key, "inputs.productive_kwh: assumption key productive_price does not exist"),
     (_unregistered_event, "event price.revised@1 is written by the 0044 producers but has no register rule"),
     (_unproduced_event, "event meter.rotated@1 has a register rule but no producer"),

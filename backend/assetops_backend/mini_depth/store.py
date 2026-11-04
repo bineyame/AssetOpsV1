@@ -352,6 +352,10 @@ class DaylightHours:
         return tuple(sorted({*self.hours, *self.missing})) or NOON_HOURS
 
 
+#: The hours of a day at a Site with no `pv_available_power` binding (unmeasured; the 0029 hour, unchanged).
+NO_PV_BINDING = DaylightHours(NOON_HOURS, (), False)
+
+
 def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, knowledge_cutoff: datetime
                    ) -> DaylightHours:
     """§9 R1 on the caller's connection: the expected hours are the Site's declared operating hours (the same
@@ -373,7 +377,7 @@ def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, kno
     lo, hi = bounds
     p = {"t": tenant_id, "s": site_id, "k": knowledge_cutoff, "lo": lo, "hi": hi}
     if c.execute(text(_PV_BOUND), {**p, "role": rules.PV_AVAILABLE, "rs": ROLE_SET_MINIGRID_4}).first() is None:
-        return DaylightHours(NOON_HOURS, (), False)
+        return NO_PV_BINDING
     windows: list[tuple[int, Any]] = []
     at = lo
     while at < hi:
@@ -395,5 +399,5 @@ def _decimal(value: Any) -> Decimal | None:
 
 __all__ = [
     "DOMAINS", "JOB_DOMAIN", "MODEL_VERSIONS", "AppendedSelection", "MiniDepthStoreUnavailable",
-    "MiniDepthWriteRefused", "MiniRevision", "PostgresMiniDepthStore", "HourRows", "DaylightHours", "NOON_HOURS", "daylight_hours", "SelectionRecord", "read_hour_rows",
+    "MiniDepthWriteRefused", "MiniRevision", "PostgresMiniDepthStore", "HourRows", "DaylightHours", "NOON_HOURS", "NO_PV_BINDING", "daylight_hours", "SelectionRecord", "read_hour_rows",
 ]

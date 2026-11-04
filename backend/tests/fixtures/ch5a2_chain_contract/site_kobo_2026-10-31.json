@@ -20,7 +20,7 @@
    "grade": "PARTIAL",
    "measures": {
     "avoidable_gen_min": "COMPLETE",
-    "noon_headroom_kw": "PARTIAL",
+    "daylight_headroom_kw": "PARTIAL",
     "productive_kwh": "COMPLETE"
    }
   }

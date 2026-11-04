@@ -326,7 +326,7 @@ class PostgresMiniDecisionStore:
     def renewable_scan_heads(c: Connection, retention_start: Any, tenant_id: UUID | None = None,
                              site_id: UUID | None = None) -> list[Any]:
         """Closure 2 Q4's head query: the latest committed renewable selection `(selected_at DESC, seq DESC)` of
-        each Site/noon whose UTC instant is `>= retention_start`, with the Site's time zone; optionally one Site."""
+        each Site renewable hour whose UTC instant is `>= retention_start`, with the Site's time zone; optionally one Site."""
         scope = "" if site_id is None else " AND s.tenant_id = :t AND s.site_id = :s"
         return c.execute(text(
             "SELECT DISTINCT ON (s.tenant_id, s.site_id, s.window_start) s.tenant_id, s.site_id, s.window_start, "
@@ -337,10 +337,10 @@ class PostgresMiniDecisionStore:
             {"retention_start": retention_start, "t": tenant_id, "s": site_id}).all()
 
     @staticmethod
-    def renewable_noon_heads(c: Connection, tenant_id: UUID, site_id: UUID, starts: list[Any]) -> list[Any]:
-        """Each named noon's latest renewable head: `(window_start, seq, selected_at, revision id, input digest,
+    def renewable_hour_heads(c: Connection, tenant_id: UUID, site_id: UUID, starts: list[Any]) -> list[Any]:
+        """Each named renewable hour's latest head: `(window_start, seq, selected_at, revision id, input digest,
         decision, sorted accepted IDs, selection window_end, revision window_start and window_end, revision result)`;
-        a noon with no selection is absent."""
+        an hour with no selection is absent."""
         return c.execute(text(
             "SELECT DISTINCT ON (s.window_start) s.window_start, s.seq, s.selected_at, r.id::text, r.input_sha256, "
             "r.result->'hour'->>'decision', COALESCE((SELECT array_agg(v.evidence_id::text "

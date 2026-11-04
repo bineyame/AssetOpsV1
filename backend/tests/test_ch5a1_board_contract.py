@@ -81,7 +81,7 @@ def _kobo_grade(d: date, measure: str) -> str:
         return "NO_DATA"
     if d == date(2026, 10, 16) and measure == "productive_kwh":
         return "PENDING"
-    if d == date(2026, 10, 31) and measure == "noon_headroom_kw":
+    if d == date(2026, 10, 31) and measure == "daylight_headroom_kw":
         return "PARTIAL"
     if d == date(2026, 11, 1) and measure == "avoidable_gen_min":
         return "PENDING"

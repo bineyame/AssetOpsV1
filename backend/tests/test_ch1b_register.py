@@ -38,7 +38,7 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "noon_headroom_kw", "avoidable_gen_min")}, ("snapshots",)),
+         for m in ("productive_kwh", "daylight_headroom_kw", "avoidable_gen_min")}, ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),
     "opportunity.revised@1": ({"ids": ["p1"]}, "MINIGRID", "UTC", set(), ("threads",)),
@@ -70,7 +70,7 @@ def test_mini_depth_assessment_dirties_headroom_only() -> None:
     subject = {"domain": "renewable", "windows": [["2026-11-01T09:00:00Z", "2026-11-01T10:00:00Z"]]}
     marks = resolve(load_event_register(), _event("assessment.revised@1", subject), site_type="MINIGRID", tz="UTC",
                     today=TODAY)
-    assert marks == [(D(2026, 11, 1), "noon_headroom_kw")]
+    assert marks == [(D(2026, 11, 1), "daylight_headroom_kw")]
 
 
 def test_a_measure_of_another_site_type_is_never_marked() -> None:

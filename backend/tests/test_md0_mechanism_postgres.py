@@ -201,15 +201,15 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     record("grades_gap_day", gap)
     record("grades_not_complete", other)
     # MD0-S4 R1.5 (hard): full delivered days grade COMPLETE on productive_kwh and avoidable_gen_min, and GAP-K7
-    # stays NO_DATA/PENDING before any fill. noon_headroom_kw grades as the renewable hour supports: recorded.
+    # stays NO_DATA/PENDING before any fill. daylight_headroom_kw grades as the renewable hour supports: recorded.
     core = {d: {k: v for k, v in x.items() if _core(k)} for d, x in other.items()}
     assert not any(core.values()), core
     # MD0-S5 L1: both core measures are present (not only "not other than COMPLETE") on every delivered day.
     missing = {_iso(n): [k for k in CORE if g[_iso(n)].get(k) != "COMPLETE"] for n in days}
     assert not any(missing.values()), missing
-    # MD0-S5 M2 (A): noon_headroom_kw is COMPLETE on every delivered day (the renewable-hour channels all day).
+    # MD0-S5 M2 (A): daylight_headroom_kw is COMPLETE on every delivered day (the renewable-hour channels all day).
     assert not other, other
-    assert all(g[_iso(n)].get("noon_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
+    assert all(g[_iso(n)].get("daylight_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
     assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
     undelivered = {_iso(n): g.get(_iso(n), {}) for n in range(1, 15) if n not in days}
     record("grades_undelivered", undelivered)
@@ -307,7 +307,7 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
     # measure before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
     assert {g for _, g in kept} == {"NO_DATA"}, kept
     assert all(v == "COMPLETE" for k, v in out["snapshots"].items() if _core(k)), out["snapshots"]
-    # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE noon_headroom_kw.
+    # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE daylight_headroom_kw.
     assert all(out["snapshots"].get(k) == "COMPLETE" for k in CORE), out["snapshots"]
     assert set(out["snapshots"].values()) == {"COMPLETE"}, out["snapshots"]
     hours = renewable_hours(engine, m["site_id"])

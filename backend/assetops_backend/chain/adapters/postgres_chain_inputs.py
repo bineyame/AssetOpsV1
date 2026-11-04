@@ -214,14 +214,29 @@ class PostgresChainInputs:
 
     # --- mini renewable / dispatch -----------------------------------------------------------------------
 
-    def renewable_hour(self, ctx: DayCtx) -> dict[str, Any] | None:
-        """The stored, selected renewable revision for the exact noon hour (no recomputation)."""
-        r = self._one(_RENEWABLE_HEAD, {"t": ctx.tenant_id, "s": ctx.site_id, "lo": ctx.period_start_utc,
-                                        "hi": ctx.period_end_utc, "k": self._known(ctx)})
-        if r is None:
-            return None
-        result = r[1] if isinstance(r[1], dict) else json.loads(r[1])
-        return {"revision_id": str(r[0]).lower(), "result": result, "evidence_ids": [str(x) for x in r[2]]}
+    def renewable_hours(self, ctx: DayCtx) -> dict[str, Any]:
+        """CH-9 (CH9-R2 Q4): the day's hours from the one `mini_depth.store.daylight_hours` at the cutoff, and each
+        daylight hour's stored, selected renewable revision (no recomputation)."""
+        from assetops_backend.mini_depth.inputs import local_hour
+        from assetops_backend.mini_depth.store import daylight_hours
+
+        k = self._known(ctx)
+        with self._engine.connect() as c:
+            found = daylight_hours(c, ctx.tenant_id, ctx.site_id, ctx.local_day, k)
+            spans = {h: local_hour(ctx.local_day, h, ctx.tz) for h in (*found.hours, *found.missing)}
+            hours = []
+            for h in found.hours:
+                w = spans[h]
+                r = c.execute(text(_RENEWABLE_HEAD), {"t": ctx.tenant_id, "s": ctx.site_id, "lo": w.start,
+                                                       "hi": w.end, "k": k}).first()
+                head = None
+                if r is not None:
+                    result = r[1] if isinstance(r[1], dict) else json.loads(r[1])
+                    head = {"revision_id": str(r[0]).lower(), "result": result,
+                            "evidence_ids": [str(x) for x in r[2]]}
+                hours.append({"from": w.start, "to": w.end, "head": head})
+        return {"measured": found.measured, "hours": hours,
+                "missing": [(spans[h].start, spans[h].end) for h in found.missing]}
 
     def dispatch_days(self, ctx: DayCtx) -> list[dict[str, Any]]:
         """The S3 dispatch window of every UTC day overlapping the local period (ruling Q3d)."""
@@ -281,8 +296,8 @@ class PostgresChainInputs:
     # --- currentness -------------------------------------------------------------------------------------
 
     def renewable_pending(self, ctx: DayCtx) -> bool:
-        """The mini-depth reader's own live-job rule for the noon hour (a job cleared by a later selection is
-        not pending)."""
+        """The mini-depth reader's own live-job rule over the measure period (a job cleared by a later selection
+        is not pending)."""
         r = self._one(_RENEWABLE_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "lo": ctx.period_start_utc,
                                         "hi": ctx.period_end_utc, "k": self._known(ctx)})
         return bool(r and r[0])

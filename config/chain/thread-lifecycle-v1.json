@@ -6,4 +6,4 @@
    "COLD_START_FAILURE": ["backup_start_chain"],
    "COLD_EXCURSION": ["chamber_temp_c"],
    "EV_INTERRUPTION": ["charging_kwh"],
-   "PRODUCTIVE_USE_HEADROOM": ["noon_headroom_kw"]}}
+   "PRODUCTIVE_USE_HEADROOM": ["daylight_headroom_kw"]}}

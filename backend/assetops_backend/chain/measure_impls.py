@@ -162,7 +162,16 @@ class ProductiveEnergy(_Cached):
 
 
 class RenewableHeadroom:
-    key = "mini.renewable_headroom@1"
+    """CH-9 (§9 R5, CH9-R2 Q2/Q4): `daylight_headroom_kw` over the day's measured daylight hours.
+
+    The period is the Site's declared operating hours. The reader names the day's hours through the one
+    `mini_depth.store.daylight_hours` (daylight, missing, or the no-PV-binding hour) and each daylight hour's
+    stored selected renewable revision. Covered = the period minus the missing hours, minus each daylight hour that
+    has no selected revision, minus each revision's own coverage gaps: so any missing hour leaves the day PARTIAL.
+    Value: the day decision (CONFLICT > LIMITED > ELIGIBLE(any) > EXCLUDED), the room on every ELIGIBLE hour
+    (min low, min high; every hour for an EXCLUDED day) and `window_hours` = the ELIGIBLE hour count."""
+
+    key = "mini.daylight_headroom@1"
 
     def __init__(self, reader: ChainInputReader) -> None:
         self.r = reader
@@ -172,22 +181,43 @@ class RenewableHeadroom:
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
         pending = self.r.renewable_pending(ctx)
-        head = self.r.renewable_hour(ctx)
-        if head is None:
+        day = self.r.renewable_hours(ctx)
+        heads = [h for h in day["hours"] if h["head"] is not None]
+        if not heads:
             return InputSet((), [], pending, None)
+        holes: list[Span] = list(day["missing"])
+        for h in day["hours"]:
+            if h["head"] is None:
+                holes.append((h["from"], h["to"]))
+            else:
+                holes += _gaps((h["head"]["result"].get("coverage") or {}).get("gaps"), "from", "to")
+        ids = sorted({str(x).lower() for h in heads for x in h["head"]["evidence_ids"]})
+        ids += [f"revision:{h['head']['revision_id']}" for h in heads]
         period = [(ctx.period_start_utc, ctx.period_end_utc)]
-        gaps = _gaps((head["result"].get("coverage") or {}).get("gaps"), "from", "to")
-        ids = [str(x).lower() for x in head["evidence_ids"]] + [f"revision:{head['revision_id']}"]
-        return InputSet(tuple(ids), minus(period, gaps), pending, head["result"])
+        payload = {"hours": [h["head"]["result"].get("hour") or {} for h in heads],
+                   "complete": len(heads) == len(day["hours"])}
+        return InputSet(tuple(ids), minus(period, holes), pending, payload)
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
-        hour = (inputs.payload or {}).get("hour") or {}
-        decision = hour.get("decision")
+        from assetops_backend.mini_depth.rules import day_decision
+
+        payload = inputs.payload or {}
+        hours = payload.get("hours") or []
+        decisions = [h.get("decision") for h in hours]
+        if not payload.get("complete") or any(d is None for d in decisions):
+            return {"low_kw": None, "high_kw": None, "decision": None, "window_hours": None,
+                    "result_state": "MISSING_HOUR"}
+        decision = day_decision(decisions)
         if decision in ("ELIGIBLE", "EXCLUDED"):
-            headroom = hour.get("headroom_kw") or {}
-            low, high = _dec(headroom.get("low")), _dec(headroom.get("high"))
-            return {"low_kw": _text(low), "high_kw": _text(high), "decision": decision}
-        return {"low_kw": None, "high_kw": None, "decision": None, "result_state": decision}
+            counted = [h for h in hours if decision == "EXCLUDED" or h.get("decision") == "ELIGIBLE"]
+            bounds = [((h.get("headroom_kw") or {}).get("low"), (h.get("headroom_kw") or {}).get("high"))
+                      for h in counted]
+            lows, highs = [_dec(lo) for lo, _ in bounds], [_dec(hi) for _, hi in bounds]
+            low = None if any(x is None for x in lows) else min(lows)
+            high = None if any(x is None for x in highs) else min(highs)
+            return {"low_kw": _text(low), "high_kw": _text(high), "decision": decision,
+                    "window_hours": sum(1 for d in decisions if d == "ELIGIBLE")}
+        return {"low_kw": None, "high_kw": None, "decision": None, "window_hours": None, "result_state": decision}
 
     def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
         return None

@@ -255,7 +255,7 @@ def test_m1_tue_only_asset_measure_writes_not_expected_per_subject_on_a_monday(s
         # the subjects resolve at the Site-local day start on a NOT_EXPECTED day: one row per subject
         assert sorted(w.row.subject_ref for w in on_monday) == subjects
         assert {w.row.grade for w in on_monday} == {"NOT_EXPECTED"} and all(w.written for w in on_monday)
-        counts = SnapshotReader(snaps).grade_counts(t, s, monday, monday, ["productive_kwh", "noon_headroom_kw"])
+        counts = SnapshotReader(snaps).grade_counts(t, s, monday, monday, ["productive_kwh", "daylight_headroom_kw"])
         body = counts.to_json()
         assert (body["not_expected"], body["no_data"], body["expected"]) == (1, 0, 0), body
     finally:

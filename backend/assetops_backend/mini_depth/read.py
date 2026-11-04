@@ -44,7 +44,7 @@ from assetops_backend.mini_depth.inputs import (
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
 from assetops_backend.mini_depth.store import (
-    _ACCEPTED, DOMAINS, JOB_DOMAIN, NOON_HOURS, DaylightHours, daylight_hours, read_hour_rows,
+    _ACCEPTED, DOMAINS, JOB_DOMAIN, NO_PV_BINDING, DaylightHours, daylight_hours, read_hour_rows,
 )
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 
@@ -103,7 +103,8 @@ def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
     """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8).
 
     Renewable (CH-9 §9 R3, CH9-R2 Q2): each day's measured daylight hours and its missing hours from `daylight`
-    (`store.daylight_hours` at the read's cutoff), so a missing hour reads as missing; without it, the noon hour."""
+    (`store.daylight_hours` at the read's cutoff), so a missing hour reads as missing; without it, the
+    `store.NO_PV_BINDING` hours."""
     try:
         tz = zone(tz_name)
         if not lo < hi:
@@ -120,7 +121,7 @@ def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
                     ) == (lo, hi):
                 out = []
                 for d in days[:n]:
-                    found = daylight(d) if daylight is not None else DaylightHours(NOON_HOURS, (), False)
+                    found = daylight(d) if daylight is not None else NO_PV_BINDING
                     out += [(d, local_hour(d, h, tz_name or "")) for h in sorted({*found.hours, *found.missing})]
                 return out
         raise MiniReadRefused("INVALID_WINDOW")

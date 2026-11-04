@@ -21,7 +21,7 @@ events:
 inputs:
   productive_kwh:     {roles: [feeder_demand], assumption_keys: [productive_use_price_per_kwh], foundation: true}
   avoidable_gen_min:  {analytics: [dispatch], job_domains: [dispatch]}
-  noon_headroom_kw:   {mini_depth: [renewable], job_domains: [mini_renewable]}
+  daylight_headroom_kw: {roles: [pv_available_power], mini_depth: [renewable], job_domains: [mini_renewable]}  # CH-9: daylight is measured from pv_available_power
   chamber_temp_c:     {roles: [chamber_temperature], analytics: [cold-excursion], job_domains: [cold_chain]}
   backup_start_chain: {roles: [grid_power_event, generator_state, transfer_result, backup_bus_state], analytics: [cold-start-response], job_domains: [cold_chain]}
   charging_kwh:       {analytics: [ev-session/1], assumption_keys: [ev_gross_tariff_per_kwh], job_domains: [ev_charging]}

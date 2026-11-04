@@ -115,7 +115,8 @@ class MiniDepthWorker:
             local = window.start.astimezone(zone(tz_name))
             with self.store.snapshot() as c:
                 cutoff = self.store.clock(c)
-                # CH-9 §9 R3: renewable only for that day's measured daylight hours (noon without a PV binding).
+                # CH-9 §9 R3: renewable only for that day's measured daylight hours (`store.NO_PV_BINDING` hours
+                # without a PV binding).
                 daylight = daylight_hours(c, tenant_id, site_id, local.date(), cutoff).hours
                 domains = [d for d in DOMAINS if d != "renewable" or local.hour in daylight]
                 inputs = load_hour_inputs(c, tenant_id, site_id, window, cutoff)
