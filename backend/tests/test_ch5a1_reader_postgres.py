@@ -249,9 +249,12 @@ def test_known_at_hides_a_later_occurrence_and_revision_and_r8_tracks_the_consum
     # L5: the occurrence count at k1 excludes the third occurrence (F04 on the F01/F02 generator thread).
     tid = now[f01][2]
     assert now[f04][2] == tid and now[f04][3] == 3, now
-    at_k1 = threads.lookup(runner.tenant, [f01], [], known_at=k1)["findings"][f01]
+    # R-1 (CH5a1-R2): the bound is the request's transaction-time `visible_at`; the state cutoff `known_at` alone
+    # never hides an occurrence.
+    at_k1 = threads.lookup(runner.tenant, [f01], [], known_at=k1, visible_at=k1)["findings"][f01]
     at_now = threads.lookup(runner.tenant, [f01], [], known_at=None)["findings"][f01]
-    assert (at_k1["occurrences"], at_now["occurrences"]) == (2, 3), (at_k1, at_now)
+    state_only = threads.lookup(runner.tenant, [f01], [], known_at=k1)["findings"][f01]
+    assert (at_k1["occurrences"], at_now["occurrences"], state_only["occurrences"]) == (2, 3, 3), (at_k1, at_now)
 
     # the R8 cut at k1 ignores the later events (occurred after it) once they are consumed, and the reader agrees
     req = ChainReader(port).request(runner.tenant, k1)

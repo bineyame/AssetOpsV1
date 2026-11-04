@@ -400,7 +400,7 @@ class SiteOutcomeBoardService:
                     extra = {}
             comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
                 site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions],
-                day=board_day, known_at=cutoff, **extra)))
+                day=board_day, known_at=cutoff, visible_at=known_at, **extra)))  # R-1: request bounds visibility
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:
             query["known_at"] = wire(known_at)

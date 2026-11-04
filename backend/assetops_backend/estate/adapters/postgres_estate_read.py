@@ -328,9 +328,12 @@ class EstateSnapshot:
         return self._o.actions.site_window_on(self._c, t, s, from_, to, k)
 
     def threads(self, t: UUID, finding_ids: list[Any], action_ids: list[Any], *, day: Any = None,
-                known_at: datetime | None = None, day_at: datetime | None = None) -> dict[str, Any]:
+                known_at: datetime | None = None, day_at: datetime | None = None,
+                visible_at: datetime | None = None) -> dict[str, Any]:
         """CH-2 (build sheet §5.1, P3): one tenant-wide query per request for every listed Finding's thread and
-        every listed Action's thread. A database below 0042 has no thread tables and reads as no threads."""
+        every listed Action's thread. A database below 0042 has no thread tables and reads as no threads.
+        CH5a1-R2 R-1: `known_at` bounds the thread state; `visible_at` (the request's transaction-time bound, None =
+        live) alone bounds which occurrences are seen."""
         if not finding_ids and not action_ids or self._c.execute(text(
                 "SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
             return thread_lookup([])
@@ -338,7 +341,7 @@ class EstateSnapshot:
         # CH-3 §5: each thread's state on its Site's local day holding `day_at` (else on `day`) as of the cutoff.
         return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
             "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids],
-            "k": known_at}).all(),
+            "k": known_at, "kv": visible_at}).all(),
             day=day, known_at=known_at, day_at=day_at, close_after=thread_lifecycle_policy().close_after)
 
     def opportunity_threads(self, t: UUID, site_ids: list[Any], from_: datetime, to: datetime,
@@ -354,7 +357,7 @@ class EstateSnapshot:
             if self._c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
                 return []
             rows = self._c.execute(text(OPPORTUNITY_LOOKUP), {
-                "t": t, "s": [str(x).lower() for x in site_ids], "k": k}).all()
+                "t": t, "s": [str(x).lower() for x in site_ids], "k": k, "kv": k}).all()
         return opportunity_items(rows, from_, to, k, thread_lifecycle_policy().close_after)
 
     def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:

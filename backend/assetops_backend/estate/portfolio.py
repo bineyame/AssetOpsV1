@@ -151,7 +151,10 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
         for cutoff, fids in by_cutoff.items():
             if not fids and not (cutoff == default and a_rows):
                 continue
-            kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff}
+            # CH5a1-R2 R-1: `cutoff` (story time for a cold/EV row) bounds the state only; occurrence visibility is
+            # bounded by the envelope's transaction-time `default` alone (never by a story-time cutoff).
+            kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff,
+                                         "visible_at": default}
             part = port(tenant_id, fids, [a["action_id"] for a in a_rows], **kw)
             for key in ("findings", "actions"):
                 found.setdefault(key, {}).update(part.get(key) or {})

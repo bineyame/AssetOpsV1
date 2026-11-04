@@ -19,6 +19,8 @@ from assetops_backend.chain.read import FindingHead
 
 #: §A3 Finding heads (CH5a1-R Q6, the finding index's head rule): the latest revision at `k`, merged-away Findings
 #: excluded, the index's domain and analytic only, occurrences visible at `k`, the episode intersecting `[lo, hi)`.
+#: CH5a1-R2 R-1: `k` here is always the request's transaction-time `known_at` (`ChainRequest.k`, None = live), the
+#: only bound `source_known_at` / `created_at` are compared with; a story-time evidence cutoff never reaches it.
 _FINDING_HEADS = text("""
 SELECT CAST(o.thread_id AS text) AS thread_id, o.occurrence_no, CAST(f.id AS text) AS finding_id,
        CAST(r.id AS text) AS revision_id, r.revision_no, r.lifecycle, r.transition, r.episode_start, r.episode_end,
