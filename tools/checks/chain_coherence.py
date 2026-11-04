@@ -128,6 +128,8 @@ class Collector:
     out: Path
     known_at: str | None = None
     requests: list[dict[str, Any]] = field(default_factory=list)
+    #: MD-0 (MD0-S2): the domain Sites the story has; a Kobo-only work folder requests no Cold/EV action index.
+    domain_sites: tuple[str, ...] = DOMAIN_SITES
 
     def _file(self, name: str, page: int | None) -> str:
         safe = re.sub(r"[^A-Za-z0-9_.-]", "_", name)
@@ -165,7 +167,7 @@ class Collector:
         self.fetch(f"findings_opp.{window}", "/api/estate/findings",
                    {**w, "lens": "opportunities", "state": "all"}, window, paged=True)
         self.fetch(f"actions.{window}", "/api/estate/actions", w, window, paged=True)
-        for code in DOMAIN_SITES:
+        for code in self.domain_sites:
             self.fetch(f"action_index.{code}.{window}", f"/api/sites/{code}/domain-work/action-index", w, window,
                        paged=True)
         summary = self.fetch(f"summary.{window}", "/api/estate/outcome-summary", w, window)
@@ -180,6 +182,8 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
             known_at: str | None = None) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     c = Collector(getter, out, known_at)
+    if story.get("sites"):
+        c.domain_sites = tuple(SITE_CODE[s] for s in story["sites"] if SITE_CODE.get(s) in DOMAIN_SITES)
     windows = estate_windows(story)
     for wid, (lo, hi) in windows.items():
         c.estate(wid, lo, hi)
