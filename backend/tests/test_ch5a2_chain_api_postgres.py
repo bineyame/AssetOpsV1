@@ -110,10 +110,13 @@ def test_thread_route_reads_the_thread_and_its_events(world, app, monkeypatch) -
     assert all(e["state_label"] for e in thread["events"])
 
 
-def test_estate_chain_has_one_read_per_key_and_null_counts(app, monkeypatch) -> None:
+def test_estate_chain_has_one_read_per_key_and_count_claims(app, monkeypatch) -> None:
     body = _scoped(app, monkeypatch, "/api/estate/chain",
                    {"from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z"})
-    assert body["counts"] == {"verified_results": None, "open_threads": None, "opportunities": None}
+    # CH-5a2b (§B14 Q7): the three PC-1 count claims from the one computation, each with the summed day grades.
+    assert set(body["counts"]) == {"count.open_threads", "count.verified_results", "count.opportunities"}
+    assert all(c["value"] is not None and c["basis"] in ("COMPLETE", "CHECKED_DAYS", "NOT_KNOWN") and c["text"]
+               for c in body["counts"].values())
     kobo = next(s for s in body["sites"] if s["code"] == CODE)
     assert kobo["days"]["requested"] == 7 and set(kobo["rows"]) == {
         "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"}
