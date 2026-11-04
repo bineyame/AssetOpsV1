@@ -1057,3 +1057,25 @@ def assess_backup_hour(w: Window, observations: Sequence[Observation], readings:
                            *(o.evidence_id for o in observations
                              if w.start <= o.source_time < w.end or o.role == SITE_SUPPLY)]),
     )
+
+
+# --- CH-9 u1 (§9 R1, CH9-R2 Q2/Q3): the measured daylight rule ---------------------------------------------------
+
+def classify_daylight(windows: Sequence[tuple[int, Window]], readings: Iterable[Reading]
+                      ) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """`(daylight, missing)` local hours of one day's expected `windows` from its `pv_available_power` readings.
+
+    An hour not fully covered by usable readings (the clipped `_coverage` union), or holding an unusable one, is
+    missing (its value is not known, so the sun is not shown up for the whole hour). A covered hour is
+    daylight when every reading overlapping it is > 0; a covered hour with any reading <= 0 (night, dawn, dusk) is
+    neither. Zero is the physical bound, not a chosen threshold."""
+    pv = [r for r in readings if r.role == PV_AVAILABLE]
+    daylight: list[int] = []
+    missing: list[int] = []
+    for hour, w in windows:
+        s = series(pv, PV_AVAILABLE, None, w, any_asset=True)
+        if s.coverage.gaps or s.unusable:
+            missing.append(hour)
+        elif all(seg.value is not None and seg.value > 0 for seg in s.segments):
+            daylight.append(hour)
+    return tuple(daylight), tuple(missing)

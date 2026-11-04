@@ -38,11 +38,14 @@ from assetops_backend.mini_depth.inputs import (
     QUERY_ROLES,
     MiniInputsRefused,
     load_hour_inputs,
+    local_hour,
     local_noon,
     zone,
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
-from assetops_backend.mini_depth.store import _ACCEPTED, DOMAINS, JOB_DOMAIN, read_hour_rows
+from assetops_backend.mini_depth.store import (
+    _ACCEPTED, DOMAINS, JOB_DOMAIN, NOON_HOURS, DaylightHours, daylight_hours, read_hour_rows,
+)
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 
 HOUR = timedelta(hours=1)
@@ -95,8 +98,12 @@ def _local_midnight(day: date, tz_name: str) -> datetime:
     return start
 
 
-def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None) -> list[tuple[date, rules.Window]]:
-    """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8)."""
+def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
+                 daylight: Callable[[date], DaylightHours] | None = None) -> list[tuple[date, rules.Window]]:
+    """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8).
+
+    Renewable (CH-9 §9 R3, CH9-R2 Q2): each day's measured daylight hours and its missing hours from `daylight`
+    (`store.daylight_hours` at the read's cutoff), so a missing hour reads as missing; without it, the noon hour."""
     try:
         tz = zone(tz_name)
         if not lo < hi:
@@ -111,7 +118,11 @@ def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None) -
         for n in range(1, MAX_DAYS + 1):
             if (_local_midnight(first, tz_name or ""), _local_midnight(first + timedelta(days=n), tz_name or "")
                     ) == (lo, hi):
-                return [(d, local_noon(d, tz_name or "")) for d in days[:n]]
+                out = []
+                for d in days[:n]:
+                    found = daylight(d) if daylight is not None else DaylightHours(NOON_HOURS, (), False)
+                    out += [(d, local_hour(d, h, tz_name or "")) for h in sorted({*found.hours, *found.missing})]
+                return out
         raise MiniReadRefused("INVALID_WINDOW")
     except MiniInputsRefused as error:
         raise MiniReadRefused("INVALID_WINDOW") from error
@@ -421,7 +432,7 @@ class MiniDepthRead:
         historical = explicit is not None and explicit < read_time
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": t, "s": s}).scalar_one_or_none()
-        windows = hour_windows(domain, lo, hi, tz_name)
+        windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
         hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
 
         live = [h for h in hours if h.pending_ids is not None]
