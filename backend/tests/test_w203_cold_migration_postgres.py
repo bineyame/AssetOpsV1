@@ -236,6 +236,7 @@ class TestMigration0022:
         engine.dispose()
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in COLD)
@@ -444,6 +445,7 @@ class TestMigration0022:
                 _replica(engine, *CLEAR_W204)
                 with pytest.raises(DBAPIError, match=REFUSED):
                     __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                    __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                     command.downgrade(config, PREVIOUS)
                 assert head(engine) == HEAD  # the whole downgrade rolled back
                 assert {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in COLD} == counts  # nothing deleted
@@ -452,11 +454,13 @@ class TestMigration0022:
             _replica(engine, *CLEAR_W204)
             with pytest.raises(DBAPIError, match=REFUSED):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD
             assert scalar(engine, "SELECT count(*) FROM finding WHERE domain = 'cold_chain'") == 1
             remove_cold(engine)
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and minigrid_rows(engine) == before
             trigger = scalar(engine, "SELECT pg_get_triggerdef(oid) FROM pg_trigger "

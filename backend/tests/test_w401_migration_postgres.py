@@ -231,6 +231,7 @@ def test_0027_parent_scoped_fks_append_only_and_clean_downgrade(site_before_0029
     release(site, engine)
     try:
         __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+        __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS
         assert not any(table_exists(engine, t) for t in TABLES)
@@ -396,6 +397,7 @@ def refuse_with(site, engine, stock: str) -> None:  # noqa: F811
         try:
             with pytest.raises(RuntimeError, match=REFUSED):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, PREVIOUS)
         finally:
             if head(engine) != HEAD:

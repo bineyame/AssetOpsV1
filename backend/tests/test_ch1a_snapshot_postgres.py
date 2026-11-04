@@ -215,6 +215,11 @@ def test_downgrade_refused_with_rows_then_allowed(store, engine) -> None:  # noq
     finally:
         snaps.dispose()
     cfg = pg_harness._alembic(URL)
+    # CH-1b: 0044 sits above 0043 and refuses first while the seeded facts' outbox events exist
+    with pytest.raises(Exception, match="event history exists"):
+        command.downgrade(cfg, "0041_walk1_objective_min_days")
+    with engine.begin() as c:
+        c.execute(text("TRUNCATE event_consumption, snapshot_dirty, event_outbox"))
     with pytest.raises(Exception, match="snapshot history exists"):
         command.downgrade(cfg, "0041_walk1_objective_min_days")
     with engine.begin() as c:  # TRUNCATE is not a row DELETE; the append-only trigger does not fire on it

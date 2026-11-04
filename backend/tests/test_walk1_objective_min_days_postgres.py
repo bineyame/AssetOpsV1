@@ -6,7 +6,7 @@ the stored value, and the downgrade refusing while any row carries a minimum, ot
 CHECK probes are direct SQL in the replica role (the CHECKs still apply; the FK and append-only triggers do not).
 """
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 from decimal import Decimal
 
@@ -109,6 +109,7 @@ def test_0041_downgrade_refuses_with_a_minimum_then_drops_the_column(engine) -> 
     config = _alembic()
     empty(engine)  # rows an earlier test of this module declared
     engine.dispose()
+    clear_event_history(engine)  # CH-1b: 0044 refuses while event history exists
     command.downgrade(config, PREVIOUS)
     try:
         with engine.connect() as c:
@@ -125,10 +126,12 @@ def test_0041_downgrade_refuses_with_a_minimum_then_drops_the_column(engine) -> 
     insert(engine, mg1(min_days=4))
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
+        clear_event_history(engine)  # CH-1b: 0044 refuses while event history exists
         command.downgrade(config, PREVIOUS)
     assert head(engine) == HEAD
     empty(engine)
     engine.dispose()
+    clear_event_history(engine)  # CH-1b: 0044 refuses while event history exists
     command.downgrade(config, PREVIOUS)  # with no minimum stored, the downgrade passes again
     engine.dispose()
     command.upgrade(config, "head")

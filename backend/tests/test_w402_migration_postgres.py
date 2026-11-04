@@ -7,7 +7,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 import hashlib
 import os
@@ -67,6 +67,11 @@ def _sha(label: str) -> str:
 
 def functiondef(engine, name: str) -> str:  # noqa: F811
     return scalar(engine, "SELECT pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.proname = :n", n=name)
+
+
+#: At the Alembic head: CH-1b's 0044 adds the statement-level outbox producer `mini_depth_selection_chain_event`,
+#: which the `mini_depth_%` trigger count includes.
+AT_HEAD = (4, 3, 5, 1)
 
 
 def catalog(engine) -> tuple[int, int, int, int]:  # noqa: F811
@@ -182,6 +187,7 @@ def cutover_rows(engine, site_id) -> int:  # noqa: F811
 def downgrade_config(site, engine):  # noqa: F811
     site.store.dispose()
     site.prices.dispose()
+    clear_event_history(engine)  # CH-1b: 0044 sits above and refuses while any event exists
     engine.dispose()
     return _alembic()
 
@@ -194,12 +200,13 @@ class TestMigration0029:
         config = _alembic()
         assert ScriptDirectory.from_config(config).get_heads() == [HEAD]
         assert ScriptDirectory.from_config(config).get_revision(MIGRATION).down_revision == PREVIOUS
-        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
+        assert head(engine) == HEAD and catalog(engine) == AT_HEAD
         assert_site_head(engine, upgraded=True)
         assert scalar(engine, "SELECT count(*) FROM pg_indexes WHERE indexname IN ('mini_depth_selection_head', "
                               "'mini_depth_revision_evidence_lookup')") == 2
         recompute_columns = scalar(engine, "SELECT count(*) FROM information_schema.columns "
                                            "WHERE table_name = 'recompute_job'")
+        clear_event_history(engine)
         engine.dispose()
         try:
             command.downgrade(config, PREVIOUS)
@@ -209,7 +216,7 @@ class TestMigration0029:
         finally:
             if head(engine) != HEAD:
                 command.upgrade(config, "head")
-        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
+        assert head(engine) == HEAD and catalog(engine) == AT_HEAD
         assert_site_head(engine, upgraded=True)
         assert scalar(engine, "SELECT count(*) FROM information_schema.columns "
                               "WHERE table_name = 'recompute_job'") == recompute_columns
@@ -237,7 +244,7 @@ class TestMigration0029:
             holding.rollback()
         finally:
             holder.close()
-        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
+        assert head(engine) == HEAD and catalog(engine) == AT_HEAD
 
     def test_downgrade_refuses_active_mini_stage(self, mg, engine) -> None:  # noqa: F811
         """q7 ruling 1: an active MINI Site stage refuses the downgrade; head and schema are unchanged."""
@@ -253,7 +260,7 @@ class TestMigration0029:
         try:
             with pytest.raises(DBAPIError, match="MINI stage active"):
                 command.downgrade(config, PREVIOUS)
-            assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
+            assert head(engine) == HEAD and catalog(engine) == AT_HEAD
             assert_site_head(engine, upgraded=True)
             assert scalar(engine, "SELECT stage FROM schedule_site_head WHERE site_id = :s", s=mg.ctx.s) == "MINI"
         finally:
@@ -287,7 +294,7 @@ class TestMigration0029:
         try:
             with pytest.raises(DBAPIError, match=REFUSED_BASIS if blocker == "cutover_basis" else REFUSED):
                 command.downgrade(config, PREVIOUS)
-            assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)  # nothing dropped
+            assert head(engine) == HEAD and catalog(engine) == AT_HEAD  # nothing dropped
             assert (blocker == "job_only") == bool(mini_jobs(engine, mg.ctx.s))  # nothing deleted
             assert cutover_rows(engine, mg.ctx.s) == (1 if blocker == "cutover_basis" else 0)
         finally:

@@ -92,6 +92,7 @@ def seeded_before_0029(config, engine, *holders):
     assert_no_cutover_basis(engine)
     assert_no_cold_scenarios(engine)
     assert_no_cold_work(engine)
+    __import__("pg_harness").clear_event_history(engine)  # CH-1b: 0044 sits above and refuses while events exist
     release()
     command.downgrade(config, COLD_WORK_PREDECESSOR)  # traverse the empty 0033 first
     assert _head(engine) == COLD_WORK_PREDECESSOR

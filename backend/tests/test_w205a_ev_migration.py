@@ -92,6 +92,7 @@ class TestMigration0024:
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and index_def(engine) is not None  # the whole downgrade rolled back
             assert scalar(engine, "SELECT count(*) FROM accepted_evidence") == count  # nothing deleted

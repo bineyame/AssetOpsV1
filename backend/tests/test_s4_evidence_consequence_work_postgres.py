@@ -473,6 +473,7 @@ class TestMigrationPaths:
         cols = ("id", "cause", "finding_id", "finding_revision_id", "affected_from", "affected_to")
         try:
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0010_financial_assumptions")
             command.upgrade(config, "0011_financial_consequences")
             boot = sorted(tuple(w[k] for k in cols) for w in all_work(engine))
@@ -483,6 +484,7 @@ class TestMigrationPaths:
             assert all(w["accepted_evidence_id"] is None for w in after)
             # Empty-case downgrade: the original 0011 trigger body, two-arm CHECK and UNIQUE constraint return.
             __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+            __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
             command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 src = c.execute(text("SELECT prosrc FROM pg_proc WHERE proname = "
@@ -532,6 +534,7 @@ class TestMigrationPaths:
         try:
             with pytest.raises(Exception, match="refused: EVIDENCE_ACCEPTED consequence work exists"):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
@@ -563,6 +566,7 @@ class TestMigrationPaths:
         try:
             with pytest.raises(Exception, match="refused: work attempts record a no-op reason"):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
+                __import__("pg_harness").clear_event_history(engine)  # CH-1b: clear the event ledger; 0044 refuses first
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (

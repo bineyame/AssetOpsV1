@@ -153,6 +153,12 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
     # `test_0042_refuses_its_downgrade_while_a_thread_exists` (review L5).
     from alembic import command
 
+    # CH-1b: 0044 sits above 0045 and refuses first while the seeded facts' outbox events exist.
+    engine.dispose()
+    with pytest.raises(DBAPIError, match="event history exists"):
+        command.downgrade(_alembic(), PREVIOUS)
+    assert head(engine) == pg_harness.alembic_head()
+    pg_harness.clear_event_history(engine)
     engine.dispose()
     with pytest.raises(DBAPIError, match="Downgrade of 0045_thread_known_at refused"):
         command.downgrade(_alembic(), PREVIOUS)
@@ -203,6 +209,13 @@ def test_0042_refuses_its_downgrade_while_a_thread_exists(seeded, engine) -> Non
                        "'probe', now(), 'tick')"), {"id": uuid4(), "t": runner.tenant, "s": runner.site})
     from alembic import command
 
+    engine.dispose()
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM event_outbox")).scalar_one() > 0
+    with pytest.raises(DBAPIError, match="event history exists"):  # CH-1b: 0044 refuses first
+        command.downgrade(_alembic(), PREVIOUS)
+    assert head(engine) == pg_harness.alembic_head()
+    pg_harness.clear_event_history(engine)
     engine.dispose()
     with pytest.raises(DBAPIError, match="Downgrade of 0042_chain_threads refused"):
         command.downgrade(_alembic(), PREVIOUS)

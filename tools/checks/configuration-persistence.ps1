@@ -891,6 +891,32 @@ function Invoke-ConfigurationPersistenceCheck {
     $snapshotTables = @('site_day_snapshot')
     $snapshotInsertsSeen = @{}
     foreach ($table in $snapshotTables) { $snapshotInsertsSeen[$table] = 0 }
+    # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
+    # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
+    # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
+    # the declared mutable-queue upsert); the snapshot_dirty compare-and-delete (DELETE ... AND marked_at = :at); and
+    # the one guarded event_outbox INSERT of the literal type 'backfill.site' with ON CONFLICT DO NOTHING. Every other
+    # event_outbox write comes from the 0044 triggers only (migration text checked below). Each shape keeps one
+    # owner statement (anti-vacuity below).
+    $eventWriter = "$backendRoot/chain/adapters/postgres_event_store.py"
+    $eventTables = @('event_outbox', 'event_consumption', 'snapshot_dirty')
+    $eventMigration = 'backend/migrations/versions/0044_chain_events.py'
+    # CH1b-R2 note 3: the consumption insert and the mark upsert accept a multi-row VALUES list of literal tuples
+    # only (a page write); never a SELECT, unnest or other row source, still insert-only, same ON CONFLICT arbiter.
+    $valuesRows = '\([^()]*\)(?:\s*,\s*\([^()]*\))*'
+    $eventShapes = [ordered]@{
+        'event_consumption insert' = ('(?i)^INSERT\s+INTO\s+event_consumption\s*\([^)]*\)\s*VALUES\s*' + $valuesRows +
+            '\s*;?\s*$')
+        'snapshot_dirty mark upsert' = ('(?i)^INSERT\s+INTO\s+snapshot_dirty\s*\([^)]*\)\s*VALUES\s*' + $valuesRows + '\s*' +
+            'ON\s+CONFLICT\s*\(\s*tenant_id\s*,\s*site_id\s*,\s*local_day\s*,\s*measure\s*\)\s*' +
+            'DO\s+UPDATE\s+SET\s+marked_at\s*=\s*clock_timestamp\(\)\s*;?\s*$')
+        'snapshot_dirty compare-and-delete' = ('(?i)^DELETE\s+FROM\s+snapshot_dirty\s+WHERE\s+(?:(?!\b(?:OR|SELECT)\b).)*' +
+            '\bAND\s+marked_at\s*=\s*:[a-z_]+\s*;?\s*$')
+        'event_outbox backfill insert' = ('(?i)^INSERT\s+INTO\s+event_outbox\s*\([^)]*\)\s*VALUES\s*\(\s*' +
+            "'backfill\.site'\s*,[^;]*?\)\s*ON\s+CONFLICT\s*\(\s*source\s*,\s*idempotency_key\s*\)\s*DO\s+NOTHING\s*;?\s*$")
+    }
+    $eventShapesSeen = @{}
+    foreach ($shape in $eventShapes.Keys) { $eventShapesSeen[$shape] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -899,7 +925,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $trialComparisonWriter)
+        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter, $trialComparisonWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -960,12 +986,13 @@ function Invoke-ConfigurationPersistenceCheck {
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
         $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
-        $snapshotWriter = 0; $threadWriter = 0 }
+        $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
-        $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false }
+        $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false
+        $eventWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1317,6 +1344,29 @@ function Invoke-ConfigurationPersistenceCheck {
                         $snapshotInsertsSeen[$target]++
                     }
                 }
+                if ($module.Path -eq $eventWriter) {
+                    $eventShape = $null
+                    foreach ($shape in $eventShapes.Keys) {
+                        if ($line -match $eventShapes[$shape]) { $eventShape = $shape; break }
+                    }
+                    if ($null -eq $eventShape) {
+                        $failures.Add(("The event store runs only its four declared statements (INSERT INTO " +
+                            "event_consumption, the snapshot_dirty mark upsert, the snapshot_dirty compare-and-delete " +
+                            "on marked_at, and the 'backfill.site' event_outbox INSERT ... ON CONFLICT DO NOTHING); " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $eventShapesSeen[$eventShape]++
+                    }
+                }
+                if ($null -ne $target -and $eventTables -contains $target -and $module.Path -ne $eventWriter) {
+                    if ($target -eq 'event_outbox') {
+                        $failures.Add(("The event outbox is written only by the migration 0044 triggers and the event " +
+                            "store's one 'backfill.site' INSERT; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $failures.Add(("Only $eventWriter writes event table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
                     if ($module.Path -ne $pgWriter) {
                         $failures.Add(("Only $pgWriter writes cutover basis table '$target'; " +
@@ -1576,6 +1626,51 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($extractorRan -and $trialComparisonInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $trialComparisonWriter, so the cost-check insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($shape in $eventShapes.Keys) {
+        if ($extractorRan -and $eventShapesSeen[$shape] -lt 1) {
+            $failures.Add(("Rule 8 found no $shape statement in $eventWriter, so the declared event-store statement " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # CH-1b: event_outbox is trigger-written, so its migration is read on its own (comments and the docstring removed):
+    # it must hold the producer INSERT INTO event_outbox, each such statement keeps exactly the
+    # ON CONFLICT (source, idempotency_key) DO NOTHING arbiter, the file has no DO UPDATE, and both event ledgers
+    # keep their ledger_append_only() immutability triggers.
+    if (-not (Test-Path -LiteralPath $eventMigration -PathType Leaf)) {
+        $failures.Add("Rule 8 declares event migration '$eventMigration', which does not exist; update the check.") | Out-Null
+    } else {
+        $eventText = (Get-Content -LiteralPath $eventMigration -Raw) -replace "`r`n", "`n"
+        $eventText = [regex]::Replace($eventText, '^\s*(?:\x22\x22\x22[\s\S]*?\x22\x22\x22|\x27\x27\x27[\s\S]*?\x27\x27\x27)', '')
+        $eventText = [regex]::Replace($eventText, '--[^\n]*', '')
+        $eventText = [regex]::Replace($eventText, '(?m)^\s*#[^\n]*', '')
+        $outboxInserts = [regex]::Matches($eventText, '(?i)\bINSERT\s+INTO\s+"?event_outbox"?(?![a-z0-9_])')
+        if ($outboxInserts.Count -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO event_outbox in $eventMigration, so the trigger-only outbox " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+        foreach ($insert in $outboxInserts) {
+            $end = $eventText.IndexOf(';', $insert.Index)
+            $statement = if ($end -lt 0) { $eventText.Substring($insert.Index) } else {
+                $eventText.Substring($insert.Index, $end - $insert.Index + 1) }
+            $conflicts = [regex]::Matches($statement, '(?i)\bON\s+CONFLICT\b').Count
+            $arbiter = '(?i)\bON\s+CONFLICT\s*\(\s*source\s*,\s*idempotency_key\s*\)\s*DO\s+NOTHING\s*;?\s*$'
+            if ($conflicts -ne 1 -or $statement -notmatch $arbiter) {
+                $failures.Add(("Every INSERT INTO event_outbox in $eventMigration keeps exactly the " +
+                    "ON CONFLICT (source, idempotency_key) DO NOTHING arbiter; found: " +
+                    "$(($statement -replace '\s+', ' ').Trim())")) | Out-Null
+            }
+        }
+        if ($eventText -match '(?i)\bDO\s+UPDATE\b') {
+            $failures.Add("$eventMigration runs no ON CONFLICT DO UPDATE: the event outbox is append-only.") | Out-Null
+        }
+        foreach ($ledger in @('event_outbox', 'event_consumption')) {
+            if ($eventText -notmatch ("(?i)CREATE\s+TRIGGER\s+${ledger}_immutable\s+BEFORE\s+UPDATE\s+OR\s+DELETE\s+ON\s+" +
+                    "${ledger}\s+FOR\s+EACH\s+ROW\s+EXECUTE\s+FUNCTION\s+ledger_append_only\(\)")) {
+                $failures.Add(("$eventMigration keeps the ${ledger}_immutable ledger_append_only() trigger; " +
+                    "the event ledger is append-only.")) | Out-Null
+            }
         }
     }
     foreach ($table in $threadTables) {

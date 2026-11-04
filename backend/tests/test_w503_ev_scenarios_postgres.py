@@ -7,7 +7,7 @@ ASSETOPS_TEST_DATABASE_URL for every test except the pure rules tests.
 """
 
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 import hashlib
 import json
@@ -264,12 +264,14 @@ def test_schema_constraints(site, engine) -> None:  # noqa: F811
 
     config = downgrade_config(site, engine)
     try:
+        clear_event_history(engine)  # CH-1b: 0044's own refusal comes first
         with pytest.raises(DBAPIError, match=REFUSED):
             command.downgrade(config, PREVIOUS)
         assert head(engine) == HEAD and catalog(engine) == expected_catalog()
         assert [scalar(engine, f"SELECT count(*) FROM {t}") for t in TABLES] == [1, 1]
         _replica(engine, f"DELETE FROM ev_scenario_revision WHERE id = '{rev}'",
                  f"DELETE FROM ev_scenario WHERE id = '{root}'")
+        clear_event_history(engine)
         engine.dispose()
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS and catalog(engine) == expected_absent()

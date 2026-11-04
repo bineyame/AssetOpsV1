@@ -105,8 +105,8 @@ def test_sole_head_chain_and_catalog(engine) -> None:  # noqa: F811
     assert names(engine, "p") == [f"{TABLE}_pkey"]
     assert names(engine, "c") == CHECKS and names(engine, "f") == FKS and names(engine, "u") == UNIQUES
     assert index.endswith("(tenant_id, site_id, outcome_key, recorded_at)"), index
-    # tgtype 27 = ROW | BEFORE | DELETE | UPDATE.
-    assert triggers == [f"{TABLE}_immutable:w4_append_only:27"]
+    # tgtype 27 = ROW | BEFORE | DELETE | UPDATE; 4 = STATEMENT | AFTER | INSERT (the CH-1b 0044 producer).
+    assert triggers == [f"{TABLE}_chain_event:chain_event_{TABLE}:4", f"{TABLE}_immutable:w4_append_only:27"]
 
 
 @pytest.mark.parametrize(("over", "constraint"), [

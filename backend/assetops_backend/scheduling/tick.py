@@ -69,6 +69,11 @@ class TickLimits:
     opportunity_seconds: float = 120
     s4_seconds: float = 120
     chain_seconds: float = 60  # CH-2: the `chain_threads` stage (thread placement and Action links)
+    # CH-1b (build sheet §3, ruling CH1b-R): the `chain_snapshots` stage (consume, then drain) and the per-stage
+    # event bound of both chain consumers. A cap or deadline hit defers the rest; it never backs off the Site.
+    chain_snapshot_seconds: float = 60
+    chain_snapshot_items: int = 200
+    chain_consume_events: int = 500
     consequence_seconds: float = 60
     domain_jobs_per_site: int = 10  # FIX-COLD-DRAIN: cold and EV assessment jobs per Site, each domain
     domain_assess_seconds: float = 120
@@ -81,7 +86,8 @@ class TickLimits:
 
     def __post_init__(self) -> None:
         if min(self.max_sites, self.s3_jobs_per_site, self.mini_jobs_per_site, self.opportunity_jobs_per_site,
-               self.consequence_items_per_site, self.domain_jobs_per_site) < 1:
+               self.consequence_items_per_site, self.domain_jobs_per_site, self.chain_snapshot_items,
+               self.chain_consume_events) < 1:
             raise ValueError("Every per-tick bound is at least 1.")
         if self.s3_seconds >= S3_JOB_LEASE_SECONDS:
             raise ValueError("The S3 stage bound must be shorter than the five-minute S3 job lease.")
@@ -95,17 +101,19 @@ class TickLimits:
                              "cold/EV job lease.")
         if not 0 < self.chain_seconds:
             raise ValueError("The chain_threads stage bound must be positive.")
+        if not 0 < self.chain_snapshot_seconds:
+            raise ValueError("The chain_snapshots stage bound must be positive.")
         if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.mini_seconds,
                                                    self.opportunity_seconds, self.s4_seconds, self.chain_seconds,
                                                    self.consequence_seconds, self.domain_assess_seconds,
-                                                   self.domain_consequence_seconds):
+                                                   self.domain_consequence_seconds, self.chain_snapshot_seconds):
             raise ValueError("The server statement timeout must be shorter than every stage bound.")
 
     @property
     def site_lease_seconds(self) -> float:
         return (self.s3_seconds + self.mini_seconds + self.opportunity_seconds + self.s4_seconds + self.chain_seconds
                 + self.consequence_seconds + 2 * self.domain_assess_seconds
-                + 2 * self.domain_consequence_seconds + 60)
+                + 2 * self.domain_consequence_seconds + self.chain_snapshot_seconds + 60)
 
     @property
     def tick_lease_seconds(self) -> float:
@@ -252,11 +260,17 @@ def fair_order(sites: list[SiteResult], cursor: tuple[UUID, UUID] | None) -> lis
 
 #: CH-0 U3: each Site stage's wall-time bound, as the `TickLimits` field `_site` passes to `StageRunner.run`.
 #: The values are read from the tick's own limits; a stage not named here logs `limit_ms`/`share` as null.
+def _deadline_at(seconds: float) -> float:
+    """CH-1b: the absolute epoch time a chain stage child stops starting work, a tenth of its bound (at most 5 s)
+    before the parent kills it, so the child exits with its deferred count instead of a TIMEOUT."""
+    return time.time() + seconds - min(5.0, seconds / 10)
+
+
 STAGE_LIMIT_FIELDS: dict[str, str] = {
     "s3": "s3_seconds", "cold_assess": "domain_assess_seconds", "ev_assess": "domain_assess_seconds",
     "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds", "chain_threads": "chain_seconds",
     "consequence": "consequence_seconds", "cold_consequence": "domain_consequence_seconds",
-    "ev_consequence": "domain_consequence_seconds"}
+    "ev_consequence": "domain_consequence_seconds", "chain_snapshots": "chain_snapshot_seconds"}
 
 
 def tick_perf_line(report: TickReport, limits: TickLimits, total_ms: float) -> dict[str, Any]:
@@ -454,7 +468,9 @@ class ScheduleTick:
         # Actions, after S4 matched; under the S4 head stage (no stage CHECK change, pre-flight P4).
         if not stage("S4"):
             return
-        rt = self.runner.run("chain_threads", ids, self.limits.chain_seconds)
+        rt = self.runner.run("chain_threads", {**ids, "limit": self.limits.chain_consume_events,
+                                               "deadline_at": _deadline_at(self.limits.chain_seconds)},
+                             self.limits.chain_seconds)
         site.stages["chain_threads"] = rt
         if rt["code"] != "OK":
             failure = failure or ("CHAIN_THREADS", rt["code"], str(rt.get("error")))
@@ -486,6 +502,20 @@ class ScheduleTick:
                 failure = failure or (marker, rd["code"], str(rd.get("error")))
         if recorded:
             self.store.record_consequence(t, s, token, selected, deferred)
+
+        # CH-1b (build sheet §3): consume this Site's outbox events into the dirty queue and rebuild only the marked
+        # Site-local days and measures, under the CONSEQUENCE head stage. `{"code": "OK", "deferred": n}` is a cap
+        # or deadline hit, never a failure (L6); only a real error fails the Site.
+        if not stage("CONSEQUENCE"):
+            return
+        rs = self.runner.run("chain_snapshots", {**ids, "consume_limit": self.limits.chain_consume_events,
+                                                 "items": self.limits.chain_snapshot_items,
+                                                 "bound_seconds": self.limits.chain_snapshot_seconds,
+                                                 "deadline_at": _deadline_at(self.limits.chain_snapshot_seconds)},
+                             self.limits.chain_snapshot_seconds)
+        site.stages["chain_snapshots"] = rs
+        if rs["code"] != "OK":
+            failure = failure or ("CHAIN_SNAPSHOTS", rs["code"], str(rs.get("error")))
 
         released = self.store.release_site(t, s, token, failure=failure,
                                            backoff_seconds=self.limits.backoff(int(claim["consecutive_failures"])))

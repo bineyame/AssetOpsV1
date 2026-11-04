@@ -203,3 +203,108 @@ def test_thread_sources_reader_write_rejected() -> None:
     found = failures(isolated_copy(edit))
     assert any(THREAD_READER in line for line in found), found
     assert not any("Database driver imported outside" in line and THREAD_READER in line for line in found), found
+
+
+SNAPSHOT_WRITER = "backend/assetops_backend/chain/adapters/postgres_snapshot_store.py"
+SNAPSHOT_INSERT = "INSERT INTO site_day_snapshot ("
+
+
+def test_snapshot_writer_insert_only_and_not_vacuous() -> None:
+    """CH-1a §7 (CH-2 review Low): the day-snapshot store keeps its owner INSERT and never deletes."""
+    real = (ROOT / SNAPSHOT_WRITER).read_text(encoding="utf-8")
+    assert SNAPSHOT_INSERT in real and "from sqlalchemy" in real
+    found = failures(isolated_copy(lambda copy: _replace(copy, SNAPSHOT_WRITER, SNAPSHOT_INSERT,
+                                                         "INSERT INTO site_day_snapshot_probe (")))
+    assert any("found no INSERT INTO site_day_snapshot" in line for line in found), found
+
+    def delete(copy: Path) -> None:
+        file = copy / SNAPSHOT_WRITER
+        file.write_text(file.read_text(encoding="utf-8") +
+                        '\n_PROBE = text("DELETE FROM site_day_snapshot WHERE tenant_id = :t")\n', encoding="utf-8")
+    found = failures(isolated_copy(delete))
+    assert any("day-snapshot store never updates" in line or "insert-only" in line for line in found), found
+
+
+EVENT_WRITER = "backend/assetops_backend/chain/adapters/postgres_event_store.py"
+EVENT_MIGRATION = "backend/migrations/versions/0044_chain_events.py"
+EVENT_CONSUMED = "INSERT INTO event_consumption ("
+EVENT_DONE = "AND marked_at = :at"
+EVENT_ARBITER = "ON CONFLICT (source, idempotency_key) DO NOTHING;"
+
+
+def _append(copy: Path, path: str, body: str) -> None:
+    file = copy / path
+    file.write_text(file.read_text(encoding="utf-8") + body, encoding="utf-8")
+
+
+def test_event_store_statements_declared_and_not_vacuous() -> None:
+    """CH-1b §7: the event store runs only its four declared statements, and each is present."""
+    real = (ROOT / EVENT_WRITER).read_text(encoding="utf-8")
+    assert EVENT_CONSUMED in real and EVENT_DONE in real and "from sqlalchemy" in real
+    found = failures(isolated_copy(lambda copy: _replace(copy, EVENT_WRITER, EVENT_CONSUMED,
+                                                         "INSERT INTO event_consumption_probe (")))
+    assert any("found no event_consumption insert statement" in line for line in found), found
+    # The compare-and-delete must compare marked_at: a plain DELETE of the queue row is refused.
+    found = failures(isolated_copy(lambda copy: _replace(copy, EVENT_WRITER, EVENT_DONE, "")))
+    assert any("event store runs only its four declared statements" in line for line in found), found
+    assert any("found no snapshot_dirty compare-and-delete statement" in line for line in found), found
+    # event_consumption is insert-only; a non-backfill outbox INSERT from Python is refused.
+    found = failures(isolated_copy(lambda copy: _append(copy, EVENT_WRITER,
+        '\n_PROBE = text("UPDATE event_consumption SET processed_at = now() WHERE event_id = :e")\n'
+        '_PROBE_2 = text("INSERT INTO event_outbox (type, schema_version, occurred_at, source, tenant_id, site_id, '
+        "subject, idempotency_key) VALUES ('reading.accepted', 1, :o, 'x', :t, :s, '{}', :k) "
+        'ON CONFLICT (source, idempotency_key) DO NOTHING")\n')))
+    refused = [line for line in found if "event store runs only its four declared statements" in line]
+    assert any("UPDATE event_consumption" in line for line in refused), found
+    assert any("reading.accepted" in line for line in refused), found
+
+
+EVENT_PAGE_ACCEPT = (
+    '\n_PROBE = text("INSERT INTO event_consumption (consumer, event_id) VALUES (:c_0, :e_0), (:c_1, :e_1)")\n'
+    '_PROBE_2 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "VALUES (:t_0, :s_0, :d_0, :m_0, :e_0), (:t_1, :s_1, :d_1, :m_1, :e_1) "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day, measure) DO UPDATE SET marked_at = clock_timestamp()")\n')
+EVENT_PAGE_REJECT = (
+    '\n_PROBE = text("INSERT INTO event_consumption (consumer, event_id) SELECT :c, unnest(CAST(:ids AS uuid[]))")\n'
+    '_PROBE_2 = text("INSERT INTO event_consumption (consumer, event_id) VALUES (:c, unnest(:ids))")\n'
+    '_PROBE_3 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "SELECT tenant_id, site_id, local_day, measure, first_event_id FROM snapshot_dirty_probe "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day, measure) DO UPDATE SET marked_at = clock_timestamp()")\n'
+    '_PROBE_4 = text("INSERT INTO snapshot_dirty (tenant_id, site_id, local_day, measure, first_event_id) "\n'
+    '                "VALUES (:t_0, :s_0, :d_0, :m_0, :e_0), (:t_1, :s_1, :d_1, :m_1, :e_1) "\n'
+    '                "ON CONFLICT (tenant_id, site_id, local_day) DO UPDATE SET marked_at = clock_timestamp()")\n')
+
+
+def test_event_page_writes_accept_multi_row_values_only() -> None:
+    """CH1b-R2 note 3: the page write's multi-row VALUES list is accepted for the consumption insert and the mark
+    upsert; a SELECT, an unnest or another ON CONFLICT arbiter is refused."""
+    accepted = isolated_copy(lambda copy: _append(copy, EVENT_WRITER, EVENT_PAGE_ACCEPT))
+    assert accepted.returncode == 0 and "passed" in accepted.stdout, failures(accepted) or accepted.stdout
+    found = failures(isolated_copy(lambda copy: _append(copy, EVENT_WRITER, EVENT_PAGE_REJECT)))
+    refused = [line for line in found if "event store runs only its four declared statements" in line]
+    assert any("SELECT :c, unnest" in line for line in refused), found
+    assert any("VALUES (:c, unnest(:ids))" in line for line in refused), found
+    assert any("FROM snapshot_dirty_probe" in line for line in refused), found
+    assert any("ON CONFLICT (tenant_id, site_id, local_day) DO UPDATE" in line for line in refused), found
+
+
+def test_event_tables_foreign_write_rejected() -> None:
+    """CH-1b §7: another registered writer may not write an event table; the outbox is trigger-written."""
+    found = failures(isolated_copy(lambda copy: _append(copy, SNAPSHOT_WRITER,
+        '\n_PROBE = text("INSERT INTO event_outbox (type) VALUES (:t)")\n'
+        '_PROBE_2 = text("DELETE FROM snapshot_dirty WHERE tenant_id = :t")\n')))
+    assert any("event outbox is written only by the migration 0044 triggers" in line for line in found), found
+    assert any("writes event table 'snapshot_dirty'" in line for line in found), found
+
+
+def test_event_migration_arbiter_and_not_vacuous() -> None:
+    """CH-1b §7: the 0044 producers keep the DO NOTHING arbiter; removing every producer INSERT is vacuous."""
+    real = (ROOT / EVENT_MIGRATION).read_text(encoding="utf-8")
+    assert real.count(EVENT_ARBITER) == 1
+    found = failures(isolated_copy(lambda copy: _replace(copy, EVENT_MIGRATION, EVENT_ARBITER,
+                                                         "ON CONFLICT (source, idempotency_key) DO UPDATE SET payload = '{}';")))
+    assert any("keeps exactly the ON CONFLICT (source, idempotency_key) DO NOTHING arbiter" in line for line in found), found
+    assert any("runs no ON CONFLICT DO UPDATE" in line for line in found), found
+    found = failures(isolated_copy(lambda copy: _replace(copy, EVENT_MIGRATION, '"INSERT INTO event_outbox (',
+                                                         '"INSERT INTO event_outbox_probe (')))
+    assert any("found no INSERT INTO event_outbox in" in line for line in found), found

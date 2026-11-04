@@ -8,7 +8,7 @@ Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 """
 
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
@@ -385,12 +385,14 @@ def test_db_checks_triggers_and_downgrade(cold) -> None:
     from alembic import command
 
     config = _alembic()
+    clear_event_history(engine)  # CH-1b: 0044's own refusal comes first
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(config, PREVIOUS)
     assert head(engine) == HEAD and counts(engine) == [1, 2, 1]
     _replica(engine, "DELETE FROM domain_action_case_link", "DELETE FROM domain_action_intent",
              "DELETE FROM domain_action")
+    clear_event_history(engine)
     engine.dispose()
     command.downgrade(config, PREVIOUS)
     with engine.connect() as c:

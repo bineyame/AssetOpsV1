@@ -7,7 +7,7 @@ fingerprint writes nothing; a changed one appends ``revision = latest + 1``.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
 from typing import Mapping, Sequence
 
@@ -85,7 +85,8 @@ class SnapshotBuilder:
             catalogue_version=self._catalogue_version, input_fp=fp,
         )
         if latest is not None and latest[1] == fp:
-            return Written(row, False)
+            # CH-1a L6: nothing is appended, so the row reports the stored revision
+            return Written(replace(row, revision=latest[0]), False)
         self._store.append(row)
         return Written(row, True)
 

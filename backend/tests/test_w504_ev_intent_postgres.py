@@ -9,7 +9,7 @@ Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 """
 
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 import json
 from datetime import datetime, timedelta, timezone
@@ -215,6 +215,7 @@ def test_downgrade_refuses_each_ev_shape_then_restores_cold_check(ev) -> None:
     for no, child, expected in ((920001, None, [1, 0, 0]), (920002, "intent", [1, 1, 0]),
                                 (920003, "link", [1, 0, 1])):
         shape(no, child)
+        clear_event_history(engine)  # CH-1b: 0044's own refusal comes first
         engine.dispose()
         with pytest.raises(DBAPIError, match=REFUSED):
             command.downgrade(config, PARENT)
@@ -222,6 +223,7 @@ def test_downgrade_refuses_each_ev_shape_then_restores_cold_check(ev) -> None:
         assert "domain_action_domain_chk" in domain_checks(engine)
         _replica(engine, "DELETE FROM domain_action_case_link", "DELETE FROM domain_action_intent",
                  "DELETE FROM domain_action")
+    clear_event_history(engine)
     engine.dispose()
     command.downgrade(config, PARENT)
     assert head(engine) == PARENT

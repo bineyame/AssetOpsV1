@@ -23,6 +23,7 @@ from assetops_backend.chain.lifecycle import LifecyclePolicy, parse_thread_lifec
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_POLICY_PATH = REPO_ROOT / "config" / "chain" / "coverage-policy-v1.json"
 DEFAULT_CALENDAR_PATH = REPO_ROOT / "config" / "chain" / "operating-calendar-v1.json"
+DEFAULT_REGISTER_PATH = REPO_ROOT / "config" / "chain" / "event-register-v1.yaml"  # CH-1b
 DEFAULT_LIFECYCLE_PATH = REPO_ROOT / "config" / "chain" / "thread-lifecycle-v1.json"
 
 
@@ -56,6 +57,30 @@ def _default_policy() -> CoveragePolicy:
 @lru_cache(maxsize=1)
 def _default_calendar() -> OperatingCalendar:
     return parse_operating_calendar(_read_json(DEFAULT_CALENDAR_PATH), str(DEFAULT_CALENDAR_PATH))
+
+
+def load_event_register(path: Path | str | None = None):
+    """CH-1b: the declared event register (YAML), validated by ``chain/events.py``."""
+    if path is None:
+        return _default_register()
+    return _register(Path(path))
+
+
+def _register(path: Path):
+    import yaml
+
+    from assetops_backend.chain.events import parse_register
+
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise ChainConfigError(f"{path}: cannot read: {exc}") from exc
+    return parse_register(payload, str(path))
+
+
+@lru_cache(maxsize=1)
+def _default_register():
+    return _register(DEFAULT_REGISTER_PATH)
 
 
 def load_thread_lifecycle(path: Path | str | None = None) -> LifecyclePolicy:
