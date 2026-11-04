@@ -396,7 +396,9 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
     derived = derived_rules(k)
     noon = k["noon"]
     busy = noon.get("busy_noon")
-    busy_lo, busy_hi = (local_instant(spec, "kobo", n, x) for x in noon["window_local"])
+    # CH9-R2:Q1: the busy charge request has its own window (the 06:00-18:00 solar block), else the noon window.
+    busy_window = (busy or {}).get("window_local", noon["window_local"])
+    busy_lo, busy_hi = (local_instant(spec, "kobo", n, x) for x in busy_window)
     busy_today = busy is not None and n not in noon[busy["except_days"]]
 
     rows = []
