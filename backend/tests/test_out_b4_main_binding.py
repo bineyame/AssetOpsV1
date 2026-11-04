@@ -17,25 +17,17 @@ def test_board_route_refuses_a_site_the_site_read_grant_does_not_cover(monkeypat
     assert r.status_code == 403 and r.json()["detail"]["code"] == "SITE_SCOPE_FORBIDDEN"
 
 
-def test_board_services_get_the_apps_finding_read_service() -> None:
-    """LINK-LINEAGE U2: `main.py` hands the board the same `finding_reads` it builds for the Finding routes, and the
-    composition stores it on `BoardServices.finding_reads` (the history port's service)."""
+def test_board_services_take_no_finding_read_service() -> None:
+    """CH-5a1 (lineage deleted, §A4/§A5; coordinator ruling D3): the board no longer reads Finding history, so
+    `main.py` does not hand it `finding_reads` and `BoardServices` has no such field."""
     import ast
+    import dataclasses
     from pathlib import Path
 
-    from assetops_backend.site_outcomes.composition import build_outcome_board_service
+    from assetops_backend.site_outcomes.read import BoardServices
 
     tree = ast.parse(Path(main.__file__).read_text(encoding="utf-8"))
-    assigned = [n for n in ast.walk(tree) if isinstance(n, ast.Assign)
-                and any(isinstance(t, ast.Name) and t.id == "finding_reads" for t in n.targets)]
-    assert len(assigned) == 1 and "build_finding_read_service" in ast.unparse(assigned[0].value)
     call = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
                 and getattr(n.func, "id", None) == "build_outcome_board_service")
-    kw = {k.arg: k.value for k in call.keywords}
-    assert isinstance(kw.get("finding_reads"), ast.Name) and kw["finding_reads"].id == "finding_reads"
-    sentinel = object()
-    service, dispose = build_outcome_board_service(None, finding_reads=sentinel)
-    try:
-        assert service.s.finding_reads is sentinel
-    finally:
-        dispose()
+    assert "finding_reads" not in {k.arg for k in call.keywords}
+    assert "finding_reads" not in {f.name for f in dataclasses.fields(BoardServices)}

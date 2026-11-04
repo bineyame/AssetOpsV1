@@ -1,13 +1,19 @@
 """OUT-B2: the mini composer over fake ports (build spec §B.4 mini table; rulings B-Q6/Q10-Q14/Q17/Q18/Q22/Q23,
-addendum 2). Includes M1b: every Finding a case or Action links is supplied, closed heads included."""
+addendum 2). Includes M1b: every Finding a case or Action links is supplied, closed heads included.
+CH-5a1: the fakes are the ChainReader ports (`chain/read.py` `DayFacts`, `FindingHead`, `ActionFacts`,
+`MoneyHead`); the overview, Finding index, estate readiness, verification/action and Finding-history ports are gone
+(§A4). Old override -> new: `overview` -> `source` / `day` (settled) / dispatch `limitations` / `money_head`;
+`finding_index` -> `chain_findings` / `findings_settled` / `day` gaps; `readiness` -> `day` readiness;
+`verification` + `action` -> `action_facts`. Expected values changed only per §A6 E1-E5, named at each test."""
 from __future__ import annotations
 
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
+from assetops_backend.chain.read import ActionFacts, DayFacts, FindingHead, MoneyHead
 from assetops_backend.site_outcomes import mini
-from assetops_backend.site_outcomes.board import assemble
+from assetops_backend.site_outcomes.board import assemble, with_threads
 from assetops_backend.site_outcomes.mini import MiniPorts, compose, limitation_text
 
 GROW, COST, PROTECT, ASSURE = mini.GROW, mini.COST, mini.PROTECT, mini.ASSURE
@@ -26,26 +32,29 @@ def iso(dt: datetime) -> str:
 
 
 T = lambda day, hour=0: datetime(2026, 10, day, hour, tzinfo=timezone.utc)  # noqa: E731
+#: E4 (R6): the board day is the Site-local day [local 00:00 D, local 00:00 D+1) = [T(19, 21), T(20, 21)) at UTC+3.
+LO, HI = T(19, 21), T(20, 21)
 
-OVERVIEW = {
-    "freshness": {"state": "CURRENT"},
-    "assessment": {"state": "LIMITED", "limitations": ["EVIDENCE_GAP: interval from x is Indeterminate over a..b: "
-                                                        "PCS_CAPABILITY_UNAVAILABLE"]},
-    "money": {"state": "PRICED", "eligibility": {"state": "ELIGIBLE"}, "amount_low": "3.31", "amount_high": "3.97",
-              "currency": "USD", "source_provenance": {"state": "REGISTERED_SIMULATION"}},
-}
+LIMITATIONS = ["EVIDENCE_GAP: interval from x is Indeterminate over a..b: PCS_CAPABILITY_UNAVAILABLE"]
+INTERVALS = [{"result": {"portions_minutes": {"candidate": "30.0", "necessary": "10", "indeterminate": "12"}}},
+             {"result": {"portions_minutes": {"candidate": "15", "necessary": "0", "indeterminate": "0"}}}]
+#: CH5a1-R Q2: the assessment (state, limitations, claim level, intervals) comes from the dispatch body itself.
+DISPATCH = {"status": "LIMITED", "limitations": LIMITATIONS, "intervals": INTERVALS}
+MONEY = MoneyHead(True, "3.31", "3.97", "USD", {"state": "REGISTERED_SIMULATION"})
 DEPTH = {
     "renewable": {"headroom_kw": {"low": "18", "high": "24.25"}, "eligible_days": 1, "assessed_days": 1},
     "fuel": {"opening_l": None},
     "service": {"delivered_load_kw": "11.2"},
     "backup": {"outage_count": 0, "start_success_count": None},
 }
-F104 = {"finding_id": "f104", "finding_revision_id": "f104r", "title": "Generator support review",
-        "lifecycle": "SUPPORTED", "episode": {"start": iso(T(20, 6)), "end": iso(T(20, 9))},
-        "links": {"selected_revision": f"/sites/{C}/findings/f104?revision_id=f104r"}}
-F090 = {"finding_id": "f090", "finding_revision_id": "f090r", "title": "Generator support review (earlier)",
-        "lifecycle": "RETIRED", "episode": {"start": iso(T(2, 6)), "end": iso(T(2, 9))},
-        "links": {"selected_revision": f"/sites/{C}/findings/f090?revision_id=f090r"}}
+
+
+def head(fid: str, rid: str, lifecycle: str, start: datetime, end: datetime | None, no: int = 1) -> FindingHead:
+    return FindingHead(fid, rid, no, lifecycle, None, start, end, "GENERATOR_SUPPORT_CANDIDATE", None)
+
+
+F104 = head("f104", "f104r", "SUPPORTED", T(20, 6), T(20, 9))
+F090 = head("f090", "f090r", "RETIRED", T(2, 6), T(2, 9))
 ESTATE_F104 = {"finding_id": "f104", "finding_revision_id": "f104r", "lifecycle": "SUPPORTED",
                "source_provenance": {"state": "REGISTERED_SIMULATION"}, "consequence": {"state": "PRICED"},
                "_episode_end": T(20, 9), "_mechanism": "GENERATOR_SUPPORT_CANDIDATE"}
@@ -66,7 +75,9 @@ PLANS = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator servi
 
 
 class Fake:
-    """Fake ports; `refuse` names the ports that raise, `calls` records every call."""
+    """Fake ports; `refuse` names the ports that raise, `calls` records every call. Overrides use the port names;
+    `day` overrides `DayFacts` fields (default: settled, readiness LIMITED, no gaps), `verification` the
+    `ActionFacts.verification_state` (PENDING) and `has_change` its flag (True)."""
 
     def __init__(self, refuse: tuple[str, ...] = (), **over: Any) -> None:
         self.refuse, self.over, self.calls = refuse, over, []
@@ -84,31 +95,31 @@ class Fake:
                 raise RuntimeError("refused")
             return {"site": {"timezone": ZONE}, "cards": self.over.get("cards", DEPTH)[domain]}
 
-        def finding_index(lo, hi, cursor):  # two pages (paging combined, M1b closed head on page two)
-            page = self._go("finding_index", None, lo, hi, cursor)
-            if page is not None:
-                return page
-            return ({"status": "CURRENT", "gaps": [], "rows": [F104], "next_cursor": "c2"} if cursor is None
-                    else {"status": "CURRENT", "gaps": [], "rows": [F090], "next_cursor": None})
+        def chain_day(days, readiness_days):
+            facts = replace(DayFacts(tuple(days), {}, True, "LIMITED", ()), **self.over.get("day", {}))
+            return self._go("chain_day", facts, days, readiness_days)
+
+        def action_facts(ids):
+            state, change = self.over.get("verification", "PENDING"), self.over.get("has_change", True)
+            return self._go("action_facts", tuple(ActionFacts(i, state, None, None, change) for i in ids), ids)
 
         return MiniPorts(
-            overview=lambda d: self._go("overview", OVERVIEW, d),
+            source=lambda: self._go("source", (True, "REGISTERED_SIMULATION")),
             depth=depth,
-            dispatch=lambda d: self._go("dispatch", {"intervals": [
-                {"result": {"portions_minutes": {"candidate": "30.0", "necessary": "10", "indeterminate": "12"}}},
-                {"result": {"portions_minutes": {"candidate": "15", "necessary": "0", "indeterminate": "0"}}}]}, d),
+            dispatch=lambda d: self._go("dispatch", DISPATCH, d),
             assumption=lambda at: self._go("assumptions", {"selection": {"state": "PRICED", "price": {
                 "value": "1.45", "currency": "USD"}}}, at),
-            finding_index=finding_index,
+            chain_day=chain_day,
+            chain_findings=lambda lo, hi: self._go("chain_findings", (F104, F090), lo, hi),
+            findings_settled=lambda: self._go("findings_settled", True),
             estate=lambda lo, hi, wlo, whi: self._go("estate", {
                 "site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104], "actions": [ESTATE_A48]}, lo, hi, wlo, whi),
             action_index=lambda lo, hi, cur: self._go("action_index", {"rows": [A48], "next_cursor": None}, lo, hi),
-            verification=lambda aid: self._go("verification", {"state": "PENDING"}, aid),
-            action=lambda aid, ev: self._go("action", {"change": {"id": "ch1"}}, aid, ev),
+            action_facts=action_facts,
+            money=lambda fid, rid, latest, src, settled: self._go("money_head", MONEY, fid, rid, latest, src, settled),
             work=lambda kind, lo, hi, cur: self._go(
                 "work", {"rows": [MR1] if kind == "maintenance" else [IN1], "next_cursor": None}, kind, lo, hi),
             plans=lambda lo, hi: self._go("plans", PLANS, lo, hi),
-            readiness=lambda lo, hi: self._go("readiness", "LIMITED", lo, hi),
         )
 
 
@@ -126,7 +137,7 @@ def outcome(row: dict, key: str) -> str:
 
 
 def vocabulary_compositions():
-    return [run()[0], run(Fake(refuse=("depth", "estate", "dispatch", "overview")))[0], run(tz=None)[0]]
+    return [run()[0], run(Fake(refuse=("depth", "estate", "dispatch", "source")))[0], run(tz=None)[0]]
 
 
 # --------------------------------------------------------------- happy path
@@ -181,11 +192,15 @@ def test_depth_windows_follow_the_site_local_day() -> None:
 def test_work_window_is_31_days_ending_with_the_day() -> None:
     fake = Fake()
     run(fake)
-    for name in ("finding_index", "action_index", "plans"):
+    # E4 (R6): the windows end at local midnight after the board day, not at UTC midnight.
+    for name in ("chain_findings", "action_index", "plans"):
         args = next(a for n, a in fake.calls if n == name)
-        assert args[:2] == (T(21) - timedelta(days=31), T(21)), name
+        assert args[:2] == (HI - timedelta(days=31), HI), name
     # addendum 5 #2: estate Finding rows and coverage over the board day, Action rows over the work window
-    assert next(a for n, a in fake.calls if n == "estate") == (T(20), T(21), T(21) - timedelta(days=31), T(21))
+    assert next(a for n, a in fake.calls if n == "estate") == (LO, HI, HI - timedelta(days=31), HI)
+    # CH5a1-R Q9: one snapshot read over the 31 Site-local days of the work window; readiness on the board day.
+    days, ready = next(a for n, a in fake.calls if n == "chain_day")
+    assert len(days) == 31 and days[-1] == DAY and ready == (DAY,)
 
 
 # --------------------------------------------------------------- M1b and unresolved links (addendum 2 #4)
@@ -212,8 +227,8 @@ def test_unresolved_link_is_kept_and_recorded_not_on_the_wire() -> None:
 
 
 def test_out_of_window_finding_drives_no_issue() -> None:
-    later = dict(F104, episode={"start": iso(T(10, 6)), "end": iso(T(10, 9))})
-    fake = Fake(finding_index={"status": "CURRENT", "rows": [later, F090], "next_cursor": None})
+    later = replace(F104, episode_start=T(10, 6), episode_end=T(10, 9))
+    fake = Fake(chain_findings=(later, F090))
     comp, rows = run(fake)
     assert not any(i["kind"] == "FINDING" for r in rows.values() for i in r["issues"])
     assert [i["text"] for i in rows[COST]["in_hand"]] == ["ACT-048"]
@@ -249,10 +264,13 @@ def test_missing_site_zone_skips_depth() -> None:
     assert outcome(rows[GROW], "MG-1") == "UNKNOWN"
 
 
-def test_dispatch_refusal_unsettles_mg2_only() -> None:
+def test_dispatch_refusal_unsettles_the_measured_outcomes() -> None:
+    """CH5a1-R Q2: `base = source_open and day.settled and dispatch is not None`. The overview's assessment was the
+    dispatch read (`site_overview/read.py:347-379`), so a dispatch failure was an overview failure; the fake used
+    to refuse them separately (MG-2 only). Now the dispatch read is the assessment itself."""
     comp, rows = run(Fake(refuse=("dispatch",)))
     assert comp.read_state == "PARTIAL"
-    assert outcome(rows[COST], "MG-2") == "UNKNOWN" and outcome(rows[GROW], "MG-1") == "OPPORTUNITY"
+    assert outcome(rows[COST], "MG-2") == "UNKNOWN" and outcome(rows[GROW], "MG-1") == "UNKNOWN"
     assert contributor(rows[COST], "generator_use")["text"] == mini.NOT_LOADED
     assert rows[COST]["subline"] is None
 
@@ -266,7 +284,7 @@ def test_estate_refusal_labels_not_loaded_and_nulls_confidence() -> None:
 
 
 def test_degrade_only_ports_never_set_unknown() -> None:
-    for port in ("work", "plans", "assumptions", "verification", "action", "action_index"):
+    for port in ("work", "plans", "assumptions", "action_facts", "action_index"):  # CH-5a1 C6: one action read
         comp, rows = run(Fake(refuse=(port,)))
         assert comp.read_state == "PARTIAL", port
         # C: Protect is Watch from the PM-002 due cue unless the plan read itself is refused
@@ -280,7 +298,7 @@ def test_degrade_only_ports_never_set_unknown() -> None:
 
 def _assert_finding_source_unsettled(comp, rows) -> None:
     """Addendum 3 M1: MG-2 UNKNOWN, PARTIAL, the could-not-be-loaded suffix, and no outside-view suffix."""
-    assert comp.read_state == "PARTIAL" and "finding_index" in comp.failed
+    assert comp.read_state == "PARTIAL" and "chain_findings" in comp.failed
     assert outcome(rows[COST], "MG-2") == "UNKNOWN"
     assert outcome(rows[GROW], "MG-1") == "OPPORTUNITY"  # only the outcomes a mini Finding mechanism moves
     assert not comp.facts.findings_settled
@@ -295,44 +313,44 @@ def _assert_finding_source_unsettled(comp, rows) -> None:
     assert ("a48", "f104") in comp.diagnostics and ("in1", "f-old") in comp.diagnostics
 
 
-def test_refused_finding_index_unsettles_finding_outcomes() -> None:
+def test_refused_finding_heads_unsettle_finding_outcomes() -> None:
     """Negative control of test_degrade_only_ports_never_set_unknown: the Finding source is a status producer."""
-    _assert_finding_source_unsettled(*run(Fake(refuse=("finding_index",))))
-
-
-def _gap(day: str, state: str, reason: str = "NOT_CURRENT") -> dict:
-    return {"day": day, "state": state, "reason": reason}
+    _assert_finding_source_unsettled(*run(Fake(refuse=("chain_findings",))))
+    _assert_finding_source_unsettled(*run(Fake(refuse=("findings_settled",), chain_findings=())))
 
 
 #: IDX-GAPS U2: the 31 requested days of the board's Finding window, ending on the board day DAY.
 REQUESTED = [(DAY - timedelta(days=30 - n)).isoformat() for n in range(31)]
 
 
-def test_pending_finding_index_unsettles_finding_outcomes() -> None:
-    for status in ("PENDING", "STALE", "STALE_PROJECTION", "FAILED"):
-        body = {"status": status, "rows": [], "next_cursor": None}
-        _assert_finding_source_unsettled(*run(Fake(finding_index=body)))
-    # IDX-GAPS U2: an UNASSESSED body no longer settles as zero (v1 settled it with no rows)
-    unassessed = {"status": "UNASSESSED", "rows": [], "next_cursor": None, "withheld": False,
-                  "discovery": {"requested_days": REQUESTED}, "gaps": [_gap(d, "UNASSESSED") for d in REQUESTED]}
-    comp, rows = run(Fake(finding_index=unassessed))
-    _assert_finding_source_unsettled(comp, rows)
+def test_unsettled_findings_unsettle_finding_outcomes() -> None:
+    """R8: an unconsumed Finding event leaves the Findings unsettled (the index's PENDING/STALE/FAILED bodies)."""
+    _assert_finding_source_unsettled(*run(Fake(findings_settled=False, chain_findings=())))  # the index's rows []
+
+
+def test_gap_line_names_the_gap_days_by_day_grade() -> None:
+    """E3 (R8 / CH5a1-R Q9): the gap line names the work-window days whose day grade is NO_DATA or PENDING; it no
+    longer gates settlement (R8 does), and `withheld` is always False (CH5a1-R Q4)."""
+    every = tuple(date.fromisoformat(d) for d in REQUESTED)
+    comp, rows = run(Fake(day={"gaps": every}))
+    assert comp.facts.findings_settled and outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
     assert comp.facts.finding_gaps == {"text": "31 of the last 31 days have no checked readings yet",
-                                       "days": REQUESTED, "withheld": False}  # WALK1-1: the withheld flag
-    # PARTIAL whose gaps name the board day: unsettled
-    on_day = {"status": "PARTIAL", "rows": [], "next_cursor": None, "withheld": True,
-              "discovery": {"requested_days": REQUESTED},
-              "gaps": [_gap(DAY.isoformat(), "CURRENT", "WITHHELD_FINDING"), _gap(REQUESTED[3], "PENDING")]}
-    _assert_finding_source_unsettled(*run(Fake(finding_index=on_day)))
-    # PARTIAL with the board day CURRENT: settled on its true rows, and the gap line names the other days
-    other = {"status": "PARTIAL", "rows": [F104], "next_cursor": None, "withheld": False,
-             "discovery": {"requested_days": REQUESTED},
-             "gaps": [_gap(REQUESTED[0], "UNASSESSED"), _gap(REQUESTED[1], "UNASSESSED")]}
-    comp, rows = run(Fake(finding_index=other))
-    assert comp.facts.findings_settled and "finding_index" not in comp.failed
-    assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
+                                       "days": REQUESTED, "withheld": False}
+    two = every[:2]
+    comp, _ = run(Fake(day={"gaps": two}))
     assert comp.facts.finding_gaps == {"text": "2 of the last 31 days have no checked readings yet",
                                        "days": REQUESTED[:2], "withheld": False}
+    pending = {two[1]: {"generator_runtime": {"gen": "PENDING"}}}
+    comp, _ = run(Fake(day={"gaps": two, "grades": pending}))
+    assert comp.facts.finding_gaps["text"] == "Not available yet · 2 of 31 days are not assessed yet"
+    assert run()[0].facts.finding_gaps is None
+
+
+def test_unsettled_board_day_unsettles_measured_outcomes() -> None:
+    """R4 / CH5a1-R Q2: an unsettled board day (the overview's not-CURRENT freshness) unsettles `base`."""
+    _, rows = run(Fake(day={"settled": False}))
+    for key, cat in (("MG-1", GROW), ("MG-2", COST), ("MG-5", PROTECT), ("MG-7", ASSURE)):
+        assert outcome(rows[cat], key) == "UNKNOWN", key
 
 
 def test_missing_estate_row_is_partial_and_recorded() -> None:
@@ -345,21 +363,21 @@ def test_missing_estate_row_is_partial_and_recorded() -> None:
     assert mini.ESTATE_ROW_MISSING not in str(rows)
 
 
-def test_overview_refusal_or_stale_unsettles_everything_measured() -> None:
-    comp, rows = run(Fake(refuse=("overview",)))
-    assert comp.read_state == "PARTIAL"
-    for key, cat in (("MG-1", GROW), ("MG-2", COST), ("MG-5", PROTECT), ("MG-7", ASSURE)):
-        assert outcome(rows[cat], key) == "UNKNOWN", key
-    stale = dict(OVERVIEW, freshness={"state": "STALE"})
-    _, rows = run(Fake(overview=stale))
+def test_source_or_day_refusal_or_closed_source_unsettles_everything_measured() -> None:
+    """The overview read's three cases on the reads that replace it (CH5a1-R Q2): refused, stale, CLOSED."""
+    for port in ("source", "chain_day"):
+        comp, rows = run(Fake(refuse=(port,)))
+        assert comp.read_state == "PARTIAL" and port in comp.failed, port
+        for key, cat in (("MG-1", GROW), ("MG-2", COST), ("MG-5", PROTECT), ("MG-7", ASSURE)):
+            assert outcome(rows[cat], key) == "UNKNOWN", (port, key)
+    _, rows = run(Fake(day={"settled": False}))
     assert outcome(rows[COST], "MG-2") == "UNKNOWN"
-    closed = dict(OVERVIEW, assessment={"state": "CLOSED", "limitations": []})
-    _, rows = run(Fake(overview=closed))
+    _, rows = run(Fake(source=(False, "CLOSED")))
     assert outcome(rows[COST], "MG-2") == "UNKNOWN"
 
 
 def test_unknown_readiness_unsettles_mg7() -> None:
-    _, rows = run(Fake(readiness="UNKNOWN"))
+    _, rows = run(Fake(day={"readiness": "UNKNOWN"}))
     assert outcome(rows[ASSURE], "MG-7") == "UNKNOWN"
 
 
@@ -369,13 +387,13 @@ def test_limitation_text_never_renders_raw_codes() -> None:
     assert limitation_text("PCS_CAPABILITY_UNAVAILABLE: x") == "Battery output not reported"
     assert limitation_text("EVIDENCE_GAP: over a..b: PCS_CAPABILITY_UNAVAILABLE") == "Battery output not reported"
     assert limitation_text("NO_COHORT: none usable") == "An evidence gap limits this conclusion"
-    _, rows = run(Fake(overview=dict(OVERVIEW, assessment={"state": "LIMITED", "limitations": ["NO_COHORT: x"]})))
+    _, rows = run(Fake(dispatch=dict(DISPATCH, limitations=["NO_COHORT: x"])))
     assert [i["text"] for i in rows[ASSURE]["issues"]] == ["An evidence gap limits this conclusion"]
 
 
 def test_unpriced_money_and_verified_headline() -> None:
-    unpriced = dict(OVERVIEW, money={**OVERVIEW["money"], "state": "NOT_PRICED"})
-    _, rows = run(Fake(overview=unpriced, verification={"state": "VERIFIED"}))
+    unpriced = replace(MONEY, priced=False)
+    _, rows = run(Fake(money_head=unpriced, verification="VERIFIED"))
     assert rows[COST]["headline"] == "No fuel cost estimated for this day" and rows[COST]["headline_money"] is None
     assert rows[ASSURE]["headline"] == "1 verified result"  # addendum 3 L7
     assert contributor(rows[ASSURE], "verified_results") == {
@@ -394,7 +412,7 @@ def test_singular_for_one_in_count_templates() -> None:
     """Addendum 3 L7: n = 1 reads singular in every "{n} ..." template."""
     cards = {**DEPTH, "backup": {"outage_count": 1, "start_success_count": 1},
              "renewable": {**DEPTH["renewable"], "eligible_days": 2, "assessed_days": 3}}
-    one_minute = {"intervals": [{"result": {"portions_minutes": {"candidate": "1", "indeterminate": "0"}}}]}
+    one_minute = dict(DISPATCH, intervals=[{"result": {"portions_minutes": {"candidate": "1", "indeterminate": "0"}}}])
     plans = [dict(PLANS[0], next_due_hours="1")]
     _, rows = run(Fake(cards=cards, dispatch=one_minute, plans=plans))
     assert contributor(rows[PROTECT], "backup_readiness")["text"] == "1 backup start recorded"
@@ -427,152 +445,60 @@ def test_mini_composer_imports_no_adapter_or_composition() -> None:
     assert not [n for n in names if ".adapters" in n or n.endswith(".composition")]
 
 
-# --------------------------------------------------------------- LINK-LINEAGE U2 (refresh lineage)
-def _rev(rid: str, no: int, transition: str = "BASIS_REFRESHED", lifecycle: str = "SUPPORTED",
-         end: str | None = None) -> dict:
-    return {"id": rid, "revision_no": no, "transition": transition, "lifecycle": lifecycle,
-            "episode": {"start": iso(T(20, 6)), "end": end or iso(T(20, 9))}}
+# --------------------------------------------------------------- CH-5a1: the ChainReader ports and the thread join
+
+def test_mini_ports_read_no_overview_index_readiness_or_history() -> None:
+    """§A4 / §A5: the overview, Finding index, estate readiness, the two per-Action reads and the Finding history
+    are not mini ports; one compose calls each ChainReader port once."""
+    fields = set(MiniPorts.__dataclass_fields__)
+    assert not fields & {"overview", "finding_index", "readiness", "verification", "action", "finding_history"}
+    fake = Fake()
+    run(fake)
+    names = [n for n, _ in fake.calls]
+    for name in ("source", "chain_day", "chain_findings", "findings_settled", "action_facts", "money_head"):
+        assert names.count(name) == 1, name
+    assert next(a for n, a in fake.calls if n == "action_facts") == (["a48"],)
 
 
-def _lineage_fake(origin: str = "f104r0", shown: str = "f104r", fid: str = "f104", **over: Any) -> Fake:
-    """The happy-path fake with A48 raised on an earlier revision `origin` of the shown Finding revision."""
-    f = {**F104, "finding_id": fid, "finding_revision_id": shown}
-    est_f = {**ESTATE_F104, "finding_id": fid, "finding_revision_id": shown}
-    est_a = {**ESTATE_A48, "source_finding_id": fid, "source_finding_revision_id": origin}
-    a = {**A48, "origin": {"finding_id": fid, "finding_revision_id": origin}}
-    return Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [f], "next_cursor": None},
-                estate={"site_cov": {"state": "CURRENT"}, "findings": [est_f], "actions": [est_a]},
-                action_index={"rows": [a], "next_cursor": None}, **over)
+def test_money_reads_the_lead_finding_on_the_board_day() -> None:
+    """CH5a1-R Q5: the discovered head (greatest episode start on the board day), latest revision, source open."""
+    fake = Fake()
+    run(fake)
+    assert next(a for n, a in fake.calls if n == "money_head") == ("f104", "f104r", True, True, True)
+    off_day = Fake(chain_findings=(F090,))
+    _, rows = run(off_day)
+    assert "money_head" not in [n for n, _ in off_day.calls]
+    assert rows[COST]["headline_money"] is None
 
 
-def _run_with_history(fake: Fake, history):
-    calls: list[tuple[str, str]] = []
-
-    def port(fid: str, rid: str):
-        calls.append((fid, rid))
-        return history(fid, rid)
-
-    ports = replace(fake.ports(), finding_history=port)
-    comp = compose(ports, site_code=C, day=DAY, site_timezone=ZONE)
-    return comp, {r["category"]: r for r in assemble(comp.facts)}, calls
+def test_no_change_flag_drops_the_change_option() -> None:
+    _, rows = run(Fake(has_change=False))
+    assert [o["text"] for o in rows[COST]["options"]] == ["Trial a lower generator stop setting"]
 
 
-def _never(f: str, r: str):  # pragma: no cover - M1 must never call the port
-    raise AssertionError("finding_history must not be called on an exact match")
+def _threaded(action_revision: str, segment: int):
+    """The happy-path board with A48 raised on `action_revision` and joined to f104's thread `t1` (segment 1)."""
+    a = {**A48, "origin": {"finding_id": "f104", "finding_revision_id": action_revision}}
+    comp, _ = run(Fake(action_index={"rows": [a], "next_cursor": None}))
+    thread = {"id": "t1", "occurrence_no": 1, "occurrences": 1, "segment_no": 1, "state": "OPEN",
+              "applied": False, "verified": False}
+    facts = with_threads(comp.facts, {"findings": {"f104": thread}, "actions": {"a48": "t1"},
+                                      "action_segments": {"a48": segment}})
+    return {r["category"]: r for r in assemble(facts)}
 
 
-def test_m1_exact_match_never_reads_history() -> None:
-    comp, rows, calls = _run_with_history(Fake(), _never)
-    assert calls == [] and rows[COST]["must_not_harm"] is not None and comp.failed == ()
-
-
-def test_m2_refreshed_chain_links_and_must_not_harm() -> None:
-    comp, rows, calls = _run_with_history(_lineage_fake(), lambda f, r: [_rev("f104r0", 1, "CREATED"),
-                                                                         _rev("f104r", 2)])
-    assert calls == [("f104", "f104r")]
-    assert comp.read_state == "AVAILABLE" and comp.failed == ()
+def test_thread_join_links_an_action_raised_on_an_earlier_revision() -> None:
+    """Deleted lineage (§A4): the link is the thread and segment, so an earlier origin revision still links."""
+    rows = _threaded("f104r0", 1)
     assert rows[COST]["must_not_harm"]["href"] == f"/sites/{C}/actions/a48/verification?event_id=e1"
-    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
-    assert f.refreshed_from == ("f104r0",)
 
 
-def test_m2b_changed_episode_lifecycle_transition_or_gap_never_links() -> None:
-    for shape in ([_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, end=iso(T(20, 10)))],
-                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, lifecycle="UNCONFIRMED")],
-                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 3)],
-                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, "SUPPORT_CHANGED")]):
-        comp, rows, _ = _run_with_history(_lineage_fake(), lambda f, r, x=shape: x)
-        assert rows[COST]["must_not_harm"] is None and comp.failed == ()
+def test_thread_join_needs_the_same_segment() -> None:
+    assert _threaded("f104r", 2)[COST]["must_not_harm"] is None
 
 
-def test_m3_failed_history_read_is_partial_and_links_nothing() -> None:
-    def boom(f: str, r: str):
-        raise RuntimeError("history refused")
-    comp, rows, _ = _run_with_history(_lineage_fake(), boom)
-    assert "finding_history" in comp.failed and comp.read_state == "PARTIAL"
-    assert rows[COST]["must_not_harm"] is None
-
-
-def test_m4_default_port_links_nothing_and_records_no_failure() -> None:
-    comp, rows = run(_lineage_fake())
-    assert "finding_history" not in comp.failed and rows[COST]["must_not_harm"] is None
-
-
-def test_m5_two_actions_on_one_finding_read_history_once() -> None:
-    fake = _lineage_fake()
-    a2 = {**A48, "action_id": "a49", "action_code": "ACT-049",
-          "origin": {"finding_id": "f104", "finding_revision_id": "f104rX"},
-          "links": {"selected_event": f"/sites/{C}/actions/a49?event_id=e1"}}
-    fake.over["action_index"] = {"rows": [fake.over["action_index"]["rows"][0], a2], "next_cursor": None}
-    comp, _, calls = _run_with_history(fake, lambda f, r: [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2)])
-    assert calls == [("f104", "f104r")]
-    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
-    assert f.refreshed_from == ("f104r0",)  # f104rX is not in the history: no link
-
-
-
-def test_m7_malformed_history_row_is_partial_not_a_failed_board() -> None:
-    """Review L2: a history row without `revision_no` makes `refresh_chain` raise inside `reads.call`."""
-    comp, rows, _ = _run_with_history(_lineage_fake(), lambda f, r: [{"id": "f104r0"}, {"id": "f104r"}])
-    assert "finding_history" in comp.failed and comp.read_state == "PARTIAL"
-    assert rows[COST]["must_not_harm"] is None
-    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
-    assert f.refreshed_from == ()
-
-# M6: the same shapes through the real FindingReadService.history and the B4 port binding (paging, encoding).
-def _real_history_port(shapes: list[tuple[int, str, str, datetime]], gate_open: bool = True):
-    from uuid import uuid4
-
-    from assetops_backend.analytics.finding_read import FindingReadService
-    from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
-
-    fid = uuid4()
-    ids = [uuid4() for _ in shapes]
-    raw = [{"id": i, "revision_no": no, "created_at": T(20, 10), "transition": tr, "lifecycle": lc,
-            "claim_level": "CANDIDATE", "model_version": "m", "matcher_version": "x", "episode_start": T(20, 6),
-            "episode_end": end, "candidate_minutes": 45, "necessary_minutes": 10, "indeterminate_minutes": 12,
-            "basis_sha256": "b", "support_sha256": "s", "assessment_revision_id": uuid4(), "assessments": [],
-            "cited_evidence_count": 0, "claim": {}} for i, (no, tr, lc, end) in zip(ids, shapes)]
-    root = {k: None for k in ("finding_key", "domain", "mechanism", "analytic_id", "generator_asset_id",
-                              "anchor_start", "anchor_assessment_revision_id", "cohort_sha256", "matcher_version",
-                              "opened_at", "recurs_after_finding_id", "split_from_finding_id")}
-
-    class Store:
-        def finding_detail(self, t, s, f):
-            assert f == fid
-            return {"finding": {**root, "id": fid}, "revisions": raw,
-                    "relations": {"merged_into": [], "merged_from": [], "split_parts": [], "recurred_by": []}}
-
-        def revision_times(self, t, s, f):
-            return {}
-
-    site = SiteRef(uuid4(), uuid4(), C, "Kobo", "MINIGRID", ZONE)
-    svc = SiteOutcomeBoardService(BoardServices(finding_reads=FindingReadService(Store(), None),
-                                                finding_index_gate=lambda c, t, s: (gate_open, "closed")))
-    return svc.mini_ports(site).finding_history, str(fid), [str(i) for i in ids]
-
-
-def test_m6_real_reader_negatives_never_link_and_p1_links() -> None:
-    e, later = T(20, 9), T(20, 9) + timedelta(minutes=5)
-    cases = {
-        "P1": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e)], True),
-        "N1": ([(1, "CREATED", "SUPPORTED", e), (2, "SUPPORT_CHANGED", "SUPPORTED", e)], False),
-        "N2": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "UNCONFIRMED", e)], False),
-        "N3": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", later)], False),
-        "N5": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e),
-                (3, "NO_LONGER_SUPPORTED", "SUPPORTED", e)], False),
-        "GAP": ([(1, "CREATED", "SUPPORTED", e), (3, "BASIS_REFRESHED", "SUPPORTED", e)], False),
-    }
-    for name, (shapes, linked) in cases.items():
-        port, fid, ids = _real_history_port(shapes)
-        comp, rows, _ = _run_with_history(_lineage_fake(origin=ids[0], shown=ids[-1], fid=fid), port)
-        assert comp.failed == (), name
-        assert (rows[COST]["must_not_harm"] is not None) is linked, name
-
-
-def test_m6b_closed_finding_index_gate_refuses_the_port_and_links_nothing() -> None:
-    e = T(20, 9)
-    port, fid, ids = _real_history_port([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e)],
-                                        gate_open=False)
-    comp, rows, _ = _run_with_history(_lineage_fake(origin=ids[0], shown=ids[-1], fid=fid), port)
-    assert "finding_history" in comp.failed and rows[COST]["must_not_harm"] is None
+def test_no_thread_keeps_the_exact_revision_rule() -> None:
+    a = {**A48, "origin": {"finding_id": "f104", "finding_revision_id": "f104r0"}}
+    _, rows = run(Fake(action_index={"rows": [a], "next_cursor": None}))
+    assert rows[COST]["must_not_harm"] is None  # LINK-LINEAGE's refresh link is gone (deleted lineage)
+    assert run()[1][COST]["must_not_harm"] is not None

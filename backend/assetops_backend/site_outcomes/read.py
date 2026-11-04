@@ -112,7 +112,6 @@ class BoardServices:
     ev_depth: Any = None              # EvDepthReadService (analytics/ev_depth.py)
     domain_actions: Any = None        # DomainActionReadService (work/domain_action_index.py:375)
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
-    finding_reads: Any = None         # FindingReadService (analytics/finding_read.py:570), LINK-LINEAGE history
     threads: Any = None               # CH-2: PostgresThreadSources.lookup (chain/adapters/postgres_thread_sources.py)
     chain_reader: Any = None          # CH-5a1: ChainReader (chain/read.py), one `request` per board read
     # shared
