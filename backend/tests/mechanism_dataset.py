@@ -28,9 +28,11 @@ DAY_SETS = ("full", "states")
 
 #: R2 / D-AW-1: the only databases MD-0 may seed or fill. The pg_harness worker pattern is
 #: `<stem>_pt<run>_<tag>_test` (`pg_harness.database_name`).
-#: MD0-S3: also the input template `assetops_mechanism_tpl_test` and its per-run clones
-#: `assetops_mechanism_c<hex>_test` (`clone_template`).
-MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_c[0-9a-f]{6,16})?_test$")
+#: MD0-S3: also the input templates and their per-run clones `assetops_mechanism_c<hex>_test` (`clone_template`).
+#: CH5a1-R3 M4: one template per input fingerprint, `assetops_mechanism_tpl_<fp8>_test`, built under a staging name
+#: `assetops_mechanism_tplb_<hex8>_test` and renamed when tagged. `assetops_mechanism_tpl_test` is the legacy
+#: single template (MD-0, CH-5a1): still a mechanism DB, never looked up, pruned or dropped implicitly.
+MECHANISM_DB_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_tpl_[0-9a-f]{8}|_tplb_[0-9a-f]{8}|_c[0-9a-f]{6,16})?_test$")
 WORKER_DB_RE = re.compile(r"^[a-z0-9_]+_pt[0-9a-z]+_(main|tpl|gw[0-9]+)_test$")
 ALWAYS_REFUSED_RE = re.compile(r"^assetops_(polish|demo)")
 PROTECTED = ("assetops_polish_full_test", "assetops_demo3_full_test")  # B/chain/backfill.py:29
@@ -863,13 +865,15 @@ def seed_database(store, engine, variant: str = "main", day_set: str = "full") -
 
 # --- the input template (Architect MD0-S3 Q1) --------------------------------------------------------------------
 #
-# `tools/mechanism_dataset.py build --variant states` runs every seed step but `derive` into TEMPLATE_DB, in parts,
+# `tools/mechanism_dataset.py build --variant states` runs every seed step but `derive` into a staging DB, in parts,
 # and only then tags it (COMMENT ON DATABASE) with the input-writer fingerprint and the seed state. A slice's L2m
 # clones it (`CREATE DATABASE ... TEMPLATE`, seconds) and runs `derive` (step 10) with its own code. A template whose
 # tag is missing (an unfinished build) or whose fingerprint differs from this checkout's input writers is refused:
 # the slice rebuilds the template, it never uses stale inputs.
 
-TEMPLATE_DB = "assetops_mechanism_tpl_test"
+LEGACY_TEMPLATE_DB = "assetops_mechanism_tpl_test"
+TEMPLATE_RE = re.compile(r"^assetops_mechanism_tpl_([0-9a-f]{8})_test$")
+TEMPLATES_KEPT = 2  # M4: the two newest, so main and one branch never overwrite each other
 TEMPLATE_DAY_SET = "states"
 TAG_SCHEMA = "assetops-mechanism-template/2"  # /2: MD0-S5 M1 traced module list
 REPO = Path(__file__).resolve().parents[2]
@@ -984,15 +988,23 @@ def _guarded(name: str) -> str:
     return '"' + name + '"'
 
 
+def template_name(fingerprint: str) -> str:
+    """M4: the template database for one input fingerprint."""
+    if not re.fullmatch(r"[0-9a-f]{64}", fingerprint or ""):
+        raise MechanismRefused(f"MECHANISM_DB_ONLY: not a fingerprint: {fingerprint!r}")
+    return f"assetops_mechanism_tpl_{fingerprint[:8]}_test"
+
+
 def make_tag(state: dict, day_set: str, modules=(), fingerprint: str | None = None) -> dict:
-    """The tag: the fingerprint and the traced module list `check_tag` re-hashes (MD0-S5 M1)."""
+    """The tag: the fingerprint and the traced module list `check_tag` re-hashes (MD0-S5 M1). `built_at` orders the
+    templates for pruning (M4); it is not part of the fingerprint."""
     data = set(data_files())
     modules = sorted(m for m in modules if m not in data)
     return {"schema": TAG_SCHEMA, "fingerprint": fingerprint or input_fingerprint(modules), "modules": modules,
-            "day_set": day_set, "state": state}
+            "day_set": day_set, "state": state, "built_at": datetime.now(timezone.utc).isoformat()}
 
 
-def tag_template(admin, tag: dict, name: str = TEMPLATE_DB) -> None:
+def tag_template(admin, tag: dict, name: str) -> None:
     """Writes the tag as the database comment; called only after every input step has run."""
     from sqlalchemy import text
 
@@ -1002,7 +1014,7 @@ def tag_template(admin, tag: dict, name: str = TEMPLATE_DB) -> None:
         c.exec_driver_sql(f"COMMENT ON DATABASE {quoted} IS '{body}'")  # no bind parsing of the JSON
 
 
-def read_tag(admin, name: str = TEMPLATE_DB) -> dict | None:
+def read_tag(admin, name: str) -> dict | None:
     """The template's tag, or None (no such database, or an unfinished build: no comment)."""
     from sqlalchemy import text
 
@@ -1032,10 +1044,68 @@ def check_tag(tag: dict | None, fingerprint: str | None = None) -> dict:
     return tag
 
 
-def clone_template(admin, target: str, template: str = TEMPLATE_DB) -> dict:
-    """Refuses a missing or stale template, then `CREATE DATABASE target TEMPLATE template`. Returns the tag."""
+def templates(admin) -> list[tuple[str, dict | None]]:
+    """M4: every per-fingerprint template on the server, newest first (by the tag's `built_at`; an untagged one
+    sorts last). The legacy `assetops_mechanism_tpl_test` is not listed."""
     from sqlalchemy import text
 
+    with admin.connect() as c:
+        names = [r[0] for r in c.execute(text("SELECT datname FROM pg_database WHERE datname ~ :re"),
+                                         {"re": TEMPLATE_RE.pattern})]
+    found = [(n, read_tag(admin, n)) for n in sorted(names) if TEMPLATE_RE.fullmatch(n)]
+    return sorted(found, key=lambda nt: str((nt[1] or {}).get("built_at") or ""), reverse=True)
+
+
+def find_template(admin, fingerprint: str | None = None) -> str:
+    """M4: the template whose tag matches this checkout (each candidate's own traced module list re-hashed, as
+    `check_tag` does) and whose name carries that fingerprint. Else `TEMPLATE_STALE` when some template exists
+    (naming the newest), or `TEMPLATE_MISSING`."""
+    found = templates(admin)
+    for name, tag in found:
+        if tag is None:
+            continue
+        want = fingerprint or input_fingerprint(tag.get("modules") or ())
+        if tag.get("fingerprint") == want and name == template_name(want):
+            return name
+    tagged = [tag for _, tag in found if tag is not None]
+    check_tag(tagged[0] if tagged else None, fingerprint)  # raises: no match means missing or stale
+    raise MechanismRefused("TEMPLATE_STALE: no template is named for its own fingerprint")  # pragma: no cover
+
+
+def publish_template(admin, staging: str, tag: dict, keep: int = TEMPLATES_KEPT) -> tuple[str, list[str]]:
+    """M4: tag the finished staging build, rename it to its fingerprint's name (replacing an older build of the same
+    fingerprint), then drop all but the `keep` newest per-fingerprint templates. Returns (name, dropped)."""
+    from sqlalchemy import text
+
+    name = template_name(tag["fingerprint"])
+    tag_template(admin, tag, staging)
+    quoted_staging, quoted_name = _guarded(staging), _guarded(name)
+    with admin.connect() as c:
+        c.execute(text(f"DROP DATABASE IF EXISTS {quoted_name} WITH (FORCE)"))
+        # a rename needs the staging DB idle: end any session the build left open (only that database's)
+        c.execute(text("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = :n "
+                       "AND pid <> pg_backend_pid()"), {"n": staging})
+        c.execute(text(f"ALTER DATABASE {quoted_staging} RENAME TO {quoted_name}"))
+    dropped = prune_list([n for n, _ in templates(admin)], name, keep)
+    for n in dropped:
+        drop_database(admin, n)
+    return name, dropped
+
+
+def prune_list(newest_first: list[str], kept: str, keep: int = TEMPLATES_KEPT) -> list[str]:
+    """Pure (M4): the templates to drop, given every per-fingerprint template newest first: all but `kept` and the
+    newest `keep - 1` others. Only per-fingerprint names are ever returned (never the legacy single template)."""
+    others = [n for n in newest_first if n != kept and TEMPLATE_RE.fullmatch(n)]
+    return others[max(0, keep - 1):]
+
+
+def clone_template(admin, target: str, template: str | None = None) -> dict:
+    """Refuses a missing or stale template, then `CREATE DATABASE target TEMPLATE template`. Returns the tag. With no
+    `template`, the one matching this checkout's fingerprint (`find_template`)."""
+    from sqlalchemy import text
+
+    if template is None:
+        template = find_template(admin)
     tag = check_tag(read_tag(admin, template))
     if target == template:
         raise MechanismRefused("MECHANISM_DB_ONLY")

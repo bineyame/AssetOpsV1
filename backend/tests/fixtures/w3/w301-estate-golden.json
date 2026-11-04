@@ -65,6 +65,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -88,6 +89,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -139,6 +141,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -162,6 +165,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -215,6 +219,7 @@
             },
             "lens": "risks",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -238,6 +243,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -360,6 +366,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -387,6 +394,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -456,6 +464,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -479,6 +488,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -623,6 +633,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -646,6 +657,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -697,6 +709,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -720,6 +733,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -773,6 +787,7 @@
             },
             "lens": "risks",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -796,6 +811,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -918,6 +934,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -945,6 +962,7 @@
               "basis_count": 0,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -1014,6 +1032,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -1037,6 +1056,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -1149,6 +1169,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -1353,6 +1374,7 @@
               "basis_count": 2,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 2
             },
             "total_count": 2,
@@ -1410,6 +1432,7 @@
               "$derive": "checked_cursor",
               "from": "self.next_cursor"
             },
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -1524,6 +1547,7 @@
               "basis_count": 2,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 2
             },
             "total_count": 2,
@@ -1578,6 +1602,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -1692,6 +1717,7 @@
               "basis_count": 2,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 2
             },
             "total_count": 2,
@@ -1852,6 +1878,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -1875,6 +1902,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -1929,6 +1957,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -2043,6 +2072,7 @@
               "basis_count": 1,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 1,
@@ -2097,6 +2127,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -2120,6 +2151,7 @@
               "basis_count": 1,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 0,
@@ -2174,6 +2206,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -2379,6 +2412,7 @@
               "basis_count": 2,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 2
             },
             "total_count": 2,
@@ -2440,6 +2474,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -2464,6 +2499,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -2521,6 +2557,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [],
             "schema_version": "estate-finding-index-2",
@@ -2544,6 +2581,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -2598,6 +2636,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -2713,6 +2752,7 @@
               "basis_count": 1,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": 0
             },
             "total_count": 1,
@@ -2796,6 +2836,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -3000,6 +3041,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -3258,6 +3300,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -3612,6 +3655,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,
@@ -3832,6 +3876,7 @@
             },
             "lens": "all",
             "next_cursor": null,
+            "opportunities": [],
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
@@ -4036,6 +4081,7 @@
               "basis_count": null,
               "high_priority": null,
               "low_confidence": null,
+              "opportunity_count": 0,
               "supported_findings": null
             },
             "total_count": null,

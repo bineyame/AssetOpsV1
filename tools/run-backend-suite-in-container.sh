@@ -103,6 +103,29 @@ esac
 set -- $targets
 if [ -n "$markexpr" ]; then set -- "$@" -m "$markexpr"; fi
 
+# FIX-MAIN-1 (CH5a1-R3 M4): the MD-0 L2m tests clone the input template for this checkout's fingerprint
+# (`assetops_mechanism_tpl_<fp8>_test` on this server). Reuse it, or build it now (about 8 min, once per fingerprint;
+# kept between runs). A failed build stops the run here: those tests fail, never skip.
+needs_template=""
+for t in $targets; do
+  p="${t%%::*}"
+  if [ -e "$p" ] && grep -rlq --include='test_*.py' 'clone_template(' "$p" 2>/dev/null; then needs_template=1; fi
+done
+if [ -n "$needs_template" ]; then
+  tpl_start=$(date +%s)
+  set +e
+  ASSETOPS_MECHANISM_SERVER_URL="$ASSETOPS_TEST_DATABASE_URL" \
+    /opt/assetops-venv/bin/python tools/mechanism_dataset.py ensure > "$out/mechanism-template.log" 2>&1
+  tpl_rc=$?
+  set -e
+  tail -n 3 "$out/mechanism-template.log"
+  echo "mechanism template: exit $tpl_rc in $(( $(date +%s) - tpl_start )) s" | tee -a "$out/mechanism-template.log"
+  if [ "$tpl_rc" -ne 0 ]; then
+    echo "REFUSED: the mechanism template build failed (exit $tpl_rc); see $out/mechanism-template.log" >&2
+    exit 2
+  fi
+fi
+
 date -u +%Y-%m-%dT%H:%M:%SZ > "$out/pytest-started"
 start=$(date +%s)
 set +e
