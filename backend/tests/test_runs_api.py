@@ -548,9 +548,10 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
         )
         mg_001 = parse_site_document(
             yaml.safe_load(
-                (repo_root / "var" / "sites" / "mg-001.yaml").read_text(
-                    encoding="utf-8"
-                )
+                # FIX-MAIN-1: a committed copy; `var/` is gitignored and absent from the suite container
+                (
+                    repo_root / "backend" / "tests" / "fixtures" / "sites" / "mg-001.yaml"
+                ).read_text(encoding="utf-8")
             ),
             source="a fixture site",
         )
