@@ -20,6 +20,7 @@ import {
   COLD_ROW,
   coverageSite,
   loadedPortfolio,
+  opportunityItem,
   portfolioBody,
   portfolioClient,
   refused,
@@ -378,19 +379,81 @@ describe("estate Portfolio page", () => {
     expect(screen.queryByRole("button", { name: "Load more Findings" })).toBeNull();
   });
 
-  it("keepsUnsupportedOpportunitySlotsInert", async () => {
+  it("ch4_opportunity_panel_none_reads_nothing_found_and_links_to_findings_opportunities", async () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const opportunity = panel("An opportunity beyond reducing cost");
+    expect(opportunity.getAttribute("data-portfolio-opportunity-state")).toBe("NONE");
     expect(text(opportunity)).toContain("GROW USEFUL DEMAND");
-    expect(text(opportunity)).toContain("No reviewed what-if yet");
-    expect(text(opportunity)).toContain("What-if");
+    expect(text(opportunity.querySelector("[data-portfolio-opportunity-quantity]"))).toBe(
+      "No opportunity found in this periodNothing seen on the days checked",
+    );
+    expect(text(opportunity)).toContain("No what-if yet");
+    expect(text(opportunity)).toContain("No what-if value worked out yet");
     expect(text(opportunity)).not.toMatch(/scenario/i);
-    expect(text(opportunity)).toContain("No eligible headroom or demand basis");
-    expect(text(opportunity)).toContain("A what-if needs reviewed physical headroom, demand and an agreed cost assumption.");
-    expect(opportunity.querySelector("a, button")).toBeNull();
-    expect(within(opportunity).getByLabelText("Review opportunity Finding, Not available yet")).toBeTruthy();
-    expect(within(opportunity).getByLabelText("Inspect physical headroom, Not available yet")).toBeTruthy();
+    expect(text(opportunity.querySelector("[data-portfolio-opportunity-note]"))).toBe(
+      "A what-if needs reviewed physical headroom, demand and an agreed cost assumption.",
+    );
+    const links = within(opportunity).getAllByRole("link");
+    expect(links.map((l) => text(l))).toEqual(["Findings › Opportunities →"]);
+    expect(links[0].getAttribute("href")).toMatch(/^\/findings\/opportunities\?from=/);
+    expect(opportunity.querySelector("[data-gap-id], .portfolio-inert")).toBeNull();
+    expect(opportunity.textContent).not.toContain("Not available yet");
+  });
+
+  it("ch4_opportunity_panel_found_shows_the_first_item_and_names_the_rest", async () => {
+    const first = opportunityItem();
+    const sized = opportunityItem({
+      thread_id: "77777777-0000-4000-8000-000000000002",
+      title: "Daytime solar unused at Kobo North",
+      study: { ...first.study, status: "SUPPORTED", headroom_kw: { low: "18", high: "20" } },
+    });
+    const found = (items: ReturnType<typeof opportunityItem>[]) =>
+      portfolioBody({
+        opportunity: { state: "FOUND", items, finding_id: null, scenario_amount: null, headroom: items[0].study.headroom_kw, destination: "/findings/opportunities" },
+      });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(found([first]))));
+    await settledScreen();
+    let opportunity = panel("An opportunity beyond reducing cost");
+    expect(opportunity.getAttribute("data-portfolio-opportunity-state")).toBe("FOUND");
+    expect(text(opportunity.querySelector("[data-portfolio-opportunity-quantity]"))).toBe("Size not worked out yetDaytime solar unused at Kobo");
+    expect(text(opportunity)).toContain("No what-if yet");
+    expect(text(opportunity.querySelector("[data-portfolio-opportunity-note]"))).toBe(
+      "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov · Limited evidence: readings come from mixed sources, so the size is not worked out yet",
+    );
+    let links = within(opportunity).getAllByRole("link");
+    expect(links.map((l) => text(l))).toEqual(["Review opportunity Finding →", "Inspect physical headroom →"]);
+    expect(links[0].getAttribute("href")).toBe(first.links.opportunity);
+    expect(links[1].getAttribute("href")).toBe(first.links.evidence);
+    cleanup();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(found([sized, first]))));
+    await settledScreen();
+    opportunity = panel("An opportunity beyond reducing cost");
+    const quantity = opportunity.querySelector("[data-portfolio-opportunity-quantity]") as HTMLElement;
+    expect(text(quantity)).toBe("18–20 kW at middayDaytime solar unused at Kobo North");
+    expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW at midday");
+    links = within(opportunity).getAllByRole("link");
+    expect(links.map((l) => text(l))).toEqual([
+      "Review opportunity Finding →",
+      "Inspect physical headroom →",
+      "1 more under Findings › Opportunities →",
+    ]);
+    expect(links[2].getAttribute("href")).toMatch(/^\/findings\/opportunities\?from=/);
+  });
+
+  it("ch4_opportunity_panel_reads_an_older_or_unknown_body_as_none", async () => {
+    for (const opportunity of [
+      { state: "UNSUPPORTED", finding_id: null, scenario_amount: null, headroom: null, destination: null },
+      { state: "UNKNOWN", items: [], finding_id: null, scenario_amount: null, headroom: null, destination: "/findings/opportunities" },
+    ]) {
+      const older = portfolioBody({ opportunity: opportunity as unknown as ReturnType<typeof portfolioBody>["opportunity"] });
+      renderAt(ENTRY, portfolioClient(loadedPortfolio(older)));
+      await settledScreen();
+      const p = panel("An opportunity beyond reducing cost");
+      expect(p.getAttribute("data-portfolio-opportunity-state")).toBe("NONE");
+      expect(text(p)).toContain("No opportunity found in this period");
+      cleanup();
+    }
   });
 
   it("rendersChangeDisclosureWithoutRecoveredMoney", async () => {
@@ -1233,7 +1296,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     );
     expect(detail("OPTIMIZE_COST")).toBe(`Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20 · ${clause}`);
     // The pulse strip: a zero count is qualified; a non-zero count is unchanged.
-    expect(pulse()).toContain("Opportunity findings: None found on the days checked");
+    expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
     expect(scanCards()).toBe("");
     const strip = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
@@ -1248,7 +1311,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(detail("ASSURE_PERFORMANCE")).toBe(
       "No verified result yet · no targets declared · evidence gap at 1 site · days not checked yet at 2 sites",
     );
-    expect(pulse()).toContain("Opportunity findings: None found on the days checked");
+    expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("1 site evidence gaps");
   });
 
@@ -1260,9 +1323,9 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
     expect(detail("PROTECT_ASSET")).toMatch(/ · 5 of 7 days checked at Kobo · findings next to unchecked days not shown yet$/);
     expect(detail("ASSURE_PERFORMANCE")).toContain("no evidence gaps on the days checked");
-    expect(pulse()).toContain("Opportunity findings: None shown yet");
+    // CH-4: the opportunity count comes from the opportunity read, not from Finding coverage.
+    expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
-    expect(pulse()).not.toContain("Opportunity findings: None found");
     expect(scanCards()).toBe("");
   });
 
@@ -1280,37 +1343,30 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
     expect(detail("PROTECT_ASSET")).not.toContain("days checked");
     expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · evidence gap at 1 site");
-    expect(pulse()).toContain("0 opportunity findings");
+    expect(pulse()).toContain("0 opportunities");
   });
 
-  it("walk1_6_d5_strip_names_open_board_opportunities", async () => {
-    // WALK1-6 D5 (R698): the fixture's Kobo Grow row is in Opportunity with a short_value.
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 })))));
-    await settledScreen();
+  it("ch4_strip_counts_opportunities_from_the_opportunity_read_with_their_labels", async () => {
+    // CH-4 (§5): one count from one source; the board's open signal is no longer named beside it.
     const opp = () => text(document.querySelector("[data-portfolio-pulse-opportunity]"));
-    expect(opp()).toBe("Opportunity findings: None found on the days checked · 1 site with an open opportunity on its board");
-    cleanup();
-    // Two such Sites: a short_value alone counts (Addendum 6 M1), and the word is plural.
-    const two = outcomeSummaryBody();
-    two.sites = two.sites.map((site) =>
-      site.site_code !== "EV-LAB-001"
-        ? site
-        : { ...site, rows: site.rows.map((r) => (r.category === "GROW_REVENUE" ? { ...r, short_value: "5 kW unused" } : r)) },
-    );
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 }))), { status: "loaded", value: two }));
+    const strip = (extra: Partial<Summary>) => withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], extra))));
+    renderAt(ENTRY, strip({ opportunity_count: 1, opportunity_labels: ["Kobo daytime solar"] }));
     await settledScreen();
-    expect(opp()).toBe("Opportunity findings: None found on the days checked · 2 sites with an open opportunity on its board");
+    expect(opp()).toBe("1 opportunity: Kobo daytime solar");
+    expect(text(document.querySelector("[data-portfolio-pulse-opportunity] strong"))).toBe("1");
+    expect(pulse()).not.toContain("open opportunity on its board");
     cleanup();
-    // No such Site: the Addendum 1 text alone.
-    const none = outcomeSummaryBody();
-    none.sites = none.sites.map((site) => ({
-      ...site,
-      rows: site.rows.map((r) => (r.category === "GROW_REVENUE" ? { ...r, state: "WATCH" as const, short_value: null } : r)),
-    }));
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 }))), { status: "loaded", value: none }));
+    renderAt(ENTRY, strip({ opportunity_count: 2, opportunity_labels: ["Kobo daytime solar", "Depot daytime solar"] }));
     await settledScreen();
-    expect(opp()).toBe("Opportunity findings: None found on the days checked");
-    expect(pulse()).not.toContain("open opportunity");
+    expect(opp()).toBe("2 opportunities: Kobo daytime solar · Depot daytime solar");
+    cleanup();
+    renderAt(ENTRY, strip({ opportunity_count: 0, opportunity_labels: [] }));
+    await settledScreen();
+    expect(opp()).toBe("0 opportunities");
+    cleanup();
+    renderAt(ENTRY, strip({ opportunity_count: null, opportunity_labels: null }));
+    await settledScreen();
+    expect(opp()).toBe("Unknown opportunities");
   });
 
   it("walk1_6_d4_card_dots_say_no_target_for_this_outcome", async () => {

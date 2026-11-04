@@ -8,6 +8,7 @@ import type {
   EstateCoverageSite,
   EstateOutcomeSummaryBody,
   EstateOutcomeSummaryRow,
+  EstateOpportunity,
   EstateQuery,
   EstatePortfolioBody,
   EstatePortfolioQuery,
@@ -159,10 +160,57 @@ const card = (over: Partial<EstateValueCard> & Pick<EstateValueCard, "key" | "st
   ...over,
 });
 
+/** CH-4 (§2.1): the Kobo headroom item as the backend sends it (LIMITED study, no size). */
+export function opportunityItem(over: Partial<EstateOpportunity> = {}): EstateOpportunity {
+  const id = over.thread_id ?? "77777777-0000-4000-8000-000000000001";
+  const opp = "88888888-0000-4000-8000-000000000004";
+  return {
+    thread_id: id,
+    site_id: SITES[0].site_id,
+    site_code: "KOBO-001",
+    site_name: "Kobo",
+    mechanism: "PRODUCTIVE_USE_HEADROOM",
+    domain: "MINIGRID",
+    title: "Daytime solar unused at Kobo",
+    short_label: "Kobo daytime solar",
+    state: "OPEN",
+    state_label: "Open",
+    state_effective_day: "2026-10-31",
+    state_day: "2026-11-01",
+    occurrences: 2,
+    study: {
+      opportunity_id: opp,
+      code: "OPP-000004",
+      first_day: "2026-10-28",
+      last_day: "2026-11-01",
+      status: "LIMITED",
+      eligible_days: 2,
+      assessed_days: 4,
+      headroom_kw: null,
+      window_hours: 1,
+    },
+    evidence: "LIMITED",
+    evidence_label: "Limited evidence",
+    seen_line: "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov",
+    value_line: null,
+    limit_line: "Limited evidence: readings come from mixed sources, so the size is not worked out yet",
+    lens_flags: ["OPPORTUNITY"],
+    filter_state: "unconfirmed",
+    links: {
+      opportunity: `/sites/KOBO-001/opportunities/${opp}`,
+      evidence: "/sites/KOBO-001/performance/renewable?from=2026-10-27T21:00:00Z&to=2026-11-01T21:00:00Z",
+      site: "/sites/KOBO-001",
+    },
+    ref: { kind: "OPPORTUNITY", site: "KOBO-001", id: opp },
+    thread_ref: { kind: "THREAD", site: "KOBO-001", id },
+    ...over,
+  };
+}
+
 export const CLEAN_CARDS: EstateValueCard[] = [
   card({ key: "OPERATING_COST", state: "SITE_OWNED", line_keys: ["w1-line"], group_key: "g-w1", currency: "USD", destination: "/financials", basis_text: "Site-owned selected consequence", tone: "amber" }),
   card({ key: "SERVICE_PRODUCT_RISK", state: "UNKNOWN", display_value: "Not assessed", destination: "/findings/risks", detail: "No reviewed estate risk classification", basis_text: "Risk count unavailable" }),
-  card({ key: "PRODUCTIVE_USE", state: "UNSUPPORTED", display_value: "Not established", detail: "No reviewed opportunity Finding or headroom basis", basis_text: "Demand and scenario basis unavailable" }),
+  card({ key: "PRODUCTIVE_USE", state: "NONE", display_value: "No opportunity found in this period", destination: "/findings/opportunities", basis_text: "Listed under Findings › Opportunities" }),
   card({ key: "ASSET_LIFE", state: "UNSUPPORTED", display_value: "Not established", detail: "Capacity and life exposure are not assessed", basis_text: "No reviewed life assessment" }),
   card({ key: "VERIFIED_RECOVERY", state: "NOT_ESTABLISHED", display_value: "Not established", destination: "/financials", detail: "Verification outcome is separate from recovered value", basis_text: "Completed work does not establish savings" }),
 ];
@@ -199,6 +247,7 @@ export function portfolioBody(over: Partial<EstatePortfolioBody> = {}): EstatePo
       combined_value: null,
       combined_value_state: "NOT_COMPARABLE",
       placement_counts: { NEEDS_INVESTIGATION: 0, ACT_NOW: 1, COMPARE_VALUE: 1, UNPRICED_RISK: 0, MONITOR: 0 },
+      opportunity_labels: [],
     },
     value_cards: CLEAN_CARDS,
     objectives: SITES.map((s) => ({
@@ -216,7 +265,7 @@ export function portfolioBody(over: Partial<EstatePortfolioBody> = {}): EstatePo
       gap_code: "MISSING_REPORT",
       destination: "/evidence",
     },
-    opportunity: { state: "UNSUPPORTED", finding_id: null, scenario_amount: null, headroom: null, destination: null },
+    opportunity: { state: "NONE", items: [], finding_id: null, scenario_amount: null, headroom: null, destination: "/findings/opportunities" },
     progress: {
       state: "NO_COMPARABLE_BASELINE",
       completed_activity_count: null,

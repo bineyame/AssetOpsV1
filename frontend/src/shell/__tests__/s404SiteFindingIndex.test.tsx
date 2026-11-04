@@ -609,15 +609,16 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
   });
 
-  it("links 'open the renewable evaluation' to the Site's Performance Renewable view, with no Opportunity address", async () => {
+  it("CH-4: points to Findings › Opportunities and links 'renewable page' to the Site's Performance Renewable view", async () => {
     const { client } = indexClient(() => ({ status: "loaded", value: BODY }));
     renderAt(PATH, client);
     await settledScreen();
     const helper = document.querySelector("[data-opportunity-index-helper]") as HTMLElement;
-    expect(helper.textContent).toBe("Opportunity index unavailable; open the renewable evaluation for this site's five-day study.");
-    const link = within(helper).getByRole("link", { name: "open the renewable evaluation" });
+    expect(helper.textContent).toBe("Opportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.");
+    expect(within(helper).getByRole("link", { name: "Findings › Opportunities" })).toHaveAttribute("href", "/findings/opportunities");
+    const link = within(helper).getByRole("link", { name: "renewable page" });
     expect(link).toHaveAttribute("href", sitePerformanceHref(SITE_ID, "renewable"));
-    expect(link.getAttribute("href")).not.toMatch(/opportunit/i);
+    expect(within(helper).getAllByRole("link")).toHaveLength(2);
   });
 });
 

@@ -13,7 +13,7 @@ import { F104, NOT_MAPPED } from "../../sites/__tests__/outcomeFixtures";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
 import { createEstateClient, invalidWindowCopy, type EstateClient, type EstateLens, type EstateOutcomeSummaryBody, type EstateResult } from "../estateClient";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
-import { outcomeSummaryBody } from "./portfolioFixtures";
+import { opportunityItem, outcomeSummaryBody } from "./portfolioFixtures";
 import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_LINKED_NOTICE, FINDINGS_NOTICE, FINDINGS_UNLINKED_NOTICE } from "../findingIndex";
 import {
   FROM,
@@ -933,6 +933,124 @@ describe("OUT-C U5 estate Findings early warnings", () => {
       expect(main().querySelector("tbody tr")).not.toBeNull();
       expect(document.querySelector("[data-early-warnings]")).toBeNull();
       view.unmount();
+    }
+  });
+});
+
+describe("CH-4 estate Findings opportunities", () => {
+  const ITEM = opportunityItem();
+  const SIZED = opportunityItem({
+    thread_id: "77777777-0000-4000-8000-000000000002",
+    title: "Daytime solar unused at Kobo North",
+    study: { ...ITEM.study, code: "OPP-000005", status: "SUPPORTED", headroom_kw: { low: "18", high: "20" } },
+    evidence: "SUPPORTED",
+    evidence_label: "Supported",
+    value_line: "18–20 kW at midday on every eligible day",
+    limit_line: null,
+  });
+  const withItems = (rows: ReturnType<typeof findingRow>[]) =>
+    fakeClient((lens) =>
+      loaded(
+        findingsBody(lens, {
+          rows,
+          total_count: rows.length,
+          opportunities: lens === "all" || lens === "opportunities" ? [ITEM, SIZED] : [],
+        }),
+      ),
+    );
+  const list = () => document.querySelector("[data-estate-opportunity-list]") as HTMLElement | null;
+  const oppRows = () => Array.from(document.querySelectorAll("tr[data-estate-opportunity]"));
+  const cells = (tr: Element) => Array.from(tr.querySelectorAll("td")).map((td) => (td.textContent ?? "").replace(/\s+/g, " ").trim());
+
+  it("opportunitiesLensListsEachItemAboveTheTableWithItsLinesAndLinks", async () => {
+    renderAt(`/findings/opportunities?${WINDOW}`, withItems([]));
+    await settledScreen();
+    const panelEl = list()?.closest("section.panel") as HTMLElement;
+    expect(panelEl.querySelector("h2")?.textContent).toBe("Opportunities to grow");
+    expect(panelEl.querySelector(".panel__description")?.textContent).toBe("Each opportunity is one row · open it for the detail");
+    // Mock order: the list comes before the lens table.
+    const sections = Array.from(main().querySelectorAll("section.panel"));
+    const tableSection = main().querySelector("table.data-table")?.closest("section.panel");
+    expect(sections.indexOf(panelEl)).toBeLessThan(sections.indexOf(tableSection as Element));
+    const items = Array.from(list()!.querySelectorAll("li"));
+    expect(items).toHaveLength(2);
+    const [first, second] = items;
+    expect(within(first as HTMLElement).getByRole("link", { name: "Daytime solar unused at Kobo" })).toHaveAttribute("href", ITEM.links.opportunity);
+    expect(Array.from(first.querySelectorAll("small")).map((x) => x.textContent)).toEqual([
+      "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov",
+      "Limited evidence: readings come from mixed sources, so the size is not worked out yet",
+    ]);
+    expect(first.querySelector("small.opp-limit")?.textContent).toBe(ITEM.limit_line);
+    expect(within(first as HTMLElement).getByRole("link", { name: "Inspect the solar room →" })).toHaveAttribute("href", ITEM.links.evidence);
+    expect(Array.from(second.querySelectorAll("small")).map((x) => x.textContent)).toEqual([
+      "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov · 18–20 kW at midday on every eligible day",
+    ]);
+    expect(second.querySelector(".opp-limit")).toBeNull();
+    // LENS_EMPTY shows only with no Finding rows and no items.
+    expect(document.querySelector("[data-estate-empty]")).toBeNull();
+    expect(main().textContent).not.toContain("No supported opportunity Finding in this selection.");
+  });
+
+  it("allAndOpportunitiesTableRowsFollowTheFindingRowsOnPageOneOnly", async () => {
+    for (const path of ["/findings", "/findings/opportunities"]) {
+      const view = renderAt(`${path}?${WINDOW}`, withItems([findingRow(1)]));
+      await settledScreen();
+      const body = Array.from(main().querySelectorAll("table.data-table tbody tr"));
+      expect(body.map((tr) => (tr.hasAttribute("data-estate-opportunity") ? "O" : "F"))).toEqual(["F", "O", "O"]);
+      const [a, b] = oppRows();
+      expect(a.getAttribute("data-estate-opportunity")).toBe(ITEM.thread_id);
+      const row = cells(a);
+      expect(row[0]).toMatch(/^OPP-000004 · Daytime solar unused at Kobo/);
+      expect(row[1]).toMatch(/^KOBO-001\s?Kobo$/);
+      expect(row.slice(2)).toEqual(["Not assessed", "Limited evidence", "Open", "Size not worked out yet", "Opportunity"]);
+      expect(within(a as HTMLElement).getByRole("link", { name: "OPP-000004 · Daytime solar unused at Kobo" })).toHaveAttribute("href", ITEM.links.opportunity);
+      expect(within(a as HTMLElement).getByRole("link", { name: "KOBO-001" })).toHaveAttribute("href", ITEM.links.site);
+      expect(cells(b)[3]).toBe("Supported");
+      expect(cells(b)[5]).toBe("18–20 kW at midday on every eligible day");
+      view.unmount();
+    }
+    // Page two: no items; Cost: none.
+    let view = renderAt(`/findings?${WINDOW}&cursor=abc`, withItems([findingRow(1)]));
+    await settledScreen();
+    expect(oppRows()).toHaveLength(0);
+    view.unmount();
+    view = renderAt(`/findings/cost?${WINDOW}`, withItems([findingRow(1)]));
+    await settledScreen();
+    expect(oppRows()).toHaveLength(0);
+    expect(list()).toBeNull();
+    view.unmount();
+  });
+
+  it("anOlderBodyWithoutOpportunitiesKeepsTodaysEmptyLensWords", async () => {
+    const older = findingsBody("opportunities", { rows: [], total_count: 0 });
+    delete (older as { opportunities?: unknown }).opportunities;
+    expect("opportunities" in older).toBe(false);
+    renderAt(`/findings/opportunities?${WINDOW}`, fakeClient(() => loaded(older)));
+    await settledScreen();
+    expect(list()).toBeNull();
+    expect(oppRows()).toHaveLength(0);
+    const empty = document.querySelector("[data-estate-empty]") as HTMLElement;
+    expect(empty.textContent).toContain("No findings match.");
+    expect(empty.textContent).toContain("No supported opportunity Finding in this selection.");
+  });
+
+  it("at390TheListWrapsInPlaceWithNoOverflowClass", async () => {
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/estate/estate.css`, "utf8");
+    expect(css).toMatch(/\.opp-list li \{[^}]*flex-wrap: wrap/s);
+    expect(css).toMatch(/\.opp-list li > div \{[^}]*min-width: 0/s);
+    const before = window.innerWidth;
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 390 });
+    window.dispatchEvent(new Event("resize"));
+    try {
+      renderAt(`/findings/opportunities?${WINDOW}`, withItems([]));
+      await settledScreen();
+      const ul = list() as HTMLElement;
+      expect(ul.closest(".data-table__scroll, [class*='overflow'], [class*='scroll']")).toBeNull();
+      for (const el of Array.from(ul.querySelectorAll("*"))) expect(el.className.toString()).not.toMatch(/overflow|scroll/);
+    } finally {
+      Object.defineProperty(window, "innerWidth", { configurable: true, value: before });
     }
   });
 });
