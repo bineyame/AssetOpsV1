@@ -261,8 +261,8 @@ def test_known_at_hides_a_later_occurrence_and_revision_and_r8_tracks_the_consum
 
 
 def test_has_change_equals_the_detail_change_for_each_action(world) -> None:
-    """Last: the APPLY publishes a new reserve, which changes later assessments (run before F04 it suppresses
-    F04's first revision)."""
+    """Last: the APPLY publishes a new reserve FoundationRevision. Observed when it ran before the F04 test: F04's
+    first match then left no unconsumed `finding.revised`, so the R8 step there could not be shown."""
     runner, port, _, _ = world
     h = applying(runner)
     try:
