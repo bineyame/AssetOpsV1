@@ -221,11 +221,8 @@ def build(variant: str, budget: float, resume: bool) -> int:
     started, longest = time.perf_counter(), max([v for k, v in saved["timings"].items() if k in steps] or [60.0])
     engine, store = create_engine(url), PostgresFoundationStore(url)
     try:
-        for i, step in enumerate(todo):
-            # MD-0b: `drain_mini` (5-7 min, far longer than a day step) always starts a part of its own, so a part
-            # that ran days first never runs past the 600 s foreground cap.
-            alone = step == "drain_mini" and i > 0
-            if saved["done"] and (alone or time.perf_counter() - started + longest > budget):
+        for step in todo:
+            if saved["done"] and time.perf_counter() - started + longest > budget:
                 print(f"budget: stopping before {step} ({len(saved['done'])}/{len(steps)} steps done); "
                       f"resume with: python tools/mechanism_dataset.py build --variant {variant} --resume")
                 return EXIT_RESUME
