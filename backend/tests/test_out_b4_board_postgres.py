@@ -157,9 +157,11 @@ def _record_port_failures(monkeypatch) -> None:
             except Exception as error:
                 FAILURES.append(f"{name}: {type(error).__name__}: {str(error)[:200]}")
                 raise
-            if name == "mini_overview":  # the settled base (mini.py: freshness CURRENT, assessment not CLOSED)
-                PORTS[name] = {"freshness": (body.get("freshness") or {}).get("state"),
-                               "assessment": (body.get("assessment") or {}).get("state")}
+            if name == "chain_day":  # CH-5a1: the settled base (R4 board day) and the R5 readiness
+                PORTS[name] = {"settled": body.settled, "readiness": body.readiness, "gaps": len(body.gaps)}
+            elif name == "chain_findings":  # CH-5a1: the Finding heads (`ChainRequest.findings`)
+                PORTS[name] = [[h.finding_id, h.revision_id, h.lifecycle, str(h.episode_start), str(h.episode_end)]
+                               for h in body]
             elif name in ("cold_overview", "ev_overview") and isinstance(body, dict):
                 PORTS[name] = {k: (body.get(k) or {}).get("state") for k in ("currentness", "freshness", "assessment",
                                                                            "readiness", "cooling") if k in body}
@@ -263,16 +265,16 @@ def _portfolio_evidence(c, code: str, days: dict[str, str]) -> tuple[str, str | 
 
 
 def _assert_readiness_equals_portfolio(c, key: str, code: str, board: dict) -> None:
-    """M2 / addendum 7: the board's readiness port value equals the Portfolio cell over the covering UTC days."""
+    """E1 (CH-5a1 §A4, CH5a1-R Q8): the board's readiness is `readiness_of` over the chain snapshots of the Site-local
+    days the window intersects, no longer the Portfolio evidence cell (`evidence_readiness` is not read). The
+    Portfolio cell over the covering UTC days is recorded beside it for the packet's E1 list."""
     days = _covering_day_params(board["window"]["from"], board["window"]["to"])
     kind, value = _portfolio_evidence(c, code, days)
-    port = LAST_PORTS[key].get("evidence_readiness")
+    port = LAST_PORTS[key].get("readiness_of")
     _record(f"{key}_readiness_vs_portfolio", {"days": days, "portfolio": [kind, value], "board_port": port,
                                                "board_port_errors": LAST_ERRORS[key]})
-    if kind == "CELL":
-        assert port == value, (port, value)
-    else:  # the Portfolio refused on whole days: the board's readiness read failed the same way (Assure UNKNOWN)
-        assert port is None and any("evidence_readiness" in e for e in LAST_ERRORS[key]), (port, LAST_ERRORS[key])
+    assert "evidence_readiness" not in LAST_PORTS[key], LAST_PORTS[key]
+    assert port in ("FULL", "LIMITED", "LOW", "NONE", "UNKNOWN"), (port, LAST_ERRORS[key])
 
 
 def _rows(body: dict) -> dict[str, dict]:
@@ -314,67 +316,6 @@ def _build_kobo(url: str, work: Path, case: str) -> tuple[dict, list]:
         engine.dispose()
     _record(f"kobo_{case}_imported_at", imported)
     return json.loads((work / f"case-{case}.json").read_text(encoding="utf-8")), imported
-
-
-def _spy_lineage(monkeypatch) -> list[dict]:
-    """LINK-LINEAGE U3: per mini board read, the shown Finding revisions and the Actions' origin revisions the
-    composer handed to `_lineage` (the decision itself is recomputed by `_expected_link` from the history route)."""
-    from assetops_backend.site_outcomes import mini
-
-    seen: list[dict] = []
-    real = mini._lineage
-
-    def spy(reads, ports, findings, actions):
-        seen.append({"findings": {f.finding_id: f.revision_id for f in findings},
-                     "actions": {a.action_id: (a.origin_finding_id, a.origin_revision_id, a.verification_state,
-                                               a.verification_href) for a in actions}})
-        return real(reads, ports, findings, actions)
-
-    monkeypatch.setattr(mini, "_lineage", spy)
-    return seen
-
-
-def _expected_link(c, finding_id: str, shown: str | None, origin: str | None) -> tuple[bool, list]:
-    """The rule computed independently from `GET .../findings/{id}/history?revision_id=<shown>` (every page):
-    exact revision, or every revision after the origin up to the shown one BASIS_REFRESHED with the origin's
-    lifecycle and episode. Returns the decision and the recorded transitions between them."""
-    if not shown or not origin:
-        return False, []
-    revs, after = [], 0
-    while after is not None:
-        r = c.get(f"/api/sites/KOBO-001/findings/{finding_id}/history",
-                  params={"revision_id": shown, "after_revision_no": after, "limit": 500})
-        assert r.status_code == 200, r.text
-        revs += r.json()["revisions"]
-        after = r.json()["page"]["next_after_revision_no"]
-    by = {x["id"]: x for x in revs}
-    if origin == shown:
-        return True, []
-    if origin not in by or shown not in by:
-        return False, []
-    o, s = by[origin], by[shown]
-    mid = [x for x in revs if o["revision_no"] < x["revision_no"] <= s["revision_no"]]
-    chain = (len(mid) == s["revision_no"] - o["revision_no"] > 0
-             and all(x["transition"] == "BASIS_REFRESHED" and x["lifecycle"] == o["lifecycle"]
-                     and x["episode"] == o["episode"] for x in mid))
-    return chain, [(x["revision_no"], x["transition"], x["lifecycle"]) for x in mid]
-
-
-def _assert_lineage_must_not_harm(c, key: str, seen: dict, finding_id: str, action_id: str, row: dict) -> bool:
-    """Record shown revision, origin revision, transitions and the rule; then the Cost Must-not-harm follows it."""
-    shown = seen["findings"].get(finding_id)
-    origin_f, origin, state, href = seen["actions"].get(action_id, (None, None, None, None))
-    linked, transitions = _expected_link(c, finding_id, shown, origin if origin_f == finding_id else None)
-    _record(f"{key}_lineage", {"shown": shown, "origin": origin, "verification_state": state,
-                               "transitions": transitions, "refresh_chain": linked,
-                               "must_not_harm": row["must_not_harm"]})
-    if linked:
-        assert row["must_not_harm"] is not None, (key, row["must_not_harm"])
-        assert row["must_not_harm"]["href"] == href, (key, row["must_not_harm"], href)
-        assert "checked as safeguards" in row["must_not_harm"]["text"], row["must_not_harm"]
-    else:
-        assert row["must_not_harm"] is None, (key, row["must_not_harm"])
-    return linked
 
 
 def _pin_kobo(monkeypatch, spec: dict) -> None:
@@ -434,7 +375,7 @@ def test_kobo_guardrail_closed_s2_is_partial_unknown(kobo_guardrail, monkeypatch
     with _client() as c:
         body, failed = _board(c, "KOBO-001", "kobo_guardrail_day_a_closed", date="2026-10-06")
     assert body["read_state"] == "PARTIAL"
-    assert "mini_overview" in failed, failed
+    assert "source" in failed, failed  # CH-5a1: the source gate is its own read (the overview is not read)
     outcomes = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
     _record("kobo_guardrail_day_a_closed_outcomes", outcomes)
     assert set(_states(body)) == {"UNKNOWN"}, _states(body)
@@ -447,18 +388,16 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     _serve(monkeypatch, url, work)
     _pin_kobo(monkeypatch, spec)
     seen = _spy_work_rows(monkeypatch)
-    lineage = _spy_lineage(monkeypatch)
     f01 = spec["findings"]["2026-10-06"]
     with _client() as c:
         a, failed_a = _board(c, "KOBO-001", "kobo_guardrail_day_a", date="2026-10-06")
         b, failed_b = _board(c, "KOBO-001", "kobo_guardrail_day_b", date="2026-11-02")
-        # LINK-LINEAGE U3: Must-not-harm on both days follows the refresh-lineage rule, computed in the test from
-        # the Finding history route (D-2026-10-31-board-action-refresh-lineage)
-        assert len(lineage) == 2, lineage
-        for key, body, seen_ in (("kobo_guardrail_day_a", a, lineage[0]), ("kobo_guardrail_day_b", b, lineage[1])):
-            linked = _assert_lineage_must_not_harm(c, key, seen_, f01, spec["action"], _rows(body)["OPTIMIZE_COST"])
-            # review L1: pin the recorded branch (Day A has no ACT-000001; Day B is one BASIS_REFRESHED step)
-            assert linked is (key == "kobo_guardrail_day_b"), (key, seen_)
+        # CH-5a1 (deleted lineage, §A4): an Action links through its thread and segment, else the exact origin
+        # revision (test_link_lineage.py, L2). Day A has no ACT-000001; Day B's BASIS_REFRESHED step no longer
+        # links by itself, so both days are recorded and Day A pinned.
+        for key, body in (("kobo_guardrail_day_a", a), ("kobo_guardrail_day_b", b)):
+            _record(f"{key}_must_not_harm", _rows(body)["OPTIMIZE_COST"]["must_not_harm"])
+        assert _rows(a)["OPTIMIZE_COST"]["must_not_harm"] is None
 
     # Addendum 6: the s602b overview is STALE_PROJECTION, so the outcomes stay UNKNOWN/NOT_MEASURED. The Day A F01
     # checks are restored below (IDX-GAPS); Must-not-harm on both days follows LINK-LINEAGE (above); Day A
@@ -470,10 +409,13 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         assert "UNKNOWN" in measured.values(), measured
     _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
     if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): import-time artefact
-        assert failed_a == ["estate"], failed_a
+        # R8 (E2): this fixture never runs the chain consumer, so its Finding events stay unconsumed and the Findings
+        # are not settled (`chain_findings` PARTIAL, no port error); the overview-era index read CURRENT here.
+        assert failed_a == ["estate", "chain_findings"], failed_a
+        assert not [e for e in LAST_ERRORS["kobo_guardrail_day_a"] if e.startswith("chain_findings")]
         assert a["read_state"] == "PARTIAL"
 
-    # Parity: the product overview route's freshness is the board's mini overview body (same app)
+    # E2: the overview route's freshness is recorded beside the board's settled snapshot day (no overview read)
     with _client() as c2:
         for day in ("2026-10-06", "2026-11-02"):
             r = c2.get("/api/sites/KOBO-001/overview", params={"date": day})
@@ -481,7 +423,8 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
             _record(f"kobo_overview_route_{day}", r.json()["freshness"]["state"])
             parity = r.json()["freshness"]["state"]
             board_key = "kobo_guardrail_day_a" if day == "2026-10-06" else "kobo_guardrail_day_b"
-            assert LAST_PORTS[board_key]["mini_overview"]["freshness"] == parity, (day, LAST_PORTS[board_key])
+            _record(f"{board_key}_chain_day", LAST_PORTS[board_key].get("chain_day"))
+            assert "mini_overview" not in LAST_PORTS[board_key] and parity is not None
 
     # Day B: the real Action rows carry the keys the B2 fake assumes (ESTATE_A48), with `_raw` where progress reads it
     actions = [x for rows in seen[1:] if rows for x in rows["actions"]]
