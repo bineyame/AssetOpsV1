@@ -80,3 +80,107 @@ def test_grade_counts_of_day_facts() -> None:
                      settled=True, readiness="FULL", gaps=())
     g = grade_counts_of(facts, ["m"])
     assert (g.requested, g.expected, g.complete, g.partial, g.no_data) == (3, 3, 1, 1, 1)
+
+
+# ---- §B14 Q7/Q8: the one count computation (`chain/claims.py`) -------------------------------------------------
+
+from datetime import date as _date, datetime as _dt, timezone as _tz  # noqa: E402
+from types import SimpleNamespace as _NS  # noqa: E402
+
+from assetops_backend.chain import claims as CL  # noqa: E402
+
+
+def _o(tid, fid, oid, start, end):
+    return {"thread_id": tid, "mechanism": "GENERATOR_SUPPORT_CANDIDATE", "subject_ref": "a", "occurrence_no": 1,
+            "finding_id": fid, "opportunity_id": oid, "opportunity_no": None, "episode_start": start,
+            "episode_end": end}
+
+
+def _e(tid, seq, state, day, recorded):
+    return {"thread_id": tid, "seq": seq, "state": state, "cause_kind": "X", "cause_id": "c", "effective_day": day,
+            "recorded_at": recorded, "cause_known_at": None}
+
+
+_LO, _HI = _dt(2026, 10, 1, tzinfo=_tz.utc), _dt(2026, 10, 8, tzinfo=_tz.utc)
+_ROWS = {"occurrences": (
+    _o("t-open", "f1", None, _dt(2026, 10, 3, tzinfo=_tz.utc), _dt(2026, 10, 3, 6, tzinfo=_tz.utc)),
+    _o("t-verified", "f2", None, _dt(2026, 10, 2, tzinfo=_tz.utc), None),
+    _o("t-before", "f3", None, _dt(2026, 9, 1, tzinfo=_tz.utc), _dt(2026, 9, 2, tzinfo=_tz.utc)),  # event-only
+    _o("t-opp", None, "o1", _dt(2026, 10, 3, tzinfo=_tz.utc), None)),  # opportunity-only
+    "events": (_e("t-open", 1, "OPEN", _date(2026, 10, 3), _dt(2026, 10, 3, 8, tzinfo=_tz.utc)),
+               _e("t-verified", 1, "OPEN", _date(2026, 10, 2), _dt(2026, 10, 2, 8, tzinfo=_tz.utc)),
+               _e("t-verified", 2, "RESOLVED_MONITORING", _date(2026, 10, 5), _dt(2026, 10, 5, 8, tzinfo=_tz.utc)),
+               _e("t-before", 1, "OPEN", _date(2026, 10, 4), _dt(2026, 10, 4, 8, tzinfo=_tz.utc)),
+               _e("t-opp", 1, "OPEN", _date(2026, 10, 3), _dt(2026, 10, 3, 8, tzinfo=_tz.utc))),
+    "actions": ()}
+_DAYS = {d: {"m": {"s": "COMPLETE"}} for d in (_date(2026, 10, i) for i in range(1, 8))}
+
+
+class _Req:
+    def __init__(self, k=None, ev=None, fail=False):
+        self.k, self.ev, self.fail, self.ev_calls = k, ev, fail, 0
+
+    def day(self, site_id, site_type, days):
+        return _NS(days=tuple(days), grades={})
+
+    def threads(self, site_id):
+        if self.fail:
+            raise LookupError("down")
+        return _ROWS
+
+    def evidence_cutoff(self, site_id):
+        self.ev_calls += 1
+        return self.ev
+
+
+_MINI = _NS(site_id="s1", site_code="KOBO-001", domain="mini_grid", timezone="Etc/UTC", tenant_id="t")
+_COLD = _NS(site_id="s2", site_code="COLD-001", domain="cold_chain", timezone="Etc/UTC", tenant_id="t")
+
+
+def test_claims_count_only_finding_threads_meeting_the_window(monkeypatch) -> None:
+    monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: None)
+    out = CL.estate_count_claims(_Req(), [_MINI], _LO, _HI, [1, 2])
+    assert out.threads["KOBO-001"] == {"open": 1, "in_hand": 0, "verified": 1}  # no event- or opportunity-only
+    assert out.claims["count.open_threads"].value == 1 and out.claims["count.verified_results"].value == 1
+    assert out.claims["count.opportunities"].value == 2
+    assert {c.basis for c in out.claims.values()} == {"NOT_KNOWN"}  # days None: the grade read failed
+
+
+def test_claims_cold_cutoff_is_the_evidence_cutoff_bounded_by_k(monkeypatch) -> None:
+    monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: None)
+    req = _Req(k=None, ev=_dt(2026, 10, 4, tzinfo=_tz.utc))  # the RESOLVED_MONITORING event is after it
+    out = CL.estate_count_claims(req, [_COLD], _LO, _HI, [])
+    assert out.threads["COLD-001"] == {"open": 2, "in_hand": 0, "verified": 0} and req.ev_calls == 1
+    mini = _Req(ev=_dt(2026, 10, 4, tzinfo=_tz.utc))
+    CL.estate_count_claims(mini, [_MINI], _LO, _HI, [])
+    assert mini.ev_calls == 0  # mini reads the request's cutoff
+
+
+def test_claims_failed_thread_read_or_opportunity_read_is_not_known(monkeypatch) -> None:
+    full = {"complete": 7, "partial": 0, "low": 0, "no_data": 0, "pending": 0, "expected": 7}
+    monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: full)
+    out = CL.estate_count_claims(_Req(fail=True), [_MINI], _LO, _HI, None, (LookupError,))
+    assert out.threads["KOBO-001"] is None
+    assert [out.claims[k].basis for k in CL.CLAIM_KEYS] == ["NOT_KNOWN"] * 3
+    ok = CL.estate_count_claims(_Req(), [_MINI], _LO, _HI, [])
+    assert ok.claims["count.open_threads"].text == "1 open finding"
+    assert ok.claims["count.opportunities"].basis == "COMPLETE" and ok.claims["count.opportunities"].value == 0
+
+
+def test_estate_claims_callable_resolves_codes_and_reads_one_request() -> None:
+    seen = []
+
+    class Reader:
+        def request(self, tenant_id, known_at):
+            seen.append((tenant_id, known_at))
+            return _Req()
+
+    class Opp:
+        def opportunity_threads(self, *a):
+            return [{"site_code": "KOBO-001"}]
+
+    call = CL.EstateClaims(lambda: Reader(), lambda: Opp(), {"KOBO-001": _MINI}.get)
+    out = call("t", ["KOBO-001", "GONE"], _LO, _HI, None)
+    assert seen == [("t", None)] and set(out.threads) == {"KOBO-001"}
+    assert out.claims["count.opportunities"].value == 1
+    assert CL.EstateClaims(lambda: None, lambda: None, lambda c: None)("t", [], _LO, _HI, None) is None

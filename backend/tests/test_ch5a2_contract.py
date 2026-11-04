@@ -62,6 +62,10 @@ class Port(BC.Port):
         self.calls.append(("site_threads", (site_id,)))
         return THREAD_ROWS.get(site_id, {"occurrences": (), "events": (), "actions": ()})
 
+    def evidence_cutoff(self, tenant_id, site_id, known_at):  # CH-5a2b: no disposition -> the request's cutoff
+        self.calls.append(("evidence_cutoff", (site_id,)))
+        return None
+
 
 class Registry:
     SITES = {s.site_code: s for s in (BC.KOBO, BC.COLD, BC.EV)}
@@ -158,12 +162,19 @@ def test_known_at_hides_a_later_event() -> None:
     assert [e["seq"] for e in body["events"]] == [1] and body["state"] == "OPEN"
 
 
-def test_estate_chain_counts_are_null_until_ch5a2b_and_money_is_never_summed() -> None:
+def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
+    """CH-5a2b (§B14 Q7): T1 (a Finding occurrence on 31 Oct, OPEN on the window day) counts; T2 is
+    opportunity-only, so it is an opportunity item, never a thread."""
     body = _get("estate_week_2026-10-25")
-    assert body["counts"] == {"verified_results": None, "open_threads": None, "opportunities": None}
+    counts = body["counts"]
+    assert set(counts) == {"count.open_threads", "count.verified_results", "count.opportunities"}
+    assert counts["count.open_threads"]["value"] == 1 and counts["count.verified_results"]["value"] == 0
+    assert counts["count.opportunities"]["value"] == 1
+    assert all(set(c) == {"key", "value", "basis", "days", "text"} for c in counts.values())
+    assert len({json.dumps(c["days"], sort_keys=True) for c in counts.values()}) == 1
     assert body["money_total"] is None
     kobo = next(s for s in body["sites"] if s["code"] == "KOBO-001")
-    assert kobo["days"]["requested"] == 7 and kobo["threads"] is None
+    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 1, "in_hand": 0, "verified": 0}
     assert [o["thread_id"] for o in kobo["opportunities"]] == [T2]
     assert set(kobo["rows"]) == {"GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"}
 

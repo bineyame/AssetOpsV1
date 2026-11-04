@@ -18,7 +18,9 @@ from typing import Any, Callable, Iterable, Mapping
 from assetops_backend import perf
 from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
+from assetops_backend.chain.claims import CLAIM_KEYS
 from assetops_backend.chain.threads import OPEN_CLASS, VERIFIED_CLASS, classify
+from assetops_backend.chain.vocabulary import count_basis
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
@@ -807,12 +809,17 @@ class EstatePortfolioService(EstateEvidenceService):
         # WALK1-1 (WN-2): counts are claims on complete (or complete-empty) coverage of their root, or, on a PARTIAL
         # estate, over the checked days (a PARTIAL Site's rows already drop every head touching an unchecked day,
         # `coverage.py` §2.5). Nothing is extrapolated; money is unchanged (D-W1-4).
-        count_basis = ("COMPLETE" if states["F"] in (COMPLETE, EMPTY)
-                       else "CHECKED_DAYS" if status == PARTIAL_STATUS else None)
-        finding_known = count_basis is not None
+        coverage_basis = ("COMPLETE" if states["F"] in (COMPLETE, EMPTY)
+                          else "CHECKED_DAYS" if status == PARTIAL_STATUS else None)
+        finding_known = coverage_basis is not None
         # Pre-flight E1: `select_evidence_scope` emits rows for a PARTIAL mini-grid Site (one per dispatch day,
         # unchecked days UNASSESSED with no typed gap), so the evidence gap count follows the same rule.
-        evidence_known = states["E"] in (COMPLETE, EMPTY) or count_basis == "CHECKED_DAYS"
+        evidence_known = states["E"] in (COMPLETE, EMPTY) or coverage_basis == "CHECKED_DAYS"
+        # CH-5a2b (§B13 R3, §B14 Q7-Q9): the PC-1 count claims from the one chain computation, and
+        # `summary.count_basis` from the one basis rule over their day grades. `coverage_basis` above keeps only the
+        # nullability of `finding_count` / `evidence_gap_site_count` until CH-6b.
+        counted = self._claims(tenant_id, scope, req)
+        claims = self.claims_json(counted, CLAIM_KEYS)
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None,
             "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
@@ -827,7 +834,8 @@ class EstatePortfolioService(EstateEvidenceService):
                                  for g in GROUPS},
             # OUT-A2 (ruling A-Q11): over `members`; all four keys; both counts null unless F is known.
             "category_counts": category_counts(members, finding_known),
-            "count_basis": count_basis,
+            "count_basis": count_basis(claims[CLAIM_KEYS[0]]["days"]),
+            "claims": claims,
             "checked_days": [{"site_id": str(site["site_id"]), "site_name": site["site_name"],
                               "checked": cov["days"]["checked"], "requested": cov["days"]["requested"],
                               "withheld": bool(cov["days"].get("withheld"))}

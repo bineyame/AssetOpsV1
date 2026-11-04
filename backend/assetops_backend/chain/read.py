@@ -250,6 +250,8 @@ class ChainReadPort(Protocol):
 
     def site_threads(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
 
+    def evidence_cutoff(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None: ...
+
 
 @dataclass(frozen=True)
 class ChainRequest:
@@ -287,6 +289,12 @@ class ChainRequest:
     def threads(self, site_id: UUID) -> Mapping[str, Any]:
         """CH-5a2a (§B1 `/chain` routes): the Site's thread rows (`ChainReadPort.site_threads`), one memoised call."""
         return read_scope.memo("chain.threads", self.reader.ports.site_threads, self.tenant_id, site_id, self.k)
+
+    def evidence_cutoff(self, site_id: UUID) -> datetime | None:
+        """CH-5a2b (§B14 Q7): the Site's evidence watermark at `k` (latest disposition decided by `k`, as
+        `EstateSnapshot.evidence_cutoff`), the cold/EV input of `site_cutoff`; one memoised call."""
+        return read_scope.memo("chain.evidence_cutoff", self.reader.ports.evidence_cutoff, self.tenant_id, site_id,
+                               self.k)
 
     def action_facts(self, site_id: UUID, site_code: str, action_ids: Sequence[str]) -> tuple[ActionFacts, ...]:
         """C6: the state, cost check and trial hours from one memoised `VerificationService.summary` per Action;

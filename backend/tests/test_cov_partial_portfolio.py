@@ -11,6 +11,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from assetops_backend.chain.claims import CLAIM_KEYS, EstateCounts
+from assetops_backend.chain.vocabulary import count_claim
 from assetops_backend.estate import coverage, evidence_money, financials, index, portfolio
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate_api import build_estate_router
@@ -208,9 +210,23 @@ class DaysWorld(StateWorld):
         return {**out, "days": DAYS} if out["state"] == "PARTIAL" else out
 
 
-def portfolio_days(monkeypatch, states) -> dict:
+CHECKED_MIX = {"complete": 5, "partial": 1, "low": 0, "no_data": 1, "pending": 0, "expected": 7}
+ALL_COMPLETE = {"complete": 7, "partial": 0, "low": 0, "no_data": 0, "pending": 0, "expected": 7}
+
+
+def claims_stub(days):
+    """CH-5a2b: the injected one count computation (`chain.claims.EstateClaims`), returning claims over `days`."""
+    def stub(tenant_id, codes, lo, hi, known_at):
+        return EstateCounts({k: count_claim(k, 0, days) for k in CLAIM_KEYS}, {}, {})
+    return stub
+
+
+def portfolio_days(monkeypatch, states, days=None) -> dict:
     app = FastAPI()
-    app.include_router(build_estate_portfolio_router(EstatePortfolioService(DaysWorld(monkeypatch, states)),
+    service = EstatePortfolioService(DaysWorld(monkeypatch, states))
+    if days is not None:
+        service.count_claims = claims_stub(days)
+    app.include_router(build_estate_portfolio_router(service,
                                                      lambda: T, authenticate=lambda request: None,
                                                      access=lambda request, code: None))
     response = TestClient(app).get("/api/estate/portfolio?" + urlencode(
@@ -220,7 +236,7 @@ def portfolio_days(monkeypatch, states) -> dict:
 
 
 def test_walk1_partial_estate_counts_over_checked_days(monkeypatch) -> None:
-    body = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL"})
+    body = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL"}, CHECKED_MIX)
     summary = body["status"], body["summary"]
     assert summary[0] == "PARTIAL"
     s = summary[1]
@@ -248,10 +264,15 @@ def test_walk1_withheld_flag_rides_checked_days_and_count_stays_int(monkeypatch)
 
 def test_walk1_unknown_estate_stays_null_and_complete_stays_complete(monkeypatch) -> None:
     unknown = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL", "KOBO 002": "UNKNOWN"})["summary"]
-    assert unknown["count_basis"] is None and unknown["finding_count"] is None
+    # CH-5a2b (§B14 Q9): `count_basis` is the one basis rule over the claims' day grades; with no computation
+    # injected the claims are not known. `finding_count` keeps its coverage nullability until CH-6b.
+    assert unknown["count_basis"] == "NOT_KNOWN" and unknown["finding_count"] is None
+    assert {c["basis"] for c in unknown["claims"].values()} == {"NOT_KNOWN"}
     assert unknown["category_counts"]["PROTECT_ASSET"]["sites_with_primary_finding"] is None
     assert unknown["evidence_gap_site_count"] is None
     assert len(unknown["checked_days"]) == 1  # stated for the PARTIAL Site; the client reads it only on CHECKED_DAYS
-    complete = portfolio_days(monkeypatch, {})["summary"]
+    complete = portfolio_days(monkeypatch, {}, ALL_COMPLETE)["summary"]
     assert complete["count_basis"] == "COMPLETE" and complete["checked_days"] == []
+    # Q9: complete Finding coverage over partly graded days reads the day-grade basis, not the coverage basis.
+    assert portfolio_days(monkeypatch, {}, CHECKED_MIX)["summary"]["count_basis"] == "CHECKED_DAYS"
     assert isinstance(complete["finding_count"], int)

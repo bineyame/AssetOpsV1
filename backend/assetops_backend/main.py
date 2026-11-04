@@ -187,9 +187,9 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
-from assetops_backend.chain.composition import chain_policy_versions
+from assetops_backend.chain.composition import build_estate_claims, chain_policy_versions
 from assetops_backend.chain_api import build_chain_router
-from assetops_backend.outcome_api import build_outcome_router
+from assetops_backend.outcome_api import build_outcome_router, site_ref
 from assetops_backend.site_outcomes.composition import build_outcome_board_service
 from assetops_backend.sites_api import build_sites_router
 
@@ -565,8 +565,9 @@ def create_app(
         registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE)))
     # W3-01 commit 2 (q5 ruling 5): the read-only estate roots `/api/estate/{scope,findings,actions}`; tenant from the
     # server registry only, per-Site admission through the Finding-route access seam; typed 503 without a database.
+    estate_index = build_estate_index_service(database_url())
     app.include_router(build_estate_router(
-        build_estate_index_service(database_url()), registry_tenant(registry),
+        estate_index, registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,)))
     # W3-02 commit 1: the read-only estate Evidence root `/api/estate/evidence` (same tenant/access seams).
     app.include_router(build_estate_evidence_money_router(
@@ -631,6 +632,16 @@ def create_app(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         policy_versions=chain_policy_versions))
+    # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
+    # `/estate/chain` calls, over the same board reads and the same Site registry.
+    estate_claims = build_estate_claims(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None),
+        lambda: getattr(getattr(outcome_board, "s", None), "threads", None),
+        lambda code: (lambda site: None if site is None else site_ref(site))(registry.imported(code)),
+        (SiteStoreUnavailable,))
+    for estate_service in (estate_index, estate_portfolio):
+        if estate_service is not None:
+            estate_service.count_claims = estate_claims
     # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
     # allow defaults too; pass the same callables to the board if that changes.
 

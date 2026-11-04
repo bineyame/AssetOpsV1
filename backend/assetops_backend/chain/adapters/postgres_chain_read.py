@@ -89,6 +89,12 @@ SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id 
  ORDER BY a.action_code, a.id
 """)
 
+#: CH-5a2b (§B14 Q7): the Site's evidence watermark, `EstateSnapshot.evidence_cutoff`'s statement (None k = now).
+_EVIDENCE_CUTOFF = text("""
+SELECT max(decided_at) FROM ingestion_disposition
+ WHERE tenant_id = :t AND site_id = :s AND (CAST(:k AS timestamptz) IS NULL OR decided_at <= CAST(:k AS timestamptz))
+""")
+
 
 class PostgresChainRead:
     """The `ChainReadPort` (`chain/read.py`). `snapshots` reuses the snapshot store's latest-row read."""
@@ -142,3 +148,7 @@ class PostgresChainRead:
                        for name, sql in (("occurrences", _SITE_OCCURRENCES), ("events", _SITE_EVENTS),
                                          ("actions", _SITE_ACTIONS))}
         return MappingProxyType(out)
+
+    def evidence_cutoff(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None:
+        with self._engine.connect() as c:
+            return c.execute(_EVIDENCE_CUTOFF, {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()

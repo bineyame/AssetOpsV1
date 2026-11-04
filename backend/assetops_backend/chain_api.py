@@ -9,8 +9,8 @@
                                                      or an unknown id, is 404 THREAD_NOT_FOUND
 
 `outcomes` (Site) and `rows` (estate) are the board composition's own rows, so a chain body and the board or the
-summary it sits beside cannot disagree. The count claims (`counts`, `sites[].threads`) are null until CH-5a2b
-(CH5a2-R R3); money is never summed across Sites (`money_total` null, design A6). Each route runs inside
+summary it sits beside cannot disagree. The count claims (`counts`, `sites[].threads`) come from the one
+`chain.claims.estate_count_claims` (CH-5a2b, §B14 Q7); money is never summed across Sites (`money_total` null, design A6). Each route runs inside
 `perf.route`, so it has one read scope (ledger and memo) per request.
 """
 from __future__ import annotations
@@ -25,8 +25,8 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend import perf, read_scope
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.measures import measures_for
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day, window_days
-from assetops_backend.chain.reader import grade_counts_of
+from assetops_backend.chain.claims import estate_count_claims, opportunity_items
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.finding_api import Access, development_access
@@ -173,41 +173,28 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         chain_reader = reader()
         lo, hi = parsed.from_.astimezone(timezone.utc), parsed.to.astimezone(timezone.utc)
         summary = service.summary(sites, lo, hi, parsed.known_at)
-        opportunities = _opportunities(sites, lo, hi, parsed.known_at)
+        req = chain_reader.request(sites[0].tenant_id if sites else None, parsed.known_at)
+        items = opportunity_items(service.s.threads, sites, lo, hi, parsed.known_at)
+        # §B14 Q7: the one count computation the Portfolio and estate Findings summaries also call.
+        counted = estate_count_claims(req, sites, lo, hi, items, (SiteStoreUnavailable, *unavailable))
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for item in items or ():
+            grouped.setdefault(item["site_code"], []).append(read_scope.thaw(item))
         by_code = {s["site_code"]: s for s in summary["sites"]}
         out = []
         for ref in sites:
-            req = chain_reader.request(ref.tenant_id, parsed.known_at)
-            days = window_days(lo, hi, ref.timezone)  # the summary card's frame rule (R7)
-            try:
-                facts = req.day(ref.site_id, _site_type(ref), days)
-                counts: dict[str, int] | None = grade_counts_of(facts, _measures(ref)).to_json()  # review L2
-            except (SiteStoreUnavailable, *unavailable):
-                counts = None  # the read failed: not known, never zero
+            counts = counted.days.get(ref.site_code)
             entry = by_code.get(ref.site_code) or {}
-            out.append({"code": ref.site_code, "domain": _site_type(ref), "days": counts,
+            out.append({"code": ref.site_code, "domain": _site_type(ref),
+                        "days": None if counts is None else counts.to_json(),  # None: the read failed, never zero
                         "rows": {r["category"]: {"state": r["state"], "state_label": r["state_label"]}
                                  for r in entry.get("rows", ())},
-                        "threads": None,  # CH5a2-R R3: the thread classes land in CH-5a2b
-                        "opportunities": opportunities.get(ref.site_code, [])})
+                        "threads": counted.threads.get(ref.site_code),
+                        "opportunities": None if items is None else grouped.get(ref.site_code, [])})
         return jsonable_encoder({
             "schema_version": site_chain.SCHEMA_VERSION,
             "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
-            "sites": out, "counts": {"verified_results": None, "open_threads": None, "opportunities": None},
+            "sites": out, "counts": counted.claims_json(),
             "money_total": None, "policy_versions": _versions(policy_versions)})
-
-    def _opportunities(sites: list[SiteRef], lo: datetime, hi: datetime,
-                       known_at: datetime | None) -> dict[str, list[dict[str, Any]]]:
-        """The CH-4 items of the mini Sites in scope: one `opportunity_threads` read for all of them."""
-        port = None if service is None else service.s.threads
-        minis = [s for s in sites if s.domain == MINI]
-        if port is None or not minis:
-            return {}
-        items = read_scope.memo("chain.opportunities", port.opportunity_threads, minis[0].tenant_id,
-                                tuple(str(s.site_id) for s in minis), lo, hi, known_at)
-        grouped: dict[str, list[dict[str, Any]]] = {}
-        for item in items:
-            grouped.setdefault(item["site_code"], []).append(read_scope.thaw(item))
-        return grouped
 
     return router
