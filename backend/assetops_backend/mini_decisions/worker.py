@@ -121,7 +121,7 @@ class MiniOpportunityWorker:
         whose failure is no earlier than every selected hour's selection is diagnostic and retained: the unchanged
         selected input does not queue an identical job again. A newer selection queues one new job."""
         heads = projection.day_heads(self.store, c, study.tenant_id, study.site_id, study.tz_name,
-                                     projection.study_days(study.last_day))
+                                     projection.study_days(study.last_day), self._scan_at(c))
         sha = projection.input_sha256(study.tenant_id, study.site_id, study.first_day, study.last_day, heads)
         latest = self.store.latest_opportunity_sha(c, study.tenant_id, study.site_id, study.first_day,
                                                    study.last_day)
