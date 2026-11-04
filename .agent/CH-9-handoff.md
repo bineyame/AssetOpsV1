@@ -1,4 +1,37 @@
-# CH-9 handoff (PARTIAL: pre-flight ruled, build not started)
+# CH-9 handoff (PARTIAL: u1 landed, resume at u1-tail then u2)
+
+## Status 2026-11-05 (builder 2)
+- Commit `a116d2931` (on `3211e1c8e`): u1 core. Stopped at the context cap; no DB job or process left running by me.
+- Coordinator ruling (owner rule): **no demo prepare of any kind**. Prove `mill-midday` with an L2 test and record
+  it as a Known Deviation in the packet (real story day proved at end-game E3). u4 below is amended accordingly.
+- **Migration head correction:** main's head at branch time is `0044_chain_events` (0044 re-points onto 0045), so
+  `0046.down_revision = "0044_chain_events"`, not 0045.
+
+### Landed in u1 (anchors)
+- `backend/migrations/versions/0046_daylight_enqueue.py`: new SQL helper `mini_renewable_hour(t, s, lo, hi, tz)`
+  (no pv binding overlapping the hour -> local 12 only; else a positive accepted pv reading overlapping the hour).
+  The three 0029 bodies are loaded from 0029's own module text and text-patched (3 exact replacements, each
+  asserted once); downgrade re-creates the 0029 bodies and drops the helper.
+- `B/mini_depth/rules.py` end: pure `classify_daylight(windows, readings) -> (daylight, missing)` via `series`
+  (gap or unusable row = missing; every segment > 0 = daylight).
+- `B/mini_depth/store.py` end: `DaylightHours(hours, missing, measured)`, `NOON_HOURS`, `daylight_hours(c, t, s,
+  day, k)`: expected hours = `chain.grading.period_bounds(calendar.entry_for(site_code), tz, day,
+  PERIOD_OPERATING_HOURS)` (the shared period helper for `critical_served`); binding read as known at k.
+- `worker.py` reconcile uses `daylight_hours(...).hours`; `RENEWABLE_LOCAL_HOUR` removed.
+- `read.py` `hour_windows(..., daylight=callable)` returns each day's daylight + missing hours; `_read` passes
+  `lambda d: daylight_hours(c, t, s, d, known)`.
+- Tests: `backend/tests/test_ch9_daylight_postgres.py` (6 pass); `test_w402_migration_postgres.py` gains fixture
+  `mg4_nopv` (pv bindings relabelled away) used by the 3 noon-enqueue tests (20 pass together).
+
+### Not done in u1 (do first)
+- `read.py` `read_selected_renewable_basis` (`:~515`, still `local_noon`): coupled to the study shape, do with u2.
+  Its consumers zip basis rows with pins: `mini_decisions/opportunities.py:327-345` and `scenarios.py:333,381`
+  (`by_day` keyed by local_day). Suggested: take explicit `windows` (from `/2` pins, one per daylight hour) and
+  return per-hour rows; `/1` keeps noon by `model_version`.
+- `B/mini_decisions/projection.py:82` and `site_outcomes/mini.py:561` still use `local_noon` (u2 / u3).
+- Adjacent tests run at stop: see "Adjacent run" below.
+
+## Original handoff (pre-flight, builder 1)
 
 Worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch9`, branch `task/CH-9-measured-daylight`, base main `692e4d57e`.
 Commits: `5af83b877` pre-flight. No product code, no DB touched, no process left running.
@@ -10,7 +43,7 @@ Why stopped: the pre-flight survey used most of the first agent's context, and t
 
 ## Build order (ladder L0 -> L4, localised tests only)
 1. **u1: 0046 + daylight helper.**
-   - New `backend/migrations/versions/0046_daylight_enqueue.py`, with `down_revision` = `0045_thread_known_at`.
+   - New `backend/migrations/versions/0046_daylight_enqueue.py`, with `down_revision` = `0044_chain_events` (corrected).
    - It does `CREATE OR REPLACE` on the three 0029 functions (`0029_w4_mini_depth.py:190,257,295`; copy their bodies from `:165-310`). Changes:
      - renewable work is enqueued for an hour holding an accepted `pv_available_power` reading > 0;
      - the late-feeder case: any renewable-role reading in such an hour also enqueues;
@@ -63,3 +96,20 @@ Why stopped: the pre-flight survey used most of the first agent's context, and t
 - Every study or thread state that changes on the polish clone. Today's 8-hour Kobo story days become missing study days and MG-5 is PARTIAL on them; these are owned `expected-today.json` changes, owner DD-1.
 - Mini-depth job growth against the CH-1b stage bound.
 - Lane-1 conflicts in `chain/vocabulary.py` and `site_outcomes/mini.py` are resolved by whichever slice merges second.
+
+## Adjacent run (at `a116d2931`, 2026-11-05)
+`run-host-tests.ps1 -- test_w402_reads_postgres.py test_w402_mini_stage_postgres.py test_w402_replay_selection_postgres.py
+test_w402_reads.py test_walk1_5_solar_window.py`: **2 failed, 42 passed** (763 s; long, so run these one file at a time).
+- `test_w402_reads_postgres.py::test_renewable_composes_five_selected_days`: the renewable page now returns 120
+  windows (24 operating hours x 5 days) instead of 5 noon windows, because the fixture Site binds
+  `pv_available_power` but holds pv rows only 08:00-08:30Z, so every other operating hour is missing (Q2).
+- `test_w402_reads_postgres.py::test_published_authored_batches_select_authored_demonstration`: status UNKNOWN
+  instead of SUPPORTED, same cause (missing hours -> missing day).
+Both are the ruled Q2 consequence, not a defect. Fix as owned test changes: run those two tests on `mg4_nopv`-style
+relabelling (pv bindings away -> noon, which is what they test), or seed full-day pv rows; then add one page-read
+case for a measured day. Do not change the rule.
+
+## Resume order for builder 3
+1. Fix the two w402 read tests above; re-run that file alone.
+2. u2 (with `read_selected_renewable_basis`), u3, u4 (L2 test only, Known Deviation), u5, MD-0 Q1, L3m, guards,
+   packet, per the original order below.
