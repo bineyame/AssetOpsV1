@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from assetops_backend.outcomes.display_code import display_code
+from assetops_backend.site_outcomes.board import THREAD_AFTER_JUDGED, THREAD_AFTER_NOT_JUDGED, THREAD_BEFORE
 
 KOBO, COLD, EV = "KOBO-001", "COLD-LAB-001", "EV-LAB-001"
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
@@ -174,14 +175,59 @@ def co1(ctx: Ctx) -> dict:
     mnh, on_cost_row = cost_row_action_links(cost, k["action"], k["action_code"], state)
     outside = [i["text"] for x in body["rows"] for i in items(x) if i["text"].endswith(OUTSIDE)]
     assert outside == [], outside
+    # FIX-MAIN-1 R1 (Architect; expectation owner CH-3): since CH-3 the board reads "applied" from the thread state on
+    # the board day, and the change is applied from the Site-local day of the Action's effective_from (after S). On
+    # day S the primary Finding is therefore still open, and the row carries the thread's "Before the change" line.
+    e = _kobo_change_day(ctx)
+    assert e > ctx.S.astimezone(_kobo_zone(ctx)).date(), ("change day not after S", e, ctx.story["S"])
     outcomes = {o["key"]: (o["state"], o.get("reason")) for o in cost["outcomes"]}
     mg2 = outcomes.get("MG-2")
-    branches = {"PRIMARY_FINDING_APPLIED": "WATCH", "OBJECTIVE_MISSED": "NEEDS_ATTENTION"}
-    assert mg2 is not None and mg2[1] in branches, outcomes
-    assert cost["state"] == branches[mg2[1]], (cost["state"], mg2)
+    assert mg2 == ("NEEDS_ATTENTION", "PRIMARY_FINDING_OPEN"), outcomes
+    assert cost["state"] == "NEEDS_ATTENTION", (cost["state"], mg2)
+    label = f"{e.day} {e:%b}"
+    before = THREAD_BEFORE.format(e=label)
+    after_prefix = THREAD_AFTER_JUDGED.split("{")[0]
+    subline = cost.get("subline") or ""
+    if before + THREAD_AFTER_NOT_JUDGED.format(e=label) in subline:
+        after = "THREAD_AFTER_NOT_JUDGED"
+    elif re.search(re.escape(before + after_prefix) + r".+ from \d{1,2} [A-Z][a-z]{2}", subline):
+        after = "THREAD_AFTER_JUDGED"
+    else:
+        raise AssertionError(("no thread before-the-change line", before, subline))
     return {"cost_state": cost["state"], "finding": k["finding"], "must_not_harm": mnh,
-            "action_on_cost_row": on_cost_row, "mg2": mg2, "branch": mg2[1],
-            "r552": "resolved: refresh lineage"}
+            "action_on_cost_row": on_cost_row, "mg2": mg2, "change_day": e.isoformat(), "thread_after": after,
+            "subline": subline, "r552": "resolved: refresh lineage"}
+
+
+def _kobo_zone(ctx: Ctx):
+    from zoneinfo import ZoneInfo
+
+    if "kobo_zone" not in ctx.cache:
+        site = ctx.get(f"/api/sites/{KOBO}")
+        zone = next((n["timezone"] for n in walk(site) if isinstance(n.get("timezone"), str)), None)
+        assert zone, ("no Site timezone", site)
+        ctx.cache["kobo_zone"] = zone
+    return ZoneInfo(ctx.cache["kobo_zone"])
+
+
+def _kobo_change_day(ctx: Ctx):
+    """The Site-local day of the story's Kobo Action effective_from: the thread's CHANGE_APPLIED day."""
+    return at(ctx.story["kobo"]["action"]["effective_from"]).astimezone(_kobo_zone(ctx)).date()
+
+
+@row("CO-1b", idx=True)
+def co1b(ctx: Ctx) -> dict:
+    """FIX-MAIN-1 R1: on S+1 (from the change day on) the Finding no longer holds an open primary signal, and the
+    board carries the thread's monitoring line for the verified fix."""
+    k = ctx.docs["kobo"]
+    body = _kobo_board_s1(ctx)
+    cost = rows(body)["OPTIMIZE_COST"]
+    open_primary = [o for o in cost["outcomes"] if o.get("reason") == "PRIMARY_FINDING_OPEN"]
+    assert not open_primary, (k["finding"], open_primary)
+    want = "Fix verified, monitoring (" + display_code(k["action_code"]) + ")"
+    texts = [v for n in walk(body) for v in n.values() if isinstance(v, str) and want in v]
+    assert texts, (want, [r.get("subline") for r in body["rows"]])
+    return {"cost_state": cost["state"], "monitoring": texts[0]}
 
 
 @row("CO-2", idx=True)

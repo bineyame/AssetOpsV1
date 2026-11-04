@@ -1,5 +1,5 @@
 """MD-0 L2m (build sheet §10.2; MD0-S2 KOBO-001 only; MD0-S3 Q1 template DB): each test clones the input
-template `assetops_mechanism_tpl_test` (`CREATE DATABASE ... TEMPLATE`, seconds), runs the derive step (step 10)
+template `assetops_mechanism_tpl_<fp8>_test` (`CREATE DATABASE ... TEMPLATE`, seconds), runs the derive step (step 10)
 with this checkout's code, then asserts against the §2.6 expectations. The tests never seed.
 
 - The template is built by `python tools/mechanism_dataset.py build --variant states --budget 540` (in parts,
@@ -329,4 +329,30 @@ def test_template_clone_refuses_untagged_and_stale_then_clones_a_current_one() -
     finally:
         for name in (target, tpl):
             md.drop_database(admin, name)
+        admin.dispose()
+
+
+def test_publish_renames_the_build_to_its_fingerprint_and_find_matches_only_it() -> None:
+    """CH5a1-R3 M4: a finished staging build is tagged and renamed `assetops_mechanism_tpl_<fp8>_test`;
+    `find_template` returns it for its own fingerprint and refuses another as stale. Scratch fingerprint, no prune."""
+    admin = md.admin_engine(URL)
+    fp = secrets.token_hex(32)
+    staging, name = f"assetops_mechanism_tplb_{secrets.token_hex(4)}_test", md.template_name(fp)
+    try:
+        with admin.connect() as c:
+            c.execute(text(f'CREATE DATABASE "{staging}"'))
+        published, dropped = md.publish_template(admin, staging, md.make_tag({"site": {}}, "states", fingerprint=fp),
+                                                 keep=10_000)
+        assert (published, dropped) == (name, [])
+        with admin.connect() as c:
+            names = {r[0] for r in c.execute(text("SELECT datname FROM pg_database"))}
+        assert name in names and staging not in names
+        assert md.read_tag(admin, name)["fingerprint"] == fp
+        assert name in [n for n, _ in md.templates(admin)]
+        assert md.find_template(admin, fp) == name
+        with pytest.raises(md.MechanismRefused, match="TEMPLATE_STALE|TEMPLATE_MISSING"):
+            md.find_template(admin, "0" * 64)
+    finally:
+        for n in (staging, name):
+            md.drop_database(admin, n)
         admin.dispose()

@@ -3,12 +3,21 @@
     python tools/mechanism_dataset.py build --variant states [--budget 540] [--resume]  # the input template
     python tools/mechanism_dataset.py build --variant full [--budget 540] [--resume]    # the 14-day L3m DB
     python tools/mechanism_dataset.py derive        # clone the template to the L3m DB, derive, write the work folder
-    python tools/mechanism_dataset.py status        # the template tag against this checkout's input writers
-    python tools/mechanism_dataset.py drop [--variant states|full]
+    python tools/mechanism_dataset.py status        # the templates against this checkout's input writers
+    python tools/mechanism_dataset.py ensure        # reuse the matching template, else build it in one go
+    python tools/mechanism_dataset.py drop [--variant states|full|legacy]
 
-- `states` builds `assetops_mechanism_tpl_test`: every seed step but `derive` (INPUTS only), then tags the DB with
-  the input-writer fingerprint and the seed state (`mechanism_dataset.tag_template`). An unfinished build has no
-  tag; a clone of an untagged or stale template is refused (`TEMPLATE_MISSING`, `TEMPLATE_STALE`).
+- `states` builds the input template: every seed step but `derive` (INPUTS only) into a staging DB
+  `assetops_mechanism_tplb_<hex8>_test`, then tags it with the input-writer fingerprint and the seed state and renames
+  it `assetops_mechanism_tpl_<fp8>_test` (CH5a1-R3 M4: one template per fingerprint; the two newest are kept, older
+  ones dropped, so main and a branch never overwrite each other). An unfinished build has no tag; a clone with no
+  matching template is refused (`TEMPLATE_MISSING`, `TEMPLATE_STALE`).
+- `ensure` is the suite runner's step: exit 0 when a matching template exists, else a fresh `states` build with no
+  budget; any failure exits non-zero.
+- `assetops_mechanism_tpl_test` is the legacy single template (MD-0, CH-5a1's branch). This tool never reads, prunes
+  or replaces it; `drop --variant legacy` removes it once no branch uses it.
+- The server is 127.0.0.1:$ASSETOPS_PG_PORT (55432), or the host and port of `ASSETOPS_MECHANISM_SERVER_URL` when set
+  (the container runner: postgres-test:5432).
 - `full` builds `assetops_mechanism_test` with the full day set, `derive` included, then the work folder; it runs at
   the gates (G3, G4) and on demand, not per merge. `derive` gives the same L3m DB from the template in minutes.
 - `--variant close` is MD-0b (MD0-PF Q3) and is refused.
@@ -38,7 +47,9 @@ for _p in ("backend", "backend/tests", "contracts", "gateway", "simulator", "hos
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
-NAME_RE = re.compile(r"^assetops_mechanism(_close|_tpl)?_test$")
+SERVER_URL = os.environ.get("ASSETOPS_MECHANISM_SERVER_URL")
+NAME_RE = re.compile(r"^assetops_mechanism(_close|_tpl|_tplb_[0-9a-f]{8})?_test$")
+LEGACY = "assetops_mechanism_tpl_test"
 REFUSED = ("assetops_polish_full_test", "assetops_demo3_full_test")
 MARKER = ".mechanism-work"
 EXIT_RESUME = 3
@@ -64,23 +75,42 @@ class Refused(SystemExit):
     pass
 
 
-VARIANTS = {"states": ("assetops_mechanism_tpl_test", "mechanism-tpl", "states"),
+#: name None = the staging name of this build, chosen at build start and kept in the seed state for a resume (M4)
+VARIANTS = {"states": (None, "mechanism-tpl", "states"),
             "full": ("assetops_mechanism_test", "mechanism", "full")}
 
 
-def db_name(variant: str) -> str:
-    if variant not in VARIANTS:
-        raise Refused(f"refused: variant {variant!r} (close is MD-0b, MD0-PF Q3; known: {', '.join(VARIANTS)})")
-    name = VARIANTS[variant][0]
+def _checked(name: str) -> str:
     if not NAME_RE.fullmatch(name) or name in REFUSED or name.startswith(("assetops_polish", "assetops_demo")):
         raise Refused(f"refused: {name!r}")
     return name
 
 
+def staging_name() -> str:
+    return _checked(f"assetops_mechanism_tplb_{os.urandom(4).hex()}_test")
+
+
+def db_name(variant: str) -> str | None:
+    if variant not in VARIANTS:
+        raise Refused(f"refused: variant {variant!r} (close is MD-0b, MD0-PF Q3; known: {', '.join(VARIANTS)})")
+    name = VARIANTS[variant][0]
+    return None if name is None else _checked(name)
+
+
+def server_url(name: str) -> str:
+    """A database on the mechanism server, as the URL the tool connects with (no name check)."""
+    if SERVER_URL:
+        from sqlalchemy.engine import make_url
+
+        return make_url(SERVER_URL).set(drivername="postgresql+psycopg", database=name).render_as_string(
+            hide_password=False)
+    return f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{name}"
+
+
 def db_url(name: str) -> str:
     if not NAME_RE.fullmatch(name):
         raise Refused(f"refused: {name!r} does not match {NAME_RE.pattern}")
-    return f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{name}"
+    return server_url(name)
 
 
 def work_dir(variant: str) -> Path:
@@ -91,6 +121,11 @@ def work_dir(variant: str) -> Path:
 def _admin():
     import psycopg
 
+    if SERVER_URL:
+        from sqlalchemy.engine import make_url
+
+        return psycopg.connect(make_url(SERVER_URL).set(drivername="postgresql", database="postgres")
+                               .render_as_string(hide_password=False), autocommit=True)
     return psycopg.connect(PG_ADMIN, autocommit=True)
 
 
@@ -129,19 +164,28 @@ def _size(engine) -> int:
 
 def build(variant: str, budget: float, resume: bool) -> int:
     name, work = db_name(variant), work_dir(variant)
-    url, day_set = db_url(name), VARIANTS[variant][2]
+    day_set = VARIANTS[variant][2]
     state_path = work / "seed-state.json"
     if resume:
         if not (work / MARKER).is_file() or not state_path.is_file():
             raise Refused(f"refused: nothing to resume in {work}")
         saved = json.loads(state_path.read_text(encoding="utf-8"))
+        if name is None:
+            if not saved.get("db") or saved.get("published"):
+                raise Refused(f"refused: {state_path} names no unfinished staging database; start a fresh build: "
+                              f"python tools/mechanism_dataset.py build --variant {variant}")
+            name = _checked(saved["db"])
     else:
+        if name is None and work.exists():
+            _drop_staging(work)  # an abandoned staging build of this work folder
         _fresh_work(work)
+        name = name or staging_name()
         t0 = time.perf_counter()
         _recreate(name)  # an untagged DB: refused as a template until every input step has run
-        saved = {"day_set": day_set, "done": [], "state": None,
+        saved = {"db": name, "day_set": day_set, "done": [], "state": None,
                  "timings": {"create+migrate": round(time.perf_counter() - t0, 1)}}
         state_path.write_text(json.dumps(saved, indent=1), encoding="utf-8")
+    url = db_url(name)
     _point_env(url)
     from sqlalchemy import create_engine
 
@@ -198,10 +242,12 @@ def build(variant: str, budget: float, resume: bool) -> int:
                 raise Refused(f"refused: TEMPLATE_INPUTS_CHANGED during the build: {changed[:5]}; not tagged")
             tag = md.make_tag(saved["state"], day_set, modules=list(saved["inputs"]),
                               fingerprint=md.fingerprint_of(saved["inputs"]))
-            md.tag_template(admin, tag, name)
+            out["db"], out["dropped"] = md.publish_template(admin, name, tag)
         finally:
             admin.dispose()
         out["fingerprint"] = tag["fingerprint"]
+        saved["published"] = out["db"]
+        state_path.write_text(json.dumps(saved, indent=1, default=str), encoding="utf-8")
     print(json.dumps(out))
     return 0
 
@@ -218,7 +264,8 @@ def derive() -> int:
     try:
         t0 = time.perf_counter()
         try:
-            tag = md.clone_template(admin, name)
+            template = md.find_template(admin)
+            tag = md.clone_template(admin, name, template)
         except md.MechanismRefused as refused:
             raise Refused(f"refused: {refused}") from None
         clone_s = round(time.perf_counter() - t0, 1)
@@ -237,25 +284,51 @@ def derive() -> int:
         size = _size(engine)
     finally:
         engine.dispose()
-    print(json.dumps({"db": name, "from": md.TEMPLATE_DB, "day_set": tag["day_set"], "clone_seconds": clone_s,
+    print(json.dumps({"db": name, "from": template, "day_set": tag["day_set"], "clone_seconds": clone_s,
                       "derive_seconds": derive_s, "db_bytes": size, "fingerprint": tag["fingerprint"]}))
     return 0
 
 
-def status() -> int:
+def _match() -> tuple[str | None, list[dict], bool]:
+    """(the template matching this checkout or None, every per-fingerprint template, legacy template present)."""
     md = _harness()
 
-    admin = md.admin_engine(db_url(db_name("states")))
+    admin = md.admin_engine(server_url("postgres"))
     try:
-        tag = md.read_tag(admin)
+        found = [{"db": n, "tagged": t is not None, "fingerprint": t and t["fingerprint"],
+                  "built_at": t and t.get("built_at")} for n, t in md.templates(admin)]
+        try:
+            match = md.find_template(admin)
+        except md.MechanismRefused:
+            match = None
+        legacy = md.read_tag(admin, LEGACY) is not None
     finally:
         admin.dispose()
-    current = md.input_fingerprint(tag.get("modules") or ()) if tag else None
-    usable = tag is not None and tag["fingerprint"] == current
-    print(json.dumps({"template": md.TEMPLATE_DB, "tagged": tag is not None,
-                      "template_fingerprint": tag and tag["fingerprint"], "checkout_fingerprint": current,
-                      "usable": usable}))
-    return 0 if usable else 1
+    return match, found, legacy
+
+
+def status() -> int:
+    match, found, legacy = _match()
+    print(json.dumps({"usable": match is not None, "template": match, "templates": found,
+                      "legacy_template_present": legacy}))
+    return 0 if match else 1
+
+
+def ensure() -> int:
+    """The suite runner's step (FIX-MAIN-1): reuse the matching template, else build one now, with no budget."""
+    match, _, _ = _match()
+    if match:
+        print(json.dumps({"ensure": "reused", "template": match}))
+        return 0
+    print("ensure: no template matches this checkout; building one (about 8 min)", flush=True)
+    code = build("states", float("inf"), False)
+    if code != 0:
+        raise Refused(f"refused: TEMPLATE_BUILD_FAILED (build exit {code})")
+    match, _, _ = _match()
+    if not match:
+        raise Refused("refused: TEMPLATE_BUILD_FAILED: the new template does not match this checkout")
+    print(json.dumps({"ensure": "built", "template": match}))
+    return 0
 
 
 def _remove_work(work: Path) -> None:
@@ -264,11 +337,31 @@ def _remove_work(work: Path) -> None:
     shutil.rmtree(work)
 
 
+def _drop_staging(work: Path) -> None:
+    """The unpublished staging DB a `states` work folder names, if any (a published one was renamed)."""
+    state_path = work / "seed-state.json"
+    if not state_path.is_file():
+        return
+    saved = json.loads(state_path.read_text(encoding="utf-8"))
+    if saved.get("db") and not saved.get("published"):
+        with _admin() as c:
+            c.execute(f'DROP DATABASE IF EXISTS "{_checked(saved["db"])}" WITH (FORCE)')
+        print(f"dropped {saved['db']}")
+
+
 def drop(variant: str) -> int:
+    if variant == "legacy":  # M4: only on request, once no branch clones the single MD-0 template
+        with _admin() as c:
+            c.execute(f'DROP DATABASE IF EXISTS "{LEGACY}" WITH (FORCE)')
+        print(f"dropped {LEGACY}")
+        return 0
     name, work = db_name(variant), work_dir(variant)
-    with _admin() as c:
-        c.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
-    print(f"dropped {name}")
+    if name is None:  # states: the staging build only; published templates are pruned by the next build
+        _drop_staging(work)
+    else:
+        with _admin() as c:
+            c.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
+        print(f"dropped {name}")
     if work.exists():
         _remove_work(work)
         print(f"removed {work}")
@@ -284,6 +377,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--resume", action="store_true")
     sub.add_parser("derive")
     sub.add_parser("status")
+    sub.add_parser("ensure")
     d = sub.add_parser("drop")
     d.add_argument("--variant", default="full")
     args = parser.parse_args(argv)
@@ -293,6 +387,8 @@ def main(argv: list[str] | None = None) -> int:
         return derive()
     if args.command == "status":
         return status()
+    if args.command == "ensure":
+        return ensure()
     return drop(args.variant)
 
 
