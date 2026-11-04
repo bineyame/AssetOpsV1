@@ -579,6 +579,25 @@ def coh6_opportunity(bundle: Bundle) -> list[dict]:
     return out
 
 
+def _coh7a_window(site: dict, requested: dict) -> tuple[str, str]:
+    """CH5a1-R2 (COH-7a, Architect 6; supersedes MD0-S4 R3): the expected window of one summary Site card.
+
+    A mini Site's summary card is ONE Site-local day by design: `[local 00:00, next local 00:00)` of
+    `chain.read.summary_day(to, tz)` (the CH3-R `day_at` rule, local day of `to - 1 us`). Both rules are imported
+    from the backend, never re-derived here. Every other Site's window must equal the requested window.
+    Merge note: MD-0's branch also edits this file; keep this helper and its one call when resolving."""
+    if site.get("domain") != "mini_grid":
+        return requested["from"], requested["to"]
+    backend = str(TOOLS.parent / "backend")
+    if backend not in sys.path:
+        sys.path.insert(0, backend)
+    from assetops_backend.chain.read import board_day, summary_day
+
+    tz = {SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}.get(site.get("site_code"))
+    lo, hi = board_day(summary_day(at(requested["to"]), tz), tz)
+    return iso(lo), iso(hi)
+
+
 def coh7_summary_basis(bundle: Bundle) -> list[dict]:
     out = []
     for w in bundle.estate_windows():
@@ -594,10 +613,11 @@ def coh7_summary_basis(bundle: Bundle) -> list[dict]:
         requested = bundle.windows[w]
         for s in sites:
             sw = s.get("window") or {}
-            if (sw.get("from"), sw.get("to")) != (requested["from"], requested["to"]):
+            want = _coh7a_window(s, requested)  # CH5a1-R2: a mini Site's card is one Site-local day
+            if (sw.get("from"), sw.get("to")) != want:
                 out.append(finding("COH-7a", s.get("site_code"), w, "window",
-                                   f"summary Site window [{sw.get('from')}, {sw.get('to')}) is not the requested "
-                                   f"[{requested['from']}, {requested['to']})", files))
+                                   f"summary Site window [{sw.get('from')}, {sw.get('to')}) is not the expected "
+                                   f"[{want[0]}, {want[1]})", files))
             name = f"board_summary.{w}.{s.get('site_code')}"
             board = bundle.get(name)
             if board is None:

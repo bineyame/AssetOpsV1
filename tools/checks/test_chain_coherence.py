@@ -572,3 +572,33 @@ def test_clean_opportunity_bundle_passes_and_judges_the_headroom_thread(tmp_path
     assert [f["subject"] for f in cc.coh10_thread_identity(gone)] == ["kobo-headroom"]
     # An unstamped (pre-CH-4) bundle is not judged by COH-16 or the leg.
     assert cc.coh16_opportunity_agreement(cc.Bundle(BUNDLES / "clean")) == []
+
+
+def _summary_variant(tmp_path: Path, site_code: str, domain: str, window: dict) -> cc.Bundle:
+    """The clean bundle with one summary Site's `domain` and `window` replaced (CH5a1-R2 COH-7a)."""
+    dst = tmp_path / "bundle"
+    shutil.copytree(BUNDLES / "clean", dst)
+    path = dst / "summary.week.json"
+    body = json.loads(path.read_text(encoding="utf-8"))
+    for s in body["sites"]:
+        if s["site_code"] == site_code:
+            s["domain"], s["window"] = domain, window
+    path.write_text(json.dumps(body), encoding="utf-8")
+    return cc.Bundle(dst)
+
+
+#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `summary_day` = local (Addis) day of 31 Oct 23:59:59Z = 1 Nov.
+KOBO_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
+WEEK = {"from": "2026-10-25T00:00:00Z", "to": "2026-11-01T00:00:00Z"}
+
+
+@pytest.mark.parametrize("site,domain,window,fails", [
+    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (summary_day) is expected
+    (KOBO, "mini_grid", WEEK, True),            # a mini card on the requested window is not its card day
+    (COLD, "cold_chain", WEEK, False),          # every other Site: the requested window
+    (COLD, "cold_chain", KOBO_CARD_DAY, True),  # ... and only it
+])
+def test_coh7a_mini_summary_card_is_its_site_local_summary_day(tmp_path: Path, site, domain, window, fails) -> None:
+    report = cc.check(_summary_variant(tmp_path, site, domain, window))
+    hits = [k for k in keys(report) if k[0] == "COH-7a"]
+    assert hits == ([("COH-7a", site, "week", "window")] if fails else []), report["findings"]
