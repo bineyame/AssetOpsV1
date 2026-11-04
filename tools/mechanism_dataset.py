@@ -44,6 +44,22 @@ MARKER = ".mechanism-work"
 EXIT_RESUME = 3
 
 
+def _harness():
+    """`backend/tests/mechanism_dataset.py`, loaded by path: this tool has the same module name and its folder is
+    first on sys.path, so a plain import would find the tool itself. Registered under the harness name so the test
+    modules the seed imports share it."""
+    import importlib.util
+
+    loaded = sys.modules.get("mechanism_dataset")
+    if loaded is not None and Path(loaded.__file__).resolve() == REPO / "backend" / "tests" / "mechanism_dataset.py":
+        return loaded
+    spec = importlib.util.spec_from_file_location("mechanism_dataset", REPO / "backend" / "tests" / "mechanism_dataset.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["mechanism_dataset"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 class Refused(SystemExit):
     pass
 
@@ -129,7 +145,7 @@ def build(variant: str, budget: float, resume: bool) -> int:
     _point_env(url)
     from sqlalchemy import create_engine
 
-    import mechanism_dataset as md
+    md = _harness()
     import pg_harness
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
@@ -180,7 +196,7 @@ def derive() -> int:
     name, work = db_name("full"), work_dir("full")
     url = db_url(name)
     _point_env(url)
-    import mechanism_dataset as md
+    md = _harness()
 
     admin = md.admin_engine(url)
     try:
@@ -211,7 +227,7 @@ def derive() -> int:
 
 
 def status() -> int:
-    import mechanism_dataset as md
+    md = _harness()
 
     admin = md.admin_engine(db_url(db_name("states")))
     try:
