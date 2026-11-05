@@ -101,12 +101,13 @@ The operating calendar comes from AG-2 and OD-8. There is no operating-hours fie
    "KOBO-001":     {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL",
                     "hours": [{"from": "00:00", "to": "24:00"}],
                     "reason": "mini-grid: supplies power all day"},
-   "COLD-LAB-001": {"kind": "LAB_SESSION", "label": "Lab session hours", "days": "ALL",
-                    "hours": [{"from": "19:00", "to": "20:05"}],
-                    "reason": "lab site: scheduled test sessions", "source": "<lab scenario file:line, pre-flight P7>"},
-   "EV-LAB-001":   {"kind": "LAB_SESSION", "label": "Lab session hours", "days": ["TUE"],
-                    "hours": [{"from": "08:00", "to": "09:00"}],
-                    "reason": "lab site: scheduled test sessions", "source": "<lab scenario file:line, pre-flight P7>"}
+   "COLD-LAB-001": {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL",
+                    "hours": [{"from": "00:00", "to": "24:00"}],
+                    "reason": "cold room: holds temperature all day"},
+   "EV-LAB-001":   {"kind": "OPERATING", "label": "Declared charging hours", "days": ["TUE"],
+                    "hours": [{"from": "08:00", "to": "16:00"}],
+                    "reason": "declared connector enable schedule",
+                    "source": "backend/tests/fixtures/w2/ev-lab-001.yaml:154-168 (enforced host/ev_publication.py:331-336)"}
  },
  "default": {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL", "hours": [{"from": "00:00", "to": "24:00"}]}}
 ```
@@ -131,11 +132,17 @@ The operating calendar comes from AG-2 and OD-8. There is no operating-hours fie
   - DD-1 pre-flight first measures one 24 h Kobo day build.
   - **Budget:** the whole Kobo build may grow by at most 50% (measured 611.8 s at WALK1-G2, so a cap of about 920 s).
   - **Fallback:** if the measured cost exceeds this, or no existing scenario fits, the extension is not built. Kobo days stay PARTIAL and are shown as "8 of 24 h measured". The coordinator tells the owner, because this changes the Grow target story.
-- **Labs: keep, labelled.**
-  - A lab runs scheduled sessions, so "Lab session hours" is a genuine declared calendar. It is shown with that label, and its `source` must cite the lab scenario that schedules the session (P7).
-  - If P7 finds no declaration outside the story-day file, the hours are only inferred from the data. Report that, and SWEEP-DS re-examines it.
-  - A real cold room uses the default 24 h.
-  - The labs match the design's data check: "EV 26 Oct (Tuesday-only model): NOT_EXPECTED".
+- **Labs: revised after pre-flight P7 (CH-1a pre-flight Q1/Q2). There is no `LAB_SESSION` kind.**
+  - **EV:**
+    - The Site really declares a connector enable schedule of Tuesdays 08:00–16:00 UTC, so that is its calendar.
+    - The earlier 08:00–09:00 was the scenario run window, fitted to the data, and is withdrawn.
+    - Tuesday-only still gives the design's "EV 26 Oct: NOT_EXPECTED".
+  - **Cold:**
+    - No session is declared anywhere except the story-day file. The scenarios run 19:00–20:00 UTC, while the story nights are 16:00–17:05 UTC, so any session hours would be inferred.
+    - A cold room holds temperature all day, so it declares 24 h.
+  - **Effect on today's data:** Cold nights cover about 65 min of 24 h, and EV fault days cover 1 h of 8 h. Both grade **LOW**: shown, not totalled (AG-5).
+  - **DD-1 extension:** DD-1 extends the Cold and EV story days in the same way as Kobo, using existing scenarios only and within the same budget rule (§5c). If that is not possible, they stay LOW and are labelled.
+- **No `source` placeholder remains.** The loader requires `source` only when an entry cites one.
 
 **Loader.** `B/chain/policy.py` loads both files once per process. Each is validated against a small schema (types and ranges; `from < to`, or `to == "24:00"`; day names in MON..SUN). An invalid file raises `ChainConfigError` at load. Tests use their own files through an explicit path argument, never by editing the shipped files.
 
@@ -147,6 +154,7 @@ The operating calendar comes from AG-2 and OD-8. There is no operating-hours fie
 MeasureSpec(key, subject_kind, evidence_class, period, threshold, adapter)
 ```
 
+- **No outcome link (OL-1, plan §2.4).** A `MeasureSpec` names no outcome id, node or strategy. Which outcome a measure feeds is declared only in `B/outcomes/outcome_map.py` `CONTRIBUTIONS`, which CH-6 adds. Do not add `MG-`/`CC-`/`EV-` literals in `B/chain/`. CH-6's ratchet guard will fail on them.
 - `period` ∈ {`operating_hours`, `midday`}.
 - `threshold` overrides the complete band.
 - `adapter` names a registered `MeasureAdapter` with a version, e.g. `mini.productive_energy@1`.
@@ -198,7 +206,12 @@ def covered_seconds(intervals, lo, hi) -> int      # union of intervals clipped 
 def classify_day(expected, required, covered, pending, bands, threshold) -> str
     # not expected → NOT_EXPECTED; pending → PENDING; pct = covered/required (required 0 → NO_DATA)
     # pct >= (threshold or bands.complete) → COMPLETE; pct >= bands.partial → PARTIAL; pct > 0 → LOW; else NO_DATA
-def input_fp(ids, policy_version, calendar_version, catalogue_version, adapter_key) -> str   # sha256 hex of sorted ids + versions
+def input_fp(ids, pending, policy_version, calendar_version, catalogue_version, adapter_key) -> str
+    # sha256 hex of sorted ids + pending flag + versions
+    # (review M1) ids include, for EVERY measure with analytic inputs, the selected analytic run/revision id:
+    #   dispatch selection (avoidable_gen_min), mini_depth_revision (noon_headroom_kw),
+    #   cold assessment run (chamber_temp_c, backup_start_chain), EV assessment/session revision (charging_kwh),
+    # so a re-assessment over the same evidence adds a revision, and PENDING -> settled always re-revisions
 ```
 
 - PENDING takes precedence over grading only when `expected`.
@@ -236,6 +249,12 @@ grade_counts(tenant_id, site_id, from_day, to_day, measures, known_at=None) -> G
 
 `GradeCounts` is the single "graded day count" that CH-5a and CH-6 will render. It is a frozen dataclass with a `to_json()`.
 
+**Measured need (QW-1, design §11b measured diagnosis).** The board spends 1.25 s in `evidence_readiness`, and the summary 1.5 s in readiness. CH-5a will replace both with snapshot reads. So the reader also offers `grade_counts_many(tenant_id, site_ids, from_day, to_day, measures_by_site, known_at=None) -> dict[site_id, GradeCounts]`.
+
+- It runs **one** SQL statement for all Sites, using `DISTINCT ON` over the read index.
+- An L2 test asserts its result equals `grade_counts` per Site, and that it runs one statement (count the cursor executes).
+- On the L3 clone, report its time for the three Sites over the story month. The target is ≤ 50 ms (est.).
+
 ### 4.5 CLI `python -m assetops_backend.chain.snapshots`
 
 ```
@@ -255,9 +274,45 @@ show  --site <code> --from --to [--measure ...] [--known-at <iso>]
 | Kobo 31 Oct | `noon_headroom_kw` | COMPLETE | 25–31 kW |
 | Kobo 21 Oct, and 25, 26, 27, 29 Oct | all Kobo measures | NO_DATA (`noon_headroom_kw` has no value) | none. This is the I-14 basis. |
 | EV 26 Oct | `charging_kwh` | NOT_EXPECTED | none |
-| EV 27 Oct; EV 20 Oct | `charging_kwh` | report the actual grade | 27 Oct: 15 kWh, 4.50 USD. 20 Oct: money 9.00 USD (register I-05). |
-| Cold 28 Oct | `chamber_temp_c` / `backup_start_chain` | NO_DATA / COMPLETE | none / chain |
-| Cold 31 Oct | `chamber_temp_c` | report the actual grade | peak 4.9 °C |
+| EV 27 Oct; EV 20 Oct | `charging_kwh` | **LOW** (about 1 of 8 declared hours) until DD-1 | 27 Oct: 15 kWh, 4.50 USD. 20 Oct: money 9.00 USD (register I-05). The values are calculated anyway (AG-4). |
+| Cold 28 Oct | `chamber_temp_c` / `backup_start_chain` | NO_DATA / LOW (covered by backup-role readings only in the session) | none / chain |
+| Cold 31 Oct | `chamber_temp_c` | **LOW** (about 65 min of 24 h) until DD-1 | peak 4.9 °C (the highest probe reading in the period) |
+
+## 5c. Pre-flight rulings (CH-1a pre-flight Q1–Q8, 2026-11-03)
+
+1. **EV calendar:** Tuesdays 08:00–16:00, from the declared schedule (§2).
+   - `charging_kwh` coverage = the seconds in the period with a known connector state: the session meter intervals ∪ the status intervals the charger reports, minus `unknown_meter_seconds`.
+   - Idle time with a known status counts as covered at 0 kWh. Time with an unknown status does not count.
+2. **Cold calendar:** 24 h, with no inferred session (§2).
+   - The inferred session hours, and the scenario/story-day mismatch (19:00–20:00 UTC versus 16:00–17:05 UTC), go into SWEEP-DS's inventory.
+3. **`avoidable_gen_min`:**
+   - (a) Accepted. Coverage = the union of the accepted-reading intervals that the selected dispatch run used, clipped to the local period.
+   - (b) Accepted. The value is `{"minutes": Σcandidate, "indeterminate_minutes": Σindeterminate}`.
+   - (c) **Do not import the private helper.** QW has merged, so the QW-file restriction lapses. Move `_dispatch_minutes` unchanged into a public pure function, `dispatch_minutes(intervals)`, in `B/analytics/dispatch_read.py`. Make `B/site_outcomes/mini.py:615` import it. That is one rule with two callers. A test asserts the board output is byte-identical before and after (the existing `test_out_b1_board.py`, `test_out_b4_board_postgres.py`).
+   - (d) Accepted. Read both overlapping UTC days, and clip their intervals to the local period.
+4. **`noon_headroom_kw`:** accepted. Read the stored, selected `mini_depth_revision.result`, and do not recompute.
+   - For ELIGIBLE or EXCLUDED, the value is `{"low_kw", "high_kw", "decision"}`.
+   - For LIMITED or CONFLICT, the value is `{"low_kw": null, "high_kw": null, "decision": null, "result_state": "<LIMITED|CONFLICT>"}`.
+   - Coverage = the hour minus the result's gaps. PENDING = a live `mini_renewable` job.
+5. **`backup_start_chain`:** the coverage is not built from the instant events.
+   - Coverage = the seconds in the period covered by the accepted readings of the backup-chain roles (grid, generator, transfer and bus status; `B/analytics/cold.py:39-55`).
+   - The value is `{"starts": n, "failed": n}` from `backup_chain(...)`. A covered night with no start request is valid: the value is `starts: 0`, never NO_DATA.
+6. **`chamber_temp_c`:**
+   - Coverage = the period minus `temperature().gaps`.
+   - The value is the highest probe reading in the period, from the raw `chamber_temperature` readings through `ChainInputReader`. The peak is a daily measure; an excursion is a Finding.
+7. **Zero kWh:** money is `0.00` in the price's currency on a priced day. Whether the board shows it is CH-6's display rule.
+8. **L2 seeding:** accepted as proposed. `noon_headroom_kw` uses the real adapter on MG-W402. `productive_kwh`, idempotency and revision 2 use a stub `ChainInputReader` against the real store. The real productive adapter is then proven on the L3 clone (§6 step 4).
+- **The builder's deviations are accepted:** the JSON read in `chain/adapters/file_chain_config.py`, one window per day in v1, and the branch name `task/CH-1a-snapshots`.
+
+**Effect on the client story until DD-1 extends the days (for the owner):**
+- Kobo days are PARTIAL (8 of 24 h). They are counted and labelled, but the monthly target reads "too early to judge".
+- Cold nights and EV days are LOW.
+  - They are shown with "too little data", not totalled.
+  - EV's charging income stays visible on its board, but is left out of the Portfolio Grow total.
+  - Protect findings are unaffected.
+- **DD-1 extends the story days of all three Sites to their declared hours**, using existing scenarios only.
+  - **Budget:** the whole prepare may grow by at most 50% (951 s measured at G2, so a cap of about 1,430 s). Kobo is the costly one, at 611.8 s.
+  - If it does not fit, or no scenario fits, the grades stay as they are, shown honestly, and the owner is told before E3.
 
 - A difference from this table is **not** fixed by tuning. Report it in the packet with the reason; the Architect rules on it.
 - **Note on the clone date:** the clone's data is dated S = 2026-10-31, so its local-day range is fixed. Build over `2026-10-01..2026-11-02`.
@@ -266,7 +321,7 @@ show  --site <code> --from --to [--measure ...] [--known-at <iso>]
 
 | Item | Touched how | Resolution in this slice |
 |---|---|---|
-| 5. Config fitted to the data (operating hours) | It declares the calendar | **Fixed.** Kobo is 24 h. Each lab session has `kind`, `reason` and `source`, and no hours are chosen to fit the data (§2). |
+| 5. Config fitted to the data (operating hours) | It declares the calendar | **Fixed.** Kobo and Cold are 24 h. EV uses its declared connector schedule, Tuesdays 08:00–16:00, which `source` cites. No hours are chosen to fit the data (§2, §5c). |
 | 4. One-noon-hour spare-solar read (`B/mini_depth/inputs.py:79-80`) | The `noon_headroom_kw` period adopts it | **Labelled keep, owned by CH-9.** The measure spec carries `period: midday` with a comment `# DS-R1 keep: one-noon-hour basis; CH-9 replaces with the declared daylight window`. The policy loader exposes the period name, so CH-9 changes it in one place. |
 | 3. Generator-shaped subject | `avoidable_gen_min` uses the generator asset | **Fixed for snapshots.** Subjects are generic ASSET or SITE refs from stored columns (AG-10); nothing assumes a generator outside the Kobo adapter. |
 | 3. Dispatch thresholds held as constants | Not touched; the adapter reads the dispatch result only | Not in scope (SWEEP-DS / CH-8). |
