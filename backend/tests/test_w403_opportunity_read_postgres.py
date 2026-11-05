@@ -51,7 +51,8 @@ ROW_KEYS = {"opportunity", "status", "currentness", "source_provenance", "select
             "pending_source_provenance", "limitations"}
 OBJECT_KEYS = {"id", "code", "revision_id", "revision_no", "first_day", "last_day", "model_version", "study_days",
                "eligible_days", "assessed_days", "headroom_kw", "proposed_load_kw", "gross_sales_scenario",
-               "demand_state", "collection_state", "scenario_id", "day_rows"}
+               "demand_state", "collection_state", "scenario_id", "day_rows",
+               "window_hours"}  # CH-9 owned: the /2 study's daylight-hour count (CH4-R R3)
 LIST_KEYS = {"schema_version", "window", "status", "currentness", "source_provenance", "selected_source_provenance",
              "pending_source_provenance", "total_count", "rows", "next_cursor", "selection_token"}
 DAY_KEYS = {"local_day", "decision", "opportunity_kwh", "constraints", "evidence_ids", "selection_seq",
