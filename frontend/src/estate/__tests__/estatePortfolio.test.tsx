@@ -433,8 +433,8 @@ describe("estate Portfolio page", () => {
     opportunity = panel("An opportunity beyond reducing cost");
     const quantity = opportunity.querySelector("[data-portfolio-opportunity-quantity]") as HTMLElement;
     // CH-9 owned (CH9-R3 Q2): the unit names the server's study `window_hours`, never "at midday".
-    expect(text(quantity)).toBe("18–20 kW over 1 daylight hoursDaytime solar unused at Kobo North");
-    expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW over 1 daylight hours");
+    expect(text(quantity)).toBe("18–20 kW over 1 daylight hourDaytime solar unused at Kobo North");
+    expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW over 1 daylight hour");
     expect(text(quantity)).not.toContain("midday");
     links = within(opportunity).getAllByRole("link");
     expect(links.map((l) => text(l))).toEqual([

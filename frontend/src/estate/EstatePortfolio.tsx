@@ -396,7 +396,8 @@ export const OPPORTUNITY_HEADROOM_UNIT = "kW over daylight hours";
 
 /** The headroom unit: the server's study daylight-hour count when it carries one (AG-29), else the constant. */
 export function opportunityHeadroomUnit(windowHours: number | null | undefined): string {
-  return windowHours ? `kW over ${windowHours} daylight hours` : OPPORTUNITY_HEADROOM_UNIT;
+  if (!windowHours) return OPPORTUNITY_HEADROOM_UNIT;
+  return windowHours === 1 ? "kW over 1 daylight hour" : `kW over ${windowHours} daylight hours`;
 }
 
 function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window: Window }) {

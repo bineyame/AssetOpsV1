@@ -190,7 +190,7 @@ def test_state_and_filter_state_mapping():
            ROWS[2]]
     (s1,) = opportunity_items(old, *WEEK, None)
     assert s1["study"]["window_hours"] == 1
-    assert s1["value_line"] == "25–31 kW over 1 daylight hours on every eligible day"
+    assert s1["value_line"] == "25–31 kW over 1 daylight hour on every eligible day"
 
 
 # --- copy (§2.2) --------------------------------------------------------------------------------------------------

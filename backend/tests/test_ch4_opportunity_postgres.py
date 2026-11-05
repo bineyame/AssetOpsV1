@@ -209,7 +209,7 @@ def test_backfill_places_one_thread_and_both_adapters_agree(store, engine) -> No
     assert (item["evidence"], item["evidence_label"], item["filter_state"]) == ("SUPPORTED", "Supported", "supported")
     assert item["seen_line"] == "Seen on 3 of 5 well-observed days · 6 Oct–10 Oct"
     # CH-9 §2 (owned copy change): a seeded `/1` study was sized over one hour.
-    assert item["value_line"] == "16–19 kW over 1 daylight hours on every eligible day" and item["limit_line"] is None
+    assert item["value_line"] == "16–19 kW over 1 daylight hour on every eligible day" and item["limit_line"] is None
     assert "OPPORTUNITY" in item["lens_flags"]
     # CH-5a2a D1: one builder, one encoding (`:` is `%3A`); every link equals href_for of its link_refs sibling
     assert checked(item)["links"] == {"opportunity": f"/sites/{code}/opportunities/{oid}",
