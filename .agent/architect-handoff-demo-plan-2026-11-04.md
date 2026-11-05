@@ -601,3 +601,12 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   - Q4 SHORT is accepted. The screen shows "Not judged yet: only {n} of 3 fully checked days before the change", and F-THREADS asserts that the plan is not SHORT.
   - All other defaults are accepted.
 - CH6a1-R is recorded at the end of `build-sheet-CH-6.md`. Q1 is overridden: the `MEASURE:` records are data only in CH-6a1. Their wiring into "Why?" moves to CH-6a3 at +0, in the same body change and clone run as the price line, and it closes CH5b2-R Q5's Known Deviation. Q2 to Q5 are accepted. No unit change: 6a1 is 1.25 and 6a3 is 1.5. Context is now moderately heavy; a fresh Architect is advised after this item.
+
+## Update 2026-11-05 (Architect 18): CH6a2-R
+
+- Binding checked: Claude (main `.ai/ROLE_CONFIG.md`, 2026-10-27). Nothing committed. CH6a2-R is recorded at the end of `build-sheet-CH-6.md`.
+- Q1, Q3 and Q5 are accepted.
+- Q2 is overridden for the potential. Its basis comes from the study's own days, and is NOT_KNOWN when the item has none (MD-CH6-4). MG-5 and MG-2 take their basis from the days of their source measure, and only when the packet cites that those rows produced the figure.
+- Q4 is overridden. The study shows for OPEN, RECURRED, REOPENED and CHANGE_APPLIED. RESOLVED_MONITORING, CLOSED and WITHDRAWN show "No potential found yet".
+- Q6: the copy equals the mock, but the basis is NOT_KNOWN with `days=None`.
+- CH-6a2 stays 2. There is no new work and no backlog item.
