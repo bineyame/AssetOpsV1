@@ -10,6 +10,7 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 from assetops_backend.chain import refs
+from assetops_backend.chain.vocabulary import provenance_suffix
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
@@ -48,7 +49,8 @@ WORKFLOW_IN_HAND = {"No action agreed yet": "Plan ready", "Outcome pending": "Aw
 CASE_STATE_LABEL = {"OPEN": "Open", "IN_PROGRESS": "In progress", "ASSIGNED": "Assigned"}
 
 #: Earlier interventions result labels for a mini Action, by verification state (§B.2 table). NO_PLAN / None: not listed.
-ACTION_RESULT = {"VERIFIED": "Verified on example data", "INEFFECTIVE": "Did not fix it",
+#: CH-5a2b B7 (DS-R1): "Verified" takes `provenance_suffix` of the verified outcome's source class (`action_result`).
+ACTION_RESULT = {"VERIFIED": "Verified", "INEFFECTIVE": "Did not fix it",
                  "INCONCLUSIVE": "Not determined", "PENDING": "Pending", "REASSESSMENT_PENDING": "Pending"}
 REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
 #: OUT-E E4 (build sheet OUT-E section 4): the Earlier entry's cost-check and before/after detail lines.
@@ -172,6 +174,7 @@ class ActionFact:
     trial_hours: Mapping[str, Any] | None = None  # {before_seconds, after_seconds}
     thread_id: str | None = None                  # CH-2: the Action's `chain_action.thread_id`; None = not linked
     segment_no: int | None = None                 # CH-3 §3: the Action's thread segment; None = not linked
+    source_class: str | None = None               # CH5a2-R R2: the verified outcome's stored source class
 
 
 @dataclass(frozen=True)
@@ -378,11 +381,17 @@ class _WarningRoles:
         return [OUTCOME_BY_KEY[k].label for k in self.checked if OUTCOME_BY_KEY[k].category != category]
 
 
+def action_result(action: ActionFact, state: str | None) -> str | None:
+    """The Earlier interventions result label of `state`; VERIFIED reads "Verified{provenance_suffix}" (B7)."""
+    text = ACTION_RESULT.get(state)  # type: ignore[arg-type]
+    return f"{text}{provenance_suffix(action.source_class)}" if state == "VERIFIED" and text else text
+
+
 def earlier_result_for_action(action: ActionFact) -> str | None:
     """Result label for a mini Action in Earlier interventions, or None when it is not listed (B-Q18)."""
     if action.is_domain or not action.applied:
         return None
-    return ACTION_RESULT.get(action.verification_state or NO_PLAN)
+    return action_result(action, action.verification_state or NO_PLAN)
 
 
 def per_kwh_amount(cost_check: Mapping[str, Any]) -> str:
@@ -765,7 +774,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         move_cats = r.move_cats if r is not None else ["PROTECT_ASSET"]
         result = earlier_result_for_action(a)
         if result is None and a.open and _earlier_segment(a, facts):
-            result = ACTION_RESULT.get(a.verification_state or "PENDING", ACTION_RESULT["PENDING"])  # CH-3 §3
+            result = action_result(a, a.verification_state or "PENDING") or ACTION_RESULT["PENDING"]  # CH-3 §3
         if result is not None:
             if cat in move_cats:
                 earlier.append({"text": _item_text(a.code, a.title), **_link(a.link_ref),

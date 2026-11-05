@@ -55,7 +55,8 @@ def test_groups_labels_and_reason_texts_are_the_fixed_policy() -> None:
                            "COMPARE_VALUE": "Compare value", "UNPRICED_RISK": "Unpriced risk", "MONITOR": "Monitor"}
     assert len(REASON_TEXT) == 20
     # CC-R1-Q1 ruling: the verified-change text says "test data", never "simulated".
-    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified on example data; watch for it coming back"
+    # CH-5a2b B7: the suffix is `provenance_suffix` of the verified outcome's stored source class.
+    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified{suffix}; watch for it coming back"
     assert not any("simulat" in t.lower() or "saving" in t.lower() or "saved" in t.lower()
                    for t in REASON_TEXT.values())
 
@@ -207,3 +208,43 @@ def test_six_part_portfolio_marker_passes_and_five_part_fails() -> None:
     assert not _marker_ok("portfolio", six[1:])  # the pre-CC-R2 five-part form
     for rank in (0, 6, True, False, "1", 1.0, None):
         assert not _marker_ok("portfolio", [rank, *six[1:]]), rank
+
+
+# --------------------------------------------------------------- CH-5a2b (B7, CH5a2b-R Q1)
+
+@pytest.mark.parametrize("source, text", [
+    ("REGISTERED_SIMULATION", "Change verified on example data; watch for it coming back"),
+    ("AUTHORED_DEMONSTRATION", "Change verified on example data; watch for it coming back"),
+    ("MEASURED_FIELD", "Change verified; watch for it coming back"),
+    (None, "Change verified; watch for it coming back")])
+def test_verified_watch_text_follows_the_outcome_source_class(source, text) -> None:
+    a = action("Verified")
+    a["_raw"] = {"_source_class": source}
+    p = place(row(end=OPEN), a, COVERED, None)
+    assert [(r.code, r.text) for r in p.reasons] == [("VERIFIED_WATCH_RETURN", text)]
+
+
+@pytest.mark.parametrize("src", ["REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION", "MIXED", "UNKNOWN", None])
+@pytest.mark.parametrize("lifecycle", ["SUPPORTED", "UNCONFIRMED", "NO_LONGER_SUPPORTED", None])
+@pytest.mark.parametrize("label", [None, "Verified", "Pending", "Applied"])
+def test_board_chip_ignores_the_consequence_state(src, lifecycle, label) -> None:
+    """CH5a2b-R Q1 guard (F1): the board chip (`place(...).confidence`) is the same for every consequence value the
+    coverage rule can produce, and for none, on every (provenance state, lifecycle) pair. If `_confidence` starts
+    reading the consequence, this fails and the chain's `placement_facts` must build the consequence state."""
+    chips = {place(row(src=src, lifecycle=lifecycle, cons=cons), action(label), cov, None).confidence
+             for cons in ("PRICED", "UNPRICED", "UNKNOWN", None) for cov in (COVERED, {}, {"state": "UNKNOWN"})}
+    assert len(chips) == 1, chips
+
+
+def test_coverage_consequence_rule_never_returns_withheld() -> None:
+    """CH5a2b-R Q1 guard (F1): every `_consequence(state)` the coverage rule `_mini_grid_money` can return names
+    PRICED, UNPRICED or UNKNOWN, never WITHHELD (the one consequence value `_confidence` reads)."""
+    import ast
+    import inspect
+    from assetops_backend.estate import coverage
+    tree = ast.parse(inspect.getsource(coverage._mini_grid_money))
+    states = {n.args[0].value for n in ast.walk(tree) if isinstance(n, ast.Call)
+              and getattr(n.func, "id", None) == "_consequence" and isinstance(n.args[0], ast.Constant)}
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "id", None) == "_consequence"]
+    assert states == {"PRICED", "UNPRICED", "UNKNOWN"} and len(calls) == 5
+    assert all(isinstance(n.args[0], ast.Constant) for n in calls)  # no computed state can slip through

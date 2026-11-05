@@ -121,3 +121,12 @@
 - L4 "`-Close yes` at E1/E4 and post-merge" only in comments; add to TESTING.md / end-game runbook (E1/E4).
 - N2 guard A false-fails in a worktree without `.venv` unless ASSETOPS_GUARD_PYTHON is set.
 - Seed timings: drain_mini ≈30–34% of each seed — candidate for an inputs/producers split if rebuild cost matters.
+
+## CH-5a2b (merged 414c43a81, review ACCEPT, .agent/review-CH-5a2b.md)
+- L1 portfolio.py:578-581 per-row origin_selected fix has no revert-failing test. Owner: CH-6b.
+- L2 /estate/chain `counts` keys are `count.*` vs §B1 bare names — Architect to record the wire form before a client reads it (CH-5b/CH-6a).
+- L3 count_basis list has no "before" for MD-0 close.
+- L4 frontend EstateCountBasis lacks NOT_KNOWN (harmless per Q9). Owner: CH-6b.
+- L5 COH-17 doesn't report compared/skipped counts (a vacuous pass looks identical). Owner: CH-6b with COH-18.
+- Residual: Portfolio + Findings now run the full claims read per Site with no timings recorded → CH-5c perf baseline must time both; non-site-store chain-read errors now fail these routes.
+- CH5a2b-R2 packet table (per-window named days + reason) folded into CH-9's merge: CH-9 merges second and must re-collect L3/L3m anyway (measure rename + critical_served change Kobo day grades and count_basis).

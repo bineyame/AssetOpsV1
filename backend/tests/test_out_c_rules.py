@@ -20,7 +20,7 @@ F_KEYS = COLD_KEYS[0] + COLD_KEYS[1]  # CC-6, CC-1, CC-5, CC-3
 
 
 def facts(domain: str = COLD, **kw) -> WarningFacts:
-    base = WarningFacts(domain=domain, site_code="S1", to=TO, visits_from=FROM, soon_until=SOON,
+    base = WarningFacts(links=R, domain=domain, site_code="S1", to=TO, visits_from=FROM, soon_until=SOON,
                         window_days=(DAY, DAY))
     return replace(base, **kw)
 
@@ -118,7 +118,8 @@ def test_repeat_categories_link_excludes_own_key() -> None:
 
 def plan(due: datetime | None, pid: str = "p1", asset: str | None = "a1") -> PlanCue:
     return PlanCue(plan_id=pid, code="PM-001", title="Witnessed backup start test", due_at=due,
-                   due_on=due.date() if due else None, asset_id=asset)
+                   due_on=due.date() if due else None, asset_id=asset,
+                   link_ref=R.estate_ref("maintenance_preventive"))
 
 
 def test_plan_bounds() -> None:

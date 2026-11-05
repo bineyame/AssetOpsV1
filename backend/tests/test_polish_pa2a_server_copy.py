@@ -60,14 +60,14 @@ def test_board_item_text_and_action_name_use_display_codes() -> None:
 def test_warning_ref_labels_use_display_codes() -> None:
     plan = w.PlanCue(plan_id="p1", code="PM-000013", title="Generator service", due_at=None, due_on=None,
                      asset_id=None, link_ref=R.estate_ref("maintenance_preventive"))
-    assert w._plan_ref(plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive",
+    assert w._plan_ref(R, plan) == {"kind": "PLAN", "id": "p1", "label": "PM-013", "href": "/maintenance/preventive",
                                  "link_ref": R.estate_ref("maintenance_preventive")}
 
 
 def test_mini_verified_results_text_uses_display_code() -> None:
     assert mini.VERIFICATION_TEXT["PENDING"].format(code=display_code("ACT-000001")) == "ACT-001 not yet verified"
     text = mini.VERIFIED_WITH_COST.replace("{amount}", "0.12").replace("{currency}", "USD")
-    assert text.format(code=display_code("ACT-000001")) == (
+    assert text.format(code=display_code("ACT-000001"), suffix=" on example data") == (
         "ACT-001 verified on example data: estimated effect of the trial (not money saved): "
         "0.12 USD less supply cost per kWh")
 

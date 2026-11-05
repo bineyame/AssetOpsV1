@@ -1,8 +1,47 @@
 {
  "counts": {
-  "open_threads": null,
-  "opportunities": null,
-  "verified_results": null
+  "count.open_threads": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 6,
+    "expected": 21,
+    "low": 1,
+    "no_data": 11,
+    "partial": 3,
+    "pending": 0
+   },
+   "key": "count.open_threads",
+   "text": "1 open on the days checked",
+   "value": 1
+  },
+  "count.opportunities": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 6,
+    "expected": 21,
+    "low": 1,
+    "no_data": 11,
+    "partial": 3,
+    "pending": 0
+   },
+   "key": "count.opportunities",
+   "text": "1 found on the days checked",
+   "value": 1
+  },
+  "count.verified_results": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 6,
+    "expected": 21,
+    "low": 1,
+    "no_data": 11,
+    "partial": 3,
+    "pending": 0
+   },
+   "key": "count.verified_results",
+   "text": "None confirmed on the days checked",
+   "value": 0
+  }
  },
  "money_total": null,
  "policy_versions": {
@@ -52,7 +91,11 @@
      "state_label": "Unknown"
     }
    },
-   "threads": null
+   "threads": {
+    "in_hand": 0,
+    "open": 1,
+    "verified": 0
+   }
   },
   {
    "code": "COLD-LAB-001",
@@ -87,7 +130,11 @@
      "state_label": "Needs attention"
     }
    },
-   "threads": null
+   "threads": {
+    "in_hand": 0,
+    "open": 0,
+    "verified": 0
+   }
   },
   {
    "code": "EV-LAB-001",
@@ -122,7 +169,11 @@
      "state_label": "Needs attention"
     }
    },
-   "threads": null
+   "threads": {
+    "in_hand": 0,
+    "open": 0,
+    "verified": 0
+   }
   }
  ],
  "window": {

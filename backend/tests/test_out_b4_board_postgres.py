@@ -44,9 +44,9 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 FINDING_KEYS = {"finding_id", "finding_revision_id", "lifecycle", "source_provenance", "consequence", "_episode_end",
                 "_mechanism"}
-ACTION_KEYS = {"action_id", "source_finding_id", "source_finding_revision_id", "application_state",
-               "resolution_state", "verification_outcome", "_raw"}
-ACTION_RAW_KEYS = {"_selected_recorded_at", "_verification_window"}
+# CH5a2b-R Q5: the chain Action rows carry exactly the keys `workflow_label` reads, plus the R2 source class.
+ACTION_KEYS = {"action_id", "application_state", "resolution_state", "verification_outcome", "_raw"}
+ACTION_RAW_KEYS = {"_selected_recorded_at", "_verification_window", "_source_class"}
 SAFEGUARD = " · checked here as a safeguard"
 OUTSIDE = " · linked finding outside this view"
 MUST_NOT_HARM = ("Reliable service and battery and generator life are checked as safeguards when ACT-048 is "
@@ -196,17 +196,19 @@ def _spy_compositions(monkeypatch) -> None:
 
 
 def _spy_work_rows(monkeypatch) -> list:
-    from assetops_backend.estate.portfolio import EstatePortfolioService
+    """CH-5a2b R1: the board's Action rows come from `ChainRequest.action_rows` (the estate `site_work_rows` read is
+    gone from the board); each recorded value is `{"actions": rows}` so the key checks below read them unchanged."""
+    from assetops_backend.chain.read import ChainRequest
 
     seen: list = []
-    real = EstatePortfolioService.site_work_rows
+    real = ChainRequest.action_rows
 
     def spy(self, *a, **kw):
         out = real(self, *a, **kw)
-        seen.append(out)
+        seen.append({"actions": list(out)})
         return out
 
-    monkeypatch.setattr(EstatePortfolioService, "site_work_rows", spy)
+    monkeypatch.setattr(ChainRequest, "action_rows", spy)
     return seen
 
 
@@ -434,10 +436,9 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         assert "UNKNOWN" in measured.values(), measured
     _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
     if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): import-time artefact
-        # R8 (E2): the fixture settles the chain (`_settle_chain`), so the Findings are settled; only the estate
-        # import-time artefact remains, as before CH-5a1.
-        assert failed_a == ["estate"], failed_a
-        assert a["read_state"] == "PARTIAL"
+        # R8 (E2): the fixture settles the chain (`_settle_chain`), so the Findings are settled. CH-5a2b R1: the
+        # estate import-time artefact is gone with the estate read (the chain ports are not scoped by import time).
+        assert "estate" not in failed_a and "action_rows" not in failed_a, failed_a
 
     # E2: the overview route's freshness is recorded beside the board's settled snapshot day (no overview read)
     with _client() as c2:
@@ -451,8 +452,8 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
             assert "mini_overview" not in LAST_PORTS[board_key] and parity is not None
 
     # Day B: the real Action rows carry the keys the B2 fake assumes (ESTATE_A48), with `_raw` where progress reads it
-    actions = [x for rows in seen[1:] if rows for x in rows["actions"]]
-    assert actions, seen[1:]
+    actions = [x for rows in seen if rows for x in rows["actions"]]
+    assert actions, seen
     for x in actions:
         assert ACTION_KEYS <= set(x), ACTION_KEYS - set(x)
         assert ACTION_RAW_KEYS <= set(x["_raw"]), ACTION_RAW_KEYS - set(x["_raw"])

@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from assetops_backend.chain import refs
 from assetops_backend.outcomes.outcome_map import finding_signal_key, outcome_roles
 from assetops_backend.outcomes.plan_due import NOT_ASSESSED, plan_due_state, soon_until
 from assetops_backend.outcomes.warnings import PlanCue, Visit, WarningFacts
@@ -81,4 +82,4 @@ def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix
     days = (_local_date(lo, tz), _local_date(to - timedelta(microseconds=1), tz))
     return WarningFacts(domain=facts.domain, site_code=facts.site_code, to=to, visits_from=to - VISIT_LOOKBACK,
                         soon_until=soon_until(to), window_days=days, date_suffix=suffix, visits=visits, plans=plans,
-                        open_findings=open_findings, fault_names=fault_names, **extras)
+                        open_findings=open_findings, fault_names=fault_names, links=refs, **extras)

@@ -167,6 +167,8 @@ class Collector:
         w = {"from": lo, "to": hi}
         self.fetch(f"{prefix}findings_all.{window}", "/api/estate/findings", {**w, "lens": "all", "state": "all"},
                    window, paged=True)
+        # CH-5a2b COH-17 (§B13 R3): the estate chain body of every estate window read.
+        self.fetch(f"{prefix}chain_estate.{window}", "/api/estate/chain", w, window)
         if prefix:
             return
         self.fetch(f"portfolio.{window}", "/api/estate/portfolio", {**w, "lens": "all"}, window, paged=True)
@@ -196,6 +198,8 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
     days_out = day_windows(days)
     for d in days_out:
         c.board(f"board.{d['id']}", d["site_code"], d["id"], d["from"], d["to"], d["date"])
+        c.fetch(f"chain_site.{d['id']}", f"/api/sites/{d['site_code']}/chain",
+                {"date": d["date"]} if d["date"] else {"from": d["from"], "to": d["to"]}, d["id"])  # CH-5a2b R3
         c.estate(d["id"], *d["estate"], prefix="day_")
     manifest = {"schema": BUNDLE_SCHEMA, "S": story["S"], "code": story.get("code"),
                 "collected_at": iso(datetime.now(timezone.utc)), "source": source,
@@ -203,6 +207,7 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
                 "known_at": known_at, "threads": True,  # CH-2: this tool revision expects the `thread` fields
                 "lifecycle": True,  # CH-3: and the thread `state_day` and the Portfolio `action_segment_no`
                 "opportunities": True,  # CH-4: and the Findings `opportunities` and the Portfolio `opportunity.items`
+                "claims": True,  # CH-5a2b: and `/estate/chain` per estate window and the summaries' `claims`
                 "windows": {**{k: {"from": lo, "to": hi} for k, (lo, hi) in windows.items()},
                             **{d["id"]: {"from": d["from"], "to": d["to"], "site_code": d["site_code"],
                                          "estate": {"from": d["estate"][0], "to": d["estate"][1]}}
@@ -1077,6 +1082,56 @@ def coh16_opportunity_agreement(bundle: Bundle) -> list[dict]:
     return out
 
 
+CLAIM_KEYS = ("count.open_threads", "count.verified_results", "count.opportunities")
+CLAIM_FIELDS = ("value", "basis", "text")
+
+
+def coh17_count_claims(bundle: Bundle) -> list[dict]:
+    """CH-5a2b COH-17 (§B13 R3, §B14 Q7): for each estate window, the `/estate/chain` `counts`, the Portfolio
+    `summary.claims` (all three keys) and the estate Findings (lens=all) `summary.claims` (`count.opportunities`)
+    with equal key, Site set and window agree on value, basis and text. They come from one computation, so a
+    difference means a route passed different scope, window or cutoff. A bundle not stamped `claims` is not judged."""
+    if not bundle.manifest.get("claims"):
+        return []
+    out = []
+    for w in [*bundle.estate_windows(), *bundle.day_windows()]:
+        prefix = "" if w in ESTATE_WINDOWS else "day_"
+        chain_name = f"{prefix}chain_estate.{w}"
+        chain = bundle.get(chain_name)
+        if chain is None:
+            if chain_name not in bundle.bodies:
+                out.append(finding("COH-17", None, w, "chain", "a stamped bundle lacks the `/estate/chain` body", []))
+            continue  # a failed body is COH-0's
+        bounds = bundle.windows[w].get("estate") or bundle.windows[w]
+        cw = chain.get("window") or {}
+        if not (cw.get("from") and cw.get("to")) or (at(cw["from"]), at(cw["to"])) != (at(bounds["from"]), at(bounds["to"])):
+            out.append(finding("COH-17", None, w, "window", "the `/estate/chain` window is not the requested one",
+                               bundle.files(chain_name)))
+            continue
+        sites = sorted(s.get("code") for s in chain.get("sites") or ())
+        counts = chain.get("counts") or {}
+        for name, keys in ((f"portfolio.{w}", CLAIM_KEYS), (f"{prefix}findings_all.{w}", CLAIM_KEYS[2:])):
+            body = bundle.get(name)
+            if body is None:
+                continue  # not read in this window (day windows have no Portfolio), or COH-0's
+            files = [*bundle.files(chain_name), *bundle.files(name)]
+            claims = (body.get("summary") or {}).get("claims")
+            if not isinstance(claims, dict):
+                out.append(finding("COH-17", None, w, name.split(".")[0], "a stamped bundle lacks `summary.claims`",
+                                   files))
+                continue
+            disclosed = (body.get("scope_disclosure") or {}).get("sites")
+            if disclosed is not None and sorted(s.get("site_code") for s in disclosed) != sites:
+                continue  # COH-17 compares equal Site sets only
+            for key in keys:
+                a, b = counts.get(key) or {}, claims.get(key) or {}
+                diff = [f"{f}: chain {a.get(f)!r}, {name.split('.')[0]} {b.get(f)!r}" for f in CLAIM_FIELDS
+                        if a.get(f) != b.get(f)]
+                if diff:
+                    out.append(finding("COH-17", None, w, key, "; ".join(diff), files))
+    return out
+
+
 def lifecycle_pairs(bundle: Bundle) -> int:
     """The number of board/Portfolio read pairs COH-13 compared (for the L3 report)."""
     return sum(1 for _ in _state_reads(bundle))
@@ -1088,7 +1143,7 @@ RULES: list[tuple[str, Callable[[Bundle], list[dict]]]] = [
     ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts),
     ("COH-10", coh10_thread_identity), ("COH-11", coh11_actions_linked),
     ("COH-13", coh13_lifecycle_agreement), ("COH-14", coh14_verified_not_attention),
-    ("COH-15", coh15_action_segment), ("COH-16", coh16_opportunity_agreement)]
+    ("COH-15", coh15_action_segment), ("COH-16", coh16_opportunity_agreement), ("COH-17", coh17_count_claims)]
 INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12)]
 
 

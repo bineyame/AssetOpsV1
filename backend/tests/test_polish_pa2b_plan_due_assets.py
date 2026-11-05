@@ -43,7 +43,7 @@ def test_not_assessed_cases() -> None:
 def test_board_warnings_use_the_helper_with_unchanged_behaviour() -> None:
     cue = lambda pid, due: w.PlanCue(plan_id=pid, code="PM-000001", title=f"Service {pid}", due_at=due,
                                      due_on=due.date(), asset_id=None, link_ref=R.estate_ref("maintenance_preventive"))
-    f = w.WarningFacts(domain="MINI_GRID", site_code="S1", to=TO, visits_from=TO - timedelta(days=60),
+    f = w.WarningFacts(links=R, domain="MINI_GRID", site_code="S1", to=TO, visits_from=TO - timedelta(days=60),
                        soon_until=soon_until(TO), window_days=(TO.date(), TO.date()),
                        plans=(cue("a", TO - timedelta(days=1)), cue("b", TO), cue("c", TO + timedelta(days=14))))
     kinds = {x.subject: x.kind for x in w._plans(f)}

@@ -117,9 +117,8 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
         def site_readiness(self, *a):  # pragma: no cover - CH-5a1: never read by the board
             raise AssertionError("estate readiness is not a board read")
 
-        def site_work_rows(self, *a):
-            seen["estate"] = a
-            return {"site_cov": {}, "findings": [], "actions": []}
+        def site_work_rows(self, *a):  # pragma: no cover - CH-5a2b R1: the board reads the ChainReader instead
+            raise AssertionError("estate work rows are not a board read")
 
     svc = SiteOutcomeBoardService(BoardServices(
         overview_source=lambda c, t, s: seen.setdefault("source", (c, t, s)) and (True, "open"), mini_depth=Depth(),
@@ -131,9 +130,7 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
     assert seen["day"] == (S, "MINIGRID", date(2026, 9, 6), date(2026, 10, 6), 31, (date(2026, 10, 6),))
     assert seen["settled"] == S and "findings" not in seen  # no Finding index gate: the heads read is refused
     assert seen["depth"]["known_at"] == known and seen["depth"]["site_id"] == S
-    # The kept estate read stays on the UTC day and the 31 UTC days ending with it (`mini.estate_bounds`).
-    assert seen["estate"][1:] == ("KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
-                                  datetime(2026, 9, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC), known)
+    assert "estate" not in seen  # CH-5a2b R1: no estate snapshot read on the board
     assert body["window"]["known_at"] == "2026-10-09T12:00:00Z"
     assert "finding_id=" in body["links"]["self"] and "known_at=" in body["links"]["self"]
 

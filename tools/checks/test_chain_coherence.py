@@ -46,6 +46,7 @@ FAILING = {
     "coh14_verified_attention": ("COH-14", COLD, DC, "PROTECT_ASSET:X"),
     "coh15_earlier_segment": ("COH-15", COLD, "week", A1),
     "coh16_opportunity_disagree": ("COH-16", KOBO, "week", "07000000-0000-0000-0000-000000000004"),
+    "coh17_claims_disagree": ("COH-17", None, "week", "count.open_threads"),
 }
 
 
@@ -744,3 +745,39 @@ def test_coh14_reads_structured_thread_lines(tmp_path: Path) -> None:
     assert cc._verified_line({"thread_lines": [{"kind": "MONITORING"}], "subline": None}) is True
     assert cc._verified_line({"thread_lines": [{"kind": "BEFORE_CHANGE"}], "subline": "Fix verified, x"}) is False
     assert cc._verified_line({"subline": "a · Fix verified and closed (ACT-1)"}) is True
+
+
+def test_coh17_agreeing_claims_pass_and_each_break_is_named(tmp_path: Path) -> None:
+    """CH-5a2b COH-17: `clean_claims` (chain, Portfolio and Findings claims equal in every window) passes; a value,
+    a missing `summary.claims`, a moved chain window and a missing chain body each fail; an unequal Site set is
+    not compared; an unstamped bundle is not judged."""
+    assert cc.check(cc.Bundle(BUNDLES / "clean_claims"))["findings"] == []
+    assert cc.coh17_count_claims(cc.Bundle(BUNDLES / "clean")) == []
+
+    def value(b):
+        b["summary"]["claims"]["count.opportunities"]["value"] = 9
+    got = cc.coh17_count_claims(_edited(tmp_path / "v", "clean_claims", None, **{
+        "day_findings_all.day_kobo_trial-before_2026-10-31.p1.json": value}))
+    assert [(f["window"], f["subject"]) for f in got] == [("day:kobo:trial-before:2026-10-31", "count.opportunities")]
+    assert "value: chain 1, day_findings_all 9" in got[0]["detail"]
+
+    def drop(b):
+        del b["summary"]["claims"]
+    got = cc.coh17_count_claims(_edited(tmp_path / "d", "clean_claims", None, **{"portfolio.week.p1.json": drop}))
+    assert [(f["window"], f["subject"]) for f in got] == [("week", "portfolio")]
+
+    def moved(b):
+        b["window"]["from"] = "2026-10-24T00:00:00Z"
+    got = cc.coh17_count_claims(_edited(tmp_path / "w", "clean_claims", None, **{"chain_estate.week.json": moved}))
+    assert [(f["window"], f["subject"]) for f in got] == [("week", "window")]
+
+    def other_sites(b):
+        b["scope_disclosure"] = {"sites": [{"site_code": "COLD-LAB-001"}]}
+        b["summary"]["claims"]["count.open_threads"]["value"] = 7
+    assert cc.coh17_count_claims(_edited(tmp_path / "s", "clean_claims", None,
+                                         **{"portfolio.week.p1.json": other_sites})) == []
+
+    def no_chain(m):
+        m["requests"] = [r for r in m["requests"] if r["name"] != "chain_estate.week"]
+    got = cc.coh17_count_claims(_edited(tmp_path / "c", "clean_claims", no_chain))
+    assert [(f["window"], f["subject"]) for f in got] == [("week", "chain")]

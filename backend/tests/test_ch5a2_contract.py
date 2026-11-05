@@ -62,6 +62,10 @@ class Port(BC.Port):
         self.calls.append(("site_threads", (site_id,)))
         return THREAD_ROWS.get(site_id, {"occurrences": (), "events": (), "actions": ()})
 
+    def evidence_cutoff(self, tenant_id, site_id, known_at):  # CH-5a2b: no disposition -> the request's cutoff
+        self.calls.append(("evidence_cutoff", (site_id,)))
+        return None
+
 
 class Registry:
     SITES = {s.site_code: s for s in (BC.KOBO, BC.COLD, BC.EV)}
@@ -158,12 +162,19 @@ def test_known_at_hides_a_later_event() -> None:
     assert [e["seq"] for e in body["events"]] == [1] and body["state"] == "OPEN"
 
 
-def test_estate_chain_counts_are_null_until_ch5a2b_and_money_is_never_summed() -> None:
+def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
+    """CH-5a2b (§B14 Q7): T1 (a Finding occurrence on 31 Oct, OPEN on the window day) counts; T2 is
+    opportunity-only, so it is an opportunity item, never a thread."""
     body = _get("estate_week_2026-10-25")
-    assert body["counts"] == {"verified_results": None, "open_threads": None, "opportunities": None}
+    counts = body["counts"]
+    assert set(counts) == {"count.open_threads", "count.verified_results", "count.opportunities"}
+    assert counts["count.open_threads"]["value"] == 1 and counts["count.verified_results"]["value"] == 0
+    assert counts["count.opportunities"]["value"] == 1
+    assert all(set(c) == {"key", "value", "basis", "days", "text"} for c in counts.values())
+    assert len({json.dumps(c["days"], sort_keys=True) for c in counts.values()}) == 1
     assert body["money_total"] is None
     kobo = next(s for s in body["sites"] if s["code"] == "KOBO-001")
-    assert kobo["days"]["requested"] == 7 and kobo["threads"] is None
+    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 1, "in_hand": 0, "verified": 0}
     assert [o["thread_id"] for o in kobo["opportunities"]] == [T2]
     assert set(kobo["rows"]) == {"GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"}
 
@@ -198,3 +209,17 @@ def test_each_route_reads_each_key_at_most_once(name: str, monkeypatch) -> None:
     _get(name)
     assert seen and any(n.startswith("chain.") for n in seen[0].names()), seen
     assert seen[0].max_per_key() == 1, seen[0].repeated()
+
+
+@pytest.mark.parametrize("window", [{}, {"lo": BC.at(30, 21), "hi": BC.at(31, 21)}])
+def test_cold_thread_cutoff_is_the_boards_one_rule(window) -> None:
+    """CH5a2b-R Q11 (review L3): `/threads/{id}` resolves the cold/EV cutoff by the board's one method, so it
+    equals the board window's `known_at` with and without a window; mini keeps the request's cutoff."""
+    from dataclasses import replace
+    from datetime import datetime
+    svc = SiteOutcomeBoardService(replace(BC.services(Port(), []), threads=Threads()))
+    body = svc.board(BC.COLD, **window)
+    known = body["window"]["known_at"]
+    got = svc.thread_cutoff(BC.COLD, **window)
+    assert known is not None and got == datetime.fromisoformat(str(known).replace("Z", "+00:00"))
+    assert svc.thread_cutoff(BC.KOBO, known_at=BC.at(1, 9, month=11)) == BC.at(1, 9, month=11)

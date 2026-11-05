@@ -3,6 +3,7 @@ vocabulary layer. Every client-facing literal of an opportunity item comes from 
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from typing import Any, Mapping, Sequence
@@ -56,3 +57,83 @@ def limit_line(status: str | None, limitation_codes: Sequence[str], decisions: S
     if status == "UNKNOWN":
         return LIMIT_UNKNOWN.format(n=sum(1 for d in decisions if d is None))
     return None
+
+
+# ---- PC-1 claims (build sheet CH-6 §S.2; CH-5a2b builds the type and the count claims, §B13 R3 / §B14) ----------
+
+COMPLETE_BASIS, CHECKED_DAYS_BASIS, NOT_KNOWN_BASIS = "COMPLETE", "CHECKED_DAYS", "NOT_KNOWN"
+CLAIM_DAY_KEYS = ("complete", "partial", "low", "no_data", "pending", "expected")
+NOT_KNOWN_TEXT = "Not known yet"
+#: §B13 R3 texts: (COMPLETE one, COMPLETE many, CHECKED_DAYS n >= 1, CHECKED_DAYS n = 0).
+COUNT_TEXT = {
+    "count.open_threads": ("{n} open finding", "{n} open findings", "{n} open on the days checked",
+                           "None open on the days checked"),
+    "count.verified_results": ("{n} fix confirmed", "{n} fixes confirmed", "{n} confirmed on the days checked",
+                               "None confirmed on the days checked"),
+    "count.opportunities": ("{n} opportunity", "{n} opportunities", "{n} found on the days checked",
+                            "None found on the days checked"),
+}
+#: B7 / R2: the source classes whose verified result is worded "on example data".
+EXAMPLE_SOURCES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
+
+
+def provenance_suffix(source_state: str | None) -> str:
+    """B7 (DS-R1, COH-12): `" on example data"` for an example-data source class, else `""` (None included)."""
+    return " on example data" if source_state in EXAMPLE_SOURCES else ""
+
+
+@dataclass(frozen=True)
+class Claim:
+    key: str              # e.g. "count.open_threads", "money.estimated_income", "verdict.MG-1"
+    value: Any            # int | Decimal string | verdict code | None
+    basis: str            # "COMPLETE" | "CHECKED_DAYS" | "NOT_KNOWN"
+    days: Mapping[str, int] | None   # {"complete", "partial", "low", "no_data", "pending", "expected"}
+    text: str             # rendered once, here
+
+    def to_json(self) -> dict[str, Any]:
+        value = str(self.value) if isinstance(self.value, Decimal) else self.value
+        return {"key": self.key, "value": value, "basis": self.basis,
+                "days": None if self.days is None else dict(self.days), "text": self.text}
+
+
+def _days_of(days: Any) -> Mapping[str, int] | None:
+    if days is None:
+        return None
+    if isinstance(days, Mapping):
+        return {k: int(days[k]) for k in CLAIM_DAY_KEYS}
+    return {k: int(getattr(days, k)) for k in CLAIM_DAY_KEYS}
+
+
+def count_basis(days: Any) -> str:
+    """§S.2, the one basis rule: NOT_KNOWN when `days` is None, `expected == 0`, or every expected day is PENDING or
+    NO_DATA; COMPLETE when `complete == expected`; else CHECKED_DAYS. `days` is a `GradeCounts` or its §S.2 subset."""
+    d = _days_of(days)
+    if d is None or d["expected"] == 0 or d["pending"] + d["no_data"] >= d["expected"]:
+        return NOT_KNOWN_BASIS
+    return COMPLETE_BASIS if d["complete"] == d["expected"] else CHECKED_DAYS_BASIS
+
+
+def sum_days(per_site: Sequence[Any]) -> Mapping[str, int] | None:
+    """The §S.2 subset summed over the Sites in scope; None when any Site's counts are None (the read failed)."""
+    total = {k: 0 for k in CLAIM_DAY_KEYS}
+    for days in per_site:
+        d = _days_of(days)
+        if d is None:
+            return None
+        for k in CLAIM_DAY_KEYS:
+            total[k] += d[k]
+    return total
+
+
+def count_claim(key: str, value: int | None, days: Any) -> Claim:
+    """A count claim (§B13 R3): a null value (the read failed) is NOT_KNOWN whatever the days."""
+    d = _days_of(days)
+    basis = NOT_KNOWN_BASIS if value is None else count_basis(d)
+    one, many, checked, none = COUNT_TEXT[key]
+    if basis == NOT_KNOWN_BASIS:
+        text = NOT_KNOWN_TEXT
+    elif basis == COMPLETE_BASIS:
+        text = (one if value == 1 else many).format(n=value)
+    else:
+        text = checked.format(n=value) if value else none
+    return Claim(key, value, basis, d, text)

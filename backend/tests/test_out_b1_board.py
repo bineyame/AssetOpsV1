@@ -53,7 +53,8 @@ def act048(**kw) -> ActionFact:
                 origin_finding_id="f104", origin_revision_id="f104r", applied=False, open=True,
                 verification_state="PENDING", link_ref=R.action_ref("KOBO-001", "a48"),
                 workflow_label="No action agreed yet",
-                verification_ref=R.action_ref("KOBO-001", "a48", view="verification", event_id="e1"))
+                verification_ref=R.action_ref("KOBO-001", "a48", view="verification", event_id="e1"),
+                source_class="REGISTERED_SIMULATION")  # CH-5a2b B7: the stored source of the demo outcome
     base.update(kw)
     return ActionFact(**base)
 
@@ -143,6 +144,14 @@ def test_earlier_result_labels_for_mini_action() -> None:
     for state, label in expected.items():
         rows = rows_by_cat(kobo(actions=(act048(applied=True, open=False, verification_state=state),)))
         assert [e["result_label"] for e in rows[COST]["earlier"]] == [label], state
+
+
+def test_verified_label_follows_the_stored_source_class() -> None:
+    """CH-5a2b B7 (DS-R1): "on example data" only for an example-data source class; a null class is plain."""
+    for source, label in (("AUTHORED_DEMONSTRATION", "Verified on example data"), ("MEASURED_FIELD", "Verified"),
+                          (None, "Verified")):
+        a = act048(applied=True, open=False, verification_state="VERIFIED", source_class=source)
+        assert [e["result_label"] for e in rows_by_cat(kobo(actions=(a,)))[COST]["earlier"]] == [label], source
 
 
 def test_applied_action_without_plan_is_not_earlier_and_stays_in_hand_if_open() -> None:
@@ -342,9 +351,12 @@ def test_board_imports_only_outcomes_and_stdlib() -> None:
     tree = ast.parse(Path(board_module.__file__).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            # CH-5a2a: the one link builder `chain.refs` (stdlib-only, pinned below) is the sole non-outcomes import.
+            # CH-5a2a: the one link builder `chain.refs` (stdlib-only, pinned below); CH-5a2b B7: the one wording
+            # helper `chain.vocabulary.provenance_suffix`. These are the only non-outcomes imports.
             assert (node.module in allowed or node.module.startswith("assetops_backend.outcomes")
-                    or (node.module == "assetops_backend.chain" and [a.name for a in node.names] == ["refs"])),                 node.module
+                    or (node.module == "assetops_backend.chain" and [a.name for a in node.names] == ["refs"])
+                    or (node.module == "assetops_backend.chain.vocabulary"
+                        and [a.name for a in node.names] == ["provenance_suffix"])), node.module
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 assert alias.name in allowed, alias.name

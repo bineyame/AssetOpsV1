@@ -14,6 +14,7 @@ from typing import Any, Callable
 from assetops_backend import perf
 from assetops_backend.chain import refs
 from assetops_backend.chain.read import site_cutoff
+from assetops_backend.chain.vocabulary import count_claim
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     UNKNOWN, not_applicable, site_coverage)
@@ -208,8 +209,26 @@ def select_action_scope(snap: Any, tenant_id: Any, req: EstateRequest,
 
 
 class EstateIndexService:
+    #: CH-5a2b (§B14 Q7/Q8): the injected `chain.claims.EstateClaims` (`main.py`); None -> every claim NOT_KNOWN.
+    count_claims: Callable[..., Any] | None = None
+
     def __init__(self, store: Any) -> None:
         self.store = store
+
+    def _claims(self, tenant_id: Any, scope: dict[str, Any], req: EstateRequest) -> Any:
+        """The one count computation (`chain.claims.estate_count_claims`) over the whole Site scope (no lens) in the
+        request window at the request's own `known_at`, as `/estate/chain` reads it; None when not injected."""
+        if self.count_claims is None:
+            return None
+        return self.count_claims(tenant_id, [s["site_code"] for s in scope["sites"]], req.from_, req.to,
+                                 req.known_at)
+
+    @staticmethod
+    def claims_json(counted: Any, keys: tuple[str, ...]) -> dict[str, Any]:
+        """`summary.claims` (wire-only until CH-5b / CH-6b): every key NOT_KNOWN when the computation is absent."""
+        if counted is not None:
+            return counted.claims_json(keys)
+        return {k: count_claim(k, None, None).to_json() for k in keys}
 
     def _read(self, work: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
         """S12/S15: an inconsistent selected lineage is retried once in a fresh snapshot, then 409."""
@@ -354,6 +373,8 @@ class EstateIndexService:
         # page says "could not be read" instead of an empty lens.
         items = opportunity_read(snap, tenant_id, scope, req)
         summary["opportunity_count"] = None if items is None else len(items)
+        # CH-5a2b (§B13 R3, §B14 Q10): lens-independent, the whole scope on every lens.
+        summary["claims"] = self.claims_json(self._claims(tenant_id, scope, req), ("count.opportunities",))
         opportunities = None if items is None else [] if req.lens not in ("all", "opportunities") else [
             i for i in items if req.state_filter == "all" or i["filter_state"] == req.state_filter]
         body.update({"lens": req.lens, "state_filter": req.state_filter, "summary": summary, "order": FINDINGS_ORDER,

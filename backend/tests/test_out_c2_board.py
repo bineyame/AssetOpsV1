@@ -4,6 +4,7 @@ from __future__ import annotations
 from assetops_backend.chain import refs as R
 
 from dataclasses import replace
+from functools import partial
 from datetime import date, datetime, timedelta, timezone
 
 from test_out_b1_board import F104, cold as cold_facts, kobo, request, rows_by_cat
@@ -13,6 +14,9 @@ from test_out_c1_never_money import money_hits
 from assetops_backend.outcomes.catalogue import CATEGORIES, COLD, MINI
 from assetops_backend.outcomes.outcome_map import outcome_roles
 from assetops_backend.outcomes.warnings import PlanCue, Visit, WarningFacts, evaluate
+
+#: The composer injects the screen-link vocabulary (`visits.warning_facts` passes `links=refs`).
+WarningFacts = partial(WarningFacts, links=R)
 from assetops_backend.site_outcomes import cold, visits
 from assetops_backend.site_outcomes.board import PlanFact, assemble
 from assetops_backend.site_outcomes.mini import Reads

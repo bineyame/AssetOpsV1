@@ -5,12 +5,16 @@ from __future__ import annotations
 import json
 import re
 from datetime import date, datetime, timedelta, timezone
+from functools import partial
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD, EV, MINI
 from assetops_backend.outcomes.outcome_map import outcome_roles
 from assetops_backend.chain import refs as R
 from assetops_backend.outcomes.warnings import KINDS, PRICE_NEEDS, PlanCue, Visit, WarningFacts, evaluate
+
+#: The composer injects the screen-link vocabulary (`visits.warning_facts` passes `links=refs`).
+WarningFacts = partial(WarningFacts, links=R)
 
 MONEY_KEYS = {"amount", "amount_low", "amount_high", "currency", "value", "price", "rate"}
 MONEY_TEXT = re.compile(r"[$€£]|\b(USD|EUR|GBP|KES|ETB)\b|\d+(\.\d+)?\s*(per litre|/kWh|per kWh)")

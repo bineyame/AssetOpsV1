@@ -16,7 +16,7 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timezone
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlencode
 from uuid import UUID
 
@@ -250,13 +250,13 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.assumptions, "assumptions").series(
                 t, sid, DIESEL_PRICE_KEY, valid_at=at, recorded_at=known_at))  # addendum 4 #4: None = current
 
-        def estate(day_lo: datetime, day_hi: datetime, work_lo: datetime, work_hi: datetime) -> dict[str, Any]:
-            rows = _prefetched(("work_rows", t, c, day_lo, day_hi, work_lo, work_hi, known_at))  # QW-2
-            if rows is _MISS:
-                rows = _need(s.estate, "estate").site_work_rows(t, c, day_lo, day_hi, work_lo, work_hi, known_at)
-            if rows is None:
-                raise PortUnavailable("the Site is not in the estate scope")
-            return rows
+        # CH-5a2b R1: the chip's placement facts and the labels' Action rows from the ChainReader (the estate
+        # snapshot read is gone from the board).
+        def placement_facts(revision_ids: list[str]) -> Any:
+            return chain().placement_facts(sid, revision_ids)
+
+        def action_rows() -> Any:
+            return chain().action_rows(sid)
 
         def action_index(lo: datetime, hi: datetime, cursor: str | None) -> dict[str, Any]:
             req = _need(s.parse_action_index, "action index parser")(wire(lo), wire(hi), None, cursor)
@@ -279,7 +279,7 @@ class SiteOutcomeBoardService:
 
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
-                              estate=estate, action_index=action_index, action_facts=action_facts, money=money,
+                              placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
                               productive_readings=productive_readings, productive_price=productive_price)
@@ -345,6 +345,21 @@ class SiteOutcomeBoardService:
         if domain not in (COLD, EV):
             raise ValueError(f"no outcome board for Site type {site.site_type!r}")
         ports = self.cold_ports(site, known_at) if domain == COLD else self.ev_ports(site, known_at)
+        composer = cold.compose if domain == COLD else ev.compose
+        lo, hi, cutoff, comp = self.cold_ev_cutoff(
+            site, ports, lo, hi, known_at,
+            lambda p, a, b: composer(p, site_code=site.site_code, lo=a, hi=b, site_timezone=site.timezone))
+        return comp, {"from": lo, "to": hi, "known_at": cutoff}
+
+    @staticmethod
+    def cold_ev_cutoff(site: SiteRef, ports: Any, lo: datetime | None, hi: datetime | None,
+                       known_at: datetime | None, use: Callable[[Any, datetime, datetime], Any] | None = None
+                       ) -> tuple[datetime, datetime, datetime | None, Any]:
+        """CH5a2b-R Q11 (review L3): the ONE cold/EV cutoff resolution, used by the board (`compose`) and by
+        `/threads/{id}` (`thread_cutoff`), never copied. Without a window, the overview's default window
+        (`ports.overview(None, None)`); then the overview read over `[lo, hi)` (inside `use`, the composer, when
+        given; else read once here), and `board_cutoff` over that body's `window.known_at` (addendum 4 #5: the
+        request's cutoff, else the overview's resolved one). Returns `(lo, hi, cutoff, use's result)`."""
         resolved: dict[str, Any] = {}
         if lo is None or hi is None:
             window = (ports.overview(None, None) or {}).get("window") or {}
@@ -359,11 +374,18 @@ class SiteOutcomeBoardService:
             resolved["known_at"] = ((body or {}).get("window") or {}).get("known_at")
             return body
 
-        composer = cold.compose if domain == COLD else ev.compose
-        comp = composer(replace(ports, overview=overview), site_code=site.site_code, lo=lo, hi=hi,
-                        site_timezone=site.timezone)
-        # addendum 4 #5: the cutoff used is the request's; without one, the overview body's resolved cutoff
-        return comp, {"from": lo, "to": hi, "known_at": board_cutoff(domain, known_at, resolved.get("known_at"))}
+        out = use(replace(ports, overview=overview), lo, hi) if use is not None else overview(lo, hi)
+        return lo, hi, board_cutoff(site.domain, known_at, resolved.get("known_at")), out
+
+    def thread_cutoff(self, site: SiteRef, *, lo: datetime | None = None, hi: datetime | None = None,
+                      known_at: datetime | None = None) -> datetime | None:
+        """`/sites/{code}/threads/{id}`'s state cutoff (Q11): mini -> the request's (`board_cutoff`); cold/EV ->
+        `cold_ev_cutoff` over the optional `from`/`to` (the board route's `board_window`), so with no window it
+        equals `/chain`'s default-window `window.known_at`. The thread state is the last visible event there."""
+        if site.domain not in (COLD, EV):
+            return board_cutoff(site.domain, known_at, None)
+        ports = self.cold_ports(site, known_at) if site.domain == COLD else self.ev_ports(site, known_at)
+        return self.cold_ev_cutoff(site, ports, lo, hi, known_at)[2]
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
@@ -455,14 +477,14 @@ class SiteOutcomeBoardService:
         estate = self.s.estate
         tenants = {site.tenant_id for site in sites}
         if not sites or len(tenants) != 1 or not all(hasattr(estate, name) for name in (
-                "read_snapshot", "site_selected_windows_many", "site_work_rows_many")):
+                "read_snapshot", "site_selected_windows_many")):
             return {}
         (t,) = tenants
-        # R6, CH5a2-R R7: each mini Site's board day is `window_day(lo, hi)`, the board route's rule (the kept estate
-        # read is keyed on it, `mini.estate_bounds`); CH-5a1 R5: no readiness prefetch
-        # (readiness is `readiness_of` over the chain snapshots, never the estate evidence selection).
-        estate_days = {x.site_code: window_day(lo, hi, x.timezone) for x in sites if x.domain == MINI}
+        # CH-5a1 R5: no readiness prefetch (readiness is `readiness_of` over the chain snapshots); CH-5a2b R1: no
+        # mini Finding/Action row prefetch (the board reads them from the ChainReader).
         others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
+        if not others:
+            return {}
 
         def work(snap: Any) -> dict[tuple, Any]:
             pre: dict[tuple, Any] = {}
@@ -471,11 +493,6 @@ class SiteOutcomeBoardService:
             for code in others:
                 pre[("windows", t, code, lo, hi, known_at)] = wins[code]
             lap("windows")
-            spans = {code: mini.estate_bounds(d) for code, d in estate_days.items()}
-            rows = estate.site_work_rows_many(t, spans, known_at, snap=snap) if spans else {}
-            for code, value in rows.items():
-                pre[("work_rows", t, code, *spans[code], known_at)] = value
-            lap("work_rows")
             return pre
 
         try:
