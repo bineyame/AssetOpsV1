@@ -68,3 +68,23 @@ an opportunity-origin Action or link exists. `git log main`: no later migration 
 - Link latency (top). A MINI Action raised before its opportunity is placed links at placement (pending-placement path).
 - 5 pre-existing failures above sit on main and should get their own fix task.
 - The L2 round trip deletes its own rows with `session_replication_role = replica` on a test DB only.
+
+## Fix round 1 (review REVISE: M1, L1, L2, merge note)
+
+- **M1.** The Q6 proof now serves real bodies through `create_app` + TestClient on ONE tenant and Site (the S4 Kobo
+  Site; `seed_opportunities(..., site=(t, s))` puts the CH-4 studies and the mill Action on it): outcome-board, Site chain,
+  thread route, action-index, MINI_TRIAL verification outcome, Cold domain-work index and action. Captured before, then
+  the mill Action is created, completed and linked (asserted on that Site), served again, compared byte-for-byte as JSON.
+  Site-wide lists (chain threads/actions, action-index rows) keep only Finding-origin entries because the mill thread and
+  Action legitimately join them. Masked wall-clock keys: `known_at`, `read_at`, `generated_at`, `now` (the Cold action
+  detail echoes the read instant as `known_at`). Non-vacuity: `test_q6_proof_can_fail_a_planted_key_in_a_finding_body`
+  plants `origin_opportunity_id` into the after-thread body and asserts the comparison differs.
+- **L1.** Not provable at L2 (seeded head is SUPPORTED); comment says so and the L0 test carries the R6 split.
+- **L2.** `all_actions` docstring now states the 0051 floor (worded without the origin token, which the Q5 guard counts).
+- **Link latency.** CH9b1-R2 rules option (b) via DD-1b2's prepare backfill; the reviewer's outbox suggestion goes to the
+  backlog only and is not built.
+- **Merge note.** CH-5b2 (`417a19efb`) merged into the branch (clean); added `test_opportunity_origin_mini_action_line_or_counted_unmatched`
+  in `test_ch5b_why.py`: with a board in_hand item the Action line shows; without one it is counted unmatched, not invented.
+- **Checks** (`run-host-tests.ps1`, DB 127.0.0.1): ch5b_why, ch9b1 (L0, origin_readers, L2), ch4_opportunity_postgres,
+  ch2_threads, ch2_backfill_cli: 98 passed. `test_ch5b_why_postgres.py` errors at setup with TEMPLATE_STALE (mechanism
+  dataset template built for another checkout; rebuild needed, environmental). Guards A and W passed.
