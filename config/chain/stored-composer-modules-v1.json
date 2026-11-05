@@ -99,6 +99,7 @@
   "assetops_backend.read_scope",
   "assetops_backend.runs.adapters.json_commit_store",
   "assetops_backend.runs.composition",
+  "assetops_backend.scheduling.adapters.postgres_schedule_store",
   "assetops_backend.site_outcomes.board",
   "assetops_backend.site_outcomes.cold",
   "assetops_backend.site_outcomes.composition",

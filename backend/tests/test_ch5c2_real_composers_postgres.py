@@ -31,7 +31,8 @@ CODE = "KOBO-001"
 DAYS = "from=2026-10-05T00:00:00Z&to=2026-11-03T00:00:00Z"  # the summary's 31-day limit
 BOARD = f"/api/sites/{CODE}/outcome-board?date=2026-10-06"
 SUMMARY = f"/api/estate/outcome-summary?{DAYS}"
-PATHS = [BOARD, f"/api/sites/{CODE}/outcome-board", SUMMARY,  # dated, and dateless (`db_today`) f"/api/estate/findings?{DAYS}", f"/api/estate/portfolio?{DAYS}&lens=all",
+#: Every stored route; the board dated and dateless (`db_today`).
+PATHS = [BOARD, f"/api/sites/{CODE}/outcome-board", SUMMARY, f"/api/estate/findings?{DAYS}", f"/api/estate/portfolio?{DAYS}&lens=all",
          f"/api/estate/portfolio/scope-ids?{DAYS}&lens=all"]
 
 

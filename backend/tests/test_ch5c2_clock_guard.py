@@ -53,9 +53,7 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     (_B + "financials.adapters.postgres_assumption_store", "PostgresAssumptionStore.publish.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.append.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.db_now"):
-        _WRITER + " (the scheduler's `now`: scheduling/tick.py, health.py); also the dateless board/overview "
-                  "day (`site_overview.read.db_today`), a read-instant capture wrapped in read_scope.read_instant "
-                  "that registers the next UTC midnight (CH-5c2)",
+        _WRITER + " (the scheduler's `now`: scheduling/tick.py, health.py)",
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.record_attempt.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.site_history.work"):
         "not in a stored compose: the consequence history route (financials.consequence_history, not in the set)",
@@ -66,6 +64,15 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     (_B + "mini_depth.read", "MiniDepthRead.read"): _CAPTURE,
     (_B + "mini_depth.store", "PostgresMiniDepthStore._now"): _WRITER + " (the mini-depth job store)",
     (_B + "objectives.adapters.postgres_objective_store", "PostgresObjectiveStore.declare.work"): _WRITER,
+    # CH-5c2 (found by the F4/Q5 test on the real composers): a dateless board reads the board day from the
+    # scheduler store's DB clock (`site_overview.read.db_today`); the rest of the store is the tick's writers.
+    (_B + "scheduling.adapters.postgres_schedule_store", "PostgresScheduleStore.db_now"):
+        "read-instant capture: the dateless board/overview day (`site_overview.read.db_today`), wrapped in "
+        "read_scope.read_instant; it registers the next UTC midnight (C1)",
+    **{(_B + "scheduling.adapters.postgres_schedule_store", "PostgresScheduleStore." + q):
+       _WRITER + " (the tick's schedule store)"
+       for q in ("claim_site.work", "claim_tick.work", "enrol.work", "fail_tick", "finish_tick", "record_s4",
+                 "release_site", "set_cursor.work", "set_stage")},
     (_B + "work.adapters.postgres_domain_action_index", "PostgresDomainActionRead.snapshot"): _CAPTURE,
     (_B + "work.adapters.postgres_global_read", "PostgresGlobalWorkRead.snapshot"): _CAPTURE,
     (_B + "work.adapters.postgres_work_read", "PostgresWorkRead.snapshot"): _CAPTURE,
