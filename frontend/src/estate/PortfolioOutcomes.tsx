@@ -1,5 +1,8 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { EvidenceTrace, WhyButton } from "../blocks/EvidenceTrace";
+import { OutcomeCardValue } from "../blocks/OutcomeRow";
+import { defaultChainClient, type ChainClient } from "../sites/chainClient";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
 import { boardMoneyText } from "../sites/OutcomeBoard";
@@ -313,53 +316,71 @@ export function CategoryCards({
   body,
   window,
   summary = null,
+  why = defaultChainClient,
 }: {
   body: EstatePortfolioBody;
   window: Window;
   summary?: EstateOutcomeSummaryBody | null;
+  /** CH-5b3 (CH5b3-R Q2): the "Why?" chain client; the module default unless a test passes one. */
+  why?: ChainClient;
 }) {
+  const [whyOpen, setWhyOpen] = useState<{ key: OutcomeCategoryKey; name: string; button: HTMLButtonElement } | null>(null);
   return (
-    <div className="value-grid oc-pfgrid" data-portfolio-cards>
-      {OUTCOME_CATEGORY_CARDS.map(({ key, name, definition }) => {
-        const c = content(key, body, summary);
-        const inner = (
-          <>
-            <div className="value-label">
+    <>
+      <div className="value-grid oc-pfgrid" data-portfolio-cards>
+        {OUTCOME_CATEGORY_CARDS.map(({ key, name, definition }) => {
+          const c = content(key, body, summary);
+          const label = (
+            <>
               <OutcomeIcon icon={key} label={name} />
               <span data-portfolio-card-name>{name}</span>
               <span className="icon" aria-hidden="true">
                 →
               </span>
+            </>
+          );
+          // CH-5b3 (CH5b3-R Q4, mock `pfCard`): a div card; the label is the link, stretched over the card by
+          // `.oc-cardlink::after`, so the "Why?" button can sit above it (a button cannot be inside a link).
+          return (
+            <div key={key} className={`value-card ${c.tone} oc-pfcard`} data-portfolio-card={key}>
+              {c.destination === null ? (
+                <div className="value-label">{label}</div>
+              ) : (
+                <Link className="value-label oc-cardlink" to={estateHref(c.destination, window)} data-portfolio-card-link>
+                  {label}
+                </Link>
+              )}
+              <p className="oc-pfdef" data-portfolio-card-definition>
+                {definition}
+              </p>
+              {/* MOCK DEVIATION MD-CH5b-4: no `oc-pfdays` line here; the days are in the dialog's "Days used". */}
+              <OutcomeCardValue why={<WhyButton label={name} onOpen={(button) => setWhyOpen({ key, name, button })} />}>
+                <div className="value-number" data-portfolio-card-value>
+                  {c.value}
+                </div>
+              </OutcomeCardValue>
+              <p data-portfolio-card-detail>{c.detail}</p>
+              <SiteDots category={key} summary={summary} />
+              <div className="value-basis" data-portfolio-card-basis>
+                {c.basis}
+              </div>
             </div>
-            <p className="oc-pfdef" data-portfolio-card-definition>
-              {definition}
-            </p>
-            <div className="value-number" data-portfolio-card-value>
-              {c.value}
-            </div>
-            <p data-portfolio-card-detail>{c.detail}</p>
-            <SiteDots category={key} summary={summary} />
-            <div className="value-basis" data-portfolio-card-basis>
-              {c.basis}
-            </div>
-          </>
-        );
-        const props = { className: `value-card ${c.tone} oc-pfcard`, "data-portfolio-card": key };
-        return c.destination === null ? (
-          <div key={key} {...props}>
-            {inner}
-          </div>
-        ) : (
-          <Link key={key} {...props} to={estateHref(c.destination, window)}>
-            {inner}
-          </Link>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+      {whyOpen ? (
+        <EvidenceTrace
+          key={`${window.from}|${window.to}|${window.known_at ?? ""}|${whyOpen.key}`}
+          label={whyOpen.name}
+          load={() => why.getEstateWhy(whyOpen.key, { from: window.from, to: window.to, known_at: window.known_at })}
+          opener={whyOpen.button}
+          onClose={() => setWhyOpen(null)}
+        />
+      ) : null}
+    </>
   );
 }
 
-/** The six states of the matrix colour key, in the mock order (`outcomes.js:154`). */
 export const OUTCOME_KEY: readonly { label: string; tone: string }[] = [
   { label: "Needs attention", tone: "amber" },
   { label: "Watch", tone: "blue" },
