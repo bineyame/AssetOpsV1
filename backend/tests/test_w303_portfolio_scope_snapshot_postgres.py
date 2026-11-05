@@ -658,7 +658,7 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     body = get(c, WINDOW).json()
     assert body["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
                                        "site_id": None, "site_code": None, "gap_code": None,
-                                       "destination": "/evidence"}
+                                       "destination": "/evidence", "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] == 1
 
     # Incomplete Evidence coverage (Cold-1 UNKNOWN) wins over a stepped gap and withholds the count.
@@ -668,7 +668,7 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     assert body["coverage"]["evidence_state"] == "PARTIAL"
     assert body["evidence_prompt"] == {"state": "COVERAGE_INCOMPLETE", "text": "Evidence coverage incomplete",
                                        "site_id": None, "site_code": None, "gap_code": None,
-                                       "destination": "/evidence"}
+                                       "destination": "/evidence", "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] is None
 
 
