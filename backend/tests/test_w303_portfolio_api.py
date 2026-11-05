@@ -419,8 +419,17 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]
     assert set(site) == {"site_id", "site_code", "site_name", "domain", "window", "coverage",
-                         "selected_revision_ids", "source_provenance"}
-    assert site["window"] == WINDOW and FINDING[31] in site["selected_revision_ids"]
+                         "selected_revision_count", "source_provenance"}
+    # CH-5c Q9: the ids move to the scope-ids sub-route of the same request; the body keeps their count only.
+    scoped = c.get("/api/estate/portfolio/scope-ids?" + urlencode({**WINDOW, "limit": 1})).json()
+    assert "_scope_ids" not in one and scoped["schema_version"] == "estate-portfolio-scope-ids-1"
+    ids = {x["site_id"]: x["selected_revision_ids"] for x in scoped["sites"]}
+    assert [x["site_id"] for x in scoped["sites"]] == [x["site_id"] for x in one["scope_disclosure"]["sites"]]
+    assert site["window"] == WINDOW and FINDING[31] in ids[site["site_id"]]
+    assert site["selected_revision_count"] == len(ids[site["site_id"]])
+    # R8: the disclosure provenance keeps scalars only (the frontend reads it only as `=== null`).
+    assert site["source_provenance"] is None or not any(
+        isinstance(v, list) for v in site["source_provenance"].values())
     # Historical display: the EVIDENCE cell is UNKNOWN for the current objective.
     hist = get(c, {**WINDOW, "known_at": "2026-10-19T00:00:00Z"}).json()
     assert {x["key"]: x["state"] for x in hist["objectives"][0]["cells"]}["EVIDENCE"] == "UNKNOWN"

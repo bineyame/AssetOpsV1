@@ -64,6 +64,12 @@ class Portfolio:
     def get(self, **params):
         return self.client.get("/api/estate/portfolio?" + urlencode(params))
 
+    def scope_ids(self, **params) -> dict:
+        """CH-5c Q9: the per-Site selected ids of the same request, keyed by Site id."""
+        response = self.client.get("/api/estate/portfolio/scope-ids?" + urlencode(params))
+        assert response.status_code == 200, response.text
+        return {x["site_id"]: x["selected_revision_ids"] for x in response.json()["sites"]}
+
     def ok(self, **params) -> dict:
         response = self.get(**params)
         assert response.status_code == 200, response.text
@@ -344,7 +350,9 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     # Scope disclosure: one item per authorized Site with the union of its selected IDs.
     sites = {code_of[s["site_id"]]: s for s in full["scope_disclosure"]["sites"]}
     assert sorted(sites) == sorted(CODES)
-    assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
+    ids = view.scope_ids(**fx.window, limit=100)
+    assert w1[0]["consequence_revision_id"] in ids[sites["KOBO-001"]["site_id"]]
+    assert all(s["selected_revision_count"] == len(ids[s["site_id"]]) for s in sites.values())
     assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
 
     # Post-W6 W3-estate Q10 (supersedes r1b2 R7's null destinations): mounted Site routes per domain; cold/EV Cost
@@ -430,7 +438,9 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert len(calls) == 2 and calls[0] == calls[1] and len(calls[0]) == 4
     truth = view.read.read(lambda snap: [snap.cited_provenance(fx.tenant_id, s, c, sel) for s, c, sel in calls[0]])
     by_site = {s["site_id"]: s["source_provenance"] for s in body["scope_disclosure"]["sites"]}
-    assert [by_site[s] for s, _, _ in calls[0]] == truth and all(truth)
+    # CH-5c R8: the body carries the scalar fields of the resolved block (`disclosure_provenance`).
+    from assetops_backend.estate.portfolio import disclosure_provenance
+    assert [by_site[s] for s, _, _ in calls[0]] == [disclosure_provenance(t) for t in truth] and all(truth)
 
 
 # --- run 1b: the successful Q9 variants (closure 2 Q9 table as amended by NQ1, r1a2 items 1/2, r1b Q-1b-3) --------

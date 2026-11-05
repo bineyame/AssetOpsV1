@@ -306,6 +306,22 @@ def _ids(values: Iterable[Any]) -> list[str]:
     return sorted({str(v).lower() for v in values if v is not None})
 
 
+def disclosure_provenance(block: dict[str, Any] | None) -> dict[str, Any] | None:
+    """CH-5c R8: the disclosure's per-Site provenance keeps its scalar fields only. The frontend reads it only as
+    `=== null` ("No selected source basis"); the id arrays (`evidence_ids`, `reasons[]`) were never rendered."""
+    return None if block is None else {k: v for k, v in block.items() if not isinstance(v, (list, tuple))}
+
+
+#: CH-5c Q9: the private body key that carries the per-Site selected ids for `GET /api/estate/portfolio/scope-ids`.
+SCOPE_IDS_KEY = "_scope_ids"
+
+
+def split_scope_ids(body: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """CH-5c Q9: the Portfolio body without its private scope ids, and the ids (one item per disclosed Site)."""
+    ids = body.pop(SCOPE_IDS_KEY, [])
+    return body, ids
+
+
 def _evidence_arrays(rows: list[dict[str, Any]]) -> dict[str, list[str]]:
     """As W3-02 `_evidence` builds its token arrays."""
     return {"selected_assessment_revision_ids": _ids(x for r in rows for x in r["_assessments"]),
@@ -853,8 +869,8 @@ class EstatePortfolioService(EstateEvidenceService):
             disclosure_sites.append({"site_id": str(site["site_id"]), "site_code": site["site_code"],
                                      "site_name": site["site_name"], "domain": site["site_type"],
                                      "window": {"from": wire_time(req.from_), "to": wire_time(req.to)},
-                                     "coverage": _coverage_site(site, cov), "selected_revision_ids": ids,
-                                     "source_provenance": next(resolved) if ids else None})
+                                     "coverage": _coverage_site(site, cov), "selected_revision_count": len(ids),
+                                     "source_provenance": disclosure_provenance(next(resolved)) if ids else None})
         lap("disclosure")
         body.update({"lens": req.lens, "summary": summary,
                      "value_cards": value_cards(m_lines_all, applicable, groups, opp_items),
@@ -867,6 +883,9 @@ class EstatePortfolioService(EstateEvidenceService):
                      "money": {"groups": [] if empty else groups, "exclusions": [] if empty else exclusions,
                                "diagnostics": [] if empty else diagnostics, "estate_total": None},
                      "scope_disclosure": {"sites": disclosure_sites, "exclusions": [] if empty else exclusions},
+                     # CH-5c Q9: the ids leave the body; the scope-ids sub-route serves them when the disclosure opens.
+                     SCOPE_IDS_KEY: [{"site_id": str(site["site_id"]), "selected_revision_ids": ids}
+                                     for (site, _, _), ids in zip(f_sites, site_ids)],
                      "order": PORTFOLIO_ORDER, "total_count": len(shown),
                      "rows": [{k: v for k, v in r.items() if not k.startswith("_")} for r in page],
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,

@@ -17,6 +17,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf
+from assetops_backend.estate.portfolio import split_scope_ids
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateStoreUnavailable, MESSAGES, parse_request, portfolio_cursor_key)
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -42,7 +43,14 @@ def build_estate_portfolio_router(service: Any | None, tenant: Callable[[], UUID
         with perf.route("/api/estate/portfolio", response):  # QW-1: one `assetops.perf` line per request
             return _estate_portfolio(request)
 
-    def _estate_portfolio(request: Request) -> dict[str, Any]:
+    @router.get("/api/estate/portfolio/scope-ids")
+    def estate_portfolio_scope_ids(request: Request, response: Response) -> dict[str, Any]:
+        """CH-5c Q9: the per-Site selected assessment ids of the same Portfolio request (same window, Sites and
+        admission), fetched when the "assessment ids" technical disclosure opens."""
+        with perf.route("/api/estate/portfolio/scope-ids", response):
+            return _estate_portfolio(request, scope_ids=True)
+
+    def _estate_portfolio(request: Request, *, scope_ids: bool = False) -> dict[str, Any]:
         if authenticate(request) == 401:
             raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
                                 detail=refusal("UNAUTHENTICATED"))
@@ -59,6 +67,10 @@ def build_estate_portfolio_router(service: Any | None, tenant: Callable[[], UUID
             raise HTTPException(status_code=error.status, detail=refusal(error.code), headers=headers) from error
         except down as error:
             raise HTTPException(status_code=503, detail=refusal("ESTATE_STORE_UNAVAILABLE")) from error
+        body, ids = split_scope_ids(body)
+        if scope_ids:
+            return jsonable_encoder({"schema_version": "estate-portfolio-scope-ids-1", "window": body.get("window"),
+                                     "sites": ids})
         return jsonable_encoder(body)
 
     return router

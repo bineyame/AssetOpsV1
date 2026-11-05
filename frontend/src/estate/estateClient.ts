@@ -217,6 +217,14 @@ export interface EstateScopeBody {
  * existing roots. Display slots the API leaves null are built by the page with the W3-02 money words.
  */
 export const PORTFOLIO_SCHEMA = "estate-portfolio-1";
+export const PORTFOLIO_SCOPE_IDS_SCHEMA = "estate-portfolio-scope-ids-1";
+
+/** CH-5c Q9: `/api/estate/portfolio/scope-ids`, the selected assessment ids of the same Portfolio request. */
+export interface EstatePortfolioScopeIdsBody {
+  schema_version: typeof PORTFOLIO_SCOPE_IDS_SCHEMA;
+  window: { from: string; to: string; known_at: string | null } | null;
+  sites: { site_id: string; selected_revision_ids: string[] }[];
+}
 
 export type EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "PARTIAL" | "UNKNOWN" | "EMPTY_SCOPE";
 export type EstateRootCoverageState = "EMPTY" | "COMPLETE" | "PARTIAL" | "UNKNOWN";
@@ -503,7 +511,9 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
       domain: EstateDomain;
       window: { from: string; to: string };
       coverage: EstateCoverageSite;
-      selected_revision_ids: string[];
+      /** CH-5c Q9: the ids themselves load from `/portfolio/scope-ids` when the disclosure opens. */
+      selected_revision_count: number;
+      /** CH-5c R8: scalar fields only; read as `=== null`. */
       source_provenance: EstateSourceBlock | null;
     }[];
     exclusions: EstatePortfolioExclusion[];
@@ -650,6 +660,8 @@ export interface EstateClient {
   scope(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateScopeBody>>;
   /** W3-03: `/api/estate/portfolio`; never sends `state`, passes the opaque cursor unchanged. */
   portfolio(query: EstatePortfolioQuery): Promise<EstateResult<EstatePortfolioBody>>;
+  /** CH-5c Q9: optional so existing fakes stay valid; an absent method reads as unavailable. */
+  portfolioScopeIds?(query: EstatePortfolioQuery): Promise<EstateResult<EstatePortfolioScopeIdsBody>>;
   /** OUT-B B6: optional so existing fakes stay valid; an absent method reads as unavailable. */
   getOutcomeSummary?(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateOutcomeSummaryBody>>;
 }
@@ -730,6 +742,17 @@ export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateCl
           cursor: query.cursor,
         })}`,
         PORTFOLIO_SCHEMA,
+        query,
+      ),
+    portfolioScopeIds: (query) =>
+      readEstate(
+        `${basePath}/portfolio/scope-ids${estateQueryString({
+          from: query.from,
+          to: query.to,
+          known_at: query.known_at,
+          lens: query.lens,
+        })}`,
+        PORTFOLIO_SCOPE_IDS_SCHEMA,
         query,
       ),
     getOutcomeSummary: (query) =>
