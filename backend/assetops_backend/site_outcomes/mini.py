@@ -209,6 +209,9 @@ class MiniPorts:
     productive_users: Callable[[datetime], list[dict[str, Any]]] = lambda at: []
     productive_readings: Callable[[list[Any], datetime, datetime], list[dict[str, Any]]] = lambda ids, lo, hi: []
     productive_price: Callable[[datetime], dict[str, Any]] = lambda at: {}
+    #: CH9-R4 F2: this Site's CH-4 opportunity items seen in `[lo, hi)` - the `opportunity_threads` read the
+    #: Portfolio and Findings › Opportunities use (`chain/opportunities.py` `opportunity_items`); [] = none.
+    opportunity: Callable[[datetime, datetime], Any] = lambda lo, hi: []
 
 
 @dataclass(frozen=True)
@@ -437,11 +440,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         settled[key] = settled.get(key, False) and findings_ok
 
     limitations = [str(x) for x in assessment.get("limitations") or ()]
-    renewable = (depth.get("renewable") or {}).get("cards") or {}
-    eligible, assessed = renewable.get("eligible_days"), renewable.get("assessed_days")
+    # CH9-R4 F2: the Grow headline figure and the headroom signal read the selected study (the Portfolio's read).
+    study = _study(reads, ports, c, start, site_timezone)
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
 
-    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", eligible is not None and eligible >= 1, HEADROOM_ISSUE,
+    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", study is not None, HEADROOM_ISSUE,
                           renewable_ref(c, start, site_timezone)),
                SignalFact("SIGNAL:EVIDENCE_GAP", bool(limitations),
                           (f"{limitation_text(limitations[0])} limits this conclusion"
@@ -450,7 +453,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     rc = readiness_confidence(readiness)
     reserve = reserve_counts(dispatch)
     contributors = {
-        GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"],
+        GROW: _grow(c, depth, rc, sales["contributors"],
                      renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
@@ -464,7 +467,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                PROTECT: (),
                ASSURE: (Option(OPTION_RESTORE, refs.site_ref(c, "work")),) if limitations else ()}
 
-    headroom = renewable.get("headroom_kw") or {}
+    headroom = (study or {}).get("headroom_kw") or {}
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
     money = {} if money_head is None else {"amount_low": money_head.amount_low,
                                            "amount_high": money_head.amount_high, "currency": money_head.currency}
@@ -546,6 +549,18 @@ def renewable_ref(c: str, start: datetime, tz_name: str | None) -> dict[str, Any
     fmt = "%Y-%m-%dT%H:%M:%SZ"
     return refs.evidence_ref(c, "renewable", refs.window(lo.astimezone(timezone.utc).strftime(fmt),
                                                           hi.astimezone(timezone.utc).strftime(fmt)))
+
+
+def _study(reads: Reads, ports: MiniPorts, c: str, start: datetime, tz_name: str | None) -> dict[str, Any] | None:
+    """CH9-R4 F2: the study of this Site's opportunity item seen over the board's renewable days (the window its
+    opportunity thread is looked up on, CH-4 §4.4), from the read the Portfolio uses; items come latest study first
+    (`opportunity_items`), as the Portfolio's `headroom` takes them. None: no item, or the window is refused."""
+    try:
+        lo, hi = renewable_bounds(start, tz_name)
+    except MiniInputsRefused:
+        return None
+    items = reads.call("opportunity", ports.opportunity, lo, hi) or ()
+    return next((i["study"] for i in items if i.get("site_code") == c and i.get("study")), None)
 
 
 def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
@@ -827,9 +842,12 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
     return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
 
 
-def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
+def _grow(c: str, depth: dict, rc: Any,
           sales: tuple[Contributor, ...] = (), href: dict[str, Any] | None = None) -> tuple[Contributor, ...]:
     href = href or refs.evidence_ref(c, "renewable")
+    # The "Productive use" line states the renewable page's own well-observed day counts (not the headline figure).
+    cards = (depth.get("renewable") or {}).get("cards") or {}
+    eligible, assessed = cards.get("eligible_days"), cards.get("assessed_days")
     if depth.get("renewable") is None:
         use = not_available("productive_use", "Productive use", href)
     elif eligible is None or assessed is None:

@@ -101,6 +101,14 @@ class Fake:
             facts = replace(DayFacts(tuple(days), {}, True, "LIMITED", ()), **self.over.get("day", {}))
             return self._go("chain_day", facts, days, readiness_days)
 
+        def opportunity(lo, hi):
+            # CH9-R4 F2: the fake study mirrors the fake renewable cards unless `study` overrides it (None: no item).
+            r = self.over.get("cards", DEPTH)["renewable"]
+            study = self.over.get("study", {"headroom_kw": r.get("headroom_kw"), "eligible_days": r.get("eligible_days"),
+                                            "assessed_days": r.get("assessed_days")})
+            ok = study is not None and int(study.get("eligible_days") or 0) >= 1
+            return self._go("opportunity", [{"site_code": C, "study": study}] if ok else [], lo, hi)
+
         def action_facts(ids):
             v, change = self.over.get("verification", {"state": "PENDING"}), self.over.get("has_change", True)
             return self._go("action_facts", tuple(ActionFacts(i, v.get("state"), v.get("cost_check"),
@@ -126,6 +134,7 @@ class Fake:
             work=lambda kind, lo, hi, cur: self._go(
                 "work", {"rows": [MR1] if kind == "maintenance" else [IN1], "next_cursor": None}, kind, lo, hi),
             plans=lambda lo, hi: self._go("plans", PLANS, lo, hi),
+            opportunity=opportunity,
         )
 
 
