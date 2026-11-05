@@ -22,7 +22,8 @@ from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.chain import refs
-from assetops_backend.chain.vocabulary import provenance_suffix
+from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
+    MG1_MISSED, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
@@ -146,12 +147,6 @@ PRICE_NOT_DECLARED = "Not available yet · no price per kWh declared"
 SALES_HEADLINE = "estimated productive-use sales"
 SALES_ZERO_HEADLINE = "No productive-use sales on this day: {names} not used"
 SALES_SUBLINE = SALES_USED + ", at the declared price of {p} {cur} per kWh · not billed or collected"
-#: WALK1-3b §A2.2/§A2.5: the MG-1 month-to-date reading (Site-local month through the board day). `{c}` checked days
-#: have measured productive-use coverage; `{e}` days have elapsed; `{k}` is the objective's checked-day minimum.
-MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
-MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
-MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
-MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),

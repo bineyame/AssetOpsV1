@@ -1,0 +1,17 @@
+[
+  {"low": "12.40", "high": "18.75", "currency": "USD", "text": "12.40 to 18.75 USD"},
+  {"low": "3.31", "high": "3.31", "currency": "USD", "text": "3.31 USD"},
+  {"low": "4.50000", "high": "4.50000", "currency": "USD", "text": "4.50 USD"},
+  {"low": "42.075", "high": "42.075", "currency": "USD", "text": "42.08 USD"},
+  {"low": "8.325", "high": "8.325", "currency": "USD", "text": "8.32 USD"},
+  {"low": "12.4", "high": "18.756", "currency": "USD", "text": "12.40 to 18.76 USD"},
+  {"low": "3", "high": "3.000", "currency": null, "text": "3.00"},
+  {"low": null, "high": "3", "currency": "USD", "text": null},
+  {"low": "0.00", "high": "0.00", "currency": "USD", "text": "0.00 USD"},
+  {"low": "-2.5", "high": "-2.5", "currency": "USD", "text": "-2.50 USD"},
+  {"low": "-0.001", "high": "-0.001", "currency": "USD", "text": "0.00 USD"},
+  {"low": "0.005", "high": "0.005", "currency": "USD", "text": "0.00 USD"},
+  {"low": "0.015", "high": "0.015", "currency": "USD", "text": "0.02 USD"},
+  {"low": "1.0123456789", "high": "7.1234567891", "currency": "KES", "text": "1.01 to 7.12 KES"},
+  {"low": "2.50", "high": "2.50", "currency": "", "text": "2.50"}
+]
