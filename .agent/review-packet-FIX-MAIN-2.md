@@ -12,3 +12,7 @@ Test-only fixes; no product code changed. Run via tools\run-host-tests.ps1 (127.
 Not touched: product bugs - none found.
 Runs: ch9 x2 + s6 + ch2 + ch5c_store_off: 30 passed; w402+w403: 25 passed.
 Caveat: the S6 fixture hash changes are accepted from the regenerated run; reviewer may confirm they trace to source_class.
+
+## Coordinator verification — ACCEPT
+- S6 fixture diff, excluding UUIDs, 40+-hex hashes and ISO timestamps, is exactly 7 added `"source_class": null` lines (CH-5a2b's reviewed field). No other content change.
+- Other edits: head pins via `pg_harness.alembic_head()`; `_cic_` exclusion with `_immutable`/`_thread_target` still exact. No product code touched.
