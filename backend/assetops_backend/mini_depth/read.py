@@ -5,7 +5,8 @@ constructor-only `test_read_clock_override` replaces it in tests). Inside it:
 
 - the window is validated against the pinned `site.timezone` (closure 1 Q4/Q5/Q33, S8): service, fuel and backup
   take exactly one Site-local clock hour; renewable takes 1-5 consecutive complete Site-local days, each composed
-  from its individually selected local noon hour (first occurrence; a nonexistent noon refuses `INVALID_WINDOW`);
+  from its individually selected local hours (CH-9: its measured daylight and missing hours, `store.daylight_hours`;
+  a nonexistent local hour refuses `INVALID_WINDOW`);
 - each hour's head is the greatest `(selected_at, seq)` with `selected_at <= known_at` **and** the revision's
   `knowledge_cutoff <= known_at` (Q14), rechecked for tenant/Site/domain/window lineage and its stored basis;
 - per hour currentness (Q6/Q7, q6 ruling 5): a live (PENDING/LEASED/FAILED) overlapping job not cleared by a later
@@ -38,11 +39,13 @@ from assetops_backend.mini_depth.inputs import (
     QUERY_ROLES,
     MiniInputsRefused,
     load_hour_inputs,
-    local_noon,
+    local_hour,
     zone,
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
-from assetops_backend.mini_depth.store import _ACCEPTED, DOMAINS, JOB_DOMAIN, read_hour_rows
+from assetops_backend.mini_depth.store import (
+    _ACCEPTED, DOMAINS, JOB_DOMAIN, NO_PV_BINDING, DaylightHours, daylight_hours, read_hour_rows,
+)
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 
 HOUR = timedelta(hours=1)
@@ -95,8 +98,13 @@ def _local_midnight(day: date, tz_name: str) -> datetime:
     return start
 
 
-def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None) -> list[tuple[date, rules.Window]]:
-    """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8)."""
+def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
+                 daylight: Callable[[date], DaylightHours] | None = None) -> list[tuple[date, rules.Window]]:
+    """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8).
+
+    Renewable (CH-9 §9 R3, CH9-R2 Q2): each day's measured daylight hours and its missing hours from `daylight`
+    (`store.daylight_hours` at the read's cutoff), so a missing hour reads as missing; without it, the
+    `store.NO_PV_BINDING` hours."""
     try:
         tz = zone(tz_name)
         if not lo < hi:
@@ -111,7 +119,11 @@ def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None) -
         for n in range(1, MAX_DAYS + 1):
             if (_local_midnight(first, tz_name or ""), _local_midnight(first + timedelta(days=n), tz_name or "")
                     ) == (lo, hi):
-                return [(d, local_noon(d, tz_name or "")) for d in days[:n]]
+                out = []
+                for d in days[:n]:
+                    found = daylight(d) if daylight is not None else NO_PV_BINDING
+                    out += [(d, local_hour(d, h, tz_name or "")) for h in sorted({*found.hours, *found.missing})]
+                return out
         raise MiniReadRefused("INVALID_WINDOW")
     except MiniInputsRefused as error:
         raise MiniReadRefused("INVALID_WINDOW") from error
@@ -218,9 +230,13 @@ def _stored_hour(day: date, window: rules.Window, result: dict[str, Any]) -> rul
 
 
 def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] | None]]) -> dict[str, Any]:
-    """q6 ruling 1: the page `status` and five `cards` over the requested days' selected noon hours only."""
-    selected = [_stored_hour(d, w, r) for d, w, r in hours if r is not None]
-    cards = rules.summarize_renewable(selected, requested_days=len(hours))
+    """q6 ruling 1: the page `status` and five `cards` over the requested days' selected hours only.
+
+    CH-9 (CH9-R2 Q2/Q5): a day may hold several daylight hours; a day with any unselected (missing) hour is a
+    missing day, so only complete days feed the cards, and days are counted by their day decision."""
+    missing_days = {d for d, _w, r in hours if r is None}
+    selected = [_stored_hour(d, w, r) for d, w, r in hours if r is not None and d not in missing_days]
+    cards = rules.summarize_renewable(selected, requested_days=len({d for d, _w, _r in hours}))
     decisions = [h.decision for h in selected]
     if len(selected) < len(hours):
         status = "UNKNOWN"
@@ -421,7 +437,7 @@ class MiniDepthRead:
         historical = explicit is not None and explicit < read_time
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": t, "s": s}).scalar_one_or_none()
-        windows = hour_windows(domain, lo, hi, tz_name)
+        windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
         hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
 
         live = [h for h in hours if h.pending_ids is not None]
@@ -494,23 +510,29 @@ class MiniDepthRead:
     # --- W4-03 closure 4 S9: the one selected-renewable basis reader -------------------------------------------
 
     def read_selected_renewable_basis(self, c: Connection, *, tenant_id: UUID, site_id: UUID, days: Sequence[date],
-                                      known: datetime, historical: bool) -> dict[str, Any]:
-        """The selected renewable noon-hour basis of `days` on the caller's connection and cutoff (W4-03 S9).
+                                      known: datetime, historical: bool,
+                                      windows: Sequence[tuple[date, rules.Window]] | None = None) -> dict[str, Any]:
+        """The selected renewable hour basis of `days` on the caller's connection and cutoff (W4-03 S9).
 
         Uses this reader's own head, overlapping-job, cutoff-digest and provenance logic (`_hour`, `mini_blocks`),
-        never a reimplementation. Per day: the selected `(selection_seq, mini_revision_id)`, the stored decision and
+        never a reimplementation. Per hour: the selected `(selection_seq, mini_revision_id)`, the stored decision and
         one-hour `opportunity_kwh` bound, the revision's input digest and accepted IDs, the hour currentness and live
-        job IDs. The three provenance blocks cover the complete day set. A nonexistent local noon is
-        `INVALID_WINDOW`. Nothing is written."""
+        job IDs. The three provenance blocks cover the complete hour set. Nothing is written.
+
+        CH-9 (CH9-R2 Q4/Q5): a day's hours are `store.daylight_hours(...).study_hours` at `known` (its measured
+        daylight and missing hours), one row each, ordered `(day, start)`. `windows` instead reads exactly the
+        named `(day, hour)` windows (a stored pin set: a `mini-opportunity/1` study or a scenario's pinned hours).
+        A nonexistent local hour is `INVALID_WINDOW`."""
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": tenant_id, "s": site_id}).scalar_one_or_none()
-        hours: list[_Hour] = []
-        for day in days:
+        if windows is None:
             try:
-                window = local_noon(day, tz_name or "")
+                windows = [(day, local_hour(day, h, tz_name or ""))
+                           for day in days for h in daylight_hours(c, tenant_id, site_id, day, known).study_hours]
             except MiniInputsRefused as error:
                 raise MiniReadRefused("INVALID_WINDOW") from error
-            hours.append(self._hour(c, tenant_id, site_id, "renewable", day, window, known, historical))
+        hours: list[_Hour] = [self._hour(c, tenant_id, site_id, "renewable", day, window, known, historical)
+                              for day, window in sorted(windows, key=lambda w: (w[0], w[1].start))]
         live = [h for h in hours if h.pending_ids is not None]
         blocks = mini_blocks(
             c, self._link_rows, tenant_id, site_id, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
@@ -519,7 +541,7 @@ class MiniDepthRead:
         rows = []
         for h in hours:
             hour = h.head.result.get("hour") or {} if h.head else {}
-            # The one stored row of a renewable noon hour carries its one-hour `opportunity_kwh` bound.
+            # The one stored row of a renewable hour carries its one-hour `opportunity_kwh` bound.
             stored_rows = (h.head.result.get("rows") or []) if h.head else []
             rows.append({
                 "local_day": h.day.isoformat(), "window_start": h.window.start, "window_end": h.window.end,

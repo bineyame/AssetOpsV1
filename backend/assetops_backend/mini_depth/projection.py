@@ -145,6 +145,8 @@ def _service(h: rules.ServiceHour) -> dict[str, Any]:
         "rows": [{"asset_id": str(r.asset_id), "asset_code": r.asset_code, "load_label": r.load_label,
                   "role": r.role, "delivered_kw": _num(r.delivered_kw),
                   "requested_evidence_state": r.requested_evidence_state, "assessment": r.assessment,
+                  # CH9-R4 F1 (`mini-service/2`): the rule's own per-row figure, null unless SUPPORTED.
+                  "unserved_kwh": _num(r.unserved_kwh),
                   "coverage": _coverage(r.coverage), "evidence_ids": _ids(r.evidence_ids)} for r in rows],
         "limitations": _limitations(h.limitations), "coverage": _coverage(h.coverage),
     }

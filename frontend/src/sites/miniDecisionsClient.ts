@@ -97,6 +97,22 @@ export interface OpportunityDayRow {
   evidence_ids: string[];
   selection_seq: number | null;
   mini_revision_id: string | null;
+  /** CH-9 (`mini-opportunity/2`): eligible daylight hours of the day (1 for a `/1` ELIGIBLE row). */
+  window_hours?: number | null;
+  /** CH-9 (`mini-opportunity/2`): the day's hour rows; absent on a `/1` row. */
+  hours?: OpportunityHourRow[];
+}
+
+export interface OpportunityHourRow {
+  local_day: string;
+  decision: string | null;
+  opportunity_kwh: OpportunityBound | null;
+  constraints: string[];
+  evidence_ids: string[];
+  window_from?: string;
+  window_to?: string;
+  selection_seq?: number | null;
+  mini_revision_id?: string | null;
 }
 
 export interface OpportunityObject {
@@ -111,6 +127,8 @@ export interface OpportunityObject {
   eligible_days: number | null;
   assessed_days: number | null;
   headroom_kw: OpportunityBound | null;
+  /** CH-9: the fewest eligible daylight hours on any eligible day (null without a sized headroom). */
+  window_hours?: number | null;
   proposed_load_kw: string | null;
   gross_sales_scenario: { amount: string; currency: string; basis: string } | null;
   demand_state: string;

@@ -130,7 +130,7 @@ export interface EstateOpportunity {
     eligible_days: number;
     assessed_days: number;
     headroom_kw: { low: string; high: string } | null;
-    window_hours: number;
+    window_hours: number | null;
   };
   evidence: "SUPPORTED" | "LIMITED" | "UNKNOWN";
   evidence_label: string;

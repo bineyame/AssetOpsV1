@@ -81,7 +81,7 @@ def _kobo_grade(d: date, measure: str) -> str:
         return "NO_DATA"
     if d == date(2026, 10, 16) and measure == "productive_kwh":
         return "PENDING"
-    if d == date(2026, 10, 31) and measure == "noon_headroom_kw":
+    if d == date(2026, 10, 31) and measure == "daylight_headroom_kw":
         return "PARTIAL"
     if d == date(2026, 11, 1) and measure == "avoidable_gen_min":
         return "PENDING"
@@ -169,6 +169,20 @@ def _verification(t, s, code, aid):
     return {"state": "PENDING", "cost_check": None, "trial_hours": None}
 
 
+class Opportunities:
+    """CH9-R4 F2: the board's opportunity read (`opportunity_threads`), the Kobo study mirroring B2.DEPTH; the thread
+    lookup returns no threads, so the goldens' thread fields are unchanged."""
+
+    def opportunity_threads(self, tenant_id, site_ids, from_, to, k):
+        r = B2.DEPTH["renewable"]
+        return [{"site_code": KOBO.site_code, "study": {"headroom_kw": r["headroom_kw"], "eligible_days":
+                 r["eligible_days"], "assessed_days": r["assessed_days"]}}] if str(KOBO.site_id) in map(str, site_ids) else []
+
+    def lookup(self, tenant_id, finding_ids, action_ids, **kw):
+        from assetops_backend.chain.lookup import thread_lookup
+        return {**thread_lookup([]), "opportunities": []}
+
+
 def services(port: Port, never: list[str]) -> BoardServices:
     open_gate = lambda c, t, s: (True, "open")  # noqa: E731
 
@@ -242,7 +256,7 @@ def services(port: Port, never: list[str]) -> BoardServices:
         parse_action_index=lambda *a: a, estate=Estate(), cold_site=ColdSite(), cold_reads=ColdReads(),
         ev_site=EvSite(), ev_reads=EvReads(), ev_depth=EvDepth(), domain_actions=DomainActions(),
         parse_domain_index=lambda *a: a,
-        chain_reader=ChainReader(port, verification=_verification, money=_money))
+        chain_reader=ChainReader(port, verification=_verification, money=_money), threads=Opportunities())
 
 
 CASES = {

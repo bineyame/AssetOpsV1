@@ -175,12 +175,13 @@ class Batch:
 
 
 def build_batches(spec: dict[str, Any], doc: dict[str, Any], snapshot_sha256: str, variant_name: str,
-                  *, chunk: int = 200) -> list[Batch]:
-    """Sealed Batch V2 bodies for one variant: one source per batch, sequences in source-time order."""
+                  *, chunk: int = 200, extra: Iterable[Planned] = ()) -> list[Batch]:
+    """Sealed Batch V2 bodies for one variant: one source per batch, sequences in source-time order. `extra`
+    envelopes (a test's own additions, e.g. CH-9's dark operating hours) are sequenced with the variant's."""
     variant = next(v for v in spec["variants"] if v["variant"] == variant_name)
     epoch = variant["sequence_epoch"]
     by_source: dict[str, list[tuple[Planned, dict[str, Any]]]] = {}
-    for p in plan_variant(variant):
+    for p in [*plan_variant(variant), *extra]:
         b = _binding(doc, p.device, p.signal)
         by_source.setdefault(b["source_id"], []).append((p, b))
     batches: list[Batch] = []

@@ -90,7 +90,7 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     [rev] = revisions(engine)
     heads = pins(engine, t, s)
     assert (rev.revision_no, rev.producer_id, rev.model_version, rev.source_job_id) == (
-        1, "mini-opportunity/1", "mini-opportunity/1", done.job_id)
+        1, "mini-opportunity/2", "mini-opportunity/2", done.job_id)  # CH-9: the producer is /2
     assert (rev.first_day, rev.last_day) == (DAYS[0], DAYS[-1])
     assert rev.input_sha256 == projection.input_sha256(t, s, DAYS[0], DAYS[-1], heads) == done.projected.input_sha256
     # The five pins are the exact selected tuples, seq included.
@@ -100,7 +100,13 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     assert rev.selected_hours[0]["window_from"] == projection.iso(local_noon(DAYS[0], ZONE).start)
     # The MG integration fixture's actual outcome: 4 ELIGIBLE + the 6 Oct EXCLUDED day.
     result = rev.result
-    assert set(result) == {"status", "assessed_days", "eligible_days", "headroom_kw", "day_rows", "limitations"}
+    # CH-9 owned: the /2 result carries `window_hours` (the fewest eligible hours; one measured hour a day here).
+    assert set(result) == {"status", "assessed_days", "eligible_days", "headroom_kw", "window_hours", "day_rows",
+                           "limitations"}
+    # The unpublished fixture classifies UNKNOWN, so the study is LIMITED: no room and no hour count; each
+    # ELIGIBLE day row counts its one measured daylight hour.
+    assert (result["status"], result["headroom_kw"], result["window_hours"]) == ("LIMITED", None, None)
+    assert [r["window_hours"] for r in result["day_rows"] if r["decision"] == "ELIGIBLE"] == [1, 1, 1, 1]
     assert [r["decision"] for r in result["day_rows"]] == [h.decision for h in heads]
     assert (result["assessed_days"], result["eligible_days"]) == (5, 4)
     assert result == projection.frozen_result(heads, result_class(engine, t, s, heads))
@@ -123,7 +129,7 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     assert counts(engine) == before
     # u4b ruling 1: both persisted producer columns are unchanged after the unchanged rerun.
     [kept] = revisions(engine)
-    assert (kept.id, kept.producer_id, kept.model_version) == (rev.id, "mini-opportunity/1", "mini-opportunity/1")
+    assert (kept.id, kept.producer_id, kept.model_version) == (rev.id, "mini-opportunity/2", "mini-opportunity/2")
     # The unchanged study is not queued again by reconcile either.
     assert w.reconcile(CODE, *STUDY) == []
     # Resume: a duplicate job for the same study reuses the revision and appends no selection.
@@ -149,14 +155,18 @@ def test_late_evidence_changes_the_head_and_missing_day(store, engine) -> None: 
     _, [first] = project(engine)
     [r1] = revisions(engine)
     assert first.status == "DONE" and r1.result["status"] == "UNKNOWN"
-    assert r1.result["day_rows"][0] == {"local_day": "2026-10-06", "decision": None, "opportunity_kwh": None,
-                                        "constraints": [], "evidence_ids": []}
+    missing_hour = {"local_day": "2026-10-06", "decision": None, "opportunity_kwh": None, "constraints": [],
+                    "evidence_ids": []}
+    # CH-9 owned: a /2 day row carries `window_hours` (None on a missing day) and its `hours`. With no pv reading
+    # yet, every one of the 24 declared operating hours of 6 Oct is missing (CH9-R2 Q2), so the day has 24 hours.
+    assert r1.result["day_rows"][0] == {**missing_hour, "window_hours": None, "hours": [missing_hour] * 24}
     assert r1.result["limitations"][0] == {"code": "RENEWABLE_DAY_MISSING", "evidence_ids": []}
-    # u4b item 2 (final review L9): the complete reloaded missing entry, an explicit five-position gap.
-    gap = local_noon(DAYS[0], ZONE)
-    assert r1.selected_hours[0] == {"local_day": DAYS[0].isoformat(), "window_from": projection.iso(gap.start),
-                                    "window_to": projection.iso(gap.end), "selection_seq": None,
-                                    "selection_at": None, "mini_revision_id": None, "evidence_ids": []}
+    # u4b item 2 (final review L9): the complete reloaded missing entries, one per missing hour of the day.
+    start = _midnight(DAYS[0])
+    assert r1.selected_hours[:24] == [
+        {"local_day": DAYS[0].isoformat(), "window_from": projection.iso(start + timedelta(hours=i)),
+         "window_to": projection.iso(start + timedelta(hours=i + 1)), "selection_seq": None, "selection_at": None,
+         "mini_revision_id": None, "evidence_ids": []} for i in range(24)]
     assert r1.result["headroom_kw"] is None
     # Late evidence and a new W4-02 selection change the physical identity: a new job, revision 2 and selection.
     _ingest(engine, installed)

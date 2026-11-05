@@ -20,12 +20,14 @@ from datetime import date, datetime
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
+from assetops_backend.analytics.assessment_ports import Window
 from assetops_backend.mini_decisions import projection
 from assetops_backend.mini_decisions.model import DecisionPrincipal, DecisionRefused, invalid
 from assetops_backend.mini_decisions.scenario_rules import decimal_text
 from assetops_backend.mini_decisions.scenarios import SELECTION_VERSION, _instant, _shape, admit, authorize, \
     encode_cursor, parse_list
 from assetops_backend.mini_decisions.store import (
+    LEGACY_OPPORTUNITY_MODEL_VERSION,
     MiniDecisionStoreUnavailable,
     MiniDecisionWriteRefused,
     PostgresMiniDecisionStore,
@@ -324,13 +326,19 @@ class OpportunityService:
             state = "PENDING_RECOMPUTE" if jobs else "UNKNOWN"
             job_state = aggregate_job(job_statuses) if jobs else "NONE"
         else:
+            # CH-9 (CH9-R2 Q5): a `mini-opportunity/2` study is read against each pinned day's measured daylight
+            # hours at the cutoff (a changed hour set is a changed selection); a `/1` study keeps its pinned hours.
+            legacy = root["model_version"] == LEGACY_OPPORTUNITY_MODEL_VERSION
             basis = self._reader.read_selected_renewable_basis(
-                c, tenant_id=t, site_id=s, days=[date.fromisoformat(p["local_day"]) for p in pins], known=known,
-                historical=historical)
+                c, tenant_id=t, site_id=s, days=sorted({date.fromisoformat(p["local_day"]) for p in pins}),
+                known=known, historical=historical, windows=pin_windows(pins) if legacy else None)
             days = basis["days"]
-            changed = any(p["mini_revision_id"] != b["mini_revision_id"]
-                          or sorted(p["evidence_ids"]) != sorted(i.lower() for i in b["evidence_ids"])
-                          for p, b in zip(pins, days))
+            by_hour = {(b["local_day"], iso(b["window_start"])): b for b in days}
+            pinned = {(p["local_day"], p["window_from"]): p for p in pins}
+            changed = set(by_hour) != set(pinned) or any(
+                p["mini_revision_id"] != by_hour[k]["mini_revision_id"]
+                or sorted(p["evidence_ids"]) != sorted(i.lower() for i in by_hour[k]["evidence_ids"])
+                for k, p in pinned.items())
             pending = bool(jobs) or any(b["state"] == "PENDING_RECOMPUTE"
                                         or (b["mini_revision_id"] is None and b["job_state"] in LIVE) for b in days)
             if pending:
@@ -391,10 +399,11 @@ class OpportunityService:
                "headroom_kw": result["headroom_kw"] if result else None,
                "proposed_load_kw": proposed, "gross_sales_scenario": gross, "demand_state": "UNVERIFIED",
                "collection_state": "UNVERIFIED", "scenario_id": scenario_id,
-               # CH-4 §2.3 (R3): each day row also states its one-hour headroom (the `opportunity_kwh` bound).
-               "day_rows": [{**r, "headroom_kw": r.get("opportunity_kwh"), "window_hours": 1,
-                             "selection_seq": p["selection_seq"], "mini_revision_id": p["mini_revision_id"]}
-                            for r, p in zip(result["day_rows"], pins)] if result else []}
+               # CH-4 §2.3 (R3): each day row also states its headroom (the `opportunity_kwh` bound). CH-9: its
+               # `window_hours` is the stored `/2` value (a `/1` row is one hour) and its pins are its hours'.
+               "window_hours": result.get("window_hours", 1 if result["headroom_kw"] else None) if result else None,
+               "day_rows": [day_read_row(r, [p for p in pins if p["local_day"] == r["local_day"]])
+                            for r in result["day_rows"]] if result else []}
         windows = [{"local_day": p["local_day"], "selection_seq": p["selection_seq"],
                     "mini_revision_id": p["mini_revision_id"]} for p in pins]
         row = {"opportunity": obj, "status": result["status"] if result else "UNKNOWN",
@@ -423,13 +432,38 @@ class OpportunityService:
                     known: datetime) -> bool:
         """Closure 1 Q1-Q3 with closure 4 S5: the scenario head at the cutoff is PRODUCTIVE_LOAD and pins exactly
         the selected opportunity's five `(local_day, mini_revision_id)` (a harmless new seq stays compatible)."""
-        if len(pins) != projection.STUDY_DAYS or any(p["mini_revision_id"] is None for p in pins):
+        if (len({p["local_day"] for p in pins}) != projection.STUDY_DAYS
+                or any(p["mini_revision_id"] is None for p in pins)):
             return False
         sc = self._store.scenario_head_at(c, t, s, scenario_id, known)
         if sc is None or sc["kind"] != "PRODUCTIVE_LOAD":
             return False
         theirs = sorted((p["local_day"], str(p["mini_revision_id"]).lower()) for p in sc["pinned_selection_hours"])
         return theirs == sorted((p["local_day"], p["mini_revision_id"]) for p in pins)
+
+
+def pin_windows(pins: Sequence[Mapping[str, Any]]) -> list[tuple[date, Window]]:
+    """The stored `(local_day, hour window)` of each pin, for a read of exactly those hours."""
+    return [(date.fromisoformat(p["local_day"]),
+             Window(datetime.fromisoformat(p["window_from"]), datetime.fromisoformat(p["window_to"]))) for p in pins]
+
+
+def day_read_row(r: Mapping[str, Any], pins: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """CH-9 (CH9-R2 Q5): one read `day_rows` entry. `window_hours` is the stored `/2` value; a `/1` row (one
+    pinned hour) is 1 when ELIGIBLE. The day's `(selection_seq, mini_revision_id)` is its one pin's; a day of
+    several hours names none at day level (each `hours[]` entry names its own), and a missing day names none."""
+    window_hours = r["window_hours"] if "window_hours" in r else (1 if r.get("decision") == "ELIGIBLE" else
+                                                                   (None if r.get("decision") is None else 0))
+    one = pins[0] if len(pins) == 1 else None
+    out = {**r, "headroom_kw": r.get("opportunity_kwh"), "window_hours": window_hours,
+           "selection_seq": one["selection_seq"] if one else None,
+           "mini_revision_id": one["mini_revision_id"] if one else None}
+    if "hours" in r:
+        by_from = {p["window_from"]: p for p in pins}
+        out["hours"] = [{**h, "window_from": p["window_from"], "window_to": p["window_to"],
+                         "selection_seq": p["selection_seq"], "mini_revision_id": p["mini_revision_id"]}
+                        for h, p in zip(r["hours"], sorted(by_from.values(), key=lambda p: p["window_from"]))]
+    return out
 
 
 def unsupported_detail() -> dict[str, Any]:

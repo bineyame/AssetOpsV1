@@ -32,7 +32,7 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
     from assetops_backend.mini_depth import projection
     from assetops_backend.mini_depth.inputs import load_hour_inputs, local_noon
-    from assetops_backend.mini_depth.read import MiniDepthRead, MiniReadRefused
+    from assetops_backend.mini_depth.read import MiniDepthRead, MiniReadRefused, iso
     from assetops_backend.mini_depth.store import PostgresMiniDepthStore
     from assetops_backend.mini_depth.worker import MiniDepthWorker
     from assetops_backend.mini_depth_api import build_mini_depth_router
@@ -46,11 +46,33 @@ def _midnight(day: date) -> datetime:
     return datetime(day.year, day.month, day.day, tzinfo=timezone.utc) - timedelta(hours=3)  # Nairobi is UTC+3
 
 
-def _ingest(engine, installed, variants=("positive",)) -> None:
+def _dark_hours(spec, variant="positive", sunny=()):
+    """CH-9 owned test change (CH9-R2 Q2): the Site binds `pv_available_power`, so its renewable hours are its
+    measured daylight over the declared operating day (24 h). The authored variant holds pv readings for its
+    noon hour only, which left every other operating hour missing. Seed one hourly `pv_available_power` mean for
+    every other operating hour of each authored day: 0 kW (no sun, so covered and not daylight), or the authored
+    noon value for a UTC hour start listed in `sunny` (an extra measured daylight hour). Measured daylight is then
+    the authored hour (plus `sunny`), read through the measured path, never the no-PV noon fallback."""
+    v = next(x for x in spec["variants"] if x["variant"] == variant)
+    authored = {datetime.fromisoformat(h["from"].replace("Z", "+00:00")) for h in v["hours"]}
+    kw = next(m["kw"] for m in v["means_kw"] if m["signal"] == "available-power")
+    out = []
+    for day in DAYS:
+        at = _midnight(day)
+        for _ in range(24):
+            if at not in authored:
+                out.append(cases.Planned("pv-inverter-controller", "available-power", at + timedelta(hours=1), "MEAN",
+                                         kw if at in sunny else "0", "kW", at))
+            at += timedelta(hours=1)
+    return out
+
+
+def _ingest(engine, installed, variants=("positive",), sunny=()) -> None:
     doc, sha = snapshot(engine, installed.binding_set.id)
     spec, service = cases.load_spec(), ingestion()
     for variant in variants:
-        for b in cases.build_batches(spec, doc, sha, variant):
+        extra = _dark_hours(spec, variant, sunny) if variant == "positive" else ()
+        for b in cases.build_batches(spec, doc, sha, variant, extra=extra):
             service.submit(principal(doc), b.body.encode("utf-8"))
 
 
@@ -120,6 +142,31 @@ def test_renewable_composes_five_selected_days(store, engine) -> None:
     assert len(missing["rows"]) == 4 and missing["cards"]["assessed_days"] == 3
 
 
+def test_ch9_measured_day_reads_every_daylight_hour_as_one_day(store, engine) -> None:
+    """CH-9 (CH9-R2 Q2/Q5): a day with two measured daylight hours puts both hours on the page and counts as one
+    day by its day decision; the extra 11:00 hour holds pv availability only, so it is not ELIGIBLE."""
+    installed, t, s = _setup(store, engine)
+    extra = _midnight(DAYS[0]) + timedelta(hours=11)  # local 11:00 on the first day
+    _ingest(engine, installed, sunny=(extra,))
+    _reconcile(engine, DAYS)
+    worker = MiniDepthWorker(None, PostgresMiniDepthStore(engine))
+    assert "renewable" in [o.domain for o in worker.reconcile(CODE, extra, extra + timedelta(hours=1))]
+    body = _read(engine, t, s, "renewable", _midnight(DAYS[0]), _midnight(DAYS[-1] + timedelta(days=1)))
+    windows = body["currentness"]["windows"]
+    assert [(w["local_day"], w["window_start"]) for w in windows][:2] == [
+        (DAYS[0].isoformat(), iso(extra)), (DAYS[0].isoformat(), iso(extra + timedelta(hours=1)))], windows
+    assert [w["local_day"] for w in windows[1:]] == [d.isoformat() for d in DAYS], windows
+    assert all(w["state"] == "CURRENT" for w in windows), windows
+    first = [r["decision"] for r in body["rows"] if r["day"] == DAYS[0].isoformat()]
+    assert len(first) == 2 and len(body["rows"]) == 6, body["rows"]
+    later = [r["decision"] for r in body["rows"] if r["day"] != DAYS[0].isoformat()]
+    # The page counts days, never hours: one day per requested day whatever its daylight hour count.
+    day_one = next(d for d in ("CONFLICT", "LIMITED", "ELIGIBLE", "EXCLUDED") if d in first)
+    assessed = [x for x in [day_one, *later] if x in ("ELIGIBLE", "EXCLUDED")]
+    assert body["cards"]["assessed_days"] == (len(assessed) or None)
+    assert body["cards"]["eligible_days"] == ([day_one, *later].count("ELIGIBLE") if assessed else None)
+
+
 def test_published_authored_batches_select_authored_demonstration(store, engine, tmp_path, capsys) -> None:  # noqa: F811
     """Final review L3: every exact authored Batch V2 of the positive variant is registered and published with the
     server-side authored-publication command (fixture `assetops.w4-mini-depth-cases` v1) before it is ingested. The
@@ -132,7 +179,7 @@ def test_published_authored_batches_select_authored_demonstration(store, engine,
     installed, t, s = _setup(store, engine)
     doc, sha = snapshot(engine, installed.binding_set.id)
     spec, service, specs = cases.load_spec(), ingestion(), build_authored_fixture_specs()
-    batches = cases.build_batches(spec, doc, sha, "positive")
+    batches = cases.build_batches(spec, doc, sha, "positive", extra=_dark_hours(spec))
     assert batches
     for i, b in enumerate(batches):
         path = tmp_path / f"batch-{i}.json"

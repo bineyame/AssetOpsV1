@@ -26,7 +26,7 @@ if URL:
     from sqlalchemy import text
     from test_s1_bindings_postgres import engine, store  # noqa: F401
     from test_w402_authored_v4_postgres import cases, ingestion, principal, snapshot
-    from test_w402_reads_postgres import CODE, DAYS, ZONE, _ingest, _midnight, _read, _reconcile, _setup
+    from test_w402_reads_postgres import CODE, DAYS, ZONE, _dark_hours, _ingest, _midnight, _read, _reconcile, _setup
 
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
     from assetops_backend.mini_decisions.model import GRANT_PREFIX, DecisionPrincipal, DecisionRefused
@@ -95,7 +95,8 @@ def mg_published(store, engine, tmp_path, capsys):
     installed, t, s = _setup(store, engine)
     doc, sha = snapshot(engine, installed.binding_set.id)
     spec, service, specs = cases.load_spec(), ingestion(), build_authored_fixture_specs()
-    for i, b in enumerate(cases.build_batches(spec, doc, sha, "positive")):
+    # CH-9 owned test change (CH9-R2 Q2): the measured dark operating hours, as `_ingest` seeds them.
+    for i, b in enumerate(cases.build_batches(spec, doc, sha, "positive", extra=_dark_hours(spec))):
         path = tmp_path / f"batch-{i}.json"
         path.write_text(b.body, encoding="utf-8")
         args = ["--site", CODE, "--fixture-id", "assetops.w4-mini-depth-cases", "--fixture-version", "1",
@@ -493,17 +494,24 @@ def test_u2c_row_gate_order_absent_head_and_decimal_strings() -> None:
             "pinned_selection_hours": pins,
             "calculation": {"state": "GROSS_SCENARIO", "energy_kwh": "0.0010", "reason": None,
                             "gross_sales": {"amount": "0.000250", "currency": "USD"}}}
-    revisions = {p["mini_revision_id"]: {"evidence_ids": []} for p in pins}
+    # CH-9 owned test change (CH9-R2 Q5): a pin is read at its revision's hour, so `by_day` is keyed
+    # `(local_day, window_start)` and each revision carries its `window_start` (here the 12:00 local hour).
+    starts = {d: datetime(2026, 10, int(d[-2:]), 9, tzinfo=timezone.utc) for d in ("2026-10-06", "2026-10-07")}
+    revisions = {p["mini_revision_id"]: {"evidence_ids": [], "window_start": starts[p["local_day"]]} for p in pins}
+
+    def keyed(rows):
+        return {(d, starts[d]): v for d, v in rows.items()}
+
     service = ScenarioService(None, _Reader())  # type: ignore[arg-type]
     same = {"2026-10-06": {"mini_revision_id": rev, "selection_seq": 9, "state": "CURRENT"},
             "2026-10-07": {"mini_revision_id": pins[1]["mini_revision_id"], "selection_seq": 2, "state": "CURRENT"}}
-    row = service._row(None, uuid4(), uuid4(), head, same, revisions, False)
+    row = service._row(None, uuid4(), uuid4(), head, keyed(same), revisions, False)
     assert (row["calculation_state"], row["energy_kwh"], row["gross_sales"]["amount"], row["limitations"]) == (
         "GROSS_SCENARIO", "0.001", "0.00025", [])
     assert isinstance(row["energy_kwh"], str) and isinstance(row["gross_sales"]["amount"], str)
     absent = {"2026-10-06": {"mini_revision_id": None, "selection_seq": None, "state": "UNKNOWN"},
               "2026-10-07": {**same["2026-10-07"], "state": "PENDING_RECOMPUTE"}}
-    gated = service._row(None, uuid4(), uuid4(), head, absent, revisions, False)
+    gated = service._row(None, uuid4(), uuid4(), head, keyed(absent), revisions, False)
     assert [x["code"] for x in gated["limitations"]] == ["SELECTION_CHANGED", "RECOMPUTE_PENDING"]
     assert (gated["calculation_state"], gated["energy_kwh"], gated["gross_sales"]) == ("WITHHELD", None, None)
     assert head["calculation"]["energy_kwh"] == "0.0010"  # the stored calculation is untouched
@@ -511,7 +519,7 @@ def test_u2c_row_gate_order_absent_head_and_decimal_strings() -> None:
                                          "reason": "HEADROOM_BELOW_LOAD"}}
     stale = {day: {**v, "state": "STALE_SOURCE"} for day, v in same.items()}
     mixed = ScenarioService(None, _Reader("MIXED"))  # type: ignore[arg-type]
-    out = mixed._row(None, uuid4(), uuid4(), reasoned, stale, revisions, True)
+    out = mixed._row(None, uuid4(), uuid4(), reasoned, keyed(stale), revisions, True)
     assert [x["code"] for x in out["limitations"]] == ["HEADROOM_BELOW_LOAD", "SOURCE_STALE", "SOURCE_CLASS_MIXED"]
     assert out["scenario_state"] == "HISTORICAL" and out["energy_kwh"] is None
 

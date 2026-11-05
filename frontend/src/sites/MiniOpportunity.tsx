@@ -25,7 +25,9 @@ import "./w4-mini-decisions.css";
 
 export { decisionRefusalCopy };
 
-export const OPPORTUNITY_MODEL = "mini-opportunity/1";
+export const OPPORTUNITY_MODEL = "mini-opportunity/2";
+/** CH-9: `/1` studies stay readable; the server returns one root per study (`/2` wins). */
+export const OPPORTUNITY_MODELS: ReadonlySet<string> = new Set(["mini-opportunity/1", OPPORTUNITY_MODEL]);
 export const OPPORTUNITY_LOADING = "Loading the opportunity.";
 export const OPPORTUNITY_DECISION_LOADING = "Loading the opportunity decision.";
 export const OPPORTUNITY_ZERO = "Opportunity decision unavailable for this selected five-day study.";
@@ -129,6 +131,11 @@ export function opportunityTone(body: Body): "green" | "blue" | "amber" | "gray"
   return "gray";
 }
 
+/** CH-9 §2: the measured span the headroom holds over, e.g. " over 6 daylight hours on every eligible day". */
+function hoursText(hours: number | null | undefined): string {
+  return hours ? ` over ${hours} daylight ${hours === 1 ? "hour" : "hours"} on every eligible day` : "";
+}
+
 function kwText(bound: OpportunityBound | null): string | null {
   if (bound === null) return null;
   return bound.low === bound.high ? `${bound.low} kW` : `${bound.low}–${bound.high} kW`;
@@ -139,7 +146,10 @@ function proposalFits(body: OpportunityDetailBody): boolean {
   const o = body.opportunity;
   if (o === null || o.proposed_load_kw === null || (o.eligible_days ?? 0) === 0) return false;
   const kw = Number(o.proposed_load_kw);
-  const eligible = o.day_rows.filter((r) => r.decision === "ELIGIBLE");
+  // CH-9: each counted hour is an ELIGIBLE hour row (`/2`) or an ELIGIBLE one-hour day row (`/1`).
+  const eligible = o.day_rows
+    .filter((r) => r.decision === "ELIGIBLE")
+    .flatMap((r) => (r.hours ?? [r]).filter((h) => h.decision === "ELIGIBLE"));
   return (
     eligible.length > 0 && eligible.every((r) => r.opportunity_kwh !== null && kw <= Number(r.opportunity_kwh.low))
   );
@@ -322,7 +332,7 @@ function ConsequenceBasis({ body, declaredPrice }: { body: OpportunityDetailBody
       <KeyValues
         label="Consequence basis"
         rows={[
-          ["Technical quantity", technical === null ? UNKNOWN : `${technical} usable headroom`, "technical"],
+          ["Technical quantity", technical === null ? UNKNOWN : `${technical} usable headroom${hoursText(o.window_hours)}`, "technical"],
           // MOCK DEVIATION (R686): "What-if energy" (mock "Scenario energy"), the Tariff line names the declared price
           // and "Value at declared price" is added (not in mock); what-if authoring stays a mock placeholder.
           ["What-if energy", linked ? "Unavailable in this read" : "No what-if for a new use", "energy"],
@@ -414,14 +424,14 @@ type CtaState =
   | { kind: "one"; id: string }
   | { kind: "refused"; copy: string };
 
-/** S14: exactly one current study with the selected five days and `mini-opportunity/1`; never pick among several. */
+/** S14: exactly one current study with the selected five days and a readable model version; never pick among several. */
 export function matchStudy(list: OpportunityListBody, first: string, last: string): CtaState {
   const hits = list.rows.filter(
     (r) =>
       r.opportunity !== null &&
       r.opportunity.first_day === first &&
       r.opportunity.last_day === last &&
-      r.opportunity.model_version === OPPORTUNITY_MODEL,
+      OPPORTUNITY_MODELS.has(r.opportunity.model_version),
   );
   if (hits.length === 0) return { kind: "zero" };
   if (hits.length > 1) return { kind: "refused", copy: DECISIONS_UNAVAILABLE };

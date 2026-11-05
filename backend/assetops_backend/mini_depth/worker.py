@@ -10,8 +10,8 @@ no `recompute_job` SQL: it leases, settles and fails through `PostgresAssessment
     python -m assetops_backend.mini_depth.worker reconcile --site <code> --from <UTC> --to <UTC>
 
 `reconcile` is explicit historical backfill (closure 2: the only path beyond retention): it assesses each Site-local
-hour inside `[from, to)` (renewable: local noon only, as the 0029 enqueue functions do) at the database clock of its
-own transaction and appends a `backfill` selection with no job. It never writes a job.
+hour inside `[from, to)` (renewable: that day's measured daylight hours, `store.daylight_hours`, CH-9) at the
+database clock of its own transaction and appends a `backfill` selection with no job. It never writes a job.
 """
 
 from __future__ import annotations
@@ -29,10 +29,9 @@ from assetops_backend.analytics.assessment_ports import JobLease, LeaseLost
 from assetops_backend.mini_depth import projection
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, load_hour_inputs, local_hour, zone
 from assetops_backend.mini_depth.rules import Window
-from assetops_backend.mini_depth.store import DOMAINS, JOB_DOMAIN, AppendedSelection
+from assetops_backend.mini_depth.store import DOMAINS, JOB_DOMAIN, AppendedSelection, daylight_hours
 
 _PAGE_DOMAIN = {job: page for page, job in JOB_DOMAIN.items()}
-RENEWABLE_LOCAL_HOUR = 12
 
 
 @dataclass(frozen=True)
@@ -113,10 +112,13 @@ class MiniDepthWorker:
         tenant_id, site_id, tz_name = self.store.site_scope(site_code)
         outcomes: list[MiniOutcome] = []
         for window in hours_within(start, end, tz_name):
-            local = window.start.astimezone(zone(tz_name)).hour
-            domains = [d for d in DOMAINS if d != "renewable" or local == RENEWABLE_LOCAL_HOUR]
+            local = window.start.astimezone(zone(tz_name))
             with self.store.snapshot() as c:
                 cutoff = self.store.clock(c)
+                # CH-9 §9 R3: renewable only for that day's measured daylight hours (`store.NO_PV_BINDING` hours
+                # without a PV binding).
+                daylight = daylight_hours(c, tenant_id, site_id, local.date(), cutoff).hours
+                domains = [d for d in DOMAINS if d != "renewable" or local.hour in daylight]
                 inputs = load_hour_inputs(c, tenant_id, site_id, window, cutoff)
                 for domain in domains:
                     selection = self.store.append_selection(projection.project(domain, inputs), job_id=None,
