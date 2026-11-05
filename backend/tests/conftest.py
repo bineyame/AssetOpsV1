@@ -55,6 +55,10 @@ import phase_attribution
 import phase_timing
 import setup_cache
 
+# CH-5c: the stored route responses are off by default under test. Many tests monkeypatch composer code or fake
+# stores between two identical requests, which no watermark sees; the response-store tests turn it on explicitly.
+os.environ.setdefault("ASSETOPS_RESPONSE_STORE", "off")
+
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
 

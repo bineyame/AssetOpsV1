@@ -53,6 +53,7 @@ from assetops_backend.finding_api import ACCESS_BASIS, Access, build_finding_rou
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
+from assetops_backend.chain.composition import build_response_store
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
@@ -566,9 +567,14 @@ def create_app(
     # W3-01 commit 2 (q5 ruling 5): the read-only estate roots `/api/estate/{scope,findings,actions}`; tenant from the
     # server registry only, per-Site admission through the Finding-route access seam; typed 503 without a database.
     estate_index = build_estate_index_service(database_url())
+    # CH-5c: the stored route responses (`chain/response_store.py`) of the Portfolio, its scope ids, the Findings
+    # index, the outcome summary and the board; None without a database or unless ASSETOPS_RESPONSE_STORE=on.
+    responses = build_response_store(database_url())
+    if responses is not None:
+        app.router.on_shutdown.append(responses.dispose)
     app.include_router(build_estate_router(
         estate_index, registry_tenant(registry),
-        access=development_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # W3-02 commit 1: the read-only estate Evidence root `/api/estate/evidence` (same tenant/access seams).
     app.include_router(build_estate_evidence_money_router(
         build_estate_evidence_service(database_url()), registry_tenant(registry),
@@ -578,7 +584,7 @@ def create_app(
     estate_portfolio = build_estate_portfolio_service(database_url())
     app.include_router(build_estate_portfolio_router(
         estate_portfolio, registry_tenant(registry),
-        access=development_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.
     work_lists = build_work_index_service(database_url()) if database_url() else None
@@ -626,7 +632,8 @@ def create_app(
     app.router.on_shutdown.append(outcome_board_dispose)
     app.include_router(build_outcome_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
-        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
+        responses=responses))
     # CH-5a2a §B1: the `outcome-chain-1` reads over the same board service, admission and estate scope.
     app.include_router(build_chain_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),

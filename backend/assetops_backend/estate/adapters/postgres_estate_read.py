@@ -18,6 +18,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError, OperationalError
 
+from assetops_backend import read_scope
 from assetops_backend.analytics import dispatch as dispatch_contract
 from assetops_backend.analytics.cold_reads import probe_fresh
 from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
@@ -89,7 +90,9 @@ class PostgresEstateRead:
         try:
             with self._connect() as c, c.begin():
                 c.execute(text("SET TRANSACTION READ ONLY"))
-                return work(EstateSnapshot(self, c, c.execute(text("SELECT now()")).scalar_one()))
+                read_at = c.execute(text("SELECT now()")).scalar_one()
+                with read_scope.snapshot(c, read_at):  # CH5c-R3 R3
+                    return work(EstateSnapshot(self, c, read_at))
         except (OperationalError, DBAPIError) as error:
             raise EstateStoreUnavailable(f"The estate store is unavailable: {error.__class__.__name__}") from error
         except self.inconsistent as error:  # an exact pin refused inside the one transaction

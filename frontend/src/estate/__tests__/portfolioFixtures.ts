@@ -314,7 +314,7 @@ export function portfolioBody(over: Partial<EstatePortfolioBody> = {}): EstatePo
         domain: s.domain,
         window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" },
         coverage: coverageSite(s.site_id),
-        selected_revision_ids: ["e1e1e1e1-0000-4000-8000-000000000001"],
+        selected_revision_count: 1,
         source_provenance: { state: "KNOWN" },
       })),
       exclusions: [],

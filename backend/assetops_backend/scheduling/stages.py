@@ -441,10 +441,18 @@ def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
                                               "lease_until", "last_error")} for j in live]}
 
 
+def prebuild(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """CH-5c Q8: the stored-route pre-build after the Site loop (`chain/prebuild.py`); no Site lease."""
+    from assetops_backend.chain import prebuild as chain_prebuild
+
+    return chain_prebuild.run(url)
+
+
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
     "discover": discover, "s3": s3, "cold_assess": cold_assess, "ev_assess": ev_assess, "mini": mini,
     "opportunity": opportunity, "s4": s4, "chain_threads": chain_threads, "consequence": consequence,
-    "cold_consequence": cold_consequence, "ev_consequence": ev_consequence, "chain_snapshots": chain_snapshots}
+    "cold_consequence": cold_consequence, "ev_consequence": ev_consequence, "chain_snapshots": chain_snapshots,
+    "prebuild": prebuild}
 
 
 def _peak_rss_kb() -> int | None:

@@ -17,12 +17,16 @@ from __future__ import annotations
 from typing import Any, Callable
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend import perf
+from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish, parsed_key
 from assetops_backend.estate.index import EstateIndexService
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, MESSAGES, parse_request
 from assetops_backend.finding_api import Access, development_access
+
+FINDINGS = "/api/estate/findings"
 
 # request -> None to admit, else 401.
 Authenticate = Callable[[Request], "int | None"]
@@ -34,7 +38,9 @@ def development_authenticate(request: Request) -> int | None:
 
 def build_estate_router(service: EstateIndexService | None, tenant: Callable[[], UUID | None], *,
                         authenticate: Authenticate = development_authenticate, access: Access = development_access,
-                        unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
+                        unavailable: tuple[type[BaseException], ...] = (),
+                        responses: ResponseStore | None = None) -> APIRouter:
+    """`responses` (CH-5c) stores the Findings index; the scope and Action roots are not stored routes."""
     router = APIRouter()
     down = (EstateStoreUnavailable, *unavailable)
 
@@ -43,7 +49,7 @@ def build_estate_router(service: EstateIndexService | None, tenant: Callable[[],
                                                       "message": MESSAGES["ESTATE_STORE_UNAVAILABLE"],
                                                       "rows": None, "total_count": None})
 
-    def serve(kind: str, request: Request) -> dict[str, Any]:
+    def serve(kind: str, request: Request, route: str | None = None) -> Any:
         if authenticate(request) == 401:
             raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
                                 detail={"code": "UNAUTHENTICATED", "message": MESSAGES["UNAUTHENTICATED"],
@@ -52,7 +58,13 @@ def build_estate_router(service: EstateIndexService | None, tenant: Callable[[],
             parsed = parse_request(kind, request.query_params.multi_items())
             if service is None:
                 raise store_down()
-            body = getattr(service, kind)(tenant(), parsed, lambda code: access(request, code) is None)
+            admit = lambda code: access(request, code) is None  # noqa: E731
+            tenant_id = tenant()
+            if route is not None and responses is not None and tenant_id is not None:
+                return responses.serve(StoredRoute(route, tenant_id, parsed_key(parsed), admit=admit),
+                                       lambda: {route: jsonable_encoder(getattr(service, kind)(tenant_id, parsed,
+                                                                                               admit))})
+            body = getattr(service, kind)(tenant_id, parsed, admit)
         except EstateRefusal as error:
             headers = {"WWW-Authenticate": "Bearer"} if error.status == 401 else None
             raise HTTPException(status_code=error.status, detail=error.detail, headers=headers) from error
@@ -64,9 +76,11 @@ def build_estate_router(service: EstateIndexService | None, tenant: Callable[[],
     def estate_scope(request: Request) -> dict[str, Any]:
         return serve("scope", request)
 
-    @router.get("/api/estate/findings")
-    def estate_findings(request: Request) -> dict[str, Any]:
-        return serve("findings", request)
+    @router.get(FINDINGS)
+    def estate_findings(request: Request, response: Response) -> dict[str, Any]:
+        with perf.route(FINDINGS, response):  # CH-5c Q7: one `assetops.perf` line per request, no semantics
+            out = serve("findings", request, FINDINGS)
+        return finish(out, response) if isinstance(out, Response) else out
 
     @router.get("/api/estate/actions")
     def estate_actions(request: Request) -> dict[str, Any]:

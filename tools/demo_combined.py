@@ -278,14 +278,21 @@ class Demo:
             out.update(json.loads((self.work / "keys.json").read_text(encoding="utf-8")))
         return out
 
-    def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "") -> subprocess.CompletedProcess:
+    def serve_env(self) -> dict[str, str]:
+        """CH5c-R6: the one environment of the serve child AND the tick child, so the tick's pre-built rows carry
+        the server's `code_version` (the cursor keys are hashed into it). Clone settles stay keyless
+        (`chain_clone.settle_env`): they are never served."""
+        return self.env(keys=True)
+
+    def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "",
+           serve_env: bool = False) -> subprocess.CompletedProcess:
         """One child in the tree, bounded by the wall cap; on the cap it kills only that child's process tree."""
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
         name = label or argv[0].split("/")[-1].split("\\")[-1]
         log_path = logs / f"{len(list(logs.iterdir())):02d}-{re.sub(r'[^a-z0-9_.-]', '_', name.lower())[:40]}.log"
         with open(log_path, "w", encoding="utf-8") as log:
-            proc = subprocess.Popen([str(PY), *argv], cwd=str(cwd or self.tree), env=self.env(), stdout=log,
+            proc = subprocess.Popen([str(PY), *argv], cwd=str(cwd or self.tree), env=self.serve_env() if serve_env else self.env(), stdout=log,
                                     stderr=subprocess.STDOUT, text=True)
             self.started.append(proc.pid)
             remaining = None if self.deadline is None else max(1.0, self.deadline - time.monotonic())
@@ -455,7 +462,7 @@ class Demo:
 
     def tick(self, times: int = 1) -> None:
         for _ in range(times):
-            done = self.py(*TICK, label="tick", check=False)
+            done = self.py(*TICK, label="tick", check=False, serve_env=True)
             say("  tick: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
         for site in ("KOBO-001",):
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
@@ -563,7 +570,7 @@ class Demo:
         logs.mkdir(exist_ok=True)
         log = open(logs / f"api-{port}.log", "w", encoding="utf-8")
         api = subprocess.Popen([str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(port)],
-                               cwd=str(self.tree / "host"), env=self.env(keys=True), stdout=log,
+                               cwd=str(self.tree / "host"), env=self.serve_env(), stdout=log,
                                stderr=subprocess.STDOUT)
         import urllib.request
 

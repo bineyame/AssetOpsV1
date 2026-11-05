@@ -76,6 +76,7 @@ class ReadScope:
         self.ms: dict[str, float] = {}
         self.hits: dict[str, int] = {}
         self._memo: dict[tuple[str, tuple[Any, ...]], Any] = {}
+        self.snapshot: tuple[Any, datetime] | None = None  # CH5c-R3 R3: (connection, read instant)
 
     def count(self, name: str, key: tuple[Any, ...], ms: float) -> None:
         k = (name, key)
@@ -121,6 +122,18 @@ def scope(route: str) -> Iterator[ReadScope]:
         _SCOPE.reset(token)
 
 
+@contextmanager
+def fresh(route: str) -> Iterator[ReadScope]:
+    """A new read scope even inside an outer one (CH5c-R5 R5-1(b)): the stored-route compose starts its memo after
+    the watermark transaction, so no memo entry filled before the watermark can reach a stored body."""
+    sc = ReadScope(route)
+    token = _SCOPE.set(sc)
+    try:
+        yield sc
+    finally:
+        _SCOPE.reset(token)
+
+
 def ledger() -> ReadScope | None:
     return _SCOPE.get()
 
@@ -149,3 +162,32 @@ def memo(name: str, fn: Callable[..., Any], *args: Any, key: tuple[Any, ...] | N
     frozen = freeze(out)
     sc._memo[k] = frozen
     return frozen
+
+
+def memoised(name: str, key: tuple[Any, ...]) -> bool:
+    """CH5c-R3 R1: whether `memo(name, ..., key=key)` would hit in the current scope (a prefetch is skipped)."""
+    sc = _SCOPE.get()
+    return sc is not None and (name, arg_key(key)) in sc._memo
+
+
+@contextmanager
+def snapshot(c: Any, read_at: datetime) -> Iterator[None]:
+    """CH5c-R3 R3: bind the current scope to connection `c`'s REPEATABLE READ snapshot and its read instant
+    `read_at` for the duration of the block (no-op outside a scope)."""
+    sc = _SCOPE.get()
+    if sc is None:
+        yield
+        return
+    previous = sc.snapshot
+    sc.snapshot = (c, read_at)
+    try:
+        yield
+    finally:
+        sc.snapshot = previous
+
+
+def at_or_after_snapshot(c: Any, cutoff: datetime) -> bool:
+    """True when `c` is the scope's bound snapshot connection and `cutoff` is at or after its read instant."""
+    sc = _SCOPE.get()
+    bound = None if sc is None else sc.snapshot
+    return bound is not None and bound[0] is c and cutoff >= bound[1]
