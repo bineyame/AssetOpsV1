@@ -26,6 +26,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError
+    import pg_harness
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
     from test_s4_consequence_store_postgres import site  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head, scalar
@@ -98,7 +99,7 @@ def pv(mg4, engine):  # noqa: F811
 
 
 def test_0048_replaces_the_noon_only_bodies_under_the_0049_head(engine) -> None:  # noqa: F811
-    assert head(engine) == "0049_mini_service_v2"
+    assert head(engine) == pg_harness.alembic_head()
     assert "12:00 hour only" not in functiondef(engine, "mini_enqueue_hour")
     for name in ("mini_enqueue_hour", "mini_enqueue_accepted", "mini_enqueue_configuration"):
         assert "mini_renewable_hour" in functiondef(engine, name), name
@@ -187,4 +188,4 @@ def test_downgrade_restores_the_0029_bodies(engine) -> None:  # noqa: F811
         assert scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = 'mini_renewable_hour'") == 0
     finally:
         command.upgrade(config, "head")
-    assert head(engine) == "0049_mini_service_v2"
+    assert head(engine) == pg_harness.alembic_head()
