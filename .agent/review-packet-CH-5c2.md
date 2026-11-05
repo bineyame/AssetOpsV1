@@ -100,3 +100,30 @@ Focused re-run on the test DB at the final head: `test_ch5c2_clock_guard.py`, `t
 `test_ch5c_response_store_postgres.py`, `test_ch5c_w6_guard_postgres.py` -> 26 passed in 22 s.
 Clone `assetops_chainclone_ch5c2_test` dropped (`chain_clone.py drop ch5c2`). No task file for CH-5c2 exists under `tasks/`, so there is no
 `Status:` to set; ACTIVE_CONTEXT/CODE_STATE are left to the coordinator.
+
+## Fix round 1 (review-CH-5c2.md, REVISE)
+
+- **M-A** `response_store.valid_until(..., instants=)`: the liveness floor is `min(now, every read_scope.read_instant capture of the
+  compose) - 1 s` (`ReadScope.instants`), not `now - 1 s`. L2 `test_ma_a_lagging_db_clock_keeps_its_registered_boundary` (read instant
+  5 s behind the app clock) sets `valid_until = END - 1 s`. Non-vacuous: with the old floor planted it failed (`valid_until` fell to the
+  23:59:59Z cap); reverted.
+- **M-B** C4 sweep on real composers: `t0` fixed at 00:30Z tomorrow (plan `later_end` and outcome edge `t0 + 3 h` fall before every
+  midnight cap whenever the test runs); added the current-week Portfolio and scope-ids (`to` after `t0`); asserts the placed boundaries are
+  before the cap and that >= 1 path's `valid_until` is below the cap (6 of 8 paths, e.g. `2026-11-06T07:59:59Z` vs cap 20:59:59Z). 6 passed, 112 s.
+- **L-1** `valid_until` is inside the M1 `try`; `test_l1_a_bad_site_timezone_serves_the_body_unstored` (`unstored`, no ETag, 200).
+- **L-2** the two stale "store off" comments fixed.
+- **L-3 residuals (recorded, not fixed):** F4 admits all of `host/` and `backend/migrations/` but `code_version` hashes only `host/**/*.py`
+  and `migrations/versions/*.py` (non-`.py` files there pass F4 unhashed; no composer reads any). `os.stat`/`Path.exists`/`Path.resolve` are not
+  audit events, so a stat-only read of an undeclared path escapes F4 (per spec F4 names open/listdir/scandir). A per-Site route reading another
+  Site's file under a declared prefix passes F4.
+- **L-5 residual:** the suite default is `ASSETOPS_RESPONSE_STORE=off` (conftest); route-level tests never exercise the stored path with real
+  data writes between requests; closed by the stored-path files above and E4.
+- **CH-9 merge** (main `8777bc0f8` merged): migration renamed `0050_chain_response_expiry` on `0049_mini_service_v2`
+  (`test_exactly_one_alembic_head` passes); `configuration-persistence.ps1` path updated; `mini_depth.store.database_now` (`SELECT now()`,
+  a projection's default knowledge cutoff, no stored composer calls it) allowlisted with that reason; `chain.grading` and `chain.policy`
+  (new in stored composes after CH-9) added to `config/chain/stored-composer-modules-v1.json` (126 modules).
+  Merged-tree clone (create --migrate, settle, W6, `fresh` store on, drop): W6 `requests 26 non-200 0 tables 79 unresolved [] untracked []
+  clock_predicates 0 file_violations 0 modules 126 unlisted_modules []` rc 0; `fresh: 23/23 stored bodies equal a fresh compose`. No chain
+  backfill step was run (the clone is a polish copy, already backfilled).
+- Checks: clock guard + store_off + store_safety + response_store + w6_guard 45 passed; real_composers 6 passed; architecture and agent-workflow
+  guards pass (`ASSETOPS_GUARD_PYTHON` = plan2 venv). No full suite, prepare or `test_demo_combined_postgres` (owner rule).
