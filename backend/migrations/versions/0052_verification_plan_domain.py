@@ -9,7 +9,8 @@ COMPLETE event. `verification_plan` and its two Action-keyed children now hold e
   only (no row is rewritten). Exactly one of `action_id` / `domain_action_id`, of the applied anchor
   (`applied_event_id` / `applied_work_event_id`) and of the origin (`origin_finding_revision_id` /
   `origin_opportunity_revision_id`) is set (three named CHECKs). `verification_plan_family` couples them to the rule:
-  a `reserve-trial-1` row keeps every reserve column NOT NULL and its 60-minute same-clock windows; a
+  a `reserve-trial-1` row keeps every reserve column NOT NULL, and its 60-minute same-clock window CHECKs keep their
+  0019 names (now conditional on the reserve rule, so a reserve refusal names the same constraint); a
   `midday-productive-shift-1` row has the domain columns only, no supersession, the `productive-load-midday@1`
   fixture and 14-day candidate day ranges with the baseline wholly before the later range (the effective day is in
   neither, CH9b2-R Q2). `rule_id` and `plan_version` admit the new family. One plan per domain Action
@@ -57,8 +58,7 @@ def _all(columns, test: str) -> str:
 
 _FAMILY = f"""(
     (rule_id = '{RESERVE}' AND plan_version = '{RESERVE_PLAN}' AND {_all(RESERVE_COLUMNS, 'IS NOT NULL')}
-     AND {_all(('domain_action_id', 'origin_opportunity_revision_id', 'applied_work_event_id'), 'IS NULL')}
-     AND {WINDOW.format('baseline')} AND {WINDOW.format('later')} AND {SAME_CLOCK})
+     AND {_all(('domain_action_id', 'origin_opportunity_revision_id', 'applied_work_event_id'), 'IS NULL')})
     OR (rule_id = '{MIDDAY}' AND plan_version = '{MIDDAY_PLAN}' AND {_all(RESERVE_COLUMNS, 'IS NULL')}
      AND {_all(('domain_action_id', 'origin_opportunity_revision_id', 'applied_work_event_id'), 'IS NOT NULL')}
      AND supersedes_plan_id IS NULL AND triggering_fixture = '{MIDDAY_FIXTURE}'
@@ -95,6 +95,9 @@ ALTER TABLE verification_plan
     DROP CONSTRAINT verification_plan_same_clock,
     ADD CONSTRAINT verification_plan_plan_version_check CHECK (plan_version IN ('{RESERVE_PLAN}', '{MIDDAY_PLAN}')),
     ADD CONSTRAINT verification_plan_rule_id_check CHECK (rule_id IN ('{RESERVE}', '{MIDDAY}')),
+    ADD CONSTRAINT verification_plan_baseline_window CHECK (rule_id <> '{RESERVE}' OR ({WINDOW.format('baseline')})),
+    ADD CONSTRAINT verification_plan_later_window CHECK (rule_id <> '{RESERVE}' OR ({WINDOW.format('later')})),
+    ADD CONSTRAINT verification_plan_same_clock CHECK (rule_id <> '{RESERVE}' OR ({SAME_CLOCK})),
     ADD CONSTRAINT verification_plan_one_action {_one('action_id', 'domain_action_id')},
     ADD CONSTRAINT verification_plan_one_anchor {_one('applied_event_id', 'applied_work_event_id')},
     ADD CONSTRAINT verification_plan_one_origin {_one('origin_finding_revision_id', 'origin_opportunity_revision_id')},
@@ -162,6 +165,9 @@ ALTER TABLE verification_plan
     DROP CONSTRAINT verification_plan_one_action,
     DROP CONSTRAINT verification_plan_rule_id_check,
     DROP CONSTRAINT verification_plan_plan_version_check,
+    DROP CONSTRAINT verification_plan_baseline_window,
+    DROP CONSTRAINT verification_plan_later_window,
+    DROP CONSTRAINT verification_plan_same_clock,
     DROP COLUMN applied_work_event_id,
     DROP COLUMN origin_opportunity_revision_id,
     DROP COLUMN domain_action_id,
