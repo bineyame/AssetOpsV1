@@ -83,26 +83,68 @@ def test_daylight_headroom_conflict_and_no_heads() -> None:
     assert (empty.covered, empty.payload) == ([], None)
 
 
-def _service(n: int, served="2", unserved="0.5", crit=True, gaps=()) -> dict:
+def _row(role: str, code: str, label: str, delivered, assessment: str, request: str, unserved="absent",
+         gaps=()) -> dict:
+    """One stored `mini_service` load row in the shape of a real polish head (`load-clinic` / `load-mill` /
+    `load-res`, 2026-10 Kobo). `unserved="absent"` is a `mini-service/1` row, which has no such key."""
+    row = {"role": role, "asset_id": str(uuid4()), "asset_code": code, "load_label": label,
+           "delivered_kw": delivered, "assessment": assessment, "requested_evidence_state": request,
+           "coverage": {"gaps": list(gaps), "source_count": 1, "observed_seconds": 3600, "required_seconds": 3600},
+           "evidence_ids": [str(uuid4())]}
+    if unserved != "absent":
+        row["unserved_kwh"] = unserved
+    return row
+
+
+def _clinic(delivered=6, assessment="SUPPORTED", unserved=0.5, gaps=()) -> dict:
+    request = "ACCEPTED" if assessment == "SUPPORTED" else "MISSING"
+    return _row("CRITICAL", "load-clinic", "Health clinic", delivered, assessment, request, unserved, gaps)
+
+
+def _unclassified() -> list[dict]:
+    # The real shape: measured delivery, no request evidence, so UNKNOWN with a null unserved figure.
+    return [_row("UNCLASSIFIED", "load-mill", "Grain mill", 16.333333333333332, "UNKNOWN", "MISSING", None),
+            _row("UNCLASSIFIED", "load-res", "Residential feeder", 14, "UNKNOWN", "MISSING", None)]
+
+
+def _service(n: int, rows: list[dict] | None = None) -> dict:
     a, b = _h(n)
-    result = {"cards": {"critical_delivered_kw": served, "unserved_kwh": unserved},
-              "critical_delivered_coverage": {"gaps": list(gaps)} if crit else None}
+    rows = [_clinic(), *_unclassified()] if rows is None else rows
+    # The all-load card is null (not every row is SUPPORTED) and the critical card disagrees with the row on purpose:
+    # the adapter must read neither.
+    result = {"status": "LIMITED", "cards": {"delivered_load_kw": 36.33, "interruptions_seen": None,
+                                             "critical_delivered_kw": 99, "unserved_kwh": None},
+              "critical_delivered_coverage": None, "rows": rows, "limitations": [], "coverage": {"gaps": []}}
     return {"from": a, "to": b, "head": {"revision_id": f"s{n}", "evidence_ids": [f"v{n}"], "result": result}}
+
+
+def test_critical_served_supported_critical_with_unknown_unclassified_is_counted() -> None:
+    # CH9-R4 F1, the key case: the CRITICAL row SUPPORTED, the UNCLASSIFIED rows UNKNOWN with no request.
+    a = CriticalServed(Reader(service=[_service(n) for n in range(24)]))
+    got = a.inputs(CTX, "SITE")
+    assert _seconds(got.covered) == 24 * 3600
+    assert a.measure(CTX, "SITE", got) == {"served_kwh": "144", "demand_kwh": "156.0", "unserved_kwh": "12.0"}
 
 
 def test_critical_served_truth_table() -> None:
     gap = {"from": (_h(3)[0] + timedelta(minutes=30)).isoformat(), "to": _h(3)[1].isoformat()}
+    unc = _unclassified()
     hours = [_service(n) for n in range(24)]
-    hours[1] = {"from": _h(1)[0], "to": _h(1)[1], "head": None}       # no service head: uncovered
-    hours[2] = _service(2, crit=False)                                # no pinned critical series: uncovered
-    hours[3] = _service(3, gaps=[gap])                                # half an hour of critical coverage
-    hours[4] = _service(4, unserved=None)                             # unserved not stated: uncovered
+    hours[1] = {"from": _h(1)[0], "to": _h(1)[1], "head": None}                 # no service head: uncovered
+    hours[2] = _service(2, [_clinic(assessment="LIMITED", unserved=None), *unc])  # CRITICAL LIMITED: uncovered
+    hours[3] = _service(3, [_clinic(gaps=[gap]), *unc])                          # half an hour of row coverage
+    hours[4] = _service(4, [_clinic(assessment="UNKNOWN", unserved=None), *unc])  # CRITICAL UNKNOWN: uncovered
+    hours[5] = _service(5, [_clinic(), _clinic(), *unc])                          # two CRITICAL rows: uncovered
+    hours[6] = _service(6, unc)                                                    # no CRITICAL row: uncovered
+    hours[7] = _service(7, [_clinic(unserved="absent"), *unc])                    # a `/1` head: uncovered
+    hours[8] = _service(8, [_clinic(unserved=None), *unc])                        # unserved not stated: uncovered
     a = CriticalServed(Reader(service=hours))
     got = a.inputs(CTX, "SITE")
-    assert _seconds(got.covered) == (20 + 0.5) * 3600
+    assert _seconds(got.covered) == (16 + 0.5) * 3600
     out = a.measure(CTX, "SITE", got)
-    assert out == {"served_kwh": "42", "demand_kwh": "52.5", "unserved_kwh": "10.5"}  # 21 counted hours
-    assert "revision:s0" in got.ids and "revision:s1" not in got.ids
+    # 17 counted hours: served 6 kWh and unserved 0.5 kWh each; demand = served + unserved.
+    assert out == {"served_kwh": "102", "demand_kwh": "110.5", "unserved_kwh": "8.5"}
+    assert "revision:s0" in got.ids and not {"revision:s1", "revision:s2", "revision:s7"} & set(got.ids)
 
 
 def test_critical_served_eight_hour_day_is_partial_share() -> None:

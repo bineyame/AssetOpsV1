@@ -78,14 +78,17 @@ def hour_inputs(*, target: Decimal | None = Decimal("5"), readings: list[Reading
 def test_projection_wire_keys_basis_and_null_outage_count() -> None:
     inputs = hour_inputs()
     revs = {d: projection.project(d, inputs) for d in ("renewable", "service", "fuel", "backup")}
+    # CH9-R4 F1: service is `mini-service/2` (per-row `unserved_kwh`); the other domains stay `/1`.
+    versions = {"renewable": "mini-renewable/1", "service": "mini-service/2", "fuel": "mini-fuel/1",
+                "backup": "mini-backup/1"}
     for d, rev in revs.items():
-        assert (rev.domain, rev.model_version, rev.knowledge_cutoff) == (d, f"mini-{d}/1", inputs.knowledge_cutoff)
+        assert (rev.domain, rev.model_version, rev.knowledge_cutoff) == (d, versions[d], inputs.knowledge_cutoff)
         assert rev.input_sha256 == inputs.input_sha256 and tuple(rev.evidence_ids) == inputs.evidence_ids
         assert json.loads(json.dumps(rev.result)) == rev.result  # plain JSON: numbers, strings, null
         basis = rev.result["basis"]
         assert basis["accepted_evidence_ids"] == sorted(str(i) for i in inputs.evidence_ids)
         assert basis["committed_watermark"] == "2026-10-06T12:00:00.000000Z"
-        assert (basis["model_version"], basis["site_timezone"]) == (f"mini-{d}/1", "Africa/Nairobi")
+        assert (basis["model_version"], basis["site_timezone"]) == (versions[d], "Africa/Nairobi")
         assert basis["foundation_revision_ids"] == [str(inputs.foundation_revision_id)]
         assert list(basis["role_coverage"]) == sorted(basis["role_coverage"])
         for row in rev.result["rows"]:
@@ -115,7 +118,9 @@ def test_projection_wire_keys_basis_and_null_outage_count() -> None:
     service = revs["service"].result
     assert [r["role"] for r in service["rows"]] == ["CRITICAL", "UNCLASSIFIED"]
     assert set(service["rows"][0]) == {"asset_id", "asset_code", "load_label", "role", "delivered_kw",
-                                       "requested_evidence_state", "assessment", "coverage", "evidence_ids"}
+                                       "requested_evidence_state", "assessment", "unserved_kwh", "coverage",
+                                       "evidence_ids"}
+    assert [r["unserved_kwh"] for r in service["rows"]] == [None, None]  # neither row is SUPPORTED here
 
     renewable = revs["renewable"].result
     assert "status" not in renewable and "cards" not in renewable  # composed by the read over selected days
@@ -124,6 +129,19 @@ def test_projection_wire_keys_basis_and_null_outage_count() -> None:
     assert set(day) == {"day", "from", "to", "opportunity_kwh", "constraints", "decision", "coverage",
                         "evidence_ids"}
 
+
+
+def test_service_v2_rows_state_their_own_unserved() -> None:
+    """CH9-R4 F1: a `mini-service/2` row carries the rule's per-row `unserved_kwh`, null unless SUPPORTED."""
+    readings = [*base_readings(), *per_minute("feeder_demand", "4", CRIT, 0, 10),
+                *per_minute("feeder_demand", "0", CRIT, 10, 12), *per_minute("feeder_demand", "4", CRIT, 12, 60)]
+    rev = projection.project("service", hour_inputs(readings=readings))
+    assert rev.model_version == "mini-service/2"
+    crit, feed = rev.result["rows"]
+    assert (crit["role"], crit["assessment"], feed["role"], feed["assessment"]) == (
+        "CRITICAL", "SUPPORTED", "UNCLASSIFIED", "UNKNOWN")
+    # 4 kW requested, 0 delivered for 2 of 60 minutes: 4 x 120 s / 3600 s.
+    assert abs(crit["unserved_kwh"] - 4 * 120 / 3600) < 1e-9 and feed["unserved_kwh"] is None
 
 def test_projection_without_target_and_unknown_domain() -> None:
     backup = projection.project("backup", hour_inputs(target=None)).result

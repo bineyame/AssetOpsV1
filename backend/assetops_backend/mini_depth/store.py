@@ -35,7 +35,9 @@ DOMAINS: tuple[str, ...] = ("renewable", "service", "fuel", "backup")
 #: The `recompute_job.domain` value each page domain's work is queued under (closure 1 Q3).
 JOB_DOMAIN: dict[str, str] = {d: f"mini_{d}" for d in DOMAINS}
 #: Analytic model versions, separate from Dispatch and W1 consequences.
-MODEL_VERSIONS: dict[str, str] = {d: f"mini-{d}/1" for d in DOMAINS}
+#: CH-9 CH9-R4 F1: `mini-service/2` stores each load row's own `unserved_kwh` (null unless the row is SUPPORTED);
+#: the other domains stay `/1`. Revision reuse is keyed on (model_version, input_sha256), so the bump is required.
+MODEL_VERSIONS: dict[str, str] = {d: f"mini-{d}/1" for d in DOMAINS} | {"service": "mini-service/2"}
 
 _SHA = re.compile(r"^sha256:[0-9a-f]{64}$")
 T = TypeVar("T")

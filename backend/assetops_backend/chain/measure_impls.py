@@ -224,12 +224,15 @@ class RenewableHeadroom:
 
 
 class CriticalServed:
-    """CH-9 §9 R9 (CH9-R2 Q7): `critical_served` over the Site's declared operating hours.
+    """CH-9 §9 R9 (CH9-R2 Q7, CH9-R4 F1): `critical_served` over the Site's declared operating hours.
 
-    Sums the stored, selected hourly `mini_service` heads at the cutoff (no new reading query): served =
-    `critical_delivered_kw` x 1 h, unserved = `unserved_kwh`, demand = served + unserved. An hour counts toward
-    coverage only through its pinned critical-delivered series' own coverage (`critical_delivered_coverage`, minus
-    its gaps) and only when both figures are stated; an operating hour with no service head is uncovered."""
+    Reads the stored, selected hourly `mini_service` heads at the cutoff (no new reading query), and in each head
+    only its one CRITICAL load row: the hour counts only when the head has exactly one `role == "CRITICAL"` row, that
+    row is SUPPORTED and states its own `unserved_kwh` (`mini-service/2`; a `/1` head never states it and is never
+    inferred). served = that row's `delivered_kw` x 1 h (the feeder series its unserved figure is computed against),
+    unserved = that row's `unserved_kwh`, demand = served + unserved. The covered span is that row's own coverage
+    minus its gaps. UNCLASSIFIED rows and the all-load cards never affect the measure; an operating hour with no
+    service head is uncovered."""
 
     key = "mini.critical_served@1"
 
@@ -238,6 +241,17 @@ class CriticalServed:
 
     def subjects(self, ctx: DayCtx) -> list[str]:
         return [SITE]
+
+    @staticmethod
+    def critical_row(result: dict[str, Any]) -> tuple[Decimal, Decimal, dict[str, Any]] | None:
+        """(served kWh, unserved kWh, coverage) of the hour's single SUPPORTED CRITICAL row, else None."""
+        crit = [r for r in (result.get("rows") or ()) if isinstance(r, dict) and r.get("role") == "CRITICAL"]
+        if len(crit) != 1 or crit[0].get("assessment") != "SUPPORTED" or "unserved_kwh" not in crit[0]:
+            return None
+        served, unserved = _dec(crit[0].get("delivered_kw")), _dec(crit[0].get("unserved_kwh"))
+        if served is None or unserved is None:
+            return None
+        return served, unserved, crit[0].get("coverage") or {}
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
         pending = self.r.pending_jobs(ctx, ["mini_service"])
@@ -248,13 +262,11 @@ class CriticalServed:
             head = h["head"]
             if head is None:
                 continue
-            result = head["result"] or {}
-            cards = result.get("cards") or {}
-            crit = result.get("critical_delivered_coverage")
-            served, unserved = _dec(cards.get("critical_delivered_kw")), _dec(cards.get("unserved_kwh"))
-            if crit is None or served is None or unserved is None:
+            row = self.critical_row(head["result"] or {})
+            if row is None:
                 continue
-            covered += minus([(h["from"], h["to"])], _gaps(crit.get("gaps"), "from", "to"))
+            served, unserved, coverage = row
+            covered += minus([(h["from"], h["to"])], _gaps(coverage.get("gaps"), "from", "to"))
             ids += [str(x).lower() for x in head["evidence_ids"]] + [f"revision:{head['revision_id']}"]
             counted.append((served, unserved))
         if not counted:

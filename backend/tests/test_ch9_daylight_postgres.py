@@ -97,8 +97,8 @@ def pv(mg4, engine):  # noqa: F811
     _replica(engine, f"DELETE FROM signal_binding_revision WHERE id = '{new}'")
 
 
-def test_0046_is_head_and_replaces_the_noon_only_bodies(engine) -> None:  # noqa: F811
-    assert head(engine) == "0046_daylight_enqueue"
+def test_0046_replaces_the_noon_only_bodies_under_the_0047_head(engine) -> None:  # noqa: F811
+    assert head(engine) == "0047_mini_service_v2"
     assert "12:00 hour only" not in functiondef(engine, "mini_enqueue_hour")
     for name in ("mini_enqueue_hour", "mini_enqueue_accepted", "mini_enqueue_configuration"):
         assert "mini_renewable_hour" in functiondef(engine, name), name
@@ -187,4 +187,4 @@ def test_downgrade_restores_the_0029_bodies(engine) -> None:  # noqa: F811
         assert scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = 'mini_renewable_hour'") == 0
     finally:
         command.upgrade(config, "head")
-    assert head(engine) == "0046_daylight_enqueue"
+    assert head(engine) == "0047_mini_service_v2"
