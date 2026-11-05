@@ -142,3 +142,74 @@ def count_claim(key: str, value: int | None, days: Any) -> Claim:
     else:
         text = checked.format(n=value) if value else none
     return Claim(key, value, basis, d, text)
+
+
+# ---- CH-5b2 "Why?" trace (build sheet CH-5b §2.3, CH5b2-R Q5-Q9) ------------------------------------------------
+# Each template is a MOCK DEVIATION candidate against the MA-1 `WHY` sentences (frontend/mockups/v70/index.html:430);
+# the review packet lists them mock -> new. The days lines follow the mock's `DAYS` wording (CH5b2-R Q6).
+
+WHY_TEXT = {
+    "why.title": "{site} · {category}",
+    "why.from.measure": "{label} on {k} checked day{s}",
+    "why.from.finding": "{title}, seen {n} time{s} since {first}",
+    "why.from.action": "{code} · {label}",
+    # MOCK DEVIATION (CH5b2-R Q7): the mock always has 2-4 lines; a trace with none says so.
+    "why.from.none": "Nothing has been recorded for this yet",
+    "why.change.days": "Checking {n} more day{s}",
+    "why.change.action": "An agreed action",
+    "why.change.verdict": "The check after the change",
+    "why.change.readings": "New readings that differ",
+    "why.evidence": "{site} evidence →",
+    "why.days.many": "{c} of {e} day{s} checked",
+    "why.days.partial": " · {p} partly checked",
+    "why.days.low": " · {n} with too little data, not counted",
+    # MOCK DEVIATION (CH5b2-R Q6): the mock has no pending case.
+    "why.days.pending": " · {q} not in yet",
+    "why.days.one.checked": "{d} checked",
+    "why.days.one.partial": "{d} partly checked",
+    "why.days.one.low": "{d}: too little data, not counted",
+    "why.days.one.pending": "{d}: not in yet",
+    # MOCK DEVIATION (CH5b2-R Q9): the estate chain carries no Portfolio headline per category, so the mock's `pf:`
+    # sentences are replaced by this count.
+    "why.estate.say": "{category} at {n} site{s}",
+    "why.estate.from": "{site}: {say}",
+    "why.estate.days": "{site}: {days}",
+}
+#: CH5b2-R Q5: one plain label per measure (each a MOCK DEVIATION: MA-1 writes free sentences).
+MEASURE_LABEL = {
+    "avoidable_gen_min": "Generator time beyond need",
+    "productive_kwh": "Energy for productive use",
+    "daylight_headroom_kw": "Unused daytime solar",
+    # CH5b2-R ruled "Critical load served"; guard V refuses "load" (productVocabulary.json "unexplained
+    # abbreviations"), so the one word is swapped: Known Deviation KD-3 in the review packet, for the Architect.
+    "critical_served": "Critical supply served",
+    "chamber_temp_c": "Chamber temperature",
+    "backup_start_chain": "Backup automatic start",
+    "charging_kwh": "Energy delivered by charging",
+}
+
+
+def _s(n: int) -> str:
+    return "" if n == 1 else "s"
+
+
+def why(key: str, **fields: Any) -> str:
+    """One §2.3 template, with `{s}` the plural suffix of the field named by the template's count."""
+    return WHY_TEXT[key].format(**fields)
+
+
+def why_days(days: Sequence[date], counts: Mapping[str, int], one: str | None) -> str:
+    """CH5b2-R Q6: the days line. `counts` = {checked, partial, low, pending} over the expected days; `one` is the
+    single day's class when the window is one day."""
+    if len(days) == 1 and one is not None:
+        return why(f"why.days.one.{one}", d=day_text(days[0]))
+    c, p, n, q = (int(counts.get(k, 0)) for k in ("checked", "partial", "low", "pending"))
+    e = c + p + n + q
+    line = why("why.days.many", c=c, e=e, s=_s(e))
+    if p:
+        line += why("why.days.partial", p=p)
+    if n:
+        line += why("why.days.low", n=n)
+    if q:
+        line += why("why.days.pending", q=q)
+    return line

@@ -137,9 +137,13 @@ class ResponseStore:
         with read_scope.fresh(req.route) as sc, read_scope.composing(req.route):
             return dict(compose()), sc
 
-    def serve(self, req: StoredRoute, compose: Callable[[], Mapping[str, Any]]) -> Response:
+    def serve(self, req: StoredRoute, compose: Callable[[], Mapping[str, Any]],
+              if_none_match: str | None = None) -> Response:
         """Serve `req.route`. `compose()` returns {route: body} for `req.route` and any sibling sub-route composed
-        by the same call (the Portfolio and its scope-ids), each stored under its own key and the same W."""
+        by the same call (the Portfolio and its scope-ids), each stored under its own key and the same W.
+
+        CH-5b2 (CH5b2-R Q2): a live row whose `etag` matches `if_none_match` (a list, `*` for any live row) is a
+        `304` with no body, answered from (a) alone: no compose. In compose-only mode there is no ETag, so no 304."""
         if self.compose_only:
             bodies, _ = self._composed(req, compose)
             return _response(render(bodies[req.route]), None, "composed")
@@ -159,6 +163,8 @@ class ResponseStore:
             bodies, _ = self._composed(req, compose)
             return _response(render(bodies[req.route]), None, "unstored")
         if row is not None:
+            if tag_matches(if_none_match, row[1]):
+                return _not_modified(row[1])
             return _response(row[0], row[1], "hit")
         started = time.perf_counter()
         bodies, sc = self._composed(req, compose)  # (b) the compose memo starts after (a)
@@ -225,6 +231,24 @@ def _response(body: bytes, tag: str | None, state: str) -> Response:
     if tag is not None:
         headers["ETag"] = f'"{tag}"'
     return Response(content=body, media_type="application/json", headers=headers)
+
+
+def tag_matches(header: str | None, tag: str) -> bool:
+    """CH-5b2 (CH5b2-R Q2): `If-None-Match` against a stored tag by strong comparison: a comma list, each entity
+    tag with its quotes stripped; a weak `W/` tag never matches; `*` matches any live row."""
+    if not header:
+        return False
+    for part in header.split(","):
+        p = part.strip()
+        if p == "*":
+            return True
+        if p and not p.startswith("W/") and p.strip('"') == tag:
+            return True
+    return False
+
+
+def _not_modified(tag: str) -> Response:
+    return Response(status_code=304, headers={HEADER: "hit", "ETag": f'"{tag}"'})
 
 
 def finish(out: Response, response: Response) -> Response:

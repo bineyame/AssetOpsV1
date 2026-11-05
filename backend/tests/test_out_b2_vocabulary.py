@@ -78,6 +78,12 @@ def _constants() -> list[str]:
              board.THREAD_MONITORING.format(code="ACT-001", k=7), board.THREAD_CLOSED.format(code="ACT-001", n=7),
              board.THREAD_RECURRED.format(day="3 Nov", code="ACT-001"),
              board.TRIAL_SCOPE.format(start="10:00", end="11:00", day="1 Nov"), credit.MONEY_NOT_CREDITED]
+    # CH-5b2: every "Why?" template, formatted with plain sample values, and every measure label.
+    from assetops_backend.chain import vocabulary as cv
+    sample = {"site": "Kobo", "category": "Grow revenue", "label": "Unused daytime solar", "k": 3, "s": "s",
+              "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
+              "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked"}
+    copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
     return [c.strip(" ·") for c in copy]
 
 

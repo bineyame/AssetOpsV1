@@ -294,6 +294,9 @@ class ChainReadPort(Protocol):
 
     def action_rows(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
 
+    def trace_facts(self, tenant_id: UUID, site_id: UUID, finding_ids: Sequence[str],
+                    known_at: datetime | None) -> Mapping[str, Any]: ...
+
 
 @dataclass(frozen=True)
 class ChainRequest:
@@ -349,6 +352,15 @@ class ChainRequest:
             return {}
         return read_scope.memo("chain.placement_facts", self.reader.ports.placement_facts, self.tenant_id, site_id,
                                ids, self.k)
+
+    def trace_facts(self, site_id: UUID, finding_ids: Sequence[str]) -> Mapping[str, Any]:
+        """CH-5b2 (CH5b2-R Q4): per Finding id (lowercase) its head revision at `k`, the revision's analytic run and
+        its cited-evidence count; one memoised port call (one statement)."""
+        ids = tuple(sorted({str(f).lower() for f in finding_ids if f}))
+        if not ids:
+            return {}
+        return read_scope.memo("chain.trace_facts", self.reader.ports.trace_facts, self.tenant_id, site_id, ids,
+                               self.k)
 
     def action_rows(self, site_id: UUID) -> tuple[dict[str, Any], ...]:
         """CH-5a2b R1 (§B14 Q5): the Site's mini Actions at `k`, shaped with the keys `workflow_label` reads; one

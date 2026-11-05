@@ -179,6 +179,35 @@ def listed_modules() -> list[str]:
     return json.loads(MODULES_FILE.read_text(encoding="utf-8"))["modules"]
 
 
+#: CH-5b2 (CH5b2-R Q1): the chain and "Why?" routes are stored routes but are not pre-built
+#: (`prebuilt-routes-v1.json` is unchanged), so W6 and `chain_response_probe.py fresh` drive them from the first
+#: pre-built board of each Site and the first outcome summary: the Site chain, its four "Why?" categories, its first
+#: thread, the estate chain and the estate "Why?" per category.
+CHAIN_CATEGORIES = ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE")
+
+
+def chain_paths(client: Any, requests: Iterable[Any]) -> list[str]:
+    requests = list(requests)
+    boards: dict[str, str] = {}
+    for req in requests:
+        if req.path.endswith("/outcome-board"):
+            boards.setdefault(req.path.split("/")[3], req.query)
+    out: list[str] = []
+    for code, query in boards.items():
+        base = f"/api/sites/{code}/chain"
+        out.append(f"{base}?{query}")
+        out += [f"{base}/why?{query}&category={c}" for c in CHAIN_CATEGORIES]
+        r = client.get(f"{base}?{query}")
+        threads = r.json().get("threads") if r.status_code == 200 else None
+        if threads:
+            out.append(f"/api/sites/{code}/threads/{threads[0]['id']}?{query}")
+    summary = next((r.query for r in requests if r.path == "/api/estate/outcome-summary"), None)
+    if summary is not None:
+        out.append(f"/api/estate/chain?{summary}")
+        out += [f"/api/estate/chain/why?{summary}&category={c}" for c in CHAIN_CATEGORIES]
+    return out
+
+
 def _kind(c: Any, name: str) -> str | None:
     from sqlalchemy import text
 
@@ -288,6 +317,10 @@ def _run(url: str, work: Path) -> dict[str, Any]:
             for path in sorted({r.path for r in requests if r.path.endswith("/outcome-board")}):
                 current["route"] = path
                 statuses[f"{path}?"] = client.get(path).status_code
+                current["route"] = None
+            for path in chain_paths(client, requests):  # CH-5b2: the five stored chain and "Why?" routes
+                current["route"] = path.split("?")[0]
+                statuses[path] = client.get(path).status_code
                 current["route"] = None
     finally:
         event.remove(Engine, "before_cursor_execute", listener)

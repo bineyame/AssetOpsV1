@@ -188,7 +188,7 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
-from assetops_backend.chain.composition import build_estate_claims, chain_policy_versions
+from assetops_backend.chain.composition import build_estate_claims, chain_policy_versions, thread_lifecycle_policy
 from assetops_backend.chain_api import build_chain_router
 from assetops_backend.outcome_api import build_outcome_router, site_ref
 from assetops_backend.site_outcomes.composition import build_outcome_board_service
@@ -635,10 +635,11 @@ def create_app(
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         responses=responses))
     # CH-5a2a §B1: the `outcome-chain-1` reads over the same board service, admission and estate scope.
+    # CH-5b2: plus the two "Why?" routes; all five are stored routes (ETag, 304).
     app.include_router(build_chain_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
-        policy_versions=chain_policy_versions))
+        policy_versions=chain_policy_versions, lifecycle=thread_lifecycle_policy, responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
     # `/estate/chain` calls, over the same board reads and the same Site registry.
     estate_claims = build_estate_claims(
