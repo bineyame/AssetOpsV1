@@ -79,6 +79,7 @@ class TickLimits:
     domain_assess_seconds: float = 120
     domain_consequence_seconds: float = 60  # the cold/EV drains reuse `consequence_items_per_site`
     tick_seconds: float = 240
+    prebuild_seconds: float = 120  # CH-5c Q8: the stored-route pre-build stage (run only by `ScheduleTick(prebuild=True)`)
     statement_timeout_ms: int = 30_000
     lock_timeout_ms: int = 5_000
     backoff_base_seconds: float = 60
@@ -117,7 +118,7 @@ class TickLimits:
 
     @property
     def tick_lease_seconds(self) -> float:
-        return self.discover_seconds + self.tick_seconds + self.site_lease_seconds + 60
+        return self.discover_seconds + self.tick_seconds + self.site_lease_seconds + self.prebuild_seconds + 60
 
     def backoff(self, failures: int) -> float:
         return min(self.backoff_base_seconds * (2 ** max(failures, 0)), self.backoff_cap_seconds)
@@ -177,6 +178,7 @@ class TickReport:
     excluded_with_work: list[dict[str, Any]] = field(default_factory=list)
     not_selected: int = 0
     failure: dict[str, Any] | None = None
+    prebuild: dict[str, Any] | None = None  # CH-5c Q8: the pre-build stage result, when it ran
 
     def visited(self) -> list[SiteResult]:
         return [s for s in self.selected if s.result not in ("DEFERRED",)]
@@ -186,6 +188,7 @@ class TickReport:
             "outcome": self.outcome, "environment": self.environment, "token": self.token, "db_now": self.db_now,
             "reconcile_ms": self.reconcile_ms, "not_selected": self.not_selected, "failure": self.failure,
             "excluded_with_work": self.excluded_with_work,
+            **({"prebuild": self.prebuild} if self.prebuild is not None else {}),
             "sites": [{"tenant_id": s.tenant_id, "site_id": s.site_id, "site_code": s.site_code,
                        "reason": s.reason, "result": s.result, "failure": s.failure,
                        "stages": {k: {x: v.get(x) for x in ("code", "error", "processed", "deferred", "selected",
@@ -287,7 +290,14 @@ def tick_perf_line(report: TickReport, limits: TickLimits, total_ms: float) -> d
             stages[name] = {"elapsed_ms": elapsed, "limit_ms": limit_ms, "share": share,
                             "peak_rss_kb": result.get("peak_rss_kb")}
         sites.append({"site_code": site.site_code, "result": site.result, "stages": stages})
-    return {"route": "tick", "outcome": report.outcome, "total_ms": round(total_ms, 1), "sites": sites}
+    line = {"route": "tick", "outcome": report.outcome, "total_ms": round(total_ms, 1), "sites": sites}
+    if report.prebuild is not None:  # CH-5c Q8: its seconds against the EX-3 "at most 50% of the tick limit" rule
+        elapsed = report.prebuild.get("elapsed_ms")
+        limit_ms = int(limits.tick_seconds * 1000)
+        line["prebuild"] = {"elapsed_ms": elapsed, "tick_limit_ms": limit_ms,
+                            "share": round(elapsed / limit_ms, 3) if isinstance(elapsed, (int, float)) else None,
+                            "states": report.prebuild.get("states"), "code": report.prebuild.get("code")}
+    return line
 
 
 def log_tick_perf(report: TickReport, limits: TickLimits, started: float) -> None:
@@ -317,8 +327,9 @@ def enable_perf_log(stream: Any = None) -> logging.Handler:
 
 class ScheduleTick:
     def __init__(self, store: ScheduleStore, runner: StageRunner, limits: TickLimits, *,
-                 environment: str = "default", owner: str | None = None) -> None:
+                 environment: str = "default", owner: str | None = None, prebuild: bool = False) -> None:
         self.store, self.runner, self.limits = store, runner, limits
+        self.prebuild = prebuild  # CH-5c Q8: the `scheduling.run tick` CLI turns the stored-route pre-build on
         self.environment = environment
         self.owner = owner or f"{socket.gethostname()}:{os.getpid()}"
 
@@ -368,6 +379,8 @@ class ScheduleTick:
                 else:
                     self._site(site, token)
                 self.store.set_cursor(self.environment, site.tenant_id, site.site_id)
+            if self.prebuild:  # Q8: after the Site loop; a store hit composes nothing, so only moved routes build
+                report.prebuild = self.runner.run("prebuild", {}, self.limits.prebuild_seconds)
             deferred = sum(1 for s in selected if s.result == "DEFERRED")
             if not self.store.finish_tick(self.environment, token, sites_selected=len(selected),
                                           sites_processed=visited, sites_deferred=deferred,

@@ -28,6 +28,7 @@ from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf
 from assetops_backend.chain.read import board_day, window_day
+from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish, parsed_key
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -172,7 +173,8 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
                          cold_disclosure: Disclosure = allow_disclosure,
                          ev_disclosure: Disclosure = allow_disclosure,
                          authenticate: Authenticate = development_authenticate,
-                         unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
+                         unavailable: tuple[type[BaseException], ...] = (),
+                         responses: ResponseStore | None = None) -> APIRouter:
     router = APIRouter()
     disclosures = {COLD: cold_disclosure, EV: ev_disclosure}
 
@@ -186,9 +188,10 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
     @router.get(BOARD_ROUTE)
     def outcome_board(site_code: str, request: Request, response: Response) -> dict[str, Any]:
         with perf.route(BOARD_ROUTE, response):  # QW-1: one `assetops.perf` line per request
-            return _outcome_board(site_code, request)
+            out = _outcome_board(site_code, request)
+        return finish(out, response) if isinstance(out, Response) else out
 
-    def _outcome_board(site_code: str, request: Request) -> dict[str, Any]:
+    def _outcome_board(site_code: str, request: Request) -> Any:
         ref = board_site(admitted, registry, site_code, "Site outcome board", request)
         params = request.query_params
         known_at = _instant(params, "known_at")
@@ -198,23 +201,52 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
         if not disclosed(ref):
             raise _refuse(403, DISCLOSURE_REFUSAL[ref.domain],
                           f"The source provenance of Site {site_code!r} may not be disclosed to this caller.")
-        try:
-            body = service.board(ref, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
-        except (SiteStoreUnavailable, *unavailable) as error:
-            raise _refuse(503, "SITE_OUTCOME_BOARD_UNAVAILABLE", str(error)) from error
-        return _public(body)
+        def compose() -> dict[str, Any]:
+            try:
+                body = service.board(ref, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
+            except (SiteStoreUnavailable, *unavailable) as error:
+                raise _refuse(503, "SITE_OUTCOME_BOARD_UNAVAILABLE", str(error)) from error
+            return {BOARD_ROUTE: _public(body)}
+
+        if responses is None:
+            return compose()[BOARD_ROUTE]
+        # CH-5c: the board's key is its Site and its parsed window (a mini `date` and its Site-local `from`/`to`
+        # pair parse to one day), its watermark its own Site's.
+        key = {"site": ref.site_id, "domain": ref.domain, "day": day, "from": lo, "to": hi, "known_at": known_at,
+               "pin": None if pin is None else [str(x) if x is not None else None for x in pin]}
+        site = UUID(str(ref.site_id))
+        return responses.serve(StoredRoute(BOARD_ROUTE, ref.tenant_id, key, sites=(site,),
+                                           watermark_sites=(site,)), compose)
 
     @router.get(SUMMARY_ROUTE)
     def outcome_summary(request: Request, response: Response) -> dict[str, Any]:
         with perf.route(SUMMARY_ROUTE, response):  # QW-1: one `assetops.perf` line per request
-            return _outcome_summary(request)
+            out = _outcome_summary(request)
+        return finish(out, response) if isinstance(out, Response) else out
 
-    def _outcome_summary(request: Request) -> dict[str, Any]:
-        sites, parsed = estate_sites(request, authenticate=authenticate, estate=estate if service is not None
-                                     else None, tenant=tenant, admitted=admitted, registry=registry,
-                                     disclosed=disclosed, unavailable=unavailable)
-        lo = parsed.from_.astimezone(timezone.utc)
-        hi = parsed.to.astimezone(timezone.utc)
-        return jsonable_encoder(service.summary(sites, lo, hi, parsed.known_at))
+    def _outcome_summary(request: Request) -> Any:
+        def compose() -> dict[str, Any]:
+            sites, parsed = estate_sites(request, authenticate=authenticate, estate=estate if service is not None
+                                         else None, tenant=tenant, admitted=admitted, registry=registry,
+                                         disclosed=disclosed, unavailable=unavailable)
+            lo = parsed.from_.astimezone(timezone.utc)
+            hi = parsed.to.astimezone(timezone.utc)
+            return {SUMMARY_ROUTE: jsonable_encoder(service.summary(sites, lo, hi, parsed.known_at))}
+
+        tenant_id = tenant() if responses is not None and service is not None and estate is not None else None
+        if tenant_id is None or authenticate(request) == 401:
+            return compose()[SUMMARY_ROUTE]  # every refusal comes from `estate_sites`, unchanged
+        try:
+            parsed = parse_estate("scope", request.query_params.multi_items())
+        except EstateRefusal:
+            return compose()[SUMMARY_ROUTE]
+
+        def admit(code: str) -> bool:  # `estate_sites`' admission and disclosure, per Site code
+            if admitted(request, code) is not None:
+                return False
+            site = registry.imported(code)
+            return site is not None and disclosed(site_ref(site))
+
+        return responses.serve(StoredRoute(SUMMARY_ROUTE, tenant_id, parsed_key(parsed), admit=admit), compose)
 
     return router

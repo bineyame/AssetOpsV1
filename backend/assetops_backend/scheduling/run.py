@@ -78,7 +78,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     store = build_schedule_store(url, statement_timeout_ms=limits.statement_timeout_ms,
                                  lock_timeout_ms=limits.lock_timeout_ms)
     enable_perf_log()  # CH-0: the tick's `assetops.perf` line goes to stderr; stdout keeps only the report
-    report = ScheduleTick(store, StageRunner(url, limits), limits, environment=args.environment).tick()
+    report = ScheduleTick(store, StageRunner(url, limits), limits, environment=args.environment,
+                          prebuild=True).tick()
     print(json.dumps(report.as_json()))
     if report.outcome in ("COMPLETED", "SKIPPED_CLAIMED", "RETRY_DUE"):
         return 1 if any(s.result == "FAILED" for s in report.selected) else 0

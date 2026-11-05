@@ -341,7 +341,8 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert full["progress"]["rows"] == [] and full["progress"]["pending_trial_count"] == 0
     assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"]["state"] == "NOT_CREDITED"
     assert full["opportunity"] == {"state": "NONE", "items": [], "finding_id": None, "scenario_amount": None,
-                                   "headroom": None, "destination": "/findings/opportunities"}  # CH-4 §2.3
+                                   "headroom": None, "destination": "/findings/opportunities",
+                                   "link_ref": {"kind": "ESTATE", "view": "findings_opportunities"}}  # CH-4 §2.3
     assert (full["summary"]["opportunity_count"], full["summary"]["opportunity_labels"]) == (0, [])
     # Footer: the first eligible EV gross-tariff line by (site_code_key, site_id, line_key).
     first = min(ev, key=lambda x: (x["site_code"].lower(), x["site_id"], x["line_key"]))
@@ -634,7 +635,8 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     assert body["coverage"]["evidence_state"] == "COMPLETE"
     assert body["evidence_prompt"] == {
         "state": "AVAILABLE", "text": "Upload a log at Cold to address the selected evidence gap.", "site_id": CO,
-        "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence"}
+        "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence",
+        "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] == 2
     assert get(c, {**WINDOW, "limit": 4}).json()["evidence_prompt"] == body["evidence_prompt"]
 
@@ -701,7 +703,9 @@ def test_ev_footer_first_eligible_and_coverage_warning(portfolio_fixture) -> Non
                               "quantity_display": None, "amount_display": None,
                               "source_provenance": first["source_provenance"],
                               "window_start": first["window_start"], "window_end": first["window_end"],
-                              "destination": first["links"]["evidence"]}
+                              "destination": first["links"]["evidence"],
+                              "link_ref": first["link_refs"]["evidence"]}
+    assert body["footer"]["link_ref"]["kind"] == "SITE" and body["footer"]["link_ref"]["view"] == "ev_evidence"
     assert body["footer"]["destination"]
     assert all(s["state"] == "CURRENT" for s in body["coverage"]["sites"])
     # r1b2 R12: an otherwise eligible exact line without a reviewed `links.evidence` target is skipped; the next

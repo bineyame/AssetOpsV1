@@ -122,6 +122,18 @@ def scope(route: str) -> Iterator[ReadScope]:
         _SCOPE.reset(token)
 
 
+@contextmanager
+def fresh(route: str) -> Iterator[ReadScope]:
+    """A new read scope even inside an outer one (CH5c-R5 R5-1(b)): the stored-route compose starts its memo after
+    the watermark transaction, so no memo entry filled before the watermark can reach a stored body."""
+    sc = ReadScope(route)
+    token = _SCOPE.set(sc)
+    try:
+        yield sc
+    finally:
+        _SCOPE.reset(token)
+
+
 def ledger() -> ReadScope | None:
     return _SCOPE.get()
 

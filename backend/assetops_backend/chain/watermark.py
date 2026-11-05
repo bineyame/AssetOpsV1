@@ -31,8 +31,14 @@ _WATERMARK = ("SELECT count(*) FROM chain_input_change WHERE (tenant_id = :t OR 
               "AND (site_id = ANY(:s) OR site_id IS NULL)")
 
 
-def read_watermark(c: Any, tenant_id: UUID, site_ids: Iterable[UUID]) -> str:
-    """The watermark on connection `c`. W3: call it as the first statement of the read snapshot it labels."""
+_TENANT_WATERMARK = "SELECT count(*) FROM chain_input_change WHERE (tenant_id = :t OR tenant_id IS NULL)"
+
+
+def read_watermark(c: Any, tenant_id: UUID, site_ids: Iterable[UUID] | None) -> str:
+    """The watermark on connection `c`, as the first statement of its transaction (CH5c-R5 R5-1(a)). `site_ids`
+    None is every Site of the tenant (the estate routes): the tenant's rows and the tenant-wide NULL rows."""
+    if site_ids is None:
+        return f"cic:{c.execute(text(_TENANT_WATERMARK), {'t': tenant_id}).scalar_one()}"
     sites = sorted({UUID(str(s)) for s in site_ids}, key=str)
     count = c.execute(text(_WATERMARK), {"t": tenant_id, "s": sites}).scalar_one()
     return f"cic:{count}"
