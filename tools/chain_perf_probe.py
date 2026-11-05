@@ -11,6 +11,10 @@ prints the median, min and max (ms), the body size in bytes, and the top 10 read
 its own line. `--profile` (R3/P1): cProfile of one warm Portfolio (story week), top 20 by cumulative time under
 `select_evidence_scope` and `select_financial_scope`. `--outbox` (P8 stub): outbox and consumption row counts and the
 R8 statement's ms per Site; the full P8 runs on L3m.
+
+CH-5c R9, three modes: `--store off` is the uncached compute (cold and warm); `--store on` after the pre-build is
+the pre-built first request (cold: a fresh process) and the stored hit (warm). Budgets (EX-3) are printed beside
+each median, never applied.
 """
 from __future__ import annotations
 
@@ -37,6 +41,14 @@ URLS = {
     # CH-5c P1 (CH-5a2b residual): the Findings index now runs the full claims read per Site
     "findings_week": f"/api/estate/findings?{WEEK}&lens=all&state=all",
 }
+
+
+#: EX-3 (client-demo-plan §11b): cold first request, warm p95 (ms) and payload (bytes), per route family.
+BUDGETS = {"board": (1000, 300, 60_000), "portfolio": (1000, 300, 100_000)}
+
+
+def budget(key: str) -> tuple[int, int, int] | None:
+    return BUDGETS["board"] if "board" in key else BUDGETS["portfolio"] if key.startswith("portfolio") else None
 
 
 def client(url: str, work: Path):
@@ -147,8 +159,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--profile", action="store_true")
     p.add_argument("--outbox", action="store_true")
     p.add_argument("--no-cold", action="store_true")
+    p.add_argument("--store", choices=("on", "off"), default="on", help="CH-5c: the stored route responses")
     p.add_argument("--one", choices=sorted(URLS), help=argparse.SUPPRESS)  # internal: one cold child
     args = p.parse_args(argv)
+    import os
+
+    os.environ["ASSETOPS_RESPONSE_STORE"] = args.store  # inherited by the cold children
     if args.one:
         return child(args)
     keys = args.only or list(URLS)
@@ -157,7 +173,8 @@ def main(argv: list[str] | None = None) -> int:
         for k in keys:
             for _ in range(args.runs):
                 out = subprocess.run([sys.executable, __file__, "--database-url", args.database_url, "--work",
-                                      str(args.work), "--one", k], capture_output=True, text=True)
+                                      str(args.work), "--store", args.store, "--one", k], capture_output=True,
+                                     text=True)
                 line = next((ln for ln in out.stdout.splitlines() if ln.startswith("RESULT ")), None)
                 if line is None:
                     print(f"cold {k}: child failed rc={out.returncode}: {out.stderr[-400:]}")
@@ -176,6 +193,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"   cold ({len(cold[k])}): {stats([r['ms'] for r in cold[k]])}")
         print(f"   warm ({len(w)}): {stats([r['ms'] for r in w])}")
         print(f"   status {sorted({r['status'] for r in w})}  bytes {w[-1]['bytes']}  max_per_key {w[-1]['max_per_key']}")
+        b = budget(k)
+        if b is not None:
+            print(f"   EX-3 budget (store {args.store}): cold <= {b[0]} ms, warm p95 <= {b[1]} ms, <= {b[2]} bytes")
         print(f"   money_head {w[-1]['money_head']} ms")
         print("   top ledger (last warm run): " + ", ".join(f"{n} {v}" for n, v in w[-1]["top"]))
     if args.profile:

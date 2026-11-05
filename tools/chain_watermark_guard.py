@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -137,6 +138,7 @@ def _run(url: str, work: Path) -> dict[str, Any]:
             captured.setdefault(current["route"], []).append(statement)
 
     event.listen(Engine, "before_cursor_execute", listener)
+    os.environ["ASSETOPS_RESPONSE_STORE"] = "off"  # every request composes, so its reads are captured
     client = app_client(url, work)
     requests = prebuilt.requests()
     statuses = {}
