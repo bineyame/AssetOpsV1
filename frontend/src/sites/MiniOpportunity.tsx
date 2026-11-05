@@ -133,7 +133,7 @@ export function opportunityTone(body: Body): "green" | "blue" | "amber" | "gray"
 
 /** CH-9 §2: the measured span the headroom holds over, e.g. " over 6 daylight hours on every eligible day". */
 function hoursText(hours: number | null | undefined): string {
-  return hours ? ` over ${hours} daylight hours on every eligible day` : "";
+  return hours ? ` over ${hours} daylight ${hours === 1 ? "hour" : "hours"} on every eligible day` : "";
 }
 
 function kwText(bound: OpportunityBound | null): string | null {

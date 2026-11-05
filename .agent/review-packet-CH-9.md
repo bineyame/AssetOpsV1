@@ -304,3 +304,8 @@ On polish, every Kobo story day grades **LOW**, not PARTIAL. The cause is that `
 **CH9-R2 Q2**: the measure counts over the declared operating hours (Kobo 24 h), and an 8 h delivery covers only
 part of them. The numbers were not tuned. **DD-1 full-day deliveries cure it**, and the MD-0 full days already grade
 COMPLETE.
+
+## Review closure (coordinator, after review ACCEPT, .agent/review-CH-9.md in plan2)
+- L1 fixed: `MiniOpportunity.tsx` `hoursText` singular for 1 hour ("over 1 daylight hour"). vitest miniDecisions + miniRenewableRoutes 74 passed; tsc clean.
+- L2 Known Deviation added: the MG-5 `kpi` record is deferred to CH-6a (CH-6a not on main); MG-5's settled check (`site_outcomes/mini.py:437`) still depends on the noon depth reads — owner CH-6a.
+- Residuals: after 0049, Kobo `critical_served` reads PENDING until ~17 ticks drain the queued service work; Kobo grade LOW (sheet expected PARTIAL) is the CH9-R2 Q2 consequence of 8 h story days — for Architect acknowledgement at DD-1a1 pre-flight; `mechanism_dataset.settle_day:645` reconciles only noon (tool gap, test drains with product worker).
