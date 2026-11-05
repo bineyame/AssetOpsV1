@@ -142,7 +142,15 @@ class ChainInputReader(Protocol):
 
     def declared_price(self, ctx: DayCtx, assumption_key: str) -> dict[str, Any] | None: ...
 
-    def renewable_hour(self, ctx: DayCtx) -> dict[str, Any] | None: ...
+    def renewable_hours(self, ctx: DayCtx) -> dict[str, Any]:
+        """CH-9: `{"measured", "missing": [(from, to)], "hours": [{"from", "to", "head": {revision_id, result,
+        evidence_ids} | None}]}` for the day's `mini_depth.store.daylight_hours` at the cutoff."""
+        ...
+
+    def service_hours(self, ctx: DayCtx) -> list[dict[str, Any]]:
+        """CH-9 (CH9-R2 Q7): each Site-local clock hour of the period with its stored, selected `mini_service`
+        revision at the cutoff: `[{"from", "to", "head": {revision_id, result, evidence_ids} | None}]`."""
+        ...
 
     def dispatch_days(self, ctx: DayCtx) -> list[dict[str, Any]]: ...
 

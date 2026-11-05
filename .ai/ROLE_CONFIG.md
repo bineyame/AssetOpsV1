@@ -472,6 +472,15 @@ coordinator's:
 
 ## Token Efficiency Without Lowering Quality (owner, 2026-10-18)
 
+**Demo-sprint additions (owner, 2026-11-05: "do all what is needed to boost usage efficeny without comporomising on quality and speed"; record `.agent/owner-efficiency-2026-11-05.md`):**
+- **Slice size fits one builder.** Build units of about 2-3 units each, sized so one builder finishes inside its context. The Architect splits any larger slice before its pre-flight; hand-over re-reading is the largest avoidable cost.
+- **Builder briefs carry a reading budget.** Name the exact sections and files to read; targeted greps over whole-file reads; no re-reading of the plan HTML or other slices' sheets.
+- **Model by role.** Opus: pre-flights, first builds of a unit, first reviews, Architect rulings. Sonnet: continuation builders working from a precise handoff, fix rounds, merge-prep, re-reviews of named findings.
+- **Short reports.** Builders reply in 10 lines or fewer; detail lives in the packet/handoff file. Coordinator replies to the owner in a line or two on routine events; full status only on request, on merge, or when the owner is needed.
+- **Architect reuse.** One Architect instance rules several items until its context is moderate; questions are batched per slice.
+- **Coordinator verification.** Merge-prep and small closures that are mechanically checkable are verified by the coordinator, not a fresh reviewer.
+
+
 Owner: be very efficient without compromising quality, in every session. Lessons
 from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
 

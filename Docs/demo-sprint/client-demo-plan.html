@@ -133,6 +133,399 @@ svg .bold{font-weight:700}
 <tr><td>OD-P8</td><td>BeagleBone is skipped for this demo</td><td><span class="chip g">Agreed</span></td></tr>
 <tr><td>OD-P9</td><td>Client session date</td><td><span class="chip a">Deferred</span> It follows actual progress. E3 is placed once you set the date, still under the date rule.</td></tr>
 <tr><td>OD-P10</td><td>Of CH-7, only the rebuild and captures go into the end-game, with the CH-7d contingency</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>BASE-1</td><td>Revision 2026-11-04: every mechanism is proven on full, normal data as well as on the sparse build. The demo data becomes a <b>normal operating baseline with the story days injected</b> (DD-1, re-scoped). A small <b>mechanism dataset</b> of the same shape (MD-0) proves every slice from CH-5a1 onward. One <b>presentation rule</b> governs counts, money and verdicts over partly checked windows (PC-1). See &sect;2.5.
+  <ul>
+    <li>Owner's question (verbatim, owner notes 2026-11-04): "What must happen is that we should have bullet proof mechanisms as part of the implementation such that later we focus on data to tell a unified compelling story for a client with interestnig and normal data ; is that the direction?"</li>
+    <li>The coordinator answered yes, with one gap: today every mechanism is proven only on the sparse data, so the tests cover the missing-data paths, not normal operation. It proposed the four changes.</li>
+    <li>Owner's approval (verbatim): "yes, let the architect revise the plan".</li>
+    <li>Owner's decision on the open items (verbatim, 2026-11-04): "run the probe; 3 and 4 as recommended".
+      <ul>
+        <li><b>OD-P13 agreed:</b> author two labelled steady-day scenarios, derived from the existing references with their events removed. They are new example content, not tuning.</li>
+        <li><b>OD-P14 agreed:</b> ACT-001 keeps "monitoring".</li>
+        <li><b>OD-P11</b> (baseline length) and <b>OD-P12</b> (E3 build cap) wait for the DD-0 probe (<code>.agent/brief-DD-0-baseline-probe.md</code>).</li>
+      </ul></li>
+  </ul></td><td><span class="chip g">Agreed</span> (direction, OD-P13, OD-P14); OD-P11 and P12 pending the probe</td></tr>
+<tr><td>DD0-R</td><td>Architect rulings on the DD-0 probe (2026-11-04, <code>.agent/DD-0-probe-results.md</code>, partial: K2, C1 and E1 ran; K5 was stopped at the 10-min rule):
+  <ul>
+    <li><b>Events.</b> <code>reading.accepted</code> equals the <code>accepted_evidence</code> rows. The 0044 trigger is per statement, but the writer inserts one reading per statement. A normal 24 h day is then about 4,100&ndash;4,370 events (Kobo), 2,620 (Cold) and 1,960 (EV): 9, 6 and 4 ticks at 500.
+      <ul>
+        <li><b>Ruling, a CH-1b fix round.</b> <code>consume</code> drains in pages of <code>chain_consume_events</code> (500, unchanged) and keeps paging until the queue is empty or the chain stage's own time bound (<code>chain_seconds</code>) is reached. Each page's dirty marks are coalesced in memory, giving one upsert per distinct (Site, day, measure). A bound still defers the rest, as any cap does. The bound now limits time, not rows.</li>
+        <li>No larger fixed count: that would be a number fitted to the data. No lag accepted: ST-7 and FILL-1 must show the day on the next tick.</li>
+        <li><b>Acceptance in CH-1b's fix round:</b> an L2 test with about 4,400 reading events for one Site-day drains in one tick, and the stage time is reported against 50% of its limit.</li>
+        <li>If one Kobo day exceeds 50% of the stage limit, writing readings as one statement per batch becomes a DD-1 item, ruled then. The ingestion writer is not touched in CH-1b.</li>
+      </ul></li>
+    <li><b>Cost.</b> About 143 s per 8 h Kobo run (127&ndash;160 s), so a Kobo day is about 429 s. Cold and EV are unseparated (central 260 and 213 s per day; upper 871 and 435 s). B-22 is about 4.4 h sequential (upper 8.3 h) or 2.7 h parallel (upper 5.4 h). B-16 is about 3.2 h / 1.9 h.</li>
+    <li><b>Next: DD-0b</b> (about 20 min of machine time, after the CH-1b fix merges):
+      <ul>
+        <li>C4 and E4, which separate Cold's and EV's fixed and per-run cost; Cold's upper bound dominates the range;</li>
+        <li>K2 with a timed drain tick and one <code>add-day</code>;</li>
+        <li>a cProfile of one Kobo replay run: how much of the 143 s is ingestion per reading, recompute jobs (about 80 per run) or the run's own ticks.</li>
+      </ul>
+      OD-P11 and OD-P12 are then recommended from measured numbers.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>FILL-1</td><td>DD-1 gains an <b>inject-or-fill-any-day</b> capability (&sect;2.5.1a).
+  <ul>
+    <li>Owner's question (verbatim, 2026-11-04): "Does this also allow me to inject missing days as needed ?"</li>
+    <li>The coordinator explained that the event register and the bitemporal threads already rebuild a late-filled day, and proposed adding the tooling to DD-1.</li>
+    <li>Owner (verbatim): "yes, add that to the demo-data batch".</li>
+  </ul></td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OWN-1104</td><td>The owner's decisions on the Architect 5 recommendations (2026-11-04). Owner (verbatim): "all as recommended, stop the leftover processes". The coordinator recorded this as acceptance of every item below:
+  <ul>
+    <li><b>Away calls reviewed</b> (<code>.agent/decisions-while-owner-away-2026-11-04.md</code>, "Owner review"):
+      <ul>
+        <li>D-AW-1 kept (the MD-0 test-tool refusal);</li>
+        <li>D-AW-4 accepted;</li>
+        <li><b>D-AW-5 reversed:</b> same-currency estimated income may be added across Sites, as "Estimated income from checked days", "at least" when any Site is partly checked, with each Site's "{k} of {m} days checked" (CH-6b R10);</li>
+        <li><b>D-AW-6 reversed:</b> a full-day MG-5 measure in CH-9 (+1);</li>
+        <li><b>D-AW-7 reversed:</b> new <b>CH-9b</b> verifies "run the mill at midday" with <code>midday-productive-shift-1</code> (2.5);</li>
+        <li><b>D-AW-8 reversed:</b> daylight is measured from PV per day, not declared (CH-9 R1);</li>
+        <li>D-AW-9 to D-AW-11 accepted as recommended.</li>
+      </ul></li>
+    <li><b>OD-P11 = B-22; OD-P12 = a one-time 3 h sequential E3 cap.</b> It runs in the background with keep-awake and a hard stop at 6 h, after the DD-0c lever re-probe (gateway publish batching; Cold steady day as one 24 h run). The fallback is B-16.</li>
+    <li><b>MD0-S2 confirmed:</b> MD-0 is Kobo-only.</li>
+    <li><b>MD-0 Q2 = two tiers:</b> the in-suite L2m uses a minimal "states" day set, cached per code revision. The full 14-day L3m DB is built in the background once per main merge and shared read-only.</li>
+    <li><b>D-AW-3:</b> a recurrence while a change is under check is recorded. <code>(CHANGE_APPLIED, OCCURRENCE)</code> &rarr; CHANGE_APPLIED with a <code>RECURRED_DURING_CHECK</code> event, and the line "Happened again on {day}, after the change on {day} &middot; still being checked". It counts against the change when the check is judged (CH-6a, +0.5).</li>
+    <li>The leftover processes are stopped (coordinator).</li>
+  </ul></td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>CH5a-R</td><td>Architect rulings for CH-5a (2026-11-04; full text: <code>.agent/build-sheet-CH-5a.md</code>):
+  <ul>
+    <li><b>S1, split.</b> With the carried items CH-5a is about 12 units. It splits into <b>CH-5a1</b> (ChainReader and the board read path, 6) and <b>CH-5a2</b> (chain endpoints, refs, routeFor and the carried chain items, 6). Lane units go from about 51 to about 57.</li>
+    <li><b>S2, lanes.</b> Lane 1: CH-1b &rarr; CH-5a1 &rarr; CH-5a2 &rarr; CH-5b &rarr; CH-6. Lane 2: CH-4 &rarr; CH-9 &rarr; DD-1 &rarr; CH-5c (contingent, moved from lane 1). The mid-point check runs after CH-5a2. <i>Current lanes (CH5a2-R): lane 1 CH-5a1 &rarr; CH-5a2a &rarr; CH-5a2b &rarr; CH-5c &rarr; CH-5c2 &rarr; CH-5b &rarr; CH-6a &rarr; CH-6b; lane 2 CH-4 &rarr; MD-0 &rarr; MD-0b &rarr; CH-9 &rarr; CH-9b &rarr; DD-1a &rarr; DD-1b &rarr; CH-5d. The mid-point check runs after CH-5a2b.</i></li>
+    <li><b>R1, one request, one read scope.</b> <code>perf.route</code> opens a request scope with a call ledger and a memo of frozen values. The assessment-store window read is memoised on its arguments, with <code>knowledge_at</code> left out for live reads, so the first read in a request wins. Every ChainReader port is memoised.</li>
+    <li><b>R2, the 409.</b> The summary lists Sites with the light scope only. It never answers 409 for a selection inconsistency: a failing board makes that Site UNAVAILABLE, as today. The other estate routes keep their 409.</li>
+    <li><b>R3.</b> The pre-flight profile of the Portfolio evidence and money selections sizes CH-5c (1&ndash;2 units for batching, 4 for snapshots). The Architect rules on the numbers.</li>
+    <li><b>R4&ndash;R8.</b>
+      <ul>
+        <li>Board settledness comes from day snapshots, not wall-clock freshness.</li>
+        <li>Readiness is <code>readiness_of</code> over the day grades; the Portfolio evidence cell is a labelled keep until CH-5c.</li>
+        <li>The board day is the Site-local day; the dispatch analytic day key is a labelled keep for SWEEP-DS.</li>
+        <li>One <code>site_cutoff</code> helper serves the board and the Portfolio.</li>
+        <li>Findings are settled when the thread consumer has caught up.</li>
+      </ul></li>
+    <li><b>Lens (I-21).</b> One lens per Finding, from the category of its primary moved outcome (the mock files each Finding under one lens). COH-5 compares only the primary issue.</li>
+    <li><b>Budgets.</b> CH-5a1 and CH-5a2 report measured numbers. They are not expected to reach the warm budget. EX-3's measured-proposal rule stands.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH5a1-R</td><td>Architect rulings on the CH-5a1 pre-flight (2026-11-04, Claude; pre-flight <code>.agent/CH-5a1-preflight.md</code>; full text: <code>.agent/build-sheet-CH-5a.md</code> &sect;A12):
+  <ul>
+    <li><b>Q1, R8.</b> Findings are settled when no <code>finding.revised</code>/<code>opportunity.revised</code> event (bare type strings) with <code>occurred_at &le; k</code> (story time) is unconsumed by <code>threads</code>. The wall-clock <code>recorded_at</code> is never compared with a story cutoff.</li>
+    <li><b>Q2, Q5.</b> The board's base is the source gate, a settled day and a dispatch read; the dispatch body has no CLOSED. <code>money_head</code> picks the lead Finding as the overview's <code>_money</code> does.</li>
+    <li><b>Q3.</b> The light Site list reuses the summary's open estate snapshot and calls only <code>_scope</code>.</li>
+    <li><b>Q4.</b> A Finding the index withheld in PARTIAL mode is shown, and the gap days are still named (E3b). Expected empty; if not, the builder stops before merge. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-10.)</i></li>
+    <li><b>Q6.</b> The thread Finding read reproduces the index head rule: merged-away Findings excluded, the index's domain and analytic only, newest episode first. The selected-revision link is built from ids by the index's own helper. Equal <code>(finding_id, revision_id)</code> sets per board are a regression gate.</li>
+    <li><b>Q7 &rarr; C6.</b> Verification state, cost check and trial hours stay on the one existing <code>VerificationService.summary</code> call. A SQL re-derivation would lose PENDING and REASSESSMENT_PENDING. Only the Action detail call is replaced.</li>
+    <li><b>Q8, Q9.</b> Readiness pools every Site-local day a window touches. A missing snapshot row counts as no data, as the day counts already do. MD-0 writes its Cold days as Site-local days (MD0-PF Q4); CH-5a1 aligns the collector and Kobo's days.</li>
+    <li><b>Q10, Q12.</b> The request memo sits at <code>_window</code> (with its cutoff) and <code>claim_limit_snapshot_on</code>, with deep-frozen values; the first read in a request wins.</li>
+    <li><b>Q11.</b> EV 20 and 27 Oct read "Low" instead of "Limited", because their day grades are LOW (E1). Nothing is tuned. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-9.)</i></li>
+    <li><b>Sheet corrections C1&ndash;C10</b> are applied in Part A. The PC-1 <code>Claim</code> type for CH-5a2 is the one in <code>.agent/build-sheet-CH-6.md</code> &sect;S.2, built exactly as written.</li>
+    <li><b>Profile (R3).</b> The Portfolio's evidence and money time is about 85% repeated per-Site window reads and claim-limit reads, not Python compute, so <b>CH-5c is the batching branch</b> (sized in CH5c-R).</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>MD0-S2</td><td>Architect scope ruling on MD-0 (2026-11-04, Claude; full text: <code>.agent/build-sheet-MD-0.md</code> &sect;15; <b>owner to confirm</b>): MD-0 covers <b>Kobo only</b>, at 3.5 units in total (about 2 remaining). That includes one recurrence day after ACT-K1's apply, which is the D-AW-3 record. MD-0b stays 1 unit. Cold and EV are proven on the polish clone (event data) and on DD-1's real baseline (normal data); no test-only Cold/EV producers are written. CH-5a1 may start now, and MD-0 must merge before CH-5a1's review.</td><td><span class="chip a">Ruling, owner to confirm</span></td></tr>
+<tr><td>CH5a1-R3 / FIX-MAIN-1</td><td>Architect rulings (2026-11-04, Claude; <code>.agent/build-sheet-CH-5a.md</code> &sect;A14). <b>M1:</b> GAP-K7 reads UNKNOWN only because the harness never drains the mini queue. MD-0b runs the mini worker over the story; E1 &ldquo;GAP-K7 NONE&rdquo; stands. Until then it is recorded as UNKNOWN (owner MD-0b). <b>M3:</b> COH-5 &times;6 is recorded with owner CH-5a2, whose target is 0. <b>M4:</b> one template per fingerprint, keeping the two newest. <b>FIX-MAIN-1 (new, about 1 unit, on main now, off-lane):</b> (1) <code>test_demo_combined_postgres</code> &times;25, demo self-check: cause not yet found. Read <code>check.json</code>, bisect the merges CH-3 &rarr; MD-0 if needed, report, and stop if the cause is in a product slice. Never silence it with an unowned expectation. (2) <code>test_w301_estate_golden_postgres</code> &times;6: CH-4 (<code>fbb6d29a6</code>) added the <code>opportunities</code> key; regenerate the goldens with that key as the only diff. (3) <code>test_runs_api</code>: the test or the runner must provide <code>var/sites/mg-001.yaml</code>; no product change. (4) The MD-0 L2m tests stay fail-not-skip (zero-skip rule); the suite runner builds or reuses the matching template before the suite (about 8 min). Plus M4. Total &asymp; 87.5.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>FIX-MAIN-1 R1</td><td>Architect ruling (2026-11-04, Claude, Architect 7) on the CO-1 self-check failure (<code>{'MG-2': ('NEEDS_ATTENTION','PRIMARY_FINDING_OPEN')}</code>; evidence <code>assetops_demo3_fixmainone_test</code>, thread <code>7d982488</code>, S = 2 Nov). <b>Ruling: (a).</b> CO-1's day-S expectation is stale. It encodes the pre-CH-3 exact-revision rule (APPLIED status = applied, whatever its effective day), which CH-3 replaced on purpose: <code>.agent/build-sheet-CH-3.md</code> &sect;0 and &sect;5 (applied = thread state CHANGE_APPLIED or later on the board day), &sect;2 (APPLIED is dated by the change's <code>effective_from</code>), and the expected day-S read in its line 186 (&ldquo;Needs attention + Before the change on &hellip;&rdquo;). CH-3 should have moved CO-1 and did not, because the prepare was deferred (OD-P4). Moving it is an owned expectation change with owner CH-3, done in FIX-MAIN-1. <b>(b) is rejected.</b> On 2 Nov the generator ran avoidably and the change was agreed (16:00 local) and scheduled. It took effect from 3 Nov 03:00 local (<code>action_policy_change.effective_from</code> = 2026-11-03T00:00Z). Calling the Finding &ldquo;applied&rdquo; on 2 Nov would claim a fix was in force on a day it was not, which is I-12 and DS-R1 item 3. <b>Same-day CHANGE_APPLIED and RESOLVED_MONITORING (3 Nov):</b> this is the rule, not a dating artefact. A5 dates VERIFIED at the change's effective day (valid time: the verdict covers the period since the change). Its known time is the outcome's <code>recorded_at</code> (3 Nov 13:00, <code>cause_known_at</code>), so an as-known read before 13:00 still shows CHANGE_APPLIED. The days coincide only because the demo trial's later window is one hour on the next day (09:00&ndash;10:00 on 3 Nov, evaluated 13:00). In a normal story the verdict lands days later, and its valid day is still the change day. Low, no action: CLEAN_DAYS counts from that valid day, so clean days before the verdict was recorded count toward the close. This is recorded for CH-6b R16's lifecycle owner. <b>CO-1 asserts (day S, keeping its link, safeguard and no-outside checks unchanged):</b> (1) the Site-local day e of <code>story.kobo.action.effective_from</code> is after S (a story invariant; fail if not); (2) <code>mg2 == ('NEEDS_ATTENTION','PRIMARY_FINDING_OPEN')</code> and <code>cost.state == 'NEEDS_ATTENTION'</code>, replacing the WATCH / OBJECTIVE_MISSED branch map; (3) the OPTIMIZE_COST subline contains <code>THREAD_BEFORE.format(e="3 Nov")</code> (built from e, imported from <code>board.py</code>), followed by either <code>THREAD_AFTER_JUDGED</code> or <code>THREAD_AFTER_NOT_JUDGED</code>; record which one. Add <b>CO-1b</b> (idx) on day S+1 (<code>_kobo_board_s1</code>): no OPTIMIZE_COST outcome has reason PRIMARY_FINDING_OPEN for this Finding, and the board carries <code>"Fix verified, monitoring (" + display_code(action_code) + ")"</code> (CH-3 &sect;5, CH3-R Q4/M3). If CO-1b fails, that is a product finding: report it and stop, never adapt it. <b>Other rows:</b> no other CO-* or WK-* row carries the old assumption. CO-6 compares the Portfolio cells with the same day-S board, so it follows. The CO-1 link column and CO-3 (the verified Action under Earlier on the day-S board, as known now) agree with CH-3 &sect;0 (&ldquo;the before day &hellip; shows the after state&rdquo;) and stay. <code>test_link_lineage</code> B1 tests the no-thread rule and stays. <b>Client wording on day S is right and honest:</b> &ldquo;Before the change on 3 Nov &middot; after the change: &hellip;&rdquo; under Needs attention says what happened (the problem on 2 Nov, the fix from 3 Nov) and on 3 Nov reads &ldquo;Fix verified, monitoring&rdquo;. One reading risk: while Kobo days are PARTIAL (until DD-1), the cost row's &ldquo;after the change: not judged yet&rdquo; sits beside the Earlier line &ldquo;after: met &middot; checked over 09:00&ndash;10:00 on 3 Nov&rdquo;. These are two scoped claims (fully checked days, and the one-hour trial check), and each states its basis. No copy change: PC-1's basis labels (CH-5a2/CH-6) and DD-1's full days settle it, and DS-1 narrates it. No numbers are tuned and no product code changes.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5a2-R</td><td>Architect rulings on the CH-5a2 pre-flight (2026-11-04, Claude, Architect 7; pre-flight <code>AssetOpsV1-ch5a2\.agent\CH-5a2-preflight.md</code>; full text: <code>.agent/build-sheet-CH-5a.md</code> &sect;B13). <b>S1 (Q9), split:</b> CH-5a2 (6) becomes <b>CH-5a2a (5)</b>: refs and routeFor, the 3 endpoints, lens, progress, thread lines, the exact-join deletion and per-Site cutoff, the AST guard and cleanup, with COH-1/5/8 = 0. It is followed by <b>CH-5a2b (4)</b>: the board off the estate snapshot, the provenance wording, and the PC-1 count claims plus COH-17. Lane 1 is CH-5a2a &rarr; CH-5a2b &rarr; CH-5c &rarr; CH-5b &rarr; CH-6a &rarr; CH-6b. <b>R1 (Q1):</b> two memoised ports, <code>placement_facts</code> and <code>action_rows</code>, reusing the coverage functions by import; the A/B must show chips and labels unchanged. <b>R2 (Q2):</b> <code>source_class</code> from the stored outcome, carried through the summary, <code>ActionFact</code> and the estate row; a VERIFIED result with a null class is a finding. <b>R3 (Q3):</b> one thread classifier; claims <code>count.open_threads</code>, <code>count.verified_results</code> and <code>count.opportunities</code>, with literal texts in &sect;B13. They go on <code>/estate/chain</code>, the Portfolio summary and the Findings summary, on the wire only (CH-5b and CH-6b render them). The Portfolio <code>count_basis</code> value comes from <code>count_basis(days)</code>; nullability is unchanged until CH-6b. COH-17 checks claims across the three bodies, and the collector adds the <code>/chain</code> routes. <b>R4 (Q4), amended:</b> one sibling <code>link_ref</code> on every linked item, with the existing identity <code>ref</code>s untouched. SITE and ESTATE take enumerated views, never a free path. Convert the 4 B2 components plus EarlyWarnings; the Portfolio card components convert in CH-6b, and the work screens are listed for CH-5b/CH-7. <b>R5, R6, R8:</b> defaults accepted. <b>R7 (Q7), owner decision, recommended:</b> one day rule for the board and the summary. A UTC-midnight one-day window reads the calendar date picked, as that Site&rsquo;s local day of the same date. Today the 31 Oct card shows Kobo&rsquo;s 1 Nov board (On track) while the 31 Oct Site page says Needs attention, and CO-6 is expected to fail on main <code>01133225a</code>. About 0.25 unit, in CH-5a2a. Lane total &asymp; 84.5 build units, &asymp; 90.5 overall.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>MD0b-R</td><td>Architect rulings on the MD-0b review packet (2026-11-04, Claude, Architect 7; <code>AssetOpsV1-md0b\.agent\review-packet-MD-0b.md</code> at <code>e1e05a46d</code>; full text: <code>.agent/build-sheet-MD-0.md</code> &sect;19). <b>A1, COH-8 &times;2/&times;1: a check gap, resolved by CH-5a2a B6.</b> The origin Finding took BASIS_REFRESHED revisions and stays on the same thread and segment, so <code>origin_selected</code> is True. COH-8 reads that field after B6. MD-0b does <b>not</b> wait for CH-5a2a. The entries go into <code>expected-mechanism.json</code> as Architect-ruled owned entries (<code>register: "MD0b-R:A1"</code>, owner CH-5a2a, which must delete them; its L3m target stays 0 unexpected on both variants). The &sect;5 rule text gains this third allowed kind: an Architect-ruled product or check finding naming its owner and its MD0b-R item. <b>A2, COH-6 &times;4 (close variant): a real product disagreement, not a fixture fault.</b> The board reads the opportunity from mini-depth eligibility, while the lens and Portfolio read studies. A Site with eligible days and no study yet shows exactly this. That is the CH4-R R7 labelled keep. The spare-solar days stay: removing them would hide the finding, which is tuning. Record it as an owned entry (<code>MD0b-R:A2</code>, owner <b>CH-6a</b>: the board&rsquo;s potential/opportunity signal comes from the one opportunity read, and the entries are removed there). <b>A3, D-AW-3: confirmed.</b> CH-6b R16 builds its own L0 case and its own L2 synthetic case (<code>pg_harness</code>: a thread in CHANGE_APPLIED plus an occurrence after the effective day, before the outcome). MD-0 is not changed for this. The R16 addendum&rsquo;s MD-0 D14 assertion is replaced: on MD-0, D14 now asserts a real RECURRED from RESOLVED_MONITORING (CH-6 sheet, R16 revision MD0b-R). <b>Cost (owner speed goal), recommended:</b> (1) build the <b>close template on demand only</b>. <code>ensure</code> builds main by default; the close build and its L2m run when the slice diff touches the lifecycle list (<code>B/chain/lifecycle*.py</code>, <code>B/chain/threads.py</code>, the thread store adapter, <code>config/chain/thread-lifecycle-v1.json</code>, <code>variants.close</code>, or either <code>mechanism_dataset.py</code>), at E1/E4, and in the post-merge background job. That is about 17 min, not 40, per fingerprint change, with no loss of proof. (2) <b>The fingerprint is not narrowed:</b> a stale template is false evidence. (3) One rebuild per slice, at the slice head, after the code is final (CH5a2-R R5), with main kept warm by the post-merge job. (4) A measured proposal, not built now: split the seed into an inputs template (writer and ingestion trace) and a producers stage, if the per-step timings show ingestion &ge; 50% of the seed. <b>MD-0b fix round (about 0.25 unit):</b> the two owned-entry sets and the &sect;5 rule text; (1); and Known deviation 5 (drain in its own part), in the same edit, so the templates are rebuilt once. Report the per-step seed timings for (4). It then goes to a fresh-Claude re-review and merges.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5a2b-R</td><td>Architect rulings on the CH-5a2b pre-flight (2026-11-05, Claude, Architect 8; pre-flight <code>AssetOpsV1-ch5a2b\.agent\CH-5a2b-preflight.md</code> at <code>73a3fcc74</code>; full text: <code>.agent/build-sheet-CH-5a.md</code> &sect;B14). Size stays <b>4 units</b>. <b>Q1:</b> default; no consequence state and no snapshot shim, because the chip depends only on provenance and lifecycle (F1). An L0 test pins that equivalence, so a later change to the chip rule forces the consequence to be built. <b>Q2, Q5, Q6, Q8, Q10, Q11:</b> defaults accepted (one memoised provenance port of at most 3 statements; <code>action_rows</code> by import; <code>source_class</code> copied from the stored outcome; one <code>claim_days</code> through ChainRequest; lens-independent Findings claims; one factored cold/EV cutoff method shared by the board and thread routes). <b>Q3:</b> chip only on board-day heads; differences from the old UTC day are a pre-declared allowed A/B class, anything else is a finding. <b>Q4:</b> default, except the diagnostic is renamed <code>ACTION_ROW_MISSING</code> (never on the wire). <b>Q7, overridden:</b> one function in <code>B/chain/</code> builds all three count claims from the chain thread set, used by <code>/estate/chain</code>, the Portfolio summary and the Findings summary; <code>thread_progress</code>'s legacy fields stay on their own set until CH-6b, and the packet lists where they differ. No stop-and-compare. <b>Q9:</b> default; the checked-days wording switching with <code>count_basis</code> is a consequence of the one basis rule the owner already agreed (BASE-1, PC-1 &sect;2.5.3, AG-28, AG-29), so no owner question. The packet lists every changed value and the screen text it changes. Lows L1&ndash;L3 of CH-5a2a are built here.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH9-R2</td><td>Architect rulings on the CH-9 pre-flight (2026-11-05, Claude, Architect 8; pre-flight <code>AssetOpsV1-ch9\.agent\CH-9-preflight.md</code> at <code>5af83b877</code>; full text: <code>.agent/build-sheet-CH-9.md</code> &sect;10). Size stays <b>5 units</b>. <b>Q1:</b> default; MD-0's busy charge request spans the solar block, so busy days stay a real EXCLUDED case (a labelled fixture change that keeps the fixture's role), with an L0 per-hour proof added. <b>Q2, overridden:</b> a day's expected hours are the Site's declared operating hours (Kobo 24 h), the same period as <code>critical_served</code>. An hour not fully covered by availability readings is missing, and any missing hour makes the study day missing. Daylight hours are the covered hours with every value &gt; 0. The default's first-to-last-reading span would let a run that stops early read as a clean, shorter window. Consequence, reported and not adapted: today's 8 h Kobo story days become missing study days and MG-5 is PARTIAL on them. DD-1 gets a pre-flight item to make each story day its full declared day (story run plus steady scenario), the already-agreed direction. <b>Q3:</b> default; boundary-crossing intervals count, clipped, toward each hour. <b>Q4:</b> default; one <code>daylight_hours(site, day, cutoff)</code> function for all five readers, with a test that no noon literal remains. <b>Q5, Q6, Q7, Q8:</b> defaults accepted. MG-5 stays PARTIAL rather than shortening its period, and the <code>mill-midday</code> study class is proven at L2m on MD-0. Cost of +15&ndash;28% mini-depth jobs accepted and reported. Lane-1 conflicts are resolved by the slice that merges second.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5a2b-R2</td><td>Architect ruling on the CH-5a2b review packet, D2 (2026-11-05, Claude, Architect 9; packet <code>AssetOpsV1-ch5a2b\.agent\review-packet-CH-5a2b.md</code> at <code>3122c2d1d</code>; full text: <code>.agent/build-sheet-CH-5a.md</code> &sect;B15). <b>Ruling (a): the target is restated. No code change. Size stays 4 units.</b> <b>MD-0 estate day windows:</b> not a defect. The coherence collector asks for the enclosing UTC-midnight window of a Site-local day, which east of UTC is two UTC dates. By CH-5a2a D14 that window names both dates, and one of them has no data, so &ldquo;on the days checked&rdquo; is the honest grade. A client-picked date is a one-day pair and names exactly that day (R7 rule 2). <b>Polish:</b> an honest consequence of the data. No polish day grades complete until DD-1 extends the story days (Kobo PARTIAL, Cold/EV LOW, CH9-R2 Q2). <b>Restated target:</b> a claim reads &ldquo;on the days checked&rdquo; exactly when <code>count_basis(days)</code> is CHECKED_DAYS. On MD-0, every named day that is not complete is a declared gap day or outside the built day set, and every built non-gap day is complete. The packet adds a per-window table of named days and grades (about 0.1 unit, from bundles already on disk). <b>Guard, owner CH-6b (about 0.25 unit), before the texts reach a screen:</b> COH-18 checks that claim <code>days</code> equals the sum of per-day grades over <code>window_days</code>, with unbuilt days counted as no data and <code>gap_days</code> taken from <code>expected-mechanism.json</code>. An L0 test plants a wrong day mapping, which COH-18 must catch. <b>CH-6b info:</b> on the clone at S and week the claims (0 confirmed, 1 open) are the authority under CH-3&rsquo;s thread-on-day rule and match the board. When CH-6b retires the legacy fields, its packet lists the resulting screen-text change and confirms its cause from the thread events.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH9-R3</td><td>Architect rulings on the CH-9 build (2026-11-05, Claude, Architect 9; handoff <code>AssetOpsV1-ch9\.agent\CH-9-handoff.md</code> at <code>a21d58440</code>; full text: <code>.agent/build-sheet-CH-9.md</code> &sect;11 and <code>-CH-9b.md</code> Revision CH9-R3). <b>CH-9 5 &rarr; 4.5; CH-9b 2.5 &rarr; 4.5; net +1.5 on lane 2.</b> <b>Q1, u5 blocked: (b), deferred to CH-9b.</b> Every Action store requires an origin Finding. The Kobo <code>action</code> store is the right one, and CH-9b&rsquo;s verification plan references it; <code>domain_action</code> is cold-chain only. The headroom is an opportunity, not a Finding, so (c) would put the Action on the wrong thread. (a) would take CH-9 past 6 units. CH-9b gets a new first part, R0 &ldquo;Actions from an opportunity&rdquo; (2 units):<ul><li>an exactly-one-of Finding or opportunity origin on <code>action</code> and <code>chain_action_thread</code>, with the trigger updated;</li><li>one <code>link_action</code> port;</li><li>a listed reader audit plus a guard test against new unlisted readers;</li><li>L2 proofs: Finding-origin bodies are byte-equal before and after; CH-4 R6 runs with a linked Action; the mill Action goes ACTION_ACCEPTED &rarr; ACTION_APPLIED.</li></ul>OL-1 is unchanged. The Grow mill story completes in CH-9b, as planned. CH-9 has no stub; the packet records a Known Deviation. <b>Q2:</b> the Portfolio &ldquo;kW at midday&rdquo; label becomes false in CH-9, so CH-9 fixes it (DS-R1). It renders the server&rsquo;s value line if the item carries it; otherwise one guarded constant, &ldquo;kW over daylight hours&rdquo;. CH-6b moves it to server copy. <b>Q3:</b> <code>kobo-daytime</code> v2 is confirmed; Q8&rsquo;s &ldquo;v1&rdquo; was a wrong version number, and the rule is &ldquo;existing scenario only&rdquo;. <b>Q4, SCENARIO_BASIS_MISMATCH:</b> an honest mismatch, never hidden and never re-cut. If it is demo-visible, it gets one plain server sentence through guard V (about 0.1 unit inside the 4.5), and the packet lists it. The multi-hour scenario-pin contract goes to the post-demo list, or back to the Architect at DS-1 if the demo script needs a Kobo what-if.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5c-R4</td><td>Architect rulings on the CH-5c pre-flight (2026-11-05, Claude, Architect 10; pre-flight <code>AssetOpsV1-ch5c\.agent\CH-5c-preflight.md</code> at <code>fd3348fd7</code>; full text: <code>.agent/build-sheet-CH-5c.md</code> &sect;8). <b>CH-5c 5 &rarr; 5.75 units</b> (no split). <b>Q3, overridden: the watermark must follow commit order.</b> <code>max(xmin)</code> and the R7 &ldquo;max <code>event_outbox</code> (recorded_at, event_id)&rdquo; term both miss a write by an older transaction that commits later. Either one could serve a stale body, which is false evidence. The rule:<ul><li>(W1) Watermark terms are counts only, over tables the DB enforces as append-only.</li><li>(W2) Every other input table, including UPDATEd outbox producers, gets statement-level INSERT, UPDATE, DELETE and TRUNCATE triggers. They write to an append-only change log, <code>chain_input_change</code>, which is counted per Site or tenant-wide and never filtered by the cutoff.</li><li>(W3) The watermark is the first statement of the same snapshot that composes the body.</li><li>(W4) Historical bodies are re-checked on every request.</li><li>(W5) The response store and the change log are reset together.</li><li>(W6) The guard resolves views to base tables and checks the triggers from the catalogue. It is proved non-vacuous.</li></ul>Three flip cases are added: an out-of-order commit, a DELETE, and a late outbox row. <b>Q9, overridden, budget unchanged:</b> the trim leaves about 135&nbsp;KB. The 81.6&nbsp;KB of assessment ids shown only inside the closed technical disclosure now load when it opens, from a stored sub-route. That gives about 55&nbsp;KB against 100&nbsp;KB, with nothing rendered removed. <b>Q1, Q2, Q4, Q6, Q7, Q11:</b> defaults accepted. <b>Q5, Q8, Q10:</b> accepted with additions:<ul><li>the alembic head and the composer environment settings are part of <code>code_version</code>;</li><li>the pre-build uses the request path, holds no lease and prunes;</li><li>the insert uses the write engine, and the stored bytes are the served bytes.</li></ul>Totals: &asymp; 92.75, lanes &asymp; 86.75, G4 &asymp; 81.25, G5/G6 &asymp; 90.25. Owner: nothing to decide.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH9-R4</td><td>Architect rulings on the CH-9 packet (2026-11-05, Claude, Architect 11; packet <code>AssetOpsV1-ch9\.agent\review-packet-CH-9.md</code> at <code>ec34b487d</code>; full text: <code>.agent/build-sheet-CH-9.md</code> &sect;12). <b>CH-9 4.5 &rarr; 5.75 units</b> (cap 6, no split). <b>F1, <code>critical_served</code> NO_DATA on every Kobo day: (a), fixed in CH-9 (+1).</b> The measure reads the one CRITICAL load row: served is its delivered energy, unserved is its own unserved figure, and the hour counts only when that row is fully supported. The row figure is already computed but was not stored. It is now stored under <code>mini-service/2</code> (the version bump is required for re-derivation), and migration 0047 re-enqueues the stored <code>/1</code> service hours through the existing enqueue function. The old adapter also mixed critical served with all-load unserved, and that is gone. Real-shape L0 truth table (an unclassified load with no request), L2, L2m and L3 re-run. (b) is rejected because it is a second derivation, and (c) because it ships without R9. <b>F2, two headroom ranges: the study is authoritative (+0.25).</b> The summary headline and its headroom signal read the study, so there is one source. 2&ndash;8 kW shows everywhere on MD-0. <b>F3, +0.5&nbsp;s board: accepted</b>, folded into CH-5c/CH-5b. Any same-argument repeat read is fixed here (R1). <b>Polish:</b> the lost solar headline is the honest consequence of CH9-R2 Q2. <b>DD-1 full-day story days become a hard G5 requirement</b>; above the +50% prepare budget, the owner decides then. Totals: &asymp; 94, lanes &asymp; 88, G4 &asymp; 84 (CH9-R3 +1.5 was missing from G4), G5/G6 &asymp; 91.5. Owner: informed, nothing to decide.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5c-R6</td><td>Architect ruling on the CH-5c open item (2026-11-05, Claude, Architect 11; full text: <code>.agent/build-sheet-CH-5c.md</code> &sect;8.5). <b>CH-5c 5.75 &rarr; 6.0 (at the cap).</b> In a real demo run the tick pre-built under a different code version from the server, so the server never used those rows. The tick now runs in the serve environment, and its report shows the code version. The pre-build stores nothing when the server keys are absent. Pruning keeps the latest 3 rows per code version and never deletes another version&rsquo;s rows. Tests: env parity (proved to fail once), skip, per-version prune. Acceptance: the first Portfolio and summary request after a tick is a stored hit. Totals: &asymp; 94.25, lanes &asymp; 88.25, G4 &asymp; 84.25, G5/G6 &asymp; 91.75. Owner: nothing to decide.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5c-R7</td><td>Architect ruling on the CH-5c review (REVISE at <code>0353f63ed</code>; 2026-11-05, Claude, Architect 12; full text: <code>.agent/build-sheet-CH-5c.md</code> &sect;8.6). The review found two ways a stored page could be served out of date: comparison-report files the watermark does not see (H1), and wall-clock labels and counts such as &ldquo;Outcome pending&rdquo; and the 30-day verified count, which change with no data write (H2). <b>Split: CH-5c stays 6.0 and merges with the response store OFF</b>, so no stored page can be served. It brings the batching, the Portfolio trim, the scope-ids route and migration 0047, plus the merge chores (single-alembic-head test, W6 and <code>fresh</code> on a merged-tree clone, parity helper moved to the tests). <b>New CH-5c2 (2.5 units, lane 1, after CH-5c and before CH-5b) turns the store on.</b> It adds:<ul><li>a file-state term in the watermark, with declared roots and a test-only audit hook that fails on any unlisted file or network read during compose;</li><li>the demo loop order tick &rarr; comparison &rarr; pre-build;</li><li><code>valid_until</code> per live row, computed from registered clock boundaries with a local-midnight cap and a 1&nbsp;s margin, and a miss after it;</li><li>one clock seam with static and listener guards, plus a moved-clock test and a boundary sweep test;</li><li>the pre-build on every tick;</li><li>review fixes M1, L1&ndash;L4, and <code>host/</code> and <code>contracts/</code> in <code>code_version</code>;</li><li>the E4 hit check.</li></ul>M2, the trigger cost and change-log growth under data, is an open item owned by DD-1b, with a 50&nbsp;ms / 10% stop rule. Totals: &asymp; 96.75, lanes &asymp; 90.75, G4 &asymp; 86.75, G5/G6 &asymp; 94.25. Owner: nothing to decide. The fast first page after a tick arrives with CH-5c2, not CH-5c.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5c2-R1</td><td>Architect rulings on the CH-5c2 pre-flight (2026-11-05, Claude, Architect 12; pre-flight <code>AssetOpsV1-ch5c2\.agent\CH-5c2-preflight.md</code> at <code>55219fd1f</code>; full text: <code>.agent/build-sheet-CH-5c.md</code> &sect;8.7). <b>CH-5c2 2.5 &rarr; 3.0 units</b> (no split). The survey found more clock comparisons, a database clock predicate and a new migration. <code>valid_until</code> moves to migration 0048, because 0047 is merged; whichever of CH-5c2 and CH-9 merges second re-points. Q1&ndash;Q7 are accepted, with three additions:<ul><li>every clock value shown in a stored page is either masked as the build instant or proved absent;</li><li>an objective-head parity test;</li><li>the module list is updated only by a reviewed diff.</li></ul>Totals: &asymp; 97.25, lanes &asymp; 91.25, G4 &asymp; 87.25, G5/G6 &asymp; 94.75. Owner: nothing to decide.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>SPLIT-1</td><td>Architect split of the remaining large slices into build units of about 2&ndash;3 units, one builder each (2026-11-05, Claude, Architect 13; owner: &ldquo;do all what is needed to boost usage efficeny without comporomising on quality and speed&rdquo;, <code>.ai/ROLE_CONFIG.md</code> Token Efficiency; full text: the &ldquo;Build units (split 2026-11-05)&rdquo; section at the end of <code>.agent/build-sheet-CH-5b.md</code>, <code>-CH-6.md</code>, <code>-CH-9b.md</code>, <code>-DD-1.md</code>, <code>-CH-5d.md</code>). Each unit has its own reading budget, acceptance checks and review rule. <b>CH-5b 5.5:</b> 5b1 guards and tools 1.5, 5b2 &ldquo;Why?&rdquo; and ETag server 2, 5b3 blocks, dialog and ThreadList 2. <b>CH-6a 6:</b> 6a1 records, ratchet and strategies 2.5; 6a2 evaluator and claims 2 + 6a3 composers, R7 and proofs 1.5 (one batched review). <b>CH-6b 5.75:</b> 6b0 recurrence during a check (R16) 0.5; 6b1 EstateChain and the income total 1.75; 6b2 cards and Grow parts 2.25 + 6b3 COH-17, proofs and packet 1.25 (one batched review). <b>CH-9b 4.5:</b> 9b1 Actions from an opportunity (R0) 2; 9b2 registry and plan freeze 1 (review batched with 6b0); 9b3 evaluator, guardrails and page 1.5 (needs CH-6a3). P1 (the pass margin, possible owner OD) moves to 9b1. <b>DD-1 6.5 &rarr; 7.25:</b> 1a1 steady scenarios, full-day story days, batching 2; 1a2 B-22 day list and FILL-1 2; 1b1 story-time Actions, clock seams, tick output 1.5; 1b2 drain, finish rows, rehearsal, M2 1.75. The +0.75 sizes two must-haves that were never counted (full-day story days 0.5, CH9-R4; M2 trigger cost 0.25, CH5c-R7), not split overhead. <b>CH-5d 1:</b> one unit, unchanged. <b>Lane moves:</b> CH-5b1 and CH-6b0 go from lane 1 to lane 2 (they read only merged code). Lane 2 runs CH-9 &rarr; CH-5b1 &rarr; CH-9b1 &rarr; CH-9b2 + CH-6b0 &rarr; (DD-1a1 &rarr; DD-1a2 &rarr; DD-1b1 first if CH-6a3 is not yet on main) &rarr; CH-9b3 &rarr; DD-1b2 &rarr; CH-5d1. Lane 1 runs CH-5c2 &rarr; CH-5b2 &rarr; CH-5b3 &rarr; CH-6a1 &rarr; CH-6a2/6a3 &rarr; CH-6b1 &rarr; CH-6b2/6b3. Remaining after CH-5c2 and CH-9: lane 1 &asymp; 15.25, lane 2 &asymp; 14.75 (was &asymp; 17.25 and &asymp; 12.75). Totals +0.75: &asymp; 98.0, lanes &asymp; 92.0, G4 &asymp; 87.25 (unchanged), G5/G6 &asymp; 95.5. Owner: nothing to decide.</td></tr>
+<tr><td>CH5c-R3 / OWN-CH5c</td><td>Owner, verbatim: &ldquo;go with option A&rdquo;. Architect rulings (2026-11-04, Claude; <code>.agent/build-sheet-CH-5c.md</code>, <code>-CH-5d.md</code>, <code>-CH-5b.md</code> Revision OWN-CH5c). <b>CH-5c, 5 units, lane 1 after CH-5a2 and before CH-5b:</b> batched round trips with exact parity (1.5); stored route responses built at settle, keyed by watermark, request and code version, with the DS-1 routes pre-built and stored copies byte-equal to a fresh compute (3); Portfolio trim, removing unconsumed fields only (0.5). Two reads of the same evidence range may share one key only when the cutoff is at or after the read instant, inside one snapshot. Driver-level prepared statements are allowed on readers only. The expression index waits for DD-1b&rsquo;s volume. <b>CH-5b</b>&rsquo;s ETag is the stored copy&rsquo;s <code>etag</code>; 6 &rarr; 5.5 units. <b>CH-5d (new, 1 unit, lane 2 last, after CH-6b):</b> the Portfolio evidence cell and the Optimize card, moved out of the old CH-5c because they need EstateChain. <b>Net +2.5 units</b>: CH-5c +2, CH-5d +1, CH-5b &minus;0.5. The extra 0.5 over option A&rsquo;s +2 is that keeps unit. Lane 1: CH-1b &rarr; CH-5a1 &rarr; CH-5a2 &rarr; CH-5c &rarr; CH-5b &rarr; CH-6a &rarr; CH-6b. Lane 2: CH-4 &rarr; MD-0 &rarr; MD-0b &rarr; CH-9 &rarr; CH-9b &rarr; DD-1a &rarr; DD-1b &rarr; CH-5d. Gates: G4 &asymp; 77.5 (now including CH-5c), G5/G6 &asymp; 85, total &asymp; 86.5 (lanes &asymp; 81.5).</td><td><span class="chip a">Agreed + ruling</span></td></tr>
+<tr><td>CH5a1-R2</td><td>Architect rulings on the CH-5a1 build (2026-11-04, Claude; <code>.agent/build-sheet-CH-5a.md</code> &sect;A13). <b>R-1:</b> occurrence visibility is compared with the request <code>known_at</code> (both are recording times); the story-time evidence cutoff bounds thread state only. <b>COH-7a:</b> keep the &ldquo;local day of to&minus;1&nbsp;&micro;s&rdquo; summary-card rule; COH-7a expects that day for a mini Site&rsquo;s card. This closes CH-5a1&rsquo;s one and MD-0&rsquo;s two (now owned by CH-5a1, no longer CH-6). The extra E1 Low is accepted. The summary reads are keyed by Site. <b>Performance:</b> no budget is relaxed. See CH5c-R2.</td><td><span class="chip a">Ruling</span></td></tr>
+<tr><td>CH5c-R2</td><td><b>Owner decision (EX-3, before E1).</b> Measured on CH-5a1: the Kobo board takes 4.5&nbsp;s cold and 7.8&nbsp;s warm, the summary 7.0 / 4.3&nbsp;s, the Portfolio 5.2 / 4.2&nbsp;s and 281&nbsp;KB, against budgets of 1&nbsp;s cold, 300&nbsp;ms warm and 100&nbsp;KB. With the work as planned (CH-5a2, CH-5c batching at 3 units, CH-5b ETag/304), the estimated landing is about 2&ndash;4&nbsp;s on an uncached request; only an unchanged repeat request meets 300&nbsp;ms, through the 304. The budgets are <b>not</b> reached. <b>Recommended (A):</b> CH-5c grows to about 5 units and moves to lane 1 straight after CH-5a2, before CH-5b. It covers batching (1.5), a stored read-model of each route payload built when the chain settles, keyed by chain watermark, the request and the code version, with the demo-script routes pre-built (3), and a Portfolio payload trim (0.5). CH-5b then uses the stored revision as its ETag. This meets the budgets for stored routes; an uncached request stays at about 2&ndash;4&nbsp;s, and that is said openly. Total +2 units. <b>(B)</b> Keep CH-5c at 3 and accept about 2&ndash;4&nbsp;s, with the budgets revised by the owner. <b>(C)</b> Nothing more: about 4&ndash;8&nbsp;s, a visibly slow demo.</td><td><span class="chip a">Agreed: owner, &ldquo;go with option A&rdquo; (2026-11-04)</span></td></tr>
+<tr><td>MD0-S4</td><td>Architect rulings on the MD-0 review findings (2026-11-04, Claude; full text: <code>.agent/build-sheet-MD-0.md</code> &sect;17). <b>F2</b> is a fixture defect: MD-0 wrote power channels as point samples, the real producer writes 300&nbsp;s interval means, and the chain counts intervals only. Real data is not affected (the polish clone grades Kobo PARTIAL/COMPLETE). <b>F5</b> is a harness clock defect: the late job is never due to the worker. Fix round (about 1 unit): producer-shaped readings plus a shape-parity test, the DB clock on the late path, analytics/mini_depth/mini_decisions/opportunity added to the fingerprint, the inert reserve-20 control removed, COH-7a re-measured (owner CH-6 if it persists). MD-0 does not merge as-is. CH-5a1 keeps building; its review waits for the fixed MD-0. A Medium product note (point power accepted on V3 but not counted) goes to SWEEP-DS/post-demo.</td><td><span class="chip a">Ruling; owner informed</span></td></tr>
+<tr><td>CH9b-R / DD1-R</td><td>Architect rulings after OWN-1104 (2026-11-04, Claude; full text: <code>.agent/build-sheet-CH-9.md</code> &sect;9, <code>.agent/build-sheet-CH-9b.md</code>, <code>.agent/build-sheet-DD-1.md</code>):
+  <ul>
+    <li><b>CH-9 &sect;9.</b> Daylight is measured from <code>pv_available_power</code>, not output, which is curtailed exactly when solar is spare. An hour counts when all its readings are above 0. No declaration file; migration 0046 only replaces the enqueue functions. The full-day <code>critical_served</code> measure drives MG-5. 5 units.</li>
+    <li><b>CH-9b.</b> A verification family registry. <code>midday-productive-shift-1</code>: 3 COMPLETE days each side, chosen by grade; the pass rule from the catalogue or declared by the owner, never fitted; MG-5/MG-4 guardrails; outcomes through the existing store. 2.5 units.</li>
+    <li><b>CH-6 revision.</b> R10: the honest cross-Site income sum. R16: <code>RECURRED_DURING_CHECK</code>, placed in CH-6b because CH-6a is already at 6.</li>
+    <li><b>DD-1.</b> B-22 on each Site's calendar; levers L1/L2 only with DD-0c parity; prepare runs backfill and drains until empty; finish rows; tick output split. It splits into DD-1a (3.5) and DD-1b (3). <code>.agent/brief-DD-0c-levers-probe.md</code> runs first.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH5c-R</td><td>Architect rulings for CH-5c (2026-11-04, Claude; full text: <code>.agent/build-sheet-CH-5c.md</code> &sect;1):
+  <ul>
+    <li><b>S1, size.</b> 3 units: 2 for batched reads and 1 for the two labelled keeps CH-5c owns. Lane 2, last, cut after DD-1 and CH-6b. Gates G5/G6 become 76. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-11.)</i></li>
+    <li><b>R1&ndash;R3.</b> The Portfolio reads each Site's dispatch days in one batched set read: readings, attestations, selection heads, jobs and key heads are prefetched once and split per day by the same predicates. Configuration is batched only if proven equal. The result must deep-equal the per-day read; any difference is High. Claim-limit reads share the batch if their keys are dispatch days.</li>
+    <li><b>R4.</b> The Portfolio evidence cell is <code>readiness_of</code> over each Site's window days, the board chip's own function and rows.</li>
+    <li><b>R5.</b> The Optimize card shows each Site's avoided-cost claim from EstateChain, worded by checked-day basis, so it no longer goes blank on a partly checked period (I-16). It is never summed across Sites. The money lines keep their rule (labelled keep &rarr; CH-7).</li>
+    <li><b>R6.</b> Budgets are reported, never relaxed. A miss after CH-5c goes to the owner as a measured proposal before E1.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH4-R</td><td>Architect rulings for CH-4 (2026-11-04; full text: <code>.agent/build-sheet-CH-4.md</code> &sect;1):
+  <ul>
+    <li><b>R1.</b> A study is an occurrence only with at least one eligible day (design &sect;5b.1). The Kobo headroom thread holds OPP-000003 and OPP-000004.</li>
+    <li><b>R2.</b> An opportunity's episode is its eligible days, which refines CH2-R M1.</li>
+    <li><b>R3, I-18.</b> The board's observed range and the study's "every eligible day" value are different claims. Both stay, named once each in <code>mini_depth/rules.py</code>. The new wire names the unit (<code>headroom_kw</code>, <code>window_hours</code>).</li>
+    <li><b>R4.</b> Opportunity items are a separate, unpaged array, built once and used by both Findings and Portfolio.</li>
+    <li><b>R5.</b> <code>thread_signal_key</code> and <code>lens_flags</code> live in <code>outcome_map.py</code> (OL-1).</li>
+    <li><b>R6.</b> SUPPORT_LOST also applies to opportunity threads.</li>
+    <li><b>R7.</b> The board's opportunity signal stays on the renewable cards: a labelled keep for CH-6.</li>
+    <li><b>MD-CH4-1, for the owner.</b> The Portfolio priority table lists no opportunity row until CH-6; the opportunity shows in the strip and the panel.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH5b-R</td><td>Architect rulings for CH-5b (2026-11-04, Claude; full text: <code>.agent/build-sheet-CH-5b.md</code> &sect;1):
+  <ul>
+    <li><b>R1&ndash;R3.</b> One "Why?" trace, computed from stored ids and read through <code>outcome_map</code> only. It has two views: audit <code>nodes</code>, and the server-rendered MA-1 text (say, comes from, days used, what would change it, evidence link). &ldquo;What would change it&rdquo; is the first missing input, never invented.</li>
+    <li><b>R4.</b> The ETag hashes every input a body depends on: facts (the outbox head), derived rows (snapshot and thread-event heads), settledness, policy versions, the code version and <code>known_at</code>. There is no server body memo yet.</li>
+    <li><b>R5.</b> <code>perf_budget.py</code> has a fixture mode in check-all and a DB mode in the finish checks. The budgets are copied from design &sect;11b and never edited to pass.</li>
+    <li><b>R6.</b> The graph check validates today's declared config (event register, measures, lifecycle, <code>outcome_map</code>) until CH-8.</li>
+    <li><b>R7.</b> The frontend hard-wiring guard is a ratchet over today's counts, which may only shrink. New blocks start at 0.</li>
+    <li><b>R8.</b> One ThreadList and real Site-scoped lens routes for every Site type. The old lists remain only as assessment detail.</li>
+    <li><b>R9.</b> The blocks reproduce the MA-1 markup.</li>
+    <li><b>R10, size.</b> 5 &rarr; 6 units, because the ThreadList moved in from CH-4. Lane 1 grows by 1, so the gate totals each grow by 1.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH6-R</td><td>Architect rulings for CH-6 (2026-11-04, Claude; full text: <code>.agent/build-sheet-CH-6.md</code>):
+  <ul>
+    <li><b>S1, split.</b> 6 &rarr; 11 units: CH-6a (6) and CH-6b (5), lane 1, CH-5b &rarr; CH-6a &rarr; CH-6b. The OL-1 reshape with its ratchet and the PC-1 money and verdict claims were not in the original 6. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-4.)</i></li>
+    <li><b>R1&ndash;R3, OL-1.</b> <code>CONTRIBUTIONS</code> holds every outcome link; <code>ENTRIES</code> (15 keys: 4 Findings, 3 signals, 8 warnings) is derived from it and a test asserts it equals today's table. The new kpi, earnings and potential records never enter <code>ENTRIES</code>. The backend ratchet (AST, guard A) counts outcome-id literals and map-key constructions per file outside <code>outcome_map.py</code> and <code>catalogue.py</code>; the baseline only shrinks.</li>
+    <li><b>R4.</b> Six registered strategies. None computes new money: earnings sum stored day money over COMPLETE and PARTIAL days, a cost reads the stored consequence, recorded amounts wait for billing data.</li>
+    <li><b>R5&ndash;R6.</b> MG-1 counts fully checked days from day snapshots (LOW shown, never totalled). Other KPIs are complete only when their measure's days are COMPLETE. <code>judge</code> and <code>judge_month</code> are unchanged.</li>
+    <li><b>R7, I-19.</b> On track now outranks "No objective declared" (<code>outcome-status/4</code>), with "{k} of {m} outcomes have a target".</li>
+    <li><b>R8, PC-1.</b> One <code>Claim {key, value, basis, days, text}</code> and one <code>count_basis</code>, shared with CH-5a2. Money text is server-rendered and must equal the board's current money words on a shared fixture.</li>
+    <li><b>R9, I-22 in part.</b> MG-5 keeps its one-hour basis and says so in words; a full-day measure is CH-8 work. EV-2 stays not measured. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-6.)</i></li>
+    <li><b>R10, the Grow card total.</b> Estimated income is never added across Sites, even in one currency (design A6). <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-5.)</i></li>
+    <li><b>R11&ndash;R14.</b> Estimated income is measured kWh &times; declared price; the headroom money is a second Potential line, only when SUPPORTED (MD-CH6-1). EV Potential is the idle-chargers warning. The Kobo potential reads the opportunity thread (closes CH4-R R7). Every Site is judged over the same Site-local window; <code>latest_window</code> is deleted (I-04).</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH9-R</td><td>Architect rulings for CH-9 (2026-11-04, Claude; full text: <code>.agent/build-sheet-CH-9.md</code> &sect;1), 4 units, unchanged:
+  <ul>
+    <li><b>R1&ndash;R3.</b> The daylight window is declared in its own file, <code>config/chain/daylight-window-v1.json</code>, from a named reviewed source and never chosen to fit, so the calendar version does not change. Migration 0046 stores the declared hours; the three 0029 enqueue functions accept them; Sites with no declaration keep noon. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-8.)</i></li>
+    <li><b>R4&ndash;R5.</b> Studies become <code>mini-opportunity/2</code> over every daylight hour, with the same status rules; a new day measure <code>daylight_headroom_kw</code> replaces the one-noon-hour basis. Old studies stay readable.</li>
+    <li><b>R6.</b> "Run the mill at midday" shows a measured before/after over fully checked days (3 each side), never "verified": a second verification family is CH-8 lever work. <i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-7.)</i></li>
+    <li><b>R7&ndash;R8.</b> One story-day kind <code>mill-midday</code>, placed by DD-1, from an existing scenario or one labelled derived scenario reviewed as data. A study is SUPPORTED only if its readings really are single-source; otherwise "mixed sources" stays and is reported.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>MD0-R</td><td>Architect rulings for MD-0 (2026-11-04, Claude; full text: <code>.agent/build-sheet-MD-0.md</code> &sect;1, &sect;11):
+  <ul>
+    <li><b>R1.</b> Snapshots are never written directly. MD-0 writes inputs (Batch V2 readings, then the assessment workers), and snapshots come only from backfill step a and the CH-1b drain. A direct row would be overwritten from the real inputs and disagree with the board.</li>
+    <li><b>R2 (Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-1).</b> MD-0 uses the demo Site codes inside its own <code>*_test</code> DBs, so the calendar and collector need no config edit. This is enforced: the seed and <code>late_fill</code> refuse any database other than <code>assetops_mechanism(_close)_test</code> or a pg_harness worker DB, and they always refuse the polish, demo and protected DBs (<code>MECHANISM_DB_ONLY</code>, with an L0 test). <code>demo_combined.py</code> targets only <code>assetops_polish_*_test</code>. Reverse by giving MD-0 its own codes, with a calendar version bump.</li>
+    <li><b>R3/R4.</b> The fixture holds inputs only, each with a <code>source</code>. Every fact is written at story time through the writer's existing clock seam, with no UPDATEs. A writer without a seam is reported, and DD-1 owns the fix.</li>
+    <li><b>R5.</b> One setup_cache function op that owns its own CaseRunner and stores, uses no monkeypatch, and is proven with VERIFY.</li>
+    <li><b>R6.</b> Kobo uses the roles-4 demo configuration, so VERIFIED comes from the real evaluator, never from the test-scoped <code>complete_windows</code>.</li>
+    <li><b>R7.</b> A derived output that differs from the expected states is reported, never fixed in MD-0.</li>
+    <li><b>R8/R9 (DS-R1 fixes).</b> In-process coherence collect reads <code>story.json</code>/<code>days.json</code> only, and <code>check</code> gains <code>--threads</code>.</li>
+    <li><b>R10.</b> The Kobo board day as a UTC day is a labelled keep for CH-5a1.</li>
+    <li><b>Order and size.</b> MD-0 builds after CH-4 and CH-1b merge. It is 3 units (est.), with a pre-ruled split: if pre-flight P2 (VERIFIED) fails or the P0 spike puts the first build over 5 min, MD-0b (1 unit, verification and the close variant) follows on lane 2 before CH-9. CH-5a1 is unaffected.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>DD0b-R</td><td>Architect rulings for the DD-0b probe (2026-11-04, Claude; <code>.agent/brief-DD-0b-probe.md</code>):
+  <ul>
+    <li>No cap is raised. Every run is kept under the 600 s foreground limit, with a 9-min stop. K5 is not repeated, because DD-0's four completed runs give the Kobo per-run cost.</li>
+    <li>The profiled Kobo run is the add-day child itself, run under cProfile with a read-only planned payload. It never goes through <code>add_day</code>'s 280 s deadline.</li>
+    <li>E4's days are a week apart (S+0d, S&minus;7d, S&minus;14d, S&minus;21d).</li>
+    <li>The report adds a "Kobo with ingestion removed" row: the upper bound of the DD-1 bulk-ingestion lever.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH1b-R2</td><td>Architect rulings for the CH-1b fix round (2026-11-04, Claude; review <code>.agent/review-CH-1b.md</code> REVISE, DD0-R notes 1&ndash;6):
+  <ul>
+    <li><b>1, time bound.</b> DD0-R's &ldquo;<code>chain_seconds</code>&rdquo; means the bound of the stage that runs the consume: <code>chain_snapshot_seconds</code> for <code>consume('snapshots')</code>. Consume pages until the queue is empty or half the stage bound has passed (a consume deadline = stage start + bound/2, derived from the shared <code>Deadline</code>, not a new setting). The drain runs on the full shared deadline, so it always keeps at least the other half, and takes any time consume did not use. Marks are durable, so a deferred drain loses nothing. The half is a structural split, the same 50% the DD0-R acceptance reports against; it is not fitted to data. The packet reports consume ms, drain ms and the deferred counts separately. <code>site_today</code> is read once per stage run and shared by every page (review note 6).</li>
+    <li><b>2, re-scan cost.</b> In CH-1b now: an index with <code>type</code> in it, <code>event_outbox (site_id, type, recorded_at, event_id)</code>, added to <code>0044</code> itself (it is not merged yet), so the unconsumed and pending anti-joins read one type's entries. No cursor now: <code>event_id</code> is a uuid and <code>recorded_at</code> is insert time, not commit time, so a high-water mark could skip an event (review note 4). No pruning now: the demo outbox stays under the agreed 90 days, so pruning would remove nothing. Measured in the 4,400-event L2 test, with a second case that first consumes a backlog of about 60,000 events for the Site (14 days of a Kobo day): the packet reports the per-page select ms at both sizes. If one Kobo day's consume then takes more than half the stage bound, a commit-safe cursor becomes a DD-1 item, ruled then. Pruning stays post-demo.</li>
+    <li><b>3, guard shapes and transactions: confirmed.</b> Widen the <code>event_consumption</code> insert and <code>snapshot_dirty</code> upsert shapes in <code>configuration-persistence.ps1</code> to accept a multi-row <code>VALUES</code> list only (not <code>unnest</code> or <code>SELECT</code>): still insert-only, still the same <code>ON CONFLICT</code> arbiter, with accept and reject self-tests in <code>test_estate_guard.py</code>. Because the guard is edited, the estate guard self-tests run in this slice (plan &sect;4.3). Coalesce in Python per page on (tenant, Site, day, measure), with <code>first_event_id</code> = the earliest event of the page in the read order. One transaction per page holds the marks and every consumption row, through a page-level <code>EventPort</code> method that the memory port also implements. The <code>threads</code> consumer stays one event per transaction. The <code>lifecycle</code> consumer reads its unconsumed ids before <code>run_lifecycle</code> and consumes exactly those ids (closes review L2).</li>
+    <li><b>4, merge order: confirmed, CH-4 first.</b> CH-1b then merges main and filters CH-4's <code>None</code> sources in <code>sources_by_revision</code> and in the stage. An event whose only revision is ineligible is consumed, not failed, and is reported as <code>skipped_ineligible</code>. Add a stage test with one ineligible <code>opportunity.revised</code> event, then re-run L3 against CH-4's <code>expected-today.json</code> and <code>test_chain_coherence.py</code>. Migrations are unchanged, because CH-4 adds none. MD-0 builds after both CH-4 and CH-1b merge, because its late fill needs the drain.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH1b-R</td><td>Architect rulings on CH-1b's pre-flight:
+  <ul>
+    <li><b>Q1, accepted as proposed</b> (v1):
+      <ul>
+        <li>A reading counts for subject X when its <code>asset_id</code> is X.</li>
+        <li>A reading on another asset, or on none, counts Site-wide, but only when the Site has exactly one subject of that kind. Otherwise it gives NO_DATA for each subject, never duplicated values.</li>
+        <li>Chains are attributed by their generator asset.</li>
+      </ul>
+      Mapping probe to room through Foundation relations is a post-demo generalisation, listed with CH-8. No value changes today.</li>
+    <li><b>Q2, accepted.</b> The event store adapter gets one guarded INSERT into <code>event_outbox</code>. It is limited to type <code>'backfill.site'</code>, with <code>ON CONFLICT DO NOTHING</code>, and is registered in the guard as the only Python write to that table. Every other write stays trigger-only.</li>
+    <li><b>D1, accepted.</b> The register uses the real analytic ids.</li>
+    <li><b>Event volume.</b> The ledger writes about one event per reading, so the consume step gets its own bound, <code>TickLimits.chain_consume_events</code> (default 500). Hitting it defers the rest, as any cap does.</li>
+    <li><b>Merge order: CH-3 first.</b> CH-1b rebases on it, codes against CH-3's <code>append_events</code> and its step-d <code>chain_threads</code> call, and makes them event-driven. CH-1b also wires <code>consume('lifecycle')</code> to <code>run_lifecycle</code> (CH-3 sheet §4).</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH3-R</td><td>Architect rulings on CH-3's pre-flight:
+  <ul>
+    <li><b>Q1, accepted with one change (DS-R1 item 4).</b>
+      <ul>
+        <li>An occurrence with no event becomes an OCCURRENCE cause, ordered by effective day, so it yields RECURRED from RESOLVED_MONITORING or CLOSED.</li>
+        <li>Segments are assigned by story time, not build time:
+          <ul>
+            <li>an occurrence belongs to the segment that its own OPEN, RECURRED or REOPENED event starts; otherwise to the segment current on its effective day (<code>episode_start</code>), never at <code>joined_at</code>;</li>
+            <li>an Action belongs to the later of its origin occurrence's segment and the segment current on its ACCEPTED event's effective day, never at <code>linked_at</code>.</li>
+          </ul></li>
+        <li>Action causes apply only in that segment.</li>
+      </ul></li>
+    <li><b>Q2, accepted.</b> The label is that day's <code>STATE_LABEL</code>, from the thread state and the board's objective verdict.</li>
+    <li><b>Q3, accepted.</b> The state on day d is the last event with <code>effective_day</code> ≤ d and <code>recorded_at</code> ≤ <code>known_at</code>. Here <code>known_at</code> is the request's when given, otherwise the read's resolved cutoff. This is the intended reading of L5. Threading <code>known_at</code> into <code>SiteFacts</code> is accepted.</li>
+    <li><b>Q4, accepted.</b> The line goes in the <code>subline</code> of the row where the Finding is the primary MOVES issue, joined to any existing subline with " · ".</li>
+    <li><b>Q5, in scope (I-24).</b> A read-only SELECT in the registered estate reader. The sum is per currency and is never added across currencies. Otherwise the value reads "No money credited · modelled, not saved". The same applies to <code>priority_site_count</code>.</li>
+    <li><b>Q6, accepted.</b> Remove the I-01 entries if they resolve. COH-13 to COH-15 must pass with no entries. I-02 is proven by COH-14, and I-12 by the verbatim L3 report.</li>
+    <li><b>Also accepted:</b> <code>PostgresThreadStore.append_events</code> under the sole-writer lock, and domain-case completion via <code>work_event</code> with kind COMPLETE.</li>
+    <li><b>Build questions (phase 1):</b>
+      <ul>
+        <li><b>1, money unit.</b> A per-kWh rate is never summed or shown as money.
+          <ul>
+            <li>An amount is credited only from a stored, priced <b>total</b>: an amount, a currency and the basis it covers.</li>
+            <li>No stored source has one today. Building one would be a new money model, which is out of scope and High.</li>
+            <li>So <code>recovered_value</code> reads "No money credited · modelled, not saved". The rate may be shown only as a rate with its unit, labelled modelled.</li>
+            <li>A priced-total cost check is a post-demo item.</li>
+          </ul></li>
+        <li><b>2, one definition of a fully checked day.</b> Every <code>clean_day_measures</code> snapshot is COMPLETE <b>and</b> no occurrence started that day. A single function serves both the close rule and the copy count.</li>
+        <li><b>3, Portfolio day: fix now.</b> The thread state is read on each Site's local day of the window's last instant (AG-27).</li>
+        <li><b>4, board import guard.</b> The duplicated state tuples in <code>board.py</code> are accepted, with an equality test; CH-5a removes them.</li>
+        <li>ACT-000002's APPLIED being refused stays as it is until DD-1.</li>
+      </ul></li>
+    <li><b>Build questions (phase 2):</b>
+      <ul>
+        <li><b>D-b, the cutoff for backfilled events (DS-R1 item 4): fixed bitemporally in CH-3.</b>
+          <ul>
+            <li>Migration <code>0045_thread_known_at</code> adds <code>cause_known_at</code> to <code>finding_thread_event</code> and <code>source_known_at</code> to <code>finding_thread_occurrence</code>. Both are nullable and written at insert. They hold the cause fact's own recorded time: <code>action_event.recorded_at</code>, <code>verification_outcome.recorded_at</code>, the work event's recorded time, and the Finding or OPP revision's <code>created_at</code>.</li>
+            <li>An event or occurrence is visible at cutoff k when <code>coalesce(cause_known_at, recorded_at) ≤ k</code>.</li>
+            <li>The board then honours its resolved cutoff, as Q3 intended.</li>
+            <li>Where the cause fact itself was recorded at build time (Cold and EV Actions), its state stays hidden at story time. That is the honest result, and DD-1 fixes the facts.</li>
+            <li>The builder's interim "request <code>known_at</code> only" rule is withdrawn.</li>
+            <li>Migration order: 0045's <code>down_revision</code> is 0042, and CH-1b (merging second) re-points 0044 onto 0045.</li>
+          </ul></li>
+        <li><b>The L3 settle step.</b> The ladder (§4.1 L3) gains one bounded scheduler tick on the <b>clone only</b>:
+          <ul>
+            <li><code>tools/chain_clone.py settle &lt;name&gt;</code> runs the tick with the serve's arguments and refuses non-clone names.</li>
+            <li>The collect then runs inside the freshness window. It ticks again if the collect would take longer than about 4 minutes.</li>
+            <li>This makes the boards observable, so COH-14 and the I-01/I-12 lines are proven on real data before the end-game.</li>
+            <li>It is added in CH-3's fix round, and every later slice uses it.</li>
+          </ul></li>
+        <li><b>COH-8 / I-01 <code>origin_revision_selected</code></b> is the exact-revision progress rule. CH-5a owns it, through progress rows from threads.</li>
+        <li>D-a (<code>BEFORE_HEAD</code> skips) and the <code>state_day</code> wire key are accepted.</li>
+      </ul></li>
+    <li><b>Build questions (phase 3, head <code>d18390fdf</code>):</b>
+      <ul>
+        <li><b>1, COH-13.</b> The Portfolio takes the same resolved cutoff as the board: its envelope's resolved <code>window.known_at</code>, applied with the D-b visibility rule. The Cold and EV states are then hidden on both screens, consistently, until DD-1. COH-13 must show 0 findings, as Q6 required. No expected entries are added.</li>
+        <li><b>2, Kobo UNKNOWN after settle: run an A/B check before review (blocking).</b>
+          <ul>
+            <li>Settle the same polish clone, then read the Kobo 31 Oct and 1 Nov boards in process twice: once with the pre-chain code (main <code>73a558a1b</code>, in a separate read-only worktree), once with this branch.</li>
+            <li>For each, record which <code>settled</code> input fails (<code>B/site_outcomes/mini.py:413-421</code>): overview freshness, assessment state, dispatch, the readiness check, or <code>findings_ok</code> together with the finding-index status and gaps.</li>
+            <li><b>If both read UNKNOWN</b>, it is environmental, not a regression. The likely cause is the age of the 2 Nov build against today's wall clock. Record the failing input. The end-game is unaffected, because E3 builds fresh and E4 reads within the freshness window, with the runbook's "re-prepare if more than about 3 days" rule. The Kobo proofs then rest on the unit tests plus E4.</li>
+            <li><b>If only the branch reads UNKNOWN</b>, it is a regression. That is High: fix it before review, and add its slice of origin to the packet.</li>
+          </ul></li>
+        <li><b>3, COH-5.</b> Accepted as expected entries: register I-21, owner CH-5a (lens from the chain).</li>
+        <li><b>D-b sub-calls, accepted.</b>
+          <ul>
+            <li>INCONCLUSIVE expiry is known at max(the outcome's recorded time, the expiry instant).</li>
+            <li>The clean-days close has a null cause time, so it falls back to <code>recorded_at</code>. It does not fire on the demo while Kobo is PARTIAL, and it is listed in SWEEP-DS.</li>
+          </ul></li>
+        <li><b>D-f, strengthen in the fix round.</b> The L2 test asserts both directions: WITHDRAWN is written when every occurrence is NO_LONGER_SUPPORTED and there is no Action, and it is not written when an Action exists.</li>
+        <li><b>A/B result (fix round 1, <code>046d29094</code>).</b> This is not a regression: main and the branch read the same. The cause is the clone's missing file stores (the overview raises <code>AwaitingComparison</code>).
+          <ul>
+            <li><code>tools/chain_clone.py create</code> <b>copies</b> the polish build's file-store root <code>AssetOpsV1-polC\var\polish_full\tree\var</code> (256 KB) into <code>var/chainclone_&lt;name&gt;/store</code>. <code>drop</code> deletes the copy.</li>
+            <li><code>settle</code> and <code>chain_coherence collect</code> (in-process mode) point the evidence and commit store roots at that copy by default.</li>
+            <li>It must be a copy and never the polish tree itself, because <code>settle</code> ticks and may write.</li>
+            <li>CH-3 builds this in its current fix round, because it owns <code>settle</code>. Once it lands, the Kobo boards are observable on clones, and I-01 and COH-14 must then be proven on real data in CH-3's L3 step before merge.</li>
+          </ul></li>
+        <li><b>The Portfolio's per-row cutoff, accepted as interim.</b> Cold and EV rows take <code>min(Site evidence cutoff, envelope k)</code>, read from the row's own Finding link, with one lookup per distinct cutoff.
+          <ul>
+            <li>Condition: it is derived by one helper, shared with the board's cutoff rule, never by a second derivation.</li>
+            <li>CH-5a replaces it with the ChainReader per-Site cutoff, and CH-6 keeps that rule (A6).</li>
+          </ul></li>
+      </ul></li>
+    <li><b>Consolidated review ruling (review REVISE, <code>.agent/review-CH-3.md</code>): one fix round.</b>
+      <ul>
+        <li><b>M1, lifecycle order: causes apply in known-time order.</b>
+          <ul>
+            <li>They are ordered by (<code>cause_known_at</code>, <code>recorded_at</code>, id), not by effective day. The D-a <code>BEFORE_HEAD</code> skip compares known times.</li>
+            <li><code>effective_day</code> keeps its meaning, the story day the state takes effect, and is used only for the state-on-day reading. That reading is "the highest-seq event with <code>effective_day</code> ≤ d and known ≤ k".</li>
+            <li>So a re-verification after a withdrawal applies again: it gets a later seq on the change's effective day, and it wins on every day after the change.</li>
+            <li>Superseded outcomes (<code>supersedes_outcome_id</code>) give no cause.</li>
+            <li>Tests: withdraw then re-verify; and a superseded outcome ignored.</li>
+          </ul></li>
+        <li><b>M2, the clone's comparison record.</b> The store-roots copy ruling is withdrawn, because the roots are fixed in code and the record is keyed to the code tree.
+          <ul>
+            <li><code>chain_clone.py settle</code> first runs <code>python -m assetops_backend.evidence_migration run --tenant demo --site KOBO-001</code> against the <b>clone</b>, from this worktree, as <code>tools/demo_combined.py:425</code> does in prepare. It then ticks.</li>
+            <li>It writes into this worktree's gitignored <code>var/evidence/migration</code>. That is acceptable: it is the builder's own worktree, never the polish tree.</li>
+            <li><code>settle</code> records the files it created in <code>var/chainclone_&lt;name&gt;/created.json</code>. <code>drop</code> deletes exactly those files and never deletes a file that existed before.</li>
+            <li><code>settle_env</code> still refuses non-clone names.</li>
+          </ul></li>
+        <li><b>M3, where the thread line goes.</b> It is thread-level, not tied to an in-window Finding.
+          <ul>
+            <li>On a mini board for day d, a thread whose latest occurrence or Action lies in the board's 31-day work window (<code>work_lo</code>..<code>end</code>), and whose state on d is RESOLVED_MONITORING, CLOSED or RECURRED, puts its line in the <code>subline</code> of the row it moves (primary outcome). That is the same place as Q4.</li>
+            <li>The Earlier entry still lists the Action.</li>
+            <li>This is done in CH-3, because I-01's "verified, monitoring" is demo-critical (ST-2). The 1 Nov expectation stands and must be shown on the settled clone.</li>
+          </ul></li>
+        <li><b>Lows: all five in this round.</b>
+          <ul>
+            <li><b>L1:</b> mini boards pass their resolved cutoff explicitly, through the same helper as Cold and EV. The output is unchanged; "Before the change on 1 Nov" on the 17 Oct board is truthful hindsight from today's knowledge.</li>
+            <li><b>L2:</b> read the per-Site-type close override.</li>
+            <li><b>L3:</b> Portfolio counts are per thread and its state, independent of row order.</li>
+            <li><b>L4:</b> add the <code>THREAD_WIRE_KEYS</code> equality test and the earlier-segment guard test, and use one function for an Action's accepted day.</li>
+            <li><b>L5:</b> restore 0042's own downgrade-refusal assertion.</li>
+          </ul></li>
+        <li><b>The <code>_cutoff</code> condition</b> is met, because it is the same cutoff as the row's Finding link (<code>index.py:100</code>). Action segments are read per cutoff group too.</li>
+        <li><b>For CH-1b</b> (passed to its builder):
+          <ul>
+            <li>re-point 0044 onto 0045;</li>
+            <li>merge <code>test_ch2_thread_store_postgres.py:151-157</code> by hand;</li>
+            <li>downgrade tests start above 0045;</li>
+            <li>CH-1b wires <code>consume('lifecycle')</code>, per CH1b-R, and keeps step d in the <code>chain_threads</code> fallback until then;</li>
+            <li>every new thread-row writer fills the known-at columns.</li>
+          </ul></li>
+      </ul></li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH2-R</td><td>CH-2 review (REVISE), as directed by the coordinator and agreed by the Architect:
+  <ul>
+    <li><b>M1.</b> Thread times come from stored story times: OPP study days and Finding episodes. <code>created_at</code> is used only as a labelled fallback (DS-R1, item 4).</li>
+    <li><b>Carried items:</b>
+      <ul>
+        <li><b>CH-3</b> (from L1): a recurrence after a verified change shows RECURRED.</li>
+        <li><b>CH-5a</b> (from L5): the thread lookup honours <code>known_at</code>, so occurrence counts never include later occurrences.</li>
+        <li><b>CH-1b</b> (from L6): the thread stage scans incrementally from a cursor, and a cap hit defers the remainder instead of backing off the whole Site.</li>
+      </ul></li>
+    <li><b>Merge order:</b> CH-1a merges first; CH-2 then re-points 0042 to 0043.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH1a-R</td><td>Architect rulings on CH-1a's pre-flight (full text: <code>.agent/build-sheet-CH-1a.md</code> §5c):
+  <ul>
+    <li><b>EV calendar.</b> EV declares its real connector schedule, Tuesdays 08:00–16:00 (<code>ev-lab-001.yaml:154-168</code>). The run window 08:00–09:00 was fitted to the data and is withdrawn.</li>
+    <li><b>Cold calendar.</b> The Cold lab declares 24 h. No session is declared anywhere, so any session hours would be inferred. "Lab session hours" is withdrawn, and the inferred hours go into the SWEEP-DS inventory.</li>
+    <li><b>Coverage</b> counts known state:
+      <ul>
+        <li>EV: connector state known;</li>
+        <li>backup chain: role readings, not the instant events;</li>
+        <li>chamber: the period minus the probe's gaps;</li>
+        <li>dispatch: the intervals of the evidence the run used.</li>
+      </ul></li>
+    <li><b>One dispatch-minutes rule.</b> <code>_dispatch_minutes</code> moves unchanged into a public function in <code>analytics/dispatch_read.py</code>, and <code>mini.py</code> imports it. It is not imported as a private helper.</li>
+    <li><b>Headroom.</b> It is read from the stored renewable result.</li>
+    <li><b>Peak.</b> It is the highest probe reading in the period.</li>
+    <li><b>Zero kWh.</b> 0 kWh on a priced day gives 0.00.</li>
+    <li><b>Effect on the demo until DD-1:</b> Kobo is PARTIAL, while Cold and EV are LOW (shown, not totalled). EV income is visible on its board, but left out of the Portfolio Grow total.</li>
+    <li><b>DD-1</b> extends all three Sites' story days to their declared hours, using existing scenarios only. The whole prepare may grow by at most 50% (about 1,430 s). Otherwise the owner is told before E3.</li>
+    <li><b>Build results</b> (head <code>33e0e7561</code>):
+      <ul>
+        <li><b>D1.</b> The measure is right and the expectation was wrong. A selected 28 Oct assessment with probe readings exists, so LOW with a peak of 4.8 °C is correct (AG-4: calculate anyway). The design's "NO_DATA" data check is superseded, and §5 of the sheet is corrected in the packet.</li>
+        <li><b>D3.</b> Coverage counts only seconds backed by accepted probe readings, over the declared 24 h day, using the assessment's own gap rule.
+          <ul>
+            <li>It never counts seconds merely because they fall inside an assessed window.</li>
+            <li>If readings really exist for about 23 h, COMPLETE is the honest grade. If they exist only in the window, the grade is LOW.</li>
+            <li>Report which case the clone shows. If the gap rule cannot be applied outside an assessed window without new code, keep the window-only basis, record <code>basis: "assessed_window"</code> in the value, and add it to SWEEP-DS.</li>
+          </ul></li>
+        <li><b>D2.</b> Backup-role readings are instants, so the builder's window basis is accepted for v1. The value records <code>basis: "assessed_window"</code>, and the item is listed in SWEEP-DS.</li>
+        <li><b>D4.</b> Accepted: connector-state spans ∪ meter intervals, latest selected window only, with no double counting.</li>
+        <li><b>D7.</b> The budget is reset to the measurement: ≤ 100 ms per measure-day (measured 38–93 ms; <code>grade_counts_many</code> 11.3 ms). The binding limit stays the tick chain stage at ≤ 50% of its bound, which CH-1b measures. No optimisation now.</li>
+        <li><b>D5</b> is accepted.</li>
+        <li><b>D6.</b> In CH-1a's fix round, replace the 24 head literals with one <code>pg_harness</code> helper that reads the Alembic script head, so that neither 0042/0043 rebase nor any later migration touches 24 files. Run all 24 changed files, not 8.</li>
+      </ul></li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>CH0-R</td><td>Architect rulings on CH-0's results (61 findings: 39 mapped to the register, 22 new):
+  <ul>
+    <li><b>Kobo day boards (fix round).</b> Option 2 applies. The collector keeps <code>?date=D</code>, because the screen calls the board that way (<code>F/sites/outcomeBoardClient.ts:161</code>, <code>F/shell/SiteAnalyticsFrames.tsx:557</code>). For the self comparison only, on the outcome-board route only, <code>date=D</code> is canonicalised to <code>from=DT00:00:00Z&amp;to=(D+1)T00:00:00Z</code>. Nothing else is widened.</li>
+    <li><b>Self links.</b> COH-1 exempts only a body's root <code>links.self</code>, and only when it equals that body's own request path and query. The frontend must never render it; the CH-5b hard-wiring guard checks that. The 22 self-link findings leave <code>expected-today.json</code>. Every other <code>/api</code> link stays a contradiction.</li>
+    <li><b>Lens map.</b> <code>CATEGORY_LENS</code> stays. No backend constant exists; <code>lens_flags</code> comes from a priced consequence or a risk mechanism, and OPPORTUNITY is never set. The resulting findings are owned by CH-4 (opportunity lens) and CH-5a (lens from the chain, I-21).</li>
+    <li><b>Domain Actions.</b> COH-3 uses <code>raised_at</code>, because the domain index has no <code>created_at</code>.</li>
+    <li><b>Day windows.</b> Board-day Findings are read over the enclosing UTC day, because the estate routes refuse non-midnight bounds. That becomes the Site-local day with CH-5a (AG-27).</li>
+    <li><b>I-09.</b> COH-3 finding nothing is accepted, because the Actions are dated after every window, which is DD-1's fix. DD-1 must make COH-3 non-vacuous: for each Cold and EV board whose Finding has an Action, it evaluates at least one pair and passes.</li>
+    <li><b>Perf log under serve.</b> Fixed now, in CH-0's fix round:
+      <ul>
+        <li><code>assetops_backend.perf</code> gains an idempotent <code>enable_log()</code>, which attaches one handler and never duplicates it. The tick's helper calls it.</li>
+        <li><code>host/lab_app.py</code> calls it once at start, so QW-1's request lines and the tick line both reach the serve log.</li>
+        <li>A unit test checks it is idempotent.</li>
+      </ul></li>
+    <li><b>Expectation file after the rebuild.</b> <code>expected-today.json</code> is tied to the polish build and is used only for slice checks on its clone. At E4 the coherence check runs with <b>no</b> expectation file: EX-2 means 0 findings. It is regenerated against the new build only if you accept a residual item.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>QW-R</td><td>Architect ruling on the QW-1/QW-2 results (measured, §2.1 and design §11b):
+  <ul>
+    <li>Merge QW-1 and QW-2's batched reads; remove the per-board memo.</li>
+    <li>No QW-3. R1 (repeated window reads), R2 (light Site list) and R3 (profile the evidence selection) fold into CH-5a, the structural fix.</li>
+    <li>New contingency slice CH-5c (0–4 units, est.) for the Portfolio evidence and money reads.</li>
+  </ul></td><td><span class="chip g">Ruling</span></td></tr>
+<tr><td>OL-1</td><td>The declarative finding → outcome link waits for CH-8, on one condition: a clear structured declaration now, with a clear conversion later (§2.4). Owner's words (verbatim): "so long as there is a clear strucured way to do this and its later conversion is clear, it can wait: "Adding a new kind of finding, or changing what it affects, still means a code change until CH-8.""</td><td><span class="chip g">Agreed</span></td></tr>
 <tr><td>SWEEP-DS</td><td>A sweep for logic that only works because of how the demo data looks, run after the current scope (§2.2). Until then, the standing rule DS-R1 applies (§2.3). Owner's words (verbatim): "let put this as a task for later. After current scope finshes, but if current plans implementation touches upon it, make sure it is fixed."</td><td><span class="chip g">Agreed</span></td></tr>
 <tr><td>Rulings</td><td>
   <ul>
@@ -150,7 +543,7 @@ svg .bold{font-weight:700}
       <ul>
         <li>Kobo declares 24 h, because a mini-grid supplies power all day.</li>
         <li>DD-1 extends Kobo's story days to cover the full local day, using the simulator's existing scenarios and no tuned values. If that is not possible within the budget in the CH-1a sheet §2, Kobo days stay at 8 of 24 h and are shown as partly checked.</li>
-        <li>The two lab Sites keep their declared "Lab session hours", labelled as such. This is a genuine lab schedule, not a fit to the data.</li>
+        <li>The two lab Sites first kept a "Lab session hours" label. CH1a-R withdrew it, because pre-flight found the hours fitted to the data: EV uses its declared Tuesday 08:00–16:00 schedule, and the Cold lab is 24 h.</li>
       </ul></li>
   </ul></td><td><span class="chip g">Stand</span> (not overridden)</td></tr>
 </table></div>
@@ -160,11 +553,11 @@ svg .bold{font-weight:700}
 <h2>Summary</h2>
 <div class="plain"><b>In plain words.</b> We build what the client story needs from the agreed chain design, and nothing else, on two lanes. Until the end, every check is small and local: pure unit tests, contract fixtures, a tiny test database built in seconds, and a few-second copy of the existing demo database. There is no full suite and no demo database rebuild while we build. All the slow work runs once, in one ordered end-game of about 1.5–2 h of machine time (est.), followed by your walkthrough.</div>
 <div class="kpis">
-  <div class="kpi"><b>Build scope</b><span>11 slices, about 51 units (est.), plus QW-1/2 in flight</span></div>
+  <div class="kpi"><b>Build scope</b><span>13 slices, about 64 units (est.; CH-5a split and BASE-1), plus QW-1/2 in flight</span></div>
   <div class="kpi"><b>Lanes</b><span>2 (machine memory is tight)</span></div>
   <div class="kpi"><b>Full suite / demo builds before the end</b><span>0 / 0 (one optional 20-min mid-point check)</span></div>
   <div class="kpi"><b>End-game machine time</b><span>about 1.5–2 h (est.), run once</span></div>
-  <div class="kpi"><b>Progress measure</b><span>units merged out of about 51, and slices along the lane sequence (§8); dates are not binding</span></div>
+  <div class="kpi"><b>Progress measure</b><span>units merged out of about 64, and slices along the lane sequence (§8); dates are not binding</span></div>
   <div class="kpi"><b>Earliest allowed prepare</b><span>2026-11-06 (date rule; next blocked days 2026-12-03 to 05)</span></div>
 </div>
 <h3>Three changes to the agreed "demo-critical subset" (why the scope is wider)</h3>
@@ -196,7 +589,12 @@ svg .bold{font-weight:700}
 <tr><th>#</th><th>Criterion</th><th>Checked by</th></tr>
 <tr><td>EX-1</td><td>ST-1 to ST-7 each walk through on the build, matching the demo script's expected screen text</td><td>The demo script checklist, then the owner walkthrough (end-game step 6)</td></tr>
 <tr><td>EX-2</td><td>The chain coherence check passes with 0 failures for every Site × story day and for the week, S and month windows. Board, Portfolio, Findings and Actions agree. Every ref resolves to a screen route, and no link contains <code>/api</code>.</td><td><code>tools/checks/chain_coherence.py</code> (design §13; built in CH-0)</td></tr>
-<tr><td>EX-3</td><td>Performance budgets (§11b): Portfolio and Site board ≤ 1 s cold and ≤ 300 ms p95 warm; "Why?" ≤ 50 ms; payloads ≤ about 100 KB (Portfolio) and ≤ about 60 KB (board); tick chain stage ≤ 50% of its limit</td><td><code>tools/checks/perf_budget.py</code> (CH-5b)</td></tr>
+<tr><td>EX-3</td><td>Performance budgets (§11b): Portfolio and Site board ≤ 1 s cold and ≤ 300 ms p95 warm; "Why?" ≤ 50 ms; payloads ≤ about 100 KB (Portfolio) and ≤ about 60 KB (board); tick chain stage ≤ 50% of its limit.
+  <ul>
+    <li><b>Measured today (QW-1):</b> board about 8 s warm and 9.5–10 s cold; Portfolio about 7.2 s warm; summary about 9.5–9.9 s warm.</li>
+    <li>The budgets stay as targets. CH-5a and CH-5c must report measured numbers against them.</li>
+    <li>If a budget is still missed after CH-5c, the Architect brings a measured proposal to the owner before E1. A budget is never relaxed silently.</li>
+  </ul></td><td><code>tools/checks/perf_budget.py</code> (CH-5b)</td></tr>
 <tr><td>EX-4</td><td>No High issue open. The ten Highs are I-01 to I-08, I-10 and I-12, and each needs a named proof. All Medium and Low issues are closed, or listed and accepted by you.</td><td>Register reconcile in the end-game</td></tr>
 <tr><td>EX-5</td><td>Finish self-check: every row passes (today 23, plus new chain rows). Strict captures: settled, 0 counted vocabulary hits, no overflow at 1440 and 390 px</td><td><code>demo_combined_finish.py check</code>; <code>tools/demo-combined-evidence.mjs capture</code> with <code>DEMOB_STRICT=1</code></td></tr>
 <tr><td>EX-6</td><td>One full backend suite, full vitest and every guard green on the frozen main</td><td>End-game step 2</td></tr>
@@ -211,21 +609,53 @@ svg .bold{font-weight:700}
 <h3>2.1 In for the demo</h3>
 <div class="tw"><table>
 <tr><th>Slice</th><th>Units</th><th>Why the client story needs it</th><th>Resolves</th></tr>
-<tr><td>QW-1/QW-2 (in flight, <code>task/QW-1-2-load-timing</code>; QW-1 committed <code>514261984</code>)</td><td class="n">3</td><td>It measures where load time goes, so CH-5a/5b fix the real causes. It also gives a faster Portfolio straight away (AG-22).</td><td>Load time (P-1, P-5, partly)</td></tr>
+<tr><td>QW-1/QW-2 (<code>task/QW-1-2-load-timing</code>, head <code>5089f88ee</code>)</td><td class="n">3</td><td>It measures where load time goes, so CH-5a/5b fix the real causes (AG-22).
+  <ul>
+    <li><b>Measured result:</b> no speed-up from QW-2, within ±15–25% noise. The read path dominates: the Kobo board is about 8 s warm (design §11b, measured diagnosis).</li>
+    <li><b>Ruling QW-R:</b> merge QW-1 and QW-2's batched estate reads. They are byte-identical, use no extra memory, and cut snapshots from 7 to 2, which helps more Sites until CH-5a replaces them. Remove the per-board memo: it had 0 hits and carries a risk of returning a shared object that a caller could mutate.</li>
+    <li>R1, R2 and R3 are not built as patches; they fold into CH-5a.</li>
+  </ul></td><td>Measurement only</td></tr>
 <tr><td>CH-0 coherence check and timings</td><td class="n">3</td><td>EX-2 is the core "every screen agrees" gate. It is built first, so every later slice can prove itself locally.</td><td>Detects all; resolves none</td></tr>
 <tr><td>CH-1a day snapshots, grades</td><td class="n">5</td><td>Needed by CH-5a (dependency). It provides one graded day count and "assess what is there" (WN-2).</td><td>I-14, I-15, I-20 (I-04, I-16, I-22 completed in CH-6)</td></tr>
 <tr><td>CH-1b event register, outbox</td><td class="n">3</td><td>Needed by CH-6 (dependency). It gives re-assessment when a new day arrives (WN-5, ST-7), and it is the catalogue measures section that CH-9 uses.</td><td>I-25 (with DD-1)</td></tr>
 <tr><td>CH-2 threads, chain_action, backfill</td><td class="n">6</td><td>Recurrence as one problem; Actions visible everywhere (ST-2, ST-4, ST-5)</td><td>I-03, I-10, I-21, I-09 (with DD-1)</td></tr>
 <tr><td>CH-3 lifecycle</td><td class="n">6</td><td>Proof changes status: "Resolved, monitoring" (ST-2)</td><td>I-01, I-02, I-11, I-12, I-24 (part)</td></tr>
 <tr><td>CH-4 opportunity threads</td><td class="n">5</td><td>The opportunity shows on Portfolio and Findings (ST-1, ST-3). Without it, High I-06 stays open.</td><td>I-06, I-18</td></tr>
-<tr><td>CH-5a ChainReader, chain endpoints, routeFor</td><td class="n">6</td><td>One request per page and screen-route links (all stories; the main load fix)</td><td>I-03, I-08, I-23, I-21</td></tr>
-<tr><td>CH-5b "Why?" trace, ETag, performance guard, shared blocks</td><td class="n">5</td><td>EX-3 needs the guard. "Why?" answers the chip question (ST-1). AG-32 puts the main screens on shared blocks here.</td><td>I-13; budgets</td></tr>
-<tr><td>CH-6 nodes, strategies, proven-verdict rule, Portfolio from EstateChain</td><td class="n">6</td><td>The Grow card and the Grow row (ST-1, ST-3); the same graded week for every Site</td><td>I-04, I-05, I-07, I-16, I-19, I-22, I-24</td></tr>
-<tr><td>CH-9 daylight solar read + labelled demo-data day (rebased: after CH-1b and CH-4)</td><td class="n">4</td><td>The only Grow-revenue proof loop: "run the mill at midday", verified (AG-17)</td><td>I-17; WN-4</td></tr>
-<tr><td>DD-1 demo-data and producer batch (new; est.)</td><td class="n">2</td><td>ACT-002 and ACT-003 recorded at story time (§12). The backfill runs in <code>prepare</code>. Coherence and performance rows are added to the finish check. The <code>add-day</code> script step. All producer edits land here, so the end-game builds once.</td><td>I-09, I-25</td></tr>
+<tr><td>CH-5a1 ChainReader and the board read path (split, CH5a-R)</td><td class="n">6</td><td>The main load fix (all stories).
+  <ul>
+    <li><b>Required from the QW-1 measurement:</b> the board path stops calling <code>mini_overview</code>, <code>finding_index</code> and <code>evidence_readiness</code>. Settledness and readiness come from day snapshots, and Findings from threads.</li>
+    <li>No read with the same arguments runs twice in one request (QW R1, structurally). A per-request ledger asserts it.</li>
+    <li>The summary lists its Sites with the light scope (QW R2); the 409 is ruled in CH5a-R.</li>
+    <li>Its pre-flight profiles the Portfolio evidence selection (QW R3), which sizes CH-5c.</li>
+    <li>Also: one cutoff helper, the Site-local board day, <code>known_at</code> on thread counts (L5), and the old board joins and state tuples deleted.</li>
+  </ul></td><td>I-03, I-25 (part)</td></tr>
+<tr><td>CH-5a2a + CH-5a2b chain endpoints, refs, routeFor; board off the estate snapshot, provenance, PC-1 counts (split, CH5a-R; CH5a2-R S1: 5 + 4)</td><td class="n">9</td><td>One request per page, and screen-route links (all stories).
+  <ul>
+    <li><code>/chain</code> endpoints (<code>outcome-chain-1</code>) and one <code>routeFor</code>.</li>
+    <li>Lens from the chain; progress rows from threads; structured thread lines.</li>
+    <li>"Verified on example data" taken from provenance.</li>
+    <li>The board leaves the estate snapshot; the exact Action join is deleted.</li>
+    <li>The structural AST guard.</li>
+  </ul></td><td>I-08, I-21, I-23, I-01 (COH-8)</td></tr>
+<tr><td>CH-5c batched reads, stored route responses, Portfolio trim (OWN-CH5c, CH5c-R3, CH5c-R4)</td><td class="n">6.0 (CH5c-R6 +0.25; CH5c-R4 +0.75)</td><td>Lane 1, after CH-5a2 and before CH-5b. Batched round trips with exact parity (1.5); stored route responses built at settle, with the DS-1 routes pre-built (3); Portfolio trim (0.5). Budgets are judged on the stored or pre-built path; uncached time is reported beside them. <i>CH5c-R7: merges with the store off; CH-5c2 turns it on.</i></td><td></td></tr>
+<tr><td>CH-5c2 stored responses on: file-state term, live expiry, review fixes (CH5c-R7, CH5c2-R1)</td><td class="n">3.0 (CH5c2-R1 +0.5)</td><td>Lane 1, after CH-5c and before CH-5b. File-backed inputs in the watermark plus an audit-hook guard (0.75); <code>valid_until</code> with one clock seam, guards and sweep test (1.0); store-failure paths (0.25); L1&ndash;L4 and <code>code_version</code> residual (0.25); store on and E4 hit check (0.25).</td><td>EX-3; I-13</td></tr>
+<tr><td>CH-5d Portfolio evidence cell and Optimize card (split from the old CH-5c)</td><td class="n">1</td><td>Lane 2, last, after DD-1b and CH-6b (needs EstateChain).</td><td></td></tr>
+<tr><td>CH-5b "Why?" trace, ETag, performance guard, shared blocks</td><td class="n">5.5 (OWN-CH5c: ETag = the CH-5c stored copy)</td><td>EX-3 needs the guard. "Why?" answers the chip question (ST-1). AG-32 puts the main screens on shared blocks here.</td><td>I-13; budgets</td></tr>
+<tr><td>CH-6 nodes, strategies, proven-verdict rule, Portfolio from EstateChain (split, CH6-R S1; CH-6b +0.75 for the cross-Site income sum and RECURRED_DURING_CHECK, OWN-1104)</td><td class="n">11.75</td><td>The Grow card and the Grow row (ST-1, ST-3); the same graded week for every Site. It also reshapes <code>outcome_map.py</code> into <code>OutcomeContribution</code> records and adds the outcome-id ratchet guard (OL-1, §2.4). Split (sheet <code>.agent/build-sheet-CH-6.md</code>):<ul><li><b>CH-6a (6):</b> contributions and the ratchet, the strategy registry, OutcomeEvaluator (A3/A4, potential, evidence-class authority, the I-19 precedence fix), the PC-1 money and verdict claims, and the Site nodes on every board row.</li><li><b>CH-6b (5):</b> EstateChain over one graded window for every Site, the Portfolio cards from server claims (browser rules deleted), the Grow three parts on the board and the Portfolio, COH-17 over money and verdicts.</li></ul><i>(Architect call while owner away; owner to review, <code>.agent/decisions-while-owner-away-2026-11-04.md</code> D-AW-4.)</i></td><td>I-04, I-05, I-07, I-16, I-19, I-22 (part, CH6-R R9), I-24</td></tr>
+<tr><td>CH-9 daylight solar read + labelled demo-data day (rebased: after CH-1b and CH-4)</td><td class="n">5.75 (CH9-R4 +1.25)</td><td>The only Grow-revenue proof loop: "run the mill at midday" (AG-17); measured daylight and full-day MG-5 (OWN-1104); its verification is CH-9b. CH9-R3: 5 &rarr; 4.5, the Action moves to CH-9b. CH9-R4: +1 stored critical-row service and re-derive (F1), +0.25 one headroom source (F2)</td><td>I-17; WN-4</td></tr>
+<tr><td>CH-9b midday-productive-shift-1 verification (new, OWN-1104)</td><td class="n">4.5</td><td>"Run the mill at midday" verified against the outcome it was designed for, with MG-5/MG-4 guardrails (ST-3). CH9-R3: +2 for R0, Actions from an opportunity. <code>.agent/build-sheet-CH-9b.md</code>.</td><td>I-17; D-AW-7 reversed</td></tr>
+<tr><td>MD-0 mechanism dataset (new, BASE-1; Kobo-only, MD0-S2; est.)</td><td class="n">3.5 + 1 (MD-0b)</td><td>A small dataset of the demo's shape: normal continuous days with the story events injected, plus the gap cases. Every slice from CH-5a1 onward proves itself on it as well as on the sparse polish clone (&sect;2.5.2). It is built before CH-5a1 builds.</td><td>Mechanisms on normal data (BASE-1)</td></tr>
+<tr><td>DD-1 baseline-plus-story dataset and producer batch (re-scoped, BASE-1; B-22, OWN-1104; split DD-1a 3.5 + DD-1b 3, DD1-R S1; est.)</td><td class="n">7.25 (SPLIT-1 +0.75: full-day story days 0.5, M2 trigger cost 0.25)</td><td>Each Site runs continuous normal operation over its declared calendar for the baseline period, with the story days injected into it (&sect;2.5.1). It also covers:
+  <ul>
+    <li>ACT-002 and ACT-003 recorded at story time;</li>
+    <li>the backfill in <code>prepare</code>;</li>
+    <li>coherence and performance rows in the finish check;</li>
+    <li>the <code>add-day</code> step, extended to inject or fill any free day from a labelled steady-day or event kind (FILL-1, &sect;2.5.1a).</li>
+  </ul>
+  All producer edits land here, so the end-game builds once. The DD-0 probe sizes it first.</td><td>I-09, I-25; mechanisms on normal data</td></tr>
 <tr><td>MA-1 mock addendum (Architect, off-lane; est.)</td><td class="n">1</td><td>v70 has no "Why?" panel, no Grow three-slot row and no thread timeline (checked: <code>frontend/mockups/v70/index.html</code>). The mock is the layout spec, so it is drawn before the CH-5b and CH-6 UI units (OD-P5).</td><td>Avoids High mock mismatches</td></tr>
 <tr><td>DS-1 demo script (Architect/coordinator, off-lane)</td><td class="n">1</td><td>Story order, links and expected text per screen, with a fallback per step. It is drafted from the contract goldens and finalised after the captures.</td><td>EX-1</td></tr>
-<tr><th>Total</th><th class="n">≈ 56</th><th colspan="2">≈ 51 build units on the lanes + QW-1/2 (3) + 2 off-lane. All est. The 1 unit ≈ 0.25 builder-day rule is from §15.</th></tr>
+<tr><th>Total</th><th class="n">≈ 98.0 (SPLIT-1 +0.75, DD-1 must-haves; CH5c2-R1 +0.5; CH5c-R7 +2.5, CH-5c2; CH5c-R6 +0.25; CH9-R4 +1.25; CH5c-R4 +0.75; CH9-R3 +1.5; CH5a2-R: CH-5a2 6 &rarr; 9; FIX-MAIN-1 1 off-lane)</th><th colspan="2">≈ 92.0 (SPLIT-1 +0.75; CH5c2-R1; CH5c-R7; CH5c-R6; CH9-R4; CH5c-R4; CH9-R3; was 84.5, CH5a2-R) build units on the lanes (OWN-1104: CH-9 +1, CH-9b 2.5, CH-6b +0.75, MD-0 +0.5 and MD-0b 1, DD-1 +0.5; CH-5c sized at 3, CH5c-R S1; CH-5b 5 &rarr; 6, CH5b-R R10; CH-6 6 &rarr; 11, CH6-R S1) (CH-5a split, CH5a-R; MD-0 and the re-scoped DD-1, BASE-1) + QW-1/2 (3) + 2 off-lane. All est. The 1 unit ≈ 0.25 builder-day rule is from §15.</th></tr>
 </table></div>
 <h3>2.2 Explicitly after the demo</h3>
 <div class="tw"><table>
@@ -260,6 +690,211 @@ svg .bold{font-weight:700}
     <li><b>Never tune:</b> no value is tuned so that it fits the data.</li>
   </ul>
 </div>
+
+<h3 id="fo-link">2.4 Finding → outcome link until CH-8, and how it converts (OL-1, agreed)</h3>
+<div class="plain"><b>In plain words.</b> Until CH-8, which findings affect which outcomes stays in one place in the code, written as plain data in exactly the shape the catalogue will use later. At CH-8 that data is exported to the catalogue and proven to give the same results, and the code table is deleted. Until then, adding a new kind of finding, or changing what it affects, is still a code change.</div>
+<h4>Before CH-8: one structured declaration</h4>
+<ul>
+  <li><b>The table.</b> <code>B/outcomes/outcome_map.py</code> is the <b>only</b> declaration of finding → outcome. Its <code>ENTRIES</code> table (lines 16–38) maps 4 Findings, 3 signals and 7 warnings.</li>
+  <li><b>CH-6 reshapes it</b> into typed records, <code>CONTRIBUTIONS: tuple[OutcomeContribution, ...]</code>. These records are data, not logic, and their fields are exactly those of a future catalogue "outcome contributions" entry (design §5b.4).
+    <pre><code>OutcomeContribution(source,      # "FINDING:GENERATOR_SUPPORT_CANDIDATE" | "SIGNAL:…" | "WARNING:…" | "MEASURE:productive_kwh"
+                    outcome,     # "MG-2" or a domain alias "@COST"
+                    role,        # "MOVES" | "CHECKED"
+                    rank,        # 0 = primary
+                    driver,      # e.g. "avoidable_generator_runtime"
+                    direction,   # "ADVERSE" | "FAVOURABLE" | "CHECK"
+                    node,        # "status" | "kpi" | "potential" | "earnings"
+                    strategy,    # registered strategy id, e.g. "finding_presence@1", "priced_energy@1"
+                    money)       # None | {"measure": …, "price": "declared.productive_price", "label": …}</code></pre></li>
+  <li><b>Compatibility.</b> Today's <code>ENTRIES</code> and the resolver functions are <b>derived</b> from <code>CONTRIBUTIONS</code>. A test asserts that the derived <code>ENTRIES</code> equals today's literal table, so the nine current importers do not change.</li>
+  <li><b>Evaluation.</b> OutcomeEvaluator (CH-6) reads <code>CONTRIBUTIONS</code> only, through the strategy registry (AG-15).</li>
+  <li><b>Guard.</b> No finding → outcome wiring exists anywhere else. CH-6 adds a backend ratchet guard, the pre-demo part of AG-31's backend guard:
+    <ul>
+      <li>It fails on any <b>new</b> outcome-id literal (<code>MG-n</code>, <code>CC-n</code>, <code>EV-n</code>), or any construction of a map key, outside <code>outcomes/outcome_map.py</code> and <code>outcomes/catalogue.py</code>.</li>
+      <li>Today's literal sites (17, design §8b item 7) form a frozen baseline, each labelled with its owner, CH-6 or CH-10a. The baseline may only shrink.</li>
+      <li>CH-10a turns the ratchet into the full guard.</li>
+    </ul></li>
+  <li><b>Slices.</b> CH-6 owns all of this. CH-1a and CH-2 declare no outcome link: their sheets say so.</li>
+</ul>
+<h4>At CH-8: conversion recipe</h4>
+<ol>
+  <li><b>Export.</b> <code>python -m assetops_backend.chain.export_contributions</code> writes <code>CONTRIBUTIONS</code> to the catalogue YAML <code>outcome_contributions:</code> section, one entry per record with the same field names, sorted. The export is mechanical: no field is renamed or computed.</li>
+  <li><b>Equivalence test.</b> OutcomeEvaluator runs with each source, the code table and the catalogue. It must give byte-identical outputs:
+    <ul>
+      <li>on the CH-6 contract fixtures (all story days, three Site types, plus the synthetic fourth type);</li>
+      <li>on an L3 clone for every Site × story day.</li>
+    </ul></li>
+  <li><b>Delete.</b> Remove <code>CONTRIBUTIONS</code> and the derived <code>ENTRIES</code>; the importers read the catalogue loader. The ratchet baseline drops the two allow-listed files.</li>
+</ol>
+<p><b>Cost:</b> about 1 unit (est.): export about 0.25, equivalence test about 0.5, deletion and import switch about 0.25. That is already part of CH-8's "move today's types into the catalogue", so CH-8 stays at 6 units (est.). It lands after the demo, with CH-8.</p>
+<h3 id="baseline">2.5 Normal data and story days: mechanisms proven on full data (BASE-1, revision 2026-11-04)</h3>
+<div class="plain"><b>In plain words.</b> Today every check runs on a sparse build: a few story days with most days empty, so nearly every window reads "partly checked" or "not known". That tests the gap paths, not the everyday one. The revision does three things:
+  <ul>
+    <li>the demo shows weeks of ordinary operation, with the story problems placed inside them;</li>
+    <li>every slice proves itself on a small dataset of that same shape;</li>
+    <li>one rule decides how every screen words a count, an amount or a verdict when some days are missing.</li>
+  </ul></div>
+
+<h4>2.5.1 DD-1 re-scoped: a baseline with the story injected</h4>
+<p><b>Baseline.</b> Each Site runs normal operation over its declared calendar (CH1a-R) for every day of the baseline period:</p>
+<ul>
+  <li>Kobo: 24 h a day.</li>
+  <li>Cold lab: 24 h a day.</li>
+  <li>EV depot: Tuesdays 08:00&ndash;16:00.</li>
+</ul>
+<p><b>Story days injected</b> (the existing <code>demo-story-days-v1.json</code> kinds, kept on their dates relative to S):</p>
+<ul>
+  <li>Kobo: generator overruns on S&minus;14, S&minus;7 and S+0 (17, 24 and 31 Oct); ACT-001's before/after on S+0 and S+1; the spare-solar opportunity; the CH-9 "run the mill at midday" before/after day.</li>
+  <li>Cold lab: the backup start failures.</li>
+  <li>EV depot: the interruption.</li>
+  <li>Actions recorded at story time.</li>
+</ul>
+<p><b>Placement rules.</b></p>
+<ul>
+  <li>A story day replaces that day's baseline only for its own hours. The rest of the day stays normal, so the day can be fully checked.</li>
+  <li>EV story days are placed on declared Tuesdays (today's fault day, 27 Oct, is one). An event on an undeclared day would read "not expected", which is not a story.</li>
+</ul>
+<p><b>Scenarios: what exists (checked in <code>config/scenarios/</code>).</b> Only existing scenarios are used, and nothing is tuned. Three gaps:</p>
+<ul>
+  <li><b>Kobo:</b> no existing scenario covers a whole day or the night. <code>kobo-daytime</code> (the healthy sunny reference, offsets 0&ndash;720 min, about 12 h) and <code>kobo-mini-grid-evening</code> (the healthy full-site reference into the evening) cover daylight and evening only.</li>
+  <li><b>Cold lab:</b> no quiet normal scenario exists. <code>cold-normal</code> is a one-hour run that contains a grid loss (<code>cold-normal.yaml:19-26</code>, "backup cooling held the room"). Tiling it would give 24 grid losses a day, which is not normal operation.</li>
+  <li><b>EV depot:</b> <code>ev-complete</code> is one one-hour session. Eight back-to-back runs give a plausible ordinary Tuesday from an existing scenario.</li>
+</ul>
+<p>So a normal Kobo and Cold day cannot be built from existing scenarios alone. The two options are owner decision <b>OD-P13</b>:</p>
+<ul>
+  <li><b>(a)</b> Author two labelled steady-day scenarios. Each is derived from an existing reference (the same model profile and seed) with its forcings removed. The Kobo night is taken from the evening reference's own battery and generator behaviour. Both are reviewed as data and shown as example data. <b>Recommended.</b></li>
+  <li><b>(b)</b> Accept partly checked baseline days. Kobo is about 12&ndash;16 h of 24 (PARTIAL), and the Cold lab has 1 h of 24 (LOW).</li>
+</ul>
+
+<p><b>Baseline length and build cost</b> (OD-P11, OD-P12). These are linear estimates from WALK1-G2 (Kobo 611.8 s for 64 run-hours, about 9.6 s per run-hour; Cold 45.7 s for about 3.25 h, about 14 s/h; EV 50.2 s for 2 h, about 25 s/h; about 243 s overhead). A full Kobo day is then about 230 s, a Cold day about 340 s and an EV Tuesday about 200 s. Linear is an upper bound, because per-run costs may not scale with hours.</p>
+<div class="tw"><table>
+<tr><th>Option</th><th>Days</th><th>What the client sees</th><th>Sequential (est.)</th><th>Sites in parallel (est.)</th></tr>
+<tr><td>B-31: full October to S+1</td><td>32 (4 Tuesdays)</td><td>MG-1 is judged over the whole month; every window is fully checked</td><td>about 5.4 h</td><td>about 3 h</td></tr>
+<tr><td><b>B-22: three weeks, S&minus;20 to S+1 (11 Oct to 1 Nov)</b></td><td>22 (3 Tuesdays)</td><td>One normal week before the first overrun. Three weekly recurrences. MG-1 judged on 21 fully checked October days. The story week reads 7 of 7.</td><td>about 3.7 h</td><td>about 2.1 h</td></tr>
+<tr><td>B-16: minimum, S&minus;14 to S+1</td><td>16 (2 Tuesdays)</td><td>The first overrun falls on the first day, so there is no normal history before the problem. The story week is still 7 of 7.</td><td>about 2.7 h</td><td>about 1.5 h</td></tr>
+</table></div>
+<ul>
+  <li><b>Recommendation: B-22,</b> sized by the probe first.</li>
+  <li><b>The probe (DD-0, off-lane, machine time only, about 15&ndash;30 min est.).</b> One §4.4 partial prepare per Site, each running one existing reference at its full span. It reports seconds per run-hour and the per-run fixed cost.</li>
+  <li><b>If the probe puts B-22 above 2 h elapsed,</b> the fallback is B-16. The cap itself is owner decision OD-P12.</li>
+  <li>All three options exceed today's caps (1,430 s for DD-1, 3,120 s for E3). That conflicts with your earlier "we can't have long running tests and DB builds". It is a <b>one-time end-game build</b>, never a per-slice cost: slices use MD-0.</li>
+</ul>
+
+<p><b>How the client story days then read</b> (B-22, option (a); the rules are CH-1a to CH-4; the values are whatever the scenarios give, never tuned):</p>
+<ul>
+  <li><b>ACT-001's thread.</b>
+    <ul>
+      <li>17 Oct: "Generator stayed on {n} minutes longer than needed".</li>
+      <li>24 Oct: the same, plus "2nd time".</li>
+      <li>31 Oct, Needs attention: "Before the change on 1 Nov &middot; after the change: On track from 1 Nov". This is judged now, because 1 Nov is a fully checked day. On the sparse data it reads "not judged yet".</li>
+      <li>1 Nov: "Fix verified, monitoring (ACT-001) &middot; 7 more fully checked days to close".</li>
+      <li>It cannot close inside the story: the 7-day close rule needs 7 fully checked days after 1 Nov, and the data ends at S+1. Showing "closed" would mean moving the trial to S&minus;8 or earlier: OD-P14.</li>
+    </ul></li>
+  <li><b>Kobo Grow row (31 Oct).</b>
+    <ul>
+      <li>Target: MG-1, 300 kWh a month, judged on 21 fully checked days (at least N = 3). It reads on pace, behind pace or met, whichever the measured month-to-date gives.</li>
+      <li>Estimated income: the week over 7 of 7 days at 0.25 USD per kWh.</li>
+      <li>Potential: if the baseline studies are single-source they can be SUPPORTED, and the value line appears ("{lo}&ndash;{hi} kW at midday on every eligible day"). CH-9 still supplies the verified before/after.</li>
+    </ul></li>
+  <li><b>Counts and grades.</b>
+    <ul>
+      <li>The Portfolio week reads "7 of 7 days checked" for Kobo and Cold, and the EV Tuesdays in the week.</li>
+      <li>Counts are claimed on complete coverage, so the "on the days checked" forms appear only where a day really is missing (an injected gap day).</li>
+      <li>Cold: the failure night is Needs attention, and ACT-002 reads "Action agreed". EV: the same with ACT-003.</li>
+    </ul></li>
+</ul>
+
+<h4>2.5.1a Inject or fill any day (FILL-1, part of DD-1)</h4>
+<p><b>What exists today</b> (checked in <code>tools/demo_story_days.py:200-231</code> <code>plan_add_day</code>, with the per-Site children <code>demo_combined_{kobo,cold,ev}.py add-day</code>). <code>demo_combined.py add-day --site &lt;code&gt; --kind &lt;kind&gt; --day S&plusmn;Nd</code> already targets any chosen day, not only the next one. It refuses five cases:</p>
+<ul>
+  <li><code>DAY_HAS_EVIDENCE</code>: the day already holds delivered evidence. Stores are append-only, so a partly delivered day cannot be topped up.</li>
+  <li><code>DUPLICATE_DAY</code>.</li>
+  <li><code>OUTSIDE_BOARD_WINDOW</code>: earlier than S&minus;30d.</li>
+  <li><code>DAY_NOT_IN_PAST</code>: the day must end before DB now minus 5 min.</li>
+  <li><code>PREPARE_ONLY_KIND</code>: kinds that carry Actions or work rows.</li>
+</ul>
+<p>Delivery happens at real time, and each reading keeps its story time.</p>
+<p><b>DD-1 adds:</b></p>
+<ul>
+  <li>The OD-P13 <b>steady-day kinds</b> per Site (<code>steady</code>) in the day list, so a gap can be filled with a normal day. The named event kinds that carry no Action stay addable.</li>
+  <li>The baseline's <b>planned gap days</b> are declared in the day list as <code>missing</code> (for example Kobo's "gateway offline" day). They read NO_DATA and can be filled live.</li>
+  <li>An "after the story end" day (ST-7) is the next free day once it has ended in real time. Under 24 h calendars that is the previous calendar day, so with E3 on the session day minus 1, the live step adds S+2 on the session day.</li>
+  <li>The runbook and script lines for the demo script (DS-1).</li>
+</ul>
+<p><b>Honesty rules.</b></p>
+<ul>
+  <li>Readings carry their story time, and are recorded at real time. So "as known at" before the fill still shows the gap, and the late arrival is visible.</li>
+  <li>The data stays labelled as example data (registered simulation provenance).</li>
+  <li>No value is tuned. A refused fill is shown with its code, never forced.</li>
+</ul>
+<p><b>Proof.</b></p>
+<ul>
+  <li><b>MD-0 (L2m/L3m):</b> a late-fill helper writes one declared gap day at the current time.</li>
+  <li><b>A §4.4 partial prepare</b> with a planned gap, plus <code>add-day</code> (chain clones do not carry the demo work folder):
+    <ul>
+      <li>fill the gap;</li>
+      <li>tick;</li>
+      <li>collect and check.</li>
+    </ul></li>
+  <li>Each proof must show:
+    <ul>
+      <li>the day's snapshots move from NO_DATA to graded;</li>
+      <li>detection and threads update;</li>
+      <li>coherence has 0 new findings;</li>
+      <li>an earlier <code>known_at</code> still shows the gap.</li>
+    </ul></li>
+</ul>
+<p><b>Constraints.</b></p>
+<ul>
+  <li><b>Date rule.</b> The rule binds the build (E3), not a fill. A fill uses the build's S.</li>
+  <li><b>Cost.</b> One injected day costs about one Site-day of the baseline (&sect;2.5.1, per Site). DD-0 measures it with one <code>add-day</code> on its Kobo run.</li>
+  <li><b>Owner slice.</b> DD-1, at 5 &rarr; 6 units. There is no DD-1b.</li>
+</ul>
+<h4>2.5.2 MD-0: the mechanism dataset</h4>
+<ul>
+  <li><b>Shape.</b> One Site per type over 14 Site-local days on the declared calendars:
+    <ul>
+      <li>10 normal, fully checked days;</li>
+      <li>the injected events: two generator overruns a week apart, a trial with before/after, eligible headroom days, two backup start failures, an interruption on a Tuesday, and Actions at story time;</li>
+      <li>the gap cases: one PARTIAL day, one NO_DATA day and one PENDING day.</li>
+    </ul></li>
+  <li><b>Build.</b> It is a declared fixture, not a simulator run. A JSON file is written through the product's own writers, then the backfill steps b to d run: Findings via the s4 case runner, OPPs via the mini-decisions store, Actions and verification via the s6 harness, and day snapshots via the CH-1a snapshot store.
+    <ul>
+      <li>L2m: the <code>pg_harness</code> template plus <code>setup_cache</code>; seconds per test after the first build (about 1&ndash;2 min, est.).</li>
+      <li>L3m: <code>assetops_mechanism_test</code>, built by one command in about 2 min (est.). It has its own story and days work folder, so the coherence collect runs on it.</li>
+    </ul></li>
+  <li><b>Expectation.</b> <code>expected-mechanism.json</code> holds no findings, only the declared gap days. On MD-0 every rule must pass on the normal path. On the polish clone it must pass the gap paths.</li>
+  <li><b>Owner and order.</b> Lane 2, right after CH-4 merges, at 3 units. CH-5a1 may run its pre-flight in parallel, but builds after MD-0 merges. Brief: <code>.agent/brief-MD-0-mechanism-dataset.md</code>.</li>
+</ul>
+
+<h4>2.5.3 PC-1: one presentation rule over partly checked windows</h4>
+<ul>
+  <li><b>The rule.</b> Every count, amount and verdict on the wire is a claim <code>{value, basis, text}</code>, rendered once by <code>B/chain/vocabulary.py</code> (the vocabulary layer, AG-29). The browser shows <code>text</code>.
+    <ul>
+      <li><code>COMPLETE</code> (every day of the window checked): "3 opportunities".</li>
+      <li><code>CHECKED_DAYS</code>: "1 found on the days checked", and "None found on the days checked" when there are none.</li>
+      <li><code>NOT_KNOWN</code>: "Not known yet".</li>
+      <li>Money: "{amount} over {k} of {m} days checked", never totalled from LOW days (AG-5).</li>
+      <li>Verdicts: "too early to judge (needs {N} fully checked days)".</li>
+    </ul></li>
+  <li><b>One basis function</b> (the Portfolio's <code>count_basis</code> rule) is used by the Portfolio, Findings, the outcome summary and the board.</li>
+  <li><b>COH-17 (new):</b> the same claim (key, Sites, window) has the same value, basis and text on every screen.</li>
+  <li><b>Owners.</b> CH-5a2 builds the claim type and the count claims, plus COH-17. CH-6 builds the money and verdict claims.</li>
+  <li><b>CH-4 D2</b> (Findings <code>summary.opportunity_count</code> null while the Portfolio shows 1) is fixed now in CH-4's fix round. The CH-4 sheet already says the count is null only when the opportunity read fails (§2.3), so D2 is a defect against the sheet. PC-1 later wraps the same value with its basis text.</li>
+</ul>
+
+<h4>2.5.4 Effect on merged and in-flight slices</h4>
+<ul>
+  <li><b>Merged</b> (QW, CH-0, CH-1a, CH-2, CH-3, MA-1): nothing needs redoing.
+    <ul>
+      <li><code>expected-today.json</code> stays tied to the polish clone for slice checks. MD-0 adds its own expectation file. E4 still runs with no expectation file.</li>
+      <li>The CH1a-R fallback "Kobo days stay at 8 of 24 h" is superseded by the baseline.</li>
+    </ul></li>
+  <li><b>CH-1b (finishing): no redo; one measurement asked.</b> A continuous baseline writes about one outbox event per reading, far more than today. The consume bound of 500 per tick could make one 24 h add-day (ST-7) drain over many ticks. CH-1b's packet reports consume throughput (events per second, per tick). Measured by DD-0: one event per reading (about 4,100 a Kobo day). Ruled in DD0-R: <code>consume</code> pages until the queue is empty or the stage time bound is reached, as a CH-1b fix round.</li>
+  <li><b>CH-4 (in review):</b> D2 in its fix round, as above. MD-CH4-5 ("mixed sources") may disappear on single-source baseline studies.</li>
+  <li><b>CH-9:</b> its labelled day becomes one injected story day. Its partial-prepare proof is unchanged.</li>
+</ul>
+
 </section>
 
 <section id="sequence">
@@ -272,14 +907,23 @@ svg .bold{font-weight:700}
 <tr><td>CH-0</td><td>2 (starts with QW-2)</td><td class="n">3</td><td>QW-1 timings</td><td>1 day</td><td>no</td></tr>
 <tr><td>CH-1a</td><td>1</td><td class="n">5</td><td>CH-0</td><td>1.7 days</td><td><b>0043</b> snapshots</td></tr>
 <tr><td>CH-1b</td><td>1</td><td class="n">3</td><td>CH-1a</td><td>1 day</td><td><b>0044</b> outbox, dirty queue</td></tr>
-<tr><td>CH-5a</td><td>1</td><td class="n">6</td><td>CH-1a, CH-2</td><td>2 days</td><td>no</td></tr>
-<tr><td>CH-5b</td><td>1</td><td class="n">5</td><td>CH-5a, MA-1</td><td>1.7 days</td><td>no</td></tr>
-<tr><td>CH-6</td><td>1</td><td class="n">6</td><td>CH-1b, CH-5a, MA-1</td><td>2 days</td><td>no (est.)</td></tr>
+<tr><td>CH-5a1</td><td>1</td><td class="n">6</td><td>CH-1b, CH-3, MD-0 (build step)</td><td>2 days</td><td>no (an index only if the pre-flight shows one is needed)</td></tr>
+<tr><td>CH-5a2a (CH5a2-R)</td><td>1</td><td class="n">5</td><td>CH-5a1, CH-4</td><td>1.7 days</td><td>no</td></tr>
+<tr><td>CH-5a2b (CH5a2-R)</td><td>1</td><td class="n">4</td><td>CH-5a2a</td><td>1.3 days</td><td>no</td></tr>
+<tr><td>CH-5c (OWN-CH5c)</td><td>1</td><td class="n">6.0</td><td>CH-5a2b, MD-0 (lane 1: CH-5a2a &rarr; CH-5a2b &rarr; CH-5c &rarr; CH-5c2 &rarr; CH-5b)</td><td>about 1.5 days</td><td>no</td></tr>
+<tr><td>CH-5c2 (CH5c-R7)</td><td>1</td><td class="n">3.0</td><td>CH-5c</td><td>about 0.75 days</td><td>no</td></tr>
+<tr><td>CH-5d (OWN-CH5c)</td><td>2</td><td class="n">1</td><td>DD-1b, CH-6b (lane 2, last)</td><td>0.5 day</td><td>no</td></tr>
+<tr><td>CH-5b</td><td>1 (CH-5b1 on lane 2, SPLIT-1)</td><td class="n">6</td><td>CH-5a2, MA-1</td><td>1.7 days</td><td>no</td></tr>
+<tr><td>CH-6a</td><td>1</td><td class="n">6</td><td>CH-5b (lane order), CH-5a2, MA-1</td><td>2 days</td><td>no</td></tr>
+<tr><td>CH-6b</td><td>1 (CH-6b0 on lane 2, SPLIT-1)</td><td class="n">5.75</td><td>CH-6a, MD-0</td><td>1.7 days</td><td>no</td></tr>
 <tr><td>CH-2</td><td>2</td><td class="n">6</td><td>CH-0</td><td>2 days</td><td><b>0042</b> threads, chain_action</td></tr>
 <tr><td>CH-3</td><td>2</td><td class="n">6</td><td>CH-2</td><td>2 days</td><td>no (est.)</td></tr>
 <tr><td>CH-4</td><td>2</td><td class="n">5</td><td>CH-2</td><td>1.7 days</td><td>no (est.)</td></tr>
-<tr><td>CH-9</td><td>2</td><td class="n">4</td><td>CH-1a, CH-1b, CH-4</td><td>1.3 days</td><td>no</td></tr>
-<tr><td>DD-1</td><td>2</td><td class="n">2</td><td>CH-2, CH-3, CH-9</td><td>0.7 day</td><td>no</td></tr>
+<tr><td>CH-9</td><td>2</td><td class="n">5</td><td>CH-1a, CH-1b, CH-4</td><td>1.3 days</td><td>no</td></tr>
+<tr><td>CH-9b</td><td>2</td><td class="n">2.5</td><td>CH-9, CH-6a</td><td>0.8 days</td><td>no</td></tr>
+<tr><td>MD-0 mechanism dataset</td><td>2</td><td class="n">3.5 + 1</td><td>CH-4 (lane order), CH-3</td><td>1 day</td><td>no</td></tr>
+<tr><td>DD-0 baseline cost probe</td><td>off-lane (machine only)</td><td class="n">-</td><td>none; run now</td><td>15&ndash;30 min</td><td>-</td></tr>
+<tr><td>DD-1 baseline plus story, and fill any day</td><td>2</td><td class="n">7.25 (1a 4.0, 1b 3.25; SPLIT-1)</td><td>CH-2, CH-3, CH-9, DD-0, OD-P11 to P13</td><td>1.7 days</td><td>no</td></tr>
 <tr><td>MA-1 mock addendum; DS-1 demo script</td><td>off-lane</td><td class="n">1 + 1</td><td>MA-1 before the CH-5b UI; DS-1 after DD-1</td><td>overlapping</td><td>-</td></tr>
 <tr><td>End-game E1–E6</td><td>alone</td><td class="n">-</td><td>everything merged</td><td>1 day (§5)</td><td>-</td></tr>
 </table></div>
@@ -315,7 +959,7 @@ svg .bold{font-weight:700}
   <rect class="bx" x="560" y="120" width="96" height="26" rx="4"/><text x="564" y="137">mid-point</text>
   <rect class="bx" x="760" y="120" width="80" height="26" rx="4"/><text x="764" y="137">DS-1 script</text>
   <rect class="be" x="840" y="32" width="56" height="114" rx="4"/><text x="845" y="94" class="bold">End</text>
-  <text x="120" y="184" class="mut">wd = working day; a non-binding estimate. CH-5a waits for CH-2 (lane 2), which is done before CH-1b finishes. The mid-point check runs after CH-5a merges.</text>
+  <text x="120" y="184" class="mut">wd = working day; a non-binding estimate. CH-5a1 follows CH-1b; CH-5a2 (lane 1) waits for CH-4 (lane 2). The mid-point check runs after CH-5a2 merges (CH5a-R). The bars are the pre-split estimate.</text>
 </svg>
 <figcaption>Planned lanes (est.). Each box is one slice: Implementer, then a fresh Reviewer, fix rounds on Sonnet, and merge on ACCEPT.</figcaption>
 </figure>
@@ -328,7 +972,12 @@ svg .bold{font-weight:700}
       <li>The chain backfill called from <code>prepare</code> after finish (§12).</li>
       <li>New finish-check rows: the coherence check, the performance guard and the expected backfill threads from §12.</li>
       <li>The ST-7 <code>add-day</code> step written into the script.</li>
-      <li>Kobo story days extended to the full local day (24 h, DS-R1 calendar ruling), using existing simulator scenarios only. A pre-flight probe measures the cost of one 24 h day first; the fallback is in the CH-1a sheet §2.</li>
+      <li>(Superseded by BASE-1 &sect;2.5.1: a continuous baseline with the story days injected.) Story days of all three Sites extended to their declared hours (DS-R1 calendar rulings, CH1a-R): Kobo and Cold to 24 h, EV to Tuesdays 08:00–16:00. Only existing simulator scenarios are used.
+        <ul>
+          <li>A pre-flight probe measures the cost first.</li>
+          <li>The whole prepare may grow by at most 50%.</li>
+          <li>The fallback is in the CH-1a sheet §5c.</li>
+        </ul></li>
     </ul>
     No values are tuned.</li>
   <li><b>Rule:</b> nobody runs <code>prepare</code> on the demo DB before the end-game. Producer changes are proven by the partial prepares in §4.4.</li>
@@ -344,8 +993,9 @@ svg .bold{font-weight:700}
 <tr><td>L0 pure</td><td>In-process truth tables, with no DB and no app: A1 <code>classify_day</code>, A2 <code>place</code>, A3 <code>outcome_state</code>/<code>roll_up</code> (with the I-19 case), A4 earnings, A5 feedback (§13)</td><td>seconds</td><td>Every rule</td></tr>
 <tr><td>L1 contract fixtures</td><td>SiteChain/EstateChain goldens for the story days (§7 JSON). The backend compares its output to them, and the frontend renders from them in vitest with no server.</td><td>seconds</td><td>Every API or UI change; it lets UI units start before the backend merges</td></tr>
 <tr><td>L2 tiny synthetic DB</td><td>A small seeded set-up per slice. CH-1a and CH-2 each define theirs; this was earlier given to CH-0, and the build sheets move it, because the tables it seeds arrive in those slices. Each is the pg_harness template clone at head, seeded with 3 Sites × 7 days, and kept between runs by the PERF-02 setup cache (<code>backend/tests/setup_cache.py</code>)</td><td>seconds per test after the first build</td><td>Stores, migrations, triggers, backfill and drain, run in scoped Postgres files on the host (<code>tools\run-host-tests.ps1 &lt;files&gt;</code>)</td></tr>
-<tr><td>L3 demo-data clone</td><td><code>CREATE DATABASE chainclone_&lt;slice&gt;_test TEMPLATE assetops_polish_full_test</code> (about 80 MB, §11b), then migrate to the slice's head, backfill and read in process. The clone is dropped afterwards. This only reads the source, and it needs no other session on it, so serve must be stopped.</td><td>under a minute to clone (est.)</td><td>Backfill on real data (§12 expected threads), coherence, payload sizes, QW byte-identity. Clone values are fixed at S = 2026-10-31 and the clone is never ticked for freshness, so it checks structure and agreement, not final story values.</td></tr>
+<tr><td>L3 demo-data clone</td><td><code>CREATE DATABASE chainclone_&lt;slice&gt;_test TEMPLATE assetops_polish_full_test</code> (about 80 MB, §11b), then migrate to the slice's head, backfill and read in process. The clone is dropped afterwards. This only reads the source, and it needs no other session on it, so serve must be stopped.</td><td>under a minute to clone (est.)</td><td>Backfill on real data (§12 expected threads), coherence, payload sizes, QW byte-identity. Clone values are fixed at S = 2026-10-31. Before each collect, <code>tools/chain_clone.py settle</code> runs one bounded scheduler tick on the clone only (CH3-R), so the producers are settled and the boards are observable. The clone checks structure, agreement and the board lines; the final story values are checked at E4.</td></tr>
 <tr><td>L4 read-only on the polish DB</td><td>SELECT-only scripts against <code>assetops_polish_full_test</code>: the CH-0 coherence report of today's contradictions, and the backfill <code>--dry-run</code>. Never the app, never a tick, never serve.</td><td>seconds</td><td>Baselines</td></tr>
+<tr><td>L2m / L3m mechanism dataset (MD-0, BASE-1)</td><td>The same shape as the demo: one Site per type over 14 days, normal and fully checked, with the story events injected and three declared gap days. L2m is the <code>pg_harness</code> template plus <code>setup_cache</code>. L3m is <code>assetops_mechanism_test</code>, built by one command.</td><td>seconds per test after the first build; L3m about 2 min (est.)</td><td>Every slice from CH-5a1 onward. The normal path must give 0 coherence findings with <code>expected-mechanism.json</code>, alongside the gap paths on the polish clone (L3).</td></tr>
 </table></div>
 <div class="rule"><code>assetops_demo3_full_test</code> is never read by builders and never written: it is the fallback. Anything that runs app code or a tick on demo data uses an L3 clone, never the polish DB itself. Test databases follow the owner's rule: <code>*_test</code> names only, dropped after use.</div>
 
@@ -359,11 +1009,13 @@ svg .bold{font-weight:700}
 <tr><td>CH-2</td><td>L0 A2; L2: 0042 triggers and downgrade refusal; backfill run twice gives identical rows (property); existing <code>test_s4_finding_episode.py</code>, <code>test_s4_finding_index_postgres.py</code>, <code>test_s6_action_store_postgres.py</code></td><td>L3: the expected threads in §12 (Kobo 3 occurrences, Cold 2, EV 1)</td><td>none</td><td>A, W</td></tr>
 <tr><td>CH-3</td><td>L0 A5 for each outcome, plus withdrawal; existing <code>test_s6_verification_*.py</code></td><td>L3: Kobo thread RESOLVED_MONITORING since 1 Nov</td><td>none</td><td>A, W</td></tr>
 <tr><td>CH-4</td><td>L0: opportunity placement; L2 opportunity threads</td><td>L3: the headroom thread from OPP-000003 and OPP-000004</td><td><code>vitest related</code> on the touched files, with the L1 goldens</td><td>A, W, N, V, M</td></tr>
-<tr><td>CH-5a</td><td>L1 contract golden for ChainReader on L2; old-join deletion tests; the structural AST guard (§13)</td><td>L3: coherence 0 failures on the clone; payload sizes</td><td><code>vitest related</code>; routeFor tests; <code>outcomeBoard.test.tsx</code>, <code>estatePortfolio.test.tsx</code>, <code>s404SiteFindingIndex.test.tsx</code></td><td>A, W, N, V, M, L, D</td></tr>
+<tr><td>CH-5a1</td><td>L0 reader, scope and cutoff truth tables; L1 board goldens from a fixture ChainReader; L2 reader SQL and the ledger (max 1, none of the three reads)</td><td>L3: board/summary/Portfolio A/B with only the listed changes E1&ndash;E5; the perf probe; the R3 profile</td><td><code>vitest related</code> on the board client</td><td>A, W, estate guard self-tests (new reader)</td></tr>
+<tr><td>CH-5a2</td><td>L0 refs, lens, progress and line truth tables; L1 SiteChain/EstateChain goldens; L2 the three chain routes; the structural AST guard</td><td>L3: coherence with COH-1, COH-5 and COH-8 resolved; payload sizes</td><td><code>vitest related</code>; routeFor tests on the shared ref fixture; <code>outcomeBoard.test.tsx</code>, <code>estatePortfolio.test.tsx</code>, <code>s404SiteFindingIndex.test.tsx</code></td><td>A, W, N, V, M, L, D</td></tr>
 <tr><td>CH-5b</td><td>"Why?" trace ≤ 50 ms on L2; ETag 304; <code>perf_budget.py</code> self-test</td><td>L3: perf probe in process (indicative only)</td><td><code>vitest related</code>; shared-block tests; the new frontend hard-wiring guard</td><td>A, W, N, V, M, L, D</td></tr>
-<tr><td>CH-6</td><td>L0 A3/A4 including I-19 and partial-day earnings; existing <code>test_out_d2_objectives.py</code>, <code>test_out_d4_board.py</code>, <code>test_w303_portfolio_reduction.py</code></td><td>L3: the Portfolio week is over the same graded days for every Site</td><td><code>vitest related</code> on PortfolioOutcomes and OutcomeBoard</td><td>A, W, N, V, M, L, D</td></tr>
+<tr><td>CH-6a / CH-6b</td><td>L0 contributions (derived <code>ENTRIES</code> equals today's table), the ratchet self-test, A3/A4 including I-19 and partial-day earnings, the PC-1 money and verdict texts; L2m nodes and EstateChain on <code>mechanism_db()</code>; existing <code>test_out_d2_objectives.py</code>, <code>test_out_d4_board.py</code>, <code>test_w303_portfolio_reduction.py</code></td><td>L3: the Portfolio week is over the same graded days for every Site</td><td><code>vitest related</code> on PortfolioOutcomes and OutcomeBoard</td><td>A, W, N, V, M, L, D</td></tr>
 <tr><td>CH-9</td><td>L0: the daylight-window headroom; the existing projection tests</td><td>A trimmed-days Kobo partial prepare into a scratch DB (§4.4)</td><td><code>vitest related</code> on MiniOpportunity</td><td>A, W, V</td></tr>
-<tr><td>DD-1</td><td>The pure story-clock tests (<code>resolve_story</code> at fixed <code>db_now</code>); existing <code>test_demo_combined_links.py</code>, <code>test_demo_combined_finish_co1.py</code></td><td>Cold-only and EV-only partial prepares (§4.4)</td><td>none</td><td>A, W</td></tr>
+<tr><td>MD-0</td><td>L0 fixture-schema test; L2m seed then backfill gives the declared threads, states and grades; seeding twice is identical</td><td>L3m: coherence with 0 findings except the declared gap days</td><td>none</td><td>A, W</td></tr>
+<tr><td>DD-1</td><td>The pure story-clock and story-placement tests (EV story days on declared Tuesdays; a story day keeps its baseline hours); existing <code>test_demo_combined_links.py</code>, <code>test_demo_combined_finish_co1.py</code></td><td>The DD-0 probe first; then one Site-day per Site as a partial prepare (§4.4), plus a three-day baseline with one story day per Site</td><td>none</td><td>A, W</td></tr>
 </table></div>
 <p>A scoped run also includes the files that import a changed shared module (tiered policy). The builder lists them in the packet.</p>
 <div class="note">This waives two rules for the sprint, and needs your approval (OD-P4):
@@ -397,7 +1049,7 @@ svg .bold{font-weight:700}
 </ul>
 
 <h3>4.5 Optional mid-point check (cheap; about 20 min, est.)</h3>
-<p>Run it once, after CH-5a merges (schema, threads and the reader are all in), on a quiet machine:</p>
+<p>Run it once, after CH-5a2 merges (schema, threads and the reader are all in), on a quiet machine:</p>
 <ol>
   <li>L3 clone of the polish DB, migrated to main's head and backfilled.</li>
   <li><code>chain_coherence.py</code> on the clone.</li>
@@ -425,7 +1077,7 @@ svg .bold{font-weight:700}
     <li>Otherwise re-run E2's backend suite.</li>
     <li>Vitest or guard failures: re-run only that part.</li>
   </ul></td></tr>
-<tr><td>E3 one demo DB prepare</td><td>Check the date first: not on the 3rd–5th of a month, because S = prepare day − 2 (<code>tools/demo_combined.py:124</code>; story offset −2). Then <code>prepare</code> into a <b>new</b> DB <code>assetops_polish_client_test</code> with work folder <code>var/polish_client</code> from a main checkout (OD-P6). The polish and demo3 builds stay as fallbacks.</td><td>Measured 951 s at G2. Add the backfill and the CH-9 day: about 17–22 min (est.); cap 3120 s</td><td>Fix with the §4.4 partial prepares, then re-run E3 (a whole prepare; it drops its own DB only)</td></tr>
+<tr><td>E3 one demo DB prepare</td><td>Check the date first: not on the 3rd–5th of a month, because S = prepare day − 2 (<code>tools/demo_combined.py:124</code>; story offset −2). Then <code>prepare</code> into a <b>new</b> DB <code>assetops_polish_client_test</code> with work folder <code>var/polish_client</code> from a main checkout (OD-P6). The polish and demo3 builds stay as fallbacks.</td><td>Measured 951 s at G2 on the sparse days. With the BASE-1 baseline (B-22): about 3.7 h sequential or about 2.1 h with the Sites in parallel (est., linear upper bound), to be replaced by the DD-0 probe figure. The cap is OD-P12 (today 3,120 s).</td><td>Fix with the §4.4 partial prepares, then re-run E3 (a whole prepare; it drops its own DB only)</td></tr>
 <tr><td>E4 checks on the build</td><td>
   <ol>
     <li><code>serve</code> and wait for <code>ready:</code>.</li>
@@ -486,6 +1138,10 @@ svg .bold{font-weight:700}
 <tr><td>OD-P8</td><td>BeagleBone for this client demo</td><td><span class="chip a">Skip</span> It is off the critical path, so revisit it afterwards. If you want it, it runs off-lane with no purchases.</td></tr>
 <tr><td>OD-P9</td><td>The client session date</td><td><span class="chip a">Deferred by the owner</span> It will be set from actual progress. E3 then goes on the session day minus 1, or the nearest allowed day.</td></tr>
 <tr><td>OD-P10</td><td>CH-7: only its rebuild and captures move into the end-game, with a 2-unit CH-7d contingency; the rest comes after the demo</td><td><span class="chip g">Yes</span></td></tr>
+<tr><td>OD-P11</td><td>Baseline length for the demo data (BASE-1): B-31 full October, B-22 three weeks, or B-16 the minimum (&sect;2.5.1)</td><td><span class="chip g">Agreed 2026-11-04 (OWN-1104)</span> B-22 (three weeks); fallback B-16</td></tr>
+<tr><td>OD-P12</td><td>The one-time build cap for E3. Today it is 3,120 s, with a DD-1 growth cap of 1,430 s. Every baseline option exceeds both.</td><td><span class="chip g">Agreed 2026-11-04 (OWN-1104)</span> One-time 3 h sequential E3, background, keep-awake, hard stop 6 h, after the DD-0c re-probe</td></tr>
+<tr><td>OD-P13</td><td>Normal days: no existing scenario gives a whole normal Kobo day or a quiet Cold day. Either (a) author two labelled steady-day scenarios derived from the existing references with their events removed, or (b) accept partly checked baseline days.</td><td><span class="chip g">Agreed: (a)</span> (owner, 2026-11-04, "3 and 4 as recommended"). It is new example content, not tuning: no value is chosen to reach a result, and it is reviewed as data. (b) leaves Kobo PARTIAL and Cold LOW on normal days, which defeats BASE-1.</td></tr>
+<tr><td>OD-P14</td><td>ACT-001 on the last story day: "monitoring, 7 more fully checked days to close", or move the trial to S&minus;8 or earlier so the client sees it close</td><td><span class="chip g">Agreed: monitoring</span> (owner, 2026-11-04). It keeps the agreed story dates, and closing is proven on MD-0.</td></tr>
 </table></div>
 <p class="est">Architect rulings made in this plan, which you may override:</p>
 <ul class="est">
@@ -503,10 +1159,10 @@ svg .bold{font-weight:700}
 <tr><td>G0 start</td><td>QW-1/QW-2 merged; SP-0 cards for the lane starters ready</td><td class="n">3 (QW)</td></tr>
 <tr><td>G1 lanes open</td><td>CH-0 merged (the coherence check and its fixtures exist)</td><td class="n">6</td></tr>
 <tr><td>G2 schema in</td><td>CH-1a and CH-2 merged (migrations 0042 and 0043)</td><td class="n">17</td></tr>
-<tr><td>G3 reader in, mid-point</td><td>CH-1b, CH-3 and CH-5a merged; optional mid-point check (§4.5)</td><td class="n">32</td></tr>
-<tr><td>G4 screens and Grow</td><td>CH-4, CH-5b, CH-6 and CH-9 merged; MA-1 approved before the CH-5b and CH-6 UI units</td><td class="n">52</td></tr>
-<tr><td>G5 freeze</td><td>DD-1 merged and DS-1 drafted: the end-game E1</td><td class="n">54</td></tr>
-<tr><td>G6 demo-ready</td><td>E2 to E6 pass: about 1.5–2 h of machine time (est.), plus your walkthrough</td><td class="n">54</td></tr>
+<tr><td>G3 reader in</td><td>CH-1b, CH-3 and CH-5a1 merged</td><td class="n">32</td></tr>
+<tr><td>G4 screens and Grow</td><td>CH-4, CH-5a2a and CH-5a2b (then the optional mid-point check, §4.5), CH-5c (OWN-CH5c), CH-5c2 (CH5c-R7), CH-5b, CH-6a, CH-6b, CH-9 and CH-9b merged, and MD-0 before CH-5a1 builds; MA-1 approved before the CH-5b and CH-6 UI units</td><td class="n">≈ 87.25 (CH5c2-R1 +0.5; CH5c-R7 +2.5; CH5c-R6 +0.25; CH9-R4 +1.25; CH9-R3 +1.5, previously missing here; CH5c-R4 +0.75; OWN-1104; OWN-CH5c: CH-5c 5, CH-5b −0.5; CH5a2-R +3; est.)</td></tr>
+<tr><td>G5 freeze</td><td>DD-1 (baseline plus story) and CH-5d merged, and DS-1 drafted: the end-game E1</td><td class="n">≈ 95.5 (SPLIT-1 +0.75; CH5c2-R1 +0.5; CH5c-R7 +2.5; CH5c-R6 +0.25; CH9-R4 +1.25; CH5c-R4 +0.75; CH9-R3 +1.5; OWN-CH5c: CH-5c 5 in G4, CH-5d 1, CH-5b 5.5; CH5a2-R +3; est.)</td></tr>
+<tr><td>G6 demo-ready</td><td>E2 to E6 pass: about 1.5–2 h of machine time (est.), plus your walkthrough</td><td class="n">≈ 95.5 (SPLIT-1; CH5c2-R1; CH5c-R7; CH5c-R6; CH9-R4; est.)</td></tr>
 </table></div>
 <p class="est">This is a non-binding calendar estimate, for orientation only. On §15's rate (about 3 units per lane-day, including review), G6 falls about 11 working days after G0. Real agent throughput will move it.</p>
 <p><b>Date rule</b> (this one does bind E3):

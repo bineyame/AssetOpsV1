@@ -51,11 +51,12 @@ ROW_KEYS = {"opportunity", "status", "currentness", "source_provenance", "select
             "pending_source_provenance", "limitations"}
 OBJECT_KEYS = {"id", "code", "revision_id", "revision_no", "first_day", "last_day", "model_version", "study_days",
                "eligible_days", "assessed_days", "headroom_kw", "proposed_load_kw", "gross_sales_scenario",
-               "demand_state", "collection_state", "scenario_id", "day_rows"}
+               "demand_state", "collection_state", "scenario_id", "day_rows",
+               "window_hours"}  # CH-9 owned: the /2 study's daylight-hour count (CH4-R R3)
 LIST_KEYS = {"schema_version", "window", "status", "currentness", "source_provenance", "selected_source_provenance",
              "pending_source_provenance", "total_count", "rows", "next_cursor", "selection_token"}
 DAY_KEYS = {"local_day", "decision", "opportunity_kwh", "constraints", "evidence_ids", "selection_seq",
-            "mini_revision_id", "headroom_kw", "window_hours"}
+            "mini_revision_id", "headroom_kw", "window_hours", "hours"}  # CH-9 owned: a /2 row carries its hours
 READ_CODES = {"SELECTION_CHANGED", "RECOMPUTE_PENDING", "SOURCE_STALE", "SCENARIO_BASIS_MISMATCH"}
 #: u5b ruling 1: an authorized non-MINIGRID Site's detail, before the Performance gate and the decision store.
 UNSUPPORTED_DETAIL = {
@@ -97,6 +98,37 @@ def job(engine, t, s, lo, hi, status="PENDING", domain="mini_opportunity") -> st
 def settle(engine, job_id) -> None:
     with engine.begin() as c:
         c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job_id})
+
+
+def pv_reading(engine, day) -> None:
+    """CH-9 owned test change (CH9-R2 Q4, migration 0048): renewable work is enqueued only for an hour holding a
+    positive accepted `pv_available_power` reading. Ingest `day`'s 24 hourly means late (its own sequence epoch), as
+    `_dark_hours` seeds the authored days: the authored value for the local 12:00 hour, so that hour is renewable work
+    and the day's measured daylight, and 0 kW for its other operating hours (covered, not daylight), so the day's
+    study hours are that one hour (an unselected missing hour would read job state NONE, q9 ruling 5)."""
+    import w402_mini_depth_cases as cases
+    from test_s1_bindings_postgres import Clock
+    from test_w402_authored_v4_postgres import principal
+
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger_service import BatchIngestionService
+
+    with engine.connect() as c:
+        doc, sha, _ = cases.snapshot_of(c, CODE)
+    v = next(x for x in cases.load_spec()["variants"] if x["variant"] == "positive")
+    kw = next(m["kw"] for m in v["means_kw"] if m["signal"] == "available-power")
+    noon = local_noon(day, ZONE)
+    b = cases._binding(doc, "pv-inverter-controller", "available-power")
+    hours = [_midnight(day) + timedelta(hours=i) for i in range(24)]
+    planned = [cases.Planned("pv-inverter-controller", "available-power", at + timedelta(hours=1), "MEAN",
+                             kw if at == noon.start else "0", "kW", at) for at in hours]
+    assert sum(p.value != "0" for p in planned) == 1
+    body = cases.seal_for(doc, sha, b, [cases._envelope(doc, b, "ch9-late-pv", i, p)
+                                        for i, p in enumerate(planned, start=1)])
+    # Received now (not the authored fixture's fixed `RECEIVED`), so an earlier cutoff never sees it.
+    received = db_now(engine)
+    BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(received)),
+                          Clock(received)).submit(principal(doc), body.encode("utf-8"))
 
 
 def renewable_job(engine, t, s, day) -> None:
@@ -199,6 +231,7 @@ def test_pending_stale_missing_historical_current_precedence_and_jobs(store, eng
     settle(engine, failed)
 
     # A live W4-02 job on the missing day: pending beats the missing day.
+    pv_reading(engine, date(2026, 10, 5))  # CH-9 owned: the hour needs a positive pv reading (0048)
     renewable_job(engine, t, s, date(2026, 10, 5))
     env, missing, full = states()
     assert (missing["state"], missing["job_state"]) == ("PENDING_RECOMPUTE", "PENDING")
@@ -499,16 +532,24 @@ def test_list_detail_shape_full_count_pins_decimals_and_provenance(store, engine
     import re
     assert re.fullmatch(r"OPP-\d{6,}", o["code"]) and o["revision_id"] == str(rev.id) and o["revision_no"] == 1
     assert (o["first_day"], o["last_day"], o["model_version"], o["study_days"]) == (
-        "2026-10-06", "2026-10-10", "mini-opportunity/1", 5)
+        "2026-10-06", "2026-10-10", "mini-opportunity/2", 5)  # CH-9 owned: the producer is /2
+    assert o["window_hours"] == rev.result["window_hours"]
     assert (o["eligible_days"], o["assessed_days"]) == (rev.result["eligible_days"], rev.result["assessed_days"])
     assert o["headroom_kw"] == rev.result["headroom_kw"]
     assert (o["demand_state"], o["collection_state"]) == ("UNVERIFIED", "UNVERIFIED")
     assert (o["proposed_load_kw"], o["gross_sales_scenario"], o["scenario_id"]) == (None, None, None)
     assert [d["local_day"] for d in o["day_rows"]] == [d.isoformat() for d in DAYS]
     for d, pin, frozen in zip(o["day_rows"], rev.selected_hours, rev.result["day_rows"]):
-        assert set(d) == DAY_KEYS and {k: d[k] for k in frozen} == frozen
+        assert set(d) == DAY_KEYS and {k: d[k] for k in frozen if k != "hours"} == {
+            k: v for k, v in frozen.items() if k != "hours"}
+        # CH-9 owned: each read hour is its frozen hour plus its pin (one pinned hour a day here).
+        assert d["hours"] == [{**h, "window_from": pin["window_from"], "window_to": pin["window_to"],
+                               "selection_seq": pin["selection_seq"], "mini_revision_id": pin["mini_revision_id"]}
+                              for h in frozen["hours"]]
         assert (d["selection_seq"], d["mini_revision_id"]) == (pin["selection_seq"], pin["mini_revision_id"])
-        assert (d["headroom_kw"], d["window_hours"]) == (d["opportunity_kwh"], 1)  # CH-4 §2.3
+        # CH-4 §2.3; CH-9 owned: the stored /2 count (1 on an ELIGIBLE one-hour day, 0 on an EXCLUDED one).
+        assert (d["headroom_kw"], d["window_hours"]) == (d["opportunity_kwh"],
+                                                         1 if d["decision"] == "ELIGIBLE" else 0)
         bound = d["opportunity_kwh"]
         assert bound is None or all(isinstance(bound[k], str) and "e" not in bound[k].lower() for k in ("low", "high"))
     assert set(row["currentness"]) == {"state", "job_state", "selection_seq", "selected_at", "windows"}

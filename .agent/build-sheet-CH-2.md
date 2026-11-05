@@ -139,6 +139,8 @@ def plan_place(src, existing_occurrence: bool, thread: ThreadHead | None) -> Pla
     # otherwise → ADD_OCCURRENCE only
 ```
 
+**No outcome link (OL-1, plan §2.4).** A thread stores `mechanism` and `finding_type` only. Which outcomes it moves or checks stays declared in `B/outcomes/outcome_map.py`, keyed by `finding_signal_key(mechanism)`. Do not add outcome ids or map keys in `B/chain/`. CH-6's ratchet guard will fail on them.
+
 **Subject mapping (R4).**
 
 | Kind | subject_kind | subject_ref | mechanism | finding_type |
@@ -212,6 +214,7 @@ On the L3 clone after the backfill, the CH-0 findings for COH-2 (Kobo ACT-001) a
 | 4. Cold and EV Actions recorded at build time | The board in-hand join (§5.2) | **Labelled keep, owned by DD-1.** CH-2 does not widen any window to make them appear. |
 | 4. "Verified on example data" (`B/site_outcomes/board.py:50`) | Same file; that line and its function are not edited | Not touched (DS-R1 "touches" means the function or copy itself). Owned by CH-5a. |
 | `reserve-trial-1` CHECK, dispatch constants | Not touched | SWEEP-DS / CH-8 |
+| 4. Build time used as story time (review M1). OPP occurrences and OPEN events took `created_at`, the build day, not the study window (`M/0030:144-147`). | Thread time fields | **Fixed.** Every thread time comes from a stored story time:<br>• OPP: the Site-local start of `first_day` and the end of `last_day`;<br>• Findings: `episode_start`/`episode_end`.<br>`created_at` is used only where no story time is stored, and then it is labelled `time_basis: "recorded_at"` in the occurrence's provenance and listed in the packet for SWEEP-DS. |
 
 Reviewers check this table against the diff.
 

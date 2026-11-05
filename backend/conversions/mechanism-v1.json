@@ -61,7 +61,8 @@
          "source": "Architect MD0-S2: one Kobo recurrence day after ACT-K1's apply (the D-AW-3 record); F01 block shape"}
       ],
       "noon": {"window_local": ["12:00", "13:00"], "spare_solar_days": [12, 13], "variant": "positive", "omit": ["backup_chain"],
-               "busy_noon": {"charge_request": "dis", "except_days": "spare_solar_days",
+               "busy_noon": {"charge_request": "dis", "except_days": "spare_solar_days", "window_local": ["06:00", "18:00"],
+                             "window_label": "CH9-R2:Q1 (the charge request spans the 06:00-18:00 solar block, so a busy day takes the solar for the whole day; Architect 8, 2026-11-05)",
                              "rule": "inside window_local on every delivered day except the spare-solar days (overrun, recurrence and late-fill days included), the charge request takes the block's dis value",
                              "source": "MD-0 new example content: battery recharging at noon (MD0-S5 M2 (A); B/mini_depth/rules.py CHARGE_OBLIGATION_ACTIVE excludes on any positive request)"},
                "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive, its means and points re-dated to the local noon hour on KOBO-001's roles-4 bindings, without the MG-W402-001 backup chain (the only spare-solar variant; the other delivered days carry the busy noon below)"},

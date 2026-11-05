@@ -69,6 +69,14 @@
    "opportunities": [
     {
      "site_code": "KOBO-001",
+     "study": {
+      "assessed_days": 1,
+      "eligible_days": 1,
+      "headroom_kw": {
+       "high": "24.25",
+       "low": "18"
+      }
+     },
      "thread_id": "00000000-0000-4000-8000-0000000000f2",
      "title": "Daytime solar unused at Kobo"
     }

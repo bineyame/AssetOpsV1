@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import calendar
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
@@ -128,7 +128,9 @@ MG1_ACTUAL = "sales not recorded"
 MG5_UNMEASURED = "critical demand not measured"
 MG2_LONGER = "{m} min longer than needed on this day"
 MG2_UNCLEAR = "{m} min not yet clear on this day"
-MG5_UNSERVED = "{kwh} kWh not served"
+MG5_UNSERVED = "{kwh} kWh not served over the whole day"
+#: CH-9 §9 R9 / CH9-R2 Q6: `critical_served` read but not COMPLETE over the declared day; never a partial-day number.
+MG5_PARTIAL = "critical demand not measured over the whole day"
 #: OUT-D U4 (review M1): the Assure "Actual against plan" line when the objective store could not be read; it makes
 #: no claim about whether a target exists.
 PLAN_NOT_READ = "Not available yet · declared objectives could not be loaded"
@@ -152,7 +154,7 @@ MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to j
 MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
-COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
+COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
         PLAN_NOT_READ, *objective_facts.COPY, NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE,
         PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
@@ -207,6 +209,9 @@ class MiniPorts:
     productive_users: Callable[[datetime], list[dict[str, Any]]] = lambda at: []
     productive_readings: Callable[[list[Any], datetime, datetime], list[dict[str, Any]]] = lambda ids, lo, hi: []
     productive_price: Callable[[datetime], dict[str, Any]] = lambda at: {}
+    #: CH9-R4 F2: this Site's CH-4 opportunity items seen in `[lo, hi)` - the `opportunity_threads` read the
+    #: Portfolio and Findings › Opportunities use (`chain/opportunities.py` `opportunity_items`); [] = none.
+    opportunity: Callable[[datetime, datetime], Any] = lambda lo, hi: []
 
 
 @dataclass(frozen=True)
@@ -435,11 +440,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         settled[key] = settled.get(key, False) and findings_ok
 
     limitations = [str(x) for x in assessment.get("limitations") or ()]
-    renewable = (depth.get("renewable") or {}).get("cards") or {}
-    eligible, assessed = renewable.get("eligible_days"), renewable.get("assessed_days")
+    # CH9-R4 F2: the Grow headline figure and the headroom signal read the selected study (the Portfolio's read).
+    study = _study(reads, ports, c, start, site_timezone)
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
 
-    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", eligible is not None and eligible >= 1, HEADROOM_ISSUE,
+    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", study is not None, HEADROOM_ISSUE,
                           renewable_ref(c, start, site_timezone)),
                SignalFact("SIGNAL:EVIDENCE_GAP", bool(limitations),
                           (f"{limitation_text(limitations[0])} limits this conclusion"
@@ -448,7 +453,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     rc = readiness_confidence(readiness)
     reserve = reserve_counts(dispatch)
     contributors = {
-        GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"],
+        GROW: _grow(c, depth, rc, sales["contributors"],
                      renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
@@ -462,7 +467,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                PROTECT: (),
                ASSURE: (Option(OPTION_RESTORE, refs.site_ref(c, "work")),) if limitations else ()}
 
-    headroom = renewable.get("headroom_kw") or {}
+    headroom = (study or {}).get("headroom_kw") or {}
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
     money = {} if money_head is None else {"amount_low": money_head.amount_low,
                                            "amount_high": money_head.amount_high, "currency": money_head.currency}
@@ -492,7 +497,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
-    readings = mini_readings(dispatch, depth, month, next((o for o in objectives if o.outcome_key == "MG-1"), None))
+    readings = mini_readings(dispatch, depth, month, next((o for o in objectives if o.outcome_key == "MG-1"), None),
+                             served=critical_served(day_facts, day))
     if objective_rows is None:
         plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
         contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
@@ -545,6 +551,18 @@ def renewable_ref(c: str, start: datetime, tz_name: str | None) -> dict[str, Any
                                                           hi.astimezone(timezone.utc).strftime(fmt)))
 
 
+def _study(reads: Reads, ports: MiniPorts, c: str, start: datetime, tz_name: str | None) -> dict[str, Any] | None:
+    """CH9-R4 F2: the study of this Site's opportunity item seen over the board's renewable days (the window its
+    opportunity thread is looked up on, CH-4 §4.4), from the read the Portfolio uses; items come latest study first
+    (`opportunity_items`), as the Portfolio's `headroom` takes them. None: no item, or the window is refused."""
+    try:
+        lo, hi = renewable_bounds(start, tz_name)
+    except MiniInputsRefused:
+        return None
+    items = reads.call("opportunity", ports.opportunity, lo, hi) or ()
+    return next((i["study"] for i in items if i.get("site_code") == c and i.get("study")), None)
+
+
 def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
     """`renewable_ref`'s screen path."""
     return refs.href_for(renewable_ref(c, start, tz_name))
@@ -566,11 +584,21 @@ def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None)
     return {d: reads.call("mini_depth", ports.depth, d, *windows[d]) for d in DEPTH_DOMAINS}
 
 
+def critical_served(day_facts: Any, day: date) -> tuple[str | None, Mapping[str, Any] | None]:
+    """CH-9 §9 R9: the board day's `critical_served` `(grade, value)` from the chain day read, or `(None, None)`."""
+    if day_facts is None:
+        return None, None
+    grade = ((day_facts.grades.get(day) or {}).get("critical_served") or {}).get("SITE")
+    value = ((getattr(day_facts, "values", {}).get(day) or {}).get("critical_served") or {}).get("SITE")
+    return grade, value
+
+
 def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None],
-                  month: dict[str, Any] | None = None, mg1: ObjectiveFact | None = None) -> dict[str, Reading]:
+                  month: dict[str, Any] | None = None, mg1: ObjectiveFact | None = None, *,
+                  served: tuple[str | None, Mapping[str, Any] | None] = (None, None)) -> dict[str, Reading]:
     """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 the month-to-date
-    measured use by declared productive users (WALK1-3b, `mg1_reading`) or no sales record, MG-5 the service depth's
-    unserved critical kWh."""
+    measured use by declared productive users (WALK1-3b, `mg1_reading`) or no sales record, MG-5 the board day's
+    `critical_served` unserved kWh over the whole declared day (CH-9 §9 R9; judged only when COMPLETE)."""
     out: dict[str, Reading] = {}
     avoidable, unclear = _dispatch_minutes(dispatch)
     if avoidable is not None:
@@ -578,9 +606,14 @@ def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]
                 else MG2_LONGER.format(m=num(avoidable)))
         out["MG-2"] = Reading(avoidable, unclear == 0, text)
     out["MG-1"] = mg1_reading(month, mg1)
-    unserved = (((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"))
-    out["MG-5"] = (Reading(None, False, MG5_UNMEASURED) if unserved is None
-                   else Reading(Decimal(str(unserved)), True, MG5_UNSERVED.format(kwh=num(unserved))))
+    grade, value = served
+    unserved = (value or {}).get("unserved_kwh")
+    if grade == "COMPLETE" and unserved is not None:
+        out["MG-5"] = Reading(Decimal(str(unserved)), True, MG5_UNSERVED.format(kwh=num(unserved)))
+    elif grade is None or grade in ("NO_DATA", "NOT_EXPECTED", "PENDING"):
+        out["MG-5"] = Reading(None, False, MG5_UNMEASURED)
+    else:
+        out["MG-5"] = Reading(None, False, MG5_PARTIAL)
     return out
 
 
@@ -809,9 +842,12 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
     return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
 
 
-def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
+def _grow(c: str, depth: dict, rc: Any,
           sales: tuple[Contributor, ...] = (), href: dict[str, Any] | None = None) -> tuple[Contributor, ...]:
     href = href or refs.evidence_ref(c, "renewable")
+    # The "Productive use" line states the renewable page's own well-observed day counts (not the headline figure).
+    cards = (depth.get("renewable") or {}).get("cards") or {}
+    eligible, assessed = cards.get("eligible_days"), cards.get("assessed_days")
     if depth.get("renewable") is None:
         use = not_available("productive_use", "Productive use", href)
     elif eligible is None or assessed is None:

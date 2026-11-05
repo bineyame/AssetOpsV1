@@ -246,7 +246,9 @@ RENEWABLE = {("pv-inverter-controller", "ac-power"), ("battery-pcs-controller", 
 
 
 def _noon_values(n: int, kind: str) -> dict:
-    lo, hi = (md.local_instant(SPEC, "kobo", n, x) for x in SPEC["sites"]["kobo"]["noon"]["window_local"])
+    # CH9-R2:Q1 (owned change): split by the busy charge request's own window (the 06:00-18:00 solar block).
+    lo, hi = (md.local_instant(SPEC, "kobo", n, x)
+              for x in SPEC["sites"]["kobo"]["noon"]["busy_noon"]["window_local"])
     out: dict = {}
     for r in md.kobo_rows(SPEC, n, kind):
         if not isinstance(r, tuple) and (r.device, r.signal) in RENEWABLE:
@@ -260,7 +262,8 @@ def test_the_busy_noon_requests_the_blocks_dis_on_every_day_but_the_spare_solar_
     assert v[("battery-pcs-controller", "charge-requested-power", True)] == {"20"}  # the block's dis
     assert v[("battery-pcs-controller", "charge-requested-power", False)] == {"0"}
     assert v[("pv-inverter-controller", "ac-power", True)] == {"40"}  # min(40, 30 + 20)
-    assert v[("pv-inverter-controller", "ac-power", False)] == {"0", "30"}  # night 0, day min(40, 30)
+    # CH9-R2:Q1: the busy request spans the whole solar block, so outside it is night only.
+    assert v[("pv-inverter-controller", "ac-power", False)] == {"0"}
     for signal in ("requested-power", "delivered-power"):
         assert v[("clinic-meter", signal, True)] == v[("clinic-meter", signal, False)] == {"10"}
 
@@ -268,6 +271,13 @@ def test_the_busy_noon_requests_the_blocks_dis_on_every_day_but_the_spare_solar_
 def test_the_spare_solar_days_keep_a_zero_charge_request_before_the_w4_remap() -> None:
     v = _noon_values(12, "normal")
     assert v[("battery-pcs-controller", "charge-requested-power", True)] == {"0"}
+
+
+def test_ch9_q1_busy_window_is_labelled_and_wider_than_noon() -> None:
+    noon = SPEC["sites"]["kobo"]["noon"]
+    assert noon["busy_noon"]["window_local"] == ["06:00", "18:00"]
+    assert noon["busy_noon"]["window_label"].startswith("CH9-R2:Q1")
+    assert noon["window_local"] == ["12:00", "13:00"]  # the spare-solar placement is unchanged
 
 
 def test_a_derived_channel_rule_is_evaluated_as_declared_or_refused() -> None:

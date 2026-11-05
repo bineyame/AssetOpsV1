@@ -20,9 +20,11 @@ import json
 import re
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Iterator, Mapping, Sequence, TypeVar
 from uuid import UUID, uuid4
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
@@ -33,7 +35,9 @@ DOMAINS: tuple[str, ...] = ("renewable", "service", "fuel", "backup")
 #: The `recompute_job.domain` value each page domain's work is queued under (closure 1 Q3).
 JOB_DOMAIN: dict[str, str] = {d: f"mini_{d}" for d in DOMAINS}
 #: Analytic model versions, separate from Dispatch and W1 consequences.
-MODEL_VERSIONS: dict[str, str] = {d: f"mini-{d}/1" for d in DOMAINS}
+#: CH-9 CH9-R4 F1: `mini-service/2` stores each load row's own `unserved_kwh` (null unless the row is SUPPORTED);
+#: the other domains stay `/1`. Revision reuse is keyed on (model_version, input_sha256), so the bump is required.
+MODEL_VERSIONS: dict[str, str] = {d: f"mini-{d}/1" for d in DOMAINS} | {"service": "mini-service/2"}
 
 _SHA = re.compile(r"^sha256:[0-9a-f]{64}$")
 T = TypeVar("T")
@@ -320,7 +324,87 @@ def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: 
     return HourRows(tz, foundations, sets, bindings, assets, accepted, prior, row_foundations, row_bindings)
 
 
+
+# --- CH-9 u1 (§9 R1-R3, CH9-R2 Q2-Q4): the one measured-daylight reader ---------------------------------------
+
+#: A Site with no `pv_available_power` binding keeps the 0029 noon hour.
+NOON_HOURS: tuple[int, ...] = (12,)
+_PV_BOUND = (
+    "SELECT 1 FROM signal_binding_revision b JOIN signal_binding_set_revision s "
+    "ON s.tenant_id = b.tenant_id AND s.site_id = b.site_id AND s.id = b.binding_set_revision_id "
+    "WHERE b.tenant_id = :t AND b.site_id = :s AND b.role = :role AND s.role_set = :rs "
+    "AND s.recorded_at <= :k AND (s.superseded_at IS NULL OR s.superseded_at > :k) "
+    "AND b.recorded_at <= :k AND (b.superseded_at IS NULL OR b.superseded_at > :k) "
+    "AND b.valid_from < :hi AND (b.valid_to IS NULL OR b.valid_to > :lo) LIMIT 1")
+
+
+@dataclass(frozen=True)
+class DaylightHours:
+    """One Site-local day's measured daylight hours and its missing hours (local clock hours). `measured` is
+    False for a Site with no `pv_available_power` binding, whose hours are the noon hour."""
+
+    hours: tuple[int, ...]
+    missing: tuple[int, ...] = ()
+    measured: bool = True
+
+    @property
+    def study_hours(self) -> tuple[int, ...]:
+        """The hours a study or basis reads for the day: its daylight and missing hours; a day with neither (a
+        covered dark day) keeps one `NOON_HOURS` hour, which no worker fills, so the day reads missing."""
+        return tuple(sorted({*self.hours, *self.missing})) or NOON_HOURS
+
+
+#: The hours of a day at a Site with no `pv_available_power` binding (unmeasured; the 0029 hour, unchanged).
+NO_PV_BINDING = DaylightHours(NOON_HOURS, (), False)
+
+
+def database_now(c: Connection) -> datetime:
+    """The database clock on the caller's connection (the default `daylight_hours` cutoff of a projection)."""
+    return c.execute(text("SELECT now()")).scalar_one()
+
+
+def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, knowledge_cutoff: datetime
+                   ) -> DaylightHours:
+    """§9 R1 on the caller's connection: the expected hours are the Site's declared operating hours (the same
+    `operating_hours` period `critical_served` grades); inside them an hour not fully covered by `pv_available_power`
+    readings known at the cutoff (`received_at <= k`) is missing, and daylight hours are the covered hours with
+    every value > 0. A Site with no binding overlapping the day keeps `(12,)`."""
+    from assetops_backend.chain.composition import load_operating_calendar
+    from assetops_backend.chain.grading import period_bounds
+    from assetops_backend.chain.policy import PERIOD_OPERATING_HOURS
+    from assetops_backend.mini_depth import rules
+    from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
+
+    code, tz_name = c.execute(text("SELECT site_code, timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                              {"t": tenant_id, "s": site_id}).one()
+    tz = ZoneInfo(tz_name)
+    bounds = period_bounds(load_operating_calendar().entry_for(code), tz, day, PERIOD_OPERATING_HOURS)
+    if bounds is None:
+        return DaylightHours((), (), True)
+    lo, hi = bounds
+    p = {"t": tenant_id, "s": site_id, "k": knowledge_cutoff, "lo": lo, "hi": hi}
+    if c.execute(text(_PV_BOUND), {**p, "role": rules.PV_AVAILABLE, "rs": ROLE_SET_MINIGRID_4}).first() is None:
+        return NO_PV_BINDING
+    windows: list[tuple[int, Any]] = []
+    at = lo
+    while at < hi:
+        windows.append((at.astimezone(tz).hour, rules.Window(at, at + timedelta(hours=1))))
+        at += timedelta(hours=1)
+    rows = c.execute(text(_ACCEPTED), {**p, "roles": [rules.PV_AVAILABLE]}).all()
+    readings = [rules.Reading(r[0], r[12], r[1], r[2], r[3], r[4], r[5], r[6], _decimal(r[7]), r[8]) for r in rows]
+    daylight, missing = rules.classify_daylight(windows, readings)
+    return DaylightHours(daylight, missing, True)
+
+
+def _decimal(value: Any) -> Decimal | None:
+    try:
+        out = Decimal(str(value)) if value is not None else None
+    except InvalidOperation:
+        return None
+    return out if out is not None and out.is_finite() else None
+
+
 __all__ = [
     "DOMAINS", "JOB_DOMAIN", "MODEL_VERSIONS", "AppendedSelection", "MiniDepthStoreUnavailable",
-    "MiniDepthWriteRefused", "MiniRevision", "PostgresMiniDepthStore", "HourRows", "SelectionRecord", "read_hour_rows",
+    "MiniDepthWriteRefused", "MiniRevision", "PostgresMiniDepthStore", "HourRows", "DaylightHours", "NOON_HOURS", "NO_PV_BINDING", "daylight_hours", "SelectionRecord", "read_hour_rows",
 ]

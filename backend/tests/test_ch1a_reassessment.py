@@ -64,10 +64,12 @@ class Reader:
     def renewable_pending(self, ctx):
         return self.pending
 
-    def renewable_hour(self, ctx):
-        return {"revision_id": self.hour_rev, "evidence_ids": ["ev-1"],
-                "result": {"coverage": {"gaps": []},
-                           "hour": {"decision": "ELIGIBLE", "headroom_kw": {"low": "1", "high": "2"}}}}
+    def renewable_hours(self, ctx):  # CH-9: one measured daylight hour at the period start
+        lo = ctx.period_start_utc
+        return {"measured": True, "missing": [], "hours": [{"from": lo, "to": lo + timedelta(hours=1), "head": {
+            "revision_id": self.hour_rev, "evidence_ids": ["ev-1"],
+            "result": {"coverage": {"gaps": []},
+                       "hour": {"decision": "ELIGIBLE", "headroom_kw": {"low": "1", "high": "2"}}}}}]}
 
     def dispatch_days(self, ctx):
         iv = {"id": "iv-1", "result": {"generator_asset_id": ASSET, "interval": {"first_on": ctx.period_start_utc},
@@ -89,7 +91,7 @@ def _build(reader, store, measure: str, site_code: str, site_type: str):
 
 CASES = [
     ("avoidable_gen_min", "KOBO-001", "MINIGRID", "dispatch_sel", "sel-b"),
-    ("noon_headroom_kw", "KOBO-001", "MINIGRID", "hour_rev", "rev-b"),
+    ("daylight_headroom_kw", "KOBO-001", "MINIGRID", "hour_rev", "rev-b"),
     ("chamber_temp_c", "COLD-LAB-001", "COLDCHAIN", "run", "run-b"),
     ("backup_start_chain", "COLD-LAB-001", "COLDCHAIN", "run", "run-b"),
     ("charging_kwh", "EV-LAB-001", "EV_CHARGING", "run", "run-b"),

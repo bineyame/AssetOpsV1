@@ -79,6 +79,18 @@ JOB_ANALYTICS: dict[str, tuple[str, ...]] = {
 
 
 #: `mini_depth/read.py` `_JOBS`: a live job no later selection of its hour (visible at the cutoff) has cleared.
+#: CH-9: the latest selected `mini_service` head of every hour starting inside `[lo, hi)` at the cutoff.
+_SERVICE_HEADS = (
+    "SELECT DISTINCT ON (s.window_start) s.window_start, s.window_end, r.id, r.result, "
+    "COALESCE((SELECT array_agg(v.evidence_id::text ORDER BY v.evidence_id::text) "
+    "FROM mini_depth_revision_evidence v WHERE v.tenant_id = r.tenant_id AND v.site_id = r.site_id "
+    "AND v.revision_id = r.id), '{}') "
+    "FROM mini_depth_selection s JOIN mini_depth_revision r "
+    "ON r.tenant_id = s.tenant_id AND r.site_id = s.site_id AND r.id = s.revision_id "
+    "WHERE s.tenant_id = :t AND s.site_id = :s AND s.domain = 'service' AND s.window_start >= :lo "
+    "AND s.window_start < :hi AND s.selected_at <= :k AND r.knowledge_cutoff <= :k "
+    "ORDER BY s.window_start, s.selected_at DESC, s.seq DESC")
+
 _RENEWABLE_JOBS = (
     "SELECT EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
     "AND j.domain = 'mini_renewable' AND j.window_start < :hi AND j.window_end > :lo "
@@ -214,14 +226,48 @@ class PostgresChainInputs:
 
     # --- mini renewable / dispatch -----------------------------------------------------------------------
 
-    def renewable_hour(self, ctx: DayCtx) -> dict[str, Any] | None:
-        """The stored, selected renewable revision for the exact noon hour (no recomputation)."""
-        r = self._one(_RENEWABLE_HEAD, {"t": ctx.tenant_id, "s": ctx.site_id, "lo": ctx.period_start_utc,
-                                        "hi": ctx.period_end_utc, "k": self._known(ctx)})
-        if r is None:
-            return None
-        result = r[1] if isinstance(r[1], dict) else json.loads(r[1])
-        return {"revision_id": str(r[0]).lower(), "result": result, "evidence_ids": [str(x) for x in r[2]]}
+    def renewable_hours(self, ctx: DayCtx) -> dict[str, Any]:
+        """CH-9 (CH9-R2 Q4): the day's hours from the one `mini_depth.store.daylight_hours` at the cutoff, and each
+        daylight hour's stored, selected renewable revision (no recomputation)."""
+        from assetops_backend.mini_depth.inputs import local_hour
+        from assetops_backend.mini_depth.store import daylight_hours
+
+        k = self._known(ctx)
+        with self._engine.connect() as c:
+            found = daylight_hours(c, ctx.tenant_id, ctx.site_id, ctx.local_day, k)
+            spans = {h: local_hour(ctx.local_day, h, ctx.tz) for h in (*found.hours, *found.missing)}
+            hours = []
+            for h in found.hours:
+                w = spans[h]
+                r = c.execute(text(_RENEWABLE_HEAD), {"t": ctx.tenant_id, "s": ctx.site_id, "lo": w.start,
+                                                       "hi": w.end, "k": k}).first()
+                head = None
+                if r is not None:
+                    result = r[1] if isinstance(r[1], dict) else json.loads(r[1])
+                    head = {"revision_id": str(r[0]).lower(), "result": result,
+                            "evidence_ids": [str(x) for x in r[2]]}
+                hours.append({"from": w.start, "to": w.end, "head": head})
+        return {"measured": found.measured, "hours": hours,
+                "missing": [(spans[h].start, spans[h].end) for h in found.missing]}
+
+    def service_hours(self, ctx: DayCtx) -> list[dict[str, Any]]:
+        """CH-9 (CH9-R2 Q7): the stored, selected `mini_service` revision of each period hour (no recomputation)."""
+        k = self._known(ctx)
+        out = []
+        at, hi = ctx.period_start_utc, ctx.period_end_utc
+        with self._engine.connect() as c:
+            heads = {r[0]: r for r in c.execute(text(_SERVICE_HEADS), {"t": ctx.tenant_id, "s": ctx.site_id,
+                                                                       "lo": at, "hi": hi, "k": k}).all()}
+        while at is not None and hi is not None and at < hi:
+            end = at + timedelta(hours=1)
+            r = heads.get(at)
+            head = None
+            if r is not None and r[1] == end:
+                result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
+                head = {"revision_id": str(r[2]).lower(), "result": result, "evidence_ids": [str(x) for x in r[4]]}
+            out.append({"from": at, "to": end, "head": head})
+            at = end
+        return out
 
     def dispatch_days(self, ctx: DayCtx) -> list[dict[str, Any]]:
         """The S3 dispatch window of every UTC day overlapping the local period (ruling Q3d)."""
@@ -281,8 +327,8 @@ class PostgresChainInputs:
     # --- currentness -------------------------------------------------------------------------------------
 
     def renewable_pending(self, ctx: DayCtx) -> bool:
-        """The mini-depth reader's own live-job rule for the noon hour (a job cleared by a later selection is
-        not pending)."""
+        """The mini-depth reader's own live-job rule over the measure period (a job cleared by a later selection
+        is not pending)."""
         r = self._one(_RENEWABLE_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "lo": ctx.period_start_utc,
                                         "hi": ctx.period_end_utc, "k": self._known(ctx)})
         return bool(r and r[0])

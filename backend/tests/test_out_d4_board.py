@@ -117,11 +117,28 @@ def test_mg5_unmeasured_and_measured() -> None:
     _, rows = run_mini()
     [line] = [c for r in rows.values() for c in declared(r) if c["key"] == "declared_objective:MG-5"]
     assert line["text"] == "Reliable service: all critical demand served · critical demand not measured"
+    # CH-9 §9 R9 (owned change): MG-5 reads the board day's `critical_served` measure over the whole declared day,
+    # never the noon service hour: a noon `unserved_kwh` alone is no longer a reading.
     cards = {**b2.DEPTH, "service": {**b2.DEPTH["service"], "unserved_kwh": "3.0"}}
     _, rows = run_mini(b2.Fake(cards=cards))
     [line] = [c for r in rows.values() for c in declared(r) if c["key"] == "declared_objective:MG-5"]
-    assert line["text"] == "Reliable service: all critical demand served · 3 kWh not served"
+    assert line["text"] == "Reliable service: all critical demand served · critical demand not measured"
+
+    def served(grade: str) -> b2.Fake:
+        value = {"served_kwh": "40", "demand_kwh": "43", "unserved_kwh": "3.0"}
+        return b2.Fake(day={"grades": {b2.DAY: {"critical_served": {"SITE": grade}}},
+                            "values": {b2.DAY: {"critical_served": {"SITE": value}}}})
+
+    _, rows = run_mini(served("COMPLETE"))
+    [line] = [c for r in rows.values() for c in declared(r) if c["key"] == "declared_objective:MG-5"]
+    assert line["text"] == "Reliable service: all critical demand served · 3 kWh not served over the whole day"
     assert line["confidence"]["label"] == "Missed"
+    # CH9-R2 Q6: a day not measured over its whole declared period is PARTIAL, never a partial-day number.
+    _, rows = run_mini(served("PARTIAL"))
+    [line] = [c for r in rows.values() for c in declared(r) if c["key"] == "declared_objective:MG-5"]
+    assert line["text"] == ("Reliable service: all critical demand served · "
+                            "critical demand not measured over the whole day")
+    assert line["confidence"]["label"] != "Missed"
 
 
 def test_mini_assure_counts_declared_objectives() -> None:

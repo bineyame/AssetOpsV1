@@ -15,8 +15,8 @@ MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 OPP_TITLE = {"PRODUCTIVE_USE_HEADROOM": "Daytime solar unused at {site}"}
 OPP_SHORT = {"PRODUCTIVE_USE_HEADROOM": "{site} daytime solar"}
 SEEN_LINE = "Seen on {e} of {a} well-observed days · {span}"
-VALUE_LINE = "{lo}–{hi} kW at midday on every eligible day"
-VALUE_LINE_ONE = "{lo} kW at midday on every eligible day"
+VALUE_LINE = "{lo}–{hi} kW over {h} on every eligible day"
+VALUE_LINE_ONE = "{lo} kW over {h} on every eligible day"
 LIMIT_MIXED = "Limited evidence: readings come from mixed sources, so the size is not worked out yet"
 LIMIT_DAYS = "Limited evidence: {n} of the 5 study days lack a reading needed to size it"
 LIMIT_UNKNOWN = "Not judged yet: {n} of the 5 study days have no reading"
@@ -39,11 +39,19 @@ def seen_line(eligible: int, assessed: int, first: date, last: date) -> str:
     return SEEN_LINE.format(e=eligible, a=assessed, span=span)
 
 
-def value_line(status: str | None, headroom: Mapping[str, Any] | None) -> str | None:
-    if status != "SUPPORTED" or not headroom:
+def value_line(status: str | None, headroom: Mapping[str, Any] | None, window_hours: int | None) -> str | None:
+    """CH-9 §2: the headroom over the study's `window_hours` (the fewest eligible daylight hours on any eligible
+    day); no line without both."""
+    if status != "SUPPORTED" or not headroom or not window_hours:
         return None
     lo, hi = decimal_text(Decimal(str(headroom["low"]))), decimal_text(Decimal(str(headroom["high"])))
-    return VALUE_LINE_ONE.format(lo=lo) if lo == hi else VALUE_LINE.format(lo=lo, hi=hi)
+    h = daylight_hours_text(int(window_hours))
+    return VALUE_LINE_ONE.format(lo=lo, h=h) if lo == hi else VALUE_LINE.format(lo=lo, hi=hi, h=h)
+
+
+def daylight_hours_text(n: int) -> str:
+    """"1 daylight hour", "12 daylight hours"."""
+    return f"{n} daylight hour" if n == 1 else f"{n} daylight hours"
 
 
 def limit_line(status: str | None, limitation_codes: Sequence[str], decisions: Sequence[str | None]) -> str | None:

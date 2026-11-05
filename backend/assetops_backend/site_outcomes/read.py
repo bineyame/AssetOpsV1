@@ -277,12 +277,17 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.assumptions, "assumptions").series(
                 t, sid, PRODUCTIVE_PRICE_KEY, valid_at=at, recorded_at=known_at))
 
+        # CH9-R4 F2: the Portfolio's opportunity read (CH-4 `opportunity_threads`); no thread port = no items.
+        def opportunity(lo: datetime, hi: datetime) -> Any:
+            return [] if s.threads is None else s.threads.opportunity_threads(t, [sid], lo, hi, known_at)
+
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
                               placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
-                              productive_readings=productive_readings, productive_price=productive_price)
+                              productive_readings=productive_readings, productive_price=productive_price,
+                              opportunity=opportunity)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code

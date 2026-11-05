@@ -953,7 +953,7 @@ describe("CH-4 estate Findings opportunities", () => {
     study: { ...ITEM.study, code: "OPP-000005", status: "SUPPORTED", headroom_kw: { low: "18", high: "20" } },
     evidence: "SUPPORTED",
     evidence_label: "Supported",
-    value_line: "18–20 kW at midday on every eligible day",
+    value_line: "18–20 kW over 12 daylight hours on every eligible day",
     limit_line: null,
   });
   const withItems = (rows: ReturnType<typeof findingRow>[]) =>
@@ -991,7 +991,7 @@ describe("CH-4 estate Findings opportunities", () => {
     expect(first.querySelector("small.opp-limit")?.textContent).toBe(ITEM.limit_line);
     expect(within(first as HTMLElement).getByRole("link", { name: "Inspect the solar room →" })).toHaveAttribute("href", ITEM.links.evidence);
     expect(Array.from(second.querySelectorAll("small")).map((x) => x.textContent)).toEqual([
-      "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov · 18–20 kW at midday on every eligible day",
+      "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov · 18–20 kW over 12 daylight hours on every eligible day",
     ]);
     expect(second.querySelector(".opp-limit")).toBeNull();
     // LENS_EMPTY shows only with no Finding rows and no items.
@@ -1014,7 +1014,7 @@ describe("CH-4 estate Findings opportunities", () => {
       expect(within(a as HTMLElement).getByRole("link", { name: "OPP-000004 · Daytime solar unused at Kobo" })).toHaveAttribute("href", ITEM.links.opportunity);
       expect(within(a as HTMLElement).getByRole("link", { name: "KOBO-001" })).toHaveAttribute("href", ITEM.links.site);
       expect(cells(b)[3]).toBe("Supported");
-      expect(cells(b)[5]).toBe("18–20 kW at midday on every eligible day");
+      expect(cells(b)[5]).toBe("18–20 kW over 12 daylight hours on every eligible day");
       view.unmount();
     }
     // Page two: no items; Cost: none.

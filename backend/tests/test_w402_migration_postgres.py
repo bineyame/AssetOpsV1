@@ -79,8 +79,10 @@ def catalog(engine) -> tuple[int, int, int, int]:  # noqa: F811
     return (
         sum(table_exists(engine, t) for t in TABLES),
         scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)),
+        # CH-5c's 0047 adds `<table>_cic_{ins,upd,del}` change-log triggers on the mini tables; those are its own
+        # contract (test_ch5c_watermark_postgres), so they are left out of this 0029 count.
         scalar(engine, "SELECT count(*) FROM pg_trigger WHERE NOT tgisinternal AND (tgname LIKE 'mini_depth_%' "
-                       "OR tgname = 'enqueue_mini_depth')"),
+                       "OR tgname = 'enqueue_mini_depth') AND tgname NOT LIKE '%\\_cic\\_%'"),
         scalar(engine, "SELECT count(*) FROM pg_constraint WHERE conname = 'mini_depth_selection_job_fk'"),
     )
 
@@ -170,6 +172,20 @@ def mg4(mg, engine):  # noqa: F811
     yield mg
     clear_mini(engine)
     _replica(engine, *[f"UPDATE signal_binding_set_revision SET role_set = '{rs}' WHERE id = '{i}'" for i, rs in prior])
+
+
+@pytest.fixture()
+def mg4_nopv(mg4, engine):  # noqa: F811
+    """CH-9 (0048): `mg4` with its `pv_available_power` bindings relabelled away (test-only, as replica), so the Site
+    keeps the 0029 noon-hour renewable enqueue; restored after."""
+    with engine.connect() as c:
+        ids = [r[0] for r in c.execute(text("SELECT id FROM signal_binding_revision WHERE site_id = :s "
+                                            "AND role = 'pv_available_power'"), {"s": mg4.ctx.s})]
+    listed = ", ".join(f"'{i}'" for i in ids) or "NULL"
+    _replica(engine, f"UPDATE signal_binding_revision SET role = 'ch9_unbound' WHERE id IN ({listed})")
+    yield mg4
+    clear_mini(engine)
+    _replica(engine, f"UPDATE signal_binding_revision SET role = 'pv_available_power' WHERE id IN ({listed})")
 
 
 def revision(ctx, *, lo, hi, domain="service", digest="a", cutoff=None, evidence=(), result=None) -> "MiniRevision":
@@ -377,8 +393,8 @@ class TestMigration0029:
                 set_type(c, mg.ctx.s, "MINIGRID")
             assert not mini_jobs(engine, mg.ctx.s)
 
-    def test_mini_enqueue_domain_role_matrix(self, mg4, engine) -> None:  # noqa: F811
-        mg = mg4
+    def test_mini_enqueue_domain_role_matrix(self, mg4_nopv, engine) -> None:  # noqa: F811
+        mg = mg4_nopv  # CH-9: a Site with no pv_available_power binding keeps noon
         body = functiondef(engine, "mini_enqueue_accepted")
         pairs = set(re.findall(r"\('(mini_[a-z]+)', '([a-z_0-9]+)'\)", body))
         assert pairs == {(d, r) for d, roles in MATRIX.items() for r in roles}
@@ -431,8 +447,8 @@ class TestMigration0029:
 
 
 class TestPublicationEnqueue:
-    def test_configuration_enqueue_within_retention_and_rollback(self, mg4, engine) -> None:  # noqa: F811
-        mg = mg4
+    def test_configuration_enqueue_within_retention_and_rollback(self, mg4_nopv, engine) -> None:  # noqa: F811
+        mg = mg4_nopv  # CH-9: a Site with no pv_available_power binding keeps noon
         at = datetime(2026, 10, 10, 15, 30, tzinfo=timezone.utc)
         with engine.begin() as c:
             c.execute(text("SELECT mini_enqueue_configuration(:t, :s, :f, NULL, :at)"),
@@ -456,8 +472,8 @@ class TestPublicationEnqueue:
             set_type(c, mg.ctx.s, "MINIGRID")
         assert not mini_jobs(engine, mg.ctx.s)
 
-    def test_foundation_publication_enqueues_and_rolls_back_on_enqueue_failure(self, mg4, engine) -> None:  # noqa: F811
-        mg = mg4
+    def test_foundation_publication_enqueues_and_rolls_back_on_enqueue_failure(self, mg4_nopv, engine) -> None:  # noqa: F811
+        mg = mg4_nopv  # CH-9: a Site with no pv_available_power binding keeps noon
         from test_s1_bindings_postgres import Clock
 
         from assetops_backend.sites.foundation_service import FoundationService

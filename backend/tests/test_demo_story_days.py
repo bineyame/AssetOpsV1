@@ -185,3 +185,30 @@ def test_add_day_refusals():
     assert _refused("cold", "failure", day="S-1d") == "PREPARE_ONLY_KIND"
     assert _refused("ev", "fault", day="S-1d") == "PREPARE_ONLY_KIND"
     assert _refused("kobo", "normal", day="S-31d") == "OUTSIDE_BOARD_WINDOW"
+
+
+# ---- CH-9 u4 (CH9-R2:Q8): the `mill-midday` kind (prepare-only; not scheduled in `sites`) --------------------
+def test_mill_midday_kind_resolves_and_validates_when_scheduled():
+    import yaml
+
+    doc = copy.deepcopy(sd.load())
+    assert all(e["kind"] != "mill-midday" for entries in doc["sites"].values() for e in entries)
+    spec = doc["kinds"]["kobo"]["mill-midday"]
+    scenario = yaml.safe_load((Path(sd.DEFAULT_FILE).parents[2] / "config" / "scenarios" / "kobo-daytime.yaml")
+                              .read_text(encoding="utf-8"))
+    assert (spec["scenario_id"], spec["scenario_version"]) == (scenario["scenario_id"],
+                                                               scenario["version"]["scenario_version"])
+    doc["sites"]["kobo"].append({"day": "S-2d", "kind": "mill-midday"})
+    runs = sd.resolve(doc, S, db_now=NOW, installs=INSTALLS)
+    mill = next(r for r in runs if r.kind == "mill-midday")
+    D = datetime(2026, 10, 27, tzinfo=timezone.utc)
+    assert mill.site == "kobo" and mill.day == "2026-10-27" and mill.has_run and mill.assess == "build"
+    assert (mill.start, mill.end, mill.received_at) == (D + timedelta(hours=3), D + timedelta(hours=15),
+                                                        D + timedelta(hours=16))
+    assert mill.scenario == {"scenario_id": "kobo-daytime", "scenario_version": 2}
+    assert sd.from_payload([r.payload() for r in runs]) == runs
+
+
+def test_mill_midday_is_prepare_only():
+    assert "mill-midday" not in sd.ADD_DAY_KINDS["kobo"]
+    assert _refused("kobo", "mill-midday", day="S-2d") == "PREPARE_ONLY_KIND"

@@ -15,8 +15,6 @@ from typing import Iterable, Sequence
 from zoneinfo import ZoneInfo
 
 from .policy import (
-    MIDDAY_WINDOW_LOCAL,
-    PERIOD_MIDDAY,
     PERIOD_OPERATING_HOURS,
     Bands,
     CalendarEntry,
@@ -49,8 +47,6 @@ def period_bounds(
         return None
     if period == PERIOD_OPERATING_HOURS:
         lo_min, hi_min = cal.hours[0][0], cal.hours[-1][1]
-    elif period == PERIOD_MIDDAY:
-        lo_min, hi_min = MIDDAY_WINDOW_LOCAL
     else:
         raise ValueError(f"unknown period {period!r}")
     return _local_minute_to_utc(local_day, lo_min, zone), _local_minute_to_utc(local_day, hi_min, zone)

@@ -86,7 +86,11 @@ class EstateScope:
 
 class Threads:  # the board service's thread port: only the estate route's opportunity read is used here
     def opportunity_threads(self, tenant_id, site_ids, from_, to, k):
-        return [{"site_code": BC.KOBO.site_code, "thread_id": T2, "title": "Daytime solar unused at Kobo"}]
+        # CH9-R4 F2: the item carries its study, which the Kobo board's Grow headline now reads (mirrors B2.DEPTH).
+        r = BC.B2.DEPTH["renewable"]
+        return [{"site_code": BC.KOBO.site_code, "thread_id": T2, "title": "Daytime solar unused at Kobo",
+                 "study": {"headroom_kw": r["headroom_kw"], "eligible_days": r["eligible_days"],
+                           "assessed_days": r["assessed_days"]}}]
 
     def lookup(self, tenant_id, finding_ids, action_ids, **kw):
         from assetops_backend.chain.lookup import thread_lookup

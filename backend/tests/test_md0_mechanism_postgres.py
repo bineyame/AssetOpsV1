@@ -201,16 +201,19 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     record("grades_gap_day", gap)
     record("grades_not_complete", other)
     # MD0-S4 R1.5 (hard): full delivered days grade COMPLETE on productive_kwh and avoidable_gen_min, and GAP-K7
-    # stays NO_DATA/PENDING before any fill. noon_headroom_kw grades as the renewable hour supports: recorded.
+    # stays NO_DATA/PENDING before any fill. daylight_headroom_kw grades as the renewable hour supports: recorded.
     core = {d: {k: v for k, v in x.items() if _core(k)} for d, x in other.items()}
     assert not any(core.values()), core
     # MD0-S5 L1: both core measures are present (not only "not other than COMPLETE") on every delivered day.
     missing = {_iso(n): [k for k in CORE if g[_iso(n)].get(k) != "COMPLETE"] for n in days}
     assert not any(missing.values()), missing
-    # MD0-S5 M2 (A): noon_headroom_kw is COMPLETE on every delivered day (the renewable-hour channels all day).
+    # MD0-S5 M2 (A): daylight_headroom_kw is COMPLETE on every delivered day (the renewable-hour channels all day).
     assert not other, other
-    assert all(g[_iso(n)].get("noon_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
+    assert all(g[_iso(n)].get("daylight_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
     assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
+    # CH9-R4 F1: critical_served reads the single CRITICAL row (`mini-service/2`): COMPLETE on every delivered day.
+    assert all(g[_iso(n)].get("critical_served") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
+    assert gap.get("critical_served") in ("NO_DATA", "PENDING"), gap
     undelivered = {_iso(n): g.get(_iso(n), {}) for n in range(1, 15) if n not in days}
     record("grades_undelivered", undelivered)
     # MD-0b (CH5a1-R3 M1, was MD-0-F1): the seed drains the product mini worker over the whole story, so no
@@ -285,6 +288,14 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
         k_before = c.execute(text("SELECT clock_timestamp()")).scalar_one()
         n_findings = c.execute(text("SELECT count(*) FROM finding WHERE site_id = :s"), {"s": m["site_id"]}).scalar_one()
     out = md.late_fill(md._url(engine), "KOBO-001", 7)
+    # CH-9 owned test change: the fill queues mini work for every measured daylight hour and every service hour of
+    # D7, while `late_fill` reconciles only the noon hour. The product worker drains them (as the build's
+    # `drain_mini` step does), then step 10 runs again, and the day's grades are read after that.
+    import uuid
+
+    md.drain_mini(md._url(engine))
+    md.derive(md._url(engine), uuid.UUID(out["tenant_id"]), uuid.UUID(out["site_id"]))
+    out["snapshots"] = md.grades(engine, m["site_id"]).get(out["day"], {})
     record("late_fill_normal", out)
     assert out["day"] == _iso(7) and out["events"] == [], out
     with engine.connect() as c:
@@ -307,7 +318,7 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
     # measure before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
     assert {g for _, g in kept} == {"NO_DATA"}, kept
     assert all(v == "COMPLETE" for k, v in out["snapshots"].items() if _core(k)), out["snapshots"]
-    # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE noon_headroom_kw.
+    # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE daylight_headroom_kw.
     assert all(out["snapshots"].get(k) == "COMPLETE" for k in CORE), out["snapshots"]
     assert set(out["snapshots"].values()) == {"COMPLETE"}, out["snapshots"]
     hours = renewable_hours(engine, m["site_id"])
@@ -438,3 +449,33 @@ def test_publish_renames_the_build_to_its_fingerprint_and_find_matches_only_it()
         for n in (staging, name):
             md.drop_database(admin, n)
         admin.dispose()
+
+
+def test_grow_headroom_has_one_source_summary_value_line_and_portfolio(mech, tmp_path) -> None:
+    """CH9-R4 F2: on MD-0 states the estate summary row, the study value line (Findings › Opportunities) and the
+    Portfolio opportunity headroom name the same lo–hi, because the board's Grow headline reads the selected study
+    through the Portfolio's read. Served in-process by `host/lab_app.py`, as the L3m collect does."""
+    import json as _json
+    import secrets as _secrets
+
+    from demo_combined import KEY_NAMES
+    from demo_combined_finish import app_client
+
+    engine, _ = mech
+    work = tmp_path / "f2"
+    work.mkdir()
+    (work / "keys.json").write_text(_json.dumps({k: _secrets.token_hex(32) for k in KEY_NAMES}), encoding="utf-8")
+    client = app_client(engine.url.render_as_string(hide_password=False), work)
+    w = {"from": "2026-10-03T00:00:00Z", "to": "2026-11-02T00:00:00Z"}  # the L3m month window
+    portfolio = client.get("/api/estate/portfolio", params={**w, "lens": "all"}).json()
+    opps = client.get("/api/estate/findings", params={**w, "lens": "opportunities", "state": "all"}).json()
+    summary = client.get("/api/estate/outcome-summary", params=w).json()
+    lo_hi = portfolio["opportunity"]["headroom"]
+    assert lo_hi is not None and portfolio["opportunity"]["state"] == "FOUND"
+    pair = f"{lo_hi['low']}–{lo_hi['high']}"
+    [item] = [i for i in opps["opportunities"] if i["site_code"] == "KOBO-001"]
+    assert item["study"]["headroom_kw"] == lo_hi and item["value_line"].startswith(f"{pair} kW over ")
+    [kobo] = [s for s in summary["sites"] if s["site_code"] == "KOBO-001"]
+    grow = next(r for r in kobo["rows"] if r["category"] == "GROW_REVENUE")
+    assert grow["short_value"] == f"{pair} kW unused"
+    record("f2_headroom", {"portfolio": lo_hi, "value_line": item["value_line"], "summary": grow["short_value"]})

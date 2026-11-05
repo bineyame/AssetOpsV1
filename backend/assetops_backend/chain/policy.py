@@ -16,15 +16,10 @@ from typing import Any
 DAY_NAMES = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 CALENDAR_KINDS = ("OPERATING",)  # CH-1a section 5c: no LAB_SESSION kind
 
-# Period names a MeasureSpec may use. The midday window is declared here, in one
-# place, so CH-9 replaces it with the declared daylight window without touching
-# the measures or the grader.
-# DS-R1 keep: one-noon-hour basis (B/mini_depth/inputs.py local_noon); CH-9
-# replaces with the declared daylight window.
+# Period names a MeasureSpec may use. CH-9 (CH9-R2 Q2): the fixed midday window is gone; daylight is measured
+# per day inside the declared operating hours (`mini_depth.store.daylight_hours`).
 PERIOD_OPERATING_HOURS = "operating_hours"
-PERIOD_MIDDAY = "midday"
-PERIODS = (PERIOD_OPERATING_HOURS, PERIOD_MIDDAY)
-MIDDAY_WINDOW_LOCAL = (12 * 60, 13 * 60)  # minutes after local midnight
+PERIODS = (PERIOD_OPERATING_HOURS,)
 
 
 class ChainConfigError(ValueError):

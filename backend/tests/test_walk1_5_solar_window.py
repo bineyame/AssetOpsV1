@@ -131,3 +131,21 @@ def test_board_link_bounds_are_accepted_by_the_opportunity_list_and_utc_midnight
     assert (_local_day(lo, ZONE), _local_day(hi, ZONE)) == (DAY - timedelta(days=4), DAY + timedelta(days=1))
     with pytest.raises(DecisionRefused):
         _local_day(datetime(DAY.year, DAY.month, DAY.day, tzinfo=timezone.utc), ZONE)
+
+
+def test_headline_and_signal_read_the_study_not_the_per_hour_cards() -> None:
+    """CH9-R4 F2: the Grow headline figure, the short value and the headroom signal come from the selected study
+    (the Portfolio's `opportunity_threads` read, over the same five renewable days); the per-hour card spread is a
+    different fact and never names the opportunity."""
+    c = cards(hour("ELIGIBLE", head=("2", "20")), hour("ELIGIBLE", head=("4", "18")), None, None, None)
+    fake = Fake(cards={**DEPTH, "renewable": c}, study={"headroom_kw": {"low": "2", "high": "8"}, "eligible_days": 2,
+                                                        "assessed_days": 2})
+    comp, rows = run(fake)
+    assert rows[GROW]["headline"] == "2–8 kW of daytime solar unused" and comp.short_values[GROW] == "2–8 kW unused"
+    assert any(i["kind"] == "OPPORTUNITY" for i in rows[GROW]["issues"])
+    depth_window = next(a[1:] for n, a in fake.calls if n == "depth" and a[0] == "renewable")
+    assert next(a for n, a in fake.calls if n == "opportunity") == depth_window
+    # No study item: no headroom headline and no signal, whatever the per-hour cards say.
+    comp, rows = run(Fake(cards={**DEPTH, "renewable": c}, study=None))
+    assert GROW not in comp.short_values and (rows[GROW]["headline"] is None or "solar" not in rows[GROW]["headline"])
+    assert not any(i["kind"] == "OPPORTUNITY" for i in rows[GROW]["issues"])

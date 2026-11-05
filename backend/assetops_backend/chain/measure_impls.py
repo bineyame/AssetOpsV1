@@ -162,7 +162,16 @@ class ProductiveEnergy(_Cached):
 
 
 class RenewableHeadroom:
-    key = "mini.renewable_headroom@1"
+    """CH-9 (§9 R5, CH9-R2 Q2/Q4): `daylight_headroom_kw` over the day's measured daylight hours.
+
+    The period is the Site's declared operating hours. The reader names the day's hours through the one
+    `mini_depth.store.daylight_hours` (daylight, missing, or the no-PV-binding hour) and each daylight hour's
+    stored selected renewable revision. Covered = the period minus the missing hours, minus each daylight hour that
+    has no selected revision, minus each revision's own coverage gaps: so any missing hour leaves the day PARTIAL.
+    Value: the day decision (CONFLICT > LIMITED > ELIGIBLE(any) > EXCLUDED), the room on every ELIGIBLE hour
+    (min low, min high; every hour for an EXCLUDED day) and `window_hours` = the ELIGIBLE hour count."""
+
+    key = "mini.daylight_headroom@1"
 
     def __init__(self, reader: ChainInputReader) -> None:
         self.r = reader
@@ -172,22 +181,103 @@ class RenewableHeadroom:
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
         pending = self.r.renewable_pending(ctx)
-        head = self.r.renewable_hour(ctx)
-        if head is None:
+        day = self.r.renewable_hours(ctx)
+        heads = [h for h in day["hours"] if h["head"] is not None]
+        if not heads:
             return InputSet((), [], pending, None)
+        holes: list[Span] = list(day["missing"])
+        for h in day["hours"]:
+            if h["head"] is None:
+                holes.append((h["from"], h["to"]))
+            else:
+                holes += _gaps((h["head"]["result"].get("coverage") or {}).get("gaps"), "from", "to")
+        ids = sorted({str(x).lower() for h in heads for x in h["head"]["evidence_ids"]})
+        ids += [f"revision:{h['head']['revision_id']}" for h in heads]
         period = [(ctx.period_start_utc, ctx.period_end_utc)]
-        gaps = _gaps((head["result"].get("coverage") or {}).get("gaps"), "from", "to")
-        ids = [str(x).lower() for x in head["evidence_ids"]] + [f"revision:{head['revision_id']}"]
-        return InputSet(tuple(ids), minus(period, gaps), pending, head["result"])
+        payload = {"hours": [h["head"]["result"].get("hour") or {} for h in heads],
+                   "complete": len(heads) == len(day["hours"])}
+        return InputSet(tuple(ids), minus(period, holes), pending, payload)
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
-        hour = (inputs.payload or {}).get("hour") or {}
-        decision = hour.get("decision")
+        from assetops_backend.mini_depth.rules import day_decision
+
+        payload = inputs.payload or {}
+        hours = payload.get("hours") or []
+        decisions = [h.get("decision") for h in hours]
+        if not payload.get("complete") or any(d is None for d in decisions):
+            return {"low_kw": None, "high_kw": None, "decision": None, "window_hours": None,
+                    "result_state": "MISSING_HOUR"}
+        decision = day_decision(decisions)
         if decision in ("ELIGIBLE", "EXCLUDED"):
-            headroom = hour.get("headroom_kw") or {}
-            low, high = _dec(headroom.get("low")), _dec(headroom.get("high"))
-            return {"low_kw": _text(low), "high_kw": _text(high), "decision": decision}
-        return {"low_kw": None, "high_kw": None, "decision": None, "result_state": decision}
+            counted = [h for h in hours if decision == "EXCLUDED" or h.get("decision") == "ELIGIBLE"]
+            bounds = [((h.get("headroom_kw") or {}).get("low"), (h.get("headroom_kw") or {}).get("high"))
+                      for h in counted]
+            lows, highs = [_dec(lo) for lo, _ in bounds], [_dec(hi) for _, hi in bounds]
+            low = None if any(x is None for x in lows) else min(lows)
+            high = None if any(x is None for x in highs) else min(highs)
+            return {"low_kw": _text(low), "high_kw": _text(high), "decision": decision,
+                    "window_hours": sum(1 for d in decisions if d == "ELIGIBLE")}
+        return {"low_kw": None, "high_kw": None, "decision": None, "window_hours": None, "result_state": decision}
+
+    def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
+        return None
+
+
+class CriticalServed:
+    """CH-9 §9 R9 (CH9-R2 Q7, CH9-R4 F1): `critical_served` over the Site's declared operating hours.
+
+    Reads the stored, selected hourly `mini_service` heads at the cutoff (no new reading query), and in each head
+    only its one CRITICAL load row: the hour counts only when the head has exactly one `role == "CRITICAL"` row, that
+    row is SUPPORTED and states its own `unserved_kwh` (`mini-service/2`; a `/1` head never states it and is never
+    inferred). served = that row's `delivered_kw` x 1 h (the feeder series its unserved figure is computed against),
+    unserved = that row's `unserved_kwh`, demand = served + unserved. The covered span is that row's own coverage
+    minus its gaps. UNCLASSIFIED rows and the all-load cards never affect the measure; an operating hour with no
+    service head is uncovered."""
+
+    key = "mini.critical_served@1"
+
+    def __init__(self, reader: ChainInputReader) -> None:
+        self.r = reader
+
+    def subjects(self, ctx: DayCtx) -> list[str]:
+        return [SITE]
+
+    @staticmethod
+    def critical_row(result: dict[str, Any]) -> tuple[Decimal, Decimal, dict[str, Any]] | None:
+        """(served kWh, unserved kWh, coverage) of the hour's single SUPPORTED CRITICAL row, else None."""
+        crit = [r for r in (result.get("rows") or ()) if isinstance(r, dict) and r.get("role") == "CRITICAL"]
+        if len(crit) != 1 or crit[0].get("assessment") != "SUPPORTED" or "unserved_kwh" not in crit[0]:
+            return None
+        served, unserved = _dec(crit[0].get("delivered_kw")), _dec(crit[0].get("unserved_kwh"))
+        if served is None or unserved is None:
+            return None
+        return served, unserved, crit[0].get("coverage") or {}
+
+    def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
+        pending = self.r.pending_jobs(ctx, ["mini_service"])
+        covered: list[Span] = []
+        ids: list[str] = []
+        counted = []
+        for h in self.r.service_hours(ctx):
+            head = h["head"]
+            if head is None:
+                continue
+            row = self.critical_row(head["result"] or {})
+            if row is None:
+                continue
+            served, unserved, coverage = row
+            covered += minus([(h["from"], h["to"])], _gaps(coverage.get("gaps"), "from", "to"))
+            ids += [str(x).lower() for x in head["evidence_ids"]] + [f"revision:{head['revision_id']}"]
+            counted.append((served, unserved))
+        if not counted:
+            return InputSet((), [], pending, None)
+        return InputSet(tuple(sorted(set(ids))), covered, pending, counted)
+
+    def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
+        counted = inputs.payload or []
+        served = sum((s for s, _ in counted), Decimal(0))
+        unserved = sum((u for _, u in counted), Decimal(0))
+        return {"served_kwh": _text(served), "demand_kwh": _text(served + unserved), "unserved_kwh": _text(unserved)}
 
     def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
         return None
@@ -367,6 +457,6 @@ class ChargingEnergy(_Cached):
 
 
 def build_measure_set(reader: ChainInputReader) -> dict[str, Any]:
-    adapters = (ProductiveEnergy(reader), RenewableHeadroom(reader), DispatchMinutes(reader),
+    adapters = (ProductiveEnergy(reader), RenewableHeadroom(reader), CriticalServed(reader), DispatchMinutes(reader),
                 ChamberTemperature(reader), BackupStartChain(reader), ChargingEnergy(reader))
     return {a.key: a for a in adapters}

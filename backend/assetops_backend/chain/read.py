@@ -8,7 +8,7 @@ adapter; the SQL lives in `chain/adapters/postgres_chain_read.py` and the compos
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 from uuid import UUID
@@ -199,6 +199,8 @@ class DayFacts:
     settled: bool                                             # the last day of `days` (the board day), R4
     readiness: str                                            # R5 over `days`
     gaps: tuple[date, ...]                                    # R8 / Q9 over `days`
+    #: CH-9 (R9): day -> measure -> subject_ref -> the stored snapshot value (MG-5 reads `critical_served`).
+    values: Mapping[date, Mapping[str, Mapping[str, Any]]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -311,11 +313,14 @@ class ChainRequest:
         rows = read_scope.memo("chain.day", self.reader.ports.snapshots, self.tenant_id, site_id, days[0],
                                days[-1], measures, self.k)
         grades: dict[date, dict[str, dict[str, str]]] = {}
+        values: dict[date, dict[str, dict[str, Any]]] = {}
         for r in rows:
             grades.setdefault(r.local_day, {}).setdefault(r.measure, {})[r.subject_ref] = r.grade
+            values.setdefault(r.local_day, {}).setdefault(r.measure, {})[r.subject_ref] = getattr(r, "value", None)
         ready = days if readiness_days is None else tuple(sorted(readiness_days))
         return DayFacts(days, read_scope.freeze(grades), day_settled(rows, days[-1], measures),
-                        readiness_of(rows, ready, measures), day_gaps(rows, days, measures))
+                        readiness_of(rows, ready, measures), day_gaps(rows, days, measures),
+                        read_scope.freeze(values))
 
     def findings(self, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                  hi: datetime) -> tuple[FindingHead, ...]:

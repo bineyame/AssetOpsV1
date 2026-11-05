@@ -98,6 +98,10 @@ def _item(tid: str, oid: str, occurrences: int, view: dict[str, Any], on: date, 
     status = study.get("status")
     eligible, assessed = int(study.get("eligible_days") or 0), int(study.get("assessed_days") or 0)
     headroom = study.get("headroom_kw")
+    # CH-9 (CH9-R2 Q5): the stored `/2` `window_hours`; a `/1` result (no key) sized one hour.
+    window_hours = study.get("window_hours")
+    if window_hours is None and headroom and study.get("model_version") == "mini-opportunity/1":
+        window_hours = 1
     state = view["state"]
     eff = view["state_effective_day"]
     signal = thread_signal_key(mechanism)
@@ -117,10 +121,10 @@ def _item(tid: str, oid: str, occurrences: int, view: dict[str, Any], on: date, 
         "occurrences": occurrences,
         "study": {"opportunity_id": oid, "code": study_code, "first_day": first.isoformat(),
                   "last_day": last.isoformat(), "status": status, "eligible_days": eligible,
-                  "assessed_days": assessed, "headroom_kw": headroom, "window_hours": 1},
+                  "assessed_days": assessed, "headroom_kw": headroom, "window_hours": window_hours},
         "evidence": status, "evidence_label": v.EVIDENCE_LABEL.get(status or ""),
         "seen_line": v.seen_line(eligible, assessed, first, last),
-        "value_line": v.value_line(status, headroom),
+        "value_line": v.value_line(status, headroom, window_hours),
         "limit_line": v.limit_line(status, study.get("limitation_codes") or (), study.get("decisions") or ()),
         "lens_flags": lens_flags(signal, domain), "categories": categories_for(signal, domain),
         "filter_state": "no_longer_supported" if state == "WITHDRAWN" else _FILTER_STATE.get(status or "", "unconfirmed"),

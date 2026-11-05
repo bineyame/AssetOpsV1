@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-from .policy import PERIOD_MIDDAY, PERIOD_OPERATING_HOURS
+from .policy import PERIOD_OPERATING_HOURS
 from .ports import DayCtx, InputSet
 
 CATALOGUE_VERSION = 1  # until CH-1b's catalogue file
@@ -44,10 +44,16 @@ MEASURES: dict[str, MeasureSpec] = {
     "productive_kwh": MeasureSpec(
         "productive_kwh", "MINIGRID", "ASSET", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
         "mini.productive_energy@1"),
-    # DS-R1 keep: one-noon-hour basis; CH-9 replaces with the declared daylight window
-    "noon_headroom_kw": MeasureSpec(
-        "noon_headroom_kw", "MINIGRID", "SITE", "MEASURED", PERIOD_MIDDAY, 1.0,
-        "mini.renewable_headroom@1"),
+    # CH-9 (§9 R5, CH9-R2 Q2): the day's measured daylight hours inside the declared operating hours; any
+    # missing hour leaves the day PARTIAL. Replaces the one-noon-hour `noon_headroom_kw`.
+    "daylight_headroom_kw": MeasureSpec(
+        "daylight_headroom_kw", "MINIGRID", "SITE", "MEASURED", PERIOD_OPERATING_HOURS, 1.0,
+        "mini.daylight_headroom@1"),
+    # CH-9 §9 R9 (CH9-R2 Q7): critical demand served over the whole declared day, from the stored hourly
+    # `mini_service` heads; an operating hour with no head is uncovered. MG-5 reads it.
+    "critical_served": MeasureSpec(
+        "critical_served", "MINIGRID", "SITE", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
+        "mini.critical_served@1"),
     "avoidable_gen_min": MeasureSpec(
         "avoidable_gen_min", "MINIGRID", "ASSET", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
         "mini.dispatch_minutes@1"),

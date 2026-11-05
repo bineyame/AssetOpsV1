@@ -109,7 +109,7 @@ def test_0043_catalogue_and_insert_only(store, engine) -> None:  # noqa: F811
                         "INSERT INTO site_day_snapshot (tenant_id, site_id, local_day, subject_kind, subject_ref, "
                         "measure, evidence_class, revision, expected, required_seconds, covered_seconds, coverage_pct, "
                         "grade, policy_version, calendar_version, catalogue_version, input_fp) VALUES (:t, :s, "
-                        "'2026-10-09', 'SITE', 'SITE', 'noon_headroom_kw', 'MEASURED', 1, true, 3600, 60, 1.67, "
+                        "'2026-10-09', 'SITE', 'SITE', 'daylight_headroom_kw', 'MEASURED', 1, true, 3600, 60, 1.67, "
                         "'NO_DATA', 'p', 'c', 1, :fp)"), {"t": t, "s": s, "fp": "a" * 64})
     finally:
         snaps.dispose()
@@ -166,11 +166,13 @@ def test_noon_headroom_real_adapter_and_grade_counts_many(store, engine) -> None
     inputs = build_chain_inputs(URL)
     try:
         builder, site = _builder(inputs, snaps), _site(t, s)
-        out = builder.build_range(t, site, w402.DAYS[0], w402.DAYS[-1], ["noon_headroom_kw"])
+        out = builder.build_range(t, site, w402.DAYS[0], w402.DAYS[-1], ["daylight_headroom_kw"])
         assert len(out) == 5 and all(w.written for w in out)
         for w in out:
             r = w.row
-            assert (r.subject_kind, r.subject_ref, r.required_seconds) == ("SITE", "SITE", 3600)
+            # CH-9 owned test change (CH9-R2): the measure grades the declared operating day (24 h for this Site,
+            # as `w402._dark_hours` seeds it), not the one midday hour.
+            assert (r.subject_kind, r.subject_ref, r.required_seconds) == ("SITE", "SITE", 24 * 3600)
             assert r.grade in ("COMPLETE", "PARTIAL", "LOW"), r
             assert r.value["decision"] in ("ELIGIBLE", "EXCLUDED") and r.money is None
             assert r.value["low_kw"] is not None and r.value["high_kw"] is not None
@@ -178,14 +180,14 @@ def test_noon_headroom_real_adapter_and_grade_counts_many(store, engine) -> None
                 assert r.value["decision"] == decisions[r.local_day.isoformat()]
         assert sorted(w.row.value["decision"] for w in out) == sorted(x["decision"] for x in body["rows"])
         assert not any(w.written for w in builder.build_range(t, site, w402.DAYS[0], w402.DAYS[-1],
-                                                              ["noon_headroom_kw"]))
+                                                              ["daylight_headroom_kw"]))
         # a stub productive measure on the same Site, so the day counts cover two measures
         _builder(StubInputs({d: 24 for d in w402.DAYS}), snaps).build_range(
             t, site, w402.DAYS[0], w402.DAYS[-1], ["productive_kwh"])
 
         reader = SnapshotReader(snaps)
         other = uuid4()
-        measures = {s: ["productive_kwh", "noon_headroom_kw"], other: ["noon_headroom_kw"]}
+        measures = {s: ["productive_kwh", "daylight_headroom_kw"], other: ["daylight_headroom_kw"]}
         statements: list[str] = []
 
         def count(conn, cursor, statement, *args):
