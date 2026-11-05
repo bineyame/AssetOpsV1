@@ -56,3 +56,5 @@ Rulings: `AssetOpsV1-plan2\.agent\build-sheet-CH-9b.md` section "CH9b1-R" (bindi
 - No outbox event is emitted on domain Action creation; a MINI Action created after its opportunity's placement is
   linked by backfill step c or the next `opportunity.revised` event, not immediately by the tick.
 - Not yet checked: Postgres execution of any changed SQL; W6 on the new columns.
+
+## STATUS: DONE (builder 2). L2, Q6 alternative proof, scoped suites, polish clone, guards done. See .agent/review-packet-CH-9b1.md.
