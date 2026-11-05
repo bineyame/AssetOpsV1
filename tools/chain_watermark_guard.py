@@ -283,6 +283,12 @@ def _run(url: str, work: Path) -> dict[str, Any]:
                     current["route"] = path
                     statuses[f"{path}?{req.query}"] = client.get(f"{path}?{req.query}").status_code
                     current["route"] = None
+            # The dateless board reads its day from the DB clock (`site_overview.read.db_today`, a read_instant
+            # capture), so each board Site is also requested without `date=` (CH-5c2 Q5: `db_today` is exercised).
+            for path in sorted({r.path for r in requests if r.path.endswith("/outcome-board")}):
+                current["route"] = path
+                statuses[f"{path}?"] = client.get(path).status_code
+                current["route"] = None
     finally:
         event.remove(Engine, "before_cursor_execute", listener)
     engine = create_engine(url)
