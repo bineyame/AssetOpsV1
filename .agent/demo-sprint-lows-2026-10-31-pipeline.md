@@ -130,3 +130,9 @@
 - L5 COH-17 doesn't report compared/skipped counts (a vacuous pass looks identical). Owner: CH-6b with COH-18.
 - Residual: Portfolio + Findings now run the full claims read per Site with no timings recorded → CH-5c perf baseline must time both; non-site-store chain-read errors now fail these routes.
 - CH5a2b-R2 packet table (per-window named days + reason) folded into CH-9's merge: CH-9 merges second and must re-collect L3/L3m anyway (measure rename + critical_served change Kobo day grades and count_basis).
+
+## CH-5c (merged ac29b6f95, store OFF; review REVISE → CH5c-R7 split, .agent/review-CH-5c.md)
+- H1/H2, M1, L1–L4, code_version host/contracts residual → CH-5c2 (2.5 u, turns store on, passes exact E4 check in review-CH-5c.md).
+- M2 trigger write cost + change-log growth unmeasured on data-bearing ticks; triggers live on main now → DD-1b measures (stop: watermark ≥50 ms or triggers ≥10% settle).
+- L5 stored-path tested only via Findings → CH-5c2 adds board/summary/Portfolio. L6 scope-ids not pinned to the Portfolio body's cutoff (packet note; post-demo).
+- R4 driver prepare_threshold dropped (no 5% gain).
