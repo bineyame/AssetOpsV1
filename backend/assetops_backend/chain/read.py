@@ -242,7 +242,7 @@ def reduce_action_rows(raw: Mapping[str, Any], k: datetime | None) -> tuple[dict
     `workflow_label` reads (`resolution_state`, `verification_outcome`, `application_state`,
     `_raw._verification_window`) plus `_raw._selected_recorded_at` and `_raw._source_class` (R2: the resolution
     outcome's stored class). The plan window is open at `k` (None = now) and the Action is not resolved."""
-    at = k if k is not None else datetime.now(timezone.utc)
+    at = k if k is not None else read_scope.clock()
     events: dict[str, list[dict[str, Any]]] = {}
     for e in raw.get("events") or ():
         events.setdefault(str(e["action_id"]).lower(), []).append(read_scope.thaw(e))
@@ -259,7 +259,7 @@ def reduce_action_rows(raw: Mapping[str, Any], k: datetime | None) -> tuple[dict
         reduced = action_lifecycle.reduce(prefix)
         resolution = reduced.get("resolution")
         resolved = resolution is not None and resolution["state"] == action_lifecycle.RESOLVED
-        in_window = any(p["later_start"] <= at < p["later_end"] for p in plans.get(aid, ()))
+        in_window = any(read_scope.within(p["later_start"], p["later_end"], at) for p in plans.get(aid, ()))
         out.append({"action_id": str(a["id"]), "application_state": reduced["application"],
                     "resolution_state": None if resolution is None else resolution["state"],
                     "verification_outcome": resolution.get("outcome") if resolved else None,

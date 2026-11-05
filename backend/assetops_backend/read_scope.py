@@ -17,7 +17,7 @@ import time
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import fields, is_dataclass, replace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
 from types import MappingProxyType
@@ -77,6 +77,8 @@ class ReadScope:
         self.hits: dict[str, int] = {}
         self._memo: dict[tuple[str, tuple[Any, ...]], Any] = {}
         self.snapshot: tuple[Any, datetime] | None = None  # CH5c-R3 R3: (connection, read instant)
+        #: CH5c-R7 C1: (boundary, at) of every registered clock comparison (`within`, `since`)
+        self.boundaries: list[tuple[datetime, datetime]] = []
 
     def count(self, name: str, key: tuple[Any, ...], ms: float) -> None:
         k = (name, key)
@@ -184,6 +186,66 @@ def snapshot(c: Any, read_at: datetime) -> Iterator[None]:
         yield
     finally:
         sc.snapshot = previous
+
+
+def clock() -> datetime:
+    """CH5c-R7 C1: the one wall-clock read of compose code (aware UTC). Tests move it with `monkeypatch`."""
+    return datetime.now(timezone.utc)
+
+
+def read_instant(db_value: datetime) -> datetime:
+    """CH5c2-R1 Q1: a compose read instant captured from the DB (`SELECT clock_timestamp()`, the snapshot's first
+    statement). The named seam of every such capture: identity in the product; the C4 sweep moves it with the
+    clock."""
+    return db_value
+
+
+def _register(boundary: datetime, at: datetime) -> None:
+    sc = _SCOPE.get()
+    if sc is not None:
+        sc.boundaries.append((boundary, at))
+
+
+def within(start: datetime | None, end: datetime | None, at: datetime) -> bool:
+    """CH5c-R7 C1: `start <= at < end` (half-open; a None bound is unbounded). Registers `start` when `at < start`
+    and `end` when `start <= at < end`: the earliest instant at which the verdict can change."""
+    if start is not None and at < start:
+        _register(start, at)
+        return False
+    if end is not None and at >= end:
+        return False
+    if end is not None:
+        _register(end, at)
+    return True
+
+
+def since(t: datetime, lookback: timedelta, at: datetime) -> bool:
+    """CH5c-R7 C1: `at - lookback <= t <= at`. Registers `t` when `t > at` (it turns true at `t`), else
+    `t + lookback` (it turns false just after; the inclusive end is the instant itself, never +1 µs)."""
+    if t > at:
+        _register(t, at)
+        return False
+    _register(t + lookback, at)
+    return at - lookback <= t
+
+
+def boundaries() -> tuple[tuple[datetime, datetime], ...]:
+    sc = _SCOPE.get()
+    return () if sc is None else tuple(sc.boundaries)
+
+
+#: CH5c-R7 F4: the route a stored-route compose is running for (set by `chain.response_store`); a test-only audit
+#: hook reads it, so its scope is exactly the compose.
+COMPOSING: ContextVar[str | None] = ContextVar("assetops_composing", default=None)
+
+
+@contextmanager
+def composing(route: str) -> Iterator[None]:
+    token = COMPOSING.set(route)
+    try:
+        yield
+    finally:
+        COMPOSING.reset(token)
 
 
 def at_or_after_snapshot(c: Any, cutoff: datetime) -> bool:

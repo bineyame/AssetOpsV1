@@ -3,7 +3,8 @@
 Each request of `config/chain/prebuilt-routes-v1.json` (page 1 only, Q11) is sent through the application's own
 route code (an in-process ASGI client over `create_app`), so a pre-built body is exactly a request's body: the
 same admission, watermark, compose and before/after store rule. A request whose watermark has not moved is a
-store hit and composes nothing, so the pre-build only builds when a watermark moved. It holds no Site lease. After
+store hit and composes nothing (about 50 ms), so the pre-build runs every tick (CH5c-R7 C5): it builds
+when a watermark or `F` moved, or when a live row expired (`valid_until`). It holds no Site lease. After
 the requests it prunes the store to the latest 3 rows per (route, request_key, code_version). The tick reports its
 seconds against the EX-3 "at most 50% of the tick limit" rule.
 
@@ -19,7 +20,7 @@ from collections import Counter
 from typing import Any
 
 from assetops_backend.chain.composition import build_response_store, code_version, prebuilt_requests
-from assetops_backend.chain.response_store import HEADER, enabled
+from assetops_backend.chain.response_store import HEADER, mode
 from assetops_backend.chain.watermark import SERVE_KEYS
 
 SCOPE_IDS = "/api/estate/portfolio/scope-ids"
@@ -38,7 +39,7 @@ def paths() -> list[str]:
 def run(url: str | None, client: Any = None) -> dict[str, Any]:
     started = time.perf_counter()
     version = code_version()[:16]
-    if not enabled():  # CH5c-R7: the store is off by default; nothing is stored
+    if mode() != "on":  # the store is off (or compose-only); nothing is stored
         return {"code": "SKIPPED_STORE_OFF", "code_version": version, "requests": 0}
     missing = [k for k in SERVE_KEYS if not os.environ.get(k)]
     if missing:  # CH5c-R6: no server could hit rows built under this process's code_version

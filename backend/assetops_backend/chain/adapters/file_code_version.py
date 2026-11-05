@@ -1,6 +1,6 @@
 """CH-5c Q5 (CH5c-R4; moved below the port by CH5c-R6): the file reads behind `code_version`.
 
-`code_version` hashes the alembic head, every backend source file and every `config/` file, each by relative path
+`code_version` hashes the alembic head, every backend source file, every `config/` file, `host/**/*.py` and `contracts/**` (CH5c-R7), each by relative path
 and content (the file list is hashed, so an edited, added or deleted file changes it), and every composer setting
 named by `chain.watermark.COMPOSER_ENV` (the value's sha, and for a manifest path the file's content too). The
 domain rule and the setting list live in `chain/watermark.py`; this adapter only reads the files.
@@ -48,6 +48,9 @@ def _files() -> list[Path]:
     out = [p for p in (backend / "assetops_backend").rglob("*.py")]
     out += [p for p in (backend / "migrations" / "versions").glob("*.py")]
     out += [p for p in (_ROOT / "config").rglob("*") if p.is_file()]
+    # CH5c-R7 residual: the host and contract packages a composer imports
+    out += [p for p in (_ROOT / "host").rglob("*.py") if "__pycache__" not in p.parts]
+    out += [p for p in (_ROOT / "contracts").rglob("*") if p.is_file() and "__pycache__" not in p.parts]
     return sorted(out)
 
 

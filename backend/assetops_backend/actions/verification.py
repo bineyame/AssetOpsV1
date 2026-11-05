@@ -19,6 +19,7 @@ from fractions import Fraction
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
+from assetops_backend import read_scope
 from assetops_backend.actions import reserve_trial
 from assetops_backend.actions import verification_rules as rules
 from assetops_backend.actions.lifecycle import APPLIED, RESOLUTION_WITHDRAWN, RESOLVED, SYSTEM_DEMO, latest_resolution
@@ -962,7 +963,7 @@ class VerificationService:
         base = {"plan_id": str(head["id"]), "outcome_id": None, "last_outcome": None}
         if latest is None or latest["plan_id"] != head["id"]:
             now = at or self.clock()
-            reasons = ["LATER_WINDOW_OPEN"] if now < head["later_end"] else ["NOT_EVALUATED"]
+            reasons = ["LATER_WINDOW_OPEN"] if read_scope.within(None, head["later_end"], now) else ["NOT_EVALUATED"]
             return {**base, "state": PENDING_STATE, "reasons": reasons,
                     "statement": "No outcome for the current plan yet; PENDING is a read state, not an outcome."}
         base.update(outcome_id=str(latest["id"]), last_outcome=latest["outcome"])

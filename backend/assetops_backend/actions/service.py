@@ -13,6 +13,7 @@ from decimal import Decimal
 from typing import Any, Callable
 from uuid import UUID
 
+from assetops_backend import read_scope
 from assetops_backend.actions import reserve_trial
 from assetops_backend.actions.capability import Capability, CapabilityCheck, no_capability
 from assetops_backend.actions.lifecycle import (
@@ -73,7 +74,7 @@ BLOCK_MESSAGES = {
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return read_scope.clock()  # CH5c-R7 C1: the one clock seam
 
 
 def is_unresolved(state: dict[str, Any]) -> bool:

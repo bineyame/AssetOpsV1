@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any, Callable, Iterable, Mapping
 
-from assetops_backend import perf
+from assetops_backend import perf, read_scope
 from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
 from assetops_backend.chain.claims import CLAIM_KEYS
@@ -570,7 +570,7 @@ def evidence_prompt(evidence_state: str, gaps: list[dict[str, Any]]) -> dict[str
 
 def _plan_id(plans: list[dict[str, Any]], k: datetime) -> str | None:
     """The selected plan active at the cutoff, else the latest recorded selected plan; null when none."""
-    active = [p for p in plans if p["later_start"] <= k < p["later_end"]]
+    active = [p for p in plans if read_scope.within(p["later_start"], p["later_end"], k)]
     pick = max(active or plans, key=lambda p: (p["recorded_at"], str(p["id"])), default=None)
     return None if pick is None else str(pick["id"])
 

@@ -90,7 +90,7 @@ class PostgresEstateRead:
         try:
             with self._connect() as c, c.begin():
                 c.execute(text("SET TRANSACTION READ ONLY"))
-                read_at = c.execute(text("SELECT now()")).scalar_one()
+                read_at = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())  # CH5c-R7 L2: at or after the snapshot
                 with read_scope.snapshot(c, read_at):  # CH5c-R3 R3
                     return work(EstateSnapshot(self, c, read_at))
         except (OperationalError, DBAPIError) as error:
