@@ -928,7 +928,12 @@ function Invoke-ConfigurationPersistenceCheck {
     $changeLogTruncateMigration = 'backend/migrations/versions/0048_chain_response_expiry.py'
     $responseShapes = [ordered]@{
         'chain_response insert' = ('(?i)^INSERT\s+INTO\s+chain_response\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*' +
-            'ON\s+CONFLICT\s*\(\s*route\s*,\s*request_key\s*,\s*watermark\s*,\s*code_version\s*\)\s*DO\s+NOTHING\s*;?\s*$')
+            'ON\s+CONFLICT\s*\(\s*route\s*,\s*request_key\s*,\s*watermark\s*,\s*code_version\s*\)\s*' +
+            # CH-5c2: the one allowed DO UPDATE re-warms an EXPIRED live row (valid_until reached); a live row is never overwritten.
+            'DO\s+UPDATE\s+SET\s+etag\s*=\s*EXCLUDED\.etag\s*,\s*body\s*=\s*EXCLUDED\.body\s*,\s*' +
+            'build_ms\s*=\s*EXCLUDED\.build_ms\s*,\s*valid_until\s*=\s*EXCLUDED\.valid_until\s*,\s*' +
+            'built_at\s*=\s*EXCLUDED\.built_at\s+WHERE\s+chain_response\.valid_until\s+IS\s+NOT\s+NULL\s+AND\s+' +
+            'chain_response\.valid_until\s*<=\s*greatest\(\s*clock_timestamp\(\)\s*,\s*CAST\(\s*:now\s+AS\s+timestamptz\s*\)\s*\)\s*;?\s*$')
         'chain_response per-version prune' = ('(?i)^DELETE\s+FROM\s+chain_response\s+x\s+USING\s*\(\s*SELECT\s+ctid\s*,\s*' +
             'row_number\(\)\s+OVER\s*\(\s*PARTITION\s+BY\s+route\s*,\s*request_key\s*,\s*code_version\s+ORDER\s+BY\s+' +
             'built_at\s+DESC\s*\)\s+AS\s+n\s+FROM\s+chain_response\s*\)\s*old\s+WHERE\s+x\.ctid\s*=\s*old\.ctid\s+' +
@@ -1388,7 +1393,7 @@ function Invoke-ConfigurationPersistenceCheck {
                     }
                     if ($null -eq $responseShape) {
                         $failures.Add(("The response store runs only its two declared statements (the chain_response " +
-                            "INSERT ... ON CONFLICT (route, request_key, watermark, code_version) DO NOTHING, and the prune " +
+                            "INSERT ... ON CONFLICT (route, request_key, watermark, code_version) DO UPDATE only of an expired row, and the prune " +
                             "partitioned by route, request_key, code_version); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $responseShapesSeen[$responseShape]++
