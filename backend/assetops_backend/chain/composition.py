@@ -5,10 +5,7 @@ The chain input reader receives the existing read services built by their own do
 """
 from __future__ import annotations
 
-import importlib.util
 from dataclasses import dataclass
-from functools import lru_cache
-from pathlib import Path
 from typing import Any, Callable
 
 from assetops_backend.chain.adapters.file_chain_config import (
@@ -16,6 +13,7 @@ from assetops_backend.chain.adapters.file_chain_config import (
     load_event_register,
     load_operating_calendar,
     load_thread_lifecycle,
+    read_module_source,
 )
 from assetops_backend.chain.adapters.postgres_event_store import EventStoreUnavailable, PostgresEventStore
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
@@ -117,14 +115,6 @@ def thread_lifecycle_policy() -> Any:
     return load_thread_lifecycle()
 
 
-@lru_cache(maxsize=1)
-def _module_source(module: str) -> str | None:
-    spec = importlib.util.find_spec(module)
-    if spec is None or not spec.origin or not spec.origin.endswith(".py"):
-        return None
-    return Path(spec.origin).read_text(encoding="utf-8")
-
-
 def declared_graph_inputs() -> Any:
     """CH-5b1 R6: the declared chain graph inputs (register, measures, adapters, lifecycle, outcome map)."""
     from assetops_backend.chain.graph import GraphInputs
@@ -137,7 +127,7 @@ def declared_graph_inputs() -> Any:
         register=load_event_register(), measures=MEASURES, adapter_keys=frozenset(build_measure_set(None)),
         clean_day_measures=dict(load_thread_lifecycle().clean_day_measures), entries=ENTRIES,
         outcome_keys=frozenset(OUTCOME_BY_KEY), aliases=DOMAIN_ALIAS, thread_signal_key=thread_signal_key,
-        warning_kinds=frozenset(KINDS), module_source=_module_source)
+        warning_kinds=frozenset(KINDS), module_source=read_module_source)
 
 
 def check_declared_chain_graph() -> list[str]:

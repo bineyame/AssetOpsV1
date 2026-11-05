@@ -101,3 +101,14 @@ def load_prebuilt_routes():
     from assetops_backend.chain.prebuilt import CONFIG_NAME, parse
 
     return parse(_read_json(REPO_ROOT / "config" / "chain" / CONFIG_NAME))
+
+
+@lru_cache(maxsize=None)
+def read_module_source(module: str) -> str | None:
+    """CH-5b1 (CH5b1-R Q1): a producer module's source text for the graph check's emitter test; None if not found."""
+    import importlib.util
+
+    spec = importlib.util.find_spec(module)
+    if spec is None or not spec.origin or not spec.origin.endswith(".py"):
+        return None
+    return Path(spec.origin).read_text(encoding="utf-8")

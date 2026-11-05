@@ -11,8 +11,10 @@ from fastapi.testclient import TestClient
 from assetops_backend import main
 from assetops_backend.chain import composition
 from assetops_backend.chain.graph import (
-    DEFAULT_OUT, KNOWN_GAPS, NOT_CHAIN_SOURCED, WARNING_PRODUCER, ChainGraphError, check, emits_signal, problems,
+    KNOWN_GAPS, NOT_CHAIN_SOURCED, WARNING_PRODUCER, ChainGraphError, check, emits_signal, problems,
     render_dot, render_svg)
+
+DEFAULT_OUT = Path(__file__).resolve().parents[2] / "Docs" / "demo-sprint"  # written by tools/chain_graph_render.py
 
 
 @pytest.fixture(scope="module")

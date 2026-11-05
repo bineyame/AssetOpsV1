@@ -1,7 +1,8 @@
 """CH-5b1 (build sheet CH-5b R6, CH5b1-R Q1-Q3): the declared chain graph check and its generated diagram.
 
     python -m assetops_backend.chain.graph check          # exit 1 and the failed rule + key on a broken graph
-    python -m assetops_backend.chain.graph dot [--out D]  # write chain-graph.dot and chain-graph.svg (default Docs/demo-sprint)
+    python -m assetops_backend.chain.graph dot [--svg]    # print the DOT text (or the SVG) to stdout
+    python tools/chain_graph_render.py                    # writes Docs/demo-sprint/chain-graph.{dot,svg} from these
 
 It validates what is declared today, before the CH-8 catalogue: the event register (`config/chain/event-register-v1.yaml`),
 `chain/measures.py` `MEASURES` and the adapter keys, the thread-lifecycle `clean_day_measures`, and
@@ -24,7 +25,6 @@ import ast
 import sys
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 #: The producer of every `WARNING:<kind>` row: `outcomes/warnings.py` `KINDS` must hold the kind.
@@ -270,22 +270,12 @@ def render_svg(g: GraphInputs) -> str:
     return "\n".join(out) + "\n"
 
 
-DEFAULT_OUT = Path(__file__).resolve().parents[3] / "Docs" / "demo-sprint"
-
-
-def write_diagram(g: GraphInputs, out_dir: Path = DEFAULT_OUT) -> tuple[Path, Path]:
-    dot_path, svg_path = out_dir / "chain-graph.dot", out_dir / "chain-graph.svg"
-    dot_path.write_text(render_dot(g), encoding="utf-8", newline="\n")
-    svg_path.write_text(render_svg(g), encoding="utf-8", newline="\n")
-    return dot_path, svg_path
-
-
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="python -m assetops_backend.chain.graph")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("check")
     d = sub.add_parser("dot")
-    d.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    d.add_argument("--svg", action="store_true", help="print the SVG instead of the DOT text")
     args = p.parse_args(argv)
     from assetops_backend.chain.composition import declared_graph_inputs
 
@@ -295,9 +285,9 @@ def main(argv: list[str] | None = None) -> int:
     except ChainGraphError as exc:
         print(f"FAIL {exc}")
         return 1
-    if args.cmd == "dot":
-        for path in write_diagram(g, args.out):
-            print(f"wrote {path}")
+    if args.cmd == "dot":  # stdout only: the backend writes no files (tools/chain_graph_render.py writes the Docs copy)
+        sys.stdout.write(render_svg(g) if args.svg else render_dot(g))
+        return 0
     print("\n".join(lines))
     return 0
 
