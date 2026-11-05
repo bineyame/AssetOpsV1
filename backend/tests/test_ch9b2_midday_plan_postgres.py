@@ -250,3 +250,22 @@ def test_0052_round_trip_and_refusal(mill) -> None:
     assert "domain_action_id" not in cols and nullable["action_id"] == "NO" and nullable["field"] == "NO"
     command.upgrade(_alembic(), "head")
     assert head(mill.engine) == "0052_verification_plan_domain"
+
+
+def test_q10_site_action_rows_read_no_domain_plan(mill) -> None:
+    """CH9b2-R Q10: the Site-wide `action_rows` plan read stays W1-only, so a domain plan never surfaces as action
+    `None` (its existing bodies stay byte-equal)."""
+    from assetops_backend.chain.adapters.postgres_chain_read import PostgresChainRead
+
+    action, case_id = _applied(mill, "ch9b2-q10")
+    occurred, _, _ = _effective(mill, case_id)
+    svc = _service(mill, occurred + timedelta(hours=1))
+    reader = PostgresChainRead(URL, action_window=lambda *a, **k: {"actions": (), "events": ()})
+    try:
+        svc.freeze_domain_plan(mill.t, mill.s, action["id"])
+        with mill.engine.connect() as c:
+            assert c.execute(text("SELECT count(*) FROM verification_plan")).scalar_one() == 1
+        assert reader.action_rows(mill.t, mill.s, None)["plans"] == ()
+    finally:
+        _close(mill)
+        pg_harness.dispose(reader)
