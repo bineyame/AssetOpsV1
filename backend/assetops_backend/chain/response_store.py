@@ -164,8 +164,9 @@ class ResponseStore:
         bodies, sc = self._composed(req, compose)  # (b) the compose memo starts after (a)
         build_ms = int((time.perf_counter() - started) * 1000)
         rendered = {route: render(body) for route, body in bodies.items()}
-        until = valid_until(sc.boundaries, now, zones, live=req.request.get("known_at") is None)
         try:
+            until = valid_until(sc.boundaries, now, zones, live=req.request.get("known_at") is None,
+                                instants=sc.instants)  # L-1: a bad Site timezone serves the body unstored
             keys = {route: request_key(route, req.tenant_id, sites, req.request) for route in rendered}
             tags = {route: etag(route, keys[route], w, version, until) for route in rendered}
             with perf.timed("store.recheck"):
@@ -199,10 +200,13 @@ LIVE_SLACK = timedelta(seconds=1)
 
 
 def valid_until(boundaries: Iterable[tuple[datetime, datetime]], now: datetime, zones: Iterable[str], *,
-                live: bool) -> datetime | None:
+                live: bool, instants: Iterable[datetime] = ()) -> datetime | None:
     """CH5c-R7 C2: min(every live registered boundary later than its own `at`, the earliest next local midnight
-    over the request's Sites) - 1 s. A historical request with no live registration never expires (None)."""
-    marks = [b for b, at in boundaries if b > at and at >= now - LIVE_SLACK]
+    over the request's Sites) - 1 s. A historical request with no live registration never expires (None).
+    CH5c2 fix M-A: liveness is judged against the compose's own read instants (the earliest of `now` and every
+    `read_scope.read_instant` capture), never `now` alone, so a DB clock lagging the app clock keeps its marks."""
+    floor = min((now, *instants)) - LIVE_SLACK
+    marks = [b for b, at in boundaries if b > at and at >= floor]
     if not live and not marks:
         return None
     for zone in tuple(zones) or ("UTC",):

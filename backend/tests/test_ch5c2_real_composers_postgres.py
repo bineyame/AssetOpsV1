@@ -171,10 +171,19 @@ def test_c4_sweep_over_every_stored_route(kobo, monkeypatch) -> None:
     from assetops_backend.estate.coverage import VERIFIED_LOOKBACK
 
     url, work = kobo
-    t0 = datetime.now(timezone.utc) + timedelta(minutes=1)
+    from zoneinfo import ZoneInfo
+
+    # CH5c2 fix M-B: t0 is 00:30Z tomorrow, whenever the test runs, so a whole-day plan shift lands its `later_end`
+    # (a time of day) and the outcome's lookback edge (t0 + 3 h) before every Site's next local midnight.
+    t0 = datetime.combine(datetime.now(timezone.utc).date() + timedelta(days=1), datetime.min.time(),
+                          tzinfo=timezone.utc) + timedelta(minutes=30)
     placed = _place(url, t0)
     print("\nCH-5c2 C4 placed", {k: v and v.isoformat() for k, v in placed.items()})
     assert placed["plan"] is not None and placed["plan"] > t0 and placed["outcome"] is not None, placed
+    # The current-week Portfolio: a `to` after t0, so its read instant is live.
+    week = (f"from={(t0.date() - timedelta(days=6)).isoformat()}T00:00:00Z"
+            f"&to={(t0.date() + timedelta(days=1)).isoformat()}T00:00:00Z&lens=all")
+    paths = [*PATHS, f"/api/estate/portfolio?{week}", f"/api/estate/portfolio/scope-ids?{week}"]
     engine = create_engine(url)
 
     def until_of(tag: str):
@@ -187,7 +196,7 @@ def test_c4_sweep_over_every_stored_route(kobo, monkeypatch) -> None:
     cands = probe.candidates(seeded, t0, zones, VERIFIED_LOOKBACK)
     try:
         with _app(monkeypatch, url, work, "on") as on, _app(monkeypatch, url, work, "compose") as composed:
-            report = probe.sweep(on, composed, PATHS, until_of, t0, cands)
+            report = probe.sweep(on, composed, paths, until_of, t0, cands)
     finally:
         engine.dispose()
     print("CH-5c2 C4 sweep", json.dumps({"seeded": len(seeded), "candidates": len(cands),
@@ -195,6 +204,16 @@ def test_c4_sweep_over_every_stored_route(kobo, monkeypatch) -> None:
     assert report["violations"] == [], report["violations"]
     # Non-empty: the placed outcome's lookback end is a candidate composed before some route's valid_until.
     assert sum(p["composed"] for p in report["paths"].values()) > 0, report["paths"]
+    # CH5c2 fix M-B: a registered boundary, not the midnight cap, decides some route's valid_until, and the placed
+    # boundaries fall before the cap.
+    cap = min(datetime.combine(t0.astimezone(ZoneInfo(z)).date() + timedelta(days=1), datetime.min.time(),
+                               tzinfo=ZoneInfo(z)) for z in (zones or ["UTC"])) - timedelta(seconds=1)
+    untils = {path: datetime.fromisoformat(p["valid_until"]) for path, p in report["paths"].items()
+              if p["valid_until"] is not None}
+    assert placed["plan"] < cap and placed["outcome"] + VERIFIED_LOOKBACK < cap, (placed, cap)
+    binding = {path: u.isoformat() for path, u in untils.items() if u < cap}
+    print("CH-5c2 C4 cap", cap.isoformat(), "boundary-bound paths", binding)
+    assert binding, {"cap": cap.isoformat(), "untils": {k: v.isoformat() for k, v in untils.items()}}
 
 
 def _audit(monkeypatch, url, work, plant=None):

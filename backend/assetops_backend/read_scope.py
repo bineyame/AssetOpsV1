@@ -79,6 +79,8 @@ class ReadScope:
         self.snapshot: tuple[Any, datetime] | None = None  # CH5c-R3 R3: (connection, read instant)
         #: CH5c-R7 C1: (boundary, at) of every registered clock comparison (`within`, `since`)
         self.boundaries: list[tuple[datetime, datetime]] = []
+        #: CH5c2 fix M-A: every DB read instant the compose captured through `read_instant` (the liveness floor)
+        self.instants: list[datetime] = []
 
     def count(self, name: str, key: tuple[Any, ...], ms: float) -> None:
         k = (name, key)
@@ -197,6 +199,9 @@ def read_instant(db_value: datetime) -> datetime:
     """CH5c2-R1 Q1: a compose read instant captured from the DB (`SELECT clock_timestamp()`, the snapshot's first
     statement). The named seam of every such capture: identity in the product; the C4 sweep moves it with the
     clock."""
+    sc = _SCOPE.get()
+    if sc is not None:
+        sc.instants.append(db_value)
     return db_value
 
 

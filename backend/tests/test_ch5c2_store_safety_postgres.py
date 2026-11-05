@@ -147,6 +147,41 @@ def test_c2_valid_until_is_stored_and_a_moved_clock_misses(engine, monkeypatch) 
     assert client.get(Q).headers[HEADER] == "hit"
 
 
+class LaggedComposer(Composer):
+    """As `Composer`, but the read instant is a DB capture lagging the app clock by `LAG` (CH5c2 fix M-A)."""
+
+    LAG = timedelta(seconds=5)
+
+    def findings(self, tenant, parsed, admit):
+        self.calls += 1
+        at = read_scope.read_instant(read_scope.clock() - self.LAG)
+        label = "OPEN" if read_scope.within(END - timedelta(days=7), END, at) else "CLOSED"
+        return {"rows": [{"site_code": "x", "label": label}], "total_count": None, "lens": parsed.lens,
+                "limit": parsed.limit, "known_at": None, "selection_token": None}
+
+
+def test_ma_a_lagging_db_clock_keeps_its_registered_boundary(engine, monkeypatch) -> None:  # noqa: F811
+    """CH5c2 fix M-A: a read instant 5 s behind the app clock still registers; valid_until is the window end, not
+    the midnight cap."""
+    monkeypatch.setattr(read_scope, "clock", lambda: END - timedelta(hours=2))
+    tenant, _ = _seed(engine)
+    out = _client(engine, tenant, LaggedComposer(engine)).get(Q)
+    assert out.headers[HEADER] == "stored"
+    ((_, until),) = _stored(engine, tenant)
+    assert until == END - MARGIN
+
+
+def test_l1_a_bad_site_timezone_serves_the_body_unstored(engine, monkeypatch) -> None:  # noqa: F811
+    """CH5c2 fix L-1: valid_until raising (an unknown IANA zone) never fails the request."""
+    monkeypatch.setattr(read_scope, "clock", lambda: END - timedelta(days=1))
+    tenant, _ = _seed(engine)
+    with engine.begin() as c:
+        c.execute(text("UPDATE site SET timezone = 'Not/AZone' WHERE tenant_id = :t"), {"t": tenant})
+    out = _client(engine, tenant, Composer(engine)).get(Q)
+    assert out.status_code == 200 and out.headers[HEADER] == "unstored" and "etag" not in out.headers
+    assert _stored(engine, tenant) == []
+
+
 def test_c2_a_historical_request_never_expires(engine, monkeypatch) -> None:  # noqa: F811
     monkeypatch.setattr(read_scope, "clock", lambda: END - timedelta(hours=2))
     tenant, _ = _seed(engine)
