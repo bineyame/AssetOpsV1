@@ -288,6 +288,14 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
         k_before = c.execute(text("SELECT clock_timestamp()")).scalar_one()
         n_findings = c.execute(text("SELECT count(*) FROM finding WHERE site_id = :s"), {"s": m["site_id"]}).scalar_one()
     out = md.late_fill(md._url(engine), "KOBO-001", 7)
+    # CH-9 owned test change: the fill queues mini work for every measured daylight hour and every service hour of
+    # D7, while `late_fill` reconciles only the noon hour. The product worker drains them (as the build's
+    # `drain_mini` step does), then step 10 runs again, and the day's grades are read after that.
+    import uuid
+
+    md.drain_mini(md._url(engine))
+    md.derive(md._url(engine), uuid.UUID(out["tenant_id"]), uuid.UUID(out["site_id"]))
+    out["snapshots"] = md.grades(engine, m["site_id"]).get(out["day"], {})
     record("late_fill_normal", out)
     assert out["day"] == _iso(7) and out["events"] == [], out
     with engine.connect() as c:
