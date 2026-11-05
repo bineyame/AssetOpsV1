@@ -165,3 +165,41 @@ def build_estate_claims(chain_reader: Callable[[], Any], opportunities: Callable
     """CH-5a2b (§B14 Q7/Q8): the one count computation the Portfolio and estate Findings services call, over the
     board service's `ChainReader` and thread port (the reads `/estate/chain` uses) and a Site-code resolver."""
     return EstateClaims(chain_reader, opportunities, resolve, unavailable)
+
+
+def code_version() -> str:
+    """CH-5c Q5: the code and configuration version of this process (`chain/adapters/file_code_version.py`)."""
+    from assetops_backend.chain.adapters.file_code_version import code_version as version
+
+    return version()
+
+
+def alembic_head() -> str:
+    from assetops_backend.chain.adapters.file_code_version import alembic_head as head
+
+    return head()
+
+
+def read_watermark(c: Any, tenant_id: Any, site_ids: Any) -> str:
+    """CH-5c: the watermark on an open connection (probes and tests); the store reads it through its port."""
+    from assetops_backend.chain.adapters.postgres_response_store import read_watermark as read
+
+    return read(c, tenant_id, site_ids)
+
+
+def prebuilt_requests() -> Any:
+    """CH-5c Q8: the pre-built route list (`config/chain/prebuilt-routes-v1.json`)."""
+    from assetops_backend.chain.adapters.file_chain_config import load_prebuilt_routes
+
+    return load_prebuilt_routes()
+
+
+def build_response_store(database_url: str | None, *, engine: Any = None, keep: int = 3) -> Any:
+    """CH-5c: the stored route responses (`chain/response_store.py`) over the `chain_response` adapter; None without
+    a database URL or engine, or unless `ASSETOPS_RESPONSE_STORE=on`."""
+    from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
+    from assetops_backend.chain.response_store import ResponseStore, enabled
+
+    if not (database_url or engine is not None) or not enabled():
+        return None
+    return ResponseStore(PostgresResponseRows(database_url, engine=engine), code_version, keep=keep)

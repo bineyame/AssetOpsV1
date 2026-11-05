@@ -9,7 +9,15 @@ import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { EstateCheckedDays, EstateClient, EstateOutcomeSummaryBody, EstatePortfolioStatus, EstateResult } from "../estateClient";
+import type {
+  EstateCheckedDays,
+  EstateClient,
+  EstateOutcomeSummaryBody,
+  EstatePortfolioQuery,
+  EstatePortfolioScopeIdsBody,
+  EstatePortfolioStatus,
+  EstateResult,
+} from "../estateClient";
 
 type EstateOutcomeSummaryRead = EstateResult<EstateOutcomeSummaryBody>;
 import { EstatePortfolioPage } from "../EstatePortfolio";
@@ -765,19 +773,67 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(text(tr)).toContain("Finding detail unavailable");
   });
 
+  it("scopeIdsLoadOnOpenShowsLoadingThenRefusalCopy", async () => {
+    // CH-5c Q9: an honest loading state while the on-open read is in flight, and the refusal copy if it fails.
+    const sites = portfolioBody().scope_disclosure.sites.map((s, i) => ({ ...s, selected_revision_count: i === 0 ? 2 : 0 }));
+    let answer: (result: EstateResult<EstatePortfolioScopeIdsBody>) => void = () => undefined;
+    const fake = {
+      ...portfolioClient(loadedPortfolio(portfolioBody({ scope_disclosure: { sites, exclusions: [] } }))),
+      portfolioScopeIds: () =>
+        new Promise<EstateResult<EstatePortfolioScopeIdsBody>>((resolve) => {
+          answer = resolve;
+        }),
+    };
+    renderAt(ENTRY, fake);
+    await settledScreen();
+    const first = document.querySelector("[data-portfolio-drawer='scope'] [data-portfolio-scope-site] details") as HTMLDetailsElement;
+    expect(first.querySelector("[data-portfolio-assessment-ids-loading]")).not.toBeNull(); // closed: nothing read yet
+    fireEvent.click(first.querySelector("summary") as HTMLElement);
+    await act(async () => {
+      first.dispatchEvent(new Event("toggle"));
+      await Promise.resolve();
+    });
+    expect(text(first.querySelector("[data-portfolio-assessment-ids-loading]"))).toBe("Assessment IDs…");
+    expect(first.querySelector("[data-portfolio-assessment-ids]")).toBeNull();
+    await act(async () => {
+      answer({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "Estate records are unavailable right now. Try again." });
+      await Promise.resolve();
+    });
+    expect(text(first.querySelector("[data-portfolio-assessment-ids-error]"))).toBe(
+      "Estate records are unavailable right now. Try again.",
+    );
+    expect(first.querySelector("[data-portfolio-assessment-ids]")).toBeNull();
+  });
+
   it("scopeDisclosureSummarisesAssessmentsTranslatesCodesAndNestsLongIds", async () => {
     const longIds = Array.from({ length: 60 }, (_, i) => `e1e1e1e1-0000-4000-8000-${String(i).padStart(12, "0")}`);
     const base = portfolioBody();
     const sites = base.scope_disclosure.sites.map((s, i) => ({
       ...s,
-      selected_revision_ids: i === 0 ? longIds : i === 1 ? ["e2e2e2e2-0000-4000-8000-000000000002"] : [],
+      selected_revision_count: i === 0 ? longIds.length : i === 1 ? 1 : 0,
       coverage: coverageSite(s.site_id, i === 3 ? "UNKNOWN" : "CURRENT"),
     }));
+    const idsBody: EstatePortfolioScopeIdsBody = {
+      schema_version: "estate-portfolio-scope-ids-1",
+      window: null,
+      sites: sites.map((s, i) => ({
+        site_id: s.site_id,
+        selected_revision_ids: i === 0 ? longIds : i === 1 ? ["e2e2e2e2-0000-4000-8000-000000000002"] : [],
+      })),
+    };
     const exclusions = [
       { line_key: "w1-line", group_key: "g-w1", reason_codes: ["UNPRICED"] },
       { line_key: "cold_chain:c9", group_key: null, reason_codes: ["SOMETHING_NEW"] },
     ];
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ scope_disclosure: { sites, exclusions } }))));
+    const idCalls: EstatePortfolioQuery[] = [];
+    const fake = {
+      ...portfolioClient(loadedPortfolio(portfolioBody({ scope_disclosure: { sites, exclusions } }))),
+      portfolioScopeIds: (query: EstatePortfolioQuery) => {
+        idCalls.push(query);
+        return Promise.resolve({ status: "loaded", value: idsBody } as EstateResult<EstatePortfolioScopeIdsBody>);
+      },
+    };
+    renderAt(ENTRY, fake);
     await settledScreen();
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
     const summary = (code: string) => text(drawer.querySelector(`[data-portfolio-scope-site='${code}'] [data-portfolio-scope-summary]`));
@@ -792,10 +848,19 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(idsSummary.textContent).toBe("Assessment IDs");
     expect(ids.firstElementChild).toBe(idsSummary); // the native summary is the keyboard toggle
     expect(ids.open).toBe(false);
+    // CH-5c Q9: nothing is read until the disclosure opens; then one scope-ids read for the same window and lens.
+    expect(idCalls).toHaveLength(0);
     idsSummary.focus();
     expect(document.activeElement).toBe(idsSummary);
     fireEvent.click(idsSummary);
     expect(ids.open).toBe(true);
+    await act(async () => {
+      ids.dispatchEvent(new Event("toggle"));
+      await Promise.resolve();
+    });
+    expect(idCalls).toHaveLength(1);
+    expect(idCalls[0]).toMatchObject({ from: fake.calls[0].from, to: fake.calls[0].to, lens: fake.calls[0].lens });
+    await settledScreen();
     expect(kobo.querySelectorAll("[data-portfolio-assessment-ids] > div")).toHaveLength(60);
     expect(kobo.querySelector("[data-portfolio-assessment-ids]")?.textContent).toContain(longIds[59]);
     expect(drawer.querySelector("[data-portfolio-scope-site='EV-LAB-001'] details")).toBeNull();

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, SyntheticEvent } from "react";
 
 /**
  * A closed-by-default disclosure: secondary content kept on the page, one
@@ -22,6 +22,8 @@ export interface DisclosureProps {
   variant?: "tech" | "inline";
   /** POLISH §3 ids: a "Technical details" region (`data-technical-details`), the only place ids may be shown. */
   technical?: boolean;
+  /** CH-5c Q9: called each time the reader opens it (an on-open load). */
+  onOpen?: () => void;
   children: ReactNode;
 }
 
@@ -31,6 +33,7 @@ export function Disclosure({
   defaultOpen = false,
   variant,
   technical = false,
+  onOpen,
   children,
 }: DisclosureProps) {
   return (
@@ -39,6 +42,7 @@ export function Disclosure({
       data-disclosure={name}
       {...(technical ? { "data-technical-details": "" } : {})}
       open={defaultOpen}
+      {...(onOpen ? { onToggle: (event: SyntheticEvent<HTMLDetailsElement>) => event.currentTarget.open && onOpen() } : {})}
     >
       <summary className="disclosure__summary">{summary}</summary>
       <div className="disclosure__body">{children}</div>

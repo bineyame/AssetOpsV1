@@ -64,6 +64,12 @@ class Portfolio:
     def get(self, **params):
         return self.client.get("/api/estate/portfolio?" + urlencode(params))
 
+    def scope_ids(self, **params) -> dict:
+        """CH-5c Q9: the per-Site selected ids of the same request, keyed by Site id."""
+        response = self.client.get("/api/estate/portfolio/scope-ids?" + urlencode(params))
+        assert response.status_code == 200, response.text
+        return {x["site_id"]: x["selected_revision_ids"] for x in response.json()["sites"]}
+
     def ok(self, **params) -> dict:
         response = self.get(**params)
         assert response.status_code == 200, response.text
@@ -335,7 +341,8 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert full["progress"]["rows"] == [] and full["progress"]["pending_trial_count"] == 0
     assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"]["state"] == "NOT_CREDITED"
     assert full["opportunity"] == {"state": "NONE", "items": [], "finding_id": None, "scenario_amount": None,
-                                   "headroom": None, "destination": "/findings/opportunities"}  # CH-4 §2.3
+                                   "headroom": None, "destination": "/findings/opportunities",
+                                   "link_ref": {"kind": "ESTATE", "view": "findings_opportunities"}}  # CH-4 §2.3
     assert (full["summary"]["opportunity_count"], full["summary"]["opportunity_labels"]) == (0, [])
     # Footer: the first eligible EV gross-tariff line by (site_code_key, site_id, line_key).
     first = min(ev, key=lambda x: (x["site_code"].lower(), x["site_id"], x["line_key"]))
@@ -344,7 +351,9 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     # Scope disclosure: one item per authorized Site with the union of its selected IDs.
     sites = {code_of[s["site_id"]]: s for s in full["scope_disclosure"]["sites"]}
     assert sorted(sites) == sorted(CODES)
-    assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
+    ids = view.scope_ids(**fx.window, limit=100)
+    assert w1[0]["consequence_revision_id"] in ids[sites["KOBO-001"]["site_id"]]
+    assert all(s["selected_revision_count"] == len(ids[s["site_id"]]) for s in sites.values())
     assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
 
     # Post-W6 W3-estate Q10 (supersedes r1b2 R7's null destinations): mounted Site routes per domain; cold/EV Cost
@@ -430,7 +439,9 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
     assert len(calls) == 2 and calls[0] == calls[1] and len(calls[0]) == 4
     truth = view.read.read(lambda snap: [snap.cited_provenance(fx.tenant_id, s, c, sel) for s, c, sel in calls[0]])
     by_site = {s["site_id"]: s["source_provenance"] for s in body["scope_disclosure"]["sites"]}
-    assert [by_site[s] for s, _, _ in calls[0]] == truth and all(truth)
+    # CH-5c R8: the body carries the scalar fields of the resolved block (`disclosure_provenance`).
+    from assetops_backend.estate.portfolio import disclosure_provenance
+    assert [by_site[s] for s, _, _ in calls[0]] == [disclosure_provenance(t) for t in truth] and all(truth)
 
 
 # --- run 1b: the successful Q9 variants (closure 2 Q9 table as amended by NQ1, r1a2 items 1/2, r1b Q-1b-3) --------
@@ -624,7 +635,8 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     assert body["coverage"]["evidence_state"] == "COMPLETE"
     assert body["evidence_prompt"] == {
         "state": "AVAILABLE", "text": "Upload a log at Cold to address the selected evidence gap.", "site_id": CO,
-        "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence"}
+        "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence",
+        "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] == 2
     assert get(c, {**WINDOW, "limit": 4}).json()["evidence_prompt"] == body["evidence_prompt"]
 
@@ -646,7 +658,7 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     body = get(c, WINDOW).json()
     assert body["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
                                        "site_id": None, "site_code": None, "gap_code": None,
-                                       "destination": "/evidence"}
+                                       "destination": "/evidence", "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] == 1
 
     # Incomplete Evidence coverage (Cold-1 UNKNOWN) wins over a stepped gap and withholds the count.
@@ -656,7 +668,7 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     assert body["coverage"]["evidence_state"] == "PARTIAL"
     assert body["evidence_prompt"] == {"state": "COVERAGE_INCOMPLETE", "text": "Evidence coverage incomplete",
                                        "site_id": None, "site_code": None, "gap_code": None,
-                                       "destination": "/evidence"}
+                                       "destination": "/evidence", "link_ref": {"kind": "ESTATE", "view": "evidence"}}
     assert body["summary"]["evidence_gap_site_count"] is None
 
 
@@ -691,7 +703,9 @@ def test_ev_footer_first_eligible_and_coverage_warning(portfolio_fixture) -> Non
                               "quantity_display": None, "amount_display": None,
                               "source_provenance": first["source_provenance"],
                               "window_start": first["window_start"], "window_end": first["window_end"],
-                              "destination": first["links"]["evidence"]}
+                              "destination": first["links"]["evidence"],
+                              "link_ref": first["link_refs"]["evidence"]}
+    assert body["footer"]["link_ref"]["kind"] == "SITE" and body["footer"]["link_ref"]["view"] == "ev_evidence"
     assert body["footer"]["destination"]
     assert all(s["state"] == "CURRENT" for s in body["coverage"]["sites"])
     # r1b2 R12: an otherwise eligible exact line without a reviewed `links.evidence` target is skipped; the next

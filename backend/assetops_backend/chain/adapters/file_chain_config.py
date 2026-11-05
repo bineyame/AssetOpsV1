@@ -93,3 +93,11 @@ def load_thread_lifecycle(path: Path | str | None = None) -> LifecyclePolicy:
 @lru_cache(maxsize=1)
 def _default_lifecycle() -> LifecyclePolicy:
     return parse_thread_lifecycle(_read_json(DEFAULT_LIFECYCLE_PATH), str(DEFAULT_LIFECYCLE_PATH))
+
+
+@lru_cache(maxsize=1)
+def load_prebuilt_routes():
+    """CH-5c Q8 (CH5c-R6: read below the port): `config/chain/prebuilt-routes-v1.json`, parsed by `chain.prebuilt`."""
+    from assetops_backend.chain.prebuilt import CONFIG_NAME, parse
+
+    return parse(_read_json(REPO_ROOT / "config" / "chain" / CONFIG_NAME))

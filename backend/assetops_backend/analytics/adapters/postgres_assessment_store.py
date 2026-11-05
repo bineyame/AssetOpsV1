@@ -176,6 +176,23 @@ def _attestations(c: Connection, tenant_id: UUID, site_id: UUID,
     return effective_as_of([_attestation(r) for r in rows], knowledge_at)
 
 
+
+@dataclass(frozen=True)
+class _DayPrefetch:
+    """CH5c-R3 R1: one day range's union rows (see `_prefetch_days`)."""
+    evidence: tuple
+    attestations: tuple
+    heads: dict
+    jobs: tuple
+    keys: dict
+
+
+def _ev_overlaps(row, lo: datetime, hi: datetime) -> bool:
+    """The `_EVIDENCE` range predicate on one row: `COALESCE(interval_end, source_time) >= lo AND
+    COALESCE(interval_start, source_time) < hi` (columns 9-11)."""
+    source_time, start, end = row[9], row[10], row[11]
+    return (source_time if end is None else end) >= lo and (source_time if start is None else start) < hi
+
 def requeue_spans(intervals: list[tuple[datetime, datetime]], bracket: timedelta) -> list[Window]:
     """Job windows for readings' measurement intervals. The worker expands a job by the six-hour bracket to every
     UTC-day window whose bracket intersects it, so the job carries the readings' own intervals (never widened
@@ -869,35 +886,70 @@ class PostgresAssessmentStore:
 
     def _window(self, c: Connection, query: EvidenceQuery, analytic_id: str,
                 basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
-                cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
+                cutoff: datetime | None = None, all_jobs: bool = False,
+                prefetched: "_DayPrefetch | None" = None) -> WindowSnapshot:
         """CH5a-R R1 / CH5a1-R Q10: memoised per request scope (deep-frozen), keyed on every `EvidenceQuery`
         field plus the analytic, the basis, `cutoff` and `all_jobs`. `knowledge_at` is excluded only when `cutoff`
         is None: inside one request every live read is the request's "now", and the first read wins (Q12)."""
-        q = query if cutoff is not None else replace(query, knowledge_at=_MEMO_NOW)
-        key = (repr(q), analytic_id, getattr(basis, "__qualname__", repr(basis)), cutoff, all_jobs)
         return read_scope.memo("assessment._window", lambda: self._window_read(
-            c, query, analytic_id, basis, cutoff=cutoff, all_jobs=all_jobs), key=key)
+            c, query, analytic_id, basis, cutoff=cutoff, all_jobs=all_jobs, prefetched=prefetched),
+            key=self._window_key(c, query, analytic_id, basis, cutoff, all_jobs))
+
+    @staticmethod
+    def _window_key(c: Connection, query: EvidenceQuery, analytic_id: str, basis: Callable[..., Any],
+                    cutoff: datetime | None, all_jobs: bool) -> tuple[Any, ...]:
+        """The memo key. CH5c-R3 R3: inside a read scope bound to this connection's REPEATABLE READ snapshot, a
+        cutoff at or after the snapshot's read instant is normalised to live (every visible row was decided before
+        the snapshot, and Q31 treats equality as current). A cutoff below it, a reconstruction read (`all_jobs`),
+        or a read on any other connection keeps its own key."""
+        if cutoff is not None and not all_jobs and read_scope.at_or_after_snapshot(c, cutoff):
+            cutoff = None
+        q = query if cutoff is not None else replace(query, knowledge_at=_MEMO_NOW)
+        return (repr(q), analytic_id, getattr(basis, "__qualname__", repr(basis)), cutoff, all_jobs)
 
     def _window_read(self, c: Connection, query: EvidenceQuery, analytic_id: str,
                      basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
-                     cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
+                     cutoff: datetime | None = None, all_jobs: bool = False,
+                     prefetched: "_DayPrefetch | None" = None) -> WindowSnapshot:
         """`cutoff` (W3-01 q5) keeps only the selection, assessment key heads and jobs recorded at or before it;
-        `all_jobs` returns every overlapping job whatever its status, for the caller to reconstruct at the cutoff."""
+        `all_jobs` returns every overlapping job whatever its status, for the caller to reconstruct at the cutoff.
+        `prefetched` (CH5c-R3 R1) carries one day range's union rows, split here by the same predicates the
+        per-day statements apply; `_configuration`, the run detail and `input_basis` stay per day."""
         w = query.window
         rng = query.read_range
-        rows = c.execute(text(_EVIDENCE), {
-            "t": query.tenant_id, "s": query.site_id, "k": query.knowledge_at, "lo": rng.start, "hi": rng.end,
-            "any_role": not query.roles, "roles": list(query.roles)}).all()
+        pf = prefetched
+        if pf is not None:
+            rows = [r for r in pf.evidence if _ev_overlaps(r, rng.start, rng.end)]
+        else:
+            rows = c.execute(text(_EVIDENCE), {
+                "t": query.tenant_id, "s": query.site_id, "k": query.knowledge_at, "lo": rng.start,
+                "hi": rng.end, "any_role": not query.roles, "roles": list(query.roles)}).all()
         readings = tuple(_reading(r) for r in rows)
         config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
         input_sha, config_sha = basis(EvidenceQueryResult(
             query, readings, config.bindings, config.controls, config.role_sets, config.limits,
-            _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
+            pf.attestations if pf is not None
+            else _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
         p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
              "d": query.domain, "lo": rng.start, "hi": rng.end, "k": cutoff}
 
         def by(column: str) -> str:
             return "" if cutoff is None else f" AND {column} <= :k"
+        if pf is not None:
+            head = pf.heads.get((w.start, w.end))
+            jobs = [j for j in pf.jobs if j[2] < rng.end and j[3] >= rng.start]
+        else:
+            head, jobs = self._head_and_jobs(c, p, by, all_jobs)
+        run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
+        keys = pf.keys.get((w.start, w.end), []) if pf is not None else c.execute(text(
+            "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
+            "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+            f"AND window_start = :ws AND window_end = :we{by('created_at')} "
+            "ORDER BY assessment_key, revision_no DESC"), p).all()
+        return self._window_snapshot(c, readings, input_sha, config_sha, head, run, jobs, keys)
+
+    @staticmethod
+    def _head_and_jobs(c: Connection, p: dict[str, Any], by: Callable[[str], str], all_jobs: bool):
         head = c.execute(text(
             "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
             f"AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we{by('selected_at')} "
@@ -907,12 +959,10 @@ class PostgresAssessmentStore:
             "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
             f"AND {'TRUE' if all_jobs else _LIVE_JOBS} AND window_start < :hi AND window_end >= :lo{by('created_at')} "
             "ORDER BY created_at, id"), p).all()
-        run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
-        keys = c.execute(text(
-            "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
-            "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-            f"AND window_start = :ws AND window_end = :we{by('created_at')} "
-            "ORDER BY assessment_key, revision_no DESC"), p).all()
+        return head, jobs
+
+    @staticmethod
+    def _window_snapshot(c: Connection, readings, input_sha, config_sha, head, run, jobs, keys) -> WindowSnapshot:
         read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
         return WindowSnapshot(
             reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
@@ -923,6 +973,46 @@ class PostgresAssessmentStore:
             key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
                        for k in keys],
             read_at=read_at)
+
+    def _prefetch_days(self, c: Connection, queries: list[EvidenceQuery], analytic_id: str,
+                       cutoff: datetime | None, all_jobs: bool) -> "_DayPrefetch":
+        """CH5c-R3 R1: one statement each for the evidence (over the union read range), the attestations, the
+        selection heads, the jobs (over the union range) and the assessment key heads of every window. Each
+        `_window_read` filters them with the per-day predicates. Every query shares tenant, Site, domain, roles
+        and `knowledge_at` (asserted)."""
+        first = queries[0]
+        assert all((q.tenant_id, q.site_id, q.domain, q.roles, q.knowledge_at)
+                   == (first.tenant_id, first.site_id, first.domain, first.roles, first.knowledge_at)
+                   for q in queries)
+        lo = min(q.read_range.start for q in queries)
+        hi = max(q.read_range.end for q in queries)
+        evidence = c.execute(text(_EVIDENCE), {
+            "t": first.tenant_id, "s": first.site_id, "k": first.knowledge_at, "lo": lo, "hi": hi,
+            "any_role": not first.roles, "roles": list(first.roles)}).all()
+        attestations = _attestations(c, first.tenant_id, first.site_id, first.knowledge_at)
+        p = {"t": first.tenant_id, "s": first.site_id, "a": analytic_id, "d": first.domain, "lo": lo, "hi": hi,
+             "k": cutoff, "ws": [q.window.start for q in queries]}
+
+        def by(column: str) -> str:
+            return "" if cutoff is None else f" AND {column} <= :k"
+        heads = {(r[0], r[1]): tuple(r[2:]) for r in c.execute(text(
+            "SELECT DISTINCT ON (window_start, window_end) window_start, window_end, seq, selected_at, job_id, "
+            "run_id FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+            f"AND window_start = ANY(:ws){by('selected_at')} ORDER BY window_start, window_end, seq DESC"), p)}
+        jobs = c.execute(text(
+            "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
+            "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+            f"AND {'TRUE' if all_jobs else _LIVE_JOBS} AND window_start < :hi AND window_end >= :lo{by('created_at')} "
+            "ORDER BY created_at, id"), p).all()
+        keys: dict[tuple[datetime, datetime], list[tuple]] = {}
+        for r in c.execute(text(
+                "SELECT DISTINCT ON (window_start, window_end, assessment_key) window_start, window_end, "
+                "assessment_key, id, revision_no, claim_level, created_at FROM assessment_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+                f"AND window_start = ANY(:ws){by('created_at')} "
+                "ORDER BY window_start, window_end, assessment_key, revision_no DESC"), p):
+            keys.setdefault((r[0], r[1]), []).append(tuple(r[2:]))
+        return _DayPrefetch(tuple(evidence), attestations, heads, tuple(jobs), keys)
 
     # --- W3-01 Run 5 (q5): S3 dispatch day selection on a caller-owned connection, at a cutoff -----------
 
@@ -947,13 +1037,19 @@ class PostgresAssessmentStore:
             inputs, config_sha = input_basis(result, dispatch_v3)
             return (None if inputs.cohort.status == "EMPTY" else inputs.input_sha256), config_sha
 
-        days: list[dict[str, Any]] = []
+        spans: list[tuple[date, Window]] = []
         day = from_.astimezone(timezone.utc).date()
         while (window := day_window(day)).start < to:
             if window.end > from_:
-                days.append(self._dispatch_day_on(c, tenant_id, site_id, day, window, known_at, live, basis))
+                spans.append((day, window))
             day += timedelta(days=1)
-        return days
+        queries = [EvidenceQuery(tenant_id, site_id, DISPATCH_DOMAIN, w, known_at, roles=DISPATCH_ROLES)
+                   for _, w in spans]
+        keys = [self._window_key(c, q, dispatch_v3.ANALYTIC_ID, basis, known_at, not live) for q in queries]
+        pf = None if not queries or all(read_scope.memoised("assessment._window", k) for k in keys) else \
+            self._prefetch_days(c, queries, dispatch_v3.ANALYTIC_ID, known_at, not live)
+        return [self._dispatch_day_on(c, tenant_id, site_id, d, w, known_at, live, basis, prefetched=pf)
+                for d, w in spans]
 
     @staticmethod
     def _transaction_time(c: Connection) -> datetime:
@@ -962,9 +1058,11 @@ class PostgresAssessmentStore:
 
     def _dispatch_day_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date, window: Window,
                          known_at: datetime, live: bool,
-                         basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> dict[str, Any]:
+                         basis: Callable[[EvidenceQueryResult], tuple[str | None, str]],
+                         prefetched: _DayPrefetch | None = None) -> dict[str, Any]:
         query = EvidenceQuery(tenant_id, site_id, DISPATCH_DOMAIN, window, known_at, roles=DISPATCH_ROLES)
-        snap = self._window(c, query, dispatch_v3.ANALYTIC_ID, basis, cutoff=known_at, all_jobs=not live)
+        snap = self._window(c, query, dispatch_v3.ANALYTIC_ID, basis, cutoff=known_at, all_jobs=not live,
+                            prefetched=prefetched)
         unavailable: list[str] = []
         if not live:
             outstanding = []

@@ -13,8 +13,10 @@ import {
   type EstateOutcomeSummaryBody,
   type EstatePortfolioBody,
   portfolioOpportunity,
+  REFUSAL_COPY,
   type EstatePortfolioQuery,
   type EstatePortfolioRow,
+  type EstatePortfolioScopeIdsBody,
   type EstateQuery,
   type EstateResult,
   type EstateSourceBlock,
@@ -551,7 +553,55 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
   );
 }
 
-function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
+/** CH-5c Q9: the scope-ids load; one read for every Site, started when the first ids disclosure opens. */
+type ScopeIds = { status: "loading" } | EstateResult<EstatePortfolioScopeIdsBody>;
+
+/** Loading copy for the on-open ids read, built from the existing label (no new wording). */
+export const ASSESSMENT_IDS_LOADING = `${ASSESSMENT_IDS}…`;
+
+function unavailableIds(): EstateResult<EstatePortfolioScopeIdsBody> {
+  return { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: REFUSAL_COPY.ESTATE_STORE_UNAVAILABLE };
+}
+
+function ScopeIdsList({ ids, siteId }: { ids: ScopeIds | null; siteId: string }) {
+  if (ids === null || ids.status === "loading") {
+    return (
+      <p role="status" data-portfolio-assessment-ids-loading>
+        {ASSESSMENT_IDS_LOADING}
+      </p>
+    );
+  }
+  if (ids.status !== "loaded") {
+    return (
+      <p role="alert" data-portfolio-assessment-ids-error>
+        {ids.copy}
+      </p>
+    );
+  }
+  const site = ids.value.sites.find((x) => x.site_id === siteId);
+  return (
+    <div className="portfolio-scope-ids" data-portfolio-assessment-ids>
+      {(site?.selected_revision_ids ?? []).map((id) => (
+        <div key={id}>{id}</div>
+      ))}
+    </div>
+  );
+}
+
+function ScopeDisclosure({
+  body,
+  loadIds,
+}: {
+  body: EstatePortfolioBody;
+  loadIds?: () => Promise<EstateResult<EstatePortfolioScopeIdsBody>>;
+}) {
+  const [ids, setIds] = useState<ScopeIds | null>(null);
+  const open = () => {
+    if (ids !== null) return; // one read per Portfolio read; a refusal stays shown until the page reloads
+    setIds({ status: "loading" });
+    const read = loadIds ? loadIds() : Promise.resolve(unavailableIds());
+    void read.then(setIds, () => setIds(unavailableIds()));
+  };
   return (
     <Disclosure summary="Assessment scope & periods ↗" name="portfolio-scope" variant="inline">
       <div className="portfolio-drawer" data-portfolio-drawer="scope">
@@ -569,15 +619,17 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
               <tr key={s.site_id} data-portfolio-scope-site={s.site_code}>
                 <td>
                   <span data-portfolio-scope-summary>
-                    {s.site_name} · {selectedAssessmentWords(s.selected_revision_ids.length)}
+                    {s.site_name} · {selectedAssessmentWords(s.selected_revision_count)}
                   </span>
-                  {s.selected_revision_ids.length > 0 ? (
-                    <Disclosure summary={ASSESSMENT_IDS} name={`portfolio-scope-ids-${s.site_id}`} variant="inline" technical>
-                      <div className="portfolio-scope-ids" data-portfolio-assessment-ids>
-                        {s.selected_revision_ids.map((id) => (
-                          <div key={id}>{id}</div>
-                        ))}
-                      </div>
+                  {s.selected_revision_count > 0 ? (
+                    <Disclosure
+                      summary={ASSESSMENT_IDS}
+                      name={`portfolio-scope-ids-${s.site_id}`}
+                      variant="inline"
+                      technical
+                      onOpen={open}
+                    >
+                      <ScopeIdsList ids={ids} siteId={s.site_id} />
                     </Disclosure>
                   ) : null}
                 </td>
@@ -707,7 +759,9 @@ function Loaded({
   window,
   loadMore,
   summary,
+  loadIds,
 }: {
+  loadIds?: () => Promise<EstateResult<EstatePortfolioScopeIdsBody>>;
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
   lens: EstateLens;
@@ -743,7 +797,7 @@ function Loaded({
               </span>
             ))}
         </div>
-        <ScopeDisclosure body={body} />
+        <ScopeDisclosure key={`${body.window.from}|${body.window.to}|${body.window.known_at ?? ""}|${body.lens}`} body={body} loadIds={loadIds} />
       </div>
       {/* OUT-A A6: four outcome category cards replace the five value cards (mock pfCard). */}
       <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
@@ -880,6 +934,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
           window={window}
           loadMore={loadMore}
           summary={currentSummary}
+          loadIds={reads.portfolioScopeIds ? () => reads.portfolioScopeIds!(query) : undefined}
         />
       )}
     </div>
