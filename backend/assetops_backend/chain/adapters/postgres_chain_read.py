@@ -117,15 +117,16 @@ SELECT CAST(r.id AS text) AS revision_id,
 
 #: CH-5a2b R1 (§B14 Q5) `action_rows`: the verification plans and outcomes (with the stored source class, R2) of the
 #: Site's Actions recorded by `k`, the estate `verification` read's statements over the whole Site.
+#: CH-9b2 (CH9b2-R Q10): W1 Action rows only (`action_id IS NOT NULL`); a domain Action's plan or outcome is not read here.
 _ACTION_PLANS = text("""
 SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at, later_start, later_end
-  FROM verification_plan WHERE tenant_id = :t AND site_id = :s
+  FROM verification_plan WHERE tenant_id = :t AND site_id = :s AND action_id IS NOT NULL
    AND (CAST(:k AS timestamptz) IS NULL OR recorded_at <= CAST(:k AS timestamptz)) ORDER BY recorded_at, id
 """)
 _ACTION_OUTCOMES = text("""
 SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at,
        details->'source'->>'source_class' AS source_class
-  FROM verification_outcome WHERE tenant_id = :t AND site_id = :s
+  FROM verification_outcome WHERE tenant_id = :t AND site_id = :s AND action_id IS NOT NULL
    AND (CAST(:k AS timestamptz) IS NULL OR recorded_at <= CAST(:k AS timestamptz)) ORDER BY recorded_at, id
 """)
 

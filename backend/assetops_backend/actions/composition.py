@@ -113,8 +113,11 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
 
     from assetops_backend.financials.composition import build_trial_comparison_ports
 
+    from assetops_backend.chain.composition import build_snapshot_reader
+
     return VerificationPorts(day_status=day_status, provenance=provenance,
-                             trial_comparison=build_trial_comparison_ports(database_url))
+                             trial_comparison=build_trial_comparison_ports(database_url),
+                             snapshots=build_snapshot_reader(database_url))
 
 
 def build_action_service(database_url: str | None, finding_reads: Any,
