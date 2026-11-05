@@ -389,6 +389,15 @@ export const OPPORTUNITY_SIZE_UNKNOWN_PANEL = "Size not worked out yet";
 export const OPPORTUNITY_NO_WHAT_IF = "No what-if yet";
 export const OPPORTUNITY_NO_WHAT_IF_DETAIL = "No what-if value worked out yet";
 export const OPPORTUNITY_FINDINGS_LINK = "Findings › Opportunities →";
+// CH-9 (CH9-R3 Q2), MOCK DEVIATION candidate: v69 shows "kW at midday"; the headroom is now over measured daylight
+// hours. The unit names the server's stored `study.window_hours`; without it, this one constant. CH-6b moves the
+// card to server copy.
+export const OPPORTUNITY_HEADROOM_UNIT = "kW over daylight hours";
+
+/** The headroom unit: the server's study daylight-hour count when it carries one (AG-29), else the constant. */
+export function opportunityHeadroomUnit(windowHours: number | null | undefined): string {
+  return windowHours ? `kW over ${windowHours} daylight hours` : OPPORTUNITY_HEADROOM_UNIT;
+}
 
 function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window: Window }) {
   const opportunity = portfolioOpportunity(body);
@@ -420,7 +429,7 @@ function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window:
                   OPPORTUNITY_SIZE_UNKNOWN_PANEL
                 ) : (
                   <>
-                    {`${headroom.low}–${headroom.high}`} <small>kW at midday</small>
+                    {`${headroom.low}–${headroom.high}`} <small>{opportunityHeadroomUnit(first.study.window_hours)}</small>
                   </>
                 )}
               </span>

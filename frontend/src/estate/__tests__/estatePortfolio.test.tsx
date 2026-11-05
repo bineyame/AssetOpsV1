@@ -432,8 +432,10 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     opportunity = panel("An opportunity beyond reducing cost");
     const quantity = opportunity.querySelector("[data-portfolio-opportunity-quantity]") as HTMLElement;
-    expect(text(quantity)).toBe("18–20 kW at middayDaytime solar unused at Kobo North");
-    expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW at midday");
+    // CH-9 owned (CH9-R3 Q2): the unit names the server's study `window_hours`, never "at midday".
+    expect(text(quantity)).toBe("18–20 kW over 1 daylight hoursDaytime solar unused at Kobo North");
+    expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW over 1 daylight hours");
+    expect(text(quantity)).not.toContain("midday");
     links = within(opportunity).getAllByRole("link");
     expect(links.map((l) => text(l))).toEqual([
       "Review opportunity Finding →",
@@ -441,6 +443,13 @@ describe("estate Portfolio page", () => {
       "1 more under Findings › Opportunities →",
     ]);
     expect(links[2].getAttribute("href")).toMatch(/^\/findings\/opportunities\?from=/);
+    // Without a server hour count the one guarded constant names the unit.
+    cleanup();
+    const unhoured = { ...sized, study: { ...sized.study, window_hours: null } };
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(found([unhoured]))));
+    await settledScreen();
+    opportunity = panel("An opportunity beyond reducing cost");
+    expect(text(opportunity.querySelector(".opportunity-quantity small"))).toBe("kW over daylight hours");
   });
 
   it("ch4_opportunity_panel_reads_an_older_body_as_none", async () => {
