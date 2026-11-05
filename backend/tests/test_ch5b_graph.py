@@ -29,7 +29,7 @@ def _rules(inputs) -> set[tuple[str, str]]:
 def test_main_config_passes(g) -> None:
     lines = check(g)
     assert lines[0].startswith("chain graph OK: 7 measures, 5 lifecycle mechanisms, 15 outcome-map entries")
-    assert "known gap: no producer: WARNING:CHARGERS_MOSTLY_IDLE (owner CH-6a1)" in lines
+    assert "known gap: no producer: WARNING:CHARGERS_MOSTLY_IDLE (owner BL-06)" in lines
 
 
 def _measures_with(g, key, **change):
@@ -97,10 +97,10 @@ def test_each_rule_fails_on_its_mutation(g, name) -> None:
 
 
 def test_known_gaps_are_ruled_rows_only() -> None:
-    # CH5b1-R Q1: CHARGERS_MOSTLY_IDLE (CH-6a1).
+    # CH5b1-R Q1: CHARGERS_MOSTLY_IDLE (owner BL-06, SCOPE-1; CH6a1-R Q4).
     assert KNOWN_GAPS == {"WARNING:CHARGERS_MOSTLY_IDLE"}
     assert {k for k, (p, _) in NOT_CHAIN_SOURCED.items() if p is None} == KNOWN_GAPS
-    assert NOT_CHAIN_SOURCED["WARNING:CHARGERS_MOSTLY_IDLE"][1] == "CH-6a1"
+    assert NOT_CHAIN_SOURCED["WARNING:CHARGERS_MOSTLY_IDLE"][1] == "BL-06"
 
 
 def test_evidence_gap_producer_emits_the_key() -> None:

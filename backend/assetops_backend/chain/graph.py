@@ -44,9 +44,9 @@ NOT_CHAIN_SOURCED: dict[str, tuple[str | None, str]] = {
     "WARNING:CHARGER_FAULT_OVERDUE_INSPECTION": (WARNING_PRODUCER, "CH-8"),
     "WARNING:CONNECTOR_OUT_OF_SERVICE": (WARNING_PRODUCER, "CH-8"),
     "WARNING:PEAK_NEAR_IMPORT_LIMIT": (WARNING_PRODUCER, "CH-8"),
-    "WARNING:CHARGERS_MOSTLY_IDLE": (None, "CH-6a1"),
+    "WARNING:CHARGERS_MOSTLY_IDLE": (None, "BL-06"),
 }
-#: The only rows allowed `producer=None` ("known gap: no producer"). CH5b1-R allows CHARGERS_MOSTLY_IDLE (CH-6a1).
+#: The only rows allowed `producer=None` ("known gap: no producer"). CH5b1-R allows CHARGERS_MOSTLY_IDLE (owner BL-06, SCOPE-1).
 KNOWN_GAPS = frozenset({"WARNING:CHARGERS_MOSTLY_IDLE"})
 
 _RULE_INPUT = {"by_role": "roles", "by_analytic": "analytics", "by_job_domain": "job_domains",
