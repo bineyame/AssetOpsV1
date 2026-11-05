@@ -245,7 +245,9 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
                 placed[k] = placed.get(k, 0) + v
             action_ids = ev.subject.get("action_ids", []) if ev.type == "action.event" else []
             finding_ids = [x.finding_id for x in sources if x.finding_id is not None]
-            for k, v in registry.link_all(reader.unlinked_actions_for(t, s, action_ids, finding_ids)).counts.items():
+            opportunity_ids = [x.opportunity_id for x in sources if x.opportunity_id is not None]
+            for k, v in registry.link_all(reader.unlinked_actions_for(t, s, action_ids, finding_ids,
+                                                                      opportunity_ids)).counts.items():
                 linked[k] = linked.get(k, 0) + v
 
         threads = consume(events, register, "threads", t, s, info, limit, on_event=on_event, deadline=deadline)

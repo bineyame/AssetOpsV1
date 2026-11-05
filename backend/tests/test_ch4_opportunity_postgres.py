@@ -96,10 +96,10 @@ def _now(engine) -> datetime:
         return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
 
-def seed_opportunities(store, engine) -> dict:  # noqa: F811
+def seed_opportunities(store, engine, site: tuple | None = None) -> dict:  # noqa: F811
     """The W4-02 MINIGRID Site, its import re-dated before the window, and studies A and B through the store
     (named backfill writes, no job). Returns plain IDs and `k1`, an instant between B's two selections."""
-    _, t, s = _setup(store, engine)
+    t, s = site if site else _setup(store, engine)[1:]  # `site`: an existing (tenant, Site), e.g. CH-9b1 Q6
     imported_before(engine, t, s, FROM - timedelta(days=1))
     mini = PostgresMiniDecisionStore(engine)
     out = {"t": t, "s": s}

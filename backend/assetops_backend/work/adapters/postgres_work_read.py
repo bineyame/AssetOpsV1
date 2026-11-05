@@ -57,7 +57,9 @@ _FINDING_TITLES = ("SELECT CAST(id AS text), title FROM finding_revision WHERE t
 _DOMAIN_LINKS = (
     "SELECT DISTINCT ON (l.action_id) CAST(l.action_id AS text) AS action_id, "
     "CAST(a.origin_finding_id AS text) AS origin_finding_id, "
-    "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id, a.domain AS action_domain "
+    "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id, a.domain AS action_domain, "
+    "CAST(a.origin_opportunity_id AS text) AS origin_opportunity_id, "
+    "CAST(a.origin_opportunity_revision_id AS text) AS origin_opportunity_revision_id "
     "FROM domain_action_case_link l "
     "JOIN work_case_revision cur ON cur.tenant_id = l.tenant_id AND cur.site_id = l.site_id AND cur.id = :r "
     "AND cur.case_id = l.case_id "
@@ -163,8 +165,11 @@ class _ReadTx:
         evidence = self._c.execute(text(
             "SELECT CAST(evidence_id AS text) FROM work_case_evidence WHERE tenant_id = :t AND site_id = :s "
             "AND case_revision_id = :r ORDER BY evidence_id"), p)
+        # CH-9b1: a MINI Action's link names its origin opportunity revision instead (the Finding key stays None).
         domain = [{"kind": DOMAIN_ACTION, "action_id": r["action_id"], "action_event_id": None,
-                   "finding_revision_id": r["origin_finding_revision_id"]}
+                   "finding_revision_id": r["origin_finding_revision_id"],
+                   **({} if r["origin_opportunity_revision_id"] is None
+                      else {"opportunity_revision_id": r["origin_opportunity_revision_id"]})}
                   for r in self._domain_links(revision_id, known_at)]
         return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars()),
                 "domain_action_links": domain}
@@ -249,8 +254,24 @@ class _ReadTx:
         # Ruling C1: an explicit domain link's selected ID is its root's pinned Finding revision; lineage needs that
         # exact stored revision of the origin Finding by the cutoff, in the Finding domain mapped from the Action
         # row's own domain (W5-04a readiness ruling 12: `cold_chain` or `ev_charging`, never a hard-coded cold).
-        domain_rows = []
+        domain_rows: list[dict[str, Any]] = []
+        opportunity_rows: list[dict[str, Any]] = []
         for link in self._domain_links(revision_id, known_at):
+            if link["origin_opportunity_id"] is not None:
+                # CH-9b1: a MINI Action's lineage is its exact origin study revision existing in scope by the
+                # cutoff; it has no Finding pin (the row is appended below with `pin` None).
+                seen = self._c.execute(text(
+                    "SELECT 1 FROM mini_opportunity_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                    "AND r.id = :r2 AND r.opportunity_id = :o AND r.created_at <= :k"),
+                    self._p(r2=link["origin_opportunity_revision_id"], o=link["origin_opportunity_id"],
+                            k=known_at)).first()
+                opportunity_rows.append({"kind": DOMAIN_ACTION, "id": link["action_id"],
+                                         "selected_id": link["origin_opportunity_revision_id"], "domain": "minigrid",
+                                         "pin": None, "lineage": seen is not None, "origin_finding_id": None,
+                                         "origin_finding_revision_id": None,
+                                         "origin_opportunity_id": link["origin_opportunity_id"],
+                                         "origin_opportunity_revision_id": link["origin_opportunity_revision_id"]})
+                continue
             finding_domain = _FINDING_DOMAIN_OF.get(link["action_domain"])
             fr = [] if finding_domain is None else _rows(self._c.execute(text(
                 f"SELECT fr.id AS pinned, {_FINDING_PIN} FROM finding_revision fr WHERE fr.tenant_id = :t "
@@ -273,7 +294,7 @@ class _ReadTx:
                             "domain": domain, "pin": pin, "lineage": row["pinned"] is not None,
                             "origin_finding_id": row.get("origin_finding_id"),
                             "origin_finding_revision_id": row.get("origin_finding_revision_id")})
-        return out
+        return out + opportunity_rows
 
     def _pin(self, fr: dict[str, Any], from_: datetime | None, to: datetime | None,
              known_at: datetime) -> dict[str, Any] | None:

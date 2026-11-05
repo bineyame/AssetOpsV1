@@ -16,7 +16,8 @@ from sqlalchemy.engine import Connection, Engine
 
 from assetops_backend.chain.lifecycle import Event
 from assetops_backend.chain.threads import (
-    ALREADY_LINKED, LINKED, PENDING_PLACEMENT, PlacePlan, Source, ThreadHead, key_of, thread_id_of)
+    ALREADY_LINKED, LINKED, ORIGIN_FINDING, PENDING_PLACEMENT, Origin, PlacePlan, Source, ThreadHead, key_of,
+    thread_id_of)
 
 _LOCK = text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))")
 
@@ -49,9 +50,15 @@ _LINKED = text("SELECT 1 FROM chain_action_thread WHERE action_kind = :kind AND 
 
 _OCCURRENCE_OF = text(
     "SELECT tenant_id, site_id, thread_id FROM finding_thread_occurrence WHERE finding_id = :f")
+_OPPORTUNITY_OCCURRENCE_OF = text(
+    "SELECT tenant_id, site_id, thread_id FROM finding_thread_occurrence WHERE opportunity_id = :f")
 
 _INSERT_LINK = text(
     "INSERT INTO chain_action_thread (tenant_id, site_id, action_kind, action_id, thread_id, origin_finding_id, "
+    "linked_by) VALUES (:t, :s, :kind, :id, :thread, :f, :by)")
+#: CH-9b1: an opportunity-origin link (a MINI `domain_action`); the Finding-origin statement above is unchanged.
+_INSERT_OPPORTUNITY_LINK = text(
+    "INSERT INTO chain_action_thread (tenant_id, site_id, action_kind, action_id, thread_id, origin_opportunity_id, "
     "linked_by) VALUES (:t, :s, :kind, :id, :thread, :f, :by)")
 
 
@@ -69,7 +76,8 @@ _SITE_OCCURRENCES = text(
     "ORDER BY thread_id, occurrence_no")
 
 _SITE_LINKS = text(
-    "SELECT thread_id, CAST(action_id AS text) AS action_id, CAST(origin_finding_id AS text) AS origin "
+    "SELECT thread_id, CAST(action_id AS text) AS action_id, "
+    "CAST(COALESCE(origin_finding_id, origin_opportunity_id) AS text) AS origin "
     "FROM chain_action_thread WHERE tenant_id = :t AND site_id = :s")
 
 _THREAD_EVENTS = text(
@@ -123,16 +131,19 @@ class PostgresThreadStore:
 
         return self._tx(work)
 
-    def link(self, kind: str, action_id: UUID, origin_finding_id: UUID, linked_by: str) -> str:
+    def link(self, kind: str, action_id: UUID, origin: Origin, linked_by: str) -> str:
+        finding = origin.kind == ORIGIN_FINDING
+
         def work(c: Connection) -> str:
             c.execute(_LOCK, {"k": f"chain_link|{kind}|{action_id}"})
             if c.execute(_LINKED, {"kind": kind, "id": action_id}).first() is not None:
                 return ALREADY_LINKED
-            occ = c.execute(_OCCURRENCE_OF, {"f": origin_finding_id}).first()
+            occ = c.execute(_OCCURRENCE_OF if finding else _OPPORTUNITY_OCCURRENCE_OF, {"f": origin.id}).first()
             if occ is None:
                 return PENDING_PLACEMENT
-            c.execute(_INSERT_LINK, {"t": occ[0], "s": occ[1], "kind": kind, "id": action_id, "thread": occ[2],
-                                     "f": origin_finding_id, "by": linked_by})
+            c.execute(_INSERT_LINK if finding else _INSERT_OPPORTUNITY_LINK,
+                      {"t": occ[0], "s": occ[1], "kind": kind, "id": action_id, "thread": occ[2],
+                       "f": origin.id, "by": linked_by})
             return LINKED
 
         return self._tx(work)

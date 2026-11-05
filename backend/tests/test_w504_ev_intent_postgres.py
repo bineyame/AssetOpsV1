@@ -126,8 +126,11 @@ def test_sole_head_chain_and_named_checks(ev) -> None:
     assert script.get_revision(MIGRATION).down_revision == PARENT
     assert script.get_revision(PARENT).down_revision == GRANDPARENT  # W5-03b's 0034 -> 0033 chain is retained
     # Readiness ruling 3: the generated cold-only CHECK is gone; one named CHECK admits both domains.
+    # CH-9b1 (0051): the same CHECK also admits MINI, and `domain_action_mini_origin` ties MINI to an opportunity origin.
     assert domain_checks(ev.engine) == {
-        "domain_action_domain_chk": "CHECK ((domain = ANY (ARRAY['COLDCHAIN'::text, 'EV_CHARGING'::text])))"}
+        "domain_action_domain_chk": "CHECK ((domain = ANY (ARRAY['COLDCHAIN'::text, 'EV_CHARGING'::text, "
+                                    "'MINI'::text])))",
+        "domain_action_mini_origin": "CHECK (((domain = 'MINI'::text) = (origin_opportunity_id IS NOT NULL)))"}
     assert checks(ev.engine)["domain_action_intent_criteria_count_chk"] == (
         "CHECK (((jsonb_typeof(criteria) = 'array'::text) AND (jsonb_array_length(criteria) = ANY (ARRAY[3, 4]))))")
     # Pre-flight 7: no new index; the Site index query uses 0033 `domain_action_site_raised`.
@@ -232,7 +235,8 @@ def test_downgrade_refuses_each_ev_shape_then_restores_cold_check(ev) -> None:
         "CHECK (((jsonb_typeof(criteria) = 'array'::text) AND (jsonb_array_length(criteria) = 4)))")
     engine.dispose()
     command.upgrade(config, "head")
-    assert head(engine) == HEAD and list(domain_checks(engine)) == ["domain_action_domain_chk"]
+    assert head(engine) == HEAD and sorted(domain_checks(engine)) == ["domain_action_domain_chk",
+                                                                      "domain_action_mini_origin"]
 
 
 # ---- the selected EV basis port and EV case-link visibility --------------------------------------------------------

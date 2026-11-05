@@ -96,7 +96,10 @@ def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[
         code_of = {str(a["id"]): a["action_code"] for a in actions}
         out.append({"step": "c", "dry_run": True, "counts": dict(sorted(report.counts.items())),
                     "links": [{"action_code": code_of.get(str(link["action_id"])), "kind": kind,
-                               "thread_id": str(link["thread_id"]), "origin_finding_id": str(link["origin_finding_id"])}
+                               "thread_id": str(link["thread_id"]),
+                               **({"origin_finding_id": str(link["origin_finding_id"])}
+                                  if link["origin_finding_id"] is not None
+                                  else {"origin_opportunity_id": str(link["origin_opportunity_id"])})}
                               for (kind, _), link in sorted(memory.links.items(),
                                                             key=lambda kv: code_of.get(str(kv[0][1]), ""))]})
     if "d" in steps:

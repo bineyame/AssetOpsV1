@@ -7,6 +7,8 @@ is never a count source. Closed Findings linked by a case or a domain Action are
 Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b)."""
 from __future__ import annotations
 
+# CH-9b1 origin: Finding-only (fed by `work/domain_action_index.py`, which excludes MINI Actions).
+
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace

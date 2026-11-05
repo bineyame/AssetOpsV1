@@ -7,6 +7,8 @@ named in `Composition.failed` and `read_state` is PARTIAL (B-Q17). The overview 
 Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b)."""
 from __future__ import annotations
 
+# CH-9b1 origin: Finding-only (fed by `work/domain_action_index.py`, which excludes MINI Actions).
+
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta

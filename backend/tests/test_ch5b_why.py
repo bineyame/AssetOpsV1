@@ -153,6 +153,24 @@ def test_change_applied_needs_the_check_after_the_change() -> None:
     _non_root_have_ids(t)
 
 
+def test_opportunity_origin_mini_action_line_or_counted_unmatched() -> None:
+    """CH-9b1 merge note: a MINI domain Action on an opportunity thread (no Finding occurrence). With a board `in_hand`
+    item for it the trace shows its code and state; without one it is counted unmatched, never an invented line."""
+    gen = _thread(MINI, "GENERATOR_SUPPORT_CANDIDATE", "t1", "ACTION_IN_HAND")
+    gen["occurrences"] = [{"finding_id": None, "opportunity_id": "o1", "code": None, "day": D1.isoformat()}]
+    act = {"id": "a1", "code": "ACT-000007", "thread": "t1", "verification": None}
+    row = {"state": "ON_TRACK", "state_label": "On track",
+           "in_hand": [{"text": "ACT-000007", "state_label": "In hand",
+                        "link_ref": {"kind": "ACTION", "site": "MINI-1", "id": "A1"}}]}
+    shown = why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [COMPLETE] * 3), [gen], [act], row=row))
+    assert f"{display_code('ACT-000007')} · In hand" in shown.text["comes_from"]
+    assert shown.unmatched == 1  # the opportunity occurrence has no board Finding line; the Action is matched
+    bare = why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [COMPLETE] * 3), [gen], [act]))
+    assert all("ACT-" not in line and "Action" not in line for line in bare.text["comes_from"]), bare.text
+    assert bare.unmatched == shown.unmatched + 1  # the Action without a board item is counted, not invented
+    _non_root_have_ids(shown)
+
+
 def test_comes_from_is_capped_at_four() -> None:
     threads = [_thread(MINI, "GENERATOR_SUPPORT_CANDIDATE", f"t{i}", "OPEN", (f"f{i}",)) for i in range(5)]
     row = {"state": "x", "state_label": "x", "issues": [{"kind": "FINDING", "role": "MOVES", "text": f"F{i}",

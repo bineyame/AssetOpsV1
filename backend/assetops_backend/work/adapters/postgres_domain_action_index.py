@@ -63,16 +63,19 @@ class _IndexTx:
 
     # ---- domain roots, intents and explicit case links -------------------------------------------------------
 
+    # CH-9b1 (CH9b1-R Q5): this read is the Finding-origin Cold/EV Action surface. An opportunity-origin (MINI)
+    # Action is excluded here by `origin_opportunity_id IS NULL`; it is read through the chain (threads, lifecycle).
     def action(self, action_id: str, known_at: datetime) -> dict[str, Any] | None:
         return _one(self._c.execute(text(
             f"SELECT {_ACTION_COLS} FROM domain_action WHERE tenant_id = :t AND site_id = :s AND id = :i "
-            "AND recorded_at <= :k"), self._p(i=action_id, k=known_at)))
+            "AND recorded_at <= :k AND origin_opportunity_id IS NULL"), self._p(i=action_id, k=known_at)))
 
     def actions_in_window(self, lo: datetime, hi: datetime, known_at: datetime) -> list[dict[str, Any]]:
         """Membership is the attested `raised_at` in `[lo, hi)`; a root recorded after the cutoff is not known."""
         return _rows(self._c.execute(text(
             f"SELECT {_ACTION_COLS} FROM domain_action WHERE tenant_id = :t AND site_id = :s AND raised_at >= :lo "
-            "AND raised_at < :hi AND recorded_at <= :k ORDER BY raised_at DESC, id"),
+            "AND raised_at < :hi AND recorded_at <= :k AND origin_opportunity_id IS NULL "
+            "ORDER BY raised_at DESC, id"),
             self._p(lo=lo, hi=hi, k=known_at)))
 
     def intents(self, action_ids: list[str], known_at: datetime) -> list[dict[str, Any]]:
