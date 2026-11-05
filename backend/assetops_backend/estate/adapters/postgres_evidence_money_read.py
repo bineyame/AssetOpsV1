@@ -18,6 +18,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError, OperationalError
 
+from assetops_backend import read_scope
 from assetops_backend.estate.adapters.postgres_estate_read import EstateSnapshot, PostgresEstateRead
 from assetops_backend.estate.coverage import COLD, EV
 from assetops_backend.estate.scope import EstateSelectionInconsistent, EstateStoreUnavailable
@@ -35,7 +36,9 @@ class PostgresEvidenceMoneyRead(PostgresEstateRead):
         try:
             with self._connect() as c, c.begin():
                 c.execute(text("SET TRANSACTION READ ONLY"))
-                return work(EvidenceMoneySnapshot(self, c, c.execute(text("SELECT now()")).scalar_one()))
+                read_at = c.execute(text("SELECT now()")).scalar_one()
+                with read_scope.snapshot(c, read_at):  # CH5c-R3 R3
+                    return work(EvidenceMoneySnapshot(self, c, read_at))
         except (OperationalError, DBAPIError) as error:
             raise EstateStoreUnavailable(f"The estate store is unavailable: {error.__class__.__name__}") from error
         except self.inconsistent as error:  # an exact pin refused inside the one transaction
