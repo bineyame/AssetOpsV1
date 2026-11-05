@@ -136,14 +136,16 @@ def board_window(ref: SiteRef, params: Any) -> tuple[Any, datetime | None, datet
 def estate_sites(request: Request, *, authenticate: Authenticate, estate: Any, tenant: Callable[[], UUID | None],
                  admitted: Callable[[Request, str], int | None], registry: ImportedSiteRegistry,
                  disclosed: Callable[[SiteRef], bool],
-                 unavailable: tuple[type[BaseException], ...]) -> tuple[list[SiteRef], Any]:
+                 unavailable: tuple[type[BaseException], ...],
+                 items: list[tuple[str, str]] | None = None) -> tuple[list[SiteRef], Any]:
     """The estate summary's authentication, scope parsing and Site set (module doc), shared by `/estate/chain`.
-    `estate` None (no product database) is the scope's 503."""
+    `estate` None (no product database) is the scope's 503. `items` replaces the query items (CH-5b2: the estate
+    "Why?" parses its scope without its own `category`)."""
     if authenticate(request) == 401:
         raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
                             detail=estate_refusal("UNAUTHENTICATED"))
     try:
-        parsed = parse_estate("scope", request.query_params.multi_items())
+        parsed = parse_estate("scope", request.query_params.multi_items() if items is None else items)
         if estate is None:
             raise EstateStoreUnavailable("No product database is configured.")
         with perf.timed("summary.scope"):

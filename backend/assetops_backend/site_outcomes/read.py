@@ -508,6 +508,18 @@ class SiteOutcomeBoardService:
                         type(error).__name__)
             return {}
 
+    def summary_window(self, site: SiteRef, lo: datetime, hi: datetime,
+                       known_at: datetime | None) -> tuple[str, date | None, datetime | None, datetime | None]:
+        """(basis, day, lo, hi) of one Site's board inside the summary (the estate "Why?" reads the same board).
+        OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period; with none,
+        or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7)."""
+        if site.domain == MINI:
+            return WINDOW_BASIS_DAY, window_day(lo, hi, site.timezone), None, None
+        with perf.timed("summary.event_window"):
+            ev_win = self._event_window(site, lo, hi, known_at)
+        b_lo, b_hi = (lo, hi) if ev_win is None else ev_win
+        return (WINDOW_BASIS_PERIOD if ev_win is None else WINDOW_BASIS_EVENT), None, b_lo, b_hi
+
     def _summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
                  known_at: datetime | None) -> dict[str, Any]:
         out = []
@@ -517,15 +529,7 @@ class SiteOutcomeBoardService:
         read_sites = objective_sites = 0
         verified, verified_read = 0, 0  # WALK1-1 (WN-1): VERIFIED Actions over the Sites whose board loaded
         for site in sites:
-            # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
-            # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
-            if site.domain == MINI:
-                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, window_day(lo, hi, site.timezone), None, None
-            else:
-                with perf.timed("summary.event_window"):
-                    ev_win = self._event_window(site, lo, hi, known_at)
-                basis = WINDOW_BASIS_PERIOD if ev_win is None else WINDOW_BASIS_EVENT
-                b_day, (b_lo, b_hi) = None, ((lo, hi) if ev_win is None else ev_win)
+            basis, b_day, b_lo, b_hi = self.summary_window(site, lo, hi, known_at)
             try:
                 with perf.timed(f"board.{site.site_code}"):  # QW-1: each Site's board inside the summary
                     body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at)

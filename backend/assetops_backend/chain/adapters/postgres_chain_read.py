@@ -127,6 +127,21 @@ SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at
   FROM verification_outcome WHERE tenant_id = :t AND site_id = :s
    AND (CAST(:k AS timestamptz) IS NULL OR recorded_at <= CAST(:k AS timestamptz)) ORDER BY recorded_at, id
 """)
+
+#: CH-5b2 (CH5b2-R Q4) `trace_facts`: per Finding of the Site, its head revision at `k` (the `_FINDING_HEADS` head
+#: rule without the window), that revision's `analytic_run_id` and its cited-evidence count; one statement.
+_TRACE_FACTS = text("""
+SELECT CAST(f.id AS text) AS finding_id, CAST(r.id AS text) AS revision_id, r.revision_no,
+       CAST(r.analytic_run_id AS text) AS analytic_run_id,
+       (SELECT count(*) FROM finding_revision_evidence e
+         WHERE e.tenant_id = r.tenant_id AND e.site_id = r.site_id AND e.finding_revision_id = r.id) AS cited
+  FROM finding f
+  JOIN LATERAL (SELECT * FROM finding_revision x WHERE x.tenant_id = f.tenant_id AND x.site_id = f.site_id
+                AND x.finding_id = f.id AND (CAST(:k AS timestamptz) IS NULL OR x.created_at <= CAST(:k AS timestamptz))
+                ORDER BY x.revision_no DESC LIMIT 1) r ON true
+ WHERE f.tenant_id = :t AND f.site_id = :s AND f.id = ANY(CAST(:ids AS uuid[]))
+ ORDER BY f.id
+""")
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _END = datetime(9999, 1, 1, tzinfo=timezone.utc)
 
@@ -224,6 +239,19 @@ class PostgresChainRead:
                         "source_state": dto.get("state"), "recurs_after_finding_id": r["recurs_after_finding_id"],
                         "recurs_after_title": r["recurs_after_title"]})
         return MappingProxyType(out)
+
+    def trace_facts(self, tenant_id: UUID, site_id: UUID, finding_ids: Sequence[str],
+                    known_at: datetime | None) -> Mapping[str, Any]:
+        """CH-5b2 (CH5b2-R Q4): per Finding id (lowercase) `{revision_id, revision_no, analytic_run_id, cited}` of
+        its head revision at `k`; one SELECT."""
+        if not finding_ids:
+            return MappingProxyType({})
+        with self._engine.connect() as c:
+            rows = c.execute(_TRACE_FACTS, {"t": tenant_id, "s": site_id, "k": known_at,
+                                            "ids": [str(f) for f in finding_ids]}).mappings().all()
+        return MappingProxyType({str(r["finding_id"]).lower(): MappingProxyType({
+            "revision_id": r["revision_id"], "revision_no": int(r["revision_no"]),
+            "analytic_run_id": r["analytic_run_id"], "cited": int(r["cited"])}) for r in rows})
 
     def action_rows(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]:
         """CH-5a2b R1 (§B14 Q5): the Site's mini Actions created by `k` with their events recorded by `k` (the

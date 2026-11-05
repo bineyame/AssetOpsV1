@@ -9,6 +9,6 @@
    "portfolio_week": "portfolio", "estate_chain_week": "portfolio",
    "summary_week": null, "findings_week": null},
  "other": {
-   "why_trace_ms": {"limit": 50, "measured_by": null, "owner": "CH-5b2"},
+   "why_trace_ms": {"limit": 50, "measured_by": "backend/tests/test_ch5b_why_postgres.py (L2m, median 10.01 ms)", "owner": "CH-5b2"},
    "tick_chain_stage_fraction": {"limit": 0.5, "of": "the chain stage limit (B/scheduling/tick.py:57-76)", "measured_by": null, "owner": "DD-1b2/E4"},
    "snapshot_rebuild_ms_per_measure_day": {"limit": 50, "measured_by": null, "owner": "DD-1b2/E4"}}}

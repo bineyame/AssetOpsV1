@@ -59,8 +59,15 @@ def fresh(url: str, work: Path) -> int:
     from assetops_backend.chain import prebuild
     from assetops_backend.chain.response_store import HEADER
 
+    from assetops_backend.chain.composition import prebuilt_requests
+    from chain_watermark_guard import chain_paths
+
     stored_c = _client(url, work, True)
     stored = {p: stored_c.get(p) for p in prebuild.paths()}
+    # CH-5b2: the chain and "Why?" routes are not pre-built; the first GET stores, the second is the served hit.
+    for p in chain_paths(stored_c, prebuilt_requests()):
+        stored_c.get(p)
+        stored[p] = stored_c.get(p)
     os.environ["ASSETOPS_RESPONSE_STORE"] = "off"
     from lab_app import build_app
     from fastapi.testclient import TestClient

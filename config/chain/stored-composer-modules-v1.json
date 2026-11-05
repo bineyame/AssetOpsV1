@@ -44,6 +44,8 @@
   "assetops_backend.chain.site_chain",
   "assetops_backend.chain.threads",
   "assetops_backend.chain.vocabulary",
+  "assetops_backend.chain.why",
+  "assetops_backend.chain_api",
   "assetops_backend.cold_assessment_api",
   "assetops_backend.config",
   "assetops_backend.estate.adapters.postgres_estate_read",
