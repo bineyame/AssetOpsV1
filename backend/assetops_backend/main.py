@@ -188,7 +188,12 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
-from assetops_backend.chain.composition import build_estate_claims, chain_policy_versions, thread_lifecycle_policy
+from assetops_backend.chain.composition import (
+    build_estate_claims,
+    chain_policy_versions,
+    check_declared_chain_graph,
+    thread_lifecycle_policy,
+)
 from assetops_backend.chain_api import build_chain_router
 from assetops_backend.outcome_api import build_outcome_router, site_ref
 from assetops_backend.site_outcomes.composition import build_outcome_board_service
@@ -634,6 +639,9 @@ def create_app(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         responses=responses))
+    # CH-5b1 R6 (P2, CH5b1-R Q2): the declared chain graph is checked before the chain routes mount; a broken
+    # register, measure, lifecycle or outcome-map declaration raises `ChainGraphError` and the app does not start.
+    check_declared_chain_graph()
     # CH-5a2a §B1: the `outcome-chain-1` reads over the same board service, admission and estate scope.
     # CH-5b2: plus the two "Why?" routes; all five are stored routes (ETag, 304).
     app.include_router(build_chain_router(

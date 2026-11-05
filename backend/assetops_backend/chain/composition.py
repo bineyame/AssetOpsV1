@@ -6,6 +6,7 @@ The chain input reader receives the existing read services built by their own do
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Callable
 
 from assetops_backend.chain.adapters.file_chain_config import (
@@ -13,6 +14,7 @@ from assetops_backend.chain.adapters.file_chain_config import (
     load_event_register,
     load_operating_calendar,
     load_thread_lifecycle,
+    read_module_source,
 )
 from assetops_backend.chain.adapters.postgres_event_store import EventStoreUnavailable, PostgresEventStore
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
@@ -112,6 +114,29 @@ def thread_lifecycle_policy() -> Any:
     """CH-3: the thread lifecycle policy (`config/chain/thread-lifecycle-v1.json`), for callers outside the adapters."""
     from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
     return load_thread_lifecycle()
+
+
+@lru_cache(maxsize=1)
+def declared_graph_inputs() -> Any:
+    """CH-5b1 R6: the declared chain graph inputs (register, measures, adapters, lifecycle, outcome map).
+    Memoised (L3): the register and lifecycle files are parsed once per process."""
+    from assetops_backend.chain.graph import GraphInputs
+    from assetops_backend.chain.measures import MEASURES
+    from assetops_backend.outcomes.catalogue import OUTCOME_BY_KEY
+    from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS, ENTRIES, thread_signal_key
+    from assetops_backend.outcomes.warnings import KINDS
+
+    return GraphInputs(
+        register=load_event_register(), measures=MEASURES, adapter_keys=frozenset(build_measure_set(None)),
+        clean_day_measures=dict(load_thread_lifecycle().clean_day_measures), entries=ENTRIES,
+        outcome_keys=frozenset(OUTCOME_BY_KEY), aliases=DOMAIN_ALIAS, thread_signal_key=thread_signal_key,
+        warning_kinds=frozenset(KINDS), module_source=read_module_source)
+
+
+def check_declared_chain_graph() -> list[str]:
+    """CH-5b1 P2 (CH5b1-R Q2): the app-start graph check. Raises `chain.graph.ChainGraphError`; never logs and skips."""
+    from assetops_backend.chain.graph import check
+    return check(declared_graph_inputs())
 
 
 def build_chain_reader(database_url: str | None, *, consequences: Any = None,

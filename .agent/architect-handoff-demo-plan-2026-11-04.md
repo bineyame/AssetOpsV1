@@ -551,3 +551,41 @@ Architect: Claude (binding checked in the plan2 `.ai/ROLE_CONFIG.md`: Claude sin
 - **Pre-flight placement.** CH-9b P1 (pass margin, possible owner OD) is asked in CH-9b1. DD-1 P1–P6 are answered once by DD-1a1; `.agent/DD-0c-probe-results.md` must exist first.
 - **Owner:** nothing to decide.
 - **Context:** light. One more item is fine.
+
+### Architect 13, second item: CH5c2-R2 (CH-5c2 packet ruling list at `bc2ba7c35`)
+
+- **Written:** `build-sheet-CH-5c.md` §8.8. All seven accepted; the size stays 3.0. Owner: nothing to decide.
+- **CH-5b amended (item 5).** A 304 needs the watermark plus one indexed live-row lookup, because the ETag includes `valid_until`. There is still no composition, and a route that is not stored saves only bytes. The CH-5b2 builder must read §8.8 item 5 along with Revision OWN-CH5c.
+- **Item 3:** the E4 hit check must show hits in the serve environment.
+- **Context:** moderate after two items. Start a fresh Architect for the next one.
+
+## Update 2026-11-05 (Architect 14): CH5b1-R (CH-5b1 pre-flight at `4479b6ce2`)
+
+- Written: `build-sheet-CH-5b.md` "CH5b1-R" section; plan row CH5b1-R (after SPLIT-1). Size 1.5 unchanged; nothing committed; no DB touched. Q1 partly overridden: a declared NOT_CHAIN_SOURCED table with verified producers. `WARNING:CHARGERS_MOSTLY_IDLE` has no producer, so it is the one known-gap row, owner CH-6a1, which adds a detector or removes the key; the Architect rules on that choice. Q2–Q7 accepted, with additions. Owner: nothing to decide. Context: light.
+
+### Architect 14, second item: CH5b2-R (CH-5b2 pre-flight at `c3cf85409`)
+
+- Written: `build-sheet-CH-5b.md` "CH5b2-R" section; plan row CH5b2-R (after CH5b1-R). Size 2 unchanged; nothing committed. Q1 accepted: all five routes are stored, with every query parameter in the key. Q6 and Q9 partly overridden, with wording from the MA-1 mock (`v70/index.html:411-438`). New copy beyond the mock is labelled MOCK DEVIATION. The price suffix is a Known Deviation owned by CH-6. Q5 is interim until CH-6a1. Owner: nothing to decide. Context: moderate after two items; start a fresh Architect next.
+
+### Architect 15: CH5b1-R2 (CH-5b1 packet D1 at `d54476ce2`)
+
+- Written: `build-sheet-CH-5b.md` CH5b1-R2 line, at the end of the CH5b1-R section. Ruled (b): the producer of `SIGNAL:EVIDENCE_READINESS` is `outcomes/status.py:86-87`, the readiness status path that is already live. Owner CH-5b1, in its fix round. The test is behavioural (`outcome_state` on the `@EVIDENCE` alias per domain), and `KNOWN_GAPS` goes back to `CHARGERS_MOSTLY_IDLE` only. Nothing committed; no DB touched; owner: nothing to decide.
+
+### Architect 15, second item: CH9b1-R (CH-9b1 pre-flight at `641c34e0d`)
+
+- Written: `build-sheet-CH-9b.md` CH9b1-R section; plan row CH9b1-R (after CH5b2-R). Q1 overridden to B: the mill Action goes on `domain_action` (domain + MINI, exactly-one-of Finding/opportunity origin). APPLIED is the work-case completion, as CH-9 Q8 says. `action` is untouched. Q2 and Q3 overridden to match (no new table and no `apply_schedule`); Q4–Q7 accepted (Q5 classes swapped, Q6 extended to a Cold/EV domain action). Sizes: CH-9b1 3, CH-9b2 2.5 (it gains the `verification_plan` exactly-one-of action/domain_action, and the applied anchor and origin widening), CH-9b3 1.5; total 7, no split. Migration 0051. P1 owner-decided 2026-11-05 (`.agent/owner-mill-pass-margin-2026-11-05.md`): the catalogue target is `"10*mean(later) >= 11*mean(baseline) productive_kwh[midday]"`. Nothing committed.
+
+## Update 2026-11-05 (Architect 16): SCOPE-1, scope cut to a defensible first-client presentation
+
+Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-27). Nothing committed; no DB touched. Owner, verbatim: `.agent/owner-scope-backlog-2026-11-05.md` (both lines).
+
+- **Written:** `.agent/backlog-post-demo.md` (BL-01 to BL-12, 4.25 units, plus the "present less" list); a "Scope cut (SCOPE-1)" section at the end of `build-sheet-CH-5b.md`, `-CH-6.md`, `-CH-9b.md`, `-DD-1.md`, `-CH-5d.md`; plan row SCOPE-1 (after CH9b1-R), the totals, gates, §2.1, §2.2 and schedule rows.
+- **Build list (remaining 27.0).** Lane 1 (13.0): CH-5b2 2 (in build) → CH-5b3 1.25 → CH-6a1 1.25 → CH-6a2 2 + CH-6a3 1.5 → CH-6b1 1.75 → CH-6b2 2.25 + CH-6b3 1.0. Lane 2 (14.0): CH-9b1 3 (in build) → CH-9b2 2.5 → CH-9b3 1.0 → DD-1a1 2 → DD-1a2 1.75 → DD-1b1 1.25 → DD-1b2 1.5 → CH-5d1 1. CH-9b3 no longer waits for CH-6a3; CH-6b0 is dropped.
+- **Totals:** ≈ 96.5 (100.5 − 4.25 + 0.25); lanes ≈ 90.5; G4 ≈ 86.5; G5/G6 ≈ 94.0. The earlier total rows had not carried CH9b1-R's +2.5; they do now.
+- **One addition (+0.25, CH-6a3), stated as defensibility-critical:** "Why?" on every money figure names the declared price ("{kWh} kWh × {price}"), closing CH5b2-R Q7's Known Deviation. Reason: a figure the client cannot trace through "Why?" is not defensible.
+- **Owner to confirm (unsure):**
+  1. BL-09: the mill check is shown without MG-5/MG-4 guardrails ("rose by at least the declared 10%"); a critical-load question is answered from the MG-5 row. Keep in backlog, or put back (+0.5)?
+  2. BL-07: RECURRED_DURING_CHECK. No story day needs it after MD0b-R, but if a headroom occurrence falls in the mill's later window it is not recorded as "during the check". Backlog, or put back (+0.5)?
+  3. The +0.25 price line in "Why?".
+- **Standing rule for every future Architect (SCOPE-1).** Any new work, whether from a ruling, a pre-flight answer, a review finding or a fix round, must be stated in the ruling as **defensibility-critical, with its reason**: which shown number, label, claim or "Why?" line would be untrue, untraceable or unable to hold up under questioning without it, or why the build would not run. Anything not stated that way goes to `.agent/backlog-post-demo.md` with an id, source, reason and size, and adds nothing to the plan. Prefer presenting less over building more. A size increase on a build unit must name the SCOPE-1 reason in the plan row.
+- **Context:** moderate. Start a fresh Architect for the next item.
