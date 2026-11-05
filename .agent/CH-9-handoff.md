@@ -1,4 +1,22 @@
-# CH-9 handoff (PARTIAL: u1-u4 landed, u5 blocked for the Architect; resume at "Resume order for builder 6")
+# CH-9 handoff (PARTIAL: u1-u4 + Q2 landed, u5 deferred to CH-9b; resume at "Resume order for builder 7")
+
+## Status 2026-11-05 (builder 6; stopped near the context cap, no process or DB job of mine running)
+Merged `main` (CH-5a2b) at `c37fe981b`, clean. Commits: `2064fcb7b` read-test 5 Oct pv day; `a8f115f84` ch5a2 goldens
+(+critical_served); `5761ba30a` Portfolio unit (CH9-R3 Q2); `08a5c0988` scenario row test keys; `a830b2d0c` ch1a
+required seconds. All Postgres files in the list green; MD-0 templates `tpl_ca277a2e` / `tplc_ca277a2e` built;
+L3m states and close checks 0 unexpected, COH-17 0; guards A, W, V pass. Packet draft `.agent/review-packet-CH-9.md`
+(SCENARIO finding, rulings, owned tests, KDs). DBs left: `assetops_mechanism_test`, `assetops_mechanism_close_test`
+(derived, normal state). No polish clone created.
+
+## Resume order for builder 7
+1. Polish clone (coordinator: re-collect after the CH-5a2b merge, COH-17 = 0): `tools/chain_clone.py create ch9
+   --migrate`; `DATABASE_URL=<clone> python -m assetops_backend.chain.backfill --steps a,b,c,d`; `chain_clone.py settle
+   ch9` (report tick job growth vs the CH-1b stage bound); collect with `PGOPTIONS` read-only into scratch; check
+   `--expect tools/checks/fixtures/chain_coherence/expected-today.json`; owned `expected-today.json` changes (DD-1).
+2. A collect from a temporary main worktree on the same clone (CH-5a2b packet "collect A") for: the per-window table of
+   named days, day counts and why each day is not complete (CH5a2b-R2); old -> new `count_basis`; MD-0 values old -> new.
+3. `tools/check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe`.
+4. Finish the packet OPEN section; task status `in_review`, ACTIVE_CONTEXT / CODE_STATE; drop the clone.
 
 ## Status 2026-11-05 (builder 5; stopped at the context cap, no process or DB job of mine running)
 Commits: `4c4dff4ee` estateRoots fixture copy; `ababdaf53` mill-midday kind + L2 test; `d4b26a299` w403 worker/scenario
