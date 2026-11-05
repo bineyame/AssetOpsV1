@@ -41,7 +41,7 @@ _OPPORTUNITY_SOURCES = (
     "ORDER BY r.created_at, r.id")
 
 _UNLINKED = (
-    "SELECT id, tenant_id, site_id, action_code, kind, origin_finding_id FROM chain_action "
+    "SELECT id, tenant_id, site_id, action_code, kind, origin_finding_id, origin_opportunity_id FROM chain_action "
     "WHERE thread_id IS NULL AND tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) "
     "ORDER BY kind, id")
 
@@ -52,7 +52,8 @@ _FINDING_SOURCES_BY_ID = _FINDING_SOURCES.replace("ORDER BY r.created_at, r.id",
 _OPPORTUNITY_SOURCES_BY_ID = _OPPORTUNITY_SOURCES.replace("ORDER BY r.created_at, r.id", _ONLY_REVISIONS)
 _UNLINKED_FOR = _UNLINKED.replace(
     "ORDER BY kind, id",
-    "AND (id = ANY(CAST(:a AS uuid[])) OR origin_finding_id = ANY(CAST(:f AS uuid[]))) ORDER BY kind, id")
+    "AND (id = ANY(CAST(:a AS uuid[])) OR origin_finding_id = ANY(CAST(:f AS uuid[])) "
+    "OR origin_opportunity_id = ANY(CAST(:o AS uuid[]))) ORDER BY kind, id")
 
 # CH-3 §4: the lifecycle causes of one Site (SELECT only).
 _CHANGE_OF = ("(SELECT c.effective_from FROM action_policy_change c WHERE c.tenant_id = {a}.tenant_id "
@@ -161,20 +162,23 @@ class PostgresThreadSources:
         return [*placed, *([None] * (len(out) - len(placed)))]
 
     def unlinked_actions_for(self, tenant_id: UUID, site_id: UUID, action_ids: Sequence[Any],
-                             finding_ids: Sequence[Any]) -> list[dict[str, Any]]:
-        """CH-1b: this Site's unlinked Actions named by an event, or whose origin Finding was just placed (an Action
-        recorded before its Finding's placement stays PENDING_PLACEMENT until then)."""
-        if not action_ids and not finding_ids:
+                             finding_ids: Sequence[Any], opportunity_ids: Sequence[Any] = ()) -> list[dict[str, Any]]:
+        """CH-1b: this Site's unlinked Actions named by an event, or whose origin Finding (CH-9b1: or opportunity)
+        was just placed (an Action recorded before its origin's placement stays PENDING_PLACEMENT until then)."""
+        if not action_ids and not finding_ids and not opportunity_ids:
             return []
         return self._rows(_UNLINKED_FOR, {"t": tenant_id, "s": str(site_id), "a": [str(i) for i in action_ids],
-                                          "f": [str(i) for i in finding_ids]})
+                                          "f": [str(i) for i in finding_ids],
+                                          "o": [str(i) for i in opportunity_ids]})
 
     def all_actions(self, tenant_id: UUID, site_id: UUID | None = None) -> list[dict[str, Any]]:
         """Both Action tables directly (the `--dry-run` mode: it also reads a database below 0042)."""
         return self._rows(
-            "SELECT id, tenant_id, site_id, action_code, 'MINI_TRIAL' AS kind, origin_finding_id FROM action "
+            "SELECT id, tenant_id, site_id, action_code, 'MINI_TRIAL' AS kind, origin_finding_id, "
+            "CAST(NULL AS uuid) AS origin_opportunity_id FROM action "
             "WHERE tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) UNION ALL "
-            "SELECT id, tenant_id, site_id, action_code, 'DOMAIN_INTENT', origin_finding_id FROM domain_action "
+            "SELECT id, tenant_id, site_id, action_code, 'DOMAIN_INTENT', origin_finding_id, origin_opportunity_id "
+            "FROM domain_action "
             "WHERE tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) ORDER BY 5, 1",
             {"t": tenant_id, "s": None if site_id is None else str(site_id)})
 

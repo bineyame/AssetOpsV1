@@ -18,6 +18,8 @@ conditions only: the initial unevaluated results are fixed and cite no evidence;
 
 from __future__ import annotations
 
+# CH-9b1 origin: Finding-only (fed by `adapters/postgres_domain_action_index.py`, which excludes MINI Actions).
+
 import base64
 import binascii
 import hashlib

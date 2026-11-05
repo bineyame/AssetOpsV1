@@ -35,6 +35,31 @@ RECURS_FROM = ("RESOLVED_MONITORING", "CLOSED")
 OPENS_FROM = (None, "WITHDRAWN")
 
 ACTION_KINDS = ("MINI_TRIAL", "DOMAIN_INTENT")
+ORIGIN_FINDING, ORIGIN_OPPORTUNITY = "FINDING", "OPPORTUNITY"
+
+
+@dataclass(frozen=True)
+class Origin:
+    """CH-9b1: an Action's one origin - the Finding it was raised from, or (a MINI `domain_action`) the mini
+    opportunity. A MINI_TRIAL `action` is always FINDING."""
+
+    kind: str
+    id: UUID
+
+    @classmethod
+    def of(cls, action: dict[str, Any]) -> "Origin":
+        """From a `chain_action` / Action row: exactly one of `origin_finding_id`, `origin_opportunity_id`."""
+        finding, opportunity = action.get("origin_finding_id"), action.get("origin_opportunity_id")
+        if (finding is None) == (opportunity is None):
+            raise ValueError(f"Action {action.get('id')} must carry exactly one origin")
+        if finding is not None:
+            return cls(ORIGIN_FINDING, UUID(str(finding)))
+        return cls(ORIGIN_OPPORTUNITY, UUID(str(opportunity)))
+
+    def columns(self) -> dict[str, UUID | None]:
+        """The `chain_action_thread` origin columns of this origin."""
+        return {"origin_finding_id": self.id if self.kind == ORIGIN_FINDING else None,
+                "origin_opportunity_id": self.id if self.kind == ORIGIN_OPPORTUNITY else None}
 LINKED = "LINKED"
 ALREADY_LINKED = "ALREADY_LINKED"
 PENDING_PLACEMENT = "PENDING_PLACEMENT"
@@ -201,7 +226,7 @@ def plan_place(src: Source, existing_occurrence: bool, thread: ThreadHead | None
 
 class ThreadPort(Protocol):
     def place(self, src: Source, plan_for: Any, created_by: str) -> PlacePlan: ...
-    def link(self, kind: str, action_id: UUID, origin_finding_id: UUID, linked_by: str) -> str: ...
+    def link(self, kind: str, action_id: UUID, origin: Origin, linked_by: str) -> str: ...
 
 
 class MemoryThreads:
@@ -233,14 +258,14 @@ class MemoryThreads:
                 self.events[(plan.thread_id, plan.event["seq"])] = plan.event
         return plan
 
-    def link(self, kind: str, action_id: UUID, origin_finding_id: UUID, linked_by: str) -> str:
+    def link(self, kind: str, action_id: UUID, origin: Origin, linked_by: str) -> str:
         if (kind, action_id) in self.links:
             return ALREADY_LINKED
-        tid = self._placed.get(origin_finding_id)
+        tid = self._placed.get(origin.id)
         if tid is None:
             return PENDING_PLACEMENT
         self.links[(kind, action_id)] = {"action_kind": kind, "action_id": action_id, "thread_id": tid,
-                                         "origin_finding_id": origin_finding_id, "linked_by": linked_by}
+                                         **origin.columns(), "linked_by": linked_by}
         return LINKED
 
     # CH-3 §4: the lifecycle twin of PostgresThreadStore.site_threads / append_events / thread_head.
@@ -253,7 +278,8 @@ class MemoryThreads:
             events = self.site_threads_events(tid)
             occs = [(str(o["finding_id"] or o["opportunity_id"]).lower(), o["episode_start"])
                     for (x, _), o in sorted(self.occurrences.items(), key=lambda kv: kv[0][1]) if x == tid]
-            links = {str(link["action_id"]).lower(): str(link["origin_finding_id"]).lower()
+            links = {str(link["action_id"]).lower():
+                     str(link["origin_finding_id"] or link["origin_opportunity_id"]).lower()
                      for link in self.links.values() if link["thread_id"] == tid}
             known = {str(o["finding_id"] or o["opportunity_id"]).lower(): o.get("source_known_at")
                      for (x, _), o in self.occurrences.items() if x == tid}
@@ -309,12 +335,14 @@ class ThreadRegistry:
     def link_all(self, actions: Iterable[dict[str, Any]]) -> StepReport:
         report = StepReport("c")
         for a in sorted(actions, key=lambda a: (a["kind"], str(a["id"]))):
-            report.add(self.link_action(a["kind"], UUID(str(a["id"])), UUID(str(a["origin_finding_id"]))))
+            report.add(self.link_action(a["kind"], UUID(str(a["id"])), Origin.of(a)))
         return report
 
-    def link_action(self, kind: str, action_id: UUID, origin_finding_id: UUID) -> str:
-        """Writes the link to the thread holding `origin_finding_id`; PENDING_PLACEMENT (nothing written) when that
-        Finding has no occurrence yet; idempotent on `(kind, action_id)`."""
+    def link_action(self, kind: str, action_id: UUID, origin: Origin) -> str:
+        """Writes the link to the thread holding the origin Finding or opportunity; PENDING_PLACEMENT (nothing
+        written) when it has no occurrence yet; idempotent on `(kind, action_id)`. A MINI_TRIAL is Finding-only."""
         if kind not in ACTION_KINDS:
             raise ValueError(f"unknown Action kind {kind!r}")
-        return self.port.link(kind, action_id, origin_finding_id, self.created_by)
+        if kind == "MINI_TRIAL" and origin.kind != ORIGIN_FINDING:
+            raise ValueError("a MINI_TRIAL Action has a Finding origin only")
+        return self.port.link(kind, action_id, origin, self.created_by)

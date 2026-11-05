@@ -76,7 +76,7 @@ class DomainIntentService:
                       principal: str | None) -> tuple[int, dict[str, Any]]:
         _gate(principal)
         normalized = d.action_body(body)
-        spec = d.DOMAINS[normalized["domain"]]
+        spec = d.ACTION_DOMAINS[normalized["domain"]]
         actor = _actor(body, principal, spec.refuse("DOMAIN_INTENT_INVALID"))
         sha = d.command_sha256(tenant_id, site_id, None, d.CMD_ACTION, normalized, actor)
 
@@ -91,18 +91,26 @@ class DomainIntentService:
             if not d.within_command_window(normalized["raised_at"], now):
                 raise spec.refuse("DOMAIN_INTENT_INVALID")
             # Pre-flight 11: Site type, tenant/Site scope, Finding domain and the exact selected revision agree.
-            if tx.site_type() != spec.domain:
+            if tx.site_type() != (spec.site_type or spec.domain):
                 raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
-            revision = tx.finding_revision(normalized["origin_finding_id"], normalized["origin_finding_revision_id"])
-            if revision is None or revision["domain"] != spec.finding_domain:
-                raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
-            pin = tx.selected_pin(revision)
-            if pin is None or (spec.domain == d.EV_DOMAIN and selected_ev_finding(tx, pin, revision["id"]) is None):
-                raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+            if spec.origin == d.ORIGIN_OPPORTUNITY:
+                # CH-9b1: the exact study revision of that opportunity, its selected head at `command_now`.
+                origin = {k: normalized[k] for k in ("origin_opportunity_id", "origin_opportunity_revision_id")}
+                if not tx.opportunity_revision_selected(*origin.values()):
+                    raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+            else:
+                revision = tx.finding_revision(normalized["origin_finding_id"],
+                                               normalized["origin_finding_revision_id"])
+                if revision is None or revision["domain"] != spec.finding_domain:
+                    raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+                pin = tx.selected_pin(revision)
+                if pin is None or (spec.domain == d.EV_DOMAIN
+                                   and selected_ev_finding(tx, pin, revision["id"]) is None):
+                    raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+                origin = {k: normalized[k] for k in ("origin_finding_id", "origin_finding_revision_id")}
             number = tx.next_action_no()
             row = {"id": self._id(), "action_no": number, "action_code": f"ACT-{number:06d}",
-                   "domain": spec.domain, "origin_finding_id": normalized["origin_finding_id"],
-                   "origin_finding_revision_id": normalized["origin_finding_revision_id"],
+                   "domain": spec.domain, **origin,
                    "title": normalized["title"], "owner_label": normalized["owner_label"],
                    "due_at": normalized["due_at"], "raised_at": normalized["raised_at"],
                    "idempotency_key": normalized["idempotency_key"], "payload_sha256": sha, **_actor_row(actor)}
@@ -141,6 +149,8 @@ class DomainIntentService:
             if action is None:
                 raise d.refuse("ACTION_NOT_FOUND")
             spec = _spec(action)
+            if not spec.criteria:
+                raise spec.refuse("DOMAIN_INTENT_INVALID")  # CH-9b1: a MINI Action declares no intent
             normalized = d.intent_for(spec, shape)
             sha = d.command_sha256(tenant_id, site_id, aid, d.CMD_INTENT, normalized, actor)
             tx.lock(d.CMD_INTENT, f"{aid}:{normalized['idempotency_key']}")

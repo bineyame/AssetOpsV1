@@ -83,6 +83,7 @@ SELECT CAST(e.thread_id AS text) AS thread_id, e.seq, e.state, e.cause_kind, e.c
 _SITE_ACTIONS = text("""
 SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id AS text) AS thread_id,
        CAST(a.origin_finding_id AS text) AS origin_finding_id,
+       CAST(a.origin_opportunity_id AS text) AS origin_opportunity_id,
        CASE WHEN a.kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x
               WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
             ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)

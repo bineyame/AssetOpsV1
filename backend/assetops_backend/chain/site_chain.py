@@ -113,8 +113,11 @@ def actions_of(rows: Mapping[str, Any], thread_ids: Iterable[str], *, site: str,
         if tid not in wanted:
             continue
         evs = lc.visible(events.get(tid, []), cutoff)
-        origin = next((o for o in occs.get(tid, ()) if o["finding_id"] == a["origin_finding_id"]), None)
-        occ = None if origin is None else lc.Occurrence(origin["finding_id"], _local(origin["episode_start"], tz))
+        # CH-9b1: the origin occurrence is the Finding's, or (a MINI domain Action) the opportunity's.
+        key, ref = (("finding_id", a["origin_finding_id"]) if a.get("origin_finding_id") is not None
+                    else ("opportunity_id", a.get("origin_opportunity_id")))
+        origin = next((o for o in occs.get(tid, ()) if ref is not None and o[key] == ref), None)
+        occ = None if origin is None else lc.Occurrence(origin[key], _local(origin["episode_start"], tz))
         seg = lc.action_segment(evs, occ, lc.accepted_day([_local(a["accepted_at"], tz)]))
         out.append({"id": a["action_id"], "code": a["action_code"], "kind": a["kind"], "thread": tid,
                     "segment_no": seg, "verification": verification.get(a["action_id"]),

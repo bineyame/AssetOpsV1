@@ -84,6 +84,10 @@ class DomainSpec:
     initial_results: tuple[str, ...]
     messages: Mapping[str, str]
     basis_keys: tuple[str, ...]
+    #: CH-9b1: the Action's origin pair, FINDING (Cold, EV) or OPPORTUNITY (MINI, a mini study revision).
+    origin: str = "FINDING"
+    #: The Site type that may raise it; None = the Action domain literal itself (Cold, EV).
+    site_type: str | None = None
 
     def refuse(self, code: str) -> "DomainIntentRefused":
         return DomainIntentRefused(STATUS[code], code, self.messages[code])
@@ -99,10 +103,37 @@ DOMAINS: Mapping[str, DomainSpec] = {
 #: Finding (analytics) domain -> Action domain, for `_domain_links` and pins (readiness ruling 12).
 BY_FINDING_DOMAIN: Mapping[str, str] = {spec.finding_domain: name for name, spec in DOMAINS.items()}
 
+#: CH-9b1 (CH9b1-R Q1 = B): a mini Action raised from an opportunity's study revision (lever
+#: `productive-load-midday@1`, an operating-schedule change that writes nothing to equipment). It declares no intent
+#: (`DOMAINS` stays the intent-capable Cold/EV set); ACCEPTED is its row and APPLIED its linked case's COMPLETE.
+MINI_DOMAIN = "MINI"
+ORIGIN_FINDING, ORIGIN_OPPORTUNITY = "FINDING", "OPPORTUNITY"
+MINI_MESSAGES = {
+    "DOMAIN_INTENT_INVALID": "The mini Action declaration is incomplete or invalid.",
+    "DOMAIN_INTENT_LINK_INVALID": "The declared opportunity is not selected at this site and cutoff.",
+    "DOMAIN_INTENT_CONFLICT": "This Action declaration has a newer version; reload it.",
+    "DOMAIN_INTENT_BASIS_CHANGED": "The selected mini work basis changed; reload the Action.",
+    "ACTION_NOT_FOUND": "Action was not found at this site.",
+}
+MINI_SPEC = DomainSpec(MINI_DOMAIN, "", (), "Run the mill at midday", (), MINI_MESSAGES, (),
+                       origin=ORIGIN_OPPORTUNITY, site_type="MINIGRID")
+#: Every Action domain the 0051 domain CHECK admits; creation and stored-domain dispatch read this.
+ACTION_DOMAINS: Mapping[str, DomainSpec] = {**DOMAINS, MINI_DOMAIN: MINI_SPEC}
+
 
 def spec_of(domain: Any) -> DomainSpec | None:
     """The closed contract of a stored or declared domain; None for anything unreviewed."""
-    return DOMAINS.get(domain) if isinstance(domain, str) else None
+    return ACTION_DOMAINS.get(domain) if isinstance(domain, str) else None
+
+
+def origin_of(action: Mapping[str, Any]) -> tuple[str, str]:
+    """CH-9b1: the stored Action's one origin, `(ORIGIN_FINDING, finding id)` or `(ORIGIN_OPPORTUNITY, opportunity
+    id)`. The 0051 CHECK holds exactly one pair; a row with neither is a store fault."""
+    if action.get("origin_finding_id") is not None:
+        return ORIGIN_FINDING, str(action["origin_finding_id"])
+    if action.get("origin_opportunity_id") is not None:
+        return ORIGIN_OPPORTUNITY, str(action["origin_opportunity_id"])
+    raise ValueError("a domain Action row carries no origin")
 
 
 #: The only EV Finding lifecycle that can originate or support an EV Action (pre-flight 15).
@@ -250,14 +281,14 @@ def action_body(body: Any) -> dict[str, Any]:
 
 
 def _action_body(body: Any, spec: DomainSpec) -> dict[str, Any]:
-    b = closed(body, ("domain", "origin_finding_id", "origin_finding_revision_id", "title", "owner_label", "due_at",
-                      "raised_at", "actor", "idempotency_key"))
+    pair = (("origin_opportunity_id", "origin_opportunity_revision_id") if spec.origin == ORIGIN_OPPORTUNITY
+            else ("origin_finding_id", "origin_finding_revision_id"))
+    b = closed(body, ("domain", *pair, "title", "owner_label", "due_at", "raised_at", "actor", "idempotency_key"))
     raised = instant(b["raised_at"])
     due = None if b["due_at"] is None else instant(b["due_at"])
     if due is not None and not raised <= due <= raised + DUE_LIMIT:
         raise _Malformed()
-    return {"domain": spec.domain, "origin_finding_id": uuid_text(b["origin_finding_id"]),
-            "origin_finding_revision_id": uuid_text(b["origin_finding_revision_id"]),
+    return {"domain": spec.domain, pair[0]: uuid_text(b[pair[0]]), pair[1]: uuid_text(b[pair[1]]),
             "title": bounded_text(b["title"]),
             "owner_label": None if b["owner_label"] is None else bounded_text(b["owner_label"]),
             "due_at": due, "raised_at": raised, "idempotency_key": key(b["idempotency_key"])}

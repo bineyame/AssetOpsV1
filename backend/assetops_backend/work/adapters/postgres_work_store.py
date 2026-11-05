@@ -13,6 +13,8 @@ nothing partial commits.
 
 from __future__ import annotations
 
+# CH-9b1 origin: Finding-only (its domain_action join is on the origin Finding revision; a MINI Action adds none).
+
 import json
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable

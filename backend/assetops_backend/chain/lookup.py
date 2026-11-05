@@ -42,8 +42,9 @@ LOOKUP = (
     "CASE WHEN al.action_kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x "
     "WHERE x.tenant_id = al.tenant_id AND x.action_id = al.action_id AND x.kind = 'ACCEPTED') "
     "ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = al.tenant_id AND d.id = al.action_id) END, "
-    "(SELECT o.episode_start FROM finding_thread_occurrence o WHERE o.finding_id = al.origin_finding_id), "
-    "s.timezone, CAST(al.origin_finding_id AS text), NULL, NULL, NULL FROM al "
+    "(SELECT o.episode_start FROM finding_thread_occurrence o WHERE o.finding_id = al.origin_finding_id "
+    "OR o.opportunity_id = al.origin_opportunity_id), "
+    "s.timezone, CAST(COALESCE(al.origin_finding_id, al.origin_opportunity_id) AS text), NULL, NULL, NULL FROM al "
     "JOIN site s ON s.tenant_id = al.tenant_id AND s.id = al.site_id")
 
 #: CH-4 §3: one statement for the opportunity threads of the given Sites (`:s`) as of `:k` (None = as known now):

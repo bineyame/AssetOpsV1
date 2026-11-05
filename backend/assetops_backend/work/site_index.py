@@ -18,6 +18,8 @@ whole eligible basis (rows, events, records, citations, fences) and is recompute
 
 from __future__ import annotations
 
+# CH-9b1 origin: Finding-only (W1 `action` links; a MINI domain link selects `opportunity_revision_id`, no route).
+
 import base64
 import binascii
 import hashlib
@@ -200,8 +202,8 @@ def _finding_link(site_code: str, link: Mapping[str, Any], lineage: bool,
 def action_selection_key(link: Mapping[str, Any]) -> tuple[str, str, str]:
     """The kind-aware `link_selections` key of one Action link (ruling C1: a domain link selects its pinned
     Finding revision, a W1 link its Action event)."""
-    if link.get("kind") == DOMAIN_ACTION:
-        return DOMAIN_ACTION, link["action_id"], link["finding_revision_id"]
+    if link.get("kind") == DOMAIN_ACTION:  # CH-9b1: a MINI Action selects its origin opportunity revision
+        return DOMAIN_ACTION, link["action_id"], link.get("opportunity_revision_id") or link["finding_revision_id"]
     return "ACTION", link["action_id"], link["action_event_id"]
 
 
@@ -226,7 +228,8 @@ def action_label(code: str | None) -> str:
 def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str, Any] | None) -> dict[str, Any]:
     aid, event = link["action_id"], link["action_event_id"]
     if link.get("kind") == DOMAIN_ACTION:  # ruling C1: the domain Verification route, only with exact lineage
-        ok = selection is not None and selection["lineage"]
+        # CH-9b1: an opportunity-origin (MINI) Action has no domain Verification route yet (CH-9b2/9b3).
+        ok = selection is not None and selection["lineage"] and link["finding_revision_id"] is not None
         return {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None,
                 "finding_revision_id": link["finding_revision_id"], "label": ACTION_LABEL,
                 "href": f"/sites/{site_code}/actions/{aid}/verification" if ok else None}

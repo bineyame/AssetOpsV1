@@ -179,12 +179,13 @@ def test_link_action_pending_then_linked_then_idempotent():
     r = th.ThreadRegistry(reg)
     s = src()
     action = uuid4()
-    assert r.link_action("MINI_TRIAL", action, s.finding_id) == th.PENDING_PLACEMENT and not reg.links
+    origin = th.Origin(th.ORIGIN_FINDING, s.finding_id)  # CH-9b1: the port takes the typed origin
+    assert r.link_action("MINI_TRIAL", action, origin) == th.PENDING_PLACEMENT and not reg.links
     r.place_all([s])
-    assert r.link_action("MINI_TRIAL", action, s.finding_id) == th.LINKED
-    assert r.link_action("MINI_TRIAL", action, s.finding_id) == th.ALREADY_LINKED and len(reg.links) == 1
+    assert r.link_action("MINI_TRIAL", action, origin) == th.LINKED
+    assert r.link_action("MINI_TRIAL", action, origin) == th.ALREADY_LINKED and len(reg.links) == 1
     with pytest.raises(ValueError):
-        r.link_action("OTHER", action, s.finding_id)
+        r.link_action("OTHER", action, origin)
 
 
 def test_lookup_rows_reduce_to_findings_and_actions():

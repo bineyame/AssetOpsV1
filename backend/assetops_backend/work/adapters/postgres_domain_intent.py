@@ -36,7 +36,9 @@ PinOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime], "dict[
 EvBasisOf = Callable[[Connection, UUID, UUID, str, dict[str, Any], datetime, str], "dict[str, Any] | None"]
 
 _ACTION_COLS = ("CAST(id AS text) AS id, action_no, action_code, domain, CAST(origin_finding_id AS text) AS "
-                "origin_finding_id, CAST(origin_finding_revision_id AS text) AS origin_finding_revision_id, title, "
+                "origin_finding_id, CAST(origin_finding_revision_id AS text) AS origin_finding_revision_id, "
+                "CAST(origin_opportunity_id AS text) AS origin_opportunity_id, "
+                "CAST(origin_opportunity_revision_id AS text) AS origin_opportunity_revision_id, title, "
                 "owner_label, due_at, raised_at, recorded_at, actor_kind, actor_id, attestation, idempotency_key, "
                 "payload_sha256")
 _INTENT_COLS = ("CAST(id AS text) AS id, CAST(action_id AS text) AS action_id, CAST(supersedes_id AS text) AS "
@@ -115,7 +117,26 @@ class _DomainTx:
     def next_action_no(self) -> int:
         return int(self._c.execute(text("SELECT nextval('action_code_seq')")).scalar_one())
 
+    def opportunity_revision_selected(self, opportunity_id: str, revision_id: str) -> bool:
+        """CH-9b1: that study revision of this scoped opportunity exists by `command_now` and is its selected head
+        (the latest `mini_opportunity_selection` by `command_now`)."""
+        return self._c.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM mini_opportunity_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+            "AND r.opportunity_id = :o AND r.id = :r AND r.created_at <= :now AND r.id = (SELECT x.revision_id "
+            "FROM mini_opportunity_selection x WHERE x.tenant_id = :t AND x.opportunity_id = :o "
+            "AND x.selected_at <= :now ORDER BY x.selected_at DESC, x.seq DESC LIMIT 1))"),
+            self._p(o=opportunity_id, r=revision_id)).scalar_one()
+
     def insert_action(self, row: dict[str, Any]) -> None:
+        if row.get("origin_opportunity_id") is not None:
+            self._c.execute(text(
+                "INSERT INTO domain_action (id, tenant_id, site_id, action_no, action_code, domain, "
+                "origin_opportunity_id, origin_opportunity_revision_id, title, owner_label, due_at, raised_at, "
+                "recorded_at, actor_kind, actor_id, attestation, idempotency_key, payload_sha256) VALUES (:id, :t, "
+                ":s, :action_no, :action_code, :domain, :origin_opportunity_id, :origin_opportunity_revision_id, "
+                ":title, :owner_label, :due_at, :raised_at, :now, :actor_kind, :actor_id, :attestation, "
+                ":idempotency_key, :payload_sha256)"), self._p(**row))
+            return
         self._c.execute(text(
             "INSERT INTO domain_action (id, tenant_id, site_id, action_no, action_code, domain, origin_finding_id, "
             "origin_finding_revision_id, title, owner_label, due_at, raised_at, recorded_at, actor_kind, actor_id, "
