@@ -85,8 +85,8 @@ either (the clone run is CH-6a3's).
 - **Guards**, run one at a time:
   - A (`check-architecture.ps1`): passed. Its first run failed on `headroom_signal_open(`, because the `open\(` storage
     pattern matched; the function was renamed `headroom_signal_on`.
-  - N: passed. M scan and fixtures: exit 0. V (mock-deviation labels and client vocabulary): exit 0. L (v69 ledger):
-    valid. Chain coherence: 103 passed. D (frontend hard-wiring ratchet): passed. W: see below.
+  - N: passed. W (`check-agent-workflow.ps1`): passed. M scan and fixtures: exit 0. V (mock-deviation labels and client vocabulary): exit 0. L (v69 ledger):
+    valid. Chain coherence: 103 passed. D (frontend hard-wiring ratchet): passed.
 
 ## Known deviations (for the Architect)
 
