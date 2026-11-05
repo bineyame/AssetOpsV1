@@ -200,3 +200,54 @@ readings yet" becomes "31 of the last 31 ..." on every Kobo board and board summ
 - Portfolio unit copy "kW over N daylight hours" (vs v69 "kW at midday"); "1 daylight hour" in both.
 - F1 (every Kobo day NO_DATA, claims "Not known yet") and F2 (two headroom ranges) before any merge.
 - USER_REVIEW_REQUIRED: per the task file; W1-style walkthrough is deferred (owner rule).
+
+## Fix round CH9-R4 (builder 8; commits `e568e0354` F1, `c61be3a73` F2, `96f10df3e` L2m; branch NOT yet merged with main)
+- **F1.** `mini_depth/projection.py` `_service` stores each row's `unserved_kwh` (null unless SUPPORTED);
+  `store.py` `MODEL_VERSIONS["service"] = "mini-service/2"` (others `/1`). Readers of the version: `store.py:215`
+  reuse key, `projection.py:214,232`, test `test_w402_projection.py` (updated per domain). `chain/measure_impls.py`
+  `CriticalServed` reads only the one CRITICAL row: exactly one, SUPPORTED, `unserved_kwh` stated (a `/1` row has no
+  key -> uncovered); served = `delivered_kw` x 1 h, demand = served + unserved, covered = row coverage minus gaps; no
+  card read. Migration `0047_mini_service_v2` (on 0046): enqueue only, `mini_enqueue_hour(..,'mini_service',..,NULL,
+  now())` for each hour whose selected service head is `/1`; cause NULL = the `mini_enqueue_configuration` convention;
+  downgrade no-op. **Numbering: CH-5c merged `0047_chain_response` on 0044 first, so CH-9 must re-point (see handoff).**
+- Tests: L0 `test_ch9_measures.py` truth table on the real polish row shape (key case CRITICAL SUPPORTED + UNCLASSIFIED
+  UNKNOWN/no request counted; LIMITED, UNKNOWN, two/no CRITICAL, `/1`, unstated -> uncovered; gap -> half hour;
+  demand = served + unserved) 7 passed; L0 `test_w402_projection.py` 8 passed (new `/2` row test). L2
+  `test_ch9_service_v2_postgres.py` 2 passed (0047 enqueues only the `/1` service hour, NULL cause; drained -> `/2` head;
+  `critical_served` COMPLETE over 24 `/2` hours with an unrequested UNCLASSIFIED row, real Postgres reader);
+  `test_ch9_daylight_postgres.py` 6 passed (head assertions now 0047). L2m `test_md0_mechanism_postgres.py`
+  kobo_grades (now also asserts `critical_served` COMPLETE on every delivered day, NO_DATA/PENDING on GAP-K7) and the F2
+  test: passed; `test_w402_mini_stage_postgres.py` 3 passed.
+- **F2.** `site_outcomes/mini.py`: new port `MiniPorts.opportunity` = `s.threads.opportunity_threads(t,[sid],lo,hi,
+  known_at)` (`read.py`), the Portfolio's CH-4 read, over the board's renewable five days. Grow headline figure, short
+  value and `SIGNAL:PRODUCTIVE_USE_HEADROOM` read that study; `renewable.cards.headroom_kw/eligible_days` reads removed
+  from `compose`. The "Productive use" contributor keeps the renewable page's own day counts (read inside `_grow`).
+  Owned test changes: fake `opportunity` port in `test_out_b2_mini.py` (mirrors the fake cards), fake thread port in
+  `test_ch5a1_board_contract.py` (goldens unchanged), study on the `test_ch5a2_contract.py` item and its regenerated
+  `estate_week_2026-10-25.json` (+ the item's `study` key only). New L0 `test_walk1_5_solar_window.py`: study 2-8 vs
+  per-hour 2-20 -> headline "2–8"; no study -> no headline/signal. 339 L0 passed.
+  Renewable page per-hour card label (`MiniPerformance.tsx:593`): **"Usable headroom"**, note "After retained margin
+  and service checks" - it names the hour's physical headroom, not the opportunity; nothing to report.
+- **F3.** The 4 `read.mini_depth` calls: (renewable, 5-day bounds), (fuel, noon hour), (service, noon hour), (backup,
+  noon hour) - distinct; perf probe `max_per_key 1`. New `read.opportunity` 1 call, 13-87 ms.
+- **L3 polish** (`ch9r4`, dropped): create+migrate (0047 enqueued 165 service jobs), backfill a 179/b 9/c 3/d 6, **17
+  settles** (10 mini jobs per tick, CH-1b bound unchanged, ~59 s each) -> 165 `/2` heads, 0 pending, dirty 0. Collect
+  85 x 200; check `expected-today.json`: COH-2 2/2, COH-7 8/8 expected, **COH-17 0, every other rule 0, 0 new**,
+  self-check 10 pass. Kobo day windows (8 story days): `critical_served` **PARTIAL** on every one (8/24 h, as Q6), but
+  the **day grade is LOW, not PARTIAL**: `daylight_headroom_kw` is LOW on those days (pre-existing from u2, also in
+  builder 7's B); A was PARTIAL. Counts: Kobo S c0/l1/p0, week l3/p0/n4, month l8/p0/n23 (A p1; p3/n4; p8/n23); claim
+  texts and `count_basis` unchanged (CHECKED_DAYS). Reported, not adapted.
+- **L3m MD-0** (templates rebuilt `tpl_db4dbb60` 3 parts seed 1071 s, `tplc_db4dbb60` 4 parts): states 65 x 200, every
+  COH 0, COH-17 0; built non-gap days COMPLETE (c1 S, c4/n3 week, c10/n21 month = A), 25 Oct gap NO_DATA; count_basis
+  and texts = A. Close 77 x 200, COH-17 0, every built day COMPLETE (c14 month = A); **COH-6 x4 expected entries
+  (MD0b-R:A2, owner CH-6a) now RESOLVED** - the board reads the study, so the board/lens disagreement is gone. The
+  entries are left in `expected-mechanism.json` for the Architect/CH-6a to retire.
+- **F2 on MD-0 states:** summary `short_value` "2–8 kW unused" (B7: "2–20"), month headline "2–8 kW of daytime solar
+  unused", study value line "2–8 kW over 12 daylight hours on every eligible day", Portfolio headroom {2, 8} - S, week
+  and month. Close: no opportunity anywhere. Polish: Portfolio FOUND with null headroom, no kW summary row.
+- **Perf** (`kobo_board_31oct`, branch clone, 5 runs): cold median 4428 ms, warm 3053 ms (B7 B: ~5115/~3385; main A
+  ~4460/~2900); `mini_depth` ~930-1185 ms.
+- **Guards** (run individually; `check-all` exceeds the 600 s foreground cap): architecture PASS (needs
+  `ASSETOPS_GUARD_PYTHON`), navigation, agent workflow, dependency registry, delivery, mock gaps, missing-claim scan +
+  fixtures, evidence width, mock deviation/V, screen ledger, chain coherence, event register: all exit 0. **Estate guard
+  self-tests not run** (~870 s; split with `-k` next).
