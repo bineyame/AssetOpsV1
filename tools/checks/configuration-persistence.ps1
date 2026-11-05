@@ -923,6 +923,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # version never evicts another's rows. Each shape keeps one owner statement (anti-vacuity below).
     $responseWriter = "$backendRoot/chain/adapters/postgres_response_store.py"
     $responseTables = @('chain_response')
+    $changeLogTable = 'chain_input_change'
+    $changeLogMigration = 'backend/migrations/versions/0047_chain_response.py'
+    $changeLogTruncateMigration = 'backend/migrations/versions/0048_chain_response_expiry.py'
     $responseShapes = [ordered]@{
         'chain_response insert' = ('(?i)^INSERT\s+INTO\s+chain_response\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*' +
             'ON\s+CONFLICT\s*\(\s*route\s*,\s*request_key\s*,\s*watermark\s*,\s*code_version\s*\)\s*DO\s+NOTHING\s*;?\s*$')
@@ -1395,6 +1398,11 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $responseWriter writes response table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                # CH-5c2 (CH5c-R7 L4): the W2 change log is written only by the migration 0047 triggers.
+                if ($null -ne $target -and $target -eq $changeLogTable) {
+                    $failures.Add(("The chain change log '$changeLogTable' is written only by the migration 0047 " +
+                        "triggers; no runtime module writes it; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($null -ne $target -and $eventTables -contains $target -and $module.Path -ne $eventWriter) {
                     if ($target -eq 'event_outbox') {
                         $failures.Add(("The event outbox is written only by the migration 0044 triggers and the event " +
@@ -1675,6 +1683,19 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($extractorRan -and $eventShapesSeen[$shape] -lt 1) {
             $failures.Add(("Rule 8 found no $shape statement in $eventWriter, so the declared event-store statement " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # CH-5c2 (CH5c-R7 L4): chain_input_change is trigger-written, so its migrations are read on their own: 0047 holds
+    # the trigger INSERT INTO chain_input_change and its ledger_append_only() immutability trigger, and 0048 the
+    # BEFORE TRUNCATE refusal (anti-vacuity: the no-runtime-writer rule above means nothing without the triggers).
+    foreach ($pair in @(@($changeLogMigration, '(?i)\bINSERT\s+INTO\s+chain_input_change\s*\(', 'the trigger INSERT INTO chain_input_change'),
+                        @($changeLogMigration, '(?i)BEFORE\s+UPDATE\s+OR\s+DELETE\s+ON\s+chain_input_change', 'the append-only trigger'),
+                        @($changeLogTruncateMigration, '(?i)BEFORE\s+TRUNCATE\s+ON\s+chain_input_change', 'the BEFORE TRUNCATE refusal'))) {
+        if (-not (Test-Path -LiteralPath $pair[0] -PathType Leaf)) {
+            $failures.Add("Rule 8 declares change-log migration '$($pair[0])', which does not exist; update the check.") | Out-Null
+        } elseif ((Get-Content -LiteralPath $pair[0] -Raw) -notmatch $pair[1]) {
+            $failures.Add(("Rule 8 found no $($pair[2]) in $($pair[0]), so the trigger-only change-log check is vacuous. " +
+                "Update the check, do not delete it.")) | Out-Null
         }
     }
     # CH-1b: event_outbox is trigger-written, so its migration is read on its own (comments and the docstring removed):
