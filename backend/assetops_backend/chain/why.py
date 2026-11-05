@@ -224,6 +224,40 @@ def trace(x: SiteTraceInput) -> Trace:
     return Trace(text, nodes, unmatched)
 
 
+def site_trace(req: Any, ref: Any, *, category: str, board: Mapping[str, Any], facts: DayFacts,
+               site_measures: Sequence[str], clean_measures: Mapping[str, Sequence[str]],
+               verification: Any) -> Trace:
+    """The route's one call (`chain_api.py`): the Site's thread history through the board's window
+    (`site_chain.threads_through`, read on the board day at the window's cutoff), their Actions, one `trace_facts`
+    read for their Findings, then `trace`. `req` is the request's `ChainRequest` (its thread read is the Site chain's
+    memoised one); `verification(rows, thread_ids)` is the route's Action verification read."""
+    from assetops_backend.chain import site_chain
+    from assetops_backend.chain.read import window_day
+
+    w = board["window"]
+    lo, hi = _instant(w["from"]), _instant(w["to"])
+    cutoff = _instant(w["known_at"])
+    rows = req.threads(ref.site_id)
+    threads = site_chain.threads_through(rows, site=ref.site_code, domain=ref.domain, tz=ref.timezone, hi=hi,
+                                         day=window_day(lo, hi, ref.timezone), cutoff=cutoff)
+    related = related_threads(threads, category)
+    ids = {t["id"] for t in related}
+    actions = site_chain.actions_of(rows, ids, site=ref.site_code, tz=ref.timezone, cutoff=cutoff,
+                                    verification=verification(rows, ids))
+    fids = [o["finding_id"] for t in related for o in t.get("occurrences") or () if o.get("finding_id")]
+    row = next((r for r in board["rows"] if r["category"] == category), {})
+    return trace(SiteTraceInput(
+        site_code=ref.site_code, site_name=ref.site_name or ref.site_code, domain=ref.domain, category=category,
+        row=row, facts=facts, site_measures=tuple(site_measures), threads=related, actions=actions,
+        clean_measures=clean_measures, trace_facts=req.trace_facts(ref.site_id, fids)))
+
+
+def _instant(text: Any) -> Any:
+    from datetime import datetime
+
+    return None if text is None else datetime.fromisoformat(str(text).replace("Z", "+00:00"))
+
+
 def estate_text(category: str, sites: Sequence[tuple[str, Trace]]) -> dict[str, Any]:
     """CH5b2-R Q9: the estate text over the per-Site traces (Site order). No money is summed (design A6)."""
     n = len(sites)

@@ -175,17 +175,14 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         return {"board": board, "window": w, "req": req, "facts": facts, "threads": threads, "actions": actions}
 
     def site_trace(ref: SiteRef, parts: dict[str, Any], category: str) -> why.Trace:
-        row = next((r for r in parts["board"]["rows"] if r["category"] == category), {})
-        related = why.related_threads(parts["threads"], category)
-        fids = [o["finding_id"] for t in related for o in t.get("occurrences") or () if o.get("finding_id")]
+        """`chain.why.site_trace` over the Site chain's reads (its thread history, Actions and `trace_facts`)."""
+        req = parts["req"]
         try:
-            facts = parts["req"].trace_facts(ref.site_id, fids)
+            return why.site_trace(req, ref, category=category, board=parts["board"], facts=parts["facts"],
+                                  site_measures=_measures(ref), clean_measures=clean_measures(),
+                                  verification=lambda rows, ids: _verification(req, ref, rows, ids))
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error
-        return why.trace(why.SiteTraceInput(
-            site_code=ref.site_code, site_name=ref.site_name or ref.site_code, domain=ref.domain, category=category,
-            row=row, facts=parts["facts"], site_measures=_measures(ref), threads=parts["threads"],
-            actions=parts["actions"], clean_measures=clean_measures(), trace_facts=facts))
 
     @router.get(SITE_CHAIN_ROUTE)
     def site_chain_route(site_code: str, request: Request, response: Response) -> Any:
