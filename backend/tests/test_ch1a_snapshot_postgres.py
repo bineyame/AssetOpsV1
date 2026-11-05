@@ -170,7 +170,9 @@ def test_noon_headroom_real_adapter_and_grade_counts_many(store, engine) -> None
         assert len(out) == 5 and all(w.written for w in out)
         for w in out:
             r = w.row
-            assert (r.subject_kind, r.subject_ref, r.required_seconds) == ("SITE", "SITE", 3600)
+            # CH-9 owned test change (CH9-R2): the measure grades the declared operating day (24 h for this Site,
+            # as `w402._dark_hours` seeds it), not the one midday hour.
+            assert (r.subject_kind, r.subject_ref, r.required_seconds) == ("SITE", "SITE", 24 * 3600)
             assert r.grade in ("COMPLETE", "PARTIAL", "LOW"), r
             assert r.value["decision"] in ("ELIGIBLE", "EXCLUDED") and r.money is None
             assert r.value["low_kw"] is not None and r.value["high_kw"] is not None
