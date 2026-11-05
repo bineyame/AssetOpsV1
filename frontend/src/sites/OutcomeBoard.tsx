@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Link } from "react-router-dom";
+
+import { ExplainerDialog } from "../blocks/Dialog";
+import { EvidenceTrace, WhyButton } from "../blocks/EvidenceTrace";
+import { OutcomeRowHead } from "../blocks/OutcomeRow";
+import { defaultChainClient, type ChainClient } from "./chainClient";
 
 import { OutcomeGlyph, type OutcomeGlyphName } from "./componentIcons";
 import { DataTable } from "../ui";
@@ -139,7 +144,9 @@ function ItemList({
   );
 }
 
-function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "withheld" }) {
+type OnWhy = (row: OutcomeBoardRow, button: HTMLButtonElement) => void;
+
+function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolean | "withheld"; onWhy?: OnWhy }) {
   const data = { "data-outcome-row": row.category, "data-outcome-state": row.state };
   if (row.state === "NOT_MEASURED") {
     return (
@@ -166,7 +173,11 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
             {row.potential.label}
           </span>
         ) : null}
-        <span className="ob-head">{headline}</span>
+        {/* CH-5b3: the value and "Why?" (every row but NOT_MEASURED, CH5b3-R Q6); MD-CH5b-2/4 in OutcomeRow. */}
+        <OutcomeRowHead
+          headline={headline}
+          why={onWhy ? <WhyButton label={row.label} onOpen={(button) => onWhy(row, button)} /> : null}
+        />
         <span className="ob-counts" data-outcome-counts>
           {countsText(row.counts.issues, row.counts.in_hand, gaps)}
         </span>
@@ -238,85 +249,6 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
   );
 }
 
-const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-/**
- * The outcome explainer shell: a native `<dialog>`, modal when supported; Tab is trapped inside, Escape closes and
- * focus returns to the opener. Shared by the board and (OUT-C U5) the early-warning list.
- */
-export function ExplainerDialog({
-  title,
-  titleId,
-  onClose,
-  opener,
-  marker,
-  children,
-}: {
-  title: string;
-  titleId: string;
-  onClose: () => void;
-  opener: HTMLButtonElement | null;
-  marker: string;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    if (dialog !== null && typeof dialog.showModal === "function" && !dialog.open) {
-      try {
-        dialog.showModal();
-      } catch {
-        dialog.setAttribute("open", "");
-      }
-    } else if (dialog !== null && !dialog.open) {
-      dialog.setAttribute("open", "");
-    }
-    closeRef.current?.focus();
-    return () => opener?.focus();
-  }, [opener]);
-  const onKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      onClose();
-      return;
-    }
-    if (event.key !== "Tab" || ref.current === null) return;
-    const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE));
-    if (items.length === 0) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
-  return (
-    <dialog
-      ref={ref}
-      className="ob-dialog"
-      aria-labelledby={titleId}
-      onKeyDown={onKeyDown}
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
-      {...{ [marker]: "" }}
-    >
-      <div className="ob-dialog-head">
-        <h2 id={titleId}>{title}</h2>
-        <button type="button" ref={closeRef} className="ob-dialog-close" onClick={onClose} aria-label="Close">
-          ×
-        </button>
-      </div>
-      {children}
-    </dialog>
-  );
-}
-
 /** The board explainer (mock `explainBoard`). */
 function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose: () => void; opener: HTMLButtonElement | null }) {
   return (
@@ -352,7 +284,7 @@ function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose
   );
 }
 
-function OutcomeBoardView({ body }: { body: OutcomeBoardBody }) {
+function OutcomeBoardView({ body, onWhy }: { body: OutcomeBoardBody; onWhy?: OnWhy }) {
   return (
     <>
       {body.read_state === "PARTIAL" ? (
@@ -361,7 +293,12 @@ function OutcomeBoardView({ body }: { body: OutcomeBoardBody }) {
         </p>
       ) : null}
       {body.rows.map((row) => (
-        <Row key={row.category} row={row} gaps={body.finding_gaps ? (body.finding_gaps.withheld === true ? "withheld" : true) : false} />
+        <Row
+          key={row.category}
+          row={row}
+          gaps={body.finding_gaps ? (body.finding_gaps.withheld === true ? "withheld" : true) : false}
+          onWhy={onWhy}
+        />
       ))}
       {/* IDX-GAPS (R610): the backend's note naming the days without assessed readings; never counted as none. */}
       {body.finding_gaps ? (
@@ -395,12 +332,15 @@ export function OutcomeBoard({
   siteCode,
   query,
   onRead,
+  why = defaultChainClient,
 }: {
   client: OutcomeBoardClient;
   siteCode: string;
   query: OutcomeBoardQuery;
   /** POLISH P-10 (Addendum 12 Q1): told the read once it resolves for the current key; no extra fetch. */
   onRead?: (read: OutcomeBoardRead) => void;
+  /** CH-5b3 (CH5b3-R Q2): the "Why?" chain client; the module default unless a test passes one. */
+  why?: ChainClient;
 }) {
   const key = `${siteCode}|${query.date ?? ""}|${query.from ?? ""}|${query.to ?? ""}|${query.known_at ?? ""}|${
     query.finding_id ?? ""
@@ -408,6 +348,7 @@ export function OutcomeBoard({
   const [read, setRead] = useState<{ key: string; read: OutcomeBoardRead } | null>(null);
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
+  const [whyOpen, setWhyOpen] = useState<{ row: OutcomeBoardRow; button: HTMLButtonElement } | null>(null);
   useEffect(() => {
     let live = true;
     void client.getOutcomeBoard(siteCode, query).then((r) => {
@@ -436,8 +377,17 @@ export function OutcomeBoard({
         </p>
       ) : (
         <>
-          <OutcomeBoardView body={body} />
+          <OutcomeBoardView body={body} onWhy={(row, button) => setWhyOpen({ row, button })} />
           {open ? <Explainer rows={body.rows} opener={opener.current} onClose={() => setOpen(false)} /> : null}
+          {whyOpen ? (
+            <EvidenceTrace
+              key={`${key}|${whyOpen.row.category}`}
+              label={whyOpen.row.label}
+              load={() => why.getSiteWhy(siteCode, whyOpen.row.category, query)}
+              opener={whyOpen.button}
+              onClose={() => setWhyOpen(null)}
+            />
+          ) : null}
         </>
       )}
     </section>

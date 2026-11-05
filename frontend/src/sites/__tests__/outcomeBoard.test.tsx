@@ -118,8 +118,8 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(boardMoneyText({ amount_low: "3", amount_high: "3.000", currency: null })).toBe("3.00");
     expect(boardMoneyText({ amount_low: null, amount_high: "3", currency: "USD" })).toBeNull();
     await renderBoard();
-    expect(rowEl("OPTIMIZE_COST").querySelector(".ob-head")?.textContent).toBe("12.40 to 18.75 USD exposure in this hour");
-    expect(rowEl("GROW_REVENUE").querySelector(".ob-head")?.textContent).toBe("18–20 kW of daytime solar unused");
+    expect(rowEl("OPTIMIZE_COST").querySelector(".ob-head .ob-val")?.textContent).toBe("12.40 to 18.75 USD exposure in this hour");
+    expect(rowEl("GROW_REVENUE").querySelector(".ob-head .ob-val")?.textContent).toBe("18–20 kW of daytime solar unused");
   });
 
   it("mustNotHarmPresentWithLinkAndAbsent", async () => {

@@ -2,7 +2,8 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { DataTable } from "../ui";
-import { ExplainerDialog, ISSUE_KIND } from "./OutcomeBoard";
+import { ExplainerDialog } from "../blocks/Dialog";
+import { ISSUE_KIND } from "./OutcomeBoard";
 import type { OutcomeBoardClient, OutcomeBoardQuery, OutcomeBoardRead, OutcomeWarning } from "./outcomeBoardClient";
 import { useLinkFor, type Ref } from "./chainRef";
 import "./outcomes.css";

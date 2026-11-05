@@ -91,13 +91,13 @@ describe("estate Portfolio page", () => {
     // R5: the Site-owned value is formatted from the exact selected line (outward to the minor unit); now on Optimize.
     expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("$3.31–$3.97");
     expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
-    expect(cards[1].tagName).toBe("A");
-    expect(cards[1].getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
+    expect(cards[1].querySelector("[data-portfolio-card-link]")?.tagName).toBe("A");
+    expect(cards[1].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
     // R6 / A.4: no category counts on this body, so Protect reads `Not assessed` and links to the risk root.
     expect(text(cards[2].querySelector("[data-portfolio-card-value]"))).toBe("Not assessed");
-    expect(cards[2].getAttribute("href")).toMatch(/^\/findings\/risks\?/);
-    expect(cards[0].getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
-    expect(cards[3].getAttribute("href")).toMatch(/^\/evidence\?/);
+    expect(cards[2].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/risks\?/);
+    expect(cards[0].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
+    expect(cards[3].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/evidence\?/);
     expect(text(document.body)).not.toMatch(/18–20|kW ×|\$2\.50|battery on watch|ACT-0/);
     const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
     expect(text(pulse)).toContain("Not assessed priority sites");
@@ -1107,7 +1107,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       ["PROTECT_ASSET", "/findings/risks"],
       ["ASSURE_PERFORMANCE", "/evidence"],
     ]) {
-      expect(card(key).getAttribute("href")).toBe(`${root}?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`);
+      expect(card(key).querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe(`${root}?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`);
     }
     // The w1 scan over the four cards. The Optimize detail is the existing operating-cost card's detail verbatim
     // (A6 table); its ledger category label ("Candidate operating-cost exposure") predates this slice and is the
@@ -1164,7 +1164,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     );
     expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("No value line");
     expect(card("OPTIMIZE_COST").className).toContain("neutral");
-    expect(card("OPTIMIZE_COST").getAttribute("href")).toBe(
+    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe(
       "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
     );
   });
@@ -1533,7 +1533,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(detail("GROW_REVENUE")).toBe("Depot 4.20 USD · each site's latest assessed period");
     expect(basis("GROW_REVENUE")).toBe("Declared price × measured kWh · not billed or collected");
     expect(card("GROW_REVENUE").className).toContain("green");
-    expect(card("GROW_REVENUE").getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
+    expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
     expect(scanCards()).toBe("");
   });
 
