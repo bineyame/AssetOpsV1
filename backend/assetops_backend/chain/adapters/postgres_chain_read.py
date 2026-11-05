@@ -142,7 +142,7 @@ SELECT CAST(f.id AS text) AS finding_id, CAST(r.id AS text) AS revision_id, r.re
  WHERE f.tenant_id = :t AND f.site_id = :s AND f.id = ANY(CAST(:ids AS uuid[]))
  ORDER BY f.id
 """)
-_EPOCH =datetime(1970, 1, 1, tzinfo=timezone.utc)
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _END = datetime(9999, 1, 1, tzinfo=timezone.utc)
 
 

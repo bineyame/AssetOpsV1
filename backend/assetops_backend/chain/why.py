@@ -262,6 +262,8 @@ def estate_text(category: str, sites: Sequence[tuple[str, Trace]]) -> dict[str, 
     """CH5b2-R Q9: the estate text over the per-Site traces (Site order). No money is summed (design A6)."""
     n = len(sites)
     readings = why("why.change.readings")
+    # MOCK DEVIATION (CH5b2-R Q9): the mock has one sentence per Portfolio card; the estate takes the first Site
+    # line that is not "New readings that differ", else that line.
     change = next((t.text["would_change"] for _, t in sites if t.text["would_change"] != readings), readings)
     return {"title": why("why.title", site="Portfolio", category=CATEGORY_LABEL[category]),
             "say": why("why.estate.say", category=CATEGORY_LABEL[category], n=n, s="" if n == 1 else "s"),
@@ -269,4 +271,7 @@ def estate_text(category: str, sites: Sequence[tuple[str, Trace]]) -> dict[str, 
             or [why("why.from.none")],
             "days_used": " · ".join(why("why.estate.days", site=name, days=t.text["days_used"])
                                     for name, t in sites),
-            "would_change": change, "evidence_ref": refs.estate_ref("findings"), "evidence_label": None}
+            # MOCK DEVIATION (CH5b2-R2, owner CH-5b3): the mock pf: links carry a label per category (Renewable
+            # evidence, Kobo financials, Risk findings, Estate evidence); the estate has one link, so one label.
+            "would_change": change, "evidence_ref": refs.estate_ref("findings"),
+            "evidence_label": why("why.evidence", site="Portfolio")}

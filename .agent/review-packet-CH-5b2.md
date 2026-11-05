@@ -71,3 +71,34 @@ FAIL / unverified: `tools/checks/test_estate_guard.py` (estate seam self-tests; 
 PowerShell). It did not finish inside the 10-minute cap in check-all (killed by PID, exit -1) nor in a second solo run at
 400 s (stopped). Cause not diagnosed; nothing in this slice touches the estate seam files it probes, so the claim that
 it passes on this branch is unverified. Needs a rerun on an idle machine or a main baseline comparison.
+
+## Fix round 1 (review REVISE: M1, L1, L2)
+
+CH5b2-R2 (build sheet, end of CH5b2-R) already confirms KD-3 "Critical supply served", KD-4, KD-5, KD-6.
+
+### M1 mock -> new list (§2.3). Mock source: `frontend/mockups/v70/index.html:411-438` (`WHY`, `DAYS`, `PFDAYS`); every line below is a MOCK DEVIATION (MD-CH5b-1) except where noted
+| Mock | New (`chain/vocabulary.py` `WHY_TEXT`) |
+|---|---|
+| `whyTitle`: "Kobo · Grow revenue" / "Portfolio · ..." | `why.title` "{site} · {category}" (same shape, no deviation) |
+| free `from:` sentences (e.g. "Battery below its 30% reserve on 5 of 30 days") | `why.from.measure` "{label} on {k} checked day{s}"; `why.from.finding` "{title}, seen {n} time{s} since {first}"; `why.from.action` "{code} · {label}" |
+| mock always has 2-4 `from` lines | `why.from.none` "Nothing has been recorded for this yet" (Q7) |
+| `change:` free sentence | `why.change.days` "Checking {n} more day{s}"; `.action` "An agreed action"; `.verdict` "The check after the change"; `.readings` "New readings that differ" |
+| `ev:['Evidence overview',...]` | `why.evidence` "{site} evidence →" |
+| `DAYS` "3 of 5 study days checked · 1 partly checked · 1 with too little data, not counted" | `why.days.many/partial/low` (same wording, the mock's own); `why.days.pending` " · {q} not in yet" (Q6, mock has no pending case) |
+| `DAYS` one-day "6 Oct · 7 of 8 hours checked" | `why.days.one.checked/partial/low/pending` "{d} checked / partly checked / too little data, not counted / not in yet" |
+| `PFDAYS` "Kobo: ... · Depot: ..." | `why.estate.days` "{site}: {days}" joined by " · " |
+| `pf:` say sentences | `why.estate.say` "{category} at {n} site{s}" (KD-4, Q9 otherwise branch) |
+| `pf:` from lines "Kobo: ..." | `why.estate.from` "{site}: {say}" |
+| `pf:` change (one per card) | first Site `would_change` that is not "New readings that differ" (Q9; now labelled at `why.py` estate_text) |
+| `pf:` `ev` labels 'Renewable evidence' / 'Kobo financials' / 'Risk findings' / 'Estate evidence' (differ per category) | one `why.evidence` with site "Portfolio" = "Portfolio evidence →" (new MOCK DEVIATION, owner CH-5b3; was `None`) |
+| free measure wording | `MEASURE_LABEL`: Generator time beyond need; Energy for productive use; Unused daytime solar; Critical supply served (KD-3); Chamber temperature; Backup automatic start; Energy delivered by charging |
+
+Code: estate `would_change` pick labelled MOCK DEVIATION (Q9); estate `evidence_label` now "Portfolio evidence →" with a MOCK DEVIATION comment (passes guard V).
+
+### Lows
+- L1 fixed (`_EPOCH = datetime`). L2 fixed: `_private_refusals()` adds `Cache-Control: private, no-cache` to 4xx/5xx on all five routes; asserted in `test_category_unknown_is_422`.
+- Residual, unchanged: L3 `why_trace_ms` times only `trace_facts` + `why.trace` (trace-only `threads_through`/`actions_of`/verification read outside the timer); L4 `_TRACE_FACTS` lacks the `finding_merge` exclusion; L5 trace Actions bounded by k not window end (matches board `in_hand`); L6/KD-8 "0 of 0 days checked" needs a ruling before CH-5b3. Reviewer's not-verified items (L2m rerun, W6 probe, merged-tree test, estate guard 20 min) still stand.
+- KD-5 note: amend CH-5c §8.8 #5 wording to "admission + watermark + Site set + one live-row lookup" so a 304 runs admission. Sheet not edited.
+
+Checks: `test_ch5b_why.py` + ch5a2 contract/claims, out_b4_route, ch5c_store_off, out_b2_vocabulary (guard V): see final run below.
+Final run: 195 passed (why + scoped + guard V tests); guard A PASS; guard W PASS.

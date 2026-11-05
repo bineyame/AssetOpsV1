@@ -272,6 +272,7 @@ def test_estate_why_has_a_trace_per_site_and_no_money() -> None:
 def test_category_unknown_is_422(path, params) -> None:
     r = _client().get(path, params=params)
     assert r.status_code == 422 and r.json()["detail"]["code"] == "CATEGORY_UNKNOWN", r.text
+    assert r.headers["Cache-Control"] == "private, no-cache"
 
 
 @pytest.mark.parametrize("name", sorted(ROUTES))

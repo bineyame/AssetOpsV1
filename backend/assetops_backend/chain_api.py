@@ -25,11 +25,12 @@ only) there is no ETag and no 304.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 from uuid import UUID
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf, read_scope
@@ -86,6 +87,16 @@ def _category(params: Any) -> str:
     except why.CategoryUnknown as error:
         raise _refuse(422, "CATEGORY_UNKNOWN", "'category' must be one of GROW_REVENUE, OPTIMIZE_COST, "
                                                "PROTECT_ASSET or ASSURE_PERFORMANCE.") from error
+
+
+@contextmanager
+def _private_refusals() -> Iterator[None]:
+    """4xx and 5xx refusals carry `Cache-Control` too (§2.2: every chain and why response)."""
+    try:
+        yield
+    except HTTPException as error:
+        error.headers = {**(error.headers or {}), "Cache-Control": CACHE_CONTROL}
+        raise
 
 
 def _done(out: Any, response: Response) -> Any:
@@ -186,7 +197,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
 
     @router.get(SITE_CHAIN_ROUTE)
     def site_chain_route(site_code: str, request: Request, response: Response) -> Any:
-        with perf.route(SITE_CHAIN_ROUTE, response):
+        with perf.route(SITE_CHAIN_ROUTE, response), _private_refusals():
             out = _site_chain(site_code, request)
         return _done(out, response)
 
@@ -210,7 +221,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
 
     @router.get(SITE_WHY_ROUTE)
     def site_why_route(site_code: str, request: Request, response: Response) -> Any:
-        with perf.route(SITE_WHY_ROUTE, response):
+        with perf.route(SITE_WHY_ROUTE, response), _private_refusals():
             out = _site_why(site_code, request)
         return _done(out, response)
 
@@ -234,7 +245,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
 
     @router.get(THREAD_ROUTE)
     def thread_route(site_code: str, thread_id: str, request: Request, response: Response) -> Any:
-        with perf.route(THREAD_ROUTE, response):
+        with perf.route(THREAD_ROUTE, response), _private_refusals():
             out = _thread(site_code, thread_id, request)
         return _done(out, response)
 
@@ -299,7 +310,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
 
     @router.get(ESTATE_CHAIN_ROUTE)
     def estate_chain_route(request: Request, response: Response) -> Any:
-        with perf.route(ESTATE_CHAIN_ROUTE, response):
+        with perf.route(ESTATE_CHAIN_ROUTE, response), _private_refusals():
             out = _estate_chain(request)
         return _done(out, response)
 
@@ -339,7 +350,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
 
     @router.get(ESTATE_WHY_ROUTE)
     def estate_why_route(request: Request, response: Response) -> Any:
-        with perf.route(ESTATE_WHY_ROUTE, response):
+        with perf.route(ESTATE_WHY_ROUTE, response), _private_refusals():
             out = _estate_why(request)
         return _done(out, response)
 
