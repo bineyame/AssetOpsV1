@@ -20,6 +20,7 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
 if URL:
+    import pg_harness
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head
     from test_w402_migration_postgres import mini_jobs, revision
@@ -66,7 +67,7 @@ def test_0049_enqueues_v1_service_hours_only_and_drains_to_v2(store, engine) -> 
     engine.dispose()
     command.downgrade(config, "0048_daylight_enqueue")  # 0049's downgrade is a no-op
     command.upgrade(config, "head")
-    assert head(engine) == "0049_mini_service_v2"
+    assert head(engine) == pg_harness.alembic_head()
 
     jobs = mini_jobs(engine, site_id)
     assert [(j["domain"], j["window_start"], j["window_end"], j["cause_evidence_id"], j["status"]) for j in jobs] == [
