@@ -356,13 +356,18 @@ class DaylightHours:
 NO_PV_BINDING = DaylightHours(NOON_HOURS, (), False)
 
 
+def database_now(c: Connection) -> datetime:
+    """The database clock on the caller's connection (the default `daylight_hours` cutoff of a projection)."""
+    return c.execute(text("SELECT now()")).scalar_one()
+
+
 def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, knowledge_cutoff: datetime
                    ) -> DaylightHours:
     """§9 R1 on the caller's connection: the expected hours are the Site's declared operating hours (the same
     `operating_hours` period `critical_served` grades); inside them an hour not fully covered by `pv_available_power`
     readings known at the cutoff (`received_at <= k`) is missing, and daylight hours are the covered hours with
     every value > 0. A Site with no binding overlapping the day keeps `(12,)`."""
-    from assetops_backend.chain.adapters.file_chain_config import load_operating_calendar
+    from assetops_backend.chain.composition import load_operating_calendar
     from assetops_backend.chain.grading import period_bounds
     from assetops_backend.chain.policy import PERIOD_OPERATING_HOURS
     from assetops_backend.mini_depth import rules

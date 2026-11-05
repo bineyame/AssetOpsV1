@@ -18,8 +18,6 @@ from datetime import date, datetime, time, timedelta, timezone
 from typing import Any, Sequence
 from uuid import UUID
 
-from sqlalchemy import text
-
 from assetops_backend.analytics.assessment_ports import Window
 from assetops_backend.mini_decisions.model import DecisionRefused
 from assetops_backend.mini_decisions.scenario_rules import decimal_text, physical_range
@@ -87,9 +85,9 @@ def day_heads(store: Any, c: Any, tenant_id: UUID, site_id: UUID, tz_name: str |
     missing head, so the day is missing); the `store.NO_PV_BINDING` hours for a Site with no `pv_available_power`
     binding. A day with neither daylight nor missing hours keeps the `DaylightHours.study_hours` placeholder as one
     missing head, so the study keeps five days and that day reads missing (recorded in the CH-9 packet)."""
-    from assetops_backend.mini_depth.store import daylight_hours
+    from assetops_backend.mini_depth.store import database_now, daylight_hours
 
-    known = cutoff if cutoff is not None else c.execute(text("SELECT now()")).scalar_one()
+    known = cutoff if cutoff is not None else database_now(c)
     windows: dict[date, list[Any]] = {}
     for d in days:
         found = daylight_hours(c, tenant_id, site_id, d, known)
