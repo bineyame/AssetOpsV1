@@ -28,7 +28,46 @@ MODULES_FILE = REPO / "config" / "chain" / "stored-composer-modules-v1.json"
 
 #: (module, enclosing function qualname) -> reason. Read-instant captures (CH5c2-R1 Q1, pre-flight §3) and the
 #: writers that live in a composer module but never run in a stored compose (CH5c-R7 C3 "not in compose").
-SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {}
+_CAPTURE = "read-instant capture: the snapshot's first statement, wrapped in read_scope.read_instant (Q1 §3)"
+_WRITER = "writer: runs in a tick or a POST, never in a stored compose"
+_B = "assetops_backend."
+SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
+    (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore.lease_mini_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore.fail_mini_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store",
+     "PostgresAssessmentStore.enqueue_opportunity_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store",
+     "PostgresAssessmentStore.lease_opportunity_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store",
+     "PostgresAssessmentStore.fail_opportunity_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore._window_snapshot"): _CAPTURE,
+    (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore._transaction_time"):
+        _WRITER + " (the assessment write transaction's instant)",
+    (_B + "chain.adapters.postgres_thread_sources", "PostgresThreadSources.lifecycle_inputs"): _CAPTURE,
+    (_B + "estate.adapters.postgres_estate_read", "PostgresEstateRead.read"): _CAPTURE + "; L2 clock_timestamp()",
+    (_B + "estate.adapters.postgres_evidence_money_read", "PostgresEvidenceMoneyRead.read"):
+        _CAPTURE + "; L2 clock_timestamp()",
+    (_B + "evidence.adapters.postgres_evidence_ledger", "PostgresEvidenceLedger.register_publication.work"): _WRITER,
+    (_B + "evidence.adapters.postgres_evidence_ledger", "PostgresEvidenceLedger._decision_instant"):
+        _WRITER + " (an evidence decision's instant)",
+    (_B + "financials.adapters.postgres_assumption_store", "PostgresAssumptionStore.publish.work"): _WRITER,
+    (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.append.work"): _WRITER,
+    (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.db_now"):
+        _WRITER + " (the scheduler's `now`: scheduling/tick.py, health.py)",
+    (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.record_attempt.work"): _WRITER,
+    (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.site_history.work"):
+        "not in a stored compose: the consequence history route (financials.consequence_history, not in the set)",
+    (_B + "financials.adapters.postgres_consequence_store", "_ev_attempt"): _WRITER,
+    (_B + "financials.adapters.postgres_consequence_store", "EvUnit.__init__"): _WRITER + " (EV recompute unit)",
+    (_B + "financials.adapters.postgres_consequence_store", "EvUnit.append"): _WRITER,
+    (_B + "mini_depth.read", "MiniDepthRead._readonly"): _CAPTURE,
+    (_B + "mini_depth.read", "MiniDepthRead.read"): _CAPTURE,
+    (_B + "mini_depth.store", "PostgresMiniDepthStore._now"): _WRITER + " (the mini-depth job store)",
+    (_B + "objectives.adapters.postgres_objective_store", "PostgresObjectiveStore.declare.work"): _WRITER,
+    (_B + "work.adapters.postgres_domain_action_index", "PostgresDomainActionRead.snapshot"): _CAPTURE,
+    (_B + "work.adapters.postgres_global_read", "PostgresGlobalWorkRead.snapshot"): _CAPTURE,
+    (_B + "work.adapters.postgres_work_read", "PostgresWorkRead.snapshot"): _CAPTURE,
+}
 
 #: Python clock reads allowed in composer modules: only the seam itself.
 PY_CLOCK_MODULES = frozenset({"assetops_backend.read_scope"})
@@ -60,8 +99,14 @@ def scan(source: str, module: str) -> tuple[list[str], list[tuple[str, str, int]
     py: list[str] = []
     sql: list[tuple[str, str, int]] = []
 
+    docstrings = {id(n.body[0].value) for n in ast.walk(tree)
+                  if isinstance(n, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and n.body
+                  and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+
     def visit(node: ast.AST, qual: str) -> None:
         for child in ast.iter_child_nodes(node):
+            if id(child) in docstrings:
+                continue
             name = qual
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 name = f"{qual}.{child.name}" if qual else child.name

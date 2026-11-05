@@ -36,9 +36,10 @@ from __future__ import annotations
 
 import threading
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Callable
 
+from assetops_backend import read_scope
 from assetops_backend.evidence.models import (
     AcceptedRecord,
     BasisSignal,
@@ -85,7 +86,7 @@ _RECORD_DETAIL_FIELDS = (
 
 
 def system_clock() -> str:
-    return instant_text(datetime.now(timezone.utc))
+    return instant_text(read_scope.clock())  # CH-5c2 C3: the one clock seam (a composer module)
 
 
 class IngestionInterrupted(RuntimeError):

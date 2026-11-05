@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
+from assetops_backend import read_scope
 from assetops_backend.sites.binding_alignment import finalize
 from assetops_backend.sites.ev_foundation import (
     EV_CONFIGURATION_INVALID,
@@ -58,7 +59,7 @@ Clock = Callable[[], datetime]
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return read_scope.clock()  # CH-5c2 C3: the one clock seam (a composer module)
 
 
 def _forever_after(value: datetime | None) -> datetime:
