@@ -1,0 +1,231 @@
+{
+ "expect": {
+  "breaches": [],
+  "not_measured": [
+   "snapshot_rebuild_ms_per_measure_day",
+   "tick_chain_stage_fraction",
+   "why_trace_ms"
+  ],
+  "verdict": "FAIL"
+ },
+ "note": "a not-measured budget is never a pass",
+ "record": {
+  "params": {
+   "runs": 3,
+   "source": "synthetic from review-packet-CH-5c.md stored timings",
+   "store": "on"
+  },
+  "routes": {
+   "cold_board_failure_night": {
+    "bytes": 20005,
+    "cold_ms": [
+     844,
+     854,
+     864
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     29,
+     30,
+     44
+    ]
+   },
+   "cold_chain_failure_night": {
+    "bytes": 20005,
+    "cold_ms": [
+     844,
+     854,
+     864
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     29,
+     30,
+     44
+    ]
+   },
+   "estate_chain_week": {
+    "bytes": 52072,
+    "cold_ms": [
+     501,
+     511,
+     521
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     25,
+     27,
+     33
+    ]
+   },
+   "ev_board_27oct": {
+    "bytes": 14710,
+    "cold_ms": [
+     725,
+     735,
+     745
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     43,
+     45,
+     51
+    ]
+   },
+   "ev_chain_27oct": {
+    "bytes": 14710,
+    "cold_ms": [
+     725,
+     735,
+     745
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     43,
+     45,
+     51
+    ]
+   },
+   "findings_week": {
+    "bytes": 24712,
+    "cold_ms": [
+     705,
+     715,
+     725
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     22,
+     22,
+     22
+    ]
+   },
+   "kobo_board_31oct": {
+    "bytes": 18042,
+    "cold_ms": [
+     701,
+     711,
+     721
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     28,
+     29,
+     30
+    ]
+   },
+   "kobo_chain_31oct": {
+    "bytes": 18042,
+    "cold_ms": [
+     701,
+     711,
+     721
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     28,
+     29,
+     30
+    ]
+   },
+   "portfolio_week": {
+    "bytes": 52072,
+    "cold_ms": [
+     501,
+     511,
+     521
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     25,
+     27,
+     33
+    ]
+   },
+   "summary_week": {
+    "bytes": 13964,
+    "cold_ms": [
+     708,
+     718,
+     728
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     58,
+     60,
+     66
+    ]
+   }
+  }
+ }
+}

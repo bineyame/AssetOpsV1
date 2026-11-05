@@ -1,0 +1,130 @@
+{
+ "basis": "CH-5b1 R7 seed at main 8777bc0f8: per-file counts of the PATTERNS in tools/checks/frontend-hardwiring.mjs; only shrinks (--shrink) or a hand-moved rename row with equal counts",
+ "files": {
+  "App.tsx": {
+   "api": 2
+  },
+  "estate/EstateEvidence.tsx": {
+   "href": 1
+  },
+  "estate/EstateFinancials.tsx": {
+   "href": 1
+  },
+  "estate/EstatePortfolio.tsx": {
+   "lit": 1,
+   "api": 1,
+   "href": 2
+  },
+  "estate/estateClient.ts": {
+   "lit": 3
+  },
+  "estate/findingIndex.tsx": {
+   "href": 4
+  },
+  "estate/portfolioWords.ts": {
+   "lit": 3
+  },
+  "shell/EvRunSetupFrame.tsx": {
+   "cmp": 1,
+   "lit": 2
+  },
+  "shell/RunCommitPanel.tsx": {
+   "href": 1
+  },
+  "shell/SiteAnalyticsFrames.tsx": {
+   "cmp": 27,
+   "lit": 31
+  },
+  "shell/SiteDetailFrame.tsx": {
+   "cmp": 3,
+   "lit": 3
+  },
+  "shell/SiteEvidenceFrame.tsx": {
+   "cmp": 1,
+   "lit": 1
+  },
+  "shell/SiteFoundationFrame.tsx": {
+   "lit": 4
+  },
+  "shell/SiteHealthFrames.tsx": {
+   "cmp": 3,
+   "lit": 3
+  },
+  "shell/coldScenarioChoiceClient.ts": {
+   "code": 1
+  },
+  "shell/coldSiteRoutes.tsx": {
+   "cmp": 1,
+   "lit": 1
+  },
+  "shell/evScenarioChoiceClient.ts": {
+   "code": 1
+  },
+  "shell/evSiteRoutes.tsx": {
+   "cmp": 3,
+   "lit": 3
+  },
+  "shell/simulatorLabRoutes.tsx": {
+   "api": 8
+  },
+  "sites/CapabilityReadiness.tsx": {
+   "api": 1
+  },
+  "sites/ColdAssessmentViews.tsx": {
+   "href": 1
+  },
+  "sites/ConsequenceHistory.tsx": {
+   "href": 1
+  },
+  "sites/MiniPerformance.tsx": {
+   "href": 3
+  },
+  "sites/SiteFindingEvidence.tsx": {
+   "href": 1
+  },
+  "sites/SiteFoundationChange.tsx": {
+   "cmp": 2,
+   "lit": 2
+  },
+  "sites/SiteWorkActions.tsx": {
+   "code": 1
+  },
+  "sites/assessmentAnalysis.tsx": {
+   "href": 2
+  },
+  "sites/domainActionClient.ts": {
+   "lit": 2
+  },
+  "sites/periodStrip.tsx": {
+   "href": 1
+  },
+  "sites/siteWorkCases.tsx": {
+   "cmp": 1,
+   "lit": 3,
+   "href": 2
+  },
+  "sites/sldViewModel.ts": {
+   "cmp": 1,
+   "lit": 1
+  },
+  "work/GlobalIncidents.tsx": {
+   "href": 1
+  },
+  "work/globalWorkClient.ts": {
+   "lit": 7
+  },
+  "work/globalWorkParts.tsx": {
+   "href": 1
+  },
+  "work/workRequestShared.tsx": {
+   "href": 2
+  }
+ },
+ "totals": {
+  "api": 12,
+  "href": 24,
+  "lit": 70,
+  "cmp": 43,
+  "code": 3
+ }
+}
