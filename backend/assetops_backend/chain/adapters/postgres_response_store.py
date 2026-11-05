@@ -22,7 +22,12 @@ _LOOKUP = ("SELECT body, etag FROM chain_response WHERE route = :r AND request_k
 _INSERT = ("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, body, build_ms, "
            "valid_until) VALUES (:t, :r, :k, :w, :v, :e, :b, :ms, :u) "
            "ON CONFLICT (route, request_key, watermark, code_version) "
-           "DO NOTHING")
+           "DO UPDATE SET etag = EXCLUDED.etag, body = EXCLUDED.body, build_ms = EXCLUDED.build_ms, "
+           "valid_until = EXCLUDED.valid_until, built_at = EXCLUDED.built_at "
+           "WHERE chain_response.valid_until IS NOT NULL "
+           "AND chain_response.valid_until <= greatest(clock_timestamp(), CAST(:now AS timestamptz))")
+#: CH-5c2: an expired live row (same route, key, W and version) is replaced by the re-warmed body (C5: the pre-build
+#: re-warms it within a tick); a row still valid, or historical, is kept and the insert reports nothing (L1).
 _PRUNE = ("DELETE FROM chain_response x USING (SELECT ctid, row_number() OVER (PARTITION BY route, request_key, "
           "code_version ORDER BY built_at DESC) AS n FROM chain_response) old WHERE x.ctid = old.ctid AND old.n > :keep")
 _WATERMARK = ("SELECT count(*) FROM chain_input_change WHERE (tenant_id = :t OR tenant_id IS NULL) "
@@ -76,14 +81,15 @@ class PostgresResponseRows:
             return work(_Snapshot(c))
 
     def insert(self, tenant_id: UUID, watermark: str, version: str, build_ms: int, valid_until: Any,
-               rows: Sequence[tuple[str, str, str, bytes]]) -> set[str]:
+               rows: Sequence[tuple[str, str, str, bytes]], now: Any = None) -> set[str]:
         """Store (route, request_key, etag, body) rows under one watermark, in one transaction; the routes whose
         row was inserted (L1: `ON CONFLICT DO NOTHING` reports rowcount 0 for a row already there)."""
         inserted: set[str] = set()
         with self._e().begin() as c:
             for route, key, tag, body in rows:
                 if c.execute(text(_INSERT), {"t": tenant_id, "r": route, "k": key, "w": watermark, "v": version,
-                                             "e": tag, "b": body, "ms": build_ms, "u": valid_until}).rowcount:
+                                             "e": tag, "b": body, "ms": build_ms, "u": valid_until,
+                                             "now": now}).rowcount:
                     inserted.add(route)
         return inserted
 

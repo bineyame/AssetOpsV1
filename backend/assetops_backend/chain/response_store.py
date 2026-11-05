@@ -20,6 +20,16 @@ and the response carries `ETag` = sha256(route, request_key, W, code_version). `
 the route, the tenant, the sorted admitted Site ids and the parsed request, so equivalent requests (a defaulted
 lens or limit, a board `date` against its `from`/`to`) share one key.
 
+CH-5c2 (CH5c-R7 H1, H2, M1, L1):
+
+- `W` is the DB watermark, then the admitted Sites `(id, code, timezone)`, then the file-state term `F` appended as
+  `|f:<hex>` (`chain/watermark.py`). `F` is re-read at (c): changed, the body is served and not stored (`race`).
+- A live body carries `valid_until` = min(every boundary the compose registered through `read_scope.within` /
+  `read_scope.since` later than its `at`, the earliest next local midnight over the request's Sites) - 1 s, and is a
+  miss once the clock passes it. A historical body (fixed `k`) registers nothing that can expire: NULL, never expires.
+- Any store exception after the compose serves the composed bytes as `unstored`, with no ETag and nothing stored
+  (M1). No ETag is sent on `race`, `unstored` or an insert whose `ON CONFLICT` inserted nothing (L1).
+
 The store is ON unless `ASSETOPS_RESPONSE_STORE=off` (CH-5c2); off, every request composes (the uncached probe);
 `compose` composes every request inside the compose scope and stores nothing (the W6 guard). It never changes body bytes, so it is not a `COMPOSER_ENV` setting.
 
@@ -63,8 +73,11 @@ def request_key(route: str, tenant_id: UUID, site_ids: Iterable[Any], request: M
                        "request": dict(request)})
 
 
-def etag(route: str, key: str, watermark: str, version: str) -> str:
-    return hashlib.sha256("\x00".join((route, key, watermark, version)).encode("utf-8")).hexdigest()
+def etag(route: str, key: str, watermark: str, version: str, until: datetime | None = None) -> str:
+    """CH-5c2: `valid_until` is in the tag, so the body re-warmed under the same W after an expiry never shares the
+    expired body's tag (CH-5b answers `If-None-Match` from it)."""
+    parts = (route, key, watermark, version, *((until.isoformat(),) if until is not None else ()))
+    return hashlib.sha256("\x00".join(parts).encode("utf-8")).hexdigest()
 
 
 def parsed_key(parsed: Any) -> dict[str, Any]:
@@ -154,7 +167,7 @@ class ResponseStore:
         until = valid_until(sc.boundaries, now, zones, live=req.request.get("known_at") is None)
         try:
             keys = {route: request_key(route, req.tenant_id, sites, req.request) for route in rendered}
-            tags = {route: etag(route, keys[route], w, version) for route in rendered}
+            tags = {route: etag(route, keys[route], w, version, until) for route in rendered}
             with perf.timed("store.recheck"):
                 after = self.watermark(req)  # (c) a new short transaction
             if after != w:
@@ -163,7 +176,7 @@ class ResponseStore:
             with perf.timed("store.insert"):
                 inserted = self._rows.insert(req.tenant_id, w, version, build_ms, until,
                                              [(route, keys[route], tags[route], body)
-                                              for route, body in rendered.items()])
+                                              for route, body in rendered.items()], now=now)
         except Exception as error:  # noqa: BLE001 - M1/Q10: a store failure after compose never fails the request
             _warn("stored_route_store_failed", req, error)
             return _response(rendered[req.route], None, "unstored")
