@@ -22,7 +22,7 @@ if URL:
     from test_s1_bindings_postgres import engine  # noqa: F401
 
     import pg_harness
-    from assetops_backend.chain.watermark import read_watermark
+    from assetops_backend.chain.composition import read_watermark
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -208,7 +208,7 @@ def test_flip_depends_on_the_trigger_non_vacuous(engine) -> None:  # noqa: F811
 
 def test_code_version_hashes_head_and_composer_settings(monkeypatch) -> None:
     """Q5: the alembic head and every composer setting move the code version (here, the Portfolio cursor key)."""
-    from assetops_backend.chain import watermark
+    from assetops_backend.chain.adapters import file_code_version as watermark
 
     assert watermark.alembic_head() == "0047_chain_response"
     watermark.code_version.cache_clear()

@@ -99,7 +99,7 @@ def _requests(url: str):
 def watermarks(url: str) -> dict[str, str]:
     from sqlalchemy import create_engine
 
-    from assetops_backend.chain.watermark import read_watermark
+    from assetops_backend.chain.composition import read_watermark
 
     engine = create_engine(url)
     out = {}
@@ -113,7 +113,7 @@ def watermarks(url: str) -> dict[str, str]:
 def wmtime(url: str) -> None:
     from sqlalchemy import create_engine
 
-    from assetops_backend.chain.watermark import read_watermark
+    from assetops_backend.chain.composition import read_watermark
 
     engine = create_engine(url)
     seen = {}

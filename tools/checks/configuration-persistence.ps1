@@ -917,6 +917,22 @@ function Invoke-ConfigurationPersistenceCheck {
     }
     $eventShapesSeen = @{}
     foreach ($shape in $eventShapes.Keys) { $eventShapesSeen[$shape] = 0 }
+    # CH-5c (CH5c-R6 guard fix; migration 0047): the response store is the sole runtime writer of chain_response, and it
+    # runs exactly two statement shapes: the insert-only store of a composed body (ON CONFLICT on the full natural key
+    # DO NOTHING; never an upsert) and the prune, which partitions by (route, request_key, code_version) so one code
+    # version never evicts another's rows. Each shape keeps one owner statement (anti-vacuity below).
+    $responseWriter = "$backendRoot/chain/adapters/postgres_response_store.py"
+    $responseTables = @('chain_response')
+    $responseShapes = [ordered]@{
+        'chain_response insert' = ('(?i)^INSERT\s+INTO\s+chain_response\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*' +
+            'ON\s+CONFLICT\s*\(\s*route\s*,\s*request_key\s*,\s*watermark\s*,\s*code_version\s*\)\s*DO\s+NOTHING\s*;?\s*$')
+        'chain_response per-version prune' = ('(?i)^DELETE\s+FROM\s+chain_response\s+x\s+USING\s*\(\s*SELECT\s+ctid\s*,\s*' +
+            'row_number\(\)\s+OVER\s*\(\s*PARTITION\s+BY\s+route\s*,\s*request_key\s*,\s*code_version\s+ORDER\s+BY\s+' +
+            'built_at\s+DESC\s*\)\s+AS\s+n\s+FROM\s+chain_response\s*\)\s*old\s+WHERE\s+x\.ctid\s*=\s*old\.ctid\s+' +
+            'AND\s+old\.n\s*>\s*:keep\s*;?\s*$')
+    }
+    $responseShapesSeen = @{}
+    foreach ($shape in $responseShapes.Keys) { $responseShapesSeen[$shape] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -925,7 +941,8 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter, $trialComparisonWriter)
+        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter, $trialComparisonWriter,
+        $responseWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -989,13 +1006,13 @@ function Invoke-ConfigurationPersistenceCheck {
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
         $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
-        $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0 }
+        $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0; $responseWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
         $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false
-        $eventWriter = $false }
+        $eventWriter = $false; $responseWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1361,6 +1378,23 @@ function Invoke-ConfigurationPersistenceCheck {
                         $eventShapesSeen[$eventShape]++
                     }
                 }
+                if ($module.Path -eq $responseWriter) {
+                    $responseShape = $null
+                    foreach ($shape in $responseShapes.Keys) {
+                        if ($line -match $responseShapes[$shape]) { $responseShape = $shape; break }
+                    }
+                    if ($null -eq $responseShape) {
+                        $failures.Add(("The response store runs only its two declared statements (the chain_response " +
+                            "INSERT ... ON CONFLICT (route, request_key, watermark, code_version) DO NOTHING, and the prune " +
+                            "partitioned by route, request_key, code_version); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $responseShapesSeen[$responseShape]++
+                    }
+                }
+                if ($null -ne $target -and $responseTables -contains $target -and $module.Path -ne $responseWriter) {
+                    $failures.Add(("Only $responseWriter writes response table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($null -ne $target -and $eventTables -contains $target -and $module.Path -ne $eventWriter) {
                     if ($target -eq 'event_outbox') {
                         $failures.Add(("The event outbox is written only by the migration 0044 triggers and the event " +
@@ -1628,6 +1662,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $trialComparisonTables) {
         if ($extractorRan -and $trialComparisonInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $trialComparisonWriter, so the cost-check insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($shape in $responseShapes.Keys) {
+        if ($extractorRan -and $responseShapesSeen[$shape] -lt 1) {
+            $failures.Add(("Rule 8 found no $shape statement in $responseWriter, so the declared response-store statement " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }

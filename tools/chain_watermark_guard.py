@@ -127,7 +127,7 @@ def _run(url: str, work: Path) -> dict[str, Any]:
     from sqlalchemy import create_engine, event
     from sqlalchemy.engine import Engine
 
-    from assetops_backend.chain import prebuilt
+    from assetops_backend.chain.composition import prebuilt_requests
     from demo_combined_finish import app_client
 
     captured: dict[str, list[str]] = {}
@@ -140,7 +140,7 @@ def _run(url: str, work: Path) -> dict[str, Any]:
     event.listen(Engine, "before_cursor_execute", listener)
     os.environ["ASSETOPS_RESPONSE_STORE"] = "off"  # every request composes, so its reads are captured
     client = app_client(url, work)
-    requests = prebuilt.requests()
+    requests = prebuilt_requests()
     statuses = {}
     try:
         for req in requests:

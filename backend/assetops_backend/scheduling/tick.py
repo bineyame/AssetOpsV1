@@ -296,7 +296,8 @@ def tick_perf_line(report: TickReport, limits: TickLimits, total_ms: float) -> d
         limit_ms = int(limits.tick_seconds * 1000)
         line["prebuild"] = {"elapsed_ms": elapsed, "tick_limit_ms": limit_ms,
                             "share": round(elapsed / limit_ms, 3) if isinstance(elapsed, (int, float)) else None,
-                            "states": report.prebuild.get("states"), "code": report.prebuild.get("code")}
+                            "states": report.prebuild.get("states"), "code": report.prebuild.get("code"),
+                            "code_version": report.prebuild.get("code_version")}
     return line
 
 

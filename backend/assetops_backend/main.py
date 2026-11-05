@@ -53,7 +53,7 @@ from assetops_backend.finding_api import ACCESS_BASIS, Access, build_finding_rou
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
-from assetops_backend.chain.response_store import build_response_store
+from assetops_backend.chain.composition import build_response_store
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router

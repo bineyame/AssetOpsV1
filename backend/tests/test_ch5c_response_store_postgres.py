@@ -25,7 +25,10 @@ if URL:
     from test_s1_bindings_postgres import engine  # noqa: F401
 
     from assetops_backend.chain import prebuild
+    from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
+    from assetops_backend.chain.composition import code_version
     from assetops_backend.chain.response_store import HEADER, ResponseStore, render
+    from assetops_backend.chain.watermark import SERVE_KEYS
     from assetops_backend.estate_api import build_estate_router
 
 Q = "/api/estate/findings?from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z"
@@ -54,8 +57,12 @@ def _client(engine, tenant, composer, *, stored=True, deny=()):  # noqa: F811
     app = FastAPI()
     app.include_router(build_estate_router(
         composer, lambda: tenant, access=lambda request, code: 403 if code in deny else None,
-        responses=ResponseStore(engine=engine) if stored else None))
+        responses=_store(engine) if stored else None))
     return TestClient(app)
+
+
+def _store(engine):  # noqa: F811
+    return ResponseStore(PostgresResponseRows(engine=engine), code_version)
 
 
 def _rows(engine, tenant):  # noqa: F811
@@ -144,8 +151,46 @@ def test_prune_keeps_the_latest_three_per_route_and_key(engine) -> None:  # noqa
                            "body, build_ms, built_at) VALUES (:t, :r, :k, :w, 'v', 'e', '\\x7b7d', 1, "
                            "now() + make_interval(secs => :i))"), {"t": tenant, "r": route, "k": key, "w": f"cic:{i}",
                                                                    "i": i})
-    assert ResponseStore(engine=engine).prune() >= 2
+    assert _store(engine).prune() >= 2
     assert [r.watermark for r in _rows(engine, tenant)] == ["cic:2", "cic:3", "cic:4"]
+
+
+def test_prune_keeps_each_code_version_apart(engine) -> None:  # noqa: F811
+    """CH5c-R6: version-A rows are never evicted by version-B inserts; each version keeps its own latest 3."""
+    tenant = uuid4()
+    route, key = f"/test/{tenant.hex}", "k"
+    rows = [("A", 0), ("A", 1), ("A", 2)] + [("B", 10 + i) for i in range(5)]  # B is newer than every A row
+    with engine.begin() as c:
+        for version, i in rows:
+            c.execute(text("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, "
+                           "body, build_ms, built_at) VALUES (:t, :r, :k, :w, :v, 'e', '\\x7b7d', 1, "
+                           "now() + make_interval(secs => :i))"),
+                      {"t": tenant, "r": route, "k": key, "w": f"cic:{i}", "v": version, "i": i})
+    _store(engine).prune()
+    with engine.connect() as c:
+        kept = c.execute(text("SELECT code_version, watermark FROM chain_response WHERE tenant_id = :t "
+                              "ORDER BY built_at"), {"t": tenant}).all()
+    assert [(r.code_version, r.watermark) for r in kept] == [
+        ("A", "cic:0"), ("A", "cic:1"), ("A", "cic:2"), ("B", "cic:12"), ("B", "cic:13"), ("B", "cic:14")]
+
+
+def test_a_keyless_prebuild_stores_nothing_and_reports_the_skip(engine, monkeypatch) -> None:  # noqa: F811
+    """CH5c-R6: a pre-build in a process without every serve key stores 0 rows and reports SKIPPED_NO_SERVE_ENV."""
+    for name in SERVE_KEYS:
+        monkeypatch.setenv(name, "1a" * 32)
+    monkeypatch.delenv(SERVE_KEYS[0])
+    with engine.connect() as c:
+        before = c.execute(text("SELECT count(*) FROM chain_response")).scalar_one()
+
+    class Never:
+        def get(self, path):  # a skipped pre-build sends no request
+            raise AssertionError(path)
+
+    result = prebuild.run(URL, Never())
+    with engine.connect() as c:
+        after = c.execute(text("SELECT count(*) FROM chain_response")).scalar_one()
+    assert result["code"] == "SKIPPED_NO_SERVE_ENV" and result["missing"] == [SERVE_KEYS[0]]
+    assert result["requests"] == 0 and len(result["code_version"]) == 16 and after == before
 
 
 def test_prebuild_paths_cover_every_listed_request_and_the_scope_ids() -> None:

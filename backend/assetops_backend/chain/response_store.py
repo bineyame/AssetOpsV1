@@ -22,6 +22,9 @@ lens or limit, a board `date` against its `from`/`to`) share one key.
 
 `ASSETOPS_RESPONSE_STORE=off` turns the store off (every request composes; the W6 guard and the uncached probe use
 it). It never changes body bytes, so it is not a `COMPOSER_ENV` setting.
+
+CH5c-R6: the SQL lives below the port in `chain/adapters/postgres_response_store.py` (the sole writer of
+`chain_response`); `chain.composition.build_response_store` wires it with `code_version`.
 """
 from __future__ import annotations
 
@@ -36,23 +39,11 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
-from sqlalchemy import create_engine, text
 
 from assetops_backend import perf, read_scope
-from assetops_backend.chain.watermark import code_version, read_watermark
 
 LOG = logging.getLogger("assetops.chain.response_store")
 HEADER = "X-AssetOps-Stored"  # hit | stored | race | unstored (a store failure); never body bytes
-
-_SITES = "SELECT id, site_code FROM site WHERE tenant_id = :t ORDER BY id"
-_LOOKUP = ("SELECT body, etag FROM chain_response WHERE route = :r AND request_key = :k AND watermark = :w "
-           "AND code_version = :v")
-_INSERT = ("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, body, build_ms) "
-           "VALUES (:t, :r, :k, :w, :v, :e, :b, :ms) ON CONFLICT (route, request_key, watermark, code_version) "
-           "DO NOTHING")
-_PRUNE = ("DELETE FROM chain_response x USING (SELECT ctid, row_number() OVER (PARTITION BY route, request_key "
-          "ORDER BY built_at DESC) AS n FROM chain_response) old WHERE x.ctid = old.ctid AND old.n > :keep")
-
 
 def render(body: Any) -> bytes:
     """The bytes FastAPI's `JSONResponse` would send for `body` (serialised once, served and stored as is)."""
@@ -93,44 +84,36 @@ class StoredRoute:
 
 
 class ResponseStore:
-    def __init__(self, database_url: str | None = None, *, engine: Any = None, keep: int = 3) -> None:
-        self._url, self._engine, self.keep = database_url, engine, keep
+    """`rows` is the `chain_response` port (`read(work)` runs `work(snapshot)` in one short REPEATABLE READ
+    transaction, the snapshot offering `watermark`, `sites` and `lookup`; `insert`, `prune`, `dispose`);
+    `version()` is the process's `code_version`."""
 
-    def _e(self) -> Any:
-        if self._engine is None:
-            self._engine = create_engine(self._url, pool_pre_ping=True, pool_size=2, max_overflow=2)
-        return self._engine
+    def __init__(self, rows: Any, version: Callable[[], str], *, keep: int = 3) -> None:
+        self._rows, self._version, self.keep = rows, version, keep
 
     def dispose(self) -> None:
-        if self._engine is not None and self._url is not None:
-            self._engine.dispose()
-
-    def _read(self, work: Callable[[Any], Any]) -> Any:
-        with self._e().connect().execution_options(isolation_level="REPEATABLE READ") as c, c.begin():
-            return work(c)
+        self._rows.dispose()
 
     def watermark(self, req: StoredRoute) -> str:
-        return self._read(lambda c: read_watermark(c, req.tenant_id, req.watermark_sites))
+        return self._rows.read(lambda c: c.watermark(req.tenant_id, req.watermark_sites))
 
     def serve(self, req: StoredRoute, compose: Callable[[], Mapping[str, Any]]) -> Response:
         """Serve `req.route`. `compose()` returns {route: body} for `req.route` and any sibling sub-route composed
         by the same call (the Portfolio and its scope-ids), each stored under its own key and the same W."""
-        version = code_version()
+        version = self._version()
 
         def lookup(c: Any) -> tuple[str, tuple[str, ...], Any]:
-            w = read_watermark(c, req.tenant_id, req.watermark_sites)  # (a) the first statement
+            w = c.watermark(req.tenant_id, req.watermark_sites)  # (a) the first statement
             if req.sites is not None:
                 sites = tuple(str(s) for s in req.sites)
             else:
-                rows = c.execute(text(_SITES), {"t": req.tenant_id}).all()
-                sites = tuple(str(r.id) for r in rows if req.admit is None or req.admit(r.site_code))
+                sites = tuple(i for i, code in c.sites(req.tenant_id) if req.admit is None or req.admit(code))
             key = request_key(req.route, req.tenant_id, sites, req.request)
-            row = c.execute(text(_LOOKUP), {"r": req.route, "k": key, "w": w, "v": version}).first()
-            return w, sites, row
+            return w, sites, c.lookup(req.route, key, w, version)
 
         try:
             with perf.timed("store.lookup"):
-                w, sites, row = self._read(lookup)
+                w, sites, row = self._rows.read(lookup)
         except Exception as error:  # noqa: BLE001 - the store never fails a request: compose, do not store
             LOG.warning(json.dumps({"event": "stored_route_lookup_failed", "route": req.route,
                                     "error": f"{type(error).__name__}: {error}"[:500]}))
@@ -138,7 +121,7 @@ class ResponseStore:
                 body = render(compose()[req.route])
             return Response(content=body, media_type="application/json", headers={HEADER: "unstored"})
         if row is not None:
-            return _response(bytes(row.body), row.etag, "hit")
+            return _response(row[0], row[1], "hit")
         started = time.perf_counter()
         with read_scope.fresh(req.route):  # (b) the compose memo starts after (a)
             bodies = compose()
@@ -153,10 +136,9 @@ class ResponseStore:
             return _response(rendered[req.route], tags[req.route], "race")
         state = "stored"
         try:
-            with perf.timed("store.insert"), self._e().begin() as c:
-                for route, body in rendered.items():
-                    c.execute(text(_INSERT), {"t": req.tenant_id, "r": route, "k": keys[route], "w": w, "v": version,
-                                              "e": tags[route], "b": body, "ms": build_ms})
+            with perf.timed("store.insert"):
+                self._rows.insert(req.tenant_id, w, version, build_ms,
+                                  [(route, keys[route], tags[route], body) for route, body in rendered.items()])
         except Exception as error:  # noqa: BLE001 - Q10: a store failure is logged and never fails the request
             state = "unstored"
             LOG.warning(json.dumps({"event": "stored_route_insert_failed", "route": req.route,
@@ -164,9 +146,9 @@ class ResponseStore:
         return _response(rendered[req.route], tags[req.route], state)
 
     def prune(self) -> int:
-        """Q8: keep the latest `keep` rows per (route, request_key); the pre-build calls it, never a GET."""
-        with self._e().begin() as c:
-            return c.execute(text(_PRUNE), {"keep": self.keep}).rowcount
+        """Q8 (CH5c-R6): keep the latest `keep` rows per (route, request_key, code_version); a version never evicts
+        another version's rows. The pre-build calls it, never a GET."""
+        return self._rows.prune(self.keep)
 
 
 def _response(body: bytes, tag: str, state: str) -> Response:
@@ -184,7 +166,3 @@ def finish(out: Response, response: Response) -> Response:
 
 def enabled() -> bool:
     return os.environ.get("ASSETOPS_RESPONSE_STORE", "on").strip().lower() not in ("off", "0", "false", "no")
-
-
-def build_response_store(database_url: str | None) -> ResponseStore | None:
-    return ResponseStore(database_url) if database_url and enabled() else None
