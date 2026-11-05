@@ -26,7 +26,7 @@ if URL:
     from sqlalchemy import text
     from test_s1_bindings_postgres import engine, store  # noqa: F401
     from test_w402_authored_v4_postgres import cases, ingestion, principal, snapshot
-    from test_w402_reads_postgres import CODE, DAYS, ZONE, _ingest, _midnight, _read, _reconcile, _setup
+    from test_w402_reads_postgres import CODE, DAYS, ZONE, _dark_hours, _ingest, _midnight, _read, _reconcile, _setup
 
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
     from assetops_backend.mini_decisions.model import GRANT_PREFIX, DecisionPrincipal, DecisionRefused
@@ -95,7 +95,8 @@ def mg_published(store, engine, tmp_path, capsys):
     installed, t, s = _setup(store, engine)
     doc, sha = snapshot(engine, installed.binding_set.id)
     spec, service, specs = cases.load_spec(), ingestion(), build_authored_fixture_specs()
-    for i, b in enumerate(cases.build_batches(spec, doc, sha, "positive")):
+    # CH-9 owned test change (CH9-R2 Q2): the measured dark operating hours, as `_ingest` seeds them.
+    for i, b in enumerate(cases.build_batches(spec, doc, sha, "positive", extra=_dark_hours(spec))):
         path = tmp_path / f"batch-{i}.json"
         path.write_text(b.body, encoding="utf-8")
         args = ["--site", CODE, "--fixture-id", "assetops.w4-mini-depth-cases", "--fixture-version", "1",
