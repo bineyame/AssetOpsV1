@@ -47,7 +47,7 @@ def _clear(engine, site_id) -> None:  # noqa: F811
     _replica(engine, f"DELETE FROM recompute_job WHERE site_id = '{site_id}' AND domain LIKE 'mini\\_%'")
 
 
-def test_0047_enqueues_v1_service_hours_only_and_drains_to_v2(store, engine) -> None:  # noqa: F811
+def test_0049_enqueues_v1_service_hours_only_and_drains_to_v2(store, engine) -> None:  # noqa: F811
     from alembic import command
 
     tenant_id, site_id = _installed(store, engine)

@@ -79,8 +79,10 @@ def catalog(engine) -> tuple[int, int, int, int]:  # noqa: F811
     return (
         sum(table_exists(engine, t) for t in TABLES),
         scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)),
+        # CH-5c's 0047 adds `<table>_cic_{ins,upd,del}` change-log triggers on the mini tables; those are its own
+        # contract (test_ch5c_watermark_postgres), so they are left out of this 0029 count.
         scalar(engine, "SELECT count(*) FROM pg_trigger WHERE NOT tgisinternal AND (tgname LIKE 'mini_depth_%' "
-                       "OR tgname = 'enqueue_mini_depth')"),
+                       "OR tgname = 'enqueue_mini_depth') AND tgname NOT LIKE '%\\_cic\\_%'"),
         scalar(engine, "SELECT count(*) FROM pg_constraint WHERE conname = 'mini_depth_selection_job_fk'"),
     )
 
