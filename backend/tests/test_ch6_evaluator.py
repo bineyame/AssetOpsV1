@@ -149,7 +149,8 @@ def test_no_objective_is_no_target():
 def test_earnings_partial_unscaled_and_days():
     rows = [row(7, "COMPLETE", amount="2.50"), row(8, "PARTIAL", amount="0.75"), row(9, "LOW", amount="9.00")]
     e = EV.nodes(inp(rows, hi=9, lo=7), "MG-1")["earnings"]
-    assert e.value == {"amount": "3.25", "currency": "USD"} and e.basis == "CHECKED_DAYS"
+    # CH6a3-R Q3: kWh of the counted days only (the LOW day adds neither money nor kWh); no declared price given.
+    assert e.value == {"amount": "3.25", "currency": "USD", "kwh": "20"} and e.basis == "CHECKED_DAYS"
     assert e.text == "3.25 USD over 1 of 3 days checked · 1 partly checked · not billed or collected"
 
 
@@ -217,12 +218,12 @@ def test_potential_days_from_the_study_day_grades():
     assert p.basis == "CHECKED_DAYS"
 
 
-@pytest.mark.parametrize("state", ["OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED"])
+@pytest.mark.parametrize("state", ["OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED", "ACTION_IN_HAND"])
 def test_potential_shown_in_q4_states(state):
     assert EV.nodes(inp(opportunity=item(state=state)), "MG-1")["potential"].value is not None
 
 
-@pytest.mark.parametrize("state", ["RESOLVED_MONITORING", "CLOSED", "WITHDRAWN", "ACTION_IN_HAND"])
+@pytest.mark.parametrize("state", ["RESOLVED_MONITORING", "CLOSED", "WITHDRAWN"])
 def test_potential_none_in_other_states(state):
     p = EV.nodes(inp(opportunity=item(state=state), price=PRICE), "MG-1")["potential"]
     assert (p.value, p.text, p.basis) == (None, "No potential found yet", "NOT_KNOWN")
@@ -230,7 +231,14 @@ def test_potential_none_in_other_states(state):
 
 def test_potential_none_without_a_thread_and_states_are_the_ruling():
     assert EV.nodes(inp(), "MG-1")["potential"].text == "No potential found yet"
-    assert POTENTIAL_STATES == ("OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED")
+    # CH6a3-R D2: defined by exclusion over every lifecycle state.
+    assert set(POTENTIAL_STATES) == {"OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED", "ACTION_IN_HAND"}
+
+
+def test_action_in_hand_shows_the_study_but_no_signal():
+    it = item(state="ACTION_IN_HAND")
+    assert EV.nodes(inp(opportunity=it, price=PRICE), "MG-1")["potential"].value is not None
+    assert headroom_signal_on(it) is False
 
 
 def test_ev_potential_is_the_warning_title():
@@ -287,3 +295,44 @@ def test_evaluator_is_frozen_input():
 def test_q1_a_limited_study_with_a_stored_headroom_has_no_money_line():
     p = EV.nodes(inp(opportunity=item(status="LIMITED", limit_line=LIMIT_MIXED), price=PRICE), "MG-1")["potential"]
     assert (p.text, p.value) == (LIMIT_MIXED, None)
+
+
+# ---- CH6a3-R Q3: the price basis of a money claim -------------------------------------------------------------
+
+def _priced(day, grade, amount, rev):
+    r = row(day, grade, amount=amount)
+    return r._replace(money={**r.money, "assumption_revision_id": rev}) if hasattr(r, "_replace") else         __import__("dataclasses").replace(r, money={**r.money, "assumption_revision_id": rev})
+
+
+def test_earnings_one_price_names_the_declared_price():
+    rows = [_priced(7, "COMPLETE", "2.50", "r1"), _priced(8, "COMPLETE", "2.50", "r1")]
+    e = EV.nodes(inp(rows, hi=8, lo=7, price=PRICE), "MG-1")["earnings"]
+    assert e.value["kwh"] == "20" and e.value["price"] == {"amount": "0.25", "currency": "USD"}
+    assert "price_count" not in e.value
+
+
+def test_earnings_several_prices_counts_them_and_never_names_one():
+    rows = [_priced(7, "COMPLETE", "2.50", "r1"), _priced(8, "COMPLETE", "3.00", "r2")]
+    e = EV.nodes(inp(rows, hi=8, lo=7, price=PRICE), "MG-1")["earnings"]
+    assert e.value["price_count"] == 2 and "price" not in e.value
+
+
+def test_earnings_low_day_is_not_known_with_days():
+    e = EV.nodes(inp([row(9, "LOW", amount="9.00")], hi=9, lo=9, price=PRICE), "MG-1")["earnings"]
+    assert (e.value, e.text) == (None, "Not known yet") and e.days["low"] == 1
+
+
+def test_fuel_basis_from_the_stored_consequence():
+    from assetops_backend.chain.outcomes import fuel_basis
+    head = SimpleNamespace(body={"consequence": {"quantity": {"low": "1.2", "high": "1.8", "unit": "L"},
+                                                 "price": {"value": "1.10", "currency": "USD"}}})
+    assert fuel_basis(head) == {"litres_low": "1.2", "litres_high": "1.8",
+                                "price": {"amount": "1.10", "currency": "USD"}}
+    assert fuel_basis(SimpleNamespace(body={"consequence": {"quantity": {"low": "1", "high": "2"},
+                                                            "price": {"value": None}}})) is None
+
+
+def test_site_nodes_only_for_outcomes_with_a_record_or_objective():
+    from assetops_backend.chain.outcomes import site_nodes
+    out = site_nodes(inp(), ["MG-1", "MG-4", "MG-7"])
+    assert set(out) == {"MG-1"} and out["MG-1"]["kpi"]["text"] == "No target set yet"

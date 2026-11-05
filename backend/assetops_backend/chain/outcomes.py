@@ -16,6 +16,7 @@ from typing import Any
 
 from assetops_backend.chain import vocabulary as v
 from assetops_backend.chain.grading import COMPLETE, PARTIAL
+from assetops_backend.chain.lifecycle import TRANSITIONS
 from assetops_backend.chain.reader import GradeCounts, counts
 from assetops_backend.chain.strategies import REGISTRY
 from assetops_backend.chain.strategies.base import ContributionContext, Registry
@@ -27,8 +28,17 @@ from assetops_backend.outcomes.outcome_map import (
 #: Design §4.3b: only MEASURED and RECORDED rows are authoritative for a node.
 AUTHORITY = {"MEASURED": True, "RECORDED": True, "DECLARED": False, "MODELLED": False, "EXTERNAL": False}
 COUNTED = (COMPLETE, PARTIAL)
-#: CH6a2-R Q4: the thread states whose latest study is shown as the potential (a verified change is not).
-POTENTIAL_STATES = ("OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED")
+#: CH6a3-R D2: the potential shows the thread's latest study in every thread state except these (a verified or
+#: withdrawn study is not the latest evidence). Defined by exclusion so a state cannot be left out again.
+POTENTIAL_EXCLUDED = ("RESOLVED_MONITORING", "CLOSED", "WITHDRAWN")
+#: Every thread state of `chain/lifecycle.py` `TRANSITIONS` (sources and targets) not in `POTENTIAL_EXCLUDED`.
+POTENTIAL_STATES = tuple(sorted({s for (f, _), t in TRANSITIONS.items() for s in (f, t) if s}
+                                - set(POTENTIAL_EXCLUDED)))
+
+
+def potential_shown(item: Mapping[str, Any] | None) -> bool:
+    """CH6a3-R D2/Q5: the headroom study (the Potential part and the Grow headroom words) is shown for this thread."""
+    return bool(item) and bool(item.get("state")) and item.get("state") not in POTENTIAL_EXCLUDED
 #: R13: the `SIGNAL:PRODUCTIVE_USE_HEADROOM` status signal is open exactly in these thread states.
 SIGNAL_OPEN_STATES = ("OPEN", "RECURRED")
 #: CH6a2-R Q2: an objective measure with no `kpi` record whose composer Reading is computed from one stored chain
@@ -173,12 +183,14 @@ class OutcomeEvaluator:
             # `consequence.display`), not computed from `avoidable_gen_min` rows, so it has no days: NOT_KNOWN.
             head = inp.money_heads.get(inp.lead_findings.get(name, ""))
             e = strategy.effect(ContributionContext(rec, money_head=head))
-            return v.money_claim(label, e.money, None, e.reason)
+            claim = v.money_claim(label, e.money, None, e.reason)
+            return claim if not e.money else _with(claim, fuel_basis(head))
         lo, hi = inp.window
         measure = (rec.money or {}).get("measure") or name
         rows = self._rows(inp, measure, lo, hi)
         e = strategy.effect(ContributionContext(rec, day_rows=rows))
-        return v.money_claim(label, e.money, counts(rows, lo, hi, [measure]), e.reason)
+        claim = v.money_claim(label, e.money, counts(rows, lo, hi, [measure]), e.reason)
+        return claim if not e.money else _with(claim, energy_basis(rows, inp.price))
 
     # ---- A3.3 potential -----------------------------------------------------------------------------------------
 
@@ -194,7 +206,7 @@ class OutcomeEvaluator:
             e = strategy.effect(ContributionContext(rec, title=None if w is None else w.title))
             return v.potential_claim(rec.driver, None, None, [e.title] if e.title else [])
         item = inp.opportunity
-        if not item or item.get("state") not in POTENTIAL_STATES:
+        if not potential_shown(item):
             return v.potential_claim(rec.driver, None, None, [])          # CH6a2-R Q4
         study = item.get("study") or {}
         days = self._study_days(study)
@@ -230,6 +242,56 @@ class OutcomeEvaluator:
     def nodes(self, inp: NodeInputs, outcome_key: str) -> dict[str, v.Claim | None]:
         return {"kpi": self._kpi(inp, outcome_key), "earnings": self._earnings(inp, outcome_key),
                 "potential": self._potential(inp, outcome_key)}
+
+
+# ---- CH6a3-R Q3: the price basis of a money claim ("Why?" names it) ------------------------------------------
+
+def _with(claim: v.Claim, extra: Mapping[str, Any] | None) -> v.Claim:
+    return claim if not extra else replace(claim, value={**claim.value, **extra})
+
+
+def energy_basis(rows: tuple[Any, ...], price: Mapping[str, Any] | None) -> dict[str, Any]:
+    """`kwh` = the counted days' stored kWh (the rows the earnings sum adds); `price` = the declared price when the
+    counted days carry one price revision, else `price_count` = the number of declared prices (never omitted)."""
+    grades = day_grades(rows)
+    counted = [r for r in rows if grades.get(r.local_day) in COUNTED and r.grade in COUNTED
+               and r.money and r.money.get("amount") is not None]
+    kwh = sum((Decimal(str(r.value["kwh"])) for r in counted if r.value and r.value.get("kwh") is not None),
+              Decimal(0))
+    revs: set[str] = set()
+    for r in counted:
+        one = r.money.get("assumption_revision_id")
+        revs.update([one] if one else (r.money.get("tariff_revision_ids") or ()))
+    out: dict[str, Any] = {"kwh": str(kwh)}
+    if len(revs) > 1:
+        out["price_count"] = len(revs)
+    elif price and price.get("amount") is not None:
+        out["price"] = {"amount": str(price["amount"]), "currency": price.get("currency")}
+    return out
+
+
+def fuel_basis(head: Any) -> dict[str, Any] | None:
+    """MG-2: the stored consequence's litres (`quantity` low/high, unit L) and its one declared fuel price
+    (`financials/consequence_read.py`). None (no line) when the body carries no price."""
+    cons = ((getattr(head, "body", None) or {}).get("consequence")) or {}
+    q, p = cons.get("quantity") or {}, cons.get("price") or {}
+    if q.get("low") is None or q.get("high") is None or p.get("value") is None:
+        return None
+    return {"litres_low": str(q["low"]), "litres_high": str(q["high"]),
+            "price": {"amount": str(p["value"]), "currency": p.get("currency")}}
+
+
+def has_node(outcome_key: str, objectives: tuple[ObjectiveFact, ...]) -> bool:
+    """CH6a3-R Q1: an outcome carries nodes when it has an objective or any kpi/earnings/potential record."""
+    return any(o.outcome_key == outcome_key for o in objectives) or any(
+        r.outcome == outcome_key and r.node in (NODE_KPI, NODE_EARNINGS, NODE_POTENTIAL) for r in CONTRIBUTIONS)
+
+
+def site_nodes(inp: NodeInputs, keys: Any) -> dict[str, dict[str, Any]]:
+    """The composers' one call: per outcome key with nodes, the claims as JSON (`SiteFacts.nodes`)."""
+    ev = OutcomeEvaluator()
+    return {k: {n: None if c is None else c.to_json() for n, c in ev.nodes(inp, k).items()}
+            for k in keys if has_node(k, inp.objectives)}
 
 
 @dataclass(frozen=True)

@@ -180,4 +180,7 @@ def outcomes_of(board_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]
     """The board composition's rows (`assemble(facts)`), with their link Refs and `thread_lines` (§B1)."""
     return [{"category": r["category"], "state": r["state"], "state_label": r["state_label"],
              "headline": r.get("headline"), "thread_lines": list(r.get("thread_lines") or ()),
-             "refs": _row_refs(r)} for r in board_rows]
+             "refs": _row_refs(r),
+             # CH-6a3 §A5: the row's node claims, copied (absent on a row built before CH-6a3 -> null nodes).
+             "nodes": dict(r.get("nodes") or {"kpi": None, "earnings": None, "potential": None}),
+             "days_line": r.get("days_line"), "target_note": r.get("target_note")} for r in board_rows]

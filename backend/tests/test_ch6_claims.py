@@ -51,6 +51,7 @@ A4 = {
     "days_line.partial": " · {p} partly checked",
     "days_line.low": " · {n} with too little data, not counted",
     "days_line.no_data_one": "No readings on {day}",
+    "row.target_note": "{k} of {m} outcomes have a target",
 }
 
 

@@ -243,6 +243,8 @@ NODE_TEXT = {
     "days_line.partial": " · {p} partly checked",
     "days_line.low": " · {n} with too little data, not counted",
     "days_line.no_data_one": "No readings on {day}",
+    # CH-6 R7 (design A3; MD-CH6-3: no mock place, it sits in the row subline).
+    "row.target_note": "{k} of {m} outcomes have a target",
 }
 #: §A4: the earnings labels whose money is an estimate at a declared price (MA-1 M3 suffix).
 INCOME_LABELS = ("estimated_income", "estimated_charging_income")

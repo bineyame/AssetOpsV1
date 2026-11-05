@@ -13,7 +13,7 @@ from assetops_backend.outcomes.catalogue import SiteOutcome
 from assetops_backend.outcomes.objectives import BEHIND_PACE, MET, MISSED, NOT_JUDGED, ON_PACE, TOO_EARLY
 from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS
 
-STATUS_POLICY = "outcome-status/3"
+STATUS_POLICY = "outcome-status/4"  # CH-6 R7: ON_TRACK above NO_OBJECTIVE
 
 NOT_APPLICABLE, NOT_MEASURED, UNKNOWN = "NOT_APPLICABLE", "NOT_MEASURED", "UNKNOWN"
 NEEDS_ATTENTION, WATCH, OPPORTUNITY = "NEEDS_ATTENTION", "WATCH", "OPPORTUNITY"
@@ -31,7 +31,7 @@ STATE_TONE = {  # mock outcomes.js:8; NO_OBJECTIVE gray is D2 (R543)
     NEEDS_ATTENTION: "amber", WATCH: "blue", UNKNOWN: "gray", NO_OBJECTIVE: "gray",
     NOT_MEASURED: "none", NOT_APPLICABLE: "none", ON_TRACK: "green", OPPORTUNITY: "green"}
 #: Roll-up precedence, highest first (doc §4.3).
-PRECEDENCE = (NEEDS_ATTENTION, WATCH, UNKNOWN, OPPORTUNITY, NO_OBJECTIVE, ON_TRACK, NOT_MEASURED, NOT_APPLICABLE)
+PRECEDENCE = (NEEDS_ATTENTION, WATCH, UNKNOWN, OPPORTUNITY, ON_TRACK, NO_OBJECTIVE, NOT_MEASURED, NOT_APPLICABLE)
 _RANK = {state: i for i, state in enumerate(PRECEDENCE)}
 
 LIMITED_READINESS = ("LIMITED", "NONE")
