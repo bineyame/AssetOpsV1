@@ -20,7 +20,8 @@ def test_budgets_equal_the_probe_and_design() -> None:
     assert fam == chain_perf_probe.BUDGETS
     assert {k: v["limit"] for k, v in b["other"].items()} == {
         "why_trace_ms": 50, "tick_chain_stage_fraction": 0.5, "snapshot_rebuild_ms_per_measure_day": 50}
-    assert all(v["measured_by"] is None for v in b["other"].values())
+    assert {k: v["measured_by"] is None for k, v in b["other"].items()} == {
+        "why_trace_ms": False, "tick_chain_stage_fraction": True, "snapshot_rebuild_ms_per_measure_day": True}
     assert b["other"]["why_trace_ms"]["owner"] == "CH-5b2"
 
 

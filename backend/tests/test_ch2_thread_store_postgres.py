@@ -91,7 +91,9 @@ def test_0042_catalogue_and_head(engine) -> None:  # noqa: F811
         tables = set(c.execute(text("SELECT tablename FROM pg_tables WHERE tablename = ANY(:t)"),
                                {"t": list(TABLES)}).scalars())
         triggers = set(c.execute(text(
-            "SELECT tgname FROM pg_trigger WHERE NOT tgisinternal AND tgrelid = ANY(CAST(:t AS regclass[]))"),
+            "SELECT tgname FROM pg_trigger WHERE NOT tgisinternal AND tgrelid = ANY(CAST(:t AS regclass[])) "
+            # CH-5c's 0047 adds `<table>_cic_*` change-log triggers; CH-5c's own tests cover them.
+            "AND tgname !~ '_cic_'"),
             {"t": list(TABLES)}).scalars())
         view = c.execute(text("SELECT count(*) FROM pg_views WHERE viewname = 'chain_action'")).scalar_one()
     assert tables == set(TABLES) and view == 1

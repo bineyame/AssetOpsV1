@@ -101,6 +101,25 @@ def threads_of(rows: Mapping[str, Any], *, site: str, domain: str, tz: str | Non
     return out
 
 
+def threads_through(rows: Mapping[str, Any], *, site: str, domain: str, tz: str | None, hi: datetime,
+                    day: date | None, cutoff: datetime | None) -> list[dict[str, Any]]:
+    """CH-5b2 (the "Why?" trace): every thread of the Site with a visible occurrence that started before `hi` and a
+    state on `day` from the events visible at `cutoff`, with only those occurrences: a thread's history up to the
+    window's end, so a row's lasting causes (an earlier Finding, its Action) are reached on a later day."""
+    events, occs = _events(rows), _occurrences(rows)
+    out = []
+    for tid in sorted(occs):
+        before = [o for o in occs[tid] if o["episode_start"] is not None and o["episode_start"] < hi]
+        if not before or day is None:
+            continue
+        evs = [e for e in lc.visible(events.get(tid, []), cutoff) if e.effective_day <= day]
+        state, since = lc.state_on(evs, day)
+        if state is None:
+            continue
+        out.append(_thread_wire(site, tid, before, evs, state, since, domain, tz))
+    return out
+
+
 def actions_of(rows: Mapping[str, Any], thread_ids: Iterable[str], *, site: str, tz: str | None,
                cutoff: datetime | None, verification: Mapping[str, str | None]) -> list[dict[str, Any]]:
     """The linked Actions of the given threads: the segment by `lifecycle.action_segment` (the lookup's rule) and the

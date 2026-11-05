@@ -119,7 +119,9 @@ def catalog(engine) -> dict:  # noqa: F811
                                    {"i": list(INDEXES)}).scalars())
         triggers = sorted(c.execute(text(
             "SELECT tgname FROM pg_trigger WHERE NOT tgisinternal AND tgrelid IN "
-            "(SELECT oid FROM pg_class WHERE relname = ANY(:t))"), {"t": list(TABLES)}).scalars())
+            "(SELECT oid FROM pg_class WHERE relname = ANY(:t)) "
+            # CH-5c's 0047 `<table>_cic_*` change-log triggers are CH-5c's own contract (test_ch5c_watermark_postgres).
+            "AND tgname !~ '_cic_'"), {"t": list(TABLES)}).scalars())
         sequence = c.execute(text("SELECT count(*) FROM pg_class WHERE relkind = 'S' "
                                   "AND relname = 'mini_decision_public_no_seq'")).scalar_one()
         stage = c.execute(text("SELECT pg_get_constraintdef(oid) FROM pg_constraint "
