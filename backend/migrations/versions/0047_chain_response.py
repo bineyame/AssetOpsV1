@@ -51,6 +51,11 @@ INPUT_TABLES = (
 #: The tenant and Site columns of the tables that do not carry `tenant_id` / `site_id`.
 _TENANT_COLUMN = {"tenant": "id"}
 _SITE_COLUMN = {"site": "id"}
+#: CH5c-R5 R5-2: a table without its own tenant and Site columns takes them from its parent row. `event_consumption`
+#: is read by the stored routes (the settled flags), so it is Site-scoped through its outbox row: one change row per
+#: distinct outbox Site, NULL only for an outbox row without a Site. `tenant` (own id, NULL Site) and every TRUNCATE
+#: (NULL tenant, NULL Site) stay tenant-wide.
+_PARENT = {"event_consumption": ("event_outbox", "event_id")}
 
 _TABLES = """
 CREATE TABLE chain_input_change (
@@ -88,18 +93,28 @@ def _columns(bind, table: str) -> set[str]:
 
 
 def _trigger_sql(table: str, tenant: str | None, site: str | None) -> str:
-    t = tenant or "NULL::uuid"
-    s = site or "NULL::uuid"
+    parent = _PARENT.get(table)
+    if parent:
+        t, s = "p.tenant_id", "p.site_id"
+
+        def src(rel: str) -> str:
+            return f"{rel} r JOIN {parent[0]} p ON p.{parent[1]} = r.{parent[1]}"
+    else:
+        t = tenant or "NULL::uuid"
+        s = site or "NULL::uuid"
+
+        def src(rel: str) -> str:
+            return rel
     pick = f"SELECT DISTINCT {t}, {s}, '{table}'"
     return (
         f"CREATE FUNCTION chain_input_change_{table}() RETURNS trigger LANGUAGE plpgsql AS $$\nBEGIN\n"
         f"  IF TG_OP = 'INSERT' THEN\n"
-        f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) {pick} FROM n;\n"
+        f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) {pick} FROM {src('n')};\n"
         f"  ELSIF TG_OP = 'UPDATE' THEN\n"
         f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) SELECT DISTINCT a, b, '{table}' "
-        f"FROM (SELECT {t}, {s} FROM n UNION ALL SELECT {t}, {s} FROM o) x(a, b);\n"
+        f"FROM (SELECT {t}, {s} FROM {src('n')} UNION ALL SELECT {t}, {s} FROM {src('o')}) x(a, b);\n"
         f"  ELSIF TG_OP = 'DELETE' THEN\n"
-        f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) {pick} FROM o;\n"
+        f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) {pick} FROM {src('o')};\n"
         f"  ELSE\n"
         f"    INSERT INTO chain_input_change (tenant_id, site_id, table_name) VALUES (NULL, NULL, '{table}');\n"
         f"  END IF;\n  RETURN NULL;\nEND $$;\n"
