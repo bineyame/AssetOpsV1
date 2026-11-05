@@ -56,7 +56,7 @@ OBJECT_KEYS = {"id", "code", "revision_id", "revision_no", "first_day", "last_da
 LIST_KEYS = {"schema_version", "window", "status", "currentness", "source_provenance", "selected_source_provenance",
              "pending_source_provenance", "total_count", "rows", "next_cursor", "selection_token"}
 DAY_KEYS = {"local_day", "decision", "opportunity_kwh", "constraints", "evidence_ids", "selection_seq",
-            "mini_revision_id", "headroom_kw", "window_hours"}
+            "mini_revision_id", "headroom_kw", "window_hours", "hours"}  # CH-9 owned: a /2 row carries its hours
 READ_CODES = {"SELECTION_CHANGED", "RECOMPUTE_PENDING", "SOURCE_STALE", "SCENARIO_BASIS_MISMATCH"}
 #: u5b ruling 1: an authorized non-MINIGRID Site's detail, before the Performance gate and the decision store.
 UNSUPPORTED_DETAIL = {
@@ -500,16 +500,24 @@ def test_list_detail_shape_full_count_pins_decimals_and_provenance(store, engine
     import re
     assert re.fullmatch(r"OPP-\d{6,}", o["code"]) and o["revision_id"] == str(rev.id) and o["revision_no"] == 1
     assert (o["first_day"], o["last_day"], o["model_version"], o["study_days"]) == (
-        "2026-10-06", "2026-10-10", "mini-opportunity/1", 5)
+        "2026-10-06", "2026-10-10", "mini-opportunity/2", 5)  # CH-9 owned: the producer is /2
+    assert o["window_hours"] == rev.result["window_hours"]
     assert (o["eligible_days"], o["assessed_days"]) == (rev.result["eligible_days"], rev.result["assessed_days"])
     assert o["headroom_kw"] == rev.result["headroom_kw"]
     assert (o["demand_state"], o["collection_state"]) == ("UNVERIFIED", "UNVERIFIED")
     assert (o["proposed_load_kw"], o["gross_sales_scenario"], o["scenario_id"]) == (None, None, None)
     assert [d["local_day"] for d in o["day_rows"]] == [d.isoformat() for d in DAYS]
     for d, pin, frozen in zip(o["day_rows"], rev.selected_hours, rev.result["day_rows"]):
-        assert set(d) == DAY_KEYS and {k: d[k] for k in frozen} == frozen
+        assert set(d) == DAY_KEYS and {k: d[k] for k in frozen if k != "hours"} == {
+            k: v for k, v in frozen.items() if k != "hours"}
+        # CH-9 owned: each read hour is its frozen hour plus its pin (one pinned hour a day here).
+        assert d["hours"] == [{**h, "window_from": pin["window_from"], "window_to": pin["window_to"],
+                               "selection_seq": pin["selection_seq"], "mini_revision_id": pin["mini_revision_id"]}
+                              for h in frozen["hours"]]
         assert (d["selection_seq"], d["mini_revision_id"]) == (pin["selection_seq"], pin["mini_revision_id"])
-        assert (d["headroom_kw"], d["window_hours"]) == (d["opportunity_kwh"], 1)  # CH-4 §2.3
+        # CH-4 §2.3; CH-9 owned: the stored /2 count (1 on an ELIGIBLE one-hour day, 0 on an EXCLUDED one).
+        assert (d["headroom_kw"], d["window_hours"]) == (d["opportunity_kwh"],
+                                                         1 if d["decision"] == "ELIGIBLE" else 0)
         bound = d["opportunity_kwh"]
         assert bound is None or all(isinstance(bound[k], str) and "e" not in bound[k].lower() for k in ("low", "high"))
     assert set(row["currentness"]) == {"state", "job_state", "selection_seq", "selected_at", "windows"}
