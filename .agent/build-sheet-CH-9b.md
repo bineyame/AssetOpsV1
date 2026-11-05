@@ -140,6 +140,13 @@ Pre-flight: `AssetOpsV1-ch9b1\.agent\CH-9b1-preflight.md` at `641c34e0d`. The mi
 - **Q6: accepted, extended.** Byte-equality at 0050 → 0051 also covers a Cold or EV `domain_action` (board, Actions list, thread, work read), alongside the reserve-trial S6 fixture.
 - **Q7: accepted.** The mill verification plan is CH-9b2's, sized above.
 - **P1: decided by the owner on 2026-11-05.** Verbatim: `.agent/owner-mill-pass-margin-2026-11-05.md`, "10% above baseline (Recommended)". The catalogue entry `verification_plans.midday-productive-shift-1` gains, exactly: `target: "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]"`. Both means are taken over the Complete days of each window. The 10% is declared, not fitted. CH-9b3 implements this rule, and its metric `threshold_text` states it.
+- **CH9b1-R2 (Architect 17, Claude, 2026-11-05; the packet `review-packet-CH-9b1.md` "READ FIRST" link-latency risk): option (b). Owner DD-1b2. Size +0.**
+  - DD-1 R8 step 1 already runs `backfill --steps a,b,c,d` in prepare, and step c links any unlinked Action. Q2 adds no live create path (no route and no UI command), so after prepare no mill Action can appear unlinked.
+  - DD-1b2 makes two additions inside R8 and R10, at no extra size:
+    - The story-time mill Action is recorded before R8 step 1.
+    - F-THREADS asserts that the mill Action is linked to its opportunity thread (`origin_opportunity_id` set) with its ACTION_IN_HAND / CHANGE_APPLIED states. Prepare fails otherwise.
+  - SCOPE-1 reason: if the Grow row's mill Action were shown unlinked, the "Why?" and verification claim could not be traced.
+  - (a) is rejected because it depends on tick timing, so it is fragile. (c) is rejected because it needs a new event-register entry and adds nothing to the demo. It goes to the post-demo backlog only if a live create path is ever added.
 
 ## Scope cut (SCOPE-1)
 
@@ -149,3 +156,33 @@ Pre-flight: `AssetOpsV1-ch9b1\.agent\CH-9b1-preflight.md` at `641c34e0d`. The mi
 - **CH-9b3: 1.5 → 1.0.** Backlogged: R4 guardrails (**BL-09**). Kept: R3 (the owner's 10% rule), R5 evaluator and the `snapshots` trigger, R7 reads and the metrics table. R6: occurrences during the later window are not recorded as RECURRED_DURING_CHECK (BL-07); the packet says so. **Dependency change: CH-9b3 no longer waits for CH-6a3**; it follows CH-9b2. Acceptance drops the guardrail cases, `test_ch6_*` and the outcome-id ratchet.
 - **Presented wording:** "Midday use rose by at least the declared 10% on fully checked days" with the before/after line. No guardrail claim is made.
 - **CH-9b total: 7 → 6.5.**
+
+## CH9b2-R: rulings on the CH-9b2 pre-flight (Architect 17, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch9b2\.agent\CH-9b2-preflight.md` at `1bc73ce7e`. The migration is `0052_verification_plan_domain`, and whichever lane merges second re-points. **Sizes: CH-9b2 2.5 → 3.0 (Q8), CH-9b3 stays 1.0, so CH-9b goes from 6.5 to 7.0.** The plan's lane-2 rows and totals take the +0.5.
+
+- **Q1 accepted.**
+  - A narrow `action_plan` class: it may name `origin_opportunity_revision_id` only, never `origin_opportunity_id`, and it carries the marker `CH-9b2 plan origin`.
+  - The mill freeze goes in the new `B/actions/verification_families.py` (class `both`). This is the R1 registry.
+  - Non-vacuity must be proved.
+- **Q2 overridden.** The effective day is in **neither** window.
+  - The baseline is the last 3 COMPLETE days before that day. The later window is the first 3 COMPLETE days after it, looking at most 14 days ahead.
+  - SCOPE-1 reason: a day with both pre-change and post-change hours cannot be counted honestly as either "before" or "after", so a client could fairly dispute the 10%.
+  - DD-1a2's `mill-midday` placement (3 COMPLETE days on each side) already fits this.
+- **Q3 accepted.** The baseline looks back at most 14 days.
+- **Q4 accepted. It is defensible because no verdict is claimed.**
+  - The plan freezes with the days it found and `baseline.state = "SHORT"`. CH-9b3 R7 then shows, verbatim: "Not judged yet: only {n} of 3 fully checked days before the change". It is a MOCK DEVIATION and must pass guard V.
+  - The demo story never shows SHORT. DD-1b2's F-THREADS asserts that the mill plan is not SHORT.
+- **Q5 accepted.** A day counts only when every `productive_kwh` row on the Site that day is COMPLETE, using the weakest-row rule.
+- **Q6 accepted.** The plan stores the candidate range only. CH-9b3 chooses the later days with the same pure `choose_days` function, which has L0 tests here.
+- **Q7 accepted, exactly as the default.** The `rule` string is P1 verbatim, with `ratio [11, 10]` and `guardrails = {}` (BL-09).
+- **Q8 overridden: CH-9b2, not CH-9b3, at +0.5.**
+  - 0052 also widens `verification_outcome` and `verification_evaluation_request`. Their `(action_id, plan_id)` keys and FKs become an exactly-one-of `action_id` / `domain_action_id`, mirroring the plan.
+  - The existing reserve-trial byte-equality proof covers these tables too.
+  - SCOPE-1 reason: without this, no mill verdict can be stored, so the Grow row's verified claim cannot exist.
+  - Doing it in the same migration and under the same proof is cheaper than reloading it all in CH-9b3. CH-9b3 stays 1.0.
+- **Q9 accepted.** One plan per domain Action, with the coupling CHECKs as proposed, the new `plan_version`, the SYSTEM actor and `triggering_fixture = 'productive-load-midday@1'`.
+- **Q10 accepted.** `_ACTION_PLANS` reads `AND action_id IS NOT NULL`. Existing bodies stay byte-equal.
+- **Freeze trigger accepted.** `freeze_domain_plan` is a service method with no route.
+  - DD-1b1 calls it at story time, in the order record → complete case → link → freeze.
+  - This happens before DD-1b2's R8 backfill, as CH9b1-R2 requires.

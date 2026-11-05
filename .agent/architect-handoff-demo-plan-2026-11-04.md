@@ -589,3 +589,15 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   3. The +0.25 price line in "Why?".
 - **Standing rule for every future Architect (SCOPE-1).** Any new work, whether from a ruling, a pre-flight answer, a review finding or a fix round, must be stated in the ruling as **defensibility-critical, with its reason**: which shown number, label, claim or "Why?" line would be untrue, untraceable or unable to hold up under questioning without it, or why the build would not run. Anything not stated that way goes to `.agent/backlog-post-demo.md` with an id, source, reason and size, and adds nothing to the plan. Prefer presenting less over building more. A size increase on a build unit must name the SCOPE-1 reason in the plan row.
 - **Context:** moderate. Start a fresh Architect for the next item.
+
+## Update 2026-11-05 (Architect 17): CH5b2-R2
+
+- Binding checked: Claude, set 2026-10-27 in the plan2/ch5b2 `.ai/ROLE_CONFIG.md`. Nothing committed. CH5b2-R2 is recorded at the end of the CH5b2-R section in `build-sheet-CH-5b.md`. All four packet items are confirmed: KD-6 `threads_through`; "Critical supply served"; the estate `say` fallback as a MOCK DEVIATION; the 304 running admission and the Site-set read. No new work, and no change to size or plan.
+- CH9b1-R2 is recorded at the end of the CH9b1-R section in `build-sheet-CH-9b.md`, covering the mill Action link latency. The fix is option (b): DD-1 R8's prepare backfill step c. DD-1b2 owns it at +0. It records the mill Action before R8, and F-THREADS asserts that the Action is linked. (a) is rejected. (c) is not built because Q2 left no live create path.
+- CH5b3-R is recorded at the end of `build-sheet-CH-5b.md`. All five builder defaults are accepted: `chainClient` with a per-URL ETag; the days line in the dialog only (MD-CH5b-4, new backlog item BL-13 at an estimated 0.25, outside the plan); the mock's card markup; `Dialog.tsx`, a modal or a sheet at 600 px, with Close at every width (MD-CH5b-5); "Why?" on every row except NOT_MEASURED and on the four cards, with a loading line and an error line. Size stays 1.25.
+- CH9b2-R is recorded at the end of `build-sheet-CH-9b.md`.
+  - Unit change: **CH-9b2 2.5 → 3.0.** The +0.5 is Q8, where 0052 widens `verification_outcome` and `verification_evaluation_request`, stated as defensibility-critical. That makes CH-9b 7.0 and lane 2 14.5. The plan file's lane-2 rows and totals still need the +0.5.
+  - Q2 is overridden: the effective day is in neither window.
+  - Q4 SHORT is accepted. The screen shows "Not judged yet: only {n} of 3 fully checked days before the change", and F-THREADS asserts that the plan is not SHORT.
+  - All other defaults are accepted.
+- CH6a1-R is recorded at the end of `build-sheet-CH-6.md`. Q1 is overridden: the `MEASURE:` records are data only in CH-6a1. Their wiring into "Why?" moves to CH-6a3 at +0, in the same body change and clone run as the price line, and it closes CH5b2-R Q5's Known Deviation. Q2 to Q5 are accepted. No unit change: 6a1 is 1.25 and 6a3 is 1.5. Context is now moderately heavy; a fresh Architect is advised after this item.

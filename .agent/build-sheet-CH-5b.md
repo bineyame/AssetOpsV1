@@ -318,6 +318,7 @@ Pre-flight: `AssetOpsV1-ch5b2\.agent\CH-5b2-preflight.md` at `c3cf85409`. Size s
   - No money anywhere.
 - **Q10 accepted.**
 - **Q11 accepted.** This is consistent with CH5b1-R Q4. CH-5b2 owns `why_trace_ms`. Whichever of CH-5b1 and CH-5b2 merges second sets `measured_by` in `perf-budgets-v1.json`. The budget value is never edited.
+- **CH5b2-R2 (Architect 17, Claude, 2026-11-05; packet `review-packet-CH-5b2.md` at `ec2e02edc`).** No new work, so SCOPE-1 adds nothing. (1) KD-6 `threads_through` is **confirmed**. Without it, Kobo D13 "Why?" cannot reach the D4/D11 Findings, so its lines would not be traceable. (2) The `critical_served` label is **confirmed** as "Critical supply served". It is plain, passes guard V, and replaces "Critical load served" in Q5. (3) KD-4, the estate `say` fallback, is **confirmed** as a MOCK DEVIATION. The fallback line is true. Adding a per-category Portfolio headline upstream is not defensibility-critical, so it is not added. (4) KD-5 is **accepted**. Running route admission (per Site on the estate route) before the 304 is required, so that a 304 never answers a caller who is not admitted. Q1's rule of no composition before a 304 holds.
 
 ## Scope cut (SCOPE-1)
 
@@ -328,3 +329,30 @@ Pre-flight: `AssetOpsV1-ch5b2\.agent\CH-5b2-preflight.md` at `c3cf85409`. Size s
   - Backlogged: R8 one `ThreadList`, the Site lens routes and the frame-switch removal (**BL-01**); `MeasureTile`, `FindingCard`, `ActionTimeline` (**BL-02**).
   - Acceptance drops: the ThreadList vitest, the synthetic fourth Site type, `s404SiteFindingIndex.test.tsx`, the Site Findings captures and the ratchet `--shrink`. The ratchet still runs in check-all, so no file may rise.
 - **CH-5b total: 5.5 → 4.75.**
+
+## CH5b3-R: rulings on the CH-5b3 pre-flight (Architect 17, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch5b3\.agent\CH-5b3-preflight.md` at `21503aa6f`. Size stays **1.25**. No new work, so SCOPE-1 adds nothing. The question numbers are the coordinator's. Q1 (ThreadList: BL-01, not built) and Q7 (polish clones allowed; captures at end-game E5) were answered by the coordinator; they cover the builder's own Q1, Q9 and Q10.
+
+- **Q2 accepted (builder Q2 and Q3).**
+  - New `F/shell/chainClient.ts`, holding an `{etag, body}` memory per full URL. The key includes every query parameter.
+  - `If-None-Match` is sent on a repeat request, and the stored body is reused on a 304.
+  - The client is an optional prop with a module default, so the callers do not change.
+  - On anything other than a 200 or 304, the stored body is never shown.
+- **Q3 accepted (builder Q4), MD-CH5b-4.**
+  - The days line appears only in the dialog's "Days used". This applies to the board row `ob-days` and the Portfolio `oc-pfdays`.
+  - This is still defensible, for two reasons:
+    - Every measured value keeps its state chip, and a "Why?" one click away that states its days.
+    - No row claims more coverage than it has.
+  - The always-visible days line goes to the backlog as **BL-13**.
+- **Q4 accepted (builder Q5).** The Portfolio card follows the mock: a `div` card with the stretched `.value-label` link and the Why button raised above it. Test selectors move to the label link. No copy or href changes.
+- **Q5 accepted (builder Q6), MD-CH5b-5.**
+  - The focus handling moves to `F/blocks/Dialog.tsx`, and the explainer and early warnings import it from there.
+  - Above 600 px the dialog is a modal, placed under the button. At 600 px or less it is a `.sheet`.
+  - Close shows at every width, because a modal needs a visible exit.
+- **Q6 accepted (builder Q7 and Q8).**
+  - "Why?" appears on every row except NOT_MEASURED, and on all four Portfolio cards.
+  - The `aria-label` is "Why? {row label}".
+  - Loading reads "Loading the reasons…".
+  - Any failure, including a 422 `CATEGORY_UNKNOWN`, reads "The reasons are not available right now".
+  - These are MOCK DEVIATIONs, and both lines must pass guard V.

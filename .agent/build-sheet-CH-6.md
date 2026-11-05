@@ -500,3 +500,16 @@ def estate_chain(request, sites, lo: datetime, hi: datetime) -> dict:
 - **CH-6b1 (1.75) and CH-6b2 (2.25): unchanged.** One graded window per Site and server claims on the cards are what stop the Portfolio contradicting the boards.
 - **CH-6b3: 1.25 → 1.0.** COH-17 over count, money and verdict claims stays (it guards what is shown). Backlogged: the `late_fill` + `known_at` bullet and the guard M retirement (**BL-08**).
 - **Totals:** CH-6a 6 → 4.75; CH-6b 5.75 → 5.0. CH-6b2/6b3 keep one batched review; CH-6a2/6a3 likewise.
+
+## CH6a1-R: rulings on the CH-6a1 pre-flight (Architect 17, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch6a1\.agent\CH-6a1-preflight.md` at `4cb9dbd94`. **CH-6a1 stays 1.25 and CH-6a3 stays 1.5. No unit change.**
+
+- **Q1 overridden: data only here; the wiring goes in CH-6a3 at +0.**
+  - It is defensibility-critical. Without it, EV Grow's "Why?" for "$36.00" cannot show the 120 kWh behind it.
+  - CH-6a3 already changes the stored "Why?" bodies: SCOPE-1 added the "{kWh} kWh × {price}" line there. Wiring `used_measures` (the thread measures UNION the category's `MEASURE:` measures, in Site-type order) in the same composer pass therefore costs one body change and one clone run, not two.
+  - It closes CH5b2-R's Q5 Known Deviation in CH-6a3, and the CH-6a3 packet says so.
+- **Q2 accepted.** L0 allows either a `MEASURES` key or `CHAMBER_RANGE_MEASURE`, and the record keeps `excursions`.
+- **Q3 accepted.** `headroom_kw` keeps the sheet text that R13 reads from the thread items, and the L0 rule is as proposed.
+- **Q4 accepted.** The key and the R12 record stay, and the graph owner becomes BL-06 (SCOPE-1).
+- **Q5 accepted.** A frozen dataclass of facts already read. CH-6a2 may add fields, additively only. `Effect.money=None` carries a `reason`.

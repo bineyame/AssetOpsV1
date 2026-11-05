@@ -21,6 +21,7 @@
 | BL-10 | One planned `missing` day per Site in the baseline, its L0 checks, and the F-FILL finish row | `build-sheet-DD-1.md` R4 bullet 2, R10 F-FILL; DD-1a2, DD-1b2 | The live step (ST-7) adds the next free day after the story, not a planned gap. Honest gaps already show (GAP-K7, GAP-C3, GAP-E2). | 0.25 |
 | BL-11 | Tick output split: per-stage `consume` / `drain` in the tick JSON and the `assetops.perf` line | `build-sheet-DD-1.md` R9; DD-1b1 | Diagnostics only; R9 itself says "no behaviour change". | 0.25 |
 | BL-12 | M2 trigger-cost measurement (change rows, settle with and without triggers, `wmtime`) | `build-sheet-DD-1.md` "Build units" must-have 2; `build-sheet-CH-5c.md` §8.6 M2; DD-1b2 | A measurement. Page speed on the build is checked directly by F-PERF and E4's `perf_budget.py`. | 0.25 |
+| BL-13 | Always-visible days line under each board row headline (`ob-days`) and Portfolio card (`oc-pfdays`), mock `v70/index.html:461`, `:494` | `build-sheet-CH-5b.md` CH5b3-R Q3; CH-5b3 | The days line shows in every "Why?" dialog ("Days used"), and each value keeps its state chip. Needs a days field on the board and estate bodies. | 0.25 (est.) |
 
 **Already after the demo (unchanged, plan §2.2):** CH-7, CH-8, CH-10a/b, Slice F, the general consumption tariff. A full-day MG-5 measure (CH6-R R9 keep → CH-8). The set-based insert and commit-safe cursor (DD-1 R11).
 
