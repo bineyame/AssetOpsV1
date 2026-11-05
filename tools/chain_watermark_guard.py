@@ -28,8 +28,17 @@ TOOLS = Path(__file__).resolve().parent
 EXEMPT = frozenset({"chain_response", "chain_input_change"})
 #: tgtype bits: 4 INSERT, 8 DELETE, 16 UPDATE, 32 TRUNCATE.
 ALL_FOUR = 4 | 8 | 16 | 32
-_TARGET = re.compile(r"(?<![A-Za-z0-9_.])(?P<kw>FROM|JOIN)\s+(?:ONLY\s+)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
-                     r"(?P<tail>\s*[(.])?", re.I)
+_TARGET = re.compile(r"(?<![A-Za-z0-9_.])(?P<kw>FROM|JOIN)\s+(?:ONLY\s+)?(?:(?P<schema>[A-Za-z_][A-Za-z0-9_]*)\.)?"
+                     r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)(?P<tail>\s*[(.])?", re.I)
+#: CH5c-R7 L3: one more item of a comma-joined FROM list after a relation and its optional alias.
+_ALIAS = re.compile(r"\s+(?:AS\s+)?(?!(?:WHERE|JOIN|LEFT|RIGHT|INNER|FULL|CROSS|ON|GROUP|ORDER|LIMIT|UNION|WINDOW|"
+                    r"HAVING|FOR|OFFSET|USING|NATURAL)\b)[A-Za-z_][A-Za-z0-9_]*", re.I)
+_NEXT = re.compile(r"\s*,\s*(?:ONLY\s+)?(?:(?P<schema>[A-Za-z_][A-Za-z0-9_]*)\.)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+                   r"(?P<tail>\s*[(.])?", re.I)
+#: CH5c-R7 C3: the SQL wall-clock functions.
+CLOCK_SQL = re.compile(r"\b(now\s*\(|clock_timestamp\s*\(|statement_timestamp\s*\(|transaction_timestamp\s*\(|"
+                       r"current_date\b|current_timestamp\b|localtimestamp\b)", re.I)
+_PREDICATE = re.compile(r"\b(WHERE|ON|HAVING)\b", re.I)
 _CTE = re.compile(r"(?:\bWITH(?:\s+RECURSIVE)?|,)\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:\([^()]*\)\s*)?AS\s+"
                   r"(?:NOT\s+)?(?:MATERIALIZED\s+)?\(", re.I)
 #: Words a FROM can introduce that are not relations (`EXTRACT(x FROM y)`, `IS DISTINCT FROM y`, `FROM LATERAL`).
@@ -49,7 +58,26 @@ def targets(statement: str) -> set[str]:
         name = m.group("name").lower()
         if name not in ctes:
             out.add(name)
+        if m.group("kw").upper() != "FROM":
+            continue
+        pos = m.end()
+        while True:  # L3: `FROM a x, b y, c` names every relation of the list
+            alias = _ALIAS.match(statement, pos)
+            nxt = _NEXT.match(statement, alias.end() if alias else pos)
+            if nxt is None or nxt.group("tail") or nxt.group("name").lower() in _KEYWORDS:
+                break
+            if nxt.group("name").lower() not in ctes:
+                out.add(nxt.group("name").lower())
+            pos = nxt.end()
     return out
+
+
+def clock_in_predicate(statement: str) -> bool:
+    """C3 listener rule: a SQL clock function after the statement's first WHERE/ON/HAVING (a predicate). A clock
+    function in a select list (a read-instant capture) passes. Named residual: a clock in a sub-select's select
+    list after a WHERE also counts (the safe direction)."""
+    first = _PREDICATE.search(statement)
+    return first is not None and CLOCK_SQL.search(statement, first.end()) is not None
 
 
 def _kind(c: Any, name: str) -> str | None:

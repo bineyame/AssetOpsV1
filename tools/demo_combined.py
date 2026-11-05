@@ -461,13 +461,18 @@ class Demo:
         say(f"  mini-depth: {total} jobs processed")
 
     def tick(self, times: int = 1) -> None:
+        """CH5c-R7 F5: the tick without its pre-build stage, then the Performance comparison (a new report moves
+        `F`), then the pre-build alone in the serve env, so the next request after a loop tick is a hit."""
         for _ in range(times):
-            done = self.py(*TICK, label="tick", check=False, serve_env=True)
+            done = self.py(*TICK, "--no-prebuild", label="tick", check=False, serve_env=True)
             say("  tick: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
         for site in ("KOBO-001",):
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
+                       serve_env=True)
+        say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
 
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
     def delivered_days(self, site_code: str) -> set[str]:
