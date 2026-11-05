@@ -282,3 +282,8 @@ def test_evaluator_is_frozen_input():
     with pytest.raises(Exception):
         i.site_code = "x"  # type: ignore[misc]
     assert replace(i, site_code="y").site_code == "y"
+
+
+def test_q1_a_limited_study_with_a_stored_headroom_has_no_money_line():
+    p = EV.nodes(inp(opportunity=item(status="LIMITED", limit_line=LIMIT_MIXED), price=PRICE), "MG-1")["potential"]
+    assert (p.text, p.value) == (LIMIT_MIXED, None)
