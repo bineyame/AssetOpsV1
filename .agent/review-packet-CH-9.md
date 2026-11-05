@@ -251,3 +251,56 @@ readings yet" becomes "31 of the last 31 ..." on every Kobo board and board summ
   `ASSETOPS_GUARD_PYTHON`), navigation, agent workflow, dependency registry, delivery, mock gaps, missing-claim scan +
   fixtures, evidence width, mock deviation/V, screen ledger, chain coherence, event register: all exit 0. **Estate guard
   self-tests not run** (~870 s; split with `-k` next).
+
+## Merge with CH-5c (builder 9; `main` `9fe13ae3f` = CH-5c `ac29b6f95` + Lows)
+- **Merge** `cd48c69f1`: `git merge main`, no conflicts.
+- **Migrations** `df8562b97`: one linear head 0044 -> `0047_chain_response` -> `0048_daylight_enqueue` (was 0046,
+  `down_revision` 0047_chain_response) -> `0049_mini_service_v2` (was 0047, `down_revision` 0048). Earlier sections
+  of this packet say 0046/0047 for these two files. Head literals, downgrade targets and test names were updated in
+  `test_ch9_daylight_postgres.py` (its downgrade test now targets `0047_chain_response`, the revision under 0048) and
+  `test_ch9_service_v2_postgres.py` (downgrade to 0048, head 0049). Comments were updated in the w402/w403 tests.
+  `var/mechanism*-tpl/seed-state.json` is a generated fingerprint and was refreshed by the rebuild.
+- **Merge consequence, owned test change** `2b36a6de4`: `test_w402_migration_postgres.py` `catalog()` counted every
+  `mini_depth_%` trigger. CH-5c's 0047 adds `<table>_cic_{ins,upd,del}` on the four mini tables, so the count went
+  from 5 to 17 at head, a red on main as well. The count now leaves out `%_cic_%`, which CH-5c's own tests cover.
+  It is not vacuous: before the change, the same run read 17.
+- **COH-6 retired** `4239b5f8b`: the four `MD0b-R:A2` / owner CH-6a close-variant entries in
+  `tools/checks/fixtures/chain_coherence/expected-mechanism.json` were deleted. They are resolved by **CH9-R4 F2**:
+  the board's Grow headline now reads the study, so the board and the lens agree. The list only shrinks. The L3m close
+  check below is the proof: COH-6 0 findings, 0 new, 0 resolved. None of the four still matched.
+- **Owned test change** `18c701ec2`: `test_md0_mechanism_postgres.py::test_late_fill_normal...` failed on the branch
+  with `daylight_headroom_kw` and `critical_served` PENDING after the fill. This is a CH-9 consequence (u2/F1), not a
+  merge one: the fill queues mini work for every measured daylight hour and every service hour, but `late_fill`
+  reconciles only the noon hour. After `late_fill`, the test now runs `md.drain_mini` (the product worker, as the
+  build's `drain_mini` step does), runs step 10 again and re-reads the D7 grades. No assertion changed. The harness
+  (`mechanism_dataset.py`) was left alone so the templates stay fresh. It was red before the change and green after.
+
+### Checks on the merged tree (`18c701ec2`)
+- L0 `test_ch5c_store_off.py::test_exactly_one_alembic_head` passed; `test_ch9_no_noon_literal.py` 9 passed.
+- Postgres (`tools/run-host-tests.ps1`, port 55432): `test_ch9_daylight_postgres` + `test_ch9_service_v2_postgres`
+  8 passed (173 s); `test_w402_migration_postgres` 14 passed (100 s); `test_md0_mechanism_postgres` 8/8 passed
+  (2 kobo_grades/grow_headroom + 5 others + late_fill_normal after the fix, in 3 runs).
+- **Polish clone `ch9m`** (from `assetops_polish_full_test`, read-only source; dropped). Create+migrate (0049
+  enqueued 165 service jobs) and backfill a 179 / b 9 / c 3 / d 6. Settles: 18, at 10 mini jobs per tick, ~56-81 s
+  each. One tick hit the 480 s wall cap because the machine went into Modern Standby (08:55-10:11); keep-awake was on
+  afterwards. Result: 165 `mini-service/2` heads, 0 pending, dirty 0, head `0049_mini_service_v2`.
+  - **W6** `tools/chain_watermark_guard.py`: **PASS**. 23 requests, 0 non-200, 81 tables read, unresolved [],
+    untracked [], `event_consumption` read True.
+  - `chain_response_probe.py` with `ASSETOPS_RESPONSE_STORE=on`: `prebuild` OK, 23 requests (stored 20, hit 3,
+    48 s); `fresh` **23/23 stored bodies equal a fresh compose**.
+  - Collect 85 x 200 (`PGOPTIONS` read-only). Check against `expected-today.json`: COH-2 2/2 and COH-7 8/8 expected,
+    **0 new, COH-17 0**, self-check 10 pass.
+- **MD-0**: `status` showed the templates were stale after the merge. Rebuilt `tpl_df73aa8a` (states: 3 parts, seed
+  1266 s) and `tplc_df73aa8a` (close: 5 parts, seed 1868 s). L3m states: 65 x 200, every COH 0, COH-17 0, 0 new,
+  0 resolved. L3m close: 77 x 200, **COH-6 0**, COH-17 0, 0 new, **0 resolved** (no stale entry left).
+- **Guards** (each run on its own, with `ASSETOPS_GUARD_PYTHON` = the plan2 venv): architecture (213 s), navigation,
+  agent workflow, dependency registry, delivery fixtures, mock gaps, missing-claim scan + fixtures, evidence width,
+  mock deviation/vocabulary, screen ledger, chain coherence (103), event register (12). **14/14 PASS.** The estate
+  guard self-tests ran in 3 `-k` parts (280 / 217 / 304 s): 15/15 passed.
+
+### Polish finding: Kobo day grade LOW (deviation, recorded honestly)
+On polish, every Kobo story day grades **LOW**, not PARTIAL. The cause is that `daylight_headroom_kw` is LOW on the
+8 h delivered days, while `critical_served` is PARTIAL as expected (8/24 h). This is the intended consequence of
+**CH9-R2 Q2**: the measure counts over the declared operating hours (Kobo 24 h), and an 8 h delivery covers only
+part of them. The numbers were not tuned. **DD-1 full-day deliveries cure it**, and the MD-0 full days already grade
+COMPLETE.
