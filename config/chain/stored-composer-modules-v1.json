@@ -108,6 +108,7 @@
   "assetops_backend.site_outcomes.productive_use",
   "assetops_backend.site_outcomes.read",
   "assetops_backend.site_outcomes.visits",
+  "assetops_backend.site_overview.read",
   "assetops_backend.sites.adapters.postgres_foundation_store",
   "assetops_backend.sites.cutover",
   "assetops_backend.sites.foundation_service",

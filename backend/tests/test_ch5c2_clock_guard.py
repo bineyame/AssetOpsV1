@@ -53,7 +53,9 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     (_B + "financials.adapters.postgres_assumption_store", "PostgresAssumptionStore.publish.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.append.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.db_now"):
-        _WRITER + " (the scheduler's `now`: scheduling/tick.py, health.py)",
+        _WRITER + " (the scheduler's `now`: scheduling/tick.py, health.py); also the dateless board/overview "
+                  "day (`site_overview.read.db_today`), a read-instant capture wrapped in read_scope.read_instant "
+                  "that registers the next UTC midnight (CH-5c2)",
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.record_attempt.work"): _WRITER,
     (_B + "financials.adapters.postgres_consequence_store", "PostgresConsequenceStore.site_history.work"):
         "not in a stored compose: the consequence history route (financials.consequence_history, not in the set)",

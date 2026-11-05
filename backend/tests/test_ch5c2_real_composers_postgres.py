@@ -28,10 +28,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 
 CODE = "KOBO-001"
-DAYS = "from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+DAYS = "from=2026-10-05T00:00:00Z&to=2026-11-03T00:00:00Z"  # the summary's 31-day limit
 BOARD = f"/api/sites/{CODE}/outcome-board?date=2026-10-06"
 SUMMARY = f"/api/estate/outcome-summary?{DAYS}"
-PATHS = [BOARD, SUMMARY, f"/api/estate/findings?{DAYS}", f"/api/estate/portfolio?{DAYS}&lens=all",
+PATHS = [BOARD, f"/api/sites/{CODE}/outcome-board", SUMMARY,  # dated, and dateless (`db_today`) f"/api/estate/findings?{DAYS}", f"/api/estate/portfolio?{DAYS}&lens=all",
          f"/api/estate/portfolio/scope-ids?{DAYS}&lens=all"]
 
 
@@ -146,10 +146,11 @@ def _place(url: str, t0: datetime) -> dict:
             outcome = c.execute(text("SELECT id FROM verification_outcome ORDER BY recorded_at LIMIT 1")).first()
             placed = {"plan": None, "outcome": None}
             if plan is not None:
-                days = (t0 - plan.later_end).days + 1
-                c.execute(text("UPDATE verification_plan SET later_start = later_start + make_interval(days => :d), "
-                               "later_end = later_end + make_interval(days => :d) WHERE id = :i"),
-                          {"d": days, "i": plan.id})
+                shift = timedelta(days=max(0, (t0 - plan.later_end).days))
+                while plan.later_end + shift <= t0:
+                    shift += timedelta(days=1)
+                c.execute(text("UPDATE verification_plan SET later_start = later_start + :d, "
+                               "later_end = later_end + :d WHERE id = :i"), {"d": shift, "i": plan.id})
                 placed["plan"] = c.execute(text("SELECT later_end FROM verification_plan WHERE id = :i"),
                                            {"i": plan.id}).scalar_one()
             if outcome is not None:
@@ -172,7 +173,7 @@ def test_c4_sweep_over_every_stored_route(kobo, monkeypatch) -> None:
     t0 = datetime.now(timezone.utc) + timedelta(minutes=1)
     placed = _place(url, t0)
     print("\nCH-5c2 C4 placed", {k: v and v.isoformat() for k, v in placed.items()})
-    assert placed["plan"] is not None and placed["outcome"] is not None, placed
+    assert placed["plan"] is not None and placed["plan"] > t0 and placed["outcome"] is not None, placed
     engine = create_engine(url)
 
     def until_of(tag: str):
@@ -219,7 +220,9 @@ def test_f4_no_unlisted_read_over_every_stored_route(kobo, monkeypatch) -> None:
     url, work = kobo
     audit = _audit(monkeypatch, url, work)
     assert audit.violations == [], audit.violations
-    assert audit.modules and not audit.modules - set(listed_modules()), sorted(audit.modules - set(listed_modules()))
+    # Q5 on this seed: every backend module that ran in a compose is listed (the test-only stand-ins aside).
+    product = {m for m in audit.modules if not m.startswith("tests.")}
+    assert product and not product - set(listed_modules()), sorted(product - set(listed_modules()))
 
 
 @pytest.mark.parametrize("event", ["open", "listdir"])
