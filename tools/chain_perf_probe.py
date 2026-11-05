@@ -34,6 +34,8 @@ URLS = {
     "ev_board_27oct": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z",
     "summary_week": f"/api/estate/outcome-summary?{WEEK}",
     "portfolio_week": f"/api/estate/portfolio?{WEEK}",
+    # CH-5c P1 (CH-5a2b residual): the Findings index now runs the full claims read per Site
+    "findings_week": f"/api/estate/findings?{WEEK}&lens=all&state=all",
 }
 
 
