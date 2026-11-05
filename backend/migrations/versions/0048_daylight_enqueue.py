@@ -19,8 +19,8 @@ from pathlib import Path
 
 from alembic import op
 
-revision = "0046_daylight_enqueue"
-down_revision = "0044_chain_events"
+revision = "0048_daylight_enqueue"
+down_revision = "0047_chain_response"
 branch_labels = None
 depends_on = None
 
@@ -72,15 +72,15 @@ $$;
 _HOUR_CHECK_0029 = """    IF p_domain = 'mini_renewable' AND extract(hour FROM local_lo) <> 12 THEN
         RAISE EXCEPTION USING ERRCODE = '22023', MESSAGE = 'mini_enqueue_hour: renewable work is the local 12:00 hour only';
     END IF;"""
-_HOUR_CHECK_0046 = """    IF p_domain = 'mini_renewable' AND NOT mini_renewable_hour(p_tenant, p_site, p_lo, p_hi, tz) THEN
+_HOUR_CHECK_0048 = """    IF p_domain = 'mini_renewable' AND NOT mini_renewable_hour(p_tenant, p_site, p_lo, p_hi, tz) THEN
         RAISE EXCEPTION USING ERRCODE = '22023',
             MESSAGE = 'mini_enqueue_hour: renewable work needs a positive pv_available_power reading in the hour';
     END IF;"""
 _LOOP_0029 = "IF m.domain <> 'mini_renewable' OR extract(hour FROM h) = 12 THEN"
-_LOOP_0046 = ("IF m.domain <> 'mini_renewable' OR mini_renewable_hour(NEW.tenant_id, NEW.site_id, h AT TIME ZONE tz,\n"
+_LOOP_0048 = ("IF m.domain <> 'mini_renewable' OR mini_renewable_hour(NEW.tenant_id, NEW.site_id, h AT TIME ZONE tz,\n"
               "                                                                 (h AT TIME ZONE tz) + interval '1 hour', tz) THEN")
 _PUB_0029 = "IF d <> 'mini_renewable' OR extract(hour FROM h) = 12 THEN"
-_PUB_0046 = ("IF d <> 'mini_renewable' OR mini_renewable_hour(p_tenant, p_site, h AT TIME ZONE tz,\n"
+_PUB_0048 = ("IF d <> 'mini_renewable' OR mini_renewable_hour(p_tenant, p_site, h AT TIME ZONE tz,\n"
              "                                                       (h AT TIME ZONE tz) + interval '1 hour', tz) THEN")
 _TRIGGER = """CREATE CONSTRAINT TRIGGER enqueue_mini_depth AFTER INSERT ON accepted_evidence
     DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
@@ -92,22 +92,22 @@ def _functions_0029() -> str:
     """The 0029 function bodies as `CREATE OR REPLACE`, without the trigger (which is unchanged)."""
     body = _M.ENQUEUE
     if body.count(_TRIGGER) != 1:
-        raise RuntimeError("0046: the 0029 trigger text was not found once")
+        raise RuntimeError("0048: the 0029 trigger text was not found once")
     return body.replace(_TRIGGER, "").replace("CREATE FUNCTION", "CREATE OR REPLACE FUNCTION")
 
 
-def _functions_0046() -> str:
+def _functions_0048() -> str:
     body = _functions_0029()
-    for old, new in ((_HOUR_CHECK_0029, _HOUR_CHECK_0046), (_LOOP_0029, _LOOP_0046), (_PUB_0029, _PUB_0046)):
+    for old, new in ((_HOUR_CHECK_0029, _HOUR_CHECK_0048), (_LOOP_0029, _LOOP_0048), (_PUB_0029, _PUB_0048)):
         if body.count(old) != 1:
-            raise RuntimeError(f"0046: expected one 0029 text {old[:40]!r}")
+            raise RuntimeError(f"0048: expected one 0029 text {old[:40]!r}")
         body = body.replace(old, new)
     return body
 
 
 def upgrade() -> None:
     op.execute(RENEWABLE_HOUR)
-    op.execute(_functions_0046())
+    op.execute(_functions_0048())
 
 
 def downgrade() -> None:

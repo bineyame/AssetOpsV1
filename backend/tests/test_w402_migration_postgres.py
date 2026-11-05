@@ -174,7 +174,7 @@ def mg4(mg, engine):  # noqa: F811
 
 @pytest.fixture()
 def mg4_nopv(mg4, engine):  # noqa: F811
-    """CH-9 (0046): `mg4` with its `pv_available_power` bindings relabelled away (test-only, as replica), so the Site
+    """CH-9 (0048): `mg4` with its `pv_available_power` bindings relabelled away (test-only, as replica), so the Site
     keeps the 0029 noon-hour renewable enqueue; restored after."""
     with engine.connect() as c:
         ids = [r[0] for r in c.execute(text("SELECT id FROM signal_binding_revision WHERE site_id = :s "

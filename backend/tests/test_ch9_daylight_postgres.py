@@ -1,7 +1,7 @@
-"""CH-9 u1 (build sheet CH-9 §9 R1-R3, §10 CH9-R2 Q2-Q4): migration `0046_daylight_enqueue` and
+"""CH-9 u1 (build sheet CH-9 §9 R1-R3, §10 CH9-R2 Q2-Q4): migration `0048_daylight_enqueue` and
 `store.daylight_hours` on a fresh database (`pg_harness.fresh_database()` through the `engine` fixture).
 
-- 0046 enqueues renewable work for an hour holding a positive accepted `pv_available_power` reading, also when a
+- 0048 enqueues renewable work for an hour holding a positive accepted `pv_available_power` reading, also when a
   later renewable-role reading lands in such an hour, and refuses a renewable hour without one;
 - a Site with no `pv_available_power` binding keeps the noon hour, exactly as 0029;
 - `daylight_hours` reads the declared operating hours: a gap is a missing hour, a zero hour is not daylight, the
@@ -97,8 +97,8 @@ def pv(mg4, engine):  # noqa: F811
     _replica(engine, f"DELETE FROM signal_binding_revision WHERE id = '{new}'")
 
 
-def test_0046_replaces_the_noon_only_bodies_under_the_0047_head(engine) -> None:  # noqa: F811
-    assert head(engine) == "0047_mini_service_v2"
+def test_0048_replaces_the_noon_only_bodies_under_the_0049_head(engine) -> None:  # noqa: F811
+    assert head(engine) == "0049_mini_service_v2"
     assert "12:00 hour only" not in functiondef(engine, "mini_enqueue_hour")
     for name in ("mini_enqueue_hour", "mini_enqueue_accepted", "mini_enqueue_configuration"):
         assert "mini_renewable_hour" in functiondef(engine, name), name
@@ -181,10 +181,10 @@ def test_downgrade_restores_the_0029_bodies(engine) -> None:  # noqa: F811
     config = _alembic()
     engine.dispose()
     try:
-        command.downgrade(config, "0044_chain_events")
+        command.downgrade(config, "0047_chain_response")
         assert "12:00 hour only" in functiondef(engine, "mini_enqueue_hour")
         assert "extract(hour FROM h) = 12" in functiondef(engine, "mini_enqueue_accepted")
         assert scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = 'mini_renewable_hour'") == 0
     finally:
         command.upgrade(config, "head")
-    assert head(engine) == "0047_mini_service_v2"
+    assert head(engine) == "0049_mini_service_v2"

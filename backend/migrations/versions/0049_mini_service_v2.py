@@ -2,7 +2,7 @@
 
 `mini-service/2` (B/mini_depth/store.py `MODEL_VERSIONS`) stores each load row's own `unserved_kwh`, which the
 `critical_served` measure reads. For every Site-local hour whose selected `service` head is `mini-service/1`, this
-calls the existing 0029/0046 `mini_enqueue_hour(..., 'mini_service', ...)` with a NULL cause (the convention of
+calls the existing 0029/0048 `mini_enqueue_hour(..., 'mini_service', ...)` with a NULL cause (the convention of
 `mini_enqueue_configuration`: the work is not caused by one accepted reading) at the migration's transaction time.
 The mini-depth worker then derives a `/2` revision and appends its selection as for any other job.
 
@@ -10,16 +10,16 @@ No table, no function, no row rewrite and no change to job semantics: the store 
 final gate in `mini_enqueue_hour` still decides whether the hour has work. Downgrade is a no-op: jobs are work, not
 state, and a `/2` head selected after the upgrade stays a valid, readable head.
 
-Migration number: CH-5c (lane 1) adds `0047_chain_response` on `0044_chain_events`. Whichever slice merges second
-re-points its migration to `0048` on the other's head.
+Migration order: CH-5c merged first with `0047_chain_response` on `0044_chain_events`; CH-9 re-pointed its two
+migrations after it: 0044 -> 0047_chain_response -> 0048_daylight_enqueue -> 0049_mini_service_v2.
 """
 
 from __future__ import annotations
 
 from alembic import op
 
-revision = "0047_mini_service_v2"
-down_revision = "0046_daylight_enqueue"
+revision = "0049_mini_service_v2"
+down_revision = "0048_daylight_enqueue"
 branch_labels = None
 depends_on = None
 

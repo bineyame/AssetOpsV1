@@ -1,4 +1,4 @@
-"""CH-9 CH9-R4 F1 (L2): migration `0047_mini_service_v2` and `critical_served` over stored `mini-service/2` heads.
+"""CH-9 CH9-R4 F1 (L2): migration `0049_mini_service_v2` and `critical_served` over stored `mini-service/2` heads.
 
 - 0047 enqueues `mini_service` work only for the hours whose selected service head is `mini-service/1` (not a `/2`
   head, not another domain), with a NULL cause; draining that work selects a `/2` head whose rows state their own
@@ -64,9 +64,9 @@ def test_0047_enqueues_v1_service_hours_only_and_drains_to_v2(store, engine) -> 
 
     config = _alembic()
     engine.dispose()
-    command.downgrade(config, "0046_daylight_enqueue")  # 0047's downgrade is a no-op
+    command.downgrade(config, "0048_daylight_enqueue")  # 0049's downgrade is a no-op
     command.upgrade(config, "head")
-    assert head(engine) == "0047_mini_service_v2"
+    assert head(engine) == "0049_mini_service_v2"
 
     jobs = mini_jobs(engine, site_id)
     assert [(j["domain"], j["window_start"], j["window_end"], j["cause_evidence_id"], j["status"]) for j in jobs] == [

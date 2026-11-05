@@ -101,7 +101,7 @@ def settle(engine, job_id) -> None:
 
 
 def pv_reading(engine, day) -> None:
-    """CH-9 owned test change (CH9-R2 Q4, migration 0046): renewable work is enqueued only for an hour holding a
+    """CH-9 owned test change (CH9-R2 Q4, migration 0048): renewable work is enqueued only for an hour holding a
     positive accepted `pv_available_power` reading. Ingest `day`'s 24 hourly means late (its own sequence epoch), as
     `_dark_hours` seeds the authored days: the authored value for the local 12:00 hour, so that hour is renewable work
     and the day's measured daylight, and 0 kW for its other operating hours (covered, not daylight), so the day's
@@ -231,7 +231,7 @@ def test_pending_stale_missing_historical_current_precedence_and_jobs(store, eng
     settle(engine, failed)
 
     # A live W4-02 job on the missing day: pending beats the missing day.
-    pv_reading(engine, date(2026, 10, 5))  # CH-9 owned: the hour needs a positive pv reading (0046)
+    pv_reading(engine, date(2026, 10, 5))  # CH-9 owned: the hour needs a positive pv reading (0048)
     renewable_job(engine, t, s, date(2026, 10, 5))
     env, missing, full = states()
     assert (missing["state"], missing["job_state"]) == ("PENDING_RECOMPUTE", "PENDING")
