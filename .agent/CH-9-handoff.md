@@ -1,4 +1,32 @@
-# CH-9 handoff (builder 7 done; BLOCKED on Architect finding F1, see packet)
+# CH-9 handoff (builder 8: CH9-R4 F1-F3 built and L3-proved; stopped at the context cap before the main merge)
+
+## Status 2026-11-05 (builder 8; no process, clone or worktree of mine left; DBs left: mechanism + mechanism_close (derived), templates `*_db4dbb60`)
+- Commits: `e568e0354` F1 (mini-service/2, CriticalServed CRITICAL row, migration `0047_mini_service_v2` on 0046),
+  `c61be3a73` F2 (Grow headline/signal from the study via `MiniPorts.opportunity`), `96f10df3e` L2m, `917578f65` packet.
+- Packet section "Fix round CH9-R4" has every result. Open items below.
+
+## Resume order for builder 9 (coordinator update: CH-5c merged on main `ac29b6f95` with `0047_chain_response` on 0044,
+## `chain_input_change` triggers on every input table, and an L0 `test_exactly_one_alembic_head`)
+1. `git merge main` on `task/CH-9-measured-daylight`.
+2. Re-point migrations to one linear head: 0044 -> `0047_chain_response` -> CH-9 daylight (rename
+   `0046_daylight_enqueue` -> `0048_daylight_enqueue`, `down_revision = "0047_chain_response"`) -> service re-enqueue
+   (rename `0047_mini_service_v2` -> `0049_mini_service_v2`, `down_revision = "0048_daylight_enqueue"`). Update the
+   revision strings in: `backend/tests/test_ch9_daylight_postgres.py` (head asserts, downgrade target `0044_chain_events`
+   -> check it still downgrades past 0047_chain_response cleanly), `backend/tests/test_ch9_service_v2_postgres.py`
+   (downgrade target 0046 -> 0048, head 0049), the 0049 docstring note, and `var/mechanism*-tpl/seed-state.json`
+   mentions if they pin a head. Run `test_exactly_one_alembic_head` and both test_ch9_*_postgres files.
+3. CH-9 adds no table or column (0048/0049 are functions + enqueue only); still run `tools/chain_watermark_guard.py`
+   (W6) on a merged-tree polish clone and `chain_response_probe.py fresh` with `ASSETOPS_RESPONSE_STORE=on` on that
+   clone; report both. The polish clone needs 17 settles to drain the 165 re-enqueued service jobs (scratch
+   `r4_settle.sh <name> <db> <n>`, ~59 s each, run in batches of 9 to stay under 600 s).
+4. MD-0 templates' fingerprint may change after the merge: `mechanism_dataset.py status`, rebuild if unusable, L3m
+   states/close (scratch `r4_l3m.sh`), then L2m `test_md0_mechanism_postgres.py -k "kobo_grades or grow_headroom"`.
+5. Estate guard self-tests (`tools/checks/test_estate_guard.py`, ~870 s) were not run: split with `-k` into <600 s parts.
+   Other guards all pass individually (set `ASSETOPS_GUARD_PYTHON` for check-architecture).
+6. Then task status `in_review`, ACTIVE_CONTEXT / CODE_STATE, packet numbering note.
+- Open for the Architect: polish Kobo day grade is LOW (daylight_headroom_kw LOW), not PARTIAL; `critical_served` itself
+  is PARTIAL as expected. MD-0 close COH-6 x4 expected entries (MD0b-R:A2, CH-6a) now RESOLVED by F2.
+
 
 ## Status 2026-11-05 (builder 7; no process, clone or worktree of mine left)
 - `54431f5dd`: "1 daylight hour" (server `vocabulary.daylight_hours_text`, Portfolio unit); owned test changes
