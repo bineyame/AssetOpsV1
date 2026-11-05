@@ -24,7 +24,7 @@
 .conf-pop.why-pop { position: absolute; inset: auto; margin: 0; max-width: none; max-height: none; box-sizing: border-box; z-index: 1000; background: var(--surface-raised); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 14px 34px rgba(22, 35, 63, .18); padding: 13px 14px; display: flex; flex-direction: column; gap: 9px; font-size: 11px; }
 .conf-pop.why-pop:not([open]) { display: none; }
 .conf-pop.why-pop::backdrop { background: transparent; }
-.why-pop .conf-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 12px; }
+.why-pop .conf-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
 .why-pop [data-why-state] { display: flex; flex-direction: column; gap: 9px; }
 .why-pop .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
 .why-pop .why-say { font-size: 12px; font-weight: 600; line-height: 1.5; margin: 0; }
@@ -35,6 +35,7 @@
 /* MOCK DEVIATION MD-CH5b-5: the mock shows Close only on the sheet; the modal shows it at every width. */
 .why-close { margin-left: auto; border: 1px solid var(--border-subtle); background: var(--surface-raised); border-radius: 6px; padding: 3px 10px; min-height: 24px; font: inherit; font-size: 11px; font-weight: 600; color: var(--accent); cursor: pointer; }
 .why-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.conf-pop.why-pop.sheet .why-close { display: inline-flex; align-items: center; min-height: 32px; }
 /* At 600px or less: the bottom sheet (mock .why-pop.sheet). */
 .conf-pop.why-pop.sheet { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 72vh; overflow: auto; border-radius: 12px 12px 0 0; padding: 16px 16px 20px; font-size: 12px; }
 .conf-pop.why-pop.sheet::backdrop { background: rgba(23, 36, 59, .25); }

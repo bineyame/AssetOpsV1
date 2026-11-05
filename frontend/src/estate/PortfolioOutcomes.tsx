@@ -381,6 +381,7 @@ export function CategoryCards({
   );
 }
 
+/** The six states of the matrix colour key, in the mock order (`outcomes.js:154`). */
 export const OUTCOME_KEY: readonly { label: string; tone: string }[] = [
   { label: "Needs attention", tone: "amber" },
   { label: "Watch", tone: "blue" },

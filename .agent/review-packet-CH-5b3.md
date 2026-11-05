@@ -55,3 +55,9 @@ Not run. Captures are taken at E5 (coordinator Q7). Layout claims (placement und
 
 ## User review
 Not required by this packet; the E5 capture pass covers visuals.
+
+## Review closure (coordinator, after review REVISE H1/L1)
+- H1 fixed: `.conf-pop.why-pop.sheet .why-close { display:inline-flex; align-items:center; min-height:32px }` per mock `v70/index.html:239`. `.why-pop .conf-head` now matches the mock (`flex-wrap: wrap`, inherits 11 px).
+- L1 fixed: `OUTCOME_KEY` doc comment restored.
+- tsc clean; vitest (why/Dialog/estatePortfolio/outcomeBoard files) 82 passed.
+- Perf: `cold_chain_failure_night` 1038.7 ms is a backend residual (route read 1846–2065 ms cold at CH-5b1; this slice has no backend change) — recorded for E4 perf check.
