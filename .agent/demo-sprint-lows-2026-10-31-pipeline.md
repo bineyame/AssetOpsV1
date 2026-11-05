@@ -136,3 +136,8 @@
 - M2 trigger write cost + change-log growth unmeasured on data-bearing ticks; triggers live on main now → DD-1b measures (stop: watermark ≥50 ms or triggers ≥10% settle).
 - L5 stored-path tested only via Findings → CH-5c2 adds board/summary/Portfolio. L6 scope-ids not pinned to the Portfolio body's cutoff (packet note; post-demo).
 - R4 driver prepare_threshold dropped (no 5% gain).
+
+## CH-6a1 (merged, review ACCEPT, .agent/review-CH-6a1.md) — Lows for CH-6a2
+- L1 `grade_counts` worst-of-day lets NOT_EXPECTED/PENDING outrank COMPLETE on a day.
+- L2 earnings filter each row by its own grade while `days` uses the day's worst grade — reconcile in CH-6a2.
+- L3 missing currency becomes the string "None".
