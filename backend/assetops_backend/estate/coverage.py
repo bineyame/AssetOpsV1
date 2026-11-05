@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
+from assetops_backend import read_scope
 from assetops_backend.actions import lifecycle
 from assetops_backend.analytics.finding_index import touched
 from assetops_backend.evidence.provenance_read import source_gate
@@ -384,7 +385,7 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
         verified_at = None
         if resolved and resolution.get("outcome") == "VERIFIED":
             verified_at = (v.get("outcomes") or {}).get(resolution.get("outcome_id"))
-        in_window = any(p["later_start"] <= k < p["later_end"] for p in v.get("plans") or ())
+        in_window = any(read_scope.within(p["later_start"], p["later_end"], k) for p in v.get("plans") or ())
         events.append(str(selected["id"]))
         assessments |= {str(b.get("primary")), *[str(x) for x in b.get("assessments") or ()]}
         cited_all |= set(cited)
@@ -408,7 +409,7 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             "_selected_recorded_at": selected["recorded_at"],
             "_open": reduced["application"] in ("PENDING", "APPLIED") and not resolved,
             "_verification_window": in_window and not resolved,
-            "_verified_recent": verified_at is not None and k - VERIFIED_LOOKBACK <= verified_at <= k})
+            "_verified_recent": verified_at is not None and read_scope.since(verified_at, VERIFIED_LOOKBACK, k)})
     state = HISTORICAL if snapshot.basis_historical else CURRENT  # q12 ruling 1: basis mode
     return {"selection_id": None, "watermark": None, "match_state": "NOT_APPLICABLE",
             "job_state": "NOT_APPLICABLE", "source_freshness": "NOT_APPLICABLE", "state": state, "rows": rows,

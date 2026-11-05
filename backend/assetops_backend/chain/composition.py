@@ -196,10 +196,12 @@ def prebuilt_requests() -> Any:
 
 def build_response_store(database_url: str | None, *, engine: Any = None, keep: int = 3) -> Any:
     """CH-5c: the stored route responses (`chain/response_store.py`) over the `chain_response` adapter; None without
-    a database URL or engine, or unless `ASSETOPS_RESPONSE_STORE=on`."""
+    a database URL or engine, or with `ASSETOPS_RESPONSE_STORE=off`. CH-5c2: `F` (`file_inputs.file_state`) joins W."""
+    from assetops_backend.chain.adapters.file_inputs import file_state
     from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
-    from assetops_backend.chain.response_store import ResponseStore, enabled
+    from assetops_backend.chain.response_store import ResponseStore, mode
 
-    if not (database_url or engine is not None) or not enabled():
+    if not (database_url or engine is not None) or mode() == "off":
         return None
-    return ResponseStore(PostgresResponseRows(database_url, engine=engine), code_version, keep=keep)
+    return ResponseStore(PostgresResponseRows(database_url, engine=engine), code_version, keep=keep,
+                         files=file_state, compose_only=mode() == "compose")

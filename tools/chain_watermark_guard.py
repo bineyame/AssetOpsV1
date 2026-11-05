@@ -28,8 +28,17 @@ TOOLS = Path(__file__).resolve().parent
 EXEMPT = frozenset({"chain_response", "chain_input_change"})
 #: tgtype bits: 4 INSERT, 8 DELETE, 16 UPDATE, 32 TRUNCATE.
 ALL_FOUR = 4 | 8 | 16 | 32
-_TARGET = re.compile(r"(?<![A-Za-z0-9_.])(?P<kw>FROM|JOIN)\s+(?:ONLY\s+)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
-                     r"(?P<tail>\s*[(.])?", re.I)
+_TARGET = re.compile(r"(?<![A-Za-z0-9_.])(?P<kw>FROM|JOIN)\s+(?:ONLY\s+)?(?:(?P<schema>[A-Za-z_][A-Za-z0-9_]*)\.)?"
+                     r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)(?P<tail>\s*[(.])?", re.I)
+#: CH5c-R7 L3: one more item of a comma-joined FROM list after a relation and its optional alias.
+_ALIAS = re.compile(r"\s+(?:AS\s+)?(?!(?:WHERE|JOIN|LEFT|RIGHT|INNER|FULL|CROSS|ON|GROUP|ORDER|LIMIT|UNION|WINDOW|"
+                    r"HAVING|FOR|OFFSET|USING|NATURAL)\b)[A-Za-z_][A-Za-z0-9_]*", re.I)
+_NEXT = re.compile(r"\s*,\s*(?:ONLY\s+)?(?:(?P<schema>[A-Za-z_][A-Za-z0-9_]*)\.)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+                   r"(?P<tail>\s*[(.])?", re.I)
+#: CH5c-R7 C3: the SQL wall-clock functions.
+CLOCK_SQL = re.compile(r"\b(now\s*\(|clock_timestamp\s*\(|statement_timestamp\s*\(|transaction_timestamp\s*\(|"
+                       r"current_date\b|current_timestamp\b|localtimestamp\b)", re.I)
+_PREDICATE = re.compile(r"\b(WHERE|ON|HAVING)\b", re.I)
 _CTE = re.compile(r"(?:\bWITH(?:\s+RECURSIVE)?|,)\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:\([^()]*\)\s*)?AS\s+"
                   r"(?:NOT\s+)?(?:MATERIALIZED\s+)?\(", re.I)
 #: Words a FROM can introduce that are not relations (`EXTRACT(x FROM y)`, `IS DISTINCT FROM y`, `FROM LATERAL`).
@@ -49,7 +58,125 @@ def targets(statement: str) -> set[str]:
         name = m.group("name").lower()
         if name not in ctes:
             out.add(name)
+        if m.group("kw").upper() != "FROM":
+            continue
+        pos = m.end()
+        while True:  # L3: `FROM a x, b y, c` names every relation of the list
+            alias = _ALIAS.match(statement, pos)
+            nxt = _NEXT.match(statement, alias.end() if alias else pos)
+            if nxt is None or nxt.group("tail") or nxt.group("name").lower() in _KEYWORDS:
+                break
+            if nxt.group("name").lower() not in ctes:
+                out.add(nxt.group("name").lower())
+            pos = nxt.end()
     return out
+
+
+def clock_in_predicate(statement: str) -> bool:
+    """C3 listener rule: a SQL clock function after the statement's first WHERE/ON/HAVING (a predicate). A clock
+    function in a select list (a read-instant capture) passes. Named residual: a clock in a sub-select's select
+    list after a WHERE also counts (the safe direction)."""
+    first = _PREDICATE.search(statement)
+    return first is not None and CLOCK_SQL.search(statement, first.end()) is not None
+
+
+#: CH5c-R7 F4 / CH5c2-R1 Q3: the audit events a compose may not raise outside the allowed path set.
+_PATH_EVENTS = frozenset({"open", "os.listdir", "os.scandir"})
+MODULES_FILE = TOOLS.parent / "config" / "chain" / "stored-composer-modules-v1.json"
+
+
+def _norm(path: Any) -> str | None:
+    if isinstance(path, int):
+        return None  # an fd: its open was audited already
+    if isinstance(path, bytes):
+        path = os.fsdecode(path)
+    return os.path.normcase(os.path.abspath(os.fspath(path)))
+
+
+class ComposeAudit:
+    """F4 + Q5, test-only. While a stored-route compose runs (`read_scope.COMPOSING` set), record every `open`,
+    `os.listdir` or `os.scandir` of a path outside the allowed set (declared file-input roots, the `code_version`
+    file set, the installed runtime) and every `socket.connect` (the DB driver connects in C, so any Python
+    connect is a violation); and record the backend modules whose code runs (`sys.monitoring` PY_START). It
+    records, never raises. An audit hook cannot be removed: `__exit__` deactivates it."""
+
+    _active: "ComposeAudit | None" = None
+    _installed = False
+
+    def __init__(self) -> None:
+        import site
+
+        from assetops_backend import read_scope
+        from assetops_backend.chain.adapters import file_inputs
+        from assetops_backend.chain.watermark import MANIFEST_ENV
+
+        root = TOOLS.parent
+        allowed: list[Any] = list(file_inputs.prefixes())
+        allowed += [root / "backend" / "assetops_backend", root / "backend" / "migrations", root / "config",
+                    root / "host", root / "contracts", sys.prefix, sys.base_prefix, sys.exec_prefix,
+                    *site.getsitepackages()]
+        allowed += [os.environ[n] for n in MANIFEST_ENV if os.environ.get(n)]
+        self.allowed = sorted({p for p in (_norm(a) for a in allowed) if p})
+        self._backend = (_norm(root / "backend") or "") + os.sep
+        self._composing = read_scope.COMPOSING
+        self.violations: list[dict[str, str]] = []
+        self.modules: set[str] = set()
+        self._busy = False
+
+    def _ok(self, path: str) -> bool:
+        return any(path == a or path.startswith(a.rstrip(os.sep) + os.sep) for a in self.allowed)
+
+    @staticmethod
+    def _hook(event: str, args: tuple[Any, ...]) -> None:
+        self = ComposeAudit._active
+        if self is None or self._busy or (event not in _PATH_EVENTS and event != "socket.connect"):
+            return
+        route = self._composing.get()
+        if route is None:
+            return
+        self._busy = True
+        try:
+            if event == "socket.connect":
+                self.violations.append({"route": route, "event": event, "target": repr(args[1])[:200]})
+                return
+            path = _norm(args[0]) if args and args[0] is not None else _norm(".")
+            if path is not None and not self._ok(path):
+                self.violations.append({"route": route, "event": event, "target": path})
+        finally:
+            self._busy = False
+
+    def _start(self, code: Any, offset: int) -> Any:  # noqa: ARG002
+        if self._composing.get() is None:
+            return None
+        name = os.path.normcase(code.co_filename)
+        if name.startswith(self._backend):
+            rel = name[len(self._backend):]
+            if rel.endswith(".py"):
+                self.modules.add(rel[:-3].replace(os.sep, ".").removesuffix(".__init__"))
+        return sys.monitoring.DISABLE  # recorded once; a compose-only code location needs no more events
+
+    def __enter__(self) -> "ComposeAudit":
+        if not ComposeAudit._installed:
+            sys.addaudithook(ComposeAudit._hook)
+            ComposeAudit._installed = True
+        ComposeAudit._active = self
+        tool = sys.monitoring.PROFILER_ID
+        sys.monitoring.use_tool_id(tool, "assetops-compose-audit")
+        sys.monitoring.register_callback(tool, sys.monitoring.events.PY_START, self._start)
+        sys.monitoring.set_events(tool, sys.monitoring.events.PY_START)
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        tool = sys.monitoring.PROFILER_ID
+        sys.monitoring.set_events(tool, 0)
+        sys.monitoring.register_callback(tool, sys.monitoring.events.PY_START, None)
+        sys.monitoring.free_tool_id(tool)
+        sys.monitoring.restart_events()
+        ComposeAudit._active = None
+
+
+def listed_modules() -> list[str]:
+    return json.loads(MODULES_FILE.read_text(encoding="utf-8"))["modules"]
 
 
 def _kind(c: Any, name: str) -> str | None:
@@ -127,27 +254,40 @@ def _run(url: str, work: Path) -> dict[str, Any]:
     from sqlalchemy import create_engine, event
     from sqlalchemy.engine import Engine
 
+    from assetops_backend import read_scope
     from assetops_backend.chain.composition import prebuilt_requests
     from demo_combined_finish import app_client
 
     captured: dict[str, list[str]] = {}
+    clock_predicates: list[dict[str, str]] = []
     current: dict[str, str | None] = {"route": None}
 
     def listener(conn, cursor, statement, params, context, many):  # noqa: ANN001
         if current["route"] is not None:
             captured.setdefault(current["route"], []).append(statement)
+        if read_scope.COMPOSING.get() is not None and clock_in_predicate(statement):
+            clock_predicates.append({"route": str(read_scope.COMPOSING.get()), "statement": statement[:400]})
 
     event.listen(Engine, "before_cursor_execute", listener)
-    os.environ["ASSETOPS_RESPONSE_STORE"] = "off"  # every request composes, so its reads are captured
+    # CH-5c2: every request composes inside the compose scope (so F4, Q5 and C3 see it) and nothing is stored.
+    os.environ["ASSETOPS_RESPONSE_STORE"] = "compose"
     client = app_client(url, work)
     requests = prebuilt_requests()
     statuses = {}
+    audit = ComposeAudit()
     try:
-        for req in requests:
-            for path in (req.path, *(("/api/estate/portfolio/scope-ids",) if req.path == "/api/estate/portfolio"
-                                     else ())):
+        with audit:
+            for req in requests:
+                for path in (req.path, *(("/api/estate/portfolio/scope-ids",) if req.path == "/api/estate/portfolio"
+                                         else ())):
+                    current["route"] = path
+                    statuses[f"{path}?{req.query}"] = client.get(f"{path}?{req.query}").status_code
+                    current["route"] = None
+            # The dateless board reads its day from the DB clock (`site_overview.read.db_today`, a read_instant
+            # capture), so each board Site is also requested without `date=` (CH-5c2 Q5: `db_today` is exercised).
+            for path in sorted({r.path for r in requests if r.path.endswith("/outcome-board")}):
                 current["route"] = path
-                statuses[f"{path}?{req.query}"] = client.get(f"{path}?{req.query}").status_code
+                statuses[f"{path}?"] = client.get(path).status_code
                 current["route"] = None
     finally:
         event.remove(Engine, "before_cursor_execute", listener)
@@ -158,8 +298,14 @@ def _run(url: str, work: Path) -> dict[str, Any]:
             total = check(c, [s for stmts in captured.values() for s in stmts])
     finally:
         engine.dispose()
+    listed = set(listed_modules())
+    unlisted = sorted(audit.modules - listed)
+    total["clock_predicates"] = clock_predicates
+    total["file_violations"] = audit.violations
+    total["unlisted_modules"] = unlisted
+    total["ok"] = total["ok"] and not clock_predicates and not audit.violations and not unlisted
     return {"requests": len(statuses), "non_200": {k: v for k, v in statuses.items() if v != 200},
-            "routes": per_route, "all": total}
+            "routes": per_route, "all": total, "modules": sorted(audit.modules)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -167,15 +313,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--database-url", required=True)
     parser.add_argument("--work", required=True, type=Path)
     parser.add_argument("--out", type=Path)
+    parser.add_argument("--modules-out", type=Path,
+                        help="write the observed module list (for a reviewed diff of the committed list, Q5)")
     args = parser.parse_args(argv)
     result = _run(args.database_url, args.work)
     text_out = json.dumps(result, indent=1, sort_keys=True)
     if args.out:
         args.out.write_text(text_out, encoding="utf-8")
+    if args.modules_out:
+        args.modules_out.write_text(json.dumps({"modules": result["modules"]}, indent=1) + "\n", encoding="utf-8")
     total = result["all"]
     print(f"requests {result['requests']} non-200 {len(result['non_200'])} tables read {len(total['read'])} "
           f"unresolved {total['unresolved']} untracked {total['untracked']} "
-          f"event_consumption_read {total['event_consumption_read']}")
+          f"event_consumption_read {total['event_consumption_read']} clock_predicates {len(total['clock_predicates'])} "
+          f"file_violations {len(total['file_violations'])} modules {len(result['modules'])} "
+          f"unlisted_modules {total['unlisted_modules']}")
     return 0 if total["ok"] and not result["non_200"] else 1
 
 

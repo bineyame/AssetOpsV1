@@ -13,12 +13,21 @@ from uuid import UUID
 
 from sqlalchemy import create_engine, text
 
-_SITES = "SELECT id, site_code FROM site WHERE tenant_id = :t ORDER BY id"
+_SITES = "SELECT id, site_code, timezone FROM site WHERE tenant_id = :t ORDER BY id"
 _LOOKUP = ("SELECT body, etag FROM chain_response WHERE route = :r AND request_key = :k AND watermark = :w "
-           "AND code_version = :v")
-_INSERT = ("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, body, build_ms) "
-           "VALUES (:t, :r, :k, :w, :v, :e, :b, :ms) ON CONFLICT (route, request_key, watermark, code_version) "
-           "DO NOTHING")
+           "AND code_version = :v "
+           "AND (valid_until IS NULL OR valid_until > greatest(clock_timestamp(), CAST(:now AS timestamptz)))")
+#: CH5c-R7 C2: a live row is a miss once either clock passes `valid_until` (the DB clock, and the app clock
+#: `read_scope.clock()` the compose compares with): the earlier expiry, the safe direction.
+_INSERT = ("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, body, build_ms, "
+           "valid_until) VALUES (:t, :r, :k, :w, :v, :e, :b, :ms, :u) "
+           "ON CONFLICT (route, request_key, watermark, code_version) "
+           "DO UPDATE SET etag = EXCLUDED.etag, body = EXCLUDED.body, build_ms = EXCLUDED.build_ms, "
+           "valid_until = EXCLUDED.valid_until, built_at = EXCLUDED.built_at "
+           "WHERE chain_response.valid_until IS NOT NULL "
+           "AND chain_response.valid_until <= greatest(clock_timestamp(), CAST(:now AS timestamptz))")
+#: CH-5c2: an expired live row (same route, key, W and version) is replaced by the re-warmed body (C5: the pre-build
+#: re-warms it within a tick); a row still valid, or historical, is kept and the insert reports nothing (L1).
 _PRUNE = ("DELETE FROM chain_response x USING (SELECT ctid, row_number() OVER (PARTITION BY route, request_key, "
           "code_version ORDER BY built_at DESC) AS n FROM chain_response) old WHERE x.ctid = old.ctid AND old.n > :keep")
 _WATERMARK = ("SELECT count(*) FROM chain_input_change WHERE (tenant_id = :t OR tenant_id IS NULL) "
@@ -45,11 +54,12 @@ class _Snapshot:
     def watermark(self, tenant_id: UUID, site_ids: Iterable[UUID] | None) -> str:
         return read_watermark(self._c, tenant_id, site_ids)
 
-    def sites(self, tenant_id: UUID) -> list[tuple[str, str]]:
-        return [(str(r.id), r.site_code) for r in self._c.execute(text(_SITES), {"t": tenant_id}).all()]
+    def sites(self, tenant_id: UUID) -> list[tuple[str, str, str]]:
+        return [(str(r.id), r.site_code, r.timezone) for r in self._c.execute(text(_SITES), {"t": tenant_id}).all()]
 
-    def lookup(self, route: str, key: str, watermark: str, version: str) -> tuple[bytes, str] | None:
-        row = self._c.execute(text(_LOOKUP), {"r": route, "k": key, "w": watermark, "v": version}).first()
+    def lookup(self, route: str, key: str, watermark: str, version: str, now: Any) -> tuple[bytes, str] | None:
+        row = self._c.execute(text(_LOOKUP), {"r": route, "k": key, "w": watermark, "v": version,
+                                              "now": now}).first()
         return None if row is None else (bytes(row.body), row.etag)
 
 
@@ -70,13 +80,18 @@ class PostgresResponseRows:
         with self._e().connect().execution_options(isolation_level="REPEATABLE READ") as c, c.begin():
             return work(_Snapshot(c))
 
-    def insert(self, tenant_id: UUID, watermark: str, version: str, build_ms: int,
-               rows: Sequence[tuple[str, str, str, bytes]]) -> None:
-        """Store (route, request_key, etag, body) rows under one watermark, in one transaction."""
+    def insert(self, tenant_id: UUID, watermark: str, version: str, build_ms: int, valid_until: Any,
+               rows: Sequence[tuple[str, str, str, bytes]], now: Any = None) -> set[str]:
+        """Store (route, request_key, etag, body) rows under one watermark, in one transaction; the routes whose
+        row was inserted (L1: `ON CONFLICT DO NOTHING` reports rowcount 0 for a row already there)."""
+        inserted: set[str] = set()
         with self._e().begin() as c:
             for route, key, tag, body in rows:
-                c.execute(text(_INSERT), {"t": tenant_id, "r": route, "k": key, "w": watermark, "v": version,
-                                          "e": tag, "b": body, "ms": build_ms})
+                if c.execute(text(_INSERT), {"t": tenant_id, "r": route, "k": key, "w": watermark, "v": version,
+                                             "e": tag, "b": body, "ms": build_ms, "u": valid_until,
+                                             "now": now}).rowcount:
+                    inserted.add(route)
+        return inserted
 
     def prune(self, keep: int) -> int:
         with self._e().begin() as c:

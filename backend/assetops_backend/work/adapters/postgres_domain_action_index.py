@@ -21,6 +21,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import UUID
 
+from assetops_backend import read_scope
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
@@ -190,7 +191,7 @@ class PostgresDomainActionRead:
                     read_at = self.test_read_clock_override()
                     assert read_at.tzinfo is not None and read_at.utcoffset() == timedelta(0)
                 else:
-                    read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one().astimezone(timezone.utc)
+                    read_at = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one()).astimezone(timezone.utc)
                 return work(_IndexTx(c, tenant_id, site_id, site_code, read_at, self))
         except (OperationalError, DBAPIError) as error:
             raise WorkStoreUnavailable(f"The domain Action store could not be read: {error.__class__.__name__}") \

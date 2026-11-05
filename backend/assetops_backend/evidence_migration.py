@@ -23,6 +23,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Sequence
 
+from assetops_backend import read_scope
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
 from assetops_backend.evidence.composition import (
@@ -46,7 +47,7 @@ from assetops_backend.sites.identity import site_id_key
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return read_scope.clock().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def _jsonable(value):

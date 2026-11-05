@@ -24,6 +24,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
+from assetops_backend import read_scope
 from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, source_gate, unresolved
 from assetops_backend.site_overview import money_state as ms
 
@@ -102,7 +103,14 @@ class SiteOverviewRead:
         self.upstream.dispose()
 
     def db_today(self) -> date:
-        return _utc(self.upstream.schedule.db_now()).astimezone(timezone.utc).date()
+        """The DB clock's UTC date (a dateless board or overview request). CH-5c2 (C3): a read-instant capture
+        through `read_scope.read_instant`, and the next UTC midnight is registered as a boundary (C1), since a
+        Site west of UTC reaches its local-midnight cap after the UTC date has already changed."""
+        now = read_scope.read_instant(_utc(self.upstream.schedule.db_now()).astimezone(timezone.utc))
+        today = now.date()
+        read_scope.within(None, datetime.combine(today + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc),
+                          now)
+        return today
 
     def _fingerprint(self, t: UUID, s: UUID, lo: datetime, hi: datetime) -> tuple[dict[str, Any] | None, str | None]:
         try:

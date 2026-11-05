@@ -17,6 +17,7 @@ import json
 from datetime import datetime, timedelta
 from uuid import UUID
 
+from assetops_backend import read_scope
 from assetops_backend.analytics.assessment_inputs import iso
 
 #: The probe recency limit of a CURRENT read.
@@ -62,7 +63,7 @@ def currentness_state(*, pending: bool, historical: bool, selected: bool, latest
         return "PENDING_RECOMPUTE"
     if historical:
         return "HISTORICAL"
-    if not selected or latest_probe_at is None or window_to is None or window_to > now:
+    if not selected or latest_probe_at is None or window_to is None or read_scope.within(None, window_to, now):
         return "UNKNOWN"
     return "CURRENT" if probe_fresh(latest_probe_at, window_to) else "STALE_SOURCE"
 

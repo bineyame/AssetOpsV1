@@ -39,6 +39,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     tick.add_argument("--max-sites", type=int, default=TickLimits.max_sites)
     tick.add_argument("--s3-jobs", type=int, default=TickLimits.s3_jobs_per_site)
     tick.add_argument("--consequence-items", type=int, default=TickLimits.consequence_items_per_site)
+    # CH5c-R7 F5: `demo_combined` runs the tick without its pre-build stage, then the comparison, then `prebuild`
+    tick.add_argument("--no-prebuild", action="store_true")
+    sub.add_parser("prebuild", help="the stored-route pre-build stage alone (CH5c-R7 F5)")
     enrol = sub.add_parser("enrol")
     enrol.add_argument("--tenant-id", type=UUID, required=True)
     enrol.add_argument("--site-id", type=UUID, required=True)
@@ -69,6 +72,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             datetime.fromisoformat(args.end.replace("Z", "+00:00")), args.environment)
         print(json.dumps(out, default=str))
         return 0
+    if args.command == "prebuild":
+        from assetops_backend.scheduling.stages import prebuild
+
+        out = prebuild(url, {})
+        print(json.dumps(out, default=str))
+        return 0 if out.get("code") != "FAILED" else 1
     if args.command == "heads":
         store = build_schedule_store(url)
         print(json.dumps({"tick": store.tick_head(args.environment), "sites": store.site_heads()}, default=str))
@@ -79,7 +88,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                                  lock_timeout_ms=limits.lock_timeout_ms)
     enable_perf_log()  # CH-0: the tick's `assetops.perf` line goes to stderr; stdout keeps only the report
     report = ScheduleTick(store, StageRunner(url, limits), limits, environment=args.environment,
-                          prebuild=True).tick()
+                          prebuild=not args.no_prebuild).tick()
     print(json.dumps(report.as_json()))
     if report.outcome in ("COMPLETED", "SKIPPED_CLAIMED", "RETRY_DUE"):
         return 1 if any(s.result == "FAILED" for s in report.selected) else 0

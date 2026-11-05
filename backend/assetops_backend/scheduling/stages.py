@@ -442,7 +442,10 @@ def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 
 def prebuild(url: str, args: dict[str, Any]) -> dict[str, Any]:
-    """CH-5c Q8: the stored-route pre-build after the Site loop (`chain/prebuild.py`); no Site lease."""
+    """CH-5c Q8: the stored-route pre-build after the Site loop (`chain/prebuild.py`); no Site lease.
+
+    CH5c-R7 C5: it runs on every tick, not only when a watermark moved, so a live row past its `valid_until` is
+    re-warmed within one tick (a hit costs about 50 ms). `tick --no-prebuild` skips it (F5)."""
     from assetops_backend.chain import prebuild as chain_prebuild
 
     return chain_prebuild.run(url)

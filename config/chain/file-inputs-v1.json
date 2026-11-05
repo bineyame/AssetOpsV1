@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "rule": "CH5c-R7 F2: the non-DB inputs of a stored-route compose. F = sha256 over each root resolved for the request's Sites: its canonical path, then every regular file under it as (relative path, size, mtime_ns), sorted; a missing root hashes as absent. Roots are symbolic and resolved at read time from the adapters' root constants (CH5c2-R1 Q6). {site_key} is the lower-case Site code, {site_code} the code as stored.",
+  "bases": {
+    "evidence": "assetops_backend.evidence.adapters.json_evidence_store:EVIDENCE_STORE_ROOT",
+    "comparison": "assetops_backend.evidence.adapters.legacy_comparison_file:EVIDENCE_STORE_ROOT",
+    "assessments": "assetops_backend.analytics.adapters.json_assessment_store:ASSESSMENT_STORE_ROOT",
+    "commits": "assetops_backend.runs.adapters.json_commit_store:COMMIT_STORE_ROOT"
+  },
+  "roots": [
+    {"path": "{evidence}/migration-performance/{site_key}", "reason": "the Performance gate's newest comparison report (performance_gate, finding_index_gate)"},
+    {"path": "{comparison}/migration/{site_key}", "reason": "the S2 Evidence comparison report (ledger_reads.s2_scope)"},
+    {"path": "{assessments}/sites/{site_code}.json", "reason": "the legacy assessment history (legacy_dispatch_claims)"},
+    {"path": "{evidence}/sites", "reason": "the legacy evidence inventory (evidence_migration._legacy_evidence lists every Site file)"},
+    {"path": "{evidence}/registry", "reason": "the legacy evidence configuration and mappings (load_site)"},
+    {"path": "{commits}", "reason": "the commit store (committed_artifacts) and its root identity (current_store_root)"}
+  ]
+}
