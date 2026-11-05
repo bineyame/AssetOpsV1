@@ -1,5 +1,7 @@
 # CH-9 handoff (builder 8: CH9-R4 F1-F3 built and L3-proved; stopped at the context cap before the main merge)
 
+## Status 2026-11-05 (builder 9): DONE. Main (CH-5c) merged, migrations 0047_chain_response -> 0048 -> 0049, COH-6 x4 retired, polish W6 PASS / fresh 23/23 / COH-17 0, MD-0 rebuilt `*_df73aa8a` + L3m states/close clean + L2m 8/8, guards 14/14 + estate 15/15. Packet section "Merge with CH-5c". No clone left (ch9m dropped); DBs left: mechanism + mechanism_close (derived), templates `*_df73aa8a`. Next: review.
+
 ## Status 2026-11-05 (builder 8; no process, clone or worktree of mine left; DBs left: mechanism + mechanism_close (derived), templates `*_db4dbb60`)
 - Commits: `e568e0354` F1 (mini-service/2, CriticalServed CRITICAL row, migration `0047_mini_service_v2` on 0046),
   `c61be3a73` F2 (Grow headline/signal from the study via `MiniPorts.opportunity`), `96f10df3e` L2m, `917578f65` packet.

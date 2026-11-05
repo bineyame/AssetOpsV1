@@ -262,7 +262,7 @@ readings yet" becomes "31 of the last 31 ..." on every Kobo board and board summ
   `var/mechanism*-tpl/seed-state.json` is a generated fingerprint and was refreshed by the rebuild.
 - **Merge consequence, owned test change** `2b36a6de4`: `test_w402_migration_postgres.py` `catalog()` counted every
   `mini_depth_%` trigger. CH-5c's 0047 adds `<table>_cic_{ins,upd,del}` on the four mini tables, so the count went
-  from 5 to 17 at head, a red on main as well. The count now leaves out `%_cic_%`, which CH-5c's own tests cover.
+  from 5 to 17 at head. Main should be red on this test too (same test file, same 0047); I inferred that and did not run it on main. The count now leaves out `%_cic_%`, which CH-5c's own tests cover.
   It is not vacuous: before the change, the same run read 17.
 - **COH-6 retired** `4239b5f8b`: the four `MD0b-R:A2` / owner CH-6a close-variant entries in
   `tools/checks/fixtures/chain_coherence/expected-mechanism.json` were deleted. They are resolved by **CH9-R4 F2**:
