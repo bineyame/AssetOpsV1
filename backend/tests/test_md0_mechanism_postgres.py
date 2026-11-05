@@ -211,6 +211,9 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     assert not other, other
     assert all(g[_iso(n)].get("daylight_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
     assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
+    # CH9-R4 F1: critical_served reads the single CRITICAL row (`mini-service/2`): COMPLETE on every delivered day.
+    assert all(g[_iso(n)].get("critical_served") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
+    assert gap.get("critical_served") in ("NO_DATA", "PENDING"), gap
     undelivered = {_iso(n): g.get(_iso(n), {}) for n in range(1, 15) if n not in days}
     record("grades_undelivered", undelivered)
     # MD-0b (CH5a1-R3 M1, was MD-0-F1): the seed drains the product mini worker over the whole story, so no
@@ -438,3 +441,33 @@ def test_publish_renames_the_build_to_its_fingerprint_and_find_matches_only_it()
         for n in (staging, name):
             md.drop_database(admin, n)
         admin.dispose()
+
+
+def test_grow_headroom_has_one_source_summary_value_line_and_portfolio(mech, tmp_path) -> None:
+    """CH9-R4 F2: on MD-0 states the estate summary row, the study value line (Findings › Opportunities) and the
+    Portfolio opportunity headroom name the same lo–hi, because the board's Grow headline reads the selected study
+    through the Portfolio's read. Served in-process by `host/lab_app.py`, as the L3m collect does."""
+    import json as _json
+    import secrets as _secrets
+
+    from demo_combined import KEY_NAMES
+    from demo_combined_finish import app_client
+
+    engine, _ = mech
+    work = tmp_path / "f2"
+    work.mkdir()
+    (work / "keys.json").write_text(_json.dumps({k: _secrets.token_hex(32) for k in KEY_NAMES}), encoding="utf-8")
+    client = app_client(engine.url.render_as_string(hide_password=False), work)
+    w = {"from": "2026-10-03T00:00:00Z", "to": "2026-11-02T00:00:00Z"}  # the L3m month window
+    portfolio = client.get("/api/estate/portfolio", params={**w, "lens": "all"}).json()
+    opps = client.get("/api/estate/findings", params={**w, "lens": "opportunities", "state": "all"}).json()
+    summary = client.get("/api/estate/outcome-summary", params=w).json()
+    lo_hi = portfolio["opportunity"]["headroom"]
+    assert lo_hi is not None and portfolio["opportunity"]["state"] == "FOUND"
+    pair = f"{lo_hi['low']}–{lo_hi['high']}"
+    [item] = [i for i in opps["opportunities"] if i["site_code"] == "KOBO-001"]
+    assert item["study"]["headroom_kw"] == lo_hi and item["value_line"].startswith(f"{pair} kW over ")
+    [kobo] = [s for s in summary["sites"] if s["site_code"] == "KOBO-001"]
+    grow = next(r for r in kobo["rows"] if r["category"] == "GROW_REVENUE")
+    assert grow["short_value"] == f"{pair} kW unused"
+    record("f2_headroom", {"portfolio": lo_hi, "value_line": item["value_line"], "summary": grow["short_value"]})
