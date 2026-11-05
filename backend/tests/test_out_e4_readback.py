@@ -31,7 +31,7 @@ MG2 = ObjectiveFact("MG-2", "avoidable_generator_minutes", AT_MOST, Decimal(0), 
 
 def action(state: str = "VERIFIED", cost=IMPROVED, hours=HOURS) -> ActionFact:
     return ActionFact("a48", "ACT-048", "", "f104", "f104r", True, False, state, "/a48", cost_check=cost,
-                      trial_hours=hours)
+                      trial_hours=hours, source_class="REGISTERED_SIMULATION")
 
 
 def test_cost_line_every_state() -> None:

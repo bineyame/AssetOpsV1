@@ -10,7 +10,8 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
-from typing import Mapping, Sequence
+from collections import namedtuple
+from typing import Any, Mapping, Sequence
 from uuid import UUID
 
 from .grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
@@ -32,6 +33,8 @@ class GradeCounts:
     def to_json(self) -> dict[str, int]:
         return asdict(self)
 
+
+_DayRow = namedtuple("_DayRow", "local_day measure subject_ref grade")
 
 # Day-level grade from its rows: the weakest row decides (every listed measure,
 # every subject). Order from weakest to strongest; NOT_EXPECTED only when no row
@@ -81,6 +84,13 @@ def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures:
         pending=tally[PENDING],
         enough_data_days=enough,
     )
+
+
+def grade_counts_of(facts: Any, measures: Sequence[str]) -> GradeCounts:
+    """CH-5a2b (review L2): the `GradeCounts` of one `ChainRequest.day` result (`chain.read.DayFacts`: day -> measure
+    -> subject -> grade) over its requested days, by the one `_counts` rule."""
+    rows = [_DayRow(d, m, s, g) for d, per in facts.grades.items() for m, subj in per.items() for s, g in subj.items()]
+    return _counts(rows, facts.days[0], facts.days[-1], measures)
 
 
 class SnapshotReader:

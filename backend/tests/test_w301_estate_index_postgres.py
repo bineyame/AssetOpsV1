@@ -224,7 +224,7 @@ def test_cold_ev_window_outside_day_is_unknown(chain) -> None:  # noqa: F811
     assert body["status"] == "UNKNOWN" and body["coverage"]["state"] == "UNKNOWN" and site["state"] == "UNKNOWN"
     assert site["selection_id"] is None and body["scope"]["covered_site_count"] == 0
     assert body["rows"] == [] and body["total_count"] is None
-    assert all(v is None for k, v in body["summary"].items() if k != "opportunity_count")
+    assert all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
 
 
 def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: F811
@@ -236,7 +236,7 @@ def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: 
     assert states == {str(built.site_id): "CURRENT", empty: "UNKNOWN"}
     assert body["scope"]["authorized_site_count"] == 2 and body["scope"]["covered_site_count"] == 1
     assert body["coverage"]["state"] == "PARTIAL" and body["status"] == "UNKNOWN"
-    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k != "opportunity_count")
+    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
     assert body["rows"] and {r["site_id"] for r in body["rows"]} == {str(built.site_id)}  # settled rows stay
     # The committed-import rule: a Site imported at or after `to` is outside the scope.
     imported_before(built.engine, built.tenant_id, empty, DAY + timedelta(days=1))
@@ -481,7 +481,7 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     assert before["rows"] == [] and before["total_count"] is None
     # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; every count stays null.
     assert before["summary"].pop("as_of") == before["window"]["known_at"]
-    assert all(v is None for k, v in before["summary"].items() if k != "opportunity_count")
+    assert all(v is None for k, v in before["summary"].items() if k not in ("opportunity_count", "claims"))
     # At the exact cutoff and live: the NO_LONGER_SUPPORTED revision, in All, outside Supported.
     assert rows_of(exact) == rows_of(live) == [(finding_id, rev3, "NO_LONGER_SUPPORTED", "2026-10-21T08:00:00Z")]
     assert exact["status"] == "HISTORICAL" and live["status"] == "CURRENT"
@@ -496,7 +496,7 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     pending = estate.ok("findings", **day)
     (site,) = pending["coverage"]["sites"]
     assert pending["status"] == site["state"] == "PENDING_RECOMPUTE" and site["job_state"] == "PENDING"
-    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k != "opportunity_count")
+    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k not in ("opportunity_count", "claims"))
     held = estate.ok("findings", **day, known_at=iso(c3))
     assert held["rows"] == exact["rows"] and held["selection_token"] == exact["selection_token"]
     assert held["coverage"] == exact["coverage"] and held["status"] == "HISTORICAL"

@@ -18,6 +18,9 @@ from typing import Any, Callable, Iterable, Mapping
 from assetops_backend import perf
 from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
+from assetops_backend.chain.claims import CLAIM_KEYS
+from assetops_backend.chain.threads import OPEN_CLASS, VERIFIED_CLASS, classify
+from assetops_backend.chain.vocabulary import count_basis
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
@@ -176,6 +179,12 @@ def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
     return at[cutoff] if cutoff in at else a.get("_segment_no")
 
 
+def _same_segment(action_seg: int | None, finding_seg: int | None) -> bool:
+    """CH-3 §3 (CH-2 L1): an Action is current for a Finding only in the Finding's segment; unknown on either side
+    matches (the join's rule)."""
+    return finding_seg is None or action_seg is None or action_seg == finding_seg
+
+
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
     """Closure 4 S9 / r1a Q-1a-1, CH-2 §5.1 (I-03): an Action matches a Finding row when the row's Finding
     occurrence is on the Action's thread, in the same segment. CH-5a2 B3: the exact
@@ -188,8 +197,7 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     def same_segment(a: dict[str, Any]) -> bool:
         """CH-3 §3 (CH-2 L1): on a thread, an Action is current for a Finding only in the Finding's segment, both
         read at the row's cutoff."""
-        seg = action_segment_for(a, row)
-        return segment is None or seg is None or seg == segment
+        return _same_segment(action_segment_for(a, row), segment)
 
     matches = [a for a in actions if thread is not None and a.get("_thread_id") == thread and same_segment(a)]
     if not matches:
@@ -562,15 +570,15 @@ def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
     revision; `f_rows` with their `_thread`); the exact revision stays as the audit fact. Counts only on
     complete applicable Action coverage (cold/EV NOT_APPLICABLE does not force null)."""
     complete = _coverage_state([cov["state"] for _, cov in a_sites]) == "COMPLETE"
-    on_thread = {((r.get("_thread") or {}).get("id"), (r.get("_thread") or {}).get("segment_no"))
-                 for r in f_rows or () if (r.get("_thread") or {}).get("id") is not None}
+    on_thread = [r for r in f_rows or () if (r.get("_thread") or {}).get("id") is not None]
     rows = []
     for a in a_rows:
         raw = a["_raw"]
         thread = a.get("_thread_id")
-        segment = action_segment_for(a, {})
+        # CH-5a2b (review L1): per Finding row, the Action's segment read at that row's own cutoff (`_action_for`).
         origin_selected = thread is not None and any(
-            t == thread and (seg is None or segment is None or seg == segment) for t, seg in on_thread)
+            r["_thread"]["id"] == thread and _same_segment(action_segment_for(a, r), r["_thread"].get("segment_no"))
+            for r in on_thread)
         at = raw.get("_selected_recorded_at")
         rows.append({"action_id": a["action_id"], "action_code": a["action_code"],
                      "selected_action_event_id": a["selected_event_id"],
@@ -592,8 +600,8 @@ def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
 
 
 #: CH-3 §5: thread states (chain/lifecycle.py VERIFIED_STATES / ATTENTION_STATES).
-VERIFIED_THREAD_STATES = ("RESOLVED_MONITORING", "CLOSED")
-ATTENTION_THREAD_STATES = ("OPEN", "RECURRED", "REOPENED")
+VERIFIED_THREAD_STATES = VERIFIED_CLASS
+ATTENTION_THREAD_STATES = OPEN_CLASS
 
 
 def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
@@ -614,8 +622,9 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
     threads = {tid: (sid, st) for tid, (_, sid, st) in best.items()}
     if not threads:
         return None
-    return {"verified_resolution_count": sum(1 for _, st in threads.values() if st in VERIFIED_THREAD_STATES),
-            "priority_site_count": len({sid for sid, st in threads.values() if st in ATTENTION_THREAD_STATES})}
+    # CH5a2b-R Q7: the one classifier; the legacy fields stay on this Finding-row set until CH-6b.
+    return {"verified_resolution_count": classify(st for _, st in threads.values())["verified"],
+            "priority_site_count": len({sid for sid, st in threads.values() if classify([st])["open"]})}
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -800,12 +809,17 @@ class EstatePortfolioService(EstateEvidenceService):
         # WALK1-1 (WN-2): counts are claims on complete (or complete-empty) coverage of their root, or, on a PARTIAL
         # estate, over the checked days (a PARTIAL Site's rows already drop every head touching an unchecked day,
         # `coverage.py` §2.5). Nothing is extrapolated; money is unchanged (D-W1-4).
-        count_basis = ("COMPLETE" if states["F"] in (COMPLETE, EMPTY)
-                       else "CHECKED_DAYS" if status == PARTIAL_STATUS else None)
-        finding_known = count_basis is not None
+        coverage_basis = ("COMPLETE" if states["F"] in (COMPLETE, EMPTY)
+                          else "CHECKED_DAYS" if status == PARTIAL_STATUS else None)
+        finding_known = coverage_basis is not None
         # Pre-flight E1: `select_evidence_scope` emits rows for a PARTIAL mini-grid Site (one per dispatch day,
         # unchecked days UNASSESSED with no typed gap), so the evidence gap count follows the same rule.
-        evidence_known = states["E"] in (COMPLETE, EMPTY) or count_basis == "CHECKED_DAYS"
+        evidence_known = states["E"] in (COMPLETE, EMPTY) or coverage_basis == "CHECKED_DAYS"
+        # CH-5a2b (§B13 R3, §B14 Q7-Q9): the PC-1 count claims from the one chain computation, and
+        # `summary.count_basis` from the one basis rule over their day grades. `coverage_basis` above keeps only the
+        # nullability of `finding_count` / `evidence_gap_site_count` until CH-6b.
+        counted = self._claims(tenant_id, scope, req)
+        claims = self.claims_json(counted, CLAIM_KEYS)
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None,
             "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
@@ -820,7 +834,8 @@ class EstatePortfolioService(EstateEvidenceService):
                                  for g in GROUPS},
             # OUT-A2 (ruling A-Q11): over `members`; all four keys; both counts null unless F is known.
             "category_counts": category_counts(members, finding_known),
-            "count_basis": count_basis,
+            "count_basis": count_basis(claims[CLAIM_KEYS[0]]["days"]),
+            "claims": claims,
             "checked_days": [{"site_id": str(site["site_id"]), "site_name": site["site_name"],
                               "checked": cov["days"]["checked"], "requested": cov["days"]["requested"],
                               "withheld": bool(cov["days"].get("withheld"))}

@@ -410,8 +410,11 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                               "category_counts": dict.fromkeys(
                                   ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"),
                                   {"open_findings": 0, "sites_with_primary_finding": 0}),
-                              # WALK1-1: a settled estate counts on complete coverage; no partly checked Site.
-                              "count_basis": "COMPLETE", "checked_days": []}
+                              # CH-5a2b (§B14 Q9): the basis is the day-grade rule over the claims; this
+                              # service has no count computation injected, so it and the claims are not known.
+                              "count_basis": "NOT_KNOWN", "checked_days": [],
+                              "claims": {k: NOT_KNOWN_CLAIM(k) for k in (
+                                  "count.open_threads", "count.verified_results", "count.opportunities")}}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]
@@ -494,3 +497,7 @@ def test_evidence_prompt_null_steps_and_coverage_precedence_pure() -> None:
     assert (chosen["state"], chosen["site_id"], chosen["gap_code"]) == ("AVAILABLE", MG, "G-Upload a log")
     assert chosen["text"] == "Upload a log at name KOBO 001 to address the selected evidence gap."
     assert portfolio.evidence_prompt("COMPLETE", gaps[:1])["state"] == "NO_GAP"
+
+
+def NOT_KNOWN_CLAIM(key):
+    return {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None, "text": "Not known yet"}

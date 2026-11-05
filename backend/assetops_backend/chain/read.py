@@ -15,6 +15,7 @@ from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from assetops_backend import read_scope
+from assetops_backend.actions import lifecycle as action_lifecycle
 from assetops_backend.chain.grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
 from assetops_backend.chain.measures import measures_for
 
@@ -222,6 +223,7 @@ class ActionFacts:
     cost_check: Any
     trial_hours: Any
     has_change: bool
+    source_class: str | None = None   # CH5a2-R R2: the selected outcome's stored source class
 
 
 @dataclass(frozen=True)
@@ -232,6 +234,40 @@ class MoneyHead:
     currency: str | None
     source_provenance: Any
     body: Any = None                        # the consequence read's money body (the fields `_money` shows)
+
+
+def reduce_action_rows(raw: Mapping[str, Any], k: datetime | None) -> tuple[dict[str, Any], ...]:
+    """CH-5a2b R1 (§B14 Q5): each Action with an event by `k`, reduced over its ordered prefix by the imported
+    `actions.lifecycle.reduce` (the reduce `estate/coverage.py` `_actions` uses), with exactly the keys
+    `workflow_label` reads (`resolution_state`, `verification_outcome`, `application_state`,
+    `_raw._verification_window`) plus `_raw._selected_recorded_at` and `_raw._source_class` (R2: the resolution
+    outcome's stored class). The plan window is open at `k` (None = now) and the Action is not resolved."""
+    at = k if k is not None else datetime.now(timezone.utc)
+    events: dict[str, list[dict[str, Any]]] = {}
+    for e in raw.get("events") or ():
+        events.setdefault(str(e["action_id"]).lower(), []).append(read_scope.thaw(e))
+    plans: dict[str, list[Any]] = {}
+    for p in raw.get("plans") or ():
+        plans.setdefault(str(p["action_id"]).lower(), []).append(p)
+    classes = {str(o["id"]).lower(): o["source_class"] for o in raw.get("outcomes") or ()}
+    out = []
+    for a in raw.get("actions") or ():
+        aid = str(a["id"]).lower()
+        prefix = action_lifecycle.ordered(events.get(aid, ()))
+        if not prefix:
+            continue
+        reduced = action_lifecycle.reduce(prefix)
+        resolution = reduced.get("resolution")
+        resolved = resolution is not None and resolution["state"] == action_lifecycle.RESOLVED
+        in_window = any(p["later_start"] <= at < p["later_end"] for p in plans.get(aid, ()))
+        out.append({"action_id": str(a["id"]), "application_state": reduced["application"],
+                    "resolution_state": None if resolution is None else resolution["state"],
+                    "verification_outcome": resolution.get("outcome") if resolved else None,
+                    "_raw": {"_verification_window": in_window and not resolved,
+                             "_selected_recorded_at": prefix[-1]["recorded_at"],
+                             "_source_class": None if resolution is None
+                             else classes.get(str(resolution.get("outcome_id")).lower())}})
+    return tuple(out)
 
 
 class ChainReadPort(Protocol):
@@ -248,6 +284,13 @@ class ChainReadPort(Protocol):
     def has_change(self, tenant_id: UUID, action_ids: Sequence[str]) -> Mapping[str, bool]: ...
 
     def site_threads(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
+
+    def evidence_cutoff(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None: ...
+
+    def placement_facts(self, tenant_id: UUID, site_id: UUID, revision_ids: Sequence[str],
+                        known_at: datetime | None) -> Mapping[str, Any]: ...
+
+    def action_rows(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> Mapping[str, Any]: ...
 
 
 @dataclass(frozen=True)
@@ -287,6 +330,27 @@ class ChainRequest:
         """CH-5a2a (§B1 `/chain` routes): the Site's thread rows (`ChainReadPort.site_threads`), one memoised call."""
         return read_scope.memo("chain.threads", self.reader.ports.site_threads, self.tenant_id, site_id, self.k)
 
+    def evidence_cutoff(self, site_id: UUID) -> datetime | None:
+        """CH-5a2b (§B14 Q7): the Site's evidence watermark at `k` (latest disposition decided by `k`, as
+        `EstateSnapshot.evidence_cutoff`), the cold/EV input of `site_cutoff`; one memoised call."""
+        return read_scope.memo("chain.evidence_cutoff", self.reader.ports.evidence_cutoff, self.tenant_id, site_id,
+                               self.k)
+
+    def placement_facts(self, site_id: UUID, revision_ids: Sequence[str]) -> Mapping[str, Any]:
+        """CH-5a2b R1 (§B14 Q1/Q2): per Finding revision id (lowercase) its source provenance state and
+        `recurs_after` id and title; one memoised port call (at most 3 statements)."""
+        ids = tuple(sorted({str(r).lower() for r in revision_ids}))
+        if not ids:
+            return {}
+        return read_scope.memo("chain.placement_facts", self.reader.ports.placement_facts, self.tenant_id, site_id,
+                               ids, self.k)
+
+    def action_rows(self, site_id: UUID) -> tuple[dict[str, Any], ...]:
+        """CH-5a2b R1 (§B14 Q5): the Site's mini Actions at `k`, shaped with the keys `workflow_label` reads; one
+        memoised port call."""
+        raw = read_scope.memo("chain.action_rows", self.reader.ports.action_rows, self.tenant_id, site_id, self.k)
+        return reduce_action_rows(raw, self.k)
+
     def action_facts(self, site_id: UUID, site_code: str, action_ids: Sequence[str]) -> tuple[ActionFacts, ...]:
         """C6: the state, cost check and trial hours from one memoised `VerificationService.summary` per Action;
         `has_change` from one SQL over every id (replacing the `action` detail read)."""
@@ -299,7 +363,7 @@ class ChainRequest:
             body = read_scope.memo("action_read", self.reader.verification, self.tenant_id, site_id, site_code, aid)
             body = body or {}
             out.append(ActionFacts(aid, body.get("state"), body.get("cost_check"), body.get("trial_hours"),
-                                   bool(changes.get(aid.lower()))))
+                                   bool(changes.get(aid.lower())), body.get("source_class")))
         return tuple(out)
 
     def money_head(self, site_id: UUID, finding_id: str, revision_id: str, *, is_latest: bool,

@@ -20,6 +20,7 @@ from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnap
 from assetops_backend.chain.adapters.postgres_thread_sources import PostgresThreadSources
 from assetops_backend.chain.adapters.postgres_thread_store import PostgresThreadStore, ThreadStoreUnavailable
 from assetops_backend.chain.builder import SnapshotBuilder
+from assetops_backend.chain.claims import EstateClaims
 from assetops_backend.chain.measure_impls import build_measure_set
 from assetops_backend.chain.reader import SnapshotReader
 
@@ -27,7 +28,7 @@ __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "
            "build_chain_inputs", "build_snapshot_store", "build_snapshot_reader", "build_snapshot_builder",
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
-           "build_event_store"]
+           "build_event_store", "build_estate_claims"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -127,8 +128,13 @@ def build_chain_reader(database_url: str | None, *, consequences: Any = None,
     from assetops_backend.chain.read import ChainReader
     from assetops_backend.site_overview.read import stored_source
 
+    from assetops_backend.actions.composition import build_action_store
+    from assetops_backend.evidence.composition import build_link_rows_many_reader, build_link_rows_reader
+
     store = PostgresSnapshotStore(database_url)
-    port = PostgresChainRead(database_url, snapshots=SnapshotReader(store))
+    actions = build_action_store(database_url)  # CH-5a2b R1: its `site_window_on`, on the chain read connection
+    port = PostgresChainRead(database_url, snapshots=SnapshotReader(store), link_rows=build_link_rows_reader(),
+                             link_rows_many=build_link_rows_many_reader(), action_window=actions.site_window_on)
 
     money = None
     if consequences is not None:
@@ -140,6 +146,7 @@ def build_chain_reader(database_url: str | None, *, consequences: Any = None,
     def dispose() -> None:
         port.dispose()
         store.dispose()
+        getattr(actions, "dispose", lambda: None)()
 
     return ChainReader(port, verification=verification, money=money), dispose
 
@@ -150,3 +157,11 @@ def chain_policy_versions() -> dict[str, str | None]:
     return {"coverage": load_coverage_policy().policy_version,
             "register": load_event_register().register_version,
             "lifecycle": load_thread_lifecycle().policy_version}
+
+
+def build_estate_claims(chain_reader: Callable[[], Any], opportunities: Callable[[], Any],
+                        resolve: Callable[[str], Any],
+                        unavailable: tuple[type[BaseException], ...] = ()) -> EstateClaims:
+    """CH-5a2b (§B14 Q7/Q8): the one count computation the Portfolio and estate Findings services call, over the
+    board service's `ChainReader` and thread port (the reads `/estate/chain` uses) and a Site-code resolver."""
+    return EstateClaims(chain_reader, opportunities, resolve, unavailable)

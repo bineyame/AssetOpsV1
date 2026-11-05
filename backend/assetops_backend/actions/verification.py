@@ -1054,7 +1054,7 @@ class VerificationService:
         """OUT-E E4 (additive): the stored cost check and the two trial hours' stored avoidable-generator seconds of
         the outcome the current state names; both null when there is none. Never recomputed on read."""
         if outcome_id is None:
-            return {"cost_check": None, "trial_hours": None}
+            return {"cost_check": None, "trial_hours": None, "source_class": None}
         ports = self._ports().trial_comparison
         row = None if ports is None else ports.store.latest(tenant_id, site_id, UUID(str(outcome_id)))
         cost = None
@@ -1074,7 +1074,10 @@ class VerificationService:
         # CH-3 §5 (I-11, additive): the later window the outcome's plan judged, so the board states its scope.
         plan = next((p for p in self.store.plans(tenant_id, site_id, action_id)
                      if outcome is not None and str(p["id"]) == str(outcome.get("plan_id"))), None)
-        return {"cost_check": cost,
+        # CH5a2-R R2 (CH-5a2b, additive): the selected outcome's stored source class (`details.source.source_class`,
+        # written on evaluate); never derived on read. None without an outcome or a stored class.
+        source_class = (((outcome or {}).get("details") or {}).get("source") or {}).get("source_class")
+        return {"cost_check": cost, "source_class": source_class,
                 "trial_hours": {"before_seconds": seconds["BASELINE"], "after_seconds": seconds["LATER"],
                                 "later_start": None if plan is None else _wire(plan["later_start"]),
                                 "later_end": None if plan is None else _wire(plan["later_end"])}}
