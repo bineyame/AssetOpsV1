@@ -1,0 +1,37 @@
+# Post-demo backlog (SCOPE-1)
+
+- Architect: Claude (Architect 16), 2026-11-05. Binding checked: `.ai/ROLE_CONFIG.md`, Architect = Claude since 2026-10-27.
+- Owner, verbatim (`.agent/owner-scope-backlog-2026-11-05.md`): "put implemnatation that are not demo critical to a backlog, don't keep on pilling commitments".
+- Owner follow-up, verbatim: "let architect divide the remaing work accordingly and only focus on what we should be presenting defensibily to the frist clients".
+- **The test (defensible presentation).** A unit or sub-item stays in the build list only if what we present to the first clients needs it to be defensible: every number, label and claim shown is true, traceable through "Why?", and holds up under questioning. Concretely: no wrong numbers, stale pages, contradictions between screens or crashes; the presented beats (four outcomes; Kobo finding → action → verified; Grow/mill; a fast first page; "Why?") are complete; and the baseline and story build runs. Guards that protect what is shown stay. Where a story does not hold, we **present less** (leave it off or show its honest state), rather than build more. Everything else is here.
+- These items are **not commitments**. None is scheduled. After the demo the owner picks which to plan. Each keeps its original ruling text in its source sheet; that text is history until an item is picked.
+- **Total moved out of the plan: 4.25 units** (BL-01 to BL-05, BL-07 to BL-12). BL-06 was never sized in the plan and is listed so the gap stays visible.
+
+| Id | Item | Source | Why it is not demo-critical | Size |
+|---|---|---|---|---|
+| BL-01 | One `ThreadList` for every Site type, the Site-scoped lens routes (`/sites/:code/findings/{cost,risks,opportunities}`), and removal of the frame switch at `F/shell/SiteAnalyticsFrames.tsx:468-598` | `build-sheet-CH-5b.md` R8; CH-5b3 | The three Site lists already render, with lens chips (W1-F5b). The demo's Findings step (ST-6) uses the estate Findings index and its lenses (CH-5a2). This is consolidation; it closes a MOCK DEVIATION label, not a visible defect. | 0.5 |
+| BL-02 | Shared blocks `MeasureTile`, `FindingCard`, `ActionTimeline` (M4) extracted to `F/blocks/` | `build-sheet-CH-5b.md` §0 "Shared blocks", R9 (part); CH-5b3 | Refactor. Today's screens render these parts. `OutcomeRow` (CH-6 fills its slots) and `Dialog`/`EvidenceTrace` ("Why?") stay in CH-5b3. | 0.25 |
+| BL-03 | OL-1 reshape: status-node `OutcomeContribution` records, `ENTRIES` derived from them with the equality test, `warning_signal_key` | `build-sheet-CH-6.md` R1, §S.1 (status part); CH-6a1 | `ENTRIES` stays the literal it is today; no screen changes. The node records the evaluator needs (R2) stay in CH-6a1. | 0.5 |
+| BL-04 | Outcome-id ratchet `tools/checks/check_outcome_ids.py` with baseline and self-test, plus the §A6 literal removals (except `_productive_month`) and their `--shrink` | `build-sheet-CH-6.md` R3, §A6; CH-6a1 (0.5), CH-6a3 (0.25) | A guard against future hard-coding, and refactors behind it. It protects nothing the client sees. | 0.75 |
+| BL-05 | Startup refusal on an unresolved strategy | `build-sheet-CH-6.md` R4, last sentence; CH-6a1 | An L0 test that every strategy resolves stays in CH-6a1. A startup check adds nothing for one fixed demo build. | 0.25 |
+| BL-06 | A `CHARGERS_MOSTLY_IDLE` detector (no producer exists; `warnings.KINDS` lacks it) | `build-sheet-CH-5b.md` CH5b1-R Q1; was owned by CH-6a1 | The EV Potential part shows "No potential found yet", which is true. The graph check keeps it as its one printed known gap, owner now BL-06. Never in the plan's units. | 0.5 (new, est.) |
+| BL-07 | `RECURRED_DURING_CHECK`: a recurrence while a change is under check is recorded as a thread event and line | `build-sheet-CH-6.md` Revision OWN-1104 R16 (with addendum and MD0b-R revision); CH-6b0 | MD0b-R: the Kobo story no longer has an occurrence during a check (ACT-K1 is verified on D12; D14 is a plain RECURRED). The mill check decides on its metric, not on occurrences (CH-9b R6). See the owner question in the handoff. | 0.5 |
+| BL-08 | The `late_fill` + `known_at` L2m proof on the Portfolio, and guard M retiring `G-portfolio-grow-revenue` | `build-sheet-CH-6.md` §B5 item 3 (last bullet), "guard M retires"; CH-6b3 | The demo reads at story time, with no late fill. Retiring a guard entry is cleanup. | 0.25 |
+| BL-09 | Mill verification guardrails: MG-5 and MG-4 must not be worse over the later days (`GUARDRAIL_<KPI>`, NOT_JUDGED on a non-COMPLETE guardrail day) | `build-sheet-CH-9b.md` R4; CH-9b3 | The demo's mill beat is "midday use rose at least 10% on fully checked days" by the owner's declared rule (P1). Guardrails add a second protection the example data never trips. Moving them out also removes CH-9b3's wait on CH-6a3. See the owner question in the handoff. | 0.5 |
+| BL-10 | One planned `missing` day per Site in the baseline, its L0 checks, and the F-FILL finish row | `build-sheet-DD-1.md` R4 bullet 2, R10 F-FILL; DD-1a2, DD-1b2 | The live step (ST-7) adds the next free day after the story, not a planned gap. Honest gaps already show (GAP-K7, GAP-C3, GAP-E2). | 0.25 |
+| BL-11 | Tick output split: per-stage `consume` / `drain` in the tick JSON and the `assetops.perf` line | `build-sheet-DD-1.md` R9; DD-1b1 | Diagnostics only; R9 itself says "no behaviour change". | 0.25 |
+| BL-12 | M2 trigger-cost measurement (change rows, settle with and without triggers, `wmtime`) | `build-sheet-DD-1.md` "Build units" must-have 2; `build-sheet-CH-5c.md` §8.6 M2; DD-1b2 | A measurement. Page speed on the build is checked directly by F-PERF and E4's `perf_budget.py`. | 0.25 |
+
+**Already after the demo (unchanged, plan §2.2):** CH-7, CH-8, CH-10a/b, Slice F, the general consumption tariff. A full-day MG-5 measure (CH6-R R9 keep → CH-8). The set-based insert and commit-safe cursor (DD-1 R11).
+
+## What the demo presents less of (so it stays defensible)
+
+- **Site Findings lenses (BL-01):** not presented. The Findings step (ST-6) uses the estate Findings index and its lens routes only.
+- **EV Potential (BL-06):** shown as "No potential found yet", which is true. The presenter does not show the mock's "Chargers used under a fifth of capacity".
+- **Mill check (BL-09):** presented as "midday use rose by at least the declared 10% on fully checked days", by the owner's rule. If a client asks whether critical loads suffered, the presenter points to the MG-5 row on the same days; the script does not claim a guardrail check.
+- **Planned gap days (BL-10):** not presented. Honest gaps already in the story (GAP-K7, GAP-C3, GAP-E2) are shown and said.
+- **A recurrence during a check (BL-07):** not presented. If the mill's later window has a headroom occurrence, the script names it plainly from the thread, not as "happened again during the check".
+
+## Added with SCOPE-1 (stated as defensibility-critical)
+
+- **Price in "Why?" for money (+0.25, CH-6a3).** CH5b2-R Q7 left the declared price out of "Why?" (Known Deviation, owner CH-6). An estimated income figure that cannot show "{kWh} × {price}" when the client asks "how is that calculated?" is not defensible. CH-6a3 adds the declared price (the strategy's `money.price`) to the "Comes from" line of every money claim. No new price source: the declared prices already exist (plan §2.2, AG-18).

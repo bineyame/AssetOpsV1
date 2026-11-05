@@ -229,11 +229,11 @@ Each line is a MOCK DEVIATION candidate against MA-1 M2 copy. The packet lists t
 - **Reading budget.**
   - This sheet: §0 bullets "Why?" and "ETag"; §1 R1–R4; the Revision OWN-CH5c (R4 is superseded there); §2.1–§2.3; §3 the four named rows; §5 item 1 (trace and ETag bullets), item 2, item 4 backend lines; §6 P1, P3; §7 bullets 1–2.
   - Design §5b.5 only.
-  - `.agent/build-sheet-CH-5c.md`: the CH5c-R3 R6/R7 rows (watermark and stored `etag`) and §8.6/§8.7 headings for `valid_until` (grep `etag`, `watermark`, `valid_until`); nothing else.
+  - `.agent/build-sheet-CH-5c.md`: the CH5c-R3 R6/R7 rows (watermark and stored `etag`), §8.6/§8.7 headings for `valid_until`, and **§8.8 item 5** (the tag includes `valid_until`; a 304 = watermark + one live-row lookup); nothing else.
   - Code, by grep: `B/chain_api.py`, `B/chain/watermark.py`, `B/chain/vocabulary.py`, `outcome_map` `categories_for` / `thread_signal_key`, `.agent/build-sheet-MD-0.md` §7 (the Kobo D-days only).
 - **Acceptance.**
   - L0 `test_ch5b_why.py`: each category × Site type, including COMPLETE, GAP-K7 → `why.change.days`, open thread without Action → `why.change.action`, CHANGE_APPLIED → `why.change.verdict`; no node without ids; `text` equals the §2.3 literals; `CATEGORY_UNKNOWN` 422; the estate shape sums no money.
-  - L2m `test_ch5b_why_postgres.py`: Kobo D13 OPTIMIZE_COST trace ≤ 50 ms (5-run median, reported) with the D4/D11 Findings and ACT-K1's verification; a `304` round trip on every chain and why route; after `late_fill(KOBO-001, D7)` the Kobo tag changes and the Cold tag does not. A `304` is answered after the watermark statement alone (no composition, no store read), asserted with the CH-5a1 ledger.
+  - L2m `test_ch5b_why_postgres.py`: Kobo D13 OPTIMIZE_COST trace ≤ 50 ms (5-run median, reported) with the D4/D11 Findings and ACT-K1's verification; a `304` round trip on every chain and why route; after `late_fill(KOBO-001, D7)` the Kobo tag changes and the Cold tag does not. A `304` is answered after the watermark statement plus one indexed live-row lookup, with no composition (CH5c2-R2 item 5), asserted with the CH-5a1 ledger.
   - Scoped existing: `test_ch5a2_*`, `test_out_b4_route.py`, `tools/checks/test_chain_coherence.py`, the CH-5c/5c2 store tests (grep `test_ch5c`).
   - Guards A, W, N, V, M, L, D; the CH-5b1 checks.
 - **No frontend in this unit.** The routes are additive and unused until CH-5b3, so the unit merges alone safely.
@@ -251,3 +251,80 @@ Each line is a MOCK DEVIATION candidate against MA-1 M2 copy. The packet lists t
   - L3 (clone) and L3m: settle, collect and check: 0 new. `perf_budget.py --database-url` in report mode on both, cold and warm, with and without `If-None-Match`; packet tables against §11b.
   - Captures at 1440/390 of the board, Portfolio and Site Findings (All + three lenses) against the MA-1 mock; MD-CH5b-1/2/3 labelled in the packet.
   - Guards A, W, N, V, M, L, D.
+
+## CH5b1-R: rulings on the CH-5b1 pre-flight (Architect 14, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch5b1\.agent\CH-5b1-preflight.md` at `4479b6ce2`. Binding checked: main `.ai/ROLE_CONFIG.md`, Architect = Claude since 2026-10-27. Size stays **1.5**. Owner: nothing to decide.
+
+- **Q1 overridden (part).** Binding the measure/mechanism rule to `FINDING:` and thread-mechanism `SIGNAL:` keys is honest. Checking the other 10 keys only for "resolves" is not enough, because it hides a real gap: `WARNING:CHARGERS_MOSTLY_IDLE` has **no producer** (it is not in `B/outcomes/warnings.py:28` `KINDS` and no module emits it). CH-6 R12 uses it as the EV Potential source, so that part could never show anything.
+  - `B/chain/graph.py` takes a declared table `NOT_CHAIN_SOURCED = {key: (producer, owner)}`. It covers each `ENTRIES` key that has no measure or mechanism. The producer for each `WARNING:<kind>` is `warnings.KINDS`: the check asserts `kind in KINDS`. The two `SIGNAL:EVIDENCE_*` keys name the module that emits each one (the builder names them in the packet with `path:line`). A test asserts that the module emits the key.
+  - The check **fails** in four cases: (1) a key is neither chain-mapped nor in the table; (2) a table key is now chain-mapped (a stale row); (3) a table row's producer does not resolve; (4) a table key is not in `ENTRIES`.
+  - The only row with `producer=None` is `WARNING:CHARGERS_MOSTLY_IDLE`, with owner **CH-6a1**. It is printed as "known gap: no producer". Any other row with `producer=None` fails. CH-6a1 closes it in its pre-flight: it either adds a declared detector (its threshold comes from the design, never tuned) or removes the key and the R12 record. The Architect rules on that choice. When the gap closes, the row is removed, and (2) enforces that.
+  - The other keys are chain nodes in CH-8, as the default says. CH-6a1's derived `ENTRIES` (CH-6 R1) feeds the same check without change. A `MEASURE:` source must be a `MEASURES` key.
+- **Q2 accepted.** One addition: the `create_app` hook raises a named `ChainGraphError` with the failed rule and the key. It is never logged and skipped.
+- **Q3 accepted.** The `.dot` file and a deterministic pure-Python SVG are both committed. The test compares them with a fresh render. check-all runs `check` only and never rewrites the files. No Graphviz dependency is added.
+- **Q4 accepted.** The probe helpers are imported unchanged. A "not measured" budget never prints or counts as a pass. Owners: `why_trace_ms` CH-5b2; `tick_chain_stage_fraction` and `snapshot_rebuild_ms_per_measure_day` DD-1b2/E4. E4 fails while any budget is still `measured_by: null`. The JSON is copied verbatim from §11b, and a test asserts it equals the probe's `BUDGETS`.
+- **Q5 accepted.** A non-200 response or a missing route is a breach in both modes. `--report` prints `BREACH` rows and exits 0. It is only for per-slice runs; the finish checks and E4 use fail mode. check-all runs `--fixture` only.
+- **Q6 accepted.** The clone is `assetops_chainclone_ch5b1_test` (authorised `*_test`), with fresh `secrets.token_hex(32)` keys. Nothing is read from polC. If the polish template has sessions, wait; never terminate them. Drop the clone after the run. The packet records the numbers and the run parameters (store on, 3 runs).
+- **Q7 accepted.** A file outside the baseline counts from 0. A rename is a new file. The only baseline edits are `--shrink` and a hand-moved row for a rename, with equal counts, shown in a reviewed diff. `--shrink` refuses to run while any cell has risen, so it cannot hide a rise.
+- **P2/P4.** Accepted as reported. The baseline is the tool's output; any difference from the pre-flight table goes in the packet.
+- **CH5b1-R2 (Architect 15, Claude, 2026-11-05): packet D1 ruled (b).** The real emitter already exists. `SIGNAL:EVIDENCE_READINESS` (`outcomes/outcome_map.py:25`, moves `@EVIDENCE`) is the edge that `outcomes/status.py:86-87` implements: `_evidence_outcome` plus `LIMITED_READINESS` sets WATCH / `EVIDENCE_READINESS_<r>` on `DOMAIN_ALIAS["@EVIDENCE"][domain]`. The edge is real board behaviour, so (a) would drop it from the graph without saying so, and (c) would call a working path a gap.
+  - Owner: **CH-5b1**, in this fix round. Set the row to `("assetops_backend.outcomes.status", "CH-5b1")`. `KNOWN_GAPS` goes back to `{"WARNING:CHARGERS_MOSTLY_IDLE"}`, and `test_ch5b_graph.py:101` is pinned to that one key.
+  - The producer test is behavioural, not `emits_signal`. This key is a status input, not a `SignalFact`. For each domain and each `LIMITED_READINESS` value, `outcome_state` on the `@EVIDENCE` outcome, with no other signals, returns `(WATCH, "EVIDENCE_READINESS_<r>")`. The same call on a non-`@EVIDENCE` outcome does not return it. `ENTRIES[key][0] == ("@EVIDENCE",)`, so the graph edge and the status edge cannot drift apart.
+  - Re-render `chain-graph.dot`/`.svg` through the tool; the edge stops being dashed. Then remove the "D1" comments at `graph.py:37,48` and `test_ch5b_graph.py:100,112`.
+
+## CH5b2-R: rulings on the CH-5b2 pre-flight (Architect 14, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch5b2\.agent\CH-5b2-preflight.md` at `c3cf85409`. Size stays **2**: the acceptance already required a 304 with no composition on every chain and why route, so storing them was in scope. Owner: nothing to decide, because the MA-1 mock (`frontend/mockups/v70/index.html:411-438`, `DAYS`, `PFDAYS`, `WHY`) has wording for every new line except two.
+
+- **Q1 accepted.** All five routes go through `ResponseStore.serve`. The store key includes every query parameter (`category`, `from`, `to`, `known_at`) and the thread id. `prebuilt-routes-v1.json` is unchanged. The W6 module list grows by a reviewed diff. W6 and `fresh` run once on an `assetops_chainclone_ch5b2_test` clone, which is dropped afterwards.
+- **Q2 accepted.** Under `*`, a 304 is returned only when a live row exists. In `off` and `compose` modes, there is no ETag and no 304, and a test asserts that.
+- **Q3 accepted.** `row_state` is the only node that may have `ids: []`. A test asserts that every other node has at least one id.
+- **Q4 accepted.** `trace_facts` is one SELECT, memoised. A ledger test asserts one statement per request.
+- **Q5 accepted as an interim.** No measure-to-outcome table is invented. CH-6a1's `MEASURE:` records replace this rule; owner CH-6a1.
+  - Known Deviation: a category with no thread has no measure line. Example: EV Grow, which the mock leads with "120 kWh delivered".
+  - Measure labels, in plain language and matched to the mock's words:
+
+    | Measure | Label |
+    |---|---|
+    | `avoidable_gen_min` | "Generator time beyond need" |
+    | `productive_kwh` | "Energy for productive use" |
+    | `daylight_headroom_kw` | "Unused daytime solar" |
+    | `critical_served` | "Critical load served" |
+    | `chamber_temp_c` | "Chamber temperature" |
+    | `backup_start_chain` | "Backup automatic start" |
+    | `charging_kwh` | "Energy delivered by charging" |
+
+  - Each label is a MOCK DEVIATION (MA-1 writes free sentences).
+- **Q6 overridden: the wording follows the mock's `DAYS` lines.**
+  - Lines (`why.days.*`):
+    - several days: "{c} of {e} day{s} checked";
+    - suffixes, each only when nonzero: " · {p} partly checked" (PARTIAL), " · {n} with too little data, not counted" (LOW and NO_DATA).
+    - " · {q} not in yet" (PENDING) is the one MOCK DEVIATION, because the mock has no pending case.
+    - one-day window: "{d} checked", "{d} partly checked", "{d}: too little data, not counted" or "{d}: not in yet", with `{d}` as "6 Oct".
+  - NOT_EXPECTED is not counted.
+  - Grades are counted over the category's measures, or over the Site type's measures when the category has none.
+  - The builder confirms that LOW is the grade the board already excludes from "checked". If it is not, LOW joins "partly checked". No value changes.
+- **Q7 accepted, with new wording.**
+  - Zero lines → `why.from.none` = "Nothing has been recorded for this yet". It is a MOCK DEVIATION.
+  - The price suffix is omitted: no declared-price read exists. Known Deviation, owner CH-6 (money). The `say` line still shows the board's own value.
+- **Q8 accepted.** A line with no matching board item is not emitted, and the packet counts these cases.
+- **Q9 overridden (part).**
+  - `say` = the Portfolio card's own headline for the category, verbatim, if the estate response carries one (the builder anchors it with `path:line`). Otherwise `why.estate.say` = "{category name} at {n} site{s}", a MOCK DEVIATION against the mock's `pf:` sentences.
+  - `comes_from`: "{site}: {site say}", as the mock does.
+  - `days_used`: per-Site clauses "{site}: {days line}" joined by " · ", as in `PFDAYS`.
+  - `would_change`: the first Site in Site order that has a non-"New readings" line, else "New readings that differ". This is a MOCK DEVIATION, because the mock picks by hand.
+  - `evidence_ref`: `estate_ref("findings")`.
+  - No money anywhere.
+- **Q10 accepted.**
+- **Q11 accepted.** This is consistent with CH5b1-R Q4. CH-5b2 owns `why_trace_ms`. Whichever of CH-5b1 and CH-5b2 merges second sets `measured_by` in `perf-budgets-v1.json`. The budget value is never edited.
+
+## Scope cut (SCOPE-1)
+
+- Architect: Claude (Architect 16), 2026-11-05. Plan row **SCOPE-1**. Owner, verbatim (`.agent/owner-scope-backlog-2026-11-05.md`): "put implemnatation that are not demo critical to a backlog, don't keep on pilling commitments", then "let architect divide the remaing work accordingly and only focus on what we should be presenting defensibily to the frist clients". Test and backlog: `.agent/backlog-post-demo.md`. This section overrides the "Build units" section and every earlier ruling where they differ; backlogged text above is history, not scope.
+- **CH-5b2 (2): unchanged** (in build). "Why?" and the 304 are presented beats.
+- **CH-5b3: 2 → 1.25.**
+  - Kept: `F/blocks/OutcomeRow.tsx` (with the three slots CH-6 fills) and `F/blocks/Dialog.tsx` / `EvidenceTrace` (R9 for these two only); the "Why?" button and dialog on the four board rows and the four Portfolio cards (bottom sheet at 390 px); the client 304 reuse in `chainClient`; L3/L3m 0 new and `perf_budget.py` report mode; captures of the board and Portfolio at 1440/390 against MA-1.
+  - Backlogged: R8 one `ThreadList`, the Site lens routes and the frame-switch removal (**BL-01**); `MeasureTile`, `FindingCard`, `ActionTimeline` (**BL-02**).
+  - Acceptance drops: the ThreadList vitest, the synthetic fourth Site type, `s404SiteFindingIndex.test.tsx`, the Site Findings captures and the ratchet `--shrink`. The ratchet still runs in check-all, so no file may rise.
+- **CH-5b total: 5.5 → 4.75.**

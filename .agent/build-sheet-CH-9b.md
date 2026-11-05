@@ -114,3 +114,38 @@ Split at R0 / R1 only if the pre-flight measures more than 6 units.
 **CH-9b3 (1.5).**
 - **Reading budget:** this sheet §1 R3–R7; §2 P4; §3 items 1 (R3, R4, metric text), 2 bullets 2–3, 3, 4, 5; §6. The CH-9b1 P1 answer and any owner OD. Code: the CH-6a `kpi` records for MG-5 and MG-4 (`records_for` / `kpi_record`, grep), `judge` in `B/outcomes/objectives.py`, the CH-1b `snapshots` consumer (grep), `VerificationService.summary`, the frontend verification page (grep `cost_check`).
 - **Acceptance:** L0 pass/fail with the declared rule; guardrail breach → NOT_VERIFIED `GUARDRAIL_<KPI>`; a non-COMPLETE guardrail day → NOT_JUDGED; the R7 line text; L2 evaluate after 3 COMPLETE later days → stored outcome and RESOLVED_MONITORING through the existing lifecycle; L2m on MD-0 if the Kobo story carries the mill Action, else L2 only (packet says which); R6 stated in the packet (with CH-6b0 merged, the during-check occurrence is recorded); the `metrics[]` table rendered (vitest), MD-CH9b-1 labelled; scoped `test_s6_*verification*`, `test_out_e*`, `test_ch3_*`, `test_ch9_*`, `test_ch6_*`; guards A, W, N, V, M and the outcome-id ratchet.
+
+## CH9b1-R: rulings on the CH-9b1 pre-flight (Architect 15, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch9b1\.agent\CH-9b1-preflight.md` at `641c34e0d`. The migration is **`0051_action_opportunity_origin`** (main head 0050); whichever of CH-9b1 and CH-5b2 merges second re-points. **Sizes: CH-9b1 2 → 3, CH-9b2 1 → 2.5, CH-9b3 stays 1.5. CH-9b goes from 4.5 to 7.** Every unit stays well under the 6-unit cap, so no further split. Owner: P1, decided (below).
+
+- **Q1: overridden, B (on `domain_action`), with these terms.** The mill lever changes the operating schedule and writes nothing to equipment (design `:1834`). Its lifecycle is CH-9 Q8 "recorded … and its case completed". `domain_action` already implements exactly that: ACCEPTED comes from its row, APPLIED from the case COMPLETE (`chain/lifecycle_run.py:63-68`). 0035 is the precedent for adding a domain. Option A would make `action` polymorphic, with conditional NULLs under 33 reserve-column reads. That is a hidden-gap risk, and APPLY there writes a reserve setting, which is wrong for this lever. Under B, `action` and its invariants are untouched.
+  - **CH-9b1 (3):**
+    - 0051: the `domain_action` domain becomes `IN ('COLDCHAIN','EV_CHARGING','MINI')`.
+    - An exactly-one-of origin pair (`origin_finding_id`/`_revision_id` or `origin_opportunity_id`/`_revision_id`), under a CHECK tested both ways. The Finding columns get DROP NOT NULL only.
+    - The same pair goes on `chain_action_thread`, with the trigger and the `chain_action` view updated.
+    - The work-case path admits MINI the way 0035 admitted EV. The builder checks each case/intent domain CHECK and lists it with `path:line` in the packet.
+    - Port: `link_action(kind, action_id, origin)`.
+    - `action` gets no change.
+  - **CH-9b2 (2.5):**
+    - `verification_plan` takes an exactly-one-of `action_id` / `domain_action_id` (the existing `0019:91` FK is kept, and a domain FK is added).
+    - Its applied anchor is either the APPLIED `action_event` or the COMPLETE work case, exactly one.
+    - Its origin is either the Finding revision or the opportunity revision, exactly one.
+    - `rule_id` gains `midday-productive-shift-1`.
+    - Reserve-trial plans and outcomes stay byte-equal.
+- **Q2: overridden (part).** No new HTTP route or UI command. Recording goes through the existing domain-action/work service methods (as EV does), at story time and in tests. There is no `apply_schedule`: APPLIED is the case completion.
+- **Q3: overridden.** No `action_schedule_change` table. APPLIED's day is the work case's `occurred_at`, through the existing `case_completions` input (`lifecycle_run.py:66-68`). CH-9b2's freeze uses that same anchor.
+- **Q4: accepted.** Add `UNIQUE (tenant_id, site_id, opportunity_id, id)` on `mini_opportunity_revision` in 0051. It is additive.
+- **Q5: accepted, with the classes swapped.** Under B, the `domain_action` readers (section 4: 48 references in 8 files) must handle both origins. The `action` readers are pinned as Finding-only. Both go in the committed per-file allowlist. A new file or a higher count fails.
+- **Q6: accepted, extended.** Byte-equality at 0050 → 0051 also covers a Cold or EV `domain_action` (board, Actions list, thread, work read), alongside the reserve-trial S6 fixture.
+- **Q7: accepted.** The mill verification plan is CH-9b2's, sized above.
+- **P1: decided by the owner on 2026-11-05.** Verbatim: `.agent/owner-mill-pass-margin-2026-11-05.md`, "10% above baseline (Recommended)". The catalogue entry `verification_plans.midday-productive-shift-1` gains, exactly: `target: "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]"`. Both means are taken over the Complete days of each window. The 10% is declared, not fitted. CH-9b3 implements this rule, and its metric `threshold_text` states it.
+
+## Scope cut (SCOPE-1)
+
+- Architect: Claude (Architect 16), 2026-11-05. Plan row **SCOPE-1**. Owner, verbatim (`.agent/owner-scope-backlog-2026-11-05.md`): "put implemnatation that are not demo critical to a backlog, don't keep on pilling commitments", then "let architect divide the remaing work accordingly and only focus on what we should be presenting defensibily to the frist clients". Test and backlog: `.agent/backlog-post-demo.md`. This section overrides the "Build units" section and every earlier ruling where they differ; backlogged text above is history, not scope.
+- **CH-9b1 (3): unchanged** (in build).
+- **CH-9b2 (2.5): unchanged.** Own review (its batch partner CH-6b0 is backlogged). The reserve-trial byte-equality proof stays: it guards Kobo ACT-001's shown verification.
+- **CH-9b3: 1.5 → 1.0.** Backlogged: R4 guardrails (**BL-09**). Kept: R3 (the owner's 10% rule), R5 evaluator and the `snapshots` trigger, R7 reads and the metrics table. R6: occurrences during the later window are not recorded as RECURRED_DURING_CHECK (BL-07); the packet says so. **Dependency change: CH-9b3 no longer waits for CH-6a3**; it follows CH-9b2. Acceptance drops the guardrail cases, `test_ch6_*` and the outcome-id ratchet.
+- **Presented wording:** "Midday use rose by at least the declared 10% on fully checked days" with the before/after line. No guardrail claim is made.
+- **CH-9b total: 7 → 6.5.**

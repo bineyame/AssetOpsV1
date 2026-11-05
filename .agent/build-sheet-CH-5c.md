@@ -331,3 +331,17 @@ Source: `AssetOpsV1-ch5c2\.agent\CH-5c2-preflight.md` (branch `task/CH-5c2-store
 | Q7 | **3.0 units.** Build every site in pre-flight §3. Any site found beyond it is a Known Deviation, with `path:line`, and goes to the Architect before merge if it is a comparison that reaches a stored body. It is never silently left out. |
 
 C5 is already true (`stages.py:444-448`), so only the docstring changes. The §8.6 acceptance is unchanged.
+
+### 8.8 Revision CH5c2-R2 (packet §A ruling list at `bc2ba7c35`; Architect 13, Claude, 2026-11-05)
+
+All seven are accepted. One amends CH-5b (item 5). None needs the owner, and the size stays 3.0.
+
+| # | Item | Ruling |
+|---|---|---|
+| 1 | `analytics/cold_reads.py:65` `within(None, window_to, now)` | **Accept.** The "future window" note flips at `window_to`, so the time must be a registered boundary. The C4 sweep pins it. |
+| 2 | `verification.current_state` (`:965-966`, `:983`) | **Accept.** The `LATER_WINDOW_OPEN`/`NOT_EVALUATED` flip is registered. `covering_ids` at `:983` passes the clock only as `known_at` against recording times (`recorded_at <= k`, `superseded_at > k`; `postgres_action_store.py:720-724`), so its result changes only when a write moves W. A future-dated `recorded_at` is not a supported write. |
+| 3 | Lookup `valid_until > greatest(clock_timestamp(), :now)` | **Accept.** If the two clocks disagree, the result is an extra miss, never a stale hit. The CH-5c2 E4 hit check must still show hits in the serve environment. That proves the app clock is not behind the DB clock there. |
+| 4 | Expired-row upsert (`DO UPDATE … WHERE valid_until <= greatest(…)`) | **Accept.** The lookup never serves an expired row, so replacing one is not a lost version. A live row is never overwritten, and the rule-8 tail is pinned with non-vacuity proven. This replaces the sheet's insert-only wording for expired rows only. |
+| 5 | `valid_until` in the ETag | **Accept (required).** Without it, a re-warmed body under the same W would share the expired body's tag, and a 304 would revalidate a stale body. **This amends the CH-5b Revision OWN-CH5c line "a 304 is answered after the watermark statement alone".** A 304 is answered after the watermark statement **plus one indexed live-row lookup** by (route, key, W), whose `etag` must equal `If-None-Match`. There is still no composition. A route that is not stored computes its tag after composing, so its 304 saves only bytes. CH-5b2 states this in its packet. |
+| 6 | `site_history.work` allowlisted | **Accept.** It is a writer-side read seen in 0 composes (W6 `clock_predicates 0`), the reason is recorded, and the stale-entry test keeps it honest. |
+| 7 | `db_today` registered at the next UTC midnight | **Accept.** The day it reads is a UTC date. For a Site west of UTC, the Site-local midnight cap (C2) comes after the UTC flip, so without this boundary the store would serve yesterday's body after 00:00Z. The capture and the module-list growth (124) are correct. |
