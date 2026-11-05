@@ -6,6 +6,7 @@ The chain input reader receives the existing read services built by their own do
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Callable
 
 from assetops_backend.chain.adapters.file_chain_config import (
@@ -115,8 +116,10 @@ def thread_lifecycle_policy() -> Any:
     return load_thread_lifecycle()
 
 
+@lru_cache(maxsize=1)
 def declared_graph_inputs() -> Any:
-    """CH-5b1 R6: the declared chain graph inputs (register, measures, adapters, lifecycle, outcome map)."""
+    """CH-5b1 R6: the declared chain graph inputs (register, measures, adapters, lifecycle, outcome map).
+    Memoised (L3): the register and lifecycle files are parsed once per process."""
     from assetops_backend.chain.graph import GraphInputs
     from assetops_backend.chain.measures import MEASURES
     from assetops_backend.outcomes.catalogue import OUTCOME_BY_KEY

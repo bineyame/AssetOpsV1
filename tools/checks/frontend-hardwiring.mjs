@@ -2,7 +2,7 @@
 //
 // Counts, per product source file under frontend/src (tests, test helpers, F/blocks/vocabulary* and
 // F/views/registry.ts excluded), the §13 hard-wiring patterns:
-//   cmp   site_type / siteType === or !== against a string literal or a *SITE_TYPE constant (not typeof)
+//   cmp   site_type / siteType === or !== against any operand except undefined/null, so *_DOMAIN constants count (not typeof)
 //   lit   a quoted Site-type value (MINIGRID, COLDCHAIN, EV_CHARGING)
 //   code  a Site code (KOBO-001, COLD-LAB-001, EV-LAB-001 shapes)
 //   oid   an outcome-id literal (MG-n, CC-n, EV-n)
@@ -24,7 +24,7 @@ export const SCAN_ROOT = 'frontend/src';
 export const BASELINE_PATH = 'tools/checks/fixtures/frontend-hardwiring-baseline.json';
 
 export const PATTERNS = {
-  cmp: /(?<!typeof\s+[\w.?!]*)\b(?:site_type|siteType)\s*[!=]==\s*(?:["'`]|[A-Z_]*SITE_TYPE\b)/g,
+  cmp: /(?<!typeof\s+[\w.?!]*)\b(?:site_type|siteType)\s*[!=]==\s*(?!undefined\b|null\b)[\w"'`]/g,
   lit: /["'`](?:MINIGRID|COLDCHAIN|EV_CHARGING)["'`]/g,
   code: /\b(?:KOBO|COLD-LAB|EV-LAB)-\d{3}\b/g,
   oid: /\b(?:MG|CC|EV)-\d\b/g,

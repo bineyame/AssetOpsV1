@@ -62,3 +62,29 @@ def test_not_measured_is_never_a_pass() -> None:
 def test_p95_is_nearest_rank() -> None:
     assert perf_budget.p95([1, 2, 3]) == 3
     assert perf_budget.p95(list(range(1, 21))) == 19
+
+
+def test_a_budget_passes_once_it_is_measured() -> None:
+    """L1: the `measured_by: null` budgets are not permanent failures; a recorded value within the limit passes."""
+    fx = json.loads((perf_budget.FIXTURES / "pass.json").read_text(encoding="utf-8"))
+    budgets = perf_budget.load_budgets()
+    rows = perf_budget.evaluate(budgets, fx["record"])
+    others = [r for r in rows if r[0] in budgets["other"]]
+    assert others and all(r[4] == "PASS" for r in others)
+    assert not perf_budget.failed(rows)
+
+
+def _stub_measure(monkeypatch, fixture: str) -> None:
+    rec = json.loads((perf_budget.FIXTURES / fixture).read_text(encoding="utf-8"))["record"]
+    monkeypatch.setattr(perf_budget, "measure", lambda *a, **k: rec)
+
+
+def test_report_mode_exits_zero_on_a_breach(monkeypatch, tmp_path: Path) -> None:
+    _stub_measure(monkeypatch, "breach-cold.json")
+    argv = ["--database-url", "x", "--work", str(tmp_path)]
+    assert perf_budget.main(argv + ["--report"]) == 0
+
+
+def test_a_breach_exits_one_without_report(monkeypatch, tmp_path: Path) -> None:
+    _stub_measure(monkeypatch, "breach-cold.json")
+    assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path)]) == 1

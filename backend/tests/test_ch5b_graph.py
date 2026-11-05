@@ -97,8 +97,8 @@ def test_each_rule_fails_on_its_mutation(g, name) -> None:
 
 
 def test_known_gaps_are_ruled_rows_only() -> None:
-    # CH5b1-R Q1: CHARGERS_MOSTLY_IDLE (CH-6a1); EVIDENCE_READINESS is Known Deviation D1 in the packet.
-    assert KNOWN_GAPS == {"WARNING:CHARGERS_MOSTLY_IDLE", "SIGNAL:EVIDENCE_READINESS"}
+    # CH5b1-R Q1: CHARGERS_MOSTLY_IDLE (CH-6a1).
+    assert KNOWN_GAPS == {"WARNING:CHARGERS_MOSTLY_IDLE"}
     assert {k for k, (p, _) in NOT_CHAIN_SOURCED.items() if p is None} == KNOWN_GAPS
     assert NOT_CHAIN_SOURCED["WARNING:CHARGERS_MOSTLY_IDLE"][1] == "CH-6a1"
 
@@ -109,7 +109,7 @@ def test_evidence_gap_producer_emits_the_key() -> None:
 
     source = Path(mini.__file__).read_text(encoding="utf-8")
     assert emits_signal(source, "SIGNAL:EVIDENCE_GAP")
-    assert not emits_signal(source, "SIGNAL:EVIDENCE_READINESS")  # D1: no module emits it on main
+    assert not emits_signal(source, "SIGNAL:EVIDENCE_READINESS")  # a status input (outcomes/status.py), not a SignalFact
     assert not emits_signal("x = SignalFact(KEY, True)\n", "SIGNAL:EVIDENCE_GAP")
     ast.parse(source)
 
@@ -134,3 +134,19 @@ def test_committed_diagram_equals_a_fresh_render(g) -> None:
     """CH5b1-R Q3: the committed `.dot` and SVG are the generator's output (check-all never rewrites them)."""
     assert (DEFAULT_OUT / "chain-graph.dot").read_text(encoding="utf-8") == render_dot(g)
     assert (DEFAULT_OUT / "chain-graph.svg").read_text(encoding="utf-8") == render_svg(g)
+
+
+def test_evidence_readiness_is_the_status_edge() -> None:
+    """CH5b1-R2: SIGNAL:EVIDENCE_READINESS is the `@EVIDENCE` status input implemented by `outcomes/status.py`."""
+    from assetops_backend.outcomes.catalogue import OUTCOME_BY_KEY
+    from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS, ENTRIES
+    from assetops_backend.outcomes.status import LIMITED_READINESS, WATCH, outcome_state
+
+    assert NOT_CHAIN_SOURCED["SIGNAL:EVIDENCE_READINESS"] == ("assetops_backend.outcomes.status", "CH-5b1")
+    assert ENTRIES["SIGNAL:EVIDENCE_READINESS"][0] == ("@EVIDENCE",)
+    for domain, key in DOMAIN_ALIAS["@EVIDENCE"].items():
+        other = next(o for o in OUTCOME_BY_KEY.values() if o.domain == domain and o.key != key and o.measured)
+        for r in LIMITED_READINESS:
+            got = outcome_state(OUTCOME_BY_KEY[key], settled=True, signals=[], readiness=r)
+            assert got == (WATCH, "EVIDENCE_READINESS_" + r)
+            assert outcome_state(other, settled=True, signals=[], readiness=r)[1] != "EVIDENCE_READINESS_" + r

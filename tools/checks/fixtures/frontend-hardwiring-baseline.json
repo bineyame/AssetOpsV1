@@ -50,6 +50,9 @@
    "cmp": 3,
    "lit": 3
   },
+  "shell/SiteTemplatesFrame.tsx": {
+   "cmp": 2
+  },
   "shell/coldScenarioChoiceClient.ts": {
    "code": 1
   },
@@ -87,12 +90,17 @@
    "lit": 2
   },
   "sites/SiteWorkActions.tsx": {
+   "cmp": 2,
    "code": 1
+  },
+  "sites/SitesIndex.tsx": {
+   "cmp": 3
   },
   "sites/assessmentAnalysis.tsx": {
    "href": 2
   },
   "sites/domainActionClient.ts": {
+   "cmp": 1,
    "lit": 2
   },
   "sites/periodStrip.tsx": {
@@ -124,7 +132,7 @@
   "api": 12,
   "href": 24,
   "lit": 70,
-  "cmp": 43,
+  "cmp": 51,
   "code": 3
  }
 }

@@ -29,12 +29,14 @@ from typing import Any
 
 #: The producer of every `WARNING:<kind>` row: `outcomes/warnings.py` `KINDS` must hold the kind.
 WARNING_PRODUCER = "assetops_backend.outcomes.warnings.KINDS"
+#: The producer of a status input that is not a `SignalFact` (CH5b1-R2: `SIGNAL:EVIDENCE_READINESS`).
+STATUS_INPUT_PRODUCER = "assetops_backend.outcomes.status"
 
 #: CH5b1-R Q1: each `ENTRIES` key with no measure and no lifecycle mechanism -> (producer, owner). A `SIGNAL:` producer
 #: is the module that passes the key to `SignalFact(...)`. The other keys become chain nodes in CH-8.
 NOT_CHAIN_SOURCED: dict[str, tuple[str | None, str]] = {
     "SIGNAL:EVIDENCE_GAP": ("assetops_backend.site_outcomes.mini", "CH-8"),
-    "SIGNAL:EVIDENCE_READINESS": (None, "Architect ruling pending (CH-5b1 packet D1)"),
+    "SIGNAL:EVIDENCE_READINESS": (STATUS_INPUT_PRODUCER, "CH-5b1"),
     "WARNING:REPEATED_MAINTENANCE_NO_RESULT": (WARNING_PRODUCER, "CH-8"),
     "WARNING:PLAN_OVERDUE": (WARNING_PRODUCER, "CH-8"),
     "WARNING:PLAN_DUE_SOON": (WARNING_PRODUCER, "CH-8"),
@@ -45,8 +47,7 @@ NOT_CHAIN_SOURCED: dict[str, tuple[str | None, str]] = {
     "WARNING:CHARGERS_MOSTLY_IDLE": (None, "CH-6a1"),
 }
 #: The only rows allowed `producer=None` ("known gap: no producer"). CH5b1-R allows CHARGERS_MOSTLY_IDLE (CH-6a1).
-#: SIGNAL:EVIDENCE_READINESS has no emitter on main either; it is listed here as CH-5b1 Known Deviation D1.
-KNOWN_GAPS = frozenset({"WARNING:CHARGERS_MOSTLY_IDLE", "SIGNAL:EVIDENCE_READINESS"})
+KNOWN_GAPS = frozenset({"WARNING:CHARGERS_MOSTLY_IDLE"})
 
 _RULE_INPUT = {"by_role": "roles", "by_analytic": "analytics", "by_job_domain": "job_domains",
                "by_assumption_key": "assumption_keys"}
@@ -95,6 +96,14 @@ def emits_signal(source: str, key: str) -> bool:
     return False
 
 
+def reads_status_input(source: str, key: str) -> bool:
+    """CH5b1-R2: a status input (not a `SignalFact`) is produced by `outcomes/status.py` when that module builds the
+    reason code `<NAME>_<value>` for the key `SIGNAL:<NAME>`."""
+    prefix = key.split(":", 1)[1] + "_"
+    return any(isinstance(n, ast.Constant) and isinstance(n.value, str) and n.value == prefix
+               for n in ast.walk(ast.parse(source)))
+
+
 def chain_keys(g: GraphInputs) -> set[str]:
     """The `ENTRIES` keys that a declared measure or lifecycle mechanism sources."""
     keys = {g.thread_signal_key(m) for m in g.clean_day_measures}
@@ -114,6 +123,8 @@ def _producer_problem(g: GraphInputs, key: str, producer: str | None) -> str | N
         source = g.module_source(producer)
         if source is None:
             return f"producer module {producer} not found"
+        if producer == STATUS_INPUT_PRODUCER:
+            return None if reads_status_input(source, key) else f"{producer} does not build the {key!r} reason code"
         return None if emits_signal(source, key) else f"{producer} does not emit SignalFact({key!r}, ...)"
     return "only WARNING: and SIGNAL: keys can be not chain-sourced"
 
