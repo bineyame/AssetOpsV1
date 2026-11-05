@@ -1,73 +1,81 @@
-# CH-5c2 handoff (PARTIAL; context cap reached) - branch `task/CH-5c2-store-safety`, head `036973c70`
+# CH-5c2 handoff (PARTIAL, builder 3 at the context cap) - branch `task/CH-5c2-store-safety`
 
 Spec: `AssetOpsV1-plan2\.agent\build-sheet-CH-5c.md` §8.6 + §8.7; pre-flight `.agent/CH-5c2-preflight.md`.
-Env: `scratchpad/ch5c2/env.sh` pattern (absolute PYTHONPATH of this worktree; plan2 venv). Clone
-`assetops_chainclone_ch5c2_test` untouched so far. No DB test run yet (lane 2 `chain_clone.py settle ch9m` was running).
+Env: `scratchpad/ch5c2/env.sh` (absolute PYTHONPATH of this worktree; plan2 venv; `$WK` work dir with keys.json).
+Test DB: `ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test`.
+Clone `assetops_chainclone_ch5c2_test` is at `0048_chain_response_expiry`, settled, with store rows. KEEP it for the
+sweep, then `python tools/chain_clone.py drop ch5c2`. CH-9 is NOT on main (checked `git log main`), so no re-point.
 
-## Landed (2 commits on `55219fd1f`)
-- `ba0f5cf04`:
-  - `read_scope.py`: `clock()`, `read_instant()` (identity seam on every DB read-instant capture), `within()`,
-    `since()`, `ReadScope.boundaries`, `COMPOSING` contextvar + `composing()`.
-  - C1 rewrites: `estate/coverage.py:387,411`, `estate/portfolio.py:573`, `chain/read.py:245,262`,
-    `analytics/cold_reads.py:65` (UNKNOWN when `window_to > now`; **beyond §3**: Known Deviation),
-    `postgres_assessment_store.py` FUTURE_NOTE (~2200) + clock defaults -> `read_scope.clock()` (2071, 2768),
-    `actions/verification.py` `current_state` `now < later_end` (~966; **beyond §3**), `actions/service.py utc_now`
-    -> `read_scope.clock()` (so `site_index.py:164 read_at` and `verification.py:982` go through the seam).
-  - Q4: `objectives/adapters/postgres_objective_store.py current()`: historical SQL `recorded_at <= :k` (no now());
-    live = all revisions, head picked in Python with `within(recorded_at, None, at)`.
-  - DB captures wrapped in `read_scope.read_instant(...)`: estate read, evidence-money read (both now
-    `clock_timestamp()`, L2), mini_depth 347/407, work_read 383, global_read 182, domain_action_index 193,
-    assessment `_window_snapshot` 966, thread_sources 189 (`now` select list).
-  - `response_store.py`: `_state` (DB W, then Sites `(id, code, timezone)`, then `F` appended as `|f:<hex>`), F
-    re-read at (c); `valid_until(boundaries, now, zones, live=)` (live boundary = `b > at and at >= now - 1 s`;
-    midnight cap; -1 s; historical w/o live marks -> None); M1 (whole post-compose store block in `try`, unstored,
-    no ETag); L1 (no ETag on race/unstored; insert returns inserted routes, conflict -> `race`); `mode()`
-    on/off/compose (default **on**); compose mode = composes under `COMPOSING`, stores nothing (`composed`).
-  - `postgres_response_store.py`: lookup `valid_until IS NULL OR valid_until > greatest(clock_timestamp(), :now)`
-    (`:now` = `read_scope.clock()`: Known Deviation, needed so a moved app clock misses); insert writes
-    `valid_until`, returns rowcount set.
-  - `chain/adapters/file_inputs.py` + `config/chain/file-inputs-v1.json` (symbolic bases resolved at read time;
-    `roots()`, `prefixes()` for F4, `file_state()`); F = 5.9 ms for KOBO-001 on the worktree `var/` (F3 <= 20 ms;
-    re-measure on the clone path).
-  - `composition.build_response_store` wires `files=file_state`, `compose_only`.
-  - `file_code_version._files`: + `host/**/*.py`, `contracts/**`.
-  - `0048_chain_response_expiry` (on 0047): `valid_until` column, BEFORE TRUNCATE refusal (`ledger_append_only`).
-  - `tests/test_ch5c_store_off.py` updated to default-on (17 pass, L0). `conftest.py:60` keeps tests off.
-- `036973c70`: `scheduling/run.py` `tick --no-prebuild` + `prebuild` command; `demo_combined.tick` F5 order;
-  `chain_watermark_guard.py` L3 (`schema.` names, comma FROM lists via `_ALIAS`/`_NEXT`), `CLOCK_SQL`,
-  `clock_in_predicate()` (verified by hand: select-list capture passes, `WHERE ... now()` fails).
+## Landed by builders 2 and 3
+- `9e2315ae0` (b2): W6 CLI compose mode, F4 audit hook, Q5 capture, C3 listener; L4 trigger-only guard rule.
+- `ee87d7385` (b3): `tests/test_ch5c2_store_safety_postgres.py` covers M1 x3 ports, L1 conflict, C2 valid_until +
+  moved clock, historical NULL, and L4 TRUNCATE refused / replica allowed. `tests/test_ch5c2_clock_guard.py` (L0).
+  Docstrings: `watermark.py` F, `response_store.py`, `stages.prebuild` C5.
+  **Bug found and fixed:** an expired live row blocked its own re-warm. `ON CONFLICT DO NOTHING` under the same W
+  made every request after expiry a `race` that was never stored again, which broke C5. `_INSERT` is now `DO UPDATE ...
+  WHERE chain_response.valid_until <= greatest(clock_timestamp(), :now)` (`postgres_response_store.py`).
+  `etag(..., until)` now includes `valid_until`, so the re-warmed body never shares the expired body's tag (CH-5b 304).
+  Both are Known Deviations: the sheet defines ETag over route/key/W/version only.
+- `4e7240ce7` (b3): Q4 parity test, old SQL against `current()`. It covers the live real clock, the live app clock at
+  each instant, and historical reads, each at `recorded_at` +-1 us, with >= 3 distinct head sets.
+- `2e6399e3a` (b3):
+  - `config/chain/stored-composer-modules-v1.json`: 122 modules, reviewed. All are `assetops_backend.*` composer or
+    read modules; there is no writer CLI.
+  - C3 SQL allowlist: 31 entries, each with a reason.
+  - Five composer-module Python clocks now read `read_scope.clock()`, semantics-preserving:
+    `analytics/assessment_worker.py utc_now`, `evidence/service.py system_clock`, `evidence_migration.py _now`,
+    `performance_migration.py compared_at`, `sites/foundation_service.py utc_now`.
+
+## Non-vacuity proven (planted, then `git checkout --`)
+- Proven:
+  - M1: removing the lookup and store `try` fails the tests.
+  - L1: removing the `inserted` check fails.
+  - C2: dropping the boundaries fails.
+  - Q4: replacing `within` with `True` fails.
+  - L0: the planted `datetime.now()`, `utcnow` default and unlisted `now()` are tests in the file.
+- Not yet:
+  - L4 is structural only: a missing trigger would let the TRUNCATE succeed.
+  - The W6 F4 and C3 hooks still need planted proofs with the CLI: a planted read and listdir in a composer, and a
+    planted `WHERE ... now()`.
+
+## L3 results on the clone (head `2e6399e3a`)
+- W6, 61 s: `requests 23 non-200 0 tables 79 unresolved [] untracked [] event_consumption_read True clock_predicates 0
+  file_violations 0 modules 122 unlisted_modules []`.
+- prebuild: 23 requests (stored 20, hit 3), 42.5 s.
+- `fresh`: 23/23. All 23 rows have `valid_until` (20:59:59Z to 23:59:59Z).
+- Q1 `site_index.py:164 read_at`, proved absent:
+  - `actions.site_index` IS in the module set.
+  - `"read_at"` occurs in 0 of 23 stored bodies (SQL over `chain_response.body`).
+  - `fresh` masks only known_at/selection_token.
+- Idle: two ticks (the settle tick step only, 74 s each). `watermarks --compare` gives `moved {}`, and F is unmoved for
+  all 4 Site sets.
+- F (scratch `fstate.py`, clone env): median 3.1-3.3 ms per Site and 8.1 ms for all three, so <= 20 ms. The first cold
+  call reached a 180 ms max (OS cache); note this in the packet.
 
 ## Remaining, in order
-1. W6 CLI `_run` (`tools/chain_watermark_guard.py:~150`): use `ASSETOPS_RESPONSE_STORE=compose`; in the listener,
-   when `read_scope.COMPOSING.get()` is set and `clock_in_predicate(statement)` -> record `clock_predicates`;
-   F4 audit hook (`sys.addaudithook`, active only when `COMPOSING` set): `open`/`os.listdir`/`os.scandir` path not
-   under `file_inputs.prefixes()`, the code_version set (backend/assetops_backend, backend/migrations, config,
-   host, contracts, MANIFEST_ENV files), `sys.prefix`, `sys.base_prefix`, `site.getsitepackages()` -> violation;
-   any `socket.connect` -> violation. Record violations, never raise. Executed-module capture via
-   `sys.monitoring` PY_START while composing; compare with committed `config/chain/stored-composer-modules-v1.json`
-   (fail on unlisted; `--modules-out` writes the observed list for a reviewed diff, Q5). `ok` must include them.
-2. L0 static clock guard (new test, e.g. `tests/test_ch5c2_clock_guard.py`): over the module list, no
-   `datetime.now`/`utcnow`/`date.today`/`time.time` outside `read_scope.py`; SQL clock functions only in a named
-   allowlist (read-instant captures above + writer lines, each with a reason). Prove with a planted `datetime.now()`.
-   Note `postgres_assessment_store.py` has writer `clock_timestamp()` lines 405-559 and `_transaction_time` 1057.
-3. L4 guard rule owning `chain_input_change` as trigger-written only (find the `event_outbox` rule in
-   `tools/checks/`); L2 test: TRUNCATE refused; under `session_replication_role = replica` allowed (rolled back).
-4. Tests (new `tests/test_ch5c2_store_safety_postgres.py`, reuse `test_ch5c_response_store_postgres.py` helpers):
-   M1 failing port for lookup / re-check / insert; L1 conflict -> no ETag; valid_until stored and moved-clock miss
-   (`monkeypatch.setattr(read_scope, "clock", ...)`; board path uses `read_scope.clock()`; estate `k` is the DB
-   instant -> patch `read_scope.read_instant` too); F6 (new Performance report / FAILED report on the board, S2
-   report on the summary: see `test_out_b4_board_postgres.py:120 _evidence_root`); C4 sweep; Q4 parity (old SQL vs
-   new `current()`, live + historical); F4 L2 over every stored route (planted file read + planted listdir).
-   Existing `test_ch5c_response_store_postgres.py` uses the old 4-arg lookup indirectly via `ResponseStore`: rerun.
-5. Q1 packet classification: `verification.py` 149/379/547/784/903 (writers / non-stored detail routes),
-   `site_index.py:164 read_at` (output field: mask or prove absent from stored bodies), `analytics/service.py:151`,
-   `sites/cutover.py:209`, `gateway_api.py:109`. The Q4 mask list (`WALL` in the store test) may need `read_at`.
-6. Docstrings: `chain/watermark.py` (code_version scope, F), `response_store.py` module doc (F, valid_until).
-7. Migration: check `git log main` for CH-9 (0048/0049); if merged, re-point to `0050` on `0049_mini_service_v2`.
-8. L3 clone pass: prebuild -> `fresh` -> idle tick -> W6 CLI -> drop clone; guards one at a time (10-min cap);
-   packet `.agent/review-packet-CH-5c2.md`; set task status.
+1. L2 tests on the real composers (see `test_out_b4_board_postgres.py:120 _evidence_root`). Prove each non-vacuous.
+   - F6: a Performance report, a planted FAILED, and an S2 report on the summary.
+   - C4 sweep:
+     - Seed plan windows and a verified outcome within 40 days.
+     - Candidates are the seeded timestamps, +VERIFIED_LOOKBACK, +-1 us, and local midnights.
+     - Assert: body differs at t => valid_until(t0) <= t.
+     - Patch `read_scope.clock` and `read_scope.read_instant`.
+   - F4 over every stored route: a planted file read and a planted listdir under `COMPOSING`.
+2. W6 F4/C3 planted proofs with the CLI on the clone, one run each (~60 s).
+3. Packet Q1 table:
+   - `verification.py` 149/379/547/784/903 (writers / non-stored detail);
+   - `site_index.py:164` (above);
+   - `analytics/service.py:151`, `sites/cutover.py:209`, `gateway_api.py:109`;
+   - the 31 allowlist entries, by reference.
+4. Guards, one at a time under the 10-min cap, with the estate self-tests in parts via `-k`. Then
+   `check-architecture.ps1` and `check-agent-workflow.ps1`. Rerun `test_ch5c_response_store_postgres.py` (it passes
+   at `ee87d7385`).
+5. Packet `.agent/review-packet-CH-5c2.md`. At the top, list the sites needing an Architect ruling:
+   - `analytics/cold_reads.py:65`;
+   - `actions/verification.py current_state` (~966);
+   - the `greatest(clock_timestamp(), :now)` lookup;
+   - the upsert of an expired row;
+   - `valid_until` in the ETag;
+   - `site_history.work`, allowlisted as not in a stored compose.
 
-## Risks
-- `within`/`since` registrations against a test-injected fixed clock are treated as historical (dropped).
-- `file_inputs` resolves bases via `importlib` from config strings (seam guard may want a static import).
-- The suite was not run beyond the L0 file; the rewrites are semantics-preserving by construction only.
+   Then drop the clone, set the task status to `in_review`, and update ACTIVE_CONTEXT and CODE_STATE.
