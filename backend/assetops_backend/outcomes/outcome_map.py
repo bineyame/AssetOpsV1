@@ -6,7 +6,8 @@ Pure and versioned, in the style of estate/placement.py. Each entry names the si
 role. The wire keeps every CHECKED item; only the list form hides a checked category that also moves."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import CATEGORY_LABEL, COLD, DOMAINS, EV, MINI, OUTCOME_BY_KEY
@@ -121,3 +122,68 @@ def lens_flags(signal_key: str, domain: str) -> list[str]:
         return []
     lens = LENS_OF_CATEGORY.get(OUTCOME_BY_KEY[moves[0]].category)
     return [] if lens is None else [lens]
+
+
+# ---- CH-6a1 (build sheet CH-6 R2, R4, R12, §S.1, §A2.2; SCOPE-1; CH6a1-R) --------------------------------------
+# The node records the OutcomeEvaluator (CH-6a2) reads. Data only: no function, no lambda. `ENTRIES` above stays the
+# literal it is (the status-record reshape is BL-03). The "Why?" measure wiring of the `MEASURE:` records is CH-6a3.
+
+@dataclass(frozen=True)
+class OutcomeContribution:
+    source: str        # "FINDING:<mechanism>" | "SIGNAL:<key>" | "WARNING:<kind>" | "MEASURE:<chain measure key>"
+    outcome: str       # an outcome key, or a domain alias "@COST" | "@ASSET_LIFE" | "@EVIDENCE" | "@LINKED"
+    role: str          # "MOVES" | "CHECKED"
+    rank: int          # 0 = primary, within (source, role)
+    driver: str        # snake_case driver; for node "kpi": the `objectives.MEASURES` key (or CHAMBER_RANGE_MEASURE)
+    direction: str     # "ADVERSE" | "FAVOURABLE" | "CHECK"
+    node: str          # "status" | "kpi" | "potential" | "earnings"
+    strategy: str      # "<key>@<version>", registered in `chain/strategies`
+    money: Mapping[str, str] | None   # None | {"measure", "price", "label", "basis"?}
+
+
+MOVES, CHECKED = "MOVES", "CHECKED"
+ADVERSE, FAVOURABLE, CHECK = "ADVERSE", "FAVOURABLE", "CHECK"
+NODE_STATUS, NODE_KPI, NODE_POTENTIAL, NODE_EARNINGS = "status", "kpi", "potential", "earnings"
+
+#: §A2.2 exactly (any other node record needs an Architect ruling). MG-5 has none (R9).
+CONTRIBUTIONS: tuple[OutcomeContribution, ...] = (
+    OutcomeContribution("MEASURE:productive_kwh", "MG-1", MOVES, 0, "productive_use_kwh", CHECK, NODE_KPI,
+                        "graded_verdict@1", None),
+    OutcomeContribution("MEASURE:productive_kwh", "MG-1", MOVES, 0, "productive_use_sales", FAVOURABLE,
+                        NODE_EARNINGS, "priced_energy@1",
+                        {"measure": "productive_kwh", "price": "declared.productive_price",
+                         "label": "estimated_income"}),
+    OutcomeContribution("SIGNAL:PRODUCTIVE_USE_HEADROOM", "MG-1", MOVES, 0, "daytime_solar_headroom", FAVOURABLE,
+                        NODE_POTENTIAL, "priced_energy@1",
+                        {"measure": "headroom_kw", "price": "declared.productive_price", "label": "potential",
+                         "basis": "per_hour_of_use"}),
+    OutcomeContribution("MEASURE:avoidable_gen_min", "MG-2", MOVES, 0, "avoidable_generator_minutes", CHECK,
+                        NODE_KPI, "graded_verdict@1", None),
+    OutcomeContribution("FINDING:GENERATOR_SUPPORT_CANDIDATE", "MG-2", MOVES, 0, "possible_extra_fuel_cost",
+                        ADVERSE, NODE_EARNINGS, "avoided_cost@1",
+                        {"measure": "consequence", "price": "model.fuel-cost-1",
+                         "label": "possible_extra_fuel_cost"}),
+    OutcomeContribution("MEASURE:chamber_temp_c", "CC-1", MOVES, 0, "excursions", CHECK, NODE_KPI,
+                        "graded_verdict@1", None),
+    OutcomeContribution("MEASURE:backup_start_chain", "CC-6", MOVES, 0, "backup_start_failures", CHECK, NODE_KPI,
+                        "graded_verdict@1", None),
+    OutcomeContribution("MEASURE:charging_kwh", "EV-1", MOVES, 0, "interrupted_sessions", CHECK, NODE_KPI,
+                        "graded_verdict@1", None),
+    OutcomeContribution("MEASURE:charging_kwh", "EV-3", MOVES, 0, "charging_income", FAVOURABLE, NODE_EARNINGS,
+                        "priced_energy@1",
+                        {"measure": "charging_kwh", "price": "declared.ev_tariff",
+                         "label": "estimated_charging_income"}),
+    # R12 / SCOPE-1: kept while the warning has no producer (BL-06); the part reads "No potential found yet".
+    OutcomeContribution("WARNING:CHARGERS_MOSTLY_IDLE", "EV-3", MOVES, 0, "idle_charger_capacity", FAVOURABLE,
+                        NODE_POTENTIAL, "direction_only@1", None),
+)
+
+
+def records_for(source: str, node: str | None = None) -> tuple[OutcomeContribution, ...]:
+    """The records of one source (optionally one node), in `CONTRIBUTIONS` order."""
+    return tuple(r for r in CONTRIBUTIONS if r.source == source and (node is None or r.node == node))
+
+
+def kpi_record(outcome_key: str) -> OutcomeContribution | None:
+    """R2: the `kpi` record of an outcome (its driver is the objective measure key); None when it has none."""
+    return next((r for r in CONTRIBUTIONS if r.node == NODE_KPI and r.outcome == outcome_key), None)
