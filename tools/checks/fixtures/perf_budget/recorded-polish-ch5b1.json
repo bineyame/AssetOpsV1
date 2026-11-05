@@ -1,0 +1,276 @@
+{
+ "expect": {
+  "breaches": [
+   [
+    "cold_chain_failure_night",
+    "cold_ms"
+   ],
+   [
+    "cold_chain_failure_night",
+    "warm_p95_ms"
+   ],
+   [
+    "estate_chain_week",
+    "cold_ms"
+   ],
+   [
+    "estate_chain_week",
+    "warm_p95_ms"
+   ],
+   [
+    "ev_chain_27oct",
+    "cold_ms"
+   ],
+   [
+    "ev_chain_27oct",
+    "warm_p95_ms"
+   ],
+   [
+    "kobo_chain_31oct",
+    "cold_ms"
+   ],
+   [
+    "kobo_chain_31oct",
+    "warm_p95_ms"
+   ]
+  ],
+  "not_measured": [
+   "snapshot_rebuild_ms_per_measure_day",
+   "tick_chain_stage_fraction",
+   "why_trace_ms"
+  ],
+  "verdict": "FAIL"
+ },
+ "note": "the one recorded DB run (store on, 3 runs, no pre-build): the four uncached /chain routes breach",
+ "record": {
+  "params": {
+   "routes": [
+    "cold_board_failure_night",
+    "cold_chain_failure_night",
+    "estate_chain_week",
+    "ev_board_27oct",
+    "ev_chain_27oct",
+    "findings_week",
+    "kobo_board_31oct",
+    "kobo_chain_31oct",
+    "portfolio_week",
+    "summary_week"
+   ],
+   "runs": 3,
+   "source": "recorded: CH-5b1 report run, assetops_chainclone_ch5b1_test (polish data), main 8777bc0f8 + CH-5b1",
+   "store": "on"
+  },
+  "routes": {
+   "cold_board_failure_night": {
+    "bytes": 20005,
+    "cold_ms": [
+     1941.4,
+     586.9,
+     481.2
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     38.2,
+     37.4,
+     34.1
+    ]
+   },
+   "cold_chain_failure_night": {
+    "bytes": 4737,
+    "cold_ms": [
+     1846.2,
+     2045.2,
+     2065.3
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     867.7,
+     771.2,
+     693.6
+    ]
+   },
+   "estate_chain_week": {
+    "bytes": 4585,
+    "cold_ms": [
+     8288.5,
+     8719.6,
+     8021.2
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     5762.0,
+     5713.6,
+     5104.0
+    ]
+   },
+   "ev_board_27oct": {
+    "bytes": 14710,
+    "cold_ms": [
+     2597.6,
+     617.2,
+     703.5
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     42.5,
+     40.3,
+     44.8
+    ]
+   },
+   "ev_chain_27oct": {
+    "bytes": 3137,
+    "cold_ms": [
+     2187.3,
+     2186.3,
+     2297.3
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     982.6,
+     864.1,
+     835.2
+    ]
+   },
+   "findings_week": {
+    "bytes": 24715,
+    "cold_ms": [
+     2607.4,
+     538.8,
+     584.8
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     28.4,
+     27.7,
+     26.5
+    ]
+   },
+   "kobo_board_31oct": {
+    "bytes": 18047,
+    "cold_ms": [
+     6130.7,
+     675.2,
+     601.3
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     40.2,
+     40.9,
+     42.9
+    ]
+   },
+   "kobo_chain_31oct": {
+    "bytes": 5801,
+    "cold_ms": [
+     6027.5,
+     6010.4,
+     5878.1
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     3846.8,
+     3524.8,
+     3771.4
+    ]
+   },
+   "portfolio_week": {
+    "bytes": 52075,
+    "cold_ms": [
+     8527.2,
+     644.6,
+     553.9
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     34.8,
+     31.6,
+     28.4
+    ]
+   },
+   "summary_week": {
+    "bytes": 13908,
+    "cold_ms": [
+     8035.9,
+     780.6,
+     681.9
+    ],
+    "status": [
+     200,
+     200,
+     200,
+     200,
+     200,
+     200
+    ],
+    "warm_ms": [
+     66.9,
+     70.8,
+     72.1
+    ]
+   }
+  }
+ }
+}
