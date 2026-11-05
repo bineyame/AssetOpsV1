@@ -500,3 +500,36 @@ def estate_chain(request, sites, lo: datetime, hi: datetime) -> dict:
 - **CH-6b1 (1.75) and CH-6b2 (2.25): unchanged.** One graded window per Site and server claims on the cards are what stop the Portfolio contradicting the boards.
 - **CH-6b3: 1.25 → 1.0.** COH-17 over count, money and verdict claims stays (it guards what is shown). Backlogged: the `late_fill` + `known_at` bullet and the guard M retirement (**BL-08**).
 - **Totals:** CH-6a 6 → 4.75; CH-6b 5.75 → 5.0. CH-6b2/6b3 keep one batched review; CH-6a2/6a3 likewise.
+
+## CH6a1-R: rulings on the CH-6a1 pre-flight (Architect 17, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch6a1\.agent\CH-6a1-preflight.md` at `4cb9dbd94`. **CH-6a1 stays 1.25 and CH-6a3 stays 1.5. No unit change.**
+
+- **Q1 overridden: data only here; the wiring goes in CH-6a3 at +0.**
+  - It is defensibility-critical. Without it, EV Grow's "Why?" for "$36.00" cannot show the 120 kWh behind it.
+  - CH-6a3 already changes the stored "Why?" bodies: SCOPE-1 added the "{kWh} kWh × {price}" line there. Wiring `used_measures` (the thread measures UNION the category's `MEASURE:` measures, in Site-type order) in the same composer pass therefore costs one body change and one clone run, not two.
+  - It closes CH5b2-R's Q5 Known Deviation in CH-6a3, and the CH-6a3 packet says so.
+- **Q2 accepted.** L0 allows either a `MEASURES` key or `CHAMBER_RANGE_MEASURE`, and the record keeps `excursions`.
+- **Q3 accepted.** `headroom_kw` keeps the sheet text that R13 reads from the thread items, and the L0 rule is as proposed.
+- **Q4 accepted.** The key and the R12 record stay, and the graph owner becomes BL-06 (SCOPE-1).
+- **Q5 accepted.** A frozen dataclass of facts already read. CH-6a2 may add fields, additively only. `Effect.money=None` carries a `reason`.
+
+## CH6a2-R: rulings on the CH-6a2 pre-flight (Architect 18, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch6a2\.agent\CH-6a2-preflight.md` at `42a2cbaaf`. **CH-6a2 stays 2. No unit change, no new work, nothing backlogged.**
+
+- **Q1 accepted.** The value line and the money line are joined by `"\n"` in `text`, and the money fields sit in `value` as strings. The money line is present only when the study is SUPPORTED (R11), so a LIMITED or UNKNOWN potential is one line. CH-6a3's `OutcomeRow` splits on `"\n"`, and no literal `"\n"` may reach the screen.
+- **Q2 overridden for the potential; MG-5 and MG-2 accepted with one condition.**
+  - MG-5 and the MG-2 `avoided_cost` earnings take `days` from `_counts` of `critical_served` and `avoidable_gen_min` only if that measure's rows are the rows the reading or the stored consequence was computed from. The packet must cite the line that shows this. If they are not, `days=None` and the basis is NOT_KNOWN. A basis must describe the days behind the figure, not a nearby measure.
+  - "COMPLETE when shown" is rejected because it is untrue. The mock's own Kobo potential reads "3 of 5 study days checked · 1 partly checked · 1 with too little data" (`v70/index.html:418`), and a study like that is not COMPLETE.
+  - A potential takes `days` = `_counts` over the study's own days when the CH-4 item carries them. The basis is then `count_basis(days)`, the one basis rule (§S.2). If the item carries no study days, `days=None` and the basis is NOT_KNOWN, while the text is still shown. The missing days line then becomes MD-CH6-4 (present less, not built).
+  - The EV potential has `days=None`, which is moot while R12's warning has no producer (BL-06).
+- **Q3 accepted.** The change to `mini.py` is import-only, with no logic line, and its `COPY` and tests stay unchanged.
+- **Q4 overridden.** The study shows for OPEN, RECURRED, REOPENED and CHANGE_APPLIED (a change that is applied but not verified leaves the study as the latest evidence). For RESOLVED_MONITORING, CLOSED, WITHDRAWN or no thread, the part reads `potential.none`.
+  - Reason: "18–20 kW of daytime solar unused" is untrue for a thread whose change has been verified (`lifecycle.py:30` `VERIFIED_STATES`).
+  - The R13 status signal stays OPEN or RECURRED, as written.
+- **Q5 accepted.** `MG1_ACTUAL` ("sales not recorded") and NOT_JUDGED are the board's existing rule for no checked day (`mini.py:623`), so no new claim is made.
+- **Q6 overridden on the basis; the copy is accepted.**
+  - With no objective, nothing is judged, so the `kpi` claim has `value=None`, `days=None` and basis NOT_KNOWN. A basis taken from the days would label a non-judgement COMPLETE.
+  - The text `target.none` "No target set yet" and the days line `target.days_none` "No target, so no days are judged yet" equal the mock (`v70/index.html:418-419`). There is no MOCK DEVIATION.
+  - Both strings are vocabulary templates (guard V).
