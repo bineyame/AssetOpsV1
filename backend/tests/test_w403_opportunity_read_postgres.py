@@ -100,6 +100,37 @@ def settle(engine, job_id) -> None:
         c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job_id})
 
 
+def pv_reading(engine, day) -> None:
+    """CH-9 owned test change (CH9-R2 Q4, migration 0046): renewable work is enqueued only for an hour holding a
+    positive accepted `pv_available_power` reading. Ingest `day`'s 24 hourly means late (its own sequence epoch), as
+    `_dark_hours` seeds the authored days: the authored value for the local 12:00 hour, so that hour is renewable work
+    and the day's measured daylight, and 0 kW for its other operating hours (covered, not daylight), so the day's
+    study hours are that one hour (an unselected missing hour would read job state NONE, q9 ruling 5)."""
+    import w402_mini_depth_cases as cases
+    from test_s1_bindings_postgres import Clock
+    from test_w402_authored_v4_postgres import principal
+
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger_service import BatchIngestionService
+
+    with engine.connect() as c:
+        doc, sha, _ = cases.snapshot_of(c, CODE)
+    v = next(x for x in cases.load_spec()["variants"] if x["variant"] == "positive")
+    kw = next(m["kw"] for m in v["means_kw"] if m["signal"] == "available-power")
+    noon = local_noon(day, ZONE)
+    b = cases._binding(doc, "pv-inverter-controller", "available-power")
+    hours = [_midnight(day) + timedelta(hours=i) for i in range(24)]
+    planned = [cases.Planned("pv-inverter-controller", "available-power", at + timedelta(hours=1), "MEAN",
+                             kw if at == noon.start else "0", "kW", at) for at in hours]
+    assert sum(p.value != "0" for p in planned) == 1
+    body = cases.seal_for(doc, sha, b, [cases._envelope(doc, b, "ch9-late-pv", i, p)
+                                        for i, p in enumerate(planned, start=1)])
+    # Received now (not the authored fixture's fixed `RECEIVED`), so an earlier cutoff never sees it.
+    received = db_now(engine)
+    BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(received)),
+                          Clock(received)).submit(principal(doc), body.encode("utf-8"))
+
+
 def renewable_job(engine, t, s, day) -> None:
     noon = local_noon(day, ZONE)
     with engine.begin() as c:
@@ -200,6 +231,7 @@ def test_pending_stale_missing_historical_current_precedence_and_jobs(store, eng
     settle(engine, failed)
 
     # A live W4-02 job on the missing day: pending beats the missing day.
+    pv_reading(engine, date(2026, 10, 5))  # CH-9 owned: the hour needs a positive pv reading (0046)
     renewable_job(engine, t, s, date(2026, 10, 5))
     env, missing, full = states()
     assert (missing["state"], missing["job_state"]) == ("PENDING_RECOMPUTE", "PENDING")
