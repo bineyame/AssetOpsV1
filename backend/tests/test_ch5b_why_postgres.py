@@ -175,11 +175,19 @@ def test_why_trace_and_304_on_the_mechanism_site(mech, monkeypatch) -> None:  # 
                 assert r.headers["etag"] == tags[name] and r.headers["cache-control"] == "private, no-cache"
                 assert opened == [], (name, opened)  # no composition
                 tables = [s for s in stmts if " FROM " in s.upper()]
-                statements[name] = [s.split(" WHERE ")[0][:80] for s in tables]
-                assert "chain_input_change" in tables[0], (name, tables)  # the watermark statement first
-                assert sum("chain_response" in s for s in tables) == 1, (name, tables)  # one live-row lookup
-                assert all(any(t in s for t in ("chain_input_change", "FROM site ", "chain_response"))
-                           for s in tables), (name, tables)
+                # The route's admission (the Site registry: tenant, site) runs first, as on every request; the store's
+                # (a) then runs the watermark first, the admitted Site set and one `chain_response` lookup, and nothing
+                # runs after it (no composition).
+                at = next(i for i, s in enumerate(tables) if "chain_input_change" in s)
+                admission, store = tables[:at], tables[at:]
+                statements[name] = {"admission": [s.split(" WHERE ")[0][:60] for s in admission],
+                                    "store": [s.split(" WHERE ")[0][:60] for s in store]}
+                assert all(" FROM tenant " in s or " FROM site " in s or "FROM site\n" in s for s in admission), \
+                    (name, admission)
+                # An estate route's admitted Site set also runs its admission per Site (`admit`, the registry reads).
+                assert "chain_response" in store[-1] and sum("chain_response" in s for s in store) == 1, (name, store)
+                assert all(" FROM site " in s or " FROM tenant " in s for s in store[1:-1]), (name, store)
+                assert len(store) == 3 or name.startswith("estate"), (name, store)
             report["etag_304_statements"] = statements
 
             # 3. late_fill(KOBO-001, D7) and its consume: the Kobo tag changes.
