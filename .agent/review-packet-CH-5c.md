@@ -235,3 +235,22 @@ and to the summary returns `X-AssetOps-Stored: hit` within the EX-3 budget, and 
 ## Review focus
 The open item (code_version env). The R5-1 before/after rule in `response_store.serve`. The W6 completeness
 (`pg_trigger`). That the u3 provenance scalars (`source_provenance` ids → scalars) consume nothing rendered.
+
+## Merge prep CH5c-R7
+
+Per build sheet §8.6: CH-5c merges with the store OFF; CH-5c2 does the High fixes. Commit `5350ba799`.
+
+- **Store off by default.** `response_store.enabled()` is true only for `ASSETOPS_RESPONSE_STORE` in on/1/true/yes.
+  `prebuild.run` first reports `SKIPPED_STORE_OFF` (0 requests, nothing stored) when off. `tools/demo_combined.py`
+  sets no store variable (its serve/tick env copies the caller's), so the demo serve stays off.
+  Tests (`test_ch5c_store_off.py`, no DB, 18 with env parity): default off builds no store and never touches the
+  engine; body equals a store-less compose; pre-build skip; explicit opt-in builds the store; demo serve env does
+  not enable it. The keyless-prebuild Postgres test now opts in explicitly.
+- **M3.** The literal head pin is gone; `test_exactly_one_alembic_head` asserts one head.
+- **L7.** `_select_dispatch_days_each` deleted from `postgres_assessment_store.py`; the loop lives in
+  `test_ch5c_batch_postgres.py`. Batching parity: 3 passed. 279-day clone parity at the final head: clone
+  `assetops_chainclone_ch5c_test` created (migrated), backfilled, settled, `ASSETOPS_CH5C_CLONE_URL` set, run:
+  **passed (L2m, 0 skipped)**, then dropped with its 2 `var/` files.
+- **Checks.** `test_ch5c_*` + `test_out_b4_route`: 48 passed, 1 skipped (L2m, then run on the clone as above).
+  `check-architecture.ps1` and `check-agent-workflow.ps1` (`ASSETOPS_GUARD_PYTHON` = plan2 venv): both passed.
+  No full suite, no prepare, no `test_demo_combined_postgres` (owner rule).
