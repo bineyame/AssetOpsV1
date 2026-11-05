@@ -1,4 +1,38 @@
-# CH-9 handoff (PARTIAL: u1, u2, u3, MD-0 Q1 fixture landed; resume at "Resume order for builder 5")
+# CH-9 handoff (PARTIAL: u1-u4 landed, u5 blocked for the Architect; resume at "Resume order for builder 6")
+
+## Status 2026-11-05 (builder 5; stopped at the context cap, no process or DB job of mine running)
+Commits: `4c4dff4ee` estateRoots fixture copy; `ababdaf53` mill-midday kind + L2 test; `d4b26a299` w403 worker/scenario
+owned tests; guard fix (`mini_depth/store.py` `database_now` + `load_operating_calendar` via `chain.composition`;
+`projection.py` drops `sqlalchemy`); `4a2db4a80` + next: w403 read shape owned tests. `main` = `692e4d57e`, ancestor.
+- **Postgres runs** (host runner default URL, port 55432; NOT 5432): worker file 5/5 green; read file: 9 of 10
+  green (shape test green after fix); `test_pending_stale_missing_historical_current_precedence_and_jobs` FAILS at
+  `renewable_job(engine, t, s, date(2026, 10, 5))` (read test :202, helper :101): 0046 `mini_enqueue_hour`
+  refuses "renewable work needs a positive pv_available_power reading in the hour" (5 Oct has no readings). Needs
+  an owned fixture step: a positive pv reading in that hour before the enqueue (then re-check the STALE_SOURCE
+  assertions that follow; 5 Oct's other 23 operating hours stay missing). Never weaken.
+- `mg_published` (scenarios test) now seeds `_dark_hours(spec)` like `_ingest` (otherwise 23 missing hours -> UNKNOWN).
+- Frontend: `tsc` 0 errors; vitest miniDecisions, estateRoots, estatePortfolio, miniRenewableRoutes green
+  (`vitest related` breaks on a `.py` import; ran the importers directly). node_modules is a junction to plan2's.
+  **Open:** `frontend/src/estate/EstatePortfolio.tsx:423` hard-codes "kW at midday" (Portfolio, demo-visible),
+  test `estatePortfolio.test.tsx:435-436`. Not in sheet §3 files: packet item / Architect.
+- **u4** `mill-midday` kind uses `kobo-daytime` **v2** (the registry holds only v2; Q8 said v1): Known Deviation.
+  L2 test `test_demo_story_days.py` (resolve/validate, times, payload, prepare-only refusal); non-vacuous (end 14:00
+  failed it). No prepare (owner rule): the 12 h interval acceptance by the kobo-daytime model is unproven.
+- **u5 BLOCKED (Architect):** `domain_action.origin_finding_id` is NOT NULL with a Finding FK
+  (`migrations/versions/0033_w5_cold_work.py:44-54`), and thread linking is by origin Finding
+  (`chain/threads.py:296` `link_action`). The headroom thread is opportunity-only (`threads.py` `opportunity_source`,
+  subject SITE, no Finding), so no domain Action can attach to it without a contract change. Nothing built.
+- Guards: architecture PASS (after fix), agent-workflow PASS.
+
+## Resume order for builder 6
+1. Fix the read-test `renewable_job` fixture (above), rerun that one test (`-k pending_stale`, ~3 min).
+2. Remaining Postgres files, 1-2 per call (each 5-15 min): `test_ch4_opportunity_postgres.py`,
+   `test_w403_scenarios_postgres.py`, `test_w402_reads_postgres.py`, `test_ch1a_snapshot_postgres.py`,
+   `test_ch1b_fix_postgres.py`, `test_ch9_daylight_postgres.py`, `test_w403_migration_postgres.py`.
+3. MD-0 (when lane 1 idle; `chain_coherence.py collect` PIDs 28484/20560 were lane 1's): as builder-5 step 5 below.
+4. Guards, packet (builder-5 step 6 items + u5 block + Portfolio label + kobo-daytime v2 + SCENARIO_BASIS_MISMATCH
+   demo-visibility answer, not yet investigated).
+
 
 ## Status 2026-11-05 (builder 4; stopped at the context cap, no process or DB job left running by me)
 Commits on `149563f7b`: `83037a50d` (u2 /2 + basis), `595ce7bb3` (measure + no-noon test), `fbf8973fe` (u3),
