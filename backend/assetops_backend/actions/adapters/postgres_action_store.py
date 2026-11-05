@@ -61,6 +61,14 @@ PLAN_COLUMNS = ("id, tenant_id, site_id, action_id, plan_version, supersedes_pla
                 "coverage, later_selection_rule, plan_sha256, actor_kind, actor_id, source_channel, "
                 "authorization_basis, triggering_service, triggering_fixture, idempotency_key, payload, payload_sha256, "
                 "recorded_at")
+#: CH-9b2 plan origin: the `midday-productive-shift-1` columns (0052); the reserve columns stay NULL on these rows, and
+#: `PLAN_COLUMNS` is unchanged so every reserve-trial read and body is byte-equal.
+DOMAIN_PLAN_COLUMNS = ("id, tenant_id, site_id, domain_action_id, plan_version, origin_opportunity_revision_id, "
+                       "applied_work_event_id, rule_id, effective_from, baseline_start, baseline_end, later_start, "
+                       "later_end, baseline_selection, baseline_evidence_ids, basis, target, guardrails, bands, "
+                       "coverage, later_selection_rule, plan_sha256, actor_kind, actor_id, source_channel, "
+                       "authorization_basis, triggering_service, triggering_fixture, idempotency_key, payload, "
+                       "payload_sha256, recorded_at")
 PLAN_JSON = frozenset({"baseline_selection", "baseline_evidence_ids", "basis", "target", "guardrails", "bands",
                        "coverage", "later_selection_rule", "payload"})
 BINDING_COLUMNS = ("id, tenant_id, site_id, plan_id, window_name, selection, selection_sha256, actor_kind, actor_id, "
@@ -704,6 +712,50 @@ class PostgresActionStore:
         return self._read(lambda c: self._rows(c.execute(text(
             f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE tenant_id = :t AND site_id = :s AND action_id = :a "
             "ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})))
+
+    # ---- CH-9b2: the `midday-productive-shift-1` plan of a MINI domain Action (CH-9b2 plan origin) --------------
+    # The plan names the Action's opportunity revision only (`origin_opportunity_revision_id`); this file reads and
+    # writes no other opportunity-origin column (`tests/test_ch9b1_origin_readers.py`, class `action_plan`).
+
+    def domain_plan_context(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> dict[str, Any] | None:
+        """The domain Action (its domain and opportunity revision), the Site's timezone, the first COMPLETE work
+        event of a case linked to it (the APPLIED anchor, CH9b1-R Q3) and its existing plan; None: no such Action."""
+        def work(c):
+            action = c.execute(text(
+                "SELECT d.id, d.action_code, d.domain, d.origin_opportunity_revision_id, s.timezone "
+                "FROM domain_action d JOIN site s ON s.tenant_id = d.tenant_id AND s.id = d.site_id "
+                "WHERE d.tenant_id = :t AND d.site_id = :s AND d.id = :a"),
+                {"t": tenant_id, "s": site_id, "a": domain_action_id}).first()
+            if action is None:
+                return None
+            applied = c.execute(text(
+                "SELECT w.id, w.case_id, w.occurred_at FROM domain_action_case_link l JOIN work_event w "
+                "ON w.tenant_id = l.tenant_id AND w.site_id = l.site_id AND w.case_id = l.case_id "
+                "AND w.kind = 'COMPLETE' WHERE l.tenant_id = :t AND l.site_id = :s AND l.action_id = :a "
+                "ORDER BY w.occurred_at, w.id LIMIT 1"), {"t": tenant_id, "s": site_id, "a": domain_action_id}).first()
+            plan = c.execute(text(f"SELECT {DOMAIN_PLAN_COLUMNS} FROM verification_plan WHERE tenant_id = :t "
+                                  "AND site_id = :s AND domain_action_id = :a"),
+                             {"t": tenant_id, "s": site_id, "a": domain_action_id}).first()
+            return {"action": dict(action._mapping), "applied": None if applied is None else dict(applied._mapping),
+                    "plan": None if plan is None else dict(plan._mapping)}
+        return self._read(work)
+
+    def freeze_domain_plan(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+        """Insert the domain Action's one plan (`UNIQUE (domain_action_id)`), or return the plan already frozen for
+        it (`replayed=True`). Serialized per Action by a transaction advisory lock."""
+        def work(c):
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+                      {"k": f"verification-plan:{plan['domain_action_id']}"})
+            existing = c.execute(text(f"SELECT {DOMAIN_PLAN_COLUMNS} FROM verification_plan "
+                                      "WHERE domain_action_id = :a"), {"a": plan["domain_action_id"]}).first()
+            if existing is not None:
+                return dict(existing._mapping), True
+            params, binds = self._values(DOMAIN_PLAN_COLUMNS, {**plan, "tenant_id": tenant_id, "site_id": site_id},
+                                         PLAN_JSON)
+            c.execute(text(f"INSERT INTO verification_plan ({DOMAIN_PLAN_COLUMNS}) VALUES ({params})"), binds)
+            return dict(c.execute(text(f"SELECT {DOMAIN_PLAN_COLUMNS} FROM verification_plan WHERE id = :i"),
+                                  {"i": plan["id"]}).one()._mapping), False
+        return self._run(work)
 
     def selection_bindings(self, tenant_id: UUID, site_id: UUID, plan_id: UUID) -> list[dict[str, Any]]:
         return self._read(lambda c: self._rows(c.execute(text(

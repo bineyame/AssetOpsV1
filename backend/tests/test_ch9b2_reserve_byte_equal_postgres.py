@@ -97,11 +97,7 @@ def differences(got: dict, want: dict) -> list[str]:
 
 def _null_new_columns(runner) -> None:
     for table, columns in NEW_COLUMNS.items():
-        try:
-            got = rows(runner, f"SELECT count(*) FROM {table} WHERE " + " OR ".join(f"{c} IS NOT NULL"
-                                                                                   for c in columns))
-        except Exception:  # noqa: BLE001  (at 0051, the capture run, the columns do not exist)
-            return
+        got = rows(runner, f"SELECT count(*) FROM {table} WHERE " + " OR ".join(f"{c} IS NOT NULL" for c in columns))
         assert got[0][0] == 0, table
 
 

@@ -62,6 +62,8 @@ class VerificationPorts:
     provenance: Callable[[UUID, UUID, list[str]], dict[str, Any]] | None = None
     #: OUT-E E3: `financials.composition.TrialComparisonPorts` (store + price_selection); None: no cost check
     trial_comparison: Any = None
+    #: CH-9b2: the chain `SnapshotReader` (`latest`) the `midday-productive-shift-1` freeze reads; None: refused
+    snapshots: Any = None
 
 
 def _wire(value: Any) -> Any:
@@ -306,6 +308,14 @@ class VerificationService:
         if replayed:
             return self._replay(row, digest, site_code)
         return 201, {"label": LABEL, "replayed": False, "plan": self._plan_wire(row, site_code)}
+
+    def freeze_domain_plan(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> tuple[int, dict[str, Any]]:
+        """CH-9b2 (CH9b2-R "Freeze trigger"): freeze the `midday-productive-shift-1` plan of a MINI domain Action,
+        once, after its work case is COMPLETE and linked. A service method (story time and tests); no route."""
+        from assetops_backend.actions.verification_families import MIDDAY, FAMILIES
+
+        return FAMILIES[MIDDAY].freeze(self.store, self._ports().snapshots, tenant_id, site_id, domain_action_id,
+                                       self.clock())
 
     def _continuation_check(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any],
                             prior: dict[str, Any]) -> None:
