@@ -14,9 +14,10 @@ import argparse
 import json
 import sys
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Sequence
 
+from assetops_backend import read_scope
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET
 from assetops_backend.analytics.composition import build_assessment_store, build_lineage_reader
@@ -72,7 +73,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                      legacy_claims=claims, accepted_evidence=store.accepted_evidence(tenant_id, site_id, cited),
                      intervals=store.selected_intervals(tenant_id, site_id, ANALYTIC_ID, "dispatch", BRACKET),
                      lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID, MODEL),
-                     compared_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), model_version=MODEL)
+                     compared_at=read_scope.clock().isoformat().replace("+00:00", "Z"), model_version=MODEL)
     path = reports.write(json.loads(json.dumps(report, default=str)))
     allowed, reason = permits_performance_cutover(
         report, args.site, str(site_id), tenant_id=str(tenant_id), environment=environment, legacy_claims=claims,

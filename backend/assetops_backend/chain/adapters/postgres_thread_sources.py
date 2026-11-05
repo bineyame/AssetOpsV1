@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Any, Sequence
 from uuid import UUID
 
+from assetops_backend import read_scope
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
@@ -187,6 +188,7 @@ class PostgresThreadSources:
                 c.execute(text("SET TRANSACTION READ ONLY"))
                 tz, now, site_type = c.execute(text(
                     "SELECT s.timezone, now(), s.site_type FROM site s WHERE s.tenant_id = :t AND s.id = :s"), p).one()
+                now = read_scope.read_instant(now)
 
                 def rows(sql: str) -> list[dict[str, Any]]:
                     return [dict(r) for r in c.execute(text(sql), p).mappings()]

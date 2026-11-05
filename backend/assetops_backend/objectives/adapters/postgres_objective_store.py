@@ -20,6 +20,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
+from assetops_backend import read_scope
 from assetops_backend.financials.assumptions import SystemPrincipal
 from assetops_backend.objectives.model import (
     CHANNELS, Declaration, ObjectiveRefused, measure_of, payload_sha256, validate)
@@ -157,8 +158,25 @@ class PostgresObjectiveStore:
     # ---- read --------------------------------------------------------------------------------------------
 
     def current(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> list[dict[str, Any]]:
-        """The latest revision per outcome recorded at or before `known_at` (now when None)."""
-        return self._run(lambda c: [_row(r) for r in c.execute(text(
-            f"SELECT DISTINCT ON (outcome_key) {COLUMNS} FROM outcome_objective_revision "
-            "WHERE tenant_id = :t AND site_id = :s AND recorded_at <= coalesce(CAST(:k AS timestamptz), now()) "
-            "ORDER BY outcome_key, revision_no DESC"), {"t": tenant_id, "s": site_id, "k": known_at})])
+        """The latest revision per outcome recorded at or before `known_at` (now when None).
+
+        CH5c2-R1 Q4: a historical read keeps the SQL head (`recorded_at <= :k`, no clock function). A live read binds
+        `read_scope.clock()`: every revision is read, the head per key is picked here (the highest `revision_no`
+        recorded at or before the instant) and a revision recorded after it registers its `recorded_at` as a
+        boundary (`read_scope.within`), so a stored body expires when it would become the head."""
+        if known_at is not None:
+            return self._run(lambda c: [_row(r) for r in c.execute(text(
+                f"SELECT DISTINCT ON (outcome_key) {COLUMNS} FROM outcome_objective_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND recorded_at <= CAST(:k AS timestamptz) "
+                "ORDER BY outcome_key, revision_no DESC"), {"t": tenant_id, "s": site_id, "k": known_at})])
+        at = read_scope.clock()
+        rows = self._run(lambda c: c.execute(text(
+            f"SELECT {COLUMNS} FROM outcome_objective_revision WHERE tenant_id = :t AND site_id = :s "
+            "ORDER BY outcome_key, revision_no DESC"), {"t": tenant_id, "s": site_id}).all())
+        heads: dict[Any, Any] = {}
+        for r in rows:
+            if r.outcome_key in heads:
+                continue
+            if read_scope.within(r.recorded_at, None, at):
+                heads[r.outcome_key] = r
+        return [_row(r) for r in heads.values()]

@@ -176,7 +176,7 @@ def test_prune_keeps_each_code_version_apart(engine) -> None:  # noqa: F811
 
 def test_a_keyless_prebuild_stores_nothing_and_reports_the_skip(engine, monkeypatch) -> None:  # noqa: F811
     """CH5c-R6: a pre-build in a process without every serve key stores 0 rows and reports SKIPPED_NO_SERVE_ENV."""
-    monkeypatch.setenv("ASSETOPS_RESPONSE_STORE", "on")  # CH5c-R7: the store is off unless opted in
+    monkeypatch.setenv("ASSETOPS_RESPONSE_STORE", "on")  # CH5c-R7: the store is on by default; the suite default is off (conftest)
     for name in SERVE_KEYS:
         monkeypatch.setenv(name, "1a" * 32)
     monkeypatch.delenv(SERVE_KEYS[0])

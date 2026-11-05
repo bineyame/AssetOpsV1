@@ -14,6 +14,13 @@ environment setting a composer of a stored route reads (`COMPOSER_ENV`: the valu
 the file's content too). Not hashed: `DATABASE_URL` (the store lives in that database) and `ASSETOPS_SERVER_TIMING`
 (a response header, never body bytes).
 
+CH-5c2 (CH5c-R7 code_version residual and H1): `code_version` also hashes `host/**/*.py` and `contracts/**`, since a
+stored compose imports them. The DB count sees only DB writes, so the file-backed inputs (the Performance and S2
+evidence roots, the legacy history, the commit store: `config/chain/file-inputs-v1.json`) join W as the file-state
+term `F` (`chain/adapters/file_inputs.py` `file_state`): sha256 over each declared root's canonical path and the
+sorted (relative path, size, `mtime_ns`) of its regular files, a missing root hashed as `absent`. `F` is read with W
+at (a) and again at (c) (`chain/response_store.py`).
+
 CH5c-R6: the SQL (`read_watermark`) and the file reads (`code_version`) live below the port, in
 `chain/adapters/postgres_response_store.py` and `chain/adapters/file_code_version.py`; this module keeps the rule
 and the setting lists.

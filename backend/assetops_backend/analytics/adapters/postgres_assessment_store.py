@@ -963,7 +963,7 @@ class PostgresAssessmentStore:
 
     @staticmethod
     def _window_snapshot(c: Connection, readings, input_sha, config_sha, head, run, jobs, keys) -> WindowSnapshot:
-        read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+        read_at = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
         return WindowSnapshot(
             reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
             head=None if head is None else {"seq": head[0], "selected_at": head[1], "job_id": head[2]},
@@ -2068,7 +2068,7 @@ def selected_windows_on(c: Connection, t: UUID, s: UUID, analytics: tuple[str, .
 
 class ColdReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
-                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+                 clock: Callable[[], datetime] = lambda: read_scope.clock(),
                  link_rows: Callable[..., list] | None = None) -> None:
         self._url, self._engine, self.clock = database_url, engine, clock
         # W3-01 (Run 3 q3): the S4-05 link-row reader on the snapshot connection, for the public provenance sets.
@@ -2197,7 +2197,8 @@ class ColdReadService:
         elif state == "STALE_SOURCE":
             limitations.append(STALE_NOTE)
         elif state == "UNKNOWN":
-            limitations.append(FUTURE_NOTE if window_to is not None and window_to > self.clock() else NO_PROBE_NOTE)
+            limitations.append(FUTURE_NOTE if window_to is not None and read_scope.within(None, window_to, self.clock())
+                               else NO_PROBE_NOTE)
         snap = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known, "watermark": watermark,
                 "selected": selected, "pending_since": pending_since, "evidence": evidence, "probes": probes,
                 "latest_probe": latest_probe, "state": state, "limitations": limitations}
@@ -2765,7 +2766,7 @@ def _ev_json(value: Any) -> Any:
 
 class EvReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
-                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+                 clock: Callable[[], datetime] = lambda: read_scope.clock(),
                  link_rows: Callable[..., list] | None = None) -> None:
         self._url, self._engine, self.clock = database_url, engine, clock
         # r9 M1-a: the S4-05 scoped link reader on the read connection (`evidence.composition`).

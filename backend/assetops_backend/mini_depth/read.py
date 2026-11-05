@@ -29,6 +29,7 @@ from typing import Any, Callable, Iterable, Sequence
 from urllib.parse import quote
 from uuid import UUID
 
+from assetops_backend import read_scope
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
@@ -360,7 +361,7 @@ class MiniDepthRead:
             with self._engine.connect().execution_options(isolation_level="REPEATABLE READ") as c:
                 with c.begin():
                     c.execute(text("SET TRANSACTION READ ONLY"))
-                    read_time = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+                    read_time = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
                     if self.test_read_clock_override is not None:
                         read_time = self.test_read_clock_override()
                     if known_at is not None and known_at > read_time:
@@ -420,7 +421,7 @@ class MiniDepthRead:
             with self._engine.connect().execution_options(isolation_level="REPEATABLE READ") as c:
                 with c.begin():
                     c.execute(text("SET TRANSACTION READ ONLY"))
-                    read_time = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+                    read_time = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
                     if self.test_read_clock_override is not None:
                         read_time = self.test_read_clock_override()
                     return self._read(c, tenant_id, site_id, site_code, domain, lo, hi, known_at, read_time)

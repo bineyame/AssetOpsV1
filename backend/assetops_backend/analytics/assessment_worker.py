@@ -25,6 +25,7 @@ from types import ModuleType
 from typing import Any, Callable
 from uuid import UUID
 
+from assetops_backend import read_scope
 from assetops_backend.analytics import cold, dispatch_v3, ev
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
@@ -63,7 +64,7 @@ ROLES_BY_SET = {s: tuple(roles_for(s)) for s in (ROLE_SET_MINIGRID_1, ROLE_SET_M
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return read_scope.clock()  # CH-5c2 C3: the one clock seam (a composer module)
 
 
 def day_windows(start: datetime, end: datetime, bracket: timedelta = BRACKET) -> list[Window]:
