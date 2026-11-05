@@ -1,4 +1,4 @@
-# CH-5c2 handoff (PARTIAL, builder 3 at the context cap) - branch `task/CH-5c2-store-safety`
+# CH-5c2 handoff (PARTIAL, builder 4 at the context cap; builder 3 before) - branch `task/CH-5c2-store-safety`
 
 Spec: `AssetOpsV1-plan2\.agent\build-sheet-CH-5c.md` §8.6 + §8.7; pre-flight `.agent/CH-5c2-preflight.md`.
 Env: `scratchpad/ch5c2/env.sh` (absolute PYTHONPATH of this worktree; plan2 venv; `$WK` work dir with keys.json).
@@ -52,21 +52,44 @@ sweep, then `python tools/chain_clone.py drop ch5c2`. CH-9 is NOT on main (check
 - F (scratch `fstate.py`, clone env): median 3.1-3.3 ms per Site and 8.1 ms for all three, so <= 20 ms. The first cold
   call reached a 180 ms max (OS cache); note this in the packet.
 
+## Landed by builder 4 (heads `a78579ef1`, `5d8342845`, `2186fda25`)
+- `tests/test_ch5c2_real_composers_postgres.py`: the Kobo `guardrail` case (b4 `_build_kobo`, own DB
+  `assetops_out_ch5c2_guardrail_test`, ~1 min build), 6 tests, **6 passed in 334 s** at `2186fda25`. PATHS = every
+  stored route (board dated + dateless, summary, findings, portfolio, scope-ids; summary window <= 31 days).
+  - F6 board: hit; new PASSED report -> not hit, equals fresh; planted FAILED -> body changes (AVAILABLE -> PARTIAL).
+    F6 summary (no S2 stand-in): hit; `evidence_migration run` -> not hit, body changed; planted FAILED -> back to
+    the pre-report body. **Non-vacuous:** F dropped from W (`response_store.py:130`) -> both fail `'hit'` (rc6).
+  - C4 sweep (`tools/chain_response_probe.py` `sweep`/`candidates`/`seeded_instants`, also a CLI `sweep` command):
+    `_place` shifts one verification plan's later window by whole days past t0 and one outcome's recorded_at to
+    t0-30d+3h (replica role). 569 seeded instants, ~1720 candidates; only candidates before valid_until(t0) are
+    composed (later ones satisfy the claim). Portfolio/dateless board valid_until = the placed later_end - 1 s, so
+    the placement registers. 0 violations.
+    **Non-vacuity NOT proven:** planting `within` without the end registration (`read_scope.py:218`) still passed
+    (rc7): no body on this seed changes at the placed later_end, so the registration is conservative here. Needs a
+    planted visible defect (e.g. an unregistered clock-dependent field in one composer) or a seed whose label flips
+    at later_end. Also check `verification.current_state:965` `now = at or self.clock()`: what `at` is on the board.
+  - F4: clean run over every route records 0 violations; planted `open` and `os.listdir` inside each compose are
+    recorded on all 5 routes (the proof). Q5 on this seed found two unlisted modules, now fixed (below).
+- **Found + fixed:** a dateless board/overview reads its day from `PostgresScheduleStore.db_now` (DB clock, UTC
+  date), unregistered; the midnight cap is Site-local, so a Site west of UTC would be served yesterday's body
+  after 00:00Z. `site_overview/read.py db_today` now wraps it in `read_scope.read_instant` and registers the next UTC
+  midnight via `within`. `site_overview.read` and `scheduling.adapters.postgres_schedule_store` joined
+  `stored-composer-modules-v1.json` (124 modules); the schedule store's db_now is allowlisted as a capture and its 9
+  writers as writers (`test_ch5c2_clock_guard.py`, 5 passed). **Add to the Architect-ruling list.** The W6 CLI on
+  the clone did not reach these (all prebuilt boards carry `date=`); re-run W6 on the clone (module count 124 now).
+
 ## Remaining, in order
-1. L2 tests on the real composers (see `test_out_b4_board_postgres.py:120 _evidence_root`). Prove each non-vacuous.
-   - F6: a Performance report, a planted FAILED, and an S2 report on the summary.
-   - C4 sweep:
-     - Seed plan windows and a verified outcome within 40 days.
-     - Candidates are the seeded timestamps, +VERIFIED_LOOKBACK, +-1 us, and local midnights.
-     - Assert: body differs at t => valid_until(t0) <= t.
-     - Patch `read_scope.clock` and `read_scope.read_instant`.
-   - F4 over every stored route: a planted file read and a planted listdir under `COMPOSING`.
-2. W6 F4/C3 planted proofs with the CLI on the clone, one run each (~60 s).
+1. C4 non-vacuity (above). Then rerun `test_ch5c2_real_composers_postgres.py` once (~6 min, under the cap).
+2. W6 F4/C3 planted proofs with the CLI on the clone, one run each (~60 s), plus one clean W6 at the new head.
 3. Packet Q1 table:
-   - `verification.py` 149/379/547/784/903 (writers / non-stored detail);
-   - `site_index.py:164` (above);
-   - `analytics/service.py:151`, `sites/cutover.py:209`, `gateway_api.py:109`;
-   - the 31 allowlist entries, by reference.
+   - `verification.py` clock reads at the current lines (builder 4 mapped them): 150 `freeze`, 380
+     `bind_later_selection`, 548 `evidence`, 785 `evaluate`, 904 `_cost_check` (writers / non-stored detail);
+     965/983 `current_state` (Architect ruling);
+   - `work/site_index.py` read_at refusals 342-356 (constant for a live request) and the `read_at` absence (above);
+   - `analytics/service.py:151 _reconcile`, `sites/cutover.py:209 _current`, `gateway_api.py:109
+     read_gateway_health` (not stored routes; confirm each with a grep before citing);
+   - `site_overview/read.py db_today` (fixed by builder 4; see above);
+   - the allowlist entries (now 41), by reference to `test_ch5c2_clock_guard.py`.
 4. Guards, one at a time under the 10-min cap, with the estate self-tests in parts via `-k`. Then
    `check-architecture.ps1` and `check-agent-workflow.ps1`. Rerun `test_ch5c_response_store_postgres.py` (it passes
    at `ee87d7385`).
@@ -76,6 +99,11 @@ sweep, then `python tools/chain_clone.py drop ch5c2`. CH-9 is NOT on main (check
    - the `greatest(clock_timestamp(), :now)` lookup;
    - the upsert of an expired row;
    - `valid_until` in the ETag;
-   - `site_history.work`, allowlisted as not in a stored compose.
+   - `site_history.work`, allowlisted as not in a stored compose;
+   - the dateless board day `db_today` (UTC date, now registered at the next UTC midnight).
 
-   Then drop the clone, set the task status to `in_review`, and update ACTIVE_CONTEXT and CODE_STATE.
+6. C4 sweep on the clone: `python tools/chain_response_probe.py --database-url <clone> --work $WK sweep
+   [--t0 ISO] [--limit N] [--only substr]` (writes store rows; split by `--only` to stay under 10 min), then
+   `python tools/chain_clone.py drop ch5c2`. Coordinator owns ACTIVE_CONTEXT/CODE_STATE (do NOT edit them); set the
+   task status to `in_review`. Lane-2 rule: wait while `mechanism_dataset.py`/`chain_clone.py`/collect runs.
+   CH-9 was still not on `main` at builder 4 (checked).
