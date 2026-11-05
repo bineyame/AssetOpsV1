@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = "0048_chain_response_expiry"
-down_revision = "0047_chain_response"
+revision = "0050_chain_response_expiry"
+down_revision = "0049_mini_service_v2"
 branch_labels = None
 depends_on = None
 

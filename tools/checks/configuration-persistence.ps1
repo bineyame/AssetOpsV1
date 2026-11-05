@@ -925,7 +925,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $responseTables = @('chain_response')
     $changeLogTable = 'chain_input_change'
     $changeLogMigration = 'backend/migrations/versions/0047_chain_response.py'
-    $changeLogTruncateMigration = 'backend/migrations/versions/0048_chain_response_expiry.py'
+    $changeLogTruncateMigration = 'backend/migrations/versions/0050_chain_response_expiry.py'
     $responseShapes = [ordered]@{
         'chain_response insert' = ('(?i)^INSERT\s+INTO\s+chain_response\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*' +
             'ON\s+CONFLICT\s*\(\s*route\s*,\s*request_key\s*,\s*watermark\s*,\s*code_version\s*\)\s*' +
