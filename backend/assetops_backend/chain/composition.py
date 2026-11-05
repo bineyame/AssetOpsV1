@@ -196,7 +196,7 @@ def prebuilt_requests() -> Any:
 
 def build_response_store(database_url: str | None, *, engine: Any = None, keep: int = 3) -> Any:
     """CH-5c: the stored route responses (`chain/response_store.py`) over the `chain_response` adapter; None without
-    a database URL or engine, or with `ASSETOPS_RESPONSE_STORE=off`."""
+    a database URL or engine, or unless `ASSETOPS_RESPONSE_STORE=on`."""
     from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
     from assetops_backend.chain.response_store import ResponseStore, enabled
 

@@ -568,7 +568,7 @@ def create_app(
     # server registry only, per-Site admission through the Finding-route access seam; typed 503 without a database.
     estate_index = build_estate_index_service(database_url())
     # CH-5c: the stored route responses (`chain/response_store.py`) of the Portfolio, its scope ids, the Findings
-    # index, the outcome summary and the board; None without a database or with ASSETOPS_RESPONSE_STORE=off.
+    # index, the outcome summary and the board; None without a database or unless ASSETOPS_RESPONSE_STORE=on.
     responses = build_response_store(database_url())
     if responses is not None:
         app.router.on_shutdown.append(responses.dispose)

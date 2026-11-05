@@ -23,7 +23,10 @@ if URL:
 
     import pg_harness
     from assetops_backend import read_scope
+    from assetops_backend.analytics import dispatch_v3
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.assessment_worker import input_basis
+    from assetops_backend.analytics.dispatch_read import day_window
 
 F06 = next(c for c in SPEC["cases"] if c["case_id"] == "F06")
 F06_DAY = datetime(2026, 10, 15, tzinfo=timezone.utc)
@@ -45,12 +48,30 @@ def snapshot(engine):  # noqa: F811
             yield c
 
 
+def _select_dispatch_days_each(store, c, tenant_id, site_id, from_, to, known_at):
+    """CH5c-R7 L7: the per-day reference path (moved out of product code); `_dispatch_day_on` without a prefetch."""
+    if from_ >= to:
+        return []
+    live = known_at >= store._transaction_time(c)
+
+    def basis(result):
+        inputs, config_sha = input_basis(result, dispatch_v3)
+        return (None if inputs.cohort.status == "EMPTY" else inputs.input_sha256), config_sha
+    days = []
+    day = from_.astimezone(timezone.utc).date()
+    while (window := day_window(day)).start < to:
+        if window.end > from_:
+            days.append(store._dispatch_day_on(c, tenant_id, site_id, day, window, known_at, live, basis))
+        day += timedelta(days=1)
+    return days
+
+
 def both(store, c, tenant, site, frm, to, k):
     """The batched and per-day results, each in its own fresh read scope (no memo sharing between them)."""
     with read_scope.scope("ch5c-batched"):
         batched = store.select_dispatch_days_on(c, tenant, site, frm, to, k)
     with read_scope.scope("ch5c-each"):
-        each = store._select_dispatch_days_each(c, tenant, site, frm, to, k)
+        each = _select_dispatch_days_each(store, c, tenant, site, frm, to, k)
     return batched, each
 
 

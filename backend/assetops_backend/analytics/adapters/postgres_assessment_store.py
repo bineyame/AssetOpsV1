@@ -1051,24 +1051,6 @@ class PostgresAssessmentStore:
         return [self._dispatch_day_on(c, tenant_id, site_id, d, w, known_at, live, basis, prefetched=pf)
                 for d, w in spans]
 
-    def _select_dispatch_days_each(self, c: Connection, tenant_id: UUID, site_id: UUID, from_: datetime,
-                                   to: datetime, known_at: datetime) -> list[dict[str, Any]]:
-        """CH5c-R3 R2: the per-day path, kept test-only for the parity test; deleted at merge."""
-        if from_ >= to:
-            return []
-        live = known_at >= self._transaction_time(c)
-
-        def basis(result: EvidenceQueryResult) -> tuple[str | None, str]:
-            inputs, config_sha = input_basis(result, dispatch_v3)
-            return (None if inputs.cohort.status == "EMPTY" else inputs.input_sha256), config_sha
-        days: list[dict[str, Any]] = []
-        day = from_.astimezone(timezone.utc).date()
-        while (window := day_window(day)).start < to:
-            if window.end > from_:
-                days.append(self._dispatch_day_on(c, tenant_id, site_id, day, window, known_at, live, basis))
-            day += timedelta(days=1)
-        return days
-
     @staticmethod
     def _transaction_time(c: Connection) -> datetime:
         """The caller's transaction time: at or after it, a job's present status is its status at the cutoff."""

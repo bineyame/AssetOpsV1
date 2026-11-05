@@ -20,7 +20,7 @@ and the response carries `ETag` = sha256(route, request_key, W, code_version). `
 the route, the tenant, the sorted admitted Site ids and the parsed request, so equivalent requests (a defaulted
 lens or limit, a board `date` against its `from`/`to`) share one key.
 
-`ASSETOPS_RESPONSE_STORE=off` turns the store off (every request composes; the W6 guard and the uncached probe use
+The store is OFF unless `ASSETOPS_RESPONSE_STORE=on` (CH5c-R7): off, every request composes (the W6 guard and the uncached probe use
 it). It never changes body bytes, so it is not a `COMPOSER_ENV` setting.
 
 CH5c-R6: the SQL lives below the port in `chain/adapters/postgres_response_store.py` (the sole writer of
@@ -165,4 +165,5 @@ def finish(out: Response, response: Response) -> Response:
 
 
 def enabled() -> bool:
-    return os.environ.get("ASSETOPS_RESPONSE_STORE", "on").strip().lower() not in ("off", "0", "false", "no")
+    """CH5c-R7: off unless `ASSETOPS_RESPONSE_STORE` explicitly opts in (CH-5c2 turns it on after its High fixes)."""
+    return os.environ.get("ASSETOPS_RESPONSE_STORE", "off").strip().lower() in ("on", "1", "true", "yes")

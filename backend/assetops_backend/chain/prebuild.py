@@ -19,7 +19,7 @@ from collections import Counter
 from typing import Any
 
 from assetops_backend.chain.composition import build_response_store, code_version, prebuilt_requests
-from assetops_backend.chain.response_store import HEADER
+from assetops_backend.chain.response_store import HEADER, enabled
 from assetops_backend.chain.watermark import SERVE_KEYS
 
 SCOPE_IDS = "/api/estate/portfolio/scope-ids"
@@ -38,12 +38,14 @@ def paths() -> list[str]:
 def run(url: str | None, client: Any = None) -> dict[str, Any]:
     started = time.perf_counter()
     version = code_version()[:16]
+    if not enabled():  # CH5c-R7: the store is off by default; nothing is stored
+        return {"code": "SKIPPED_STORE_OFF", "code_version": version, "requests": 0}
     missing = [k for k in SERVE_KEYS if not os.environ.get(k)]
     if missing:  # CH5c-R6: no server could hit rows built under this process's code_version
         return {"code": "SKIPPED_NO_SERVE_ENV", "missing": missing, "code_version": version, "requests": 0}
     store = build_response_store(url)
     if store is None:
-        return {"code": "OK", "skipped": "no database or ASSETOPS_RESPONSE_STORE=off", "code_version": version}
+        return {"code": "OK", "skipped": "no database", "code_version": version}
     if client is None:
         from fastapi.testclient import TestClient
 
