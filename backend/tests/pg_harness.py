@@ -353,6 +353,9 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
     # CH-1b: the 0044 event ledger has no tenant or Site foreign key, so no root reaches it; it is emptied with
     # every root set (its consumption and dirty-queue rows follow through the closure).
     roots = tuple(roots) + tuple(t for t in EVENT_TABLES[:1] if t not in roots and _exists(engine, t))
+    # CH-5c W5: the stored responses and the change log are always emptied together (a count that drops while
+    # a stored row survives could repeat an old watermark).
+    roots = roots + tuple(t for t in RESPONSE_TABLES if t not in roots and _exists(engine, t))
     if os.environ.get(CLEANUP_ENV, "delete") == "truncate":
         with engine.begin() as connection:
             connection.execute(text(f"TRUNCATE {', '.join(roots)} CASCADE"))
@@ -366,6 +369,8 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
 
 #: CH-1b (migration 0044): the event ledger tables, root first.
 EVENT_TABLES = ("event_outbox", "event_consumption", "snapshot_dirty")
+#: CH-5c (migration 0047, W5): emptied together on every reset.
+RESPONSE_TABLES = ("chain_response", "chain_input_change")
 
 
 def _exists(engine, table: str) -> bool:
