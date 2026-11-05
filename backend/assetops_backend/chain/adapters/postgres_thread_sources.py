@@ -172,7 +172,8 @@ class PostgresThreadSources:
                                           "o": [str(i) for i in opportunity_ids]})
 
     def all_actions(self, tenant_id: UUID, site_id: UUID | None = None) -> list[dict[str, Any]]:
-        """Both Action tables directly (the `--dry-run` mode: it also reads a database below 0042)."""
+        """Both Action tables directly (the `--dry-run` mode; it names `domain_action.origin_opportunity_id`, so it needs migration 0051 and no longer
+        reads a database below it)."""
         return self._rows(
             "SELECT id, tenant_id, site_id, action_code, 'MINI_TRIAL' AS kind, origin_finding_id, "
             "CAST(NULL AS uuid) AS origin_opportunity_id FROM action "
