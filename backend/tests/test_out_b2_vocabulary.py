@@ -84,6 +84,10 @@ def _constants() -> list[str]:
               "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
               "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked"}
     copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
+    # CH-6a2: every node template (§A4), formatted with plain sample values.
+    node = {"amount": "7.50 USD", "k": 3, "m": 5, "p": 1, "n": 1, "lo": "18", "hi": "20", "cur": "USD",
+            "day": "1 Nov"}
+    copy += [cv.NODE_TEXT[key].format(**node) for key in cv.NODE_TEXT]
     return [c.strip(" ·") for c in copy]
 
 

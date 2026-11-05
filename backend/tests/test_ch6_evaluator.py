@@ -11,7 +11,7 @@ from uuid import UUID
 import pytest
 
 from assetops_backend.chain.outcomes import (
-    POTENTIAL_STATES, NodeInputs, OutcomeEvaluator, headroom_signal_open)
+    POTENTIAL_STATES, NodeInputs, OutcomeEvaluator, headroom_signal_on)
 from assetops_backend.chain.ports import SnapshotRow
 from assetops_backend.chain.read import MoneyHead
 from assetops_backend.chain.strategies.base import NOT_PRICED, ContributionContext
@@ -245,10 +245,10 @@ def test_cold_has_no_potential_or_earnings():
     assert n["potential"] is None and n["earnings"] is None
 
 
-def test_headroom_signal_open_is_open_or_recurred():
-    assert [headroom_signal_open({"state": s}) for s in ("OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED")] == [
+def test_headroom_signal_on_is_open_or_recurred():
+    assert [headroom_signal_on({"state": s}) for s in ("OPEN", "RECURRED", "REOPENED", "CHANGE_APPLIED")] == [
         True, True, False, False]
-    assert headroom_signal_open(None) is False
+    assert headroom_signal_on(None) is False
 
 
 # ---- CH-6a1 L1-L3 -----------------------------------------------------------------------------------------------

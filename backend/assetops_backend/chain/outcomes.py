@@ -55,7 +55,7 @@ class NodeInputs:
     lead_findings: Mapping[str, str] = field(default_factory=dict)
 
 
-def headroom_signal_open(item: Mapping[str, Any] | None) -> bool:
+def headroom_signal_on(item: Mapping[str, Any] | None) -> bool:
     """R13: the headroom status signal is open exactly when the opportunity thread is OPEN or RECURRED at k."""
     return bool(item) and item.get("state") in SIGNAL_OPEN_STATES
 
