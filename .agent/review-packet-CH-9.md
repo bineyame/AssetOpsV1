@@ -1,4 +1,4 @@
-# Review packet: CH-9 measured daylight (DRAFT, builder 6; open items marked OPEN)
+# Review packet: CH-9 measured daylight (builder 7; BLOCKING finding F1 for the Architect)
 
 Branch `task/CH-9-measured-daylight`. Sheet `AssetOpsV1-plan2\.agent\build-sheet-CH-9.md` §9 (OWN-1104), §10 (CH9-R2),
 §11 (CH9-R3). `main` (`fd03ae6b0`, CH-5a2b) merged at `c37fe981b` (clean). Size 4.5 units (CH9-R3).
@@ -10,7 +10,8 @@ Branch `task/CH-9-measured-daylight`. Sheet `AssetOpsV1-plan2\.agent\build-sheet
 - Study model `mini-opportunity/2` (per-hour pins, day fold, `window_hours`, `hours[]`); `/1` stays readable.
 - Day measures `daylight_headroom_kw` (replaces `noon_headroom_kw`, period operating_hours) and `critical_served`
   (u3; MG-5 "{kwh} kWh not served over the whole day" / PARTIAL copy).
-- Value line "{lo}–{hi} kW over {h} daylight hours on every eligible day" (server `VALUE_LINE`).
+- Value line "{lo}–{hi} kW over {h} on every eligible day", `{h}` = "1 daylight hour" / "N daylight hours"
+  (server `vocabulary.daylight_hours_text`; the Portfolio unit "kW over 1 daylight hour" likewise, `54431f5dd`).
 - Portfolio opportunity card unit (CH9-R3 Q2): "kW over {window_hours} daylight hours" from the server's
   `study.window_hours`, else the one constant `OPPORTUNITY_HEADROOM_UNIT` "kW over daylight hours"
   (`EstatePortfolio.tsx` `opportunityHeadroomUnit`), MOCK DEVIATION candidate (v69 "kW at midday").
@@ -66,14 +67,119 @@ Branch `task/CH-9-measured-daylight`. Sheet `AssetOpsV1-plan2\.agent\build-sheet
 - Guards: architecture PASS, agent-workflow PASS, mock-deviation labels (V) OK 153 files.
 - Not run (owner rule): full suite, demo prepare, `test_demo_combined_postgres`, L2m `test_md0_mechanism_postgres`.
 
-## OPEN for the next builder
-- Polish clone re-collect after the CH-5a2b merge: `chain_clone.py create ch9 --migrate`, backfill a-d, settle,
-  collect, check against `expected-today.json` (COH-17 = 0); owned `expected-today.json` changes (8 h Kobo days now
-  missing study days, MG-5 PARTIAL; DD-1).
-- Per-window table of named days, day counts and why each day is not complete (CH5a2b-R2); old -> new
-  `count_basis` list; every MD-0 value old -> new (needs an A collect from main on the same inputs).
-- Mini-depth job growth vs the CH-1b stage bound (polish settle tick).
-- `check-all.ps1 -Python <plan2 venv>`.
+## Findings (builder 7; reported, not adapted)
+- **F1 (High, blocks merge; Architect). `critical_served` is NO_DATA on every Kobo day of every dataset, so every
+  Kobo day grade drops to NO_DATA.**
+  - Cause, read from the stored heads: the adapter (`chain/measure_impls.py` `CriticalServed.inputs`) counts an
+    hour only when the hour's `cards.unserved_kwh` is stated. `mini_depth/rules.py:607` states it only when *every*
+    load row is SUPPORTED, and the UNCLASSIFIED load never has request evidence.
+  - So no stored `service` head on the polish clone (165) or on MD-0 states (332) states `unserved_kwh`, although
+    the CRITICAL row is SUPPORTED on 64 (polish) and 249 (MD-0) hours. The stored rows carry no per-row
+    `unserved_kwh` (`mini_depth/projection.py` `_service`), so the critical-only demand cannot be read from the
+    heads (Q7, "no new reading query") without a `mini-service` model change.
+  - This misses the sheet's L2m "`critical_served` COMPLETE on delivered days" and CH5a2b-R2's "every built, non-gap
+    MD-0 day grades complete". P8 said "if there is no served/unserved signal, stop"; on real data there is none.
+  - The L0/L2 tests pass because their fixtures make every row SUPPORTED. No code was tuned.
+  - Options for the Architect: (a) store the CRITICAL row's unserved (`mini-service/2`, re-derive) and read it;
+    (b) take critical demand from the critical channels in the adapter (a reading query; reverses Q7); (c) keep
+    `critical_served` out of the day grade until (a).
+- **F2 (Medium). Two headroom ranges on MD-0 states.** The estate summary row reads "2–20 kW of daytime solar
+  unused" / "2–20 kW unused" (was 14–20). The study value line and Portfolio read "2–8 kW over 12 daylight hours on
+  every eligible day" (was "14–20 kW at midday on every eligible day"). The summary row takes the per-hour range over
+  the daylight hours, and the study takes `headroom_on_every_eligible_day`. It is the same opportunity with two
+  numbers on screen, and COH does not judge it.
+- **F3 (Medium, perf).** CH-9 makes the Kobo board ~0.5 s slower (see Perf).
+
+## Polish clone L3 (after the CH-5a2b merge)
+- `assetops_chainclone_ch9_test`: create --migrate (0046), backfill a 179 / b 9 / c 3 / d 6, settle (S2 permitted,
+  tick COMPLETED in 68 s, performance permitted). Collect B: 85 x 200, `PGOPTIONS` read-only, `--work` the scratch
+  copy `polish_work_ch9`.
+- Check `--expect expected-today.json`: COH-2 2/2 and COH-7 8/8 expected, **COH-17 0, every other rule 0, 0 new**,
+  self-check 10 pass. **No `expected-today.json` change was needed.**
+- **Mini-depth job growth against the CH-1b stage bound.**
+  - The tick's MINI stage processed 0, deferred 0 and failed 0, against the 10-job / 120 s bound
+    (`TickLimits.mini_jobs_per_site`, `mini_seconds`). Mini job rows are unchanged (renewable 10, service 165,
+    fuel 165, backup 170).
+  - The clone ingests no new reading, so 0046's per-daylight-hour enqueue is not exercised here: polish's jobs were
+    enqueued when it was built.
+  - OPPORTUNITY processed +2 jobs (the `/2` re-projection; main processed 0). The tick took 68 s on both the main
+    and the branch clones, against the 240 s tick bound.
+- **A side.** Main code is `fd03ae6b0`; its code dirs are identical to CH-5a2b `3122c2d1d`.
+  - Polish A is the CH-5a2b review collect `rv5a2b_bundle`: a fresh clone of the same source, settled by that code.
+  - MD-0 A is CH-5a2b's `l3m-states` / `l3m-close` bundles.
+  - B is this slice's `ch9_B`, `mech-bundle` and `mechc-bundle`.
+  - For the perf A, a fresh main clone `assetops_chainclone_ch9a_test` was created from a temporary main worktree
+    and settled the same way.
+  - Both clones were dropped and the worktree was removed.
+
+## CH5a2b-R2 per-window table
+Named days are by `window_days`. Day counts are complete/low/partial/no_data.
+
+| Dataset | Window (named days) | A days | B days | Non-complete days and why (B) |
+|---|---|---|---|---|
+| polish | S 31 Oct (1) | 0/1/1/0 of 2 | 0/1/0/1 of 2 | Kobo 31 Oct NO_DATA (F1; was PARTIAL); Cold/EV LOW as before |
+| polish | week 25-31 Oct (7) | 0/3/3/9 of 15 | 0/3/0/12 of 15 | Kobo 7/7 NO_DATA (was 3 PARTIAL, 4 NO_DATA) |
+| polish | month 3 Oct-2 Nov (31) | 0/5/8/68 of 81 | 0/5/0/76 of 81 | Kobo 31/31 NO_DATA (was 8 PARTIAL) |
+| MD-0 states | S 31 Oct (1) | 1/0/0/0 of 1 | 0/0/0/1 of 1 | 31 Oct built, not a gap: **F1** |
+| MD-0 states | week (7) | 4/0/0/3 | 0/0/0/7 | 25 Oct declared gap; 26-27 Oct outside the day set; 28-31 Oct built: **F1** |
+| MD-0 states | month (31) | 10/0/0/21 | 0/0/0/31 | 10 built non-gap days (19-23 and 28-31 Oct, 1 Nov): **F1**; GAP-K7; the rest outside the set |
+| MD-0 close | S (1) | 1/0/0/0 | 0/0/0/1 | built: **F1** |
+| MD-0 close | week (7) | 7/0/0/0 | 0/0/0/7 | all built: **F1** |
+| MD-0 close | month (31) | 14/0/0/17 | 0/0/0/31 | 14 built days (19 Oct-1 Nov): **F1**; the rest outside the set |
+
+- Every Kobo day-window body (polish 8, states 10 plus the gap, close 14) goes from PARTIAL or COMPLETE in A to
+  NO_DATA in B. On MD-0 the only non-COMPLETE measure is `critical_served` NO_DATA.
+- Polish Kobo days also read `daylight_headroom_kw` LOW and `avoidable_gen_min`/`productive_kwh` PARTIAL, as before.
+- Polish per-grade totals (month, all Sites): 0 complete, 5 low, 0 partial, 76 no_data.
+
+## `count_basis` old -> new and the screen text it changes
+| Dataset | Window | Portfolio `count_basis` A -> B | Claim text A -> B |
+|---|---|---|---|
+| polish | S / week / month | CHECKED_DAYS -> CHECKED_DAYS | unchanged ("1 open on the days checked" etc.) |
+| polish | Kobo day windows 3, 10, 17 and 30 Oct | CHECKED_DAYS -> NOT_KNOWN | all three claims, e.g. "None open on the days checked" (17 Oct "1 open ...") -> "Not known yet" |
+| MD-0 states | S | COMPLETE -> NOT_KNOWN | "0 open findings", "1 opportunity", "0 fixes confirmed" -> "Not known yet" (x3) |
+| MD-0 states | week / month | CHECKED_DAYS -> NOT_KNOWN | "... on the days checked" -> "Not known yet" (x3 each) |
+| MD-0 close | S / week | COMPLETE -> NOT_KNOWN | "1 open finding", "0 opportunities", "0 fixes confirmed" -> "Not known yet" |
+| MD-0 close | month | CHECKED_DAYS -> NOT_KNOWN | "... on the days checked" -> "Not known yet" |
+
+Every NOT_KNOWN move comes from F1. The board's finding-gap text also moves: "N of the last 31 days have no checked
+readings yet" becomes "31 of the last 31 ..." on every Kobo board and board summary (polish and MD-0).
+
+## MD-0 and polish values old -> new (besides F1)
+- **MD-0 states opportunity.**
+  - The value line "14–20 kW at midday on every eligible day" becomes "2–8 kW over 12 daylight hours on every
+    eligible day".
+  - The Portfolio headroom goes 14–20 -> 2–8, and `study.window_hours` 1 -> 12.
+  - The summary row "14–20 kW of daytime solar unused" becomes "2–20 kW ..." (F2).
+  - The seen line is unchanged ("Seen on 2 of 5 well-observed days · 28 Oct–1 Nov").
+- **Day measures.** `noon_headroom_kw` (COMPLETE) is replaced by `daylight_headroom_kw` (COMPLETE on MD-0, LOW on
+  polish). `critical_served` is added (NO_DATA, F1).
+- **Polish.**
+  - The study's `window_hours` goes 1 -> null: 8 h story days are missing study days (CH9-R2 Q2; DD-1).
+  - The limit line is unchanged (mixed sources).
+  - The estate summary Kobo row at S and week, "25–31 kW of daytime solar unused", becomes "No productive-use sales
+    on this day: Grain mill not used". At month the row is gone, along with the missing study days.
+- **MD-0 close.** There is no opportunity in A or B.
+
+## Perf: Kobo board `kobo_board_31oct` (`tools/chain_perf_probe.py --runs 5`, ms, medians, polish clones)
+| Code / clone | cold run 1 | cold run 2 | warm run 1 | warm run 2 |
+|---|---|---|---|---|
+| main / main-settled `ch9a` | 4930 | 3992 | 2953 | 2847 |
+| CH-9 / branch-settled `ch9` | 4771 | 5459 | 3157 | 3612 |
+
+- Averages: cold ~4460 -> ~5115 (+~650 ms, +15%); warm ~2900 -> ~3385 (+~485 ms, +17%). Run-to-run noise is
+  about ±500 ms.
+- The ledger names the cause: `read.mini_depth` (4 calls) goes from ~530 ms to ~1050-1160 ms. The renewable page
+  now reads every operating hour, plus `daylight_hours` per study day.
+- No obvious defect was found, so nothing was fixed here.
+- Main code on the branch clone is not a fair A. It skips `money_head` because it finds no settled day under the
+  renamed measure.
+
+## Checks run (builder 7, on `54431f5dd`)
+- L0 `test_ch4_opportunities.py`: 16 passed. L2 `test_ch4_opportunity_postgres.py -k backfill_places_one_thread`:
+  1 passed (33 s). Vitest `estatePortfolio.test.tsx`: 58 passed. `tsc --noEmit`: 0 errors.
+- Guards (`check-all.ps1 -Python <plan2 venv>`): **14/14 PASS**, exit 0 (1097 s; estate self-tests 867 s). Includes
+  architecture seams, agent workflow, mock-deviation labels and client vocabulary (V), chain coherence (103), event register (12).
 
 ## Known deviations
 - **KD-1 u5 deferred (CH9-R3 Q1).** No Kobo `action` can attach to the opportunity-only headroom thread
@@ -87,10 +193,10 @@ Branch `task/CH-9-measured-daylight`. Sheet `AssetOpsV1-plan2\.agent\build-sheet
   (SCENARIO_BASIS_MISMATCH); the multi-hour pin contract is post-demo (CH9-R3 Q4).
 
 ## Residual risk
-- Kobo board and chain reads take ~9.3-9.9 s on the MD-0 L3m DB (`read.mini_depth` 4 calls ~5.5-6.0 s,
-  `read.action_facts` ~3.3 s); not compared with a main baseline yet.
+- Kobo board and chain reads take ~9.3-9.9 s on the MD-0 L3m DB; on polish CH-9 adds ~0.5 s to the board (F3).
 - Lane-1 conflicts in `chain/vocabulary.py`, `site_outcomes/mini.py`: resolved by the merge (clean).
 
 ## User-review focus
-- Portfolio unit copy "kW over N daylight hours" (vs v69 "kW at midday"); "1 daylight hours" matches the server line.
+- Portfolio unit copy "kW over N daylight hours" (vs v69 "kW at midday"); "1 daylight hour" in both.
+- F1 (every Kobo day NO_DATA, claims "Not known yet") and F2 (two headroom ranges) before any merge.
 - USER_REVIEW_REQUIRED: per the task file; W1-style walkthrough is deferred (owner rule).

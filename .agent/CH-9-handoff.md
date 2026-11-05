@@ -1,4 +1,15 @@
-# CH-9 handoff (PARTIAL: u1-u4 + Q2 landed, u5 deferred to CH-9b; resume at "Resume order for builder 7")
+# CH-9 handoff (builder 7 done; BLOCKED on Architect finding F1, see packet)
+
+## Status 2026-11-05 (builder 7; no process, clone or worktree of mine left)
+- `54431f5dd`: "1 daylight hour" (server `vocabulary.daylight_hours_text`, Portfolio unit); owned test changes
+  `test_ch4_opportunities.py`, `test_ch4_opportunity_postgres.py`, `estatePortfolio.test.tsx`.
+- Polish clone `ch9` (branch) and `ch9a` (main, temporary worktree `AssetOpsV1-ch9a`): created, backfilled, settled,
+  B collected and checked (COH-17 0, 0 new, no `expected-today.json` change), perf probed, both dropped, worktree removed.
+- Packet `.agent/review-packet-CH-9.md` OPEN section closed: findings F1-F3, per-window table, count_basis, MD-0 values,
+  perf, job growth. A/B script and tables: scratch `ch9_ab.py` / `ch9_ab.txt`.
+- **F1 (High):** `critical_served` NO_DATA on every Kobo day (hour `unserved_kwh` needs every load SUPPORTED; stored rows
+  carry no critical unserved), so every Kobo day grades NO_DATA and MD-0 claims read "Not known yet". Needs an
+  Architect ruling (options in the packet) before any further build. Task status left as is.
 
 ## Status 2026-11-05 (builder 6; stopped near the context cap, no process or DB job of mine running)
 Merged `main` (CH-5a2b) at `c37fe981b`, clean. Commits: `2064fcb7b` read-test 5 Oct pv day; `a8f115f84` ch5a2 goldens
