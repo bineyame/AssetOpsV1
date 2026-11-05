@@ -1,110 +1,75 @@
-# CH-5c handoff 3: partial. u1 and u3 are built; u2 is part-built. Resume at "Next"
+# CH-5c handoff 4: partial. Steps 1-5 of the builder-4 brief are built; resume at L3 (step 6/7)
 
-Builder 3 stopped at about 105k context. Branch `task/CH-5c-perf`, worktree `AssetOpsV1-ch5c`. The spec is the sheet:
-§8 (CH5c-R4) plus **§8.4 (CH5c-R5, the Architect's ruling on W3 and over-invalidation)**. The scratch env is
-`...\scratchpad\ch5c\env.sh`; the A bundles are `bA` and `bB`. `frontend/node_modules` is a junction to plan2's
-(untracked).
+Builder 4 stopped at about 105k context, with lane 2's `mechanism_dataset.py build --variant close` running (PIDs
+17108/13872, not ours), so no L3 job was started. Branch `task/CH-5c-perf`, worktree `AssetOpsV1-ch5c`. Spec: sheet
+§8 (CH5c-R4) and §8.4 (CH5c-R5). Scratch env `...\scratchpad\ch5c\env.sh` (PYTHONPATH, `$PY`, `$S`, `$CLONE`);
+A bundles `bA`, `bB`; app work dir `$S/work` (keys.json). Handoff 3's facts for the packet (tenant-wide rows, Q5
+env list, replica mode, R4 engines) still hold; they are not repeated here.
 
-## Commits (on top of handoff 2's `b38bcaf45`, `e59cdf35b`)
-- `f4124039e` u3:
-  - the Portfolio body carries `scope_disclosure.sites[].selected_revision_count`;
-  - its `source_provenance` keeps scalar fields only (`estate/portfolio.py` `disclosure_provenance`);
-  - the ids travel in a private `_scope_ids` key, split off by `split_scope_ids` in `estate_portfolio_api.py`;
-  - `GET /api/estate/portfolio/scope-ids` serves `{schema_version: estate-portfolio-scope-ids-1, window, sites}`;
-  - on the frontend: `estateClient.portfolioScopeIds` (optional), a `Disclosure onOpen` prop, and in
-    `EstatePortfolio.tsx` `ScopeDisclosure`/`ScopeIdsList`. One read happens on the first open, keyed by request.
-    The loading state is `Assessment IDs…`; the error state shows the refusal copy.
-- `36d0e08de` u2:
-  - **the W6 guard** `tools/chain_watermark_guard.py`:
-    - `targets`, `resolve` (views through `pg_rewrite`/`pg_depend`), `triggered` (from `pg_trigger`) and `check`;
-    - a CLI over `assetops_backend/chain/prebuilt.py` (`config/chain/prebuilt-routes-v1.json`: 20 requests,
-      generated from the story calendar) plus each Portfolio's scope-ids;
-  - **R5-2:** in `0047`, `_PARENT` Site-scopes the `event_consumption` trigger through `event_outbox`. `site` is
-    scoped by its own id. `tenant` and TRUNCATE stay tenant-wide;
-  - **Q5:** `watermark.code_version` hashes `alembic_head()` and `COMPOSER_ENV`;
-  - **tests:**
-    - `test_ch5c_watermark_postgres.py` adds the real-table INSERT/UPDATE flips, a DELETE (a Site-less `tenant`
-      row, because `site` rows refuse DELETE), the event_consumption Site scope, the out-of-order UPDATE, a late
-      outbox row, non-vacuity by dropping a trigger and rolling back, and code_version env sensitivity;
-    - `test_ch5c_w6_guard_postgres.py` covers a planted table, a dropped trigger, an unknown relation, a view, and
-      the R5-2 pin that `_UNSETTLED` reads `event_consumption`.
+## Commits (on top of handoff 3's `c5e9ebdee`)
+- `2cfcb90c5` u4:
+  - `chain/response_store.py`: `ResponseStore.serve(StoredRoute, compose)` under R5-1 (a)-(c). (a) one RR
+    transaction: `read_watermark` first, then the tenant's `site` rows filtered by the route's admission predicate
+    (or the board's fixed Site), then the lookup. (b) compose in `read_scope.fresh` (new, `read_scope.py`). (c) the
+    watermark re-read in a new transaction; equal: insert on its own `begin()`, `ON CONFLICT DO NOTHING`; else serve,
+    log `stored_route_race`, no store. Bytes = `render()` (JSONResponse rendering), `ETag` = sha256(route, key, W,
+    version); header `X-AssetOps-Stored: hit|stored|race|unstored`. A lookup or insert failure never fails a request.
+    `request_key` = canonical JSON {route, tenant, sorted admitted Site ids, parsed request}; `parsed_key` is every
+    `EstateRequest` field after defaulting (known_at None stays None).
+  - `read_watermark(c, t, None)` is the tenant-wide count (estate routes); the board passes its own Site.
+  - Wiring: `estate_portfolio_api.py` (one compose stores both the Portfolio and scope-ids, `_bodies`),
+    `outcome_api.py` (board key: site, domain, parsed day/from/to, known_at, pin; summary: auth+parse first, admit
+    = `admitted` and `disclosed`), `estate_api.py` (Findings index only, now under `perf.route`, Q7), `main.py`
+    (`build_response_store(database_url())`, None with `ASSETOPS_RESPONSE_STORE=off`).
+  - `backend/tests/conftest.py` sets `ASSETOPS_RESPONSE_STORE=off` by default (tests monkeypatch composers between
+    identical requests); the store tests build it explicitly.
+  - Pre-build: `chain/prebuild.py` (`paths()` = the 20 listed requests + a scope-ids per Portfolio; `run()` drives
+    them through `create_app` via TestClient, then `prune()`), stage `prebuild` in `scheduling/stages.py`,
+    `ScheduleTick(prebuild=True)` only from the `scheduling.run tick` CLI, after the Site loop; `TickLimits.prebuild_seconds=120`
+    (in `tick_lease_seconds`); `report.prebuild` in `as_json` and the tick perf line with share of `tick_seconds`.
+  - `test_ch5c_response_store_postgres.py` (6): stored bytes served/equal render/equal a store-less compose after
+    the Q4 fields; data change recomposes; `lens=all&limit=50` hits; admission in key; **R5-1(e) race** (served,
+    nothing stored; proved non-vacuous by disabling the after-check: fails `'stored' == 'race'`, reverted); prune.
+  - `test_w303_portfolio_scope_snapshot_postgres`: expected dicts gain `link_ref`.
+- `7549dcc4a`: two more `evidence_prompt` dicts gain `link_ref`. **Latent on main:** the 3 tests fail on plan2
+  main `fd03ae6b0` with the same `link_ref` diffs (181 s run, `$S/w303main.log`); on the branch the 3 pass (other 7
+  passed in handoff 3). Owned test update; no assertion weakened (literal refs, plus kind/view pins for the footer).
+- `ab409950b`: `tools/chain_response_probe.py` (`prebuild`, `fresh`, `watermarks [--out|--compare]`, `wmtime`);
+  `tools/chain_perf_probe.py --store on|off` with EX-3 budgets printed; the W6 guard sets the store off.
 
-## Tests run (localised; `ASSETOPS_TEST_DATABASE_URL=...55432/assetops_test`)
-- watermark plus W6: **14 passed**, 12 s.
-- `test_w303_portfolio_api`, `test_cov_partial_portfolio`, `test_cov_partial_postgres`: **20 passed**.
-- `test_w303_portfolio_scope_snapshot_postgres`: 7 passed, **3 failed, all pre-existing.** The failures are lines
-  343, 635 and 700, where `link_ref` is missing from the expected dicts. CH-5a2a `1c3e3a075` added `link_ref`
-  after the test was last updated (`e8f26789a`). They are not in the scope disclosure. The run takes 13 min.
-- frontend `estatePortfolio.test.tsx` plus `src/ui`: **179 passed**. `tsc --noEmit` is clean
-  (`frontend\node_modules\.bin\tsc.cmd`).
+## Tests run (localised, `ASSETOPS_TEST_DATABASE_URL=...55432/assetops_test`)
+- `test_ch5c_response_store_postgres`: 6 passed, 9 s. `test_w303_portfolio_api` + `test_cov_partial_portfolio`:
+  18 passed, 1 skipped (DB env unset in that run). `test_w301_estate_api`: 11. `test_out_b4_{route,main_binding,
+  imports,window}`: 21. `test_ch0_tick_timing`, `test_ch1b_drain`, `test_w402_mini_stage`: 44. w303 3 tests: pass.
+- After u4: `test_ch5c_watermark_postgres` + `test_ch5c_w6_guard_postgres` + `test_qw1_perf`: 22 passed, 11 s.
+- Not yet re-run after u4:
+  `test_s4_schedule_tick_postgres.py` (tick ctor changed: new kwarg, default off).
 
-## Facts for the packet
-- **Tenant-wide change rows:**
-  - `tenant` (its own id, NULL Site);
-  - TRUNCATE on any input (NULL tenant and NULL Site);
-  - every input without a `site_id` column. List them with `SELECT ... information_schema.columns` over
-    `INPUT_TABLES`.
-- **Q5 settings:**
-  - hashed: `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX`, `ASSETOPS_WORK_CURSOR_KEY_HEX`,
-    `ASSETOPS_ACTION_DEMO_GRANTS`, `ASSETOPS_DEMO_FIXTURE_MANIFEST` and `ASSETOPS_FINDING_CASES_MANIFEST` (a
-    manifest is hashed by its content too);
-  - not hashed: `DATABASE_URL` and `ASSETOPS_SERVER_TIMING`, which is a header.
-- **Replica mode:** no `session_replication_role` in `backend/assetops_backend` or `tools`. Tests use `_replica`,
-  which skips the cic triggers, and that is harmless.
-- **R4 (P3):** the engines use psycopg 3 (`postgresql+psycopg`). Its default `prepare_threshold` is already 5.
-  The read engines are:
-  - `estate/adapters/postgres_estate_read.py:82`;
-  - `chain/adapters/postgres_chain_read.py:144`;
-  - `analytics/adapters/postgres_assessment_store.py:264,2104,2794`.
-
-  Measure on the clone with `connect_args={"prepare_threshold": 0}` injected, against the default. If the gain is
-  under 5%, drop it and report (Q6). Not measured yet.
-
-## Next
-1. **`chain/response_store.py`**, following R5-1:
-   - **(a)** One short RR transaction runs `read_watermark` first, then the admitted Site set (`site` rows of the
-     tenant filtered by `access`, or the board's one Site), then `SELECT body, etag FROM chain_response WHERE
-     (route, request_key, watermark, code_version)`. Close it.
-   - **(b)** Compose as today; its read scope is created after (a). There is no cross-request cache.
-   - **(c)** Re-read the watermark in a new short transaction. If it equals W, `INSERT ... ON CONFLICT DO NOTHING`
-     on the write engine in its own transaction; log any failure and never fail the request. If it differs, serve
-     without storing and log the race.
-   - **The served bytes are the stored bytes.** Serialise once, as FastAPI `JSONResponse` does
-     (`json.dumps(jsonable_encoder(body), ensure_ascii=False, allow_nan=False, separators=(",", ":"))`), and return
-     a `Response` with `ETag` = `etag` = sha256(route, request_key, W, code_version).
-   - **`request_key`:** canonical JSON of the route, the sorted admitted Site ids, and the **parsed** request
-     (`estate.scope.parse_request` fields: window, `known_at`, lens and limit defaulted, cursor), so that the
-     frontend's `lens`-less, `limit=N` Portfolio hits the pre-built key. For the board, normalise `date` against
-     `from`/`to` as the coherence `date` equivalence does (`chain_coherence.py:405`).
-   - **Watermark Sites:** estate routes use every tenant Site (the Portfolio spans all of them); the board uses its
-     own Site.
-2. **Wiring** inside `perf.route`:
-   - Portfolio and scope-ids: `estate_portfolio_api.py`. Store the full composed body once, split per sub-route, or
-     key each separately;
-   - outcome summary and board: `outcome_api.py:188/209`;
-   - Findings index: `estate_api.py:67`, which also needs `perf.route` (Q7).
-3. **Pre-build** after the tick's Site loop (`scheduling/tick.py` ~361):
-   - same code path; no lease; runs only when a watermark moved;
-   - prunes to the latest 3 per (route, request_key);
-   - reports its seconds against the ≤50% rule.
-4. **The stored-equals-fresh tests** (Q4: replace only `known_at` and `selection_token`), plus the **R5-1(e)** L2
-   test: a change-log write committed between compose reads gives a served body and nothing stored.
-5. **L3 on `assetops_chainclone_ch5c_test`** (still at 0044). Check first for lane-2 heavy processes.
-   1. `alembic upgrade head`, then settle. Record the settle seconds before and after, which is the trigger cost.
-   2. Run the guard CLI (`--database-url $CLONE --work $S/work`), expecting ok and `event_consumption_read` true.
-   3. A/B against `bA`, including the scope-ids versus the main ids (§8.3), and COH with 0 new.
-   4. Run the 3-mode probe and the Portfolio size (≤100 KB, or report the floor).
-   5. Time the watermark statement against the 50 ms stop.
-   6. **Idle-tick stability (R5-2):** two ticks with no new data must move no pre-built watermark. If one moves,
-      STOP and report the table and the columns written.
-   7. The re-warm seconds after `late_fill`, and R4.
-6. Run the guards (`tools/check-all` with `-Python <plan2 python>`), write `.agent/review-packet-CH-5c.md` with
-   the W1 Known Deviation, the tenant-wide table list and the pre-existing scope-snapshot failures, then
-   `tools/chain_clone.py drop ch5c`.
+## Next (in order)
+1. Check lane 2 is idle (`mechanism_dataset|chain_clone|chain_coherence`). Re-run `test_s4_schedule_tick_postgres`.
+2. **R4 driver** (not measured): inject `connect_args={"prepare_threshold": 0}` vs default on the three read
+   engines (handoff 3 anchors), warm probe on the clone; under 5% gain → drop and report (Q6).
+3. **L3 on `assetops_chainclone_ch5c_test` (at 0044).** Run with `ASSETOPS_RESPONSE_STORE=off` in the shell for the
+   settles (the settle env pops the cursor keys, so the tick's prebuild stage cannot match the served code_version;
+   pre-build through `chain_response_probe.py prebuild` instead, which uses `$S/work/keys.json`):
+   1. `tools/chain_clone.py settle ch5c` at 0044 (seconds = before); `alembic upgrade head` on the clone; settle
+      again (seconds = after: the trigger cost).
+   2. Guard CLI `tools/chain_watermark_guard.py --database-url $CLONE --work $S/work`: ok, `event_consumption_read`.
+   3. A/B vs `bA` (collect a B bundle with `chain_coherence.py collect`, diff with `$S/diff.py`), scope-ids vs main
+      ids (§8.3), COH 0 new.
+   4. `chain_response_probe.py prebuild` (seconds, states), then `fresh` (all equal), `wmtime` (50 ms stop).
+   5. Idle-tick: `watermarks --out $S/wm0.json`; two settles' tick step (or `scheduling.run tick`) with no new data;
+      `watermarks --compare $S/wm0.json`. Any move: STOP, report the table(s) from `chain_input_change` rows added
+      (`SELECT table_name, count(*) ... WHERE change_id > <max before>`) and the columns written.
+   6. `chain_perf_probe.py --store off` (uncached) and `--store on` after prebuild (first = cold, hit = warm);
+      Portfolio bytes against 100 KB.
+   7. `late_fill(KOBO-001, D7)` + consume; Kobo watermark moves, Cold's not; `prebuild` seconds (re-warm); `fresh`.
+4. Guards: check-all with `-Python <plan2 python>`. Packet `.agent/review-packet-CH-5c.md` (W1 Known Deviation:
+   uniform W2 triggers also on append-only tables; the tenant-wide table list; Q5 env list; latent w303; tests off
+   by default). `tools/chain_clone.py drop ch5c`.
 
 ## Risks
-- **The guard's `targets` is regex-based.** SQL functions that read tables internally are not seen. False
-  "unresolved" names may appear on the clone; fix them with a narrow rule and never a blanket skip.
-- **`recompute_job` lease and attempt updates** are UPDATE writes on an input. They are the likeliest idle-tick
-  flip.
-- **Bash heredocs in this tool collapse `\\`.** Write Python edit scripts with the Write tool.
+- `prebuild.run` uses `assetops_backend.main.create_app`, while the server is `host/lab_app.build_app`; `fresh`
+  compares against `lab_app`, which catches any divergence.
+- The tick's prebuild env must equal the server's (`code_version` hashes the cursor keys); the settle env differs.
+- `ScheduleTick` callers other than the CLI get no pre-build (default off).
