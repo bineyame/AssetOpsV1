@@ -28,7 +28,7 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError
     from test_ch5c_watermark_postgres import _seed
-    from test_s1_bindings_postgres import engine  # noqa: F401
+    from test_s1_bindings_postgres import engine, store  # noqa: F401
 
     from assetops_backend import read_scope
     from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
@@ -169,3 +169,58 @@ def test_l4_truncate_of_the_change_log_is_refused_and_replica_is_allowed(engine)
         tx.rollback()
     with engine.connect() as c:
         assert c.execute(text("SELECT count(*) FROM chain_input_change")).scalar_one() > 0
+
+
+def _old_current(engine, tenant_id, site_id, k):  # noqa: F811
+    """The pre-CH-5c2 objective head SQL (`recorded_at <= coalesce(:k, now())`), kept here as the parity reference."""
+    from assetops_backend.objectives.adapters.postgres_objective_store import COLUMNS
+
+    with engine.connect() as c:
+        return [str(r.id) for r in c.execute(text(
+            f"SELECT DISTINCT ON (outcome_key) {COLUMNS} FROM outcome_objective_revision "
+            "WHERE tenant_id = :t AND site_id = :s AND recorded_at <= coalesce(CAST(:k AS timestamptz), now()) "
+            "ORDER BY outcome_key, revision_no DESC"), {"t": tenant_id, "s": site_id, "k": k})]
+
+
+def test_q4_objective_heads_equal_the_old_sql_live_and_historical(store, engine, monkeypatch, capsys) -> None:  # noqa: F811
+    """CH5c2-R1 Q4: on the seed (the demo objectives plus a second MG-2 revision), the new `current()` heads equal
+    the old SQL heads live (the real clock, and the app clock moved to each instant) and historical (each
+    `recorded_at`, +-1 us)."""
+    from decimal import Decimal
+
+    from test_out_d3_objective_store_postgres import DEMO, SITES, run
+    from test_s1_bindings_postgres import imported
+
+    from assetops_backend.objectives.composition import build_objective_store
+    from assetops_backend.objectives.model import SYSTEM_DECLARER, Declaration
+
+    for code in SITES:
+        imported(store, code)
+    objectives = build_objective_store(URL)
+    try:
+        assert DEMO.is_file()
+        run(objectives, capsys)
+        tenant_id = objectives.tenant_id("demo")
+        site_id = objectives.site_id(tenant_id, "KOBO-001")
+        v1 = {r["outcome_key"]: r for r in objectives.current(tenant_id, site_id, None)}
+        v2 = Declaration("KOBO-001", "MG-2", "avoidable_generator_minutes", Decimal("5"), None, "DECLARED",
+                         "Declared for the demonstration; not a customer target", v1["MG-2"]["id"],
+                         "ch5c2-q4-mg-2-v2")
+        objectives.declare(tenant_id, v2, SYSTEM_DECLARER, "SYSTEM_CLI")
+        heads = lambda k: [str(r["id"]) for r in objectives.current(tenant_id, site_id, k)]  # noqa: E731
+        assert heads(None) == _old_current(engine, tenant_id, site_id, None)  # live, real clock
+        with engine.connect() as c:
+            instants = [r[0] for r in c.execute(text(
+                "SELECT recorded_at FROM outcome_objective_revision WHERE site_id = :s"), {"s": site_id})]
+        checked = set()
+        for t in instants:
+            for k in (t - timedelta(microseconds=1), t, t + timedelta(microseconds=1)):
+                old = _old_current(engine, tenant_id, site_id, k)
+                assert heads(k) == old  # historical
+                monkeypatch.setattr(read_scope, "clock", lambda k=k: k)
+                assert heads(None) == old  # live, the app clock at k
+                monkeypatch.undo()
+                checked.add(tuple(old))
+        assert len(checked) >= 3  # before any revision, v1 heads, v2 heads: the set is not trivially equal
+    finally:
+        objectives.dispose()
