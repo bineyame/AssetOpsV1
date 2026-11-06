@@ -115,13 +115,18 @@ def _trial(kobo: dict, days: list, window_hour: str) -> None:
         kobo["windows"][f"{name}_start"] = iso(day + timedelta(hours=hh, minutes=mm))
 
 
+def story_day(db_now: datetime, doc: dict | None = None) -> datetime:
+    doc = doc or json.loads(STORY_FILE.read_text(encoding="utf-8"))
+    return floor_day(db_now) + timedelta(days=doc["story_day_offset_days"])
+
+
 def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | None = None) -> dict:
     """The story clock: S, every resolved instant, the install clocks and their order, and the day list in build
     order (`days`). Raises `INSTALL_CLOCK_CONFLICT` / `STORY_CLOCK_OUT_OF_RANGE` (Addendum 1 R3) and the day
     list's `StoryDaysError` codes (DEMO-SPARSE U2)."""
     doc = doc or json.loads(STORY_FILE.read_text(encoding="utf-8"))
     days_doc = days_doc or sd.load()
-    S = floor_day(db_now) + timedelta(days=doc["story_day_offset_days"])
+    S = story_day(db_now, doc)
     story = _resolve({k: v for k, v in doc.items() if k in SITES}, S)
     kobo = story["kobo"]
     kobo["import_at"] = iso(at(kobo["install_at"]) - timedelta(hours=kobo["import_before_install_hours"]))
@@ -331,7 +336,8 @@ class Demo:
         return json.loads(path.read_text(encoding="utf-8"))
 
     # ---- prepare -----------------------------------------------------------------------------------------------
-    def prepare(self, sites: tuple[str, ...] = SITES, finish: bool = True, days_file: str | None = None) -> dict:
+    def prepare(self, sites: tuple[str, ...] = SITES, finish: bool = True, days_file: str | None = None,
+                baseline: str = "b22") -> dict:
         import psycopg
 
         days_path = Path(days_file).resolve() if days_file else sd.DEFAULT_FILE
@@ -388,6 +394,11 @@ class Demo:
                 cwd=self.tree / "backend" / "tests")
         with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
             db_now = c.execute("SELECT clock_timestamp()").fetchone()[0]
+        days_doc = sd.apply_baseline(days_doc, story_day(db_now), baseline)  # DD1a2-R Q6
+        for site, missing in sd.uncovered_weekdays(days_doc, story_day(db_now), baseline).items():
+            if missing:
+                say(f"  {SITE_CODE[site]}: ruled days in the {baseline} baseline with no entry (reported, not moved): "
+                    f"{', '.join(missing)}")
         story = resolve_story(db_now, days_doc=days_doc)
         days = story.pop("days")
         (self.work / "days.json").write_text(json.dumps(
@@ -659,6 +670,8 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--sites", default=",".join(SITES), help="development only: a subset of kobo,cold,ev")
     p.add_argument("--no-finish", action="store_true", help="development only: skip objectives/comparisons/ticks")
     p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v1.json)")
+    p.add_argument("--baseline", default="b22", choices=sorted(sd.BASELINE_FROM),
+                   help="b16: the owner's fallback if the rehearsal measures the whole prepare over 3 h")
     lk = sub.add_parser("links")
     lk.add_argument("--web-port", type=int, default=WEB_PORT)
     s = sub.add_parser("serve")
@@ -679,7 +692,7 @@ def main(argv: list[str] | None = None) -> None:
         if not set(sites) <= set(SITES):
             raise SystemExit(f"--sites must be a subset of {SITES}")
         try:
-            demo.prepare(sites, finish=not args.no_finish, days_file=args.days)
+            demo.prepare(sites, finish=not args.no_finish, days_file=args.days, baseline=args.baseline)
         finally:
             if demo.holds_busy:
                 (demo.work / ".busy").unlink(missing_ok=True)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import sys
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -461,8 +462,7 @@ def _with_kobo_degraded():
 def test_r10_no_shown_calendar_holds_a_kobo_full_day_degraded_day():
     for path in (sd.DEFAULT_FILE, sd.V2_FILE):
         doc = sd.load(path)
-        held = [e for e in doc["sites"].get("kobo", []) if e["kind"] == "degraded"
-                and doc["kinds"]["kobo"]["degraded"].get("complement")]
+        held = [e for e in doc["sites"].get("kobo", []) if e["kind"] == "degraded"]
         assert held == [], path.name
     import re
     root = Path(__file__).resolve().parents[2]
@@ -483,3 +483,91 @@ def test_r10_degraded_day_is_refused_in_a_calendar_and_by_add_day_and_only_the_f
         assert _codes(doc) == "FULL_DAY_JOIN_NOT_STOPPED"
     finally:
         sd.DEGRADED_PROBE = False
+
+
+# DD1a2-R Q8.4: the hold does not depend on a complement, and Cold's own `degraded` kind stays allowed.
+def test_q84_kobo_degraded_is_refused_without_a_complement_and_cold_degraded_stays():
+    doc = _with_kobo_degraded()
+    doc["kinds"]["kobo"]["degraded"].pop("complement")
+    assert _codes(doc) == "DEGRADED_DAY_HELD"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_day(doc, [], "kobo", "degraded", S, S + timedelta(days=10))
+    assert err.value.error_code == "DEGRADED_DAY_HELD"
+    sd.DEGRADED_PROBE = True
+    try:
+        assert [r.kind for r in sd.resolve(doc, S) if r.offset == -3] == ["degraded"]  # the flag is the only way past
+    finally:
+        sd.DEGRADED_PROBE = False
+    cold = sd.load(sd.V2_FILE)
+    assert {"day": "S-3d", "kind": "degraded"} in cold["sites"]["cold"]
+    assert sd.plan_add_day(cold, [], "cold", "degraded", S, S + timedelta(days=10), day="S+2d").kind == "degraded"
+
+
+# DD1a2-R Q4: add-day may not put a Kobo day next to a late day; the late day itself is not moved.
+@pytest.mark.parametrize("day", ["S-4d", "S-2d"])
+def test_q4_add_day_next_to_a_late_kobo_day_is_refused(day):
+    doc = _v2()
+    current = sd.resolve(doc, S)
+    assert [r.offset for r in current if r.site == "kobo" and r.kind == "late"] == [-3]  # the refused neighbour exists
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_day(doc, current, "kobo", "normal", S, S + timedelta(days=10), day=day)
+    assert err.value.error_code == "LATE_IN_STREAM"
+
+
+def test_q4_add_day_two_days_from_a_late_kobo_day_is_not_refused_and_cold_has_no_such_rule():
+    doc = _v2()
+    current = sd.resolve(doc, S)
+    assert sd.plan_add_day(doc, current, "kobo", "normal", S, S + timedelta(days=10), day="S-5d").offset == -5
+    late = [replace(r, kind="late") if r.site == "cold" and r.offset == -3 else r for r in current]
+    assert sd.plan_add_day(doc, late, "cold", "normal", S, S + timedelta(days=10), day="S-4d").offset == -4
+
+
+# DD1a2-R Q6: the B-16 fallback is a switch on the one day list. EV `S-14d normal` (accepted in DD1a2-R) is the entry
+# the v3 list carries; here it sits on a test list because v3 waits on the owner's answers.
+def _baseline_doc():
+    doc = copy.deepcopy(_v2())
+    doc["sites"]["ev"] = [{"day": "S-14d", "kind": "normal"}, *doc["sites"]["ev"]]
+    return doc
+
+
+MILL3_OFFSETS = {-13, -12, -11, -9, -8, -6, -5}
+
+
+@pytest.mark.parametrize("weekday", range(7))
+def test_q6_b16_drops_only_resolved_offsets_s20_to_s15(weekday):
+    s = S + timedelta(days=(weekday - S.weekday()) % 7)
+    doc = _baseline_doc()
+    doc["sites"]["kobo"] += [{"day": f"S{n:+d}d", "kind": "normal"} for n in (-20, -15, *sorted(MILL3_OFFSETS))]
+    out = sd.apply_baseline(doc, s, "b16")
+    kept = {site: {sd.weekday_offset(site, s, sd.day_offset(e["day"])) for e in entries}
+            for site, entries in out["sites"].items()}
+    every = {site: {sd.weekday_offset(site, s, sd.day_offset(e["day"])) for e in entries}
+             for site, entries in doc["sites"].items()}
+    for site in every:
+        assert kept[site] == {n for n in every[site] if not -20 <= n <= -15}, site
+    assert {-20, -15} <= every["kobo"] and not {-20, -15} & kept["kobo"]  # the dropped set is not empty
+    assert {-28, -21} <= kept["kobo"]  # the earlier story days stay
+    assert MILL3_OFFSETS <= kept["kobo"]  # the MILL-3 days survive the fallback
+    assert sd.apply_baseline(doc, s, "b22")["sites"] == doc["sites"]
+    ev_entry = sd.weekday_offset("ev", s, -14)
+    assert (ev_entry in kept["ev"]) == (ev_entry == -14)  # an EV Tuesday landing in the range goes; S-14 itself stays
+
+
+def test_q6_unknown_baseline_is_refused():
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.apply_baseline(_v2(), S, "b10")
+    assert err.value.error_code == "UNKNOWN_BASELINE"
+
+
+@pytest.mark.parametrize("weekday", range(7))
+def test_ev_s14_entry_gives_three_tuesdays_and_a_fourth_is_reported_not_moved(weekday):
+    s = S + timedelta(days=(weekday - S.weekday()) % 7)
+    doc = _baseline_doc()
+    landed = sorted(sd.weekday_offset("ev", s, sd.day_offset(e["day"])) for e in doc["sites"]["ev"])
+    assert len(set(landed)) == 3 and all(-20 <= n <= 1 for n in landed)
+    assert all((s + timedelta(days=n)).weekday() == sd.SITE_WEEKDAY["ev"] for n in landed)
+    # S on a Monday is the only week with a 4th Tuesday in the window: S+1
+    want = [(s + timedelta(days=1)).date().isoformat()] if s.weekday() == 0 else []
+    assert sd.uncovered_weekdays(doc, s)["ev"] == want
+    # without the new entry a Tuesday is reported, so the report is not vacuous
+    assert sd.uncovered_weekdays(_v2(), s)["ev"]

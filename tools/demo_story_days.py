@@ -149,9 +149,10 @@ def at_day(text: str, D: datetime) -> datetime:
     return D + timedelta(days=int(m.group(1)), hours=int(m.group(2)), minutes=int(m.group(3)))
 
 
-#: DD1a1-R10: a Kobo `degraded` day with complements cuts its story run by gateway batch order (a random source-id
-#: order), which no real outage looks like; the source-time cut is backlog BL-18. Until it lands no such day may enter a
-#: shown calendar, a demo script or a live `add-day`. Only the DD-1a1 degraded-day check sets this.
+#: DD1a1-R10, DD1a2-R Q8.4: a Kobo `degraded` day cuts its story run by gateway batch order (a random source-id order),
+#: which no real outage looks like; the source-time cut is backlog BL-18. Until it lands no Kobo `degraded` day, with or
+#: without complements, may enter a shown calendar, a demo script or a live `add-day`. Cold's `degraded` kind
+#: (`cold-missing-probe`) is not an outage cut and stays allowed. Only the DD-1a1 degraded-day check sets this.
 DEGRADED_PROBE = False
 
 
@@ -160,9 +161,9 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
     kind = entry.get("kind")
     if kind not in kinds:
         raise StoryDaysError("UNKNOWN_KIND", f"{site} kind {kind!r} is not one of {sorted(kinds)}")
-    if site == "kobo" and kind == "degraded" and kinds[kind].get("complement") and not DEGRADED_PROBE:
-        raise StoryDaysError("DEGRADED_DAY_HELD", f"{site} {entry.get('day')}: a full-day degraded day is held "
-                                                  f"until BL-18 (source-time outage cut); the Architect rules (DD1a1-R10)")
+    if site == "kobo" and kind == "degraded" and not DEGRADED_PROBE:
+        raise StoryDaysError("DEGRADED_DAY_HELD", f"{site} {entry.get('day')}: a Kobo degraded day is held until BL-18 "
+                                                  f"(source-time outage cut); the Architect rules (DD1a1-R10)")
     off = weekday_offset(site, S, day_offset(entry["day"]))
     D = S + timedelta(days=off)
     spec = dict(kinds[kind])
@@ -340,6 +341,34 @@ def validate(runs: list[DayRun], S: datetime, *, db_now: datetime | None = None,
                                                     f"before DB now - {PAST_MARGIN} ({iso(db_now)})")
 
 
+#: DD1a2-R Q6: `prepare --baseline`. B-22 is the build; B-16 is the owner's fallback if the rehearsal measures the whole
+#: prepare over 3 h (`owner-build-time-2026-11-06`). Story days before the baseline (S-28, S-21) stay in both.
+BASELINE_FROM = {"b22": -20, "b16": -14}
+BASELINE_TO = 1
+
+
+def apply_baseline(days_doc: dict, S: datetime, baseline: str = "b22") -> dict:
+    """The day list for `baseline`. B-16 drops every entry whose resolved offset (an EV Tuesday after
+    `weekday_offset`) lies in [S-20, S-15]; B-22 is the list as it stands."""
+    if baseline not in BASELINE_FROM:
+        raise StoryDaysError("UNKNOWN_BASELINE", f"baseline {baseline!r} is not one of {sorted(BASELINE_FROM)}")
+    lo, hi = BASELINE_FROM["b22"], BASELINE_FROM[baseline]
+    return {**days_doc, "baseline": baseline,
+            "sites": {site: [e for e in entries if not lo <= weekday_offset(site, S, day_offset(e["day"])) < hi]
+                      for site, entries in days_doc["sites"].items()}}
+
+
+def uncovered_weekdays(days_doc: dict, S: datetime, baseline: str = "b22") -> dict[str, list[str]]:
+    """R1: the ruled weekdays of a one-weekday Site inside the baseline that no entry lands on. Reported, never moved."""
+    out = {}
+    for site, weekday in SITE_WEEKDAY.items():
+        held = {weekday_offset(site, S, day_offset(e["day"])) for e in days_doc["sites"].get(site, [])}
+        out[site] = [(S + timedelta(days=n)).date().isoformat()
+                     for n in range(BASELINE_FROM[baseline], BASELINE_TO + 1)
+                     if (S + timedelta(days=n)).weekday() == weekday and n not in held]
+    return out
+
+
 def from_payload(rows: list[dict]) -> list[DayRun]:
     def t(v):
         return None if v is None else datetime.fromisoformat(v.replace("Z", "+00:00"))
@@ -376,6 +405,10 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
                                               f"entry on {date}")
     if offset < -BOARD_WINDOW_DAYS:
         raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{site} {date} is earlier than S-{BOARD_WINDOW_DAYS}d")
+    if site == "kobo" and any(r.kind == "late" and abs(r.offset - offset) == 1 for r in mine):
+        # DD1a2-R Q4: `resolve` refuses this in a calendar (DD1a1-R8); add-day would skip it by minting its own epoch
+        raise StoryDaysError("LATE_IN_STREAM", f"{site} {date} is next to a late day; a late day may not join a "
+                                               f"multi-day stream (DD1a1-R8)")
     entry = {"day": f"S{offset:+d}d", "kind": kind}
     if kind == "late" and "scenario_id" not in kinds["late"]:
         entry["as"] = as_kind or "normal"
