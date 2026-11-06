@@ -182,3 +182,26 @@ the R6 degraded-day check, the five R3 L2 checks, the mill day, Q8 and the Cold 
 
 ## User review
 Not required for R9 (Architect: owner informed, not blocking). The verification diff needs its own reviewer pass.
+
+## R13 (builder 18): Cold failure day probe, standing checks (STOPPED: two blockers need the Architect)
+- Probe on the `cold` build to the failure day (DB kept until answered, then dropped). Neither (a) nor (b):
+  - No Finding of any kind exists on that DB (0 `finding`, 0 `finding_revision`). Not a window-match fault.
+  - No double send: 0 (asset, role, record kind, source time) sent twice in 15:00Z-17:10Z. Failure run is [16:00Z, 17:05Z], fill-ins
+    own spans outside it (`owned`), so (b) does not occur; there is no fill-in after the failure run in this build.
+  - Cause: the failure run's COLD start-response assessment is OBSERVED_FAILURE but limitation "The source classification does not
+    permit a Finding" (`cold.py` `failure_finding = failure and gate.permitted`). The analytic window is the whole local day
+    [21:00Z prev, 17:05Z) and its evidence is published by many runs (68 distinct `evidence_publication.run_id`); `source_provenance.classify`
+    returns MIXED (`MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS`, "N-L2: several runs are never coherent"), so `gate.permitted` is false.
+    Without full days the window holds one run. Same for COLD_EXCURSION (the 11-04 excursion has no Finding either).
+  - R13 acceptance cannot be met by a (a)/(b) fix: it needs a ruling on the S4-05 multi-run gate (a compatible-run-basis for tool-made
+    complement runs of one Site-day) or a different Cold full-day design. Not worked around.
+- Standing checks added: `tools/dd1a1_r12_check.py <without> <with> [days.json]` (seam <= 0.5 pp with equal generator state; pure steady day
+  0 starts 06:00-20:00 local, INFO-only here since this calendar has none; MG-2 equal) and `tools/dd1a1_r3_check.py ... [days.json]`
+  (the "nothing outside story windows" line now uses the build's story runs: 8 windows, 9576 readings, 0 outside, PASS).
+- Kobo `without`/`with` rebuilt (revision after commit of the checks): R3 L2 checks all PASS; r12: dusk starts 0 PASS, MG-2 equal PASS
+  (8 windows), **seam check FAILS**: 34 seams, 24 over 0.5 pp. Measured steps (every Kobo story day alike): 03:00Z night->story +8.5 pp
+  (+11.0 on 11-04/11-05), generator RUNNING -> STOPPED; 11:00Z -0.16 (11-04/05: 0.0) PASS; 15:00Z +0.95 pp, generator RUNNING both sides
+  (11-05: -0.70); 17:00Z +38.2 pp (11-05: +44.0), RUNNING -> STOPPED; 21:00Z -0.25 PASS. The 17:00Z and 03:00Z seams are the measured
+  start states (R12 dusk/night), i.e. declared resets, not continuous; 15:00Z is an equal-state seam over the bound. Stopped per R13;
+  Architect to say which seams the 0.5 pp bound covers (equal-state only?) and rule on 15:00Z.
+- Guard V (`test_out_b2_vocabulary`) 4 passed. Guards A and W not run (names not in the brief and the change is tools only); no full suite.

@@ -33,3 +33,9 @@
 - 17 guards passed before R12. The Cold failure day with full days fails (packet): Architect ruling needed. Also for the
   Architect: `steady-dusk` is unused on the B-22 calendar, steady-afternoon has a 12:05Z start per steady day.
 - MILL-3 belongs to DD-1a2/1b2. Fallback if the rehearsal is over 3 h: B-16 (owner file).
+
+## Builder 18 (R13): STOPPED, two Architect questions (packet "R13")
+- Cold failure day: no Finding exists with full days; cause is the S4-05 gate (MIXED / MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS over a
+  day-wide window of many runs), not (a) or (b). Needs a ruling.
+- Standing checks landed (`dd1a1_r12_check.py`, `dd1a1_r3_check.py` take days.json). Seam check fails: 15:00Z +0.95 pp (equal state);
+  17:00Z/03:00Z are measured-state resets. Needs a ruling. Guards A/W not run. DBs dropped. Helper `dd1a1w/r13.sh`.
