@@ -18,7 +18,16 @@
 - R5-R9 re-check: one `with` build (981 s) + r9/r8/r7 checks all PASS.
 - All DBs dropped; no processes left.
 
-## Resume here
+## Landed (builder 15)
+- R10: `85c8263a7` guard (`DEGRADED_DAY_HELD`, tests proven to fail); degraded check restated, all PASS; packet R6 section
+  updated. Helper `dd1a1w/deg_with_only.sh`. DBs dropped. Builder 15 stopped here (context): R3 L2 checks, mill day,
+  Q8, Cold failure day, and the guard re-run V/A/W/N/M after R10 are NOT done.
+- Tooling notes: `dd1a1_fullday_compare.py` already shows EQUAL for findings, actions, ACT-K1 verification, money
+  tables (covers R3 checks 2-ACT-K1 and 4). Still needs a new query script on with/without DBs (`d12.sh with|without`
+  leaves the DB) for: night shape (starts, fuel, unserved), MG-2 avoidable minutes, mill verdict / spare solar,
+  COMPLETE grades, 06:00 jump.
+
+## Resume here (R6 is DONE; start at step 2)
 1. Get the Architect's ruling on R6 assertion 7 (packet "R6 degraded-day check"). Apply it, rerun `deg.sh`.
 2. Then: the five R3 L2 checks (need with/without builds; no tooling yet), the mill day (0 generator starts, CH-9b
    mill outcome), Q8 cost per full Kobo/Cold day, the Cold failure day, guards V, A, W, N, M (M with NODE_PATH =

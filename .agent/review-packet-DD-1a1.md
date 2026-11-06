@@ -96,8 +96,21 @@ the R6 degraded-day check, the five R3 L2 checks, the mill day, Q8 and the Cold 
   `dd1a1_r9_check` PASS (outcome VERIFIED, reselected iff run changed), `dd1a1_r8_check full` all PASS (36 streams,
   0 AMBIGUOUS), `dd1a1_r7_check` all PASS. DB dropped.
 
+### DD1a1-R10 result (builder 15): R6 assertion 7 restated and PASSES
+- Assertion 7 is now fixed checks (`tools/dd1a1_degraded_check.py compare`), no comparison to v1 times or classes:
+  7a one epoch, 7b 0 AMBIGUOUS, 7c no Finding, 7d window LIMITED with incomplete-evidence limitations, 7e no interval
+  past the last delivered reading (11:00Z) except OPEN_BOUND (with: 02:05-02:55Z, open), 7f the day's grade after the
+  story run equals the final grade after the complements (the in-build form of "with equals without on the same
+  delivered set"; the two builds draw different source ids, so a cross-build equality cannot be asked). 7a-7d hold for
+  v1 and with. Result `deg_compare.log`: 1-6 and 7a-7f all PASS (with build rerun, own DB, dropped).
+- Guard (`85c8263a7`): `demo_story_days._entry` refuses a Kobo `degraded` day whose kind has a `complement` with
+  `DEGRADED_DAY_HELD` (calendar resolve, prepare and `plan_add_day` all pass through it) unless the check script sets
+  `DEGRADED_PROBE`. `test_demo_story_days.py` r10 tests: shown calendars (v1, v2) hold none, a script/doc scan finds no
+  `add-day ... KOBO-001 ... degraded`, calendar and add-day refuse. Proven to fail: guard disabled -> refusal test
+  fails; a planted `add-day --site KOBO-001 --kind degraded` line -> scan test fails; both reverted. 35 passed.
+
 ## Open (not run; next builder)
-- After the R6 ruling: the five R3 L2 checks, the mill day (0 generator starts, CH-9b mill outcome unchanged), Q8
+- R6 is closed (R10). Still to do: the five R3 L2 checks, the mill day (0 generator starts, CH-9b mill outcome unchanged), Q8
   cost per full day, the Cold failure day, guards. No tooling exists yet for R3/mill/Q8/Cold beyond the builds.
 
 ## Residual risk
