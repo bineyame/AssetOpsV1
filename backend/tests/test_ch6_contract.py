@@ -59,3 +59,16 @@ def test_earnings_money_none_when_not_known():
     assert earnings_money(None) is None and earnings_money({"value": None}) is None
     assert earnings_money({"value": {"amount": "3", "currency": "USD"}}) == {
         "amount_low": "3", "amount_high": "3", "currency": "USD"}
+
+
+def test_why_price_lines_and_union():
+    from assetops_backend.chain.why import outcome_measures, price_lines
+    e, f = price_lines({"value": {"kwh": "5.0", "price": {"amount": "0.50", "currency": "USD"}}})
+    assert e == "5 kWh × 0.5 USD/kWh" and f is None
+    e, _ = price_lines({"value": {"kwh": "5", "price_count": 2}})
+    assert e == "5 kWh at 2 declared prices over these days"
+    _, f = price_lines({"value": {"litres_low": "10", "litres_high": "12", "price": {"amount": "1.5", "currency": "USD"}}})
+    assert f == "10–12 L × 1.5 USD/L"
+    assert price_lines({"value": None}) == (None, None)
+    found, earn = outcome_measures("mini_grid", "GROW_REVENUE")
+    assert "productive_kwh" in found and earn == "productive_kwh"

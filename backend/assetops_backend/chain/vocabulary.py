@@ -154,6 +154,11 @@ WHY_TEXT = {
     "why.from.measure": "{label} on {k} checked day{s}",
     "why.from.finding": "{title}, seen {n} time{s} since {first}",
     "why.from.action": "{code} · {label}",
+    # CH6a3-R Q3: the price basis of a money claim.
+    "why.from.price": "{kwh} kWh × {price} {cur}/kWh",
+    "why.from.price_several": "{kwh} kWh at {n} declared prices over these days",
+    "why.from.fuel_price": "{lo}–{hi} L × {price} {cur}/L",
+    "why.from.fuel_price_one": "{lo} L × {price} {cur}/L",
     # MOCK DEVIATION (CH5b2-R Q7): the mock always has 2-4 lines; a trace with none says so.
     "why.from.none": "Nothing has been recorded for this yet",
     "why.change.days": "Checking {n} more day{s}",
