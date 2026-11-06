@@ -347,7 +347,7 @@ def test_mini_protect_battery_outcome_measured_without_warning() -> None:
 # --------------------------------------------------------------- purity
 
 def test_board_imports_only_outcomes_and_stdlib() -> None:
-    allowed = {"__future__", "dataclasses", "typing", "collections.abc"}
+    allowed = {"__future__", "dataclasses", "typing", "collections.abc", "datetime"}  # CH-6b1: stdlib date for the window days
     tree = ast.parse(Path(board_module.__file__).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
