@@ -29,13 +29,6 @@
       "name": "linked_actions",
       "owner": "CH-6",
       "why": "board shrinks to a view over ChainReader with the outcome nodes (CH-6)"
-    },
-    {
-      "rule": "b-def",
-      "path": "assetops_backend/site_outcomes/read.py",
-      "name": "latest_window",
-      "owner": "CH-6",
-      "why": "summary window basis (COH-7a, I-04, owner CH-6)"
     }
   ]
 }
