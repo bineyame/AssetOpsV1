@@ -39,3 +39,4 @@
 ## Added with SCOPE-1 (stated as defensibility-critical)
 
 - **Price in "Why?" for money (+0.25, CH-6a3).** CH5b2-R Q7 left the declared price out of "Why?" (Known Deviation, owner CH-6). An estimated income figure that cannot show "{kWh} × {price}" when the client asks "how is that calculated?" is not defensible. CH-6a3 adds the declared price (the strategy's `money.price`) to the "Comes from" line of every money claim. No new price source: the declared prices already exist (plan §2.2, AG-18).
+| BL-17 | Judge MG-5 (critical supply served) over every day of the Portfolio window (per-day evaluator over stored rows), instead of the last-day verdict with a dated days line | CH6b1-R2 in `build-sheet-CH-6.md` | Not defensibility-critical once the days line names the judged day ("13 Oct · 1 of 1 day checked"). | est. |
