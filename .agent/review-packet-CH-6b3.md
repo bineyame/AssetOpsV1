@@ -1,0 +1,139 @@
+# Review packet: CH-6b3 coherence, proofs and the packet (size 1.1)
+
+Sheet: `.agent/build-sheet-CH-6.md` CH-6b3 entry, Scope cut, CH6b3-R (`:833`). Pre-flight: `.agent/CH-6b3-preflight.md`. Branch `task/CH-6b3-coherence-proofs`, based on main `9b1c53ae3`. Review of CH-6b3 only.
+
+## Outcome
+
+COH-17 now guards count, money, verdict, legacy and Why? values over estate windows. COH-18 proves Site and count `days` from per-day grades. Both report `{compared, skipped}`. The two legacy Portfolio fields read the claims, so "Fixes confirmed" and the Assure card no longer contradict each other. L3 clone: 0 new. L3m: 0 findings.
+
+**One acceptance bullet is not met and needs a ruling: the D13 Optimize row (KD-3b).**
+
+## Files
+
+- `tools/checks/chain_coherence.py`: `_coh17_full`, `_coh17_money`, `info_coh17_period_nodes`, `coh18_day_grades`, `Collector.day_bodies`, `rule_tallies`, `load_gap_days`.
+- `tools/checks/test_chain_coherence.py`; bundles `clean_full`, `coh18_day_grades`; `expected-mechanism.json` `gap_days`.
+- `backend/assetops_backend/estate/portfolio.py`: `priority_site_count`, claims into both legacy fields.
+- `frontend/src/estate/EstatePortfolio.tsx`: singular "1 priority site"; `estatePortfolio.test.tsx`.
+- `backend/tests/test_w303_portfolio_api.py`, `test_w303_portfolio_workflow_labels.py`, `test_ch6b_estate_postgres.py`.
+- `backend/assetops_backend/chain/vocabulary.py` (inline MD-CH6-5 label), `.agent/mock-departure-register.md` (R707).
+
+## Acceptance
+
+| Item | Status | Evidence |
+|---|---|---|
+| COH-17 rows C1-C3, M1-M6, V1-V4, L1 | Met | One planted-break test per row (L1 has three); all fail on the break, `clean_full` clean |
+| COH-17 W1, W2 | Met | Wrong `say`, extra Site line, early-warning line alone gives 0 |
+| Findings keep their one key (trap) | Met | `FINDINGS_CLAIM_KEYS`, test |
+| PERIOD info rule, not failing | Met | Unequal days: no finding, listed. Equal days: `unexplained` true, printed as UNEXPLAINED |
+| COH-18 R1, R2 | Met | Planted wrong-day mapping, wrong count `days`, missing date, null `days`, unstamped |
+| COH-18 R3, R4, `gap_days` | Met | Listed and unlisted PARTIAL; CHECKED_DAYS in an all-COMPLETE window fails and passes with NO_DATA; none judged without `gap_days` |
+| Pipeline L5, Q6: `{compared, skipped}`, zero compared fails | Met | Report `tallies`, printed lines, `vacuous` test |
+| Pipeline L1 | Met | Closed in code by CH-5a2b. Revert-failing test added; proof below |
+| Q4b server and singular | Met | `test_legacy_fields_follow_the_claims...`, `namesOnePrioritySiteInTheSingular`, L1 on real bodies |
+| L2m MG-1 on >= 3 COMPLETE days | Met | Recomputed with `judge_month`: MET, 2156.000 kWh, 9 COMPLETE days |
+| **L2m Optimize row on D13 reads ACT-K1** | **Not met** | KD-3b |
+| L3 clone 0 new, COH-17 = 0, COH-18 = 0 | Met | Below |
+| L3m 0 unexpected; CHECKED_DAYS rule R4 | Met | Below |
+| Old → new table, MD-CH6-4/5/6, §B6 line | Met | Below |
+
+## Checks
+
+**L3 polish clone** `ch6b3` (dropped), revision `6334641f5` code: create and migrate 4 s; backfill a-d 20 s; settle 88 s; W6 133 s (46 requests, 0 non-200, unresolved [], untracked [], 0 file violations, unlisted []); `fresh` 231 s (43/43 equal); collect 190 s (134 requests, all 200: 31 `chain_day`, 6 `chain_span`, 12 `why_estate`); check against `expected-today.json`:
+- COH-17: 0 findings, compared 218, skipped 13 (the 13 day windows have no Portfolio body).
+- COH-18: 0 findings, compared 21, skipped 0.
+- 0 new overall: self-check 2 pass (the known COH-2 month entries), 0 fail, 8 resolved (COH-7a). PERIOD info 4 items, 0 unexplained.
+
+**L3m**: `ensure --close no` rebuilt the states template once (1300 s, against an 11-minute estimate); derive 76 s; collect 436 s (108 requests); check with `--variant states --threads var/mechanism/expected-threads.json`: 0 findings, 0 unexpected, COH-17 compared 111 skipped 11, COH-18 compared 75 skipped 0, PERIOD info 0 (Kobo only). The first check call used a wrong threads path and exited 1 on a missing file; the result above is the corrected rerun on the same bundle.
+
+**L2m** `test_ch6b_estate_postgres.py`: both tests passed (the MG-1 test after KD-3b's assertions were removed; the first run failed on them). **L0** `test_chain_coherence.py`: 133 pass. **Vitest** `estatePortfolio.test.tsx`: 60 pass. `tsc --noEmit`: no output.
+
+**Scoped backend** (`test_w303_portfolio_*` listed files, `test_ch3_rows`, `test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_ch5a2_chain_api_postgres`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`): **4 failed, 211 passed**. The 4 failures also fail with `portfolio.py` put back to base `9b1c53ae3` (rest of the tree at HEAD), so they do not come from the Q4b change. Not fixed, out of scope:
+- `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal`: test spy takes 4 arguments, `progress` is given 5.
+- `::test_operating_cost_first_match_wins_across_partitions`, `::test_ev_window_money_has_no_finding_attribution`: an extra `link_ref` key.
+- `test_ch5a2_chain_api_postgres.py::test_estate_chain_has_one_read_per_key_and_count_claims`: expected claim key set lacks a key.
+
+Because three of those comparison tests fail for other reasons, they cannot show whether a Q4b number changed there. The other tests in that file pass with no number changed.
+
+**Proofs** (committed first, reverted with `git checkout`): `action_segment_for` replaced by the default segment fails the L1 test; `in_hand` removed from `priority_site_count` fails the Q4b test; both pass after revert. COH-17 and COH-18 are proved by the planted tests.
+
+No full suite, per the brief. Layout evidence: not run (one word changes; no layout claim made).
+
+**Guards:** see "Guard results" at the end.
+
+## Portfolio old → new (polish clone, this head)
+
+Old cards: the CH-6b1 browser rules as listed in the CH-6b2 packet, from `category_counts`. Old legacy: `thread_progress` at the same requests, store off.
+
+| Value | Window | Old | New | Rule |
+|---|---|---|---|---|
+| Fixes confirmed | week | 1 | 0 | Q4b, claim |
+| Fixes confirmed | S | 1 | 0 | Q4b, claim |
+| Fixes confirmed | month | 1 | 1 | unchanged |
+| Priority sites | week | 0 | 3 | Q4b |
+| Priority sites | S | 0 | 2 | Q4b |
+| Priority sites | month | 0 | 2 | Q4b |
+| Protect card | week | 2 sites disrupted | 2 found on the days checked | CH6b2-R |
+| Protect card | month | 2 sites disrupted | 2 found on the days checked | CH6b2-R |
+| Protect card | S | not assessed (`category_counts` null) | 1 found on the days checked | CH6b2-R |
+| Assure card | week, S | Not known yet | None confirmed on the days checked | CH6b2-R |
+| Assure card | month | Not known yet | 1 confirmed on the days checked | CH6b2-R |
+| Grow card | week / S / month | short value | At least 84.16 USD / At least 0.00 USD / At least 168.32 USD estimated | R10 replaced |
+
+Other claims on this head: `count.open_threads` 4 / 3 / 3 and `count.opportunities` 1 / 1 / 1 (week / S / month).
+
+**Cause, from `finding_thread_event` on the clone** (CH-5a `:691`; the events explain every change):
+- Kobo thread `6c6258e4`: RESOLVED_MONITORING effective 1 Nov, known 1 Nov 13:00. Week and S end 1 Nov 00:00, so at their cutoff it is ACTION_IN_HAND: confirmed 1 → 0, and Kobo counts as a priority Site. Month runs to 3 Nov, so it reads verified: 1 stays 1.
+- The old priority count of 0: `thread_progress` read rows whose Cold and EV thread states were null, because their OPEN events are known 2 Nov, after the evidence cutoff, while Kobo read RESOLVED_MONITORING. The claims read the lifecycle at k (CH6b2-R2).
+- Cold `3e6e4c87` and `8b05d5cc`: in hand and open from known 2 Nov. EV `8afb054a`: OPEN on 27 Oct (in week, not in S), ACTION_IN_HAND effective 2 Nov (in hand in month). This gives 3 / 2 / 2 Sites.
+- CH-5a's "1 against 0, 0 against 1" predates the CH6b2-R2 cutoff; these are the values at this head.
+
+## PERIOD information table (polish; board against summary; the frame differs by design)
+
+For the walkthrough: these Site boards read an event, not the whole window. Text is equal in all four; days differ. 0 unexplained. BL-23 owns a strict comparison.
+
+| Site | Window | Row, part | Text | Board days | Summary days |
+|---|---|---|---|---|---|
+| Cold | week | Protect, kpi | above 4°C in this window | 0/1 (low 1) | 0/7 (low 2, no data 5) |
+| Cold | month | Protect, kpi | above 4°C in this window | 0/1 (low 1) | 0/31 (low 3, no data 28) |
+| EV | month | Grow, earnings | Not known yet | 0/1 (low 1) | 0/19 (low 2, no data 17) |
+| EV | month | Protect, kpi | 1 interrupted | 0/1 (low 1) | 0/19 (low 2, no data 17) |
+
+## Mock departures
+
+- MD-CH6-4 (R705): Protect CHECKED_DAYS forms.
+- MD-CH6-5 (R707, added here): the mock's note says Sites are not added together; OWN-1104 adds them, honestly worded.
+- MD-CH6-6 (R706): per-Site targets on the Grow Target part.
+
+This closes the note at `review-CH-6b2.md:78`. That file is only in the plan2 checkout.
+
+## §B6 CH-9 order
+
+**CH-9 merged first** (CH-9b3 `7a89f58f0` on main before CH-6b completed), so the Kobo Potential part reads CH-9's daylight study. L3 value: key `potential.daytime_solar_headroom`, "Limited evidence: readings come from mixed sources, so the size is not worked out yet"; the week item carries `headroom_unit` "kW over daylight hours" (`chain_estate.week`), read through `mini_depth/read.py` `daylight_hours`. The D12/D13 L2m assertion is BL-24.
+
+## Known deviations
+
+- **KD-1 (confirmed, CH6b1-R Q6):** Cold and EV are checked at L0 only in L2m; real-data agreement is the L3 clone and COH-17.
+- **KD-2:** the `states` L3m set has no D6-D9, so its week reads 4 of 7 with 3 no-data days. R4 accepts a listed gap or a NO_DATA day (CH6b3-R Q4a). A day built with no readings cannot be told from an unbuilt one; MD-0 tests own that case.
+- **KD-3b, NOT MET, Architect to rule.** The bullet says the Optimize row on D13 reads the ACT-K1 verdict (RESOLVED_MONITORING since D12). Observed on `mechanism_db()`, states:
+  - D13 board Optimize row: state UNKNOWN, `thread_lines` [], `issues` [], read state PARTIAL. On the D11 board it is also UNKNOWN, with a "Generator use" contributor reading "Not available yet · this record could not be loaded".
+  - Every one of the 11 named Kobo day boards reads Optimize UNKNOWN and Assure "No verified result yet".
+  - D13 `/sites/KOBO-001/chain` lists only the headroom thread (OPEN). D12's lists the generator thread RESOLVED_MONITORING. D11's lists it ACTION_IN_HAND. `test_md0_mechanism_postgres.py:268` asserts the thread state on D13.
+  - Counts: week `count.verified_results` 1, S 0, month 0 (month 1 open: the D14 recurrence).
+  - Likely reading, not proved: counted threads need a Finding occurrence meeting the window (`chain/claims.py:56`), and D13 has none. I did not find why the Generator-use record fails to load on this data.
+  - The assertions were removed rather than tuned; the test asserts only that the estate row equals the D13 board row, and says so in a comment.
+  - Question: is this a defect in the mechanism read, or should the bullet read the D12 thread and the week count? The Architect also classifies it demo-critical or backlog.
+- **Why? price line** is not compared (CH6b3-R Q2; BL-24).
+- `clean_full` and `coh18_day_grades` were generated by a one-off script outside the repo, then committed as plain JSON.
+
+## Residual risk
+
+- Collect time grows: 190 s on polish, 436 s on L3m. Only the check tool pays this.
+- The template rebuild took 1300 s, nearly twice the estimate.
+- `assetops_mechanism_test` and the new states template are left in place, as after any L3m. The polish clone is dropped.
+
+## User review
+
+No owner walkthrough item in this unit. The reviewer focus is KD-3b and the 4 failures present without the Q4b change.
+
+## Guard results
+
