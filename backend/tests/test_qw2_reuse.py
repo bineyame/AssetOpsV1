@@ -32,10 +32,11 @@ class SingleEstate:
     """Deterministic per-Site estate answers keyed on the exact arguments; counts every single-Site call."""
 
     def __init__(self) -> None:
-        self.single = 0
+        self.single = 0  # selected-window reads, one Site per call (CH6b1-R3: the only estate read a board may make)
+        self.readiness = 0  # estate evidence-readiness reads: deleted (CH-5a1 A4), must stay 0
 
     def site_readiness(self, t, code, lo, hi, known_at=None):
-        self.single += 1
+        self.readiness += 1
         return {"KOBO-001": "FULL", "COLD-LAB-001": "LIMITED", "EV-LAB-001": "NONE"}.get(code) + f"@{lo:%d}-{hi:%d}"
 
     def site_selected_windows(self, t, code, lo, hi, known_at=None):
@@ -109,7 +110,10 @@ def test_summary_equal_with_and_without_batching_and_every_port_served(monkeypat
     assert seen == expected_seen and [n for n, _ in seen] == ["readiness_of", "readiness_of"]
     # CH6b1-R Q2/Q3: the OUT-W window choice and its QW-2 estate batch are deleted; the summary reads no estate
     # windows (cold/EV are PERIOD), and the one batched read is the chain snapshot read (`test_ch6b_estate_chain`).
-    assert plain.single == 0 and many.single == 0 and many.snapshots == 0 and many.batches == 0
+    # CH6b1-R3: the cold/EV rows read their contained event windows: per Site on the plain estate (cold + EV = 2),
+    # one batch on the batched one (no per-Site call). No readiness read on either.
+    assert plain.single == 2 and many.single == 0 and many.snapshots == 0 and many.batches == 1
+    assert plain.readiness == 0 and many.readiness == 0
     cold = next(s for s in got["sites"] if s["site_code"] == "COLD-LAB-001")
     assert cold["window_basis"] == read.WINDOW_BASIS_PERIOD
 
@@ -119,10 +123,14 @@ def test_failed_estate_never_reaches_the_summary(monkeypatch, caplog) -> None:
     expected = SiteOutcomeBoardService(BoardServices(estate=SingleEstate())).summary(sites, LO, HI)
     failing = ManyEstate(fail=True)
     got = SiteOutcomeBoardService(BoardServices(estate=failing)).summary(sites, LO, HI)
-    assert got == expected and failing.single == 0 and failing.batches == 0
+    # the refused batch is not fatal: the summary falls back to the per-Site window reads (counted + logged) and
+    # returns the same response; no estate readiness read happens.
+    assert got == expected and failing.batches == 1 and failing.single == 2 and failing.readiness == 0
 
 
 def test_a_board_reads_no_estate_rows() -> None:
     leftover = SingleEstate()
     SiteOutcomeBoardService(BoardServices(estate=leftover)).board(COLD, lo=LO, hi=HI)
-    assert leftover.single == 0  # CH-5a2b R1: a board reads no estate rows; only the summary's window choice does
+    # CH-5a2b R1: a board reads no estate ROWS and no readiness. CH6b1-R3: the one allowed estate read is the
+    # cold/EV contained-window read (exactly one Site, the board's own).
+    assert leftover.single == 1 and leftover.readiness == 0

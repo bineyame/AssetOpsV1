@@ -311,12 +311,12 @@
    "must_not_harm": null,
    "nodes": {
     "earnings": {
-     "key": "money.not_known",
-     "value": null,
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": null,
+     "key": "money.not_known",
      "text": "Not known yet",
-     "days_line": null
+     "value": null
     },
     "kpi": {
      "basis": "COMPLETE",
@@ -328,18 +328,22 @@
       "partial": 0,
       "pending": 0
      },
+     "days_line": "1 of 1 days checked",
      "key": "verdict.CC-1",
+     "span": {
+      "first": "2026-10-31",
+      "last": "2026-10-31"
+     },
      "text": "above 5°C in this window",
-     "value": "MISSED",
-     "days_line": "1 of 1 days checked"
+     "value": "MISSED"
     },
     "potential": {
-     "key": "potential.none",
-     "value": null,
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": null,
+     "key": "potential.none",
      "text": "No potential found yet",
-     "days_line": null
+     "value": null
     }
    },
    "not_measured_text": null,

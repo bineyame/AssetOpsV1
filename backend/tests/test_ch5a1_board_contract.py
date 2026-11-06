@@ -145,6 +145,9 @@ class Port:
                 "plans": (), "outcomes": ()}
 
 
+WINDOW_READS: list[str] = []  # CH6b1-R3: site codes whose contained windows a board read (cold/EV only)
+
+
 class Never:
     """A deleted read's service: any method call is recorded (and must stay at 0)."""
 
@@ -208,6 +211,11 @@ def services(port: Port, never: list[str]) -> BoardServices:
             return {"selection": {"state": "PRICED", "price": {"value": "1.45", "currency": "USD"}}}
 
     class Estate:
+        def site_selected_windows(self, t, code, lo, hi, known_at=None):
+            # CH6b1-R3: the ONE estate read a cold/EV board makes (its contained event window), no rows
+            WINDOW_READS.append(code)
+            return []
+
         def __getattr__(self, attr):  # site_readiness (E1), site_work_rows (CH-5a2b R1): deleted
             return Never("estate", never).__getattr__(attr)
 
@@ -272,6 +280,7 @@ CASES = {
 
 def _board(name: str):
     port, never = Port(), []
+    WINDOW_READS.clear()
     site, window = CASES[name]
     with read_scope.scope(f"test:{name}") as sc:
         body = SiteOutcomeBoardService(services(port, never)).board(site, known_at=KNOWN, **window)
@@ -298,6 +307,8 @@ def test_board_equals_its_golden(name: str) -> None:
 def test_fixture_ledger_has_no_deleted_read(name: str) -> None:
     body, port, never, sc = _board(name)
     assert never == [], never  # 0 calls of mini_overview, finding_index, estate site_readiness*
+    # CH6b1-R3: the one estate read allowed is the cold/EV contained-window read (a mini board reads none)
+    assert WINDOW_READS == ([] if name.startswith("kobo") else [CASES[name][0].site_code]), WINDOW_READS
     names = sc.names()
     assert not [n for n in DELETED if n in names], names
     assert sc.max_per_key() == 1, sc.repeated()

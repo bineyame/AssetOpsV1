@@ -41,26 +41,30 @@
       "partial": 0,
       "pending": 0
      },
+     "days_line": "1 of 1 days checked",
      "key": "money.estimated_income",
+     "span": {
+      "first": "2026-10-31",
+      "last": "2026-10-31"
+     },
      "text": "Not known yet",
-     "value": null,
-     "days_line": "1 of 1 days checked"
+     "value": null
     },
     "kpi": {
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": "No target, so no days are judged yet",
      "key": "verdict.MG-1",
      "text": "No target set yet",
-     "value": null,
-     "days_line": "No target, so no days are judged yet"
+     "value": null
     },
     "potential": {
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": null,
      "key": "potential.daytime_solar_headroom",
      "text": "No potential found yet",
-     "value": null,
-     "days_line": null
+     "value": null
     }
    },
    "refs": [
@@ -96,30 +100,30 @@
     "earnings": {
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": null,
      "key": "money.possible_extra_fuel_cost",
      "text": "3.31 to 3.97 USD",
      "value": {
       "currency": "USD",
       "high": "3.97",
       "low": "3.31"
-     },
-     "days_line": null
+     }
     },
     "kpi": {
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": "No target, so no days are judged yet",
      "key": "verdict.MG-2",
      "text": "No target set yet",
-     "value": null,
-     "days_line": "No target, so no days are judged yet"
+     "value": null
     },
     "potential": {
-     "key": "potential.none",
-     "value": null,
      "basis": "NOT_KNOWN",
      "days": null,
+     "days_line": null,
+     "key": "potential.none",
      "text": "No potential found yet",
-     "days_line": null
+     "value": null
     }
    },
    "refs": [

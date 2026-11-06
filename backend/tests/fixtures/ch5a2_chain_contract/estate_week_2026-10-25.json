@@ -88,6 +88,10 @@
       "pending": 0
      },
      "key": "money.estimated_income",
+     "span": {
+      "first": "2026-10-25",
+      "last": "2026-10-31"
+     },
      "text": "Not known yet",
      "value": null
     }
@@ -139,6 +143,10 @@
        },
        "days_line": "7 of 7 days checked",
        "key": "money.estimated_income",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
        "text": "Not known yet",
        "value": null
       },
@@ -302,6 +310,10 @@
        },
        "days_line": "2 of 7 days checked",
        "key": "verdict.CC-1",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
        "text": "above 5°C in this window",
        "value": "MISSED"
       },
@@ -350,6 +362,10 @@
       "pending": 0
      },
      "key": "money.estimated_charging_income",
+     "span": {
+      "first": "2026-10-25",
+      "last": "2026-10-31"
+     },
      "text": "Not known yet",
      "value": null
     }
@@ -387,6 +403,10 @@
        },
        "days_line": "0 of 7 days checked · 1 with too little data, not counted",
        "key": "money.estimated_charging_income",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
        "text": "Not known yet",
        "value": null
       },
