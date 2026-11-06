@@ -4,7 +4,8 @@ Build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` sections 2 and 
 the story days that carry a registered Lab run (and the named `missing` days that carry none). Day offsets
 `S[+-]Nd` are relative to the story day S; each kind's times `D[+-]Nd HH:MM` (UTC) are relative to the entry's day.
 `resolve` returns every entry as a `DayRun`, ordered by `received_at` (the build order; a `missing` day has no
-delivery and sorts at its day's end), with a fresh `sequence_epoch` `day-<n>` per run in that order.
+delivery and sorts at its day's end), with one `sequence_epoch` `day-<n>` per Site-day (DD1a1-R5), numbered by its
+story run in that order and shared by the day's complement runs.
 
 Nothing here reads the wall clock: the caller passes S, the DB clock and the install instants.
 """
@@ -76,16 +77,38 @@ class DayRun:
     #: 60 min of its 65-min interval), and the story kind a complement belongs to ("" for the story entry itself).
     covers_end: datetime | None = None
     complement_of: str = ""
+    #: DD1a1-R5 (one stream per Site-day): a complement sends only source times in [start, emit_until) that no story
+    #: run of its Site-day sends (`owned`: each story run's closed [start, end], ISO pairs). A story run has neither
+    #: and is sent unchanged.
+    emit_until: datetime | None = None
+    owned: tuple = ()
 
     @property
     def has_run(self) -> bool:
         return self.received_at is not None
 
+    def keep(self):
+        """The source-time predicate the producer passes to the host (`keep_source_time`); None for a story run."""
+        if not self.complement_of:
+            return None
+        lo, hi = self.start, self.emit_until
+        spans = [(_parse(a), _parse(b)) for a, b in self.owned]
+
+        def keep(source_time: str) -> bool:
+            t = _parse(source_time)
+            return lo <= t < hi and not any(a <= t <= b for a, b in spans)
+        return keep
+
     def payload(self) -> dict[str, Any]:
         out = asdict(self)
-        for key in ("start", "end", "received_at", "known_at", "covers_end"):
+        for key in ("start", "end", "received_at", "known_at", "covers_end", "emit_until"):
             out[key] = iso(out[key]) if out[key] is not None else None
+        out["owned"] = [list(p) for p in self.owned]
         return out
+
+
+def _parse(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00"))
 
 
 def iso(value: datetime) -> str:
@@ -170,6 +193,11 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime) -> list[DayRun]:
                               at_day(c["received_at"], D) + late, c.get("assess", "build"),
                               {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
                               c.get("note", ""), story.known_at, None, story.kind))
+    # DD1a1-R5 edge rule: the story run is sent unchanged; each complement is sent on [start, covers_end or end), so
+    # where two complements meet the earlier ends exclusive and the shared 21:00Z day edge goes to the later day,
+    # and it leaves out any instant the story run sends (a Cold complement starts after the story's emitted end).
+    owned = ((iso(story.start), iso(story.end)),)
+    out = [out[0]] + [replace(r, emit_until=r.covers_end or r.end, owned=owned) for r in out[1:]]
     _tiled(site, story.day, D, out)
     return out
 
@@ -204,13 +232,13 @@ def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
             runs.extend(expanded)
     validate(runs, S, db_now=db_now, installs=installs)
     order = sorted(runs, key=lambda r: (r.received_at or (_day_start(r) + timedelta(days=1)), SITES.index(r.site)))
-    out, n = [], 0
+    # DD1a1-R5: one sequence epoch per Site-day stream. The story runs are numbered `day-<n>` in build order (so a
+    # v1 list, which has only story runs, keeps its epochs); each complement takes its Site-day's story epoch.
+    epochs: dict[tuple[str, str], str] = {}
     for r in order:
-        if r.has_run:
-            n += 1
-            r = DayRun(**{**r.__dict__, "epoch": f"day-{n}"})
-        out.append(r)
-    return out
+        if r.has_run and not r.complement_of:
+            epochs[(r.site, r.day)] = f"day-{len(epochs) + 1}"
+    return [replace(r, epoch=epochs[(r.site, r.day)]) if r.has_run else r for r in order]
 
 
 def _day_start(run: DayRun) -> datetime:
@@ -253,7 +281,9 @@ def from_payload(rows: list[dict]) -> list[DayRun]:
         return None if v is None else datetime.fromisoformat(v.replace("Z", "+00:00"))
 
     return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"]),
-                           "known_at": t(r.get("known_at")), "covers_end": t(r.get("covers_end"))})
+                           "known_at": t(r.get("known_at")), "covers_end": t(r.get("covers_end")),
+                           "emit_until": t(r.get("emit_until")),
+                           "owned": tuple(tuple(p) for p in r.get("owned") or ())})
             for r in rows]
 
 

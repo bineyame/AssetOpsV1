@@ -257,3 +257,62 @@ def test_v2_complements_are_received_after_their_own_end_and_inherit_knowledge()
     for r in runs:
         if r.complement_of:
             assert r.received_at >= r.end and r.known_at == story[(r.site, r.day)].known_at
+
+
+# DD1a1-R5: one stream per Site-day. One epoch per Site-day shared by its runs, each instant sent once on the
+# stream, and the story runs equal to v1's (the "without" build sends exactly v1's story runs).
+def test_v2_one_epoch_per_site_day():
+    runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
+    per_day: dict = {}
+    for r in runs:
+        per_day.setdefault((r.site, r.day), set()).add(r.epoch)
+    assert all(len(e) == 1 for e in per_day.values()), {k: v for k, v in per_day.items() if len(v) != 1}
+    epochs = [next(iter(e)) for e in per_day.values()]
+    assert len(set(epochs)) == len(epochs)  # adjacent Site-days keep separate epochs
+
+
+def _sent(r, minute):
+    keep = r.keep()
+    return (r.start <= minute <= r.end) if keep is None else keep(sd.iso(minute))
+
+
+def _not_once(runs):
+    """Every minute of each full local day that is not sent by exactly one run of its stream, and every complement
+    that sends the shared 21:00Z day edge (it goes to the later day)."""
+    by_day: dict = {}
+    for r in runs:
+        by_day.setdefault((r.site, r.day), []).append(r)
+    bad, checked = [], 0
+    for (site, day), group in by_day.items():
+        if len(group) == 1:
+            continue
+        D = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
+        t, hi = D - timedelta(hours=3), D + timedelta(hours=21)
+        while t < hi:
+            senders = [r.kind for r in group if _sent(r, t)]
+            if len(senders) != 1:
+                bad.append((site, day, sd.iso(t), senders))
+            t += timedelta(minutes=1)
+            checked += 1
+        bad += [(site, day, "21:00Z", r.kind) for r in group if r.complement_of and _sent(r, hi)]
+    return bad, checked
+
+
+def test_v2_each_instant_is_sent_once_per_stream():
+    bad, checked = _not_once([r for r in sd.resolve(_v2(), S) if r.has_run])
+    assert bad == [] and checked > 0, bad[:5]
+
+
+def test_v2_instant_check_is_not_vacuous():
+    runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
+    loose = [sd.replace(r, owned=()) for r in runs]  # complements that ignore the story's instants
+    closed = [sd.replace(r, emit_until=r.emit_until + timedelta(minutes=1)) if r.complement_of else r for r in runs]
+    assert _not_once(loose)[0] and _not_once(closed)[0]
+
+def test_v2_story_runs_equal_v1():
+    drop = ("covers_end", "emit_until", "owned", "complement_of")
+    v1 = [{k: v for k, v in r.payload().items() if k not in drop} for r in sd.resolve(sd.load(), S)]
+    v2 = [{k: v for k, v in r.payload().items() if k not in drop}
+          for r in sd.resolve(_v2(), S) if not r.complement_of]
+    assert v2 == v1 and v1
+    assert all(r.keep() is None for r in sd.resolve(_v2(), S) if not r.complement_of)
