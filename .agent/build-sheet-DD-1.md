@@ -580,3 +580,31 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - Never move days or tune values to pass.
 - **Size: +0.25** for the two measured dusk start states, `kobo-mill-dusk` and their checks. MILL-3 is +0 inside the DD-1a2 placement and DD-1b2 F-THREADS acceptance. DD-1a1 4.5 → 4.75, DD-1 9.25 → 9.5; the plan rows need it. No owner question now. If MILL-3 stops, the Grow story's later days are an owner-visible choice.
 - **Handoff:** the builder measures the two dusk start states, adds `kobo-mill-dusk`, reruns the mill-day probe with the checks above, and records them in the packet. MILL-3 is added to the DD-1a2 and DD-1b2 acceptance lists. Context note: this Architect is fit for the next lane-2 ruling.
+
+## DD1a1-R13: the Cold failure day with full days, and the steady-afternoon generator start
+
+- Architect: Claude (Architect 25), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\review-packet-DD-1a1.md` at `80f199328` ("Cold failure day with full days", and the `kobo-steady-dusk` observation); `backend/tests/test_w502_cold_scenario_producer.py:160-182` (`enqueue_window`, `finding_revision`: exact `ar.window_start`/`window_end` equality); `:213` (the case's release is start + 70 min, its window start + 65 min); DD-0c §1 (`_coalesce_job` widens a PENDING job on overlap, and Cold adds a 10-min bridge). The build DBs were dropped, so the cause is not yet observed.
+- **1. Cold failure day: two candidate causes, one cheap probe decides.**
+  - **(a) Matching defect in the tool.** The hourly fill-ins' recompute jobs lie within Cold's 10-min bridge of the failure run's job, so they coalesce. The failure is then assessed in a wider analytic run, and `finding_revision`'s exact-window match finds nothing, although a COLD_START_FAILURE Finding exists.
+  - **(b) A real double send (tiling defect).** The failure case runs 65–70 min, but its hour slot is 60 min. If the next fill-in starts at the slot edge, its first 5–10 min re-send instants the failure run already covers. That breaks R5's "each instant is sent once" and can rightly change or refuse the assessment.
+  - **Probe (L2, own `*_test` DB, the `cold` build to the failure day).** Report:
+    - every cold_chain `analytic_run` window over the failure hour;
+    - every COLD_START_FAILURE Finding and its interval;
+    - per signal, any source time sent by two runs.
+- **Ruling.**
+  - **If (b):** the fill-in after the failure run is a derived file that starts at the failure run's last stamp plus one step, as in R7b. Each instant is sent once. The physics decides, and nothing is tuned. L0 adds that the Cold day's runs tile [00:00, 24:00) local with no instant twice.
+  - **If (a) (after any (b) fix):** the BUILD path selects the failure Finding by its run, not by an equal window: the newest COLD_START_FAILURE revision whose analytic run window contains [case start, case window_end). The w502 test's own exact-window assertion stays for its test; only the build body changes. `enqueue_window` is not used to force the case's window on the full-day build.
+  - **Acceptance:** with versus without full days, the failure day has the same 3 Findings: mechanism, episode interval, claim level, citations and the cold money/cost rows, apart from revision counts as R8 allows. 0 AMBIGUOUS.
+  - **Stop and the Architect rules if:** no COLD_START_FAILURE Finding exists in any window after the (b) fix, or its interval or claim differs. Either would mean the fill-ins truly change the assessment.
+- **2. The steady-afternoon 12:05Z (15:05 local) start: honest physics, not an R12-class defect.**
+  - Its 14:00 seam is continuous (SoC step ≤ 0.16), so the run starts from the day's own state, not a declared reset.
+  - The days that use it are story days after a `dispatch-necessary` morning, whose story is that the generator is needed. A low battery that meets the afternoon load and starts the generator follows from that declared cause.
+  - MG-2 candidate-avoidable counts, Findings and money are already equal with and without full days (R3 check 2).
+  - **R12 still binds B-22.** The pure steady days that DD-1a2 adds run `kobo-steady-day` + `kobo-steady-dusk` + `kobo-night-late` (Q3), so the measured dusk start state is needed there. R12's "every steady day" was premature for v2, but right for B-22.
+  - **Checks, standing in DD-1a2 and DD-1b2.**
+    - Per complement window on every Kobo day: generator starts, runtime and fuel, and the SoC step at each seam, which must be ≤ 0.5 percentage points with an equal generator state.
+    - A pure steady day must show 0 starts from 06:00 to 20:00 local, as Probe S expects.
+    - MG-2 counts, Findings and money must stay equal with and without full days.
+    - If a seam step exceeds the bound, or a pure steady day starts the generator before 20:00, stop and the Architect rules.
+- **Size: +0.25** for the probe, one derived Cold fill-in or the build-path selector (whichever the probe needs), and the checks. DD-1a1 4.75 → 5.0, DD-1 9.5 → 9.75; the plan rows need it. No owner question: no shown story changes.
+- **Handoff:** the builder runs the Cold probe, applies (b) and/or (a) as found, reruns `cold` and `cold-without`, records the result in the packet, and adds the per-seam checks to the DD-1a2 and DD-1b2 lists. Context note: this Architect's context is getting heavy. One more short ruling at most; use a fresh Architect after that.
