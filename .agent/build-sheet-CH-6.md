@@ -780,3 +780,52 @@ Pre-flight: `AssetOpsV1-ch6b2\.agent\CH-6b2-preflight.md` at `bd24773f0`. **CH-6
   - Captures at 1440 and 390 px against v70.
 - **Q7 accepted.** (a) "1 of 1 day checked" when `m == 1`. (b) The dated lead is kept. (c) `study.headroom_unit` comes from the server, and the browser constant is deleted.
 - **Q8 accepted:** `NOT_KNOWN` is added to `EstateCountBasis`, with one vitest.
+
+## CH6b2-R2: the CH-6b2 review fix (Architect 27, Claude, 2026-11-06)
+
+Review: `.agent/review-CH-6b2.md` (REVISE) at `5ab2bbf1e`. Binding checked: Claude (plan2 ROLE_CONFIG, owner 2026-10-27). **CH-6b2: 2.25 → 3.0.** One Sonnet fix round, then one fresh Claude re-review. No owner question.
+
+**H1: (a). A thread's lifecycle is read at the request cutoff `k`, for every domain.** (b) is rejected: it invents OPEN, so a thread that is really ACTION_IN_HAND, CHANGE_APPLIED or VERIFIED would be shown in the wrong state. It also leaves `verified_results` blind, and it treats the symptom, not the cause.
+- **Why (a) is honest.** R7's evidence cutoff bounds *evidence*: readings, dispositions and the overview body. A Finding is always known after the evidence it assesses, so lifecycle events read at that cutoff can never become visible unless a later disposition exists. The lifecycle is a fact known at `cause_known_at`, and `k` is the as-known bound for it. Evidence reads keep R7 unchanged.
+- **Rule.** Add `lifecycle_cutoff(k)` beside `site_cutoff` in `chain/read.py` (it returns `k` for every domain). Thread and Action reads use it, at both callers:
+  - `chain/claims.py` `counted_threads`: `count.sites_disrupted`, `open_threads` and `verified_results`.
+  - `chain_api.py` `site_parts`: the `threads_of` and `actions_of` calls, which today use the board's `window.known_at`.
+  - Portfolio card = Site chain = Site row then holds by construction. Fixing only `claims.py` would leave the Site chain showing `state: None` beside a NEEDS_ATTENTION row.
+  - `board_cutoff` and every evidence read are unchanged.
+- **The test the fix must pass.** A card never contradicts a row on the same page, and an open Protect problem is never hidden.
+- **L0 tests:**
+  - (1) A cold thread whose OPEN `cause_known_at` is later than the evidence cutoff and no later than `k` is disrupting. It counts in `sites_disrupted` and `open_threads`, and the card's "Why?" names it.
+  - (2) The same thread with `cause_known_at` later than `k` is not visible. This is the as-known bound.
+  - (3) An EV thread at ACTION_IN_HAND under the same condition.
+  - (4) A CHANGE_APPLIED or VERIFIED event later than the evidence cutoff reaches `verified_results` only when VERIFIED.
+  - (5) The Site chain's thread `state` equals the claims' state for the same Site and window.
+- **L3 clone re-check:**
+  - Week and month Protect read "2 found on the days checked", and "Why?" names GreenHarvest (both threads) and Depot.
+  - Cold and EV `open_threads` and `in_hand` are recorded old → new.
+  - `verified_results` and the Assure card are recorded old → new. The reviewer expects week "None confirmed" and month "1 confirmed" to be unchanged, so confirm it.
+  - `chain_site` day files show non-None states.
+  - COH: 0 new.
+  - The packet's "no graded day is complete" explanation is replaced by this cause.
+- **DD-1a1 trap.** Once full days land, the COMPLETE form must read "2 sites disrupted", not "No sites disrupted". The packet states this as the expected post-merge value.
+- **Size:** +0.5 (the cutoff rule at two callers 0.25; L0 and the clone 0.25).
+
+**M1: confirmed. The server tests must restore the full case coverage.** The old vitest expectations are the goldens. Add parametrised L0 cases in `test_ch6b2_portfolio_cards.py` for each of these:
+- the evidence gap: unknown, all, some, many, one, zero;
+- `zero_checked`;
+- `checked_one`, `checked_many` and `withheld_many` for two Sites;
+- `targets_none`, only when every Site was read as None;
+- the `n == 0 and unread > 0` branch.
+Each case asserts the exact server text. **Size:** +0.25.
+
+**M2: deferred to end-game E5, as CH5b3-R Q7 ruled.** Captures belong with the one full recapture. The reviewer confirmed the DOM order against v70 `outcomes.js:158-162` and `pfGrowParts`.
+- The packet records the 1440 and 390 captures as `not run`. Its blocking precondition is the E5 recapture, and its deferral is this ruling.
+- Required now (+0): one vitest asserts the structure. The Grow parts are first in `ob-body`, there is no Grow chip, `dl.oc-pfgrow` holds Target, Potential, Estimated income and `dd.oc-pfnote` in that order, and `oc-pfdays` is present.
+- A layout mismatch found at E5 is High (mock-is-layout-spec).
+
+**Lows (+0):**
+- **L1.** Add the MD-CH6-4 and MD-CH6-6 rows to `.agent/mock-departure-register.md` in this round, citing v70 and the inline labels. CH-6b3 adds only MD-CH6-5.
+- **L2.** Correct the packet: early warnings are week 7, month 7 and S 5, taken from the bundle.
+- **L3.** Remove the never-firing "possible" fallback from `_grow_card`. It is dead code: `short_values` is never filled.
+  - This is honest without it. A SUPPORTED potential with no income still shows on the card's Potential part, and the value keeps "Not available yet".
+  - Record it as a Known Deviation. The Q4 "possible" clause is withdrawn.
+  - Removing the unfilled `CompositionResult.short_values` and `_short_values` plumbing goes to the backlog as **BL-22**. It is pre-existing and is also read by `_summary_row`.
