@@ -64,6 +64,9 @@ class VerificationPorts:
     trial_comparison: Any = None
     #: CH-9b2: the chain `SnapshotReader` (`latest`) the `midday-productive-shift-1` freeze reads; None: refused
     snapshots: Any = None
+    #: DD1a1-R9: `run_assessments(tenant, site, run_id)` -> that S3 run's selected assessment revisions (each with
+    #: its `scope`), or None when the run is unknown. None port: a re-selected baseline day fails closed as moved.
+    run_assessments: Callable[[UUID, UUID, UUID], list[dict[str, Any]] | None] | None = None
 
 
 def _wire(value: Any) -> Any:
@@ -109,6 +112,31 @@ def _selection_pin(selections: list[dict[str, Any]]) -> list[dict[str, Any]]:
              "window_revision_ids": [str(i) for i in s["window_revision_ids"]],
              "interval_revision_ids": sorted(str(i["assessment_revision_id"]) for i in s["intervals"])}
             for s in selections]
+
+
+def _baseline_facts(revisions: list[dict[str, Any]] | None, lo: datetime, hi: datetime) -> list[Any] | None:
+    """DD1a1-R9: the facts the verification reads from one S3 run over ``[lo, hi)``: each INTERVAL assessment whose
+    interval or segments meet the window, as its key, claim level and full result (values, interval, segments,
+    limitations). Run, revision and evidence identities are not facts. None when the run cannot be read."""
+    if revisions is None:
+        return None
+
+    def meets(start: Any, end: Any) -> bool:
+        s, e = rules._parse_time(start), rules._parse_time(end)
+        return s is not None and (e is None or e > lo) and s < hi
+
+    out = []
+    for r in revisions:
+        if r.get("scope") != "INTERVAL":
+            continue
+        result = r.get("result") or {}
+        interval = result.get("interval") or {}
+        if not (meets(interval.get("first_on"), interval.get("off_after") or interval.get("last_on"))
+                or any(meets(g.get("start"), g.get("end")) for g in result.get("segments") or [])):
+            continue
+        out.append({"assessment_key": r["assessment_key"], "claim_level": r.get("claim_level"),
+                    "result": _wire(result)})
+    return sorted(out, key=lambda f: f["assessment_key"])
 
 
 def _bindings(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -484,14 +512,19 @@ class VerificationService:
         return getattr(self.actions, "verification_ports", None) or VerificationPorts()
 
     def _day_states(self, tenant_id: UUID, site_id: UUID, pins: list[dict[str, Any]], *,
-                    require_s4: bool) -> list[dict[str, Any]]:
+                    require_s4: bool, facts_window: tuple[datetime, datetime] | None = None) -> list[dict[str, Any]]:
         """Each pinned UTC day's S3 status (and, when required, S4 episode reassessment) against its pinned run.
-        `pending` means S3/S4 work is not settled; `moved` means it settled on a different selection."""
-        port = self._ports().day_status
+        `pending` means S3/S4 work is not settled; `moved` means it settled on a different selection.
+
+        DD1a1-R9: with `facts_window` (a baseline pin), a different selected run is `moved` only when the facts the
+        verification reads over that window differ (`_baseline_facts`); equal facts are `reselected` (pinned run,
+        current run) and do not block. A run that cannot be read fails closed as moved."""
+        ports = self._ports()
+        port = ports.day_status
         out = []
         for pin in pins:
             status = None if port is None else port(tenant_id, site_id, date.fromisoformat(str(pin["day"])))
-            pending, moved = [], []
+            pending, moved, reselected = [], [], []
             if status is None:
                 pending.append("S3/S4 currentness is not available")
             else:
@@ -502,10 +535,19 @@ class VerificationService:
                                    (" (deferred)" if status.get("s4_match_deferred") else ""))
                 if status["s3_status"] == CURRENT and pin.get("run_id") is not None \
                         and status["run_id"] != str(pin["run_id"]):
-                    moved.append(f"selection moved from run {pin['run_id']} to {status['run_id']}")
+                    facts = None
+                    if facts_window is not None and ports.run_assessments is not None:
+                        lo, hi = facts_window
+                        facts = [_baseline_facts(ports.run_assessments(tenant_id, site_id, UUID(str(run))), lo, hi)
+                                 for run in (pin["run_id"], status["run_id"])]
+                    if facts is not None and facts[0] is not None and facts[0] == facts[1]:
+                        reselected.append({"pinned_run_id": str(pin["run_id"]), "current_run_id": status["run_id"],
+                                           "facts": "equal", "assessments": len(facts[0])})
+                    else:
+                        moved.append(f"selection moved from run {pin['run_id']} to {status['run_id']}")
             out.append({"day": str(pin["day"]), "pinned_run_id": None if pin.get("run_id") is None
                         else str(pin["run_id"]), "status": status, "pending": pending, "moved": moved,
-                        "current": not pending and not moved})
+                        "reselected": reselected, "current": not pending and not moved})
         return out
 
     # ---- reads ------------------------------------------------------------------------------------------------
@@ -635,7 +677,8 @@ class VerificationService:
         if not bindings:
             return {"state": PENDING_STATE, "reasons": ["LATER_SELECTION_NOT_BOUND"]}
         binding = bindings[-1]
-        base_days = self._day_states(tenant_id, site_id, plan["baseline_selection"]["days"], require_s4=True)
+        base_days = self._day_states(tenant_id, site_id, plan["baseline_selection"]["days"], require_s4=True,
+                                     facts_window=(plan["baseline_start"], plan["baseline_end"]))
         later_days = self._day_states(tenant_id, site_id, binding["selection"]["days"], require_s4=True)
         pending = [f"{w}:{d['day']}: {p}" for w, days in (("baseline", base_days), ("later", later_days))
                    for d in days for p in d["pending"]]
@@ -772,7 +815,9 @@ class VerificationService:
             entered |= {i for p in after[name].get("problems") or [] for i in (p.get("evidence_ids") or [])}
             hit = [r for r in arrivals(name, was) if str(r["id"]) in entered] if was != now_ else []
             if was != now_ and hit:
-                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True)
+                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True,
+                                             facts_window=(plan["baseline_start"], plan["baseline_end"])
+                                             if name == "baseline" else None)
                 out["basis_changes"].append({
                     "window": name, "window_start": _wire(plan[f"{name}_start"]),
                     "window_end": _wire(plan[f"{name}_end"]), "closed": was, "reassessed": now_,
@@ -786,7 +831,9 @@ class VerificationService:
             elif was != now_:
                 indeterminate = True  # the result moved but no candidate can be named
             else:
-                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True)
+                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True,
+                                             facts_window=(plan["baseline_start"], plan["baseline_end"])
+                                             if name == "baseline" else None)
                 if any(d["pending"] or d["moved"] for d in days):
                     indeterminate = True  # the window's S3 selection may yet move on these readings
         if out["invalidating_evidence"]:
@@ -1023,7 +1070,8 @@ class VerificationService:
         reasons += [f"LATE_EVIDENCE:{e['id']}" for e in late]
         basis = latest["basis"]
         for name in ("baseline_days", "later_days"):
-            for d in self._day_states(tenant_id, site_id, basis.get(name, []), require_s4=True):
+            for d in self._day_states(tenant_id, site_id, basis.get(name, []), require_s4=True, facts_window=(
+                    head["baseline_start"], head["baseline_end"]) if name == "baseline_days" else None):
                 reasons += [f"{name}:{d['day']}: {p}" for p in d["pending"] + d["moved"]]
         probes = [head["baseline_start"], head["baseline_end"] - EPSILON, head["later_start"],
                   head["later_end"] - EPSILON]

@@ -115,7 +115,11 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
 
     from assetops_backend.chain.composition import build_snapshot_reader
 
-    return VerificationPorts(day_status=day_status, provenance=provenance,
+    def run_assessments(tenant_id: UUID, site_id: UUID, run_id: UUID) -> list[dict[str, Any]] | None:
+        run = reads.store.run_detail(tenant_id, site_id, run_id)
+        return None if run is None else list(run["revisions"])
+
+    return VerificationPorts(day_status=day_status, provenance=provenance, run_assessments=run_assessments,
                              trial_comparison=build_trial_comparison_ports(database_url),
                              snapshots=build_snapshot_reader(database_url))
 
