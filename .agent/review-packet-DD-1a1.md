@@ -205,3 +205,17 @@ Not required for R9 (Architect: owner informed, not blocking). The verification 
   start states (R12 dusk/night), i.e. declared resets, not continuous; 15:00Z is an equal-state seam over the bound. Stopped per R13;
   Architect to say which seams the 0.5 pp bound covers (equal-state only?) and rule on 15:00Z.
 - Guard V (`test_out_b2_vocabulary`) 4 passed. Guards A and W not run (names not in the brief and the change is tools only); no full suite.
+
+## DD1a1-R14 (builder 19): PART 1 DONE, parts 2-3 PARTIAL (stopped at context)
+- Part 1 (Cold full days withdrawn): v2 Cold kinds lose `complement`/`covers_end`, kind `steady` and `config/scenarios/cold-steady.yaml`
+  removed, `cold()` removed from `tools/derive_steady_scenarios.py`; L0 (`backend/tests/test_demo_story_days.py`, 35 passed) now asserts Cold v2 days
+  equal v1 days (one story run, no fill-ins). L2: `cold` vs `cold-without` (own `*_test` DBs, 27 s / 26 s, 3 runs each): 3 Findings on the failure
+  day, 4 in all, every compared table EQUAL (finding, work_case, work_event, money tables 0 = 0), accepted_evidence 280 = 280, 0 AMBIGUOUS. DBs dropped.
+- Parts 2-3: NOT landed. WIP copies (NOT in the build) are in `.agent/DD-1a1-r14-wip/` (v2 list with chain kinds + `after`, derive and probe changes).
+  `tools/demo_story_days.py` already carries the inert `after` hook. Guards V/A/W not run (no code that they cover changed in part 1; no full suite).
+- Finding for the Architect (blocks part 2 as designed): the template-Site probe of the story run is NOT the registered-Site run. Template probe N
+  (`kobo-s3-dispatch-necessary-run`, 03:00-11:00Z) ends 30.0 %, 217.65 L, generator RUNNING; R30/R25 end 100 %, 300 L, STOPPED. Run setup accepts only
+  STOPPED as a start, so every N-chain seam after a RUNNING end (11:00Z afternoon, 17:00Z late night, 24:00 early night) breaks "equal generator state" and
+  adds a start/interval, so the R14 stop applies if the registered Site agrees. The R13 measurement (11:00Z step -0.16, equal state) disagrees with the
+  template probe, so chains must be probed on the registered Site (`_shifted` drafter of `host/tests/test_dd1a1_registered_kobo.py`), and the R25 (25 %
+  reserve after S+1) probe needs the Foundation revision on that Site. Neither is done.

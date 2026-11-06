@@ -230,7 +230,7 @@ def test_v2_every_day_tiles_the_local_day_00_to_24():
     for r in runs:
         by_day.setdefault((r.site, r.day), []).append(r)
     full = {k: v for k, v in by_day.items() if len(v) > 1}
-    assert {k[0] for k in full} == {"kobo", "cold"}
+    assert {k[0] for k in full} == {"kobo"}  # DD1a1-R14: Cold full days are withdrawn
     for (site, day), group in full.items():
         D = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
         ordered = sorted(group, key=lambda r: r.start)
@@ -239,15 +239,12 @@ def test_v2_every_day_tiles_the_local_day_00_to_24():
             assert (a.covers_end or a.end) == b.start, (site, day, a.kind, b.kind)
         assert (ordered[-1].covers_end or ordered[-1].end) == D + timedelta(hours=21), (site, day)
     assert all(len(v) == 4 for (s, _), v in full.items() if s == "kobo")
-    assert all(len(v) == 24 for (s, _), v in full.items() if s == "cold")
+    assert all(len([r for r in by_day[k]]) == 1 for k in by_day if k[0] == "cold")  # one story run, no fill-ins
 
 
 def test_v2_tiling_check_is_not_vacuous():
     doc = copy.deepcopy(_v2())
     doc["kinds"]["kobo"]["steady-afternoon"]["start"] = "D+0d 12:00"  # a one-hour gap
-    assert _codes(doc) == "DAY_NOT_TILED"
-    doc = copy.deepcopy(_v2())
-    doc["kinds"]["cold"]["steady"]["covers_minutes"] = 65  # overlaps the next hour
     assert _codes(doc) == "DAY_NOT_TILED"
 
 
@@ -343,12 +340,12 @@ def test_v2_each_instant_is_sent_once_per_stream():
     assert bad == [] and checked > 0, bad[:5]
 
 
-def test_v2_cold_days_are_in_the_instant_check():
-    cold = [r for r in sd.resolve(_v2(), S) if r.has_run and r.site == "cold"]
-    assert len(cold) > 24
-    bad, checked = _not_once(cold)
-    assert bad == [] and checked >= 24 * 60
-    assert _not_once([sd.replace(r, owned=()) for r in cold])[0]  # and it fails when a complement overlaps
+def test_v2_cold_days_are_the_v1_days():
+    """DD1a1-R14: Cold days are the v1 shape (one story run, partly checked), with no complement or fill-in."""
+    cold = [r for r in sd.resolve(_v2(), S) if r.site == "cold"]
+    assert cold and not any(r.complement_of for r in cold)
+    assert "steady" not in _v2()["kinds"]["cold"]
+    assert not any("complement" in k or "covers_end" in k for k in _v2()["kinds"]["cold"].values())
 
 
 def test_v2_instant_check_is_not_vacuous():
@@ -359,6 +356,8 @@ def test_v2_instant_check_is_not_vacuous():
 
 def test_v2_story_runs_equal_v1():
     drop = ("covers_end", "emit_until", "owned", "complement_of", "epoch")
+    cold = [r for r in sd.resolve(sd.load(), S) if r.site == "cold"]
+    assert cold and [r.payload() for r in cold] == [r.payload() for r in sd.resolve(_v2(), S) if r.site == "cold"]
     v1 = [{k: v for k, v in r.payload().items() if k not in drop} for r in sd.resolve(sd.load(), S)]
     v2 = [{k: v for k, v in r.payload().items() if k not in drop}
           for r in sd.resolve(_v2(), S) if not r.complement_of]

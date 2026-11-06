@@ -39,3 +39,12 @@
   day-wide window of many runs), not (a) or (b). Needs a ruling.
 - Standing checks landed (`dd1a1_r12_check.py`, `dd1a1_r3_check.py` take days.json). Seam check fails: 15:00Z +0.95 pp (equal state);
   17:00Z/03:00Z are measured-state resets. Needs a ruling. Guards A/W not run. DBs dropped. Helper `dd1a1w/r13.sh`.
+
+## Builder 19 (R14): Part 1 done and committed; parts 2-3 NOT done
+- Part 1: Cold full days removed (see packet "DD1a1-R14"); cold == cold-without proven (3 Findings, tables equal, 0 AMBIGUOUS). Helpers: `dd1a1w/r14_cold.out`.
+- Part 2 WIP: `.agent/DD-1a1-r14-wip/*.wip` (copy over `tools/derive_steady_scenarios.py`, `tools/probe_kobo_nights.py`, v2 JSON; then probe, derive, `--check`).
+  Design: chains N/R30/R25, files `kobo-chain-<c>-afternoon|late|early` (+R30 early split), kinds `afternoon-<c>`, `late-<c>`, `night-early-after-<c>`,
+  day entries S+0 `after: N`, S+1 `after: R30`. `probe_kobo_nights.py` `chains()` ran on the template Site in 11 s.
+- Blocker: probe must run on the registered Site (`--registered` mode, shifted drafter) with the 25 % reserve revision for R25. Template says the N story
+  ends RUNNING (30 %, 217.65 L) and setup refuses a RUNNING start: Architect to rule if the registered probe agrees. Still to do after that: `dd1a1_r12_check.py`
+  bound incl. fuel <= 0.5 L at 11/15/17/21Z with 03Z exempt and reported, Kobo with/without builds, R5-R9 re-check, guards V/A/W.

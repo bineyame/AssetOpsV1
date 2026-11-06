@@ -197,6 +197,12 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
                               story.kind))
     else:
         for name in comp:
+            # DD1a1-R14: a day that follows another story day on the calendar starts its night from that day's chain
+            # (`after`: the chain key), so its early night is that chain's derived file, not the generic one.
+            if entry.get("after") and name == "night-early":
+                name = f"night-early-after-{entry['after']}"
+                if name not in kinds:
+                    raise StoryDaysError("UNKNOWN_KIND", f"{site} {story.day}: no {name} kind for after={entry['after']!r}")
             c = kinds[name]
             start, end = at_day(c["start"], D), at_day(c["end"], D)
             cut = next((b for b in boundaries if start < b < end), None)
