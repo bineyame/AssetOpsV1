@@ -113,7 +113,7 @@ def snapshot(readings: Any, price: Any = PRICE, grade: str = "COMPLETE") -> tupl
 def mg1_month(rows: tuple[SnapshotRow, ...]):
     """The MG-1 month reading and verdict recomputed from the stored rows (`judge_month`, the evaluator's R5)."""
     o = objective_facts.from_rows(MG1, mini.num)[0]
-    reading, _ = OutcomeEvaluator()._month_reading(
+    reading, _, _ = OutcomeEvaluator()._month_reading(
         NodeInputs(C, "mini_grid", ZONE, (DAY, DAY), rows, (o,)), "productive_kwh")
     return reading, judge_month(o, reading)
 
