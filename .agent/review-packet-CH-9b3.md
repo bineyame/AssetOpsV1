@@ -82,7 +82,7 @@ the owner sees the page in the post-W6 walkthrough). Not merged.
 - Guards, one at a time: `check-architecture.ps1` passed (242 s); `check-navigation-truthfulness.ps1` passed; chain coherence +
   event register + chain structure 126 passed; `chain.graph check` exit 0; mock-deviation labels 14/14 and repo scan OK;
   missing-claim scan first FAILED (`"Not available yet"` untagged in the table) → the cell now reads "Too few fully checked
-  days"; re-run passed. `check-agent-workflow.ps1`: see below.
+  days"; re-run passed. `check-agent-workflow.ps1` passed (after the packet commit).
 - Polish clone: see "Clone run".
 
 ## Clone run
