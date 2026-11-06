@@ -4,8 +4,8 @@ Build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` sections 2 and 
 the story days that carry a registered Lab run (and the named `missing` days that carry none). Day offsets
 `S[+-]Nd` are relative to the story day S; each kind's times `D[+-]Nd HH:MM` (UTC) are relative to the entry's day.
 `resolve` returns every entry as a `DayRun`, ordered by `received_at` (the build order; a `missing` day has no
-delivery and sorts at its day's end), with one `sequence_epoch` `day-<n>` per Site-day (DD1a1-R5), numbered by its
-story run in that order and shared by the day's complement runs.
+delivery and sorts at its day's end), with one `sequence_epoch` `day-<n>` per stream of consecutive built Site-days (DD1a1-R8), numbered by its
+first story run in that order and shared by the stream's complement runs.
 
 Nothing here reads the wall clock: the caller passes S, the DB clock and the install instants.
 """
@@ -256,12 +256,33 @@ def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
             runs.extend(expanded)
     validate(runs, S, db_now=db_now, installs=installs)
     order = sorted(runs, key=lambda r: (r.received_at or (_day_start(r) + timedelta(days=1)), SITES.index(r.site)))
-    # DD1a1-R5: one sequence epoch per Site-day stream. The story runs are numbered `day-<n>` in build order (so a
-    # v1 list, which has only story runs, keeps its epochs); each complement takes its Site-day's story epoch.
+    # DD1a1-R8: one sequence epoch per stream, a maximal run of consecutive built Site-days of one Site (a gateway does
+    # not reset at local midnight). The story runs are numbered `day-<n>` in build order, so an isolated day keeps its
+    # v1 epoch; a merged stream takes the number of its first story run in build order; each complement takes its
+    # Site-day's epoch.
+    story = [r for r in order if r.has_run and not r.complement_of]
+    number = {(r.site, r.day): n for n, r in enumerate(story, 1)}
     epochs: dict[tuple[str, str], str] = {}
-    for r in order:
-        if r.has_run and not r.complement_of:
-            epochs[(r.site, r.day)] = f"day-{len(epochs) + 1}"
+    for site in SITES:
+        mine = sorted((r for r in story if r.site == site), key=lambda r: r.day)
+        streams: list[list[DayRun]] = []
+        for r in mine:
+            if streams and _day_start(r) - _day_start(streams[-1][-1]) == timedelta(days=1):
+                streams[-1].append(r)
+            else:
+                streams.append([r])
+        for stream in streams:
+            if len(stream) > 1:
+                for i, r in enumerate(stream):
+                    if r.kind == "late":
+                        raise StoryDaysError("LATE_IN_STREAM", f"{site} {r.day}: a late day may not join a "
+                                                               f"multi-day stream (DD1a1-R8)")
+                    if r.kind == "degraded" and i < len(stream) - 1:
+                        raise StoryDaysError("BUILT_DAY_AFTER_DEGRADED", f"{site} {r.day}: a degraded day may not "
+                                                                         f"have a built day after it (DD1a1-R8)")
+            first = min(stream, key=lambda r: number[(r.site, r.day)])
+            for r in stream:
+                epochs[(r.site, r.day)] = f"day-{number[(first.site, first.day)]}"
     return [replace(r, epoch=epochs[(r.site, r.day)]) if r.has_run else r for r in order]
 
 

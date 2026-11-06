@@ -40,7 +40,12 @@ def test_build_order_is_by_received_at_with_fresh_epochs():
     runs = sd.resolve(sd.load(), S)
     received = [r.received_at for r in runs if r.has_run]
     assert received == sorted(received)
-    assert [r.epoch for r in runs if r.has_run] == [f"day-{n}" for n in range(1, len(received) + 1)]
+    # DD1a1-R8: an isolated day keeps its build-order `day-<n>`; the Kobo S-1/S/S+1 stream shares its first day's
+    story = [r for r in runs if r.has_run and not r.complement_of]
+    stream = {r.day for r in story if r.site == "kobo" and r.offset in (-1, 0, 1)}
+    assert len(stream) == 3 and len({r.epoch for r in story if r.day in stream and r.site == "kobo"}) == 1
+    assert [r.epoch for r in story if not (r.site == "kobo" and r.day in stream)] == [
+        f"day-{n}" for n, r in enumerate(story, 1) if not (r.site == "kobo" and r.day in stream)]
     kobo = [r for r in runs if r.site == "kobo"]
     late = next(i for i, r in enumerate(kobo) if r.kind == "late")
     before = next(i for i, r in enumerate(kobo) if r.kind == "trial-before")
@@ -166,7 +171,7 @@ def test_add_day_defaults_to_the_next_free_day_on_real_time():
     planned = _plan("kobo", "late", db_now=later)
     assert planned.day == (S + timedelta(days=2)).date().isoformat() and planned.as_kind == "normal"
     assert planned.received_at == later and planned.known_at == later and planned.assess == "tick"
-    assert planned.epoch == "day-14"  # after the 13 prepared runs (8 Kobo, 3 cold, 2 EV)
+    assert planned.epoch == "day-13"  # max+1 over 11 epochs (R8: the Kobo S-1/S/S+1 stream shares one)
     gap = _plan("cold", "normal", day="S-10d")
     assert gap.day == "2026-10-19" and gap.has_run
     assert not _plan("kobo", "missing", day="S-11d").has_run
@@ -198,11 +203,11 @@ def test_mill_midday_kind_resolves_and_validates_when_scheduled():
                               .read_text(encoding="utf-8"))
     assert (spec["scenario_id"], spec["scenario_version"]) == (scenario["scenario_id"],
                                                                scenario["version"]["scenario_version"])
-    doc["sites"]["kobo"].append({"day": "S-2d", "kind": "mill-midday"})
+    doc["sites"]["kobo"].append({"day": "S-5d", "kind": "mill-midday"})
     runs = sd.resolve(doc, S, db_now=NOW, installs=INSTALLS)
     mill = next(r for r in runs if r.kind == "mill-midday")
-    D = datetime(2026, 10, 27, tzinfo=timezone.utc)
-    assert mill.site == "kobo" and mill.day == "2026-10-27" and mill.has_run and mill.assess == "build"
+    D = datetime(2026, 10, 24, tzinfo=timezone.utc)
+    assert mill.site == "kobo" and mill.day == "2026-10-24" and mill.has_run and mill.assess == "build"
     assert (mill.start, mill.end, mill.received_at) == (D + timedelta(hours=3), D + timedelta(hours=15),
                                                         D + timedelta(hours=16))
     assert mill.scenario == {"scenario_id": "kobo-daytime", "scenario_version": 2}
@@ -259,16 +264,51 @@ def test_v2_complements_are_received_after_their_own_end_and_inherit_knowledge()
             assert r.received_at >= r.end and r.known_at == story[(r.site, r.day)].known_at
 
 
-# DD1a1-R5: one stream per Site-day. One epoch per Site-day shared by its runs, each instant sent once on the
-# stream, and the story runs equal to v1's (the "without" build sends exactly v1's story runs).
-def test_v2_one_epoch_per_site_day():
+# DD1a1-R8: one epoch per maximal run of consecutive built days of one Site; each instant is sent once per Site-day
+# (the stream's runs), and the story runs equal v1's save the epoch.
+def _streams(runs):
+    out: dict = {}
+    for site in {r.site for r in runs}:
+        days = sorted({r.day for r in runs if r.site == site})
+        cur: list = []
+        for d in days:
+            if cur and datetime.fromisoformat(d) - datetime.fromisoformat(cur[-1]) == timedelta(days=1):
+                cur.append(d)
+            else:
+                cur = [d]
+                out.setdefault(site, []).append(cur)
+    return out
+
+
+def test_v2_one_epoch_per_stream():
     runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
-    per_day: dict = {}
-    for r in runs:
-        per_day.setdefault((r.site, r.day), set()).add(r.epoch)
-    assert all(len(e) == 1 for e in per_day.values()), {k: v for k, v in per_day.items() if len(v) != 1}
-    epochs = [next(iter(e)) for e in per_day.values()]
-    assert len(set(epochs)) == len(epochs)  # adjacent Site-days keep separate epochs
+    streams = _streams(runs)
+    assert any(len(st) > 1 for v in streams.values() for st in v)
+    seen = set()
+    for site, lst in streams.items():
+        for st in lst:
+            epochs = {r.epoch for r in runs if r.site == site and r.day in st}
+            assert len(epochs) == 1, (site, st, epochs)
+            assert not (epochs & seen)  # a day with no run is a gap: the next stream has a fresh epoch
+            seen |= epochs
+
+
+def test_v2_epoch_guards():
+    doc = _v2()
+    kobo = doc["sites"]["kobo"]
+    late = next(e for e in kobo if e["kind"] == "late")
+    # a late day adjacent to a built day joins a stream: refused
+    bad = copy.deepcopy(doc); bad["sites"]["kobo"] = [e for e in kobo if e is not late] + [
+        {**late, "day": "S-2d"}]
+    with pytest.raises(sd.StoryDaysError) as e:
+        sd.resolve(bad, S)
+    assert e.value.error_code == "LATE_IN_STREAM"
+    bad = copy.deepcopy(doc)
+    bad["sites"]["cold"] = [{**x, "day": "S-4d"} if x["day"] == "S-3d" else x for x in bad["sites"]["cold"]]
+    bad["sites"]["cold"].append({"day": "S-3d", "kind": "normal"})
+    with pytest.raises(sd.StoryDaysError) as e:
+        sd.resolve(bad, S)
+    assert e.value.error_code == "BUILT_DAY_AFTER_DEGRADED"
 
 
 def _sent(r, minute):
@@ -305,7 +345,7 @@ def test_v2_each_instant_is_sent_once_per_stream():
 
 def test_v2_cold_days_are_in_the_instant_check():
     cold = [r for r in sd.resolve(_v2(), S) if r.has_run and r.site == "cold"]
-    assert len({(r.day, r.epoch) for r in cold}) == len({r.day for r in cold}) and len(cold) > 24
+    assert len(cold) > 24
     bad, checked = _not_once(cold)
     assert bad == [] and checked >= 24 * 60
     assert _not_once([sd.replace(r, owned=()) for r in cold])[0]  # and it fails when a complement overlaps
@@ -318,7 +358,7 @@ def test_v2_instant_check_is_not_vacuous():
     assert _not_once(loose)[0] and _not_once(closed)[0]
 
 def test_v2_story_runs_equal_v1():
-    drop = ("covers_end", "emit_until", "owned", "complement_of")
+    drop = ("covers_end", "emit_until", "owned", "complement_of", "epoch")
     v1 = [{k: v for k, v in r.payload().items() if k not in drop} for r in sd.resolve(sd.load(), S)]
     v2 = [{k: v for k, v in r.payload().items() if k not in drop}
           for r in sd.resolve(_v2(), S) if not r.complement_of]
@@ -343,7 +383,7 @@ def test_v2_trial_after_day_has_five_runs_split_at_the_revision_boundary():
                                                                       "kobo-night-early-from-0300")
     # DD1a1-R7b: part A runs 175 min, ends 5 min before the cut and covers/sends to the cut; B starts at the cut
     assert a.end == cut - timedelta(minutes=5) and a.covers_end == cut == b.start and b.end == cut + timedelta(hours=3)
-    assert a.epoch == b.epoch  # one epoch for the Site-day
+    assert a.epoch == b.epoch  # one epoch for the stream
     # the day still tiles 00:00-24:00 local (resolve raises DAY_NOT_TILED otherwise)
     assert all(len(v) == 4 for v in _non_split_days().values())
 

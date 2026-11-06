@@ -404,7 +404,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                 # entries in the build order; `_trial_chain` is unchanged and runs both trial runs here.
                 later = [d for d in days[n + 1:] if d.kind.startswith("trial-")]
                 assert later and later[0].kind == "trial-after", "the trial-after must follow the trial-before"
-                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published)
+                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published, day.epoch)
                 for d, name in ((day, "baseline"), (later[0], "later")):
                     records.append({**entry, "day": d.day, "offset": d.offset, "kind": d.kind,
                                     "received_at": iso(d.received_at),
@@ -443,14 +443,14 @@ def build(url: str, work: Path, story: dict) -> dict:
     return ids
 
 
-def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict) -> dict:
+def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict, epoch: str) -> dict:
     """The DEMO-A chain (s602b REPLAY body) at the trial pair's place: baseline run, accept, apply, freeze, later
     run, evaluation through the real Action API."""
     import test_s6_verification_replay as rp
 
     _seal_once()
     act, win = M["action"], M["windows"]
-    spec = M["runs"]["baseline"]
+    spec = {**M["runs"]["baseline"], "sequence_epoch": epoch}  # DD1a1-R8: the stream's epoch and gateway state
     base_run, _ = rp._draft(store, spec, M)
     published["baseline"] = rp._publish_and_accept(tmp / "baseline", base_run, spec["sequence_epoch"],
                                                    rp._at(spec["received_at"]),
@@ -482,7 +482,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
                                                   "idempotency_key": "demo3-freeze-0001"})
     assert frozen.status_code == 201, frozen.text
     plan = frozen.json()["plan"]
-    spec = M["runs"]["later"]
+    spec = {**M["runs"]["later"], "sequence_epoch": epoch}
     later_run, _ = rp._draft(store, spec, M)
     published["later"] = rp._publish_and_accept(tmp / "later", later_run, spec["sequence_epoch"],
                                                 rp._at(spec["received_at"]),
