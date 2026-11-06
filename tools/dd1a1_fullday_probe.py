@@ -33,6 +33,7 @@ def main(mode: str, work: Path) -> None:
         for spec in doc["kinds"]["kobo"].values():
             spec.pop("complement", None)
     work.mkdir(parents=True, exist_ok=True)
+    (work / "db.txt").write_text(url, encoding="utf-8")
     with psycopg.connect(url.replace("+psycopg", "")) as c:
         db_now = c.execute("SELECT clock_timestamp()").fetchone()[0]
     story = dc.resolve_story(db_now, days_doc=doc)
