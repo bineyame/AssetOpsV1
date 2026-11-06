@@ -299,7 +299,7 @@ def test_a_port_without_the_batch_falls_back_and_is_counted(monkeypatch):
 # ---------------------------------------------------------------- CH6b1-R2: a one-day judgement names its day
 
 ONE_DAY_KPI = {"key": "verdict.MG-5", "value": "MET", "basis": "COMPLETE", "text": "x",
-               "days": {"expected": 1, "complete": 1, "partial": 0, "low": 0, "no_data": 0, "not_expected": 0}}
+               "days": {"expected": 1, "complete": 1, "partial": 0, "low": 0, "no_data": 0, "pending": 0}}
 
 
 @pytest.mark.parametrize("tz,lo,hi", [
