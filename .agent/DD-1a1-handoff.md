@@ -3,7 +3,8 @@
 ## Builder 9 state
 - R7a done: derived `kobo-night-early-until-0300` (part A) + `-from-0300` (part B); probe asserts A's end == `kobo-night-early` at 03:00 local (held: SoC 40.105, fuel 300, STOPPED; B ends 31.158, 1 gen start, 55 min, 0 fuel). Handover JSON, both yaml, `--check` of derive and probe pass. `demo_story_days._expand` uses the split's `part_a` kind; v2 json has `night-early-until-0300`. L0: 32 passed (`test_demo_story_days.py`; trial-after day has 5 runs with the boundary).
 - Env helper: `$TEMP/env.sh` (PYTHONPATH absolute incl. backend\tests;host\tests; PY).
-- Not run yet: R7 L2 checks, builds, everything after.
+- STOPPED at R7 check 1 (the `with` build, own DB `assetops_dd1a1b9w_test`, dropped; no processes): Part A `[2026-11-04T21:00Z, 2026-11-05T00:00Z)` is refused: `RunSetupRefused REGISTERED_BASIS_BOUNDARY: Foundation v16 is valid until 2026-11-05T00:00:00Z, at the run's end_time ... The Lab can stamp a public reading at end_time, so one run cannot cite one basis across that boundary; end the run before it, or start a separate run at it.` (`runs/registered_basis.py:88`, `select_registered_basis`). The end_time instant itself counts as inside the basis, so a run ending exactly at the boundary is refused too. Earlier nights passed (no boundary). Not tuned. Architect options: end Part A one timestep (5 min) before 00:00Z (then 23:55-00:00 needs a home), or allow end == valid_until in `select_registered_basis` (a product change), or move the cut.
+- Not run: `without` build, everything after.
 
 # (builder 8, superseded) STOPPED at DD1a1-R7 gate: Part A's 3 h interval is refused
 
