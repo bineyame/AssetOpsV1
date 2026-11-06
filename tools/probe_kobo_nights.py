@@ -189,6 +189,33 @@ def probe_state_at(doc: dict, minutes: int, draft=template_draft) -> dict:
             "generator": dict(boundary.discrete or {}).get(GEN)}
 
 
+def dusk(draft=template_draft) -> tuple[dict, dict]:
+    """DD1a1-R12: the start state of `kobo-steady-dusk` and `kobo-mill-dusk` is what their parent day measures at 18:00
+    local (15:00Z), full precision so the seam has no jump. Probe S-dusk is probe S's windows 1-6 (06:00-18:00); probe
+    M-dusk is `kobo-mill-midday` (06:00-18:00). Each dusk file is then run 15:00Z-17:00Z from its start, so its
+    generator use is measured (a start there is a defect and stops the unit)."""
+    s_doc = probe_s()
+    s_doc["timeline"] = [e for _, e in derive.window_events([("kobo-daytime", n, 120 * (n - 1)) for n in range(1, 7)])]
+    s_doc["scenario_id"] = "kobo-probe-s-dusk"
+    m_doc = _load("kobo-mill-midday")
+    probes, handover = {}, {}
+    for key, sid, doc in (("S-dusk", "kobo-steady-dusk", s_doc), ("M-dusk", "kobo-mill-dusk", m_doc)):
+        probes[key] = measure(key, doc, f"{DAY}T03:00:00Z", f"{DAY}T15:00:00Z", draft)
+        end = probes[key]["measured_end"]
+        handover[sid] = {
+            "probe_id": probes[key]["probe_id"], "at_local": "18:00",
+            "start": {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"},
+            "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended" + (
+                "; the generator was RUNNING at 18:00 and starts STOPPED (run setup refuses RUNNING)"
+                if end["generator"] == "RUNNING" else "; the generator was STOPPED at 18:00")}
+        run_doc = _load(sid) if (derive.SCENARIOS / f"{sid}.yaml").exists() else _load("kobo-steady-dusk")
+        for prm in run_doc["public_parameters"]:
+            prm["value"] = {"starting-state-of-charge": end["soc"], "starting-fuel": end["fuel"],
+                            "starting-generator-state": "STOPPED"}[prm["parameter_id"]]
+        probes[f"{key}-run"] = measure(f"{key}-run", run_doc, f"{DAY}T15:00:00Z", f"{DAY}T17:00:00Z", draft)
+    return probes, handover
+
+
 #: DD1a1-R3 Q2: the same probes re-run on the registered demo Kobo Site (L2, own *_test DB) must measure the same
 #: values; the test fails if they differ, and then this file is rewritten from the registered measurement.
 REGISTERED = {"site_code": "KOBO-001", "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
@@ -201,6 +228,7 @@ def build(draft=template_draft) -> dict:
     o_probes, o_handover = chain("O", probe_o(), "kobo-night-late-after-overcast", "kobo-night-early-after-overcast",
                                  draft)
     split_probes, split_handover = split(s_probes, s_handover, draft)
+    dusk_probes, dusk_handover = dusk(draft)
     return {
         "schema": {"id": "assetops.kobo-night-handover", "version": 1},
         "label": derive.NIGHT_LABEL,
@@ -209,8 +237,8 @@ def build(draft=template_draft) -> dict:
         "registered_site": REGISTERED,
         "profile": PROFILE,
         "rounding": ROUNDING,
-        "probes": {**s_probes, **o_probes, **split_probes},
-        "handover": {**s_handover, **o_handover, **split_handover},
+        "probes": {**s_probes, **o_probes, **split_probes, **dusk_probes},
+        "handover": {**s_handover, **o_handover, **split_handover, **dusk_handover},
     }
 
 

@@ -112,7 +112,7 @@
         "note": "CH9-R2:Q8: sunny day; the grain mill runs at midday and its Action (Run the grain mill at midday on sunny days) is recorded at story time; prepare-only, not scheduled in sites (v2: derived kobo-mill-midday, DD1a1-R4)",
         "complement": [
           "night-early",
-          "steady-dusk",
+          "mill-dusk",
           "night-late"
         ]
       },
@@ -161,6 +161,15 @@
         "received_at": "D+0d 18:00",
         "assess": "build",
         "note": "complement: dusk 18:00-20:00 local"
+      },
+      "mill-dusk": {
+        "scenario_id": "kobo-mill-dusk",
+        "scenario_version": 1,
+        "start": "D+0d 15:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: dusk 18:00-20:00 local after the mill story day; start state measured at 18:00 (DD1a1-R12)"
       },
       "night-late": {
         "scenario_id": "kobo-night-late",

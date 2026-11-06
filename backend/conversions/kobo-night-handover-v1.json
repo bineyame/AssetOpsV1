@@ -216,6 +216,94 @@
    "generator_running_minutes": 55,
    "fuel_used_l": 0.0,
    "min_soc": 31.158
+  },
+  "S-dusk": {
+   "probe_id": "probe-S-dusk-8826f0cc51d1",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T15:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 55,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 50.789
+  },
+  "S-dusk-run": {
+   "probe_id": "probe-S-dusk-run-8d13f0e7e8aa",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T15:00:00Z",
+    "2026-09-22T17:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 89.47368421052632,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 69.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 69.474
+  },
+  "M-dusk": {
+   "probe_id": "probe-M-dusk-27105d57ad83",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T15:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 55,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 50.789
+  },
+  "M-dusk-run": {
+   "probe_id": "probe-M-dusk-run-f8c26d19b4b2",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T15:00:00Z",
+    "2026-09-22T17:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 89.47368421052632,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 69.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 69.474
   }
  },
  "handover": {
@@ -288,6 +376,26 @@
     "generator": "STOPPED"
    },
    "rounding": "full precision, no rounding, so part B starts exactly where the probe ended; the generator was STOPPED at the seam"
+  },
+  "kobo-steady-dusk": {
+   "probe_id": "probe-S-dusk-8826f0cc51d1",
+   "at_local": "18:00",
+   "start": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended; the generator was STOPPED at 18:00"
+  },
+  "kobo-mill-dusk": {
+   "probe_id": "probe-M-dusk-27105d57ad83",
+   "at_local": "18:00",
+   "start": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended; the generator was STOPPED at 18:00"
   }
  }
 }
