@@ -1,21 +1,25 @@
-# DD-1a1 handoff (builder 12: R9 landed and accepted on L2; R6/R3/mill/Q8/Cold not run)
+# DD-1a1 handoff (builder 14: R6 fix landed, R6 assertion 7 needs an Architect ruling; R9 Lows fixed)
 
-## Landed (R8, builder 11)
-- R8 stream epochs in `tools/demo_story_days.py` `resolve`; `_trial_chain(..., epoch)`; L0 33 passed; probe `tools/dd1a1_fullday_probe.py stream` and `tools/dd1a1_r8_check.py <db> stream|full`. Helpers in `C:\Users\assef\dd1a1w\` (env.sh, d12.sh, mkdb.py).
+## Landed earlier
+- R8 (builder 11), R9 (builder 12): see `.agent/review-packet-DD-1a1.md`. Helpers in `C:\Users\assef\dd1a1w\`
+  (env.sh, d12.sh `<with|without>`, deg.sh, mkdb.py).
 
-## Landed (R9, builder 12; main merged first)
-- Product (`backend/assetops_backend/actions/verification.py`): `_baseline_facts` + `_day_states(..., facts_window=)`. A baseline pin whose current run differs is `moved` only when the INTERVAL assessments meeting [baseline_start, baseline_end) differ (key, claim level, full result); equal facts -> `reselected` (listed only when present, so the S6-02b contract is unchanged). Applied in `_assess`, `current_state` (baseline_days) and F2 attribution (baseline). New port `VerificationPorts.run_assessments` wired in `actions/composition.py` (`reads.store.run_detail`); missing port or unreadable run fails closed as moved. Pre-flight: no schema change.
-- Unit: `backend/tests/test_dd1a1_r9_baseline_facts.py` 6 passed; mutation (facts always equal) fails 3. Existing verification files (s6 evaluator/holds, md0_fixture, out_b3, walk1) 122+1 passed after the conditional-key fix.
-- Build order (`tools/demo_combined_kobo.py`): `_trial_chain(..., admit)` admits later complements by received_at before the freeze, before the later run and before the evaluation. ACT-K1 steps/instants unchanged.
-- `tools/dd1a1_r9_check.py <db>`: post-freeze baseline re-selections have equal facts; outcome VERIFIED; `reselected` iff run changed.
+## Landed (builder 14)
+- `6340405fa` R6 fix (tool only): the gateway's background uploader delivers on start, which drained the withheld half
+  through later complements. Post-outage complements now start their gateway with no `upload` block
+  (`tools/demo_combined_kobo.py` `publish_first_half(outage_continues, withheld_run)`; `_OUTAGE` is epoch -> story run).
+  Check script: grade per story window, stray rows on any later day, no analytic-run count compare.
+- `ac9655668` + `33dfe724b` R9 review Lows 1-2 in `actions/verification.py` (`meets` fails closed on an unreadable
+  start; `_baseline_target` equality required for `reselected`), two tests, each proven to fail without its fix;
+  fixture class fixed to `CANDIDATE_AVOIDABLE`. R9 unit + S6 verification files: 125 passed.
+- R6 check (`deg_compare.log`): 1-6 PASS, 7: 0 AMBIGUOUS and findings PASS, **grade FAILS** (details and cause in the
+  packet's R6 section: the delivered half follows random source-id order; the with day also holds the night
+  interval). Stopped per R6. Architect question is in the packet.
+- R5-R9 re-check: one `with` build (981 s) + r9/r8/r7 checks all PASS.
+- All DBs dropped; no processes left.
 
-## L2 done (builder 12)
-- R8 probe + full with/without: VERIFIED, r8/r9/r7 checks PASS, 0 AMBIGUOUS, compare EQUAL on Findings (final state), action, metrics (Q6), outcome. Details in `.agent/review-packet-DD-1a1.md`. Guards V, A, W, N, M pass (M needs NODE_PATH=plan2 frontend/node_modules). All DBs dropped, no processes.
-
-## Next (resume here)
-- R6 degraded check (`tools/dd1a1_degraded_check.py with|without|compare`, own DB each, one at a time), the five R3 L2 checks (need with/without nights builds), the mill day (0 generator starts, CH-9b mill outcome), Q8 cost per full Kobo/Cold day, the Cold failure day. No tooling yet beyond the builds. Then complete the packet's Open section.
-
-## Builder 13: R6 degraded check FAILED (stopped; R3/mill/Q8/Cold not run)
-- `tools/dd1a1_degraded_check.py` fixed (calendar needs trial pair + non-consecutive normal day S-1d; compare keyed to degraded day). Runs: `C:\Users\assef\dd1a1w\deg.sh`; json in `dd1a1w\deg_{with,without}_dir\degraded.json`.
-- PASS: night-early in full, story run delivers 4/8 batches (= v1), steady-afternoon/night-late report 0 delivered, own gateway state next day, 0 AMBIGUOUS, findings equal v1.
-- FAIL (real): accepted_evidence with-complements shows the story-window remainder arriving later: received_at 18:00 n=132 and 22:00 n=194 (source_time 03:00-11:00), and the 12:00 story run stores 774 rows vs 518 in v1 (without). So the outbox remainder is drained by the later complements' gateway despite "delivered 0". Needs the R6 delivery path (dd1a1 degraded/outbox in tools/demo_combined_kobo.py) examined. Analytic-run count differs (28 vs 6) because of complements, so that compare line is a script defect, not a finding.
+## Resume here
+1. Get the Architect's ruling on R6 assertion 7 (packet "R6 degraded-day check"). Apply it, rerun `deg.sh`.
+2. Then: the five R3 L2 checks (need with/without builds; no tooling yet), the mill day (0 generator starts, CH-9b
+   mill outcome), Q8 cost per full Kobo/Cold day, the Cold failure day, guards V, A, W, N, M (M with NODE_PATH =
+   plan2 `frontend/node_modules`), then the packet's Open section.
