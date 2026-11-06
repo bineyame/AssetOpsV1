@@ -100,9 +100,11 @@ def _v2_kobo_files() -> dict:
     files = {}
     for kind, k in days["kinds"]["kobo"].items():
         if "scenario_id" in k:
-            hours = lambda s: s.split()[-1]
-            files.setdefault((k["scenario_id"], k["scenario_version"], kind),
-                             (f"{DAY}T{hours(k['start'])}:00Z", f"{DAY}T{hours(k['end'])}:00Z"))
+            def at(text):
+                day, hhmm = text.split()
+                d = datetime.fromisoformat(DAY) + timedelta(days=int(day[1:-1]))
+                return f"{d:%Y-%m-%d}T{hhmm}:00Z"
+            files.setdefault((k["scenario_id"], k["scenario_version"], kind), (at(k["start"]), at(k["end"])))
     for sid, (lo, hi, nxt) in NEW_FILES.items():
         files[(sid, 1, sid)] = (f"{DAY}T{lo}:00Z", f"{'2026-10-21' if nxt else DAY}T{hi}:00Z")
     return files
