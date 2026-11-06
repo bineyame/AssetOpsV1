@@ -36,7 +36,7 @@ import json
 import sys
 import time
 from dataclasses import asdict, replace
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID
 
@@ -304,11 +304,27 @@ def chain_snapshots(url: str, args: dict[str, Any]) -> dict[str, Any]:
         drained = drain(services.events, services.builder, t, site, int(args.get("items", 200)),
                         None if at is None else Deadline(float(at), time.time))
         drain_ms = (time.perf_counter() - drain_started) * 1000
+        verification = _evaluate_mill_plans(url, t, s, site, services.reader, today)
     finally:
         services.dispose()
     return {"code": "OK", "processed": drained.processed, "deferred": drained.deferred + pending,
             "consume": {**consumed.as_json(), "deferred": pending},
-            "drain": {**drained.as_json(), "ms": round(drain_ms, 1)}}
+            "drain": {**drained.as_json(), "ms": round(drain_ms, 1)}, "verification": verification}
+
+
+def _evaluate_mill_plans(url: str, t: Any, s: Any, site: Any, reader: Any, today: Any) -> dict[str, Any]:
+    """CH9b3-R Q9: after the drain, judge each undecided `midday-productive-shift-1` plan of a MINIGRID Site once
+    (an outcome or nothing). A failure is reported here and never fails the stage."""
+    if site.site_type != "MINIGRID":
+        return {"code": "SKIPPED"}
+    try:
+        from assetops_backend.actions.composition import evaluate_domain_plans
+
+        judged = evaluate_domain_plans(url, t, s, reader, datetime.now(timezone.utc), today)
+        return {"code": "OK", "judged": [{k: r.get(k) for k in ("domain_action_id", "state", "stored")}
+                                         for r in judged]}
+    except Exception as error:  # noqa: BLE001 - reported in the stage body, never a stage failure (Q9)
+        return {"code": "FAILED", "error": f"{type(error).__name__}: {error}"[:300]}
 
 
 def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:

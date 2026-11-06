@@ -62,9 +62,12 @@ _ACTION_EVENTS = (
     "SELECT e.id, e.action_id, e.kind, e.recorded_at, " + _CHANGE_OF.format(a="e") + " AS effective_from "
     "FROM action_event e WHERE e.tenant_id = :t AND e.site_id = :s "
     "AND e.kind IN ('ACCEPTED','APPLIED','RESOLUTION_WITHDRAWN') ORDER BY e.recorded_at, e.id")
+# CH9b3-R Q10: a domain Action's outcome (0052, `action_id` NULL) names its domain Action and dates from its plan's
+# `effective_from` (the linked case's COMPLETE); a reserve row reads exactly as before (COALESCE / CASE pass it through).
 _OUTCOMES = (
-    "SELECT o.id, o.action_id, o.outcome, o.recorded_at, p.later_end, " + _CHANGE_OF.format(a="o") +
-    " AS effective_from, EXISTS (SELECT 1 FROM verification_outcome x WHERE x.supersedes_outcome_id = o.id) "
+    "SELECT o.id, COALESCE(o.action_id, o.domain_action_id) AS action_id, o.outcome, o.recorded_at, p.later_end, "
+    "CASE WHEN o.domain_action_id IS NOT NULL THEN p.effective_from ELSE " + _CHANGE_OF.format(a="o") +
+    " END AS effective_from, EXISTS (SELECT 1 FROM verification_outcome x WHERE x.supersedes_outcome_id = o.id) "
     "AS superseded FROM verification_outcome o JOIN verification_plan p ON p.id = o.plan_id "
     "WHERE o.tenant_id = :t AND o.site_id = :s ORDER BY o.recorded_at, o.id")
 _DOMAIN_ACTIONS = "SELECT id, recorded_at FROM domain_action WHERE tenant_id = :t AND site_id = :s"

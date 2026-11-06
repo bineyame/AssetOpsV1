@@ -18,7 +18,8 @@ whole eligible basis (rows, events, records, citations, fences) and is recompute
 
 from __future__ import annotations
 
-# CH-9b1 origin: Finding-only (W1 `action` links; a MINI domain link selects `opportunity_revision_id`, no route).
+# CH-9b1 origin: Finding-only (W1 `action` links; a MINI domain link selects `opportunity_revision_id`; CH-9b3 gives
+# it the `/sites/{code}/domain-actions/{id}/verification` href).
 
 import base64
 import binascii
@@ -228,11 +229,16 @@ def action_label(code: str | None) -> str:
 def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str, Any] | None) -> dict[str, Any]:
     aid, event = link["action_id"], link["action_event_id"]
     if link.get("kind") == DOMAIN_ACTION:  # ruling C1: the domain Verification route, only with exact lineage
-        # CH-9b1: an opportunity-origin (MINI) Action has no domain Verification route yet (CH-9b2/9b3).
-        ok = selection is not None and selection["lineage"] and link["finding_revision_id"] is not None
+        # CH9b3-R Q6: an opportunity-origin (MINI) Action opens the mill verdict page at its own address, so the
+        # MINIGRID W1 `/actions/{id}/verification` dispatch stays untouched.
+        lineage = selection is not None and selection["lineage"]
+        href = None
+        if lineage and link["finding_revision_id"] is not None:
+            href = f"/sites/{site_code}/actions/{aid}/verification"
+        elif lineage and link.get("opportunity_revision_id") is not None:
+            href = f"/sites/{site_code}/domain-actions/{aid}/verification"
         return {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None,
-                "finding_revision_id": link["finding_revision_id"], "label": ACTION_LABEL,
-                "href": f"/sites/{site_code}/actions/{aid}/verification" if ok else None}
+                "finding_revision_id": link["finding_revision_id"], "label": ACTION_LABEL, "href": href}
     href = None
     if selection is not None and selection["lineage"]:
         action = {"id": aid, "origin_finding_id": selection["origin_finding_id"],
