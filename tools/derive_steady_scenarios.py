@@ -188,8 +188,14 @@ NIGHT_WINDOWS["early-from-0300"] = (
 NIGHT_WINDOWS["early-until-0300"] = (
     NIGHT_WINDOWS["early"][0],
     ("02:00", "03:00", 120, 60) + NIGHT_WINDOWS["early"][1][4:])
+#: DD1a1-R7b: the file part A really runs, `kobo-night-early-until-0300` with its last window trimmed to 02:00-02:55
+#: (175 min), so the run ends at 23:55Z, one step before the reserve change at 00:00Z. The 180 min file stays as the
+#: probe that measures part B's start state.
+NIGHT_WINDOWS["early-until-0255"] = (
+    NIGHT_WINDOWS["early-until-0300"][0],
+    ("02:00", "02:55", 120, 55) + NIGHT_WINDOWS["early"][1][4:])
 #: The offset (minutes from the file start) from which a window carries the R3 Q1 disclosure in its basis comment.
-DISCLOSED_FROM = {"late": 0, "early": 240, "early-from-0300": 60, "early-until-0300": 10**6}
+DISCLOSED_FROM = {"late": 0, "early": 240, "early-from-0300": 60, "early-until-0300": 10**6, "early-until-0255": 10**6}
 #: id -> (display name, half, probe chain). Chain "S" = after the steady day, "O" = after the overcast story day.
 NIGHTS = {
     "kobo-night-late": ("Kobo night (20:00-24:00)", "late", "S"),
@@ -199,7 +205,10 @@ NIGHTS = {
     "kobo-night-early-from-0300": ("Kobo night (03:00-06:00)", "early-from-0300", "S"),
 }
 NIGHTS["kobo-night-early-until-0300"] = ("Kobo night (00:00-03:00)", "early-until-0300", "S")
+NIGHTS["kobo-night-early-until-0255"] = ("Kobo night (00:00-02:55)", "early-until-0255", "S")
 SPLIT_LABELS = {
+    "kobo-night-early-until-0255": ("Kobo night 00:00-03:00, before the reserve change; ends 5 minutes before the "
+                                    "reserve change"),
     "kobo-night-early-until-0300": "Kobo night 00:00-03:00, before the reserve change",
     "kobo-night-early-from-0300": ("Kobo night 03:00-06:00, after the reserve change took effect at 03:00; start state "
                                    "measured at that instant"),
@@ -230,7 +239,7 @@ def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
             item["value"] = start[key]
     head = {
         "scenario_id": sid, "display_name": display,
-        "purpose": ((STEADY_NIGHT_DISCLOSURE + " " if chain == "S" and half != "early-until-0300" else f"{NIGHT_LABEL[0].upper()}{NIGHT_LABEL[1:]}. ")
+        "purpose": ((STEADY_NIGHT_DISCLOSURE + " " if chain == "S" and half not in ("early-until-0300", "early-until-0255") else f"{NIGHT_LABEL[0].upper()}{NIGHT_LABEL[1:]}. ")
                     + "A typical night at a rural mini-grid like Kobo, "
                     f"{hours} local time, no sun, {cause}. The loads follow a typical pattern, not a Kobo measurement; "
                     "the run-start state was measured by one probe run (kobo-night-handover-v1.json), never chosen."),

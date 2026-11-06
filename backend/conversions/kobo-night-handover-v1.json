@@ -151,8 +151,8 @@
    "fuel_used_l": 10.511,
    "min_soc": 30.0
   },
-  "S-early-a": {
-   "probe_id": "probe-S-early-a-108f877edf9c",
+  "S-early-probe": {
+   "probe_id": "probe-S-early-probe-108f877edf9c",
    "scenario_sha256": null,
    "interval": [
     "2026-09-22T21:00:00Z",
@@ -172,6 +172,28 @@
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 40.105
+  },
+  "S-early-a": {
+   "probe_id": "probe-S-early-a-fdffd6091b94",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T21:00:00Z",
+    "2026-09-22T23:55:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 48,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 40.324561403508774,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 40.325
   },
   "S-early-b": {
    "probe_id": "probe-S-early-b-d737641b7407",
@@ -245,17 +267,27 @@
     "fuel": 300.0,
     "generator": "STOPPED"
    },
-   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover; the same start state as kobo-night-early (DD1a1-R7a); its end equals kobo-night-early's state at 03:00 local"
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover; the same start state as kobo-night-early (DD1a1-R7a); the 180 min probe file: its end equals kobo-night-early's state at 03:00 local and it measures part B's start state"
+  },
+  "kobo-night-early-until-0255": {
+   "probe_id": "probe-S-late-a72ff844cd7b",
+   "at_local": "00:00",
+   "start": {
+    "soc": 48,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover; the same start state as kobo-night-early (DD1a1-R7b); the 175 min file part A runs, ending at 23:55Z"
   },
   "kobo-night-early-from-0300": {
-   "probe_id": "probe-S-early-a-108f877edf9c",
+   "probe_id": "probe-S-early-probe-108f877edf9c",
    "at_local": "03:00",
    "start": {
     "soc": 40.10526315789474,
     "fuel": 300.0,
     "generator": "STOPPED"
    },
-   "rounding": "full precision, no rounding, so part B starts exactly where part A ended; the generator was STOPPED at the seam"
+   "rounding": "full precision, no rounding, so part B starts exactly where the probe ended; the generator was STOPPED at the seam"
   }
  }
 }

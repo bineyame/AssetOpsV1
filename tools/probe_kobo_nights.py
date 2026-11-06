@@ -130,7 +130,8 @@ def chain(name: str, day_doc: dict, late: str, early: str, draft=template_draft)
 
 
 SPLIT = "kobo-night-early-from-0300"
-SPLIT_A = "kobo-night-early-until-0300"
+SPLIT_A = "kobo-night-early-until-0300"  # the 180 min probe file (R7a)
+PART_A = "kobo-night-early-until-0255"  # the 175 min file part A runs (R7b)
 
 
 def parent_state_at_0300(start: dict, draft=template_draft) -> dict:
@@ -152,22 +153,40 @@ def split(s_probes: dict, s_handover: dict, draft=template_draft) -> tuple[dict,
     never chosen) and must equal `kobo-night-early`'s own state at 03:00 local. Part B is then run too, so its
     generator use is measured."""
     a_start = s_handover["kobo-night-early"]["start"]
-    a_doc, _ = derive.night_document(SPLIT_A, a_start)
-    a = measure("S-early-a", a_doc, f"{DAY}T21:00:00Z", f"{NEXT}T00:00:00Z", draft)
+    probe_doc, _ = derive.night_document(SPLIT_A, a_start)
+    probe = measure("S-early-probe", probe_doc, f"{DAY}T21:00:00Z", f"{NEXT}T00:00:00Z", draft)
     parent = parent_state_at_0300(a_start, draft)
-    end = a["measured_end"]
+    end = probe["measured_end"]
     assert {k: end[k] for k in ("soc", "fuel", "generator")} == parent, (end, parent)
+    # R7b: part A runs 175 min and ends at 23:55Z; its state there must equal the probe's at that step.
+    a_doc, _ = derive.night_document(PART_A, a_start)
+    a = measure("S-early-a", a_doc, f"{DAY}T21:00:00Z", f"{DAY}T23:55:00Z", draft)
+    at_2355 = probe_state_at(probe_doc, 175, draft)
+    assert {k: a["measured_end"][k] for k in ("soc", "fuel", "generator")} == at_2355, (a["measured_end"], at_2355)
     start = {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"}
     b_doc, _ = derive.night_document(SPLIT, start)
     b = measure("S-early-b", b_doc, f"{NEXT}T00:00:00Z", f"{NEXT}T03:00:00Z", draft)
-    return ({"S-early-a": a, "S-early-b": b},
-            {SPLIT_A: {**s_handover["kobo-night-early"],
-                       "rounding": s_handover["kobo-night-early"]["rounding"] + "; the same start state as "
-                       "kobo-night-early (DD1a1-R7a); its end equals kobo-night-early's state at 03:00 local"},
-             SPLIT: {"probe_id": a["probe_id"], "at_local": "03:00", "start": start,
-                     "rounding": "full precision, no rounding, so part B starts exactly where part A ended" + (
+    shared = {**s_handover["kobo-night-early"]}
+    return ({"S-early-probe": probe, "S-early-a": a, "S-early-b": b},
+            {SPLIT_A: {**shared, "rounding": shared["rounding"] + "; the same start state as kobo-night-early "
+                       "(DD1a1-R7a); the 180 min probe file: its end equals kobo-night-early's state at 03:00 local "
+                       "and it measures part B's start state"},
+             PART_A: {**shared, "rounding": shared["rounding"] + "; the same start state as kobo-night-early "
+                      "(DD1a1-R7b); the 175 min file part A runs, ending at 23:55Z"},
+             SPLIT: {"probe_id": probe["probe_id"], "at_local": "03:00", "start": start,
+                     "rounding": "full precision, no rounding, so part B starts exactly where the probe ended" + (
                          "; the generator was RUNNING at the seam and starts STOPPED (run setup refuses RUNNING)"
                          if end["generator"] == "RUNNING" else "; the generator was STOPPED at the seam")}})
+
+
+def probe_state_at(doc: dict, minutes: int, draft=template_draft) -> dict:
+    """The probe file's state `minutes` after the night's 21:00Z start."""
+    from execution_adapter import model_for, run_to_end
+
+    run = draft(doc, f"{DAY}T21:00:00Z", f"{NEXT}T00:00:00Z")
+    boundary = run_to_end(run, model_for(run)).trajectory.boundaries[minutes // PROFILE["timestep_minutes"]]
+    return {"soc": float(dict(boundary.stocks)[SOC]), "fuel": float(dict(boundary.stocks)[FUEL]),
+            "generator": dict(boundary.discrete or {}).get(GEN)}
 
 
 #: DD1a1-R3 Q2: the same probes re-run on the registered demo Kobo Site (L2, own *_test DB) must measure the same

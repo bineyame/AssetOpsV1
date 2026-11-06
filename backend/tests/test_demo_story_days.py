@@ -339,9 +339,10 @@ def test_v2_trial_after_day_has_five_runs_split_at_the_revision_boundary():
     day.sort(key=lambda r: r.start)
     assert len(day) == 5
     a, b = day[0], day[1]
-    assert (a.scenario["scenario_id"], b.scenario["scenario_id"]) == ("kobo-night-early-until-0300",
+    assert (a.scenario["scenario_id"], b.scenario["scenario_id"]) == ("kobo-night-early-until-0255",
                                                                       "kobo-night-early-from-0300")
-    assert a.end == cut == b.start and b.end == cut + timedelta(hours=3)
+    # DD1a1-R7b: part A runs 175 min, ends 5 min before the cut and covers/sends to the cut; B starts at the cut
+    assert a.end == cut - timedelta(minutes=5) and a.covers_end == cut == b.start and b.end == cut + timedelta(hours=3)
     assert a.epoch == b.epoch  # one epoch for the Site-day
     # the day still tiles 00:00-24:00 local (resolve raises DAY_NOT_TILED otherwise)
     assert all(len(v) == 4 for v in _non_split_days().values())
@@ -365,7 +366,8 @@ def test_split_night_files_windows_equal_the_parents():
         return doc["timeline"], doc["public_parameters"]
 
     parent, p_params = events("kobo-night-early")
-    a, a_params = events("kobo-night-early-until-0300")
+    a, a_params = events("kobo-night-early-until-0255")
+    probe, _ = events("kobo-night-early-until-0300")
     b, _ = events("kobo-night-early-from-0300")
     assert a_params == p_params  # same start state as the parent
 
@@ -379,5 +381,7 @@ def test_split_night_files_windows_equal_the_parents():
         return sorted(out)
 
     assert len(cells(parent, 0, 180, 0)) == 8 and cells(b, 0, 180, 0)  # non-empty sets
-    assert cells(a, 0, 180, 0) == cells(parent, 0, 180, 0)  # part A = the parent's first 3 h
+    assert cells(a, 0, 175, 0) == cells(parent, 0, 175, 0) and cells(a, 0, 175, 0)  # part A = the parent's first 175 min
+    assert max(e["offset_minutes"] + e["timing"]["duration_minutes"] for e in a) == 175  # nothing past 02:55
+    assert cells(probe, 0, 180, 0) == cells(parent, 0, 180, 0)  # the R7a probe file stays the parent's first 3 h
     assert cells(b, 0, 180, 0) == cells(parent, 180, 360, 180)  # part B = from 03:00 local

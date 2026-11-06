@@ -200,10 +200,14 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
                     raise StoryDaysError("SPLIT_UNSUPPORTED", f"{site} {story.day}: {name} crosses a Foundation "
                                                               f"revision at {iso(cut)} and has no split file there")
                 b, a = kinds[sp["kind"]], kinds[sp["part_a"]]
-                out.append(DayRun(site, story.day, story.offset, name, start, cut,
+                # DD1a1-R7b: a run may not end at the boundary instant, so part A runs `part_a_minutes` (one step
+                # short of the cut) and covers/sends to the cut; the cut instant's reading belongs to part B.
+                a_end = start + timedelta(minutes=sp.get("part_a_minutes", sp["at_minutes"]))
+                out.append(DayRun(site, story.day, story.offset, name, start, a_end,
                                   at_day(sp["first_received_at"], D) + late, c.get("assess", "build"),
                                   {"scenario_id": a["scenario_id"], "scenario_version": a["scenario_version"]}, None,
-                                  None, a.get("note", c.get("note", "")), story.known_at, None, story.kind))
+                                  None, a.get("note", c.get("note", "")), story.known_at,
+                                  cut if a_end != cut else None, story.kind))
                 out.append(DayRun(site, story.day, story.offset, sp["kind"], cut, end,
                                   at_day(b["received_at"], D) + late, b.get("assess", "build"),
                                   {"scenario_id": b["scenario_id"], "scenario_version": b["scenario_version"]}, None,

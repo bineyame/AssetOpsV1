@@ -127,14 +127,15 @@
         "split": {
           "at_minutes": 180,
           "kind": "night-early-from-0300",
-          "part_a": "night-early-until-0300",
+          "part_a": "night-early-until-0255",
+          "part_a_minutes": 175,
           "first_received_at": "D+0d 01:00"
         }
       },
-      "night-early-until-0300": {
-        "scenario_id": "kobo-night-early-until-0300",
+      "night-early-until-0255": {
+        "scenario_id": "kobo-night-early-until-0255",
         "scenario_version": 1,
-        "note": "complement part A: night 00:00-03:00 local, before the reserve change (DD1a1-R7a)"
+        "note": "complement part A: night 00:00-02:55 local, before the reserve change; ends 5 minutes before it (DD1a1-R7b)"
       },
       "night-early-from-0300": {
         "scenario_id": "kobo-night-early-from-0300",
