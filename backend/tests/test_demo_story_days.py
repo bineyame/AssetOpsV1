@@ -212,3 +212,48 @@ def test_mill_midday_kind_resolves_and_validates_when_scheduled():
 def test_mill_midday_is_prepare_only():
     assert "mill-midday" not in sd.ADD_DAY_KINDS["kobo"]
     assert _refused("kobo", "mill-midday", day="S-2d") == "PREPARE_ONLY_KIND"
+
+
+# DD-1a1 v2 day list (DD1a1-R Q7, R4): full days tile the local day; the mill kind points at the derived file.
+def _v2():
+    return sd.load(sd.V2_FILE)
+
+
+def test_v2_every_day_tiles_the_local_day_00_to_24():
+    runs = sd.resolve(_v2(), S)
+    by_day: dict = {}
+    for r in runs:
+        by_day.setdefault((r.site, r.day), []).append(r)
+    full = {k: v for k, v in by_day.items() if len(v) > 1}
+    assert {k[0] for k in full} == {"kobo", "cold"}
+    for (site, day), group in full.items():
+        D = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
+        ordered = sorted(group, key=lambda r: r.start)
+        assert ordered[0].start == D - timedelta(hours=3), (site, day)
+        for a, b in zip(ordered, ordered[1:]):
+            assert (a.covers_end or a.end) == b.start, (site, day, a.kind, b.kind)
+        assert (ordered[-1].covers_end or ordered[-1].end) == D + timedelta(hours=21), (site, day)
+    assert all(len(v) == 4 for (s, _), v in full.items() if s == "kobo")
+    assert all(len(v) == 24 for (s, _), v in full.items() if s == "cold")
+
+
+def test_v2_tiling_check_is_not_vacuous():
+    doc = copy.deepcopy(_v2())
+    doc["kinds"]["kobo"]["steady-afternoon"]["start"] = "D+0d 12:00"  # a one-hour gap
+    assert _codes(doc) == "DAY_NOT_TILED"
+    doc = copy.deepcopy(_v2())
+    doc["kinds"]["cold"]["steady"]["covers_minutes"] = 65  # overlaps the next hour
+    assert _codes(doc) == "DAY_NOT_TILED"
+
+
+def test_v2_mill_midday_points_at_the_derived_file_and_v1_is_unchanged():
+    assert _v2()["kinds"]["kobo"]["mill-midday"]["scenario_id"] == "kobo-mill-midday"
+    assert sd.load()["kinds"]["kobo"]["mill-midday"]["scenario_id"] == "kobo-daytime"
+
+
+def test_v2_complements_are_received_after_their_own_end_and_inherit_knowledge():
+    runs = sd.resolve(_v2(), S)
+    story = {(r.site, r.day): r for r in runs if not r.complement_of and r.has_run}
+    for r in runs:
+        if r.complement_of:
+            assert r.received_at >= r.end and r.known_at == story[(r.site, r.day)].known_at

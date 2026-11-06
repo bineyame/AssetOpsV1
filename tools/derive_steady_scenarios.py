@@ -41,6 +41,12 @@ STEADY = {
     "kobo-steady-dusk": ("Kobo steady dusk (18:00-20:00)", "18:00-20:00",
                          [("kobo-mini-grid-evening", 4)], "kobo-mini-grid-evening"),
 }
+#: DD1a1-R4: the mill story day (`mill-midday`, kobo-daytime v2) is BLOCKED on mini-grid v6 for the same reason as the
+#: steady day, and kobo-daytime is not edited. The derived file copies kobo-daytime v2's windows and state of charge
+#: verbatim and adds the dawn fuel and generator state; only the v2 `mill-midday` kind points at it.
+MILL = {"kobo-mill-midday": ("Kobo mill midday (sunny day, 06:00-18:00)", "06:00-18:00",
+                             [("kobo-daytime", n) for n in range(1, 7)], "kobo-daytime")}
+MILL_LABEL = "example data, derived from kobo-daytime v2, the mill story day"
 COLD = {"cold-steady": "cold-normal"}
 PREFIX = {"kobo-daytime": "", "kobo-mini-grid-evening": "evening-"}
 
@@ -68,7 +74,7 @@ DAWN_PARENTS = ("kobo-mini-grid-evening", "kobo-mini-grid-degraded-evidence", "k
                 "kobo-mini-grid-reserve-matters", "kobo-mini-grid-reserve-trial", "kobo-mini-grid-stop-60",
                 "kobo-s3-dispatch-degraded-reporting", "kobo-s3-dispatch-necessary-run")
 DAWN_STATE = ("starting-fuel", "starting-generator-state")
-NEEDS_DAWN_STATE = {"kobo-steady-day"}
+NEEDS_DAWN_STATE = {"kobo-steady-day", "kobo-mill-midday"}
 
 
 def dawn_state() -> tuple[list[dict], str]:
@@ -95,11 +101,11 @@ def dawn_state() -> tuple[list[dict], str]:
 
 
 def kobo(sid: str) -> str:
-    display, hours, windows, state_parent = STEADY[sid]
+    display, hours, windows, state_parent = (STEADY | MILL)[sid]
     docs = {p: yaml.safe_load((SCENARIOS / f"{p}.yaml").read_text(encoding="utf-8")) for p, _ in windows}
     docs.setdefault(state_parent, yaml.safe_load((SCENARIOS / f"{state_parent}.yaml").read_text(encoding="utf-8")))
     parents = sorted({p for p, _ in windows})
-    label = LABEL.format(parents=" and ".join(parents))
+    label = MILL_LABEL if sid in MILL else LABEL.format(parents=" and ".join(parents))
     dawn, dawn_line = dawn_state() if sid in NEEDS_DAWN_STATE else ([], None)
     head = {
         "scenario_id": sid, "display_name": display,
@@ -278,7 +284,7 @@ def cold(sid: str) -> str:
 
 
 def derive() -> dict[str, str]:
-    out = {sid: kobo(sid) for sid in STEADY}
+    out = {sid: kobo(sid) for sid in STEADY | MILL}
     out.update({sid: cold(sid) for sid in COLD})
     if HANDOVER.exists():
         out.update({sid: night(sid) for sid in NIGHTS})

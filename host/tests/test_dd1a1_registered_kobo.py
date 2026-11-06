@@ -96,7 +96,7 @@ def _shifted(store):
 
 def _v2_kobo_files() -> dict:
     """scenario id -> (version, start, end) for every Kobo kind of the day list plus the DD-1a1 files."""
-    days = json.loads((CONVERSIONS / "demo-story-days-v1.json").read_text(encoding="utf-8"))
+    days = json.loads((CONVERSIONS / "demo-story-days-v2.json").read_text(encoding="utf-8"))
     files = {}
     for kind, k in days["kinds"]["kobo"].items():
         if "scenario_id" in k:

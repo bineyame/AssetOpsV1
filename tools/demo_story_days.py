@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -136,20 +136,72 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
                   spec.get("note", ""), at_day(spec.get("foundation_known_at", DEFAULT_KNOWN_AT), D))
 
 
+#: A Site's local day is UTC+3 (Kobo and Cold): the local day D is [D-1 21:00Z, D 21:00Z).
+LOCAL_DAY_START = timedelta(hours=-3)
+
+
+def _expand(doc: dict, site: str, entry: dict, S: datetime) -> list[DayRun]:
+    """One day entry -> its story run plus its complement runs (DD1a1-R Q7). A kind's `complement` is either a list
+    of kind names (Kobo: each carries its own relative times) or `{"kind": "steady", "hours": [...]}` (Cold: one
+    plain replay per listed hour). A complement is received `received_at` as its kind says, plus the story's
+    lateness (a `late` day), and inherits the story's Foundation knowledge. A `missing` day has no complement."""
+    story = _entry(doc, site, entry, S)
+    kinds = doc["kinds"].get(site, {})
+    spec = kinds.get(story.as_kind or story.kind, {})
+    comp = spec.get("complement")
+    if not story.has_run or not comp:
+        return [story]
+    D = datetime.fromisoformat(story.day).replace(tzinfo=timezone.utc)
+    late = story.received_at - at_day(spec["received_at"], D)
+    out = [replace(story, covers_end=at_day(spec["covers_end"], D) if "covers_end" in spec else story.end)]
+    if isinstance(comp, dict):
+        c = kinds[comp["kind"]]
+        for hour in comp["hours"]:
+            start = at_day(hour, D)
+            end = start + timedelta(minutes=c["interval_minutes"])
+            out.append(DayRun(site, story.day, story.offset, comp["kind"], start, end, end + late, c.get("assess", "build"),
+                              {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
+                              c.get("note", ""), story.known_at, start + timedelta(minutes=c["covers_minutes"]),
+                              story.kind))
+    else:
+        for name in comp:
+            c = kinds[name]
+            out.append(DayRun(site, story.day, story.offset, name, at_day(c["start"], D), at_day(c["end"], D),
+                              at_day(c["received_at"], D) + late, c.get("assess", "build"),
+                              {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
+                              c.get("note", ""), story.known_at, None, story.kind))
+    _tiled(site, story.day, D, out)
+    return out
+
+
+def _tiled(site: str, day: str, D: datetime, runs: list[DayRun]) -> None:
+    """L0: the runs of one full day tile the local day exactly, no gap and no overlap."""
+    lo = D + LOCAL_DAY_START
+    hi = lo + timedelta(hours=24)
+    cursor = lo
+    for r in sorted(runs, key=lambda r: r.start):
+        if r.start != cursor:
+            raise StoryDaysError("DAY_NOT_TILED", f"{site} {day}: {r.kind} starts {iso(r.start)}, expected {iso(cursor)}")
+        cursor = r.covers_end or r.end
+    if cursor != hi:
+        raise StoryDaysError("DAY_NOT_TILED", f"{site} {day}: the runs end {iso(cursor)}, expected {iso(hi)}")
+
+
 def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
             installs: dict[str, datetime] | None = None) -> list[DayRun]:
-    """Every day entry of every Site, validated, in build order (by `received_at`)."""
+    """Every day entry of every Site (with its complement runs), validated, in build order (by `received_at`)."""
     runs: list[DayRun] = []
     for site, entries in days_doc["sites"].items():
         if site not in SITES:
             raise StoryDaysError("UNKNOWN_KIND", f"site {site!r} is not one of {SITES}")
         seen: set[str] = set()
         for entry in entries:
-            run = _entry(days_doc, site, entry, S)
+            expanded = _expand(days_doc, site, entry, S)
+            run = expanded[0]
             if run.day in seen:
                 raise StoryDaysError("DUPLICATE_DAY", f"{site} has two entries on {run.day}")
             seen.add(run.day)
-            runs.append(run)
+            runs.extend(expanded)
     validate(runs, S, db_now=db_now, installs=installs)
     order = sorted(runs, key=lambda r: (r.received_at or (_day_start(r) + timedelta(days=1)), SITES.index(r.site)))
     out, n = [], 0
