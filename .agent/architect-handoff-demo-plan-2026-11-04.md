@@ -626,3 +626,7 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
 ## Update 2026-11-06 (Architect 19): CH9b3-R
 
 - Binding checked: Claude. Nothing committed. CH9b3-R is recorded at the end of `build-sheet-CH-9b.md`. All 12 defaults are accepted. **CH-9b3 goes from 1.0 to 1.5**, making CH-9b 7.5 and lane 2 15.0; the plan rows still need this. SCOPE-1 reason: the mill verdict page is the only place the R7 before/after line and the metrics table can show, and without it the Grow row's "verified" claim is untraceable. There is no overlap with CH-6a3. For the owner: Q3, a zero baseline, is read as INCONCLUSIVE BASELINE_ZERO, so no rise is claimed.
+
+## Update 2026-11-06 (Architect 20): DD0c-R
+
+- Binding checked: Claude. Nothing committed. DD0c-R is recorded at the end of `build-sheet-DD-1.md`; plan row DD0c-R; backlog BL-14 added. L1 approved as an opt-in host `seal_once` in DD-1a1 at R3's +0.25; all three parity differences acceptable; L2 not built (SCOPE-1), B-22 kept with B-16 only on an over-3 h DD-1b2 rehearsal (R1); earlier-day Cold fill backlogged as BL-14 (only forward Cold days can be added). Sizes unchanged, DD-1 6.5. No owner question. DD-1a1 may start.
