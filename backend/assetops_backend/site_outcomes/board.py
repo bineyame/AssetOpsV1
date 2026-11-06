@@ -281,27 +281,15 @@ class SiteFacts:
     work_window: Any = None
     #: CH-6a3 §A5: per outcome key, the OutcomeEvaluator's node claims as JSON {"kpi", "earnings", "potential"}.
     nodes: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
+    #: CH-6a3: whether the EV window is priced at a stored tariff. None = not told (the Grow money decides, as before).
+    #: The Grow money is now the earnings claim, which stays null while the days are not all known, so it can no
+    #: longer stand for "a tariff exists".
+    ev_priced: bool | None = None
 
 
 # ---------------------------------------------------------------- helpers
 
 NODE_KEYS = ("kpi", "earnings", "potential")
-
-
-def domain_nodes(domain: str, c: str, tz: str | None, lo: Any, hi: Any, rows: Sequence[Any],
-                 objectives: Sequence[Any], readings: Mapping[str, Any], warnings: Sequence[Any] = (),
-                 price: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
-    """CH-6a3 R6 for cold and EV: the evaluator's readings and per-outcome nodes over the request's local days.
-    Returns `(readings, nodes)`."""
-    from datetime import timezone as _tz
-    from assetops_backend.chain.outcomes import NodeInputs, OutcomeEvaluator, site_nodes
-    from assetops_backend.chain.read import local_days
-    from assetops_backend.outcomes.catalogue import SITE_OUTCOMES
-    days = local_days(lo, hi, tz)
-    inp = NodeInputs(site_code=c, domain=domain, tz=tz or "UTC", window=(days[0], days[-1]), rows=tuple(rows),
-                     objectives=tuple(objectives), readings=readings, warnings=tuple(warnings), price=price)
-    readings = OutcomeEvaluator().readings(inp)
-    return readings, site_nodes(inp, [o.key for o in SITE_OUTCOMES if o.domain == domain])
 
 
 def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state: str,
@@ -775,7 +763,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     }
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
-        if (domain, cat) == (EV, "OPTIMIZE_COST") and facts.headline_money.get("GROW_REVENUE") is None:
+        if (domain, cat) == (EV, "OPTIMIZE_COST") and (
+                facts.headline_money.get("GROW_REVENUE") is None if facts.ev_priced is None else not facts.ev_priced):
             row["not_measured_text"] = ROW_NOT_MEASURED_EV_COST_UNPRICED  # POLISH §1.6: no priced EV tariff
         return row
 

@@ -204,7 +204,7 @@
     "kpi": null,
     "potential": null
    },
-   "not_measured_text": "Energy cost per km needs odometer readings and a published charging tariff",
+   "not_measured_text": "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
    "options": [],
    "outcomes": [
     {

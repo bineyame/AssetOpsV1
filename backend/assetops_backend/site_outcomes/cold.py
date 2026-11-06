@@ -23,9 +23,10 @@ from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
 from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    PlanFact, SiteFacts, domain_nodes, finding_moved_outcomes, readiness_confidence, unresolved_links)
+    PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
+from assetops_backend.site_outcomes.domain_nodes import domain_nodes
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
@@ -185,7 +186,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
                       findings_settled=findings_ok, objectives=objectives, readings=readings,
                       objectives_ok=objective_rows is not None)
-    readings, _ = domain_nodes(COLD, c, site_timezone, lo, hi, chain_rows, objectives, readings)
+    readings, _ = domain_nodes(COLD, c, site_timezone if tz is not None else None, lo, hi, chain_rows, objectives, readings)
     facts = replace(facts, readings=readings)
     wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
     warnings = evaluate(wf)
@@ -194,7 +195,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     start_linked = (repeat is not None and start_failure is not None and start_href is not None
                     and any(r["kind"] == "FINDING" and r["id"] == start_failure.finding_id
                             for r in repeat.evidence_refs))
-    _, nodes = domain_nodes(COLD, c, site_timezone, lo, hi, chain_rows, objectives, readings, warnings)
+    _, nodes = domain_nodes(COLD, c, site_timezone if tz is not None else None, lo, hi, chain_rows, objectives, readings, warnings)
     facts = replace(facts, warnings=warnings, nodes=nodes,
                     options={**options, COST: (Option(OPTION_START_TEST, start_href),) if start_linked else ()},
                     contributors={**contributors, COST: _cost(c, wf, repeat, visits is None, rc)},

@@ -498,7 +498,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         site_code=c, domain=MINI, tz=zone_name or "", window=(day, day),
         rows=() if day_facts is None else day_facts.rows, objectives=objectives, readings=readings,
         opportunity=item, money_heads={} if lead_money is None or money_head is None else {lead_money[0]: money_head},
-        lead_findings={} if lead_money is None else {"GENERATOR_SUPPORT_CANDIDATE": lead_money[0]},
+        lead_findings=_lead_findings(heads, lead_money),
         price=sales.get("price"))
     readings = OutcomeEvaluator().readings(node_in)
     if objective_rows is None:
@@ -970,3 +970,14 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
         out.append(Contributor("battery_reporting", "Battery reporting", limitation_text(limitations[0]),
                                HIGH_CHIP, refs.evidence_ref(c)))
     return tuple(out)
+
+
+def _lead_findings(heads, lead_money) -> dict[str, str]:
+    """CH-6a3: the lead money head feeds the MG-2 fuel-cost earnings only when it IS a generator-support Finding, so
+    a lead Finding of another mechanism never prices the generator line (its money is the head's own, not fuel)."""
+    if lead_money is None or heads is None:
+        return {}
+    head = next((h for h in heads if h.finding_id == lead_money[0]), None)
+    if head is None or head.mechanism != "GENERATOR_SUPPORT_CANDIDATE":
+        return {}
+    return {"GENERATOR_SUPPORT_CANDIDATE": lead_money[0]}

@@ -251,8 +251,8 @@ def test_depot_board_from_ports() -> None:
     assert outcome(rows[PROTECT], "EV-1") == "NEEDS_ATTENTION"
     assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
     assert rows[GROW]["headline"] == "estimated charging income"  # WALK1-2 R674
-    assert rows[GROW]["headline_money"] == {"amount_low": "54.75000000", "amount_high": "54.75000000",
-                                            "currency": "USD"}
+    # CH-6a3 Q4: the Grow money is the earnings claim of the stored snapshots; this fake carries none -> null
+    assert rows[GROW]["headline_money"] is None
     assert rows[GROW]["subline"] == ("182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD "
                                      "per kWh · not billed or collected")
     tariff = contributor(rows[GROW], "charging_tariff")  # WALK1-2 R676: the declared lever input
