@@ -126,7 +126,8 @@ class RegisteredGatewayPublisher:
         return self._sealed(self._admit(run_id, basis, texts, "admit"))
 
     def publish_in_boundary_order(
-        self, run_id: str, basis, groups: Sequence[tuple[str, Sequence[str]]], final_instant: str
+        self, run_id: str, basis, groups: Sequence[tuple[str, Sequence[str]]], final_instant: str, *,
+        seal_once: bool = False,
     ) -> tuple[list[list[dict]], Exception | None]:
         """S2-01c: admit each group at its own reached boundary, in order, then
         move the run clock to `final_instant`.
@@ -139,16 +140,35 @@ class RegisteredGatewayPublisher:
         (`PUBLICATION_INSTANT_PASSED`). Every group is sealed before the next,
         so the batches do not depend on how the operator stepped. Returns the
         admissions of every group that committed, and the refusal that stopped
-        the pass, if any; a group sealed in refusal still committed."""
+        the pass, if any; a group sealed in refusal still committed.
+
+        DD0c-R Q1 (L1 batching), opt-in: with `seal_once` each group is still
+        admitted at its own instant, in order, and `seal` is called once after
+        the last group (and once for what was admitted if a later group is
+        refused). `seal` keeps its own bounds (256 envelopes, the byte bound),
+        so every batch stays legal. Only the demo prepare and `add-day`
+        producers pass it; the default keeps the per-group seal above."""
         done: list[list[dict]] = []
+        unsealed: list[dict] = []
         try:
             self._activate(basis)
             for instant, texts in groups:
                 admissions = self._admit(run_id, basis, list(texts), "admit_at_run_clock", at_instant=instant)
                 done.append(admissions)
-                self._sealed(admissions)
+                if seal_once:
+                    unsealed.extend(admissions)
+                else:
+                    self._sealed(admissions)
+            if seal_once:
+                pending, unsealed = unsealed, []
+                self._sealed(pending)
             self._link.call("advance_publication_clock", {"lab_run_ref": run_id, "instant": final_instant})
         except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
+            if unsealed:
+                try:
+                    self._sealed(unsealed)
+                except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused):
+                    pass  # the first refusal is the one reported; the Stage read shows the unbatched envelopes
             return done, refused
         return done, None
 

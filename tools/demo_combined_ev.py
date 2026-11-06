@@ -190,6 +190,8 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
     os.environ["DATABASE_URL"] = os.environ["ASSETOPS_TEST_DATABASE_URL"] = url
     import test_w205b_ev_replay_postgres as registered
     import w504_ev_work_cases as P
+
+    registered.SEAL_ONCE = True  # DD0c-R Q1: L1 batching, the demo prepare / add-day producers only
     from run_fixtures import FakeScenarios
     from test_w206_ev_store_postgres import run_worker, select_exact
     from assetops_backend.scenarios.ev_parsing import parse_ev_scenario_document

@@ -46,7 +46,7 @@ from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID
 
 import yaml
@@ -2079,11 +2079,20 @@ class HostLabExecution:
         # W2-05b q4 Q23: the read-only re-read of an EV run's exact frozen Foundation revision, binding revision
         # and EV scenario document (`ev_lab.EvInputs`). None refuses every EV start FROZEN_RUN_NOT_RECONSTRUCTIBLE.
         ev_inputs: EvInputs | None = None,
+        # DD0c-R Q1 (L1 batching): True seals a registered run's boundary groups once, after the last group.
+        # Opt-in for the demo prepare and add-day producers only; the default seals per group.
+        seal_once: bool = False,
+        # DD1a1-R5 (one stream per Site-day): a predicate on a report's source time (ISO text). A registered run
+        # publishes only the reports it keeps, so a full-day complement leaves out the instants a story run (or the
+        # next complement) already sends on the shared epoch. Opt-in for the demo producers; None keeps every report.
+        keep_source_time: Callable[[str], bool] | None = None,
     ) -> None:
         self._model = model
+        self._keep_source_time = keep_source_time
         self._cold_inputs = cold_inputs
         self._ev_inputs = ev_inputs
         self._gateway = gateway
+        self._seal_once = seal_once
         self._source_publisher = source_publisher
         if schedules is None:
             stage_root = getattr(stages, "_root", None)
@@ -2398,7 +2407,9 @@ class HostLabExecution:
         minute_records = cold_minute_records(execution)
         content = cold_content_digest(minute_records)
         series = cold_series_digest(reports)
-        refused = self._stage_registered_virtual_cold(run, reports)
+        staged = reports if self._keep_source_time is None else tuple(
+            r for r in reports if self._keep_source_time(r.source_time))
+        refused = self._stage_registered_virtual_cold(run, staged)
         failure = None
         if refused is not None:
             failure = ExecutionFailure(
@@ -2871,6 +2882,8 @@ class HostLabExecution:
             text = f"registered publication refused: REPORT_NOT_ADAPTABLE: {rejected}"
             note(text)
             return text
+        if self._keep_source_time is not None:
+            keyed = [k for k in keyed if self._keep_source_time(k[0].source_sample_time)]
         try:
             schedule = self._schedules.read(session.run_id)
         except ScheduleUnreadable as unreadable:
@@ -2987,7 +3000,9 @@ class HostLabExecution:
         elif tail:
             groups[-1] = (last, groups[-1][1] + tail, groups[-1][2])
         wanted = [(instant, [d.report_text for d in due] + texts) for instant, due, texts in groups if due or texts]
-        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target)
+        # DD0c-R Q1: the keyword is passed only when set, so every other publisher keeps its signature.
+        seal = {"seal_once": True} if self._seal_once else {}
+        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target, **seal)
         boundary_instants = set(instants or ())
         through = schedule.admitted_through
         stopped_at = schedule.ordinary_stopped_at

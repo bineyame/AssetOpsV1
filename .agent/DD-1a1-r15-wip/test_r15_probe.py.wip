@@ -1,0 +1,73 @@
+"""DD1a1-R15 registered-Site probe (scratch, not committed): story run -> rest-of-day -> early night per chain."""
+import copy
+import json
+from datetime import datetime, timedelta, timezone
+
+import test_dd1a1_registered_kobo as reg
+from test_dd1a1_registered_kobo import registered  # noqa: F401 (fixture)
+
+import derive_steady_scenarios as derive
+import probe_kobo_nights as pk
+
+GEN, SOC, FUEL = pk.GEN, pk.SOC, pk.FUEL
+DAY, NEXT = "2026-09-22", "2026-09-23"
+
+
+def run(draft, doc, start, end):
+    from execution_adapter import model_for, run_to_end
+    r = draft(copy.deepcopy(doc), start, end)
+    assert r.execution_status == "READY", [(b.kind, b.subject) for b in r.blocking_reasons]
+    tr = run_to_end(r, model_for(r)).trajectory
+    st = [dict(b.stocks) for b in tr.boundaries]
+    gens = [dict(b.discrete_for_step).get(GEN) for b in tr.boundaries if b.discrete_for_step is not None]
+    t0 = datetime.fromisoformat(start.replace("Z", "+00:00")) + timedelta(hours=3)
+    iv, on = [], None
+    for i, g in enumerate(gens + ["STOPPED"]):
+        if g == "RUNNING" and on is None:
+            on = i
+        if g != "RUNNING" and on is not None:
+            iv.append(f"{(t0 + timedelta(minutes=5 * on)):%H:%M}-{(t0 + timedelta(minutes=5 * i)):%H:%M}")
+            on = None
+    last = tr.boundaries[-1]
+    end_state = {"soc": float(st[-1][SOC]), "fuel": float(st[-1][FUEL]),
+                 "generator": dict(last.discrete or {}).get(GEN, gens[-1])}
+    return {"interval_local": f"{t0:%H:%M}+{len(gens) * 5}min", "start_soc": float(st[0][SOC]),
+            "end": end_state, "gen_running_local": iv}
+
+
+def full(end):
+    return {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"}
+
+
+def chain(draft, c, out):
+    story = pk._load(derive.CHAIN_STORY[c])
+    hi = "15:00" if c == "M" else "11:00"
+    s = run(draft, story, f"{DAY}T03:00:00Z", f"{DAY}T{hi}:00Z")
+    out[f"{c}-story"] = s
+    sid = f"kobo-rest-{c}"
+    doc, _ = derive.rest_document(sid, full(s["end"]))
+    r = run(draft, doc, f"{DAY}T{hi}:00Z", f"{DAY}T21:00:00Z")
+    out[f"{c}-rest"] = r
+    key = f"kobo-chain-{c}-early"
+    derive.NIGHTS.setdefault(key, (f"Kobo night after the chain {c} day (00:00-06:00)", "early", c))
+    ndoc, _ = derive.night_document(key, full(r["end"]))
+    out[f"{c}-early"] = run(draft, ndoc, f"{DAY}T21:00:00Z", f"{NEXT}T03:00:00Z")
+    pdoc, _ = derive.night_document("kobo-chain-R30-early-until-0300", full(r["end"]))
+    out[f"{c}-early-at-0300"] = run(draft, pdoc, f"{DAY}T21:00:00Z", f"{NEXT}T00:00:00Z")["end"]
+
+
+def test_probe(registered):  # noqa: F811
+    out = {}
+    draft = reg._shifted(registered)
+    for c in ("N", "R30", "M"):
+        chain(draft, c, out)
+    from assetops_backend.sites.foundation_service import FoundationService
+    import test_s1_bindings_postgres as pgb
+    svc = FoundationService(registered, "demo", pgb.Clock(datetime(2026, 10, 14, 2, 0, tzinfo=timezone.utc)))
+    tenant = svc.tenant()
+    site = svc.site(tenant, "KOBO-001")
+    svc.publish_battery_reserve(tenant, site, asset_code="battery", value=25.0,
+                                effective_from=datetime(2026, 10, 15, 0, 0, tzinfo=timezone.utc), note="R15 probe")
+    reg.KNOWN_AT = "2026-10-19T16:00:00Z"
+    chain(draft, "R25", out)
+    print("R15PROBE " + json.dumps(out))

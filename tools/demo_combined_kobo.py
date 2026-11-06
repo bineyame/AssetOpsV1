@@ -218,10 +218,21 @@ def findings_on(engine, site_id, day: str) -> list[str]:
     return [str(r[0]) for r in rows]
 
 
-def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime) -> dict:
+def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *, gateway_dir: Path | None = None,
+                       keep=None, outage_continues: bool = False, withheld_run: str | None = None) -> dict:
     """`rp._publish_and_accept` for the `degraded` kind's U1 fallback (a gateway outage): the run publishes through
     a real gateway, but only the first half of its sealed batches reaches S2 before the gateway stops. The rest is
-    never delivered (append-only: nothing is withdrawn)."""
+    never delivered (append-only: nothing is withdrawn).
+
+    DD1a1-R5: on the Site-day's one gateway state (`gateway_dir`), the undelivered half stays in that gateway's
+    outbox, so a complement run after the outage cannot deliver its own batches without the withheld ones. Such a
+    complement (`outage_continues`) is run and staged on the same stream but delivers nothing: the outage lasts the
+    rest of the day (DD1a1-R6).
+
+    DD1a1-R6 fix: the gateway's background uploader runs a delivery pass the moment it starts, which drained the
+    withheld half through a later complement's gateway. A post-outage complement's gateway is therefore started with
+    no `upload` block (no network: the gateway is down), so nothing it holds can leave it. `withheld_run` (the story
+    run of the outage) is read back from the same outbox afterwards, to show its undelivered half is still held."""
     import secrets
     from uuid import UUID
 
@@ -252,34 +263,49 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime) -
         return answer.status, canonical_receipt_v2_text(answer.receipt).encode("utf-8")
 
     token = f"aog1.{secrets.token_hex(16)}.{secrets.token_urlsafe(32)}"
-    (tmp_path / "gateway").mkdir(parents=True)
-    (tmp_path / "gateway" / "upload.credential").write_text(token, encoding="ascii")
-    restrict_to_current_user(tmp_path / "gateway" / "upload.credential")
+    state = gateway_dir or tmp_path / "gateway"
+    state.mkdir(parents=True, exist_ok=gateway_dir is not None)
+    (state / "upload.credential").write_text(token, encoding="ascii")
+    restrict_to_current_user(state / "upload.credential")
     central = FakeCentral(respond)
     upload = {"server_url": central.url, "upload_credential_file": "upload.credential", "ca_file": str(CERT),
               "interval_seconds": 3600}
-    process = rp._gateway(tmp_path, run, epoch, upload)
+    if outage_continues:
+        from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config
+
+        write_config(state, provisioning_from_snapshot(run.registered_basis.snapshot_canonical, epoch=epoch))
+        process = GatewayProcess(state / "gateway.json")  # no `upload`: no uploader, no background pass
+        assert process.ready, process.first_line
+    else:
+        process = rp._gateway(tmp_path, run, epoch, upload, state_dir=gateway_dir)
     try:
-        port = pub._host(tmp_path / "h", process.link)
+        port = pub._host(tmp_path / "h", process.link, keep)
         port.start(run)
         assert port.run_to_end(run).status == "COMPLETED"
         stage = port.registered_stage(run)
         assert stage.status == "STAGED", stage.status
         register_run(PostgresEvidenceLedger(rp.URL), run_attestation(run, stage))
         port.release_registered(run)
-        half = len(stage.batches) // 2
+        half = 0 if outage_continues else len(stage.batches) // 2
         publisher, sent = RegisteredGatewayPublisher(process.link), 0
         while sent < half:
             attempted = publisher.deliver(min(50, half - sent))["batches"]["attempted"]
             if not attempted:
                 break
             sent += attempted
+        outbox = publisher.delivery(str(getattr(run, "run_id", "")))  # DD1a1-R6: what the gateway still holds
+        withheld = publisher.delivery(withheld_run) if withheld_run else None
     finally:
         process.kill()
         central.close()
-    assert statuses and set(statuses) == {"COMPLETED"}, statuses
+    if outage_continues:
+        assert statuses == [], statuses  # DD1a1-R6: nothing reached S2 after the outage
+    else:
+        assert statuses and set(statuses) == {"COMPLETED"}, statuses
     return {"batches": len(stage.batches), "delivered_batches": sent, "envelopes": len(stage.envelopes),
-            "delivery": "first half of the sealed batches (gateway outage)"}
+            "delivery": ("staged, not delivered (the gateway stays down for the rest of the local day)"
+                         if outage_continues else "first half of the sealed batches (gateway outage)"),
+            "outbox_after": outbox, "withheld_after": withheld}
 
 
 def trial_day_index(url: str, runner, S: datetime) -> dict:
@@ -306,16 +332,50 @@ def trial_day_index(url: str, runner, S: datetime) -> dict:
     return r.json()
 
 
+#: DD0c-R Q1: the demo child seals each run once (L1 batching); a parity check may flip it off.
+SEAL_ONCE = True
+
+
+def _seal_once() -> None:
+    import test_s6_verification_publication as pub
+
+    pub.SEAL_ONCE = SEAL_ONCE
+
+
+#: DD1a1-R5: the epochs (Site-days) whose `degraded` story run has had its gateway outage in this build, each
+#: mapped to that story run's id (DD1a1-R6: its withheld half is read back after each later complement).
+_OUTAGE: dict[str, str] = {}
+
+
+def gateway_dir(tmp: Path, epoch: str) -> Path:
+    """The one gateway state of a Site-day stream (DD1a1-R5)."""
+    return tmp / f"gw-{epoch}"
+
+
 def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     """One registered Lab run on its story day: draft -> real gateway -> S2 acceptance at `received_at`; when the
     kind assesses at build, S3 assess + S4 match at `received_at + 5 min` (a `tick` day waits for the schedule)."""
     import test_s6_verification_replay as rp
 
+    _seal_once()
     M = day_manifest(base, day)
     spec = M["runs"]["day"]
     run, _ = rp._draft(store, spec, M)
-    deliver = publish_first_half if day.kind == "degraded" else rp._publish_and_accept
-    published = deliver(tmp / f"{day.day}-{day.kind}", run, spec["sequence_epoch"], rp._at(spec["received_at"]))
+    # DD1a1-R5: every run of a Site-day reopens that day's one gateway state, so the epoch's sequence continues; a
+    # complement sends only the instants its `keep` allows (story runs send everything, unchanged).
+    stream = {"gateway_dir": gateway_dir(tmp, day.epoch), "keep": day.keep()}
+    if day.kind == "degraded":
+        deliver = publish_first_half
+        _OUTAGE[day.epoch] = str(getattr(run, "run_id", None) or getattr(run, "id", ""))
+    elif day.epoch in _OUTAGE:
+        deliver = publish_first_half
+        stream["outage_continues"] = True
+        stream["withheld_run"] = _OUTAGE[day.epoch]
+    else:
+        deliver = rp._publish_and_accept
+    # DD-1a1: a full day holds several runs (story + steady complement), so the work folder names the start too
+    published = deliver(tmp / f"{day.day}-{day.kind}-{day.start:%H%M}", run, spec["sequence_epoch"],
+                        rp._at(spec["received_at"]), **stream)
     if day.assess == "build":
         runner.now = max(runner.now, day.received_at + timedelta(minutes=5))
         runner.step({"do": "assess"}); runner.step({"do": "match"})
@@ -330,6 +390,7 @@ def build(url: str, work: Path, story: dict) -> dict:
     from test_s6_verification_plan_postgres import verifying
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
+    _OUTAGE.clear()  # DD1a1-R6: a later build in this process does not inherit an outage
     days = [d for d in sd.from_payload(json.loads((work / "days.json").read_text(encoding="utf-8"))["days"])
             if d.site == "kobo"]
     k = story["kobo"]
@@ -350,28 +411,46 @@ def build(url: str, work: Path, story: dict) -> dict:
     harness: list = []  # the S6 harness, opened by the trial chain once the trial-day Finding exists
     published, records, ids = {}, [], {}
     try:
-        for n, day in enumerate(days):
+        done: set[int] = set()
+
+        def play(n: int, day) -> None:
             entry = {"day": day.day, "offset": day.offset, "kind": day.kind, "as": day.as_kind,
                      "scenario": day.scenario, "run_id": None, "assess": day.assess,
                      "received_at": iso(day.received_at) if day.received_at else None}
-            if day.kind == "trial-after":
-                continue  # run by the trial-before entry's chain, next in the build order
+            done.add(n)
+            if day.has_run:
+                entry.update(run_day(store, runner, tmp, day, MANIFEST_V3))
+            records.append(entry)
+            print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
+
+        for n, day in enumerate(days):
+            if n in done or day.kind == "trial-after":
+                continue  # admitted inside the trial chain, or run by the trial-before entry's chain
             if day.kind == "trial-before":
-                assert days[n + 1].kind == "trial-after", "the trial pair must be adjacent in the Kobo build order"
-                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published)
-                for d, name in ((day, "baseline"), (days[n + 1], "later")):
+                later = [d for d in days[n + 1:] if d.kind.startswith("trial-")]
+                assert later and later[0].kind == "trial-after", "the trial-after must follow the trial-before"
+
+                def admit(until: datetime, n: int = n) -> None:
+                    """DD1a1-R9: every later complement received by `until` is admitted at its `received_at`,
+                    between the chain steps, so the evaluation reads data as it stood at its own time."""
+                    for m, d in enumerate(days):
+                        if m > n and m not in done and not d.kind.startswith("trial-") and d.has_run and d.received_at <= until:
+                            play(m, d)
+
+                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published, day.epoch, admit)
+                entry = {"day": day.day, "offset": day.offset, "kind": day.kind, "as": day.as_kind,
+                         "scenario": day.scenario, "run_id": None, "assess": day.assess,
+                         "received_at": iso(day.received_at) if day.received_at else None}
+                for d, name in ((day, "baseline"), (later[0], "later")):
                     records.append({**entry, "day": d.day, "offset": d.offset, "kind": d.kind,
                                     "received_at": iso(d.received_at),
                                     "run_id": (ids["runs"][name] or [None])[0]})
                 print("kobo trial", day.day, ids["action_code"], flush=True)
                 continue
-            if day.has_run:
-                entry.update(run_day(store, runner, tmp, day, MANIFEST_V3))
-            records.append(entry)
-            print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
+            play(n, day)
         for r in records:
             r["findings"] = findings_on(engine, result.site.id, r["day"])
-            r["status_after_build"] = ("NO_RUN" if r["kind"] == "missing" else
+            r["status_after_build"] = ("NO_RUN" if r["received_at"] is None else
                                        "ASSESSED" if r["assess"] == "build" else "AWAITING_TICK")
         body = trial_day_index(url, runner, at(story["S"]))
         listed = [str(r.get("finding_id")) for r in body.get("rows") or []]
@@ -397,16 +476,20 @@ def build(url: str, work: Path, story: dict) -> dict:
     return ids
 
 
-def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict) -> dict:
+def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict, epoch: str,
+                 admit=lambda until: None) -> dict:
     """The DEMO-A chain (s602b REPLAY body) at the trial pair's place: baseline run, accept, apply, freeze, later
-    run, evaluation through the real Action API."""
+    run, evaluation through the real Action API. DD1a1-R9: `admit(until)` admits the Site's complements received
+    by `until` before the freeze, the later run and the evaluation (ACT-K1's steps and instants are unchanged)."""
     import test_s6_verification_replay as rp
 
+    _seal_once()
     act, win = M["action"], M["windows"]
-    spec = M["runs"]["baseline"]
+    spec = {**M["runs"]["baseline"], "sequence_epoch": epoch}  # DD1a1-R8: the stream's epoch and gateway state
     base_run, _ = rp._draft(store, spec, M)
     published["baseline"] = rp._publish_and_accept(tmp / "baseline", base_run, spec["sequence_epoch"],
-                                                   rp._at(spec["received_at"]))
+                                                   rp._at(spec["received_at"]),
+                                                   gateway_dir=gateway_dir(tmp, spec["sequence_epoch"]))
     runner.now = max(runner.now, rp._at(spec["received_at"]) + timedelta(minutes=5))
     runner.step({"do": "assess"}); runner.step({"do": "match"})
     # The harness's SYSTEM demonstration grant lists the Site's Findings when it opens (fixture_grants snapshot),
@@ -427,6 +510,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
         "effective_from": act["effective_from"], "idempotency_key": "demo3-apply-0001"})
     assert applied.status_code == 201, applied.text
     runner.now = max(runner.now, h.clock.at); runner.step({"do": "assess"}); runner.step({"do": "match"})
+    admit(rp._at(M["plan"]["freeze_at"]))
     h.clock.at = max(rp._at(M["plan"]["freeze_at"]), runner.now + timedelta(minutes=1))
     base = f"/api/sites/KOBO-001/actions/{action_id}/verification"
     frozen = h.client.post(f"{base}/plans", json={"baseline_start": win["baseline_start"],
@@ -434,12 +518,15 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
                                                   "idempotency_key": "demo3-freeze-0001"})
     assert frozen.status_code == 201, frozen.text
     plan = frozen.json()["plan"]
-    spec = M["runs"]["later"]
+    spec = {**M["runs"]["later"], "sequence_epoch": epoch}
+    admit(rp._at(spec["received_at"]) - timedelta(microseconds=1))
     later_run, _ = rp._draft(store, spec, M)
     published["later"] = rp._publish_and_accept(tmp / "later", later_run, spec["sequence_epoch"],
-                                                rp._at(spec["received_at"]))
+                                                rp._at(spec["received_at"]),
+                                                gateway_dir=gateway_dir(tmp, spec["sequence_epoch"]))
     runner.now = max(runner.now, rp._at(spec["received_at"]) + timedelta(minutes=5))
     runner.step({"do": "assess"}); runner.step({"do": "match"})
+    admit(rp._at(M["evaluate_at"]))
     h.clock.at = max(rp._at(M["evaluate_at"]), runner.now + timedelta(minutes=1))
     bound = h.client.post(f"{base}/plans/{plan['plan_id']}/later-selection",
                           json={"idempotency_key": "demo3-bind-0001"})

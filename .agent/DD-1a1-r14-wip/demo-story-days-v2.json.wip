@@ -1,0 +1,428 @@
+{
+  "schema": {
+    "id": "assetops.demo-story-days",
+    "version": 2
+  },
+  "label": "Full-day story calendar (v2): each Kobo story day plus its complement runs tiling the local day 00-24; Cold story days are the v1 days (DD1a1-R14)",
+  "status": "DD-1a1 (DD1a1-R Q7, R2-R4). Same days as v1; each Kobo kind lists its `complement`; Cold has none (DD1a1-R14 withdrew Cold full days: a Cold day is its v1 story run and reads partly checked). Local day = [D-1d 21:00Z, D+0d 21:00Z) (UTC+3). v1 is kept as history; `prepare --days` takes this file.",
+  "kinds": {
+    "kobo": {
+      "normal": {
+        "scenario_id": "kobo-s3-dispatch-necessary-run",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "assess": "build",
+        "note": "generator needed throughout the run",
+        "complement": [
+          "night-early",
+          "afternoon-N",
+          "late-N"
+        ]
+      },
+      "overcast": {
+        "scenario_id": "kobo-s3-dispatch-necessary-run",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "assess": "build",
+        "note": "overcast morning with heavy demand; the generator is needed (U1 P1: kobo-daytime-overcast refused the 8-hour interval)",
+        "complement": [
+          "night-early",
+          "afternoon-N",
+          "late-N"
+        ]
+      },
+      "overuse": {
+        "scenario_id": "kobo-mini-grid-reserve-trial",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "assess": "build",
+        "note": "generator kept running under the 30 % reserve",
+        "complement": [
+          "night-early",
+          "afternoon-R30",
+          "late-R30"
+        ]
+      },
+      "degraded": {
+        "scenario_id": "kobo-s3-dispatch-necessary-run",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "assess": "build",
+        "delivery": "first_half",
+        "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4); the gateway stays down for the rest of the local day; later hours are not received",
+        "complement": [
+          "night-early",
+          "afternoon-N",
+          "late-N"
+        ]
+      },
+      "late": {
+        "received_at": "D+2d 12:30",
+        "assess": "build",
+        "note": "delivered late; assessed after its delivery (12:30, not 12:00: a late S-3 day would share S-1's 12:00 delivery)"
+      },
+      "missing": {
+        "note": "gateway offline: no run, no delivery"
+      },
+      "trial-before": {
+        "scenario_id": "kobo-mini-grid-reserve-trial",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "foundation_known_at": "D-6d 12:00",
+        "assess": "build",
+        "note": "reserve trial baseline (30 %)",
+        "complement": [
+          "night-early",
+          "afternoon-R30",
+          "late-R30"
+        ]
+      },
+      "trial-after": {
+        "scenario_id": "kobo-mini-grid-reserve-trial",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 11:00",
+        "received_at": "D+0d 12:00",
+        "foundation_known_at": "D-1d 16:00",
+        "assess": "build",
+        "note": "reserve trial later run (25 %)",
+        "complement": [
+          "night-early",
+          "afternoon-R25",
+          "late-R25"
+        ]
+      },
+      "mill-midday": {
+        "scenario_id": "kobo-mill-midday",
+        "scenario_version": 1,
+        "start": "D+0d 03:00",
+        "end": "D+0d 15:00",
+        "received_at": "D+0d 16:00",
+        "assess": "build",
+        "note": "CH9-R2:Q8: sunny day; the grain mill runs at midday and its Action (Run the grain mill at midday on sunny days) is recorded at story time; prepare-only, not scheduled in sites (v2: derived kobo-mill-midday, DD1a1-R4)",
+        "complement": [
+          "night-early",
+          "mill-dusk",
+          "night-late"
+        ]
+      },
+      "night-early": {
+        "scenario_id": "kobo-night-early",
+        "scenario_version": 1,
+        "start": "D-1d 21:00",
+        "end": "D+0d 03:00",
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement: night 00:00-06:00 local",
+        "split": {
+          "at_minutes": 180,
+          "kind": "night-early-from-0300",
+          "part_a": "night-early-until-0255",
+          "part_a_minutes": 175,
+          "first_received_at": "D+0d 01:00"
+        }
+      },
+      "night-early-until-0255": {
+        "scenario_id": "kobo-night-early-until-0255",
+        "scenario_version": 1,
+        "note": "complement part A: night 00:00-02:55 local, before the reserve change; ends 5 minutes before it (DD1a1-R7b)"
+      },
+      "night-early-from-0300": {
+        "scenario_id": "kobo-night-early-from-0300",
+        "scenario_version": 1,
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement part B: night 03:00-06:00 local, after the reserve change took effect (DD1a1-R7); start state measured from a probe of part A"
+      },
+      "steady-afternoon": {
+        "scenario_id": "kobo-steady-afternoon",
+        "scenario_version": 1,
+        "start": "D+0d 11:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: afternoon 14:00-20:00 local"
+      },
+      "steady-dusk": {
+        "scenario_id": "kobo-steady-dusk",
+        "scenario_version": 1,
+        "start": "D+0d 15:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: dusk 18:00-20:00 local"
+      },
+      "mill-dusk": {
+        "scenario_id": "kobo-mill-dusk",
+        "scenario_version": 1,
+        "start": "D+0d 15:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: dusk 18:00-20:00 local after the mill story day; start state measured at 18:00 (DD1a1-R12)"
+      },
+      "night-late": {
+        "scenario_id": "kobo-night-late",
+        "scenario_version": 1,
+        "start": "D+0d 17:00",
+        "end": "D+0d 21:00",
+        "received_at": "D+0d 22:00",
+        "assess": "build",
+        "note": "complement: night 20:00-24:00 local"
+      },
+      "afternoon-N": {
+        "scenario_id": "kobo-chain-N-afternoon",
+        "scenario_version": 1,
+        "start": "D+0d 11:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: afternoon 14:00-20:00 local; start state measured at 14:00 after the story run (chain N, DD1a1-R14)"
+      },
+      "late-N": {
+        "scenario_id": "kobo-chain-N-late",
+        "scenario_version": 1,
+        "start": "D+0d 17:00",
+        "end": "D+0d 21:00",
+        "received_at": "D+0d 22:00",
+        "assess": "build",
+        "note": "complement: night 20:00-24:00 local; start state measured at 20:00 after the afternoon (chain N, DD1a1-R14)"
+      },
+      "afternoon-R30": {
+        "scenario_id": "kobo-chain-R30-afternoon",
+        "scenario_version": 1,
+        "start": "D+0d 11:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: afternoon 14:00-20:00 local; start state measured at 14:00 after the story run (chain R30, DD1a1-R14)"
+      },
+      "late-R30": {
+        "scenario_id": "kobo-chain-R30-late",
+        "scenario_version": 1,
+        "start": "D+0d 17:00",
+        "end": "D+0d 21:00",
+        "received_at": "D+0d 22:00",
+        "assess": "build",
+        "note": "complement: night 20:00-24:00 local; start state measured at 20:00 after the afternoon (chain R30, DD1a1-R14)"
+      },
+      "afternoon-R25": {
+        "scenario_id": "kobo-chain-R25-afternoon",
+        "scenario_version": 1,
+        "start": "D+0d 11:00",
+        "end": "D+0d 17:00",
+        "received_at": "D+0d 18:00",
+        "assess": "build",
+        "note": "complement: afternoon 14:00-20:00 local; start state measured at 14:00 after the story run (chain R25, DD1a1-R14)"
+      },
+      "late-R25": {
+        "scenario_id": "kobo-chain-R25-late",
+        "scenario_version": 1,
+        "start": "D+0d 17:00",
+        "end": "D+0d 21:00",
+        "received_at": "D+0d 22:00",
+        "assess": "build",
+        "note": "complement: night 20:00-24:00 local; start state measured at 20:00 after the afternoon (chain R25, DD1a1-R14)"
+      },
+      "night-early-after-N": {
+        "scenario_id": "kobo-chain-N-early",
+        "scenario_version": 1,
+        "start": "D-1d 21:00",
+        "end": "D+0d 03:00",
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement: night 00:00-06:00 local; start state measured at 24:00 after the previous day's chain N (DD1a1-R14)",
+        "split": {
+          "at_minutes": 180,
+          "kind": "night-early-from-0300",
+          "part_a": "night-early-until-0255",
+          "part_a_minutes": 175,
+          "first_received_at": "D+0d 01:00"
+        }
+      },
+      "night-early-after-R30": {
+        "scenario_id": "kobo-chain-R30-early",
+        "scenario_version": 1,
+        "start": "D-1d 21:00",
+        "end": "D+0d 03:00",
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement: night 00:00-06:00 local; start state measured at 24:00 after the previous day's chain R30 (DD1a1-R14)",
+        "split": {
+          "at_minutes": 180,
+          "kind": "night-early-after-R30-from-0300",
+          "part_a": "night-early-after-R30-until-0255",
+          "part_a_minutes": 175,
+          "first_received_at": "D+0d 01:00"
+        }
+      },
+      "night-early-after-R30-until-0255": {
+        "scenario_id": "kobo-chain-R30-early-until-0255",
+        "scenario_version": 1,
+        "note": "complement part A: night 00:00-02:55 local, before the reserve change (DD1a1-R7b), start state measured after the previous day's chain R30 (DD1a1-R14)"
+      },
+      "night-early-after-R30-from-0300": {
+        "scenario_id": "kobo-chain-R30-early-from-0300",
+        "scenario_version": 1,
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement part B: night 03:00-06:00 local, after the reserve change (DD1a1-R7); start state measured from a probe of part A after chain R30 (DD1a1-R14)"
+      }
+    },
+    "cold": {
+      "normal": {
+        "scenario_id": "cold-normal",
+        "scenario_version": 1,
+        "start": "D+0d 16:00",
+        "end": "D+0d 17:05",
+        "received_at": "D+0d 17:05",
+        "assess": "build",
+        "note": "backup cooling held the room"
+      },
+      "degraded": {
+        "scenario_id": "cold-missing-probe",
+        "scenario_version": 1,
+        "start": "D+0d 16:00",
+        "end": "D+0d 17:05",
+        "received_at": "D+0d 17:05",
+        "assess": "build",
+        "note": "probe readings missing"
+      },
+      "failure": {
+        "scenario_id": "cold-backup-failed",
+        "scenario_version": 1,
+        "start": "D+0d 16:00",
+        "end": "D+0d 17:05",
+        "received_at": "D+0d 17:05",
+        "assess": "build",
+        "note": "backup cooling failed"
+      },
+      "late": {
+        "scenario_id": "cold-late-reading",
+        "scenario_version": 1,
+        "start": "D+0d 16:00",
+        "end": "D+0d 17:05",
+        "received_at": "D+0d 17:05",
+        "assess": "tick",
+        "note": "a reading delivered late"
+      },
+      "missing": {
+        "note": "no run, no delivery"
+      }
+    },
+    "ev": {
+      "normal": {
+        "scenario_id": "ev-complete",
+        "scenario_version": 1,
+        "start": "D+0d 08:00",
+        "end": "D+0d 09:00",
+        "received_at": "D+0d 09:30",
+        "assess": "build",
+        "note": "charging session completed"
+      },
+      "fault": {
+        "scenario_id": "ev-interrupted",
+        "scenario_version": 1,
+        "start": "D+0d 08:00",
+        "end": "D+0d 09:00",
+        "received_at": "D+0d 09:30",
+        "assess": "build",
+        "note": "charging session ended by a charger fault (w504 positive scenario; ev-fault.yaml faults before any session and gives no Finding, first dev prepare 2026-10-31)"
+      },
+      "late": {
+        "scenario_id": "ev-late-record",
+        "scenario_version": 1,
+        "start": "D+0d 08:00",
+        "end": "D+0d 09:00",
+        "received_at": "D+0d 09:30",
+        "assess": "tick",
+        "note": "a session record delivered late"
+      },
+      "missing": {
+        "note": "no run, no delivery"
+      }
+    }
+  },
+  "sites": {
+    "kobo": [
+      {
+        "day": "S-28d",
+        "kind": "normal"
+      },
+      {
+        "day": "S-21d",
+        "kind": "overcast"
+      },
+      {
+        "day": "S-14d",
+        "kind": "overuse"
+      },
+      {
+        "day": "S-10d",
+        "kind": "missing"
+      },
+      {
+        "day": "S-7d",
+        "kind": "overuse"
+      },
+      {
+        "day": "S-3d",
+        "kind": "late",
+        "as": "normal"
+      },
+      {
+        "day": "S-1d",
+        "kind": "normal"
+      },
+      {
+        "day": "S+0d",
+        "kind": "trial-before",
+        "after": "N"
+      },
+      {
+        "day": "S+1d",
+        "kind": "trial-after",
+        "after": "R30"
+      }
+    ],
+    "cold": [
+      {
+        "day": "S-7d",
+        "kind": "normal"
+      },
+      {
+        "day": "S-3d",
+        "kind": "degraded"
+      },
+      {
+        "day": "S+0d",
+        "kind": "failure"
+      }
+    ],
+    "ev": [
+      {
+        "day": "S-7d",
+        "kind": "normal"
+      },
+      {
+        "day": "S+0d",
+        "kind": "fault"
+      }
+    ]
+  },
+  "trial": {
+    "window_hour": "06:00",
+    "chosen": "a",
+    "probe_ref": ".agent/DEMO-SPARSE-trial-probe.md"
+  }
+}

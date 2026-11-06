@@ -4,7 +4,8 @@ Build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` sections 2 and 
 the story days that carry a registered Lab run (and the named `missing` days that carry none). Day offsets
 `S[+-]Nd` are relative to the story day S; each kind's times `D[+-]Nd HH:MM` (UTC) are relative to the entry's day.
 `resolve` returns every entry as a `DayRun`, ordered by `received_at` (the build order; a `missing` day has no
-delivery and sorts at its day's end), with a fresh `sequence_epoch` `day-<n>` per run in that order.
+delivery and sorts at its day's end), with one `sequence_epoch` `day-<n>` per stream of consecutive built Site-days (DD1a1-R8), numbered by its
+first story run in that order and shared by the stream's complement runs.
 
 Nothing here reads the wall clock: the caller passes S, the DB clock and the install instants.
 """
@@ -13,12 +14,19 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v1.json"
+#: DD-1a1 (DD1a1-R Q7): full-day story days. Each Kobo / Cold kind lists its `complement`, so one entry expands into
+#: its story run plus the steady runs (and named placeholders) that tile the Site's local day [00:00, 24:00).
+#: `prepare --days` takes it; DD-1a2 builds the B-22 list on it and makes it the default.
+V2_FILE = DEFAULT_FILE.with_name("demo-story-days-v2.json")
+#: DD1a1-R16: a full day (a kind with a `complement` list) is built only where every join of its day is STOPPED on the
+#: registered Site. `tools/probe_kobo_nights.py` records each measured join under `full_days` in this file.
+JOINS_FILE = DEFAULT_FILE.with_name("kobo-night-handover-v1.json")
 SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 CODE_SITE = {v: k for k, v in SITE_CODE.items()}
@@ -68,16 +76,42 @@ class DayRun:
     as_kind: str | None = None
     note: str = ""
     known_at: datetime | None = None  # the run's foundation_known_at
+    #: DD-1a1 (v2 day lists): the end of the local hours this entry's scenario covers (a Cold run's scenario covers
+    #: 60 min of its 65-min interval), and the story kind a complement belongs to ("" for the story entry itself).
+    covers_end: datetime | None = None
+    complement_of: str = ""
+    #: DD1a1-R5 (one stream per Site-day): a complement sends only source times in [start, emit_until) that no story
+    #: run of its Site-day sends (`owned`: each story run's closed [start, end], ISO pairs). A story run has neither
+    #: and is sent unchanged.
+    emit_until: datetime | None = None
+    owned: tuple = ()
 
     @property
     def has_run(self) -> bool:
         return self.received_at is not None
 
+    def keep(self):
+        """The source-time predicate the producer passes to the host (`keep_source_time`); None for a story run."""
+        if not self.complement_of:
+            return None
+        lo, hi = self.start, self.emit_until
+        spans = [(_parse(a), _parse(b)) for a, b in self.owned]
+
+        def keep(source_time: str) -> bool:
+            t = _parse(source_time)
+            return lo <= t < hi and not any(a <= t <= b for a, b in spans)
+        return keep
+
     def payload(self) -> dict[str, Any]:
         out = asdict(self)
-        for key in ("start", "end", "received_at", "known_at"):
+        for key in ("start", "end", "received_at", "known_at", "covers_end", "emit_until"):
             out[key] = iso(out[key]) if out[key] is not None else None
+        out["owned"] = [list(p) for p in self.owned]
         return out
+
+
+def _parse(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00"))
 
 
 def iso(value: datetime) -> str:
@@ -86,6 +120,19 @@ def iso(value: datetime) -> str:
 
 def load(path: str | Path | None = None) -> dict:
     return json.loads(Path(path or DEFAULT_FILE).read_text(encoding="utf-8"))
+
+
+def full_day_joins() -> dict:
+    """The measured joins of every full-day story scenario (`full_days` of the handover file)."""
+    return json.loads(JOINS_FILE.read_text(encoding="utf-8")).get("full_days", {})
+
+
+def check_full_day(site: str, day: str, scenario_id: str, joins: dict | None = None) -> None:
+    """DD1a1-R16 guard: a full day may only be built where every join is STOPPED (measured on the registered Site)."""
+    entry = (full_day_joins() if joins is None else joins).get(scenario_id)
+    if not entry or not entry.get("joins") or any(j.get("generator") != "STOPPED" for j in entry["joins"]):
+        raise StoryDaysError("FULL_DAY_JOIN_NOT_STOPPED", f"{site} {day}: {scenario_id} has no measured full day whose "
+                             "every join is STOPPED, so it stays story-only (partly checked) (DD1a1-R16)")
 
 
 def day_offset(text: str) -> int:
@@ -102,11 +149,20 @@ def at_day(text: str, D: datetime) -> datetime:
     return D + timedelta(days=int(m.group(1)), hours=int(m.group(2)), minutes=int(m.group(3)))
 
 
+#: DD1a1-R10: a Kobo `degraded` day with complements cuts its story run by gateway batch order (a random source-id
+#: order), which no real outage looks like; the source-time cut is backlog BL-18. Until it lands no such day may enter a
+#: shown calendar, a demo script or a live `add-day`. Only the DD-1a1 degraded-day check sets this.
+DEGRADED_PROBE = False
+
+
 def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
     kinds = doc["kinds"].get(site, {})
     kind = entry.get("kind")
     if kind not in kinds:
         raise StoryDaysError("UNKNOWN_KIND", f"{site} kind {kind!r} is not one of {sorted(kinds)}")
+    if site == "kobo" and kind == "degraded" and kinds[kind].get("complement") and not DEGRADED_PROBE:
+        raise StoryDaysError("DEGRADED_DAY_HELD", f"{site} {entry.get('day')}: a full-day degraded day is held "
+                                                  f"until BL-18 (source-time outage cut); the Architect rules (DD1a1-R10)")
     off = weekday_offset(site, S, day_offset(entry["day"]))
     D = S + timedelta(days=off)
     spec = dict(kinds[kind])
@@ -128,29 +184,125 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
                   spec.get("note", ""), at_day(spec.get("foundation_known_at", DEFAULT_KNOWN_AT), D))
 
 
+#: A Site's local day is UTC+3 (Kobo and Cold): the local day D is [D-1 21:00Z, D 21:00Z).
+LOCAL_DAY_START = timedelta(hours=-3)
+
+
+def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = ()) -> list[DayRun]:
+    """One day entry -> its story run plus its complement runs (DD1a1-R Q7). A kind's `complement` is either a list
+    of kind names (Kobo: each carries its own relative times) or `{"kind": "steady", "hours": [...]}` (Cold: one
+    plain replay per listed hour). A complement is received `received_at` as its kind says, plus the story's
+    lateness (a `late` day), and inherits the story's Foundation knowledge. A `missing` day has no complement."""
+    story = _entry(doc, site, entry, S)
+    kinds = doc["kinds"].get(site, {})
+    spec = kinds.get(story.as_kind or story.kind, {})
+    comp = spec.get("complement")
+    if not story.has_run or not comp:
+        return [story]
+    D = datetime.fromisoformat(story.day).replace(tzinfo=timezone.utc)
+    late = story.received_at - at_day(spec["received_at"], D)
+    out = [replace(story, covers_end=at_day(spec["covers_end"], D) if "covers_end" in spec else story.end)]
+    if isinstance(comp, dict):  # DD1a1-R14 withdrew Cold complements; only a list of kind names is supported
+        raise StoryDaysError("COMPLEMENT_FORM_UNSUPPORTED", f"{site} {story.day}: complement must be a list of kinds")
+    else:
+        check_full_day(site, story.day, spec["scenario_id"])
+        for name in comp:
+            c = kinds[name]
+            start, end = at_day(c["start"], D), at_day(c["end"], D)
+            cut = next((b for b in boundaries if start < b < end), None)
+            if cut is not None:
+                # DD1a1-R7: one run cannot cite one basis across a foundation revision change, so the complement is
+                # split at that instant: part A [start, cut) runs the kind's `part_a` file (the same windows up to the cut), part B [cut, end) is the kind's derived
+                # file, whose start state is measured from a probe of part A. Both take the story's one epoch.
+                sp = c.get("split")
+                if not sp or start + timedelta(minutes=sp["at_minutes"]) != cut:
+                    raise StoryDaysError("SPLIT_UNSUPPORTED", f"{site} {story.day}: {name} crosses a Foundation "
+                                                              f"revision at {iso(cut)} and has no split file there")
+                b, a = kinds[sp["kind"]], kinds[sp["part_a"]]
+                # DD1a1-R7b: a run may not end at the boundary instant, so part A runs `part_a_minutes` (one step
+                # short of the cut) and covers/sends to the cut; the cut instant's reading belongs to part B.
+                a_end = start + timedelta(minutes=sp.get("part_a_minutes", sp["at_minutes"]))
+                out.append(DayRun(site, story.day, story.offset, name, start, a_end,
+                                  at_day(sp["first_received_at"], D) + late, c.get("assess", "build"),
+                                  {"scenario_id": a["scenario_id"], "scenario_version": a["scenario_version"]}, None,
+                                  None, a.get("note", c.get("note", "")), story.known_at,
+                                  cut if a_end != cut else None, story.kind))
+                out.append(DayRun(site, story.day, story.offset, sp["kind"], cut, end,
+                                  at_day(b["received_at"], D) + late, b.get("assess", "build"),
+                                  {"scenario_id": b["scenario_id"], "scenario_version": b["scenario_version"]}, None,
+                                  None, b.get("note", ""), story.known_at, None, story.kind))
+                continue
+            out.append(DayRun(site, story.day, story.offset, name, start, end,
+                              at_day(c["received_at"], D) + late, c.get("assess", "build"),
+                              {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
+                              c.get("note", ""), story.known_at, None, story.kind))
+    # DD1a1-R5 edge rule: the story run is sent unchanged; each complement is sent on [start, covers_end or end), so
+    # where two complements meet the earlier ends exclusive and the shared 21:00Z day edge goes to the later day,
+    # and it leaves out any instant the story run sends (a Cold complement starts after the story's emitted end).
+    owned = ((iso(story.start), iso(story.end)),)
+    out = [out[0]] + [replace(r, emit_until=r.covers_end or r.end, owned=owned) for r in out[1:]]
+    _tiled(site, story.day, D, out)
+    return out
+
+
+def _tiled(site: str, day: str, D: datetime, runs: list[DayRun]) -> None:
+    """L0: the runs of one full day tile the local day exactly, no gap and no overlap."""
+    lo = D + LOCAL_DAY_START
+    hi = lo + timedelta(hours=24)
+    cursor = lo
+    for r in sorted(runs, key=lambda r: r.start):
+        if r.start != cursor:
+            raise StoryDaysError("DAY_NOT_TILED", f"{site} {day}: {r.kind} starts {iso(r.start)}, expected {iso(cursor)}")
+        cursor = r.covers_end or r.end
+    if cursor != hi:
+        raise StoryDaysError("DAY_NOT_TILED", f"{site} {day}: the runs end {iso(cursor)}, expected {iso(hi)}")
+
+
 def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
-            installs: dict[str, datetime] | None = None) -> list[DayRun]:
-    """Every day entry of every Site, validated, in build order (by `received_at`)."""
+            installs: dict[str, datetime] | None = None, revision_boundaries: tuple = ()) -> list[DayRun]:
+    """Every day entry of every Site (with its complement runs), validated, in build order (by `received_at`)."""
     runs: list[DayRun] = []
     for site, entries in days_doc["sites"].items():
         if site not in SITES:
             raise StoryDaysError("UNKNOWN_KIND", f"site {site!r} is not one of {SITES}")
         seen: set[str] = set()
         for entry in entries:
-            run = _entry(days_doc, site, entry, S)
+            expanded = _expand(days_doc, site, entry, S, tuple(revision_boundaries))
+            run = expanded[0]
             if run.day in seen:
                 raise StoryDaysError("DUPLICATE_DAY", f"{site} has two entries on {run.day}")
             seen.add(run.day)
-            runs.append(run)
+            runs.extend(expanded)
     validate(runs, S, db_now=db_now, installs=installs)
     order = sorted(runs, key=lambda r: (r.received_at or (_day_start(r) + timedelta(days=1)), SITES.index(r.site)))
-    out, n = [], 0
-    for r in order:
-        if r.has_run:
-            n += 1
-            r = DayRun(**{**r.__dict__, "epoch": f"day-{n}"})
-        out.append(r)
-    return out
+    # DD1a1-R8: one sequence epoch per stream, a maximal run of consecutive built Site-days of one Site (a gateway does
+    # not reset at local midnight). The story runs are numbered `day-<n>` in build order, so an isolated day keeps its
+    # v1 epoch; a merged stream takes the number of its first story run in build order; each complement takes its
+    # Site-day's epoch.
+    story = [r for r in order if r.has_run and not r.complement_of]
+    number = {(r.site, r.day): n for n, r in enumerate(story, 1)}
+    epochs: dict[tuple[str, str], str] = {}
+    for site in SITES:
+        mine = sorted((r for r in story if r.site == site), key=lambda r: r.day)
+        streams: list[list[DayRun]] = []
+        for r in mine:
+            if streams and _day_start(r) - _day_start(streams[-1][-1]) == timedelta(days=1):
+                streams[-1].append(r)
+            else:
+                streams.append([r])
+        for stream in streams:
+            if len(stream) > 1:
+                for i, r in enumerate(stream):
+                    if r.kind == "late":
+                        raise StoryDaysError("LATE_IN_STREAM", f"{site} {r.day}: a late day may not join a "
+                                                               f"multi-day stream (DD1a1-R8)")
+                    if r.kind == "degraded" and i < len(stream) - 1:
+                        raise StoryDaysError("BUILT_DAY_AFTER_DEGRADED", f"{site} {r.day}: a degraded day may not "
+                                                                         f"have a built day after it (DD1a1-R8)")
+            first = min(stream, key=lambda r: number[(r.site, r.day)])
+            for r in stream:
+                epochs[(r.site, r.day)] = f"day-{number[(first.site, first.day)]}"
+    return [replace(r, epoch=epochs[(r.site, r.day)]) if r.has_run else r for r in order]
 
 
 def _day_start(run: DayRun) -> datetime:
@@ -193,7 +345,9 @@ def from_payload(rows: list[dict]) -> list[DayRun]:
         return None if v is None else datetime.fromisoformat(v.replace("Z", "+00:00"))
 
     return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"]),
-                           "known_at": t(r.get("known_at"))})
+                           "known_at": t(r.get("known_at")), "covers_end": t(r.get("covers_end")),
+                           "emit_until": t(r.get("emit_until")),
+                           "owned": tuple(tuple(p) for p in r.get("owned") or ())})
             for r in rows]
 
 

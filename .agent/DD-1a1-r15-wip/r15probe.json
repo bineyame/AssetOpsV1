@@ -1,0 +1,160 @@
+{
+    "N-story": {
+        "interval_local": "06:00+485min",
+        "start_soc": 40.0,
+        "end": {
+            "soc": 30.0,
+            "fuel": 217.649,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "06:25-14:00"
+        ]
+    },
+    "N-rest": {
+        "interval_local": "14:00+605min",
+        "start_soc": 30.0,
+        "end": {
+            "soc": 30.0,
+            "fuel": 174.19075,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "14:05-00:00"
+        ]
+    },
+    "N-early": {
+        "interval_local": "00:00+365min",
+        "start_soc": 30.0,
+        "end": {
+            "soc": 30.26644736842105,
+            "fuel": 163.7595,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "00:05-06:00"
+        ]
+    },
+    "N-early-at-0300": {
+        "soc": 30.0,
+        "fuel": 169.450125,
+        "generator": "RUNNING"
+    },
+    "R30-story": {
+        "interval_local": "06:00+485min",
+        "start_soc": 42.5,
+        "end": {
+            "soc": 100.0,
+            "fuel": 300.0,
+            "generator": "STOPPED"
+        },
+        "gen_running_local": [
+            "07:05-10:55"
+        ]
+    },
+    "R30-rest": {
+        "interval_local": "14:00+605min",
+        "start_soc": 100.0,
+        "end": {
+            "soc": 30.573464912280702,
+            "fuel": 298.026875,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "22:05-00:00"
+        ]
+    },
+    "R30-early": {
+        "interval_local": "00:00+365min",
+        "start_soc": 30.573464912280702,
+        "end": {
+            "soc": 30.573464912280702,
+            "fuel": 287.6225,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "00:05-06:00"
+        ]
+    },
+    "R30-early-at-0300": {
+        "soc": 30.31030701754386,
+        "fuel": 293.31125,
+        "generator": "RUNNING"
+    },
+    "M-story": {
+        "interval_local": "06:00+725min",
+        "start_soc": 55.0,
+        "end": {
+            "soc": 89.47368421052632,
+            "fuel": 300.0,
+            "generator": "STOPPED"
+        },
+        "gen_running_local": []
+    },
+    "M-rest": {
+        "interval_local": "18:00+365min",
+        "start_soc": 89.47368421052632,
+        "end": {
+            "soc": 48.421052631578945,
+            "fuel": 300.0,
+            "generator": "STOPPED"
+        },
+        "gen_running_local": []
+    },
+    "M-early": {
+        "interval_local": "00:00+365min",
+        "start_soc": 48.421052631578945,
+        "end": {
+            "soc": 31.57894736842105,
+            "fuel": 300.0,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "05:10-06:00"
+        ]
+    },
+    "M-early-at-0300": {
+        "soc": 40.526315789473685,
+        "fuel": 300.0,
+        "generator": "STOPPED"
+    },
+    "R25-story": {
+        "interval_local": "06:00+485min",
+        "start_soc": 42.5,
+        "end": {
+            "soc": 100.0,
+            "fuel": 300.0,
+            "generator": "STOPPED"
+        },
+        "gen_running_local": []
+    },
+    "R25-rest": {
+        "interval_local": "14:00+605min",
+        "start_soc": 100.0,
+        "end": {
+            "soc": 27.36842105263158,
+            "fuel": 300.0,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "23:25-00:00"
+        ]
+    },
+    "R25-early": {
+        "interval_local": "00:00+365min",
+        "start_soc": 27.36842105263158,
+        "end": {
+            "soc": 25.88048245614035,
+            "fuel": 290.516875,
+            "generator": "RUNNING"
+        },
+        "gen_running_local": [
+            "00:05-06:00"
+        ]
+    },
+    "R25-early-at-0300": {
+        "soc": 25.529605263157894,
+        "fuel": 296.255625,
+        "generator": "RUNNING"
+    }
+}

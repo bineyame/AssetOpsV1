@@ -36,6 +36,8 @@ from demo_combined import at, iso
 
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
+#: DD0c-R Q1: the demo child seals each run once (L1 batching); the parity test flips it off.
+SEAL_ONCE = True
 
 
 def _patch(url: str):
@@ -46,6 +48,7 @@ def _patch(url: str):
     import test_w502_cold_scenario_producer as P
 
     pg_harness.fresh_database = lambda *a, **k: url
+    P.SEAL_ONCE = SEAL_ONCE  # DD0c-R Q1: L1 batching, the demo prepare / add-day producers only
     producer = P.producer
     original = getattr(producer, "_demo_original_shifted_case", producer.shifted_case)
     producer._demo_original_shifted_case = original
@@ -55,12 +58,20 @@ def _patch(url: str):
     return P, w202, base
 
 
-def _day_swaps(P, w202, base, day: "sd.DayRun"):
+#: DD1a1-R5: the epochs (Site-days) already attested in this process.
+_ATTESTED: set[str] = set()
+
+
+def _day_swaps(P, w202, base, day: "sd.DayRun", tmp: Path):
     """Point the shifted chain at one story day; returns the chain factory BUILD and `produce` call."""
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
 
     producer = P.producer
+    # DD1a1-R5: one gateway state per Site-day (sequence continues across its runs); a complement sends only
+    # the source instants `keep` allows.
+    w202.GATEWAY_STATE = tmp / f"gw-{day.epoch}"
+    P.KEEP = day.keep()
     producer.BASE_SCENARIO = SCENARIOS / f"{day.scenario['scenario_id']}.yaml"
     producer.target_delta = lambda _now, start=day.start: start - producer.BASE_START
     received = day.received_at
@@ -76,6 +87,11 @@ def _day_swaps(P, w202, base, day: "sd.DayRun"):
 
     class DayChain(base):
         def attest(self) -> None:
+            # DD1a1-R5: attest once per Site-day (the day's first run; its window spans the whole day), the
+            # later runs of that day share the epoch and the attestation keys.
+            if day.epoch in _ATTESTED:
+                return
+            _ATTESTED.add(day.epoch)
             saved, P.datetime = P.datetime, _RecordedNow
             try:
                 super().attest()
@@ -106,8 +122,8 @@ def install(url: str, install_at) -> None:
 def run_day(url: str, tmp: Path, day: "sd.DayRun") -> dict:
     """One cold story day. `failure` runs the w502 positive BUILD body; other kinds the replay only."""
     P, w202, base = _patch(url)
-    factory = _day_swaps(P, w202, base, day)
-    out = tmp / f"{day.day}-{day.kind}"
+    factory = _day_swaps(P, w202, base, day, tmp)
+    out = tmp / f"{day.day}-{day.kind}-{day.start:%H%M}"  # DD-1a1: 24 runs per full day
     out.mkdir(parents=True)
     if day.kind == "failure":
         import w502_cold_work_walkthrough as W

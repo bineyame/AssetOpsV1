@@ -123,9 +123,15 @@ def _gateway(tmp_path: Path, run, upload: dict | None = None) -> GatewayProcess:
     return process
 
 
-def _host(root: Path, link) -> HostLabExecution:
+#: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
+SEAL_ONCE = False
+
+
+def _host(root: Path, link, keep=None) -> HostLabExecution:
+    # DD1a1-R5: `keep` (a source-time predicate) is passed by the demo full-day producer only.
+    extra = {"keep_source_time": keep} if keep is not None else {}
     return HostLabExecution(artifacts=YamlExecutionArtifacts(root), stages=JsonSourceStages(root / "stages"),
-                            gateway=RegisteredGatewayPublisher(link))
+                            gateway=RegisteredGatewayPublisher(link), seal_once=SEAL_ONCE, **extra)
 
 
 def published(tmp_path: Path, run) -> list:

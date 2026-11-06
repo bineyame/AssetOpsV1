@@ -45,6 +45,8 @@ pytestmark = pytest.mark.skipif(
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+#: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
+SEAL_ONCE = False
 sys.path.insert(0, str(ROOT / "host"))
 sys.path.insert(0, str(ROOT / "host" / "tests"))
 sys.path.insert(0, str(ROOT / "gateway" / "tests"))
@@ -272,6 +274,7 @@ class Chain:
             schedules=JsonPublicationSchedules(self.tmp / "schedules"),
             source_publisher=publisher_for(URL),
             ev_inputs=StoreEvInputs(self.store, scenarios if scenarios is not None else cached_scenario_repository()),
+            seal_once=SEAL_ONCE,
         )
         self.attest()
         return self

@@ -1,0 +1,62 @@
+"""DD-1a1 L2 probe (own `*_test` DB, no prepare): build the Kobo side of the demo story on the v2 day list, with or
+without the steady complement runs, so the two builds can be compared (DD1a1-R3 Q1 checks, DD1a1-R Q6).
+
+    python tools/dd1a1_fullday_probe.py <with|without|stream|mill|mill-without> <work-dir>      (ASSETOPS_TEST_DATABASE_URL names the DB)
+
+`without` removes every Kobo `complement` from the v2 kinds, which is the story-days-only calendar. Writes
+`<work>/kobo.json` (the build record) and `<work>/probe.json` (counts and the compared figures)."""
+
+from __future__ import annotations
+
+import copy
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main(mode: str, work: Path) -> None:
+    import pg_harness
+    import psycopg
+
+    import demo_combined as dc
+    import demo_combined_kobo as dk
+    import demo_story_days as sd
+
+    url = pg_harness.fresh_database()
+    doc = sd.load(sd.V2_FILE)
+    cold = mode in ("cold", "cold-without")
+    site = "cold" if cold else "kobo"
+    if not cold:  # the story resolver needs the Kobo days even for a Cold-only build
+        doc["sites"] = {site: doc["sites"][site]}
+    if mode == "stream":  # DD1a1-R8 probe: the isolated late day S-3d and the S-1d/S/S+1d stream, with complements
+        doc["sites"]["kobo"] = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
+    if mode in ("mill", "mill-without"):  # DD-1a1 mill day: the prepare-only `mill-midday` placed at S-5d beside the stream
+        keep = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
+        doc["sites"]["kobo"] = [{"day": "S-5d", "kind": "mill-midday"}] + keep
+    if mode in ("without", "mill-without", "cold-without"):
+        for spec in doc["kinds"][site].values():
+            spec.pop("complement", None)
+    work.mkdir(parents=True, exist_ok=True)
+    (work / "db.txt").write_text(url, encoding="utf-8")
+    with psycopg.connect(url.replace("+psycopg", "")) as c:
+        db_now = c.execute("SELECT clock_timestamp()").fetchone()[0]
+    story = dc.resolve_story(db_now, days_doc=doc)
+    days = story.pop("days")
+    (work / "days.json").write_text(json.dumps({"S": story["S"], "days": days, "doc": doc}, indent=2), encoding="utf-8")
+    story["code"], story["sites"] = "probe", [site]
+    (work / "story.json").write_text(json.dumps(story, indent=2), encoding="utf-8")
+    began = time.monotonic()
+    if cold:
+        import demo_combined_cold as dcc
+        dcc.build(url, work, story)
+    else:
+        dk.build(url, work, story)
+    print("build wall s", round(time.monotonic() - began, 1), "runs", len([d for d in days if d["site"] == site and d["received_at"]]))
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], Path(sys.argv[2]))

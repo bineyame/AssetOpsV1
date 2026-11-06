@@ -417,3 +417,64 @@ def test_a_seal_refusal_is_a_typed_publication_refusal() -> None:
     with pytest.raises(PublicationRefused) as refused:
         publisher.publish("run", _Basis(), [], interval_minutes=15)
     assert refused.value.kind == "SEAL_REFUSED"
+
+
+# --- DD-1a1 (DD0c-R Q1): the default path seals per group; seal_once seals once ---
+
+
+class _OrderLink:
+    """Records the op sequence; optionally refuses the admission at one instant."""
+
+    def __init__(self, refuse_at: str | None = None) -> None:
+        self.ops: list[str] = []
+        self.refuse_at = refuse_at
+
+    def call(self, op: str, body: dict | None = None) -> dict:
+        self.ops.append(op if op != "admit_at_run_clock" else f"admit@{body['at_instant']}")
+        if op == "identity":
+            return {"tenant_id": "t", "site_id": "s", "gateway_id": "g"}
+        if op == "admit_at_run_clock":
+            if body["at_instant"] == self.refuse_at:
+                raise GatewayRequestRefused("PUBLICATION_INSTANT_PASSED", None, "passed")
+            return {"admissions": [{"outcome": "ADMITTED"} for _ in body["reports"]]}
+        if op == "seal":
+            return {"batch_ids": ["b"]}
+        return {}
+
+
+_GROUPS = [("2026-10-01T08:00:00Z", ["r1"]), ("2026-10-01T08:15:00Z", ["r2"]), ("2026-10-01T08:30:00Z", ["r3"])]
+
+
+def _publish(link: _OrderLink, seal_once: bool):
+    return RegisteredGatewayPublisher(link).publish_in_boundary_order(
+        "run", _Basis(), _GROUPS, "2026-10-01T09:00:00Z", seal_once=seal_once
+    )
+
+
+def test_the_default_boundary_publication_seals_after_every_group() -> None:
+    link = _OrderLink()
+    done, refused = _publish(link, seal_once=False)
+    assert refused is None and [len(group) for group in done] == [1, 1, 1]
+    assert [op for op in link.ops if op not in ("identity", "activate")] == [
+        "admit@2026-10-01T08:00:00Z", "seal", "admit@2026-10-01T08:15:00Z", "seal",
+        "admit@2026-10-01T08:30:00Z", "seal", "advance_publication_clock",
+    ]
+
+
+def test_seal_once_admits_each_group_at_its_instant_and_seals_once() -> None:
+    link = _OrderLink()
+    done, refused = _publish(link, seal_once=True)
+    assert refused is None and [len(group) for group in done] == [1, 1, 1]
+    assert [op for op in link.ops if op not in ("identity", "activate")] == [
+        "admit@2026-10-01T08:00:00Z", "admit@2026-10-01T08:15:00Z", "admit@2026-10-01T08:30:00Z",
+        "seal", "advance_publication_clock",
+    ]
+
+
+def test_seal_once_seals_what_was_admitted_when_a_later_group_is_refused() -> None:
+    link = _OrderLink(refuse_at="2026-10-01T08:30:00Z")
+    done, refused = _publish(link, seal_once=True)
+    assert isinstance(refused, GatewayRequestRefused) and [len(group) for group in done] == [1, 1]
+    assert [op for op in link.ops if op not in ("identity", "activate")] == [
+        "admit@2026-10-01T08:00:00Z", "admit@2026-10-01T08:15:00Z", "admit@2026-10-01T08:30:00Z", "seal",
+    ]
