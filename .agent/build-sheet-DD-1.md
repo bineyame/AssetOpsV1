@@ -130,3 +130,114 @@ The owner's rule splits anything over 6.
 - **DD-1b2: 1.75 → 1.5.** Backlogged: M2 (**BL-12**) and the F-FILL row (BL-10). Kept: R8 drain, finish rows F-DRAIN, F-COH, F-PERF, F-THREADS, F-COH3, F-CAL, the partial prepares (Kobo 7 days including `mill-midday`, Cold 3 days with one 24 h steady, EV 2 Tuesdays), the E3 projection and the memory peak.
 - **Lane-2 order:** CH-9b3 no longer needs CH-6a3, so the conditional order is gone: CH-9b1 → CH-9b2 → CH-9b3 → DD-1a1 → DD-1a2 → DD-1b1 → DD-1b2 → CH-5d1.
 - **DD-1 total: 7.25 → 6.5.**
+
+## DD0c-R: rulings on the DD-0c probe results
+
+- Architect: Claude (Architect 20), 2026-11-06. Binding checked (Claude, `.ai/ROLE_CONFIG.md` 2026-10-27). Input: `.agent/DD-0c-probe-results.md` (merged on main). These rulings answer P1 for DD-1a1 and override R2, R3 and SCOPE-1 where they differ. No new demo work: every item below is stated against SCOPE-1.
+- **Q1, L1 batching: approved, as a host change in DD-1a1 at the existing R3 +0.25 (no size change).** The knob is in the host, not the gateway, so R3's "reviewed gateway edit" now reads "reviewed host edit".
+  - The change is `RegisteredGatewayPublisher.publish_in_boundary_order` (`host/gateway_publication.py:139-149`). Add an opt-in `seal_once` keyword, default off. When it is on, each boundary group is admitted at its own instant as today, and `seal` is called once after the last group. `seal` keeps its own bounds (256 envelopes, the `_fit` byte bound), so batches stay legal.
+  - Only the demo prepare and `add-day` children (`tools/demo_combined_{kobo,cold,ev}.py`, through the shared producer path) pass `seal_once=True`. The default keeps D-2026-10-09 ("every group is sealed before the next, so the batches do not depend on how the operator stepped") for every other caller. Within one prepare run, the one call is the whole run, so the batches still do not depend on stepping.
+  - SCOPE-1 reason: without it B-22 does not fit the 3 h E3 cap (DD-0b: 5.9 h); with it the projection is 1.81 h central.
+  - Acceptance adds: an L2 parity test on one short Cold prepare, `seal_once` on and off, compared by the Q2 parity rule below; a unit test that the default path still seals per group.
+- **Q2, the three parity differences: all acceptable. None is a fix or a stop.** The rule for DD-1 parity checks from now on: compare `mini_opportunity_revision` without `selection_seq`, the verification basis without `publication_ids` and `run_id`, and assessment `links` as a multiset.
+  1. **Kobo `mini_opportunity_revision.selection_seq`: acceptable.** It is an insertion ordinal of mini-depth revisions, so it follows job order. What it selects is equal: `local_day`, windows, `evidence_ids` and `mini_revision_id`. No client figure, label or claim reads the ordinal's value; the demo build is one run, so no client ever compares two builds.
+  2. **Verification basis `publication_ids` 74 → 6: acceptable.** Each batch is still registered as a publication, so source resolution is unchanged, and the outcome is equal (`VERIFIED`, `TARGET_AND_GUARDRAILS_PASS`, same metrics). What a client sees: the "Publications" fact on the verification page (`SiteActionVerification.tsx:1981`) lists 6 opaque ids instead of 74. The accepted readings for each window are listed and linked to Evidence as before, so the result stays traceable. The ACT-K1 verdict and the mill verdict (CH-9b) decide on metrics, not on publication counts, so neither changes. `plan_sha256` and `run_id` differ because run ids are minted per run; that is expected.
+  3. **Cold start-response link order: not a defect caused by L1, and no fix in DD-1.** The two links are CONTEXT links taken in the group's order, which is `(source_time, received_at, evidence_id)` (`B/analytics/cold.py:264`, links at `:640-641`). The replay decides every batch at one overridden `received_at`, so two events at the same `source_time` tie-break on `evidence_id`, which is minted per run. The same reorder occurs between two per-boundary runs. The order is a total order on stored data, so one build reads the same way every time, and the content is equal. A stable secondary key (record kind) would be cleanup only; it is not backlogged, because nothing shown depends on it.
+- **Q3, Cold steady day as one 24 h run (R2, L2): not built. Batching only, B-22 stays.**
+  - L2 needs a change to the Cold replay path (the fixed 65-min window at `tools/w502_cold_work_cases.py:49,56,144` and the producer branch at `T/test_w502_cold_scenario_producer.py:149`) plus a snapshot-grade equivalence proof. That is new code and a new proof for about 18-20 min of build margin, and no shown number needs it. It fails SCOPE-1.
+  - R2 therefore takes its "otherwise" branch: `cold-steady` is a 65-min scenario derived from `cold-normal` as R2 states, and a Cold steady day is the measured shape, about 22 consecutive short runs covering the day (DD-0b §7). SCOPE-1's DD-1b2 phrase "Cold 3 days with one 24 h steady" now reads "one full steady day of short runs".
+  - B-22 with L1 projects 1.81 h central and 2.46 h upper, or 2.26 h / 2.91 h with the drain add-on, all under the 3 h cap. The 2.91 h upper rests on an unmeasured 900 s tick allowance, so it is not a reason to change OD-P11 now. R1 already holds the rule: the DD-1b2 rehearsal measures the drain and re-projects E3, and B-16 (1.63-2.09 h with drain) is used only if that projection is over 3 h, with the owner told before E3. No owner question now.
+- **Q4, FILL-1 for an earlier Cold day: not demo-critical. Backlogged as BL-14 (0.5 est.).**
+  - The refusal is real (`gateway_credential_revocation`: the prior credential is revoked at the new day's story time, before its issue time). But with the B-22 baseline full and the planned `missing` day backlogged (BL-10), every earlier Cold day in the board window already has evidence and is refused `DAY_HAS_EVIDENCE` first. The demo has no earlier Cold day to fill; ST-7 adds the next ended day forward.
+  - The owner's "fill or inject any day" is met for every day the demo can offer. Note for the script and the owner: **for Cold, only forward days can be added** until BL-14 is done.
+  - No new code. DD-1a2's existing `DAY_HAS_EVIDENCE` refusal test must show the refusal is decided before Cold provisioning starts (a reading, at +0), so an earlier Cold day on the full build is refused by name, never by a database error.
+- **Q5, sizes: unchanged.** DD-1a1 2 (R2 1, full-day story days 0.5, R3 host edit 0.25, L0/L2 0.25); DD-1a2 1.75; DD-1b1 1.25; DD-1b2 1.5. **DD-1 total 6.5.** No backlog size added to the plan; BL-14 is 0.5 outside it.
+- **P1 answer for DD-1a1:** L1 is in the host (`gateway_publication.py:139-149`), parity accepted by Q2; Cold 24 h equivalence not proven and not pursued (Q3); projected B-22 sequential 1.81 h central / 2.46 h upper, 2.26 h / 2.91 h with drain, under 3 h, so no stop. DD-1a1 may start.
+
+## DD1a1-R: rulings on the DD-1a1 pre-flight
+
+- Architect: Claude (Architect 20), 2026-11-06. Pre-flight `AssetOpsV1-dd1a1\.agent\DD-1a1-preflight.md` at `b8267f01b` (branch `task/DD-1a1-steady-fullday`). P1–P6 are accepted as answered. Each question is ruled against SCOPE-1 and the owner's rule that numbers are never tuned.
+- **Q1, Kobo "forcings removed": accepted.** Kobo's FORCING_INPUT entries are the healthy reference profile, not fault forcings. R2's "forcings removed" means fault forcings, and the Kobo parents have none, so `kobo-steady*` copy the parent windows verbatim and change only `scenario_id`, `display_name`, `purpose`, `label` and the source lines. This gives a real steady day: the declared normal day, repeated. Cold removes GRID_LOSS and GRID_RESTORE, as R2 states.
+- **Q2, night hours (20:00–06:00 local): accepted, with a label and a stop gate.** This is the defensibility point of the unit.
+  - Leaving the night undelivered is not an honest option here. The Kobo study day is the declared 24 h operating day (`mini_depth/store.py:366-396`), so an undelivered hour is a missing hour. Every Kobo day would then read partial, and MG-5 and "daytime solar unused" would stay missing: the CH9-R2 failure.
+  - The 18–20 h window of `kobo-mini-grid-evening` is the only parent window without sun. Repeating it unchanged is derivation, not tuning: no value is chosen. It is a conservative night (evening-peak load), not a measured night profile, and the label must say so. The night segment's `label` reads: "example data, steady night (repeats the 18–20 h window of kobo-mini-grid-evening; no sun)". Each repeated window carries its source line, so "Why?" can name the source.
+  - **Stop gate (L2, before DD-1a2 builds the B-22 list):** on the one L2 full Kobo day, report whether the night segment starts the generator, burns fuel, opens a Finding or thread, or moves any Kobo money figure. If it does any of these, stop and the Architect rules before DD-1a2. The night must not add a story the parents never declared. Values are never tuned to avoid it.
+- **Q3, one steady file per complement segment: accepted.** The files are `kobo-steady-night` (00–06), `kobo-steady-afternoon` (14–24), `kobo-steady-evening` (18–24) and `kobo-steady` (00–24). Each segment starts from its parent's declared state, and state is not carried across runs. The resulting jumps in state of charge at segment edges are reported in the packet, not smoothed.
+- **Q4, full days for Kobo and Cold, not EV: accepted.** Kobo has full days because CH9-R2 needs them. Cold also has full days because its declared day is 24 h, and its story days are the days the board shows; without the complement they would read partial for 23 hours. EV is unchanged: it is declared 08–16Z, and R2 has no `ev-steady`.
+- **Q5, Cold hourly tiling (24 runs per steady day): accepted.** The L0 check runs on the 60-min scenario intervals. This corrects DD0c-R Q3's "about 22" to 24 runs, about +10 s per Cold day over the DD-0c projection at L1 speed; the projection stays under 3 h. The cost is reported.
+- **Q6, complement delivery: accepted.** Each complement is its own run, with its own epoch and `received_at` (end + 1 h). A `late` day's complements share its lateness offset. `_trial_chain` is unchanged. The L2 check that the trial verification metrics are equal with and without the complements is required.
+- **Q7, `demo-story-days-v2.json` with `complement` lists: accepted.** v1 is kept. L0 asserts that each local day's union is exactly [00:00, 24:00), with no overlap and no gap.
+- **Q8, cost gate: accepted.** The extra cost per full Kobo day and per full Cold day is measured on L2 and projected against the +50% prepare budget. If it is over, it goes to the owner as a measured choice (Build units, full-day bullet).
+- **Size: DD-1a1 stays 2.** Cold full days reuse the same complement mechanism and the `cold-steady` file R2 already sized. No backlog item. DD-1 stays 6.5.
+- **Owner (informed, not blocking).** Kobo has no example night data, so the build repeats the parent's 18–20 h no-sun evening values through the night, labelled as such. The recommendation is to accept. The alternative, leaving nights undelivered, makes every Kobo day read partial and removes the solar-unused figure. The build proceeds on the recommendation, and the owner can override before DD-1a2.
+
+## DD1a1-R2: the Kobo night profile (supersedes DD1a1-R Q2 and its stop gate)
+
+- Architect: Claude (Architect 20), 2026-11-06. Owner, verbatim (`.agent/owner-kobo-nights-2026-11-06.md`): "let the architect provide one based on domain knowledge and utility to the application grounded on how actual sites operate and what makes nights interesting". DD1a1-R Q1 and Q3–Q8 stand, except where Q3's files change below.
+- **Site facts the night uses** (`config/site-templates/kobo-mini-grid-60kw.yaml`; `backend/tests/fixtures/s1/kobo-001.yaml`; nothing here changes them):
+  - battery 200 kWh, PCS 30 kW at 95%, reserve 30%;
+  - generator 40 kW, start at 35% SoC, stop at 90%, minimum runtime 30 min, start delay 5 min, 0.3 L/kWh, tank 400 L;
+  - load ratings: residential 25 kW, clinic 10 kW (the critical load), mill 40 kW.
+  - Kobo runs on UTC+3 at about 9°N, with sunset about 18:30 and sunrise about 06:15. Every parent declares 0 W/m² from 18:00.
+  - Every parent declares a dawn state at 06:00 between 34% and 55% SoC, with 300 L and the generator STOPPED.
+
+### How a site like Kobo runs at night (the grounding)
+
+- **Residential.** On rural East African mini-grids the evening peak is 18:00–22:00: lighting, TV, phone charging. Load then falls to a night base of roughly 15–25% of the peak: security and street lights, shop and household refrigeration, phones. It rises a little before dawn as people get up.
+- **Clinic.** At night a health post keeps vaccine and medicine refrigeration, security and ward lighting, and on-call care. That is roughly 1.5–3 kW against a daytime 5–7 kW.
+- **Mill.** It does not run at night.
+- **Batteries and the generator.** On hybrid PV–battery–diesel sites the battery carries the night after a sunny day. After a cloudy day it does not: the generator starts at its SoC threshold, and a high stop threshold keeps it running long after the need has passed. Night generator hours are a site's largest fuel cost.
+- These are typical-pattern bases, stated as such. They are not measurements from Kobo. The label is **"example data, night profile"**, and each value's comment states its basis below.
+
+### The night inputs (no sun; 2 h or 1 h windows)
+
+| Window (local) | Residential kW | Basis | Clinic kW | Basis | Mill | Irradiance |
+|---|---|---|---|---|---|---|
+| 20–22 | 9 | evening peak tapering, ~65% of the parent's 14 kW at 18–20 | 4 | parent's 5 kW, with evening activity ending | 0 | 0 |
+| 22–24 | 5 | most homes asleep | 2 | night base: refrigeration, lights, on-call | 0 | 0 |
+| 00–05 | 3 | night base, ~21% of the 14 kW peak | 2 | as above | 0 | 0 |
+| 05–06 | 5 | pre-dawn rise, ending at the 06–08 daytime parent's lower values | 2 | as above | 0 | 0 |
+
+- Energy check (stated, not tuned): 20–24 is 40 kWh, about 21% SoC through the PCS; 00–06 is 32 kWh, about 17%.
+
+### Starting states: measured handover, never chosen
+
+A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q3). Each night file's start state therefore comes from one measured probe run, cited in the file with the probe's run id. No value is picked to reach an outcome.
+- **Probe S, the steady day:** one continuous 06:00–20:00 run of `kobo-daytime`'s windows plus `kobo-mini-grid-evening`'s 18–20 window. It starts from `kobo-daytime`'s declared 55%, 300 L and STOPPED.
+  - Its SoC, fuel and generator state at 20:00 (SoC rounded to a whole %) become `kobo-night-late`'s start.
+  - `kobo-night-late`'s measured end becomes `kobo-night-early`'s start.
+  - The estimate is about 68% at 20:00 and about 41% at 06:00. The battery carries the night with a small margin and the generator does not start. That is what a sunny day buys at this site.
+- **Probe O, after the overcast story day:** the same method on the overcast story run's windows (`kobo-s3-dispatch-necessary-run`, its declared start) plus the steady 14–20 windows. This gives `kobo-night-late-after-overcast` and `kobo-night-early-after-overcast`.
+  - The physics decides what happens. The expected result is a battery near the 35% start threshold early in the night, then the generator requested and held by the 90% stop: a night generator run with real runtime and fuel. Nothing declares generator output.
+- **Run-boundary limitation (stated, not hidden).** A generator cannot be declared RUNNING at run start (setup refuses it). If it is running at 24:00, the 00:00 run starts STOPPED and restarts it after its 5-min start delay; the battery serves first. The packet reports this, and the night's "Why?" source line names the boundary.
+
+### Shape, files and kinds
+
+- **Steady night, every Kobo night unless placed otherwise:** `config/scenarios/kobo-night-late.yaml` (20–24) and `kobo-night-early.yaml` (00–06).
+- **One story night, declared by cause, not by result:** the night after the `overcast` story day uses `kobo-night-late-after-overcast.yaml` and, on the next local day, `kobo-night-early-after-overcast.yaml`. "Some nights, not all" follows from the weather the day list already declares. No second story night (SCOPE-1).
+- **Q3's files change:**
+  - `kobo-steady-night` (repeated evening) is withdrawn; `kobo-night-early` replaces it.
+  - The afternoon complement becomes `kobo-steady-afternoon` (14–20, the evening parent's windows verbatim) plus `kobo-night-late`.
+  - `mill-midday`'s complement becomes `kobo-steady-dusk` (18–20) plus `kobo-night-late`.
+  - A pure steady day (DD-1a2) is the run set `kobo-night-early`, `kobo-steady-day` (06–18, `kobo-daytime` verbatim, the scenario Q1 already defines), `kobo-steady-dusk` and `kobo-night-late`. There is no single 00–24 file.
+- Each night file carries `label: "example data, night profile"`, the basis comment per value, and the probe run id for its start state.
+
+### What the nights do for the demo (utility), and what they must not do
+
+- **Critical supply served (MG-5) becomes a true 24 h claim.** The clinic is supplied through the night from the battery, every hour delivered and graded. Without nights it is a daytime-only claim on a 24 h declared day.
+- **Spare solar ("daytime solar unused") and the daylight read.** Night hours are covered with `pv_available_power` = 0, so they are counted as not daylight and the day grades COMPLETE (`mini_depth/store.py:366-396`). Daylight hours are measured, not assumed.
+- **Cost.** The after-overcast night is an asset to the story: a night generator run with hours and litres, caused by a cloudy day and held by the 90% stop policy. That is the mechanism ACT-K1's reserve change acts on, shown at night. The overcast day sits early in the list (v1: S−21d), before the trial, so its night adds evidence to the problem ACT-K1 addresses and cannot read as a recurrence after verification.
+- **Grow (mill).** Neutral and unmuddied. The mill verification and the spare-solar study read daylight hours only, and the night start states are fixed, so a night is identical before and after the mill change.
+- **Must not (gate, measured on L2 in DD-1a1 for the steady night and in DD-1a2 for the after-overcast night).** Report generator starts, runtime, fuel, Findings, threads and money per night.
+  - The steady night must start no generator.
+  - The after-overcast night may open Cost evidence only before ACT-K1's trial-before day.
+  - Neither may change the ACT-K1 verification metrics, the mill verification or the spare-solar study (compare with the night runs and without them, as Q6).
+  - If the steady night fails its gate, stop and the Architect rules. If the after-overcast night fails, it falls back to the steady night files, so the demo presents less. No value is ever adjusted to pass.
+
+### Units and size
+
+- **DD-1a1 2 → 2.5 (+0.5):** the four night files with their bases; probes S and O; the withdrawn and renamed Q3 files; the steady-night gate on L2.
+  - SCOPE-1 reason: MG-5's "critical supply served" and the COMPLETE daylight read are untrue or partial on a 24 h declared day without delivered nights, and the owner directed a grounded night (above).
+- **DD-1a2 1.75 → 2.0 (+0.25):** placing the after-overcast night pair after the `overcast` day, before trial-before, as complement data, with its gate.
+  - SCOPE-1 reason: the only night generator cost shown must have a stated cause and must not land after the ACT-K1 verification.
+- **DD-1 total 6.5 → 7.25.** Lane 2 +0.75; the plan's lane-2 totals need it.

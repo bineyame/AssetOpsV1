@@ -317,6 +317,43 @@ class VerificationService:
         return FAMILIES[MIDDAY].freeze(self.store, self._ports().snapshots, tenant_id, site_id, domain_action_id,
                                        self.clock())
 
+    def evaluate_domain_plan(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID,
+                             today: date | None = None) -> dict[str, Any]:
+        """CH-9b3 (CH9b3-R Q9): judge the mill plan once, storing the one decisive outcome or nothing. A service
+        method: DD-1b calls it at story time, the `chain_snapshots` stage after its drain; no route."""
+        from assetops_backend.actions.verification_families import MIDDAY, FAMILIES
+
+        return FAMILIES[MIDDAY].evaluate(self.store, self._ports().snapshots, tenant_id, site_id, domain_action_id,
+                                         self.clock(), today)
+
+    def evaluate_site_domain_plans(self, tenant_id: UUID, site_id: UUID,
+                                   today: date | None = None) -> list[dict[str, Any]]:
+        """Every undecided mill plan of the Site, judged once each (the stage trigger)."""
+        from assetops_backend.actions.verification_families import MIDDAY
+
+        return [{"domain_action_id": str(a), **self.evaluate_domain_plan(tenant_id, site_id, a, today)}
+                for a in self.store.undecided_domain_plans(tenant_id, site_id, MIDDAY)]
+
+    def domain_summary(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> dict[str, Any]:
+        """CH9b3-R Q5: the read-only mill verdict of a MINI domain Action (one GET; the page's only read)."""
+        from assetops_backend.actions import verification_families as vf
+
+        ctx = self.store.domain_plan_context(tenant_id, site_id, domain_action_id)
+        if ctx is None:
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        if ctx["action"]["domain"] != "MINI":  # a MINI Action's plan exists only from an opportunity (the freeze)
+            raise ActionRefused(409, "VERIFICATION_FAMILY_UNSUPPORTED",
+                                "Only a MINI Action raised from an opportunity has a midday verification.")
+        plan = ctx["plan"]
+        outcomes = [] if plan is None else self.store.domain_outcomes(tenant_id, site_id, domain_action_id)
+        live = None
+        if plan is not None and not outcomes:
+            snapshots = self._ports().snapshots
+            if snapshots is None:
+                raise ActionRefused(503, "VERIFICATION_SNAPSHOTS_UNAVAILABLE", "The day snapshots cannot be read.")
+            live = vf.assess_plan(plan, snapshots, tenant_id, site_id, self.clock())
+        return vf.summary_wire(ctx, outcomes, live)
+
     def _continuation_check(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any],
                             prior: dict[str, Any]) -> None:
         """F4 (`D-2026-10-16-s602a-holds`), under the trial lock: the head plan may be superseded while it has no

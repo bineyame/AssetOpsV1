@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
+from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_UP, Decimal
 from typing import Any, Mapping, Sequence
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
@@ -185,6 +186,237 @@ class MiddayShift:
                 "payload": payload, "payload_sha256": reserve_trial.sha(payload), "recorded_at": now}
         row, replayed = store.freeze_domain_plan(tenant_id, site_id, plan)
         return (200 if replayed else 201), {"replayed": replayed, "plan": plan_wire(row)}
+
+
+    # ---- CH-9b3: the verdict (CH9b3-R Q1-Q4, Q9) ------------------------------------------------------------
+
+    def evaluate(self, store: Any, snapshots: Any, tenant_id: UUID, site_id: UUID, domain_action_id: UUID,
+                 now: datetime, today: date | None = None) -> dict[str, Any]:
+        """Judge the plan once: store the one decisive outcome when `assess` decides, else store nothing.
+        Callable at story time (DD-1b) and by the `chain_snapshots` stage after its drain (Q9)."""
+        ctx = store.domain_plan_context(tenant_id, site_id, domain_action_id)
+        if ctx is None:
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        plan = ctx["plan"]
+        if plan is None or plan["rule_id"] != MIDDAY:
+            return {"state": "NO_PLAN", "stored": False}
+        prior = store.domain_outcomes(tenant_id, site_id, domain_action_id)
+        if prior:
+            return {"state": prior[0]["outcome"], "stored": False, "replayed": True, "outcome_id": str(prior[0]["id"])}
+        if snapshots is None:
+            raise ActionRefused(503, "VERIFICATION_SNAPSHOTS_UNAVAILABLE", "The day snapshots cannot be read.")
+        result = assess_plan(plan, snapshots, tenant_id, site_id, now, today)
+        if not result["decided"]:
+            return {"state": NOT_JUDGED, "stored": False, "not_judged_text": result["not_judged_text"]}
+        outcome, metrics = outcome_rows(plan, result, now)
+        row, replayed = store.record_domain_outcome(tenant_id, site_id, outcome, metrics)
+        return {"state": row["outcome"], "stored": not replayed, "replayed": replayed, "outcome_id": str(row["id"])}
+
+
+# ---- CH-9b3: the pure verdict (L0) ------------------------------------------------------------------------------
+
+NOT_JUDGED = "NOT_JUDGED"
+VERIFIED, INEFFECTIVE, INCONCLUSIVE = rules.VERIFIED, rules.INEFFECTIVE, rules.INCONCLUSIVE
+TARGET_MET, LATER_SHORT, BASELINE_ZERO = "TARGET_MET", "LATER_SHORT", "BASELINE_ZERO"
+METRIC_KEY = "midday_productive_kwh"
+EVALUATOR_JOB = "midday-verification-evaluator"
+#: CH9b3-R Q2 (MOCK DEVIATION, mirrors `SHORT_TEXT`): the later window is still open with fewer than 3 days.
+LATER_TEXT = "Not judged yet: only {n} of 3 fully checked days after the change"
+#: CH9b3-R Q2: the look-ahead closed with fewer than 3 days (INCONCLUSIVE LATER_SHORT; MOCK DEVIATION).
+LATER_SHORT_TEXT = "Only {n} of 3 fully checked days after the change in the 14 days allowed, so no verdict is given"
+#: CH9b3-R Q3 verbatim (MOCK DEVIATION).
+BASELINE_ZERO_TEXT = "No midday use was measured before the change, so a 10% rise cannot be measured"
+#: SCOPE-1 / CH9b3-R Q7 verbatim: the VERIFIED sentence.
+VERIFIED_TEXT = "Midday use rose by at least the declared 10% on fully checked days"
+#: R7 (CH9b3-R Q7): the before/after line of a judged outcome.
+R7_TEXT = "Midday use before and after the change: {b} → {a} kWh a day on {n} fully checked days each"
+CENT = Decimal("0.01")
+
+
+def day_kwh(rows: Sequence[Any], days: Sequence[date]) -> dict[date, Decimal | None]:
+    """Each day's Σ `value.kwh` over its `productive_kwh` rows (Decimal, exact); None when any row has no kWh."""
+    out: dict[date, Decimal | None] = {}
+    for d in days:
+        total: Decimal | None = Decimal(0)
+        for r in rows:
+            if r.measure != MEASURE or r.local_day != d:
+                continue
+            kwh = (r.value or {}).get("kwh")
+            if kwh is None or total is None:
+                total = None
+                continue
+            total += Decimal(str(kwh))
+        out[d] = total
+    return out
+
+
+def judged_grades(rows: Sequence[Any], days: Sequence[date]) -> dict[date, str]:
+    """`day_grades`, with a COMPLETE day lacking a kWh value counted as NO_DATA (it is not fully checked)."""
+    grades = day_grades(rows, days)
+    values = day_kwh(rows, days)
+    return {d: (NO_DATA if g == COMPLETE and values[d] is None else g) for d, g in grades.items()}
+
+
+def mean_text(total: Decimal, n: int) -> str:
+    return format((total / n).quantize(CENT, rounding=ROUND_HALF_EVEN), "f")
+
+
+def miss_texts(l_sum: Decimal, nl: int, b_sum: Decimal, nb: int) -> tuple[str, str]:
+    """CH-9b3 fix L2: (after, needed) texts of a MISS, compared exactly. Cents when they already read after < needed;
+    otherwise more places (after rounded down, needed rounded up) until the shown figures agree with the verdict."""
+    after, needed = l_sum / nl, b_sum * TARGET["ratio"][0] / TARGET["ratio"][1] / nb
+    for places in range(2, 13):
+        q = Decimal(1).scaleb(-places)
+        a_txt = format(after.quantize(q, rounding=ROUND_HALF_EVEN if places == 2 else ROUND_DOWN), "f")
+        n_txt = format(needed.quantize(q, rounding=ROUND_HALF_EVEN if places == 2 else ROUND_UP), "f")
+        if Decimal(a_txt) < Decimal(n_txt):
+            break
+    return a_txt, n_txt
+
+
+def assess(plan: Mapping[str, Any], rows: Sequence[Any], today: date) -> dict[str, Any]:
+    """The verdict of a frozen plan over snapshot rows read now (pure; Decimal and integers only, never floats).
+
+    - SHORT baseline (frozen), or a frozen baseline day no longer COMPLETE: not judged, nothing stored (Q2, Q4).
+    - Later window: the first 3 COMPLETE days after the effective day, ended before `today` (Site-local), at most 14
+      ahead. Fewer than 3 while the look-ahead is open: not judged; once it closed: INCONCLUSIVE LATER_SHORT (Q2).
+    - Baseline mean 0: INCONCLUSIVE BASELINE_ZERO (Q3). Else `10*mean(later) >= 11*mean(baseline)`: VERIFIED
+      TARGET_MET, otherwise INEFFECTIVE TARGET_MISS (Q1)."""
+    selection = plan["baseline_selection"]
+    effective_day = date.fromisoformat(plan["basis"]["effective_day"])
+    base_days = [date.fromisoformat(d) for d in selection["days"]]
+    later_all = later_candidates(effective_day)
+    later_open = [d for d in later_all if d < today]
+    closed = later_all[-1] < today
+    out: dict[str, Any] = {"decided": False, "outcome": None, "reasons": [], "baseline_days": base_days,
+                           "later_days": [], "not_judged_text": None, "line": None, "sentence": None,
+                           "look_ahead_closed": closed}
+    if selection["state"] == SHORT:
+        out["not_judged_text"] = short_text(selection)
+        return out
+    grades = judged_grades(rows, base_days + later_open)
+    still = [d for d in base_days if grades[d] == COMPLETE]
+    if len(still) < MIN_DAYS:
+        out["not_judged_text"] = SHORT_TEXT.format(n=len(still))
+        out["days_before_now"] = len(still)  # L3: the table's count is the line's count
+        return out
+    later = choose_days(grades, later_open)
+    out["later_days"] = later
+    values = day_kwh(rows, base_days + later)
+    b_sum = sum((values[d] for d in base_days), Decimal(0))
+    nb, nl = len(base_days), len(later)
+    out.update(baseline_kwh=b_sum, baseline_mean=mean_text(b_sum, nb),
+               threshold=mean_text(b_sum * TARGET["ratio"][0] / TARGET["ratio"][1], nb))
+    if nl < MIN_DAYS:
+        if not closed:
+            out["not_judged_text"] = LATER_TEXT.format(n=nl)
+            return out
+        out.update(decided=True, outcome=INCONCLUSIVE, reasons=[LATER_SHORT], line=LATER_SHORT_TEXT.format(n=nl))
+        return out
+    l_sum = sum((values[d] for d in later), Decimal(0))
+    out.update(decided=True, later_kwh=l_sum, later_mean=mean_text(l_sum, nl))
+    out["line"] = R7_TEXT.format(b=out["baseline_mean"], a=out["later_mean"], n=nl)
+    if b_sum == 0:
+        out.update(outcome=INCONCLUSIVE, reasons=[BASELINE_ZERO], sentence=BASELINE_ZERO_TEXT, threshold=None)  # L1
+    elif TARGET["ratio"][1] * l_sum * nb >= TARGET["ratio"][0] * b_sum * nl:
+        out.update(outcome=VERIFIED, reasons=[TARGET_MET], sentence=VERIFIED_TEXT)
+    else:
+        out.update(outcome=INEFFECTIVE, reasons=[rules.TARGET_MISS])
+        out["later_mean"], out["threshold"] = miss_texts(l_sum, nl, b_sum, nb)  # L2
+        out["line"] = R7_TEXT.format(b=out["baseline_mean"], a=out["later_mean"], n=nl)
+    return out
+
+
+def assess_plan(plan: Mapping[str, Any], snapshots: Any, tenant_id: UUID, site_id: UUID, now: datetime,
+                today: date | None = None) -> dict[str, Any]:
+    """`assess` over the rows `SnapshotReader.latest` returns as known at `now` (baseline start .. look-ahead end)."""
+    tz = plan["basis"]["timezone"]
+    today = today or now.astimezone(ZoneInfo(tz)).date()
+    effective_day = date.fromisoformat(plan["basis"]["effective_day"])
+    first = min([date.fromisoformat(d) for d in plan["baseline_selection"]["days"]] or [effective_day])
+    rows = [r for r in snapshots.latest(tenant_id, site_id, first, later_candidates(effective_day)[-1], [MEASURE],
+                                        known_at=now) if r.measure == MEASURE]
+    result = assess(plan, rows, today)
+    used = {d.isoformat() for d in result["baseline_days"] + result["later_days"]}
+    result["pins"] = sorted(({"day": r.local_day.isoformat(), "subject_ref": r.subject_ref, "revision": r.revision,
+                              "input_fp": r.input_fp} for r in rows if r.local_day.isoformat() in used),
+                            key=lambda p: (p["day"], p["subject_ref"]))
+    result["today"], result["known_at"] = today, now
+    return result
+
+
+def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: datetime,
+                 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """The outcome row and its BASELINE / LATER / COMPARISON metric rows of a decided `assess` result."""
+    base = [d.isoformat() for d in result["baseline_days"]]
+    later = [d.isoformat() for d in result["later_days"]]
+    unit = "kWh/day"
+
+    def window(name: str, days: list[str], mean: str | None) -> dict[str, Any]:
+        return rules._metric(METRIC_KEY, name, "PASS" if len(days) == MIN_DAYS else "UNKNOWN", value=mean,
+                             unit=unit, reason=f"{len(days)} of {MIN_DAYS} fully checked days: {', '.join(days)}")
+
+    comparison = {VERIFIED: "PASS", INEFFECTIVE: "FAIL"}.get(result["outcome"], "UNKNOWN")
+    metrics = [window("BASELINE", base, result.get("baseline_mean")),
+               window("LATER", later, result.get("later_mean")),
+               rules._metric(METRIC_KEY, "COMPARISON", comparison, value=result.get("later_mean"),
+                             threshold=result.get("threshold"), unit=unit, reason=TARGET["rule"])]
+    basis = {"plan_id": str(plan["id"]), "plan_sha256": plan["plan_sha256"], "rule_id": MIDDAY,
+             "plan_version": MIDDAY_PLAN_VERSION, "target": TARGET, "snapshots_known_at": now.isoformat()}
+    details = {"baseline": {"days": base, "sum_kwh": format(result["baseline_kwh"], "f"),
+                            "mean_kwh_per_day": result["baseline_mean"]},
+               "later": {"days": later, **({"sum_kwh": format(result["later_kwh"], "f"),
+                                           "mean_kwh_per_day": result["later_mean"]} if "later_kwh" in result else {})},
+               "threshold_kwh_per_day": result.get("threshold"), "line": result["line"],
+               "sentence": result["sentence"], "pins": result["pins"],
+               "pinned_baseline": plan["baseline_selection"].get("pins", []),
+               "site_today": result["today"].isoformat(), "look_ahead_closed": result["look_ahead_closed"],
+               "recurrence": "not recorded (BL-07); the declared rule alone decides"}
+    outcome = {"id": uuid4(), "domain_action_id": plan["domain_action_id"], "plan_id": plan["id"],
+               "selection_binding_id": None, "evaluation_request_id": None, "supersedes_outcome_id": None,
+               "outcome": result["outcome"], "reasons": list(result["reasons"]), "basis": basis,
+               "basis_sha256": reserve_trial.sha(basis), "details": details, "actor_kind": "SYSTEM",
+               "actor_id": "service:verification-evaluator", "triggering_job": EVALUATOR_JOB,
+               "idempotency_key": f"midday-outcome-{plan['id']}", "recorded_at": now}
+    return outcome, metrics
+
+
+def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
+                 live: Mapping[str, Any] | None) -> dict[str, Any]:
+    """CH9b3-R Q5-Q7: the mill verdict read. A stored outcome is read back, never recomputed; with none, the live
+    `assess` result (`live`) gives the not-judged text. Never a cost check or trial hours (null)."""
+    action, plan = ctx["action"], ctx["plan"]
+    head = {"action_id": str(action["id"]), "action_code": action.get("action_code"), "title": action.get("title"),
+            "rule_id": MIDDAY, "target": TARGET, "cost_check": None, "trial_hours": None}
+    if plan is None:
+        return {**head, "state": "NO_PLAN", "outcome": None, "reasons": [], "sentence": None, "line": None,
+                "not_judged_text": None, "plan": None, "metrics": []}
+    plan_part = {"plan_id": str(plan["id"]), "effective_day": plan["basis"]["effective_day"],
+                 "baseline_days": list(plan["baseline_selection"]["days"]),
+                 "later_candidates": plan["later_selection_rule"]["candidates"]}
+    row = {"metric_key": METRIC_KEY, "label": "Midday use", "unit": "kWh a day", "rule": TARGET["rule"]}
+    if outcomes:
+        o = outcomes[0]
+        d = o["details"]
+        cmp = next((m for m in o["metrics"] if m["window_name"] == "COMPARISON"), {})
+        row.update(before=d["baseline"].get("mean_kwh_per_day"), after=d["later"].get("mean_kwh_per_day"),
+                   threshold=d.get("threshold_kwh_per_day"), days_before=len(d["baseline"]["days"]),
+                   days_after=len(d["later"]["days"]), state=cmp.get("state", "UNKNOWN"))
+        recorded = o["recorded_at"]
+        return {**head, "state": o["outcome"], "reasons": list(o["reasons"]), "sentence": d.get("sentence"),
+                "line": d.get("line"), "not_judged_text": None,
+                "outcome": {"outcome_id": str(o["id"]), "outcome": o["outcome"], "reasons": list(o["reasons"]),
+                            "recorded_at": recorded.astimezone(timezone.utc).isoformat()
+                            if isinstance(recorded, datetime) else recorded},
+                "plan": {**plan_part, "later_days": list(d["later"]["days"])}, "metrics": [row]}
+    live = live or {}
+    later_days = [d.isoformat() for d in live.get("later_days", [])]
+    row.update(before=live.get("baseline_mean"), after=None, threshold=live.get("threshold"),
+               days_before=live.get("days_before_now", len(plan["baseline_selection"]["days"])),
+               days_after=len(later_days), state="UNKNOWN")
+    return {**head, "state": NOT_JUDGED, "outcome": None, "reasons": [], "sentence": None, "line": None,
+            "not_judged_text": live.get("not_judged_text"), "plan": {**plan_part, "later_days": later_days},
+            "metrics": [row]}
 
 
 def plan_wire(plan: Mapping[str, Any]) -> dict[str, Any]:

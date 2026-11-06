@@ -310,6 +310,13 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         return {"access_basis": access_basis,
                 **run(lambda: verification.evidence(tenant_id, site_id, code, action_id, chosen, cutoff))}
 
+    # ---- CH-9b3 (CH9b3-R Q5): the mill verdict of a MINI domain Action, read-only (no recording route) ---------
+
+    @router.get("/api/sites/{site_code}/domain-work/actions/{action_id}/verification")
+    def domain_verification(request: Request, site_code: str, action_id: UUID) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        return {"access_basis": access_basis, **run(lambda: verification.domain_summary(tenant_id, site_id, action_id))}
+
     return router
 
 
