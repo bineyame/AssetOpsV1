@@ -308,3 +308,61 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - Any CH-9b test or fixture that names `kobo-daytime` for the mill kind is listed in the packet. It is either updated to the derived id or shown to read only v1.
   - If any check fails: stop, and the Architect rules.
 - **Size: +0.** It uses the same mechanism and checks as R3 Q2's `kobo-steady-day`, inside R3's +0.25. DD-1a1 stays 2.75 and DD-1 stays 7.5.
+
+## DD1a1-R5: complements make every full day cohort AMBIGUOUS (amends Q6)
+
+- Architect: Claude (Architect 22), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-trial-anchor-diagnosis.md` at `64856f4be`.
+  - Q6 gave each complement its own epoch. Adjacent segments then share an edge sample, and both `_clashing` (closed `_overlaps`, `cohort.py:58`) and `_multi_epoch` (`cohort.py:95-114`) fire.
+  - Every full-day dispatch window comes out AMBIGUOUS, so the "with" build has 0 Findings against 3 without, and no trial anchor.
+  - The cohort guard is right: central evidence cannot attest that two epochs are one stream. The defect is Q6's epoch shape.
+- **Ruling: option (a). One sequence epoch per Site-day stream, with the sequence continuing across that day's runs and each instant emitted once.**
+  - **Why (a) is the honest shape.** A real gateway changes its sequence epoch only on a reset. A fresh epoch every few hours would claim resets that never happened. One local day of one Site is one stream.
+  - **The edge rule.** A story run is emitted unchanged, byte-equal to the "without" build. A complement leaves out any sample at an instant a story run already emits. Between two complements, the earlier one ends exclusive.
+  - **Day edges.** Adjacent Site-days keep separate epochs, as v1 already does (`day-<n>` per day), and the shared 21:00Z instant goes to the later day. A neighbour epoch seen only in the bracket is not a candidate (`cohort.py`, `select_cohort`), so it does not make a window ambiguous.
+  - **Cold has the same shape and the same rule.** There are 24 hourly runs per day, and `cold-steady` is 65 min while `covers_end` is start + 60. Each Cold complement is emitted on [start, covers_end) and starts after any story run's emitted end. Cold story runs are never trimmed.
+  - Q6 otherwise stands: each complement remains its own run with its own `received_at`.
+- **Rejected options.**
+  - (b) would assert "one stream" by an operator act that cohort-4 says evidence cannot attest. That is an architecture change.
+  - (c) leaves the Finding and trial days partial, contrary to CH9-R4. Presenting less is preferred only when it is honest, and a partial story day is not.
+  - (d) changes rule cohort-4 and is out of scope.
+- **Probe first (L2, own `*_test` DB, before the change is built out).** On one Kobo Site-day, test that the gateway accepts the following:
+  - One epoch whose sequence continues across separately sealed runs.
+  - A complement received after a later-sequence run. The trial-day complements are delivered after the trial chain, so this case is real.
+  - A `late` day's offset.
+  - If the gateway refuses any of these, stop and the Architect rules. Do not fall back to (b) or (c) without a ruling.
+- **Acceptance.**
+  - The "with" build has the same 3 Findings as "without" (10-21, 10-28, 11-04, at 04:35, `GENERATOR_SUPPORT_CANDIDATE`), with the same CANDIDATE intervals and citations.
+  - `cohort_status` shows 0 AMBIGUOUS on full days, for Kobo and Cold.
+  - Q6 holds: the trial verification outcome and metrics are equal with and without complements.
+  - L0 on the v2 list:
+    - Each Site-day has one epoch per source.
+    - Each instant is emitted at most once per stream.
+    - Story-run payloads are equal to v1's.
+  - The R3 and R4 checks are unchanged. No value is tuned.
+- **Size: DD-1a1 2.75 → 3.25 (+0.5)**, for the shared epoch and the continued sequence in `tools/demo_story_days.py` and the producers, the edge rule for Kobo and Cold, the gateway probe, and the acceptance above.
+  - SCOPE-1 reason: without it, the full-day build has no Kobo Finding, no ACT-K1 trial anchor and no Cold assessment basis, so the board story cannot be shown.
+- **DD-1 7.5 → 8.0.** Lane 2 +0.5; the plan rows need it. No owner question: this is a build-shape fix that changes no shown story.
+
+## DD1a1-R6: on the Kobo `degraded` day, the outage lasts the rest of the local day
+
+- Architect: Claude (Architect 23), 2026-11-06. Binding checked: Claude in the lane worktrees' `.ai/ROLE_CONFIG.md` (owner, 2026-10-27). The primary checkout's copy is older and still reads Codex. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `cb2204416`, "Kobo producer" deviation; `tools/demo_combined_kobo.py` `publish_first_half`/`run_day`/`_OUTAGE`; `backend/conversions/demo-story-days-v2.json`.
+- **Ruling: accepted. After the outage, complements on that Site-day deliver nothing. The reset-epoch alternative is rejected.**
+  - **What the day must show.** The day's story is an evidence gap: the gateway stopped part way through the 06:00–14:00 local run. A real gateway that stays down sends nothing more, so no later reading that day may arrive. The night before the outage is still present: `night-early` is received at 04:00Z, before the story run's 12:00Z. The client sees readings up to the outage point and "not received" from then to 24:00 local. That is a true gap, not a gap filled with partial data.
+  - **No false filling.** On R5's one gateway state, any post-outage delivery would first flush the withheld half from the outbox. That would make the gap disappear and contradict the kind's note that the rest is never delivered (append-only). The builder's rule is the only shape that keeps the gap on one stream.
+  - **Grading.** The day grades as v1's degraded day: the story run's assessment, its incomplete-evidence reason and the absence of a Finding are unchanged. The post-outage hours add no evidence, so "with" equals "without" for that day after the outage. The day stays one epoch, so it is not AMBIGUOUS.
+  - **Why the reset epoch is rejected.** It claims a gateway reset that the story does not contain. R5 rejected invented resets. It also makes the day AMBIGUOUS, which would hide the gap behind a cohort refusal instead of showing it.
+  - **The next day is unaffected.** Each Site-day has its own gateway state (`gw-<epoch>`), so the withheld batches are never delivered on a later day either. This matches "never delivered".
+- **Scope note.** The v2 Kobo calendar has no `degraded` day, so `_OUTAGE` does not fire in the full-day build. `degraded` is an `add-day` kind only, and `add_day` runs the story run alone on a fresh gateway dir with no complements. The rule is still kept for any calendar or test that lists the day.
+- **Required.**
+  - `_OUTAGE` is cleared at the start of each `build`, so a later build in the same process does not inherit an outage.
+  - The kind's `note` adds: "the gateway stays down for the rest of the local day; later hours are not received". Each post-outage complement's packet line says it was staged and not delivered.
+- **The check the builder must run (L2, own `*_test` DB; L0 where it can).** Use a test calendar holding one Kobo `degraded` day with its three complements, built through `run_day`. Assert:
+  1. `night-early` is delivered in full.
+  2. The story run delivers exactly `len(batches)//2` batches, equal to the v1 degraded delivery.
+  3. `steady-afternoon` and `night-late` deliver 0 batches.
+  4. S2 holds no reading for that day after the last delivered story sample. Every row is checked by source time.
+  5. The gateway outbox still holds the withheld and complement batches at the end.
+  6. The next Site-day's gateway delivers none of them.
+  7. The day is one epoch with 0 AMBIGUOUS, and its assessment and Findings equal the v1 degraded day.
+  - If any assertion fails, stop and the Architect rules.
+- **Size: +0.** The mechanism is already built. The check is one L2 case inside R5's probe and acceptance. DD-1a1 stays 3.25 and DD-1 stays 8.0. No owner question: no shown story changes.

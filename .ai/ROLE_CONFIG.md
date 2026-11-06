@@ -472,6 +472,12 @@ coordinator's:
 
 ## Token Efficiency Without Lowering Quality (owner, 2026-10-18)
 
+**Further demo-sprint additions (owner, 2026-11-06: "impement all the suggested optimizations for usage"; record `.agent/owner-efficiency-2026-11-06.md`):**
+- **One Architect per lane.** Reuse the same Architect instance for every ruling in a lane (SendMessage), until it reports moderate/heavy context; only then start a fresh one. Batch a lane's open questions into one message.
+- **Rolling handoff.** Every builder keeps `.agent/<UNIT>-handoff.md` current as it goes (after each committed step: done, next, anchors, DBs/processes alive), so a successor reads one page, not history.
+- **MD-0 template rebuild once per piece.** Rebuild mechanism templates only at the piece's final checks (L3m), never mid-build, and only if a check needs them; never twice in one piece.
+- **Coordinator session restarts at natural pauses.** When no agents are running, refresh `.agent/coordinator-handoff.md` and restart the coordinator session from it (owner restarts; see memory "Coordinator handoff").
+
 **Demo-sprint additions (owner, 2026-11-05: "do all what is needed to boost usage efficeny without comporomising on quality and speed"; record `.agent/owner-efficiency-2026-11-05.md`):**
 - **Slice size fits one builder.** Build units of about 2-3 units each, sized so one builder finishes inside its context. The Architect splits any larger slice before its pre-flight; hand-over re-reading is the largest avoidable cost.
 - **Builder briefs carry a reading budget.** Name the exact sections and files to read; targeted greps over whole-file reads; no re-reading of the plan HTML or other slices' sheets.

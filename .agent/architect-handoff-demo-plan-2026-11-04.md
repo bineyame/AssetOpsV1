@@ -653,3 +653,10 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   - Q2: `kobo-steady-day` declares 300 L / STOPPED with a source line. The builder drafts every Kobo file on the registered Site and re-runs probes S and O there.
   - DD-1a1 2.5 → 2.75 and DD-1 7.5; the plan rows need it. The owner is informed, with a recommendation to accept.
 - DD1a1-R4 (Architect 22, same day; nothing committed): `mill-midday` is BLOCKED on v6. The fix is a derived `kobo-mill-midday`: the `kobo-daytime@2` windows verbatim, plus 300 L / STOPPED with R3's source line, used by the v2 kind. The manifest override and reusing `kobo-steady-day` are both rejected. Checks: windows equal the parent, READY on KOBO-001, 0 generator starts, and the CH-9b mill verdict unchanged. Size +0; DD-1a1 stays 2.75.
+- DD1a1-R5 (Architect 22, same day; nothing committed): option (a), which amends Q6.
+  - One sequence epoch per Site-day stream, with the sequence continuing across runs. Story runs are emitted unchanged; complements leave out shared instants and end exclusive. Cold uses the same rule ([start, covers_end)).
+  - (b), (c) and (d) are rejected.
+  - A gateway probe comes first: continuation across sealed runs, out-of-order complement receipt, and a `late` offset. Stop if any is refused.
+  - Acceptance: the same 3 Findings with and without complements, 0 AMBIGUOUS, and Q6 trial metrics equal.
+  - DD-1a1 2.75 → 3.25, DD-1 8.0; the plan rows need it. No owner question.
+- DD1a1-R6 (Architect 23, same day; binding checked, Claude; nothing committed): on the Kobo `degraded` day, the outage lasts the rest of the local day, and post-outage complements deliver 0. The reset epoch is rejected because it invents a reset and goes AMBIGUOUS. Required: clear `_OUTAGE` per build, and add a note line. The L2 check is a test-calendar degraded day: night-early full, half the story, 0 after, no S2 row after the last delivered sample, the outbox keeps the rest, the next day is clean, 0 AMBIGUOUS, and the grade equals v1. The v2 calendar has no Kobo degraded day (add-day only). Size +0; DD-1a1 3.25.
