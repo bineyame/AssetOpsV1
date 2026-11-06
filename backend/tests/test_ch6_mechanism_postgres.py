@@ -43,6 +43,34 @@ def _grow(body: dict) -> dict:
     return next(r for r in body["rows"] if r["category"] == "GROW_REVENUE")
 
 
+def _cost(body: dict) -> dict:
+    return next(r for r in body["rows"] if r["category"] == "OPTIMIZE_COST")
+
+
+def check_potential_money(row: dict) -> dict:
+    """SUPPORTED potential: a kW range and its money line = kW x 1 h x the declared price (the earnings price)."""
+    p = row["nodes"]["potential"]
+    assert p is not None and p["value"], p  # a study carries no day counts: its basis is not the test
+    v = p["value"]
+    price = Decimal(str(row["nodes"]["earnings"]["value"]["price"]["amount"]))
+    assert v.get("money_low") is not None, v  # SUPPORTED and priced: the money line exists
+    assert Decimal(str(v["money_low"])) == Decimal(str(v["low"])) * price, (v, price)
+    assert Decimal(str(v["money_high"])) == Decimal(str(v["high"])) * price, (v, price)
+    return v
+
+
+def check_fuel_line(row: dict) -> None:
+    """MG-2 earnings: litres x the one declared fuel price equals the figure; with no stored price, no figure/line."""
+    e = row["nodes"]["earnings"]
+    val = (e or {}).get("value") or {}
+    if val.get("litres_low") is None:  # Known Deviation: no stored price, the fuel line is omitted
+        assert not val.get("price"), e
+        return
+    price = Decimal(str(val["price"]["amount"]))
+    assert Decimal(str(val["litres_low"])) * price == Decimal(str(val["low"])), (val, price)
+    assert Decimal(str(val["litres_high"])) * price == Decimal(str(val["high"])), (val, price)
+
+
 def _expected_earnings(rows: list[dict]) -> tuple[int, Decimal, Decimal]:
     """(counted days, sum of stored day money, sum of stored kWh) over the COUNTED days that carry money."""
     counted = [r for r in rows if r["grade"] in COUNTED and r["money"] and r["money"].get("amount") is not None]
@@ -147,6 +175,17 @@ def test_kobo_grow_row_recomputes_from_the_stored_rows(mech, monkeypatch, tmp_pa
     reading = Reading(value, d13.day == calendar.monthrange(d13.year, d13.month)[1] and complete == d13.day, None,
                       complete, d13.day, calendar.monthrange(d13.year, d13.month)[1])
     assert kpi["value"] == judge_month(mg1, reading), (kpi, judge_month(mg1, reading))
+    # H2 (M-R1): the SUPPORTED potential on D13 carries its money line, recomputed as headroom kW x 1 h x the declared price.
+    pot = check_potential_money(row13)
+    # MG-2 on D11 (MISSED) and D12 (MET): the fuel-cost claim is litres x the one declared fuel price, else the omission.
+    with b4._client() as c:
+        mg2 = {n: _cost(b4._board(c, "KOBO-001", f"mech_d{n}", date=md.day(SPEC, n).isoformat())[0]) for n in (11, 12)}
+    for n, row in mg2.items():
+        check_fuel_line(row)
+    # FINDING (M-R1): on mechanism_db() the dispatch / chain_findings ports are closed (no Performance comparison
+    # report), so MG-2 reads NOT_JUDGED / NOT_KNOWN on D11 and D12 and check_fuel_line takes its omission path. The
+    # MISSED / MET verdicts and the litres x price figure cannot be proven here until that port is fed (open item).
+    assert all(r["nodes"]["kpi"]["value"] == "NOT_JUDGED" for r in mg2.values()), mg2
     # Non-vacuity: each check fails on a wrong board (the defect each one is for).
     wrong = copy.deepcopy(row13)
     wrong["nodes"]["earnings"] = {**wrong["nodes"]["earnings"], "basis": "NOT_KNOWN", "value": None,
@@ -162,6 +201,16 @@ def test_kobo_grow_row_recomputes_from_the_stored_rows(mech, monkeypatch, tmp_pa
                              for x in wrong["contributors"]]
     with pytest.raises(AssertionError):  # the sales line states a kWh the claim does not carry
         check_one_source(wrong)
+    wrong = copy.deepcopy(row13)
+    wrong["nodes"]["potential"]["value"]["money_high"] = "2.01"
+    with pytest.raises(AssertionError):  # the potential money line differs from kW x 1 h x price
+        check_potential_money(wrong)
+    fuel = {"nodes": {"earnings": {"value": {"litres_low": "2", "litres_high": "4", "low": "1.00", "high": "2.00",
+                                             "price": {"amount": "0.50"}}}}}
+    check_fuel_line(fuel)  # litres x price reproduces the figure
+    fuel["nodes"]["earnings"]["value"]["high"] = "2.10"
+    with pytest.raises(AssertionError):  # litres x price no longer reproduces the figure
+        check_fuel_line(fuel)
     wrong = copy.deepcopy(row13)
     wrong["nodes"]["earnings"]["value"]["amount"] = "61.00"
     with pytest.raises(AssertionError):  # the figure differs from the stored rows
