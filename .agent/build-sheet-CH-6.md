@@ -659,3 +659,21 @@ Pre-flight: `AssetOpsV1-ch6b1\.agent\CH-6b1-preflight.md` at `0de1dfeec`. Bindin
   - The wire change and its assertion must land in one merge. Otherwise main carries a failing demo check.
   - DD-1a1 does not edit those lines. Whichever slice merges second merges main and resolves the conflict, keeping PERIOD.
   - No `host/*` or scenario file is touched.
+
+## CH6b1-R2: Known Deviations in the CH-6b1 handoff (Architect 24, Claude, 2026-11-06)
+
+Handoff: `AssetOpsV1-ch6b1\.agent\CH-6b1-handoff.md` at `771170f2a`. **CH-6b1 goes from 1.75 to 2.0.** No owner question.
+
+**KD-2 (MG-5) is not defensible as shown, and a label fix is required.** On a weekly row, "1 of 1" with no date reads as a judgement on the week, which is untrue. The judgement itself is true for the day it covers. It also matches the mini row state, which CH3-R and R14 already set on the last local day.
+- **Rule:** keep the MG-5 judgement on the last window day. Its node claim's `days_line` is built by the one `days_line` function with the day argument, because the node's own window is that single Site-local day (CH6a3-R2 H4 / M4). The line therefore names the day, for example "13 Oct · 1 of 1 day checked".
+- This applies to every reading-based verdict that has no kpi record (`chain/outcomes.py:136-140`), not to MG-5 alone.
+- L0 checks that the line names the last local day in both time zones and never shows a bare "1 of 1" on a window longer than one day.
+- **Size:** +0.25.
+- Judging MG-5 over every day of the window (a per-day evaluator over stored rows) is not defensibility-critical once the line is labelled. It goes to the backlog as **BL-17** (SCOPE-1; BL-16 is already the idle-fuel item).
+
+**KD-3 is confirmed as a Known Deviation.**
+- The `states` template holds no D8–D9 rows, so Kobo reads 4 of 7 on D7–D13 (D7, D8 and D9 are NO_DATA).
+- L2m asserts the counts recomputed from the stored rows, not §B5's literal 6 of 7. The money is the sum of the stored money of the counted days.
+- The packet records the template gap and states that the template is not rebuilt to reach 6 of 7.
+
+**KD-1 is confirmed** (CH6b1-R Q6): Cold and EV are checked at L0 only. Real-data cross-Site agreement is covered by the L3 clone and by COH-17 in CH-6b3.
