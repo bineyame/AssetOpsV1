@@ -240,3 +240,34 @@ Not required for R9 (Architect: owner informed, not blocking). The verification 
   were run (they depend on the files A' would derive). Also for the Architect: the mill story run ends at 18:00, not 14:00, so
   its rest-of-day cut is at 18:00 (not in R15's cut list); the probe shows STOPPED there.
 - Per R15 this is the point where D (story-only or "partly checked" Kobo days) goes to the owner with these numbers.
+
+## DD1a1-R16 (builder 21): hybrid Kobo days (owner-approved 2026-11-07), built
+- Commits on `task/DD-1a1-steady-fullday` (main merged `00583fb92`): `8b68aaa14` (design), `b71389273` (registered dry run), checks commit after it.
+- Design: a day is full only where every join is STOPPED, measured on the registered Site. Only the mill day (`mill-midday`) is full:
+  `complement` = `night-early`, `mill-rest` (`kobo-rest-mill`, 18:00-24:00 in ONE run: evening window 4 verbatim, then the R2 late-night
+  windows verbatim, each with its `# source:` line; start = the story run's measured 18:00 end at full precision, 89.47 %, 300 L, STOPPED).
+  Joins measured: 18:00 STOPPED, 24:00 STOPPED (48.42 %, 300 L), recorded under `full_days` in `kobo-night-handover-v1.json`
+  (probe tool refuses to write a RUNNING join). N, R30 and R25 story days (and degraded/trial days) lost their `complement`: v1-equal story-only
+  ("partly checked"). Retired kinds/files: `steady-afternoon`, `steady-dusk`, `mill-dusk`, `night-late` kinds; `kobo-mill-dusk.yaml` (replaced by
+  `kobo-rest-mill.yaml`). The steady-day files (`kobo-steady-*`, night files) stay for DD-1a2 (B-22, probed per day; not built here).
+- Guard (non-vacuous): `demo_story_days.check_full_day` raises `FULL_DAY_JOIN_NOT_STOPPED` for a `complement` whose story has no measured
+  all-STOPPED joins. `test_full_day_only_where_every_join_is_stopped`: a complement on the N kind is refused; the mill day with one join set to
+  RUNNING is refused. R10's degraded hold test now also shows the R16 guard refuses a degraded day past the flag.
+- Seam bound (mill day, `dd1a1_r12_check.py`, full days only, from days.json): 15:00Z join STOPPED both sides, SoC step 0.439 pp (<= 0.5), day end
+  STOPPED; fuel step 0.0 L (probe: 300.0 -> 300.0; fuel is not a persisted signal). 06:00 story start exempt (SoC 31.46 -> 55 %, RUNNING -> STOPPED,
+  the 05:05 pre-dawn start is in the early night, not the mill window). Fails by design (non-vacuous) on a build with no full day.
+- Builds, one at a time (build wall: mill 274 s, mill-without 211 s; full calendar without 6 min / with 381 s):
+  - Mill pair (mill day S-5d + stream): findings, finding_revision, action(+events, policy change), work cases, verification_metric (12), outcome
+    VERIFIED, trial cost, money all EQUAL; `verification_plan` differs only in baseline-selection bookkeeping as before (R9). MG-2 counts equal
+    (5 windows). Mill day 2026-10-30 COMPLETE; 0 generator starts in 06:00-24:00 of the mill day (one 05:05 pre-dawn start, in the night); story-window
+    readings identical (5920 = 5920) so mill/spare-solar verdict reads the same data. 0 AMBIGUOUS expected unchanged (finding counts equal).
+  - Full calendar with/without: 3 Findings = 3 (7 = 7 revisions), ACT-K1 VERIFIED, metrics 12 = 12, money tables EQUAL, MG-2 equal over 8 windows. The
+    calendar has no complement now, so the two builds are the same inputs (equal by construction; recorded, not a finding).
+- R6/R7/R7b/R12/R13 re-check: R6 (degraded outage split across complements) no longer applies (degraded day is story-only; `_OUTAGE` path untouched).
+  R7/R7b (03:00 split) no longer applies to the calendar (trial days story-only); the split machinery still resolves on a mill day crossing a revision
+  (tested). R12 dusk-window starts: 0. R13 seam check re-stated for full days (PASS above). R3 checks 1-3: PASS on the mill day (night: 1 start 05:05
+  local, MG-5 supply complete; COMPLETE). R3 check 3 now holds only full days to COMPLETE; story-only days are listed, not held.
+- Guards one at a time: V (4 passed), A (architecture), W (agent workflow), navigation, dependency registry, delivery, mock-gap, missing-claim scan +
+  fixtures, evidence width, mock labels, ledger, chain coherence, event register, chain graph, perf, hard-wiring: all PASS. Estate guard: see handoff.
+  `test_demo_story_days.py` 36 passed; registered-Site dry run (`host/tests/test_dd1a1_registered_kobo.py`, own `_test` DB) 2 passed.
+- Not done / open: MILL-3 join rule in the DD-1a2 dry run is DD-1a2's; Q8 wall time now 381 s vs 6 min story-only is moot (complements only on the mill day).

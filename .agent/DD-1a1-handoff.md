@@ -53,3 +53,8 @@
 - Main merged (`93cd29430`). Registered-Site probe: N story RUNNING at 14:00; N/R30/R25 rest-of-day RUNNING at 24:00; mill passes.
 - Nothing derived/built. WIP: `.agent/DD-1a1-r15-wip/` (derive `REST`/`rest_document`, probe test to copy into host/tests, results).
   Probe DB dropped; no processes left. Next: Architect / owner decision on D.
+
+## Builder 21 (R16): built (packet "DD1a1-R16")
+- Hybrid landed: only the mill day is full (`kobo-rest-mill`, joins STOPPED recorded in the handover `full_days`); N/R30/R25 story-only;
+  guard `FULL_DAY_JOIN_NOT_STOPPED` in `tools/demo_story_days.py`. Checks adapted to full days. All DBs dropped; helpers `dd1a1w/r16_*.out`.
+- DD-1a2: B-22 steady days must be probed per day and added to `full_days` (probe tool) before they may carry a complement.
