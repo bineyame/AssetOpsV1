@@ -219,3 +219,24 @@ Not required for R9 (Architect: owner informed, not blocking). The verification 
   adds a start/interval, so the R14 stop applies if the registered Site agrees. The R13 measurement (11:00Z step -0.16, equal state) disagrees with the
   template probe, so chains must be probed on the registered Site (`_shifted` drafter of `host/tests/test_dd1a1_registered_kobo.py`), and the R25 (25 %
   reserve after S+1) probe needs the Foundation revision on that Site. Neither is done.
+
+## DD1a1-R15 (builder 20): STOPPED at the registered-Site probe (A' stop conditions 1 and 2 fire)
+- Probe: registered KOBO-001 (`_shifted` drafter of `host/tests/test_dd1a1_registered_kobo.py`, own `*_test` DB, mini-grid v6,
+  5 min, dropped after). R25 = `publish_battery_reserve` 25 % (recorded 2026-10-14T02:00Z, effective 2026-10-15T00:00Z) and
+  known-at after it. Rest-of-day = evening windows 2-4 (mill: window 4) then the R2 late night, one run, start = story end at
+  full precision. Script, derive draft and raw output: `.agent/DD-1a1-r15-wip/` (`r15probe.json`).
+- Results (local time; generator RUNNING intervals):
+
+| chain | story end (14:00; mill 18:00) | story gen | rest end 24:00 | rest gen | early night 03:00 / 06:00 |
+|---|---|---|---|---|---|
+| N | **RUNNING**, 30.0 %, 217.65 L | 06:25-14:00 | **RUNNING**, 30.0 %, 174.19 L | 14:05-24:00 | RUNNING / RUNNING (00:05-06:00) |
+| R30 | STOPPED, 100 %, 300 L | 07:05-10:55 | **RUNNING**, 30.57 %, 298.03 L | 22:05-24:00 | RUNNING / RUNNING (00:05-06:00) |
+| R25 | STOPPED, 100 %, 300 L | none | **RUNNING**, 27.37 %, 300 L | 23:25-24:00 | RUNNING / RUNNING (00:05-06:00) |
+| Mill | STOPPED, 89.47 %, 300 L | none | STOPPED, 48.42 %, 300 L | none | STOPPED / RUNNING (05:10-06:00, 06:00 exempt) |
+
+- Stops (R15 "Stops"): a story run ends RUNNING at 14:00 (N; the registered Site agrees with the template, R14 blocker);
+  three rest-of-day runs end RUNNING at 24:00 (N, R30, R25). So the 24:00 cut and the R7 03:00 split are not STOPPED on both
+  sides for N/R30/R25. Only the mill chain passes A'. Nothing was derived or built; no Kobo builds, R5-R13 checks or guards
+  were run (they depend on the files A' would derive). Also for the Architect: the mill story run ends at 18:00, not 14:00, so
+  its rest-of-day cut is at 18:00 (not in R15's cut list); the probe shows STOPPED there.
+- Per R15 this is the point where D (story-only or "partly checked" Kobo days) goes to the owner with these numbers.

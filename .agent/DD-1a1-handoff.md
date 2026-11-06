@@ -48,3 +48,8 @@
 - Blocker: probe must run on the registered Site (`--registered` mode, shifted drafter) with the 25 % reserve revision for R25. Template says the N story
   ends RUNNING (30 %, 217.65 L) and setup refuses a RUNNING start: Architect to rule if the registered probe agrees. Still to do after that: `dd1a1_r12_check.py`
   bound incl. fuel <= 0.5 L at 11/15/17/21Z with 03Z exempt and reported, Kobo with/without builds, R5-R9 re-check, guards V/A/W.
+
+## Builder 20 (R15): STOPPED at the probe (packet "DD1a1-R15")
+- Main merged (`93cd29430`). Registered-Site probe: N story RUNNING at 14:00; N/R30/R25 rest-of-day RUNNING at 24:00; mill passes.
+- Nothing derived/built. WIP: `.agent/DD-1a1-r15-wip/` (derive `REST`/`rest_document`, probe test to copy into host/tests, results).
+  Probe DB dropped; no processes left. Next: Architect / owner decision on D.
