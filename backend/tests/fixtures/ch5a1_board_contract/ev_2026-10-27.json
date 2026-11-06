@@ -13,7 +13,7 @@
   "finding_index": "finding-index/2",
   "objectives": "outcome-objectives/2",
   "outcome_map": "outcome-map/1",
-  "status": "outcome-status/3",
+  "status": "outcome-status/4",
   "warnings": "early-warnings/1"
  },
  "read_state": "PARTIAL",
@@ -68,6 +68,7 @@
     "in_hand": 1,
     "issues": 1
    },
+   "days_line": "0 of 1 days checked · 1 with too little data, not counted",
    "definition": "Capture more value from existing infrastructure and expand earning potential",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -81,11 +82,7 @@
     }
    },
    "headline": "estimated charging income",
-   "headline_money": {
-    "amount_high": "54.75000000",
-    "amount_low": "54.75000000",
-    "currency": "USD"
-   },
+   "headline_money": null,
    "icon": "grow",
    "in_hand": [
     {
@@ -121,6 +118,30 @@
     "label": "Charger use"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 0,
+      "expected": 1,
+      "low": 1,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_charging_income",
+     "text": "Not known yet",
+     "value": null
+    },
+    "kpi": null,
+    "potential": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "potential.idle_charger_capacity",
+     "text": "No potential found yet",
+     "value": null
+    }
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -151,6 +172,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh · not billed or collected",
+   "target_note": null,
    "thread_lines": [],
    "tone": "blue"
   },
@@ -161,6 +183,7 @@
     "in_hand": 0,
     "issues": 0
    },
+   "days_line": null,
    "definition": "Eliminate avoidable expenditure and get more output from operational resources",
    "earlier": [],
    "earlier_empty_text": null,
@@ -176,7 +199,12 @@
     "label": "Energy cost per km"
    },
    "must_not_harm": null,
-   "not_measured_text": "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
+   "not_measured_text": "Energy cost per km needs odometer readings and a published charging tariff",
    "options": [],
    "outcomes": [
     {
@@ -190,6 +218,7 @@
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
    "subline": null,
+   "target_note": null,
    "thread_lines": [],
    "tone": "none"
   },
@@ -253,6 +282,7 @@
     "in_hand": 1,
     "issues": 1
    },
+   "days_line": "No target, so no days are judged yet",
    "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -302,6 +332,17 @@
     "label": "Buses ready for service"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.EV-1",
+     "text": "No target set yet",
+     "value": null
+    },
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -339,6 +380,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected is not known yet. Charger condition is not assessed",
+   "target_note": null,
    "thread_lines": [],
    "tone": "amber"
   },
@@ -392,6 +434,7 @@
     "in_hand": 0,
     "issues": 0
    },
+   "days_line": null,
    "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
@@ -415,6 +458,11 @@
     "label": "Evidence quality"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [],
    "outcomes": [
@@ -429,6 +477,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "1 session end and 30 min of connector status are missing",
+   "target_note": null,
    "thread_lines": [],
    "tone": "blue"
   }

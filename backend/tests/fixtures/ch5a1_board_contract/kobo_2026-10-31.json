@@ -22,7 +22,7 @@
   "finding_index": "finding-index/2",
   "objectives": "outcome-objectives/2",
   "outcome_map": "outcome-map/1",
-  "status": "outcome-status/3",
+  "status": "outcome-status/4",
   "warnings": "early-warnings/1"
  },
  "read_state": "PARTIAL",
@@ -78,6 +78,7 @@
     "in_hand": 0,
     "issues": 1
    },
+   "days_line": "1 of 1 days checked",
    "definition": "Capture more value from existing infrastructure and expand earning potential",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
@@ -118,6 +119,40 @@
     "label": "Productive electricity sales"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "Not known yet",
+     "value": null
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-1",
+     "text": "No target set yet",
+     "value": null
+    },
+    "potential": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "potential.daytime_solar_headroom",
+     "text": "18–24.25 kW of daytime solar unused",
+     "value": {
+      "high": "24.25",
+      "low": "18",
+      "unit": "kW"
+     }
+    }
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -154,6 +189,7 @@
    "state": "OPPORTUNITY",
    "state_label": "Opportunity",
    "subline": "Sales to productive users are not metered, so revenue itself is not measured yet",
+   "target_note": null,
    "thread_lines": [],
    "tone": "green"
   },
@@ -210,6 +246,7 @@
     "in_hand": 1,
     "issues": 3
    },
+   "days_line": "No target, so no days are judged yet",
    "definition": "Eliminate avoidable expenditure and get more output from operational resources",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -302,6 +339,27 @@
     },
     "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count"
    },
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "money.possible_extra_fuel_cost",
+     "text": "3.31 to 3.97 USD",
+     "value": {
+      "currency": "USD",
+      "high": "3.97",
+      "low": "3.31"
+     }
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-2",
+     "text": "No target set yet",
+     "value": null
+    },
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -336,6 +394,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Generator stayed on 45 minutes longer than needed",
+   "target_note": null,
    "thread_lines": [],
    "tone": "amber"
   },
@@ -403,6 +462,7 @@
     "in_hand": 0,
     "issues": 2
    },
+   "days_line": null,
    "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
@@ -461,6 +521,11 @@
     "label": "Reliable service"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [],
    "outcomes": [
@@ -481,6 +546,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   },
@@ -545,6 +611,7 @@
     "in_hand": 0,
     "issues": 1
    },
+   "days_line": null,
    "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
@@ -576,6 +643,11 @@
     "label": "Evidence quality"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -600,6 +672,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "Battery output not reported",
+   "target_note": null,
    "thread_lines": [],
    "tone": "blue"
   }

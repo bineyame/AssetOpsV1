@@ -12,7 +12,32 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
+   "days_line": "0 of 1 days checked · 1 with too little data, not counted",
    "headline": "estimated charging income",
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 0,
+      "expected": 1,
+      "low": 1,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_charging_income",
+     "text": "Not known yet",
+     "value": null
+    },
+    "kpi": null,
+    "potential": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "potential.idle_charger_capacity",
+     "text": "No potential found yet",
+     "value": null
+    }
+   },
    "refs": [
     {
      "id": "ea1",
@@ -33,19 +58,39 @@
    ],
    "state": "WATCH",
    "state_label": "Watch",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "OPTIMIZE_COST",
+   "days_line": null,
    "headline": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [],
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "PROTECT_ASSET",
+   "days_line": "No target, so no days are judged yet",
    "headline": "1 interrupted · 1 unknown of 6 sessions",
+   "nodes": {
+    "earnings": null,
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.EV-1",
+     "text": "No target set yet",
+     "value": null
+    },
+    "potential": null
+   },
    "refs": [
     {
      "id": "ea1",
@@ -61,11 +106,18 @@
    ],
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "ASSURE_PERFORMANCE",
+   "days_line": null,
    "headline": "Evidence limited · no verified result yet",
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [
     {
      "kind": "SITE",
@@ -80,6 +132,7 @@
    ],
    "state": "WATCH",
    "state_label": "Watch",
+   "target_note": null,
    "thread_lines": []
   }
  ],
@@ -87,7 +140,7 @@
   "coverage": "coverage-policy/1",
   "lifecycle": "thread-lifecycle/1",
   "register": 1,
-  "status": "outcome-status/3"
+  "status": "outcome-status/4"
  },
  "schema_version": "outcome-chain-1",
  "site": {

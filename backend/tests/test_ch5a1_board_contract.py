@@ -178,7 +178,7 @@ class Opportunities:
 
     def opportunity_threads(self, tenant_id, site_ids, from_, to, k):
         r = B2.DEPTH["renewable"]
-        return [{"site_code": KOBO.site_code, "study": {"headroom_kw": r["headroom_kw"], "eligible_days":
+        return [{"site_code": KOBO.site_code, "state": "OPEN", "study": {"status": "SUPPORTED", "headroom_kw": r["headroom_kw"], "eligible_days":
                  r["eligible_days"], "assessed_days": r["assessed_days"]}}] if str(KOBO.site_id) in map(str, site_ids) else []
 
     def lookup(self, tenant_id, finding_ids, action_ids, **kw):
