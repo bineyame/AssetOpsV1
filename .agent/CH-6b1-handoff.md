@@ -22,3 +22,6 @@ Branch `task/CH-6b1-estate-chain` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-
 3. One polish clone L3 (standard procedure: create -> migrate -> backfill a-d -> settle -> W6 -> `fresh` with store on -> collect -> COH 0 new vs `expected-today.json` -> drop). Record Portfolio summary values old -> new (window_basis, overview_href, money_total, nodes) and the P2 plan/timing (`summary.seed_snapshots` perf; >50 ms reported).
 4. Packet `.agent/review-packet-CH-6b1.md` with the mock -> new table (income.* texts vs v70 `pfGrowParts`); task Status in_review; ACTIVE_CONTEXT / CODE_STATE entries.
 - USER_REVIEW: none required by the sheet (CH6b1-R: "No owner question").
+
+## Builder 2 update (complete)
+R2 days-line naming, ledger test fix (cause c69cc6835), 7 Postgres files (all pass; c3 rewritten, KD-4), polish clone L3 (COH 0 new, W6 0 after 2-module list diff, fresh 43/43), guards (workflow, architecture, navigation, vocabulary) done. Packet: `.agent/review-packet-CH-6b1.md`. Not merged. Open: KD-4 Architect confirm; ACTIVE_CONTEXT/CODE_STATE not updated; task Status not set.
