@@ -405,3 +405,19 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
     - ACT-K1 differs.
 - **Size: +0.25** for the derived file and its probe, the split in `resolve` and the calendar, and the checks. DD-1a1 3.25 → 3.5 and DD-1 8.0 → 8.25; the plan rows need it. SCOPE-1 reason: without it the `with` build cannot finish, so the trial day is partial. No owner question: no shown story changes.
 - **DD1a1-R7a** (Architect 23, 2026-11-06): confirmed. Part A becomes a derived `kobo-night-early-until-0300` with the same start state and source lines as `kobo-night-early`. Its windows are 00–02 local verbatim, and 02–03, which is the first hour of the 02–04 window. It carries the label "Kobo night 00:00–03:00, before the reserve change". It goes into `--check`, and the L0 check adds that its windows equal the parent's first 3 h. Part B's start state is measured from a probe of this file at 03:00 local, which must equal `kobo-night-early`'s state at that instant under v16. R7's checks are otherwise unchanged. Size stays +0.25, since it is the same mechanism as Part B.
+- **DD1a1-R7b** (Architect 23, 2026-11-06; input handoff at `e29a99981`, `REGISTERED_BASIS_BOUNDARY` at `runs/registered_basis.py:88`). **Ruling: option (1). Part A ends at 23:55Z, one 5-min step before the change. The 00:00Z reading belongs to Part B and cites v17.**
+  - **Why.** v17 takes effect at 00:00Z, so a reading stamped at that instant was made under the new setting. The end-stamp rule exists to stop exactly that reading being cited under v16.
+  - **Option (2) rejected.** Allowing end == `valid_until` is a product change that would let one wrongly cited reading through.
+  - **Option (3) rejected.** No other cut is honest: the change's instant fixes the cut.
+  - **The 23:55–00:00 interval needs no home.** Every Kobo publication cadence is 5 or 15 min. On those grids no instant lies strictly between 23:55Z (Part A's last stamp) and 00:00Z (Part B's first), so no reading is lost. The physics of those 5 min stays in the measurement: Part B's start state is still the R7a probe's state at 00:00Z, unchanged.
+  - **Build.**
+    - Part A runs on a derived `kobo-night-early-until-0255`: R7a's file, with its last window trimmed to 02:00–02:55 local (175 min). The start state and source lines are the same, and the label adds "ends 5 minutes before the reserve change".
+    - R7a's 180-min file stays as the probe that measures Part B's start state.
+  - **Added checks.**
+    - **L0.** Part A's windows equal the parent's first 175 min.
+    - **L2.**
+      - Part A's state at 23:55Z equals the probe's.
+      - For each signal, A's source times plus B's equal the unsplit night's grid on [21:00Z, 03:00Z): none missing, none extra, and no off-grid end stamp.
+      - No reading at or after 00:00Z cites v16, and none before 00:00Z cites v17.
+    - The rest of R7 is unchanged, including ACT-K1 equal with and without.
+  - **Size +0.** It is the same derivation mechanism, inside R7's +0.25. DD-1a1 stays 3.5.
