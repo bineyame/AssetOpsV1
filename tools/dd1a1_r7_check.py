@@ -63,11 +63,12 @@ def main(db: str, night: str) -> int:
     # 3. one epoch, sequence 1..N over the whole stream.
     ep = defaultdict(set)
     for dev, sig, t, _, e, seq, src, _ in rows:
-        ep[(src, dev, sig)].add(e)
+        ep[src].add(e)
     check("one epoch per stream across the cut", all(len(v) == 1 for v in ep.values()), f"{len(ep)} streams")
     allseq = defaultdict(list)
-    for src, dev, sig, e, seq in c.execute("select source_id, device_id, signal_id, sequence_epoch, sequence from accepted_evidence"):
-        allseq[(src, dev, sig, e)].append(seq)
+    # a stream is one source in one epoch (its devices and signals share one sequence)
+    for src, e, seq in c.execute("select source_id, sequence_epoch, sequence from accepted_evidence"):
+        allseq[(src, e)].append(seq)
     gaps = [k for k, v in allseq.items() if sorted(v) != list(range(1, len(v) + 1))]
     check("sequence 1..N in every stream and epoch", not gaps, f"{len(allseq)} streams; gaps {gaps[:2]}")
 
