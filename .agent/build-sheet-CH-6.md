@@ -829,3 +829,126 @@ Each case asserts the exact server text. **Size:** +0.25.
   - This is honest without it. A SUPPORTED potential with no income still shows on the card's Potential part, and the value keeps "Not available yet".
   - Record it as a Known Deviation. The Q4 "possible" clause is withdrawn.
   - Removing the unfilled `CompositionResult.short_values` and `_short_values` plumbing goes to the backlog as **BL-22**. It is pre-existing and is also read by `_summary_row`.
+
+## CH6b3-R: rulings on the CH-6b3 pre-flight (Architect, Claude, 2026-11-06)
+
+Pre-flight: `.agent/CH-6b3-preflight.md` at `beecf4309`. Binding checked: Claude (ROLE_CONFIG, owner 2026-10-27). **CH-6b3: 1.0 → 1.1** (Q4b only; Q1-Q3 stay inside 1.0). No owner question. No screen departs from `frontend/mockups/v70`, so no new MOCK DEVIATION.
+
+**Three pre-flight claims were wrong. These rulings correct them:**
+1. PERIOD board nodes and summary nodes do not name the same days (Q1).
+2. `?date=` is ignored for Cold and EV, so the per-date read is wrong for them (Q3).
+3. `count.open_threads` counts threads, not Sites, so it cannot feed "priority sites" (Q4b).
+
+**Stop rule, for every comparison below.** A new COH-17 or COH-18 finding on the clone or on L3m means stop and report: window, Site, field, both values, and the files. Do not tune, do not edit the code, and do not add an `expected-*.json` entry. The Architect rules on it. The one exception is the Q1 information list, which is its own rule.
+
+### Q1. COH-17 field table (demo-critical: these are the numbers on the page)
+
+All rows are estate windows only (`week`, `S`, `month`), under the existing equal-Site-set rule. Chain = `chain_estate.{w}`, summary = `summary.{w}`, board = `board_summary.{w}.{code}`, Portfolio = `portfolio.{w}`. Chain `sites[].code` matches summary `sites[].site_code`. Every row except the first is gated on a new manifest stamp, `full_claims: true`, so older fixtures are not judged.
+
+| # | Claim | Compared | Rule |
+|---|---|---|---|
+| C1 | Count (existing) | chain `counts` vs Portfolio `summary.claims`; chain vs `findings_all` | Value, basis, text. Portfolio takes all four backend keys. |
+| C2 | Count | `cards.PROTECT_ASSET.claim` vs chain `counts["count.sites_disrupted"]`; `cards.ASSURE_PERFORMANCE.claim` vs chain `counts["count.verified_results"]` | Value, basis, text |
+| C3 | Cards | chain `cards` vs summary `cards` | Whole-dict equality |
+| M1 | Money | chain `money_total` = summary `money_total` = `cards.GROW_REVENUE.claim` | Whole-dict equality |
+| M2 | Money sum | `money_total.value.amount` vs the sum of `Decimal(money2(c.value.amount))` over chain `sites[].earnings[l]`, for `l` in `INCOME_LABELS`, where `c.value` has an amount | Decimal equality, as `money2` strings. One currency only. |
+| M3 | Money, mixed | More than one currency among the contributors | `money_total.value` must be null |
+| M4 | Money, named | Every earnings claim | One `money_total.lines` entry starts with "{site name}: " |
+| M5 | Money, shown | `cards.GROW_REVENUE.parts.income` | Equals `" · ".join(money_total.lines)` when `lines` is not empty |
+| M6 | Money per Site | `sites[].earnings` chain vs summary | Whole-dict equality |
+| V1 | Verdict | chain `rows[cat].{state, state_label, lead}` vs summary row `{state, state_label, lead_outcome}` | Every Site. Chain's field is `lead`; summary and board call it `lead_outcome`. |
+| V2 | Verdict | summary row `{state, state_label, lead_outcome, headline}` vs board row | Every Site, every window. `headline` is added because "Why?" reads it. |
+| V3 | Nodes | chain `rows[cat].nodes` vs summary row `nodes` | Whole-dict equality, every Site |
+| V4 | Nodes | board row `nodes` vs summary row `nodes` | Whole-dict equality, **mini Sites on the `S` window only** |
+| L1 | Legacy (Q4b) | `summary.verified_resolution_count` = `progress.verified_resolution_count` = chain `counts["count.verified_results"].value`; `summary.priority_site_count` = number of chain `sites[]` with `threads.open + threads.in_hand > 0` | Exact |
+
+**Import, do not copy:** `money2` and `INCOME_LABELS` from `chain.vocabulary`, in the manner of `_coh7a_window`.
+
+**Trap in the tool.** Its `CLAIM_KEYS` must gain `count.sites_disrupted`, but `CLAIM_KEYS[2:]` feeds the Findings comparison at `chain_coherence.py:1118`. Findings carries only `count.opportunities` (`estate/index.py:377`). Replace that slice with `("count.opportunities",)`.
+
+**PERIOD board nodes are not compared. The pre-flight's "same days" premise is wrong.**
+- The composers receive the contained event's window (`site_outcomes/read.py:384-388`, CH6b1-R3), and cold and EV build nodes over `local_days` of it (`domain_nodes.py:17-19`).
+- With no contained event, `local_days` of a UTC-midnight pair in Addis names one day more than `window_days` (CH6b1-R Q1).
+- The summary re-evaluates over `window_days` (`_window_parts`). So the two frames differ by design in both cases, and a strict comparison would fail on correct code.
+
+**In its place, an information rule (demo-critical, because the presenter must know it; not a failing rule).** Add `info_coh17_period_nodes` to `INFO`. For each non-mini Site, window, category and part (`kpi`, `earnings`, `potential`), it lists board and summary `text` and `days` wherever they differ. The table goes in the packet, so the walkthrough knows which Site boards read an event rather than the whole window.
+- **What the builder does:** where a part's `days` objects are **equal** and its `value` or `text` differs, that is not explained by the frame. Stop and report it, as the stop rule says.
+- Every other difference is listed, not judged.
+- Mini on `week` and `month` is not compared, by design (CH6b1-R Q1, Q4).
+- A strict comparison on a shared frame is **BL-23**.
+
+**Tests**, in `tools/checks/test_chain_coherence.py`, on a new `clean_full` bundle:
+- It passes clean.
+- A planted break fails, one per row: C2, C3, M1, M2 (one Site's amount), M3, M4, M5, M6, V1, V2, V3, V4, L1.
+- A planted PERIOD node difference with unequal `days` produces no finding, and appears in the info list.
+- An unstamped bundle has none of these rows judged.
+
+### Q2. COH-17 "why" (demo-critical: "Why?" must trace the number, CH6b2-R Q2b)
+
+Accepted.
+- **Collect:** `why_estate.{w}.{category}` from `GET /api/estate/chain/why` with `from`, `to`, `category`, for the four `CATEGORIES` and three estate windows: 12 reads, under `full_claims: true`. The route is absent from today's bundle (checked: `Collector.estate` has no such fetch).
+- **W1.** Per Site, per category: why `sites[].text.say` = the summary row's `headline or state_label`.
+- **W2.** PROTECT only, when `count.sites_disrupted.value` is not null: the number of summary Sites where some `text.comes_from` line starts with `"{site_name or site_code}: "` equals that value. Match on Site names, so the early-warning line never counts.
+- **Not compared:** the "{kWh} kWh × {price}" line. It belongs to the board day on a mini Site and carries no total. Stated as a Known Deviation in the packet.
+- **Tests:** a planted wrong `say` fails W1. A planted extra Site line fails W2. The early-warning line alone gives 0.
+
+### Q3. COH-18 (demo-critical: "on the days checked" is shown to clients)
+
+The sum rule is accepted; **the read form is overridden.** `board_window` (`outcome_api.py:123-133`) reads `date` only for mini. On Cold and EV it ignores it and falls back to the overview's default window, so `?date=d` would judge the wrong days. The range form is valid for them: PERIOD keeps the requested window on the body, and `local_days` of a UTC-midnight pair always contains every `window_days` date, in any time zone. `MAX_WINDOW` is 31 days and the month window is exactly 31.
+
+**Collector** (in `Collector.estate`, estate windows only, after the summary, using `summary.sites[].domain`):
+- **Mini Site:** for each `window_days` date of each window, deduplicated: `chain_day.{code}.{d}` from `/api/sites/{code}/chain?date=d`.
+- **Cold or EV Site:** `chain_span.{w}.{code}` from `/api/sites/{code}/chain?from&to`, with the estate window's bounds.
+- Pass an existing estate window id as the request's `window`, so `bundle.windows[...]` lookups hold. Do not name these bodies with a `board` prefix (COH-9b reads those).
+- Manifest stamp `day_bodies: true`.
+- **Cost:** about 31 + 6 = 37 reads on polish (not 93), about 31 per L3m variant.
+
+**Rule `coh18_day_grades(bundle, gap_days=None)`**, on the stamp, for each estate window:
+- `dates = window_days(at(from), at(to), None)`. All three windows are UTC midnights, so no time zone is used. Import it, as `_coh7a_window` does.
+- **Grade of (Site, d):** the entry of the Site's body `days[]` whose `day == d`. Not `days[0]`. No entry is a finding.
+- **R1.** Tally the grades. Chain `sites[].days` must equal the tally on `requested, expected, complete, partial, low, no_data, not_expected, pending`. `expected = requested - not_expected`. `enough_data_days` is left out: a day grade cannot derive it and no screen shows it. A null `days` is a finding.
+- **R2.** Each of `counts[*].days` must equal the Site tallies summed over `CLAIM_DAY_KEYS`.
+- A non-200 day read is COH-0's, and the stop rule applies.
+- **Out:** node and earnings `days` and day windows (**BL-24**). Grow's own days line is proved by L2m (Kobo) and L0 (Cold and EV).
+- **L0 tests:** a planted wrong-day mapping fails R1 (the sheet's test), a wrong count `days` fails R2, a missing date entry fails, and an unstamped bundle is not judged.
+
+### Q4a. `gap_days` and the CHECKED_DAYS assertion (demo-critical)
+
+Accepted. The sheet's wording is replaced by this, because L3m is Kobo only and the `states` set lacks D6-D9.
+- **Fixture:** `expected-mechanism.json` gets `gap_days: [{"site_code": "KOBO-001", "day": "<D7 date from SPEC>", "gap": "GAP-K7"}]`. `expected-today.json` gets no such key, so only R1 and R2 run on polish.
+- **Plumbing:** `load_gap_days(path)` returns the list or None. `check(..., gap_days=None)` passes it to COH-18, as it does `threads` for COH-10. The CLI loads it from `--expect`.
+- **R3 (only with `gap_days`).** A built day is a graded day that is not `NO_DATA` or `NOT_EXPECTED`. Every built day not listed must be `COMPLETE`.
+- **R4 (only with `gap_days`).** A CHECKED_DAYS basis is allowed only in a window that holds a listed gap day or a `NO_DATA` day for that Site (for a Site-level claim) or for any Site (for an estate claim). It checks `counts[*].basis`, `count_basis(sites[].days)`, `sites[].earnings[*].basis` and `money_total.basis`.
+- **Limit accepted:** a day built with no readings cannot be told from an unbuilt one. The MD-0 tests own that case, and the packet states it.
+- **L0 tests:** a built PARTIAL day not listed fails R3 and passes when listed; a CHECKED_DAYS claim in an all-COMPLETE window fails R4 and passes with a `NO_DATA` day. With no `gap_days`, neither is judged.
+
+### Q4b. Legacy fields (demo-critical: "None confirmed" beside "Fixes confirmed · 1" contradicts itself on one page)
+
+Checked: `EstatePortfolio.tsx:460,537,796` render them beside the claims. **Option A is accepted in aim, overridden in form. +0.1.**
+- **Why not as proposed:** `count.open_threads` sums threads across Sites (`chain/claims.py`), so "{n} priority sites" fed from it would be false. Its text also drops the mock's phrase (v70 `index.html:284`).
+- **Fix on the server, in `estate/portfolio.py`.** After `counted = self._claims(...)` (`:852`), and only when `self.count_claims is not None`:
+  - `verified_resolution_count` = `counted.claims["count.verified_results"].value`, in both `prog` and `summary`;
+  - `priority_site_count` = Sites with `t["open"] + t["in_hand"] > 0` in `counted.threads`, or None if any entry is None;
+  - `counted is None` gives None for both. The browser then shows its existing "Unknown" and "Not assessed".
+  - With no `count_claims` wired, the `thread_progress` values stay, so unit tests of that path hold. Deleting it is **BL-25**.
+- **Why in_hand counts:** a Site with a fix in hand still needs attention until it is verified, and `count.open_threads` already counts it. So priority Sites > 0 exactly when open threads > 0.
+- **Frontend, one line, `EstatePortfolio.tsx:796`:** "1 priority site" in the singular, as the neighbouring pulse items do. The same phrase, so not a mock departure. `:460` and `:537` are not edited.
+- **Tests:**
+  - L0 in `backend/tests/test_w303_portfolio_api.py` with a fake `count_claims`: both fields follow the claim, in both places; `counted` None gives null.
+  - One vitest in `estatePortfolio.test.tsx` for the singular.
+  - COH-17 row L1 on real bodies.
+- **Scoped runs:** `test_w303_portfolio_*`, `test_ch3_rows.py`. A changed number in `test_w303_portfolio_comparison_postgres.py` is listed old → new. If a test shows the claim means something different from the field, stop and report.
+- **Packet:** re-read the values from this head; CH-5a's "1 against 0, 0 against 1" predates the CH6b2-R2 lifecycle cutoff. List "Fixes confirmed" and "priority sites" old → new per window. Confirm each change from the thread events (`cause_known_at` against the window's cutoff). If the events do not explain it, stop and report (CH-5a `:691`).
+
+### Q5-Q9: accepted as written, with one correction
+
+- **Q9.** §B6 also says "L2m asserts D12/D13 eligible". No such assertion exists in `test_ch6b_estate_postgres.py`. The acceptance is only that the order line is recorded, so **no test is added** (**BL-24**). The §B6 line cites the L3 Kobo Potential value. If that value is not from CH-9's daylight study, stop and report.
+- **Q6** applies to the new rows: `full_claims` and `day_bodies` each need compared > 0.
+
+### Acceptance additions
+
+The CH-6b3 entry and the Scope cut stand, with these changes:
+- COH-17 means the table above; COH-18 means R1-R4.
+- L3 clone: 0 new. L3m: 0 unexpected. Each report carries `{compared, skipped}`.
+- The packet carries the PERIOD information table and the Q4b old → new list.
+- **Backlog added:** BL-23, BL-24, BL-25 (not demo-critical; reasons in `.agent/backlog-post-demo.md`).
