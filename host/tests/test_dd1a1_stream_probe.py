@@ -97,8 +97,12 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
                 "SELECT source_id::text, count(DISTINCT sequence_epoch) FROM accepted_evidence "
                 "GROUP BY source_id, ((source_time AT TIME ZONE 'UTC') + interval '3 hours')::date")).fetchall()
             twice = c.execute(text(
-                "SELECT source_id::text, sequence_epoch, source_time, count(*) FROM accepted_evidence "
-                "GROUP BY 1, 2, 3 HAVING count(*) > 1")).fetchall()
+                "SELECT source_id::text, sequence_epoch, device_id, signal_id, source_time, count(*) "
+                "FROM accepted_evidence GROUP BY 1, 2, 3, 4, 5 HAVING count(*) > 1")).fetchall()
+            edges = c.execute(text(
+                "SELECT source_time, count(*) FROM accepted_evidence WHERE sequence_epoch = 'probe-a' AND "
+                "source_time IN ('2026-10-20T03:00:00Z', '2026-10-20T11:00:00Z', '2026-10-20T17:00:00Z') "
+                "GROUP BY 1 ORDER BY 1")).fetchall()
             gaps = c.execute(text(
                 "SELECT source_id::text, sequence_epoch, min(sequence), max(sequence), count(*) "
                 "FROM accepted_evidence GROUP BY 1, 2")).fetchall()
@@ -111,6 +115,9 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
         assert twice == [], twice[:5]
         assert all(r[2] == 1 and r[3] == r[4] for r in gaps), gaps
         assert [r[0] for r in bounds] == ["probe-a", "probe-b"]
+        # the story run's edge instants are sent once (by the story), and 17:00 belongs to the next complement
+        print("edges", [(str(r[0]), r[1]) for r in edges])
+        assert len(edges) == 2 and edges[0][1] == edges[1][1] > 0, edges
     finally:
         pg_harness.dispose(store)
         engine.dispose()
