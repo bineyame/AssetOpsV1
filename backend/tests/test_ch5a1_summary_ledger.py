@@ -42,6 +42,8 @@ def test_summary_reads_each_key_at_most_once():
     assert sc.max_per_key() == 1, sc.repeated()
     objectives = sorted(k for (name, k) in sc.ledger if name == "objectives")
     assert objectives == sorted([(BC.KOBO.site_code,), (BC.COLD.site_code,), (BC.EV.site_code,)]), objectives
-    # the month-to-date window equals the board day on 1 Nov: one executed read, the second a memo hit
+    # CH-6a3 (c69cc6835) deleted the second, month-to-date composer read (MG-1 now comes from the day snapshots, R5), so
+    # the Kobo composer reads productive_readings exactly once and there is no memo hit to count any more
     assert len(executed) == 1 and len(set(executed)) == 1, executed
-    assert [k for (name, k) in sc.ledger if name == "productive_readings"] and sc.hits.get("productive_readings") == 1
+    assert len([k for (name, k) in sc.ledger if name == "productive_readings"]) == 1
+    assert sc.hits.get("productive_readings") in (None, 0)
