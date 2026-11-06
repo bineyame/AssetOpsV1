@@ -37,6 +37,8 @@ import {
 import { shortName } from "../sites/siteWorkCases";
 import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
+import { MillVerificationBody, useMillVerification } from "../sites/SiteMillVerification";
+import { createMillVerificationClient, type MillVerificationClient } from "../sites/millVerificationClient";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
@@ -2542,5 +2544,73 @@ export function SiteWorkCasesFrame({
         );
       }}
     </SiteScoped>
+  );
+}
+
+const DEFAULT_MILL_VERIFICATION = createMillVerificationClient();
+export const SITE_MILL_VERIFICATION_HEADING_ID = "site-mill-verification-heading";
+
+/**
+ * CH-9b3 (CH9b3-R Q6): `/sites/{code}/domain-actions/{id}/verification`, the mill verdict of a MINI domain Action
+ * at its own address, so the MINIGRID W1 `/actions/{id}/verification` dispatch (Kobo ACT-001) stays untouched. The
+ * shell header names the Action once its one read has loaded ("Action" while loading or refused).
+ */
+export function SiteMillVerificationFrame({
+  detail,
+  client = DEFAULT_MILL_VERIFICATION,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  client?: MillVerificationClient;
+}) {
+  const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_MILL_VERIFICATION_HEADING_ID}>
+      {(site) => <MillVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
+    </SiteScoped>
+  );
+}
+
+function MillVerificationPage({ site, actionId, client }: { site: LoadedSite; actionId: string; client: MillVerificationClient }) {
+  const state = useMillVerification(client, site.site_id, actionId);
+  const body = state?.status === "loaded" ? state.body : null;
+  const code = body?.action_code ? displayCode(body.action_code) : null;
+  return (
+    <main aria-labelledby={SITE_MILL_VERIFICATION_HEADING_ID}>
+      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
+        <ol className="breadcrumbs__list">
+          <li className="breadcrumbs__item">
+            <Link to="/actions">Actions</Link>
+          </li>
+          {code === null ? null : <li className="breadcrumbs__item">{code}</li>}
+          <li className="breadcrumbs__item">
+            <span className="breadcrumbs__current" aria-current="page">
+              Verification
+            </span>
+          </li>
+        </ol>
+        <span className="mini-finding-crumbs__site">
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
+          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+        </span>
+      </nav>
+      <PageHeader
+        title={
+          body?.title ? (
+            <>
+              {code === null ? null : `${code} · `}
+              {/* CH9b3-R Q8: the Action's stored title is the user's own words (the frontend exemption). */}
+              <span data-vocabulary-exempt="user-owned">{body.title}</span>
+            </>
+          ) : (
+            "Action"
+          )
+        }
+        headingId={SITE_MILL_VERIFICATION_HEADING_ID}
+        subtitle={body === null ? site.display_name : `${site.display_name} · an action raised from an opportunity`}
+        actions={<Link to={siteDetailHref(site.site_id)}>Open site</Link>}
+      />
+      <MillVerificationBody state={state} />
+    </main>
   );
 }

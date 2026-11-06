@@ -8,6 +8,7 @@ import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
   FindingDetailFrame,
   SiteActionFrame,
+  SiteMillVerificationFrame,
   SiteWorkFrame,
   SiteWorkCasesFrame,
   SiteFoundationChangeFrame,
@@ -47,6 +48,7 @@ import {
   SITE_ASSETS_ROUTE_PATH,
   SITE_HEALTH_ROUTE_PATH,
   SITE_ACTION_VIEW_ROUTE_PATH,
+  SITE_MILL_VERIFICATION_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
   SITE_OPPORTUNITY_ROUTE_PATH,
@@ -495,6 +497,8 @@ export function App({
               element={<SiteActionFrame detail={siteDetail} sitesPath={SITES_PATH} />}
             />
           ))}
+          {/* CH-9b3 (CH9b3-R Q6): the mill verdict of a MINI domain Action, at its own address. */}
+          <Route path={SITE_MILL_VERIFICATION_ROUTE_PATH} element={<SiteMillVerificationFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           {/* W3-01: the estate Finding lens roots and the Actions root, registered before the legacy
               `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
           <Route path={FINDINGS_PATH} element={<EstateFindingsFrame lens="all" client={estateIndex} />} />

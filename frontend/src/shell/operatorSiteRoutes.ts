@@ -370,7 +370,13 @@ export function siteWorkMaintenanceHref(siteId: string, query?: string): string 
 
 export const SITE_ACTION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/actions/:actionId`;
 export const SITE_ACTION_VIEW_ROUTE_PATH = `${SITE_ACTION_ROUTE_PATH}/:actionView`;
-export const ACTION_CHILD_VIEWS = ["plan", "execution", "evidence", "verification", "history"] as const;
+/** CH-9b3 (CH9b3-R Q6): the mill verdict of a MINI domain Action, at its own address beside the W1 Action routes. */
+export const SITE_MILL_VERIFICATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/domain-actions/:actionId/verification`;
+
+export function siteMillVerificationHref(siteId: string, actionId: string): string {
+  return `${siteDetailHref(siteId)}/domain-actions/${encodeURIComponent(actionId)}/verification`;
+}
+export const ACTION_CHILD_VIEWS =["plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionChildView = (typeof ACTION_CHILD_VIEWS)[number];
 
 /**
