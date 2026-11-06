@@ -126,7 +126,9 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
     kobo = story["kobo"]
     kobo["import_at"] = iso(at(kobo["install_at"]) - timedelta(hours=kobo["import_before_install_hours"]))
     kobo["price_recorded_at"] = iso(at(kobo["install_at"]) + timedelta(hours=kobo["price_after_install_hours"]))
-    days = sd.resolve(days_doc, S, db_now=db_now, installs={n: at(story[n]["install_at"]) for n in SITES})
+    # DD1a1-R7: the Kobo Action's effective instant is the Foundation revision boundary a complement may not span
+    days = sd.resolve(days_doc, S, db_now=db_now, installs={n: at(story[n]["install_at"]) for n in SITES},
+                      revision_boundaries=(at(kobo["action"]["effective_from"]),))
     kobo["runs"], kobo["windows"] = {}, {}
     _trial(kobo, days, days_doc["trial"]["window_hour"])
     kobo["trial"] = dict(days_doc["trial"])

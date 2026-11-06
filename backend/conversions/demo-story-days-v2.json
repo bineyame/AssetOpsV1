@@ -123,7 +123,19 @@
         "end": "D+0d 03:00",
         "received_at": "D+0d 04:00",
         "assess": "build",
-        "note": "complement: night 00:00-06:00 local"
+        "note": "complement: night 00:00-06:00 local",
+        "split": {
+          "at_minutes": 180,
+          "kind": "night-early-from-0300",
+          "first_received_at": "D+0d 01:00"
+        }
+      },
+      "night-early-from-0300": {
+        "scenario_id": "kobo-night-early-from-0300",
+        "scenario_version": 1,
+        "received_at": "D+0d 04:00",
+        "assess": "build",
+        "note": "complement part B: night 03:00-06:00 local, after the reserve change took effect (DD1a1-R7); start state measured from a probe of part A"
       },
       "steady-afternoon": {
         "scenario_id": "kobo-steady-afternoon",

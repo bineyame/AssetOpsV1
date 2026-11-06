@@ -1,3 +1,18 @@
+# DD-1a1 handoff (builder 8: STOPPED at DD1a1-R7 gate: Part A's 3 h interval is refused; Architect must rule)
+
+## STOP
+- Probe `S-early-a` (`kobo-night-early` on [21:00Z, 00:00Z), template Site, mini-grid v6) is refused at draft:
+  `RunSetupRefused: Entry night-irradiance-2 runs until 240 minutes and the interval covers 180. Choose an interval that
+  covers the whole scenario.` (`service.py:1062 _refuse_entries_outside_the_interval`). A run must cover its whole
+  scenario, so the existing `kobo-night-early` file (6 h, entries to 360 min) cannot run on 3 h. R7 lists this as a stop case.
+- Not tuned. Likely option for the Architect: a second derived file for Part A (`kobo-night-early-until-0300`, windows
+  00:00-03:00 of `kobo-night-early` verbatim, same start state as `kobo-night-early`) alongside B.
+
+## Landed (uncommitted work committed as WIP, head after this commit; L0 not re-run, `len(v)==4` Kobo-day test will need 5 for the trial-after day)
+- `tools/demo_story_days.py`: `resolve(..., revision_boundaries=())`, `_expand` splits a complement whose interval strictly contains a boundary (kind `split` {at_minutes, kind, first_received_at}; `SPLIT_UNSUPPORTED` otherwise). Part A [start,cut) keeps the file, Part B [cut,end) uses the split kind; same epoch.
+- `tools/demo_combined.py` passes `kobo.action.effective_from`. `backend/conversions/demo-story-days-v2.json`: `night-early.split`, new kind `night-early-from-0300`.
+- `tools/derive_steady_scenarios.py`: half `early-from-0300` (windows verbatim from 03:00), `DISCLOSED_FROM`, `SPLIT_LABEL`, `SPLIT_NIGHTS`. `tools/probe_kobo_nights.py`: `split()` (Part A probe, Part B start = A's end at full precision), wired in `build()`. Handover JSON and the derived yaml NOT regenerated (probe fails above); L0 tests not yet updated.
+- Not run: everything after (builds, R5, R6, R3 five, mill, Q8, Cold failure, guards, packet). No DBs, no processes.
 # DD-1a1 handoff (builder 7: STOPPED at the R5 `with` build; Architect must rule)
 
 ## State

@@ -129,6 +129,26 @@ def chain(name: str, day_doc: dict, late: str, early: str, draft=template_draft)
     return probes, handover
 
 
+SPLIT = "kobo-night-early-from-0300"
+
+
+def split(s_probes: dict, s_handover: dict, draft=template_draft) -> tuple[dict, dict]:
+    """DD1a1-R7: part A is `kobo-night-early` on [21:00Z, 00:00Z), run from its own handover start; part B's start
+    state is what part A measures at 00:00Z (full precision, so the seam has no jump; never chosen). Part B is then
+    run too, so its generator use is measured."""
+    a_doc, _ = derive.night_document("kobo-night-early", s_handover["kobo-night-early"]["start"])
+    a = measure("S-early-a", a_doc, f"{DAY}T21:00:00Z", f"{NEXT}T00:00:00Z", draft)
+    end = a["measured_end"]
+    start = {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"}
+    b_doc, _ = derive.night_document(SPLIT, start)
+    b = measure("S-early-b", b_doc, f"{NEXT}T00:00:00Z", f"{NEXT}T03:00:00Z", draft)
+    return ({"S-early-a": a, "S-early-b": b},
+            {SPLIT: {"probe_id": a["probe_id"], "at_local": "03:00", "start": start,
+                     "rounding": "full precision, no rounding, so part B starts exactly where part A ended" + (
+                         "; the generator was RUNNING at the seam and starts STOPPED (run setup refuses RUNNING)"
+                         if end["generator"] == "RUNNING" else "; the generator was STOPPED at the seam")}})
+
+
 #: DD1a1-R3 Q2: the same probes re-run on the registered demo Kobo Site (L2, own *_test DB) must measure the same
 #: values; the test fails if they differ, and then this file is rewritten from the registered measurement.
 REGISTERED = {"site_code": "KOBO-001", "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
@@ -140,6 +160,7 @@ def build(draft=template_draft) -> dict:
     s_probes, s_handover = chain("S", probe_s(), "kobo-night-late", "kobo-night-early", draft)
     o_probes, o_handover = chain("O", probe_o(), "kobo-night-late-after-overcast", "kobo-night-early-after-overcast",
                                  draft)
+    split_probes, split_handover = split(s_probes, s_handover, draft)
     return {
         "schema": {"id": "assetops.kobo-night-handover", "version": 1},
         "label": derive.NIGHT_LABEL,
@@ -148,8 +169,8 @@ def build(draft=template_draft) -> dict:
         "registered_site": REGISTERED,
         "profile": PROFILE,
         "rounding": ROUNDING,
-        "probes": {**s_probes, **o_probes},
-        "handover": {**s_handover, **o_handover},
+        "probes": {**s_probes, **o_probes, **split_probes},
+        "handover": {**s_handover, **o_handover, **split_handover},
     }
 
 

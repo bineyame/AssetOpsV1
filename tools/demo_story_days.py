@@ -163,7 +163,7 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
 LOCAL_DAY_START = timedelta(hours=-3)
 
 
-def _expand(doc: dict, site: str, entry: dict, S: datetime) -> list[DayRun]:
+def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = ()) -> list[DayRun]:
     """One day entry -> its story run plus its complement runs (DD1a1-R Q7). A kind's `complement` is either a list
     of kind names (Kobo: each carries its own relative times) or `{"kind": "steady", "hours": [...]}` (Cold: one
     plain replay per listed hour). A complement is received `received_at` as its kind says, plus the story's
@@ -189,7 +189,27 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime) -> list[DayRun]:
     else:
         for name in comp:
             c = kinds[name]
-            out.append(DayRun(site, story.day, story.offset, name, at_day(c["start"], D), at_day(c["end"], D),
+            start, end = at_day(c["start"], D), at_day(c["end"], D)
+            cut = next((b for b in boundaries if start < b < end), None)
+            if cut is not None:
+                # DD1a1-R7: one run cannot cite one basis across a foundation revision change, so the complement is
+                # split at that instant: part A [start, cut) keeps its file, part B [cut, end) is the kind's derived
+                # file, whose start state is measured from a probe of part A. Both take the story's one epoch.
+                sp = c.get("split")
+                if not sp or start + timedelta(minutes=sp["at_minutes"]) != cut:
+                    raise StoryDaysError("SPLIT_UNSUPPORTED", f"{site} {story.day}: {name} crosses a Foundation "
+                                                              f"revision at {iso(cut)} and has no split file there")
+                b = kinds[sp["kind"]]
+                out.append(DayRun(site, story.day, story.offset, name, start, cut,
+                                  at_day(sp["first_received_at"], D) + late, c.get("assess", "build"),
+                                  {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None,
+                                  None, c.get("note", ""), story.known_at, None, story.kind))
+                out.append(DayRun(site, story.day, story.offset, sp["kind"], cut, end,
+                                  at_day(b["received_at"], D) + late, b.get("assess", "build"),
+                                  {"scenario_id": b["scenario_id"], "scenario_version": b["scenario_version"]}, None,
+                                  None, b.get("note", ""), story.known_at, None, story.kind))
+                continue
+            out.append(DayRun(site, story.day, story.offset, name, start, end,
                               at_day(c["received_at"], D) + late, c.get("assess", "build"),
                               {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
                               c.get("note", ""), story.known_at, None, story.kind))
@@ -216,7 +236,7 @@ def _tiled(site: str, day: str, D: datetime, runs: list[DayRun]) -> None:
 
 
 def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
-            installs: dict[str, datetime] | None = None) -> list[DayRun]:
+            installs: dict[str, datetime] | None = None, revision_boundaries: tuple = ()) -> list[DayRun]:
     """Every day entry of every Site (with its complement runs), validated, in build order (by `received_at`)."""
     runs: list[DayRun] = []
     for site, entries in days_doc["sites"].items():
@@ -224,7 +244,7 @@ def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
             raise StoryDaysError("UNKNOWN_KIND", f"site {site!r} is not one of {SITES}")
         seen: set[str] = set()
         for entry in entries:
-            expanded = _expand(days_doc, site, entry, S)
+            expanded = _expand(days_doc, site, entry, S, tuple(revision_boundaries))
             run = expanded[0]
             if run.day in seen:
                 raise StoryDaysError("DUPLICATE_DAY", f"{site} has two entries on {run.day}")
