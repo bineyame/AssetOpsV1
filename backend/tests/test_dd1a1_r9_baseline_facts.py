@@ -22,7 +22,7 @@ def _interval(key: str, first_on: str, off_after: str, candidate: str = "40") ->
             "result": {"generator_asset_id": "gen-1", "claim_level": "CANDIDATE",
                        "interval": {"first_on": first_on, "last_on": off_after, "off_after": off_after},
                        "portions_minutes": {"candidate": candidate},
-                       "segments": [{"start": first_on, "end": off_after, "classification": "CANDIDATE"}],
+                       "segments": [{"start": first_on, "end": off_after, "classification": "CANDIDATE_AVOIDABLE"}],
                        "limitations": []}}
 
 
