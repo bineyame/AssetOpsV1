@@ -460,3 +460,42 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **Size: +0.25** for the stream grouping in `resolve`, the gateway state per stream, the trial-chain epoch, the guards, the L0 updates and the probe. DD-1a1 3.5 → 3.75 and DD-1 8.25 → 8.5; the plan rows need it. No owner question: no shown story changes. Context note: this Architect is still fit for the next lane-2 ruling.
 
 **Coordinator note (2026-11-06, from CH-6a3 M-R1):** DD-1b2 F-THREADS also asserts Kobo MG-2 (Cost) on the combined dataset: a MISSED/MET verdict and the "{lo}–{hi} L × {price} {cur}/L" line reproducing its figure (or the Known-Deviation omission when no fuel price is stored). On `mechanism_db()` MG-2 is NOT_JUDGED because no Performance comparison report exists there. +0.
+
+## DD1a1-R9: the frozen baseline and continuous data; a baseline "move" is a change of the baseline facts
+
+- Architect: Claude (Architect 23), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `7861ab03b`. The evidence: `actions/verification.py:486-509` (`_day_states`: "moved" = a different selected run id) and `:647`; `analytics/assessment_inputs.py:32` (`BRACKET` = 6 h); `assessment_worker.py:70-78`.
+- **What happens, and why it is honest data.** A UTC-day window is read with a 6 h continuity bracket. The later run's readings at 11-05 03:00–06:00Z are in the 11-04 window's bracket. On one stream they are rightly in its read, so the 11-04 window is re-run and re-selected (seq 23).
+  - On a real continuous Site this always happens. The baseline day's selection keeps moving until its own afternoon, its night and the next 6 h have been delivered.
+  - On R5's separate epochs the bracket stream was not a candidate, so this never showed. The masking, not R8, was the false shape.
+- **Answer 1: may a closed window's selection change?** Yes, until window end plus `BRACKET` has been delivered. After that only late or restated data moves it. Re-selection is the product working, not a fault.
+- **Answer 2: what freeze point would a real verification use?** It freezes before the change takes effect: here 11-04 15:00, after the 14:00 apply and before 00:00Z. ACT-K1 does this, and it stays.
+  - For ACT-K1, the baseline day can settle only at 11-05 06:00Z or later. That is inside the later window, which starts at 03:00Z. So no freeze point is both settled and prospective.
+  - Freezing after the later data arrives would mean fixing the plan after seeing the result. That is not defensible to a client and is **rejected**.
+  - **Rejected: giving the later run its own epoch.** It invents a reset (R5, R8) and only re-masks the issue.
+- **The defect is in the product guard, not the data.** `_day_states` treats any change of selected run id as BASELINE_SELECTION_CHANGED. The guard's purpose is to catch a restated baseline, meaning baseline facts that changed after the freeze. A re-run whose facts over the baseline window are identical is not a restatement. Blocking on it would block every real Site with continuous data whose trial windows are adjacent.
+- **Ruling: a product fix (least invasive), plus an honest build order.**
+  1. **Product (`actions/verification.py`, `_day_states` and the port it reads).** For a baseline pin, `moved` holds only when the current selection's assessments that the verification reads over [baseline_start, baseline_end) differ from the pinned run's: the same keys, values, intervals and statuses.
+     - A run-id change with equal facts is recorded in the day state as `reselected` (pinned run, current run) and does not block. The evaluation's details list it, so a reader can see it.
+     - Facts that differ still give BASELINE_SELECTION_CHANGED.
+     - The later pins keep their current rule ("append a new later selection binding").
+     - No cohort, bracket or window rule changes. **Pre-flight:** the builder confirms that the store can read the pinned run's and the current run's baseline-window assessments. If it cannot without a schema change, stop and the Architect rules.
+  2. **Build order.** The trial chain is no longer atomic. Every complement is admitted at its `received_at`, interleaved with the chain steps: 11-04 freeze 15:00, afternoon 18:00, night-late 22:00, Part A 01:00, Part B 04:00, later 12:00, evaluate 13:00.
+     - Today the 11-04 and 11-05 complements are admitted after the evaluation. The evaluation then reads a state of the data that never existed.
+  3. ACT-K1 is unchanged: accept, apply, `effective_from`, `freeze_at`, windows and values. Nothing is tuned.
+- **Checks.**
+  - **Unit (backend, with the product fix).**
+    - A pinned and current run with equal baseline facts and different ids is not moved, and is listed as `reselected`.
+    - One differing assessment value or interval in the baseline window is moved and gives BASELINE_SELECTION_CHANGED. This is the non-vacuity case.
+    - An assessment outside [baseline_start, baseline_end) does not count.
+    - The existing verification tests pass unchanged.
+  - **L2 (own `*_test` DB, the R8 probe, then the full `with`/`without` builds).**
+    - The interleaved order is used.
+    - Every post-freeze re-selection of 11-04 is recorded as `reselected` with equal facts.
+    - ACT-K1 is VERIFIED, with outcome and metrics equal with and without (Q6).
+    - R8's acceptance holds.
+    - If any re-selection changes the baseline facts, that is a real restatement: stop and the Architect rules.
+- **Size: +0.75.** The product guard and its unit tests are 0.5. The interleaved build order and the L2 checks are 0.25. DD-1a1 3.75 → 4.5 and DD-1 8.5 → 9.25; the plan rows need it.
+  - The product change gets its own reviewer pass inside DD-1a1's review, on the verification diff.
+  - SCOPE-1 reason: without it, ACT-K1 cannot show VERIFIED on full days, and the Protect/Optimize board line loses its proof.
+- **Owner, informed, not blocking.** Verification now blocks only when the baseline facts change, not when the internal run identity changes. This was found by the full-day data and would hit any real continuous Site.
+- **Context note:** this Architect's context is getting heavy. Use a fresh Architect for the next lane-2 ruling.
