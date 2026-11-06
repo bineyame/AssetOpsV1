@@ -27,7 +27,11 @@ from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_I
 from assetops_backend.chain.outcomes import site_nodes
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day, window_days
 from assetops_backend.chain.read import board_day as local_board_day
-from assetops_backend.chain.vocabulary import INCOME_LABELS, estate_income
+from assetops_backend.chain.claims import (SITES_DISRUPTED, VERIFIED_RESULTS, EstateCounts, estate_count_claims,
+                                           opportunity_items)
+from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, INCOME_LABELS, NOT_KNOWN_TEXT, card_text,
+                                               count_card_value, days_line, estate_income, money_text, node_text,
+                                               sites_text)
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI,
     SITE_OUTCOMES)
@@ -636,6 +640,7 @@ class SiteOutcomeBoardService:
                         "domain": site.domain, "overview_href": _overview_href(site), "read_state": read_state,
                         "rows": rows, "window": window, "window_basis": window_basis, "earnings": earnings})
         _, money_total = portfolio_parts(out)
+        counted = self.estate_counts(sites, lo, hi, known_at)
         categories = [{"category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
                        "icon": CATEGORY_ICON[cat],
                        "sites_needing_attention": sum(1 for x in out for r in x["rows"]
@@ -648,7 +653,24 @@ class SiteOutcomeBoardService:
                 "warnings": warnings, "objective_site_count": objective_sites if read_sites else None,
                 "objective_sites_unread": len(sites) - read_sites,
                 "verified_result_count": verified if verified_read else None,
-                "verified_sites_unread": len(sites) - verified_read, "money_total": money_total}
+                "verified_sites_unread": len(sites) - verified_read, "money_total": money_total,
+                # CH6b2-R Q1: the ONE card builder; `/api/estate/chain` carries the same `cards`.
+                "cards": portfolio_cards(out, counted, money_total, categories,
+                                         objective_sites if read_sites else None, len(sites) - read_sites)}
+
+    def estate_counts(self, sites: list[SiteRef], lo: datetime, hi: datetime,
+                      known_at: datetime | None) -> EstateCounts | None:
+        """CH6b2-R Q1: the one count computation (`estate_count_claims`) over this service's chain reader and thread
+        port, the call `/estate/chain` makes; None (every card count NOT_KNOWN) without a reader or on a failure."""
+        if self.s.chain_reader is None or not sites or len({x.tenant_id for x in sites}) != 1:
+            return None
+        try:
+            req = self.s.chain_reader.request(sites[0].tenant_id, known_at)
+            found = opportunity_items(self.s.threads, sites, lo, hi, known_at)
+            return estate_count_claims(req, sites, lo, hi, found, (Exception,))
+        except Exception as error:  # noqa: BLE001 - a failed count is NOT_KNOWN on the card, never zero
+            LOG.warning("outcome summary: the estate counts could not be read (%s)", type(error).__name__)
+            return None
 
 
 def portfolio_parts(sites: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
@@ -670,6 +692,105 @@ def portfolio_parts(sites: list[dict[str, Any]]) -> tuple[dict[str, dict[str, An
             if claim is not None:
                 income.append((s.get("site_name") or s["site_code"], claim))
     return parts, estate_income(income)
+
+
+GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
+
+
+def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any]) -> str | None:
+    """The card's M1 days line (mock `PFDAYS`): "{Site}: {line}" per Site with days, " · "-joined."""
+    lines = []
+    for s in sites:
+        line = days_line(days_of(s))
+        if line:
+            lines.append(card_text("days.site", site=s.get("site_name") or s["site_code"], line=line))
+    return " · ".join(lines) or None
+
+
+def _income_days(s: dict[str, Any]) -> Any:
+    earnings = s.get("earnings") or {}
+    return next((earnings[k].get("days") for k in INCOME_LABELS if earnings.get(k)), None)
+
+
+def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict[str, Any]:
+    """CH6b2-R Q4/Q5: the Grow value from `money_total` (its own "At least" form; mixed currencies -> its text),
+    else the first Site's potential short value ("possible", never "estimated"), else NOT_KNOWN (the kept gap
+    `G-portfolio-grow-revenue`); and the three parts Target, Potential, Estimated income."""
+    target, potential = [], []
+    short = None
+    for s in sites:
+        name = s.get("site_name") or s["site_code"]
+        row = next((r for r in s.get("rows") or () if r["category"] == GROW), None) or {}
+        nodes = row.get("nodes") or {}
+        if (nodes.get("kpi") or {}).get("value") is not None:   # MD-CH6-6: a Site whose Grow kpi has a record
+            target.append(card_text("grow.site", site=name, text=nodes["kpi"]["text"]))
+        text = (nodes.get("potential") or {}).get("text")
+        if text and text != node_text("potential.none"):
+            potential.append(card_text("grow.site", site=name, text=str(text).split("\n")[0]))
+        short = short or row.get("short_value")
+    total = money_total.get("value")
+    lines = list(money_total.get("lines") or ())
+    mixed = total is None and money_total.get("text") == node_text("money.currency_mixed")
+    missing = False
+    if total is not None:
+        amount = money_text(total["amount"], None, total.get("currency"))
+        value = {"text": card_text("grow.at_least", amount=amount)
+                 if money_total.get("basis") == CHECKED_DAYS_BASIS else amount,
+                 "small": card_text("grow.small.estimated")}
+    elif mixed:
+        value = {"text": money_total["text"], "small": None}
+    elif short:
+        value = {"text": short, "small": card_text("grow.small.possible")}
+    else:
+        value, missing = {"text": NOT_KNOWN_TEXT, "small": None}, True
+    note = money_total.get("text")
+    return {"value": value, "missing": missing, "detail": None,
+            "basis_text": card_text("grow.basis.income" if total is not None or mixed else "grow.basis.none"),
+            "days_line": _site_days([s for s in sites if _income_days(s) is not None], _income_days),
+            "tone": "green" if total is not None or mixed or short else "neutral", "claim": money_total,
+            "parts": {"target": " · ".join(target) or card_text("grow.target.none"),
+                      "potential": " · ".join(potential) or card_text("grow.potential.none"),
+                      "income": " · ".join(lines) or note or NOT_KNOWN_TEXT,
+                      "income_note": note if lines and note != NOT_KNOWN_TEXT else None}}
+
+
+def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, money_total: dict[str, Any],
+                    categories: list[dict[str, Any]], objective_sites: int | None,
+                    objectives_unread: int) -> dict[str, dict[str, Any]]:
+    """CH6b2-R Q1 (build sheet CH-6 §B2): the ONE builder of the Portfolio's Grow, Protect and Assure cards, called
+    by the summary and carried by `/api/estate/chain`, so they agree by construction. Each card is `{value: {text,
+    small}, missing, detail, basis_text, days_line, tone, claim, parts?}`; the browser renders markup only. Optimize
+    stays on its CH-5c money line (no days line, CH6b2-R Q3). The Portfolio-body clauses are its `card_notes`."""
+    claims = {} if counted is None else counted.claims_json()
+    days = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
+    site_days = _site_days(sites, days)
+
+    def claim(key: str) -> dict[str, Any]:
+        return claims.get(key) or {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None,
+                                   "text": NOT_KNOWN_TEXT}
+
+    disrupted, verified = claim(SITES_DISRUPTED), claim(VERIFIED_RESULTS)
+    protect = next((c for c in categories if c["category"] == PROTECT), None)
+    w = None if protect is None else protect["warning_count"]
+    n = objective_sites
+    if n is None or (n == 0 and objectives_unread > 0):
+        assure_detail = None
+    elif n == 0:
+        assure_detail = card_text("assure.targets_none")
+    else:
+        unchecked = card_text("assure.unchecked", sites=sites_text(objectives_unread)) if objectives_unread else ""
+        assure_detail = card_text("assure.targets", sites=sites_text(n), unchecked=unchecked)
+    return {
+        GROW: _grow_card(sites, money_total),
+        PROTECT: {"value": count_card_value(disrupted), "missing": False,
+                  "detail": card_text("protect.detail.none") if w is None
+                  else card_text("protect.detail", w=w, warnings="warning" if w == 1 else "warnings"),
+                  "basis_text": card_text("protect.basis"), "days_line": site_days,
+                  "tone": "red" if (disrupted.get("value") or 0) >= 1 else "neutral", "claim": disrupted},
+        ASSURE: {"value": count_card_value(verified, card_text("assure.zero")), "missing": False,
+                 "detail": assure_detail, "basis_text": card_text("assure.basis"), "days_line": site_days,
+                 "tone": "neutral", "claim": verified},
+    }
 
 
 def _overview_href(site: SiteRef) -> str:

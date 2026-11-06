@@ -1,0 +1,224 @@
+"""CH-6b2 L0 (build sheet CH-6 §B2/§B3, CH6b2-R): the Portfolio card claims, `count.sites_disrupted`, the Protect
+"Why?" lines, the Portfolio-body `card_notes`, the board's Grow headline and the copy preferences. Pure."""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+import pytest
+
+from assetops_backend.chain import claims as CL
+from assetops_backend.chain import vocabulary as v
+from assetops_backend.chain import why
+from assetops_backend.estate.portfolio import card_notes
+from assetops_backend.site_outcomes.board import grow_headline
+from assetops_backend.site_outcomes.read import portfolio_cards
+
+LO, HI = datetime(2026, 10, 25, tzinfo=timezone.utc), datetime(2026, 11, 1, tzinfo=timezone.utc)
+FULL = {"complete": 7, "partial": 0, "low": 0, "no_data": 0, "pending": 0, "expected": 7}
+PART = {"complete": 5, "partial": 1, "low": 0, "no_data": 1, "pending": 0, "expected": 7}
+
+
+class _Site:
+    def __init__(self, code: str, name: str) -> None:
+        self.site_code, self.site_name, self.domain, self.timezone = code, name, "cold_storage", "Etc/UTC"
+        self.site_id = code
+
+
+def _thread(tid: str, state: str, category: str | None) -> dict:
+    items = [] if category is None else [{"category": category, "role": "MOVES"},
+                                         {"category": "ASSURE_PERFORMANCE", "role": "CHECKED"}]
+    return {"id": tid, "state": state, "state_label": v.THREAD_STATE_WORDS.get(state),
+            "categories": {"items": items}, "occurrences": [{"finding_id": f"f-{tid}", "day": "2026-10-28"}]}
+
+
+THREADS = {
+    "A": [_thread("a1", "OPEN", "PROTECT_ASSET"), _thread("a2", "RECURRED", "PROTECT_ASSET")],   # one Site, once
+    "B": [_thread("b1", "CHANGE_APPLIED", "PROTECT_ASSET"), _thread("b2", "OPEN", "OPTIMIZE_COST"),
+          _thread("b3", "OPEN", None)],                                                          # none counts
+    "C": [_thread("c1", "ACTION_IN_HAND", "PROTECT_ASSET"), _thread("c2", "CLOSED", "PROTECT_ASSET")],
+}
+SITES = [_Site("A", "GreenHarvest"), _Site("B", "Kobo"), _Site("C", "Depot")]
+
+
+def _counts(monkeypatch, days=FULL, threads=THREADS, fail: str | None = None) -> CL.EstateCounts:
+    def counted(req, site, lo, hi):
+        if site.site_code == fail:
+            raise LookupError("thread read failed")
+        return threads[site.site_code]
+
+    monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: days)
+    monkeypatch.setattr(CL, "counted_threads", counted)
+    return CL.estate_count_claims(object(), SITES, LO, HI, [], (LookupError,))
+
+
+def test_sites_disrupted_counts_sites_with_a_primary_protect_thread_open_recurred_or_in_hand(monkeypatch) -> None:
+    out = _counts(monkeypatch)
+    c = out.claims[CL.SITES_DISRUPTED]
+    assert (c.value, c.basis, c.text) == (2, "COMPLETE", "2 sites disrupted")
+    assert [t["id"] for t in out.disrupted["A"]] == ["a1", "a2"] and out.disrupted["B"] == []
+    assert [t["id"] for t in out.disrupted["C"]] == ["c1"]
+    assert CL.SITES_DISRUPTED in out.claims_json()   # additive on `/estate/chain` `counts` and `summary.claims`
+
+
+def test_sites_disrupted_basis_forms(monkeypatch) -> None:
+    none = {k: [] for k in THREADS}
+    assert _counts(monkeypatch, threads=none).claims[CL.SITES_DISRUPTED].text == "No sites disrupted"
+    one = {**none, "C": THREADS["C"]}
+    assert _counts(monkeypatch, threads=one).claims[CL.SITES_DISRUPTED].text == "1 site disrupted"
+    # MD-CH6-4: the CHECKED_DAYS forms
+    assert _counts(monkeypatch, PART).claims[CL.SITES_DISRUPTED].text == "2 found on the days checked"
+    assert _counts(monkeypatch, PART, none).claims[CL.SITES_DISRUPTED].text == "None found on the days checked"
+    failed = _counts(monkeypatch, fail="B")
+    assert (failed.claims[CL.SITES_DISRUPTED].basis, failed.claims[CL.SITES_DISRUPTED].text) == ("NOT_KNOWN",
+                                                                                                "Not known yet")
+    assert failed.disrupted["B"] is None
+
+
+def test_early_warnings_and_event_only_threads_never_count() -> None:
+    """CH6b2-R Q2(a): only a thread with a Finding occurrence in the window is counted; an early warning is not a
+    thread at all, and an event-only (no Finding) thread never enters."""
+    rows = {"occurrences": [
+        {"thread_id": "t-finding", "finding_id": "f1", "episode_start": LO, "episode_end": None},
+        {"thread_id": "t-event", "finding_id": None, "episode_start": LO, "episode_end": None},
+        {"thread_id": "t-before", "finding_id": "f2", "episode_start": datetime(2026, 10, 1, tzinfo=timezone.utc),
+         "episode_end": datetime(2026, 10, 2, tzinfo=timezone.utc)}]}
+    assert CL._finding_threads(rows, LO, HI) == {"t-finding"}
+
+
+def test_count_card_value_splits_the_claim_text() -> None:
+    claim = lambda value, basis, text: {"value": value, "basis": basis, "text": text}   # noqa: E731
+    assert v.count_card_value(claim(2, "COMPLETE", "2 sites disrupted")) == {"text": "2", "small": "sites disrupted"}
+    assert v.count_card_value(claim(0, "COMPLETE", "No sites disrupted")) == {"text": "No sites disrupted",
+                                                                               "small": None}
+    assert v.count_card_value(claim(0, "CHECKED_DAYS", "None found on the days checked")) == {
+        "text": "None found", "small": "on the days checked"}
+    assert v.count_card_value(claim(None, "NOT_KNOWN", "Not known yet")) == {"text": "Not known yet", "small": None}
+    assert v.count_card_value(claim(0, "COMPLETE", "0 fixes confirmed"), "No verified result yet")["text"] \
+        == "No verified result yet"
+
+
+def _income(amount: str | None, days=FULL, basis="COMPLETE", cur="USD") -> dict:
+    value = None if amount is None else {"amount": amount, "currency": cur}
+    return {"key": "money.estimated_income", "value": value, "basis": basis, "days": days, "text": "x"}
+
+
+def _site(code: str, name: str, earnings=None, nodes=None, short=None) -> dict:
+    return {"site_code": code, "site_name": name, "earnings": earnings,
+            "rows": [{"category": "GROW_REVENUE", "state": "OPPORTUNITY", "state_label": "Opportunity",
+                      "short_value": short, "nodes": nodes}]}
+
+
+def _cards(sites, counted=None, categories=(), objective_sites=None, unread=0):
+    total = v.estate_income([(s["site_name"], s["earnings"]["estimated_income"]) for s in sites
+                             if (s.get("earnings") or {}).get("estimated_income")])
+    return portfolio_cards(sites, counted, total, list(categories), objective_sites, unread)
+
+
+def test_grow_value_follows_money_total_form() -> None:
+    complete = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")})])["GROW_REVENUE"]
+    assert complete["value"] == {"text": "7.50 USD", "small": "estimated"} and complete["tone"] == "green"
+    assert complete["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days checked"
+    assert complete["parts"]["income_note"] == "Estimated income from checked days: 7.50 USD · not billed or collected"
+    assert complete["days_line"] == "Kobo: 7 of 7 days checked"
+    assert complete["basis_text"] == "Declared price × measured kWh · not billed or collected"
+    # CH6b2-R Q4: "At least" whenever the claim says so, including a named NOT_KNOWN Site (not only CHECKED_DAYS)
+    named = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")}),
+                    _site("D", "Depot", {"estimated_income": _income(None, None, "NOT_KNOWN")})])["GROW_REVENUE"]
+    assert named["value"] == {"text": "At least 7.50 USD", "small": "estimated"}
+    assert named["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days checked · Depot: not known yet"
+    mixed = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")}),
+                    _site("D", "Depot", {"estimated_income": _income("1.00", cur="EUR")})])["GROW_REVENUE"]
+    assert mixed["value"] == {"text": "Not shown · amounts in more than one currency", "small": None}
+
+
+def test_grow_falls_back_to_possible_potential_then_the_kept_gap() -> None:
+    potential = {"kpi": {"value": None, "text": "No target set yet"},
+                 "potential": {"text": "18–20 kW of daytime solar unused\n1–2 USD per hour of use, at the declared price"},
+                 "earnings": None}
+    card = _cards([_site("K", "Kobo", nodes=potential, short="18–20 kW unused")])["GROW_REVENUE"]
+    assert card["value"] == {"text": "18–20 kW unused", "small": "possible"}   # never "estimated"
+    assert card["parts"] == {"target": "No target set yet at any site",
+                             "potential": "Kobo: 18–20 kW of daytime solar unused",
+                             "income": "Not known yet", "income_note": None}
+    assert card["basis_text"] == "Opportunities · revenue not measured yet"
+    empty = _cards([_site("K", "Kobo")])["GROW_REVENUE"]
+    assert empty["missing"] is True and empty["value"]["text"] == "Not known yet" and empty["tone"] == "neutral"
+    assert empty["parts"]["potential"] == "No potential found yet"
+
+
+def test_grow_target_lists_each_site_with_a_target_md_ch6_6() -> None:
+    nodes = {"kpi": {"value": "ON_PACE", "text": "120 kWh so far this month"}, "potential": None, "earnings": None}
+    card = _cards([_site("K", "Kobo", nodes=nodes), _site("D", "Depot")])["GROW_REVENUE"]
+    assert card["parts"]["target"] == "Kobo: 120 kWh so far this month"
+
+
+def test_protect_and_assure_cards_carry_the_count_claims(monkeypatch) -> None:
+    counted = _counts(monkeypatch)
+    sites = [{"site_code": s.site_code, "site_name": s.site_name, "rows": [], "earnings": None} for s in SITES]
+    cats = [{"category": "PROTECT_ASSET", "warning_count": 1}]
+    cards = portfolio_cards(sites, counted, v.estate_income([]), cats, 2, 1)
+    protect, assure = cards["PROTECT_ASSET"], cards["ASSURE_PERFORMANCE"]
+    assert protect["claim"] == counted.claims[CL.SITES_DISRUPTED].to_json()
+    assert protect["value"] == {"text": "2", "small": "sites disrupted"} and protect["tone"] == "red"
+    assert protect["detail"] == ("Service disruptions recorded as findings · 1 early warning, counted separately · "
+                                 "loss not priced")
+    assert protect["days_line"] == ("GreenHarvest: 7 of 7 days checked · Kobo: 7 of 7 days checked · "
+                                    "Depot: 7 of 7 days checked")
+    assert assure["value"] == {"text": "1", "small": "fix confirmed"}   # Depot c2 CLOSED
+    assert assure["claim"] == counted.claims[CL.VERIFIED_RESULTS].to_json()
+    assert assure["detail"] == "targets declared at 2 sites, for any outcome, 1 site not checked"
+    unknown = portfolio_cards(sites, None, v.estate_income([]), [], None, 3)
+    assert unknown["PROTECT_ASSET"]["value"] == {"text": "Not known yet", "small": None}
+    assert unknown["PROTECT_ASSET"]["detail"] == "Service disruptions recorded as findings · loss not priced"
+    assert unknown["ASSURE_PERFORMANCE"]["detail"] is None and unknown["PROTECT_ASSET"]["days_line"] is None
+    assert "OPTIMIZE_COST" not in cards   # CH6b2-R Q3: Optimize stays on its CH-5c money line
+
+
+def test_protect_why_names_each_counted_site_and_thread() -> None:
+    row = {"issues": [{"kind": "FINDING", "role": "MOVES", "text": "Chamber above 4°C for 25–35 minutes",
+                       "ref": {"finding_id": "f-a1"}}]}
+    lines = why.disrupted_lines([("GreenHarvest", THREADS["A"], row), ("Kobo", [], {}),
+                                 ("Depot", THREADS["C"][:1], {})])
+    assert lines == ["GreenHarvest: Chamber above 4°C for 25–35 minutes",
+                     "GreenHarvest: Seen again, since 28 Oct",
+                     "Depot: Action agreed, since 28 Oct",
+                     "Early warnings are counted separately and not priced"]
+    text = why.estate_text("PROTECT_ASSET", [], lines)
+    assert text["comes_from"] == lines   # never cut to MAX_FROM
+
+
+def test_card_notes_are_one_server_line_each() -> None:
+    summary = {"count_basis": "CHECKED_DAYS", "evidence_gap_site_count": 1,
+               "checked_days": [{"site_name": "Kobo", "checked": 5, "requested": 7, "withheld": True}]}
+    recovered = {"text": "No money credited · modelled, not saved"}
+    assert card_notes(summary, 3, recovered) == {
+        "PROTECT_ASSET": "5 of 7 days checked at Kobo · findings next to unchecked days not shown yet",
+        "ASSURE_PERFORMANCE": ("No money credited · modelled, not saved · evidence gap at 1 site · 5 of 7 days "
+                               "checked at Kobo · findings next to unchecked days not shown yet")}
+    complete = {"count_basis": "COMPLETE", "evidence_gap_site_count": 0, "checked_days": []}
+    assert card_notes(complete, 3, None) == {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "no evidence gaps"}
+
+
+@pytest.mark.parametrize(("nodes", "expected"), [
+    (None, None),
+    ({"earnings": {"text": "7.50 USD over 3 of 3 days checked", "basis": "COMPLETE"},
+      "potential": {"text": "18–20 kW of daytime solar unused"}, "kpi": {"text": "No target set yet"}},
+     "7.50 USD over 3 of 3 days checked"),
+    ({"earnings": {"text": "Not known yet", "basis": "NOT_KNOWN"},
+      "potential": {"text": "18–20 kW of daytime solar unused\n1–2 USD per hour"}, "kpi": {"text": "No target"}},
+     "18–20 kW of daytime solar unused"),
+    ({"earnings": {"text": "Not known yet", "basis": "NOT_KNOWN"}, "potential": {"text": "No potential found yet"},
+      "kpi": {"text": "No target set yet"}}, "No target set yet"),
+])
+def test_board_grow_headline_order(nodes, expected) -> None:
+    assert grow_headline(nodes) == expected
+
+
+def test_copy_preferences() -> None:
+    one = {"complete": 1, "partial": 0, "low": 0, "no_data": 0, "pending": 0, "expected": 1}
+    assert v.days_line(one) == "1 of 1 day checked"                               # Q7a
+    assert v.money_claim("estimated_income", {"amount": "2", "currency": "USD"}, one).text \
+        == "2.00 USD over 1 of 1 day checked · not billed or collected"
+    assert v.days_line(FULL) == "7 of 7 days checked"
+    assert (v.headroom_unit(1), v.headroom_unit(6), v.headroom_unit(None)) == (   # Q7c
+        "kW over 1 daylight hour", "kW over 6 daylight hours", "kW over daylight hours")

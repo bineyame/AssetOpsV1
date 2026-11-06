@@ -384,7 +384,7 @@ describe("CH-6a3 Grow parts", () => {
       growRead({
         kpi: claim("verdict.MG-1", "On track", "3 of 3 days checked"),
         potential: claim("potential.value", "18-24.25 kW of daytime solar unused\nat about 0.12 per kWh", null),
-        earnings: claim("money.estimated_income", "Not known yet", "1 of 1 days checked", "NOT_KNOWN"),
+        earnings: claim("money.estimated_income", "Not known yet", "1 of 1 day checked", "NOT_KNOWN"),
       }),
     );
     const parts = Array.from(rowEl("GROW_REVENUE").querySelectorAll("[data-outcome-part]"));
@@ -395,7 +395,7 @@ describe("CH-6a3 Grow parts", () => {
       "at about 0.12 per kWh",
     ]);
     const days = parts.map((p) => p.querySelector(".ob-days")?.textContent ?? null);
-    expect(days).toEqual(["3 of 3 days checked", null, "1 of 1 days checked"]); // potential never borrows a neighbour's line
+    expect(days).toEqual(["3 of 3 days checked", null, "1 of 1 day checked"]); // potential never borrows a neighbour's line
     expect(rowEl("GROW_REVENUE").querySelectorAll(".ob-days")).toHaveLength(2); // no row-level line
   });
 

@@ -1,4 +1,84 @@
 {
+ "cards": {
+  "ASSURE_PERFORMANCE": {
+   "basis_text": "Completed work does not establish savings",
+   "claim": {
+    "basis": "CHECKED_DAYS",
+    "days": {
+     "complete": 6,
+     "expected": 21,
+     "low": 1,
+     "no_data": 11,
+     "partial": 3,
+     "pending": 0
+    },
+    "key": "count.verified_results",
+    "text": "None confirmed on the days checked",
+    "value": 0
+   },
+   "days_line": "Kobo: 6 of 7 days checked · 1 partly checked · GreenHarvest: 0 of 7 days checked · 2 partly checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "detail": null,
+   "missing": false,
+   "tone": "neutral",
+   "value": {
+    "small": "on the days checked",
+    "text": "None confirmed"
+   }
+  },
+  "GROW_REVENUE": {
+   "basis_text": "Opportunities · revenue not measured yet",
+   "claim": {
+    "basis": "NOT_KNOWN",
+    "days": null,
+    "key": "money.estate_income",
+    "lines": [
+     "Kobo: not known yet",
+     "Depot: not known yet"
+    ],
+    "text": "Not known yet",
+    "value": null
+   },
+   "days_line": "Kobo: 7 of 7 days checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "detail": null,
+   "missing": true,
+   "parts": {
+    "income": "Kobo: not known yet · Depot: not known yet",
+    "income_note": null,
+    "potential": "No potential found yet",
+    "target": "No target set yet at any site"
+   },
+   "tone": "neutral",
+   "value": {
+    "small": null,
+    "text": "Not known yet"
+   }
+  },
+  "PROTECT_ASSET": {
+   "basis_text": "Measured events, counted separately · loss not priced",
+   "claim": {
+    "basis": "CHECKED_DAYS",
+    "days": {
+     "complete": 6,
+     "expected": 21,
+     "low": 1,
+     "no_data": 11,
+     "partial": 3,
+     "pending": 0
+    },
+    "key": "count.sites_disrupted",
+    "text": "None found on the days checked",
+    "value": 0
+   },
+   "days_line": "Kobo: 6 of 7 days checked · 1 partly checked · GreenHarvest: 0 of 7 days checked · 2 partly checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "detail": "Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced",
+   "missing": false,
+   "tone": "neutral",
+   "value": {
+    "small": "on the days checked",
+    "text": "None found"
+   }
+  }
+ },
  "counts": {
   "count.open_threads": {
    "basis": "CHECKED_DAYS",
@@ -27,6 +107,20 @@
    "key": "count.opportunities",
    "text": "1 found on the days checked",
    "value": 1
+  },
+  "count.sites_disrupted": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 6,
+    "expected": 21,
+    "low": 1,
+    "no_data": 11,
+    "partial": 3,
+    "pending": 0
+   },
+   "key": "count.sites_disrupted",
+   "text": "None found on the days checked",
+   "value": 0
   },
   "count.verified_results": {
    "basis": "CHECKED_DAYS",

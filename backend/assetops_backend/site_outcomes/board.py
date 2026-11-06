@@ -298,6 +298,20 @@ class SiteFacts:
 NODE_KEYS = ("kpi", "earnings", "potential")
 
 
+def grow_headline(nodes: Mapping[str, Any] | None) -> str | None:
+    """§B3 / CH6b2-R Q6: the Grow row's `ob-val`: the earnings text when its basis is not NOT_KNOWN, else the
+    potential text (its first line) when a potential was found, else the target text; None without nodes. The three
+    stay labelled parts in the row body (I-07), never merged into one sentence."""
+    if not nodes:
+        return None
+    earnings, potential, kpi = (nodes.get(k) or {} for k in ("earnings", "potential", "kpi"))
+    if earnings.get("text") and earnings.get("basis") != "NOT_KNOWN":
+        return earnings["text"]
+    if potential.get("text") and potential["text"] != node_text("potential.none"):
+        return str(potential["text"]).split("\n")[0]
+    return kpi.get("text") or None
+
+
 def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state: str,
               states: Sequence[tuple[str, str]]) -> dict[str, Any]:
     """CH-6a3 §A5 / CH6a3-R Q1: the row's `nodes`, `days_line` and R7 `target_note`. `earnings` and `potential` are
@@ -783,6 +797,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "potential": None,
         **row_nodes(facts, [o.key for o in outcomes], lead_key, row_state, [(o.key, st) for o, st, _ in states]),
     }
+    if cat == "GROW_REVENUE":   # CH6b2-R Q6 (§B3): the board's Grow headline, from its three parts
+        row["grow_headline"] = grow_headline(row.get("nodes"))
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
         if (domain, cat) == (EV, "OPTIMIZE_COST") and (

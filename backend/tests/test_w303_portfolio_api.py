@@ -414,7 +414,11 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                               # service has no count computation injected, so it and the claims are not known.
                               "count_basis": "NOT_KNOWN", "checked_days": [],
                               "claims": {k: NOT_KNOWN_CLAIM(k) for k in (
-                                  "count.open_threads", "count.verified_results", "count.opportunities")}}
+                                  "count.open_threads", "count.verified_results", "count.opportunities",
+                                  "count.sites_disrupted")},
+                              # CH6b2-R Q1: the Portfolio-body clauses of the Protect and Assure cards, one line each.
+                              "card_notes": {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE":
+                                             "No money credited · modelled, not saved · no evidence gaps"}}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]

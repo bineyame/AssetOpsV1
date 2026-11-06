@@ -171,8 +171,14 @@ def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
     opportunity-only, so it is an opportunity item, never a thread."""
     body = _get("estate_week_2026-10-25")
     counts = body["counts"]
-    assert set(counts) == {"count.open_threads", "count.verified_results", "count.opportunities"}
+    assert set(counts) == {"count.open_threads", "count.verified_results", "count.opportunities",
+                           "count.sites_disrupted"}   # CH6b2-R Q2: additive
     assert counts["count.open_threads"]["value"] == 1 and counts["count.verified_results"]["value"] == 0
+    # CH6b2-R Q2: T1 is the generator thread (primary Optimize), so no Site is disrupted; the Protect and Assure
+    # cards carry the same claims as `counts` (one computation, CH6b2-R Q1).
+    assert counts["count.sites_disrupted"]["value"] == 0
+    assert body["cards"]["PROTECT_ASSET"]["claim"] == counts["count.sites_disrupted"]
+    assert body["cards"]["ASSURE_PERFORMANCE"]["claim"] == counts["count.verified_results"]
     assert counts["count.opportunities"]["value"] == 1
     assert all(set(c) == {"key", "value", "basis", "days", "text"} for c in counts.values())
     assert len({json.dumps(c["days"], sort_keys=True) for c in counts.values()}) == 1

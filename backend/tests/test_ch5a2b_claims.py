@@ -161,7 +161,7 @@ def test_claims_failed_thread_read_or_opportunity_read_is_not_known(monkeypatch)
     monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: full)
     out = CL.estate_count_claims(_Req(fail=True), [_MINI], _LO, _HI, None, (LookupError,))
     assert out.threads["KOBO-001"] is None
-    assert [out.claims[k].basis for k in CL.CLAIM_KEYS] == ["NOT_KNOWN"] * 3
+    assert [out.claims[k].basis for k in CL.CLAIM_KEYS] == ["NOT_KNOWN"] * len(CL.CLAIM_KEYS) == ["NOT_KNOWN"] * 4
     ok = CL.estate_count_claims(_Req(), [_MINI], _LO, _HI, [])
     assert ok.claims["count.open_threads"].text == "1 open finding"
     assert ok.claims["count.opportunities"].basis == "COMPLETE" and ok.claims["count.opportunities"].value == 0

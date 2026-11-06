@@ -160,7 +160,7 @@ def test_earnings_partial_unscaled_and_days():
 
 def test_earnings_zero_kwh_priced_is_zero_money():
     e = EV.nodes(inp([row(7, "COMPLETE", kwh="0", amount="0")], hi=7), "MG-1")["earnings"]
-    assert e.text == "0.00 USD over 1 of 1 days checked · not billed or collected" and e.basis == "COMPLETE"
+    assert e.text == "0.00 USD over 1 of 1 day checked · not billed or collected" and e.basis == "COMPLETE"
 
 
 def test_earnings_currency_mixed():
@@ -171,7 +171,7 @@ def test_earnings_currency_mixed():
 
 def test_ev_earnings_reads_charging_kwh():
     e = EV.nodes(inp([row(9, "COMPLETE", "charging_kwh", amount="36")], hi=9), "EV-3")["earnings"]
-    assert e.key == "money.estimated_charging_income" and e.text.startswith("36.00 USD over 1 of 1 days checked")
+    assert e.key == "money.estimated_charging_income" and e.text.startswith("36.00 USD over 1 of 1 day checked")
 
 
 def test_mg2_earnings_is_the_stored_consequence_with_no_days():
