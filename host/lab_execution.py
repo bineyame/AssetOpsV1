@@ -46,7 +46,7 @@ from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID
 
 import yaml
@@ -2082,8 +2082,13 @@ class HostLabExecution:
         # DD0c-R Q1 (L1 batching): True seals a registered run's boundary groups once, after the last group.
         # Opt-in for the demo prepare and add-day producers only; the default seals per group.
         seal_once: bool = False,
+        # DD1a1-R5 (one stream per Site-day): a predicate on a report's source time (ISO text). A registered run
+        # publishes only the reports it keeps, so a full-day complement leaves out the instants a story run (or the
+        # next complement) already sends on the shared epoch. Opt-in for the demo producers; None keeps every report.
+        keep_source_time: Callable[[str], bool] | None = None,
     ) -> None:
         self._model = model
+        self._keep_source_time = keep_source_time
         self._cold_inputs = cold_inputs
         self._ev_inputs = ev_inputs
         self._gateway = gateway
@@ -2402,7 +2407,9 @@ class HostLabExecution:
         minute_records = cold_minute_records(execution)
         content = cold_content_digest(minute_records)
         series = cold_series_digest(reports)
-        refused = self._stage_registered_virtual_cold(run, reports)
+        staged = reports if self._keep_source_time is None else tuple(
+            r for r in reports if self._keep_source_time(r.source_time))
+        refused = self._stage_registered_virtual_cold(run, staged)
         failure = None
         if refused is not None:
             failure = ExecutionFailure(
@@ -2875,6 +2882,8 @@ class HostLabExecution:
             text = f"registered publication refused: REPORT_NOT_ADAPTABLE: {rejected}"
             note(text)
             return text
+        if self._keep_source_time is not None:
+            keyed = [k for k in keyed if self._keep_source_time(k[0].source_sample_time)]
         try:
             schedule = self._schedules.read(session.run_id)
         except ScheduleUnreadable as unreadable:

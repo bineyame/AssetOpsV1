@@ -177,12 +177,13 @@ def _draft(store, run_spec: dict, MANIFEST: dict):
     return run, view
 
 
-def _gateway(tmp_path: Path, run, epoch: str, upload: dict):
+def _gateway(tmp_path: Path, run, epoch: str, upload: dict, *, state_dir: Path | None = None):
     """A freshly provisioned gateway process for one run: its own state directory and sequence epoch (a second
-    provisioning of the Site's gateway never reuses an epoch, so message IDs never collide across runs)."""
+    provisioning of the Site's gateway never reuses an epoch, so message IDs never collide across runs).
+    DD1a1-R5: `state_dir` reopens a Site-day's existing gateway state instead (an identical provisioning is a no-op)."""
     from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config
 
-    config = write_config(tmp_path / "gateway",
+    config = write_config(state_dir or tmp_path / "gateway",
                           provisioning_from_snapshot(run.registered_basis.snapshot_canonical, epoch=epoch))
     document = json.loads(config.read_text(encoding="utf-8"))
     config.write_text(json.dumps({**document, "upload": upload}), encoding="utf-8")
@@ -191,9 +192,13 @@ def _gateway(tmp_path: Path, run, epoch: str, upload: dict):
     return process
 
 
-def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime) -> dict:
+def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime, *, gateway_dir: Path | None = None,
+                        keep=None) -> dict:
     """One registered run through a real gateway: run to end, register its STAGED batches as REGISTERED_SIMULATION
-    publications, release, and deliver every sealed batch into the ordinary S2 batch ingestion."""
+    publications, release, and deliver every sealed batch into the ordinary S2 batch ingestion.
+
+    DD1a1-R5 (demo full days): `gateway_dir` is the Site-day's one gateway state, reused by each of that day's runs,
+    so the epoch's sequence continues across separately sealed runs; `keep` filters the reports by source time."""
     import test_s6_verification_publication as pub
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger import GatewayPrincipal
@@ -220,14 +225,15 @@ def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime) 
         return answer.status, canonical_receipt_v2_text(answer.receipt).encode("utf-8")
 
     token = f"aog1.{secrets.token_hex(16)}.{secrets.token_urlsafe(32)}"
-    (tmp_path / "gateway").mkdir(parents=True)
-    (tmp_path / "gateway" / "upload.credential").write_text(token, encoding="ascii")
-    restrict_to_current_user(tmp_path / "gateway" / "upload.credential")
+    state = gateway_dir or tmp_path / "gateway"
+    state.mkdir(parents=True, exist_ok=gateway_dir is not None)
+    (state / "upload.credential").write_text(token, encoding="ascii")
+    restrict_to_current_user(state / "upload.credential")
     central = FakeCentral(respond)
     process = _gateway(tmp_path, run, epoch, {"server_url": central.url, "upload_credential_file": "upload.credential",
-                                           "ca_file": str(CERT), "interval_seconds": 3600})
+                                           "ca_file": str(CERT), "interval_seconds": 3600}, state_dir=gateway_dir)
     try:
-        port = pub._host(tmp_path / "h", process.link)
+        port = pub._host(tmp_path / "h", process.link, keep)
         port.start(run)
         assert port.run_to_end(run).status == "COMPLETED"
         stage = port.registered_stage(run)

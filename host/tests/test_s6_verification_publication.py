@@ -127,9 +127,11 @@ def _gateway(tmp_path: Path, run, upload: dict | None = None) -> GatewayProcess:
 SEAL_ONCE = False
 
 
-def _host(root: Path, link) -> HostLabExecution:
+def _host(root: Path, link, keep=None) -> HostLabExecution:
+    # DD1a1-R5: `keep` (a source-time predicate) is passed by the demo full-day producer only.
+    extra = {"keep_source_time": keep} if keep is not None else {}
     return HostLabExecution(artifacts=YamlExecutionArtifacts(root), stages=JsonSourceStages(root / "stages"),
-                            gateway=RegisteredGatewayPublisher(link), seal_once=SEAL_ONCE)
+                            gateway=RegisteredGatewayPublisher(link), seal_once=SEAL_ONCE, **extra)
 
 
 def published(tmp_path: Path, run) -> list:
