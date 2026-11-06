@@ -260,7 +260,7 @@ Not required for R9 (Architect: owner informed, not blocking). The verification 
   - Mill pair (mill day S-5d + stream): findings, finding_revision, action(+events, policy change), work cases, verification_metric (12), outcome
     VERIFIED, trial cost, money all EQUAL; `verification_plan` differs only in baseline-selection bookkeeping as before (R9). MG-2 counts equal
     (5 windows). Mill day 2026-10-30 COMPLETE; 0 generator starts in 06:00-24:00 of the mill day (one 05:05 pre-dawn start, in the night); story-window
-    readings identical (5920 = 5920) so mill/spare-solar verdict reads the same data. 0 AMBIGUOUS expected unchanged (finding counts equal).
+    readings identical (5920 = 5920) so mill/spare-solar verdict reads the same data. 0 AMBIGUOUS rows in either build (queried).
   - Full calendar with/without: 3 Findings = 3 (7 = 7 revisions), ACT-K1 VERIFIED, metrics 12 = 12, money tables EQUAL, MG-2 equal over 8 windows. The
     calendar has no complement now, so the two builds are the same inputs (equal by construction; recorded, not a finding).
 - R6/R7/R7b/R12/R13 re-check: R6 (degraded outage split across complements) no longer applies (degraded day is story-only; `_OUTAGE` path untouched).
