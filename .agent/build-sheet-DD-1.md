@@ -676,3 +676,40 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **Owner.** No decision needed now: no shown story changes, and the owner's night decision and CH9-R4 hold. The coordinator informs the owner of the size against the 2 planned.
   - Only if A′ stops: "Some Kobo example days can't be filled to a full day honestly. Show them as 'partly checked', losing the 'daytime solar unused' figure and the mill 'Target met' result for those days?" The recommendation would then be given against the probe's numbers.
 - **Handoff.** The builder takes the registered-Site probes first. If no stop fires, it derives the `kobo-rest-*` and early-night files, runs `--check`, rebuilds Kobo `with`/`without`, runs the R3–R14 checks with the amended bound, and runs guards V, A and W. Context note: this Architect is fit for one more lane-2 ruling.
+
+## DD1a1-R16: after the R15 stops, Kobo goes hybrid: full days only where every join is STOPPED (recommended; owner decides)
+
+- Architect: Claude (Architect 26), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\review-packet-DD-1a1.md` "DD1a1-R15 (builder 20)" at `afe90e8c1` (registered KOBO-001 probe).
+- **Probe results.**
+  - N is RUNNING at 14:00 (06:25–14:00) and at 24:00.
+  - R30 and R25 are STOPPED at 14:00, but RUNNING at 24:00 (22:05 and 23:25 on) and through their early nights.
+  - The mill chain passes. It is STOPPED at its 18:00 story end (89.47 %) and at 24:00 (48.42 %). The 18:00 cut is accepted as a valid cut, since it is STOPPED on both sides.
+- **What each option keeps and loses.**
+  - **(1) Hybrid: RECOMMENDED.**
+    - A day is full only if every join of its chain is STOPPED on registered-Site probes, under the R15 bound. Today that is the mill day, plus any steady 00–24 day whose 24:00 ends STOPPED (B-22, DD-1a2, probed per day).
+    - The N (necessary-run), R30 and R25 trial days are story-only and read "partly checked", which is literally true.
+    - **Keeps:**
+      - The 3 generator Findings, their intervals and their citations ("without" = "with", R5/R8).
+      - ACT-K1's trial outcome and metrics (Q6 equality: complements never moved them).
+      - MG-2 counts and money (R3 check 2, equal).
+      - On the mill/Grow day: "daytime solar unused", the R12 +42 kWh daylight productive use, and the MG-5 full day.
+    - **MILL-3/"Target met"** stays possible, but it is not yet proven. It needs 3 COMPLETE days on each side, and those days must be mill or steady days that pass the join rule. The DD-1a2 dry run decides; if it fails, the R12 stop applies.
+    - **Loses (generator/ACT-K1 days only):**
+      - The full-day solar-unused and MG-5 readings on N/R30/R25 days. These show as "not available yet" or partly checked.
+      - Those days' nights, so the owner's night profile shows only on full days.
+      - The R6/R7/R7b night-split work for those days, which becomes moot.
+      - Nothing the generator story claims.
+  - **(2) All Kobo days story-only (D).** Everything in (1)'s losses, plus:
+    - the mill day's solar-unused, MG-5 full day and daylight kWh;
+    - MILL-3, so the Grow "Target met" result cannot be shown at all;
+    - the owner's night decision entirely.
+  - **(3) Option B.** It keeps full days everywhere, but only after a product/simulator change: a RUNNING start with a timer, in three contracts, with a profile-version/registered-basis check. That is about 1–1.5 units, plus re-probing every chain, which takes DD-1a1 to about 7–7.5, against 2 planned. It also puts regression risk on a defended path just before the demo. It fails SCOPE-1's "present less over building more" while (1) keeps every claim.
+- **Build if (1).**
+  - v2 keeps complements only for chains that pass. N/R30/R25 days become story-only, with v1-equal payloads.
+  - The mill day gets `kobo-rest-mill` (18–24) and its early night.
+  - L0: a full day tiles [00:00, 24:00); a story-only day equals v1.
+  - `dd1a1_r12_check.py` applies the R15 bound to full days only.
+  - DD-1a2's B-22 steady days are full only if their 24:00 probe is STOPPED, and story-only otherwise. They are never tuned.
+- **Size: −0.25.** The N/R30/R25 chains, the R25 Foundation-revision probe build-out and the R7 night split for trial days are dropped. DD-1a1 5.75 → 5.5 and DD-1 10.5 → 10.25; the plan rows need it. SCOPE-1 reason: as in R15, but only for the days kept full.
+- **Owner question (one; recommendation: yes, option 1; the build waits for the answer, because it reverses part of CH9-R4/Q4 for Kobo):** "On the example days where the generator is still running at the edge of the example, we can't fill in the rest of the day honestly. Show those days (the generator-support and trial days) as 'partly checked'? Their findings and the trial result stay the same, and the mill day keeps its full day and 'Target met'. Recommended: yes. The alternative is about 1–1.5 extra units of simulator work to fill every day."
+- **Handoff.** Wait for the owner's answer. If it is yes, the builder applies "Build if (1)", rebuilds Kobo `with`/`without`, runs the R3–R15 checks on the full days and guards V, A and W, and adds the join rule to the DD-1a2 MILL-3 dry run. Context note: this Architect is fit for one more short lane-2 ruling.
