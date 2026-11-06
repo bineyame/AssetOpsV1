@@ -191,6 +191,8 @@ export interface OutcomeBoardRow {
   /** CH-6a3: the row's three node claims, its days line and the R7 target note; absent on an older body. */
   nodes?: RowNodes | null;
   target_note?: string | null;
+  /** CH-6b2 (§B3): the Grow row's `ob-val` (earnings, else potential, else target); absent on other rows. */
+  grow_headline?: string | null;
 }
 
 export interface OutcomeBoardBody {

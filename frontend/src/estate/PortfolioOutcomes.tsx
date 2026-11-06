@@ -5,9 +5,16 @@ import { OutcomeCardValue } from "../blocks/OutcomeRow";
 import { defaultChainClient, type ChainClient } from "../sites/chainClient";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
-import { boardMoneyText } from "../sites/OutcomeBoard";
 import { MissingClaim } from "../ui";
-import type { EstateOutcomeSummaryBody, EstateOutcomeSummaryRow, EstatePortfolioBody, EstateQuery, EstateResult, EstateValueCard } from "./estateClient";
+import type {
+  EstateOutcomeSummaryBody,
+  EstateOutcomeSummaryRow,
+  EstatePortfolioBody,
+  EstatePortfolioCard,
+  EstateQuery,
+  EstateResult,
+  EstateValueCard,
+} from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE } from "./estateFinancialsWords";
 import { estateHref } from "./estateShared";
@@ -65,16 +72,7 @@ export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: s
   },
 ];
 
-export const PROTECT_DETAIL = "Service disruptions recorded as findings · loss not priced";
-/** OUT-C U5: the Protect detail once the outcome summary is loaded; the early warnings are a separate clause. */
-export function protectDetailText(summary: EstateOutcomeSummaryBody | null): string {
-  const category = summary?.categories.find((c) => c.category === "PROTECT_ASSET");
-  if (summary === null || category === undefined) return PROTECT_DETAIL;
-  const w = category.warning_count;
-  return `Service disruptions recorded as findings · ${w} early ${w === 1 ? "warning" : "warnings"}, counted separately · loss not priced`;
-}
-export const PROTECT_BASIS = "Measured events, counted separately · loss not priced";
-export const ASSURE_BASIS = "Completed work does not establish savings";
+/** Addendum 2: the backend always sends OPERATING_COST; its absence is a malformed body (the unknown wording). */
 export const OPTIMIZE_COST_MISSING = {
   value: "Not assessed",
   detail: "Operating cost is not assessed for this selection",
@@ -83,195 +81,92 @@ export const OPTIMIZE_COST_MISSING = {
   tone: "neutral",
 } as const;
 
-/** WALK1-1 (WN-2, R670): how much of a partly checked estate was checked; null unless counts are on checked days. */
-export function checkedDaysClause(body: EstatePortfolioBody): string | null {
-  if ((body.summary.count_basis ?? null) !== "CHECKED_DAYS") return null;
-  const days = body.summary.checked_days ?? [];
-  if (days.length === 0) return null;
-  const withheld = anyWithheld(body);
-  if (days.length === 1) {
-    const base = `${days[0].checked} of ${days[0].requested} days checked at ${days[0].site_name}`;
-    return withheld ? `${base} · findings next to unchecked days not shown yet` : base;
-  }
-  const base = `days not checked yet at ${days.length} sites`;
-  return withheld ? `${base} · findings next to those days not shown yet` : base;
-}
-
-/** WALK1-1 fix round (M1): on checked days, any Site whose Findings next to unchecked days were left out. */
-export function anyWithheld(body: EstatePortfolioBody): boolean {
-  return (body.summary.count_basis ?? null) === "CHECKED_DAYS" && (body.summary.checked_days ?? []).some((d) => d.withheld === true);
-}
-export const NONE_SHOWN_YET = "None shown yet";
-
-const withClause = (detail: string, clause: string | null) => (clause === null ? detail : `${detail} · ${clause}`);
-const onCheckedDays = (body: EstatePortfolioBody) => (body.summary.count_basis ?? null) === "CHECKED_DAYS";
-
-/** Rulings A-Q9 / A-Q10: the evidence-gap clause of the Assure detail, from the summary and the scope. */
-export function evidenceGapText(gaps: number | null, sites: number, checkedDays = false): string {
-  if (gaps === null) return "evidence gaps not assessed";
-  if (gaps === 0) return checkedDays ? "no evidence gaps on the days checked" : "no evidence gaps";
-  if (gaps === 1) return "evidence gap at 1 site";
-  if (gaps === sites) return `evidence gaps at all ${sites} sites`;
-  if (gaps < sites) return `evidence gaps at ${gaps} of ${sites} sites`;
-  return `evidence gaps at ${gaps} sites`;
-}
-
-/** Ruling A-Q10: the Protect value for n Sites with a primary Protect Finding (null: not assessed). */
-function protectValue(n: number | null, checkedDays: boolean, withheld = false): ReactNode {
-  if (n === null) return "Not assessed";
-  if (n === 0 && withheld) return NONE_SHOWN_YET;
-  if (n === 0 && checkedDays) {
-    return (
-      <>
-        None found <small>on the days checked</small>
-      </>
-    );
-  }
-  if (n === 0) return "No sites disrupted";
-  return (
-    <>
-      {n} <small>{n === 1 ? "site disrupted" : "sites disrupted"}</small>
-    </>
-  );
-}
+/** The card links (markup only); every card's words come from the server (CH-6b2). */
+const CARD_DESTINATION: Record<OutcomeCategoryKey, string> = {
+  GROW_REVENUE: "/findings/opportunities",
+  OPTIMIZE_COST: "/financials",
+  PROTECT_ASSET: "/findings/risks",
+  ASSURE_PERFORMANCE: "/evidence",
+};
 
 interface CardContent {
   value: ReactNode;
-  detail: string;
+  detail: string | null;
+  note: string | null;
+  days: string | null;
   basis: string;
   destination: string | null;
   tone: string;
+  grow: EstatePortfolioCard["parts"] | null;
 }
 
-/** B-Q27 (R549): the first Site's Grow `short_value`, when the outcome summary carries one. */
-export function growShortValue(summary: EstateOutcomeSummaryBody | null): string | null {
-  for (const site of summary?.sites ?? []) {
-    const value = site.rows.find((r) => r.category === "GROW_REVENUE")?.short_value ?? null;
-    if (value !== null && value !== "") return value;
+/** CH-6b2 (§B2, CH6b2-R Q1): a server card as markup: `{text} <small>{small}</small>`, the kept Grow gap. */
+function serverValue(card: EstatePortfolioCard): ReactNode {
+  if (card.missing) {
+    return (
+      <MissingClaim as="span" gapId="G-portfolio-grow-revenue" placement="portfolio.outcomes.grow-value">
+        Not available yet
+      </MissingClaim>
+    );
   }
-  return null;
+  return card.value.small ? (
+    <>
+      {card.value.text} <small>{card.value.small}</small>
+    </>
+  ) : (
+    card.value.text
+  );
 }
-
-/** WALK1-1 (WN-3, R672): each Site whose Grow row carries an amount (a declared price × measured kWh estimate). */
-export function growEstimates(summary: EstateOutcomeSummaryBody | null): { site: string; money: string }[] {
-  const out: { site: string; money: string }[] = [];
-  for (const site of summary?.sites ?? []) {
-    const row = site.rows.find((r) => r.category === "GROW_REVENUE");
-    const money = boardMoneyText(row?.headline_money ?? null);
-    if (money !== null) out.push({ site: site.site_name, money });
-  }
-  return out;
-}
-export const GROW_ESTIMATE_BASIS = "Declared price × measured kWh · not billed or collected";
 
 function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {
-  const card = (k: EstateValueCard["key"]) => body.value_cards.find((c) => c.key === k);
-  const clause = checkedDaysClause(body);
-  if (key === "GROW_REVENUE") {
-    // D-W1-4: amounts from different Sites (different windows) are never added; each Site is named with its own.
-    const estimates = growEstimates(summary);
-    if (estimates.length > 0) {
-      const k = estimates.length;
-      return {
-        value:
-          k === 1 ? (
-            <>
-              {estimates[0].money} <small>estimated</small>
-            </>
-          ) : (
-            <>
-              {k} <small>sites with an estimate</small>
-            </>
-          ),
-        detail: `${estimates.map((e) => `${e.site} ${e.money}`).join(" · ")} · each site's latest assessed period`,
-        basis: GROW_ESTIMATE_BASIS,
-        destination: "/findings/opportunities",
-        tone: "green",
-      };
-    }
-    const short = growShortValue(summary);
-    if (short !== null) {
-      return {
-        value: short,
-        detail: "Site income not recorded",
-        basis: "Opportunities · revenue not measured yet",
-        destination: "/findings/opportunities",
-        tone: "green",
-      };
-    }
-    return {
-      value: (
-        <MissingClaim as="span" gapId="G-portfolio-grow-revenue" placement="portfolio.outcomes.grow-value">
-          Not available yet
-        </MissingClaim>
-      ),
-      detail: "Site income not recorded",
-      basis: "Opportunities · revenue not measured yet",
-      destination: "/findings/opportunities",
-      tone: "neutral",
-    };
-  }
   if (key === "OPTIMIZE_COST") {
-    const cost = card("OPERATING_COST");
-    // Addendum 2: the backend always sends OPERATING_COST, so its absence is a malformed body; keep the card in the
-    // unknown wording (estate/portfolio.py DISPLAYED_VALUE["UNKNOWN"]).
-    if (cost === undefined) return { ...OPTIMIZE_COST_MISSING };
+    // CH6b2-R Q3: Optimize stays on its CH-5c money line, with no days line (MD-CH5b-4 kept for Optimize).
+    const cost = body.value_cards.find((c) => c.key === "OPERATING_COST");
+    if (cost === undefined) return { ...OPTIMIZE_COST_MISSING, note: null, days: null, grow: null };
     const { value, detail } = cardValue(cost, body);
-    return { value, detail: withClause(detail, clause), basis: cost.basis_text, destination: cost.destination, tone: cost.tone };
+    return { value, detail, note: null, days: null, basis: cost.basis_text, destination: cost.destination, tone: cost.tone, grow: null };
   }
-  if (key === "PROTECT_ASSET") {
-    const n = body.summary.category_counts?.PROTECT_ASSET?.sites_with_primary_finding ?? null;
-    return {
-      value: protectValue(n, onCheckedDays(body), anyWithheld(body)),
-      detail: withClause(protectDetailText(summary), clause),
-      basis: PROTECT_BASIS,
-      destination: "/findings/risks",
-      tone: n !== null && n >= 1 ? "red" : "neutral",
-    };
+  const card = summary?.cards?.[key];
+  const note = key === "GROW_REVENUE" ? null : (body.summary.card_notes?.[key] ?? null);
+  if (card === undefined) {
+    // The summary has not loaded (or is older): the card says so, never a browser-built value.
+    return { value: "Not known yet", detail: null, note, days: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null };
   }
-  const recovery = card("VERIFIED_RECOVERY");
-  const gap = evidenceGapText(body.summary.evidence_gap_site_count, body.scope.authorized_site_count, onCheckedDays(body));
   return {
-    // POLISH §3.1 (Assure card): the server's "Not established" reads "Not known yet" on this card.
-    value:
-      recovery === undefined || recovery.state === "NOT_ESTABLISHED" || recovery.state === "UNSUPPORTED"
-        ? "Not known yet"
-        : cardValue(recovery, body).value,
-    detail: withClause(assureDetailText(summary, gap), clause),
-    basis: recovery?.basis_text || ASSURE_BASIS,
-    destination: "/evidence",
-    tone: "neutral",
+    value: serverValue(card),
+    detail: card.detail,
+    note,
+    days: card.days_line,
+    basis: card.basis_text,
+    destination: CARD_DESTINATION[key],
+    tone: card.tone,
+    grow: card.parts ?? null,
   };
 }
 
-const sites = (n: number) => `${n} ${n === 1 ? "site" : "sites"}`;
-
-/**
- * OUT-D U5 (R586, review M2): the Assure detail names how many Sites declared targets. It says "no targets
- * declared" only when every Site was read, and names the Sites not checked when some were not.
- */
-export function assureDetailText(summary: EstateOutcomeSummaryBody | null, gap: string): string {
-  const lead = verifiedText(summary);
-  const n = summary?.objective_site_count ?? null;
-  const unread = summary?.objective_sites_unread ?? 0;
-  if (n === null || (n === 0 && unread > 0)) return `${lead} · ${gap}`;
-  if (n === 0) return `${lead} · no targets declared · ${gap}`;
-  const unchecked = unread > 0 ? `, ${sites(unread)} not checked` : "";
-  // WALK1-6 D4 (R697): a Site's target may sit under another outcome than Assure.
-  return `${lead} · targets declared at ${sites(n)}, for any outcome${unchecked} · ${gap}`;
-}
-
-/** WALK1-1 (WN-1, R671): the Assure lead clause from the boards' own verified count (same window as each Site row). */
-export function verifiedText(summary: EstateOutcomeSummaryBody | null): string {
-  const v = summary?.verified_result_count ?? null;
-  const unread = summary?.verified_sites_unread ?? 0;
-  const lead =
-    v === null
-      ? "Verified results not known yet"
-      : v === 0
-        ? "No verified result yet"
-        : `${v} ${v === 1 ? "verified result" : "verified results"}`;
-  return v !== null && unread > 0 ? `${lead}, ${sites(unread)} not checked` : lead;
+/** CH-6b2 (mock v70 `pfGrowParts`, `index.html:421`): the Grow card's three parts, server text only. */
+function PortfolioGrowParts({ parts }: { parts: NonNullable<EstatePortfolioCard["parts"]> }) {
+  return (
+    <dl className="oc-pfgrow" data-portfolio-grow-parts>
+      <div>
+        <dt>Target</dt>
+        <dd data-portfolio-grow-part="target">{parts.target}</dd>
+      </div>
+      <div>
+        <dt>Potential</dt>
+        <dd data-portfolio-grow-part="potential">{parts.potential}</dd>
+      </div>
+      <div>
+        <dt>Estimated income</dt>
+        <dd data-portfolio-grow-part="income">{parts.income}</dd>
+        {parts.income_note ? (
+          <dd className="oc-pfnote" data-portfolio-grow-note>
+            {parts.income_note}
+          </dd>
+        ) : null}
+      </div>
+    </dl>
+  );
 }
 
 /**
@@ -353,13 +248,25 @@ export function CategoryCards({
               <p className="oc-pfdef" data-portfolio-card-definition>
                 {definition}
               </p>
-              {/* MOCK DEVIATION MD-CH5b-4: no `oc-pfdays` line here; the days are in the dialog's "Days used". */}
               <OutcomeCardValue why={<WhyButton label={name} onOpen={(button) => setWhyOpen({ key, name, button })} />}>
                 <div className="value-number" data-portfolio-card-value>
                   {c.value}
                 </div>
               </OutcomeCardValue>
-              <p data-portfolio-card-detail>{c.detail}</p>
+              {/* CH-6b2 (mock `oc-pfdays`): the server's days line; MD-CH5b-4 kept for Optimize only (CH6b2-R Q3). */}
+              {c.days ? (
+                <small className="ob-days oc-pfdays" data-portfolio-card-days>
+                  {c.days}
+                </small>
+              ) : null}
+              {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}
+              {c.detail ? <p data-portfolio-card-detail>{c.detail}</p> : null}
+              {/* CH6b2-R Q1: the Portfolio-body clause, one server line rendered on its own (never joined here). */}
+              {c.note ? (
+                <p className="oc-pfnote" data-portfolio-card-note>
+                  {c.note}
+                </p>
+              ) : null}
               <SiteDots category={key} summary={summary} />
               <div className="value-basis" data-portfolio-card-basis>
                 {c.basis}

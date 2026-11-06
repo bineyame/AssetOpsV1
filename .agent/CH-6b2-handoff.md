@@ -1,6 +1,15 @@
-﻿# CH-6b2 handoff (PARTIAL: backend done, frontend not started)
+﻿# CH-6b2 handoff (PARTIAL: backend done, frontend code committed, frontend tests not yet rewritten)
 
-- State: main (CH6b2-R) merged; **backend committed `6b4e682f2`**; frontend NOT started.
+- State: main (CH6b2-R) merged; backend `6b4e682f2`; **frontend code committed (see git log), tsc clean**.
+- Frontend landed: `estateClient.ts` (`EstatePortfolioCard`, `cards`, `card_notes`, `headroom_unit`, `EstateCountBasis` NOT_KNOWN);
+  `PortfolioOutcomes.tsx` card rules deleted, `content()` renders `summary.cards` (+ `card_notes` line, `oc-pfdays`, `PortfolioGrowParts`
+  `dl.oc-pfgrow`), Optimize via `cardValue`; `OutcomeBoard.tsx` Grow ob-val = `grow_headline`, `GrowParts` in `ob-body`, Grow chip
+  dropped, its `title` on the Potential part (the chip had no link_ref, only a title: note in packet); `EstatePortfolio.tsx` unit = `study.headroom_unit`.
+- **RESUME HERE:** `npx vitest run src/estate/__tests__/estatePortfolio.test.tsx` has 24 failures, all tests of the deleted browser rules
+  (OUT-A A6 protect/assure, OUT-C U5 protect text, WALK1-1 block, grow short value/missing claim, ch4 panel unit). Rewrite them to feed
+  `summary.cards` / `body.summary.card_notes` / `study.headroom_unit` fixtures (`portfolioFixtures.ts`) and assert the server text renders;
+  add: NOT_KNOWN basis vitest (Q8), Grow parts on card, board Grow parts in ob-body + no Grow chip (`outcomeBoard.test.tsx`), body without
+  `nodes` renders none texts. `vitest related` fails to parse a .py import: run the test files directly. outcomeBoard + evidenceTrace pass.
 - Backend landed:
   - `chain/claims.py`: `counted_threads`, `primary_category`, `disrupting`, `SITES_DISRUPTED` in `CLAIM_KEYS`, `EstateCounts.disrupted`.
   - `chain/vocabulary.py`: `count.sites_disrupted` + `COUNT_ZERO`; `node_text` "1 of 1 day checked" (Q7a); `CARD_TEXT`, `card_text`,
@@ -14,7 +23,7 @@
 - Card shape (`summary.cards` and `/estate/chain` `cards`): `{GROW_REVENUE|PROTECT_ASSET|ASSURE_PERFORMANCE: {value:{text,small}, missing,
   detail, basis_text, days_line, tone, claim, parts?:{target, potential, income, income_note}}}`; `summary.card_notes:{PROTECT_ASSET,
   ASSURE_PERFORMANCE}` on the Portfolio body.
-- Next (frontend), resume here:
+- Original frontend plan (1-4 done):
   1. `F/estate/estateClient.ts`: types for `cards`, `card_notes`, `study.headroom_unit`; `EstateCountBasis` += `"NOT_KNOWN"` (Q8) + 1 vitest.
   2. `F/estate/PortfolioOutcomes.tsx` CategoryCards renders `summary.cards` + `body.summary.card_notes` (own line); delete protectValue,
      growShortValue, growEstimates, content() card rules, assureDetailText/verifiedText, checkedDaysClause/anyWithheld/evidenceGapText,
