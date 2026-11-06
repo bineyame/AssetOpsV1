@@ -366,3 +366,41 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   7. The day is one epoch with 0 AMBIGUOUS, and its assessment and Findings equal the v1 degraded day.
   - If any assertion fails, stop and the Architect rules.
 - **Size: +0.** The mechanism is already built. The check is one L2 case inside R5's probe and acceptance. DD-1a1 stays 3.25 and DD-1 stays 8.0. No owner question: no shown story changes.
+
+## DD1a1-R7: split the trial-after night at the reserve change's instant
+
+- Architect: Claude (Architect 23), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `4e2eed8db`.
+  - The `with` build refuses `trial-after`'s `night-early` complement on 2026-11-05, which runs [21:00Z, 03:00Z): "Foundation v16 is valid until 2026-11-05T00:00:00Z".
+  - ACT-K1's `effective_from` is `S+1d 00:00` (`demo-combined-story-v1.json:15`), which is 03:00 local, in the middle of that night.
+- **Ruling: split the night run at 00:00Z into two complements on the same Site-day stream.**
+  - **Part A** is `night-early` on [21:00Z, 00:00Z), ending exclusive. It cites v16 and reserve 30 %.
+  - **Part B** is a derived `kobo-night-early-from-0300` on [00:00Z, 03:00Z). It cites v17 and reserve 25 %. It follows R5's edge rule, so it sends nothing at the trial run's 03:00Z start.
+  - **Why the split is honest.** A configuration change takes effect at one instant, so the readings before 00:00Z were made under v16 and those after under v17. Two runs, each citing the basis that was valid for it, state exactly that. The refusal is correct: one run cannot claim one basis across a change. A run is a simulation session, not a gateway event, so splitting it claims no gateway reset.
+  - **R5 holds.** Both parts take the S+1d Site-day's one epoch (`day-<n>`) and its one gateway state (`gw-<epoch>`). The sequence continues from A into B. Each instant is sent once: A's end is exclusive and 00:00Z belongs to B. This is R5's own case of several runs on one stream, with one more complement.
+  - **Part B's start state is measured, not chosen** (R2, Q3: no state is carried between runs).
+    - Generate it with `tools/derive_steady_scenarios.py`.
+    - It copies `kobo-night-early`'s windows from 03:00 local verbatim: 03–04 is the second hour of the 02–04 window, then 04–05 and 05–06. Each keeps its `# source:` line.
+    - Its SoC, fuel and generator state come from one probe run of Part A, measured at 00:00Z under v16. The file cites the probe's run id. It goes into `--check`.
+    - The label reads: "Kobo night 03:00–06:00, after the reserve change took effect at 03:00; start state measured at that instant".
+  - The physics decides what the 25 % reserve does to the night, including the R3 05:00 generator start. Nothing is tuned.
+- **Rejected options.**
+  - **Starting trial-after's night at 00:00Z and placing local 00:00–03:00 elsewhere.** Those hours belong to the S+1d local day (R5's day edges). Moving them to another day or stream breaks the day's coverage or invents a second epoch.
+  - **Moving the revision boundary.** It changes ACT-K1's recorded `effective_from`, and with it the applied basis, the frozen plan and the verified trial. The coordinator's condition was that ACT-K1 stays unchanged. Moving it to fit a data seam would also be tuning.
+- **Generalising rule.** Any complement whose interval crosses a foundation revision's `valid_until` is split at that instant, using this same method. `resolve` detects the crossing and does not hard-code a date. Today this is the only case.
+- **The check (L0, then L2 on its own `*_test` DB).**
+  - **L0.**
+    - The v2 calendar still sends each instant once, with one epoch per Site-day.
+    - Part A ends exclusive at 00:00Z, and B starts at 00:00Z and ends before the trial run's 03:00Z.
+    - Part B's windows equal `kobo-night-early`'s from 03:00 local.
+  - **L2.**
+    1. Part A drafts READY on v16 and Part B on v17, and the `with` build completes.
+    2. Part B's first sample equals Part A's state at 00:00Z: no SoC, fuel or generator-state jump. The cited probe run reproduces it.
+    3. Both parts are on one epoch, and the sequence runs 1..N with no gap across them.
+    4. ACT-K1 is unchanged with and without the complements: the accept, apply, `effective_from`, plan windows, VERIFIED outcome and metrics are equal (Q6).
+    5. R5's acceptance holds: the same 3 Findings and 0 AMBIGUOUS.
+  - Stop and the Architect rules if any of these happens:
+    - Part A's 3 h interval is refused;
+    - Part B does not draft READY;
+    - a seam jump appears;
+    - ACT-K1 differs.
+- **Size: +0.25** for the derived file and its probe, the split in `resolve` and the calendar, and the checks. DD-1a1 3.25 → 3.5 and DD-1 8.0 → 8.25; the plan rows need it. SCOPE-1 reason: without it the `with` build cannot finish, so the trial day is partial. No owner question: no shown story changes.
