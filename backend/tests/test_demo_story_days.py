@@ -224,28 +224,50 @@ def _v2():
     return sd.load(sd.V2_FILE)
 
 
-def test_v2_every_day_tiles_the_local_day_00_to_24():
-    runs = sd.resolve(_v2(), S)
+def _v2_with_mill():
+    doc = copy.deepcopy(_v2())
+    doc["sites"]["kobo"] = [{"day": "S-5d", "kind": "mill-midday"}] + doc["sites"]["kobo"]
+    return doc
+
+
+def test_v2_only_the_mill_day_is_a_full_day_and_it_tiles_the_local_day_00_to_24():
+    # DD1a1-R16: every other Kobo story day, and every Cold and EV day, is its one story run (partly checked).
+    runs = sd.resolve(_v2_with_mill(), S)
     by_day: dict = {}
     for r in runs:
         by_day.setdefault((r.site, r.day), []).append(r)
     full = {k: v for k, v in by_day.items() if len(v) > 1}
-    assert {k[0] for k in full} == {"kobo"}  # DD1a1-R14: Cold full days are withdrawn
-    for (site, day), group in full.items():
-        D = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
-        ordered = sorted(group, key=lambda r: r.start)
-        assert ordered[0].start == D - timedelta(hours=3), (site, day)
-        for a, b in zip(ordered, ordered[1:]):
-            assert (a.covers_end or a.end) == b.start, (site, day, a.kind, b.kind)
-        assert (ordered[-1].covers_end or ordered[-1].end) == D + timedelta(hours=21), (site, day)
-    assert all(len(v) == 4 for (s, _), v in full.items() if s == "kobo")
-    assert all(len([r for r in by_day[k]]) == 1 for k in by_day if k[0] == "cold")  # one story run, no fill-ins
+    assert list(full) == [("kobo", "2026-10-24")]
+    group = full[("kobo", "2026-10-24")]
+    D = datetime.fromisoformat("2026-10-24").replace(tzinfo=timezone.utc)
+    ordered = sorted(group, key=lambda r: r.start)
+    assert [r.kind for r in ordered] == ["night-early", "mill-midday", "mill-rest"]
+    assert ordered[0].start == D - timedelta(hours=3)
+    for a, b in zip(ordered, ordered[1:]):
+        assert (a.covers_end or a.end) == b.start
+    assert (ordered[-1].covers_end or ordered[-1].end) == D + timedelta(hours=21)
+    assert not [k for k in by_day if k not in full and len(by_day[k]) != 1]
+    assert not [k for k, v in _v2()["kinds"]["kobo"].items() if v.get("complement") and k != "mill-midday"]
 
 
 def test_v2_tiling_check_is_not_vacuous():
-    doc = copy.deepcopy(_v2())
-    doc["kinds"]["kobo"]["steady-afternoon"]["start"] = "D+0d 12:00"  # a one-hour gap
+    doc = copy.deepcopy(_v2_with_mill())
+    doc["kinds"]["kobo"]["mill-rest"]["start"] = "D+0d 12:00"  # a three-hour gap
     assert _codes(doc) == "DAY_NOT_TILED"
+
+
+def test_full_day_only_where_every_join_is_stopped():
+    # DD1a1-R16 guard. A complement on a story whose joins are not measured STOPPED is refused ...
+    doc = copy.deepcopy(_v2_with_mill())
+    doc["kinds"]["kobo"]["normal"]["complement"] = ["night-early", "mill-rest"]  # N ends RUNNING on the registered Site
+    assert _codes(doc) == "FULL_DAY_JOIN_NOT_STOPPED"
+    # ... and so is the mill day itself once one of its measured joins reads RUNNING (the guard can fail).
+    joins = copy.deepcopy(sd.full_day_joins())
+    assert [j["generator"] for j in joins["kobo-mill-midday"]["joins"]] == ["STOPPED", "STOPPED"]
+    joins["kobo-mill-midday"]["joins"][1]["generator"] = "RUNNING"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.check_full_day("kobo", "2026-10-24", "kobo-mill-midday", joins)
+    assert err.value.error_code == "FULL_DAY_JOIN_NOT_STOPPED"
 
 
 def test_v2_mill_midday_points_at_the_derived_file_and_v1_is_unchanged():
@@ -254,7 +276,7 @@ def test_v2_mill_midday_points_at_the_derived_file_and_v1_is_unchanged():
 
 
 def test_v2_complements_are_received_after_their_own_end_and_inherit_knowledge():
-    runs = sd.resolve(_v2(), S)
+    runs = sd.resolve(_v2_with_mill(), S)
     story = {(r.site, r.day): r for r in runs if not r.complement_of and r.has_run}
     for r in runs:
         if r.complement_of:
@@ -278,7 +300,7 @@ def _streams(runs):
 
 
 def test_v2_one_epoch_per_stream():
-    runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
+    runs = [r for r in sd.resolve(_v2_with_mill(), S) if r.has_run]
     streams = _streams(runs)
     assert any(len(st) > 1 for v in streams.values() for st in v)
     seen = set()
@@ -336,7 +358,7 @@ def _not_once(runs):
 
 
 def test_v2_each_instant_is_sent_once_per_stream():
-    bad, checked = _not_once([r for r in sd.resolve(_v2(), S) if r.has_run])
+    bad, checked = _not_once([r for r in sd.resolve(_v2_with_mill(), S) if r.has_run])
     assert bad == [] and checked > 0, bad[:5]
 
 
@@ -349,7 +371,7 @@ def test_v2_cold_days_are_the_v1_days():
 
 
 def test_v2_instant_check_is_not_vacuous():
-    runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
+    runs = [r for r in sd.resolve(_v2_with_mill(), S) if r.has_run]
     loose = [sd.replace(r, owned=()) for r in runs]  # complements that ignore the story's instants
     closed = [sd.replace(r, emit_until=r.emit_until + timedelta(minutes=1)) if r.complement_of else r for r in runs]
     assert _not_once(loose)[0] and _not_once(closed)[0]
@@ -363,20 +385,21 @@ def test_v2_story_runs_equal_v1():
           for r in sd.resolve(_v2(), S) if not r.complement_of]
     assert v2 == v1 and v1
     assert all(r.keep() is None for r in sd.resolve(_v2(), S) if not r.complement_of)
+    assert not [r for r in sd.resolve(_v2(), S) if r.complement_of]  # DD1a1-R16: no Kobo story day carries a complement
 
 
 # DD1a1-R7/R7a: the trial-after night is split at the reserve change (S+1d 00:00Z); part A is the derived
 # `kobo-night-early-until-0300`, part B `kobo-night-early-from-0300`.
 def _split_runs():
-    cut = S + timedelta(days=1)
-    runs = sd.resolve(_v2(), S, revision_boundaries=(cut,))
+    cut = S - timedelta(days=5)  # the mill day (S-5d), the one full day, crossing a revision at its 00:00Z
+    runs = sd.resolve(_v2_with_mill(), S, revision_boundaries=(cut,))
     return cut, [r for r in runs if r.site == "kobo" and r.day == cut.date().isoformat() and r.has_run]
 
 
 def test_v2_trial_after_day_has_five_runs_split_at_the_revision_boundary():
     cut, day = _split_runs()
     day.sort(key=lambda r: r.start)
-    assert len(day) == 5
+    assert len(day) == 4
     a, b = day[0], day[1]
     assert (a.scenario["scenario_id"], b.scenario["scenario_id"]) == ("kobo-night-early-until-0255",
                                                                       "kobo-night-early-from-0300")
@@ -384,11 +407,11 @@ def test_v2_trial_after_day_has_five_runs_split_at_the_revision_boundary():
     assert a.end == cut - timedelta(minutes=5) and a.covers_end == cut == b.start and b.end == cut + timedelta(hours=3)
     assert a.epoch == b.epoch  # one epoch for the stream
     # the day still tiles 00:00-24:00 local (resolve raises DAY_NOT_TILED otherwise)
-    assert all(len(v) == 4 for v in _non_split_days().values())
+    assert all(len(v) == 3 for v in _non_split_days().values())
 
 
 def _non_split_days():
-    runs = sd.resolve(_v2(), S, revision_boundaries=(S + timedelta(days=1),))
+    runs = sd.resolve(_v2_with_mill(), S, revision_boundaries=(S + timedelta(days=1),))
     cut_day = (S + timedelta(days=1)).date().isoformat()
     by_day: dict = {}
     for r in runs:
@@ -429,6 +452,7 @@ def test_split_night_files_windows_equal_the_parents():
 # DD1a1-R10: a Kobo full-day degraded day is held until BL-18 (source-time outage cut).
 def _with_kobo_degraded():
     doc = _v2()
+    doc["kinds"]["kobo"]["degraded"]["complement"] = ["night-early", "mill-rest"]
     doc["sites"] = {"kobo": [{"day": "S-3d", "kind": "degraded"}, {"day": "S+0d", "kind": "trial-before"},
                           {"day": "S+1d", "kind": "trial-after"}]}
     return doc
@@ -451,10 +475,11 @@ def test_r10_degraded_day_is_refused_in_a_calendar_and_by_add_day_and_only_the_f
     doc = _with_kobo_degraded()
     assert _codes(doc) == "DEGRADED_DAY_HELD"
     with pytest.raises(sd.StoryDaysError) as err:
-        sd.plan_add_day(_v2(), [], "kobo", "degraded", S, S + timedelta(days=10))
+        sd.plan_add_day(doc, [], "kobo", "degraded", S, S + timedelta(days=10))
     assert err.value.error_code == "DEGRADED_DAY_HELD"
     sd.DEGRADED_PROBE = True
     try:
-        assert sd.resolve(doc, S)  # the one switch is the only thing holding the day: not vacuous
+        # the flag lets the day past the R10 hold; the R16 guard (joins not measured STOPPED) then still refuses it
+        assert _codes(doc) == "FULL_DAY_JOIN_NOT_STOPPED"
     finally:
         sd.DEGRADED_PROBE = False

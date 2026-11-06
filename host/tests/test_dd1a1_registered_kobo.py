@@ -39,7 +39,7 @@ DAY = "2026-10-20"
 NEW_FILES = {
     "kobo-steady-day": ("03:00", "15:00", False), "kobo-steady-afternoon": ("11:00", "17:00", False),
     "kobo-steady-dusk": ("15:00", "17:00", False),
-    "kobo-mill-dusk": ("15:00", "17:00", False), "kobo-night-late": ("17:00", "21:00", False),
+    "kobo-rest-mill": ("15:00", "21:00", True), "kobo-night-late": ("17:00", "21:00", False),
     "kobo-night-early": ("21:00", "03:00", True), "kobo-night-late-after-overcast": ("17:00", "21:00", False),
     "kobo-night-early-after-overcast": ("21:00", "03:00", True),
 }

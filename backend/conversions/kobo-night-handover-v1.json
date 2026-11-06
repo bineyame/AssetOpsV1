@@ -18,6 +18,25 @@
   "timestep_minutes": 5
  },
  "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L",
+ "full_days": {
+  "kobo-mill-midday": {
+   "joins": [
+    {
+     "at_local": "18:00",
+     "probe": "probe-M-dusk-27105d57ad83",
+     "generator": "STOPPED"
+    },
+    {
+     "at_local": "24:00",
+     "probe": "probe-M-dusk-run-2daa527af8c4",
+     "generator": "STOPPED"
+    }
+   ],
+   "exempt": [
+    "06:00 story start"
+   ]
+  }
+ },
  "probes": {
   "S": {
    "probe_id": "probe-S-b6a152f8cdf3",
@@ -284,11 +303,11 @@
    "min_soc": 50.789
   },
   "M-dusk-run": {
-   "probe_id": "probe-M-dusk-run-f8c26d19b4b2",
+   "probe_id": "probe-M-dusk-run-2daa527af8c4",
    "scenario_sha256": null,
    "interval": [
     "2026-09-22T15:00:00Z",
-    "2026-09-22T17:00:00Z"
+    "2026-09-22T21:00:00Z"
    ],
    "start": {
     "starting-state-of-charge": 89.47368421052632,
@@ -296,14 +315,14 @@
     "starting-generator-state": "STOPPED"
    },
    "measured_end": {
-    "soc": 69.47368421052632,
+    "soc": 48.421052631578945,
     "fuel": 300.0,
     "generator": "STOPPED"
    },
    "generator_starts": 0,
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
-   "min_soc": 69.474
+   "min_soc": 48.421
   }
  },
  "handover": {
@@ -385,9 +404,9 @@
     "fuel": 300.0,
     "generator": "STOPPED"
    },
-   "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended; the generator was STOPPED at 18:00"
+   "rounding": "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at 18:00"
   },
-  "kobo-mill-dusk": {
+  "kobo-rest-mill": {
    "probe_id": "probe-M-dusk-27105d57ad83",
    "at_local": "18:00",
    "start": {
@@ -395,7 +414,7 @@
     "fuel": 300.0,
     "generator": "STOPPED"
    },
-   "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended; the generator was STOPPED at 18:00"
+   "rounding": "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at 18:00"
   }
  }
 }

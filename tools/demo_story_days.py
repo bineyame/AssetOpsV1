@@ -24,6 +24,9 @@ DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" /
 #: its story run plus the steady runs (and named placeholders) that tile the Site's local day [00:00, 24:00).
 #: `prepare --days` takes it; DD-1a2 builds the B-22 list on it and makes it the default.
 V2_FILE = DEFAULT_FILE.with_name("demo-story-days-v2.json")
+#: DD1a1-R16: a full day (a kind with a `complement` list) is built only where every join of its day is STOPPED on the
+#: registered Site. `tools/probe_kobo_nights.py` records each measured join under `full_days` in this file.
+JOINS_FILE = DEFAULT_FILE.with_name("kobo-night-handover-v1.json")
 SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 CODE_SITE = {v: k for k, v in SITE_CODE.items()}
@@ -119,6 +122,19 @@ def load(path: str | Path | None = None) -> dict:
     return json.loads(Path(path or DEFAULT_FILE).read_text(encoding="utf-8"))
 
 
+def full_day_joins() -> dict:
+    """The measured joins of every full-day story scenario (`full_days` of the handover file)."""
+    return json.loads(JOINS_FILE.read_text(encoding="utf-8")).get("full_days", {})
+
+
+def check_full_day(site: str, day: str, scenario_id: str, joins: dict | None = None) -> None:
+    """DD1a1-R16 guard: a full day may only be built where every join is STOPPED (measured on the registered Site)."""
+    entry = (full_day_joins() if joins is None else joins).get(scenario_id)
+    if not entry or not entry.get("joins") or any(j.get("generator") != "STOPPED" for j in entry["joins"]):
+        raise StoryDaysError("FULL_DAY_JOIN_NOT_STOPPED", f"{site} {day}: {scenario_id} has no measured full day whose "
+                             "every join is STOPPED, so it stays story-only (partly checked) (DD1a1-R16)")
+
+
 def day_offset(text: str) -> int:
     m = _DAY.match(text)
     if not m:
@@ -196,6 +212,7 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
                               c.get("note", ""), story.known_at, start + timedelta(minutes=c["covers_minutes"]),
                               story.kind))
     else:
+        check_full_day(site, story.day, spec["scenario_id"])
         for name in comp:
             # DD1a1-R14: a day that follows another story day on the calendar starts its night from that day's chain
             # (`after`: the chain key), so its early night is that chain's derived file, not the generic one.

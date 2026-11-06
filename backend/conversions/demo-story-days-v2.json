@@ -3,8 +3,8 @@
     "id": "assetops.demo-story-days",
     "version": 2
   },
-  "label": "Full-day story calendar (v2): each Kobo story day plus its complement runs tiling the local day 00-24; Cold story days are the v1 days (DD1a1-R14)",
-  "status": "DD-1a1 (DD1a1-R Q7, R2-R4). Same days as v1; each Kobo kind lists its `complement`; Cold has none (DD1a1-R14 withdrew Cold full days: a Cold day is its v1 story run and reads partly checked). Local day = [D-1d 21:00Z, D+0d 21:00Z) (UTC+3). v1 is kept as history; `prepare --days` takes this file.",
+  "label": "Story calendar (v2): the mill story day is a full day (its complement runs tile local 00-24); every other Kobo story day and every Cold story day is the v1 story run and reads partly checked (DD1a1-R16)",
+  "status": "DD-1a1 (DD1a1-R Q7, R2-R4, R16). Same days as v1; only the Kobo `mill-midday` kind lists a `complement`, because a day is full only where every join is STOPPED on the registered Site (R16: the N, R30 and R25 story days end or continue RUNNING at their edges, so they stay story-only). Cold has none (DD1a1-R14). Local day = [D-1d 21:00Z, D+0d 21:00Z) (UTC+3). v1 is kept as history; `prepare --days` takes this file.",
   "kinds": {
     "kobo": {
       "normal": {
@@ -14,12 +14,7 @@
         "end": "D+0d 11:00",
         "received_at": "D+0d 12:00",
         "assess": "build",
-        "note": "generator needed throughout the run",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "generator needed throughout the run"
       },
       "overcast": {
         "scenario_id": "kobo-s3-dispatch-necessary-run",
@@ -28,12 +23,7 @@
         "end": "D+0d 11:00",
         "received_at": "D+0d 12:00",
         "assess": "build",
-        "note": "overcast morning with heavy demand; the generator is needed (U1 P1: kobo-daytime-overcast refused the 8-hour interval)",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "overcast morning with heavy demand; the generator is needed (U1 P1: kobo-daytime-overcast refused the 8-hour interval)"
       },
       "overuse": {
         "scenario_id": "kobo-mini-grid-reserve-trial",
@@ -42,12 +32,7 @@
         "end": "D+0d 11:00",
         "received_at": "D+0d 12:00",
         "assess": "build",
-        "note": "generator kept running under the 30 % reserve",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "generator kept running under the 30 % reserve"
       },
       "degraded": {
         "scenario_id": "kobo-s3-dispatch-necessary-run",
@@ -57,12 +42,7 @@
         "received_at": "D+0d 12:00",
         "assess": "build",
         "delivery": "first_half",
-        "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4); the gateway stays down for the rest of the local day; later hours are not received",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4); the gateway stays down for the rest of the local day; later hours are not received"
       },
       "late": {
         "received_at": "D+2d 12:30",
@@ -80,12 +60,7 @@
         "received_at": "D+0d 12:00",
         "foundation_known_at": "D-6d 12:00",
         "assess": "build",
-        "note": "reserve trial baseline (30 %)",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "reserve trial baseline (30 %)"
       },
       "trial-after": {
         "scenario_id": "kobo-mini-grid-reserve-trial",
@@ -95,12 +70,7 @@
         "received_at": "D+0d 12:00",
         "foundation_known_at": "D-1d 16:00",
         "assess": "build",
-        "note": "reserve trial later run (25 %)",
-        "complement": [
-          "night-early",
-          "steady-afternoon",
-          "night-late"
-        ]
+        "note": "reserve trial later run (25 %)"
       },
       "mill-midday": {
         "scenario_id": "kobo-mill-midday",
@@ -112,8 +82,7 @@
         "note": "CH9-R2:Q8: sunny day; the grain mill runs at midday and its Action (Run the grain mill at midday on sunny days) is recorded at story time; prepare-only, not scheduled in sites (v2: derived kobo-mill-midday, DD1a1-R4)",
         "complement": [
           "night-early",
-          "mill-dusk",
-          "night-late"
+          "mill-rest"
         ]
       },
       "night-early": {
@@ -144,41 +113,14 @@
         "assess": "build",
         "note": "complement part B: night 03:00-06:00 local, after the reserve change took effect (DD1a1-R7); start state measured from a probe of part A"
       },
-      "steady-afternoon": {
-        "scenario_id": "kobo-steady-afternoon",
-        "scenario_version": 1,
-        "start": "D+0d 11:00",
-        "end": "D+0d 17:00",
-        "received_at": "D+0d 18:00",
-        "assess": "build",
-        "note": "complement: afternoon 14:00-20:00 local"
-      },
-      "steady-dusk": {
-        "scenario_id": "kobo-steady-dusk",
+      "mill-rest": {
+        "scenario_id": "kobo-rest-mill",
         "scenario_version": 1,
         "start": "D+0d 15:00",
-        "end": "D+0d 17:00",
-        "received_at": "D+0d 18:00",
-        "assess": "build",
-        "note": "complement: dusk 18:00-20:00 local"
-      },
-      "mill-dusk": {
-        "scenario_id": "kobo-mill-dusk",
-        "scenario_version": 1,
-        "start": "D+0d 15:00",
-        "end": "D+0d 17:00",
-        "received_at": "D+0d 18:00",
-        "assess": "build",
-        "note": "complement: dusk 18:00-20:00 local after the mill story day; start state measured at 18:00 (DD1a1-R12)"
-      },
-      "night-late": {
-        "scenario_id": "kobo-night-late",
-        "scenario_version": 1,
-        "start": "D+0d 17:00",
         "end": "D+0d 21:00",
         "received_at": "D+0d 22:00",
         "assess": "build",
-        "note": "complement: night 20:00-24:00 local"
+        "note": "complement: the rest of the mill day, 18:00-24:00 local in one run; start state measured at the story run's 18:00 end (DD1a1-R16)"
       }
     },
     "cold": {

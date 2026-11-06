@@ -40,8 +40,6 @@ STEADY = {
                               [("kobo-mini-grid-evening", n) for n in (2, 3, 4)], "kobo-mini-grid-evening"),
     "kobo-steady-dusk": ("Kobo steady dusk (18:00-20:00)", "18:00-20:00",
                          [("kobo-mini-grid-evening", 4)], "kobo-mini-grid-evening"),
-    "kobo-mill-dusk": ("Kobo mill dusk (18:00-20:00)", "18:00-20:00",
-                       [("kobo-mini-grid-evening", 4)], "kobo-mini-grid-evening"),
 }
 #: DD1a1-R4: the mill story day (`mill-midday`, kobo-daytime v2) is BLOCKED on mini-grid v6 for the same reason as the
 #: steady day, and kobo-daytime is not edited. The derived file copies kobo-daytime v2's windows and state of charge
@@ -50,8 +48,8 @@ MILL = {"kobo-mill-midday": ("Kobo mill midday (sunny day, 06:00-18:00)", "06:00
                              [("kobo-daytime", n) for n in range(1, 7)], "kobo-daytime")}
 MILL_LABEL = "example data, derived from kobo-daytime v2, the mill story day"
 #: DD1a1-R12: the dusk files' run-start state is a measured handover at 18:00 (`HANDOVER`, probes S-dusk and M-dusk),
-#: never the evening parent's declared 42 %. `kobo-mill-dusk` is `kobo-steady-dusk`'s windows after the mill story day.
-DUSK = {"kobo-steady-dusk": "S-dusk", "kobo-mill-dusk": "M-dusk"}
+#: never the evening parent's declared 42 %.
+DUSK = {"kobo-steady-dusk": "S-dusk"}
 DUSK_PARENT = "kobo-mini-grid-evening"
 #: DD1a1-R14: Cold full days are withdrawn; there is no Cold steady scenario.
 PREFIX = {"kobo-daytime": "", "kobo-mini-grid-evening": "evening-"}
@@ -139,8 +137,7 @@ def kobo(sid: str) -> str:
                   + (", plus the fuel and generator start states below." if dawn else "."))
     if sid in DUSK:
         entry = _dusk_start(sid)
-        label = ("example data, steady day (derived from kobo-mini-grid-evening)" if sid == "kobo-steady-dusk" else
-                 "Kobo 18:00-20:00 after the mill story day; start state measured at 18:00")
+        label = "example data, steady day (derived from kobo-mini-grid-evening)"
         values = {"starting-state-of-charge": entry["start"]["soc"], "starting-fuel": entry["start"]["fuel"],
                   "starting-generator-state": entry["start"]["generator"]}
         for param in head["public_parameters"]:
@@ -327,10 +324,67 @@ def night(sid: str) -> str:
     return "\n".join(out) + "\n"
 
 
+#: DD1a1-R16 (hybrid, owner-approved 2026-11-07): only the mill day is a full day, and its story run ends at 18:00 local
+#: (15:00Z). Its rest of day (18:00-24:00) is ONE run: the evening parent's window 4 (18-20) verbatim, then the R2
+#: late-night windows (20-24) verbatim, so no cut falls inside a generator interval. Its start state is measured on the
+#: registered Site at the story run's end (`kobo-night-handover-v1.json`, probe M-dusk); the generator must be STOPPED
+#: at 18:00 and at 24:00 (`probe_kobo_nights.dusk`, `FULL_DAY_JOINS`). N, R30 and R25 days are story-only.
+CHAIN_STORY = {"M": "kobo-mill-midday"}
+REST = {"kobo-rest-mill": ("M", (4,), "18:00")}
+#: the chains whose every join is STOPPED on the registered Site; a kind with a `complement` in the v2 calendar must name one
+#: of these (tools/demo_story_days.py `FULL_DAY_CHAINS`, L0 guard FULL_DAY_JOIN_NOT_STOPPED).
+FULL_DAY_JOINS = {"M": ("kobo-rest-mill",)}
+
+
+def rest_document(sid: str, start: dict) -> tuple[dict, list[str]]:
+    """The rest-of-day document for `sid` from the start state `{soc, fuel, generator}`, and one source comment per
+    timeline event (same order): the evening window (`window_events`), then the late night (`night_document`)."""
+    chain, windows, at = REST[sid]
+    night_doc, night_comments = night_document("kobo-night-late", start)
+    first_events = list(window_events([(DUSK_PARENT, n, 120 * slot) for slot, n in enumerate(windows)]))
+    shift, first = 120 * len(windows), len(first_events)
+    events, comments = [], []
+    for comment, event in first_events:
+        events.append(event); comments.append(comment)
+    for comment, event in zip(night_comments, night_doc["timeline"]):
+        event = copy.deepcopy(event)
+        event["offset_minutes"] += shift
+        event["sequence"] += first
+        events.append(event); comments.append(comment)
+    doc = {**night_doc, "scenario_id": sid,
+           "display_name": f"Kobo rest of day after the {chain} story day ({at}-24:00)",
+           "purpose": (f"Example data, the rest of the day after the mill story day ({CHAIN_STORY[chain]}), {at}-24:00 "
+                       f"local in one run: the declared healthy reference window of {DUSK_PARENT} for {at}-20:00, "
+                       "unchanged, then the typical-night windows for 20:00-24:00 (not a Kobo measurement). The run-start "
+                       "state was measured at the story run's end on the registered Site "
+                       "(kobo-night-handover-v1.json), never chosen (DD1a1-R16)."),
+           "timeline": events}
+    return doc, comments
+
+
+def rest(sid: str) -> str:
+    import json
+
+    entry = json.loads(HANDOVER.read_text(encoding="utf-8"))["handover"][sid]
+    doc, comments = rest_document(sid, entry["start"])
+    timeline = doc.pop("timeline")
+    out = ["# DD1a1-R16 rest-of-day scenario, generated by tools/derive_steady_scenarios.py; do not edit by hand.",
+           f"# label: {NIGHT_LABEL}",
+           f"# Run-start state (public_parameters): measured by probe {entry['probe_id']} at {entry['at_local']} local "
+           f"({HANDOVER.relative_to(ROOT).as_posix()}); {entry['rounding']}",
+           yaml.safe_dump(doc, sort_keys=False, width=1000, allow_unicode=True).rstrip(), "timeline:"]
+    for comment, event in zip(comments, timeline):
+        out.append(f"  # {comment}")
+        body = yaml.safe_dump([event], sort_keys=False, width=1000, allow_unicode=True).rstrip()
+        out.extend("  " + line for line in body.splitlines())
+    return "\n".join(out) + "\n"
+
+
 def derive() -> dict[str, str]:
     out = {sid: kobo(sid) for sid in STEADY | MILL}
     if HANDOVER.exists():
         out.update({sid: night(sid) for sid in NIGHTS})
+        out.update({sid: rest(sid) for sid in REST})
     return out
 
 

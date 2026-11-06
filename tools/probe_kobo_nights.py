@@ -190,7 +190,7 @@ def probe_state_at(doc: dict, minutes: int, draft=template_draft) -> dict:
 
 
 def dusk(draft=template_draft) -> tuple[dict, dict]:
-    """DD1a1-R12: the start state of `kobo-steady-dusk` and `kobo-mill-dusk` is what their parent day measures at 18:00
+    """DD1a1-R12, R16: the start state of `kobo-steady-dusk` and `kobo-rest-mill` is what their parent day measures at 18:00
     local (15:00Z), full precision so the seam has no jump. Probe S-dusk is probe S's windows 1-6 (06:00-18:00); probe
     M-dusk is `kobo-mill-midday` (06:00-18:00). Each dusk file is then run 15:00Z-17:00Z from its start, so its
     generator use is measured (a start there is a defect and stops the unit)."""
@@ -199,20 +199,27 @@ def dusk(draft=template_draft) -> tuple[dict, dict]:
     s_doc["scenario_id"] = "kobo-probe-s-dusk"
     m_doc = _load("kobo-mill-midday")
     probes, handover = {}, {}
-    for key, sid, doc in (("S-dusk", "kobo-steady-dusk", s_doc), ("M-dusk", "kobo-mill-dusk", m_doc)):
+    for key, sid, doc in (("S-dusk", "kobo-steady-dusk", s_doc), ("M-dusk", "kobo-rest-mill", m_doc)):
         probes[key] = measure(key, doc, f"{DAY}T03:00:00Z", f"{DAY}T15:00:00Z", draft)
         end = probes[key]["measured_end"]
+        if sid in derive.REST and end["generator"] != "STOPPED":  # DD1a1-R16: a full day only where every join is STOPPED
+            raise SystemExit(f"{sid}: the generator is {end['generator']} at 18:00; a full day needs STOPPED at every join")
         handover[sid] = {
             "probe_id": probes[key]["probe_id"], "at_local": "18:00",
             "start": {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"},
-            "rounding": "full precision, no rounding, so the dusk file starts exactly where its day ended" + (
+            "rounding": "full precision, no rounding, so the next run starts exactly where its day ended" + (
                 "; the generator was RUNNING at 18:00 and starts STOPPED (run setup refuses RUNNING)"
                 if end["generator"] == "RUNNING" else "; the generator was STOPPED at 18:00")}
-        run_doc = _load(sid) if (derive.SCENARIOS / f"{sid}.yaml").exists() else _load("kobo-steady-dusk")
-        for prm in run_doc["public_parameters"]:
-            prm["value"] = {"starting-state-of-charge": end["soc"], "starting-fuel": end["fuel"],
-                            "starting-generator-state": "STOPPED"}[prm["parameter_id"]]
-        probes[f"{key}-run"] = measure(f"{key}-run", run_doc, f"{DAY}T15:00:00Z", f"{DAY}T17:00:00Z", draft)
+        if sid in derive.REST:  # the rest of the mill day: 18:00-24:00 in one run, its end must be STOPPED too
+            run_doc, run_to, run_lo = derive.rest_document(sid, handover[sid]["start"])[0], f"{DAY}T21:00:00Z", f"{DAY}T15:00:00Z"
+        else:
+            run_doc, run_to, run_lo = _load(sid), f"{DAY}T17:00:00Z", f"{DAY}T15:00:00Z"
+            for prm in run_doc["public_parameters"]:
+                prm["value"] = {"starting-state-of-charge": end["soc"], "starting-fuel": end["fuel"],
+                                "starting-generator-state": "STOPPED"}[prm["parameter_id"]]
+        probes[f"{key}-run"] = measure(f"{key}-run", run_doc, run_lo, run_to, draft)
+        if sid in derive.REST and probes[f"{key}-run"]["measured_end"]["generator"] != "STOPPED":
+            raise SystemExit(f"{sid}: the generator is RUNNING at 24:00; a full day needs STOPPED at every join")
     return probes, handover
 
 
@@ -221,6 +228,16 @@ def dusk(draft=template_draft) -> tuple[dict, dict]:
 REGISTERED = {"site_code": "KOBO-001", "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
               "configuration": "demo prepare order: import, convert, configure_at (tools/demo_combined_kobo.py)",
               "result": "every probe and handover equal to the template-Site measurement"}
+
+
+def full_days(dusk_probes: dict) -> dict:
+    """DD1a1-R16: the measured joins of each full-day story scenario (read by `demo_story_days.check_full_day`). The
+    mill day's joins are its 18:00 story end and its 24:00 end of the rest-of-day run; the 06:00 story start is exempt."""
+    joins = [{"at_local": "18:00", "probe": dusk_probes["M-dusk"]["probe_id"],
+              "generator": dusk_probes["M-dusk"]["measured_end"]["generator"]},
+             {"at_local": "24:00", "probe": dusk_probes["M-dusk-run"]["probe_id"],
+              "generator": dusk_probes["M-dusk-run"]["measured_end"]["generator"]}]
+    return {"kobo-mill-midday": {"joins": joins, "exempt": ["06:00 story start"]}}
 
 
 def build(draft=template_draft) -> dict:
@@ -237,6 +254,7 @@ def build(draft=template_draft) -> dict:
         "registered_site": REGISTERED,
         "profile": PROFILE,
         "rounding": ROUNDING,
+        "full_days": full_days(dusk_probes),
         "probes": {**s_probes, **o_probes, **split_probes, **dusk_probes},
         "handover": {**s_handover, **o_handover, **split_handover, **dusk_handover},
     }
