@@ -133,11 +133,20 @@ def at_day(text: str, D: datetime) -> datetime:
     return D + timedelta(days=int(m.group(1)), hours=int(m.group(2)), minutes=int(m.group(3)))
 
 
+#: DD1a1-R10: a Kobo `degraded` day with complements cuts its story run by gateway batch order (a random source-id
+#: order), which no real outage looks like; the source-time cut is backlog BL-18. Until it lands no such day may enter a
+#: shown calendar, a demo script or a live `add-day`. Only the DD-1a1 degraded-day check sets this.
+DEGRADED_PROBE = False
+
+
 def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
     kinds = doc["kinds"].get(site, {})
     kind = entry.get("kind")
     if kind not in kinds:
         raise StoryDaysError("UNKNOWN_KIND", f"{site} kind {kind!r} is not one of {sorted(kinds)}")
+    if site == "kobo" and kind == "degraded" and kinds[kind].get("complement") and not DEGRADED_PROBE:
+        raise StoryDaysError("DEGRADED_DAY_HELD", f"{site} {entry.get('day')}: a full-day degraded day is held "
+                                                  f"until BL-18 (source-time outage cut); the Architect rules (DD1a1-R10)")
     off = weekday_offset(site, S, day_offset(entry["day"]))
     D = S + timedelta(days=off)
     spec = dict(kinds[kind])

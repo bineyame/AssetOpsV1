@@ -425,3 +425,37 @@ def test_split_night_files_windows_equal_the_parents():
     assert max(e["offset_minutes"] + e["timing"]["duration_minutes"] for e in a) == 175  # nothing past 02:55
     assert cells(probe, 0, 180, 0) == cells(parent, 0, 180, 0)  # the R7a probe file stays the parent's first 3 h
     assert cells(b, 0, 180, 0) == cells(parent, 180, 360, 180)  # part B = from 03:00 local
+
+
+# DD1a1-R10: a Kobo full-day degraded day is held until BL-18 (source-time outage cut).
+def _with_kobo_degraded():
+    doc = _v2()
+    doc["sites"] = {"kobo": [{"day": "S-3d", "kind": "degraded"}, {"day": "S+0d", "kind": "trial-before"},
+                          {"day": "S+1d", "kind": "trial-after"}]}
+    return doc
+
+
+def test_r10_no_shown_calendar_holds_a_kobo_full_day_degraded_day():
+    for path in (sd.DEFAULT_FILE, sd.V2_FILE):
+        doc = sd.load(path)
+        held = [e for e in doc["sites"].get("kobo", []) if e["kind"] == "degraded"
+                and doc["kinds"]["kobo"]["degraded"].get("complement")]
+        assert held == [], path.name
+    import re
+    root = Path(__file__).resolve().parents[2]
+    hint = re.compile(r"add-day[^\n]*(KOBO-001[^\n]*degraded|degraded[^\n]*KOBO-001)")
+    texts = [p for pat in ("tools/*.py", "docs/*.md", "docs/**/*.md") for p in root.glob(pat)]
+    assert [p.name for p in texts if hint.search(p.read_text(encoding="utf-8", errors="ignore"))] == []
+
+
+def test_r10_degraded_day_is_refused_in_a_calendar_and_by_add_day_and_only_the_flag_lets_it_through():
+    doc = _with_kobo_degraded()
+    assert _codes(doc) == "DEGRADED_DAY_HELD"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_day(_v2(), [], "kobo", "degraded", S, S + timedelta(days=10))
+    assert err.value.error_code == "DEGRADED_DAY_HELD"
+    sd.DEGRADED_PROBE = True
+    try:
+        assert sd.resolve(doc, S)  # the one switch is the only thing holding the day: not vacuous
+    finally:
+        sd.DEGRADED_PROBE = False
