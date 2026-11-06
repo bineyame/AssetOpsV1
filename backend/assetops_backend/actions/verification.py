@@ -518,7 +518,8 @@ class VerificationService:
 
         DD1a1-R9: with `facts_window` (a baseline pin), a different selected run is `moved` only when the facts the
         verification reads over that window differ (`_baseline_facts`); equal facts are `reselected` (pinned run,
-        current run) and do not block. A run that cannot be read fails closed as moved."""
+        current run, listed under `reselected` only when present) and do not block. A run that cannot be read fails
+        closed as moved."""
         ports = self._ports()
         port = ports.day_status
         out = []
@@ -545,9 +546,12 @@ class VerificationService:
                                            "facts": "equal", "assessments": len(facts[0])})
                     else:
                         moved.append(f"selection moved from run {pin['run_id']} to {status['run_id']}")
-            out.append({"day": str(pin["day"]), "pinned_run_id": None if pin.get("run_id") is None
-                        else str(pin["run_id"]), "status": status, "pending": pending, "moved": moved,
-                        "reselected": reselected, "current": not pending and not moved})
+            state = {"day": str(pin["day"]), "pinned_run_id": None if pin.get("run_id") is None
+                     else str(pin["run_id"]), "status": status, "pending": pending, "moved": moved,
+                     "current": not pending and not moved}
+            if reselected:  # listed only when it happened, so every earlier day-state body is unchanged
+                state["reselected"] = reselected
+            out.append(state)
         return out
 
     # ---- reads ------------------------------------------------------------------------------------------------

@@ -71,7 +71,7 @@ def test_one_changed_baseline_value_is_moved() -> None:
     current = copy.deepcopy(base)
     current[1]["result"]["portions_minutes"]["candidate"] = "41"
     state = _state(_service(base, current))
-    assert state["moved"] == [f"selection moved from run {PINNED} to {CURRENT}"] and state["reselected"] == []
+    assert state["moved"] == [f"selection moved from run {PINNED} to {CURRENT}"] and "reselected" not in state
 
 
 def test_one_changed_baseline_interval_is_moved() -> None:
