@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_UP, Decimal
 from typing import Any, Mapping, Sequence
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
@@ -261,6 +261,19 @@ def mean_text(total: Decimal, n: int) -> str:
     return format((total / n).quantize(CENT, rounding=ROUND_HALF_EVEN), "f")
 
 
+def miss_texts(l_sum: Decimal, nl: int, b_sum: Decimal, nb: int) -> tuple[str, str]:
+    """CH-9b3 fix L2: (after, needed) texts of a MISS, compared exactly. Cents when they already read after < needed;
+    otherwise more places (after rounded down, needed rounded up) until the shown figures agree with the verdict."""
+    after, needed = l_sum / nl, b_sum * TARGET["ratio"][0] / TARGET["ratio"][1] / nb
+    for places in range(2, 13):
+        q = Decimal(1).scaleb(-places)
+        a_txt = format(after.quantize(q, rounding=ROUND_HALF_EVEN if places == 2 else ROUND_DOWN), "f")
+        n_txt = format(needed.quantize(q, rounding=ROUND_HALF_EVEN if places == 2 else ROUND_UP), "f")
+        if Decimal(a_txt) < Decimal(n_txt):
+            break
+    return a_txt, n_txt
+
+
 def assess(plan: Mapping[str, Any], rows: Sequence[Any], today: date) -> dict[str, Any]:
     """The verdict of a frozen plan over snapshot rows read now (pure; Decimal and integers only, never floats).
 
@@ -285,6 +298,7 @@ def assess(plan: Mapping[str, Any], rows: Sequence[Any], today: date) -> dict[st
     still = [d for d in base_days if grades[d] == COMPLETE]
     if len(still) < MIN_DAYS:
         out["not_judged_text"] = SHORT_TEXT.format(n=len(still))
+        out["days_before_now"] = len(still)  # L3: the table's count is the line's count
         return out
     later = choose_days(grades, later_open)
     out["later_days"] = later
@@ -303,11 +317,13 @@ def assess(plan: Mapping[str, Any], rows: Sequence[Any], today: date) -> dict[st
     out.update(decided=True, later_kwh=l_sum, later_mean=mean_text(l_sum, nl))
     out["line"] = R7_TEXT.format(b=out["baseline_mean"], a=out["later_mean"], n=nl)
     if b_sum == 0:
-        out.update(outcome=INCONCLUSIVE, reasons=[BASELINE_ZERO], sentence=BASELINE_ZERO_TEXT)
+        out.update(outcome=INCONCLUSIVE, reasons=[BASELINE_ZERO], sentence=BASELINE_ZERO_TEXT, threshold=None)  # L1
     elif TARGET["ratio"][1] * l_sum * nb >= TARGET["ratio"][0] * b_sum * nl:
         out.update(outcome=VERIFIED, reasons=[TARGET_MET], sentence=VERIFIED_TEXT)
     else:
         out.update(outcome=INEFFECTIVE, reasons=[rules.TARGET_MISS])
+        out["later_mean"], out["threshold"] = miss_texts(l_sum, nl, b_sum, nb)  # L2
+        out["line"] = R7_TEXT.format(b=out["baseline_mean"], a=out["later_mean"], n=nl)
     return out
 
 
@@ -396,7 +412,8 @@ def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
     live = live or {}
     later_days = [d.isoformat() for d in live.get("later_days", [])]
     row.update(before=live.get("baseline_mean"), after=None, threshold=live.get("threshold"),
-               days_before=len(plan["baseline_selection"]["days"]), days_after=len(later_days), state="UNKNOWN")
+               days_before=live.get("days_before_now", len(plan["baseline_selection"]["days"])),
+               days_after=len(later_days), state="UNKNOWN")
     return {**head, "state": NOT_JUDGED, "outcome": None, "reasons": [], "sentence": None, "line": None,
             "not_judged_text": live.get("not_judged_text"), "plan": {**plan_part, "later_days": later_days},
             "metrics": [row]}

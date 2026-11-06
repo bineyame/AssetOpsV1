@@ -196,5 +196,34 @@ def test_zero_baseline_is_inconclusive_through_the_stage_helper(mill) -> None:
         body = svc.domain_summary(mill.t, mill.s, aid)
         assert body["reasons"] == ["BASELINE_ZERO"]
         assert body["sentence"] == "No midday use was measured before the change, so a 10% rise cannot be measured"
+        assert body["metrics"][0]["threshold"] is None  # L1
+    finally:
+        _close(mill)
+
+
+def test_the_verification_get_over_http_200_404_and_422(mill) -> None:
+    """L4: the route is registered at its path; an unknown Action or Site is 404, a bad id is 422."""
+    from uuid import uuid4
+
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from assetops_backend.action_api import build_action_router
+
+    svc, clock, aid, eff, tz = _frozen(mill, "ch9b3-http")
+    try:
+        _later(mill, eff, "11.5")
+        clock.at = _after(eff, tz, 5)
+        assert svc.evaluate_domain_plan(mill.t, mill.s, aid)["state"] == "VERIFIED"
+        app = FastAPI()
+        scope = {"MILL-1": ("MILL-1", mill.t, mill.s)}
+        app.include_router(build_action_router(svc.actions, scope.get, gate=lambda c, t, s: (True, "test gate")))
+        http = TestClient(app)
+        base = "/api/sites/{}/domain-work/actions/{}/verification"
+        ok = http.get(base.format("MILL-1", aid))
+        assert ok.status_code == 200 and ok.json()["state"] == "VERIFIED"
+        assert http.get(base.format("MILL-1", uuid4())).status_code == 404
+        assert http.get(base.format("OTHER-1", aid)).status_code == 404  # a Site this tenant does not hold
+        assert http.get(base.format("MILL-1", "not-a-uuid")).status_code == 422
     finally:
         _close(mill)

@@ -140,3 +140,21 @@ the owner sees the page in the post-W6 walkthrough). Not merged.
 
 - The "Target met" headline and the LATER_SHORT sentence (both new copy, R700).
 - Whether every MINIGRID tick asking for undecided plans is acceptable vs. the narrower trigger.
+
+## Fix round 1 (review ACCEPT, Lows L1-L5)
+
+- L1: `assess` returns `threshold=None` for BASELINE_ZERO; the table shows "At least 10% above before" with no figure.
+- L2: new `miss_texts`: on a MISS the shown after (rounded down) and needed (rounded up) gain places until after < needed
+  (10.999 vs 11.000), compared as exact Decimals; the R7 line uses the same text. Cent figures kept when already distinct.
+  VERIFIED needs no change (monotonic rounding never reads after < needed).
+- L3: not-judged `days_before` is the live count of still-COMPLETE baseline days (`days_before_now`), the line's count.
+- L4: `test_the_verification_get_over_http_200_404_and_422` (TestClient: 200 VERIFIED, 404 random Action, 404 unknown Site,
+  422 bad id). A 409 (non-MINI Action) case is not covered here.
+- L5: R700 row lists "No verification plan yet"; space restored in `operatorSiteRoutes.ts`.
+- New L0 tests: boundary miss 10.999, far miss keeps cents, zero-baseline no threshold, not-judged count.
+- Checks: L0 file 16 passed; Postgres files (`run-host-tests.ps1`, ch9b3 + reserve byte-equal) 9 passed; mill vitest 7 passed;
+  `tsc --noEmit` clean; mock-deviation labels OK (157 files).
+- Residual risks from review (not fixed): (1) later days chosen by grade at evaluation time, so a late-graded day +1 can be
+  excluded for good (pins/site_today record it); (2) no deadline gate on the trigger, a tick can overrun by one small query
+  plus a snapshot read; (3) outcomes are final, a later data revision never re-opens one, to be told to the client if a figure
+  is corrected.

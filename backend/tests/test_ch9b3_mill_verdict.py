@@ -6,6 +6,7 @@ INCONCLUSIVE BASELINE_ZERO, all in Decimal and integers (the 10% boundary is exa
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -53,7 +54,29 @@ def test_verified_at_exactly_ten_percent_is_exact_decimal() -> None:
 def test_just_under_ten_percent_is_ineffective_target_miss() -> None:
     out = vf.assess(plan(), baseline("10") + later(1, 2, 3, kwh="10.999"), TODAY)
     assert out["outcome"] == "INEFFECTIVE" and out["reasons"] == ["TARGET_MISS"] and out["sentence"] is None
-    assert out["baseline_mean"] == "10.00" and out["later_mean"] == "11.00" and out["threshold"] == "11.00"
+    # L2: cents would show 11.00 beside 11.00 and "Target not met"; the shown figures agree with the verdict.
+    assert out["baseline_mean"] == "10.00" and out["later_mean"] == "10.999" and out["threshold"] == "11.000"
+    assert Decimal(out["later_mean"]) < Decimal(out["threshold"])
+    assert out["line"].endswith("10.00 → 10.999 kWh a day on 3 fully checked days each")
+
+
+def test_a_miss_far_from_the_threshold_keeps_cent_figures() -> None:
+    out = vf.assess(plan(), baseline("10") + later(1, 2, 3, kwh="9"), TODAY)
+    assert out["later_mean"] == "9.00" and out["threshold"] == "11.00"
+
+
+def test_zero_baseline_has_no_pass_threshold() -> None:  # L1
+    out = vf.assess(plan(), baseline("0") + later(1, 2, 3, kwh="4"), TODAY)
+    assert out["reasons"] == ["BASELINE_ZERO"] and out["threshold"] is None and out["baseline_mean"] == "0.00"
+
+
+def test_not_judged_table_count_is_the_lines_count() -> None:  # L3
+    p = plan()
+    ctx = {"action": {"id": p["domain_action_id"], "action_code": "A", "title": "t"}, "plan": p}
+    live = vf.assess(p, [row(BASE[0], grade="PARTIAL"), row(BASE[1]), row(BASE[2])] + later(1, 2, 3), TODAY)
+    body = vf.summary_wire(ctx, [], live)
+    assert body["not_judged_text"].endswith("only 2 of 3 fully checked days before the change")
+    assert body["metrics"][0]["days_before"] == 2
 
 
 def test_day_value_is_the_sum_of_the_days_subject_rows() -> None:
