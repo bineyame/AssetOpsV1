@@ -36,7 +36,7 @@
    "min_soc": 50.789
   },
   "S-late": {
-   "probe_id": "probe-S-late-91611ae275e3",
+   "probe_id": "probe-S-late-a72ff844cd7b",
    "scenario_sha256": null,
    "interval": [
     "2026-09-22T17:00:00Z",
@@ -58,7 +58,7 @@
    "min_soc": 47.947
   },
   "S-early": {
-   "probe_id": "probe-S-early-28f08b84b74f",
+   "probe_id": "probe-S-early-9dc881e1f98d",
    "scenario_sha256": null,
    "interval": [
     "2026-09-22T21:00:00Z",
@@ -158,7 +158,7 @@
    "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover"
   },
   "kobo-night-early": {
-   "probe_id": "probe-S-late-91611ae275e3",
+   "probe_id": "probe-S-late-a72ff844cd7b",
    "at_local": "00:00",
    "start": {
     "soc": 48,

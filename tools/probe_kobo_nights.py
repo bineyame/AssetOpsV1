@@ -55,10 +55,10 @@ def probe_s() -> dict:
     # kobo-daytime declares only its 55 % state of charge (its own profile models no generator). DD1a1-R2 states
     # probe S's start as 55 %, 300 L and STOPPED, the fuel and generator start every other Kobo parent declares; the
     # two parameters take kobo-mini-grid-evening's structure with those R2 values.
-    evening = {p["parameter_id"]: p for p in _load("kobo-mini-grid-evening")["public_parameters"]}
-    for pid, value in (("starting-fuel", 300), ("starting-generator-state", "STOPPED")):
-        assert all(p["parameter_id"] != pid for p in doc["public_parameters"]), pid
-        doc["public_parameters"].append({**copy.deepcopy(evening[pid]), "value": value})
+    # DD1a1-R3 Q2: the same declaration as kobo-steady-day (derive.dawn_state(), uniform across the parents).
+    dawn, _ = derive.dawn_state()
+    assert not {p["parameter_id"] for p in dawn} & {p["parameter_id"] for p in doc["public_parameters"]}
+    doc["public_parameters"] += dawn
     return doc
 
 
