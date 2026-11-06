@@ -393,28 +393,43 @@ def build(url: str, work: Path, story: dict) -> dict:
     harness: list = []  # the S6 harness, opened by the trial chain once the trial-day Finding exists
     published, records, ids = {}, [], {}
     try:
-        for n, day in enumerate(days):
+        done: set[int] = set()
+
+        def play(n: int, day) -> None:
             entry = {"day": day.day, "offset": day.offset, "kind": day.kind, "as": day.as_kind,
                      "scenario": day.scenario, "run_id": None, "assess": day.assess,
                      "received_at": iso(day.received_at) if day.received_at else None}
-            if day.kind == "trial-after":
-                continue  # run by the trial-before entry's chain, next in the build order
+            done.add(n)
+            if day.has_run:
+                entry.update(run_day(store, runner, tmp, day, MANIFEST_V3))
+            records.append(entry)
+            print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
+
+        for n, day in enumerate(days):
+            if n in done or day.kind == "trial-after":
+                continue  # admitted inside the trial chain, or run by the trial-before entry's chain
             if day.kind == "trial-before":
-                # DD-1a1 (DD1a1-R Q6): the trial pair's steady complements are plain runs between the two trial
-                # entries in the build order; `_trial_chain` is unchanged and runs both trial runs here.
                 later = [d for d in days[n + 1:] if d.kind.startswith("trial-")]
                 assert later and later[0].kind == "trial-after", "the trial-after must follow the trial-before"
-                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published, day.epoch)
+
+                def admit(until: datetime, n: int = n) -> None:
+                    """DD1a1-R9: every later complement received by `until` is admitted at its `received_at`,
+                    between the chain steps, so the evaluation reads data as it stood at its own time."""
+                    for m, d in enumerate(days):
+                        if m > n and m not in done and not d.kind.startswith("trial-") and d.has_run                                 and d.received_at <= until:
+                            play(m, d)
+
+                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published, day.epoch, admit)
+                entry = {"day": day.day, "offset": day.offset, "kind": day.kind, "as": day.as_kind,
+                         "scenario": day.scenario, "run_id": None, "assess": day.assess,
+                         "received_at": iso(day.received_at) if day.received_at else None}
                 for d, name in ((day, "baseline"), (later[0], "later")):
                     records.append({**entry, "day": d.day, "offset": d.offset, "kind": d.kind,
                                     "received_at": iso(d.received_at),
                                     "run_id": (ids["runs"][name] or [None])[0]})
                 print("kobo trial", day.day, ids["action_code"], flush=True)
                 continue
-            if day.has_run:
-                entry.update(run_day(store, runner, tmp, day, MANIFEST_V3))
-            records.append(entry)
-            print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
+            play(n, day)
         for r in records:
             r["findings"] = findings_on(engine, result.site.id, r["day"])
             r["status_after_build"] = ("NO_RUN" if r["received_at"] is None else
@@ -443,9 +458,11 @@ def build(url: str, work: Path, story: dict) -> dict:
     return ids
 
 
-def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict, epoch: str) -> dict:
+def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict, epoch: str,
+                 admit=lambda until: None) -> dict:
     """The DEMO-A chain (s602b REPLAY body) at the trial pair's place: baseline run, accept, apply, freeze, later
-    run, evaluation through the real Action API."""
+    run, evaluation through the real Action API. DD1a1-R9: `admit(until)` admits the Site's complements received
+    by `until` before the freeze, the later run and the evaluation (ACT-K1's steps and instants are unchanged)."""
     import test_s6_verification_replay as rp
 
     _seal_once()
@@ -475,6 +492,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
         "effective_from": act["effective_from"], "idempotency_key": "demo3-apply-0001"})
     assert applied.status_code == 201, applied.text
     runner.now = max(runner.now, h.clock.at); runner.step({"do": "assess"}); runner.step({"do": "match"})
+    admit(rp._at(M["plan"]["freeze_at"]))
     h.clock.at = max(rp._at(M["plan"]["freeze_at"]), runner.now + timedelta(minutes=1))
     base = f"/api/sites/KOBO-001/actions/{action_id}/verification"
     frozen = h.client.post(f"{base}/plans", json={"baseline_start": win["baseline_start"],
@@ -483,12 +501,14 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     assert frozen.status_code == 201, frozen.text
     plan = frozen.json()["plan"]
     spec = {**M["runs"]["later"], "sequence_epoch": epoch}
+    admit(rp._at(spec["received_at"]) - timedelta(microseconds=1))
     later_run, _ = rp._draft(store, spec, M)
     published["later"] = rp._publish_and_accept(tmp / "later", later_run, spec["sequence_epoch"],
                                                 rp._at(spec["received_at"]),
                                                 gateway_dir=gateway_dir(tmp, spec["sequence_epoch"]))
     runner.now = max(runner.now, rp._at(spec["received_at"]) + timedelta(minutes=5))
     runner.step({"do": "assess"}); runner.step({"do": "match"})
+    admit(rp._at(M["evaluate_at"]))
     h.clock.at = max(rp._at(M["evaluate_at"]), runner.now + timedelta(minutes=1))
     bound = h.client.post(f"{base}/plans/{plan['plan_id']}/later-selection",
                           json={"idempotency_key": "demo3-bind-0001"})
