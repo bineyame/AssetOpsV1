@@ -499,3 +499,20 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - SCOPE-1 reason: without it, ACT-K1 cannot show VERIFIED on full days, and the Protect/Optimize board line loses its proof.
 - **Owner, informed, not blocking.** Verification now blocks only when the baseline facts change, not when the internal run identity changes. This was found by the full-day data and would hit any real continuous Site.
 - **Context note:** this Architect's context is getting heavy. Use a fresh Architect for the next lane-2 ruling.
+
+## DD1a1-R10: R6 assertion 7 restated as deterministic assertions; the batch-order cut goes to the backlog
+
+- Architect: Claude (Architect 25), 2026-11-06. Binding checked: Claude in the lane worktrees' `.ai/ROLE_CONFIG.md` (owner, 2026-10-27). Input: `AssetOpsV1-dd1a1\.agent\review-packet-DD-1a1.md` "R6 degraded-day check" and `DD-1a1-handoff.md` at `68be2a339`. The builder's diagnosis is accepted.
+- **Answer 1: grade equality to v1 is the wrong acceptance.** v1's degraded grade depends on which source's batches sort first by a random source id, so it is not a reference. R6's own premise ("the day grades as v1's degraded day") was wrong in the same way. An equality to a random value cannot pass or fail for the right reason.
+- **Answer 2: the honest cut is by source time, not batch order.** A gateway outage is one instant: every signal stops together. The delivered part is every reading with source time before the outage instant, for every source; nothing at or after it. Batches that span the instant are split there. The instant is fixed by the kind, not chosen: the story run's start plus half its duration (06:00 + 4 h = 10:00 local, 07:00Z). The batch-order cut is not honest: one source stops at 02:55 while another continues, which is no real outage shape.
+- **Answer 3: not defensibility-critical now; backlog it.** The v2 calendar has no `degraded` day (R6 scope note), so no shown story carries the defect. It matters only if a degraded day is added.
+  - **Backlog (next free BL id, BL-18 at the time of writing): source-time outage cut** in `publish_first_half` and the `add_day` degraded path, with the instant above. Its check: the delivered set is identical across two builds, and every signal's last delivered source time is below the instant.
+  - **Guard.** No `degraded` day may enter a shown calendar, demo script or live `add-day` demo until that backlog item lands. If one is asked for, stop and the Architect rules.
+- **R6 assertion 7 now reads (deterministic):**
+  - The day is one epoch with 0 AMBIGUOUS, and no Finding (equal to v1: none).
+  - The day's window is not COMPLETE: it is LIMITED with an incomplete-evidence reason, in both v1 and the `with` build.
+  - No story-window interval ends after the last delivered source time, except as OPEN_BOUND.
+  - The post-outage hours add nothing: the story-window intervals in `with` equal those of `without` on the same build's delivered set.
+  - No comparison of interval times or classes to v1.
+- **Size: +0.** The check script changes only. DD-1a1 stays 4.5 and DD-1 stays 9.25. No owner question: no shown story changes.
+- **Handoff:** builder applies the restated assertion 7 in `deg.sh`, reruns it, records the result in the packet's R6 section, and continues with the handoff's "Resume here" step 2. Context note: this Architect is fit for the next lane-2 ruling.
