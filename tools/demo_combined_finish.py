@@ -400,7 +400,7 @@ def _cov(c: dict | None) -> dict | None:
 @row("CO-6", idx=True)
 def co6(ctx: Ctx) -> dict:
     """Addendum 2 ruling (i) with COV-PARTIAL §6: the week S-6d..S+1d. It always holds the EV fault Tuesday (Tue <= S),
-    so cold and EV read their LATEST_EVENT. Kobo's estate coverage on `estate-coverage/2` is PARTIAL: the checked days
+    so cold and EV read their PERIOD (CH6b1-R3: the week, with the contained event window inside it). Kobo's estate coverage on `estate-coverage/2` is PARTIAL: the checked days
     are counted and every day with no run is named in `days.gaps`. The Portfolio status is PARTIAL or UNKNOWN, never
     CURRENT, and since FIX-COLD-DRAIN never PENDING on undrained cold/EV money. Kobo's outcome cells are its day-S
     board (`mini_summary_day(to)` = S for the midnight `to`, `site_outcomes/read.py:138`)."""
@@ -448,7 +448,7 @@ def co6(ctx: Ctx) -> dict:
 
 @row("CO-6b", idx=True)
 def co6b(ctx: Ctx) -> dict:
-    """Addendum 2: the day S. Kobo coverage CURRENT; cold LATEST_EVENT (the S failure night); EV reads what it reads
+    """Addendum 2: the day S. Kobo coverage CURRENT; cold PERIOD (the S failure night is the contained event); EV reads what it reads
     with no event on S (PERIOD unless S is a Tuesday): recorded and asserted as given, never forced."""
     body, summary, coverage, by_code = _estate(ctx, ctx.S, ctx.day(1))
     kobo = coverage.get(KOBO)

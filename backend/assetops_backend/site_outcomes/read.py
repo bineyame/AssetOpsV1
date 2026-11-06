@@ -578,6 +578,9 @@ class SiteOutcomeBoardService:
             placed = None
         if placed is None:
             perf.record("summary.seed_fallback", 0.0)
+            if self.s.chain_reader is None or len(tenants) != 1:   # CH6b1 L3: the no-reader/multi-tenant path logs too
+                LOG.warning("outcome summary: no one snapshot read (%s); each Site reads its own range",
+                            "no chain reader" if self.s.chain_reader is None else "more than one tenant")
         return placed
 
     def summary_window(self, site: SiteRef, lo: datetime, hi: datetime,
