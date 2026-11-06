@@ -8,7 +8,6 @@ in `MiniComposition.failed`, its contributor reads "Not available yet · this re
 outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
-import calendar
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
@@ -36,8 +35,7 @@ from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
     unresolved_links)
-from assetops_backend.outcomes.objectives import (
-    BEHIND_PACE, MISSED, ON_PACE, TOO_EARLY, ObjectiveFact, Reading, judge_month)
+from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.productive_use import productive_energy
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
