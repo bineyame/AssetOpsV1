@@ -660,3 +660,9 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   - Acceptance: the same 3 Findings with and without complements, 0 AMBIGUOUS, and Q6 trial metrics equal.
   - DD-1a1 2.75 → 3.25, DD-1 8.0; the plan rows need it. No owner question.
 - DD1a1-R6 (Architect 23, same day; binding checked, Claude; nothing committed): on the Kobo `degraded` day, the outage lasts the rest of the local day, and post-outage complements deliver 0. The reset epoch is rejected because it invents a reset and goes AMBIGUOUS. Required: clear `_OUTAGE` per build, and add a note line. The L2 check is a test-calendar degraded day: night-early full, half the story, 0 after, no S2 row after the last delivered sample, the outbox keeps the rest, the next day is clean, 0 AMBIGUOUS, and the grade equals v1. The v2 calendar has no Kobo degraded day (add-day only). Size +0; DD-1a1 3.25.
+- DD1a1-R7 (Architect 23, same day; nothing committed): split trial-after's `night-early` at ACT-K1's 00:00Z `effective_from`.
+  - Part A is [21:00Z, 00:00Z) on v16. Part B is a derived `kobo-night-early-from-0300` on [00:00Z, 03:00Z) on v17, with its start state measured from a probe of Part A at 00:00Z.
+  - Both parts are on the same Site-day epoch and gateway state, with the sequence continuing, so R5 holds.
+  - Moving the boundary and moving the night elsewhere are both rejected. The rule is general: split any complement that crosses a revision boundary.
+  - Checks: L0 instant-once with one epoch; L2 READY on v16 and v17, no seam jump, one epoch with the sequence 1..N, ACT-K1 equal with and without, and R5's acceptance.
+  - Size +0.25: DD-1a1 3.5, DD-1 8.25; the plan rows need it.
