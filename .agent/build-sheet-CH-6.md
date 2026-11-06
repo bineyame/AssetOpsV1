@@ -755,3 +755,28 @@ Packet at `9d84b9913`. No owner question.
 - "0 new" is then met in substance. No baseline change in this slice, and the subjects are not re-keyed here.
 
 **CH-6b1: 3.25 → 3.5.** The +0.25 goes into the current round, before the re-review.
+
+## CH6b2-R: rulings on the CH-6b2 pre-flight (Architect 24, Claude, 2026-11-06)
+
+Pre-flight: `AssetOpsV1-ch6b2\.agent\CH-6b2-preflight.md` at `bd24773f0`. **CH-6b2 stays at 2.25.** No owner question. Mock v70 is the layout spec.
+
+- **Q1 accepted.** One function, `portfolio_cards`, is carried by both the summary and `/estate/chain`, so summary = EstateChain by construction, as in CH6b1-R Q4.
+  - `card_notes` is one server line, rendered as its own line and never joined in the browser.
+  - Optimize stays on its CH-5c money line.
+- **Q2 accepted as the honest definition.** `site_thread_states` already restricts to threads with a Finding occurrence whose episode meets `[lo, hi)`. The count therefore means "a Protect event happened in this window and is not yet resolved", which is the mock's "sites disrupted" (v70 `:436`, `:491`).
+  - Conditions:
+    - (a) Early warnings never count. The mock says "counted separately"; the packet confirms that no warning-only thread enters.
+    - (b) The card's "Why?" names each counted Site and its thread title, as in the mock's `from` list, so the number is traceable.
+  - L3 lists old → new per window.
+  - Dropping "None shown yet" is accepted, because the basis rule covers it.
+- **Q3 accepted.** Optimize has no days line (ONE-SOURCE), MD-CH5b-4 is kept for Optimize, and CH-5c owns it.
+- **Q4 accepted, with one override.**
+  - The value's prefix and form follow `money_total`'s own form. "At least" therefore applies whenever the claim does, which includes an excluded NOT_KNOWN Site (CH6b1-R Q5a), not only on CHECKED_DAYS.
+  - With mixed currencies there is no amount; the value is the claim's text.
+  - With no total, the fallback potential value carries the small "possible", never "estimated".
+- **Q5 accepted.** MD-CH6-6 is registered, with an inline label.
+- **Q6 accepted, with one condition.** The chip's link moves onto the Potential part.
+  - The row state "Opportunity" and the Potential part already say what the chip said, so nothing a client needs is lost, provided the chip's link moves with it.
+  - Captures at 1440 and 390 px against v70.
+- **Q7 accepted.** (a) "1 of 1 day checked" when `m == 1`. (b) The dated lead is kept. (c) `study.headroom_unit` comes from the server, and the browser constant is deleted.
+- **Q8 accepted:** `NOT_KNOWN` is added to `EstateCountBasis`, with one vitest.
