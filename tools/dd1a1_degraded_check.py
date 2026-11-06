@@ -17,6 +17,15 @@ from datetime import timedelta
 from pathlib import Path
 
 
+def latest_grades(engine, site_id, day) -> list[dict]:
+    from sqlalchemy import text
+    with engine.connect() as c:
+        return [dict(r) for r in c.execute(text(
+            "SELECT DISTINCT ON (assessment_key) assessment_key, claim_level, result FROM assessment_revision "
+            "WHERE site_id = :s AND window_start < :hi AND window_end > :lo ORDER BY assessment_key, revision_no DESC"),
+            {"s": site_id, "lo": day.start, "hi": day.end}).mappings()]
+
+
 def main(mode: str, work: Path) -> None:
     import pg_harness
     import psycopg
@@ -28,6 +37,7 @@ def main(mode: str, work: Path) -> None:
     import demo_combined as dc
     import demo_combined_kobo as dk
     import demo_story_days as sd
+    sd.DEGRADED_PROBE = True  # DD1a1-R10: this check is the one place a Kobo full-day degraded day may be built
     from demo_combined import at, iso
 
     url = pg_harness.fresh_database()
@@ -61,6 +71,7 @@ def main(mode: str, work: Path) -> None:
     dk.publish_price(url, at(k["price_recorded_at"]))
     runner = rp.LabRunner(store, engine, result, days[0].received_at + timedelta(minutes=5))
     records = []
+    at_story: dict = {}
     began = time.monotonic()
     for day in days:
         out = dk.run_day(store, runner, tmp, day, dk.MANIFEST_V3)
@@ -68,6 +79,8 @@ def main(mode: str, work: Path) -> None:
                         "start": iso(day.start), "end": iso(day.end),
                         "published": out["published"], "run_id": out["run_id"]})
         print("run", day.day, day.kind, out["published"].get("delivered_batches"), flush=True)
+        if day.kind == "degraded":  # DD1a1-R10: the day's grade on exactly what the story run delivered
+            at_story[day.day] = latest_grades(engine, result.site.id, day)
     with engine.connect() as c:
         evidence = [dict(r) for r in c.execute(text(
             "SELECT received_at, count(*) AS n, min(source_time) AS first, max(source_time) AS last "
@@ -77,14 +90,11 @@ def main(mode: str, work: Path) -> None:
             "SELECT cohort_status, count(*) AS n FROM analytic_run WHERE site_id = :s GROUP BY cohort_status"),
             {"s": result.site.id}).mappings()]
         # DD1a1-R6 grade: per story-run window, the latest assessment revision per key (claim level and result)
-        grades = {d.day: [dict(r) for r in c.execute(text(
-            "SELECT DISTINCT ON (assessment_key) assessment_key, claim_level, result FROM assessment_revision "
-            "WHERE site_id = :s AND window_start < :hi AND window_end > :lo ORDER BY assessment_key, revision_no DESC"),
-            {"s": result.site.id, "lo": d.start, "hi": d.end}).mappings()]
-            for d in days if d.kind in ("degraded", "normal", "trial-before", "trial-after")}
+        grades = {d.day: latest_grades(engine, result.site.id, d)
+                  for d in days if d.kind in ("degraded", "normal", "trial-before", "trial-after")}
     findings = {d.day: dk.findings_on(engine, result.site.id, d.day) for d in days}
     doc_out = {"mode": mode, "runs": records, "evidence": evidence, "analytic_runs": runs, "findings": findings,
-               "grades": grades,
+               "grades": grades, "at_story": at_story,
                "gateway_dirs": sorted(p.name for p in tmp.glob("gw-*")), "wall_s": round(time.monotonic() - began, 1)}
     (work / "degraded.json").write_text(json.dumps(doc_out, indent=2, default=str), encoding="utf-8")
 
@@ -135,19 +145,37 @@ def compare(without: str, with_: str) -> int:
     check(len(b["gateway_dirs"]) == len(set(r["epoch"] for r in b["runs"])) and
           by["degraded"]["epoch"] != by["normal"]["epoch"], "6 next day has its own gateway state (and 4: none of the"
                                                              " withheld readings arrive later)")
-    check(not any(r["cohort_status"] == "AMBIGUOUS" for r in b["analytic_runs"]), "7 0 AMBIGUOUS")
-    check(a["findings"][dday] == b["findings"][dday], f"7 degraded-day findings equal to v1 ({b['findings'][dday]})")
     import re
 
     def norm(rows):  # ids and digests differ per build; the claim and the measured result must not
         return json.loads(re.sub(r'"[0-9a-f]{8}-[0-9a-f-]{27}"|"[0-9a-f]{40,64}"|"run-[0-9a-f]{32}"', '"#"',
                                  json.dumps(rows, sort_keys=True, default=str)))
 
-    ga, gb = norm(a["grades"].get(dday, [])), norm(b["grades"].get(dday, []))
-    check(bool(ga) and [(g["assessment_key"], g["claim_level"]) for g in ga]
-          == [(g["assessment_key"], g["claim_level"]) for g in gb],
-          f"7 degraded-day assessment claim levels equal to v1 {[(g['assessment_key'], g['claim_level']) for g in gb]}")
-    print("INFO degraded-day assessment results equal to v1:", ga == gb)
+    # DD1a1-R10 assertion 7: fixed checks, no comparison of interval times or classes to v1
+    for build, name in ((a, "v1"), (b, "with")):
+        d_epochs = {r["epoch"] for r in build["runs"] if r["day"] == dday}
+        check(len(d_epochs) == 1, f"7a {name}: the degraded day is one epoch {sorted(d_epochs)}")
+        check(not any(r["cohort_status"] == "AMBIGUOUS" for r in build["analytic_runs"]), f"7b {name}: 0 AMBIGUOUS")
+        check(build["findings"][dday] == [], f"7c {name}: no Finding ({build['findings'][dday]})")
+        win = [g for g in build["grades"][dday] if g["assessment_key"].startswith("dispatch:window:")]
+        check(len(win) == 1 and win[0]["claim_level"] == "LIMITED" and bool(win[0]["result"].get("limitations")),
+              f"7d {name}: window LIMITED with incomplete evidence "
+              f"({[(g['claim_level'], g['result'].get('limitations')) for g in win]})")
+    # 7e: no interval past the last delivered reading, except OPEN_BOUND (an interval open at the end of evidence)
+    last_all = max((ts(e["last"]) for e in b["evidence"] if ts(e["first"]) >= day_lo and ts(e["first"]) < day_hi),
+                   default="")
+    wres = next(g for g in b["grades"][dday] if g["assessment_key"].startswith("dispatch:window:"))["result"]
+    open_bound = any("OPEN_BOUND" in x for x in wres.get("limitations", []))
+    past = [i for i in wres.get("intervals", []) if ts(i.get("last_on") or i["first_on"]) > last_all]
+    ivs = [g["result"]["interval"] for g in b["grades"][dday] if g["assessment_key"].startswith("dispatch:interval:")]
+    past += [i for i in ivs if ts(i["last_on"]) > last_all and not (i.get("off_after") is None and open_bound)]
+    check(not past and bool(ivs), f"7e no interval past the last delivered reading {last_all} except OPEN_BOUND "
+                                  f"(intervals {[(i['first_on'], i['last_on']) for i in ivs]})")
+    # 7f: with == without on the same delivered set: the grade after the story run, before the complements,
+    # equals the final grade after every complement (post-outage hours add nothing)
+    before, final = norm(b["at_story"][dday]), norm(b["grades"][dday])
+    check(bool(before) and before == final, "7f with == without on the same delivered set (story-run grade equals "
+                                            "the final grade after the complements)")
     # analytic-run counts are not compared: complements are assessed too, so "with" holds more runs than v1
     return 1 if fails else 0
 
