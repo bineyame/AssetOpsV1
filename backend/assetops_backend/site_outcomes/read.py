@@ -138,6 +138,30 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
 
 #: CH6b1-R Q2 (R14): mini Sites are judged on `window_day`, every other Site on the requested window (PERIOD).
 WINDOW_BASIS_DAY, WINDOW_BASIS_PERIOD = "DAY", "PERIOD"
+_MISS = object()   # CH6b1-R3: "no windows were read for this Site" (the board reads its own)
+
+
+def contained_windows(windows: list[dict[str, Any]] | None, lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+    """CH6b1-R3: the selected evidence windows lying INSIDE `[lo, hi)` (`lo <= start`, `end <= hi`). The estate read
+    returns every window that intersects; one that reaches outside the requested window is never read."""
+    return [w for w in windows or () if lo <= w["window_start"] and w["window_end"] <= hi]
+
+
+def latest_contained_window(windows: list[dict[str, Any]] | None) -> tuple[datetime, datetime] | None:
+    """The latest assessed event of `windows`: overlapping windows chain into one event (touching ends are
+    separate); the event with the latest end wins; inside it the most recently selected window (selected_at, seq,
+    selection_id). None for None/[]."""
+    if not windows:
+        return None
+    events: list[list[dict[str, Any]]] = []
+    for w in sorted(windows, key=lambda w: (w["window_start"], w["window_end"])):
+        if events and w["window_start"] < max(x["window_end"] for x in events[-1]):
+            events[-1].append(w)
+        else:
+            events.append([w])
+    event = max(events, key=lambda e: (max(x["window_end"] for x in e), min(x["window_start"] for x in e)))
+    best = max(event, key=lambda w: (w["selected_at"], w["seq"], str(w["selection_id"])))
+    return best["window_start"], best["window_end"]
 #: CH6b1-R Q4: the earnings claim keys that are Portfolio income (`INCOME_LABELS`).
 INCOME_KEYS = tuple(f"money.{label}" for label in INCOME_LABELS)
 
@@ -313,9 +337,27 @@ class SiteOutcomeBoardService:
 
     # ------------------------------------------------------------------ compose
 
+    def event_window(self, site: SiteRef, lo: datetime, hi: datetime, known_at: datetime | None,
+                     windows: Any = _MISS) -> tuple[datetime, datetime] | None:
+        """CH6b1-R3: the latest selected evidence window of a cold or EV Site that lies inside `[lo, hi)`. `windows`
+        are the summary's batch read for this Site (`_MISS`: read this Site's own). None = nothing contained, or the
+        read failed (counted `summary.window_fallback` and logged): the composers then read `[lo, hi)` itself, so
+        a Site with no contained event shows their none or not-known state and nothing outside `[lo, hi)` is read."""
+        try:
+            if windows is _MISS:
+                windows = _need(self.s.estate, "estate").site_selected_windows(
+                    site.tenant_id, site.site_code, lo, hi, known_at)
+            return latest_contained_window(contained_windows(windows, lo, hi))
+        except Exception as error:  # noqa: BLE001 - the window choice never fails a Site
+            perf.record("summary.window_fallback", 0.0)
+            LOG.warning("outcome board: contained windows for %s fell back to the requested window (%s)",
+                        site.site_code, type(error).__name__)
+            return None
+
     def compose(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
                 hi: datetime | None = None, known_at: datetime | None = None,
-                pin: tuple[UUID, UUID | None] | None = None) -> tuple[mini.MiniComposition, dict[str, Any]]:
+                pin: tuple[UUID, UUID | None] | None = None,
+                windows: Any = _MISS) -> tuple[mini.MiniComposition, dict[str, Any]]:
         """The domain composition and its window `{from, to}`. Mini takes the Site-local board `day` (R6; the
         route resolves `selected_day` / `db_today()`); cold and EV take `lo`/`hi` unchanged (B-Q7). With no window, cold
         and EV first read their overview with none, as their pages do, and use the window it resolved."""
@@ -332,9 +374,15 @@ class SiteOutcomeBoardService:
             raise ValueError(f"no outcome board for Site type {site.site_type!r}")
         ports = self.cold_ports(site, known_at) if domain == COLD else self.ev_ports(site, known_at)
         composer = cold.compose if domain == COLD else ev.compose
-        lo, hi, cutoff, comp = self.cold_ev_cutoff(
-            site, ports, lo, hi, known_at,
+        # CH6b1-R3: over a requested window the evidence is the latest selected window INSIDE it (its facts, findings,
+        # cost and repeat warning); the board's window stays the requested one. With no window the overview resolves it.
+        event = self.event_window(site, lo, hi, known_at, windows) if lo is not None and hi is not None else None
+        read_lo, read_hi = event if event is not None else (lo, hi)
+        r_lo, r_hi, cutoff, comp = self.cold_ev_cutoff(
+            site, ports, read_lo, read_hi, known_at,
             lambda p, a, b: composer(p, site_code=site.site_code, lo=a, hi=b, site_timezone=site.timezone))
+        if event is None:
+            lo, hi = r_lo, r_hi
         return comp, {"from": lo, "to": hi, "known_at": cutoff}
 
     @staticmethod
@@ -376,10 +424,10 @@ class SiteOutcomeBoardService:
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
               pin: tuple[UUID, UUID | None] | None = None,
-              node_days: tuple[date, ...] | None = None) -> dict[str, Any]:
+              node_days: tuple[date, ...] | None = None, windows: Any = _MISS) -> dict[str, Any]:
         """The board body. `node_days` (the estate summary only, CH6b1-R Q1) adds `_window`: the rows' nodes and the
         Site's income earnings re-evaluated over those Site-local days; the board route never passes it."""
-        comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
+        comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin, windows=windows)
         # CH-3 §5: the thread state is read on the board's Site-local day as of the request's cutoff, else the
         # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
         # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
@@ -392,7 +440,9 @@ class SiteOutcomeBoardService:
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
             # CH6a3-R2 M4: a days line may name the board day only when the window is exactly that Site-local day.
             one_day = board_day is not None and (start, end) == local_board_day(board_day, site.timezone)
-            facts = replace(comp.facts, day=board_day, known_at=cutoff, one_day=one_day)
+            wd = window_days(start, end, site.timezone) if start is not None and end is not None else ()
+            facts = replace(comp.facts, day=board_day, known_at=cutoff, one_day=one_day,
+                            window_span=(wd[0], wd[-1]) if wd else None)
             extra: dict[str, Any] = {}
             if site.domain == MINI and start is not None:  # CH-4 §4.4: the renewable five days of the board
                 try:
@@ -448,7 +498,8 @@ class SiteOutcomeBoardService:
                 for r in (*inp.rows, *extra)}
         nodes = site_nodes(replace(inp, window=(node_days[0], node_days[-1]), rows=tuple(rows.values())),
                            [o.key for o in SITE_OUTCOMES if o.domain == site.domain])
-        facts = replace(comp.facts, nodes=nodes, day=node_days[-1], one_day=len(node_days) == 1)
+        facts = replace(comp.facts, nodes=nodes, day=node_days[-1], one_day=len(node_days) == 1,
+                        window_span=(node_days[0], node_days[-1]))
         earnings = {}
         for per in nodes.values():
             claim = (per or {}).get("earnings")
@@ -467,7 +518,27 @@ class SiteOutcomeBoardService:
         income earnings are over its `window_days` (Q1). A Site whose board read fails is UNAVAILABLE with four
         UNKNOWN rows."""
         self.seed_snapshots(sites, lo, hi, known_at)
-        return self._summary(sites, lo, hi, known_at)
+        return self._summary(sites, lo, hi, known_at, self.contained_many(sites, lo, hi, known_at))
+
+    def contained_many(self, sites: list[SiteRef], lo: datetime, hi: datetime,
+                       known_at: datetime | None) -> dict[str, Any]:
+        """CH6b1-R3: every cold/EV Site's selected windows over `[lo, hi)` in ONE estate snapshot
+        (`site_selected_windows_many`), by Site code. A fallback (no batch, more than one tenant, a failure) is
+        counted `summary.window_fallback` and logged; each Site then reads its own windows."""
+        codes = [x.site_code for x in sites if x.domain in (COLD, EV)]
+        estate, tenants = self.s.estate, {x.tenant_id for x in sites}
+        if not codes:
+            return {}
+        try:
+            if len(tenants) != 1 or not hasattr(estate, "site_selected_windows_many"):
+                raise PortUnavailable("no batched window read")
+            with perf.timed("summary.contained_windows"):
+                return dict(estate.site_selected_windows_many(next(iter(tenants)), codes, lo, hi, known_at))
+        except Exception as error:  # noqa: BLE001 - an optimization; each board reads its own windows
+            perf.record("summary.window_fallback", 0.0)
+            LOG.warning("outcome summary: the batched window read fell back to per-Site reads (%s)",
+                        type(error).__name__)
+            return {}
 
     def snapshot_specs(self, sites: list[SiteRef], lo: datetime,
                        hi: datetime) -> list[tuple[UUID, str, tuple[date, ...]]]:
@@ -512,15 +583,15 @@ class SiteOutcomeBoardService:
     def summary_window(self, site: SiteRef, lo: datetime, hi: datetime,
                        known_at: datetime | None) -> tuple[str, date | None, datetime | None, datetime | None]:
         """(basis, day, lo, hi) of one Site's board inside the summary (the estate "Why?" reads the same board).
-        CH6b1-R Q2 (R14): mini reads `window_day` (DAY); every other Site the requested window itself (PERIOD), so
-        a cold/EV Site with no event in the window shows its composer's none/not-known state, never an older
-        event."""
+        CH6b1-R Q2 (R14): mini reads `window_day` (DAY); every other Site the requested window (PERIOD), so a
+        cold/EV Site with no event in the window shows its composer's none/not-known state, never an older event.
+        CH6b1-R3: its evidence is the latest selected window inside the requested window (`event_window`)."""
         if site.domain == MINI:
             return WINDOW_BASIS_DAY, window_day(lo, hi, site.timezone), None, None
         return WINDOW_BASIS_PERIOD, None, lo, hi
 
     def _summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
-                 known_at: datetime | None) -> dict[str, Any]:
+                 known_at: datetime | None, contained: dict[str, Any] | None = None) -> dict[str, Any]:
         out = []
         warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
         # OUT-D U4 (review M2): Sites whose board loaded AND whose objectives were read, and of those the ones that
@@ -533,7 +604,8 @@ class SiteOutcomeBoardService:
             try:
                 with perf.timed(f"board.{site.site_code}"):  # QW-1: each Site's board inside the summary
                     body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at,
-                                      node_days=window_days(lo, hi, site.timezone))
+                                      node_days=window_days(lo, hi, site.timezone),
+                                      windows=(contained or {}).get(site.site_code, _MISS))
                 parts = body.get("_window") or {"nodes": {}, "earnings": {}}
                 earnings = parts["earnings"]
                 rows = [_summary_row(r, body["_short_values"], parts["nodes"].get(r["category"]))

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
+from datetime import date
 from typing import Any
 
 from assetops_backend.chain import refs
@@ -279,6 +280,9 @@ class SiteFacts:
     known_at: Any = None   # datetime | None
     #: CH6a3-R2 M4: True only when the board window is exactly one Site-local day (`day` may then date a days line).
     one_day: bool = False
+    #: CH6b1-R4 SPAN: the Site-local `(first, last)` days of the window the node claims sit under; a claim names its
+    #: span in the days line only when the span differs from this.
+    window_span: Any = None
     #: CH3-R M3: the board's 31-day work window `(work_lo, end)` (mini); None = no thread-level line.
     work_window: Any = None
     #: CH-6a3 §A5: per outcome key, the OutcomeEvaluator's node claims as JSON {"kpi", "earnings", "potential"}.
@@ -324,10 +328,9 @@ def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state:
                 key, text, line = fill[k]
                 out[k] = {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None, "text": text, "days_line": line}
             else:
-                if k == "kpi" and day is None and facts.day is not None:   # CH6b1-R2: name the judged day on a longer window
-                    line = node_days_line(n.get("days"), facts.day, named=True)
-                else:
-                    line = node_days_line(n.get("days"), day)
+                sp = n.get("span")
+                span = None if not sp else (date.fromisoformat(sp["first"]), date.fromisoformat(sp["last"]))
+                line = node_days_line(n.get("days"), day, span, getattr(facts, "window_span", None))
                 if line is None and k == "kpi" and n.get("value") is None and n.get("text") == node_text("target.none"):
                     line = node_text("target.days_none")
                 out[k] = {**n, "days_line": line}

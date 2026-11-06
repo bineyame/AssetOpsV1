@@ -35,6 +35,13 @@ def day_text(d: date) -> str:
     return f"{d.day} {MONTHS[d.month - 1]}"
 
 
+def span_text(first: date, last: date) -> str:
+    """"27 Oct" for one day, "1–31 Oct" inside one month, "28 Oct–2 Nov" across months."""
+    if first == last:
+        return day_text(first)
+    return f"{first.day}–{day_text(last)}" if first.month == last.month else f"{day_text(first)}–{day_text(last)}"
+
+
 def seen_line(eligible: int, assessed: int, first: date, last: date) -> str:
     span = day_text(first) if first == last else f"{day_text(first)}–{day_text(last)}"
     return SEEN_LINE.format(e=eligible, a=assessed, span=span)
@@ -95,11 +102,16 @@ class Claim:
     basis: str            # "COMPLETE" | "CHECKED_DAYS" | "NOT_KNOWN"
     days: Mapping[str, int] | None   # {"complete", "partial", "low", "no_data", "pending", "expected"}
     text: str             # rendered once, here
+    #: CH6b1-R4 SPAN: the Site-local `(first, last)` days this claim actually judged; None when it names no days.
+    span: tuple[date, date] | None = None
 
     def to_json(self) -> dict[str, Any]:
         value = str(self.value) if isinstance(self.value, Decimal) else self.value
-        return {"key": self.key, "value": value, "basis": self.basis,
-                "days": None if self.days is None else dict(self.days), "text": self.text}
+        out = {"key": self.key, "value": value, "basis": self.basis,
+               "days": None if self.days is None else dict(self.days), "text": self.text}
+        if self.span is not None:   # additive on the wire
+            out["span"] = {"first": self.span[0].isoformat(), "last": self.span[1].isoformat()}
+        return out
 
 
 def _days_of(days: Any) -> Mapping[str, int] | None:
@@ -310,17 +322,19 @@ def mg1_text(verdict: str | None, value: Any, checked: int, elapsed: int, month_
     return MG1_SO_FAR.format(**words)
 
 
-def days_line(days: Any, day: date | None = None, named: bool = False) -> str | None:
+def days_line(days: Any, day: date | None = None, span: Any = None, window: Any = None) -> str | None:
     """§A4 `days_line.*`: the M1 line of a node from its §S.2 days; None without days. A single expected day with no
-    readings reads "No readings on {day}" when the day is given."""
+    readings reads "No readings on {day}" when the day is given. CH6b1-R4 SPAN: the days are counted over the claim's
+    `span`; the line names that span only when it differs from the Portfolio `window` ((first, last) days)."""
     d = _days_of(days)
     if d is None:
         return None
     if d["expected"] == 1 and d["no_data"] == 1 and day is not None:
         return node_text("days_line.no_data_one", day=day_text(day))
     line = node_text("days_line.many", k=d["complete"], m=d["expected"])
-    if named and day is not None and d["expected"] == 1:   # CH6b1-R2: a one-day judgement on a longer window names its day
-        line = f"{day_text(day)} · " + line.replace("1 days checked", "1 day checked")
+    if span is not None and window is not None and tuple(span) != tuple(window):
+        line = f"{span_text(*span)} · " + (line.replace("1 days checked", "1 day checked")
+                                            if span[0] == span[1] else line)
     if d["partial"]:
         line += node_text("days_line.partial", p=d["partial"])
     if d["low"]:
@@ -328,17 +342,19 @@ def days_line(days: Any, day: date | None = None, named: bool = False) -> str | 
     return line
 
 
-def verdict_claim(outcome_key: str, verdict: str | None, days: Any, text: str | None) -> Claim:
+def verdict_claim(outcome_key: str, verdict: str | None, days: Any, text: str | None,
+                  span: tuple[date, date] | None = None) -> Claim:
     """R8: the `kpi` node claim; `verdict=None` means no objective (CH6a2-R Q6: no days, NOT_KNOWN, "No target set
     yet"). The basis is the one basis rule over the measure's days."""
     key = f"verdict.{outcome_key}"
     if verdict is None:
         return Claim(key, None, NOT_KNOWN_BASIS, None, node_text("target.none"))
     d = _days_of(days)
-    return Claim(key, verdict, count_basis(d), d, text or NOT_KNOWN_TEXT)
+    return Claim(key, verdict, count_basis(d), d, text or NOT_KNOWN_TEXT, None if d is None else span)
 
 
-def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: str | None = None) -> Claim:
+def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: str | None = None,
+                span: tuple[date, date] | None = None) -> Claim:
     """R8/A4: an `earnings` node claim from a strategy's `Effect.money` ({"amount"} or {"low", "high"}, plus
     "currency"). With days, the text names the checked days; without (a stored consequence, CH6a2-R Q2) it is the
     amount alone. No money: `money.currency_mixed` for mixed currencies, else `money.not_known`."""
@@ -346,7 +362,7 @@ def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: 
     d = _days_of(days)
     if not money:
         text = node_text("money.currency_mixed" if reason == "CURRENCY_MIXED" else "money.not_known")
-        return Claim(key, None, NOT_KNOWN_BASIS, d, text)
+        return Claim(key, None, NOT_KNOWN_BASIS, d, text, None if d is None else span)
     cur = money.get("currency")
     if "amount" in money:
         value = {"amount": str(money["amount"]), "currency": cur}
@@ -363,7 +379,7 @@ def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: 
         text = node_text("money.days", amount=amount, k=d["complete"], m=d["expected"])
     if label in INCOME_LABELS:
         text += node_text("money.income_suffix")
-    return Claim(key, value, basis, d, text)
+    return Claim(key, value, basis, d, text, None if d is None else span)
 
 
 ESTATE_INCOME_KEY = "money.estate_income"

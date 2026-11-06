@@ -8,7 +8,7 @@ and the one snapshot read seeds exactly the per-Site reads (Q3)."""
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace as dc_replace
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -106,8 +106,45 @@ class ManyPort(Port):
         return sorted(rows, key=_ORDER)
 
 
-def _summary(port, known_at=None, sites=(KOBO, COLD, EV)):
-    svc = SiteOutcomeBoardService(BC.services(port, []))
+class Objectives:
+    """CH6b1-R4 M1/H2/H1: Kobo declares MG-1 (month to date) and MG-2 (board day), EV declares EV-1, so the Q1 check
+    covers a month, a board-day and a window kpi (it was vacuous with no objective)."""
+    ROWS = {KOBO.site_id: (("MG-1", "productive_use_kwh", 100), ("MG-2", "avoidable_generator_minutes", 30)),
+            EV.site_id: (("EV-1", "interrupted_sessions", 0),)}
+
+    def current(self, t, site_id, known_at):
+        return [{"outcome_key": o, "measure_key": m, "target": tg, "source": "DECLARED", "id": f"{o}-r1",
+                 "currency": None, "min_checked_days": None} for o, m, tg in self.ROWS.get(site_id, ())]
+
+
+class WindowsEstate:
+    """CH6b1-R3: the estate's selected-window reads, as the real ones return them (every window INTERSECTING the
+    request, so the caller must keep only the contained ones)."""
+
+    def __init__(self, wins=None):
+        self.wins, self.many, self.single = wins or {}, [], []
+
+    def site_selected_windows_many(self, tenant_id, site_codes, lo, hi, known_at=None, *, snap=None):
+        self.many.append((tuple(site_codes), lo, hi))
+        return {c: list(self.wins.get(c, [])) for c in site_codes}
+
+    def site_selected_windows(self, tenant_id, site_code, lo, hi, known_at=None):
+        self.single.append(site_code)
+        return list(self.wins.get(site_code, []))
+
+
+def _win(start, end, seq=1):
+    return {"window_start": start, "window_end": end, "selected_at": end, "seq": seq, "selection_id": f"sel{seq}"}
+
+
+def _summary(port, known_at=None, sites=(KOBO, COLD, EV), wins=None, reads=None):
+    svc = SiteOutcomeBoardService(dc_replace(BC.services(port, []), objectives=Objectives(),
+                                             estate=WindowsEstate(wins)))
+    if reads is not None:   # the window every cold/EV overview read is made over
+        for name in ("cold_site", "ev_site"):
+            inner = getattr(svc.s, name)
+            object.__setattr__(svc.s, name, type("Spy", (), {"overview": lambda self, t, sid, c, lo, hi, k, _i=inner:
+                                                             (reads.append((c, lo, hi)), _i.overview(t, sid, c, lo, hi, k))[1]})())
     with read_scope.scope("test:ch6b1") as sc:
         body = svc.summary(list(sites), LO, HI, known_at)
         req = svc.s.chain_reader.request(BC.TENANT, known_at)
@@ -143,11 +180,29 @@ def test_every_node_and_the_site_days_cover_the_same_day_set(monkeypatch):
         assert windows[site.site_code] == (wd[0], wd[-1]), site.site_code
         assert days[site.site_code].requested == len(wd) == 7
     by = {s["site_code"]: s for s in body["sites"]}
+    named = {}
     for code, site_days in days.items():
+        wd = window_days(LO, HI, next(x for x in (KOBO, COLD, EV) if x.site_code == code).timezone)
         for row in by[code]["rows"]:
             for node in (row["nodes"] or {}).values():
                 if node and node.get("days"):
-                    assert node["days"]["expected"] == site_days.expected, (code, row["category"], node)
+                    sp = node.get("span")
+                    if sp is None or (sp["first"], sp["last"]) == (wd[0].isoformat(), wd[-1].isoformat()):
+                        # an unnamed node's day set is the Site's window days (R4 Q1)
+                        assert node["days"]["expected"] == site_days.expected, (code, row["category"], node)
+                        assert " · " not in node["days_line"].split(" days checked")[0], node
+                    else:   # a named node's `days` cover exactly its span, and the line names it
+                        first, last = date.fromisoformat(sp["first"]), date.fromisoformat(sp["last"])
+                        assert node["days"]["expected"] <= (last - first).days + 1, (code, node)
+                        assert node["days_line"].startswith(v.span_text(first, last) + " · "), node
+                        named[node["key"]] = node["days_line"]
+    # non-vacuous (R4): CC-1, earnings, MG-1, MG-2 and EV-1 are all in the checked set
+    assert "verdict.MG-1" in named and named["verdict.MG-1"].startswith("1–31 Oct · "), named
+    assert named["verdict.MG-2"].startswith("31 Oct · 1 of 1 day checked"), named   # H2: the board day, not the week
+    assert "verdict.EV-1" not in named, named   # R4 H1: record-based EV-1 judges the window, never dated
+    ev1 = next(n for r in by["EV-LAB-001"]["rows"] for n in (r["nodes"] or {}).values()
+               if n and n["key"] == "verdict.EV-1")
+    assert ev1["days"]["expected"] == 1 and ev1["days_line"] == "1 of 1 days checked", ev1   # the one TUE, undated
 
 
 def test_kobo_six_of_seven_cold_seven_of_seven_ev_one_tuesday(run):
@@ -312,10 +367,63 @@ def test_reading_verdict_without_a_kpi_record_names_its_last_window_day(tz, lo, 
     obj = (ObjectiveFact("MG-5", "m", ">=", 1, False, "t", "S", None),)
     wd = window_days(lo, hi, tz)
     assert len(wd) > 1
-    facts = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": ONE_DAY_KPI}}, day=wd[-1], one_day=False)
+    window = (wd[0], wd[-1])
+    kpi = {**ONE_DAY_KPI, "span": {"first": wd[-1].isoformat(), "last": wd[-1].isoformat()}}   # the evaluator's no-record span
+    facts = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": kpi}}, day=wd[-1], one_day=False,
+                      window_span=window)
     line = row_nodes(facts, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"]
     assert line == f"{v.day_text(wd[-1])} · 1 of 1 day checked"
     assert line != "1 of 1 days checked"
-    one = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": ONE_DAY_KPI}}, day=wd[-1], one_day=True)
+    one = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": kpi}}, day=wd[-1], one_day=True,
+                    window_span=(wd[-1], wd[-1]))
     assert row_nodes(one, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"] \
         == "1 of 1 days checked"   # a one-day board keeps the unchanged line
+
+
+# ---------------------------------------------------------------- CH6b1-R3: events inside a PERIOD window
+
+EVENT = (datetime(2026, 10, 31, 16, tzinfo=UTC), datetime(2026, 10, 31, 17, 5, tzinfo=UTC))
+OUTSIDE = (datetime(2026, 10, 24, 23, tzinfo=UTC), datetime(2026, 10, 25, 1, tzinfo=UTC))   # reaches before LO
+
+
+def test_a_contained_event_is_read_and_an_outside_one_is_not():
+    """R3: the composers read the latest selected window INSIDE the requested window; a window that reaches outside
+    `[lo, hi)` (the estate returns it because it intersects) is never read; the board's window stays the requested."""
+    reads: list = []
+    est = {COLD.site_code: [_win(*OUTSIDE, seq=1), _win(*EVENT, seq=2)]}
+    _, body, _, _ = _summary(ManyPort(), wins=est, reads=reads)
+    cold = {c: (a, b) for c, a, b in reads}[COLD.site_code]
+    assert cold == EVENT                                  # the contained event, not the outside window
+    assert all((a, b) != OUTSIDE for _, a, b in reads)    # nothing outside [lo, hi) is read
+    site = next(x for x in body["sites"] if x["site_code"] == COLD.site_code)
+    assert site["window_basis"] == "PERIOD" and site["window"]["from"] == "2026-10-25T00:00:00Z"         and site["window"]["to"] == "2026-11-01T00:00:00Z"
+    reads.clear()
+    _summary(ManyPort(), wins={COLD.site_code: [_win(*OUTSIDE)]}, reads=reads)
+    assert {c: (a, b) for c, a, b in reads}[COLD.site_code] == (LO, HI)   # only an outside window: the period itself
+
+
+def test_the_board_and_the_summary_read_the_same_contained_event():
+    """L4: the Site board over the same window composes the same evidence as the summary row (Portfolio = board)."""
+    est = {COLD.site_code: [_win(*EVENT)]}
+    svc, body, _, _ = _summary(ManyPort(), wins=est)
+    assert svc.s.estate.many and not svc.s.estate.single   # one batched read; no per-Site read in the summary
+    row = next(x for x in body["sites"] if x["site_code"] == COLD.site_code)["rows"]
+    with read_scope.scope("test:ch6b1-board"):
+        board = svc.board(COLD, lo=LO, hi=HI, node_days=window_days(LO, HI, COLD.timezone))
+    assert svc.s.estate.single == [COLD.site_code]        # the board reads its own Site's windows
+    assert {r["category"]: r["state"] for r in row} == {r["category"]: r["state"] for r in board["rows"]}
+    assert board["window"]["from"] == "2026-10-25T00:00:00Z" and board["window"]["to"] == "2026-11-01T00:00:00Z"
+
+
+def test_a_failed_window_read_is_counted_and_reads_the_period(monkeypatch, caplog):
+    seen: list[str] = []
+    real = read.perf.record
+    monkeypatch.setattr(read.perf, "record", lambda name, ms: (seen.append(name), real(name, ms)))
+    reads: list = []
+    svc = SiteOutcomeBoardService(dc_replace(BC.services(ManyPort(), []), objectives=Objectives(),
+                                             estate=type("Bad", (), {"site_selected_windows_many":
+                                                                     lambda *a, **k: 1 / 0})()))
+    with read_scope.scope("test:ch6b1-bad"):
+        svc.summary([COLD], LO, HI, None)
+    assert "summary.window_fallback" in seen
+    assert any("fell back" in r.message for r in caplog.records)
