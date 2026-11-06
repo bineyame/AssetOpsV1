@@ -1,0 +1,277 @@
+{
+ "cards": {
+  "ASSURE_PERFORMANCE": {
+   "claim": {
+    "basis": "COMPLETE",
+    "days": {
+     "complete": 2,
+     "expected": 2,
+     "low": 0,
+     "no_data": 0,
+     "partial": 0,
+     "pending": 0
+    },
+    "key": "count.verified_results",
+    "text": "1 confirmed",
+    "value": 1
+   }
+  },
+  "GROW_REVENUE": {
+   "claim": {
+    "basis": "COMPLETE",
+    "days": {
+     "complete": 2,
+     "expected": 2,
+     "low": 0,
+     "no_data": 0,
+     "partial": 0,
+     "pending": 0
+    },
+    "key": "money.estate_income",
+    "lines": [
+     "GreenHarvest Cold Room: 10.00 USD over checked days",
+     "Kobo mini-grid: 84.16 USD over checked days"
+    ],
+    "text": "Estimated income from checked days: 94.16 USD \u00b7 not billed or collected",
+    "value": {
+     "amount": "94.16",
+     "currency": "USD"
+    }
+   },
+   "parts": {
+    "income": "GreenHarvest Cold Room: 10.00 USD over checked days \u00b7 Kobo mini-grid: 84.16 USD over checked days"
+   }
+  },
+  "PROTECT_ASSET": {
+   "claim": {
+    "basis": "COMPLETE",
+    "days": {
+     "complete": 2,
+     "expected": 2,
+     "low": 0,
+     "no_data": 0,
+     "partial": 0,
+     "pending": 0
+    },
+    "key": "count.sites_disrupted",
+    "text": "1 site disrupted",
+    "value": 1
+   }
+  }
+ },
+ "counts": {
+  "count.open_threads": {
+   "basis": "COMPLETE",
+   "days": {
+    "complete": 2,
+    "expected": 2,
+    "low": 0,
+    "no_data": 0,
+    "partial": 0,
+    "pending": 0
+   },
+   "key": "count.open_threads",
+   "text": "2 open",
+   "value": 2
+  },
+  "count.opportunities": {
+   "basis": "COMPLETE",
+   "days": {
+    "complete": 2,
+    "expected": 2,
+    "low": 0,
+    "no_data": 0,
+    "partial": 0,
+    "pending": 0
+   },
+   "key": "count.opportunities",
+   "text": "1 found",
+   "value": 1
+  },
+  "count.sites_disrupted": {
+   "basis": "COMPLETE",
+   "days": {
+    "complete": 2,
+    "expected": 2,
+    "low": 0,
+    "no_data": 0,
+    "partial": 0,
+    "pending": 0
+   },
+   "key": "count.sites_disrupted",
+   "text": "1 site disrupted",
+   "value": 1
+  },
+  "count.verified_results": {
+   "basis": "COMPLETE",
+   "days": {
+    "complete": 2,
+    "expected": 2,
+    "low": 0,
+    "no_data": 0,
+    "partial": 0,
+    "pending": 0
+   },
+   "key": "count.verified_results",
+   "text": "1 confirmed",
+   "value": 1
+  }
+ },
+ "money_total": {
+  "basis": "COMPLETE",
+  "days": {
+   "complete": 2,
+   "expected": 2,
+   "low": 0,
+   "no_data": 0,
+   "partial": 0,
+   "pending": 0
+  },
+  "key": "money.estate_income",
+  "lines": [
+   "GreenHarvest Cold Room: 10.00 USD over checked days",
+   "Kobo mini-grid: 84.16 USD over checked days"
+  ],
+  "text": "Estimated income from checked days: 94.16 USD \u00b7 not billed or collected",
+  "value": {
+   "amount": "94.16",
+   "currency": "USD"
+  }
+ },
+ "schema_version": "outcome-chain-1",
+ "sites": [
+  {
+   "code": "COLD-LAB-001",
+   "days": {
+    "complete": 1,
+    "enough_data_days": 0,
+    "expected": 1,
+    "low": 0,
+    "no_data": 0,
+    "not_expected": 0,
+    "partial": 0,
+    "pending": 0,
+    "requested": 1
+   },
+   "domain": "cold_room",
+   "earnings": {
+    "estimated_income": {
+     "basis": "COMPLETE",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "10.005 USD",
+     "value": {
+      "amount": "10.005",
+      "currency": "USD"
+     }
+    }
+   },
+   "rows": {
+    "PROTECT_ASSET": {
+     "lead": {
+      "key": "protect"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": {
+       "days": {
+        "complete": 1,
+        "expected": 1,
+        "low": 0,
+        "no_data": 0,
+        "partial": 0,
+        "pending": 0
+       },
+       "text": "Band held",
+       "value": "Band held"
+      },
+      "potential": null
+     },
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention"
+    }
+   },
+   "threads": {
+    "in_hand": 1,
+    "open": 0,
+    "verified": 0
+   }
+  },
+  {
+   "code": "KOBO-001",
+   "days": {
+    "complete": 1,
+    "enough_data_days": 0,
+    "expected": 1,
+    "low": 0,
+    "no_data": 0,
+    "not_expected": 0,
+    "partial": 0,
+    "pending": 0,
+    "requested": 1
+   },
+   "domain": "mini_grid",
+   "earnings": {
+    "estimated_income": {
+     "basis": "COMPLETE",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "84.164 USD",
+     "value": {
+      "amount": "84.164",
+      "currency": "USD"
+     }
+    }
+   },
+   "rows": {
+    "GROW_REVENUE": {
+     "lead": {
+      "key": "grow"
+     },
+     "nodes": {
+      "earnings": {
+       "days": {
+        "complete": 1,
+        "expected": 1,
+        "low": 0,
+        "no_data": 0,
+        "partial": 0,
+        "pending": 0
+       },
+       "text": "84.16 USD",
+       "value": "84.16 USD"
+      },
+      "kpi": null,
+      "potential": null
+     },
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured"
+    }
+   },
+   "threads": {
+    "in_hand": 0,
+    "open": 1,
+    "verified": 1
+   }
+  }
+ ],
+ "window": {
+  "from": "2026-10-31T00:00:00Z",
+  "known_at": null,
+  "to": "2026-11-01T00:00:00Z"
+ }
+}

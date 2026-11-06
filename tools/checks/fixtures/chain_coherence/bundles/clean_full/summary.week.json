@@ -1,0 +1,206 @@
+{
+ "cards": {
+  "ASSURE_PERFORMANCE": {
+   "claim": {
+    "basis": "CHECKED_DAYS",
+    "days": {
+     "complete": 12,
+     "expected": 14,
+     "low": 0,
+     "no_data": 1,
+     "partial": 1,
+     "pending": 0
+    },
+    "key": "count.verified_results",
+    "text": "1 confirmed",
+    "value": 1
+   }
+  },
+  "GROW_REVENUE": {
+   "claim": {
+    "basis": "CHECKED_DAYS",
+    "days": {
+     "complete": 12,
+     "expected": 14,
+     "low": 0,
+     "no_data": 1,
+     "partial": 1,
+     "pending": 0
+    },
+    "key": "money.estate_income",
+    "lines": [
+     "GreenHarvest Cold Room: 10.00 USD over checked days",
+     "Kobo mini-grid: 84.16 USD over checked days"
+    ],
+    "text": "Estimated income from checked days: 94.16 USD \u00b7 not billed or collected",
+    "value": {
+     "amount": "94.16",
+     "currency": "USD"
+    }
+   },
+   "parts": {
+    "income": "GreenHarvest Cold Room: 10.00 USD over checked days \u00b7 Kobo mini-grid: 84.16 USD over checked days"
+   }
+  },
+  "PROTECT_ASSET": {
+   "claim": {
+    "basis": "CHECKED_DAYS",
+    "days": {
+     "complete": 12,
+     "expected": 14,
+     "low": 0,
+     "no_data": 1,
+     "partial": 1,
+     "pending": 0
+    },
+    "key": "count.sites_disrupted",
+    "text": "1 site disrupted",
+    "value": 1
+   }
+  }
+ },
+ "money_total": {
+  "basis": "CHECKED_DAYS",
+  "days": {
+   "complete": 12,
+   "expected": 14,
+   "low": 0,
+   "no_data": 1,
+   "partial": 1,
+   "pending": 0
+  },
+  "key": "money.estate_income",
+  "lines": [
+   "GreenHarvest Cold Room: 10.00 USD over checked days",
+   "Kobo mini-grid: 84.16 USD over checked days"
+  ],
+  "text": "Estimated income from checked days: 94.16 USD \u00b7 not billed or collected",
+  "value": {
+   "amount": "94.16",
+   "currency": "USD"
+  }
+ },
+ "sites": [
+  {
+   "domain": "cold_room",
+   "earnings": {
+    "estimated_income": {
+     "basis": "COMPLETE",
+     "days": {
+      "complete": 7,
+      "expected": 7,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "10.005 USD",
+     "value": {
+      "amount": "10.005",
+      "currency": "USD"
+     }
+    }
+   },
+   "overview_href": "/sites/COLD-LAB-001",
+   "rows": [
+    {
+     "category": "PROTECT_ASSET",
+     "headline": null,
+     "headline_money": null,
+     "lead_outcome": {
+      "key": "protect"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": {
+       "days": {
+        "complete": 7,
+        "expected": 7,
+        "low": 0,
+        "no_data": 0,
+        "partial": 0,
+        "pending": 0
+       },
+       "text": "Band held",
+       "value": "Band held"
+      },
+      "potential": null
+     },
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention"
+    }
+   ],
+   "site_code": "COLD-LAB-001",
+   "site_name": "GreenHarvest Cold Room",
+   "window": {
+    "from": "2026-10-25T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   },
+   "window_basis": "PERIOD"
+  },
+  {
+   "domain": "mini_grid",
+   "earnings": {
+    "estimated_income": {
+     "basis": "CHECKED_DAYS",
+     "days": {
+      "complete": 5,
+      "expected": 7,
+      "low": 0,
+      "no_data": 1,
+      "partial": 1,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "84.164 USD",
+     "value": {
+      "amount": "84.164",
+      "currency": "USD"
+     }
+    }
+   },
+   "overview_href": "/sites/KOBO-001",
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "headline": "Income estimated",
+     "headline_money": null,
+     "lead_outcome": {
+      "key": "grow"
+     },
+     "nodes": {
+      "earnings": {
+       "days": {
+        "complete": 5,
+        "expected": 7,
+        "low": 0,
+        "no_data": 1,
+        "partial": 1,
+        "pending": 0
+       },
+       "text": "84.16 USD",
+       "value": "84.16 USD"
+      },
+      "kpi": null,
+      "potential": null
+     },
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured"
+    }
+   ],
+   "site_code": "KOBO-001",
+   "site_name": "Kobo mini-grid",
+   "window": {
+    "from": "2026-10-30T21:00:00Z",
+    "to": "2026-10-31T21:00:00Z"
+   },
+   "window_basis": "DAY"
+  }
+ ],
+ "warnings": [],
+ "window": {
+  "from": "2026-10-25T00:00:00Z",
+  "to": "2026-11-01T00:00:00Z"
+ }
+}

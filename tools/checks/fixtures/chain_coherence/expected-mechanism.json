@@ -2,5 +2,6 @@
  "schema": "chain-coherence-expected/1",
  "basis": "MD-0 L3m: assetops_mechanism_test built by tools/mechanism_dataset.py build (variant main, KOBO-001 only per Architect MD0-S2), collected in process, not ticked",
  "rule": "Entries only for the declared gap day GAP-K7, a R4 writer-without-clock fact, or an Architect-ruled finding naming its MD0b-R (or later) item and owner; each names the owning slice. Any other finding is a regression. The list may only shrink. A subject of \"*\" covers up to `count` findings of that rule, site and window whose subject is a server-generated id and whose detail contains `detail_contains`. An entry may carry `variants` (a list, e.g. [\"close\"]): it applies only to a run of one of those variants (`check --variant`); one without applies to all.",
+ "gap_days": [{"site_code": "KOBO-001", "day": "2026-10-25", "gap": "GAP-K7"}],
  "expectations": []
 }
