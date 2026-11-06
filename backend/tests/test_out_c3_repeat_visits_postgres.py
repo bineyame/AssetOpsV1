@@ -79,36 +79,27 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
                 if any(k in w for w in warnings)]
     _record("out_c_cold_warnings", [(w["kind"], w["title"], w["seen"]) for w in warnings])
 
-    # P-C1 (OUT-W): asserted on the day and on the week ending D
-    latest = {}
+    # P-C1, rewritten by CH6b1-R Q2 (R14): the cold Site is judged on the requested window (PERIOD), on the day and
+    # on the week ending D; no selected window is read and the Overview link is the plain Site link.
     for key, (status, sbody, seconds) in (("day", summary), ("week", week)):
         assert status == 200, sbody
         site = next(x for x in sbody["sites"] if x["site_code"] == "COLD-LAB-001")
-        chosen = [w for w in windows if w["site_code"] == "COLD-LAB-001" and w["from"] == sbody["window"]["from"]]
-        assert len(chosen) == 1, windows
-        latest[key] = chosen[0]["latest"]
         site_cost = next(r for r in site["rows"] if r["category"] == "OPTIMIZE_COST")
         site_warnings = [w for w in sbody["warnings"] if w["site_code"] == "COLD-LAB-001"]
         _record("P-C1", {"period": key, "status": status, "day": _z(day), "window": site["window"],
                          "window_basis": site["window_basis"], "overview_href": site["overview_href"],
-                         "w501_window": [lo, hi], "selected": chosen[0]["windows"], "cost": site_cost,
+                         "w501_window": [lo, hi], "cost": site_cost,
                          "warnings": [(w["kind"], w["title"]) for w in site_warnings],
-                         "summary_seconds": seconds, "windows_read_seconds": chosen[0]["seconds"],
-                         "categories": sbody["categories"]})
-        assert site["window_basis"] == "LATEST_EVENT", site
-        assert (site["window"]["from"], site["window"]["to"]) == latest[key], (site["window"], latest[key])
+                         "summary_seconds": seconds, "categories": sbody["categories"]})
+        assert site["window_basis"] == "PERIOD", site
+        assert (site["window"]["from"], site["window"]["to"]) == (sbody["window"]["from"], sbody["window"]["to"])
         assert site_cost["state"] == "NEEDS_ATTENTION" and site_cost["lead_outcome"]["key"] == "CC-3", site_cost
         assert [w["kind"] for w in site_warnings].count(REPEATED) == 1, site_warnings
         counts = {x["category"]: x["warning_count"] for x in sbody["categories"]}
         assert counts["OPTIMIZE_COST"] >= 1
-        assert site["overview_href"].startswith("/sites/COLD-LAB-001?from="), site["overview_href"]
-        assert "known_at" not in site["overview_href"]
+        assert site["overview_href"] == "/sites/COLD-LAB-001", site["overview_href"]
         assert money_hits(sbody["warnings"]) == []
-        assert chosen[0]["seconds"] < 2.0, chosen[0]  # sheet §7: the windows read adds under 2 s per Site
-    # the latest event in the week is still D's; record whether it is the W5-01 window itself
-    assert latest["week"] == latest["day"], latest
-    _record("P-C1 w501", {"latest": latest["day"], "w501": [lo, hi],
-                          "is_w501": latest["day"] == (_w(lo), _w(hi))})
+    assert windows == [], windows   # the OUT-W window choice is deleted: the summary reads no selected window
 
 
 def _w(text: str) -> str:
@@ -122,9 +113,8 @@ def _summary(c, lo: datetime, hi: datetime) -> tuple[int, dict, float]:
 
 
 def _spy_selected_windows(monkeypatch) -> list[dict]:
-    """Every `site_selected_windows` call the summary makes, with its wire-text result and its own wall time."""
+    """Every `site_selected_windows` call the summary makes (CH6b1-R Q2: none), with its wire-text result."""
     from assetops_backend.estate.evidence_money import EstateEvidenceService
-    from assetops_backend.site_outcomes.read import latest_window
 
     seen: list[dict] = []
     real = EstateEvidenceService.site_selected_windows
@@ -134,7 +124,6 @@ def _spy_selected_windows(monkeypatch) -> list[dict]:
         out = real(self, tenant_id, site_code, from_, to, known_at)
         seen.append({"site_code": site_code, "from": _z(from_), "to": _z(to),
                      "windows": None if out is None else [(_z(w["window_start"]), _z(w["window_end"])) for w in out],
-                     "latest": None if not out else tuple(_z(x) for x in latest_window(out)),
                      "seconds": round(time.perf_counter() - start, 3)})
         return out
 
@@ -153,7 +142,6 @@ def _spy_selected_windows(monkeypatch) -> list[dict]:
             seen.append({"site_code": code, "from": _z(from_), "to": _z(to),
                          "windows": None if wins is None else [(_z(w["window_start"]), _z(w["window_end"]))
                                                                for w in wins],
-                         "latest": None if not wins else tuple(_z(x) for x in latest_window(wins)),
                          "seconds": seconds})
         return out
 
