@@ -82,7 +82,9 @@ def _constants() -> list[str]:
     from assetops_backend.chain import vocabulary as cv
     sample = {"site": "Kobo", "category": "Grow revenue", "label": "Unused daytime solar", "k": 3, "s": "s",
               "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
-              "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked"}
+              "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked",
+              # CH-6a3: the price lines of "Why?" (kWh x price, litres x price)
+              "kwh": "168.3", "price": "0.25", "cur": "USD", "lo": "12", "hi": "18"}
     copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
     # CH-6a2: every node template (§A4), formatted with plain sample values.
     node = {"amount": "7.50 USD", "k": 3, "m": 5, "p": 1, "n": 1, "lo": "18", "hi": "20", "cur": "USD",
