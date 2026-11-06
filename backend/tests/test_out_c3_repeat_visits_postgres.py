@@ -40,11 +40,17 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
         _serve(monkeypatch, url, tmp_path)
         windows = _spy_selected_windows(monkeypatch)
         lo, hi = doc["w501"]["window"]
+        lo_z, hi_z = _w(lo), _w(hi)
         with _client() as c:
             body, _ = _board(c, "COLD-LAB-001", "out_c_cold_board", **{"from": lo, "to": hi})
             day = _day(lo)  # D: the w502 day (the W5-01 window lies inside it)
             summary = _summary(c, day, day + timedelta(days=1))
             week = _summary(c, day - timedelta(days=6), day + timedelta(days=1))
+            # CH6b1-R3 L4: the Site board over the same day and week (the requested window, never the event's)
+            day_board, _ = _board(c, "COLD-LAB-001", "out_c_cold_day_board",
+                                  **{"from": _z(day), "to": _z(day + timedelta(days=1))})
+            week_board, _ = _board(c, "COLD-LAB-001", "out_c_cold_week_board",
+                                   **{"from": _z(day - timedelta(days=6)), "to": _z(day + timedelta(days=1))})
 
     # the board (acceptance 3)
     warnings = body["warnings"]
@@ -79,9 +85,11 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
                 if any(k in w for w in warnings)]
     _record("out_c_cold_warnings", [(w["kind"], w["title"], w["seen"]) for w in warnings])
 
-    # P-C1, rewritten by CH6b1-R Q2 (R14): the cold Site is judged on the requested window (PERIOD), on the day and
-    # on the week ending D; no selected window is read and the Overview link is the plain Site link.
-    for key, (status, sbody, seconds) in (("day", summary), ("week", week)):
+    # P-C1, rewritten by CH6b1-R Q2 (R14) and again by CH6b1-R3: the cold Site is judged over the requested window
+    # (PERIOD basis, link is the plain Site link) on the day and on the week ending D, and its row shows the latest
+    # selected evidence window CONTAINED in it (the W5-01 65 minutes): Cost NEEDS_ATTENTION with the one repeat
+    # warning, and the Site board over the same window says the same (L4).
+    for key, (status, sbody, seconds), bbody in (("day", summary, day_board), ("week", week, week_board)):
         assert status == 200, sbody
         site = next(x for x in sbody["sites"] if x["site_code"] == "COLD-LAB-001")
         site_cost = next(r for r in site["rows"] if r["category"] == "OPTIMIZE_COST")
@@ -93,14 +101,19 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
                          "summary_seconds": seconds, "categories": sbody["categories"]})
         assert site["window_basis"] == "PERIOD", site
         assert (site["window"]["from"], site["window"]["to"]) == (sbody["window"]["from"], sbody["window"]["to"])
-        # KD-4: the W5-01 cold evidence is a 65-minute window; the Site board over the whole day or week finds no cold
-        # overview or Findings (it reads UNKNOWN there as well), and the summary no longer substitutes the latest
-        # event window (CH6b1-R Q2 deleted it). The Site is therefore Unknown with no repeat warning on these windows.
-        assert site_cost["lead_outcome"]["key"] == "CC-3" and site_cost["state"] == "UNKNOWN", site_cost
-        assert [w["kind"] for w in site_warnings].count(REPEATED) == 0, site_warnings
+        assert site_cost["lead_outcome"]["key"] == "CC-3" and site_cost["state"] == "NEEDS_ATTENTION", site_cost
+        assert [w["kind"] for w in site_warnings].count(REPEATED) == 1, site_warnings
+        board_cost = next(r for r in bbody["rows"] if r["category"] == "OPTIMIZE_COST")
+        assert board_cost["state"] == site_cost["state"], (board_cost["state"], site_cost["state"])  # L4
+        assert [w["kind"] for w in bbody["warnings"]].count(REPEATED) == 1, bbody["warnings"]
+        assert (bbody["window"]["from"], bbody["window"]["to"]) == (site["window"]["from"], site["window"]["to"])
         assert site["overview_href"] == "/sites/COLD-LAB-001", site["overview_href"]
         assert money_hits(sbody["warnings"]) == []
-    assert windows == [], windows   # the OUT-W window choice is deleted: the summary reads no selected window
+    # CH6b1-R3: the only estate reads are the selected-window reads of the cold Site: the summary's batch and the
+    # day and week boards' own; each finds exactly the W5-01 evidence window (the board over the non-midnight W5-01
+    # window itself is refused by the estate's window rule and falls back to the requested window, logged).
+    assert windows and {w["site_code"] for w in windows} == {"COLD-LAB-001"}, windows
+    assert all(w["windows"] == [(lo_z, hi_z)] for w in windows), windows
 
 
 def _w(text: str) -> str:
