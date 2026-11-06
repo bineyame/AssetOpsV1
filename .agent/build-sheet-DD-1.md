@@ -308,3 +308,37 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - Any CH-9b test or fixture that names `kobo-daytime` for the mill kind is listed in the packet. It is either updated to the derived id or shown to read only v1.
   - If any check fails: stop, and the Architect rules.
 - **Size: +0.** It uses the same mechanism and checks as R3 Q2's `kobo-steady-day`, inside R3's +0.25. DD-1a1 stays 2.75 and DD-1 stays 7.5.
+
+## DD1a1-R5: complements make every full day cohort AMBIGUOUS (amends Q6)
+
+- Architect: Claude (Architect 22), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-trial-anchor-diagnosis.md` at `64856f4be`.
+  - Q6 gave each complement its own epoch. Adjacent segments then share an edge sample, and both `_clashing` (closed `_overlaps`, `cohort.py:58`) and `_multi_epoch` (`cohort.py:95-114`) fire.
+  - Every full-day dispatch window comes out AMBIGUOUS, so the "with" build has 0 Findings against 3 without, and no trial anchor.
+  - The cohort guard is right: central evidence cannot attest that two epochs are one stream. The defect is Q6's epoch shape.
+- **Ruling: option (a). One sequence epoch per Site-day stream, with the sequence continuing across that day's runs and each instant emitted once.**
+  - **Why (a) is the honest shape.** A real gateway changes its sequence epoch only on a reset. A fresh epoch every few hours would claim resets that never happened. One local day of one Site is one stream.
+  - **The edge rule.** A story run is emitted unchanged, byte-equal to the "without" build. A complement leaves out any sample at an instant a story run already emits. Between two complements, the earlier one ends exclusive.
+  - **Day edges.** Adjacent Site-days keep separate epochs, as v1 already does (`day-<n>` per day), and the shared 21:00Z instant goes to the later day. A neighbour epoch seen only in the bracket is not a candidate (`cohort.py`, `select_cohort`), so it does not make a window ambiguous.
+  - **Cold has the same shape and the same rule.** There are 24 hourly runs per day, and `cold-steady` is 65 min while `covers_end` is start + 60. Each Cold complement is emitted on [start, covers_end) and starts after any story run's emitted end. Cold story runs are never trimmed.
+  - Q6 otherwise stands: each complement remains its own run with its own `received_at`.
+- **Rejected options.**
+  - (b) would assert "one stream" by an operator act that cohort-4 says evidence cannot attest. That is an architecture change.
+  - (c) leaves the Finding and trial days partial, contrary to CH9-R4. Presenting less is preferred only when it is honest, and a partial story day is not.
+  - (d) changes rule cohort-4 and is out of scope.
+- **Probe first (L2, own `*_test` DB, before the change is built out).** On one Kobo Site-day, test that the gateway accepts the following:
+  - One epoch whose sequence continues across separately sealed runs.
+  - A complement received after a later-sequence run. The trial-day complements are delivered after the trial chain, so this case is real.
+  - A `late` day's offset.
+  - If the gateway refuses any of these, stop and the Architect rules. Do not fall back to (b) or (c) without a ruling.
+- **Acceptance.**
+  - The "with" build has the same 3 Findings as "without" (10-21, 10-28, 11-04, at 04:35, `GENERATOR_SUPPORT_CANDIDATE`), with the same CANDIDATE intervals and citations.
+  - `cohort_status` shows 0 AMBIGUOUS on full days, for Kobo and Cold.
+  - Q6 holds: the trial verification outcome and metrics are equal with and without complements.
+  - L0 on the v2 list:
+    - Each Site-day has one epoch per source.
+    - Each instant is emitted at most once per stream.
+    - Story-run payloads are equal to v1's.
+  - The R3 and R4 checks are unchanged. No value is tuned.
+- **Size: DD-1a1 2.75 → 3.25 (+0.5)**, for the shared epoch and the continued sequence in `tools/demo_story_days.py` and the producers, the edge rule for Kobo and Cold, the gateway probe, and the acceptance above.
+  - SCOPE-1 reason: without it, the full-day build has no Kobo Finding, no ACT-K1 trial anchor and no Cold assessment basis, so the board story cannot be shown.
+- **DD-1 7.5 → 8.0.** Lane 2 +0.5; the plan rows need it. No owner question: this is a build-shape fix that changes no shown story.
