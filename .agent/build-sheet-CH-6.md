@@ -638,3 +638,24 @@ Review: `.agent/review-CH-6a2-6a3.md` (REVISE) at `f1beed6d9`. Binding checked: 
   - Register and labels, and the layout evidence at 1440 and 390: 0.25.
 - R2b follows R2a. Each round fits one Sonnet builder. **One fresh Claude re-review covers both rounds**, after L1, and R2a's gate is the scoped list plus `test_walk1_productive_sales.py`.
 - The plan row records CH-6a3 at 2.0 → 4.25 and the CH-6a total at +2.25, with the SCOPE-1 reasons above.
+
+## CH6b1-R: rulings on the CH-6b1 pre-flight (Architect 24, Claude, 2026-11-06)
+
+Pre-flight: `AssetOpsV1-ch6b1\.agent\CH-6b1-preflight.md` at `0de1dfeec`. Binding checked: Claude (branch ROLE_CONFIG, owner 2026-10-27). **CH-6b1 stays at 1.75.** The bar is that every Portfolio number is true, traceable through "Why?", and equal to the sum of the Sites it claims to sum. No owner question.
+- **Q1 accepted.** Portfolio nodes use `window_days(lo, hi, tz)`, the frame `days` and `claim_days` already use. This is R14's "Site-local days of `[from, to)`" read with the UTC-midnight-names-dates rule. Otherwise Addis would show 8 days beside a "7 days" claim, which is untrue. L0 asserts that, for each Site in both time zones, every node's `days` and the Site's `days` cover the same day set.
+- **Q2 accepted, with one condition.** PERIOD over the requested window is the honest basis: a Portfolio card that names a window must judge that window. LATEST_EVENT showed an event from outside it.
+  - Condition: a cold/EV Site with no event in the window shows its composer's none or not-known state with its days line. It never reaches back to an older event.
+  - COH-7a becomes the per-domain rule (mini DAY on `window_day`, every other Site PERIOD on the requested window). Its "more than one basis" finding is deleted, since two bases are now correct by design. `test_out_w2_summary_window.py` is rewritten to this rule and is not deleted.
+- **Q3 accepted.** One `read_latest` for all Sites, with seeded memo keys exactly as listed. L0 asserts that the seeded reads equal the per-Site reads. A fallback is counted in the packet and never silent. The plan and timing go in the packet; over 50 ms is reported.
+- **Q4 accepted.** One function builds `sites[]` (`rows`, `nodes`, `earnings`) and `money_total`, and both EstateChain and the summary call it. Summary = EstateChain holds by construction and L2m asserts it. Server-filled parts are not earnings. A NOT_KNOWN earnings claim from a real record is an earnings entry, so Q5 can name it.
+- **Q5 accepted, with two overrides (+0).**
+  - (a) **"At least" form.** The "At least {total}…" form is also used when any Site with an income record is NOT_KNOWN, not only when a contributor is CHECKED_DAYS. A total that leaves out a named Site is a lower bound for the estate.
+  - (b) **Rounding.** Each Site's value is rounded to the currency's minor unit with the same formatter the line uses, and the total is the sum of those rounded values. The shown lines then add up to the shown total exactly (COH-17 in CH-6b3).
+  - **Accepted as proposed:** one currency only, else null value and `money.currency_mixed`, still with the per-Site lines; " · {p} partly checked", since the money includes PARTIAL days; a Site with no income record is not named; `days` = `sum_days` of the contributors; EV non-operating days are not in `m`. The copy follows mock v70 `pfGrowParts` ("· not billed or collected"). The D-AW-5 note is deleted, as OWN-1104 already says, and recorded as MD-CH6-5 in CH-6b3.
+- **Q6 accepted.** Cold 7/7 and EV D9 (days and earnings) are asserted at L0 on the fixture ChainRequest and recorded as a Known Deviation for L2m, because `mechanism_db()` holds Kobo only. Real-data cross-Site agreement is covered by the L3 clone (0 new) and by COH-17 in CH-6b3.
+- **Q7 accepted:** L1 → CH-6b3, L4 → CH-6b2, L5 → CH-6b3.
+- **Q8 accepted:** one template rebuild, at the final L2m run.
+- **Lane-2 overlap: CH-6b1 owns the edit** to `tools/demo_combined_finish.py` CO-6/CO-6b (`:416`, `:458-460`, LATEST_EVENT → PERIOD, those lines only).
+  - The wire change and its assertion must land in one merge. Otherwise main carries a failing demo check.
+  - DD-1a1 does not edit those lines. Whichever slice merges second merges main and resolves the conflict, keeping PERIOD.
+  - No `host/*` or scenario file is touched.
