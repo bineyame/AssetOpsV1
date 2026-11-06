@@ -652,3 +652,4 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   - The gate is replaced by five L2 checks: night shape and MG-5; MG-2 and ACT-K1; mill and spare solar; Findings, threads and money; the 06:00 seam.
   - Q2: `kobo-steady-day` declares 300 L / STOPPED with a source line. The builder drafts every Kobo file on the registered Site and re-runs probes S and O there.
   - DD-1a1 2.5 → 2.75 and DD-1 7.5; the plan rows need it. The owner is informed, with a recommendation to accept.
+- DD1a1-R4 (Architect 22, same day; nothing committed): `mill-midday` is BLOCKED on v6. The fix is a derived `kobo-mill-midday`: the `kobo-daytime@2` windows verbatim, plus 300 L / STOPPED with R3's source line, used by the v2 kind. The manifest override and reusing `kobo-steady-day` are both rejected. Checks: windows equal the parent, READY on KOBO-001, 0 generator starts, and the CH-9b mill verdict unchanged. Size +0; DD-1a1 stays 2.75.

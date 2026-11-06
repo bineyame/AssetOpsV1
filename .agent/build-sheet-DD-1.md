@@ -289,3 +289,22 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 
 - Question: "On a normal sunny day Kobo's battery runs down to the generator start level about an hour before dawn, so the generator switches on around 05:00 and delivers almost nothing before sunrise (idle fuel isn't modelled, which the screen says). Is that OK to show?"
 - Recommendation: yes. It is how many village mini-grids actually run, and it changes no story figure. The only alternative is a different night load, and that would have to come from the owner as data, not from an agent.
+
+## DD1a1-R4: `mill-midday` is BLOCKED on mini-grid v6
+
+- Architect: Claude (Architect 22), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `04473dc5d`. `mill-midday` (`kobo-daytime@2`) is BLOCKED with `INITIAL_VALUE_NOT_RESOLVED` for fuel and generator state. Every other Kobo kind and file is READY on the registered KOBO-001. The reserve is 30, and the probes reproduce there.
+- **Ruling: use a derived `kobo-mill-midday`, as the coordinator proposed.**
+  - Generate it with `tools/derive_steady_scenarios.py` and include it in `--check`.
+  - Copy `kobo-daytime@2`'s windows and SoC verbatim. Declare `starting-fuel` 300 L and `starting-generator-state` STOPPED, with R3 Q2's source line.
+  - The label reads "derived from kobo-daytime v2, the mill story day", and each window keeps its `# source:` line.
+  - Point the `mill-midday` kind at it in v2 only. v1 is kept as history. `kobo-daytime` is not edited.
+- **Rejected: a manifest override running the kind on `daytime-mini-grid`.** That profile has no generator, so one Kobo day would mix two models. The registered Site's generator would vanish from its own day, and the mill day's dispatch figures could not be compared with the days around it.
+- **Rejected: pointing the kind at `kobo-steady-day`.** It has the same windows, but its "steady day" label would misdescribe the mill story day, and its "Why?" source would not name the mill day.
+- **Checks (L0/L2):**
+  - The derived file's windows and SoC equal `kobo-daytime@2`'s.
+  - It drafts READY on KOBO-001 under the prepare's manifest.
+  - On the L2 mill day: 0 generator starts, so 300 L and STOPPED decide nothing.
+  - The CH-9b mill verification outcome and metrics are as CH-9b recorded.
+  - Any CH-9b test or fixture that names `kobo-daytime` for the mill kind is listed in the packet. It is either updated to the derived id or shown to read only v1.
+  - If any check fails: stop, and the Architect rules.
+- **Size: +0.** It uses the same mechanism and checks as R3 Q2's `kobo-steady-day`, inside R3's +0.25. DD-1a1 stays 2.75 and DD-1 stays 7.5.
