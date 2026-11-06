@@ -56,12 +56,12 @@ def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
         _record("out_w_ev_summary_day6", {"status": r6.status_code, "body": r6.json(), "seconds": seconds})
         assert r6.status_code == 200, r6.text
         depot6 = next(x for x in r6.json()["sites"] if x["site_code"] == "EV-LAB-001")
-        assert depot6["window_basis"] == "LATEST_EVENT", depot6
-        # Depot's window is E exactly: the reselected window [08:00, 09:00) (selected later) supersedes [08:00, 09:05).
+        # CH6b1-R Q2 (R14): Depot is judged on the requested day (PERIOD), which holds window E; never E alone.
+        assert depot6["window_basis"] == "PERIOD", depot6
         assert (_utc(depot6["window"]["from"]), _utc(depot6["window"]["to"])) == (
-            _utc(window["from"]), _utc(window["to"])), depot6["window"]
-        assert depot6["overview_href"].startswith("/sites/EV-LAB-001/ev?from="), depot6["overview_href"]
-        assert "&to=" in depot6["overview_href"], depot6["overview_href"]
+            _utc("2026-10-06T00:00:00Z"), _utc("2026-10-07T00:00:00Z")), depot6["window"]
+        assert _utc(depot6["window"]["from"]) <= _utc(window["from"]) < _utc(depot6["window"]["to"]), window
+        assert depot6["overview_href"] == "/sites/EV-LAB-001/ev", depot6["overview_href"]
         assert r8.status_code == 200, r8.text
         depot8 = next(x for x in r8.json()["sites"] if x["site_code"] == "EV-LAB-001")
         _record("out_w_ev_summary_day8", {k: depot8[k] for k in ("window", "window_basis", "overview_href")})

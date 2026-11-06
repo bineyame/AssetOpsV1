@@ -21,6 +21,7 @@ from assetops_backend.chain.reader import GradeCounts, counts
 from assetops_backend.chain.strategies import REGISTRY
 from assetops_backend.chain.strategies.base import ContributionContext, Registry
 from assetops_backend.chain.strategies.graded_verdict import day_grades
+from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.objectives import MEASURES, NOT_JUDGED, ObjectiveFact, Reading, judge, judge_month
 from assetops_backend.outcomes.outcome_map import (
     CONTRIBUTIONS, NODE_EARNINGS, NODE_KPI, NODE_POTENTIAL, OutcomeContribution)
@@ -101,7 +102,7 @@ class OutcomeEvaluator:
 
     # ---- A3.1 verdict -------------------------------------------------------------------------------------------
 
-    def _month_reading(self, inp: NodeInputs, measure: str) -> tuple[Reading, GradeCounts]:
+    def _month_reading(self, inp: NodeInputs, measure: str) -> tuple[Reading, GradeCounts, tuple[date, date]]:
         """R5: MG-1 from day snapshots over the Site-local month to the board day. Value = sum of kWh over the
         COMPLETE and PARTIAL days; checked = COMPLETE days; LOW days are counted in `days` and never totalled."""
         hi = inp.window[1]
@@ -116,9 +117,13 @@ class OutcomeEvaluator:
         elapsed = (hi - lo).days + 1
         month_days = calendar.monthrange(hi.year, hi.month)[1]
         reading = Reading(value, elapsed == month_days and checked == month_days, None, checked, elapsed, month_days)
-        return reading, counts(rows, lo, hi, [measure])
+        return reading, counts(rows, lo, hi, [measure]), (lo, hi)   # R4 M1: month to date is the judged span
 
-    def _reading(self, inp: NodeInputs, o: ObjectiveFact) -> tuple[Reading | None, GradeCounts | None]:
+    def _reading(self, inp: NodeInputs, o: ObjectiveFact
+                 ) -> tuple[Reading | None, GradeCounts | None, tuple[date, date] | None]:
+        """(reading, days, span): the claim's reading, its days and the span of days they were counted over (CH6b1-R4
+        SPAN). A record-based kpi on a window judges the window; a mini kpi's composer reading is the board day's
+        (R14), so its days are counted over that day (H2); a reading with no record judges its last day (KD-2)."""
         rec = self._record(o.outcome_key, NODE_KPI)
         measure = MEASURES.get(o.measure_key)
         lo, hi = inp.window
@@ -126,24 +131,25 @@ class OutcomeEvaluator:
             chain_measure = _kind(rec)[1]
             if measure is not None and measure.monthly:
                 return self._month_reading(inp, chain_measure)
-            days = counts(self._rows(inp, chain_measure, lo, hi), lo, hi, [chain_measure])
+            first = hi if inp.domain == MINI else lo   # H2: a mini composer reading is the board day's
+            days = counts(self._rows(inp, chain_measure, first, hi), first, hi, [chain_measure])
             base = inp.readings.get(o.outcome_key)
             if base is None:
-                return None, days
+                return None, days, (first, hi)
             # R6: a MET needs every expected day of the record's measure COMPLETE; the value is unchanged.
             all_complete = days.expected > 0 and days.complete == days.expected
-            return replace(base, complete=base.complete and all_complete), days
+            return replace(base, complete=base.complete and all_complete), days, (first, hi)
         base = inp.readings.get(o.outcome_key)
         source = READING_MEASURE.get(o.measure_key)
         if source is None:
-            return base, None
-        return base, counts(self._rows(inp, source, hi, hi), hi, hi, [source])
+            return base, None, None
+        return base, counts(self._rows(inp, source, hi, hi), hi, hi, [source]), (hi, hi)
 
     def readings(self, inp: NodeInputs) -> dict[str, Reading]:
         """The composer's readings with R5 (MG-1 from snapshots, its text by §A4) and R6 (completeness) applied."""
         out = dict(inp.readings)
         for o in inp.objectives:
-            r, _ = self._reading(inp, o)
+            r, _, _ = self._reading(inp, o)
             if r is None:
                 continue
             m = MEASURES.get(o.measure_key)
@@ -161,13 +167,13 @@ class OutcomeEvaluator:
         o = self._objective(inp, outcome_key)
         if o is None:
             return v.verdict_claim(outcome_key, None, None, None)     # CH6a2-R Q6
-        r, days = self._reading(inp, o)
+        r, days, span = self._reading(inp, o)
         m = MEASURES.get(o.measure_key)
         if m is not None and m.monthly:
-            return v.verdict_claim(outcome_key, judge_month(o, r), days, self._month_text(o, r))
+            return v.verdict_claim(outcome_key, judge_month(o, r), days, self._month_text(o, r), span)
         if r is None:
-            return v.verdict_claim(outcome_key, NOT_JUDGED, days, None)
-        return v.verdict_claim(outcome_key, judge(o, r), days, r.actual_text)
+            return v.verdict_claim(outcome_key, NOT_JUDGED, days, None, span)
+        return v.verdict_claim(outcome_key, judge(o, r), days, r.actual_text, span)
 
     # ---- A3.2 earnings ------------------------------------------------------------------------------------------
 
@@ -189,7 +195,7 @@ class OutcomeEvaluator:
         measure = (rec.money or {}).get("measure") or name
         rows = self._rows(inp, measure, lo, hi)
         e = strategy.effect(ContributionContext(rec, day_rows=rows))
-        claim = v.money_claim(label, e.money, counts(rows, lo, hi, [measure]), e.reason)
+        claim = v.money_claim(label, e.money, counts(rows, lo, hi, [measure]), e.reason, (lo, hi))
         return claim if not e.money else _with(claim, energy_basis(rows, inp.price))
 
     # ---- A3.3 potential -----------------------------------------------------------------------------------------

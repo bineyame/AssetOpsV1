@@ -104,7 +104,11 @@ def test_cc1_chamber_no_data_is_not_judged_and_met_when_read():
     reading = {"CC-1": Reading(0, True, "No excursions")}
     gap = [row(1, "COMPLETE", "chamber_temp_c", kwh=None)]          # day 2 has no row: NO_DATA
     kpi = EV.nodes(inp(gap, [o], reading, lo=1, hi=2), "CC-1")["kpi"]
-    assert kpi.value == "NOT_JUDGED" and kpi.text == "No excursions" and kpi.basis == "CHECKED_DAYS"
+    # CH6b1-R4 H2: a mini kpi's reading is the board day's, so its days are counted over that day (day 2, no row:
+    # NOT_KNOWN, one expected day with no data) and its span is that day, not the week. Before R4 the days were
+    # counted over days 1-2 (CHECKED_DAYS); the not-judged value and the text are unchanged.
+    assert kpi.value == "NOT_JUDGED" and kpi.text == "No excursions" and kpi.basis == "NOT_KNOWN"
+    assert kpi.span == (date(2026, 10, 2), date(2026, 10, 2)) and kpi.days["no_data"] == 1
     assert EV.readings(inp(gap, [o], reading, lo=1, hi=2))["CC-1"].complete is False
     read = gap + [row(2, "COMPLETE", "chamber_temp_c", kwh=None)]
     assert EV.nodes(inp(read, [o], reading, lo=1, hi=2), "CC-1")["kpi"].value == "MET"

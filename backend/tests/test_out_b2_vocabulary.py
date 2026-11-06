@@ -88,7 +88,7 @@ def _constants() -> list[str]:
     copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
     # CH-6a2: every node template (§A4), formatted with plain sample values.
     node = {"amount": "7.50 USD", "k": 3, "m": 5, "p": 1, "n": 1, "lo": "18", "hi": "20", "cur": "USD",
-            "day": "1 Nov"}
+            "day": "1 Nov", "total": "7.50 USD", "site": "Kobo mini-grid", "text": "7.50 USD over 3 of 3 days checked"}
     copy += [cv.NODE_TEXT[key].format(**node) for key in cv.NODE_TEXT]
     return [c.strip(" ·") for c in copy]
 

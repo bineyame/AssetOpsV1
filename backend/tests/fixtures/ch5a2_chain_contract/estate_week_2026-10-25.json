@@ -43,7 +43,17 @@
    "value": 0
   }
  },
- "money_total": null,
+ "money_total": {
+  "basis": "NOT_KNOWN",
+  "days": null,
+  "key": "money.estate_income",
+  "lines": [
+   "Kobo: not known yet",
+   "Depot: not known yet"
+  ],
+  "text": "Not known yet",
+  "value": null
+ },
  "policy_versions": {
   "coverage": "coverage-policy/1",
   "lifecycle": "thread-lifecycle/1",
@@ -66,6 +76,26 @@
     "requested": 7
    },
    "domain": "MINIGRID",
+   "earnings": {
+    "estimated_income": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 7,
+      "expected": 7,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "span": {
+      "first": "2026-10-25",
+      "last": "2026-10-31"
+     },
+     "text": "Not known yet",
+     "value": null
+    }
+   },
    "opportunities": [
     {
      "site_code": "KOBO-001",
@@ -83,18 +113,111 @@
    ],
    "rows": {
     "ASSURE_PERFORMANCE": {
+     "lead": {
+      "key": "MG-7",
+      "label": "Evidence quality"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "WATCH",
      "state_label": "Watch"
     },
     "GROW_REVENUE": {
+     "lead": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "nodes": {
+      "earnings": {
+       "basis": "NOT_KNOWN",
+       "days": {
+        "complete": 7,
+        "expected": 7,
+        "low": 0,
+        "no_data": 0,
+        "partial": 0,
+        "pending": 0
+       },
+       "days_line": "7 of 7 days checked",
+       "key": "money.estimated_income",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
+       "text": "Not known yet",
+       "value": null
+      },
+      "kpi": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": "No target, so no days are judged yet",
+       "key": "verdict.MG-1",
+       "text": "No target set yet",
+       "value": null
+      },
+      "potential": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "potential.daytime_solar_headroom",
+       "text": "No potential found yet",
+       "value": null
+      }
+     },
      "state": "UNKNOWN",
      "state_label": "Unknown"
     },
     "OPTIMIZE_COST": {
+     "lead": {
+      "key": "MG-2",
+      "label": "Supply cost per kWh"
+     },
+     "nodes": {
+      "earnings": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "money.possible_extra_fuel_cost",
+       "text": "3.31 to 3.97 USD",
+       "value": {
+        "currency": "USD",
+        "high": "3.97",
+        "low": "3.31"
+       }
+      },
+      "kpi": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": "No target, so no days are judged yet",
+       "key": "verdict.MG-2",
+       "text": "No target set yet",
+       "value": null
+      },
+      "potential": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "potential.none",
+       "text": "No potential found yet",
+       "value": null
+      }
+     },
      "state": "NEEDS_ATTENTION",
      "state_label": "Needs attention"
     },
     "PROTECT_ASSET": {
+     "lead": {
+      "key": "MG-5",
+      "label": "Reliable service"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "UNKNOWN",
      "state_label": "Unknown"
     }
@@ -119,21 +242,90 @@
     "requested": 7
    },
    "domain": "COLDCHAIN",
+   "earnings": {},
    "opportunities": [],
    "rows": {
     "ASSURE_PERFORMANCE": {
+     "lead": {
+      "key": "CC-7",
+      "label": "Evidence quality"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "WATCH",
      "state_label": "Watch"
     },
     "GROW_REVENUE": {
+     "lead": {
+      "key": "CC-2",
+      "label": "Paid cold-room use"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "NOT_MEASURED",
      "state_label": "Not measured yet"
     },
     "OPTIMIZE_COST": {
+     "lead": {
+      "key": "CC-3",
+      "label": "Cost per cooling unit"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "UNKNOWN",
      "state_label": "Unknown"
     },
     "PROTECT_ASSET": {
+     "lead": {
+      "key": "CC-1",
+      "label": "Stock kept saleable"
+     },
+     "nodes": {
+      "earnings": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "money.not_known",
+       "text": "Not known yet",
+       "value": null
+      },
+      "kpi": {
+       "basis": "CHECKED_DAYS",
+       "days": {
+        "complete": 2,
+        "expected": 7,
+        "low": 0,
+        "no_data": 5,
+        "partial": 0,
+        "pending": 0
+       },
+       "days_line": "2 of 7 days checked",
+       "key": "verdict.CC-1",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
+       "text": "above 5°C in this window",
+       "value": "MISSED"
+      },
+      "potential": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "potential.none",
+       "text": "No potential found yet",
+       "value": null
+      }
+     },
      "state": "NEEDS_ATTENTION",
      "state_label": "Needs attention"
     }
@@ -158,21 +350,130 @@
     "requested": 7
    },
    "domain": "EV_CHARGING",
+   "earnings": {
+    "estimated_charging_income": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 0,
+      "expected": 7,
+      "low": 1,
+      "no_data": 6,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_charging_income",
+     "span": {
+      "first": "2026-10-25",
+      "last": "2026-10-31"
+     },
+     "text": "Not known yet",
+     "value": null
+    }
+   },
    "opportunities": [],
    "rows": {
     "ASSURE_PERFORMANCE": {
+     "lead": {
+      "key": "EV-7",
+      "label": "Evidence quality"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "WATCH",
      "state_label": "Watch"
     },
     "GROW_REVENUE": {
+     "lead": {
+      "key": "EV-3",
+      "label": "Charger use"
+     },
+     "nodes": {
+      "earnings": {
+       "basis": "NOT_KNOWN",
+       "days": {
+        "complete": 0,
+        "expected": 7,
+        "low": 1,
+        "no_data": 6,
+        "partial": 0,
+        "pending": 0
+       },
+       "days_line": "0 of 7 days checked · 1 with too little data, not counted",
+       "key": "money.estimated_charging_income",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-31"
+       },
+       "text": "Not known yet",
+       "value": null
+      },
+      "kpi": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": "No target, so no days are judged yet",
+       "key": "verdict.none",
+       "text": "No target set yet",
+       "value": null
+      },
+      "potential": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "potential.idle_charger_capacity",
+       "text": "No potential found yet",
+       "value": null
+      }
+     },
      "state": "WATCH",
      "state_label": "Watch"
     },
     "OPTIMIZE_COST": {
+     "lead": {
+      "key": "EV-2",
+      "label": "Energy cost per km"
+     },
+     "nodes": {
+      "earnings": null,
+      "kpi": null,
+      "potential": null
+     },
      "state": "NOT_MEASURED",
      "state_label": "Not measured yet"
     },
     "PROTECT_ASSET": {
+     "lead": {
+      "key": "EV-1",
+      "label": "Buses ready for service"
+     },
+     "nodes": {
+      "earnings": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "money.not_known",
+       "text": "Not known yet",
+       "value": null
+      },
+      "kpi": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": "No target, so no days are judged yet",
+       "key": "verdict.EV-1",
+       "text": "No target set yet",
+       "value": null
+      },
+      "potential": {
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "days_line": null,
+       "key": "potential.none",
+       "text": "No potential found yet",
+       "value": null
+      }
+     },
      "state": "NEEDS_ATTENTION",
      "state_label": "Needs attention"
     }

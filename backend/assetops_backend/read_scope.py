@@ -174,6 +174,20 @@ def memoised(name: str, key: tuple[Any, ...]) -> bool:
     return sc is not None and (name, arg_key(key)) in sc._memo
 
 
+def seed(name: str, key: tuple[Any, ...], value: Any) -> bool:
+    """CH6b1-R Q3: place `value` as `memo(name, fn, *key)`'s result, deep-frozen, so a later call with exactly that
+    key hits instead of executing. An entry already present is kept (it was read first); outside a scope nothing
+    happens. Returns whether the value was placed."""
+    sc = _SCOPE.get()
+    if sc is None:
+        return False
+    k = (name, arg_key(key))
+    if k in sc._memo:
+        return False
+    sc._memo[k] = freeze(value)
+    return True
+
+
 @contextmanager
 def snapshot(c: Any, read_at: datetime) -> Iterator[None]:
     """CH5c-R3 R3: bind the current scope to connection `c`'s REPEATABLE READ snapshot and its read instant

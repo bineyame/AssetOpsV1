@@ -176,7 +176,11 @@ def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
     assert counts["count.opportunities"]["value"] == 1
     assert all(set(c) == {"key", "value", "basis", "days", "text"} for c in counts.values())
     assert len({json.dumps(c["days"], sort_keys=True) for c in counts.values()}) == 1
-    assert body["money_total"] is None
+    # OWN-1104 R10 (replaced): `money_total` is the `money.estate_income` claim over the Sites' income earnings
+    # (CH-6b1, `portfolio_parts`); here no income claim has a value, so it is NOT_KNOWN and names each such Site.
+    total = body["money_total"]
+    assert (total["key"], total["value"], total["basis"]) == ("money.estate_income", None, "NOT_KNOWN")
+    assert total["lines"] == ["Kobo: not known yet", "Depot: not known yet"] and total["text"] == "Not known yet"
     kobo = next(s for s in body["sites"] if s["code"] == "KOBO-001")
     assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 1, "in_hand": 0, "verified": 0}
     assert [o["thread_id"] for o in kobo["opportunities"]] == [T2]
