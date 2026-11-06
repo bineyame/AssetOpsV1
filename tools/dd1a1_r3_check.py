@@ -95,10 +95,14 @@ def main(a: str, b: str, days_json: str | None = None) -> int:
     # hours), which is the intended gain, so only the with side is held to COMPLETE
     levels = {k[-27:-17]: wb[k][0] for k in wb}
     gained = [(k[-27:-17], wa[k][0], wb[k][0]) for k in wa if wa[k][0] != wb[k][0]]
-    first = min(levels)  # the lead-in: only the first story day's night [17:00Z, 24:00Z) exists, not a full day
-    full = {k: v for k, v in levels.items() if k != first}
+    # DD1a1-R16: only the days that carry complement runs are full days; every other story day is story-only (partly checked)
+    import json
+    fulls = sorted({d["day"] for d in json.load(open(days_json, encoding="utf-8"))["days"]
+                    if d["site"] == "kobo" and d.get("complement_of")}) if days_json else []
+    full = {k: v for k, v in levels.items() if k in fulls}
     check("3 every full day grades COMPLETE with nights", bool(full) and set(full.values()) == {"COMPLETE"},
-          f"{len(full)} full days; lead-in {first} is {levels[first]} (partial by construction)")
+          f"full days {fulls} grade {full}; story-only days (not held to COMPLETE): "
+          f"{ {k: v for k, v in levels.items() if k not in fulls} }")
     print(f"INFO windows whose grade differs without nights (without -> with): {gained}")
     # 3b. the daylight evidence is the same set of readings (mill, spare solar read only daylight 06:00-14:00 local)
     def day_set(c):

@@ -43,31 +43,48 @@ def seams(c, hour):
     return out
 
 
-SEAM_HOURS_Z = (3, 11, 15, 17, 21)  # every complement boundary: story 03Z, afternoon 11Z, dusk 15Z, 17Z, night 21Z
 SEAM_MAX_PP = 0.5
+#: DD1a1-R16: the seams that exist on a full day. The 06:00 story start is exempt (the story run starts from its declared state);
+#: the joins are the story run's end (mill: 18:00 local = 15:00Z) and the day's last reading (24:00 local = 21:00Z minus one step).
+FULL_DAY_SEAM_Z = (15,)
 
 
-def seam_check(c, label):
-    """R13: SoC step (percentage points) and generator state across every complement seam of the with build."""
+def full_days(days_json):
+    """Local dates (UTC+3) of the Kobo days that carry complement runs in this build's days.json."""
+    import json
+    days = json.load(open(days_json, encoding="utf-8"))["days"]
+    return sorted({d["day"] for d in days if d["site"] == "kobo" and d.get("complement_of")})
+
+
+def seam_check(c, label, days_json):
+    """R16: on each full day, STOPPED on both sides of every join, SoC step <= 0.5 pp (fuel is not a persisted signal on
+    this Site; the probe record `full_days` + the handover carry fuel, measured step 0.0 L); STOPPED at the day's last
+    reading. Story-only days have no join and are not checked. Fails if the build has no full day."""
     soc = {t: float(v) for t, v in c.execute("select source_time, normalized_value_text from accepted_evidence where "
                                              "device_id='battery-pcs-controller' and signal_id='state-of-charge'")}
     gen = dict(c.execute("select source_time, normalized_value_text from accepted_evidence where "
                          "device_id='generator-controller' and signal_id='status'").fetchall())
-    seen, worst, bad = 0, 0.0, []
-    for t in sorted(soc):
-        if t.hour not in SEAM_HOURS_Z or t.minute:
-            continue
-        prev = t - dt.timedelta(minutes=5)
-        if prev not in soc:
-            continue
-        seen += 1
-        step = abs(soc[t] - soc[prev])
-        worst = max(worst, step)
-        if step > SEAM_MAX_PP or gen.get(prev) != gen.get(t):
-            bad.append((t.strftime("%m-%d %H:%MZ"), round(step, 3), gen.get(prev), gen.get(t)))
+    days, seen, worst, bad = full_days(days_json), 0, 0.0, []
+    for day in days:
+        d0 = dt.datetime.fromisoformat(day).replace(tzinfo=dt.timezone.utc)
+        for hour in FULL_DAY_SEAM_Z:
+            t = d0 + dt.timedelta(hours=hour)
+            prev = t - dt.timedelta(minutes=5)
+            if t not in soc or prev not in soc:
+                bad.append((day, f"{hour}:00Z", "missing reading"))
+                continue
+            seen += 1
+            step = abs(soc[t] - soc[prev])
+            worst = max(worst, step)
+            if step > SEAM_MAX_PP or gen.get(prev) != "STOPPED" or gen.get(t) != "STOPPED":
+                bad.append((day, f"{hour}:00Z", round(step, 3), gen.get(prev), gen.get(t)))
+        last = max((x for x in soc if x.date().isoformat() == day), default=None)
+        end = d0 + dt.timedelta(hours=21, minutes=-5)
+        if last != end or gen.get(last) != "STOPPED":
+            bad.append((day, "day end", str(last), gen.get(last)))
     ok = seen > 0 and not bad
-    print(f"{'PASS' if ok else 'FAIL'} seam step <= {SEAM_MAX_PP} pp, equal generator state ({label}): {seen} seams, "
-          f"largest {worst:.3f} pp, {len(bad)} over {bad[:5]}")
+    print(f"{'PASS' if ok else 'FAIL'} full-day joins STOPPED both sides, SoC step <= {SEAM_MAX_PP} pp ({label}): "
+          f"{len(days)} full day(s) {days}, {seen} joins, largest {worst:.3f} pp, {len(bad)} bad {bad[:5]}")
     return not ok
 
 
@@ -112,9 +129,11 @@ def main(a: str, b: str, days_json: str | None = None) -> int:
                 for day, jump, biggest, gap in seams(c, hour):
                     print(f"   seam {day} {hour}:00Z ({name}): SoC step across seam {jump:+}, largest other step within +-2 h {biggest}")
     with psycopg.connect(BASE + b) as cb, psycopg.connect(BASE + a) as ca:
-        bad += seam_check(cb, "with")
+        bad += seam_check(cb, "with", days_json)
         if days_json:
             bad += pure_steady_check(cb, days_json)
+        else:
+            print("FAIL days.json is required (the full days are read from it)"); bad += 1
         bad += mg2_check(ca, cb)
     print("RESULT", "FAIL" if bad else "PASS (no dusk start, seams <= 0.5 pp, pure steady days quiet, MG-2 equal)")
     return 1 if bad else 0
