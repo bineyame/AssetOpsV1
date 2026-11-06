@@ -17,6 +17,7 @@ TABLES = ("finding", "finding_revision", "action", "action_event", "action_polic
           "work_case_revision", "work_event", "verification_plan", "verification_metric", "verification_outcome",
           "trial_cost_comparison_revision", "financial_consequence_work", "financial_assumption_revision")
 UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|run-[0-9a-f]{32}")
+SHA = re.compile(r"(?<![0-9a-f])[0-9a-f]{64}(?![0-9a-f])|(?<=:)[0-9a-f]{8}(?![0-9a-f])")  # digests over ids/times differ by run; the facts do not
 TIME = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}[^\"',}\]]*")
 
 
@@ -25,8 +26,8 @@ def rows(engine, table: str) -> collections.Counter:
         data = c.execute(text(f'select * from "{table}"')).mappings().all()
     out = collections.Counter()
     for r in data:
-        out[json.dumps({k: TIME.sub("T", UUID.sub("ID", str(v))) for k, v in r.items()
-                        if not (k == "id" or k.endswith("_id") or k.endswith("_at") or k.endswith("_no"))},
+        out[json.dumps({k: SHA.sub("H", TIME.sub("T", UUID.sub("ID", str(v)))) for k, v in r.items()
+                        if not (k == "id" or k.endswith("_sha256") or k.endswith("_key") and k != "assumption_key" or k.endswith("_id") or k.endswith("_at") or k.endswith("_no"))},
                        sort_keys=True)] += 1
     return out
 
