@@ -109,9 +109,30 @@ the R6 degraded-day check, the five R3 L2 checks, the mill day, Q8 and the Cold 
   `add-day ... KOBO-001 ... degraded`, calendar and add-day refuse. Proven to fail: guard disabled -> refusal test
   fails; a planted `add-day --site KOBO-001 --kind degraded` line -> scan test fails; both reverted. 35 passed.
 
+## R3 L2 checks (builder 15; `tools/dd1a1_r3_check.py`, plus `dd1a1_fullday_compare`; one `without` 330 s / 8 runs and one
+## `with` 1075 s / 33 runs on the registered Kobo Site; the first `with` attempt died on a transient SSL EOF in the
+## local ingestion server (batch-count assert), the identical rerun passed)
+1. Night shape PASS on 8 nights: at most 1 start (7 nights 1 start at 02:05Z = 05:05 local, after 04:00; 11-05 none after the
+   25 % reserve change), clinic requested == delivered every reading (MG-5). Fuel 0.0 L is NOT measurable: the Site has
+   no persisted fuel reading (fuel_level role 0 readings), so it rests on the step note (BL-16).
+2. MG-2 PASS: candidate-avoidable intervals per window equal with and without nights (10-21, 10-28, 11-04: 1 each).
+   ACT-K1: action, action_event, policy change, work_case, verification_metric (12), verification_outcome, trial cost EQUAL.
+   Differences, reported not hidden: `finding_revision` 7 vs 15 and `financial_consequence_work` 9 vs 17 (revision
+   counts, R8 allows), and `verification_plan` differs only in `baseline_selection` (selection_seq 15 vs 54; the 11-04
+   baseline window has 2 interval revisions with nights, the extra being the 05:05 NECESSARY night start). Outcome VERIFIED equal.
+3. Mill/spare solar PASS as far as stored: the story-window readings are identical (9472 = 9472, 0 only-with), so
+   whatever reads daylight is unchanged; no spare-solar row is persisted to compare. Each of 13 full days COMPLETE with
+   nights; without nights 10-07, 10-14, 11-01 were LIMITED (the intended gain). The 10-06 lead-in (night only) is LIMITED.
+4. No new Findings (3 = 3 equal), actions, thread events or money rows beyond the revision counts above.
+5. 06:00 seam reported: SoC 31.46 % -> 40 % (42.5 % on the 10-21, 10-28, 11-04, 11-05 days), generator RUNNING -> STOPPED
+   (11-05: STOPPED -> STOPPED). A step, as DD1a1-R Q3 expects.
+- Q8 (build wall times only, no prepare): Kobo `without` 330 s -> `with` 1075 s, +226 %. This exceeds the +50 % prepare
+  budget on this measure; the whole-prepare ratio (Cold/EV unchanged) was not measured. **Architect to rule.**
+
 ## Open (not run; next builder)
-- R6 is closed (R10). Still to do: the five R3 L2 checks, the mill day (0 generator starts, CH-9b mill outcome unchanged), Q8
-  cost per full day, the Cold failure day, guards. No tooling exists yet for R3/mill/Q8/Cold beyond the builds.
+- R6 closed (R10); R3 L2 checks and Q8 numbers done (above). Still to do: the mill day (`mill-midday` is prepare-only and
+  not in the probe calendar, needs a probe mode with its work rows), the Cold failure day with 23 fill-ins, and guards
+  V, A, W, N, M re-run after R10 (python tooling only changed). No tooling exists yet for R3/mill/Q8/Cold beyond the builds.
 
 ## Residual risk
 - A real restatement whose only change is in the WINDOW summary is not a baseline fact by this projection; the

@@ -20,8 +20,8 @@
 
 ## Landed (builder 15)
 - R10: `85c8263a7` guard (`DEGRADED_DAY_HELD`, tests proven to fail); degraded check restated, all PASS; packet R6 section
-  updated. Helper `dd1a1w/deg_with_only.sh`. DBs dropped. Builder 15 stopped here (context): R3 L2 checks, mill day,
-  Q8, Cold failure day, and the guard re-run V/A/W/N/M after R10 are NOT done.
+  updated. Helper `dd1a1w/deg_with_only.sh`. DBs dropped. R3 L2 checks done (`tools/dd1a1_r3_check.py`, all PASS; packet). Builder 15 stopped here
+  (context): mill day, Cold failure day, Q8 ruling, guards V/A/W/N/M re-run are NOT done.
 - Tooling notes: `dd1a1_fullday_compare.py` already shows EQUAL for findings, actions, ACT-K1 verification, money
   tables (covers R3 checks 2-ACT-K1 and 4). Still needs a new query script on with/without DBs (`d12.sh with|without`
   leaves the DB) for: night shape (starts, fuel, unserved), MG-2 avoidable minutes, mill verdict / spare solar,
