@@ -121,6 +121,17 @@ def test_outcome_rows_name_the_domain_action_and_three_metric_windows() -> None:
     assert outcome["details"]["baseline"]["sum_kwh"] == "30" and outcome["details"]["later"]["sum_kwh"] == "36"
 
 
+def test_site_index_gives_a_mini_action_the_mill_verdict_href_only_with_lineage() -> None:
+    from assetops_backend.work.site_index import DOMAIN_ACTION, _action_link
+
+    mini = {"kind": DOMAIN_ACTION, "action_id": "a1", "action_event_id": None, "finding_revision_id": None,
+            "opportunity_revision_id": "r1"}
+    assert _action_link("KOBO-001", mini, {"lineage": True})["href"] == "/sites/KOBO-001/domain-actions/a1/verification"
+    assert _action_link("KOBO-001", mini, {"lineage": False})["href"] is None
+    cold = {**mini, "finding_revision_id": "f1", "opportunity_revision_id": None}
+    assert _action_link("GH-1", cold, {"lineage": True})["href"] == "/sites/GH-1/actions/a1/verification"
+
+
 def test_summary_wire_reads_the_stored_outcome_and_the_not_judged_state() -> None:
     p = plan()
     ctx = {"action": {"id": p["domain_action_id"], "action_code": "ACT-9", "title": "Run the mill at midday"},

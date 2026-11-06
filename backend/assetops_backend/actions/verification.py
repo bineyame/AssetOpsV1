@@ -341,7 +341,7 @@ class VerificationService:
         ctx = self.store.domain_plan_context(tenant_id, site_id, domain_action_id)
         if ctx is None:
             raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
-        if ctx["action"]["domain"] != "MINI" or ctx["action"]["origin_opportunity_revision_id"] is None:
+        if ctx["action"]["domain"] != "MINI":  # a MINI Action's plan exists only from an opportunity (the freeze)
             raise ActionRefused(409, "VERIFICATION_FAMILY_UNSUPPORTED",
                                 "Only a MINI Action raised from an opportunity has a midday verification.")
         plan = ctx["plan"]
