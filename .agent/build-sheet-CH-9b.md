@@ -186,3 +186,33 @@ Pre-flight: `AssetOpsV1-ch9b2\.agent\CH-9b2-preflight.md` at `1bc73ce7e`. The mi
 - **Freeze trigger accepted.** `freeze_domain_plan` is a service method with no route.
   - DD-1b1 calls it at story time, in the order record → complete case → link → freeze.
   - This happens before DD-1b2's R8 backfill, as CH9b1-R2 requires.
+
+## CH9b3-R: rulings on the CH-9b3 pre-flight (Architect 19, Claude, 2026-11-06)
+
+Pre-flight: `AssetOpsV1-ch9b3\.agent\CH-9b3-preflight.md` at `a4466e187`. Binding checked: Claude (main `.ai/ROLE_CONFIG.md`, 2026-10-27). **Size: CH-9b3 1.0 → 1.5, so CH-9b goes from 7.0 to 7.5 and lane 2 from 14.5 to 15.0.** The plan's lane-2 rows need the +0.5, with the SCOPE-1 reason given under Q5/Q6. No overlap with lane 1 (CH-6a3).
+
+- **Q1 accepted.** A target miss is stored as `INEFFECTIVE` with `reasons = ['TARGET_MISS']` and shown as the existing "Target not met". No migration.
+- **Q2 accepted.**
+  - SHORT baseline: nothing is ever stored, and the page shows the CH9b2-R Q4 text.
+  - Fewer than 3 later days while the look-ahead is open: nothing is stored, and the page shows "Not judged yet: only {n} of 3 fully checked days after the change" (MOCK DEVIATION; must pass guard V).
+  - Once the look-ahead closes with fewer than 3 days: one `INCONCLUSIVE` outcome with `['LATER_SHORT']`.
+- **Q3 accepted. It is honest because no rise is claimed.**
+  - With a 0 baseline mean, the literal rule passes even when later use is also 0, so "rose by at least 10%" could be untrue.
+  - The outcome is `INCONCLUSIVE` with `['BASELINE_ZERO']`, shown as "Could not conclude" plus the line "No midday use was measured before the change, so a 10% rise cannot be measured" (MOCK DEVIATION).
+  - Logged for the owner as an Architect reading of P1, not a change to it. The demo story never shows this, because DD-1a2 places midday use on the baseline days.
+- **Q4 accepted.** Use Decimal and integers only, never floats. If a frozen baseline day is no longer COMPLETE, the result is "not judged".
+- **Q5 accepted (+0.5, defensibility-critical).**
+  - SCOPE-1 kept the R7 before/after line and the `metrics[]` table, but they have no surface today: there is no MINI read or page, and the Site work index link is `href = None`.
+  - Without them, the Grow row's "verified" claim cannot be traced to its kWh before/after, its days and the declared rule. A client asking "how do you know it rose 10%?" gets no answer.
+  - The board row and "Why?" are not the place: putting the table there would rewrite CH-6a3's lane-1 bodies, `chain/vocabulary.py` and the clone run.
+  - Build: `record_domain_outcome` and `domain_outcomes` with `OUTCOME_COLUMNS` and the reserve bodies byte-equal, plus `domain_summary` and one read-only GET. Do not fold this into the domain detail read; CH9b1-R Q5 stands.
+- **Q6 accepted.**
+  - Use the new path `/sites/{code}/domain-actions/{id}/verification` with the `site_index` MINI href, so the W1 dispatch and Kobo ACT-001 stay untouched.
+  - The page is a minimum: one Panel and one DataTable built from existing components, with MD-CH9b-1 labelled. There are no cost-check or trial-hours cards (`null`), and no new layout.
+- **Q7 accepted.** Use the SCOPE-1 sentence verbatim, then the R7 line. There is no guardrail text. The board and "Why?" stay with lane 1 / DD-1b.
+- **Q8 accepted.** New words go in the frontend vocabulary exemption the guard already reads, never in `chain/vocabulary.py`.
+- **Q9 accepted.** The trigger runs after the drain in `chain_snapshots`, and a failure there never fails the stage. DD-1b calls the same service method at story time, before the R8 backfill, and F-THREADS asserts the mill outcome is VERIFIED.
+- **Q10 accepted (+0, defensibility-critical).** Without the `COALESCE`/`effective_from` change, the domain outcome is never linked, so the Grow row cannot reach RESOLVED_MONITORING or show "verified". Reserve rows stay byte-equal.
+- **Q11 accepted.** L2 fixture only. The MD-0 mill proof is DD-1b's, and the packet says so.
+- **Q12 accepted.** R6 is stated in the packet (BL-07).
+- **L3** stays deferred, as the pre-flight says.
