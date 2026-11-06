@@ -713,3 +713,202 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **Size: −0.25.** The N/R30/R25 chains, the R25 Foundation-revision probe build-out and the R7 night split for trial days are dropped. DD-1a1 5.75 → 5.5 and DD-1 10.5 → 10.25; the plan rows need it. SCOPE-1 reason: as in R15, but only for the days kept full.
 - **Owner question (one; recommendation: yes, option 1; the build waits for the answer, because it reverses part of CH9-R4/Q4 for Kobo):** "On the example days where the generator is still running at the edge of the example, we can't fill in the rest of the day honestly. Show those days (the generator-support and trial days) as 'partly checked'? Their findings and the trial result stay the same, and the mill day keeps its full day and 'Target met'. Recommended: yes. The alternative is about 1–1.5 extra units of simulator work to fill every day."
 - **Handoff.** Wait for the owner's answer. If it is yes, the builder applies "Build if (1)", rebuilds Kobo `with`/`without`, runs the R3–R15 checks on the full days and guards V, A and W, and adds the join rule to the DD-1a2 MILL-3 dry run. Context note: this Architect is fit for one more short lane-2 ruling.
+
+## DD1a2-R: rulings on the DD-1a2 pre-flight (Architect, Claude, 2026-11-06)
+
+- Architect: Claude (new standing lane-2 Architect). Binding checked: Claude (`.ai/ROLE_CONFIG.md` on this branch, owner 2026-10-27). Input: `.agent/DD-1a2-preflight.md` at `1592b5543`.
+- **Evidence weight.** The builder's chain table comes from a scratch script on the template Site, and Findings and grades were not measured. R15 and R16 required registered-Site probes, so **no figure in that table binds anything here**. G0, G1 and G2 below re-measure on the registered Site. Everything in this ruling marked "read from code" is a code reading, not a measurement.
+
+### Builder's claims, checked against code and files
+
+| Claim | Result |
+|---|---|
+| Q2: `kobo-steady-day` and `kobo-mill-midday` have the same mill windows | **Correct.** Both are 0, 15, 18, 10, 12, 0 kW, verbatim `kobo-daytime`. |
+| Q2: INEFFECTIVE TARGET_MISS "by construction" | **Correct, and it holds wherever both sides run these windows.** `assess` (`verification_families.py:321`) needs `10*l*nb >= 11*b*nl`. Equal non-zero means fail it. Placement cannot help. |
+| Q2: `kobo-daytime-larger-mill` fails the join rule | Not verified on the registered Site. It is rejected anyway: its mill is 35, 40, 30, 32 kW, more than double the reference, so it declares a second machine, not a change of operating pattern. |
+| Q3: the window rule and fixed days | **Correct** (`verification_families.py:13-16`, v2 `sites`). |
+| Q4: `LATE_IN_STREAM` refuses S-4 and S-2 | **Correct** (`demo_story_days.py:296`). `plan_add_day` does not run this check. See Q4. |
+| Q6: "the plan rows (`:781-787`) agree" | **Partly wrong.** The bullet below the table still says "above 2 h elapsed, the fallback is B-16". The owner's later decision says 3 h and it governs. |
+| Q8.4: `DEGRADED_DAY_HELD` is vacuous on this list | **Correct** (`demo_story_days.py:163`, only with a `complement`). |
+
+**What the builder did not raise, and it matters for Q2.**
+- **The verdict measures whole-day mill energy, not midday.** `productive_kwh` has period `operating_hours` (`chain/measures.py:45`), and `day_kwh` sums every row of the day. The catalogue's `[midday]` is not applied by any code.
+- This has two consequences:
+  - A true shift that keeps the energy equal and moves it out of the sun would read no change and fail. So a conserved-energy "before" is not available without a metric change.
+  - The sentence "Midday use before and after: 42 → 110 kWh" is only loosely true: all of this energy is in daylight, but not all at midday.
+- **A "before" with the mill idle until 14:00 has a measured precedent.** R12 item 2 accepted "0 → 42 kWh" on the build's trial days as honest daylight use: the reserve-trial morning plus the evening parent's 14-18 windows. The builder's composition is that same shape.
+- **On today's data the story has no "before" at all.** A plain steady day already runs the mill at midday, so "run the mill at midday" would be a change to nothing. This is a story defect as well as a check failure.
+
+### Q1. Steady day: **(b), the mill-day shape, with a 06:00 start. This reverses R15's pure steady day and R14's "on a steady-to-steady 06:00 seam the bound applies". The owner is asked.**
+
+- **The builder's gate is not the right decider, for three reasons.**
+  - **A Finding a day is close to certain under (a) (read from code).** `dispatch._classify` works per segment. From 10:00, at 900 W/m² against about 30 kW of load, PV alone clears load plus 10% with no binding constraint, which is CANDIDATE. FINDING_CLAIM_LEVELS raises on that. The reserve-trial day has the same mixed interval (minimum-runtime minutes, then candidate) and it is exactly what raises ACT-K1's problem. So about 13 extra days would carry the problem that the story says recurs weekly, which breaks R13's "MG-2 counts, Findings and money equal".
+  - **Even with no Finding, (a) damages the mill story.** The builder's scratch table shows about 7-9 L a day on the "before" pattern and about 22 L a day on the "after" pattern. Continuous physics would then show the mill change roughly tripling diesel on the Grow Action's own days, with no guardrail on screen (BL-09). That figure is template-Site only. It is enough to rule against, and not enough to quote as fact.
+  - **(a) is not what the owner approved.** They were told about 0 L and no story figure changes.
+- **What (b) costs, stated plainly.** Each full day starts 06:00 from a declared 55 %, 300 L, STOPPED. The battery line steps up at 06:00 and the generator stops by itself. Battery and fuel do not carry across 06:00, so the example adds energy each morning that the model did not earn. R15 option (C) already held that one disclosed reset a day, at 06:00 where the example day begins, is defensible. The mill day already has it and has passed every R3-R13 check on the registered Site. The 06:00 seam is reported per day, never bounded.
+- **Disclosure, required on each 06:00 start file.** Label and first source line read: "Example data. Each full example day starts at 06:00 from a declared battery level and fuel level. Battery and fuel are not carried over from the night before." The existing `RESET_0600` line on `kobo-night-early` stays.
+- **Gate G1 (L2, one registered day of each profile, about 5 min each).** Report intervals, classes, Findings and money.
+  - **Pass:** only the pre-dawn start, all of its minutes classed needed, 0 L, 0 starts 06:00-20:00, 0 Findings, no money change. Build continues.
+  - **Fail:** stop and the Architect rules. No value changes. The likely result is that those days cannot be full, MILL-3 stops, and the owner gets the "not judged yet" choice.
+- **If the owner picks continuous days (a).** Run G1a first: one registered 00-24 day on each profile, same report. Report the measured figures back to the owner before building anything. If they still choose (a), it needs one file per chain position, +0.25, and the mill profile question reopens because of the fuel figures.
+
+### Q2. **Option A in the corrected form below, as an owner question. Not "tuned", and not neutral.**
+
+- **Is it an honest "before"? Yes, if it is called what it is.** It is an **authored** example. We wrote the before pattern because the story needs one, the same way the reserve-trial days are authored. It is not a measurement, and it cannot be called "no value chosen to reach a result" in the sense of a neutral draw: the pattern was deliberately chosen to differ. What keeps it honest:
+  - Every value comes from an existing parent, and no new number is introduced.
+  - The shape already exists on this build (R12 item 2).
+  - The margin (about 162 % by windows, not measured) is nowhere near the 10 % line, so nothing is sitting on the threshold.
+  - The evaluator is the real one over real rows, and the owner's 10 % is unchanged.
+  - **The composition is frozen by this ruling, before any product measurement. It is never revisited after seeing a result.**
+- **What the client is told (demo script, and if asked):** "This site is example data. In the example, the mill used to start at 2 pm. After the change it runs from 8 am and uses the spare solar. It runs more hours and grinds more, so this is more daytime use, not the same work moved. The check itself is real and applies the 10% rule to the readings." **Do not say** "same grain, moved to midday", "measured at a real mill", or quote the percentage as a result.
+- **The file: `config/scenarios/kobo-steady-before-mill.yaml`,** generated by `tools/derive_steady_scenarios.py` and included in `--check`.
+  - `kobo-daytime@2` windows and SoC verbatim for irradiance, residential and clinic. Start 55 %, 300 L, STOPPED, as `kobo-mill-midday`.
+  - Mill, each with its `# source:` line: 06-08, 08-10, 10-12, 12-14 = 0 (`kobo-mini-grid-reserve-trial.yaml`, `mill-demand-1`); 14-16 = 18 and 16-18 = 3 (`kobo-mini-grid-evening.yaml`, `mill-demand-2`, `mill-demand-3`).
+  - Label: "example data, the mill's pattern before the change (authored for this story: idle until 14:00 as in kobo-mini-grid-reserve-trial, afternoon as in kobo-mini-grid-evening; sun and other loads as kobo-daytime)".
+  - R2's "reviewers diff against the parent" reads here: **the diff against `kobo-daytime` is exactly the six mill windows**, and L0 asserts that.
+- **Rejected.**
+  - **B (one profile everywhere, "not judged yet"):** see the branch below; it is not recommended.
+  - **C (larger mill):** not a pattern change.
+  - **D (show "Target missed"):** the data would be correct, but the claim false about what the example declares. It tells a client a working change failed.
+  - **A conserved-energy shift:** fails on the whole-day metric (above).
+- **If the owner picks "not judged yet" (branch B).**
+  - All steady days are the `steady` kind. `mill-midday` is placed at **S-5**, the latest built full day, so it has no complete later days. Baseline is then S-9, S-8, S-6; there is no `steady-before*` kind and no `kobo-steady-before-mill`.
+  - The screen reads "Not judged yet" and stays so while the look-ahead is open. **Three more added days would produce "Target missed"**, so the script adds at most two later Kobo days.
+  - Size −0.25. CH-9b's stored-outcome path stays built and is not shown. F-THREADS (DD-1b2) expects the not-judged state. The owner's "keeps its 'Target met' check" (`owner-kobo-partial-days`) is then withdrawn by their own answer.
+- **Story cracks to carry in the demo script (not code).**
+  - S-7, S+0 and S+1 run the reserve-trial scenario, with the mill idle until 14:00 and story-only. S-7 falls after the mill change. On those days the day's productive energy reads 0.
+  - S-1 and S-3 (`necessary-run`, 22 kW for 8 h) read about 168 kWh, and so do S-28 and S-21. These partly checked days are not in the verdict.
+  - The honest answer: only fully checked days count, and those story days declare their own loads. They stay byte-equal (R5).
+- **Backlog BL-23** (below): make the measure midday-only. Class: backlog. With all mill energy in daylight, no verdict changes; the script line above covers the wording.
+
+### Q3. Placement: **accepted, E = S-9.** `mill-midday` on S-9.
+- It is also the latest placement possible: anything later leaves fewer than 3 complete days after it (S-8, S-6, S-5 are the only ones after S-9 before the unbuilt S-4). This choice is by grade only, and it was made before the data, as R4 asks.
+- Baseline S-13, S-12, S-11 (S-10 skipped as `missing`). Later S-8, S-6, S-5 (S-7 skipped as partly checked). It survives B-16.
+
+### The Kobo list, `backend/conversions/demo-story-days-v3.json` (becomes `DEFAULT_FILE`; v1 and v2 kept)
+
+| Day | Kind | Runs |
+|---|---|---|
+| S-28, S-21 | `normal`, `overcast` | unchanged, story-only |
+| S-20 | `steady-before-first` | `night-early`, `kobo-steady-before-mill`, `before-rest` |
+| S-19 to S-15 | `steady-before` | `night-early-after-before`, `kobo-steady-before-mill`, `before-rest` |
+| S-14 | `overuse` | story-only |
+| S-13 | `steady-before-first` | as S-20 |
+| S-12, S-11 | `steady-before` | as S-19 |
+| S-10 | `missing` | existing v1 entry |
+| S-9 | `mill-midday` | as v2 |
+| S-8, S-6, S-5 | `steady` | `night-early`, `kobo-steady-day`, `mill-rest` |
+| S-7 | `overuse` | story-only |
+| S-4, S-2 | no entry | NO_DATA |
+| S-3 | `late`, as `normal` | story-only |
+| S-1, S+0, S+1 | `normal`, `trial-before`, `trial-after` | story-only |
+
+- That is 13 fully checked days, 6 partly checked, 3 with no data, inside `[S-20, S+1]`.
+- **New files, all generated and in `--check`:**
+  - `kobo-steady-before-mill` (above).
+  - `kobo-rest-before-mill` (18-24, the same windows as `kobo-rest-mill`, start state measured at the 18:00 end of `kobo-steady-before-mill` on the registered Site).
+  - `kobo-night-early-after-before-mill` (00-06, `kobo-night-early`'s windows, start state measured at `kobo-rest-before-mill`'s 24:00).
+- **Reused:** `kobo-steady-day` is un-held (its HELD header goes) and `kobo-rest-mill` is reused. L0 asserts `kobo-steady-day`'s windows and start equal `kobo-mill-midday`'s, so its 18:00 state is the same one R16 measured.
+- **Add a top-level `"mill_change_day": "S-9d"`.** L0, in `resolve` and `plan_add_day`: a `steady-before*` kind only before it, a `steady` kind only after it. A refusal uses `MILL_PROFILE_WRONG_SIDE`. This stops a live fill of S-10 from putting the "after" pattern on a "before" day.
+- **`ADD_DAY_KINDS["kobo"]` gains `steady`, `steady-before-first`.** S-10 is filled with the second, because its predecessor is S-11 but the fresh start is the honest one for a live fill.
+- **G0 (registered Site, `_shifted` drafter, before any v3 use).** The 18:00 and 24:00 states of `kobo-steady-before-mill` and `kobo-rest-before-mill`, the 06:00 end of the night, generator intervals per run, all recorded in `full_days`.
+  - **Pass:** STOPPED at 18:00 and 24:00, 0 starts 06:00-20:00, and for `steady`, the 24:00 within R15's bound of `kobo-night-early`'s declared start.
+  - **Fail:** stop and the Architect rules. No value changes. A `before` day that cannot be full removes the baseline, so it goes to the owner as branch B.
+
+### Q4. **Accepted: S-4 and S-2 are not built.** The late day is not moved and the guard is not weakened.
+- Building them is backlog (BL-25): no shown claim needs those two days.
+- **Add to `plan_add_day`:** refuse a Kobo day next to a `late` entry with `LATE_IN_STREAM`. Today `add-day` would skip this check by minting its own epoch, so a live add on S-4 would produce a case nobody has tested. +0, one test. These days read "no data", which is true.
+
+### Q5. **Accepted: Cold has no steady day.** Cold stays v1's 3 days.
+- R14 and the owner's cold decision stand: a `cold-normal` day repeats its Finding, and no day is tiled. Re-deriving a `cold-steady` (the alternative) fails SCOPE-1, since it exists only so the board looks fuller.
+- **DD-1b2's partial prepare and SCOPE-1's phrase become "Cold 3 story days".** R1's "Kobo and Cold 24 h" no longer applies to Cold.
+- Saving is about 36 min of E3 (the builder's estimate, not measured); DD-1b2's rehearsal re-projects it.
+
+### Q6. **Confirmed, with one correction.** Build B-22. B-16 applies only if the DD-1b2 rehearsal measures the whole prepare above **3 h** (`owner-build-time-2026-11-06`). The plan's "above 2 h elapsed" bullet is stale.
+- **The fallback must exist as a switch, or it is not a fallback.** `prepare --baseline b16` drops every entry whose **resolved** offset lies in `[S-20, S-15]`. That includes an EV Tuesday that `weekday_offset` lands there. S-28 and S-21 stay. There is no second file.
+- L0: with the filter, the MILL-3 days are unchanged. +0.
+
+### Plan row `client-demo-plan.html:781` (and `:782`). **The builder is right, and the row is false in two claims, not one.** The coordinator applies this; the builder does not touch the plan.
+- "The story week reads 7 of 7" is false. S-5 to S+1 is 1 fully checked (S-5), 4 partly checked, 2 no data.
+- "MG-1 judged on 21 fully checked October days" is also false: 13 are fully checked.
+- **`:781` "What the client sees" becomes:** "One normal week before the first overrun. Three weekly recurrences. 13 of 22 Kobo days fully checked; the generator and trial days read partly checked; S-10, S-4 and S-2 have no data. Cold shows its 3 story days. EV shows 3 Tuesdays."
+- **`:782` becomes:** "The first overrun falls on the first day, so there is no normal history before the problem. 7 of 16 Kobo days fully checked."
+- **DD-1b2:** F-THREADS reports how many days MG-1's verdict actually reads, and says so if that is not what the screen implies.
+- The owner's B-16 answer carried the words "every day fully checked", which R16 and this list overtook. The coordinator tells the owner (see "Owner, informed").
+
+### Q7. **Accepted: the after-overcast night pair is withdrawn.** R2's own fallback ("presents less") applies, and the owner delegated the night design to the Architect (`owner-kobo-nights`). DD-1a2 −0.25.
+- **Lost:** the only night generator cost shown.
+- **Removed:** `kobo-night-late-after-overcast`, `kobo-night-early-after-overcast`, `kobo-steady-afternoon`, `kobo-steady-dusk`, `kobo-night-late`.
+- **Kept:** `kobo-steady-day`, un-held under (b). The `NIGHTS` table entry that `rest_document` reads stays, but it writes no file.
+- **Tests to edit:** `host/tests/test_dd1a1_registered_kobo.py:40-44`, `host/tests/test_dd1a1_stream_probe.py:88`, and any fingerprint list `--check` names. The handover JSON's old probe entries stay as history.
+
+### Q8. The five rules
+
+1. **Steady day after a story-only or missing day: accepted.** A fresh declared start, 48.42 %, 300 L, STOPPED, which is `kobo-night-early` unchanged. There is no bound and it is reported per day as a real data gap. The kinds are in the table above.
+2. **A steady day whose 24:00 is RUNNING:** never silently partly checked on this list. On G0 it is a stop, because these days carry MILL-3. Partly checked (the 06-18 run alone) applies only to an add-day (item 3).
+3. **ST-7 add-day after S+1: accepted, with the gate.**
+   - The kind is `steady`; `plan_add_day` expands it into its three runs through `_expand`, with `received_at` at DB now and each run's offset kept in order. +0.25.
+   - **Gate:** one registered probe of the three runs on the Foundation with the 25 % reserve, as the trial chain applies it.
+   - **Pass (STOPPED at 18:00 and 24:00, no Finding):** the day is full.
+   - **Fail:** the kind on that side of S+1 runs 06-18 only and reads partly checked. The script says so, and no Architect return is needed.
+   - **Class: demo-critical.** The live add is ST-7, and a live normal day should read like its 13 neighbours. The price is the +0.25.
+4. **Degraded guard: reading confirmed.** Refuse any Kobo `degraded` entry and add-day regardless of `complement`, with only `DEGRADED_PROBE` passing. Update `test_demo_story_days.py:461-475`: `test_r10_no_shown_calendar_...` loses its `complement` clause. Cold's S-3 `degraded` is `cold-missing-probe`, not an outage cut, and stays allowed.
+5. **The MILL-3 dry run (G2): allowed. It does not count as a demo prepare, on these terms.**
+   - **Allowed:** `tools/dd1a2_mill3_dry_run.py` drives the Kobo child's existing build path for v3's S-14 to S-5 (10 days, S-10 stays empty) on the builder's own `*_test` DB.
+   - **Barred:** the `tools/demo_combined.py prepare` parent; the finish rows; Cold and EV; any `assetops_polish_*` DB; the full-prepare test; `test_demo_combined_*` beyond the scoped ones. Any need to cross these is a stop.
+   - Machine idle, one heavy job at a time. Start `tools/keep-awake-during-tests.ps1`. Cap at 40 min, twice the estimate. Past the cap, stop and report.
+   - Then call `assess()` directly with an in-memory plan: `effective_day` = S-9, baseline chosen by `choose_days`. No Action is recorded (that is DD-1b).
+   - Report to `.agent/DD-1a2-mill3-dry-run.json`: every R12 item, run sets, and the S-14 and S-7 Findings compared to the story-only build.
+   - **Pass:** 3 COMPLETE each side, the later days' run sets contain `kobo-steady-day`, VERIFIED by the catalogue rule, and S-14 and S-7 have the same Findings, intervals, claims and money.
+   - **Fewer than 3 COMPLETE days, or not VERIFIED:** R12 stop, report, never tune. The Architect rules, and if no honest fix exists, the owner gets branch B.
+   - **A story Finding on S-14 or S-7 changes because of its neighbours:** the generator Findings win (R16). The next step is leaving the neighbouring steady days unbuilt. That shortens the MILL-3 windows, so the Architect re-rules with the owner's B option in view. Do not widen any product gate (BL-20).
+
+### Accepted without change
+- **Guard extension,** list-level checks in `resolve`, proved by mutation, closing `review-DD-1a1.md:108-110`: each full kind's complement list matches `full_days`; each 00:00 start matches the previous built full day's recorded 24:00 within R15's bound, unless item 1 applies.
+- **EV `S-14d normal`.** A 4th Tuesday is reported, never moved.
+- **S-10 `missing`** stays.
+- **FILL-1's** five refusals, plus the test that `DAY_HAS_EVIDENCE` fires before provisioning (DD0c-R Q4).
+
+### Tests
+- **L0 (`backend/tests/test_demo_story_days.py`):**
+  - v3 resolves on the table above; each full day tiles; S-4 and S-2 absent;
+  - the `kobo-steady-before-mill` six-window diff; `kobo-steady-day` equals `kobo-mill-midday`;
+  - `MILL_PROFILE_WRONG_SIDE`; `LATE_IN_STREAM` on add-day; degraded always refused;
+  - `--baseline b16`; the guard mutations; the five refusals; add-day expanding to three runs.
+- **L2 (`host/tests/test_dd1a2_registered_kobo.py`):** G0, G1, the R25 add-day probe, and one `add-day steady` end to end with real-time delivery and story-time readings.
+- **Scoped as DD-1a1. Guards A, W, N, V, M.**
+- **Carried into DD-1b2:** F-THREADS asserts MILL-3 and the G1 pass on the whole build.
+
+### Scope and size (SCOPE-1)
+
+| Item | Class | Reason | Size |
+|---|---|---|---|
+| Withdraw the after-overcast pair | removal | No legal place under R15/R16 | −0.25 |
+| `kobo-steady-before-mill` chain and probes | demo-critical | Without a "before", the mill Action changes nothing and "Target met" cannot be true | +0.25 |
+| Add-day expands to three runs, with R25 gate | demo-critical | ST-7's live day must read like its neighbours | +0.25 |
+| G1, guards, B-16 switch, late check on add-day | demo-critical | Inside existing acceptance | +0 |
+| BL-23 midday-only measure | backlog | No verdict changes on current data; the script covers the wording | 0.5 est. |
+| BL-24 continuous days without the 06:00 start | backlog | Needs a site energy balance and Findings work; the disclosure covers the demo | not estimated |
+| BL-25 late day inside a stream (build S-4, S-2) | backlog | No shown claim needs them | est. |
+
+**DD-1a2 2.0 → 2.25. DD-1 +0.25 (10.25 at R16 → 10.5); the plan rows need it.** Branch B: −0.25, DD-1a2 2.0. BL-23 to BL-25 are the next free ids in this worktree and on `main` at this ruling. **Lane 1's Architect is also writing backlog rows, so whoever merges second re-checks the ids and renumbers.**
+
+### Owner questions (ask together; the recommendation is the first answer of each)
+
+**Question 1. "Normal days on the Kobo example."** "A sunny day at this example site doesn't put back what the night takes out. If we run normal days as one continuous stretch, the generator comes on around 5am and stays on until about noon, on a test copy about 22 litres a day. That isn't what you approved (about 0 litres). It would also very likely raise a 'generator ran longer than needed' problem nearly every day, against the handful the story is about, and show fuel going up after the mill change.
+- **Each normal day starts at 6am from a set battery and fuel level (recommended).** Keeps what you approved: about 0 litres, and the same problems and money. It costs a visible jump in the battery line at 6am, with the generator stopping by itself, on each fully checked day. The mill day already does this, and a line on screen says so.
+- **Continuous days.** Keeps a smooth line and true day-to-day fuel. It loses the 0 litres and likely changes the problems and costs shown. We'd measure it on the real example site first and come back to you."
+
+**Question 2. "How the mill 'before' is written."** "The check on 'run the mill at midday' compares days before and after. Today the example's ordinary days already run the mill at midday, so there is no before, and the check would say 'Target missed'. Nothing was measured here; we write both patterns.
+- **Write a 'before' pattern (recommended):** the mill idle until 2pm, then the late-afternoon pattern, both taken from other example days. Keeps 'Target met', as you were told. The check would read roughly 40 up to 110 kWh a day. We'd present it as example data and as more daytime use, not the same work moved, because the mill grinds more after the change.
+- **No 'before':** the mill change shows 'Not judged yet'. It loses 'Target met', and adding three more days live would show 'Target missed', so the script avoids that. It is simpler, but the Grow story ends without a result."
+
+**Does the build wait?** Yes for the scenario files, the day list and the gates, since both answers change them. The builder may meanwhile do the items that do not depend on them: Q7's removals, Q8.4, the late check, the B-16 switch, the EV entry. If the owner is in a delegated absence, the build proceeds on both recommendations and each is logged for owner review.
+
+### Owner, informed (no decision)
+- Kobo: 13 of 22 days fully checked, not "every day" as an earlier question said; S-4 and S-2 read "no data" in the story week.
+- Cold: its 3 story days only.
+- No night generator cost is shown (the after-overcast night is withdrawn).
+
+### Handoff
+Wait for the owner's answers, then: G0, the files and v3, G1, the R25 probe, G2, the scoped tests and guards. Stops are as ruled above; a stop returns to this Architect with its report.
