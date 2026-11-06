@@ -101,3 +101,13 @@ No other board value moved.
 - EV Grow money now null where the stored consequence has a figure but days are unknown (Q4); confirm that is the intended client view.
 - Kobo MG-1 "sales not recorded" on data without productive snapshots (R5).
 - Two load-flaky vitest cases (not touched by this slice).
+
+## Fix round R2a (PARTIAL; resume from `.agent/CH-6a3-R2a-handoff.md`)
+- Done at `1fb51daff`: H3 ONE-SOURCE (mini/EV Grow money, subline, sales/charging line from the earnings claim only),
+  H1 (snapshot fakes; 25.25/42.08 USD kept; LOW-day case; MG-1 asserts on `nodes["MG-1"]["kpi"]` + `judge_month`; no test
+  deleted), M2, M3, M4 (one-day dating), M5 (revision-matched price line, litres rounded), L4. EV golden regenerated.
+- Scoped pure set: green after the golden regen (re-run owed at the end). 10 mutations: every new test fails under its mutation.
+- M1 evidence: polish is at Alembic 0041 (no `site_day_snapshot`); a settled clone holds 11 rows, all `critical_served`.
+  `productive_kwh`/`charging_kwh` were never produced (the tick only consumes outbox events). Backfill step (a) on the clone
+  produces them: Kobo 8 PARTIAL + 27 NO_DATA; EV 2 LOW (10-20, 10-27) + 15 NOT_EXPECTED + 1 NO_DATA. Settle fix not applied (see handoff).
+- Not done yet: H2 §A8 item 3 on `mechanism_db()`, L2m run, polish clone W6/fresh/COH, guards A/W/V.
