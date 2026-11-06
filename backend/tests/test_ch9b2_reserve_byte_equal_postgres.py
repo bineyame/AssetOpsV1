@@ -118,6 +118,35 @@ def test_reserve_trial_bodies_and_rows_are_byte_equal(runner, monkeypatch) -> No
     assert got == want
 
 
+#: CH-9b3 (CH9b3-R Q10): the lifecycle `_OUTCOMES` read as it was before the COALESCE / CASE change, literal here.
+OUTCOMES_BEFORE_CH9B3 = (
+    "SELECT o.id, o.action_id, o.outcome, o.recorded_at, p.later_end, (SELECT c.effective_from FROM "
+    "action_policy_change c WHERE c.tenant_id = o.tenant_id AND c.action_id = o.action_id ORDER BY c.recorded_at "
+    "DESC, c.id DESC LIMIT 1) AS effective_from, EXISTS (SELECT 1 FROM verification_outcome x WHERE "
+    "x.supersedes_outcome_id = o.id) AS superseded FROM verification_outcome o JOIN verification_plan p ON "
+    "p.id = o.plan_id WHERE o.tenant_id = :t AND o.site_id = :s ORDER BY o.recorded_at, o.id")
+
+
+def test_lifecycle_outcomes_read_is_byte_equal_for_reserve_rows(runner, monkeypatch) -> None:
+    from sqlalchemy import text
+
+    from assetops_backend.chain.adapters.postgres_thread_sources import _OUTCOMES
+
+    run_case(runner, CASES["F01"])
+    run_case(runner, CASES["F02"])
+    h = verifying(runner)
+    try:
+        capture(runner, h, monkeypatch)
+        with runner.engine.connect() as c:
+            t, s = c.execute(text("SELECT tenant_id, site_id FROM verification_outcome LIMIT 1")).one()
+            before = [dict(r._mapping) for r in c.execute(text(OUTCOMES_BEFORE_CH9B3), {"t": t, "s": s})]
+            after = [dict(r._mapping) for r in c.execute(text(_OUTCOMES), {"t": t, "s": s})]
+    finally:
+        h.close()
+    assert before and all(r["effective_from"] is not None and r["action_id"] is not None for r in before)
+    assert after == before
+
+
 def test_proof_can_fail() -> None:
     want = json.loads(GOLDEN.read_text(encoding="utf-8"))
     planted = json.loads(json.dumps(want))

@@ -120,6 +120,23 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
                              snapshots=build_snapshot_reader(database_url))
 
 
+def evaluate_domain_plans(database_url: str, tenant_id: UUID, site_id: UUID, snapshots: Any, now: Any,
+                          today: Any = None) -> list[dict[str, Any]]:
+    """CH-9b3 (CH9b3-R Q9): the `chain_snapshots` stage's evaluator call, after its drain: every undecided mill plan
+    of the Site judged once over the stage's own `SnapshotReader`. Opens and releases one Action store."""
+    from types import SimpleNamespace
+
+    from assetops_backend.actions.verification import VerificationService
+
+    store = build_action_store(database_url)
+    try:
+        actions = SimpleNamespace(store=store, clock=lambda: now,
+                                  verification_ports=VerificationPorts(snapshots=snapshots))
+        return VerificationService(actions).evaluate_site_domain_plans(tenant_id, site_id, today)
+    finally:
+        getattr(store, "dispose", lambda: None)()
+
+
 def build_action_service(database_url: str | None, finding_reads: Any,
                          capability: CapabilityCheck | None = None,
                          clock: Callable | None = None, registry: Any = None) -> ActionService:

@@ -76,6 +76,9 @@ BINDING_COLUMNS = ("id, tenant_id, site_id, plan_id, window_name, selection, sel
 OUTCOME_COLUMNS = ("id, tenant_id, site_id, action_id, plan_id, selection_binding_id, evaluation_request_id, "
                    "supersedes_outcome_id, outcome, reasons, basis, basis_sha256, details, actor_kind, actor_id, "
                    "triggering_job, idempotency_key, recorded_at")
+#: CH-9b3 (CH9b3-R Q5): the `midday-productive-shift-1` outcome columns (0052, `action_id` NULL); `OUTCOME_COLUMNS` is
+#: unchanged so every reserve-trial read and body is byte-equal.
+DOMAIN_OUTCOME_COLUMNS = OUTCOME_COLUMNS.replace("action_id, plan_id", "domain_action_id, plan_id")
 METRIC_COLUMNS = ("outcome_id, tenant_id, site_id, metric_key, window_name, state, value_text, threshold_text, unit, "
                   "reason, evidence_ids")
 REQUEST_COLUMNS = ("id, tenant_id, site_id, action_id, plan_id, actor_kind, actor_id, source_channel, "
@@ -722,7 +725,7 @@ class PostgresActionStore:
         event of a case linked to it (the APPLIED anchor, CH9b1-R Q3) and its existing plan; None: no such Action."""
         def work(c):
             action = c.execute(text(
-                "SELECT d.id, d.action_code, d.domain, d.origin_opportunity_revision_id, s.timezone "
+                "SELECT d.id, d.action_code, d.title, d.domain, d.origin_opportunity_revision_id, s.timezone "
                 "FROM domain_action d JOIN site s ON s.tenant_id = d.tenant_id AND s.id = d.site_id "
                 "WHERE d.tenant_id = :t AND d.site_id = :s AND d.id = :a"),
                 {"t": tenant_id, "s": site_id, "a": domain_action_id}).first()
@@ -755,6 +758,55 @@ class PostgresActionStore:
             c.execute(text(f"INSERT INTO verification_plan ({DOMAIN_PLAN_COLUMNS}) VALUES ({params})"), binds)
             return dict(c.execute(text(f"SELECT {DOMAIN_PLAN_COLUMNS} FROM verification_plan WHERE id = :i"),
                                   {"i": plan["id"]}).one()._mapping), False
+        return self._run(work)
+
+    # ---- CH-9b3: the mill verdict (CH9b3-R Q1-Q5) ----------------------------------------------------------
+
+    def domain_outcomes(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> list[dict[str, Any]]:
+        """The domain Action's outcomes, oldest first, each with its metrics."""
+        def work(c):
+            rows = self._rows(c.execute(text(
+                f"SELECT {DOMAIN_OUTCOME_COLUMNS} FROM verification_outcome WHERE tenant_id = :t AND site_id = :s "
+                "AND domain_action_id = :a ORDER BY recorded_at, id"),
+                {"t": tenant_id, "s": site_id, "a": domain_action_id}))
+            for row in rows:
+                row["metrics"] = self._rows(c.execute(text(
+                    f"SELECT {METRIC_COLUMNS} FROM verification_metric WHERE outcome_id = :o "
+                    "ORDER BY metric_key, window_name"), {"o": row["id"]}))
+            return rows
+        return self._read(work)
+
+    def undecided_domain_plans(self, tenant_id: UUID, site_id: UUID, rule_id: str) -> list[UUID]:
+        """The Site's domain Actions whose `rule_id` plan has no outcome yet (the evaluator's work list)."""
+        return [r["domain_action_id"] for r in self._read(lambda c: self._rows(c.execute(text(
+            "SELECT p.domain_action_id FROM verification_plan p WHERE p.tenant_id = :t AND p.site_id = :s "
+            "AND p.domain_action_id IS NOT NULL AND p.rule_id = :r AND NOT EXISTS (SELECT 1 FROM verification_outcome o "
+            "WHERE o.plan_id = p.id) ORDER BY p.recorded_at, p.id"), {"t": tenant_id, "s": site_id, "r": rule_id})))]
+
+    def record_domain_outcome(self, tenant_id: UUID, site_id: UUID, outcome: dict[str, Any],
+                              metrics: list[dict[str, Any]]) -> tuple[dict[str, Any], bool]:
+        """Insert the plan's one decisive outcome and its metrics, or return the outcome already recorded for the
+        plan (`replayed=True`). Serialized per domain Action by a transaction advisory lock; no request row, no
+        `action_event` (a domain Action has none)."""
+        def work(c):
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+                      {"k": f"verification-outcome:{outcome['domain_action_id']}"})
+            existing = c.execute(text(f"SELECT {DOMAIN_OUTCOME_COLUMNS} FROM verification_outcome "
+                                      "WHERE plan_id = :p ORDER BY recorded_at, id LIMIT 1"),
+                                 {"p": outcome["plan_id"]}).first()
+            if existing is not None:
+                return dict(existing._mapping), True
+            params, binds = self._values(DOMAIN_OUTCOME_COLUMNS,
+                                         {**outcome, "tenant_id": tenant_id, "site_id": site_id},
+                                         frozenset({"basis", "details"}))
+            c.execute(text(f"INSERT INTO verification_outcome ({DOMAIN_OUTCOME_COLUMNS}) VALUES ({params})"), binds)
+            for metric in metrics:
+                params, binds = self._values(METRIC_COLUMNS, {**metric, "outcome_id": outcome["id"],
+                                                              "tenant_id": tenant_id, "site_id": site_id},
+                                             frozenset({"evidence_ids"}))
+                c.execute(text(f"INSERT INTO verification_metric ({METRIC_COLUMNS}) VALUES ({params})"), binds)
+            return dict(c.execute(text(f"SELECT {DOMAIN_OUTCOME_COLUMNS} FROM verification_outcome WHERE id = :i"),
+                                  {"i": outcome["id"]}).one()._mapping), False
         return self._run(work)
 
     def selection_bindings(self, tenant_id: UUID, site_id: UUID, plan_id: UUID) -> list[dict[str, Any]]:
