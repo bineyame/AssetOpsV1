@@ -284,7 +284,7 @@ NODE_TEXT = {
     # CH-6 R7 (design A3; MD-CH6-3: no mock place, it sits in the row subline).
     "row.target_note": "{k} of {m} outcomes have a target",
     # OWN-1104 R10 (replaced), CH6b1-R Q5: the Portfolio Grow income total and its per-Site lines (mock v70
-    # `pfGrowParts`; MOCK DEVIATION candidates listed in the CH-6b1 packet).
+    # `pfGrowParts`). MOCK DEVIATION MD-CH6-5: the mock's note says the Sites are not added together; OWN-1104 adds them.
     "income.total": "Estimated income from checked days: {total}",
     "income.at_least": "At least {total} estimated income, from checked days",
     "income.site": "{site}: {text}",
