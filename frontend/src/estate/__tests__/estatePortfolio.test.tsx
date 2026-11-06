@@ -981,7 +981,9 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     const base = portfolioBody();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
     await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-pulse]"))).toContain("1 priority site ");
+    const pulse = text(document.querySelector("[data-portfolio-pulse]"));
+    expect(pulse).toContain("1 priority site");
+    expect(pulse).not.toContain("priority sites");
   });
 
   it("omitsTheCountWhenPlacementCountsAreNull", async () => {
