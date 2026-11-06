@@ -137,3 +137,5 @@ No owner walkthrough item in this unit. The reviewer focus is KD-3b and the 4 fa
 
 ## Guard results
 
+Run one at a time at `350b5a3a9`, `check-all` not run: A architecture pass; W agent workflow pass; N navigation pass; V mock-deviation labels pass; M missing-claim scan pass (42 tagged, 10 baselined), fixtures pass; frontend ratchet pass; COH fixtures 133 pass.
+
