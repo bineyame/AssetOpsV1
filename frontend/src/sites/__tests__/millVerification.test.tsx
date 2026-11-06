@@ -137,7 +137,7 @@ describe("mill verdict page", () => {
     expect(main().querySelector("[data-mill-state]")?.textContent).toBe("Could not conclude");
     expect(screen.getByText(later)).toBeTruthy();
     clean();
-    expect(screen.getByText("Not available yet")).toBeTruthy();
+    expect(screen.getByText("Too few fully checked days")).toBeTruthy();
     cleanup();
     const zero = "No midday use was measured before the change, so a 10% rise cannot be measured";
     renderAt(client({ status: "loaded", body: { ...VERIFIED, state: "INCONCLUSIVE", reasons: ["BASELINE_ZERO"], sentence: zero } }));
