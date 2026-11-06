@@ -421,3 +421,40 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
       - No reading at or after 00:00Z cites v16, and none before 00:00Z cites v17.
     - The rest of R7 is unchanged, including ACT-K1 equal with and without.
   - **Size +0.** It is the same derivation mechanism, inside R7's +0.25. DD-1a1 stays 3.5.
+
+## DD1a1-R8: one epoch per unbroken Site stream, not per Site-day (amends R5 "Day edges")
+
+- Architect: Claude (Architect 23), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-1104-finding-diagnosis.md` at `ab253c74a`. The diagnosis is accepted.
+  - Dispatch windows are UTC days (`dispatch_read.py:80-82`). At UTC+3, the next local day's 00:00–03:00 lies inside the current UTC window.
+  - So R5's per-Site-day epoch puts two epochs in one window, and `_multi_epoch` correctly makes it AMBIGUOUS. This happens on 11-04, where it turns the Finding UNCONFIRMED NO_INTERVAL, and silently on 11-03.
+  - R5's premise that the local day is the analytic window was wrong. The cohort rule is right.
+- **Ruling: option 1.** Each maximal run of consecutive built Site-days of one Site is one stream: one `sequence_epoch` and one gateway state (`gw-<epoch>`), with the sequence continuing across local and UTC midnight.
+  - The epoch changes only across a day with no run. That is a real gap and a plausible reset: 10-25 and 11-02 today.
+  - Isolated days keep their v1 `day-<n>` epoch. A merged stream takes the epoch of its first day.
+  - **Why it is honest.** This is R5's own reason: a real gateway changes epoch only on a reset, and it does not reset at local midnight. It is also the least invasive option: it changes no product code and no cohort rule, and every day stays full.
+- **Rejected options.**
+  - (2) is an analytics calendar change, out of scope.
+  - (3) leaves partial days, contrary to CH9-R4, as R5 (c) did.
+  - (4) is R5 (b), already rejected.
+- **Guards. Neither case is in the v2 calendar; if a build would hit one, stop and the Architect rules.**
+  - A `late` day must not sit in a multi-day stream. One stream cannot deliver an earlier day after its neighbour without a backlog claim. 11-01 is isolated.
+  - A `degraded` day (R6) must not have a built day after it in its stream. The shared outbox would flush the withheld half. Starting a new epoch the next day would put two epochs in the degraded day's UTC window.
+- **Trial chain.** The baseline and later runs take the stream's epoch and gateway state, not `k["runs"][...]["sequence_epoch"]`. ACT-K1 is otherwise unchanged.
+- **The v1-equality check now reads:** "story-run payloads are equal to v1's in every field except `sequence_epoch` and the sequence numbers. Each isolated day's epoch equals its v1 `day-<n>`."
+  - The `without` build uses the same stream epochs, so story-run payloads stay byte-equal between `with` and `without`.
+  - The 2–4 revision counts may differ between the builds. Same-epoch BASIS_REFRESHED revisions are bookkeeping. Each Finding's final state must be equal.
+- **L0 (`test_demo_story_days.py`).**
+  - There is one epoch per maximal run of consecutive built days, per Site and source.
+  - Each instant is sent once per stream, and each sequence increases monotonically across day edges.
+  - A non-vacuity mutation is caught: a per-day epoch on 11-04 and 11-05.
+- **Probe (L2, own `*_test` DB, before the full build).** On KOBO-001, three consecutive Site-days go on one epoch through one gateway state.
+  - Every delivery is COMPLETED, with 0 duplicates, 0 rejected and 0 conflicts. Each sequence runs 1..N with no gap across both midnights.
+  - A complement received after the next day's run is accepted.
+  - An isolated `late` day on its own epoch is accepted.
+  - `cohort_status` is SELECTED_UNIQUE in all three UTC windows.
+  - If the gateway refuses any of these, stop.
+- **Acceptance (full `with` and `without` builds).**
+  - The same 3 Findings at 04:35 (10-21, 10-28, 11-04), with equal CANDIDATE intervals, citations and final lifecycle. The 11-04 Finding is not UNCONFIRMED.
+  - 0 AMBIGUOUS in every built UTC window for Kobo and Cold, 11-03 included.
+  - Q6 trial metrics are equal, and the R6, R7 and R7b checks are unchanged.
+- **Size: +0.25** for the stream grouping in `resolve`, the gateway state per stream, the trial-chain epoch, the guards, the L0 updates and the probe. DD-1a1 3.5 → 3.75 and DD-1 8.25 → 8.5; the plan rows need it. No owner question: no shown story changes. Context note: this Architect is still fit for the next lane-2 ruling.
