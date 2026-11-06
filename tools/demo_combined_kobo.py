@@ -219,7 +219,7 @@ def findings_on(engine, site_id, day: str) -> list[str]:
 
 
 def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *, gateway_dir: Path | None = None,
-                       keep=None, outage_continues: bool = False) -> dict:
+                       keep=None, outage_continues: bool = False, withheld_run: str | None = None) -> dict:
     """`rp._publish_and_accept` for the `degraded` kind's U1 fallback (a gateway outage): the run publishes through
     a real gateway, but only the first half of its sealed batches reaches S2 before the gateway stops. The rest is
     never delivered (append-only: nothing is withdrawn).
@@ -227,7 +227,12 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *
     DD1a1-R5: on the Site-day's one gateway state (`gateway_dir`), the undelivered half stays in that gateway's
     outbox, so a complement run after the outage cannot deliver its own batches without the withheld ones. Such a
     complement (`outage_continues`) is run and staged on the same stream but delivers nothing: the outage lasts the
-    rest of the day (packet Known Deviations; the Architect may rule a different shape)."""
+    rest of the day (DD1a1-R6).
+
+    DD1a1-R6 fix: the gateway's background uploader runs a delivery pass the moment it starts, which drained the
+    withheld half through a later complement's gateway. A post-outage complement's gateway is therefore started with
+    no `upload` block (no network: the gateway is down), so nothing it holds can leave it. `withheld_run` (the story
+    run of the outage) is read back from the same outbox afterwards, to show its undelivered half is still held."""
     import secrets
     from uuid import UUID
 
@@ -265,7 +270,14 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *
     central = FakeCentral(respond)
     upload = {"server_url": central.url, "upload_credential_file": "upload.credential", "ca_file": str(CERT),
               "interval_seconds": 3600}
-    process = rp._gateway(tmp_path, run, epoch, upload, state_dir=gateway_dir)
+    if outage_continues:
+        from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config
+
+        write_config(state, provisioning_from_snapshot(run.registered_basis.snapshot_canonical, epoch=epoch))
+        process = GatewayProcess(state / "gateway.json")  # no `upload`: no uploader, no background pass
+        assert process.ready, process.first_line
+    else:
+        process = rp._gateway(tmp_path, run, epoch, upload, state_dir=gateway_dir)
     try:
         port = pub._host(tmp_path / "h", process.link, keep)
         port.start(run)
@@ -282,14 +294,18 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *
                 break
             sent += attempted
         outbox = publisher.delivery(str(getattr(run, "run_id", "")))  # DD1a1-R6: what the gateway still holds
+        withheld = publisher.delivery(withheld_run) if withheld_run else None
     finally:
         process.kill()
         central.close()
-    assert statuses and set(statuses) == {"COMPLETED"}, statuses
+    if outage_continues:
+        assert statuses == [], statuses  # DD1a1-R6: nothing reached S2 after the outage
+    else:
+        assert statuses and set(statuses) == {"COMPLETED"}, statuses
     return {"batches": len(stage.batches), "delivered_batches": sent, "envelopes": len(stage.envelopes),
             "delivery": ("staged, not delivered (the gateway stays down for the rest of the local day)"
                          if outage_continues else "first half of the sealed batches (gateway outage)"),
-            "outbox_after": outbox}
+            "outbox_after": outbox, "withheld_after": withheld}
 
 
 def trial_day_index(url: str, runner, S: datetime) -> dict:
@@ -326,8 +342,9 @@ def _seal_once() -> None:
     pub.SEAL_ONCE = SEAL_ONCE
 
 
-#: DD1a1-R5: the epochs (Site-days) whose `degraded` story run has had its gateway outage in this build.
-_OUTAGE: set[str] = set()
+#: DD1a1-R5: the epochs (Site-days) whose `degraded` story run has had its gateway outage in this build, each
+#: mapped to that story run's id (DD1a1-R6: its withheld half is read back after each later complement).
+_OUTAGE: dict[str, str] = {}
 
 
 def gateway_dir(tmp: Path, epoch: str) -> Path:
@@ -349,10 +366,11 @@ def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     stream = {"gateway_dir": gateway_dir(tmp, day.epoch), "keep": day.keep()}
     if day.kind == "degraded":
         deliver = publish_first_half
-        _OUTAGE.add(day.epoch)
+        _OUTAGE[day.epoch] = str(getattr(run, "run_id", None) or getattr(run, "id", ""))
     elif day.epoch in _OUTAGE:
         deliver = publish_first_half
         stream["outage_continues"] = True
+        stream["withheld_run"] = _OUTAGE[day.epoch]
     else:
         deliver = rp._publish_and_accept
     # DD-1a1: a full day holds several runs (story + steady complement), so the work folder names the start too
