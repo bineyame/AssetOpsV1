@@ -153,3 +153,61 @@ def test_kobo_week_days_earnings_total_and_summary_equal_chain(mech, monkeypatch
     assert {k: k_old["days"][k] for k in want_old} == _record_days[0][1] == want_old, (k_old["days"], want_old)
     assert Decimal(k_old["earnings"]["estimated_income"]["value"]["amount"]) == before
     print("CH6B1_DAYS", _record_days, "old", want_old, "money", before, after)
+
+
+def test_mg1_judged_on_checked_days_and_optimize_row_reads_act_k1_on_d13(mech, monkeypatch, tmp_path) -> None:  # noqa: F811
+    """CH-6b3 (§B5 item 3, the remaining bullets; `late_fill` + `known_at` is BL-08). MG-1's verdict on the week card is
+    `judge_month` over the stored month-to-date rows, recomputed here on >= 3 COMPLETE days. The Optimize row on D13
+    reads the ACT-K1 result: the generator thread is RESOLVED_MONITORING since D12 (CH-3 line)."""
+    import json
+    from pathlib import Path
+
+    from assetops_backend.chain.strategies.graded_verdict import day_grades
+    from assetops_backend.outcomes.objectives import ObjectiveFact, Reading, judge_month
+
+    engine, m = mech
+    url = engine.url.render_as_string(hide_password=False)
+    b4._settle_chain(url, "KOBO-001")
+    b4._serve(monkeypatch, url, tmp_path)
+    d13 = md.day(SPEC, 13)
+    window = {"from": _utc(md.day(SPEC, 7)), "to": _utc(md.day(SPEC, 14))}
+    with b4._client() as c:
+        chain = _read(c, "/api/estate/chain", window)
+        board = _read(c, "/api/sites/KOBO-001/outcome-board", {"date": d13.isoformat()})
+        site = _read(c, "/api/sites/KOBO-001/chain", {"date": d13.isoformat()})
+    (kobo,) = chain["sites"]
+
+    kpi = kobo["rows"]["GROW_REVENUE"]["nodes"]["kpi"]
+    first = d13.replace(day=1)
+    assert kpi["key"] == "verdict.MG-1" and kpi["span"] == {"first": first.isoformat(), "last": d13.isoformat()}, kpi
+    with engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT DISTINCT ON (local_day, subject_kind, subject_ref) local_day, measure, subject_ref, grade, value "
+            "FROM site_day_snapshot WHERE site_id = :s AND measure = 'productive_kwh' "
+            "AND local_day BETWEEN :lo AND :hi ORDER BY local_day, subject_kind, subject_ref, revision DESC"),
+            {"s": m["site_id"], "lo": first, "hi": d13}).mappings().all()
+    typed = [type("R", (), dict(r))() for r in rows]
+    grades = day_grades(typed)
+    checked = sum(1 for g in grades.values() if g == "COMPLETE")
+    counted = {d for d, g in grades.items() if g in COUNTED}
+    value = sum((Decimal(str(r.value["kwh"])) for r in typed
+                 if r.local_day in counted and r.grade in COUNTED and r.value and r.value.get("kwh") is not None),
+                Decimal(0))
+    assert checked >= 3, grades   # the bullet: judged on at least three COMPLETE days of stored rows
+    assert kpi["days"]["complete"] == checked, (kpi, grades)
+    source = Path(__file__).resolve().parents[1] / "conversions" / "demo-objectives.json"
+    declared = next(o for o in json.loads(source.read_text(encoding="utf-8"))["objectives"]
+                    if o["site_code"] == "KOBO-001" and o["outcome_key"] == "MG-1")
+    fact = ObjectiveFact("MG-1", declared["measure_key"], "AT_LEAST", Decimal(declared["target"]), False, "", "DECLARED",
+                         None, **({"min_checked_days": declared["min_checked_days"]}
+                                  if declared.get("min_checked_days") else {}))
+    reading = Reading(value, False, None, checked, (d13 - first).days + 1, 31)
+    assert kpi["value"] == judge_month(fact, reading), (kpi, value, checked)
+
+    row = next(r for r in board["rows"] if r["category"] == "OPTIMIZE_COST")
+    assert any(t["kind"] == "MONITORING" for t in row["thread_lines"]), row["thread_lines"]
+    assert row["state"] != "NEEDS_ATTENTION", row
+    threads = [t for t in site["threads"] if t.get("state") == "RESOLVED_MONITORING"]
+    assert threads, site["threads"]
+    assert kobo["rows"]["OPTIMIZE_COST"]["state"] == row["state"], (kobo["rows"]["OPTIMIZE_COST"], row["state"])
+    print("CH6B3_L2M", kpi["value"], value, checked, row["state"], row["state_label"], threads[0].get("state"))
