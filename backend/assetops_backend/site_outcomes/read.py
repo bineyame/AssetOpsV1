@@ -196,7 +196,12 @@ class SiteOutcomeBoardService:
             req = _need(s.chain_reader, "chain reader").request(t, known_at)
             return req.day(sid, SITE_TYPE_OF_DOMAIN[site.domain], local_days(lo, hi, site.timezone)).readiness
 
-        return {"work": work, "plans": plans, "readiness": readiness,
+        def chain_rows(lo: datetime, hi: datetime) -> tuple[Any, ...]:
+            """CH-6a3: the snapshot rows of the same memoised day read (no new statement)."""
+            req = _need(s.chain_reader, "chain reader").request(t, known_at)
+            return tuple(req.day(sid, SITE_TYPE_OF_DOMAIN[site.domain], local_days(lo, hi, site.timezone)).rows)
+
+        return {"work": work, "plans": plans, "readiness": readiness, "chain_rows": chain_rows,
                 "objectives": lambda: _need(s.objectives, "objectives").current(t, sid, known_at)}
 
     def _domain_actions(self, site: SiteRef, known_at: datetime | None) -> Callable[..., dict[str, Any]]:
@@ -302,7 +307,8 @@ class SiteOutcomeBoardService:
 
         return cold.ColdPorts(overview=overview, findings=findings,
                               domain_actions=self._domain_actions(site, known_at), work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"])
+                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
+                              chain_rows=shared["chain_rows"])
 
     def ev_ports(self, site: SiteRef, known_at: datetime | None = None) -> ev.EvPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -328,7 +334,7 @@ class SiteOutcomeBoardService:
         return ev.EvPorts(overview=overview, findings=findings, finding=finding, health=health,
                           availability=availability, domain_actions=self._domain_actions(site, known_at),
                           work=shared["work"], plans=shared["plans"], readiness=shared["readiness"],
-                          objectives=shared["objectives"])
+                          objectives=shared["objectives"], chain_rows=shared["chain_rows"])
 
     # ------------------------------------------------------------------ compose
 

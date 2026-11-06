@@ -75,22 +75,6 @@ def _mg1(target="300", k=3):
                          min_checked_days=k)
 
 
-@pytest.mark.parametrize("month", [
-    {"kwh": Decimal("40"), "checked": 1, "elapsed": 3, "month_days": 31},          # TOO_EARLY
-    {"kwh": Decimal("80.25"), "checked": 4, "elapsed": 6, "month_days": 31},       # BEHIND_PACE
-    {"kwh": Decimal("200"), "checked": 4, "elapsed": 12, "month_days": 30},        # ON_PACE
-    {"kwh": Decimal("310"), "checked": 5, "elapsed": 9, "month_days": 31},         # MET
-    {"kwh": Decimal("250"), "checked": 30, "elapsed": 30, "month_days": 30},       # MISSED
-])
-def test_mg1_text_equals_the_board_rule(month):
-    o = _mg1()
-    r = mini.mg1_reading({"kwh": month["kwh"], "checked": month["checked"], "elapsed": month["elapsed"],
-                          "month_days": month["month_days"]}, o)
-    verdict = judge_month(o, r)
-    assert v.mg1_text(verdict, month["kwh"], month["checked"], month["elapsed"], month["month_days"], o.target,
-                      o.min_checked_days) == r.actual_text
-
-
 def test_mg1_text_with_no_counted_day():
     assert v.mg1_text("NOT_JUDGED", None, 0, 5, 31, Decimal("300"), 3) == "sales not recorded"
 

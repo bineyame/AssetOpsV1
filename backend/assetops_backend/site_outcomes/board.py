@@ -288,6 +288,22 @@ class SiteFacts:
 NODE_KEYS = ("kpi", "earnings", "potential")
 
 
+def domain_nodes(domain: str, c: str, tz: str | None, lo: Any, hi: Any, rows: Sequence[Any],
+                 objectives: Sequence[Any], readings: Mapping[str, Any], warnings: Sequence[Any] = (),
+                 price: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    """CH-6a3 R6 for cold and EV: the evaluator's readings and per-outcome nodes over the request's local days.
+    Returns `(readings, nodes)`."""
+    from datetime import timezone as _tz
+    from assetops_backend.chain.outcomes import NodeInputs, OutcomeEvaluator, site_nodes
+    from assetops_backend.chain.read import local_days
+    from assetops_backend.outcomes.catalogue import SITE_OUTCOMES
+    days = local_days(lo, hi, tz)
+    inp = NodeInputs(site_code=c, domain=domain, tz=tz or "UTC", window=(days[0], days[-1]), rows=tuple(rows),
+                     objectives=tuple(objectives), readings=readings, warnings=tuple(warnings), price=price)
+    readings = OutcomeEvaluator().readings(inp)
+    return readings, site_nodes(inp, [o.key for o in SITE_OUTCOMES if o.domain == domain])
+
+
 def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state: str,
               states: Sequence[tuple[str, str]]) -> dict[str, Any]:
     """CH-6a3 §A5 / CH6a3-R Q1: the row's `nodes`, `days_line` and R7 `target_note`. `earnings` and `potential` are

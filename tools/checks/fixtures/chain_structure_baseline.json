@@ -10,13 +10,6 @@
       "why": "SnapshotBuilder day counting (design §5.1); estate coverage reads chain days in CH-6"
     },
     {
-      "rule": "b-call",
-      "path": "assetops_backend/site_outcomes/mini.py",
-      "name": "_productive_month",
-      "owner": "CH-6",
-      "why": "SnapshotBuilder day counting (design §5.1); the mini month reads chain days in CH-6"
-    },
-    {
       "rule": "b-def",
       "path": "assetops_backend/estate/coverage.py",
       "name": "_days_block",
@@ -36,13 +29,6 @@
       "name": "linked_actions",
       "owner": "CH-6",
       "why": "board shrinks to a view over ChainReader with the outcome nodes (CH-6)"
-    },
-    {
-      "rule": "b-def",
-      "path": "assetops_backend/site_outcomes/mini.py",
-      "name": "_productive_month",
-      "owner": "CH-6",
-      "why": "SnapshotBuilder day counting (design §5.1); the mini month reads chain days in CH-6"
     },
     {
       "rule": "b-def",

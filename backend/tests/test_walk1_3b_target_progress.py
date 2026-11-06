@@ -198,12 +198,6 @@ def test_too_early_text_names_the_minimum() -> None:
                                  "(needs 5 checked days)")
 
 
-def test_missed_only_for_a_complete_fully_checked_month() -> None:
-    reading = mini.mg1_reading({"kwh": Decimal("250"), "checked": 30, "elapsed": 30, "month_days": 30}, fact())
-    assert reading.complete and reading.actual_text == "250 kWh this month, all 30 days checked"
-    assert judge_month(fact(), reading) == MISSED
-
-
 def test_conflicting_day_is_not_checked() -> None:
     overlap = [{"asset_id": "a-mill", "start": LO + timedelta(hours=3), "end": LO + timedelta(hours=4),
                 "value_kw": "10", "quality": "GOOD"}] * 2

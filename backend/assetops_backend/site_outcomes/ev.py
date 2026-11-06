@@ -17,11 +17,12 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from assetops_backend.analytics.ev import MECHANISM as EV_MECHANISM
+from assetops_backend.chain.outcomes import earnings_money
 from assetops_backend.outcomes.catalogue import EV
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
-    finding_moved_outcomes, readiness_confidence, unresolved_links)
+    domain_nodes, finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.chain import refs
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action, finding_window_link
 from assetops_backend.outcomes.objectives import Reading
@@ -92,6 +93,7 @@ class EvPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                        # readiness_of (CH-5a1)
+    chain_rows: Callable[[datetime, datetime], tuple[Any, ...]] = lambda lo, hi: ()   # CH-6a3: snapshot rows
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
 
 
@@ -131,6 +133,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
     readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
+    chain_rows = reads.call("chain_rows", ports.chain_rows, lo, hi) or ()
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
     objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
@@ -257,7 +260,17 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                   for x in out_connectors if x.get("asset_id")
                   and duration_text(x.get("known_unavailable_seconds")) is not None),
               "peak": peak_facts(body) if overview is not None else None}
-    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo, **extras)))
+    ev_price = ({"amount": str(money["tariff_value"]), "currency": cur}
+                if priced and money.get("tariff_value") is not None else None)
+    readings, _ = domain_nodes(EV, c, site_timezone, lo, hi, chain_rows, facts.objectives, facts.readings, (), ev_price)
+    facts = replace(facts, readings=readings)
+    warnings = evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo, **extras))
+    _, nodes = domain_nodes(EV, c, site_timezone, lo, hi, chain_rows, facts.objectives, readings, warnings, ev_price)
+    earn = next(((nodes.get(k) or {}).get("earnings") for k in nodes if (nodes.get(k) or {}).get("earnings")), None)
+    if priced:
+        headline_money = {**facts.headline_money, GROW: earnings_money(earn)}
+        facts = replace(facts, headline_money=headline_money)
+    facts = replace(facts, warnings=warnings, nodes=nodes)
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)

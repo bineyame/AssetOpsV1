@@ -65,6 +65,9 @@ class Row:  # the `SnapshotReader.latest` row fields `chain/read.py` reads
     measure: str
     subject_ref: str
     grade: str
+    evidence_class: str = "MEASURED"
+    value: dict | None = None
+    money: dict | None = None
 
 
 def _rows(site_type: str, days: list[date], grade_of) -> list[Row]:

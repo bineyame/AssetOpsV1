@@ -23,7 +23,7 @@ from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
 from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+    PlanFact, SiteFacts, domain_nodes, finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -98,6 +98,7 @@ class ColdPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]          # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                    # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                          # readiness_of (CH-5a1)
+    chain_rows: Callable[[datetime, datetime], tuple[Any, ...]] = lambda lo, hi: ()   # CH-6a3: snapshot rows
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                    # OUT-D objective store (current)
 
 
@@ -116,6 +117,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
     readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
+    chain_rows = reads.call("chain_rows", ports.chain_rows, lo, hi) or ()
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
     work_failed = incidents is None or visits is None
@@ -183,6 +185,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
                       findings_settled=findings_ok, objectives=objectives, readings=readings,
                       objectives_ok=objective_rows is not None)
+    readings, _ = domain_nodes(COLD, c, site_timezone, lo, hi, chain_rows, objectives, readings)
+    facts = replace(facts, readings=readings)
     wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
     warnings = evaluate(wf)
     repeat = next((w for w in warnings if w.kind == REPEATED), None)
@@ -190,7 +194,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     start_linked = (repeat is not None and start_failure is not None and start_href is not None
                     and any(r["kind"] == "FINDING" and r["id"] == start_failure.finding_id
                             for r in repeat.evidence_refs))
-    facts = replace(facts, warnings=warnings,
+    _, nodes = domain_nodes(COLD, c, site_timezone, lo, hi, chain_rows, objectives, readings, warnings)
+    facts = replace(facts, warnings=warnings, nodes=nodes,
                     options={**options, COST: (Option(OPTION_START_TEST, start_href),) if start_linked else ()},
                     contributors={**contributors, COST: _cost(c, wf, repeat, visits is None, rc)},
                     headline={**headline, COST: _repeat_headline(repeat)},

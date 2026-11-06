@@ -302,3 +302,12 @@ class _StudyDay:
     subject_ref: str = "SITE"
 
 
+
+
+def earnings_money(claim: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    """CH6a3-R Q4: a board headline money from an earnings claim JSON; None when the claim is NOT_KNOWN."""
+    value = (claim or {}).get("value")
+    if not value:
+        return None
+    low, high = value.get("low", value.get("amount")), value.get("high", value.get("amount"))
+    return {"amount_low": low, "amount_high": high, "currency": value.get("currency")}
