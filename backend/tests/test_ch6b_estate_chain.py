@@ -294,3 +294,28 @@ def test_a_port_without_the_batch_falls_back_and_is_counted(monkeypatch):
     seen.clear()
     _summary(ManyPort())
     assert "summary.seed_fallback" not in seen
+
+
+# ---------------------------------------------------------------- CH6b1-R2: a one-day judgement names its day
+
+ONE_DAY_KPI = {"key": "verdict.MG-5", "value": "MET", "basis": "COMPLETE", "text": "x",
+               "days": {"expected": 1, "complete": 1, "partial": 0, "low": 0, "no_data": 0, "not_expected": 0}}
+
+
+@pytest.mark.parametrize("tz,lo,hi", [
+    ("Africa/Addis_Ababa", datetime(2026, 10, 24, 21, tzinfo=UTC), datetime(2026, 10, 31, 21, tzinfo=UTC)),
+    ("Etc/UTC", datetime(2026, 10, 25, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC)),
+])
+def test_reading_verdict_without_a_kpi_record_names_its_last_window_day(tz, lo, hi):
+    from assetops_backend.outcomes.objectives import ObjectiveFact
+    from assetops_backend.site_outcomes.board import SiteFacts, row_nodes
+    obj = (ObjectiveFact("MG-5", "m", ">=", 1, False, "t", "S", None),)
+    wd = window_days(lo, hi, tz)
+    assert len(wd) > 1
+    facts = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": ONE_DAY_KPI}}, day=wd[-1], one_day=False)
+    line = row_nodes(facts, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"]
+    assert line == f"{v.day_text(wd[-1])} · 1 of 1 day checked"
+    assert line != "1 of 1 days checked"
+    one = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": ONE_DAY_KPI}}, day=wd[-1], one_day=True)
+    assert row_nodes(one, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"] \
+        == "1 of 1 days checked"   # a one-day board keeps the unchanged line

@@ -310,7 +310,7 @@ def mg1_text(verdict: str | None, value: Any, checked: int, elapsed: int, month_
     return MG1_SO_FAR.format(**words)
 
 
-def days_line(days: Any, day: date | None = None) -> str | None:
+def days_line(days: Any, day: date | None = None, named: bool = False) -> str | None:
     """§A4 `days_line.*`: the M1 line of a node from its §S.2 days; None without days. A single expected day with no
     readings reads "No readings on {day}" when the day is given."""
     d = _days_of(days)
@@ -319,6 +319,8 @@ def days_line(days: Any, day: date | None = None) -> str | None:
     if d["expected"] == 1 and d["no_data"] == 1 and day is not None:
         return node_text("days_line.no_data_one", day=day_text(day))
     line = node_text("days_line.many", k=d["complete"], m=d["expected"])
+    if named and day is not None and d["expected"] == 1:   # CH6b1-R2: a one-day judgement on a longer window names its day
+        line = f"{day_text(day)} · " + line.replace("1 days checked", "1 day checked")
     if d["partial"]:
         line += node_text("days_line.partial", p=d["partial"])
     if d["low"]:

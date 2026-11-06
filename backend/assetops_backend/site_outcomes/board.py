@@ -324,7 +324,10 @@ def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state:
                 key, text, line = fill[k]
                 out[k] = {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None, "text": text, "days_line": line}
             else:
-                line = node_days_line(n.get("days"), day)
+                if k == "kpi" and day is None and facts.day is not None:   # CH6b1-R2: name the judged day on a longer window
+                    line = node_days_line(n.get("days"), facts.day, named=True)
+                else:
+                    line = node_days_line(n.get("days"), day)
                 if line is None and k == "kpi" and n.get("value") is None and n.get("text") == node_text("target.none"):
                     line = node_text("target.days_none")
                 out[k] = {**n, "days_line": line}
