@@ -516,3 +516,26 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - No comparison of interval times or classes to v1.
 - **Size: +0.** The check script changes only. DD-1a1 stays 4.5 and DD-1 stays 9.25. No owner question: no shown story changes.
 - **Handoff:** builder applies the restated assertion 7 in `deg.sh`, reruns it, records the result in the packet's R6 section, and continues with the handoff's "Resume here" step 2. Context note: this Architect is fit for the next lane-2 ruling.
+
+## DD1a1-R11: Q8 cost, projected full-day prepare against the 3 h cap
+
+- Architect: Claude (Architect 25), 2026-11-06. Input: `AssetOpsV1-dd1a1\.agent\review-packet-DD-1a1.md` at `ff21f16e0` (Q8 line), `.agent\DD-0c-probe-results.md` §5, `.agent\DD-0b-probe-results.md` §7.
+- **What the +226 % measures.** It compares v2's 8 Kobo story days with and without their complements: (330 − 27) / 8 = 37.9 s per story-only day against (1075 − 27) / 8 = 131 s per full day, ×3.46. But DD-0b/DD-0c never projected story-only days. They priced every Kobo day as a full 24 h day: `day_kobo = per_run × 24/8` = 123 s central, 138 s upper. So the measured full day is **+6.5 % over the projection's own Kobo term**, not +226 %. The +50 % gate was set against the wrong base. The 3 h cap is the binding test.
+- **Assumptions.**
+  - Kobo full day is 131 s central (measured, including the trial-day split). The upper is 147 s, scaled by DD-0c's 46/41.
+  - Cold full day is 24 hourly runs (Q5) × 5.17 s = 124 s central, and × 6.84 s = 164 s upper. This is not yet measured as a whole day; the Cold failure day with 23 fill-ins will measure it.
+  - EV, `tree`, `finish` and fixed costs are as DD-0c §5. Day counts are 22/22/3 (B-22) and 16/16/2 (B-16).
+  - Drain: DD-0c's 32 s per Kobo day was measured on story-only data. Shown two ways: unscaled (DD-0c's 1,611 s at B-22) and scaled ×3.46 to full-day data (111 s per Kobo day + the 900 s tick allowance = 3,336 s at B-22, 2,431 s at B-16). Scaled is the planning case. The ticks remain unmeasured.
+- **Projection (sequential, with drain; central / upper).**
+  - **B-22 full days (as built):** 6,889 / 9,316 s before drain. With drain: unscaled 2.36 / 3.04 h, **scaled 2.84 / 3.51 h**.
+  - **B-16 full days:** 4,990 / 6,683 s before drain. With drain: unscaled 1.71 / 2.18 h, **scaled 2.06 / 2.53 h**.
+  - **B-22 with full story days and short (8 h) steady days:** **about 2.2 / 2.8 h** (scaled). It saves only about 0.6 h, because Cold and EV are unchanged.
+  - **Accept a longer one-time build:** B-22 as built, at up to about 3.5 h. That is under the 6 h hard stop.
+- **Fits 3 h?** On central, yes (2.4–2.8 h). On the upper case, no (3.0–3.5 h). The overrun rests on two unmeasured terms, the drain scaling and the tick allowance. So it is not yet a measured over-run.
+- **Options.**
+  1. **B-16, all days full:** 2.1 / 2.5 h. Every day is COMPLETE and the board window keeps 16 days of history. It loses 6 baseline days per Site.
+  2. **Short steady days:** 2.2 / 2.8 h. The steady days grade LIMITED, as "without" did on 10-07, 10-14 and 11-01, so most of the history shows incomplete evidence that a real Site would not have. This contradicts CH9-R4 (full days) and weakens R9's continuous-data baseline. **Rejected** as dishonest for the saving it brings.
+  3. **B-22 as built, one-time longer build:** up to about 3.5 h.
+- **Recommendation: keep B-22 full days now.** R1's rule stands: the DD-1b2 rehearsal measures the whole prepare, including drain and ticks. If it is over 3 h, use B-16 (option 1). Option 3 only if the owner prefers 22 days over a 3 h build.
+- **Owner question (plain language):** "The full demo history is projected to take about 2½–3 hours to build once, possibly up to 3½ hours. If the final rehearsal runs over 3 hours, should we (a) show 16 days of history instead of 22, every day complete, or (b) keep 22 days and accept a one-time build of up to about 3½ hours?" **Recommendation: (a).**
+- **Size: +0.** Projection only; the measurement is already in the DD-1b2 rehearsal. Q8's +50 % gate is superseded by the 3 h cap on the projection base. Handoff: the coordinator puts the owner question; the builder continues with the packet's Open items; DD-1b2 reports the measured whole-prepare time against the 3 h cap. Context note: this Architect is fit for the next lane-2 ruling.
