@@ -35,3 +35,8 @@ Env: venv python `AssetOpsV1-plan2/.venv/Scripts/python.exe`, absolute PYTHONPAT
    consequence has no price; Mini lead-Finding mapping uses the board's lead money head for GENERATOR_SUPPORT_CANDIDATE
    regardless of its mechanism.
 5. Packet `.agent/review-packet-CH-6a3.md` incl. mock->new table and golden-diff list.
+
+## R2b (fix round, wire and layout) - done at the commit after 1e274a14b
+Done: per-part `days_line` + server fill in `site_outcomes/board.py:row_nodes` (row `days_line` removed, also in `chain/site_chain.py`); `OutcomeBoard.tsx` GrowParts (div.ob-grow/ob-part), `outcomes.css` v70 grid + 760px; vitest rewritten on server vocabulary and proven by mutation; 7 goldens rewritten by script; register R701-R704 (MD-CH6-1/2/3/7); packet "Fix round R2b" section.
+Open: polish clone (stored bodies change) and `test_ch6_nodes_postgres.py` rerun, layout evidence 1440/390 at E5, check-all result (background run b3ejydgjb, check its output).
+Alive: no DBs or servers started by this round. One background check-all run may still be going.

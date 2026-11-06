@@ -10,14 +10,14 @@ The mini, cold and EV composers read the OutcomeEvaluator: each board row carrie
 the potential chip follows the thread's latest study (R13/Q5). "Why?" gains price lines. Old MG-1 board branch deleted.
 
 ## Mock -> new
-| Mock (v69 Grow row) | New |
+| Mock (v70 Grow row) | New |
 |---|---|
-| One headline + money | `span.ob-grow` with three `span.ob-part` (Target, Potential, Estimated income), one `<b>` per line of the claim text |
+| One headline + money | `div.ob-grow` with three `div.ob-part` (Target, Potential, Estimated income), one `<b>` per line of the claim text |
 | "Potential 18-20 kW" one line | Potential claim text split on "\n" (kW range / price / several-prices note) |
 | Income shown as a figure | Earnings claim; NOT_KNOWN reads "Not known yet" + `days_line` ("No readings on 6 Oct") |
 | Target "on track" with a count | KPI claim text from the verdict; "No target set yet" when no objective |
 | "Why?" lines | + `why.from.price`, `price_several`, `fuel_price`, `fuel_price_one` |
-Cold and EV keep their layout; only `nodes`/`days_line`/`target_note` and the Grow parts are new. MOCK DEVIATION: none added.
+Cold and EV keep their layout; only `nodes`/`days_line`/`target_note` and the Grow parts are new. MOCK DEVIATION: MD-CH6-1, -2, -3, -7 (register R701-R704); see Fix round R2b.
 
 ## What changed (files)
 - Composers: `site_outcomes/mini.py`, `cold.py`, `ev.py`, new `site_outcomes/domain_nodes.py` (kept out of `board.py`, whose purity test
@@ -133,3 +133,13 @@ No other board value moved.
   Note the subline shows 168.3 (1 place) while the claim kWh is 168.333: display rounding of one figure.
 - Guards: A passed, W passed, V 4 passed.
 - Not run (rule): full suite, prepare, L2 vitest (R2b), layout evidence.
+
+## Fix round R2b (H4, L2, wire and layout)
+- **Wire:** each Grow claim JSON carries its own `days_line` (`board.row_nodes`, from the one `days_line` over that claim's own days). The row-level `days_line` is removed (`board.py`, `site_chain.py`). When any node exists the server fills the rest: kpi `verdict.none` "No target set yet" + "No target, so no days are judged yet"; potential "No potential found yet"; earnings "Not known yet"; both with no days line. A row with no node record stays all-null (fallback text).
+- **Markup/CSS (v70:213-215, 238, 420):** `div.ob-grow` grid `repeat(3,minmax(0,1fr))`, 8px gap, one column at 760px; `div.ob-part` bordered 6px; `span.ob-plabel + b per line + small.ob-days`. All three always render; a part with no days shows no line.
+- **Register:** MD-CH6-1/-2/-3 and MD-CH6-7 (was CH6a2-R's MD-CH6-4; that id is CH-6b's) are R701-R704, labelled in the `GrowParts` doc comment. Packet citations changed v69 -> v70.
+- **Goldens:** the 7 named JSON goldens (`ch5a1_board_contract`, `ch5a2_chain_contract`) were rewritten by a script with the same fill/line rule (row `days_line` dropped, per-node `days_line`, filled parts). They are not re-captured from a clone; the clone check below is owed if the Reviewer wants captured bytes.
+- **Tests:** `test_ch6_r2a_rows.py` (per-part lines, server fill), `test_ch6_contract.py` (no row line, all three parts); `outcomeBoard.test.tsx` rewritten on server vocabulary (L2): per-part days lines, always-present Target with "No target, so no days are judged yet", `.ob-grow` class with 3 `.ob-part` children, CSS 3-column grid and 760px rule.
+- **Non-vacuous (frontend, each mutation then `git checkout`):** borrowing the earnings line row-level fails 2 tests; dropping a null part fails the container test; 3 -> 2 columns fails the CSS test; 760 -> 600px fails the CSS test; class `ob-grow` renamed fails the container test.
+- **Checks:** tsc clean; vitest `outcomeBoard.test.tsx` 26 passed, `estatePortfolio.test.tsx` passed (84 of 85 in the pair before the css test was fixed, then 26/26); pytest `test_ch6_r2a_rows/contract/claims` 27 passed; guard V `mock-deviation-labels` OK and `test_mock_deviation_labels` 14 pass; ratchet passed (totals api 12, href 24, lit 70, cmp 51, code 3).
+- **Not run:** the polish clone (create, migrate, backfill a-d, settle, W6, `fresh` with the store on, COH 0 new, drop). The server fill changes composer output, so stored board bodies change with it; the clone is owed before merge (needs the MD-0 template, which the coordinator asked not to rebuild unless a final check needs it). `test_ch6_nodes_postgres.py` was not re-run either. Layout evidence at 1440 and 390 is owed at E5.
