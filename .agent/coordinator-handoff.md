@@ -1,71 +1,34 @@
-# Coordinator handoff — 2026-10-28 (replaces all earlier versions; older text is in git history)
+# Coordinator handoff — 2026-11-06 (replaces all earlier versions; older text is in git history)
 
-Read this first. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
+Read this first on resume. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
 
-## FIRST ACTION (owner, 2026-10-28, verbatim in `.agent/owner-test-pipeline-review-2026-10-28.md`)
-"once the current test ends, i want a complete review of the test pipeline to dramatically cut the runtime and memory usage, it simply is not substainable and i don't believe it is optimized. that happens on a new session with your hand-off. Then the data lane and other tasks can be considered."
+## Role
+Coordinator: report to the owner in plain language, short (1–2 lines on routine events; full status on "where are we overall"). Route decisions to the lane's Architect (Claude subagent, reused via SendMessage until moderate context). Builders = fresh implementers (Opus for pre-flight/first build, Sonnet for continuation/fix rounds); first reviews Opus, re-reviews Sonnet; coordinator verifies mechanically-checkable closures. Merge with `git merge --no-ff` on ACCEPT, then run `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` in the background (17 guards).
 
-So: (1) confirm the CC-M gate result below and merge if green; (2) run a **complete test-pipeline review** with the Claude Architect (it plans) and an Implementer (it confirms against code), aiming to **dramatically** cut runtime and memory. Then present the plan to the owner before implementing. The data lane, CC-D2/CC-D1 and TEL-08 come after that, unless the owner says otherwise.
+## Current plan
+- Plan doc: `Docs/demo-sprint/client-demo-plan.html` (current). Build sheets `.agent/build-sheet-*.md` (rulings appended at the end of each). Architect standing context: `.agent/architect-handoff-demo-plan-2026-11-04.md`. Backlog: `.agent/backlog-post-demo.md` (BL-01..BL-16). Lows: `.agent/demo-sprint-lows-2026-10-31-pipeline.md`.
+- Scope rule SCOPE-1 (owner 2026-11-05): only what we present defensibly to first clients; everything else → backlog; any new work must state why it is defensibility-critical.
+- ~82.5 of ~101.25 units merged. Main head ≈ `608b4c1c1`.
 
-Evidence for the review:
-- Backend collects 4138 tests. Split into 4 parts on 2026-10-28: part 1 (1011, 382 s), part 2 (965, 1643 s), part 3 (1121, 1419 s). Part 4 (1041) took about 2 h per half with reduced workers.
-- Whole-suite runs were killed twice by Claude Code's low-memory reaper, at 29% and 80%.
-- Idle memory is about 2.8 GB free of 16 GB. Commit is about 20 GB. Baseline: svchost 1.5 GB, claude 1.4 GB, Chrome 1.1 GB, memory compression 1.1 GB, vmmemWSL (Docker/Postgres) 0.9 GB.
-- Each Postgres test creates and drops its own `*_test` DBs via `pg_harness`.
-- Many tests spawn `assetops_gateway serve` subprocesses, and each Python process appears twice: the venv shim plus Python312.
-- Single TEL acceptance tests run 9–12 min (replay-rate bound). The frontend vitest suite has 3400+ tests.
-- The old speed-up task is in memory `turnaround-speed-rules` and `test-suite-policy` (tiered suites).
-- Fix ideas the owner was told: a `.wslconfig` memory cap, closing Chrome during runs, a fresh session, and `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` (owner-set env var only).
+## In flight (as of this write)
+- **Lane 1 — CH-6a3 fix round R2b** (Grow layout per mock v70, per-part days lines, always-present Target, 3-col grid → 1 col at 760px, MD-CH6-1..3 + MD-CH6-7). Worktree `AssetOpsV1-ch6a3`, branch `task/CH-6a3-composers` (stacked on CH-6a2; merges together). R2a backend done at `1e274a14b`. After R2b: one fresh Claude re-review of the whole CH-6a2+6a3 against `.agent/review-CH-6a2-6a3.md` + CH6a3-R2, then merge.
+- **Lane 2 — DD-1a1 builder 6** implementing DD1a1-R5 (one stream/epoch per Site-day; gateway probe first), then finishing R3 L2 checks, mill day, Q8, Cold failure day, guards, packet. Worktree `AssetOpsV1-dd1a1`, branch `task/DD-1a1-steady-fullday`. Rulings DD1a1-R..R5 at end of `build-sheet-DD-1.md`. Diagnosis `.agent/DD-1a1-trial-anchor-diagnosis.md` in the worktree.
 
-## Gate in flight at handoff
-CC-M (`task/CC-M-combined-schema`, worktree `AssetOpsV1-ccm`, migrations 0036 + 0037, review ACCEPT in `.agent/CC-M-review.md`).
-- Merge gate: full backend = parts 1–3 (3096 passed, 1 failed) plus part 4 run as two halves.
-- The part-1 failure was a missing gitignored `var/sites/mg-001.yaml`. The coordinator copied `var/sites/` into the worktree; the builder reruns that test alone.
-- Gate: total equals 4138 with 0 real failures. Then merge into main, merging main into the branch first.
-- **Result (packet e7191a88): gate NOT met.** All 4138 ran: 4133 passed, 5 failed. Three of the failures pass alone: the `var/sites` test and two part-4a flakes.
-- **Two real failures, which are a CC-R2 regression already on main:** `backend/tests/test_w303_portfolio_scope_snapshot_postgres.py:155` and `test_w303_selectors_postgres.py:77`. Both still expect an empty `mechanism`, which CC-R2 now sets. CC-R2 was merged without a full suite.
-- **Next step:**
-  1. Confirm with the Architect that the tests are stale, not the code.
-  2. Run a Sonnet fix round on a branch from main, updating those two expectations.
-  3. Rerun the two files alone, and merge the fix.
-  4. Merge main into CC-M, rerun only the w303 Postgres files plus the CC-M schema test, then merge CC-M.
-  
-  The rest of the full suite stands, since the code is otherwise unchanged.
-- Timing for the review: part 4a took 6583 s and part 4b took 7772 s, with halved workers.
+## Remaining after these
+- Lane 1: CH-6b1 (1.75), CH-6b2 (2.25), CH-6b3 (1.0) — see `build-sheet-CH-6.md` build units + SCOPE-1.
+- Lane 2: DD-1a2 (2.0, story-night placement, B-22 list, FILL-1 forward-only), DD-1b1 (1.25, story-time mill Action record→complete→link→freeze, evaluator call), DD-1b2 (1.5, drain, finish rows, F-THREADS incl. mill VERIFIED + Grow money/price end-to-end, rehearsal, M2 trigger-cost measurement), CH-5d1 (1).
+- Then DS-1 demo script, then end-game E1–E6 (merge freeze → full suite → one prepare/baseline B-22 ~1.8–2.9 h → finish/coherence/perf incl. the E4 stored-hit check in `.agent/review-CH-5c.md` → captures incl. layout evidence → owner walkthrough).
 
-## State of the demo sprint (owner-approved two lanes; Architect = Claude subagent `assetops-architect`; Planner = Codex)
-Docs (only HTML now; owner removed the .md files): `Docs/demo-sprint/` holds `commercial-capability-readiness.html` (Commercial Capability Architecture), `telemetry-integration-plan-claude.html`, `telemetry-integration-plan.html` (Codex, older), `demo-data-strategy.html` (rev 4) and `long_running_proposal.html` (owner ACCEPTED 2026-10-28, `.agent/owner-long-running-accepted-2026-10-28.md`).
-Build specs: `.agent/build-sequence-2026-10-27.md`, `.agent/build-spec-telemetry-2026-10-27.md` (sections A–M), `.agent/build-spec-commercial-2026-10-27.md`. Rulings are in `.agent/telemetry-rulings-2026-10-27.md`.
+## Owner decisions this sprint (verbatim files in `.agent/`)
+owner-scope-backlog-2026-11-05.md (SCOPE-1 + three borderline answers), owner-mill-pass-margin-2026-11-05.md (10% above baseline), owner-kobo-nights-2026-11-06.md (Architect-designed nights; show pre-dawn generator start, idle fuel → BL-16), owner-efficiency-2026-11-05.md and -2026-11-06.md.
 
-Telemetry lane (merged to main): TEL-00..03, TEL-04, TEL-05, TEL-05b (source gate alone withholds money; step 6 proven), TEL-06 (CSV collector).
-- TEL-07 runbook and claims: built on `task/TEL-07-claims-runbook` (worktree `AssetOpsV1-tel7`), not reviewed. Its runbook needs `field_bench.py` setup/activate/read, which comes from TEL-08.
-- TEL-08 BeagleBone: blocked on the owner. They run a 2-min check: USB, `ssh debian@192.168.7.2`, `cat /etc/debian_version`, `python3 --version`. If Python is under 3.11, the recommended path is a self-contained prebuilt Python (python-build-standalone armv7) copied over USB, with no SD card. The Architect must confirm the exact build. Python is required (the gateway is Python). The owner was asked to have the board ready by Thu 29 Oct noon, and also needs a firewall rule for ports 8443/5020.
+## Standing constraints
+- NO full backend suite, NO demo prepare, NO baseline build until end-game (owner). Localised tests only; polish clones (`tools/chain_clone.py`, standard: create → migrate → backfill a–d → settle) are allowed. Don't run `test_demo_combined_postgres`.
+- DBs: `*_test` only; polish read-only, never ticked; never touch `assetops_demo3_full_test`; never write into `AssetOpsV1-polC`. DB host 127.0.0.1:55432.
+- NEVER pass any `-ExecutionPolicy` flag. Kill processes by PID only. Never stop keep-awake. Never write `.py` via PowerShell Set-Content. Never tune numbers.
+- PYTHONPATH absolute: worktree `backend;contracts;tools;simulator;gateway;host;field`; python `AssetOpsV1-plan2\.venv\Scripts\python.exe`; set `ASSETOPS_GUARD_PYTHON`.
+- `git add -f` for `.agent`; commits end "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>".
+- Efficiency rules: `.ai/ROLE_CONFIG.md` "Token Efficiency" (demo-sprint additions 2026-11-05 and -06).
 
-Commercial lane (merged): CC-R1, CC-R2 (portfolio placement; multi-group Portfolio evidence deferred to the demo sprint per Q6).
-- CC-M: gate in flight (above).
-- Next: CC-D2 (post-trial reassessment, 1.75 d), then CC-D1 (productive-use, 1.75 d).
-- Owner open question: overlap CC-D2/CC-D1, and start the data lane's light tasks early. Superseded by the test-pipeline review first.
-
-Demo data lane (Lane D): owner OD answers in `.agent/owner-answers-demo-data-2026-10-28.md`; replies in `.agent/architect-reply-demo-data-od-2026-10-28.md` and `-simpler-long-run-`. Rev 4 cards DD-00..13 (about 18.25 builder-days). Lane D opens next sprint (OD-6). The suggested doc addition (rounding-ledger worked example plus drift bound of about 0.00045 C) is not yet made.
-
-Owner telemetry/commercial answers: `.agent/owner-answers-open-questions-1/2-2026-10-27.md`, `.agent/architect-reply-owner-q2-q3-2026-10-27.md`.
-
-Logged Lows and regressions to fold into one Sonnet fix round: `.agent/demo-sprint-lows-2026-10-28.md`. It includes a real regression: `site-tabs__link` overflows to 421 px at 390 px on the Recommendation/hold pages, which came in on main after W1-UX-06.
-
-Other owner decisions still open (pre-sprint): the 7 design-difference rows (R453, R382, R383, R384, R385, R111, R396) and whether to start the demo-planning round.
-
-## Rules in force (unchanged; see `.ai/ROLE_CONFIG.md` and memory)
-- Plain-language owner reports, no system vocabulary. Save owner text verbatim in `.agent/` before relaying it.
-- Implementers never make isolated design decisions: the Architect rules and the answers are recorded in the specs.
-- Fix rounds use a Sonnet implementer. Re-reviews use a fresh Claude reviewer. Merge on ACCEPT.
-- One heavy job at a time (Postgres acceptance, full suites, browser capture). Telemetry had priority until 30 Oct.
-- PYTHONPATH must name the worktree, using the venv `AssetOpsV1-plan2\.venv\Scripts\python.exe`. Guards need `ASSETOPS_GUARD_PYTHON`.
-- **Never `-ExecutionPolicy Bypass` or any policy override.** Run guard scripts directly. A builder tried this once and was blocked; remind every brief.
-- Test DBs: `*_test` and producers' own `<prefix>_audit*` only. Never a demo or non-test DB. Kill processes by PID only.
-- Keep-awake (`tools/keep-awake-during-tests.ps1 -MaxHours 168 -IdleMinutes 10080`, from the PowerShell tool) was killed 3 times by the memory reaper. Restart it only when the owner asks.
-- Don't purchase hardware; the owner said "Do not purchase the ~$100 kit yet".
-- Working directly on main: the coordinator committed small `.agent` tracking files on main this session. Prefer a branch next time.
-
-## Worktrees
-Active: `AssetOpsV1-ccm` (CC-M), `AssetOpsV1-tel7` (TEL-07), `AssetOpsV1-demo-plan` (docs branch; merge into main after each doc).
-Merged and safe to prune when convenient: `-cc`, `-cc2`, `-tel`, `-tel4`, `-tel5`, `-tel5b`, `-tel6`, and the old `-review*` / `-ops04` / `-gap-planning`.
+## Restart guidance
+Restart the coordinator session only when no agents are running (both in-flight pieces finished or handed off). On resume: read this file, then `git log --oneline -15` on main, then the in-flight worktrees' `.agent/*-handoff.md` / packets.
