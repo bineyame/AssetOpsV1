@@ -10,6 +10,7 @@ import type {
   EstateOutcomeSummaryBody,
   EstateOutcomeSummaryRow,
   EstateOpportunity,
+  EstatePortfolioCard,
   EstateQuery,
   EstatePortfolioBody,
   EstatePortfolioQuery,
@@ -410,6 +411,45 @@ const SUMMARY_WINDOW: Record<string, Pick<EstateOutcomeSummaryBody["sites"][numb
   "EV-LAB-002": { window: null, window_basis: null },
 };
 
+
+/** CH-6b2: one server-built Portfolio card (the words the server writes; the browser renders them). */
+export function serverCard(over: Partial<EstatePortfolioCard> = {}): EstatePortfolioCard {
+  return {
+    value: { text: "Not known yet", small: null },
+    missing: false,
+    detail: null,
+    basis_text: "",
+    days_line: null,
+    tone: "neutral",
+    claim: null,
+    ...over,
+  };
+}
+
+/** The three server cards with the default wording of a one-Site-gap estate; `over` replaces any of them. */
+export function serverCards(over: NonNullable<EstateOutcomeSummaryBody["cards"]> = {}): NonNullable<EstateOutcomeSummaryBody["cards"]> {
+  return {
+    GROW_REVENUE: serverCard({
+      value: { text: "Not available yet", small: null },
+      missing: true,
+      detail: "Site income not recorded",
+      basis_text: "Opportunities · revenue not measured yet",
+    }),
+    PROTECT_ASSET: serverCard({
+      value: { text: "2", small: "sites disrupted" },
+      detail: "Service disruptions recorded as findings · loss not priced",
+      basis_text: "Measured events, counted separately · loss not priced",
+      tone: "red",
+    }),
+    ASSURE_PERFORMANCE: serverCard({
+      value: { text: "Not known yet", small: null },
+      detail: "Verified results not known yet · evidence gap at 1 site",
+      basis_text: "Completed work does not establish savings",
+    }),
+    ...over,
+  };
+}
+
 export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {}): EstateOutcomeSummaryBody {
   const rows: Record<string, EstateOutcomeSummaryRow[]> = {
     "KOBO-001": [
@@ -448,6 +488,7 @@ export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {})
     })),
     categories: SUMMARY_CATEGORIES.map((c) => ({ ...c, icon: c.category, sites_needing_attention: 0, warning_count: 0 })),
     warnings: [],
+    cards: serverCards(),
     objective_site_count: 0,
     objective_sites_unread: 0,
     verified_result_count: 0,
