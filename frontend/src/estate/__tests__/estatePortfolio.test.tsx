@@ -1604,6 +1604,34 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(scanCards()).toBe("");
   });
 
+  it("growCardDomStructureFollowsV70 (CH6b2-R2 M2)", async () => {
+    // Structure only: the 1440/390 captures are `not run` (owed at E5). v70 `pfGrowParts`: dl.oc-pfgrow holds Target,
+    // Potential, then Estimated income with its dd.oc-pfnote; `oc-pfdays` is the days line.
+    renderServer({
+      GROW_REVENUE: serverCard({
+        value: { text: "4.20 USD", small: "estimated" },
+        days_line: "Kobo: 7 of 7 days checked",
+        parts: growParts({ income_note: "Not billed or collected" }),
+      }),
+    });
+    await settledScreen();
+    const grow = card("GROW_REVENUE");
+    const dl = grow.querySelector("dl.oc-pfgrow") as HTMLElement;
+    expect(Array.from(dl.children).map((row) => row.querySelector("dt")?.textContent)).toEqual([
+      "Target",
+      "Potential",
+      "Estimated income",
+    ]);
+    const incomeRow = dl.children[2];
+    expect(Array.from(incomeRow.children).map((c) => c.tagName + (c.className ? "." + c.className : ""))).toEqual([
+      "DT",
+      "DD",
+      "DD.oc-pfnote",
+    ]);
+    expect(grow.querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
+    expect(grow.querySelector(".oc-chip")).toBeNull();
+  });
+
   it("growIncomeNoteIsOmittedWhenTheServerSendsNone", async () => {
     renderServer({ GROW_REVENUE: serverCard({ value: { text: "18–20 kW", small: "unused" }, parts: growParts() }) });
     await settledScreen();

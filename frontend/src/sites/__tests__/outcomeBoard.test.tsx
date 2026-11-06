@@ -399,6 +399,20 @@ describe("CH-6a3 Grow parts", () => {
     expect(rowEl("GROW_REVENUE").querySelectorAll(".ob-days")).toHaveLength(2); // no row-level line
   });
 
+  it("growPartsAreFirstInObBodyAndThereIsNoGrowChip (CH6b2-R2 M2)", async () => {
+    await renderBoard(
+      growRead({
+        kpi: noTarget,
+        potential: claim("potential.none", "No potential found yet", null, "NOT_KNOWN"),
+        earnings: claim("money.not_known", "Not known yet", null, "NOT_KNOWN"),
+      }),
+    );
+    const g = rowEl("GROW_REVENUE");
+    const body = g.querySelector(".ob-body") as HTMLElement;
+    expect(body.firstElementChild?.querySelectorAll("[data-outcome-part]")).toHaveLength(3);
+    expect(g.querySelectorAll("summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
+  });
+
   it("alwaysShowsTheTargetPartWithNoTargetAndItsDaysLine", async () => {
     await renderBoard(
       growRead({
