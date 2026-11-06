@@ -170,3 +170,74 @@ The owner's rule splits anything over 6.
 - **Q8, cost gate: accepted.** The extra cost per full Kobo day and per full Cold day is measured on L2 and projected against the +50% prepare budget. If it is over, it goes to the owner as a measured choice (Build units, full-day bullet).
 - **Size: DD-1a1 stays 2.** Cold full days reuse the same complement mechanism and the `cold-steady` file R2 already sized. No backlog item. DD-1 stays 6.5.
 - **Owner (informed, not blocking).** Kobo has no example night data, so the build repeats the parent's 18–20 h no-sun evening values through the night, labelled as such. The recommendation is to accept. The alternative, leaving nights undelivered, makes every Kobo day read partial and removes the solar-unused figure. The build proceeds on the recommendation, and the owner can override before DD-1a2.
+
+## DD1a1-R2: the Kobo night profile (supersedes DD1a1-R Q2 and its stop gate)
+
+- Architect: Claude (Architect 20), 2026-11-06. Owner, verbatim (`.agent/owner-kobo-nights-2026-11-06.md`): "let the architect provide one based on domain knowledge and utility to the application grounded on how actual sites operate and what makes nights interesting". DD1a1-R Q1 and Q3–Q8 stand, except where Q3's files change below.
+- **Site facts the night uses** (`config/site-templates/kobo-mini-grid-60kw.yaml`; `backend/tests/fixtures/s1/kobo-001.yaml`; nothing here changes them):
+  - battery 200 kWh, PCS 30 kW at 95%, reserve 30%;
+  - generator 40 kW, start at 35% SoC, stop at 90%, minimum runtime 30 min, start delay 5 min, 0.3 L/kWh, tank 400 L;
+  - load ratings: residential 25 kW, clinic 10 kW (the critical load), mill 40 kW.
+  - Kobo runs on UTC+3 at about 9°N, with sunset about 18:30 and sunrise about 06:15. Every parent declares 0 W/m² from 18:00.
+  - Every parent declares a dawn state at 06:00 between 34% and 55% SoC, with 300 L and the generator STOPPED.
+
+### How a site like Kobo runs at night (the grounding)
+
+- **Residential.** On rural East African mini-grids the evening peak is 18:00–22:00: lighting, TV, phone charging. Load then falls to a night base of roughly 15–25% of the peak: security and street lights, shop and household refrigeration, phones. It rises a little before dawn as people get up.
+- **Clinic.** At night a health post keeps vaccine and medicine refrigeration, security and ward lighting, and on-call care. That is roughly 1.5–3 kW against a daytime 5–7 kW.
+- **Mill.** It does not run at night.
+- **Batteries and the generator.** On hybrid PV–battery–diesel sites the battery carries the night after a sunny day. After a cloudy day it does not: the generator starts at its SoC threshold, and a high stop threshold keeps it running long after the need has passed. Night generator hours are a site's largest fuel cost.
+- These are typical-pattern bases, stated as such. They are not measurements from Kobo. The label is **"example data, night profile"**, and each value's comment states its basis below.
+
+### The night inputs (no sun; 2 h or 1 h windows)
+
+| Window (local) | Residential kW | Basis | Clinic kW | Basis | Mill | Irradiance |
+|---|---|---|---|---|---|---|
+| 20–22 | 9 | evening peak tapering, ~65% of the parent's 14 kW at 18–20 | 4 | parent's 5 kW, with evening activity ending | 0 | 0 |
+| 22–24 | 5 | most homes asleep | 2 | night base: refrigeration, lights, on-call | 0 | 0 |
+| 00–05 | 3 | night base, ~21% of the 14 kW peak | 2 | as above | 0 | 0 |
+| 05–06 | 5 | pre-dawn rise, ending at the 06–08 daytime parent's lower values | 2 | as above | 0 | 0 |
+
+- Energy check (stated, not tuned): 20–24 is 40 kWh, about 21% SoC through the PCS; 00–06 is 32 kWh, about 17%.
+
+### Starting states: measured handover, never chosen
+
+A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q3). Each night file's start state therefore comes from one measured probe run, cited in the file with the probe's run id. No value is picked to reach an outcome.
+- **Probe S, the steady day:** one continuous 06:00–20:00 run of `kobo-daytime`'s windows plus `kobo-mini-grid-evening`'s 18–20 window. It starts from `kobo-daytime`'s declared 55%, 300 L and STOPPED.
+  - Its SoC, fuel and generator state at 20:00 (SoC rounded to a whole %) become `kobo-night-late`'s start.
+  - `kobo-night-late`'s measured end becomes `kobo-night-early`'s start.
+  - The estimate is about 68% at 20:00 and about 41% at 06:00. The battery carries the night with a small margin and the generator does not start. That is what a sunny day buys at this site.
+- **Probe O, after the overcast story day:** the same method on the overcast story run's windows (`kobo-s3-dispatch-necessary-run`, its declared start) plus the steady 14–20 windows. This gives `kobo-night-late-after-overcast` and `kobo-night-early-after-overcast`.
+  - The physics decides what happens. The expected result is a battery near the 35% start threshold early in the night, then the generator requested and held by the 90% stop: a night generator run with real runtime and fuel. Nothing declares generator output.
+- **Run-boundary limitation (stated, not hidden).** A generator cannot be declared RUNNING at run start (setup refuses it). If it is running at 24:00, the 00:00 run starts STOPPED and restarts it after its 5-min start delay; the battery serves first. The packet reports this, and the night's "Why?" source line names the boundary.
+
+### Shape, files and kinds
+
+- **Steady night, every Kobo night unless placed otherwise:** `config/scenarios/kobo-night-late.yaml` (20–24) and `kobo-night-early.yaml` (00–06).
+- **One story night, declared by cause, not by result:** the night after the `overcast` story day uses `kobo-night-late-after-overcast.yaml` and, on the next local day, `kobo-night-early-after-overcast.yaml`. "Some nights, not all" follows from the weather the day list already declares. No second story night (SCOPE-1).
+- **Q3's files change:**
+  - `kobo-steady-night` (repeated evening) is withdrawn; `kobo-night-early` replaces it.
+  - The afternoon complement becomes `kobo-steady-afternoon` (14–20, the evening parent's windows verbatim) plus `kobo-night-late`.
+  - `mill-midday`'s complement becomes `kobo-steady-dusk` (18–20) plus `kobo-night-late`.
+  - A pure steady day (DD-1a2) is the run set `kobo-night-early`, `kobo-steady-day` (06–18, `kobo-daytime` verbatim, the scenario Q1 already defines), `kobo-steady-dusk` and `kobo-night-late`. There is no single 00–24 file.
+- Each night file carries `label: "example data, night profile"`, the basis comment per value, and the probe run id for its start state.
+
+### What the nights do for the demo (utility), and what they must not do
+
+- **Critical supply served (MG-5) becomes a true 24 h claim.** The clinic is supplied through the night from the battery, every hour delivered and graded. Without nights it is a daytime-only claim on a 24 h declared day.
+- **Spare solar ("daytime solar unused") and the daylight read.** Night hours are covered with `pv_available_power` = 0, so they are counted as not daylight and the day grades COMPLETE (`mini_depth/store.py:366-396`). Daylight hours are measured, not assumed.
+- **Cost.** The after-overcast night is an asset to the story: a night generator run with hours and litres, caused by a cloudy day and held by the 90% stop policy. That is the mechanism ACT-K1's reserve change acts on, shown at night. The overcast day sits early in the list (v1: S−21d), before the trial, so its night adds evidence to the problem ACT-K1 addresses and cannot read as a recurrence after verification.
+- **Grow (mill).** Neutral and unmuddied. The mill verification and the spare-solar study read daylight hours only, and the night start states are fixed, so a night is identical before and after the mill change.
+- **Must not (gate, measured on L2 in DD-1a1 for the steady night and in DD-1a2 for the after-overcast night).** Report generator starts, runtime, fuel, Findings, threads and money per night.
+  - The steady night must start no generator.
+  - The after-overcast night may open Cost evidence only before ACT-K1's trial-before day.
+  - Neither may change the ACT-K1 verification metrics, the mill verification or the spare-solar study (compare with the night runs and without them, as Q6).
+  - If the steady night fails its gate, stop and the Architect rules. If the after-overcast night fails, it falls back to the steady night files, so the demo presents less. No value is ever adjusted to pass.
+
+### Units and size
+
+- **DD-1a1 2 → 2.5 (+0.5):** the four night files with their bases; probes S and O; the withdrawn and renamed Q3 files; the steady-night gate on L2.
+  - SCOPE-1 reason: MG-5's "critical supply served" and the COMPLETE daylight read are untrue or partial on a 24 h declared day without delivered nights, and the owner directed a grounded night (above).
+- **DD-1a2 1.75 → 2.0 (+0.25):** placing the after-overcast night pair after the `overcast` day, before trial-before, as complement data, with its gate.
+  - SCOPE-1 reason: the only night generator cost shown must have a stated cause and must not land after the ACT-K1 verification.
+- **DD-1 total 6.5 → 7.25.** Lane 2 +0.75; the plan's lane-2 totals need it.
