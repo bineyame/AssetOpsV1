@@ -1,46 +1,37 @@
-# CH-6a3 handoff (PARTIAL, stopped at the context limit)
+# CH-6a3 handoff 2 (PARTIAL, builder 2 stopped at the context limit)
 
-Branch `task/CH-6a3-composers`, head `6cdfdc4aa` (on `c41dc104b`). Binding: `.agent/CH-6a3-preflight.md` + CH6a3-R
-(end of `AssetOpsV1-plan2/.agent/build-sheet-CH-6.md`). `git merge main` not yet done.
+Branch `task/CH-6a3-composers`. Binding: `.agent/CH-6a3-preflight.md` + CH6a3-R. `git merge main` NOT done.
+Env: venv python `AssetOpsV1-plan2/.venv/Scripts/python.exe`, absolute PYTHONPATH of this worktree.
 
-## Landed (commit 6cdfdc4aa; L0 `test_ch6_evaluator.py` + `test_ch6_claims.py` 59 passed)
-- `B/chain/outcomes.py`: `POTENTIAL_EXCLUDED`, `POTENTIAL_STATES` derived from `lifecycle.TRANSITIONS` minus the
-  exclusion, `potential_shown(item)` (use it for Q5 too). Tests: ACTION_IN_HAND shown + no signal; 3 excluded states.
-- Earnings claim `value` gains `kwh` + `price {amount,currency}` (one revision, `inp.price`) or `price_count` (n>1):
-  `energy_basis(rows, price)`. MG-2 earnings gains `litres_low/high` + `price` from `money_head.body["consequence"]`
-  `quantity`/`price` (`financials/consequence_read.py:110-118`): `fuel_basis(head)`, None when no price.
-- `site_nodes(inp, keys)` -> `{key: {kpi, earnings, potential} JSON}` for keys with an objective or a node record.
-- `B/chain/read.py` `DayFacts.rows` = the raw `SnapshotRow`s of the same memo read (no new statement).
-- `B/outcomes/status.py` R7 swap, `outcome-status/4`. `vocabulary.NODE_TEXT["row.target_note"]`.
-- `B/site_outcomes/board.py`: `SiteFacts.nodes`; `row_nodes(...)` (Q1) spread into the `_row` dict (`nodes`,
-  `days_line`, `target_note`). `B/chain/site_chain.py` `outcomes_of` copies them.
+## Landed since handoff 1 (all committed)
+- Mini composer (`site_outcomes/mini.py`): `_opportunity_item`, NodeInputs, evaluator readings, `site_nodes`, R13 signal
+  `headroom_signal_on`, Q5 `potential_shown`, Grow `headline_money` = `earnings_money(earnings claim)` (new helper in
+  `chain/outcomes.py`), `_measured_sales` returns `price`. `_productive_month`, `mg1_reading`, MG-1 branch deleted;
+  baseline entries removed. Cold/EV: `chain_rows` port (`read.py`, `ColdPorts`/`EvPorts`), `board.domain_nodes(...)`.
+  EV Grow money from the earnings claim (null when the claim is NOT_KNOWN).
+- "Why?": `chain/why.py` `outcome_measures`, `price_lines`; texts `why.from.price|price_several|fuel_price|fuel_price_one`.
+  `tests/test_ch5b_why.py:150` slice changed `[1:]` -> `[-2:]` (a second measure line from the union).
+- Goldens regenerated (10). Test fake changes: `Row` gained evidence_class/value/money defaults; the Kobo opportunity
+  fake item gained `"state": "OPEN"` and `study.status "SUPPORTED"` (else the R13 signal/Potential vanish in the fake).
+  Golden diffs: status /3 -> /4; nodes/days_line/target_note added; EV `headline_money` 54.75 -> null (Q4: fake snapshot
+  rows carry no money, so the earnings claim is NOT_KNOWN); cold CC-1 kpi MISSED claim.
+- Tests: `tests/test_ch6_contract.py` (9+1; non-vacuity proven by flipping `len(revs) > 1`). Removed as superseded by
+  R5: `test_ch6_claims.py::test_mg1_text_equals_the_board_rule`, five `test_walk1_3b_target_progress.py` board tests
+  (list in packet). `test_out_d5_objectives_postgres.py` spy now `spy(dispatch, **kw)` (unserved from `served`).
+- Frontend: `outcomeBoardClient.ts` NodeClaim/RowNodes + row fields; `OutcomeBoard.tsx` `GrowParts` (ob-grow/ob-part),
+  target_note under subline; css in `outcomes.css`. Committed. `tsc` + `vitest run src/sites src/estate src/blocks`
+  were started and NOT confirmed (output unread): rerun in background, filter to failures.
 
-## Next (in order)
-1. Mini composer `B/site_outcomes/mini.py` `compose` (:373-527): build `NodeInputs(site_code=c, domain=MINI,
-   tz=zone_name, window=(day, day), rows=day_facts.rows, objectives, readings=mini_readings(...),
-   opportunity=<CH-4 item, change `_study` (:549) to return the item; study = item["study"]>, warnings,
-   money_heads={lead id: money_head}, lead_findings={"GENERATOR_SUPPORT_CANDIDATE": lead id},
-   price=_measured_sales' price)`; `readings = OutcomeEvaluator().readings(inp)`; `nodes = site_nodes(inp, keys)`
-   into `SiteFacts(nodes=...)`. R13: signal `headroom_signal_on(item)`; Q5: Grow headline/"kW unused" chip only when
-   `potential_shown(item)`. Grow `headline_money` = earnings claim amount (`{amount_low, amount_high, currency}`),
-   None when NOT_KNOWN (Q4). Delete `_productive_month`, `mg1_reading`, the MG-1 branch of `mini_readings`
-   (callers: `tests/test_ch6_claims.py:86`, `test_walk1_3b_target_progress.py:202`, `test_out_d5_objectives_postgres.py:94`);
-   remove both `_productive_month` entries from `tools/checks/fixtures/chain_structure_baseline.json:15,43`.
-   `_measured_sales` (:799) must return `"price": {"amount": str(value), "currency": cur}` when priced.
-2. Cold/EV (`cold.py:179`, `ev.py:228,251`): new port `chain_rows(lo, hi)` in `B/site_outcomes/read.py:194-200`
-   (`req.day(...).rows`, same memo); `readings = evaluator.readings(inp)` (R6); EV Grow `headline_money` from the
-   EV-3 earnings claim; EV price `consequence_summary.tariff_value` (`ev.py:186`) when PRICED with one tariff.
-3. "Why?" `B/chain/why.py`: `used_measures` (:85-89) UNION the category outcomes' `MEASURE:` records (domain-
-   filtered, Site-type order); after the earnings measure line add `why.from.price` "{kwh} kWh × {price} {cur}/kWh",
-   `why.from.price_several` "{kwh} kWh at {n} declared prices over these days", `why.from.fuel_price`
-   "{lo}–{hi} L × {price} {cur}/L" (one value when lo==hi), all inside `MAX_FROM`.
-4. Frontend: `F/sites/outcomeBoardClient.ts:155-173` + `F/sites/chainClient.ts` parse `nodes`/`days_line`/
-   `target_note` (absent -> null); `F/blocks/OutcomeRow.tsx` Grow `ob-grow` three `ob-part`s (Target, Potential,
-   Estimated income), each with its days line, potential split on "\n"; `target_note` under the subline.
-5. Regenerate the 10 goldens (`backend/tests/fixtures/ch5a1_board_contract/*`, `ch5a2_chain_contract/*`), add
-   `test_ch6_contract.py`; L2m `test_ch6_nodes_postgres.py`; scoped existing list (§A8 item 4); vitest.
-6. Clone L3 table, MD-0 L3m if stale, graph check, ratchet, guards one at a time, packet, merge main.
-
-## Risks
-- Until step 1-2, every board row's `nodes` is all null and R7 changes states: goldens/board tests fail at this head.
-- `row_nodes` treats kpi "No target set yet" by text match on `target.none`; fine but brittle.
+## Next
+1. Frontend: confirm tsc + vitest clean; fix any board/fixture test (add `nodes` to `test/outcomeBoardFixture.ts` if
+   needed); add a vitest for GrowParts ("Not known yet" + days line, potential split on "\n"). `chainClient.ts` parse of
+   `nodes` not checked (grep showed no `nodes`/`days_line` there).
+2. L2m `tests/test_ch6_nodes_postgres.py` (+ run scoped existing list §A8 item 4): real-DB mini/cold/EV node values,
+   price lines; prove non-vacuous. Not started.
+3. `git merge main`; polish clone (create, migrate, settle, W6, fresh, store on, collect, COH 0 new, L3 table of
+   board-value changes, drop); L3m if template stale (states only, `--budget 540`, parts). Check lane 2 not cloning.
+4. Graph check, ratchet, guards one at a time (unused imports in mini.py: `calendar`, `judge_month`, `productive_energy`,
+   MG1_* may now be unused; ruff/guard may flag). Known Deviation to record: MG-2 fuel line omitted when the stored
+   consequence has no price; Mini lead-Finding mapping uses the board's lead money head for GENERATOR_SUPPORT_CANDIDATE
+   regardless of its mechanism.
+5. Packet `.agent/review-packet-CH-6a3.md` incl. mock->new table and golden-diff list.
