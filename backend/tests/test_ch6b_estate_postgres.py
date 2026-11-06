@@ -85,8 +85,8 @@ def _check(engine, m, chain: dict, summary: dict, known_at=None) -> Decimal:
     assert days >= 3 and Decimal(earn["value"]["amount"]) == money, (earn, money)   # recomputed, non-empty
     assert earn["days"]["complete"] + earn["days"]["partial"] == days and earn["days"]["expected"] == 7, earn
     # CH6b1-R4 SPAN (the Q1 check): a node with no span is over the same 7 window days as the Site's `days`; a node
-    # that carries a `span` (MG-1 month to date, the mini MG-2 reading of the board day, a no-record reading's last
-    # day) has `days` equal to that span's day count. Both sets are asserted non-empty below.
+    # that carries a `span` (earnings over the window, MG-1 month to date, the mini MG-2 reading of the board day)
+    # has `days` equal to that span's day count. The window-wide and the narrower sets are asserted non-empty below.
     from datetime import date as _date
     judged = spanned = 0
     for cat, row in kobo["rows"].items():
@@ -96,7 +96,8 @@ def _check(engine, m, chain: dict, summary: dict, known_at=None) -> Decimal:
                 if sp:
                     n = (_date.fromisoformat(sp["last"]) - _date.fromisoformat(sp["first"])).days + 1
                     assert node["days"]["expected"] == n, (cat, node)
-                    spanned += 1
+                    spanned += n != 7
+                    judged += n == 7
                 else:
                     assert node["days"]["expected"] == 7, (cat, node)
                     judged += 1
