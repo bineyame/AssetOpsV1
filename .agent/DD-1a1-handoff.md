@@ -27,8 +27,9 @@
   leaves the DB) for: night shape (starts, fuel, unserved), MG-2 avoidable minutes, mill verdict / spare solar,
   COMPLETE grades, 06:00 jump.
 
-## Resume here (R6 is DONE; start at step 2)
-1. Get the Architect's ruling on R6 assertion 7 (packet "R6 degraded-day check"). Apply it, rerun `deg.sh`.
-2. Then: the five R3 L2 checks (need with/without builds; no tooling yet), the mill day (0 generator starts, CH-9b
-   mill outcome), Q8 cost per full Kobo/Cold day, the Cold failure day, guards V, A, W, N, M (M with NODE_PATH =
-   plan2 `frontend/node_modules`), then the packet's Open section.
+## Resume here (builder 17: R12 done; Cold failure day blocked)
+- R12 landed (`9e8f93ae9`): measured dusk start states, `kobo-mill-dusk`, probes S-dusk/M-dusk, `tools/dd1a1_r12_check.py`.
+  Mill day and R12 checks recorded in the packet; 0 dusk starts; findings/threads/money/MG-2 equal.
+- 17 guards passed before R12. The Cold failure day with full days fails (packet): Architect ruling needed. Also for the
+  Architect: `steady-dusk` is unused on the B-22 calendar, steady-afternoon has a 12:05Z start per steady day.
+- MILL-3 belongs to DD-1a2/1b2. Fallback if the rehearsal is over 3 h: B-16 (owner file).

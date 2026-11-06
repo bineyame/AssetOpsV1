@@ -129,10 +129,52 @@ the R6 degraded-day check, the five R3 L2 checks, the mill day, Q8 and the Cold 
 - Q8 (build wall times only, no prepare): Kobo `without` 330 s -> `with` 1075 s, +226 %. This exceeds the +50 % prepare
   budget on this measure; the whole-prepare ratio (Cold/EV unchanged) was not measured. **Architect to rule.**
 
-## Open (not run; next builder)
-- R6 closed (R10); R3 L2 checks and Q8 numbers done (above). Still to do: the mill day (`mill-midday` is prepare-only and
-  not in the probe calendar, needs a probe mode with its work rows), the Cold failure day with 23 fill-ins, and guards
-  V, A, W, N, M re-run after R10 (python tooling only changed). No tooling exists yet for R3/mill/Q8/Cold beyond the builds.
+## Open
+- Cold failure day with full days: BLOCKED, Architect to rule (below). Nothing else outstanding for DD-1a1 lane 2.
+
+## Mill day (builder 17; probe modes `mill` / `mill-without`, `mill-midday` placed at S-5d, 10-30)
+- Generator starts inside the mill window (03:00-11:00Z): 0 with and without. Mill-day productive kWh equal (110.000);
+  grade PARTIAL 50% (without) -> COMPLETE 98.96% (with). 11-01/11-03 168.333 -> 210.333, 11-04/11-05 0 -> 42 (honest
+  daylight use in the 14-18 local complement, DD1a1-R12 item 2). `vf.assess` not run: no 3 COMPLETE baseline days (MILL-3,
+  DD-1a2/1b2, not this unit).
+- 15:50Z start: a defect (DD1a1-R12); fixed below. After R12 the mill build has 0 dusk starts.
+
+## DD1a1-R12 dusk start state (builder 17; L2 own `*_test` DBs, mill 665 s/21 runs vs mill-without 197 s/5, with 1165 s/33 vs without 310 s/8)
+- Probes S-dusk (probe S windows 1-6, 06:00-18:00) and M-dusk (`kobo-mill-midday`) in `tools/probe_kobo_nights.py`
+  measure 18:00 (15:00Z): SoC 89.4737 %, fuel 300.0 L, generator STOPPED (full precision, `kobo-night-handover-v1.json`
+  `handover`). `kobo-steady-dusk` is regenerated from it; derived `kobo-mill-dusk` added; v2 `mill-midday` complement now
+  uses kind `mill-dusk`. Both in `derive_steady_scenarios.py --check` (rc 0) and `probe_kobo_nights.py --check` ("current").
+  Each dusk file run 15:00Z-17:00Z from its start: 0 generator starts, 0 running minutes, ends 69.47 % (= probe S at 20:00).
+- `tools/dd1a1_r12_check.py`: no generator start in 15:00Z-17:00Z (mill build, with-builds): PASS. 10-30 has 1 start (02:05Z
+  night, accepted R3 Q2). 18:00 seam 10-30: SoC step -0.439 against a largest other step of 1.307: no jump.
+- Equal with and without full days (`dd1a1_fullday_compare`): findings 1 = 1 (mill) and 3 = 3 (steady), action, action_event,
+  policy change, work_case(+revision), work_event, verification_metric, outcome, trial cost, assumption revisions; MG-2
+  candidate-avoidable interval counts per window equal (R3 check 2 PASS, both pairs). Differences, as in R3 and allowed
+  by R8: finding_revision (7 vs 15; mill 3 vs 7), financial_consequence_work (9 vs 17; 5 vs 9), verification_plan
+  baseline_selection only. (R3 check "without holds nothing outside story windows" FAILS on the mill pair only because it
+  assumes 03-11Z story windows; the mill window is 03-15Z. Not a defect.)
+- Observation for the Architect: `kobo-steady-dusk` is used by NO day in the v2/B-22 calendar (steady days end their story
+  window at 11:00Z and use `steady-afternoon`, 14:00-20:00 local); R12's "every steady day runs kobo-steady-dusk" does not
+  match it. The steady-afternoon complement gives one generator start per steady day at 12:05Z (15:05 local), 7 days, plus
+  11-05 at 12:45Z. Its 11:00Z seam is continuous (SoC step <= 0.16), so this is the day's own state, not a declared reset;
+  not changed, reported. If R12's concern covers it, rule.
+
+## Cold failure day with full days: FAILS (builder 17; `cold` / `cold-without`, DBs `..d12cold_test`, `..d12cold-without_test`)
+- `cold-without` builds (3 days, failure day: 3 Findings, 27 s). `cold` (full days, 24 runs per day) dies on the failure day
+  (11-04, after 19 steady runs): `AssertionError: the shifted replay wrote no cold Finding (COLD_START_FAILURE)` from
+  `test_w502_cold_scenario_producer.finding_revision`, which selects the Finding whose analytic run window equals the case's
+  exact window. With the full-day tiling the failure replay's analytic run no longer has that window. So Finding/cost equality
+  with and without full days cannot be shown. **Architect to rule** (cold failure day needs the w502 BUILD body to select by
+  the failure run, or a different tiling). Not worked around.
+
+## Q8 and the build-time fallback
+- Q8 is ruled in DD1a1-R11: keep B-22. The owner chose B-16 as the fallback if the DD-1b2 rehearsal measures the whole
+  prepare over 3 h (`.agent/owner-build-time-2026-11-06.md`).
+- Kobo build wall: `without` 310 s -> `with` 1165 s (this revision; 1075 s earlier).
+
+## Guards
+- `tools/check-all.ps1` (Python = plan2 venv, NODE_PATH = plan2 `frontend/node_modules`), run before the R12 change: "All 17
+  guards passed" (estate self-tests 1386 s). The R12 change touched only scenario/tooling files; guards not rerun after it.
 
 ## Residual risk
 - A real restatement whose only change is in the WINDOW summary is not a baseline fact by this projection; the
