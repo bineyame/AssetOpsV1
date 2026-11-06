@@ -977,6 +977,13 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(priority)).not.toMatch(/\bscore\b/i);
   });
 
+  it("namesOnePrioritySiteInTheSingular", async () => {
+    const base = portfolioBody();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
+    await settledScreen();
+    expect(text(document.querySelector("[data-portfolio-pulse]"))).toContain("1 priority site ");
+  });
+
   it("omitsTheCountWhenPlacementCountsAreNull", async () => {
     const counts = { NEEDS_INVESTIGATION: null, ACT_NOW: null, COMPARE_VALUE: null, UNPRICED_RISK: null, MONITOR: null };
     const base = portfolioBody();

@@ -180,6 +180,18 @@ def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
     return at[cutoff] if cutoff in at else a.get("_segment_no")
 
 
+VERIFIED_CLAIM = "count.verified_results"
+
+
+def priority_site_count(counted: Any) -> int | None:
+    """CH6b3-R Q4b: Sites with an open or in-hand thread in the one count computation (a Site with a fix in hand still
+    needs attention until verified); None when the computation or any Site's thread read failed, never 0."""
+    per_site = None if counted is None else list(counted.threads.values())
+    if per_site is None or any(t is None for t in per_site):
+        return None
+    return sum(1 for t in per_site if t["open"] + t["in_hand"] > 0)
+
+
 def _same_segment(action_seg: int | None, finding_seg: int | None) -> bool:
     """CH-3 §3 (CH-2 L1): an Action is current for a Finding only in the Finding's segment; unknown on either side
     matches (the join's rule)."""
@@ -851,9 +863,13 @@ class EstatePortfolioService(EstateEvidenceService):
         # nullability of `finding_count` / `evidence_gap_site_count` until CH-6b.
         counted = self._claims(tenant_id, scope, req)
         claims = self.claims_json(counted, CLAIM_KEYS)
+        priority_sites = None if thread_counts is None else thread_counts["priority_site_count"]
+        if self.count_claims is not None:  # CH6b3-R Q4b: both legacy fields read the claims (BL-25 retires the names)
+            prog["verified_resolution_count"] = None if counted is None else counted.claims[VERIFIED_CLAIM].value
+            priority_sites = priority_site_count(counted)
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None,
-            "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
+            "priority_site_count": priority_sites,
             "opportunity_count": None if opp_items is None else len(opp_items),
             "opportunity_labels": None if opp_items is None else [i["short_label"] for i in opp_items],
             "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,

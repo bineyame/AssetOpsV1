@@ -793,7 +793,7 @@ function Loaded({
       <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
       <div className="portfolio-pulse" data-portfolio-pulse>
         <span>
-          <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites
+          <strong>{countText(s.priority_site_count, "Not assessed")}</strong> {s.priority_site_count === 1 ? "priority site" : "priority sites"}
         </span>
         {/* CH-4: one count from the opportunity read, each item named by its short label (mock `portfolio.js:45`). */}
         <span data-portfolio-pulse-opportunity>
