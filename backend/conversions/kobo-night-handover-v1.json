@@ -6,6 +6,12 @@
  "label": "example data, night profile",
  "method": "`python tools/probe_kobo_nights.py` writes `backend/conversions/kobo-night-handover-v1.json`; `--check` exits 1 if the committed file differs from a fresh measurement. Then `tools/derive_steady_scenarios.py` renders the night files.",
  "site": "template Site kobo_site (config/site-templates/kobo-mini-grid-60kw.yaml), host/tests/kobo.py",
+ "registered_site": {
+  "site_code": "KOBO-001",
+  "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
+  "configuration": "demo prepare order: import, convert, configure_at (tools/demo_combined_kobo.py)",
+  "result": "every probe and handover equal to the template-Site measurement"
+ },
  "profile": {
   "model_profile": "mini-grid",
   "model_profile_version": 6,

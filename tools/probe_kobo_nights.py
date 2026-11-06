@@ -75,11 +75,18 @@ def _probe_id(name: str, doc: dict, start: str, end: str) -> str:
     return f"probe-{name}-{hashlib.sha256(canonical.encode('utf-8')).hexdigest()[:12]}"
 
 
-def measure(name: str, doc: dict, start: str, end: str) -> dict:
-    from execution_adapter import model_for, run_to_end
+def template_draft(doc: dict, start: str, end: str):
+    """The template-Site draft (`host/tests/kobo.py`, mini-grid v6, 5 min). DD1a1-R3: the registered-Site drafter
+    (`host/tests/test_dd1a1_registered_kobo.py`) has the same signature."""
     from kobo import kobo_draft
 
-    run = kobo_draft(document=copy.deepcopy(doc), start_time=start, end_time=end, **PROFILE)
+    return kobo_draft(document=copy.deepcopy(doc), start_time=start, end_time=end, **PROFILE)
+
+
+def measure(name: str, doc: dict, start: str, end: str, draft=template_draft) -> dict:
+    from execution_adapter import model_for, run_to_end
+
+    run = draft(doc, start, end)
     assert run.execution_status == "READY", [(r.kind, r.subject) for r in run.blocking_reasons]
     trajectory = run_to_end(run, model_for(run)).trajectory
     stocks = [dict(b.stocks) for b in trajectory.boundaries]
@@ -105,9 +112,9 @@ def _handover(end: dict) -> dict:
     return {"soc": round(end["soc"]), "fuel": round(end["fuel"], 1), "generator": "STOPPED"}
 
 
-def chain(name: str, day_doc: dict, late: str, early: str) -> tuple[dict, dict]:
+def chain(name: str, day_doc: dict, late: str, early: str, draft=template_draft) -> tuple[dict, dict]:
     probes, handover = {}, {}
-    probes[name] = measure(name, day_doc, f"{DAY}T03:00:00Z", f"{DAY}T17:00:00Z")
+    probes[name] = measure(name, day_doc, f"{DAY}T03:00:00Z", f"{DAY}T17:00:00Z", draft)
     for sid, frm, (lo, hi), at in ((late, name, (f"{DAY}T17:00:00Z", f"{DAY}T21:00:00Z"), "20:00"),
                                    (early, f"{name}-late", (f"{DAY}T21:00:00Z", f"{NEXT}T03:00:00Z"), "00:00")):
         end = probes[frm]["measured_end"]
@@ -118,18 +125,27 @@ def chain(name: str, day_doc: dict, late: str, early: str) -> tuple[dict, dict]:
                 if end["generator"] == "RUNNING" else "; the generator was STOPPED at the handover")}
         doc, _ = derive.night_document(sid, start)
         key = f"{name}-late" if sid == late else f"{name}-early"
-        probes[key] = measure(key, doc, lo, hi)
+        probes[key] = measure(key, doc, lo, hi, draft)
     return probes, handover
 
 
-def build() -> dict:
-    s_probes, s_handover = chain("S", probe_s(), "kobo-night-late", "kobo-night-early")
-    o_probes, o_handover = chain("O", probe_o(), "kobo-night-late-after-overcast", "kobo-night-early-after-overcast")
+#: DD1a1-R3 Q2: the same probes re-run on the registered demo Kobo Site (L2, own *_test DB) must measure the same
+#: values; the test fails if they differ, and then this file is rewritten from the registered measurement.
+REGISTERED = {"site_code": "KOBO-001", "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
+              "configuration": "demo prepare order: import, convert, configure_at (tools/demo_combined_kobo.py)",
+              "result": "every probe and handover equal to the template-Site measurement"}
+
+
+def build(draft=template_draft) -> dict:
+    s_probes, s_handover = chain("S", probe_s(), "kobo-night-late", "kobo-night-early", draft)
+    o_probes, o_handover = chain("O", probe_o(), "kobo-night-late-after-overcast", "kobo-night-early-after-overcast",
+                                 draft)
     return {
         "schema": {"id": "assetops.kobo-night-handover", "version": 1},
         "label": derive.NIGHT_LABEL,
         "method": __doc__.strip().split("\n\n")[1].replace("\n", " "),
         "site": "template Site kobo_site (config/site-templates/kobo-mini-grid-60kw.yaml), host/tests/kobo.py",
+        "registered_site": REGISTERED,
         "profile": PROFILE,
         "rounding": ROUNDING,
         "probes": {**s_probes, **o_probes},

@@ -1,4 +1,35 @@
-# DD-1a1 handoff (PARTIAL, STOPPED at the R2 steady-night gate, builder 2, head `870e33119`)
+# DD-1a1 handoff (builder 3: STOPPED at the DD1a1-R3 Q2 mill-midday gate)
+
+## STOP (R3 Q2): `mill-midday` is BLOCKED on the profile the prepare runs it on
+
+- `host/tests/test_dd1a1_registered_kobo.py` (L2, own `*_test` DB, registered KOBO-001 made in the prepare's order:
+  import, convert, `configure_at`; drafts with `d-verification-window-v3.json` profiles). The prepare's
+  `day_manifest` copies `MANIFEST_V3["model_profile"]` = **mini-grid v6** for every kind; no override exists for
+  `mill-midday` (grep of `tools/demo_*.py`).
+- Dry run, interval per kind on 2026-10-20: `mill-midday` `kobo-daytime@2` 03-15Z mini-grid v6 **BLOCKED**
+  `INITIAL_VALUE_NOT_RESOLVED` (`fuel-tank-volume@fuel-tank`, `generator-state@generator`). READY: normal, overcast,
+  degraded (`kobo-s3-dispatch-necessary-run@1`), overuse, trial-before, trial-after (`kobo-mini-grid-reserve-trial@1`),
+  `kobo-steady-day` (now declaring 300 L / STOPPED), `-afternoon`, `-dusk`, `kobo-night-late`, `-early`, both
+  after-overcast nights. Same cause as R3 Q2's steady-day gap; `kobo-daytime` must not be edited (R3), so the
+  Architect rules (e.g. a derived mill-midday file, or a different profile).
+- Probes S and O on the registered Site: **equal** to the template measurement (all probes and handovers, ids and
+  intervals aside). Frozen world inputs differ only in publication profile (registered-kobo-publication v5 vs
+  simulator-lab-publication v3) and the interval; every policy fact (reserve 30, start 35, stop 90, ...) is equal.
+  Handover JSON now carries `registered_site`; values unchanged. Test wall about 110 s; DB dropped.
+
+## Landed by builder 3 (main merged at `73a13c457`)
+
+- `a27549f1b`: R3 Q1 disclosure (verbatim) as the label comment and purpose of `kobo-night-late`/`-early` and on the
+  04-05 and 05-06 source lines of `kobo-night-early` (`STEADY_NIGHT_DISCLOSURE`); guard V vocabulary regexes: 0 hits.
+  R3 Q2: `kobo-steady-day` declares `starting-fuel` 300 L and `starting-generator-state` STOPPED
+  (`derive.dawn_state()`, uniform across 8 mini-grid parents, refuses otherwise), with the source line citing each
+  parent file:line. Probe S uses the same declaration. Probe ids re-derived; measured values unchanged.
+- Next commit: `probe_kobo_nights.py` drafter parameter + `REGISTERED`; the registered test; this handoff.
+
+## Not done (after the gate): the five R3 L2 checks (need a Kobo build on own DB with and without nights), v2 day
+list, Q6, Q8, Cold failure day, guards, packet. Resume at the Architect's mill-midday ruling.
+
+# Earlier: builder 2 (STOPPED at the R2 steady-night gate, head `870e33119`; ruled by DD1a1-R3)
 
 ## STOP: the steady night starts the generator (DD1a1-R2 gate; Architect must rule)
 
