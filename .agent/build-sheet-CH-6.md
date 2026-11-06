@@ -677,3 +677,22 @@ Handoff: `AssetOpsV1-ch6b1\.agent\CH-6b1-handoff.md` at `771170f2a`. **CH-6b1 go
 - The packet records the template gap and states that the template is not rebuilt to reach 6 of 7.
 
 **KD-1 is confirmed** (CH6b1-R Q6): Cold and EV are checked at L0 only. Real-data cross-Site agreement is covered by the L3 clone and by COH-17 in CH-6b3.
+
+## CH6b1-R3: KD-4, cold and EV event evidence inside a PERIOD window (Architect 24, Claude, 2026-11-06)
+
+Packet: `AssetOpsV1-ch6b1\.agent\review-packet-CH-6b1.md` at `e98db433d`. **KD-4 is not accepted as an honest result. CH-6b1 goes from 2.0 to 2.75.** No owner question.
+- **Why it is not honest.** A day or week that contains an assessed failure now reads UNKNOWN on the Portfolio and on the Site board, with no repeat warning. The `overview_href` is now the plain Site link, so the Portfolio no longer leads to the failure either. Only a deep Finding or evidence link still reaches the failure.
+  - "Not known" said about a window whose evidence is known and assessed is untrue by omission, and the Cold failure-cost story drops out of the demo's main path.
+  - CH6b1-R Q2's condition covered a window with **no** event in it (no reach-back). It never allowed a contained event to vanish.
+- **Rule.** PERIOD stays: the basis is PERIOD and the window is the requested window. But cold/EV evidence-bound reads cover every selected evidence window that lies inside `[lo, hi)`, using the existing `site_selected_windows(_many)` (`estate/evidence_money.py:506,554`).
+  - Overview, findings and their cost or consequence are read per contained window.
+  - The row shows the latest contained event's facts. Its days line names that event's window, for example "26 Oct 16:00–17:05".
+  - The repeat warning counts the contained events.
+  - No window outside `[lo, hi)` is ever read (the Q2 no-reach-back rule).
+  - No contained window: the composers' none or not-known state, unchanged.
+  - The summary, EstateChain and the Site board all go through this one path, so summary = EstateChain = board still holds.
+- **Tests.** `test_out_c3_repeat_visits_postgres.py` returns to NEEDS_ATTENTION with the REPEATED warning on day and week, with PERIOD basis and the requested window. Add an L0 case where an event lies outside the window and is not read. The EV equivalent goes in L0 if EV reads are window-bound.
+- **Packet.**
+  - The L3 clone records the Cold and EV Portfolio and board values old → new on the story days, with 0 new.
+  - The packet also states which client surface reached the failure before this fix: the Findings or evidence page.
+- **Size:** +0.75 (cold and EV composer read over contained windows 0.5; tests and clone evidence 0.25).
