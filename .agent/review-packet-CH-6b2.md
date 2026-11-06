@@ -67,3 +67,10 @@ Corrects the earlier "no graded day is complete" explanation: the real cause was
 **Known Deviation (R2 L3).** The Q4 "possible" clause is withdrawn: a SUPPORTED potential with no income shows on the Potential part and the value reads "Not known yet" (kept gap).
 
 **Checks (R2).** Scoped backend (11 files + `test_ch5a2b_claims`): 255 passed, 1 skipped before the claims-test rewrite; claims file 31 passed after. Vitest: `estatePortfolio.test.tsx`, `outcomeBoard.test.tsx` 86 passed. `tsc --noEmit` exit 0. Ratchet passed. Guards one at a time: A passed, W passed, V 14/14. No full suite, per policy.
+
+## Fix round R3
+
+**M-R2-1.** `chain_api._thread` now reads the thread lifecycle at `lifecycle_cutoff(known_at)` for every domain, so `thread_detail` and `actions_of` agree with the Site chain and the card. `SiteOutcomeBoardService.thread_cutoff` had no other caller and is removed (its docstring reference in `cold_ev_cutoff` updated). `test_cold_thread_cutoff_is_the_boards_one_rule` is replaced by `test_thread_detail_shows_the_chain_rows_state_and_events` (cold and EV; k after the events and k between OPEN and ACTION_IN_HAND; OPEN known after the evidence cutoff but by k): detail state, since, label and event list equal the chain row.
+**Plant proof.** Detail cutoff planted back to the evidence cutoff (2026-10-31 17:05): all 4 cases FAILED. Reverted; 4 pass.
+**L-R2-1.** `test_site_chain_thread_state_equals_the_claims_state` is now behavioural (served Site chain state == claims state, cold and EV); the `inspect.getsource` check is gone.
+**Checks.** `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5a2_contract`, `test_ch6_claims`, `test_ch6b_estate_chain`, `test_ch2_threads`, `test_ch5a2_chain_api_postgres`: 158 passed, 6 skipped (Postgres-only). Guards A and W passed.
