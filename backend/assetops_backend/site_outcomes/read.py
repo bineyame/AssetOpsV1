@@ -399,8 +399,7 @@ class SiteOutcomeBoardService:
     def cold_ev_cutoff(site: SiteRef, ports: Any, lo: datetime | None, hi: datetime | None,
                        known_at: datetime | None, use: Callable[[Any, datetime, datetime], Any] | None = None
                        ) -> tuple[datetime, datetime, datetime | None, Any]:
-        """CH5a2b-R Q11 (review L3): the ONE cold/EV cutoff resolution, used by the board (`compose`) and by
-        `/threads/{id}` (`thread_cutoff`), never copied. Without a window, the overview's default window
+        """CH5a2b-R Q11 (review L3): the ONE cold/EV cutoff resolution, used by the board (`compose`), never copied (the thread route reads lifecycle at `lifecycle_cutoff`). Without a window, the overview's default window
         (`ports.overview(None, None)`); then the overview read over `[lo, hi)` (inside `use`, the composer, when
         given; else read once here), and `board_cutoff` over that body's `window.known_at` (addendum 4 #5: the
         request's cutoff, else the overview's resolved one). Returns `(lo, hi, cutoff, use's result)`."""
@@ -420,16 +419,6 @@ class SiteOutcomeBoardService:
 
         out = use(replace(ports, overview=overview), lo, hi) if use is not None else overview(lo, hi)
         return lo, hi, board_cutoff(site.domain, known_at, resolved.get("known_at")), out
-
-    def thread_cutoff(self, site: SiteRef, *, lo: datetime | None = None, hi: datetime | None = None,
-                      known_at: datetime | None = None) -> datetime | None:
-        """`/sites/{code}/threads/{id}`'s state cutoff (Q11): mini -> the request's (`board_cutoff`); cold/EV ->
-        `cold_ev_cutoff` over the optional `from`/`to` (the board route's `board_window`), so with no window it
-        equals `/chain`'s default-window `window.known_at`. The thread state is the last visible event there."""
-        if site.domain not in (COLD, EV):
-            return board_cutoff(site.domain, known_at, None)
-        ports = self.cold_ports(site, known_at) if site.domain == COLD else self.ev_ports(site, known_at)
-        return self.cold_ev_cutoff(site, ports, lo, hi, known_at)[2]
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,

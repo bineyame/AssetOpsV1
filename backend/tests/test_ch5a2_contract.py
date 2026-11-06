@@ -225,15 +225,48 @@ def test_each_route_reads_each_key_at_most_once(name: str, monkeypatch) -> None:
     assert seen[0].max_per_key() == 1, seen[0].repeated()
 
 
-@pytest.mark.parametrize("window", [{}, {"lo": BC.at(30, 21), "hi": BC.at(31, 21)}])
-def test_cold_thread_cutoff_is_the_boards_one_rule(window) -> None:
-    """CH5a2b-R Q11 (review L3): `/threads/{id}` resolves the cold/EV cutoff by the board's one method, so it
-    equals the board window's `known_at` with and without a window; mini keeps the request's cutoff."""
-    from dataclasses import replace
-    from datetime import datetime
-    svc = SiteOutcomeBoardService(replace(BC.services(Port(), []), threads=Threads()))
-    body = svc.board(BC.COLD, **window)
-    known = body["window"]["known_at"]
-    got = svc.thread_cutoff(BC.COLD, **window)
-    assert known is not None and got == datetime.fromisoformat(str(known).replace("Z", "+00:00"))
-    assert svc.thread_cutoff(BC.KOBO, known_at=BC.at(1, 9, month=11)) == BC.at(1, 9, month=11)
+LIFE = {  # cold/EV threads whose lifecycle is known after the evidence cutoff but by k (CH6b2-R3, M-R2-1)
+    BC.COLD.site_id: ("cold-1", "COLD_START_FAILURE", BC.at(31, 2), BC.at(31, 3), BC.at(30, 21), BC.at(31, 21)),
+    BC.EV.site_id: ("ev-1", "EV_INTERRUPTION", BC.at(27, 10), BC.at(27, 11), BC.at(27, 8), BC.at(27, 16)),
+}
+THREAD_IDS = {BC.COLD.site_id: "00000000-0000-4000-8000-0000000000c9", BC.EV.site_id: "00000000-0000-4000-8000-0000000000e9"}
+EVIDENCE = BC.at(31, 17, 5)          # R7's evidence cutoff: before the Finding and its lifecycle are known
+OPEN_KNOWN, HAND_KNOWN = BC.at(2, 9, month=11), BC.at(2, 10, month=11)   # after EVIDENCE, before k (3 Nov 12:00)
+
+
+class LifecyclePort(Port):
+    def site_threads(self, tenant_id, site_id, known_at):
+        if site_id not in LIFE:
+            return super().site_threads(tenant_id, site_id, known_at)
+        fid, mech, start, end, _, _ = LIFE[site_id]
+        tid = THREAD_IDS[site_id]
+        events = [_event(tid, 1, "OPEN", "OCCURRENCE", fid, start.date(), OPEN_KNOWN, OPEN_KNOWN),
+                  _event(tid, 2, "ACTION_IN_HAND", "ACTION_EVENT", "e1", start.date(), HAND_KNOWN, HAND_KNOWN)]
+        return {"occurrences": (_occ(tid, mech, 1, fid, None, None, start, end),),
+                "events": tuple(e for e in events if known_at is None or e["cause_known_at"] <= known_at),
+                "actions": ()}
+
+    def evidence_cutoff(self, tenant_id, site_id, known_at):
+        return EVIDENCE if site_id in LIFE else None
+
+
+@pytest.mark.parametrize("site", [BC.COLD, BC.EV])
+@pytest.mark.parametrize("known_at", ["2026-11-03T12:00:00Z", "2026-11-02T09:30:00Z"])
+def test_thread_detail_shows_the_chain_rows_state_and_events(site, known_at) -> None:
+    """CH6b2-R3 (M-R2-1): the cold/EV thread detail reads its lifecycle at `lifecycle_cutoff(k)`, like the Site chain
+    (and so the card): an OPEN known after the evidence cutoff but by k shows the same state and events in both."""
+    tid = THREAD_IDS[site.site_id]
+    *_, lo, hi = LIFE[site.site_id]
+    c = client(LifecyclePort())
+    params = {"from": lo.isoformat().replace("+00:00", "Z"), "to": hi.isoformat().replace("+00:00", "Z"),
+              "known_at": known_at}
+    chain = c.get(f"/api/sites/{site.site_code}/chain", params=params)
+    detail = c.get(f"/api/sites/{site.site_code}/threads/{tid}", params={"known_at": known_at})
+    assert chain.status_code == 200 and detail.status_code == 200, (chain.text, detail.text)
+    row = next(t for t in chain.json()["threads"] if t["id"] == tid)
+    got = detail.json()["thread"]
+    assert row["state"] is not None and got["state"] == row["state"]
+    assert got["since"] == row["since"] and got["state_label"] == row["state_label"]
+    shown = [e["state"] for e in got["events"]]
+    assert shown == (["OPEN", "ACTION_IN_HAND"] if known_at.startswith("2026-11-03") else ["OPEN"])
+    assert got["state"] == ("ACTION_IN_HAND" if known_at.startswith("2026-11-03") else "OPEN")

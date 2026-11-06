@@ -268,9 +268,9 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             try:
                 req = chain_reader.request(ref.tenant_id, known_at)
                 rows = req.threads(ref.site_id) if tid is not None else {}
-                # Q11 (review L3): the board's one cutoff rule (`cold_ev_cutoff` for cold/EV); the state is the
-                # last visible event at that cutoff.
-                cutoff = service.thread_cutoff(ref, lo=lo, hi=hi, known_at=known_at) if rows else known_at
+                # CH6b2-R3 (M-R2-1): the lifecycle is read at `lifecycle_cutoff(k)` for every domain, as `site_parts`
+                # and the claims do, so the detail never contradicts the chain row or the card.
+                cutoff = lifecycle_cutoff(known_at)
                 body = None if tid is None else site_chain.thread_detail(
                     rows, tid, site=ref.site_code, domain=ref.domain, tz=ref.timezone, cutoff=cutoff)
                 if body is not None:

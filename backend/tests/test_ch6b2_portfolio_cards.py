@@ -347,19 +347,24 @@ def test_only_a_verified_event_reaches_verified_results(monkeypatch) -> None:
     assert done.claims[CL.VERIFIED_RESULTS].value == 1
 
 
-def test_site_chain_thread_state_equals_the_claims_state(monkeypatch) -> None:
-    """H1 case 5: `chain_api.site_parts` reads `threads_of` at `lifecycle_cutoff(k)`, as `counted_threads` does."""
-    from assetops_backend.chain import site_chain
-    from assetops_backend.chain.read import lifecycle_cutoff, window_day
-    req = _Req(*COLD, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN)])
+@pytest.mark.parametrize(("domain", "mechanism", "site_ref"), [(*COLD, "COLD"), (*EV, "EV")])
+def test_site_chain_thread_state_equals_the_claims_state(domain, mechanism, site_ref) -> None:
+    """H1 case 5 (behavioural, L-R2-1): the served Site chain's thread state equals the claims' thread state for the
+    same lifecycle (OPEN, ACTION_IN_HAND known after the evidence cutoff but by k), for cold and EV."""
+    import test_ch5a1_board_contract as BC
+    import test_ch5a2_contract as C
+    ref = getattr(BC, site_ref)
+    tid = C.THREAD_IDS[ref.site_id]
+    *_, lo, hi = C.LIFE[ref.site_id]
+    r = C.client(C.LifecyclePort()).get(f"/api/sites/{ref.site_code}/chain", params={
+        "from": lo.isoformat().replace("+00:00", "Z"), "to": hi.isoformat().replace("+00:00", "Z"),
+        "known_at": "2026-11-03T12:00:00Z"})
+    assert r.status_code == 200, r.text
+    served = [t["state"] for t in r.json()["threads"] if t["id"] == tid]
+    req = _Req(domain, mechanism, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN)])
     site = _Site("A", "GreenHarvest")
-    site.domain = "cold_chain"
-    chain = site_chain.threads_of(req.rows, site="A", domain="cold_chain", tz="Etc/UTC", lo=LO, hi=HI,
-                                  day=window_day(LO, HI, "Etc/UTC"), cutoff=lifecycle_cutoff(K))
-    assert [t["state"] for t in chain] == CL.site_thread_states(req, site, LO, HI) == ["ACTION_IN_HAND"]
-    import inspect
-    from assetops_backend import chain_api
-    assert "lifecycle_cutoff(known_at)" in inspect.getsource(chain_api)
+    site.domain = domain
+    assert served == CL.site_thread_states(req, site, LO, HI) == ["ACTION_IN_HAND"]
 
 
 def test_lifecycle_cutoff_is_the_request_cutoff_for_every_domain() -> None:
