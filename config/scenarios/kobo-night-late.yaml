@@ -42,7 +42,7 @@ public_parameters:
     owner: SCENARIO_INPUT
     initializes: true
 timeline:
-  # basis: 0 W/m2, no sun: every Kobo parent declares 0 W/m2 from 18:00; at about 9 N sunset is about 18:30 and sunrise about 06:15 (DD1a1-R2 site facts). Structure: config/scenarios/kobo-mini-grid-evening.yaml:158 (irradiance-4)
+  # basis: 0 W/m2, no sun: every Kobo parent declares 0 W/m2 from 18:00; at about 9 N sunset is about 18:30 and sunrise about 06:15 (DD1a1-R2 site facts). Structure: config/scenarios/kobo-mini-grid-evening.yaml:158 (irradiance-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-irradiance-1
     sequence: 1
     offset_minutes: 0
@@ -66,7 +66,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 0 W/m2, no sun: every Kobo parent declares 0 W/m2 from 18:00; at about 9 N sunset is about 18:30 and sunrise about 06:15 (DD1a1-R2 site facts). Structure: config/scenarios/kobo-mini-grid-evening.yaml:158 (irradiance-4)
+  # basis: 0 W/m2, no sun: every Kobo parent declares 0 W/m2 from 18:00; at about 9 N sunset is about 18:30 and sunrise about 06:15 (DD1a1-R2 site facts). Structure: config/scenarios/kobo-mini-grid-evening.yaml:158 (irradiance-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-irradiance-2
     sequence: 2
     offset_minutes: 120
@@ -90,7 +90,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 9 kW, evening peak tapering, about 65% of the parent's 14 kW at 18-20; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:254 (residential-demand-4)
+  # basis: 9 kW, evening peak tapering, about 65% of the parent's 14 kW at 18-20; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:254 (residential-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-residential-demand-1
     sequence: 3
     offset_minutes: 0
@@ -114,7 +114,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 5 kW, most homes asleep; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:254 (residential-demand-4)
+  # basis: 5 kW, most homes asleep; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:254 (residential-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-residential-demand-2
     sequence: 4
     offset_minutes: 120
@@ -138,7 +138,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 4 kW, the parent's 5 kW at 18-20, with evening activity ending; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:350 (clinic-demand-4)
+  # basis: 4 kW, the parent's 5 kW at 18-20, with evening activity ending; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:350 (clinic-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-clinic-demand-1
     sequence: 5
     offset_minutes: 0
@@ -162,7 +162,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 2 kW, night base: vaccine and medicine refrigeration, security and ward lighting, on-call care, roughly 1.5-3 kW; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:350 (clinic-demand-4)
+  # basis: 2 kW, night base: vaccine and medicine refrigeration, security and ward lighting, on-call care, roughly 1.5-3 kW; typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement. Structure: config/scenarios/kobo-mini-grid-evening.yaml:350 (clinic-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-clinic-demand-2
     sequence: 6
     offset_minutes: 120
@@ -186,7 +186,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 0 kW, the grain mill does not run at night (DD1a1-R2 grounding). Structure: config/scenarios/kobo-mini-grid-evening.yaml:446 (mill-demand-4)
+  # basis: 0 kW, the grain mill does not run at night (DD1a1-R2 grounding). Structure: config/scenarios/kobo-mini-grid-evening.yaml:446 (mill-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-mill-demand-1
     sequence: 7
     offset_minutes: 0
@@ -210,7 +210,7 @@ timeline:
       ownership:
         owner: SCENARIO_INPUT
         initializes: false
-  # basis: 0 kW, the grain mill does not run at night (DD1a1-R2 grounding). Structure: config/scenarios/kobo-mini-grid-evening.yaml:446 (mill-demand-4)
+  # basis: 0 kW, the grain mill does not run at night (DD1a1-R2 grounding). Structure: config/scenarios/kobo-mini-grid-evening.yaml:446 (mill-demand-4). Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel.
   - event_id: night-mill-demand-2
     sequence: 8
     offset_minutes: 120

@@ -1,4 +1,11 @@
-# DD-1a1 handoff (builder 8: STOPPED at DD1a1-R7 gate: Part A's 3 h interval is refused; Architect must rule)
+# DD-1a1 handoff (builder 9: R7a landed; next = Kobo `with` build, then the ordered list)
+
+## Builder 9 state
+- R7a done: derived `kobo-night-early-until-0300` (part A) + `-from-0300` (part B); probe asserts A's end == `kobo-night-early` at 03:00 local (held: SoC 40.105, fuel 300, STOPPED; B ends 31.158, 1 gen start, 55 min, 0 fuel). Handover JSON, both yaml, `--check` of derive and probe pass. `demo_story_days._expand` uses the split's `part_a` kind; v2 json has `night-early-until-0300`. L0: 32 passed (`test_demo_story_days.py`; trial-after day has 5 runs with the boundary).
+- Env helper: `$TEMP/env.sh` (PYTHONPATH absolute incl. backend\tests;host\tests; PY).
+- Not run yet: R7 L2 checks, builds, everything after.
+
+# (builder 8, superseded) STOPPED at DD1a1-R7 gate: Part A's 3 h interval is refused
 
 ## STOP
 - Probe `S-early-a` (`kobo-night-early` on [21:00Z, 00:00Z), template Site, mini-grid v6) is refused at draft:

@@ -193,17 +193,17 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
             cut = next((b for b in boundaries if start < b < end), None)
             if cut is not None:
                 # DD1a1-R7: one run cannot cite one basis across a foundation revision change, so the complement is
-                # split at that instant: part A [start, cut) keeps its file, part B [cut, end) is the kind's derived
+                # split at that instant: part A [start, cut) runs the kind's `part_a` file (the same windows up to the cut), part B [cut, end) is the kind's derived
                 # file, whose start state is measured from a probe of part A. Both take the story's one epoch.
                 sp = c.get("split")
                 if not sp or start + timedelta(minutes=sp["at_minutes"]) != cut:
                     raise StoryDaysError("SPLIT_UNSUPPORTED", f"{site} {story.day}: {name} crosses a Foundation "
                                                               f"revision at {iso(cut)} and has no split file there")
-                b = kinds[sp["kind"]]
+                b, a = kinds[sp["kind"]], kinds[sp["part_a"]]
                 out.append(DayRun(site, story.day, story.offset, name, start, cut,
                                   at_day(sp["first_received_at"], D) + late, c.get("assess", "build"),
-                                  {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None,
-                                  None, c.get("note", ""), story.known_at, None, story.kind))
+                                  {"scenario_id": a["scenario_id"], "scenario_version": a["scenario_version"]}, None,
+                                  None, a.get("note", c.get("note", "")), story.known_at, None, story.kind))
                 out.append(DayRun(site, story.day, story.offset, sp["kind"], cut, end,
                                   at_day(b["received_at"], D) + late, b.get("assess", "build"),
                                   {"scenario_id": b["scenario_id"], "scenario_version": b["scenario_version"]}, None,

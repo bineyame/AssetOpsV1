@@ -324,3 +324,60 @@ def test_v2_story_runs_equal_v1():
           for r in sd.resolve(_v2(), S) if not r.complement_of]
     assert v2 == v1 and v1
     assert all(r.keep() is None for r in sd.resolve(_v2(), S) if not r.complement_of)
+
+
+# DD1a1-R7/R7a: the trial-after night is split at the reserve change (S+1d 00:00Z); part A is the derived
+# `kobo-night-early-until-0300`, part B `kobo-night-early-from-0300`.
+def _split_runs():
+    cut = S + timedelta(days=1)
+    runs = sd.resolve(_v2(), S, revision_boundaries=(cut,))
+    return cut, [r for r in runs if r.site == "kobo" and r.day == cut.date().isoformat() and r.has_run]
+
+
+def test_v2_trial_after_day_has_five_runs_split_at_the_revision_boundary():
+    cut, day = _split_runs()
+    day.sort(key=lambda r: r.start)
+    assert len(day) == 5
+    a, b = day[0], day[1]
+    assert (a.scenario["scenario_id"], b.scenario["scenario_id"]) == ("kobo-night-early-until-0300",
+                                                                      "kobo-night-early-from-0300")
+    assert a.end == cut == b.start and b.end == cut + timedelta(hours=3)
+    assert a.epoch == b.epoch  # one epoch for the Site-day
+    # the day still tiles 00:00-24:00 local (resolve raises DAY_NOT_TILED otherwise)
+    assert all(len(v) == 4 for v in _non_split_days().values())
+
+
+def _non_split_days():
+    runs = sd.resolve(_v2(), S, revision_boundaries=(S + timedelta(days=1),))
+    cut_day = (S + timedelta(days=1)).date().isoformat()
+    by_day: dict = {}
+    for r in runs:
+        if r.site == "kobo" and r.day != cut_day and r.has_run and (r.complement_of or True):
+            by_day.setdefault(r.day, []).append(r)
+    return {d: v for d, v in by_day.items() if len(v) > 1}
+
+
+def test_split_night_files_windows_equal_the_parents():
+    import derive_steady_scenarios as derive
+
+    def events(sid):
+        doc = derive.yaml.safe_load((derive.SCENARIOS / f"{sid}.yaml").read_text(encoding="utf-8"))
+        return doc["timeline"], doc["public_parameters"]
+
+    parent, p_params = events("kobo-night-early")
+    a, a_params = events("kobo-night-early-until-0300")
+    b, _ = events("kobo-night-early-from-0300")
+    assert a_params == p_params  # same start state as the parent
+
+    def cells(ev, lo, hi, shift):
+        # (series, value) of every event overlapping [lo, hi) minutes, with offsets re-based by `shift`
+        out = []
+        for e in ev:
+            s, d = e["offset_minutes"], e["timing"]["duration_minutes"]
+            if s < hi and s + d > lo:
+                out.append((e["event_id"].split("-")[1], e["parameters"][0]["value"], max(s, lo) - shift, min(s + d, hi) - shift))
+        return sorted(out)
+
+    assert len(cells(parent, 0, 180, 0)) == 8 and cells(b, 0, 180, 0)  # non-empty sets
+    assert cells(a, 0, 180, 0) == cells(parent, 0, 180, 0)  # part A = the parent's first 3 h
+    assert cells(b, 0, 180, 0) == cells(parent, 180, 360, 180)  # part B = from 03:00 local

@@ -150,6 +150,50 @@
    "generator_running_minutes": 355,
    "fuel_used_l": 10.511,
    "min_soc": 30.0
+  },
+  "S-early-a": {
+   "probe_id": "probe-S-early-a-108f877edf9c",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T21:00:00Z",
+    "2026-09-23T00:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 48,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 40.10526315789474,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 40.105
+  },
+  "S-early-b": {
+   "probe_id": "probe-S-early-b-d737641b7407",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-23T00:00:00Z",
+    "2026-09-23T03:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 40.10526315789474,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 31.157894736842106,
+    "fuel": 300.0,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_running_minutes": 55,
+   "fuel_used_l": 0.0,
+   "min_soc": 31.158
   }
  },
  "handover": {
@@ -192,6 +236,26 @@
     "generator": "STOPPED"
    },
    "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was RUNNING at the handover and starts STOPPED (run setup refuses RUNNING)"
+  },
+  "kobo-night-early-until-0300": {
+   "probe_id": "probe-S-late-a72ff844cd7b",
+   "at_local": "00:00",
+   "start": {
+    "soc": 48,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover; the same start state as kobo-night-early (DD1a1-R7a); its end equals kobo-night-early's state at 03:00 local"
+  },
+  "kobo-night-early-from-0300": {
+   "probe_id": "probe-S-early-a-108f877edf9c",
+   "at_local": "03:00",
+   "start": {
+    "soc": 40.10526315789474,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "full precision, no rounding, so part B starts exactly where part A ended; the generator was STOPPED at the seam"
   }
  }
 }
