@@ -26,6 +26,7 @@ from assetops_backend import perf
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day
+from assetops_backend.chain.read import board_day as local_board_day
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
@@ -196,7 +197,12 @@ class SiteOutcomeBoardService:
             req = _need(s.chain_reader, "chain reader").request(t, known_at)
             return req.day(sid, SITE_TYPE_OF_DOMAIN[site.domain], local_days(lo, hi, site.timezone)).readiness
 
-        return {"work": work, "plans": plans, "readiness": readiness,
+        def chain_rows(lo: datetime, hi: datetime) -> tuple[Any, ...]:
+            """CH-6a3: the snapshot rows of the same memoised day read (no new statement)."""
+            req = _need(s.chain_reader, "chain reader").request(t, known_at)
+            return tuple(req.day(sid, SITE_TYPE_OF_DOMAIN[site.domain], local_days(lo, hi, site.timezone)).rows)
+
+        return {"work": work, "plans": plans, "readiness": readiness, "chain_rows": chain_rows,
                 "objectives": lambda: _need(s.objectives, "objectives").current(t, sid, known_at)}
 
     def _domain_actions(self, site: SiteRef, known_at: datetime | None) -> Callable[..., dict[str, Any]]:
@@ -302,7 +308,8 @@ class SiteOutcomeBoardService:
 
         return cold.ColdPorts(overview=overview, findings=findings,
                               domain_actions=self._domain_actions(site, known_at), work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"])
+                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
+                              chain_rows=shared["chain_rows"])
 
     def ev_ports(self, site: SiteRef, known_at: datetime | None = None) -> ev.EvPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -328,7 +335,7 @@ class SiteOutcomeBoardService:
         return ev.EvPorts(overview=overview, findings=findings, finding=finding, health=health,
                           availability=availability, domain_actions=self._domain_actions(site, known_at),
                           work=shared["work"], plans=shared["plans"], readiness=shared["readiness"],
-                          objectives=shared["objectives"])
+                          objectives=shared["objectives"], chain_rows=shared["chain_rows"])
 
     # ------------------------------------------------------------------ compose
 
@@ -403,10 +410,12 @@ class SiteOutcomeBoardService:
         cutoff = window.get("known_at")  # `board_cutoff`, resolved by `compose` for every domain (review L1)
         # R6, CH5a2-R R7: every board's day is `window_day` of its window (mini: the board day D), the rule the
         # summary card reads.
-        start = mini.utc(window.get("from"))
-        board_day = window_day(start, mini.utc(window.get("to")), site.timezone)
+        start, end = mini.utc(window.get("from")), mini.utc(window.get("to"))
+        board_day = window_day(start, end, site.timezone)
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
-            facts = replace(comp.facts, day=board_day, known_at=cutoff)
+            # CH6a3-R2 M4: a days line may name the board day only when the window is exactly that Site-local day.
+            one_day = board_day is not None and (start, end) == local_board_day(board_day, site.timezone)
+            facts = replace(comp.facts, day=board_day, known_at=cutoff, one_day=one_day)
             extra: dict[str, Any] = {}
             if site.domain == MINI and start is not None:  # CH-4 §4.4: the renewable five days of the board
                 try:

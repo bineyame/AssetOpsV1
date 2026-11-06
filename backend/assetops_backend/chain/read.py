@@ -201,6 +201,8 @@ class DayFacts:
     gaps: tuple[date, ...]                                    # R8 / Q9 over `days`
     #: CH-9 (R9): day -> measure -> subject_ref -> the stored snapshot value (MG-5 reads `critical_served`).
     values: Mapping[date, Mapping[str, Mapping[str, Any]]] = field(default_factory=dict)
+    #: CH-6a3 (P4): the raw `SnapshotRow`s of the same memoised read, for the OutcomeEvaluator's `NodeInputs.rows`.
+    rows: tuple[Any, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -323,7 +325,7 @@ class ChainRequest:
         ready = days if readiness_days is None else tuple(sorted(readiness_days))
         return DayFacts(days, read_scope.freeze(grades), day_settled(rows, days[-1], measures),
                         readiness_of(rows, ready, measures), day_gaps(rows, days, measures),
-                        read_scope.freeze(values))
+                        read_scope.freeze(values), tuple(rows))
 
     def findings(self, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                  hi: datetime) -> tuple[FindingHead, ...]:

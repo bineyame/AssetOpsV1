@@ -356,7 +356,8 @@ def test_board_imports_only_outcomes_and_stdlib() -> None:
             assert (node.module in allowed or node.module.startswith("assetops_backend.outcomes")
                     or (node.module == "assetops_backend.chain" and [a.name for a in node.names] == ["refs"])
                     or (node.module == "assetops_backend.chain.vocabulary"
-                        and [a.name for a in node.names] == ["provenance_suffix"])), node.module
+                        # CH-6a3: plus the two node wording helpers the Grow parts read
+                        and sorted(a.name for a in node.names) == ["days_line", "node_text", "provenance_suffix"])), node.module
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 assert alias.name in allowed, alias.name

@@ -105,9 +105,9 @@ class Fake:
             # CH9-R4 F2: the fake study mirrors the fake renewable cards unless `study` overrides it (None: no item).
             r = self.over.get("cards", DEPTH)["renewable"]
             study = self.over.get("study", {"headroom_kw": r.get("headroom_kw"), "eligible_days": r.get("eligible_days"),
-                                            "assessed_days": r.get("assessed_days")})
+                                            "assessed_days": r.get("assessed_days"), "status": "SUPPORTED"})
             ok = study is not None and int(study.get("eligible_days") or 0) >= 1
-            return self._go("opportunity", [{"site_code": C, "study": study}] if ok else [], lo, hi)
+            return self._go("opportunity", [{"site_code": C, "state": "OPEN", "study": study}] if ok else [], lo, hi)
 
         def action_facts(ids):
             v, change = self.over.get("verification", {"state": "PENDING"}), self.over.get("has_change", True)

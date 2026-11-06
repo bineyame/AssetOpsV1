@@ -10,16 +10,16 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 from assetops_backend.chain import refs
-from assetops_backend.chain.vocabulary import provenance_suffix
+from assetops_backend.chain.vocabulary import days_line as node_days_line, node_text, provenance_suffix
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     ROW_NOT_MEASURED_EV_COST_UNPRICED, SiteOutcome, row_not_measured)
 from assetops_backend.outcomes.objectives import (
     CONTRIBUTOR_LABEL, MEASURES, MET, MISSED, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge, judge_month)
-from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
+from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, kpi_record, outcome_roles
 from assetops_backend.outcomes.status import (
-    EVIDENCE_GAP, FINDING, NOT_MEASURED, OPPORTUNITY, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal,
+    EVIDENCE_GAP, FINDING, NO_OBJECTIVE, NOT_MEASURED, ON_TRACK, OPPORTUNITY, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal,
     outcome_state, roll_up)
 from assetops_backend.outcomes.warnings import PLAN_DUE_SOON, PLAN_OVERDUE, REPEATED, Warning
 
@@ -277,11 +277,63 @@ class SiteFacts:
     #: CH-3 §5: the board's Site-local day and cutoff (the thread state is read on `day` as of `known_at`).
     day: Any = None        # datetime.date | None (this module imports only outcomes/ and these stdlib modules)
     known_at: Any = None   # datetime | None
+    #: CH6a3-R2 M4: True only when the board window is exactly one Site-local day (`day` may then date a days line).
+    one_day: bool = False
     #: CH3-R M3: the board's 31-day work window `(work_lo, end)` (mini); None = no thread-level line.
     work_window: Any = None
+    #: CH-6a3 §A5: per outcome key, the OutcomeEvaluator's node claims as JSON {"kpi", "earnings", "potential"}.
+    nodes: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
+    #: CH-6a3: whether the EV window is priced at a stored tariff. None = not told (the Grow money decides, as before).
+    #: The Grow money is now the earnings claim, which stays null while the days are not all known, so it can no
+    #: longer stand for "a tariff exists".
+    ev_priced: bool | None = None
 
 
 # ---------------------------------------------------------------- helpers
+
+NODE_KEYS = ("kpi", "earnings", "potential")
+
+
+def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state: str,
+              states: Sequence[tuple[str, str]]) -> dict[str, Any]:
+    """CH-6a3 §A5 / CH6a3-R Q1: the row's `nodes`, `days_line` and R7 `target_note`. `earnings` and `potential` are
+    the first row outcome (catalogue order) holding that claim; `kpi` is the lead outcome's claim when it has an
+    objective, else the first outcome with one, else the outcome with a `kpi` record ("No target set yet"). No node
+    record and no objective: every node null. Each node carries its own `days_line` (no row-level line); an absent node is server-filled."""
+    per = facts.nodes
+    declared = {o.outcome_key for o in facts.objectives}
+
+    def first(node: str) -> Any:
+        return next((per[k][node] for k in keys if (per.get(k) or {}).get(node) is not None), None)
+
+    kpi_key = (lead_key if lead_key in declared else next((k for k in keys if k in declared), None)) or next(
+        (k for k in keys if kpi_record(k) is not None), None)
+    nodes = {"kpi": None if kpi_key is None else (per.get(kpi_key) or {}).get("kpi"),
+             "earnings": first("earnings"), "potential": first("potential")}
+    day = facts.day if facts.one_day else None   # M4: a "No readings on {day}" line only for a one-day window
+    if all(nodes[k] is None for k in NODE_KEYS):
+        nodes = {k: None for k in NODE_KEYS}
+    else:   # CH6a3-R2b H4: all three parts always present, each with its own days line from its own days
+        fill = {"kpi": ("verdict.none", node_text("target.none"), node_text("target.days_none")),
+                "potential": ("potential.none", node_text("potential.none"), None),
+                "earnings": ("money.not_known", node_text("money.not_known"), None)}
+        out: dict[str, Any] = {}
+        for k in NODE_KEYS:
+            n = nodes[k]
+            if n is None:
+                key, text, line = fill[k]
+                out[k] = {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None, "text": text, "days_line": line}
+            else:
+                line = node_days_line(n.get("days"), day)
+                if line is None and k == "kpi" and n.get("value") is None and n.get("text") == node_text("target.none"):
+                    line = node_text("target.days_none")
+                out[k] = {**n, "days_line": line}
+        nodes = out
+    note = None
+    if row_state == ON_TRACK and any(st == NO_OBJECTIVE for _, st in states):
+        note = node_text("row.target_note", k=sum(1 for k in keys if k in declared), m=len(keys))
+    return {"nodes": nodes, "target_note": note}
+
 
 def join_names(labels: Sequence[str]) -> str:
     """"A and B" / "A, B and C", sentence-cased on the first letter only (§B.2)."""
@@ -723,10 +775,12 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "evidence_link": None if link is None else {"label": link[0], **_link(link[1](code))},
         "outcomes": [{"key": o.key, "label": o.label, "state": st, "reason": reason} for o, st, reason in states],
         "potential": None,
+        **row_nodes(facts, [o.key for o in outcomes], lead_key, row_state, [(o.key, st) for o, st, _ in states]),
     }
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
-        if (domain, cat) == (EV, "OPTIMIZE_COST") and facts.headline_money.get("GROW_REVENUE") is None:
+        if (domain, cat) == (EV, "OPTIMIZE_COST") and (
+                facts.headline_money.get("GROW_REVENUE") is None if facts.ev_priced is None else not facts.ev_priced):
             row["not_measured_text"] = ROW_NOT_MEASURED_EV_COST_UNPRICED  # POLISH §1.6: no priced EV tariff
         return row
 

@@ -86,6 +86,16 @@ def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures:
     )
 
 
+def day_grade(grades: Sequence[str]) -> str:
+    """CH-6a2: the one day rule (`_day_grade`) under a public name; no rule change."""
+    return _day_grade(grades)
+
+
+def counts(rows: Sequence[Any], from_day: date, to_day: date, measures: Sequence[str]) -> GradeCounts:
+    """CH-6a2 (pre-flight "day grade rule"): `_counts` under a public name for the OutcomeEvaluator; no rule change."""
+    return _counts(rows, from_day, to_day, measures)
+
+
 def grade_counts_of(facts: Any, measures: Sequence[str]) -> GradeCounts:
     """CH-5a2b (review L2): the `GradeCounts` of one `ChainRequest.day` result (`chain.read.DayFacts`: day -> measure
     -> subject -> grade) over its requested days, by the one `_counts` rule."""

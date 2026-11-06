@@ -8,13 +8,14 @@ from __future__ import annotations
 from link_parity import checked
 
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import test_out_b2_mini as b2
 import test_out_b3_cold_ev as b3
+from assetops_backend.chain.ports import SnapshotRow
 from assetops_backend.outcomes.objectives import MEASURES, POLICY
 from assetops_backend.site_outcomes import cold, ev, mini, read
 from assetops_backend.site_outcomes.board import assemble, objectives_wire
@@ -31,9 +32,20 @@ def objective(outcome: str, measure: str, target: str, currency: str | None = No
             "target": Decimal(target), "currency": currency, "source": "DECLARED", "source_note": NOTE}
 
 
+def complete_rows(measure: str, *days: date) -> tuple[SnapshotRow, ...]:
+    """CH-6a3 R6: a MET needs every expected day of the record's measure COMPLETE, so the verdict tests that reach
+    On track carry one COMPLETE snapshot row per day (`chain/outcomes.py` `_reading`)."""
+    return tuple(SnapshotRow(UUID(int=1), UUID(int=2), d, "ASSET", "asset:a", measure, "MEASURED", 1, True,
+                             100, 100, "100", "COMPLETE", None, None, "p", "c", 1, "fp") for d in days)
+
+
 KOBO_OBJECTIVES = [objective("MG-2", "avoidable_generator_minutes", "0"),
                    objective("MG-1", "productive_use_kwh", "300"),
                    objective("MG-5", "unserved_critical_kwh", "0")]
+
+
+def complete_day() -> dict:
+    return {"rows": complete_rows("avoidable_gen_min", b2.DAY)}
 
 
 def dispatch(candidate: str, indeterminate: str) -> dict:
@@ -87,7 +99,7 @@ def replace_fake(fake: b2.Fake, **over: Any) -> b2.Fake:
 
 
 def test_mg2_zero_minutes_complete_is_on_track() -> None:
-    _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0")))
+    _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0"), day=complete_day()))
     assert state(rows[COST], "MG-2") == ("ON_TRACK", "OBJECTIVE_MET")
     [line] = declared(rows[COST])
     assert line["text"] == f"{MG2_ZERO} · 0 min longer than needed on this day"
@@ -142,7 +154,7 @@ def test_mg5_unmeasured_and_measured() -> None:
 
 
 def test_mini_assure_counts_declared_objectives() -> None:
-    _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0")))
+    _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0"), day=complete_day()))
     plan = next(c for c in rows[ASSURE]["contributors"] if c["key"] == "actual_against_plan")
     assert plan == {"key": "actual_against_plan", "label": "Actual against plan",
                     "text": "1 of 3 declared objectives met · 2 not checked yet", "confidence": None, "href": None}
@@ -231,7 +243,9 @@ def test_cc1_on_track_with_no_excursion_and_a_complete_window() -> None:
     held = dict(b3.COLD_OVERVIEW, needs_attention=[],
                 backup_summary={"attempts": 1, "observed_success": 1, "observed_failure": 0, "unknown": 0})
     fake = b3.Fake(cold_overview=held, cold_findings={"items": [], "next_cursor": None})
-    ports = replace(b3.cold_ports(fake), objectives=lambda: [])
+    days = (date(2026, 10, 20), date(2026, 10, 21))  # the Nairobi-local days the UTC day touches
+    ports = replace(b3.cold_ports(fake), objectives=lambda: [],
+                    chain_rows=lambda lo, hi: complete_rows("chamber_temp_c", *days))
     comp = cold.compose(ports, site_code=b3.C, lo=b3.LO, hi=b3.HI, site_timezone=b3.ZONE)
     rows = {r["category"]: r for r in checked(assemble(comp.facts))}
     assert {o["outcome_key"]: o["verdict"] for o in objectives_wire(comp.facts)} == {"CC-1": "MET"}

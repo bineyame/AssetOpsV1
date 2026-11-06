@@ -5,8 +5,12 @@ from __future__ import annotations
 
 from link_parity import checked
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from typing import Any
+from uuid import UUID
+
+from assetops_backend.chain.ports import SnapshotRow
 
 from assetops_backend.site_outcomes import cold, ev
 from assetops_backend.site_outcomes.board import NOT_LOADED_LINK_SUFFIX, OUTSIDE_VIEW_SUFFIX, assemble
@@ -206,8 +210,23 @@ EV_OVERVIEW = {
     "site_power": {"observed_peak_kw": "76", "configured_limit_kw": "120"},
     # WALK1-2 E2: the overview's real priced state is ESTIMATED; 182.50 kWh at the declared 0.30 USD per kWh.
     "consequence_summary": {"state": "ESTIMATED", "reason": "ELIGIBLE_COMPLETE_INTERVALS", "tariff_value": "0.30000",
-                            "amount": "54.75000000", "currency": "USD"},
+                            "amount": "54.75000000", "currency": "USD", "tariff_revision_id": "TR-1"},
 }
+
+
+def ev_snapshot(body: dict[str, Any], grade: str = "COMPLETE") -> tuple[SnapshotRow, ...]:
+    """CH6a3-R2 H1: the stored `charging_kwh` day row the producer writes from the same overview
+    (`chain/measure_impls.py` ChargingEnergy: kWh, sessions, money at the window's tariff with its revision)."""
+    kwh = (body.get("energy") or {}).get("complete_kwh")
+    if kwh is None:
+        return ()
+    m = body.get("consequence_summary") or {}
+    money = None if m.get("state") != "ESTIMATED" or m.get("tariff_value") is None else {
+        "amount": f"{(Decimal(kwh) * Decimal(m['tariff_value'])).quantize(Decimal('0.01')):f}",
+        "currency": m.get("currency"), "tariff_revision_ids": [str(m.get("tariff_revision_id")).lower()]}
+    value = {"kwh": kwh, "sessions": (body.get("denominator") or {}).get("started")}
+    return (SnapshotRow(UUID(int=1), UUID(int=3), date(2026, 10, 20), "SITE", "SITE", "charging_kwh", "MEASURED", 1,
+                        True, 28800, 28800, "100", grade, value, money, "p", "c", 1, "fp"),)
 HEALTH = {"health": {"rows": [{"kind": "CONNECTOR", "label": "C2", "asset_code": "c2",
                                "condition_state": "NEEDS_INVESTIGATION"},
                               {"kind": "CONNECTOR", "label": "C1", "asset_code": "c1", "condition_state": "UNKNOWN"}]}}
@@ -237,7 +256,8 @@ def ev_ports(fake: Fake, single: Any = None) -> ev.EvPorts:
         work=lambda kind, lo, hi, cur: fake.go("work", {"rows": [MR9] if kind == "maintenance" else [],
                                                         "next_cursor": None}, kind, lo, hi),
         plans=lambda lo, hi: fake.go("plans", [], lo, hi),
-        readiness=lambda lo, hi: fake.go("readiness", "LIMITED", lo, hi))
+        readiness=lambda lo, hi: fake.go("readiness", "LIMITED", lo, hi),
+        chain_rows=lambda lo, hi: fake.go("chain_rows", ev_snapshot(fake.over.get("ev_overview", EV_OVERVIEW)), lo, hi))
 
 
 def run_ev(fake: Fake | None = None, tz: str | None = ZONE):
@@ -251,8 +271,10 @@ def test_depot_board_from_ports() -> None:
     assert outcome(rows[PROTECT], "EV-1") == "NEEDS_ATTENTION"
     assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
     assert rows[GROW]["headline"] == "estimated charging income"  # WALK1-2 R674
-    assert rows[GROW]["headline_money"] == {"amount_low": "54.75000000", "amount_high": "54.75000000",
-                                            "currency": "USD"}
+    # CH-6a3 Q4 / R2 H1: the Grow money is the earnings claim of the stored snapshot row (182.50 kWh x 0.30)
+    assert rows[GROW]["headline_money"] == {"amount_low": "54.75", "amount_high": "54.75", "currency": "USD"}
+    earn = comp.facts.nodes["EV-3"]["earnings"]
+    assert Decimal(earn["value"]["kwh"]) * Decimal(earn["value"]["price"]["amount"]) == Decimal(earn["value"]["amount"])
     assert rows[GROW]["subline"] == ("182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD "
                                      "per kWh · not billed or collected")
     tariff = contributor(rows[GROW], "charging_tariff")  # WALK1-2 R676: the declared lever input
@@ -337,7 +359,10 @@ def test_ev_unpriced_and_declared_limit() -> None:
                 site_power={"observed_peak_kw": None, "configured_limit_kw": "120"})
     _, rows = run_ev(Fake(ev_overview=body), tz=None)
     assert rows[GROW]["headline"] == "Charging income estimate not available yet" and rows[GROW]["headline_money"] is None
-    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"  # unpriced: unchanged
+    # CH6a3-R2 H3 ONE-SOURCE: unpriced, the stored row has no money, so the earnings claim is NOT_KNOWN: no subline,
+    # and the charging line states no live kWh beside it
+    assert rows[GROW]["subline"] is None
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · 1 of 1 days checked"  # UTC: one day
     assert contributor(rows[GROW], "charging_tariff")["text"] == "Not available yet"  # cause not known here
     assert rows[COST]["not_measured_text"] == (
         "Energy cost per km needs odometer readings and a published charging tariff")
@@ -353,7 +378,7 @@ def test_ev_grow_without_a_declared_tariff() -> None:
                                                   "tariff_value": None, "amount": None, "currency": None})
     _, rows = run_ev(Fake(ev_overview=body))
     assert rows[GROW]["headline"] == "Charging income estimate not available yet" and rows[GROW]["headline_money"] is None
-    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"
+    assert rows[GROW]["subline"] is None  # CH6a3-R2 H3: NOT_KNOWN earnings, no live kWh beside it
     tariff = contributor(rows[GROW], "charging_tariff")
     assert (tariff["text"], tariff["confidence"], tariff["href"]) == (
         "Not available yet · no charging tariff declared", None, None)
@@ -430,3 +455,28 @@ def test_cold_and_ev_composers_import_no_adapter_or_composition() -> None:
 def vocabulary_compositions():
     return [run_cold()[0], run_cold(Fake(refuse=("cold_findings", "plans")), tz=None)[0],
             run_ev()[0], run_ev(Fake(refuse=("ev_finding",)), tz=None)[0]]
+
+
+def test_ev_low_day_states_only_not_known_with_its_days_line() -> None:
+    """CH6a3-R2 H3 (ONE-SOURCE): a LOW stored day is not counted, so the EV-3 earnings claim is NOT_KNOWN. The
+    overview's live 182.5 kWh and tariff must not appear beside it: no money, no subline, "Not known yet" + days."""
+    comp, rows = run_ev(Fake(chain_rows=ev_snapshot(EV_OVERVIEW, grade="LOW")))
+    earn = comp.facts.nodes["EV-3"]["earnings"]
+    assert earn["value"] is None and earn["days"]["low"] == 1
+    assert rows[GROW]["headline_money"] is None and rows[GROW]["subline"] is None
+    text = contributor(rows[GROW], "charging_delivered")["text"]
+    assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too little data" in text
+
+
+def test_ev_priced_flag_sets_the_optimize_not_measured_text() -> None:
+    """CH6a3-R review M2: `ev_priced` (the window's tariff) alone picks the Optimize sentence."""
+    comp, rows = run_ev()
+    assert comp.facts.ev_priced is True
+    assert rows[COST]["not_measured_text"] == (
+        "Energy cost per km needs odometer readings; a tariff estimate exists in Financials")
+    unpriced = dict(EV_OVERVIEW, consequence_summary={"state": "UNPRICED", "reason": "TARIFF_MISSING",
+                                                      "tariff_value": None, "amount": None, "currency": None})
+    comp, rows = run_ev(Fake(ev_overview=unpriced))
+    assert comp.facts.ev_priced is False
+    assert rows[COST]["not_measured_text"] == (
+        "Energy cost per km needs odometer readings and a published charging tariff")

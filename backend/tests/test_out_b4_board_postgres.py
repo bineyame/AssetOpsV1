@@ -150,7 +150,7 @@ def _record_port_failures(monkeypatch) -> None:
 
     real = mini.Reads.call
 
-    def call(self, name, fn, *args):
+    def call(self, name, fn, *args, memo=False):
         def traced(*a):
             try:
                 body = fn(*a)
@@ -177,7 +177,7 @@ def _record_port_failures(monkeypatch) -> None:
             elif isinstance(body, str):
                 PORTS[name] = body
             return body
-        return real(self, name, traced, *args)
+        return real(self, name, traced, *args, memo=memo)
 
     monkeypatch.setattr(mini.Reads, "call", call)
 

@@ -29,7 +29,40 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
-   "headline": "18–24.3 kW of daytime solar unused",
+   "headline": null,
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "Not known yet",
+     "value": null,
+     "days_line": "1 of 1 days checked"
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-1",
+     "text": "No target set yet",
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
+    },
+    "potential": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "potential.daytime_solar_headroom",
+     "text": "No potential found yet",
+     "value": null,
+     "days_line": null
+    }
+   },
    "refs": [
     {
      "capability": "renewable",
@@ -53,26 +86,44 @@
    ],
    "state": "UNKNOWN",
    "state_label": "Unknown",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "OPTIMIZE_COST",
    "headline": "No fuel cost estimated for this day",
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "money.possible_extra_fuel_cost",
+     "text": "Not known yet",
+     "value": null,
+     "days_line": null
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-2",
+     "text": "No target set yet",
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
+    },
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
+   },
    "refs": [
     {
      "id": "f2",
      "kind": "FINDING",
      "revision": "f2r",
      "site": "KOBO-001"
-    },
-    {
-     "capability": "renewable",
-     "kind": "EVIDENCE",
-     "site": "KOBO-001",
-     "window": {
-      "from": "2026-10-27T21:00:00Z",
-      "to": "2026-11-01T21:00:00Z"
-     }
     },
     {
      "event_id": "e1",
@@ -109,21 +160,18 @@
    ],
    "state": "UNKNOWN",
    "state_label": "Unknown",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "PROTECT_ASSET",
    "headline": "Battery stayed clear of its reserve in 2 assessed generator periods",
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [
-    {
-     "capability": "renewable",
-     "kind": "EVIDENCE",
-     "site": "KOBO-001",
-     "window": {
-      "from": "2026-10-27T21:00:00Z",
-      "to": "2026-11-01T21:00:00Z"
-     }
-    },
     {
      "id": "f2",
      "kind": "FINDING",
@@ -152,11 +200,17 @@
    ],
    "state": "UNKNOWN",
    "state_label": "Unknown",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "ASSURE_PERFORMANCE",
    "headline": "No verified result yet",
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [
     {
      "event_id": "e1",
@@ -177,6 +231,7 @@
    ],
    "state": "UNKNOWN",
    "state_label": "Unknown",
+   "target_note": null,
    "thread_lines": []
   }
  ],
@@ -184,7 +239,7 @@
   "coverage": "coverage-policy/1",
   "lifecycle": "thread-lifecycle/1",
   "register": 1,
-  "status": "outcome-status/3"
+  "status": "outcome-status/4"
  },
  "schema_version": "outcome-chain-1",
  "site": {

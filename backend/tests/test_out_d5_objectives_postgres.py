@@ -93,11 +93,11 @@ def test_kobo_estate_objectives_and_reproducibility(monkeypatch, tmp_path) -> No
     readings: list[dict] = []
     real = mini.mini_readings
 
-    def spy(dispatch, depth, *rest):  # WALK1-3/3b: the composer also passes the MG-1 month and objective
-        out = real(dispatch, depth, *rest)
+    def spy(dispatch, **kw):  # CH-6a3: MG-1 now comes from the evaluator; only dispatch and `served` are passed
+        out = real(dispatch, **kw)
         avoidable, unclear = mini._dispatch_minutes(dispatch)
         readings.append({"dispatch_loaded": dispatch is not None, "avoidable": avoidable, "unclear": unclear,
-                         "unserved_kwh": ((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"),
+                         "unserved_kwh": (kw.get("served") or (None, None))[1] and kw["served"][1].get("unserved_kwh"),
                          "readings": {k: [v.value, v.complete, v.actual_text] for k, v in out.items()}})
         return out
 

@@ -15,14 +15,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
+from decimal import Decimal
 from typing import Any, Mapping, Sequence
 
 from assetops_backend.chain import refs
 from assetops_backend.chain.grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
 from assetops_backend.chain.read import DayFacts, day_grade
 from assetops_backend.chain.vocabulary import MEASURE_LABEL, day_text, why, why_days
-from assetops_backend.outcomes.catalogue import CATEGORIES, CATEGORY_LABEL
+from assetops_backend.outcomes.catalogue import CATEGORIES, CATEGORY_LABEL, SITE_OUTCOMES
 from assetops_backend.outcomes.display_code import display_code
+from assetops_backend.outcomes.outcome_map import CONTRIBUTIONS, NODE_EARNINGS
 
 SCHEMA_VERSION = "outcome-chain-why-1"
 #: The day class of each grade (CH5b2-R Q6): LOW is with NO_DATA, as the board's readiness rule
@@ -89,6 +91,39 @@ def used_measures(threads: Sequence[Mapping[str, Any]], clean: Mapping[str, Sequ
     return tuple(m for m in site_measures if m in wanted)
 
 
+def outcome_measures(domain: str, category: str) -> tuple[list[str], str | None]:
+    """CH6a3-R Q3: the chain measures the category's outcomes record (`MEASURE:` sources, domain-filtered), and the
+    measure behind its earnings node."""
+    keys = {o.key for o in SITE_OUTCOMES if o.domain == domain and o.category == category}
+    found = [r.source.partition(":")[2] for r in CONTRIBUTIONS if r.outcome in keys and r.source.startswith("MEASURE:")]
+    earn = next((r.source.partition(":")[2] for r in CONTRIBUTIONS if r.outcome in keys and r.node == NODE_EARNINGS
+                 and r.source.startswith("MEASURE:")), None)
+    return found, earn
+
+
+def _plain(value: Any) -> str:
+    return f"{Decimal(str(value)).normalize():f}"
+
+
+def price_lines(earnings: Mapping[str, Any] | None) -> tuple[str | None, str | None]:
+    """The (energy, fuel) price lines of an earnings claim JSON; None where the claim carries no basis."""
+    value = (earnings or {}).get("value") or {}
+    energy = fuel = None
+    if value.get("kwh") is not None:
+        if value.get("price_count"):
+            energy = why("why.from.price_several", kwh=_plain(value["kwh"]), n=value["price_count"])
+        elif value.get("price"):
+            energy = why("why.from.price", kwh=_plain(value["kwh"]), price=_plain(value["price"]["amount"]),
+                         cur=value["price"].get("currency") or "")
+    if value.get("litres_low") is not None and value.get("price"):
+        lo, hi = _plain(value["litres_low"]), _plain(value["litres_high"])
+        p = value["price"]
+        fuel = (why("why.from.fuel_price_one", lo=lo, price=_plain(p["amount"]), cur=p.get("currency") or "")
+                if lo == hi else
+                why("why.from.fuel_price", lo=lo, hi=hi, price=_plain(p["amount"]), cur=p.get("currency") or ""))
+    return energy, fuel
+
+
 def _per(facts: DayFacts, d: date, measures: Sequence[str]) -> dict[str, list[str]]:
     return {m: list(((facts.grades.get(d) or {}).get(m) or {}).values()) for m in measures
             if (facts.grades.get(d) or {}).get(m)}
@@ -151,7 +186,10 @@ def trace(x: SiteTraceInput) -> Trace:
     threads = related_threads(x.threads, x.category)
     tids = {t["id"] for t in threads}
     actions = [a for a in x.actions if a.get("thread") in tids]
-    measures = used_measures(threads, x.clean_measures, x.site_measures)
+    extra, earn_measure = outcome_measures(x.domain, x.category)
+    base = used_measures(threads, x.clean_measures, x.site_measures)
+    measures = tuple(m for m in x.site_measures if m in set(base) | set(extra))
+    energy_line, fuel_line = price_lines(((x.row.get("nodes") or {}).get("earnings")))
     counted = measures or tuple(x.site_measures)
     nodes = [_node("row_state", _row_ids(x.row), x.row.get("state"))]
     lines: list[str] = []
@@ -169,6 +207,8 @@ def trace(x: SiteTraceInput) -> Trace:
         k = sum(1 for g in grades if g == COMPLETE)
         if k:
             lines.append(why("why.from.measure", label=MEASURE_LABEL.get(m, m), k=k, s="" if k == 1 else "s"))
+            if m == earn_measure and energy_line:
+                lines.append(energy_line)
 
     # analytic, finding, thread: the head revisions of the related threads' Findings.
     runs: list[str] = []
@@ -195,6 +235,8 @@ def trace(x: SiteTraceInput) -> Trace:
     if runs:
         nodes.insert(1 + sum(1 for n in nodes if n["kind"] == "measure_day"), _node("analytic", runs))
 
+    if fuel_line:
+        lines.append(fuel_line)
     for a in actions:
         nodes.append(_node("action", [a["id"]], {"code": a.get("code"), "verification": a.get("verification")}))
         label = _action_label(x.row, a["id"])

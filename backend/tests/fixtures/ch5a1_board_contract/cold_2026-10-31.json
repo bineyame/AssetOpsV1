@@ -22,7 +22,7 @@
   "finding_index": "finding-index/2",
   "objectives": "outcome-objectives/2",
   "outcome_map": "outcome-map/1",
-  "status": "outcome-status/3",
+  "status": "outcome-status/4",
   "warnings": "early-warnings/1"
  },
  "read_state": "PARTIAL",
@@ -49,6 +49,11 @@
     "label": "Paid cold-room use"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": "Needs occupancy, storage contract, income and sales records",
    "options": [],
    "outcomes": [
@@ -69,6 +74,7 @@
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
    "subline": null,
+   "target_note": null,
    "thread_lines": [],
    "tone": "none"
   },
@@ -148,6 +154,11 @@
     "label": "Cost per cooling unit"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [],
    "outcomes": [
@@ -162,6 +173,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": null,
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   },
@@ -297,6 +309,39 @@
     "label": "Stock kept saleable"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": {
+     "key": "money.not_known",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "Not known yet",
+     "days_line": null
+    },
+    "kpi": {
+     "basis": "COMPLETE",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "verdict.CC-1",
+     "text": "above 5°C in this window",
+     "value": "MISSED",
+     "days_line": "1 of 1 days checked"
+    },
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -343,6 +388,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed",
+   "target_note": null,
    "thread_lines": [],
    "tone": "amber"
   },
@@ -411,6 +457,11 @@
     "label": "Evidence quality"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -435,6 +486,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "Loading and door records are not connected, so stock impact cannot be judged",
+   "target_note": null,
    "thread_lines": [],
    "tone": "blue"
   }

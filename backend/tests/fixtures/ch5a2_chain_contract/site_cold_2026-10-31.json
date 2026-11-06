@@ -14,14 +14,25 @@
   {
    "category": "GROW_REVENUE",
    "headline": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [],
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "OPTIMIZE_COST",
    "headline": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [
     {
      "kind": "SITE",
@@ -31,11 +42,45 @@
    ],
    "state": "UNKNOWN",
    "state_label": "Unknown",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "PROTECT_ASSET",
    "headline": "Chamber above 5°C for 40–55 min",
+   "nodes": {
+    "earnings": {
+     "key": "money.not_known",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "Not known yet",
+     "days_line": null
+    },
+    "kpi": {
+     "basis": "COMPLETE",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "verdict.CC-1",
+     "text": "above 5°C in this window",
+     "value": "MISSED",
+     "days_line": "1 of 1 days checked"
+    },
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
+   },
    "refs": [
     {
      "id": "da1",
@@ -59,11 +104,17 @@
    ],
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
+   "target_note": null,
    "thread_lines": []
   },
   {
    "category": "ASSURE_PERFORMANCE",
    "headline": "Event partly reconstructed · no verified result yet",
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "refs": [
     {
      "kind": "SITE",
@@ -77,6 +128,7 @@
    ],
    "state": "WATCH",
    "state_label": "Watch",
+   "target_note": null,
    "thread_lines": []
   }
  ],
@@ -84,7 +136,7 @@
   "coverage": "coverage-policy/1",
   "lifecycle": "thread-lifecycle/1",
   "register": 1,
-  "status": "outcome-status/3"
+  "status": "outcome-status/4"
  },
  "schema_version": "outcome-chain-1",
  "site": {

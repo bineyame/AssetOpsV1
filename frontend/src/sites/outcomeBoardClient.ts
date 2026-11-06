@@ -142,6 +142,23 @@ export interface OutcomeMoney {
   currency: string | null;
 }
 
+/** CH-6a3: one node claim of a row (`chain/vocabulary.py` `Claim.to_json`). */
+export interface NodeClaim {
+  key: string;
+  value: unknown;
+  basis: "COMPLETE" | "CHECKED_DAYS" | "NOT_KNOWN" | string;
+  days: Record<string, number> | null;
+  text: string;
+  /** R2b: this claim's own days line (the server's `days_line` over its own days); null when it has no days. */
+  days_line?: string | null;
+}
+
+export interface RowNodes {
+  kpi: NodeClaim | null;
+  earnings: NodeClaim | null;
+  potential: NodeClaim | null;
+}
+
 export interface OutcomeBoardRow {
   category: string;
   label: string;
@@ -171,6 +188,9 @@ export interface OutcomeBoardRow {
    * rendered as a second header chip. Null or absent on an older body.
    */
   potential?: { label: string; text: string | null } | null;
+  /** CH-6a3: the row's three node claims, its days line and the R7 target note; absent on an older body. */
+  nodes?: RowNodes | null;
+  target_note?: string | null;
 }
 
 export interface OutcomeBoardBody {
