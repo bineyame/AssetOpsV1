@@ -11,8 +11,9 @@ cannot collide with the `kobo-daytime` window of the same number. Every value (i
 unit, role, state key and description is the parent's. Cold drops only the GRID_LOSS / GRID_RESTORE forcings (R2).
 
 The Kobo night (20:00-06:00 local) is not derived from a parent: the repeated-evening night is withdrawn (owner,
-2026-11-06). DD1a1-R2 defines the night profile files (`kobo-night-late` / `-early` and the `-after-overcast` pair),
-with start states from measured probes S and O; they are the next step (see `.agent/DD-1a1-handoff.md`).
+2026-11-06). DD1a1-R2 defines the night profile: `NIGHT_WINDOWS` holds its values with their stated bases, each
+night window copies the event structure of the evening parent's 18-20 window, and each night file's run-start state
+is the measured handover in `backend/conversions/kobo-night-handover-v1.json` (`tools/probe_kobo_nights.py`).
 """
 
 from __future__ import annotations
@@ -81,20 +82,136 @@ def kobo(sid: str) -> str:
            f"# Local hours {hours} (Kobo local time, UTC+3). Two-hour windows, offsets re-based on the segment start.",
            f"# Run-start state (public_parameters): {state_parent}.yaml, unchanged.",
            yaml.safe_dump(head, sort_keys=False, width=1000, allow_unicode=True).rstrip(), "timeline:"]
-    seq = 0
+    for comment, event in window_events([(parent, n, 120 * slot) for slot, (parent, n) in enumerate(windows)], docs):
+        out.append(f"  # {comment}")
+        body = yaml.safe_dump([event], sort_keys=False, width=1000, allow_unicode=True).rstrip()
+        out.extend("  " + line for line in body.splitlines())
+    return "\n".join(out) + "\n"
+
+
+def window_events(windows: list[tuple[str, int, int]], docs: dict | None = None, first_seq: int = 1):
+    """(source comment, event) for each parent window `(parent, n, offset)`, per series in `SERIES` order, values
+    unchanged; `sequence` numbered from `first_seq`. Shared by the steady files and the night probes."""
+    docs = docs if docs is not None else {}
+    for parent, _, _ in windows:
+        if parent not in docs:
+            docs[parent] = yaml.safe_load((SCENARIOS / f"{parent}.yaml").read_text(encoding="utf-8"))
+    seq = first_seq - 1
     for series in SERIES:
-        for slot, (parent, n) in enumerate(windows):
+        for parent, n, offset in windows:
             eid = f"{series}-{n}"
             event = copy.deepcopy(_parent_event(docs[parent], eid))
             seq += 1
             event["event_id"] = PREFIX[parent] + eid
             event["sequence"] = seq
-            event["offset_minutes"] = 120 * slot
+            event["offset_minutes"] = offset
             for p in event.get("parameters", []):
                 p["parameter_id"] = PREFIX[parent] + p["parameter_id"]
-            out.append(f"  # source: config/scenarios/{parent}.yaml:{_source_line(parent, eid)} ({eid})")
-            body = yaml.safe_dump([event], sort_keys=False, width=1000, allow_unicode=True).rstrip()
-            out.extend("  " + line for line in body.splitlines())
+            yield f"source: config/scenarios/{parent}.yaml:{_source_line(parent, eid)} ({eid})", event
+
+
+# --- DD1a1-R2: the Kobo night profile -------------------------------------------------------------------------------
+
+NIGHT_LABEL = "example data, night profile"
+HANDOVER = ROOT / "backend" / "conversions" / "kobo-night-handover-v1.json"
+#: The night's state keys and the evening parent's window whose event structure each night window copies.
+NIGHT_TEMPLATE = ("kobo-mini-grid-evening", 4)
+_TYPICAL = "typical rural East African mini-grid pattern (DD1a1-R2 grounding), not a Kobo measurement"
+_NO_SUN = ("no sun: every Kobo parent declares 0 W/m2 from 18:00; at about 9 N sunset is about 18:30 and sunrise "
+           "about 06:15 (DD1a1-R2 site facts)")
+_NO_MILL = "the grain mill does not run at night (DD1a1-R2 grounding)"
+_CLINIC_NIGHT = ("night base: vaccine and medicine refrigeration, security and ward lighting, on-call care, "
+                 "roughly 1.5-3 kW")
+#: Local window -> (start minute from the file start, minutes, residential kW and basis, clinic kW and basis).
+#: The values and bases are DD1a1-R2's night input table, unchanged.
+NIGHT_WINDOWS = {
+    "late": (("20:00", "22:00", 0, 120, 9, "evening peak tapering, about 65% of the parent's 14 kW at 18-20",
+              4, "the parent's 5 kW at 18-20, with evening activity ending"),
+             ("22:00", "24:00", 120, 120, 5, "most homes asleep", 2, _CLINIC_NIGHT)),
+    "early": (("00:00", "02:00", 0, 120, 3, "night base, about 21% of the 14 kW evening peak", 2, _CLINIC_NIGHT),
+              ("02:00", "04:00", 120, 120, 3, "night base, about 21% of the 14 kW evening peak", 2, _CLINIC_NIGHT),
+              ("04:00", "05:00", 240, 60, 3, "night base, about 21% of the 14 kW evening peak", 2, _CLINIC_NIGHT),
+              ("05:00", "06:00", 300, 60, 5, "pre-dawn rise, ending at the 06-08 daytime parent's lower values",
+               2, _CLINIC_NIGHT)),
+}
+#: id -> (display name, half, probe chain). Chain "S" = after the steady day, "O" = after the overcast story day.
+NIGHTS = {
+    "kobo-night-late": ("Kobo night (20:00-24:00)", "late", "S"),
+    "kobo-night-early": ("Kobo night (00:00-06:00)", "early", "S"),
+    "kobo-night-late-after-overcast": ("Kobo night after an overcast day (20:00-24:00)", "late", "O"),
+    "kobo-night-early-after-overcast": ("Kobo night after an overcast day (00:00-06:00)", "early", "O"),
+}
+_STATE = (("starting-state-of-charge", "soc"), ("starting-fuel", "fuel"), ("starting-generator-state", "generator"))
+
+
+def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
+    """The night scenario document for `sid` from the start state `{soc, fuel, generator}`, and one basis comment per
+    timeline event (same order). Only the R2 values change; every key, unit, role and state key is the evening
+    parent's window-4 event and run-start parameter structure."""
+    display, half, chain = NIGHTS[sid]
+    parent, n = NIGHT_TEMPLATE
+    doc = yaml.safe_load((SCENARIOS / f"{parent}.yaml").read_text(encoding="utf-8"))
+    windows = NIGHT_WINDOWS[half]
+    hours = f"{windows[0][0]}-{windows[-1][1]}"
+    cause = ("after the overcast story day (kobo-s3-dispatch-necessary-run): the start state is what that day leaves"
+             if chain == "O" else "after a steady sunny day (kobo-daytime): the start state is what that day leaves")
+    params = copy.deepcopy(doc["public_parameters"])
+    for item in params:
+        key = dict(_STATE).get(item["parameter_id"])
+        if key:
+            item["value"] = start[key]
+    head = {
+        "scenario_id": sid, "display_name": display,
+        "purpose": (f"{NIGHT_LABEL[0].upper()}{NIGHT_LABEL[1:]}. A typical night at a rural mini-grid like Kobo, "
+                    f"{hours} local time, no sun, {cause}. The loads follow a typical pattern, not a Kobo measurement; "
+                    "the run-start state was measured by one probe run (kobo-night-handover-v1.json), never chosen."),
+        "version": {"scenario_version": 1, "version_valid_from": "2026-10-01T00:00:00Z"},
+        "site_contract": copy.deepcopy(doc["site_contract"]),
+        "observation_sources": [],
+        "public_parameters": params,
+    }
+    events, comments, seq = [], [], 0
+    for series in SERIES:
+        template = _parent_event(doc, f"{series}-{n}")
+        for k, (lo, hi, offset, minutes, res, res_basis, clinic, clinic_basis) in enumerate(windows, 1):
+            value, basis = {
+                "irradiance": (0, _NO_SUN), "mill-demand": (0, _NO_MILL),
+                "residential-demand": (res, f"{res_basis}; {_TYPICAL}"),
+                "clinic-demand": (clinic, f"{clinic_basis}; {_TYPICAL}"),
+            }[series]
+            event = copy.deepcopy(template)
+            seq += 1
+            event["event_id"] = f"night-{series}-{k}"
+            event["sequence"] = seq
+            event["offset_minutes"] = offset
+            event["timing"]["duration_minutes"] = minutes
+            event["description"] = event["description"].replace("18:00 to 20:00", f"{lo} to {hi}")
+            for p in event["parameters"]:
+                p["parameter_id"] = f"night-{series}-{k}-level"
+                p["value"] = value
+            events.append(event)
+            comments.append(f"basis: {value} {template['parameters'][0]['unit']}, {basis}. Structure: "
+                            f"config/scenarios/{parent}.yaml:{_source_line(parent, f'{series}-{n}')} ({series}-{n})")
+    head["timeline"] = events
+    return head, comments
+
+
+def night(sid: str) -> str:
+    import json
+
+    handover = json.loads(HANDOVER.read_text(encoding="utf-8"))
+    entry = handover["handover"][sid]
+    doc, comments = night_document(sid, entry["start"])
+    timeline = doc.pop("timeline")
+    out = [f"# DD1a1-R2 night scenario, generated by tools/derive_steady_scenarios.py; do not edit by hand.",
+           f"# label: {NIGHT_LABEL}",
+           f"# Run-start state (public_parameters): measured by probe {entry['probe_id']} at {entry['at_local']} local "
+           f"({HANDOVER.relative_to(ROOT).as_posix()}); {entry['rounding']}",
+           yaml.safe_dump(doc, sort_keys=False, width=1000, allow_unicode=True).rstrip(), "timeline:"]
+    for comment, event in zip(comments, timeline):
+        out.append(f"  # {comment}")
+        body = yaml.safe_dump([event], sort_keys=False, width=1000, allow_unicode=True).rstrip()
+        out.extend("  " + line for line in body.splitlines())
     return "\n".join(out) + "\n"
 
 
@@ -118,6 +235,8 @@ def cold(sid: str) -> str:
 def derive() -> dict[str, str]:
     out = {sid: kobo(sid) for sid in STEADY}
     out.update({sid: cold(sid) for sid in COLD})
+    if HANDOVER.exists():
+        out.update({sid: night(sid) for sid in NIGHTS})
     return out
 
 

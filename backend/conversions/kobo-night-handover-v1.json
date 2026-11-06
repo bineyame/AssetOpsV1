@@ -1,0 +1,191 @@
+{
+ "schema": {
+  "id": "assetops.kobo-night-handover",
+  "version": 1
+ },
+ "label": "example data, night profile",
+ "method": "`python tools/probe_kobo_nights.py` writes `backend/conversions/kobo-night-handover-v1.json`; `--check` exits 1 if the committed file differs from a fresh measurement. Then `tools/derive_steady_scenarios.py` renders the night files.",
+ "site": "template Site kobo_site (config/site-templates/kobo-mini-grid-60kw.yaml), host/tests/kobo.py",
+ "profile": {
+  "model_profile": "mini-grid",
+  "model_profile_version": 6,
+  "timestep_minutes": 5
+ },
+ "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L",
+ "probes": {
+  "S": {
+   "probe_id": "probe-S-b6a152f8cdf3",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T17:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 55,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 69.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 50.789
+  },
+  "S-late": {
+   "probe_id": "probe-S-late-91611ae275e3",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T17:00:00Z",
+    "2026-09-22T21:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 69,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 47.94736842105263,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 47.947
+  },
+  "S-early": {
+   "probe_id": "probe-S-early-28f08b84b74f",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T21:00:00Z",
+    "2026-09-23T03:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 48,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 31.157894736842106,
+    "fuel": 300.0,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_running_minutes": 55,
+   "fuel_used_l": 0.0,
+   "min_soc": 31.158
+  },
+  "O": {
+   "probe_id": "probe-O-2610d50f7049",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T17:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 40,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 30.0,
+    "fuel": 186.65975,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_running_minutes": 815,
+   "fuel_used_l": 113.34,
+   "min_soc": 30.0
+  },
+  "O-late": {
+   "probe_id": "probe-O-late-a71d4e7b8f6d",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T17:00:00Z",
+    "2026-09-22T21:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 30,
+    "starting-fuel": 186.7,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 30.88048245614035,
+    "fuel": 173.631,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_running_minutes": 235,
+   "fuel_used_l": 13.069,
+   "min_soc": 30.0
+  },
+  "O-early": {
+   "probe_id": "probe-O-early-ece01decb3f8",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T21:00:00Z",
+    "2026-09-23T03:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 31,
+    "starting-fuel": 173.6,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 31.1875,
+    "fuel": 163.08875,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_running_minutes": 355,
+   "fuel_used_l": 10.511,
+   "min_soc": 30.0
+  }
+ },
+ "handover": {
+  "kobo-night-late": {
+   "probe_id": "probe-S-b6a152f8cdf3",
+   "at_local": "20:00",
+   "start": {
+    "soc": 69,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover"
+  },
+  "kobo-night-early": {
+   "probe_id": "probe-S-late-91611ae275e3",
+   "at_local": "00:00",
+   "start": {
+    "soc": 48,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was STOPPED at the handover"
+  },
+  "kobo-night-late-after-overcast": {
+   "probe_id": "probe-O-2610d50f7049",
+   "at_local": "20:00",
+   "start": {
+    "soc": 30,
+    "fuel": 186.7,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was RUNNING at the handover and starts STOPPED (run setup refuses RUNNING)"
+  },
+  "kobo-night-early-after-overcast": {
+   "probe_id": "probe-O-late-a71d4e7b8f6d",
+   "at_local": "00:00",
+   "start": {
+    "soc": 31,
+    "fuel": 173.6,
+    "generator": "STOPPED"
+   },
+   "rounding": "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L; the generator was RUNNING at the handover and starts STOPPED (run setup refuses RUNNING)"
+  }
+ }
+}

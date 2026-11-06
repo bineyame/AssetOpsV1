@@ -1,0 +1,152 @@
+"""DD1a1-R2 probes S and O: the measured run-start state of each Kobo night file. In memory, no database.
+
+`python tools/probe_kobo_nights.py` writes `backend/conversions/kobo-night-handover-v1.json`; `--check` exits 1 if
+the committed file differs from a fresh measurement. Then `tools/derive_steady_scenarios.py` renders the night files.
+
+A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q3), so each night's start state is
+read from one continuous probe run that ends where the night begins. Nothing here is chosen:
+
+- Probe S, the steady day: `kobo-daytime` windows 1-6 plus `kobo-mini-grid-evening` window 4 (06:00-20:00 local),
+  from DD1a1-R2's stated start: `kobo-daytime`'s declared 55 % with 300 L and STOPPED (kobo-daytime itself declares
+  no fuel or generator start; see `probe_s`). Its 20:00 state starts `kobo-night-late`.
+- Probe O, after the overcast story day: `kobo-s3-dispatch-necessary-run`'s own events (06:00-14:00, its declared
+  start 40 %, 300 L, STOPPED) plus `kobo-mini-grid-evening` windows 2-4 (14:00-20:00). Its 20:00 state starts
+  `kobo-night-late-after-overcast`.
+- Each `-late` night is then run from that state; its measured 24:00 state starts the matching `-early` night, and
+  the `-early` night is run too, so every night's generator use is measured here (the steady-night gate's in-memory
+  half; the L2 run reads Findings, threads and money).
+
+Handover rounding (DD1a1-R2): state of charge to a whole %, fuel to 0.1 L. A generator RUNNING at a handover becomes
+STOPPED, because run setup refuses a RUNNING start; the file reports it. The probe site is the template Site
+(`host/tests/kobo.py` `kobo_site`, `config/site-templates/kobo-mini-grid-60kw.yaml`) on mini-grid v6 at 5 minutes.
+"""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "host" / "tests"))
+sys.path.insert(0, str(ROOT / "tools"))
+
+import yaml  # noqa: E402
+
+import derive_steady_scenarios as derive  # noqa: E402
+
+SOC, FUEL, GEN = "battery-state-of-charge@battery", "fuel-tank-volume@fuel-tank", "generator-state@generator"
+DAY, NEXT = "2026-09-22", "2026-09-23"  # any day: the scenarios carry no date; 03:00Z is 06:00 local (UTC+3)
+PROFILE = {"model_profile": "mini-grid", "model_profile_version": 6, "timestep_minutes": 5}
+ROUNDING = "state of charge rounded to a whole % (DD1a1-R2), fuel to 0.1 L"
+
+
+def _load(sid: str) -> dict:
+    return yaml.safe_load((derive.SCENARIOS / f"{sid}.yaml").read_text(encoding="utf-8"))
+
+
+def probe_s() -> dict:
+    doc = _load("kobo-daytime")
+    doc["scenario_id"], doc["display_name"] = "kobo-probe-s", "DD1a1-R2 probe S (06:00-20:00)"
+    windows = [("kobo-daytime", n, 120 * (n - 1)) for n in range(1, 7)] + [("kobo-mini-grid-evening", 4, 720)]
+    doc["timeline"] = [event for _, event in derive.window_events(windows)]
+    # kobo-daytime declares only its 55 % state of charge (its own profile models no generator). DD1a1-R2 states
+    # probe S's start as 55 %, 300 L and STOPPED, the fuel and generator start every other Kobo parent declares; the
+    # two parameters take kobo-mini-grid-evening's structure with those R2 values.
+    evening = {p["parameter_id"]: p for p in _load("kobo-mini-grid-evening")["public_parameters"]}
+    for pid, value in (("starting-fuel", 300), ("starting-generator-state", "STOPPED")):
+        assert all(p["parameter_id"] != pid for p in doc["public_parameters"]), pid
+        doc["public_parameters"].append({**copy.deepcopy(evening[pid]), "value": value})
+    return doc
+
+
+def probe_o() -> dict:
+    doc = _load("kobo-s3-dispatch-necessary-run")
+    doc["scenario_id"], doc["display_name"] = "kobo-probe-o", "DD1a1-R2 probe O (06:00-20:00)"
+    windows = [("kobo-mini-grid-evening", n, 480 + 120 * (n - 2)) for n in (2, 3, 4)]
+    doc["timeline"] += [e for _, e in derive.window_events(windows, first_seq=len(doc["timeline"]) + 1)]
+    return doc
+
+
+def _probe_id(name: str, doc: dict, start: str, end: str) -> str:
+    canonical = json.dumps({"document": doc, "interval": [start, end], **PROFILE}, sort_keys=True, default=str)
+    return f"probe-{name}-{hashlib.sha256(canonical.encode('utf-8')).hexdigest()[:12]}"
+
+
+def measure(name: str, doc: dict, start: str, end: str) -> dict:
+    from execution_adapter import model_for, run_to_end
+    from kobo import kobo_draft
+
+    run = kobo_draft(document=copy.deepcopy(doc), start_time=start, end_time=end, **PROFILE)
+    assert run.execution_status == "READY", [(r.kind, r.subject) for r in run.blocking_reasons]
+    trajectory = run_to_end(run, model_for(run)).trajectory
+    stocks = [dict(b.stocks) for b in trajectory.boundaries]
+    gens = [dict(b.discrete_for_step).get(GEN) for b in trajectory.boundaries if b.discrete_for_step is not None]
+    starts = sum(1 for a, b in zip(["STOPPED"] + gens, gens) if a != "RUNNING" and b == "RUNNING")
+    last = trajectory.boundaries[-1]  # the end boundary has no step, so its state is `discrete`, not `_for_step`
+    end_state = {"soc": float(stocks[-1][SOC]), "fuel": float(stocks[-1][FUEL]),
+                 "generator": dict(last.discrete or {}).get(GEN, gens[-1])}
+    return {
+        "probe_id": _probe_id(name, doc, start, end),
+        "scenario_sha256": run.deterministic_identity.scenario.scenario_sha256,
+        "interval": [start, end],
+        "start": {p["parameter_id"]: p["value"] for p in doc["public_parameters"]},
+        "measured_end": end_state,
+        "generator_starts": starts,
+        "generator_running_minutes": PROFILE["timestep_minutes"] * sum(1 for g in gens if g == "RUNNING"),
+        "fuel_used_l": round(float(stocks[0][FUEL]) - end_state["fuel"], 3),
+        "min_soc": round(min(float(s[SOC]) for s in stocks), 3),
+    }
+
+
+def _handover(end: dict) -> dict:
+    return {"soc": round(end["soc"]), "fuel": round(end["fuel"], 1), "generator": "STOPPED"}
+
+
+def chain(name: str, day_doc: dict, late: str, early: str) -> tuple[dict, dict]:
+    probes, handover = {}, {}
+    probes[name] = measure(name, day_doc, f"{DAY}T03:00:00Z", f"{DAY}T17:00:00Z")
+    for sid, frm, (lo, hi), at in ((late, name, (f"{DAY}T17:00:00Z", f"{DAY}T21:00:00Z"), "20:00"),
+                                   (early, f"{name}-late", (f"{DAY}T21:00:00Z", f"{NEXT}T03:00:00Z"), "00:00")):
+        end = probes[frm]["measured_end"]
+        start = _handover(end)
+        handover[sid] = {
+            "probe_id": probes[frm]["probe_id"], "at_local": at, "start": start, "rounding": ROUNDING + (
+                "; the generator was RUNNING at the handover and starts STOPPED (run setup refuses RUNNING)"
+                if end["generator"] == "RUNNING" else "; the generator was STOPPED at the handover")}
+        doc, _ = derive.night_document(sid, start)
+        key = f"{name}-late" if sid == late else f"{name}-early"
+        probes[key] = measure(key, doc, lo, hi)
+    return probes, handover
+
+
+def build() -> dict:
+    s_probes, s_handover = chain("S", probe_s(), "kobo-night-late", "kobo-night-early")
+    o_probes, o_handover = chain("O", probe_o(), "kobo-night-late-after-overcast", "kobo-night-early-after-overcast")
+    return {
+        "schema": {"id": "assetops.kobo-night-handover", "version": 1},
+        "label": derive.NIGHT_LABEL,
+        "method": __doc__.strip().split("\n\n")[1].replace("\n", " "),
+        "site": "template Site kobo_site (config/site-templates/kobo-mini-grid-60kw.yaml), host/tests/kobo.py",
+        "profile": PROFILE,
+        "rounding": ROUNDING,
+        "probes": {**s_probes, **o_probes},
+        "handover": {**s_handover, **o_handover},
+    }
+
+
+def main(argv: list[str]) -> int:
+    text = json.dumps(build(), indent=1) + "\n"
+    if "--check" in argv:
+        same = derive.HANDOVER.exists() and derive.HANDOVER.read_text(encoding="utf-8") == text
+        print("handover current" if same else "handover stale")
+        return 0 if same else 1
+    derive.HANDOVER.write_text(text, encoding="utf-8", newline="\n")
+    print(text)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
