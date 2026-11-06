@@ -19,6 +19,10 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v1.json"
+#: DD-1a1 (DD1a1-R Q7): full-day story days. Each Kobo / Cold kind lists its `complement`, so one entry expands into
+#: its story run plus the steady runs (and named placeholders) that tile the Site's local day [00:00, 24:00).
+#: `prepare --days` takes it; DD-1a2 builds the B-22 list on it and makes it the default.
+V2_FILE = DEFAULT_FILE.with_name("demo-story-days-v2.json")
 SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 CODE_SITE = {v: k for k, v in SITE_CODE.items()}
@@ -68,6 +72,10 @@ class DayRun:
     as_kind: str | None = None
     note: str = ""
     known_at: datetime | None = None  # the run's foundation_known_at
+    #: DD-1a1 (v2 day lists): the end of the local hours this entry's scenario covers (a Cold run's scenario covers
+    #: 60 min of its 65-min interval), and the story kind a complement belongs to ("" for the story entry itself).
+    covers_end: datetime | None = None
+    complement_of: str = ""
 
     @property
     def has_run(self) -> bool:
@@ -75,7 +83,7 @@ class DayRun:
 
     def payload(self) -> dict[str, Any]:
         out = asdict(self)
-        for key in ("start", "end", "received_at", "known_at"):
+        for key in ("start", "end", "received_at", "known_at", "covers_end"):
             out[key] = iso(out[key]) if out[key] is not None else None
         return out
 
@@ -193,7 +201,7 @@ def from_payload(rows: list[dict]) -> list[DayRun]:
         return None if v is None else datetime.fromisoformat(v.replace("Z", "+00:00"))
 
     return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"]),
-                           "known_at": t(r.get("known_at"))})
+                           "known_at": t(r.get("known_at")), "covers_end": t(r.get("covers_end"))})
             for r in rows]
 
 

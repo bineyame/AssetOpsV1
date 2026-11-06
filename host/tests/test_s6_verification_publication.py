@@ -123,9 +123,13 @@ def _gateway(tmp_path: Path, run, upload: dict | None = None) -> GatewayProcess:
     return process
 
 
+#: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
+SEAL_ONCE = False
+
+
 def _host(root: Path, link) -> HostLabExecution:
     return HostLabExecution(artifacts=YamlExecutionArtifacts(root), stages=JsonSourceStages(root / "stages"),
-                            gateway=RegisteredGatewayPublisher(link))
+                            gateway=RegisteredGatewayPublisher(link), seal_once=SEAL_ONCE)
 
 
 def published(tmp_path: Path, run) -> list:

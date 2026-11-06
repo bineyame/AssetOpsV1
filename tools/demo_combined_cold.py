@@ -36,6 +36,8 @@ from demo_combined import at, iso
 
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
+#: DD0c-R Q1: the demo child seals each run once (L1 batching); the parity test flips it off.
+SEAL_ONCE = True
 
 
 def _patch(url: str):
@@ -46,6 +48,7 @@ def _patch(url: str):
     import test_w502_cold_scenario_producer as P
 
     pg_harness.fresh_database = lambda *a, **k: url
+    P.SEAL_ONCE = SEAL_ONCE  # DD0c-R Q1: L1 batching, the demo prepare / add-day producers only
     producer = P.producer
     original = getattr(producer, "_demo_original_shifted_case", producer.shifted_case)
     producer._demo_original_shifted_case = original
@@ -107,7 +110,7 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun") -> dict:
     """One cold story day. `failure` runs the w502 positive BUILD body; other kinds the replay only."""
     P, w202, base = _patch(url)
     factory = _day_swaps(P, w202, base, day)
-    out = tmp / f"{day.day}-{day.kind}"
+    out = tmp / f"{day.day}-{day.kind}-{day.start:%H%M}"  # DD-1a1: 24 runs per full day
     out.mkdir(parents=True)
     if day.kind == "failure":
         import w502_cold_work_walkthrough as W

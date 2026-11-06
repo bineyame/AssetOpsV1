@@ -2079,11 +2079,15 @@ class HostLabExecution:
         # W2-05b q4 Q23: the read-only re-read of an EV run's exact frozen Foundation revision, binding revision
         # and EV scenario document (`ev_lab.EvInputs`). None refuses every EV start FROZEN_RUN_NOT_RECONSTRUCTIBLE.
         ev_inputs: EvInputs | None = None,
+        # DD0c-R Q1 (L1 batching): True seals a registered run's boundary groups once, after the last group.
+        # Opt-in for the demo prepare and add-day producers only; the default seals per group.
+        seal_once: bool = False,
     ) -> None:
         self._model = model
         self._cold_inputs = cold_inputs
         self._ev_inputs = ev_inputs
         self._gateway = gateway
+        self._seal_once = seal_once
         self._source_publisher = source_publisher
         if schedules is None:
             stage_root = getattr(stages, "_root", None)
@@ -2987,7 +2991,9 @@ class HostLabExecution:
         elif tail:
             groups[-1] = (last, groups[-1][1] + tail, groups[-1][2])
         wanted = [(instant, [d.report_text for d in due] + texts) for instant, due, texts in groups if due or texts]
-        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target)
+        # DD0c-R Q1: the keyword is passed only when set, so every other publisher keeps its signature.
+        seal = {"seal_once": True} if self._seal_once else {}
+        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target, **seal)
         boundary_instants = set(instants or ())
         through = schedule.admitted_through
         stopped_at = schedule.ordinary_stopped_at

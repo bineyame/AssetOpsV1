@@ -306,16 +306,28 @@ def trial_day_index(url: str, runner, S: datetime) -> dict:
     return r.json()
 
 
+#: DD0c-R Q1: the demo child seals each run once (L1 batching); a parity check may flip it off.
+SEAL_ONCE = True
+
+
+def _seal_once() -> None:
+    import test_s6_verification_publication as pub
+
+    pub.SEAL_ONCE = SEAL_ONCE
+
+
 def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     """One registered Lab run on its story day: draft -> real gateway -> S2 acceptance at `received_at`; when the
     kind assesses at build, S3 assess + S4 match at `received_at + 5 min` (a `tick` day waits for the schedule)."""
     import test_s6_verification_replay as rp
 
+    _seal_once()
     M = day_manifest(base, day)
     spec = M["runs"]["day"]
     run, _ = rp._draft(store, spec, M)
     deliver = publish_first_half if day.kind == "degraded" else rp._publish_and_accept
-    published = deliver(tmp / f"{day.day}-{day.kind}", run, spec["sequence_epoch"], rp._at(spec["received_at"]))
+    # DD-1a1: a full day holds several runs (story + steady complement), so the work folder names the start too
+    published = deliver(tmp / f"{day.day}-{day.kind}-{day.start:%H%M}", run, spec["sequence_epoch"], rp._at(spec["received_at"]))
     if day.assess == "build":
         runner.now = max(runner.now, day.received_at + timedelta(minutes=5))
         runner.step({"do": "assess"}); runner.step({"do": "match"})
@@ -357,9 +369,12 @@ def build(url: str, work: Path, story: dict) -> dict:
             if day.kind == "trial-after":
                 continue  # run by the trial-before entry's chain, next in the build order
             if day.kind == "trial-before":
-                assert days[n + 1].kind == "trial-after", "the trial pair must be adjacent in the Kobo build order"
+                # DD-1a1 (DD1a1-R Q6): the trial pair's steady complements are plain runs between the two trial
+                # entries in the build order; `_trial_chain` is unchanged and runs both trial runs here.
+                later = [d for d in days[n + 1:] if d.kind.startswith("trial-")]
+                assert later and later[0].kind == "trial-after", "the trial-after must follow the trial-before"
                 ids = _trial_chain(store, runner, harness, verifying, tmp, M, published)
-                for d, name in ((day, "baseline"), (days[n + 1], "later")):
+                for d, name in ((day, "baseline"), (later[0], "later")):
                     records.append({**entry, "day": d.day, "offset": d.offset, "kind": d.kind,
                                     "received_at": iso(d.received_at),
                                     "run_id": (ids["runs"][name] or [None])[0]})
@@ -371,7 +386,7 @@ def build(url: str, work: Path, story: dict) -> dict:
             print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
         for r in records:
             r["findings"] = findings_on(engine, result.site.id, r["day"])
-            r["status_after_build"] = ("NO_RUN" if r["kind"] == "missing" else
+            r["status_after_build"] = ("NO_RUN" if r["received_at"] is None else
                                        "ASSESSED" if r["assess"] == "build" else "AWAITING_TICK")
         body = trial_day_index(url, runner, at(story["S"]))
         listed = [str(r.get("finding_id")) for r in body.get("rows") or []]
@@ -402,6 +417,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     run, evaluation through the real Action API."""
     import test_s6_verification_replay as rp
 
+    _seal_once()
     act, win = M["action"], M["windows"]
     spec = M["runs"]["baseline"]
     base_run, _ = rp._draft(store, spec, M)
