@@ -138,6 +138,7 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
 
 #: CH6b1-R Q2 (R14): mini Sites are judged on `window_day`, every other Site on the requested window (PERIOD).
 WINDOW_BASIS_DAY, WINDOW_BASIS_PERIOD = "DAY", "PERIOD"
+PROTECT_CATEGORY = cold.PROTECT
 _MISS = object()   # CH6b1-R3: "no windows were read for this Site" (the board reads its own)
 
 
@@ -383,6 +384,11 @@ class SiteOutcomeBoardService:
             lambda p, a, b: composer(p, site_code=site.site_code, lo=a, hi=b, site_timezone=site.timezone))
         if event is None:
             lo, hi = r_lo, r_hi
+        elif event[1] - event[0] < hi - lo:   # CH6b1-R5: a longer window names the event's own date and time
+            lead = comp.facts.headline.get(PROTECT_CATEGORY)
+            if lead is not None:
+                dated = cold.dated_lead(lead, event, mini.site_zone(site.timezone))
+                comp = replace(comp, facts=replace(comp.facts, headline={**comp.facts.headline, PROTECT_CATEGORY: dated}))
         return comp, {"from": lo, "to": hi, "known_at": cutoff}
 
     @staticmethod

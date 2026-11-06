@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from assetops_backend.chain import refs
@@ -81,8 +81,11 @@ CC6_FAILED = "automatic start failed"
 CC6_STARTED = "started by itself"
 CC6_NONE = "no backup start in this window"
 
+#: CH6b1-R5: the cold/EV lead gains the event's Site-local date and time range when the requested window is longer.
+EVENT_DATED = "{lead} · {date} {start}–{end}"
+
 #: Every fixed viewer string, for the vocabulary scan.
-COPY = (CC1_ABOVE.format(high="8"), CC1_HELD, CC6_FAILED, CC6_STARTED, CC6_NONE, NO_REPEAT, NO_REPAIR_COST,
+COPY = (EVENT_DATED.format(lead="Chamber above 8°C for 5 min", date="26 Oct", start="16:00", end="17:05"), CC1_ABOVE.format(high="8"), CC1_HELD, CC6_FAILED, CC6_STARTED, CC6_NONE, NO_REPEAT, NO_REPAIR_COST,
         NO_COOLING_METER, COST_SUBLINE,
         COST_SUBLINE_FAULT.format(fault="automatic start failure"),
         PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
@@ -273,6 +276,17 @@ def _excursion_headline(f: FindingFact | None, claims: dict, high: Any) -> str |
     longest = (e_hi - s_lo).total_seconds() / 60
     span = (f"{num(shortest)}" if num(shortest) == num(longest) else f"{num(shortest)}–{num(longest)}")
     return f"Chamber above {num(high)}°C for {span} min"
+
+
+def dated_lead(lead: str | None, event: tuple[datetime, datetime], tz: Any) -> str | None:
+    """CH6b1-R5: `lead` with the event window as Site-local "26 Oct 16:00–17:05" (UTC with the suffix when the Site
+    zone is unavailable). Copy only; the days line stays the requested window's."""
+    if lead is None:
+        return None
+    zone = tz if tz is not None else timezone.utc
+    start, end = (t.astimezone(zone) for t in event)
+    text = EVENT_DATED.format(lead=lead, date=day_month(start), start=start.strftime("%H:%M"), end=end.strftime("%H:%M"))
+    return text if tz is not None else text + UTC_SUFFIX
 
 
 def cold_readings(body: dict, ok: bool, findings_ok: bool, excursion_open: bool, high: Any) -> dict[str, Reading]:
