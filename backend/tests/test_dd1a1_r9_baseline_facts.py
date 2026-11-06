@@ -97,6 +97,23 @@ def test_a_new_interval_inside_the_window_is_moved() -> None:
     assert _state(_service(base, current))["moved"]
 
 
+def test_an_interval_with_an_unreadable_time_counts_as_inside_the_window() -> None:
+    """Review Low 1: an unparseable start fails closed (moved), even when its readable segment is outside."""
+    base = _revisions()
+    current = copy.deepcopy(base) + [_interval("k-bad", "not-a-time", "2026-11-04T21:30:00Z")]
+    current[-1]["result"]["segments"][0]["start"] = "2026-11-04T21:00:00Z"
+    assert _state(_service(base, current))["moved"]
+
+
+def test_a_conflicting_duplicate_outside_the_window_is_moved() -> None:
+    """Review Low 2: two different copies of one interval outside the window make the recomputed target
+    INCONCLUSIVE, so the re-selection is not facts-equal."""
+    base = _revisions()
+    current = copy.deepcopy(base) + [_interval("k-out-copy", "2026-11-04T20:00:00Z", "2026-11-04T21:30:00Z")]
+    state = _state(_service(base, current))
+    assert state["moved"] and "reselected" not in state
+
+
 def test_without_the_port_or_window_a_new_run_fails_closed_as_moved() -> None:
     base = _revisions()
     assert _state(_service(base, copy.deepcopy(base), with_port=False))["moved"]

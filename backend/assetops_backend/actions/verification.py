@@ -123,7 +123,9 @@ def _baseline_facts(revisions: list[dict[str, Any]] | None, lo: datetime, hi: da
 
     def meets(start: Any, end: Any) -> bool:
         s, e = rules._parse_time(start), rules._parse_time(end)
-        return s is not None and (e is None or e > lo) and s < hi
+        if s is None:  # an unreadable time may sit in the window: it counts (fails closed, review Low 1)
+            return True
+        return (e is None or e > lo) and s < hi
 
     out = []
     for r in revisions:
@@ -137,6 +139,17 @@ def _baseline_facts(revisions: list[dict[str, Any]] | None, lo: datetime, hi: da
         out.append({"assessment_key": r["assessment_key"], "claim_level": r.get("claim_level"),
                     "result": _wire(result)})
     return sorted(out, key=lambda f: f["assessment_key"])
+
+
+def _baseline_target(revisions: list[dict[str, Any]] | None, lo: datetime) -> tuple[Any, Any] | None:
+    """DD1a1-R9 (review Low 2): the target the verification recomputes from one run's INTERVAL assessments, as its
+    state and Candidate seconds (revision ids are not facts). A conflict anywhere in the run, even outside the
+    window, makes the target INCONCLUSIVE, so a re-selection is facts-equal only when this is equal too."""
+    if revisions is None:
+        return None
+    target = rules.target_window(lo, [{"assessment_revision_id": str(r.get("id")), "result": r.get("result") or {}}
+                                      for r in revisions if r.get("scope") == "INTERVAL"])
+    return target["state"], target["candidate_seconds"]
 
 
 def _bindings(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -536,12 +549,15 @@ class VerificationService:
                                    (" (deferred)" if status.get("s4_match_deferred") else ""))
                 if status["s3_status"] == CURRENT and pin.get("run_id") is not None \
                         and status["run_id"] != str(pin["run_id"]):
-                    facts = None
+                    facts = targets = None
                     if facts_window is not None and ports.run_assessments is not None:
                         lo, hi = facts_window
-                        facts = [_baseline_facts(ports.run_assessments(tenant_id, site_id, UUID(str(run))), lo, hi)
-                                 for run in (pin["run_id"], status["run_id"])]
-                    if facts is not None and facts[0] is not None and facts[0] == facts[1]:
+                        runs = [ports.run_assessments(tenant_id, site_id, UUID(str(run)))
+                                for run in (pin["run_id"], status["run_id"])]
+                        facts = [_baseline_facts(r, lo, hi) for r in runs]
+                        targets = [_baseline_target(r, lo) for r in runs]
+                    if facts is not None and facts[0] is not None and facts[0] == facts[1] \
+                            and targets[0] is not None and targets[0] == targets[1]:
                         reselected.append({"pinned_run_id": str(pin["run_id"]), "current_run_id": status["run_id"],
                                            "facts": "equal", "assessments": len(facts[0])})
                     else:
