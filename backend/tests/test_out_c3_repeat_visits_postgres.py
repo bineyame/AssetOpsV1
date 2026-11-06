@@ -93,10 +93,11 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
                          "summary_seconds": seconds, "categories": sbody["categories"]})
         assert site["window_basis"] == "PERIOD", site
         assert (site["window"]["from"], site["window"]["to"]) == (sbody["window"]["from"], sbody["window"]["to"])
-        assert site_cost["state"] == "NEEDS_ATTENTION" and site_cost["lead_outcome"]["key"] == "CC-3", site_cost
-        assert [w["kind"] for w in site_warnings].count(REPEATED) == 1, site_warnings
-        counts = {x["category"]: x["warning_count"] for x in sbody["categories"]}
-        assert counts["OPTIMIZE_COST"] >= 1
+        # KD-4: the W5-01 cold evidence is a 65-minute window; the Site board over the whole day or week finds no cold
+        # overview or Findings (it reads UNKNOWN there as well), and the summary no longer substitutes the latest
+        # event window (CH6b1-R Q2 deleted it). The Site is therefore Unknown with no repeat warning on these windows.
+        assert site_cost["lead_outcome"]["key"] == "CC-3" and site_cost["state"] == "UNKNOWN", site_cost
+        assert [w["kind"] for w in site_warnings].count(REPEATED) == 0, site_warnings
         assert site["overview_href"] == "/sites/COLD-LAB-001", site["overview_href"]
         assert money_hits(sbody["warnings"]) == []
     assert windows == [], windows   # the OUT-W window choice is deleted: the summary reads no selected window
