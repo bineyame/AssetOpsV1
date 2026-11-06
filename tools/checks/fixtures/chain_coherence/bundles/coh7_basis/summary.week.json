@@ -1,6 +1,7 @@
 {
  "sites": [
   {
+   "domain": "cold_chain",
    "overview_href": "/sites/COLD-LAB-001",
    "rows": [
     {
@@ -30,7 +31,7 @@
     "from": "2026-10-25T00:00:00Z",
     "to": "2026-11-01T00:00:00Z"
    },
-   "window_basis": "LATEST_EVENT"
+   "window_basis": "PERIOD"
   }
  ],
  "warnings": [],

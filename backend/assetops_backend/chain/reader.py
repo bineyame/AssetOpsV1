@@ -118,6 +118,11 @@ class SnapshotReader:
     ) -> list[SnapshotRow]:
         return self._store.read_latest(tenant_id, [site_id], from_day, to_day, measures, known_at)
 
+    def latest_many(self, tenant_id: UUID, site_ids: Sequence[UUID], from_day: date, to_day: date,
+                    measures: Sequence[str] | None = None, known_at: datetime | None = None) -> list[SnapshotRow]:
+        """CH6b1-R Q3: `latest` for several Sites in ONE statement (the store's own `site_id = ANY(...)`)."""
+        return self._store.read_latest(tenant_id, list(site_ids), from_day, to_day, measures, known_at)
+
     def grade_counts(
         self,
         tenant_id: UUID,

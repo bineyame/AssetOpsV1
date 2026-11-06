@@ -327,6 +327,31 @@ class ChainRequest:
                         readiness_of(rows, ready, measures), day_gaps(rows, days, measures),
                         read_scope.freeze(values), tuple(rows))
 
+    def seed_days(self, specs: Sequence[tuple[UUID, str, Sequence[date]]]) -> int | None:
+        """CH6b1-R Q3: ONE snapshot read for every `(site_id, site_type, days)` of `specs`, over the union day range
+        and every measure, seeding `day`'s memo for each spec's exact key with that Site's rows of its own measures
+        and days (the store orders by Site, measure, day, subject, so a filtered slice equals the per-Site read).
+        Returns the number of keys placed; None when the port has no `snapshots_many` (each `day` reads per Site)."""
+        many = getattr(self.reader.ports, "snapshots_many", None)
+        if many is None:
+            return None
+        keys = []
+        for site_id, site_type, days in specs:
+            days = tuple(sorted(days))
+            keys.append((site_id, days[0], days[-1], tuple(m.key for m in measures_for(site_type))))
+        keys = [k for k in keys if not read_scope.memoised("chain.day", (self.tenant_id, *k, self.k))]
+        if not keys:
+            return 0
+        site_ids = tuple(sorted({k[0] for k in keys}, key=str))
+        measures = tuple(sorted({m for k in keys for m in k[3]}))
+        rows = read_scope.memo("chain.day_many", many, self.tenant_id, site_ids, min(k[1] for k in keys),
+                               max(k[2] for k in keys), measures, self.k)   # ledgered: the one statement
+        placed = 0
+        for site_id, lo, hi, ms in keys:
+            mine = tuple(r for r in rows if r.site_id == site_id and r.measure in ms and lo <= r.local_day <= hi)
+            placed += read_scope.seed("chain.day", (self.tenant_id, site_id, lo, hi, ms, self.k), mine)
+        return placed
+
     def findings(self, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                  hi: datetime) -> tuple[FindingHead, ...]:
         return tuple(read_scope.memo("chain.findings", self.reader.ports.finding_heads, self.tenant_id, site_id,

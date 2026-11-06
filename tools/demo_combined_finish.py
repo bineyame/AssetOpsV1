@@ -413,7 +413,7 @@ def co6(ctx: Ctx) -> dict:
     assert double_count_violations(body, financials=None) == []
     assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
-    assert basis.get(COLD) == basis.get(EV) == "LATEST_EVENT", basis
+    assert basis.get(COLD) == basis.get(EV) == "PERIOD", basis  # CH6b1-R Q2: the requested window
     # the gap days, from the data: Kobo days in the week with no run (so no available selection)
     ran = {d["day"] for d in ctx.site_days("kobo") if d["kind"] != "missing"}
     week = [(ctx.day(n)).date().isoformat() for n in range(-6, 1)]
@@ -455,9 +455,9 @@ def co6b(ctx: Ctx) -> dict:
     assert kobo is not None and kobo["state"] == "CURRENT", _cov(kobo)
     assert (kobo.get("days") or {}).get("gaps") == [], kobo.get("days")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
-    assert basis.get(COLD) == "LATEST_EVENT", basis
+    assert basis.get(COLD) == "PERIOD", basis  # CH6b1-R Q2: PERIOD over the requested window
     ev_on_s = any(d["day"] == ctx.S.date().isoformat() and d["kind"] != "missing" for d in ctx.site_days("ev"))
-    assert basis.get(EV) == ("LATEST_EVENT" if ev_on_s else "PERIOD"), (basis, ev_on_s)
+    assert basis.get(EV) == "PERIOD", (basis, ev_on_s)
     ev_cells = {r["category"]: r["state"] for r in by_code[EV]["rows"]}
     ev_portfolio = {x["key"]: x["state"] for o in body["objectives"] if o["site_code"] == EV for x in o["cells"]}
     return {"status": body["status"], "kobo_coverage": _cov(kobo), "window_basis": basis, "ev_event_on_S": ev_on_s,

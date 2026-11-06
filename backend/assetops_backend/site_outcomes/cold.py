@@ -26,7 +26,7 @@ from assetops_backend.site_outcomes.board import (
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
-from assetops_backend.site_outcomes.domain_nodes import domain_nodes
+from assetops_backend.site_outcomes.domain_nodes import domain_nodes, node_inputs
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
@@ -203,7 +203,9 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                     subline={**subline, COST: _cost_subline(repeat)})
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
-                       {"from": lo, "to": hi}, site_timezone if tz is not None else None)
+                       {"from": lo, "to": hi}, site_timezone if tz is not None else None,
+                       node_inputs=node_inputs(COLD, c, site_timezone if tz is not None else None, lo, hi, chain_rows,
+                                               objectives, readings, warnings))
 
 
 def domain_action(r: dict[str, Any], c: str) -> ActionFact:

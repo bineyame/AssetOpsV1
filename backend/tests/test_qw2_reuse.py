@@ -1,8 +1,7 @@
 """QW-2 (design proposal §14b): reuse inside one request. No database.
 
-The outcome summary's batched estate reads give a response equal to the per-Site reads, serve every Site's estate port
-on an exact argument match (zero single-Site calls), and fall back to the per-Site reads when a batch fails or the
-estate has no batched methods."""
+CH6b1-R Q2/Q3: the OUT-W window choice (and with it the QW-2 estate window batch) is deleted, so the outcome summary
+reads no estate rows at all; a batched or failing estate gives the same response as a per-Site one."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -108,25 +107,22 @@ def test_summary_equal_with_and_without_batching_and_every_port_served(monkeypat
     # sides), never the estate, so no readiness batch; the estate serves only the cold/EV windows (CH-5a2b R1: the
     # mini Finding and Action rows come from the ChainReader).
     assert seen == expected_seen and [n for n, _ in seen] == ["readiness_of", "readiness_of"]
-    assert plain.single == 3  # 3 windows (ODD too), one Site at a time
-    assert many.single == 1 and many.snapshots == 1 and many.batches == 1  # only ODD, which has no board
+    # CH6b1-R Q2/Q3: the OUT-W window choice and its QW-2 estate batch are deleted; the summary reads no estate
+    # windows (cold/EV are PERIOD), and the one batched read is the chain snapshot read (`test_ch6b_estate_chain`).
+    assert plain.single == 0 and many.single == 0 and many.snapshots == 0 and many.batches == 0
     cold = next(s for s in got["sites"] if s["site_code"] == "COLD-LAB-001")
-    assert cold["window_basis"] == read.WINDOW_BASIS_EVENT  # the batched window choice was used
+    assert cold["window_basis"] == read.WINDOW_BASIS_PERIOD
 
 
-def test_failed_batch_falls_back_to_the_per_site_reads(monkeypatch, caplog) -> None:
+def test_failed_estate_never_reaches_the_summary(monkeypatch, caplog) -> None:
     sites = [KOBO, COLD, EV]
     expected = SiteOutcomeBoardService(BoardServices(estate=SingleEstate())).summary(sites, LO, HI)
     failing = ManyEstate(fail=True)
     got = SiteOutcomeBoardService(BoardServices(estate=failing)).summary(sites, LO, HI)
-    assert got == expected and failing.single == 2  # 2 windows (cold, EV); CH-5a2b R1: no mini work rows
-    assert "fell back to per-Site reads (RuntimeError)" in caplog.text
+    assert got == expected and failing.single == 0 and failing.batches == 0
 
 
-def test_prefetch_is_request_local_and_cleared_after_the_summary() -> None:
-    many = ManyEstate()
-    SiteOutcomeBoardService(BoardServices(estate=many)).summary([KOBO, COLD], LO, HI)
-    assert read._PREFETCH.get() is None and many.snapshots == 1
+def test_a_board_reads_no_estate_rows() -> None:
     leftover = SingleEstate()
     SiteOutcomeBoardService(BoardServices(estate=leftover)).board(COLD, lo=LO, hi=HI)
     assert leftover.single == 0  # CH-5a2b R1: a board reads no estate rows; only the summary's window choice does

@@ -250,6 +250,12 @@ NODE_TEXT = {
     "days_line.no_data_one": "No readings on {day}",
     # CH-6 R7 (design A3; MD-CH6-3: no mock place, it sits in the row subline).
     "row.target_note": "{k} of {m} outcomes have a target",
+    # OWN-1104 R10 (replaced), CH6b1-R Q5: the Portfolio Grow income total and its per-Site lines (mock v70
+    # `pfGrowParts`; MOCK DEVIATION candidates listed in the CH-6b1 packet).
+    "income.total": "Estimated income from checked days: {total}",
+    "income.at_least": "At least {total} estimated income, from checked days",
+    "income.site": "{site}: {text}",
+    "income.site_not_known": "{site}: not known yet",
 }
 #: §A4: the earnings labels whose money is an estimate at a declared price (MA-1 M3 suffix).
 INCOME_LABELS = ("estimated_income", "estimated_charging_income")
@@ -356,6 +362,61 @@ def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: 
     if label in INCOME_LABELS:
         text += node_text("money.income_suffix")
     return Claim(key, value, basis, d, text)
+
+
+ESTATE_INCOME_KEY = "money.estate_income"
+
+
+def estate_income(per_site: Sequence[tuple[str, Mapping[str, Any]]]) -> dict[str, Any]:
+    """OWN-1104 R10 (replaced) with CH6b1-R Q5: the Portfolio income total over `(Site name, income claim JSON)` of
+    every Site with an income record, in Portfolio order (a Site with none is not passed, so not named).
+
+    - A contributor is a Site whose claim has an `amount`; its value is rounded to the minor unit by `money2` (the
+      line's formatter) and the total is the sum of those rounded values, so the lines add up to the total (Q5b).
+    - One currency only; otherwise value null and `money.currency_mixed`, still with the per-Site lines.
+    - "At least ..." when any contributor is not COMPLETE or any named Site is NOT_KNOWN (Q5a); else the COMPLETE
+      form; both end with `money.income_suffix`. No contributor: "Not known yet".
+    - Lines: "{Site}: {amount} over {k} of {m} days checked[ · {p} partly checked]"; "{Site}: not known yet".
+    - `days` = `sum_days` of the contributors' days (EV non-operating days are not expected, so not in `m`)."""
+    lines: list[str] = []
+    amounts: list[Decimal] = []
+    currencies: set[str | None] = set()
+    days: list[Any] = []
+    partial_form = False
+    for site, claim in per_site:
+        value = claim.get("value") or {}
+        if value.get("amount") is None:
+            lines.append(node_text("income.site_not_known", site=site))
+            partial_form = True
+            continue
+        d = _days_of(claim.get("days"))
+        cur = value.get("currency")
+        amount = money_text(value["amount"], None, cur)
+        if d is None:
+            text = amount
+        elif d["partial"]:
+            text = node_text("money.days_partial", amount=amount, k=d["complete"], m=d["expected"], p=d["partial"])
+        else:
+            text = node_text("money.days", amount=amount, k=d["complete"], m=d["expected"])
+        lines.append(node_text("income.site", site=site, text=text))
+        amounts.append(Decimal(money2(value["amount"])))
+        currencies.add(cur)
+        days.append(d)
+        partial_form = partial_form or claim.get("basis") != COMPLETE_BASIS
+    summed = None if not days or any(d is None for d in days) else sum_days(days)
+    out: dict[str, Any] = {"key": ESTATE_INCOME_KEY, "value": None, "basis": NOT_KNOWN_BASIS, "days": summed,
+                           "text": NOT_KNOWN_TEXT, "lines": lines}
+    if not amounts:
+        return out
+    if len(currencies) != 1:
+        return {**out, "text": node_text("money.currency_mixed")}
+    (cur,) = currencies
+    total = sum(amounts, Decimal(0))
+    shown = money_text(total, None, cur)
+    form = "income.at_least" if partial_form else "income.total"
+    return {**out, "value": {"amount": money2(total), "currency": cur},
+            "basis": CHECKED_DAYS_BASIS if partial_form else COMPLETE_BASIS,
+            "text": node_text(form, total=shown) + node_text("money.income_suffix")}
 
 
 def potential_claim(driver: str, value: Mapping[str, Any] | None, days: Any, lines: Sequence[str]) -> Claim:

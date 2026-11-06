@@ -171,6 +171,11 @@ class PostgresChainRead:
                   known_at: datetime | None) -> tuple[Any, ...]:
         return tuple(self._snapshots.latest(tenant_id, site_id, lo, hi, list(measures), known_at))
 
+    def snapshots_many(self, tenant_id: UUID, site_ids: Sequence[UUID], lo: date, hi: date,
+                       measures: Sequence[str], known_at: datetime | None) -> tuple[Any, ...]:
+        """CH6b1-R Q3: every Site's rows in one statement (ordered by Site, measure, day, subject)."""
+        return tuple(self._snapshots.latest_many(tenant_id, list(site_ids), lo, hi, list(measures), known_at))
+
     def finding_heads(self, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                       hi: datetime, known_at: datetime | None) -> tuple[FindingHead, ...]:
         params = {"t": tenant_id, "s": site_id, "domain": domain, "analytic": analytic_id, "lo": lo, "hi": hi,

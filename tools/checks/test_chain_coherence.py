@@ -36,7 +36,7 @@ FAILING = {
     "coh4_missing_finding": ("COH-4", COLD, "week", F1),
     "coh5_lens": ("COH-5", COLD, DC, f"{F1}:COST"),
     "coh6_opportunity_denied": ("COH-6", KOBO, "week", "portfolio:opportunity"),
-    "coh7_basis": ("COH-7a", None, "week", "window_basis"),
+    "coh7_basis": ("COH-7a", COLD, "week", "window_basis"),
     "coh8_verified": ("COH-8", COLD, "week", A1),
     "coh9_counts": ("COH-9a", KOBO, "week", "00000000-0000-0000-0000-00000000c0b0"),
     "coh10_thread_occurrence": ("COH-10", KOBO, "week", "f3000000-0000-0000-0000-000000000003"),
@@ -640,6 +640,7 @@ def _summary_variant(tmp_path: Path, site_code: str, domain: str, window: dict) 
     for s in body["sites"]:
         if s["site_code"] == site_code:
             s["domain"], s["window"] = domain, window
+            s["window_basis"] = "DAY" if domain == "mini_grid" else "PERIOD"  # CH6b1-R Q2: the domain's basis
     path.write_text(json.dumps(body), encoding="utf-8")
     return cc.Bundle(dst)
 
@@ -663,6 +664,26 @@ def test_coh7a_mini_summary_card_is_its_site_local_summary_day(tmp_path: Path, s
     report = cc.check(_summary_variant(tmp_path, site, domain, window))
     hits = [k for k in keys(report) if k[0] == "COH-7a"]
     assert hits == ([("COH-7a", site, "week", "window")] if fails else []), report["findings"]
+
+
+@pytest.mark.parametrize("site,domain,window,basis,fails", [
+    (KOBO, "mini_grid", KOBO_CARD_DAY, "DAY", False),
+    (KOBO, "mini_grid", KOBO_CARD_DAY, "PERIOD", True),
+    (COLD, "cold_chain", WEEK, "PERIOD", False),
+    (COLD, "cold_chain", WEEK, "LATEST_EVENT", True),   # CH6b1-R Q2: the deleted basis is a finding
+    (COLD, "cold_chain", WEEK, "DAY", True),
+])
+def test_coh7a_basis_is_the_domains(tmp_path: Path, site, domain, window, basis, fails) -> None:
+    """CH6b1-R Q2: mini DAY, every other Site PERIOD; two bases in one summary are not a finding."""
+    _summary_variant(tmp_path, site, domain, window)
+    path = tmp_path / "bundle" / "summary.week.json"
+    body = json.loads(path.read_text(encoding="utf-8"))
+    for s in body["sites"]:
+        if s["site_code"] == site:
+            s["window_basis"] = basis
+    path.write_text(json.dumps(body), encoding="utf-8")
+    hits = [k for k in keys(cc.check(cc.Bundle(path.parent))) if k[0] == "COH-7a"]
+    assert hits == ([("COH-7a", site, "week", "window_basis")] if fails else []), hits
 
 
 # ---- MD-0: in-process collect without demo work documents (R8), `check --threads` (R9), the mechanism files ----

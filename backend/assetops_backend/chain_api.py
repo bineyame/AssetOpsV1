@@ -46,7 +46,8 @@ from assetops_backend.finding_api import Access, development_access
 from assetops_backend.outcome_api import (DISCLOSURE_REFUSAL, _instant, _refuse, board_site, board_window,
                                           estate_sites, site_ref)
 from assetops_backend.outcomes.catalogue import COLD, EV, MINI
-from assetops_backend.site_outcomes.read import POLICY_VERSIONS, SiteOutcomeBoardService, SiteRef, wire
+from assetops_backend.site_outcomes.read import (
+    POLICY_VERSIONS, SiteOutcomeBoardService, SiteRef, portfolio_parts, wire)
 from assetops_backend.sites.cutover import ImportedSiteRegistry
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
@@ -329,22 +330,22 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             grouped: dict[str, list[dict[str, Any]]] = {}
             for item in found or ():
                 grouped.setdefault(item["site_code"], []).append(read_scope.thaw(item))
-            by_code = {s["site_code"]: s for s in summary["sites"]}
+            # CH6b1-R Q4: the one function the summary also calls builds rows, nodes, earnings and money_total.
+            parts, money_total = portfolio_parts(summary["sites"])
             out = []
             for ref in sites:
                 counts = counted.days.get(ref.site_code)
-                entry = by_code.get(ref.site_code) or {}
+                part = parts.get(ref.site_code) or {"rows": {}, "earnings": None}
                 out.append({"code": ref.site_code, "domain": _site_type(ref),
                             "days": None if counts is None else counts.to_json(),  # None: the read failed, never 0
-                            "rows": {r["category"]: {"state": r["state"], "state_label": r["state_label"]}
-                                     for r in entry.get("rows", ())},
+                            "rows": part["rows"], "earnings": part["earnings"],
                             "threads": counted.threads.get(ref.site_code),
                             "opportunities": None if found is None else grouped.get(ref.site_code, [])})
             return {ESTATE_CHAIN_ROUTE: jsonable_encoder({
                 "schema_version": site_chain.SCHEMA_VERSION,
                 "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
                 "sites": out, "counts": counted.claims_json(),
-                "money_total": None, "policy_versions": _versions(policy_versions)})}
+                "money_total": money_total, "policy_versions": _versions(policy_versions)})}
 
         return estate_served(ESTATE_CHAIN_ROUTE, request, items, {}, compose)
 

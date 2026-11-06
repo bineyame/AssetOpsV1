@@ -220,6 +220,9 @@ class MiniComposition:
     timezone: str | None                           # the Site zone used for local dates, None = UTC fallback
     #: B-Q27: per category, the Portfolio card's short value ("{low}–{high} kW unused"); mini Grow only.
     short_values: dict[str, str] = field(default_factory=dict)
+    #: CH6b1-R Q1: the `NodeInputs` the composer evaluated its nodes with; the estate summary re-evaluates them over
+    #: the Portfolio window's days (`window_days`). None: the composer evaluated none.
+    node_inputs: Any = None
 
 
 class Reads:
@@ -525,7 +528,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
                                        for o in i["outcomes"]))
     node_keys = [o.key for o in SITE_OUTCOMES if o.domain == MINI]
-    nodes = site_nodes(replace(node_in, warnings=tuple(warnings)), node_keys)
+    node_in = replace(node_in, warnings=tuple(warnings))
+    nodes = site_nodes(node_in, node_keys)
     grow_earn = next(((nodes.get(k) or {}).get("earnings") for k in node_keys
                       if (nodes.get(k) or {}).get("earnings") is not None), None)
     if sales.get("kwh") is not None:  # CH6a3-R2 H3 ONE-SOURCE: the earnings claim states the sales figures
@@ -542,7 +546,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     diagnostics = unresolved_links(facts) + tuple((aid, ACTION_ROW_MISSING) for aid in missing_rows)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
                            {"from": start, "to": end}, zone_name if tz is not None else None,
-                           {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {})
+                           {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {},
+                           node_in)
 
 
 def renewable_bounds(start: datetime, tz_name: str | None) -> tuple[datetime, datetime]:

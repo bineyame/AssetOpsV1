@@ -619,12 +619,17 @@ def coh7_summary_basis(bundle: Bundle) -> list[dict]:
             continue
         files = bundle.files(f"summary.{w}")
         sites = summary.get("sites") or []
-        bases = sorted({str(s.get("window_basis")) for s in sites})
-        if len(bases) > 1:
-            out.append(finding("COH-7a", None, w, "window_basis",
-                               f"summary Sites use more than one window basis: {bases}", files))
         requested = bundle.windows[w]
         for s in sites:
+            # CH6b1-R Q2: the per-domain basis (mini DAY on `window_day`, every other Site PERIOD on the requested
+            # window); two bases in one summary are correct by design. A failed Site (None basis) or a card with no
+            # domain has no per-domain rule to judge.
+            basis, domain = s.get("window_basis"), s.get("domain")
+            expected = "DAY" if domain == "mini_grid" else "PERIOD"
+            if basis is not None and domain is not None and basis != expected:
+                out.append(finding("COH-7a", s.get("site_code"), w, "window_basis",
+                                   f"summary Site window basis {basis} is not the {expected} basis of its domain",
+                                   files))
             sw = s.get("window") or {}
             want = _coh7a_window(s, requested)  # CH5a1-R2: a mini Site's card is one Site-local day
             if (sw.get("from"), sw.get("to")) != want:

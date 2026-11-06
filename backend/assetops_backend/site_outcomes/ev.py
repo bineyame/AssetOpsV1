@@ -28,7 +28,7 @@ from assetops_backend.chain import refs
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action, finding_window_link
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
-from assetops_backend.site_outcomes.domain_nodes import domain_nodes
+from assetops_backend.site_outcomes.domain_nodes import domain_nodes, node_inputs
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
@@ -279,7 +279,9 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     facts = replace(facts, warnings=warnings, nodes=nodes, ev_priced=priced)
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
-                       {"from": lo, "to": hi}, site_timezone if tz is not None else None)
+                       {"from": lo, "to": hi}, site_timezone if tz is not None else None,
+                       node_inputs=node_inputs(EV, c, site_timezone if tz is not None else None, lo, hi, chain_rows,
+                                               facts.objectives, readings, warnings, ev_price))
 
 
 def _finding(r: dict[str, Any], c: str) -> FindingFact:

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timezone
 from typing import Any, Callable
@@ -25,10 +24,13 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend import perf
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day
+from assetops_backend.chain.outcomes import site_nodes
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day, window_days
 from assetops_backend.chain.read import board_day as local_board_day
+from assetops_backend.chain.vocabulary import INCOME_LABELS, estate_income
 from assetops_backend.outcomes.catalogue import (
-    CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
+    CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI,
+    SITE_OUTCOMES)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
 from assetops_backend.outcomes.outcome_map import POLICY_VERSION
 from assetops_backend.outcomes.status import NEEDS_ATTENTION, STATE_LABEL, STATE_TONE, STATUS_POLICY, UNKNOWN
@@ -40,20 +42,6 @@ SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
 LOG = logging.getLogger(__name__)
 
-#: QW-2: the outcome summary's batched estate reads for this request, keyed on the exact single-Site arguments. A
-#: port takes (and removes) its entry only on an exact key match; anything else reads live, as before.
-_PREFETCH: ContextVar[dict[tuple, Any] | None] = ContextVar("site_outcomes_prefetch", default=None)
-_MISS = object()
-
-
-def _prefetched(key: tuple) -> Any:
-    pre = _PREFETCH.get()
-    if pre is None:
-        return _MISS
-    hit = pre.pop(key, _MISS)
-    if hit is not _MISS:
-        perf.record("summary.prefetch_hit", 0.0)
-    return hit
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
                    "warnings": WARNINGS_POLICY, "objectives": OBJECTIVES_POLICY,
                    "finding_index": FINDING_INDEX_POLICY}
@@ -148,24 +136,10 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
         raise PortUnavailable(f"{name} closed: {reason}")
 
 
-WINDOW_BASIS_DAY, WINDOW_BASIS_EVENT, WINDOW_BASIS_PERIOD = "DAY", "LATEST_EVENT", "PERIOD"
-
-
-def latest_window(windows: list[dict[str, Any]] | None) -> tuple[datetime, datetime] | None:
-    """OUT-W: the Site's latest assessed event inside the period. Selected windows that overlap one another are one
-    event; the event with the latest end wins; inside it the most recently selected window (selected_at, seq,
-    selection_id) is the answer. Selection recency never crosses separate events. None for None/[]."""
-    if not windows:
-        return None
-    events: list[list[dict[str, Any]]] = []  # overlapping windows chain into one event (touching ends are separate)
-    for w in sorted(windows, key=lambda w: (w["window_start"], w["window_end"])):
-        if events and w["window_start"] < max(x["window_end"] for x in events[-1]):
-            events[-1].append(w)
-        else:
-            events.append([w])
-    event = max(events, key=lambda e: (max(x["window_end"] for x in e), min(x["window_start"] for x in e)))
-    best = max(event, key=lambda w: (w["selected_at"], w["seq"], str(w["selection_id"])))
-    return best["window_start"], best["window_end"]
+#: CH6b1-R Q2 (R14): mini Sites are judged on `window_day`, every other Site on the requested window (PERIOD).
+WINDOW_BASIS_DAY, WINDOW_BASIS_PERIOD = "DAY", "PERIOD"
+#: CH6b1-R Q4: the earnings claim keys that are Portfolio income (`INCOME_LABELS`).
+INCOME_KEYS = tuple(f"money.{label}" for label in INCOME_LABELS)
 
 
 class SiteOutcomeBoardService:
@@ -401,7 +375,10 @@ class SiteOutcomeBoardService:
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
-              pin: tuple[UUID, UUID | None] | None = None) -> dict[str, Any]:
+              pin: tuple[UUID, UUID | None] | None = None,
+              node_days: tuple[date, ...] | None = None) -> dict[str, Any]:
+        """The board body. `node_days` (the estate summary only, CH6b1-R Q1) adds `_window`: the rows' nodes and the
+        Site's income earnings re-evaluated over those Site-local days; the board route never passes it."""
         comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
         # CH-3 §5: the thread state is read on the board's Site-local day as of the request's cutoff, else the
         # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
@@ -426,6 +403,7 @@ class SiteOutcomeBoardService:
             comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
                 site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions],
                 day=board_day, known_at=cutoff, visible_at=known_at, **extra)))  # R-1: request bounds visibility
+        extra_body = {} if node_days is None else {"_window": self._window_parts(site, comp, node_days, known_at)}
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:
             query["known_at"] = wire(known_at)
@@ -449,85 +427,97 @@ class SiteOutcomeBoardService:
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
             # WALK1-1 (WN-1): stripped by the route like `_short_values`; the estate Assure card's verified count.
             "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED"),
+            **extra_body,
         }
 
-    # ------------------------------------------------------------------ estate summary
+    def _window_parts(self, site: SiteRef, comp: Any, node_days: tuple[date, ...],
+                      known_at: datetime | None) -> dict[str, Any]:
+        """CH6b1-R Q1/Q4: the composer's `NodeInputs` re-evaluated over `node_days` (`window_days`, the frame of the
+        Site's `days`), with the snapshot rows of those days (the memoised `claim_days` read) merged into the
+        composer's rows (same statement shape and cutoff, so one row per key). Returns `{"nodes": {category: row
+        nodes}, "earnings": {label: claim}}`: the rows' nodes by `assemble` (lead and server fills as the board),
+        and every outcome's income earnings claim that comes from a record (server fills are never earnings)."""
+        inp = getattr(comp, "node_inputs", None)
+        if inp is None or not node_days:
+            return {"nodes": {}, "earnings": {}}
+        extra: tuple[Any, ...] = ()
+        if self.s.chain_reader is not None:   # no reader: the composer's rows only (its own read failed the same)
+            req = self.s.chain_reader.request(site.tenant_id, known_at)
+            extra = req.day(site.site_id, SITE_TYPE_OF_DOMAIN[site.domain], node_days).rows
+        rows = {(r.measure, r.local_day, getattr(r, "subject_kind", None), r.subject_ref): r
+                for r in (*inp.rows, *extra)}
+        nodes = site_nodes(replace(inp, window=(node_days[0], node_days[-1]), rows=tuple(rows.values())),
+                           [o.key for o in SITE_OUTCOMES if o.domain == site.domain])
+        facts = replace(comp.facts, nodes=nodes, day=node_days[-1], one_day=len(node_days) == 1)
+        earnings = {}
+        for per in nodes.values():
+            claim = (per or {}).get("earnings")
+            if claim is not None and claim["key"] in INCOME_KEYS:
+                earnings.setdefault(claim["key"].removeprefix("money."), claim)
+        return {"nodes": {r["category"]: r.get("nodes") for r in jsonable_encoder(assemble(facts))},
+                "earnings": earnings}
 
-    def _event_window(self, site: SiteRef, lo: datetime, hi: datetime,
-                      known_at: datetime | None) -> tuple[datetime, datetime] | None:
-        """OUT-W: the latest selected window of a cold or EV Site inside `[lo, hi)`, by the Evidence root's rule.
-        Any failure (unconfigured estate, refusal, store error) is None: the window choice never fails a Site."""
-        try:
-            windows = _prefetched(("windows", site.tenant_id, site.site_code, lo, hi, known_at))  # QW-2
-            if windows is _MISS:
-                windows = _need(self.s.estate, "estate").site_selected_windows(
-                    site.tenant_id, site.site_code, lo, hi, known_at)
-            return latest_window(windows)
-        except PortUnavailable:  # no estate configured: the period, silently
-            return None
-        except Exception as error:  # noqa: BLE001 - the period, which reads Unknown where nothing covers it
-            # W2 review L1: the Site code and the exception type only, never the message
-            LOG.warning("outcome summary: window choice for %s fell back to the period (%s)", site.site_code,
-                        type(error).__name__)
-            return None
+    # ------------------------------------------------------------------ estate summary
 
     def summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
                 known_at: datetime | None = None) -> dict[str, Any]:
         """`GET /api/estate/outcome-summary` (§B.1): one board per authorized Site, serially (B-Q8), in the
-        Portfolio Site order the caller passes. Mini reads the UTC day of `to` (B-Q7); cold and EV `from`/`to`
-        unchanged. A Site whose board read fails is UNAVAILABLE with four UNKNOWN rows."""
-        token = _PREFETCH.set(self._prefetch(sites, lo, hi, known_at))  # QW-2: one estate snapshot for all Sites
-        try:
-            return self._summary(sites, lo, hi, known_at)
-        finally:
-            _PREFETCH.reset(token)
+        Portfolio Site order the caller passes, after ONE snapshot read for every Site (`seed_snapshots`). Mini
+        reads `window_day` (DAY); cold and EV the requested window (PERIOD, CH6b1-R Q2). Each Site's row nodes and
+        income earnings are over its `window_days` (Q1). A Site whose board read fails is UNAVAILABLE with four
+        UNKNOWN rows."""
+        self.seed_snapshots(sites, lo, hi, known_at)
+        return self._summary(sites, lo, hi, known_at)
 
-    def _prefetch(self, sites: list[SiteRef], lo: datetime, hi: datetime,
-                  known_at: datetime | None) -> dict[tuple, Any]:
-        """QW-2: the summary's per-Site estate reads (the cold/EV window choice, every Site's readiness, the mini
-        Finding and Action rows) as `*_many` batches on ONE estate snapshot, keyed on the exact arguments each
-        single-Site port would pass. Any failure, or an estate without the batched methods, is {} and every port
-        reads live as before (its own failure handling and log lines unchanged)."""
-        estate = self.s.estate
+    def snapshot_specs(self, sites: list[SiteRef], lo: datetime,
+                       hi: datetime) -> list[tuple[UUID, str, tuple[date, ...]]]:
+        """CH6b1-R Q3: the exact `ChainRequest.day` keys the summary's Sites read: each composer's range (mini: the
+        work window ending on `window_day`; cold/EV: `local_days(lo, hi)`) and `window_days` (`claim_days` and the
+        Portfolio nodes)."""
+        specs = []
+        for site in sites:
+            if site.domain not in (MINI, COLD, EV):
+                continue
+            kind, tz = SITE_TYPE_OF_DOMAIN[site.domain], site.timezone
+            if site.domain == MINI:
+                _, end = local_board_day(window_day(lo, hi, tz), tz)
+                specs.append((site.site_id, kind, local_days(end - mini.WORK_WINDOW, end, tz)))
+            else:
+                specs.append((site.site_id, kind, local_days(lo, hi, tz)))
+            specs.append((site.site_id, kind, window_days(lo, hi, tz)))
+        return specs
+
+    def seed_snapshots(self, sites: list[SiteRef], lo: datetime, hi: datetime,
+                       known_at: datetime | None) -> int | None:
+        """CH6b1-R Q3: one `read_latest` for all Sites, seeding the read scope's `chain.day` memo. A fallback (no
+        reader, more than one tenant, a port without the batch, or a failure) is counted (`summary.seed_fallback`)
+        and logged, never silent; every Site then reads its own range as before."""
         tenants = {site.tenant_id for site in sites}
-        if not sites or len(tenants) != 1 or not all(hasattr(estate, name) for name in (
-                "read_snapshot", "site_selected_windows_many")):
-            return {}
-        (t,) = tenants
-        # CH-5a1 R5: no readiness prefetch (readiness is `readiness_of` over the chain snapshots); CH-5a2b R1: no
-        # mini Finding/Action row prefetch (the board reads them from the ChainReader).
-        others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
-        if not others:
-            return {}
-
-        def work(snap: Any) -> dict[tuple, Any]:
-            pre: dict[tuple, Any] = {}
-            lap = perf.Laps("summary.prefetch")
-            wins = estate.site_selected_windows_many(t, others, lo, hi, known_at, snap=snap) if others else {}
-            for code in others:
-                pre[("windows", t, code, lo, hi, known_at)] = wins[code]
-            lap("windows")
-            return pre
-
+        specs = self.snapshot_specs(sites, lo, hi)
+        if not specs:
+            return 0
+        placed: int | None = None
         try:
-            with perf.timed("summary.prefetch"):
-                return estate.read_snapshot(work)
-        except Exception as error:  # noqa: BLE001 - the batch is an optimization; the ports read live instead
-            LOG.warning("outcome summary: batched estate reads fell back to per-Site reads (%s)",
+            if self.s.chain_reader is not None and len(tenants) == 1:
+                with perf.timed("summary.seed_snapshots"):
+                    placed = self.s.chain_reader.request(next(iter(tenants)), known_at).seed_days(specs)
+        except Exception as error:  # noqa: BLE001 - the batch is an optimization; each Site reads its own range
+            LOG.warning("outcome summary: the one snapshot read fell back to per-Site reads (%s)",
                         type(error).__name__)
-            return {}
+            placed = None
+        if placed is None:
+            perf.record("summary.seed_fallback", 0.0)
+        return placed
 
     def summary_window(self, site: SiteRef, lo: datetime, hi: datetime,
                        known_at: datetime | None) -> tuple[str, date | None, datetime | None, datetime | None]:
         """(basis, day, lo, hi) of one Site's board inside the summary (the estate "Why?" reads the same board).
-        OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period; with none,
-        or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7)."""
+        CH6b1-R Q2 (R14): mini reads `window_day` (DAY); every other Site the requested window itself (PERIOD), so
+        a cold/EV Site with no event in the window shows its composer's none/not-known state, never an older
+        event."""
         if site.domain == MINI:
             return WINDOW_BASIS_DAY, window_day(lo, hi, site.timezone), None, None
-        with perf.timed("summary.event_window"):
-            ev_win = self._event_window(site, lo, hi, known_at)
-        b_lo, b_hi = (lo, hi) if ev_win is None else ev_win
-        return (WINDOW_BASIS_PERIOD if ev_win is None else WINDOW_BASIS_EVENT), None, b_lo, b_hi
+        return WINDOW_BASIS_PERIOD, None, lo, hi
 
     def _summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
                  known_at: datetime | None) -> dict[str, Any]:
@@ -539,10 +529,15 @@ class SiteOutcomeBoardService:
         verified, verified_read = 0, 0  # WALK1-1 (WN-1): VERIFIED Actions over the Sites whose board loaded
         for site in sites:
             basis, b_day, b_lo, b_hi = self.summary_window(site, lo, hi, known_at)
+            earnings: dict[str, Any] | None = None
             try:
                 with perf.timed(f"board.{site.site_code}"):  # QW-1: each Site's board inside the summary
-                    body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at)
-                rows = [_summary_row(r, body["_short_values"]) for r in body["rows"]]
+                    body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at,
+                                      node_days=window_days(lo, hi, site.timezone))
+                parts = body.get("_window") or {"nodes": {}, "earnings": {}}
+                earnings = parts["earnings"]
+                rows = [_summary_row(r, body["_short_values"], parts["nodes"].get(r["category"]))
+                        for r in body["rows"]]
                 read_state = body["read_state"]
                 warnings += body["warnings"]
                 window: dict[str, Any] | None = body["window"]
@@ -556,10 +551,10 @@ class SiteOutcomeBoardService:
                 rows = [_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
                 window, window_basis = None, None
-            href = _overview_href(site, window if window_basis == WINDOW_BASIS_EVENT else None, known_at)
             out.append({"site_id": str(site.site_id), "site_code": site.site_code, "site_name": site.site_name,
-                        "domain": site.domain, "overview_href": href, "read_state": read_state,
-                        "rows": rows, "window": window, "window_basis": window_basis})
+                        "domain": site.domain, "overview_href": _overview_href(site), "read_state": read_state,
+                        "rows": rows, "window": window, "window_basis": window_basis, "earnings": earnings})
+        _, money_total = portfolio_parts(out)
         categories = [{"category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
                        "icon": CATEGORY_ICON[cat],
                        "sites_needing_attention": sum(1 for x in out for r in x["rows"]
@@ -572,33 +567,49 @@ class SiteOutcomeBoardService:
                 "warnings": warnings, "objective_site_count": objective_sites if read_sites else None,
                 "objective_sites_unread": len(sites) - read_sites,
                 "verified_result_count": verified if verified_read else None,
-                "verified_sites_unread": len(sites) - verified_read}
+                "verified_sites_unread": len(sites) - verified_read, "money_total": money_total}
 
 
-def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at: datetime | None = None) -> str:
-    """The `estate/evidence_money.py` `site_home_href` rule: EV Sites open at `/sites/{code}/ev`. OUT-W: with the
-    event window the Site was judged on, the link opens the Site on it (`known_at` only when the request had one)."""
-    base = f"/sites/{site.site_code}/ev" if site.domain == EV else f"/sites/{site.site_code}"
-    if window is None:
-        return base
-    query = [("from", window["from"]), ("to", window["to"])]
-    if known_at is not None:
-        query.append(("known_at", wire(known_at)))
-    return base + "?" + urlencode(query)
+def portfolio_parts(sites: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    """CH6b1-R Q4: the ONE function that builds the Portfolio's per-Site parts and `money_total` from the summary's
+    `sites[]`; the summary and `/api/estate/chain` both call it, so they agree by construction. Per Site code:
+    `rows` = {category: {state, state_label, lead, nodes}} and `earnings` = {label: claim} (None: the board read
+    failed). `money_total` = `estate_income` over every Site with an income earnings claim, in Site order."""
+    parts: dict[str, dict[str, Any]] = {}
+    income: list[tuple[str, dict[str, Any]]] = []
+    for s in sites:
+        earnings = s.get("earnings")
+        parts[s["site_code"]] = {
+            "rows": {r["category"]: {"state": r["state"], "state_label": r["state_label"],
+                                     "lead": r.get("lead_outcome"), "nodes": r.get("nodes")}
+                     for r in s.get("rows") or ()},
+            "earnings": earnings}
+        for label in INCOME_LABELS:
+            claim = (earnings or {}).get(label)
+            if claim is not None:
+                income.append((s.get("site_name") or s["site_code"], claim))
+    return parts, estate_income(income)
 
 
-def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str, Any]:
+def _overview_href(site: SiteRef) -> str:
+    """The `estate/evidence_money.py` `site_home_href` rule: EV Sites open at `/sites/{code}/ev`. CH6b1-R Q2: every
+    Site is judged on the requested window (or its `window_day`), so the link is the base Site link."""
+    return f"/sites/{site.site_code}/ev" if site.domain == EV else f"/sites/{site.site_code}"
+
+
+def _summary_row(row: dict[str, Any], short_values: dict[str, str],
+                 nodes: dict[str, Any] | None = None) -> dict[str, Any]:
     lead = row.get("lead_outcome") or {}
     short = (short_values.get(row["category"]) if lead.get("key") == GROW_LEAD
              and (row["state"] == OPPORTUNITY or row.get("potential")) else None)
     return {"category": row["category"], "state": row["state"], "state_label": row["state_label"],
             "tone": row["tone"], "lead_outcome": row.get("lead_outcome"), "headline": row.get("headline"),
-            "short_value": short, "headline_money": row.get("headline_money")}
+            "short_value": short, "headline_money": row.get("headline_money"), "nodes": nodes}
 
 
 def _unknown_row(category: str) -> dict[str, Any]:
     return {"category": category, "state": UNKNOWN, "state_label": STATE_LABEL[UNKNOWN], "tone": STATE_TONE[UNKNOWN],
-            "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None}
+            "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None, "nodes": None}
 
 
 def board_cutoff(domain: str | None, known_at: datetime | None, resolved: Any) -> datetime | None:
