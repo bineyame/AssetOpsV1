@@ -28,14 +28,16 @@ def main(mode: str, work: Path) -> None:
 
     url = pg_harness.fresh_database()
     doc = sd.load(sd.V2_FILE)
-    doc["sites"] = {"kobo": doc["sites"]["kobo"]}
+    cold = mode in ("cold", "cold-without")
+    site = "cold" if cold else "kobo"
+    doc["sites"] = {site: doc["sites"][site]}
     if mode == "stream":  # DD1a1-R8 probe: the isolated late day S-3d and the S-1d/S/S+1d stream, with complements
         doc["sites"]["kobo"] = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
     if mode in ("mill", "mill-without"):  # DD-1a1 mill day: the prepare-only `mill-midday` placed at S-5d beside the stream
         keep = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
         doc["sites"]["kobo"] = [{"day": "S-5d", "kind": "mill-midday"}] + keep
-    if mode in ("without", "mill-without"):
-        for spec in doc["kinds"]["kobo"].values():
+    if mode in ("without", "mill-without", "cold-without"):
+        for spec in doc["kinds"][site].values():
             spec.pop("complement", None)
     work.mkdir(parents=True, exist_ok=True)
     (work / "db.txt").write_text(url, encoding="utf-8")
@@ -44,11 +46,15 @@ def main(mode: str, work: Path) -> None:
     story = dc.resolve_story(db_now, days_doc=doc)
     days = story.pop("days")
     (work / "days.json").write_text(json.dumps({"S": story["S"], "days": days, "doc": doc}, indent=2), encoding="utf-8")
-    story["code"], story["sites"] = "probe", ["kobo"]
+    story["code"], story["sites"] = "probe", [site]
     (work / "story.json").write_text(json.dumps(story, indent=2), encoding="utf-8")
     began = time.monotonic()
-    dk.build(url, work, story)
-    print("build wall s", round(time.monotonic() - began, 1), "runs", len([d for d in days if d["site"] == "kobo" and d["received_at"]]))
+    if cold:
+        import demo_combined_cold as dcc
+        dcc.build(url, work, story)
+    else:
+        dk.build(url, work, story)
+    print("build wall s", round(time.monotonic() - began, 1), "runs", len([d for d in days if d["site"] == site and d["received_at"]]))
 
 
 if __name__ == "__main__":
