@@ -1,7 +1,7 @@
 """DD-1a1 L2 probe (own `*_test` DB, no prepare): build the Kobo side of the demo story on the v2 day list, with or
 without the steady complement runs, so the two builds can be compared (DD1a1-R3 Q1 checks, DD1a1-R Q6).
 
-    python tools/dd1a1_fullday_probe.py <with|without> <work-dir>      (ASSETOPS_TEST_DATABASE_URL names the DB)
+    python tools/dd1a1_fullday_probe.py <with|without|stream> <work-dir>      (ASSETOPS_TEST_DATABASE_URL names the DB)
 
 `without` removes every Kobo `complement` from the v2 kinds, which is the story-days-only calendar. Writes
 `<work>/kobo.json` (the build record) and `<work>/probe.json` (counts and the compared figures)."""
@@ -29,6 +29,8 @@ def main(mode: str, work: Path) -> None:
     url = pg_harness.fresh_database()
     doc = sd.load(sd.V2_FILE)
     doc["sites"] = {"kobo": doc["sites"]["kobo"]}
+    if mode == "stream":  # DD1a1-R8 probe: the isolated late day S-3d and the S-1d/S/S+1d stream, with complements
+        doc["sites"]["kobo"] = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
     if mode == "without":
         for spec in doc["kinds"]["kobo"].values():
             spec.pop("complement", None)
