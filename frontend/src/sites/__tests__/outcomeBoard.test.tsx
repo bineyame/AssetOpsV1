@@ -384,7 +384,7 @@ describe("CH-6a3 Grow parts", () => {
       growRead({
         kpi: claim("verdict.MG-1", "On track", "3 of 3 days checked"),
         potential: claim("potential.value", "18-24.25 kW of daytime solar unused\nat about 0.12 per kWh", null),
-        earnings: claim("money.estimated_income", "Not known yet", "1 of 1 days checked", "NOT_KNOWN"),
+        earnings: claim("money.estimated_income", "Not known yet", "1 of 1 day checked", "NOT_KNOWN"),
       }),
     );
     const parts = Array.from(rowEl("GROW_REVENUE").querySelectorAll("[data-outcome-part]"));
@@ -395,8 +395,22 @@ describe("CH-6a3 Grow parts", () => {
       "at about 0.12 per kWh",
     ]);
     const days = parts.map((p) => p.querySelector(".ob-days")?.textContent ?? null);
-    expect(days).toEqual(["3 of 3 days checked", null, "1 of 1 days checked"]); // potential never borrows a neighbour's line
+    expect(days).toEqual(["3 of 3 days checked", null, "1 of 1 day checked"]); // potential never borrows a neighbour's line
     expect(rowEl("GROW_REVENUE").querySelectorAll(".ob-days")).toHaveLength(2); // no row-level line
+  });
+
+  it("growPartsAreFirstInObBodyAndThereIsNoGrowChip (CH6b2-R2 M2)", async () => {
+    await renderBoard(
+      growRead({
+        kpi: noTarget,
+        potential: claim("potential.none", "No potential found yet", null, "NOT_KNOWN"),
+        earnings: claim("money.not_known", "Not known yet", null, "NOT_KNOWN"),
+      }),
+    );
+    const g = rowEl("GROW_REVENUE");
+    const body = g.querySelector(".ob-body") as HTMLElement;
+    expect(body.firstElementChild?.querySelectorAll("[data-outcome-part]")).toHaveLength(3);
+    expect(g.querySelectorAll("summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
   });
 
   it("alwaysShowsTheTargetPartWithNoTargetAndItsDaysLine", async () => {

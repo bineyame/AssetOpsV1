@@ -57,6 +57,16 @@ def value_line(status: str | None, headroom: Mapping[str, Any] | None, window_ho
     return VALUE_LINE_ONE.format(lo=lo, h=h) if lo == hi else VALUE_LINE.format(lo=lo, hi=hi, h=h)
 
 
+#: CH-9 (CH9-R3 Q2), MOCK DEVIATION candidate: v69 shows "kW at midday"; the headroom is over measured daylight hours.
+HEADROOM_UNIT = "kW over {h}"
+HEADROOM_UNIT_NONE = "kW over daylight hours"
+
+
+def headroom_unit(window_hours: int | None) -> str:
+    """CH6b2-R Q7c: the Portfolio opportunity unit (the browser's `opportunityHeadroomUnit` before CH-6b2)."""
+    return HEADROOM_UNIT.format(h=daylight_hours_text(int(window_hours))) if window_hours else HEADROOM_UNIT_NONE
+
+
 def daylight_hours_text(n: int) -> str:
     """"1 daylight hour", "12 daylight hours"."""
     return f"{n} daylight hour" if n == 1 else f"{n} daylight hours"
@@ -85,7 +95,13 @@ COUNT_TEXT = {
                                "None confirmed on the days checked"),
     "count.opportunities": ("{n} opportunity", "{n} opportunities", "{n} found on the days checked",
                             "None found on the days checked"),
+    # CH6b2-R Q2: Sites with a primary Protect thread OPEN, RECURRED or ACTION_IN_HAND (`chain/claims.py`); the
+    # §B2 forms. MOCK DEVIATION MD-CH6-4: the CHECKED_DAYS forms have no mock example.
+    "count.sites_disrupted": ("{n} site disrupted", "{n} sites disrupted", "{n} found on the days checked",
+                              "None found on the days checked"),
 }
+#: CH6b2-R Q2: the COMPLETE zero form of a count, where it differs from "{n} ..." (the §B2 "No sites disrupted").
+COUNT_ZERO = {"count.sites_disrupted": "No sites disrupted"}
 #: B7 / R2: the source classes whose verified result is worded "on example data".
 EXAMPLE_SOURCES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
 
@@ -151,7 +167,7 @@ def count_claim(key: str, value: int | None, days: Any) -> Claim:
     if basis == NOT_KNOWN_BASIS:
         text = NOT_KNOWN_TEXT
     elif basis == COMPLETE_BASIS:
-        text = (one if value == 1 else many).format(n=value)
+        text = COUNT_ZERO[key] if value == 0 and key in COUNT_ZERO else (one if value == 1 else many).format(n=value)
     else:
         text = checked.format(n=value) if value else none
     return Claim(key, value, basis, d, text)
@@ -192,6 +208,11 @@ WHY_TEXT = {
     "why.estate.say": "{category} at {n} site{s}",
     "why.estate.from": "{site}: {say}",
     "why.estate.days": "{site}: {days}",
+    # CH6b2-R Q2(b): the Protect card's "Why?" names each counted Site and its thread (mock `pf:protect` `from`).
+    "why.from.disrupted": "{site}: {title}",
+    # MOCK DEVIATION (CH6b2-R Q2b): a thread whose Finding has no board title is named by its state and first day.
+    "why.from.disrupted_untitled": "{site}: {state}, since {first}",
+    "why.from.warnings_apart": "Early warnings are counted separately and not priced",
 }
 #: CH5b2-R Q5: one plain label per measure (each a MOCK DEVIATION: MA-1 writes free sentences).
 MEASURE_LABEL = {
@@ -274,7 +295,9 @@ INCOME_LABELS = ("estimated_income", "estimated_charging_income")
 
 
 def node_text(key: str, **fields: Any) -> str:
-    return NODE_TEXT[key].format(**fields)
+    """One §A4 template. CH6b2-R Q7a: "{k} of 1 days checked" reads "{k} of 1 day checked" (`m == 1`)."""
+    text = NODE_TEXT[key].format(**fields)
+    return text.replace(" of 1 days checked", " of 1 day checked") if fields.get("m") == 1 else text
 
 
 def money2(value: Any) -> str:
@@ -333,8 +356,7 @@ def days_line(days: Any, day: date | None = None, span: Any = None, window: Any 
         return node_text("days_line.no_data_one", day=day_text(day))
     line = node_text("days_line.many", k=d["complete"], m=d["expected"])
     if span is not None and window is not None and tuple(span) != tuple(window):
-        line = f"{span_text(*span)} · " + (line.replace("1 days checked", "1 day checked")
-                                            if span[0] == span[1] else line)
+        line = f"{span_text(*span)} · " + line
     if d["partial"]:
         line += node_text("days_line.partial", p=d["partial"])
     if d["low"]:
@@ -452,3 +474,100 @@ def potential_lines(low: Any, high: Any, money: Mapping[str, Any] | None) -> lis
         lines.append(node_text("potential.money", lo=money2(money["low"]), hi=money2(money["high"]),
                                cur=money.get("currency")))
     return lines
+
+
+# ---- CH-6b2 Portfolio cards (build sheet CH-6 §B2, CH6b2-R) ------------------------------------------------------
+# The texts that were the browser's card rules (`F/estate/PortfolioOutcomes.tsx` before CH-6b2), moved unchanged
+# unless marked; `site_outcomes/read.py` `portfolio_cards` and `estate/portfolio.py` `card_notes` render them.
+
+CARD_TEXT = {
+    # Grow (CH6b2-R Q4/Q5). The value small words; "possible" is the potential fallback, never "estimated".
+    "grow.small.estimated": "estimated",
+    "grow.small.possible": "possible",
+    "grow.at_least": "At least {amount}",
+    "grow.basis.income": "Declared price × measured kWh · not billed or collected",
+    "grow.basis.none": "Opportunities · revenue not measured yet",
+    # MOCK DEVIATION MD-CH6-6: per-Site targets when any Site declares one (the mock shows only the none form).
+    "grow.target.none": "No target set yet at any site",
+    "grow.site": "{site}: {text}",
+    "grow.potential.none": "No potential found yet",
+    # Protect (§B2: today's detail, from the server; CH6b2-R Q2).
+    "protect.detail.none": "Service disruptions recorded as findings · loss not priced",
+    "protect.detail": "Service disruptions recorded as findings · {w} early {warnings}, counted separately · "
+                      "loss not priced",
+    "protect.basis": "Measured events, counted separately · loss not priced",
+    "protect.small.checked": "on the days checked",
+    # Assure (§B2: today's `assureDetailText` words; the verified lead is the value now).
+    "assure.basis": "Completed work does not establish savings",
+    "assure.zero": "No verified result yet",
+    "assure.targets_none": "no targets declared",
+    "assure.targets": "targets declared at {sites}, for any outcome{unchecked}",
+    "assure.unchecked": ", {sites} not checked",
+    # The Portfolio-body clauses (`card_notes`, CH6b2-R Q1), today's `checkedDaysClause` / `evidenceGapText`.
+    "note.checked_one": "{checked} of {requested} days checked at {site}",
+    "note.checked_many": "days not checked yet at {n} sites",
+    "note.withheld_one": " · findings next to unchecked days not shown yet",
+    "note.withheld_many": " · findings next to those days not shown yet",
+    "note.gap.unknown": "evidence gaps not assessed",
+    "note.gap.zero": "no evidence gaps",
+    "note.gap.zero_checked": "no evidence gaps on the days checked",
+    "note.gap.one": "evidence gap at 1 site",
+    "note.gap.all": "evidence gaps at all {sites} sites",
+    "note.gap.some": "evidence gaps at {gaps} of {sites} sites",
+    "note.gap.many": "evidence gaps at {gaps} sites",
+    "days.site": "{site}: {line}",
+}
+
+
+def card_text(key: str, **fields: Any) -> str:
+    return CARD_TEXT[key].format(**fields)
+
+
+def sites_text(n: int) -> str:
+    """"1 site", "3 sites" (the browser's `sites(n)` before CH-6b2)."""
+    return f"{n} site" if n == 1 else f"{n} sites"
+
+
+def evidence_gap_text(gaps: int | None, sites: int, checked_days: bool = False) -> str:
+    """Rulings A-Q9 / A-Q10, moved from `evidenceGapText`: the evidence-gap clause of the Assure card."""
+    if gaps is None:
+        return card_text("note.gap.unknown")
+    if gaps == 0:
+        return card_text("note.gap.zero_checked" if checked_days else "note.gap.zero")
+    if gaps == 1:
+        return card_text("note.gap.one")
+    if gaps == sites:
+        return card_text("note.gap.all", sites=sites)
+    if gaps < sites:
+        return card_text("note.gap.some", gaps=gaps, sites=sites)
+    return card_text("note.gap.many", gaps=gaps)
+
+
+def checked_days_clause(checked_days: Sequence[Mapping[str, Any]] | None, on_checked_days: bool) -> str | None:
+    """WALK1-1 (WN-2, R670), moved from `checkedDaysClause`: how much of a partly checked estate was checked; None
+    unless the counts are on checked days."""
+    days = list(checked_days or ())
+    if not on_checked_days or not days:
+        return None
+    withheld = any(d.get("withheld") is True for d in days)
+    if len(days) == 1:
+        d = days[0]
+        base = card_text("note.checked_one", checked=d["checked"], requested=d["requested"], site=d["site_name"])
+        return base + card_text("note.withheld_one") if withheld else base
+    base = card_text("note.checked_many", n=len(days))
+    return base + card_text("note.withheld_many") if withheld else base
+
+
+def count_card_value(claim: Mapping[str, Any], zero: str | None = None) -> dict[str, Any]:
+    """CH6b2-R Q1: a count claim as the card's `{text, small}` (mock `2 <small>sites disrupted</small>`): the number
+    and the claim's words after it; CHECKED_DAYS zero as "None found" + "on the days checked" (today's form)."""
+    text, value, basis = claim["text"], claim.get("value"), claim["basis"]
+    if basis == NOT_KNOWN_BASIS or value is None:
+        return {"text": text, "small": None}
+    if value == 0:
+        if basis == COMPLETE_BASIS:
+            return {"text": zero or text, "small": None}
+        small = card_text("protect.small.checked")
+        return {"text": text.removesuffix(" " + small), "small": small}
+    head, _, rest = text.partition(" ")
+    return {"text": head, "small": rest or None}

@@ -362,7 +362,7 @@ def test_ev_unpriced_and_declared_limit() -> None:
     # CH6a3-R2 H3 ONE-SOURCE: unpriced, the stored row has no money, so the earnings claim is NOT_KNOWN: no subline,
     # and the charging line states no live kWh beside it
     assert rows[GROW]["subline"] is None
-    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · 1 of 1 days checked"  # UTC: one day
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · 1 of 1 day checked"  # UTC: one day
     assert contributor(rows[GROW], "charging_tariff")["text"] == "Not available yet"  # cause not known here
     assert rows[COST]["not_measured_text"] == (
         "Energy cost per km needs odometer readings and a published charging tariff")

@@ -13,6 +13,7 @@ import type {
   EstateCheckedDays,
   EstateClient,
   EstateOutcomeSummaryBody,
+  EstatePortfolioCard,
   EstatePortfolioQuery,
   EstatePortfolioScopeIdsBody,
   EstatePortfolioStatus,
@@ -37,6 +38,8 @@ import {
   SITES,
   outcomeSummaryBody,
   partialBody,
+  serverCard,
+  serverCards,
   STATUS_BODIES,
   withOutcomeSummary,
 } from "./portfolioFixtures";
@@ -93,8 +96,9 @@ describe("estate Portfolio page", () => {
     expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
     expect(cards[1].querySelector("[data-portfolio-card-link]")?.tagName).toBe("A");
     expect(cards[1].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
-    // R6 / A.4: no category counts on this body, so Protect reads `Not assessed` and links to the risk root.
-    expect(text(cards[2].querySelector("[data-portfolio-card-value]"))).toBe("Not assessed");
+    // CH-6b2: with no outcome summary read there is no server card, so Protect reads `Not known yet` (never a
+    // browser-built value) and still links to the risk root.
+    expect(text(cards[2].querySelector("[data-portfolio-card-value]"))).toBe("Not known yet");
     expect(cards[2].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/risks\?/);
     expect(cards[0].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
     expect(cards[3].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/evidence\?/);
@@ -133,7 +137,7 @@ describe("estate Portfolio page", () => {
     const first = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
     expect(text(first.querySelector("[data-portfolio-card-value]"))).toBe("Unpriced");
     expect(text(first)).toContain("GreenHarvest · consequence recorded without a price");
-    expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not assessed");
+    expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not known yet");
     expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
     // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
     const bottom = panel("Where management should act first").querySelector(".panel-bottom") as HTMLElement;
@@ -258,8 +262,11 @@ describe("estate Portfolio page", () => {
     expect(client.summaryCalls).toEqual([{ from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z", known_at: "2026-10-07T00:00:00Z" }]);
   });
 
-  it("outcomeCardDotsMatchTheMatrixAndGrowTakesTheShortValue", async () => {
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
+  it("outcomeCardDotsMatchTheMatrixAndGrowRendersTheServerHeadline", async () => {
+    const growCards = serverCards({
+      GROW_REVENUE: serverCard({ value: { text: "18–20 kW", small: "unused" }, tone: "green", basis_text: "Opportunities · revenue not measured yet" }),
+    });
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ cards: growCards }) }));
     await settledScreen();
     const matrix = screen.getByRole("table", { name: "Outcomes across the estate" });
     for (const cat of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
@@ -274,22 +281,25 @@ describe("estate Portfolio page", () => {
     }
     const kobo = document.querySelector("[data-portfolio-card-dots='OPTIMIZE_COST'] > span") as HTMLElement;
     expect(kobo.getAttribute("title")).toBe("Kobo: Needs attention");
+    // CH-6b2: the Grow value is the server card's text and small, joined only as markup; the tone is the server's.
     const grow = document.querySelector("[data-portfolio-card='GROW_REVENUE']") as HTMLElement;
     expect(text(grow.querySelector("[data-portfolio-card-value]"))).toBe("18–20 kW unused");
+    expect(grow.querySelector("[data-portfolio-card-value] small")?.textContent).toBe("unused");
     expect(grow.className).toContain("green");
     expect(grow.querySelector("[data-missing-claim], .missing-claim")).toBeNull();
   });
 
-  it("growKeepsTheMissingClaimWithoutAShortValueAndTheMatrixStatesUnavailable", async () => {
-    const noShort = outcomeSummaryBody();
-    noShort.sites = noShort.sites.map((site) => ({ ...site, rows: site.rows.map((r) => ({ ...r, short_value: null })) }));
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: noShort }));
+  it("growKeepsTheMissingClaimWhenTheServerCardIsMissingAndTheMatrixStatesUnavailable", async () => {
+    // The default server Grow card is `missing`: the kept gap G-portfolio-grow-revenue renders, neutral.
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
     await settledScreen();
     const grow = document.querySelector("[data-portfolio-card='GROW_REVENUE']") as HTMLElement;
     expect(text(grow.querySelector("[data-portfolio-card-value]"))).toBe("Not available yet");
     expect(grow.className).toContain("neutral");
+    expect(grow.querySelector("[data-portfolio-grow-parts]")).toBeNull();
     cleanup();
-    // A refused summary and a client without the read both show the panel's alert; the cards keep empty dots.
+    // A refused summary and a client without the read both show the panel's alert; the cards keep empty dots and
+    // say `Not known yet` (no server card, so no browser-built value).
     for (const client of [
       withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable.") as never),
       portfolioClient(loadedPortfolio(portfolioBody())),
@@ -300,7 +310,10 @@ describe("estate Portfolio page", () => {
       expect(within(outcomes).getByRole("alert").textContent).toBe("Outcome status is not available right now");
       expect(outcomes.querySelector("[role='table']")).toBeNull();
       expect(document.querySelectorAll("[data-portfolio-dot]")).toHaveLength(0);
-      expect(text(document.querySelector("[data-portfolio-card='GROW_REVENUE'] [data-portfolio-card-value]"))).toBe("Not available yet");
+      for (const key of ["GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
+        expect(text(document.querySelector(`[data-portfolio-card='${key}'] [data-portfolio-card-value]`))).toBe("Not known yet");
+        expect(document.querySelector(`[data-portfolio-card='${key}'] [data-portfolio-card-detail]`)).toBeNull();
+      }
       cleanup();
     }
   });
@@ -416,7 +429,7 @@ describe("estate Portfolio page", () => {
     const sized = opportunityItem({
       thread_id: "77777777-0000-4000-8000-000000000002",
       title: "Daytime solar unused at Kobo North",
-      study: { ...first.study, status: "SUPPORTED", headroom_kw: { low: "18", high: "20" } },
+      study: { ...first.study, status: "SUPPORTED", headroom_kw: { low: "18", high: "20" }, headroom_unit: "kW over 1 daylight hour" },
     });
     const found = (items: ReturnType<typeof opportunityItem>[]) =>
       portfolioBody({
@@ -440,7 +453,7 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     opportunity = panel("An opportunity beyond reducing cost");
     const quantity = opportunity.querySelector("[data-portfolio-opportunity-quantity]") as HTMLElement;
-    // CH-9 owned (CH9-R3 Q2): the unit names the server's study `window_hours`, never "at midday".
+    // CH6b2-R Q7c: the unit is the server's `study.headroom_unit`, never browser-built and never "at midday".
     expect(text(quantity)).toBe("18–20 kW over 1 daylight hourDaytime solar unused at Kobo North");
     expect(text(quantity.querySelector(".opportunity-quantity small"))).toBe("kW over 1 daylight hour");
     expect(text(quantity)).not.toContain("midday");
@@ -451,9 +464,9 @@ describe("estate Portfolio page", () => {
       "1 more under Findings › Opportunities →",
     ]);
     expect(links[2].getAttribute("href")).toMatch(/^\/findings\/opportunities\?from=/);
-    // Without a server hour count the one guarded constant names the unit.
+    // Whatever unit the server sends is what renders (the server's own fallback wording).
     cleanup();
-    const unhoured = { ...sized, study: { ...sized.study, window_hours: null } };
+    const unhoured = { ...sized, study: { ...sized.study, window_hours: null, headroom_unit: "kW over daylight hours" } };
     renderAt(ENTRY, portfolioClient(loadedPortfolio(found([unhoured]))));
     await settledScreen();
     opportunity = panel("An opportunity beyond reducing cost");
@@ -1052,22 +1065,9 @@ describe("CC-R2-Q1 placement and confidence words", () => {
 describe("OUT-A A6: Portfolio outcome category cards", () => {
   const card = (key: string) => document.querySelector(`[data-portfolio-card='${key}']`) as HTMLElement;
   const value = (key: string) => text(card(key).querySelector("[data-portfolio-card-value]"));
-  const counts = (n: number | null) => ({
-    GROW_REVENUE: { open_findings: null, sites_with_primary_finding: null },
-    OPTIMIZE_COST: { open_findings: null, sites_with_primary_finding: null },
-    PROTECT_ASSET: { open_findings: n, sites_with_primary_finding: n },
-    ASSURE_PERFORMANCE: { open_findings: null, sites_with_primary_finding: null },
-  });
-  const withSummary = (patch: Partial<ReturnType<typeof portfolioBody>["summary"]>, scopeSites?: number) => {
-    const base = portfolioBody();
-    return portfolioBody({
-      summary: { ...base.summary, ...patch },
-      ...(scopeSites === undefined ? {} : { scope: { ...base.scope, authorized_site_count: scopeSites } }),
-    });
-  };
 
   it("fourCardsInOrderWithIconNameDefinitionAndExactCopy", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ category_counts: counts(2) }))));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
     await settledScreen();
     const cards = Array.from(document.querySelectorAll("[data-portfolio-cards] [data-portfolio-card]"));
     expect(cards).toHaveLength(4);
@@ -1094,7 +1094,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-detail]"))).toBe("Service disruptions recorded as findings · loss not priced");
     expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-basis]"))).toBe("Measured events, counted separately · loss not priced");
     expect(card("PROTECT_ASSET").className).toContain("red");
-    // Assure: the fixture has 1 evidence gap among 4 Sites; no outcome summary is read, so no target claim (OUT-D).
+    // Assure: the server card's words, rendered verbatim.
     expect(value("ASSURE_PERFORMANCE")).toBe("Not known yet");
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
       "Verified results not known yet · evidence gap at 1 site",
@@ -1120,22 +1120,20 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expectV69Panels("portfolio");
   });
 
-  it("protectValueForTwoOneZeroAndNullAndAbsentCounts", async () => {
-    const cases: [ReturnType<typeof counts> | undefined, string, string][] = [
-      [counts(2), "2 sites disrupted", "red"],
-      [counts(1), "1 site disrupted", "red"],
-      [counts(0), "No sites disrupted", "neutral"],
-      [counts(null), "Not assessed", "neutral"],
-      [undefined, "Not assessed", "neutral"],
+  it("protectRendersTheServerValueSmallAndToneForEveryCount", async () => {
+    const cases: [EstatePortfolioCard["value"], string, string, string | null][] = [
+      [{ text: "2", small: "sites disrupted" }, "2 sites disrupted", "red", "sites disrupted"],
+      [{ text: "1", small: "site disrupted" }, "1 site disrupted", "red", "site disrupted"],
+      [{ text: "No sites disrupted", small: null }, "No sites disrupted", "neutral", null],
+      [{ text: "Not assessed", small: null }, "Not assessed", "neutral", null],
     ];
-    for (const [category_counts, expected, tone] of cases) {
-      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ category_counts }))));
+    for (const [v, expected, tone, small] of cases) {
+      const answer = { status: "loaded" as const, value: outcomeSummaryBody({ cards: serverCards({ PROTECT_ASSET: serverCard({ value: v, tone }) }) }) };
+      const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer));
       await settledScreen();
       expect(value("PROTECT_ASSET")).toBe(expected);
       expect(card("PROTECT_ASSET").classList.contains(tone)).toBe(true);
-      if (expected.endsWith("disrupted") && !expected.startsWith("No")) {
-        expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toMatch(/^sites? disrupted$/);
-      }
+      expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent ?? null).toBe(small);
       view.unmount();
     }
   });
@@ -1169,20 +1167,19 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     );
   });
 
-  it("assureGapTextForAllSomeOneZeroAndNull", async () => {
-    const cases: [number | null, number, string][] = [
-      [3, 3, "evidence gaps at all 3 sites"],
-      [2, 4, "evidence gaps at 2 of 4 sites"],
-      [1, 4, "evidence gap at 1 site"],
-      [0, 4, "no evidence gaps"],
-      [null, 4, "evidence gaps not assessed"],
+  it("assureRendersTheServerDetailVerbatimForEveryGapShape", async () => {
+    const cases = [
+      "Verified results not known yet · evidence gaps at all 3 sites",
+      "Verified results not known yet · evidence gaps at 2 of 4 sites",
+      "Verified results not known yet · evidence gap at 1 site",
+      "Verified results not known yet · no evidence gaps",
+      "Verified results not known yet · evidence gaps not assessed",
     ];
-    for (const [gaps, sites, expected] of cases) {
-      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ evidence_gap_site_count: gaps }, sites))));
+    for (const detail of cases) {
+      const answer = { status: "loaded" as const, value: outcomeSummaryBody({ cards: serverCards({ ASSURE_PERFORMANCE: serverCard({ detail }) }) }) };
+      const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer));
       await settledScreen();
-      expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
-        `Verified results not known yet · ${expected}`,
-      );
+      expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(detail);
       view.unmount();
     }
   });
@@ -1199,35 +1196,27 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       view.unmount();
     }
   }
-  const summaryWith = (n: number | null, u: number): EstateOutcomeSummaryRead => ({
-    status: "loaded",
-    value: outcomeSummaryBody({ objective_site_count: n, objective_sites_unread: u }),
-  });
 
-  it("assureNamesDeclaredTargetsWhenEverySiteWasRead", async () => {
+
+
+
+  it("assureTargetClausesAreServerTextAndSummaryNotLoadedHasNoDetail", async () => {
+    const withDetail = (detail: string): EstateOutcomeSummaryRead => ({
+      status: "loaded",
+      value: outcomeSummaryBody({ cards: serverCards({ ASSURE_PERFORMANCE: serverCard({ detail }) }) }),
+    });
+    const same = (detail: string): [EstateOutcomeSummaryRead, string] => [withDetail(detail), detail];
     await expectAssureDetail([
-      [summaryWith(3, 0), `No verified result yet · targets declared at 3 sites, for any outcome · ${targetsGap}`],
-      [summaryWith(1, 0), `No verified result yet · targets declared at 1 site, for any outcome · ${targetsGap}`],
+      same(`No verified result yet · targets declared at 3 sites, for any outcome · ${targetsGap}`),
+      same(`No verified result yet · no targets declared · ${targetsGap}`),
+      same(`No verified result yet · targets declared at 2 sites, for any outcome, 1 site not checked · ${targetsGap}`),
+      same(`No verified result yet · ${targetsGap}`),
     ]);
-  });
-
-  it("assureSaysNoTargetsDeclaredOnlyWhenEverySiteWasReadAsNone", async () => {
-    await expectAssureDetail([[summaryWith(0, 0), `No verified result yet · no targets declared · ${targetsGap}`]]);
-  });
-
-  it("assureNamesTheSitesNotCheckedBesideDeclaredTargets", async () => {
-    await expectAssureDetail([
-      [summaryWith(2, 1), `No verified result yet · targets declared at 2 sites, for any outcome, 1 site not checked · ${targetsGap}`],
-      [summaryWith(1, 2), `No verified result yet · targets declared at 1 site, for any outcome, 2 sites not checked · ${targetsGap}`],
-    ]);
-  });
-
-  it("assureHasNoTargetsClauseWhenSitesAreUnreadAndNoneDeclaredOrSummaryNotLoaded", async () => {
-    await expectAssureDetail([
-      [summaryWith(0, 1), `No verified result yet · ${targetsGap}`],
-      [summaryWith(null, 3), `No verified result yet · ${targetsGap}`],
-      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `Verified results not known yet · ${targetsGap}`],
-    ]);
+    // A refused summary: no server card, so no detail line at all (the browser writes none).
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }));
+    await settledScreen();
+    expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]")).toBeNull();
+    expect(value("ASSURE_PERFORMANCE")).toBe("Not known yet");
   });
 });
 
@@ -1236,8 +1225,16 @@ describe("OUT-C U5: Portfolio early warnings", () => {
   const protectDetail = () => text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-detail]"));
   const withWarnings = (warnings: OutcomeWarning[], protect = 0) => {
     const base = outcomeSummaryBody();
+    const early = `${protect} early warning${protect === 1 ? "" : "s"}`;
     return outcomeSummaryBody({
       warnings,
+      // CH-6b2: the Protect detail, with its early-warning clause, is one server line.
+      cards: serverCards({
+        PROTECT_ASSET: serverCard({
+          value: { text: "2", small: "sites disrupted" },
+          detail: `Service disruptions recorded as findings · ${early}, counted separately · loss not priced`,
+        }),
+      }),
       categories: base.categories.map((c) => (c.category === "PROTECT_ASSET" ? { ...c, warning_count: protect } : c)),
     });
   };
@@ -1284,14 +1281,15 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
-  it("summaryNotLoadedReadsUnknownAndKeepsTheProtectText", async () => {
+  it("summaryNotLoadedReadsUnknownAndTheProtectCardHasNoServerText", async () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }));
     await settledScreen();
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(pulseWarnings()).toBe("Unknown warnings not yet priced");
-    expect(protectDetail()).toBe("Service disruptions recorded as findings · loss not priced");
+    expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not known yet");
+    expect(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-detail]")).toBeNull();
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
@@ -1385,69 +1383,116 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     return describeViolations(scanProductVocabulary(grid, "portfolio", { set: "w1" }).violations);
   };
 
-  it("protectValueAndDetailsOnCheckedDaysOneSite", async () => {
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 })))));
+  const serverBody = (cards: NonNullable<EstateOutcomeSummaryBody["cards"]>, notes: Record<string, string | null> = {}, patch: Partial<Summary> = {}) => {
+    const base = portfolioBody();
+    return {
+      page: portfolioBody({ summary: { ...base.summary, ...patch, card_notes: notes } }),
+      answer: { status: "loaded" as const, value: outcomeSummaryBody({ cards: serverCards(cards) }) },
+    };
+  };
+  const renderServer = (...args: Parameters<typeof serverBody>) => {
+    const { page, answer } = serverBody(...args);
+    return renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(page)), answer));
+  };
+  const dayText = (key: string) => text(card(key).querySelector("[data-portfolio-card-days]"));
+  const noteText = (key: string) => text(card(key).querySelector("[data-portfolio-card-note]"));
+
+  it("serverTextsRenderVerbatimOnCheckedDaysOneSite", async () => {
+    const clause = "5 of 7 days checked at Kobo";
+    renderServer(
+      {
+        PROTECT_ASSET: serverCard({
+          value: { text: "None found", small: "on the days checked" },
+          detail: "Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced",
+          days_line: clause,
+        }),
+        ASSURE_PERFORMANCE: serverCard({
+          detail: "No verified result yet · no targets declared · no evidence gaps on the days checked",
+          days_line: clause,
+        }),
+      },
+      { PROTECT_ASSET: "Findings next to unchecked days are not shown yet", ASSURE_PERFORMANCE: null },
+      { count_basis: "CHECKED_DAYS", checked_days: [kobo], evidence_gap_site_count: 0 },
+    );
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("None found on the days checked");
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("on the days checked");
     expect(card("PROTECT_ASSET").className).toContain("neutral");
-    const clause = "5 of 7 days checked at Kobo";
-    expect(detail("PROTECT_ASSET")).toBe(
-      `Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced · ${clause}`,
-    );
-    expect(detail("ASSURE_PERFORMANCE")).toBe(
-      `No verified result yet · no targets declared · no evidence gaps on the days checked · ${clause}`,
-    );
-    expect(detail("OPTIMIZE_COST")).toBe(`Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20 · ${clause}`);
-    // The pulse strip: a zero count is qualified; a non-zero count is unchanged.
+    expect(dayText("PROTECT_ASSET")).toBe(clause);
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
+    // CH6b2-R Q1: the Portfolio-body clause is its own line; the detail is the server's detail, not joined with it.
+    expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
+    expect(detail("PROTECT_ASSET")).not.toContain("not shown yet");
+    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days checked");
+    expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
+    // CH6b2-R Q3: Optimize keeps its money line and carries no days line.
+    expect(detail("OPTIMIZE_COST")).toBe("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
+    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
+    // The pulse strip keeps its own (non-card) checked-days wording.
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
     expect(scanCards()).toBe("");
-    const strip = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
-    expect(describeViolations(scanProductVocabulary(strip, "portfolio", { set: "w1" }).violations)).toBe("");
   });
 
-  it("checkedDaysClauseForTwoSitesAndNonZeroCountsUnchanged", async () => {
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(2, [kobo, harbour])))));
+  it("twoSiteDaysLineAndNonZeroCountRenderServerText", async () => {
+    renderServer(
+      { PROTECT_ASSET: serverCard({ value: { text: "2", small: "sites disrupted" }, tone: "red", days_line: "Days not checked yet at 2 sites" }) },
+      {},
+      { count_basis: "CHECKED_DAYS", checked_days: [kobo, harbour] },
+    );
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("2 sites disrupted");
-    expect(detail("PROTECT_ASSET")).toMatch(/ · days not checked yet at 2 sites$/);
-    expect(detail("ASSURE_PERFORMANCE")).toBe(
-      "No verified result yet · no targets declared · evidence gap at 1 site · days not checked yet at 2 sites",
-    );
+    expect(dayText("PROTECT_ASSET")).toBe("Days not checked yet at 2 sites");
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("1 site evidence gaps");
   });
 
-  it("withheldFindingsNeverReadNoneFound", async () => {
-    const one = { ...kobo, withheld: true };
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [one], { evidence_gap_site_count: 0 })))));
+  it("withheldFindingsRenderTheServerValueAndNote", async () => {
+    renderServer(
+      { PROTECT_ASSET: serverCard({ value: { text: "None shown yet", small: null }, days_line: "5 of 7 days checked at Kobo" }) },
+      { PROTECT_ASSET: "Findings next to unchecked days are not shown yet" },
+      { count_basis: "CHECKED_DAYS", checked_days: [{ ...kobo, withheld: true }], evidence_gap_site_count: 0 },
+    );
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("None shown yet");
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
-    expect(detail("PROTECT_ASSET")).toMatch(/ · 5 of 7 days checked at Kobo · findings next to unchecked days not shown yet$/);
-    expect(detail("ASSURE_PERFORMANCE")).toContain("no evidence gaps on the days checked");
+    expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     // CH-4: the opportunity count comes from the opportunity read, not from Finding coverage.
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
     expect(scanCards()).toBe("");
   });
 
-  it("withheldClauseForTwoSites", async () => {
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo, { ...harbour, withheld: true }])))));
-    await settledScreen();
-    expect(value("PROTECT_ASSET")).toBe("None shown yet");
-    expect(detail("PROTECT_ASSET")).toMatch(/ · days not checked yet at 2 sites · findings next to those days not shown yet$/);
-  });
-
-  it("completeBasisKeepsTodaysWordsAndNoClause", async () => {
-    const complete = body({ count_basis: "COMPLETE", checked_days: [kobo], category_counts: protect(0) });
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(complete))));
+  it("completeBasisHasNoDaysLineAndNoNote", async () => {
+    renderServer({ PROTECT_ASSET: serverCard({ value: { text: "No sites disrupted", small: null } }) }, {}, { count_basis: "COMPLETE", checked_days: [kobo] });
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
-    expect(detail("PROTECT_ASSET")).not.toContain("days checked");
-    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · evidence gap at 1 site");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")).toBeNull();
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-note]")).toBeNull();
     expect(pulse()).toContain("0 opportunities");
+  });
+
+  it("notKnownBasisRendersWithoutAnyClauseAndTheServerWordsStand", async () => {
+    // CH6b2-R Q8: a body whose count_basis is NOT_KNOWN is a valid basis; the cards still render the server words.
+    renderServer(
+      { PROTECT_ASSET: serverCard({ value: { text: "Not assessed", small: null } }) },
+      {},
+      { count_basis: "NOT_KNOWN", checked_days: [] },
+    );
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("Not assessed");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days], [data-portfolio-card-note]")).toBeNull();
+    expect(document.querySelector("[data-portfolio-cards]")).not.toBeNull();
+  });
+
+  it("bodyWithoutServerCardsOrNotesRendersNoBrowserBuiltText", async () => {
+    // A body that predates `cards`/`card_notes` (or a summary that did not load): the browser writes no claim.
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ cards: undefined }) }));
+    await settledScreen();
+    for (const key of ["GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
+      expect(value(key)).toBe("Not known yet");
+      expect(card(key).querySelector("[data-portfolio-card-detail], [data-portfolio-card-days], [data-portfolio-card-note], [data-portfolio-grow-parts]")).toBeNull();
+    }
   });
 
   it("ch4_strip_counts_opportunities_from_the_opportunity_read_with_their_labels", async () => {
@@ -1486,17 +1531,19 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(other.getAttribute("title")).toContain(": Needs attention");
   });
 
-  it("assureLeadFromTheVerifiedCount", async () => {
-    const cases: [Partial<EstateOutcomeSummaryBody>, string][] = [
-      [{ verified_result_count: 0 }, "No verified result yet"],
-      [{ verified_result_count: 1 }, "1 verified result"],
-      [{ verified_result_count: 2 }, "2 verified results"],
-      [{ verified_result_count: 1, verified_sites_unread: 1 }, "1 verified result, 1 site not checked"],
-      [{ verified_result_count: null, verified_sites_unread: 4 }, "Verified results not known yet"],
-      [{ verified_result_count: undefined, verified_sites_unread: undefined }, "Verified results not known yet"],
+  it("assureLeadIsTheServerDetailVerbatim", async () => {
+    const leads = [
+      "No verified result yet",
+      "1 verified result",
+      "2 verified results",
+      "1 verified result, 1 site not checked",
+      "Verified results not known yet",
     ];
-    for (const [over, lead] of cases) {
-      const answer = { status: "loaded" as const, value: outcomeSummaryBody(over) };
+    for (const lead of leads) {
+      const answer = {
+        status: "loaded" as const,
+        value: outcomeSummaryBody({ cards: serverCards({ ASSURE_PERFORMANCE: serverCard({ detail: `${lead} · no targets declared · evidence gap at 1 site` }) }) }),
+      };
       const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer));
       await settledScreen();
       expect(detail("ASSURE_PERFORMANCE")).toBe(`${lead} · no targets declared · evidence gap at 1 site`);
@@ -1505,28 +1552,25 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     }
   });
 
-  const withGrowMoney = (amounts: Record<string, string>): EstateOutcomeSummaryBody => {
-    const summary = outcomeSummaryBody();
-    return {
-      ...summary,
-      sites: summary.sites.map((site) => ({
-        ...site,
-        rows: site.rows.map((r) =>
-          r.category === "GROW_REVENUE" && amounts[site.site_code]
-            ? { ...r, headline_money: { amount_low: amounts[site.site_code], amount_high: amounts[site.site_code], currency: "USD" } }
-            : r,
-        ),
-      })),
-    };
-  };
-  const renderGrow = (amounts: Record<string, string>) =>
-    renderAt(
-      ENTRY,
-      withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withGrowMoney(amounts) }),
-    );
+  const growParts = (over: Partial<NonNullable<EstatePortfolioCard["parts"]>> = {}) => ({
+    target: "Not declared",
+    potential: "18–20 kW unused",
+    income: "4.20 USD estimated",
+    income_note: null,
+    ...over,
+  });
+  const part = (name: string) => text(card("GROW_REVENUE").querySelector(`[data-portfolio-grow-part='${name}']`));
 
-  it("growOneSiteEstimate", async () => {
-    renderGrow({ "EV-LAB-001": "4.20" });
+  it("growOneSiteEstimateRendersTheServerHeadlineAndThreeParts", async () => {
+    renderServer({
+      GROW_REVENUE: serverCard({
+        value: { text: "4.20 USD", small: "estimated" },
+        detail: "Depot 4.20 USD · each site's latest assessed period",
+        basis_text: "Declared price × measured kWh · not billed or collected",
+        tone: "green",
+        parts: growParts({ income_note: "Not billed or collected" }),
+      }),
+    });
     await settledScreen();
     expect(value("GROW_REVENUE")).toBe("4.20 USD estimated");
     expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("estimated");
@@ -1534,26 +1578,76 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(basis("GROW_REVENUE")).toBe("Declared price × measured kWh · not billed or collected");
     expect(card("GROW_REVENUE").className).toContain("green");
     expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
+    // Mock v70 `pfGrowParts`: Target, Potential, Estimated income (+ its note), all server text.
+    const parts = card("GROW_REVENUE").querySelector("dl.oc-pfgrow") as HTMLElement;
+    expect(Array.from(parts.querySelectorAll("dt")).map((d) => d.textContent)).toEqual(["Target", "Potential", "Estimated income"]);
+    expect(part("target")).toBe("Not declared");
+    expect(part("potential")).toBe("18–20 kW unused");
+    expect(part("income")).toBe("4.20 USD estimated");
+    expect(text(parts.querySelector("dd.oc-pfnote"))).toBe("Not billed or collected");
     expect(scanCards()).toBe("");
   });
 
-  it("growTwoSitesNamesEachAndNeverAdds", async () => {
-    renderGrow({ "KOBO-001": "1.50", "EV-LAB-001": "4.20" });
+  it("growTwoSitesNamesEachAndTheBrowserNeverAdds", async () => {
+    renderServer({
+      GROW_REVENUE: serverCard({
+        value: { text: "2 sites with an estimate", small: null },
+        detail: "Kobo 1.50 USD · Depot 4.20 USD · each site's latest assessed period",
+        tone: "green",
+      }),
+    });
     await settledScreen();
     expect(value("GROW_REVENUE")).toBe("2 sites with an estimate");
     expect(detail("GROW_REVENUE")).toBe("Kobo 1.50 USD · Depot 4.20 USD · each site's latest assessed period");
     expect(text(card("GROW_REVENUE"))).not.toContain("5.70");
+    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
     expect(scanCards()).toBe("");
   });
 
-  it("growFallsBackToTheShortValueThenNotAvailable", async () => {
+  it("growCardDomStructureFollowsV70 (CH6b2-R2 M2)", async () => {
+    // Structure only: the 1440/390 captures are `not run` (owed at E5). v70 `pfGrowParts`: dl.oc-pfgrow holds Target,
+    // Potential, then Estimated income with its dd.oc-pfnote; `oc-pfdays` is the days line.
+    renderServer({
+      GROW_REVENUE: serverCard({
+        value: { text: "4.20 USD", small: "estimated" },
+        days_line: "Kobo: 7 of 7 days checked",
+        parts: growParts({ income_note: "Not billed or collected" }),
+      }),
+    });
+    await settledScreen();
+    const grow = card("GROW_REVENUE");
+    const dl = grow.querySelector("dl.oc-pfgrow") as HTMLElement;
+    expect(Array.from(dl.children).map((row) => row.querySelector("dt")?.textContent)).toEqual([
+      "Target",
+      "Potential",
+      "Estimated income",
+    ]);
+    const incomeRow = dl.children[2];
+    expect(Array.from(incomeRow.children).map((c) => c.tagName + (c.className ? "." + c.className : ""))).toEqual([
+      "DT",
+      "DD",
+      "DD.oc-pfnote",
+    ]);
+    expect(grow.querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
+    expect(grow.querySelector(".oc-chip")).toBeNull();
+  });
+
+  it("growIncomeNoteIsOmittedWhenTheServerSendsNone", async () => {
+    renderServer({ GROW_REVENUE: serverCard({ value: { text: "18–20 kW", small: "unused" }, parts: growParts() }) });
+    await settledScreen();
+    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).not.toBeNull();
+    expect(card("GROW_REVENUE").querySelector("dd.oc-pfnote")).toBeNull();
+  });
+
+  it("growMissingKeepsTheGapAndNoPartsAndNoSummaryReadsNotKnown", async () => {
     const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
     await settledScreen();
-    expect(value("GROW_REVENUE")).toBe("18–20 kW unused");
+    expect(value("GROW_REVENUE")).toBe("Not available yet");
     expect(basis("GROW_REVENUE")).toBe("Opportunities · revenue not measured yet");
+    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
     view.unmount();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
-    expect(value("GROW_REVENUE")).toBe("Not available yet");
+    expect(value("GROW_REVENUE")).toBe("Not known yet");
   });
 });

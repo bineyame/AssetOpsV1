@@ -36,8 +36,9 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend import perf, read_scope
 from assetops_backend.chain import site_chain, why
 from assetops_backend.chain.measures import measures_for
-from assetops_backend.chain.claims import estate_count_claims, opportunity_items
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day
+from assetops_backend.chain.claims import (counted_threads, disrupting, estate_count_claims,
+                                           opportunity_items)
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, local_days, window_day
 from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish, parsed_key
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, parse_request as parse_estate
@@ -57,6 +58,9 @@ THREAD_ROUTE = "/api/sites/{site_code}/threads/{thread_id}"
 SITE_WHY_ROUTE = "/api/sites/{site_code}/chain/why"
 ESTATE_WHY_ROUTE = "/api/estate/chain/why"
 CACHE_CONTROL = "private, no-cache"
+
+
+PROTECT_ASSET = "PROTECT_ASSET"
 
 
 def _versions(chain_versions: Callable[[], dict[str, str | None]]) -> dict[str, str | None]:
@@ -172,15 +176,15 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         try:
             board = service.board(ref, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
             w = board["window"]
-            w_lo, w_hi, cutoff = _utc(w["from"]), _utc(w["to"]), _utc(w["known_at"])
+            w_lo, w_hi = _utc(w["from"]), _utc(w["to"])
             req = chain_reader.request(ref.tenant_id, known_at)
             facts = req.day(ref.site_id, _site_type(ref), local_days(w_lo, w_hi, ref.timezone))
             rows = req.threads(ref.site_id)
             threads = site_chain.threads_of(rows, site=ref.site_code, domain=ref.domain, tz=ref.timezone,
                                             lo=w_lo, hi=w_hi, day=window_day(w_lo, w_hi, ref.timezone),
-                                            cutoff=cutoff)
+                                            cutoff=lifecycle_cutoff(known_at))
             ids = {t["id"] for t in threads}
-            actions = site_chain.actions_of(rows, ids, site=ref.site_code, tz=ref.timezone, cutoff=cutoff,
+            actions = site_chain.actions_of(rows, ids, site=ref.site_code, tz=ref.timezone, cutoff=lifecycle_cutoff(known_at),
                                             verification=_verification(req, ref, rows, ids))
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error
@@ -264,9 +268,9 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             try:
                 req = chain_reader.request(ref.tenant_id, known_at)
                 rows = req.threads(ref.site_id) if tid is not None else {}
-                # Q11 (review L3): the board's one cutoff rule (`cold_ev_cutoff` for cold/EV); the state is the
-                # last visible event at that cutoff.
-                cutoff = service.thread_cutoff(ref, lo=lo, hi=hi, known_at=known_at) if rows else known_at
+                # CH6b2-R3 (M-R2-1): the lifecycle is read at `lifecycle_cutoff(k)` for every domain, as `site_parts`
+                # and the claims do, so the detail never contradicts the chain row or the card.
+                cutoff = lifecycle_cutoff(known_at)
                 body = None if tid is None else site_chain.thread_detail(
                     rows, tid, site=ref.site_code, domain=ref.domain, tz=ref.timezone, cutoff=cutoff)
                 if body is not None:
@@ -345,7 +349,8 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
                 "schema_version": site_chain.SCHEMA_VERSION,
                 "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
                 "sites": out, "counts": counted.claims_json(),
-                "money_total": money_total, "policy_versions": _versions(policy_versions)})}
+                "money_total": money_total, "cards": summary["cards"],   # CH6b2-R Q1: the summary's one builder
+                "policy_versions": _versions(policy_versions)})}
 
         return estate_served(ESTATE_CHAIN_ROUTE, request, items, {}, compose)
 
@@ -364,14 +369,24 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             chain_reader = reader()
             lo, hi = parsed.from_.astimezone(timezone.utc), parsed.to.astimezone(timezone.utc)
             traced: list[tuple[SiteRef, why.Trace]] = []
+            disrupted: list[tuple[str, Any, Any]] = []
             for ref in sites:  # each Site's board as the summary reads it (`summary_window`)
                 _, day, b_lo, b_hi = service.summary_window(ref, lo, hi, parsed.known_at)
                 parts = site_parts(ref, chain_reader, day, b_lo, b_hi, parsed.known_at, None)
                 traced.append((ref, site_trace(ref, parts, category)))
+                if category == PROTECT_ASSET:  # CH6b2-R Q2(b): the threads `count.sites_disrupted` counts
+                    try:
+                        threads = disrupting(counted_threads(parts["req"], ref, lo, hi))
+                    except (SiteStoreUnavailable, *unavailable) as error:
+                        raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error
+                    row = next((r for r in parts["board"]["rows"] if r["category"] == PROTECT_ASSET), {})
+                    disrupted.append((ref.site_name or ref.site_code, threads, row))
+            comes_from = why.disrupted_lines(disrupted) if category == PROTECT_ASSET else None
             return {ESTATE_WHY_ROUTE: jsonable_encoder({
                 "schema_version": why.SCHEMA_VERSION, "category": category,
                 "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
-                "text": why.estate_text(category, [(ref.site_name or ref.site_code, t) for ref, t in traced]),
+                "text": why.estate_text(category, [(ref.site_name or ref.site_code, t) for ref, t in traced],
+                                        comes_from),
                 "sites": [{"code": ref.site_code, **t.to_json()} for ref, t in traced]})}
 
         category = request.query_params.getlist("category")

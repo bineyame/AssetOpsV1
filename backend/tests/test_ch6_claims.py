@@ -128,4 +128,4 @@ def test_days_line():
         "3 of 5 days checked · 1 partly checked · 1 with too little data, not counted")
     assert v.days_line(_days(complete=2, pending=1)) == "2 of 3 days checked"
     assert v.days_line(_days(no_data=1), date(2026, 11, 1)) == "No readings on 1 Nov"
-    assert v.days_line(_days(no_data=1)) == "0 of 1 days checked"
+    assert v.days_line(_days(no_data=1)) == "0 of 1 day checked"

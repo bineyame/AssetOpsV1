@@ -120,16 +120,22 @@ const GROW_PARTS = [["kpi", "Target"], ["potential", "Potential"], ["earnings", 
  * examples), MD-CH6-3 (`target_note` in the subline), MD-CH6-7 (no Potential days line when the study has no day
  * grades); register: mock-departure-register.md, mock: v70/index.html:213-215, 238, 420.
  */
-function GrowParts({ row, fallback }: { row: OutcomeBoardRow; fallback: string | null }) {
+function GrowParts({ row }: { row: OutcomeBoardRow }) {
   const nodes = row.nodes;
-  if (!nodes || GROW_PARTS.every(([k]) => !nodes[k])) return <>{fallback}</>;
+  if (!nodes || GROW_PARTS.every(([k]) => !nodes[k])) return null;
   return (
     <div className="ob-grow" data-outcome-grow aria-label="Grow revenue in three parts">
       {GROW_PARTS.map(([k, label]) => {
         const c = nodes[k];
         const lines = (c?.text ?? "").split("\n");
         return (
-          <div key={k} className="ob-part" data-outcome-part={k}>
+          // CH6b2-R Q6: the removed Grow "Opportunity" chip's words move onto the Potential part.
+          <div
+            key={k}
+            className="ob-part"
+            data-outcome-part={k}
+            title={k === "potential" ? (row.potential?.text ?? undefined) : undefined}
+          >
             <span className="ob-plabel">{label}</span>
             {lines.map((l, i) => (
               <b key={i}>{l}</b>
@@ -192,15 +198,17 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
   }
   const money = boardMoneyText(row.headline_money);
   const text = money !== null && row.headline ? `${money} ${row.headline}` : (row.headline ?? money);
-  // CH-6a3: the Grow row shows its Target, Potential and Estimated income, each with the days it rests on.
-  const headline = row.category === "GROW_REVENUE" && row.nodes ? <GrowParts row={row} fallback={text} /> : text;
+  // CH-6b2 (§B3, CH6b2-R Q6, mock v70 `outcomeRow`): the Grow `ob-val` is the server's `grow_headline`; the three
+  // parts sit in `ob-body`, and the Grow row has no separate "Opportunity" chip (its words are the Potential part).
+  const grow = row.category === "GROW_REVENUE" && !!row.nodes;
+  const headline = grow ? (row.grow_headline ?? text) : text;
   const earlierEmpty = "earlier_empty_text" in row ? (row.earlier_empty_text ?? "") : EMPTY.prev;
   return (
     <details className={`ob tone-${row.tone}`} open={row.state === "NEEDS_ATTENTION"} {...data}>
       <summary className="ob-sum">
         <Name row={row} />
         <span className={`oc-chip tone-${row.tone}`}>{row.state_label}</span>
-        {row.potential ? (
+        {row.potential && !grow ? (
           // WALK1-3b (R690): the opportunity beside the KPI state, never folded into it.
           <span className="oc-chip tone-green" data-outcome-potential title={row.potential.text ?? undefined}>
             {row.potential.label}
@@ -216,6 +224,7 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
         </span>
       </summary>
       <div className="ob-body">
+        {grow ? <GrowParts row={row} /> : null}
         {row.subline ? <p className="ob-sub">{row.subline}</p> : null}
         {row.target_note ? <p className="ob-sub" data-outcome-target-note>{row.target_note}</p> : null}
         {row.must_not_harm ? (

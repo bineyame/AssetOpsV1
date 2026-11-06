@@ -84,12 +84,17 @@ def _constants() -> list[str]:
               "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
               "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked",
               # CH-6a3: the price lines of "Why?" (kWh x price, litres x price)
-              "kwh": "168.3", "price": "0.25", "cur": "USD", "lo": "12", "hi": "18"}
+              "kwh": "168.3", "price": "0.25", "cur": "USD", "lo": "12", "hi": "18", "state": "Open"}
     copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
     # CH-6a2: every node template (§A4), formatted with plain sample values.
     node = {"amount": "7.50 USD", "k": 3, "m": 5, "p": 1, "n": 1, "lo": "18", "hi": "20", "cur": "USD",
             "day": "1 Nov", "total": "7.50 USD", "site": "Kobo mini-grid", "text": "7.50 USD over 3 of 3 days checked"}
     copy += [cv.NODE_TEXT[key].format(**node) for key in cv.NODE_TEXT]
+    # CH-6b2: every Portfolio card template (the browser's card rules before CH-6b2), and the headroom units.
+    card = {"amount": "7.50 USD", "site": "Kobo", "text": "7.50 USD over 3 of 3 days checked", "w": 2,
+            "warnings": "warnings", "sites": "2 sites", "unchecked": ", 1 site not checked", "checked": 3,
+            "requested": 5, "n": 2, "gaps": 2, "line": "3 of 3 days checked"}
+    copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
     return [c.strip(" ·") for c in copy]
 
 

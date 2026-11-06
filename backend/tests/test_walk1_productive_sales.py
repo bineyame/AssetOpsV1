@@ -187,7 +187,7 @@ def test_measured_use_without_a_price() -> None:
     sales = contributor(row, "productive_sales")
     # CH6a3-R2 H3 ONE-SOURCE: an unpriced day's stored row has no money, so the earnings claim is NOT_KNOWN and the
     # line states no live kWh beside it; the price line still says why.
-    assert sales["text"] == "Not known yet · 1 of 1 days checked"
+    assert sales["text"] == "Not known yet · 1 of 1 day checked"
     assert sales["confidence"] is None
     assert checked(contributor(row, "productive_price")) == {
         "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
@@ -265,7 +265,7 @@ def test_low_day_states_nothing_but_not_known_with_its_days_line() -> None:
     assert earn["value"] is None and earn["text"] == "Not known yet"
     assert row["headline_money"] is None and row["subline"] is None
     line = days_line(earn["days"], DAY)
-    assert line == "0 of 1 days checked · 1 with too little data, not counted"
+    assert line == "0 of 1 day checked · 1 with too little data, not counted"
     assert contributor(row, "productive_sales")["text"] == f"Not known yet · {line}"
     assert "101" not in str(row["subline"]) and all("kWh used" not in c["text"] for c in row["contributors"])
 

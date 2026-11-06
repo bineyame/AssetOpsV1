@@ -300,8 +300,29 @@ def _instant(text: Any) -> Any:
     return None if text is None else datetime.fromisoformat(str(text).replace("Z", "+00:00"))
 
 
-def estate_text(category: str, sites: Sequence[tuple[str, Trace]]) -> dict[str, Any]:
-    """CH5b2-R Q9: the estate text over the per-Site traces (Site order). No money is summed (design A6)."""
+def disrupted_lines(sites: Sequence[tuple[str, Sequence[Mapping[str, Any]], Mapping[str, Any]]]) -> list[str]:
+    """CH6b2-R Q2(b): the Protect card's "Why?" `comes_from`: one "{Site}: {thread title}" per thread counted in
+    `count.sites_disrupted`, over `(Site name, its disrupting threads, its board's Protect row)` in Site order (never
+    cut to `MAX_FROM`, so the number is traceable), then the mock's early-warning line. The title is the board row's
+    own Finding item; a thread without one is named by its state and first day (MOCK DEVIATION)."""
+    lines = []
+    for name, threads, row in sites:
+        for t in threads:
+            occs = t.get("occurrences") or ()
+            title = _finding_title(row, [o["finding_id"] for o in occs if o.get("finding_id")])
+            days = sorted(o["day"] for o in occs if o.get("day"))
+            if title:
+                lines.append(why("why.from.disrupted", site=name, title=title))
+            else:
+                lines.append(why("why.from.disrupted_untitled", site=name, state=t.get("state_label") or "",
+                                 first=day_text(date.fromisoformat(days[0])) if days else ""))
+    return [*lines, why("why.from.warnings_apart")]
+
+
+def estate_text(category: str, sites: Sequence[tuple[str, Trace]],
+                comes_from: Sequence[str] | None = None) -> dict[str, Any]:
+    """CH5b2-R Q9: the estate text over the per-Site traces (Site order). No money is summed (design A6).
+    `comes_from` replaces the per-Site lines (CH6b2-R Q2b: the Protect card's counted threads)."""
     n = len(sites)
     readings = why("why.change.readings")
     # MOCK DEVIATION (CH5b2-R Q9): the mock has one sentence per Portfolio card; the estate takes the first Site
@@ -309,7 +330,8 @@ def estate_text(category: str, sites: Sequence[tuple[str, Trace]]) -> dict[str, 
     change = next((t.text["would_change"] for _, t in sites if t.text["would_change"] != readings), readings)
     return {"title": why("why.title", site="Portfolio", category=CATEGORY_LABEL[category]),
             "say": why("why.estate.say", category=CATEGORY_LABEL[category], n=n, s="" if n == 1 else "s"),
-            "comes_from": [why("why.estate.from", site=name, say=t.text["say"]) for name, t in sites][:MAX_FROM]
+            "comes_from": list(comes_from) if comes_from is not None else
+            [why("why.estate.from", site=name, say=t.text["say"]) for name, t in sites][:MAX_FROM]
             or [why("why.from.none")],
             "days_used": " · ".join(why("why.estate.days", site=name, days=t.text["days_used"])
                                     for name, t in sites),

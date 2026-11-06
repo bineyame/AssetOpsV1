@@ -131,6 +131,8 @@ export interface EstateOpportunity {
     assessed_days: number;
     headroom_kw: { low: string; high: string } | null;
     window_hours: number | null;
+    /** CH6b2-R Q7c: the Portfolio panel's headroom unit, server copy; absent on an older body. */
+    headroom_unit?: string;
   };
   evidence: "SUPPORTED" | "LIMITED" | "UNKNOWN";
   evidence_label: string;
@@ -466,6 +468,8 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     count_basis?: EstateCountBasis | null;
     /** WALK1-1: each partly checked Site's checked and requested day counts; absent on an older body (read as []). */
     checked_days?: EstateCheckedDays[];
+    /** CH6b2-R Q1: the Protect and Assure cards' Portfolio-body clause, one server line each (null: none). */
+    card_notes?: Partial<Record<"PROTECT_ASSET" | "ASSURE_PERFORMANCE", string | null>>;
     /** CH-4: each opportunity item's short label; absent on an older body, null when the read failed. */
     opportunity_labels?: string[] | null;
   };
@@ -586,7 +590,7 @@ export interface EstateFindingsQuery extends EstateQuery {
 }
 
 /** WALK1-1 (WN-2): what the Portfolio counts are claimed over. */
-export type EstateCountBasis = "COMPLETE" | "CHECKED_DAYS";
+export type EstateCountBasis = "COMPLETE" | "CHECKED_DAYS" | "NOT_KNOWN";
 
 export interface EstateCheckedDays {
   site_id: string;
@@ -652,6 +656,21 @@ export interface EstateOutcomeSummaryBody {
   verified_result_count?: number | null;
   /** WALK1-1: Sites whose board could not be read; absent on an older body (read as 0). */
   verified_sites_unread?: number;
+  /** CH6b2-R Q1: the Grow, Protect and Assure cards (`portfolio_cards`); absent on an older body. */
+  cards?: Partial<Record<"GROW_REVENUE" | "PROTECT_ASSET" | "ASSURE_PERFORMANCE", EstatePortfolioCard>>;
+}
+
+/** CH-6b2 (§B2): one server-built Portfolio card; the browser renders its markup only. */
+export interface EstatePortfolioCard {
+  value: { text: string; small: string | null };
+  /** NOT_KNOWN with no claim to show: the Grow card's kept gap `G-portfolio-grow-revenue`. */
+  missing: boolean;
+  detail: string | null;
+  basis_text: string;
+  days_line: string | null;
+  tone: string;
+  claim: { key: string; basis: EstateCountBasis; text: string; value: unknown } | null;
+  parts?: { target: string; potential: string; income: string; income_note: string | null };
 }
 
 export interface EstateClient {
