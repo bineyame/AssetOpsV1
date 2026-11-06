@@ -366,3 +366,46 @@ describe("POLISH P-10 onRead", () => {
     expect(reads.map((r) => r.status)).toEqual(["loaded"]);
   });
 });
+
+describe("CH-6a3 Grow parts", () => {
+  const claim = (key: string, text: string, basis = "COMPLETE") => ({ key, value: null, basis, days: null, text });
+  const growRead = (nodes: unknown, days_line: string | null) => {
+    const body = boardBody();
+    body.rows = boardRows().map((r) =>
+      r.category === "GROW_REVENUE" ? ({ ...r, nodes, days_line } as typeof r) : r,
+    );
+    return { status: "loaded", value: body } as OutcomeBoardRead;
+  };
+
+  it("showsTheThreePartsWithPotentialSplitOnNewline", async () => {
+    await renderBoard(
+      growRead(
+        {
+          kpi: claim("kpi", "Target 120 kWh"),
+          potential: claim("potential", "18 kW unused\nat about 0.12 per kWh\nprices differ across the days"),
+          earnings: claim("earnings", "About 40 per day"),
+        },
+        null,
+      ),
+    );
+    const parts = Array.from(rowEl("GROW_REVENUE").querySelectorAll("[data-outcome-part]"));
+    expect(parts.map((p) => p.getAttribute("data-outcome-part"))).toEqual(["kpi", "potential", "earnings"]);
+    expect(Array.from(parts[0].querySelectorAll("small")).map((s) => s.textContent)).toEqual(["Target"]);
+    const lines = Array.from(parts[1].querySelectorAll("b")).map((b) => b.textContent);
+    expect(lines).toEqual(["18 kW unused", "at about 0.12 per kWh", "prices differ across the days"]);
+    expect(rowEl("GROW_REVENUE").querySelector("[data-outcome-days]")).toBeNull();
+  });
+
+  it("showsNotKnownYetWithItsDaysLine", async () => {
+    await renderBoard(
+      growRead(
+        { kpi: null, potential: null, earnings: claim("earnings", "Not known yet", "NOT_KNOWN") },
+        "Checked 3 of 7 days",
+      ),
+    );
+    const g = rowEl("GROW_REVENUE");
+    expect(g.querySelectorAll("[data-outcome-part]")).toHaveLength(1);
+    expect(g.querySelector("[data-outcome-part='earnings']")?.textContent).toContain("Not known yet");
+    expect(g.querySelector("[data-outcome-days]")?.textContent).toBe("Checked 3 of 7 days");
+  });
+});
