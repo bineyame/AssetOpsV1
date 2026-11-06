@@ -8,11 +8,10 @@ Coordinator: report to the owner in plain language, short (1–2 lines on routin
 ## Current plan
 - Plan doc: `Docs/demo-sprint/client-demo-plan.html`. Build sheets `.agent/build-sheet-*.md` (rulings appended at the end of each). Architect standing context: `.agent/architect-handoff-demo-plan-2026-11-04.md`. Backlog: `.agent/backlog-post-demo.md` (BL-01..BL-22; next free id BL-23 — Architects have reused ids, check before accepting). Lows: `.agent/demo-sprint-lows-2026-10-31-pipeline.md`.
 - Scope rule SCOPE-1 (owner 2026-11-05): only what we present defensibly to first clients; everything else → backlog.
-- ~97.75 of ~107.5 units merged. Recent main merges: CH-6b1 (`8133f5b95`), FIX-MAIN-4 (`864d27b67`, stale tests), DD-1a1 (`eae5174b7`).
+- ~100.75 of ~107.5 units merged. Recent main merges: CH-6b1 (`8133f5b95`), FIX-MAIN-4 (`864d27b67`), DD-1a1 (`eae5174b7`), CH-6b2 (`0e40b22cb`). Guards passed after DD-1a1; a check-all run after CH-6b2 was started at this write — rerun it if no result is recorded.
 
 ## In flight (as of this write)
-- **Lane 1 — CH-6b2** (3.0 after CH6b2-R2): fix round R2 done at `5b08013fe`; Sonnet re-review running against `.agent/review-CH-6b2.md` + CH6b2-R2 (open question: thread-detail route `chain_api.py` ~277 still on board cutoff). On ACCEPT → merge. Worktree `AssetOpsV1-ch6b2`, branch `task/CH-6b2-portfolio-cards`. Lane-1 Architect: Architect 27 (fresh, light context).
-- **Lane 2:** idle. DD-1a1 merged. Next: DD-1a2.
+- Nothing. Both lanes idle. Next: lane 1 CH-6b3 (lane-1 Architect = Architect 27, light context, reuse via SendMessage if still reachable, else fresh); lane 2 DD-1a2 (fresh lane-2 Architect).
 
 ## Remaining
 - Lane 1: CH-6b3 (1.0; owns CH-5a2b L1/L5 Lows, COH-17/18).
