@@ -458,3 +458,5 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - 0 AMBIGUOUS in every built UTC window for Kobo and Cold, 11-03 included.
   - Q6 trial metrics are equal, and the R6, R7 and R7b checks are unchanged.
 - **Size: +0.25** for the stream grouping in `resolve`, the gateway state per stream, the trial-chain epoch, the guards, the L0 updates and the probe. DD-1a1 3.5 → 3.75 and DD-1 8.25 → 8.5; the plan rows need it. No owner question: no shown story changes. Context note: this Architect is still fit for the next lane-2 ruling.
+
+**Coordinator note (2026-11-06, from CH-6a3 M-R1):** DD-1b2 F-THREADS also asserts Kobo MG-2 (Cost) on the combined dataset: a MISSED/MET verdict and the "{lo}–{hi} L × {price} {cur}/L" line reproducing its figure (or the Known-Deviation omission when no fuel price is stored). On `mechanism_db()` MG-2 is NOT_JUDGED because no Performance comparison report exists there. +0.
