@@ -102,12 +102,34 @@ No other board value moved.
 - Kobo MG-1 "sales not recorded" on data without productive snapshots (R5).
 - Two load-flaky vitest cases (not touched by this slice).
 
-## Fix round R2a (PARTIAL; resume from `.agent/CH-6a3-R2a-handoff.md`)
-- Done at `1fb51daff`: H3 ONE-SOURCE (mini/EV Grow money, subline, sales/charging line from the earnings claim only),
-  H1 (snapshot fakes; 25.25/42.08 USD kept; LOW-day case; MG-1 asserts on `nodes["MG-1"]["kpi"]` + `judge_month`; no test
-  deleted), M2, M3, M4 (one-day dating), M5 (revision-matched price line, litres rounded), L4. EV golden regenerated.
-- Scoped pure set: green after the golden regen (re-run owed at the end). 10 mutations: every new test fails under its mutation.
-- M1 evidence: polish is at Alembic 0041 (no `site_day_snapshot`); a settled clone holds 11 rows, all `critical_served`.
-  `productive_kwh`/`charging_kwh` were never produced (the tick only consumes outbox events). Backfill step (a) on the clone
-  produces them: Kobo 8 PARTIAL + 27 NO_DATA; EV 2 LOW (10-20, 10-27) + 15 NOT_EXPECTED + 1 NO_DATA. Settle fix not applied (see handoff).
-- Not done yet: H2 §A8 item 3 on `mechanism_db()`, L2m run, polish clone W6/fresh/COH, guards A/W/V.
+## Fix round R2a (backend; L2 vitest copy is R2b, with H4)
+- Code at `1fb51daff`: H3 ONE-SOURCE (mini/EV Grow money, subline and sales/charging line from the earnings claim only), H1 (snapshot
+  fakes; 25.25/42.08 USD kept; LOW-day case; MG-1 asserts on `nodes["MG-1"]["kpi"]` + `judge_month`; no test deleted), M2, M3, M4 (one-day
+  dating), M5 (revision-matched price line, litres rounded), L4. EV golden regenerated. 10 mutations: every new test fails under its mutation.
+- Scoped set (25 files, `run-host-tests.ps1`, DB 127.0.0.1): **524 passed**, 70 s.
+- H2 (section A8 item 3) `backend/tests/test_ch6_mechanism_postgres.py` on `mechanism_db()` (states template rebuilt: the main merge staled
+  fingerprint cd95a2e4; 6 `--resume` parts): the board is one Site-local day per request, so D7-D13 is seven reads. Each day: earnings recomputed from the
+  stored `productive_kwh` row (NOT_KNOWN on a COMPLETE day = defect; amount and kWh = stored; NO_DATA day -> "Not known yet", no money);
+  D10-D13 are COMPLETE -> known (60.00, 60.00, 59.50, 59.50 USD); the week sum = sum of stored money; price line kWh x 0.25 == amount;
+  ONE-SOURCE on D13 (sales line, subline, money from the claim); MG-1 D13 `checked_days` = COMPLETE month days (9) and the verdict = `judge_month`
+  over the stored rows (the evaluator's `_reading` fact spied). Non-vacuity: four wrong boards (NOT_KNOWN on COMPLETE, price 0.26, sales kWh 239,
+  amount 61.00) each raise in the same test. 1 passed, 116 s. Not on `mechanism_db()`: the mechanism Site is Kobo only (MD0-S2), so the EV
+  ONE-SOURCE case stays the stored-row fake in `test_out_b3_cold_ev.py` (LOW day -> "Not known yet", subline null), and the Cold/EV/MG-2/potential
+  bullets are not added here (not asked in this round).
+- Fix to a stale test helper: `test_out_b4_board_postgres._record_port_failures` spy lacked the `memo` kwarg `Reads.call` takes (it raised on the
+  month read at a late board day); now forwarded.
+- L2m files: `test_ch6_nodes_postgres.py` + `test_out_d5_objectives_postgres.py`: 6 passed, 240 s.
+- M1/H2 clone evidence: the polish source is at Alembic 0041; `site_day_snapshot` (0043) rows are PRODUCED BY BACKFILL step (a), not the tick (the
+  tick only consumes outbox events). `chain_clone.py settle` is unchanged (ruling: standard L3 = create, migrate, backfill a-d, settle). After
+  backfill: Kobo `productive_kwh` 35 rows = 8 PARTIAL + 27 NO_DATA; EV `charging_kwh` 2 LOW story days (10-20, 10-27) + NOT_EXPECTED/NO_DATA, so
+  EV "Not known yet" is a real coverage result, not a defect.
+- L3 (clone `r2ab`, dropped): create, migrate, backfill a-d (17 s), settle (81 s), W6 (46 requests, 0 violations; ONE module added to
+  `config/chain/stored-composer-modules-v1.json`: `assetops_backend.financials.recompute`, imported by the listed `consequence_read`; reviewed diff,
+  rerun 0 unlisted), `fresh` store on 43/43, collect 85 requests, `check --expect expected-today.json`: **0 new**, COH-17 = 0.
+- Kobo Grow on real data (board day 2026-10-30, PARTIAL day): money 42.08 USD; days line "0 of 30 days checked · 6 partly checked"; earnings
+  claim "42.08 USD over 0 of 1 days checked · 1 partly checked · not billed or collected"; subline "168.3 kWh used by Grain mill in 8 measured hours,
+  at the declared price of 0.25 USD per kWh · not billed or collected"; Why price line "168.333 kWh x 0.25 USD/kWh" (= 42.08). Days 10-17 and later
+  (0 kWh): no money, subline "0 kWh ... ". Kobo MG-1 kpi reads "sales not recorded" on these dates (MG-1 checked days 0 -> NOT_JUDGED).
+  Note the subline shows 168.3 (1 place) while the claim kWh is 168.333: display rounding of one figure.
+- Guards: A passed, W passed, V 4 passed.
+- Not run (rule): full suite, prepare, L2 vitest (R2b), layout evidence.

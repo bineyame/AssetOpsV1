@@ -86,6 +86,7 @@
   "assetops_backend.financials.ev_money",
   "assetops_backend.financials.fuel_cost",
   "assetops_backend.financials.money_eligibility",
+  "assetops_backend.financials.recompute",
   "assetops_backend.finding_api",
   "assetops_backend.main",
   "assetops_backend.mini_depth.inputs",
