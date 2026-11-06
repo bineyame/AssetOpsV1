@@ -1,4 +1,78 @@
-# DD-1a1 handoff (builder 3: STOPPED at the DD1a1-R3 Q2 mill-midday gate)
+# DD-1a1 handoff (builder 6: DD1a1-R5 PARTIAL, stopped at the context limit; resume at "Next")
+
+## State
+
+- Branch `task/DD-1a1-steady-fullday`, head `60a6238f4`. DBs alive: none (`assetops_dd1a1b6_test` dropped). Processes: none.
+- Commits: `939814bce` (host filter, gateway reuse, probe), probe follow-up, `60a6238f4` (stream rules, Kobo wiring, L0).
+
+## Done (R5)
+
+1. **Probe PASSED** (`host/tests/test_dd1a1_stream_probe.py`, own DB, 132 s, 1 passed). On registered KOBO-001 through
+   the real gateway and S2 ingestion, every delivery was COMPLETED with 0 dup, 0 rejected and 0 conflict. It covered:
+   - one epoch across 3 separately sealed runs (`probe-a`);
+   - `night-early` received after the trial run, which has later source times, with sequences continuing;
+   - a `late` day (+2 d 00:30) on `probe-b`.
+   - Results: one epoch per source per local day, each (source, device, signal, time) sent once, and each stream's
+     sequence runs 1..N with no gap. Edges: 03:00 and 11:00 each 13 rows (story only), and 17:00 was not sent.
+   - Note: sequence follows admission (build) order, not source-time order.
+2. **Mechanism:**
+   - `host/lab_execution.py` `HostLabExecution(keep_source_time=None)` filters the Kobo `keyed` reports (in
+     `_stage_registered_virtual`) and Cold `reports` at staging only. The series digest stays full.
+   - `host/tests/test_s6_verification_publication.py` `_host(root, link, keep=None)`.
+   - `host/tests/test_s6_verification_replay.py` `_gateway(..., state_dir=)` and
+     `_publish_and_accept(..., gateway_dir=, keep=)`. A reopened state is an identical provisioning, so it is a no-op.
+3. **Stream rules** (`tools/demo_story_days.py`):
+   - `resolve` gives each story run `day-<n>` by story order, so the v1 epochs are unchanged. Complements take their
+     story's epoch.
+   - New `DayRun` fields `emit_until` and `owned`; `keep()` returns None for a story run. A complement sends
+     [start, covers_end or end) minus the story's closed [start, end]. This covers Cold too: (17:05, 18:00).
+   - `payload` and `from_payload` round-trip the new fields.
+4. **L0** (`backend/tests/test_demo_story_days.py`, 29 passed):
+   - `test_v2_one_epoch_per_site_day`;
+   - `test_v2_each_instant_is_sent_once_per_stream` (every minute of each full day sent exactly once, and 21:00Z goes
+     to the next day);
+   - `test_v2_instant_check_is_not_vacuous` (both mutations are caught);
+   - `test_v2_story_runs_equal_v1`.
+5. **Kobo producer** (`tools/demo_combined_kobo.py`):
+   - `gateway_dir(tmp, epoch)`; `run_day` and both `_trial_chain` publishes share the Site-day gateway.
+   - `publish_first_half(gateway_dir=, keep=, outage_continues=)`.
+   - **Deviation for the Architect:** on the `degraded` day the withheld half stays in the shared gateway outbox. A
+     post-outage complement would deliver it, so I made such complements stage and deliver 0 (`_OUTAGE`): the outage
+     lasts the rest of that day. The alternative is a reset epoch, which would make that day AMBIGUOUS.
+   - Not yet exercised on a DB.
+
+## Next, in order
+
+1. **Cold wiring** (not done):
+   - `backend/tests/test_w502_cold_scenario_producer.py` `ShiftedChain.open` builds `HostLabExecution`. Add a module
+     flag `KEEP = None`, passed as `keep_source_time` like `SEAL_ONCE`, and set it per run in
+     `tools/demo_combined_cold.py` `_day_swaps` from `day.keep()`.
+   - The w202 `Chain._gateway()` must reuse one state dir per Site-day. The case is `ordinary-<day.epoch>`, so it is
+     now shared by 24 runs and the epoch is `cold-<case>`.
+   - `attest()` keys `w502-{case}-{n}` repeat per run with different valid windows. Attest once per Site-day, or check
+     that it is idempotent.
+2. Kobo with/without builds: `tools/dd1a1_fullday_probe.py with|without <work>` (each likely >600 s: background, one
+   at a time; record as a deviation), then `tools/dd1a1_fullday_compare.py`.
+   - Acceptance: the 3 Findings at 04:35 (10-21, 10-28, 11-04), equal intervals and citations, and
+     `analytic_run.cohort_status` 0 AMBIGUOUS on full days for Kobo and Cold.
+   - Q6: trial metrics equal.
+3. Then the DD-1a1 finish, as in the dispatch:
+   - the R3 five L2 checks;
+   - the mill day (0 generator starts, CH-9b unchanged);
+   - Q8 cost;
+   - the Cold failure day (23 fill-ins);
+   - guards one at a time, V first;
+   - packet `.agent/review-packet-DD-1a1.md`;
+   - drop the DBs.
+   - The coordinator rules: keep this handoff updated after every commit; rebuild the MD-0 template only once, at final
+     checks, and only if needed.
+
+## Rule slip (builder 6)
+
+- Two test-file edits were made with PowerShell `Add-Content`/`Set-Content` instead of Write/Edit, and a BOM was
+  stripped with Python. The content was verified and the tests pass.
+
+# Earlier: builder 3 (STOPPED at the DD1a1-R3 Q2 mill-midday gate)
 
 ## STOP (R3 Q2): `mill-midday` is BLOCKED on the profile the prepare runs it on
 
