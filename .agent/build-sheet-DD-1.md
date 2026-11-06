@@ -637,3 +637,42 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
   - SCOPE-1 reasons: without (1) the board shows a Cold failure day with no Finding; without (2) the Kobo battery chart shows 38–44 pp jumps that no "Why?" line can explain.
 - **Owner question (one, recommendation given; the build proceeds on it unless overridden):** "The cold-lab example days only have data for their example hours. Keep them shown as 'partly checked' so the cold failure findings still appear? Recommended: yes. The alternative, filling the whole day, makes the cold failure finding disappear."
 - **Handoff:** the builder removes Cold from the v2 complement lists and reruns `cold`/`cold-without` to equality. It then builds the per-story chain files, reruns Kobo `with`/`without` with `dd1a1_r12_check.py` updated for the bound and the 03:00Z exemption, and records both in the packet. Context note: this Architect is fit for the next lane-2 ruling.
+
+## DD1a1-R15: step back. Cut complements only where the generator is STOPPED: one rest-of-day run per story day (replaces R14 part 2's chain design)
+
+- Architect: Claude (Architect 26), 2026-11-06. Binding: Claude. Input: `AssetOpsV1-dd1a1\.agent\review-packet-DD-1a1.md` "DD1a1-R14 (builder 19)", `DD-1a1-handoff.md` "Builder 19", `.agent/DD-1a1-r14-wip/` at `1debe5a9d`; `simulator/assetops_simulator/packs/mini_grid.py:9-11,96` and `backend/assetops_backend/runs/profiles.py:1240-1242` (`initial_values_supported={STOPPED, FAILED}`, "RUNNING and STARTING need timer history"). R14 part 1 (Cold) is done and stands.
+- **The root cause behind R12, R13 and R14 part 2.** A run can start only from STOPPED. Any cut in a day where the previous run ends RUNNING can never be a true handover. Under R2's nights, a cut at 18:00 or 20:00 local often falls in a dusk or evening generator interval, and the 06:00 cut falls in the 05:05 pre-dawn interval. So more chained files cannot fix it. The fix is fewer cuts, placed only at instants where the generator is STOPPED.
+- **Options weighed.**
+  - **(A) One 24 h run per Kobo day: not possible as stated.** The story run is ACT-K1's run and is byte-equal to v1 (R5, R8). It starts at 06:00 from its declared state. A 24 h run starting at 00:00 would reach 06:00 in its own physical state, so the story hours would change and the story itself might not occur.
+  - **(A′) The feasible nearest form: RECOMMENDED.**
+    - The story run is untouched.
+    - One derived **rest-of-day** run per story chain covers 14:00–24:00 local. It holds the afternoon, dusk (18–20 evening parent) and R2 late-night windows verbatim, each with its `# source:` line. This is Q3's original single 14–24 complement, with R2's night windows inside it. Its start state is measured on the **registered Site** at the story run's 14:00 end. R13 measured that seam at −0.16 pp with equal state.
+    - Each early night (00–06) is one run from the previous built day's measured 24:00 state.
+    - A pure steady day (B-22, DD-1a2) is one 00:00–24:00 run from the previous day's measured 24:00 state, which avoids the 06:00 cut.
+    - R7's 03:00 split stays as ruled, since it falls before the pre-dawn start.
+    - The 15:00Z and 17:00Z seams then no longer exist, and runs per day go down, which also helps Q8.
+  - **(B) Allow a RUNNING start: rejected; product change, to the backlog.** It needs a declared runtime-so-far timer in the scenario contract, the simulator pack and the backend profile (`initial_values_supported`), with a profile-version and registered-basis check (R7b boundary). About 1–1.5 units plus regression risk on a defended path. The coordinator adds the backlog id: "RUNNING/STARTING initial state with timer history", source DD1a1-R15.
+  - **(C) Keep stitching and disclose: not defensible as the main design.** Three or four resets a day, with the generator switching off by itself and 38–44 pp battery jumps, cannot be explained under questioning. Disclosure is defensible for **one** reset per story day, at 06:00 where the example day begins. That is R14's 03:00Z exemption and it stays: reported, and named by the night's source line (R3 item 5).
+  - **(D) Story-only Kobo days: rejected while A′ holds.** It loses CH9-R2's "daytime solar unused" (and R12's +42 kWh daylight productive use), MG-5's full day, MILL-3's COMPLETE days and so the Grow "Target met" claim, and the owner's night decision. It is the fallback only if A′'s guards stop.
+- **Bound (amends R14).**
+  - At every cut that is not a story start (14:00 local / 11:00Z, 24:00 local / 21:00Z, the R7 split instant), the generator must be **STOPPED on both sides**. The SoC step must be ≤ 0.5 pp and the fuel step ≤ 0.5 L.
+  - The 06:00 story start is exempt, as in R14.
+- **Probe first (L2, own `*_test` DB, registered Site via the `_shifted` drafter of `host/tests/test_dd1a1_registered_kobo.py`).** The template-Site probe is not evidence for the build and is set aside.
+  - Probe each story chain to 14:00 and through its rest-of-day to 24:00: N, the R30 trial day and the mill day.
+  - The R25 chain (the 25 % reserve after S+1) is probed with the Foundation revision applied on that Site, as the trial chain applies it.
+  - Report the state at 14:00, the state at 24:00, and the generator intervals inside each run.
+- **Stops.** Stop and the Architect rules if any of these happens; this is the only point where D for the affected days goes to the owner:
+  - a story run ends RUNNING at 14:00 local;
+  - a rest-of-day or steady run ends RUNNING at 24:00;
+  - R14's stop list fails: MG-2 counts, Findings and money equal; the R2 night gate; the R3, R6, R7, R7b and R12 checks;
+  - MILL-3 later fails.
+- **Build.**
+  - Retire R14's `afternoon-<c>`, `late-<c>` and dusk split kinds and the `kobo-steady-dusk`/`kobo-mill-dusk` files from the v2 list. The R12 files are superseded, since dusk is now inside the rest-of-day run.
+  - Add `kobo-rest-<c>` (14–24) and `kobo-night-early-after-<c>` per chain, plus the steady-day 00–24 file for DD-1a2.
+  - L0 tiles each local day with ≤ 3 Kobo runs (early night, story, rest-of-day), with each instant sent once (R5, R8).
+  - `dd1a1_r12_check.py` takes the new bound, the STOPPED-at-cut rule and the 06:00 exemption.
+  - The WIP's `after` hook and probe `chains()` are reused.
+- **Size.** This replaces R14 part 2's +0.5 (not added to it). +0.25 more for the registered-Site probes, including the R25 Foundation revision. DD-1a1 5.5 → 5.75 (2 planned), DD-1 10.25 → 10.5; the plan rows need it. SCOPE-1 reason: the same as R14 part 2. Without it the Kobo battery chart shows jumps no "Why?" line explains. This is the last stitching design: if its guards stop, D goes to the owner rather than another seam ruling.
+- **Owner.** No decision needed now: no shown story changes, and the owner's night decision and CH9-R4 hold. The coordinator informs the owner of the size against the 2 planned.
+  - Only if A′ stops: "Some Kobo example days can't be filled to a full day honestly. Show them as 'partly checked', losing the 'daytime solar unused' figure and the mill 'Target met' result for those days?" The recommendation would then be given against the probe's numbers.
+- **Handoff.** The builder takes the registered-Site probes first. If no stop fires, it derives the `kobo-rest-*` and early-night files, runs `--check`, rebuilds Kobo `with`/`without`, runs the R3–R14 checks with the amended bound, and runs guards V, A and W. Context note: this Architect is fit for one more lane-2 ruling.
