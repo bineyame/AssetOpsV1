@@ -539,3 +539,44 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **Recommendation: keep B-22 full days now.** R1's rule stands: the DD-1b2 rehearsal measures the whole prepare, including drain and ticks. If it is over 3 h, use B-16 (option 1). Option 3 only if the owner prefers 22 days over a 3 h build.
 - **Owner question (plain language):** "The full demo history is projected to take about 2½–3 hours to build once, possibly up to 3½ hours. If the final rehearsal runs over 3 hours, should we (a) show 16 days of history instead of 22, every day complete, or (b) keep 22 days and accept a one-time build of up to about 3½ hours?" **Recommendation: (a).**
 - **Size: +0.** Projection only; the measurement is already in the DD-1b2 rehearsal. Q8's +50 % gate is superseded by the 3 h cap on the projection base. Handoff: the coordinator puts the owner question; the builder continues with the packet's Open items; DD-1b2 reports the measured whole-prepare time against the 3 h cap. Context note: this Architect is fit for the next lane-2 ruling.
+
+## DD1a1-R12: the mill-day probe; the dusk start state, other days' productive kWh, and the mill verdict's days
+
+- Architect: Claude (Architect 25), 2026-11-06. Input: the coordinator's mill-day probe report (local day 10-30); `config/scenarios/kobo-steady-dusk.yaml` (start state: lines 4 and 7, values 42 %, 300 L, STOPPED, "the parent's, declared at that parent's own start"); this sheet's Q3 night section ("Starting states: measured handover, never chosen").
+- **1. The 15:50Z (18:50 local) generator start is a defect, not honest physics.**
+  - `kobo-steady-dusk` restarts the battery at the evening parent's declared 42 %. Under the 18–20 evening peak with no sun, 42 % reaches the 35 % start threshold in about 50 minutes. The start comes from that declared reset, not from the day.
+  - A real day reaches 18:00 with the state its daytime left. Probe S estimates about 68 % at 20:00 on a sunny day, so no dusk start.
+  - It breaks the rule the nights follow: start states are measured handovers, never declared values.
+  - The defect is on every day, not only the mill day. Every B-22 steady day runs `kobo-steady-dusk`, so it would put one dusk generator start, held by the 90 % stop, on every steady day. That is a recurring generator interval no parent declared. It could add MG-2 candidate-avoidable intervals and fuel cost to the baseline and muddy the 3 MG-2 Findings and ACT-K1's baseline.
+  - The v2 probe did not show this: dusk appears only on the mill day, and the mill day was not in the probe calendar.
+  - The 02:05Z (05:05 local) night start is the accepted pre-dawn start (R3 Q2; R3 L2 check 1) and stands.
+- **Ruling: measured dusk start states.**
+  - `kobo-steady-dusk` takes its SoC, fuel and generator state from Probe S at 18:00, the continuous steady day. The file cites the run id.
+  - A derived `kobo-mill-dusk` (the same windows, each with its `# source:` line, labelled "Kobo 18:00–20:00 after the mill story day; start state measured at 18:00") takes them from one probe of `kobo-mill-midday` at its 18:00 end. The `mill-midday` complement uses it.
+  - Both files go into `--check`. The physics then decides. Nothing is tuned, and no file is edited to avoid a start.
+- **The checks (L2, own `*_test` DB).**
+  - On 10-30 and on one steady day: generator starts, runtime and fuel per complement window.
+  - Findings, threads, money rows and MG-2 candidate-avoidable intervals equal with and without full days.
+  - The 18:00 seam shows no SoC, fuel or generator-state jump.
+  - If a dusk start remains under measured states, or any of these differs, stop and the Architect rules.
+- **2. Other days' productive kWh (168.333 → 210.333, 0 → 42): honest, and no proven figure moves.**
+  - The +42 kWh is real daylight productive use in the steady-afternoon complement's 14–18 local hours. It was absent when story days ended at 14:00. Full days measure the whole daylight period, which is the point of CH-9 §9.
+  - The CH-6 proofs are of computations, not of v2 values. Kobo's Grow 42.08 USD on clone 10-30 comes from polish data and is not affected.
+  - On the v2/B-22 build, every Grow figure is whatever its own rows give. DD-1b2 F-THREADS reports each Grow value and proves it reproduces from those rows, as the coordinator's MG-2 note already requires. No value is pinned to a CH-6 number.
+- **3. The mill verdict on B-22: not proven, and it is the Grow story's E3 risk.**
+  - Full days make COMPLETE days possible. Without them none exist, which is why the probe was NOT_JUDGED. But no build has yet shown 3 COMPLETE days on each side.
+  - A second risk is what the later days run. If the days after the mill Action's effective day are plain steady days (the pre-change mill window), the later window measures no change, and "Target met" cannot honestly come out.
+  - **Named check, MILL-3, run as a dry run in DD-1a2 (where R4 places `mill-midday` on the B-22 list) and asserted in DD-1b2 F-THREADS.** From the B-22 day list and build, report:
+    - the effective day;
+    - the 3 baseline and 3 later days the plan freezes, within the 14-day look-ahead;
+    - each day's grade, run set (scenario ids) and `productive_kwh`;
+    - the MG-5 and MG-4 guardrail days;
+    - the evaluator's outcome.
+  - Acceptance: 3 COMPLETE days on each side, and an outcome of VERIFIED ("Target met") by the catalogue rule.
+  - Stop and the Architect rules if any of these happens:
+    - fewer than 3 COMPLETE days on either side;
+    - the later days do not run the changed mill operation;
+    - the outcome is not VERIFIED.
+  - Never move days or tune values to pass.
+- **Size: +0.25** for the two measured dusk start states, `kobo-mill-dusk` and their checks. MILL-3 is +0 inside the DD-1a2 placement and DD-1b2 F-THREADS acceptance. DD-1a1 4.5 → 4.75, DD-1 9.25 → 9.5; the plan rows need it. No owner question now. If MILL-3 stops, the Grow story's later days are an owner-visible choice.
+- **Handoff:** the builder measures the two dusk start states, adds `kobo-mill-dusk`, reruns the mill-day probe with the checks above, and records them in the packet. MILL-3 is added to the DD-1a2 and DD-1b2 acceptance lists. Context note: this Architect is fit for the next lane-2 ruling.
