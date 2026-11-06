@@ -5,8 +5,9 @@ The Site is made the way the demo prepare makes it (`tools/demo_combined_kobo.py
 reopens that day's one gateway state (`_publish_and_accept(gateway_dir=...)`), so the epoch's sequence continues
 across separately sealed runs; a complement keeps only the source times no story run (and no later complement) sends.
 
-- Day A (2026-10-20): the trial story run (03:00-11:00Z) first, then `night-early` (D-1 21:00-03:00Z) received after
-  it with later sequences but earlier source times, then `steady-afternoon` (11:00-17:00Z).
+- Day A (2026-10-20): the mill story run (03:00-15:00Z) first, then `night-early` (D-1 21:00-03:00Z) received after
+  it with later sequences but earlier source times, then its rest of day `kobo-rest-mill` (15:00-21:00Z) (DD1a2-R Q7
+  withdrew the `steady-afternoon` file this probe used; this is the full-day shape the calendar keeps).
 - Day B (2026-10-21), a `late` day: `night-early` received at its own end + 1 h plus the late offset (2 d 00:30), then
   the `normal` story run at D+2d 12:30.
 
@@ -79,14 +80,14 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
             print(epoch, scenario, start, end, "received", received, out, flush=True)
             return out
 
-        a3, a11, a17 = _t("2026-10-20T03:00:00Z"), _t("2026-10-20T11:00:00Z"), _t("2026-10-20T17:00:00Z")
-        story_a = [(a3, a11)]
-        run("probe-a", "kobo-mini-grid-reserve-trial", "2026-10-20T03:00:00Z", "2026-10-20T11:00:00Z",
-            "2026-10-20T12:00:00Z")
-        run("probe-a", "kobo-night-early", "2026-10-19T21:00:00Z", "2026-10-20T03:00:00Z", "2026-10-20T13:00:00Z",
+        a3, a15, a21 = _t("2026-10-20T03:00:00Z"), _t("2026-10-20T15:00:00Z"), _t("2026-10-20T21:00:00Z")
+        story_a = [(a3, a15)]
+        run("probe-a", "kobo-mill-midday", "2026-10-20T03:00:00Z", "2026-10-20T15:00:00Z",
+            "2026-10-20T16:00:00Z")
+        run("probe-a", "kobo-night-early", "2026-10-19T21:00:00Z", "2026-10-20T03:00:00Z", "2026-10-20T17:00:00Z",
             _keep(_t("2026-10-19T21:00:00Z"), a3, story_a))
-        run("probe-a", "kobo-steady-afternoon", "2026-10-20T11:00:00Z", "2026-10-20T17:00:00Z",
-            "2026-10-20T18:00:00Z", _keep(a11, a17, story_a))
+        run("probe-a", "kobo-rest-mill", "2026-10-20T15:00:00Z", "2026-10-20T21:00:00Z",
+            "2026-10-20T22:00:00Z", _keep(a15, a21, story_a))
         b3, b11 = _t("2026-10-21T03:00:00Z"), _t("2026-10-21T11:00:00Z")
         run("probe-b", "kobo-night-early", "2026-10-20T21:00:00Z", "2026-10-21T03:00:00Z", "2026-10-23T04:30:00Z",
             _keep(_t("2026-10-20T21:00:00Z"), b3, [(b3, b11)]))
@@ -102,7 +103,7 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
                 "FROM accepted_evidence GROUP BY 1, 2, 3, 4, 5 HAVING count(*) > 1")).fetchall()
             edges = c.execute(text(
                 "SELECT source_time, count(*) FROM accepted_evidence WHERE sequence_epoch = 'probe-a' AND "
-                "source_time IN ('2026-10-20T03:00:00Z', '2026-10-20T11:00:00Z', '2026-10-20T17:00:00Z') "
+                "source_time IN ('2026-10-20T03:00:00Z', '2026-10-20T15:00:00Z', '2026-10-20T21:00:00Z') "
                 "GROUP BY 1 ORDER BY 1")).fetchall()
             gaps = c.execute(text(
                 "SELECT source_id::text, sequence_epoch, min(sequence), max(sequence), count(*) "
@@ -116,7 +117,7 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
         assert twice == [], twice[:5]
         assert all(r[2] == 1 and r[3] == r[4] for r in gaps), gaps
         assert [r[0] for r in bounds] == ["probe-a", "probe-b"]
-        # the story run's edge instants are sent once (by the story), and 17:00 belongs to the next complement
+        # the story run's edge instants are sent once (by the story), and 21:00 belongs to the next day
         print("edges", [(str(r[0]), r[1]) for r in edges])
         assert len(edges) == 2 and edges[0][1] == edges[1][1] > 0, edges
     finally:

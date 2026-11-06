@@ -31,13 +31,11 @@ LABEL = "example data, steady day (derived from {parents})"
 
 #: id -> (display name, local hours, the parent windows per series in order, the parent whose run-start state is used).
 #: A window is (parent scenario, window number); the parent's windows are two hours long.
-#: DD1a1-R2 "Shape, files and kinds": steady-day 06-18 is kobo-daytime verbatim; the afternoon (14-20) and dusk (18-20)
-#: complements are the evening parent's windows verbatim and stop at 20:00, where the night files take over.
+#: DD1a1-R2 "Shape, files and kinds": steady-day 06-18 is kobo-daytime verbatim; dusk (18-20) is the evening parent's
+#: window verbatim. Dusk stays only as the document its handover probe measures (see `WITHDRAWN`).
 STEADY = {
     "kobo-steady-day": ("Kobo steady day (06:00-18:00)", "06:00-18:00",
                         [("kobo-daytime", n) for n in range(1, 7)], "kobo-daytime"),
-    "kobo-steady-afternoon": ("Kobo steady afternoon (14:00-20:00)", "14:00-20:00",
-                              [("kobo-mini-grid-evening", n) for n in (2, 3, 4)], "kobo-mini-grid-evening"),
     "kobo-steady-dusk": ("Kobo steady dusk (18:00-20:00)", "18:00-20:00",
                          [("kobo-mini-grid-evening", 4)], "kobo-mini-grid-evening"),
 }
@@ -53,11 +51,17 @@ DUSK = {"kobo-steady-dusk": "S-dusk"}
 DUSK_PARENT = "kobo-mini-grid-evening"
 #: DD1a1-R14: Cold full days are withdrawn; there is no Cold steady scenario.
 PREFIX = {"kobo-daytime": "", "kobo-mini-grid-evening": "evening-"}
+#: DD1a2-R Q7: withdrawn, no file is written and `--check` fails if one reappears. The `STEADY` and `NIGHTS` entries of
+#: these ids stay because `rest_document` and `probe_kobo_nights` still render them in memory, and the handover JSON's
+#: old probe entries stay as history (their ids hash these documents, so the `HELD_UNUSED` wording below stays too).
+WITHDRAWN = frozenset({"kobo-night-late-after-overcast", "kobo-night-early-after-overcast", "kobo-steady-dusk",
+                       "kobo-night-late"})
+#: DD1a2-R Q7: removed outright (nothing renders it any more); `--check` fails if the file reappears.
+REMOVED = frozenset({"kobo-steady-afternoon"})
 #: DD-1a1 review M4: files no v2 calendar kind uses. They are held for DD-1a2 and are NOT usable until DD-1a2 probes and
 #: measures each day under the R12/R14/R15/R16 join rule (R15: the pure steady day is ONE 00:00-24:00 run).
 HELD_UNUSED = {
     "kobo-steady-day": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
-    "kobo-steady-afternoon": "its start is the declared state of kobo-mini-grid-evening, a cross-day declared handover that R12 and R14 rule out",
     "kobo-steady-dusk": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
     "kobo-night-late": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
     "kobo-night-late-after-overcast": "its handover has the generator RUNNING at the join, which R15 and R16 forbid",
@@ -415,15 +419,15 @@ def rest(sid: str) -> str:
 
 
 def derive() -> dict[str, str]:
-    out = {sid: kobo(sid) for sid in STEADY | MILL}
+    out = {sid: kobo(sid) for sid in STEADY | MILL if sid not in WITHDRAWN}
     if HANDOVER.exists():
-        out.update({sid: night(sid) for sid in NIGHTS})
+        out.update({sid: night(sid) for sid in NIGHTS if sid not in WITHDRAWN})
         out.update({sid: rest(sid) for sid in REST})
     return out
 
 
 def main(argv: list[str]) -> int:
-    stale = []
+    stale = [sid for sid in sorted(WITHDRAWN | REMOVED) if "--check" in argv and (SCENARIOS / f"{sid}.yaml").exists()]
     for sid, text in derive().items():
         path = SCENARIOS / f"{sid}.yaml"
         if "--check" in argv:

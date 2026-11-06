@@ -213,7 +213,8 @@ def dusk(draft=template_draft) -> tuple[dict, dict]:
         if sid in derive.REST:  # the rest of the mill day: 18:00-24:00 in one run, its end must be STOPPED too
             run_doc, run_to, run_lo = derive.rest_document(sid, handover[sid]["start"])[0], f"{DAY}T21:00:00Z", f"{DAY}T15:00:00Z"
         else:
-            run_doc, run_to, run_lo = _load(sid), f"{DAY}T17:00:00Z", f"{DAY}T15:00:00Z"
+            # DD1a2-R Q7: the dusk file is withdrawn; its document is rendered in memory so this history stays reproducible
+            run_doc, run_to, run_lo = yaml.safe_load(derive.kobo(sid)), f"{DAY}T17:00:00Z", f"{DAY}T15:00:00Z"
             for prm in run_doc["public_parameters"]:
                 prm["value"] = {"starting-state-of-charge": end["soc"], "starting-fuel": end["fuel"],
                                 "starting-generator-state": "STOPPED"}[prm["parameter_id"]]
