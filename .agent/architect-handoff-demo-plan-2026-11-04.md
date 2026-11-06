@@ -646,3 +646,9 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
 - **H4:** a days line per part, three parts always shown, the v70 grid, and MD-CH6-1/2/3 plus MD-CH6-7 registered (renumbered from the colliding -4).
 - **Medium and Low:** M1–M5 are fixed now. L3 becomes BL-15.
 - **Sizing:** CH-6a3 goes from 2.0 to 4.25, in two rounds: R2a backend (1.5), then R2b wire and layout (0.75), with one re-review after both. The plan rows, BL-15 and the DD-1 F-THREADS line still need updating.
+- DD1a1-R3 (Architect 22, 2026-11-06; binding checked, Claude; nothing committed): recorded at the end of `build-sheet-DD-1.md`.
+  - The steady night's 05:00 generator start is accepted as physics. R2's "41 %" was an arithmetic slip, and the loads match their stated bases.
+  - The 0 L over 55 min RUNNING is the specified model: battery-first order and no idle fuel. It is disclosed in the night label and the "Why?" line, and backlogged as BL-16.
+  - The gate is replaced by five L2 checks: night shape and MG-5; MG-2 and ACT-K1; mill and spare solar; Findings, threads and money; the 06:00 seam.
+  - Q2: `kobo-steady-day` declares 300 L / STOPPED with a source line. The builder drafts every Kobo file on the registered Site and re-runs probes S and O there.
+  - DD-1a1 2.5 → 2.75 and DD-1 7.5; the plan rows need it. The owner is informed, with a recommendation to accept.
