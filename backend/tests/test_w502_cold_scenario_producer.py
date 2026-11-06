@@ -30,6 +30,8 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 ROOT = Path(__file__).resolve().parents[2]
 #: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
 SEAL_ONCE = False
+#: DD1a1-R5: the demo child's per-run source-time filter (`DayRun.keep()`); None keeps every report.
+KEEP = None
 sys.path.insert(0, str(ROOT / "tools"))
 
 import w502_cold_work_cases as producer  # noqa: E402
@@ -107,6 +109,7 @@ if URL:
                 source_publisher=publisher_for(URL),
                 cold_inputs=StoreColdInputs(self.store, self.scenarios),
                 seal_once=SEAL_ONCE,
+                keep_source_time=KEEP,
             )
             return self
 

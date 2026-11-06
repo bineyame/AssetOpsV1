@@ -153,6 +153,10 @@ class _NoSites:
         raise AssertionError(site_id)
 
 
+#: DD1a1-R5: the demo child sets this to a Site-day's one gateway state directory (None: each chain its own).
+GATEWAY_STATE = None
+
+
 @dataclass
 class Chain:
     """One case executed through the registered path in a fresh database; the gateway stays up until close."""
@@ -206,14 +210,14 @@ class Chain:
             sources = list(c.execute(text("SELECT source_external_id FROM source WHERE gateway_id = :g "
                                           "ORDER BY source_external_id"), {"g": gateway.id}).scalars())
         out = self.tmp / "issued"
-        out.mkdir(parents=True)
+        out.mkdir(parents=True, exist_ok=GATEWAY_STATE is not None)
         flags = [x for s in sources for x in ("--enable-source", s)]
         assert provision(["--tenant", "demo", "--site", COLD, "--gateway", gateway.gateway_external_id, "issue",
                           "--credential-out", str(out / "cred"), *flags],
                          store=PostgresGatewayAccess(URL), now=Clock(INSTALL_AT)()) == 0
         [issued] = list(out.glob("cred.*"))
         self.credential = issued.read_text(encoding="ascii").strip()
-        state = self.tmp / "gateway"
+        state = GATEWAY_STATE or self.tmp / "gateway"
         write_upload_credential(state, self.credential)  # the host's gateway helper; backend never imports it
         central_app = FastAPI()
         install_gateway_tls_boundary(central_app)

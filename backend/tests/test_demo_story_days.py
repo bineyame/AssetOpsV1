@@ -303,6 +303,14 @@ def test_v2_each_instant_is_sent_once_per_stream():
     assert bad == [] and checked > 0, bad[:5]
 
 
+def test_v2_cold_days_are_in_the_instant_check():
+    cold = [r for r in sd.resolve(_v2(), S) if r.has_run and r.site == "cold"]
+    assert len({(r.day, r.epoch) for r in cold}) == len({r.day for r in cold}) and len(cold) > 24
+    bad, checked = _not_once(cold)
+    assert bad == [] and checked >= 24 * 60
+    assert _not_once([sd.replace(r, owned=()) for r in cold])[0]  # and it fails when a complement overlaps
+
+
 def test_v2_instant_check_is_not_vacuous():
     runs = [r for r in sd.resolve(_v2(), S) if r.has_run]
     loose = [sd.replace(r, owned=()) for r in runs]  # complements that ignore the story's instants
