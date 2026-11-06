@@ -342,3 +342,27 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **Size: DD-1a1 2.75 → 3.25 (+0.5)**, for the shared epoch and the continued sequence in `tools/demo_story_days.py` and the producers, the edge rule for Kobo and Cold, the gateway probe, and the acceptance above.
   - SCOPE-1 reason: without it, the full-day build has no Kobo Finding, no ACT-K1 trial anchor and no Cold assessment basis, so the board story cannot be shown.
 - **DD-1 7.5 → 8.0.** Lane 2 +0.5; the plan rows need it. No owner question: this is a build-shape fix that changes no shown story.
+
+## DD1a1-R6: on the Kobo `degraded` day, the outage lasts the rest of the local day
+
+- Architect: Claude (Architect 23), 2026-11-06. Binding checked: Claude in the lane worktrees' `.ai/ROLE_CONFIG.md` (owner, 2026-10-27). The primary checkout's copy is older and still reads Codex. Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `cb2204416`, "Kobo producer" deviation; `tools/demo_combined_kobo.py` `publish_first_half`/`run_day`/`_OUTAGE`; `backend/conversions/demo-story-days-v2.json`.
+- **Ruling: accepted. After the outage, complements on that Site-day deliver nothing. The reset-epoch alternative is rejected.**
+  - **What the day must show.** The day's story is an evidence gap: the gateway stopped part way through the 06:00–14:00 local run. A real gateway that stays down sends nothing more, so no later reading that day may arrive. The night before the outage is still present: `night-early` is received at 04:00Z, before the story run's 12:00Z. The client sees readings up to the outage point and "not received" from then to 24:00 local. That is a true gap, not a gap filled with partial data.
+  - **No false filling.** On R5's one gateway state, any post-outage delivery would first flush the withheld half from the outbox. That would make the gap disappear and contradict the kind's note that the rest is never delivered (append-only). The builder's rule is the only shape that keeps the gap on one stream.
+  - **Grading.** The day grades as v1's degraded day: the story run's assessment, its incomplete-evidence reason and the absence of a Finding are unchanged. The post-outage hours add no evidence, so "with" equals "without" for that day after the outage. The day stays one epoch, so it is not AMBIGUOUS.
+  - **Why the reset epoch is rejected.** It claims a gateway reset that the story does not contain. R5 rejected invented resets. It also makes the day AMBIGUOUS, which would hide the gap behind a cohort refusal instead of showing it.
+  - **The next day is unaffected.** Each Site-day has its own gateway state (`gw-<epoch>`), so the withheld batches are never delivered on a later day either. This matches "never delivered".
+- **Scope note.** The v2 Kobo calendar has no `degraded` day, so `_OUTAGE` does not fire in the full-day build. `degraded` is an `add-day` kind only, and `add_day` runs the story run alone on a fresh gateway dir with no complements. The rule is still kept for any calendar or test that lists the day.
+- **Required.**
+  - `_OUTAGE` is cleared at the start of each `build`, so a later build in the same process does not inherit an outage.
+  - The kind's `note` adds: "the gateway stays down for the rest of the local day; later hours are not received". Each post-outage complement's packet line says it was staged and not delivered.
+- **The check the builder must run (L2, own `*_test` DB; L0 where it can).** Use a test calendar holding one Kobo `degraded` day with its three complements, built through `run_day`. Assert:
+  1. `night-early` is delivered in full.
+  2. The story run delivers exactly `len(batches)//2` batches, equal to the v1 degraded delivery.
+  3. `steady-afternoon` and `night-late` deliver 0 batches.
+  4. S2 holds no reading for that day after the last delivered story sample. Every row is checked by source time.
+  5. The gateway outbox still holds the withheld and complement batches at the end.
+  6. The next Site-day's gateway delivers none of them.
+  7. The day is one epoch with 0 AMBIGUOUS, and its assessment and Findings equal the v1 degraded day.
+  - If any assertion fails, stop and the Architect rules.
+- **Size: +0.** The mechanism is already built. The check is one L2 case inside R5's probe and acceptance. DD-1a1 stays 3.25 and DD-1 stays 8.0. No owner question: no shown story changes.
