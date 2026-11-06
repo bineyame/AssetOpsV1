@@ -26,7 +26,7 @@ def _grow(body: dict) -> dict:
 
 def _check_nodes(row: dict, key: str) -> dict:
     nodes = row.get("nodes")
-    b4._record(key, {"nodes": nodes, "days_line": row.get("days_line"), "headline_money": row.get("headline_money")})
+    b4._record(key, {"nodes": nodes, "headline_money": row.get("headline_money")})
     assert isinstance(nodes, dict) and set(nodes) == {"kpi", "potential", "earnings"}, nodes
     claims = [c for c in nodes.values() if c is not None]
     for c in claims:

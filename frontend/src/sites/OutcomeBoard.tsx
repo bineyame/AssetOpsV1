@@ -113,27 +113,32 @@ function ColHead({ icon, children }: { icon: OutcomeGlyphName; children: ReactNo
 
 const GROW_PARTS = [["kpi", "Target"], ["potential", "Potential"], ["earnings", "Estimated income"]] as const;
 
-/** CH-6a3: `span.ob-grow > span.ob-part` x3; a claim that is not known reads "Not known yet" with the days line. */
+/**
+ * CH-6a3 R2b (H4): `div.ob-grow > div.ob-part` x3, each `span.ob-plabel + b (per line) + small.ob-days`, from the
+ * server's per-part `days_line`; a part never shows a neighbour's line. All three parts always show (the server fills
+ * an absent one). MOCK DEVIATION: MD-CH6-1 (R11 basis), MD-CH6-2 (the section A4 lines differ from the v70 mock
+ * examples), MD-CH6-3 (`target_note` in the subline), MD-CH6-7 (no Potential days line when the study has no day
+ * grades); register: mock-departure-register.md, mock: v70/index.html:213-215, 238, 420.
+ */
 function GrowParts({ row, fallback }: { row: OutcomeBoardRow; fallback: string | null }) {
   const nodes = row.nodes;
-  if (!nodes || GROW_PARTS.every(([k]) => nodes[k] === null)) return <>{fallback}</>;
+  if (!nodes || GROW_PARTS.every(([k]) => !nodes[k])) return <>{fallback}</>;
   return (
-    <span className="ob-grow" data-outcome-grow>
+    <div className="ob-grow" data-outcome-grow aria-label="Grow revenue in three parts">
       {GROW_PARTS.map(([k, label]) => {
         const c = nodes[k];
-        if (c === null) return null;
-        const lines = c.text.split("\n");
+        const lines = (c?.text ?? "").split("\n");
         return (
-          <span key={k} className="ob-part" data-outcome-part={k}>
-            <small>{label}</small>
+          <div key={k} className="ob-part" data-outcome-part={k}>
+            <span className="ob-plabel">{label}</span>
             {lines.map((l, i) => (
               <b key={i}>{l}</b>
             ))}
-          </span>
+            {c?.days_line ? <small className="ob-days" data-outcome-days>{c.days_line}</small> : null}
+          </div>
         );
       })}
-      {row.days_line ? <small className="ob-days" data-outcome-days>{row.days_line}</small> : null}
-    </span>
+    </div>
   );
 }
 

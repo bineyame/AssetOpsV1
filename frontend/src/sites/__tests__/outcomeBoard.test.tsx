@@ -368,44 +368,70 @@ describe("POLISH P-10 onRead", () => {
 });
 
 describe("CH-6a3 Grow parts", () => {
-  const claim = (key: string, text: string, basis = "COMPLETE") => ({ key, value: null, basis, days: null, text });
-  const growRead = (nodes: unknown, days_line: string | null) => {
+  // Server vocabulary (chain/vocabulary.py), so a copy regression fails here.
+  const claim = (key: string, text: string, days_line: string | null = null, basis = "COMPLETE") => ({
+    key, value: null, basis, days: null, text, days_line,
+  });
+  const growRead = (nodes: unknown) => {
     const body = boardBody();
-    body.rows = boardRows().map((r) =>
-      r.category === "GROW_REVENUE" ? ({ ...r, nodes, days_line } as typeof r) : r,
-    );
+    body.rows = boardRows().map((r) => (r.category === "GROW_REVENUE" ? ({ ...r, nodes } as typeof r) : r));
     return { status: "loaded", value: body } as OutcomeBoardRead;
   };
+  const noTarget = claim("verdict.none", "No target set yet", "No target, so no days are judged yet", "NOT_KNOWN");
 
-  it("showsTheThreePartsWithPotentialSplitOnNewline", async () => {
+  it("giveseachPartItsOwnDaysLineAndSplitsPotentialOnNewline", async () => {
     await renderBoard(
-      growRead(
-        {
-          kpi: claim("kpi", "Target 120 kWh"),
-          potential: claim("potential", "18 kW unused\nat about 0.12 per kWh\nprices differ across the days"),
-          earnings: claim("earnings", "About 40 per day"),
-        },
-        null,
-      ),
+      growRead({
+        kpi: claim("verdict.MG-1", "On track", "3 of 3 days checked"),
+        potential: claim("potential.value", "18-24.25 kW of daytime solar unused\nat about 0.12 per kWh", null),
+        earnings: claim("money.estimated_income", "Not known yet", "1 of 1 days checked", "NOT_KNOWN"),
+      }),
     );
     const parts = Array.from(rowEl("GROW_REVENUE").querySelectorAll("[data-outcome-part]"));
     expect(parts.map((p) => p.getAttribute("data-outcome-part"))).toEqual(["kpi", "potential", "earnings"]);
-    expect(Array.from(parts[0].querySelectorAll("small")).map((s) => s.textContent)).toEqual(["Target"]);
-    const lines = Array.from(parts[1].querySelectorAll("b")).map((b) => b.textContent);
-    expect(lines).toEqual(["18 kW unused", "at about 0.12 per kWh", "prices differ across the days"]);
-    expect(rowEl("GROW_REVENUE").querySelector("[data-outcome-days]")).toBeNull();
+    expect(parts.map((p) => p.querySelector(".ob-plabel")?.textContent)).toEqual(["Target", "Potential", "Estimated income"]);
+    expect(Array.from(parts[1].querySelectorAll("b")).map((b) => b.textContent)).toEqual([
+      "18-24.25 kW of daytime solar unused",
+      "at about 0.12 per kWh",
+    ]);
+    const days = parts.map((p) => p.querySelector(".ob-days")?.textContent ?? null);
+    expect(days).toEqual(["3 of 3 days checked", null, "1 of 1 days checked"]); // potential never borrows a neighbour's line
+    expect(rowEl("GROW_REVENUE").querySelectorAll(".ob-days")).toHaveLength(2); // no row-level line
   });
 
-  it("showsNotKnownYetWithItsDaysLine", async () => {
+  it("alwaysShowsTheTargetPartWithNoTargetAndItsDaysLine", async () => {
     await renderBoard(
-      growRead(
-        { kpi: null, potential: null, earnings: claim("earnings", "Not known yet", "NOT_KNOWN") },
-        "Checked 3 of 7 days",
-      ),
+      growRead({
+        kpi: noTarget,
+        potential: claim("potential.none", "No potential found yet", null, "NOT_KNOWN"),
+        earnings: claim("money.not_known", "Not known yet", null, "NOT_KNOWN"),
+      }),
     );
     const g = rowEl("GROW_REVENUE");
-    expect(g.querySelectorAll("[data-outcome-part]")).toHaveLength(1);
-    expect(g.querySelector("[data-outcome-part='earnings']")?.textContent).toContain("Not known yet");
-    expect(g.querySelector("[data-outcome-days]")?.textContent).toBe("Checked 3 of 7 days");
+    expect(g.querySelectorAll("[data-outcome-part]")).toHaveLength(3);
+    const target = g.querySelector("[data-outcome-part='kpi']");
+    expect(target?.textContent).toContain("No target set yet");
+    expect(target?.querySelector(".ob-days")?.textContent).toBe("No target, so no days are judged yet");
   });
+
+  async function readCss(): Promise<string> {
+  const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+  const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+  return fs.readFileSync(`${cwd}/src/sites/outcomes.css`, "utf8");
+}
+
+describe("CH-6a3 R2b grid css", () => {
+  it("usesTheV70GridClassAndDropsToOneColumnAt760", async () => {
+    const outcomesCss = await readCss();
+    expect(outcomesCss).toMatch(/\.ob-grow\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
+    expect(outcomesCss).toMatch(/@media \(max-width: 760px\)\s*\{\s*\.ob-grow\s*\{\s*grid-template-columns:\s*1fr/);
+  });
+
+  it("rendersTheGrowContainerAsTheObGrowGridClass", async () => {
+    await renderBoard(growRead({ kpi: noTarget, potential: null, earnings: null }));
+    const grid = rowEl("GROW_REVENUE").querySelector("[data-outcome-grow]");
+    expect(grid?.className).toBe("ob-grow");
+    expect(grid?.querySelectorAll(":scope > .ob-part")).toHaveLength(3);
+  });
+});
 });

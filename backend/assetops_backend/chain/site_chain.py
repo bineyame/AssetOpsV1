@@ -183,4 +183,4 @@ def outcomes_of(board_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]
              "refs": _row_refs(r),
              # CH-6a3 §A5: the row's node claims, copied (absent on a row built before CH-6a3 -> null nodes).
              "nodes": dict(r.get("nodes") or {"kpi": None, "earnings": None, "potential": None}),
-             "days_line": r.get("days_line"), "target_note": r.get("target_note")} for r in board_rows]
+             "target_note": r.get("target_note")} for r in board_rows]

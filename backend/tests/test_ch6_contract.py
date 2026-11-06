@@ -21,8 +21,10 @@ def test_every_row_carries_the_node_keys(name):
     body = json.loads((G / f"{name}.json").read_text(encoding="utf-8"))
     assert body["rows"]
     for row in body["rows"]:
-        assert {"nodes", "days_line", "target_note"} <= set(row)
+        assert {"nodes", "target_note"} <= set(row) and "days_line" not in row
         assert set(row["nodes"]) == {"kpi", "earnings", "potential"}
+        if any(row["nodes"].values()):   # R2b H4: all three parts present, each with its own days line key
+            assert all(c is not None and "days_line" in c for c in row["nodes"].values())
 
 
 def test_kobo_grow_has_a_potential_and_a_kpi_claim():

@@ -34,7 +34,6 @@
     "in_hand": 0,
     "issues": 0
    },
-   "days_line": null,
    "definition": "Capture more value from existing infrastructure and expand earning potential",
    "earlier": [],
    "earlier_empty_text": null,
@@ -118,7 +117,6 @@
     "in_hand": 0,
     "issues": 1
    },
-   "days_line": null,
    "definition": "Eliminate avoidable expenditure and get more output from operational resources",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
@@ -250,7 +248,6 @@
     "in_hand": 1,
     "issues": 2
    },
-   "days_line": "1 of 1 days checked",
    "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -313,7 +310,14 @@
    },
    "must_not_harm": null,
    "nodes": {
-    "earnings": null,
+    "earnings": {
+     "key": "money.not_known",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "Not known yet",
+     "days_line": null
+    },
     "kpi": {
      "basis": "COMPLETE",
      "days": {
@@ -326,9 +330,17 @@
      },
      "key": "verdict.CC-1",
      "text": "above 5°C in this window",
-     "value": "MISSED"
+     "value": "MISSED",
+     "days_line": "1 of 1 days checked"
     },
-    "potential": null
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
    },
    "not_measured_text": null,
    "options": [
@@ -423,7 +435,6 @@
     "in_hand": 0,
     "issues": 0
    },
-   "days_line": null,
    "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",

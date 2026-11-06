@@ -29,7 +29,6 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
-   "days_line": "1 of 1 days checked",
    "headline": null,
    "nodes": {
     "earnings": {
@@ -44,21 +43,24 @@
      },
      "key": "money.estimated_income",
      "text": "Not known yet",
-     "value": null
+     "value": null,
+     "days_line": "1 of 1 days checked"
     },
     "kpi": {
      "basis": "NOT_KNOWN",
      "days": null,
      "key": "verdict.MG-1",
      "text": "No target set yet",
-     "value": null
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
     },
     "potential": {
      "basis": "NOT_KNOWN",
      "days": null,
      "key": "potential.daytime_solar_headroom",
      "text": "No potential found yet",
-     "value": null
+     "value": null,
+     "days_line": null
     }
    },
    "refs": [
@@ -89,7 +91,6 @@
   },
   {
    "category": "OPTIMIZE_COST",
-   "days_line": "No target, so no days are judged yet",
    "headline": "No fuel cost estimated for this day",
    "nodes": {
     "earnings": {
@@ -97,16 +98,25 @@
      "days": null,
      "key": "money.possible_extra_fuel_cost",
      "text": "Not known yet",
-     "value": null
+     "value": null,
+     "days_line": null
     },
     "kpi": {
      "basis": "NOT_KNOWN",
      "days": null,
      "key": "verdict.MG-2",
      "text": "No target set yet",
-     "value": null
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
     },
-    "potential": null
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
    },
    "refs": [
     {
@@ -155,7 +165,6 @@
   },
   {
    "category": "PROTECT_ASSET",
-   "days_line": null,
    "headline": "Battery stayed clear of its reserve in 2 assessed generator periods",
    "nodes": {
     "earnings": null,
@@ -196,7 +205,6 @@
   },
   {
    "category": "ASSURE_PERFORMANCE",
-   "days_line": null,
    "headline": "No verified result yet",
    "nodes": {
     "earnings": null,

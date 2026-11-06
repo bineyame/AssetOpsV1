@@ -299,8 +299,7 @@ def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state:
     """CH-6a3 §A5 / CH6a3-R Q1: the row's `nodes`, `days_line` and R7 `target_note`. `earnings` and `potential` are
     the first row outcome (catalogue order) holding that claim; `kpi` is the lead outcome's claim when it has an
     objective, else the first outcome with one, else the outcome with a `kpi` record ("No target set yet"). No node
-    record and no objective: every node null. `days_line` is the first node days line (kpi, earnings, potential),
-    else `target.days_none` under a "No target set yet" kpi."""
+    record and no objective: every node null. Each node carries its own `days_line` (no row-level line); an absent node is server-filled."""
     per = facts.nodes
     declared = {o.outcome_key for o in facts.objectives}
 
@@ -312,15 +311,28 @@ def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state:
     nodes = {"kpi": None if kpi_key is None else (per.get(kpi_key) or {}).get("kpi"),
              "earnings": first("earnings"), "potential": first("potential")}
     day = facts.day if facts.one_day else None   # M4: a "No readings on {day}" line only for a one-day window
-    line = next((x for x in (node_days_line(n.get("days"), day) for n in (nodes[k] for k in NODE_KEYS) if n)
-                 if x), None)
-    kpi = nodes["kpi"]
-    if line is None and kpi is not None and kpi.get("value") is None and kpi.get("text") == node_text("target.none"):
-        line = node_text("target.days_none")
+    if all(nodes[k] is None for k in NODE_KEYS):
+        nodes = {k: None for k in NODE_KEYS}
+    else:   # CH6a3-R2b H4: all three parts always present, each with its own days line from its own days
+        fill = {"kpi": ("verdict.none", node_text("target.none"), node_text("target.days_none")),
+                "potential": ("potential.none", node_text("potential.none"), None),
+                "earnings": ("money.not_known", node_text("money.not_known"), None)}
+        out: dict[str, Any] = {}
+        for k in NODE_KEYS:
+            n = nodes[k]
+            if n is None:
+                key, text, line = fill[k]
+                out[k] = {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None, "text": text, "days_line": line}
+            else:
+                line = node_days_line(n.get("days"), day)
+                if line is None and k == "kpi" and n.get("value") is None and n.get("text") == node_text("target.none"):
+                    line = node_text("target.days_none")
+                out[k] = {**n, "days_line": line}
+        nodes = out
     note = None
     if row_state == ON_TRACK and any(st == NO_OBJECTIVE for _, st in states):
         note = node_text("row.target_note", k=sum(1 for k in keys if k in declared), m=len(keys))
-    return {"nodes": nodes, "days_line": line, "target_note": note}
+    return {"nodes": nodes, "target_note": note}
 
 
 def join_names(labels: Sequence[str]) -> str:

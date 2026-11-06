@@ -13,7 +13,6 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
-   "days_line": null,
    "headline": null,
    "nodes": {
     "earnings": null,
@@ -28,7 +27,6 @@
   },
   {
    "category": "OPTIMIZE_COST",
-   "days_line": null,
    "headline": null,
    "nodes": {
     "earnings": null,
@@ -49,10 +47,16 @@
   },
   {
    "category": "PROTECT_ASSET",
-   "days_line": "1 of 1 days checked",
    "headline": "Chamber above 5°C for 40–55 min",
    "nodes": {
-    "earnings": null,
+    "earnings": {
+     "key": "money.not_known",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "Not known yet",
+     "days_line": null
+    },
     "kpi": {
      "basis": "COMPLETE",
      "days": {
@@ -65,9 +69,17 @@
      },
      "key": "verdict.CC-1",
      "text": "above 5°C in this window",
-     "value": "MISSED"
+     "value": "MISSED",
+     "days_line": "1 of 1 days checked"
     },
-    "potential": null
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
    },
    "refs": [
     {
@@ -97,7 +109,6 @@
   },
   {
    "category": "ASSURE_PERFORMANCE",
-   "days_line": null,
    "headline": "Event partly reconstructed · no verified result yet",
    "nodes": {
     "earnings": null,

@@ -65,7 +65,6 @@
     "in_hand": 1,
     "issues": 1
    },
-   "days_line": "0 of 1 days checked · 1 with too little data, not counted",
    "definition": "Capture more value from existing infrastructure and expand earning potential",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -128,15 +127,24 @@
      },
      "key": "money.estimated_charging_income",
      "text": "Not known yet",
-     "value": null
+     "value": null,
+     "days_line": "0 of 1 days checked · 1 with too little data, not counted"
     },
-    "kpi": null,
+    "kpi": {
+     "key": "verdict.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No target set yet",
+     "days_line": "No target, so no days are judged yet"
+    },
     "potential": {
      "basis": "NOT_KNOWN",
      "days": null,
      "key": "potential.idle_charger_capacity",
      "text": "No potential found yet",
-     "value": null
+     "value": null,
+     "days_line": null
     }
    },
    "not_measured_text": null,
@@ -180,7 +188,6 @@
     "in_hand": 0,
     "issues": 0
    },
-   "days_line": null,
    "definition": "Eliminate avoidable expenditure and get more output from operational resources",
    "earlier": [],
    "earlier_empty_text": null,
@@ -279,7 +286,6 @@
     "in_hand": 1,
     "issues": 1
    },
-   "days_line": "No target, so no days are judged yet",
    "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
    "earlier": [],
    "earlier_empty_text": "No earlier work has been checked for this",
@@ -330,15 +336,30 @@
    },
    "must_not_harm": null,
    "nodes": {
-    "earnings": null,
+    "earnings": {
+     "key": "money.not_known",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "Not known yet",
+     "days_line": null
+    },
     "kpi": {
      "basis": "NOT_KNOWN",
      "days": null,
      "key": "verdict.EV-1",
      "text": "No target set yet",
-     "value": null
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
     },
-    "potential": null
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
    },
    "not_measured_text": null,
    "options": [
@@ -431,7 +452,6 @@
     "in_hand": 0,
     "issues": 0
    },
-   "days_line": null,
    "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
    "earlier": [],
    "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
