@@ -677,3 +677,58 @@ Handoff: `AssetOpsV1-ch6b1\.agent\CH-6b1-handoff.md` at `771170f2a`. **CH-6b1 go
 - The packet records the template gap and states that the template is not rebuilt to reach 6 of 7.
 
 **KD-1 is confirmed** (CH6b1-R Q6): Cold and EV are checked at L0 only. Real-data cross-Site agreement is covered by the L3 clone and by COH-17 in CH-6b3.
+
+## CH6b1-R3: KD-4, cold and EV event evidence inside a PERIOD window (Architect 24, Claude, 2026-11-06)
+
+Packet: `AssetOpsV1-ch6b1\.agent\review-packet-CH-6b1.md` at `e98db433d`. **KD-4 is not accepted as an honest result. CH-6b1 goes from 2.0 to 2.75.** No owner question.
+- **Why it is not honest.** A day or week that contains an assessed failure now reads UNKNOWN on the Portfolio and on the Site board, with no repeat warning. The `overview_href` is now the plain Site link, so the Portfolio no longer leads to the failure either. Only a deep Finding or evidence link still reaches the failure.
+  - "Not known" said about a window whose evidence is known and assessed is untrue by omission, and the Cold failure-cost story drops out of the demo's main path.
+  - CH6b1-R Q2's condition covered a window with **no** event in it (no reach-back). It never allowed a contained event to vanish.
+- **Rule.** PERIOD stays: the basis is PERIOD and the window is the requested window. But cold/EV evidence-bound reads cover every selected evidence window that lies inside `[lo, hi)`, using the existing `site_selected_windows(_many)` (`estate/evidence_money.py:506,554`).
+  - Overview, findings and their cost or consequence are read per contained window.
+  - The row shows the latest contained event's facts. Its days line names that event's window, for example "26 Oct 16:00–17:05".
+  - The repeat warning counts the contained events.
+  - No window outside `[lo, hi)` is ever read (the Q2 no-reach-back rule).
+  - No contained window: the composers' none or not-known state, unchanged.
+  - The summary, EstateChain and the Site board all go through this one path, so summary = EstateChain = board still holds.
+- **Tests.** `test_out_c3_repeat_visits_postgres.py` returns to NEEDS_ATTENTION with the REPEATED warning on day and week, with PERIOD basis and the requested window. Add an L0 case where an event lies outside the window and is not read. The EV equivalent goes in L0 if EV reads are window-bound.
+- **Packet.**
+  - The L3 clone records the Cold and EV Portfolio and board values old → new on the story days, with 0 new.
+  - The packet also states which client surface reached the failure before this fix: the Findings or evidence page.
+- **Size:** +0.75 (cold and EV composer read over contained windows 0.5; tests and clone evidence 0.25).
+
+## CH6b1-R4: the CH-6b1 review fix (Architect 24, Claude, 2026-11-06)
+
+Review: `.agent/review-CH-6b1.md` (REVISE). **One fix round applies R3 and R4 together.** No owner question.
+
+**The governing rule for H1, H2 and M1 (SPAN):** every node claim carries the span it actually judged, as `span: {first, last}`, Site-local and additive on the wire, set by the evaluator branch that produced it.
+- The one `days_line` function counts `days` over that span.
+- It names the span only when the span differs from the Portfolio window's `window_days`. A one-day span reads "27 Oct · …"; a longer span reads "1–31 Oct · …".
+- A span equal to the window is not named.
+- A figure's days line therefore always covers the reading it sits beside (the one-source rule of CH6a3-R2, applied to the window). This replaces R2's "name the last day" trigger.
+
+**H1: carry the judged day; do not gate on the record.**
+- A record-based kpi's span is the window, so EV-1 over a week reads "0 of 1 day checked · …" with no date. Its one expected day is the Tuesday, and that is in `days`.
+- The no-record branch (`chain/outcomes.py:136-140`) sets span = its judged day, so it is named as R2 requires.
+- L0 adds a record-based EV kpi over a week with one TUE expected day. The last window day must not be named.
+
+**H2: (a), label with its day.** The mini MG-2 reading is the composer's board day (R14 / CH3-R), so its span is that day, and its `days` are counted over that day, not the week. Recomputing over the window is not defensibility-critical once the line is labelled, and goes to the backlog as BL-17 together with KD-2's window-wide judging. L0 gives Kobo an MG-2 objective.
+
+**M1: a defect; name the span.** MG-1 month-to-date sets span = [1st of the month, the window's last local day]. Week and month cards then read, for example, "1–31 Oct · 0 of 31 days checked · 7 partly checked". L0 gives Kobo an MG-1 objective. The Q1 check becomes: an unnamed node's day set equals the Site's window days, and a named node's `days` equal its span's day set. The check is non-vacuous for CC-1, earnings, MG-1, MG-2 and EV-1.
+
+**KD-4: R3 stands and closes it.** The reviewer's backlog recommendation is overridden.
+- The round's first step is the clone check R3 requires: the Cold and EV week and day rows on the story days.
+- If those rows already show the contained event and its repeat warning, with no UNKNOWN, the demo story is intact. In that case:
+  - R3's composer change for sub-day windows goes to the backlog as BL-18;
+  - KD-4 is recorded as a Known Deviation, with that evidence;
+  - the size drops by 0.5.
+- Otherwise R3 applies as ruled.
+- L4 is folded into R3's tests: assert that the Cold board over the same day and week has the same OPTIMIZE_COST state as the summary.
+
+**Lows confirmed.**
+- L1: fix the docstrings at `:403` and `:451`.
+- L2: `site_selected_windows_many` is R3's reader, so it is kept with a production caller. If R3 goes to the backlog, delete it and its spy and repoint `test_qw2_many_postgres.py`.
+- L3: log every fallback path, or correct the docstring to "counted", and put the L3 W6 fallback count (expected 0) in the packet.
+- The "1 day" / "1 of 1 days" wording preference goes to CH-6b2 copy.
+
+**Size:** R4 +0.5 (SPAN on the claim and `days_line` 0.25; L0 objectives and the EV, MG-1 and MG-2 cases 0.25); the Lows +0. **CH-6b1: 2.75 → 3.25** (2.75 if R3 shrinks as above). The round is one Sonnet builder, followed by one fresh Claude re-review.
