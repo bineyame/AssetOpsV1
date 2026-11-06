@@ -141,3 +141,9 @@
 - L1 `grade_counts` worst-of-day lets NOT_EXPECTED/PENDING outrank COMPLETE on a day.
 - L2 earnings filter each row by its own grade while `days` uses the day's worst grade — reconcile in CH-6a2.
 - L3 missing currency becomes the string "None".
+
+## CH-9b2 (merged, review ACCEPT, .agent/review-CH-9b2.md)
+- L2 0052 `_one_anchor`/`_one_origin` CHECKs implied by the family CHECK, untested alone.
+- L3 import of private `_day_grade` → CH-6a2's public `day_grade` after both merge (CH-9b3 or CH-6a3).
+- L4 CH-9b3 must map `domain_action_id` in the lifecycle `_OUTCOMES` read.
+- Main: S6 `test_verified_resolves...` red since a8c748b7c (CH-5a2b added `verification.source_class`) → FIX-MAIN-3 regenerates `s6_verification_api_contract.json`.

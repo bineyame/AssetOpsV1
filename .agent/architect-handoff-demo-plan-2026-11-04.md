@@ -610,3 +610,19 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
 - Q4 is overridden. The study shows for OPEN, RECURRED, REOPENED and CHANGE_APPLIED. RESOLVED_MONITORING, CLOSED and WITHDRAWN show "No potential found yet".
 - Q6: the copy equals the mock, but the basis is NOT_KNOWN with `days=None`.
 - CH-6a2 stays 2. There is no new work and no backlog item.
+
+## Update 2026-11-05 (Architect 18): CH6a3-R
+
+- CH6a3-R is recorded at the end of `build-sheet-CH-6.md`. Nothing committed.
+- **CH-6a2 deviations:** all eight are confirmed. ACTION_IN_HAND corrects my CH6a2-R Q4 omission. `POTENTIAL_STATES` is now defined by exclusion, as every state except RESOLVED_MONITORING, CLOSED and WITHDRAWN.
+- **Q3, price line in "Why?":**
+  - Several prices give the line "{kwh} kWh at {n} declared prices"; it is not omitted.
+  - MG-2 gets "{lo}–{hi} L × {price} {cur}/L" from the stored consequence. This is +0.25 and defensibility-critical.
+- **Q4:** must show "Not known yet", never a blank.
+- **Q5:** the headroom words follow `POTENTIAL_STATES`.
+- **Q1, Q2 and Q6** are accepted.
+- **Sizing:** BL-13 stays in the backlog. CH-6a3 goes from 1.75 to 2.0, and the plan row needs that +0.25 with the SCOPE-1 reason.
+
+## Update 2026-11-06 (Architect 19): CH9b3-R
+
+- Binding checked: Claude. Nothing committed. CH9b3-R is recorded at the end of `build-sheet-CH-9b.md`. All 12 defaults are accepted. **CH-9b3 goes from 1.0 to 1.5**, making CH-9b 7.5 and lane 2 15.0; the plan rows still need this. SCOPE-1 reason: the mill verdict page is the only place the R7 before/after line and the metrics table can show, and without it the Grow row's "verified" claim is untraceable. There is no overlap with CH-6a3. For the owner: Q3, a zero baseline, is read as INCONCLUSIVE BASELINE_ZERO, so no rise is claimed.

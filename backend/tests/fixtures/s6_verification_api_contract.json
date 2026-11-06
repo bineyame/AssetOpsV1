@@ -1862,6 +1862,7 @@
     "reasons": [
      "TARGET_AND_GUARDRAILS_PASS"
     ],
+    "source_class": "AUTHORED_DEMONSTRATION",
     "state": "VERIFIED",
     "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim.",
     "trial_hours": {

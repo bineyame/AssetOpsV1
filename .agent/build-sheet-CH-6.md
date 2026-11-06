@@ -533,3 +533,30 @@ Pre-flight: `AssetOpsV1-ch6a2\.agent\CH-6a2-preflight.md` at `42a2cbaaf`. **CH-6
   - With no objective, nothing is judged, so the `kpi` claim has `value=None`, `days=None` and basis NOT_KNOWN. A basis taken from the days would label a non-judgement COMPLETE.
   - The text `target.none` "No target set yet" and the days line `target.days_none` "No target, so no days are judged yet" equal the mock (`v70/index.html:418-419`). There is no MOCK DEVIATION.
   - Both strings are vocabulary templates (guard V).
+
+## CH6a3-R: rulings on the CH-6a3 pre-flight (Architect 18, Claude, 2026-11-05)
+
+Pre-flight: `AssetOpsV1-ch6a3\.agent\CH-6a3-preflight.md` at `c41dc104b`. **CH-6a3 goes from 1.75 to 2.0** (+0.25 for the MG-2 price line, Q3, which is defensibility-critical). BL-13 stays in the backlog.
+
+**The CH-6a2 Known Deviations: all eight are confirmed.**
+- **D1.** The MG-5 suffix is not built. Since CH-9 R9 the reading covers the whole day, so "12:00–13:00" would be untrue.
+- **D2, ACTION_IN_HAND.** Confirmed, which corrects CH6a2-R Q4: the list there left this state out by mistake. Before a change is applied, the study is the latest evidence, so "No potential found yet" would be untrue.
+  - To prevent another omission, `POTENTIAL_STATES` is defined by exclusion: every thread state except RESOLVED_MONITORING, CLOSED and WITHDRAWN.
+  - A test covers ACTION_IN_HAND and each excluded state.
+  - The R13 signal stays OPEN or RECURRED.
+- **D3 to D8** are confirmed as recommended.
+
+**Questions**
+- **Q1 accepted.**
+- **Q2 accepted.** Each Grow part carries its own days line, as in mock M3, so every shown figure has its days. BL-13 (the row-level M1 line, which stays in "Why?") is not defensibility-critical and stays in the backlog.
+- **Q3 overridden on two points; the kWh default is accepted.**
+  - **Earnings:** "{kwh} kWh × {price} {cur}/kWh", as proposed (MOCK DEVIATION against "× assumed price $0.30 per kWh", as listed).
+  - **Several prices:** the line is not omitted. A figure whose price "Why?" leaves out silently cannot be traced. "Why?" shows the vocabulary line `why.from.price_several` = "{kwh} kWh at {n} declared prices over these days" (copy only, +0). The packet still counts the case.
+  - **MG-2 Cost is included,** since the owner said every money figure and an untraceable cost cannot be defended.
+    - The line is `why.from.fuel_price` = "{lo}–{hi} L × {price} {cur}/L", built from the stored consequence's `low_litres` / `high_litres` (`analytics/dispatch.py:735-736`) and its declared fuel price.
+    - It uses one value when low and high are equal, and the several-prices rule above applies.
+    - If the body carries no price, the line is omitted, and the packet records that as a Known Deviation. No new price read is built. **+0.25.**
+- **Q4 accepted, with one condition.** Showing money on a LOW or NO_DATA day would price unchecked data, which breaks A4. So the change is the defensible one, and it is listed in L3.
+  - The Estimated income part must read `money.not_known` with its days line, never an empty part or a missing figure.
+- **Q5 accepted, with the same predicate.** Wherever the Grow headroom words ("18–20 kW…") are still shown outside the Potential part, they follow `POTENTIAL_STATES`. They must not stay on from a study whose change has been verified. This costs +0 because the predicate already exists.
+- **Q6 accepted.** The golden diff is limited to the named keys plus the R5/R6/R7/R13 value changes.
