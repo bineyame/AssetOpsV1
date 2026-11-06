@@ -146,14 +146,16 @@ def test_claims_count_only_finding_threads_meeting_the_window(monkeypatch) -> No
     assert {c.basis for c in out.claims.values()} == {"NOT_KNOWN"}  # days None: the grade read failed
 
 
-def test_claims_cold_cutoff_is_the_evidence_cutoff_bounded_by_k(monkeypatch) -> None:
+def test_claims_threads_are_read_at_the_request_cutoff_for_every_domain(monkeypatch) -> None:
+    """CH6b2-R2 (supersedes the CH-5a2 R7 cold/EV thread cutoff): lifecycle is read at `k`, never the evidence cutoff;
+    evidence reads keep R7 (`site_cutoff`, test_ch6b2_portfolio_cards)."""
     monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: None)
-    req = _Req(k=None, ev=_dt(2026, 10, 4, tzinfo=_tz.utc))  # the RESOLVED_MONITORING event is after it
+    req = _Req(k=None, ev=_dt(2026, 10, 4, tzinfo=_tz.utc))  # the RESOLVED_MONITORING event is after the evidence cutoff
     out = CL.estate_count_claims(req, [_COLD], _LO, _HI, [])
-    assert out.threads["COLD-001"] == {"open": 2, "in_hand": 0, "verified": 0} and req.ev_calls == 1
+    assert out.threads["COLD-001"] == {"open": 1, "in_hand": 0, "verified": 1} and req.ev_calls == 0
     mini = _Req(ev=_dt(2026, 10, 4, tzinfo=_tz.utc))
     CL.estate_count_claims(mini, [_MINI], _LO, _HI, [])
-    assert mini.ev_calls == 0  # mini reads the request's cutoff
+    assert mini.ev_calls == 0
 
 
 def test_claims_failed_thread_read_or_opportunity_read_is_not_known(monkeypatch) -> None:
