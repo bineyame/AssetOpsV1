@@ -1,3 +1,15 @@
+# DD-1a1 handoff (builder 7: STOPPED at the R5 `with` build; Architect must rule)
+
+## State
+- Branch `task/DD-1a1-steady-fullday`, head after this commit. Main (DD1a1-R6) merged. No DBs, no processes.
+- Landed: Cold wiring (`e7d8608b0`: `test_w202 GATEWAY_STATE`, `test_w502 KEEP`, `demo_combined_cold` per-day gateway dir + attest once per epoch; L0 Cold check, 30 passed); R6 pieces (`75d1a4bd5`: `_OUTAGE.clear()` in build, v2 degraded note, `outbox_after` read-back, `tools/dd1a1_degraded_check.py with|without|compare`, NOT yet run).
+- Env helper used: PYTHONPATH must also include `backend\tests;host\tests` (pg_harness); a Bash env script was in the scratchpad dir `C:\Users\assef\dd1a1w\env.sh`.
+
+## STOP: the `with` Kobo build fails on the trial-after day's `night-early`
+- 28 Kobo runs built; then `RunSetupRefused: Foundation v16 is valid until 2026-11-05T00:00:00Z, inside the run interval [2026-11-04T21:00:00Z, 2026-11-05T03:00:00Z]` (one run cannot cite one basis across a foundation revision boundary).
+- It is the `night-early` complement of `trial-after` (day 2026-11-05, S+1d; interval D-1 21:00Z to D 03:00Z). The trial chain's foundation revision ends at 2026-11-05T00:00Z, mid-run. Only this one hit; all earlier nights (including 11-04's) passed.
+- Not tuned. Options for the Architect: split that night-early at 00:00Z into two runs; or start trial-after's night at 00:00Z and place D-1 21:00-24:00 elsewhere; or move the revision boundary.
+- Not run: `without` build, R5 acceptance, R6 check, R3 five, mill day, Q8, Cold failure day, guards, packet.
 # DD-1a1 handoff (builder 6: DD1a1-R5 PARTIAL, stopped at the context limit; resume at "Next")
 
 ## State
