@@ -100,7 +100,7 @@ def _v2_kobo_files() -> dict:
     days = json.loads((CONVERSIONS / "demo-story-days-v2.json").read_text(encoding="utf-8"))
     files = {}
     for kind, k in days["kinds"]["kobo"].items():
-        if "scenario_id" in k:
+        if "scenario_id" in k and "start" in k:
             def at(text):
                 day, hhmm = text.split()
                 d = datetime.fromisoformat(DAY) + timedelta(days=int(day[1:-1]))
