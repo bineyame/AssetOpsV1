@@ -30,7 +30,8 @@ def main(mode: str, work: Path) -> None:
     doc = sd.load(sd.V2_FILE)
     cold = mode in ("cold", "cold-without")
     site = "cold" if cold else "kobo"
-    doc["sites"] = {site: doc["sites"][site]}
+    if not cold:  # the story resolver needs the Kobo days even for a Cold-only build
+        doc["sites"] = {site: doc["sites"][site]}
     if mode == "stream":  # DD1a1-R8 probe: the isolated late day S-3d and the S-1d/S/S+1d stream, with complements
         doc["sites"]["kobo"] = [e for e in doc["sites"]["kobo"] if e["day"] in ("S-3d", "S-1d", "S+0d", "S+1d")]
     if mode in ("mill", "mill-without"):  # DD-1a1 mill day: the prepare-only `mill-midday` placed at S-5d beside the stream
