@@ -27,7 +27,8 @@ from assetops_backend.chain.read import assessment_state, board_day, lead_findin
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
-from assetops_backend.chain.outcomes import NodeInputs, OutcomeEvaluator, earnings_money, headroom_signal_on, potential_shown, site_nodes
+from assetops_backend.chain.outcomes import (
+    NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, potential_shown, site_nodes)
 from assetops_backend.outcomes.catalogue import MINI, SITE_OUTCOMES
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.warnings import evaluate
@@ -479,6 +480,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       if priced and not zero else None}
     # WALK1-3 §4.4: a sales estimate leads; spare solar stays a contributor. L3: a zero-use day yields to a
     # spare-solar headline when one exists.
+    spare_headline = headline[GROW]
     if sales.get("headline") is not None and not (sales.get("zero") and headline[GROW] is not None):
         headline[GROW] = sales["headline"]
         headline_money[GROW] = sales.get("money")
@@ -526,8 +528,13 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     nodes = site_nodes(replace(node_in, warnings=tuple(warnings)), node_keys)
     grow_earn = next(((nodes.get(k) or {}).get("earnings") for k in node_keys
                       if (nodes.get(k) or {}).get("earnings") is not None), None)
-    if sales.get("headline") is not None and not sales.get("zero"):
-        headline_money = {**headline_money, GROW: earnings_money(grow_earn)}
+    if sales.get("kwh") is not None:  # CH6a3-R2 H3 ONE-SOURCE: the earnings claim states the sales figures
+        grow = _sales_from_claim(earnings_parts(grow_earn, day), sales, spare_headline)
+        headline = {**headline, GROW: grow["headline"]}
+        headline_money = {**headline_money, GROW: grow["money"]}
+        facts = replace(facts, subline={**facts.subline, GROW: grow["subline"]}, contributors={
+            **facts.contributors, GROW: tuple(grow["line"] if x.key == "productive_sales" else x
+                                              for x in facts.contributors[GROW])})
     facts = replace(facts, nodes=nodes, warnings=warnings, headline_money=headline_money, headline={
         **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
         else protect_clear(reserve)})
@@ -788,13 +795,40 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
     h = num(Decimal(energy["measured_seconds"]) / Decimal(3600))
     words = {"kwh": num(kwh), "names": names, "h": h, "hours": plural(h, "hour", "hours")}
     if value is None:
-        return {"kwh": kwh, "subline": None, "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
-    out = {"kwh": kwh, "price": {"amount": str(value), "currency": cur}, "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
+        return {"kwh": kwh, "words": words, "subline": None,
+                "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
+    out = {"kwh": kwh, "words": words,
+           "price": {"amount": str(value), "currency": cur, "revision_id": sel.get("revision_id")},
+           "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
            "contributors": (_sales_line(SALES_USED.format(**words), DECLARED), price)}
     if kwh == 0:  # L3: the spare-solar headline leads on a zero-use day when one exists (see compose)
         return {**out, "headline": SALES_ZERO_HEADLINE.format(names=names), "money": None, "zero": True}
     amount = f"{(kwh * value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):f}"
     return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
+
+
+def _sales_from_claim(parts: dict[str, Any], sales: dict[str, Any], spare_headline: str | None) -> dict[str, Any]:
+    """CH6a3-R2 H3 (ONE-SOURCE): the Grow headline, money, subline and "Productive-use sales" line when the board
+    day's live read found measured use. Every kWh and price comes from the MG-1 earnings claim (`earnings_parts`):
+    its basis kWh, measured seconds and single-revision price. NOT_KNOWN: the line reads "Not known yet" with the
+    claim's days line, no subline and no money; the headline keeps the sales wording only where the live read was
+    priced (an unpriced day keeps the spare-solar headline, as before)."""
+    if not parts["known"]:
+        return {"headline": SALES_HEADLINE if sales.get("headline") is not None else spare_headline,
+                "money": None, "subline": None, "line": _sales_line(parts["text"])}
+    kwh, secs, price = parts["kwh"], parts["measured_seconds"], parts["price"]
+    words = dict(sales["words"])  # names; the hours only when the rows carry no measured seconds
+    words["kwh"] = num(kwh)
+    if secs is not None:
+        words["h"] = num(Decimal(secs) / Decimal(3600))
+        words["hours"] = plural(words["h"], "hour", "hours")
+    subline = (None if not price else
+               SALES_SUBLINE.format(**words, p=price_text(price["amount"]), cur=price.get("currency")))
+    line = _sales_line(SALES_USED.format(**words), DECLARED)
+    if kwh == 0:  # L3: a zero-use day yields to the spare-solar headline when one exists
+        return {"headline": spare_headline or SALES_ZERO_HEADLINE.format(names=words["names"]), "money": None,
+                "subline": subline, "line": line}
+    return {"headline": SALES_HEADLINE, "money": parts["money"], "subline": subline, "line": line}
 
 
 def _grow(c: str, depth: dict, rc: Any,

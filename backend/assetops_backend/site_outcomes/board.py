@@ -277,6 +277,8 @@ class SiteFacts:
     #: CH-3 §5: the board's Site-local day and cutoff (the thread state is read on `day` as of `known_at`).
     day: Any = None        # datetime.date | None (this module imports only outcomes/ and these stdlib modules)
     known_at: Any = None   # datetime | None
+    #: CH6a3-R2 M4: True only when the board window is exactly one Site-local day (`day` may then date a days line).
+    one_day: bool = False
     #: CH3-R M3: the board's 31-day work window `(work_lo, end)` (mini); None = no thread-level line.
     work_window: Any = None
     #: CH-6a3 §A5: per outcome key, the OutcomeEvaluator's node claims as JSON {"kpi", "earnings", "potential"}.
@@ -309,9 +311,11 @@ def row_nodes(facts: "SiteFacts", keys: Sequence[str], lead_key: str, row_state:
         (k for k in keys if kpi_record(k) is not None), None)
     nodes = {"kpi": None if kpi_key is None else (per.get(kpi_key) or {}).get("kpi"),
              "earnings": first("earnings"), "potential": first("potential")}
-    line = next((x for x in (node_days_line(n.get("days"), facts.day) for n in (nodes[k] for k in NODE_KEYS) if n)
+    day = facts.day if facts.one_day else None   # M4: a "No readings on {day}" line only for a one-day window
+    line = next((x for x in (node_days_line(n.get("days"), day) for n in (nodes[k] for k in NODE_KEYS) if n)
                  if x), None)
-    if line is None and nodes["kpi"] is not None and nodes["kpi"].get("value") is None             and nodes["kpi"].get("text") == node_text("target.none"):
+    kpi = nodes["kpi"]
+    if line is None and kpi is not None and kpi.get("value") is None and kpi.get("text") == node_text("target.none"):
         line = node_text("target.days_none")
     note = None
     if row_state == ON_TRACK and any(st == NO_OBJECTIVE for _, st in states):

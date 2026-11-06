@@ -306,9 +306,19 @@ def _priced(day, grade, amount, rev):
 
 def test_earnings_one_price_names_the_declared_price():
     rows = [_priced(7, "COMPLETE", "2.50", "r1"), _priced(8, "COMPLETE", "2.50", "r1")]
-    e = EV.nodes(inp(rows, hi=8, lo=7, price=PRICE), "MG-1")["earnings"]
+    e = EV.nodes(inp(rows, hi=8, lo=7, price={**PRICE, "revision_id": "R1"}), "MG-1")["earnings"]
     assert e.value["kwh"] == "20" and e.value["price"] == {"amount": "0.25", "currency": "USD"}
     assert "price_count" not in e.value
+    # CH6a3-R2 M5: kWh x price reproduces the figure the line explains
+    assert Decimal(e.value["kwh"]) * Decimal(e.value["price"]["amount"]) == Decimal(e.value["amount"])
+
+
+def test_earnings_price_of_another_revision_prints_no_price_line():
+    """CH6a3-R2 M5: the declared price at hi is not the counted rows' revision (or carries none): no price line."""
+    rows = [_priced(7, "COMPLETE", "2.50", "r1"), _priced(8, "COMPLETE", "2.50", "r1")]
+    for price in ({**PRICE, "revision_id": "r2"}, PRICE):
+        e = EV.nodes(inp(rows, hi=8, lo=7, price=price), "MG-1")["earnings"]
+        assert e.value["amount"] == "5.00" and "price" not in e.value and "price_count" not in e.value
 
 
 def test_earnings_several_prices_counts_them_and_never_names_one():

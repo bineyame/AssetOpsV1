@@ -22,15 +22,12 @@
    "category": "GROW_REVENUE",
    "contributors": [
     {
-     "confidence": {
-      "label": "Low",
-      "tone": "amber"
-     },
+     "confidence": null,
      "href": null,
      "key": "charging_delivered",
      "label": "Charging delivered",
      "link_ref": null,
-     "text": "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
+     "text": "Not known yet · 0 of 1 days checked · 1 with too little data, not counted"
     },
     {
      "confidence": {
@@ -171,7 +168,7 @@
    "potential": null,
    "state": "WATCH",
    "state_label": "Watch",
-   "subline": "182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh · not billed or collected",
+   "subline": null,
    "target_note": null,
    "thread_lines": [],
    "tone": "blue"

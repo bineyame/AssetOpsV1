@@ -11,7 +11,7 @@ import calendar
 from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
 from assetops_backend.chain import vocabulary as v
@@ -251,8 +251,10 @@ def _with(claim: v.Claim, extra: Mapping[str, Any] | None) -> v.Claim:
 
 
 def energy_basis(rows: tuple[Any, ...], price: Mapping[str, Any] | None) -> dict[str, Any]:
-    """`kwh` = the counted days' stored kWh (the rows the earnings sum adds); `price` = the declared price when the
-    counted days carry one price revision, else `price_count` = the number of declared prices (never omitted)."""
+    """`kwh` = the counted days' stored kWh (the rows the earnings sum adds); `measured_seconds` = their stored
+    measured seconds when every counted row carries them. CH6a3-R2 M5: `price` = the declared price only when its
+    `revision_id` IS the counted rows' one price revision (so kWh x price reproduces the figure); several revisions
+    give `price_count`; no revision on the rows, or another revision than the price's, gives no price line."""
     grades = day_grades(rows)
     counted = [r for r in rows if grades.get(r.local_day) in COUNTED and r.grade in COUNTED
                and r.money and r.money.get("amount") is not None]
@@ -261,13 +263,23 @@ def energy_basis(rows: tuple[Any, ...], price: Mapping[str, Any] | None) -> dict
     revs: set[str] = set()
     for r in counted:
         one = r.money.get("assumption_revision_id")
-        revs.update([one] if one else (r.money.get("tariff_revision_ids") or ()))
+        revs.update(str(x).lower() for x in ([one] if one else (r.money.get("tariff_revision_ids") or ())))
     out: dict[str, Any] = {"kwh": str(kwh)}
+    seconds = [(r.value or {}).get("measured_seconds") for r in counted]
+    if counted and all(s is not None for s in seconds):
+        out["measured_seconds"] = sum(int(s) for s in seconds)
     if len(revs) > 1:
         out["price_count"] = len(revs)
-    elif price and price.get("amount") is not None:
+    elif (len(revs) == 1 and price and price.get("amount") is not None
+          and str(price.get("revision_id") or "").lower() in revs):
         out["price"] = {"amount": str(price["amount"]), "currency": price.get("currency")}
     return out
+
+
+def _litres(value: Any) -> str:
+    """CH6a3-R2 M5: litres to one place, half up, trailing zeros dropped (`analytics/dispatch.py` `_dec(.., 1)`)."""
+    text = str(Decimal(str(value)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+    return text.rstrip("0").rstrip(".") if "." in text else text
 
 
 def fuel_basis(head: Any) -> dict[str, Any] | None:
@@ -277,7 +289,7 @@ def fuel_basis(head: Any) -> dict[str, Any] | None:
     q, p = cons.get("quantity") or {}, cons.get("price") or {}
     if q.get("low") is None or q.get("high") is None or p.get("value") is None:
         return None
-    return {"litres_low": str(q["low"]), "litres_high": str(q["high"]),
+    return {"litres_low": _litres(q["low"]), "litres_high": _litres(q["high"]),
             "price": {"amount": str(p["value"]), "currency": p.get("currency")}}
 
 
@@ -302,8 +314,6 @@ class _StudyDay:
     subject_ref: str = "SITE"
 
 
-
-
 def earnings_money(claim: Mapping[str, Any] | None) -> dict[str, Any] | None:
     """CH6a3-R Q4: a board headline money from an earnings claim JSON; None when the claim is NOT_KNOWN."""
     value = (claim or {}).get("value")
@@ -311,3 +321,16 @@ def earnings_money(claim: Mapping[str, Any] | None) -> dict[str, Any] | None:
         return None
     low, high = value.get("low", value.get("amount")), value.get("high", value.get("amount"))
     return {"amount_low": low, "amount_high": high, "currency": value.get("currency")}
+
+
+def earnings_parts(claim: Mapping[str, Any] | None, day: date | None = None) -> dict[str, Any]:
+    """CH6a3-R2 H3 (ONE-SOURCE): what a Grow row may state about sales or charging, from the earnings claim alone.
+    Known: the headline money, the basis kWh, the basis price (None without a single-revision price line) and the
+    stored measured seconds. NOT_KNOWN: `text` = "Not known yet" with the claim's own days line (`day` only when the
+    window is one Site-local day, M4); the caller then states no kWh, price or subline."""
+    value = (claim or {}).get("value")
+    if not value:
+        line = v.days_line((claim or {}).get("days"), day)
+        return {"known": False, "text": v.NOT_KNOWN_TEXT if line is None else f"{v.NOT_KNOWN_TEXT} · {line}"}
+    return {"known": True, "money": earnings_money(claim), "kwh": _dec(value.get("kwh")),
+            "price": value.get("price"), "measured_seconds": value.get("measured_seconds")}

@@ -32,15 +32,31 @@ def test_kobo_grow_has_a_potential_and_a_kpi_claim():
     assert grow["nodes"]["kpi"]["key"].startswith("verdict.")
 
 
-def _row(kwh, rev, grade="COMPLETE", day=1):
+def _row(kwh, rev, grade="COMPLETE", day=1, rate="0.5"):
     return SimpleNamespace(local_day=date(2026, 10, day), grade=grade, measure="m", subject_ref="SITE",
-                           value={"kwh": kwh}, money={"amount": "1", "assumption_revision_id": rev},
+                           value={"kwh": kwh}, money={"amount": str(Decimal(kwh) * Decimal(rate)),
+                                                      "assumption_revision_id": rev},
                            evidence_class="MEASURED")
 
 
 def test_energy_basis_one_price_names_it():
-    out = energy_basis((_row("2", "r1"), _row("3", "r1", day=2)), {"amount": "0.5", "currency": "USD"})
+    rows = (_row("2", "r1"), _row("3", "r1", day=2))
+    out = energy_basis(rows, {"amount": "0.5", "currency": "USD", "revision_id": "R1"})
     assert out == {"kwh": "5", "price": {"amount": "0.5", "currency": "USD"}}
+    # CH6a3-R2 M5: the line reproduces the summed stored money
+    assert Decimal(out["kwh"]) * Decimal(out["price"]["amount"]) == sum(Decimal(r.money["amount"]) for r in rows)
+
+
+def test_energy_basis_names_no_price_of_another_or_no_revision():
+    """CH6a3-R2 M5: a price whose revision is not the rows' one revision, or rows with no revision: no line."""
+    assert energy_basis((_row("2", "r1"),), {"amount": "0.6", "currency": "USD", "revision_id": "r9"}) == {"kwh": "2"}
+    assert energy_basis((_row("2", None),), {"amount": "0.5", "currency": "USD", "revision_id": "r1"}) == {"kwh": "2"}
+
+
+def test_fuel_basis_rounds_litres_as_the_dispatch_read():
+    head = SimpleNamespace(body={"consequence": {"quantity": {"low": "10.04", "high": "12.25"},
+                                                 "price": {"value": "1.5", "currency": "USD"}}})
+    assert (fuel_basis(head)["litres_low"], fuel_basis(head)["litres_high"]) == ("10", "12.3")
 
 
 def test_energy_basis_several_prices_counts_them():
