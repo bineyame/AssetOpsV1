@@ -426,3 +426,85 @@ def test_unknown_seeded_empty_support(shifted_chain) -> None:
         cutoff = c.execute(text("SELECT knowledge_cutoff FROM analytic_run WHERE id = :r"),
                            {"r": seed.new["run_id"]}).scalar_one()
     assert cutoff == k0.known_at
+
+
+# ---- DD-1a1 (DD0c-R Q1/Q2): the Cold chain reads the same with seal_once on and off ----------------------------
+
+
+_UUID = __import__("re").compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+_CORRELATION = __import__("re").compile(r"^cold-[0-9a-f]{64}$")
+
+
+def _normal(value, start: datetime, evidence: dict):
+    """Ids and instants made comparable across two fresh databases (DD0c-R Q2): an accepted evidence id becomes its
+    (signal, offset); any other id is opaque; an instant inside the case becomes its offset from the shifted start
+    and a wall-clock instant is opaque; `links` compare as a multiset. An event `correlation_id` hashes the scenario
+    digest (`host/cold_publication.py:131`), and each open mints a new shifted scenario id (`secrets.token_hex`), so it
+    is opaque too."""
+    if isinstance(value, dict):
+        out = {k: _normal(v, start, evidence) for k, v in value.items() if k not in ("publication_ids", "run_id")}
+        if isinstance(out.get("links"), list):
+            out["links"] = sorted(out["links"], key=lambda x: json.dumps(x, sort_keys=True))
+        return out
+    if isinstance(value, list):
+        return [_normal(v, start, evidence) for v in value]
+    if isinstance(value, datetime):
+        value = value.isoformat()
+    if isinstance(value, str):
+        if _UUID.match(value):
+            return evidence.get(value, "<id>")
+        if _CORRELATION.match(value):
+            return "<correlation>"
+        try:
+            at = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return value
+        if at.tzinfo is None:
+            return value
+        offset = at - start
+        return f"+{offset}" if timedelta(hours=-6) <= offset <= timedelta(hours=3) else "<wall>"
+    return value
+
+
+def _fingerprint(built) -> dict:
+    """What the Cold chain stored, without per-run ids, batch boundaries or wall-clock instants."""
+    start = built.shifted.start
+    with built.engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT CAST(id AS text), signal_id, measurement, source_time, quality, normalized_value_text "
+            "FROM accepted_evidence WHERE site_id = :s"), {"s": built.site_id}).all()
+        evidence = {r[0]: f"{r[1]}@+{r[3] - start}" for r in rows}
+        assessments = c.execute(text(
+            "SELECT analytic_id, model_version, revision_no, window_start, window_end, claim_level, result, "
+            "evidence_ids FROM assessment_revision WHERE site_id = :s"), {"s": built.site_id}).all()
+        findings = c.execute(text(
+            "SELECT r.revision_no, r.transition, r.lifecycle, r.claim_level, r.title, r.mechanism, r.episode_start, "
+            "r.episode_end, r.candidate_minutes, r.necessary_minutes, r.indeterminate_minutes "
+            "FROM finding_revision r WHERE r.site_id = :s"), {"s": built.site_id}).all()
+        batches = c.execute(text("SELECT count(*) FROM ingestion_batch WHERE site_id = :s"),
+                            {"s": built.site_id}).scalar_one()
+    key = lambda x: json.dumps(x, sort_keys=True, default=str)  # noqa: E731
+    return {
+        "evidence": sorted((r[1], r[2], str(r[3] - start), r[4], r[5]) for r in rows),
+        "assessments": sorted((_normal(list(a[:6]), start, evidence) + [_normal(a[6], start, evidence),
+                               sorted(_normal(a[7], start, evidence), key=key)] for a in assessments), key=key),
+        "findings": sorted((_normal([str(v) if not isinstance(v, datetime) else v for v in f], start, evidence)
+                            for f in findings), key=key),
+        "batches": batches,
+    }
+
+
+def test_cold_chain_parity_with_seal_once_on_and_off(shifted_chain, monkeypatch) -> None:
+    """DD0c-R Q1 acceptance: one Cold chain, seal per group (default) and seal once (the demo children's L1), compared
+    by the Q2 parity rule. Only the batch count may differ."""
+    prints = {}
+    for flag in (False, True):
+        monkeypatch.setattr(sys.modules[__name__], "SEAL_ONCE", flag)
+        built = produce(shifted_chain, "ordinary")
+        prints[flag] = _fingerprint(built)
+        built.close()  # the next open drops and re-clones the database
+    off, on = prints[False], prints[True]
+    assert off["evidence"] and off["assessments"] and off["findings"]  # the comparison is over non-empty sets
+    assert on["batches"] < off["batches"], (on["batches"], off["batches"])
+    for part in ("evidence", "assessments", "findings"):
+        assert on[part] == off[part], part
