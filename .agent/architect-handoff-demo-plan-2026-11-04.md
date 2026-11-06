@@ -636,3 +636,19 @@ Architect: Claude (binding checked: `.ai/ROLE_CONFIG.md`, Claude since 2026-10-2
   - The steady night is carried by the battery with no generator. One story night follows the overcast day, before the trial; its generator run comes from the physics, not from a declared result.
   - Gates protect ACT-K1, the mill verification and the spare-solar study.
   - DD-1a1 goes from 2 to 2.5 and DD-1a2 from 1.75 to 2.0, so DD-1 is 7.25. The plan's lane-2 totals still need +0.75.
+
+## Update 2026-11-06 (Architect 21): CH6a3-R2
+
+- Binding checked: Claude. Nothing committed. CH6a3-R2 is recorded at the end of `build-sheet-CH-6.md`. No owner question.
+- **H3, the ONE-SOURCE rule:** the Grow money, the subline and the kWh/price contributor all come from the snapshot earnings claim, or all read "Not known yet".
+- **H1:** the test fixture is stale, but its money expectations stand.
+- **H2:** the cause of the all-NOT_KNOWN real data is unproven. R2a must settle it with clone row counts (closes M1). The full §A8 L2m runs on `mechanism_db()`, and the real-data end-to-end check is added to DD-1b2 F-THREADS.
+- **H4:** a days line per part, three parts always shown, the v70 grid, and MD-CH6-1/2/3 plus MD-CH6-7 registered (renumbered from the colliding -4).
+- **Medium and Low:** M1–M5 are fixed now. L3 becomes BL-15.
+- **Sizing:** CH-6a3 goes from 2.0 to 4.25, in two rounds: R2a backend (1.5), then R2b wire and layout (0.75), with one re-review after both. The plan rows, BL-15 and the DD-1 F-THREADS line still need updating.
+- DD1a1-R3 (Architect 22, 2026-11-06; binding checked, Claude; nothing committed): recorded at the end of `build-sheet-DD-1.md`.
+  - The steady night's 05:00 generator start is accepted as physics. R2's "41 %" was an arithmetic slip, and the loads match their stated bases.
+  - The 0 L over 55 min RUNNING is the specified model: battery-first order and no idle fuel. It is disclosed in the night label and the "Why?" line, and backlogged as BL-16.
+  - The gate is replaced by five L2 checks: night shape and MG-5; MG-2 and ACT-K1; mill and spare solar; Findings, threads and money; the 06:00 seam.
+  - Q2: `kobo-steady-day` declares 300 L / STOPPED with a source line. The builder drafts every Kobo file on the registered Site and re-runs probes S and O there.
+  - DD-1a1 2.5 → 2.75 and DD-1 7.5; the plan rows need it. The owner is informed, with a recommendation to accept.

@@ -128,6 +128,7 @@ The owner's rule splits anything over 6.
 - **DD-1a2: 2 → 1.75.** Backlogged: the planned `missing` day per Site and its L0 checks (**BL-10**). Kept: the B-22 day list, `DAY_BEFORE_INSTALL`, `mill-midday` placement, FILL-1 steady kinds and the five refusals (ST-7).
 - **DD-1b1: 1.5 → 1.25.** Backlogged: R9 tick output split (**BL-11**). Kept: R6, R7.
 - **DD-1b2: 1.75 → 1.5.** Backlogged: M2 (**BL-12**) and the F-FILL row (BL-10). Kept: R8 drain, finish rows F-DRAIN, F-COH, F-PERF, F-THREADS, F-COH3, F-CAL, the partial prepares (Kobo 7 days including `mill-midday`, Cold 3 days with one 24 h steady, EV 2 Tuesdays), the E3 projection and the memory peak.
+  - **F-THREADS addition (CH6a3-R2 H2, Architect 21, 2026-11-06; +0):** on the combined demo dataset, the Kobo and EV boards on the story days named in `build-sheet-CH-6.md` §A8 item 3 show a non-null Grow earnings figure, a SUPPORTED potential with its money line (Kobo), an MG-1 verdict from the day snapshots, and the "Why?" price line. Each figure is asserted by recomputation from the stored rows, never by a literal, and on each the ONE-SOURCE rule holds: the subline and contributor kWh equal the claim's kWh. SCOPE-1 reason: this is the only real-data, end-to-end proof of the Grow money a client sees, and it needs the full days.
 - **Lane-2 order:** CH-9b3 no longer needs CH-6a3, so the conditional order is gone: CH-9b1 → CH-9b2 → CH-9b3 → DD-1a1 → DD-1a2 → DD-1b1 → DD-1b2 → CH-5d1.
 - **DD-1 total: 7.25 → 6.5.**
 
@@ -241,3 +242,50 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 - **DD-1a2 1.75 → 2.0 (+0.25):** placing the after-overcast night pair after the `overcast` day, before trial-before, as complement data, with its gate.
   - SCOPE-1 reason: the only night generator cost shown must have a stated cause and must not land after the ACT-K1 verification.
 - **DD-1 total 6.5 → 7.25.** Lane 2 +0.75; the plan's lane-2 totals need it.
+
+## DD1a1-R3: the steady-night gate result, and the Kobo initial values
+
+- Architect: Claude (Architect 22), 2026-11-06. Binding checked (Claude, `.ai/ROLE_CONFIG.md` 2026-10-27). Input: `AssetOpsV1-dd1a1\.agent\DD-1a1-handoff.md` at `02b2336dd` and `backend/conversions/kobo-night-handover-v1.json` (branch `task/DD-1a1-steady-fullday`). Owner rule: numbers are never tuned. DD1a1-R2 stands except where this section differs.
+
+### Q1, the steady night requests the generator at 05:00: (a) accept the physics, with a disclosure and named checks
+
+- **The error is R2's, not the loads'.** R2's own energy check gives 69 − 21 − 17 ≈ 31 % at 06:00; "about 41 %" was an arithmetic slip. The probe measured 47.95 % at 24:00 and 31.16 % at 06:00, which is exactly the check.
+- **(b) is not available.** Each night value matches its stated basis: residential 3 kW is 21 % of the 14 kW peak (the basis says 15–25 %); clinic 2 kW is inside 1.5–3 kW; 00–06 is 32 kWh, or 16.8 % through the 95 % PCS. No basis was wrong on its own terms, so no value changes.
+- **(a) is the honest reading.** The declared sunny day (`kobo-daytime`, 55 % → 69 %) does not put back what a grounded night takes out (69 % → 31 %). A site like this crosses its 35 % start threshold shortly before dawn and the Site policy starts the generator. That is common on village hybrid mini-grids, and it is a property of the declared site and its loads, not a story added by the night.
+- **The 0.0 L in 55 min RUNNING is not a code defect.** It is the specified model (`simulator/assetops_simulator/packs/mini_grid.py:14-27`, dispatch `:571-596`, delivery `:678-736`):
+  - Kobo's declared source order is PV, battery, generator. Between the 35 % start and the 30 % reserve, the battery still serves the whole load.
+  - A running generator charges only while the battery is not discharging, so it delivers 0 kW.
+  - The fuel law is linear on accepted energy with no idle fuel. The step notes disclose this.
+  - The same zero-output band already occurs inside the overcast runs (probe O and the shipped `kobo-s3-dispatch-necessary-run`). Fuel is understated there too, but not to a visibly false zero.
+  - **However, "ran 55 min, used 0 L" on every steady day cannot hold up under questioning**: a real set idling for an hour burns a few litres. No simulator change in DD-1, because it would re-baseline every Kobo day and choose an idle-fuel value no Site fact states. The fix is backlogged as **BL-16**. The disclosure below is required instead.
+- **Disclosure (required, +0).** Each steady night file's label and the 04–06 source line read, in plain words: "Example data, night profile. At about 05:00 the battery reaches the 35 % generator start level and the site starts the generator. The battery is still above its reserve and serves first, so the generator delivers almost no energy before 06:00. Fuel is counted per kWh delivered; idle fuel is not modelled, so this hour shows no fuel." The packet quotes the "Why?" line where it appears.
+- **The steady-night gate is replaced by these checks.** Each is measured on L2 on the registered Kobo Site, comparing runs with and without the night runs as in Q6:
+  1. **Night shape.** At most one generator start per steady night, and only by the Site policy at the start threshold from 04:00. Fuel is 0.0 L. Unserved load is 0 in every night hour, which is MG-5's critical supply.
+  2. **"Generator time beyond need" (MG-2) and ACT-K1.** Every steady-night generator minute is classified as needed, through `MINIMUM_RUNTIME` then `BATTERY_NEAR_RESERVE` (`B/analytics/dispatch.py:493-508`). There are no Candidate or Cannot-determine minutes, so `avoidable_generator_minutes` is equal with and without nights on the trial-before and trial-after days. The steady-night trajectory is identical before and after the reserve change (its lowest SoC, 31.16 %, is above both 30 % and 25 %). The ACT-K1 verification outcome and metrics are equal.
+  3. **Mill verdict and spare solar.** The mill verification metrics and the spare-solar study are equal with and without nights. Each full day grades COMPLETE, and daylight hours exclude 20:00–06:00.
+  4. **Findings, threads and money.** A steady night adds no Finding, no thread event and no change to any Kobo money figure.
+  5. **The 06:00 seam.** The night ends at 31 % with the generator RUNNING, and the steady day starts from its declared 55 % with the generator STOPPED. The packet reports this as a seam (DD1a1-R Q3), and the night's source line names the boundary (R2).
+  - If any check fails: **stop, and the Architect rules.** No value is adjusted to pass.
+- **Assets for the stories.** MG-5 gains a true 24 h clinic claim. The pre-dawn start is neutral for MG-2: it is needed, so ACT-K1 is untouched. The after-overcast nights (O-late 235 min / 13.07 L, O-early 355 min / 10.51 L) remain the Cost story, and DD-1a2 keeps their gate unchanged.
+
+### Q2, initial values on mini-grid v6
+
+- **Cause.** `kobo-daytime` is written for the `daytime-mini-grid` profile, which has no generator or tank (`config/scenarios/kobo-daytime.yaml:4`), so it declares only SoC. On mini-grid v6 a derived file must declare the generator and tank start states.
+- **Honest declaration.** `kobo-steady-day` and probe S's document add `starting-fuel` 300 L and `starting-generator-state` STOPPED as public parameters. Each carries a source comment: "not declared by kobo-daytime (daytime-mini-grid profile, no generator); the dawn state every mini-grid Kobo parent declares (cite file:line each); STOPPED is the only state setup accepts at run start". These values are uniform across the parents and are not chosen for an outcome. The steady day must still show 0 generator starts.
+- **`kobo-daytime` itself is not edited**, because it is a shipped parent used by CH-9b.
+- **The builder verifies, before the v2 day list:**
+  - Draft every Kobo scenario in the v2 list on the **registered** demo Kobo Site, with the profile and version the prepare uses. That covers `kobo-steady-day`, `-afternoon`, `-dusk`, both steady nights, both after-overcast nights, and `mill-midday` (`kobo-daytime` v2). Report READY or BLOCKED for each, with its reason.
+  - Report which profile the prepare actually runs `mill-midday` on (`tools/demo_combined_kobo.py`, `M["model_profile"]`). If `mill-midday` is BLOCKED on that profile, or its profile differs from the complement runs on the same day, stop and the Architect rules.
+  - **Re-run probes S and O on the registered Site**, or show that its frozen policy facts equal the template's: reserve, start and stop thresholds, minimum runtime, start delay, specific fuel consumption, source order, PCS and capacity. The reserve is the load-bearing one, because MD-0 phase 3 recorded a reserve of 20. In the handover JSON, record the Site id and fill `scenario_sha256`.
+
+### Size
+
+- **DD-1a1 2.5 → 2.75 (+0.25)**, for the registered-Site drafts and re-probe, the declared initial values, and the five replacement checks. The disclosure costs +0.
+  - SCOPE-1 reason: without the checks, the MG-2, ACT-K1 and mill figures on every Kobo day are not shown to be unchanged by the night. Without the registered-Site probe, the night states may not be the demo Site's.
+- **DD-1 7.25 → 7.5.** Lane 2 +0.25; the plan rows need it.
+- **BL-16 (backlog, 1.0 est.).** Idle and start fuel in the mini-grid fuel law. This needs a stated Site fact for idle consumption and a re-baseline of the Kobo days.
+
+### Owner (informed; the build proceeds on the recommendation)
+
+- Question: "On a normal sunny day Kobo's battery runs down to the generator start level about an hour before dawn, so the generator switches on around 05:00 and delivers almost nothing before sunrise (idle fuel isn't modelled, which the screen says). Is that OK to show?"
+- Recommendation: yes. It is how many village mini-grids actually run, and it changes no story figure. The only alternative is a different night load, and that would have to come from the owner as data, not from an agent.

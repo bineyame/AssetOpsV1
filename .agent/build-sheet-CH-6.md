@@ -560,3 +560,81 @@ Pre-flight: `AssetOpsV1-ch6a3\.agent\CH-6a3-preflight.md` at `c41dc104b`. **CH-6
   - The Estimated income part must read `money.not_known` with its days line, never an empty part or a missing figure.
 - **Q5 accepted, with the same predicate.** Wherever the Grow headroom words ("18–20 kW…") are still shown outside the Potential part, they follow `POTENTIAL_STATES`. They must not stay on from a study whose change has been verified. This costs +0 because the predicate already exists.
 - **Q6 accepted.** The golden diff is limited to the named keys plus the R5/R6/R7/R13 value changes.
+
+## CH6a3-R2: fix shape for the CH-6a2/6a3 review (Architect 21, Claude, 2026-11-06)
+
+Review: `.agent/review-CH-6a2-6a3.md` (REVISE) at `f1beed6d9`. Binding checked: Claude. **CH-6a3 goes from 2.0 to 4.25** (below the cap of 6), and the fix runs as two sequential rounds, R2a and R2b, with one re-review after R2b. Every item below gives its SCOPE-1 reason. No owner question.
+
+**The governing rule (H3, ONE-SOURCE).** Each Grow figure on a board has one source: the stored day snapshot, as read by the evaluator's claim.
+- The Grow row's money, the productive-use or charging **subline**, and the sales or charging **contributor** that state kWh or price come from the earnings claim, and only from it. Their kWh is `energy_basis.kwh`, and their price is the price on the basis line.
+- When the earnings claim is NOT_KNOWN, all of them say "Not known yet", each with the claim's days line. The subline is None. The composer's own live read (`_measured_sales`, the EV session text) can no longer put a kWh, a "complete meter record" or a price beside that "Not known yet".
+- The live read stays only where it was before CH-6 for non-money facts that the snapshot does not cover, such as conflicting readings and users with no readings.
+- SCOPE-1 reason: as it stands, one row states two contradictory things, so one of them is untrue.
+
+**H1: the test is stale in its fixture, and its money expectations are still the ruled behaviour.** It is not a regression in which money a client should see.
+- The fakes give no snapshot rows, so the earnings claim is NOT_KNOWN. MG-1 has moved from `facts.readings` to `facts.nodes["MG-1"]["kpi"]` (R5).
+- Fix: give the fakes snapshot rows. A COMPLETE or PARTIAL day must still yield 25.25 and 42.08 USD with the subline from the claim.
+- Add one LOW-day case: the money is None, the subline is None, and the contributor reads "Not known yet" with its days line (ONE-SOURCE).
+- Repoint the 4 MG-1 asserts to the kpi claim, recomputed through `judge_month`. Do not delete any test.
+
+**H2: what proves the figures now, and what moves.**
+- *Why everything is NOT_KNOWN on real data: not proven, so neither "missing data" nor "defect" is accepted yet.* R5 makes 8-of-24 h story days PARTIAL, and a PARTIAL day is counted. So the full days of DD-1 do not explain an all-NOT_KNOWN board. The packet's "no productive-sales snapshots on the clone" has no evidence behind it.
+- *R2a must settle it (this closes M1):* give the clone's `chain_day_snapshot` row counts and grades per measure (`productive_kwh`, the EV charging measure) for the Kobo month and the 6 EV boards, and the settle/collect log.
+  - If the rows exist but are not read, that is a defect, fixed in R2a.
+  - If they were never produced, record the producer cause in L3. It is fixed in R2a if it takes 0.25 or less; otherwise STOP and report to the Architect.
+- *CH-6a3 must prove now:* every §A8 item 3 bullet on `mechanism_db()`, asserted by recomputation. The MD-0 data has COMPLETE `productive_kwh` days, so a NOT_KNOWN there is a defect, not missing data. Then:
+  - each money figure equals the Σ of the stored rows;
+  - each "Why?" price line reproduces the figure as kWh × price;
+  - the SUPPORTED potential carries its money line;
+  - add the ONE-SOURCE assert on one Kobo day and one EV day.
+- *Moves to DD-1b2 F-THREADS:* on the combined demo dataset, the Kobo and EV boards show a non-null earnings figure, a SUPPORTED potential, an MG-1 verdict and the price "Why?" line on the story days the sheet names. That is real-data end-to-end proof, which needs the full days. The DD-1 sheet takes this as one added F-THREADS assertion (+0).
+
+**H4: the required layout (mock v70 `:213-215`, `:416-420`; MOCK DEVIATION labels cite v70, not v69).**
+- The wire carries a days line per part: each Grow claim JSON carries `days_line`, from the one `days_line` function over that claim's own `days`.
+  - The row-level `days_line` field added in this slice is removed. A line attributed to another figure is untrue.
+  - The day argument is passed only when the window is one Site-local day (this closes M4).
+- The three parts always render, in the order Target, Potential, Estimated income. The server fills the missing ones:
+  - no kpi record: `target.none` plus `target.days_none`, which equal the mock;
+  - no potential: `potential.none` with no days line;
+  - no earnings record: `money.not_known` with no days line.
+  - So EV shows "Target: No target set yet".
+- Markup and CSS match the mock: `div.ob-grow` is a grid of `repeat(3,minmax(0,1fr))` with an 8px gap, and drops to one column at 760px. Each part is `div.ob-part` (bordered, 6px radius), containing `span.ob-plabel` + `b` (one per `"\n"` line) + `small.ob-days`.
+- A part whose claim has `days=None` shows no days line. It never shows a neighbour's line.
+- Register in `mock-departure-register.md`, with an inline MOCK DEVIATION label in `OutcomeBoard.tsx`:
+  - MD-CH6-1 (R11 basis);
+  - MD-CH6-2 (the §A4 lines vs the mock examples, listed old → new);
+  - MD-CH6-3 (`target_note` in the subline);
+  - **MD-CH6-7**: the Potential days line is missing when the study carries no day grades. CH6a2-R called it MD-CH6-4, but that id is already §B4's (CH-6b Protect), so it is renumbered here.
+- Layout evidence at 1440 and 390 for Kobo and EV Grow is owed in R2b.
+- The vitest uses server vocabulary (this closes L2).
+- SCOPE-1 reason: R2 Q2 and Q4 ("each shown figure has its days") are unmet, and a wrongly attributed days line is untrue.
+
+**Medium findings**
+- **M1:** fix now (in H2 above). It is the evidence behind a shown "sales not recorded".
+- **M2:** fix now. Add the R7 "Cold lab 24 Oct" L0 case (sheet-required, and it sets the shown row state), a `row_nodes` selection test, an `_lead_findings` other-mechanism negative test, and an EV priced/unpriced `not_measured_text` test.
+- **M3:** fix now. Add one composer-level MG-1 test on snapshot rows: MET → ON_TRACK with a "Met" chip, BEHIND_PACE → WATCH, no objective → OPPORTUNITY with the potential chip. The packet lists the seventh removed test.
+- **M4:** fix now, folded into H4's per-part `days_line` (+0). A wrong date is untrue.
+- **M5:** fix now.
+  - Print `price` only when its revision id equals the counted rows' single revision. Otherwise use `price_several`, or print no line when the rows carry no revision.
+  - Assert kWh × price ≈ amount on the mechanism data.
+  - Round the litres as `dispatch.py:735-736` does.
+  - Reason: a price line that does not reproduce its figure cannot be traced.
+
+**Low findings**
+- **L1:** merge main before the re-review.
+- **L2:** closed under H4.
+- **L4:** fix now (+0).
+- **L3 → backlog BL-15:** the `target_note` denominator excludes outcomes that can never have a target. "2 of 3 outcomes have a target" is true as ruled in R7, so this is not defensibility-critical (0.25).
+
+**Rounds and size (+2.25)**
+- **R2a, backend truth: 1.5.**
+  - H1: 0.25.
+  - H2: the §A8 item 3 L2m bullets, 0.5 (already owed acceptance), and the M1 clone evidence, 0.25.
+  - H3 ONE-SOURCE in `mini.py` and `ev.py`: 0.25.
+  - M2 + M3: 0.25.
+  - M5: in the H2 bullets.
+- **R2b, wire and layout: 0.75.**
+  - Per-part `days_line`, server-filled parts, and the grid/markup with M4 and L2/L4: 0.5.
+  - Register and labels, and the layout evidence at 1440 and 390: 0.25.
+- R2b follows R2a. Each round fits one Sonnet builder. **One fresh Claude re-review covers both rounds**, after L1, and R2a's gate is the scoped list plus `test_walk1_productive_sales.py`.
+- The plan row records CH-6a3 at 2.0 → 4.25 and the CH-6a total at +2.25, with the SCOPE-1 reasons above.
