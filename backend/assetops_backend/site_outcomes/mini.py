@@ -8,7 +8,6 @@ in `MiniComposition.failed`, its contributor reads "Not available yet · this re
 outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
-import calendar
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
@@ -22,20 +21,22 @@ from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.chain import refs
-from assetops_backend.chain.vocabulary import provenance_suffix
+from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
+    MG1_MISSED, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
-from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.chain.outcomes import (
+    NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, potential_shown, site_nodes)
+from assetops_backend.outcomes.catalogue import MINI, SITE_OUTCOMES
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
     unresolved_links)
-from assetops_backend.outcomes.objectives import (
-    BEHIND_PACE, MISSED, ON_PACE, TOO_EARLY, ObjectiveFact, Reading, judge_month)
+from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.productive_use import productive_energy
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -146,12 +147,6 @@ PRICE_NOT_DECLARED = "Not available yet · no price per kWh declared"
 SALES_HEADLINE = "estimated productive-use sales"
 SALES_ZERO_HEADLINE = "No productive-use sales on this day: {names} not used"
 SALES_SUBLINE = SALES_USED + ", at the declared price of {p} {cur} per kWh · not billed or collected"
-#: WALK1-3b §A2.2/§A2.5: the MG-1 month-to-date reading (Site-local month through the board day). `{c}` checked days
-#: have measured productive-use coverage; `{e}` days have elapsed; `{k}` is the objective's checked-day minimum.
-MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
-MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
-MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
-MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
@@ -409,7 +404,6 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     sales = _productive_sales(reads, ports, c, start, end)
-    month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
     # CH-5a2b R1 (§B14 Q3): the chip's placement facts for the board-day heads only; the labels' Action rows.
     day_ids = [str(h.revision_id) for h in heads or () if _meets(h, start, end)]
@@ -441,10 +435,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     limitations = [str(x) for x in assessment.get("limitations") or ()]
     # CH9-R4 F2: the Grow headline figure and the headroom signal read the selected study (the Portfolio's read).
-    study = _study(reads, ports, c, start, site_timezone)
+    item = _opportunity_item(reads, ports, c, start, site_timezone)
+    study = (item or {}).get("study") or None
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
 
-    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", study is not None, HEADROOM_ISSUE,
+    signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", headroom_signal_on(item), HEADROOM_ISSUE,
                           renewable_ref(c, start, site_timezone)),
                SignalFact("SIGNAL:EVIDENCE_GAP", bool(limitations),
                           (f"{limitation_text(limitations[0])} limits this conclusion"
@@ -467,7 +462,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                PROTECT: (),
                ASSURE: (Option(OPTION_RESTORE, refs.site_ref(c, "work")),) if limitations else ()}
 
-    headroom = (study or {}).get("headroom_kw") or {}
+    headroom = ((study or {}).get("headroom_kw") or {}) if potential_shown(item) else {}
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
     money = {} if money_head is None else {"amount_low": money_head.amount_low,
                                            "amount_high": money_head.amount_high, "currency": money_head.currency}
@@ -485,6 +480,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       if priced and not zero else None}
     # WALK1-3 §4.4: a sales estimate leads; spare solar stays a contributor. L3: a zero-use day yields to a
     # spare-solar headline when one exists.
+    spare_headline = headline[GROW]
     if sales.get("headline") is not None and not (sales.get("zero") and headline[GROW] is not None):
         headline[GROW] = sales["headline"]
         headline_money[GROW] = sales.get("money")
@@ -497,8 +493,14 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
-    readings = mini_readings(dispatch, depth, month, next((o for o in objectives if o.outcome_key == "MG-1"), None),
-                             served=critical_served(day_facts, day))
+    readings = mini_readings(dispatch, served=critical_served(day_facts, day))
+    node_in = NodeInputs(
+        site_code=c, domain=MINI, tz=zone_name or "", window=(day, day),
+        rows=() if day_facts is None else day_facts.rows, objectives=objectives, readings=readings,
+        opportunity=item, money_heads={} if lead_money is None or money_head is None else {lead_money[0]: money_head},
+        lead_findings=_lead_findings(heads, lead_money),
+        price=sales.get("price"))
+    readings = OutcomeEvaluator().readings(node_in)
     if objective_rows is None:
         plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
         contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
@@ -522,7 +524,18 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
                                        for o in i["outcomes"]))
-    facts = replace(facts, warnings=warnings, headline={
+    node_keys = [o.key for o in SITE_OUTCOMES if o.domain == MINI]
+    nodes = site_nodes(replace(node_in, warnings=tuple(warnings)), node_keys)
+    grow_earn = next(((nodes.get(k) or {}).get("earnings") for k in node_keys
+                      if (nodes.get(k) or {}).get("earnings") is not None), None)
+    if sales.get("kwh") is not None:  # CH6a3-R2 H3 ONE-SOURCE: the earnings claim states the sales figures
+        grow = _sales_from_claim(earnings_parts(grow_earn, day), sales, spare_headline)
+        headline = {**headline, GROW: grow["headline"]}
+        headline_money = {**headline_money, GROW: grow["money"]}
+        facts = replace(facts, subline={**facts.subline, GROW: grow["subline"]}, contributors={
+            **facts.contributors, GROW: tuple(grow["line"] if x.key == "productive_sales" else x
+                                              for x in facts.contributors[GROW])})
+    facts = replace(facts, nodes=nodes, warnings=warnings, headline_money=headline_money, headline={
         **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
         else protect_clear(reserve)})
     failed = tuple(reads.failed)
@@ -551,8 +564,9 @@ def renewable_ref(c: str, start: datetime, tz_name: str | None) -> dict[str, Any
                                                           hi.astimezone(timezone.utc).strftime(fmt)))
 
 
-def _study(reads: Reads, ports: MiniPorts, c: str, start: datetime, tz_name: str | None) -> dict[str, Any] | None:
-    """CH9-R4 F2: the study of this Site's opportunity item seen over the board's renewable days (the window its
+def _opportunity_item(reads: Reads, ports: MiniPorts, c: str, start: datetime,
+                      tz_name: str | None) -> dict[str, Any] | None:
+    """CH9-R4 F2 / CH-6a3: the CH-4 item (with its study) of this Site's opportunity item seen over the board's renewable days (the window its
     opportunity thread is looked up on, CH-4 §4.4), from the read the Portfolio uses; items come latest study first
     (`opportunity_items`), as the Portfolio's `headroom` takes them. None: no item, or the window is refused."""
     try:
@@ -560,7 +574,7 @@ def _study(reads: Reads, ports: MiniPorts, c: str, start: datetime, tz_name: str
     except MiniInputsRefused:
         return None
     items = reads.call("opportunity", ports.opportunity, lo, hi) or ()
-    return next((i["study"] for i in items if i.get("site_code") == c and i.get("study")), None)
+    return next((i for i in items if i.get("site_code") == c and i.get("study")), None)
 
 
 def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
@@ -593,8 +607,7 @@ def critical_served(day_facts: Any, day: date) -> tuple[str | None, Mapping[str,
     return grade, value
 
 
-def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None],
-                  month: dict[str, Any] | None = None, mg1: ObjectiveFact | None = None, *,
+def mini_readings(dispatch: dict[str, Any] | None, *,
                   served: tuple[str | None, Mapping[str, Any] | None] = (None, None)) -> dict[str, Reading]:
     """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 the month-to-date
     measured use by declared productive users (WALK1-3b, `mg1_reading`) or no sales record, MG-5 the board day's
@@ -605,7 +618,6 @@ def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]
         text = (MG2_UNCLEAR.format(m=num(unclear)) if avoidable == 0 < unclear
                 else MG2_LONGER.format(m=num(avoidable)))
         out["MG-2"] = Reading(avoidable, unclear == 0, text)
-    out["MG-1"] = mg1_reading(month, mg1)
     grade, value = served
     unserved = (value or {}).get("unserved_kwh")
     if grade == "COMPLETE" and unserved is not None:
@@ -615,56 +627,6 @@ def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]
     else:
         out["MG-5"] = Reading(None, False, MG5_PARTIAL)
     return out
-
-
-def mg1_reading(month: dict[str, Any] | None, mg1: ObjectiveFact | None) -> Reading:
-    """WALK1-3b §A2.2: the month-to-date reading; complete only when the month is over and every day was checked. Its
-    text follows the verdict `judge_month` gives the declared MG-1 objective (the same pure rule the board applies);
-    with no checked day, or no productive user, it is "sales not recorded"."""
-    if month is None or month.get("kwh") is None:
-        return Reading(None, False, MG1_ACTUAL)
-    mtd, c, e, m = month["kwh"], month["checked"], month["elapsed"], month["month_days"]
-    reading = Reading(mtd, e == m and c == m, None, c, e, m)
-    words = {"mtd": num(mtd), "c": c, "e": e, "m": m}
-    verdict = judge_month(mg1, reading) if mg1 is not None else None
-    if verdict in (ON_PACE, BEHIND_PACE):
-        text = MG1_PACE.format(**words, avg=num(mtd / c), need=num(Decimal(mg1.target) / m))
-    elif verdict == TOO_EARLY:
-        text = MG1_TOO_EARLY.format(**words, d=plural(c, "day", "days"), k=mg1.min_checked_days)
-    elif verdict == MISSED:
-        text = MG1_MISSED.format(**words)
-    else:  # MET, or no MG-1 objective declared
-        text = MG1_SO_FAR.format(**words)
-    return replace(reading, actual_text=text)
-
-
-def _productive_month(reads: Reads, ports: MiniPorts, users: list[dict[str, Any]] | None, start: datetime,
-                      tz_name: str | None) -> dict[str, Any] | None:
-    """WALK1-3b §A2.2: measured use by the declared productive users over the Site-local calendar month containing
-    the board day, from its first local day through the end of the board day. A checked day is a local day with any
-    GOOD coverage; a day whose readings conflict (Addendum 3 M1) is not checked and adds nothing. None when no user is
-    declared, the readings could not be read, or the Site zone is refused."""
-    if not users:
-        return None
-    try:
-        name = tz_name or ""
-        local_day = local_day_of(Window(start, start + timedelta(days=1)), name)
-        first = local_day.replace(day=1)
-        bounds = [local_hour(first + timedelta(days=k), 0, name).start for k in range(local_day.day + 1)]
-    except MiniInputsRefused:
-        return None
-    raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
-                     bounds[0], bounds[-1], memo=True)  # CH5a1-R2: on day 1 of a month = the day read
-    if raw is None:
-        return None
-    names = {u.get("asset_id"): str(u.get("name")) for u in users}
-    mtd, checked = Decimal(0), 0
-    for lo, hi in zip(bounds, bounds[1:]):
-        kwh = productive_energy(raw, lo, hi, names)["kwh"]
-        if kwh is not None:
-            mtd, checked = mtd + kwh, checked + 1
-    return {"kwh": mtd if checked else None, "checked": checked, "elapsed": local_day.day,
-            "month_days": calendar.monthrange(local_day.year, local_day.month)[1]}
 
 
 # CH-1a section 5c Q3c: the rule moved unchanged to analytics.dispatch_read (one rule, two callers).
@@ -833,13 +795,40 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
     h = num(Decimal(energy["measured_seconds"]) / Decimal(3600))
     words = {"kwh": num(kwh), "names": names, "h": h, "hours": plural(h, "hour", "hours")}
     if value is None:
-        return {"kwh": kwh, "subline": None, "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
-    out = {"kwh": kwh, "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
+        return {"kwh": kwh, "words": words, "subline": None,
+                "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
+    out = {"kwh": kwh, "words": words,
+           "price": {"amount": str(value), "currency": cur, "revision_id": sel.get("revision_id")},
+           "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
            "contributors": (_sales_line(SALES_USED.format(**words), DECLARED), price)}
     if kwh == 0:  # L3: the spare-solar headline leads on a zero-use day when one exists (see compose)
         return {**out, "headline": SALES_ZERO_HEADLINE.format(names=names), "money": None, "zero": True}
     amount = f"{(kwh * value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):f}"
     return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
+
+
+def _sales_from_claim(parts: dict[str, Any], sales: dict[str, Any], spare_headline: str | None) -> dict[str, Any]:
+    """CH6a3-R2 H3 (ONE-SOURCE): the Grow headline, money, subline and "Productive-use sales" line when the board
+    day's live read found measured use. Every kWh and price comes from the MG-1 earnings claim (`earnings_parts`):
+    its basis kWh, measured seconds and single-revision price. NOT_KNOWN: the line reads "Not known yet" with the
+    claim's days line, no subline and no money; the headline keeps the sales wording only where the live read was
+    priced (an unpriced day keeps the spare-solar headline, as before)."""
+    if not parts["known"]:
+        return {"headline": SALES_HEADLINE if sales.get("headline") is not None else spare_headline,
+                "money": None, "subline": None, "line": _sales_line(parts["text"])}
+    kwh, secs, price = parts["kwh"], parts["measured_seconds"], parts["price"]
+    words = dict(sales["words"])  # names; the hours only when the rows carry no measured seconds
+    words["kwh"] = num(kwh)
+    if secs is not None:
+        words["h"] = num(Decimal(secs) / Decimal(3600))
+        words["hours"] = plural(words["h"], "hour", "hours")
+    subline = (None if not price else
+               SALES_SUBLINE.format(**words, p=price_text(price["amount"]), cur=price.get("currency")))
+    line = _sales_line(SALES_USED.format(**words), DECLARED)
+    if kwh == 0:  # L3: a zero-use day yields to the spare-solar headline when one exists
+        return {"headline": spare_headline or SALES_ZERO_HEADLINE.format(names=words["names"]), "money": None,
+                "subline": subline, "line": line}
+    return {"headline": SALES_HEADLINE, "money": parts["money"], "subline": subline, "line": line}
 
 
 def _grow(c: str, depth: dict, rc: Any,
@@ -1013,3 +1002,14 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
         out.append(Contributor("battery_reporting", "Battery reporting", limitation_text(limitations[0]),
                                HIGH_CHIP, refs.evidence_ref(c)))
     return tuple(out)
+
+
+def _lead_findings(heads, lead_money) -> dict[str, str]:
+    """CH-6a3: the lead money head feeds the MG-2 fuel-cost earnings only when it IS a generator-support Finding, so
+    a lead Finding of another mechanism never prices the generator line (its money is the head's own, not fuel)."""
+    if lead_money is None or heads is None:
+        return {}
+    head = next((h for h in heads if h.finding_id == lead_money[0]), None)
+    if head is None or head.mechanism != "GENERATOR_SUPPORT_CANDIDATE":
+        return {}
+    return {"GENERATOR_SUPPORT_CANDIDATE": lead_money[0]}

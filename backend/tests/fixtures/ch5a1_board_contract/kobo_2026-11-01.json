@@ -23,7 +23,7 @@
   "finding_index": "finding-index/2",
   "objectives": "outcome-objectives/2",
   "outcome_map": "outcome-map/1",
-  "status": "outcome-status/3",
+  "status": "outcome-status/4",
   "warnings": "early-warnings/1"
  },
  "read_state": "PARTIAL",
@@ -119,6 +119,43 @@
     "label": "Productive electricity sales"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": {
+      "complete": 1,
+      "expected": 1,
+      "low": 0,
+      "no_data": 0,
+      "partial": 0,
+      "pending": 0
+     },
+     "key": "money.estimated_income",
+     "text": "Not known yet",
+     "value": null,
+     "days_line": "1 of 1 days checked"
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-1",
+     "text": "No target set yet",
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
+    },
+    "potential": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "potential.daytime_solar_headroom",
+     "text": "18–24.25 kW of daytime solar unused",
+     "value": {
+      "high": "24.25",
+      "low": "18",
+      "unit": "kW"
+     },
+     "days_line": null
+    }
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -158,6 +195,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Sales to productive users are not metered, so revenue itself is not measured yet",
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   },
@@ -299,6 +337,32 @@
     },
     "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count"
    },
+   "nodes": {
+    "earnings": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "money.possible_extra_fuel_cost",
+     "text": "Not known yet",
+     "value": null,
+     "days_line": null
+    },
+    "kpi": {
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "key": "verdict.MG-2",
+     "text": "No target set yet",
+     "value": null,
+     "days_line": "No target, so no days are judged yet"
+    },
+    "potential": {
+     "key": "potential.none",
+     "value": null,
+     "basis": "NOT_KNOWN",
+     "days": null,
+     "text": "No potential found yet",
+     "days_line": null
+    }
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -333,6 +397,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Generator stayed on 45 minutes longer than needed",
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   },
@@ -458,6 +523,11 @@
     "label": "Reliable service"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [],
    "outcomes": [
@@ -478,6 +548,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   },
@@ -573,6 +644,11 @@
     "label": "Evidence quality"
    },
    "must_not_harm": null,
+   "nodes": {
+    "earnings": null,
+    "kpi": null,
+    "potential": null
+   },
    "not_measured_text": null,
    "options": [
     {
@@ -597,6 +673,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Battery output not reported",
+   "target_note": null,
    "thread_lines": [],
    "tone": "gray"
   }

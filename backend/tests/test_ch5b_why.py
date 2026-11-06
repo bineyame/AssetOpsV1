@@ -147,7 +147,7 @@ def test_change_applied_needs_the_check_after_the_change() -> None:
     t = why.trace(_input(COLD, "PROTECT_ASSET", _facts(COLD, [COMPLETE] * 2), [gen], [act], row=row))
     assert t.text["would_change"] == "The check after the change"
     assert t.text["say"] == "Backup did not start"  # Q10: the board row's headline verbatim
-    assert t.text["comes_from"][1:] == ["Backup did not start by itself, seen 2 times since 1 Oct",
+    assert t.text["comes_from"][-2:] == ["Backup did not start by itself, seen 2 times since 1 Oct",
                                         f"{display_code('ACT-000001')} · Change made"]
     assert t.unmatched == 0
     _non_root_have_ids(t)

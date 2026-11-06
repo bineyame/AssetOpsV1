@@ -5,10 +5,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from typing import Any, Mapping, Sequence
 
 from assetops_backend.mini_decisions.scenario_rules import decimal_text
+from assetops_backend.outcomes.objectives import BEHIND_PACE, MISSED, ON_PACE, TOO_EARLY
 
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -153,6 +154,11 @@ WHY_TEXT = {
     "why.from.measure": "{label} on {k} checked day{s}",
     "why.from.finding": "{title}, seen {n} time{s} since {first}",
     "why.from.action": "{code} · {label}",
+    # CH6a3-R Q3: the price basis of a money claim.
+    "why.from.price": "{kwh} kWh × {price} {cur}/kWh",
+    "why.from.price_several": "{kwh} kWh at {n} declared prices over these days",
+    "why.from.fuel_price": "{lo}–{hi} L × {price} {cur}/L",
+    "why.from.fuel_price_one": "{lo} L × {price} {cur}/L",
     # MOCK DEVIATION (CH5b2-R Q7): the mock always has 2-4 lines; a trace with none says so.
     "why.from.none": "Nothing has been recorded for this yet",
     "why.change.days": "Checking {n} more day{s}",
@@ -213,3 +219,157 @@ def why_days(days: Sequence[date], counts: Mapping[str, int], one: str | None) -
     if q:
         line += why("why.days.pending", q=q)
     return line
+
+
+# ---- CH-6a2 node claims (build sheet CH-6 §A4, R8, R11, R12; CH6a2-R) -------------------------------------------
+# Each template is a MOCK DEVIATION candidate against MA-1 M3 unless equal (MD-CH6-2 lists them in the packet).
+
+#: WALK1-3b §A2.2/§A2.5, moved unchanged from `site_outcomes/mini.py` (§A4 `verdict.*`; CH6a2-R Q3). `{c}` is the
+#: COMPLETE-day count; `{e}` days have elapsed; `{k}` is the objective's checked-day minimum.
+MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
+MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
+MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
+MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
+#: `site_outcomes/mini.py:127` `MG1_ACTUAL`, the board's existing words for no checked day (CH6a2-R Q5).
+MG1_NO_DAY = "sales not recorded"
+
+NODE_TEXT = {
+    "money.days": "{amount} over {k} of {m} days checked",
+    "money.days_partial": "{amount} over {k} of {m} days checked · {p} partly checked",
+    "money.income_suffix": " · not billed or collected",
+    "money.not_known": NOT_KNOWN_TEXT,
+    "money.currency_mixed": "Not shown · amounts in more than one currency",
+    "potential.value": "{lo}–{hi} kW of daytime solar unused",
+    "potential.money": "{lo}–{hi} {cur} per hour of use, at the declared price",
+    "potential.none": "No potential found yet",
+    "target.none": "No target set yet",
+    "target.days_none": "No target, so no days are judged yet",
+    "days_line.many": "{k} of {m} days checked",
+    "days_line.partial": " · {p} partly checked",
+    "days_line.low": " · {n} with too little data, not counted",
+    "days_line.no_data_one": "No readings on {day}",
+    # CH-6 R7 (design A3; MD-CH6-3: no mock place, it sits in the row subline).
+    "row.target_note": "{k} of {m} outcomes have a target",
+}
+#: §A4: the earnings labels whose money is an estimate at a declared price (MA-1 M3 suffix).
+INCOME_LABELS = ("estimated_income", "estimated_charging_income")
+
+
+def node_text(key: str, **fields: Any) -> str:
+    return NODE_TEXT[key].format(**fields)
+
+
+def money2(value: Any) -> str:
+    """`frontend/src/ui/money.ts` `money2`: two places, half even on the absolute value, exact; `-0.001` -> `0.00`."""
+    d = Decimal(str(value))
+    q = abs(d).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    text = f"{q:f}"
+    return f"-{text}" if d < 0 and q != 0 else text
+
+
+def money_text(low: Any, high: Any = None, currency: str | None = None) -> str | None:
+    """R8: exactly `boardMoneyText` (`F/sites/OutcomeBoard.tsx`): None without an amount; `high=None` is one amount;
+    equal bounds give one amount, else "{lo} to {hi}"; " {currency}" only when the currency is non-empty. Shared
+    fixture `frontend/src/shell/__fixtures__/money-text.json`."""
+    if low is None:
+        return None
+    lo = money2(low)
+    hi = lo if high is None else money2(high)
+    amount = lo if lo == hi else f"{lo} to {hi}"
+    return f"{amount} {currency}" if currency else amount
+
+
+def _one_decimal(value: Any) -> str:
+    """`site_outcomes/mini.py` `num` (the MG-1 texts' number rule): integers plain, else one place half up."""
+    d = Decimal(str(value))
+    if d == d.to_integral_value():
+        return str(int(d))
+    return f"{d.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP).normalize():f}"
+
+
+def mg1_text(verdict: str | None, value: Any, checked: int, elapsed: int, month_days: int, target: Any,
+             min_checked_days: int) -> str:
+    """§A4 `verdict.*`: the MG-1 month text for `judge_month`'s verdict, by `mini.mg1_reading`'s rule; with no
+    counted day, the board's "sales not recorded" (CH6a2-R Q5)."""
+    if value is None or not checked:
+        return MG1_NO_DAY
+    words = {"mtd": _one_decimal(value), "c": checked, "e": elapsed, "m": month_days}
+    if verdict in (ON_PACE, BEHIND_PACE):
+        return MG1_PACE.format(**words, avg=_one_decimal(Decimal(str(value)) / checked),
+                               need=_one_decimal(Decimal(str(target)) / month_days))
+    if verdict == TOO_EARLY:
+        return MG1_TOO_EARLY.format(**words, d="day" if checked == 1 else "days", k=min_checked_days)
+    if verdict == MISSED:
+        return MG1_MISSED.format(**words)
+    return MG1_SO_FAR.format(**words)
+
+
+def days_line(days: Any, day: date | None = None) -> str | None:
+    """§A4 `days_line.*`: the M1 line of a node from its §S.2 days; None without days. A single expected day with no
+    readings reads "No readings on {day}" when the day is given."""
+    d = _days_of(days)
+    if d is None:
+        return None
+    if d["expected"] == 1 and d["no_data"] == 1 and day is not None:
+        return node_text("days_line.no_data_one", day=day_text(day))
+    line = node_text("days_line.many", k=d["complete"], m=d["expected"])
+    if d["partial"]:
+        line += node_text("days_line.partial", p=d["partial"])
+    if d["low"]:
+        line += node_text("days_line.low", n=d["low"])
+    return line
+
+
+def verdict_claim(outcome_key: str, verdict: str | None, days: Any, text: str | None) -> Claim:
+    """R8: the `kpi` node claim; `verdict=None` means no objective (CH6a2-R Q6: no days, NOT_KNOWN, "No target set
+    yet"). The basis is the one basis rule over the measure's days."""
+    key = f"verdict.{outcome_key}"
+    if verdict is None:
+        return Claim(key, None, NOT_KNOWN_BASIS, None, node_text("target.none"))
+    d = _days_of(days)
+    return Claim(key, verdict, count_basis(d), d, text or NOT_KNOWN_TEXT)
+
+
+def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: str | None = None) -> Claim:
+    """R8/A4: an `earnings` node claim from a strategy's `Effect.money` ({"amount"} or {"low", "high"}, plus
+    "currency"). With days, the text names the checked days; without (a stored consequence, CH6a2-R Q2) it is the
+    amount alone. No money: `money.currency_mixed` for mixed currencies, else `money.not_known`."""
+    key = f"money.{label}"
+    d = _days_of(days)
+    if not money:
+        text = node_text("money.currency_mixed" if reason == "CURRENCY_MIXED" else "money.not_known")
+        return Claim(key, None, NOT_KNOWN_BASIS, d, text)
+    cur = money.get("currency")
+    if "amount" in money:
+        value = {"amount": str(money["amount"]), "currency": cur}
+        amount = money_text(money["amount"], None, cur)
+    else:
+        value = {"low": str(money["low"]), "high": str(money["high"]), "currency": cur}
+        amount = money_text(money["low"], money["high"], cur)
+    basis = count_basis(d)
+    if basis == NOT_KNOWN_BASIS:
+        text = amount
+    elif d["partial"]:
+        text = node_text("money.days_partial", amount=amount, k=d["complete"], m=d["expected"], p=d["partial"])
+    else:
+        text = node_text("money.days", amount=amount, k=d["complete"], m=d["expected"])
+    if label in INCOME_LABELS:
+        text += node_text("money.income_suffix")
+    return Claim(key, value, basis, d, text)
+
+
+def potential_claim(driver: str, value: Mapping[str, Any] | None, days: Any, lines: Sequence[str]) -> Claim:
+    """A3.3 / CH6a2-R Q1: the `potential` node claim; `lines` joined by "\\n" (CH-6a3 splits them). No line is
+    `potential.none`."""
+    d = _days_of(days)
+    text = "\n".join(lines) if lines else node_text("potential.none")
+    return Claim(f"potential.{driver}", value, count_basis(d), d, text)
+
+
+def potential_lines(low: Any, high: Any, money: Mapping[str, Any] | None) -> list[str]:
+    """§A4 `potential.value` and, only with money (SUPPORTED and priced, R11), `potential.money`."""
+    lines = [node_text("potential.value", lo=decimal_text(Decimal(str(low))), hi=decimal_text(Decimal(str(high))))]
+    if money:
+        lines.append(node_text("potential.money", lo=money2(money["low"]), hi=money2(money["high"]),
+                               cur=money.get("currency")))
+    return lines

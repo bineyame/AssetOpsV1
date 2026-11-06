@@ -48,7 +48,7 @@
   "coverage": "coverage-policy/1",
   "lifecycle": "thread-lifecycle/1",
   "register": 1,
-  "status": "outcome-status/3"
+  "status": "outcome-status/4"
  },
  "schema_version": "outcome-chain-1",
  "sites": [
@@ -87,8 +87,8 @@
      "state_label": "Watch"
     },
     "GROW_REVENUE": {
-     "state": "OPPORTUNITY",
-     "state_label": "Opportunity"
+     "state": "UNKNOWN",
+     "state_label": "Unknown"
     },
     "OPTIMIZE_COST": {
      "state": "NEEDS_ATTENTION",

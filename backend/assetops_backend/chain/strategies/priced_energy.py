@@ -11,10 +11,16 @@ from decimal import Decimal
 from assetops_backend.chain.grading import COMPLETE, PARTIAL
 from assetops_backend.chain.strategies.base import (
     CURRENCY_MIXED, DECLARED, MEASURED, NO_RECORDS, NOT_PRICED, NOT_SUPPORTED, SUPPORTED, ContributionContext, Effect)
-from assetops_backend.chain.strategies.graded_verdict import grade_counts
+from assetops_backend.chain.strategies.graded_verdict import day_grades, grade_counts
 
 COUNTED = (COMPLETE, PARTIAL)
 ONE_HOUR = Decimal(1)
+_NO_CURRENCY = ("", "None")
+
+
+def _currency(row) -> str | None:
+    cur = row.money.get("currency")
+    return None if cur is None or str(cur) in _NO_CURRENCY else str(cur)
 
 
 class PricedEnergy:
@@ -28,13 +34,16 @@ class PricedEnergy:
     def _earnings(self, ctx: ContributionContext) -> Effect:
         d = ctx.record.direction
         days = grade_counts(ctx.day_rows)
-        rows = [r for r in ctx.day_rows if r.grade in COUNTED]
+        # CH-6a1 L2: a day adds money only when its day grade is COMPLETE or PARTIAL (the same rule as `days`).
+        counted = {day for day, g in day_grades(ctx.day_rows).items() if g in COUNTED}
+        rows = [r for r in ctx.day_rows if r.local_day in counted and r.grade in COUNTED]
         if not rows:
             return Effect(d, basis=MEASURED, days=days, reason=NO_RECORDS)
         priced = [r for r in rows if r.money and r.money.get("amount") is not None]
-        if not priced:
+        # CH-6a1 L3: an amount with no currency (stored as `str(None)`, `measure_impls.py:160`) is not priced.
+        if not priced or any(_currency(r) is None for r in priced):
             return Effect(d, basis=MEASURED, days=days, reason=NOT_PRICED)
-        currencies = {str(r.money.get("currency")) for r in priced}
+        currencies = {_currency(r) for r in priced}
         if len(currencies) != 1:
             return Effect(d, basis=MEASURED, days=days, reason=CURRENCY_MIXED)
         total = sum((Decimal(str(r.money["amount"])) for r in priced), Decimal("0.00"))

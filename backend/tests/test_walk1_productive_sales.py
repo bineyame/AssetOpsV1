@@ -7,12 +7,17 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
+from uuid import UUID
 
 import pytest
 
-from assetops_backend.site_outcomes import mini
+from assetops_backend.chain.outcomes import NodeInputs, OutcomeEvaluator
+from assetops_backend.chain.ports import SnapshotRow
+from assetops_backend.chain.vocabulary import days_line
+from assetops_backend.outcomes.objectives import judge_month
+from assetops_backend.site_outcomes import mini, objective_facts
 from assetops_backend.site_outcomes.board import assemble
 from assetops_backend.site_outcomes.mini import compose
 from assetops_backend.site_outcomes.productive_use import productive_energy
@@ -23,7 +28,8 @@ GROW = mini.GROW
 LO = datetime(DAY.year, DAY.month, DAY.day, tzinfo=timezone.utc)
 HI = LO + timedelta(days=1)
 MILL = {"asset_code": "load-mill", "asset_id": "a-mill", "name": "Grain mill"}
-PRICE = {"selection": {"state": "PRICED", "price": {"value": "0.2500", "currency": "USD"}}}
+REV = "0b8a1f1e-0000-4000-8000-000000000001"   # the declared price's assumption revision
+PRICE = {"selection": {"state": "PRICED", "revision_id": REV, "price": {"value": "0.2500", "currency": "USD"}}}
 NO_PRICE = {"selection": {"state": "NO_PRICE", "price": None}}
 ASSUMPTIONS = f"/sites/{C}/financials/assumptions"
 
@@ -82,9 +88,51 @@ def test_zero_use_is_a_measured_zero() -> None:
 
 # --------------------------------------------------------------- composer (§4.4 table)
 
+MG1 = [{"outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": "300", "currency": None,
+        "source": "DECLARED", "id": "o1", "source_note": "Declared for the demonstration"}]
+
+
+def snapshot(readings: Any, price: Any = PRICE, grade: str = "COMPLETE") -> tuple[SnapshotRow, ...]:
+    """CH6a3-R2 H1: the board day's stored `productive_kwh` row as the producer writes it from the same readings
+    (`chain/measure_impls.py` ProductiveEnergy: kWh to the watt-hour, money on the unrounded energy at the selected
+    price, with its revision). No row when the readings give no energy (no readings, a conflicting day)."""
+    e = productive_energy(readings, LO, HI)
+    if e["kwh"] is None or e["conflict_assets"]:
+        return ()
+    sel = (price or {}).get("selection") or {}
+    rate = (sel.get("price") or {}).get("value")
+    money = None if sel.get("state") != "PRICED" or rate is None else {
+        "amount": f"{(e['kwh'] * Decimal(rate)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):f}",
+        "currency": "USD", "assumption_revision_id": sel["revision_id"]}
+    value = {"kwh": f"{e['kwh'].quantize(Decimal('0.001'), rounding=ROUND_HALF_UP):f}",
+             "measured_seconds": e["measured_seconds"]}
+    return (SnapshotRow(UUID(int=1), UUID(int=2), DAY, "ASSET", "asset:a-mill", "productive_kwh", "MEASURED", 1, True,
+                        28800, e["measured_seconds"], "100", grade, value, money, "p", "c", 1, "fp"),)
+
+
+def mg1_month(rows: tuple[SnapshotRow, ...]):
+    """The MG-1 month reading and verdict recomputed from the stored rows (`judge_month`, the evaluator's R5)."""
+    o = objective_facts.from_rows(MG1, mini.num)[0]
+    reading, _ = OutcomeEvaluator()._month_reading(
+        NodeInputs(C, "mini_grid", ZONE, (DAY, DAY), rows, (o,)), "productive_kwh")
+    return reading, judge_month(o, reading)
+
+
+def assert_mg1(comp: Any, rows: tuple[SnapshotRow, ...], **kw: Any):
+    """CH6a3-R2 H1: MG-1 lives in `nodes["MG-1"]["kpi"]` (R5). Without an objective it reads "No target set yet";
+    with the declared one its verdict equals `judge_month` over the stored rows. Returns the recomputed reading."""
+    assert comp.facts.nodes["MG-1"]["kpi"]["text"] == "No target set yet"
+    declared, _ = run(objectives=MG1, **kw)
+    reading, verdict = mg1_month(rows)
+    assert declared.facts.nodes["MG-1"]["kpi"]["value"] == verdict
+    return reading
+
+
 def run(users: Any = (MILL,), readings: Any = None, price: Any = PRICE, refuse: tuple[str, ...] = (),
-        fake: Fake | None = None, objectives: Any = None):
+        fake: Fake | None = None, objectives: Any = None, snap: Any = None, grade: str = "COMPLETE"):
     fake = fake or Fake()
+    readings = story_day() if readings is None else readings
+    rows = (snapshot(readings, price, grade) if users else ()) if snap is None else tuple(snap)
 
     def port(name: str, value: Any):
         def call(*args: Any) -> Any:
@@ -94,8 +142,15 @@ def run(users: Any = (MILL,), readings: Any = None, price: Any = PRICE, refuse: 
         return call
 
     ports = replace(fake.ports(), productive_users=port("users", list(users)),
-                    productive_readings=port("readings", story_day() if readings is None else readings),
+                    productive_readings=port("readings", readings),
                     productive_price=port("price", price))
+    base_day = ports.chain_day
+
+    def chain_day(days: Any, board_days: Any) -> Any:  # H1: the stored snapshot rows of the same day read
+        facts = base_day(days, board_days)
+        return facts if facts is None else replace(facts, rows=rows)
+
+    ports = replace(ports, chain_day=chain_day)
     if objectives is not None:
         ports = replace(ports, objectives=lambda: objectives)
     comp = compose(ports, site_code=C, day=DAY, site_timezone=ZONE)
@@ -113,7 +168,7 @@ def test_no_productive_user_declared() -> None:
     assert keys(row) == ["productive_sales", "productive_use", "cash_collected", "site_earnings"]  # WALK1-3b §A2.3
     assert contributor(row, "productive_sales")["text"] == (
         "Not available yet · no productive users identified for this site")
-    assert comp.facts.readings["MG-1"].actual_text == "sales not recorded"
+    assert assert_mg1(comp, (), users=()).value is None  # no productive user: no stored row, nothing totalled
     assert comp.read_state == "AVAILABLE"
 
 
@@ -130,13 +185,16 @@ def test_measured_use_without_a_price() -> None:
     assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
     assert row["subline"] is None
     sales = contributor(row, "productive_sales")
-    assert sales["text"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
+    # CH6a3-R2 H3 ONE-SOURCE: an unpriced day's stored row has no money, so the earnings claim is NOT_KNOWN and the
+    # line states no live kWh beside it; the price line still says why.
+    assert sales["text"] == "Not known yet · 1 of 1 days checked"
     assert sales["confidence"] is None
     assert checked(contributor(row, "productive_price")) == {
         "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
         "confidence": None, "href": ASSUMPTIONS}
-    # WALK1-3b: MG-1 reads month to date (Nairobi local October through the 20th); no objective is declared here
-    assert comp.facts.readings["MG-1"].actual_text == "96 kWh so far this month, on 1 of 20 days checked"
+    # R5: MG-1 reads month to date from the stored rows (Nairobi local October through the 20th)
+    reading = assert_mg1(comp, snapshot(story_day(), NO_PRICE), price=NO_PRICE)
+    assert (reading.value, reading.checked_days, reading.elapsed_days) == (Decimal("96.000"), 1, 20)
 
 
 def test_priced_zero_use() -> None:
@@ -145,7 +203,7 @@ def test_priced_zero_use() -> None:
     assert row["headline_money"] is None
     assert contributor(row, "productive_sales")["text"] == "0 kWh used by Grain mill in 8 measured hours"
     assert contributor(row, "productive_sales")["confidence"] == {"label": "Declared", "tone": "neutral"}
-    assert comp.facts.readings["MG-1"].value == Decimal(0)
+    assert assert_mg1(comp, snapshot(story_day("0")), readings=story_day("0")).value == Decimal(0)
 
 
 def test_priced_zero_use_without_spare_solar_leads_with_not_used() -> None:
@@ -165,7 +223,7 @@ def test_overlapping_readings_of_one_user_are_not_estimated() -> None:
     assert row["subline"] is None
     assert contributor(row, "productive_sales")["text"] == (
         "Not available yet · Grain mill has conflicting readings on this day, so use is not estimated")
-    assert comp.facts.readings["MG-1"].actual_text == mini.MG1_ACTUAL
+    assert assert_mg1(comp, (), readings=twice).value is None  # a conflicting day stores no counted row
     two = {"asset_code": "load-pump", "asset_id": "a-pump", "name": "Pump"}
     both = [{**r, "asset_id": "a-pump"} for r in twice] + [{**r, "asset_id": "a-mill"} for r in twice]
     _, row2 = run(users=(MILL, two), readings=both)
@@ -193,9 +251,23 @@ def test_priced_estimate_leads_the_grow_row() -> None:
                                                      " · 4 of the last 5 days not checked")
     assert comp.short_values == {GROW: "18–24.3 kW unused"}
     # WALK1-3b: MG-1 carries the month-to-date kWh (only this day has readings) and is complete only at month end
-    mg1 = comp.facts.readings["MG-1"]
+    mg1 = assert_mg1(comp, snapshot(story_day("12.6225")), readings=story_day("12.6225"))
     assert mg1.value == Decimal("100.98") and mg1.complete is False
     assert (mg1.checked_days, mg1.elapsed_days, mg1.month_days) == (1, 20, 31)
+
+
+def test_low_day_states_nothing_but_not_known_with_its_days_line() -> None:
+    """CH6a3-R2 H1/H3 (ONE-SOURCE): a LOW stored day is never totalled, so the earnings claim is NOT_KNOWN; the live
+    read's 101 kWh and price must not appear beside it. Money None, subline None, the sales line "Not known yet"
+    with the claim's own days line."""
+    comp, row = run(readings=story_day("12.6225"), grade="LOW")
+    earn = comp.facts.nodes["MG-1"]["earnings"]
+    assert earn["value"] is None and earn["text"] == "Not known yet"
+    assert row["headline_money"] is None and row["subline"] is None
+    line = days_line(earn["days"], DAY)
+    assert line == "0 of 1 days checked · 1 with too little data, not counted"
+    assert contributor(row, "productive_sales")["text"] == f"Not known yet · {line}"
+    assert "101" not in str(row["subline"]) and all("kWh used" not in c["text"] for c in row["contributors"])
 
 
 def test_one_measured_hour_is_singular() -> None:
@@ -207,12 +279,17 @@ def test_one_measured_hour_is_singular() -> None:
 def test_a_failed_port_is_not_loaded_and_partial(port: str) -> None:
     comp, row = run(refuse=(port,))
     assert comp.read_state == "PARTIAL"
-    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
     texts = {c["key"]: c["text"] for c in row["contributors"]}
     if port == "price":
         assert texts["productive_price"] == mini.NOT_LOADED
-        assert texts["productive_sales"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
+        # H3 ONE-SOURCE: the stored row is priced, so the money and the sales line come from the earnings claim;
+        # with no price read there is no single-revision price line, so no subline
+        assert row["headline"] == "estimated productive-use sales"
+        assert row["headline_money"] == {"amount_low": "24.00", "amount_high": "24.00", "currency": "USD"}
+        assert texts["productive_sales"] == "96 kWh used by Grain mill in 8 measured hours"
+        assert row["subline"] is None
     else:
+        assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
         assert texts["productive_sales"] == mini.NOT_LOADED
         if port == "users":
             assert row["subline"] is None  # L4: no GROW_SUBLINE when the read failed
@@ -227,8 +304,7 @@ def test_row_state_with_the_estimate_is_unchanged() -> None:
     # to judge" (Unknown) under the default minimum of 3 checked days; with no productive user nothing is judged.
     kobo = dict(DEPTH, renewable={"headroom_kw": {"low": None, "high": None}, "eligible_days": None,
                                   "assessed_days": None})
-    mg1 = [{"outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": "300", "currency": None,
-            "source": "DECLARED", "id": "o1", "source_note": "Declared for the demonstration"}]
+    mg1 = MG1
     _, estimate = run(readings=story_day("21.0375"), fake=Fake(cards=kobo), objectives=mg1)
     _, none = run(users=(), fake=Fake(cards=kobo), objectives=mg1)
     assert estimate["headline_money"] == {"amount_low": "42.08", "amount_high": "42.08", "currency": "USD"}
@@ -291,3 +367,34 @@ def test_b4_binds_the_productive_ports_to_the_reader_and_the_price_series() -> N
                      ("readings", {"tenant_id": t, "site_id": s, "asset_ids": ["a-mill"], "lo": LO, "hi": HI,
                                    "known_at": known}),
                      ("price", (t, s, "productive_use_price_per_kwh", LO, known))]
+
+
+def month_rows(kwh_per_day: str, days: range) -> tuple[SnapshotRow, ...]:
+    """Stored COMPLETE `productive_kwh` rows for the given October days (MG-1 reads the month to the board day)."""
+    one = snapshot(story_day())[0]
+    return tuple(replace(one, local_day=DAY.replace(day=d), value={"kwh": kwh_per_day, "measured_seconds": 28800})
+                 for d in days)
+
+
+def test_mg1_snapshot_verdict_sets_the_row_state_and_chip() -> None:
+    """CH6a3-R2 M3: the board-level path from an MG-1 snapshot verdict to the Grow row state, its chip and the
+    objectives wire. MET (3 x 120 kWh >= 300) -> ON_TRACK, "Met"; BEHIND_PACE (3 x 5 kWh, 15 x 31 < 300 x 3) ->
+    WATCH, "Behind pace"; no objective -> OPPORTUNITY from the open headroom thread, with its potential node."""
+    from assetops_backend.site_outcomes.board import objectives_wire
+
+    def line(row: dict) -> dict:
+        return next(c for c in row["contributors"] if c["key"] == "declared_objective_MG-1"
+                    or c["label"].startswith("Declared objective"))
+
+    comp, met = run(objectives=MG1, snap=month_rows("120", range(18, 21)))
+    assert comp.facts.nodes["MG-1"]["kpi"]["value"] == "MET"
+    assert met["state"] == "ON_TRACK" and line(met)["confidence"] == {"label": "Met", "tone": "green"}
+    assert {o["key"]: o["reason"] for o in met["outcomes"]}["MG-1"] == "OBJECTIVE_MET"
+    assert next(w for w in objectives_wire(comp.facts) if w["outcome_key"] == "MG-1")["verdict"] == "MET"
+    comp, behind = run(objectives=MG1, snap=month_rows("5", range(18, 21)))
+    assert comp.facts.nodes["MG-1"]["kpi"]["value"] == "BEHIND_PACE"
+    assert behind["state"] == "WATCH" and line(behind)["confidence"] == {"label": "Behind pace", "tone": "amber"}
+    comp, none = run(snap=month_rows("120", range(18, 21)))
+    assert comp.facts.nodes["MG-1"]["kpi"]["text"] == "No target set yet"
+    assert none["state"] == "OPPORTUNITY"
+    assert none["nodes"]["potential"]["key"].startswith("potential.") and none["nodes"]["potential"]["value"]

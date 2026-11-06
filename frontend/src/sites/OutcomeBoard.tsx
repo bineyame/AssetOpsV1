@@ -111,6 +111,37 @@ function ColHead({ icon, children }: { icon: OutcomeGlyphName; children: ReactNo
   );
 }
 
+const GROW_PARTS = [["kpi", "Target"], ["potential", "Potential"], ["earnings", "Estimated income"]] as const;
+
+/**
+ * CH-6a3 R2b (H4): `div.ob-grow > div.ob-part` x3, each `span.ob-plabel + b (per line) + small.ob-days`, from the
+ * server's per-part `days_line`; a part never shows a neighbour's line. All three parts always show (the server fills
+ * an absent one). MOCK DEVIATION: MD-CH6-1 (R11 basis), MD-CH6-2 (the section A4 lines differ from the v70 mock
+ * examples), MD-CH6-3 (`target_note` in the subline), MD-CH6-7 (no Potential days line when the study has no day
+ * grades); register: mock-departure-register.md, mock: v70/index.html:213-215, 238, 420.
+ */
+function GrowParts({ row, fallback }: { row: OutcomeBoardRow; fallback: string | null }) {
+  const nodes = row.nodes;
+  if (!nodes || GROW_PARTS.every(([k]) => !nodes[k])) return <>{fallback}</>;
+  return (
+    <div className="ob-grow" data-outcome-grow aria-label="Grow revenue in three parts">
+      {GROW_PARTS.map(([k, label]) => {
+        const c = nodes[k];
+        const lines = (c?.text ?? "").split("\n");
+        return (
+          <div key={k} className="ob-part" data-outcome-part={k}>
+            <span className="ob-plabel">{label}</span>
+            {lines.map((l, i) => (
+              <b key={i}>{l}</b>
+            ))}
+            {c?.days_line ? <small className="ob-days" data-outcome-days>{c.days_line}</small> : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Name({ row }: { row: OutcomeBoardRow }) {
   return (
     <>
@@ -160,7 +191,9 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
     );
   }
   const money = boardMoneyText(row.headline_money);
-  const headline = money !== null && row.headline ? `${money} ${row.headline}` : (row.headline ?? money);
+  const text = money !== null && row.headline ? `${money} ${row.headline}` : (row.headline ?? money);
+  // CH-6a3: the Grow row shows its Target, Potential and Estimated income, each with the days it rests on.
+  const headline = row.category === "GROW_REVENUE" && row.nodes ? <GrowParts row={row} fallback={text} /> : text;
   const earlierEmpty = "earlier_empty_text" in row ? (row.earlier_empty_text ?? "") : EMPTY.prev;
   return (
     <details className={`ob tone-${row.tone}`} open={row.state === "NEEDS_ATTENTION"} {...data}>
@@ -184,6 +217,7 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
       </summary>
       <div className="ob-body">
         {row.subline ? <p className="ob-sub">{row.subline}</p> : null}
+        {row.target_note ? <p className="ob-sub" data-outcome-target-note>{row.target_note}</p> : null}
         {row.must_not_harm ? (
           <p className="ob-guard" data-outcome-guard>
             <OutcomeGlyph name="guard" className="oc-colic" size={14} />

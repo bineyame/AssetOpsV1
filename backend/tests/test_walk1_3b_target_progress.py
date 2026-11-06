@@ -144,76 +144,8 @@ def run(days: list[int], *, fake: b2.Fake | None = None, objectives: Any = None)
     return comp, {r["category"]: r for r in assemble(comp.facts)}[GROW], seen
 
 
-def test_kobo_month_to_date_met_is_on_track_without_an_opportunity_chip() -> None:
-    # Board day 20 Oct (Nairobi, UTC+3); four checked mill days of 168.3 kWh in October before it and on it.
-    comp, row, seen = run([2, 9, 16, 20])
-    assert row["state"] == "ON_TRACK" and row["state_label"] == "On track"
-    assert {o["key"]: o["reason"] for o in row["outcomes"]}["MG-1"] == "OBJECTIVE_MET"
-    assert row["potential"] is None                     # no spare-solar headroom read
-    assert row["headline"] == "estimated productive-use sales"  # (a) performance stays the headline
-    assert [c["key"] for c in row["contributors"]] == [
-        "productive_sales", "declared_objective:MG-1", "productive_use", "productive_price", "cash_collected",
-        "site_earnings"]
-    line = next(c for c in row["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert line["text"] == ("Productive electricity sales: at least 300 kWh sold for productive use a month · "
-                            "673.2 kWh so far this month, on 4 of 20 days checked")
-    assert line["confidence"] == {"label": "Met", "tone": "green"}
-    # the month window: Nairobi local 1 Oct 00:00 (30 Sep 21:00 UTC) through the end of the local board day
-    assert (datetime(2026, 9, 30, 21, tzinfo=timezone.utc), datetime(2026, 10, 20, 21, tzinfo=timezone.utc)) in seen
-    wire = next(o for o in objectives_wire(comp.facts) if o["outcome_key"] == "MG-1")
-    assert wire["verdict"] == MET
-
-
-def test_spare_solar_is_the_opportunity_chip_beside_the_kpi_state() -> None:
-    comp, row, _ = run([2, 9, 16, 20], fake=b2.Fake())  # the fixture's spare-solar signal is open
-    assert row["state"] == "ON_TRACK"
-    assert row["potential"] == {"label": "Opportunity", "text": "Productive-use headroom"}
-    assert any(i["kind"] == "OPPORTUNITY" for i in row["issues"])
-    _, no_objective, _ = run([20], fake=b2.Fake(), objectives=[])
-    assert no_objective["state"] == "OPPORTUNITY" and no_objective["potential"] is None
-
-
-def test_pace_texts_and_states() -> None:
-    _, row, _ = run([9, 16, 20], fake=b2.Fake(cards=NO_HEADROOM),
-                    objectives=[dict(mg1_row()[0], target="6000")])  # 504.9 kWh over 3 days vs 6000/31 a day
-    line = next(c for c in row["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert line["text"].endswith("504.9 kWh so far this month, on 3 of 20 days checked · averages 168.3 kWh a day; "
-                                 "the target needs 193.5 kWh a day")
-    assert line["confidence"] == {"label": "Behind pace", "tone": "amber"} and row["state"] == "WATCH"
-    _, row, _ = run([9, 16, 20], objectives=[dict(mg1_row()[0], target="3000")])
-    line = next(c for c in row["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert line["confidence"] == {"label": "On pace", "tone": "green"} and row["state"] == "ON_TRACK"
-
-
-def test_too_early_text_names_the_minimum() -> None:
-    _, row, _ = run([20])
-    line = next(c for c in row["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert line["text"].endswith("168.3 kWh so far this month, on 1 checked day; too early to judge "
-                                 "(needs 3 checked days)")
-    assert line["confidence"] == {"label": "Too early to judge", "tone": "gray"} and row["state"] == "UNKNOWN"
-    # a declared minimum of 5: four checked days of 50 kWh are still too early
-    _, row, _ = run([2, 9, 16, 20], objectives=[dict(mg1_row(5)[0], target="3000")])
-    line = next(c for c in row["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert line["text"].endswith("673.2 kWh so far this month, on 4 checked days; too early to judge "
-                                 "(needs 5 checked days)")
-
-
-def test_missed_only_for_a_complete_fully_checked_month() -> None:
-    reading = mini.mg1_reading({"kwh": Decimal("250"), "checked": 30, "elapsed": 30, "month_days": 30}, fact())
-    assert reading.complete and reading.actual_text == "250 kWh this month, all 30 days checked"
-    assert judge_month(fact(), reading) == MISSED
-
-
-def test_conflicting_day_is_not_checked() -> None:
-    overlap = [{"asset_id": "a-mill", "start": LO + timedelta(hours=3), "end": LO + timedelta(hours=4),
-                "value_kw": "10", "quality": "GOOD"}] * 2
-    readings = mill_day(datetime(2026, 10, 9, tzinfo=timezone.utc)) + overlap
-    ports = replace(b2.Fake(cards=NO_HEADROOM).ports(), productive_users=lambda at: [MILL],
-                    productive_readings=lambda ids, lo, hi: [r for r in readings if r["start"] < hi and r["end"] > lo],
-                    productive_price=lambda at: PRICE, objectives=lambda: mg1_row())
-    comp = mini.compose(ports, site_code=b2.C, day=b2.DAY, site_timezone=b2.ZONE)
-    mg1 = comp.facts.readings["MG-1"]
-    assert (mg1.value, mg1.checked_days) == (Decimal("168.3"), 1)  # the board day's conflict adds nothing
+# CH-6a3 R5: the five board tests that fed live productive readings into the MG-1 month were removed; MG-1 is
+# now read from day snapshots (`tests/test_ch6_evaluator.py`, `test_ch6_nodes_postgres.py`).
 
 
 def test_ev_grow_rows_are_unchanged() -> None:
