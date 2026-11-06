@@ -57,7 +57,7 @@
         "received_at": "D+0d 12:00",
         "assess": "build",
         "delivery": "first_half",
-        "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4)",
+        "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4); the gateway stays down for the rest of the local day; later hours are not received",
         "complement": [
           "night-early",
           "steady-afternoon",

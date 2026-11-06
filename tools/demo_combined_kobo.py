@@ -281,12 +281,15 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime, *
             if not attempted:
                 break
             sent += attempted
+        outbox = publisher.delivery(str(getattr(run, "run_id", "")))  # DD1a1-R6: what the gateway still holds
     finally:
         process.kill()
         central.close()
     assert statuses and set(statuses) == {"COMPLETED"}, statuses
     return {"batches": len(stage.batches), "delivered_batches": sent, "envelopes": len(stage.envelopes),
-            "delivery": "first half of the sealed batches (gateway outage)"}
+            "delivery": ("staged, not delivered (the gateway stays down for the rest of the local day)"
+                         if outage_continues else "first half of the sealed batches (gateway outage)"),
+            "outbox_after": outbox}
 
 
 def trial_day_index(url: str, runner, S: datetime) -> dict:
@@ -369,6 +372,7 @@ def build(url: str, work: Path, story: dict) -> dict:
     from test_s6_verification_plan_postgres import verifying
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
+    _OUTAGE.clear()  # DD1a1-R6: a later build in this process does not inherit an outage
     days = [d for d in sd.from_payload(json.loads((work / "days.json").read_text(encoding="utf-8"))["days"])
             if d.site == "kobo"]
     k = story["kobo"]
