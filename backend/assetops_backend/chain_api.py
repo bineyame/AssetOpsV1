@@ -38,7 +38,7 @@ from assetops_backend.chain import site_chain, why
 from assetops_backend.chain.measures import measures_for
 from assetops_backend.chain.claims import (counted_threads, disrupting, estate_count_claims,
                                            opportunity_items)
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, window_day
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, local_days, window_day
 from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish, parsed_key
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, parse_request as parse_estate
@@ -176,15 +176,15 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         try:
             board = service.board(ref, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
             w = board["window"]
-            w_lo, w_hi, cutoff = _utc(w["from"]), _utc(w["to"]), _utc(w["known_at"])
+            w_lo, w_hi = _utc(w["from"]), _utc(w["to"])
             req = chain_reader.request(ref.tenant_id, known_at)
             facts = req.day(ref.site_id, _site_type(ref), local_days(w_lo, w_hi, ref.timezone))
             rows = req.threads(ref.site_id)
             threads = site_chain.threads_of(rows, site=ref.site_code, domain=ref.domain, tz=ref.timezone,
                                             lo=w_lo, hi=w_hi, day=window_day(w_lo, w_hi, ref.timezone),
-                                            cutoff=cutoff)
+                                            cutoff=lifecycle_cutoff(known_at))
             ids = {t["id"] for t in threads}
-            actions = site_chain.actions_of(rows, ids, site=ref.site_code, tz=ref.timezone, cutoff=cutoff,
+            actions = site_chain.actions_of(rows, ids, site=ref.site_code, tz=ref.timezone, cutoff=lifecycle_cutoff(known_at),
                                             verification=_verification(req, ref, rows, ids))
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error

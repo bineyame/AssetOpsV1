@@ -20,7 +20,7 @@ PART = {"complete": 5, "partial": 1, "low": 0, "no_data": 1, "pending": 0, "expe
 
 class _Site:
     def __init__(self, code: str, name: str) -> None:
-        self.site_code, self.site_name, self.domain, self.timezone = code, name, "cold_storage", "Etc/UTC"
+        self.site_code, self.site_name, self.domain, self.timezone = code, name, "cold_chain", "Etc/UTC"
         self.site_id = code
 
 
@@ -131,12 +131,14 @@ def test_grow_value_follows_money_total_form() -> None:
     assert mixed["value"] == {"text": "Not shown · amounts in more than one currency", "small": None}
 
 
-def test_grow_falls_back_to_possible_potential_then_the_kept_gap() -> None:
+def test_grow_without_income_keeps_the_gap_and_shows_the_potential_on_its_part() -> None:
+    """CH6b2-R2 L3: the "possible" short-value fallback was dead code (`short_values` is never filled) and is removed
+    (Known Deviation, BL-22): a Site with a potential and no income reads "Not known yet", the potential on its part."""
     potential = {"kpi": {"value": None, "text": "No target set yet"},
                  "potential": {"text": "18–20 kW of daytime solar unused\n1–2 USD per hour of use, at the declared price"},
                  "earnings": None}
     card = _cards([_site("K", "Kobo", nodes=potential, short="18–20 kW unused")])["GROW_REVENUE"]
-    assert card["value"] == {"text": "18–20 kW unused", "small": "possible"}   # never "estimated"
+    assert card["value"] == {"text": "Not known yet", "small": None} and card["missing"] is True
     assert card["parts"] == {"target": "No target set yet at any site",
                              "potential": "Kobo: 18–20 kW of daytime solar unused",
                              "income": "Not known yet", "income_note": None}
@@ -222,3 +224,146 @@ def test_copy_preferences() -> None:
     assert v.days_line(FULL) == "7 of 7 days checked"
     assert (v.headroom_unit(1), v.headroom_unit(6), v.headroom_unit(None)) == (   # Q7c
         "kW over 1 daylight hour", "kW over 6 daylight hours", "kW over daylight hours")
+
+
+# ---- CH6b2-R2 M1: the moved card rules, goldens from the removed vitest cases ----------------------------------
+
+@pytest.mark.parametrize(("gaps", "sites", "checked", "expected"), [
+    (3, 3, False, "evidence gaps at all 3 sites"),
+    (2, 4, False, "evidence gaps at 2 of 4 sites"),
+    (1, 4, False, "evidence gap at 1 site"),
+    (0, 4, False, "no evidence gaps"),
+    (0, 4, True, "no evidence gaps on the days checked"),
+    (None, 4, False, "evidence gaps not assessed"),
+    (6, 4, False, v.card_text("note.gap.many", gaps=6)),   # no vitest golden: the many branch, pinned to its template
+])
+def test_evidence_gap_text_branches(gaps, sites, checked, expected) -> None:
+    assert v.evidence_gap_text(gaps, sites, checked) == expected
+    if gaps == 6:
+        assert "6" in expected
+
+
+_KOBO = {"site_name": "Kobo", "checked": 5, "requested": 7}
+_HARBOUR = {"site_name": "Harbour", "checked": 4, "requested": 7}
+
+
+@pytest.mark.parametrize(("days", "on_checked", "expected"), [
+    ([_KOBO], True, "5 of 7 days checked at Kobo"),
+    ([{**_KOBO, "withheld": True}], True,
+     "5 of 7 days checked at Kobo · findings next to unchecked days not shown yet"),
+    ([_KOBO, _HARBOUR], True, "days not checked yet at 2 sites"),
+    ([_KOBO, {**_HARBOUR, "withheld": True}], True,
+     "days not checked yet at 2 sites · findings next to those days not shown yet"),
+    ([_KOBO, _HARBOUR], False, None),   # a COMPLETE basis carries no clause
+    ([], True, None),
+])
+def test_checked_days_clause_branches(days, on_checked, expected) -> None:
+    assert v.checked_days_clause(days, on_checked) == expected
+
+
+@pytest.mark.parametrize(("n", "unread", "expected"), [
+    (3, 0, "targets declared at 3 sites, for any outcome"),
+    (1, 0, "targets declared at 1 site, for any outcome"),
+    (0, 0, "no targets declared"),                                  # only when every Site was read as None
+    (2, 1, "targets declared at 2 sites, for any outcome, 1 site not checked"),
+    (1, 2, "targets declared at 1 site, for any outcome, 2 sites not checked"),
+    (0, 1, None),                                                   # n == 0 and unread > 0: no clause
+    (None, 3, None),
+])
+def test_assure_target_branches(n, unread, expected) -> None:
+    cards = portfolio_cards([], None, v.estate_income([]), [], n, unread)
+    assert cards["ASSURE_PERFORMANCE"]["detail"] == expected
+
+
+# ---- CH6b2-R2 H1: thread lifecycle is read at the request cutoff k for every domain -----------------------------
+
+K = datetime(2026, 11, 2, 12, tzinfo=timezone.utc)
+EVIDENCE = datetime(2026, 10, 31, 17, 5, tzinfo=timezone.utc)   # the cold/EV evidence cutoff (R7), before the Finding is known
+KNOWN = datetime(2026, 11, 2, 9, tzinfo=timezone.utc)           # `cause_known_at` of the lifecycle events: after EVIDENCE
+
+
+class _Req:
+    """A request over one stored thread: the lifecycle events as `(state, cause_known_at)` after a Finding occurrence."""
+    def __init__(self, domain: str, mechanism: str, events, k=K) -> None:
+        self.k = k
+        self.rows = {
+            "occurrences": [{"thread_id": "t1", "finding_id": "f1", "opportunity_id": None, "mechanism": mechanism,
+                             "episode_start": datetime(2026, 10, 28, 2, tzinfo=timezone.utc),
+                             "episode_end": datetime(2026, 10, 28, 3, tzinfo=timezone.utc), "opportunity_no": None}],
+            "events": [{"thread_id": "t1", "seq": n, "state": st, "cause_kind": "FINDING", "cause_id": "c",
+                        "effective_day": datetime(2026, 10, 28).date(), "recorded_at": at, "cause_known_at": at}
+                       for n, (st, at) in enumerate(events, 1)],
+            "actions": []}
+
+    def threads(self, site_id):
+        return self.rows
+
+    def evidence_cutoff(self, site_id):
+        return EVIDENCE
+
+
+def _real_counts(monkeypatch, domain: str, mechanism: str, events, k=K):
+    site = _Site("A", "GreenHarvest")
+    site.domain = domain
+    req = _Req(domain, mechanism, events, k)
+    monkeypatch.setattr(CL, "claim_days", lambda r, s, lo, hi: FULL)
+    return CL.estate_count_claims(req, [site], LO, HI, [], (LookupError,))
+
+
+COLD = ("cold_chain", "COLD_START_FAILURE")
+EV = ("ev_charging", "EV_INTERRUPTION")
+
+
+@pytest.mark.parametrize(("domain", "mechanism"), [COLD, EV])
+def test_open_known_after_evidence_cutoff_but_by_k_is_counted(monkeypatch, domain, mechanism) -> None:
+    """H1 case 1 (cold) and its EV twin: OPEN's `cause_known_at` is after the evidence cutoff and no later than k."""
+    out = _real_counts(monkeypatch, domain, mechanism, [("OPEN", KNOWN)])
+    assert out.claims[CL.SITES_DISRUPTED].value == 1
+    assert out.claims[CL.OPEN_THREADS].value == 1
+    assert [t["id"] for t in out.disrupted["A"]] == ["t1"]
+
+
+@pytest.mark.parametrize(("domain", "mechanism"), [COLD, EV])
+def test_open_known_after_k_is_not_counted(monkeypatch, domain, mechanism) -> None:
+    """H1 case 2: the as-known bound still holds."""
+    out = _real_counts(monkeypatch, domain, mechanism, [("OPEN", datetime(2026, 11, 3, tzinfo=timezone.utc))])
+    assert out.claims[CL.SITES_DISRUPTED].value == 0 and out.claims[CL.OPEN_THREADS].value == 0
+
+
+def test_ev_action_in_hand_known_after_evidence_cutoff_is_counted(monkeypatch) -> None:
+    """H1 case 3: an EV thread at ACTION_IN_HAND disrupts (in hand, not open)."""
+    out = _real_counts(monkeypatch, *EV, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN)])
+    assert out.claims[CL.SITES_DISRUPTED].value == 1
+    assert out.claims[CL.OPEN_THREADS].value == 1   # open + in hand
+    assert out.claims[CL.VERIFIED_RESULTS].value == 0
+
+
+def test_only_a_verified_event_reaches_verified_results(monkeypatch) -> None:
+    """H1 case 4: CHANGE_APPLIED later than the evidence cutoff is visible but not verified; RESOLVED_MONITORING is."""
+    applied = _real_counts(monkeypatch, *COLD, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN), ("CHANGE_APPLIED", KNOWN)])
+    assert applied.claims[CL.VERIFIED_RESULTS].value == 0 and applied.claims[CL.SITES_DISRUPTED].value == 0
+    done = _real_counts(monkeypatch, *COLD, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN), ("CHANGE_APPLIED", KNOWN),
+                                             ("RESOLVED_MONITORING", KNOWN)])
+    assert done.claims[CL.VERIFIED_RESULTS].value == 1
+
+
+def test_site_chain_thread_state_equals_the_claims_state(monkeypatch) -> None:
+    """H1 case 5: `chain_api.site_parts` reads `threads_of` at `lifecycle_cutoff(k)`, as `counted_threads` does."""
+    from assetops_backend.chain import site_chain
+    from assetops_backend.chain.read import lifecycle_cutoff, window_day
+    req = _Req(*COLD, [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN)])
+    site = _Site("A", "GreenHarvest")
+    site.domain = "cold_chain"
+    chain = site_chain.threads_of(req.rows, site="A", domain="cold_chain", tz="Etc/UTC", lo=LO, hi=HI,
+                                  day=window_day(LO, HI, "Etc/UTC"), cutoff=lifecycle_cutoff(K))
+    assert [t["state"] for t in chain] == CL.site_thread_states(req, site, LO, HI) == ["ACTION_IN_HAND"]
+    import inspect
+    from assetops_backend import chain_api
+    assert "lifecycle_cutoff(known_at)" in inspect.getsource(chain_api)
+
+
+def test_lifecycle_cutoff_is_the_request_cutoff_for_every_domain() -> None:
+    from assetops_backend.chain.read import lifecycle_cutoff, site_cutoff
+    k, ev = datetime(2026, 11, 2, tzinfo=timezone.utc), datetime(2026, 10, 31, 17, 5, tzinfo=timezone.utc)
+    assert lifecycle_cutoff(k) == k and lifecycle_cutoff(None) is None
+    assert site_cutoff("cold_chain", k, ev, k) == ev    # evidence reads stay on R7

@@ -36,6 +36,13 @@ def site_cutoff(domain: str | None, request_known_at: datetime | None, evidence_
     return evidence_cutoff if k is None else min(evidence_cutoff, k)
 
 
+def lifecycle_cutoff(request_known_at: datetime | None) -> datetime | None:
+    """CH6b2-R2: the as-known bound of a thread's lifecycle (OPEN, ACTION_IN_HAND, CHANGE_APPLIED, VERIFIED events and
+    Actions), for every domain: the request's cutoff `k`. R7's evidence cutoff (`site_cutoff`) bounds evidence only; a
+    Finding is known after the evidence it assesses, so its lifecycle is invisible at the evidence cutoff."""
+    return request_known_at
+
+
 def _per_day(rows: Iterable[Any]) -> dict[date, dict[str, list[str]]]:
     out: dict[date, dict[str, list[str]]] = {}
     for r in rows:

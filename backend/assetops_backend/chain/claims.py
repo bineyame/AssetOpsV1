@@ -7,7 +7,7 @@ equal scope, window and cutoff give equal claims by construction; COH-17 checks 
 - `days`: one `ChainRequest.day` per Site over `window_days(lo, hi, tz)`, `grade_counts_of` (review L2), summed by
   `sum_days`; any Site None (its read failed) -> None.
 - Threads: `site_chain.threads_of` restricted to threads with a **Finding** occurrence whose episode meets `[lo, hi)`
-  (no event-only, no opportunity-only thread), read on `window_day` at the per-Site cutoff (`site_cutoff`: mini ->
+  (no event-only, no opportunity-only thread), read on `window_day` at the request cutoff `k` (`lifecycle_cutoff`, CH6b2-R2; was `site_cutoff`: mini ->
   the request's `k`; cold/EV -> the Site's evidence cutoff bounded by `k`), classified by `threads.classify`.
 - `count.open_threads` = open + in hand, `count.verified_results` = verified, `count.opportunities` = the CH-4 item
   count (`opportunity_items`, the one read `/estate/chain` lists). A failed read is a null value (NOT_KNOWN).
@@ -23,7 +23,7 @@ from typing import Any, Callable, Mapping, Sequence
 from assetops_backend import read_scope
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.measures import measures_for
-from assetops_backend.chain.read import MINI_DOMAIN, SITE_TYPE_OF_DOMAIN, site_cutoff, window_day, window_days
+from assetops_backend.chain.read import MINI_DOMAIN, SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, window_day, window_days
 from assetops_backend.chain.reader import grade_counts_of
 from assetops_backend.chain.threads import classify
 from assetops_backend.chain.vocabulary import Claim, count_claim, sum_days
@@ -74,8 +74,7 @@ def counted_threads(req: Any, site: Any, lo: datetime, hi: datetime) -> list[dic
     `window_day` at the per-Site cutoff. Early warnings are not threads, so they never enter (CH6b2-R Q2a)."""
     rows = req.threads(site.site_id)
     k = req.k
-    ev = None if site.domain == MINI_DOMAIN else req.evidence_cutoff(site.site_id)
-    cutoff = site_cutoff(site.domain, k, ev, k)
+    cutoff = lifecycle_cutoff(k)
     wanted = _finding_threads(rows, lo, hi)
     threads = site_chain.threads_of(rows, site=site.site_code, domain=site.domain, tz=site.timezone, lo=lo, hi=hi,
                                     day=window_day(lo, hi, site.timezone), cutoff=cutoff)

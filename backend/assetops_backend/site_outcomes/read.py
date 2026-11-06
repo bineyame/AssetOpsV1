@@ -714,10 +714,9 @@ def _income_days(s: dict[str, Any]) -> Any:
 
 def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict[str, Any]:
     """CH6b2-R Q4/Q5: the Grow value from `money_total` (its own "At least" form; mixed currencies -> its text),
-    else the first Site's potential short value ("possible", never "estimated"), else NOT_KNOWN (the kept gap
-    `G-portfolio-grow-revenue`); and the three parts Target, Potential, Estimated income."""
+    else NOT_KNOWN (the kept gap `G-portfolio-grow-revenue`; the "possible" short-value fallback was dead code and is
+    removed, CH6b2-R2 L3, BL-22); and the three parts Target, Potential, Estimated income."""
     target, potential = [], []
-    short = None
     for s in sites:
         name = s.get("site_name") or s["site_code"]
         row = next((r for r in s.get("rows") or () if r["category"] == GROW), None) or {}
@@ -727,7 +726,6 @@ def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict
         text = (nodes.get("potential") or {}).get("text")
         if text and text != node_text("potential.none"):
             potential.append(card_text("grow.site", site=name, text=str(text).split("\n")[0]))
-        short = short or row.get("short_value")
     total = money_total.get("value")
     lines = list(money_total.get("lines") or ())
     mixed = total is None and money_total.get("text") == node_text("money.currency_mixed")
@@ -739,15 +737,13 @@ def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict
                  "small": card_text("grow.small.estimated")}
     elif mixed:
         value = {"text": money_total["text"], "small": None}
-    elif short:
-        value = {"text": short, "small": card_text("grow.small.possible")}
     else:
         value, missing = {"text": NOT_KNOWN_TEXT, "small": None}, True
     note = money_total.get("text")
     return {"value": value, "missing": missing, "detail": None,
             "basis_text": card_text("grow.basis.income" if total is not None or mixed else "grow.basis.none"),
             "days_line": _site_days([s for s in sites if _income_days(s) is not None], _income_days),
-            "tone": "green" if total is not None or mixed or short else "neutral", "claim": money_total,
+            "tone": "green" if total is not None or mixed else "neutral", "claim": money_total,
             "parts": {"target": " · ".join(target) or card_text("grow.target.none"),
                       "potential": " · ".join(potential) or card_text("grow.potential.none"),
                       "income": " · ".join(lines) or note or NOT_KNOWN_TEXT,
