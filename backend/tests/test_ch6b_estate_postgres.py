@@ -84,18 +84,23 @@ def _check(engine, m, chain: dict, summary: dict, known_at=None) -> Decimal:
     earn = kobo["earnings"]["estimated_income"]
     assert days >= 3 and Decimal(earn["value"]["amount"]) == money, (earn, money)   # recomputed, non-empty
     assert earn["days"]["complete"] + earn["days"]["partial"] == days and earn["days"]["expected"] == 7, earn
-    # every node of every row is over the same 7 window days as the Site's `days` (Q1)
-    # Known Deviation (packet KD-2): MG-1 is month-to-date (R5), and a verdict with no kpi contribution record (MG-5)
-    # is judged on the composer's reading of the last window day (`outcomes.py` `_reading`), so neither is a 7-day node.
-    from assetops_backend.outcomes.outcome_map import CONTRIBUTIONS, NODE_KPI
-    recorded = {f"verdict.{r.outcome}" for r in CONTRIBUTIONS if r.node == NODE_KPI} - {"verdict.MG-1"}
-    judged = 0
+    # CH6b1-R4 SPAN (the Q1 check): a node with no span is over the same 7 window days as the Site's `days`; a node
+    # that carries a `span` (MG-1 month to date, the mini MG-2 reading of the board day, a no-record reading's last
+    # day) has `days` equal to that span's day count. Both sets are asserted non-empty below.
+    from datetime import date as _date
+    judged = spanned = 0
     for cat, row in kobo["rows"].items():
         for node in (row["nodes"] or {}).values():
-            if node and node.get("days") and (not node["key"].startswith("verdict.") or node["key"] in recorded):
-                assert node["days"]["expected"] == 7, (cat, node)
-                judged += 1
-    assert judged >= 1, kobo["rows"]   # the set is not empty (the income earnings node at least)
+            if node and node.get("days"):
+                sp = node.get("span")
+                if sp:
+                    n = (_date.fromisoformat(sp["last"]) - _date.fromisoformat(sp["first"])).days + 1
+                    assert node["days"]["expected"] == n, (cat, node)
+                    spanned += 1
+                else:
+                    assert node["days"]["expected"] == 7, (cat, node)
+                    judged += 1
+    assert judged >= 1 and spanned >= 1, kobo["rows"]   # neither set is empty (income earnings; the MG-2 day)
     total = chain["money_total"]
     name = summary["sites"][0]["site_name"] or kobo["code"]
     assert total == estate_income([(name, earn)]), total
