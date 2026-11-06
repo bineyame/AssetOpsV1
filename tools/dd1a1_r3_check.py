@@ -1,6 +1,6 @@
 """DD1a1-R3 Q1 L2 checks on a finished pair of Kobo builds (own *_test DBs, read only).
 
-    python tools/dd1a1_r3_check.py <without-db> <with-db>
+    python tools/dd1a1_r3_check.py <without-db> <with-db> [<days.json of the build>]
 
 Local time is UTC+3 (story window 06:00-14:00 local = 03:00Z-11:00Z); a steady night is [17:00Z, 03:00Z). Prints one
 line per check and exits 1 on any failure; nothing is tuned. Check 2's ACT-K1 outcome/metrics and check 4's Findings,
@@ -18,7 +18,15 @@ URL = "postgresql://assetops:assetops-local-dev@127.0.0.1:55432/"
 UTC = timezone.utc
 
 
-def main(a: str, b: str) -> int:
+def story_spans(days_json: str):
+    """The closed [start, end] of every Kobo story run (a run with no `complement_of`) in the build's days.json."""
+    import json
+    days = json.load(open(days_json, encoding="utf-8"))["days"]
+    return [(datetime.fromisoformat(d["start"].replace("Z", "+00:00")), datetime.fromisoformat(d["end"].replace("Z", "+00:00")))
+            for d in days if d["site"] == "kobo" and not d.get("complement_of") and d.get("start")]
+
+
+def main(a: str, b: str, days_json: str | None = None) -> int:
     ca, cb = psycopg.connect(URL + a), psycopg.connect(URL + b)
     fails: list[str] = []
 
@@ -42,10 +50,14 @@ def main(a: str, b: str) -> int:
         if n:
             nights.append((d, lo, hi))
     check("nights exist in the with build (non-vacuous)", len(nights) > 0, f"{len(nights)} nights: {[str(n[0]) for n in nights]}")
-    check("the without build holds no evidence outside the story windows",
-          ca.execute("select count(*) from accepted_evidence where extract(hour from source_time at time zone 'UTC') "
-                     "not between 3 and 10 and not (extract(hour from source_time at time zone 'UTC') = 11 and "
-                     "extract(minute from source_time at time zone 'UTC') = 0)").fetchone()[0] == 0)
+    if days_json:  # DD1a1-R13: the windows come from the build's own story runs, not an assumed 03Z-11Z
+        spans = story_spans(days_json)
+        times = [t for (t,) in ca.execute("select source_time from accepted_evidence")]
+        stray = [t for t in times if not any(lo <= t <= hi for lo, hi in spans)]
+        check("the without build holds no evidence outside the story windows", bool(spans) and bool(times) and not stray,
+              f"{len(spans)} story windows, {len(times)} readings, {len(stray)} outside")
+    else:
+        print("SKIP the without build holds no evidence outside the story windows (pass the build's days.json)")
 
     # 1. night shape: starts, none before 04:00 local (01:00Z), MG-5 critical supply (clinic delivered == requested)
     for d, lo, hi in nights:
@@ -113,4 +125,4 @@ def d_to_utc(d) -> datetime:  # the night ends 03:00Z on the story day
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1], sys.argv[2]))
+    raise SystemExit(main(*sys.argv[1:4]))
