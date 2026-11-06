@@ -1,4 +1,38 @@
-# DD-1a1 handoff (PARTIAL, stopped at the context budget)
+# DD-1a1 handoff (PARTIAL, STOPPED at the R2 steady-night gate, builder 2, head `870e33119`)
+
+## STOP: the steady night starts the generator (DD1a1-R2 gate; Architect must rule)
+
+- Measured in memory (`tools/probe_kobo_nights.py`, template Site, mini-grid v6, 5 min; all in
+  `backend/conversions/kobo-night-handover-v1.json`):
+
+| Probe | Start (SoC / L / gen) | End SoC | Gen starts | Running min | Fuel used | Min SoC |
+|---|---|---|---|---|---|---|
+| S (06-20 steady day) | 55 / 300 / STOPPED | 69.47 | 0 | 0 | 0 | 50.79 |
+| S-late = `kobo-night-late` (20-24) | 69 / 300 / STOPPED | 47.95 | 0 | 0 | 0 | 47.95 |
+| S-early = `kobo-night-early` (00-06) | 48 / 300 / STOPPED | 31.16 | **1** | **55** | 0.0 | 31.16 |
+| O (06-20 overcast day) | 40 / 300 / STOPPED | 30.00 | 1 | 815 | 113.34 | 30.00 |
+| O-late (20-24, after overcast) | 30 / 186.7 / STOPPED | 30.88 | 1 | 235 | 13.07 | 30.00 |
+| O-early (00-06, after overcast) | 31 / 173.6 / STOPPED | 31.19 | 1 | 355 | 10.51 | 30.00 |
+
+- `kobo-night-early` crosses the 35 % start threshold at 05:00 local (offset 300, SoC 34.84): STARTING, then RUNNING
+  to 06:00; fuel stays 300.0 and the battery keeps discharging at 7 kW (the generator delivers nothing in that hour).
+- Cause is arithmetic, not tuning: R2's own energy check (20-24 about 21 %, 00-06 about 17 %) from 69 % gives about
+  31 % at 06:00, not R2's estimated 41 %. No value was adjusted.
+- Also for the Architect: `kobo-daytime` declares only SoC 55 (no fuel/generator start), so probe S uses R2's stated
+  300 L / STOPPED with the evening parent's parameter structure (`probe_s`). Same gap means `kobo-steady-day`
+  (and possibly `mill-midday`, kobo-daytime v2) drafts BLOCKED `INITIAL_VALUE_NOT_RESOLVED` on mini-grid v6 with
+  the template Site; not verified on the registered Site.
+
+## Landed in this round
+
+- `a48ddb9c9`: seal-once unit tests (`host/tests/test_registered_gateway_publication.py`, 3 tests, 10 seal tests
+  pass) and `test_cold_chain_parity_with_seal_once_on_and_off` (`backend/tests/test_w502_cold_scenario_producer.py`;
+  own `*_test` DB, PASS 222 s; batches 92 -> 8; evidence, assessments, findings equal by the DD0c-R Q2 rule; the
+  event `correlation_id` is opaque because each open mints a new shifted scenario id). DB URL port is **55432**.
+- `870e33119`: `tools/derive_steady_scenarios.py` `window_events`, `NIGHT_WINDOWS` (R2 values + bases),
+  `night_document`, `night`; `tools/probe_kobo_nights.py` (write / `--check`); the handover JSON; the four
+  `config/scenarios/kobo-night-*.yaml`. `derive --check` and `probe --check` pass.
+- Not done (after the gate): v2 day list, Q6, Q8, Cold failure-day own-DB run, R2 gates on L2, guards, packet.
 
 - Branch `task/DD-1a1-steady-fullday`, last commit `17e69a295` (main merged incl. DD1a1-R2). Binding: DD0c-R, DD1a1-R (Q1, Q3-Q8), **DD1a1-R2** (night profile; supersedes Q2 and its stop gate) at the end of `.agent/build-sheet-DD-1.md`. Unit is 2.5.
 - Testing rule: localised only; no full suite, no prepare, no baseline. Python/PYTHONPATH/DB rules as in the dispatch.
