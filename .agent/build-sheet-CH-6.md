@@ -732,3 +732,26 @@ Review: `.agent/review-CH-6b1.md` (REVISE). **One fix round applies R3 and R4 to
 - The "1 day" / "1 of 1 days" wording preference goes to CH-6b2 copy.
 
 **Size:** R4 +0.5 (SPAN on the claim and `days_line` 0.25; L0 objectives and the EV, MG-1 and MG-2 cases 0.25); the Lows +0. **CH-6b1: 2.75 → 3.25** (2.75 if R3 shrinks as above). The round is one Sonnet builder, followed by one fresh Claude re-review.
+
+## CH6b1-R5: the event window and the clone COH-2 (Architect 24, Claude, 2026-11-06)
+
+Packet at `9d84b9913`. No owner question.
+
+**1. The builder was right to leave the event window out of the days line.** The days line is counted over the window, so naming the event there would break R4 SPAN. That part of R3 is withdrawn.
+- **But the row is not yet defensible on "when".** The Cold lead reads "Chamber above {high}°C for {span} min" (`cold.py:263-275`), which carries no date. On a week card, a client cannot tell which night it was without opening a Finding.
+- **Minimal honest fix (copy only, no wire change):**
+  - When the requested window is longer than the contained event, the cold/EV lead text gains the event's Site-local date and time range: " · 26 Oct 16:00–17:05". It comes from the contained selected window that R3 already reads, through a vocabulary template (guard V).
+  - The days line stays the window's. Facts named with their time, days named with their window: each stays true for what it covers.
+  - L0 adds two cases: a week window, where the date is named, and a window equal to the event, where it is not.
+- **Size:** +0.25.
+- **Backlog:** counting claims over the event's own span (a wire change) becomes **BL-19**, not defensibility-critical once the lead names the event.
+
+**2. The two COH-2 findings are pre-existing and expected.**
+- They are `expected-today.json` entries COH-2 / month / COLD-LAB-001 and EV-LAB-001, register I-09, owner DD-1, and the old-code bundle shows the same two. They are not CH-6b1's to resolve.
+- The "self-check 0 pass 2 fail" is because the subjects are Action UUIDs from the `polish_full` baseline, and this clone's work dir (`ch6b1work`) comes from an earlier polish copy, so the ids differ.
+- Required in the packet:
+  - one line matching the two findings to I-09 by rule, Site and window;
+  - the old-bundle result.
+- "0 new" is then met in substance. No baseline change in this slice, and the subjects are not re-keyed here.
+
+**CH-6b1: 3.25 → 3.5.** The +0.25 goes into the current round, before the re-review.
