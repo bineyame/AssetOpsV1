@@ -14,3 +14,8 @@
 
 ## Next (resume here)
 - R6 degraded check (`tools/dd1a1_degraded_check.py with|without|compare`, own DB each, one at a time), the five R3 L2 checks (need with/without nights builds), the mill day (0 generator starts, CH-9b mill outcome), Q8 cost per full Kobo/Cold day, the Cold failure day. No tooling yet beyond the builds. Then complete the packet's Open section.
+
+## Builder 13: R6 degraded check FAILED (stopped; R3/mill/Q8/Cold not run)
+- `tools/dd1a1_degraded_check.py` fixed (calendar needs trial pair + non-consecutive normal day S-1d; compare keyed to degraded day). Runs: `C:\Users\assef\dd1a1w\deg.sh`; json in `dd1a1w\deg_{with,without}_dir\degraded.json`.
+- PASS: night-early in full, story run delivers 4/8 batches (= v1), steady-afternoon/night-late report 0 delivered, own gateway state next day, 0 AMBIGUOUS, findings equal v1.
+- FAIL (real): accepted_evidence with-complements shows the story-window remainder arriving later: received_at 18:00 n=132 and 22:00 n=194 (source_time 03:00-11:00), and the 12:00 story run stores 774 rows vs 518 in v1 (without). So the outbox remainder is drained by the later complements' gateway despite "delivered 0". Needs the R6 delivery path (dd1a1 degraded/outbox in tools/demo_combined_kobo.py) examined. Analytic-run count differs (28 vs 6) because of complements, so that compare line is a script defect, not a finding.

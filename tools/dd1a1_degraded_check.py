@@ -32,7 +32,8 @@ def main(mode: str, work: Path) -> None:
 
     url = pg_harness.fresh_database()
     doc = sd.load(sd.V2_FILE)
-    doc["sites"] = {"kobo": [{"day": "S-3d", "kind": "degraded"}, {"day": "S-2d", "kind": "normal"}]}
+    doc["sites"] = {"kobo": [{"day": "S-3d", "kind": "degraded"}, {"day": "S-1d", "kind": "normal"},
+                          {"day": "S+0d", "kind": "trial-before"}, {"day": "S+1d", "kind": "trial-after"}]}
     if mode == "without":
         for spec in doc["kinds"]["kobo"].values():
             spec.pop("complement", None)
@@ -89,10 +90,12 @@ def compare(without: str, with_: str) -> int:
         if not ok:
             fails.append(what)
 
-    by = {r["kind"]: r for r in b["runs"]}
+    dday = next(r["day"] for r in b["runs"] if r["kind"] == "degraded")
+    by = {r["kind"]: r for r in b["runs"] if r["day"] == dday or r["kind"] == "normal"}
     base = next(r for r in a["runs"] if r["kind"] == "degraded")["published"]
     story = by["degraded"]["published"]
-    check(by["night-early"]["published"]["delivered_batches"] == by["night-early"]["published"]["batches"] > 0,
+    ne = by["night-early"]["published"]
+    check(ne.get("delivered_batches", ne.get("publications")) == ne["batches"] > 0,
           "1 night-early arrives in full")
     check(story["delivered_batches"] == story["batches"] // 2 == base["delivered_batches"]
           and story["batches"] == base["batches"], "2 story run delivers batches//2, equal to v1")
