@@ -111,6 +111,32 @@ function ColHead({ icon, children }: { icon: OutcomeGlyphName; children: ReactNo
   );
 }
 
+const GROW_PARTS = [["kpi", "Target"], ["potential", "Potential"], ["earnings", "Estimated income"]] as const;
+
+/** CH-6a3: `span.ob-grow > span.ob-part` x3; a claim that is not known reads "Not known yet" with the days line. */
+function GrowParts({ row, fallback }: { row: OutcomeBoardRow; fallback: string | null }) {
+  const nodes = row.nodes;
+  if (!nodes || GROW_PARTS.every(([k]) => nodes[k] === null)) return <>{fallback}</>;
+  return (
+    <span className="ob-grow" data-outcome-grow>
+      {GROW_PARTS.map(([k, label]) => {
+        const c = nodes[k];
+        if (c === null) return null;
+        const lines = c.text.split("\n");
+        return (
+          <span key={k} className="ob-part" data-outcome-part={k}>
+            <small>{label}</small>
+            {lines.map((l, i) => (
+              <b key={i}>{l}</b>
+            ))}
+          </span>
+        );
+      })}
+      {row.days_line ? <small className="ob-days" data-outcome-days>{row.days_line}</small> : null}
+    </span>
+  );
+}
+
 function Name({ row }: { row: OutcomeBoardRow }) {
   return (
     <>
@@ -160,7 +186,9 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
     );
   }
   const money = boardMoneyText(row.headline_money);
-  const headline = money !== null && row.headline ? `${money} ${row.headline}` : (row.headline ?? money);
+  const text = money !== null && row.headline ? `${money} ${row.headline}` : (row.headline ?? money);
+  // CH-6a3: the Grow row shows its Target, Potential and Estimated income, each with the days it rests on.
+  const headline = row.category === "GROW_REVENUE" && row.nodes ? <GrowParts row={row} fallback={text} /> : text;
   const earlierEmpty = "earlier_empty_text" in row ? (row.earlier_empty_text ?? "") : EMPTY.prev;
   return (
     <details className={`ob tone-${row.tone}`} open={row.state === "NEEDS_ATTENTION"} {...data}>
@@ -184,6 +212,7 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
       </summary>
       <div className="ob-body">
         {row.subline ? <p className="ob-sub">{row.subline}</p> : null}
+        {row.target_note ? <p className="ob-sub" data-outcome-target-note>{row.target_note}</p> : null}
         {row.must_not_harm ? (
           <p className="ob-guard" data-outcome-guard>
             <OutcomeGlyph name="guard" className="oc-colic" size={14} />

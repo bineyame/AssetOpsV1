@@ -175,3 +175,7 @@ details.ob[open] > .ob-sum::after { transform: rotate(-135deg); }
 .oc-sitedots .tone-gray i { background: var(--status-neutral-text); }
 .oc-sitedots .tone-none i { background: var(--surface-raised); border: 1px dashed var(--text-muted); }
 .oc-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ob-grow { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
+.ob-part { display: inline-flex; flex-direction: column; min-width: 0; }
+.ob-part > small { color: var(--status-neutral-text); font-size: 11px; }
+.ob-days { flex-basis: 100%; color: var(--status-neutral-text); font-size: 11px; }
