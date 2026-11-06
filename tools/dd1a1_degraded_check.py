@@ -112,18 +112,22 @@ def compare(without: str, with_: str) -> int:
     by = {r["kind"]: r for r in b["runs"] if r["day"] == dday or r["kind"] == "normal"}
     base = next(r for r in a["runs"] if r["kind"] == "degraded")["published"]
     story = by["degraded"]["published"]
-    ne = by["night-early"]["published"]
-    check(ne.get("delivered_batches", ne.get("publications")) == ne["batches"] > 0,
-          "1 night-early arrives in full")
+    # DD1a1-R16 retired the steady-afternoon and night-late kinds, so the complements are whichever non-story kinds the
+    # degraded day still has (the v2 calendar has none: the checks below then hold on the story run alone).
+    comps = [k for k, r in by.items() if r["day"] == dday and k not in ("degraded", "normal")]
+    ne = by["night-early"]["published"] if "night-early" in by else None
+    check(ne is None or ne.get("delivered_batches", ne.get("publications")) == ne["batches"] > 0,
+          "1 night-early arrives in full (or the day has none)")
     check(story["delivered_batches"] == story["batches"] // 2 == base["delivered_batches"]
           and story["batches"] == base["batches"], "2 story run delivers batches//2, equal to v1")
-    check(by["steady-afternoon"]["published"]["delivered_batches"] == 0
-          and by["night-late"]["published"]["delivered_batches"] == 0, "3 steady-afternoon and night-late deliver 0")
+    check(all(by[k]["published"]["delivered_batches"] == 0 for k in comps if k != "night-early"),
+          f"3 the other complements deliver 0 ({comps})")
     def ts(v) -> str:  # one comparable UTC text for DB timestamps and ISO strings
         return str(v).replace("T", " ").replace("Z", "+00:00")[:19]
 
     story_rx = ts(by["degraded"]["received_at"])
-    day_lo, day_hi = ts(by["night-early"]["start"]), ts(by["night-late"]["end"])
+    day_lo = ts(min(by[k]["start"] for k in ["degraded", *comps]))
+    day_hi = ts(max(by[k]["end"] for k in ["degraded", *comps]))
     day_ev = [e for e in b["evidence"] if ts(e["received_at"]) <= story_rx and ts(e["first"]) >= day_lo]
     last_story = max((ts(e["last"]) for e in day_ev), default=None)
     # 4 + 6: any group received after the story run that holds a reading of the degraded local day is a false fill,
@@ -135,9 +139,10 @@ def compare(without: str, with_: str) -> int:
           f"4 no reading of the day received after the story run (last delivered {last_story}); stray={stray}")
     print(f"INFO story-run rows: with {story_rows}, v1 {v1_rows} (the delivered half follows the gateway's batch "
           f"order, which follows the build's source ids)")
-    w = (by["night-late"]["published"].get("withheld_after") or {}).get("delivery") or {}
+    last_comp = comps[-1] if comps else "degraded"
+    w = (by[last_comp]["published"].get("withheld_after") or {}).get("delivery") or {}
     wstate = w.get("batches_by_state", {})
-    own = [by[k]["published"].get("outbox_after", {}).get("delivery") or {} for k in ("steady-afternoon", "night-late")]
+    own = [by[k]["published"].get("outbox_after", {}).get("delivery") or {} for k in comps if k != "night-early"]
     check(wstate.get("ACKED") == story["delivered_batches"] and wstate.get("READY") == story["batches"] - wstate["ACKED"]
           and all(o.get("batches_by_state", {}).get("READY") == o.get("batch_count") > 0 for o in own),
           f"5 outbox at day end holds the withheld half {wstate} and every complement batch "

@@ -1,4 +1,7 @@
-# DD-1a1 handoff (builder 14: R6 fix landed, R6 assertion 7 needs an Architect ruling; R9 Lows fixed)
+# DD-1a1 handoff (current: fix round 1 after the REVISE review; older text below is history)
+
+**Current state: fix round 1 on top of R16 (see the packet).** The "builder 14" header below is history.
+
 
 ## Landed earlier
 - R8 (builder 11), R9 (builder 12): see `.agent/review-packet-DD-1a1.md`. Helpers in `C:\Users\assef\dd1a1w\`

@@ -1,4 +1,9 @@
-# Review packet: DD-1a1 (steady full days), state after DD1a1-R9 (builder 12)
+# Review packet: DD-1a1 (steady full days), current state in the R16 and Fix round 1 sections
+
+**Current state (fix round 1, after review `review-DD-1a1.md` REVISE at `270b409ec`):** the R16 sections at the end are the
+authoritative state; the older R9-era text below is history. The Cold failure day is no longer BLOCKED: R14 withdrew Cold
+full days, and the mill day is the only full day (R16).
+
 
 Branch `task/DD-1a1-steady-fullday`; main merged before R9. **Partial packet**: R9 and its L2 acceptance are done;
 the R6 degraded-day check, the five R3 L2 checks, the mill day, Q8 and the Cold failure day are **not run** (see Open).
@@ -271,3 +276,16 @@ Not required for R9 (Architect: owner informed, not blocking). The verification 
   fixtures, evidence width, mock labels, ledger, chain coherence, event register, chain graph, perf, hard-wiring: all PASS. Estate guard: see handoff.
   `test_demo_story_days.py` 36 passed; registered-Site dry run (`host/tests/test_dd1a1_registered_kobo.py`, own `_test` DB) 2 passed.
 - Not done / open: MILL-3 join rule in the DD-1a2 dry run is DD-1a2's; Q8 wall time now 381 s vs 6 min story-only is moot (complements only on the mill day).
+
+
+## Fix round 1 (review `review-DD-1a1.md`, REVISE: M1-M4 and Lows)
+
+- **M1** `git rm --cached` on every committed `.pyc` outside `.agent/` (8 under `tools/__pycache__`); `.gitignore` already covers `__pycache__/` and `*.py[cod]`.
+- **M2** `host/tests/test_dd1a1_stream_probe.py` saves and restores `pub.SEAL_ONCE` in its `finally`; new test `test_default_seal_path_is_restored_after_the_probe` (runs after it in the same file) fails if the flag leaks.
+- **M3** `kobo-night-early` now names the 06:00 reset in its last-window source lines (31 % to 55 %, generator off, "a run cannot start with the generator running") and in `purpose` (short form; `purpose` is capped at 800 characters). Values unchanged.
+- **M4** `derive_steady_scenarios.HELD_UNUSED` marks `kobo-steady-day`, `-afternoon`, `-dusk`, `kobo-night-late`, and the two `-after-overcast` nights: a `# HELD:` header line and a short `purpose` sentence, NOT USABLE until DD-1a2 probes and measures each day (afternoon: declared start, R12/R14; after-overcast: RUNNING join, R15/R16). None were retired because the probes still generate them.
+- **Lows** L1: `dd1a1_degraded_check.py` no longer indexes the retired kinds (uses the day's actual complements); `dd1a1_r7_check.py` marked HISTORICAL; the Cold dict-form complement and the R14 `after` hook removed from `demo_story_days._expand` (dict form now raises `COMPLEMENT_FORM_UNSUPPORTED`); `FULL_DAY_JOINS` removed. L3: `DISCLOSED_FROM["late"]` is now off, so no "05:00" sentence on 20:00-24:00 windows. L4: display name "Kobo rest of day after the mill day"; label "evening and night profile". L5: the 30-space run removed. L6: this header and the handoff header.
+- Regeneration: `derive_steady_scenarios.py` then `probe_kobo_nights.py` (only the probe ids changed in `kobo-night-handover-v1.json`; every value is identical), then derive again. Both `--check` current.
+- **Not changed (L2)**: the host `keep_source_time` change in `host/lab_execution.py` (and `seal_once` plumbing in `host/gateway_publication.py`) still needs its own review; **list it for the re-reviewer**. Its Cold branch digest over unfiltered reports (dead since R14) is not touched. L4 second item (copied `site_contract.description` on `kobo-mill-midday`/`kobo-steady-day`) and L5 hard-coded DB URLs were left.
+- **Residual for DD-1a2 (not built)**: the full-day guard (`check_full_day`) must also check that the kind's `complement` list is the measured chain, and the 00:00 join to the previous built day against `full_days`.
+- Checks: L0 story-day + R9 + registered publication 62 passed; `run-host-tests.ps1` stream probe + registered Kobo 4 passed (170 s, DB 127.0.0.1:55432); derive and probe `--check` current; guards A, W passed; V (`test_out_b2_vocabulary`) 4 passed.

@@ -434,7 +434,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                     """DD1a1-R9: every later complement received by `until` is admitted at its `received_at`,
                     between the chain steps, so the evaluation reads data as it stood at its own time."""
                     for m, d in enumerate(days):
-                        if m > n and m not in done and not d.kind.startswith("trial-") and d.has_run                                 and d.received_at <= until:
+                        if m > n and m not in done and not d.kind.startswith("trial-") and d.has_run and d.received_at <= until:
                             play(m, d)
 
                 ids = _trial_chain(store, runner, harness, verifying, tmp, M, published, day.epoch, admit)

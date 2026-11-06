@@ -58,6 +58,7 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
     pg_harness.fresh_database()
     store = PostgresFoundationStore(URL)
     engine = create_engine(URL)
+    seal_before = pub.SEAL_ONCE
     pub.SEAL_ONCE = True
     try:
         result = pgb.imported(store, when=IMPORT_AT)
@@ -119,5 +120,14 @@ def test_one_epoch_per_site_day_is_accepted(tmp_path):
         print("edges", [(str(r[0]), r[1]) for r in edges])
         assert len(edges) == 2 and edges[0][1] == edges[1][1] > 0, edges
     finally:
+        pub.SEAL_ONCE = seal_before  # DD-1a1 review M2: the default per-group seal stays the default for later tests
         pg_harness.dispose(store)
         engine.dispose()
+
+
+def test_default_seal_path_is_restored_after_the_probe():
+    """DD-1a1 review M2: seal-once is off by default (D-2026-10-09); the probe above switches it on only for itself, so
+    the S6 publication and replay tests keep exercising the default per-group seal when run after it."""
+    import test_s6_verification_publication as pub
+
+    assert pub.SEAL_ONCE is False

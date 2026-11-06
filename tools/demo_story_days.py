@@ -202,24 +202,11 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
     D = datetime.fromisoformat(story.day).replace(tzinfo=timezone.utc)
     late = story.received_at - at_day(spec["received_at"], D)
     out = [replace(story, covers_end=at_day(spec["covers_end"], D) if "covers_end" in spec else story.end)]
-    if isinstance(comp, dict):
-        c = kinds[comp["kind"]]
-        for hour in comp["hours"]:
-            start = at_day(hour, D)
-            end = start + timedelta(minutes=c["interval_minutes"])
-            out.append(DayRun(site, story.day, story.offset, comp["kind"], start, end, end + late, c.get("assess", "build"),
-                              {"scenario_id": c["scenario_id"], "scenario_version": c["scenario_version"]}, None, None,
-                              c.get("note", ""), story.known_at, start + timedelta(minutes=c["covers_minutes"]),
-                              story.kind))
+    if isinstance(comp, dict):  # DD1a1-R14 withdrew Cold complements; only a list of kind names is supported
+        raise StoryDaysError("COMPLEMENT_FORM_UNSUPPORTED", f"{site} {story.day}: complement must be a list of kinds")
     else:
         check_full_day(site, story.day, spec["scenario_id"])
         for name in comp:
-            # DD1a1-R14: a day that follows another story day on the calendar starts its night from that day's chain
-            # (`after`: the chain key), so its early night is that chain's derived file, not the generic one.
-            if entry.get("after") and name == "night-early":
-                name = f"night-early-after-{entry['after']}"
-                if name not in kinds:
-                    raise StoryDaysError("UNKNOWN_KIND", f"{site} {story.day}: no {name} kind for after={entry['after']!r}")
             c = kinds[name]
             start, end = at_day(c["start"], D), at_day(c["end"], D)
             cut = next((b for b in boundaries if start < b < end), None)
