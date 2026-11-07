@@ -683,11 +683,16 @@ def f_coh(ctx: Ctx) -> dict:
     thread = _mill_thread(ctx)
     recurs = bool(thread) and any(e.get("state") == "RECURRED" for e in thread.get("events", []))
     report = cc.check(cc.Bundle(out))
-    faults, allowed = demo_rows.coh_split(report["findings"], recurs)
+    recorded = [json.loads((ctx.work / n).read_text(encoding="utf-8")) for n in ("cold.json", "ev.json")]
+    for p in ctx.work.glob("cold-replay-*/**/positive.json"):  # Cold's cold.json keeps no Action id; its replay record does
+        recorded.append(json.loads(p.read_text(encoding="utf-8")))
+    faults, allowed = demo_rows.coh_split(report["findings"], recurs, demo_rows.recorded_action_ids(*recorded))
     assert not faults, [f"{f['rule']} {f.get('site_code')} {f.get('window')}: {f['detail']}"[:300] for f in faults[:8]]
     ctx.cache["coh"] = (out, threads)
     return {"threads": [{k: (len(v) if isinstance(v, list) else v) for k, v in t.items()} for t in threads],
-            "recurs": recurs, "allowed_coh17": allowed, "requests": report["bundle"]["request_count"],
+            "recurs": recurs, "allowed_coh17": [a for a in allowed if a["rule"] == "COH-17"],
+            "allowed_coh2": [{k: a.get(k) for k in ("site_code", "window", "subject", "reason")}
+                             for a in allowed if a["rule"] == "COH-2"], "requests": report["bundle"]["request_count"],
             "unplaced": ctx.cache.get("unplaced", [])}  # R8 B3(b): ids on no Portfolio row, ruled by reviewer/Architect
 
 

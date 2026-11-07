@@ -59,6 +59,28 @@ def test_coh17_is_allowed_only_on_kobo_and_only_when_the_mill_thread_recurs() ->
     assert rows.coh_split([{"rule": "COH-17", "site_code": "COLD-LAB-001"}], recurs=True)[1] == []
 
 
+def _coh2(site: str, subject: str, body: str) -> dict:
+    return {"rule": "COH-2", "site_code": site, "subject": subject, "bodies": [body, "portfolio.week.p1.json"]}
+
+
+def test_coh2_is_allowed_only_for_a_recorded_cold_or_ev_action_from_the_domain_index() -> None:
+    ids = rows.recorded_action_ids({"fault_day": {"action": {"id": "A-EV"}}}, {"fixture": {"action": {"id": "A-COLD"}}})
+    assert ids == {"A-EV", "A-COLD"}
+    cold = _coh2("COLD-LAB-001", "A-COLD", "action_index.COLD-LAB-001.week.p1.json")
+    ev = _coh2("EV-LAB-001", "A-EV", "action_index.EV-LAB-001.month.p1.json")
+    faults, allowed = rows.coh_split([cold, ev], recurs=False, action_ids=ids)
+    assert faults == [] and [a["subject"] for a in allowed] == ["A-COLD", "A-EV"]
+    assert all(a["reason"] == rows.COH2_REASON for a in allowed)
+    # each must fail: Kobo, an estate-index Action on Cold, an unknown Action id, the wrong Site's index, no ids at all
+    kobo = _coh2("KOBO-001", "A-COLD", "actions.week.p1.json")
+    estate = _coh2("COLD-LAB-001", "A-COLD", "actions.week.p1.json")
+    unknown = _coh2("COLD-LAB-001", "A-OTHER", "action_index.COLD-LAB-001.week.p1.json")
+    wrong = _coh2("COLD-LAB-001", "A-COLD", "action_index.EV-LAB-001.week.p1.json")
+    for bad in (kobo, estate, unknown, wrong):
+        assert rows.coh_split([bad], recurs=True, action_ids=ids) == ([bad], [])
+    assert rows.coh_split([cold], recurs=False) == ([cold], [])
+
+
 def test_calendar_asserts_no_data_for_unbuilt_days_and_nothing_for_built_ones() -> None:
     built = {date(2026, 11, 1), date(2026, 11, 3)}
     want = rows.calendar_expectations(date(2026, 11, 1), date(2026, 11, 5), built)

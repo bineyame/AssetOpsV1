@@ -61,12 +61,52 @@ def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], m
     return out
 
 
-def coh_split(findings: list[dict], recurs: bool) -> tuple[list[dict], list[dict]]:
-    """F-COH: (faults, allowed). The only allowed finding is COH-17 on Kobo's mill thread, and only when the thread
-    recurs (R6 O4, Q7 entry: an older row reads Verified, the thread now reads RECURRED). Everything else is a fault."""
+COH2_REASON = "Portfolio does not join domain-Site Actions (estate/index.py:193); known, DS-1 covers it; BL-47"
+DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
+
+
+def recorded_action_ids(*docs: object) -> set[str]:
+    """Every Action id a build record names: the `id` of any dict stored under an `action` key (ev.json fault_day,
+    a Cold replay `positive.json` fixture). DD1b2-R9 item 1."""
+    out: set[str] = set()
+
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            act = node.get("action")
+            if isinstance(act, dict) and isinstance(act.get("id"), str):
+                out.add(act["id"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    for d in docs:
+        walk(d)
+    return out
+
+
+def _coh2_known_gap(f: dict, action_ids: set[str]) -> bool:
+    site = f.get("site_code")
+    bodies = f.get("bodies") or []
+    return (f["rule"] == "COH-2" and site in DOMAIN_SITES and f.get("subject") in action_ids
+            and any(str(b).startswith(f"action_index.{site}") for b in bodies)
+            and not any(str(b).startswith("actions.") for b in bodies))
+
+
+def coh_split(findings: list[dict], recurs: bool, action_ids: set[str] | frozenset[str] = frozenset()
+              ) -> tuple[list[dict], list[dict]]:
+    """F-COH: (faults, allowed). Allowed: COH-17 on Kobo's mill thread, only when the thread recurs (R6 O4, Q7 entry),
+    and COH-2 on Cold/EV for a recorded Action read from that Site's domain `action_index` (DD1b2-R9 item 1; reason
+    COH2_REASON). Everything else is a fault, including any COH-2 on Kobo."""
     faults, allowed = [], []
     for f in findings:
-        (allowed if recurs and f["rule"] == "COH-17" and f.get("site_code") in (None, "KOBO-001") else faults).append(f)
+        if recurs and f["rule"] == "COH-17" and f.get("site_code") in (None, "KOBO-001"):
+            allowed.append(f)
+        elif _coh2_known_gap(f, set(action_ids)):
+            allowed.append({**f, "reason": COH2_REASON})
+        else:
+            faults.append(f)
     return faults, allowed
 
 
