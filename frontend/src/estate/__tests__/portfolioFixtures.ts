@@ -42,7 +42,7 @@ export function coverageSite(siteId: string, state: EstateCoverageSite["state"] 
 /** COV-PARTIAL: the backend `days` block of a partly checked mini-grid Site (text from the backend template). */
 export function partialDays(gaps: string[], requested = 7, withheld = false): EstateCoverageDays {
   const checked = requested - gaps.length;
-  const text = `${checked} of ${requested} days checked · ${gaps.length} ${gaps.length === 1 ? "day" : "days"} not available yet`;
+  const text = `${checked} of ${requested} days assessed · ${gaps.length} ${gaps.length === 1 ? "day" : "days"} not available yet`;
   return {
     policy: "estate-coverage/2",
     requested,

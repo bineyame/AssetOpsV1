@@ -19,6 +19,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from assetops_backend.chain.claims import CLAIM_KEYS, EstateCounts
+from assetops_backend.chain.vocabulary import count_claim
 from assetops_backend.estate import portfolio
 from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE
 from assetops_backend.estate.index import _finding_link_refs, _links
@@ -510,6 +512,39 @@ def test_evidence_prompt_null_steps_and_coverage_precedence_pure() -> None:
     assert (chosen["state"], chosen["site_id"], chosen["gap_code"]) == ("AVAILABLE", MG, "G-Upload a log")
     assert chosen["text"] == "Upload a log at name KOBO 001 to address the selected evidence gap."
     assert portfolio.evidence_prompt("COMPLETE", gaps[:1])["state"] == "NO_GAP"
+
+
+def _claimed(world, counted) -> dict:
+    """The Portfolio body with a fake `count_claims` wired (CH6b3-R Q4b)."""
+    service = EstatePortfolioService(world)
+    service.count_claims = lambda *args: counted
+    app = FastAPI()
+    app.include_router(build_estate_portfolio_router(service, lambda: T, authenticate=lambda request: None,
+                                                     access=lambda request, code: None))
+    return get(TestClient(app), WINDOW).json()
+
+
+def _counted(verified: int, threads: dict):
+    claims = {k: count_claim(k, 0, None) for k in CLAIM_KEYS}
+    claims["count.verified_results"] = count_claim("count.verified_results", verified, None)
+    return EstateCounts(claims=claims, days={}, threads=threads)
+
+
+def test_legacy_fields_follow_the_claims_when_the_computation_is_wired(world) -> None:
+    """CH6b3-R Q4b: both fields read the one count computation; a fix in hand still needs attention until verified."""
+    thread = {"verified": 0}
+    body = _claimed(world, _counted(3, {"A": {**thread, "open": 1, "in_hand": 0}, "B": {**thread, "open": 0, "in_hand": 2},
+                                        "C": {**thread, "open": 0, "in_hand": 0}}))
+    assert body["summary"]["verified_resolution_count"] == body["progress"]["verified_resolution_count"] == 3
+    assert body["summary"]["priority_site_count"] == 2
+    # One Site's failed thread read: not known, never a smaller number; the verified claim is still the claim.
+    failed = _claimed(world, _counted(1, {"A": {**thread, "open": 1, "in_hand": 0}, "B": None}))
+    assert failed["summary"]["priority_site_count"] is None
+    assert failed["summary"]["verified_resolution_count"] == failed["progress"]["verified_resolution_count"] == 1
+    # The computation failed: both null, so the browser shows its existing "Unknown" and "Not assessed".
+    none = _claimed(world, None)
+    assert none["summary"]["priority_site_count"] is None
+    assert none["summary"]["verified_resolution_count"] is none["progress"]["verified_resolution_count"] is None
 
 
 def NOT_KNOWN_CLAIM(key):

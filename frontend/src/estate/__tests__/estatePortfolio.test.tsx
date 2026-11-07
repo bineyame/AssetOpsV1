@@ -977,6 +977,15 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(priority)).not.toMatch(/\bscore\b/i);
   });
 
+  it("namesOnePrioritySiteInTheSingular", async () => {
+    const base = portfolioBody();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
+    await settledScreen();
+    const pulse = text(document.querySelector("[data-portfolio-pulse]"));
+    expect(pulse).toContain("1 priority site");
+    expect(pulse).not.toContain("priority sites");
+  });
+
   it("omitsTheCountWhenPlacementCountsAreNull", async () => {
     const counts = { NEEDS_INVESTIGATION: null, ACT_NOW: null, COMPARE_VALUE: null, UNPRICED_RISK: null, MONITOR: null };
     const base = portfolioBody();
@@ -1302,7 +1311,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(text(context.querySelector(".portfolio-badge"))).toBe("Some days not checked yet");
     expect(text(context.querySelector("[data-portfolio-sentence]"))).toBe("Portfolio: Partly checked");
     expect(text(context.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 5 of 7 days checked · 2 days not available yet · not checked: 11 Oct, 12 Oct",
+      "Kobo: 5 of 7 days assessed · 2 days not available yet · not assessed: 11 Oct, 12 Oct",
     );
     expect(context.querySelectorAll("[data-portfolio-partial]")).toHaveLength(1);
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
@@ -1327,7 +1336,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
     await settledScreen();
     expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 6 of 14 days checked · 8 days not available yet · the days are listed under Assessment scope & periods",
+      "Kobo: 6 of 14 days assessed · 8 days not available yet · the days are listed under Assessment scope & periods",
     );
     expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe(
       "Days not checked yet: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct, 8 Oct",
@@ -1340,7 +1349,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
     await settledScreen();
     expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 7 of 14 days checked · 7 days not available yet · not checked: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct",
+      "Kobo: 7 of 14 days assessed · 7 days not available yet · not assessed: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct",
     );
   });
 
@@ -1407,7 +1416,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
           days_line: clause,
         }),
         ASSURE_PERFORMANCE: serverCard({
-          detail: "No verified result yet · no targets declared · no evidence gaps on the days checked",
+          detail: "No verified result yet · no targets declared · no evidence gaps on the days assessed",
           days_line: clause,
         }),
       },
@@ -1423,14 +1432,14 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     // CH6b2-R Q1: the Portfolio-body clause is its own line; the detail is the server's detail, not joined with it.
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     expect(detail("PROTECT_ASSET")).not.toContain("not shown yet");
-    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days checked");
+    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days assessed");
     expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
     // CH6b2-R Q3: Optimize keeps its money line and carries no days line.
     expect(detail("OPTIMIZE_COST")).toBe("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
     expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
     // The pulse strip keeps its own (non-card) checked-days wording.
     expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 
@@ -1459,7 +1468,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     // CH-4: the opportunity count comes from the opportunity read, not from Finding coverage.
     expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 

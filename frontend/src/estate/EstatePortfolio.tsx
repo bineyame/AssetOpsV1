@@ -99,7 +99,7 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
 /** WALK1-1 (WN-2, R670): on a partly checked estate a zero count is a claim on the checked days only. */
-export const NONE_ON_CHECKED_DAYS = "None found on the days checked";
+export const NONE_ON_CHECKED_DAYS = "None found on the days assessed";
 function PulseCount({ value, missing, label, checkedDays, data }: { value: number | null; missing: string; label: string; checkedDays: boolean; data?: string }) {
   const attrs = data === undefined ? {} : { [data]: "" };
   if (value === 0 && checkedDays) {
@@ -782,7 +782,7 @@ function Loaded({
               <span key={site.site_id} className="portfolio-partial" data-portfolio-partial={site.site_code}>
                 {site.site_name}: {site.coverage.days?.text}
                 {(site.coverage.days?.gaps.length ?? 0) <= 7
-                  ? ` · not checked: ${gapDayList(site.coverage.days)}`
+                  ? ` · not assessed: ${gapDayList(site.coverage.days)}`
                   : " · the days are listed under Assessment scope & periods"}
               </span>
             ))}
@@ -793,7 +793,7 @@ function Loaded({
       <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
       <div className="portfolio-pulse" data-portfolio-pulse>
         <span>
-          <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites
+          <strong>{countText(s.priority_site_count, "Not assessed")}</strong> {s.priority_site_count === 1 ? "priority site" : "priority sites"}
         </span>
         {/* CH-4: one count from the opportunity read, each item named by its short label (mock `portfolio.js:45`). */}
         <span data-portfolio-pulse-opportunity>

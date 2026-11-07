@@ -21,6 +21,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable, Iterator
 from zoneinfo import ZoneInfo
@@ -138,6 +139,7 @@ class Collector:
     requests: list[dict[str, Any]] = field(default_factory=list)
     #: MD-0 (MD0-S2): the domain Sites the story has; a Kobo-only work folder requests no Cold/EV action index.
     domain_sites: tuple[str, ...] = DOMAIN_SITES
+    day_names: set[str] = field(default_factory=set)
 
     def _file(self, name: str, page: int | None) -> str:
         safe = re.sub(r"[^A-Za-z0-9_.-]", "_", name)
@@ -186,6 +188,26 @@ class Collector:
             if site.get("site_code") and sw.get("from") and sw.get("to"):
                 self.board(f"board_summary.{window}.{site['site_code']}", site["site_code"], window,
                            sw["from"], sw["to"], None)
+            self.day_bodies(site, window, lo, hi)
+        # CH6b3-R Q2: the "Why?" trace of each estate card.
+        for category in _categories():
+            self.fetch(f"why_estate.{window}.{category}", "/api/estate/chain/why", {**w, "category": category}, window)
+
+    def day_bodies(self, site: dict, window: str, lo: str, hi: str) -> None:
+        """CH6b3-R Q3: COH-18's Site chain bodies. `date` is read only for a mini Site (`board_window`), so a mini Site
+        has one body per `window_days` date, deduplicated across windows; Cold and EV one range body per window."""
+        code = site.get("site_code")
+        if not code:
+            return
+        path = f"/api/sites/{code}/chain"
+        if site.get("domain") != MINI_DOMAIN:
+            self.fetch(f"chain_span.{window}.{code}", path, {"from": lo, "to": hi}, window)
+            return
+        for d in _window_dates({"from": lo, "to": hi}):
+            name = f"chain_day.{code}.{d}"
+            if name not in self.day_names:
+                self.day_names.add(name)
+                self.fetch(name, path, {"date": d}, window)
 
 
 def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: str,
@@ -210,6 +232,8 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
                 "lifecycle": True,  # CH-3: and the thread `state_day` and the Portfolio `action_segment_no`
                 "opportunities": True,  # CH-4: and the Findings `opportunities` and the Portfolio `opportunity.items`
                 "claims": True,  # CH-5a2b: and `/estate/chain` per estate window and the summaries' `claims`
+                "full_claims": True,  # CH6b3-R Q1, Q2: and the summary, board and `why_estate` bodies COH-17 compares
+                "day_bodies": True,  # CH6b3-R Q3: and the `chain_day` / `chain_span` bodies COH-18 sums
                 "windows": {**{k: {"from": lo, "to": hi} for k, (lo, hi) in windows.items()},
                             **{d["id"]: {"from": d["from"], "to": d["to"], "site_code": d["site_code"],
                                          "estate": {"from": d["estate"][0], "to": d["estate"][1]}}
@@ -1100,18 +1124,249 @@ def coh16_opportunity_agreement(bundle: Bundle) -> list[dict]:
     return out
 
 
-CLAIM_KEYS = ("count.open_threads", "count.verified_results", "count.opportunities")
+CLAIM_KEYS = ("count.open_threads", "count.verified_results", "count.opportunities", "count.sites_disrupted")
+FINDINGS_CLAIM_KEYS = ("count.opportunities",)  # the estate Findings carry only this one (`estate/index.py`)
 CLAIM_FIELDS = ("value", "basis", "text")
+GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
+MINI_DOMAIN = "mini_grid"
+NODE_PARTS = ("kpi", "earnings", "potential")
+SITE_DAY_KEYS = ("requested", "expected", "complete", "partial", "low", "no_data", "not_expected", "pending")
 
 
-def coh17_count_claims(bundle: Bundle) -> list[dict]:
-    """CH-5a2b COH-17 (§B13 R3, §B14 Q7): for each estate window, the `/estate/chain` `counts`, the Portfolio
-    `summary.claims` (all three keys) and the estate Findings (lens=all) `summary.claims` (`count.opportunities`)
-    with equal key, Site set and window agree on value, basis and text. They come from one computation, so a
-    difference means a route passed different scope, window or cutoff. A bundle not stamped `claims` is not judged."""
-    if not bundle.manifest.get("claims"):
+def new_tally() -> dict[str, int]:
+    return {"compared": 0, "skipped": 0}
+
+
+def _vocabulary() -> Any:
+    """The backend's money and day rules, imported and never re-derived (as `_coh7a_window`)."""
+    backend = str(TOOLS.parent / "backend")
+    if backend not in sys.path:
+        sys.path.insert(0, backend)
+    from assetops_backend.chain import vocabulary
+
+    return vocabulary
+
+
+def _rows_by_category(rows: Any) -> dict[str, dict]:
+    return {r.get("category"): r for r in rows or ()}
+
+
+def _site_name(site: dict) -> str:
+    return site.get("site_name") or site.get("site_code")
+
+
+def _coh17_money(w: str, chain: dict, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
+    """CH6b3-R Q1 rows M1-M6: `money_total` is one object, the sum of the shown rounded Site claims."""
+    voc = _vocabulary()
+    out = []
+
+    def check(row: str, ok: bool, detail: str) -> None:
+        tally["compared"] += 1
+        if not ok:
+            out.append(finding("COH-17", None, w, row, detail, files))
+
+    total = chain.get("money_total") or {}
+    grow = ((chain.get("cards") or {}).get(GROW) or {})
+    check("M1", total == summary.get("money_total") == grow.get("claim"),
+          f"money_total: chain {total!r}, summary {summary.get('money_total')!r}, Grow card {grow.get('claim')!r}")
+    by_code = {s.get("site_code"): s for s in summary.get("sites") or ()}
+    amounts, currencies = [], set()
+    for s in chain.get("sites") or ():
+        code = s.get("code")
+        here, there = s.get("earnings"), (by_code.get(code) or {}).get("earnings")
+        check("M6", here == there, f"{code} earnings: chain {here!r}, summary {there!r}")
+        for label in voc.INCOME_LABELS:
+            claim = (here or {}).get(label)
+            if claim is None:
+                continue
+            prefix = f"{_site_name(by_code.get(code) or {'site_code': code})}: "
+            check("M4", any(str(x).startswith(prefix) for x in total.get("lines") or ()),
+                  f"{code} {label}: no money_total line starts with {prefix!r}")
+            value = claim.get("value") or {}
+            if value.get("amount") is not None:
+                amounts.append(Decimal(voc.money2(value["amount"])))
+                currencies.add(value.get("currency"))
+    shown = total.get("value")
+    if len(currencies) > 1:
+        check("M3", shown is None, f"money_total {shown!r} over more than one currency {sorted(map(str, currencies))}")
+    elif not amounts:
+        check("M2", shown is None, f"money_total {shown!r} with no Site amount")
+    else:
+        got = None if shown is None else shown.get("amount")
+        check("M2", got is not None and voc.money2(got) == voc.money2(sum(amounts, Decimal(0))),
+              f"money_total {got!r} is not the sum {voc.money2(sum(amounts, Decimal(0)))} of the shown Site claims")
+    lines = total.get("lines") or ()
+    income = (grow.get("parts") or {}).get("income")
+    if lines:
+        check("M5", income == " · ".join(lines), f"Grow card income {income!r} is not the lines {list(lines)!r}")
+    return out
+
+
+def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[str, int]) -> list[dict]:
+    """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1 and Q2 rows W1, W2 for one estate window (Site sets equal)."""
+    out = []
+    chain_files = bundle.files(f"chain_estate.{w}")
+    summary = bundle.get(f"summary.{w}")
+    if summary is None:
+        if f"summary.{w}" not in bundle.bodies:
+            out.append(finding("COH-17", None, w, "summary", "a stamped bundle lacks the summary body", chain_files))
+        tally["skipped"] += 1
+        return out  # a failed body is COH-0's
+    files = [*chain_files, *bundle.files(f"summary.{w}")]
+    sites = {s.get("site_code"): s for s in summary.get("sites") or ()}
+    if sorted(sites) != sorted(s.get("code") for s in chain.get("sites") or ()):
+        tally["skipped"] += 1
+        return out  # COH-17 compares equal Site sets only
+
+    def check(row: str, ok: bool, detail: str, where: list[str] | None = None, site: str | None = None) -> None:
+        tally["compared"] += 1
+        if not ok:
+            out.append(finding("COH-17", site, w, row, detail, where or files))
+
+    cards = chain.get("cards") or {}
+    for card, key in ((PROTECT, "count.sites_disrupted"), (ASSURE, "count.verified_results")):
+        a, b = (cards.get(card) or {}).get("claim") or {}, counts.get(key) or {}
+        diff = [f"{f}: card {a.get(f)!r}, counts {b.get(f)!r}" for f in CLAIM_FIELDS if a.get(f) != b.get(f)]
+        # CH6b3-R3 (reviewer L3): an absent card claim or count key is a finding, never `{} == {}`.
+        if not a or not b:
+            diff.append(f"absent: card claim {'present' if a else 'missing'}, counts {'present' if b else 'missing'}")
+        check("C2", not diff, f"{card} card against {key}: " + "; ".join(diff))
+    check("C3", cards == summary.get("cards"), "chain `cards` differ from summary `cards`")
+    # CH6b3-R3 L2: the summary's legacy verified count is the claim's value (both known).
+    shown, claimed = summary.get("verified_result_count"), (counts.get("count.verified_results") or {}).get("value")
+    if shown is not None and claimed is not None:
+        check("L2", shown == claimed, f"summary verified_result_count {shown!r}, count.verified_results {claimed!r}")
+    out += _coh17_money(w, chain, summary, files, tally)
+
+    for s in chain.get("sites") or ():
+        code = s.get("code")
+        site = sites[code]
+        rows = _rows_by_category(site.get("rows"))
+        for cat, r in (s.get("rows") or {}).items():
+            here = rows.get(cat) or {}
+            a, b = (r.get("state"), r.get("state_label"), r.get("lead")), (
+                here.get("state"), here.get("state_label"), here.get("lead_outcome"))
+            check("V1", a == b, f"{cat}: chain {a!r}, summary {b!r}", site=code)
+            check("V3", r.get("nodes") == here.get("nodes"), f"{cat}: chain nodes differ from summary nodes", site=code)
+        board_name = f"board_summary.{w}.{code}"
+        board = bundle.get(board_name)
+        if board is None:
+            tally["skipped"] += 1
+            continue
+        board_rows = _rows_by_category(board.get("rows"))
+        for cat, here in rows.items():
+            there = board_rows.get(cat) or {}
+            fields = ("state", "state_label", "lead_outcome", "headline")
+            a, b = tuple(here.get(f) for f in fields), tuple(there.get(f) for f in fields)
+            where = [*bundle.files(f"summary.{w}"), *bundle.files(board_name)]
+            check("V2", a == b, f"{cat}: summary {a!r}, board {b!r}", where, code)
+            if w == "S" and site.get("domain") == MINI_DOMAIN:  # one day on both; other windows differ by design
+                check("V4", here.get("nodes") == there.get("nodes"), f"{cat}: summary nodes differ from board nodes",
+                      where, code)
+
+    portfolio = bundle.get(f"portfolio.{w}")
+    if portfolio is None:
+        tally["skipped"] += 1
+    else:
+        where = [*chain_files, *bundle.files(f"portfolio.{w}")]
+        s, p = portfolio.get("summary") or {}, portfolio.get("progress") or {}
+        want = (counts.get("count.verified_results") or {}).get("value")
+        got = (s.get("verified_resolution_count"), p.get("verified_resolution_count"))
+        check("L1", got == (want, want), f"verified_resolution_count (summary, progress) {got!r}, claim {want!r}", where)
+        threads = [x.get("threads") for x in chain.get("sites") or ()]
+        priority = None if any(t is None for t in threads) else sum(1 for t in threads if t["open"] + t["in_hand"] > 0)
+        check("L1", s.get("priority_site_count") == priority,
+              f"priority_site_count {s.get('priority_site_count')!r}, Sites with open threads {priority!r}", where)
+        # CH6b3-R3 L3: the Findings table's "Verified" rows are the claim's threads (one row per Finding, one
+        # thread counted once); only on a complete (unpaged) table and a known claim.
+        if portfolio.get("next_cursor") is None and want is not None:
+            verified = {str((r.get("thread") or {}).get("id")) for r in _rows(portfolio)
+                        if r.get("workflow_label") == "Verified" and (r.get("thread") or {}).get("id")}
+            check("L3", len(verified) == want, f"{len(verified)} distinct Verified threads in the table, claim {want!r}",
+                  where)
+        # CH6b3-R3 N1: "days checked" means graded COMPLETE; no card note speaks of the coverage count with it.
+        for card, note in sorted((s.get("card_notes") or {}).items()):
+            check("N1", "days checked" not in str(note or ""), f"{card} note {note!r} holds \"days checked\"", where)
+
+    for cat in _categories():
+        name = f"why_estate.{w}.{cat}"
+        why = bundle.get(name)
+        if why is None:
+            if name not in bundle.bodies:
+                out.append(finding("COH-17", None, w, name, "a stamped bundle lacks this Why? body", files))
+            tally["skipped"] += 1
+            continue
+        where = [*bundle.files(f"summary.{w}"), *bundle.files(name)]
+        for t in why.get("sites") or ():
+            code = t.get("code")
+            row = _rows_by_category((sites.get(code) or {}).get("rows")).get(cat) or {}
+            say, want_say = (t.get("text") or {}).get("say"), row.get("headline") or row.get("state_label")
+            check("W1", say == want_say, f"{cat}: Why? says {say!r}, the summary row {want_say!r}", where, code)
+        # CH6b3-R3 W3: the Why? days are the card's own days line (Optimize has none: Protect's).
+        want_days = (cards.get(cat) or {}).get("days_line") or (cards.get(PROTECT) or {}).get("days_line")
+        used = (why.get("text") or {}).get("days_used")
+        if want_days is not None:
+            check("W3", used == want_days, f"{cat}: Why? days {used!r}, card days {want_days!r}", where)
+        value = (counts.get("count.sites_disrupted") or {}).get("value")
+        if cat == PROTECT and value is not None:
+            lines = (why.get("text") or {}).get("comes_from") or ()
+            named = [c for c, x in sites.items() if any(str(n).startswith(f"{_site_name(x)}: ") for n in lines)]
+            check("W2", len(named) == value, f"Why? names {sorted(named)}, count.sites_disrupted is {value!r}", where)
+    return out
+
+
+def _categories() -> tuple[str, ...]:
+    backend = str(TOOLS.parent / "backend")
+    if backend not in sys.path:
+        sys.path.insert(0, backend)
+    from assetops_backend.outcomes.catalogue import CATEGORIES
+
+    return tuple(CATEGORIES)
+
+
+def info_coh17_period_nodes(bundle: Bundle) -> list[dict]:
+    """CH6b3-R Q1: per non-mini Site, window, category and part, the board and summary node `text` and `days` wherever
+    they differ. The two frames differ by design (the board reads the contained event's local days, the summary reads
+    `window_days`), so this is a list, not a rule. `unexplained` marks equal `days` with a different value or text,
+    which the frame does not explain (the builder stops and reports it). BL-33 owns a strict comparison."""
+    if not bundle.manifest.get("full_claims"):
         return []
     out = []
+    for w in bundle.estate_windows():
+        for site in (bundle.get(f"summary.{w}") or {}).get("sites") or ():
+            code = site.get("site_code")
+            board = bundle.get(f"board_summary.{w}.{code}")
+            if site.get("domain") == MINI_DOMAIN or board is None:
+                continue
+            there = _rows_by_category(board.get("rows"))
+            for r in site.get("rows") or ():
+                cat = r.get("category")
+                a_nodes, b_nodes = (there.get(cat) or {}).get("nodes") or {}, r.get("nodes") or {}
+                for part in NODE_PARTS:
+                    a, b = a_nodes.get(part) or {}, b_nodes.get(part) or {}
+                    text_or_days = a.get("text") != b.get("text") or a.get("days") != b.get("days")
+                    same_days = a.get("days") == b.get("days")
+                    if text_or_days or (same_days and a.get("value") != b.get("value")):
+                        out.append({"site_code": code, "window": w, "category": cat, "part": part,
+                                    "board_text": a.get("text"), "summary_text": b.get("text"),
+                                    "board_days": a.get("days"), "summary_days": b.get("days"),
+                                    "board_value": a.get("value"), "summary_value": b.get("value"),
+                                    "unexplained": same_days})
+    return out
+
+
+def coh17_count_claims(bundle: Bundle, tally: dict[str, int] | None = None) -> list[dict]:
+    """CH-5a2b COH-17 (§B13 R3, §B14 Q7): for each estate window, the `/estate/chain` `counts`, the Portfolio
+    `summary.claims` (all keys) and the estate Findings (lens=all) `summary.claims` (`count.opportunities`)
+    with equal key, Site set and window agree on value, basis and text. They come from one computation, so a
+    difference means a route passed different scope, window or cutoff. A bundle not stamped `claims` is not judged.
+    CH6b3-R Q1, Q2: a bundle also stamped `full_claims` is judged on the count, money, verdict, legacy and Why? rows
+    (`_coh17_full`). `tally` receives `{compared, skipped}` (pipeline L5); a stamped bundle comparing nothing fails."""
+    if not bundle.manifest.get("claims"):
+        return []
+    tally = new_tally() if tally is None else tally
+    out = []
+    full = bool(bundle.manifest.get("full_claims"))
     for w in [*bundle.estate_windows(), *bundle.day_windows()]:
         prefix = "" if w in ESTATE_WINDOWS else "day_"
         chain_name = f"{prefix}chain_estate.{w}"
@@ -1128,9 +1383,10 @@ def coh17_count_claims(bundle: Bundle) -> list[dict]:
             continue
         sites = sorted(s.get("code") for s in chain.get("sites") or ())
         counts = chain.get("counts") or {}
-        for name, keys in ((f"portfolio.{w}", CLAIM_KEYS), (f"{prefix}findings_all.{w}", CLAIM_KEYS[2:])):
+        for name, keys in ((f"portfolio.{w}", CLAIM_KEYS), (f"{prefix}findings_all.{w}", FINDINGS_CLAIM_KEYS)):
             body = bundle.get(name)
             if body is None:
+                tally["skipped"] += 1
                 continue  # not read in this window (day windows have no Portfolio), or COH-0's
             files = [*bundle.files(chain_name), *bundle.files(name)]
             claims = (body.get("summary") or {}).get("claims")
@@ -1140,14 +1396,140 @@ def coh17_count_claims(bundle: Bundle) -> list[dict]:
                 continue
             disclosed = (body.get("scope_disclosure") or {}).get("sites")
             if disclosed is not None and sorted(s.get("site_code") for s in disclosed) != sites:
+                tally["skipped"] += 1
                 continue  # COH-17 compares equal Site sets only
             for key in keys:
+                tally["compared"] += 1
                 a, b = counts.get(key) or {}, claims.get(key) or {}
                 diff = [f"{f}: chain {a.get(f)!r}, {name.split('.')[0]} {b.get(f)!r}" for f in CLAIM_FIELDS
                         if a.get(f) != b.get(f)]
                 if diff:
                     out.append(finding("COH-17", None, w, key, "; ".join(diff), files))
+        if full and w in ESTATE_WINDOWS:
+            out += _coh17_full(bundle, w, chain, counts, tally)
+    if tally["compared"] == 0:  # pipeline L5: a vacuous pass must not look like a clean one
+        out.append(finding("COH-17", None, None, "vacuous", "a stamped bundle compared no claim at all", []))
     return out
+
+
+def _site_day_grades(bundle: Bundle, w: str, code: str, dates: list[str]) -> tuple[dict[str, str], list[str]] | None:
+    """`(day -> grade, the dates with no entry)` of one Site's collected chain bodies; None when a body failed (COH-0's)
+    or was not read. A PERIOD Site has one `chain_span.{w}.{code}`; a mini Site one `chain_day.{code}.{d}` per date."""
+    span = f"chain_span.{w}.{code}"
+    names = [span] if span in bundle.bodies else [f"chain_day.{code}.{d}" for d in dates]
+    grades: dict[str, str] = {}
+    for name in names:
+        body = bundle.get(name)
+        if body is None:
+            return None
+        grades.update({e.get("day"): e.get("grade") for e in body.get("days") or ()})
+    return {d: grades[d] for d in dates if d in grades}, [d for d in dates if d not in grades]
+
+
+def _window_dates(bounds: dict) -> list[str]:
+    backend = str(TOOLS.parent / "backend")
+    if backend not in sys.path:
+        sys.path.insert(0, backend)
+    from assetops_backend.chain.read import window_days
+
+    return [d.isoformat() for d in window_days(at(bounds["from"]), at(bounds["to"]), None)]
+
+
+def _coh18_gaps(w: str, code: str, grades: dict[str, str], listed: set[tuple[str, str]],
+                claims: list[tuple[str, Any]], files: list[str], tally: dict[str, int]) -> list[dict]:
+    """CH6b3-R Q4a R3 and the Site-level half of R4; `claims` = (subject, basis) of the Site."""
+    out = []
+    for d, g in grades.items():
+        tally["compared"] += 1
+        if g not in ("COMPLETE", "NO_DATA", "NOT_EXPECTED") and (code, d) not in listed:
+            out.append(finding("COH-18", code, w, f"built:{d}", f"built day {d} grades {g}, not a declared gap", files))
+    excused = any((code, d) in listed or g == "NO_DATA" for d, g in grades.items())
+    for subject, basis in claims:
+        tally["compared"] += 1
+        if basis == "CHECKED_DAYS" and not excused:
+            out.append(finding("COH-18", code, w, subject, "CHECKED_DAYS with no declared gap or unbuilt day in the "
+                               "window", files))
+    return out
+
+
+def coh18_day_grades(bundle: Bundle, gap_days: list[dict] | None = None,
+                     tally: dict[str, int] | None = None) -> list[dict]:
+    """CH-5a `:681`, CH6b3-R Q3, Q4a. For each estate window, the sum over `window_days` of each Site's per-day grades
+    equals the chain's Site `days` (R1, an unbuilt day grades NO_DATA by the day rule), and the `counts[*].days` equal
+    those summed (R2). With `gap_days` (`expected-mechanism.json`): every built day not listed is COMPLETE (R3), and a
+    CHECKED_DAYS basis needs a listed gap or NO_DATA day (R4). A bundle not stamped `day_bodies` is not judged."""
+    if not bundle.manifest.get("day_bodies"):
+        return []
+    voc = _vocabulary()
+    tally = new_tally() if tally is None else tally
+    listed = {(g["site_code"], g["day"]) for g in gap_days or ()}
+    out = []
+    for w in bundle.estate_windows():
+        chain_name = f"chain_estate.{w}"
+        chain = bundle.get(chain_name)
+        if chain is None:
+            tally["skipped"] += 1
+            continue  # a failed or missing body is COH-0's and COH-17's
+        dates = _window_dates(bundle.windows[w])
+        chain_files = bundle.files(chain_name)
+        tallies: list[dict[str, int]] = []
+        any_excused = False
+        for s in chain.get("sites") or ():
+            code = s.get("code")
+            read = _site_day_grades(bundle, w, code, dates)
+            if read is None:
+                tally["skipped"] += 1
+                continue
+            grades, missing = read
+            for d in missing:
+                out.append(finding("COH-18", code, w, f"missing:{d}", f"no day entry for {d} in the collected body",
+                                   chain_files))
+            count = {k: 0 for k in SITE_DAY_KEYS}
+            for g in grades.values():
+                count[g.lower()] += 1
+            count["requested"] = len(dates)
+            count["expected"] = len(dates) - count["not_expected"]
+            tallies.append(count)
+            days = s.get("days")
+            tally["compared"] += 1
+            if days is None:
+                out.append(finding("COH-18", code, w, "days", "the chain's Site `days` is null", chain_files))
+            else:
+                diff = [f"{k}: chain {days.get(k)!r}, day grades {count[k]}" for k in SITE_DAY_KEYS
+                        if days.get(k) != count[k]]
+                if diff:
+                    out.append(finding("COH-18", code, w, "days", "; ".join(diff), chain_files))
+            if gap_days is not None:
+                claims = [("count_basis", None if days is None else voc.count_basis(days))]
+                claims += [(f"earnings.{k}", c.get("basis")) for k, c in (s.get("earnings") or {}).items()]
+                out += _coh18_gaps(w, code, grades, listed, claims, chain_files, tally)
+                any_excused = any_excused or any((code, d) in listed or g == "NO_DATA" for d, g in grades.items())
+        summed = {k: sum(c[k] for c in tallies) for k in voc.CLAIM_DAY_KEYS}
+        for key, claim in (chain.get("counts") or {}).items():
+            tally["compared"] += 1
+            have = claim.get("days")
+            if len(tallies) == len(chain.get("sites") or ()) and have != summed:
+                out.append(finding("COH-18", None, w, key, f"claim days {have!r}, the Sites' days summed {summed!r}",
+                                   chain_files))
+        if gap_days is not None:
+            estate = [(k, c.get("basis")) for k, c in (chain.get("counts") or {}).items()]
+            estate.append(("money_total", (chain.get("money_total") or {}).get("basis")))
+            for subject, basis in estate:
+                tally["compared"] += 1
+                if basis == "CHECKED_DAYS" and not any_excused:
+                    out.append(finding("COH-18", None, w, subject, "CHECKED_DAYS with no declared gap or unbuilt day "
+                                       "at any Site in the window", chain_files))
+    if tally["compared"] == 0:
+        out.append(finding("COH-18", None, None, "vacuous", "a stamped bundle compared no day grade at all", []))
+    return out
+
+
+def rule_tallies(bundle: Bundle, gap_days: list[dict] | None = None) -> dict[str, dict[str, int]]:
+    """Pipeline L5: `{compared, skipped}` of COH-17 and COH-18, so a vacuous pass does not read like a clean one."""
+    t17, t18 = new_tally(), new_tally()
+    coh17_count_claims(bundle, t17)
+    coh18_day_grades(bundle, gap_days, t18)
+    return {"COH-17": t17, "COH-18": t18}
 
 
 def lifecycle_pairs(bundle: Bundle) -> int:
@@ -1161,8 +1543,10 @@ RULES: list[tuple[str, Callable[[Bundle], list[dict]]]] = [
     ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts),
     ("COH-10", coh10_thread_identity), ("COH-11", coh11_actions_linked),
     ("COH-13", coh13_lifecycle_agreement), ("COH-14", coh14_verified_not_attention),
-    ("COH-15", coh15_action_segment), ("COH-16", coh16_opportunity_agreement), ("COH-17", coh17_count_claims)]
-INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12)]
+    ("COH-15", coh15_action_segment), ("COH-16", coh16_opportunity_agreement), ("COH-17", coh17_count_claims),
+    ("COH-18", coh18_day_grades)]
+INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12),
+                                                          ("COH-17-period-nodes", info_coh17_period_nodes)]
 
 
 # ---- check -----------------------------------------------------------------------------------------------------
@@ -1177,12 +1561,15 @@ def applicable(expect: list[dict] | None, variant: str | None) -> list[dict]:
 
 
 def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None,
-          variant: str | None = None) -> dict[str, Any]:
+          variant: str | None = None, gap_days: list[dict] | None = None) -> dict[str, Any]:
     """`variant` filters the expected entries by their optional `variants` list. `threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
-    THREADS_FILE."""
+    THREADS_FILE. `gap_days` (CH6b3-R Q4a, `expected-mechanism.json`) turns on COH-18's R3 and R4."""
     expect = applicable(expect, variant)
     findings: list[dict] = []
     for _, rule in RULES:
+        if rule is coh18_day_grades:
+            findings += rule(bundle, gap_days)
+            continue
         findings += rule(bundle, threads) if rule is coh10_thread_identity and threads is not None else rule(bundle)
     expected = {_key(e): e for e in (expect or []) if e.get("subject") != "*"}
     # MD0b-R: an entry with subject "*" covers up to `count` findings of its (rule, site, window) whose subject is a
@@ -1213,12 +1600,18 @@ def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] 
     manifest["request_count"] = len(bundle.manifest["requests"])
     return {"schema": REPORT_SCHEMA, "bundle": manifest, "findings": findings, "expected_unmatched": unexpected,
             "resolved": resolved, "info": {name: fn(bundle) for name, fn in INFO}, "summary": summary,
-            "pass": not unexpected}
+            "tallies": rule_tallies(bundle, gap_days), "pass": not unexpected}
 
 
 def load_expect(path: Path) -> list[dict]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     return list(data["expectations"] if isinstance(data, dict) else data)
+
+
+def load_gap_days(path: Path) -> list[dict] | None:
+    """CH6b3-R Q4a: the expectation file's `gap_days`; None when it has none (polish), so only COH-18's R1, R2 run."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return data.get("gap_days") if isinstance(data, dict) else None
 
 
 def print_report(report: dict[str, Any], expect: list[dict] | None) -> None:
@@ -1234,7 +1627,10 @@ def print_report(report: dict[str, Any], expect: list[dict] | None) -> None:
         tag = "RESOLVED-WILDCARD (DELETE THIS ENTRY)" if e.get("subject") == "*" else "RESOLVED"
         print(f"  {tag} {e['rule']} {e.get('site_code')} {e.get('window')} {e.get('subject')}")
     for name, rows in report["info"].items():
-        print(f"{name} (info): {len(rows)} item(s)")
+        unexplained = sum(1 for r in rows if r.get("unexplained"))
+        print(f"{name} (info): {len(rows)} item(s)" + (f", {unexplained} UNEXPLAINED" if unexplained else ""))
+    for name, t in report["tallies"].items():
+        print(f"{name}: compared {t['compared']}, skipped {t['skipped']}")
     unexpected = len(report["expected_unmatched"])
     print(f"self-check: {len(report['findings']) - unexpected} pass, {unexpected} fail "
           f"({len(report['resolved'])} resolved)")
@@ -1275,7 +1671,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"collected {len(m['requests'])} requests into {args.out}: statuses {statuses}")
         return 0
     expect = load_expect(args.expect) if args.expect else None
-    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None, args.variant)
+    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None, args.variant,
+                   load_gap_days(args.expect) if args.expect else None)
     expect = applicable(expect, args.variant)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)

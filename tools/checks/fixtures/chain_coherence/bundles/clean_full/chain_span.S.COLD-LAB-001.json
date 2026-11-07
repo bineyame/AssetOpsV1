@@ -1,0 +1,17 @@
+{
+ "days": [
+  {
+   "day": "2026-10-31",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-11-01",
+   "grade": "COMPLETE",
+   "measures": {}
+  }
+ ],
+ "site": {
+  "code": "COLD-LAB-001"
+ }
+}

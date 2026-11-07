@@ -72,7 +72,7 @@ def test_partly_checked_site_on_persisted_rows(mini, monkeypatch) -> None:  # no
     disclosed = next(s for s in portfolio["scope_disclosure"]["sites"] if s["site_id"] == site_id)
     days = {"policy": "estate-coverage/2", "requested": 2, "checked": 1,
             "gaps": [{"day": "2026-10-07", "state": "UNASSESSED", "reason": "NO_ASSESSED_SELECTION"}],
-            "withheld": False, "text": "1 of 2 days checked · 1 day not available yet"}
+            "withheld": False, "text": "1 of 2 days assessed · 1 day not available yet"}
     assert disclosed["coverage"]["state"] == "PARTIAL" and disclosed["coverage"]["days"] == days
     (p_cov,) = [s for s in portfolio["coverage"]["sites"] if s["site_id"] == site_id]
     assert p_cov["state"] == "PARTIAL" and p_cov["days"] == days

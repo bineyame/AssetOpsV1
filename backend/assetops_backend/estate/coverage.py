@@ -34,7 +34,7 @@ COVERED = (CURRENT, HISTORICAL)
 # Not in COVERED: every consumer still reads it as not covered (no money, no count, no covered Site).
 PARTIAL = "PARTIAL"
 DAYS_POLICY = "estate-coverage/2"
-DAYS_CHECKED = "{c} of {n} days checked · {g} {unit} not available yet"
+DAYS_CHECKED = "{c} of {n} days assessed · {g} {unit} not available yet"
 DAYS_WITHHELD = "; Findings next to those days are not shown yet"
 _S3_CURRENT, _S3_PENDING, _S3_STALE, _S3_FAILED = "CURRENT", "PENDING", "STALE_PROJECTION", "FAILED"
 VERIFIED_LOOKBACK = timedelta(days=30)

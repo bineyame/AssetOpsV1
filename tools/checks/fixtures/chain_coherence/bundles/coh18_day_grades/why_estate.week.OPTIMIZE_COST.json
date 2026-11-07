@@ -1,0 +1,31 @@
+{
+ "category": "OPTIMIZE_COST",
+ "schema_version": "why-1",
+ "sites": [
+  {
+   "code": "COLD-LAB-001",
+   "nodes": [],
+   "text": {
+    "say": null
+   }
+  },
+  {
+   "code": "KOBO-001",
+   "nodes": [],
+   "text": {
+    "say": null
+   }
+  }
+ ],
+ "text": {
+  "comes_from": [
+   "Kobo mini-grid: Generator ran past its window",
+   "2 early warnings, counted separately"
+  ]
+ },
+ "window": {
+  "from": "2026-10-25T00:00:00Z",
+  "known_at": null,
+  "to": "2026-11-01T00:00:00Z"
+ }
+}

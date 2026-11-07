@@ -85,9 +85,9 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
     captured: list = []
     real_progress = portfolio.progress
 
-    def spy(a_sites, a_rows, k, selected_pairs):  # the full-scope selected Action rows (never a page)
+    def spy(a_sites, a_rows, k, selected_pairs, *rest):  # the full-scope selected Action rows (never a page)
         captured[:] = [a_rows, selected_pairs]
-        return real_progress(a_sites, a_rows, k, selected_pairs)
+        return real_progress(a_sites, a_rows, k, selected_pairs, *rest)
 
     monkeypatch.setattr(portfolio, "progress", spy)
 
@@ -252,7 +252,8 @@ def test_operating_cost_first_match_wins_across_partitions(portfolio_fixture) ->
     assert card == {"key": "OPERATING_COST", "state": "SITE_OWNED", "display_value": None,
                     "currency": w1["amount"]["currency"], "line_keys": [w1["line_key"]],
                     "group_key": parts[0]["group_key"], "basis": None, "destination": card["destination"],
-                    "detail": None, "basis_text": card["basis_text"], "tone": card["tone"]}
+                    "detail": None, "basis_text": card["basis_text"], "tone": card["tone"],
+                    "link_ref": card["link_ref"]}
     foreign = {x["line_key"] for c, xs in by_cat.items() if c != OPERATING_COST for x in xs}
     assert not foreign & set(card["line_keys"]) and foreign
     assert card["group_key"] not in {g["group_key"] for g in financial["groups"] if g["category"] != OPERATING_COST}
@@ -328,5 +329,5 @@ def test_ev_window_money_has_no_finding_attribution(portfolio_fixture) -> None:
     footer_to = body["footer"]["destination"]
     assert "/ev/evidence?from=" in footer_to or footer_to.endswith("/ev"), footer_to
     assert set(body["footer"]) == {"line_key", "site_name", "quantity_display", "amount_display",
-                                   "source_provenance", "window_start", "window_end", "destination"}
+                                   "source_provenance", "window_start", "window_end", "destination", "link_ref"}
     assert_declined(body)

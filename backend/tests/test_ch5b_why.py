@@ -192,6 +192,23 @@ def test_estate_text_sums_no_money_and_picks_the_first_real_change() -> None:
     assert "money" not in repr(text) and "amount" not in repr(text)
 
 
+def test_estate_text_takes_the_cards_days_and_the_windows_open_days() -> None:
+    """CH6b3-R3 M2: `days_used` replaces the per-Site join; `window_open` replaces the board-day count in
+    "Checking n more days", and a Site with none open is skipped."""
+    base = {"say": "s", "comes_from": [], "days_used": "board day", "evidence_ref": {}, "evidence_label": "e"}
+    def trace(open_days, change):
+        return why.Trace({**base, "would_change": change}, [], 0, open_days)
+    kobo = trace(32, "Checking 32 more days")
+    cold = trace(0, "An agreed action")
+    sites = [("Kobo", kobo), ("Cold", cold)]
+    assert why.estate_text("PROTECT_ASSET", sites)["would_change"] == "Checking 32 more days"      # unchanged default
+    assert why.estate_text("PROTECT_ASSET", sites)["days_used"] == "Kobo: board day · Cold: board day"
+    text = why.estate_text("PROTECT_ASSET", sites, None, "Kobo: 3 of 7 days checked", {"Kobo": 1})
+    assert text["would_change"] == "Checking 1 more day" and text["days_used"] == "Kobo: 3 of 7 days checked"
+    skipped = why.estate_text("PROTECT_ASSET", sites, None, "x", {"Kobo": 0})
+    assert skipped["would_change"] == "An agreed action"
+
+
 def test_category_outside_the_four_is_refused() -> None:
     with pytest.raises(why.CategoryUnknown):
         why.check_category("GROW")
@@ -282,6 +299,19 @@ def test_estate_why_has_a_trace_per_site_and_no_money() -> None:
     assert [s["code"] for s in body["sites"]] == ["KOBO-001", "COLD-LAB-001", "EV-LAB-001"]
     assert body["text"]["say"] == "Optimize cost and efficiency at 3 sites"
     assert "money" not in repr(body) and "amount" not in repr(body)
+
+
+@pytest.mark.parametrize("category", ["PROTECT_ASSET", "OPTIMIZE_COST", "ASSURE_PERFORMANCE"])
+def test_estate_why_days_are_the_cards_days_and_never_the_board_days(category) -> None:
+    """CH6b3-R3 M2 (route test): on a month window the "Why?" `days_used` equals the card's `days_line`
+    (Optimize has none: Protect's), and "Checking n more days" is not the board day's 32-day count."""
+    month = {"from": "2026-10-01T00:00:00Z", "to": "2026-11-01T00:00:00Z", **K}
+    c = _client()
+    cards = c.get("/api/estate/chain", params=month).json()["cards"]
+    want = (cards.get(category) or {}).get("days_line") or cards["PROTECT_ASSET"]["days_line"]
+    text = c.get("/api/estate/chain/why", params={**month, "category": category}).json()["text"]
+    assert text["days_used"] == want
+    assert "32" not in text["would_change"]
 
 
 @pytest.mark.parametrize("path,params", [("/api/sites/KOBO-001/chain/why", {"date": "2026-11-01"}),

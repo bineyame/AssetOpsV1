@@ -69,6 +69,7 @@ class Trace:
     text: dict[str, Any]
     nodes: list[dict[str, Any]]
     unmatched: int = 0     # CH5b2-R Q8: lines not emitted because no board item matched (counted in the packet)
+    open_days: int = 0     # CH6b3-R3 M2: the unchecked days behind "Checking n more days" on the board's window
 
     def to_json(self) -> dict[str, Any]:
         return {"text": self.text, "nodes": self.nodes}
@@ -263,7 +264,7 @@ def trace(x: SiteTraceInput) -> Trace:
             "comes_from": lines[:MAX_FROM] or [why("why.from.none")],
             "days_used": days_line(x.facts, counted), "would_change": change,
             "evidence_ref": dict(evidence), "evidence_label": why("why.evidence", site=x.site_name)}
-    return Trace(text, nodes, unmatched)
+    return Trace(text, nodes, unmatched, open_days)
 
 
 def site_trace(req: Any, ref: Any, *, category: str, board: Mapping[str, Any], facts: DayFacts,
@@ -320,21 +321,32 @@ def disrupted_lines(sites: Sequence[tuple[str, Sequence[Mapping[str, Any]], Mapp
 
 
 def estate_text(category: str, sites: Sequence[tuple[str, Trace]],
-                comes_from: Sequence[str] | None = None) -> dict[str, Any]:
+                comes_from: Sequence[str] | None = None, days_used: str | None = None,
+                window_open: Mapping[str, int] | None = None) -> dict[str, Any]:
     """CH5b2-R Q9: the estate text over the per-Site traces (Site order). No money is summed (design A6).
-    `comes_from` replaces the per-Site lines (CH6b2-R Q2b: the Protect card's counted threads)."""
+    `comes_from` replaces the per-Site lines (CH6b2-R Q2b: the Protect card's counted threads). CH6b3-R3 M2:
+    `days_used`, when given, is the card's own days line (it replaces the per-Site join); `window_open` (by Site
+    name) is each Site's unchecked days on the estate window, replacing the board-day count in "Checking n more
+    days" (a Site with none is skipped)."""
     n = len(sites)
     readings = why("why.change.readings")
+
+    def site_change(name: str, t: Trace) -> str | None:
+        if window_open is None or t.open_days <= 0:
+            return t.text["would_change"]
+        k = window_open.get(name, 0)
+        return why("why.change.days", n=k, s="" if k == 1 else "s") if k > 0 else None
+
     # MOCK DEVIATION (CH5b2-R Q9): the mock has one sentence per Portfolio card; the estate takes the first Site
     # line that is not "New readings that differ", else that line.
-    change = next((t.text["would_change"] for _, t in sites if t.text["would_change"] != readings), readings)
+    change = next((c for c in (site_change(name, t) for name, t in sites) if c and c != readings), readings)
     return {"title": why("why.title", site="Portfolio", category=CATEGORY_LABEL[category]),
             "say": why("why.estate.say", category=CATEGORY_LABEL[category], n=n, s="" if n == 1 else "s"),
             "comes_from": list(comes_from) if comes_from is not None else
             [why("why.estate.from", site=name, say=t.text["say"]) for name, t in sites][:MAX_FROM]
             or [why("why.from.none")],
-            "days_used": " · ".join(why("why.estate.days", site=name, days=t.text["days_used"])
-                                    for name, t in sites),
+            "days_used": days_used if days_used is not None else
+            " · ".join(why("why.estate.days", site=name, days=t.text["days_used"]) for name, t in sites),
             # MOCK DEVIATION (CH5b2-R2, owner CH-5b3): the mock pf: links carry a label per category (Renewable
             # evidence, Kobo financials, Risk findings, Estate evidence); the estate has one link, so one label.
             "would_change": change, "evidence_ref": refs.estate_ref("findings"),

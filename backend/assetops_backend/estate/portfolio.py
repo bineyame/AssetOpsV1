@@ -20,8 +20,7 @@ from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
 from assetops_backend.chain.claims import CLAIM_KEYS
 from assetops_backend.chain.threads import OPEN_CLASS, VERIFIED_CLASS, classify
-from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, checked_days_clause, count_basis,
-                                               evidence_gap_text)
+from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, count_basis, evidence_gap_text)
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
@@ -178,6 +177,18 @@ def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
     at = a.get("_segment_at") or {}
     cutoff = row.get("_thread_cutoff")
     return at[cutoff] if cutoff in at else a.get("_segment_no")
+
+
+VERIFIED_CLAIM = "count.verified_results"
+
+
+def priority_site_count(counted: Any) -> int | None:
+    """CH6b3-R Q4b: Sites with an open or in-hand thread in the one count computation (a Site with a fix in hand still
+    needs attention until verified); None when the computation or any Site's thread read failed, never 0."""
+    per_site = None if counted is None else list(counted.threads.values())
+    if per_site is None or any(t is None for t in per_site):
+        return None
+    return sum(1 for t in per_site if t["open"] + t["in_hand"] > 0)
 
 
 def _same_segment(action_seg: int | None, finding_seg: int | None) -> bool:
@@ -647,15 +658,14 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
 def card_notes(summary: dict[str, Any], authorized: int,
                recovered_value: dict[str, Any] | None) -> dict[str, str | None]:
     """CH6b2-R Q1: the Portfolio-body clauses of the Protect and Assure cards as ONE server line each, rendered as
-    its own line and never joined in the browser (the browser's `checkedDaysClause` / `evidenceGapText` before
-    CH-6b2). Protect: the checked-days clause (None without one). Assure: the recovered-value text (CH3-R, I-24),
-    the evidence-gap clause, then the checked-days clause."""
+    its own line and never joined in the browser. CH6b3-R3 M1: "days checked" means graded COMPLETE (the card's days
+    line), so the coverage clause is gone. Protect: None. Assure: the recovered-value text (CH3-R, I-24) and the
+    evidence-gap clause."""
     on_checked = summary.get("count_basis") == CHECKED_DAYS_BASIS
-    clause = checked_days_clause(summary.get("checked_days"), on_checked)
     recovered_text = (recovered_value or {}).get("text")
     assure = [t for t in (recovered_text, evidence_gap_text(summary.get("evidence_gap_site_count"), authorized,
-                                                            on_checked), clause) if t]
-    return {"PROTECT_ASSET": clause, "ASSURE_PERFORMANCE": " · ".join(assure)}
+                                                            on_checked)) if t]
+    return {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": " · ".join(assure)}
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -851,9 +861,13 @@ class EstatePortfolioService(EstateEvidenceService):
         # nullability of `finding_count` / `evidence_gap_site_count` until CH-6b.
         counted = self._claims(tenant_id, scope, req)
         claims = self.claims_json(counted, CLAIM_KEYS)
+        priority_sites = None if thread_counts is None else thread_counts["priority_site_count"]
+        if self.count_claims is not None:  # CH6b3-R Q4b: both legacy fields read the claims (BL-35 retires the names)
+            prog["verified_resolution_count"] = None if counted is None else counted.claims[VERIFIED_CLAIM].value
+            priority_sites = priority_site_count(counted)
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None,
-            "priority_site_count": None if thread_counts is None else thread_counts["priority_site_count"],
+            "priority_site_count": priority_sites,
             "opportunity_count": None if opp_items is None else len(opp_items),
             "opportunity_labels": None if opp_items is None else [i["short_label"] for i in opp_items],
             "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,
