@@ -238,6 +238,25 @@ describe("Verification view (verification:1-3)", () => {
     noVocabularyViolations("verification:1-3");
   });
 
+  it("FUEL-1 A3 (MD-FUEL-A3-1): renders the server's fuel_value line when set, and nothing when it is absent", async () => {
+    // The server's FUEL_VALUE_PAGE text as `verification.outcome()` returns it; the browser formats none of it.
+    const line = "About 3.3 L less diesel in the trial hour, about 4.12 USD at 1.25 USD per litre · modelled from a " +
+      "generic idle fuel rate, not measured by a fuel meter";
+    const withValue = { ...outcomeCurrent(), fuel_value: line };
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(withValue) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    expect(q("[data-verification-outcome]")).toHaveAttribute("data-verification-outcome", "VERIFIED");
+    expect(qa("[data-verification-fuel-value]").map((p) => p.textContent)).toEqual([line]);
+    noVocabularyViolations("verification:fuel-value");
+    cleanup();
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    expect(q("[data-verification-outcome]")).toHaveAttribute("data-verification-outcome", "VERIFIED");
+    expect(q("[data-verification-fuel-value]")).toBeNull();
+  });
+
   it("REASSESSMENT_PENDING is the current read state; the withdrawn outcome is only an explicit Historical link", async () => {
     const o = prep(R.outcome_reassessment_pending, { outcome_id: OUT1 });
     serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(o), [`${V}/outcome?outcome_id=${OUT2}`]: ok(prep(R.outcome_historical, { outcome_id: OUT2 })) });

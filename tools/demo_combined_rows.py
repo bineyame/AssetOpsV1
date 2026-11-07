@@ -436,3 +436,144 @@ def require_ev_group(threads: list[dict]) -> None:
     """DD1b2-R8 B3(a): EV's expected threads come from the served Portfolio rows, so an empty EV group would make
     COH-10 vacuous for EV. The fault Tuesday must yield at least one thread."""
     assert any(t.get("site_code") == "EV-LAB-001" for t in threads), "no expected EV thread: the EV group is empty"
+
+
+# ---- FUEL-1 A3 (A3-R §3.9): idle fuel on Kobo, written now, run at E3 ------------------------------------------------
+
+#: A3-R S-c: the probe's idle seconds (200 min per idle morning; 12 slots of the trial's baseline hour). A difference is
+#: a data finding, never a retune.
+IDLE_MORNING_SECONDS, TRIAL_BASELINE_IDLE_SECONDS = 12000, 3600
+
+
+def _declared_rate() -> Decimal:
+    """The Kobo declaration's own value (`demo_combined_kobo.NO_LOAD`), never retyped here."""
+    from demo_combined_kobo import NO_LOAD
+
+    return Decimal(str(next(p["value"] for p in NO_LOAD if p["property_key"] == "generator-no-load-fuel-rate")))
+
+
+def idle_morning(day: str, stored: dict, cost_row: dict) -> dict:
+    """A3-R §3.9 MONEY-B (O16): one idle morning. `stored` is the day's head consequence row (SQL column names);
+    `cost_row` is that day's board OPTIMIZE_COST row. The row is fuel-cost-2 PRICED, idle-only and exact, its idle
+    seconds are the probe's, the headline is `COST_IDLE` built through the board's own helpers from the stored fields,
+    and the money prefix is the stored row's outward display (`headline_money` unchanged)."""
+    from fractions import Fraction
+
+    from assetops_backend.chain.outcomes import _litres
+    from assetops_backend.financials.consequence_read import display
+    from assetops_backend.site_outcomes.mini import idle_headline
+
+    assert stored.get("model_id") == "fuel-cost-2" and stored.get("state") == "PRICED", (day, stored)
+    idle = stored.get("idle_seconds")
+    assert idle == IDLE_MORNING_SECONDS, ("S-c: stored idle seconds", day, idle, "want", IDLE_MORNING_SECONDS)
+    rate = Decimal(str(stored["no_load_fuel_rate_l_per_h"]))
+    assert rate == _declared_rate(), (day, "stored rate", rate)
+    exact = Fraction(str(stored["sfc_upper_multiplier"])) * Fraction(idle, 3600) * Fraction(str(rate))
+    assert Fraction(str(stored["quantity_high_exact"])) == exact, ("S-c: not idle-only", day, stored, exact)
+    assert Fraction(str(stored["amount_high"])) == Fraction(str(stored["quantity_high"])) * Fraction(
+        str(stored["price_value"])), (day, "amount is not upper litres x stored price", stored)
+    want = idle_headline({"idle_seconds": idle, "rate": str(rate), "basis": stored.get("no_load_fuel_rate_basis"),
+                          "litres_high": _litres(stored["quantity_high"])})
+    assert cost_row.get("headline") == want, (day, cost_row.get("headline"), want)
+    shown = display({"state": stored["state"], "currency": stored["currency"], "amount_low": stored["amount_low"],
+                     "amount_high": stored["amount_high"]})
+    money = cost_row.get("headline_money") or {}
+    assert Decimal(str(money.get("amount_high"))) == Decimal(str(shown["amount_high"])), (day, money, shown)
+    return {"day": day, "idle_seconds": idle, "high_exact": str(stored["quantity_high_exact"]),
+            "amount_high": str(stored["amount_high"]), "shown_high": str(money.get("amount_high")),
+            "headline": cost_row.get("headline")}
+
+
+def never_summed(amounts: list[str], bodies: list[object]) -> int:
+    """A3-R §3.9: no string in `bodies` holds the exact sum of two (or all) mornings' shown amounts. Returns the number
+    of sums checked (0 only when fewer than two amounts were given, which the caller asserts against)."""
+    from itertools import combinations
+
+    strings: list[str] = []
+
+    def walk(node: object) -> None:
+        if isinstance(node, str):
+            strings.append(node)
+        elif isinstance(node, dict):
+            for x in node.values():
+                walk(x)
+        elif isinstance(node, (list, tuple)):
+            for x in node:
+                walk(x)
+
+    for b in bodies:
+        walk(b)
+    sums = [f"{sum(Decimal(a) for a in combo):.2f}" for n in range(2, len(amounts) + 1)
+            for combo in combinations(amounts, n)]
+    hit = [(s, x) for s in sums for x in strings if s in x]
+    assert not hit, ("a sum of mornings is shown", hit[:3])
+    return len(sums)
+
+
+def steady_day(day: str, stored: list[dict], cost_row: dict) -> dict:
+    """A3-R §3.9: a steady or steady-before day has no idle fuel: every stored head row (if any) has 0 or no idle
+    seconds, and the headline is not the idle line. The headline and money are reported as shown."""
+    from assetops_backend.site_outcomes.mini import COST_IDLE
+
+    assert all(not r.get("idle_seconds") for r in stored), (day, stored)
+    head = str(cost_row.get("headline") or "")
+    assert not head.startswith(COST_IDLE.split(":")[0] + ":"), (day, head)
+    return {"day": day, "stored_rows": len(stored), "headline": cost_row.get("headline"),
+            "money": cost_row.get("headline_money")}
+
+
+def trial_cost(cc: dict, result: dict) -> dict:
+    """A3-R §3.9 PROBE_CHOSEN: ACT-001's stored `/2` row. MODELLED_IMPROVEMENT; the baseline idle seconds are the 12
+    slots R3h kept (S-c); `fuel_change_l` = stored rate x (baseline - later idle seconds) / 3600; the priced total is
+    that x the stored price; the stored basis is GENERIC_DEFAULT; the summary's price per litre is the stored price."""
+    from fractions import Fraction
+
+    assert cc.get("state") == "MODELLED_IMPROVEMENT" and result.get("state") == "MODELLED_IMPROVEMENT", (cc, result)
+    assert result.get("formula") == "trial-fuel-comparison/2", result.get("formula")
+    w = result.get("windows") or {}
+    b, l = (w.get("baseline") or {}).get("idle_seconds"), (w.get("later") or {}).get("idle_seconds")
+    assert b == TRIAL_BASELINE_IDLE_SECONDS, ("S-c: trial baseline idle seconds", b, "want", TRIAL_BASELINE_IDLE_SECONDS)
+    rate = Fraction(str((result.get("no_load") or {}).get("value_l_per_h")))
+    assert rate == Fraction(str(_declared_rate())), ("stored rate", rate)
+    pt, price = result.get("priced_total") or {}, Fraction(str((result.get("price") or {}).get("value")))
+    change = rate * Fraction(b - (l or 0), 3600)
+    assert Fraction(str(pt.get("fuel_change_l"))) == change, (pt, change)
+    assert Fraction(str(pt.get("amount"))) == change * price, (pt, change, price)
+    assert (result.get("no_load") or {}).get("basis") == "GENERIC_DEFAULT", result.get("no_load")
+    assert Fraction(str(cc.get("price_per_litre"))) == price and cc.get("priced_total") == pt, cc
+    return {"baseline_idle_seconds": b, "later_idle_seconds": l, "fuel_change_l": pt.get("fuel_change_l"),
+            "amount": pt.get("amount"), "price": str(result["price"]["value"]),
+            "per_demand_kwh": (result.get("change_per_demand_kwh") or {}).get("nominal"),
+            "basis": result["no_load"]["basis"]}
+
+
+def optimize_card(summary: dict, site: str = "KOBO-001") -> dict:
+    """A3-R §3.9 CH-5d1 / O1: on the S summary exactly one Site is priced (Kobo, after the declaration), and the
+    Optimize card's value is that Site's cost claim text byte-equal, its `claim` that claim (replacing CH5d1-R §4's
+    "Not known yet" forecast)."""
+    priced = []
+    for s in summary.get("sites") or ():
+        row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+        claim = (row.get("nodes") or {}).get("earnings")
+        if claim is not None and claim.get("value") is not None:
+            priced.append((s.get("site_code"), claim))
+    assert [code for code, _ in priced] == [site], ("priced Sites on S", [code for code, _ in priced])
+    card = (summary.get("cards") or {}).get("OPTIMIZE_COST") or {}
+    claim = priced[0][1]
+    assert (card.get("value") or {}).get("text") == claim.get("text") and card.get("claim") == claim, (card, claim)
+    return {"text": claim["text"]}
+
+
+def trial_page(body: dict, result: dict) -> str:
+    """A3-R §3.9 A3-PAGE: ACT-001's verification outcome body carries `fuel_value` equal to `FUEL_VALUE_PAGE` built
+    from the stored row through the imported helpers."""
+    from assetops_backend.chain.vocabulary import (
+        FUEL_VALUE_PAGE, NO_LOAD_BASIS_WORDS, money_text, price_text, trial_litres)
+
+    pt = result.get("priced_total") or {}
+    want = FUEL_VALUE_PAGE.format(
+        l=trial_litres(pt["fuel_change_l"]), amount=money_text(pt["amount"], None, pt.get("currency")),
+        p=price_text(result["price"]["value"]), cur=pt.get("currency") or "",
+        basis=NO_LOAD_BASIS_WORDS.get((result.get("no_load") or {}).get("basis"), NO_LOAD_BASIS_WORDS[None]))
+    assert body.get("fuel_value") == want, (body.get("fuel_value"), want)
+    return want

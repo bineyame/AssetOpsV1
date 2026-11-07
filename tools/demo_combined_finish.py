@@ -39,7 +39,11 @@ NOT_REALISED = "Estimated effect of the trial (not money saved): "
 GAPS_TEXT = "{g} of the last 31 days have no checked readings yet"
 IDX_POLICY = "finding-index/2"
 #: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
-PROBE_CHOSEN = {"chosen": "a", "window_hour": "06:00", "cost_state": "MODELLED_NO_IMPROVEMENT", "nominal": 0}
+#: FUEL-1 A3-R §3.9: with the declared idle fuel rate the trial hour is a `/2` MODELLED_IMPROVEMENT (was
+#: MODELLED_NO_IMPROVEMENT, nominal 0); the figures are checked from stored values (`demo_rows.trial_cost`).
+PROBE_CHOSEN = {"chosen": "a", "window_hour": "06:00", "cost_state": "MODELLED_IMPROVEMENT"}
+#: A3-R §3.9: the three idle mornings (the probe's 200 min of Candidate time at 0 kW each).
+IDLE_MORNINGS = (-14, -7, 0)
 
 
 def idx_present() -> bool:
@@ -334,8 +338,20 @@ def sp6(ctx: Ctx) -> dict:
         (k["window_hour"], k["trial"])
     cc = (_action(ctx).get("verification") or {}).get("cost_check") or {}
     assert cc.get("state") == PROBE_CHOSEN["cost_state"], cc
-    assert float(cc.get("nominal") or 0) == PROBE_CHOSEN["nominal"], cc
-    return {"window_hour": k["window_hour"], "cost_check": cc}
+    # FUEL-1 A3-R §3.9: the `nominal == 0` check is replaced by the stored-value checks of `demo_rows.trial_cost`
+    return {"window_hour": k["window_hour"], "cost_check": cc,
+            "trial": demo_rows.trial_cost(cc, _trial_result(ctx))}
+
+
+def _trial_result(ctx: Ctx) -> dict:
+    """FUEL-1 A3-R §3.9: ACT-001's latest stored trial cost row's `result` (SQL)."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        got = c.execute("SELECT result FROM trial_cost_comparison_revision WHERE action_id = %s "
+                        "ORDER BY recorded_at DESC, revision_no DESC LIMIT 1", (ctx.docs["kobo"]["action"],)).fetchone()
+    assert got is not None, "no stored trial cost row for the Kobo trial"
+    return got[0] if isinstance(got[0], dict) else json.loads(got[0])
 
 
 # ---- cold and EV -----------------------------------------------------------------------------------------------
@@ -942,15 +958,64 @@ def pv_a(ctx: Ctx) -> dict:
 def money_b(ctx: Ctx) -> dict:
     """R6 O16, the part readable through the served boards: the Cost headline on one steady-before and one steady
     day is reported as shown, and WK-2a's 42.08 stays (that row). The fuel-row trace and the PRICED-0 days need stored
-    rows and are NOT implemented here (handoff)."""
-    shown = {}
+    rows and are NOT implemented here (handoff).
+    FUEL-1 A3-R §3.9 (O16 extended): the three idle mornings S-14, S-7, S are fuel-cost-2 PRICED, idle-only and exact
+    from stored values, their headline is `COST_IDLE` and their money the stored display (`demo_rows.idle_morning`),
+    no shown string holds a sum of mornings, and the steady days carry no idle fuel (`demo_rows.steady_day`)."""
+    stored = _consequence_heads(ctx)
+    shown, mornings, bodies = {}, [], []
     for kind in ("steady-before", "steady"):
         day = next((d for d in ctx.site_days("kobo") if d["kind"] == kind), None)
         if day is not None:
             cost = rows(ctx.board(KOBO, at(day["start"]), at(day["end"])))["OPTIMIZE_COST"]
-            shown[kind] = {"day": day["day"], "headline": cost.get("headline"), "money": cost.get("headline_money")}
+            shown[kind] = demo_rows.steady_day(day["day"], _on(stored, day), cost)
     assert shown, "no steady or steady-before Kobo day in days.json"
-    return shown
+    for off in IDLE_MORNINGS:
+        day = next(d for d in ctx.site_days("kobo") if d.get("offset") == off)
+        board = ctx.board(KOBO, at(day["start"]), at(day["end"]))
+        heads = _on(stored, day)
+        assert len(heads) == 1, ("one head fuel row per idle morning", day["day"], len(heads))
+        mornings.append(demo_rows.idle_morning(day["day"], heads[0], rows(board)["OPTIMIZE_COST"]))
+        bodies.append(board)
+    bodies.append(ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}))
+    sums = demo_rows.never_summed([m["shown_high"] for m in mornings], bodies)
+    assert sums > 0, "no sum of mornings checked"
+    return {**shown, "idle_mornings": mornings, "sums_checked": sums}
+
+
+def _consequence_heads(ctx: Ctx) -> list[dict]:
+    """FUEL-1 A3-R §3.9: Kobo's head fuel consequence row per Finding (latest recorded revision), SQL column names."""
+    import psycopg
+    from psycopg.rows import dict_row
+
+    with psycopg.connect(ctx.url.replace("+psycopg", ""), row_factory=dict_row) as c:
+        return c.execute(
+            "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.window_start, r.state, r.model_id, r.idle_seconds, "
+            "r.no_load_fuel_rate_l_per_h, r.no_load_fuel_rate_basis, r.sfc_upper_multiplier, r.quantity_high_exact, "
+            "r.quantity_high, r.amount_low, r.amount_high, r.currency, r.price_value "
+            "FROM financial_consequence_revision r JOIN site s ON s.id = r.site_id WHERE s.site_code = %s "
+            "ORDER BY r.finding_id, r.recorded_at DESC, r.revision_no DESC", (KOBO,)).fetchall()
+
+
+def _on(stored: list[dict], day: dict) -> list[dict]:
+    lo, hi = at(day["start"]), at(day["end"])
+    return [r for r in stored if lo <= r["window_start"] < hi]
+
+
+@row("CH5D1-O1")
+def ch5d1_o1(ctx: Ctx) -> dict:
+    """FUEL-1 A3-R §3.9: the S Optimize card equals the one priced Site's (Kobo's) cost claim text, replacing
+    CH5d1-R §4's "Not known yet" forecast (`demo_rows.optimize_card`)."""
+    return demo_rows.optimize_card(ctx.get("/api/estate/outcome-summary",
+                                           **{"from": iso(ctx.day(0)), "to": iso(ctx.day(1))}), KOBO)
+
+
+@row("A3-PAGE")
+def a3_page(ctx: Ctx) -> dict:
+    """FUEL-1 A3-R §3.9: ACT-001's verification outcome body has `fuel_value` equal to `FUEL_VALUE_PAGE` built from
+    the stored trial row (`demo_rows.trial_page`)."""
+    body = ctx.get(f"/api/sites/{KOBO}/actions/{ctx.docs['kobo']['action']}/verification/outcome")
+    return {"fuel_value": demo_rows.trial_page(body, _trial_result(ctx))}
 
 
 # ---- runner ----------------------------------------------------------------------------------------------------

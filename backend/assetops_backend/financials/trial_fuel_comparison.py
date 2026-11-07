@@ -66,6 +66,9 @@ class NoLoadValue:
     value_l_per_h: Decimal
     valid_from: datetime
     valid_to: datetime | None
+    #: FUEL-1 A3-R G4(b): the same revision's `generator-no-load-fuel-rate-basis` (one of the three states), else None.
+    #: Stored in the result's `no_load` block only; never a digest input.
+    basis: str | None = None
 
 
 @dataclass(frozen=True)
@@ -238,7 +241,9 @@ def compare(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sf
     }
     if v2:
         same = rates[0].value_l_per_h == rates[1].value_l_per_h
-        result["no_load"] = {"value_l_per_h": fmt(_exact(rates[0].value_l_per_h))} if same else None
+        # FUEL-1 A3-R G4(b): the stored label of the rate (outside `basis`, so `basis_sha256` is unchanged)
+        result["no_load"] = {"value_l_per_h": fmt(_exact(rates[0].value_l_per_h)),
+                             "basis": rates[0].basis if rates[0].basis == rates[1].basis else None} if same else None
         if priced_total is not None:
             result["priced_total"] = priced_total
     return result

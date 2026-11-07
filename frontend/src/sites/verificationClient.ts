@@ -323,6 +323,8 @@ export interface OutcomeBody {
   is_latest_outcome: boolean | null;
   superseded_by_outcome_id?: string | null;
   historical_label?: string;
+  /** FUEL-1 A3-R G3: the server's trial fuel line (VERIFIED with a stored priced total only; else absent). */
+  fuel_value?: string | null;
 }
 
 export interface ResolutionEvent {

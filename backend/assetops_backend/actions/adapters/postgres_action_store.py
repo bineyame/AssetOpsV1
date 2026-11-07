@@ -46,6 +46,8 @@ SFC_UNIT = "L/kWh"
 #: FUEL-1 A2: the declared generator no-load fuel rate `no_load_history` reads (A1's Foundation vocabulary)
 NO_LOAD_FIELD = "generator-no-load-fuel-rate"
 NO_LOAD_UNIT = "L/h"
+#: FUEL-1 A3-R G4(b): the rate's declared basis, read from the same revision and stored with the trial's rate
+NO_LOAD_BASIS_FIELD = "generator-no-load-fuel-rate-basis"
 
 ACTION_COLUMNS = ("id, tenant_id, site_id, action_no, action_code, recommendation_key, acceptance_key, "
                   "acceptance_payload_sha256, origin_finding_id, origin_finding_revision_id, "
@@ -642,11 +644,18 @@ class PostgresActionStore:
         from assetops_backend.financials.trial_fuel_comparison import NoLoadValue
 
         return self._generator_property_history(tenant_id, site_id, generator_asset_id, start, end, known_at,
-                                                NO_LOAD_FIELD, NO_LOAD_UNIT, NoLoadValue)
+                                                NO_LOAD_FIELD, NO_LOAD_UNIT, NoLoadValue,
+                                                companion=NO_LOAD_BASIS_FIELD)  # FUEL-1 A3-R G4(b)
 
     def _generator_property_history(self, tenant_id: UUID, site_id: UUID, generator_asset_id: Any,
                                     start: datetime, end: datetime, known_at: datetime, field: str, unit: str,
-                                    make: Callable[..., Any]) -> list[Any]:
+                                    make: Callable[..., Any], companion: str | None = None) -> list[Any]:
+        """`companion` (FUEL-1 A3-R G4(b)): a state property of the same component whose one valid value is passed
+        to `make` as `basis=` (None when absent, several or not one of the declared states)."""
+        if companion is not None:
+            from assetops_backend.sites.models import STATE_PROPERTY_VALUES
+            allowed = STATE_PROPERTY_VALUES[companion]
+
         def work(c):
             codes = {r.id: r.asset_code for r in c.execute(text(
                 "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"),
@@ -665,7 +674,14 @@ class PostgresActionStore:
                 value = finite_decimal(found[0].get("value")) if len(found) == 1 else None
                 if value is None or found[0].get("unit") != unit:
                     continue  # none, several, wrong unit or malformed: no value in force for this revision
-                out.append(make(row["id"], value, row["valid_from"], row["valid_to"]))
+                if companion is None:
+                    out.append(make(row["id"], value, row["valid_from"], row["valid_to"]))
+                    continue
+                tags = [p.get("value") for comp in (row["content"] or {}).get("components") or ()
+                        if str(comp.get("component_id")) == str(code)
+                        for p in comp.get("properties") or () if p.get("property_key") == companion]
+                basis = tags[0] if len(tags) == 1 and tags[0] in allowed else None
+                out.append(make(row["id"], value, row["valid_from"], row["valid_to"], basis=basis))
             return out
         return self._read(work)
 

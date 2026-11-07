@@ -24,13 +24,14 @@ from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.chain import lifecycle as lc
 from assetops_backend.chain import refs, site_chain
 from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
-    MG1_MISSED, MG1_NO_DAY, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
+    MG1_MISSED, MG1_NO_DAY, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, NO_LOAD_BASIS_WORDS, money_text, price_text,
+    provenance_suffix, trial_litres)
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.chain.outcomes import (
-    NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, potential_shown, site_nodes)
+    NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, idle_fuel, potential_shown, site_nodes)
 from assetops_backend.outcomes.catalogue import MINI, SITE_OUTCOMES
 from assetops_backend.outcomes.credit import credited
 from assetops_backend.outcomes.display_code import display_code
@@ -65,6 +66,10 @@ PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are e
                    "delivered, but what customers needed is not measured")
 COST_NO_MONEY = "No fuel cost estimated for this day"
 COST_MONEY = "possible extra fuel cost on this day"
+#: FUEL-1 A3-R Q2/Q3: a fuel-cost-2 PRICED day whose counted fuel is all idle; extends COST_MONEY so the board's money
+#: prefix (`headline_money`, unchanged) reads once. MOCK DEVIATION MD-FUEL-A3-2: v69's cost row has no idle-fuel basis.
+COST_IDLE = COST_MONEY + (": generator on for {h} delivering no power, up to about {l} L · counted at {basis} of {r} "
+                          "L/h, not measured")
 #: POLISH §1.1 (R626, owner Q1): a PRICED amount of zero; idle fuel is not modelled, so no amount is shown.
 COST_ZERO = "No fuel cost estimated: the generator was on but delivered no measured power"
 #: POLISH §1.7: MG-7 settled on a COMPLETE day with no generator use (readiness UNKNOWN only for lack of intervals).
@@ -99,6 +104,10 @@ VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} no
 #: POLISH Addendum 6 Q6: the verdict and code prefix stay; the cost clause matches board.COST_CHANGE.
 VERIFIED_WITH_COST = ("{code} verified{suffix}: estimated effect of the trial (not money saved): "
                       "{amount} {currency} less supply cost per kWh")
+#: FUEL-1 A3-R Q5: the Verified results line of a VERIFIED trial whose stored cost check has a priced total.
+#: MOCK DEVIATION MD-FUEL-A3-4 (shared with board.COST_PRICED): v69 states the trial's effect per kWh only.
+VERIFIED_WITH_FUEL = ("{code} verified{suffix}: estimated effect of the trial (not money saved): about {l} L less "
+                      "diesel in the trial hour, {amount} at {p} {cur} per litre")
 #: PV-1-R §3: a verified result's money, one line each, never added together (the card prefixes the Site).
 VALUE_LINE_MILL = "{code}: about {d} {cur} a day more in estimated sales to productive users (your declared price)"
 VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the one-hour trial (modelled, not metered)"
@@ -160,7 +169,10 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         PLAN_NOT_READ, *objective_facts.COPY, NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE,
         PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
-        COST_NO_MONEY, COST_MONEY, COST_ZERO, NO_RUN_READINGS, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
+        COST_NO_MONEY, COST_MONEY, COST_ZERO,
+        COST_IDLE.format(h="200 minutes", l="12.1", basis=NO_LOAD_BASIS_WORDS["GENERIC_DEFAULT"], r="3.3"),
+        VERIFIED_WITH_FUEL.format(code="ACT-001", suffix=" on example data", l="3.3", amount="4.12 USD", p="1.25",
+                                  cur="USD"), NO_RUN_READINGS, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SOLAR_WELL_OBSERVED.format(e=1, a=1, days="day"),
         SOLAR_WELL_OBSERVED.format(e=0, a=2, days="days") + SOLAR_NOT_CHECKED.format(n=3), SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
@@ -334,6 +346,14 @@ def num(value: Any) -> str | None:
     return f"{d.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP).normalize():f}"
 
 
+def idle_headline(idle: dict[str, Any]) -> str:
+    """FUEL-1 A3-R §2.2/§2.4: `COST_IDLE` from `chain.outcomes.idle_fuel` (minutes in this board's own form)."""
+    m = Decimal(Fraction(idle["idle_seconds"], 60).numerator) / Decimal(Fraction(idle["idle_seconds"], 60).denominator)
+    return COST_IDLE.format(h=f"{num(m)} {plural(num(m), 'minute', 'minutes')}", l=idle["litres_high"],
+                            basis=NO_LOAD_BASIS_WORDS.get(idle["basis"], NO_LOAD_BASIS_WORDS[None]),
+                            r=num(idle["rate"]))
+
+
 def utc(value: Any) -> datetime | None:
     if value is None or isinstance(value, datetime):
         return value
@@ -364,16 +384,6 @@ def plural(n: Any, one: str, many: str) -> str:
         return one if n is not None and Decimal(str(n)) == 1 else many
     except InvalidOperation:
         return many
-
-
-def price_text(value: Any) -> str | None:
-    """B2 review L6: a declared price for display: two decimal places, more only when the stored value has them."""
-    try:
-        d = Decimal(str(value))
-    except InvalidOperation:
-        return None
-    cents = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    return f"{cents:f}" if cents == d else f"{d.normalize():f}"
 
 
 def limitation_text(limitation: str) -> str:
@@ -504,8 +514,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     avoidable, _ = _dispatch_minutes(dispatch)
     verified = (sum(1 for a in actions if a.verification_state == "VERIFIED")
                 + sum(1 for o in opp if o.outcome == "VERIFIED"))
+    idle = idle_fuel(money_head) if priced and not zero else None  # FUEL-1 A3-R §3.4
     headline = {GROW: f"{lo_kw}–{hi_kw} kW of daytime solar unused" if lo_kw and hi_kw else None,
-                COST: (COST_ZERO if zero else COST_MONEY if priced else COST_NO_MONEY)
+                COST: (idle_headline(idle) if idle and idle["idle_only"] else
+                       COST_ZERO if zero else COST_MONEY if priced else COST_NO_MONEY)
                 if read_ok else None,
                 PROTECT: PROTECT_HEADLINE,
                 ASSURE: f"{verified} {plural(verified, 'verified result', 'verified results')}"
@@ -1057,7 +1069,7 @@ def _verified_values(reads: Reads, ports: MiniPorts, actions: tuple[ActionFact, 
             continue
         (n, d), cur = got
         amount = f"{Decimal(round(Fraction(n, d) * 100)) / 100:.2f}"
-        litres = f"{Decimal(round(Fraction(str(pt['fuel_change_l'])) * 10)) / 10:.1f}"
+        litres = trial_litres(pt["fuel_change_l"])  # A3-R §2.4: PV-1's expression, moved to chain.vocabulary
         out.append({"key": a.action_id, "action_code": a.code, "basis": pt["basis"], "amount": amount,
                     "currency": cur, "text": VALUE_LINE_TRIAL_FUEL.format(code=display_code(a.code), l=litres,
                                                                           amount=amount, cur=cur)})
@@ -1088,7 +1100,13 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
         state = a.verification_state
         text = VERIFICATION_TEXT.get(state or "", None)
         cc = a.cost_check or {}
-        if state == "VERIFIED" and cc.get("state") == "MODELLED_IMPROVEMENT":
+        pt, p = cc.get("priced_total"), price_text(cc.get("price_per_litre"))
+        if state == "VERIFIED" and cc.get("state") == "MODELLED_IMPROVEMENT" and pt and p is not None:
+            # FUEL-1 A3-R §3.4: keyed on the presence of the stored priced total (A2-R1: no second sign check)
+            text = (VERIFIED_WITH_FUEL.replace("{l}", trial_litres(pt["fuel_change_l"]))
+                    .replace("{amount}", money_text(pt["amount"], None, pt.get("currency")) or "")
+                    .replace("{p}", p).replace("{cur}", pt.get("currency") or ""))
+        elif state == "VERIFIED" and cc.get("state") == "MODELLED_IMPROVEMENT":
             text = VERIFIED_WITH_COST.replace("{amount}", per_kwh_amount(cc)).replace(
                 "{currency}", cc.get("currency") or "")
         out.append(Contributor("verified_results", "Verified results",
