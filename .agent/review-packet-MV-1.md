@@ -72,7 +72,15 @@ All were reverted. `git status` was clean afterwards.
 
 - Backend, at `a7f829240`: `test_ch9b3_mill_verdict.py`, `test_s4_fuel_cost.py`, `test_demo_combined_finish_rows.py` and `test_ch9b3_mill_verdict_postgres.py` (on `assetops_mv1_test`), plus the adjacent `test_walk1_productive_sales.py` and `test_ch9b1_origin_readers.py`. Result: 128 passed, 0 failed, 0 skipped (47 s).
 - Frontend: `millVerification.test.tsx` 10 passed; `tsc --noEmit` exit 0.
-- Guards (one at a time, `ASSETOPS_GUARD_PYTHON` set): GUARDS_PLACEHOLDER
+- Guards, run one at a time with `ASSETOPS_GUARD_PYTHON` set:
+  - A `check-architecture.ps1`: passed (298 s).
+  - N `check-navigation-truthfulness.ps1`: passed (30 s).
+  - V `node --test tools/checks/test_mock_deviation_labels.mjs`: 14/14 passed.
+  - M `missing-claim-scan.mjs`: passed (42 tagged, 10 baselined, ceiling 16).
+  - `frontend-hardwiring.mjs`: passed, totals unchanged (api 12, href 24, lit 70, cmp 51, code 3).
+  - W `check-agent-workflow.ps1`: passed, after the packet commit.
+  - S3 not triggered: no guard rejected a §2.2(e) literal.
+  - A and N were first launched through Git Bash `powershell -File`, which the execution policy refused. Both were rerun through the PowerShell tool, without `-ExecutionPolicy`.
 
 ## Known deviations
 
