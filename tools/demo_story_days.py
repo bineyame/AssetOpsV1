@@ -19,10 +19,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v1.json"
+#: DD1a2-R: the B-22 list. v1 and v2 are kept as history (`--days` takes them).
+DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v3.json"
+V1_FILE = DEFAULT_FILE.with_name("demo-story-days-v1.json")
 #: DD-1a1 (DD1a1-R Q7): full-day story days. Each Kobo / Cold kind lists its `complement`, so one entry expands into
 #: its story run plus the steady runs (and named placeholders) that tile the Site's local day [00:00, 24:00).
-#: `prepare --days` takes it; DD-1a2 builds the B-22 list on it and makes it the default.
 V2_FILE = DEFAULT_FILE.with_name("demo-story-days-v2.json")
 #: DD1a1-R16: a full day (a kind with a `complement` list) is built only where every join of its day is STOPPED on the
 #: registered Site. `tools/probe_kobo_nights.py` records each measured join under `full_days` in this file.
@@ -36,7 +37,7 @@ INSTALL_LEAD = timedelta(hours=1)
 KNOWLEDGE_AFTER_INSTALL = timedelta(minutes=30)
 PAST_MARGIN = timedelta(minutes=5)
 #: Kinds `add-day` may append (sheet U4); trial-*, failure and fault carry work rows and Actions (prepare only).
-ADD_DAY_KINDS = {"kobo": ("normal", "overuse", "overcast", "late", "missing", "degraded"),
+ADD_DAY_KINDS = {"kobo": ("normal", "overuse", "overcast", "late", "missing", "degraded", "steady", "steady-before-first"),
                  "cold": ("normal", "degraded", "late"), "ev": ("normal", "late")}
 LATE_AS = ("normal", "overuse")
 #: A Site whose registered model admits only one weekday: its story days fall back to that weekday on or before
@@ -133,6 +134,55 @@ def check_full_day(site: str, day: str, scenario_id: str, joins: dict | None = N
     if not entry or not entry.get("joins") or any(j.get("generator") != "STOPPED" for j in entry["joins"]):
         raise StoryDaysError("FULL_DAY_JOIN_NOT_STOPPED", f"{site} {day}: {scenario_id} has no measured full day whose "
                              "every join is STOPPED, so it stays story-only (partly checked) (DD1a1-R16)")
+
+
+#: DD1a1-R15's bound at a cut that is not a story start.
+JOIN_SOC_BOUND, JOIN_FUEL_BOUND = 0.5, 0.5
+#: DD1a2-R Q8.1: the fresh declared start of a full day with no measured previous 24:00.
+FRESH_NIGHT = "kobo-night-early"
+
+
+def check_mill_side(doc: dict, site: str, kind: str, offset: int) -> None:
+    """DD1a2-R: a `steady-before*` kind only before `mill_change_day`, a `steady` kind only after it."""
+    change = doc.get("mill_change_day")
+    if site != "kobo" or not change:
+        return
+    at_change = day_offset(change)
+    if (kind.startswith("steady-before") and offset >= at_change) or (kind == "steady" and offset <= at_change):
+        raise StoryDaysError("MILL_PROFILE_WRONG_SIDE", f"{site} S{offset:+d}d: kind {kind!r} is on the wrong side of the "
+                                                        f"mill change {change} (DD1a2-R)")
+
+
+def check_full_day_chains(doc: dict, site: str, entries: list[tuple[int, str]], handover: dict | None = None) -> None:
+    """DD1a2-R, closing `review-DD-1a1.md:108-110`: each full kind's complement list is the chain measured in `full_days`,
+    and each 00:00 start equals the previous built full day's recorded 24:00 within R15's bound. A full day with no such
+    neighbour takes the fresh declared start (Q8.1), unbounded. `entries` is (offset, story kind)."""
+    kinds = doc["kinds"].get(site, {})
+    full = {off: kinds[kind] for off, kind in entries if isinstance(kinds[kind].get("complement"), list)}
+    if not full:
+        return
+    data = json.loads(JOINS_FILE.read_text(encoding="utf-8")) if handover is None else handover
+    joins = data.get("full_days", {})
+    for off, spec in sorted(full.items()):
+        sid, where = spec["scenario_id"], f"{site} S{off:+d}d"
+        comp = [kinds[name] for name in spec["complement"]]
+        night = next((c["scenario_id"] for c in comp if c["start"].startswith("D-1d")), None)
+        rest = next((c["scenario_id"] for c in comp if not c["start"].startswith("D-1d")), None)
+        entry = joins.get(sid) or {}
+        if night not in entry.get("nights", ()) or rest != entry.get("rest"):
+            raise StoryDaysError("FULL_DAY_CHAIN_UNMEASURED", f"{where}: {sid} runs {night} and {rest}, which is not the "
+                                                              f"chain measured in full_days (DD1a2-R)")
+        before = full.get(off - 1)
+        if before is None:
+            if night != FRESH_NIGHT:
+                raise StoryDaysError("FULL_DAY_JOIN_UNMEASURED", f"{where}: {night} starts from a previous day's 24:00, "
+                                                                 f"and no full day is built before it (DD1a2-R Q8.1)")
+            continue
+        start, end = data["handover"][night]["start"], joins[before["scenario_id"]]["end_24"]
+        if (end["generator"] != "STOPPED" or abs(start["soc"] - end["soc"]) > JOIN_SOC_BOUND
+                or abs(start["fuel"] - end["fuel"]) > JOIN_FUEL_BOUND):
+            raise StoryDaysError("FULL_DAY_JOIN_BOUND", f"{where}: {night} starts {start}, the previous day ended {end}, "
+                                                        f"outside {JOIN_SOC_BOUND} pp / {JOIN_FUEL_BOUND} L (DD1a1-R15)")
 
 
 def day_offset(text: str) -> int:
@@ -273,7 +323,10 @@ def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
             if run.day in seen:
                 raise StoryDaysError("DUPLICATE_DAY", f"{site} has two entries on {run.day}")
             seen.add(run.day)
+            check_mill_side(days_doc, site, run.kind, run.offset)
             runs.extend(expanded)
+        check_full_day_chains(days_doc, site, [(r.offset, r.as_kind or r.kind) for r in runs
+                                               if r.site == site and r.has_run and not r.complement_of])
     validate(runs, S, db_now=db_now, installs=installs)
     order = sorted(runs, key=lambda r: (r.received_at or (_day_start(r) + timedelta(days=1)), SITES.index(r.site)))
     # DD1a1-R8: one sequence epoch per stream, a maximal run of consecutive built Site-days of one Site (a gateway does
@@ -394,17 +447,20 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
         raise StoryDaysError("PREPARE_ONLY_KIND", f"{site} kind {kind!r} carries work rows or Actions; add-day takes "
                                                   f"only {ADD_DAY_KINDS[site]}")
     mine = [r for r in current if r.site == site]
+    # DD1a2-R (R4 FILL-1): a planned `missing` day holds no run and is fillable live
+    held = [r for r in mine if r.has_run or kind == "missing"]
     step = 7 if site in SITE_WEEKDAY else 1  # the next free ruled weekday
     offset = weekday_offset(site, S, day_offset(day) if day else (max(r.offset for r in mine) + step if mine else 0))
     D = S + timedelta(days=offset)
     date = D.date().isoformat()
     if date in delivered_days:
         raise StoryDaysError("DAY_HAS_EVIDENCE", f"{site} {date} already holds delivered evidence (append-only)")
-    if any(r.day == date for r in mine):
-        raise StoryDaysError("DUPLICATE_DAY", f"{site} already has a {next(r.kind for r in mine if r.day == date)} "
+    if any(r.day == date for r in held):
+        raise StoryDaysError("DUPLICATE_DAY", f"{site} already has a {next(r.kind for r in held if r.day == date)} "
                                               f"entry on {date}")
     if offset < -BOARD_WINDOW_DAYS:
         raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{site} {date} is earlier than S-{BOARD_WINDOW_DAYS}d")
+    check_mill_side(days_doc, site, kind, offset)
     if site == "kobo" and any(r.kind == "late" and abs(r.offset - offset) == 1 for r in mine):
         # DD1a2-R Q4: `resolve` refuses this in a calendar (DD1a1-R8); add-day would skip it by minting its own epoch
         raise StoryDaysError("LATE_IN_STREAM", f"{site} {date} is next to a late day; a late day may not join a "
@@ -422,3 +478,23 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
                             "assess": "tick"})
     validate([planned], S, installs=installs, trial_pair=False)
     return planned
+
+
+def plan_add_runs(days_doc: dict, current: list[DayRun], site: str, kind: str, S: datetime, db_now: datetime, *,
+                  day: str | None = None, as_kind: str | None = None, delivered_days: set[str] = frozenset(),
+                  installs: dict[str, datetime] | None = None) -> list[DayRun]:
+    """DD1a2-R Q8.3: every run `add-day` delivers. `plan_add_day`'s refusals, then a full-day kind expands through
+    `_expand` into its runs in source-time order, each received at DB now in that order (one second apart: a run's
+    acceptance is counted by its `received_at`), with readings at story time. The day must have ended in real time."""
+    planned = plan_add_day(days_doc, current, site, kind, S, db_now, day=day, as_kind=as_kind,
+                           delivered_days=delivered_days, installs=installs)
+    if not planned.has_run or not days_doc["kinds"][site][kind].get("complement"):
+        return [planned]
+    entry = {"day": f"S{planned.offset:+d}d", "kind": kind}
+    runs = sorted(_expand(days_doc, site, entry, S), key=lambda r: r.start)
+    last = max(r.covers_end or r.end for r in runs)
+    if last > db_now - PAST_MARGIN:
+        raise StoryDaysError("DAY_NOT_IN_PAST", f"{site} {planned.day} ends {iso(last)}, after DB now - {PAST_MARGIN} "
+                                                f"({iso(db_now)})")
+    return [replace(r, received_at=db_now + timedelta(seconds=n), known_at=db_now, epoch=planned.epoch, assess="tick")
+            for n, r in enumerate(runs)]

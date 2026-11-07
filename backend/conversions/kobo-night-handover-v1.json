@@ -34,7 +34,96 @@
    ],
    "exempt": [
     "06:00 story start"
-   ]
+   ],
+   "nights": [
+    "kobo-night-early"
+   ],
+   "rest": "kobo-rest-mill",
+   "end_24": {
+    "soc": 48.421052631578945,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "state_18": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_local": {
+    "story": [],
+    "rest": []
+   }
+  },
+  "kobo-steady-day": {
+   "joins": [
+    {
+     "at_local": "18:00",
+     "probe": "probe-D-dusk-419ff844435a",
+     "generator": "STOPPED"
+    },
+    {
+     "at_local": "24:00",
+     "probe": "probe-D-dusk-run-554866d714d6",
+     "generator": "STOPPED"
+    }
+   ],
+   "exempt": [
+    "06:00 story start"
+   ],
+   "nights": [
+    "kobo-night-early"
+   ],
+   "rest": "kobo-rest-mill",
+   "end_24": {
+    "soc": 48.421052631578945,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "state_18": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_local": {
+    "story": [],
+    "rest": []
+   }
+  },
+  "kobo-steady-before-mill": {
+   "joins": [
+    {
+     "at_local": "18:00",
+     "probe": "probe-B-dusk-fa765b971bae",
+     "generator": "STOPPED"
+    },
+    {
+     "at_local": "24:00",
+     "probe": "probe-B-dusk-run-652cc11b5302",
+     "generator": "STOPPED"
+    }
+   ],
+   "exempt": [
+    "06:00 story start"
+   ],
+   "nights": [
+    "kobo-night-early",
+    "kobo-night-early-after-before-mill"
+   ],
+   "rest": "kobo-rest-before-mill",
+   "end_24": {
+    "soc": 45.26315789473684,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "state_18": {
+    "soc": 86.3157894736842,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_local": {
+    "story": [],
+    "rest": []
+   }
   }
  },
  "probes": {
@@ -56,6 +145,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 50.789
@@ -78,6 +168,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 47.947
@@ -100,6 +191,12 @@
     "generator": "RUNNING"
    },
    "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "05:05",
+     "06:00"
+    ]
+   ],
    "generator_running_minutes": 55,
    "fuel_used_l": 0.0,
    "min_soc": 31.158
@@ -122,6 +219,12 @@
     "generator": "RUNNING"
    },
    "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "06:25",
+     "20:00"
+    ]
+   ],
    "generator_running_minutes": 815,
    "fuel_used_l": 113.34,
    "min_soc": 30.0
@@ -144,6 +247,12 @@
     "generator": "RUNNING"
    },
    "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "20:05",
+     "00:00"
+    ]
+   ],
    "generator_running_minutes": 235,
    "fuel_used_l": 13.069,
    "min_soc": 30.0
@@ -166,6 +275,12 @@
     "generator": "RUNNING"
    },
    "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "00:05",
+     "06:00"
+    ]
+   ],
    "generator_running_minutes": 355,
    "fuel_used_l": 10.511,
    "min_soc": 30.0
@@ -188,6 +303,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 40.105
@@ -210,6 +326,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 40.325
@@ -232,6 +349,12 @@
     "generator": "RUNNING"
    },
    "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "05:05",
+     "06:00"
+    ]
+   ],
    "generator_running_minutes": 55,
    "fuel_used_l": 0.0,
    "min_soc": 31.158
@@ -254,6 +377,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 50.789
@@ -276,6 +400,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 69.474
@@ -298,6 +423,7 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 50.789
@@ -320,9 +446,130 @@
     "generator": "STOPPED"
    },
    "generator_starts": 0,
+   "generator_intervals_local": [],
    "generator_running_minutes": 0,
    "fuel_used_l": 0.0,
    "min_soc": 48.421
+  },
+  "D-dusk": {
+   "probe_id": "probe-D-dusk-419ff844435a",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T15:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 55,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 89.47368421052632,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_intervals_local": [],
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 50.789
+  },
+  "D-dusk-run": {
+   "probe_id": "probe-D-dusk-run-554866d714d6",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T15:00:00Z",
+    "2026-09-22T21:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 89.47368421052632,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 48.421052631578945,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_intervals_local": [],
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 48.421
+  },
+  "B-dusk": {
+   "probe_id": "probe-B-dusk-fa765b971bae",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T03:00:00Z",
+    "2026-09-22T15:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 55,
+    "starting-fuel": 300,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 86.3157894736842,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_intervals_local": [],
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 50.789
+  },
+  "B-dusk-run": {
+   "probe_id": "probe-B-dusk-run-652cc11b5302",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T15:00:00Z",
+    "2026-09-22T21:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 86.3157894736842,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 45.26315789473684,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "generator_starts": 0,
+   "generator_intervals_local": [],
+   "generator_running_minutes": 0,
+   "fuel_used_l": 0.0,
+   "min_soc": 45.263
+  },
+  "B-early": {
+   "probe_id": "probe-B-early-8685e4459b2f",
+   "scenario_sha256": null,
+   "interval": [
+    "2026-09-22T21:00:00Z",
+    "2026-09-23T03:00:00Z"
+   ],
+   "start": {
+    "starting-state-of-charge": 45.26315789473684,
+    "starting-fuel": 300.0,
+    "starting-generator-state": "STOPPED"
+   },
+   "measured_end": {
+    "soc": 30.0,
+    "fuel": 299.026875,
+    "generator": "RUNNING"
+   },
+   "generator_starts": 1,
+   "generator_intervals_local": [
+    [
+     "04:00",
+     "06:00"
+    ]
+   ],
+   "generator_running_minutes": 120,
+   "fuel_used_l": 0.973,
+   "min_soc": 30.0
   }
  },
  "handover": {
@@ -415,6 +662,26 @@
     "generator": "STOPPED"
    },
    "rounding": "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at 18:00"
+  },
+  "kobo-rest-before-mill": {
+   "probe_id": "probe-B-dusk-fa765b971bae",
+   "at_local": "18:00",
+   "start": {
+    "soc": 86.3157894736842,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at 18:00"
+  },
+  "kobo-night-early-after-before-mill": {
+   "probe_id": "probe-B-dusk-run-652cc11b5302",
+   "at_local": "00:00",
+   "start": {
+    "soc": 45.26315789473684,
+    "fuel": 300.0,
+    "generator": "STOPPED"
+   },
+   "rounding": "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at 24:00"
   }
  }
 }

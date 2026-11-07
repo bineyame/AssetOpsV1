@@ -489,12 +489,13 @@ class Demo:
 
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
     def delivered_days(self, site_code: str) -> set[str]:
-        """UTC days holding delivered (accepted) evidence for the Site: the append-only refusal basis."""
+        """Site-local days holding delivered (accepted) evidence for the Site: the append-only refusal basis. Local, not
+        UTC: a full day's night starts at 21:00Z the day before (DD1a2-R), which is not evidence on that earlier day."""
         import psycopg
 
         with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
             rows = c.execute(
-                "SELECT DISTINCT to_char(e.source_time AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM accepted_evidence e "
+                "SELECT DISTINCT to_char(e.source_time AT TIME ZONE s.timezone, 'YYYY-MM-DD') FROM accepted_evidence e "
                 "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
                 "JOIN site s ON s.id = e.site_id WHERE s.site_code = %s", (site_code,)).fetchall()
         return {r[0] for r in rows}
@@ -525,24 +526,30 @@ class Demo:
             days_path = self.work / "days.json"
             doc = json.loads(days_path.read_text(encoding="utf-8"))
             current = sd.from_payload(doc["days"])
-            planned = sd.plan_add_day(doc["doc"], current, site, kind, at(story["S"]), self.db_now(), day=day,
-                                      as_kind=as_kind, delivered_days=self.delivered_days(site_code),
-                                      installs={n: at(v) for n, v in story["installs"].items()})
-            if assess_now and planned.has_run:
-                planned = sd.DayRun(**{**planned.__dict__, "assess": "build"})
-            out: dict = {"day": planned.day, "kind": planned.kind, "assess": planned.assess}
+            # DD1a2-R Q8.3: a full-day kind is several runs, delivered in source-time order
+            runs = sd.plan_add_runs(doc["doc"], current, site, kind, at(story["S"]), self.db_now(), day=day,
+                                    as_kind=as_kind, delivered_days=self.delivered_days(site_code),
+                                    installs={n: at(v) for n, v in story["installs"].items()})
+            if assess_now and runs[0].has_run:
+                runs = [sd.DayRun(**{**r.__dict__, "assess": "build"}) for r in runs]
+            planned = next(r for r in runs if not r.complement_of)
+            out: dict = {"day": planned.day, "kind": planned.kind, "assess": planned.assess, "runs": len(runs)}
             if planned.has_run:
                 child = self.tree / "tools" / f"demo_combined_{site}.py"
                 if site != "kobo" and not child.is_file():
                     raise SystemExit(f"add-day for {site_code} is not built yet")
-                self.deadline = time.monotonic() + 2 * 140
-                done = self.py(str(child), "add-day", self.url, str(self.work), json.dumps(planned.payload()),
+                self.deadline = time.monotonic() + 2 * 140 * len(runs)
+                payload = planned.payload() if len(runs) == 1 else [r.payload() for r in runs]
+                done = self.py(str(child), "add-day", self.url, str(self.work), json.dumps(payload),
                                cwd=self.tree / "backend" / "tests", label=f"add-day-{site}")
                 line = [x for x in done.stdout.splitlines() if x.startswith('{"added"')]
                 out.update(json.loads(line[-1]) if line else {})
                 if site == "kobo" and planned.assess == "build":
                     self.drain_mini()
-            doc["days"].append(planned.payload())
+            # a filled `missing` day replaces its no-run entry (R4 FILL-1)
+            doc["days"] = [d for d in doc["days"] if not (d["site"] == site and d["day"] == planned.day
+                                                          and d["received_at"] is None)]
+            doc["days"].extend(r.payload() for r in runs)
             days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
             say(f"added {site_code} {planned.day} {planned.kind}" +
                 ("" if not planned.has_run else
@@ -669,7 +676,7 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("prepare")
     p.add_argument("--sites", default=",".join(SITES), help="development only: a subset of kobo,cold,ev")
     p.add_argument("--no-finish", action="store_true", help="development only: skip objectives/comparisons/ticks")
-    p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v1.json)")
+    p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v3.json)")
     p.add_argument("--baseline", default="b22", choices=sorted(sd.BASELINE_FROM),
                    help="b16: the owner's fallback if the rehearsal measures the whole prepare over 3 h")
     lk = sub.add_parser("links")

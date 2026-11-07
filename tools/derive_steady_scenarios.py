@@ -45,6 +45,25 @@ STEADY = {
 MILL = {"kobo-mill-midday": ("Kobo mill midday (sunny day, 06:00-18:00)", "06:00-18:00",
                              [("kobo-daytime", n) for n in range(1, 7)], "kobo-daytime")}
 MILL_LABEL = "example data, derived from kobo-daytime v2, the mill story day"
+#: DD1a2-R Q1 (owner 2026-11-07, "Start each at 6am"): each full example day starts at 06:00 from a declared state, so
+#: every 06:00 start file says so in its label and its first source line. On `kobo-mill-midday` this is comment-only:
+#: its document is what R3-R13 measured.
+DISCLOSURE_0600 = ("Example data. Each full example day starts at 06:00 from a declared battery level and fuel level. "
+                   "Battery and fuel are not carried over from the night before.")
+#: DD1a2-R Q2 (owner 2026-11-07, "Write a 'before'"): the mill's pattern before the change, AUTHORED for this story and
+#: frozen by the ruling before any product measurement; never revisited after a result. Its diff against kobo-daytime
+#: is exactly the six mill windows. window -> (parent, event id of the value in that parent).
+BEFORE_MILL = {"kobo-steady-before-mill": ("Kobo steady day, the mill's pattern before the change (06:00-18:00)",
+                                           "06:00-18:00", [("kobo-daytime", n) for n in range(1, 7)], "kobo-daytime")}
+BEFORE_MILL_LABEL = ("example data, the mill's pattern before the change (authored for this story: idle until 14:00 as "
+                     "in kobo-mini-grid-reserve-trial, afternoon as in kobo-mini-grid-evening; sun and other loads as "
+                     "kobo-daytime)")
+BEFORE_MILL_WINDOWS = {1: ("kobo-mini-grid-reserve-trial", "mill-demand-1"),
+                       2: ("kobo-mini-grid-reserve-trial", "mill-demand-1"),
+                       3: ("kobo-mini-grid-reserve-trial", "mill-demand-1"),
+                       4: ("kobo-mini-grid-reserve-trial", "mill-demand-1"),
+                       5: ("kobo-mini-grid-evening", "mill-demand-2"),
+                       6: ("kobo-mini-grid-evening", "mill-demand-3")}
 #: DD1a1-R12: the dusk files' run-start state is a measured handover at 18:00 (`HANDOVER`, probes S-dusk and M-dusk),
 #: never the evening parent's declared 42 %.
 DUSK = {"kobo-steady-dusk": "S-dusk"}
@@ -61,7 +80,6 @@ REMOVED = frozenset({"kobo-steady-afternoon"})
 #: DD-1a1 review M4: files no v2 calendar kind uses. They are held for DD-1a2 and are NOT usable until DD-1a2 probes and
 #: measures each day under the R12/R14/R15/R16 join rule (R15: the pure steady day is ONE 00:00-24:00 run).
 HELD_UNUSED = {
-    "kobo-steady-day": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
     "kobo-steady-dusk": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
     "kobo-night-late": "not used by the v2 calendar; DD-1a2's steady day is one 00:00-24:00 run (R15)",
     "kobo-night-late-after-overcast": "its handover has the generator RUNNING at the join, which R15 and R16 forbid",
@@ -104,7 +122,7 @@ DAWN_PARENTS = ("kobo-mini-grid-evening", "kobo-mini-grid-degraded-evidence", "k
                 "kobo-mini-grid-reserve-matters", "kobo-mini-grid-reserve-trial", "kobo-mini-grid-stop-60",
                 "kobo-s3-dispatch-degraded-reporting", "kobo-s3-dispatch-necessary-run")
 DAWN_STATE = ("starting-fuel", "starting-generator-state")
-NEEDS_DAWN_STATE = {"kobo-steady-day", "kobo-mill-midday"}
+NEEDS_DAWN_STATE = {"kobo-steady-day", "kobo-mill-midday", "kobo-steady-before-mill"}
 
 
 def dawn_state() -> tuple[list[dict], str]:
@@ -139,14 +157,23 @@ def _dusk_start(sid: str) -> dict | None:
     return json.loads(HANDOVER.read_text(encoding="utf-8"))["handover"].get(sid)
 
 
+def _before_mill_value(window: int) -> tuple[float, str]:
+    """The authored mill level of a window and its `# source:` citation, read from the named parent (no new number)."""
+    parent, eid = BEFORE_MILL_WINDOWS[window]
+    doc = yaml.safe_load((SCENARIOS / f"{parent}.yaml").read_text(encoding="utf-8"))
+    return (_parent_event(doc, eid)["parameters"][0]["value"],
+            f"source: config/scenarios/{parent}.yaml:{_source_line(parent, eid)} ({eid})")
+
+
 def kobo(sid: str) -> str:
-    display, hours, windows, state_parent = (STEADY | MILL)[sid]
+    display, hours, windows, state_parent = (STEADY | MILL | BEFORE_MILL)[sid]
     if sid in DUSK and _dusk_start(sid) is None:
         raise SystemExit(f"{sid}: no measured handover in {HANDOVER.name}; run tools/probe_kobo_nights.py first")
     docs = {p: yaml.safe_load((SCENARIOS / f"{p}.yaml").read_text(encoding="utf-8")) for p, _ in windows}
     docs.setdefault(state_parent, yaml.safe_load((SCENARIOS / f"{state_parent}.yaml").read_text(encoding="utf-8")))
     parents = sorted({p for p, _ in windows})
-    label = MILL_LABEL if sid in MILL else LABEL.format(parents=" and ".join(parents))
+    label = (MILL_LABEL if sid in MILL else BEFORE_MILL_LABEL if sid in BEFORE_MILL
+             else LABEL.format(parents=" and ".join(parents)))
     dawn, dawn_line = dawn_state() if sid in NEEDS_DAWN_STATE else ([], None)
     head = {
         "scenario_id": sid, "display_name": display,
@@ -174,15 +201,25 @@ def kobo(sid: str) -> str:
                            f"at 18:00 local, so the segment edge has no jump (DD1a1-R12).")
         state_note = (f"# Run-start state (public_parameters): measured by probe {entry['probe_id']} at 18:00 local "
                       f"({HANDOVER.relative_to(ROOT).as_posix()}); {entry['rounding']}")
+    if sid in BEFORE_MILL:
+        head["purpose"] = (f"{label[0].upper()}{label[1:]}. The declared healthy reference windows of kobo-daytime for "
+                           f"{hours} local time, with only the mill windows changed; no fault forcing.")
+    disclosed = sid in MILL or sid in BEFORE_MILL or sid == "kobo-steady-day"
+    if disclosed and sid not in MILL:  # the mill day's document stays as measured; only its comments carry the line
+        head["purpose"] = f"{head['purpose']} {DISCLOSURE_0600}"
     if held_note(sid):
         head["purpose"] = f"{head['purpose']} {HELD_SHORT}"
     out = [f"# DD-1a1 steady scenario, generated by tools/derive_steady_scenarios.py; do not edit by hand.",
            *([f"# HELD: {held_note(sid)}"] if held_note(sid) else []),
-           f"# label: {label}",
+           f"# label: {label}", *([f"# label: {DISCLOSURE_0600}"] if disclosed else []),
            f"# Local hours {hours} (Kobo local time, UTC+3). Two-hour windows, offsets re-based on the segment start.",
            state_note, *([dawn_line] if dawn_line else []),
            yaml.safe_dump(head, sort_keys=False, width=1000, allow_unicode=True).rstrip(), "timeline:"]
+    if disclosed:
+        out.append(f"  # source: {DISCLOSURE_0600}")
     for comment, event in window_events([(parent, n, 120 * slot) for slot, (parent, n) in enumerate(windows)], docs):
+        if sid in BEFORE_MILL and event["event_id"].startswith("mill-demand-"):
+            event["parameters"][0]["value"], comment = _before_mill_value(int(event["event_id"].rsplit("-", 1)[1]))
         out.append(f"  # {comment}")
         body = yaml.safe_dump([event], sort_keys=False, width=1000, allow_unicode=True).rstrip()
         out.extend("  " + line for line in body.splitlines())
@@ -261,6 +298,9 @@ NIGHTS = {
     "kobo-night-early-after-overcast": ("Kobo night after an overcast day (00:00-06:00)", "early", "O"),
     "kobo-night-early-from-0300": ("Kobo night (03:00-06:00)", "early-from-0300", "S"),
 }
+#: DD1a2-R "The Kobo list": the night after a `steady-before` day; start state measured at kobo-rest-before-mill's 24:00.
+BEFORE_NIGHT = "kobo-night-early-after-before-mill"
+NIGHTS[BEFORE_NIGHT] = ("Kobo night after a day before the mill change (00:00-06:00)", "early", "B")
 NIGHTS["kobo-night-early-until-0300"] = ("Kobo night (00:00-03:00)", "early-until-0300", "S")
 NIGHTS["kobo-night-early-until-0255"] = ("Kobo night (00:00-02:55)", "early-until-0255", "S")
 SPLIT_LABELS = {
@@ -280,6 +320,13 @@ STEADY_NIGHT_DISCLOSURE = (
 RESET_0600 = ("At 06:00 the next example day starts from its own declared state (battery 55 %, generator off): the "
               "battery level steps there from about 31 % at the end of this night, and a generator that was running "
               "stops, because a run cannot start with the generator running.")
+#: DD1a2-R G0, measured on the registered Site (`kobo-night-handover-v1.json`, probe B-early): this night starts from the
+#: 45 % a "before" day leaves, so it reaches the start level an hour earlier than `kobo-night-early` and reaches reserve.
+BEFORE_NIGHT_DISCLOSURE = (
+    "Example data, night profile. At about 04:00 the battery reaches the 35 % generator start level and the site starts "
+    "the generator. The battery reaches its 30 % reserve before 06:00, so the generator delivers energy and this night "
+    "uses about 1 L of fuel.")
+RESET_NIGHTS = {"kobo-night-early": RESET_0600, BEFORE_NIGHT: RESET_0600.replace("about 31 %", "about 30 %")}
 RESET_SHORT = "At 06:00 the next day starts from its own declared state (battery 55 %, generator off), so the level steps there."
 _STATE = (("starting-state-of-charge", "soc"), ("starting-fuel", "fuel"), ("starting-generator-state", "generator"))
 
@@ -293,8 +340,10 @@ def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
     doc = yaml.safe_load((SCENARIOS / f"{parent}.yaml").read_text(encoding="utf-8"))
     windows = NIGHT_WINDOWS[half]
     hours = f"{windows[0][0]}-{windows[-1][1]}"
-    cause = ("after the overcast story day (kobo-s3-dispatch-necessary-run): the start state is what that day leaves"
-             if chain == "O" else "after a steady sunny day (kobo-daytime): the start state is what that day leaves")
+    cause = {"O": "after the overcast story day (kobo-s3-dispatch-necessary-run): the start state is what that day leaves",
+             "B": ("after a day with the mill's pattern before the change (kobo-steady-before-mill): the start state is "
+                   "what that day leaves")}.get(chain, "after a steady sunny day (kobo-daytime): the start state is what "
+                                                       "that day leaves")
     params = copy.deepcopy(doc["public_parameters"])
     for item in params:
         key = dict(_STATE).get(item["parameter_id"])
@@ -302,7 +351,8 @@ def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
             item["value"] = start[key]
     head = {
         "scenario_id": sid, "display_name": display,
-        "purpose": ((STEADY_NIGHT_DISCLOSURE + " " if chain == "S" and half not in ("early-until-0300", "early-until-0255") else f"{NIGHT_LABEL[0].upper()}{NIGHT_LABEL[1:]}. ")
+        "purpose": ((STEADY_NIGHT_DISCLOSURE + " " if chain == "S" and half not in ("early-until-0300", "early-until-0255")
+                     else BEFORE_NIGHT_DISCLOSURE + " " if chain == "B" else f"{NIGHT_LABEL[0].upper()}{NIGHT_LABEL[1:]}. ")
                     + "A typical night at a rural mini-grid like Kobo, "
                     f"{hours} local time, no sun, {cause}. The loads follow a typical pattern, not a Kobo measurement; "
                     "the run-start state was measured by one probe run (kobo-night-handover-v1.json), never chosen."),
@@ -313,7 +363,7 @@ def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
     }
     if held_note(sid):
         head["purpose"] = f"{head['purpose']} {HELD_SHORT}"
-    if sid == "kobo-night-early":
+    if sid in RESET_NIGHTS:
         head["purpose"] = f"{head['purpose']} {RESET_SHORT}"
     events, comments, seq = [], [], 0
     for series in SERIES:
@@ -338,7 +388,8 @@ def night_document(sid: str, start: dict) -> tuple[dict, list[str]]:
             comments.append(f"basis: {value} {template['parameters'][0]['unit']}, {basis}. Structure: "
                             f"config/scenarios/{parent}.yaml:{_source_line(parent, f'{series}-{n}')} ({series}-{n})"
                             + (f". {STEADY_NIGHT_DISCLOSURE}" if chain == "S" and offset >= DISCLOSED_FROM[half] else "")
-                            + (f". {RESET_0600}" if sid == "kobo-night-early" and k == len(windows) else ""))
+                            + (f". {BEFORE_NIGHT_DISCLOSURE}" if chain == "B" and offset >= DISCLOSED_FROM[half] else "")
+                            + (f". {RESET_NIGHTS[sid]}" if sid in RESET_NIGHTS and k == len(windows) else ""))
     head["timeline"] = events
     return head, comments
 
@@ -351,7 +402,8 @@ def night(sid: str) -> str:
     doc, comments = night_document(sid, entry["start"])
     timeline = doc.pop("timeline")
     label = (SPLIT_LABELS[sid] if sid in SPLIT_LABELS else
-             STEADY_NIGHT_DISCLOSURE if NIGHTS[sid][2] == "S" else NIGHT_LABEL)
+             STEADY_NIGHT_DISCLOSURE if NIGHTS[sid][2] == "S" else
+             BEFORE_NIGHT_DISCLOSURE if NIGHTS[sid][2] == "B" else NIGHT_LABEL)
     out = [f"# DD1a1-R2 night scenario, generated by tools/derive_steady_scenarios.py; do not edit by hand.",
            *([f"# HELD: {held_note(sid)}"] if held_note(sid) else []),
            f"# label: {label}",
@@ -370,8 +422,11 @@ def night(sid: str) -> str:
 #: late-night windows (20-24) verbatim, so no cut falls inside a generator interval. Its start state is measured on the
 #: registered Site at the story run's end (`kobo-night-handover-v1.json`, probe M-dusk); the generator must be STOPPED
 #: at 18:00 and at 24:00 (`probe_kobo_nights.dusk`; guard `demo_story_days.check_full_day`). N, R30 and R25 days are story-only.
-CHAIN_STORY = {"M": "kobo-mill-midday"}
-REST = {"kobo-rest-mill": ("M", (4,), "18:00")}
+CHAIN_STORY = {"M": "kobo-mill-midday", "B": "kobo-steady-before-mill"}
+REST = {"kobo-rest-mill": ("M", (4,), "18:00"), "kobo-rest-before-mill": ("B", (4,), "18:00")}
+#: chain -> the words `rest_document` uses for the day it completes. "M" stays byte-equal to what R16 measured.
+REST_DAY = {"M": ("Kobo rest of day after the mill day", "the mill story day"),
+            "B": ("Kobo rest of day before the mill change", "a day with the mill's pattern before the change")}
 
 
 def rest_document(sid: str, start: dict) -> tuple[dict, list[str]]:
@@ -390,8 +445,8 @@ def rest_document(sid: str, start: dict) -> tuple[dict, list[str]]:
         event["sequence"] += first
         events.append(event); comments.append(comment)
     doc = {**night_doc, "scenario_id": sid,
-           "display_name": f"Kobo rest of day after the mill day ({at}-24:00)",
-           "purpose": (f"Example data, the rest of the day after the mill story day ({CHAIN_STORY[chain]}), {at}-24:00 "
+           "display_name": f"{REST_DAY[chain][0]} ({at}-24:00)",
+           "purpose": (f"Example data, the rest of the day after {REST_DAY[chain][1]} ({CHAIN_STORY[chain]}), {at}-24:00 "
                        f"local in one run: the declared healthy reference window of {DUSK_PARENT} for {at}-20:00, "
                        "unchanged, then the typical-night windows for 20:00-24:00 (not a Kobo measurement). The run-start "
                        "state was measured at the story run's end on the registered Site "
@@ -419,7 +474,7 @@ def rest(sid: str) -> str:
 
 
 def derive() -> dict[str, str]:
-    out = {sid: kobo(sid) for sid in STEADY | MILL if sid not in WITHDRAWN}
+    out = {sid: kobo(sid) for sid in STEADY | MILL | BEFORE_MILL if sid not in WITHDRAWN}
     if HANDOVER.exists():
         out.update({sid: night(sid) for sid in NIGHTS if sid not in WITHDRAWN})
         out.update({sid: rest(sid) for sid in REST})
