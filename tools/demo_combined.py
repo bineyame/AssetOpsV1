@@ -442,7 +442,7 @@ class Demo:
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1] + f"  [{timings[site]} s]")
         if finish:
             t0 = time.monotonic()
-            self.finish(story)
+            self.finish({**story, "days": days})
             timings["finish"] = round(time.monotonic() - t0, 1)
         manifest = {"db": self.db, "S": story["S"], "code": story["code"], "sites": story["sites"],
                     "timings_seconds": timings, "wall_seconds": round(time.monotonic() - began, 1),
