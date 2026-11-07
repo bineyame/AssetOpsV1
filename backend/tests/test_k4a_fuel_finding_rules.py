@@ -332,6 +332,53 @@ def test_a7_no_longer_supported_lines() -> None:
         "title": ft.TITLE, "no_longer": ft.NO_LONGER, "not_why": ft.NOT_WHY}
 
 
+# --- KIS-4 finish row, pure logic (§9j.9): pass and fail bodies ----------------------------------------------------
+
+
+def _kis4_body() -> tuple:
+    import demo_combined_rows as demo_rows  # tools/ is on the test PYTHONPATH
+
+    wid, fid, rid, price_rev = str(uuid4()), str(uuid4()), str(uuid4()), str(uuid4())
+    windows = {wid: {"residual_low": fmt(LOW), "residual_high": fmt(HIGH)}}
+    findings = [{"finding_id": fid, "revision_id": rid, "lifecycle": "SUPPORTED", "window_id": wid}]
+    consequence = {"finding_id": fid, "finding_revision_id": rid, "fuel_balance_window_id": wid, "state": "PRICED",
+                   "litres_low": fmt(LOW), "litres_high": fmt(HIGH), "price_value": Decimal("1.25"),
+                   "price_revision_id": price_rev, "amount_low": fmt(LOW * Fraction(5, 4)),
+                   "amount_high": fmt(HIGH * Fraction(5, 4)), "currency": "USD"}
+    prices = {wid: {"state": "PRICED", "revision_id": price_rev, "value": Decimal("1.25")}}
+    dispatch = [{"finding_id": str(uuid4()), "amount_low": "0", "amount_high": "4.12"}]
+    return demo_rows.kis4, windows, findings, consequence, prices, dispatch
+
+
+def test_kis4_passes_on_a_true_body() -> None:
+    kis4, windows, findings, consequence, prices, dispatch = _kis4_body()
+    out = kis4(windows, findings, [consequence], prices, dispatch, ["Worth about 119.57–180.43 USD"])
+    assert out["supported"] == 1 and out["priced"] == 1 and out["sums_checked"] == 3
+
+
+@pytest.mark.parametrize("mutation, match", [
+    ("litres", "litres"), ("amount", "amounts are not litres x price"), ("price", "price re-run differs"),
+    ("dispatch_cites", "cites a fuel Finding"), ("served_sum", "is a sum"), ("missing", "has no consequence")])
+def test_kis4_fails_on_each_false_body(mutation: str, match: str) -> None:
+    kis4, windows, findings, consequence, prices, dispatch = _kis4_body()
+    served: list[str] = []
+    if mutation == "litres":
+        consequence["litres_low"] = "95.7"
+    elif mutation == "amount":
+        consequence["amount_low"] = "119.625"     # from the 0.1-L display litres
+    elif mutation == "price":
+        prices[next(iter(prices))]["revision_id"] = str(uuid4())
+    elif mutation == "dispatch_cites":
+        dispatch.append({"finding_id": findings[0]["finding_id"], "amount_low": "0", "amount_high": "1"})
+    elif mutation == "served_sum":
+        total = parse_exact(consequence["amount_high"]) + Fraction("4.12")
+        served = [f"Total {Decimal(round(total * 100)) / 100:.2f} USD"]
+    elif mutation == "missing":
+        consequence["finding_revision_id"] = str(uuid4())
+    with pytest.raises(AssertionError, match=match):
+        kis4(windows, findings, [consequence], prices, dispatch, served)
+
+
 # --- A9 the evidence path no-ops on a fuel-shaped target (§9k.5) ---------------------------------------------------
 
 

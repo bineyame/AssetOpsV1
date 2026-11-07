@@ -938,6 +938,54 @@ def pv_a(ctx: Ctx) -> dict:
     return demo_rows.pv_values(summary, page, m["action"]["code"], action.get("action_code") or "ACT-001", cc, KOBO)
 
 
+KISIWA = "KISIWA-001"
+
+
+@row("KIS-4")
+def kis_4(ctx: Ctx) -> dict:
+    """DIESEL-K4a (DIESEL-1-R3j §9j.9, written by K4a, run at E3): every SUPPORTED Kisiwa fuel Finding's
+    `fuel-residual-1` litres equal its cited window's band, PRICED amounts equal litres x the stored price (whose
+    revision a re-run of `select_window_price` at the window end reproduces), no `financial_consequence_revision` row
+    cites a fuel Finding, and no stored or served amount is a sum (`demo_rows.kis4`). A dataset without the Kisiwa Site
+    (before K7 adds it) is reported as such, never as a check: K7's prepare holds Kisiwa, so at E3 the row checks."""
+    import psycopg
+
+    from assetops_backend.financials.composition import build_trial_comparison_ports
+
+    url = ctx.url.replace("+psycopg", "")
+    with psycopg.connect(url) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+        if site is None:
+            return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        t, s = site
+        cols = lambda cur: [d.name for d in cur.description]  # noqa: E731
+
+        def rows(sql: str, *p) -> list[dict]:
+            cur = c.execute(sql, p)
+            names = cols(cur)
+            return [dict(zip(names, r)) for r in cur.fetchall()]
+
+        windows = {str(r["id"]): r for r in rows("SELECT id, residual_low, residual_high, window_start, window_end "
+                                                 "FROM fuel_balance_window WHERE site_id = %s", s)}
+        findings = rows(
+            "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, "
+            "r.claim->>'fuel_balance_window_id' AS window_id FROM finding_revision r WHERE r.site_id = %s "
+            "AND r.domain = 'fuel_balance' ORDER BY r.finding_id, r.revision_no DESC", s)
+        consequences = rows("SELECT * FROM fuel_residual_consequence_revision WHERE site_id = %s", s)
+        dispatch = rows("SELECT finding_id, amount_low, amount_high FROM financial_consequence_revision "
+                        "WHERE site_id = %s", s)
+    select = build_trial_comparison_ports(ctx.url).price_selection
+    prices = {}
+    for f in findings:
+        w = windows[str(f["window_id"])]
+        p = select(t, s, w["window_start"], w["window_end"], w["window_end"])
+        prices[str(f["window_id"])] = {"state": p.state, "revision_id": p.revision_id, "value": p.value}
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
+    served = [v for node in walk(summary) for x in node.values()
+              for v in ([x] if isinstance(x, str) else x if isinstance(x, list) else []) if isinstance(v, str)]
+    return {"kisiwa": "present", **demo_rows.kis4(windows, findings, consequences, prices, dispatch, served)}
+
+
 @row("MONEY-B")
 def money_b(ctx: Ctx) -> dict:
     """R6 O16, the part readable through the served boards: the Cost headline on one steady-before and one steady

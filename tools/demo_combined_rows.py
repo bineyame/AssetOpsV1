@@ -369,6 +369,67 @@ def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_
             "sums_checked": len(sums)}
 
 
+def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: dict,
+         dispatch_consequences: list[dict], served: list[str] = ()) -> dict:
+    """KIS-4 (DIESEL-1-R3j §9j.9): the unexplained-fuel money of Kisiwa's stored fuel Findings.
+
+    `windows`: window id -> its stored row (`residual_low`/`residual_high` exact text); `findings`: each fuel Finding's
+    latest revision (`finding_id`, `revision_id`, `lifecycle`, `window_id`); `consequences`: the stored
+    `fuel_residual_consequence_revision` rows; `prices`: window id -> a re-run of `select_window_price` at
+    `known_at = window_end` (`state`, `revision_id`, `value`); `dispatch_consequences`: the Site's
+    `financial_consequence_revision` rows (`finding_id`, `amount_low`, `amount_high`); `served`: served strings.
+
+    - every SUPPORTED fuel Finding revision has one consequence whose litres equal its cited window's band exactly;
+    - PRICED amounts equal litres x the stored price value exactly, and the stored price revision equals the re-run;
+    - no `financial_consequence_revision` row has a fuel Finding's id;
+    - no stored or served amount equals (two places) the sum of a fuel amount with any dispatch `amount_high`, or of
+      two fuel amounts (never added)."""
+    from fractions import Fraction
+
+    from assetops_backend.actions.verification_rules import parse_exact
+
+    by_revision = {str(c["finding_revision_id"]): c for c in consequences}
+    supported = [f for f in findings if f["lifecycle"] == "SUPPORTED"]
+    assert supported, ("no SUPPORTED Kisiwa fuel Finding", findings)
+    fuel_amounts: list[Fraction] = []
+    for f in supported:
+        c = by_revision.get(str(f["revision_id"]))
+        assert c is not None, ("a SUPPORTED fuel Finding revision has no consequence", f)
+        w = windows[str(f["window_id"])]
+        assert str(c["fuel_balance_window_id"]) == str(f["window_id"]), ("consequence cites another window", c, f)
+        lo, hi = parse_exact(w["residual_low"]), parse_exact(w["residual_high"])
+        assert (parse_exact(c["litres_low"]), parse_exact(c["litres_high"])) == (lo, hi), ("litres", c, w)
+        if c["state"] == "PRICED":
+            value = Fraction(str(c["price_value"]))
+            assert parse_exact(c["amount_low"]) == lo * value and parse_exact(c["amount_high"]) == hi * value, (
+                "amounts are not litres x price", c)
+            again = prices[str(f["window_id"])]
+            assert (again["state"], str(again["revision_id"]), Fraction(str(again["value"]))) == (
+                "PRICED", str(c["price_revision_id"]), value), ("price re-run differs", again, c)
+            fuel_amounts += [parse_exact(c["amount_low"]), parse_exact(c["amount_high"])]
+        else:
+            assert c["amount_low"] is None and c["amount_high"] is None, ("UNPRICED with an amount", c)
+    fuel_ids = {str(f["finding_id"]) for f in findings}
+    cited = sorted({str(d["finding_id"]) for d in dispatch_consequences} & fuel_ids)
+    assert not cited, ("a financial_consequence_revision row cites a fuel Finding", cited)
+
+    def two(x) -> str:
+        return f"{Decimal(round(Fraction(x) * 100)) / 100:.2f}"
+
+    # a zero operand is no addition (dispatch PRICED-0 days store amount_high 0), so it never makes a sum
+    dispatch_high = [x for x in (parse_exact(d["amount_high"]) for d in dispatch_consequences
+                                 if d.get("amount_high") is not None) if x]
+    operands = [a for a in fuel_amounts if a]
+    sums = {two(a + b) for a in operands for b in dispatch_high}
+    sums |= {two(a + b) for i, a in enumerate(operands) for b in operands[i + 1:]}
+    stored = {two(x) for x in fuel_amounts + dispatch_high}
+    stored |= {two(parse_exact(d["amount_low"])) for d in dispatch_consequences if d.get("amount_low") is not None}
+    held = sorted((sums & stored) | {s for s in sums for text in served if s in text})
+    assert not held, ("a stored or served amount is a sum", held)
+    return {"supported": len(supported), "priced": sum(c["state"] == "PRICED" for c in consequences),
+            "sums_checked": len(sums), "served_strings": len(served)}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None
