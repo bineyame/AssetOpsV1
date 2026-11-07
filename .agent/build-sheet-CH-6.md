@@ -1042,4 +1042,102 @@ DD-1b2 F-THREADS must also report, on every shown Kobo story day, each row's sta
 
 ### Backlog
 
-**BL-26** (not demo-critical): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. **DS-1 must keep the Portfolio on those two windows.**
+**BL-26** (not demo-critical): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. **DS-1 must keep the Portfolio on those two windows.** (Premise withdrawn and BL-26 restated by CH6b3-R3.)
+
+## CH6b3-R3: the CH-6b3 review, H1, M1, M2 and the residual (Architect, Claude, 2026-11-07)
+
+Review: `.agent/review-CH-6b3.md` at `b32e77648` (REVISE). Checked against the code and `var/ch6b3r2_bundle`: **the reviewer is right.** I withdraw CH6b3-R2 step 4 and BL-26's "the week and the month agree". On the week and S windows, the claim read the thread on 31 Oct while the rows, the drawer, "Why?" and the board report what is known now.
+
+**CH-6b3: 1.3 → 2.1** (H1 0.3, M1 0.15, M2 0.25, COH rows 0.1, re-runs 0.1). All of H1, M1, M2 are **demo-critical**: they are on ST-1, the opening screen, and the plan says "The Assure card agrees with the Site rows". **They are fixed here, on this branch**, with one fresh Claude re-review. **No owner question:** the fix restores what ST-1 and ST-2 already say ("After verification the thread reads Resolved, monitoring"); only my R2 ruling and the CH-5a note (`:686-691`) said otherwise. Both are overridden.
+
+Fresh Sonnet builder: do steps 1-7 in order. **Stop rule from CH6b3-R stands:** any value below that differs, or a new COH finding, means stop and report; never tune.
+
+### Ruling on H1: the one truthful statement
+
+**The count answers: of the problems found in this window, what is their status as known now?** A window selects which problems (the existing occurrence rule, `_finding_threads`); the state is the thread's latest event visible at the request cutoff `k`.
+
+- **A fix verified on 1 Nov does count for a window ending 31 Oct,** because the problem was found in that window and it has since been confirmed.
+- **The row does not change:** Group Monitor, "Verified". The Assure headline, the drawer and "Why?" already read what is known now. That is why this is one change at the claim, not a patch to five surfaces.
+- **Rejected: reading everything as of the window's last day.** It would need Action facts, labels, placement, the Assure headline and the board's Earlier column all bound by day, and would break CO-1 and CO-3, on a window whose story is "here is the problem, and the fix that followed". **Rejected: reviewer option (b):** it keeps two statements and only words around them.
+- **What stays day-bound, on purpose:** board rows and the Site dots. On S, Kobo Optimize reads "Needs attention", with "Before the change on 1 Nov" (CO-1). That is a dated statement about that day. The presenter says so. The packet states it.
+
+### Step 1: the claim (H1, 0.3)
+
+- `backend/assetops_backend/chain/claims.py`, `counted_threads` (`:72-81`): replace `day=window_day(lo, hi, site.timezone)` with `day=LATEST_KNOWN`, a module constant `LATEST_KNOWN = date.max`, with a comment citing CH6b3-R3. `lc.state_on` then returns the last event visible at `lifecycle_cutoff(k)`. `chain_api.py:379` calls the same function, so the Protect "Why?" follows.
+- **Do not change:** `site_chain.threads_of`'s other callers, `site_parts`, `attach_threads`, `workflow_label`, `place`, `mini.py`, CO rows.
+- **Wording.** "1 confirmed on the days checked" would say the confirming happened on those days. In `chain/vocabulary.py` `COUNT_TEXT["count.verified_results"]`, the third form (CHECKED_DAYS, n >= 1) becomes `"{n} confirmed, from the days checked"`. The zero form stays. Add the inline `MOCK DEVIATION MD-CH6-8` (no mock example of this form) and register row **R708** citing `frontend/mockups/v70/index.html:296`.
+- **Tests:**
+  - `test_ch5a2b_claims.py:45` takes the new text.
+  - New L0 in `test_ch6b2_portfolio_cards.py`, on the existing fake request: (a) a VERIFIED event effective after the window's last day and known by `k` counts in `verified_results`, not `open_threads`; (b) the same event known after `k` leaves ACTION_IN_HAND; (c) a thread with no Finding occurrence in the window is not counted; (d) a later RECURRED event counts as open.
+  - CH6b2-R2 L0 case (5) (Site chain state = claim state) now holds only when no event is effective after the window's last day. Restrict it so, and say so in its comment.
+  - `test_ch5a2_contract.py:176` and its golden: if the value moves, list old → new with the event that moves it. If no later event explains it, stop.
+- **Expected on the drained polish clone (week / S / month):** `verified_results` 1/1/1; "Fixes confirmed" 1/1/1; priority Sites 2/1/2 (Cold, EV / Cold / Cold, EV); `open_threads` 3/2/3; `sites_disrupted` 2/1/2. The Assure card reads "1 confirmed, from the days checked". This replaces the CH6b3-R2 table.
+
+### Step 2: M1, one meaning for "days checked" (0.15)
+
+"Checked" means graded COMPLETE (the server `days_line`). The coverage figure counts days with an assessment, a different thing under the same word.
+- `estate/portfolio.py` `card_notes` (`:659-670`): remove the clause. Protect's note is None; Assure's is recovered value and evidence gap. Delete `checked_days_clause` and `note.checked_one`, `note.checked_many` from `chain/vocabulary.py`. Keep `summary.checked_days` on the wire. Remove those M1 cases from `test_ch6b2_portfolio_cards.py` (this overrides that part of CH6b2-R2 M1) and add a case asserting neither note holds "days checked".
+- `estate/coverage.py:37`: `DAYS_CHECKED = "{c} of {n} days assessed · {g} {unit} not available yet"`. CO-6 imports the constant, so it follows. Literal strings in `test_cov_partial_portfolio.py` or `test_w301_estate_coverage.py` take the new word (grep `days checked` in `backend/tests`).
+- `frontend/src/estate/EstatePortfolio.tsx:785`: `not checked:` becomes `not assessed:`. Update `estatePortfolio.test.tsx` at `:1314`, `:1339`, `:1352` to the new strip text. The Findings notice reads the same server text. The strip already carries MOCK DEVIATION R622, so note the word in that register row.
+
+### Step 3: M2, the estate "Why?" days are the card's days (0.25)
+
+- `chain_api.py` `_estate_why` compose: `summary = service.summary(sites, lo, hi, parsed.known_at)`; `cards = summary["cards"]`; `days_used = (cards.get(category) or {}).get("days_line") or cards[PROTECT_ASSET]["days_line"]`. (Optimize has no days line; Protect's is the Sites' days.)
+- `chain/why.py` `estate_text`: new parameter `days_used: str | None = None`; when given, it replaces the join at `:336`.
+- **"Checking 32 more days" (`would_change`):** add `open_days: int = 0` to `Trace`, set at `:249`. New `estate_text` parameter `window_open: Mapping[str, int] | None = None`, by Site name, computed in the route as `expected - complete` from `service.estate_counts(...).days`. A Site with `open_days > 0` uses `why("why.change.days", n=window_open[name], s=...)`, and is skipped when that is 0.
+- `sites[].text` and the Site "Why?" route do not change.
+- **Tests:** L0 for `estate_text` with both parameters. Route test on the existing Why postgres file: on a month window the text holds no "32", and `days_used` equals the card's `days_line`.
+- **Timing:** this adds a summary read to the route. Report the route's time on the clone, before and after, in the packet. Over the page budget: report, do not optimise here.
+
+### Step 4: why COH-17 and COH-18 passed, and the rows to add (0.1, each guards what is shown)
+
+**They passed because they were right about what they compared, and my table left these out.** Every row compared a value with itself across routes (chain, summary, board) or with its own day grades. No row compared the note with the days line on one card, the "Why?" days with the card, or a table row and the Assure text with the claim. Gap in my table, not in the builder's work.
+
+Add to `_coh17_full`, under `full_claims`, per estate window:
+
+| # | Compared | Rule |
+|---|---|---|
+| L2 | `summary.verified_result_count` vs chain `counts["count.verified_results"].value` | Equal when both are not null |
+| L3 | Distinct `thread.id` over `portfolio.{w}` rows with `workflow_label == "Verified"` vs the same claim value | Equal |
+| W3 | Why `text.days_used` vs `(cards[cat].days_line or cards.PROTECT_ASSET.days_line)` | Equal |
+| N1 | `portfolio.{w}` `summary.card_notes` values | Neither holds the text "days checked" |
+| C2 fix | Reviewer L3: a card or count key absent | Is a finding, not `{} == {}` |
+
+- **L3m:** on the `states` variant the D14 recurrence reads open, while an older row stays "Verified", so L3 may fire. Only for that cause, add `expected-mechanism.json` entries with `variants: ["states"]`, naming CH6b3-R3 and BL-07. Any other cause: stop.
+- `clean_full` has no generator in the repo: edit its JSON by hand so it passes, then one planted break per new row in `test_chain_coherence.py`.
+
+### Step 5: run the frontend tests
+
+The worktree has no `frontend/node_modules`; `AssetOpsV1-plan2\frontend` does. First compare `frontend/package-lock.json` in both; if they differ, stop and report. Then, from PowerShell:
+```
+New-Item -ItemType Junction -Path C:\Users\assef\Bineyame\AssetOpsV1-ch6b3\frontend\node_modules -Target C:\Users\assef\Bineyame\AssetOpsV1-plan2\frontend\node_modules
+```
+From `frontend`: `npx tsc --noEmit`, then `npx vitest related --run src/estate/EstatePortfolio.tsx src/estate/PortfolioOutcomes.tsx`. Remove the link with `cmd /c rmdir frontend\node_modules` (never `Remove-Item -Recurse`, which would follow it). This also closes the review's "frontend not verified", including `namesOnePrioritySiteInTheSingular`.
+
+### Step 6: re-runs
+
+1. Scoped backend: the eleven files of run 2, `test_w303_portfolio_comparison_postgres.py`, `test_ch5b_why*`, `test_ch5a2_contract.py`.
+2. A new drained polish clone as CH6b3-R2 step 2, then `demo_combined_finish.py check` is **not** required, but CO rows must not be edited. Collect and check: 0 new.
+3. L3m collect and check on the existing template (no rebuild unless `status` says `usable: false`).
+4. Guards A, W, N, V, M, L, D, one at a time.
+
+### Step 7: packet and Lows
+
+- Replace the Q4b table with step 1's values and the rule; list the Assure and Protect note text old → new; state the day-bound dot.
+- **Lows:** rename the test and fix the docstring at `test_ch6b_estate_postgres.py:158-160`. Correct "as CO-2" to **CO-1b** in the packet and in CH6b3-R2's reading.
+- Record for the walkthrough: Portfolio Cold and EV rows read "No action agreed yet" on the week, while ST-4 and ST-5 show those Actions in hand on their boards. It is outside this slice (their row cutoff, known COH-2 entries on the month). **DD-1b2 F-THREADS reports it on the combined build;** the walkthrough judges it.
+
+### Residual: the Cold failure-day board
+
+**No client link reaches it in that state, from what I can read.**
+- `tools/demo_combined.py` `story_links` opens Cold on the day's event window (`start`, `end` from `days.json`), not the local-midnight pair.
+- Portfolio Site links are the bare `overview_href` (`site_outcomes/read.py:781`), which uses the overview's default window.
+- The local-midnight pair is the collector's choice (`chain_coherence.py` `day_windows`), and I found no frontend code building it.
+- **Likely cause, not proved:** that pair does not contain the selected window, so `event_window` is None, and the composer reads the pair itself with an overview that has no settled currentness (`cold.py:138`). A presenter typing that URL would see Unknown.
+
+**Owner: DD-1b2 F-THREADS (coordinator relays, DD-1 +0).** It replaces the note in CH6b3-R2. For **all three Sites**, it reads every `story_links` board plus the bare `/sites/{code}` (and `/sites/{code}/ev`) board, reports each row's state, and fails on `PRODUCER_NOT_SETTLED` or a PARTIAL board. Making a local-midnight Cold pair settle is **BL-27** (not demo-critical).
+
+### Backlog and DS-1 (replaces the CH6b3-R2 text)
+
+- **BL-26 restated:** a window containing no occurrence of the thread (for example 1 Nov alone) reads "None confirmed", while the board's work-window count reads "1 verified result". **The week and month story links now agree, and L2 and L3 guard it.**
+- **DS-1:** the Portfolio stays on the week and month story links, for this reason only. The presenter says: "these are the problems found this week, and where they stand today."
