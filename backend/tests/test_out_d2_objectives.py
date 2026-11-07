@@ -52,7 +52,7 @@ def st(outcome, signals=(), *, objective=None, objectives_ok=True, settled=True,
 
 
 def test_policy_is_v2() -> None:
-    assert STATUS_POLICY == "outcome-status/3" and obj.POLICY == "outcome-objectives/2"
+    assert STATUS_POLICY == "outcome-status/4" and obj.POLICY == "outcome-objectives/2"
 
 
 def test_rule4c_missed_needs_attention_and_loses_only_its_reason_to_4a() -> None:
