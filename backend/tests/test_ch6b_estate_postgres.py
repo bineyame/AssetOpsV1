@@ -155,10 +155,11 @@ def test_kobo_week_days_earnings_total_and_summary_equal_chain(mech, monkeypatch
     print("CH6B1_DAYS", _record_days, "old", want_old, "money", before, after)
 
 
-def test_mg1_judged_on_checked_days_and_optimize_row_reads_act_k1_on_d13(mech, monkeypatch, tmp_path) -> None:  # noqa: F811
+def test_mg1_judged_on_checked_days_and_estate_optimize_row_equals_the_d13_board(mech, monkeypatch, tmp_path) -> None:  # noqa: F811
     """CH-6b3 (§B5 item 3, the remaining bullets; `late_fill` + `known_at` is BL-08). MG-1's verdict on the week card is
-    `judge_month` over the stored month-to-date rows, recomputed here on >= 3 COMPLETE days. The Optimize bullet is not
-    met on this data: see the note at the end and packet KD-3b."""
+    `judge_month` over the stored month-to-date rows, recomputed here on >= 3 COMPLETE days. The Optimize bullet is
+    restated (CH6b3-R2, packet KD-3b): the estate row equals the D13 board's row; on `mechanism_db()` the Performance
+    gate is closed, so the verdict itself is proved on the drained clone and by CO-1 and CO-1b."""
     import json
     from pathlib import Path
 
@@ -206,7 +207,7 @@ def test_mg1_judged_on_checked_days_and_optimize_row_reads_act_k1_on_d13(mech, m
 
     # The estate row agrees with the D13 board. On `mechanism_db()` no Performance comparison report exists, so the
     # Performance gate is closed and every Kobo row reads UNKNOWN (CH6b3-R2). The verdict is proved on the drained
-    # clone and by CO-1 and CO-2.
+    # clone and by CO-1 and CO-1b.
     row = next(r for r in board["rows"] if r["category"] == "OPTIMIZE_COST")
     assert kobo["rows"]["OPTIMIZE_COST"]["state"] == row["state"], (kobo["rows"]["OPTIMIZE_COST"], row["state"])
     print("CH6B3_L2M", kpi["value"], value, checked, row["state"], row["thread_lines"],

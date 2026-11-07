@@ -1001,7 +1001,7 @@ Packet table: for `board.day_kobo_trial-before_2026-10-31` (S), `board.day_kobo_
 **Expected:**
 - `critical_served` is not PENDING.
 - S: Optimize NEEDS_ATTENTION, `PRIMARY_FINDING_OPEN`, a thread line "Before the change", as CO-1.
-- S+1: not `PRIMARY_FINDING_OPEN`, line "Fix verified, monitoring (ACT-001)", as CO-2.
+- S+1: not `PRIMARY_FINDING_OPEN`, line "Fix verified, monitoring (ACT-001)", as CO-1b (corrected from CO-2 by CH6b3-R3).
 - COH-17 and COH-18: 0 new.
 
 **Stop and report, do not tune, if any of these happen:**
