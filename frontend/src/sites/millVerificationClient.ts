@@ -23,6 +23,20 @@ export interface MillMetricRow {
   state: string;
 }
 
+/** MV-1 (FUEL-1 §2.3): the estimated-sales line of a VERIFIED outcome; both strings are the server's. */
+export interface MillValue {
+  state: "PRICED" | "UNPRICED";
+  reason: string | null;
+  basis: string;
+  per_day: string | null;
+  before_per_day: string | null;
+  after_per_day: string | null;
+  currency: string | null;
+  price: { revision_id: string; value: string; currency: string } | null;
+  text: string;
+  cost_text: string;
+}
+
 export interface MillVerification {
   action_id: string;
   action_code: string | null;
@@ -35,6 +49,7 @@ export interface MillVerification {
   outcome: { outcome_id: string; outcome: string; recorded_at: string } | null;
   plan: { effective_day: string; baseline_days: string[]; later_days: string[] } | null;
   metrics: MillMetricRow[];
+  value: MillValue | null;
 }
 
 export type MillVerificationResult =
@@ -77,7 +92,14 @@ export function parseMillVerification(v: unknown): MillVerification | null {
   if (!text(v.sentence) || !text(v.line) || !text(v.not_judged_text) || !text(v.title ?? null)) return null;
   if (!Array.isArray(v.reasons) || !v.reasons.every((r) => typeof r === "string")) return null;
   if (!Array.isArray(v.metrics) || !v.metrics.every(metricRow)) return null;
-  return v as unknown as MillVerification;
+  const value = v.value ?? null;
+  if (value !== null && !millValue(value)) return null;
+  return { ...v, value } as unknown as MillVerification;
+}
+
+/** MV-1: absent or null reads as null; an object needs string `text` and `cost_text`. */
+function millValue(v: unknown): v is MillValue {
+  return isObject(v) && (v.state === "PRICED" || v.state === "UNPRICED") && typeof v.text === "string" && typeof v.cost_text === "string";
 }
 
 export function createMillVerificationClient(basePath: string = SITES_API_PATH): MillVerificationClient {

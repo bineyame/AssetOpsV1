@@ -6,6 +6,11 @@
  *
  * MOCK DEVIATION D1 (R700, MD-CH9b-1): v70 has no mill verdict page. The page, its "Target met" headline, the
  * not-judged line and the table are new; see `.agent/review-packet-CH-9b3.md` "Mock to new".
+ *
+ * MOCK DEVIATION MD-FUEL-MV1-1 (MV-1, FUEL-1 §2.3): v70 has no mill verdict page (D1, R700). The value line
+ * ("About … USD a day more in estimated sales …") and the cost line are new. The page shows a single basis
+ * (estimated sales at the declared price), so the v69 rule "lines with different bases are not added together"
+ * (v69 `:482`) holds. Both strings are the server's (`verification_families.mill_value`); the browser formats none.
  */
 import { useEffect, useState } from "react";
 
@@ -80,6 +85,12 @@ export function MillVerificationPanel({ body }: { body: MillVerification }) {
             {l}
           </p>
         ))}
+      {body.value === null ? null : (
+        <>
+          <p data-mill-value={body.value.state}>{body.value.text}</p>
+          <p data-mill-cost>{body.value.cost_text}</p>
+        </>
+      )}
       {body.metrics.length === 0 ? null : (
         <DataTable labelledBy={MILL_PANEL_HEADING_ID}>
           <thead>

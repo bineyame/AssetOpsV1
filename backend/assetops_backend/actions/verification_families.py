@@ -24,9 +24,10 @@ The mill plan (R2, CH9b2-R Q2-Q7, Q9):
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
-from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_HALF_UP, ROUND_UP, Decimal, InvalidOperation
 from typing import Any, Mapping, Sequence
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
@@ -37,6 +38,9 @@ from assetops_backend.actions.lifecycle import SYSTEM_DEMO
 from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.chain.grading import COMPLETE, NO_DATA
 from assetops_backend.chain.reader import _day_grade
+from assetops_backend.chain.vocabulary import money2
+
+LOG = logging.getLogger(__name__)
 
 RESERVE = "reserve-trial-1"
 MIDDAY = "midday-productive-shift-1"
@@ -231,6 +235,18 @@ VERIFIED_TEXT = "Midday use rose by at least the declared 10% on fully checked d
 #: R7 (CH9b3-R Q7): the before/after line of a judged outcome.
 R7_TEXT = "Midday use before and after the change: {b} → {a} kWh a day on {n} fully checked days each"
 CENT = Decimal("0.01")
+#: MV-1 (FUEL-1 §2): the mill value line of a VERIFIED outcome. The arithmetic uses the SHOWN means and the shown
+#: price, so the line reproduces by hand.
+VALUE_BASIS = "ESTIMATED_SALES_AT_DECLARED_PRICE"
+VALUE_TEXT = ("About {d} {cur} a day more in estimated sales to productive users: ({a} − {b}) kWh a day × your "
+              "declared {p} {cur} per kWh, on {n} fully checked days before and after the change")
+VALUE_COST_TEXT = "No cost is recorded for this change"
+VALUE_UNPRICED_TEXT = "No sales estimate: {why}"
+VALUE_UNPRICED_WHY = {
+    "NO_PRICE": "no price per kWh is declared for productive users",
+    "PRICE_SPANS_WINDOW": "the declared price per kWh changed between the two periods",
+}
+VALUE_UNPRICED_OTHER = "the declared price per kWh could not be read"
 
 
 def day_kwh(rows: Sequence[Any], days: Sequence[date]) -> dict[date, Decimal | None]:
@@ -381,13 +397,52 @@ def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: dateti
     return outcome, metrics
 
 
+def _price_text(value: Any) -> str | None:
+    """MV-1: a private copy of `site_outcomes.mini.price_text` (`actions` never imports `site_outcomes`; a parity
+    test pins the two): two decimal places, more only when the stored value has them."""
+    try:
+        d = Decimal(str(value))
+    except InvalidOperation:
+        return None
+    cents = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return f"{cents:f}" if cents == d else f"{d.normalize():f}"
+
+
+def mill_value(details: Mapping[str, Any], outcome: str, price: Any) -> dict[str, Any] | None:
+    """MV-1 (FUEL-1 §2.2(e)): the estimated-sales value line of a VERIFIED outcome, from the stored shown means and
+    the declared productive-use price (`PriceSelection`); None for any other outcome. Pure."""
+    if outcome != VERIFIED:
+        return None
+    b, a = details["baseline"].get("mean_kwh_per_day"), details["later"].get("mean_kwh_per_day")
+    nb, nl = len(details["baseline"]["days"]), len(details["later"]["days"])
+    if a is None or b is None or Decimal(a) <= Decimal(b) or nb != MIN_DAYS or nl != MIN_DAYS:
+        LOG.warning("mill value withheld: VERIFIED outcome with means %s -> %s on %s/%s days", b, a, nb, nl)
+        return None
+    if price is None or price.state != "PRICED" or price.value is None:
+        reason = None if price is None else price.reason
+        why = VALUE_UNPRICED_WHY.get(reason, VALUE_UNPRICED_OTHER)
+        return {"state": "UNPRICED", "reason": reason or "PRICE_UNREADABLE", "basis": VALUE_BASIS, "per_day": None,
+                "before_per_day": None, "after_per_day": None, "currency": None, "price": None,
+                "text": VALUE_UNPRICED_TEXT.format(why=why), "cost_text": VALUE_COST_TEXT}
+    p = Decimal(str(price.value))
+    p_txt = _price_text(price.value)
+    per_day = money2((Decimal(a) - Decimal(b)) * p)
+    before, after = money2(Decimal(b) * p), money2(Decimal(a) * p)
+    return {"state": "PRICED", "reason": None, "basis": VALUE_BASIS, "per_day": per_day, "before_per_day": before,
+            "after_per_day": after, "currency": price.currency,
+            "price": {"revision_id": price.revision_id, "value": p_txt, "currency": price.currency},
+            "text": VALUE_TEXT.format(d=per_day, cur=price.currency, a=a, b=b, p=p_txt, n=nl),
+            "cost_text": VALUE_COST_TEXT}
+
+
 def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
-                 live: Mapping[str, Any] | None) -> dict[str, Any]:
+                 live: Mapping[str, Any] | None, price: Any = None) -> dict[str, Any]:
     """CH9b3-R Q5-Q7: the mill verdict read. A stored outcome is read back, never recomputed; with none, the live
-    `assess` result (`live`) gives the not-judged text. Never a cost check or trial hours (null)."""
+    `assess` result (`live`) gives the not-judged text. Never a cost check or trial hours (null). MV-1: `value` is
+    the estimated-sales line of a VERIFIED outcome at `price` (`mill_value`), else null."""
     action, plan = ctx["action"], ctx["plan"]
     head = {"action_id": str(action["id"]), "action_code": action.get("action_code"), "title": action.get("title"),
-            "rule_id": MIDDAY, "target": TARGET, "cost_check": None, "trial_hours": None}
+            "rule_id": MIDDAY, "target": TARGET, "cost_check": None, "trial_hours": None, "value": None}
     if plan is None:
         return {**head, "state": "NO_PLAN", "outcome": None, "reasons": [], "sentence": None, "line": None,
                 "not_judged_text": None, "plan": None, "metrics": []}
@@ -403,6 +458,7 @@ def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
                    threshold=d.get("threshold_kwh_per_day"), days_before=len(d["baseline"]["days"]),
                    days_after=len(d["later"]["days"]), state=cmp.get("state", "UNKNOWN"))
         recorded = o["recorded_at"]
+        head["value"] = mill_value(d, o["outcome"], price)
         return {**head, "state": o["outcome"], "reasons": list(o["reasons"]), "sentence": d.get("sentence"),
                 "line": d.get("line"), "not_judged_text": None,
                 "outcome": {"outcome_id": str(o["id"]), "outcome": o["outcome"], "reasons": list(o["reasons"]),

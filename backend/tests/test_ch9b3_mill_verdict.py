@@ -171,3 +171,105 @@ def test_summary_wire_reads_the_stored_outcome_and_the_not_judged_state() -> Non
     assert waiting["state"] == "NOT_JUDGED" and waiting["outcome"] is None
     assert waiting["not_judged_text"] == "Not judged yet: only 1 of 3 fully checked days after the change"
     assert vf.summary_wire({**ctx, "plan": None}, [], None)["state"] == "NO_PLAN"
+    # MV-1 test 5: every state carries `value` (null here), and the pre-existing keys keep their order
+    keys = ["action_id", "action_code", "title", "rule_id", "target", "cost_check", "trial_hours", "value", "state"]
+    no_plan = vf.summary_wire({**ctx, "plan": None}, [], None)
+    for b in (body, waiting, no_plan):
+        assert "value" in b and b["value"] is None and list(b)[:len(keys)] == keys
+    assert list(body)[len(keys):] == ["reasons", "sentence", "line", "not_judged_text", "outcome", "plan", "metrics"]
+    assert list(no_plan)[len(keys):] == ["outcome", "reasons", "sentence", "line", "not_judged_text", "plan",
+                                         "metrics"]
+
+
+# ---- MV-1 (FUEL-1 §2.4): the mill value line ----------------------------------------------------------------------
+
+def _price(value="0.25", state="PRICED", reason=None, currency="USD"):
+    from assetops_backend.financials.fuel_cost import PriceSelection
+
+    if state != "PRICED":
+        return PriceSelection(state, reason)
+    return PriceSelection("PRICED", None, "rev-1", Decimal(value), currency)
+
+
+def _details(b="42.00", a="110.00", nb=3, nl=3):
+    return {"baseline": {"days": [f"2026-10-0{i + 1}" for i in range(nb)], "mean_kwh_per_day": b},
+            "later": {"days": [f"2026-10-1{i + 1}" for i in range(nl)], "mean_kwh_per_day": a}}
+
+
+def _cents(x: Decimal) -> str:
+    from decimal import ROUND_HALF_EVEN
+
+    q = abs(x).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    return f"-{q:f}" if x < 0 and q != 0 else f"{q:f}"
+
+
+def test_verified_priced_value_reads_the_shown_means_times_the_declared_price() -> None:
+    a, b, p = "110.00", "42.00", "0.25"
+    v = vf.mill_value(_details(b, a), "VERIFIED", _price(p))
+    d = _cents((Decimal(a) - Decimal(b)) * Decimal(p))
+    assert v["state"] == "PRICED" and v["reason"] is None and v["basis"] == vf.VALUE_BASIS
+    assert (v["per_day"], v["before_per_day"], v["after_per_day"]) == ("17.00", "10.50", "27.50")
+    assert v["per_day"] == d and v["currency"] == "USD"
+    assert v["price"] == {"revision_id": "rev-1", "value": "0.25", "currency": "USD"}
+    assert v["text"] == vf.VALUE_TEXT.format(d=d, cur="USD", a=a, b=b, p=p, n=3)
+    assert v["cost_text"] == vf.VALUE_COST_TEXT
+
+
+def test_value_reproduces_by_hand_over_a_grid_of_means_and_prices() -> None:
+    from decimal import ROUND_HALF_EVEN
+
+    means = ["0.01", "41.99", "42.00", "110.00", "109.99"]
+    for b in means:
+        for a in means:
+            if Decimal(a) <= Decimal(b):
+                continue
+            for p in ("0.25", "0.255", "1", "0.1"):
+                v = vf.mill_value(_details(b, a), "VERIFIED", _price(p))
+                want = ((Decimal(a) - Decimal(b)) * Decimal(p)).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+                assert Decimal(v["per_day"]) == want, (a, b, p, v["per_day"])
+                assert Decimal(v["before_per_day"]) == (Decimal(b) * Decimal(p)).quantize(
+                    Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+
+
+def test_unpriced_value_names_why_and_keeps_the_cost_line() -> None:
+    cases = [(_price(state="UNPRICED", reason="NO_PRICE"), "NO_PRICE", vf.VALUE_UNPRICED_WHY["NO_PRICE"]),
+             (_price(state="UNPRICED", reason="PRICE_SPANS_WINDOW"), "PRICE_SPANS_WINDOW",
+              vf.VALUE_UNPRICED_WHY["PRICE_SPANS_WINDOW"]),
+             (_price(state="UNPRICED", reason="PRICE_CONFLICT"), "PRICE_CONFLICT", vf.VALUE_UNPRICED_OTHER),
+             (None, "PRICE_UNREADABLE", vf.VALUE_UNPRICED_OTHER)]
+    for price, reason, why in cases:
+        v = vf.mill_value(_details(), "VERIFIED", price)
+        assert v["state"] == "UNPRICED" and v["reason"] == reason, (reason, v)
+        assert v["per_day"] is None and v["before_per_day"] is None and v["after_per_day"] is None
+        assert v["price"] is None and v["currency"] is None
+        assert v["text"] == vf.VALUE_UNPRICED_TEXT.format(why=why) and v["cost_text"] == vf.VALUE_COST_TEXT
+
+
+def test_value_is_null_for_every_other_state_and_for_a_guarded_verified() -> None:
+    for outcome in ("INEFFECTIVE", "INCONCLUSIVE"):
+        assert vf.mill_value(_details(), outcome, _price()) is None
+    for bad in (_details("42.00", "42.00"), _details("42.00", "41.00"), _details(a=None), _details(nl=2)):
+        assert vf.mill_value(bad, "VERIFIED", _price()) is None
+    p = plan()
+    ctx = {"action": {"id": p["domain_action_id"], "action_code": "ACT-9", "title": "t"}, "plan": p}
+    for kwh, state in (("12", "VERIFIED"), ("9", "INEFFECTIVE")):
+        result = {**vf.assess(p, baseline() + later(1, 2, 3, kwh=kwh), TODAY), "pins": [], "today": TODAY}
+        outcome, metrics = vf.outcome_rows(p, result, NOW)
+        body = vf.summary_wire(ctx, [{**outcome, "metrics": metrics}], None, price=_price())
+        assert body["state"] == state
+        assert (body["value"] is None) == (state != "VERIFIED")
+        if state == "VERIFIED":  # 10.00 -> 12.00 at 0.25: 0.50 a day
+            assert body["value"]["per_day"] == "0.50"
+    zero = {**vf.assess(p, baseline("0") + later(1, 2, 3, kwh="0"), TODAY), "pins": [], "today": TODAY}
+    outcome, metrics = vf.outcome_rows(p, zero, NOW)
+    assert vf.summary_wire(ctx, [{**outcome, "metrics": metrics}], None, price=_price())["value"] is None
+    live = vf.assess(p, baseline() + later(1), TODAY)
+    assert vf.summary_wire(ctx, [], live, price=_price())["value"] is None
+    assert vf.summary_wire({**ctx, "plan": None}, [], None, price=_price())["value"] is None
+
+
+def test_price_text_matches_the_site_outcomes_rule() -> None:
+    from assetops_backend.site_outcomes.mini import price_text
+
+    for v in ("0.25", "0.255", "1", "0.1", "12.5"):
+        assert vf._price_text(v) == price_text(v), v

@@ -438,7 +438,8 @@ NOT_EVALUATED = PriceSelection("NOT_EVALUATED", "QUANTITY_UNAVAILABLE")
 
 
 def select_window_price(assignments: Sequence[dict[str, Any]], revisions: dict[Any, dict[str, Any]],
-                        window_start: datetime, window_end: datetime) -> PriceSelection:
+                        window_start: datetime, window_end: datetime, *, key: str = PRICE_KEY,
+                        unit: str = PRICE_UNIT) -> PriceSelection:
     """One Site price valid for the entire `[window_start, window_end)`, from the assignments known at the
     selected recorded cutoff. Never partitions the window and never takes the current price for old time."""
     hits = [a for a in assignments if _overlaps(a["valid_from"], a["valid_to"], window_start, window_end)]
@@ -455,7 +456,7 @@ def select_window_price(assignments: Sequence[dict[str, Any]], revisions: dict[A
     rev = revisions.get(a["revision_id"])
     if rev is None:
         return PriceSelection("UNPRICED", "PRICE_REVISION_MISSING", considered=seen)
-    if rev.get("assumption_key", PRICE_KEY) != PRICE_KEY or rev.get("unit") != PRICE_UNIT:
+    if rev.get("assumption_key", key) != key or rev.get("unit") != unit:
         return PriceSelection("UNPRICED", "PRICE_UNIT_MISMATCH", considered=seen)
     value = _decimal(None if rev.get("value") is None else str(rev["value"]))
     if value is None or value < 0 or not isinstance(rev.get("currency"), str) or len(rev["currency"]) != 3:

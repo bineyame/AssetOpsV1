@@ -794,6 +794,18 @@ def mill3(ctx: Ctx) -> dict:
             "plan": plan}
 
 
+@row("MILL-3b")
+def mill3b(ctx: Ctx) -> dict:
+    """MV-1 (FUEL-1 §2.4): the same verification page carries the PRICED mill value; per_day is recomputed from the
+    page's shown means and the v1 productive-use price fixture, never typed; the text and the cost line are the
+    backend constants."""
+    m = _mill(ctx)
+    page = ctx.get(f"/api/sites/{KOBO}/domain-work/actions/{m['action']['id']}/verification")
+    price = demo_rows.productive_price_v1(Path(__file__).resolve().parents[1] / "backend" / "conversions"
+                                          / "demo-productive-price-publications.json")
+    return demo_rows.mill_value_page(page, price)
+
+
 @row("F-THREADS")
 def f_threads(ctx: Ctx) -> dict:
     """R6 O5 / Q10: the mill Action's wire ref is DOMAIN_VERDICT with the verification page path and state VERIFIED;
