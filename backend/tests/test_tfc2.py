@@ -178,6 +178,10 @@ def test_window_idle_seconds_exclude_the_stop_slot():
     end_stopped = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",
                                                       unit="state")]
     assert s6.evidence(end_stopped)["generator_idle_seconds"] == 3300
+    # K3 review L1 (DIESEL-K4a §9j.8 A8): FAILED at the window end is a stop marker too (NOT_RUNNING_STATES)
+    end_failed = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "FAILED",
+                                                     unit="state")]
+    assert s6.evidence(end_failed)["generator_idle_seconds"] == 3300
     assert s6.evidence(_states(zero, running))["generator_idle_seconds"] == 3600  # no end sample: unchanged
     # a non-GOOD end sample is not a positive stop marker: the last slot stays idle
     suspect_end = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",

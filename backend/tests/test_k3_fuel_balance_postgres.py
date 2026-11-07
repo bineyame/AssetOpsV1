@@ -184,7 +184,8 @@ def test_b1_single_alembic_head(engine) -> None:  # noqa: F811
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [MIGRATION] == [alembic_head()] and head(engine) == MIGRATION
+    # DIESEL-K4a (§9j.8 B6): head-agnostic head bookkeeping; 0055 is no longer the head.
+    assert script.get_heads() == [alembic_head()] and head(engine) == alembic_head()
     assert script.get_revision(MIGRATION).down_revision == PREVIOUS
 
 
@@ -210,7 +211,7 @@ def test_b1_migration_up_down_up_on_empty_table(store, engine) -> None:  # noqa:
         assert head(engine) == PREVIOUS and shape(engine) == ((), {}, {}, ())
         command.upgrade(config, "head")
     finally:
-        if head(engine) != MIGRATION:
+        if head(engine) != alembic_head():
             command.upgrade(config, "head")
     assert shape(engine) == up
 
@@ -230,9 +231,9 @@ def test_b1_downgrade_refused_with_a_row_and_rows_are_immutable(kobo, engine) ->
         with pytest.raises(RuntimeError, match=REFUSED):
             command.downgrade(config, PREVIOUS)
     finally:
-        if head(engine) != MIGRATION:
+        if head(engine) != alembic_head():
             command.upgrade(config, "head")
-    assert head(engine) == MIGRATION and kobo.count() == 1
+    assert head(engine) == alembic_head() and kobo.count() == 1
 
 
 def test_b1_checks_hold_below_the_service(kobo, engine) -> None:  # noqa: F811
