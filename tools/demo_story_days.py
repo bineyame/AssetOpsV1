@@ -461,6 +461,11 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
     if offset < -BOARD_WINDOW_DAYS:
         raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{site} {date} is earlier than S-{BOARD_WINDOW_DAYS}d")
     check_mill_side(days_doc, site, kind, offset)
+    if site == "kobo" and kinds[kind].get("complement"):
+        after = next((r for r in mine if r.kind == "trial-after"), None)
+        if after is not None and offset == after.offset + 1:
+            raise StoryDaysError("FULL_DAY_AFTER_TRIAL", f"{site} {date}: a full day here starts its night inside the "
+                                 f"trial's later day and takes the trial off Verified; use --kind normal (DD1a2-R3)")
     if site == "kobo" and any(r.kind == "late" and abs(r.offset - offset) == 1 for r in mine):
         # DD1a2-R Q4: `resolve` refuses this in a calendar (DD1a1-R8); add-day would skip it by minting its own epoch
         raise StoryDaysError("LATE_IN_STREAM", f"{site} {date} is next to a late day; a late day may not join a "

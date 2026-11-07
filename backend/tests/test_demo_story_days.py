@@ -792,3 +792,20 @@ def test_v3_weekday_bound_site_assertions_on_seven_consecutive_s(step):
             assert s + timedelta(days=n - 7) < date <= s + timedelta(days=n), (site, e, x)
             assert x.offset == sd.weekday_offset(site, s, n), (site, e, x)
             assert x.kind == e["kind"], (site, e, x)
+
+
+def test_r3_a_full_day_straight_after_the_trial_is_refused_and_only_there():
+    """DD1a2-R3 H1: `steady` on S+2 (the trial-after day is S+1) takes ACT-K1 off Verified; `normal` there and
+    `steady` from S+3 on do not. The refusal fires in `plan_add_day`, before any provisioning."""
+    doc = sd.load()
+    current = sd.resolve(doc, S, db_now=S + timedelta(days=10), installs=INSTALLS)
+    after = next(r for r in current if r.site == "kobo" and r.kind == "trial-after")
+    assert after.offset == 1
+    later = S + timedelta(days=10)
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_runs(doc, current, "kobo", "steady", S, later, day="S+2d", installs=INSTALLS)
+    assert err.value.error_code == "FULL_DAY_AFTER_TRIAL" and "--kind normal" in str(err.value)
+    assert len(sd.plan_add_runs(doc, current, "kobo", "normal", S, later, day="S+2d", installs=INSTALLS)) == 1
+    assert len(sd.plan_add_runs(doc, current, "kobo", "steady", S, later, day="S+3d", installs=INSTALLS)) == 3
+    assert len(sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, later, day="S-10d",
+                                installs=INSTALLS)) == 3
