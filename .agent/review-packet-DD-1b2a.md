@@ -1,4 +1,4 @@
-# Review packet DD-1b2a: the mill step (current: reviewed FIX, fix round 1 applied; awaiting the Architect's rulings on H1 and M1)
+# Review packet DD-1b2a: the mill step (current: reviewed FIX, fix round 1 applied, H1 and M1 ruled in DD1b2-R5, coordinator-verified for merge)
 
 Branch `task/DD-1b2-finish-rehearsal`. Rulings: DD1b2-R, R2, R3 and R4 in `build-sheet-DD-1.md`; owner answer "Leave it" (option (a)) in `.agent/owner-grow-size-2026-11-07.md`; review `.agent/review-DD-1b2a.md` (verdict FIX: H1, M1, Lows). Fix round 1 changed no product code; it added the M3 measurement and these corrections. **Nothing here is closed that the Architect has not ruled on:** see "Fix round 1" at the end. Evidence: `.agent/DD-1b2a-probe.json` (first probe, kept), `.agent/DD-1b2a-m0.json`, `.agent/DD-1b2a-m1.json`, `.agent/DD-1b2a-probe-2.json` (+ `-seam.json`). **MEASURED** is a stored row or a run; **READ** is code reading.
 
@@ -153,7 +153,7 @@ Not run: full backend suite, `check-all`, guards, prepare, baseline, `test_demo_
 
 Method: `CREATE DATABASE assetops_demo3_dd1b2r_test TEMPLATE assetops_demo3_dd1b2q_test` plus a copy of the work folder (`var/demo3_dd1b2r`), the same way `dd1b2q` was cloned from `dd1b2p`. **Deviation:** `tools/chain_clone.py` cannot do this: its source is the fixed constant `assetops_polish_full_test` and its target must match `assetops_chainclone_*_test`, so it was not used. `dd1b2q` was untouched (no session on it at clone time). Tool: new `tools/dd1b2a_m3.py` (reuses `dd1b2a_probe.py` `sample`/`boards`; one add-day, then ticks until pending and dirty are 0, max 4). Evidence `.agent/DD-1b2a-m3.json`. Code: this worktree HEAD (mill tool equals HEAD).
 
-Adds, in whole-v3-list order and kinds: **S-3** = `late` as `normal` (2026-11-02), then **S-1** = `normal` (2026-11-04). Neither was refused. Each was `assess: tick` (a serve tick assesses it). One tick after each add drained it (pending 1,234 to 0, dirty 0).
+Adds, in whole-v3-list order and kinds: **S-3** = `late` as `normal` (2026-11-02), then **S-1** = `normal` (2026-11-04). Neither was refused. Each was `assess: tick` (a serve tick assesses it). One tick after each add cleared events and snapshots (pending 1,234 to 0, dirty 0). **Corrected (coordinator, from `.agent/DD-1b2-addday-renewable-diagnosis.md`, MEASURED): the mini assessment jobs were NOT drained.** Each add enqueued 34 mini jobs, the tick runs at most 10 per Site, and 48 stay `PENDING`; S-3 and S-1 got 0 spare-solar assessments, so no study ending there could be queued.
 
 | Row | Result (MEASURED) |
 |---|---|
@@ -165,7 +165,7 @@ Adds, in whole-v3-list order and kinds: **S-3** = `late` as `normal` (2026-11-02
 | "Seen again" | **0 hits** in the whole file (boards S-15, S-11, S-8, S-5, S-1, S+0, S+1 and the Portfolio Kobo summary). "Checked and working" and "Target met": 0 hits too (the file samples the Grow rows; the Assure row and thread page were not sampled, as in M1) |
 | COH-17 | **Not run.** It is a check in `tools/checks/chain_coherence.py` over collected estate bundles (a guard); guards are off-limits while `check-all` runs. Not measured |
 
-**Differs from a whole-list build:** (1) S-28 and S-21 (the whole list's first two entries) are not on this clone; (2) the added days came after the mill step on an already-built, ticked clone and were assessed by serve ticks, not built by the prepare's day passes before the mill; (3) S-3 and S-1 were delivered at real time on 2026-11-07, not on their authored 12:00/12:30 offsets; (4) Kobo-only, no objectives; (5) one tick each, drained. A whole-list build could still behave differently on any of these. **So the "no recurrence" result now has a second measurement, on the added-day path, and agrees with the first.** It is not proof for a whole-list build; the review's READ (recurrence expected) was not borne out here, and the reason was not found. This is a result for the Architect: Q7's "does not recur" column fits the evidence on both measured paths, but R4 section 4's reasoning ("later studies have 0 eligible") was not the true cause on the whole list, and DD-1b2b's three-Site build is where it is finally measured.
+**Differs from a whole-list build:** (1) S-28 and S-21 (the whole list's first two entries) are not on this clone; (2) the added days came after the mill step on an already-built, ticked clone and were assessed by serve ticks, not built by the prepare's day passes before the mill; (3) S-3 and S-1 were delivered at real time on 2026-11-07, not on their authored 12:00/12:30 offsets; (4) Kobo-only, no objectives; (5) one tick each, drained. A whole-list build could still behave differently on any of these. **Corrected (coordinator): M3 did not test recurrence** (DD1b2-R5; the spare-solar jobs for S-3 and S-1 never ran, see above), so the sentence that follows is withdrawn. ~~So the "no recurrence" result now has a second measurement, on the added-day path, and agrees with the first.~~ It is not proof for a whole-list build; the review's READ (recurrence expected) was not borne out here, and the reason was not found. This is a result for the Architect: Q7's "does not recur" column fits the evidence on both measured paths, but R4 section 4's reasoning ("later studies have 0 eligible") was not the true cause on the whole list, and DD-1b2b's three-Site build is where it is finally measured.
 
 ### Corrections made in this packet (the Architect has not ruled on H1 and M1)
 
@@ -177,12 +177,12 @@ H1 (probe list only; whole list READ, plus M3 above), M1 (the reviewer's table, 
 |---|---|
 | P1 | As ruled under (a): LIMITED, eligible 5, accepted (owner "Leave it") |
 | P2, P3, P4, P5 | Pass (R3 results above). P5 held again through the M3 adds |
-| P6 | Probe list: matches "does not recur". Whole list: M3 above, also no recurrence on the added-day path. **Q7's wording for the Architect to rule; not closed here** |
-| P7 | 0 pending; dirty 31 outstanding after the probe's two ticks (L1); dirty 0 after M3's ticks |
+| P6 | Probe list: matches "does not recur". Whole list: **open**; M3 did not test it (spare-solar jobs pending). DD1b2-R5 restores both Q7 columns and lists what the rehearsal measures |
+| P7 | 0 pending events; dirty 31 outstanding after the probe's two ticks (L1); after M3's ticks dirty 0 but 48 mini jobs `PENDING` (the tick's `deferred` is the number to wait on) |
 | P8 | Report-only, done |
 | Items 11, 12, BL-43, BL-44 | **Not closed here.** The coordinator records BL-43 and BL-44 (R4 section 6); items 11 and 12 and the Q7 captures need the full rehearsal (DD-1b2b) and the Architect |
-| H1 (corrected, Architect to restore Q7's two columns) | Packet corrected; ruling open |
-| M1 (Architect to rule: Work to verdict page as a script line, or wiring) | Packet corrected; ruling open |
+| H1 | Ruled, DD1b2-R5: R4 section 4 withdrawn, Q7's two columns restored, measurements and outcome table owed to DD-1b2b |
+| M1 | Ruled, DD1b2-R5; owner chose "Fix link, use route" (`.agent/owner-mill-route-2026-11-07.md`): the thread link fix and script route go to DD-1b2b; boards wiring is BL-45 |
 | L5 | Open, for the rehearsal |
 
 Unproved until DD-1b2b: as listed in the review (the mill tail as one first pass inside `prepare`, three Sites, S-28/S-21, objectives, R8 drain, "Target met" in a browser, time and memory).
@@ -191,4 +191,11 @@ DBs kept: `assetops_demo3_dd1b2p_test`, `assetops_demo3_dd1b2q_test` (untouched 
 
 ## User review
 
-The owner answered the R4 question ("Leave it"). The unit goes to the Architect for H1 and M1 rulings, then a re-review by a fresh Claude reviewer.
+The owner answered the R4 question ("Leave it") and the R5 question ("Fix link, use route"). DD1b2-R5 rules that DD-1b2a merges after these packet corrections on coordinator verification, without a re-review (the code was found sound; the changes are paper only), on condition that the two guards that could not run in this worktree run on main straight after the merge.
+
+## Coordinator verification (2026-11-07)
+
+- H1 and M1 corrections present (P6, H1, M1 rows and the reviewer's table); L1, L3, L4, L6, L7 applied; L5 stated open.
+- M3's "drained" and "agrees with the first" corrected from the add-day diagnosis (`.agent/DD-1b2-addday-renewable-diagnosis.md`, commit `8a018b154`).
+- Guards on this branch: 15 of 17 pass; the missing-claim orphan scan and its fixtures fail with `MODULE_NOT_FOUND` because this worktree has no `frontend/node_modules`. No frontend or `tools/checks` file is in the branch diff. Both run on main after the merge.
+- Owed to DD-1b2b, added to its list by DD1b2-R5 and the diagnosis: tick to `deferred = 0` (or `--assess-now`) after every add, including the live S+2 add, before reading spare-solar results; the diagnosis's option A is to be ruled by DD-1b2b's fresh Architect.
