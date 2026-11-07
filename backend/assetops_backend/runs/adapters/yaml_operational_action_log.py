@@ -21,7 +21,7 @@ from pathlib import Path
 
 import yaml
 
-from assetops_backend.runs.adapters.yaml_run_documents import CSafeLoader
+from assetops_backend.runs.adapters.yaml_run_documents import load_yaml_text
 from assetops_backend.runs.ports import (
     OperationalActionLogSource,
     OperationalActionLogUnavailable,
@@ -55,7 +55,7 @@ class YamlOperationalActionLog:
             raise OperationalActionLogUnavailable(
                 f"Operational-action log {name} could not be read: there is no such log version.") from error
         try:
-            document = yaml.load(text, Loader=CSafeLoader)
+            document = load_yaml_text(text)
         except yaml.YAMLError as error:
             raise OperationalActionLogUnavailable(f"Operational-action log {name} is not valid YAML.") from error
         if not isinstance(document, dict):

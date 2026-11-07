@@ -198,25 +198,25 @@ class _NoTemplates:
 
 def test_the_lab_api_freezes_and_reads_back_the_operational_action(registered_store) -> None:
     """Test 10: the Lab router composed with the file adapter; POST a Kisiwa run with the key, then GET it."""
-    from fastapi import FastAPI
     from fastapi.testclient import TestClient
     from fixtures import FakeRuns, FakeScenarios, FakeSites
     from kisiwa import KisiwaRegistered
 
-    from assetops_backend.runs.adapters.yaml_operational_action_log import YamlOperationalActionLog
-    from assetops_backend.runs.profiles import MINI_GRID_V7_MODEL, REGISTERED_KOBO_PUBLICATION_PROFILE_V5
+    from assetops_backend.config import FeatureFlags
+    from assetops_backend.main import create_app
+    from assetops_backend.runs.profiles import REGISTERED_KOBO_PUBLICATION_PROFILE_V5
     from assetops_backend.scenarios.parsing import parse_scenario_document
-    from assetops_backend.simulator_lab_api import build_simulator_lab_router
 
     p = _probe()
     reg = KisiwaRegistered(registered_store, SETUP_AT)
     definition = parse_scenario_document(p.day_document(p.START_SOC, p.START_FUEL), source="a Kisiwa scenario",
                                          origin="SHIPPED")
     profile = REGISTERED_KOBO_PUBLICATION_PROFILE_V5
-    app = FastAPI()
-    app.include_router(build_simulator_lab_router(
-        _NoTemplates(), FakeSites(()), FakeScenarios((definition,)), FakeRuns(), (MINI_GRID_V7_MODEL,), (profile,),
-        registered_bases=reg.basis, operational_actions=YamlOperationalActionLog()))
+    moment = datetime(2026, 9, 29, 11, 0, tzinfo=timezone.utc)
+    # DIESEL-1-R3i S5-a: the real `main.py` app. The log port comes from `runs.composition`, never injected here.
+    app = create_app(FeatureFlags(simulator_lab_enabled=True), site_repository=FakeSites(()),
+                     foundation_store=registered_store, foundation_clock=lambda: moment,
+                     scenario_repository=FakeScenarios((definition,)), run_repository=FakeRuns())
     client = TestClient(app)
     start = p._run_start(4)
     response = client.post("/api/simulator-lab/runs", json={
@@ -229,6 +229,7 @@ def test_the_lab_api_freezes_and_reads_back_the_operational_action(registered_st
                                 "profile_version": profile.publication_profile_version},
         "run_inputs": [], "operational_actions": KEY})
     assert response.status_code == 201, response.text
+    assert "OPERATIONAL_ACTION_LOG_UNAVAILABLE" not in response.text
     run_id = response.json()["run"]["run_id"] if "run" in response.json() else response.json()["run_id"]
     body = client.get(f"/api/simulator-lab/runs/{run_id}").json()
     text = json.dumps(body)

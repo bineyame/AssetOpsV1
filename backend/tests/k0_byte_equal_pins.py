@@ -14,7 +14,8 @@ Recipe for each row, per §9f.1 Q10:
 - `run_id` and `created_at` are random or clocked per process, so they are replaced by `FIXED_RUN_ID` and
   `FIXED_CREATED_AT` (`dataclasses.replace`) before hashing; nothing else is removed;
 - the EV fixture's registered selection carries `uuid4` mapping ids from an in-memory install, which differ per
-  process. It is therefore built fresh (not from the module cache) under F0's `seeded_uuid4()`
+  process (DIESEL-1-R3i deviation 1: the seeding fixes only identifiers K0 does not produce, and has been here
+  since the first commit, so the pin still covers every byte K0 could move). It is therefore built fresh (not from the module cache) under F0's `seeded_uuid4()`
   (`tools/probe_kisiwa_fuel.py`), which makes it reproducible across processes;
 - digests: (a) `RENDER` = sha256 of `json.dumps(render_run_document(run), sort_keys=True, separators=(",", ":"),
   ensure_ascii=False, default=str)`; (b) `RUN_IDENTITY` = `run_identity_sha256(run)`; `CAUSES` = sha256 of the same

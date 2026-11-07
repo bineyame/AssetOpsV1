@@ -156,7 +156,7 @@ from assetops_backend.foundation_api import build_foundation_router
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.evidence.legacy_comparison import environment_identity
 from assetops_backend.evidence_migration import current_legacy_inventory, current_store_root
-from assetops_backend.runs.composition import build_commit_store, build_run_repository
+from assetops_backend.runs.composition import build_commit_store, build_operational_action_log, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
 from assetops_backend.runs.registered_basis import RegisteredLabBasis
@@ -694,6 +694,7 @@ def create_app(
                 # isolated app, N1) passes a Site-scoped owner check here.
                 ev_access=ev_access,
                 ev_owner=ev_owner,
+                operational_actions=build_operational_action_log(),
             )
         )
         # W2-02: the explicit-run cold replay read. No production owner principal exists, so every production

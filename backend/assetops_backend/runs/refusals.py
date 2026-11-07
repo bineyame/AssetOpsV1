@@ -165,7 +165,8 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         # The model has no CAUSAL_INPUT stock for the action's state, or the run
         # froze no initial tank volume or tank capacity to bound it by.
         "OPERATIONAL_ACTION_STATE_NOT_CAUSAL",
-        # The model's stock is not in litres.
+        # The model's stock is not in litres. Reachable only by a model profile (or scenario id grammar) not
+        # shipped today; tested by a direct loader call.
         "OPERATIONAL_ACTION_UNIT",
         # An action's physical span is not wholly inside the run, or is not
         # aligned the way a scenario entry must be.
@@ -175,7 +176,8 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         "OPERATIONAL_ACTION_OVER_CAPACITY",
         # A removal exceeds initial stock plus the run's earlier deliveries.
         "OPERATIONAL_ACTION_OVER_STOCK",
-        # An action's event id equals one already frozen from the scenario.
+        # An action's event id equals one already frozen from the scenario. Reachable only by a model profile
+        # (or scenario id grammar) not shipped today; tested by a direct loader call.
         "OPERATIONAL_ACTION_EVENT_ID_CONFLICT",
     }
 )

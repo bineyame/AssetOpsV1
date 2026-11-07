@@ -444,6 +444,18 @@ def test_provenance_names_the_operational_action_and_the_log() -> None:
                                                                                     "reporting_path_conditions"))
 
 
+def test_a_run_naming_a_log_covers_every_identity_field_with_no_exclusion() -> None:
+    """DIESEL-1-R3i deviation 4: the exclusion in test_run_setup's coverage test is conditional on no log named."""
+    from dataclasses import fields
+
+    from assetops_backend.runs.models import DeterministicIdentity
+
+    run, _ = draft(MemoryLog(), k=4)
+    rows = frozen_inputs(run.deterministic_identity)
+    assert rows
+    assert {row.identity_field for row in rows} == {field.name for field in fields(DeterministicIdentity)}
+
+
 # --- 7: the product never reads the log --------------------------------------------------------------------------
 
 

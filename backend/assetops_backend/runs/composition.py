@@ -13,7 +13,8 @@ from __future__ import annotations
 from assetops_backend.runs.adapters.json_commit_store import JsonCommitStore
 from assetops_backend.runs.adapters.yaml_run_store import YamlRunStore
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
-from assetops_backend.runs.ports import SimulationRunRepository
+from assetops_backend.runs.adapters.yaml_operational_action_log import YamlOperationalActionLog
+from assetops_backend.runs.ports import OperationalActionLogPort, SimulationRunRepository
 
 
 def build_run_repository() -> SimulationRunRepository:
@@ -24,6 +25,11 @@ def build_run_repository() -> SimulationRunRepository:
     installation did.
     """
     return YamlRunStore()
+
+
+def build_operational_action_log() -> OperationalActionLogPort:
+    """Choose the adapter that reads shipped operational-action logs (DIESEL-1-R3i S5-a)."""
+    return YamlOperationalActionLog()
 
 
 def build_commit_store() -> CommittedArtifactStore:
