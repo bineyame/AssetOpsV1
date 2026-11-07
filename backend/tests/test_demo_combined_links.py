@@ -59,10 +59,10 @@ def test_week_month_and_kobo_rows() -> None:
 def test_cold_and_ev_boards_open_the_whole_utc_day() -> None:
     """DD1b1-R2 S1: an event day opens its whole UTC day too (the labels keep the kind)."""
     urls = dict(_links())
-    assert urls["COLD-LAB-001 board, failure day S+0d (2026-10-29)"] ==         f"{BASE}/sites/COLD-LAB-001?from=2026-10-29T00:00:00Z&to=2026-10-30T00:00:00Z"
-    assert urls["EV-LAB-001 board, fault day S-2d (2026-10-27)"] ==         f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-27T00:00:00Z&to=2026-10-28T00:00:00Z"
-    assert urls["COLD-LAB-001 board, missing day S+1d (2026-10-30), no event: whole day"] ==         f"{BASE}/sites/COLD-LAB-001?from=2026-10-30T00:00:00Z&to=2026-10-31T00:00:00Z"
-    assert urls["EV-LAB-001 board, missing day S-1d (2026-10-28), no event: whole day"] ==         f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-28T00:00:00Z&to=2026-10-29T00:00:00Z"
+    assert urls["COLD-LAB-001 board, failure day S+0d (2026-10-29)"] == f"{BASE}/sites/COLD-LAB-001?from=2026-10-29T00:00:00Z&to=2026-10-30T00:00:00Z"
+    assert urls["EV-LAB-001 board, fault day S-2d (2026-10-27)"] == f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-27T00:00:00Z&to=2026-10-28T00:00:00Z"
+    assert urls["COLD-LAB-001 board, missing day S+1d (2026-10-30), no event: whole day"] == f"{BASE}/sites/COLD-LAB-001?from=2026-10-30T00:00:00Z&to=2026-10-31T00:00:00Z"
+    assert urls["EV-LAB-001 board, missing day S-1d (2026-10-28), no event: whole day"] == f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-28T00:00:00Z&to=2026-10-29T00:00:00Z"
 
 
 def test_every_story_day_has_one_row_and_no_kobo_doc_drops_only_the_action_rows() -> None:

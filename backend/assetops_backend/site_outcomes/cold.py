@@ -109,7 +109,8 @@ class ColdPorts:
 def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
             site_timezone: str | None, actions_to: datetime | None = None) -> Composition:
     """`lo`/`hi` are the request window, passed unchanged (B-Q7). Findings are read over that window (the selected
-    assessment, every lifecycle); work, domain Actions and plans over the 31-day work window ending at `hi`."""
+    assessment, every lifecycle); work and plans over the 31-day work window ending at `hi`; domain Actions over the same window ending at
+    `actions_to` (the requested end; `hi` when None)."""
     c = site_code
     reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)

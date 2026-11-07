@@ -36,7 +36,7 @@ import demo_story_days as sd
 from demo_combined import at, iso
 from demo_story_clock import story_commands, worker_instant
 
-REPO =Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
 #: DD0c-R Q1: the demo child seals each run once (L1 batching); the parity test flips it off.
 SEAL_ONCE = True

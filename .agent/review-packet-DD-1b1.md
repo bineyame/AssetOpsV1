@@ -19,7 +19,7 @@ Cold and EV story Actions are story-dated after their Finding (thread ACTION_IN_
 - Chain "Action agreed" for both Sites. Event-window boards: Finding shown, Action not listed (the rule, BL-38). Week board lists the Action for each Site.
 - Cold read three ways on one DB: UTC day lists ACT-001 "Open"; event window shows the Finding (so `known_at` is not the cause); local day lists it "Open - linked finding outside this view" with Protect UNKNOWN.
 - 0 thread events from the tick; `objectives_instants` resolved on real v3 for all 3 Sites; objectives declared end to end for Cold and EV (Kobo "SITE_NOT_IMPORTED" skip: probe builds no Kobo).
-- Observation: the EV UTC-day and week boards list the Action row twice in `in_hand` (ACT-002, both "Open"); not a pass condition, not investigated. Owed to DD-1b2.
+- Observation (EV Action listed twice): dropped by DD1b1-R4. Per row, ACT-002 sits once under Grow and once under Protect, as its Finding does; not a defect.
 
 ## Tests (own routed DB via conftest on base `assetops_test`; shared DB never reset)
 - Scoped, 315 tests: `test_ch1b_*` (4 files), `test_ch6b1_r5_dated_lead`, `test_ch6b2_portfolio_cards`, `test_out_b3_cold_ev` (27, incl. real-parser L0s), `test_dd1b1_prepare_clock`, `test_demo_combined_links`, `test_chain_coherence`, host `test_s6_verification_replay`: first run after the merge 313 pass, 2 fail (`test_ch6b1_r5_dated_lead`, composer fake lacked `actions_to`); fake fixed, that file re-run 2 pass. Not re-run as a whole after the fix.
@@ -35,7 +35,14 @@ Full backend suite, check-all, demo prepare, baseline build, `test_demo_combined
 - Finish assertion that `domain_action_index` is not a failed read on Cold and EV story-day and week boards.
 - List/avoid/state any in-app link with an exact event window that the script follows (it lists no Action, by rule).
 - Reconcile COH rules on the new Cold/EV day windows with `expected-today.json`.
-- The EV board's duplicated Action row (observation above).
+- DD1b1-R list: `expected-threads.json` and F-THREADS expect ACT-002 and ACT-003 "Action agreed"; `expected-today.json` I-09 reconcile; finish rows and E2 effects of story-dated Cold and EV rows; the Protect "Why?" now naming both Cold threads.
+- Q5: the mill step `tools/demo_combined_mill.py`, run by the parent as a child after all three Site children and after backfill step `a`, before `b,c,d` (it takes the next code after ACT-002/003).
+- R4: F-THREADS records the Portfolio's plain landing for Cold and EV by name (Finding present, Action absent, chain "Action agreed"; stated expectation, BL-39). Replace the three separate prepares with one real three-Site prepare (`--sites kobo,cold,ev --days <trimmed file>`) exercising children, mill step, R8, objectives, S2 comparison, ticks, `demo_combined_finish.py check`, `Demo.add_day`; excused self-check rows only for days the trim omits, each listed; E3 rerun time held in reserve. Owed to DS-1: story-day links not Site names; no live Cold/EV add.
+
+## Review H1 closure (fix round)
+- H1: `prepare` called `finish(story)` after popping `days`. Now `self.finish({**story, "days": days})` (`tools/demo_combined.py:445`); `story.json` unchanged. L0 `backend/tests/test_demo_combined_finish_days.py` drives the real three-Site `Demo.prepare` with database and children stubbed. Mutation: without the fix it fails with `KeyError: 'days'` at `demo_combined.py:100`; with the fix it passes. No prepare run.
+- L1 `.pyc` untracked (17 files, not 13). L4 words fixed (`cold.py` docstring, `prepare_clock.py` docstring, `REPO = Path`, test line gaps). R645 closure text extended per R4.
+- L2 (`read.py:387` wiring L0) and L3 (probe weak checks): not done; L2 needs a composer fake plus service setup, more than a few lines.
 
 ## Residual risk / user review
 Week, month and Portfolio boards with an event now list post-event Actions and drop Actions older than 31 d before the window end (intended). USER_REVIEW: none required; the Architect rulings cover the behaviour change.

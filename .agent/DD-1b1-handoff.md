@@ -26,4 +26,6 @@ Failed: coh3_pairs = 1 per Site but both unlinked (2 COH-3 findings); Action NOT
 Unverified hypothesis: when an event is found, the cutoff `known_at` = event end (09:00 / 17:05) and `actions_in_window` has `recorded_at <= :k` (postgres_domain_action_index.py:~78), so an Action recorded after the event is excluded regardless of `actions_to`. DD1b1-R2 S1 said known_at is not the cause; the UTC-day result contradicts that.
 Not run after the failure: guards W,N pass, V,M pass, A passes (after prepare_clock lost its sqlalchemy import); test_ch1b_*, test_s6_verification_replay*, test_ch6b1*, test_ch6b2*, mutation proofs, review packet (stays NOT READY), R645 stays open.
 
+## Review fix round (H1, R645, Lows): DONE. See "Review H1 closure" in the review packet; owed list there now includes DD1b1-R, Q5 and R4. L2, L3 left open.
+
 ## R3: DONE. Re-probe passed 49/49 (`.agent/DD-1b1-coh3-probe-r3.json`), main merged, R645 closed, packet written (`review-packet-DD-1b1.md`). Nothing left for this unit except review; DD-1b2 owes list is in the packet.

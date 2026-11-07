@@ -2,7 +2,7 @@
 
 `require_prepare_database` is the one check. A store override that exists only for prepare calls it at
 construction, and the demo children call it where they switch their story clock on. It reads the database name from
-the URL and opens no connection. Production composition never imports this module and never sets such an override.
+the URL and opens no connection. Production composition imports this module (the objective store, at import) but never sets such an override, so the check only runs with one.
 """
 
 from __future__ import annotations
