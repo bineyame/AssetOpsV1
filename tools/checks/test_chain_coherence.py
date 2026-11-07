@@ -849,6 +849,53 @@ def _edit_both_amounts(b: dict) -> None:
     _site(b, COLD)["earnings"]["estimated_income"]["value"]["amount"] = "11.005"
 
 
+def _optimize_other(b: dict) -> None:
+    b["cards"]["OPTIMIZE_COST"]["value"]["text"] = "3.31 USD"
+
+
+def _optimize_absent(b: dict) -> None:
+    b["cards"].pop("OPTIMIZE_COST")
+
+
+def _cost_site(name: str, amount: str | None) -> dict:
+    value = None if amount is None else {"amount": amount, "currency": "USD"}
+    claim = {"key": "money.possible_extra_fuel_cost", "value": value, "basis": "NOT_KNOWN", "days": None,
+             "text": "Not known yet" if amount is None else f"{amount} USD"}
+    return {"site_code": name.upper(), "site_name": name,
+            "rows": [{"category": "OPTIMIZE_COST", "nodes": {"kpi": None, "potential": None, "earnings": claim}}]}
+
+
+@pytest.mark.parametrize("sites,card,fails", [
+    # 0 priced (a NOT_KNOWN claim is not priced)
+    ([("Kobo", None)], {"value": {"text": "Not known yet", "small": None}, "claim": None}, False),
+    ([("Kobo", None)], {"value": {"text": "3.31 USD", "small": None}, "claim": None}, True),
+    # 1 priced: the claim itself, its text the value
+    ([("Kobo", "3.31"), ("Depot", None)],
+     {"value": {"text": "3.31 USD", "small": "possible extra fuel cost"}, "claim": "Kobo"}, False),
+    ([("Kobo", "3.31")], {"value": {"text": "Not known yet", "small": None}, "claim": None}, True),
+    ([("Kobo", "3.31")], {"value": {"text": "3.31 USD", "small": None}, "claim": None}, True),
+    # >= 2 priced: each Site prefixes a detail line, no claim
+    ([("Kobo", "3.31"), ("Depot", "1.20")], {"value": {"text": "Costs at 2 sites", "small": None}, "claim": None,
+                                             "detail": "Kobo: 3.31 USD possible extra fuel cost · Depot: 1.20 USD x"},
+     False),
+    ([("Kobo", "3.31"), ("Depot", "1.20")], {"value": {"text": "Costs at 2 sites", "small": None}, "claim": None,
+                                             "detail": "Kobo: 3.31 USD possible extra fuel cost"}, True),
+    ([("Kobo", "3.31"), ("Depot", "1.20")], {"value": {"text": "4.51 USD", "small": None}, "claim": "Kobo",
+                                             "detail": "Kobo: 3.31 USD · Depot: 1.20 USD"}, True),
+    # an absent card
+    ([("Kobo", None)], None, True),
+])
+def test_coh17_o1_optimize_card_against_the_priced_site_claims(sites: list, card: dict | None, fails: bool) -> None:
+    body = [_cost_site(name, amount) for name, amount in sites]
+    if card is not None and card.get("claim") == "Kobo":
+        card = {**card, "claim": body[0]["rows"][0]["nodes"]["earnings"]}
+    tally = cc.new_tally()
+    cards = {} if card is None else {"OPTIMIZE_COST": card}
+    got = cc.coh17_optimize("week", {"sites": body, "cards": cards}, [], tally)
+    assert [f["subject"] for f in got] == (["O1"] if fails else []), got
+    assert tally["compared"] == 1
+
+
 def test_clean_full_passes_and_compares_every_row() -> None:
     bundle = cc.Bundle(BUNDLES / "clean_full")
     report = cc.check(bundle)
@@ -883,6 +930,9 @@ def test_clean_full_passes_and_compares_every_row() -> None:
     # both sides absent: the old `{} == {}` passed this
     ("C2", {"chain_estate.week.json": lambda b: (b["cards"]["ASSURE_PERFORMANCE"].pop("claim"),
                                                  b["counts"].pop("count.verified_results"))}),
+    # CH5d1-R O1: the card moves on both bodies (C3 agrees), so only O1 breaks; and an absent card
+    ("O1", {"chain_estate.week.json": _optimize_other, "summary.week.json": _optimize_other}),
+    ("O1", {"chain_estate.S.json": _optimize_absent, "summary.S.json": _optimize_absent}),
 ])
 def test_coh17_each_row_fails_on_its_planted_break(tmp_path: Path, row: str, files: dict) -> None:
     got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **files))

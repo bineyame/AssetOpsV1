@@ -173,7 +173,8 @@ def test_protect_and_assure_cards_carry_the_count_claims(monkeypatch) -> None:
     assert unknown["PROTECT_ASSET"]["value"] == {"text": "Not known yet", "small": None}
     assert unknown["PROTECT_ASSET"]["detail"] == "Service disruptions recorded as findings · loss not priced"
     assert unknown["ASSURE_PERFORMANCE"]["detail"] is None and unknown["PROTECT_ASSET"]["days_line"] is None
-    assert "OPTIMIZE_COST" not in cards   # CH6b2-R Q3: Optimize stays on its CH-5c money line
+    # CH5d1-R 2.1: Optimize joins the one builder, second in the order (its card: `test_ch5d1_optimize_card.py`)
+    assert list(cards) == ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 
 
 def test_protect_why_names_each_counted_site_and_thread() -> None:

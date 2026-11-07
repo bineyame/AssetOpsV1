@@ -212,3 +212,38 @@ def test_mg1_judged_on_checked_days_and_estate_optimize_row_equals_the_d13_board
     assert kobo["rows"]["OPTIMIZE_COST"]["state"] == row["state"], (kobo["rows"]["OPTIMIZE_COST"], row["state"])
     print("CH6B3_L2M", kpi["value"], value, checked, row["state"], row["thread_lines"],
           [t.get("state") for t in site["threads"]])
+
+
+def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_board(mech, monkeypatch, tmp_path) -> None:  # noqa: F811,E501
+    """CH-5d1 L2m (CH5d1-R §3): for the week window the summary's Optimize card is `_optimize_card` over that body's
+    own Site rows, `/api/estate/chain` carries the same `cards`, and the Kobo Optimize row's `nodes` equal the board's
+    over the same window (its cost claim also equals the S-day (D13) board's: a stored consequence has no days)."""
+    from assetops_backend.site_outcomes.read import _optimize_card
+
+    engine, _ = mech
+    url = engine.url.render_as_string(hide_password=False)
+    b4._settle_chain(url, "KOBO-001")
+    b4._serve(monkeypatch, url, tmp_path)
+    d13 = md.day(SPEC, 13)
+    window = {"from": _utc(md.day(SPEC, 7)), "to": _utc(md.day(SPEC, 14))}
+    with b4._client() as c:
+        summary = _read(c, "/api/estate/outcome-summary", window)
+        chain = _read(c, "/api/estate/chain", window)
+        (kobo,) = summary["sites"]
+        sw = kobo["window"]
+        board = _read(c, "/api/sites/KOBO-001/outcome-board", {"from": sw["from"], "to": sw["to"]})
+        day = _read(c, "/api/sites/KOBO-001/outcome-board", {"date": d13.isoformat()})
+    card = summary["cards"]["OPTIMIZE_COST"]
+    assert card == _optimize_card(summary["sites"]), card
+    assert list(summary["cards"]) == ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
+    assert chain["cards"] == summary["cards"]
+    row = next(r for r in kobo["rows"] if r["category"] == "OPTIMIZE_COST")
+    there = next(r for r in board["rows"] if r["category"] == "OPTIMIZE_COST")
+    assert row["nodes"] == there["nodes"], (row["nodes"], there["nodes"])
+    claim = row["nodes"]["earnings"]
+    assert claim["key"] == "money.possible_extra_fuel_cost", claim   # S1: the cost claim is present
+    d13_claim = (next(r for r in day["rows"] if r["category"] == "OPTIMIZE_COST")["nodes"] or {}).get("earnings")
+    assert claim == d13_claim, (claim, d13_claim)
+    # S4: money on the card iff the board's claim carries a value
+    assert (card["claim"] is not None) == (claim["value"] is not None), (card, claim)
+    print("CH5D1_L2M", card, claim)

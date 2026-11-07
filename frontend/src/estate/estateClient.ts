@@ -656,8 +656,8 @@ export interface EstateOutcomeSummaryBody {
   verified_result_count?: number | null;
   /** WALK1-1: Sites whose board could not be read; absent on an older body (read as 0). */
   verified_sites_unread?: number;
-  /** CH6b2-R Q1: the Grow, Protect and Assure cards (`portfolio_cards`); absent on an older body. */
-  cards?: Partial<Record<"GROW_REVENUE" | "PROTECT_ASSET" | "ASSURE_PERFORMANCE", EstatePortfolioCard>>;
+  /** CH6b2-R Q1, CH5d1-R: the four Portfolio cards (`portfolio_cards`); absent on an older body. */
+  cards?: Partial<Record<"GROW_REVENUE" | "OPTIMIZE_COST" | "PROTECT_ASSET" | "ASSURE_PERFORMANCE", EstatePortfolioCard>>;
 }
 
 /** CH-6b2 (§B2): one server-built Portfolio card; the browser renders its markup only. */

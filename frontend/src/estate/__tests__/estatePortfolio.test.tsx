@@ -31,6 +31,8 @@ import {
   coverageSite,
   loadedPortfolio,
   opportunityItem,
+  OPTIMIZE_NONE,
+  OPTIMIZE_ONE_SITE,
   portfolioBody,
   portfolioClient,
   refused,
@@ -91,9 +93,11 @@ describe("estate Portfolio page", () => {
       "PROTECT_ASSET",
       "ASSURE_PERFORMANCE",
     ]);
-    // R5: the Site-owned value is formatted from the exact selected line (outward to the minor unit); now on Optimize.
-    expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("$3.31–$3.97");
-    expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
+    // CH5d1-R: Optimize is a server card; with no outcome summary read it says `Not known yet`, never the body's
+    // `value_cards` money line.
+    expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("Not known yet");
+    expect(text(cards[1])).not.toContain("$3.31–$3.97");
+    expect(text(cards[1])).not.toContain("Candidate operating-cost exposure");
     expect(cards[1].querySelector("[data-portfolio-card-link]")?.tagName).toBe("A");
     expect(cards[1].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
     // CH-6b2: with no outcome summary read there is no server card, so Protect reads `Not known yet` (never a
@@ -134,9 +138,10 @@ describe("estate Portfolio page", () => {
     );
     renderAt(`${ENTRY}&lens=risks`, portfolioClient(loadedPortfolio(portfolioBody({ value_cards: cards, rows: [], total_count: 0, lens: "risks" }))));
     await settledScreen();
+    // CH5d1-R: the body's `value_cards` stay on the wire unrendered (BL-51); Optimize is the server card only.
     const first = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
-    expect(text(first.querySelector("[data-portfolio-card-value]"))).toBe("Unpriced");
-    expect(text(first)).toContain("GreenHarvest · consequence recorded without a price");
+    expect(text(first.querySelector("[data-portfolio-card-value]"))).toBe("Not known yet");
+    expect(text(first)).not.toContain("consequence recorded without a price");
     expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not known yet");
     expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
     // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
@@ -576,32 +581,44 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Historical · Value withheld");
     view.unmount();
-    // Mixed/unknown source: the operating-cost card is withheld, never zero.
-    const withheld = portfolioBody({
-      value_cards: portfolioBody().value_cards.map((c) =>
-        c.key === "OPERATING_COST" ? { ...c, state: "WITHHELD" as const, display_value: "Not comparable for this selection", detail: "Inspect Site records and exclusions", basis_text: "No combined operating-cost amount", tone: "neutral" as const } : c,
-      ),
-    });
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(withheld)));
-    await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-value]"))).toBe("Not comparable for this selection");
   });
 
-  it("noLineCardUsesExactShortLiteralFromApiAndFallback", async () => {
-    // r3b: the API value and the missing-display_value fallback are both exactly "No supported value".
-    const noLine = (display_value: string | null) => portfolioBody({
+  it("optimizeCardRendersOnePricedSiteServerCard", async () => {
+    // CH5d1-R 2.3: the summary's Optimize card, the one priced Site's cost claim; a WITHHELD body money line no
+    // longer reaches the card (it stays on the wire, unrendered).
+    const withheld = portfolioBody({
       value_cards: portfolioBody().value_cards.map((c) =>
-        c.key === "OPERATING_COST" ? { ...c, state: "NO_LINE" as const, display_value, detail: "No selected operating-cost consequence", basis_text: "No value line", tone: "neutral" as const } : c,
+        c.key === "OPERATING_COST" ? { ...c, state: "WITHHELD" as const, display_value: "Not comparable for this selection", tone: "neutral" as const } : c,
       ),
     });
-    const sel = "[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-value]";
-    const first = renderAt(ENTRY, portfolioClient(loadedPortfolio(noLine("No supported value"))));
+    const answer = { status: "loaded" as const, value: outcomeSummaryBody({ cards: serverCards({ OPTIMIZE_COST: OPTIMIZE_ONE_SITE }) }) };
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(withheld)), answer));
     await settledScreen();
-    expect(text(document.querySelector(sel))).toBe("No supported value");
-    first.unmount();
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(noLine(null as unknown as string))));
+    const optimize = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
+    expect(text(optimize.querySelector("[data-portfolio-card-value]"))).toBe("3.31 USD possible extra fuel cost");
+    expect(optimize.querySelector("[data-portfolio-card-value] small")?.textContent).toBe("possible extra fuel cost");
+    expect(text(optimize.querySelector("[data-portfolio-card-detail]"))).toBe("At Kobo · not added across sites");
+    expect(text(optimize.querySelector("[data-portfolio-card-basis]"))).toBe(
+      "Modelled from the stored record and the declared price · not a saving",
+    );
+    expect(optimize.className).toContain("amber");
+    expect(optimize.querySelector("[data-portfolio-card-days]")).toBeNull();
+    expect(optimize.querySelector("[data-portfolio-card-note]")).toBeNull();
+    expect(text(optimize)).not.toContain("Not comparable for this selection");
+    expect(text(document.body)).not.toMatch(/\/api/);
+  });
+
+  it("optimizeCardRendersTheNoPricedSiteServerCard", async () => {
+    const answer = { status: "loaded" as const, value: outcomeSummaryBody({ cards: serverCards({ OPTIMIZE_COST: OPTIMIZE_NONE }) }) };
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer));
     await settledScreen();
-    expect(text(document.querySelector(sel))).toBe("No supported value");
+    const optimize = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
+    expect(text(optimize.querySelector("[data-portfolio-card-value]"))).toBe("Not known yet");
+    expect(optimize.querySelector("[data-portfolio-card-value] small")).toBeNull();
+    expect(text(optimize.querySelector("[data-portfolio-card-detail]"))).toBe("No cost worked out yet at any site");
+    expect(text(optimize.querySelector("[data-portfolio-card-basis]"))).toBe("A cost needs a priced record");
+    expect(optimize.className).toContain("neutral");
+    expect(text(document.body)).not.toMatch(/\/api/);
   });
 
   it("preservesWindowAndCutoffAcrossGlobalRoots", async () => {
@@ -1118,11 +1135,8 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     ]) {
       expect(card(key).querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe(`${root}?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`);
     }
-    // The w1 scan over the four cards. The Optimize detail is the existing operating-cost card's detail verbatim
-    // (A6 table); its ledger category label ("Candidate operating-cost exposure") predates this slice and is the
-    // only text taken out of the scan.
+    // The w1 scan over the four whole cards (CH5d1-R: the Optimize card is server words now, scanned too).
     const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
-    grid.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-detail]")?.remove();
     const scan = scanProductVocabulary(grid, "portfolio", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(10);
     expect(describeViolations(scan.violations)).toBe("");
@@ -1147,29 +1161,27 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     }
   });
 
-  it("optimizeValueEqualsTheOldOperatingCostValueByteForByte", async () => {
-    // The old OPERATING_COST card rendered "$3.31–$3.97" for this fixture (rendersContextFiveCardsPulseAndSelectedRows).
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+  it("optimizeValueIsTheServerCardNotTheBodyMoneyLine", async () => {
+    // CH5d1-R: the body's OPERATING_COST line ("$3.31–$3.97" for this fixture) is no longer the card's value.
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
     await settledScreen();
-    const node = card("OPTIMIZE_COST").querySelector("[data-portfolio-card-value]") as HTMLElement;
-    expect(node.textContent).toBe("$3.31–$3.97");
-    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
-      "Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20",
+    expect(value("OPTIMIZE_COST")).toBe("3.31 USD possible extra fuel cost");
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe("At Kobo · not added across sites");
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe(
+      "Modelled from the stored record and the declared price · not a saving",
     );
-    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("Site-owned selected consequence");
     expect(card("OPTIMIZE_COST").className).toContain("amber");
+    expect(text(card("OPTIMIZE_COST"))).not.toContain("$3.31–$3.97");
   });
 
-  it("optimizeCardStaysInUnknownWordingWhenOperatingCostIsMissing", async () => {
-    // Addendum 2: a body without OPERATING_COST is malformed; the card stays, in the unknown wording.
+  it("optimizeCardSaysNotKnownWhenTheSummaryIsMissing", async () => {
+    // CH5d1-R: with no summary card the Optimize card says so (never a browser-built value), even when the body
+    // carries no OPERATING_COST line; its link stays.
     const value_cards = portfolioBody().value_cards.filter((c) => c.key !== "OPERATING_COST");
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ value_cards }))));
     await settledScreen();
-    expect(value("OPTIMIZE_COST")).toBe("Not assessed");
-    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
-      "Operating cost is not assessed for this selection",
-    );
-    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("No value line");
+    expect(value("OPTIMIZE_COST")).toBe("Not known yet");
+    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]")).toBeNull();
     expect(card("OPTIMIZE_COST").className).toContain("neutral");
     expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toBe(
       "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
@@ -1386,9 +1398,8 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   const checked = (n: number, days = [kobo], extra: Partial<Summary> = {}) =>
     body({ count_basis: "CHECKED_DAYS", checked_days: days, category_counts: protect(n), ...extra });
   const scanCards = () => {
+    // CH5d1-R: the whole grid, the Optimize card's server words included.
     const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
-    // The Optimize detail carries the pre-existing ledger category label (see the A6 exact-copy test).
-    grid.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-detail]")?.remove();
     return describeViolations(scanProductVocabulary(grid, "portfolio", { set: "w1" }).violations);
   };
 
@@ -1434,9 +1445,10 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(detail("PROTECT_ASSET")).not.toContain("not shown yet");
     expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days assessed");
     expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
-    // CH6b2-R Q3: Optimize keeps its money line and carries no days line.
-    expect(detail("OPTIMIZE_COST")).toBe("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
+    // CH5d1-R: Optimize is the server cost card; a stored consequence has no days line, and no body note.
+    expect(detail("OPTIMIZE_COST")).toBe("At Kobo · not added across sites");
     expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
+    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-note]")).toBeNull();
     // The pulse strip keeps its own (non-card) checked-days wording.
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");

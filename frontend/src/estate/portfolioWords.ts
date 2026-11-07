@@ -77,15 +77,6 @@ export const CARD_LABEL: Readonly<Record<EstateValueCardKey, string>> = {
   VERIFIED_RECOVERY: "Verified value recovered",
 };
 
-/** Closure 1: display strings the API leaves null for the unsupported/unknown card states. */
-export const CARD_VALUE: Readonly<Record<string, string>> = {
-  UNPRICED: "Unpriced",
-  WITHHELD: "Can't be compared across these sites yet",
-  NO_LINE: "No supported value",
-  UNKNOWN: "Not assessed",
-  UNSUPPORTED: "Not known yet",
-  NOT_ESTABLISHED: "Not known yet",
-};
 
 
 /** `29 Oct 2026, 16:00` for one wire instant (POLISH §3 Times). */
