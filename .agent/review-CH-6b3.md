@@ -104,3 +104,19 @@ Whichever is chosen, re-state BL-26: the week does not agree with itself. A one-
 
 - `board.day_cold_failure_2026-10-31` reads UNKNOWN / PRODUCER_NOT_SETTLED on every measured row on the drained and undrained runs alike, while the S-window board for the same Site reads NEEDS_ATTENTION. So it is not a drain effect. The local-midnight window seems to matter. I did not establish whether any client link opens Cold on that window. The Lane 2 F-THREADS note covers Kobo days only; it should report Cold and EV story days too.
 - Portfolio Cold rows read "No action agreed yet" in the month while ACT-000002 exists. This looks like the known COH-2 month entries already in `expected-today.json`, so I do not raise it. It does sit beside the Q4b count that treats that Site's thread as in hand.
+
+## Re-review (CH6b3-R3)
+
+Verdict: **ACCEPT pending the named runs.** No High or Medium open.
+
+- **H1 closed.** `counted_threads` reads each thread at `LATEST_KNOWN`. On `var/ch6b3r3_bundle` week/S/month: `count.verified_results` 1/1/1, `summary.verified_result_count` 1/1/1, Assure text "1 confirmed, from the days checked", Portfolio Verified row thread 6c6258, open 3/2/3 (Portfolio's 3/2/3). Claim, legacy count and table agree on all three windows. Day-bound board rows and dots stay as ruled.
+- **M1 closed.** Both notes on all windows hold no "days checked"; Protect note None; coverage reads "days assessed" (backend constant, frontend, tests). Days line stays the only "checked".
+- **M2 closed in code and data.** Why `days_used` equals the card `days_line` on all 12 window/category pairs (Optimize uses Protect's); "Checking n more days" is 7/1/31 and matches the "0 of n days checked" lines, no "32".
+- **New rules.** I ran `coh17_count_claims` on the on-disk bundles: `var/ch6b3r2_bundle` gives 20 COH-17 findings, `var/ch6b3r3_bundle` gives 0. The planted-break test for each of L2, L3, W3, N1 and the C2 absent-key case is present. 286 pass across `test_chain_coherence`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5b_why`, `test_ch5a2_contract` (my run).
+- **Golden and fixtures.** Kobo threads open 1 to 0, in_hand 0 to 1 is explained by T1's ACTION_IN_HAND effective 1 Nov and known by k. open + in_hand is unchanged, so it is a legitimate change, not a bent expectation. `clean_full` and `coh18_day_grades` are consistent with the real bundle's shape, and the real bundle passes.
+- **Departures.** The in-memory M2 route test and unused `note.withheld_*`: Low, not blocking. Delete the vocabulary entries at the next touch.
+- **Low (note only).** The month table shows three "Verified" rows for one thread against "1 fix confirmed". They are three Findings of the same thread, and L3 counts distinct threads. The presenter should know.
+- **Not verified.** vitest 110 and `tsc` were not rerun (no `node_modules`). I did not read the frontend diff beyond the one-word change. Not run: the two L2m tests, the L3m collect/check and the Postgres Why route test.
+- **Needed from those runs.** L2m: the estate rows on the `states` variant agree with the claim. L3m: no L3 finding, or only the D14 recurrence (open while an older row reads "Verified"), which then needs `expected-mechanism.json` entries with `variants: ["states"]` citing CH6b3-R3 and BL-07, as ruled. Why route: on the month window no "32" and `days_used` equal to the card's `days_line`. Nothing else in my verdict depends on them.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
