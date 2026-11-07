@@ -2420,3 +2420,72 @@ A second prepare would be needed only if a product fault needs backend code chan
 Spent since R9: step 6 (0.25), R8's C1/C2/B/P0 (0.25) and R9 §1 (0.05). New here: the row fixes, L0s and one rerun, **+0.2**. **DD-1b2b has 0.7 left:** R10 fixes 0.2, the step-7 after tool and reads 0.25, step 8 0.1, step 9 0.15. **Lane 2 remaining: 0.7 + CH-5d1's 1.0 = 1.7.** BL-48 is in the backlog and not counted.
 
 Process note: an "absent data" class given from error text alone hid ten stale rows until the one run. From now on, a P0-style partial build traces each excused row to a line before it is excused.
+
+## DD1b2-R11: CO-2 at the rerun, EX-1's changed boards, and what is still owed (Architect, Claude, 2026-11-07)
+
+Binding checked: Claude (`.ai/ROLE_CONFIG.md:9`). Input: `.agent/review-packet-DD-1b2b.md` (`70ddfa655`), `var/demo3_dd1b2/after.json`, `var/demo3_dd1b2c/ex1.json`, commits `8ae1d0814` and `411817ae8`. **MEASURED** = my own reads, with scripts in the session scratchpad (`r11_boards.py`, `r11_sum.py`, `r11_why_partial.py`, `r11_gate.py`, `r11_dump.py`, `r11_clone.py`, output `r11_dd1b2.json` / `r11_dd1b2c.json`). **READ** = code, cited. I ran no prepare, build, tick or suite, and I wrote no domain row. Disclosed writes: (1) my tree-form GETs on `dd1b2` and `dd1b2c` hit or stored `chain_response` rows (the response cache; a GET stores on a miss, `chain/response_store.py:183`), as R10's reads did; the diffs in §2 used `ASSETOPS_RESPONSE_STORE=compose`, which stores nothing. (2) A scratch clone `assetops_r11a_test` (TEMPLATE of `dd1b2`, no open sessions) took worktree-form reads and was then dropped.
+
+### 1. CO-2: the build's age, confirmed. Under `serve` it should pass, but E3 measures that
+
+- **Cause (READ, confirmed):** the overview reads STALE_PROJECTION when the schedule heartbeat is over 300 s old (`scheduling/health.py:48, 87, 98`). The heartbeat is written only when a tick completes (`scheduling/adapters/postgres_schedule_store.py:166`). Nothing has ticked `dd1b2` since the prepare. CO-2 passed in the rehearsal's own self-check, which runs right after the finish ticks. **It is not a product fault, and the row is not edited.** A CO-2 rerun is valid only within 5 minutes of a completed tick. The packet records the row as "passed at build; age-dependent at rerun".
+- **Demo day (READ):** `serve` runs a schedule loop: tick, Performance comparison, pre-build, then 120 s of sleep, and it prints "ready:" after the first tick (`tools/demo_combined.py:20-22, 58, 800-808`). So a served demo DB is ticked continuously. **One open risk (computed, not measured):** the gap between two completed ticks is about tick + pre-build + 120 s. On the EX-1 logs that is about 85 + 105 + 120 = 310 s (`var/demo3_dd1b2c/logs/39-42`; the pre-build ran 15:45:04 → 15:46:49 local). That is just over the product's 300 s threshold, which assumes one-minute ticks (`health.py:48`). An idle loop tick is probably shorter, but nobody has measured it.
+- **E3 step (new):** with `serve` running on the E3 build, read `/overview` `schedule.heartbeat_age_seconds` every 30 s for 15 minutes, including once during the live add and `tick --until-drained`, and rerun CO-2 once. **Pass:** the maximum age is ≤ 240 s and the overview never reads STALE_PROJECTION. **Otherwise:** set `TICK_EVERY_SECONDS = 60` in `tools/demo_combined.py` and remeasure. That is pre-authorised here: it is the demo loop's cadence, not a shown or measured value. In the same step, record whether `tick --until-drained` beside the serve loop hits a lock timeout (`lock_timeout_ms` 5000, `scheduling/run.py:88`). If it does, stop and bring it back to me, because the DS-1 add-day line would change.
+- **DS-1 line (new):** "Start the demo with `serve` and wait for 'ready:'. Leave it running the whole time. If a Site page says its figures are being reassessed, wait about two minutes for the next update before showing it."
+
+### 2. EX-1: "before" was a degraded read; the live add changes nothing on the S and S+1 boards
+
+**Cause 1: the "before" read was not taken in the tree form (MEASURED).** I read the Kobo S and S+1 boards in the worktree form (cwd and `PYTHONPATH` in the worktree) on `assetops_r11a_test`, a fresh TEMPLATE clone of `dd1b2` with no add. EX-1's `summarise` gives exactly the `before` in `ex1.json`: `cost_lines` is `["ACT-001"]` (it is the Protect row's "Earlier" item), there are no Findings, Assure is UNKNOWN, and `read_state` is PARTIAL. In the tree form, the same data gives `read_state` AVAILABLE, the Finding on Cost and on Protect, and the trial line. So `demo_combined_ex1.py` read through a process whose backend composes over the worktree's own `var/` and not the build's (R9 §3's hazard), and `summarise` never checked `read_state`. The `after` read in the same process showed the full board. That is most likely a hit on the body that the tree-form pre-build stored after the tick (READ, `response_store.py:140-168`; not measured, and moot once the tool reads in the tree form).
+
+**Cause 2: the clone's own S2 gate makes every clone board PARTIAL (MEASURED).** A fresh tree-form compose on `dd1b2c` fails one port, `source`, with `AwaitingComparison`: "The newest comparison record was made in another environment". The S2 comparison is bound to the database name and to the local store root (`evidence/legacy_comparison.py:83-103, 254-257`), and a TEMPLATE clone with a copied folder changes both. MEASURED with `r11_gate.py`: on `dd1b2`, the environment, the root and the legacy-inventory digest all match the report. On `dd1b2c` **after the add**, the digest is unchanged (`sha256:3e6ad354…`, an empty legacy set), but the environment and the root differ. **So the live add does not close the gate. The clone does.** On the demo DB, which the prepare compared itself (`demo_combined.py:541-543`), the gate stays open after a live add.
+
+**Does the live add change the S/S+1 boards? No (MEASURED).** `dd1b2` (no add) and `dd1b2c` (add + tick), both composed fresh in the tree form: every item list (issues, in hand, earlier, options), every Finding id and every text are identical on S and S+1. Every difference in the diff comes from the `source` port failing on the clone: `read_state` PARTIAL, row reasons PRODUCER_NOT_SETTLED, states UNKNOWN, the Cost fuel line "Not known yet", and the readiness line "Not available yet · this record could not be loaded". **No new Finding, no changed Action words, no changed trial line, no changed Assure headline.** R6 O9's condition holds on content. Its proof, a valid before/after read on one clone, is owed (§4 B1).
+
+**"Listed twice" is not a fault.** Finding `fcb15cac` is on Cost as the open primary signal, and on Protect as "Generator may have been on longer than needed · checked here as a safeguard". That is the must-not-harm listing CO-1 asserts. `summarise` collects across all rows, so the same id shows twice. The rehearsal DB shows the same pair with no add.
+
+**Presenter-facing: acceptable**, with two script/E3 lines:
+- **E3/E2 line (new):** "Present only from the database the prepare built, served from its own work folder. Never present from a TEMPLATE clone or a copied folder unless `python -m assetops_backend.evidence_migration run --tenant demo --site KOBO-001` is rerun there in the tree form. Otherwise every Kobo board reads 'could not be loaded' and Unknown." The same step goes first on E2's clone of the E3 build (R7 Q12), before `test_demo_combined_postgres`.
+- **DS-1 add-day line (R6 §3), numbers filled in:** "…It takes about five minutes on the rehearsal machine (add about 65 s, tick until drained about 200 s)." The add changes nothing already on the story-day boards. The new day shows as its own day.
+
+### 3. Item 3: owed, moved, dropped
+
+| Item | Ruling | Reason |
+|---|---|---|
+| **O10** `delivered_days` on the real build | **Owed now** (B2) | A read of a few minutes. R6 replaced the seeded L2 with it. EX-1's add not being refused proves only half of it |
+| **O13** "Target met" | **API stand-in now; browser moves to E3.** R7 Q11's stand-in is met by MILL-3 (VERIFIED 42.00 → 110.00) and F-THREADS (the DOMAIN_VERDICT page reads VERIFIED), both passing on the rerun. The packet names them as O13's stand-in. The screenshot of Work → Maintenance → the mill row → "Target met" is taken in the E3 dress rehearsal | The route and the page have their own vitest (`routeRefs`, `millVerification`). The browser adds proof of the click path only, and E3 walks it anyway |
+| **O16** fuel-row trace, S-14/S-7 PRICED quantity 0, Cost headline on one `steady-before` and one `steady` day, WK-2a 42.08 | **Owed now** (B3), timeboxed to 0.1, stored rows plus one GET | Money is shown to clients (R8 kept it). A differing figure goes to the owner before E3 (R6 O16) |
+| **O17** sampler during step 7 | **Dropped for step 7.** The rehearsal's minimum free RAM (3.07 GB) and wall time (3585 s) stand (R10 §5). Step 7 has no heavy job. E3 runs its own sampler | Nothing left to measure here |
+| **Mutation proofs** on the restated rows | **Dropped as a separate step.** Each restated row has a must-fail L0 (21 passed, R10 §1's rule). The reviewer checks that each must-fail case exists and fails for the named reason | A second proof of the same thing |
+| **O11** from the handoff | **Accepted**, but the packet cites the logs themselves (`var/demo3_dd1b2/logs/*-prebuild.log`) and their non-200 count, not the handoff | Evidence by path |
+| **O15** litres | Closed as not recomputable (packet). The DS-1 generator line keeps "about 15 minutes" with no litre figure (R8 A). No owner line | No fuel signal on this Site |
+| **O14** | Closed: "about 96 / about 22" may be quoted | Matches |
+| **O18** | **Owed** (B4): it is not in the packet. Add `mill` 20 and `drain` 340 (drain-1 278.4 + drain-2 58.3 = 336.7, rounded up to 10 s) to `EXPECTED_SECONDS`, unchanged otherwise | R6 O18 |
+
+### 4. Builder round before the review (Sonnet, about 0.2)
+
+- **B1. EX-1 tool fix and one rerun.** In `tools/demo_combined_ex1.py`:
+  - (a) Refuse to run unless `assetops_backend.__file__` resolves under `<work>/tree`. The docstring gives the tree-form command (R9 §3).
+  - (b) Before the first read, run `python -m assetops_backend.evidence_migration run --tenant demo --site KOBO-001` as a tree-form child (the same `Demo.py` path the prepare uses), then assert that S's `read_state` is AVAILABLE. If it is not, stop.
+  - (c) Compare the S and S+1 boards as their whole `rows` plus `read_state`, not by text filters. Findings are compared as a set per row.
+  - (d) L0s: the guard refuses the worktree form; the compare flags a `read_state` change and a new item.
+  - Rerun once on a fresh clone `assetops_demo3_dd1b2d_test` with `var/demo3_dd1b2d` (TEMPLATE of `dd1b2` with no open sessions, plus a folder copy), after 11:00Z.
+  - **Pass:** both reads AVAILABLE; the rows identical. Record any difference, but it fails only on R6 O9's items (Assure count or headline, trial line, Action words, a new Finding). Record the add and tick seconds.
+  - Then drop `dd1b2c` and `var/demo3_dd1b2c`. Put both EX-1 runs' `ex1.json` in `.agent/DD-1b2b-rehearsal.json`, the first marked "invalid read form (R11 §2)".
+- **B2. O10** on `dd1b2`, read only, tree form. Pass as R6 O10.
+- **B3. O16** on `dd1b2`, read only. Pass as R6 O16.
+- **B4. O18** (§3). Commit.
+- **B5. Packet update:** CO-2 per §1; EX-1 per §2 with the rerun; the §3 table; this ruling's lines. Write/Edit only, one commit. No tick on `dd1b2`.
+
+**Then the fresh Opus review.** Not now: the review's main live-add claim needs B1's valid read, and B1-B4 are short. Keep `dd1b2` and `dd1b2d` until the verdict.
+
+### 5. Backlog (SCOPE-1)
+
+- **BL-49 (next free; BL-48 is R10's):** "Demo tooling: a `demo_combined.py clone` command that makes a TEMPLATE clone and its folder copy, then reruns the S2 comparison there, so a copied demo DB never reads 'could not be loaded' (`legacy_comparison.py:254-257`)." Not demo-critical: the E3 line forbids presenting from a copy, and B1 reruns the comparison by hand. 0.1 est.
+- No product fault was found, so there is no product BL.
+
+### 6. Owner (information, no decision)
+
+"The rehearsal results hold up. Three practical points for demo day, no decision needed. (1) We must present from the demo build itself, not from a copy of it. A copy shows 'could not be loaded' on the Kobo pages, and the run sheet now says this. (2) The demo server keeps its regular update loop running while we present. Otherwise a Site page says its figures are being reassessed. We'll confirm the loop keeps up during the final dress rehearsal. (3) The live 'add a day' step takes about five minutes and changes nothing already shown on the story days."
+
+### 7. Size
+
+Spent since R10: the row fixes and rerun (0.2), the after tool and reads (0.2), step 8 (0.1) and the packet (0.05), 0.55 in all. New here: B1-B5, **+0.2**. **DD-1b2b has 0.35 left:** builder round 0.2, then the review and step-9 close 0.15. Its total is 2.25 + 0.05 + 0.2 + 0.2 = 2.7. **Lane 2 remaining: 0.35 + CH-5d1's 1.0 = 1.35.** BL-49 is in the backlog and not counted.
