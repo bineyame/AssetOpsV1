@@ -9,7 +9,6 @@ import copy
 import functools
 import hashlib
 import json
-import subprocess
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
