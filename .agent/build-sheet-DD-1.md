@@ -1886,3 +1886,105 @@ P3's expected days stand (MEASURED, S-13..S-11, 42.000). Q7's stops stand. A P4 
 "The join fix worked: all 5 example days before the mill change now count, and spare solar is seen on all 5. A second, separate rule still stops the system sizing it. We're measuring that and finishing the mill check now. I'll bring you one short question with both results, and neither is claimed until then."
 
 Handoff: the builder runs M2 and §4; both results return to the coordinator. **A fresh Architect should take any follow-up,** including (b)'s field list.
+
+## DD1b2-R4: R3's kill conditions, whether the figure stands beside the mill, the owner question (Architect, Claude, 2026-11-07)
+
+Input: R3, `.agent/DD-1b2a-m2.json`, `.agent/DD-1b2a-probe-3.json`, and my own read-only queries on `assetops_demo3_dd1b2q_test` (`default_transaction_read_only=on`; nothing written, no code changed). **MEASURED** = stored rows or my queries; **ARITHMETIC** = sums on them; **READ** = code. **(b) lives on R3's words, but my recommendation moves to (a).**
+
+### 1. R3's kill conditions: neither fires
+
+- **"A figure of zero": not met.** It meant a figure that says zero, or no figure. R3 listed it beside "not SUPPORTED" as "nothing to show". The stored high is 2, and `rules.py:370` (q2 ruling 8) defines positive headroom by the upper bound: "0-1 kW stays eligible, low 0". A low bound of 0 is that rule working. So the owner is asked, not told.
+- **"If they differ, (b) is dead": not met.** It meant the fields that could show the runs were set up differently. `run_identity_sha256` hashes `run_id`, `created_at`, `deterministic_identity` and `registered_basis` (READ, `runs/source_publication.py:24-33`), so two runs can never share it, and R3's own list also named run ID, which differs by definition. Reading it as a basis field would make (b) impossible from the start, which is not what R3 proposed.
+- **Field list if (b) is chosen.** All evidence `REGISTERED_SIMULATION`; one tenant and Site; equal `snapshot_sha256`, `foundation_revision_id`, `binding_set_revision_id` (all MEASURED equal over the 10 runs); `MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS` the only reason, so `RUN_IDENTITY_CONFLICT` (two digests within one run) still limits. Excluded by name: `run_id`, `run_identity_sha256`, `deterministic_identity`, `created_at`. Scenario differs on purpose (day and night pieces), so it is not a basis field.
+
+### 2. The figure is not defensible beside the mill result as a size of spare solar
+
+**What the study computes.** MEASURED hour rows, S-15 (2026-10-21), kW. Other study days have the same day totals. Margin 5 and uncertainty ±3 are derived from these rows.
+
+| Hour | Solar available / delivered | Load (mill) | Room, low-high | Decision |
+|---|---|---|---|---|
+| 06, 07 | 9 / 9 | 13 (0) | 0-0 | Excluded, `HEADROOM_NON_POSITIVE` |
+| 08, 09 | 33 / 33 | 12 (0) | 13-19 | Excluded, `CHARGE_OBLIGATION_ACTIVE` |
+| 10, 11 | 50 / 42 | 12 (0) | 30-36 | Excluded, same |
+| 12 | 50 / 14.6 | 13 (0) | 29-35 | Excluded, same |
+| **13** | 50 / 13 | 13 (0) | **29-35** | **Eligible** |
+| **14, 15** | 36 / 32 | 32 (18) | **0-2** | **Eligible** |
+| 16, 17 | 9 / 9 | 22 (3) | 0-0 | Excluded, `HEADROOM_NON_POSITIVE` |
+
+- `frozen_result` takes the lowest low and the lowest high over eligible hours (READ, `headroom_on_every_eligible_day`), so **0-2 is hours 14 and 15 alone.** Hour 13's 29-35 does not enter.
+- **Hours 14 and 15 are tight because the old mill run sits in them** (18 of 32 kW). The study measures room beside the load the Action then moves. After the change the same hours read 2-8 (MEASURED, S-5).
+- **The two codes do not lower the number.** They remove 9 of 12 hours. The 8,880 IDs per code are the same set: 1,776 × 5 days, the day-level union of each day's hours (READ, `_fold_day`; 8,935 less the 55 boundary IDs). They do not locate the hours.
+- **The 06:00 restart does not cause 0-2.** Hours 14 and 15 have no charge request. The restart affects only when charging ends. The cause is the authored afternoon mill run plus the rule. **No number is to be tuned.**
+
+**What supplied the extra energy.** MEASURED day totals, identical on S-8, S-6, S-5:
+
+| kWh a day | S-13..S-11 | S-8, S-6, S-5 | Change |
+|---|---|---|---|
+| Solar available | 374.0 | 374.0 | 0 |
+| Solar delivered | 277.6 | 351.6 | **+74.0** |
+| **Solar unused (ARITHMETIC)** | **96.4** | **22.4** | **-74.0** |
+| Mill | 42.0 | 110.0 | +68.0 |
+| Other load, 06:00-18:00 | 166.0 | 166.0 | 0 |
+| Battery charged / discharged (15-min rows) | 102.0 / 143.8 | 99.3 / 138.0 | net 3.1 less drawn |
+| Generator | 3.24 (15 min, in the 05:00 hour), **0 on S-13** | 0 | none during mill hours, before or after |
+
+- **The extra came from unused solar.** 74.0 less 3.1 less 3.24 is about 67.7 against +68 (ARITHMETIC; losses and sampling not separated). Unused solar before the change, by hour: 8, 8, 35.4, 37, 4, 4 kW over hours 10-15. **So the answer to "where did the other 62 kWh come from" is good, and it is the study's figure that looks wrong, not the mill.**
+- **The battery still fills:** 100% at 14:00 on both, later than before (12:00 reads 99.2 before, 75.5 after).
+- **It is more milling, not the same milling moved.** Mill hours went from 14:00-18:00 to 08:00-16:00; the whole day's mill energy rose 42 → 110, and nothing else fell. Earnings 10.50 → 27.50 USD (MEASURED, P6). That extra work is authored.
+- **"Do not claim a litre" stands, and is stronger:** S-13 ran the old mill pattern with 0 generator, so the drop is not the mill's. There are 0 `fuel_level` rows at the Site.
+- **"About 3 usable hours" needs correcting.** 3 is the count of hours the rule calls free. Solar was unused in 6 hours and the mill ran 8.
+
+**A new limit the script must carry.** SOC jumps at 06:00 every day, from 30.3 or 31.5 to 55 (MEASURED). Battery discharged minus charged is 41.8 kWh a day before and 38.7 after (ARITHMETIC): that gap is what the restart covers. After the change only 22.4 kWh of unused solar remains, so about 16 kWh a day may be uncovered on continuous days (ARITHMETIC, ignoring losses). **Continuous behaviour is UNKNOWN and not run.** R3's c1 stays refused. So the demo cannot say the mill could run like this every day without the generator.
+
+**Ruling.** The figure is true under its own rule, and it is not a size of spare solar. Beside the mill it is 0-6 kWh (ARITHMETIC) against 68 kWh used and 96.4 unused. Worse, the board line (READ, `vocabulary.py:276-277`, `outcomes.py:229`; not captured) would read **"0–2 kW of daytime solar unused"** and **"0.00–0.50 USD per hour of use, at the declared price"**, and "unused" is contradicted by the hours above. The served money is per hour; 1.50 USD a day is arithmetic, not a line. R3's reason for (b), that the potential is the opportunity's only size, fails when the size misleads. **(a) sits well beside the mill:** the system saw spare solar, declined to size it, and the trial then measured the result.
+
+**Third options.**
+- **Summing the eligible hours** (the stored day `opportunity_kwh`): 29-39 kWh a day, 7.25-9.75 USD (ARITHMETIC). It needs (b) plus a new line and claim, 0.75+ est., and still does not reach 68. **Refused under SCOPE-1; backlog.**
+- **(a) plus script: accepted, +0.** It is what I recommend.
+
+**Script, under either option.**
+- **Say:** "On these example days the extra came from solar that was going unused: about 96 kWh a day before, about 22 after. The generator didn't run during mill hours, before or after, and the battery still reached full by 2pm. In this example the mill also ran longer, not just earlier."
+- **If asked about the limited-evidence line:** "We generated these example days in separate runs, and the system won't size across those. A real site reports continuously."
+- **Do not say:** the change saves fuel; the mill could run like this every day on solar; the mill's same work was simply moved.
+- **Correct** line 944's "from about 4am": MEASURED, the generator runs in the 05:00 hour only, 15 minutes. Say "shortly before 6am".
+- **DD-1b2b adds one report-only row, no product code, +0:** recompute unused solar and mill kWh on S-13..S-11 and S-8, S-6, S-5 from stored rows. The script may quote 96 and 22 only if that row matches. No screen is claimed to show them (the curtailed panel is in the Lab run frame, READ).
+
+### 3. The owner question replaces R3 §2's. Send as written
+
+"One short choice on the Grow row, with both results first.
+
+The mill check passed. On the example days, midday use went from 42 to 110 kWh a day against a 10% target, and the stored result is target met. I haven't yet seen that wording on screen; the full rehearsal will show it.
+
+The extra came from solar that was going unused: about 96 kWh a day before the change, about 22 after. The generator didn't run during mill hours, before or after, and the battery still reached full by 2pm. In this example the mill also ran longer, not just earlier: 4 hours in the afternoon became 8 hours from 8am.
+
+The choice: the system saw spare solar on all 5 example days before the change, but won't size it, because those days were generated in separate runs and it reads that as 'mixed sources'. We can lift that for this one study. We measured what it would then say: 0–2 kW over 3 daylight hours, worth at most 0.50 USD per hour used, or about 1.50 USD a day by our arithmetic. That is correct by its own rule, but it counts only the room left in all 3 hours when the battery isn't charging, and the old mill run filled two of those. So it reads as if almost no solar was spare, right beside a result that used 68 kWh more a day.
+
+**Leave it (recommended; this changes what I'd have recommended before measuring):** no extra work, 4.0 units left on this lane. The Grow row says 'Limited evidence: readings come from mixed sources, so the size is not worked out yet', with no figure or money. The presenter explains that the example days were generated separately.
+
+**Allow it for this one study:** half a unit more, 4.5 left, and it isn't proved until the full rehearsal. The client sees the 0–2 kW figure and its money beside the mill result, and the presenter has to explain the gap every time.
+
+Either way, the presenter won't say the change saves fuel, or that the mill could run like this every day on solar. Each example day restarts the battery at a set level at 6am, which covers about 40 kWh a day, only about 22 kWh of unused solar is left after the change, and we haven't tested consecutive days. This also corrects my earlier 'about 3 usable hours': 3 is what that rule counts, while solar was going unused for 6 hours and the mill ran for 8.
+
+A size that fits better would be new work, and it still wouldn't reach 68 kWh, so it goes on the after-demo list unless you say otherwise."
+
+### 4. "Seen again" (R2 Q7): dead under both
+
+- **(a): dead, MEASURED.** No recurrence. Later studies are UNKNOWN with 0 eligible, none ends on S-8, S-6 or S-5, and Portfolio counts "1 verified result". Q7's "does not recur" column applies. Q7's COH-17 entry is owed only if the check fires, which is now not expected. BL-40 stays in the backlog, not needed for the demo.
+- **(b): dead, READ; proved in the rehearsal.** (b) changes only the source-class limit. It adds no study, and those later studies have 0 eligible days regardless of class.
+- **Not measured under either:** "Checked and working" and the Assure and Action lines on S-8, S-5, S-1 (the probe sampled only Grow rows). DD-1b2b captures them. R3 §2's "Seen on 5 of 5" is corrected: S-11 measured "Spare solar on 4 of 4 well-observed days · 1 of the last 5 days not checked".
+
+### 5. Does anything stop the review? **No**
+
+- P2-P5 and P7 pass, with no P4 or P5 failure. Under (a), DD-1b2a goes to its own fresh review once the owner answers. Under (b), it goes after the build (R3: L0, L2, `test_ch9*`, MD-0 study tests).
+- **P2 is closed from the evidence:** `origin_opportunity_id` is non-null in `samples.before-ticks.action_link` of the probe file; the packet's "not read" was the builder's ad hoc query.
+- **Carried, not stopping:** the probe's stray `prebuild` `FAILED` on EV-LAB-001 board URLs on a Kobo-only clone; DD-1b2b's rehearsal must show those URLs 200. Guards and scoped tests still run before the review, as the packet says.
+- **Under (a),** R3 §2's rewording of WK-2c, F-THREADS and ST-3 stands and belongs to DD-1b2b.
+
+### 6. Units and backlog
+
+(a): 4.0, DD-1b2a 1.5. (b): 4.5, DD-1b2a 2.0, DD-1b2 3.5. Unchanged from R3. BL-43 and BL-44 are free (grepped); the coordinator records them when the owner answers.
+- **(a) chosen:** BL-43 = the narrow study rule with this field list, 0.5. BL-44 = a size for the potential that matches what a change can use, e.g. summing eligible hours; not sized beyond 0.25+ for the line, and it needs BL-43.
+- **(b) chosen:** BL-43 = the compatible-run-basis record for all readers (R3). BL-44 as above, 0.25+.
+- **Either:** continuous-day battery recovery with the mill schedule is unrun; R3's c1 already records the cost, and it joins BL-44's note rather than a new row.
+
+Handoff: the coordinator sends §3 as written. Stops come back to this Architect.
