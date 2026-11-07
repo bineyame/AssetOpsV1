@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import sys
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -38,7 +39,7 @@ def test_offsets_resolve_against_s_and_the_entry_day():
 
 
 def test_build_order_is_by_received_at_with_fresh_epochs():
-    runs = sd.resolve(sd.load(), S)
+    runs = sd.resolve(sd.load(sd.V1_FILE), S)
     received = [r.received_at for r in runs if r.has_run]
     assert received == sorted(received)
     # DD1a1-R8: an isolated day keeps its build-order `day-<n>`; the Kobo S-1/S/S+1 stream shares its first day's
@@ -63,7 +64,8 @@ def test_default_file_validates_on_relative_dates(s):
                 "ev": s + timedelta(days=-26, hours=6, minutes=30)}
     runs = sd.resolve(sd.load(), s, db_now=db_now, installs=installs)
     assert {r.site for r in runs} == {"kobo", "cold", "ev"}
-    assert sum(r.has_run for r in runs if r.site == "kobo") == 8
+    assert sum(r.has_run and not r.complement_of for r in runs if r.site == "kobo") == 21  # DD1a2-R: 13 full + 8 story-only
+    assert sum(r.has_run for r in runs if r.site == "kobo") == 13 * 3 + 8
 
 
 @pytest.mark.parametrize("s", [S, datetime(2026, 11, 3, tzinfo=timezone.utc), datetime(2027, 3, 1, tzinfo=timezone.utc)])
@@ -91,7 +93,7 @@ def test_unknown_kind():
     doc["sites"]["ev"].append({"day": "S-5d", "kind": "overuse"})
     assert _codes(doc) == "UNKNOWN_KIND"
     doc = copy.deepcopy(sd.load())
-    doc["sites"]["kobo"][5].pop("as")
+    next(e for e in doc["sites"]["kobo"] if e["kind"] == "late").pop("as")
     assert _codes(doc) == "UNKNOWN_KIND"
 
 
@@ -172,10 +174,11 @@ def test_add_day_defaults_to_the_next_free_day_on_real_time():
     planned = _plan("kobo", "late", db_now=later)
     assert planned.day == (S + timedelta(days=2)).date().isoformat() and planned.as_kind == "normal"
     assert planned.received_at == later and planned.known_at == later and planned.assess == "tick"
-    assert planned.epoch == "day-13"  # max+1 over 11 epochs (R8: the Kobo S-1/S/S+1 stream shares one)
+    current = sd.resolve(sd.load(), S, db_now=NOW, installs=INSTALLS)
+    assert planned.epoch == f"day-{max(int(r.epoch.split('-')[1]) for r in current if r.epoch) + 1}"  # max + 1
     gap = _plan("cold", "normal", day="S-10d")
     assert gap.day == "2026-10-19" and gap.has_run
-    assert not _plan("kobo", "missing", day="S-11d").has_run
+    assert not _plan("kobo", "missing", day="S+2d", db_now=later).has_run
 
 
 def test_add_day_refusals():
@@ -197,7 +200,7 @@ def test_add_day_refusals():
 def test_mill_midday_kind_resolves_and_validates_when_scheduled():
     import yaml
 
-    doc = copy.deepcopy(sd.load())
+    doc = copy.deepcopy(sd.load(sd.V1_FILE))
     assert all(e["kind"] != "mill-midday" for entries in doc["sites"].values() for e in entries)
     spec = doc["kinds"]["kobo"]["mill-midday"]
     scenario = yaml.safe_load((Path(sd.DEFAULT_FILE).parents[2] / "config" / "scenarios" / "kobo-daytime.yaml")
@@ -273,7 +276,7 @@ def test_full_day_only_where_every_join_is_stopped():
 
 def test_v2_mill_midday_points_at_the_derived_file_and_v1_is_unchanged():
     assert _v2()["kinds"]["kobo"]["mill-midday"]["scenario_id"] == "kobo-mill-midday"
-    assert sd.load()["kinds"]["kobo"]["mill-midday"]["scenario_id"] == "kobo-daytime"
+    assert sd.load(sd.V1_FILE)["kinds"]["kobo"]["mill-midday"]["scenario_id"] == "kobo-daytime"
 
 
 def test_v2_complements_are_received_after_their_own_end_and_inherit_knowledge():
@@ -379,9 +382,9 @@ def test_v2_instant_check_is_not_vacuous():
 
 def test_v2_story_runs_equal_v1():
     drop = ("covers_end", "emit_until", "owned", "complement_of", "epoch")
-    cold = [r for r in sd.resolve(sd.load(), S) if r.site == "cold"]
+    cold = [r for r in sd.resolve(sd.load(sd.V1_FILE), S) if r.site == "cold"]
     assert cold and [r.payload() for r in cold] == [r.payload() for r in sd.resolve(_v2(), S) if r.site == "cold"]
-    v1 = [{k: v for k, v in r.payload().items() if k not in drop} for r in sd.resolve(sd.load(), S)]
+    v1 = [{k: v for k, v in r.payload().items() if k not in drop} for r in sd.resolve(sd.load(sd.V1_FILE), S)]
     v2 = [{k: v for k, v in r.payload().items() if k not in drop}
           for r in sd.resolve(_v2(), S) if not r.complement_of]
     assert v2 == v1 and v1
@@ -523,7 +526,7 @@ def test_q4_add_day_two_days_from_a_late_kobo_day_is_not_refused_and_cold_has_no
 
 
 # DD1a2-R Q6: the B-16 fallback is a switch on the one day list. EV `S-14d normal` (accepted in DD1a2-R) is the entry
-# the v3 list carries; here it sits on a test list because v3 waits on the owner's answers.
+# the v3 list carries; this test list keeps the same entry on v2's days so every weekday case stays on one shape.
 def _baseline_doc():
     doc = copy.deepcopy(_v2())
     doc["sites"]["ev"] = [{"day": "S-14d", "kind": "normal"}, *doc["sites"]["ev"]]
@@ -571,3 +574,199 @@ def test_ev_s14_entry_gives_three_tuesdays_and_a_fourth_is_reported_not_moved(we
     assert sd.uncovered_weekdays(doc, s)["ev"] == want
     # without the new entry a Tuesday is reported, so the report is not vacuous
     assert sd.uncovered_weekdays(_v2(), s)["ev"]
+
+
+# ---- DD1a2-R: the v3 list ------------------------------------------------------------------------------------------
+V3_FULL = {-20: "steady-before-first", -19: "steady-before", -18: "steady-before", -17: "steady-before",
+           -16: "steady-before", -15: "steady-before", -13: "steady-before-first", -12: "steady-before",
+           -11: "steady-before", -9: "mill-midday", -8: "steady", -6: "steady", -5: "steady"}
+V3_STORY_ONLY = {-28: "normal", -21: "overcast", -14: "overuse", -7: "overuse", -3: "late", -1: "normal",
+                 0: "trial-before", 1: "trial-after"}
+SCENARIO_DIR = Path(sd.DEFAULT_FILE).parents[2] / "config" / "scenarios"
+
+
+def _scenario(sid):
+    import yaml
+
+    return yaml.safe_load((SCENARIO_DIR / f"{sid}.yaml").read_text(encoding="utf-8"))
+
+
+def _v3_entry(doc, offset):
+    return next(e for e in doc["sites"]["kobo"] if sd.day_offset(e["day"]) == offset)
+
+
+def test_v3_resolves_on_the_ruled_table():
+    runs = sd.resolve(sd.load(), S)
+    assert Path(sd.DEFAULT_FILE).name == "demo-story-days-v3.json" and sd.load()["mill_change_day"] == "S-9d"
+    kobo = [r for r in runs if r.site == "kobo"]
+    story = {r.offset: r for r in kobo if not r.complement_of}
+    assert {n: story[n].kind for n in V3_FULL} == V3_FULL
+    assert {n: story[n].kind for n in V3_STORY_ONLY} == V3_STORY_ONLY
+    assert story[-10].kind == "missing" and not story[-10].has_run and -4 not in story and -2 not in story
+    for n in V3_FULL:  # `_expand` tiled each; here the three runs and their scenario ids
+        day = sorted((r for r in kobo if r.offset == n), key=lambda r: r.start)
+        assert len(day) == 3 and day[0].emit_until == day[1].start and day[2].emit_until == day[1].start + timedelta(hours=18)
+    for n in V3_STORY_ONLY:
+        assert [r.kind for r in kobo if r.offset == n] == [V3_STORY_ONLY[n]]
+    window = [n for n in story if -20 <= n <= 1]
+    assert len(V3_FULL) == 13 and len([n for n in V3_STORY_ONLY if n >= -20]) == 6 and len(window) == 20  # + S-4, S-2
+    ids = {n: sorted(r.scenario["scenario_id"] for r in kobo if r.offset == n) for n in (-20, -19, -9, -8)}
+    assert ids[-20] == ["kobo-night-early", "kobo-rest-before-mill", "kobo-steady-before-mill"]
+    assert ids[-19] == ["kobo-night-early-after-before-mill", "kobo-rest-before-mill", "kobo-steady-before-mill"]
+    assert ids[-9] == ["kobo-mill-midday", "kobo-night-early", "kobo-rest-mill"]
+    assert ids[-8] == ["kobo-night-early", "kobo-rest-mill", "kobo-steady-day"]
+    assert [r.kind for r in runs if r.site == "cold" and not r.complement_of] == ["normal", "degraded", "failure"]
+    assert len([r for r in runs if r.site == "ev"]) == 3
+
+
+def test_v3_story_only_days_equal_v1_except_their_epoch():
+    drop = ("epoch",)
+    v1 = {(r.site, r.offset): r for r in sd.resolve(sd.load(sd.V1_FILE), S)}
+    v3 = {(r.site, r.offset): r for r in sd.resolve(sd.load(), S) if not r.complement_of}
+    for key in [("kobo", n) for n in V3_STORY_ONLY] + [k for k in v1 if k[0] == "cold"]:
+        want, got = v1[key].payload(), v3[key].payload()
+        assert {k: v for k, v in got.items() if k not in drop} == {k: v for k, v in want.items() if k not in drop}, key
+
+
+def test_before_mill_differs_from_kobo_daytime_in_exactly_the_six_mill_windows():
+    """R2's "reviewers diff against the parent", read as DD1a2-R Q2 ruled it, with each value equal to the named parent."""
+    before, parent = _scenario("kobo-steady-before-mill"), _scenario("kobo-daytime")
+    b = {e["event_id"]: e for e in before["timeline"]}
+    p = {e["event_id"]: e for e in parent["timeline"]}
+    assert set(b) == set(p)
+    changed = {eid for eid in b if b[eid] != p[eid]}
+    assert changed <= {f"mill-demand-{n}" for n in range(1, 7)}
+    trial, evening = _scenario("kobo-mini-grid-reserve-trial"), _scenario("kobo-mini-grid-evening")
+    level = lambda doc, eid: next(e for e in doc["timeline"] if e["event_id"] == eid)["parameters"][0]["value"]
+    assert [level(before, f"mill-demand-{n}") for n in range(1, 7)] == [
+        level(trial, "mill-demand-1")] * 4 + [level(evening, "mill-demand-2"), level(evening, "mill-demand-3")]
+    assert [level(before, f"mill-demand-{n}") for n in range(1, 7)] == [0, 0, 0, 0, 18, 3]
+    for n in range(1, 7):  # only the value differs in a mill window
+        a, c = copy.deepcopy(b[f"mill-demand-{n}"]), copy.deepcopy(p[f"mill-demand-{n}"])
+        a["parameters"][0]["value"] = c["parameters"][0]["value"]
+        assert a == c
+    assert {x["parameter_id"]: x["value"] for x in before["public_parameters"]} == {
+        **{x["parameter_id"]: x["value"] for x in parent["public_parameters"]},
+        "starting-fuel": 300, "starting-generator-state": "STOPPED"}
+
+
+def test_steady_day_equals_the_mill_day():
+    """So `kobo-steady-day`'s 18:00 state is the one R16 measured (and G0 re-measured)."""
+    day, mill = _scenario("kobo-steady-day"), _scenario("kobo-mill-midday")
+    assert day["timeline"] == mill["timeline"] and day["public_parameters"] == mill["public_parameters"]
+    text = (SCENARIO_DIR / "kobo-steady-day.yaml").read_text(encoding="utf-8")
+    assert "HELD" not in text and "NOT USABLE" not in text and "Not usable" not in text
+
+
+@pytest.mark.parametrize("sid", ["kobo-steady-day", "kobo-steady-before-mill", "kobo-mill-midday"])
+def test_each_0600_start_file_carries_the_disclosure(sid):
+    import derive_steady_scenarios as derive
+
+    lines = (SCENARIO_DIR / f"{sid}.yaml").read_text(encoding="utf-8").splitlines()
+    assert derive.DISCLOSURE_0600 == ("Example data. Each full example day starts at 06:00 from a declared battery level "
+                                      "and fuel level. Battery and fuel are not carried over from the night before.")
+    assert f"# label: {derive.DISCLOSURE_0600}" in lines
+    assert next(x.strip() for x in lines if x.strip().startswith("# source:")) == f"# source: {derive.DISCLOSURE_0600}"
+
+
+def test_mill_profile_on_the_wrong_side_is_refused():
+    for offset, kind in ((-8, "steady-before"), (-9, "steady-before-first"), (-13, "steady"), (-9, "steady")):
+        doc = copy.deepcopy(sd.load())
+        entry = _v3_entry(doc, offset)
+        entry["kind"] = kind
+        assert _codes(doc) == "MILL_PROFILE_WRONG_SIDE", (offset, kind)
+    doc = sd.load()
+    current = sd.resolve(doc, S)
+    with pytest.raises(sd.StoryDaysError) as err:  # the live fill the ruling names
+        sd.plan_add_day(doc, current, "kobo", "steady", S, S + timedelta(days=10), day="S-10d")
+    assert err.value.error_code == "MILL_PROFILE_WRONG_SIDE"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_day(doc, current, "kobo", "steady-before-first", S, S + timedelta(days=10), day="S+2d")
+    assert err.value.error_code == "MILL_PROFILE_WRONG_SIDE"
+
+
+def test_q6_real_mill3_days_survive_b16_on_v3():
+    doc = sd.load()
+    out = sd.apply_baseline(doc, S, "b16")
+    runs = {r.offset for r in sd.resolve(out, S) if r.site == "kobo" and r.has_run}
+    assert MILL3_OFFSETS <= runs and not runs & set(range(-20, -14)) and {-28, -21, -14} <= runs
+    assert {r.offset for r in sd.resolve(doc, S) if r.site == "kobo" and r.has_run} & set(range(-20, -14))
+
+
+# The list-level guard, closing `review-DD-1a1.md:108-110`. Each mutation is one a calendar edit could make.
+def test_guard_a_complement_list_that_is_not_the_measured_chain_is_refused():
+    doc = copy.deepcopy(sd.load())
+    doc["kinds"]["kobo"]["steady"]["complement"] = ["night-early", "before-rest"]
+    assert _codes(doc) == "FULL_DAY_CHAIN_UNMEASURED"
+    doc = copy.deepcopy(sd.load())
+    doc["kinds"]["kobo"]["steady"]["complement"] = ["night-early-after-before", "mill-rest"]
+    assert _codes(doc) == "FULL_DAY_CHAIN_UNMEASURED"
+
+
+def test_guard_a_full_day_needs_a_measured_previous_24_00_within_the_bound():
+    doc = copy.deepcopy(sd.load())
+    _v3_entry(doc, -19)["kind"] = "steady-before-first"  # 48 % declared against the 45.26 % S-20 measured
+    assert _codes(doc) == "FULL_DAY_JOIN_BOUND"
+    doc = copy.deepcopy(sd.load())
+    _v3_entry(doc, -13)["kind"] = "steady-before"  # S-14 is story-only: there is no 24:00 to start from
+    assert _codes(doc) == "FULL_DAY_JOIN_UNMEASURED"
+
+
+def test_guard_the_list_passes_on_the_measured_file_and_fails_on_a_changed_measurement():
+    doc, data = sd.load(), json.loads(sd.JOINS_FILE.read_text(encoding="utf-8"))
+    kinds = [(sd.day_offset(e["day"]), e.get("as") or e["kind"]) for e in doc["sites"]["kobo"]
+             if e["kind"] != "missing"]
+    sd.check_full_day_chains(doc, "kobo", kinds, data)
+    moved = copy.deepcopy(data)
+    moved["full_days"]["kobo-steady-before-mill"]["end_24"]["soc"] += 1
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.check_full_day_chains(doc, "kobo", kinds, moved)
+    assert err.value.error_code == "FULL_DAY_JOIN_BOUND"
+    running = copy.deepcopy(data)
+    running["full_days"]["kobo-steady-before-mill"]["end_24"]["generator"] = "RUNNING"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.check_full_day_chains(doc, "kobo", kinds, running)
+    assert err.value.error_code == "FULL_DAY_JOIN_BOUND"
+
+
+def test_add_day_steady_expands_to_three_runs_at_db_now_in_source_order():
+    doc = sd.load()
+    current = sd.resolve(doc, S)
+    now = S + timedelta(days=2, hours=22)  # the rest of S+2 ended 21:00Z
+    runs = sd.plan_add_runs(doc, current, "kobo", "steady", S, now, day="S+2d")
+    assert [r.scenario["scenario_id"] for r in runs] == ["kobo-night-early", "kobo-steady-day", "kobo-rest-mill"]
+    assert [r.received_at for r in runs] == [now, now + timedelta(seconds=1), now + timedelta(seconds=2)]
+    assert [r.start for r in runs] == sorted(r.start for r in runs) and {r.offset for r in runs} == {2}
+    assert {r.known_at for r in runs} == {now} and len({r.epoch for r in runs}) == 1 and {r.assess for r in runs} == {"tick"}
+    assert runs[1].start == S + timedelta(days=2, hours=3) and runs[1].end == S + timedelta(days=2, hours=15)
+    assert [bool(r.complement_of) for r in runs] == [True, False, True]
+    assert sd.plan_add_runs(doc, current, "kobo", "normal", S, now, day="S+2d")[0].kind == "normal"
+    assert len(sd.plan_add_runs(doc, current, "kobo", "normal", S, now, day="S+2d")) == 1
+    with pytest.raises(sd.StoryDaysError) as err:  # ST-7: addable once the whole day has ended in real time
+        sd.plan_add_runs(doc, current, "kobo", "steady", S, S + timedelta(days=2, hours=20), day="S+2d")
+    assert err.value.error_code == "DAY_NOT_IN_PAST"
+
+
+def test_s10_is_fillable_with_the_fresh_before_day_and_keeps_the_refusals_first():
+    doc = sd.load()
+    current = sd.resolve(doc, S)
+    now = S + timedelta(days=3)
+    runs = sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, now, day="S-10d")
+    assert [r.scenario["scenario_id"] for r in runs] == ["kobo-night-early", "kobo-steady-before-mill", "kobo-rest-before-mill"]
+    with pytest.raises(sd.StoryDaysError) as err:  # DD0c-R Q4: fires before any provisioning; the plan writes nothing
+        sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, now, day="S-10d", delivered_days={"2026-10-19"})
+    assert err.value.error_code == "DAY_HAS_EVIDENCE"
+    for day, code in (("S-11d", "DUPLICATE_DAY"), ("S-31d", "OUTSIDE_BOARD_WINDOW")):
+        with pytest.raises(sd.StoryDaysError) as err:
+            sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, now, day=day)
+        assert err.value.error_code == code
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_runs(doc, current, "kobo", "steady", S, now, day="S+3d")
+    assert err.value.error_code == "DAY_NOT_IN_PAST"
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_runs(doc, current, "kobo", "mill-midday", S, now, day="S+1d")
+    assert err.value.error_code == "PREPARE_ONLY_KIND"
+    for day in ("S-4d", "S-2d"):
+        with pytest.raises(sd.StoryDaysError) as err:
+            sd.plan_add_runs(doc, current, "kobo", "steady-before-first" if day == "x" else "normal", S, now, day=day)
+        assert err.value.error_code == "LATE_IN_STREAM"
