@@ -469,6 +469,15 @@ def test_ev_low_day_states_only_not_known_with_its_days_line() -> None:
     assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too little data" in text
 
 
+def test_ev_priced_day_with_unknown_claim_never_names_an_estimate_without_a_figure() -> None:
+    """WD-1 (BL-48, MD-WD1-1): a priced day whose chain claim is NOT_KNOWN states why there is no figure."""
+    _, ok = run_ev()
+    assert ok[GROW]["headline"] == ev.TARIFF_ESTIMATE and ok[GROW]["headline_money"] is not None
+    _, rows = run_ev(Fake(chain_rows=ev_snapshot(EV_OVERVIEW, grade="LOW")))
+    assert rows[GROW]["headline_money"] is None
+    assert rows[GROW]["headline"] == ev.NO_INCOME_FIGURE != ev.NO_TARIFF
+
+
 def test_ev_priced_flag_sets_the_optimize_not_measured_text() -> None:
     """CH6a3-R review M2: `ev_priced` (the window's tariff) alone picks the Optimize sentence."""
     comp, rows = run_ev()

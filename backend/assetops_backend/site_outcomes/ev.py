@@ -49,6 +49,7 @@ EVERY_END = "Every session has an accepted end"
 NO_STATUS_GAP = "No status gap"
 TARIFF_ESTIMATE = "estimated charging income"  # WALK1-2 §3.2 (R674; mock "gross tariff estimate")
 NO_TARIFF = "Charging income estimate not available yet"
+NO_INCOME_FIGURE = "No income figure for this day: it is not fully checked"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
 #: WALK1-2 §3.2 (R674/R676): the priced Grow subline and the declared-tariff contributor. The tariff is declared,
 #: never measured; the amount is an estimate, never billed or collected income.
 PRICED_SUBLINE = ("{kwh} kWh with a complete meter record, at the declared tariff of {p} {cur} per kWh · "
@@ -76,7 +77,7 @@ def interrupted_text(fault: Any, unknown: Any) -> str:
 
 
 COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
-        SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF,
+        SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF, NO_INCOME_FIGURE,
         PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS,
         PRICED_SUBLINE.format(kwh="120.0", p="0.30", cur="USD"), TARIFF_DECLARED.format(p="0.30", cur="USD"),
         NO_TARIFF_DECLARED, TARIFF_UNKNOWN,
@@ -303,7 +304,8 @@ def _charging_from_claim(parts: dict[str, Any], facts: Any, priced: bool, comple
     else:
         sub, money = None, None
         line = Contributor("charging_delivered", "Charging delivered", parts["text"])
-    return {"headline_money": {**facts.headline_money, GROW: money},
+    headline = {**facts.headline, GROW: NO_INCOME_FIGURE} if priced and money is None else facts.headline
+    return {"headline": headline, "headline_money": {**facts.headline_money, GROW: money},
             "subline": {**facts.subline, GROW: sub},
             "contributors": {**facts.contributors, GROW: tuple(line if x.key == "charging_delivered" else x
                                                                for x in facts.contributors[GROW])}}

@@ -24,7 +24,7 @@ from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.chain import lifecycle as lc
 from assetops_backend.chain import refs, site_chain
 from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
-    MG1_MISSED, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
+    MG1_MISSED, MG1_NO_DAY, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
@@ -132,7 +132,7 @@ FINDING_TITLE_FALLBACK = "Generator support review"
 ACTION_ROW_MISSING = "ACTION_ROW_MISSING"
 
 #: OUT-D U4: the objective actual texts that carry no number (the numbered ones are templates in `mini_readings`).
-MG1_ACTUAL = "sales not recorded"
+MG1_ACTUAL = MG1_NO_DAY
 MG5_UNMEASURED = "critical demand not measured"
 MG2_LONGER = "{m} min longer than needed on this day"
 MG2_UNCLEAR = "{m} min not yet clear on this day"

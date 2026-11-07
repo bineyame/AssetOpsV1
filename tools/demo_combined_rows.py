@@ -90,12 +90,13 @@ def unknown_only_not_judged(outcomes: dict) -> list[str]:
 
 def wk4(state: str, text: str, complete: int | None) -> str:
     """WK-4 branches: too early to judge (fewer checked days than the minimum); no fully checked day this month
-    (R10: UNKNOWN, `kpi.days.complete == 0`, the line ends "sales not recorded"); otherwise on pace or behind."""
+    (R10: UNKNOWN, `kpi.days.complete == 0`, the line ends with `MG1_NO_DAY`); otherwise on pace or behind."""
+    from assetops_backend.chain.vocabulary import MG1_NO_DAY
     if "too early to judge" in text:
         assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
         return "TOO_EARLY"
     if complete == 0:
-        assert state == "UNKNOWN" and text.endswith("sales not recorded"), (state, text)
+        assert state == "UNKNOWN" and text.endswith(MG1_NO_DAY), (state, text)
         return "NO_FULL_DAY"
     assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text, complete)
     return "JUDGED"

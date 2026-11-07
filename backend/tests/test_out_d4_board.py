@@ -16,6 +16,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 import test_out_b2_mini as b2
 import test_out_b3_cold_ev as b3
 from assetops_backend.chain.ports import SnapshotRow
+from assetops_backend.chain.vocabulary import MG1_NO_DAY
 from assetops_backend.outcomes.objectives import MEASURES, POLICY
 from assetops_backend.site_outcomes import cold, ev, mini, read
 from assetops_backend.site_outcomes.board import assemble, objectives_wire
@@ -121,7 +122,7 @@ def test_mg1_with_headroom_is_unknown_with_the_opportunity_as_potential() -> Non
     assert rows[GROW]["potential"] == {"label": "Opportunity", "text": "Productive-use headroom"}
     [line] = declared(rows[GROW])
     assert line["text"] == ("Productive electricity sales: at least 300 kWh sold for productive use a month · "
-                            "sales not recorded")
+                            + MG1_NO_DAY)
     assert line["confidence"]["label"] == "Not checked yet"
 
 

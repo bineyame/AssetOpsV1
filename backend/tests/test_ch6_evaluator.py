@@ -17,7 +17,7 @@ from assetops_backend.chain.read import MoneyHead
 from assetops_backend.chain.strategies.base import NOT_PRICED, ContributionContext
 from assetops_backend.chain.strategies.graded_verdict import grade_counts
 from assetops_backend.chain.strategies import REGISTRY
-from assetops_backend.chain.vocabulary import LIMIT_MIXED
+from assetops_backend.chain.vocabulary import LIMIT_MIXED, MG1_NO_DAY
 from assetops_backend.outcomes.objectives import ObjectiveFact, Reading
 from assetops_backend.outcomes.outcome_map import records_for
 
@@ -87,7 +87,7 @@ def test_mg1_missed_only_on_a_full_month():
 
 def test_mg1_no_counted_day_is_not_judged_sales_not_recorded():
     kpi = EV.nodes(inp([row(1, "LOW")], [mg1()], hi=2), "MG-1")["kpi"]
-    assert (kpi.value, kpi.text) == ("NOT_JUDGED", "sales not recorded")
+    assert (kpi.value, kpi.text) == ("NOT_JUDGED", MG1_NO_DAY)
 
 
 def test_mg1_weakest_subject_decides_the_day():

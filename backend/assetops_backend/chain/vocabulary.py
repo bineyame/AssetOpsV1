@@ -264,8 +264,9 @@ MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
 MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
 MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
 MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
-#: `site_outcomes/mini.py:127` `MG1_ACTUAL`, the board's existing words for no checked day (CH6a2-R Q5).
-MG1_NO_DAY = "sales not recorded"
+#: The words for no checked day (CH6a2-R Q5); `site_outcomes/mini.py` `MG1_ACTUAL` is this same literal by import
+#: (WD-1, MOCK DEVIATION MD-WD1-2).
+MG1_NO_DAY = "no fully checked day counted yet this month"
 
 NODE_TEXT = {
     "money.days": "{amount} over {k} of {m} days checked",
@@ -335,7 +336,7 @@ def _one_decimal(value: Any) -> str:
 def mg1_text(verdict: str | None, value: Any, checked: int, elapsed: int, month_days: int, target: Any,
              min_checked_days: int) -> str:
     """§A4 `verdict.*`: the MG-1 month text for `judge_month`'s verdict, by `mini.mg1_reading`'s rule; with no
-    counted day, the board's "sales not recorded" (CH6a2-R Q5)."""
+    counted day, `MG1_NO_DAY` (CH6a2-R Q5, reworded by WD-1)."""
     if value is None or not checked:
         return MG1_NO_DAY
     words = {"mtd": _one_decimal(value), "c": checked, "e": elapsed, "m": month_days}
