@@ -83,6 +83,24 @@ def template_draft(doc: dict, start: str, end: str):
     return kobo_draft(document=copy.deepcopy(doc), start_time=start, end_time=end, **PROFILE)
 
 
+def _local(start: str, minutes: int) -> str:
+    """HH:MM local (UTC+3) `minutes` after the UTC instant `start`."""
+    total = ((int(start[11:13]) + 3) * 60 + int(start[14:16]) + minutes) % 1440
+    return f"{total // 60:02d}:{total % 60:02d}"
+
+
+def _intervals(gens: list, start: str) -> list[list[str]]:
+    """The generator's RUNNING intervals of one run, local time (DD1a2-R G0 records them per run)."""
+    out, step, began = [], PROFILE["timestep_minutes"], None
+    for n, g in enumerate(gens + [None]):
+        if g == "RUNNING" and began is None:
+            began = n
+        elif g != "RUNNING" and began is not None:
+            out.append([_local(start, began * step), _local(start, n * step)])
+            began = None
+    return out
+
+
 def measure(name: str, doc: dict, start: str, end: str, draft=template_draft) -> dict:
     from execution_adapter import model_for, run_to_end
 
@@ -102,6 +120,7 @@ def measure(name: str, doc: dict, start: str, end: str, draft=template_draft) ->
         "start": {p["parameter_id"]: p["value"] for p in doc["public_parameters"]},
         "measured_end": end_state,
         "generator_starts": starts,
+        "generator_intervals_local": _intervals(gens, start),
         "generator_running_minutes": PROFILE["timestep_minutes"] * sum(1 for g in gens if g == "RUNNING"),
         "fuel_used_l": round(float(stocks[0][FUEL]) - end_state["fuel"], 3),
         "min_soc": round(min(float(s[SOC]) for s in stocks), 3),
@@ -213,7 +232,8 @@ def dusk(draft=template_draft) -> tuple[dict, dict]:
         if sid in derive.REST:  # the rest of the mill day: 18:00-24:00 in one run, its end must be STOPPED too
             run_doc, run_to, run_lo = derive.rest_document(sid, handover[sid]["start"])[0], f"{DAY}T21:00:00Z", f"{DAY}T15:00:00Z"
         else:
-            run_doc, run_to, run_lo = _load(sid), f"{DAY}T17:00:00Z", f"{DAY}T15:00:00Z"
+            # DD1a2-R Q7: the dusk file is withdrawn; its document is rendered in memory so this history stays reproducible
+            run_doc, run_to, run_lo = yaml.safe_load(derive.kobo(sid)), f"{DAY}T17:00:00Z", f"{DAY}T15:00:00Z"
             for prm in run_doc["public_parameters"]:
                 prm["value"] = {"starting-state-of-charge": end["soc"], "starting-fuel": end["fuel"],
                                 "starting-generator-state": "STOPPED"}[prm["parameter_id"]]
@@ -225,19 +245,66 @@ def dusk(draft=template_draft) -> tuple[dict, dict]:
 
 #: DD1a1-R3 Q2: the same probes re-run on the registered demo Kobo Site (L2, own *_test DB) must measure the same
 #: values; the test fails if they differ, and then this file is rewritten from the registered measurement.
+#: DD1a2-R G0: the day shapes of the B-22 list. story scenario -> (night files allowed at 00:00, its rest-of-day file,
+#: the probes of its 18:00 and 24:00 joins). `demo_story_days.resolve` compares every full day with this.
+FULL_DAY = {"kobo-mill-midday": (["kobo-night-early"], "kobo-rest-mill", "M-dusk", "M-dusk-run"),
+            "kobo-steady-day": (["kobo-night-early"], "kobo-rest-mill", "D-dusk", "D-dusk-run"),
+            "kobo-steady-before-mill": (["kobo-night-early", derive.BEFORE_NIGHT], "kobo-rest-before-mill", "B-dusk",
+                                        "B-dusk-run")}
+
+
+def day_chains(draft=template_draft) -> tuple[dict, dict]:
+    """DD1a2-R G0. `kobo-steady-day` (same windows and start as the mill day) through `kobo-rest-mill`, and
+    `kobo-steady-before-mill` through `kobo-rest-before-mill` and the night after it. Full precision at each cut, so
+    the next run starts exactly where its day ended. Refuses a day not STOPPED at a join (a stop, never tuned)."""
+    probes, handover = {}, {}
+    exact = "full precision, no rounding, so the next run starts exactly where its day ended; the generator was STOPPED at "
+    for sid, key, rest_id in (("kobo-steady-day", "D", "kobo-rest-mill"),
+                              ("kobo-steady-before-mill", "B", "kobo-rest-before-mill")):
+        probes[f"{key}-dusk"] = measure(f"{key}-dusk", yaml.safe_load(derive.kobo(sid)), f"{DAY}T03:00:00Z",
+                                        f"{DAY}T15:00:00Z", draft)
+        end = probes[f"{key}-dusk"]["measured_end"]
+        if end["generator"] != "STOPPED":
+            raise SystemExit(f"G0 STOP: {sid}: the generator is {end['generator']} at 18:00: {probes[f'{key}-dusk']}")
+        start = {"soc": end["soc"], "fuel": end["fuel"], "generator": "STOPPED"}
+        rest_doc = derive.rest_document(rest_id, start)[0]
+        probes[f"{key}-dusk-run"] = measure(f"{key}-dusk-run", rest_doc, f"{DAY}T15:00:00Z", f"{DAY}T21:00:00Z", draft)
+        late = probes[f"{key}-dusk-run"]["measured_end"]
+        if late["generator"] != "STOPPED":
+            raise SystemExit(f"G0 STOP: {rest_id}: the generator is {late['generator']} at 24:00: "
+                             f"{probes[f'{key}-dusk-run']}")
+        if key == "B":
+            night_start = {"soc": late["soc"], "fuel": late["fuel"], "generator": "STOPPED"}
+            handover[rest_id] = {"probe_id": probes["B-dusk"]["probe_id"], "at_local": "18:00", "start": start,
+                                 "rounding": exact + "18:00"}
+            handover[derive.BEFORE_NIGHT] = {"probe_id": probes["B-dusk-run"]["probe_id"], "at_local": "00:00",
+                                             "start": night_start, "rounding": exact + "24:00"}
+            doc, _ = derive.night_document(derive.BEFORE_NIGHT, night_start)
+            probes["B-early"] = measure("B-early", doc, f"{DAY}T21:00:00Z", f"{NEXT}T03:00:00Z", draft)
+    return probes, handover
+
+
 REGISTERED = {"site_code": "KOBO-001", "checked_by": "host/tests/test_dd1a1_registered_kobo.py",
               "configuration": "demo prepare order: import, convert, configure_at (tools/demo_combined_kobo.py)",
               "result": "every probe and handover equal to the template-Site measurement"}
 
 
-def full_days(dusk_probes: dict) -> dict:
-    """DD1a1-R16: the measured joins of each full-day story scenario (read by `demo_story_days.check_full_day`). The
-    mill day's joins are its 18:00 story end and its 24:00 end of the rest-of-day run; the 06:00 story start is exempt."""
-    joins = [{"at_local": "18:00", "probe": dusk_probes["M-dusk"]["probe_id"],
-              "generator": dusk_probes["M-dusk"]["measured_end"]["generator"]},
-             {"at_local": "24:00", "probe": dusk_probes["M-dusk-run"]["probe_id"],
-              "generator": dusk_probes["M-dusk-run"]["measured_end"]["generator"]}]
-    return {"kobo-mill-midday": {"joins": joins, "exempt": ["06:00 story start"]}}
+def full_days(probes: dict) -> dict:
+    """DD1a1-R16, DD1a2-R G0: the measured joins of each full-day story scenario (read by `demo_story_days`). Its joins
+    are the 18:00 story end and the 24:00 end of the rest-of-day run; the 06:00 story start is exempt (reported per
+    day). `end_24` is what the next day's 00:00 start is compared with."""
+    out = {}
+    for sid, (nights, rest_id, day_probe, rest_probe) in FULL_DAY.items():
+        day, rest_of = probes[day_probe], probes[rest_probe]
+        end = rest_of["measured_end"]
+        out[sid] = {"joins": [{"at_local": "18:00", "probe": day["probe_id"], "generator": day["measured_end"]["generator"]},
+                              {"at_local": "24:00", "probe": rest_of["probe_id"], "generator": end["generator"]}],
+                    "exempt": ["06:00 story start"], "nights": nights, "rest": rest_id,
+                    "end_24": {"soc": end["soc"], "fuel": end["fuel"], "generator": end["generator"]},
+                    "state_18": day["measured_end"],
+                    "generator_local": {"story": day["generator_intervals_local"],
+                                        "rest": rest_of["generator_intervals_local"]}}
+    return out
 
 
 def build(draft=template_draft) -> dict:
@@ -246,6 +313,7 @@ def build(draft=template_draft) -> dict:
                                  draft)
     split_probes, split_handover = split(s_probes, s_handover, draft)
     dusk_probes, dusk_handover = dusk(draft)
+    day_probes, day_handover = day_chains(draft)
     return {
         "schema": {"id": "assetops.kobo-night-handover", "version": 1},
         "label": derive.NIGHT_LABEL,
@@ -254,9 +322,9 @@ def build(draft=template_draft) -> dict:
         "registered_site": REGISTERED,
         "profile": PROFILE,
         "rounding": ROUNDING,
-        "full_days": full_days(dusk_probes),
-        "probes": {**s_probes, **o_probes, **split_probes, **dusk_probes},
-        "handover": {**s_handover, **o_handover, **split_handover, **dusk_handover},
+        "full_days": full_days({**dusk_probes, **day_probes}),
+        "probes": {**s_probes, **o_probes, **split_probes, **dusk_probes, **day_probes},
+        "handover": {**s_handover, **o_handover, **split_handover, **dusk_handover, **day_handover},
     }
 
 

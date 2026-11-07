@@ -37,11 +37,9 @@ SHIFT = timedelta(days=28)  # the probe day 2026-09-22 -> 2026-10-20, after the 
 DAY = "2026-10-20"
 #: DD1a1-R2/R3 files with their UTC hours on a local day D (UTC+3): (start, end, end on the next day).
 NEW_FILES = {
-    "kobo-steady-day": ("03:00", "15:00", False), "kobo-steady-afternoon": ("11:00", "17:00", False),
-    "kobo-steady-dusk": ("15:00", "17:00", False),
-    "kobo-rest-mill": ("15:00", "21:00", True), "kobo-night-late": ("17:00", "21:00", False),
-    "kobo-night-early": ("21:00", "03:00", True), "kobo-night-late-after-overcast": ("17:00", "21:00", False),
-    "kobo-night-early-after-overcast": ("21:00", "03:00", True),
+    "kobo-steady-day": ("03:00", "15:00", False),
+    "kobo-rest-mill": ("15:00", "21:00", True),
+    "kobo-night-early": ("21:00", "03:00", True),
 }
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")

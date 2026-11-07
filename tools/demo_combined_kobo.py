@@ -541,7 +541,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     ids = {
         "manifest": {"base": "backend/conversions/d-verification-window-v3.json",
                      "story": "backend/conversions/demo-combined-story-v1.json",
-                     "days": "backend/conversions/demo-story-days-v1.json", "scenario": M["scenario"],
+                     "days": "backend/conversions/demo-story-days-v3.json", "scenario": M["scenario"],
                      "model_profile": M["model_profile"], "resolved": {k: M[k] for k in ("runs", "action", "plan",
                                                                                           "windows", "evaluate_at")}},
         "finding": str(finding), "finding_revision": rec["revision_id"],
@@ -568,7 +568,9 @@ def add_day(url: str, work: Path, planned: dict) -> dict:
     from sqlalchemy import create_engine
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
-    day = sd.from_payload([planned])[0]
+    # DD1a2-R Q8.3: a full-day kind arrives as its runs in source-time order; the story run names the day
+    runs = sd.from_payload(planned if isinstance(planned, list) else [planned])
+    day = next(r for r in runs if not r.complement_of)
     engine = create_engine(url)
     store = PostgresFoundationStore(url)
     foundation = pub.registered.FoundationService(store, "demo", pub.registered.Clock(day.received_at))
@@ -577,7 +579,10 @@ def add_day(url: str, work: Path, planned: dict) -> dict:
     runner = rp.LabRunner(store, engine, result, day.received_at)
     tmp = Path(tempfile.mkdtemp(prefix="kobo-add-day-", dir=str(work)))
     try:
-        out = run_day(store, runner, tmp, day, MANIFEST_V3)
+        out = {}
+        for r in runs:
+            done = run_day(store, runner, tmp, r, MANIFEST_V3)
+            out = done if r is day else out
         out["findings"] = findings_on(engine, result.site.id, day.day) if day.assess == "build" else []
     finally:
         pg_harness.dispose(runner.findings)
