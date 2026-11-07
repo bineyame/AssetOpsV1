@@ -152,6 +152,34 @@ def action_wire_ref(site: str, a: Mapping[str, Any]) -> dict[str, Any]:
     return refs.action_ref(site, a["action_id"])
 
 
+def opportunity_actions(rows: Mapping[str, Any], *, site: str, tz: str | None, cutoff: datetime | None,
+                        lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+    """MB-1 (FUEL-1 MB-1-R Q1/Q4): the Site's opportunity-origin domain Actions shown in `[lo, hi)` as of `cutoff`:
+    kind DOMAIN_INTENT with `origin_opportunity_id` set and a thread; `accepted_at < hi` and (cutoff None or
+    `accepted_at <= cutoff`); and the thread has an occurrence with an `opportunity_id` whose episode meets
+    `[lo, hi)` (the `_finding_threads` predicate, claims.py:59-66). `outcome` is the stored decisive outcome when
+    its `outcome_recorded_at` is known by `cutoff` (None = every one), else None (not judged as known)."""
+    occs = _occurrences(rows)
+    out = []
+    for a in rows.get("actions", ()):
+        tid, accepted = a.get("thread_id"), a.get("accepted_at")
+        if a.get("kind") != "DOMAIN_INTENT" or a.get("origin_opportunity_id") is None or tid is None:
+            continue
+        if accepted is None or accepted >= hi or (cutoff is not None and accepted > cutoff):
+            continue
+        if not any(o.get("opportunity_id") is not None and o["episode_start"] is not None and o["episode_start"] < hi
+                   and (o["episode_end"] is None or o["episode_end"] > lo) for o in occs.get(tid, ())):
+            continue
+        outcome, recorded = a.get("outcome"), a.get("outcome_recorded_at")
+        known = outcome is not None and (cutoff is None or (recorded is not None and recorded <= cutoff))
+        out.append({"action_id": a["action_id"], "code": a.get("action_code"), "thread_id": tid,
+                    "origin_opportunity_id": a["origin_opportunity_id"], "accepted_at": accepted,
+                    "outcome": outcome if known else None, "outcome_recorded_at": recorded if known else None,
+                    "ref": action_wire_ref(site, a)})
+    out.sort(key=lambda x: (x["code"] or "", x["action_id"]))
+    return out
+
+
 def thread_detail(rows: Mapping[str, Any], thread_id: str, *, site: str, domain: str, tz: str | None,
                   cutoff: datetime | None) -> dict[str, Any] | None:
     """`/sites/{code}/threads/{id}`: the thread (None when it is not this Site's, or has no visible occurrence),

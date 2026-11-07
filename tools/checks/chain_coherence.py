@@ -1235,6 +1235,26 @@ def coh17_optimize(w: str, summary: dict, files: list[str], tally: dict[str, int
     return [] if problem is None else [finding("COH-17", None, w, "O1", problem, files)]
 
 
+def _coh17_a1(w: str, code: str | None, assure: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
+    """MB-1-R Q5 row A1 (a mini board, internal): the Assure headline's count equals the Assure "Verified results"
+    entries that read as verified (" not yet verified" entries excluded)."""
+    from assetops_backend.site_outcomes.mini import NO_VERIFIED
+
+    tally["compared"] += 1
+    headline = assure.get("headline")
+    m = re.fullmatch(r"(\d+) verified results?", str(headline or ""))
+    if headline != NO_VERIFIED and m is None:
+        return [finding("COH-17", code, w, "A1", f"unreadable Assure headline {headline!r}", files)]
+    shown = 0 if headline == NO_VERIFIED else int(m.group(1))
+    listed = sum(1 for c in assure.get("contributors") or () if c.get("key") == "verified_results"
+                 and re.fullmatch(r"\S+ verified\b.*", str(c.get("text") or ""))
+                 and " not yet verified" not in str(c.get("text") or "")
+                 and c.get("text") != NO_VERIFIED)  # the empty entry ("No verified result yet") matches the pattern
+    if shown == listed:
+        return []
+    return [finding("COH-17", code, w, "A1", f"Assure headline {headline!r}, {listed} verified entries", files)]
+
+
 def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[str, int]) -> list[dict]:
     """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1, Q2 rows W1, W2 and CH5d1-R row O1 for one estate window (Site sets
     equal)."""
@@ -1298,6 +1318,11 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
             if w == "S" and site.get("domain") == MINI_DOMAIN:  # one day on both; other windows differ by design
                 check("V4", here.get("nodes") == there.get("nodes"), f"{cat}: summary nodes differ from board nodes",
                       where, code)
+        if site.get("domain") == MINI_DOMAIN:  # MB-1-R Q5 A1: board-internal, one board on one day
+            if ASSURE in board_rows:
+                out += _coh17_a1(w, code, board_rows[ASSURE], bundle.files(board_name), tally)
+            else:
+                tally["skipped"] += 1  # a stored board body with no Assure row (older fixtures): not judged
 
     portfolio = bundle.get(f"portfolio.{w}")
     if portfolio is None:
@@ -1313,12 +1338,15 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
         check("L1", s.get("priority_site_count") == priority,
               f"priority_site_count {s.get('priority_site_count')!r}, Sites with open threads {priority!r}", where)
         # CH6b3-R3 L3: the Findings table's "Verified" rows are the claim's threads (one row per Finding, one
-        # thread counted once); only on a complete (unpaged) table and a known claim.
+        # thread counted once); only on a complete (unpaged) table and a known claim. MB-1-R Q5: plus each Site's
+        # verified opportunity-origin domain Actions (`threads.verified_actions`; absent = 0, older bundles).
         if portfolio.get("next_cursor") is None and want is not None:
             verified = {str((r.get("thread") or {}).get("id")) for r in _rows(portfolio)
                         if r.get("workflow_label") == "Verified" and (r.get("thread") or {}).get("id")}
-            check("L3", len(verified) == want, f"{len(verified)} distinct Verified threads in the table, claim {want!r}",
-                  where)
+            mill = sum(int((x.get("threads") or {}).get("verified_actions") or 0) for x in chain.get("sites") or ())
+            check("L3", len(verified) + mill == want,
+                  f"{len(verified)} distinct Verified threads in the table + {mill} verified opportunity Actions, "
+                  f"claim {want!r}", where)
         # CH6b3-R3 N1: "days checked" means graded COMPLETE; no card note speaks of the coverage count with it.
         for card, note in sorted((s.get("card_notes") or {}).items()):
             check("N1", "days checked" not in str(note or ""), f"{card} note {note!r} holds \"days checked\"", where)

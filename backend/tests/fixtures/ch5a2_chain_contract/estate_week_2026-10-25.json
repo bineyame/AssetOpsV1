@@ -53,6 +53,29 @@
     "text": "Not known yet"
    }
   },
+  "OPTIMIZE_COST": {
+   "basis_text": "Modelled from the stored record and the declared price · not a saving",
+   "claim": {
+    "basis": "NOT_KNOWN",
+    "days": null,
+    "days_line": null,
+    "key": "money.possible_extra_fuel_cost",
+    "text": "3.31 to 3.97 USD",
+    "value": {
+     "currency": "USD",
+     "high": "3.97",
+     "low": "3.31"
+    }
+   },
+   "days_line": null,
+   "detail": "At Kobo · not added across sites",
+   "missing": false,
+   "tone": "amber",
+   "value": {
+    "small": "possible extra fuel cost",
+    "text": "3.31 to 3.97 USD"
+   }
+  },
   "PROTECT_ASSET": {
    "basis_text": "Measured events, counted separately · loss not priced",
    "claim": {
@@ -319,7 +342,8 @@
    "threads": {
     "in_hand": 1,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   },
   {
@@ -427,7 +451,8 @@
    "threads": {
     "in_hand": 0,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   },
   {
@@ -575,7 +600,8 @@
    "threads": {
     "in_hand": 0,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   }
  ],

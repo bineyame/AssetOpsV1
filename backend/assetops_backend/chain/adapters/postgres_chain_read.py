@@ -87,8 +87,13 @@ SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id 
        CASE WHEN a.kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x
               WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
             ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)
-       END AS accepted_at
-  FROM chain_action a WHERE a.tenant_id = :t AND a.site_id = :s AND a.thread_id IS NOT NULL
+       END AS accepted_at,
+       v.outcome, v.recorded_at AS outcome_recorded_at
+  FROM chain_action a
+  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at FROM verification_outcome o
+                      WHERE a.kind = 'DOMAIN_INTENT' AND o.tenant_id = a.tenant_id AND o.domain_action_id = a.id
+                      ORDER BY o.recorded_at, o.id LIMIT 1) v ON true
+ WHERE a.tenant_id = :t AND a.site_id = :s AND a.thread_id IS NOT NULL
  ORDER BY a.action_code, a.id
 """)
 
@@ -117,7 +122,8 @@ SELECT CAST(r.id AS text) AS revision_id,
 
 #: CH-5a2b R1 (§B14 Q5) `action_rows`: the verification plans and outcomes (with the stored source class, R2) of the
 #: Site's Actions recorded by `k`, the estate `verification` read's statements over the whole Site.
-#: CH-9b2 (CH9b2-R Q10): W1 Action rows only (`action_id IS NOT NULL`); a domain Action's plan or outcome is not read here.
+#: CH-9b2 (CH9b2-R Q10): W1 Action rows only (`action_id IS NOT NULL`); a domain Action's plan or outcome is not read here;
+#: domain verdicts are read on `_SITE_ACTIONS` (MB-1-R Q1).
 _ACTION_PLANS = text("""
 SELECT CAST(action_id AS text) AS action_id, CAST(id AS text) AS id, recorded_at, later_start, later_end
   FROM verification_plan WHERE tenant_id = :t AND site_id = :s AND action_id IS NOT NULL

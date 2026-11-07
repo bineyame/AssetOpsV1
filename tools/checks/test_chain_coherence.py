@@ -939,6 +939,52 @@ def test_coh17_each_row_fails_on_its_planted_break(tmp_path: Path, row: str, fil
     assert row in {f["subject"] for f in got}, got
 
 
+# ---- MB-1-R Q5 (MB-1a): L3 with the verified opportunity-origin Actions, and the board-internal A1 row --------------
+
+def _l3(tmp_path: Path, claim: int, verified_actions: int | None) -> set[str]:
+    def edit(b):
+        b["counts"]["count.verified_results"]["value"] = claim
+        if verified_actions is not None:
+            _site(b, KOBO)["threads"]["verified_actions"] = verified_actions
+    got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **{"chain_estate.S.json": edit}))
+    return {f["detail"] for f in got if f["subject"] == "L3"}
+
+
+def test_l3_counts_the_table_threads_plus_the_verified_opportunity_actions(tmp_path: Path) -> None:
+    assert _l3(tmp_path / "pass", 2, 1) == set()           # table 1 Verified thread + Kobo's mill 1 = claim 2
+    failed = _l3(tmp_path / "fail", 2, 0)                   # must fail: the mill is not counted
+    assert failed and "+ 0 verified opportunity Actions, claim 2" in next(iter(failed))
+    assert _l3(tmp_path / "legacy", 1, None) == set()       # key absent (older bundles) reads as 0
+
+
+def _assure(headline: str, *texts: str):
+    def edit(b):
+        b["rows"].append({"category": cc.ASSURE, "headline": headline,
+                          "contributors": [{"key": "verified_results", "label": "Verified results", "text": t}
+                                           for t in texts] + [{"key": "readings", "text": "Readings verified"}]})
+    return edit
+
+
+def _a1(tmp_path: Path, site: str, edit) -> list[dict]:
+    got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **{f"board_summary.S.{site}.json": edit}))
+    return [f for f in got if f["subject"] == "A1"]
+
+
+def test_a1_assure_headline_count_equals_the_verified_entries(tmp_path: Path) -> None:
+    from assetops_backend.site_outcomes.mini import NO_VERIFIED, VERIFICATION_TEXT
+
+    ok = VERIFICATION_TEXT["VERIFIED"].format(code="ACT-001", suffix=" on example data")
+    mill = VERIFICATION_TEXT["VERIFIED"].format(code="ACT-002", suffix="")
+    pending = VERIFICATION_TEXT["PENDING"].format(code="ACT-003", suffix="")
+    assert _a1(tmp_path / "pass", KOBO, _assure("2 verified results", ok, mill, pending)) == []
+    bad = _a1(tmp_path / "fail", KOBO, _assure("2 verified results", ok, pending))  # must fail
+    assert [(f["site_code"], f["detail"]) for f in bad] == [(KOBO, "Assure headline '2 verified results', 1 verified entries")]
+    assert _a1(tmp_path / "zero", KOBO, _assure(NO_VERIFIED, NO_VERIFIED, pending)) == []
+    odd = _a1(tmp_path / "odd", KOBO, _assure("Two verified results", ok))  # must fail: unreadable
+    assert [f["detail"] for f in odd] == ["unreadable Assure headline 'Two verified results'"]
+    assert _a1(tmp_path / "cold", COLD, _assure("2 verified results", ok)) == []  # a cold board is not judged
+
+
 def test_coh17_mini_nodes_on_week_are_not_compared_and_unstamped_is_not_judged(tmp_path: Path) -> None:
     def other_nodes(b):
         b["rows"][0]["nodes"] = {"kpi": None}
