@@ -90,6 +90,74 @@ No expectation changes.
 - Setup (c), clocks, and the probe-local v7 are as in the F0r addendum above. Gates F0a-F11 and stops S0-S8 stand.
   A refusal of the corrected fixture is S6.
 
+## F0r R3a result (tools/probe_kisiwa_fuel.py at ab33768d7)
+
+**Tank level from a probe-local mini-grid v7 identical in content to K1a's; product code has no v7 until K1a merges.**
+
+**Plain words:** Kisiwa fuel check (example data, simulator): on the night 120 L was taken out, the check found
+95.7-144.3 L unexplained; on the other 9 nights it found nothing outside the margin.
+
+**F8 FAILED: the result JSON is not byte-equal between two runs.** Every physical and band figure is identical. The
+fields that differ are all identifiers the in-memory Foundation store allocates with `uuid4` at import and
+conversion, or values derived from them:
+
+- `assumptions.registered_path.snapshot_sha256`;
+- `gates.F6.snapshot_fuel_level_binding.{asset_id, binding_revision_id, gateway_id, source_id}`;
+- `gates.F6.example_fuel_level_report_text` (its `report_key` hashes the run id and the snapshot hash).
+
+Per the integrity rule I changed nothing after seeing this. The committed `probe-result.json` is the first run's
+output. Smallest fix, for the Architect: write those store-allocated identifiers to the JSON as "volatile" or leave
+them out, and compare the rest. Alternatively, seed the in-memory store's identifiers. Neither was tried.
+
+### Registered path (c)
+
+- Import at 2026-09-29T09:00Z; conversion at 09:30Z (12-row roles-2 fixture accepted); setup at 10:00Z; `knowledge_at`
+  absent.
+- The selection returned **Foundation version 1** (not 2 as for Kobo, because Kisiwa's import has no later
+  revision), binding set version 1, selection CURRENT.
+- Every run was READY on `registered-kobo-publication` v5 with a frozen `registered_basis`. No refusal of any kind
+  occurred.
+
+### Per night (litres; residual band [low, high] with the 20 L tank margin and the use and delivery tolerances inside it)
+
+Opening and closing readings come from F5. Night use is 43.428 L every night.
+
+| Night | Phase | O - C (true) | Deliveries | True tank band | State | Readings band | State | Gap min |
+|---|---|---|---|---|---|---|---|---|
+| 1 | before | 43.428 | 0 | [-24.343, 24.343] | WITHIN_MARGIN | [-24.343, 24.343] | WITHIN_MARGIN | 0 |
+| 2 | before | -256.572 | 300 | [-27.343, 27.343] | WITHIN_MARGIN | [-27.343, 27.343] | WITHIN_MARGIN | 0 |
+| 3 | before | 43.428 | 0 | [-24.343, 24.343] | WITHIN_MARGIN | [-24.343, 24.343] | WITHIN_MARGIN | 0 |
+| 4 | incident | 163.428 | 0 | [95.657, 144.343] | **UNEXPLAINED** | [95.657, 144.343] | **UNEXPLAINED** | 105 |
+| 5 | before | 43.428 | 0 | [-24.343, 24.343] | WITHIN_MARGIN | [-24.343, 24.343] | WITHIN_MARGIN | 0 |
+| 6-10 | after | 43.428 each | 0 | [-24.343, 24.343] | WITHIN_MARGIN | [-24.343, 24.343] | WITHIN_MARGIN | 0 |
+
+The readings band equals the true band to 3 dp. The -0.5 L bias cancels between opening and closing, and every
+opening and closing sample arrived. The night 4 gap is 105 min: readings at 00:45 and 02:30 around the 00:50-02:20
+silence, as pre-registered.
+
+Dips (true stock rounded half-even): n4 07:00 706 L; r6 663/619; r7 619/576; r8 576/533; r9 533/489; r10 489/446.
+
+### Gates
+
+| Gate | Result |
+|---|---|
+| F0a | PASS. Every scenario is weather and loads only. Two causes were added via the frozen-run hook: `OPERATIONAL_ACTION/kis-delivery-1/tank-increase/881d75f69365834d` (run 2, INCREASE 300, POINT at 1140) and `OPERATIONAL_ACTION/kis-removal-1/tank-decrease/12e4a4f683bd2784` (run 4, DECREASE 120, WINDOW 600+45). The sensor span was added as a reporting-path condition. The kernel applied both with no refusal |
+| F1 | PASS. 10 + 10 + 10 runs READY on the registered path; `run_to_end` completed |
+| F2 | PASS. Removal 40/3 L at each of run 4 steps 120-128 (01:00-01:45 local), sum 120. Delivery 300 at run 2 step 227 (offset 1135: the kernel's point-due rule puts a POINT at 1140 into the step ending at 1140). Sum 300 |
+| F3 | PASS. With vs without actions (both v7): 0 boundaries differ. v7 vs v6 without actions: 0 boundaries differ (generator, energy, battery, tank). Every night 26057/600 = 43.428 L |
+| F4 | PASS. 0 fuel-limited steps |
+| F5 | PASS. Fuel-level at 15 min (offsets 0-1440), bias -1/2, dropout 40/1000 (run 1: 94 reported, 3 dropped). Night 4: none in [00:50, 02:20); suppressed at 01:00-02:15; reported at 00:30 and 00:45 before, 02:30 and 02:45 after |
+| F6 | PASS. 935 reported fuel-level observations gave 935 `keyed_reports` texts, one each. The snapshot holds a `fuel_level` binding for fuel-level-sensor/fuel-level (L to L, IDENTITY) |
+| F7 | PASS. Largest per-day document 2006 nodes |
+| F8 | **FAIL**. Store-allocated identifiers differ between runs (above) |
+| F9 | PASS. Both sources: night 4 UNEXPLAINED with gap 105; nights 1-3 and 5-10 WITHIN_MARGIN with gap 0; none NOT_ASSESSED |
+| F10 | PASS. `tools/probe_kisiwa_nights.py --check` printed "probe result current (G6 pass)"; no D0 file differs from main |
+| F11 | PASS. Run 2: 656.572 + 300 = 956.572 <= 1000. Run 4: removal 120 <= 869.715 |
+
+Seconds per 24-hour `run_to_end` (with actions, v7): 0.90, 1.04, 0.73, 0.83, 1.35, 1.24, 1.34, 1.30, 0.73, 1.01.
+
+Stops S0-S8: none fired. F8 is a failed gate but not a listed stop.
+
 ## First attempt (stopped, aa49a18fd): STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
 
 No night was measured. No plain-words result line exists, there is no per-night table, and
