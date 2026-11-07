@@ -26,7 +26,7 @@
    "knowledge_at": null,
    "foundation_version": 1,
    "binding_set_version": 1,
-   "snapshot_sha256": "7ed0ea8dda48d3fe1885bdc3a2c87266bd632e3426a8cc3fd3f83bd31ff3b88c",
+   "snapshot_sha256": "38a121ba4345c6c2b795a4b86011864915e7601f662c785f315f84c6f5163ce3",
    "basis_selection": "CURRENT"
   },
   "foundation_valid_from": "2026-09-01T00:00:00Z",
@@ -2966,24 +2966,24 @@
   "F6": {
    "pass": true,
    "snapshot_fuel_level_binding": {
-    "asset_id": "b68ddf49-c75e-4800-a621-6a509490e43b",
-    "binding_revision_id": "dc5aff88-e2af-4059-80b3-1a73c8169eea",
+    "asset_id": "ec2f3eb9-0e2f-451f-86c2-a06fb2939204",
+    "binding_revision_id": "9e20442c-c03d-4828-9bca-3dcdcecb95b3",
     "canonical_unit": "L",
     "conversion": {
      "kind": "IDENTITY",
      "parameters": {}
     },
     "device_id": "fuel-level-sensor",
-    "gateway_id": "f243f18c-fb6c-45b8-8bf6-e0d8e6e80b9a",
+    "gateway_id": "74de584d-d5f9-43e3-b1d7-fb9b8b44ee96",
     "role": "fuel_level",
     "signal_id": "fuel-level",
-    "source_id": "9f81131d-6475-443a-83b1-118c81f3b1bb",
+    "source_id": "e12f6def-85a4-430b-8236-95dc41d75936",
     "source_unit": "L"
    },
    "fuel_level_reported": 935,
    "fuel_level_report_texts": 935,
    "texts_one_per_reported_observation": true,
-   "example_fuel_level_report_text": "{\"device_id\":\"fuel-level-sensor\",\"interval_start\":null,\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"report_key\":\"lab-08054a152fcf3f43f1886f644b34893c6e56054ff570c48e379fce7597752497\",\"schema\":{\"id\":\"assetops.simulated-device-report\",\"version\":1},\"signal_id\":\"fuel-level\",\"source_time\":\"2026-10-01T12:00:00Z\",\"unavailable_reason\":null,\"unit\":\"L\",\"value\":\"699.5\"}"
+   "example_fuel_level_report_text": "{\"device_id\":\"fuel-level-sensor\",\"interval_start\":null,\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"report_key\":\"lab-fb1c11464db71c3d8f11b921bfc45d0da31e00fe3baa89d90d981bb70c083c53\",\"schema\":{\"id\":\"assetops.simulated-device-report\",\"version\":1},\"signal_id\":\"fuel-level\",\"source_time\":\"2026-10-01T12:00:00Z\",\"unavailable_reason\":null,\"unit\":\"L\",\"value\":\"699.5\"}"
   },
   "F7": {
    "pass": true,

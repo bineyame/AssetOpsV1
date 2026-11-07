@@ -149,7 +149,7 @@ Dips (true stock rounded half-even): n4 07:00 706 L; r6 663/619; r7 619/576; r8 
 | F5 | PASS. Fuel-level at 15 min (offsets 0-1440), bias -1/2, dropout 40/1000 (run 1: 94 reported, 3 dropped). Night 4: none in [00:50, 02:20); suppressed at 01:00-02:15; reported at 00:30 and 00:45 before, 02:30 and 02:45 after |
 | F6 | PASS. 935 reported fuel-level observations gave 935 `keyed_reports` texts, one each. The snapshot holds a `fuel_level` binding for fuel-level-sensor/fuel-level (L to L, IDENTITY) |
 | F7 | PASS. Largest per-day document 2006 nodes |
-| F8 | **FAIL**. Store-allocated identifiers differ between runs (above) |
+| F8 | FAIL in the first run (store-allocated identifiers); **PASS after the R3b fix round** (section below) |
 | F9 | PASS. Both sources: night 4 UNEXPLAINED with gap 105; nights 1-3 and 5-10 WITHIN_MARGIN with gap 0; none NOT_ASSESSED |
 | F10 | PASS. `tools/probe_kisiwa_nights.py --check` printed "probe result current (G6 pass)"; no D0 file differs from main |
 | F11 | PASS. Run 2: 656.572 + 300 = 956.572 <= 1000. Run 4: removal 120 <= 869.715 |
@@ -157,6 +157,28 @@ Dips (true stock rounded half-even): n4 07:00 706 L; r6 663/619; r7 619/576; r8 
 Seconds per 24-hour `run_to_end` (with actions, v7): 0.90, 1.04, 0.73, 0.83, 1.35, 1.24, 1.34, 1.30, 0.73, 1.01.
 
 Stops S0-S8: none fired. F8 is a failed gate but not a listed stop.
+
+## F8 fix round (DIESEL-1-R3b §9b item 1): F8 PASS, F0 closes PASS
+
+Fix, `tools/probe_kisiwa_fuel.py` only: context manager `seeded_uuid4()` wraps `build()` in `main`. It replaces `uuid4` with
+`uuid.UUID(int=random.Random(20260929).getrandbits(128), version=4)` and restores every name on exit. No product or
+`backend/tests/` file edited; no field marked volatile.
+
+Patched names (the product, store and conversion callers; printed by `--patched`):
+`uuid.uuid4`, `assetops_backend.sites.binding_alignment.uuid4`, `assetops_backend.sites.foundation_service.uuid4`,
+`assetops_backend.sites.binding_service.uuid4`, `foundation_fakes.uuid4` (the in-memory store).
+Imports resolved into the f0 worktree (`backend\assetops_backend`, `contracts\assetops_contracts`).
+
+Verification outputs (PYTHONPATH pinned to the f0 worktree, shared plan2 venv python):
+1. `--write` then fresh-process `--check`: `probe result current`
+2. second fresh-process `--check`: `probe result current`
+3. `git diff 9e5fad4e1 -- .agent/DIESEL-F0/probe-result.json`: 6 lines changed (6 insertions, 6 deletions), all
+   `snapshot_sha256`, `snapshot_fuel_level_binding.{asset_id, binding_revision_id, gateway_id, source_id}` and
+   `example_fuel_level_report_text` (report key). Every litre, band, state, gap and gate value is byte-equal.
+4. `tools/probe_kisiwa_nights.py --check`: `probe result current (G6 pass)`
+
+L0 tests `host/tests/test_probe_kisiwa_fuel_band.py` + `test_probe_kisiwa_metric.py`: 10 passed.
+Gates F0a-F11: all met (F8 and F10 by the checks above).
 
 ## First attempt (stopped, aa49a18fd): STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
 

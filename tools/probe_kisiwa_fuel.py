@@ -27,6 +27,7 @@ is K7's and is not built.
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import hashlib
 import json
@@ -733,11 +734,50 @@ def _summary(result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+SEED = 20260929
+
+
+@contextlib.contextmanager
+def seeded_uuid4():
+    """DIESEL-1-R3b §9b F8: replace uuid4 with a seeded generator for the in-memory import and conversion, at
+    `uuid.uuid4` and at every module-level `uuid4` binding (modules the run imports lazily are swept on exit too).
+    Yields the list of patched names; restores everything on exit."""
+    import random
+    import uuid
+
+    original = uuid.uuid4
+    rng = random.Random(SEED)
+
+    def fake_uuid4():
+        return uuid.UUID(int=rng.getrandbits(128), version=4)
+
+    patched: list[str] = []
+    uuid.uuid4 = fake_uuid4
+    patched.append("uuid.uuid4")
+    for name, module in list(sys.modules.items()):
+        if module is not uuid and getattr(module, "uuid4", None) is original:
+            module.uuid4 = fake_uuid4
+            patched.append(f"{name}.uuid4")
+    try:
+        yield patched
+    finally:
+        for name, module in list(sys.modules.items()):
+            if module is not uuid and getattr(module, "uuid4", None) is fake_uuid4:
+                module.uuid4 = original
+                if f"{name}.uuid4" not in patched:
+                    patched.append(f"{name}.uuid4")
+        uuid.uuid4 = original
+
+
 def main(argv: list[str]) -> int:
     if "--handover" in argv:
         print("--handover is K7's and is not built in F0.")
         return 2
-    result = build()
+    with seeded_uuid4() as patched:
+        result = build()
+    if "--patched" in argv:
+        print("\n".join(patched))
+        return 0
     text = json.dumps(result, indent=1, sort_keys=False, ensure_ascii=False) + "\n"
     if "--check" in argv:
         current = RESULT.read_text(encoding="utf-8") if RESULT.exists() else ""
