@@ -2364,3 +2364,106 @@ def idle_slot(slot_start: datetime, state_value: Any, slot_kwh: Fraction | None,
 ### 9h.9 Owner questions
 
 None.
+
+---
+
+## 9i. Ruling DIESEL-1-R3i: K0's two S5 stops, five deviations, and a main-drift failure
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `bd15b0ca8`.
+- K0 was read on `task/DIESEL-K0-action-bridge`:
+  - `d782fc09f` holds the pins;
+  - `dd4a3874f` holds the bridge;
+  - `2b8ab3ab9` holds the packet `.agent/review-packet-K0.md`.
+
+**Code facts the Architect verified on the K0 worktree:**
+- `B/runs/composition.py` docstring: "the one place in the product allowed to import `assetops_backend.runs.adapters.*`".
+- `tools/checks/configuration-persistence.ps1:580-640`, rule 7:
+  - the run adapters hold exactly one `= yaml.load(..., Loader=CSafeLoader)`;
+  - `safe_load` is banned anywhere in the run adapters;
+  - the stated reason is one loader policy for the run domain (`D-2026-09-29-run-store-libyaml`).
+- `yaml_run_documents.py:150` is that one load point today.
+- `git diff d782fc09f 2b8ab3ab9 -- backend/tests/k0_byte_equal_pins.py` is empty. The pins have not moved since the first commit, and `seeded_uuid4()` was already in that commit.
+- `backend/tests/test_run_binds_scenario_to_site.py` was last edited at `aeb53fb86` (2026-10-31). `config/scenarios/kobo-rest-mill.yaml` was added at `8b68aaa14` (2026-11-06, DD1a1-R16). The test's set equality (`:242-245`) cannot hold for scenarios added after it.
+
+### 9i.1 Rulings
+
+**S5-a. Approved: `B/runs/composition.py` joins §9f.3's file list.**
+- Add `build_operational_action_log() -> OperationalActionLogPort`, which returns `YamlOperationalActionLog()`, beside `build_run_repository`. The docstring is one line.
+- `B/main.py` imports it from `runs.composition` and passes `operational_actions=build_operational_action_log()`. It never imports the adapter.
+- §9f.2 (6) is amended to read "through the composition".
+- **Test.** §9f.4 test 10, on `assetops_k0_test`, must exercise this composed path: the `main.py` app, not an injected router.
+  - It sets up Kisiwa run 4 with the named log.
+  - It gets no `OPERATIONAL_ACTION_LOG_UNAVAILABLE`.
+  - On readback it shows `answered_by="OPERATIONAL_ACTION"` rows.
+
+**S5-b. Option (i): a shared text-load function in `B/runs/adapters/yaml_run_documents.py`. That file joins §9f.3. The guard is not changed.**
+- In `yaml_run_documents.py`, add `def load_yaml_text(text: str) -> object: return yaml.load(text, Loader=CSafeLoader)`. It holds the one guarded line, and `yaml.YAMLError` propagates.
+- `read_run_record` calls `load_yaml_text(text)` inside its existing `try`. Its behaviour and messages are unchanged.
+- `yaml_operational_action_log.py` imports and calls `load_yaml_text`, and maps `yaml.YAMLError` to `OperationalActionLogUnavailable`. It no longer imports `CSafeLoader` or calls `yaml.load`.
+- This is rule 7's own intent: one loader policy at one load point in the run adapters.
+- §9f.2 (5)'s `yaml.safe_load` was the Architect's slip. The run domain's policy is libyaml `CSafeLoader`, and stop S4's hash and content-hash checks prove that the promoted log parses the same.
+- Acceptance:
+  - the architecture check and the estate-guard self-tests pass with **no** change to `configuration-persistence.ps1`;
+  - `rg "yaml\.load\(" backend/assetops_backend/runs/adapters` gives exactly one hit.
+- Option (ii) is refused. A guard is never loosened to fit a spec slip.
+
+**Deviation 1, EV pin under `seeded_uuid4()`: accepted, not an S6 stop.**
+- S6 exists so a pin cannot be meaningless. A render that varies only by random mapping ids would be meaningless.
+- Under a fixed seed, the pin is deterministic and still covers every byte K0 could move. K0 produces no mapping id.
+- The seeding has been in the first commit, unchanged since.
+- Condition: the pin's docstring states that the seeding fixes only identifiers K0 does not produce. The packet's S6 note cites this ruling.
+
+**Deviation 2, test 1 in `host/tests/test_k0_kisiwa_actions.py`: accepted.**
+Digest (c) needs `host/`'s `frozen_world_inputs`, and `backend/tests` does not import `host/`.
+
+**Deviation 3, the loader's `component_ids` keyword: accepted.**
+The pure loader receives the Site's component ids instead of a Site record, so it stays I/O-free. §9f.2 (5)'s signature is amended to `freeze_operational_actions(request, identity, log_source, *, model, start, end, component_ids)`.
+
+**Deviation 4, the coverage test excludes `operational_action_log`: accepted, with one tightening.**
+- The exclusion is right for a run that names no log: the field is None, and it has no row so the run stays byte-equal.
+- Add one K0 test assertion: for a run that **names** a log, the same coverage holds with **no** exclusion (`covered == declared`).
+- This turns the exclusion into a tested conditional.
+
+**Deviation 5, UNIT and EVENT_ID_CONFLICT reachable only by a direct loader call: accepted, kept as kinds.**
+- Both have live producers that guard real input combinations:
+  - UNIT: a selectable model profile whose `fuel-tank-volume` stock is not in L;
+  - EVENT_ID_CONFLICT: a scenario event-id grammar that admits `{id}/{effect}`.
+- Neither combination is shipped today. This is not the retired-kind case in `refusals.py:83-89`, where the producer had been deleted.
+- Add a comment to each kind in `refusals.py`: "reachable only by a model profile (or scenario id grammar) not shipped today; tested by a direct loader call".
+- The `produced` set keeps them, through those direct calls.
+
+**Main drift, `test_run_binds_scenario_to_site.py` (12 failures, `KeyError 'kobo-rest-mill'`): confirmed main drift, not K0.**
+- The test predates about 10 shipped Kobo scenarios added in the DD-1a1 and DD-1a2 rounds (up to 2026-11-06). K0 touches no scenario and not that test.
+- **Who fixes it:** a separate Sonnet fix unit, **DRIFT-RB1**.
+  - Branch `task/DRIFT-RB1-scenario-site-sample`, from main.
+  - It edits that one test file only.
+  - It does not block K0's review or merge, and K0 must not fix it.
+- **Rule for the fix.** `FROZEN_V1_SAMPLE` is the frozen v1 sample and gets no new entries with invented dates. Each new stem goes into `NEVER_SHIPPED_AS_V1`, or a sibling set with a one-line reason if that set's meaning does not fit.
+- **Verification:** that test file passes. `git diff --stat` shows one file. The coordinator verifies.
+- **Cost:** about 0.05. It is charged to the DD (Kobo-day) lane's follow-ups, not to Kisiwa.
+
+### 9i.2 Order
+
+1. **K0 Sonnet fix round** on the K0 branch:
+   - S5-a;
+   - S5-b;
+   - the deviation 1 docstring;
+   - the deviation 4 assertion;
+   - the deviation 5 comments;
+   - a packet update citing R3i.
+
+   It re-runs only the K0 tests (with test 10 on `assetops_k0_test`), the architecture check and the guard self-tests. There is no suite.
+2. **Then K0's Opus first review, straight after**, on the final tree. No review happens before the fix round: both S5 items change wiring the reviewer must see.
+3. **DRIFT-RB1** runs in parallel. It is independent.
+
+### 9i.3 Size, path, date
+
+- **K0: 2.5 → 2.6** (range 2.25–3.0, unchanged). The +0.1 covers the two S5 fixes and the EV-pin seeding.
+- The contingency is spent (§9h.8). So this is **reported, not absorbed**: the Kisiwa total goes **17.25 → 17.35**.
+- **Critical path unchanged at about 8.9 lane-units.** K0 is off it, and its float of about 2.3 absorbs the 0.1.
+- **Below the 9.75 tripwire; no cut.** The demo date is unchanged at about +3.25 working days.
+- DRIFT-RB1 (0.05) is outside the Kisiwa total.
+
+### 9i.4 Owner questions
+
+None.
