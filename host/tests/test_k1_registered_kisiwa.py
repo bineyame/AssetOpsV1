@@ -91,14 +91,6 @@ def test_f0r_reproduces_on_the_registered_site(store, monkeypatch) -> None:
     from kisiwa import KisiwaRegistered
 
     monkeypatch.setattr(probe, "Registered", lambda: KisiwaRegistered(store, SETUP_AT))
-    # The probe hashes the action log and the bindings draft from the working copy (`actions_sha256`,
-    # `registered_path.bindings_sha256`). The repository stores them with LF; a Windows checkout with
-    # `core.autocrlf=true` writes CRLF, which moves only those hashes (and `probe_kisiwa_fuel.py --check` fails on
-    # such a checkout on main too). Read exactly those two files as their committed LF bytes; nothing else changes.
-    committed_lf = {probe.ACTIONS.resolve(), probe.BINDINGS.resolve()}
-    read_bytes = Path.read_bytes
-    monkeypatch.setattr(Path, "read_bytes", lambda self: (
-        read_bytes(self).replace(b"\r\n", b"\n") if self.resolve() in committed_lf else read_bytes(self)))
     # The committed file is the JSON text of `build()`; compare in that form.
     result = json.loads(json.dumps(probe.build(), ensure_ascii=False))
     ref = json.loads(REFERENCE.read_text(encoding="utf-8"))

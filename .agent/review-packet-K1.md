@@ -130,5 +130,5 @@
 
 - **M1 closed.** `test_w402_roles_properties.py` carriers dict and `test_w205a_ev_vocabulary.py` `STATE_PROPERTY_VALUES` now include `fuel-level-sensor-accuracy` (L, PHYSICAL, FUEL_TANK) and `fuel-level-sensor-accuracy-basis` (state, PHYSICAL, FUEL_TANK; GENERIC_DEFAULT / MANUFACTURER_DATASHEET / SITE_CALIBRATION). Only those keys were added; no assertion weakened. The EV-named file edit is a shared-table assertion update, not an EV data change.
 - **L2 closed.** `test_k1_kisiwa_site_postgres.py` pins exactly 94 `fuel_level` records, first and last at 12:00Z to 12:00Z, and `analytic_id == "dispatch"`.
-- L1, the probe, `probe-result.json` and `.gitattributes` were not touched.
+- **L1 closed (ruling DIESEL-1-R3e, F0e at 24a16b77f).** Main merged again; the `Path.read_bytes` LF monkeypatch is removed from `host/tests/test_k1_registered_kisiwa.py`, nothing else changed there. Parity passes without it (1 passed, 51s, `assetops_k1_test`). `probe_kisiwa_fuel.py --check`: "probe result current". `probe_kisiwa_nights.py --check`: "probe result current (G6 pass)". Probe files themselves were not touched by K1.
 - Main merged first. No-DB set (47 files plus the host registered test): 961 passed, 41 skipped.
