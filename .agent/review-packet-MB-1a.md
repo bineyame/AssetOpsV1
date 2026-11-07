@@ -2,7 +2,7 @@
 
 - Task: FUEL-1 MB-1a, as ruled in `.agent/build-sheet-FUEL-1.md` "MB-1-R" §1 (Q1, Q4, Q5) and §2 (main `7d49ff2d3`).
 - Branch `task/FUEL-MB1-mill-on-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-mb1`. Main was merged in (`7d49ff2d3`). Build commit `845ece111`.
-- **Status: built, with STOP S-d open plus one allowlist conflict (§Stops).** Two guards in the scoped fast tier fail because of this unit. Both need an Architect ruling. Do not merge before that.
+- **Status: built; S-d and the cap closed by MB-1a-R2.** Main merged again (`5b8ac12a8`, includes `a2d48104a`). Size 0.85 (0.8 + 0.05). Next: first review (fresh Opus reviewer).
 
 ## Outcome delivered
 
@@ -32,7 +32,11 @@
 | `backend/tests/test_ch5a2b_claims.py`, `test_ch6b2_portfolio_cards.py` | `threads` dict gains `verified_actions`; the ch6b2 helper stubs `verified_actions` |
 | `backend/tests/test_demo_combined_ex1.py` | The 3 verified-count headlines are computed with `mini.plural` |
 | `backend/tests/test_demo_combined_finish_rows.py` | MILL-5 L0 self-test, beside MILL-3b |
-| `backend/tests/fixtures/ch5a2_chain_contract/estate_week_2026-10-25.json` | Regenerated (D2) |
+| `backend/tests/fixtures/ch5a2_chain_contract/estate_week_2026-10-25.json` | Main's DRIFT-R1 golden plus `verified_actions: 0` per Site (D2, MB-1a-R2 §3) |
+| `backend/assetops_backend/site_outcomes/composition.py` | MB-1a-R2 §1 (approved): imports `thread_lifecycle_policy`; passes `thread_policy=` to `BoardServices` |
+| `backend/tests/test_ch9b1_origin_readers.py` | MB-1a-R2 §2 (approved): `chain/site_chain.py` cap 4 to 8, class "both" |
+| `tools/demo_combined_rows.py` | MB-1a-R2 §4 D3 (approved retroactively): `mill_assure` only |
+| `backend/assetops_backend/site_outcomes/read.py`, `mini.py` | R2 §1: `BoardServices.thread_policy` field; local import dropped; mini comment |
 
 ## Mock deviations
 
@@ -58,7 +62,7 @@
   - items are in code order.
 - **Q1(c) port and binding: met.**
   - `chain_threads` returns `ChainThreads(rows, k, policy)`.
-  - The policy comes from a local `thread_lifecycle_policy` import, as ruled. **This import is S-d, see Stops.**
+  - The policy is injected: `composition.py` passes `thread_lifecycle_policy` as `BoardServices.thread_policy`; `read.py` calls it per board read, None when not injected (MB-1a-R2 §1).
 - **§2.2 claims: met.** These L0 cases pass:
   - Finding + mill = 2 (`verified_actions` 1);
   - INEFFECTIVE = 1;
@@ -107,7 +111,9 @@
 
 ## Checks run
 
-- **L0 targeted:** 13 files, **299 passed**. Files: `test_mb1_opportunity_board`, `test_out_b2_mini`, `test_out_b3_cold_ev`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5a2_contract`, `test_ch5a1_board_contract`, `test_ch6_contract`, `test_demo_combined_ex1`, `test_dd1b2b_action_ref`, `test_demo_combined_finish_rows`, `test_ch9b3_mill_verdict`, `test_ch4_opportunities`.
+- **Fix round (MB-1a-R2, after merging main):** 13 targeted files plus `test_out_b4_imports`, `test_ch9b1_origin_readers`, `test_out_d2_objectives` and `tools/checks/test_chain_coherence.py`: **499 passed, 0 failed** (52 s). L2 `test_mb1_site_actions_postgres.py` on `assetops_mb1_test`: 1 passed (35 s). `test_ch5a2_contract.py` passes without the regen variable. `test_policy_is_v2` passes after the merge. Fast tier, guards, and adjacent L2 were not rerun in this round; the figures below are from the first build.
+- **Golden diff vs main:** only `estate_week_2026-10-25.json`, `"verified_actions": 0` added in 3 Site `threads` objects, nothing else.
+- **L0 targeted (first build):** 13 files, **299 passed**. Files: `test_mb1_opportunity_board`, `test_out_b2_mini`, `test_out_b3_cold_ev`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5a2_contract`, `test_ch5a1_board_contract`, `test_ch6_contract`, `test_demo_combined_ex1`, `test_dd1b2b_action_ref`, `test_demo_combined_finish_rows`, `test_ch9b3_mill_verdict`, `test_ch4_opportunities`.
 - **`tools/checks/test_chain_coherence.py`:** 152 passed.
 - **L2 on `assetops_mb1_test`:** `test_mb1_site_actions_postgres.py` 1 passed in 51 s.
 - **Adjacent L2:** `test_ch5a1_reader_postgres.py` and `test_ch9b2_midday_plan_postgres.py` gave 12 passed and 2 not passed. Neither is caused by MB-1a:
@@ -116,13 +122,18 @@
 - **Guards (`tools/check-all.ps1`):** 15 of 17 PASS.
   - PASS includes Architecture (A), Agent workflow (W), Navigation (N), Mock deviation labels and client vocabulary (V/M), chain coherence, and the frontend hard-wiring ratchet (no rise: api 12, href 24, lit 70, cmp 51, code 3).
   - FAIL: Missing-claim orphan scan and its fixtures. Both are `MODULE_NOT_FOUND` because `frontend/node_modules` is absent in this worktree. The frontend is untouched and `npm ci` was not run (coordinator rule).
-- **Fast tier, scoped:** `-m "not slow"` over the 48 non-Postgres backend test files that import `site_outcomes`, `chain.claims` or `site_chain`. **749 passed, 10 failed:**
+- **Fast tier, scoped (first build; its 10 failures are all closed by MB-1a-R2 §1, §2, §5):** `-m "not slow"` over the 48 non-Postgres backend test files that import `site_outcomes`, `chain.claims` or `site_chain`. **749 passed, 10 failed:**
   - 8 × `test_ch9b1_origin_readers.py`: `chain/site_chain.py: 8 origin references, allowlist 4` (Stops, item 2);
   - 1 × `test_out_b4_imports.py`: `{'read.py': ['assetops_backend.chain.composition', 'assetops_backend.chain.composition.thread_lifecycle_policy']}` (S-d);
   - 1 × `test_out_d2_objectives.py::test_policy_is_v2`: expects `outcome-status/3`, but code has `/4` since CH-6a3. This is pre-existing and unrelated.
 - **Not run:** full suite, prepare, baseline build, Docker fast tier.
 
-## Stops
+## Stops (both CLOSED by MB-1a-R2)
+
+1. **S-d: closed by §1** (injection via `composition.py`; OUT-B4 guard passes; L0 tests `test_composition_injects_the_thread_policy` and the None-branch assertion in the board-service test).
+2. **Origin-reader cap: closed by §2** (cap 8, class "both"; guard passes).
+
+Original text, for the record:
 
 1. **S-d.** The dependency-direction guard `test_out_b4_imports.py` (OUT-B4 §B.3: only `site_outcomes/composition.py` may import another package's `composition`) rejects the ruled local import in `site_outcomes/read.py`:
    - Message: `{'read.py': ['assetops_backend.chain.composition', 'assetops_backend.chain.composition.thread_lifecycle_policy']}`.
@@ -136,8 +147,8 @@
 
 - **D1.** `opportunity_actions` also returns `outcome_recorded_at` None when the outcome is not yet known at the cutoff, so a later time does not leak.
 - **D2.** The `estate_week_2026-10-25` golden is regenerated (`ASSETOPS_REGEN_CH5A2_GOLDENS=1`).
-  - The diff is `verified_actions: 0` on each Site, plus an `OPTIMIZE_COST` card.
-  - The card is pre-existing drift from CH-5d1, which added the card but did not regenerate this golden; its last update is CH-6b3 R3. Please confirm.
+  - Main's DRIFT-R1 golden plus `verified_actions: 0` per Site (MB-1a-R2 §3). Confirmed.
+- **D3 to D5: confirmed (MB-1a-R2 §4).** D5 has a new must-fail self-test (`test_a1_no_verified_entry_is_not_counted_as_a_verified_result`): headline "2 verified results" with one verified entry plus the `NO_VERIFIED` entry fails. The ruling's literal shape ("1 verified result" with one verified entry plus `NO_VERIFIED`) would pass under the exclusion, so the test uses the "2" shape as the must-fail and asserts the "1" shape passes.
 - **D3.** The MILL-5 assertions live in `tools/demo_combined_rows.py` `mill_assure`, so the L0 self-test can sit beside MILL-3b (`test_demo_combined_finish_rows.py`), as MILL-3b's own logic does. That file is not in §2.1's list.
 - **D4.** A1 counts a mini board body with no Assure row as skipped, not judged. The stored `clean_full` fixtures carry only a Grow row.
 - **D5.** A1 also excludes the `NO_VERIFIED` entry ("No verified result yet"), because the ruled pattern `\S+ verified\b.*` matches it. Without this, A1 would fire on every board with no verified result.
@@ -146,6 +157,8 @@
 ## Residual risk
 
 - The `test_ch5a1_board_contract` fixture Port has no `site_threads`, so its Kobo board now also records `chain_threads` as a failed read. Its goldens were PARTIAL already, so this is invisible there.
+- **WD-1 item (MB-1a-R2 §4):** the trial entry reads "verified on example data" while the mill entry has no suffix (`provenance_suffix(None)`). WD-1 decides whether the mill line gains the suffix from the Site's source mode. MB-1a adds no literal.
+- **Main drift (MB-1a fixes none; see MB-1a-R2 §5):** `test_ch9b2::test_0052_round_trip_and_refusal` (0053 head, own branch); `TEMPLATE_STALE` on `test_ch5a1_mechanism_postgres` and `test_ch6b_estate_postgres` (rebuild once at start of E2). The orphan-scan `MODULE_NOT_FOUND` stays a known worktree condition (no `npm ci`).
 - No database run covers the full story; E3 (MILL-5, COH L2/L3/A1) is the first whole-story proof.
 
 ## Review focus

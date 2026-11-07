@@ -208,7 +208,7 @@ class MiniPorts:
     #: Portfolio and Findings › Opportunities use (`chain/opportunities.py` `opportunity_items`); [] = none.
     opportunity: Callable[[datetime, datetime], Any] = lambda lo, hi: []
     #: MB-1 (FUEL-1 MB-1-R Q1): `ChainRequest.threads(site_id)` at the request cutoff, that cutoff, and the thread
-    #: lifecycle policy (`chain.composition.thread_lifecycle_policy()`); None = no chain reader (no opportunity Actions).
+    #: lifecycle policy (`BoardServices.thread_policy`; None when not injected); None = no chain reader (no opportunity Actions).
     chain_threads: Callable[[], Any] = lambda: None
 
 

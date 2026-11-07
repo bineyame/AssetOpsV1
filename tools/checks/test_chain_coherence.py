@@ -985,6 +985,17 @@ def test_a1_assure_headline_count_equals_the_verified_entries(tmp_path: Path) ->
     assert _a1(tmp_path / "cold", COLD, _assure("2 verified results", ok)) == []  # a cold board is not judged
 
 
+def test_a1_no_verified_entry_is_not_counted_as_a_verified_result(tmp_path: Path) -> None:
+    """MB-1a-R2 §4 D5: the NO_VERIFIED exclusion must not pad the count. Headline 2, one verified entry plus the
+    empty-state entry: must FAIL (1 listed). Were the entry counted, 2 == 2 would hide the mismatch."""
+    from assetops_backend.site_outcomes.mini import NO_VERIFIED, VERIFICATION_TEXT
+
+    ok = VERIFICATION_TEXT["VERIFIED"].format(code="ACT-001", suffix=" on example data")
+    bad = _a1(tmp_path / "fail", KOBO, _assure("2 verified results", ok, NO_VERIFIED))  # must fail
+    assert [f["detail"] for f in bad] == ["Assure headline '2 verified results', 1 verified entries"]
+    assert _a1(tmp_path / "pass", KOBO, _assure("1 verified result", ok, NO_VERIFIED)) == []
+
+
 def test_coh17_mini_nodes_on_week_are_not_compared_and_unstamped_is_not_judged(tmp_path: Path) -> None:
     def other_nodes(b):
         b["rows"][0]["nodes"] = {"kpi": None}

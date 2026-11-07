@@ -106,6 +106,7 @@ class BoardServices:
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
     threads: Any = None               # CH-2: PostgresThreadSources.lookup (chain/adapters/postgres_thread_sources.py)
     chain_reader: Any = None          # CH-5a1: ChainReader (chain/read.py), one `request` per board read
+    thread_policy: Callable[[], Any] | None = None  # MB-1a-R2: chain.composition.thread_lifecycle_policy (composition.py injects it; OUT-B4)
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -291,13 +292,12 @@ class SiteOutcomeBoardService:
             return [] if s.threads is None else s.threads.opportunity_threads(t, [sid], lo, hi, known_at)
 
         # MB-1-R Q1(c): the Site's thread rows at the request cutoff (memoised with the claims' read), that cutoff
-        # and the lifecycle policy; None without a chain reader (no opportunity Actions).
+        # and the lifecycle policy (`BoardServices.thread_policy`, None when not injected); None without a chain reader (no opportunity Actions).
         def chain_threads() -> Any:
             if s.chain_reader is None:
                 return None
-            from assetops_backend.chain.composition import thread_lifecycle_policy
             req = chain()
-            return mini.ChainThreads(req.threads(sid), req.k, thread_lifecycle_policy())
+            return mini.ChainThreads(req.threads(sid), req.k, None if s.thread_policy is None else s.thread_policy())
 
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,

@@ -268,6 +268,22 @@ def test_the_board_service_verified_results_is_the_assure_headline_number() -> N
             occ = (_occ(MILL_T, None, OPP, BC.at(20)),)
             return _rows(_act(accepted=BC.at(21), recorded=BC.at(22)), occurrences=occ)
 
+    svc = BC.services(Port(), [])
+    assert svc.thread_policy is None          # MB-1a-R2 §1: not injected -> the None branch
+    seen = {}
+    real = mini.ChainThreads
+
+    def spy(*a, **kw):
+        seen["ct"] = real(*a, **kw)
+        return seen["ct"]
+
+    mini.ChainThreads = spy
+    try:
+        with read_scope.scope("test:mb1"):
+            body = SiteOutcomeBoardService(svc).board(BC.KOBO, known_at=BC.KNOWN, day=date(2026, 10, 31))
+    finally:
+        mini.ChainThreads = real
+    assert seen["ct"].policy is None
     with read_scope.scope("test:mb1"):
         body = SiteOutcomeBoardService(BC.services(Port(), [])).board(BC.KOBO, known_at=BC.KNOWN,
                                                                       day=date(2026, 10, 31))
@@ -275,6 +291,17 @@ def test_the_board_service_verified_results_is_the_assure_headline_number() -> N
     shown = 0 if assure["headline"] == mini.NO_VERIFIED else int(assure["headline"].split()[0])
     assert body["_verified_results"] == shown >= 1
     assert any((c["link_ref"] or {}).get("kind") == "DOMAIN_VERDICT" for c in assure["contributors"])
+
+
+def test_composition_injects_the_thread_policy(monkeypatch) -> None:
+    """MB-1a-R2 §1: composition.py passes the function (not its value) into BoardServices.thread_policy."""
+    from assetops_backend.chain import composition as chain_composition
+    from assetops_backend.site_outcomes import composition
+
+    monkeypatch.setattr(composition, "build_chain_reader", lambda url, **kw: (None, lambda: None))
+    monkeypatch.setattr(composition, "build_thread_sources", lambda url: None)
+    service, _dispose = composition.build_outcome_board_service(None)
+    assert service.s.thread_policy is chain_composition.thread_lifecycle_policy
 
 
 def test_grow_optimize_and_protect_rows_are_byte_equal_with_the_mill() -> None:
