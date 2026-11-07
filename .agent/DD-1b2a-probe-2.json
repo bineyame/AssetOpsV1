@@ -1,0 +1,1430 @@
+{
+ "mill": {
+  "site_code": "KOBO-001",
+  "S": "2026-11-05T00:00:00Z",
+  "stop": {
+   "code": "P3_BASELINE_SHORT",
+   "expected": [
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "baseline": {
+    "state": "COMPLETE",
+    "found": 3,
+    "min_days": 3,
+    "days": [
+     "2026-10-23",
+     "2026-10-24",
+     "2026-10-25"
+    ],
+    "candidates": {
+     "from": "2026-10-13",
+     "to": "2026-10-26"
+    },
+    "grades": {
+     "2026-10-13": "NO_DATA",
+     "2026-10-14": "NO_DATA",
+     "2026-10-15": "NO_DATA",
+     "2026-10-16": "COMPLETE",
+     "2026-10-17": "COMPLETE",
+     "2026-10-18": "COMPLETE",
+     "2026-10-19": "COMPLETE",
+     "2026-10-20": "COMPLETE",
+     "2026-10-21": "COMPLETE",
+     "2026-10-22": "PARTIAL",
+     "2026-10-23": "COMPLETE",
+     "2026-10-24": "COMPLETE",
+     "2026-10-25": "COMPLETE",
+     "2026-10-26": "NO_DATA"
+    }
+   },
+   "grades": {
+    "2026-10-13": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-10-14": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-10-15": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-10-16": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-17": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-18": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-19": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-20": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-21": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-22": {
+     "grade": "PARTIAL",
+     "productive_kwh": "0.000"
+    },
+    "2026-10-23": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-24": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-25": {
+     "grade": "COMPLETE",
+     "productive_kwh": "42.000"
+    },
+    "2026-10-26": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-10-27": {
+     "grade": "COMPLETE",
+     "productive_kwh": "110.000"
+    },
+    "2026-10-28": {
+     "grade": "COMPLETE",
+     "productive_kwh": "110.000"
+    },
+    "2026-10-29": {
+     "grade": "PARTIAL",
+     "productive_kwh": "0.000"
+    },
+    "2026-10-30": {
+     "grade": "COMPLETE",
+     "productive_kwh": "110.000"
+    },
+    "2026-10-31": {
+     "grade": "COMPLETE",
+     "productive_kwh": "110.000"
+    },
+    "2026-11-01": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-11-02": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-11-03": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-11-04": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-11-05": {
+     "grade": "PARTIAL",
+     "productive_kwh": "0.000"
+    },
+    "2026-11-06": {
+     "grade": "PARTIAL",
+     "productive_kwh": "0.000"
+    },
+    "2026-11-07": {
+     "grade": "NO_DATA",
+     "productive_kwh": null
+    },
+    "2026-11-08": {
+     "grade": "NO_DATA",
+     "productive_kwh": "0"
+    },
+    "2026-11-09": {
+     "grade": "NO_DATA",
+     "productive_kwh": "0"
+    },
+    "2026-11-10": {
+     "grade": "NO_DATA",
+     "productive_kwh": "0"
+    }
+   }
+  },
+  "known_at_disclosure": "freeze and evaluate read rows as built (_AllKnown); the plan's snapshots_known_at is the story instant",
+  "study": {
+   "status": "LIMITED",
+   "assessed_days": 5,
+   "eligible_days": 5,
+   "headroom_kw": null,
+   "window_hours": null,
+   "limitations": [
+    {
+     "code": "HEADROOM_NON_POSITIVE",
+     "evidence_id_count": 8880
+    },
+    {
+     "code": "CHARGE_OBLIGATION_ACTIVE",
+     "evidence_id_count": 8880
+    },
+    {
+     "code": "SOURCE_CLASS_MIXED",
+     "evidence_id_count": 0
+    }
+   ],
+   "first_day": "2026-10-17",
+   "last_day": "2026-10-21",
+   "created_at": "2026-10-22T06:00:00.000000Z",
+   "selected_at": "2026-10-22T06:00:00.000000Z",
+   "opportunity_id": "b9bc27ce-29f7-45fa-8236-148d3e8e47a4",
+   "revision_id": "f8187e6e-7bc9-45e5-b239-2757ce73fb7a"
+  },
+  "action": {
+   "id": "ed6652e5-58df-4151-a73b-116714980cf5",
+   "code": "ACT-000002",
+   "recorded_at": "2026-10-26T09:00:00.000000Z",
+   "case_id": "800b150b-9bbe-439c-9bb0-2255050512dc",
+   "case_state": "COMPLETED",
+   "case_link_recorded_at": "2026-10-27T05:20:00.000000Z",
+   "last_work_recorded_at": "2026-10-27T05:10:03.000000Z"
+  },
+  "baseline_before_any_tick": {
+   "state": "COMPLETE",
+   "found": 3,
+   "min_days": 3,
+   "days": [
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "candidates": {
+    "from": "2026-10-13",
+    "to": "2026-10-26"
+   },
+   "grades": {
+    "2026-10-13": "NO_DATA",
+    "2026-10-14": "NO_DATA",
+    "2026-10-15": "NO_DATA",
+    "2026-10-16": "COMPLETE",
+    "2026-10-17": "COMPLETE",
+    "2026-10-18": "COMPLETE",
+    "2026-10-19": "COMPLETE",
+    "2026-10-20": "COMPLETE",
+    "2026-10-21": "COMPLETE",
+    "2026-10-22": "PARTIAL",
+    "2026-10-23": "COMPLETE",
+    "2026-10-24": "COMPLETE",
+    "2026-10-25": "COMPLETE",
+    "2026-10-26": "NO_DATA"
+   }
+  },
+  "baseline_fallback": {
+   "code": "OK",
+   "processed": 431,
+   "deferred": 0,
+   "consume": {
+    "consumer": "snapshots",
+    "consumed": 57472,
+    "marked": 431,
+    "pages": 1,
+    "stopped": null,
+    "ms": 10593.8,
+    "select_ms": [
+     2681.5
+    ],
+    "by_type": {
+     "assessment.revised@1": 1633,
+     "foundation.revised@1": 17,
+     "job.changed@1": 4856,
+     "price.revised@1": 2,
+     "reading.accepted@1": 50964
+    },
+    "deferred": 0
+   },
+   "drain": {
+    "processed": 431,
+    "written": 58,
+    "unchanged": 92,
+    "re_marked": 0,
+    "deferred": 0,
+    "stopped": null,
+    "by_measure": {
+     "avoidable_gen_min": 16,
+     "critical_served": 17,
+     "daylight_headroom_kw": 17,
+     "productive_kwh": 8
+    },
+    "ms": 34684.3
+   }
+  },
+  "baseline_after_fallback": {
+   "state": "COMPLETE",
+   "found": 3,
+   "min_days": 3,
+   "days": [
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "candidates": {
+    "from": "2026-10-13",
+    "to": "2026-10-26"
+   },
+   "grades": {
+    "2026-10-13": "NO_DATA",
+    "2026-10-14": "NO_DATA",
+    "2026-10-15": "NO_DATA",
+    "2026-10-16": "COMPLETE",
+    "2026-10-17": "COMPLETE",
+    "2026-10-18": "COMPLETE",
+    "2026-10-19": "COMPLETE",
+    "2026-10-20": "COMPLETE",
+    "2026-10-21": "COMPLETE",
+    "2026-10-22": "PARTIAL",
+    "2026-10-23": "COMPLETE",
+    "2026-10-24": "COMPLETE",
+    "2026-10-25": "COMPLETE",
+    "2026-10-26": "NO_DATA"
+   }
+  }
+ },
+ "seam": {
+  "dispositions": {
+   "ACCEPTED": 50964
+  },
+  "delivered_days": [
+   "2026-10-16",
+   "2026-10-17",
+   "2026-10-18",
+   "2026-10-19",
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-24",
+   "2026-10-25",
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30",
+   "2026-10-31",
+   "2026-11-05",
+   "2026-11-06"
+  ],
+  "stored": {
+   "daylight": {
+    "2026-10-16": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-17": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-18": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-19": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-20": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-21": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-22": {
+     "hours": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "measured": true
+    },
+    "2026-10-23": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-24": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-25": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-26": {
+     "hours": [],
+     "missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "measured": true
+    },
+    "2026-10-27": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-28": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-29": {
+     "hours": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "measured": true
+    },
+    "2026-10-30": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    },
+    "2026-10-31": {
+     "hours": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "missing": [],
+     "measured": true
+    }
+   },
+   "days": {
+    "2026-10-16": {
+     "kind": "steady-before-first",
+     "runs": [
+      "kobo-night-early",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-16 00:00:00+00:00",
+       "end": "2026-10-17 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-16 00:00:00+00:00",
+       "end": "2026-10-17 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-16T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-16T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      287,
+      0,
+      0
+     ]
+    },
+    "2026-10-17": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-17 00:00:00+00:00",
+       "end": "2026-10-18 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-17 00:00:00+00:00",
+       "end": "2026-10-18 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-17T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-17T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-18": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-18 00:00:00+00:00",
+       "end": "2026-10-19 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-18 00:00:00+00:00",
+       "end": "2026-10-19 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-18T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-18T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-19": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-19 00:00:00+00:00",
+       "end": "2026-10-20 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-19 00:00:00+00:00",
+       "end": "2026-10-20 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-19T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-19T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-20": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-20 00:00:00+00:00",
+       "end": "2026-10-21 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-20 00:00:00+00:00",
+       "end": "2026-10-21 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-20T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-20T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-21": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-21 00:00:00+00:00",
+       "end": "2026-10-22 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-21 00:00:00+00:00",
+       "end": "2026-10-22 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-21T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-21T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-22": {
+     "kind": "overuse",
+     "runs": [
+      "kobo-mini-grid-reserve-trial"
+     ],
+     "generator_local": [
+      [
+       "07:05",
+       "11:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [
+      {
+       "episode_start": "2026-10-22 04:35:00+00:00",
+       "episode_end": "2026-10-22 07:55:00+00:00",
+       "candidate_minutes": "200.0000",
+       "necessary_minutes": "0.0000",
+       "indeterminate_minutes": "0.0000",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "title": "Generator may have been on longer than needed"
+      }
+     ],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "start": "2026-10-22 00:00:00+00:00",
+       "end": "2026-10-23 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-22 00:00:00+00:00",
+       "end": "2026-10-23 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 0,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 1
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-22T04:05:00.000000Z",
+         "claim_level": "CANDIDATE_AVOIDABLE",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-22T04:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      98,
+      0,
+      1
+     ]
+    },
+    "2026-10-23": {
+     "kind": "steady-before-first",
+     "runs": [
+      "kobo-night-early",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-23 00:00:00+00:00",
+       "end": "2026-10-24 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-23 00:00:00+00:00",
+       "end": "2026-10-24 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-23T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-23T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      287,
+      0,
+      0
+     ]
+    },
+    "2026-10-24": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-24 00:00:00+00:00",
+       "end": "2026-10-25 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-24 00:00:00+00:00",
+       "end": "2026-10-25 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-24T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-24T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-25": {
+     "kind": "steady-before",
+     "runs": [
+      "kobo-night-early-after-before-mill",
+      "kobo-steady-before-mill",
+      "kobo-rest-before-mill"
+     ],
+     "generator_local": [
+      [
+       "04:00",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 3.244,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-25 00:00:00+00:00",
+       "end": "2026-10-26 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-25 00:00:00+00:00",
+       "end": "2026-10-26 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-25T01:00:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-25T01:00:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-26": {
+     "kind": "missing",
+     "runs": [],
+     "generator_local": [],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-26 00:00:00+00:00",
+       "end": "2026-10-27 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 0,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": []
+      }
+     ],
+     "clinic_readings_unserved": [
+      1,
+      0,
+      0
+     ]
+    },
+    "2026-10-27": {
+     "kind": "mill-midday",
+     "runs": [
+      "kobo-night-early",
+      "kobo-mill-midday",
+      "kobo-rest-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-27 00:00:00+00:00",
+       "end": "2026-10-28 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-27 00:00:00+00:00",
+       "end": "2026-10-28 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-27T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-27T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      287,
+      0,
+      0
+     ]
+    },
+    "2026-10-28": {
+     "kind": "steady",
+     "runs": [
+      "kobo-night-early",
+      "kobo-steady-day",
+      "kobo-rest-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-28 00:00:00+00:00",
+       "end": "2026-10-29 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-28 00:00:00+00:00",
+       "end": "2026-10-29 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-28T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-28T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    },
+    "2026-10-29": {
+     "kind": "overuse",
+     "runs": [
+      "kobo-mini-grid-reserve-trial"
+     ],
+     "generator_local": [
+      [
+       "07:05",
+       "11:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [
+      {
+       "episode_start": "2026-10-29 04:35:00+00:00",
+       "episode_end": "2026-10-29 07:55:00+00:00",
+       "candidate_minutes": "200.0000",
+       "necessary_minutes": "0.0000",
+       "indeterminate_minutes": "0.0000",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "title": "Generator may have been on longer than needed"
+      }
+     ],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "start": "2026-10-29 00:00:00+00:00",
+       "end": "2026-10-30 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-29 00:00:00+00:00",
+       "end": "2026-10-30 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 0,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 1
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-29T04:05:00.000000Z",
+         "claim_level": "CANDIDATE_AVOIDABLE",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-29T04:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      98,
+      0,
+      1
+     ]
+    },
+    "2026-10-30": {
+     "kind": "steady",
+     "runs": [
+      "kobo-night-early",
+      "kobo-steady-day",
+      "kobo-rest-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-30 00:00:00+00:00",
+       "end": "2026-10-31 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-30 00:00:00+00:00",
+       "end": "2026-10-31 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-30T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-30T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      287,
+      0,
+      0
+     ]
+    },
+    "2026-10-31": {
+     "kind": "steady",
+     "runs": [
+      "kobo-night-early",
+      "kobo-steady-day",
+      "kobo-rest-mill"
+     ],
+     "generator_local": [
+      [
+       "05:05",
+       "06:00"
+      ]
+     ],
+     "generator_kwh": 0.0,
+     "findings": [],
+     "windows": [
+      {
+       "key": "interval",
+       "claim_level": "NECESSARY",
+       "start": "2026-10-31 00:00:00+00:00",
+       "end": "2026-11-01 00:00:00+00:00",
+       "counts": null,
+       "intervals": null
+      },
+      {
+       "key": "window",
+       "claim_level": "COMPLETE",
+       "start": "2026-10-31 00:00:00+00:00",
+       "end": "2026-11-01 00:00:00+00:00",
+       "counts": {
+        "NECESSARY": 1,
+        "INDETERMINATE": 0,
+        "CANDIDATE_AVOIDABLE": 0
+       },
+       "intervals": [
+        {
+         "first_on": "2026-10-31T02:05:00.000000Z",
+         "claim_level": "NECESSARY",
+         "assessment_key": "dispatch:interval:47d7de8e-6161-4cc1-a0ce-35324c396c00:2026-10-31T02:05:00.000000Z"
+        }
+       ]
+      }
+     ],
+     "clinic_readings_unserved": [
+      288,
+      0,
+      0
+     ]
+    }
+   },
+   "money_rows": 0
+  }
+ }
+}

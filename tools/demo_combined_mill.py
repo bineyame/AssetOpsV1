@@ -265,22 +265,25 @@ def build(url: str, work: Path, story: dict) -> dict:
         except Exception as error:  # noqa: BLE001 - every refusal stops here with its text
             raise stop("P2_ACTION_REFUSED", error=f"{type(error).__name__}: {error}"[:600]) from error
 
-        # P3: the grades, before the freeze
+        # P3: the grades, before the freeze. DD1b2-R2: the full state is spelled "COMPLETE" (`vf.FULL`); this tool
+        # compared it with the literal "FULL" and stopped on a baseline that was right (found while re-probing).
+        from assetops_backend.actions.verification_families import FULL
+
         table = baseline_table(reader, tenant_id, site_id, effective_day)
         doc["baseline_before_any_tick"] = table
         doc["baseline_fallback"] = None
-        if table["state"] != "FULL":
+        if table["state"] != FULL:
             doc["baseline_fallback"] = consume_and_drain(url, tenant_id, site_id)
             table = baseline_table(reader, tenant_id, site_id, effective_day)
             doc["baseline_after_fallback"] = table
-        if table["state"] != "FULL" or table["days"] != expected_baseline:
+        if table["state"] != FULL or table["days"] != expected_baseline:
             raise stop("P3_BASELINE_SHORT", expected=expected_baseline, baseline=table,
                        grades=grade_span(reader, tenant_id, site_id, effective_day))
         status, frozen = verification_service(store, reader, at(mill["freeze_at"])).freeze_domain_plan(
             tenant_id, site_id, doc["action"]["id"])
         doc["plan"] = {"http": status, "selection": frozen["plan"].get("baseline_selection"),
                        "effective_day": effective_day.isoformat()}
-        if (frozen["plan"].get("baseline_selection") or {}).get("state") != "FULL":
+        if (frozen["plan"].get("baseline_selection") or {}).get("state") != FULL:
             raise stop("P3_PLAN_NOT_FULL", plan=doc["plan"])
 
         # P4: the verdict, in story time; the tick's evaluator only replays what this stores
