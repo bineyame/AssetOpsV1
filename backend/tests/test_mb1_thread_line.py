@@ -170,6 +170,16 @@ def test_s0_shape_reads_the_recurrence_started_by_the_board_day() -> None:
     assert (line["kind"], line["text"]) == ("RECURRED", f"Spare solar seen again on 18 Oct after the change ({SHOWN})")
 
 
+@pytest.mark.parametrize("minigrid_days", [5, 9])
+def test_close_after_is_the_policys_minigrid_value_not_a_constant(minigrid_days) -> None:
+    """L1: the per-site-type `close_after` ({"MINIGRID": n}, default 7) is what the line counts down from."""
+    policy = lc.LifecyclePolicy("test-v1", 7, {"MINIGRID": minigrid_days}, 14, {MECH: (MEASURE,)})
+    comp, rows = _compose(_ports(BASE, [_occ(1, "o1", B2.T(5, 6))], policy=policy))
+    assert _mill_fact(comp).view["close_after"] == minigrid_days
+    (line,) = rows[mini.GROW]["thread_lines"]
+    assert line["kind"] == "MONITORING" and line["remaining_days"] == max(0, minigrid_days - 5)  # 11-14 and 18 Oct
+
+
 def test_closed_shape() -> None:
     events = [*BASE, _ev(5, "CLOSED", D(10, 19))]
     _, rows = _compose(_ports(events, [_occ(1, "o1", B2.T(5, 6))]))
@@ -274,3 +284,26 @@ def test_mill4_passes_each_kind(kind) -> None:
 def test_mill4_fails(bad) -> None:
     with pytest.raises(AssertionError):
         finish.mill_thread_line(bad, CODE)
+
+
+def _monitoring(remaining) -> dict:
+    item = {**GOOD["MONITORING"], "remaining_days": remaining}
+    return {**item, "text": finish._opp_line_text(item)}  # self-consistent text: only the day check can fail it
+
+
+@pytest.mark.parametrize("name,body,day", [
+    ("future-dated RECURRED (S-8 board showing 31 Oct)", _body(GOOD["RECURRED"]), D(10, 28)),
+    ("MONITORING k above close_after", _body(_monitoring(8)), D(11, 10)),
+    ("MONITORING k negative", _body(_monitoring(-1)), D(11, 10)),
+    ("MONITORING change day after the board day", _body(GOOD["MONITORING"]), D(10, 6)),
+])
+def test_mill4_fails_against_the_board_day(name, body, day) -> None:
+    with pytest.raises(AssertionError):
+        finish.mill_thread_line(body, CODE, day)
+
+
+@pytest.mark.parametrize("kind", sorted(GOOD))
+def test_mill4_passes_each_kind_on_a_later_board_day(kind) -> None:
+    assert finish.mill_thread_line(_body(GOOD[kind]), CODE, D(11, 5)) == GOOD[kind]
+    assert finish.mill_thread_line(_body(GOOD[kind]), CODE, datetime(2026, 11, 5, 21)) == GOOD[kind]
+    assert finish.mill_thread_line(_body(_monitoring(7)), CODE, D(11, 5))["remaining_days"] == 7

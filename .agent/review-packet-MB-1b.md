@@ -83,7 +83,13 @@ Not run, per dispatch: prepare, baseline build, full suite, `test_demo_combined_
 ## Residual risk
 
 - The Postgres run was on the pre-merge build commit. The PV-1 merge auto-resolved with no conflict (PV-1 added a `SiteFacts` field and a `verdict_value` port; MB-1b adds none). The merged revision passed L0 only.
-- The real `k` for S-8 and whether the 10-31 recurrence is a visible started occurrence on S-5..S+0 are only proven at E3 (MILL-4). S-i (a counted lifecycle day missing from `day_facts.rows`) can only appear on real rows. L0 parity shows both sides use one function over the same inputs.
+- MILL-4 proves the line exists, its kind, its text-field consistency, its ref, that `effective_day` is not after the board day (so a future-dated "seen again on 31 Oct" on S-8 fails), and that a MONITORING `remaining_days` is within 0..close_after (policy, 7). It does NOT prove k's exact value: that rests on the L0 parity (same function, same inputs) and on `day_facts.rows` holding every `daylight_headroom_kw` day the runner counted; E3 does not check the latter (S-i, only on real rows).
+- Open (Architect ruling needed, not done): pin the S-8 kind to MONITORING in MILL-4 (MB-1-R's table states it unconditionally); the card only requires kind in the three.
+
+## Fix round (review MB-1b: M1, L1)
+
+- M1: `mill_thread_line(board, code, day, close_after)` asserts `effective_day <= board day` and, for MONITORING, `0 <= remaining_days <= close_after` (default from `config/chain/thread-lifecycle-v1.json`, MINIGRID). MILL-4 and F-THREADS pass the board day. Self-test: 4 new fail cases (future-dated RECURRED on a 28 Oct board, k 8, k -1, change day after the board day) and a pass case on later days.
+- L1: `test_close_after_is_the_policys_minigrid_value_not_a_constant` ({"MINIGRID": 5} and 9). Bite proof: with `close_after` hard-coded to 7 in `mini.py` the test failed; restored.
 
 ## User-review focus
 
