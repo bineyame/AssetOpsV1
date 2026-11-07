@@ -464,7 +464,7 @@ class Demo:
         self.finish({**story, "days": days})
         timings["finish"] = round(time.monotonic() - t0, 1)
 
-    def after_children(self, story: dict, days: list[dict]) -> dict:
+    def after_children(self, story: dict, days: list[dict], stop_before_mill: bool = False) -> dict:
         """DD1b2-R Q4 steps 2 to 5, after every Site child: `drain_mini` (the study needs the renewable heads), backfill
         step `a` (the freeze needs the snapshots), the mill step, then `b,c,d`. No tick may run before the mill step, or
         a wall-clock study opens the thread and every mill cause is skipped. Step 6, the R8 drain, is DD-1b2b's."""
@@ -484,6 +484,8 @@ class Demo:
         self.drain_mini()
         out["timings_seconds"]["mini-depth"] = round(time.monotonic() - t0, 1)
         timed("backfill-a", "-m", "assetops_backend.chain.backfill", "--steps", "a")
+        if stop_before_mill:  # development only (DD1b2-R2 section 4): the caller clones the database here
+            return out
         timed("mill", str(self.tree / "tools" / "demo_combined_mill.py"), "build", self.url, str(self.work),
               cwd=self.tree / "backend" / "tests")
         done = timed("backfill-bcd", "-m", "assetops_backend.chain.backfill", "--steps", "b,c,d")
@@ -551,12 +553,14 @@ class Demo:
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
     def delivered_days(self, site_code: str) -> set[str]:
         """Site-local days holding delivered (accepted) evidence for the Site: the append-only refusal basis. Local, not
-        UTC: a full day's night starts at 21:00Z the day before (DD1a2-R), which is not evidence on that earlier day."""
+        UTC: a full day's night starts at 21:00Z the day before (DD1a2-R), which is not evidence on that earlier day.
+        An interval row counts on the day its span began (DD1b2-R2): a rest run's closing row has its source time at the
+        next local midnight and must not make that next day "already delivered"."""
         import psycopg
 
         with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
             rows = c.execute(
-                "SELECT DISTINCT to_char(e.source_time AT TIME ZONE s.timezone, 'YYYY-MM-DD') FROM accepted_evidence e "
+                "SELECT DISTINCT to_char(COALESCE(e.interval_start, e.source_time) AT TIME ZONE s.timezone, 'YYYY-MM-DD') FROM accepted_evidence e "
                 "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
                 "JOIN site s ON s.id = e.site_id WHERE s.site_code = %s", (site_code,)).fetchall()
         return {r[0] for r in rows}
@@ -748,6 +752,7 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("tick")
     ac = sub.add_parser("after-children", help="development only (DD1b2-R probe): the real after_children on a prepared work folder")
     ac.add_argument("--cap-seconds", type=int, default=1800)
+    ac.add_argument("--stop-before-mill", action="store_true", help="drain_mini and backfill step a only, then stop (clone here)")
     ad = sub.add_parser("add-day")
     ad.add_argument("--site", required=True, choices=sorted(SITE_CODE.values()))
     ad.add_argument("--kind", required=True)
@@ -778,7 +783,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "after-children":
         demo.deadline = time.monotonic() + args.cap_seconds
         built = json.loads((demo.work / "days.json").read_text(encoding="utf-8"))
-        demo.after_children(demo.story(), built["days"])
+        demo.after_children(demo.story(), built["days"], stop_before_mill=args.stop_before_mill)
     else:
         demo.drop()
 

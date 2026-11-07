@@ -129,7 +129,9 @@ SEAL_ONCE = False
 
 def _host(root: Path, link, keep=None) -> HostLabExecution:
     # DD1a1-R5: `keep` (a source-time predicate) is passed by the demo full-day producer only.
-    extra = {"keep_source_time": keep} if keep is not None else {}
+    # DD1b2-R2: the Kobo seam rule passes an observation predicate (`takes_observation`), Cold a time predicate.
+    extra = ({"keep_observation": keep} if getattr(keep, "takes_observation", False) else {"keep_source_time": keep}
+             ) if keep is not None else {}
     return HostLabExecution(artifacts=YamlExecutionArtifacts(root), stages=JsonSourceStages(root / "stages"),
                             gateway=RegisteredGatewayPublisher(link), seal_once=SEAL_ONCE, **extra)
 

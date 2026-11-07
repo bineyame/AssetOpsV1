@@ -3,7 +3,7 @@
     "id": "assetops.demo-story-days",
     "version": 3
   },
-  "label": "DD-1b2a probe: v3 entries unchanged, Kobo only is built: 13 full + 2 story-only days (DD1b2-R probe table)",
+  "label": "DD-1b2a probe (DD1b2-R2): v3 Kobo entries unchanged, 18 days: S-20d, S-19d, S-18d, S-17d, S-16d, S-15d, S-14d, S-13d, S-12d, S-11d, S-10d, S-9d, S-8d, S-7d, S-6d, S-5d, S+0d, S+1d",
   "status": "DD-1a2 (DD1a2-R, owner answers 2026-11-07). Example data. Each full example day starts at 06:00 from a declared battery level and fuel level. Before `mill_change_day` the days run the mill's authored 'before' pattern; after it, the kobo-daytime pattern. S-4 and S-2 are not built (LATE_IN_STREAM, BL-25). Cold stays its 3 story days (Q5). EV adds S-14 (3 Tuesdays). v1 and v2 are kept as history.",
   "kinds": {
     "kobo": {
@@ -281,6 +281,10 @@
         "kind": "steady-before"
       },
       {
+        "day": "S-14d",
+        "kind": "overuse"
+      },
+      {
         "day": "S-13d",
         "kind": "steady-before-first"
       },
@@ -303,6 +307,10 @@
       {
         "day": "S-8d",
         "kind": "steady"
+      },
+      {
+        "day": "S-7d",
+        "kind": "overuse"
       },
       {
         "day": "S-6d",

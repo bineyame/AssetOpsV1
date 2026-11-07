@@ -363,7 +363,7 @@ def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     run, _ = rp._draft(store, spec, M)
     # DD1a1-R5: every run of a Site-day reopens that day's one gateway state, so the epoch's sequence continues; a
     # complement sends only the instants its `keep` allows (story runs send everything, unchanged).
-    stream = {"gateway_dir": gateway_dir(tmp, day.epoch), "keep": day.keep()}
+    stream = {"gateway_dir": gateway_dir(tmp, day.epoch), "keep": day.keep_observation() or day.keep()}
     if day.kind == "degraded":
         deliver = publish_first_half
         _OUTAGE[day.epoch] = str(getattr(run, "run_id", None) or getattr(run, "id", ""))

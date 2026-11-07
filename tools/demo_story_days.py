@@ -86,10 +86,31 @@ class DayRun:
     #: and is sent unchanged.
     emit_until: datetime | None = None
     owned: tuple = ()
+    #: DD1b2-R2 (seam rule): True on every run of a Site-day that has complements. In `payload()` only when True.
+    seam: bool = False
 
     @property
     def has_run(self) -> bool:
         return self.received_at is not None
+
+    def keep_observation(self):
+        """DD1b2-R2 seam rule, for the Kobo host path: at a seam an interval reading comes from the run whose span ended
+        there and a state reading from the run that starts there. None for a day with no complements (story-only days
+        stay byte-equal). Takes a `DeviceObservation`."""
+        if not self.seam:
+            return None
+        time_rule = self.keep()
+
+        def keep(observation) -> bool:
+            if observation.outcome == "NO_PRECEDING_INTERVAL":
+                return False
+            if time_rule is None:  # the story run
+                return True
+            if observation.reading_class == "INTERVAL_SIGNAL" and _parse(observation.source_sample_time) == self.emit_until:
+                return True
+            return time_rule(observation.source_sample_time)
+        keep.takes_observation = True  # `_host` passes it as `keep_observation`, not `keep_source_time`
+        return keep
 
     def keep(self):
         """The source-time predicate the producer passes to the host (`keep_source_time`); None for a story run."""
@@ -105,6 +126,8 @@ class DayRun:
 
     def payload(self) -> dict[str, Any]:
         out = asdict(self)
+        if not out["seam"]:  # only a day with complements carries it, so a story-only day's payload is unchanged
+            out.pop("seam")
         for key in ("start", "end", "received_at", "known_at", "covers_end", "emit_until"):
             out[key] = iso(out[key]) if out[key] is not None else None
         out["owned"] = [list(p) for p in self.owned]
@@ -291,7 +314,8 @@ def _expand(doc: dict, site: str, entry: dict, S: datetime, boundaries: tuple = 
     # where two complements meet the earlier ends exclusive and the shared 21:00Z day edge goes to the later day,
     # and it leaves out any instant the story run sends (a Cold complement starts after the story's emitted end).
     owned = ((iso(story.start), iso(story.end)),)
-    out = [out[0]] + [replace(r, emit_until=r.covers_end or r.end, owned=owned) for r in out[1:]]
+    out = [replace(out[0], seam=len(out) > 1)] + [
+        replace(r, emit_until=r.covers_end or r.end, owned=owned, seam=True) for r in out[1:]]
     _tiled(site, story.day, D, out)
     return out
 
