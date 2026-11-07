@@ -94,6 +94,7 @@ from assetops_backend.runs.models import (
     readiness_disclosure,
 )
 from assetops_backend.runs.ports import (
+    OperationalActionLogPort,
     RegisteredBasisPort,
     RunConfigurationInvalid,
     RunIdentityConflict,
@@ -2430,6 +2431,7 @@ def build_simulator_lab_router(
     registered_bases: RegisteredBasisPort | None = None,
     ev_access: EvCatalogAccess | None = None,
     ev_owner: EvCatalogOwner | None = None,
+    operational_actions: OperationalActionLogPort | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2464,6 +2466,7 @@ def build_simulator_lab_router(
         model_profiles=model_profiles,
         publication_profiles=publication_profiles,
         registered_bases=registered_bases,
+        operational_actions=operational_actions,
     )
     router = APIRouter(prefix=SIMULATOR_LAB_API_PREFIX, tags=["simulator-lab"])
 

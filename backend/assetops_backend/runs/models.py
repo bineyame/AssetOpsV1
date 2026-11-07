@@ -65,6 +65,7 @@ empty projection ever being mistaken for a run with no causes.
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 
 from assetops_backend.state_refs import StateRef
@@ -197,8 +198,40 @@ FROZEN_INPUT_ANSWERERS = frozenset(
         "RUN_INPUT",
         "MODEL_PROFILE",
         "PUBLICATION_PROFILE",
+        # DIESEL-1-R3f: a cause or reporting-path condition frozen from an
+        # operator's act in a named operational-action log, never from the scenario.
+        "OPERATIONAL_ACTION",
     }
 )
+
+#: DIESEL-1-R3f §9f.2 (1). Where a frozen cause or reporting-path condition came
+#: from. `SCENARIO` is the default and is never written to a stored run, so every
+#: run frozen before K0, and every run that names no operational-action log, is
+#: byte-equal to what it was.
+CAUSE_ORIGINS = frozenset({"SCENARIO", "OPERATIONAL_ACTION"})
+
+#: `"{action_id}:{content_sha256}"`: the action an `OPERATIONAL_ACTION` record
+#: was frozen from, and the sha256 of that action's canonical JSON.
+ACTION_REF_PATTERN = r"^[a-z0-9][a-z0-9-]{0,63}:[0-9a-f]{64}$"
+
+#: The action kinds that freeze a physical effect, and so the only kinds a
+#: frozen operational-action log lists.
+EFFECT_BEARING_ACTION_KINDS = frozenset({"FUEL_DELIVERY", "FUEL_REMOVAL_UNRECORDED"})
+
+
+def check_cause_origin(origin: str, action_ref: str | None, record: str) -> None:
+    """Raise `ValueError("CAUSE_ORIGIN_INVALID: ...")` unless the pair is one of the two allowed forms."""
+    if origin not in CAUSE_ORIGINS:
+        raise ValueError(f"CAUSE_ORIGIN_INVALID: {record} has origin {origin!r}; expected one of "
+                         f"{sorted(CAUSE_ORIGINS)}.")
+    if origin == "OPERATIONAL_ACTION" and action_ref is None:
+        raise ValueError(f"CAUSE_ORIGIN_INVALID: {record} has origin OPERATIONAL_ACTION and no action_ref.")
+    if origin == "SCENARIO" and action_ref is not None:
+        raise ValueError(f"CAUSE_ORIGIN_INVALID: {record} has origin SCENARIO and an action_ref.")
+    if action_ref is not None and (not isinstance(action_ref, str) or not re.match(ACTION_REF_PATTERN, action_ref)):
+        raise ValueError(f"CAUSE_ORIGIN_INVALID: {record} has action_ref {action_ref!r}, which is not "
+                         "'{action_id}:{content_sha256}'.")
+
 
 ANSWERER_BY_INITIALIZATION_OWNER = {
     "SITE_FOUNDATION": "SITE_FOUNDATION",
@@ -617,6 +650,13 @@ class FrozenCause:
     timing_shape: str
     offset_minutes: int
     duration_minutes: int | None
+    #: DIESEL-1-R3f. `OPERATIONAL_ACTION` with `action_ref` for a cause frozen
+    #: from an operational-action log; the default pair is never rendered.
+    origin: str = "SCENARIO"
+    action_ref: str | None = None
+
+    def __post_init__(self) -> None:
+        check_cause_origin(self.origin, self.action_ref, f"Cause {self.event_id}")
 
     @property
     def state_key(self) -> str:
@@ -717,10 +757,52 @@ class FrozenReportingPathCondition:
     timing_shape: str
     offset_minutes: int
     duration_minutes: int | None
+    #: DIESEL-1-R3f, as on `FrozenCause`: an unplugged sensor from an
+    #: operational-action log; the default pair is never rendered.
+    origin: str = "SCENARIO"
+    action_ref: str | None = None
+
+    def __post_init__(self) -> None:
+        check_cause_origin(self.origin, self.action_ref, f"Reporting path {self.event_id}")
 
     @property
     def addressed_key(self) -> str:
         return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenOperationalAction:
+    """DIESEL-1-R3f §9f.2 (1). The display facts of one effect-bearing operational action a run froze.
+
+    Provenance reads these, never the live log. `at` is the log's text verbatim.
+    """
+
+    action_id: str
+    kind: str
+    actor: str
+    at: str
+    content_sha256: str
+
+    def __post_init__(self) -> None:
+        if self.kind not in EFFECT_BEARING_ACTION_KINDS:
+            raise ValueError(f"CAUSE_ORIGIN_INVALID: operational action {self.action_id} has kind {self.kind!r}; "
+                             f"only {sorted(EFFECT_BEARING_ACTION_KINDS)} are frozen.")
+        check_cause_origin("OPERATIONAL_ACTION", f"{self.action_id}:{self.content_sha256}",
+                           f"Operational action {self.action_id}")
+
+
+@dataclass(frozen=True)
+class FrozenOperationalActionLog:
+    """DIESEL-1-R3f §9f.2 (1). The named log a run's operational actions came from, and its effect-bearing actions.
+
+    `sha256` is the LF-normalised file hash (the F0e rule). `actions` may be empty: the log was requested and had
+    no effect-bearing action in the run's interval. Ordered by parsed `at`, then `action_id`.
+    """
+
+    log_id: str
+    log_version: int
+    sha256: str
+    actions: tuple[FrozenOperationalAction, ...]
 
 
 @dataclass(frozen=True)
@@ -897,9 +979,10 @@ class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
 
     Every field is answered for by exactly one of the four answerers, and
-    `frozen_inputs` states which. `intervention_history` is ordered and empty:
-    nothing in this build can inject a runtime event, and the order is part of
-    the identity even while the list has nothing in it.
+    `frozen_inputs` states which. `intervention_history` is ordered, and empty
+    unless the run names an operational-action log (DIESEL-1-R3f): then it holds
+    one `OPERATIONAL_ACTION:{action_id}:{content_sha256}` entry per
+    effect-bearing action, and the order is part of the identity.
     """
 
     site: FrozenSiteBinding
@@ -930,6 +1013,10 @@ class DeterministicIdentity:
     #: publication profile. Empty, and absent from the stored document, on
     #: every run whose profile declares none.
     signal_resolutions: tuple[FrozenSignalResolution, ...] = ()
+    #: DIESEL-1-R3f. The named operational-action log the run's
+    #: `OPERATIONAL_ACTION` causes and conditions came from. None, and absent
+    #: from the stored document, on every run whose request names no log.
+    operational_action_log: FrozenOperationalActionLog | None = None
 
 
 @dataclass(frozen=True)

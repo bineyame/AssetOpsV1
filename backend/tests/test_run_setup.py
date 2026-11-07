@@ -69,6 +69,7 @@ from assetops_backend.scenarios.models import INITIALIZATION_OWNERS
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 from assetops_backend.sites.models import Rating, SiteComponent
+from test_k0_operational_actions import operational_action_refusals
 
 
 def service(
@@ -1568,7 +1569,10 @@ class TestEveryFrozenValueNamesAnAnswerer:
         covered = {row.identity_field for row in rows}
         declared = {field.name for field in fields(DeterministicIdentity)}
 
-        assert covered == declared
+        # DIESEL-1-R3f §9f.2 (4): the operational-action log has a row only when
+        # the run named one, so a run without one is byte-equal; its row is
+        # proven in test_k0_operational_actions.py.
+        assert covered == declared - {"operational_action_log"}
 
     def test_every_nested_frozen_field_is_classified(self) -> None:
         """The audit the top-level check cannot be: every field of every
@@ -1697,6 +1701,18 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenSignalResolution", "signal_id"),
             ("FrozenSignalResolution", "unit"),
             ("FrozenSignalResolution", "resolution"),
+            # DIESEL-1-R3f §9f.2 (4): an operational action's origin is the
+            # row's answerer; the log is its own row; the action's id, kind and
+            # actor are in the cause or condition row's detail.
+            ("FrozenCause", "origin"),
+            ("FrozenReportingPathCondition", "origin"),
+            ("FrozenOperationalActionLog", "log_id"),
+            ("FrozenOperationalActionLog", "log_version"),
+            ("FrozenOperationalActionLog", "sha256"),
+            ("FrozenOperationalActionLog", "actions"),
+            ("FrozenOperationalAction", "action_id"),
+            ("FrozenOperationalAction", "kind"),
+            ("FrozenOperationalAction", "actor"),
         }
 
         # Frozen and inspectable through the structured identity, and
@@ -1745,6 +1761,11 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenModelNeed", "canonical_value"),
             ("FrozenModelNeed", "canonical_unit"),
             ("FrozenModelNeed", "dimension"),
+            # DIESEL-1-R3f §9f.2 (4).
+            ("FrozenCause", "action_ref"),  # the action id reaches the row's detail; the content hash is on the intervention-history row
+            ("FrozenReportingPathCondition", "action_ref"),  # the action id reaches the row's detail; the content hash is on the intervention-history row
+            ("FrozenOperationalAction", "content_sha256"),  # on the intervention-history row
+            ("FrozenOperationalAction", "at"),  # the cause row's span states when, as an offset
         }
 
         from dataclasses import is_dataclass
@@ -2086,6 +2107,9 @@ class TestEveryRefusalKindIsReachable:
             self._site_awaiting_migration().kind,
             *self._registered_basis_refusals(),
             *self._device_resolution_refusals(),
+            # DIESEL-1-R3f: the eleven operational-action kinds, each produced
+            # with nothing written (test_k0_operational_actions.py).
+            *operational_action_refusals(),
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS

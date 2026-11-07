@@ -103,6 +103,27 @@ def _contract_incompatibility(frozen_version: int) -> str | None:
     return None
 
 
+def _answered(
+    identity: DeterministicIdentity, origin: str, action_ref: str | None, scenario_detail: str
+) -> dict[str, str]:
+    """Who answers for a cause or condition row: the scenario, or (DIESEL-1-R3f) an operational action.
+
+    The action's display facts come from the frozen log, never from the live file.
+    """
+    log = identity.operational_action_log
+    if origin != "OPERATIONAL_ACTION" or action_ref is None or log is None:
+        return {"answered_by": "SCENARIO", "answered_by_detail": scenario_detail}
+    action_id = action_ref.split(":", 1)[0]
+    action = next(a for a in log.actions if a.action_id == action_id)
+    return {
+        "answered_by": "OPERATIONAL_ACTION",
+        "answered_by_detail": (
+            f"Operational action {action.action_id} ({action.kind}, by {action.actor}), "
+            f"log {log.log_id} v{log.log_version}"
+        ),
+    }
+
+
 def _span(shape: str, offset_minutes: int, duration_minutes: int | None) -> str:
     """When a frozen entry acts, as a reader would say it.
 
@@ -443,8 +464,7 @@ def frozen_inputs(
                         f"{cause.canonical_value} {cause.canonical_unit} "
                         f"{_span(cause.timing_shape, cause.offset_minutes, cause.duration_minutes)}"
                     ),
-                    answered_by="SCENARIO",
-                    answered_by_detail=scenario_detail,
+                    **_answered(identity, cause.origin, cause.action_ref, scenario_detail),
                 )
             )
     else:
@@ -520,8 +540,7 @@ def frozen_inputs(
                         f"{condition.addressed_key} "
                         f"{_span(condition.timing_shape, condition.offset_minutes, condition.duration_minutes)}"
                     ),
-                    answered_by="SCENARIO",
-                    answered_by_detail=scenario_detail,
+                    **_answered(identity, condition.origin, condition.action_ref, scenario_detail),
                 )
             )
     else:
@@ -532,6 +551,20 @@ def frozen_inputs(
                 value="none declared",
                 answered_by="SCENARIO",
                 answered_by_detail=scenario_detail,
+            )
+        )
+
+    # DIESEL-1-R3f: the named operational-action log, one row, only when the
+    # run named one, so every other run's provenance is byte-equal.
+    log = identity.operational_action_log
+    if log is not None:
+        rows.append(
+            FrozenInput(
+                identity_field="operational_action_log",
+                field="Operational action log",
+                value=f"{log.log_id} v{log.log_version}, sha256 {log.sha256}",
+                answered_by="OPERATIONAL_ACTION",
+                answered_by_detail=f"{len(log.actions)} actions with a physical effect in this run",
             )
         )
 

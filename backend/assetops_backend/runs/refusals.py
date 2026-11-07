@@ -150,6 +150,33 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         # registered binding's source unit for that signal. Nothing rounds in
         # a unit the binding does not publish.
         "PUBLICATION_UNIT_MISMATCH",
+        # DIESEL-1-R3f §9f.2 (8): a request naming an operational-action log.
+        # Named on a cold or EV document draft, or a legacy YAML Site: only a
+        # registered timeline run takes operational actions.
+        "OPERATIONAL_ACTIONS_UNSUPPORTED_PATH",
+        # No log port is wired, or the named log file is missing or unreadable.
+        "OPERATIONAL_ACTION_LOG_UNAVAILABLE",
+        # The log's document has a missing, unknown or mistyped key.
+        "OPERATIONAL_ACTION_LOG_INVALID",
+        # The log's inner id, version or site code differs from what was named.
+        "OPERATIONAL_ACTION_LOG_MISMATCH",
+        # An action names a component the run's Site does not have.
+        "OPERATIONAL_ACTION_COMPONENT_UNKNOWN",
+        # The model has no CAUSAL_INPUT stock for the action's state, or the run
+        # froze no initial tank volume or tank capacity to bound it by.
+        "OPERATIONAL_ACTION_STATE_NOT_CAUSAL",
+        # The model's stock is not in litres.
+        "OPERATIONAL_ACTION_UNIT",
+        # An action's physical span is not wholly inside the run, or is not
+        # aligned the way a scenario entry must be.
+        "OPERATIONAL_ACTION_SPAN_OUTSIDE_RUN",
+        # Initial stock plus the run's deliveries so far exceeds the tank's
+        # frozen capacity: refused, never clamped.
+        "OPERATIONAL_ACTION_OVER_CAPACITY",
+        # A removal exceeds initial stock plus the run's earlier deliveries.
+        "OPERATIONAL_ACTION_OVER_STOCK",
+        # An action's event id equals one already frozen from the scenario.
+        "OPERATIONAL_ACTION_EVENT_ID_CONFLICT",
     }
 )
 

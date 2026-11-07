@@ -102,7 +102,10 @@ from assetops_backend.runs.parsing import (
     parse_run_setup_request,
     reject_unusable_quantity,
 )
+from assetops_backend.runs.operational_actions import freeze_operational_actions
 from assetops_backend.runs.ports import (
+    OperationalActionLogPort,
+    OperationalActionLogUnavailable,
     RegisteredBasisPort,
     RegisteredSiteSelection,
     SimulationRunRepository,
@@ -404,9 +407,13 @@ class RunSetupService:
         publication_profiles: tuple[PublicationProfile, ...],
         now: Callable[[], str] = _utc_now,
         registered_bases: RegisteredBasisPort | None = None,
+        operational_actions: OperationalActionLogPort | None = None,
     ) -> None:
         self._runs = runs
         self._sites = sites
+        # DIESEL-1-R3f: the read-only operational-action log boundary. None
+        # means a request naming a log is refused as unavailable.
+        self._operational_actions = operational_actions
         # S2-01a: the read-only registered-basis boundary. None in a
         # legacy-only composition, where every code is a YAML Site.
         self._registered_bases = registered_bases
@@ -430,6 +437,15 @@ class RunSetupService:
 
         site, selection = self._resolve_site(request)
         scenario = self._resolve_scenario(request)
+        if request.operational_actions is not None and (
+            selection is None or isinstance(scenario, (ColdScenarioDefinition, EvScenarioDefinition))
+        ):
+            # DIESEL-1-R3f Q7: before any freeze work, so nothing is allocated.
+            raise refuse(
+                "OPERATIONAL_ACTIONS_UNSUPPORTED_PATH",
+                "Operational actions are frozen only into a timeline run on a registered Site. A cold or EV "
+                "document run, or a run on a legacy YAML Site, cannot name an operational-action log.",
+            )
         if isinstance(scenario, ColdScenarioDefinition):
             # W2-02: a cold document never reaches the legacy timeline freeze.
             return self._create_cold_draft(request, site, selection, scenario)
@@ -480,6 +496,8 @@ class RunSetupService:
                 request, publication, selection
             ),
         )
+        if request.operational_actions is not None:
+            identity = self._freeze_operational_actions(request, identity, site, model)
 
         reasons, optional = self._decide(
             scenario=scenario,
@@ -502,6 +520,36 @@ class RunSetupService:
         )
 
         return self._runs.create_run(record)
+
+    def _freeze_operational_actions(
+        self,
+        request: RunSetupRequest,
+        identity: DeterministicIdentity,
+        site: SiteRecord,
+        model: ModelProfile,
+    ) -> DeterministicIdentity:
+        """DIESEL-1-R3f: read the named log through the port and freeze its actions' effects."""
+        named = request.operational_actions
+        assert named is not None
+        if self._operational_actions is None:
+            raise refuse(
+                "OPERATIONAL_ACTION_LOG_UNAVAILABLE",
+                f"This installation reads no operational-action logs, so log {named.log_id} "
+                f"v{named.log_version} cannot be read.",
+            )
+        try:
+            source = self._operational_actions.read_log(named.log_id, named.log_version)
+        except OperationalActionLogUnavailable as error:
+            raise refuse("OPERATIONAL_ACTION_LOG_UNAVAILABLE", str(error)) from error
+        return freeze_operational_actions(
+            request,
+            identity,
+            source,
+            model=model,
+            start=request.start_time,
+            end=request.end_time,
+            component_ids=frozenset(c.component_id for c in site.foundation.components or ()),
+        )
 
     # --- W2-02: the cold-only freeze -----------------------------------------
 
