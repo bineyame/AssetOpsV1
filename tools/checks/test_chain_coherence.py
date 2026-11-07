@@ -734,7 +734,7 @@ def test_expected_mechanism_loads_and_only_names_declared_gaps() -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     assert data["schema"] == "chain-coherence-expected/1" and "GAP-K7" in data["rule"]
     for e in cc.load_expect(path):
-        assert e["register"].startswith(("MD-0:", "MD0b-R:")) and e.get("owner"), e
+        assert e["register"].startswith(("MD-0:", "MD0b-R:", "CH6b3-R4:")) and e.get("owner"), e
 
 
 def test_settle_also_accepts_the_mechanism_dbs_only() -> None:

@@ -509,7 +509,7 @@ CARD_TEXT = {
     "note.withheld_many": " · findings next to those days not shown yet",
     "note.gap.unknown": "evidence gaps not assessed",
     "note.gap.zero": "no evidence gaps",
-    "note.gap.zero_checked": "no evidence gaps on the days checked",
+    "note.gap.zero_checked": "no evidence gaps on the days assessed",
     "note.gap.one": "evidence gap at 1 site",
     "note.gap.all": "evidence gaps at all {sites} sites",
     "note.gap.some": "evidence gaps at {gaps} of {sites} sites",

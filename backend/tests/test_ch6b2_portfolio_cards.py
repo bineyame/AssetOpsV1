@@ -234,7 +234,7 @@ def test_copy_preferences() -> None:
     (2, 4, False, "evidence gaps at 2 of 4 sites"),
     (1, 4, False, "evidence gap at 1 site"),
     (0, 4, False, "no evidence gaps"),
-    (0, 4, True, "no evidence gaps on the days checked"),
+    (0, 4, True, "no evidence gaps on the days assessed"),
     (None, 4, False, "evidence gaps not assessed"),
     (6, 4, False, v.card_text("note.gap.many", gaps=6)),   # no vitest golden: the many branch, pinned to its template
 ])
@@ -242,6 +242,13 @@ def test_evidence_gap_text_branches(gaps, sites, checked, expected) -> None:
     assert v.evidence_gap_text(gaps, sites, checked) == expected
     if gaps == 6:
         assert "6" in expected
+
+
+@pytest.mark.parametrize("checked", [False, True])
+@pytest.mark.parametrize("gaps", [None, 0, 1, 2, 4, 6])
+def test_evidence_gap_text_never_says_days_checked(gaps, checked) -> None:
+    # CH6b3-R4 N1: "days checked" means graded COMPLETE; the gap clause follows coverage, so it says "assessed".
+    assert "days checked" not in v.evidence_gap_text(gaps, 4, checked)
 
 
 @pytest.mark.parametrize(("n", "unread", "expected"), [

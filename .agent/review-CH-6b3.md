@@ -4,7 +4,7 @@ Branch `task/CH-6b3-coherence-proofs`, HEAD `8b168ddaa`, against main `9b1c53ae3
 
 ## Verdict: REVISE
 
-The builder's work matches the rulings, and I found no defect in the COH rules, the Q4b code or the four test fixes. The blocker is H1. On the Portfolio's week and S windows the page still contradicts itself about the Kobo fix. Q4b moved that contradiction rather than removing it, and the ruling's premise that "the week and the month agree" (CH6b3-R2 BL-26) does not hold on the drained bundle. H1 needs an Architect ruling before a builder can fix it. M1 and M2 are older client-visible number conflicts that are not in this diff. The Architect should say whether they are fixed here or separately.
+The builder's work matches the rulings, and I found no defect in the COH rules, the Q4b code or the four test fixes. The blocker is H1. On the Portfolio's week and S windows the page still contradicts itself about the Kobo fix. Q4b moved that contradiction rather than removing it, and the ruling's premise that "the week and the month agree" (CH6b3-R2 BL-36) does not hold on the drained bundle. H1 needs an Architect ruling before a builder can fix it. M1 and M2 are older client-visible number conflicts that are not in this diff. The Architect should say whether they are fixed here or separately.
 
 ## Findings
 
@@ -24,7 +24,7 @@ Client-visible values in `var/ch6b3r2_bundle`, week and S (S is the same unless 
 | Kobo board for the window | Assure "1 verified result", while Optimize reads "Before the change on 1 Nov · after the change: not judged yet" | `board_summary.{w}.KOBO-001` |
 | Pulse | "3 priority sites" counts Kobo (2 on S), yet Kobo's only row is under Monitor | Q4b |
 
-Failing scenario: a client opens the Portfolio on the week, which is a window the story links open and BL-26 tells DS-1 to stay on. The cards say no fix is confirmed. The table below them says Kobo's change is verified. No click is needed. "Why?" on the Assure card then says 1 verified result.
+Failing scenario: a client opens the Portfolio on the week, which is a window the story links open and BL-36 tells DS-1 to stay on. The cards say no fix is confirmed. The table below them says Kobo's change is verified. No click is needed. "Why?" on the Assure card then says 1 verified result.
 
 Causes, from the code:
 - The rows read thread state on a different day from the claims. `attach_threads` uses `day_at = req.to - 1 µs` in Site-local time (`estate/portfolio.py:161`), which is 1 Nov in Addis. The claims use `window_day` (`chain/claims.py:80`), which is 31 Oct for a UTC-midnight window. So one window yields RESOLVED_MONITORING on the row and ACTION_IN_HAND in the count.
@@ -37,7 +37,7 @@ Fix, which is an Architect decision because it reverses a ruling on one side or 
 - (a) Keep CH6b3-R2 step 4 (0 is true for a window ending 31 Oct). Then rows, the progress drawer and the Assure headline must read as of the window's last day. CO-3 asserts the verified "earlier" line on the S board, so the board side needs an explicit carve-out or a CO change. Or
 - (b) Word the card so it is plainly window-bound, and state on the row that the verification came after the window ("verified 1 Nov, after this window"). Then the two statements stop conflicting. This is the smaller change, but it is new copy and needs a mock check.
 
-Whichever is chosen, re-state BL-26: the week does not agree with itself. A one-line demo-script restriction to the month alone would also work if the Architect accepts it, but the story links open the week.
+Whichever is chosen, re-state BL-36: the week does not agree with itself. A one-line demo-script restriction to the month alone would also work if the Architect accepts it, but the story links open the week.
 
 ### Medium
 
@@ -49,7 +49,7 @@ Whichever is chosen, re-state BL-26: the week does not agree with itself. A one-
 **M2. The estate "Why?" days line disagrees with the card, and names 32 days in a 31-day window.** Not in this diff.
 - Cold, week: the card reads "0 of 7 days checked · 2 with too little data", "Why?" reads "0 of 8 days checked · 8 with too little data, not counted". Month: "0 of 31 · 3" against "0 of 32 days checked · 32 with too little data", then "Checking 32 more days".
 - Cause: `why.py:249,264` reads the board's `facts.days`, the `local_days` of a UTC-midnight pair (one day more, CH6b1-R Q1), and `why.py:336` joins it into the estate text. No-data days are also worded as "too little data".
-- CH6b3-R Q2 did not ask for this comparison, so it is not a builder miss. BL-23 and BL-24 cover nodes and earnings days, not this line.
+- CH6b3-R Q2 did not ask for this comparison, so it is not a builder miss. BL-33 and BL-34 cover nodes and earnings days, not this line.
 - Fix: build the estate Why? days line from the summary's `window_days` Site days, as the card does.
 
 ### Low (do not block)

@@ -875,7 +875,7 @@ All rows are estate windows only (`week`, `S`, `month`), under the existing equa
 - **What the builder does:** where a part's `days` objects are **equal** and its `value` or `text` differs, that is not explained by the frame. Stop and report it, as the stop rule says.
 - Every other difference is listed, not judged.
 - Mini on `week` and `month` is not compared, by design (CH6b1-R Q1, Q4).
-- A strict comparison on a shared frame is **BL-23**.
+- A strict comparison on a shared frame is **BL-33**.
 
 **Tests**, in `tools/checks/test_chain_coherence.py`, on a new `clean_full` bundle:
 - It passes clean.
@@ -909,7 +909,7 @@ The sum rule is accepted; **the read form is overridden.** `board_window` (`outc
 - **R1.** Tally the grades. Chain `sites[].days` must equal the tally on `requested, expected, complete, partial, low, no_data, not_expected, pending`. `expected = requested - not_expected`. `enough_data_days` is left out: a day grade cannot derive it and no screen shows it. A null `days` is a finding.
 - **R2.** Each of `counts[*].days` must equal the Site tallies summed over `CLAIM_DAY_KEYS`.
 - A non-200 day read is COH-0's, and the stop rule applies.
-- **Out:** node and earnings `days` and day windows (**BL-24**). Grow's own days line is proved by L2m (Kobo) and L0 (Cold and EV).
+- **Out:** node and earnings `days` and day windows (**BL-34**). Grow's own days line is proved by L2m (Kobo) and L0 (Cold and EV).
 - **L0 tests:** a planted wrong-day mapping fails R1 (the sheet's test), a wrong count `days` fails R2, a missing date entry fails, and an unstamped bundle is not judged.
 
 ### Q4a. `gap_days` and the CHECKED_DAYS assertion (demo-critical)
@@ -930,7 +930,7 @@ Checked: `EstatePortfolio.tsx:460,537,796` render them beside the claims. **Opti
   - `verified_resolution_count` = `counted.claims["count.verified_results"].value`, in both `prog` and `summary`;
   - `priority_site_count` = Sites with `t["open"] + t["in_hand"] > 0` in `counted.threads`, or None if any entry is None;
   - `counted is None` gives None for both. The browser then shows its existing "Unknown" and "Not assessed".
-  - With no `count_claims` wired, the `thread_progress` values stay, so unit tests of that path hold. Deleting it is **BL-25**.
+  - With no `count_claims` wired, the `thread_progress` values stay, so unit tests of that path hold. Deleting it is **BL-35**.
 - **Why in_hand counts:** a Site with a fix in hand still needs attention until it is verified, and `count.open_threads` already counts it. So priority Sites > 0 exactly when open threads > 0.
 - **Frontend, one line, `EstatePortfolio.tsx:796`:** "1 priority site" in the singular, as the neighbouring pulse items do. The same phrase, so not a mock departure. `:460` and `:537` are not edited.
 - **Tests:**
@@ -942,7 +942,7 @@ Checked: `EstatePortfolio.tsx:460,537,796` render them beside the claims. **Opti
 
 ### Q5-Q9: accepted as written, with one correction
 
-- **Q9.** §B6 also says "L2m asserts D12/D13 eligible". No such assertion exists in `test_ch6b_estate_postgres.py`. The acceptance is only that the order line is recorded, so **no test is added** (**BL-24**). The §B6 line cites the L3 Kobo Potential value. If that value is not from CH-9's daylight study, stop and report.
+- **Q9.** §B6 also says "L2m asserts D12/D13 eligible". No such assertion exists in `test_ch6b_estate_postgres.py`. The acceptance is only that the order line is recorded, so **no test is added** (**BL-34**). The §B6 line cites the L3 Kobo Potential value. If that value is not from CH-9's daylight study, stop and report.
 - **Q6** applies to the new rows: `full_claims` and `day_bodies` each need compared > 0.
 
 ### Acceptance additions
@@ -951,7 +951,7 @@ The CH-6b3 entry and the Scope cut stand, with these changes:
 - COH-17 means the table above; COH-18 means R1-R4.
 - L3 clone: 0 new. L3m: 0 unexpected. Each report carries `{compared, skipped}`.
 - The packet carries the PERIOD information table and the Q4b old → new list.
-- **Backlog added:** BL-23, BL-24, BL-25 (not demo-critical; reasons in `.agent/backlog-post-demo.md`).
+- **Backlog added:** BL-33, BL-34, BL-35 (not demo-critical; reasons in `.agent/backlog-post-demo.md`).
 
 ## CH6b3-R2: KD-3b, the four test failures and the Q4b table (Architect, Claude, 2026-11-07)
 
@@ -1034,7 +1034,7 @@ These values are the polish build's. DD-1 may change them; the CH6b2-R2 DD-1a1 t
 
 ### Step 5: the packet
 
-Update size 1.3, the scoped-test result, the step 2 table, KD-3b closed, the Q4b wording, and BL-26. Then the batched review.
+Update size 1.3, the scoped-test result, the step 2 table, KD-3b closed, the Q4b wording, and BL-36. Then the batched review.
 
 ### Lane 2 (coordinator relays; DD-1 +0)
 
@@ -1042,11 +1042,11 @@ DD-1b2 F-THREADS must also report, on every shown Kobo story day, each row's sta
 
 ### Backlog
 
-**BL-26** (not demo-critical): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. **DS-1 must keep the Portfolio on those two windows.** (Premise withdrawn and BL-26 restated by CH6b3-R3.)
+**BL-36** (not demo-critical): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. **DS-1 must keep the Portfolio on those two windows.** (Premise withdrawn and BL-36 restated by CH6b3-R3.)
 
 ## CH6b3-R3: the CH-6b3 review, H1, M1, M2 and the residual (Architect, Claude, 2026-11-07)
 
-Review: `.agent/review-CH-6b3.md` at `b32e77648` (REVISE). Checked against the code and `var/ch6b3r2_bundle`: **the reviewer is right.** I withdraw CH6b3-R2 step 4 and BL-26's "the week and the month agree". On the week and S windows, the claim read the thread on 31 Oct while the rows, the drawer, "Why?" and the board report what is known now.
+Review: `.agent/review-CH-6b3.md` at `b32e77648` (REVISE). Checked against the code and `var/ch6b3r2_bundle`: **the reviewer is right.** I withdraw CH6b3-R2 step 4 and BL-36's "the week and the month agree". On the week and S windows, the claim read the thread on 31 Oct while the rows, the drawer, "Why?" and the board report what is known now.
 
 **CH-6b3: 1.3 → 2.1** (H1 0.3, M1 0.15, M2 0.25, COH rows 0.1, re-runs 0.1). All of H1, M1, M2 are **demo-critical**: they are on ST-1, the opening screen, and the plan says "The Assure card agrees with the Site rows". **They are fixed here, on this branch**, with one fresh Claude re-review. **No owner question:** the fix restores what ST-1 and ST-2 already say ("After verification the thread reads Resolved, monitoring"); only my R2 ruling and the CH-5a note (`:686-691`) said otherwise. Both are overridden.
 
@@ -1135,11 +1135,11 @@ From `frontend`: `npx tsc --noEmit`, then `npx vitest related --run src/estate/E
 - The local-midnight pair is the collector's choice (`chain_coherence.py` `day_windows`), and I found no frontend code building it.
 - **Likely cause, not proved:** that pair does not contain the selected window, so `event_window` is None, and the composer reads the pair itself with an overview that has no settled currentness (`cold.py:138`). A presenter typing that URL would see Unknown.
 
-**Owner: DD-1b2 F-THREADS (coordinator relays, DD-1 +0).** It replaces the note in CH6b3-R2. For **all three Sites**, it reads every `story_links` board plus the bare `/sites/{code}` (and `/sites/{code}/ev`) board, reports each row's state, and fails on `PRODUCER_NOT_SETTLED` or a PARTIAL board. Making a local-midnight Cold pair settle is **BL-27** (not demo-critical).
+**Owner: DD-1b2 F-THREADS (coordinator relays, DD-1 +0).** It replaces the note in CH6b3-R2. For **all three Sites**, it reads every `story_links` board plus the bare `/sites/{code}` (and `/sites/{code}/ev`) board, reports each row's state, and fails on `PRODUCER_NOT_SETTLED` or a PARTIAL board. Making a local-midnight Cold pair settle is **BL-37** (not demo-critical).
 
 ### Backlog and DS-1 (replaces the CH6b3-R2 text)
 
-- **BL-26 restated:** a window containing no occurrence of the thread (for example 1 Nov alone) reads "None confirmed", while the board's work-window count reads "1 verified result". **The week and month story links now agree, and L2 and L3 guard it.**
+- **BL-36 restated:** a window containing no occurrence of the thread (for example 1 Nov alone) reads "None confirmed", while the board's work-window count reads "1 verified result". **The week and month story links now agree, and L2 and L3 guard it.**
 - **DS-1:** the Portfolio stays on the week and month story links, for this reason only. The presenter says: "these are the problems found this week, and where they stand today."
 
 ## CH6b3-R4: the four L3m findings, the template and the Why run (Architect, Claude, 2026-11-07)

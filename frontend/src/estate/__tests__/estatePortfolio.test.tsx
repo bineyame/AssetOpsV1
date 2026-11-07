@@ -1416,7 +1416,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
           days_line: clause,
         }),
         ASSURE_PERFORMANCE: serverCard({
-          detail: "No verified result yet · no targets declared · no evidence gaps on the days checked",
+          detail: "No verified result yet · no targets declared · no evidence gaps on the days assessed",
           days_line: clause,
         }),
       },
@@ -1432,14 +1432,14 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     // CH6b2-R Q1: the Portfolio-body clause is its own line; the detail is the server's detail, not joined with it.
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     expect(detail("PROTECT_ASSET")).not.toContain("not shown yet");
-    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days checked");
+    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days assessed");
     expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
     // CH6b2-R Q3: Optimize keeps its money line and carries no days line.
     expect(detail("OPTIMIZE_COST")).toBe("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
     expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
     // The pulse strip keeps its own (non-card) checked-days wording.
     expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 
@@ -1468,7 +1468,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     // CH-4: the opportunity count comes from the opportunity read, not from Finding coverage.
     expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 

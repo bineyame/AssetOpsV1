@@ -862,7 +862,7 @@ class EstatePortfolioService(EstateEvidenceService):
         counted = self._claims(tenant_id, scope, req)
         claims = self.claims_json(counted, CLAIM_KEYS)
         priority_sites = None if thread_counts is None else thread_counts["priority_site_count"]
-        if self.count_claims is not None:  # CH6b3-R Q4b: both legacy fields read the claims (BL-25 retires the names)
+        if self.count_claims is not None:  # CH6b3-R Q4b: both legacy fields read the claims (BL-35 retires the names)
             prog["verified_resolution_count"] = None if counted is None else counted.claims[VERIFIED_CLAIM].value
             priority_sites = priority_site_count(counted)
         summary: dict[str, Any] = {

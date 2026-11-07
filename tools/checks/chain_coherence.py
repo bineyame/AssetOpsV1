@@ -1315,7 +1315,7 @@ def info_coh17_period_nodes(bundle: Bundle) -> list[dict]:
     """CH6b3-R Q1: per non-mini Site, window, category and part, the board and summary node `text` and `days` wherever
     they differ. The two frames differ by design (the board reads the contained event's local days, the summary reads
     `window_days`), so this is a list, not a rule. `unexplained` marks equal `days` with a different value or text,
-    which the frame does not explain (the builder stops and reports it). BL-23 owns a strict comparison."""
+    which the frame does not explain (the builder stops and reports it). BL-33 owns a strict comparison."""
     if not bundle.manifest.get("full_claims"):
         return []
     out = []

@@ -99,7 +99,7 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
 /** WALK1-1 (WN-2, R670): on a partly checked estate a zero count is a claim on the checked days only. */
-export const NONE_ON_CHECKED_DAYS = "None found on the days checked";
+export const NONE_ON_CHECKED_DAYS = "None found on the days assessed";
 function PulseCount({ value, missing, label, checkedDays, data }: { value: number | null; missing: string; label: string; checkedDays: boolean; data?: string }) {
   const attrs = data === undefined ? {} : { [data]: "" };
   if (value === 0 && checkedDays) {
