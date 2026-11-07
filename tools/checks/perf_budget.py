@@ -26,6 +26,7 @@ import os
 import statistics
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 CHECKS = Path(__file__).resolve().parent
@@ -130,28 +131,75 @@ def _probe():
     return chain_perf_probe
 
 
-def all_urls() -> dict[str, str]:
-    return {**_probe().URLS, **CHAIN_URLS}
+def _z(value: datetime) -> str:
+    return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _child(url: str, work: Path, key: str) -> int:
+def story_urls(story: dict, days: list[dict]) -> dict[str, str]:
+    """DD1b2-R Q9: the same route keys on the build's story days, so the fixture path (the dates above) is unchanged.
+    Kobo board = day S; Cold board = the failure run window; EV board = the fault run window; the estate week ends
+    with day S (`S-6` to `S+1`, the finish row WK-3's window). Report-only dates: nothing here is tuned."""
+    s = datetime.fromisoformat(story["S"].replace("Z", "+00:00")).astimezone(timezone.utc)
+    week = f"from={_z(s - timedelta(days=6))}&to={_z(s + timedelta(days=1))}"
+
+    def window(site: str, kind: str) -> tuple[str, str]:
+        day = next(d for d in days if d["site"] == site and d["kind"] == kind)
+        return day["start"], day["end"]
+
+    clo, chi = window("cold", "failure")   # days.json names Sites by key (kobo, cold, ev), as `Ctx.window` reads it
+    elo, ehi = window("ev", "fault")
+    kobo_day = s.date().isoformat()
+    return {
+        "kobo_board_31oct": f"/api/sites/KOBO-001/outcome-board?date={kobo_day}",
+        "cold_board_failure_night": f"/api/sites/COLD-LAB-001/outcome-board?from={clo}&to={chi}",
+        "ev_board_27oct": f"/api/sites/EV-LAB-001/outcome-board?from={elo}&to={ehi}",
+        "summary_week": f"/api/estate/outcome-summary?{week}",
+        "portfolio_week": f"/api/estate/portfolio?{week}",
+        "findings_week": f"/api/estate/findings?{week}&lens=all&state=all",
+        "kobo_chain_31oct": f"/api/sites/KOBO-001/chain?date={kobo_day}",
+        "cold_chain_failure_night": f"/api/sites/COLD-LAB-001/chain?from={clo}&to={chi}",
+        "ev_chain_27oct": f"/api/sites/EV-LAB-001/chain?from={elo}&to={ehi}",
+        "estate_chain_week": f"/api/estate/chain?{week}",
+    }
+
+
+def load_story(path: Path) -> dict[str, str]:
+    """`--story <work>/story.json`: the story and the sibling `days.json` give the route windows."""
+    story = json.loads(path.read_text(encoding="utf-8"))
+    days = json.loads((path.parent / "days.json").read_text(encoding="utf-8"))["days"]
+    return story_urls(story, days)
+
+
+def all_urls(story: Path | None = None) -> dict[str, str]:
+    urls = {**_probe().URLS, **CHAIN_URLS}
+    if story is not None:
+        mapped = load_story(story)
+        missing = sorted(set(urls) - set(mapped))
+        assert not missing, ("--story maps no window for", missing)
+        urls.update(mapped)
+    return urls
+
+
+def _child(url: str, work: Path, key: str, story: Path | None = None) -> int:
     probe = _probe()
     kept = probe.capture_scopes()
     c = probe.client(url, work)
-    print("RESULT " + json.dumps(probe.one(c, kept, all_urls()[key])))
+    print("RESULT " + json.dumps(probe.one(c, kept, all_urls(story)[key])))
     return 0
 
 
-def measure(url: str, work: Path, runs: int, store: str, keys: list[str]) -> dict:
+def measure(url: str, work: Path, runs: int, store: str, keys: list[str], story: Path | None = None) -> dict:
     os.environ["ASSETOPS_RESPONSE_STORE"] = store  # inherited by the cold children (as the probe does)
     probe = _probe()
-    urls = all_urls()
+    urls = all_urls(story)
     record: dict = {"params": {"runs": runs, "store": store, "routes": keys}, "routes": {}}
     for k in keys:
         cold, status = [], []
         for _ in range(runs):
-            out = subprocess.run([sys.executable, __file__, "--database-url", url, "--work", str(work), "--child", k],
-                                 capture_output=True, text=True)
+            cmd = [sys.executable, __file__, "--database-url", url, "--work", str(work), "--child", k]
+            if story is not None:
+                cmd += ["--story", str(story)]
+            out = subprocess.run(cmd, capture_output=True, text=True)
             line = next((ln for ln in out.stdout.splitlines() if ln.startswith("RESULT ")), None)
             if line is None:
                 print(f"cold {k}: child failed rc={out.returncode}: {out.stderr[-300:]}")
@@ -182,16 +230,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--store", choices=("on", "off"), default="on")
     p.add_argument("--report", action="store_true", help="print BREACH rows and exit 0 (per-slice runs only)")
     p.add_argument("--record", type=Path, help="write the measured record (fixture format) here")
+    p.add_argument("--story", type=Path, help="<work>/story.json: measure the route windows on the build's story days "
+                   "(sibling days.json); omitted, the fixed probe dates are used")
     p.add_argument("--child", help=argparse.SUPPRESS)
     args = p.parse_args(argv)
     if args.child:
-        return _child(args.database_url, args.work, args.child)
+        return _child(args.database_url, args.work, args.child, args.story)
     budgets = load_budgets()
     if args.fixture:
         return run_fixtures(budgets)
     if not args.database_url or not args.work:
         p.error("--fixture, or --database-url with --work")
-    record = measure(args.database_url, args.work, args.runs, args.store, sorted(budgets["routes"]))
+    record = measure(args.database_url, args.work, args.runs, args.store, sorted(budgets["routes"]), args.story)
     if args.record:
         args.record.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     rows = evaluate(budgets, record)
