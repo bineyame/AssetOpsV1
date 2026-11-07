@@ -25,7 +25,7 @@ from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
 
 __all__ = ["WORK_UNAVAILABLE", "build_domain_action_read", "build_domain_action_read_service",
-           "build_domain_intent_service", "build_domain_intent_store",
+           "build_domain_intent_service", "build_domain_intent_store", "build_fuel_records_reader",
            "build_global_work_detail_service", "build_global_work_index_service", "build_global_work_read",
            "build_work_detail_service", "build_work_index_service", "build_work_read", "build_work_service",
            "build_work_store"]
@@ -39,6 +39,13 @@ def build_work_store(database_url: str | None) -> PostgresWorkStore:
 
 def build_work_service(database_url: str | None, *, new_id: Callable[[], UUID] = uuid4) -> WorkService:
     return WorkService(build_work_store(database_url), new_id=new_id)
+
+
+def build_fuel_records_reader():
+    """DIESEL-K3 (DIESEL-1-R3g): K2's fuel-records read on a caller's connection, for the fuel-balance store."""
+    from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+
+    return select_fuel_records
 
 
 def _link_read_ports() -> LinkReadPorts:

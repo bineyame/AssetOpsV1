@@ -169,6 +169,22 @@ def test_window_idle_seconds_count_running_slots_at_zero_kwh():
     assert s6.evidence(_states(s6.full_window(gen_kw="0"), three))["generator_idle_seconds"] == 900
 
 
+def test_window_idle_seconds_exclude_the_stop_slot():
+    """DIESEL-1-R3h: the slot RUNNING at `t` with 0 kWh and a not-running sample at `t + 5 min` is the stop slot."""
+    zero = s6.full_window(gen_kw="0")
+    stop_mid = {i: ("RUNNING" if i < 6 else "STOPPED") for i in range(12)}
+    assert s6.evidence(_states(zero, stop_mid))["generator_idle_seconds"] == 1500  # not 1800
+    running = {i: "RUNNING" for i in range(12)}
+    end_stopped = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",
+                                                      unit="state")]
+    assert s6.evidence(end_stopped)["generator_idle_seconds"] == 3300
+    assert s6.evidence(_states(zero, running))["generator_idle_seconds"] == 3600  # no end sample: unchanged
+    # a non-GOOD end sample is not a positive stop marker: the last slot stays idle
+    suspect_end = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",
+                                                      unit="state", quality="SUSPECT")]
+    assert s6.evidence(suspect_end)["generator_idle_seconds"] == 3600
+
+
 def test_window_idle_seconds_unknown_when_a_slot_is_unknown():
     missing_state = _states(s6.full_window(gen_kw="0"), {4: None})
     assert s6.evidence(missing_state)["generator_idle_seconds"] is None
