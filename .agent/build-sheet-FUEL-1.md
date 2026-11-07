@@ -1289,3 +1289,68 @@ VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the 
 - PV-1 is a screen change (the Assure card). It joins the post-W6 owner walkthrough, with no separate walkthrough.
 
 **Owner question: none.**
+
+---
+
+## WD-1-R: ruling on the WD-1 pre-flight (Architect, Claude, 2026-11-07)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `4235318d6`. This section amends §3.2 for WD-1. `B/` = `backend/assetops_backend/`. READ = I read the code; nothing here was measured.
+- Sources: §3.2, A2-R1 L4 (the `GENERATOR_KWH_UNKNOWN` note), MB-1a-R2 §4 (the mill suffix note), BL-48.
+
+### 1. EV fault-day Grow headline: the §3.2 literal, confirmed
+
+- **READ.** `B/site_outcomes/ev.py:229` picks the headline from `priced` (the overview's money state). `_charging_from_claim` (`:293-309`) later sets `headline_money[GROW]` to None when the chain earnings claim is NOT_KNOWN, but leaves the headline. So a priced fault day shows "estimated charging income" with no amount.
+- **Decision.** The builder's proposal is the §3.2 card's literal. New constant in `ev.py`, beside `NO_TARIFF` (`:51`), verbatim:
+  ```python
+  NO_INCOME_FIGURE = "No income figure for this day: it is not fully checked"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
+  ```
+- **Rule (three cases, exhaustive):**
+  - shown Grow money has a value: `TARIFF_ESTIMATE` (unchanged);
+  - `priced` is true and the shown Grow money is None (the claim is NOT_KNOWN): `NO_INCOME_FIGURE`;
+  - `priced` is false: `NO_TARIFF` (unchanged; the reason there is a missing price, not a missing check).
+- **Code.** `_charging_from_claim` returns `"headline": {**facts.headline, GROW: NO_INCOME_FIGURE}` when `priced and money is None`, else it leaves the headline unchanged. Add `NO_INCOME_FIGURE` to the export tuple at `:79-82`. No other module changes.
+- **Test.** One new L0 case beside the existing EV Grow row tests: a priced day with a NOT_KNOWN claim gives `headline[GROW] == ev.NO_INCOME_FIGURE` and `headline_money[GROW] is None`. Non-vacuity: drop the override, and the case fails. Existing tests import the constants, never retype them.
+- **MOCK DEVIATION MD-WD1-1.** v69 shows the Depot Grow headline only with a figure ("gross tariff estimate"). It has no no-figure state, so this literal has no mock example.
+
+### 2. Kobo monthly sales line: the §3.2 literal, confirmed
+
+- **Decision.** `MG1_NO_DAY` (`B/chain/vocabulary.py:268`) and `MG1_ACTUAL` (`B/site_outcomes/mini.py:135`; §3.2 cited `:127`) both become, verbatim:
+  ```python
+  "no fully checked day counted yet this month"
+  ```
+  They must stay equal. Make it one literal: `mini.py:135` becomes `MG1_ACTUAL = MG1_NO_DAY`, added to the existing `chain.vocabulary` import at `mini.py:27` (READ: that import already brings in the `MG1_*` forms, so there is no new edge). Update the CH6a2-R Q5 twin comment at `vocabulary.py:267` to say so.
+- **Retyped strings: approved, by import.** These files change only to import the constant in place of the old text:
+  - `backend/tests/test_ch6_claims.py:84`
+  - `backend/tests/test_ch6_evaluator.py:90`
+  - `backend/tests/test_out_d4_board.py:124`
+  - `backend/tests/test_demo_combined_finish_rows.py:441`
+  - `tools/demo_combined_rows.py:93,98` (finish rows WK-1 and WK-4)
+- **Test.** One new L0 case: a month with no fully checked day renders the line equal to `MG1_NO_DAY`, and the text does not contain "sales not recorded".
+- **MOCK DEVIATION MD-WD1-2.** v69 shows the sales line only with a value. The empty state has no mock example; this replaces the earlier unlabelled empty-state words.
+
+### 3. `GENERATOR_KWH_UNKNOWN`: change it
+
+- **READ.** The reason fires when **either** window's generator energy is None (`B/financials/trial_fuel_comparison.py:129-130`). "Not known for both hours" is false when only one hour is missing. Rows store the reason code; the words are applied at read time (`B/site_outcomes/board.py:90`), so no stored row or golden carries the text (grep: the literal appears only at `board.py:90`).
+- **Decision** (`B/site_outcomes/board.py:90`), verbatim:
+  ```python
+  "GENERATOR_KWH_UNKNOWN": "generator energy is not known for one or both hours",
+  ```
+  It matches A2-R1's `IDLE_SECONDS_UNKNOWN` form. No mock deviation: the reason words have no v69 example, as for A2-R1 D1.
+- **Guard.** Run `backend/tests/test_out_e4_readback.py` (the no-code-on-screen and reason-set tests). If any other test or golden fails on this text, STOP and report it.
+
+### 4. Mill "verified" line suffix: the mill must be labelled; not in WD-1
+
+- **Decision.** Leaving the mill plain is **rejected**. The owner rule is that example data is clearly labelled as example data on client screens. On the S+0 Kobo board the mill verdict is judged on the same Site's example readings as the trial. A plain "ACT-… verified" beside "ACT-048 verified on example data" reads as a field result, and that is a false impression.
+- **The literal** is the existing one: the mill entry uses `VERIFICATION_TEXT[s]` with `provenance_suffix(<the verdict's source class>)`, giving "… verified on example data" (`B/chain/vocabulary.py:106-112`). No new words.
+- **Not in WD-1.** `OpportunityActionFact` (`B/site_outcomes/board.py:190`) and `site_chain.opportunity_actions` (`B/chain/site_chain.py:155-180`) carry no source class, and the verdict row has none on `_SITE_ACTIONS` (MB-1a-R2 §4). Labelling needs new plumbing: a source class read for the mill verdict, a field on the fact, the `provenance_suffix` call at `mini.py:1084`, MILL-5 in `tools/demo_combined_rows.py` taking the suffix by import, and the `estate_week_2026-10-25` golden check.
+- **New unit WD-1m, "mill example-data label", 0.35, lane 1, after WD-1 and before PV-1** (PV-1 reads the mill verdict line too). It is demo-critical, because the mill line is on the demo board. The WD-1m pre-flight names the source: the verdict's stored evidence source class if it exists; otherwise the Site's bound telemetry source class over the verdict window (`analytics/adapters/postgres_assessment_store.py:2760` pattern). It must never be a hard-coded "example" flag. If neither source is readable within 0.35, STOP and report to the Architect.
+- **Until WD-1m merges,** WD-1 leaves the mill line unchanged. WD-1's packet lists the asymmetry under residual risk, as "closed by WD-1m". It is not "accepted".
+
+### 5. Size and order
+
+- **WD-1: 0.15 → 0.17** (+0.02 for item 3: one literal and one guard run). Items 1 and 2 are inside the card's 0.15.
+- **WD-1m: +0.35, new.** Lane 1 becomes MV-1 → MB-1a → MB-1b → WD-1 (0.17) → **WD-1m (0.35)** → PV-1. That is 2.75 + 0.02 + 0.35 = **3.12**.
+- WD-1 and WD-1m are screen-wording changes. They join the post-W6 owner walkthrough, with no separate walkthrough. Guards V and N run on both.
+- Logged for the owner (Architect decision during delegated absence): the mill result will carry "on example data" like the trial, which costs +0.35.
+
+**Owner question: none.**
