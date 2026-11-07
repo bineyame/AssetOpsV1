@@ -45,16 +45,18 @@ def report(engine, site_id, days: list[dict]) -> dict:
                             "FROM finding_revision WHERE site_id = :s ORDER BY finding_id, revision_no DESC", {"s": site_id})
         money = _rows(c, "SELECT to_jsonb(r) - 'id' AS row FROM financial_consequence_revision r WHERE site_id = :s",
                       {"s": site_id})
-        fuel = _rows(c, "SELECT DISTINCT e.source_time, e.normalized_value_text AS v FROM accepted_evidence e WHERE "
-                        "e.site_id = :s AND e.device_id LIKE '%fuel%' AND e.signal_id LIKE '%level%' ORDER BY e.source_time",
-                     {"s": site_id})
+        # No fuel signal reaches evidence on this Site, so litres are the registered probe's figure; this is the
+        # generator's delivered energy per reading (kW, 5 minutes).
+        power = _rows(c, "SELECT e.source_time, e.normalized_value_text AS v FROM accepted_evidence e WHERE e.site_id = :s "
+                         "AND e.device_id = 'generator-controller' AND e.signal_id = 'ac-power' "
+                         "AND e.normalized_value_text ~ '^[0-9.]+$'", {"s": site_id})
         gen = _rows(c, "SELECT DISTINCT e.source_time, e.normalized_value_text AS v FROM accepted_evidence e WHERE "
                        "e.site_id = :s AND e.device_id = 'generator-controller' AND e.signal_id = 'status' "
                        "ORDER BY e.source_time", {"s": site_id})
         signals = _rows(c, "SELECT DISTINCT device_id, signal_id FROM accepted_evidence WHERE site_id = :s", {"s": site_id})
     per_day: dict[str, dict] = {}
     for d in days:
-        per_day.setdefault(d["day"], {"kind": None, "runs": [], "generator_local": [], "fuel_used_l": None,
+        per_day.setdefault(d["day"], {"kind": None, "runs": [], "generator_local": [], "generator_kwh": 0.0,
                                       "findings": [], "windows": []})
         if not d["complement_of"]:
             per_day[d["day"]]["kind"] = d["kind"]
@@ -72,13 +74,10 @@ def report(engine, site_id, days: list[dict]) -> dict:
             per_day[day]["generator_local"].append([began.pop(day), local])
     for day, a in began.items():
         per_day[day]["generator_local"].append([a, "end"])
-    by_day_fuel: dict[str, list[float]] = {}
-    for r in fuel:
-        by_day_fuel.setdefault(_local_day(r["source_time"]), []).append((r["source_time"], float(r["v"])))
-    for day, entry in per_day.items():
-        points = by_day_fuel.get(day) or []
-        # the 06:00 declared start resets the tank, so the use is summed run-wise: falls only
-        entry["fuel_used_l"] = round(sum(max(a[1] - b[1], 0.0) for a, b in zip(points, points[1:])), 3)
+    for r in power:
+        day = _local_day(r["source_time"])
+        if day in per_day:
+            per_day[day]["generator_kwh"] = round(per_day[day]["generator_kwh"] + float(r["v"]) * 5 / 60, 3)
     for f in findings:
         day = _local_day(f["episode_start"])
         if day in per_day:

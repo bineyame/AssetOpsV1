@@ -1,0 +1,199 @@
+{
+ "mode": "g1",
+ "S": "2026-11-05T00:00:00Z",
+ "db": "assetops_dd1a2_test",
+ "report": {
+  "days": {
+   "2026-10-23": {
+    "kind": "steady-before-first",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-before-mill",
+     "kobo-rest-before-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "fuel_used_l": 0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-23 00:00:00+00:00",
+      "end": "2026-10-24 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-23 00:00:00+00:00",
+      "end": "2026-10-24 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-23T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-23T02:05:00.000000Z"
+       }
+      ]
+     }
+    ]
+   },
+   "2026-10-24": {
+    "kind": "steady-before",
+    "runs": [
+     "kobo-night-early-after-before-mill",
+     "kobo-steady-before-mill",
+     "kobo-rest-before-mill"
+    ],
+    "generator_local": [
+     [
+      "04:00",
+      "06:00"
+     ]
+    ],
+    "fuel_used_l": 0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-24 00:00:00+00:00",
+      "end": "2026-10-25 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-24 00:00:00+00:00",
+      "end": "2026-10-25 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-24T01:00:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-24T01:00:00.000000Z"
+       }
+      ]
+     }
+    ]
+   },
+   "2026-10-28": {
+    "kind": "steady",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-day",
+     "kobo-rest-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "fuel_used_l": 0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-28 00:00:00+00:00",
+      "end": "2026-10-29 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-28 00:00:00+00:00",
+      "end": "2026-10-29 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-28T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-28T02:05:00.000000Z"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "signals": [
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "charge-requested-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "discharge-capability"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "state-of-charge"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "delivered-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "requested-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "status"
+   },
+   {
+    "device_id": "mill-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "available-power"
+   },
+   {
+    "device_id": "residential-meter",
+    "signal_id": "active-power"
+   }
+  ],
+  "money_rows": 0,
+  "money": [],
+  "findings_total": 0
+ },
+ "wall_s": 377.5
+}
