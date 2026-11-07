@@ -1450,3 +1450,222 @@ Input: `.agent/review-DD-1b1.md` at `d7c4d830f`. **No product change. DD-1b1 sta
 **"One more detail on what I told you: the printed link for each GreenHarvest and Depot story day shows the problem with its action, marked 'Open'. If you click those sites' names on the Portfolio instead, you land on the latest event: it shows the problem but not the action, which is one click away on the Site's chain and Actions list. Nothing wrong is shown. The script uses the printed links, and if you'd rather the Portfolio click showed both, it's a small change we can make after your walkthrough. No decision needed now."**
 
 Handoff: a fresh Architect takes DD-1b2, and starts from R3 §6, this section, and DD1b1-R "Owed to DD-1b2".
+
+## DD1b2-R: rulings on the DD-1b2 pre-flight (Architect, Claude, 2026-11-07)
+
+Input: `.agent/DD-1b2-preflight.md` at `3d1871142`. Binding checked: Claude (main and this worktree, `.ai/ROLE_CONFIG.md`, 2026-10-27). Everything below is read from code unless it says measured; nothing was run. **The build goes on, split in two, and the mill step is measured first. No owner question. One owner line, sent after the probe.**
+
+**The builder's four blockers are right.** One conclusion goes further than the pre-flight, and it changes Q1, Q3 and Q10.
+
+### 0. New finding: on the v3 list only two studies can ever be SUPPORTED, and Q3's window is not one of them
+
+- `_fold_day` (`mini_decisions/projection.py:175-184`): any missing hour makes the day missing. `frozen_result` (`:202-216`): any missing day makes the study UNKNOWN, and only SUPPORTED carries `headroom_kw`. `value_line` returns None for anything else (`chain/vocabulary.py:50-54`).
+- A story-only day is a missing study day (`review-packet-CH-9.md:158`; the declared operating day is 24 h, this sheet `:163`). On v3 the story-only days are S-28, S-21, S-14, S-7, S-3, S-1, S+0 and S+1; S-10 is `missing`; S-4 and S-2 are not built. Full days: S-20 to S-15, S-13 to S-11, S-9, S-8, S-6, S-5.
+- **So the only five-day windows with no missing day are S-20 to S-16 and S-19 to S-15.** There is none after the mill change, because S-7 is story-only.
+- **Q3's S-15 to S-11 contains S-14, so it is UNKNOWN on the whole build, not only on a trim, and that is known now rather than first seen at E3.** An Action from it has no value line, and ST-3's "value line comes from a supported study" could not be met on any board.
+- The tick's scan (lower bound wall now − 5 d, about S-3; `worker.py:46,156`) queues only studies ending S-3 or later. Those are UNKNOWN or have 0 eligible days: S-4 to S+0 and S-3 to S+1 contain no full day, so they are no Source (`threads.py:164`).
+- **So `wk2b` (`tools/demo_combined_finish.py:534-546`) fails on every v3 build.** It asserts "N–M kW of daytime solar unused" and a `potential` on S, and S's 5-day window holds no eligible day. No absent day excuses it. It went stale at CH-9 and DD1a1-R16, where the owner accepted "Loses: the full-day solar-unused … on N/R30/R25 days" (`:697-698`). No prepare has run since. Read, not run; the rehearsal confirms it.
+
+### Q1. The day list: **no trim. The rehearsal runs the whole v3 list: Kobo 22 entries, Cold 3, EV 3.** Replaces SCOPE-1's partial lists and DD1b1-R4 §3's trim.
+
+- **Why.** The SUPPORTED study needs S-20 to S-15 (the join chain), and the verdict needs S-13 to S-11 and S-9 to S-5, so all 13 full days are needed. MONEY-B needs S-14 and S-7, WK-2a needs S-1, `_trial` needs S+0 and S+1. A trim could then drop only S-28, S-21 and S-3 from Kobo and S-14 from EV, all short runs.
+- **That saves minutes and costs more than it saves.** Each excused row needs listing, and the review has to read each excuse. With the whole list there are no excuses: **any failing row is a fault.**
+- **How it projects honestly: it does not project, it measures.** `:827` already says B-16 applies if "the DD-1b2 rehearsal measures the whole prepare above 3 h". A 12-day trim would have to extrapolate the drain, which does not scale per day and is the largest unknown.
+- **The prepare's cap:** add a development flag `--cap-seconds`. The rehearsal passes **10800 (3 h, the owner's figure)**. Past it: stop, report per-step timings, and project by Q14's formula from what completed. Expected 75-90 min, not measured.
+- **DB** `assetops_demo3_dd1b2_test`, work `var/demo3_dd1b2`. **Clone** `assetops_demo3_dd1b2c_test`, work `var/demo3_dd1b2c`. No `--days` argument and no trim file. Machine idle, keep-awake on, one heavy job, stall monitor on. Dropped after the packet records its evidence.
+- **This does not count as the barred demo prepare**, on the R4 §3 terms. E3 stays, as does its held rerun: S moves with the clock and later merges change the tree.
+- **Cheap retry.** A finish-row fault reruns `demo_combined_finish.py check` on the same DB, not a rebuild.
+
+### Q2. **(a), narrower: revision and selection only, in `mini_decisions/store.py`.**
+
+- `_INSERT_OPPORTUNITY_REVISION` gains `created_at`, bound `COALESCE(CAST(:created_at AS timestamptz), clock_timestamp())`. `_INSERT_OPPORTUNITY_SELECTION` gains `selected_at`, the same way. The file's precedent is `:70-74`.
+- `PostgresMiniDecisionStore.__init__(engine, *, story_clock=None)`. `from_url(url, story_clock=None)` calls `require_prepare_database(url)` when it is set. With it unset, both params are None. Only `tools/demo_combined_mill.py` passes it.
+- **The root stays.** I found no reader of `mini_opportunity.created_at` on this path; `opportunity_revision_selected` reads the revision. If the L2 shows `Source.created_at` comes from the root, add it and say so in the packet.
+- **Tests.** L0: unset gives None; set refused outside a prepare DB. L2 on the mill fixture: set stores the instant and `opportunity_revision_selected` is True at a story `command_now`; unset stores DB time.
+- **Accepted:** depth head pins stay wall-clock, declared as a build-time fact in the packet. F-THREADS lists any story link that passes an explicit `known_at`.
+
+### Q3. **The pinned study is S-19 to S-15. `reconcile` one window, then `run_pending(scan=False)`.**
+
+- `reconcile("KOBO-001", <local midnight S-19>, <local midnight S-14>)`, which is S-20 21:00Z to S-15 21:00Z. It queues exactly one study (`worker.py:164-183`).
+- Not S-20 to S-16: S-19 to S-15 is the later data, and it reaches the last "before" board, S-11 (`opportunity_items`: an episode ending S-15 meets S-11's five days).
+- `story_links` already prints every day, so S-11 has a link (`demo_combined.py:258`). +0.
+- **It is a pin, not a scan.** BL-32 stands: no other story-dated study.
+- **Ask answered:** a mill Action from a non-SUPPORTED study is decided by the probe's P1 below, not left to E3.
+
+### Q4. **Accepted, with one name.** `Demo.after_children(story, days)` runs steps 2 to 6. Both `prepare` (three Sites only) and the probe call it, so the probe exercises the real path.
+
+1. Children: Kobo, Cold, EV.
+2. `drain_mini`.
+3. `backfill --steps a`, all Sites.
+4. `tools/demo_combined_mill.py build <url> <work>` as a child, with `check=True`.
+5. `backfill --steps b,c,d`.
+6. R8 drain.
+7. Objectives, S2 comparison, `drain_mini`, `tick(2)`, R8 drain again, self-check.
+8. EX-1 on the clone (Q13).
+
+- **The S2 risk is accepted.** A changed Kobo row is a fault, seen through the finish rows.
+- A one-Site prepare keeps today's path.
+- L0 pins the order with a fake `Demo`, driven on the shape `prepare` passes (H1's style).
+
+### Q5. **(a).** The tool builds `VerificationService(SimpleNamespace(store=store, clock=lambda: <instant>, verification_ports=VerificationPorts(snapshots=_AllKnown(reader))))`, as `evaluate_domain_plans` does (`actions/composition.py:128-141`).
+
+- `_AllKnown.latest(t, s, lo, hi, measures, known_at=None)` calls `reader.latest(t, s, lo, hi, measures)`, dropping `known_at`.
+- **This is the same read the MILL-3 dry run made** (`tools/dd1a2_mill3_dry_run.py:225`), so it does not widen what was proved.
+- Disclose it in the tool's docstring and the packet: the plan's `snapshots_known_at` is the story instant, and the rows read are as built.
+- The tick's evaluator replays a stored outcome (`verification_families.py:203-205`). So the mill step **must store VERIFIED, or exit non-zero with the grade table.** Never leave it to the tick.
+
+### Q6. **Table corrected: the instants below go in the story file, resolved by `_resolve`, with the order asserted in L0.**
+
+| Step | Instant (UTC) | Local (+03) |
+|---|---|---|
+| Study: job, lease, created, selected | S-14 06:00 | S-14 09:00, after S-15's last delivery (S-15 22:00Z) |
+| Action `raised_at`, `recorded_at` | S-10 09:00 | S-10 12:00 |
+| Request, record, assign, COMPLETE `occurred_at` | S-9 04:00, 04:30, 04:40, 05:00 | COMPLETE at 08:00 |
+| Their `recorded_at` | S-9 05:10 onward, +1 s | |
+| Case link, then freeze | S-9 05:20, 05:25 | |
+| Evaluate | **S-5 23:00**, not 22:00 | S-4 02:00; `today` = S-4 |
+
+- 22:00 is exactly the S-5 `mill-rest` delivery (`demo-story-days-v3.json:121`). At 23:00 every row it read had been delivered.
+- **COMPLETE at 08:00 is accepted:** the change is recorded when the mill's new pattern starts.
+- **Wording, under `kobo.mill`:** title **"Run the grain mill at midday on sunny days"** (v3's own text, `:82`); owner "Plant lead"; request "Move the grain mill's run to midday on sunny days."; record "Mill schedule changed: on sunny days it now runs through midday, starting at 08:00." Expected code ACT-000004, read from the row, never a literal.
+
+### Q7. **Decided: keep what is measured. "Target met" stands either way. No recurrence rule.**
+
+**No contradiction with DD-1a2's verdict.** The dry run read only `productive_kwh`, and `outcome_rows` stores `"recurrence": "not recorded (BL-07); the declared rule alone decides"`. `summary_wire` reads a stored outcome back and never recomputes it, so a later RECURRED event supersedes nothing. The dry run's numbers carry over by construction:
+- `today` = S-4 gives later days S-8, S-6, S-5 (S-7 is PARTIAL).
+- `choose_days` takes the nearest candidates first, so building S-20 to S-15 does not move the baseline from S-13 to S-11.
+
+The dry run built no study and no thread, so **recurrence itself is unmeasured**.
+
+**Recurrence is probable.** A later study is a Source only if S-6 or S-5 has an ELIGIBLE hour (`_fold_day`: ELIGIBLE on any hour), and the mill is unlikely to fill every daylight hour. RECURRED would then be effective S-6 or S-5, after the verified day S-9, so the day order is clean.
+
+**What the client sees (read, to be confirmed by P6):**
+
+| Board | Recurs (expected) | Does not recur |
+|---|---|---|
+| S-11 | "N–M kW over 12 daylight hours" (hours as measured), thread open, potential with money | same |
+| Action, "Why?", Assure | **"Target met", 42.00 → 110.00** | same |
+| S-8 | "Checked and working, monitoring" (the verified state's effective day is the change's, `postgres_thread_sources.py:69`) | same |
+| S-5, S-1 | "Seen again", no kW figure (the study is UNKNOWN) | "Checked and working", "No potential found yet" |
+| S+0, S+1 | "No potential found yet" (S-5 is outside their 5 days) | same |
+| Portfolio Grow, week | thread counted **open**, not verified | counted verified |
+
+**Why (a), and why a suppressor is refused.**
+- Both columns are true. The fix worked, and sunny days still leave solar unused, which is the sales point.
+- The D14 recurrence on the generator thread was ruled the same way (CH6b3-R4: "Both sides are true").
+- **The recurrence also carries the thread's only later evidence.** The potential is hidden in RESOLVED_MONITORING (`chain/outcomes.py:34`), so nothing else keeps the opportunity live after the verdict.
+- Q7(b) is new as-known semantics at this stage, about 0.5, and fails SCOPE-1: **BL-40**. Q7(c) is refused, as the builder says.
+
+**Owed to F-COH.** COH-17 will fire on week and month windows if it recurs, as it did on D14 (`build-sheet-CH-6.md:1151-1162`). If and only if it fires on the mill thread, the generated expectation file carries one entry per window: reason "mill recurrence: an older row reads Verified, the thread now reads RECURRED (CH6b3-R4)", owner BL-07. Any other COH finding is a fault.
+
+**Owed to DS-1 (+0).**
+- "The change met its target: midday use went from 42 to 110 kWh a day. Spare solar was still seen on later sunny days, so the opportunity stays open, and that is the next thing to sell."
+- Open the potential on the printed S-11 link.
+- Day S shows no spare-solar figure, because it is a partly checked day. It shows "0 kWh used by Grain mill" because that day's example run has the mill idle; say so if asked.
+
+**Stop:** only if "Target met" stops showing where the Action shows, or RECURRED's effective day is on or before S-9, or the thread reads WITHDRAWN or CLOSED. The packet lists every board's Grow line.
+
+### The probe (DD-1b2a's last step; run before anything in DD-1b2b is written)
+
+- **Input:** `prepare --sites kobo --no-finish --days .agent/DD-1b2-probe-days.json`, DB `assetops_demo3_dd1b2p_test`, work `var/demo3_dd1b2p`. Then a development-only subcommand `after-children` calling the real `Demo.after_children`, then `Demo.tick(2)`.
+- **Day list:** v3 entries unchanged. S-20 to S-15, S-13 to S-11, S-10 `missing`, S-9, S-8, S-6, S-5, S+0, S+1 (`_trial` needs the last two). 13 full + 2 story-only. Resolve offline first; if a join guard refuses without S-14 or S-7, add just those.
+- **The real entry points, or it proves nothing:** real `resolve_story`, the real child, the real `story.json`, the real tool. No seeded inputs. This is the lesson of H1 and R2.
+- **Cap 60 min**, estimate 35-40. Own DB, idle machine. Dropped afterwards. Evidence: `.agent/DD-1b2a-probe.json`, committed.
+
+| # | Measure | Pass | If not |
+|---|---|---|---|
+| P1 | The pinned study: status, `eligible_days`, `headroom_kw`, `window_hours`, classification, `limitations` | SUPPORTED, eligible ≥ 1 | Eligible ≥ 1 but not SUPPORTED: finish the probe with the same pin, then **stop**; the Architect rules, with an owner line ("the spare-solar figure can't be shown"). Eligible 0: **stop at once** with `day_rows`; there is no thread and no Grow story. In both cases also reconcile S-20 to S-16 and report it. |
+| P2 | `create_action` at S-10 09:00 | Accepted, `origin_opportunity_id` set | **Stop**: Q2's premise failed. |
+| P3 | Grades, then freeze, after step `a` with no tick (the dry run read after ticks; this order has never run) | FULL, days S-13, S-12, S-11 | Read the grades **before** calling freeze, since a frozen plan is never rebuilt. If short, **one fallback:** call the `chain_snapshots` consume and drain for Kobo in process (no opportunity or thread stage), re-read, then freeze. Still short: **stop** with the grade table. |
+| P4 | Evaluate at S-5 23:00Z | VERIFIED, later S-8, S-6, S-5, line reproduces the dry run's 42.00 → 110.00 | **Stop.** No value moves. |
+| P5 | After `b,c,d` | `LINKED`; events OPEN (S-19, or the first eligible day), ACTION_IN_HAND (S-10), CHANGE_APPLIED (S-9), RESOLVED_MONITORING (S-9); no skipped cause | **Stop** with `skipped_causes`. |
+| P6 | After `tick(2)`: thread events; outcome count still 1; the Grow row, Action line and state words on boards S-11, S-8, S-5, S-1, S+0, S+1 | Either Q7 column | Q7's stop. |
+| P7 | The stuck `snapshots` events (Q8) | Reported by type, id, `recorded_at`, across the two ticks | Reported, not a probe failure. |
+
+**Does not prove:** Cold and EV ordering, ACT-000004 itself, finish rows, time, or the three-Site crash class. DD-1b2b's rehearsal does those.
+
+### Q8. **N and the two-run R8 accepted; the stop rule is firmer; the 8 are measured in the probe.**
+
+- **N:** tick once, then N = ceil((dirty + pending `snapshots`)/`chain_snapshot_items`) + 2 from there, fixed.
+- **Stop rule:** the stage's time bound can process fewer than 200 in a tick, so a false failure an hour into a build is a real risk. Between N and 2N with the counts still falling: continue, log `over_n` in the manifest, and F-DRAIN reports it. Past 2N, or two ticks with no fall: prepare failure with counts.
+- **Tests:** L0 the formula. L2 seeded backlog: stops at 0, reports `over_n`, fails on a flat count.
+- **Output:** the drain loop reads stdout and the return code itself, as recommended. Exit 1 on a FAILED Site stops the prepare.
+- **The 8 events, three ruled outcomes from P7:**
+  - Gone: nothing more.
+  - **New event ids each tick** (written by a stage after the consume): the condition becomes "0 dirty and no pending event recorded before the last tick began". F-DRAIN prints the remainder.
+  - **The same ids stuck:** stop and bring me ids and types. No filter by the builder.
+
+### Q9. **Accepted, with the smallest seam.**
+
+- **F-COH.** Generate the threads from `kobo.json`, `cold.json`, `ev.json` and write them to the bundle manifest's `expected_threads`, which `coh10_thread_identity` already honours (`chain_coherence.py:864`), so that file needs no edit. `check` with no `--expect`, except Q7's named entries. ACT-002 and ACT-003 "Action agreed" go there. **I-09 reconciliation confirmed:** `expected-today.json`'s polish entries are unused, and a remaining COH-2 or COH-3 is a fault.
+- **F-PERF.** One optional `--story <work>/story.json` on `perf_budget.py`, mapping the route windows to the same story days (Kobo S, Cold S+0 failure run, EV S+0 fault run, the week ending S). Fixture path unchanged. `chain_perf_probe.py` takes the same mapping only if `perf_budget` runs through it. `--report`, default 3 runs, from the private tree. Report only; a breach is a line in the packet.
+
+### Q10. **The builder's table, with these changes.**
+
+| Check | Change |
+|---|---|
+| SUPPORTED potential + money | **Kobo S-11.** Recompute the study's value line and its money line from stored rows; fails if absent (subject to P1's ruling). S+0, S+1: report the state; the Q7 table is the expectation |
+| **WK-2b (existing row, stale: §0)** | **Restated.** On S: no money, the sales line, no kW headline, `potential` reading "No potential found yet". **New WK-2c** on S-11 holds the moved assertion. This is an Architect restatement with its cause, not a row edited to pass |
+| MILL-3 | Add: outcome count 1, and a recomputed line equal to the dry run's. A difference is a stop |
+| Every link | Add: list any link carrying an explicit `known_at` (Q2) |
+
+- The rest stand as written, including the mapping of §A8's mechanism days to the B-22 days.
+- **Hook:** stored responses off if the switch exists, otherwise state the limit. **Cold residual:** judged closed unless a linked board fails; BL-37 stays.
+- **Exact-window links and moved rows:** as proposed, listed.
+- **Item 27 (3 revisions vs 1):** no pin; DD1a2-R3 §3 made it a script line.
+- **Report only:** S-8's "Checked and working" (Q7 table), a reading as known now, the same as ACT-001's.
+
+### Q11. **Accepted, on every local day from first evidence to today**, so S-10, S-4 and S-2 are asserted NO_DATA rather than skipped. No grade asserted on a built day.
+
+### Q12. **(a), stated only. No unrun fixture branch.** Code that has never run is the class of fault this lane keeps shipping. `test_demo_combined_postgres` runs against the E3 build's clone; the env var and branch are written at E2, when they first run. Owed to the end-game plan, about 0.1.
+
+### Q13. **Accepted, and the rehearsal now discharges DD1a2-R3: `tools/demo_combined_ex1.py` on a clone of a whole build.**
+
+- Clone after step 7's self-check. Run the same script again at E3.
+- It covers item 28 (the add-day run), read before and after.
+- A `DAY_NOT_IN_PAST` refusal is not a fault: run it again after 11:00Z on the same clone.
+
+### Q14. **Accepted, on the whole list.**
+
+- Elapsed per day in the child lines and `manifest.json`, plus `mill`, `drain`, finish rows and F-PERF as separate timings.
+- **Result:** the measured prepare wall, excluding EX-1 (its time stated beside it). Over 3 h: the B-16 projection goes to the owner before E3. Q14's per-day formula is used only if the cap stopped the run.
+- **Memory:** the scratchpad sampler as proposed. Minimum free RAM goes in the packet against the 2 GB floor; below it, stop and report.
+- **R11:** read the perf line, else "not measured".
+- **`EXPECTED_SECONDS`:** add `mill` and `drain` from measured figures after the rehearsal, untuned.
+
+### Q15. Size and split
+
+**2.75 accepted, and split.** The number would fit one unit, but a mill sequence that has never run should not share a builder's context with 28 owed items, and the probe's stops must come back before the rows are written.
+
+| Unit | Size | Scope | Review |
+|---|---|---|---|
+| **DD-1b2a** mill step | 1.25 | Q2 seam, `tools/demo_combined_mill.py`, Q6 story block, `after_children` and its L0, the probe, packet | Own fresh-Claude review; merge on ACCEPT |
+| **DD-1b2b** drain, rows, rehearsal | 1.5 | R8, Q9, Q10, Q11, EX-1, `--cap-seconds`, timing lines, the rehearsal, the rest of the checklist | Own fresh-Claude review. The first three-Site run happens here, so faults it finds are fixed here |
+
+**Order:** DD-1b2a, its probe, this Architect only if a stop fired, its review and merge, then DD-1b2b from main. A fresh builder per unit. Plan: DD-1b2 2.25 → 2.75, DD-1 11.25 → 11.75, lane 2 remaining 4.5 → 5.0.
+
+**SCOPE-1:**
+
+| Addition | Class | Reason | Size |
+|---|---|---|---|
+| Q2 store seam and proofs | demo-critical | No mill Action without it, so no Grow verdict | +0.25 |
+| Generated threads, F-PERF dates | demo-critical | F-COH and F-PERF otherwise check nothing on a fresh build | +0.25 |
+| The probe | demo-critical | The mill sequence has never run | inside DD-1b2a |
+| Whole list, WK-2b/2c | demo-critical | The only SUPPORTED study; the row is false today | +0, less excuse work |
+| A recurrence rule | backlog **BL-40** | Q7(b); nothing shown is false without it | 0.5 est. |
+| A SUPPORTED study after the mill change | backlog **BL-41** | Needs S-7 full and S-4 built, which R16 and DD1a2-R Q4 ruled out; the claim is defensible without it | not sized |
+| E2 fixture branch | end-game plan | Written when first run (Q12) | 0.1 |
+
+BL-40 and BL-41 are free (grepped `.agent/*.md` and the plan). The DD-1b2a builder adds them to `.agent/backlog-post-demo.md`.
+
+**The 28-item checklist stands as DD-1b2's acceptance, with:** item 11 (Q3's window and Q4's order replace its wording); item 19 (the whole list, no excuses); items 3 and 27 (not built). Items 11, 12 and the mill part of 6 close in DD-1b2a; the rest in DD-1b2b. Scoped `tools/checks/test_chain_coherence.py`, `test_ch9b*`, the `test_demo_combined_*` L0s; guards A, W, N, V, M per unit. No full-prepare pytest (Q12).
+
+### Owner, informed (send after the probe, with its result; no decision; the build does not wait)
+
+**"The Grow story, as it will be shown: spare solar measured before the change, the action, the mill moved, then 'Target met', midday use up from about 42 to 110 kWh a day. That stands. On later sunny days there's still spare solar, so the opportunity line will probably read 'Seen again' next to 'Target met', and the Portfolio counts it as open rather than verified. Both are true, and the script says so plainly. The spare-solar figure shows on the days before the change rather than day S, which is the partly-checked trade you already accepted. Hiding 'Seen again' would need a new rule, about half a unit, and I'd leave it; tell me if you'd rather not. The last data step grows by half a unit, for 5.0 left on this lane."**
+
+Strike "will probably" if P6 measured it; replace that sentence if it did not recur.
+
+### Handoff
+
+A fresh builder takes **DD-1b2a** on `task/DD-1b2-finish-rehearsal`. Reading budget: §0, Q2 to Q7 and the probe table above. Code: `mini_decisions/store.py`, `mini_decisions/worker.py:164-183,265-272`, `actions/composition.py:128-141`, `work/domain_intent.py`, `tools/dd1a2_mill3_dry_run.py` for the build shape, `tools/demo_combined.py:360-480`. Stops come back to this Architect.
