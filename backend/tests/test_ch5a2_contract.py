@@ -59,6 +59,7 @@ THREAD_ROWS = {BC.KOBO.site_id: {
 
 class Port(BC.Port):
     def site_threads(self, tenant_id, site_id, known_at):
+        # MB-1-R Q1: no DOMAIN_INTENT row here, so no `outcome` / `outcome_recorded_at` keys are needed.
         self.calls.append(("site_threads", (site_id,)))
         return THREAD_ROWS.get(site_id, {"occurrences": (), "events": (), "actions": ()})
 
@@ -188,7 +189,8 @@ def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
     assert (total["key"], total["value"], total["basis"]) == ("money.estate_income", None, "NOT_KNOWN")
     assert total["lines"] == ["Kobo: not known yet", "Depot: not known yet"] and total["text"] == "Not known yet"
     kobo = next(s for s in body["sites"] if s["code"] == "KOBO-001")
-    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 0, "in_hand": 1, "verified": 0}
+    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 0, "in_hand": 1, "verified": 0,
+                                                                      "verified_actions": 0}
     # CH6b3-R3: T1's ACTION_IN_HAND is effective on 1 Nov (after the window) and known by k: the claim reads it now.
     assert [o["thread_id"] for o in kobo["opportunities"]] == [T2]
     assert set(kobo["rows"]) == {"GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"}
@@ -237,6 +239,7 @@ OPEN_KNOWN, HAND_KNOWN = BC.at(2, 9, month=11), BC.at(2, 10, month=11)   # after
 
 class LifecyclePort(Port):
     def site_threads(self, tenant_id, site_id, known_at):
+        # MB-1-R Q1: no DOMAIN_INTENT row here, so no `outcome` / `outcome_recorded_at` keys are needed.
         if site_id not in LIFE:
             return super().site_threads(tenant_id, site_id, known_at)
         fid, mech, start, end, _, _ = LIFE[site_id]

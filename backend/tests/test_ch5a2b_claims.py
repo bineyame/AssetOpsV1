@@ -140,7 +140,8 @@ _COLD = _NS(site_id="s2", site_code="COLD-001", domain="cold_chain", timezone="E
 def test_claims_count_only_finding_threads_meeting_the_window(monkeypatch) -> None:
     monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: None)
     out = CL.estate_count_claims(_Req(), [_MINI], _LO, _HI, [1, 2])
-    assert out.threads["KOBO-001"] == {"open": 1, "in_hand": 0, "verified": 1}  # no event- or opportunity-only
+    # no event- or opportunity-only thread; MB-1-R §2.2: no opportunity-origin Action, `verified_actions` 0
+    assert out.threads["KOBO-001"] == {"open": 1, "in_hand": 0, "verified": 1, "verified_actions": 0}
     assert out.claims["count.open_threads"].value == 1 and out.claims["count.verified_results"].value == 1
     assert out.claims["count.opportunities"].value == 2
     assert {c.basis for c in out.claims.values()} == {"NOT_KNOWN"}  # days None: the grade read failed
@@ -152,7 +153,8 @@ def test_claims_threads_are_read_at_the_request_cutoff_for_every_domain(monkeypa
     monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: None)
     req = _Req(k=None, ev=_dt(2026, 10, 4, tzinfo=_tz.utc))  # the RESOLVED_MONITORING event is after the evidence cutoff
     out = CL.estate_count_claims(req, [_COLD], _LO, _HI, [])
-    assert out.threads["COLD-001"] == {"open": 1, "in_hand": 0, "verified": 1} and req.ev_calls == 0
+    assert out.threads["COLD-001"] == {"open": 1, "in_hand": 0, "verified": 1,
+                                       "verified_actions": 0} and req.ev_calls == 0
     mini = _Req(ev=_dt(2026, 10, 4, tzinfo=_tz.utc))
     CL.estate_count_claims(mini, [_MINI], _LO, _HI, [])
     assert mini.ev_calls == 0

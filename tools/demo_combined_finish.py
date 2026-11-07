@@ -850,6 +850,23 @@ def f_threads(ctx: Ctx) -> dict:
             "boards_read": len(ctx.days)}
 
 
+@row("MILL-5")
+def mill5(ctx: Ctx) -> dict:
+    """MB-1a (FUEL-1 MB-1-R §2.5): the S+0 Kobo board's Assure row lists the mill (DOMAIN_VERDICT link, the backend's
+    verified text), its headline count equals the verified entries, the week `/api/estate/chain` verified claim is
+    Σ threads.verified + Σ threads.verified_actions with Kobo's mill counted once, and the mill's one stored
+    `verification_outcome` is VERIFIED (SQL)."""
+    m = _mill(ctx)
+    action_id, code = m["action"]["id"], m["action"]["code"]  # `mill.json` (tools/demo_combined_mill.py:179)
+    week = ctx.get("/api/estate/chain", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
+    out = demo_rows.mill_assure(_kobo_board_s(ctx), week, action_id, code, KOBO)
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        stored = [r[0] for r in c.execute("SELECT outcome FROM verification_outcome WHERE domain_action_id = %s",
+                                          (action_id,)).fetchall()]
+    assert stored == ["VERIFIED"], ("the mill's stored outcome", stored)
+    return {**out, "stored_outcome": stored[0]}
+
+
 @row("MONEY-B")
 def money_b(ctx: Ctx) -> dict:
     """R6 O16, the part readable through the served boards: the Cost headline on one steady-before and one steady

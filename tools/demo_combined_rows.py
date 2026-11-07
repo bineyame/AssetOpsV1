@@ -269,6 +269,40 @@ def mill_value_page(page: dict, price: Decimal) -> dict:
             "cost_text": value["cost_text"]}
 
 
+def mill_assure(board: dict, chain: dict, mill_id: str, code: str, site: str = "KOBO-001") -> dict:
+    """MILL-5 (FUEL-1 MB-1-R §2.5): on the S+0 Kobo board the Assure row lists the mill with the DOMAIN_VERDICT link
+    and the verified text (backend constants), and its headline count equals the verified entries; on the week
+    `/api/estate/chain` the verified claim is Σ threads.verified + Σ threads.verified_actions, Kobo's mill counted once."""
+    import re
+
+    from assetops_backend.chain.vocabulary import provenance_suffix
+    from assetops_backend.outcomes.display_code import display_code
+    from assetops_backend.site_outcomes.mini import NO_VERIFIED, VERIFICATION_TEXT
+
+    assure = next((r for r in board.get("rows") or () if r.get("category") == "ASSURE_PERFORMANCE"), None)
+    assert assure is not None, "no Assure row on the S+0 Kobo board"
+    entries = [c for c in assure.get("contributors") or () if c.get("key") == "verified_results"]
+    text = VERIFICATION_TEXT["VERIFIED"].format(code=display_code(code), suffix=provenance_suffix(None))
+    mill = [c for c in entries if (c.get("link_ref") or {}).get("kind") == "DOMAIN_VERDICT"
+            and str((c.get("link_ref") or {}).get("id")) == str(mill_id)]
+    assert len(mill) == 1, ("the mill entry on the Assure row", [c.get("text") for c in entries])
+    assert mill[0].get("text") == text, (mill[0].get("text"), text)
+    headline = assure.get("headline")
+    m = re.fullmatch(r"(\d+) verified results?", str(headline or ""))
+    assert headline == NO_VERIFIED or m, ("unreadable Assure headline", headline)
+    shown = 0 if headline == NO_VERIFIED else int(m.group(1))
+    listed = sum(1 for c in entries if re.fullmatch(r"\S+ verified\b.*", str(c.get("text") or ""))
+                 and " not yet verified" not in str(c.get("text") or "") and c.get("text") != NO_VERIFIED)
+    assert shown == listed, (headline, listed)
+    sites = {s.get("code"): s.get("threads") or {} for s in chain.get("sites") or ()}
+    claim = ((chain.get("counts") or {}).get("count.verified_results") or {}).get("value")
+    total = sum(int(t.get("verified") or 0) + int(t.get("verified_actions") or 0) for t in sites.values())
+    assert claim == total, ("week count.verified_results", claim, total)
+    assert (sites.get(site) or {}).get("verified_actions") == 1, ("Kobo verified_actions", sites.get(site))
+    return {"headline": headline, "mill_text": text, "verified_entries": listed, "week_claim": claim,
+            "week_threads": sites}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None

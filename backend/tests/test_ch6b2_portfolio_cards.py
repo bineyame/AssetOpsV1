@@ -48,6 +48,8 @@ def _counts(monkeypatch, days=FULL, threads=THREADS, fail: str | None = None) ->
 
     monkeypatch.setattr(CL, "claim_days", lambda req, site, lo, hi: days)
     monkeypatch.setattr(CL, "counted_threads", counted)
+    # MB-1-R §2.2: these Sites have no opportunity-origin domain Action (the threads dict gains `verified_actions` 0).
+    monkeypatch.setattr(CL, "verified_actions", lambda req, site, lo, hi, counted: [])
     return CL.estate_count_claims(object(), SITES, LO, HI, [], (LookupError,))
 
 

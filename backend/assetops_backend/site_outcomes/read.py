@@ -106,6 +106,7 @@ class BoardServices:
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
     threads: Any = None               # CH-2: PostgresThreadSources.lookup (chain/adapters/postgres_thread_sources.py)
     chain_reader: Any = None          # CH-5a1: ChainReader (chain/read.py), one `request` per board read
+    thread_policy: Callable[[], Any] | None = None  # MB-1a-R2: chain.composition.thread_lifecycle_policy (composition.py injects it; OUT-B4)
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -290,13 +291,21 @@ class SiteOutcomeBoardService:
         def opportunity(lo: datetime, hi: datetime) -> Any:
             return [] if s.threads is None else s.threads.opportunity_threads(t, [sid], lo, hi, known_at)
 
+        # MB-1-R Q1(c): the Site's thread rows at the request cutoff (memoised with the claims' read), that cutoff
+        # and the lifecycle policy (`BoardServices.thread_policy`, None when not injected); None without a chain reader (no opportunity Actions).
+        def chain_threads() -> Any:
+            if s.chain_reader is None:
+                return None
+            req = chain()
+            return mini.ChainThreads(req.threads(sid), req.k, None if s.thread_policy is None else s.thread_policy())
+
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
                               placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
                               productive_readings=productive_readings, productive_price=productive_price,
-                              opportunity=opportunity)
+                              opportunity=opportunity, chain_threads=chain_threads)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -478,7 +487,9 @@ class SiteOutcomeBoardService:
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
             # WALK1-1 (WN-1): stripped by the route like `_short_values`; the estate Assure card's verified count.
-            "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED"),
+            # MB-1-R Q5: plus the opportunity-origin domain Actions (the mill), the Assure headline's number.
+            "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED")
+            + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED"),
             **extra_body,
         }
 

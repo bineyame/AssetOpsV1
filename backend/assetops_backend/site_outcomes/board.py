@@ -182,6 +182,17 @@ class ActionFact:
 
 
 @dataclass(frozen=True)
+class OpportunityActionFact:
+    """MB-1-R: an opportunity-origin domain Action on a mini board (the mill); never in `actions`, so In hand and
+    Earlier are unchanged (R4)."""
+    action_id: str
+    code: str | None
+    thread_id: str
+    outcome: str | None                 # VERIFIED | INEFFECTIVE | INCONCLUSIVE known by the cutoff; None = not judged
+    verdict_ref: Mapping[str, Any]      # the DOMAIN_VERDICT Ref (`site_chain.action_wire_ref`)
+
+
+@dataclass(frozen=True)
 class CaseFact:
     case_id: str
     code: str | None
@@ -294,6 +305,8 @@ class SiteFacts:
     #: The Grow money is now the earnings claim, which stays null while the days are not all known, so it can no
     #: longer stand for "a tariff exists".
     ev_priced: bool | None = None
+    #: MB-1-R §2.3: the board's opportunity-origin domain Actions (the mill), apart from `actions` (R4).
+    opportunity_actions: tuple[OpportunityActionFact, ...] = ()
 
 
 # ---------------------------------------------------------------- helpers
