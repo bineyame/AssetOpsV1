@@ -932,3 +932,43 @@ OPP_THREAD_SEEN_AGAIN = "Spare solar seen again on {day} after the change ({code
 - FUEL-1 total: +0.1 → **5.45**. The new plan total is ≈ 117.4.
 - §3.1's "Expected client view" S-5 line is superseded by Q4.
 - **Owner question: none.**
+
+---
+
+## A2-R1: ruling on review-A2 L1 and L4 (Architect, Claude, 2026-11-07)
+
+Source: `.agent/review-A2.md` (A2 worktree) L1 and L4. This amends §4.2. It lands in **A2's current fix round**, beside H1. No golden is affected: the H1 goldens are `/1` or rate-less, and they carry no `priced_total`.
+
+### L1: a priced total is stored only when it is a positive amount
+
+- **Decision.** Keep the classification as it is. The state stays per demand kWh, which is the v1 rule that `/1` byte-equality and the board's per-kWh line rest on. Add `priced_total` only when its amount is above 0. A `priced_total` names fuel the trial hour did not burn. A negative total is not that, and it must not exist as a stored fact for any reader (Portfolio, `_cost_check_read`, A3, PV-1).
+- **Rejected options.**
+  - Guarding in A3's copy leaves a negative "total" stored, append-only, and exposed by `_cost_check_read`. Every later reader would then have to repeat the guard.
+  - Reclassifying on the absolute difference changes v1 semantics and the state of rows that are already stored.
+- **Code** (`backend/assetops_backend/financials/trial_fuel_comparison.py`, `compare`, `:196-200`):
+  - compute `amount = bw["_cost"][0] - lw["_cost"][0]` first;
+  - set `priced_total` only when `v2 and state == "MODELLED_IMPROVEMENT" and amount > 0`. The dict is unchanged otherwise.
+  - Because `PRICE_BASIS_DIFFERS` guarantees one price revision, a positive price makes `amount > 0` equivalent to `fuel_change_l > 0`. A zero price gives no total, which is correct.
+  - Add one clause to the module docstring (`:12`): "stored only when the amount is above 0".
+  - The §4.2 bullet now reads: "on `MODELLED_IMPROVEMENT` **with a cost difference above 0**, the result gains `priced_total`".
+- **Test** (`backend/tests/test_tfc2.py`, next to `test_no_improvement_has_no_priced_total`):
+  - `test_improvement_with_more_fuel_in_the_later_hour_has_no_priced_total`:
+    - `out = run(window(B0, 10, 0, ("b1",), Fraction(100)), window(L0, 10, 300, ("l1",), Fraction(110)))`;
+    - assert `(out["formula"], out["state"]) == ("trial-fuel-comparison/2", "MODELLED_IMPROVEMENT")`;
+    - assert `out["change_per_demand_kwh"]["nominal"] == vr.fmt(Fraction(1, 3520))`;
+    - assert `"priced_total" not in out`;
+    - assert `credit.credited({**out, "outcome_id": "outcome-1"}, "VERIFIED") is None`.
+  - Non-vacuity: revert the `amount > 0` condition, and the test fails on the `priced_total` assertion. Record this in the packet.
+  - Run `test_tfc2.py` and `test_ch3_rows.py` only (L0, no DB).
+- **A3 consequence.** A3 needs no copy guard of its own. `COST_PRICED`, the Assure litres clause and the verification-page line key on the **presence** of `priced_total`, as §4.3 already says. A3 must not add a second sign check. Without the key, today's per-kWh lines stay.
+
+### L4: D1 wording for `IDLE_SECONDS_UNKNOWN`
+
+- **Decision** (`backend/assetops_backend/site_outcomes/board.py:90`):
+  `"IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for one or both hours",`
+- **Why not "for one of the hours".** The reason fires when either window's idle seconds are None, which includes both. "One or both" is true in every case, and it does not read as "neither".
+- Delete the "builder-proposed ... Architect to confirm" comment at `:89` and replace it with `# FUEL-1 A2 (A2-R1): words for the two /2 reasons`. `NO_LOAD_RATE_DIFFERS` keeps its text.
+- `GENERATOR_KWH_UNKNOWN` (`:85`, "not known for both hours") predates A2 and is shown on Kobo's stored rows. It is **not** changed here, and it goes to WD-1's money-wording pass as a note.
+- **Guard.** The words reuse the already-passing vocabulary ("the generator's idle time is not known for") and add only "one or both". Run `backend/tests/test_out_e4_readback.py` (`test_no_code_on_screen_and_saving_only_in_not_realised_savings` and the reason-set test) to confirm.
+
+**Owner question: none.**
