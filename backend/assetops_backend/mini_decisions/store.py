@@ -19,12 +19,15 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any, Callable, Iterator, Mapping, TypeVar
 from uuid import UUID
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
+
+from assetops_backend.prepare_clock import require_prepare_database
 
 #: The one W4-03 job domain (closure 1); never leased by Dispatch or W4-02's four-domain worker.
 OPPORTUNITY_JOB_DOMAIN = "mini_opportunity"
@@ -83,17 +86,18 @@ _INSERT_OPPORTUNITY = (
 )
 _INSERT_OPPORTUNITY_REVISION = (
     "INSERT INTO mini_opportunity_revision (id, tenant_id, site_id, opportunity_id, revision_no, selected_hours, "
-    "result, input_sha256, producer_id, source_job_id, model_version) VALUES (:id, :tenant_id, :site_id, "
+    "result, input_sha256, producer_id, source_job_id, model_version, created_at) VALUES (:id, :tenant_id, :site_id, "
     ":opportunity_id, :revision_no, CAST(:selected_hours AS jsonb), CAST(:result AS jsonb), :input_sha256, "
-    ":producer_id, :source_job_id, :model_version)"
+    ":producer_id, :source_job_id, :model_version, COALESCE(CAST(:created_at AS timestamptz), clock_timestamp()))"
 )
 _INSERT_OPPORTUNITY_EVIDENCE = (
     "INSERT INTO mini_opportunity_evidence (tenant_id, site_id, opportunity_revision_id, evidence_id) "
     "VALUES (:tenant_id, :site_id, :opportunity_revision_id, :evidence_id)"
 )
 _INSERT_OPPORTUNITY_SELECTION = (
-    "INSERT INTO mini_opportunity_selection (tenant_id, site_id, opportunity_id, revision_id, job_id) "
-    "VALUES (:tenant_id, :site_id, :opportunity_id, :revision_id, :job_id) RETURNING seq"
+    "INSERT INTO mini_opportunity_selection (tenant_id, site_id, opportunity_id, revision_id, job_id, selected_at) "
+    "VALUES (:tenant_id, :site_id, :opportunity_id, :revision_id, :job_id, "
+    "COALESCE(CAST(:selected_at AS timestamptz), clock_timestamp())) RETURNING seq"
 )
 _INSERT_WORK_LINK = (
     "INSERT INTO mini_decision_work_link (id, tenant_id, site_id, case_id, scenario_id, opportunity_id, "
@@ -112,12 +116,21 @@ _INSERT_OPPORTUNITY_SCENARIO_LINK = (
 class PostgresMiniDecisionStore:
     """Appends 0030 rows on the caller's transaction (`transaction()` opens one when the caller has none)."""
 
-    def __init__(self, engine: Engine) -> None:
+    def __init__(self, engine: Engine, *, story_clock: Callable[[], datetime] | None = None) -> None:
+        """DD1b2-R Q2: `story_clock` dates opportunity revisions and selections only, and only
+        `tools/demo_combined_mill.py` passes it, through `from_url`. Unset, both timestamps are DB time."""
         self._engine = engine
+        self._story_clock = story_clock
 
     @classmethod
-    def from_url(cls, database_url: str) -> "PostgresMiniDecisionStore":
-        return cls(create_engine(database_url, pool_pre_ping=True))
+    def from_url(cls, database_url: str, story_clock: Callable[[], datetime] | None = None
+                 ) -> "PostgresMiniDecisionStore":
+        if story_clock is not None:
+            require_prepare_database(database_url)
+        return cls(create_engine(database_url, pool_pre_ping=True), story_clock=story_clock)
+
+    def _story_instant(self) -> datetime | None:
+        return None if self._story_clock is None else self._story_clock()
 
     def dispose(self) -> None:
         self._engine.dispose()
@@ -194,6 +207,7 @@ class PostgresMiniDecisionStore:
         values.setdefault("source_job_id", None)
         values["selected_hours"] = _json(values["selected_hours"])
         values["result"] = _json(values["result"])
+        values["created_at"] = self._story_instant()
         c.execute(text(_INSERT_OPPORTUNITY_REVISION), values)
 
     def insert_opportunity_evidence(self, c: Connection, row: Mapping[str, Any]) -> None:
@@ -211,6 +225,7 @@ class PostgresMiniDecisionStore:
                 f"Opportunity revision {row['revision_id']} does not belong to opportunity {row['opportunity_id']}")
         values = dict(row)
         values.setdefault("job_id", None)
+        values["selected_at"] = self._story_instant()
         return self._one(c, _INSERT_OPPORTUNITY_SELECTION, values)
 
     def insert_work_link(self, c: Connection, row: Mapping[str, Any]) -> None:

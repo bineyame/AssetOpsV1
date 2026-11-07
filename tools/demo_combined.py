@@ -440,10 +440,7 @@ class Demo:
                            cwd=self.tree / "backend" / "tests", label=f"build-{site}")
             timings[site] = round(time.monotonic() - t0, 1)
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1] + f"  [{timings[site]} s]")
-        if finish:
-            t0 = time.monotonic()
-            self.finish({**story, "days": days})
-            timings["finish"] = round(time.monotonic() - t0, 1)
+        self.finish_build(story, days, finish, timings)
         manifest = {"db": self.db, "S": story["S"], "code": story["code"], "sites": story["sites"],
                     "timings_seconds": timings, "wall_seconds": round(time.monotonic() - began, 1),
                     "wall_cap_seconds": cap}
@@ -453,6 +450,46 @@ class Demo:
         (self.work / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
         say(f"Prepared in {manifest['wall_seconds']} s (cap {cap} s). Next: links, serve.")
         return manifest
+
+    def finish_build(self, story: dict, days: list[dict], finish: bool, timings: dict[str, float]) -> None:
+        """What follows the Site children: the mill sequence on a three-Site prepare (DD1b2-R Q4), then the finish. A
+        one-Site or two-Site prepare keeps the plain finish: the mill step needs all three Sites' Action codes."""
+        if not finish:
+            return
+        if set(story["sites"]) == set(SITES):
+            t0 = time.monotonic()
+            self.after_children(story, days)
+            timings["after_children"] = round(time.monotonic() - t0, 1)
+        t0 = time.monotonic()
+        self.finish({**story, "days": days})
+        timings["finish"] = round(time.monotonic() - t0, 1)
+
+    def after_children(self, story: dict, days: list[dict]) -> dict:
+        """DD1b2-R Q4 steps 2 to 5, after every Site child: `drain_mini` (the study needs the renewable heads), backfill
+        step `a` (the freeze needs the snapshots), the mill step, then `b,c,d`. No tick may run before the mill step, or
+        a wall-clock study opens the thread and every mill cause is skipped. Step 6, the R8 drain, is DD-1b2b's."""
+        if not any(d["site"] == "kobo" and d["kind"] == "mill-midday" for d in days):
+            raise SystemExit("Refused: the mill step needs the day list's Kobo mill-midday day")
+        say("=== Mini-depth, snapshots, the mill step, threads ===")
+        out: dict[str, Any] = {"timings_seconds": {}}
+
+        def timed(name: str, *argv: str, **kw: Any) -> subprocess.CompletedProcess:
+            t0 = time.monotonic()
+            done = self.py(*argv, label=name, **kw)
+            out["timings_seconds"][name] = round(time.monotonic() - t0, 1)
+            say(f"  {name}: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200])
+            return done
+
+        t0 = time.monotonic()
+        self.drain_mini()
+        out["timings_seconds"]["mini-depth"] = round(time.monotonic() - t0, 1)
+        timed("backfill-a", "-m", "assetops_backend.chain.backfill", "--steps", "a")
+        timed("mill", str(self.tree / "tools" / "demo_combined_mill.py"), "build", self.url, str(self.work),
+              cwd=self.tree / "backend" / "tests")
+        done = timed("backfill-bcd", "-m", "assetops_backend.chain.backfill", "--steps", "b,c,d")
+        out["threads"] = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
+        (self.work / "after-children.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
+        return out
 
     def finish(self, story: dict) -> None:
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
@@ -709,6 +746,8 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
     sub.add_parser("tick")
+    ac = sub.add_parser("after-children", help="development only (DD1b2-R probe): the real after_children on a prepared work folder")
+    ac.add_argument("--cap-seconds", type=int, default=1800)
     ad = sub.add_parser("add-day")
     ad.add_argument("--site", required=True, choices=sorted(SITE_CODE.values()))
     ad.add_argument("--kind", required=True)
@@ -736,6 +775,10 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "tick":
         demo.story()
         demo.tick()
+    elif args.cmd == "after-children":
+        demo.deadline = time.monotonic() + args.cap_seconds
+        built = json.loads((demo.work / "days.json").read_text(encoding="utf-8"))
+        demo.after_children(demo.story(), built["days"])
     else:
         demo.drop()
 
