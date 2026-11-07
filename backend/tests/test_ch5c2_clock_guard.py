@@ -66,7 +66,6 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     # CH-9 merge: the default knowledge cutoff of a mini_decisions projection (`SELECT now()`), read by the
     # projection's writer-side callers; no stored-route composer calls it (W6 records 0 reads on the merged tree).
     (_B + "mini_depth.store", "database_now"): "not in a stored compose: a projection's default knowledge cutoff",
-    (_B + "objectives.adapters.postgres_objective_store", "PostgresObjectiveStore.declare.work"): _WRITER,
     # CH-5c2 (found by the F4/Q5 test on the real composers): a dateless board reads the board day from the
     # scheduler store's DB clock (`site_overview.read.db_today`); the rest of the store is the tick's writers.
     (_B + "scheduling.adapters.postgres_schedule_store", "PostgresScheduleStore.db_now"):

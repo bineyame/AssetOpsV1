@@ -93,7 +93,7 @@ def test_window_memo_excludes_knowledge_at_only_without_a_cutoff():
     store = PostgresAssessmentStore.__new__(PostgresAssessmentStore)
     calls = []
 
-    def read(c, q, a, b, cutoff=None, all_jobs=False):
+    def read(c, q, a, b, cutoff=None, all_jobs=False, prefetched=None):
         calls.append((q.knowledge_at, cutoff))
         return ("snap", len(calls))
     store._window_read = read  # type: ignore[method-assign]
