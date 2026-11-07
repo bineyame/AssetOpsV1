@@ -1,0 +1,826 @@
+{
+ "schema": {
+  "id": "assetops.kisiwa-night-probe",
+  "version": 1
+ },
+ "ruling": "DIESEL-1 \u00a72 (.agent/build-sheet-DIESEL-1.md, f755f085b)",
+ "assumptions": {
+  "source": "DIESEL-1 \u00a72.2 (.agent/build-sheet-DIESEL-1.md, f755f085b); fixed before any run, never tuned",
+  "site": {
+   "display_name": "Kisiwa island mini-grid",
+   "code": "KISIWA-001",
+   "timezone": "Africa/Dar_es_Salaam"
+  },
+  "pv_kwp": 20,
+  "inverter_kw": 20,
+  "battery_kwh": 60,
+  "reserve_pct": 30,
+  "pcs_charge_kw": 20,
+  "pcs_discharge_kw": 20,
+  "pcs_efficiency_pct": 95,
+  "generator_kw": 60,
+  "start_soc_pct": 35,
+  "stop_soc_pct": {
+   "before": 90,
+   "after": 60
+  },
+  "minimum_runtime_min": 30,
+  "start_delay_min": 5,
+  "sfc_l_per_kwh": "0.355",
+  "no_load_l_per_h": "4.9 (GENERIC_DEFAULT, 0.08145 x 60)",
+  "tank_l": 1000,
+  "start_fuel_l": 1000,
+  "diesel_price_usd_per_l": "1.25",
+  "source_priority": [
+   "pv-array",
+   "generator",
+   "battery"
+  ],
+  "critical_load_priority": [
+   "load-clinic",
+   "load-res",
+   "load-mill"
+  ],
+  "loads_kw_local": {
+   "load-res (Households)": {
+    "06:00-18:00": 2,
+    "18:00-23:00": 8,
+    "23:00-06:00": 3
+   },
+   "load-clinic (Cold store)": {
+    "00:00-24:00": 4
+   },
+   "load-mill (Water pump)": {
+    "19:00-23:00": 6,
+    "otherwise": 0
+   }
+  },
+  "irradiance_w_m2_local": {
+   "06:00-08:00": 150,
+   "08:00-10:00": 550,
+   "10:00-12:00": 900,
+   "12:00-14:00": 950,
+   "14:00-16:00": 600,
+   "16:00-18:00": 150,
+   "18:00-06:00": 0
+  },
+  "template": ".agent/DIESEL-D0/kisiwa-diesel-hybrid-60kw.draft.yaml",
+  "template_sha256_lf": "261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b"
+ },
+ "profile": {
+  "model_profile": "mini-grid",
+  "model_profile_version": 6,
+  "timestep_minutes": 5,
+  "publication_profile_version": 3,
+  "run_length": "15:00 to 15:00 local, 288 steps",
+  "night": "18:00 to 12:00 local, steps [36, 252)",
+  "info_only_night": "18:00 to 06:00 local, steps [36, 180)"
+ },
+ "runs": [
+  {
+   "run": 1,
+   "interval": [
+    "2026-10-01T12:00:00Z",
+    "2026-10-02T12:00:00Z"
+   ],
+   "stop_soc_pct": 90,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100",
+    "fuel": "1000",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "1000",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "573943/600",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 2,
+   "interval": [
+    "2026-10-02T12:00:00Z",
+    "2026-10-03T12:00:00Z"
+   ],
+   "stop_soc_pct": 90,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "956.5716666666667",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "573943/600",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "273943/300",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 3,
+   "interval": [
+    "2026-10-03T12:00:00Z",
+    "2026-10-04T12:00:00Z"
+   ],
+   "stop_soc_pct": 90,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "913.1433333333333",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "273943/300",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "173943/200",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 4,
+   "interval": [
+    "2026-10-04T12:00:00Z",
+    "2026-10-05T12:00:00Z"
+   ],
+   "stop_soc_pct": 90,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "869.715",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "173943/200",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "123943/150",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 5,
+   "interval": [
+    "2026-10-05T12:00:00Z",
+    "2026-10-06T12:00:00Z"
+   ],
+   "stop_soc_pct": 90,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "826.2866666666666",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "123943/150",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "93943/120",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 6,
+   "interval": [
+    "2026-10-06T12:00:00Z",
+    "2026-10-07T12:00:00Z"
+   ],
+   "stop_soc_pct": 60,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "782.8583333333333",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "93943/120",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "1779247/2400",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 7,
+   "interval": [
+    "2026-10-07T12:00:00Z",
+    "2026-10-08T12:00:00Z"
+   ],
+   "stop_soc_pct": 60,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "741.3529166666667",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "1779247/2400",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "279939/400",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 8,
+   "interval": [
+    "2026-10-08T12:00:00Z",
+    "2026-10-09T12:00:00Z"
+   ],
+   "stop_soc_pct": 60,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "699.8475",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "279939/400",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "1580021/2400",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  },
+  {
+   "run": 9,
+   "interval": [
+    "2026-10-09T12:00:00Z",
+    "2026-10-10T12:00:00Z"
+   ],
+   "stop_soc_pct": 60,
+   "scenario_sha256": null,
+   "start_parameters": {
+    "soc": "100.0",
+    "fuel": "658.3420833333333",
+    "generator": "STOPPED"
+   },
+   "start": {
+    "soc": "100",
+    "fuel": "1580021/2400",
+    "generator": "STOPPED"
+   },
+   "end": {
+    "soc": "100",
+    "fuel": "185051/300",
+    "generator": "STOPPED"
+   },
+   "battery_at_15_00_pct": "100.000"
+  }
+ ],
+ "nights": [
+  {
+   "night": 1,
+   "phase": "before",
+   "stop_soc_pct": 90,
+   "window_local": "2026-10-01 18:00 to 2026-10-02 12:00",
+   "night_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "loaded_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "122.333",
+   "running_minutes": 225,
+   "loaded_minutes": 225,
+   "idle_minutes": 0,
+   "starts": 2,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "57.931",
+    "12:00": "100.000",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "info_only_indicative_avoidable_minutes": 190
+  },
+  {
+   "night": 2,
+   "phase": "before",
+   "stop_soc_pct": 90,
+   "window_local": "2026-10-02 18:00 to 2026-10-03 12:00",
+   "night_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "loaded_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "122.333",
+   "running_minutes": 225,
+   "loaded_minutes": 225,
+   "idle_minutes": 0,
+   "starts": 2,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "57.931",
+    "12:00": "100.000",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "info_only_indicative_avoidable_minutes": 190
+  },
+  {
+   "night": 3,
+   "phase": "before",
+   "stop_soc_pct": 90,
+   "window_local": "2026-10-03 18:00 to 2026-10-04 12:00",
+   "night_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "loaded_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "122.333",
+   "running_minutes": 225,
+   "loaded_minutes": 225,
+   "idle_minutes": 0,
+   "starts": 2,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "57.931",
+    "12:00": "100.000",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "info_only_indicative_avoidable_minutes": 190
+  },
+  {
+   "night": 4,
+   "phase": "before",
+   "stop_soc_pct": 90,
+   "window_local": "2026-10-04 18:00 to 2026-10-05 12:00",
+   "night_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "loaded_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "122.333",
+   "running_minutes": 225,
+   "loaded_minutes": 225,
+   "idle_minutes": 0,
+   "starts": 2,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "57.931",
+    "12:00": "100.000",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "info_only_indicative_avoidable_minutes": 190
+  },
+  {
+   "night": 5,
+   "phase": "before",
+   "stop_soc_pct": 90,
+   "window_local": "2026-10-05 18:00 to 2026-10-06 12:00",
+   "night_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "loaded_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "122.333",
+   "running_minutes": 225,
+   "loaded_minutes": 225,
+   "idle_minutes": 0,
+   "starts": 2,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "57.931",
+    "12:00": "100.000",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "info_only_indicative_avoidable_minutes": 190
+  },
+  {
+   "night": 6,
+   "phase": "after",
+   "stop_soc_pct": 60,
+   "window_local": "2026-10-06 18:00 to 2026-10-07 12:00",
+   "night_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "loaded_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "116.917",
+   "running_minutes": 215,
+   "loaded_minutes": 215,
+   "idle_minutes": 0,
+   "starts": 4,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "48.999",
+    "12:00": "92.306",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "info_only_indicative_avoidable_minutes": 145
+  },
+  {
+   "night": 7,
+   "phase": "after",
+   "stop_soc_pct": 60,
+   "window_local": "2026-10-07 18:00 to 2026-10-08 12:00",
+   "night_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "loaded_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "116.917",
+   "running_minutes": 215,
+   "loaded_minutes": 215,
+   "idle_minutes": 0,
+   "starts": 4,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "48.999",
+    "12:00": "92.306",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "info_only_indicative_avoidable_minutes": 145
+  },
+  {
+   "night": 8,
+   "phase": "after",
+   "stop_soc_pct": 60,
+   "window_local": "2026-10-08 18:00 to 2026-10-09 12:00",
+   "night_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "loaded_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "116.917",
+   "running_minutes": 215,
+   "loaded_minutes": 215,
+   "idle_minutes": 0,
+   "starts": 4,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "48.999",
+    "12:00": "92.306",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "info_only_indicative_avoidable_minutes": 145
+  },
+  {
+   "night": 9,
+   "phase": "after",
+   "stop_soc_pct": 60,
+   "window_local": "2026-10-09 18:00 to 2026-10-10 12:00",
+   "night_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "loaded_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "idle_litres": {
+    "exact": "0",
+    "dec3": "0.000"
+   },
+   "tank_drop_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "tank_drop_equals_loaded": true,
+   "generator_kwh": "116.917",
+   "running_minutes": 215,
+   "loaded_minutes": 215,
+   "idle_minutes": 0,
+   "starts": 4,
+   "battery_pct": {
+    "18:00": "89.474",
+    "06:00": "48.999",
+    "12:00": "92.306",
+    "minimum": "31.579"
+   },
+   "below_reserve": false,
+   "reserve_in_effect_pct": [
+    "30"
+   ],
+   "cold_store_unserved_kwh": "0.000",
+   "all_loads_unserved_kwh": "0.000",
+   "info_only_18_06_litres": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "info_only_indicative_avoidable_minutes": 145
+  }
+ ],
+ "cold_store_unserved_kwh_all_steps_all_runs": "0.000",
+ "gates": {
+  "G1": {
+   "pass": true,
+   "detail": "every run READY at setup and run_to_end completed (asserted)"
+  },
+  "G2": {
+   "pass": true,
+   "steps_failing": 0,
+   "detail": "accepted generator energy x 0.355 equals the tank drop at every step, exactly"
+  },
+  "G3": {
+   "pass": true,
+   "runs": [
+    {
+     "run": 1,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 2,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 3,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 4,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 5,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 6,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 7,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 8,
+     "generator_at_15_00": "STOPPED"
+    },
+    {
+     "run": 9,
+     "generator_at_15_00": "STOPPED"
+    }
+   ]
+  },
+  "G4": {
+   "pass": true,
+   "boundaries_differing": [],
+   "seams_carry_exact": true,
+   "detail": "chained runs 1-5 against one continuous run 2026-10-01T12:00Z to 2026-10-06T12:00Z (stop 90): battery, fuel and generator state at every boundary, exactly"
+  },
+  "G5": {
+   "pass": true,
+   "fuel_limited_steps": 0
+  },
+  "G6": {
+   "pass": null,
+   "detail": "checked by --check: a fresh run is byte-equal to the committed file"
+  }
+ },
+ "verdict": {
+  "nights_before": [
+   3,
+   4,
+   5
+  ],
+  "nights_after": [
+   6,
+   7,
+   8
+  ],
+  "mean_before": {
+   "exact": "26057/600",
+   "dec3": "43.428"
+  },
+  "mean_after": {
+   "exact": "99613/2400",
+   "dec3": "41.505"
+  },
+  "reduction": "65/1468",
+  "reduction_pct": "4.4",
+  "pass_mark": "at least 20 % less diesel per night (owner 2026-11-07)",
+  "guardrails": {
+   "cold_store_unserved_zero_nights_3_8": true,
+   "battery_never_below_reserve_nights_3_8": true
+  },
+  "result": "NOT MET",
+  "fragile": false,
+  "all_nights_reduction_pct": "4.4",
+  "info_only_18_06": {
+   "mean_before": {
+    "exact": "26057/600",
+    "dec3": "43.428"
+   },
+   "mean_after": {
+    "exact": "99613/2400",
+    "dec3": "41.505"
+   },
+   "reduction_pct": "4.4"
+  },
+  "s7_no_avoidable_minutes_nights_3_5": false
+ },
+ "money_info": {
+  "usd_per_night": "2.40",
+  "basis": "(mean_before - mean_after) x 1.25 USD/L; modelled from a generic fuel curve, not measured by a fuel meter; information only, never a target; not annualised"
+ }
+}
