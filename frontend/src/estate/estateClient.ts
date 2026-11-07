@@ -484,10 +484,14 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     completed_activity_count: null;
     pending_trial_count: number | null;
     verified_resolution_count: number | null;
-    /** CH-3 (OD-3): credited money per currency, or the not-credited text (was always null). */
+    /** CH-3 (OD-3), FUEL-1 A2: one credited value per result, never summed, or the not-credited text. */
     recovered_value:
       | null
-      | { state: "CREDITED" | "NOT_CREDITED"; text: string | null; amounts: { currency: string; amount: string }[] };
+      | {
+          state: "CREDITED" | "NOT_CREDITED";
+          text: string | null;
+          items: { key: string; currency: string; amount: string; basis: string }[];
+        };
     rows: EstateProgressRow[];
   };
   footer: {

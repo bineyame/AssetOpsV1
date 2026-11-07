@@ -31,19 +31,21 @@ V1 = PriceSelection("PRICED", None, "price-v1", Decimal("1.25"), "USD")
 COST = tfc.InterventionCost(Fraction(0), None, "Generator stop setting changed; no direct cost declared")
 
 
-def window(start, gen, feeder, ids=("e1", "e2"), complete=True) -> tfc.WindowFacts:
+def window(start, gen, feeder, ids=("e1", "e2"), complete=True, idle=0) -> tfc.WindowFacts:
     return tfc.WindowFacts(tuple(ids), complete, None if gen is None else Fraction(gen),
-                           None if feeder is None else Fraction(feeder), start, start + H)
+                           None if feeder is None else Fraction(feeder), start, start + H, idle)
 
 
 BASE = window(B0, 40, 120, ("b1", "b2"))
 LATER = window(L0, 28, 126, ("l1", "l2"))
 OUT = tfc.OutcomeFacts("outcome-1", "plan-1", "rev-1", "VERIFIED", {"baseline": ("b2", "b1"), "later": ("l1", "l2")},
                        "PASS", "PASS")
+#: FUEL-1 A2: a no-load rate in force over each window, different values (only `/2` reasons read it)
+DIFF_RATES = (tfc.NoLoadValue(REV, Decimal("3.3"), B0, B0 + H), tfc.NoLoadValue(REV, Decimal("3.4"), L0, None))
 
 
-def run(baseline=BASE, later=LATER, outcome=OUT, sfc=SFC, prices=(V1, V1), cost=COST):
-    return tfc.compare(baseline, later, outcome, sfc, prices, cost)
+def run(baseline=BASE, later=LATER, outcome=OUT, sfc=SFC, prices=(V1, V1), cost=COST, no_load=()):
+    return tfc.compare(baseline, later, outcome, sfc, prices, cost, no_load)
 
 
 def test_worked_example():
@@ -95,6 +97,8 @@ ISOLATED = {
     "ZERO_DEMAND": dict(later=replace(LATER, feeder_demand_kwh=Fraction(0))),
     "SFC_MISSING": dict(sfc=()),
     "SFC_DIFFERS": dict(sfc=(SfcValue(REV, Decimal("0.3"), B0, B0 + H), SfcValue(REV, Decimal("0.31"), L0, None))),
+    "IDLE_SECONDS_UNKNOWN": dict(no_load=DIFF_RATES, later=replace(LATER, idle_seconds=None)),
+    "NO_LOAD_RATE_DIFFERS": dict(no_load=DIFF_RATES),
     "PRICE_MISSING": dict(prices=(V1, PriceSelection("UNPRICED", "NO_PRICE"))),
     "PRICE_BASIS_DIFFERS": dict(prices=(replace(V1, revision_id="price-v4", value=Decimal("1.28")), V1)),
 }
@@ -119,8 +123,9 @@ def test_reason_precedence_first_that_applies_wins():
                 if key in ("baseline", "later") and key in kwargs:
                     a, b, ref = kwargs[key], value, BASE if key == "baseline" else LATER
                     value = replace(a, **{f: getattr(b, f) for f in ("complete", "generator_kwh", "feeder_demand_kwh",
-                                                                    "evidence_ids") if getattr(b, f) != getattr(ref, f)})
-                kwargs.setdefault(key, value) if key in ("sfc", "prices") else kwargs.__setitem__(key, value)
+                                                                    "evidence_ids", "idle_seconds")
+                                          if getattr(b, f) != getattr(ref, f)})
+                kwargs.setdefault(key, value) if key in ("sfc", "prices", "no_load") else kwargs.__setitem__(key, value)
         assert run(**kwargs)["reason"] == reason, (reason, kwargs)
 
 
@@ -134,12 +139,24 @@ def test_uncomputable_fields_are_null_and_hashed():
     assert len({out["basis_sha256"], unpriced["basis_sha256"], run()["basis_sha256"]}) == 3
 
 
-def test_reasons_equal_the_0037_table_check():
-    path = Path(__file__).resolve().parents[1] / "migrations" / "versions" / "0037_cc_trial_cost_comparison.py"
-    spec = importlib.util.spec_from_file_location("m0037", path)
+def _migration(name: str):
+    path = Path(__file__).resolve().parents[1] / "migrations" / "versions" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"m{name[:4]}", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    assert module.REASONS == tfc.REASSESSMENT_REASONS
+    return module
+
+
+def test_reasons_equal_the_0037_table_check_and_0053_widening():
+    """0037 is the `/1` reason list in precedence order; FUEL-1 A2 places its two `/2` reasons after SFC_DIFFERS,
+    and 0053's widened CHECK (a set) holds exactly the precedence tuple's reasons."""
+    module = _migration("0037_cc_trial_cost_comparison")
+    a2 = ("IDLE_SECONDS_UNKNOWN", "NO_LOAD_RATE_DIFFERS")
+    assert module.REASONS == tuple(r for r in tfc.REASSESSMENT_REASONS if r not in a2)
+    reasons = list(tfc.REASSESSMENT_REASONS)
+    assert reasons.index("IDLE_SECONDS_UNKNOWN") == reasons.index("SFC_DIFFERS") + 1
+    assert reasons.index("NO_LOAD_RATE_DIFFERS") == reasons.index("SFC_DIFFERS") + 2
+    assert set(_migration("0053_fuel_cost_2").REASONS_0053) == set(tfc.REASSESSMENT_REASONS)
     assert module.STATES == tfc.REASSESSMENT_STATES
     assert module.FORMULA == tfc.FORMULA
 

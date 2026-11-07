@@ -43,6 +43,9 @@ RESERVE_TYPE = "BATTERY"
 #: OUT-E E3: the generator fuel rate `sfc_history` reads (`financials.fuel_cost.SFC_PROPERTY`/`SFC_UNIT`)
 SFC_FIELD = "specific-fuel-consumption"
 SFC_UNIT = "L/kWh"
+#: FUEL-1 A2: the declared generator no-load fuel rate `no_load_history` reads (A1's Foundation vocabulary)
+NO_LOAD_FIELD = "generator-no-load-fuel-rate"
+NO_LOAD_UNIT = "L/h"
 
 ACTION_COLUMNS = ("id, tenant_id, site_id, action_no, action_code, recommendation_key, acceptance_key, "
                   "acceptance_payload_sha256, origin_finding_id, origin_finding_revision_id, "
@@ -628,6 +631,22 @@ class PostgresActionStore:
         revision's validity. A revision whose generator component lacks exactly one L/kWh value gives no entry."""
         from assetops_backend.mini_depth.rules import SfcValue
 
+        return self._generator_property_history(tenant_id, site_id, generator_asset_id, start, end, known_at,
+                                                SFC_FIELD, SFC_UNIT, SfcValue)
+
+    def no_load_history(self, tenant_id: UUID, site_id: UUID, generator_asset_id: Any, start: datetime,
+                        end: datetime, known_at: datetime) -> list[Any]:
+        """FUEL-1 A2: the generator's declared `generator-no-load-fuel-rate` (L/h) on each FoundationRevision
+        overlapping `[start, end)` as known at `known_at`, as `trial_fuel_comparison.NoLoadValue`, read exactly as
+        `sfc_history` reads the SFC. A revision without exactly one L/h value gives no entry (no rate in force)."""
+        from assetops_backend.financials.trial_fuel_comparison import NoLoadValue
+
+        return self._generator_property_history(tenant_id, site_id, generator_asset_id, start, end, known_at,
+                                                NO_LOAD_FIELD, NO_LOAD_UNIT, NoLoadValue)
+
+    def _generator_property_history(self, tenant_id: UUID, site_id: UUID, generator_asset_id: Any,
+                                    start: datetime, end: datetime, known_at: datetime, field: str, unit: str,
+                                    make: Callable[..., Any]) -> list[Any]:
         def work(c):
             codes = {r.id: r.asset_code for r in c.execute(text(
                 "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"),
@@ -642,11 +661,11 @@ class PostgresActionStore:
             for row in rows if code is not None else ():
                 found = [p for comp in (row["content"] or {}).get("components") or ()
                          if str(comp.get("component_id")) == str(code)
-                         for p in comp.get("properties") or () if p.get("property_key") == SFC_FIELD]
+                         for p in comp.get("properties") or () if p.get("property_key") == field]
                 value = finite_decimal(found[0].get("value")) if len(found) == 1 else None
-                if value is None or found[0].get("unit") != SFC_UNIT:
-                    continue  # none, several, wrong unit or malformed: the cost check reads SFC_MISSING
-                out.append(SfcValue(row["id"], value, row["valid_from"], row["valid_to"]))
+                if value is None or found[0].get("unit") != unit:
+                    continue  # none, several, wrong unit or malformed: no value in force for this revision
+                out.append(make(row["id"], value, row["valid_from"], row["valid_to"]))
             return out
         return self._read(work)
 

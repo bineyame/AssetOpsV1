@@ -5,6 +5,7 @@ and segment join, and the tuple copies pinned to `chain/lifecycle.py` (CH3-R ite
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
+from decimal import Decimal
 
 import pytest
 
@@ -136,24 +137,61 @@ def test_per_kwh_nominal_never_produces_an_amount(cc, outcome):
     """CH3-R money unit: the per-kWh rate (`nominal`) is never credited, summed or shown as money."""
     assert credit.credited(cc, outcome) is None
     assert credit.recovered_value([(cc, outcome), (cc, outcome)]) == {
-        "state": "NOT_CREDITED", "text": "No money credited · modelled, not saved", "amounts": []}
+        "state": "NOT_CREDITED", "text": "No money credited · modelled, not saved", "items": []}
 
 
-def test_priced_total_credited_per_currency_only_when_verified_with_basis():
-    def total(amount, cur, basis="7 days after the change"):
-        return {**PRICED, "priced_total": {"amount": amount, "currency": cur, "basis": basis}}
+def _total(amount, cur, basis="7 days after the change", key="o1"):
+    return {**PRICED, "outcome_id": key, "priced_total": {"amount": amount, "currency": cur, "basis": basis}}
+
+
+def test_priced_total_credited_per_result_only_when_verified_with_basis():
+    total = _total
     assert credit.credited(total("120", "ETB"), "VERIFIED") == ((120, 1), "ETB")
     assert credit.credited(total("1/24", "ETB"), "VERIFIED") == ((1, 24), "ETB")
     assert credit.credited(total("abc", "ETB"), "VERIFIED") is None
     assert credit.credited(total("1/0", "ETB"), "VERIFIED") is None
-    assert credit.recovered_value([(total("1/2000", "ETB"), "VERIFIED")])["amounts"][0]["amount"] == "0.000"  # half-even
-    assert credit.recovered_value([(total("3/2000", "ETB"), "VERIFIED")])["amounts"][0]["amount"] == "0.002"
+    assert credit.recovered_value([(total("1/2000", "ETB"), "VERIFIED")])["items"][0]["amount"] == "0.000"  # half-even
+    assert credit.recovered_value([(total("3/2000", "ETB"), "VERIFIED")])["items"][0]["amount"] == "0.002"
     assert credit.credited(total("120", "ETB"), "INEFFECTIVE") is None
     assert credit.credited(total("120", "ETB", basis=None), "VERIFIED") is None
     assert credit.credited(total("-5", "ETB"), "VERIFIED") is None
-    out = credit.recovered_value([(total("100", "ETB"), "VERIFIED"), (total("20.5", "ETB"), "VERIFIED"),
-                                  (total("3", "USD"), "VERIFIED")])
-    assert out["amounts"] == [{"currency": "ETB", "amount": "120.500"}, {"currency": "USD", "amount": "3.000"}]
+    out = credit.recovered_value([(total("100", "ETB", key="o1"), "VERIFIED"),
+                                  (total("20.5", "ETB", key="o2"), "VERIFIED"),
+                                  (total("3", "USD", key="o3"), "VERIFIED")])
+    assert out == {"state": "CREDITED", "text": None, "items": [
+        {"key": "o1", "currency": "ETB", "amount": "100.000", "basis": "7 days after the change"},
+        {"key": "o2", "currency": "ETB", "amount": "20.500", "basis": "7 days after the change"},
+        {"key": "o3", "currency": "USD", "amount": "3.000", "basis": "7 days after the change"}]}
+
+
+def test_recovered_value_never_sums_two_items_in_one_currency():
+    """FUEL-1 A2 (owner: never a combined savings total): two credited items in the same currency stay two items,
+    and no field anywhere in the result equals their sum."""
+    out = credit.recovered_value([(_total("4.125", "USD", "TRIAL_HOUR_MODELLED_FUEL", "o1"), "VERIFIED"),
+                                  (_total("17", "USD", "ESTIMATED_SALES_AT_DECLARED_PRICE", "o2"), "VERIFIED")])
+    assert [(i["key"], i["amount"], i["basis"]) for i in out["items"]] == [
+        ("o1", "4.125", "TRIAL_HOUR_MODELLED_FUEL"), ("o2", "17.000", "ESTIMATED_SALES_AT_DECLARED_PRICE")]
+    assert "amounts" not in out and set(out) == {"state", "text", "items"}
+
+    def leaves(value):
+        if isinstance(value, dict):
+            for v in value.values():
+                yield from leaves(v)
+        elif isinstance(value, list):
+            for v in value:
+                yield from leaves(v)
+        else:
+            yield value
+    total = Decimal("4.125") + Decimal("17")
+    numeric = [Decimal(v) for v in leaves(out) if isinstance(v, str) and v.replace(".", "", 1).isdigit()]
+    assert numeric and total not in numeric, numeric
+
+
+def test_recovered_value_fails_loud_on_two_items_with_one_key():
+    with pytest.raises(ValueError, match="share the key"):
+        credit.recovered_value([(_total("1", "USD", key="o1"), "VERIFIED"), (_total("2", "USD", key="o1"), "VERIFIED")])
+    with pytest.raises(ValueError, match="no outcome id"):
+        credit.recovered_value([(_total("1", "USD", key=None), "VERIFIED")])
 
 
 def test_portfolio_counts_from_thread_states():

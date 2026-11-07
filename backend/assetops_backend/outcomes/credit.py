@@ -60,7 +60,7 @@ def credited(cost_check: Mapping[str, Any] | None, outcome: str | None) -> tuple
     CH3-R (money unit): an amount is credited only from a stored, priced TOTAL (`priced_total`: amount, currency
     and the basis it covers). A per-kWh rate (the cost check's `nominal`, `change_per_demand_kwh`) is never summed
     or shown as money; it appears only as a rate with its unit, labelled modelled (the board's COST_CHANGE line).
-    No stored priced total exists today, so nothing is credited."""
+    FUEL-1 A2: a `trial-fuel-comparison/2` MODELLED_IMPROVEMENT stores the priced total of its trial hour."""
     if cost_check is None or outcome != "VERIFIED" or cost_check.get("state") != "MODELLED_IMPROVEMENT":
         return None
     total = cost_check.get("priced_total")
@@ -73,17 +73,25 @@ def credited(cost_check: Mapping[str, Any] | None, outcome: str | None) -> tuple
 
 
 def recovered_value(items: list[tuple[Mapping[str, Any] | None, str | None]]) -> dict[str, Any]:
-    """Sum of credited amounts per currency (never added across currencies), or the not-credited text."""
-    totals: dict[str, Amount] = {}
+    """FUEL-1 A2 (owner: there is never a combined savings total): one item per credited result, each with its own
+    amount, currency and basis, keyed by the cost check's verification outcome id, in input order. Never summed,
+    within or across currencies. Two credited items with the same key fail loud. Nothing credited reads the
+    not-credited text."""
+    out: list[dict[str, Any]] = []
     for cost_check, outcome in items:
         got = credited(cost_check, outcome)
-        if got is not None:
-            (n, d), (m, e) = totals.get(got[1], (0, 1)), got[0]
-            totals[got[1]] = _reduced(n * e + m * d, d * e)
-    if not totals:
-        return {"state": "NOT_CREDITED", "text": MONEY_NOT_CREDITED, "amounts": []}
-    return {"state": "CREDITED", "text": None,
-            "amounts": [{"currency": c, "amount": _wire(totals[c])} for c in sorted(totals)]}
+        if got is None:
+            continue
+        key = str(cost_check.get("outcome_id") or "")
+        if not key:
+            raise ValueError("a credited cost check has no outcome id to key its value line")
+        if any(item["key"] == key for item in out):
+            raise ValueError(f"two credited results share the key {key!r}")
+        out.append({"key": key, "currency": got[1], "amount": _wire(got[0]),
+                    "basis": str(cost_check["priced_total"]["basis"])})
+    if not out:
+        return {"state": "NOT_CREDITED", "text": MONEY_NOT_CREDITED, "items": []}
+    return {"state": "CREDITED", "text": None, "items": out}
 
 
 def _wire(value: Amount) -> str:
