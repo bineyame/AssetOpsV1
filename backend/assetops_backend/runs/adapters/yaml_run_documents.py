@@ -129,7 +129,8 @@ def read_run_records(root: Path) -> tuple[SimulationRun, ...]:
 
 def load_yaml_text(text: str) -> object:
     """The run adapters' one YAML load point; `yaml.YAMLError` propagates (DIESEL-1-R3i S5-b)."""
-    return yaml.load(text, Loader=CSafeLoader)
+    document = yaml.load(text, Loader=CSafeLoader)
+    return document
 
 
 def read_run_record(path: Path) -> SimulationRun:

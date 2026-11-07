@@ -1,7 +1,7 @@
 # Review packet: K0, the operational-action bridge (DIESEL-1-R3 §9.3 + §9c.3 items 1 and 4 + §9f)
 
 Branch `task/DIESEL-K0-action-bridge`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k0`, from main `8fa9540b4`.
-USER_REVIEW_REQUIRED: no (Lab-only; the owner sees nothing new). **Not merge-ready: two stops, S5 below.**
+USER_REVIEW_REQUIRED: no (Lab-only; the owner sees nothing new). **Both S5 stops resolved by ruling DIESEL-1-R3i (build sheet §9i); see "R3i fix round" at the end. Sections below describe the pre-fix state where they say S5.**
 
 ## Commits
 - `d782fc09f`: byte-equal pins (`backend/tests/k0_byte_equal_pins.py`), the first commit, before any production edit.
@@ -98,3 +98,14 @@ A scenario-only run renders neither key, so it is byte-equal to its pre-K0 pins.
 - The two S5 rulings.
 - The EV pin seeding (deviation 1).
 - The omit rule at `parsing.py` (cause and condition renders, and the log block).
+
+## R3i fix round (ruling DIESEL-1-R3i, build sheet §9i)
+Commits: `62960e440` (fix round), plus a follow-up for the guard-shaped load line (below). Main merged in first (`0fcfae227`).
+- **S5-a:** `runs/composition.py` gains `build_operational_action_log()`. `main.py` passes `operational_actions=build_operational_action_log()` and never imports the adapter. Test 10 now drives the real `create_app(...)` (no injected router): POST of a Kisiwa run 4 naming the log returns 201, no `OPERATIONAL_ACTION_LOG_UNAVAILABLE`, readback shows the `OPERATIONAL_ACTION` rows. PASS on memory and on `assetops_k0_test`.
+- **S5-b:** `load_yaml_text(text)` in `yaml_run_documents.py` is the one load point; `read_run_record` and the action-log adapter both call it. The guard is untouched. The guard regex needs `= yaml.load(`, so the body is `document = yaml.load(...)` then `return document` (a bare `return yaml.load(...)` made the check count 0 load calls).
+- **Deviation 1:** EV pin docstring states the seeding fixes only ids K0 does not produce; pin values unchanged (S6 note cites R3i).
+- **Deviation 4:** new `test_a_run_naming_a_log_covers_every_identity_field_with_no_exclusion`.
+- **Deviation 5:** comments on UNIT and EVENT_ID_CONFLICT in `refusals.py`.
+- **Not touched:** `test_run_binds_scenario_to_site.py` (DRIFT-RB1).
+- **Results:** K0 tests (host + backend) 67 passed, 0 skipped on `assetops_k0_test`; with `test_run_setup.py` 155 passed, 0 skipped; 27 byte-equal pins pass no-DB and on DB; host `-k "kisiwa or kobo_run or k0"` 44 passed. `check-architecture.ps1` passed. Estate guard self-tests 15 passed (1390 s).
+- **check-all** (first run, before the load-line fix): 15 of 17 guards PASS; the two failures were Architecture seams and Estate self-tests, both from the load-line shape. Both re-run individually after the fix and pass; check-all was not re-run whole (about 25 min).
