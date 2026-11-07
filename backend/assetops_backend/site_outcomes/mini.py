@@ -20,7 +20,7 @@ from assetops_backend import perf, read_scope
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
-from assetops_backend.chain import refs
+from assetops_backend.chain import refs, site_chain
 from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
     MG1_MISSED, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
 from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
@@ -34,7 +34,7 @@ from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
+    OpportunityActionFact, PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
     unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
@@ -207,6 +207,17 @@ class MiniPorts:
     #: CH9-R4 F2: this Site's CH-4 opportunity items seen in `[lo, hi)` - the `opportunity_threads` read the
     #: Portfolio and Findings › Opportunities use (`chain/opportunities.py` `opportunity_items`); [] = none.
     opportunity: Callable[[datetime, datetime], Any] = lambda lo, hi: []
+    #: MB-1 (FUEL-1 MB-1-R Q1): `ChainRequest.threads(site_id)` at the request cutoff, that cutoff, and the thread
+    #: lifecycle policy (`BoardServices.thread_policy`; None when not injected); None = no chain reader (no opportunity Actions).
+    chain_threads: Callable[[], Any] = lambda: None
+
+
+@dataclass(frozen=True)
+class ChainThreads:
+    """MB-1-R Q1(c): what `MiniPorts.chain_threads` returns."""
+    rows: Mapping[str, Any]
+    k: datetime | None
+    policy: Any
 
 
 @dataclass(frozen=True)
@@ -414,6 +425,12 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     chain_actions = reads.call("action_rows", ports.action_rows) if action_rows else ()
     findings = _findings(heads or (), placements, c, start, end, work_lo)
     actions, has_change, missing_rows = _actions(reads, ports, action_rows or (), chain_actions, c, site_timezone)
+    # MB-1-R §2.3: the opportunity-origin domain Actions (the mill) of the work window as of the cutoff; a failed
+    # read is recorded by `Reads` (PARTIAL) and lists no mill, never a "0" claim.
+    ct = reads.call("chain_threads", ports.chain_threads)
+    opp = () if ct is None else tuple(
+        OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"])
+        for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
     # CH5a1-R Q2: `base` = the source gate, the settled board day and a dispatch read (CLOSED was the gate).
@@ -456,7 +473,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
-                        "action_facts" in reads.failed or action_rows is None, no_run),
+                        "action_facts" in reads.failed or action_rows is None, no_run, opp),
     }
     options = {GROW: (Option(OPTION_WHAT_IF, refs.site_ref(c, "financial_scenarios")),),
                COST: tuple(o for o in (
@@ -472,7 +489,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     priced = money_head is not None and money_head.priced
     zero = priced and _is_zero(money.get("amount_high"))  # §1.1: amount_low is pinned to 0 by the schema
     avoidable, _ = _dispatch_minutes(dispatch)
-    verified = sum(1 for a in actions if a.verification_state == "VERIFIED")
+    verified = (sum(1 for a in actions if a.verification_state == "VERIFIED")
+                + sum(1 for o in opp if o.outcome == "VERIFIED"))
     headline = {GROW: f"{lo_kw}–{hi_kw} kW of daytime solar unused" if lo_kw and hi_kw else None,
                 COST: (COST_ZERO if zero else COST_MONEY if priced else COST_NO_MONEY)
                 if read_ok else None,
@@ -522,7 +540,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       finding_gaps=finding_gap_line(day_facts, FINDING_WINDOW_DAYS), readings=readings,
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
-                      work_window=(work_lo, end))  # WALK1-3b §A2.3: (a), then (b), then (c)
+                      work_window=(work_lo, end),  # WALK1-3b §A2.3: (a), then (b), then (c)
+                      opportunity_actions=opp)
     suffix = "" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -972,14 +991,26 @@ def _is_zero(value: Any) -> bool:
 
 
 def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bool, readiness: Any, rc: Any,
-            limitations: list[str], actions_failed: bool, no_run: bool = False) -> tuple[Contributor, ...]:
+            limitations: list[str], actions_failed: bool, no_run: bool = False,
+            opp: tuple[OpportunityActionFact, ...] = ()) -> tuple[Contributor, ...]:
+    # MOCK DEVIATION MD-FUEL-MB1-1: v69 lists verified Actions under Assure "Verified results", each opening its
+    # Action. The mill has no Action page (v70 D1), so its entry opens the verdict page (DOMAIN_VERDICT), as the chain
+    # wire already does (DD1b2-R6 O1). MB-1-R §2.3: trials and opportunity Actions are one list in code order.
     out: list[Contributor] = []
     mine = sorted((a for a in actions if not a.is_domain), key=lambda a: (a.code or "", a.action_id))
-    if actions_failed and not mine:
+    merged: list[ActionFact | OpportunityActionFact] = sorted(
+        [*mine, *opp], key=lambda a: (a.code or "", a.action_id))
+    if actions_failed and not merged:
         out.append(not_available("verified_results", "Verified results"))
-    elif not mine:
+    elif not merged:
         out.append(Contributor("verified_results", "Verified results", NO_VERIFIED))
-    for a in mine:
+    for a in merged:
+        if isinstance(a, OpportunityActionFact):
+            s = a.outcome if a.outcome in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE") else "PENDING"
+            out.append(Contributor("verified_results", "Verified results",
+                                   VERIFICATION_TEXT[s].format(code=display_code(a.code), suffix=provenance_suffix(None)),
+                                   PENDING_CHIP if s == "PENDING" else None, a.verdict_ref))
+            continue
         state = a.verification_state
         text = VERIFICATION_TEXT.get(state or "", None)
         cc = a.cost_check or {}

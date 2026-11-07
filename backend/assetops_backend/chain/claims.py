@@ -9,7 +9,10 @@ equal scope, window and cutoff give equal claims by construction; COH-17 checks 
 - Threads: `site_chain.threads_of` restricted to threads with a **Finding** occurrence whose episode meets `[lo, hi)`
   (no event-only, no opportunity-only thread), read on `window_day` at the request cutoff `k` (`lifecycle_cutoff`, CH6b2-R2; was `site_cutoff`: mini ->
   the request's `k`; cold/EV -> the Site's evidence cutoff bounded by `k`), classified by `threads.classify`.
-- `count.open_threads` = open + in hand, `count.verified_results` = verified, `count.opportunities` = the CH-4 item
+  MB-1-R (R3): plus `verified_actions`, the opportunity-origin domain Actions verified as known at `k` whose thread
+  has an opportunity occurrence meeting `[lo, hi)` (`site_chain.opportunity_actions`), counted per Action and never
+  twice for a thread already counted; a later RECURRED does not remove one (the count reads the outcome).
+- `count.open_threads` = open + in hand, `count.verified_results` = verified + verified_actions, `count.opportunities` = the CH-4 item
   count (`opportunity_items`, the one read `/estate/chain` lists). A failed read is a null value (NOT_KNOWN).
 
 Pure apart from the `ChainRequest` reads and the injected opportunity port.
@@ -44,7 +47,7 @@ class EstateCounts:
 
     claims: Mapping[str, Claim]
     days: Mapping[str, Any]          # site_code -> GradeCounts | None
-    threads: Mapping[str, Any]       # site_code -> {"open", "in_hand", "verified"} | None
+    threads: Mapping[str, Any]       # site_code -> {"open", "in_hand", "verified", "verified_actions"} | None
     #: CH6b2-R Q2: site_code -> the Site's disrupting threads (None: the read failed); the card's "Why?" names them.
     disrupted: Mapping[str, Any] = field(default_factory=dict)
 
@@ -83,6 +86,15 @@ def counted_threads(req: Any, site: Any, lo: datetime, hi: datetime) -> list[dic
     threads = site_chain.threads_of(rows, site=site.site_code, domain=site.domain, tz=site.timezone, lo=lo, hi=hi,
                                     day=LATEST_KNOWN, cutoff=cutoff)
     return [t for t in threads if t["id"] in wanted]
+
+
+def verified_actions(req: Any, site: Any, lo: datetime, hi: datetime, counted: set[str]) -> list[dict[str, Any]]:
+    """MB-1-R (R3): the Site's opportunity-origin domain Actions verified as known at `k` whose thread has an
+    opportunity occurrence meeting `[lo, hi)`, counted per Action; an Action on a thread already counted (`counted`
+    thread ids) is not counted again."""
+    acts = site_chain.opportunity_actions(req.threads(site.site_id), site=site.site_code, tz=site.timezone,
+                                          cutoff=lifecycle_cutoff(req.k), lo=lo, hi=hi)
+    return [a for a in acts if a["outcome"] == "VERIFIED" and a["thread_id"] not in counted]
 
 
 def site_thread_states(req: Any, site: Any, lo: datetime, hi: datetime) -> list[str | None]:
@@ -130,7 +142,9 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
             days[site.site_code] = None
         try:
             counted = counted_threads(req, site, lo, hi)
-            threads[site.site_code] = classify(t["state"] for t in counted)
+            threads[site.site_code] = {**classify(t["state"] for t in counted),
+                                       "verified_actions": len(verified_actions(req, site, lo, hi,
+                                                                                {t["id"] for t in counted}))}
             disrupted[site.site_code] = disrupting(counted)
         except unavailable:
             threads[site.site_code] = disrupted[site.site_code] = None
@@ -138,7 +152,7 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
     per = list(threads.values())
     known = all(t is not None for t in per)
     open_n = sum(t["open"] + t["in_hand"] for t in per) if known else None
-    verified_n = sum(t["verified"] for t in per) if known else None
+    verified_n = sum(t["verified"] + t["verified_actions"] for t in per) if known else None
     opp_n = None if opportunities is None else len(opportunities)
     disrupted_n = sum(1 for t in disrupted.values() if t) if known else None
     claims = {OPEN_THREADS: count_claim(OPEN_THREADS, open_n, summed),

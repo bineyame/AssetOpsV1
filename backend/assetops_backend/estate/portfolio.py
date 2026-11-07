@@ -669,13 +669,19 @@ def card_notes(summary: dict[str, Any], authorized: int,
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """CH-3 §5 (OD-3 / AG-24), CH3-R: the sum per currency of credited amounts (a stored, priced, positive total on
-    a MODELLED_IMPROVEMENT cost check of a VERIFIED outcome), or "No money credited · modelled, not saved". The
-    per-kWh rate is never summed; no priced total is stored today, so this reads not credited."""
+    """CH-3 §5 (OD-3 / AG-24), CH3-R, FUEL-1 A2: one item per credited result (a stored, priced, positive total on
+    a MODELLED_IMPROVEMENT cost check of a VERIFIED outcome), keyed by its verification outcome id and never summed,
+    or "No money credited · modelled, not saved". The per-kWh rate is never summed. The estate `cost_checks` port
+    reads state and currency only (no priced total), so this still reads not credited (PV-1 owns the value lines)."""
     port = getattr(snap, "cost_checks", None)
     ids = [str(a["_raw"]["_outcome_id"]) for a in a_rows if a["_raw"].get("_outcome_id") is not None]
     checks = port(tenant_id, ids) if port is not None and ids else {}
-    return recovered_value([(checks.get(str(a["_raw"].get("_outcome_id")).lower()), a.get("verification_outcome"))
+
+    def check(outcome_id: str) -> dict[str, Any] | None:
+        found = checks.get(outcome_id.lower())
+        return None if found is None else {**found, "outcome_id": outcome_id.lower()}
+
+    return recovered_value([(check(str(a["_raw"]["_outcome_id"])), a.get("verification_outcome"))
                             for a in a_rows if a["_raw"].get("_outcome_id") is not None])
 
 

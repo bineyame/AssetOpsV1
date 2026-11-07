@@ -369,6 +369,8 @@ def reserve_at_slots(starts: list[datetime], reserves: Iterable[ReserveValue]) -
 # --------------------------------------------------------------------------- window evidence
 
 _SINGLE_POWER_ROLES = ("generator_power", "pcs_discharge_capability", "pv_available_power")
+#: FUEL-1 A2: the sampled `generator_state` values that mean running (`analytics.dispatch.RUNNING_STATES`)
+RUNNING_STATES = frozenset({"RUNNING"})
 
 
 def _by_role_asset(readings: list[Reading], role: str, asset_id: str | None) -> list[Reading]:
@@ -431,12 +433,15 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
     feeder_total: Fraction | None = Fraction(0) if loads else None
     pv_total: Fraction | None = Fraction(0)
     gen_total: Fraction | None = Fraction(0)  # OUT-E E2: outside `plan_sha256` and the stored `details`
+    # FUEL-1 A2: generator RUNNING seconds at exactly 0 kWh; the same exclusion as `gen_total`
+    idle_total: int | None = 0
     unserved_total: Fraction | None = Fraction(0)
     below_total: int | None = 0
     slot_complete = True
     for t in starts:
         row: dict[str, Any] = {"slot_start": _iso(t), "slot_end": _iso(t + SLOT)}
         known = True
+        slot_gen_kwh: Fraction | None = None
         for role in _SINGLE_POWER_ROLES:
             asset = single_assets[role]
             row[role], kwh = power(role, asset, t)
@@ -445,6 +450,7 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
                 pv_total = None if kwh is None or pv_total is None else pv_total + kwh
             if role == "generator_power":
                 gen_total = None if kwh is None or gen_total is None else gen_total + kwh
+                slot_gen_kwh = kwh
         feeder: dict[str, dict] = {}
         slot_feeder: Fraction | None = Fraction(0) if loads else None
         for asset in loads:
@@ -478,6 +484,11 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         evidence.update(gen["evidence_ids"])
         row["generator_state"] = gen
         known &= gen_value is not None
+        # A2: a slot whose state or generator kWh is unknown leaves the idle seconds unknown (it may be idle)
+        if gen_value is None or slot_gen_kwh is None or idle_total is None:
+            idle_total = None
+        elif gen_value in RUNNING_STATES and slot_gen_kwh == 0:
+            idle_total += int(SLOT.total_seconds())
 
         if single_assets["battery_soc"] is None:
             soc, soc_value = {"at": _iso(t), "state": "UNKNOWN", "value": None, "evidence_ids": [],
@@ -526,6 +537,7 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         "feeder_demand_kwh": fmt(feeder_total),
         "pv_available_kwh": fmt(pv_total),
         "generator_kwh": fmt(gen_total),
+        "generator_idle_seconds": idle_total,
         "unserved_critical_kwh": fmt(unserved_total),
         "below_reserve_seconds": below_total,
         "initial_soc": initial,

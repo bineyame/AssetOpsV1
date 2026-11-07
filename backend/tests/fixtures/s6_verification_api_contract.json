@@ -1844,6 +1844,7 @@
     "cost_check": {
      "currency": null,
      "nominal": null,
+     "priced_total": null,
      "reason": "PRICE_MISSING",
      "recorded_at": "2026-11-02T12:00:00+00:00",
      "state": "UNAVAILABLE",
@@ -3296,6 +3297,7 @@
       "test-scoped-20261006T0800-108"
      ],
      "feeder_demand_kwh": "20",
+     "generator_idle_seconds": 0,
      "generator_kwh": "20",
      "guardrail_basis": "FIVE_MINUTE_SAMPLED",
      "guardrail_label": "five-minute sampled guardrail, not continuous physical SOC proof",
@@ -4701,6 +4703,7 @@
       "test-scoped-20261102T0800-108"
      ],
      "feeder_demand_kwh": "20",
+     "generator_idle_seconds": 0,
      "generator_kwh": "20",
      "guardrail_basis": "FIVE_MINUTE_SAMPLED",
      "guardrail_label": "five-minute sampled guardrail, not continuous physical SOC proof",

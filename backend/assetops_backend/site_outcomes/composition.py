@@ -15,7 +15,7 @@ from uuid import UUID
 from assetops_backend.actions.lifecycle import selector
 from assetops_backend.actions.site_index import parse_request as parse_action_index
 from assetops_backend.actions.verification import VerificationService
-from assetops_backend.chain.composition import build_chain_reader, build_thread_sources
+from assetops_backend.chain.composition import build_chain_reader, build_thread_sources, thread_lifecycle_policy
 from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.finding_api import ACCESS_BASIS
 from assetops_backend.objectives.composition import build_objective_store
@@ -80,7 +80,8 @@ def build_outcome_board_service(
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
         work_access_basis=ACCESS_BASIS, objectives=objectives,
-        threads=threads, chain_reader=chain_reader)
+        threads=threads, chain_reader=chain_reader,
+        thread_policy=thread_lifecycle_policy)
 
     def dispose() -> None:
         if global_work is not None:

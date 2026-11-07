@@ -86,6 +86,9 @@ COST_REASON_WORDS = {
     "ZERO_DEMAND": "an hour had no demand",
     "SFC_MISSING": "the generator fuel rate is not recorded",
     "SFC_DIFFERS": "the generator fuel rate differs between the hours",
+    # FUEL-1 A2 (A2-R1): words for the two /2 reasons
+    "IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for one or both hours",
+    "NO_LOAD_RATE_DIFFERS": "the generator's idle fuel rate differs between the hours",
     "PRICE_MISSING": "no diesel price covers both hours",
     "PRICE_BASIS_DIFFERS": "the two hours were priced from different diesel price records",
 }
@@ -176,6 +179,17 @@ class ActionFact:
     thread_id: str | None = None                  # CH-2: the Action's `chain_action.thread_id`; None = not linked
     segment_no: int | None = None                 # CH-3 §3: the Action's thread segment; None = not linked
     source_class: str | None = None               # CH5a2-R R2: the verified outcome's stored source class
+
+
+@dataclass(frozen=True)
+class OpportunityActionFact:
+    """MB-1-R: an opportunity-origin domain Action on a mini board (the mill); never in `actions`, so In hand and
+    Earlier are unchanged (R4)."""
+    action_id: str
+    code: str | None
+    thread_id: str
+    outcome: str | None                 # VERIFIED | INEFFECTIVE | INCONCLUSIVE known by the cutoff; None = not judged
+    verdict_ref: Mapping[str, Any]      # the DOMAIN_VERDICT Ref (`site_chain.action_wire_ref`)
 
 
 @dataclass(frozen=True)
@@ -291,6 +305,8 @@ class SiteFacts:
     #: The Grow money is now the earnings claim, which stays null while the days are not all known, so it can no
     #: longer stand for "a tariff exists".
     ev_priced: bool | None = None
+    #: MB-1-R §2.3: the board's opportunity-origin domain Actions (the mill), apart from `actions` (R4).
+    opportunity_actions: tuple[OpportunityActionFact, ...] = ()
 
 
 # ---------------------------------------------------------------- helpers

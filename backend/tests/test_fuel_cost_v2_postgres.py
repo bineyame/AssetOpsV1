@@ -91,6 +91,28 @@ class TestStoreRoundTrip:
         assert (model["no_load_fuel_rate_l_per_h"], model["no_load_fuel_rate_basis"], model["idle_seconds"]) == (
             "3.3", "GENERIC_DEFAULT", 0)
 
+    def test_stored_fuel_cost_2_head_reads_current(self, v2site, engine) -> None:  # noqa: F811
+        """A1 review L1 (closed in A2): a stored fuel-cost-2 head re-derives to the same basis through both
+        `ConsequenceReadService` currentness paths (`read` and `select_consequence_on`), so it reads CURRENT, not
+        STALE / TECHNICAL_INPUT_CHANGED. Reverting either path to `fuel_cost.quantify` fails this test."""
+        from money_gate_stub import AUTHORED, ELIGIBLE
+
+        site = v2site
+        site.publish("v1", "v2", "v3")
+        rev = site.on(POWER_DAY)
+        c = _derive(site, rev)
+        assert fc2.is_v2(c.quantity)
+        site.store.append(c)
+        reads = cr.ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE, provenance=AUTHORED)
+        body = reads.read(site.tenant, site.site, rev["finding_id"], rev["id"], finding_revision_is_latest=True,
+                          source_open=True)
+        assert (body["currentness"]["state"], body["currentness"]["reasons"]) == ("CURRENT", [])
+        assert body["consequence"]["model"]["model_id"] == "fuel-cost-2"
+        with engine.connect() as conn:
+            known_at = conn.execute(text("SELECT clock_timestamp()")).scalar_one()
+            on = reads.select_consequence_on(conn, site.tenant, site.site, rev["id"], known_at)
+        assert on["currentness"] == {"state": "CURRENT", "reasons": []}
+
     def test_idle_intervals_are_counted_at_the_declared_rate(self, v2site) -> None:
         """The same persisted Finding, with two of its five counted means read as 0 kW in memory, so the store
         writes an idle fuel-cost-2 consequence: 3 x 20 kW x 5 min x 0.3 + 2 x 5 min x 3.3, all x 1.10."""
@@ -162,7 +184,8 @@ class TestMigration0053:
         from alembic.script import ScriptDirectory
 
         script = ScriptDirectory.from_config(_alembic())
-        assert script.get_heads() == [MIGRATION] == [alembic_head()] and head(engine) == MIGRATION
+        # DIESEL-K2: 0054 follows 0053, so the single head is the repository head, no longer 0053 itself.
+        assert script.get_heads() == [alembic_head()] and head(engine) == alembic_head()
         assert script.get_revision(MIGRATION).down_revision == PREVIOUS
         with engine.connect() as c:
             defs = dict(c.execute(text(
@@ -185,7 +208,7 @@ class TestMigration0053:
         engine.dispose()
         with pytest.raises(Exception, match="0053 downgrade refused: fuel-cost-2"):
             command.downgrade(config, PREVIOUS)
-        assert head(engine) == MIGRATION
+        assert head(engine) == alembic_head()
 
     def test_empty_downgrade_restores_0011_and_0037(self, store, engine) -> None:  # noqa: F811
         from alembic import command
@@ -217,6 +240,6 @@ class TestMigration0053:
             assert "NO_LOAD_RATE_DIFFERS" not in defs_down["trial_cost_comparison_revision_reason_check"]
             command.upgrade(config, "head")
         finally:
-            if head(engine) != MIGRATION:
+            if head(engine) != alembic_head():
                 command.upgrade(config, "head")
         assert shape() == (cols_up, defs_up)

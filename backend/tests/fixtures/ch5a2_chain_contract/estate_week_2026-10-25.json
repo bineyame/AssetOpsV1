@@ -342,7 +342,8 @@
    "threads": {
     "in_hand": 1,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   },
   {
@@ -450,7 +451,8 @@
    "threads": {
     "in_hand": 0,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   },
   {
@@ -598,7 +600,8 @@
    "threads": {
     "in_hand": 0,
     "open": 0,
-    "verified": 0
+    "verified": 0,
+    "verified_actions": 0
    }
   }
  ],
