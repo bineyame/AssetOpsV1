@@ -1,0 +1,888 @@
+{
+ "db": "assetops_demo3_dd1b2q_test",
+ "last_day": "2026-10-21",
+ "read_only": true,
+ "heads": {
+  "days": [
+   "2026-10-17",
+   "2026-10-18",
+   "2026-10-19",
+   "2026-10-20",
+   "2026-10-21"
+  ],
+  "hours_per_day": {
+   "2026-10-17": 12,
+   "2026-10-18": 12,
+   "2026-10-19": 12,
+   "2026-10-20": 12,
+   "2026-10-21": 12
+  },
+  "present": 60,
+  "missing": 0,
+  "evidence_ids": 8935
+ },
+ "resolver": {
+  "state": "MIXED",
+  "worker_classification": "MIXED",
+  "reason_codes": [
+   "MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS"
+  ],
+  "reasons": [
+   {
+    "code": "MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS",
+    "run_ids": [
+     "run-2810f774a5f2464bb2df910ddce30259",
+     "run-381a577681a9421786bf39f1b5e771d1",
+     "run-4072da8a24244f59af29af6439a0ea9d",
+     "run-48c1888e107e46f0a69f7ae6df08d492",
+     "run-598b9ff36eb4466389d7a01e7ee68096",
+     "run-7704990287284f62a4bc348fac9c2643",
+     "run-77233ab356ce4b778c53e0728657fb3b",
+     "run-a6f884a4f20640b4a692dc86befb37fd",
+     "run-d15c955c261443e0ac811aa4ab5f4aa7",
+     "run-de27fa78632644ff9c7103858001a670"
+    ],
+    "accepted_evidence_id_count": 8935
+   }
+  ]
+ },
+ "foundation_revision_rows": [
+  {
+   "row": {
+    "id": "c89d1a93-817a-40d8-a29f-72ea05175ac0",
+    "origin": "PUBLISH",
+    "content": {
+     "devices": [
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "ac-power",
+         "display_name": "AC output power"
+        },
+        {
+         "unit": "kW",
+         "signal_id": "available-power",
+         "display_name": "PV available power (simulated capability)"
+        }
+       ],
+       "device_id": "pv-inverter-controller",
+       "device_type": "CONTROLLER",
+       "component_id": "pv-inverter",
+       "display_name": "PV inverter controller"
+      },
+      {
+       "signals": [
+        {
+         "unit": "W/m2",
+         "signal_id": "irradiance",
+         "display_name": "Plane-of-array irradiance"
+        }
+       ],
+       "device_id": "pv-irradiance-sensor",
+       "device_type": "SENSOR",
+       "component_id": "pv-array",
+       "display_name": "Plane-of-array irradiance sensor"
+      },
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "ac-power",
+         "display_name": "AC power at the PCS"
+        },
+        {
+         "unit": "%",
+         "signal_id": "state-of-charge",
+         "display_name": "Battery state of charge"
+        },
+        {
+         "unit": "kW",
+         "signal_id": "discharge-capability",
+         "display_name": "PCS discharge capability (simulated capability)"
+        },
+        {
+         "unit": "kW",
+         "signal_id": "charge-requested-power",
+         "display_name": "Battery charge requested power (simulated)"
+        }
+       ],
+       "device_id": "battery-pcs-controller",
+       "device_type": "CONTROLLER",
+       "component_id": "battery-pcs",
+       "display_name": "Battery PCS controller"
+      },
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "ac-power",
+         "display_name": "Generator output power"
+        },
+        {
+         "unit": "state",
+         "signal_id": "status",
+         "display_name": "Generator status"
+        }
+       ],
+       "device_id": "generator-controller",
+       "device_type": "CONTROLLER",
+       "component_id": "generator",
+       "display_name": "Generator controller"
+      },
+      {
+       "signals": [
+        {
+         "unit": "L",
+         "signal_id": "fuel-level",
+         "display_name": "Fuel level"
+        }
+       ],
+       "device_id": "fuel-level-sensor",
+       "device_type": "SENSOR",
+       "component_id": "fuel-tank",
+       "display_name": "Fuel level sensor"
+      },
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "active-power",
+         "display_name": "Active power to the residential feeder"
+        }
+       ],
+       "device_id": "residential-meter",
+       "device_type": "METER",
+       "component_id": "load-res",
+       "display_name": "Residential feeder meter"
+      },
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "active-power",
+         "display_name": "Active power to the clinic"
+        },
+        {
+         "unit": "kW",
+         "signal_id": "requested-power",
+         "display_name": "Clinic requested power (simulated critical load)"
+        },
+        {
+         "unit": "kW",
+         "signal_id": "delivered-power",
+         "display_name": "Clinic delivered power (simulated critical load)"
+        }
+       ],
+       "device_id": "clinic-meter",
+       "device_type": "METER",
+       "component_id": "load-clinic",
+       "display_name": "Clinic meter"
+      },
+      {
+       "signals": [
+        {
+         "unit": "kW",
+         "signal_id": "active-power",
+         "display_name": "Active power to the mill"
+        }
+       ],
+       "device_id": "mill-meter",
+       "device_type": "METER",
+       "component_id": "load-mill",
+       "display_name": "Mill meter"
+      }
+     ],
+     "summary": "Village solar-plus-storage mini-grid with a diesel generator for backup, serving a residential feeder, a health clinic and a grain mill as three separately metered loads. Declares design ratings, typed physical and control properties, typed Site Controls for source and critical-load priority, the electrical topology, the configured devices and signals, the device-to-signal mappings, and the operating assumptions the archetype makes.",
+     "topology": {
+      "nodes": [
+       {
+        "node_id": "pv-array",
+        "node_role": "GENERATION",
+        "component_id": "pv-array"
+       },
+       {
+        "node_id": "pv-inverter",
+        "node_role": "CONVERSION",
+        "component_id": "pv-inverter"
+       },
+       {
+        "node_id": "battery",
+        "node_role": "STORAGE",
+        "component_id": "battery"
+       },
+       {
+        "node_id": "battery-pcs",
+        "node_role": "CONVERSION",
+        "component_id": "battery-pcs"
+       },
+       {
+        "node_id": "generator",
+        "node_role": "GENERATION",
+        "component_id": "generator"
+       },
+       {
+        "node_id": "fuel-tank",
+        "node_role": "FUEL_STORAGE",
+        "component_id": "fuel-tank"
+       },
+       {
+        "node_id": "ac-bus",
+        "node_role": "BUS",
+        "component_id": "ac-bus"
+       },
+       {
+        "node_id": "load-res",
+        "node_role": "LOAD",
+        "component_id": "load-res"
+       },
+       {
+        "node_id": "load-clinic",
+        "node_role": "LOAD",
+        "component_id": "load-clinic"
+       },
+       {
+        "node_id": "load-mill",
+        "node_role": "LOAD",
+        "component_id": "load-mill"
+       }
+      ],
+      "connections": [
+       {
+        "medium": "DC",
+        "to_node": "pv-inverter",
+        "from_node": "pv-array",
+        "connection_id": "pv-array-to-inverter"
+       },
+       {
+        "medium": "AC",
+        "to_node": "ac-bus",
+        "from_node": "pv-inverter",
+        "connection_id": "pv-inverter-to-bus"
+       },
+       {
+        "medium": "DC",
+        "to_node": "battery-pcs",
+        "from_node": "battery",
+        "connection_id": "battery-to-pcs"
+       },
+       {
+        "medium": "AC",
+        "to_node": "ac-bus",
+        "from_node": "battery-pcs",
+        "connection_id": "pcs-to-bus"
+       },
+       {
+        "medium": "FUEL",
+        "to_node": "generator",
+        "from_node": "fuel-tank",
+        "connection_id": "fuel-tank-to-generator"
+       },
+       {
+        "medium": "AC",
+        "to_node": "ac-bus",
+        "from_node": "generator",
+        "connection_id": "generator-to-bus"
+       },
+       {
+        "medium": "AC",
+        "to_node": "load-res",
+        "from_node": "ac-bus",
+        "connection_id": "bus-to-residential"
+       },
+       {
+        "medium": "AC",
+        "to_node": "load-clinic",
+        "from_node": "ac-bus",
+        "connection_id": "bus-to-clinic"
+       },
+       {
+        "medium": "AC",
+        "to_node": "load-mill",
+        "from_node": "ac-bus",
+        "connection_id": "bus-to-mill"
+       }
+      ]
+     },
+     "components": [
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 60.0
+       },
+       "properties": [
+        {
+         "unit": "kW",
+         "value": 60.0,
+         "source": "TEMPLATE",
+         "property_key": "pv-rated-power",
+         "source_version": 1
+        }
+       ],
+       "component_id": "pv-array",
+       "display_name": "PV array",
+       "component_type": "PV_ARRAY"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 50.0
+       },
+       "properties": [
+        {
+         "unit": "kW",
+         "value": 50.0,
+         "source": "TEMPLATE",
+         "property_key": "inverter-ac-limit",
+         "source_version": 1
+        },
+        {
+         "unit": "kW",
+         "value": 3,
+         "source": "SITE",
+         "property_key": "pv-available-uncertainty",
+         "source_version": 1
+        }
+       ],
+       "component_id": "pv-inverter",
+       "display_name": "PV inverter",
+       "component_type": "INVERTER"
+      },
+      {
+       "rating": {
+        "unit": "kWh",
+        "value": 200.0
+       },
+       "properties": [
+        {
+         "unit": "kWh",
+         "value": 200.0,
+         "source": "TEMPLATE",
+         "property_key": "battery-energy-capacity",
+         "source_version": 1
+        },
+        {
+         "unit": "%",
+         "value": 30.0,
+         "source": "TEMPLATE",
+         "property_key": "reserve-state-of-charge",
+         "source_version": 1
+        }
+       ],
+       "component_id": "battery",
+       "display_name": "Battery energy storage",
+       "component_type": "BATTERY"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 30.0
+       },
+       "properties": [
+        {
+         "unit": "kW",
+         "value": 30.0,
+         "source": "TEMPLATE",
+         "property_key": "pcs-charge-limit",
+         "source_version": 1
+        },
+        {
+         "unit": "kW",
+         "value": 30.0,
+         "source": "TEMPLATE",
+         "property_key": "pcs-discharge-limit",
+         "source_version": 1
+        },
+        {
+         "unit": "%",
+         "value": 95.0,
+         "source": "TEMPLATE",
+         "property_key": "pcs-conversion-efficiency",
+         "source_version": 1
+        }
+       ],
+       "component_id": "battery-pcs",
+       "display_name": "Battery power conversion system",
+       "component_type": "POWER_CONVERSION_SYSTEM"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 40.0
+       },
+       "properties": [
+        {
+         "unit": "L/kWh",
+         "value": 0.3,
+         "source": "TEMPLATE",
+         "property_key": "specific-fuel-consumption",
+         "source_version": 1
+        },
+        {
+         "unit": "min",
+         "value": 30.0,
+         "source": "TEMPLATE",
+         "property_key": "minimum-runtime",
+         "source_version": 1
+        },
+        {
+         "unit": "kW",
+         "value": 40,
+         "source": "TEMPLATE",
+         "property_key": "generator-rated-power",
+         "source_version": 2
+        },
+        {
+         "unit": "%",
+         "value": 35,
+         "source": "TEMPLATE",
+         "property_key": "start-soc-threshold",
+         "source_version": 2
+        },
+        {
+         "unit": "%",
+         "value": 90,
+         "source": "TEMPLATE",
+         "property_key": "stop-soc-threshold",
+         "source_version": 2
+        },
+        {
+         "unit": "min",
+         "value": 5,
+         "source": "TEMPLATE",
+         "property_key": "start-delay",
+         "source_version": 2
+        }
+       ],
+       "component_id": "generator",
+       "display_name": "Diesel generator",
+       "component_type": "GENERATOR"
+      },
+      {
+       "rating": {
+        "unit": "L",
+        "value": 400.0
+       },
+       "properties": [
+        {
+         "unit": "L",
+         "value": 400.0,
+         "source": "TEMPLATE",
+         "property_key": "tank-capacity",
+         "source_version": 1
+        }
+       ],
+       "component_id": "fuel-tank",
+       "display_name": "Generator fuel tank",
+       "component_type": "FUEL_TANK"
+      },
+      {
+       "rating": {
+        "unit": "V",
+        "value": 400.0
+       },
+       "properties": [
+        {
+         "unit": "kW",
+         "value": 5,
+         "source": "SITE",
+         "property_key": "renewable-retained-margin",
+         "source_version": 1
+        }
+       ],
+       "component_id": "ac-bus",
+       "display_name": "AC bus",
+       "component_type": "AC_BUS"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 25.0
+       },
+       "properties": [
+        {
+         "unit": "state",
+         "value": "HOUSEHOLD",
+         "source": "SITE",
+         "property_key": "supply-use",
+         "source_version": 1
+        }
+       ],
+       "component_id": "load-res",
+       "display_name": "Residential feeder",
+       "component_type": "LOAD"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 10.0
+       },
+       "properties": [
+        {
+         "unit": "state",
+         "value": "ESSENTIAL_SERVICE",
+         "source": "SITE",
+         "property_key": "supply-use",
+         "source_version": 1
+        }
+       ],
+       "component_id": "load-clinic",
+       "display_name": "Health clinic",
+       "component_type": "LOAD"
+      },
+      {
+       "rating": {
+        "unit": "kW",
+        "value": 40.0
+       },
+       "properties": [
+        {
+         "unit": "state",
+         "value": "PRODUCTIVE",
+         "source": "SITE",
+         "property_key": "supply-use",
+         "source_version": 1
+        }
+       ],
+       "component_id": "load-mill",
+       "display_name": "Grain mill",
+       "component_type": "LOAD"
+      }
+     ],
+     "site_controls": [
+      {
+       "source": "TEMPLATE",
+       "members": [
+        "pv-array",
+        "battery",
+        "generator"
+       ],
+       "control_key": "source-priority",
+       "source_version": 1
+      },
+      {
+       "source": "TEMPLATE",
+       "members": [
+        "load-clinic",
+        "load-res",
+        "load-mill"
+       ],
+       "control_key": "critical-load-priority",
+       "source_version": 1
+      }
+     ],
+     "signal_mappings": [
+      {
+       "device_id": "pv-inverter-controller",
+       "signal_id": "ac-power",
+       "mapping_id": "pv-inverter-ac-power",
+       "component_id": "pv-inverter"
+      },
+      {
+       "device_id": "pv-irradiance-sensor",
+       "signal_id": "irradiance",
+       "mapping_id": "pv-array-irradiance",
+       "component_id": "pv-array"
+      },
+      {
+       "device_id": "battery-pcs-controller",
+       "signal_id": "ac-power",
+       "mapping_id": "battery-pcs-ac-power",
+       "component_id": "battery-pcs"
+      },
+      {
+       "device_id": "battery-pcs-controller",
+       "signal_id": "state-of-charge",
+       "mapping_id": "battery-state-of-charge",
+       "component_id": "battery"
+      },
+      {
+       "device_id": "generator-controller",
+       "signal_id": "ac-power",
+       "mapping_id": "generator-ac-power",
+       "component_id": "generator"
+      },
+      {
+       "device_id": "fuel-level-sensor",
+       "signal_id": "fuel-level",
+       "mapping_id": "fuel-tank-level",
+       "component_id": "fuel-tank"
+      },
+      {
+       "device_id": "residential-meter",
+       "signal_id": "active-power",
+       "mapping_id": "residential-active-power",
+       "component_id": "load-res"
+      },
+      {
+       "device_id": "clinic-meter",
+       "signal_id": "active-power",
+       "mapping_id": "clinic-active-power",
+       "component_id": "load-clinic"
+      },
+      {
+       "device_id": "mill-meter",
+       "signal_id": "active-power",
+       "mapping_id": "mill-active-power",
+       "component_id": "load-mill"
+      }
+     ],
+     "control_assumptions": [
+      {
+       "basis": "TEMPLATE",
+       "statement": "The archetype assumes photovoltaic output is consumed or stored before the diesel generator is called on. This is a declared assumption about intended operation; the typed source-priority Site Control is what a controller reads.",
+       "component_id": null,
+       "display_name": "Solar is dispatched before the generator",
+       "assumption_id": "solar-first-dispatch"
+      },
+      {
+       "basis": "TEMPLATE",
+       "statement": "The archetype assumes the clinic keeps supply when nothing else can. The typed critical-load-priority Site Control is what a controller reads; this sentence is documentation of the intent.",
+       "component_id": "load-clinic",
+       "display_name": "The clinic is protected first",
+       "assumption_id": "clinic-protected"
+      }
+     ]
+    },
+    "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+    "version": 15,
+    "valid_to": null,
+    "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+    "valid_from": "2026-10-07T11:27:00+00:00",
+    "change_note": "Declared channel signal(s) battery-pcs-controller / charge-requested-power with their bindings",
+    "recorded_at": "2026-10-07T11:30:00+00:00",
+    "superseded_at": "2026-11-05T14:00:00+00:00",
+    "content_sha256": "a496ca6513638156aa1ec28aa6fc5a13bceea5a262b9210d3f1ae681f6bee7c2",
+    "schema_version": 1,
+    "derived_from_revision_id": "2df51aab-510c-4bef-96e0-560b520cd844"
+   }
+  }
+ ],
+ "binding_set_revision_rows": [
+  {
+   "row": {
+    "id": "3b1bce20-c686-4ac9-8818-fe7a1c5daf92",
+    "origin": "PUBLISH",
+    "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+    "version": 14,
+    "role_set": "minigrid-roles-4",
+    "valid_to": null,
+    "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+    "gateway_id": "ead5eceb-2bb4-4178-86b5-95c48f0c0452",
+    "valid_from": "2026-10-07T11:27:00+00:00",
+    "change_note": "WALK1-4 simulated demo configuration (kobo-minigrid-roles-4-demo-config-v1): every minigrid-roles-3 binding carried unchanged, plus the battery converter's charge request (registered-kobo-publication v5, mini-grid v6) bound to storage_charge_requested_power on the battery.",
+    "recorded_at": "2026-10-07T11:30:00+00:00",
+    "superseded_at": "2026-11-05T14:00:00+00:00",
+    "binding_set_id": "984603ce-e83d-4f48-be7b-5ade24af6756",
+    "bindings_sha256": "7a29de0a29befd2cf8c6c425d68aa7fb5b4b2dad84063126d210b63bdd9ea524",
+    "snapshot_schema": "assetops.acquisition-snapshot/1",
+    "snapshot_sha256": "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63",
+    "snapshot_canonical": "\\x7b2262696e64696e6773223a5b7b2261737365745f6964223a2262613932303832622d636638322d346363342d613936642d313933666430393531373964222c2262696e64696e675f7265766973696f6e5f6964223a2231336434616430662d653230362d346533642d623230622d656236636431306232316333222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22626174746572792d7063732d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a22626174746572795f706f776572222c227369676e616c5f6964223a2261632d706f776572222c22736f757263655f6964223a2261363436376564352d303462342d343966352d613561642d336138333934373032663739222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2266346430373236622d323566382d343638392d623830322d303464613466306432643538222c2262696e64696e675f7265766973696f6e5f6964223a2264386635646266382d353430642d343461332d616265652d303138333333306430643833222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22626174746572792d7063732d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2273746f726167655f6368617267655f7265717565737465645f706f776572222c227369676e616c5f6964223a226368617267652d7265717565737465642d706f776572222c22736f757263655f6964223a2261363436376564352d303462342d343966352d613561642d336138333934373032663739222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2262613932303832622d636638322d346363342d613936642d313933666430393531373964222c2262696e64696e675f7265766973696f6e5f6964223a2231306335363034302d623865392d346263362d386633352d636134656266643331666337222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22626174746572792d7063732d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a227063735f6469736368617267655f6361706162696c697479222c227369676e616c5f6964223a226469736368617267652d6361706162696c697479222c22736f757263655f6964223a2261363436376564352d303462342d343966352d613561642d336138333934373032663739222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2266346430373236622d323566382d343638392d623830322d303464613466306432643538222c2262696e64696e675f7265766973696f6e5f6964223a2261386637396635362d616539342d343861382d396436382d653938396166656439343434222c2263616e6f6e6963616c5f756e6974223a2225222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22626174746572792d7063732d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a22626174746572795f736f63222c227369676e616c5f6964223a2273746174652d6f662d636861726765222c22736f757263655f6964223a2261363436376564352d303462342d343966352d613561642d336138333934373032663739222c22736f757263655f756e6974223a2225227d2c7b2261737365745f6964223a2233346362646636372d623536652d343939622d393166632d373563623839633537623837222c2262696e64696e675f7265766973696f6e5f6964223a2262306230643538322d623030302d343234632d383064652d356265336538636661343939222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22636c696e69632d6d65746572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a226665656465725f64656d616e64222c227369676e616c5f6964223a226163746976652d706f776572222c22736f757263655f6964223a2261336338653636362d373732382d346163662d383432352d303133326531353130636331222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2233346362646636372d623536652d343939622d393166632d373563623839633537623837222c2262696e64696e675f7265766973696f6e5f6964223a2264613061363438332d643861312d343933372d623235622d333636623136386564313832222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22636c696e69632d6d65746572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a22637269746963616c5f6c6f61645f64656c6976657265645f706f776572222c227369676e616c5f6964223a2264656c6976657265642d706f776572222c22736f757263655f6964223a2261336338653636362d373732382d346163662d383432352d303133326531353130636331222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2233346362646636372d623536652d343939622d393166632d373563623839633537623837222c2262696e64696e675f7265766973696f6e5f6964223a2237356134323566612d303839342d343837652d393636662d653434636137653166323164222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a22636c696e69632d6d65746572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a22637269746963616c5f6c6f61645f7265717565737465645f706f776572222c227369676e616c5f6964223a227265717565737465642d706f776572222c22736f757263655f6964223a2261336338653636362d373732382d346163662d383432352d303133326531353130636331222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2234663764356133302d303637302d343365652d396434612d376461663865306335633039222c2262696e64696e675f7265766973696f6e5f6964223a2238316165323166312d346166352d346437302d626164332d396537633131653563663930222c2263616e6f6e6963616c5f756e6974223a224c222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a226675656c2d6c6576656c2d73656e736f72222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a226675656c5f6c6576656c222c227369676e616c5f6964223a226675656c2d6c6576656c222c22736f757263655f6964223a2264373434343563382d646563302d346366382d616233612d363164613436386365313665222c22736f757263655f756e6974223a224c227d2c7b2261737365745f6964223a2234376437646538652d363136312d346363312d613063652d333533323463333936633030222c2262696e64696e675f7265766973696f6e5f6964223a2231623362306362632d386538312d343535362d393930382d613132346237616632323235222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a2267656e657261746f722d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2267656e657261746f725f706f776572222c227369676e616c5f6964223a2261632d706f776572222c22736f757263655f6964223a2231663031396135392d313730662d346661642d623062322d323263636633373133373065222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2234376437646538652d363136312d346363312d613063652d333533323463333936633030222c2262696e64696e675f7265766973696f6e5f6964223a2266626435333765332d346466652d346165642d613163612d333736313438623161356538222c2263616e6f6e6963616c5f756e6974223a227374617465222c22636f6e76657273696f6e223a7b226b696e64223a22454e554d222c22706172616d6574657273223a7b226d6170223a7b224641494c4544223a224641494c4544222c2252554e4e494e47223a2252554e4e494e47222c225354415254494e47223a225354415254494e47222c2253544f50504544223a2253544f50504544227d7d7d2c226465766963655f6964223a2267656e657261746f722d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2267656e657261746f725f7374617465222c227369676e616c5f6964223a22737461747573222c22736f757263655f6964223a2231663031396135392d313730662d346661642d623062322d323263636633373133373065222c22736f757263655f756e6974223a227374617465227d2c7b2261737365745f6964223a2264653930343963632d636164662d346539662d616665372d326231383262393135336430222c2262696e64696e675f7265766973696f6e5f6964223a2264356234396162662d336631382d343865332d623830632d383137303835666331326663222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a226d696c6c2d6d65746572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a226665656465725f64656d616e64222c227369676e616c5f6964223a226163746976652d706f776572222c22736f757263655f6964223a2231616437333030372d323963612d343163392d386231642d633536323166363064343730222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2266303065366635322d383931332d346333392d623631652d653564656237366361396434222c2262696e64696e675f7265766973696f6e5f6964223a2231653230366662302d366336322d343731382d616166642d613739326532383062353530222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a2270762d696e7665727465722d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2270765f706f776572222c227369676e616c5f6964223a2261632d706f776572222c22736f757263655f6964223a2261376439356438392d326439332d346635352d623534622d353465333362626134616231222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2266303065366635322d383931332d346333392d623631652d653564656237366361396434222c2262696e64696e675f7265766973696f6e5f6964223a2233656130313562362d343538322d343564352d616362652d323161643733313433396534222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a2270762d696e7665727465722d636f6e74726f6c6c6572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2270765f617661696c61626c655f706f776572222c227369676e616c5f6964223a22617661696c61626c652d706f776572222c22736f757263655f6964223a2261376439356438392d326439332d346635352d623534622d353465333362626134616231222c22736f757263655f756e6974223a226b57227d2c7b2261737365745f6964223a2236363331626537382d323235652d343761322d613065362d643764333837363562646534222c2262696e64696e675f7265766973696f6e5f6964223a2266333133383134612d373537372d343433652d383830622d353339343963393239633166222c2263616e6f6e6963616c5f756e6974223a22572f6d32222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a2270762d697272616469616e63652d73656e736f72222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a2270765f697272616469616e6365222c227369676e616c5f6964223a22697272616469616e6365222c22736f757263655f6964223a2232656264373231652d643962642d346538392d396433312d356434653439383632306435222c22736f757263655f756e6974223a22572f6d32227d2c7b2261737365745f6964223a2233633863336330632d373261342d343861342d626431302d393137666632633138326231222c2262696e64696e675f7265766973696f6e5f6964223a2239633261313562612d646566342d346530352d396634352d376432303165636132306663222c2263616e6f6e6963616c5f756e6974223a226b57222c22636f6e76657273696f6e223a7b226b696e64223a224944454e54495459222c22706172616d6574657273223a7b7d7d2c226465766963655f6964223a227265736964656e7469616c2d6d65746572222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c22726f6c65223a226665656465725f64656d616e64222c227369676e616c5f6964223a226163746976652d706f776572222c22736f757263655f6964223a2231303532626466662d326631302d343162652d616336642d663937643064396638396465222c22736f757263655f756e6974223a226b57227d5d2c22666f756e646174696f6e223a7b22636f6e74656e745f736861323536223a2261343936636136353133363338313536616131656332386161366663356131336263656561356132363262393231306433663161653638316636626565376332222c227265766973696f6e5f6964223a2263383964316139332d383137612d343064382d613239662d373265613035313735616330222c2276616c69645f66726f6d223a22323032362d31302d30375431313a32373a30305a222c2276616c69645f746f223a6e756c6c2c2276657273696f6e223a31357d2c2267617465776179223a7b22676174657761795f65787465726e616c5f6964223a22656467652d6b6f626f2d303031222c22676174657761795f6964223a2265616435656365622d326262342d343137382d383662352d393563343866306330343532222c226d6f6465223a2253494d554c41544544227d2c226d617070696e67223a7b2262696e64696e675f7365745f6964223a2239383436303363652d653833642d346634382d626537622d356164653234616636373536222c2262696e64696e675f7365745f7265766973696f6e5f6964223a2233623162636532302d633638362d346163392d383831382d666537613163356461663932222c2262696e64696e67735f736861323536223a2237613239646530613239626566643263663863366334323564363861613766623562346232646164383430363331323664323130623633626464396561353234222c22726f6c655f736574223a226d696e69677269642d726f6c65732d34222c2276616c69645f66726f6d223a22323032362d31302d30375431313a32373a30305a222c2276616c69645f746f223a6e756c6c2c2276657273696f6e223a31347d2c22736368656d61223a2261737365746f70732e6163717569736974696f6e2d736e617073686f742f31222c2273697465223a7b22736974655f636f6465223a224b4f424f2d303031222c22736974655f6964223a2264303532363462362d303236642d346230392d396161662d613631356233653934633539227d2c22736f7572636573223a5b7b22736f757263655f65787465726e616c5f6964223a22626174746572792d7063732d636f6e74726f6c6c6572222c22736f757263655f6964223a2261363436376564352d303462342d343966352d613561642d336138333934373032663739227d2c7b22736f757263655f65787465726e616c5f6964223a22636c696e69632d6d65746572222c22736f757263655f6964223a2261336338653636362d373732382d346163662d383432352d303133326531353130636331227d2c7b22736f757263655f65787465726e616c5f6964223a226675656c2d6c6576656c2d73656e736f72222c22736f757263655f6964223a2264373434343563382d646563302d346366382d616233612d363164613436386365313665227d2c7b22736f757263655f65787465726e616c5f6964223a2267656e657261746f722d636f6e74726f6c6c6572222c22736f757263655f6964223a2231663031396135392d313730662d346661642d623062322d323263636633373133373065227d2c7b22736f757263655f65787465726e616c5f6964223a226d696c6c2d6d65746572222c22736f757263655f6964223a2231616437333030372d323963612d343163392d386231642d633536323166363064343730227d2c7b22736f757263655f65787465726e616c5f6964223a2270762d696e7665727465722d636f6e74726f6c6c6572222c22736f757263655f6964223a2261376439356438392d326439332d346635352d623534622d353465333362626134616231227d2c7b22736f757263655f65787465726e616c5f6964223a2270762d697272616469616e63652d73656e736f72222c22736f757263655f6964223a2232656264373231652d643962642d346538392d396433312d356434653439383632306435227d2c7b22736f757263655f65787465726e616c5f6964223a227265736964656e7469616c2d6d65746572222c22736f757263655f6964223a2231303532626466662d326631302d343162652d616336642d663937643064396638396465227d5d2c2274656e616e745f6964223a2239613339313836362d376637342d343637332d383830302d663635363763636130383764227d",
+    "foundation_revision_id": "c89d1a93-817a-40d8-a29f-72ea05175ac0",
+    "derived_from_revision_id": "60e566d2-9eb1-45de-9fd2-48ec1c538c30"
+   }
+  }
+ ],
+ "runs": [
+  {
+   "run_id": "run-2810f774a5f2464bb2df910ddce30259",
+   "evidence_count": 1776,
+   "batches": 10,
+   "run_identity_sha256": [
+    "0f3f8475c49a4542da39fd7e428d7384cb234788a2ee57a16532f0810acbdd13"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-381a577681a9421786bf39f1b5e771d1",
+   "evidence_count": 11,
+   "batches": 6,
+   "run_identity_sha256": [
+    "c45f5ad0dcb32b408850ff8245dc8231e7d3ac94fed65a600040b04f98175b00"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-4072da8a24244f59af29af6439a0ea9d",
+   "evidence_count": 11,
+   "batches": 6,
+   "run_identity_sha256": [
+    "f62d5458de99ac8caacb1b5022718c1748b1147fe2e92d04ba19b066a146e977"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-48c1888e107e46f0a69f7ae6df08d492",
+   "evidence_count": 11,
+   "batches": 6,
+   "run_identity_sha256": [
+    "73a5f411aacd0b6fe94bc10fd9a2edb0927e3210b382012cb25d700b46811439"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-598b9ff36eb4466389d7a01e7ee68096",
+   "evidence_count": 11,
+   "batches": 6,
+   "run_identity_sha256": [
+    "005b225f972b33acfdc68f0e4047ba448f09f61139bbe6cbcea9bf28c85ab239"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-7704990287284f62a4bc348fac9c2643",
+   "evidence_count": 1776,
+   "batches": 10,
+   "run_identity_sha256": [
+    "0039ba9d4eaa0e2fae8bf26e9bdf95c7adbae0e67a5c60a289a531037bbcfff5"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-77233ab356ce4b778c53e0728657fb3b",
+   "evidence_count": 1776,
+   "batches": 10,
+   "run_identity_sha256": [
+    "806f98e0207ed7654376c57ed612c5ff226bd028debce0b4bc6d133a8223b543"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-a6f884a4f20640b4a692dc86befb37fd",
+   "evidence_count": 1776,
+   "batches": 10,
+   "run_identity_sha256": [
+    "2d0a0cab636e11086339c21351813d66c3e69ab3c9a580ba529bea7171410d38"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-d15c955c261443e0ac811aa4ab5f4aa7",
+   "evidence_count": 1776,
+   "batches": 10,
+   "run_identity_sha256": [
+    "b23e1ceec39e54245b5aec142f52b1326fb8b8a05f13c70ccf96d9528b70cc42"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  },
+  {
+   "run_id": "run-de27fa78632644ff9c7103858001a670",
+   "evidence_count": 11,
+   "batches": 6,
+   "run_identity_sha256": [
+    "049f3cee1b1513c8afb98fd6ea1e55372c8b9807cccd379f5e46ab793992ca35"
+   ],
+   "snapshot_sha256": [
+    "2f53383e1f08738c8cdf739d1b3f6f681a4e706aba7d78c0b9162642182a5d63"
+   ],
+   "foundation_revision_ids": [
+    "c89d1a93-817a-40d8-a29f-72ea05175ac0"
+   ],
+   "binding_set_revision_ids": [
+    "3b1bce20-c686-4ac9-8818-fe7a1c5daf92"
+   ]
+  }
+ ],
+ "runs_count": 10,
+ "fields_equal_across_runs": {
+  "run_identity_sha256": false,
+  "snapshot_sha256": true,
+  "foundation_revision_ids": true,
+  "binding_set_revision_ids": true
+ },
+ "figure_if_registered_simulation": {
+  "status": "SUPPORTED",
+  "assessed_days": 5,
+  "eligible_days": 5,
+  "headroom_kw": {
+   "low": "0",
+   "high": "2"
+  },
+  "window_hours": 3,
+  "limitation_codes": [
+   "HEADROOM_NON_POSITIVE",
+   "CHARGE_OBLIGATION_ACTIVE"
+  ],
+  "value_line": "0\u20132 kW over 3 daylight hours on every eligible day",
+  "money_line": {
+   "declared_price_usd_per_kwh": "0.25",
+   "kwh_low": "0",
+   "kwh_high": "6",
+   "usd_per_day_low": "0.00",
+   "usd_per_day_high": "1.50",
+   "basis": "headroom kW x window hours x declared price (arithmetic, not a served line)"
+  }
+ }
+}
