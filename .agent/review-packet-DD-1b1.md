@@ -1,61 +1,41 @@
-# DD-1b1 packet: NOT READY FOR REVIEW. Stopped on the Q6 probe, for the Architect
+# Review packet: DD-1b1 story-time Actions (READY for review)
 
-Branch `task/DD-1b1-story-time-actions`. Rulings: `build-sheet-DD-1.md` "DD1b1-R". Probe output: `.agent/DD-1b1-coh3-probe.json` (first run, 231 s; cap 20 min). Per Q6 "Fail: stop and report": no product code, clock or threshold was changed to pass it.
+Branch `task/DD-1b1-story-time-actions`, size 1.5. Rulings: DD1b1-R, R2, R3 in `.agent/build-sheet-DD-1.md` (R3 wins over R2, R2 over R).
+Main (CH-6b3, f7c045bee) is merged in; backlog keeps main's rows plus BL-30..32 and BL-38 (renamed from BL-33).
 
-## Stops needing a ruling
+## Outcome
+Cold and EV story Actions are story-dated after their Finding (thread ACTION_IN_HAND), the whole-UTC-day story link lists the Action "Open" under Already in hand, Protect is Needs attention, the chain carries "Action agreed", and COH-3 evaluates real pairs. Objectives are recorded per Site at that Site's own first knowledge instant.
 
-**S1. EV: no COH-3 pair is possible with the ruled instants.** The EV day board window is `[08:00, 09:00)` (`chain_coherence.day_windows`, an EV day is its `[start, end)`). Action `raised_at` is 09:40 per Q2. COH-3 needs `created <= to`, so the pair never qualifies, and the board reads `known_at` 09:00, so `in_hand` lists only PM-009. The Finding itself is created at 09:35, and evidence is decided at 09:00 and 09:05, so no instant after the evidence can be at or before 09:00. Q6's "`coh3_pairs` >= 1 for EV-LAB-001", "S+0 board's `in_hand` lists the Action" and the R645 closure cannot hold on this window. The collector's other EV reads were not examined for a wider window.
+## Acceptance, with evidence
+- Prepare-only clocks (`prepare_clock.py`, store override, story clock hooks), refused outside `assetops_polish_*` / `*_test`; unset behaviour unchanged: `test_dd1b1_prepare_clock` 17 pass; guard A passes (prepare_clock reads the DB name without a driver import).
+- R2/R3 read fix: `read.py` passes `actions_to` = requested end when an event is found; `cold.compose`/`ev.compose` read `[actions_hi - WORK_WINDOW, actions_hi)` (both bounds from one end). Plans, incidents, visits keep `work_lo`/`hi`. Mini, Kobo, the Action index service and `k` untouched (`git diff main` over `backend/assetops_backend` touches only cold.py, ev.py, read.py compose, prepare_clock, objective store).
+- Whole-UTC-day Cold/EV story links and collector windows (`story_links`, `chain_coherence.day_windows`); Kobo unchanged. `test_demo_combined_links`, `tools/checks/test_chain_coherence.py` pass.
+- Per-Site objective instants (`objectives_instants`: Kobo S-29d 12:00, Cold S-26d 06:30, EV S-26d 07:00), each asserted before that Site's first built day; `demo_declare_objectives.py <url> <file> <site> <iso>` per Site.
+- R3 root cause confirmed by test: the R2 read asked 32 days and the real `parse_index_request` refused it (`INVALID_WINDOW`), swallowed by `Reads.call`.
 
-**S2. Cold: the day board shows no Finding, so no pair.** Board window is the local day, `known_at` 17:05 (the evidence cutoff). Findings and selection are at 17:10 (Q1, Q2).
-- Protect is `UNKNOWN`, not `NEEDS_ATTENTION`; contributors read "Not available yet · no backup start in this window".
-- `in_hand` does list ACT-001 and INC-001, but as "Open · linked finding outside this view".
-- **Cause not proved.** A `known_at` earlier than the Finding is the leading reading. The other candidate is the local-day window itself: finish reads Cold on `[start, end)` (`demo_combined_finish.py:343`), the collector on the local day. The log also says "contained windows for COLD-LAB-001 fell back to the requested window (EstateRefusal)".
-- A control run with the story clock off would attribute it (about 4 min). Not run: it needs a probe flag, and this unit is stopped.
+## Re-probe (R3), `.agent/DD-1b1-coh3-probe-r3.json`: PASS 49/49, 123 s, 1 tick, own routed `*_test` DB (dropped)
+- coh3_pairs: 1 per Site (EV, Cold), all linked; 0 COH-3 findings.
+- UTC-day boards: Finding in issues; Action row exactly "Open", no suffix; Cold Protect NEEDS_ATTENTION; `read_state` AVAILABLE, equal to the event-window value; `domain_action_index` failed on neither board (hook records failed reads by name; none failed on any board).
+- Chain "Action agreed" for both Sites. Event-window boards: Finding shown, Action not listed (the rule, BL-38). Week board lists the Action for each Site.
+- Cold read three ways on one DB: UTC day lists ACT-001 "Open"; event window shows the Finding (so `known_at` is not the cause); local day lists it "Open - linked finding outside this view" with Protect UNKNOWN.
+- 0 thread events from the tick; `objectives_instants` resolved on real v3 for all 3 Sites; objectives declared end to end for Cold and EV (Kobo "SITE_NOT_IMPORTED" skip: probe builds no Kobo).
+- Observation: the EV UTC-day and week boards list the Action row twice in `in_hand` (ACT-002, both "Open"); not a pass condition, not investigated. Owed to DD-1b2.
 
-**S3. Q7's assert fails on v3.** The objectives instant S-26d 07:00 (2026-10-10 07:00 for prepare 11-07) is later than Kobo's first built day, S-28d (2026-10-08, start 03:00). `objectives_instant` raises `OBJECTIVES_INSTANT_CONFLICT` as ruled, so **any full prepare now stops at finish until this is ruled**. Found by resolving v3; prepare not run. L0 covers both branches on synthetic stories.
+## Tests (own routed DB via conftest on base `assetops_test`; shared DB never reset)
+- Scoped, 315 tests: `test_ch1b_*` (4 files), `test_ch6b1_r5_dated_lead`, `test_ch6b2_portfolio_cards`, `test_out_b3_cold_ev` (27, incl. real-parser L0s), `test_dd1b1_prepare_clock`, `test_demo_combined_links`, `test_chain_coherence`, host `test_s6_verification_replay`: first run after the merge 313 pass, 2 fail (`test_ch6b1_r5_dated_lead`, composer fake lacked `actions_to`); fake fixed, that file re-run 2 pass. Not re-run as a whole after the fix.
+- Mutation: restoring `work_lo` as the lower bound fails 3 tests (both `actions_to` L0s and the real-parser L0). Earlier R2 mutation (drop `actions_to`) covered by the same `actions_to` tests. Not run: the DD1b1-R mutation proofs on the coh3 window test and the objective-store refusal (the refusal is covered by the prepare_clock tests, not mutated).
+- Guards A, W, N pass; V (110 screens) passes; M 14 pass.
+- Regression: exact event window and no-event reads are byte-equal by L0 (arguments `hi-31d, hi`); week boards now list a post-event Action (probe). No other board test moved in the scoped set. Kobo: mini branch and `mini.py` not in the diff vs main; `test_s6_verification_replay` passes.
 
-## What the probe did prove (real child `build` paths, own routed DB)
+## Not run (barred or deferred)
+Full backend suite, check-all, demo prepare, baseline build, `test_demo_combined_postgres`, add-day run (by construction; DD-1b2), frontend suites (no frontend change), layout evidence (none).
 
-Cold 14 s, EV about 15 s, backfill 3 s, three ticks about 158 s. Passing checks:
-- Cold Action `raised_at` 17:15:00, `recorded_at` 17:15:01. EV 09:40:00, 09:40:01.
-- Cold COMPLETE `occurred_at` 16:42, `recorded_at` 17:11:04. Findings at 17:10 and 09:35.
-- Both linked threads `ACTION_IN_HAND`, no `CHANGE_APPLIED`. `ACTION_APPLIED` skipped `ILLEGAL_TRANSITION` from OPEN. Further ticks wrote 0 thread events.
-- `doc["blocked"]` null, WR COMPLETE stored, 0 COH-3 findings (vacuous here: 0 pairs).
+## Owed to DD-1b2 (R2 section 6, R3 section 6)
+- Finish rows needing the Action read the day window.
+- Finish assertion that `domain_action_index` is not a failed read on Cold and EV story-day and week boards.
+- List/avoid/state any in-app link with an exact event window that the script follows (it lists no Action, by rule).
+- Reconcile COH rules on the new Cold/EV day windows with `expected-today.json`.
+- The EV board's duplicated Action row (observation above).
 
-Five checks failed: `pairs.cold>=1`, `pairs.ev>=1`, `board.cold.in_hand_lists_action`, `board.ev.in_hand_lists_action`, `cold.protect.NEEDS_ATTENTION`.
-
-**Probe defect:** the two `in_hand` checks read a top-level `in_hand`; it is per row. Fixed after the run and **not re-run**. On the bundle, Cold's would pass and EV's would still fail. `probe.json` keeps the first run's `false` values.
-
-## Acceptance (DD1b1-R :1178)
-
-| Item | Status |
-|---|---|
-| ACT-002, ACT-003 at story time per Q2, threads ACTION_IN_HAND | Proved by the probe |
-| ACT-002 case linked, COMPLETE recorded, no change applied | Proved by the probe |
-| COH-3 evaluates >= 1 pair per Cold and EV board | **FAILS: 0 pairs (S1, S2)** |
-| Objective override refused outside `assetops_polish_*` / `*_test`; children behind the same check | L0 for the store; children call the helper (`worker_instant`, `story_commands`), no direct refusal test |
-| Unset byte-unchanged | L0 statement text; L2 set and unset. **Instant conflicts on v3 (S3)** |
-| Add-day unchanged | By construction (`story_clock` defaults off; EV `story` is None on add-day). No run |
-| Q4 pin | L2, EV and mini, set and unset (5 passed in that file). The trigger pin writes dispositions through the existing fixtures, with `decided` taken from the ledger's `_decision_instant`, not a full ledger submit |
-| R645 closed | **Withdrawn:** closure reverted, since the EV board does not list the Action (S1) |
-| Publication not built (BL-30); no route carries its date | Grep of ledger and evidence modules: `_PUBLICATION_COLUMNS` used for idempotency only, `ORDER BY` :1100 |
-
-## Disclosures
-
-- **Shared DB reset.** Two ad-hoc SQL checks called `pg_harness.fresh_database()` unrouted, which resets the shared base `assetops_test` in place. No pytest process was listed afterwards, but I cannot rule out an effect on another lane using that DB. The probe now refuses unrouted runs.
-- **Earlier guessed password.** In the pre-flight, one guessed password failed against Postgres. Everything since uses the configured `demo_combined.PW`.
-
-## Known deviations
-
-- `_coh3_evaluate` holds COH-3's one loop, and `coh3_pairs` plus `coh3_action_on_board` both read it. The ruling named one generator; the rule needs each Action's `file`, which the five-tuple does not carry.
-- `.ai/CODE_STATE.md` and `.ai/ACTIVE_CONTEXT.md` not updated: no DD unit has entries there, and the unit is stopped.
-- `demo_declare_objectives.py` and the `finish` change were never run end to end (prepare barred, and S3 stops it).
-
-## Not run
-
-Guards A, W, N, V, M. `test_ch1b_*`, `test_s6_verification_replay*`. Mutation proofs (coh3 window, refusal). Re-run of the probe after the `in_hand` fix. Control run for S2. Any demo prepare or full suite.
-Run: `test_demo_story_days.py`, `test_dd1b1_prepare_clock.py`, `tools/checks/test_chain_coherence.py`: 201 passed. `test_dd1b1_story_clock_postgres.py`: 5 passed.
-
-## User review
-
-Not applicable yet. The next step is an Architect ruling on S1, S2 and S3.
+## Residual risk / user review
+Week, month and Portfolio boards with an event now list post-event Actions and drop Actions older than 31 d before the window end (intended). USER_REVIEW: none required; the Architect rulings cover the behaviour change.
