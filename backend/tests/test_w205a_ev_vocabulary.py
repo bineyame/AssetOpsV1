@@ -131,7 +131,10 @@ class TestVocabulary:
         assert models.STATE_PROPERTY_VALUES == {"ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
                                                 # WALK1-3 §4.2: the mini-grid LOAD supply use
                                                 "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD",
-                                                                         "ESSENTIAL_SERVICE"})}
+                                                                         "ESSENTIAL_SERVICE"}),
+                                                # FUEL-1 A1: the declared no-load fuel rate's basis
+                                                "generator-no-load-fuel-rate-basis": frozenset({
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"})}
 
 
 class TestParserAndRender:

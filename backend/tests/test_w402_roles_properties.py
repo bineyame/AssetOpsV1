@@ -94,11 +94,15 @@ class TestTypedProperties:
         assert got == {"pv-available-uncertainty": ("kW", "PHYSICAL"),
                        "renewable-retained-margin": ("kW", "CONTROL"),
                        "backup-recovery-target": ("min", "CONTROL"),
-                       "supply-use": ("state", "PHYSICAL")}  # WALK1-3 §4.2
+                       "supply-use": ("state", "PHYSICAL"),  # WALK1-3 §4.2
+                       "generator-no-load-fuel-rate": ("L/h", "PHYSICAL"),  # FUEL-1 A1
+                       "generator-no-load-fuel-rate-basis": ("state", "PHYSICAL")}
         assert MINIGRID_PROPERTY_CARRIERS == {"pv-available-uncertainty": "INVERTER",
                                               "renewable-retained-margin": "AC_BUS",
                                               "backup-recovery-target": "AC_BUS",
-                                              "supply-use": "LOAD"}
+                                              "supply-use": "LOAD",
+                                              "generator-no-load-fuel-rate": "GENERATOR",
+                                              "generator-no-load-fuel-rate-basis": "GENERATOR"}
 
     @pytest.mark.parametrize(("component", "key", "value"), [
         ("pv-inverter", "pv-available-uncertainty", 0.0),

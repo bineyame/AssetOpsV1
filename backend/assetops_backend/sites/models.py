@@ -266,6 +266,21 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "backup-recovery-target": PropertyDefinition(
         unit="min", kind="CONTROL", display_name="Backup recovery target"
     ),
+    # FUEL-1 A1 (`.agent/build-sheet-FUEL-1.md` §4.1): the generator's fuel
+    # rate while running at zero load, read by `financials/fuel_cost_v2.py`.
+    # A no-load rate is defined at exactly one operating point, zero load,
+    # which is exactly what it states, so `L/h` is its honest unit. The
+    # argument above against `L/h` is about specific fuel consumption and is
+    # unchanged: the parser still refuses SFC declared in `L/h`.
+    "generator-no-load-fuel-rate": PropertyDefinition(
+        unit="L/h", kind="PHYSICAL", display_name="Generator no-load fuel rate"
+    ),
+    # Where the declared no-load rate comes from. It travels with every later
+    # Foundation revision (additive publishes keep the other properties), so
+    # a "generic" label is data the Site declared, never product copy.
+    "generator-no-load-fuel-rate-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Generator no-load fuel rate basis"
+    ),
 }
 
 #: W2-05a: the component type that must carry each EV property.
@@ -288,6 +303,8 @@ EV_PROPERTY_CARRIERS: dict[str, str] = {
 STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     "ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
     "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"}),
+    # FUEL-1 A1: where a declared generator no-load fuel rate comes from.
+    "generator-no-load-fuel-rate-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
 }
 
 #: W2-01: the component type that must carry each cold property
@@ -314,6 +331,8 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "renewable-retained-margin": "AC_BUS",
     "backup-recovery-target": "AC_BUS",
     "supply-use": "LOAD",  # WALK1-3 §4.2
+    "generator-no-load-fuel-rate": "GENERATOR",  # FUEL-1 A1
+    "generator-no-load-fuel-rate-basis": "GENERATOR",  # FUEL-1 A1
 }
 #: W4-02 closure 4 N2: the mini-grid depth properties that must be strictly positive (the other two are
 #: nonnegative, which the shared parser already enforces for every unsigned unit).
