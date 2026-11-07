@@ -1669,3 +1669,151 @@ Strike "will probably" if P6 measured it; replace that sentence if it did not re
 ### Handoff
 
 A fresh builder takes **DD-1b2a** on `task/DD-1b2-finish-rehearsal`. Reading budget: §0, Q2 to Q7 and the probe table above. Code: `mini_decisions/store.py`, `mini_decisions/worker.py:164-183,265-272`, `actions/composition.py:128-141`, `work/domain_intent.py`, `tools/dd1a2_mill3_dry_run.py` for the build shape, `tools/demo_combined.py:360-480`. Stops come back to this Architect.
+
+## DD1b2-R2: the P1 stop: the blank rows come from our own day-edge rule, not from the data (Architect, Claude, 2026-11-07)
+
+Input: `.agent/review-packet-DD-1b2a.md`, `.agent/DD-1b2a-probe.json` at `15ddcc33d`. **MEASURED** means the probe's evidence. **READ** means code reading, which has missed on this lane, including DD1b2-R §0. Each READ that a ruling rests on has a measurement below.
+
+**Corrections to my last ruling.**
+- §0's "no missing day" was read, and the probe refuted it. §0 holds only once the fix below lands.
+- Q1 overrode the owner's standing "no full data build" rule without asking. The owner has now approved it: one whole-list rehearsal on a `*_test` DB, up to 3 h (`.agent/owner-rehearsal-whole-list-2026-11-07.md`). **The approval covers DD-1b2b's rehearsal only.** The probe stays a partial build.
+- `.agent/DD-1b2-probe-days.json` matched that ruling (checked: kinds equal v3's, every entry a v3 entry, 13 full + 2 story-only). It changes in §4. The heredoc deviation has no effect on it.
+
+### 1. The cause (READ, measured by M0 before anything is fixed)
+
+**The packet's attribution is probably reversed. Those rows are most likely the first row of the next run, not the last row of the earlier one.**
+
+- **Measured:** at 03:00Z and 21:00Z the 11 interval signals read UNAVAILABLE with interval 5 min back; the 2 state signals read GOOD. 15:00Z is all GOOD.
+- **Read: the keep rule.** `DayRun.keep` (`tools/demo_story_days.py:101-103`) sends a complement's rows on `lo <= t < hi`, so its closing row at `hi` is never sent. That is DD1a1-R5's edge rule ("the earlier one ends exclusive", `:320`, `demo_story_days.py:290-293`).
+- **Read: the next run's first boundary.** It has no span behind it, so its interval signals are `NO_PRECEDING_INTERVAL` (`observation/transform.py:166-176`) and its state signals report.
+- **Read: why it looks like the earlier run's row.** `report_from_observation` stamps `interval_start = source_time − 5 min` on every interval row, absent ones included (`contracts/assetops_contracts/gateway_report.py:160-162`).
+- **Why 15:00Z is clean:** the story run owns its closed span, so the day run's real closing row is sent and the rest run's first row is dropped. The other two seams do the opposite.
+
+So at 06:00 and 00:00 **we discard a real 5-minute reading and send "no interval yet" in its place. It is a defect of our seam rule, not of the simulated world, the gateway or any Site.**
+
+**M0, read-only on the current commit, on a kept DB, no fix.** `prepare --sites kobo --no-finish --days <S-13, S-12, S+0, S+1>`, about 7 min, DB `assetops_demo3_dd1b2m_test`. Report for 03:00Z and 21:00Z of those days: `unavailable_reason` and the batch's run per signal.
+- **All `NO_COMPLETED_INTERVAL`, from the later run:** go on to §2.
+- **`NO_MEASUREMENT`, or from the earlier run:** this trace is wrong. **Stop**, with the rows and nothing fixed.
+
+**What else does it blank? (READ; each is checked in §4 or in DD-1b2b.)**
+
+| Reading the client sees | Effect today |
+|---|---|
+| 42 and 110 kWh, MG-1, earnings | None. The mill is 0 kW at 05:55 and 23:55 (night and rest files), and `productive_kwh` only sums what is there |
+| COMPLETE grades | None. `productive_kwh` and `critical_served` need 80 % and these days have about 99.3 % |
+| `daylight_headroom_kw` | Needs 100 % (`chain/measures.py:49-50`), so it is not COMPLETE on any full day today. Same cause |
+| Generator kWh and the G1 litre | Slightly **low** on nights running at 05:55. The fix adds up to 5 min of generator energy |
+| Clinic service counts | 2 readings a day unread |
+| Story-only days | Not this defect. They have no seam, and their hours outside the run are missing anyway |
+
+**Which is telling the truth, COMPLETE or "hours missing"?** Both, under their own rules. The grade says enough of the day was covered (80 %). The study says it will not call an hour known unless every reading in it is known (`classify_daylight`). The stricter one found a real hole.
+
+### 2. The fix: **send the real closing reading. No rule changes, no scenario file changes.**
+
+**The seam rule (amends DD1a1-R5's edge rule): at a seam, an interval reading comes from the run whose span ended there, and a state reading from the run that starts there.**
+
+Time alone can't express this, so:
+- `host/lab_execution.py:2885`: an optional `keep_observation: Callable[[DeviceObservation], bool]`. When set, it is used in place of the time predicate on this Kobo path. The Cold path at `:2410` and every other caller are untouched.
+- `DayRun.keep_observation()`, for any run of a day that has complements:
+  1. outcome `NO_PRECEDING_INTERVAL`: **False**;
+  2. a story run: True;
+  3. a complement: an `INTERVAL_SIGNAL` at `t == emit_until`: True;
+  4. otherwise the existing time rule.
+- A story-only day (no complements) passes neither predicate. **Its payload stays byte-equal.**
+- **`Demo.delivered_days`:** use `COALESCE(e.interval_start, e.source_time)`. A rest run's closing row has `source_time` at the next local midnight, and it must not make the next day "already delivered".
+
+**Options refused.**
+- **Overlapping or extending the runs:** changes frozen scenarios, and with them the physics and G0, to fix something that is not in the physics.
+- **Not counting a missing hour at the day's edge:** this weakens a rule only to get eligible days. A missing hour is not provably dark: 05:00 sits next to dawn, and its value is what's unknown. It also touches `mini-opportunity/2`, stored hashes and MD-0's SUPPORTED hours. The rule found a real hole; the hole gets fixed.
+
+**What a real Site does under the same rule.** A real gateway reports continuously, so every interval row carries a value and no seam exists. The first-boundary absence happens there only after a gateway restart, and that day then reads missing: honest, if harsh, since one restart hides a five-day figure. Whether to tolerate that needs real data: **BL-42**, backlog, not demo-critical.
+
+**Regression surface (READ).**
+
+| Thing | Effect |
+|---|---|
+| `kobo-*` scenario files, simulator, gateway, product rules | **Unchanged** |
+| Template, MD-0 data | **Unchanged**: `mechanism_dataset.py` does not use the day list (grepped) |
+| Story-only days, ACT-001 trial, Findings on S-14, S-7, S+0 | Unchanged payload; **S-7's Finding is checked by M1**, because S-8's closing row now touches S-7's edge (R8's bracket rule, `cohort.py`) |
+| Cold, EV | Unchanged |
+| R5's "story run byte-equal to the without build" | **Amended:** equal except its first-boundary absent interval rows. The check moves to that wording |
+| G0 (run-end states) | Unchanged: states come from the runs, not from what is sent |
+| G1, MONEY-A/B on full days | **May move slightly:** generator energy gains up to 5 min per running night. Report old and new. "About 1 L" gets a line to the owner only if it reads differently at one decimal |
+| MILL-3 | Read unchanged (mill 0 kW in the added rows). **Reproved by P4**, and a changed value is P4's stop |
+| Days with no run after a full day (S-10, S-4) | A row with `source_time` at their local midnight and its span in the day before. Coverage clips to the day (`covered_seconds`), so NO_DATA stands; M1 checks S-10 |
+| `test_demo_story_days.py`, `host/tests/test_s6_verification_publication.py`, `host/tests/test_dd1a2_registered_kobo.py` | Rerun; edge-rule L0s change with this amendment |
+
+**Tests.** L0: the predicate's truth table on each seam, using the real day-list shape; a story-only day has no predicate. L0: `delivered_days`' SQL form via one L2 row.
+
+### 3. The fallback, if the study still can't be supported
+
+**Decided now, used only if a stop below fires.** What the client sees:
+
+| | Study UNKNOWN or LIMITED, eligible ≥ 1 | Eligible 0 |
+|---|---|---|
+| "Daytime solar unused" figure and potential money | **Not shown**: `value_line` None; "not available yet" wording stands | Not shown |
+| Thread, Grow chain | Thread exists, no figure | **No thread.** The link stays `PENDING_PLACEMENT`, so no "Action agreed", "Change made" or "Checked and working" |
+| The mill Action | Accepted (`create_action` checks the head, not its status; READ) and linked | Accepted, in the Actions list only, not on the board's Grow row (READ) |
+| "Target met", 42 → 110 | **Stands** (from snapshots alone; dry run MEASURED) | **Stands** on the Action, with no story around it |
+
+**The owner question, sent only if that happens; the build waits for it:**
+
+"The spare-solar figure can't be shown honestly on the example days. Two choices. **Keep the build as is (recommended):** the mill action still shows 'Target met', about 42 up to 110 kWh a day, and spare solar reads 'not available yet'; we lose the figure and its money line, and the Grow row shows less. **Change how a day's hours are counted:** that restores the figure, but it changes a rule on real sites and adds about a unit just before the demo. Which do you want?"
+
+### 4. Order: fix, small proof, then the re-probe, with the DB kept
+
+1. **M0** (§1). Stop, or go on.
+2. The fix and its L0s. Commit, since prepare archives git HEAD.
+3. **M1, about 10 min.** `prepare --sites kobo --no-finish --days <S-13, S-12, S-8, S-7, S+0, S+1>`, kept DB `assetops_demo3_dd1b2m_test` rebuilt. Pass all of:
+   - `daylight_hours` on S-12 and S-8: `missing = ()`, daylight 6 to 17;
+   - at 03:00Z and 21:00Z the interval rows GOOD and the 2 state rows as before; **no held or conflicting report in the gateway**;
+   - S-8's 24:00 row is present, and S-7's Finding reads as in the dry run (CANDIDATE_AVOIDABLE, 200 candidate minutes);
+   - one S-13 generator figure, old vs new, reported.
+   
+   **Any failure: stop**, with the rows. M1 may not widen the fix.
+4. **The re-probe, from nothing**, because evidence rows cannot be amended. About 45 min. Day list **adds S-14 and S-7** (v3 entries, about 40 s each), so 13 full + 4 story-only: these are the neighbours the new closing rows touch.
+
+**Keep the DB between stops.**
+- New flag on the dev subcommand: `after-children --stop-before-mill` runs `drain_mini` and step `a`, then stops.
+- Then clone: `CREATE DATABASE assetops_demo3_dd1b2q_test TEMPLATE assetops_demo3_dd1b2p_test`, and copy the work folder.
+- Run the mill step on `dd1b2p`. **At a stop nothing is dropped.** A rerun starts from the clone, in minutes. Drop all of them only after the next ruling or the packet.
+- Evidence goes to `.agent/DD-1b2a-probe-2.json`. `.agent/DD-1b2a-probe.json` is kept.
+- `tools/dd1b2a_probe.py` has never run. A fault in it is fixed in place and declared.
+
+**P1 to P7 and their stops stand, with these changes:**
+
+| # | Change |
+|---|---|
+| P1 | **Pass also needs** `window_hours` = 3 and a non-null `headroom_kw`, and reports classification. Expected, from MEASURED hours 13, 14, 15 ELIGIBLE: 5 eligible days. UNKNOWN or LIMITED, or eligible 0: **stop** and §3 |
+| P3 | Grades and `daylight_headroom_kw` per day reported too |
+| P4 | Compare with the dry run; a changed value is a stop |
+| P6 | Later studies now have a source (MEASURED: 2 eligible hours a day after the change, on S-8, S-6, S-5). **Recurrence is now likely rather than probable.** Q7 stands |
+| New P8 | Reports each full day's generator kWh against the dry run's (`DD-1a2-mill3-dry-run.json`), for §2's G1 row. Report only |
+
+**Q7's table, S-11 row:** "N–M kW over 3 daylight hours" (expected from 3 eligible hours), not 12.
+
+### 5. Size and scope (SCOPE-1)
+
+| Item | Class | Reason | Size |
+|---|---|---|---|
+| Seam fix, `keep_observation`, `delivered_days`, L0s, M0, M1 | demo-critical | Without it there is no figure, no thread and no Grow chain, and readings are thrown away | +0.25 |
+| Re-probe, flag, clone | demo-critical | P2 to P7 still owed | inside the +0.25 |
+| Dark-hour tolerance after a real restart | backlog **BL-42** | Needs real data; nothing shown is false without it | not sized |
+
+**DD-1b2a 1.25 → 1.5; DD-1b2 2.75 → 3.0; DD-1 11.75 → 12.0; lane 2 remaining 5.0 → 5.25.** No split: M1 is one small step, and it fits inside a fresh builder. DD-1b2b is unchanged at 1.5. Add BL-42 to `.agent/backlog-post-demo.md`.
+
+### 6. Owner lines
+
+**Now (replaces the DD1b2-R line, which was not sent; the build does not wait):**
+
+"The Grow story hit a fault on its first real run, and it looks like ours rather than the data's. Spare solar is there on every full day, about 3 usable hours. But where we join the example runs, twice a day, we were discarding a real 5-minute reading, and that alone hid the figure. 'Target met' isn't proved on this path yet. We're fixing the join and re-running, about a quarter unit more, for 5.25 left on this lane. I'll tell you the result."
+
+**After the re-probe, if P1 to P7 pass:**
+
+"The Grow story now runs end to end on real data: spare solar measured before the change, [N–M kW over 3 daylight hours, from P1], the action, the mill moved, 'Target met', midday use up from about 42 to 110 kWh a day. On later sunny days there's still spare solar, so the opportunity line reads 'Seen again' next to 'Target met', and the Portfolio counts it as open rather than verified. Both are true, and the script says so. The figure shows on the days before the change rather than day S, which is the partly-checked trade you already accepted. Hiding 'Seen again' would need a new rule, about half a unit, and I'd leave it; tell me if you'd rather not."
+
+Replace the "Seen again" sentences if P6 measured no recurrence. If §3 fires, send its question instead.
+
+### Handoff
+
+A fresh builder resumes **DD-1b2a** from M0, on `task/DD-1b2-finish-rehearsal`. Reading budget: this section; DD1b2-R Q7 and the probe table; `.agent/DD-1b2a-handoff.md`. Code: `tools/demo_story_days.py:80-112,285-300`, `host/lab_execution.py:2880-2890`, `tools/demo_combined.py` `delivered_days`, `after_children`. Stops come back to this Architect. The unit keeps its own review after the re-probe.
