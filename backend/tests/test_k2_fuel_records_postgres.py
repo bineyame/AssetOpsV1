@@ -134,7 +134,8 @@ def test_single_alembic_head(engine) -> None:  # noqa: F811
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [MIGRATION] == [alembic_head()] and head(engine) == MIGRATION
+    # DIESEL-K3: 0055 follows 0054, so the single head is the repository head, no longer 0054 itself.
+    assert script.get_heads() == [alembic_head()] and head(engine) == alembic_head()
     assert script.get_revision(MIGRATION).down_revision == PREVIOUS
 
 
@@ -164,7 +165,7 @@ def test_migration_up_down_up_on_empty_table(store, engine) -> None:  # noqa: F8
             "'SITE_VISIT'::text])))")
         command.upgrade(config, "head")
     finally:
-        if head(engine) != MIGRATION:
+        if head(engine) != alembic_head():
             command.upgrade(config, "head")
     assert shape(engine) == up
 
@@ -180,9 +181,9 @@ def test_downgrade_refused_with_a_fuel_row(kobo, engine) -> None:  # noqa: F811
         with pytest.raises(RuntimeError, match=REFUSED):
             command.downgrade(config, PREVIOUS)
     finally:
-        if head(engine) != MIGRATION:
+        if head(engine) != alembic_head():
             command.upgrade(config, "head")
-    assert head(engine) == MIGRATION and kobo.row("k2-down-dip-001")["asset_id"] is not None
+    assert head(engine) == alembic_head() and kobo.row("k2-down-dip-001")["asset_id"] is not None
 
 
 # --- the command ----------------------------------------------------------------------------------------------------
