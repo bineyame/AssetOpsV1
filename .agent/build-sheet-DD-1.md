@@ -2301,3 +2301,46 @@ The unbuilt rows were already inside the 1.75, so moving them to step 7 adds not
 
 - **Now (information, no decision):** "Before the full rehearsal we run one small test build (6 example days, about 40 minutes) to prove the new parts on real data. It is the same kind of small build as before, not a second full run. We also made sure a late check failure can't throw away the rehearsal's data."
 - **After the run:** R6 §5 and R7's triggers, unchanged.
+
+## DD1b2-R9: P0's COH-2 stop and two notes (Architect, Claude, 2026-11-07)
+
+Input: the coordinator's relay of the P0 builder's report (prepare 226 s, exit 0, at `f4454f2d5`; R8 fixes at `78f3b1c7f`). **READ** = code, cited. I ran nothing.
+
+### 1. COH-2 on Cold and EV: a known product gap, so it gets a named expectation
+
+**The cause is in the product, and it is already known (READ).**
+- The Portfolio joins a Finding row to its Action through `select_action_scope`. That reads Actions only on Sites whose domain is mini-grid (`estate/index.py:193-195`). Cold and EV domain Actions never reach the join (`estate/portfolio.py:259, 279-281`), so their Portfolio rows read `action_id` null, which shows as "No action agreed yet".
+- COH-2 takes Actions from both the estate index and every domain `action_index` (`tools/checks/chain_coherence.py:337-353`). It is right to flag the mismatch. The tool is not wrong.
+- It is the known item: `coordinator-handoff.md:30` ("Cold/EV Portfolio rows 'No action agreed yet' against ST-4/5 'in hand'"), and R6 O5 already reports it ("Cold/EV 'No action agreed yet', reported"). BL-39 is a different item (the landing link).
+
+**Ruling: a named COH-2 expectation, built the way COH-17's was. No product change now.**
+- In `demo_combined_rows.coh_split`, a COH-2 finding is **allowed** only if all three hold:
+  - its `site_code` is COLD-LAB-001 or EV-LAB-001;
+  - its evidence files name `action_index.<that site>`, so the Action came from a domain index, never the estate index;
+  - its subject is an Action id that `cold.json`/`ev.json` records (ACT-002/003).
+- Reason text: "Portfolio does not join domain-Site Actions (estate/index.py:193); known, DS-1 covers it; BL-47".
+- COH-2 on KOBO-001, or on any other Action, stays a fault. F-COH's output lists the allowed entries, one per estate window per Action.
+- **L0:** the allowed case; Kobo COH-2 must fail; a Cold COH-2 whose Action came from the estate index must fail; an unknown Action id must fail.
+- **Proof on P0:** commit, copy the changed tool files into P0's `tree/tools/`, and rerun only `check` in the tree form (§3). The pass condition: COH-2 is allowed on Cold and EV, and no new fault appears. Then the freeze applies.
+- **BL-47 (new, free):** "The Portfolio joins Cold and EV domain Actions to their Finding rows (`select_action_scope` reads domain `action_index` for non-mini Sites), so a Cold/EV row reads 'Action agreed' as ST-4/5 do." Source: this ruling. Nothing shown is false without it: the row says no action is joined, and the story-day boards list the Action. Estimated 0.5. Not demo-critical. **No owner decision is needed.** The owner already holds this item on the walkthrough list. DS-1 keeps opening Cold and EV from the story-day links.
+
+### 2. `tick --until-drained` with a high `mini_deferred`: covered, no change
+
+- READ: `add-day --assess-now` on Kobo sets `assess: build` (`tools/demo_combined.py:710-711`) and runs `drain_mini()` before it returns (`:724-725`). The prepare runs `drain_mini()` before each drain (`:515`, `:546`). P0's past-2N failure came from `--no-finish`, which skips both. After `drain_mini`, P0 drained in one tick (MEASURED, relayed).
+- **The drain does not call `drain_mini`.** The R8 drain is ruled as tick-only (R7 Q3), and the live path is already covered.
+- **The DS-1 line gains one clause:** "Never run `tick --until-drained` after an add made without `--assess-now`." EX-1 measures the covered path.
+
+### 3. Step 7 runs every served read in the tree form: confirmed, and it amends R6 §6
+
+- `check` and every served read in step 7 (the after tool, `perf_budget --story`, the O8/O10/O11 reads) run the way `Demo.py` runs a child:
+  - cwd `var/demo3_dd1b2/tree/backend/tests`;
+  - `PYTHONPATH` set to the tree's nine parts (`demo_combined.py:297-299`);
+  - `DATABASE_URL` set to the build's URL;
+  - the tool path inside `tree/tools/`.
+  
+  The worktree form lacks `tree/var/sites/kobo-001.yaml` (copied at `:401-403`) and gives false 409s. This replaces "`python tools/demo_combined_finish.py check <url> <work>`" in R6 §6 step 7 and in the handoff.
+- **A tool fixed in step 7** is committed in the worktree, then copied into `tree/tools/`. The packet names each copied file and its commit. Never copy backend code into the tree. A backend fault is an R6 §7 stop.
+
+### Size and owner
+
+§1 adds 0.05 (one pure function plus L0s). §2 and §3 add nothing. **DD-1b2b has 1.05 left; lane 2 has 2.05.** BL-47 is in the backlog and not counted. **Owner:** nothing new.
