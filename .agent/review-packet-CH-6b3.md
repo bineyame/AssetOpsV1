@@ -1,4 +1,4 @@
-# Review packet: CH-6b3 coherence, proofs and the packet (size 1.1)
+# Review packet: CH-6b3 coherence, proofs and the packet (size 1.3)
 
 Sheet: `.agent/build-sheet-CH-6.md` CH-6b3 entry, Scope cut, CH6b3-R (`:833`). Pre-flight: `.agent/CH-6b3-preflight.md`. Branch `task/CH-6b3-coherence-proofs`, based on main `9b1c53ae3`. Review of CH-6b3 only.
 
@@ -6,7 +6,7 @@ Sheet: `.agent/build-sheet-CH-6.md` CH-6b3 entry, Scope cut, CH6b3-R (`:833`). P
 
 COH-17 now guards count, money, verdict, legacy and Why? values over estate windows. COH-18 proves Site and count `days` from per-day grades. Both report `{compared, skipped}`. The two legacy Portfolio fields read the claims, so "Fixes confirmed" and the Assure card no longer contradict each other. L3 clone: 0 new. L3m: 0 findings.
 
-**One acceptance bullet is not met and needs a ruling: the D13 Optimize row (KD-3b).**
+**KD-3b is closed by CH6b3-R2 (bullet restated). The drained L3 clone replaces the earlier L3 result, which judged UNKNOWN Kobo rows.** Size 1.3 (the four test fixes 0.1, the drained clone 0.1).
 
 ## Files
 
@@ -43,16 +43,30 @@ COH-17 now guards count, money, verdict, legacy and Why? values over estate wind
 - COH-18: 0 findings, compared 21, skipped 0.
 - 0 new overall: self-check 2 pass (the known COH-2 month entries), 0 fail, 8 resolved (COH-7a). PERIOD info 4 items, 0 unexplained.
 
+**The L3 result above is the undrained run and it judged UNKNOWN Kobo rows.** On that clone `critical_served` read PENDING on 7 of the 8 Kobo day bodies checked (the queued service work was never drained, CH-9 packet `:311`), so `day_settled` was False and every Kobo Optimize row read UNKNOWN / PRODUCER_NOT_SETTLED. COH-17's V rows compared those UNKNOWN rows, so they did not judge the demo's real verdicts. **The drained run below replaces it as the L3 result (CH6b3-R2 step 2).**
+
+**L3 drained (replaces the above)** clone `ch6b3r2` (dropped), revision `2dfa838a9` code (same product code as `6334641f5`): create+migrate 2 s; backfill a-d 14 s; settle 79 s; drain `mini_depth.worker run-pending --limit 500`: one pass, 155 outcomes (< 500), 24 s; settle again 71 s; collect 209 s (134 requests, all 200); check against `expected-today.json`: COH-17 0 findings, **compared 218, skipped 13**; COH-18 0 findings, **compared 21, skipped 0**; self-check 2 pass, 0 fail, 8 resolved (COH-7a); PERIOD info 4, 0 unexplained. 0 new. (Same tallies as undrained: the checked set is fixed by the windows; the difference is in the verdicts compared. EV backfill considered 19 days, not 18, because the clock day advanced.) W6 and `fresh` were not re-run (not in the ruling).
+
+| Day (board) | Optimize row state | MG-2 outcome, reason | Headline | `critical_served` | Thread line |
+|---|---|---|---|---|---|
+| S `day_kobo_trial-before_2026-10-31` | NEEDS_ATTENTION | NEEDS_ATTENTION, PRIMARY_FINDING_OPEN | No fuel cost estimated: the generator was on but delivered no measured power | PARTIAL | "Before the change on 1 Nov" (BEFORE_CHANGE, ACT-000001): as CO-1 |
+| S+1 `day_kobo_trial-after_2026-11-01` | UNKNOWN | UNKNOWN, OBJECTIVE_NOT_JUDGED | No fuel cost estimated for this day | PARTIAL | "Fix verified, monitoring (ACT-001), 7 more fully checked days to close": as CO-2 |
+| `day_kobo_overuse_2026-10-24` | NEEDS_ATTENTION | NEEDS_ATTENTION, PRIMARY_FINDING_OPEN | No fuel cost estimated: the generator was on but delivered no measured power | PARTIAL | "Before the change on 1 Nov" |
+
+Undrained (labelled): all three read UNKNOWN / PRODUCER_NOT_SETTLED, headline "No fuel cost estimated for this day", `critical_served` PENDING on 7 of 8 and PARTIAL on 1. No stop condition fired: PRODUCER_NOT_SETTLED is gone on all three days, S equals CO-1, no new COH finding, Q4b counts equal the table (below).
+
+Q4b counts on the drained data (week / S / month): fixes confirmed (`verified_resolution_count`, `count.verified_results`) 0 / 0 / 1; `priority_site_count` 3 / 2 / 2; `count.open_threads` 4 / 3 / 3; `count.opportunities` 1 / 1 / 1; `count.sites_disrupted` 2 / 1 / 2.
+
 **L3m**: `ensure --close no` rebuilt the states template once (1300 s, against an 11-minute estimate); derive 76 s; collect 436 s (108 requests); check with `--variant states --threads var/mechanism/expected-threads.json`: 0 findings, 0 unexpected, COH-17 compared 111 skipped 11, COH-18 compared 75 skipped 0, PERIOD info 0 (Kobo only). The first check call used a wrong threads path and exited 1 on a missing file; the result above is the corrected rerun on the same bundle.
 
 **L2m** `test_ch6b_estate_postgres.py`: both tests passed (the MG-1 test after KD-3b's assertions were removed; the first run failed on them). **L0** `test_chain_coherence.py`: 133 pass. **Vitest** `estatePortfolio.test.tsx`: 60 pass. `tsc --noEmit`: no output.
 
-**Scoped backend** (`test_w303_portfolio_*` listed files, `test_ch3_rows`, `test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_ch5a2_chain_api_postgres`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`): **4 failed, 211 passed**. The 4 failures also fail with `portfolio.py` put back to base `9b1c53ae3` (rest of the tree at HEAD), so they do not come from the Q4b change. Not fixed, out of scope:
-- `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal`: test spy takes 4 arguments, `progress` is given 5.
-- `::test_operating_cost_first_match_wins_across_partitions`, `::test_ev_window_money_has_no_finding_attribution`: an extra `link_ref` key.
-- `test_ch5a2_chain_api_postgres.py::test_estate_chain_has_one_read_per_key_and_count_claims`: expected claim key set lacks a key.
-
-Because three of those comparison tests fail for other reasons, they cannot show whether a Q4b number changed there. The other tests in that file pass with no number changed.
+**Scoped backend, first run** (`test_w303_portfolio_*` listed files, `test_ch3_rows`, `test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_ch5a2_chain_api_postgres`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`): 4 failed, 211 passed. All four were stale tests (causes already in main, so they fail on main today), fixed in CH6b3-R2 step 1 with only the lines the ruling names:
+- `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal`: spy now `def spy(a_sites, a_rows, k, selected_pairs, *rest)` and passes `*rest` on (`progress` gained `f_rows`, `3cea423fd`). It now reaches its assertions, including the verified counts at `:157`, `:193-195`, `:211`: **no number failed, none changed**.
+- `::test_operating_cost_first_match_wins_across_partitions`: `link_ref` added to the card dict (`1c3e3a075`). Passes.
+- `::test_ev_window_money_has_no_finding_attribution`: `link_ref` added to the footer key set. Passes.
+- `test_ch5a2_chain_api_postgres.py::test_estate_chain_has_one_read_per_key_and_count_claims`: `count.sites_disrupted` added (`6b4e682f2`); comment says "the four". Passes.
+- Result of the first two files named by the ruling (`test_w303_portfolio_comparison_postgres.py`, `test_ch5a2_chain_api_postgres.py`) plus `test_ch6b_estate_postgres.py`: **12 passed, 0 failed** (663 s). The remaining scoped files: see "Scoped re-run" at the end.
 
 **Proofs** (committed first, reverted with `git checkout`): `action_segment_for` replaced by the default segment fails the L1 test; `in_hand` removed from `priority_site_count` fails the Q4b test; both pass after revert. COH-17 and COH-18 are proved by the planted tests.
 
@@ -134,9 +148,17 @@ This closes the note at `review-CH-6b2.md:78`. That file is only in the plan2 ch
 
 ## User review
 
-No owner walkthrough item in this unit. The reviewer focus is KD-3b and the 4 failures present without the Q4b change.
+No owner walkthrough item in this unit. The reviewer focus is the drained-clone table (S equals CO-1, S+1 equals CO-2) and the four test fixes (stale tests, no number changed).
+
+BL-26 (not demo-critical, recorded): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. DS-1 must keep the Portfolio on those two windows.
+
+Lane 2 note (DD-1b2 F-THREADS): must also report each row's state on every shown Kobo story day and fail on PRODUCER_NOT_SETTLED or a PARTIAL board; CO-1 covers only day S.
 
 ## Guard results
 
 Run one at a time at `350b5a3a9`, `check-all` not run: A architecture pass; W agent workflow pass; N navigation pass; V mock-deviation labels pass; M missing-claim scan pass (42 tagged, 10 baselined), fixtures pass; frontend ratchet pass; COH fixtures 133 pass.
 
+
+## Scoped re-run (CH6b3-R2)
+
+Two runs, both via `tools\run-host-tests.ps1`, all 0 failed, 0 skipped: (1) `test_w303_portfolio_comparison_postgres.py`, `test_ch5a2_chain_api_postgres.py`, `test_ch6b_estate_postgres.py`: 12 passed (663 s). (2) `test_w303_portfolio_api`, `_fixture_postgres`, `_reduction`, `_scope_snapshot_postgres`, `_workflow_labels`, `test_ch3_rows`, `test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`: 215 passed (718 s). The ruling expected 215 passed for the packet's scoped list; I could not reproduce that grouping exactly (the original list was written as "listed files"), so the figure is the two runs' sum, 227 passed. No full suite, no `check-all`, per the brief.

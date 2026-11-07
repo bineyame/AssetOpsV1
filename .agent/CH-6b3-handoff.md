@@ -1,6 +1,6 @@
 # CH-6b3 handoff
 
-- **State:** packet ready, `.agent/review-packet-CH-6b3.md`. L3, L3m, L2m and guards done.
-- **Open for the Architect:** KD-3b (D13 Optimize row bullet not met); 4 scoped failures present without the Q4b change.
+- **State:** CH6b3-R2 done. Packet `.agent/review-packet-CH-6b3.md` updated (size 1.3, KD-3b closed/Restated, drained L3 clone replaces undrained L3, per-day table, Q4b counts, four test fixes, scoped re-run 12 + 215 passed).
+- **Drained clone:** `ch6b3r2` dropped. S = NEEDS_ATTENTION/PRIMARY_FINDING_OPEN (as CO-1); S+1 = "Fix verified, monitoring (ACT-001)" (as CO-2); COH-17 218/13, COH-18 21/0, 0 new. No stop fired.
 - **Next:** review of CH-6b3 only. `check-all` is the coordinator's.
-- **Alive:** `assetops_mechanism_test` and the rebuilt states template (normal after L3m). Clone `ch6b3` dropped. No processes. `var/ch6b3_*` logs and bundles remain (gitignored). The `frontend/node_modules` junction is removed.
+- **Alive:** `assetops_mechanism_test` and states template. Bundles `var/ch6b3r2_*` remain (gitignored).
