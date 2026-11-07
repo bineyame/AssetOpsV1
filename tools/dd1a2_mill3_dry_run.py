@@ -53,6 +53,10 @@ def report(engine, site_id, days: list[dict]) -> dict:
         gen = _rows(c, "SELECT DISTINCT e.source_time, e.normalized_value_text AS v FROM accepted_evidence e WHERE "
                        "e.site_id = :s AND e.device_id = 'generator-controller' AND e.signal_id = 'status' "
                        "ORDER BY e.source_time", {"s": site_id})
+        unserved = _rows(c, "SELECT r.source_time, r.normalized_value_text AS req, d.normalized_value_text AS got FROM "
+                            "accepted_evidence r JOIN accepted_evidence d ON d.site_id = r.site_id AND d.source_time = "
+                            "r.source_time AND d.device_id = 'clinic-meter' AND d.signal_id = 'delivered-power' WHERE "
+                            "r.site_id = :s AND r.device_id = 'clinic-meter' AND r.signal_id = 'requested-power'", {"s": site_id})
         signals = _rows(c, "SELECT DISTINCT device_id, signal_id FROM accepted_evidence WHERE site_id = :s", {"s": site_id})
     per_day: dict[str, dict] = {}
     for d in days:
@@ -77,7 +81,19 @@ def report(engine, site_id, days: list[dict]) -> dict:
     for r in power:
         day = _local_day(r["source_time"])
         if day in per_day:
-            per_day[day]["generator_kwh"] = round(per_day[day]["generator_kwh"] + float(r["v"]) * 5 / 60, 3)
+            per_day[day]["generator_kwh"] += float(r["v"]) * 5 / 60
+    for v in per_day.values():
+        v["generator_kwh"] = round(v["generator_kwh"], 3)
+    for r in unserved:  # R3 check 1; the residential meter records no requested power, so only the clinic is comparable
+        day = _local_day(r["source_time"])
+        if day in per_day:
+            # [readings, delivered != requested, a value missing (not a number)]
+            u = per_day[day].setdefault("clinic_readings_unserved", [0, 0, 0])
+            u[0] += 1
+            try:
+                u[1] += abs(float(r["req"]) - float(r["got"])) > 1e-9
+            except (TypeError, ValueError):
+                u[2] += 1
     for f in findings:
         day = _local_day(f["episode_start"])
         if day in per_day:
@@ -157,7 +173,9 @@ def main(mode: str, work: Path) -> int:
         if len(outcomes) < 500:
             break
     backfill.main(["--site", "KOBO-001", "--steps", "a"])
-    out: dict = {"mode": mode, "S": story["S"], "db": url.split("/")[-1], "report": report(engine, result.site.id, picked)}
+    ticks = settle_money(engine, result.site.id) if mode != "g1" else None
+    out: dict = {"mode": mode, "S": story["S"], "db": url.split("/")[-1], "report": report(engine, result.site.id, picked),
+                 "money_a": ticks}
     if mode == "mill3":
         out["mill3"] = mill3(url, result, dc.at(story["S"]))
     out["wall_s"] = round(time.monotonic() - began, 1)
@@ -166,6 +184,29 @@ def main(mode: str, work: Path) -> int:
     engine.dispose()
     print("wrote", work / f"{mode}.json", "wall", out["wall_s"], flush=True)
     return 0
+
+
+def settle_money(engine, site_id, limit: int = 12) -> dict:
+    """DD1a2-R2 MONEY-A: the prepare's own scheduled tick (`demo_combined.TICK`, `--consequence-items 100`) until the
+    consequence rows stop changing for two ticks (or `limit` ticks). Reports the rows; no pricing is added here."""
+    import demo_combined as dc
+
+    history, stable = [], 0
+    for n in range(limit):
+        done = subprocess.run([sys.executable, *dc.TICK, "--no-prebuild"], capture_output=True, text=True, env=os.environ)
+        with engine.connect() as c:
+            rows = _rows(c, "SELECT count(*) AS n FROM financial_consequence_revision WHERE site_id = :s", {"s": site_id})[0]["n"]
+        line = [x for x in done.stdout.splitlines() if x.startswith("{")]
+        history.append({"tick": n + 1, "exit": done.returncode, "rows": rows, "stdout_tail": (line[-1] if line else done.stdout)[-400:],
+                        "stderr_tail": done.stderr[-200:] if done.returncode else ""})
+        print("tick", n + 1, "exit", done.returncode, "consequence rows", rows, flush=True)
+        stable = stable + 1 if n and history[-2]["rows"] == rows else 0
+        if stable >= 2:
+            break
+    with engine.connect() as c:
+        keys = _rows(c, "SELECT column_name FROM information_schema.columns WHERE table_name = 'financial_consequence_revision'")
+        rows = _rows(c, "SELECT to_jsonb(r) AS row FROM financial_consequence_revision r WHERE site_id = :s", {"s": site_id})
+    return {"ticks": history, "columns": [k["column_name"] for k in keys], "rows": [r["row"] for r in rows]}
 
 
 def mill3(url: str, result, S: datetime) -> dict:

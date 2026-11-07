@@ -17,7 +17,7 @@
       "06:00"
      ]
     ],
-    "fuel_used_l": 0,
+    "generator_kwh": 0.0,
     "findings": [],
     "windows": [
      {
@@ -42,10 +42,15 @@
        {
         "first_on": "2026-10-23T02:05:00.000000Z",
         "claim_level": "NECESSARY",
-        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-23T02:05:00.000000Z"
+        "assessment_key": "dispatch:interval:7300eb92-2bbd-4e0c-b5b6-6aa69fcb9fe4:2026-10-23T02:05:00.000000Z"
        }
       ]
      }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
     ]
    },
    "2026-10-24": {
@@ -61,7 +66,7 @@
       "06:00"
      ]
     ],
-    "fuel_used_l": 0,
+    "generator_kwh": 3.167,
     "findings": [],
     "windows": [
      {
@@ -86,10 +91,15 @@
        {
         "first_on": "2026-10-24T01:00:00.000000Z",
         "claim_level": "NECESSARY",
-        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-24T01:00:00.000000Z"
+        "assessment_key": "dispatch:interval:7300eb92-2bbd-4e0c-b5b6-6aa69fcb9fe4:2026-10-24T01:00:00.000000Z"
        }
       ]
      }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
     ]
    },
    "2026-10-28": {
@@ -105,7 +115,7 @@
       "06:00"
      ]
     ],
-    "fuel_used_l": 0,
+    "generator_kwh": 0.0,
     "findings": [],
     "windows": [
      {
@@ -130,10 +140,15 @@
        {
         "first_on": "2026-10-28T02:05:00.000000Z",
         "claim_level": "NECESSARY",
-        "assessment_key": "dispatch:interval:68a3dbc2-8cfe-4478-ab7d-83d5979cde1c:2026-10-28T02:05:00.000000Z"
+        "assessment_key": "dispatch:interval:7300eb92-2bbd-4e0c-b5b6-6aa69fcb9fe4:2026-10-28T02:05:00.000000Z"
        }
       ]
      }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
     ]
    }
   },
@@ -195,5 +210,6 @@
   "money": [],
   "findings_total": 0
  },
- "wall_s": 377.5
+ "money_a": null,
+ "wall_s": 362.8
 }

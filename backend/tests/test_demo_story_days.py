@@ -770,3 +770,25 @@ def test_s10_is_fillable_with_the_fresh_before_day_and_keeps_the_refusals_first(
         with pytest.raises(sd.StoryDaysError) as err:
             sd.plan_add_runs(doc, current, "kobo", "steady-before-first" if day == "x" else "normal", S, now, day=day)
         assert err.value.error_code == "LATE_IN_STREAM"
+
+
+# DD1a2-R2 item 4: the weekday assertions of `test_demo_combined_postgres.py` (:198 and after), applied to v3 on seven
+# consecutive values of S without that barred test: same count, the ruled weekday, inside the 7 days before the listed
+# date, at `weekday_offset`, the listed kind.
+@pytest.mark.parametrize("step", range(7))
+def test_v3_weekday_bound_site_assertions_on_seven_consecutive_s(step):
+    s = S + timedelta(days=step)
+    listed_doc = sd.load()
+    assert listed_doc["sites"].get("ev"), "the empty set would pass for the wrong reason"
+    runs = sd.resolve(listed_doc, s)
+    for site, weekday in sd.SITE_WEEKDAY.items():
+        listed = sorted(listed_doc["sites"][site], key=lambda e: sd.day_offset(e["day"]))
+        got = sorted((x for x in runs if x.site == site), key=lambda x: x.offset)
+        assert len(got) == len(listed), (site, got, listed)
+        for e, x in zip(listed, got):
+            n = sd.day_offset(e["day"])
+            date = datetime.fromisoformat(x.day).replace(tzinfo=timezone.utc)
+            assert date.weekday() == weekday, (site, e, x)
+            assert s + timedelta(days=n - 7) < date <= s + timedelta(days=n), (site, e, x)
+            assert x.offset == sd.weekday_offset(site, s, n), (site, e, x)
+            assert x.kind == e["kind"], (site, e, x)
