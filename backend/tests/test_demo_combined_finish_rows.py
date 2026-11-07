@@ -157,14 +157,17 @@ def test_mill3b_recomputes_the_value_from_the_shown_means_and_the_v1_fixture_pri
 
 
 def _mill5_bodies(mill_text: str | None = None, headline: str = "2 verified results", kobo_actions: int = 1,
-                  claim: int = 2) -> tuple[dict, dict]:
+                  claim: int = 2, source_class: str | None = "REGISTERED_SIMULATION",
+                  ) -> tuple[dict, dict, dict]:
+    """The board, week chain and verdict-page bodies. WD-1m-R2: the mill entry carries the suffix of the verdict
+    page's `outcome.source_class` (the default is an example class, as on the S+0 Kobo story)."""
     from assetops_backend.chain.vocabulary import provenance_suffix
     from assetops_backend.outcomes.display_code import display_code
     from assetops_backend.site_outcomes.mini import VERIFICATION_TEXT
 
     trial = VERIFICATION_TEXT["VERIFIED"].format(code=display_code("ACT-000001"), suffix=provenance_suffix(None))
     mill = mill_text or VERIFICATION_TEXT["VERIFIED"].format(code=display_code("ACT-000002"),
-                                                             suffix=provenance_suffix(None))
+                                                             suffix=provenance_suffix(source_class))
     board = {"rows": [{"category": "ASSURE_PERFORMANCE", "headline": headline, "contributors": [
         {"key": "verified_results", "text": trial, "link_ref": {"kind": "ACTION", "id": "a1"}},
         {"key": "verified_results", "text": mill, "link_ref": {"kind": "DOMAIN_VERDICT", "id": "mill"}}]}]}
@@ -173,21 +176,41 @@ def _mill5_bodies(mill_text: str | None = None, headline: str = "2 verified resu
                                                         "verified_actions": kobo_actions}},
                        {"code": "COLD-LAB-001", "threads": {"open": 0, "in_hand": 1, "verified": 0,
                                                             "verified_actions": 0}}]}
-    return board, chain
+    page = {"state": "VERIFIED", "outcome": {"outcome": "VERIFIED", "source_class": source_class}}
+    return board, chain, page
+
+
+def _mill5(bodies: tuple[dict, dict, dict], mill_id: str = "mill") -> dict:
+    board, chain, page = bodies
+    return rows.mill_assure(board, chain, mill_id, "ACT-000002", page)
 
 
 def test_mill5_reads_the_mill_entry_the_headline_and_the_week_claim() -> None:
     """MB-1-R §2.5 MILL-5 (L0, beside MILL-3b): a pass and one failing body per assertion."""
-    got = rows.mill_assure(*_mill5_bodies(), "mill", "ACT-000002")
+    got = _mill5(_mill5_bodies())
     assert got["verified_entries"] == 2 and got["week_claim"] == 2
+    assert got["mill_text"].endswith(" on example data")
     for bad in (_mill5_bodies(mill_text="ACT-002 not yet verified", headline="1 verified result"),  # wrong text
                 _mill5_bodies(headline="3 verified results"),                                     # count != entries
                 _mill5_bodies(kobo_actions=0, claim=1),                                           # mill not counted
                 _mill5_bodies(claim=3)):                                                          # claim != Σ
         with pytest.raises(AssertionError):
-            rows.mill_assure(*bad, "mill", "ACT-000002")
+            _mill5(bad)
     with pytest.raises(AssertionError):  # another Action id is not the mill
-        rows.mill_assure(*_mill5_bodies(), "other", "ACT-000002")
+        _mill5(_mill5_bodies(), "other")
+
+
+def test_mill5_fails_a_mill_entry_without_its_example_suffix_and_a_kobo_page_without_a_class() -> None:
+    """WD-1m-R2: an example-class page whose board entry is plain FAILS; a None class on the S+0 Kobo page FAILS even
+    when the board entry is plain too (the write path did not run)."""
+    from assetops_backend.outcomes.display_code import display_code
+    from assetops_backend.site_outcomes.mini import VERIFICATION_TEXT
+
+    plain = VERIFICATION_TEXT["VERIFIED"].format(code=display_code("ACT-000002"), suffix="")
+    with pytest.raises(AssertionError):
+        _mill5(_mill5_bodies(mill_text=plain))
+    with pytest.raises(AssertionError):
+        _mill5(_mill5_bodies(mill_text=plain, source_class=None))
 
 
 def _pva_cost_check(amount: str = "4.125") -> dict:

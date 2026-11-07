@@ -88,32 +88,14 @@ SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id 
               WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
             ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)
        END AS accepted_at,
-       v.outcome, v.recorded_at AS outcome_recorded_at, src.source_class
+       v.outcome, v.recorded_at AS outcome_recorded_at, v.source_class
   FROM chain_action a
-  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at, o.details FROM verification_outcome o
+  -- WD-1m-R2: `source_class` is the example-data class stored with the verdict when it was judged (NULL = none found,
+  -- or a verdict stored before WD-1m). One jsonb field; the board read never scans evidence.
+  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at, o.details->'source'->>'source_class' AS source_class
+                       FROM verification_outcome o
                       WHERE a.kind = 'DOMAIN_INTENT' AND o.tenant_id = a.tenant_id AND o.domain_action_id = a.id
                       ORDER BY o.recorded_at, o.id LIMIT 1) v ON true
-  -- WD-1m (WD-1m-R §2): the mill verdict's example-data class over its used days (Site-local), from evidence received
-  -- by the outcome's `recorded_at`; the smallest publication class found, NULL = none found. No S4-05 commitment
-  -- checks on purpose: a broken link can only add "on example data", never remove it. Guarded: only an
-  -- opportunity-origin domain Action with an outcome scans; every other Action gets NULL.
-  LEFT JOIN LATERAL (
-    SELECT min(p.source_class) AS source_class
-      FROM site st
-     CROSS JOIN LATERAL (SELECT array_agg(CAST(d AS date)) AS days
-                           FROM jsonb_array_elements_text(coalesce(v.details->'baseline'->'days', '[]'::jsonb)
-                                                          || coalesce(v.details->'later'->'days', '[]'::jsonb)) d) u
-      JOIN accepted_evidence e
-        ON e.tenant_id = a.tenant_id AND e.site_id = a.site_id
-       AND e.source_time >= (CAST((SELECT min(x) FROM unnest(u.days) x) AS timestamp) AT TIME ZONE st.timezone)
-       AND e.source_time < (CAST((SELECT max(x) FROM unnest(u.days) x) + 1 AS timestamp) AT TIME ZONE st.timezone)
-       AND CAST(e.source_time AT TIME ZONE st.timezone AS date) = ANY(u.days)
-       AND e.received_at <= v.recorded_at
-      JOIN batch_publication_link l ON l.batch_id = e.batch_id
-      JOIN evidence_publication p ON p.id = l.publication_id
-     WHERE st.tenant_id = a.tenant_id AND st.id = a.site_id
-       AND a.kind = 'DOMAIN_INTENT' AND a.origin_opportunity_id IS NOT NULL AND v.outcome IS NOT NULL
-  ) src ON true
  WHERE a.tenant_id = :t AND a.site_id = :s AND a.thread_id IS NOT NULL
  ORDER BY a.action_code, a.id
 """)

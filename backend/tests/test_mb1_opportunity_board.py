@@ -220,6 +220,27 @@ def test_s0_shape_lists_the_trial_and_the_mill_in_code_order() -> None:
     assert comp.read_state == "AVAILABLE"
 
 
+def test_the_board_read_statement_never_scans_evidence() -> None:
+    """WD-1m-R2 (speed, structural): `_SITE_ACTIONS` reads the verdict's stored class, not `accepted_evidence`."""
+    from assetops_backend.chain.adapters.postgres_chain_read import _SITE_ACTIONS
+
+    sql = str(_SITE_ACTIONS)
+    assert "accepted_evidence" not in sql and "batch_publication_link" not in sql
+    assert "details->'source'->>'source_class'" in sql
+
+
+def test_the_mill_entry_reads_on_example_data_from_the_stored_source_class_and_plain_without_it() -> None:
+    """WD-1m-R2: the Assure entry's suffix is `provenance_suffix(fact.source_class)`; the class rides the chain row."""
+    fake = B2.Fake(verification={"state": "VERIFIED", "source_class": None})
+    for cls, suffix in (("REGISTERED_SIMULATION", " on example data"), (None, "")):
+        comp, rows = _compose(_mill_ports(fake, {**_mill(), "source_class": cls}))
+        entries = [c for c in rows[mini.ASSURE]["contributors"] if c["key"] == "verified_results"]
+        mill = next(e for e in entries if e["link_ref"]["kind"] == "DOMAIN_VERDICT")
+        assert mill["text"] == mini.VERIFICATION_TEXT["VERIFIED"].format(
+            code=display_code("ACT-000002"), suffix=provenance_suffix(cls)) == f"{display_code('ACT-000002')} verified{suffix}", mill
+        assert [o.source_class for o in comp.facts.opportunity_actions] == [cls]
+
+
 def test_a_mill_not_judged_as_known_reads_not_yet_verified_with_the_pending_chip() -> None:
     fake = B2.Fake()
     comp, rows = _compose(_mill_ports(fake, _mill(), k=B2.T(14)))  # the verdict (T(15)) is after the cutoff

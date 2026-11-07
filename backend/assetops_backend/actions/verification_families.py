@@ -212,7 +212,9 @@ class MiddayShift:
         result = assess_plan(plan, snapshots, tenant_id, site_id, now, today)
         if not result["decided"]:
             return {"state": NOT_JUDGED, "stored": False, "not_judged_text": result["not_judged_text"]}
-        outcome, metrics = outcome_rows(plan, result, now)
+        used = [d.isoformat() for d in result["baseline_days"] + result["later_days"]]
+        source_class = store.example_source_class(tenant_id, site_id, used, plan["basis"]["timezone"], now)  # WD-1m-R2
+        outcome, metrics = outcome_rows(plan, result, now, source_class)
         row, replayed = store.record_domain_outcome(tenant_id, site_id, outcome, metrics)
         return {"state": row["outcome"], "stored": not replayed, "replayed": replayed, "outcome_id": str(row["id"])}
 
@@ -361,9 +363,10 @@ def assess_plan(plan: Mapping[str, Any], snapshots: Any, tenant_id: UUID, site_i
     return result
 
 
-def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: datetime,
+def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: datetime, source_class: str | None = None,
                  ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """The outcome row and its BASELINE / LATER / COMPARISON metric rows of a decided `assess` result."""
+    """The outcome row and its BASELINE / LATER / COMPARISON metric rows of a decided `assess` result. WD-1m-R2: the
+    example-data class of the used days is stored in `details.source` (never in `basis`, so replay identity holds)."""
     base = [d.isoformat() for d in result["baseline_days"]]
     later = [d.isoformat() for d in result["later_days"]]
     unit = "kWh/day"
@@ -386,6 +389,7 @@ def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: dateti
                "threshold_kwh_per_day": result.get("threshold"), "line": result["line"],
                "sentence": result["sentence"], "pins": result["pins"],
                "pinned_baseline": plan["baseline_selection"].get("pins", []),
+               "source": {"source_class": source_class},
                "site_today": result["today"].isoformat(), "look_ahead_closed": result["look_ahead_closed"],
                "recurrence": "not recorded (BL-07); the declared rule alone decides"}
     outcome = {"id": uuid4(), "domain_action_id": plan["domain_action_id"], "plan_id": plan["id"],
@@ -463,7 +467,8 @@ def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
                 "line": d.get("line"), "not_judged_text": None,
                 "outcome": {"outcome_id": str(o["id"]), "outcome": o["outcome"], "reasons": list(o["reasons"]),
                             "recorded_at": recorded.astimezone(timezone.utc).isoformat()
-                            if isinstance(recorded, datetime) else recorded},
+                            if isinstance(recorded, datetime) else recorded,
+                            "source_class": (d.get("source") or {}).get("source_class")},  # WD-1m-R2: wire only
                 "plan": {**plan_part, "later_days": list(d["later"]["days"])}, "metrics": [row]}
     live = live or {}
     later_days = [d.isoformat() for d in live.get("later_days", [])]

@@ -1082,7 +1082,7 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
         if isinstance(a, OpportunityActionFact):
             s = a.outcome if a.outcome in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE") else "PENDING"
             out.append(Contributor("verified_results", "Verified results",
-                                   VERIFICATION_TEXT[s].format(code=display_code(a.code), suffix=provenance_suffix(None)),
+                                   VERIFICATION_TEXT[s].format(code=display_code(a.code), suffix=provenance_suffix(a.source_class)),
                                    PENDING_CHIP if s == "PENDING" else None, a.verdict_ref))
             continue
         state = a.verification_state

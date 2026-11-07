@@ -5,6 +5,7 @@ INCONCLUSIVE BASELINE_ZERO, all in Decimal and integers (the 10% boundary is exa
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from types import SimpleNamespace
@@ -153,6 +154,26 @@ def test_site_index_gives_a_mini_action_the_mill_verdict_href_only_with_lineage(
     assert _action_link("KOBO-001", mini, {"lineage": False})["href"] is None
     cold = {**mini, "finding_revision_id": "f1", "opportunity_revision_id": None}
     assert _action_link("GH-1", cold, {"lineage": True})["href"] == "/sites/GH-1/actions/a1/verification"
+
+
+def test_outcome_rows_store_the_source_class_in_details_and_never_in_the_basis() -> None:
+    """WD-1m-R2: `details.source.source_class` is X for X in (None, an example class); `basis` and its hash are
+    byte-equal to the call without it; the verdict page wire carries it as `outcome.source_class`."""
+    p = plan()
+    result = {**vf.assess(p, baseline() + later(1, 2, 3, kwh="12"), TODAY), "pins": [], "today": TODAY,
+              "known_at": NOW}
+    plain, metrics = vf.outcome_rows(p, result, NOW)
+    ctx = {"action": {"id": p["domain_action_id"], "action_code": "ACT-9", "title": "Run the mill at midday"},
+           "plan": p}
+    for cls in (None, "REGISTERED_SIMULATION"):
+        got, _ = vf.outcome_rows(p, result, NOW, cls)
+        assert got["details"]["source"] == {"source_class": cls}
+        assert json.dumps(got["basis"], sort_keys=True) == json.dumps(plain["basis"], sort_keys=True)
+        assert got["basis_sha256"] == plain["basis_sha256"] and "source" not in got["basis"]
+        assert vf.summary_wire(ctx, [{**got, "metrics": metrics}], None)["outcome"]["source_class"] == cls
+    # a verdict stored before WD-1m has no `details.source`: the wire says None
+    old = {**plain, "details": {k: v for k, v in plain["details"].items() if k != "source"}}
+    assert vf.summary_wire(ctx, [{**old, "metrics": metrics}], None)["outcome"]["source_class"] is None
 
 
 def test_summary_wire_reads_the_stored_outcome_and_the_not_judged_state() -> None:

@@ -15,7 +15,7 @@ Site's current covering FoundationRevision.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID, uuid4
@@ -780,6 +780,26 @@ class PostgresActionStore:
         return self._run(work)
 
     # ---- CH-9b3: the mill verdict (CH9b3-R Q1-Q5) ----------------------------------------------------------
+
+    def example_source_class(self, tenant_id: UUID, site_id: UUID, days: list[str], timezone: str,
+                             known_at: datetime) -> str | None:
+        """WD-1m-R2: `min` of the positive publication classes over the Site's accepted evidence on `days` (Site-local
+        dates in `timezone`) received by `known_at`; None = none found. No S4-05 commitment checks: a broken link can
+        only add "on example data", never remove it (WD-1m-R §2). Runs once per verdict, never on a board read."""
+        if not days:
+            return None
+        dates = sorted(date.fromisoformat(d) for d in days)
+        params = {"t": tenant_id, "s": site_id, "days": dates, "tz": timezone, "k": known_at,
+                  "lo": dates[0], "hi": dates[-1] + timedelta(days=1)}
+        return self._read(lambda c: c.execute(text(
+            "SELECT min(p.source_class) FROM accepted_evidence e "
+            "JOIN batch_publication_link l ON l.batch_id = e.batch_id "
+            "JOIN evidence_publication p ON p.id = l.publication_id "
+            "WHERE e.tenant_id = :t AND e.site_id = :s "
+            "AND e.source_time >= (CAST(:lo AS timestamp) AT TIME ZONE :tz) "
+            "AND e.source_time < (CAST(:hi AS timestamp) AT TIME ZONE :tz) "
+            "AND CAST(e.source_time AT TIME ZONE :tz AS date) = ANY(CAST(:days AS date[])) "
+            "AND e.received_at <= :k"), params).scalar())
 
     def domain_outcomes(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> list[dict[str, Any]]:
         """The domain Action's outcomes, oldest first, each with its metrics."""

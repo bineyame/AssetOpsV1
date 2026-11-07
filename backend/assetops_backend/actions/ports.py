@@ -72,6 +72,13 @@ class ActionStore(Protocol):
 
     def current_foundation(self, tenant_id: UUID, site_id: UUID, at: datetime) -> dict[str, Any] | None: ...
 
+    def example_source_class(self, tenant_id: UUID, site_id: UUID, days: list[str], timezone: str,
+                             known_at: datetime) -> str | None:
+        """WD-1m-R2: `min` of the positive publication classes over the Site's accepted evidence on `days` (Site-local
+        dates in `timezone`) received by `known_at`; None = none found. No S4-05 commitment checks: a broken link can
+        only add "on example data", never remove it (WD-1m-R §2)."""
+        ...
+
 
 # The S1 caller-owned publish, passed in from composition (the Action adapter never imports the S1 service):
 # (site_code, connection, then, *, asset_code, value, effective_from, note, expected_revision_id, expected_value,
