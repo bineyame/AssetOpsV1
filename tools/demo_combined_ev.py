@@ -169,7 +169,7 @@ def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: d
         visits = write_work(url, built, story, asset_id, tag, timedelta(days=day.offset))
     # POLISH §1.3 (P-08): the API returns `action_code`/`intent_id`; record them and the Action's own `raised_at` as
     # posted. DD1b1-R2: story-dated after the evidence, so the Depot's whole-UTC-day board lists it under "in hand"
-    # (R645 closes when the re-probe passes); the exact event-window board does not (BL-38). The create
+    # (closes R645: DD1b1-R3 re-probe passed); the exact event-window board does not (BL-38). The create
     # response carries no `raised_at`, so it is the posted body's.
     return {"action": {"id": declared["action"]["id"], "code": declared["action"]["action_code"],
                        "raised_at": declared["action_posted"]["raised_at"]},
