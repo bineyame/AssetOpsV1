@@ -216,6 +216,18 @@ NEVER_SHIPPED_AS_V1 = {
     "kobo-s3-dispatch-necessary-run",
     "kobo-mini-grid-reserve-trial",
     "kobo-mini-grid-reserve-matters",  # SCN-kobo-reserve-matters
+    # DRIFT-RB1: Kobo scenarios shipped after the frozen v1 sample (DD-1a1/DD-1a2 rounds,
+    # up to 2026-11-06), first shipped at v2, so no v1-shaped owner copy exists to rebuild.
+    "kobo-mill-midday",
+    "kobo-night-early",
+    "kobo-night-early-after-before-mill",
+    "kobo-night-early-from-0300",
+    "kobo-night-early-until-0255",
+    "kobo-night-early-until-0300",
+    "kobo-rest-before-mill",
+    "kobo-rest-mill",
+    "kobo-steady-before-mill",
+    "kobo-steady-day",
 }
 
 #: W2-02: the registered cold Lab's `cold-scenario/1` documents are a separate strict type
