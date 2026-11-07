@@ -157,9 +157,9 @@ COLUMNS = ("id", "tenant_id", "site_id", "finding_id", "finding_revision_id", "f
 
 
 def _widened(before: str, arm: str) -> str:
-    """pg's text for `CHECK (old OR arm)`: the old expression nested one level deeper."""
-    assert before.startswith("CHECK (") and before.endswith(")")
-    return f"CHECK (({before[len('CHECK ('):-1]} OR {arm}))"
+    """pg's text of 0025's flat OR list `CHECK ((a OR b OR c))` with one more arm: `CHECK ((a OR b OR c OR arm))`."""
+    assert before.startswith("CHECK ((") and before.endswith("))")
+    return f"{before[:-2]} OR {arm}))"
 
 
 def test_b6_single_alembic_head(engine) -> None:  # noqa: F811
