@@ -590,6 +590,8 @@ export function routeFor(r: Ref): string | null {
       return r.view ? siteFindingViewHref(r.site, r.id, r.view, r.revision) : siteFindingHref(r.site, r.id, r.revision);
     case "ACTION":
       return siteActionHref(r.site, r.id, r.view ?? "overview", { eventId: r.event_id, recordedAt: r.recorded_at });
+    case "DOMAIN_VERDICT": // DD1b2-R6 O1: the mill verdict of a MINI domain Action
+      return siteMillVerificationHref(r.site, r.id);
     case "OPPORTUNITY":
       return siteOpportunityHref(r.site, r.id, r.known_at);
     case "CASE":

@@ -163,6 +163,15 @@
   "path": "/sites/KOBO-001/actions/7f1e0a52-2222-4a1e-9e7d-000000000002/verification?event_id=ev-3"
  },
  {
+  "name": "domain verdict (DD1b2-R6 O1)",
+  "ref": {
+   "kind": "DOMAIN_VERDICT",
+   "site": "KOBO-001",
+   "id": "7f1e0a52-2222-4a1e-9e7d-000000000004"
+  },
+  "path": "/sites/KOBO-001/domain-actions/7f1e0a52-2222-4a1e-9e7d-000000000004/verification"
+ },
+ {
   "name": "opportunity",
   "ref": {
    "kind": "OPPORTUNITY",

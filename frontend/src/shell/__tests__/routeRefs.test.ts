@@ -12,7 +12,7 @@ describe("routeFor (CH-5a2a B1)", () => {
 
   it("has a fixture row for every kind and enumerated view", () => {
     const kinds = new Set(fixture.map((row) => row.ref.kind));
-    expect([...kinds].sort()).toEqual(["ACTION", "CASE", "ESTATE", "EVIDENCE", "FINDING", "OPPORTUNITY", "SITE", "THREAD"]);
+    expect([...kinds].sort()).toEqual(["ACTION", "CASE", "DOMAIN_VERDICT", "ESTATE", "EVIDENCE", "FINDING", "OPPORTUNITY", "SITE", "THREAD"]);
     const siteViews = new Set(fixture.flatMap((row) => (row.ref.kind === "SITE" ? [row.ref.view ?? "home"] : [])));
     expect([...siteViews].sort()).toEqual([...REF_SITE_VIEWS].sort());
     const estateViews = new Set(fixture.flatMap((row) => (row.ref.kind === "ESTATE" ? [row.ref.view] : [])));

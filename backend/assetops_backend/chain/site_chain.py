@@ -140,8 +140,16 @@ def actions_of(rows: Mapping[str, Any], thread_ids: Iterable[str], *, site: str,
         seg = lc.action_segment(evs, occ, lc.accepted_day([_local(a["accepted_at"], tz)]))
         out.append({"id": a["action_id"], "code": a["action_code"], "kind": a["kind"], "thread": tid,
                     "segment_no": seg, "verification": verification.get(a["action_id"]),
-                    "ref": refs.action_ref(site, a["action_id"])})
+                    "ref": action_wire_ref(site, a)})
     return out
+
+
+def action_wire_ref(site: str, a: Mapping[str, Any]) -> dict[str, Any]:
+    """DD1b2-R6 O1: a domain intent raised from an opportunity (the mill) has no Action page; its Ref is the verdict
+    page. Every other Action (MINI_TRIAL, a Finding's domain intent) keeps its ACTION Ref."""
+    if a["kind"] == "DOMAIN_INTENT" and a.get("origin_opportunity_id") is not None:
+        return refs.domain_verdict_ref(site, a["action_id"])
+    return refs.action_ref(site, a["action_id"])
 
 
 def thread_detail(rows: Mapping[str, Any], thread_id: str, *, site: str, domain: str, tz: str | None,

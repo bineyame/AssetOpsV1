@@ -25,7 +25,7 @@ from urllib.parse import parse_qsl, quote, urlencode
 
 Ref = Mapping[str, Any]
 
-KINDS = ("THREAD", "FINDING", "ACTION", "OPPORTUNITY", "CASE", "EVIDENCE", "SITE", "ESTATE")
+KINDS = ("THREAD", "FINDING", "ACTION", "DOMAIN_VERDICT", "OPPORTUNITY", "CASE", "EVIDENCE", "SITE", "ESTATE")
 
 #: `siteFindingViewHref` (`FINDING_CHILD_VIEWS`).
 FINDING_VIEWS = ("evidence", "history", "recommendation", "alternatives")
@@ -116,6 +116,8 @@ def href_for(ref: Ref | None) -> str | None:
                 raise ValueError(f"unknown ACTION view {view!r}")
             base = f"{base}/{view}"
         return _with(base, [("event_id", ref.get("event_id")), ("recorded_at", ref.get("recorded_at"))])
+    if kind == "DOMAIN_VERDICT":  # DD1b2-R6 O1: a MINI domain Action's verdict page (`siteMillVerificationHref`)
+        return f"{_site(ref)}/domain-actions/{_seg(ref['id'])}/verification"
     if kind == "OPPORTUNITY":
         return _with(f"{_site(ref)}/opportunities/{_seg(ref['id'])}", [("known_at", ref.get("known_at"))])
     if kind == "CASE":
@@ -174,6 +176,11 @@ def action_ref(site: str, action_id: str, *, view: str | None = None, event_id: 
                recorded_at: str | None = None) -> dict[str, Any]:
     return _ref("ACTION", site=site, id=str(action_id), view=view,
                 event_id=None if event_id is None else str(event_id), recorded_at=recorded_at)
+
+
+def domain_verdict_ref(site: str, action_id: str) -> dict[str, Any]:
+    """DD1b2-R6 O1: the verdict page of a domain Action raised from an opportunity (the mill); no query."""
+    return _ref("DOMAIN_VERDICT", site=site, id=str(action_id))
 
 
 def opportunity_ref(site: str, opportunity_id: str, known_at: str | None = None) -> dict[str, Any]:
