@@ -1,5 +1,7 @@
 # Review packet: CH-6b3 coherence, proofs and the packet (size 1.3)
 
+**Backlog id mapping (merge prep, 2026-11-07):** this branch's BL-23, BL-24, BL-25, BL-26, BL-27 are now BL-33, BL-34, BL-35, BL-36, BL-37 (main keeps DD-1a2's BL-23..26; DD-1b1 holds BL-30..32). Renamed in the CH6b3-R* sections of `build-sheet-CH-6.md`, this packet, `review-CH-6b3.md`, `estate/portfolio.py:865` and `tools/checks/chain_coherence.py:1318` (comments). Older text elsewhere in this packet that says BL-23..27 means the old ids.
+
 Sheet: `.agent/build-sheet-CH-6.md` CH-6b3 entry, Scope cut, CH6b3-R (`:833`). Pre-flight: `.agent/CH-6b3-preflight.md`. Branch `task/CH-6b3-coherence-proofs`, based on main `9b1c53ae3`. Review of CH-6b3 only.
 
 ## Outcome
@@ -243,3 +245,9 @@ A architecture pass; W agent workflow pass; N navigation pass; V ledger valid (1
 - **L3m:** `derive --variant states` 58 s; collect 108 requests, all 200 (bundle `var/ch6b3r4_bundle`, report `var/ch6b3r4_l3m_report.json`); `check --variant states --expect expected-mechanism.json --threads var/mechanism/expected-threads.json`: COH-17 2 findings, 2 expected, **0 new** (N1 = 0, W3 = 0); COH-18 0; no RESOLVED entry; COH-17 compared 135 skipped 11; COH-18 compared 75 skipped 0; self-check 2 pass.
 - **Guards:** V ledger valid (110 screens); M 14 pass.
 - **Not re-run:** L2m and the polish clone (one text value, one browser constant and an expectation file moved; no read path or number changed; polish never reaches the branch).
+
+### CH6b3-R4 merge prep
+- Committed `c9f498173`, then `git merge main`: one conflict, `.agent/backlog-post-demo.md` (both sets of rows added at the same spot); resolved mechanically by keeping both (main's BL-23..26, then BL-33..37). Merge commit `c5812521f`. Not merged into main.
+- After merge: L0 `test_chain_coherence.py` 138 passed; guard A pass; guard W pass.
+- **Mechanism template is now stale (`status`: `usable: false`, states).** Cause 1: the Part 2 BL-id rename edits a comment in `estate/portfolio.py` (outside `chain/`, so part of the fingerprint) and `c9f498173` already staled it before the merge; the merged main adds more. The CH-6b3 L3m result above (2 expected, 0 new) was taken on the code before the comment edit and still stands on that code. Not rebuilt, per the brief; a rebuild (~1300 s) is needed before any later L2m/L3m on the merged tree.
+- `vitest related` fails on this tree (a `.py` reaches import analysis); `vitest run src/estate` used.
