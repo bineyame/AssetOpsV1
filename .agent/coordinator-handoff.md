@@ -6,22 +6,24 @@ Read this first on resume. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-pl
 Coordinator: report to the owner in plain language, short (1–2 lines on routine events; full status on "where are we overall"). Route decisions to the lane's Architect (Claude subagent, reused via SendMessage until moderate context, then fresh). Builders = implementers (Opus for pre-flight/first build, Sonnet for continuation/fix rounds); first reviews Opus, re-reviews Sonnet; coordinator verifies mechanically-checkable and paper-only closures when the Architect rules so. Merge with `git merge --no-ff` on ACCEPT, then run `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` in the background from the PowerShell tool, logging to the scratchpad (17 guards, ~25 min). Its wrapper exit code proves nothing: read the log's last line. In a worktree without `frontend/node_modules` the two missing-claim guards fail with MODULE_NOT_FOUND; they must pass on main.
 
 ## Current plan
-- Plan doc: `Docs/demo-sprint/client-demo-plan.html`. Build sheets `.agent/build-sheet-*.md` (rulings appended at the end of each). Architect standing context: `.agent/architect-handoff-demo-plan-2026-11-04.md`. Backlog: `.agent/backlog-post-demo.md` (BL-43..46 recorded on the DD-1b2 branch; next free BL-47; Architects have reused ids, check). Lows: `.agent/demo-sprint-lows-2026-10-31-pipeline.md`.
+- Plan doc: `Docs/demo-sprint/client-demo-plan.html`. Build sheets `.agent/build-sheet-*.md` (rulings appended at the end of each). Architect standing context: `.agent/architect-handoff-demo-plan-2026-11-04.md`. Backlog: `.agent/backlog-post-demo.md` (BL-43..50 recorded; next free BL-51; Architects have reused ids, check). Lows: `.agent/demo-sprint-lows-2026-10-31-pipeline.md`.
 - Scope rule SCOPE-1 (owner 2026-11-05): only what we present defensibly to first clients; everything else → backlog.
-- Units: about 108.2 of 110.95 merged; 2.75 left (DD-1b2b 1.75, CH-5d1 1.0). Plan size rows NOT yet updated: CH-6b3 2.2, DD-1a2 2.25, DD-1b1 1.5, DD-1b2 3.5 (a 1.5 + b 2.0), DD-1 12.0.
-- Recent main merges: DD-1a2 (`1dd3b1862`), CH-6b3 (`f7c045bee`), DD-1b1 (`aaea00962`), DD-1b2a (`29efab1d0`; check-all 17/17 after it).
+- Units: about 111.2 of ~112.2 merged; 1.0 left (CH-5d1). Plan size rows NOT yet updated: CH-6b3 2.2, DD-1a2 2.25, DD-1b1 1.5, DD-1b2 4.5 (a 1.5 + b 3.0), DD-1 ≈13.0.
+- Recent main merges: DD-1a2 (`1dd3b1862`), CH-6b3 (`f7c045bee`), DD-1b1 (`aaea00962`), DD-1b2a (`29efab1d0`), DD-1b2b (`1c2e5ed28`; check-all 17/17 after it). DD-1b2b test DBs `dd1b2`/`dd1b2d` and their var folders dropped.
+- DD-1b2b record: rulings DD1b2-R8..R14 in `.agent/build-sheet-DD-1.md`; packet `.agent/review-packet-DD-1b2b.md`; reviews `review-DD-1b2b.md` (FIX) and `-r2.md` (ACCEPT). Rehearsal: 3585 s of 10800, min free RAM 3.07 GB, self-check 31/32 (CO-2 age-dependent, R11); EX-1 on a copy: add ~60 s, tick ~180 s, boards unchanged; mill RECURRED 10-31 ("Seen again" true); O14 96.4 → 22.4 quotable; O15 no fuel signal (no litres).
 
 ## In flight
-- DD-1b2b (`task/DD-1b2-finish-rehearsal`, worktree `AssetOpsV1-dd1b2`): Opus builder building under DD1b2-R6 (consolidated owed list O1–O20, steps 0–9) as amended by DD1b2-R7. Steps: link fix (O1), drain tooling, finish rows, guards/tests, then the ONE whole-list rehearsal (`assetops_demo3_dd1b2_test` / `var/demo3_dd1b2`; start by 17:30Z or next morning ≥05:00Z; start when free RAM ≥2.5 GB for 2 min and no other heavy job; I keep heavy jobs off), reads, clone `assetops_demo3_dd1b2c_test` for EX-1 after 11:00Z. A stopped rehearsal counts as the one run: a second needs the owner. Then its own fresh Opus review.
-- Lane-2 Architects used up: R3 (`a8f7…`, heavy), R4/R5 (`a087…`, done), R6/R7 (`a0d0…`, ~heavy). Use a fresh Architect for the next stop.
+- CH-5d1: fresh Architect pre-flight launched after the DD-1b2b merge.
+- E3 owes (R11–R14): serve heartbeat sampling (≤240 s, else TICK_EVERY_SECONDS=60), post-add check, after tool (E3.2), browser path to "Target met" (E3.4), perf --record (E3.5); on any copy rerun S2 then Performance (Kobo) and assert AVAILABLE.
+- Keep-awake: memory pressure reaped it once on 2026-11-07; owner said "restart both". Standing one restarted.
 
 ## Remaining
 - CH-5d1 (1, fresh Architect).
 - Then DS-1 demo script, then end-game E1–E6 (merge freeze → full suite → one prepare/baseline B-22 → finish/coherence/perf incl. E4 stored-hit check → captures incl. layout evidence at 1440/390 owed by CH-5b3, CH-6a3, CH-6b2 → owner walkthrough). Hold one rerun of E3 (up to 3 h) in reserve.
 - The mechanism `states` template is stale on merged main; expect one rebuild (~1300 s) before its next use.
 
-## Owner-facing results after the rehearsal (only if triggered; R6 §5, R7)
-B-16 if the prepare's own wall time > 10800 s; a litre line if the recomputed figure differs at one decimal; the measured recurrence result ("Seen again" shows or not); a line if free RAM went under 2 GB (lowest value and step).
+## Carry into DS-1 from DD-1b2b
+Index of ruling sections (R13 §6): R6 §4, R6 §3 + R9 §2 + R11 §2 (add-day), Q7 block (build-sheet `:1561-1564`), R10 §4, R11 §1, R14 (S-8 and S-5 lines; Cold "Why?" avoid line + fallback). Present only from the prepare-built DB; start `serve`, wait for "ready:", leave it running; live add ≈5 min. Owner was offered COO/CFO extras (mill on board ~1–1.5, dollars on verdict page, BL-48 wording ~0.15, BL-50 Cold "Why?" ~0.25) — undecided.
 
 ## Carry into DS-1 (none is checked against a script yet)
 - Start each normal day at 6am: the script explains the battery jump; no client screen does (DD1a2-R3). The generator runs ~15 min shortly before 6am on most before-days (not "from about 4am"; DD1b2-R4). Do not claim the mill change saves fuel (S-13 had the old pattern and 0 generator; no fuel rows).
@@ -34,7 +36,7 @@ B-16 if the prepare's own wall time > 10800 s; a litre line if the recomputed fi
 - Portfolio stays on week and month story links; one later day conflicts (BL-36). Month table shows three Verified rows beside "1 fix confirmed". Longer build shows extra Finding history entries. S-8/S-5 read "Spare solar on 4 of 4 well-observed days" beside "No potential found yet" (review L6).
 
 ## For the owner's walkthrough
-6am jump note on screen; three Verified rows; "days checked" on count lines; Portfolio click (BL-39); Cold/EV Portfolio rows "No action agreed yet" against ST-4/5 "in hand"; mill result reached by route, not on the board; Grow "Limited evidence" line. Owner told the generator story has no fuel money and may overrule.
+6am jump note on screen; three Verified rows; "days checked" on count lines; Portfolio click (BL-39); Cold/EV Portfolio rows "No action agreed yet" against ST-4/5 "in hand"; mill result reached by route, not on the board; Grow "Limited evidence" line. Owner told the generator story has no fuel money and may overrule. Added: Cold "Why?" names one of two threads on the failure day (BL-50); "sales not recorded" and EV income-estimate wording (BL-48); S-5 "Not judged yet".
 
 ## Owner decisions this sprint (verbatim files in `.agent/`)
 owner-scope-backlog-2026-11-05, owner-mill-pass-margin-2026-11-05, owner-kobo-nights-2026-11-06, owner-build-time-2026-11-06, owner-cold-days-2026-11-06, owner-kobo-partial-days-2026-11-07, owner-dd1a2-answers-2026-11-07, owner-rehearsal-whole-list-2026-11-07 (one whole-list run, own `*_test` DB, ≤3 h), owner-grow-size-2026-11-07 ("Leave it"), owner-mill-route-2026-11-07 ("Fix link, use route"), owner-efficiency-2026-11-05 and -2026-11-06.
