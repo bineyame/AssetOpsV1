@@ -73,7 +73,10 @@ Non-vacuity of the pins, run on committed work and reverted with `git checkout -
 
 ## Guards
 
-GUARDS_RESULT
+- `powershell -NoProfile -File tools\check-all.ps1 -Python <plan2 .venv python>` was run on `1a4d3b5c5`, with no `-ExecutionPolicy`. It took about 25 minutes on a loaded machine and ended **15 of 17 PASS**.
+  - The 15 include architecture seams, the estate guard self-tests, navigation truthfulness, agent workflow, chain coherence (150 passed), the event register, the chain graph, the frontend hard-wiring ratchet, the screen ledger and the mock-deviation labels.
+- The 2 failures were `Missing-claim orphan scan` and `Missing-claim scan fixtures`. Both failed with `Error: Cannot find module 'typescript'`, because the fresh worktree has no `frontend/node_modules`. This is an environment precondition, not this change: the diff touches no frontend or JS.
+  - Re-run with `NODE_PATH=<plan2>\frontend\node_modules`, both pass. The scan reports "Missing-claim scan passed: 42 tagged placement use(s), 10 baselined legacy occurrence(s)…", and the fixtures exit 0.
 
 ## Known deviations
 
