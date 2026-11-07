@@ -121,7 +121,7 @@ def duration_text(seconds: Any) -> str | None:
 
 
 def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
-            site_timezone: str | None) -> Composition:
+            site_timezone: str | None, actions_to: datetime | None = None) -> Composition:
     c = site_code
     reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
@@ -132,7 +132,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     finding_rows = reads.pages("ev_findings", ports.findings, lo, hi, key="items")
     health = reads.call("ev_depth", ports.health, lo, hi)
     availability = reads.call("ev_availability", ports.availability, lo, hi)
-    action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
+    action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, actions_to or hi)
     readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     chain_rows = reads.call("chain_rows", ports.chain_rows, lo, hi) or ()

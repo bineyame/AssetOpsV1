@@ -51,18 +51,25 @@ def test_unset_store_is_not_checked_and_its_statement_is_the_server_clock() -> N
     assert ":recorded_at, :min_days)" in _insert_statement(":recorded_at")
 
 
-def _story(first_start: str) -> dict:
-    return {"ev": {"install_at": "2026-10-10T06:30:00Z"},
-            "days": [{"site": "ev", "day": "2026-10-20", "start": "2026-10-20T08:00:00Z"},
-                     {"site": "kobo", "day": "x", "start": first_start},
+def _story(kobo_start: str = "2026-10-11T03:00:00Z", cold_start: str = "2026-10-20T16:00:00Z",
+           ev_start: str = "2026-10-20T08:00:00Z") -> dict:
+    return {"kobo": {"price_recorded_at": "2026-10-10T12:00:00Z"},
+            "cold": {"install_at": "2026-10-10T06:00:00Z"}, "ev": {"install_at": "2026-10-10T06:30:00Z"},
+            "days": [{"site": "ev", "day": "2026-10-20", "start": ev_start},
+                     {"site": "cold", "day": "2026-10-20", "start": cold_start},
+                     {"site": "kobo", "day": "x", "start": kobo_start},
                      {"site": "kobo", "day": "missing", "start": None}]}
 
 
-def test_objectives_instant_is_ev_install_plus_the_tariff_offset() -> None:
-    instant = demo_combined.objectives_instant(_story("2026-10-11T03:00:00Z"))
-    assert instant == datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
+def test_objectives_instants_are_each_sites_first_knowledge_instant() -> None:
+    got = demo_combined.objectives_instants(_story())
+    assert got == {"KOBO-001": datetime(2026, 10, 10, 12, 0, tzinfo=timezone.utc),
+                   "COLD-LAB-001": datetime(2026, 10, 10, 6, 30, tzinfo=timezone.utc),
+                   "EV-LAB-001": datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)}
 
 
-def test_objectives_instant_stops_when_a_built_day_is_earlier() -> None:
-    with pytest.raises(SystemExit, match="OBJECTIVES_INSTANT_CONFLICT.*kobo"):
-        demo_combined.objectives_instant(_story("2026-10-10T03:00:00Z"))
+@pytest.mark.parametrize("which,code", [("kobo_start", "KOBO-001"), ("cold_start", "COLD-LAB-001"),
+                                        ("ev_start", "EV-LAB-001")])
+def test_objectives_instants_stop_when_that_sites_first_built_day_is_earlier(which: str, code: str) -> None:
+    with pytest.raises(SystemExit, match=f"OBJECTIVES_INSTANT_CONFLICT.*{code}"):
+        demo_combined.objectives_instants(_story(**{which: "2026-10-10T05:00:00Z"}))

@@ -69,9 +69,8 @@ def estate_windows(story: dict) -> dict[str, tuple[str, str]]:
 
 
 def day_windows(days: list[dict]) -> list[dict[str, Any]]:
-    """Board windows (CH-5a1 R6): a Kobo or Cold built day is its Site-local day (`LOCAL_DAY_TZ`; Kobo's board reads
-    `?date=`, Cold's the local-day `from`/`to`); an EV day is its `[start, end)`, as `demo_combined_finish.Ctx.window`
-    reads it. `estate` is the enclosing UTC-midnight window the estate routes accept (they refuse a non-midnight
+    """Board windows (CH-5a1 R6, DD1b1-R2): a Kobo built day is its Site-local day (`LOCAL_DAY_TZ`; the board reads
+    `?date=`); a Cold or EV built day is its whole UTC day, the form `demo_combined.story_links` opens. `estate` is the enclosing UTC-midnight window the estate routes accept (they refuse a non-midnight
     bound)."""
     out = []
     for d in days:
@@ -79,7 +78,10 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
             continue
         start, end = at(d["start"]), at(d["end"])
         zone = LOCAL_DAY_TZ.get(d["site"])
-        if zone:
+        if d["site"] in ("cold", "ev"):   # DD1b1-R2: a Cold or EV story day is its whole UTC day
+            lo = _midnight(start)
+            hi = lo + timedelta(days=1)
+        elif zone:
             local = _midnight(start.astimezone(ZoneInfo(zone)))
             lo, hi = local.astimezone(timezone.utc), (local + timedelta(days=1)).astimezone(timezone.utc)
         else:

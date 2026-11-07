@@ -356,7 +356,7 @@ def test_example_data_strings_are_listed_as_info_only(tmp_path: Path) -> None:
 
 
 def test_day_windows_follow_the_board_reads() -> None:
-    """CH-5a1 (intended, R6/Q8, closes MD0-R R10): Kobo and Cold days are their Addis local days; EV unchanged."""
+    """DD1b1-R2: a Kobo day is its Addis local day; a Cold or EV day is its whole UTC day."""
     days = [{"site": "kobo", "kind": "normal", "day": "2026-10-30", "assess": "build",
              "start": "2026-10-30T03:00:00Z", "end": "2026-10-30T11:00:00Z"},
             {"site": "cold", "kind": "failure", "day": "2026-10-31", "assess": "build",
@@ -367,16 +367,16 @@ def test_day_windows_follow_the_board_reads() -> None:
     kobo, cold, ev = cc.day_windows(days)
     assert (kobo["id"], kobo["date"], kobo["from"], kobo["to"]) == (
         "day:kobo:normal:2026-10-30", "2026-10-30", "2026-10-29T21:00:00Z", "2026-10-30T21:00:00Z")
-    assert (cold["from"], cold["to"], cold["date"]) == ("2026-10-30T21:00:00Z", "2026-10-31T21:00:00Z", None)
-    assert cold["estate"] == ("2026-10-30T00:00:00Z", "2026-11-01T00:00:00Z")  # estate routes need UTC midnights
+    assert (cold["from"], cold["to"], cold["date"]) == ("2026-10-31T00:00:00Z", "2026-11-01T00:00:00Z", None)
+    assert cold["estate"] == ("2026-10-31T00:00:00Z", "2026-11-01T00:00:00Z")  # estate routes need UTC midnights
     assert kobo["estate"] == ("2026-10-29T00:00:00Z", "2026-10-31T00:00:00Z")
-    assert (ev["from"], ev["to"], ev["date"]) == ("2026-10-27T08:00:00Z", "2026-10-27T16:00:00Z", None)
+    assert (ev["from"], ev["to"], ev["date"]) == ("2026-10-27T00:00:00Z", "2026-10-28T00:00:00Z", None)
     assert ev["estate"] == ("2026-10-27T00:00:00Z", "2026-10-28T00:00:00Z")
 
 
 @pytest.mark.parametrize("site,start,day", [
     ("kobo", "2026-10-30T22:30:00Z", "2026-10-31"),   # 01:30 Addis: already the next local day
-    ("cold", "2026-10-30T20:59:00Z", "2026-10-30"),   # 23:59 Addis: still the same local day
+    ("kobo", "2026-10-30T20:59:00Z", "2026-10-30"),   # 23:59 Addis: still the same local day
 ])
 def test_day_windows_take_the_addis_local_day_across_utc_midnight(site: str, start: str, day: str) -> None:
     [w] = cc.day_windows([{"site": site, "kind": "k", "day": day, "assess": "build", "start": start,

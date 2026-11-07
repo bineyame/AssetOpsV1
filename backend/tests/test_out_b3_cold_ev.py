@@ -480,3 +480,29 @@ def test_ev_priced_flag_sets_the_optimize_not_measured_text() -> None:
     assert comp.facts.ev_priced is False
     assert rows[COST]["not_measured_text"] == (
         "Energy cost per km needs odometer readings and a published charging tariff")
+
+
+# ================================================================ DD1b1-R2: the Action read runs to the requested end
+
+def _action_reads(fake: Fake) -> list[tuple]:
+    return [args for name, args in fake.calls if name == "domain_actions"]
+
+
+def test_cold_actions_read_to_actions_to_when_given_and_to_hi_otherwise() -> None:
+    wider = HI + timedelta(hours=20)
+    fake = Fake()
+    cold.compose(cold_ports(fake), site_code=C, lo=LO, hi=HI, site_timezone=ZONE, actions_to=wider)
+    assert _action_reads(fake) == [(HI - cold.WORK_WINDOW, wider)]       # an Action after the event, inside the window
+    fake = Fake()
+    cold.compose(cold_ports(fake), site_code=C, lo=LO, hi=HI, site_timezone=ZONE)
+    assert _action_reads(fake) == [(HI - cold.WORK_WINDOW, HI)]          # no event: the arguments are unchanged
+
+
+def test_ev_actions_read_to_actions_to_when_given_and_to_hi_otherwise() -> None:
+    wider = HI + timedelta(hours=20)
+    fake = Fake()
+    ev.compose(ev_ports(fake), site_code=E, lo=LO, hi=HI, site_timezone=ZONE, actions_to=wider)
+    assert _action_reads(fake) == [(HI - ev.WORK_WINDOW, wider)]
+    fake = Fake()
+    ev.compose(ev_ports(fake), site_code=E, lo=LO, hi=HI, site_timezone=ZONE)
+    assert _action_reads(fake) == [(HI - ev.WORK_WINDOW, HI)]
