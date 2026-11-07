@@ -46,6 +46,7 @@ from typing import Any, Callable, Protocol
 from uuid import UUID
 
 from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials import fuel_cost_v2 as fc2
 
 ERROR_STORE_UNAVAILABLE = "STORE_UNAVAILABLE"
 ERROR_FINDING_REVISION_NOT_FOUND = "FINDING_REVISION_NOT_FOUND"
@@ -171,9 +172,9 @@ def derive(store: ConsequenceStore, prices: PriceStore, tenant_id: UUID, site_id
     f = store.load_input(tenant_id, site_id, finding_id, finding_revision_id)
     if f is None:
         raise FindingRevisionMissing(f"FindingRevision {finding_revision_id} is not this Site's Finding's.")
-    q = fc.quantify(f)
+    q = fc2.quantify(f)  # FUEL-1 A1: the model selection (fuel-cost-1 unchanged unless a no-load rate is declared)
     price = fc.NOT_EVALUATED if q.state != "AVAILABLE" else window_price(prices, tenant_id, site_id, f)
-    return fc.consequence(f, q, price)
+    return fc2.consequence(f, q, price)
 
 
 @dataclass

@@ -30,6 +30,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from assetops_backend.financials import cold_consequence as cc
 from assetops_backend.financials import ev_money as em
 from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials import fuel_cost_v2 as fc2
 
 RECOMPUTE_ACTOR = "service:assetops-consequence-recompute"
 RUNNER_LOCK_PREFIX = "financial_consequence_runner:"
@@ -153,16 +154,22 @@ class PostgresConsequenceStore:
             "SELECT asset_code FROM asset WHERE tenant_id = :t AND site_id = :s AND CAST(id AS text) = :a"),
             {**scope, "a": asset}).scalar_one_or_none()
         foundation_ids = sorted({r.foundation_revision_id for r in readings}, key=str)
-        foundations = tuple(fc.FoundationRevision(
+        # FUEL-1 A1: the same generator properties query also reads the declared no-load fuel rate and its basis
+        # (fuel-cost-2 selection, `fuel_cost_v2.selects_v2`); a revision that declares neither reads as fuel-cost-1.
+        props = ("(SELECT jsonb_agg(jsonb_build_array(p->>'value', p->>'unit')) FROM "
+                 "jsonb_array_elements(COALESCE(f.content->'components', '[]'::jsonb)) comp, "
+                 "jsonb_array_elements(COALESCE(comp->'properties', '[]'::jsonb)) p "
+                 "WHERE comp->>'component_id' = :code AND p->>'property_key' = {key})")
+        foundations = tuple(fc2.FoundationRevision(
             str(r.id), r.valid_from, r.valid_to,
-            tuple((p[0], p[1]) for p in (r.sfc or ()))) for r in c.execute(text(
-                "SELECT f.id, f.valid_from, f.valid_to, (SELECT jsonb_agg(jsonb_build_array(p->>'value', "
-                "p->>'unit')) FROM jsonb_array_elements(COALESCE(f.content->'components', '[]'::jsonb)) comp, "
-                "jsonb_array_elements(COALESCE(comp->'properties', '[]'::jsonb)) p "
-                "WHERE comp->>'component_id' = :code AND p->>'property_key' = :key) AS sfc "
+            tuple((p[0], p[1]) for p in (r.sfc or ())), tuple((p[0], p[1]) for p in (r.no_load or ())),
+            tuple(p[0] for p in (r.no_load_basis or ()))) for r in c.execute(text(
+                "SELECT f.id, f.valid_from, f.valid_to, " + props.format(key=":key") + " AS sfc, "
+                + props.format(key=":nl") + " AS no_load, " + props.format(key=":nlb") + " AS no_load_basis "
                 "FROM foundation_revision f WHERE f.tenant_id = :t AND f.site_id = :s "
                 "AND CAST(f.id AS text) = ANY(:ids)"),
-                {**scope, "code": asset_code, "key": fc.SFC_PROPERTY, "ids": foundation_ids}))
+                {**scope, "code": asset_code, "key": fc.SFC_PROPERTY, "nl": fc2.NO_LOAD_PROPERTY,
+                 "nlb": fc2.NO_LOAD_BASIS_PROPERTY, "ids": foundation_ids}))
         binding_ids = sorted({r.binding_revision_id for r in readings}, key=str)
         bindings = tuple(fc.BindingRevision(str(r.id), r.valid_from, r.valid_to) for r in c.execute(text(
             "SELECT id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
@@ -178,6 +185,7 @@ class PostgresConsequenceStore:
 
     def append(self, c_: fc.Consequence, actor_id: str = RECOMPUTE_ACTOR) -> Appended:
         f, q, p = c_.finding, c_.quantity, c_.price
+        m = fc2.model_columns(c_)  # FUEL-1 A1: fuel-cost-1 or fuel-cost-2, from the consequence's own quantity
         scope = {"t": UUID(f.tenant_id), "s": UUID(f.site_id)}
         frid = UUID(f.finding_revision_id)
 
@@ -204,16 +212,19 @@ class PostgresConsequenceStore:
                 "sfc_upper_multiplier, state, quantity_state, quantity_reason, quantity_detail, quantity_unit, "
                 "quantity_low, quantity_high, quantity_high_exact, price_state, price_reason, price_revision_id, "
                 "price_value, price_currency, price_considered, amount_low, amount_high, currency, limitations, "
-                "technical_input_sha256, consequence_basis_sha256, actor_id, recorded_at) VALUES (:id, :t, :s, :f, "
+                "technical_input_sha256, consequence_basis_sha256, actor_id, recorded_at, no_load_fuel_rate_l_per_h, "
+                "no_load_fuel_rate_basis, idle_seconds) VALUES (:id, :t, :s, :f, "
                 ":r, :k, :no, :prior, :ws, :we, :og, :bk, :model, :fv, :pv, :psha, :mult, :state, :qs, :qr, :qd, "
                 ":qu, :ql, :qh, :qx, :ps, :pr, :prev, :pval, :pcur, CAST(:pcons AS jsonb), :al, :ah, :cur, "
                 "CAST(:lim AS jsonb), :tech, "
-                ":basis, :actor, :at)"),
+                ":basis, :actor, :at, :nlr, :nlb, :idle)"),
                 {**scope, "id": cid, "f": UUID(f.finding_id), "r": frid, "k": fc.CONSEQUENCE_TYPE, "no": no,
                  "prior": None if head is None else head[0], "ws": f.window_start, "we": f.window_end,
-                 "og": f"{fc.CONSEQUENCE_TYPE}:finding:{f.finding_id}", "bk": fc.BASIS_KIND, "model": fc.MODEL_ID,
-                 "fv": fc.FORMULA_VERSION, "pv": fc.PARAMETER_VERSION["parameter_version"],
-                 "psha": fc.PARAMETER_SHA256, "mult": fc.MULTIPLIER, "state": c_.state, "qs": q.state,
+                 "og": f"{fc.CONSEQUENCE_TYPE}:finding:{f.finding_id}", "bk": fc.BASIS_KIND,
+                 "model": m["model_id"], "fv": m["formula_version"], "pv": m["parameter_version"],
+                 "psha": m["parameter_sha256"], "mult": m["sfc_upper_multiplier"],
+                 "nlr": m["no_load_fuel_rate_l_per_h"], "nlb": m["no_load_fuel_rate_basis"],
+                 "idle": m["idle_seconds"], "state": c_.state, "qs": q.state,
                  "qr": q.reason, "qd": q.detail, "qu": fc.QUANTITY_UNIT, "ql": q.low, "qh": q.high,
                  "qx": None if q.high_exact is None else f"{q.high_exact.numerator}/{q.high_exact.denominator}",
                  "ps": p.state, "pr": p.reason, "prev": None if p.revision_id is None else UUID(p.revision_id),

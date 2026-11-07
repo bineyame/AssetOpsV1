@@ -34,6 +34,7 @@ from uuid import UUID
 
 from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance, source_gate
 from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials import fuel_cost_v2 as fc2
 from assetops_backend.financials import money_eligibility as me
 from assetops_backend.financials.recompute import ConsequenceStore, PriceStore, derive
 
@@ -106,7 +107,13 @@ def dto(row: dict[str, Any], links: dict[str, dict[Any, list[dict[str, Any]]]]) 
         "model": {"model_id": row["model_id"], "formula_version": row["formula_version"],
                   "parameter_version": row["parameter_version"], "parameter_sha256": row["parameter_sha256"],
                   "sfc_upper_multiplier": _text(row["sfc_upper_multiplier"]),
-                  "parameter_is_reviewed": row["parameter_sha256"] == fc.PARAMETER_SHA256},
+                  "parameter_is_reviewed": row["parameter_sha256"] == fc2.REVIEWED_PARAMETER_SHA256.get(row["model_id"]),
+                  # FUEL-1 A1: a fuel-cost-2 row also names its declared no-load rate, basis and idle seconds
+                  # (additive; a fuel-cost-1 row's model block is unchanged).
+                  **({} if row["model_id"] != fc2.MODEL_ID else {
+                      "no_load_fuel_rate_l_per_h": _text(row["no_load_fuel_rate_l_per_h"]),
+                      "no_load_fuel_rate_basis": row["no_load_fuel_rate_basis"],
+                      "idle_seconds": row["idle_seconds"]})},
         "quantity": {"state": row["quantity_state"], "reason": row["quantity_reason"],
                      "detail": row["quantity_detail"], "unit": row["quantity_unit"],
                      "low": _text(row["quantity_low"]), "high": _text(row["quantity_high"]),
@@ -348,12 +355,12 @@ class ConsequenceReadService:
             state = "HISTORICAL"
             reasons.append("FINDING_REVISION_SUPERSEDED")
         else:
-            q = fc.quantify(f)
+            q = fc2.quantify(f)  # FUEL-1 A1: the same model selection as the recompute
             known = None if q.state != "AVAILABLE" else self._prices.snapshot_on(
                 c, tenant_id, site_id, fc.PRICE_KEY, k, 0, 1)
             price = fc.NOT_EVALUATED if known is None else fc.select_window_price(
                 known["timeline"], known["cited"], f.window_start, f.window_end)
-            now = fc.consequence(f, q, price)
+            now = fc2.consequence(f, q, price)
             if now.basis_sha256 == head["consequence_basis_sha256"]:
                 state = "CURRENT"
             else:

@@ -36,8 +36,13 @@ SELECTION_RULE = ("LATEST_RECORDED_REVISION_OF_EACH_CANONICAL_FINDING; half-open
 SINGLE_FINDING_NOTE = "This card covers this Finding only; it is not a Site total."
 FINDING_LIST = {"state": "UNAVAILABLE", "reason": "Unavailable until the Site Finding index is delivered."}
 CONTEXT_LIMIT = 500
-MONEY_LABEL = ("fuel-cost-1 model-conditioned potential fuel-cost exposure: zero lower bound, bounded upper "
-               "value, with assumption and evidence lineage. Not savings and not a physical maximum.")
+def money_label(model_id: str) -> str:
+    """FUEL-1 A1: the money label names the stored row's fuel model (fuel-cost-1 or fuel-cost-2)."""
+    return (f"{model_id} model-conditioned potential fuel-cost exposure: zero lower bound, bounded upper "
+            "value, with assumption and evidence lineage. Not savings and not a physical maximum.")
+
+
+MONEY_LABEL = money_label("fuel-cost-1")  # when no stored row names its model
 
 #: S4-05b phase 2: the money card's source is the stored exact-revision provenance the consequence read carries
 #: (the head consequence revision's union of cited and power IDs, else the selected FindingRevision's cited set).
@@ -328,6 +333,7 @@ class SiteOverviewRead:
         out.update({
             "state": state, "finding_id": fid, "finding_revision_id": rid, "consequence_revision_id": head,
             "model_version": (row.get("model") or {}).get("model_id"),
+            "label": money_label((row.get("model") or {}).get("model_id") or "fuel-cost-1"),
             "eligibility": {k: gate.get(k) for k in ("version", "state", "note", "pending_reasons", "series_limits",
                                                     "latest_finding_revision_id", "end_reason")},
             "quantity_state": (row.get("quantity") or {}).get("state"),

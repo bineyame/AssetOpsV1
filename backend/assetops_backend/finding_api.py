@@ -325,7 +325,15 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
     return router
 
 
+#: The fuel model named when no stored consequence row names its own (FUEL-1 A1: a stored row's `model.model_id`,
+#: fuel-cost-1 or fuel-cost-2, is shown instead whenever there is a row).
 QUANTITY_SOURCE = "fuel-cost-1"
+
+
+def _priced_reason(model_id: str) -> str:
+    return (f"Modelled potential fuel-cost exposure under the reviewed {model_id} assumptions. This is not "
+            "measured fuel saved or a physical maximum.")
+
 
 REASONS = {
     "UNAVAILABLE": "The fuel-cost record could not be read just now, so no cost is shown.",
@@ -349,8 +357,7 @@ REASONS = {
     "PENDING_REASSESSMENT": "This finding is being reassessed after new evidence or clock proof, so no current cost "
                             "is shown until the reassessment settles. The earlier recorded cost stays available "
                             "for the record.",
-    "PRICED": "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions. This is not "
-              "measured fuel saved or a physical maximum.",
+    "PRICED": _priced_reason(QUANTITY_SOURCE),
     # S4-05b phase 2: the stored source of the exact records behind the cost is mixed or not established.
     "MIXED_OR_UNKNOWN_SOURCE": "The source of the records behind this cost is not established, so no current cost "
                                "is shown. The recorded cost stays available for the record.",
@@ -368,6 +375,8 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
         return {**empty, "state": "UNAVAILABLE", "currentness": None, "reason": REASONS["UNAVAILABLE"]}
     currentness = result["currentness"]
     row = result["consequence"]
+    model_id = ((row or {}).get("model") or {}).get("model_id") or QUANTITY_SOURCE  # FUEL-1 A1: the row's model
+    empty["quantity_source"] = model_id
     money = result.get("money_eligibility")
     empty["money_eligibility"] = money
     # S4-05b phase 2: the stored source gate and every simultaneous failed gate (consequence read).
@@ -406,4 +415,5 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
             "price_revision_id": row["price"]["revision_id"],
             "amount": {"low": row["display"]["amount_low"], "high": row["display"]["amount_high"]} if priced else None,
             "currency": row["amount"]["currency"] if priced else None,
-            "reason": REASONS[row["state"]] if row["state"] != "PRICED" or priced else REASONS["MINOR_UNIT_UNKNOWN"]}
+            "reason": (_priced_reason(model_id) if row["state"] == "PRICED" and priced
+                       else REASONS[row["state"]] if row["state"] != "PRICED" else REASONS["MINOR_UNIT_UNKNOWN"])}
