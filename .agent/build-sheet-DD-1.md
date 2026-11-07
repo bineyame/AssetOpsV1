@@ -1817,3 +1817,72 @@ Replace the "Seen again" sentences if P6 measured no recurrence. If §3 fires, s
 ### Handoff
 
 A fresh builder resumes **DD-1b2a** from M0, on `task/DD-1b2-finish-rehearsal`. Reading budget: this section; DD1b2-R Q7 and the probe table; `.agent/DD-1b2a-handoff.md`. Code: `tools/demo_story_days.py:80-112,285-300`, `host/lab_execution.py:2880-2890`, `tools/demo_combined.py` `delivered_days`, `after_children`. Stops come back to this Architect. The unit keeps its own review after the re-probe.
+
+## DD1b2-R3: second P1 stop: the study is LIMITED, `SOURCE_CLASS_MIXED` (Architect, Claude, 2026-11-07)
+
+Input: `.agent/review-packet-DD-1b2a.md`, `.agent/DD-1b2a-probe-2.json` at `515499670`. **Nothing here has been run by me. MEASURED = the probe's stored rows; READ = code.** The class is inferred, not measured. **Two things run now, in parallel; only the rule choice waits for the owner.** My errors: the probe table's "FULL" (the stored word is `COMPLETE`; the builder's tool copied it) and R2's unit count (§5).
+
+### 1. Measure first: yes. **M2, read-only on the clone `assetops_demo3_dd1b2q_test`, minutes, nothing written.**
+
+For the five study days, using the worker's own inputs (`day_heads`, `_classification`'s `provenance_blocks`). Evidence `.agent/DD-1b2a-m2.json`:
+- (i) the resolver's `classification` and its exact reason codes;
+- (ii) per run behind the set: run ID, snapshot SHA, foundation version, binding set version;
+- (iii) **the figure the client would see:** `frozen_result(heads, "REGISTERED_SIMULATION")` in memory: status, `headroom_kw`, `window_hours`, and `value_line`. The money line is reported from the declared price.
+
+**Outcomes.**
+- `MIXED`, reasons exactly `[MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS]`, status SUPPORTED in (iii): the §2 choice stands.
+- Any other reason, or (iii) not SUPPORTED, or a figure of zero: option (b) is dead. The study stays as (a), and the owner is told, not asked.
+
+### 2. The owner question replaces R2 §3's (which named the wrong rule)
+
+| | What the client sees | Size | Blast radius (READ) |
+|---|---|---|---|
+| **(a) Fallback** | Grow potential: "Limited evidence: readings come from mixed sources, so the size is not worked out yet". No kW, no money. "Seen on 5 of 5 well-observed days" | +0 | None. WK-2c and F-THREADS' SUPPORTED row become "reported"; plan row ST-3's "value line from a supported study" must be reworded. The phrase "mixed sources" is itself a question the presenter must answer |
+| **(b) Narrow study rule (recommended, subject to M2)** | The figure and its money line on S-11 | **+0.5** | See below |
+| (b-wide) Resolver rule | Same | 1.5+ est. | **Refused.** `source_provenance.py` feeds Cold money (`cold_consequence.py:96`), EV (`ev.py:58`, `ev_money.py:33`), verification windows (`verification_rules.py:664-700`), `postgres_assessment_store.py:1422`, placement text, public provenance; pinned by `test_s405_resolver*`, `test_w206_ev_store_postgres`, `test_w301_provenance_dto_postgres` |
+| (c1) One 5-day registered run | The figure | **1.25+ est.** | New 120 h derived scenario and a multi-day day-list kind; battery no longer restarts at 06:00, so generator nights, G0 and "no Finding on steady days" need re-proving; long-run cost unmeasured. **Refused:** fails SCOPE-1 |
+| (c2) Publish as authored | The figure | 1+ est. | **Refused, on honesty.** `AUTHORED_DEMONSTRATION` allows any number of publications (how MD-0 is SUPPORTED, `mechanism_dataset.py:297`), but it would label simulator runs as an authored fixture and bypass the path the demo proves |
+
+**(b), bounded.** `evidence/source_provenance.py` stays byte-unchanged, as do Cold, EV, money and verification. Only `mini_decisions`: in `_classification`/`frozen_result`, a `MIXED` set whose only reason is `MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS` does not limit a study when **every run is a registered run of this Site on one basis** (the fields M2(ii) shows are equal; if they differ, (b) is dead). Note: this overrides N-L2 for this read, so it needs a stated decision; a real Site has no run IDs, so it is unaffected. Stored `input_sha256` excludes the class (READ), so it needs a fresh build: DD-1b2b's rehearsal is the first real proof. L0 truth table incl. a differing basis → still LIMITED; L2 on the fixture; `test_ch9*` and MD-0 study tests rerun. The exact field list is fixed by this Architect's successor after M2.
+
+**Why (b).** The limitation's sentence is untrue of these days: they differ only because we cut one day into three runs. The potential is one of ST-3's three slots, and the only size of the Grow opportunity. (a) is honest and cheap, and it is the right answer if the owner would rather stop adding.
+
+**The question, sent after M2 with [figure] filled and P4's result; DD-1b2a's merge waits for it, P4-P7 do not:**
+
+"The system found spare solar on all 5 example days before the mill change, but won't size it, because those example days were generated in separate runs and it reads that as 'mixed sources'. **Allow it for this one study (recommended):** runs from the same Site and setup count as one source here, and nothing else changes. Shows [figure] and its money line; half a unit more, 4.5 left on this lane, and it isn't proved until the full rehearsal. **Leave it:** no extra work, 4.0 left; the Grow row says 'Limited evidence: readings come from mixed sources, so the size is not worked out yet', with no figure or money. The mill result is [P4's result] either way."
+
+### 3. The fallback now (eligible 5, LIMITED). All READ, until P2, P5, P6 measure it. Corrects R2 §3's "not available yet" wording; its 0-eligible column no longer applies.
+
+- **MEASURED:** LIMITED, 5 assessed, 5 eligible, `headroom_kw`/`window_hours` null.
+- **Thread:** eligible ≥ 1 is a Source (`threads.py:164`), so the thread opens, effective the first eligible day, S-19.
+- **Opportunity line:** status signal open while OPEN (`outcomes.py:44`); `evidence_label` "Limited evidence", `filter_state` "unconfirmed", `seen_line` as above; `value_line` None; `limit_line` is the mixed-sources sentence (`vocabulary.py:21,76-78`), and it is the potential's only line (`outcomes.py:231-232`). Portfolio FOUND, null headroom.
+- **Action:** `create_action` checks the head, not its status, so it is accepted and linked, with the full chain.
+- **"Target met":** from snapshots alone, so it stands, once P4 measures it.
+
+### 4. P4-P7 now: **yes, run them on the clone, independent of the answer.** The study status is not an input to the Action, freeze, or verdict (READ; `demo_combined_mill.py:255` gates only on 0 eligible).
+
+Copy the fixed mill tool into the clone's private tree, declared as the literal fix alone, then the mill step, `after-children` remainder, `dd1b2a_probe.py ticks`. Evidence `.agent/DD-1b2a-probe-3.json`. Do not drop the DBs.
+
+| Row | Under (a) | Under (b) |
+|---|---|---|
+| P1 | Pass restated: LIMITED, `SOURCE_CLASS_MIXED`, eligible 5 | SUPPORTED, on a fresh build only, in DD-1b2b |
+| P2-P5, P7, P8 | Unchanged | Unchanged |
+| P6 | S-11 reads the limit line; the rest as Q7's table | Measured now as (a); figure proved in the rehearsal |
+
+P3's expected days stand (MEASURED, S-13..S-11, 42.000). Q7's stops stand. A P4 or P5 failure comes back here before the owner is asked.
+
+### 5. Units: **R2's 5.25 was wrong.** It carried a stale plan figure that still held merged work. Your count stands: **4.0 before this stop.**
+
+(a): 4.0, DD-1b2a 1.5. (b): **4.5**, DD-1b2a 2.0, DD-1b2 3.5. (c1): 5.25+, refused. DD-1 follows.
+
+### 6. The two other items, and backlog
+
+- **Seam rule dropping `NO_PRECEDING_INTERVAL` on every run of a seamed day: nothing needed.** At a chain's first night it removes an absent row whose span lies in the day before. No reading is lost. M1's `delivered_days` and S-10 checks cover it.
+- **Generator 3.167 → 3.244 kWh (+0.077, S-12, MEASURED): nothing now.** It is more correct. The litre is recomputed in DD-1b2b's MONEY-B/G1 row; the owner gets a line only if it differs at one decimal (R2 §2).
+- **Backlog:** BL-43 is free (grepped). (b) chosen: BL-43 = a compatible-run-basis record in the resolver for all readers. (a) chosen: BL-43 = the narrow study rule, 0.5.
+
+### Owner line now (no decision; the build does not wait; replaces R2 §6's first line if not sent)
+
+"The join fix worked: all 5 example days before the mill change now count, and spare solar is seen on all 5. A second, separate rule still stops the system sizing it. We're measuring that and finishing the mill check now. I'll bring you one short question with both results, and neither is claimed until then."
+
+Handoff: the builder runs M2 and §4; both results return to the coordinator. **A fresh Architect should take any follow-up,** including (b)'s field list.
