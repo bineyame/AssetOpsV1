@@ -26,7 +26,27 @@ result is seen.
   `intervention_history` until K0 adds a field. The gap measured between readings is expected to be about 105 min
   (00:45 to 02:30 local readings around a 00:50-02:20 silence), not 90.
 
-## Result: STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
+## F0r pre-registration addendum (DIESEL-1-R3 §9.4, b5b3e7f03; committed before any (c)-path code runs)
+
+No expectation changes. The declared world, the parameters, the action log and the Architect's expectation are as
+§8.3 and above.
+
+- **Registered setup (c):**
+  - `import_site` the Kisiwa record (D0 `kisiwa_site()`) into `InMemoryFoundationStore` at `2026-09-29T09:00:00Z`.
+  - `convert` with `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json` at `2026-09-29T09:30:00Z`.
+  - Real `RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, "demo", clock)))`; `knowledge_at` absent;
+    `foundation_version` = the registered version the selection returns.
+- **Bindings draft:** `backend/conversions/kobo-001-bindings.json` with `site_code` KISIWA-001, keeping every binding
+  whose `legacy_mapping_id` is a mapping in Kisiwa's template (9 of Kobo's 10). Dropped: the generator
+  `status` binding (`legacy_mapping_id` null, so not a Kisiwa mapping). Builder's note before running: Kisiwa's
+  template has three mappings with no Kobo binding to carry (`pv-inverter-available-power`,
+  `battery-pcs-discharge-capability`, `generator-status`). `plan_requests`
+  (`backend/assetops_backend/sites/binding_conversion.py:127-129`) refuses unconverted legacy mappings, so S6 is
+  expected at conversion. No binding is invented.
+- **Probe-local mini-grid v7:** "Tank level from a probe-local mini-grid v7 identical in content to K1a's; product
+  code has no v7 until K1a merges." Not built if conversion stops first.
+
+## First attempt (stopped, aa49a18fd): STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
 
 No night was measured. No plain-words result line exists, there is no per-night table, and
 `.agent/DIESEL-F0/probe-result.json` was not written. Nothing was changed after the stop: not the declared world,
