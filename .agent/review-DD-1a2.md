@@ -23,7 +23,7 @@ One High, routed to the Architect. Everything else in the slice stands: the data
   - the Action reads "New readings call for another assessment";
   - the Assure count loses the verified result and can read "No verified result yet";
   - the trial line falls to "Status changed; not attributed";
-  - if the stored cost check is `MODELLED_IMPROVEMENT`, the Cost line reads "The trial did not fix the problem, so no cost change is credited to it" (`board.py:65`, `:503`). That sentence would be false.
+  - the Cost line does not get worse here: the probe's stored cost check is `MODELLED_NO_IMPROVEMENT`, so `board.py:505` reads as before. `COST_NOT_CREDITED` ("The trial did not fix the problem...", `board.py:65`) fires only on `MODELLED_IMPROVEMENT`, so it does not apply to this data.
 - **The R25 gate does not catch this.** Its pass line (STOPPED, 0 starts) was met, and I reproduced it. It is a physics probe on a Foundation, with no Action or outcome on the Site. The S-10 fill path has no Action near it either. So the "not run" gap in the packet matters, and it should not wait for DD-1b2: the choice changes this slice's kind.
 - **Fix: the Architect rules (a stop in the sense of this sheet, not the builder's call).** Options:
   1. **Product, narrow:** give later pins R9's equal-facts rule over `[later_start, later_end)` in `current_state` and `_assess`, with R9's unit checks. It keeps a full `steady` on S+2, and it touches a defended path. Any continuous real Site would hit this too.
@@ -103,5 +103,4 @@ DB `assetops_dd1a2rv_test` created and dropped. No code edited.
 - The G1, G2 and MONEY-A JSONs were read and checked for consistency, not regenerated (per the brief).
 - Anything on screen: board, history and index text are read from code. Layout evidence does not apply (no frontend file changed), and `npm test`, build and `tsc` were not run for the same reason.
 - Guards N, V, M were not run. The full suite, a prepare and `test_demo_combined_postgres` were not run (barred by the brief).
-- Whether ACT-K1's stored cost check is `MODELLED_IMPROVEMENT` on the whole build, which decides the false Cost sentence in H1.
 - Whole-build behaviour: the finish rows on v3, and how much Grow and spare-solar figures move on the new days. Both owed to DD-1b2.
