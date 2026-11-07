@@ -1988,3 +1988,82 @@ A size that fits better would be new work, and it still wouldn't reach 68 kWh, s
 - **Either:** continuous-day battery recovery with the mill schedule is unrun; R3's c1 already records the cost, and it joins BL-44's note rather than a new row.
 
 Handoff: the coordinator sends §3 as written. Stops come back to this Architect.
+
+## DD1b2-R5: review H1 and M1 (Architect, Claude, 2026-11-07)
+
+Input: `.agent/review-DD-1b2a.md` (`3443e7a3b`), the packet and `.agent/DD-1b2a-m3.json` (`7cfe2f7be`), owner "Leave it" (`.agent/owner-grow-size-2026-11-07.md`). I also ran read-only queries on `assetops_demo3_dd1b2r_test`. **The last ruling from this Architect; a fresh one takes what follows.**
+
+### H1. R4 §4 is withdrawn: "Seen again" is open, not dead
+
+- **M3 does not test recurrence. MEASURED by me on `dd1b2r`:** the tick wrote `backup`, `fuel` and `service` selections for the added days 11-02 and 11-04 (29-33 and 24 each), and **0 `renewable` selections**. A study with no renewable heads cannot be queued (`renewable_scan_heads`), so nothing could recur. The earlier days got renewable heads from the prepare's `drain_mini` day pass.
+- **Cause: not found.** A candidate (READ, unconfirmed): renewable runs only for "measured daylight hours" known at the cutoff (`mini_depth/worker.py:118-121`, `store.daylight_hours`, `received_at <= cutoff`). The added days were received in real time on 11-07.
+- **Q7's two columns are restored.** The reviewer's in-memory table (S-3 study: 2 eligible; S-1 study: 1 eligible) and the READ chain (eligible 1 or more is a Source, so RESOLVED_MONITORING goes to RECURRED) stand as the expectation.
+- **Is the gap worth a cheap read now? Yes, +0.25, before DD-1b2b builds.**
+  - **Who:** a read-only Sonnet diagnosis on `dd1b2r`, with no code.
+  - **Why:** the presenter's live S+2 add uses this path. If renewable is never assessed there, the live day's Grow row has no spare-solar reading and its study never forms.
+  - **Then:** a defect found comes back as a ruling with a size. A whole-list prepare need not share the cause.
+
+**What the rehearsal must measure, in order:**
+1. Renewable selections for every daylight hour of S-3, S-1 and the live S+2 add.
+2. The studies ending S-3 and S-1 (and S+2): queued, status, eligible days.
+3. The mill thread's events after the ticks: RECURRED or not, and its effective day.
+4. Boards S-5, S-1, S+0, S+1 (Grow and Assure rows) and the thread page.
+5. Portfolio week and month counts.
+6. COH-17's output for the mill thread.
+
+| Outcome | Script | COH-17 | Portfolio |
+|---|---|---|---|
+| **Recurs** | Q7's "recurs" column. "Seen again" lines are true and stay: "after the change, sunny afternoons still leave solar unused" (MEASURED in R4: 2-8 kW of room at 14:00-16:00 after the change). No kW figure, since the study is UNKNOWN | Entry owed only if it fires, per `:1559` | Grow counts the mill thread as open. Assure is unchanged, because Assure never counted the mill (M1) |
+| **Studies queued with 1 or more eligible days, no RECURRED** | Stop: this contradicts READ `lifecycle.py:55`. Back to the Architect | n/a | n/a |
+| **Studies not queued (no renewable heads)** | Stop: the H1 gap reached the build. Back to the Architect with the diagnosis | n/a | n/a |
+| **Queued with 0 eligible** | Q7's "does not recur" column; "Seen again" sentences removed | None | Mill thread is not counted as open |
+
+The packet keeps "no recurrence" for the 18-entry list only, as corrected.
+
+### M1. The mill is missing from the boards: owner question, recommend (i) plus the link fix
+
+**MEASURED by the reviewer:** ACT-000002 is on no board. The Assure "1 verified result" at S+0 is ACT-001. The thread page's Action link returns 404. The verdict page (200, VERIFIED 42.00 → 110.00) is reached from Work → Maintenance. Cause (READ): Finding-only reads in `site_outcomes/mini.py:416,475` and `board.py:691-765`. This is pre-existing (CH-9b) and not this diff.
+
+**What the client sees on the script's days, under each option:**
+
+| | (i) Script route through Work, plus the link fixed | (ii) Opportunity-origin Actions wired into boards, Assure and thread |
+|---|---|---|
+| S-11 | Grow: limit line, thread open (both) | Same |
+| S-8 | Grow: "Not available yet · no completed work or checked change for this outcome" | Thread line, "Checked and working" (as-known: the case is complete, the verdict comes later) |
+| S-5 | Assure: "No verified result yet". True as known: the verdict was recorded 10-31 23:00Z, after that local day | Same; the verdict is not yet known |
+| S+0 | Assure: "1 verified result" (ACT-001 only). The presenter says the mill's check is on its own page | "2 verified results", the mill among them |
+| Path | Thread page → working link → verdict page "Target met", 42.00 → 110.00; or Work → Maintenance → the same page | Board → Action → verdict |
+| Size | **+0.25** (link only; avoiding it in the script is +0, but fragile) | **1.0-1.5 est.** Shared composer and board code; Portfolio counts move; recaptures and COH re-expectations; Cold and EV boards share `board.py`; full fast tier |
+
+**Recommendation: (i) with the link fixed.**
+- **The dead link is demo-critical on its own under SCOPE-1.** The thread page is the one place the mill's "Checked and working" shows, and a 404 from the headline story cannot be presented. The fix is to route the domain-Action `ref` to the existing verdict page, so no new page or claim is needed.
+- **(ii) is right for a product but a new shared change at the sprint's end.** It goes to backlog **BL-45** (free), unless the owner says otherwise.
+
+**Owner question, send as written:**
+
+"The mill result is real and passes, but it only shows on its own page, not on the Site's daily board. The board's 'verified results' count at the end of the story counts an earlier maintenance check, not the mill. The link from the mill's story page to it is also broken.
+
+**Fix the link and present it as a route (recommended):** a quarter unit, 4.5 left with the check below. You'd go from the mill's story page, or from Work, to the result page showing 42 to 110 kWh a day and target met. The board would still say '1 verified result', and the presenter would say the mill's check sits on its own page.
+
+**Put the mill on the boards:** about 1 to 1.5 units more, about 5.25 to 5.75 left, touching screens shared with cold rooms and EV, with re-checks to match. The board would show the mill's change and count it as a second verified result.
+
+Separately, a quarter unit now to find out why days added during a demo don't get their spare-solar check, because the live day you add in the demo uses that same path."
+
+### Merge, owed list, units
+
+- **DD-1b2a merges after the packet corrections, with no re-review.** The corrections are paper: R4 §4 is withdrawn here, H1 and M1 point to this section, and the code is unchanged and found sound. The coordinator verifies against this list.
+- **Conditions:** the 2 guards that could not run here (missing-claim scan and its fixtures, `MODULE_NOT_FOUND`) run on main right after the merge, and a failure is traced to it. The owner's M1 answer is not needed to merge.
+- **Into DD-1b2b's owed list:**
+  - The H1 measurements and the outcome table above.
+  - The add-path renewable diagnosis (+0.25; before the build).
+  - The M1 option chosen; under (i), the link fix and the script route.
+  - L1: tick until dirty is 0. L4: EV and COLD 404s, from the log. L5: `Demo.delivered_days`. L6: contributor beside "No potential found yet".
+  - R4's script lines and its report-only unused-solar row.
+  - R3's WK-2c, F-THREADS and ST-3 rewording.
+  - The "Target met" label in a browser.
+  - A mill stop means a clone, not a rerun.
+- **Units: 4.0 before this stop.**
+  - (i) with the link: 4.25. Plus the diagnosis: **4.5**.
+  - (ii): 5.25-5.75 including the diagnosis.
+  - A defect the diagnosis finds is sized then.
+- **Backlog, recorded on the owner's answer:** BL-45 = opportunity-origin Actions on boards, the Assure count and thread lines; 1.0-1.5 est.
