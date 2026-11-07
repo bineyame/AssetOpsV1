@@ -13,6 +13,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+from fractions import Fraction
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -30,6 +31,7 @@ from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_
 from assetops_backend.chain.outcomes import (
     NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, potential_shown, site_nodes)
 from assetops_backend.outcomes.catalogue import MINI, SITE_OUTCOMES
+from assetops_backend.outcomes.credit import credited
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
@@ -95,6 +97,9 @@ VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} no
 #: POLISH Addendum 6 Q6: the verdict and code prefix stay; the cost clause matches board.COST_CHANGE.
 VERIFIED_WITH_COST = ("{code} verified{suffix}: estimated effect of the trial (not money saved): "
                       "{amount} {currency} less supply cost per kWh")
+#: PV-1-R §3: a verified result's money, one line each, never added together (the card prefixes the Site).
+VALUE_LINE_MILL = "{code}: about {d} {cur} a day more in estimated sales to productive users (your declared price)"
+VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the one-hour trial (modelled, not metered)"
 PENDING_STATES = ("PENDING", "NO_PLAN", "REASSESSMENT_PENDING")
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 HIGH_CHIP = {"label": "High", "tone": "green"}
@@ -210,6 +215,9 @@ class MiniPorts:
     #: MB-1 (FUEL-1 MB-1-R Q1): `ChainRequest.threads(site_id)` at the request cutoff, that cutoff, and the thread
     #: lifecycle policy (`BoardServices.thread_policy`; None when not injected); None = no chain reader (no opportunity Actions).
     chain_threads: Callable[[], Any] = lambda: None
+    #: PV-1-R §1: the verdict page's own `value` (`VerificationService.domain_summary`, MV-1 `mill_value` at the price as
+    #: known when the verdict was recorded) of one VERIFIED opportunity-origin domain Action; None = no value.
+    verdict_value: Callable[[str], Any] = lambda action_id: None
 
 
 @dataclass(frozen=True)
@@ -432,6 +440,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"])
         for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
+    verified_values = _verified_values(reads, ports, actions, opp)
 
     # CH5a1-R Q2: `base` = the source gate, the settled board day and a dispatch read (CLOSED was the gate).
     read_ok = gate is not None and day_facts is not None   # the reads that replace the overview read
@@ -541,8 +550,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
                       work_window=(work_lo, end),  # WALK1-3b §A2.3: (a), then (b), then (c)
-                      opportunity_actions=opp)
-    suffix = "" if tz is not None else UTC_SUFFIX
+                      opportunity_actions=opp, verified_values=verified_values)
+    suffix ="" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
                                        for o in i["outcomes"]))
@@ -988,6 +997,37 @@ def _is_zero(value: Any) -> bool:
         return value is not None and Decimal(str(value)) == 0
     except InvalidOperation:
         return False
+
+
+def _verified_values(reads: Reads, ports: MiniPorts, actions: tuple[ActionFact, ...],
+                     opp: tuple[OpportunityActionFact, ...]) -> tuple[dict[str, Any], ...]:
+    """PV-1-R §1/§3: one entry per verified result that has a money value, never added together. The mill's is the
+    verdict page's own `value` (read only for a VERIFIED outcome known by the cutoff; a failed read lists no entry);
+    a trial's is its credited stored priced total (`credit.credited`), rounded half-even. Code order."""
+    out: list[dict[str, Any]] = []
+    for o in opp:
+        if o.outcome != "VERIFIED":
+            continue
+        v = reads.call("verdict_value", ports.verdict_value, o.action_id, memo=True)
+        if not v or v.get("state") != "PRICED":
+            continue
+        out.append({"key": o.action_id, "action_code": o.code, "basis": v["basis"], "amount": v["per_day"],
+                    "currency": v["currency"],
+                    "text": VALUE_LINE_MILL.format(code=display_code(o.code), d=v["per_day"], cur=v["currency"])})
+    for a in actions:
+        if a.is_domain or a.verification_state != "VERIFIED":
+            continue
+        got = credited(a.cost_check, "VERIFIED")
+        pt = (a.cost_check or {}).get("priced_total") or {}
+        if got is None or pt.get("fuel_change_l") is None:
+            continue
+        (n, d), cur = got
+        amount = f"{Decimal(round(Fraction(n, d) * 100)) / 100:.2f}"
+        litres = f"{Decimal(round(Fraction(str(pt['fuel_change_l'])) * 10)) / 10:.1f}"
+        out.append({"key": a.action_id, "action_code": a.code, "basis": pt["basis"], "amount": amount,
+                    "currency": cur, "text": VALUE_LINE_TRIAL_FUEL.format(code=display_code(a.code), l=litres,
+                                                                          amount=amount, cur=cur)})
+    return tuple(sorted(out, key=lambda e: (e["action_code"] or "", e["key"])))
 
 
 def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bool, readiness: Any, rc: Any,

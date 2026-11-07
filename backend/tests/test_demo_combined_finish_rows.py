@@ -189,6 +189,50 @@ def test_mill5_reads_the_mill_entry_the_headline_and_the_week_claim() -> None:
         rows.mill_assure(*_mill5_bodies(), "other", "ACT-000002")
 
 
+def _pva_cost_check(amount: str = "4.125") -> dict:
+    return {"state": "MODELLED_IMPROVEMENT", "currency": "USD",
+            "priced_total": {"amount": amount, "currency": "USD", "basis": "TRIAL_HOUR_MODELLED_FUEL",
+                             "fuel_change_l": "3.3"}}
+
+
+def _pva_summary(trial: bool = True, detail: str | None = None, mill_amount: str | None = None) -> dict:
+    """The week summary as `portfolio_cards` builds it from a Kobo Assure row's `verified_values` (backend code)."""
+    from assetops_backend.chain.vocabulary import estate_income
+    from assetops_backend.outcomes.display_code import display_code
+    from assetops_backend.site_outcomes.mini import VALUE_LINE_MILL, VALUE_LINE_TRIAL_FUEL
+    from assetops_backend.site_outcomes.read import portfolio_cards
+
+    v = _value_page()["value"]
+    d = mill_amount or v["per_day"]
+    entries = [{"key": "mill", "action_code": "ACT-000002", "basis": v["basis"], "amount": d, "currency": "USD",
+                "text": VALUE_LINE_MILL.format(code=display_code("ACT-000002"), d=d, cur="USD")}]
+    if trial:
+        entries.append({"key": "a1", "action_code": "ACT-001", "basis": "TRIAL_HOUR_MODELLED_FUEL", "amount": "4.12",
+                        "currency": "USD", "text": VALUE_LINE_TRIAL_FUEL.format(
+                            code=display_code("ACT-001"), l="3.3", amount="4.12", cur="USD")})
+    sites = [{"site_code": "KOBO-001", "site_name": "Kobo", "earnings": None, "rows": [
+        {"category": "ASSURE_PERFORMANCE", "nodes": {"kpi": None, "earnings": None, "potential": None,
+                                                    "verified_values": entries}}]}]
+    cards = portfolio_cards(sites, None, estate_income([]), [], None, 0)
+    if detail is not None:
+        cards["ASSURE_PERFORMANCE"]["detail"] = detail
+    return {"sites": sites, "cards": cards}
+
+
+def test_pva_reads_the_mill_line_the_trial_case_and_no_sum() -> None:
+    """PV-1-R §5 PV-A (L0): a pass per trial case and one failing body per assertion."""
+    got = rows.pv_values(_pva_summary(), _value_page(), "ACT-000002", "ACT-001", _pva_cost_check())
+    assert got["trial_case"] == "credited" and len(got["value_lines"]) == 2 and got["sums_checked"] == 1
+    got = rows.pv_values(_pva_summary(trial=False), _value_page(), "ACT-000002", "ACT-001", None)
+    assert got["trial_case"] == "not credited" and got["trial_line"] is None
+    for summary, cc in ((_pva_summary(mill_amount="17.01"), _pva_cost_check()),    # the mill line != its page
+                        (_pva_summary(trial=False), _pva_cost_check()),             # credited, no trial line
+                        (_pva_summary(), None),                                     # a trial line, not credited
+                        (_pva_summary(detail="21.12 USD"), _pva_cost_check())):     # a card holds the sum
+        with pytest.raises(AssertionError):
+            rows.pv_values(summary, _value_page(), "ACT-000002", "ACT-001", cc)
+
+
 KW = re.compile(r"\d+–\d+ kW of daytime solar unused")
 
 

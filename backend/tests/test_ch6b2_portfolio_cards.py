@@ -10,6 +10,7 @@ from assetops_backend.chain import claims as CL
 from assetops_backend.chain import vocabulary as v
 from assetops_backend.chain import why
 from assetops_backend.estate.portfolio import card_notes
+from assetops_backend.outcomes.credit import MONEY_NOT_CREDITED
 from assetops_backend.site_outcomes.board import grow_headline
 from assetops_backend.site_outcomes.read import portfolio_cards
 
@@ -195,14 +196,14 @@ def test_protect_why_names_each_counted_site_and_thread() -> None:
 def test_card_notes_are_one_server_line_each() -> None:
     summary = {"count_basis": "CHECKED_DAYS", "evidence_gap_site_count": 1,
                "checked_days": [{"site_name": "Kobo", "checked": 5, "requested": 7, "withheld": True}]}
-    recovered = {"text": "No money credited · modelled, not saved"}
-    notes = card_notes(summary, 3, recovered)
+    notes = card_notes(summary, 3)
     # CH6b3-R3 M1: "days checked" means graded COMPLETE (the card's days line); the coverage clause is gone.
-    assert notes == {"PROTECT_ASSET": None,
-                     "ASSURE_PERFORMANCE": "No money credited · modelled, not saved · evidence gap at 1 site"}
+    # PV-1-R §2: the money clause moved to the Assure card's `value_note`; the body note is the gap clause alone.
+    assert notes == {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "evidence gap at 1 site"}
     assert all("days checked" not in (t or "") for t in notes.values())
+    assert all(MONEY_NOT_CREDITED not in (t or "") for t in notes.values())
     complete = {"count_basis": "COMPLETE", "evidence_gap_site_count": 0, "checked_days": []}
-    assert card_notes(complete, 3, None) == {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "no evidence gaps"}
+    assert card_notes(complete, 3) == {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "no evidence gaps"}
 
 
 @pytest.mark.parametrize(("nodes", "expected"), [

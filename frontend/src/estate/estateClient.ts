@@ -675,6 +675,9 @@ export interface EstatePortfolioCard {
   tone: string;
   claim: { key: string; basis: EstateCountBasis; text: string; value: unknown } | null;
   parts?: { target: string; potential: string; income: string; income_note: string | null };
+  /** PV-1-R §2 (Assure only): one server line per verified result with money, never added; and its clause. */
+  value_lines?: string[];
+  value_note?: string | null;
 }
 
 export interface EstateClient {

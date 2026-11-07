@@ -26,6 +26,7 @@ import { mechanismWords } from "../portfolioWords";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
 import {
+  ASSURE_WITH_VALUES,
   COLD_EVENT_HREF,
   COLD_ROW,
   coverageSite,
@@ -1491,6 +1492,33 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")).toBeNull();
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-note]")).toBeNull();
     expect(pulse()).toContain("0 opportunities");
+  });
+
+  it("pv1AssureCardRendersEachValueLineThenItsClauseAndTheBodyNoteAlone", async () => {
+    // PV-1-R §2/§4: one server line per verified result (never a total), then the card's clause, then the body note.
+    renderServer({ ASSURE_PERFORMANCE: ASSURE_WITH_VALUES }, { ASSURE_PERFORMANCE: "evidence gap at 1 site" });
+    await settledScreen();
+    const assure = card("ASSURE_PERFORMANCE");
+    const lines = [...assure.querySelectorAll("[data-portfolio-card-value-line]")];
+    expect(lines.map((n) => n.textContent)).toEqual(ASSURE_WITH_VALUES.value_lines);
+    expect(lines.every((n) => n.className === "oc-pfnote")).toBe(true);
+    expect(text(assure.querySelector("[data-portfolio-card-value-note]"))).toBe(ASSURE_WITH_VALUES.value_note);
+    expect(noteText("ASSURE_PERFORMANCE")).toBe("evidence gap at 1 site");
+    // Render order: detail, value lines, value note, body note.
+    const order = [...assure.querySelectorAll("[data-portfolio-card-detail], [data-portfolio-card-value-line], [data-portfolio-card-value-note], [data-portfolio-card-note]")]
+      .map((n) => [...n.attributes].map((a) => a.name).find((a) => a.startsWith("data-portfolio-card-")));
+    expect(order).toEqual(["data-portfolio-card-detail", "data-portfolio-card-value-line", "data-portfolio-card-value-line", "data-portfolio-card-value-note", "data-portfolio-card-note"]);
+    // No other card carries value lines.
+    for (const key of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET"]) {
+      expect(card(key).querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
+    }
+    expect(scanCards()).toBe("");
+  });
+
+  it("pv1AssureCardWithoutTheKeysRendersNeitherLinesNorClause", async () => {
+    renderServer({ ASSURE_PERFORMANCE: serverCard({ detail: "no targets declared" }) });
+    await settledScreen();
+    expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
   });
 
   it("notKnownBasisRendersWithoutAnyClauseAndTheServerWordsStand", async () => {

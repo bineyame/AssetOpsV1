@@ -307,6 +307,8 @@ class SiteFacts:
     ev_priced: bool | None = None
     #: MB-1-R §2.3: the board's opportunity-origin domain Actions (the mill), apart from `actions` (R4).
     opportunity_actions: tuple[OpportunityActionFact, ...] = ()
+    #: PV-1-R §3: the Assure row's verified-value entries (one per verified result with money, never added); mini only.
+    verified_values: tuple[Mapping[str, Any], ...] = ()
 
 
 # ---------------------------------------------------------------- helpers
@@ -815,6 +817,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     }
     if cat == "GROW_REVENUE":   # CH6b2-R Q6 (§B3): the board's Grow headline, from its three parts
         row["grow_headline"] = grow_headline(row.get("nodes"))
+    if cat == "ASSURE_PERFORMANCE" and facts.verified_values:   # PV-1-R §3: nodes only; the board shows no new line
+        row["nodes"] = {**row["nodes"], "verified_values": [dict(v) for v in facts.verified_values]}
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
         if (domain, cat) == (EV, "OPTIMIZE_COST") and (
