@@ -124,6 +124,37 @@ def test_mill_page_needs_verified_and_exactly_42_to_110() -> None:
             rows.mill_page(bad)
 
 
+def _value_page(**over):
+    """A fixture page body as `summary_wire` would serve it at 42.00 -> 110.00 and 0.25 USD (built by the backend)."""
+    from assetops_backend.actions.verification_families import mill_value
+    from assetops_backend.financials.fuel_cost import PriceSelection
+
+    from decimal import Decimal
+
+    details = {"baseline": {"days": ["d1", "d2", "d3"], "mean_kwh_per_day": "42.00"},
+               "later": {"days": ["d5", "d6", "d7"], "mean_kwh_per_day": "110.00"}}
+    value = mill_value(details, "VERIFIED", PriceSelection("PRICED", None, "rev-1", Decimal("0.25"), "USD"))
+    return {"state": "VERIFIED", "metrics": [{"before": "42.00", "after": "110.00", "days_before": 3,
+                                              "days_after": 3}], "value": {**value, **over}}
+
+
+def test_mill3b_recomputes_the_value_from_the_shown_means_and_the_v1_fixture_price() -> None:
+    price = rows.productive_price_v1(Path(__file__).resolve().parents[1] / "conversions"
+                                     / "demo-productive-price-publications.json")
+    from decimal import Decimal
+
+    assert price == Decimal("0.25")
+    got = rows.mill_value_page(_value_page(), price)
+    assert got["per_day"] == "17.00" and got["revision_id"] == "rev-1" and got["price"] == "0.25"
+    assert got["text"].startswith("About 17.00 USD a day more in estimated sales")
+    for bad in (_value_page(per_day="17.01"), _value_page(state="UNPRICED"), _value_page(text="x"),
+                _value_page(cost_text="x"), {**_value_page(), "value": None}):
+        with pytest.raises(AssertionError):
+            rows.mill_value_page(bad, price)
+    with pytest.raises(AssertionError):  # a different declared price fails the recomputation
+        rows.mill_value_page(_value_page(), Decimal("0.26"))
+
+
 KW = re.compile(r"\d+–\d+ kW of daytime solar unused")
 
 

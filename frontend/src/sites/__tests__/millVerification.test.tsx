@@ -18,6 +18,8 @@ import {
   millVerificationPath,
   MILL_UNEXPECTED,
   MILL_UNREACHABLE,
+  parseMillVerification,
+  type MillValue,
   type MillVerification,
   type MillVerificationClient,
   type MillVerificationResult,
@@ -53,6 +55,24 @@ const VERIFIED: MillVerification = {
   metrics: [
     { metric_key: "midday_productive_kwh", label: "Midday use", unit: "kWh a day", before: "10.00", after: "11.50", threshold: "11.00", days_before: 3, days_after: 3, state: "PASS" },
   ],
+  value: null,
+};
+
+// MV-1: the server's strings, copied from `verification_families.VALUE_TEXT` / `VALUE_COST_TEXT` with the demo figures
+const PRICED_TEXT =
+  "About 17.00 USD a day more in estimated sales to productive users: (110.00 − 42.00) kWh a day × your declared 0.25 USD per kWh, on 3 fully checked days before and after the change";
+const COST_TEXT = "No cost is recorded for this change";
+const PRICED: MillValue = {
+  state: "PRICED",
+  reason: null,
+  basis: "ESTIMATED_SALES_AT_DECLARED_PRICE",
+  per_day: "17.00",
+  before_per_day: "10.50",
+  after_per_day: "27.50",
+  currency: "USD",
+  price: { revision_id: "r1", value: "0.25", currency: "USD" },
+  text: PRICED_TEXT,
+  cost_text: COST_TEXT,
 };
 
 function client(result: MillVerificationResult | Promise<MillVerificationResult>): MillVerificationClient {
@@ -163,6 +183,34 @@ describe("mill verdict page", () => {
     expect(main().querySelector("table")).toBeNull();
   });
 
+  it("MV-1: a VERIFIED PRICED value renders the value line and the cost line before the table", async () => {
+    renderAt(client({ status: "loaded", body: { ...VERIFIED, value: PRICED } }));
+    await settledScreen();
+    const value = main().querySelector('[data-mill-value="PRICED"]');
+    expect(value?.textContent).toBe(PRICED_TEXT);
+    expect(main().querySelector("[data-mill-cost]")?.textContent).toBe(COST_TEXT);
+    const table = main().querySelector("table");
+    expect(table && value && value.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    clean();
+  });
+
+  it("MV-1: an UNPRICED value renders its text and the cost line; a null value renders neither", async () => {
+    const text = "No sales estimate: no price per kWh is declared for productive users";
+    const unpriced: MillValue = { ...PRICED, state: "UNPRICED", reason: "NO_PRICE", per_day: null, before_per_day: null,
+      after_per_day: null, currency: null, price: null, text };
+    renderAt(client({ status: "loaded", body: { ...VERIFIED, value: unpriced } }));
+    await settledScreen();
+    expect(main().querySelector('[data-mill-value="UNPRICED"]')?.textContent).toBe(text);
+    expect(main().querySelector("[data-mill-cost]")?.textContent).toBe(COST_TEXT);
+    clean();
+    cleanup();
+    renderAt(client({ status: "loaded", body: VERIFIED }));
+    await settledScreen();
+    expect(main().querySelector("[data-mill-state]")?.textContent).toBe("Target met");
+    expect(main().querySelector("[data-mill-value]")).toBeNull();
+    expect(main().querySelector("[data-mill-cost]")).toBeNull();
+  });
+
   it("a 404 says the Action was not found and an error shows its sentence, never a verdict", async () => {
     renderAt(client({ status: "not_found" }));
     await settledScreen();
@@ -188,5 +236,14 @@ describe("mill verdict client", () => {
     expect(await createMillVerificationClient().read(SITE, ACTION)).toEqual({ status: "error", message: MILL_UNEXPECTED });
     vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("offline"); }));
     expect(await createMillVerificationClient().read(SITE, ACTION)).toEqual({ status: "error", message: MILL_UNREACHABLE });
+  });
+
+  it("MV-1: a body without `value` parses as null; a value without string text or cost_text is a parse error", () => {
+    const { value: _omit, ...without } = VERIFIED;
+    void _omit;
+    expect(parseMillVerification(without)?.value).toBeNull();
+    expect(parseMillVerification({ ...VERIFIED, value: PRICED })?.value).toEqual(PRICED);
+    expect(parseMillVerification({ ...VERIFIED, value: { ...PRICED, text: 17 } })).toBeNull();
+    expect(parseMillVerification({ ...VERIFIED, value: { ...PRICED, cost_text: null } })).toBeNull();
   });
 });

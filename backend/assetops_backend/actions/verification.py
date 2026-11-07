@@ -67,6 +67,9 @@ class VerificationPorts:
     #: DD1a1-R9: `run_assessments(tenant, site, run_id)` -> that S3 run's selected assessment revisions (each with
     #: its `scope`), or None when the run is unknown. None port: a re-selected baseline day fails closed as moved.
     run_assessments: Callable[[UUID, UUID, UUID], list[dict[str, Any]] | None] | None = None
+    #: MV-1: the declared productive-use price over one span as known at a cutoff (`PriceSelection`); None: the mill
+    #: value reads UNPRICED
+    productive_price: Callable[[UUID, UUID, datetime, datetime, datetime], Any] | None = None
 
 
 def _wire(value: Any) -> Any:
@@ -393,7 +396,27 @@ class VerificationService:
             if snapshots is None:
                 raise ActionRefused(503, "VERIFICATION_SNAPSHOTS_UNAVAILABLE", "The day snapshots cannot be read.")
             live = vf.assess_plan(plan, snapshots, tenant_id, site_id, self.clock())
+        if outcomes and outcomes[0]["outcome"] == vf.VERIFIED:
+            return vf.summary_wire(ctx, outcomes, live, price=self._mill_price(tenant_id, site_id, plan, outcomes[0]))
         return vf.summary_wire(ctx, outcomes, live)
+
+    def _mill_price(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], outcome: dict[str, Any]) -> Any:
+        """MV-1 (FUEL-1 §2.2(c)): the declared productive-use price over the Site-local span from the first baseline
+        day to the end of the last later day, as known when the verdict was recorded (a later publication never
+        changes a shown verdict). None without the port: the value reads UNPRICED."""
+        from assetops_backend.actions.verification_families import local_midnight
+
+        port = self._ports().productive_price
+        if port is None:
+            return None
+        tz = plan["basis"]["timezone"]
+        details = outcome["details"]
+        lo = local_midnight(min(date.fromisoformat(d) for d in details["baseline"]["days"]), tz)
+        hi = local_midnight(max(date.fromisoformat(d) for d in details["later"]["days"]) + timedelta(days=1), tz)
+        known_at = outcome["recorded_at"]
+        if isinstance(known_at, str):
+            known_at = datetime.fromisoformat(known_at)
+        return port(tenant_id, site_id, lo, hi, known_at)
 
     def _continuation_check(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any],
                             prior: dict[str, Any]) -> None:

@@ -29,6 +29,7 @@ __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailabl
            "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
            "build_cold_consequence_store", "build_cold_consequence_worker", "build_ev_consequence_store",
            "build_ev_consequence_worker", "build_trial_comparison_ports", "TrialComparisonPorts",
+           "build_productive_price_selection",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -152,3 +153,21 @@ def build_trial_comparison_ports(database_url: str | None) -> TrialComparisonPor
         return fuel_cost.select_window_price(snap["timeline"], snap["cited"], start, end)
 
     return TrialComparisonPorts(PostgresTrialComparisonStore(database_url), price_selection)
+
+
+def build_productive_price_selection(database_url: str | None,
+                                     ) -> Callable[[UUID, UUID, datetime, datetime, datetime], Any]:
+    """MV-1 (FUEL-1 §2.2(b)): `productive_price(tenant, site, start, end, known_at)`, the one declared productive-use
+    price over `[start, end)` from the assignments and revisions known at `known_at` (`fuel_cost.select_window_price`
+    with the productive key and its stored unit); a `PriceSelection`."""
+    from assetops_backend.financials import fuel_cost
+    from assetops_backend.financials.assumptions import PRODUCTIVE_PRICE_KEY, unit_for
+
+    prices = PostgresAssumptionStore(database_url)
+
+    def productive_price(tenant_id: UUID, site_id: UUID, start: datetime, end: datetime, known_at: datetime):
+        snap = prices.snapshot(tenant_id, site_id, PRODUCTIVE_PRICE_KEY, known_at, 0, 1)
+        return fuel_cost.select_window_price(snap["timeline"], snap["cited"], start, end, key=PRODUCTIVE_PRICE_KEY,
+                                             unit=unit_for(PRODUCTIVE_PRICE_KEY))
+
+    return productive_price

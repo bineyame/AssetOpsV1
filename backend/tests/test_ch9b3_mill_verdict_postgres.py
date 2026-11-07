@@ -201,6 +201,70 @@ def test_zero_baseline_is_inconclusive_through_the_stage_helper(mill) -> None:
         _close(mill)
 
 
+def _publish_productive(mill, recorded_at, valid_from=None):
+    """MV-1: publish the demo productive-use price v1 (`demo-productive-price-publications.json`) for the mill Site,
+    recorded at `recorded_at`; `valid_from` overrides the fixture's start (the span test)."""
+    from dataclasses import replace
+    from pathlib import Path
+
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+    from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER
+    from assetops_backend.publish_assumption import fixture_publications
+
+    path = Path(__file__).resolve().parents[1] / "conversions" / "demo-productive-price-publications.json"
+    (_, publication), = fixture_publications(path, ["v1"], lambda key: None)
+    if valid_from is not None:
+        publication = replace(publication, valid_from=valid_from)
+    store = PostgresAssumptionStore(URL, test_recorded_clock_override=lambda: recorded_at)
+    try:
+        return store.publish(mill.t, mill.s, publication, SYSTEM_PUBLISHER)
+    finally:
+        pg_harness.dispose(store)
+
+
+def _with_productive_price(svc, mill):
+    """MV-1: the composed productive-price port (`financials.composition.build_productive_price_selection`)."""
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+    from assetops_backend.financials.composition import build_productive_price_selection
+
+    port = build_productive_price_selection(URL)
+    svc.actions.verification_ports.productive_price = port
+    mill.disposables += [c.cell_contents for c in port.__closure__ or ()
+                         if isinstance(c.cell_contents, PostgresAssumptionStore)]
+
+
+def test_mv1_a_verified_outcome_reads_the_declared_productive_price_as_known_at_its_recording(mill) -> None:
+    svc, clock, aid, eff, tz = _frozen(mill, "mv1-priced", baseline_kwh="42")
+    try:
+        _with_productive_price(svc, mill)
+        published = _publish_productive(mill, clock.at)  # before the verdict is recorded
+        _later(mill, eff, "110")
+        clock.at = _after(eff, tz, 5)
+        assert svc.evaluate_domain_plan(mill.t, mill.s, aid)["state"] == "VERIFIED"
+        value = svc.domain_summary(mill.t, mill.s, aid)["value"]
+        assert value["state"] == "PRICED" and value["per_day"] == "17.00", value
+        assert value["price"] == {"revision_id": str(published.revision_id), "value": "0.25", "currency": "USD"}
+        assert value["text"].startswith("About 17.00 USD a day more in estimated sales")
+    finally:
+        _close(mill)
+
+
+def test_mv1_a_price_starting_inside_the_window_reads_unpriced_spans_window(mill) -> None:
+    svc, clock, aid, eff, tz = _frozen(mill, "mv1-spans", baseline_kwh="42")
+    try:
+        _with_productive_price(svc, mill)
+        first = min(eff - timedelta(days=b) for b in (1, 2, 3))
+        start = datetime.combine(first + timedelta(days=1), datetime.min.time(), ZoneInfo(tz)).astimezone(timezone.utc)
+        _publish_productive(mill, clock.at, valid_from=start)
+        _later(mill, eff, "110")
+        clock.at = _after(eff, tz, 5)
+        assert svc.evaluate_domain_plan(mill.t, mill.s, aid)["state"] == "VERIFIED"
+        value = svc.domain_summary(mill.t, mill.s, aid)["value"]
+        assert (value["state"], value["reason"], value["per_day"]) == ("UNPRICED", "PRICE_SPANS_WINDOW", None), value
+    finally:
+        _close(mill)
+
+
 def test_the_verification_get_over_http_200_404_and_422(mill) -> None:
     """L4: the route is registered at its path; an unknown Action or Site is 404, a bad id is 422."""
     from uuid import uuid4

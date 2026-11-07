@@ -111,7 +111,7 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
     def provenance(tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> dict[str, Any]:
         return resolver.resolve(tenant_id, site_id, evidence_ids)
 
-    from assetops_backend.financials.composition import build_trial_comparison_ports
+    from assetops_backend.financials.composition import build_productive_price_selection, build_trial_comparison_ports
 
     from assetops_backend.chain.composition import build_snapshot_reader
 
@@ -121,7 +121,8 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
 
     return VerificationPorts(day_status=day_status, provenance=provenance, run_assessments=run_assessments,
                              trial_comparison=build_trial_comparison_ports(database_url),
-                             snapshots=build_snapshot_reader(database_url))
+                             snapshots=build_snapshot_reader(database_url),
+                             productive_price=build_productive_price_selection(database_url))
 
 
 def evaluate_domain_plans(database_url: str, tenant_id: UUID, site_id: UUID, snapshots: Any, now: Any,

@@ -237,6 +237,38 @@ def mill_page(page: dict) -> dict:
             "days_after": m.get("days_after")}
 
 
+def productive_price_v1(path) -> Decimal:
+    """MILL-3b: the v1 value of the productive-use price fixture (`demo-productive-price-publications.json`)."""
+    import json
+    from pathlib import Path
+
+    doc = json.loads(Path(path).read_text(encoding="utf-8"))
+    return Decimal(next(s for s in doc["steps"] if s["step"] == "v1")["value"])
+
+
+def mill_value_page(page: dict, price: Decimal) -> dict:
+    """MILL-3b (FUEL-1 §2.4): the verification page's `value` is PRICED at the declared v1 price, and its per-day figure
+    and text are recomputed here from the page's own shown means (`(after - before) x price`, `money2`)."""
+    from assetops_backend.actions.verification_families import VALUE_COST_TEXT, VALUE_TEXT, _price_text
+    from assetops_backend.chain.vocabulary import money2
+
+    m = (page.get("metrics") or [None])[0]
+    assert m, "no metric on the verification page"
+    value = page.get("value")
+    assert isinstance(value, dict), ("no mill value on the verification page", value)
+    assert value.get("state") == "PRICED", ("mill value", value.get("state"), value.get("reason"))
+    expected = money2((Decimal(m["after"]) - Decimal(m["before"])) * price)
+    assert value.get("per_day") == expected, (value.get("per_day"), expected)
+    p_txt = _price_text(price)
+    text = VALUE_TEXT.format(d=expected, cur=value.get("currency"), a=m["after"], b=m["before"], p=p_txt,
+                             n=m["days_after"])
+    assert value.get("text") == text, (value.get("text"), text)
+    assert value.get("cost_text") == VALUE_COST_TEXT, value.get("cost_text")
+    return {"per_day": value["per_day"], "currency": value.get("currency"), "price": p_txt,
+            "revision_id": (value.get("price") or {}).get("revision_id"), "text": value["text"],
+            "cost_text": value["cost_text"]}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None

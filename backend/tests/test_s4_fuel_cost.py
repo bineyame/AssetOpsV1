@@ -190,6 +190,18 @@ def test_overlapping_assignments_are_a_conflict_and_bad_units_refused() -> None:
     assert fc.select_window_price([assign("vX", W0, None)], REVS, W0, W1).reason == "PRICE_REVISION_MISSING"
 
 
+def test_the_productive_key_and_unit_select_a_productive_revision_and_the_default_still_refuses_it() -> None:
+    """MV-1 (FUEL-1 §2.2(a)): the two keyword arguments; the default (diesel) call is unchanged."""
+    from assetops_backend.financials.assumptions import PRODUCTIVE_PRICE_KEY
+
+    revs = {"p1": {"id": "p1", "unit": "currency/kWh", "value": Decimal("0.25"), "currency": "USD",
+                   "assumption_key": PRODUCTIVE_PRICE_KEY}}
+    hit = [assign("p1", datetime(2026, 1, 1, tzinfo=UTC), None)]
+    s = fc.select_window_price(hit, revs, W0, W1, key=PRODUCTIVE_PRICE_KEY, unit="currency/kWh")
+    assert (s.state, s.revision_id, s.value, s.currency) == ("PRICED", "p1", Decimal("0.25"), "USD")
+    assert fc.select_window_price(hit, revs, W0, W1).reason == "PRICE_UNIT_MISMATCH"
+
+
 def test_unpriced_bases_over_different_price_boundaries_differ() -> None:
     """Idempotency: UNPRICED(PRICE_SPANS_WINDOW) twice over different boundaries is not one basis. The
     assignment IDs are deliberately the same, so only the window-clipped boundary instants can differ."""
