@@ -204,8 +204,9 @@ def test_mg1_judged_on_checked_days_and_optimize_row_reads_act_k1_on_d13(mech, m
     reading = Reading(value, False, None, checked, (d13 - first).days + 1, 31)
     assert kpi["value"] == judge_month(fact, reading), (kpi, value, checked)
 
-    # The estate row agrees with the D13 board. NOT asserted (packet KD-3b, not met, for the Architect): that this row
-    # reads the ACT-K1 verdict. On this data it is UNKNOWN with no thread line, and D13's chain lists no generator thread.
+    # The estate row agrees with the D13 board. On `mechanism_db()` no Performance comparison report exists, so the
+    # Performance gate is closed and every Kobo row reads UNKNOWN (CH6b3-R2). The verdict is proved on the drained
+    # clone and by CO-1 and CO-2.
     row = next(r for r in board["rows"] if r["category"] == "OPTIMIZE_COST")
     assert kobo["rows"]["OPTIMIZE_COST"]["state"] == row["state"], (kobo["rows"]["OPTIMIZE_COST"], row["state"])
     print("CH6B3_L2M", kpi["value"], value, checked, row["state"], row["thread_lines"],

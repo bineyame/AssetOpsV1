@@ -31,7 +31,7 @@ COH-17 now guards count, money, verdict, legacy and Why? values over estate wind
 | Pipeline L1 | Met | Closed in code by CH-5a2b. Revert-failing test added; proof below |
 | Q4b server and singular | Met | `test_legacy_fields_follow_the_claims...`, `namesOnePrioritySiteInTheSingular`, L1 on real bodies |
 | L2m MG-1 on >= 3 COMPLETE days | Met | Recomputed with `judge_month`: MET, 2156.000 kWh, 9 COMPLETE days |
-| **L2m Optimize row on D13 reads ACT-K1** | **Not met** | KD-3b |
+| L2m Optimize row on D13 reads ACT-K1 | Restated | KD-3b closed by CH6b3-R2; verdict proved on the drained clone |
 | L3 clone 0 new, COH-17 = 0, COH-18 = 0 | Met | Below |
 | L3m 0 unexpected; CHECKED_DAYS rule R4 | Met | Below |
 | Old → new table, MD-CH6-4/5/6, §B6 line | Met | Below |
@@ -82,9 +82,10 @@ Old cards: the CH-6b1 browser rules as listed in the CH-6b2 packet, from `catego
 Other claims on this head: `count.open_threads` 4 / 3 / 3 and `count.opportunities` 1 / 1 / 1 (week / S / month).
 
 **Cause, from `finding_thread_event` on the clone** (CH-5a `:691`; the events explain every change):
-- Kobo thread `6c6258e4`: RESOLVED_MONITORING effective 1 Nov, known 1 Nov 13:00. Week and S end 1 Nov 00:00, so at their cutoff it is ACTION_IN_HAND: confirmed 1 → 0, and Kobo counts as a priority Site. Month runs to 3 Nov, so it reads verified: 1 stays 1.
-- The old priority count of 0: `thread_progress` read rows whose Cold and EV thread states were null, because their OPEN events are known 2 Nov, after the evidence cutoff, while Kobo read RESOLVED_MONITORING. The claims read the lifecycle at k (CH6b2-R2).
-- Cold `3e6e4c87` and `8b05d5cc`: in hand and open from known 2 Nov. EV `8afb054a`: OPEN on 27 Oct (in week, not in S), ACTION_IN_HAND effective 2 Nov (in hand in month). This gives 3 / 2 / 2 Sites.
+With no `known_at`, every event is visible. A thread's state differs by window because it is read on the window's last day against the event's `effective_day` (`threads_of`, `lc.state_on`), not because of a "known" time (CH6b3-R2 step 4).
+- Kobo thread `6c6258e4`: RESOLVED_MONITORING effective 1 Nov. Week and S end before 1 Nov, so on their last day it is ACTION_IN_HAND: confirmed 1 → 0, and Kobo counts as a priority Site. Month runs to 3 Nov, so it reads verified: 1 stays 1.
+- The old priority count of 0: `thread_progress` read rows whose Cold and EV thread states were null, while Kobo read RESOLVED_MONITORING. The claims read the lifecycle on the window's last day (CH6b2-R2).
+- Cold `3e6e4c87` and `8b05d5cc`: OPEN, then in hand from their `effective_day`. EV `8afb054a`: OPEN on 27 Oct (in week, not in S), ACTION_IN_HAND effective 2 Nov (in hand in month). This gives 3 / 2 / 2 Sites (week = Kobo, Cold, EV; S = Kobo, Cold; month = Cold, EV).
 - CH-5a's "1 against 0, 0 against 1" predates the CH6b2-R2 cutoff; these are the values at this head.
 
 ## PERIOD information table (polish; board against summary; the frame differs by design)
@@ -114,7 +115,7 @@ This closes the note at `review-CH-6b2.md:78`. That file is only in the plan2 ch
 
 - **KD-1 (confirmed, CH6b1-R Q6):** Cold and EV are checked at L0 only in L2m; real-data agreement is the L3 clone and COH-17.
 - **KD-2:** the `states` L3m set has no D6-D9, so its week reads 4 of 7 with 3 no-data days. R4 accepts a listed gap or a NO_DATA day (CH6b3-R Q4a). A day built with no readings cannot be told from an unbuilt one; MD-0 tests own that case.
-- **KD-3b, NOT MET, Architect to rule.** The bullet says the Optimize row on D13 reads the ACT-K1 verdict (RESOLVED_MONITORING since D12). Observed on `mechanism_db()`, states:
+- **KD-3b, CLOSED by CH6b3-R2 (acceptance row: Restated).** Not a product defect: `mechanism_db()` has no Performance comparison report, so the Performance gate is closed and every Kobo row reads UNKNOWN; D13's chain omitting the generator thread is by design (`threads_of` lists a thread only with an occurrence or event in the window). The L2m bullet is restated: the generator thread is RESOLVED_MONITORING since D12 on D13 (`test_md0_mechanism_postgres.py:268`) and the estate row equals the board row (`test_ch6b_estate_postgres.py:210`); the board verdict is proved on the drained clone (below) and by CO-1 and CO-2 in every combined `prepare`. Original observation, kept as evidence: the bullet says the Optimize row on D13 reads the ACT-K1 verdict (RESOLVED_MONITORING since D12). Observed on `mechanism_db()`, states:
   - D13 board Optimize row: state UNKNOWN, `thread_lines` [], `issues` [], read state PARTIAL. On the D11 board it is also UNKNOWN, with a "Generator use" contributor reading "Not available yet · this record could not be loaded".
   - Every one of the 11 named Kobo day boards reads Optimize UNKNOWN and Assure "No verified result yet".
   - D13 `/sites/KOBO-001/chain` lists only the headroom thread (OPEN). D12's lists the generator thread RESOLVED_MONITORING. D11's lists it ACTION_IN_HAND. `test_md0_mechanism_postgres.py:268` asserts the thread state on D13.
