@@ -112,7 +112,7 @@ def test_one_kisiwa_day_end_to_end(registered, tmp_path, monkeypatch) -> None:
         runner.step({"do": "assess"})
         runner.step({"do": "match"})
         with engine.connect() as c:
-            fuel = c.execute(text("SELECT count(*), min(measurement), max(measurement) FROM accepted_evidence "
+            fuel = c.execute(text("SELECT count(*), min(source_time), max(source_time) FROM accepted_evidence "
                                   "WHERE site_id = :s AND role = 'fuel_level'"), {"s": site_id}).one()
             assessed = [tuple(r) for r in c.execute(text(
                 "SELECT analytic_id, claim_level, count(*) FROM assessment_revision WHERE site_id = :s "
