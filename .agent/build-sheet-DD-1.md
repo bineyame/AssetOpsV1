@@ -2067,3 +2067,119 @@ Separately, a quarter unit now to find out why days added during a demo don't ge
   - (ii): 5.25-5.75 including the diagnosis.
   - A defect the diagnosis finds is sized then.
 - **Backlog, recorded on the owner's answer:** BL-45 = opportunity-origin Actions on boards, the Assure count and thread lines; 1.0-1.5 est.
+
+## DD1b2-R6: DD-1b2b consolidated owed list (Architect, Claude, 2026-11-07)
+
+Binding checked: Claude (`.ai/ROLE_CONFIG.md`, 2026-10-27). Inputs: `DD-1b2-preflight.md` (28 items), DD1b1-R "Owed", DD1b1-R3 §6, DD1b1-R4, DD1b2-R to R5, `review-DD-1b2a.md`, the packet's fix round and verification, `DD-1b2-addday-renewable-diagnosis.md`, and the three owner answers (whole-list run; "Leave it"; "Fix link, use route"). **This section is the DD-1b2b builder's single card.** It replaces the scattered "owed" lists; earlier rulings are cited only for reasons. I ran nothing. **READ** = code; **MEASURED** = the stored evidence named. Branch `task/DD-1b2-finish-rehearsal` at main `29efab1d0`.
+
+### 1. Two corrections from my reads (READ; the builder confirms them in step 1)
+
+- **No screen renders the mill thread's Action link.** The frontend reads only `/chain/why` (`sites/chainClient.ts:72,81`), and a THREAD ref has no screen (`routeFor` returns null). Nothing renders `actions[].ref` from `/api/sites/{s}/chain` or `/threads/{id}` (`chain/site_chain.py:143`). The why trace uses only the id and code (`chain/why.py:241-246`). So the 404 is a wrong `ref` on the API wire, not a dead link on a screen. **The fix still goes in:** the owner chose it, the wire is the contract the next screen will render, and F-THREADS checks it. **The script route is Work → Maintenance → the mill row → verdict page**, not "from the story page". The owner is informed (§5); no decision is needed.
+- **S-3's study is probably not queued on a daytime rehearsal.** The scan's lower bound is wall now − 5 d (`worker.py:156`), and S = today − 2. S-3's PV hours (05:00-10:00Z on today − 5) fall before that bound once the ticks run after about 10:00Z. **The S-1 study decides recurrence.** S-3 is reported and is never a stop.
+
+### 2. The owed list (one row per item; "#" is the pre-flight checklist number)
+
+| ID | Item | Source | Class | Pass condition |
+|---|---|---|---|---|
+| O1 | **Link fix.** `chain/refs.py`: add kind `DOMAIN_VERDICT {site, id}` to `KINDS`, plus `domain_verdict_ref(site, id)`; `href_for` → `/sites/{site}/domain-actions/{id}/verification`, no query. `chain/site_chain.py:143`: use `domain_verdict_ref` when `a["kind"] == "DOMAIN_INTENT" and a.get("origin_opportunity_id") is not None`, otherwise `action_ref` as today. Frontend: add the kind to the `sites/chainRef.ts` Ref union; in `shell/operatorSiteRoutes.ts` `routeFor`, add a case → `siteMillVerificationHref(r.site, r.id)`; add one row to `shell/__fixtures__/route-refs.json` | R5 M1; owner "Fix link" | BUILD | L0: `test_ch5a2_refs.py` (the fixture covers the kind), `routeRefs.test.ts` (the kind list at `:15` gains it), and new `backend/tests/test_dd1b2b_action_ref.py`: MINI_TRIAL + finding → ACTION; DOMAIN_INTENT + finding (Cold/EV) → ACTION, byte-equal to today; DOMAIN_INTENT + opportunity → DOMAIN_VERDICT. Rehearsal: the mill ref's href serves 200 in the browser and reads "Target met"; Cold and EV thread refs stay ACTION (F-THREADS lists them) |
+| O1b | O1's blast radius (READ) | O1 | REPORT-ONLY | Cold/EV domain Actions carry `origin_finding_id`, so their refs do not change. ACT-001 does not change. No screen changes. Only Kobo's `/chain` and `/threads` bodies change, so the rehearsal builds **after** the commit |
+| O2 | **R8 drain** `Demo.drain()`. Tick once, then N = ceil((dirty + pending `snapshots`)/200) + 2. Done when dirty is 0, pending is 0 (subscribed types) **and Kobo mini `deferred` is 0** (`stages.py:151-156`). Between N and 2N with counts still falling: continue and log `over_n`. Past 2N, or two flat ticks: fail with the counts. It reads the tick's stdout and return code itself. It runs at step 6 (after `b,c,d`) and again after the finish ticks. New CLI `tick --until-drained` calls it | DD1b2-R Q4, Q8; review L1; diagnosis §1 | BUILD | L0: the formula and the stop logic. L2 on a seeded backlog: stops at 0, reports `over_n`, fails on a flat count. Rehearsal: F-DRAIN 0/0/0 after the second drain. The same stuck ids on two ticks: **stop** |
+| O3 | `prepare --cap-seconds` (10800 for the rehearsal). An elapsed field on each child line and in `manifest.json`. Separate timings for mini-depth, backfill, mill, drain, finish rows, F-PERF and EX-1 | DD1b2-R Q1, Q14; # 23 | BUILD | The manifest holds every timing. The wall time is measured, not projected |
+| O4 | F-DRAIN; F-COH (threads generated from `kobo/cold/ev.json` into the manifest's `expected_threads`, then `check` with no `--expect`); F-PERF (`perf_budget.py --story`, `--report`, 3 runs); F-CAL (Q11, every local day); F-COH3, non-vacuous | DD1b2-R Q9, Q11; # 2, 17 | BUILD | Any COH finding is a fault, with one exception: COH-17 on the mill thread on week and month windows, **if and only if** the thread recurs (entry text at `:1559`). An F-PERF breach is a packet line only |
+| O5 | F-THREADS per Q10, plus: MILL-3 (outcome count 1, VERIFIED, recomputed 42.00 → 110.00, `origin_opportunity_id`, CHANGE_APPLIED, not SHORT); earnings, ONE-SOURCE and the "Why?" price line, recomputed; the MG-1 verdict and the days it reads; the MG-2 line; every `story_links` board and every bare board on the 3 Sites (fail on PRODUCER_NOT_SETTLED or PARTIAL); the links that carry an explicit `known_at`, listed; `domain_action_index` not a failed read on Cold/EV day and week boards; the Portfolio's plain landing for Cold/EV, stated; Cold/EV "No action agreed yet", reported; the Protect "Why?" naming both Cold threads; ACT-002/003 "Action agreed" | DD1b2-R Q10; # 4-7, 12-16, 18, 20-22 | BUILD | Each row passes or is listed as a fault. **No row is edited to pass.** A change to what a row asserts comes back here. A tool bug is fixed in place and declared |
+| O6 | **WK-2b, restated** (DD1b2-R Q10). On S: no headline money; the headline does **not** match the kW pattern; the sales contributor starts "0 kWh used by Grain mill"; the potential reads "No potential found yet". **WK-2c** on S-11 (R3's wording under "Leave it"): the potential line equals "Limited evidence: readings come from mixed sources, so the size is not worked out yet", with no kW, no `value_line` and no money; status LIMITED, reported. F-THREADS' SUPPORTED row becomes: the pinned study is LIMITED with 5 eligible days, reported | DD1b2-R Q10; R3 §2-3; R4 §5 | BUILD | WK-2c **fails** if any kW figure or money shows for the potential |
+| O7 | Reword ST-3 in `docs/demo-sprint/client-demo-plan.html:588`: "…the headroom opportunity is a thread; on the example data its potential reads as limited evidence with no size or money (owner, 'Leave it'; BL-43/44). The mill change is verified before/after on its own result page, reached from Work (BL-45)." | R3 §2; R5 M1 | SCRIPT-LINE (doc) | Text as given |
+| O8 | **H1 measurements**, on `dd1b2` after the build and before EX-1: (1) renewable selections for every PV hour of S-3 and S-1; (2) the studies ending S-3 and S-1: queued or not, status, eligible days; (3) the mill thread's events after the drain; (4) Grow and Assure rows on boards S-5, S-1, S+0, S+1; (5) Portfolio week and month counts; (6) COH-17 on the mill thread. The same six on the clone after the S+2 add, for S+2 | R5 H1 | MEASURE | R5's outcome table (end of §3) |
+| O9 | **EX-1**, `tools/demo_combined_ex1.py`, on the clone: read the boards; run `add-day --site KOBO-001 --kind normal --assess-now` (S+2) and time it; run `tick --until-drained` and count the ticks; read again. Compare the Assure count, the trial line, the Action's words and any new Findings | DD1a2-R3; DD1b2-R Q13; # 10, 19, 28; §3 | BUILD + MEASURE | The Assure count, trial line and Action words are unchanged; no new Finding; renewable selections for S+2's PV hours exist **before** the first tick; the add and tick seconds are recorded for DS-1. `DAY_NOT_IN_PAST` is not a fault: rerun after 11:00Z on the same clone |
+| O10 | **L5**, `Demo.delivered_days`: measured on the real build in place of R2's seeded L2 (this amends R2 §2's test) | review L5 | MEASURE | On `dd1b2`, S-10 and S-4 are absent from the set and every built day is present; EX-1's add is not refused on it |
+| O11 | **L4**, the prebuild 404s | review L4; R4 §5 | MEASURE | The rehearsal's `prebuild` logs show 0 non-200 responses for COLD-LAB-001 and EV-LAB-001. Any 404: **stop**, with the URLs |
+| O12 | **L6**, capture the Grow contributor beside "No potential found yet" on S-8 and S-5 | review L6 | MEASURE + SCRIPT-LINE | Captured; the line is in §4 |
+| O13 | **"Target met" in a browser.** Serve `dd1b2`, open Work → Maintenance → the mill row's link, and open O1's href directly | R5 M1; review "unproved" | MEASURE | Both paths show the headline "Target met" and 42.00 → 110.00; screenshots in the packet |
+| O14 | R4's unused-solar row: recompute solar available, delivered and unused, and mill kWh, on S-13..S-11 and S-8, S-6, S-5 from stored rows | R4 §2 | REPORT-ONLY | The script may quote "about 96 / about 22" only if unused reads 96.4 and 22.4 (±0.5). Otherwise DS-1 drops those numbers. No screen claims them |
+| O15 | **Litre recompute** (MONEY-B/G1) on the `steady-before` nights after R2's seam fix | R2 §2; R3 §6; # 8 | MEASURE | Old and new reported. The owner line (§5) goes **only if** it differs from the accepted figure at one decimal |
+| O16 | MONEY-B: each fuel row traces to a story-day Finding and none sits on a steady day; S-14 and S-7 PRICED with quantity 0; a Cost headline on one `steady-before` and one `steady` day; WK-2a 42.08 | DD1a2-R2, R3; # 8 | BUILD (finish row) | As written. A different figure goes to the owner before E3 |
+| O17 | Time and memory: a scratchpad sampler every 30 s (free RAM, python working sets, `docker stats`); R11 from the `assetops.perf` line, otherwise "not measured" | DD1b2-R Q14; # 23-25 | MEASURE | Wall ≤ 10800 s and free RAM ≥ 2 GB throughout. Over 3 h: the **B-16 projection goes to the owner** before E3. Under 2 GB: **stop** |
+| O18 | `EXPECTED_SECONDS` gains `mill` and `drain` from the measured figures, untuned | DD1b2-R Q14 | BUILD (after the run) | Equal to the manifest's values, rounded up to 10 s |
+| O19 | Q12: how E2 runs `test_demo_combined_postgres` (on the E3 build's clone, with the DB named by env) | DD1b2-R Q12; # 9 | REPORT-ONLY | Stated in the packet; no branch written |
+| O20 | Not owed: item 3 (M2 and F-FILL are backlogged), item 27 (not pinned), the EV "twice" item (dropped), a seeded `delivered_days` L2 (replaced by O10) | rulings named | n/a | Each listed in the packet as not done, with its reason |
+
+### 3. Rulings on the add-day diagnosis
+
+- **Option A is ruled.** The live S+2 add uses `--assess-now`. Kind `normal` is allowed (`demo_combined.py:581` refuses only `late`). The run is set to `assess: build`, and `drain_mini()` drains Kobo's mini jobs with no bound (`:598-613`, READ). So the renewable heads exist before any tick. A tick is still needed to queue the study and place threads, so **the presenter runs `tick --until-drained`** (O2) and then shows the board. O9 measures this.
+- **B is not number tuning in the barred sense:** it changes when the work happens, not any measured or shown value. **It is refused under SCOPE-1.** It changes a lease-budget constant pinned by `test_w402_mini_stage.py:97`, it lengthens every Site's tick, and A reaches the same state at +0. With B, two adds in a row (68 jobs) would still not finish in one tick.
+- **C is refused.** It reorders the lease without draining it, and it changes shared lease SQL.
+- **Backlog BL-46** (free; I grepped `.agent` and `docs`): "One serve tick finishes an added day's mini jobs, by a larger bound or renewable-first leasing, so a live add needs no `--assess-now`." Source: the diagnosis §4 and this section. Nothing shown is false without it. 0.1-0.2 est.
+- **The standing DS-1 line is replaced.** Old (`coordinator-handoff.md:24`): "Tick right after the add, before showing the board, or it reads REASSESSMENT_PENDING". New: **"Add the live day with `add-day --site KOBO-001 --kind normal --assess-now`, after 11:00Z. Then run `tick --until-drained`, and show the board only when it returns. Until then the board can read REASSESSMENT_PENDING, and the day has no spare-solar check yet. It takes about [O9's add + tick seconds]."**
+
+**R5's outcome table, restated with §1's S-3 note (applies to O8):**
+
+| S-1 study after the drain | Result | Then |
+|---|---|---|
+| Queued, eligible ≥ 1, thread RECURRED, effective day after S-9 | **Recurs** | Q7's "recurs" column; the COH-17 entry only if it fires; Portfolio Grow counts the mill thread as open; Assure unchanged |
+| Queued, eligible 0 | Does not recur | Q7's "does not recur" column; the "Seen again" lines leave DS-1 |
+| Queued, eligible ≥ 1, no RECURRED | **Stop** | Contradicts `lifecycle.py:55` |
+| Not queued (no renewable heads for S-1) | **Stop** | The add-path gap reached the build: the diagnosis plus counts |
+| RECURRED effective on or before S-9, or WITHDRAWN, or CLOSED | **Stop** | Q7's stop |
+
+### 4. Script lines owed to DS-1 (the coordinator carries them; +0)
+
+- **Mill route:** Work → Maintenance → the mill row → "Target met", midday use 42 → 110 kWh a day. "The board's '1 verified result' is the earlier maintenance check. The mill's check sits on its own page." (R5 M1)
+- **R4. Say:** "On these example days the extra came from solar that was going unused: about 96 kWh a day before, about 22 after [only if O14 matches]. The generator didn't run during mill hours, before or after, and the battery still reached full by 2pm. In this example the mill also ran longer, not just earlier." **If asked about limited evidence:** "We generated these example days in separate runs, and the system won't size across those. A real site reports continuously." **Do not say** that the change saves fuel, that the mill could run like this every day on solar, or that the same work was simply moved.
+- **Q7:** the "recurs" or the "does not recur" sentence, per O8's outcome.
+- **L6:** "Spare solar was seen on the well-observed days. The opportunity's size isn't repeated while the change is being checked."
+- **Generator, correcting `:944`:** "On the days before the mill change, the evening ends with the battery a little lower, so the generator comes on shortly before 6am for about 15 minutes, using [O15's litre]. It was needed, so no problem is raised and no extra cost is estimated."
+- **Add-day:** §3's replacement line. "Do not add a Cold or EV day live" stands (DD1b1-R4 §2).
+
+### 5. Owner
+
+- **Now (for information, no decision):** "One correction on the mill link: it was wrong in the data behind the screens, but no screen shows that link yet, so nothing a client could click was broken. We're fixing it anyway, as you chose. The demo reaches the mill result from Work, which shows 'Target met' and 42 to 110 kWh a day. The size doesn't change."
+- **After the rehearsal, only if triggered:** B-16, if the wall time is over 3 h (O17). The litre line, if O15 differs at one decimal: "The generator's early-morning run on the days before the mill change now reads [X] L, not [old]; nothing else changes." The recurrence result (O8), stated as measured: "Seen again" either shows or it doesn't.
+
+### 6. Order
+
+| Step | What | DB / folder | Relative to the build |
+|---|---|---|---|
+| 0 | Pre-flight: read this section and the code named in O1-O9. Batch every question, then stop | none | before |
+| 1 | Confirm §1 in code (no screen renders `actions[].ref`; the scan bound). Drop the spent DBs and folders: whichever of `assetops_demo3_dd1b2{m,n,p,q,r}_test` exist in `pg_database`, and `var/demo3_dd1b2{m,n,p,q,r}`. Their evidence is committed. Run `npm ci` in `frontend` (the guards need it) | drops only | before |
+| 2 | O1 with its L0s. Commit | none | before |
+| 3 | O2, O3 and `tick --until-drained`, with the L0 and the L2 (own `*_test` base, dropped after). Commit | L2 base only | before |
+| 4 | O4-O6, O9 and O14-O16 rows and tools, with their L0s. The O7 text. Commit. **Prepare archives git HEAD, so everything is committed before step 6** | none | before |
+| 5 | Guards A, W, N, V, M, and the missing-claim scan with its fixtures. Scoped pytest: `tools/checks/test_chain_coherence.py`, `test_ch9b*`, the `test_demo_combined_*` L0s, `test_ch5a2_refs.py`, `test_dd1b2b_action_ref.py`, O2's tests. `tsc --noEmit`. Vitest: `routeRefs.test.ts`, `millVerification.test.tsx`. **No full suite** | none | before |
+| 6 | **The rehearsal, once:** `demo_combined.py prepare` on the whole v3 list, no `--days`, no `--sites`, `--cap-seconds 10800`. Machine idle, keep-awake on, sampler and stall monitor on, one heavy job | `assetops_demo3_dd1b2_test`, `var/demo3_dd1b2` | the build |
+| 7 | On `dd1b2`, mostly reads: O8, O10, O11, O13, O14, O15, O17. For a finish-row fault, fix the row's tool and rerun `demo_combined_finish.py check` on the same DB. **Never rebuild for a row** | `dd1b2` | after |
+| 8 | Clone (`CREATE DATABASE … TEMPLATE` with no open sessions; copy the folder). Then EX-1 (O9), and O8's six for S+2 | `assetops_demo3_dd1b2c_test`, `var/demo3_dd1b2c` | after |
+| 9 | Commit O18; write the packet; fresh Claude review. Keep both DBs until the review verdict, then drop them | both | after |
+
+**The mill step is never rerun on a DB where it has already run** (`STUDY_NOT_ONE`, review residual). If the mill step fails inside the prepare, recovery is a new build, which would be a second whole-list run: **ask the owner first**. No pre-mill clone is added, because it would be new, unrun code inside the one run.
+
+**Barred throughout:** the full backend suite; any demo prepare or baseline build other than step 6; `test_demo_combined_postgres`; any DB other than `*_test` and `<prefix>_audit*`; `assetops_demo3_full_test`; the polish DBs; tuning any number.
+
+### 7. Stop conditions (back to this Architect, with the evidence)
+
+- Any stop in §3's table. MILL-3 differs from 42.00 → 110.00, or the outcome count is not 1.
+- A crash anywhere in the prepare (for the mill step, see §6).
+- R8 past 2N, two flat ticks, or the same stuck event ids.
+- The cap is reached (stop, with per-step timings and the Q14 projection), or free RAM falls under 2 GB.
+- A COH finding other than the named COH-17 entry; a prebuild non-200 (O11); O1's href not 200, or a changed Cold/EV ref.
+- A finish row whose fix would change what it asserts.
+
+### 8. Review packet (DD-1b2b)
+
+- Each O-row marked MEASURED or READ, with its evidence path.
+- The manifest timings, the wall time against 10800 s, and the minimum free RAM.
+- F-DRAIN's counts for each drain.
+- The S-1 and S-3 studies and the mill thread's events.
+- The board and Portfolio captures (O8, O12).
+- EX-1's before and after reads, its add and tick seconds, and its tick count.
+- O13's screenshots; O14's and O15's numbers.
+- Every link, listed with its `known_at`.
+- Every failed or fixed row, with its cause.
+- O20's not-done list.
+- The DS-1 lines in §4, with the measured numbers filled in.
+- The scoped test and guard results.
+
+Evidence file: `.agent/DD-1b2b-rehearsal.json`.
+
+### 9. Size
+
+DD-1b2b is 1.5 + 0.25 (O1) + 0.25 (the diagnosis, already spent) = **2.0, of which 1.75 remains.** Option A, O2's extra condition, `tick --until-drained` and O10 add nothing (+0). **Lane 2 remaining: 1.75 + CH-5d1's 1.0 = 2.75.** BL-46 is new in the backlog and not counted. One fresh builder fits 1.75; it may hand over at step 5's commit, with a handoff that names this section.
