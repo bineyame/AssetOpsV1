@@ -2344,3 +2344,79 @@ Input: the coordinator's relay of the P0 builder's report (prepare 226 s, exit 0
 ### Size and owner
 
 §1 adds 0.05 (one pure function plus L0s). §2 and §3 add nothing. **DD-1b2b has 1.05 left; lane 2 has 2.05.** BL-47 is in the backlog and not counted. **Owner:** nothing new.
+
+## DD1b2-R10: the rehearsal's 12 self-check failures, the recurrence result, and going on (Architect, Claude, 2026-11-07)
+
+Binding checked: Claude (`.ai/ROLE_CONFIG.md:9`). Input: `.agent/DD-1b2b-rehearsal-handoff.md` (`716e86c3b`), `var/demo3_dd1b2/check.json`, the kept DB `assetops_demo3_dd1b2_test`. **MEASURED** = my own reads on the kept build: GETs in the tree form (R9 §3) and read-only SQL (`default_transaction_read_only`). Scripts and output are in the session scratchpad (`r10_reads*.py`, `r10_db.py`, `r10_out.json`). **READ** = code, cited. I ran no prepare, no build, no tick and no suite, and I wrote nothing to the DB.
+
+### 0. Summary
+
+**No row found a product fault that blocks the demo. Nothing needs a second prepare.** 11 of the 12 failures are our own rows. Ten assert things that were true before the CH-era product rules, or on the v2 day list. One reads a field the wire documents as empty. F-CAL is a crash. The v2 build (`AssetOpsV1-demo3/var/demo3_full`, code `e2df244c2`) passed the older rows. It predates CH-1a (24 h calendar grading), CH-3 (the one fully-checked-day rule), CH-5a1 (Site-local board day) and CH-6a3 (Grow figures come from the earnings claim), and its list had no night runs. P0 classed these rows as "absent data" from their error text without tracing them (`DD-1b2b-p0.json`, "not each traced"). That is why they show up only now. Two copy gaps a client can see go to the backlog (BL-48) with DS-1 lines. **The thread recurs** (§2), which matches R7's "Recurs" row, so it is not a stop.
+
+### 1. Per row: cause and fix
+
+Classes: (a) a check or tool fault; (b) a data or authoring fault; (c) a product fault; (d) a known or accepted gap.
+
+| Row | Cause | Class | Fix (in `tools/demo_combined_finish.py` / `tools/demo_combined_rows.py`) |
+|---|---|---|---|
+| **F-COH** (4× COH-10) | MEASURED: the mill thread `6002bf66…` has two occurrences, OPP-000001 (10-17) and OPP-000002 (10-31), on one thread id. The served surfaces agree with each other. `build_expected_threads` lists only `mill.json`'s study (`demo_combined_rows.py:58-60`), so COH-10 expects 1 (`chain_coherence.py:826-836`). This is the recurrence R6 O4 anticipated, which our expectation did not carry | (a) | `build_expected_threads` takes the Kobo headroom opportunities **from stored rows, not served bodies**: every `mini_opportunity` of KOBO-001 whose latest `mini_opportunity_revision.result->>'eligible_days'` ≥ 1, ordered by `last_day`. `_coh` reads them with psycopg through `ctx.url`, as MILL-3 does. MEASURED now: {OPP-000001, OPP-000002} = 2, the served count. L0: no stored second study gives 1; a second study with eligible ≥ 1 gives 2; a study with 0 eligible is not added. **After the fix, if the stored count ≠ the served occurrences, or COH-10 fires: stop**, with no edit |
+| **CO-5/SP-1** | S-28 = 10-08, a story-only run from 03:00 to 11:00Z on Kobo's 24 h calendar (CH-1a), so the reading is not complete. MG-2 is AT_MOST 0 with value 0. `judge` gives NOT_JUDGED without a complete window (`outcomes/objectives.py:119`), which maps to UNKNOWN / OBJECTIVE_NOT_JUDGED (`outcomes/status.py:96-97`). The row's no-Finding branch expects ON_TRACK, which held under the pre-CH rules (v2: OBJECTIVE_MET) | (a) | Restated (this ruling authorizes it). No-Finding branch: state ∈ {ON_TRACK, UNKNOWN}. Every UNKNOWN outcome must carry reason **OBJECTIVE_NOT_JUDGED**. PRODUCER_NOT_SETTLED, OBJECTIVES_NOT_READ or any other UNKNOWN reason **fails**. Record the outcomes. Shared pure helper `unknown_only_not_judged(outcomes)`, with a must-fail L0 on PRODUCER_NOT_SETTLED |
+| **CO-5/SP-2** | Same rule. The Cold `normal` run is 16:00 to 17:05Z (days.json) on the 24 h calendar, so CC-1 and CC-6 are NOT_JUDGED. CC-5 has no declared objective, the same as v2 | (a) | Same helper: UNKNOWN only with OBJECTIVE_NOT_JUDGED; NO_OBJECTIVE only with NO_OBJECTIVE_DECLARED |
+| **WK-4** | MEASURED on S: November 1-5 has 0 complete, 3 partial (11-02, 11-04, 11-05, all story-only 8 h runs) and 2 no-data days (11-01, 11-03). `judge_month` returns NOT_JUDGED with no checked day (`objectives.py:134`). The text is `MG1_NO_DAY` "sales not recorded" (`chain/vocabulary.py:268, 336-337`; ruled in CH6a2-R Q5). The row knows only "too early to judge" and on/behind pace | (a); the wording a client sees is BL-48 | Add a third branch, "no fully checked day this month": state UNKNOWN, `nodes.kpi.days.complete == 0`, and the line ends "sales not recorded". Everything else as now |
+| **CO-6** | It fails at `demo_combined_finish.py:441`. The Kobo summary window starts `2026-11-04T21:00:00Z`, the Site-local midnight (CH-5a1 R6, local board day). The row compares it with UTC midnight `iso(S)`. Every assertion before `:441` passed | (a) | Compare with S's Site-local day start (`_kobo_zone`). The `cells == board` line after it has not yet run on this build; a failure there is classed at the rerun |
+| **SP-4** | The finding index works on **UTC days** (`analytics/finding_index.py:235`). UTC 10-26 holds the 10-27 night run, which starts at 21:00Z, so it is CURRENT and not a gap. MEASURED: the served gap set (10-06, 10-07, 10-09..10-14, 11-01, 11-03, all NOT_CURRENT) is exactly the set of UTC days in [S-30, S+1) with no built run window. The chain grades local 10-26 NO_DATA. The board's local gap list includes S-10, and SP-3 passes. The v2 list had no night runs, so S-10 was a UTC gap there | (a) | Replace the S-10 assertion with: the served NOT_CURRENT gap days == `expected_index_gaps(days, lo, hi)`, a pure helper (the UTC days with no run `[start, end)` touching them). Keep "S-3 not a gap" and the Findings check. L0: v3-shaped days give the measured set; a missing day with no adjacent night run is a gap |
+| **WK-1** | The EV fault run is 08:00 to 09:00Z (days.json), 1 h of the Tuesday 08:00-16:00 session. MEASURED: `charging_delivered` reads "Not known yet · 0 of 1 day checked · 1 with too little data, not counted", so there is no `headline_money` (CH-6a3 ONE-SOURCE). The headline still reads "estimated charging income", because `site_outcomes/ev.py:229` sets it from "tariff declared" alone | (a) for the row; the headline with no figure is a minor (c), BL-48 | Restated: when the earnings claim counts no checked day, `headline_money` is absent and the `charging_delivered` line starts "Not known yet". **Money shown on a day with too little data fails.** Report the headline as shown |
+| **WK-2b** | The tool reads `grow["potential"]`, which is the top chip and is None on S. MEASURED: `grow["nodes"]["potential"]["text"]` = "No potential found yet". Every other WK-2b assertion holds on the measured row (no money; the headline is not the kW pattern; sales "0 kWh used by Grain mill in 8 measured hours") | (a) | `potential_text` reads `nodes.potential.text` first. L0 uses the measured row shape |
+| **WK-2c** | Same field. The chip is `{"label": "Opportunity", "text": "Productive-use headroom"}`. MEASURED: `nodes.potential.text` equals `LIMITED_TEXT`, and `value`/`days_line` are null. The pinned study is LIMITED with 5 eligible days (SQL) | (a) | Take the sentence from `nodes.potential`, and apply the kW and money bars to **both** the node and the chip. L0 |
+| **WK-6** | MEASURED: the S+1 Productive-use link covers 11-01T21Z..11-06T21Z, and the listing finds OPP-000004 (11-02..11-06). That passes. Then `day_rows[].mini_revision_id` is not on the wire: day rows now carry `hours[]` (mini-opportunity/2), and OPP-000001 also returns `[]`. The S+1 study has 0 eligible days anyway, because the v3 November days are 8 h runs | (a) | Restated. (1) Report the S+1 study: code, `eligible_days` (0) and status. (2) Run the tariff check on the **mill study** (`mill.json` `study.opportunity_id`): `eligible_days == 5`, `valid_at` = its `last_day` at Site-local 12:00, and the selection PRICED at 0.25 USD per kWh. The per-row pin is dropped |
+| **F-CAL** | `demo_combined_finish.py:719`: `first` calls `at(d["start"])` for the `missing` day, whose start is null. The `built` set filters before it evaluates, so only `first` crashes | (a) | `first` skips days with no `start`. R8 B2's rule stands. **If a no-run local day before today reads anything other than NO_DATA: stop**, with no edit |
+| **F-THREADS** | `:773` asserts that the chain Action's `verification` is VERIFIED. `chain/site_chain.py:126, 142` documents it as None for a domain intent. MEASURED: on ACT-000004 `verification` is null and `ref` is `DOMAIN_VERDICT`, which is correct (O1 works). The rest of the row has never run on this build | (a) | Assert `verification is None` on the chain wire, and that the DOMAIN_VERDICT page (`/api/sites/KOBO-001/domain-work/actions/{id}/verification`, MILL-3's read) reads VERIFIED. A further failure at the rerun is classed then. A board `read_state` or PRODUCER_NOT_SETTLED fault is product: **stop** |
+
+**No row is edited to pass.** Every restatement keeps a must-fail case (an unsettled or failed read, money on a day with too little data, a stored-vs-served mismatch, a no-run day not reading NO_DATA).
+
+### 2. The recurrence (R7's table, MEASURED)
+
+| Study (SQL `mini_opportunity` + revision) | Window | Status | Eligible days |
+|---|---|---|---|
+| OPP-000001 (mill, pinned) | 10-17..10-21 | LIMITED | 5 |
+| **OPP-000002, ends S-1** | 10-31..11-04 | UNKNOWN | **1** |
+| OPP-000003, ends S | 11-01..11-05 | UNKNOWN | 0 |
+| OPP-000004, ends S+1 | 11-02..11-06 | UNKNOWN | 0 |
+
+Thread events: OPEN 10-17; ACTION_IN_HAND 10-26; CHANGE_APPLIED 10-27; RESOLVED_MONITORING 10-27; **RECURRED, effective 2026-10-31 (S-5)**, cause OCCURRENCE, from OPP-000002.
+
+- **Result: Recurs** (R7, first row). The source is the S-1 study, and its effective day is after S-9 (10-27). The S-1 study is queued, so the "not queued" stop does not apply. The S-3 study (ending 11-02) is not queued, as R6 §1 predicted, and is reported only.
+- Why: 10-31 is the only fully covered day in that window, and it still had spare midday solar after the change. R4's "about 22 after" says the same, and O14 measures it.
+- Then: Q7's "recurs" column; the COH-17 entry is owed only if it fires; Portfolio Grow counts the mill thread as open; Assure is unchanged. O8 (4) and (5) confirm the last two at step 7. **The "Seen again" lines stay in DS-1.**
+
+### 3. Go on with the kept DB: yes. No second prepare is needed.
+
+The data is complete: both drains passed, the mill is VERIFIED 42.00 → 110.00, the wall time was 3585 s, and minimum free RAM was 3.07 GB. Every fix is in `tools/`. Order:
+
+1. Fix the rows in §1, with L0s in `backend/tests/test_demo_combined_finish_rows.py` (scoped pytest of that file only). Commit with Write/Edit only.
+2. Copy `tools/demo_combined_finish.py` and `tools/demo_combined_rows.py` into `var/demo3_dd1b2/tree/tools/`. The packet names both files and the commit.
+3. Rerun `check` once in the tree form (R9 §3; about 12 min).
+4. Then step 7's remaining reads (O8, O10, O11, O13-O17, the after tool), step 8 (clone + EX-1, after 11:00Z) and step 9, as R6, R7 and R8 have them.
+
+**Stops back to me (DB kept):** any stop already named in §1; a COH finding other than COH-17 on the mill thread or R9's COH-2; a rerun failure that classes as product.
+
+A second prepare would be needed only if a product fault needs backend code changed before the demo build. Nothing found here is one. Even then it would go to the owner first and would not happen in DD-1b2b.
+
+### 4. Demo-critical vs backlog (SCOPE-1)
+
+- **Demo-critical, in DD-1b2b now:** the §1 row fixes, because the self-check gates E3, and the DS-1 lines below.
+- **BL-48 (new, next free).** "Grow lines with no fully checked day. (1) Kobo MG-1 at month start reads 'sales not recorded' when the month has no fully checked day (`vocabulary.py:268`). Say instead that no fully checked day this month is counted yet. (2) The EV Grow headline 'estimated charging income' shows when the tariff is declared but no figure can be shown (`ev.py:229`). Fall back to a no-figure headline." Source: this ruling. Nothing shown is false: the contributors say "Not known yet" and "0 kWh used". It is not demo-critical, because DS-1 covers it. Estimated 0.15. It is added to the owner's walkthrough list, and no decision is needed.
+- **DS-1 lines (the coordinator carries them, +0):**
+  - On S's Kobo board: "It's the start of a new month and none of November's example days is fully checked yet, so the monthly sales goal isn't judged yet."
+  - On the Depot fault day: "Charging income isn't worked out for the fault day: too little charging data came in." **Do not say** a charging-income figure for that day.
+
+### 5. Owner (information, no decision; R6 §5 and R7 triggers)
+
+- B-16 is not triggered (3585 s of 10800). The low-memory line is not triggered (3.07 GB, never under 2 GB). The litre line (O15) is decided at step 7.
+- Plain words: "The full rehearsal finished in about an hour of the three allowed, and memory stayed safe. The mill result reads as planned: target met, midday use up from 42 to 110 kWh a day. After the change, the system still saw spare solar on 31 October, so the solar opportunity now shows 'Seen again'. That is true on this example data: even with the mill at midday, some solar went unused. The 12 failed checks were our own checking scripts expecting older data or reading the wrong field. They are being fixed and rerun on the same build, so no second full run is needed. Two wording items are added to your walkthrough list: on 5 November the monthly sales line says 'sales not recorded' because no full November day is checked yet, and the Depot's income line on the fault day names an estimate it cannot show."
+
+### 6. Size
+
+Spent since R9: step 6 (0.25), R8's C1/C2/B/P0 (0.25) and R9 §1 (0.05). New here: the row fixes, L0s and one rerun, **+0.2**. **DD-1b2b has 0.7 left:** R10 fixes 0.2, the step-7 after tool and reads 0.25, step 8 0.1, step 9 0.15. **Lane 2 remaining: 0.7 + CH-5d1's 1.0 = 1.7.** BL-48 is in the backlog and not counted.
+
+Process note: an "absent data" class given from error text alone hid ten stale rows until the one run. From now on, a P0-style partial build traces each excused row to a line before it is excused.
