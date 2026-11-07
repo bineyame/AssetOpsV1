@@ -379,3 +379,48 @@ def test_a12_digest() -> None:
     assert digest(["e2", "e1"]) == digest(["e1", "e2"])
     assert re.fullmatch(r"[0-9a-f]{64}", digest(["e1"]))
     assert digest(["e1", "e2", "e3"]) != digest(["e1", "e2"])
+
+
+# --- A13 the production path composes (DIESEL-1-R3g) ----------------------------------------------------------------
+
+
+def test_a13a_work_composition_exposes_k2_reader() -> None:
+    from assetops_backend.work import composition as work_composition
+    from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+
+    assert "build_fuel_records_reader" in work_composition.__all__
+    assert work_composition.build_fuel_records_reader() is select_fuel_records
+
+
+def test_a13b_default_store_composes_without_connecting() -> None:
+    from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+    from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+
+    store = build_fuel_balance_store("postgresql://unused@127.0.0.1:1/none")
+    assert store._fuel_records is select_fuel_records
+    assert isinstance(store._actions, PostgresActionStore)
+    assert store._engine is None
+    assert store.test_db_clock_override is None
+
+
+def test_a13c_worker_default_branch_composes(monkeypatch: pytest.MonkeyPatch) -> None:
+    from assetops_backend.fuel_balance import composition, worker
+    from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+
+    real = composition.build_fuel_balance_store
+    calls: list[tuple] = []
+    kept: list[object] = []
+
+    def spy(*args, **kwargs):
+        calls.append((args, kwargs))
+        built = real(*args, **kwargs)
+        kept.append(built)
+        return built
+
+    monkeypatch.setattr(composition, "build_fuel_balance_store", spy)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError, match="DATABASE_URL is not set"):
+        worker.main(["assess", "--site", "KISIWA-001", "--from", "2026-10-06", "--to", "2026-10-07"])
+    assert calls == [((None,), {})]
+    assert len(kept) == 1 and kept[0]._fuel_records is select_fuel_records

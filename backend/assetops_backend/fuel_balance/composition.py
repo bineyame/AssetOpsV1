@@ -18,11 +18,9 @@ def build_fuel_balance_store(database_url: str | None, *, fuel_records: Callable
                              test_db_clock_override: Callable[[], datetime] | None = None
                              ) -> PostgresFuelBalanceStore:
     if fuel_records is None:
-        # K3 STOP S4 (pending the Architect's ruling): `work/composition.py` has no builder for K2's
-        # `select_fuel_records`, and only that module may import `work.adapters`.
-        from assetops_backend.work.composition import fuel_records_on_connection  # type: ignore[attr-defined]
+        from assetops_backend.work.composition import build_fuel_records_reader
 
-        fuel_records = fuel_records_on_connection()
+        fuel_records = build_fuel_records_reader()
     return PostgresFuelBalanceStore(database_url, actions=build_action_store(database_url),
                                     fuel_records=fuel_records, test_db_clock_override=test_db_clock_override)
 
