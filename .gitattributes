@@ -12,3 +12,6 @@ backend/tests/fixtures/w4/w403-mini-decisions.json text eol=lf
 contract-fixtures/telemetry/** -text
 # PERF-01: profiling runner script is executed by Linux sh
 tools/profile-tests-in-container.sh text eol=lf
+# DIESEL-1-R3e: Kisiwa probe evidence (pre-registered inputs and committed results) is LF on every host
+.agent/DIESEL-F0/* text eol=lf
+.agent/DIESEL-D0/* text eol=lf

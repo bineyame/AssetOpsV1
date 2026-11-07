@@ -896,6 +896,69 @@ def test_coh17_o1_optimize_card_against_the_priced_site_claims(sites: list, card
     assert tally["compared"] == 1
 
 
+# ---- PV-1-R §5 row PV1: the Assure card's verified-value lines, never summed --------------------------------------
+
+def _pv1_site(code: str, name: str, *entries: dict) -> dict:
+    nodes = {"kpi": None, "earnings": None, "potential": None}
+    if entries:
+        nodes["verified_values"] = list(entries)
+    return {"site_code": code, "site_name": name, "rows": [{"category": "ASSURE_PERFORMANCE", "nodes": nodes}]}
+
+
+PV1_MILL = {"key": "m", "action_code": "ACT-000002", "basis": "ESTIMATED_SALES_AT_DECLARED_PRICE", "amount": "17.00",
+            "currency": "USD", "text": "ACT-2: about 17.00 USD a day more in estimated sales"}
+PV1_FUEL = {"key": "t", "action_code": "ACT-001", "basis": "TRIAL_HOUR_MODELLED_FUEL", "amount": "4.12",
+            "currency": "USD", "text": "ACT-1: about 3.3 L, 4.12 USD less diesel"}
+
+
+def _pv1_summary(**card_over) -> dict:
+    from assetops_backend.chain.vocabulary import card_text
+
+    sites = [_pv1_site("K", "Kobo", PV1_MILL), _pv1_site("D", "Depot", PV1_FUEL)]
+    card = {"value": {"text": "2", "small": None}, "detail": "no targets declared",
+            "value_lines": [card_text("assure.value_line", site="Kobo", text=PV1_MILL["text"]),
+                            card_text("assure.value_line", site="Depot", text=PV1_FUEL["text"])],
+            "value_note": card_text("assure.values_separate"), **card_over}
+    return {"sites": sites, "cards": {"ASSURE_PERFORMANCE": card}}
+
+
+def _pv1(summary: dict) -> tuple[list[dict], dict]:
+    tally = cc.new_tally()
+    return cc.coh17_values("week", summary, [], tally), tally
+
+
+def test_coh17_pv1_two_sites_one_entry_each_pass() -> None:
+    got, tally = _pv1(_pv1_summary())
+    assert got == [] and tally["compared"] == 3 and tally["skipped"] == 0
+
+
+def test_coh17_pv1_a_card_line_that_differs_fails() -> None:
+    summary = _pv1_summary()
+    summary["cards"]["ASSURE_PERFORMANCE"]["value_lines"][1] = "Depot · something else"
+    got, _ = _pv1(summary)
+    assert [f["subject"] for f in got] == ["PV1"] and "value_lines" in got[0]["detail"]
+
+
+def test_coh17_pv1_a_detail_holding_the_sum_of_two_amounts_fails() -> None:
+    got, _ = _pv1(_pv1_summary(detail="21.12 USD recovered"))
+    assert [f["subject"] for f in got] == ["PV1"] and "'21.12'" in got[0]["detail"]
+
+
+def test_coh17_pv1_a_note_that_does_not_match_the_lines_fails() -> None:
+    from assetops_backend.outcomes.credit import MONEY_NOT_CREDITED
+
+    got, _ = _pv1(_pv1_summary(value_note=MONEY_NOT_CREDITED))
+    assert [f["subject"] for f in got] == ["PV1"] and "value_note" in got[0]["detail"]
+
+
+def test_coh17_pv1_an_older_bundle_without_the_keys_is_skipped() -> None:
+    summary = _pv1_summary()
+    for k in ("value_lines", "value_note"):
+        summary["cards"]["ASSURE_PERFORMANCE"].pop(k)
+    got, tally = _pv1(summary)
+    assert got == [] and tally["skipped"] == 1 and tally["compared"] == 0
+
+
 def test_clean_full_passes_and_compares_every_row() -> None:
     bundle = cc.Bundle(BUNDLES / "clean_full")
     report = cc.check(bundle)

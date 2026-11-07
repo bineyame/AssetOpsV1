@@ -419,8 +419,8 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                                   "count.open_threads", "count.verified_results", "count.opportunities",
                                   "count.sites_disrupted")},
                               # CH6b2-R Q1: the Portfolio-body clauses of the Protect and Assure cards, one line each.
-                              "card_notes": {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE":
-                                             "No money credited · modelled, not saved · no evidence gaps"}}
+                              # PV-1-R §2: the money clause is the Assure card's `value_note`, not this line.
+                              "card_notes": {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "no evidence gaps"}}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]

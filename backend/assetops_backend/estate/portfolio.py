@@ -655,17 +655,14 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
             "priority_site_count": len({sid for sid, st in threads.values() if classify([st])["open"]})}
 
 
-def card_notes(summary: dict[str, Any], authorized: int,
-               recovered_value: dict[str, Any] | None) -> dict[str, str | None]:
+def card_notes(summary: dict[str, Any], authorized: int) -> dict[str, str | None]:
     """CH6b2-R Q1: the Portfolio-body clauses of the Protect and Assure cards as ONE server line each, rendered as
     its own line and never joined in the browser. CH6b3-R3 M1: "days checked" means graded COMPLETE (the card's days
-    line), so the coverage clause is gone. Protect: None. Assure: the recovered-value text (CH3-R, I-24) and the
-    evidence-gap clause."""
+    line), so the coverage clause is gone. Protect: None. Assure: the evidence-gap clause.
+    PV-1-R §2: the money clause is the Assure card's `value_note` (`portfolio_cards`)."""
     on_checked = summary.get("count_basis") == CHECKED_DAYS_BASIS
-    recovered_text = (recovered_value or {}).get("text")
-    assure = [t for t in (recovered_text, evidence_gap_text(summary.get("evidence_gap_site_count"), authorized,
-                                                            on_checked)) if t]
-    return {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": " · ".join(assure)}
+    return {"PROTECT_ASSET": None,
+            "ASSURE_PERFORMANCE": evidence_gap_text(summary.get("evidence_gap_site_count"), authorized, on_checked)}
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -891,7 +888,7 @@ class EstatePortfolioService(EstateEvidenceService):
                               "checked": cov["days"]["checked"], "requested": cov["days"]["requested"],
                               "withheld": bool(cov["days"].get("withheld"))}
                              for site, _, cov in f_sites if cov["state"] == PARTIAL and cov.get("days")]}
-        summary["card_notes"] = card_notes(summary, len(scope["sites"]), prog.get("recovered_value"))
+        summary["card_notes"] = card_notes(summary, len(scope["sites"]))
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
         lap("summary")
