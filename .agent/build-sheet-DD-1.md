@@ -1399,3 +1399,54 @@ The builder stops and reports. The coordinator then sends this question without 
 **Backlog: no new row.** `Reads.call` swallowing a refusal is by design (B.3, a failed read never refuses the board), and the finish assertion covers the demo.
 
 **Owner.** The R2 line stands, since a retest was already promised. Nothing further until the re-probe reports; do not say it is fixed yet.
+
+## DD1b1-R4: review M1, the live Cold add, and H1's class of fault (Architect, Claude, 2026-11-07)
+
+Input: `.agent/review-DD-1b1.md` at `d7c4d830f`. **No product change. DD-1b1 stays 1.5; DD-1b2 stays 2.25. The build does not wait.** DS-1 does not exist yet, so the script lines below are owed to it.
+
+### 1. M1: **(c). Keep the landing; name it in DD-1b2 and the script. No product change.**
+
+**What a client sees.**
+- **Printed story-day link (`story_links`):** Finding, Needs attention, the Action "Open". ST-4 and ST-5 are met here.
+- **Clicking GreenHarvest or Depot on the Portfolio (plain href):** the latest event window. Finding, Needs attention, the incident and plan rows, **no Action row**. The chain says "Action agreed", and the Actions list has it. Nothing false is shown; it is one click short.
+
+**Why (c).** It is not a regression: main does the same. Option (b) changes this read path a third time, and it would need a re-probe. Option (a) is the better later fix but reverses CH6b1-R Q2's base link, and it needs the frontend landing proved on its own. SCOPE-1 does not require either: the presenter drives the demo, and nothing shown is false.
+
+**Owed to DS-1 (+0):**
+- ST-4 and ST-5 open from the printed story-day links, not the Portfolio's Site names.
+- If the Site name is clicked: "This opens the latest event. The action agreed after it is on the Site's chain and the Actions list; the day view shows both together."
+
+**Owed to DD-1b2 (+0):** F-THREADS records this landing by name for Cold and EV: Finding present, Action absent, chain "Action agreed". It is a stated expectation, not a failure. It replaces nothing in the "exact window" item, which stays.
+
+**R645's closure text is extended:** "Day and week boards list the Action. An exact event window and the Portfolio's plain landing do not (BL-38, BL-39)." The builder applies this with H1.
+
+**Backlog BL-39, with its trigger:** the Cold and EV `overview_href` carries the Portfolio's window. **If the owner dislikes the landing at the walkthrough (EX-1), this is the fix to pull.** The reviewer has already run the week read: it gains the Action and loses nothing.
+
+### 2. Live Cold add: **the demo does not do one. The script avoids it; nothing changes in code.**
+
+- ST-7 and OD-P7 are one live day, Kobo's (`normal` on S+2, DD1a2-R3). No plan row or script step adds a Cold or EV day live.
+- The tool does not refuse a Cold add, and it should not; the reviewer ran it safely. The story-day links still read correctly afterwards. Only the plain landing moves to the new day, reading Watch with the Action "Open · linked finding outside this view".
+- **Owed to DS-1 (+0):** "The live day is Kobo's. Do not add a Cold or EV day during a session. If one was added in rehearsal, rebuild from the clone before the session."
+
+### 3. H1's class: **DD-1b2's partial prepares, as written, would NOT catch it. Corrected at +0.**
+
+**The gap.** §4.4 runs one prepare per Site (`prepare --sites kobo`, and so on). `Demo.finish` runs objectives and the self-check only when `set(story["sites"]) == set(SITES)` (`demo_combined.py:459,475`). So a one-Site prepare skips the very lines that crash, and all of `demo_combined_finish.py check`. The review's "including DD-1b2's partial prepares" holds only for a three-Site run.
+
+**Owed to DD-1b2, replacing the three separate runs (same days, same cost):**
+- **One real three-Site prepare through the parent, with finish on:** `tools/demo_combined.py prepare --sites kobo,cold,ev --days <one trimmed file>`, holding the §4.4 days and SCOPE-1's lists (Kobo 7 days including `mill-midday`, Cold 3, EV 2 Tuesdays).
+- It must exercise, in order: the children; the mill step; R8; objectives per Site; S2 comparison; ticks; `demo_combined_finish.py check`; and `Demo.add_day` for Kobo.
+- Wall time per Site-day is still read from each child's timing, so the E3 projection is unchanged.
+- **The self-check will meet rows that need days the trim omits.** DD-1b2's pre-flight lists them. A row is excused only if it names a day absent from the trimmed file, and each is listed. **Any other failure, including any crash, is a fault to fix.** No row is edited to pass.
+- **This does not count as the barred full demo prepare**, on the DD1a2-R Q8.5 terms: own `*_test` DB, machine idle, one heavy job, cap set by the DD-1b2 ruling.
+
+**What it still cannot prove.** Size and whole-list faults, and the excused rows. E3 remains the first full exercise. **Owed to the end-game plan:** one E3 rerun's time (up to 3 h) is held in reserve, and E3 is not scheduled for the session day minus 1 with no slack.
+
+**H1's L0 stands as the reviewer gave it** (`Demo.finish` driven on the shape `prepare` passes). DD-1b2 adds nothing to it.
+
+**Owed-list changes for DD-1b2.** Add the two items above and F-THREADS's landing line. **Drop the EV "twice" item** from the packet's list: per row, ACT-002 sits once under Grow and once under Protect, as its Finding does; it is not a defect. Carry the DD1b1-R list and Q5's mill step, which the packet omits; they stand in this sheet.
+
+### 4. Owner line, corrected only if the first has been sent
+
+**"One more detail on what I told you: the printed link for each GreenHarvest and Depot story day shows the problem with its action, marked 'Open'. If you click those sites' names on the Portfolio instead, you land on the latest event: it shows the problem but not the action, which is one click away on the Site's chain and Actions list. Nothing wrong is shown. The script uses the printed links, and if you'd rather the Portfolio click showed both, it's a small change we can make after your walkthrough. No decision needed now."**
+
+Handoff: a fresh Architect takes DD-1b2, and starts from R3 §6, this section, and DD1b1-R "Owed to DD-1b2".
