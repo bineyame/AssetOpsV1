@@ -114,11 +114,12 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     work_lo = hi - WORK_WINDOW
+    actions_hi = actions_to or hi   # DD1b1-R3: both bounds of the Action read come from one end (31 d at most)
 
     overview = reads.call("cold_overview", ports.overview, lo, hi)
     finding_rows = reads.pages("cold_findings", ports.findings, lo, hi, key="items")
     findings_ok = finding_rows is not None
-    action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, actions_to or hi)
+    action_rows = reads.pages("domain_action_index", ports.domain_actions, actions_hi - WORK_WINDOW, actions_hi)
     readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     chain_rows = reads.call("chain_rows", ports.chain_rows, lo, hi) or ()
