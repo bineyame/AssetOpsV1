@@ -978,3 +978,54 @@ The owner's choice was between about 0 L and about 22 L, and about 1 L on 7 days
 ### Handoff
 
 Regenerate G1, then continue the handoff's order: R25 probe, L2 add-day, G2 with MONEY-A, the L0 above, the packet. The handoff's "Next" items otherwise stand.
+
+## DD1a2-R3: review H1: the live day after the trial is `normal`, not `steady`; two owner corrections (Architect, Claude, 2026-11-07)
+
+- Input: `.agent/review-DD-1a2.md` at `42a5d6ad6`. This is this Architect's last ruling in the lane. Nothing was run for it; the measurements are the reviewer's.
+
+### 1. H1: **no product change. ST-7's live day is `normal` on S+2, and `add-day` refuses `steady` on that date by name.**
+
+- **Reviewer's cause: confirmed in code.** `_day_states` applies the equal-facts rule only when given a `facts_window` (`actions/verification.py:553`), and later pins have none (per the review, `:702` and `:1093-1095`). `kobo-night-early` on S+2 starts S+1 21:00Z, inside S+1's UTC day, so S+1's selected run changes and `:564` reports "moved". Nothing re-binds it, so it never recovers.
+- **What the demo needs (plan `client-demo-plan.html:592`, `:829`).** ST-7 is the closing step: one new day arrives and the board re-assesses on the next tick. With E3 on the session day minus 1, the day added is **S+2**. So the plan's own date is the failing date, and **option (b) alone fails**: S+3 needs the demo at least 2 days after the prepare, with S+2 reading no data. The open client date does not matter for this ruling: S+2 is the next free day on any session date at least one day after the prepare.
+- **Why `normal`.** The reviewer measured it with the real chain: VERIFIED on all 3 ticks after the add. It is the existing `add-day` kind that ST-7 was built on, it needs no new scenario, and FILL-1's "named event kinds" already cover it. The added day reads partly checked, like S-1, S+0 and S+1 right beside it. **This reverses my Q8.3 reason** ("a live normal day should read like its 13 neighbours"): a "Verified" result staying true outranks a fully checked closing day. Its generator is needed throughout, and no Finding is expected (not measured here; the board check below reads it).
+- **Rejected.**
+  - **(a) Later pins get the equal-facts rule: not for this demo, backlog BL-26.** It is the honest fix for a real continuous Site, and it is small. But it changes what can keep an outcome VERIFIED, on the defended path behind the story's main verdict: a wrong facts comparison would hold "Verified" when readings really moved, and that error is silent. The demo does not need that risk.
+  - **(c) `steady` 06-18 only:** a new untested kind that gives the same partly checked result as `normal`.
+- **`steady` stays as built** for a live day from S+3 on (reviewer: VERIFIED on all 3 ticks with S+2 empty) and the `steady-before-first` fill of S-10. The R25 gate result stands for those days.
+
+**Fix, for a fresh Sonnet builder (`task/DD-1a2-b22-day-list`).**
+1. `tools/demo_story_days.py` `plan_add_day`: after the offset is resolved, if `site == "kobo"`, the kind has a `complement`, and the offset equals the `trial-after` entry's offset + 1 in `current`, raise `StoryDaysError("FULL_DAY_AFTER_TRIAL", ...)`. Message: "a full day here starts its night inside the trial's later day and takes the trial off Verified; use --kind normal (DD1a2-R3)". It must fire before any provisioning.
+2. L0, `backend/tests/test_demo_story_days.py`: `steady` on S+2 refused with that code; `normal` on S+2 planned as one run; `steady` on S+3 planned as three runs. Mutation: remove the check and the first assertion fails.
+3. L2, `host/tests/test_dd1a2_registered_kobo.py`, own `*_test` DB, about 5 min: the child's trial chain on S+0 and S+1; `plan_add_runs` and the child's `add_day` with `normal` on S+2; the prepare's tick 3 times. ACT-K1 reads VERIFIED through `VerificationService.current_state` before the add and after the ticks. Fail: stop and report.
+4. Packet: correct `:18` (R25 plus L0 did not cover this), and correct `:46` to "price 1.25 USD, quantity 0 L: the generator delivers no power in the Candidate span". List H1's closure, and carry the script lines below under "Owed to DS-1".
+5. Guards V, A, W, and the scoped story-day tests. A fresh Claude reviewer verifies H1's closure only.
+
+**Owed to DD-1b2 / EX-1 (+0):** on a clone of the whole build, after the live `normal` add and its tick, read the board: Assure count, trial line and the Action's words unchanged, no new Finding. The reviewer's probe was two story days, read at the service.
+
+**Plan, for the coordinator:** `:829` gains "the live step uses `normal` (DD1a2-R3)".
+
+### 2. The two owner corrections: **informed, no question; the build does not wait.**
+
+**(i) "A line on screen says so" was wrong, and that error was mine.** The text reaches only the Lab scenario pages, not the client screens where the jump shows.
+- **The script explains it now (+0).** A note on the board's battery chart would be new copy on a shared screen, outside the mock-up, for a jump the owner has not yet seen. It goes on the walkthrough list as the owner's call, once they see it on screen.
+- **It does not reopen their choice.** The alternative was about 22 litres a day and a problem raised on most days. The missing line does not make that better. The owner may still overrule.
+- **Script:** "Each full example day starts at 6 am from a set battery level, so the line steps up there and the generator stops. Days aren't carried over; this is example data."
+
+**(ii) MONEY-A shows no new cost rows, not "the same money".**
+- **The price seed is not the cause (packet `:46` is wrong).** The rows carry 1.25 USD and 0 L. The trial Findings' generator delivers no power in the Candidate span and idle fuel isn't modelled, so 0 USD is computed. This is **already-decided behaviour, not a new defect**: `COST_ZERO`, "No fuel cost estimated: the generator was on but delivered no measured power" (`mini.py:64-65`, POLISH §1.1, R626 owner Q1), with idle fuel in BL-16.
+- **Stated plainly: on the Kobo build the generator problem carries no fuel money figure.** The non-zero Kobo money is the Grow sales: WK-2a's 42.08 USD on S-1, and the new full days' own figures.
+- **MONEY-B covers the non-zero money, confirmed:** each Grow figure reproduces from its rows, and WK-2a stays 42.08 USD (R2 §3). Add one assertion, +0: the fuel-consequence rows on S-14 and S-7 are PRICED with quantity 0, reported as such, so nobody reads them later as proof of equal non-zero money.
+
+**Lines for the coordinator to send:**
+
+> "Two corrections and one change on the Kobo example. First, we told you a line on screen explains the 6am battery jump. That was wrong: it only appears on an internal page. For now the presenter explains it, and you can decide whether it needs a line on screen when you walk through it. The 22-litre alternative isn't any better because of this, so we've kept your choice, but tell us if you see it differently. Second, the money check so far shows only that no new fuel cost appears. The generator problem days show no fuel cost at all, as you decided earlier, because the generator delivers no power in those hours. The real money figures are the mill sales, and those get checked on the final rehearsal before the full build. Third, the day added live at the end of the demo will be an ordinary generator day that reads 'partly checked', like the days right beside it. A fully checked day on that date would knock the trial off 'Verified', so the tool now refuses it."
+
+### 3. Three revisions vs one: **confirmed, a script line; no separate walkthrough item.**
+Finding counts, claim, minutes, thread counts and money are unaffected, and "Assessment updated; amount unchanged" is true. This answers the packet's question: accepted as expected. The cause is the reviewer's inference, not stored. The walkthrough will see it in passing.
+**Script, if asked:** "The next day's readings overlap that day's window, so the system re-checked it. The result didn't change."
+
+### Size and scope (SCOPE-1)
+**+0. DD-1a2 stays 2.25, DD-1 10.5.** The refusal, its L0 and the L2 check are demo-critical: without them the closing step can take the story's main result off "Verified". **BL-26 (backlog, 0.5 est.):** later pins with the equal-facts rule. Only a continuous real Site needs it, and the demo avoids the date. BL-23 to BL-26 are free in this worktree and on main's list. Lane 1 may collide, so the second merge renumbers.
+
+### Handoff
+The fresh builder takes "Fix" items 1-5. A stop goes to a **new** lane-2 Architect, which reads this section, R2 and `.agent/review-DD-1a2.md`.
