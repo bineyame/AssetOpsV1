@@ -696,3 +696,736 @@ For the owner's information, in plain words:
 - Kisiwa will also show the usual "generator ran when the battery could have carried the load" findings; they are real results from its data, and we don't narrate them.
 - We are not adding a rainy-season stretch: more diesel would make missing fuel harder to see, not easier.
 - Kisiwa adds about 3 working days before the demo (range 2.5–5), within the 4–5 you accepted.
+
+---
+
+## 9. Ruling DIESEL-1-R3: after F0's stop (registered probe path, tank-level signal, K0 extended, F0 re-issued)
+
+- Architect: Claude (fresh Architect), 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27). Main at `826d91572` (CH-5d1 merged). F0 evidence read on `task/DIESEL-F0-kisiwa-fuel-probe` at `aa49a18fd` (`.agent/DIESEL-F0-probe-results.md`, `T/probe_kisiwa_fuel.py`, the draft action log).
+- Owner decisions in force, verbatim: `.agent/owner-kisiwa-scope-2026-11-07.md` (build with the operational-action link, i.e. §8.2a Option A, K0); `.agent/owner-scenario-data-2026-11-07.md` ("these are injected through operational actions"); `.agent/owner-missing-fuel-2026-11-07.md` ("'Unexplained fuel', never 'theft'").
+- **This section amends §8.3 (F0), §8.4 (K0, K1, totals) and §8.8–§8.9.** Everything else in §8 stands. Where §8 and §9 differ, §9 wins.
+- **F0's stop was correct and is accepted as history.** The builder reported S1 verbatim, tried no fix and changed no declared item. F0 spent its 0.5 unit. Nothing in §8.3's declared world, parameters or pre-registered expectation changes.
+
+### 9.1 Decision 1: the S1 fix for the probe — neither (a) nor (b) as proposed; (c) register Kisiwa in memory through the product's own import, conversion and selection code
+
+**Ruling (c).** F0r registers Kisiwa in an `InMemoryFoundationStore` with the same calls K1 will make against Postgres, then sets up every run through the **real** `RegisteredLabBasis` over that store. Only the storage engine is substituted.
+- `B/sites/foundation_service.py:247` `import_site(store, tenant_slug="demo", configured_tenant_slug="demo", source=ImportSource(path, sha256, record), legacy_documents=(), clock=…)` with the Kisiwa Site record (D0's `kisiwa_site()` rendered document; `B/sites/adapters/import_files.py:46` `read_import_source` if a file is needed, written to the scratch folder, never to `C/`).
+- `B/sites/binding_conversion.py` `convert(store, BindingService(store, clock), tenant, site, fixture)` with a new draft fixture `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json` (§9.4).
+- `RunSetupService(..., registered_bases=RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, "demo", clock))))` (`B/runs/registered_basis.py:49-107`). The `FakeSites` legacy store holds no Kisiwa.
+- Precedent, default suite, no DB: `backend/tests/test_s2_registered_basis.py:83-93` and `backend/tests/test_s1_bindings.py:39-44` (Kobo imported and converted over `InMemoryFoundationStore`, `backend/tests/foundation_fakes.py`).
+
+**Why not (a):** Lab v3 has no device resolutions and no registered basis, so a pass would prove a path the demo never uses (D0's limit, repeated). The demo prepare runs Kisiwa through `registered-kobo-publication` v5 and the gateway, exactly as Kobo (`T/demo_combined_kobo.py:401-410`).
+**Why not (b):** a hand-built `RegisteredSiteSelection` skips `select_registered_basis`, `_signal_mappings` (`registered_basis.py:110-146`: every bound asset must be a Foundation component) and the resolution-unit check (`B/runs/service.py:919-937`). Those are the three places Kisiwa's template can fail on the registered path.
+**What (c) proves beyond F0's questions:** that Kisiwa's template imports, that a Kobo-shaped binding set converts onto it, that the registered selection accepts it, and that `registered-kobo-publication` v5 is not tied to `KOBO-001` by name. That answers D1 pre-flight (a) (§3.1) before K1 starts.
+**Cost:** about +0.15 inside F0r.
+
+### 9.2 Decision 2: the tank-level signal — `mini-grid` v7, a new unit K1a (0.5), used by Kisiwa only
+
+**Finding confirmed by Architect reading.** `S/kernel/model.py:396-400` reports a numeric STATE_SIGNAL only with a STATE_SAMPLE handler; `S/packs/mini_grid.py:192-207` has only the STOCK handler for `fuel-tank-volume`, and v2–v6 are `replace`s that keep that handler table (`:1019`, `:1244`). `host/execution_adapter.py:734-739` then drops `fuel-level-sensor/fuel-level` silently. The fuel pack's sampler (`S/packs/fuel.py:207-221`, `SAMPLE_HANDLER`) is model-agnostic. The `fuel-tank` component relation already names the state (`mini_grid.py:230-232`), so the kernel's one-relation rule (`model.py:360-380`) is satisfied.
+
+**K1a: `mini-grid` v7 (simulator and product profile).** One new version; v1–v6 objects are not edited.
+- Simulator (`S/packs/mini_grid.py`, after `:1256`): `MINI_GRID_V7_MODEL = replace(MINI_GRID_V6_MODEL, model_profile_version=7, statement=V6.statement + V7_SENTENCE, handlers=<V6 handlers with the stock handler restated> + (fuel.SAMPLE_HANDLER,))`.
+  - `fuel.SAMPLE_HANDLER` is imported and reused, never copied.
+  - The STOCK handler is restated for v7 only (same `handler_id`, role, kind, floor, `consume`, `initialize`), with statement: "The fuel in the tank, initialized by the scenario, moved by accepted generator energy and by any frozen declared cause, such as a recorded operational action." The v1–v6 handler keeps "moved only by accepted generator energy". Reason: K0 makes the old sentence false for a run with actions.
+  - `V7_SENTENCE`: " Version seven also samples the fuel in the tank at an instant, after that instant's events, so a tank level sensor can report it."
+- Product profile (`B/runs/profiles.py`, after `:1367`): `MINI_GRID_V7_MODEL = replace(MINI_GRID_V6_MODEL, model_profile_version=7, statement=…same sentence…, supported_states=<v6's, with fuel-tank-volume supported_roles {"CAUSAL_INPUT", "REPORTED_OBSERVATION"} and the restated statement>)`. Appended to `MODEL_PROFILES` (`:2164-2175`), after v6.
+- Executable: appended to `host/execution_adapter.py:128-137` `EXECUTABLE_MODELS` and to the profile tuple in `host/tests/kobo.py:129-138` (the `next(...)` there picks the first match, so `None` still resolves to v1; no Kobo call changes).
+- **Publication:** no new publication profile and no mapping or binding change. `registered-kobo-publication` v5 already declares `fuel-level-sensor/fuel-level` at 15 min, bias −0.5 L, dropout 40/1000, and the `fuel-level-reporting-availability` forcing state (`B/runs/profiles.py:1426-1470`, `:1985-2000`). Kisiwa's template already carries the device and the `fuel-tank-level` mapping (D0 draft `:292-297`, `:358-360`). §8.4's "K1 +0.25–0.5 if F6 needs a new publication profile version" is **withdrawn**: F6 found the drop at execution, not publication.
+
+**Effects (the stops guard each):**
+- **Digests.** v1–v6 trajectories, run identities and digests are byte-equal; v7 is a new identity, so no frozen run changes. A v7 run's trajectory carries the sampled tank value, so it differs from a v6 run of the same document by design. Stop: any v1–v6 digest change.
+- **Kobo stays on v6 and publishes no tank level.** Kobo's replay pins the model through its manifest (`host/tests/test_s6_verification_replay.py:141-146`); `T/demo_combined_kobo.py` is not edited. So Kobo still stores **0** `fuel_level` rows, Kobo's Fuel page and `mini_depth.rules.assess_fuel_hour` are byte-equal, A2/A3/MB-1 checks and the all-26 audit are unaffected, and K3 gives Kobo `NOT_ASSESSED` as §8.4 says. Moving Kobo to v7 is **not** demo-critical (it would add tank rows to Kobo's Fuel page and change Kobo's evidence, checks and captures); it goes to the after-the-demo list as "Kobo tank level (mini-grid v7 on Kobo)".
+- **Kisiwa starts publishing `fuel_level`** at 15 min from K1 onward, through the gateway and the activated binding snapshot, as any registered signal. Its consumers already exist (`mini_depth/inputs.py:141`, `:254`; `evidence/overview.py:80`); K3 is the first that judges it.
+- **Profile listings.** The Lab's model-profile catalogue gains one row. Tests that enumerate `MODEL_PROFILES` or `EXECUTABLE_MODELS` (`backend/tests/test_component_properties.py`, `backend/tests/test_addressed_bindings.py`, `host/tests/test_kernel_conformance.py`, `host/tests/test_mini_grid.py`) take the new entry. That is a listing change, not a digest change.
+- **Guards and checks:** no served copy changes; guards A, W, N, V, M and frontend-hardwiring are unaffected; chain coherence is unaffected.
+
+**K1a card (0.5; range 0.4–0.75):** files above; tests:
+- L0 `host/tests/test_mini_grid_v7.py`: `MINI_GRID_V7_MODEL.reports("fuel-tank-volume", "STATE_SIGNAL", "L")` is true and v6's is false; v7's advertised supported states equal the product profile's (the existing parity pattern); a short Kobo-template run on v7 with `registered-kobo-publication`'s fuel-level signal gives 15-min tank observations equal to the stock at each instant minus 0.5 L before noise; the same document on v6 gives an identical generator, battery and tank trajectory except the sample (physics unchanged).
+- Byte-equal pins: one v6 Kobo run digest and one v5 run digest, re-asserted unchanged.
+- **Stops:** any v1–v6 digest or trajectory byte change; any Kobo, Cold or EV byte change; a need to change a publication profile, mapping or binding; more than 0.75.
+- **Order:** starts **now, in parallel with F0r** (its content does not depend on F0r's result; F0r uses a probe-local copy, §9.4). If F0r stops on S4 again (the sampled tank does not publish), K1a pauses at its next commit and the Architect rules.
+
+### 9.3 Decision 3: K0's extended scope (2.0 → 2.5; range 2.0–3.25)
+
+F0's code facts (§F0a in the evidence file) change K0 as follows: the host and kernel need **no** change to accept added causes and conditions (no provenance check refuses them: `S/kernel/execute.py:244-259`, `:721-730`, `:857-872`; `B/runs/models.py:976-1045`; `host/execution_adapter.py:769-820`), which frees about 0.4. But K0 must add the origin field on both frozen record kinds, provenance labels, persistence round-trip and composition wiring, which costs about 0.9.
+
+**K0 consolidated scope:**
+1. **Origin on causes and conditions.** Two fields on `DeclaredCause` (`contracts/assetops_contracts/world_inputs.py:170-204`), `FrozenCause` (`B/runs/models.py:572-619`), `FrozenReportingPathCondition` and its contract counterpart (PRE-FLIGHT names the class):
+   - `origin: Literal["SCENARIO", "OPERATIONAL_ACTION"] = "SCENARIO"`;
+   - `action_ref: str | None = None`, format `"{action_id}:{content_sha256}"` (content hash = sha256 of the action's canonical JSON, sorted keys, compact separators, ASCII, as F0's `load_actions`).
+   - **Byte-equal rule:** every render, canonical form and hash (`B/runs/parsing.py`, the trajectory identity `contracts/assetops_contracts/trajectory.py:570-589`, `:639-662`, every run store) **omits both keys when `origin == "SCENARIO"` and `action_ref is None`.** So every existing run, scenario cause and digest is byte-equal. Stop: any digest change for a run with no actions.
+   - Parse refusals, kind `CAUSE_ORIGIN_INVALID`: `OPERATIONAL_ACTION` without `action_ref`; `action_ref` with `SCENARIO`; an unknown origin.
+2. **Run setup reads the log by a named version, never "latest".** New optional run-setup request key `operational_actions: {"log_id": "kisiwa-001", "log_version": 1}` (absent = no actions; the request and identity are then byte-equal). A new read-only port `OperationalActionLogPort` with a file adapter over `C/operational-actions/{log_id}-v{log_version}.yaml`. The identity freezes `operational_action_log = {log_id, log_version, sha256}` only when present (omitted otherwise).
+   - Selection: actions with `at` in `[start_time, end_time)`.
+   - Effects (unchanged from §8.2a): `FUEL_DELIVERY` → INCREASE POINT; `FUEL_REMOVAL_UNRECORDED` → DECREASE WINDOW plus, with `sensor_disconnected`, a `fuel-level-reporting-availability@fuel-tank` WINDOW condition; `TANK_DIP`, `TANK_SEALED`, `SENSOR_POWER_PROTECTED` → no physical effect.
+   - `event_id` = `"{action_id}/{effect}"`, effect ∈ `tank-increase`, `tank-decrease`, `sensor-disconnected`. A clash with a scenario event id refuses (`OPERATIONAL_ACTION_EVENT_ID_CONFLICT`).
+   - `intervention_history` += `"OPERATIONAL_ACTION:{action_id}:{content_sha256}"`, ordered by `at`, then `action_id` (F0's form).
+   - Setup refusals (typed, nothing written): `OPERATIONAL_ACTION_COMPONENT_UNKNOWN`; `OPERATIONAL_ACTION_STATE_NOT_CAUSAL` (the model has no CAUSAL_INPUT STOCK for the state); `OPERATIONAL_ACTION_UNIT` (not L); `OPERATIONAL_ACTION_OVER_CAPACITY` when initial stock + Σ deliveries in the run up to and including this one > the frozen `fuel-tank-capacity` (an exact sufficient bound, since nothing else raises the stock; **refused, never clamped**); `OPERATIONAL_ACTION_OVER_STOCK` when a removal exceeds initial stock + earlier deliveries in the run. **Correction to §8.2a:** "a delivery fits free capacity at `at`" cannot be known at setup (the stock at `at` depends on dispatch); the bound above replaces it. The kernel floor (`insufficient-fuel`) remains the run-time backstop and is reported by the existing bound-case path, never silently.
+   - `TANK_DIP` and the two `SITE_VISIT` actions are validated (component exists, `at` in interval) but freeze nothing.
+3. **Provenance labels.** `B/runs/provenance.py:434-459` and `:513-536`: a cause or condition with `origin == "OPERATIONAL_ACTION"` renders `answered_by="OPERATIONAL_ACTION"`, `answered_by_detail="Operational action {action_id} ({kind}, by {actor}), log {log_id} v{log_version}"`. Scenario rows keep `"SCENARIO"` byte-equal. `answered_by` is a free string (`world_inputs.py:111`, `:266`; `F/shell/runSetupClient.ts:113`), so the Lab view shows it with no frontend edit; this is Lab-only, never client-facing.
+4. **How operator records reach the product: only through the Work API (K2), never through the run.**
+   - `OPERATOR_RECORD` (M2) gets **no** reader; registered v3+ keeps `record_channels=()` (`B/runs/profiles.py:1946`); `SourceEnvelope` stays MEASUREMENT-only for the registered path (`host/lab_execution.py:2829-2835`); `OPERATOR_COMMANDABLE_STATES` (`B/scenarios/models.py:255-258`) is unchanged.
+   - The same log is the one source: K7's injector reads it and posts `FUEL_DELIVERY` (ticket 30 min after `at`), `TANK_DIP` (value from the handover file, §8.3) and the `SITE_VISIT` record through K2's `post_operational_record`. `FUEL_REMOVAL_UNRECORDED` posts nothing.
+   - The product never reads `C/operational-actions/`: a K0 test asserts that no module under `B/` other than the run-setup adapter, and nothing under `F/`, names that path.
+5. **Composition.** Wire the port in `B/main.py:690` (the Lab composition) and in the registered test harnesses that K7 uses (`host/tests/test_s6_verification_replay.py` `LabRunner` pattern; PRE-FLIGHT names the exact constructor). Default `None` → no actions.
+6. **Host and kernel:** no change expected (F0r proves it in memory, §9.4 F0a). If F0r shows otherwise, K0's +0.5 reserve inside the range covers it, and the Architect rules.
+
+**Files:** `contracts/assetops_contracts/world_inputs.py`, `contracts/assetops_contracts/trajectory.py` (only if the omit rule needs it), `B/runs/models.py`, `B/runs/parsing.py`, `B/runs/service.py`, `B/runs/ports.py`, new `B/runs/operational_actions.py` (loader, validation, freeze), new adapter under `B/runs/adapters/`, `B/runs/provenance.py`, every run store's render/parse (PRE-FLIGHT names them), `B/main.py`, new `C/operational-actions/kisiwa-001-v1.yaml` (F0r's draft, promoted verbatim after F0r merges), tests.
+**Tests:** L0 round-trip of both origins on every store; byte-equal digests for one Kobo, one Cold and one EV fixture run and for every shipped scenario's frozen causes; each refusal; the Kisiwa run-2 delivery and run-4 removal frozen with origin, ref and history; the provenance rows; the no-reader test. L1/L2 setup through the registered path on own `assetops_k0_test`.
+**Size, 2.5:** contract and models origin with the omit rule 0.5; request key, port, adapter, loader, validation and freeze 0.75; provenance 0.15; persistence round-trip 0.25; composition 0.2; tests 0.4; host/kernel reserve 0.25. **Stops:** any digest or byte change for a run with no actions; a need to change M2, M3, `record_channels` or the envelope schema; more than 3.25.
+
+### 9.4 Re-issued F0 (F0r), full card, ready for a builder now, 0.5
+
+**Branch and worktree:** continue `task/DIESEL-F0-kisiwa-fuel-probe` in `C:\Users\assef\Bineyame\AssetOpsV1-f0`. First merge main (for this §9). The pre-registration commit `54ef019e1` stands unchanged.
+
+**Unchanged from §8.3, verbatim:** purpose questions 0–5; the declared world table (10 day-runs, 700 L start, the four action kinds and their times, dips, change instant); the `fuel-balance-1` parameters; the Architect's pre-registered expectation; the action log `.agent/DIESEL-F0/kisiwa-001-operational-actions.draft.yaml` (not edited). D0's files stay byte-equal.
+
+**What changes (and only this):**
+1. **Registered setup through (c), §9.1.** New draft fixture `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json`: `backend/conversions/kobo-001-bindings.json` with the Site code `KISIWA-001` and every binding kept whose `legacy_mapping_id` is a mapping in Kisiwa's template. Report every Kobo binding dropped and why. A Kisiwa mapping with no binding in the fixture is a **stop** (conversion refuses unconverted mappings, `test_s1_bindings.py:148-154`); never invent a binding. K1 promotes this file verbatim to `V/kisiwa-001-bindings.json`.
+   - Clocks: import at `2026-09-29T09:00:00Z`, conversion at `2026-09-29T09:30:00Z` (before run 1 at `2026-10-01T12:00:00Z`); `knowledge_at` absent; the request's `foundation_version` = the registered version the selection returns (as Kobo, likely 2). Record all three in the result JSON.
+2. **Probe-local `mini-grid` v7, stated plainly.** The real v7 belongs to K1a (§9.2). F0r builds, **inside `T/probe_kisiwa_fuel.py` only**, `PROBE_V7_SIM` and `PROBE_V7_PROFILE` with exactly K1a's content (§9.2: version 7, `fuel.SAMPLE_HANDLER` reused, restated stock statement, product supported roles `{CAUSAL_INPUT, REPORTED_OBSERVATION}`). It passes `PROBE_V7_PROFILE` in `model_profiles=` and executes with `run_to_end(run, PROBE_V7_SIM)` and `reporting_inputs(run, profile, PROBE_V7_SIM)` instead of `model_for(run)` (which only knows `EXECUTABLE_MODELS`). The result JSON and the evidence file carry the line: **"Tank level from a probe-local mini-grid v7 identical in content to K1a's; product code has no v7 until K1a merges."** No product file is edited.
+   - The reference chain (F3) uses the same probe-local v7 without actions, so dispatch equality compares like with like. F3 additionally asserts that a v6 chain without actions has equal generator state, accepted generator energy, battery level and tank stock at every boundary (v7 adds a sample, not physics).
+3. **F0a carrier.** Origin and content hash ride in the `event_id` prefix `OPERATIONAL_ACTION/` and in `intervention_history`, as F0 built (no product origin field until K0). F0a passes on that carrier.
+4. **F6 becomes a gate on the registered report path, in memory:** pass the F5 observations through `host/gateway_publication.py:79` `keyed_reports(run_id, basis.snapshot_sha256, observations, 5)` with the run's frozen basis. Gate: fuel-level report texts exist, one per F5 observation, and the activated binding snapshot (`basis.snapshot_canonical`) holds a `fuel_level` binding for `fuel-level-sensor/fuel-level`. **No gateway process and no SQLite ledger** (no DB of any kind). Kobo's 0-row cause is now settled (§9.2) and is not re-investigated.
+
+**Gates (each asserted; a failing gate stops the run):**
+- **F0a** scenario of every run is weather and loads only (F0's `scenario_is_weather_and_loads_only` empty); the actions enter only through `apply_actions` on the frozen run; the kernel applies them or refuses (report verbatim).
+- **F1** every run READY on the registered path through (c), and `run_to_end` completes.
+- **F2** tank law per step, exactly: `tank[i+1] = tank[i] − E_i × SFC − removal_i + delivery_i`; Σ removal = 120 and Σ delivery = 300 exactly; report the removal's per-step litres.
+- **F3** dispatch unaffected, as above (with actions vs without, both probe v7; and probe v7 vs v6 without actions). Every night's litres equal D0's 43.428 L (26057/600).
+- **F4** no fuel-limited step.
+- **F5** fuel-level observations at 15-min cadence on `registered-kobo-publication` v5; none with an instant in `[00:50, 02:20)` local of night 4; at least one in the 30 min before and the 30 min after; bias −0.5 L.
+- **F6** as item 4.
+- **F7** each per-day document below 4000 nodes; record the largest.
+- **F8** `--check` byte-equal.
+- **F9** both sources (true stock; F5 readings): night 4 `UNEXPLAINED` with gap > 0; every other night `WITHIN_MARGIN` with gap 0; none `NOT_ASSESSED`.
+- **F10** D0 untouched (`T/probe_kisiwa_nights.py --check` prints "probe result current").
+- **F11 (new) K0's setup bounds hold for the declared world:** for runs 2 and 4, initial stock + deliveries ≤ 1000 L and removal ≤ initial stock + earlier deliveries (§9.3 item 2). Report the numbers.
+
+**Stops (report to the Architect; never design around them):**
+- **S0 (OA-1)** the only way to move the tank or open the gap is a scenario entry. Never write one.
+- **S1** a refusal on the registered path through (c): import, conversion, selection (`REGISTERED_BASIS_*`), `PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE`, `PUBLICATION_UNIT_MISMATCH`, a blocking reason, or a kernel refusal of an added cause. Report verbatim with file:line and the smallest fix. **Never fall back to Lab v3 or to a hand-built selection.**
+- **S2** F2 or F3 fails.
+- **S3** F9 differs from the expectation (report the night and its terms). Never change the removal size, times, materiality, accuracy, tolerances, cadence, dropout or seed.
+- **S4** F5 fails with the probe-local v7 (the sample does not publish, or the gap does not silence). K1a pauses (§9.2).
+- **S5** F7 over 4000 on a single day.
+- **S6** a Kisiwa mapping has no Kobo binding to carry (item 1).
+- **S7** F11 fails. Report; the Architect rules (the declared world is not changed).
+- **S8** the re-issued work exceeds 0.75 unit.
+
+**Files:** `T/probe_kisiwa_fuel.py` (edit: (c) setup, probe-local v7, F3/F6/F11 additions); new `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json`; `.agent/DIESEL-F0/probe-result.json` (new); `.agent/DIESEL-F0-probe-results.md`: keep the S1 stop section as "First attempt (stopped, aa49a18fd)" and add the re-run with the plain-words line of §8.3, the per-night table, gates, seconds per run and the probe-local-v7 line; `host/tests/test_probe_kisiwa_fuel_band.py` (L0, as §8.3, if not yet written).
+- **Before running:** commit a short pre-registration addendum to the evidence file (the (c) path, the clocks, the bindings draft, the probe-local v7). No expectation changes.
+- **Reading budget:** this §9; §8.3; `B/runs/registered_basis.py:49-170`; `B/runs/service.py:395-500`, `:740-790`, `:888-938`; `backend/tests/test_s2_registered_basis.py:1-100`; `backend/tests/test_s1_bindings.py:1-60`, `:140-160`; `backend/tests/test_s1_cutover.py:40-75`; `B/sites/foundation_service.py:100-130`, `:247-300`; `backend/conversions/kobo-001-bindings.json`; `S/packs/mini_grid.py:185-235`, `:1240-1257`; `S/packs/fuel.py:150-221`; `B/runs/profiles.py:1140-1165`, `:1354-1367`; `host/gateway_publication.py:60-105`.
+- **Rules:** no DB (Postgres or SQLite), no prepare, no suite, no tick, no `-ExecutionPolicy`; never `assetops_demo3_full_test`. One fresh Opus reviewer re-runs both `--check`s, reads (c) against `test_s2_registered_basis.py`, and diffs the probe-local v7 against §9.2. **Merge on ACCEPT whatever the result.**
+
+### 9.5 Revised sizes, order, lanes, totals and date
+
+**Arithmetic correction to R2.** §8.4's unit rows sum to **15.25 remaining** (the rows are F0 0.5, K0 2.0, K1 1.25, K2 0.75, K3 1.5, K4 2.0, K5 1.0, K6 1.5, K7 2.25, K8 1.0, K9 1.0, contingency 0.5), not the 14.75 printed; the Kisiwa total with D0 was **15.75**, not 15.25. R2's "19.25 before DS-1" was therefore 19.75 on its own rows. The figures below use the rows.
+
+| Unit | Size | Change | Depends on (merged) |
+|---|---|---|---|
+| D0 | 0.5 | spent | — |
+| F0 (first attempt) | 0.5 | spent (stopped S1) | — |
+| **F0r** | 0.5 | new (§9.4) | none (now) |
+| K0 | **2.5** (2.0–3.25) | +0.5 (§9.3) | F0r; owner answered (Option A) |
+| **K1a** mini-grid v7 | **0.5** (0.4–0.75) | new (§9.2) | none (now, parallel with F0r) |
+| K1 | 1.25 | the "+0.25–0.5 publication profile" risk withdrawn; now uses v7 and promotes F0r's bindings draft | F0r, K1a, A1 |
+| K2 | 0.75 | — | F0r |
+| K3 | 1.5 | — | K1, K2 |
+| K4 | 2.0 | — | K3; board/chain part after PV-1 |
+| K5 | 1.0 | — | K3; panel after K4 |
+| K6 | 1.5 | — | K4, MV-1, A2 |
+| K7 | 2.25 | sets `operational_actions` on each Kisiwa run request (K0) and `model_profile` v7 (K1a) | K0, K1, K2; K6 for the freeze step |
+| K8 | 1.0 | — | PV-1, A3, CH-5d1 (merged), K4; captures after K7 |
+| K9 | 1.0 | — | all |
+| Contingency | 0.5 | card round after F0r; K4 Finding-kind risk | |
+| **Kisiwa remaining** | **16.25** (range 14.5–19.0) | +1.0 vs R2's corrected 15.25 after F0 spent (F0r +0.5, K0 +0.5, K1a +0.5, F0 −0.5 now spent) | |
+| **Kisiwa total incl. spent** | **17.25** | | |
+
+**Order (lane-units; about 3 units per lane-day including review):**
+```
+now (t=0):   MB-1 (lane 1) | A2 (lane 2) | F0r (lane 3) | K1a (lane 4, light, in parallel)
+t≈0.5:       F0r result -> card round (contingency) | K1a merged
+t≈0.55:      A2 merged -> K2 (lane 2, to ≈1.3)
+t≈0.6:       K1 (lane 3, after F0r PASS and K1a; to ≈1.85)
+t≈1.25:      MB-1 merged -> WD-1 -> PV-1 (lane 1, to ≈2.15)
+t≈1.3:       K2 merged (0054) -> A3 (lane 2, after MB-1; to ≈2.0)
+t≈1.85:      K1 merged -> K3 (lane 3, 0055; to ≈3.35)
+t≈2.0:       A3 merged -> K0 (lane 2; to ≈4.5)
+t≈2.15:      PV-1 merged -> lane 1 idle until K3 (the coordinator may pull backlog-free fix rounds here)
+t≈3.35:      K3 merged -> K4 (lane 3, 0056; to ≈5.35) | K5 fuel page (lane 1; to ≈4.35)
+t≈4.5:       K0 merged -> K7 data part (lane 2; to ≈6.25)
+t≈5.35:      K4 merged -> K6 (lane 3, 0057; to ≈6.85) | K8 code (lane 1) | K5 Finding panel
+t≈6.85:      K6 merged -> K7 freeze step and Kisiwa scratch prepare (≈7.35)
+t≈7.35–7.6:  K8 captures -> merged
+t≈7.6–8.6:   K9 (finish rows, guard, rehearsal prepare)
+then:        DS-1 -> E1–E6
+```
+- If no fourth builder is available, K1a runs on lane 3 right after F0r (K1 then starts at ≈1.0 and the path grows by 0.4).
+- **Critical path:** F0r 0.5 → K1 1.25 (K1a parallel) → K3 1.5 → K4 2.0 → K6 1.5 → K7 freeze 0.5 → K8 captures 0.25 → K9 1.0 ≈ **8.5–8.6 lane-units ≈ 2.9 working days** (≈ 9.0 if K1a is serial). K0 stays off the critical path with about 2.3 units of float (needed by t≈6.85).
+- **Remaining before DS-1:** lanes 1–2 **3.75** (CH-5d1 merged; MB-1 1.25 + WD-1 0.15 + PV-1 0.75 + A2 0.55 + A3 0.7 + E3 allowance 0.35; the coordinator confirms A2's and MB-1's remainders) + Kisiwa **16.25** = **20.0** (R2 printed 19.25; on its own rows 19.75; less CH-5d1's 0.75 and F0's spent 0.5 that is 18.5; R3 adds +1.5).
+- **Plan total:** ≈ 117.3 (FUEL-1) + 17.25 = **≈ 134.55** (R2 printed ≈ 132.55).
+- **Demo date:** the critical path is about the same as R2's (8.5) when K1a runs in parallel, but it now starts half a unit later because F0's first attempt stopped. Net: **about +3.25 working days (range 2.75–5.25)** against the lanes-1–2 plan without Kisiwa, versus R2's +3 (2.5–5). The central figure is inside the owner's accepted "about +3 (range 2.5–5)" and inside the earlier "about 4–5". **The top of the range is now about a quarter-day over 5.** Tripwire: if, at any card round, the Kisiwa critical path re-plans above **9.75 lane-units** (the point where the central date passes +3.75 and the top passes about +5.5), the Architect stops the lane's next dispatch and the coordinator takes the cut options to the owner (first candidate: drop K6, the verification page, and end the DS-1 beat at the Action; about −1.75 units and −0.6 day).
+- **E3:** unchanged (+25–35 min; E3 ≈ 1.3–1.5 h of the 3 h cap).
+
+### 9.6 Plan HTML (`Docs/demo-sprint/client-demo-plan.html`) rows to change (the coordinator carries these on top of §8.9)
+
+1. Build-units row "DIESEL-1-R2 …": becomes "DIESEL-1-R3 …", **17.25** (D0 0.5 and F0 0.5 spent, F0r 0.5, K0 2.5, K1a 0.5, K1 1.25, K2 0.75, K3 1.5, K4 2.0, K5 1.0, K6 1.5, K7 2.25, K8 1.0, K9 1.0, contingency 0.5). Note: "F0 stopped at run setup (no registered Site in memory) and found mini-grid never samples the tank; re-run on the real registered path with a new mini-grid v7 (Kisiwa only)".
+2. Total row ≈ 134.55; G5/G6 +17.25 (DIESEL-1-R3) instead of R2's +15.25.
+3. Lanes figure: K1a beside F0r; lane 3 F0r → K1 → K3 → K4 → K6 → K9; lane 2 A2 → K2 → A3 → K0 → K7; lane 1 MB-1 → WD-1 → PV-1 → K5 → K8.
+4. Calendar line and OD-P9: G6 about +3.25 working days (range 2.75–5.25) against the plan without Kisiwa.
+5. Rulings table: a "DIESEL-1-R3" row pointing to §9: (c) in-memory registered setup, mini-grid v7 for Kisiwa only (Kobo stays v6, 0 tank rows), K0 origin fields with the omit-when-scenario rule, records only through the Work API, R2 arithmetic corrected.
+6. After-the-demo list: add "Kobo tank level (mini-grid v7 on Kobo)".
+
+### 9.7 Owner questions
+
+**None blocking.** The owner already chose the operational-action link (Option A); nothing here reopens it.
+
+For the owner's information, in plain words:
+- The first fuel trial stopped before measuring anything, for two technical reasons: the example site wasn't set up the way the real product sets up a site, and the simulated generator site never reported its tank level at all (that is also why Kobo shows no tank readings). We fix both: the trial re-runs on the real set-up path, and the simulated site gains the ability to report its tank level. Kobo keeps working exactly as it does today; only Kisiwa uses the new tank reading.
+- Kisiwa now adds about **3¼ working days** before the demo, against about 3 before (range now 2¾ to 5¼, against 2½ to 5). The middle estimate is still inside what you accepted; the worst case is now about a quarter-day past your 5-day upper end. If the plan grows further, we will come back to you with a cut (most likely: skip the "after the fix" check page and end the Kisiwa story at the agreed action) before going over.
+
+---
+
+## 9a. Ruling DIESEL-1-R3a: F0r's S6 stop at conversion
+
+- Architect: Claude, 2026-11-07. Binding unchanged (`.ai/ROLE_CONFIG.md:9`). F0r branch commits be4bbceb6, 3a147f96e, bf70fd180, 1ba54aa43 (`AssetOpsV1-f0`). This amends §9.4 item 1 only.
+- Refusal, verbatim (`B/sites/binding_conversion.py:127-129`): "ConversionConflict: Legacy mappings ['battery-pcs-discharge-capability', 'generator-status', 'pv-inverter-available-power'] have no explicit conversion in the fixture." The stop was correct.
+- **Cause:** Kisiwa's template has 12 legacy mappings (D0 draft `:326-372`). Kobo's conversion fixture (`V/kobo-001-bindings.json`, `minigrid-roles-1`) predates three of them. Kobo's import has no such mappings, so it bound `generator-controller/status` with `legacy_mapping_id: null` and gained the two capability channels later by republication (`V/kobo-001-s3-dispatch-demo-config.json` `bindings.add`, roles-2). Copying Kobo's history onto a Site whose template already has these mappings does not fit.
+
+**Decision: fix (i), and it is the real K1 path too.** Kisiwa's conversion fixture converts **every** legacy mapping in its template, once, at import:
+1. `role_set` = **`minigrid-roles-2`**: the set `B/sites/binding_roles.py:36` names as the default for a new MINIGRID publication, and the lowest one holding `pv_available_power` and `pcs_discharge_capability`.
+2. `bindings` = 12 rows: the 9 F0r kept, plus:
+   - `generator-status`: Kobo's status row (`V/kobo-001-bindings.json`, role `generator_state`, `state`→`state`, ENUM map STOPPED/STARTING/RUNNING/FAILED) **with `legacy_mapping_id: "generator-status"`**, not null (the template has the mapping; `plan_requests` checks the row matches it, `:95-101`);
+   - `pv-inverter-available-power` and `battery-pcs-discharge-capability`: Kobo's two `add` rows from `V/kobo-001-s3-dispatch-demo-config.json` (roles `pv_available_power`, `pcs_discharge_capability`, kW→kW IDENTITY), each with its `legacy_mapping_id`.
+3. `declare_signals` = **`[]`**. **The builder's judgement call is overruled.** Keeping Kobo's entry is harmless to the code (`B/sites/binding_service.py:507-522` returns no change for an already-declared signal with the same unit), but its `reason` ("Absent from the original Kobo import…") is false for Kisiwa, whose template declares the signal (`:289`). A fixture must state only true provenance. Set `note` to: "Converted from the imported Kisiwa Foundation's legacy signal_mappings; every template mapping converted once, under minigrid-roles-2 (DIESEL-1-R3a)."
+- **Why not (ii):** republishing after conversion can't help, because conversion refuses first. Republication is only for channels the template does not have.
+- **Why not (iii):** it changes D0's template, which §8.1 item 2 forbids.
+- **Roles-3/4 stay a republication, as Kobo does.** The channels Kisiwa's template does not map (critical-load requested and delivered power, storage charge request, and the other roles-4 depth channels) stay for K1's `V/kisiwa-001-minigrid-roles-demo-config.json` through `B/sites/demo_configuration.py`, as §3.1 already says. F0r does **not** apply it, because none of its gates reads those channels. An unbound signal is not a reporting path (`B/runs/service.py:899-902`), so v5's resolutions for them are skipped. K1's registered-parity test proves the roles-4 step.
+- **Kobo:** its fixtures and configs are not edited.
+
+**F0r's other gates and stops stand unchanged** (§9.4: F0a–F11, S0–S8), with two additions:
+- if the corrected fixture is refused again (a role, unit or conversion check), that is **S6**: report it verbatim, and never drop a mapping or edit the template;
+- the evidence file records the 12-row fixture and the roles-2 choice in the pre-registration addendum before any run.
+- The S8 cap (0.75 of re-issued work) stands; this fix is about 0.05.
+
+**K1's size is unchanged at 1.25.** K1 promotes the corrected draft verbatim to `V/kisiwa-001-bindings.json`. It writes one roles-4 demo configuration for Kisiwa instead of replaying Kobo's three-step history (s3, s6, roles-4). That is no more work than §3.1 assumed. Totals and the date in §9.5 are unchanged.
+
+---
+
+## 9b. Ruling DIESEL-1-R3b: F0r result, F8, merge, next K units, setup clock
+
+- Architect: Claude, 2026-11-07. Binding unchanged. F0r commits 0011ad361, 77ad11f17, 77958a20c, ab33768d7, 9e5fad4e1 on `task/DIESEL-F0-kisiwa-fuel-probe`. The result matches the pre-registration:
+  - night 4 is UNEXPLAINED from both sources, [95.657, 144.343] L, with a 105-min gap (the builder's pre-run 105-min expectation, not the 90-min span);
+  - every other night is WITHIN_MARGIN (±24.343 L; the delivery night ±27.343 L);
+  - F0a, F1–F7, F9, F10 and F11 pass.
+- Foundation selection v1 is correct: with R3a's `declare_signals: []` the conversion makes no joint Foundation revision.
+
+**1. F8: seed the ids; F0 then closes PASS.**
+- **The fix:** inside `T/probe_kisiwa_fuel.py` only, wrap the in-memory import and conversion in a context manager that replaces `uuid4` with a seeded generator: `random.Random(20260929)`, `uuid.UUID(int=rng.getrandbits(128), version=4)`.
+  - Patch it at every name the store, the services and the conversion actually call (`uuid.uuid4` and any module-level `from uuid import uuid4` binding; the builder lists them in the evidence file).
+  - Restore it on exit.
+  - No product or `backend/tests/` file is edited.
+- **Rejected: marking or omitting the ids as volatile.** The snapshot hash and the report key are part of what F6 proves, and a check that skips them cannot see a real regression in them.
+- **Fallback:** if any id still varies after seeding, the builder stops and reports which one. Volatile marking is not a quiet alternative.
+- **Who can apply it:** this is a Sonnet fix round.
+- **Mechanical verification, by the coordinator, no reviewer judgement needed:**
+  - (a) `--write`, then `--check` in a **fresh process**, prints "probe result current";
+  - (b) a second fresh `--check` does the same;
+  - (c) `git diff` of `probe-result.json` against 9e5fad4e1 changes only the id fields and the values derived from them (snapshot sha, report key and the ids listed). Every litre, band, state, gap, count and gate value is byte-equal;
+  - (d) `T/probe_kisiwa_nights.py --check` still prints "probe result current".
+- **Then F0 closes PASS**, with all gates F0a–F11 met.
+
+**2. Merge: yes, as evidence-only, like D0.**
+- The merge carries `T/probe_kisiwa_fuel.py`, `host/tests/test_probe_kisiwa_fuel_band.py`, `.agent/DIESEL-F0/` (the action-log draft, the bindings draft, the result JSON) and `.agent/DIESEL-F0-probe-results.md`. No product code.
+- One fresh Opus reviewer runs §9.4's review: re-run both `--check`s, read (c) against `test_s2_registered_basis.py`, and diff the probe-local v7 against §9.2.
+- The review starts once (1) verifies, and its finding goes in the same packet. Merge on ACCEPT.
+- K0 promotes the action log later, and K1 promotes the bindings draft. Neither is moved now.
+
+**3. K units: order and readiness**
+
+| Order | Unit | Lane, start | Readiness |
+|---|---|---|---|
+| 1 | K1a | in build now | its card is §9.2 |
+| 2 | **K1** Kisiwa Site (critical path) | lane 3, after F0 merges and K1a merges | **needs one consolidated card.** It is spread over §3.1, §8.4, §9.2 and §9a, and ROLE_CONFIG Token Efficiency item 5 requires one card. **The Architect writes it next (R3c)**, before K1a merges. |
+| 3 | **K2** fuel records on the Work path (0054) | lane 2, after A2 merges | **needs a card**: the API body and refusal literals, the `fuel_records` read signature, migration 0054's exact CHECK and column, and the tests. §8.4 pins the decisions but not the literals. The Architect writes it in the same R3c round, after K1. |
+| 4 | **K0** operational-action bridge | lane 2 after A3, or any lane that idles first (it has about 2.3 units of float) | **build-ready from §9.3 as its card**, with one pre-flight: the builder names the PRE-FLIGHT items (the contract reporting-condition class, every run store's render/parse, the harness constructor) and batches any questions before writing code. The Architect answers them within that pre-flight. No further card is needed. |
+
+- Everything after these (K3 onward) keeps §9.5's order, and each gets its card at the round before it starts.
+
+**4. The setup clock is confirmed: `2026-09-29T10:00:00Z`.**
+- It falls after the 09:30 conversion, so the binding basis is recorded at setup, and before run 1 at `2026-10-01T12:00:00Z`.
+- It is a probe-only constant and is recorded in the result JSON.
+- R3 should have named it; this ruling fixes that omission.
+- K1 and K7 use their own install and setup instants from the story calendar, never this one.
+
+---
+
+## 9c. Ruling DIESEL-1-R3c: the K1 and K2 consolidated cards
+
+- Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `840d5dade`, then `992847b72`, where F0 merged and its review sits at `.agent/review-F0.md`. F0r evidence read on `task/DIESEL-F0-kisiwa-fuel-probe` at `c77eb135f`. K1a read on `task/DIESEL-K1a-minigrid-v7` at `1a4d3b5c5`. A2 read on `task/FUEL-A2-trial-fuel-comparison` at `7a390ea66`.
+- Owner decisions in force, verbatim:
+  - `.agent/owner-kisiwa-scope-2026-11-07.md`: "Build it, with the action link (Recommended)".
+  - `.agent/owner-scenario-data-2026-11-07.md`: "this is not true, these are injected through operational actions".
+  - `.agent/owner-missing-fuel-2026-11-07.md`: "'Unexplained fuel', never 'theft'".
+  - `.agent/owner-fuel-scope-2026-11-07.md`: "Generic 3.3 L/h, labelled (Recommended)". Kisiwa applies the same generic rule, so its rate is 4.9 L/h.
+- **What this section does.** Each card below is the one current card for its unit. It replaces §3.1, the K1 and K2 rows of §8.4, the K1 row of §9.5 and the K1 notes in §9.2 and §9a. **Builders read only their card.** Paths use the header's short forms.
+- Two code facts change §3.1 and §8.4. Both are folded into the cards:
+  - **Signal resolution (§3.1 pre-flight (a)) is closed.** F0r ran `registered-kobo-publication` v5 on an imported Kisiwa with no refusal. The profile is not bound to `KOBO-001` by name.
+  - **The registered-parity reference is now F0r, not D0.** D0 is dropped from the demo (§8.1). F0r's `.agent/DIESEL-F0/probe-result.json` is the reference. Its F3 already holds D0's 43.428 L per night.
+
+### 9c.1 K1 card: the Kisiwa Site, 1.25 (range 1.0–1.5)
+
+**Lane, start, branch.**
+- Lane 3. K1 starts once **F0 (the F8 fix, evidence-only) and K1a have both merged**. It is on the critical path.
+- Branch `task/DIESEL-K1-kisiwa-site`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k1`, from main after both merges.
+- Opus does the first build and the first review.
+
+**What K1 delivers.** `KISIWA-001` registered the way the demo prepare will register it: import, convert, demo configuration, supply uses, no-load fact, sensor accuracy and diesel price. It also proves, on Postgres, that the registered Site reproduces F0r's measured result exactly.
+- K1 does **not** add Kisiwa to `T/demo_combined.py` (`SITES`, `SITE_CODE`). It does not run a story day, a scenario calendar or a prepare. Those belong to K7.
+- So no client screen of the demo DB changes when K1 merges.
+
+**Files (all new unless marked edit):**
+
+| # | File | Content |
+|---|---|---|
+| 1 | `C/site-templates/kisiwa-diesel-hybrid-60kw.yaml` | `.agent/DIESEL-D0/kisiwa-diesel-hybrid-60kw.draft.yaml`, **every byte from `template_id:` (line 23) to the end unchanged**. Only lines 1–21 (the DRAFT comment) are replaced by a shipped-template header (literal below). Parsed content therefore equals the draft. |
+| 2 | `backend/tests/test_site_template_fingerprints.py` (edit) | One pin: `("kisiwa-diesel-hybrid-60kw", 1): ("013c3bbc9c9fcf6897eab6eb3d811637c606ee980feb06e53730f9903d4ca07c")`. The Architect computed it with `content_fingerprint` on the draft. |
+| 3 | `backend/tests/test_site_template_catalog.py` (edit) | The shipped listing becomes `["hybrid-mini-grid-100kw", "kisiwa-diesel-hybrid-60kw", "kobo-mini-grid-60kw", "twin-tank-mini-grid-150kw"]`, with one comment line: "Four since DIESEL-1 K1: the Kisiwa diesel-hybrid island archetype." |
+| 4 | `backend/tests/fixtures/s1/kisiwa-001.yaml` | The import record, as `B/tests/fixtures/s1/kobo-001.yaml` is for Kobo. It is exactly `yaml.safe_dump(render_site_document(record), sort_keys=True)`, where `record` = `site_from_template(<file 1>, site_id="KISIWA-001", display_name="Kisiwa island mini-grid", timezone="Africa/Dar_es_Salaam")` with `foundation.valid_from = "2026-09-01T00:00:00Z"`. That is F0r's `register_kisiwa` payload, with the shipped template in place of the draft. |
+| 5 | `V/kisiwa-001-bindings.json` | `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json`, **byte-equal**: 12 rows, `minigrid-roles-2`, `declare_signals: []`, the R3a note. |
+| 6 | `V/kisiwa-001-minigrid-roles-demo-config.json` | The roles-4 demo configuration (literal below). |
+| 7 | `B/sites/models.py` (edit) | The sensor-accuracy vocabulary (below). |
+| 8 | `T/demo_combined_kisiwa.py` | The registration flow (below). |
+| 9 | `host/tests/kisiwa.py` | The registered Kisiwa drafter (below). |
+| 10 | `backend/tests/test_k1_kisiwa_fixtures.py` | L0 tests, no DB. |
+| 11 | `backend/tests/test_k1_kisiwa_site_postgres.py` | L2 on own `assetops_k1_test`. |
+| 12 | `host/tests/test_k1_registered_kisiwa.py` | L2 registered parity on own `assetops_k1_test`. |
+
+**Shipped-template header (file 1, lines 1–n, literal):**
+```
+# Shipped Site configuration template. Read-only at runtime.
+#
+# The Kisiwa diesel-hybrid island archetype (DIESEL-1 §2.2, promoted by K1,
+# DIESEL-1-R3c): a small PV array behind one inverter, one battery behind one
+# power conversion system, and a 60 kW diesel generator with its 1000 L tank
+# that carries the night and charges the battery while it runs ("cycle
+# charging": source priority PV, generator, battery). Three separately metered
+# loads: households, a cold store for ice and fish, and a water pump.
+#
+# Component, device, signal and mapping ids are Kobo's, unchanged: the
+# dispatch analytic reads Kobo's device ids by name. Display names, ratings,
+# property values and Site Controls carry what differs.
+#
+# The numbers are DEMONSTRATION values, fixed before the D0 probe ran and
+# never tuned: plausible for a small island mini-grid, not a recommendation
+# for any real installation and not calibrated to one.
+#
+# Everything here is component truth about the template and never evidence.
+# Templates copy; they never migrate an existing Site.
+```
+
+**Foundation vocabulary (file 7), following A1's pattern:**
+- In `COMPONENT_PROPERTY_DEFINITIONS`, after the A1 entries, with the comment `# DIESEL-1 K1 (R3c): the tank level sensor's declared accuracy, read by fuel-balance-1 (K3) as the margin term a.`:
+  - `"fuel-level-sensor-accuracy": PropertyDefinition(unit="L", kind="PHYSICAL", display_name="Fuel level sensor accuracy")`;
+  - `"fuel-level-sensor-accuracy-basis": PropertyDefinition(unit="state", kind="PHYSICAL", display_name="Fuel level sensor accuracy basis")`.
+- Add `STATE_PROPERTY_VALUES["fuel-level-sensor-accuracy-basis"] = frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_CALIBRATION"})`.
+- Add both keys to `MINIGRID_PROPERTY_CARRIERS` with carrier `"FUEL_TANK"`, comment `# DIESEL-1 K1`.
+- Add `"fuel-level-sensor-accuracy"` to `MINIGRID_STRICTLY_POSITIVE_PROPERTIES`. An accuracy of 0 L would claim a perfect sensor.
+- `minigrid_foundation.py` needs no edit; it reads both tables.
+
+**Roles-4 demo configuration (file 6, literal):**
+```json
+{
+  "schema": {"id": "assetops.demo-configuration", "version": 1},
+  "status": "SIMULATED DEMO CONFIGURATION - DIESEL-1-R3c (K1). Not operator-entered Site truth.",
+  "label": "kisiwa-minigrid-roles-4-demo-config-v1",
+  "site_code": "KISIWA-001",
+  "component_properties": {
+    "effective_from": "2026-09-29T09:57:00Z",
+    "asset_code": "fuel-tank",
+    "note": "Generic level-sensor accuracy, about 1 % of a 1000 L tank; not this sensor's calibration.",
+    "properties": [
+      {"property_key": "fuel-level-sensor-accuracy", "value": 10, "unit": "L", "source": "SITE", "source_version": 1},
+      {"property_key": "fuel-level-sensor-accuracy-basis", "value": "GENERIC_DEFAULT", "unit": "state", "source": "SITE", "source_version": 1}
+    ]
+  },
+  "bindings": {
+    "effective_from": "2026-09-29T09:57:00Z",
+    "role_set": "minigrid-roles-4",
+    "note": "DIESEL-1-R3c K1 simulated demo configuration (kisiwa-minigrid-roles-4-demo-config-v1): every binding converted at import carried unchanged (12 rows, minigrid-roles-2), plus the cold store's (load-clinic, first in critical-load-priority) simulated requested and delivered power and the battery converter's charge request (registered-kobo-publication v5, mini-grid v7).",
+    "declare_signals": [
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "display_name": "Cold store requested power (simulated critical load)", "unit": "kW"},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "display_name": "Cold store delivered power (simulated critical load)", "unit": "kW"},
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "display_name": "Battery charge requested power (simulated)", "unit": "kW"}
+    ],
+    "add": [
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "asset_code": "load-clinic", "role": "critical_load_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "asset_code": "load-clinic", "role": "critical_load_delivered_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "asset_code": "battery", "role": "storage_charge_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}}
+    ]
+  }
+}
+```
+- **Why the `component_properties` block is the sensor accuracy.** `apply_demo_configuration` requires the block (`B/sites/demo_configuration.py:49` `FIXTURE_KEYS`), and the tank is the one Kisiwa fact the roles-4 step needs. Both `effective_from` values are rewritten by the tool (Kobo's pattern, `T/demo_combined_kobo.py:112-116`).
+- **Kobo's D-W1-3 margins are not declared at Kisiwa.** These are `pv-available-uncertainty` 3 kW and `renewable-retained-margin` 5 kW. They are Kobo's values for the mill's midday spare-solar check, Kisiwa has no productive load, and there is no basis for a Kisiwa figure. The midday check therefore reads its existing "not declared" state there. Pre-flight (c) confirms that this state exists.
+- **Signals the template lacks.** The template declares none of the three added signals, so they are declared here with Kisiwa names. Kobo's configs name them "Clinic …", which is false for a cold store.
+
+**Registration flow (`T/demo_combined_kisiwa.py`).** Modelled on `T/demo_combined_kobo.py:62-149`, `:385-408`. K7 later adds the story part to this file; K1 writes only the part below.
+- Constants:
+  - `SITE_CODE = "KISIWA-001"`;
+  - `SITE_SOURCE = <file 4>`, `BINDINGS = <file 5>`, `ROLES4 = <file 6>`;
+  - `CONFIG_OFFSETS = {"uses": timedelta(minutes=25), "roles4": timedelta(minutes=27), "known": timedelta(minutes=30), "price": timedelta(hours=1)}`;
+  - `SUPPLY_USES = {"load-clinic": "ESSENTIAL_SERVICE", "load-res": "HOUSEHOLD", "load-mill": "HOUSEHOLD"}` (§2.2);
+  - `NO_LOAD = [{"property_key": "generator-no-load-fuel-rate", "value": 4.9, "unit": "L/h", "source": "SITE", "source_version": 1}, {"property_key": "generator-no-load-fuel-rate-basis", "value": "GENERIC_DEFAULT", "unit": "state", "source": "SITE", "source_version": 1}]`;
+  - `NO_LOAD_NOTE = "Generic no-load fuel rate for a 60 kW diesel set (common design-software default, about 0.08 L/h per kW of rating); not this generator's datasheet. Owner decision 2026-11-07 (generic, labelled)."`;
+  - **the model pin:** `RUN_PROFILE = {"model_profile": {"profile_id": "mini-grid", "profile_version": 7}, "publication_profile": {"profile_id": "registered-kobo-publication", "profile_version": 5}, "timestep_minutes": 5, "seed": 20260929}`. Kisiwa runs only on v7 (K1a). Kobo stays on v6, through `V/d-verification-window-v3.json`, which is not edited.
+- `register_in(store, import_at, install_at) -> dict`. It is store-agnostic: Postgres in the prepare and L2, `InMemoryFoundationStore` in L0. Steps, in order:
+  1. `import_site(store, tenant_slug="demo", configured_tenant_slug="demo", source=ImportSource(path="var/sites/kisiwa-001.yaml", sha256=<sha256 of file 4's bytes>, record=read_import_source(file 4).record), legacy_documents=(), clock=Clock(import_at))` (`B/sites/foundation_service.py:247`).
+  2. `convert(store, BindingService(store, Clock(install_at)), tenant, site, BINDINGS)`.
+  3. Using `FoundationService(store, "demo", Clock(install_at + known))` and `BindingService(store, same clock)`:
+     - (a) `declare_supply_uses`: one `publish_component_properties` per load at `install_at + uses`, note "Demonstration supply use declared at commissioning" (Kobo's literal);
+     - (b) `declare_no_load_rate`: one publish on `generator` at `install_at + uses`, properties `NO_LOAD`, note `NO_LOAD_NOTE`;
+     - (c) `configure_roles4`: deep-copy `ROLES4`, set both `effective_from` to `install_at + roles4`, assert the status prefix, then `apply_demo_configuration`, and assert `periods[-1]["role_set"] == "minigrid-roles-4"`.
+  4. Return `{"site_code", "tenant_id", "site_id", "import_at", "install_at", "supply_uses_effective_from", "no_load_effective_from", "roles4_effective_from", "recorded_at", "periods"}`.
+- `register(url, work, import_at, install_at) -> dict`. Postgres only:
+  - `register_in(PostgresFoundationStore(url), …)`;
+  - the same `UPDATE gateway/source SET disabled_at = NULL WHERE site_id = :s` as Kobo (`:405-407`);
+  - **diesel price v1 only**: `publish(["fixture", "--site", "KISIWA-001", "--file", <V/demo-diesel-price-publications.json>, "--step", "v1"])` through `PostgresAssumptionStore(url, test_recorded_clock_override=lambda: install_at + price)`;
+  - no productive-use price (Kisiwa has no productive load);
+  - write `<work>/kisiwa-register.json`.
+- CLI: `python tools/demo_combined_kisiwa.py register <database-url> <work> <import-at ISO> <install-at ISO>`.
+- The no-load and the accuracy facts are Site-declared data. Their "generic" label travels in the basis property, never in product copy (A1's rule).
+
+**The registered drafter (`host/tests/kisiwa.py`):**
+- `class KisiwaRegistered`, constructed as `KisiwaRegistered(store, setup_at: str)`. It has the attribute and method surface that `T/probe_kisiwa_fuel.py` `build()`, `execute_day()` and `readings()` use from `Registered`:
+  - `.store`;
+  - `.basis = RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, "demo", Clock(setup_at))))`;
+  - `.foundation_version`, from `basis.select("KISIWA-001", start_time=run 1 start, end_time=+1 day, knowledge_at=None)`;
+  - `.v7_sim = assetops_simulator.packs.mini_grid.MINI_GRID_V7_MODEL` and `.v7_profile = B.runs.profiles.MINI_GRID_V7_MODEL` (**K1a's product v7, not the probe-local copy**);
+  - `.draft(document, start, end, model="v7")`: the same `RunSetupService` call as the probe's `Registered.draft` (`T/probe_kisiwa_fuel.py:325-347`), with product v7 or v6;
+  - `.sim(model)`.
+- `def draft_day(store, document, start, end, setup_at)`: a convenience wrapper for the L2 site test.
+
+**Registered parity (`host/tests/test_k1_registered_kisiwa.py`, L2, `assetops_k1_test`):**
+- Module fixture:
+  - `pg_harness.fresh_database()`;
+  - `register_in(PostgresFoundationStore(URL), import_at=2026-09-29T09:00:00Z, install_at=2026-09-29T09:30:00Z)` (F0r's clock: import 09:00, conversion 09:30);
+  - setup clock `"2026-09-29T11:00:00Z"`, after everything is recorded at 10:00.
+- Test `test_f0r_reproduces_on_the_registered_site`:
+  - `monkeypatch.setattr(probe, "Registered", lambda: KisiwaRegistered(store, "2026-09-29T11:00:00Z"))`, then `result = probe.build()`. **`T/probe_kisiwa_fuel.py` is not edited.**
+  - Load the committed `.agent/DIESEL-F0/probe-result.json` as `ref`.
+  - Assert `result == ref` after removing, from both, **only**:
+    - `assumptions.model` and `assumptions.probe_local_v7` (product v7 replaces the probe copy);
+    - `assumptions.registered_path` (foundation and binding-set version, snapshot, selection and clocks differ by design);
+    - `gates.F6.example_fuel_level_report_text` (its key hashes the run id and snapshot).
+  - From `gates.F6.snapshot_fuel_level_binding`, keep only `role`, `source_unit`, `canonical_unit` and `conversion`, and compare those.
+  - Everything else must be equal, every litre, band, state, gap, dip, count and gate value included. That covers `runs` (scenario sha, intervention history, start and end states), `night4_tank_account`, `nights`, `dips`, and gates F0a–F5, F7, F9 and F11.
+  - Print the removed keys' two values for the packet.
+- Why this is the right check: F0r ran on Foundation v1 with roles-2. K1 adds the supply uses, the no-load fact, the accuracy and roles-4. None of these may change physics or the tank publication. Dropout is keyed per signal (`S/observation/transform.py:189-200`), so the added roles-4 signals cannot move a fuel-level dropout.
+
+**L0 tests (`backend/tests/test_k1_kisiwa_fixtures.py`, no DB):**
+1. The shipped template parses through the catalog. Its parsed document equals the draft's parsed document. Its bytes from `template_id:` onward equal the draft's.
+2. File 5 is byte-equal to `.agent/DIESEL-F0/kisiwa-001-bindings.draft.json`.
+3. File 4 is byte-equal to the render described in the files table.
+4. File 6 checks:
+   - its keys are exactly `FIXTURE_KEYS`, its status starts "SIMULATED DEMO CONFIGURATION", `site_code` is KISIWA-001 and `role_set` is roles-4;
+   - each `add` role is in roles-4's vocabulary (`B/sites/binding_roles.py`);
+   - no `display_name` or `note` contains "Clinic", "clinic ", "mill", "Mill" or "Kobo" (case-sensitive except as listed). The device id `clinic-meter` is an id, not copy, and is exempt.
+5. The vocabulary:
+   - 10 L accepted on FUEL_TANK and refused on GENERATOR (carrier);
+   - 0 L refused (strictly positive);
+   - basis `SITE_CALIBRATION` accepted and `SITE_TEST` refused;
+   - `L/h` refused for the accuracy (unit).
+6. `register_in` on `InMemoryFoundationStore` (F0r's precedent, `backend/tests/foundation_fakes.py`) at import 2026-09-29T09:00Z and install 09:30Z. At 2026-10-01T12:00Z, as known at 10:00Z:
+   - `fuel-tank` declares 10 L and GENERIC_DEFAULT;
+   - `generator` declares 4.9 L/h and GENERIC_DEFAULT, and keeps every template property;
+   - the three loads carry their supply uses;
+   - the binding set is roles-4 with 15 bindings (12 + 3).
+   - If the in-memory store cannot run `apply_demo_configuration`, this item moves to L2 unchanged (no stop).
+7. `RUN_PROFILE`'s model `("mini-grid", 7)` is in `host/execution_adapter.py` `EXECUTABLE_MODELS` and in `MODEL_PROFILES`, and `V/d-verification-window-v3.json` still pins mini-grid 6.
+
+**L2 site test (`backend/tests/test_k1_kisiwa_site_postgres.py`, `assetops_k1_test`):**
+- `register(url, tmp, import 2026-09-29T09:00Z, install 09:30Z)`. Then:
+  - the three Foundation facts and the supply uses, as known at install + 30 min;
+  - the diesel price v1 (1.25 USD/L) known at install + 1 h through the assumption read the cost path uses (PRE-FLIGHT names it; `select_window_price` or its store);
+  - binding set roles-4.
+- **One Kisiwa day end to end.** F0r run 1 is 2026-10-01T12:00Z to 2026-10-02T12:00Z, `probe_kisiwa_nights.day_document(probe_kisiwa_fuel.START_SOC, probe_kisiwa_fuel.START_FUEL)`, with no actions.
+  - Draft it through `draft_day` (READY, registered basis frozen, v7/v5).
+  - Publish and accept it with `test_s6_verification_replay._publish_and_accept` (real gateway, S2 at `received_at` = 2026-10-02T12:10Z).
+  - Run S3 assess and S4 match with `LabRunner` at +5 min.
+  - Assert:
+    - accepted `fuel_level` records exist for KISIWA-001: the first tank readings the product has stored;
+    - the dispatch assessment for the window exists with no refusal (same device ids);
+    - the Site outcome board read for KISIWA-001 returns 200 (PRE-FLIGHT names the call), and every row's state is a member of its existing state set.
+  - Print every served board string for pre-flight (c) and (b).
+- Rough machine time: one 24 h run through the gateway, about 3–5 min.
+
+**PRE-FLIGHT (no code first; batch every question in one message):**
+- (a) Closed by F0r (see the top of §9c).
+- (b) Strings that name "clinic", "mill" or "Kobo" on a Kisiwa screen by device or component id instead of the Site's display name. The Architect's grep finds:
+  - server: `B/evidence/overview.py:71-75` `SERVICE_FEEDERS` ("Clinic feeder", "Mill feeder");
+  - UI: `F/sites/MiniPerformance.tsx:971` `CLINIC_FEEDER_LABEL` and `F/sites/SiteWindowOverview.tsx:484` (the "residential, clinic and productive loads" objective).
+  - Rule: **K1 fixes a server string only if the Site's display names are already an input of that read.** Otherwise, and for every UI string, K1 lists it with file:line in its packet as a finding for **K8**, which the Architect sizes at K8's card round.
+  - `SERVICE_FEEDERS` has no Foundation input, so it goes to K8. **No Kobo byte changes in K1.**
+- (c) Every board row without a PRODUCTIVE load (Grow sales, the mill's midday check, Kobo's D-W1-3 margins) must read an existing honest state at Kisiwa. A row that needs new text is a **stop**.
+- (d) Name the in-memory store's support for `publish_component_properties` and `apply_demo_configuration` (decides L0 item 6), and the board and price read calls.
+
+**Client wording.**
+- K1 adds no served copy and no UI string. Its client-visible strings are Site data:
+  - the Site name "Kisiwa island mini-grid";
+  - the template's component display names ("Households", "Cold store (ice and fish)", "Water pump", "Generator fuel tank" …);
+  - the property display names "Fuel level sensor accuracy" and "Fuel level sensor accuracy basis";
+  - the three declared signal names above;
+  - the two notes.
+- None says theft, stolen, stole, siphon or pilfer (H4).
+- **MOCK DEVIATION MD-KIS-K1-1.** On Kisiwa's pages, the load names and roles come from Kisiwa's Foundation, not from v69's Kobo-like text. Examples: `frontend/mockups/v69/index.html:420` "Clinic feeder", "Grain mill · productive", and `:619`. Layout and components are unchanged; only data differs. Kisiwa reaches a client screen only after K7, and the four-Site estate screens are K8's.
+
+**Guards and checks.**
+- `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1`, run directly with no `-ExecutionPolicy`.
+- `T/probe_kisiwa_fuel.py --check` and `T/probe_kisiwa_nights.py --check` must still print "probe result current".
+- **Localised tests only** (no full suite in the sprint):
+  - the three new files;
+  - `test_site_template_fingerprints.py`, `test_site_template_catalog.py`;
+  - `test_s1_bindings.py`, `test_s2_registered_basis.py`;
+  - the A1 vocabulary tests (`test_fuel_cost_v2.py` parser part);
+  - `test_scenario_execution_contract.py`, `test_execution_contract_alignment.py` (vocabulary must not move a digest);
+  - `host/tests/test_mini_grid_v7.py`.
+
+**DB.** Only `assetops_k1_test`, created by `pg_harness`. Never `assetops_demo3_full_test` or any other DB. No prepare, no tick, no `serve`.
+
+**Stops (report to the Architect; never design around them):**
+- any Kobo, Cold or EV byte change (templates, fixtures, configs, digests, served bytes);
+- the vocabulary addition moves a scenario, run-contract or handover digest;
+- a refusal anywhere in the registration flow (import, convert, a publish, the demo configuration, the price): report it verbatim with file:line and never edit the template, the bindings or a value;
+- **the parity test finds any difference** outside the removed keys: report the key and both values, and never edit `probe-result.json` or the probe;
+- a board row at Kisiwa needs new text (pre-flight (c));
+- a migration would be needed;
+- more than 1.5 units.
+
+**Size 1.25:**
+- template, pin and catalog 0.1;
+- import record and render check 0.1;
+- vocabulary and parser tests 0.15;
+- bindings promotion and roles-4 config 0.1;
+- `register_in` / `register` 0.3;
+- drafter and parity test 0.25;
+- L2 site test 0.2;
+- pre-flight inventory 0.05.
+
+**Reading budget:** this §9c.1; §2.2 (the table only); `T/demo_combined_kobo.py:30-150`, `:385-410`; `host/tests/test_dd1a1_registered_kobo.py:1-100`; `T/probe_kisiwa_fuel.py:240-450`, `:482-520`; `B/sites/demo_configuration.py:80-215`; `B/sites/models.py:255-340`; `backend/tests/test_s1_bindings_postgres.py:35-110`; `backend/tests/test_s6_verification_replay.py` (`_draft`, `_publish_and_accept`, `LabRunner` only); the K1a diff for the v7 names.
+
+### 9c.2 K2 card: fuel delivery and tank dip records on Work operational records, 0.75 (range 0.6–1.0)
+
+**Lane, start, branch.**
+- Lane 2, after **A2 merges**. Branch `task/DIESEL-K2-fuel-records`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k2`, from main after A2's merge.
+- Opus does the first build and the first review.
+
+**No conflict with A2, checked against A2's branch diff (`7a390ea66`).** A2 edits:
+- `B/actions/` (`verification.py`, `verification_rules.py`, the Postgres action store);
+- `B/financials/trial_fuel_comparison.py`, `B/outcomes/credit.py`, `B/estate/portfolio.py`, `B/site_outcomes/board.py`;
+- `F/estate/estateClient.ts` and its tests.
+
+A2 adds no migration. K2 touches none of those files. K0 (later on lane 2) and K1 (lane 3) do not touch `B/work/`. **K2 owns migration 0054.**
+
+**What K2 delivers.**
+- Two new Work operational record kinds, `FUEL_DELIVERY` and `TANK_DIP`, posted through the existing route `POST /api/sites/{site_code}/work/operational-records` (`B/work_api.py:185-189`). Each carries a tank link, `asset_id`.
+- An as-known read, `fuel_records`, for K3.
+- Plain labels for the two kinds on the existing records screens.
+- **Unchanged:** the four existing kinds, their command hashes, responses and rows. The contract's `OPERATIONAL_RECORD_KINDS` (`contracts/…/source_envelope.py:126`) and the run path are untouched.
+
+**API body (closed shape).**
+- `OPERATIONAL_KEYS` (required) is unchanged.
+- The optional keys become `OPERATIONAL_CORRECTION + ("asset_id",)`.
+- `OPERATIONAL_KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT", "FUEL_DELIVERY", "TANK_DIP")`, and `FUEL_KINDS = ("FUEL_DELIVERY", "TANK_DIP")` in `B/work/service.py`.
+
+Examples. K7's injector uses these body sentences verbatim, filled from the action log and the handover file:
+```json
+{"kind": "FUEL_DELIVERY",
+ "body": "Fuel delivery of 300 L received, ticket KIS-DT-0001.",
+ "occurred_at": "2026-10-03T07:00:00Z", "period_end": null,
+ "unit": "L", "quantity": "300",
+ "source_document_sha256": "<64 lowercase hex: sha256 of the delivery ticket document>",
+ "case_id": null, "asset_id": "<the Site's fuel-tank asset id>",
+ "actor": {"kind": "SERVICE", "id": "<principal>", "attestation": "service=<principal>;job=<job>;rule=<rule>"},
+ "idempotency_key": "kisiwa-kis-delivery-1"}
+```
+```json
+{"kind": "TANK_DIP", "body": "Tank dip at the 07:00 round: 706 L.",
+ "occurred_at": "2026-10-05T04:00:00Z", "period_end": null, "unit": "L", "quantity": "706",
+ "source_document_sha256": null, "case_id": null, "asset_id": "<fuel-tank asset id>",
+ "actor": {...}, "idempotency_key": "kisiwa-kis-dip-n4-0700"}
+```
+- `occurred_at` is when the delivery or dip happened. The record's `recorded_at` is the command's DB instant: K7 sets it through the existing test-only `test_db_clock_override` seam (`B/work/adapters/postgres_work_store.py:281-285`), recording the ticket 30 min after delivery (§8.2a).
+- The existing 30-day backdate limit and the 5-minute future slack (`B/work/model.py:36-37`) apply unchanged.
+
+**Validation, in this order. The existing steps are unchanged; the new ones are marked NEW:**
+1. Gate; closed shape; actor; correction triple; `kind ∈ OPERATIONAL_KINDS` (else `WORK_INPUT_INVALID`); instants; quantity, unit and digest shapes; the existing check `(quantity is None) != (unit is None)` or MANUAL_READING without a quantity or `period_end < occurred_at` → `WORK_INPUT_INVALID`.
+2. NEW, before the transaction:
+   - a fuel kind without the `asset_id` key, or with null → `WORK_RECORD_ASSET_REQUIRED`;
+   - a non-fuel kind with the `asset_id` key present (even null) → `WORK_RECORD_ASSET_NOT_ALLOWED`;
+   - a fuel kind with `period_end` not null → `WORK_INPUT_INVALID` (both are instants);
+   - a fuel kind with `quantity` null or `unit != "L"`, or a `FUEL_DELIVERY` with quantity 0 → `WORK_RECORD_QUANTITY_INVALID` (a dip may be 0 L);
+   - a `FUEL_DELIVERY` with `source_document_sha256` null → `WORK_RECORD_TICKET_REQUIRED`;
+   - `asset_id` not a UUID → `WORK_INPUT_INVALID` (`m.uuid_text`).
+3. In the transaction, the existing order: an idempotent retry (200 or `WORK_EVENT_DUPLICATE_KEY`); `check_occurrence`; the case scope. Then NEW: `tx.asset_type(asset_id)` is None → `WORK_LINK_SCOPE_INVALID` (the existing code for a foreign or unknown asset); a value other than `"FUEL_TANK"` → `WORK_RECORD_ASSET_NOT_TANK`. Then the correction successor and the insert.
+- **Canonical hash: byte-equal for the four existing kinds.** `canon["asset_id"] = m.uuid_text(body["asset_id"])` is added **only for a fuel kind**. The key is absent otherwise, so every existing `payload_sha256` and idempotency result is unchanged.
+- The insert passes `asset_id` (None for the other kinds).
+- The response `operational-record-1` is **unchanged** (no new field).
+
+**Refusal codes (add to `B/work/model.py` `MESSAGES` and `STATUS`, all 422):**
+
+| Code | Message (literal) |
+|---|---|
+| `WORK_RECORD_ASSET_REQUIRED` | "A fuel delivery or tank dip must name the fuel tank it concerns." |
+| `WORK_RECORD_ASSET_NOT_ALLOWED` | "Only a fuel delivery or tank dip names a tank; other record kinds carry no asset." |
+| `WORK_RECORD_ASSET_NOT_TANK` | "The named asset is not a fuel tank at this Site." |
+| `WORK_RECORD_QUANTITY_INVALID` | "A fuel delivery needs a volume above 0 L, and a tank dip a volume of 0 L or more, in L." |
+| `WORK_RECORD_TICKET_REQUIRED` | "A fuel delivery needs the SHA-256 of its delivery ticket." |
+
+**Store (`B/work/adapters/postgres_work_store.py`):**
+- `_Tx.asset_type(asset_id) -> str | None`, using `SELECT asset_type FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a AND retired_at IS NULL`.
+- `insert_operational_record` gains the `asset_id` column and parameter.
+
+**Migration `backend/migrations/versions/0054_operational_fuel_records.py`:**
+- `revision = "0054_operational_fuel_records"`, `down_revision = "0053_fuel_cost_2"`.
+- The constraint name `operational_record_kind_check` was confirmed by a read-only `pg_constraint` query on `assetops_test`.
+```sql
+ALTER TABLE operational_record DROP CONSTRAINT operational_record_kind_check;
+ALTER TABLE operational_record ADD CONSTRAINT operational_record_kind_check
+    CHECK (kind IN ('OPERATOR_LOG','MANUAL_READING','SHIFT_NOTE','SITE_VISIT','FUEL_DELIVERY','TANK_DIP'));
+ALTER TABLE operational_record ADD COLUMN asset_id uuid NULL;
+ALTER TABLE operational_record ADD CONSTRAINT operational_record_asset_fk
+    FOREIGN KEY (tenant_id, site_id, asset_id) REFERENCES asset(tenant_id, site_id, id);
+ALTER TABLE operational_record ADD CONSTRAINT operational_record_fuel_asset
+    CHECK ((kind IN ('FUEL_DELIVERY','TANK_DIP')) = (asset_id IS NOT NULL));
+ALTER TABLE operational_record ADD CONSTRAINT operational_record_fuel_quantity
+    CHECK (kind NOT IN ('FUEL_DELIVERY','TANK_DIP') OR (quantity IS NOT NULL AND unit = 'L' AND period_end IS NULL));
+ALTER TABLE operational_record ADD CONSTRAINT operational_record_delivery_ticket
+    CHECK (kind <> 'FUEL_DELIVERY' OR (quantity > 0 AND source_document_sha256 IS NOT NULL));
+CREATE INDEX operational_record_asset ON operational_record (tenant_id, site_id, asset_id, occurred_at)
+    WHERE asset_id IS NOT NULL;
+```
+- The asset FK targets the existing `asset_scope_unique` (`0001`). Its default MATCH SIMPLE leaves rows with a null `asset_id` unchecked.
+- Adding a nullable column fires none of the append-only triggers.
+- **Downgrade:**
+  - refuse with `RuntimeError("0054 downgrade requires no FUEL_DELIVERY or TANK_DIP operational records")` if any such row exists (rows are append-only, so they cannot be deleted);
+  - then drop the index, the three CHECKs, the FK and the column;
+  - restore the four-kind CHECK under the same name.
+- **Renumber rule (§8.4):** if a migration has landed on main as 0054 before K2 starts, K2 takes the next free number and re-points `down_revision`. The single-alembic-head test catches a miss. **K3's 0055 then follows K2's number.**
+
+**The `fuel_records` read, for K3 (new `B/work/fuel_records.py` and new `B/work/adapters/postgres_fuel_records.py`):**
+```python
+FUEL_KINDS = ("FUEL_DELIVERY", "TANK_DIP")
+
+@dataclass(frozen=True)
+class FuelRecord:
+    root_id: str              # canonical record id (the REC lineage root)
+    head_id: str              # the version selected at known_at
+    code: str                 # the root's public code, REC-nnnnnn
+    kind: str                 # the head's kind, one of FUEL_KINDS
+    occurred_at: datetime     # the head's occurrence (a correction may move it)
+    recorded_at: datetime     # the head's recorded_at
+    root_recorded_at: datetime  # when the record was first recorded (K3's DELIVERY_RECORDED_LATE reads it)
+    quantity_l: Decimal       # the head's quantity, exact
+    ticket_sha256: str | None # the head's source_document_sha256
+    actor_id: str
+    body: str
+
+class FuelRecordsPort(Protocol):
+    def fuel_records(self, tenant_id: UUID, site_id: UUID, tank_asset_id: UUID,
+                     lo: datetime, hi: datetime, known_at: datetime) -> tuple[FuelRecord, ...]: ...
+```
+- **Selection.** Every operational-record root of the Site recorded at or before `known_at`, at its latest version recorded at or before `known_at` by `(recorded_at, id)`. This is the root/head shape of `_OPERATIONAL` (`B/work/adapters/postgres_global_read.py:74-85`). Keep a record whose **head** has kind in `FUEL_KINDS`, `asset_id = tank_asset_id`, and `occurred_at` in `[lo, hi)`. Order by `(occurred_at, root_id)`.
+  - Membership uses the head's occurrence, unlike the list page's root occurrence: a corrected time must move a delivery to its true night.
+- **Arguments.** All three instants must be UTC-aware and `lo < hi`, else `ValueError("fuel_records needs UTC instants with lo < hi")`. `known_at` is not capped (K3 passes a window end that is already in the past).
+- **Adapter.**
+  - `select_fuel_records(c: Connection, tenant_id, site_id, tank_asset_id, lo, hi, known_at)` runs on a caller's connection, so K3 can read inside its own snapshot.
+  - `PostgresFuelRecords(database_url, *, statement_timeout_ms=30_000)` implements the port with one `REPEATABLE READ READ ONLY` transaction.
+  - Neither one writes.
+- **No new HTTP route in K2.** K5's list of deliveries and dips adds its route in its own card.
+
+**Screens (frontend, small):**
+- `F/work/WorkRequestRecord.tsx` `REC_KIND_LABEL` gains `FUEL_DELIVERY: "Fuel delivery"` and `TANK_DIP: "Tank dip"`. `recKindLabel` is also what the global Operational records page shows in its Type column (`F/work/OperationalRecords.tsx:126-128`), so no raw kind ever reaches the screen.
+- In `F/work/globalWorkClient.ts`, add `export type FuelRecordKind = "FUEL_DELIVERY" | "TANK_DIP"` and set `GlobalOperationalRow.kind: GlobalOperationalKind | FuelRecordKind`.
+- The kind filter (`GLOBAL_OPERATIONAL_KINDS`, `KIND_CHIPS`, `KIND_ZERO`, the backend `RECORD_KINDS` in `B/work/global_index.py:52` and `B/work/operational_index.py:26`) stays at the four v69 kinds.
+- **MOCK DEVIATION MD-FUEL-K2-1.** v69's Operational records chips are "All, Operator log, Manual reading, Shift note, Site visit" (`frontend/mockups/v69/index.html:984`), and its subtitle names those four (`:1083`). Fuel delivery and tank dip rows appear under "All" with the plain labels above. No chip is added, and a `kind=FUEL_DELIVERY` URL stays the existing invalid-filter state.
+- The reading line (`readingLine`, `OperationalRecords.tsx:97-101`) stays MANUAL_READING-only: the fuel bodies above already state the litres once.
+- Wording: the guard words theft, stolen, stole, siphon and pilfer appear nowhere (H4).
+
+**Tests:**
+- **L0 `backend/tests/test_k2_fuel_records.py`** (no DB; a fake transaction implementing only the `_Tx` methods `post_operational_record` calls):
+  - each new refusal, in the order above, with its literal message;
+  - one existing-kind body (`oprec()` from `test_w401_work_service_postgres.py`, OPERATOR_LOG) gives a command hash **equal to a literal pinned from main before any edit**. The builder computes it on main first and commits the pin with the test;
+  - `asset_id` present on a SITE_VISIT → `WORK_RECORD_ASSET_NOT_ALLOWED`;
+  - `FuelRecord` window argument checks.
+- **L2 `backend/tests/test_k2_fuel_records_postgres.py`** on own `assetops_k2_test` (Kobo imported via `test_s1_bindings_postgres.imported`; Kobo's `fuel-tank` asset is `FUEL_TANK`; `VirtualDbClock` as in W401):
+  - migration up/down/up on an empty table;
+  - down is refused with a fuel row present;
+  - single alembic head;
+  - post a delivery and a dip (201, `operational-record-1`, REC code, row `asset_id` set);
+  - idempotent retry 200, and a different body under the same key gives 409;
+  - the `generator` asset gives `WORK_RECORD_ASSET_NOT_TANK`; an unknown or foreign-Site asset gives `WORK_LINK_SCOPE_INVALID`;
+  - a raw SQL insert of a TANK_DIP with a null `asset_id` violates `operational_record_fuel_asset` (the CHECKs hold below the service);
+  - `fuel_records`:
+    - the window is half-open at both edges;
+    - a record recorded after `known_at` is absent;
+    - a correction of the dip (new quantity, recorded later) is read as the head after its `recorded_at` and as the root before it;
+    - a correction that moves `occurred_at` out of the window drops the record;
+    - an OPERATOR_LOG of the same Site never appears;
+  - the global Operational records list returns the fuel rows with `kind` set, and `?kind=FUEL_DELIVERY` keeps today's invalid-filter refusal.
+- **Existing, must stay green unchanged:** `test_w401_work_service_postgres.py`, `test_w401_work_api.py`, `test_w401_migration_postgres.py`, `test_w401_work_read_postgres.py`, `test_w401_site_indexes_postgres.py`, the W6-01 operational-records tests (`test_w601*`), the single-alembic-head test. If any of them needs a behaviour edit, that is a stop. A test that only enumerates migration heads or the kind CHECK text may take the new head or kinds.
+- **Frontend:** `operationalRecords.test.tsx` gains a TANK_DIP row rendering "Tank dip" in the Type cell. `workRequestRecord.test.tsx` gains a `recKindLabel("FUEL_DELIVERY") === "Fuel delivery"` case.
+- **Guards:** the four tools, run directly, and `frontend-hardwiring` (the two labels are plain copy constants).
+
+**DB.** Only `assetops_k2_test`. Never `assetops_demo3_full_test`. No prepare, tick or suite.
+
+**Stops:**
+- any change to an existing kind's `payload_sha256`, response bytes, row shape or refusal;
+- a need to edit `contracts/` (`OPERATIONAL_RECORD_KINDS`), `B/runs/`, the scenario models or the envelope schema;
+- a W401 or W601 test needs a behaviour change;
+- a client screen would need a new chip, panel or route (that is K5's);
+- more than 1.0 unit.
+
+**Size 0.75:** migration and its tests 0.15; service, model codes and store 0.2; the read port and adapter 0.15; frontend labels 0.05; tests 0.2.
+
+**Reading budget:** this §9c.2; `B/work/service.py:30-40`, `:398-530`; `B/work/model.py:1-90`, `:140-245`; `B/work/adapters/postgres_work_store.py:1-200`, `:266-333`; `B/work/adapters/postgres_global_read.py:55-145`; `backend/migrations/versions/0027_w4_work_cases.py:160-222`; `0053_fuel_cost_2.py` (pattern); `backend/tests/test_w401_work_service_postgres.py:1-150`, `:458-482`; `F/work/WorkRequestRecord.tsx:45-60`; `F/work/OperationalRecords.tsx:55-130`; `F/work/globalWorkClient.ts:140-200`.
+
+### 9c.3 F0 review Lows and the residual risk, placed in the cards they belong to
+
+F0 merged as evidence only (`992847b72`, review ACCEPT, `.agent/review-F0.md`). Its three Lows and its residual risk are assigned here. K0 is build-ready from §9.3 and its pre-flight, so items 1 and 4 bind K0 as amendments to §9.3. Item 2 binds K3's card, written at the round before K3 starts.
+
+1. **L1, K0: the log id and file name.**
+   - The F0r action log's own `log_id` is `kisiwa-001-operational-actions` (`.agent/DIESEL-F0/kisiwa-001-operational-actions.draft.yaml:18`). §9.3 item 2's example says `"log_id": "kisiwa-001"`.
+   - **Ruling: the pre-registered file wins.** K0 promotes the log **verbatim** (§9.3) and never edits it, so the id stays `kisiwa-001-operational-actions`.
+   - By §9.3's path rule `C/operational-actions/{log_id}-v{log_version}.yaml`, the file is **`C/operational-actions/kisiwa-001-operational-actions-v1.yaml`**. The run request key is `{"log_id": "kisiwa-001-operational-actions", "log_version": 1}`.
+   - The adapter refuses a log whose inner `log_id` or `log_version` differs from its file name (`OPERATIONAL_ACTION_LOG_MISMATCH`, typed, nothing written). A K0 test covers that refusal.
+   - This amends §9.3's example only. K7 uses the same key.
+2. **L2, K3: the use-term source and the untested band edges.**
+   - The probe's "readings" source took night use from the true trajectory (`T/probe_kisiwa_fuel.py:620-625`). §8.3 defines use from the **published generator readings per 5-minute slot**.
+   - K3's card will require:
+     - (a) K3 computes `loaded` and `idle_h` **only** from accepted generator readings, through A2's slot rule; it never reads a trajectory;
+     - (b) K3's L0 tests pin the three edges F0's tests never exercised: an idle-only night with `idle_h × 4.9` in `use_high` (so dropping the idle term fails a test); a window with `residual_low` exactly 0 (WITHIN_MARGIN, not BELOW_MATERIALITY); and the delivery night's high edge, `+ D_tol` with the ticket tolerance, as an exact Fraction;
+     - (c) K3's evidence states that Kisiwa has 0 idle minutes, so on Kisiwa's own nights the idle term is exercised only by the test in (b).
+   - K3's L2 must also match F0r's per-night bands from the stored windows (the KIS-3 reproduction), now from readings.
+3. **L3, information only:** `seeded_uuid4` wraps all of `build()` and so also seeds run ids. That is harmless.
+   - K1's parity test calls `build()` without the seeding. Run ids and snapshot-derived values differ, and §9c.1 already removes exactly those keys. No action.
+4. **Residual risk, K0: the operational origin is so far proven only through F0r's event-id carrier.** K0's tests add, beyond §9.3's list:
+   - (a) a Kisiwa run-2 delivery and run-4 removal frozen with the **field** `origin == "OPERATIONAL_ACTION"` and `action_ref`, and an `event_id` that is `"{action_id}/{effect}"` with **no** `OPERATIONAL_ACTION/` prefix carrier;
+   - (b) the omit rule, byte-level: for a scenario-only run, the rendered run, the frozen causes and conditions, the trajectory identity and every stored form contain neither the `origin` nor the `action_ref` key. The digests equal pins taken on main before K0's first edit (one Kobo, one Cold, one EV run);
+   - (c) a round-trip through every run store keeps both fields for an action cause and keeps them absent for a scenario cause;
+   - (d) the kernel result for the Kisiwa runs with actions equals F0r's per-step tank account for run 4 (40/3 L at steps 120–128) and run 2 (300 L at step 227). This shows that the real field path gives the same physics as the carrier.
+   - Inside K0's 0.4 test allowance; no size change.
+
+### 9c.4 Sizes, date and the tripwire
+
+- **Unit sizes: unchanged.** K1 is 1.25 and K2 is 0.75. Every other §9.5 row stands.
+- **Contingency (0.5).** It has now paid for the R3a, R3b and R3c card rounds and the F8 Sonnet round (about 0.25 together). About 0.25 remains, for K4's Finding-kind risk.
+- **One new risk, off the critical path.** K1's pre-flight (b) routes Kisiwa's device-id copy, starting with `SERVICE_FEEDERS` and the two UI strings, to K8. The Architect sizes it at K8's card round; the estimate is +0.1 to +0.25 on lane 1. K8's code part runs beside K4 and K6, so the critical path does not move unless it exceeds about 1 unit.
+- **Critical path.** F0r's two extra rounds (R3a and F8) add about 0.15 to its 0.5. The path is F0r about 0.65 → K1 1.25 → K3 1.5 → K4 2.0 → K6 1.5 → K7 freeze 0.5 → K8 captures 0.25 → K9 1.0, about **8.65 lane-units, about 2.9 working days**, with K1a run in parallel as it was. **That is below the 9.75 tripwire. It is not crossed, so no cut is needed.**
+- **Demo date: unchanged at about +3.25 working days** (range 2.75–5.25) against the plan without Kisiwa.
+- **Machine time:** K1's L2 adds about 5 min of one gateway-published day; K2 adds none of note. E3 is unchanged.
+
+### 9c.5 Owner questions
+
+None.

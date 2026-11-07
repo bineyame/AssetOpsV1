@@ -66,7 +66,8 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     # CH-9 merge: the default knowledge cutoff of a mini_decisions projection (`SELECT now()`), read by the
     # projection's writer-side callers; no stored-route composer calls it (W6 records 0 reads on the merged tree).
     (_B + "mini_depth.store", "database_now"): "not in a stored compose: a projection's default knowledge cutoff",
-    (_B + "objectives.adapters.postgres_objective_store", "PostgresObjectiveStore.declare.work"): _WRITER,
+    (_B + "objectives.adapters.postgres_objective_store", "_insert_statement"):
+        _WRITER + " (default recorded_at of the objective declaration INSERT; called only by PostgresObjectiveStore.declare)",
     # CH-5c2 (found by the F4/Q5 test on the real composers): a dateless board reads the board day from the
     # scheduler store's DB clock (`site_overview.read.db_today`); the rest of the store is the tick's writers.
     (_B + "scheduling.adapters.postgres_schedule_store", "PostgresScheduleStore.db_now"):
@@ -83,6 +84,12 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
 
 #: Python clock reads allowed in composer modules: only the seam itself.
 PY_CLOCK_MODULES = frozenset({"assetops_backend.read_scope"})
+
+#: DRIFT-R1 2.3(a): Python clock reads allowed by (module, enclosing qualname), each with its reason.
+PY_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
+    (_B + "financials.recompute", "_utc_now"):
+        _WRITER + " (the recompute worker's default clock; only ConsequenceRecomputeWorker.run reads it; derive reads none)",
+}
 
 _PY_CLOCK_ATTRS = {("datetime", "now"), ("datetime", "utcnow"), ("date", "today"), ("time", "time")}
 
@@ -105,11 +112,19 @@ def _owner(node: ast.AST) -> str | None:
     return None
 
 
-def scan(source: str, module: str) -> tuple[list[str], list[tuple[str, str, int]]]:
-    """(python clock reads as `module:line attr`, SQL clock literals as (module, qualname, line))."""
+def scan(source: str, module: str) -> tuple[list[tuple[str, str]], list[tuple[str, str, int]]]:
+    """(python clock reads as (`module:line attr`, enclosing qualname), SQL clock literals as (module, qualname, line))."""
     tree = ast.parse(source)
-    py: list[str] = []
+    py: list[tuple[str, str]] = []
     sql: list[tuple[str, str, int]] = []
+
+    # DRIFT-R1 2.3(b): a string used as an argument default is a statement fragment even without a keyword.
+    defaults: set[int] = set()
+    for n in ast.walk(tree):
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            for d in [*n.args.defaults, *(k for k in n.args.kw_defaults if k is not None)]:
+                if isinstance(d, ast.Constant) and isinstance(d.value, str):
+                    defaults.add(id(d))
 
     docstrings = {id(n.body[0].value) for n in ast.walk(tree)
                   if isinstance(n, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and n.body
@@ -123,10 +138,12 @@ def scan(source: str, module: str) -> tuple[list[str], list[tuple[str, str, int]
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 name = f"{qual}.{child.name}" if qual else child.name
             if isinstance(child, ast.Attribute) and (_owner(child.value), child.attr) in _PY_CLOCK_ATTRS:
-                py.append(f"{module}:{child.lineno} {_owner(child.value)}.{child.attr}")
+                py.append((f"{module}:{child.lineno} {_owner(child.value)}.{child.attr}", qual or "<module>"))
             if isinstance(child, ast.Constant) and isinstance(child.value, str) and CLOCK_SQL.search(child.value):
-                # Docstrings and comments-in-strings are prose, not SQL: only literals that look like a statement.
-                if any(k in child.value.upper() for k in ("SELECT", "WHERE", "INSERT", "UPDATE", "VALUES", "SET ")):
+                # Docstrings and comments-in-strings are prose, not SQL: only literals that look like a statement,
+                # or that are an argument default (the fragment is interpolated into a statement elsewhere).
+                if id(child) in defaults or any(
+                        k in child.value.upper() for k in ("SELECT", "WHERE", "INSERT", "UPDATE", "VALUES", "SET ")):
                     sql.append((module, qual or "<module>", child.lineno))
             visit(child, name)
 
@@ -142,7 +159,7 @@ def violations(modules: list[str], sources: dict[str, str] | None = None) -> lis
             source = module_path(module).read_text(encoding="utf-8")
         py, sql = scan(source, module)
         if module not in PY_CLOCK_MODULES:
-            out.extend(f"python clock {hit}" for hit in py)
+            out.extend(f"python clock {hit}" for hit, qual in py if (module, qual) not in PY_CLOCK_ALLOWLIST)
         out.extend(f"sql clock {m}:{line} in {q}" for m, q, line in sql if (m, q) not in SQL_CLOCK_ALLOWLIST)
     return out
 
@@ -164,6 +181,28 @@ def test_allowlist_has_no_stale_entry() -> None:
     for module in listed_modules():
         present |= {(m, q) for m, q, _ in scan(module_path(module).read_text(encoding="utf-8"), module)[1]}
     assert sorted(set(SQL_CLOCK_ALLOWLIST) - present) == []
+    py_present = set()
+    for module in listed_modules():
+        py_present |= {(module, q) for _, q in scan(module_path(module).read_text(encoding="utf-8"), module)[0]}
+    assert sorted(set(PY_CLOCK_ALLOWLIST) - py_present) == []
+
+
+def test_python_allowlist_is_keyed_by_function_and_still_catches_a_planted_clock() -> None:
+    key = _B + "financials.recompute"
+    assert violations([key]) == []  # the allowlisted `_utc_now` passes
+    planted = "from datetime import datetime\ndef _utc_now():\n    return datetime.now()\n"
+    assert violations(["assetops_backend.not_allowlisted"], {"assetops_backend.not_allowlisted": planted}) == [
+        "python clock assetops_backend.not_allowlisted:3 datetime.now"]
+    # the same function name in the allowlisted module is accepted, any other function there is not
+    assert violations([key], {key: planted}) == []
+    other = planted.replace("_utc_now", "_other")
+    assert violations([key], {key: other}) == [f"python clock {key}:3 datetime.now"]
+
+
+def test_default_argument_clock_literal_fails() -> None:
+    assert violations(["m"], {"m": 'def f(c, at="now()"):\n    return c\n'}) == ["sql clock m:1 in f"]
+    assert violations(["m"], {"m": 'f = lambda at="clock_timestamp()": at\n'}) == ["sql clock m:1 in <module>"]
+    assert violations(["m"], {"m": 'def g(c):\n    return "now()"\n'}) == []  # a bare non-default prose literal stays quiet
 
 
 def test_planted_python_clock_fails() -> None:

@@ -564,3 +564,411 @@ VALUE_UNPRICED_OTHER = "the declared price per kWh could not be read"
 4. **Did the mill change have a real cost you can state, with where the figure comes from?** If not, the mill result page says "No cost is recorded for this change", which is true. If yes, we add a "pays back in N days" line (about a quarter unit).
 
 Nothing else needs your decision. The idle-fuel work, the mill dollars, the mill on the board, the Portfolio lines and the wording fixes follow your answers from today.
+
+---
+
+## MB-1-R: ruling on the MB-1 pre-flight (Architect, Claude, 2026-11-07)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `826d91572` (CH-5d1 merged, so MB-1 code may start).
+- This section **replaces §3.1's build detail**. §3.1's cause, R1–R4 and stops stand except where amended here.
+- Paths: `B/` = `backend/assetops_backend/`, `T/` = `tools/`. READ = I read the code; nothing below was measured on a DB.
+
+### 0. Code reality the ruling rests on (READ)
+
+- **The lifecycle already runs the mill thread end to end.**
+  - `_OUTCOMES` (`B/chain/adapters/postgres_thread_sources.py:67-72`) reads domain outcomes and dates a VERIFIED from the plan's `effective_from` (CH9b3-R Q10). The known time is the outcome's `recorded_at`.
+  - `run_lifecycle` (`B/chain/lifecycle_run.py:109-143`) plans every thread of the Site, opportunity threads included.
+  - `thread_clean_days` (`:102-106`) uses `clean_day_measures[mechanism]`. For `PRODUCTIVE_USE_HEADROOM` that is `["daylight_headroom_kw"]` (`config/chain/thread-lifecycle-v1.json`), a SITE measure (`B/chain/measures.py:49-50`).
+  - `maybe_close` writes CLOSED after `close_after` such days.
+  - So the mill thread has real RESOLVED_MONITORING / CLOSED / RECURRED events and real fully checked days. **The MONITORING count is computed, never set to `close_after`.**
+- **Domain verdicts are single.** `evaluate` stores one decisive outcome and replays it after that (`B/actions/verification_families.py:207-209`). `domain_summary` reads `outcomes[0]`, ordered by `(recorded_at, id)`.
+- **The mini board reads "as known now".** It is read with `date` only (`T/demo_combined_finish.py:82-85`), so `known_at` is None (`board_cutoff` mini, `B/site_outcomes/read.py:839-843`).
+  - ACT-001's Assure state is the current verification summary (`ChainRequest.action_facts`, `B/chain/read.py:404-416`).
+  - The Grow thread line reads every visible event: S-8 shows the VERIFIED state, back-dated to the change day.
+  - Assure lists the Actions **created in the 31-day work window** `[work_lo, end)` (`site_window`, `B/actions/adapters/postgres_action_store.py:1046-1062`; `mini.py:402`).
+- **Thread lines are attached in `read.py` `board()`** (`with_threads`, `:455`), after `mini.compose`. The Assure headline and contributors are built **inside** `compose` (`mini.py:430-481`, `_assure` `:974-1000`).
+- **`board.py` does not list the mill.**
+  - In hand / Earlier skip any Action with no `origin_finding_id` (`board.py:842-843`).
+  - The mini `facts.actions` come from the trial Action index only.
+  - So carrying the mill in a **new** `SiteFacts` field leaves those lists byte-equal (R4), as the builder found.
+- `/estate/chain` `sites[].threads` is `EstateCounts.threads[code]` (`B/chain_api.py:346`). No frontend reads it (grep).
+- The summary's `verified_result_count` is not rendered anywhere in the frontend (grep). It feeds COH L2 only.
+- **An L2 fixture already makes a real VERIFIED mill outcome.**
+  - `backend/tests/test_ch9b3_mill_verdict_postgres.py` provides `_frozen`, `_later` and `_after`.
+  - `test_ch9b1_opportunity_actions_postgres.py` provides `mill`, `_threads` and `_lifecycle`, which link the Action to the opportunity thread and write the lifecycle events.
+
+### 1. Decisions
+
+**Q1, the verdict read: approved, as the builder recommends, with one shared pure function.**
+- **(a) `B/chain/adapters/postgres_chain_read.py` `_SITE_ACTIONS`.**
+  - Add one `LEFT JOIN LATERAL` and two output columns. No schema change, no new statement, no `k` in the SQL:
+  ```sql
+  SELECT ..., accepted_at, v.outcome, v.recorded_at AS outcome_recorded_at
+    FROM chain_action a
+    LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at FROM verification_outcome o
+                        WHERE a.kind = 'DOMAIN_INTENT' AND o.tenant_id = a.tenant_id AND o.domain_action_id = a.id
+                        ORDER BY o.recorded_at, o.id LIMIT 1) v ON true
+   WHERE ... (unchanged) ORDER BY a.action_code, a.id
+  ```
+  - MINI_TRIAL rows carry NULL in both columns.
+  - Update the comment above `_ACTION_PLANS` / `_ACTION_OUTCOMES`: "domain verdicts are read on `_SITE_ACTIONS` (MB-1-R Q1)".
+- **(b) New pure function in `B/chain/site_chain.py`**, beside `actions_of`. Its signature and contract are verbatim:
+  ```python
+  def opportunity_actions(rows: Mapping[str, Any], *, site: str, tz: str | None, cutoff: datetime | None,
+                          lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+      """MB-1 (FUEL-1 MB-1-R Q1/Q4): the Site's opportunity-origin domain Actions shown in `[lo, hi)` as of `cutoff`:
+      kind DOMAIN_INTENT with `origin_opportunity_id` set and a thread; `accepted_at < hi` and (cutoff None or
+      `accepted_at <= cutoff`); and the thread has an occurrence with an `opportunity_id` whose episode meets
+      `[lo, hi)` (the `_finding_threads` predicate, claims.py:59-66). `outcome` is the stored decisive outcome when
+      its `outcome_recorded_at` is known by `cutoff` (None = every one), else None (not judged as known)."""
+  ```
+  - Each item is `{"action_id", "code", "thread_id", "origin_opportunity_id", "accepted_at", "outcome", "outcome_recorded_at", "ref"}`.
+  - `ref = action_wire_ref(site, a)`, which is DOMAIN_VERDICT for these rows.
+  - Order: `(code or "", action_id)`.
+  - Read every new key with `.get`, so a row without the columns gives `outcome` None.
+- **(c) `B/site_outcomes/mini.py` `MiniPorts` gains, last and defaulted:**
+  ```python
+  #: MB-1 (FUEL-1 MB-1-R Q1): `ChainRequest.threads(site_id)` at the request cutoff, that cutoff, and the thread
+  #: lifecycle policy (`chain.composition.thread_lifecycle_policy()`); None = no chain reader (no opportunity Actions).
+  chain_threads: Callable[[], Any] = lambda: None
+  ```
+  - The port returns a frozen dataclass declared in `mini.py`: `ChainThreads(rows: Mapping[str, Any], k: datetime | None, policy: Any)`.
+  - `B/site_outcomes/read.py` `mini_ports` binds it as `chain_threads=lambda: mini.ChainThreads(chain().threads(sid), chain().k, thread_lifecycle_policy())`.
+  - Import `thread_lifecycle_policy` locally inside the binding, the way `B/estate/adapters/postgres_estate_read.py` reads it.
+  - `ChainRequest.threads` is memoised on `(tenant, site, k)`, so the board and `claims.py` read the same rows in one request. That is the builder's "one read" goal.
+  - Cold and EV ports are untouched.
+- **Extra files approved:** `postgres_chain_read.py` (a), `site_chain.py` (b), `site_outcomes/read.py` (the binding and Q5's `_verified_results`), and the two fakes in `backend/tests/test_ch5a2_contract.py:61,239`.
+  - In each fake, add the two keys to its DOMAIN_INTENT rows, or confirm with a one-line comment that it has none.
+  - **No other extra file.**
+
+**Q2, the thread line: approved, with one change.** The mill's thread view is built in `mini.compose` and carried on a new `SiteFacts` field. It is not built in `read.py` or `with_threads`. The Finding path stays byte-equal. Details are in MB-1b (§3).
+
+**Q3, the MONITORING line:**
+- **The measures and subject are the lifecycle runner's own.**
+  - The fully checked days are `lc.fully_checked_days(rows, subject_ref, policy.measures_for(mechanism), occurrence start days)`.
+  - Its inputs:
+    - `rows` = the board's own snapshot rows, `day_facts.rows` (the `chain_day` read over the work window at `k`, the same cutoff `lookup` uses);
+    - `subject_ref` and `mechanism` from the thread's occurrence rows;
+    - the start days of **every** visible occurrence of the thread (`thread_clean_days`'s rule).
+- **Yes, the runner closes opportunity threads** (§0).
+- **k is computed, never `close_after`.** One guard: if the view's verified day is earlier than the first day of the work window, the board cannot see every checked day. The MONITORING line is then **omitted** (no line), never a wrong count. This cannot happen in the demo, because the verified day S-9 lies inside every story board's window.
+- **Wording: not "Fix verified" for an opportunity thread.** A mill change is not a fix of a fault, and the thread page already labels RESOLVED_MONITORING "Checked and working" (`THREAD_STATE_WORDS`). The opportunity thread gets three plain literals in `board.py` (§3.2).
+
+**Q4, the Assure window: the builder's occurrence rule, plus `accepted_at < end`.**
+- The board's Assure row uses `opportunity_actions(rows, lo=work_lo, hi=end, cutoff=k)`. That means: accepted before the board day ends and by `k`, and the thread's opportunity occurrence meets the board's 31-day work window.
+- Without `accepted_at < end`, S-11 would list an Action raised on S-9. The board must never show an Action not yet raised on its day.
+- **§3.1's expected S-5 Assure ("No verified result yet") is withdrawn.**
+  - The mini board reads "as known now" (§0), so on S-8, S-5 and S+0 the mill is listed as verified.
+  - This is the same reading as ACT-001's state, and as the Grow line's "checked and working" on S-8.
+  - "No verified result yet" on S-5 beside "Change checked and working" on S-8 would contradict itself on screen.
+  - With an explicit `known_at` before the verdict's `recorded_at` (10-31 23:00Z), the mill is listed as **not yet verified** (Pending chip). The `cutoff` filter does this.
+  - DS-1 narrates S-8 the way DD-1's script line already does: "The day after the change, the mill is checked and working" (`build-sheet-DD-1.md:2611`).
+
+**Q5, coherence checks:**
+- **The claim (R3) and the board use the same function, `opportunity_actions`, with their own windows.** The claim uses the estate `[lo, hi)` at `lifecycle_cutoff(k)`; the board uses `[work_lo, end)` at `k`. This is the existing Finding pattern (board work window vs estate window).
+- **L2 stays as it is.** `_verified_results` (`read.py:481`) becomes the board's Assure headline number, so the summary sum now includes the mill.
+  - L2 remains a cross-window check, as it is today for ACT-001.
+  - E3 expectation: L2 holds on week and month, because the recurrence occurrence (RECURRED 10-31) meets the week and the first occurrence (S-13) meets the month.
+  - If, and only if, L2 fires at E3 on a window where the mill thread has **no** occurrence, the expectation file carries one entry for that window. Reason: "MB-1-R Q5: board 31-day window vs estate window, mill thread has no occurrence in the window". Any other L2 difference is a fault.
+- **L3 is re-expected.**
+  - The rule: distinct Verified Finding threads in the table **plus** the Σ over sites of `threads.verified_actions` equals the claim.
+  - The bundle already carries `chain_estate.{w}` `sites[].threads`. MB-1a adds the key there (§2.2), so no new bundle body is needed.
+  - An absent key reads as 0, so stored older bundles stay valid.
+- **The card's "Assure count == board" check is a board-internal row: COH-17 A1.**
+  - It runs on each mini Site's `board_summary.{w}.{code}`.
+  - The Assure headline count must equal the number of Assure `verified_results` contributors that read as verified. Both sides come from one board on one day, so windows never differ.
+  - The claim-vs-board comparison stays with L2.
+
+**Q6, size: split.**
+- With Q1–Q5 as ruled, the builder's 1.4–1.6 is at or over the 1.5 stop. The split also lets PV-1 depend on the Assure half only.
+- **MB-1a** (read, claims, Assure, COH L2/L3/A1, MILL-5): **0.8**.
+- **MB-1b** (Grow thread line, MILL-4, F-THREADS): **0.55**.
+- Total 1.35 (+0.1 on §3.1's 1.25). Lane 1 becomes 2.75.
+
+**M1, no DB carries the mill story: enough as ruled.** The proof stack is:
+- L0 truth tables (pure);
+- **one L2 on real rows** built from the CH-9b fixtures (VERIFIED domain outcome, linked thread, lifecycle run), for the SQL columns, `opportunity_actions` and the claim;
+- E3: MILL-4, MILL-5, F-THREADS and COH L2/L3/A1 on the full prepare, before any demo build.
+- No scratch prepare is added (owner budget). An E3 failure comes back to the Architect as a fix round, never a reworded expectation.
+
+### 2. MB-1a card: the mill in the Assure row and the count, 0.8
+
+**Branch and worktree.** Use the existing worktree `C:\Users\assef\Bineyame\AssetOpsV1-mb1` on its branch. Rebase it onto main `826d91572` or later first. DB: pg_harness base `assetops_mb1_test` (run-owned `assetops_mb1_pt*_test`). Drop them after the merge.
+
+**2.1 Files (complete list)**
+- `B/chain/adapters/postgres_chain_read.py`: Q1(a).
+- `B/chain/site_chain.py`: Q1(b).
+- `B/chain/claims.py`: 2.2.
+- `B/site_outcomes/mini.py`: `ChainThreads`, the port, 2.3.
+- `B/site_outcomes/board.py`: the `OpportunityActionFact` dataclass and the `SiteFacts` field only (2.3). **No line logic in MB-1a.**
+- `B/site_outcomes/read.py`: the binding and `_verified_results`.
+- `T/checks/chain_coherence.py` and `T/checks/test_chain_coherence.py`: L3, A1.
+- `T/demo_combined_finish.py`: MILL-5.
+- Tests per 2.5.
+
+**2.2 `claims.py` (R3 as amended)**
+- New function:
+  ```python
+  def verified_actions(req: Any, site: Any, lo: datetime, hi: datetime, counted: set[str]) -> list[dict[str, Any]]:
+      """MB-1-R (R3): the Site's opportunity-origin domain Actions verified as known at `k` whose thread has an
+      opportunity occurrence meeting `[lo, hi)`, counted per Action; an Action on a thread already counted (`counted`
+      thread ids) is not counted again."""
+      acts = site_chain.opportunity_actions(req.threads(site.site_id), site=site.site_code, tz=site.timezone,
+                                            cutoff=lifecycle_cutoff(req.k), lo=lo, hi=hi)
+      return [a for a in acts if a["outcome"] == "VERIFIED" and a["thread_id"] not in counted]
+  ```
+- `estate_count_claims`: inside the existing `try`, after `counted = counted_threads(...)`:
+  - `threads[code] = {**classify(t["state"] for t in counted), "verified_actions": len(verified_actions(req, site, lo, hi, {t["id"] for t in counted}))}`;
+  - `verified_n = sum(t["verified"] + t["verified_actions"] for t in per) if known else None`.
+- `open_n`, `disrupted` and `priority_site_count` are unchanged.
+- Update the module docstring's "Threads" bullet and the `EstateCounts.threads` comment: `{"open", "in_hand", "verified", "verified_actions"}`.
+- R3 stands: a later RECURRED does not remove the verified Action, because the count reads the outcome, not the thread state.
+
+**2.3 The board's Assure row (`mini.py`, `board.py`)**
+- `board.py`:
+  ```python
+  @dataclass(frozen=True)
+  class OpportunityActionFact:
+      """MB-1-R: an opportunity-origin domain Action on a mini board (the mill); never in `actions`, so In hand and
+      Earlier are unchanged (R4)."""
+      action_id: str
+      code: str | None
+      thread_id: str
+      outcome: str | None                 # VERIFIED | INEFFECTIVE | INCONCLUSIVE known by the cutoff; None = not judged
+      verdict_ref: Mapping[str, Any]      # the DOMAIN_VERDICT Ref (`site_chain.action_wire_ref`)
+  ```
+  - `SiteFacts` gains `opportunity_actions: tuple[OpportunityActionFact, ...] = ()`, last field.
+  - MB-1b adds defaulted fields to the dataclass. MB-1a adds nothing else to `board.py`.
+- `mini.compose`, after `actions` is built:
+  - `ct = reads.call("chain_threads", ports.chain_threads)`;
+  - `opp = () if ct is None else tuple(OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"]) for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))`.
+  - A failed read is recorded by `Reads` (board PARTIAL) and shows no mill. That is never a "0" claim.
+  - Pass `opp` to `SiteFacts(opportunity_actions=opp)`.
+- `verified` (`mini.py:475`) becomes `sum(1 for a in actions if a.verification_state == "VERIFIED") + sum(1 for o in opp if o.outcome == "VERIFIED")`.
+- `_assure(..., opp)`. The Verified results entries are one merged list.
+  - `mine` (trials, unchanged) plus `opp`, sorted together by `(code or "", id)`.
+  - The empty and not-available branches test the merged list: `if actions_failed and not merged` / `elif not merged`.
+  - Each trial entry is byte-equal to today.
+  - Each opp entry is a `Contributor("verified_results", "Verified results", VERIFICATION_TEXT[s].format(code=display_code(o.code), suffix=provenance_suffix(None)), PENDING_CHIP if s == "PENDING" else None, o.verdict_ref)`, with `s = o.outcome if o.outcome in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE") else "PENDING"`.
+  - **No new literal.** VERIFIED_WITH_COST never applies (no cost check), so no money appears on this line before PV-1.
+- `read.py:481`: `"_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED") + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED")`.
+- Header comment in `mini.py` beside `_assure`: **MOCK DEVIATION MD-FUEL-MB1-1**.
+  - v69 lists verified Actions under Assure "Verified results", each opening its Action.
+  - The mill has no Action page (v70 D1), so its entry opens the verdict page (DOMAIN_VERDICT), as the chain wire already does (DD1b2-R6 O1).
+  - Add a packet row with the same id.
+
+**Client wording (S+0 Kobo, as known now):**
+- Assure headline: **"2 verified results"**.
+- Contributors: **"ACT-000001 verified"** and **"ACT-000002 verified"**, each with its own link. The order is by code; the codes shown are whatever the DB holds.
+- Kobo Grow, Optimize and Protect rows: byte-equal in MB-1a.
+
+**2.4 COH (`T/checks/chain_coherence.py`)**
+- **L3** (`:1317-1321`):
+  - `mill = sum(int((x.get("threads") or {}).get("verified_actions") or 0) for x in chain.get("sites") or ())`;
+  - `check("L3", len(verified) + mill == want, f"{len(verified)} distinct Verified threads in the table + {mill} verified opportunity Actions, claim {want!r}", where)`.
+  - Update its comment to cite MB-1-R Q5.
+- **A1**, inside the COH-17 per-Site board loop (after V2/V4), for `site.get("domain") == MINI_DOMAIN` only:
+  - Take the Assure row of `board`.
+  - `shown = 0 if headline == NO_VERIFIED else int(m.group(1))`, with `m = re.fullmatch(r"(\d+) verified results?", headline)`.
+  - Import `NO_VERIFIED` locally from `assetops_backend.site_outcomes.mini`. Any other headline is a finding "unreadable Assure headline".
+  - `listed` = the count of Assure contributors with `key == "verified_results"` whose text matches `r"\S+ verified\b.*"` and does **not** contain " not yet verified".
+  - `check("A1", shown == listed, f"Assure headline {headline!r}, {listed} verified entries", where, code)`.
+- **Self-tests, `T/checks/test_chain_coherence.py`:**
+  - L3 pass: table has 1 Verified thread, Kobo `verified_actions` 1, claim 2.
+  - L3 fail: the same with `verified_actions` 0.
+  - L3 legacy: key absent, claim 1, table 1, passes. The existing L3 parametrised case stays.
+  - A1 pass: "2 verified results" with two verified entries and one "not yet verified" entry.
+  - A1 fail: "2 verified results" with one verified entry.
+  - A1 zero: `NO_VERIFIED`, no verified entry, passes.
+  - A1 cases run only on a mini Site, and a cold Site board is skipped.
+
+**2.5 Tests**
+- **New `backend/tests/test_mb1_opportunity_board.py` (L0):**
+  1. `opportunity_actions` truth table, one row per rule:
+     - MINI_TRIAL ignored;
+     - a domain intent with `origin_finding_id` ignored;
+     - `accepted_at == hi` excluded;
+     - `accepted_at > cutoff` excluded;
+     - no opportunity occurrence meeting `[lo, hi)` excluded;
+     - outcome recorded after cutoff gives `outcome` None;
+     - cutoff None sees the outcome;
+     - a row without the new keys gives `outcome` None;
+     - `ref.kind == "DOMAIN_VERDICT"`.
+  2. Claims with a fake `req`:
+     - 1 verified Finding thread + mill VERIFIED → `count.verified_results` 2 and `threads[code]["verified_actions"] == 1`;
+     - mill INEFFECTIVE → 1;
+     - mill thread also counted as a Finding thread → counted once;
+     - **recurred after verified** (the thread's last event RECURRED) → still 2;
+     - `count.open_threads` unchanged by the mill (opportunity-only thread);
+     - a failed thread read → every claim NOT_KNOWN, as today.
+  3. Compose with fake ports:
+     - S+0 shape → headline `f"{2} verified results"`, built from the constants;
+     - entries in code order; the mill entry's `link_ref` is DOMAIN_VERDICT;
+     - outcome None → "… not yet verified" with the Pending chip;
+     - `chain_threads` raising → board PARTIAL, `chain_threads` in `failed`, no mill entry, headline from the trials only;
+     - `chain_threads` default (None) → body byte-equal to the same fake without the port.
+  4. `_verified_results` equals the headline's number on the S+0 fake.
+- **New `backend/tests/test_mb1_site_actions_postgres.py` (L2, own DB).** Sequence:
+  1. `_threads(mill, ("b",))`;
+  2. `_frozen(mill, "mb1")` (from `test_ch9b3_mill_verdict_postgres`);
+  3. `_threads(mill, ("b", "c"))`;
+  4. `_later(mill, eff, "11.5")`; `clock.at = _after(eff, tz, 5)`; `evaluate_domain_plan` → VERIFIED;
+  5. `_lifecycle(mill)`.
+  - Assert:
+    - `PostgresChainRead(URL).site_threads(t, s, None)` has the mill row with `outcome == "VERIFIED"` and `outcome_recorded_at` equal to the stored row;
+    - with `known_at` one second before that `recorded_at`, `opportunity_actions` gives `outcome` None;
+    - the trial-shaped rows (none here) and the column count of a MINI_TRIAL row are covered by L0;
+    - `opportunity_actions` over the real rows with the occurrence's window gives one item;
+    - `estate_count_claims` through a `ChainReader` on this DB gives `threads[code]["verified_actions"] == 1`.
+  - If the fixtures cannot be combined in this order within 0.1 unit, stop (S-a).
+- **Existing tests, updated by import, never retyped:**
+  - `test_ch5a2_contract.py` (fakes);
+  - `test_out_b2_mini.py`;
+  - `test_out_b3_cold_ev.py` (Cold and EV byte-equal; must pass unchanged);
+  - `test_ch6b2_portfolio_cards.py` (`threads` dict gains `verified_actions`; Grow, Protect and Optimize cards byte-equal);
+  - `test_demo_combined_ex1.py` (its 3 verified-count references stay computed);
+  - `T/checks/test_chain_coherence.py`.
+- **Finish row MILL-5 (written now, runs at E3), in `T/demo_combined_finish.py` after F-THREADS.** On the S+0 Kobo board and the week `/api/estate/chain`, assert:
+  - the Assure row has a contributor whose `link_ref` is `{"kind": "DOMAIN_VERDICT", "id": <mill id>}`, with text `VERIFICATION_TEXT["VERIFIED"].format(code=display_code(code), suffix=provenance_suffix(None))`;
+  - the headline count equals the count of verified entries;
+  - the week claim `count.verified_results` equals `Σ threads.verified + Σ threads.verified_actions`, with Kobo's `verified_actions == 1`;
+  - SQL: the mill's one `verification_outcome` is VERIFIED.
+  - Add an L0 self-test with fixture bodies (pass and fail) beside the MILL-3b one.
+- **Guards:** A, W, N, V, M, and `node tools/checks/frontend-hardwiring.mjs` (the count does not rise). Fast tier for the shared board code (`board.py`, `mini.py`, `read.py`).
+- **Not run:** the full suite, prepare, baseline build.
+
+**2.6 Stops (report; never design around)**
+- **S-a.** The L2 fixture order fails.
+- **S-b.** Any Cold or EV byte change, or any Kobo Grow, Optimize or Protect row change.
+- **S-c.** The mill opportunity thread has no reachable link at read time (`_SITE_ACTIONS` gives no DOMAIN_INTENT row with `thread_id`).
+- **S-d.** Guard A rejects the local `thread_lifecycle_policy` import in `read.py`. Report the message.
+- **S-e.** Any change needs a schema change.
+- **S-f.** The work exceeds 0.9 unit.
+
+### 3. MB-1b card: the mill's thread line on Grow, 0.55
+
+**Depends on MB-1a merged.** Branch `task/FUEL-MB1b-mill-thread-line` from main after MB-1a. Worktree `C:\Users\assef\Bineyame\AssetOpsV1-mb1b`. DB `assetops_mb1b_test`. A3's copy edits wait for MB-1b, not MB-1a (shared `board.py` and `mini.py`). PV-1 needs MB-1a only.
+
+**3.1 Files.** `B/site_outcomes/mini.py` (the view), `B/site_outcomes/board.py` (fields, literals, line function, `_row`), `T/demo_combined_finish.py` (MILL-4, F-THREADS), and tests per 3.4. No other file.
+
+**3.2 Literals, `board.py`, beside `THREAD_MONITORING`, verbatim:**
+```python
+#: MB-1-R Q3: the thread line of an opportunity thread (the mill): a change to use spare solar, not a fix of a fault;
+#: "checked and working" is the thread page's own word for RESOLVED_MONITORING.
+OPP_THREAD_MONITORING = "Change checked and working ({code}) · {k} more fully checked days to close"
+OPP_THREAD_CLOSED = "Change checked and closed ({code}) · spare solar not seen again in {n} fully checked days"
+OPP_THREAD_SEEN_AGAIN = "Spare solar seen again on {day} after the change ({code})"
+```
+- BEFORE_CHANGE reuses `THREAD_BEFORE` alone ("Before the change on {e}"), with no "after the change" suffix. The suffix judges the row's state on another day, and the Grow row has no such judge. A bare true line is better than "not judged yet", which can be false. This kind is unreachable on the story's built days.
+- Add all three to `test_out_b2_vocabulary.py`'s list beside `THREAD_MONITORING` (`:78-79`).
+- If guard V or N rejects any of them, stop (S-g) with the message and a proposed wording.
+
+**3.3 Build**
+- `OpportunityActionFact` gains these defaulted fields: `view: Mapping[str, Any] | None = None`, `action_segment: int | None = None`, `category: str | None = None`, `count_known: bool = True`.
+- In `mini.compose`, for each opp item, with `ct`, `day` (the board day), `site_timezone` and `day_facts`:
+  1. **Occurrences.** Take the thread's occurrence rows with `episode_start < end` (started by the board day; the rows are already visible at `k`). `latest` is the one with the highest `occurrence_no`.
+     - None, `day_facts` None or `site_timezone` None → `view = None`.
+  2. `evs = lc.visible(<the thread's events from ct.rows, as site_chain._events>, ct.k)`.
+  3. `starts` = the local start day of **every** visible occurrence of the thread. `complete = lc.fully_checked_days(day_facts.rows, latest["subject_ref"], ct.policy.measures_for(latest["mechanism"]), starts)`.
+  4. `view = lc.thread_view(evs, lc.Occurrence(latest["opportunity_id"] or latest["finding_id"], local start day), day, ct.k, complete, ct.policy.close_after(SITE_TYPE_OF_DOMAIN[MINI]))`.
+  5. `count_known = verified_day is None or verified_day >= local_days(work_lo, end, tz)[0]`. Here `verified_day` is the last `RESOLVED_MONITORING` effective day ≤ `day` in `view["events"]`.
+  6. `action_segment`: the `segment_no` of this Action in `site_chain.actions_of(ct.rows, [thread_id], site=c, tz=site_timezone, cutoff=ct.k, verification={})`. Reuse it, never re-derive.
+  7. `category`: the first MOVES category of `categories_for(thread_signal_key(latest["mechanism"]), MINI)`. It is `GROW_REVENUE` for the mill; a test pins that.
+- `board.py`:
+  - Lift `thread_line_item`'s inner `item` into a module-level `_line_item(...)`. Its keys, key order and values are unchanged, and `thread_line_item` calls it. **Every existing thread-line output is byte-equal** (existing tests pin it).
+  - Add `opportunity_line_item(o: OpportunityActionFact, facts: SiteFacts) -> dict | None`, with `d = facts.day`, `v = o.view`, `code = display_code(o.code)`. Return None when `v` or `d` is None. Otherwise the first matching case applies:
+    1. `e = v["change_day"]`, and `e` is set with `d < e` → `BEFORE_CHANGE`, `THREAD_BEFORE.format(e=_short_day(e))`, effective `e`;
+    2. `v["state"] == "RECURRED"`, `o.action_segment` is set and less than `v["segment_no"]`, and `v["recurred_day"]` is set → `RECURRED`, `OPP_THREAD_SEEN_AGAIN.format(day=_short_day(v["recurred_day"]), code=code)`;
+    3. `v["state"] == "CLOSED"` and `o.action_segment == v["segment_no"]` → `CLOSED`, `OPP_THREAD_CLOSED.format(code=code, n=n)`, `clean=n`, with `n = int(v["close_after"])`;
+    4. `v["state"] == "RESOLVED_MONITORING"`, `o.action_segment == v["segment_no"]` and `o.count_known` → `MONITORING`, `OPP_THREAD_MONITORING.format(code=code, k=r)`, `remaining=r`, with `r = max(0, n - int(v["checked_days"]))`;
+    5. anything else → None.
+  - In every case: `thread_id = o.thread_id`, `action_code = o.code`, `ref = refs.thread_ref(site, thread_id)` (the thread page, whose Action link is already the verdict page).
+  - `_row` (`board.py:950-957`): after the Finding loop, for `o` in `sorted(facts.opportunity_actions, key=(code or "", id))` with `o.category == cat`, append `opportunity_line_item(o, facts)` when it is not None and its text is new. The subline joins as today.
+  - Header comment: **MOCK DEVIATION MD-FUEL-MB1-2**.
+    - v69's Grow row has no thread line.
+    - The CH-3 thread line (already a deviation on the Optimize row) now also appears on Grow for an opportunity thread, in opportunity wording.
+    - Add a packet row.
+
+**Expected client view (computed at E3 by MILL-4, never typed):**
+
+| Story day | Grow row, the mill's line |
+|---|---|
+| S-11 | none (the Action is not raised yet) |
+| S-8 | "Change checked and working (ACT-000002) · {k} more fully checked days to close" |
+| S-5, S-1, S+0 | "Spare solar seen again on 31 Oct after the change (ACT-000002)", if the 10-31 recurrence is a visible started occurrence; else the S-8 kind |
+
+**3.4 Tests**
+- **New `backend/tests/test_mb1_thread_line.py` (L0):**
+  - one case per kind: MONITORING with `r` computed from given complete days, CLOSED, RECURRED, BEFORE_CHANGE, and None;
+  - `count_known` False gives no MONITORING line;
+  - S-8 selection: a later occurrence starting after the board day is excluded, so the line is MONITORING, not RECURRED;
+  - a RECURRED view with the Action in the same segment gives None;
+  - **parity:** `complete` equals `lifecycle_run.thread_clean_days` over the same snapshot and occurrence rows;
+  - `category == "GROW_REVENUE"` for `PRODUCTIVE_USE_HEADROOM`;
+  - the Grow subline equals the sales subline plus " · " plus the line;
+  - Kobo Optimize and Protect rows byte-equal with and without the mill.
+- **Existing tests:**
+  - `test_ch3_rows.py` (Finding lines byte-equal);
+  - `test_out_b2_mini.py`;
+  - `test_out_b3_cold_ev.py` (must pass unchanged);
+  - `test_out_b2_vocabulary.py`;
+  - `T/checks/test_chain_coherence.py` (COH-14 reads `kind`, unchanged; run it).
+- **Finish rows (written now, run at E3):**
+  - **MILL-4.** The S+0 and S-8 Kobo boards' Grow `thread_lines` hold one item with `action_code` = the mill code and `kind` in (MONITORING, CLOSED, RECURRED). Its `text` equals the matching literal formatted from the item's own fields (`remaining_days`, `clean_days`, `effective_day`), and `ref.kind == "THREAD"`.
+  - **F-THREADS** adds: the S-8 Grow row carries the mill's line; report its kind and text.
+  - Add an L0 self-test with a fixture body (pass and fail).
+- **Guards:** as in MB-1a. Fast tier.
+
+**3.5 Stops**
+- **S-g.** A guard rejects a literal.
+- **S-h.** Any existing thread-line byte change, or any Cold or EV change.
+- **S-i.** `day_facts.rows` lacks `daylight_headroom_kw` on a day the lifecycle counted. The parity test shows it; report, never patch the count.
+- **S-j.** The work exceeds 0.65 unit.
+
+### 4. Plan and order delta
+
+- **Lane 1:** MV-1 → **MB-1a (0.8) → MB-1b (0.55)** → WD-1 → PV-1. That is 2.75, against §1.1's 2.65.
+- PV-1 depends on MB-1a (the Assure row and `OpportunityActionFact`), not on MB-1b. A3's copy edits depend on MB-1b.
+- FUEL-1 total: +0.1 → **5.45**. The new plan total is ≈ 117.4.
+- §3.1's "Expected client view" S-5 line is superseded by Q4.
+- **Owner question: none.**
+
+---
+
+## A2-R1: ruling on review-A2 L1 and L4 (Architect, Claude, 2026-11-07)
+
+Source: `.agent/review-A2.md` (A2 worktree) L1 and L4. This amends §4.2. It lands in **A2's current fix round**, beside H1. No golden is affected: the H1 goldens are `/1` or rate-less, and they carry no `priced_total`.
+
+### L1: a priced total is stored only when it is a positive amount
+
+- **Decision.** Keep the classification as it is. The state stays per demand kWh, which is the v1 rule that `/1` byte-equality and the board's per-kWh line rest on. Add `priced_total` only when its amount is above 0. A `priced_total` names fuel the trial hour did not burn. A negative total is not that, and it must not exist as a stored fact for any reader (Portfolio, `_cost_check_read`, A3, PV-1).
+- **Rejected options.**
+  - Guarding in A3's copy leaves a negative "total" stored, append-only, and exposed by `_cost_check_read`. Every later reader would then have to repeat the guard.
+  - Reclassifying on the absolute difference changes v1 semantics and the state of rows that are already stored.
+- **Code** (`backend/assetops_backend/financials/trial_fuel_comparison.py`, `compare`, `:196-200`):
+  - compute `amount = bw["_cost"][0] - lw["_cost"][0]` first;
+  - set `priced_total` only when `v2 and state == "MODELLED_IMPROVEMENT" and amount > 0`. The dict is unchanged otherwise.
+  - Because `PRICE_BASIS_DIFFERS` guarantees one price revision, a positive price makes `amount > 0` equivalent to `fuel_change_l > 0`. A zero price gives no total, which is correct.
+  - Add one clause to the module docstring (`:12`): "stored only when the amount is above 0".
+  - The §4.2 bullet now reads: "on `MODELLED_IMPROVEMENT` **with a cost difference above 0**, the result gains `priced_total`".
+- **Test** (`backend/tests/test_tfc2.py`, next to `test_no_improvement_has_no_priced_total`):
+  - `test_improvement_with_more_fuel_in_the_later_hour_has_no_priced_total`:
+    - `out = run(window(B0, 10, 0, ("b1",), Fraction(100)), window(L0, 10, 300, ("l1",), Fraction(110)))`;
+    - assert `(out["formula"], out["state"]) == ("trial-fuel-comparison/2", "MODELLED_IMPROVEMENT")`;
+    - assert `out["change_per_demand_kwh"]["nominal"] == vr.fmt(Fraction(1, 3520))`;
+    - assert `"priced_total" not in out`;
+    - assert `credit.credited({**out, "outcome_id": "outcome-1"}, "VERIFIED") is None`.
+  - Non-vacuity: revert the `amount > 0` condition, and the test fails on the `priced_total` assertion. Record this in the packet.
+  - Run `test_tfc2.py` and `test_ch3_rows.py` only (L0, no DB).
+- **A3 consequence.** A3 needs no copy guard of its own. `COST_PRICED`, the Assure litres clause and the verification-page line key on the **presence** of `priced_total`, as §4.3 already says. A3 must not add a second sign check. Without the key, today's per-kWh lines stay.
+
+### L4: D1 wording for `IDLE_SECONDS_UNKNOWN`
+
+- **Decision** (`backend/assetops_backend/site_outcomes/board.py:90`):
+  `"IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for one or both hours",`
+- **Why not "for one of the hours".** The reason fires when either window's idle seconds are None, which includes both. "One or both" is true in every case, and it does not read as "neither".
+- Delete the "builder-proposed ... Architect to confirm" comment at `:89` and replace it with `# FUEL-1 A2 (A2-R1): words for the two /2 reasons`. `NO_LOAD_RATE_DIFFERS` keeps its text.
+- `GENERATOR_KWH_UNKNOWN` (`:85`, "not known for both hours") predates A2 and is shown on Kobo's stored rows. It is **not** changed here, and it goes to WD-1's money-wording pass as a note.
+- **Guard.** The words reuse the already-passing vocabulary ("the generator's idle time is not known for") and add only "one or both". Run `backend/tests/test_out_e4_readback.py` (`test_no_code_on_screen_and_saving_only_in_not_realised_savings` and the reason-set test) to confirm.
+
+**Owner question: none.**

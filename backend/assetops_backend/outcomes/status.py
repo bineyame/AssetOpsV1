@@ -1,4 +1,4 @@
-"""OUT-B1: outcome status, policy `outcome-status/3` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17;
+"""OUT-B1: outcome status, policy `outcome-status/4` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17;
 OUT-D U2 adds the declared-objective rules 4c, 7, 7b and 7c, build sheet OUT-D §3 U2).
 
 Pure. The state of one site-level outcome is the first matching rule; a category row rolls its outcomes up by a
