@@ -35,6 +35,7 @@ from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, COST_SMALL, I
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI,
     SITE_OUTCOMES)
+from assetops_backend.outcomes.credit import MONEY_NOT_CREDITED
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
 from assetops_backend.outcomes.outcome_map import POLICY_VERSION
 from assetops_backend.outcomes.status import NEEDS_ATTENTION, STATE_LABEL, STATE_TONE, STATUS_POLICY, UNKNOWN
@@ -299,13 +300,17 @@ class SiteOutcomeBoardService:
             req = chain()
             return mini.ChainThreads(req.threads(sid), req.k, None if s.thread_policy is None else s.thread_policy())
 
+        # PV-1-R §1: the verdict page's own `value` of a VERIFIED mill Action (MV-1), through the injected service.
+        def verdict_value(action_id: str) -> Any:
+            return jsonable_encoder(_need(s.verification, "verification").domain_summary(t, sid, UUID(action_id))["value"])
+
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
                               placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
                               productive_readings=productive_readings, productive_price=productive_price,
-                              opportunity=opportunity, chain_threads=chain_threads)
+                              opportunity=opportunity, chain_threads=chain_threads, verdict_value=verdict_value)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -812,6 +817,11 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
     else:
         unchecked = card_text("assure.unchecked", sites=sites_text(objectives_unread)) if objectives_unread else ""
         assure_detail = card_text("assure.targets", sites=sites_text(n), unchecked=unchecked)
+    # PV-1-R §2: one line per verified result with money, Site order then code order; no total, no sum.
+    value_lines = [card_text("assure.value_line", site=s.get("site_name") or s["site_code"], text=e["text"])
+                   for s in sites
+                   for r in s.get("rows") or () if r["category"] == ASSURE
+                   for e in (r.get("nodes") or {}).get("verified_values") or ()]
     return {
         GROW: _grow_card(sites, money_total),
         COST: _optimize_card(sites),
@@ -822,7 +832,8 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
                   "tone": "red" if (disrupted.get("value") or 0) >= 1 else "neutral", "claim": disrupted},
         ASSURE: {"value": count_card_value(verified, card_text("assure.zero")), "missing": False,
                  "detail": assure_detail, "basis_text": card_text("assure.basis"), "days_line": site_days,
-                 "tone": "neutral", "claim": verified},
+                 "tone": "neutral", "claim": verified, "value_lines": value_lines,
+                 "value_note": card_text("assure.values_separate") if value_lines else MONEY_NOT_CREDITED},
     }
 
 

@@ -507,6 +507,9 @@ CARD_TEXT = {
     "assure.targets_none": "no targets declared",
     "assure.targets": "targets declared at {sites}, for any outcome{unchecked}",
     "assure.unchecked": ", {sites} not checked",
+    # PV-1-R §2: the Assure card's verified-value lines (one per result, never added) and their clause.
+    "assure.value_line": "{site} · {text}",
+    "assure.values_separate": "Each result's money is shown on its own and never added together",
     # The Portfolio-body clauses (`card_notes`, CH6b2-R Q1), today's `checkedDaysClause` / `evidenceGapText`.
     "note.withheld_one": " · findings next to unchecked days not shown yet",
     "note.withheld_many": " · findings next to those days not shown yet",

@@ -81,6 +81,9 @@ def _constants() -> list[str]:
              board.OPP_THREAD_MONITORING.format(code="ACT-002", k=7), board.OPP_THREAD_CLOSED.format(code="ACT-002", n=7),
              board.OPP_THREAD_SEEN_AGAIN.format(day="31 Oct", code="ACT-002"),
              board.TRIAL_SCOPE.format(start="10:00", end="11:00", day="1 Nov"), credit.MONEY_NOT_CREDITED]
+    # PV-1-R §3: the two verified-value lines (the card prefixes the Site via CARD_TEXT `assure.value_line`).
+    copy += [mini.VALUE_LINE_MILL.format(code="ACT-002", d="17.00", cur="USD"),
+             mini.VALUE_LINE_TRIAL_FUEL.format(code="ACT-001", l="3.3", amount="4.12", cur="USD")]
     # CH-5b2: every "Why?" template, formatted with plain sample values, and every measure label.
     from assetops_backend.chain import vocabulary as cv
     sample = {"site": "Kobo", "category": "Grow revenue", "label": "Unused daytime solar", "k": 3, "s": "s",

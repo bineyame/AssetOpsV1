@@ -1737,3 +1737,84 @@ class FuelBalanceReadPort(Protocol):
 ### 9d.11 Owner questions
 
 None.
+
+---
+
+## 9e. Ruling DIESEL-1-R3e: F0 evidence line endings (K1 review L1)
+
+- Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `da51c7a8a`. Source: L1 in `.agent/review-K1.md` on `task/DIESEL-K1-kisiwa-site` at `5218fba34`.
+- **What the Architect verified on this checkout** (`core.autocrlf=true`; `git ls-files --eol` gives `i/lf w/crlf` for all five files under `.agent/DIESEL-F0/` and `.agent/DIESEL-D0/`):
+  - `T/probe_kisiwa_nights.py --check` prints "probe result current (G6 pass)".
+  - `T/probe_kisiwa_fuel.py --check` prints "probe result differs from the committed file".
+  - A field-by-field diff of a fresh seeded `build()` against the committed F0 JSON shows **exactly two differences**: `assumptions.actions_sha256` and `assumptions.registered_path.bindings_sha256`. Both are working-copy CRLF hashes against committed LF hashes. Every litre, band, state, gap, dip, count and gate value is equal.
+  - When each input is hashed after normalising it to LF (`read_text(encoding="utf-8").encode("utf-8")`), the hashes are actions `77777c82…`, bindings `68a54ef8…` and D0 template `261b7e64…414b`. None of the three files contains a lone CR.
+- **D0 has no exposure.** `T/probe_kisiwa_nights.py:466-467` already hashes the template LF-normalised (`template_sha256_lf`). Its `--check` (`:506`) compares `read_text` output, which normalises line endings. D0's committed result already pins `template_sha256_lf = 261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b`, so the value F0 is re-pinned to is one D0 pre-registered independently. No D0 file is edited.
+
+### 9e.1 Decision: the correction happens, as unit F0e
+
+1. **Probe (`T/probe_kisiwa_fuel.py`, the only code edit).**
+   - Add `def _sha256_lf(path): return hashlib.sha256(path.read_text(encoding="utf-8").encode("utf-8")).hexdigest()`. This is D0's pattern (`probe_kisiwa_nights.py:466-467`).
+   - Use it at `:698` (`d0_template_sha256`), `:699` (`actions_sha256`) and `:708` (`bindings_sha256`).
+   - Key names stay as they are. Renaming them would move more of the pre-registered file than this fix needs.
+   - `IMPORT_PATH`'s payload hash (`:261-262`) is canonical YAML and stays untouched.
+2. **Re-pin by `--write`, never by hand.** The only line `git diff .agent/DIESEL-F0/probe-result.json` may show is `d0_template_sha256`, changing from `d9a4107a…aa11` to `261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b`. Any other changed line is a stop.
+3. **`.gitattributes`**, appended after the PERF-01 lines:
+   ```
+   # DIESEL-1-R3e: Kisiwa probe evidence (pre-registered inputs and committed results) is LF on every host
+   .agent/DIESEL-F0/* text eol=lf
+   .agent/DIESEL-D0/* text eol=lf
+   ```
+   - **No renormalise commit is needed.** The index already holds LF for all five files. Proof: `git add --renormalize .agent/DIESEL-F0 .agent/DIESEL-D0`, after which `git diff --cached --name-only` lists none of them except the intentionally edited `probe-result.json`.
+   - The rule is belt and braces. After item 1, both `--check`s are independent of checkout line endings. The rule makes the working-copy bytes equal the blob bytes, so a plain `sha256sum` by any reviewer matches the pins.
+4. **Evidence note.** Append a section "Evidence correction (DIESEL-1-R3e)" to `.agent/DIESEL-F0-probe-results.md`. It records the cause (a mixed CRLF and LF reference), the one re-pinned value with its old and new hashes, the fact that it equals D0's `template_sha256_lf`, and the proof outputs of §9e.3. The section uses plain words and changes no earlier text.
+5. **K1's monkeypatch** (`host/tests/test_k1_registered_kisiwa.py:94-101`, the `Path.read_bytes` patch and its comment) is removed. After item 1 the probe no longer calls `read_bytes` on those files, so the patch is inert, and leaving it would misstate why the parity test holds. See §9e.2 for who removes it.
+
+**Why this re-pin is admissible under §9.4's evidence integrity:** the value re-pinned is an *input identity*, not a measurement. The proof shows the following:
+- the probe's parse of each file (`yaml.safe_load` and `json.loads` over `read_text`) is line-ending-blind;
+- the per-action `content_sha256` is over canonical JSON;
+- the field diff in §9e.3 (c) shows every measured value byte-equal.
+
+The new value was not computed to make a check pass. It is the LF blob hash and equals D0's independently committed pin. This is the F8 precedent (§9b item 1): the evidence changes where an identity was taken carelessly, and the measurement does not move.
+
+### 9e.2 Who and when
+
+- **A separate unit, F0e, now. Not folded into K3.** K3's S4 forbids it to edit either probe or its result, and K3 phase A is in build. Folding this in would mean re-carding a running builder. F0e touches no K3 file.
+- **Builder:** Sonnet, a fix-round class job (mechanical, like F8). Branch `task/DIESEL-F0e-probe-eol`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-f0e`, from main at or after `da51c7a8a`. Files: `T/probe_kisiwa_fuel.py`, `.agent/DIESEL-F0/probe-result.json`, `.gitattributes`, `.agent/DIESEL-F0-probe-results.md`, plus `host/tests/test_k1_registered_kisiwa.py` only in case (b) below. Commit with `git add -f` of those explicit paths.
+- **Verification:** the coordinator runs the §9e.3 mechanical checks. There is no reviewer judgement and no separate review, as with F8. Merge when every check passes.
+- **Sequencing with K1 (K1 is on the critical path; F0e never blocks it):**
+  - **(a) F0e merges before K1 is merge-ready (expected).** K1's fix round merges main and deletes the monkeypatch. Its own L2 run of `test_f0r_reproduces_on_the_registered_site` on `assetops_k1_test` is the proof. K1's reviewer or the coordinator confirms that the test passes with no patch.
+  - **(b) K1 merges first.** K1 merges with the monkeypatch, which is correct on this checkout and accepted by its reviewer. F0e then merges main, deletes the monkeypatch and runs that one test once on `assetops_k1_test` (an authorised test DB; machine idle; no suite).
+  - Rule: **the unit that merges second removes the monkeypatch.**
+- **Hard deadline:** F0e merges **before K3 phase B**. K3 §9d.6 requires both `--check`s to print "probe result current", and on main today the F0 check cannot pass on any checkout. F0e also merges before K7 and before any Linux or container run of either probe. K3 §9d.10 gains this dependency. Phase A is unaffected.
+
+### 9e.3 Proof steps (each output pasted into the evidence section)
+
+Run with `PYTHONPATH` set to the worktree's `simulator;backend;contracts;host`. The plan2 `.venv` is installed editable against another checkout. Without this, the probes import the wrong tree and fail with `ImportError`. That failure is not a probe result.
+
+- **(a) Before (CRLF, F0e worktree, before any edit).** D0 `--check` is current. F0 `--check` "differs", which records the defect.
+- **(b) After, CRLF working copies.** Apply items 1–3, run `--write` once, then run each `--check` in a fresh process, twice. Both print current. This is done before any re-checkout, so the evidence files are still CRLF on disk.
+- **(c) Field diff.** A scratch script compares the new committed JSON with `git show main:.agent/DIESEL-F0/probe-result.json` field by field. Exactly one path differs: `assumptions.d0_template_sha256`. `git diff --stat` shows one line changed in that file and no change to any `.agent/DIESEL-D0/` file.
+- **(d) After, LF.** Run `git -c core.autocrlf=false archive HEAD | tar -x` into a scratch directory, and confirm with `git ls-files --eol` or a byte check that the five evidence files have no CR. Run both `--check`s there with `PYTHONPATH` pointing at the extracted tree. Both print current. This is the Linux or fresh-clone case.
+- **(e) After re-checkout in the worktree.** Delete the five evidence files and run `git checkout -- .agent/DIESEL-F0 .agent/DIESEL-D0`. They come back LF (`w/lf`). Run both `--check`s; both print current. Run `git status`; the tree is clean.
+- **(f) Renormalise.** Run `git add --renormalize .agent/DIESEL-F0 .agent/DIESEL-D0`. Nothing is staged beyond the intended commit.
+- **(g) Band test.** `host/tests/test_probe_kisiwa_fuel_band.py` (no DB) passes unchanged.
+- **(h) Case (b) only.** The single K1 parity test passes without the monkeypatch.
+
+**Stops:**
+- (c) shows any second changed path;
+- any `--check` fails in (b), (d) or (e);
+- a lone CR or a non-UTF-8 byte is found in an input;
+- any D0 file would change.
+
+On a stop, the builder reports it and never adjusts a value by hand.
+
+### 9e.4 Size
+
+- **F0e: 0.1** (range 0.1–0.15): code and re-pin 0.03; the proof matrix 0.05; the evidence note 0.02. Case (b)'s one L2 test run adds about 0.03 if it happens.
+- Paid from contingency, 0.15 → 0.05. **The Kisiwa total stays 17.25.**
+- F0e is off the critical path: it runs in parallel now and only gates K3 phase B, which is at least half a unit away. The critical path is still about **8.75 lane-units**, below the 9.75 tripwire. **The demo date is unchanged** at about +3.25 working days.
+- After-the-demo list: none.
+
+### 9e.5 Owner questions
+
+None. For the owner, in plain words: one fingerprint in the fuel trial's record was taken from a Windows copy of a file instead of the stored copy, so the check failed on other machines. We fix how the fingerprint is taken. No measured fuel number changes.

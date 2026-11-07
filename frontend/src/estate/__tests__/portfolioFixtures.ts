@@ -462,10 +462,25 @@ export function serverCards(over: NonNullable<EstateOutcomeSummaryBody["cards"]>
       value: { text: "Not known yet", small: null },
       detail: "Verified results not known yet · evidence gap at 1 site",
       basis_text: "Completed work does not establish savings",
+      // PV-1-R §2: no verified result with money; the card carries the not-credited clause.
+      value_lines: [],
+      value_note: "No money credited · modelled, not saved",
     }),
     ...over,
   };
 }
+
+/** PV-1-R §2/§3: the Assure server card with two verified-value lines (one per result, never added). */
+export const ASSURE_WITH_VALUES = serverCard({
+  value: { text: "2", small: "verified results" },
+  detail: "no targets declared",
+  basis_text: "Completed work does not establish savings",
+  value_lines: [
+    "Kobo · ACT-001: about 3.3 L, 4.12 USD less diesel in the one-hour trial (modelled, not metered)",
+    "Kobo · ACT-002: about 17.00 USD a day more in estimated sales to productive users (your declared price)",
+  ],
+  value_note: "Each result's money is shown on its own and never added together",
+});
 
 export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {}): EstateOutcomeSummaryBody {
   const rows: Record<string, EstateOutcomeSummaryRow[]> = {
