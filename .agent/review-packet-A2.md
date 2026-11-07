@@ -50,9 +50,10 @@
 
 - Touched L0: `test_tfc2 test_out_e2_trial_comparison test_ch3_rows test_out_e4_readback test_s6_verification_rules test_s6_verification_verdict test_w303_portfolio_api test_out_d4_board test_ch6b2_portfolio_cards test_fuel_cost_v2 test_out_a1_outcome_map`: 261 passed, 1 skipped (the w303 Postgres case, no URL set in that run).
 - Adjacent L0 (60 non-Postgres files: `test_out_*`, `test_s6_*`, `test_ch3*`, `test_ch5*`, `test_ch6*`, `test_w303*`, `test_fuel_cost*`, `test_s4_fuel*`, both contract files): 1263 passed, 5 failed, 1 skipped, 66 s. The 5 failures also fail on main `a5fd09971` with this branch absent (same run there: 5 failed, 66 passed): `test_ch5a1_scope::test_window_memo_excludes_knowledge_at_only_without_a_cutoff` (`prefetched` kwarg), `test_ch5a2_contract::test_chain_body_equals_its_golden[estate_week_2026-10-25]`, `test_ch5c2_clock_guard` x2 (`financials/recompute.py:214 datetime.now`, `postgres_objective_store` allowlist), `test_out_d2_objectives::test_policy_is_v2` (`outcome-status/4`). Not caused by A2.
-- Postgres, own base `assetops_a2_test` (created empty; harness clones), 127.0.0.1:55432, free RAM 3.6-4.6 GB before each: `test_fuel_cost_v2_postgres.py test_out_e3_trial_comparison_postgres.py` at `a5abb3368`: 12 passed, 208 s. `test_out_e3` re-run at `7a390ea66` after its two added asserts: see below.
+- Postgres, own base `assetops_a2_test` (created empty; harness clones), 127.0.0.1:55432, free RAM 3.6-4.6 GB before each: `test_fuel_cost_v2_postgres.py test_out_e3_trial_comparison_postgres.py` at `a5abb3368`: 12 passed, 208 s. `test_out_e3_trial_comparison_postgres.py` re-run at `7a390ea66` after its two added asserts: 4 passed, 202 s.
+- Frontend: `npm ci` then `npx tsc --noEmit -p .` in `frontend/`: exit 0 (112 s together). No frontend test touched (the only fixture holds `recovered_value: null`).
 - Non-vacuity: (1) `consequence_read.select_consequence_on` reverted to `fc.quantify`/`fc.consequence` -> the L1 test fails with `STALE / TECHNICAL_INPUT_CHANGED`; restored with `git checkout`. (2) a summed field `21.125` injected into `recovered_value` -> the no-sum test fails on the sum check; restored.
-- Guards: see below.
+- Guards at `7a390ea66`, `ASSETOPS_GUARD_PYTHON` = plan2 venv, no execution-policy override: `tools/check-architecture.ps1` "Architecture check passed." exit 0; `tools/check-agent-workflow.ps1` "Agent workflow check passed." exit 0 (381 s together).
 - Not run (per ruling): full suite, prepare, baseline build, `test_demo_combined_postgres`.
 
 ## Known deviations and judgement calls
