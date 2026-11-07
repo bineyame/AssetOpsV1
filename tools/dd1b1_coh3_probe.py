@@ -107,7 +107,7 @@ def judge(doc: dict, data: dict, pairs: list, coh3: list, received: dict, cold_d
         checks[f"thread.{site}.linked"] = bool(linked)
         checks[f"thread.{site}.ACTION_IN_HAND"] = bool(linked) and all(t["state"] == "ACTION_IN_HAND" for t in linked)
         board = boards.get(code) or {}
-        hrefs = [str(i.get("href")) for i in board.get("in_hand") or []]
+        hrefs = [str(i.get("href")) for r in board.get("rows") or [] for i in r.get("in_hand") or []]
         checks[f"board.{site}.in_hand_lists_action"] = any(str(action["id"]) in h for h in hrefs)
     checks["coh3.findings==0"] = not coh3
     completes = [w for w in data["completes"] if w["site_code"] == COLD]
@@ -197,8 +197,9 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
     doc["coh3_pairs"] = pairs
     doc["coh3_findings"] = coh3
     doc["stored"] = data
-    doc["boards"] = {code: {"in_hand": b.get("in_hand"),
-                            "rows": [{"category": r.get("category"), "state": r.get("state")} for r in b.get("rows") or []]}
+    doc["boards"] = {code: {"window": b.get("window"),
+                            "rows": [{"category": r.get("category"), "state": r.get("state"),
+                                      "in_hand": r.get("in_hand")} for r in b.get("rows") or []]}
                      for code, b in boards.items()}
     doc["cold_blocked"] = [d.get("blocked") for d in cold_doc["days"]]
     doc["checks"] = judge(doc, data, pairs, coh3, received, cold_doc, boards, step_d, tick_events)

@@ -1,0 +1,288 @@
+{
+ "probe": "DD1b1-R Q6",
+ "cap_seconds": 1200,
+ "seconds": {
+  "cold": 14,
+  "ev": 29,
+  "backfill": 32,
+  "ticks": 190
+ },
+ "stopped": null,
+ "database": "assetops_pt138cf921_dd1b1_test",
+ "received_at": {
+  "ev": "2026-11-03T09:30:00Z",
+  "cold": "2026-11-05T17:05:00Z"
+ },
+ "step_d": {
+  "counts": {
+   "ACTION_IN_HAND": 2
+  },
+  "skipped": 1,
+  "skipped_causes": [
+   {
+    "cause": "ACTION_APPLIED",
+    "cause_id": "9c9917e3-0770-4a7c-8e7b-ffc5f18edb08",
+    "from_state": "OPEN",
+    "reason": "ILLEGAL_TRANSITION",
+    "thread_id": "0e20c835-d93c-592c-a507-36670794e253"
+   }
+  ],
+  "step": "d",
+  "threads": [
+   {
+    "effective_day": "2026-11-05",
+    "mechanism": "COLD_EXCURSION",
+    "site_code": "COLD-LAB-001",
+    "site_id": "5f471a72-e7c8-4c49-9340-66e034032aff",
+    "state": "OPEN",
+    "thread_id": "e3c338c0-4289-543e-9060-8b08cf85171a"
+   },
+   {
+    "effective_day": "2026-11-05",
+    "mechanism": "COLD_START_FAILURE",
+    "site_code": "COLD-LAB-001",
+    "site_id": "5f471a72-e7c8-4c49-9340-66e034032aff",
+    "state": "ACTION_IN_HAND",
+    "thread_id": "0e20c835-d93c-592c-a507-36670794e253"
+   },
+   {
+    "effective_day": "2026-11-03",
+    "mechanism": "EV_INTERRUPTION",
+    "site_code": "EV-LAB-001",
+    "site_id": "b89ffd1e-e481-4763-a32b-a866359bf406",
+    "state": "ACTION_IN_HAND",
+    "thread_id": "59b0e52c-df82-518e-a849-812a2f7d063c"
+   }
+  ],
+  "written": 2
+ },
+ "tick_events": 0,
+ "ticks": 3,
+ "coh3_pairs": [],
+ "coh3_findings": [],
+ "stored": {
+  "actions": [
+   {
+    "site_code": "COLD-LAB-001",
+    "id": "fae65844-28e6-4c68-8b64-8a70285b3c83",
+    "action_code": "ACT-000001",
+    "origin_finding_id": "cd67674e-8d2f-4a90-b958-d9770ffea410",
+    "raised_at": "2026-11-05 17:15:00+00:00",
+    "recorded_at": "2026-11-05 17:15:01+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "id": "ac1d25f7-d0ea-46ad-bed8-78bbc76ba659",
+    "action_code": "ACT-000002",
+    "origin_finding_id": "2a9a1eed-8739-4f92-b4e7-ebaaf625dc1e",
+    "raised_at": "2026-11-03 09:40:00+00:00",
+    "recorded_at": "2026-11-03 09:40:01+00:00"
+   }
+  ],
+  "intents": [
+   {
+    "action_id": "fae65844-28e6-4c68-8b64-8a70285b3c83",
+    "declared_at": "2026-11-05 17:15:04+00:00",
+    "recorded_at": "2026-11-05 17:15:05+00:00"
+   },
+   {
+    "action_id": "ac1d25f7-d0ea-46ad-bed8-78bbc76ba659",
+    "declared_at": "2026-11-03 09:40:02+00:00",
+    "recorded_at": "2026-11-03 09:40:03+00:00"
+   }
+  ],
+  "completes": [
+   {
+    "site_code": "COLD-LAB-001",
+    "occurred_at": "2026-11-05 16:42:00+00:00",
+    "recorded_at": "2026-11-05 17:11:04+00:00",
+    "action_id": "fae65844-28e6-4c68-8b64-8a70285b3c83"
+   }
+  ],
+  "findings": [
+   {
+    "site_code": "COLD-LAB-001",
+    "finding_id": "a3dfec2e-397e-450d-882a-fa1b0279f13d",
+    "mechanism": "COLD_EXCURSION",
+    "created_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "finding_id": "cd67674e-8d2f-4a90-b958-d9770ffea410",
+    "mechanism": "COLD_START_FAILURE",
+    "created_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "finding_id": "2a9a1eed-8739-4f92-b4e7-ebaaf625dc1e",
+    "mechanism": "EV_INTERRUPTION",
+    "created_at": "2026-11-03 09:35:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "finding_id": "2a9a1eed-8739-4f92-b4e7-ebaaf625dc1e",
+    "mechanism": "EV_INTERRUPTION",
+    "created_at": "2026-11-03 09:35:00+00:00"
+   }
+  ],
+  "selections": [
+   {
+    "site_code": "COLD-LAB-001",
+    "window_start": "2026-11-05 16:00:00+00:00",
+    "selected_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "window_start": "2026-11-05 16:00:00+00:00",
+    "selected_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "window_start": "2026-11-03 08:00:00+00:00",
+    "selected_at": "2026-11-03 09:35:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "window_start": "2026-11-03 08:00:00+00:00",
+    "selected_at": "2026-11-03 09:35:00+00:00"
+   }
+  ],
+  "jobs": [
+   {
+    "site_code": "COLD-LAB-001",
+    "domain": "cold_chain",
+    "available_at": "2026-11-05 17:05:00+00:00",
+    "created_at": "2026-11-05 17:05:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "domain": "ev_charging",
+    "available_at": "2026-11-03 09:00:00+00:00",
+    "created_at": "2026-11-03 09:00:00+00:00"
+   }
+  ],
+  "threads": [
+   {
+    "site_code": "COLD-LAB-001",
+    "mechanism": "COLD_START_FAILURE",
+    "thread_id": "0e20c835-d93c-592c-a507-36670794e253",
+    "state": "ACTION_IN_HAND",
+    "effective_day": "2026-11-05",
+    "action_id": "fae65844-28e6-4c68-8b64-8a70285b3c83"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "mechanism": "EV_INTERRUPTION",
+    "thread_id": "59b0e52c-df82-518e-a849-812a2f7d063c",
+    "state": "ACTION_IN_HAND",
+    "effective_day": "2026-11-03",
+    "action_id": "ac1d25f7-d0ea-46ad-bed8-78bbc76ba659"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "mechanism": "COLD_EXCURSION",
+    "thread_id": "e3c338c0-4289-543e-9060-8b08cf85171a",
+    "state": "OPEN",
+    "effective_day": "2026-11-05",
+    "action_id": null
+   }
+  ],
+  "event_count": 5,
+  "linked_case_events": [
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "COMPLETE"
+   },
+   {
+    "case_kind": "INCIDENT",
+    "event": "CREATED"
+   },
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "ASSIGN"
+   },
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "CREATED"
+   }
+  ]
+ },
+ "boards": {
+  "EV-LAB-001": {
+   "in_hand": null,
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "WATCH"
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NOT_MEASURED"
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NEEDS_ATTENTION"
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "WATCH"
+    }
+   ]
+  },
+  "COLD-LAB-001": {
+   "in_hand": null,
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "NOT_MEASURED"
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "UNKNOWN"
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "UNKNOWN"
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "UNKNOWN"
+    }
+   ]
+  }
+ },
+ "cold_blocked": [
+  null
+ ],
+ "checks": {
+  "pairs.cold>=1": false,
+  "action.cold.exists": true,
+  "action.cold.raised_at": true,
+  "action.cold.recorded_at": true,
+  "findings.cold.non_empty": true,
+  "findings.cold.created_at": true,
+  "thread.cold.linked": true,
+  "thread.cold.ACTION_IN_HAND": true,
+  "board.cold.in_hand_lists_action": false,
+  "pairs.ev>=1": false,
+  "action.ev.exists": true,
+  "action.ev.raised_at": true,
+  "action.ev.recorded_at": true,
+  "findings.ev.non_empty": true,
+  "findings.ev.created_at": true,
+  "thread.ev.linked": true,
+  "thread.ev.ACTION_IN_HAND": true,
+  "board.ev.in_hand_lists_action": false,
+  "coh3.findings==0": true,
+  "cold.complete.exists": true,
+  "cold.complete.recorded_at": true,
+  "cold.no_CHANGE_APPLIED": true,
+  "cold.applied_skipped": true,
+  "tick.writes_no_thread_event": true,
+  "cold.protect.NEEDS_ATTENTION": false,
+  "cold.wr_completed": true,
+  "cold.blocked_null": true
+ },
+ "wall_seconds": 231,
+ "pass": false
+}
