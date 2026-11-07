@@ -1,5 +1,8 @@
 # DD-1a2 handoff
 
+## UPDATE after DD1a2-R3 (H1 closed)
+- `plan_add_day` refuses `FULL_DAY_AFTER_TRIAL` (kobo, complement kind, trial-after offset + 1); L0 added (and the old steady-expansion test moved to S+3); L2 `host/tests/test_dd1a2_r3_add_day_after_trial.py` PASSES: ACT-K1 VERIFIED before add, REASSESSMENT_PENDING after add, VERIFIED on ticks 1, 2, 3 (`normal` on S+2). Packet section "DD1a2-R3" holds the re-review recipe. DB dropped. Remaining for coordinator: plan `:829` text, script lines, status files.
+
 ## UPDATE after DD1a2-R2 (commit `281a2bd54` and later)
 - G1 regenerated (`.agent/DD-1a2-g1.json`): `steady-before` 10-24 generator 04:00-06:00, 3.167 kWh exact, litres 0.973 (registered probe `B-early`, G0 test asserts it equals the committed handover); NECESSARY, window COMPLETE, 0 Findings; clinic requested = delivered on every reading with both values (288 a day; 2 per day have a missing value, none in 04-06); residential records no requested power. Recorded as a FAIL on "0 L", accepted by R2.
 - v3 weekday L0 added (`test_demo_story_days.py`, 7 values of S). R25 probe `host/tests/test_dd1a2_r25_probe.py` PASSES (25 % reserve: steady-day STOPPED 18:00 and 24:00, 0 starts, night-early no generator, ends 31.16 %; non-vacuity assert on B-early passed).

@@ -732,18 +732,18 @@ def test_guard_the_list_passes_on_the_measured_file_and_fails_on_a_changed_measu
 def test_add_day_steady_expands_to_three_runs_at_db_now_in_source_order():
     doc = sd.load()
     current = sd.resolve(doc, S)
-    now = S + timedelta(days=2, hours=22)  # the rest of S+2 ended 21:00Z
-    runs = sd.plan_add_runs(doc, current, "kobo", "steady", S, now, day="S+2d")
+    now = S + timedelta(days=3, hours=22)  # the rest of S+3 ended 21:00Z (S+2 is refused for steady, DD1a2-R3)
+    runs = sd.plan_add_runs(doc, current, "kobo", "steady", S, now, day="S+3d")
     assert [r.scenario["scenario_id"] for r in runs] == ["kobo-night-early", "kobo-steady-day", "kobo-rest-mill"]
     assert [r.received_at for r in runs] == [now, now + timedelta(seconds=1), now + timedelta(seconds=2)]
-    assert [r.start for r in runs] == sorted(r.start for r in runs) and {r.offset for r in runs} == {2}
+    assert [r.start for r in runs] == sorted(r.start for r in runs) and {r.offset for r in runs} == {3}
     assert {r.known_at for r in runs} == {now} and len({r.epoch for r in runs}) == 1 and {r.assess for r in runs} == {"tick"}
-    assert runs[1].start == S + timedelta(days=2, hours=3) and runs[1].end == S + timedelta(days=2, hours=15)
+    assert runs[1].start == S + timedelta(days=3, hours=3) and runs[1].end == S + timedelta(days=3, hours=15)
     assert [bool(r.complement_of) for r in runs] == [True, False, True]
     assert sd.plan_add_runs(doc, current, "kobo", "normal", S, now, day="S+2d")[0].kind == "normal"
     assert len(sd.plan_add_runs(doc, current, "kobo", "normal", S, now, day="S+2d")) == 1
     with pytest.raises(sd.StoryDaysError) as err:  # ST-7: addable once the whole day has ended in real time
-        sd.plan_add_runs(doc, current, "kobo", "steady", S, S + timedelta(days=2, hours=20), day="S+2d")
+        sd.plan_add_runs(doc, current, "kobo", "steady", S, S + timedelta(days=3, hours=20), day="S+3d")
     assert err.value.error_code == "DAY_NOT_IN_PAST"
 
 
