@@ -436,3 +436,160 @@ def require_ev_group(threads: list[dict]) -> None:
     """DD1b2-R8 B3(a): EV's expected threads come from the served Portfolio rows, so an empty EV group would make
     COH-10 vacuous for EV. The fault Tuesday must yield at least one thread."""
     assert any(t.get("site_code") == "EV-LAB-001" for t in threads), "no expected EV thread: the EV group is empty"
+
+
+# ---- DIESEL-K7 (ruling DIESEL-1-R3l §9l.3): KIS-3 and KIS-9 ---------------------------------------------------------
+
+#: K3's literal: night 4's reporting gap in the F0 world (moved by the story's `delta_days`).
+KIS_F0_GAP_SPAN = ("2026-10-04T21:45:00Z", "2026-10-04T23:30:00Z")
+KIS_INCIDENT_NIGHT = 4
+#: K3's parity rule (§9d.6 C): power is published at 0.000001 kW, so these five terms agree within 1/100000 L.
+KIS_TOLERANCE_L = "1/100000"
+KIS_EXACT = {"opening_exact": "opening_l", "closing_exact": "closing_l", "deliveries_exact": "deliveries_l",
+             "delivery_tolerance_exact": "delivery_tolerance_l"}
+KIS_TOLERANCED_TERMS = {"loaded_litres_exact": "loaded_litres", "use_low_exact": "use_low", "use_high_exact": "use_high"}
+
+
+def _kis_utc(value) -> datetime:
+    if isinstance(value, datetime):
+        return value.astimezone(timezone.utc)
+    return datetime.fromisoformat(str(value).replace("Z", "+00:00")).astimezone(timezone.utc)
+
+
+def kis3(windows: dict[int, dict], handover: dict, delta_days: int) -> dict:
+    """KIS-3 (moved from K9 to K7): nights 1-10's latest stored window as known now equals the handover's night.
+
+    `windows`: night k -> the stored row (`state`, `reason`, `gap_minutes`, `gap_spans` [[start, end]], `limitations`,
+    `terms`, `residual_low`, `residual_high` exact text). Exact: state, reason (None), gap, opening, closing, D, D_tol.
+    Within 1/100000 L: loaded litres, use low/high, residual low/high. The band re-computed by
+    `fuel_balance.rules.balance` from the stored terms equals the stored band exactly. Night 4 UNEXPLAINED with F0's
+    gap span moved by `delta_days` and `("REPORTING_GAP",)`; every other night WITHIN_MARGIN, gap 0, no limitation;
+    idle seconds 0 on all ten."""
+    from fractions import Fraction
+
+    from assetops_backend.actions.verification_rules import parse_exact
+    from assetops_backend.fuel_balance.rules import balance
+
+    tol = Fraction(KIS_TOLERANCE_L)
+    states = {}
+    for night in handover["nights"]:
+        k, want = night["k"], night["readings"]
+        w = windows.get(k)
+        assert w is not None, ("no stored window", k)
+        t = w["terms"]
+        exact = {"state": (w["state"], want["state"]), "reason": (w["reason"], None),
+                 "gap_minutes": (w["gap_minutes"], want["gap_minutes"])}
+        exact |= {key: (parse_exact(t[term]), Fraction(want[key])) for key, term in KIS_EXACT.items()}
+        bad = {key: pair for key, pair in exact.items() if pair[0] != pair[1]}
+        assert not bad, ("night", k, "exact terms differ", bad)
+        close = {key: (parse_exact(t[term]), Fraction(want[key])) for key, term in KIS_TOLERANCED_TERMS.items()}
+        close |= {f"residual_{s}_exact": (parse_exact(w[f"residual_{s}"]), Fraction(want[f"residual_{s}_exact"]))
+                  for s in ("low", "high")}
+        far = {key: str(abs(a - b)) for key, (a, b) in close.items() if abs(a - b) > tol}
+        assert not far, ("night", k, "differs by more than 1/100000 L", far)
+        assert t["idle_seconds"] == 0, ("night", k, "idle seconds", t["idle_seconds"])
+        band = balance(opening=parse_exact(t["opening_l"]), closing=parse_exact(t["closing_l"]),
+                       deliveries=[parse_exact(t["deliveries_l"])], loaded_litres=parse_exact(t["loaded_litres"]),
+                       idle_hours=Fraction(t["idle_seconds"], 3600), accuracy_l=parse_exact(t["accuracy_l"]),
+                       no_load_l_per_h=parse_exact(t["no_load_l_per_h"]))
+        again = (band["state"], band["residual_low"], band["residual_high"])
+        stored = (w["state"], parse_exact(w["residual_low"]), parse_exact(w["residual_high"]))
+        assert again == stored, ("night", k, "band not reproduced", again, stored)
+        spans = [[_kis_utc(a), _kis_utc(b)] for a, b in w["gap_spans"]]
+        if k == KIS_INCIDENT_NIGHT:
+            move = timedelta(days=delta_days)
+            want_spans = [[_kis_utc(KIS_F0_GAP_SPAN[0]) + move, _kis_utc(KIS_F0_GAP_SPAN[1]) + move]]
+            assert (w["state"], spans, list(w["limitations"])) == ("UNEXPLAINED", want_spans, ["REPORTING_GAP"]), (
+                "night 4", w["state"], spans, w["limitations"])
+        else:
+            assert (w["state"], w["gap_minutes"], list(w["limitations"])) == ("WITHIN_MARGIN", 0, []), (
+                "night", k, w["state"], w["gap_minutes"], w["limitations"])
+        states[k] = w["state"]
+    return {"nights": len(states), "states": states}
+
+
+def kis9(*, records: list[dict], handover: dict, calendar: dict, build: dict, actions: list[dict],
+         runs: list[tuple[datetime, datetime]], windows: dict[int, dict], finding: dict | None,
+         action: dict | None) -> dict:
+    """KIS-9: Kisiwa story coherence (DIESEL-1-R3l §9l.3).
+
+    `records`: the Site's operational records (`kind`, `body`, `occurred_at`, `recorded_at`, `quantity`,
+    `source_document_sha256`, `case_id`); `calendar`: `story["kisiwa"]`; `build`: `kisiwa.json`; `actions`: the
+    derived log's actions; `runs`: the ten runs' `[start, end)`; `windows`: night k -> the latest stored window
+    (`id`, `revision`, `recorded_at`); `finding`: the fuel Finding read (`findings`: `finding_id`, `lifecycle`,
+    `window_id`, `window_revision`, `thread_kinds`, `consequence_state`, `price_revision_id`, `created_at`; and
+    `diesel_v1_revision_id`); `action`: the Action read (`origin_finding_id`, `case_id`, `case_state`,
+    `linked_case_ids`)."""
+    import hashlib
+    from fractions import Fraction
+
+    import demo_combined_kisiwa as kis
+
+    minutes = lambda r: (_kis_utc(r["recorded_at"]) - _kis_utc(r["occurred_at"])).total_seconds() / 60  # noqa: E731
+    by_kind = lambda kind: [r for r in records if r["kind"] == kind]  # noqa: E731
+    log = {a["action_id"]: a for a in actions}
+    # (a) records
+    delivery = next(a for a in actions if a["kind"] == "FUEL_DELIVERY")
+    ticket = kis.TICKET_TEXT.format(reference=delivery["ticket"]["reference"], volume_l=delivery["volume_l"])
+    got = by_kind("FUEL_DELIVERY")
+    assert len(got) == 1, ("(a) want one FUEL_DELIVERY", got)
+    d = got[0]
+    assert (Fraction(str(d["quantity"])), d["source_document_sha256"], minutes(d)) == (
+        Fraction(delivery["volume_l"]), hashlib.sha256(ticket.encode("ascii")).hexdigest(),
+        delivery["recorded_after_minutes"]), ("(a) delivery", d)
+    log_dips = {_kis_utc(a["at"]): a["action_id"] for a in actions if a["kind"] == "TANK_DIP"}
+    dips = by_kind("TANK_DIP")
+    assert sorted(_kis_utc(r["occurred_at"]) for r in dips) == sorted(log_dips), ("(a) dips are not the log's", dips)
+    late = [r for r in dips if minutes(r) != calendar["dip_recorded_after_minutes"]]
+    assert not late, ("(a) a dip is not recorded 15 min after it occurred", late)
+    visits = by_kind("SITE_VISIT")
+    assert len(visits) == 1 and visits[0]["body"] == calendar["action"]["site_visit"]["body"], ("(a) site visit", visits)
+    removal = next(a for a in actions if a["kind"] == "FUEL_REMOVAL_UNRECORDED")
+    lo = _kis_utc(removal["at"])
+    hi = lo + timedelta(minutes=removal["duration_minutes"])
+    named = [r for r in records if lo <= _kis_utc(r["occurred_at"]) < hi or removal["action_id"] in r["body"]
+             or "remov" in r["body"].lower()]
+    assert not named, ("(a) a record occurs inside the removal or names it", named)
+    # (b) dip quantities: the handover's and the build's trajectory check
+    want = {x["action_id"]: x["dip_l"] for x in handover["dips"]}
+    built = {x["action_id"]: x["dip_l"] for r in build["runs"] for x in r["dips"]}
+    for r in dips:
+        action_id = log_dips[_kis_utc(r["occurred_at"])]
+        assert Fraction(str(r["quantity"])) == want[action_id] == built.get(action_id), (
+            "(b) dip", action_id, r["quantity"], want[action_id], built.get(action_id))
+    # (c) every action of the derived log lies in exactly one run (K0's residual)
+    try:
+        placed = kis.straddle_check(actions, runs)
+    except SystemExit as stop:
+        raise AssertionError(f"(c) {stop}") from None
+    # (d) the Finding
+    assert finding is not None, "(d) no fuel Finding read"
+    fs = finding["findings"]
+    assert len(fs) == 1, ("(d) want exactly one fuel Finding", fs)
+    f = fs[0]
+    w4 = windows[KIS_INCIDENT_NIGHT]
+    assert (f["lifecycle"], str(f["window_id"]), f["window_revision"]) == ("SUPPORTED", str(w4["id"]), 1), ("(d)", f)
+    assert list(f["thread_kinds"]) == ["UNEXPLAINED_FUEL"], ("(d) threads", f["thread_kinds"])
+    assert (f["consequence_state"], str(f["price_revision_id"])) == ("PRICED", str(finding["diesel_v1_revision_id"])), (
+        "(d) consequence", f)
+    # (e) the Action
+    assert action is not None, "(e) no Action read"
+    assert str(action["origin_finding_id"]) == str(f["finding_id"]), ("(e) origin", action)
+    assert action["case_state"] == "COMPLETE" and str(action["case_id"]) in map(str, action["linked_case_ids"]), (
+        "(e) case", action)
+    assert str(visits[0]["case_id"]) == str(action["case_id"]), ("(e) the site visit does not cite the case", visits)
+    # (f) every run's frozen identity names the derived log and exactly its effect-bearing actions
+    assert (build["log"]["log_id"], build["log"]["log_version"]) == (calendar["story_log_id"], 1), ("(f)", build["log"])
+    assert [r["k"] for r in build["runs"]] == list(range(1, len(runs) + 1)), ("(f) runs", [r["k"] for r in build["runs"]])
+    for r in build["runs"]:
+        mine = sorted(i for i, k in placed.items() if k == r["k"] and log[i]["kind"] in kis.EFFECT_BEARING)
+        assert sorted(e.split(":")[1] for e in r["history"]) == mine, ("(f) history", r["k"], r["history"], mine)
+        assert r.get("log_sha256") == build["log"]["sha256"], ("(f) run log hash", r["k"], r.get("log_sha256"))
+    # (g) stamps are story instants
+    by_k = {x["k"]: x for x in calendar["runs"]}
+    for k, w in windows.items():
+        assert _kis_utc(w["recorded_at"]) == _kis_utc(by_k[k]["assessed_at"]), ("(g) window stamp", k, w["recorded_at"])
+    assert _kis_utc(f["created_at"]) == _kis_utc(by_k[KIS_INCIDENT_NIGHT]["raised_at"]), ("(g) Finding stamp", f)
+    assert _kis_utc(visits[0]["recorded_at"]) == _kis_utc(calendar["site_visit_recorded_at"]), ("(g) visit", visits)
+    return {"records": len(records), "dips": len(dips), "placed": len(placed), "finding": str(f["finding_id"]),
+            "action_case": str(action["case_id"])}

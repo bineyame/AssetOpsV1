@@ -953,6 +953,83 @@ def money_b(ctx: Ctx) -> dict:
     return shown
 
 
+# ---- DIESEL-K7 (ruling DIESEL-1-R3l §9l.3): KIS-3 and KIS-9, written by K7 -----------------------------------------
+
+KISIWA_SITE = "KISIWA-001"
+
+
+def _kisiwa_read(ctx: Ctx) -> dict | None:
+    """Kisiwa's stored rows (cached on `ctx`): the latest window per night as known now, the operational records, and
+    the handover, calendar, build document and derived log. None when the dataset holds no Kisiwa Site."""
+    if "kisiwa" in ctx.cache:
+        return ctx.cache["kisiwa"]
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA_SITE,)).fetchone()
+        if site is None:
+            ctx.cache["kisiwa"] = None
+            return None
+
+        def fetch(sql: str, *p) -> list[dict]:
+            cur = c.execute(sql, p)
+            names = [d.name for d in cur.description]
+            return [dict(zip(names, r)) for r in cur.fetchall()]
+
+        windows = fetch("SELECT DISTINCT ON (night_date) id, night_date, revision, recorded_at, state, reason, "
+                        "residual_low, residual_high, gap_minutes, gap_spans, limitations, terms FROM fuel_balance_window "
+                        "WHERE site_id = %s AND recorded_at <= clock_timestamp() ORDER BY night_date, revision DESC",
+                        site[1])
+        records = fetch("SELECT id, kind, body, occurred_at, recorded_at, quantity, source_document_sha256, case_id "
+                        "FROM operational_record WHERE site_id = %s ORDER BY occurred_at, recorded_at", site[1])
+    import demo_combined_kisiwa as kis
+
+    calendar = ctx.story["kisiwa"]
+    build = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
+    log_text = Path(build["log"]["path"]).read_text(encoding="utf-8")
+    assert kis.lf_sha256(log_text) == build["log"]["sha256"], "the derived log changed after the build"
+    nights = {r["night_date"]: r["k"] for r in calendar["runs"]}
+    out = {"tenant_id": site[0], "site_id": site[1], "handover": kis.load_handover(), "calendar": calendar,
+           "build": build, "actions": kis.parse_log(log_text)["actions"],
+           "runs": [(at(r["start"]), at(r["end"])) for r in calendar["runs"]],
+           "windows": {nights[w["night_date"].isoformat()]: w for w in windows if w["night_date"].isoformat() in nights},
+           "records": records}
+    ctx.cache["kisiwa"] = out
+    return out
+
+
+@row("KIS-3")
+def kis_3(ctx: Ctx) -> dict:
+    """KIS-3 (DIESEL-1-R3l §9l.3, moved from K9 to K7): Kisiwa's ten stored nights reproduce the handover's readings
+    band (`demo_rows.kis3`). A dataset without the Kisiwa Site is reported as such, never as a check."""
+    k = _kisiwa_read(ctx)
+    if k is None:
+        return {"kisiwa": "not in this dataset", "checked": 0}
+    return {"kisiwa": "present", **demo_rows.kis3(k["windows"], k["handover"], k["calendar"]["delta_days"])}
+
+
+def _kisiwa_finding(ctx: Ctx, k: dict) -> dict | None:
+    """KIS-9 (d): the fuel Finding read. K7-D FINAL STEP: wired once K4a's Finding is merged into this branch."""
+    return None
+
+
+def _kisiwa_action(ctx: Ctx, k: dict) -> dict | None:
+    """KIS-9 (e): the Action read. K7-D FINAL STEP: wired with the Action step, after K4a merges."""
+    return None
+
+
+@row("KIS-9")
+def kis_9(ctx: Ctx) -> dict:
+    """KIS-9 (DIESEL-1-R3l §9l.3): Kisiwa story coherence: records, dip quantities, every action in one run, the
+    Finding, the Action, every run's frozen log and history, and story-instant stamps (`demo_rows.kis9`)."""
+    k = _kisiwa_read(ctx)
+    if k is None:
+        return {"kisiwa": "not in this dataset", "checked": 0}
+    return {"kisiwa": "present", **demo_rows.kis9(
+        records=k["records"], handover=k["handover"], calendar=k["calendar"], build=k["build"], actions=k["actions"],
+        runs=k["runs"], windows=k["windows"], finding=_kisiwa_finding(ctx, k), action=_kisiwa_action(ctx, k))}
+
+
 # ---- runner ----------------------------------------------------------------------------------------------------
 
 def load(work: Path, client) -> Ctx:
