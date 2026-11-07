@@ -2836,3 +2836,110 @@ NO_LONGER = "A later check of this night no longer finds unexplained fuel."
 ### 9j.16 Owner questions
 
 None. For the owner's information, in plain words: the "unexplained fuel" finding gets its own place under "Protect asset & capital", with a new line "Fuel accounted for". Sites that cannot check their fuel yet, such as Kobo, show that line as not applicable, and nothing else on their screens changes. The fuel's dollar value is always shown on its own and is never added to any other figure. The plan is about a quarter-unit bigger, but splitting the unit lets more of it run in parallel, so the demo date does not move.
+
+## 9k. Ruling DIESEL-1-R3k: K4a pre-flight stop (two unfiltered Finding readers)
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `662b2cf91` (R3j). K4a stopped at pre-flight with no code written (worktree `AssetOpsV1-k4a` clean).
+- READ = the Architect read the code at `662b2cf91`; nothing was run or measured.
+- **This ruling amends §9j.1(2), §9j.8 and §9j.9 for K4a.** Read it alongside §9j.1–§9j.9. Everything not named here stands.
+
+### 9k.1 What the stop found (READ, confirmed)
+
+1. `PostgresFindingStore.findings_over` (`B/analytics/adapters/postgres_finding_store.py:460-474`) reads every `finding_revision` of a Site, with no domain or analytic filter. Its three callers are all dispatch reads:
+   - `scheduling/upstream.py:139`. It feeds the served mini Site overview (`site_overview/read.py:159-181`), where a fuel Finding could become the DISCOVERED Finding and add a CONSEQUENCE_PENDING blocker.
+   - `analytics/finding_read.py:630` `window_state`, which serves `GET /api/sites/{code}/finding-windows/{day}` (`finding_api.py:102`). The fuel Finding cites no dispatch window, so `:650-653` would read FINDING_MATCH_PENDING.
+   - `scheduling/health.py:254`, which supplies `stale_no_work`'s input.
+   - There is also a defect that exists today: an open cold Finding (`episode_end` NULL, as `cold_apply` writes it) makes `:467` compare None with a datetime and raise. This is the same defect FIX-S4-DOMAIN fixed in `episodes` (`:133-146`, `backend/tests/test_s4_finding_domain_filter_postgres.py`).
+2. `PostgresConsequenceStore.latest_revisions_overlapping` (`B/financials/adapters/postgres_consequence_store.py:386-397`) is unfiltered. It supplies the targets for `ASSUMPTION_PUBLISHED` work (`B/financials/recompute.py:230-232`). That work is written by `financial_consequence_dirty_on_assumption` (`0011:338-350`) on every `financial_assumption_revision` insert: diesel, EV tariff and productive price, on every Site, with no domain test. The mini consequence drain runs on **every** Site (`scheduling/tick.py:492-497`, no site-type gate). `derive()` (`recompute.py:169-177`) would run fc2 on the fuel Finding and append a `financial_consequence_revision` that cites it (an S2 breach), or fail the work. **§9j.1(2) was incomplete:** it closed only the Finding-revision trigger.
+3. **The third path is safe, and this ruling adds a test to keep it that way.** `financial_consequence_dirty_on_evidence` (`0012:102-130`) enqueues `EVIDENCE_ACCEPTED` work for the latest revision of **every** Finding whose episode overlaps an accepted `generator_power` reading, and the fuel Finding is one of them. Kisiwa's night runs overlap its episode, so such work will exist. The worker no-ops it before `derive()`: `evidence_no_op` (`recompute.py:102-103`) returns `NO_OP_ASSET` because the fuel Finding's `generator_asset_id` is NULL (§9j.4), which never equals the reading's asset. So no row is written. The work row is still enqueued and drained as a SUCCEEDED no-op. That is acceptable, and 0012 is not edited.
+
+### 9k.2 Decision: filter both readers in SQL, positively, to the dispatch domain
+
+**Options weighed:**
+- **(A) A positive domain filter in both readers. Chosen.**
+  - It puts the fix where the wrong set is produced, and it follows the precedent: FIX-S4-DOMAIN's `episodes(..., domain=DOMAIN, analytic_id=DISPATCH_ANALYTIC_ID)`, and the 0022 trigger's `WHEN (NEW.domain = 'mini_grid')`.
+  - No caller or test fake changes: the new parameters are keyword defaults, and the fakes in `test_s4_schedule_upstream_unit.py:28,136`, `test_s4_evidence_drain.py:83` and `test_s4_consequence_cause_dispatch.py:22` keep their signatures.
+  - It also protects the next domain. A deny-list (`domain <> 'fuel_balance'`) is rejected for that reason.
+- **(B) The recompute worker skips non-`mini_grid` targets.** Rejected. It changes the `(finding_id, revision_id)` target tuple and the `ConsequenceStore` protocol, so the test fakes would break (S5). It leaves `findings_over` unfixed. And it moves a storage predicate into the worker.
+- **(C) A `WHEN` clause on the assumption trigger in 0056.** Not possible. A `financial_assumption_revision` row has no Finding domain. Narrowing by `assumption_key` would not help either, because Kisiwa's diesel price is exactly what must still re-price its dispatch Findings.
+- **(D) Defence in depth in `load_input_on` (`postgres_consequence_store.py:96-110`).** Not now. It has other `known_at` callers (W3-01 Run 6, Trial comparison), and with (A) in place plus §9k.1(3) every target path is closed. This goes on the after-the-demo list: "fc2 `load_input_on` refuses a non-`mini_grid` revision".
+
+**Literal changes (K4a):**
+1. `B/analytics/adapters/postgres_finding_store.py` `findings_over`:
+   - The signature becomes `findings_over(self, tenant_id, site_id, lo, hi, domain: str = DOMAIN, analytic_id: str = DISPATCH_ANALYTIC_ID)`.
+   - The SQL gains `AND r.domain = :d AND r.analytic_id = :a`, bound to those two parameters. The docstring gains: "FIX-K4a (DIESEL-1-R3k): one domain's and analytic's Findings only (the `episodes` predicate); a Site's fuel-balance, cold or EV Findings never reach the dispatch readers."
+   - Nothing else in the method changes. The Python-side overlap filter at `:467` stays as it is; it now sees only dispatch rows, whose `episode_end` is never NULL.
+   - The `finding_read.py:239` `FindingReadStore` port signature gains the same two keyword defaults. That is a type-only line.
+2. `B/financials/adapters/postgres_consequence_store.py` `latest_revisions_overlapping`:
+   - The SQL gains `AND r.domain = 'mini_grid'` (a literal, mirroring the 0022 trigger's `WHEN`; no analytic filter and no new import).
+   - The docstring gains: "FIX-K4a (DIESEL-1-R3k): `mini_grid` revisions only, the domain the fuel-cost work triggers cover (0022); the dispatch fuel-cost model is never derived for another domain's Finding."
+   - The signature does not change.
+3. **No caller, no worker and no migration changes** for this ruling. 0056 stays as §9j.3 specifies.
+
+### 9k.3 Effect on Kobo, Cold and EV (READ)
+
+- **Kobo:** it holds only `mini_grid` dispatch Findings, so both readers return byte-equal results. No Kobo board, overview, Finding-window, golden or capture changes.
+- **Cold and EV Sites:**
+  - `findings_over` on a cold or EV Site now returns `[]` instead of that Site's cold or EV Findings (and no longer raises on an open cold Finding). Its consumers are dispatch-only:
+    - the mini overview (`site_overview/read.py:136-138`, which reads `dispatch_read.window`);
+    - `finding-windows`, whose only frontend callers are `F/sites/PerformanceDispatch.tsx:564` and `F/sites/SiteFindingEvidence.tsx:1176`, both dispatch pages;
+    - health's `stale_no_work`, where the narrower input can only remove alarms. The builder found that none fire today.
+  - The Cold and EV overviews are separate routes (`coldSiteClient.ts:256`, `evSiteClient.ts:259`). The board reads domain-filtered heads (`postgres_chain_read.py:27-45`). **No served Cold or EV output or golden reads either function.**
+  - `latest_revisions_overlapping` on an EV Site (EV tariff publications fire the 0011 trigger) no longer offers EV Findings to `derive()`. Today that work runs the dispatch fuel-cost model on a non-dispatch Finding. Removing it fixes a defect that exists today, outside the served EV reads (EV money reads `ev_consequence_*`).
+  - **Deviation recorded, K4a-DEV-1:** "dispatch readers and the fuel-cost recompute target read are filtered to their domain; cold/EV Sites no longer offer their Findings to them". The packet lists it with this paragraph. This is **not** stop S6, because S6 covers served bytes.
+- **If the narrower set shows up in any served output, it is a stop (S8, below).** That applies whether it shows up in an existing test, a Cold or EV golden, or K8's all-26 recapture.
+
+### 9k.4 Extra files and memberships (approved)
+
+- `B/chain/threads.py:31` `SUBJECT_COLUMN` gains `"fuel_balance": "subject_asset_id"`. This is already §9j.4 and §9j.9 item 6, and is confirmed here.
+- `T/checks/configuration-persistence.ps1`, membership only:
+  - `$consequenceTables` (`:746-748`) gains `'fuel_residual_consequence_revision'`.
+  - A `$fuelTransactionOwner = 'backend/assetops_backend/fuel_balance/findings_service.py'` is declared beside `$coldTransactionOwner`. It is added to every list in which `$coldTransactionOwner` is an allowed transaction owner, and to the owner-existence loop at `:1841`.
+  - No new probe is added in `tools/writer_guard_probes.py`. If the guard demands one, that is stop S-g (below).
+- **Scope of §9j.9 widened:** item 3 now also covers `findings_over` and its docstring. Item 4 now also covers `latest_revisions_overlapping` and its docstring. `B/analytics/finding_read.py` (the `:239` port line only) is added. Nothing else changes.
+
+### 9k.5 Tests (added to §9j.8 B; no new test file)
+
+Each "must fail" names the mutation that the reviewer applies to a scratch copy.
+
+- **B7. `findings_over` excludes the fuel Finding.**
+  - Setup: on the K4 test Site, one dispatch Finding (from the Kobo import already used by B) and one fuel Finding raised through `raise_night`, with overlapping episodes.
+  - `findings_over(t, s, lo, hi)` over the overlap returns only the dispatch Finding's id. Called with `domain="fuel_balance", analytic_id="fuel-balance-1"`, it returns only the fuel Finding (this makes the test non-vacuous).
+  - `FindingReadService.window_state` for a day the fuel Finding overlaps lists no fuel Finding id in `findings`.
+  - Must fail if the `r.domain`/`r.analytic_id` predicate is removed.
+- **B8. Recompute never derives on the fuel Finding.**
+  - Setup: after B7's fuel Finding exists, publish a diesel price revision on that Site through the assumption store. This fires `ASSUMPTION_PUBLISHED` over the night.
+  - Run `build_recompute_worker(url).run(t, s, limit, now=...)`.
+  - Expected: the work is SUCCEEDED; the dispatch Finding gets its consequence as before; **no** `financial_consequence_revision` row has the fuel Finding's id; `latest_revisions_overlapping` over the night returns no fuel id.
+  - Must fail if `AND r.domain = 'mini_grid'` is removed: then a row cites the fuel Finding, or the work fails.
+- **B9. The evidence path no-ops.**
+  - Setup: accept one `generator_power` reading that overlaps the fuel Finding's episode.
+  - The enqueued `EVIDENCE_ACCEPTED` work for the fuel revision finishes SUCCEEDED with `no_op_reason` = `NO_OP_ASSET`, and no `financial_consequence_revision` cites the fuel Finding.
+  - Must fail if `fuel_apply` writes a non-NULL `generator_asset_id`. The subject CHECK refuses that write, so for a scratch mutation the reviewer may instead assert directly on `evidence_no_op` with a fuel-shaped target: `generator_asset_id None` gives `NO_OP_ASSET`.
+- **A9 (L0, `test_k4a_fuel_finding_rules.py`).** `evidence_no_op` on a fuel-shaped target (`generator_asset_id None`, a `generator_power` reading on the generator) returns `NO_OP_ASSET`.
+- **These must stay green unchanged**, in addition to §9j.8's list:
+  - `test_s4_finding_domain_filter.py` and `test_s4_finding_domain_filter_postgres.py`;
+  - `test_s4_schedule_upstream_unit.py`;
+  - `test_s4_finding_api.py` and `test_s4_finding_read_postgres.py`;
+  - `test_s4_consequence_recompute_postgres.py`, `test_s4_consequence_cause_dispatch.py` and `test_s4_evidence_drain.py`;
+  - the scheduling health tests (`git grep -l "stale_no_work" backend/tests`).
+  - A behaviour edit to any of them is S5.
+- DB: only `assetops_k4_test`, as §9j.9 says. No suite.
+
+### 9k.6 Stops (added to §9j.9)
+
+- **S8:** a test listed in §9k.5 needs a behaviour change, or a Cold, EV or Kobo served byte or golden changes because of the filter. Report the diff. Never widen the filter to fix it.
+- **S9:** a fourth path writes or derives money for a `fuel_balance` revision: any other reader of `finding_revision` that feeds `derive()`, the fuel-cost reads or the board's money head without a domain predicate. The builder runs `git grep -n "FROM finding_revision" backend/assetops_backend/financials backend/assetops_backend/scheduling` and lists each hit with the predicate it has, or why it is safe, in the packet's pre-flight answer. One `r.domain` predicate per hit is in scope for K4a **only** after this Architect approves it. Otherwise it is a stop.
+- **S-g:** the guard requires a new writer probe or a list other than those in §9k.4.
+- S1–S7 stand. **S7's ceiling is now 1.7.**
+
+### 9k.7 Size, critical path, tripwire
+
+- **K4a: 1.4 to 1.5** (range 1.3–1.7). That is +0.1: two predicates and docstrings 0.02; B7–B9 and A9 0.07; the S9 grep 0.01.
+- **Kisiwa total: 17.6 to 17.7.** The increase is reported, not absorbed.
+- **Critical path:** about 8.3–8.4 plus 0.1, so **about 8.4–8.5 lane-units**. That is below the 9.75 tripwire, with 1.25 of headroom. No cut is needed, no owner question arises, and the demo date is unchanged at about +3.25 working days.
+- **Plan HTML (coordinator):** K4a becomes 1.5 and DIESEL-1-R3 becomes 17.7. The rulings table gains "DIESEL-1-R3k: dispatch Finding readers and the fuel-cost recompute target read filtered to their domain (FIX-S4-DOMAIN pattern); evidence path no-ops on the fuel Finding (`NO_OP_ASSET`); K4a 1.5". The after-the-demo list gains "fc2 `load_input_on` refuses a non-`mini_grid` revision".
+
+### 9k.8 Owner questions
+
+None. For the owner's information, in plain words: before building, the builder found two places where the system would have mixed the new "unexplained fuel" finding into the generator's fuel-cost checks. That could have given it a fuel-cost figure it must never have, or made the Kisiwa overview look out of date. Both places now look only at generator findings, as one similar place already does. This also closes a small existing gap on the cold-room and EV sites. Nothing on their screens changes. The work grows by a tenth of a unit, and the demo date does not move.
