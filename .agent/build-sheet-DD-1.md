@@ -1211,7 +1211,7 @@ Input: `.agent/DD-1b1-coh3-probe.json`, `.agent/review-packet-DD-1b1.md` at `131
 | | Change | Client sees | Cost |
 |---|---|---|---|
 | **A. Ruled** | The board's Action read runs to the **requested** window's end; Cold and EV story links open the whole UTC day | Finding and Action together; Needs attention; the lead names the event's own time (CH6b1-R5). An event-only window still lists no Action | +0.25 |
-| B | In hand reads by thread, whatever the date | The same, and also on event-only windows and on boards before the Action | About +0.5 and a new as-known rule. Not demo-critical; BL-33 |
+| B | In hand reads by thread, whatever the date | The same, and also on event-only windows and on boards before the Action | About +0.5 and a new as-known rule. Not demo-critical; BL-38 |
 | C | Drop COH-3 for these boards; no product change | Finding and no Action on the board; the Action only on Work › Actions; "Action agreed" on the chain. R645 stays. ST-4 and ST-5 are false and the plan and owner line change | 0, but it presents less than was told |
 
 **Why A is right beyond the demo.** On any real Site an Action follows its event, so today a week board can never list it. CH6b1-R3 already says the board's window stays the requested one; only this read drifted to the event. Nothing outside the requested window is read.
@@ -1273,7 +1273,7 @@ Any other result: stop and report.
 | Item | Class | Reason | Size |
 |---|---|---|---|
 | `actions_to`, day links, collector, per-Site objectives | demo-critical | ST-4 and ST-5; a full prepare stops at finish without S3 | +0.25 |
-| Board in hand by thread, for any window (B) | backlog, **BL-33** | Day and week links show the Action; exact-window reads are not in the script | 0.5 est. |
+| Board in hand by thread, for any window (B) | backlog, **BL-38** | Day and week links show the Action; exact-window reads are not in the script | 0.5 est. |
 
 **Owed to DD-1b2 (+0):** finish rows needing the Action read the day window; any in-app link carrying an exact event window that the script follows is listed and either avoided or stated; COH rules on the new Cold and EV day windows reconciled with `expected-today.json`.
 
