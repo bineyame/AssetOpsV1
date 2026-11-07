@@ -281,3 +281,28 @@ The `mini-grid` model publishes no tank level on ANY publication profile:
 Seconds per run: none measured.
 
 Stops: **S1** (fired). **S4** (certain by code; not run).
+
+## Evidence correction (DIESEL-1-R3e)
+
+Unit F0e. Ruling: DIESEL-1-R3e (`.agent/build-sheet-DIESEL-1.md` section 9e). Nothing above this heading is changed.
+
+**Cause.** The probe hashed three of its input files as raw bytes. On a Windows checkout with `core.autocrlf=true` those files are CRLF on disk, while the stored copies (and a Linux checkout) are LF. So the recorded fingerprints came from a mix of CRLF and LF copies, and `tools/probe_kisiwa_fuel.py --check` failed on any checkout whose line endings differed from the one that wrote the file.
+
+**Fix.** `_sha256_lf(path)` hashes the file after reading it as UTF-8 text (line endings normalised), the same pattern D0 already uses (`template_sha256_lf`). It is used for `d0_template_sha256`, `actions_sha256` and `bindings_sha256`. Key names are unchanged. Three `.gitattributes` lines now keep `.agent/DIESEL-F0/*` and `.agent/DIESEL-D0/*` as LF on every host. No renormalise commit was needed: the stored copies were already LF.
+
+**The one re-pinned value** (written only by `--write`):
+
+- `assumptions.d0_template_sha256`, old: `d9a4107a1682965bf4fb571c4f9046f6eec283680532b19f5aa503b40c7aaa11` (CRLF copy)
+- `assumptions.d0_template_sha256`, new: `261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b` (LF copy)
+- The new value equals D0's own `template_sha256_lf` in `.agent/DIESEL-D0/probe-result.json`, which D0 pinned independently. `actions_sha256` and `bindings_sha256` did not change because the committed pins were already the LF hashes. No measured litre, band, state, gap, dip, count or gate value changed.
+
+**Proof outputs** (Windows checkout, `core.autocrlf=true`):
+
+- (a) Before, CRLF, before any edit: D0 `--check` printed `probe result current (G6 pass)`. F0 `--check` printed `probe result differs from the committed file` (exit 1). This records the defect.
+- (b) After the edit, CRLF working copies, `--write` run once, each check in a fresh process, twice: F0 `probe result current` and D0 `probe result current (G6 pass)`, both times. The four other evidence files were still CRLF on disk at that time.
+- (c) Field diff, new committed JSON against `git show main:.agent/DIESEL-F0/probe-result.json`: `differing paths: ['.assumptions.d0_template_sha256']`. `git diff --stat` for `.agent/DIESEL-F0` and `.agent/DIESEL-D0`: `.agent/DIESEL-F0/probe-result.json | 2 +-`, one line, no D0 file.
+- (d) LF case: `git -c core.autocrlf=false archive HEAD` of the code and evidence directories, extracted to a scratch directory. All five evidence files have a CR count of 0 and decode as UTF-8. With `PYTHONPATH` pointing at the extracted tree, D0 `--check` printed `probe result current (G6 pass)` and F0 `--check` printed `probe result current`.
+- (e) Delete the five files and `git checkout` them: not performed. The delete was refused by the environment's safety check. `git checkout-index -f` did not rewrite the files either, so four of the five stay CRLF on disk in this worktree (`w/crlf`; the re-written F0 `probe-result.json` is `w/lf`). Both checks pass on these mixed copies (see the (b) and (f) runs) and on the pure-LF copy in (d), so the LF case is covered by (d). The coordinator can run (e) directly.
+- (f) `git add --renormalize .agent/DIESEL-F0 .agent/DIESEL-D0`: `git diff --cached --name-only` listed nothing. `git status --short` was empty.
+- (g) `host/tests/test_probe_kisiwa_fuel_band.py`: `7 passed in 0.24s`.
+- (h) K1 had not merged to main when this was written, so the parity test was not run here. The unit that merges second removes K1's `Path.read_bytes` patch (section 9e.2).
