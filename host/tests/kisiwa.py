@@ -38,13 +38,15 @@ def _publication_profile():
 class KisiwaRegistered:
     """The registered path over an already registered KISIWA-001: the real `RegisteredLabBasis` over `store`."""
 
-    def __init__(self, store, setup_at: str) -> None:
+    def __init__(self, store, setup_at: str, actions=None) -> None:
+        """`actions` is an `OperationalActionLogPort` handed to run setup (DIESEL-1-R3f); None means no log."""
         from assetops_backend.runs.registered_basis import RegisteredLabBasis
         from assetops_backend.sites.cutover import ImportedSiteRegistry
         from assetops_backend.sites.foundation_service import FoundationService
 
         self.store = store
         self.setup_at = setup_at
+        self.actions = actions
         moment = _at(setup_at)
         self.basis = RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, "demo", lambda: moment)))
         self.v7_sim = mini_grid.MINI_GRID_V7_MODEL
@@ -54,8 +56,11 @@ class KisiwaRegistered:
                                       knowledge_at=None)
         self.foundation_version = selection.basis.foundation_version
 
-    def draft(self, document: dict[str, Any], start: str, end: str, model: str = "v7"):
-        """The probe's `Registered.draft` `RunSetupService` call, on product v7 (or v6)."""
+    def draft(self, document: dict[str, Any], start: str, end: str, model: str = "v7",
+              operational_actions: dict | None = None):
+        """The probe's `Registered.draft` `RunSetupService` call, on product v7 (or v6).
+
+        `operational_actions` (`{"log_id", "log_version"}`) is added to the request only when given."""
         from assetops_backend.runs.service import RunSetupService
         from assetops_backend.scenarios.parsing import parse_scenario_document
         from fixtures import FakeRuns, FakeScenarios, FakeSites
@@ -65,8 +70,10 @@ class KisiwaRegistered:
         definition = parse_scenario_document(copy.deepcopy(document), source="a Kisiwa scenario", origin="SHIPPED")
         setup = RunSetupService(
             FakeRuns(), FakeSites(()), FakeScenarios((definition,)), model_profiles=(chosen,),
-            publication_profiles=(profile,), now=lambda: self.setup_at, registered_bases=self.basis)
-        return setup.create_draft_run({
+            publication_profiles=(profile,), now=lambda: self.setup_at, registered_bases=self.basis,
+            operational_actions=self.actions)
+        extra = {} if operational_actions is None else {"operational_actions": operational_actions}
+        return setup.create_draft_run({**extra,
             "site_id": SITE_ID, "foundation_version": self.foundation_version,
             "scenario_id": definition.scenario_id, "scenario_version": definition.version.scenario_version,
             "interval": {"start_time": start, "end_time": end}, "timestep_minutes": TIMESTEP_MINUTES,
@@ -81,6 +88,7 @@ class KisiwaRegistered:
         return self.v7_sim if model == "v7" else mini_grid.MINI_GRID_V6_MODEL
 
 
-def draft_day(store, document: dict[str, Any], start: str, end: str, setup_at: str):
+def draft_day(store, document: dict[str, Any], start: str, end: str, setup_at: str, actions=None,
+              operational_actions: dict | None = None):
     """One Kisiwa Draft on product v7 / registered-kobo-publication v5 over the registered Site in `store`."""
-    return KisiwaRegistered(store, setup_at).draft(document, start, end, "v7")
+    return KisiwaRegistered(store, setup_at, actions).draft(document, start, end, "v7", operational_actions)

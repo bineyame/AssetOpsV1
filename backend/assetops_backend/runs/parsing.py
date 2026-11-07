@@ -65,6 +65,8 @@ from assetops_backend.runs.models import (
     FrozenDeclaredBound,
     FrozenForcing,
     FrozenInitializationInput,
+    FrozenOperationalAction,
+    FrozenOperationalActionLog,
     FrozenReportingPathCondition,
     FrozenInterval,
     FrozenModelNeed,
@@ -82,6 +84,7 @@ from assetops_backend.runs.models import (
     RegisteredBasis,
     SimulationRun,
     UnsupportedOptionalInput,
+    check_cause_origin,
 )
 from assetops_backend.runs.ports import RunConfigurationInvalid
 from assetops_backend.runs.refusals import refuse
@@ -122,8 +125,15 @@ REQUEST_KEYS = frozenset(
         # instant. Optional; a registered Site's setup defaults it to the
         # server's now and freezes the resolved value.
         "knowledge_at",
+        # DIESEL-1-R3f: optional; a named operational-action log
+        # `{"log_id", "log_version"}`, registered timeline runs only.
+        "operational_actions",
     }
 )
+
+OPERATIONAL_ACTIONS_REQUEST_KEYS = frozenset({"log_id", "log_version"})
+LOG_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 INTERVAL_KEYS = frozenset({"start_time", "end_time"})
 PROFILE_KEYS = frozenset({"profile_id", "profile_version"})
@@ -185,6 +195,14 @@ class RunInputValue:
 
 
 @dataclass(frozen=True)
+class OperationalActionsRequest:
+    """DIESEL-1-R3f: the operational-action log a run names, by an exact version (never "latest")."""
+
+    log_id: str
+    log_version: int
+
+
+@dataclass(frozen=True)
 class RunSetupRequest:
     """A structurally valid setup request, before anything is looked up.
 
@@ -209,6 +227,8 @@ class RunSetupRequest:
     #: S2-01a: optional, registered Sites only. A UTC instant, or None for
     #: "the server's now at setup".
     knowledge_at: str | None = None
+    #: DIESEL-1-R3f: optional; None means the run has no operational actions.
+    operational_actions: OperationalActionsRequest | None = None
 
 
 def parse_run_setup_request(request: Any) -> RunSetupRequest:
@@ -300,7 +320,25 @@ def parse_run_setup_request(request: Any) -> RunSetupRequest:
         publication_profile_version=publication_profile_version,
         run_inputs=_parse_run_inputs(request.get("run_inputs")),
         knowledge_at=_knowledge_at(request.get("knowledge_at")),
+        operational_actions=_operational_actions(request),
     )
+
+
+def _operational_actions(request: Mapping[str, Any]) -> OperationalActionsRequest | None:
+    if "operational_actions" not in request:
+        return None
+    value = request["operational_actions"]
+    rule = ("'operational_actions' is optional and, when given, an object with exactly 'log_id' (lower-case "
+            "letters, digits and hyphens) and 'log_version' (a whole number from 1): the operational-action log "
+            "the run is set up with, by its exact version.")
+    if not isinstance(value, Mapping) or set(value) != OPERATIONAL_ACTIONS_REQUEST_KEYS:
+        raise refuse("REQUEST_INVALID", rule)
+    log_id, log_version = value["log_id"], value["log_version"]
+    if not isinstance(log_id, str) or not LOG_ID_PATTERN.match(log_id):
+        raise refuse("REQUEST_INVALID", rule)
+    if type(log_version) is not int or log_version < 1:
+        raise refuse("REQUEST_INVALID", rule)
+    return OperationalActionsRequest(log_id=log_id, log_version=log_version)
 
 
 def _knowledge_at(value: Any) -> str | None:
@@ -755,6 +793,13 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     "timing_shape": item.timing_shape,
                     "offset_minutes": item.offset_minutes,
                     "duration_minutes": item.duration_minutes,
+                    # DIESEL-1-R3f: written only for an operational action, so
+                    # a scenario cause renders exactly what it always did.
+                    **(
+                        {"origin": item.origin, "action_ref": item.action_ref}
+                        if item.origin == "OPERATIONAL_ACTION"
+                        else {}
+                    ),
                 }
                 for item in identity.causes
             ],
@@ -794,6 +839,11 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     "timing_shape": item.timing_shape,
                     "offset_minutes": item.offset_minutes,
                     "duration_minutes": item.duration_minutes,
+                    **(
+                        {"origin": item.origin, "action_ref": item.action_ref}
+                        if item.origin == "OPERATIONAL_ACTION"
+                        else {}
+                    ),
                 }
                 for item in identity.reporting_path_conditions
             ],
@@ -884,6 +934,30 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     ]
                 }
                 if identity.signal_resolutions
+                else {}
+            ),
+            # DIESEL-1-R3f: written only when the run named a log. Unlike
+            # `signal_resolutions`, an empty `actions` list IS written, because
+            # the log was requested.
+            **(
+                {
+                    "operational_action_log": {
+                        "log_id": identity.operational_action_log.log_id,
+                        "log_version": identity.operational_action_log.log_version,
+                        "sha256": identity.operational_action_log.sha256,
+                        "actions": [
+                            {
+                                "action_id": action.action_id,
+                                "kind": action.kind,
+                                "actor": action.actor,
+                                "at": action.at,
+                                "content_sha256": action.content_sha256,
+                            }
+                            for action in identity.operational_action_log.actions
+                        ],
+                    }
+                }
+                if identity.operational_action_log is not None
                 else {}
             ),
         },
@@ -1286,7 +1360,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                 "that is not an identity."
             )
 
-    return DeterministicIdentity(
+    identity = DeterministicIdentity(
         site=FrozenSiteBinding(
             site_id=_text(site, "site_id", where="site"),
             foundation_version=_whole(site, "foundation_version", where="site"),
@@ -1421,7 +1495,12 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
             )
         ),
         signal_resolutions=_parse_signal_resolutions(raw),
+        operational_action_log=_parse_operational_action_log(raw),
     )
+    broken = check_operational_action_cross_reference(identity)
+    if broken is not None:
+        raise _origin_invalid(broken)
+    return identity
 
 
 def _parse_signal_resolutions(
@@ -1783,7 +1862,100 @@ def _parse_frozen_cause(entry: Any) -> FrozenCause:
         timing_shape=shape,
         offset_minutes=offset,
         duration_minutes=duration,
+        **_parse_origin(raw, where="frozen_cause"),
     )
+
+
+def _origin_invalid(message: str) -> RunConfigurationInvalid:
+    return _bad(f"CAUSE_ORIGIN_INVALID: {message}")
+
+
+def _parse_origin(raw: Mapping[str, Any], *, where: str) -> dict[str, Any]:
+    """DIESEL-1-R3f §9f.2 (3): the origin pair, mirroring the render exactly.
+
+    Absent means a scenario record. Present must be `OPERATIONAL_ACTION` with an
+    `action_ref`: the writer never writes `SCENARIO`, so one stored form per record.
+    """
+    has_origin, has_ref = "origin" in raw, "action_ref" in raw
+    if not has_origin and not has_ref:
+        return {}
+    if not has_origin:
+        raise _origin_invalid(f"'{where}.action_ref' is written only beside origin OPERATIONAL_ACTION.")
+    if raw["origin"] != "OPERATIONAL_ACTION":
+        raise _origin_invalid(
+            f"'{where}.origin' is {raw['origin']!r}; a stored record writes origin only as OPERATIONAL_ACTION."
+        )
+    if not has_ref:
+        raise _origin_invalid(f"'{where}' has origin OPERATIONAL_ACTION and no action_ref.")
+    try:
+        check_cause_origin("OPERATIONAL_ACTION", raw["action_ref"], f"'{where}'")
+    except ValueError as error:
+        raise _bad(str(error)) from error
+    return {"origin": "OPERATIONAL_ACTION", "action_ref": raw["action_ref"]}
+
+
+def _parse_operational_action_log(raw: Mapping[str, Any]) -> FrozenOperationalActionLog | None:
+    """DIESEL-1-R3f: absent means None; present means every key, the right types, nothing unknown."""
+    if "operational_action_log" not in raw:
+        return None
+    where = "deterministic_identity.operational_action_log"
+    log = raw["operational_action_log"]
+    if not isinstance(log, Mapping) or set(log) != {"log_id", "log_version", "sha256", "actions"}:
+        raise _origin_invalid(f"'{where}' must be an object with exactly log_id, log_version, sha256 and actions.")
+    if not isinstance(log["log_id"], str) or not LOG_ID_PATTERN.match(log["log_id"]):
+        raise _origin_invalid(f"'{where}.log_id' is not a log identity.")
+    if type(log["log_version"]) is not int or log["log_version"] < 1:
+        raise _origin_invalid(f"'{where}.log_version' must be a whole number from 1.")
+    if not isinstance(log["sha256"], str) or not SHA256_PATTERN.match(log["sha256"]):
+        raise _origin_invalid(f"'{where}.sha256' must be 64 lower-case hex digits.")
+    if not isinstance(log["actions"], list):
+        raise _origin_invalid(f"'{where}.actions' must be a list.")
+    actions = []
+    keys = {"action_id", "kind", "actor", "at", "content_sha256"}
+    for entry in log["actions"]:
+        if not isinstance(entry, Mapping) or set(entry) != keys:
+            raise _origin_invalid(f"'{where}.actions' holds an entry without exactly {sorted(keys)}.")
+        if not all(isinstance(entry[key], str) and entry[key] for key in keys):
+            raise _origin_invalid(f"'{where}.actions' holds an entry whose fields are not non-empty text.")
+        if not INSTANT_PATTERN.match(entry["at"]):
+            raise _origin_invalid(f"'{where}.actions' holds an entry whose 'at' is not a UTC instant.")
+        try:
+            actions.append(FrozenOperationalAction(
+                action_id=entry["action_id"], kind=entry["kind"], actor=entry["actor"], at=entry["at"],
+                content_sha256=entry["content_sha256"]))
+        except ValueError as error:
+            raise _bad(str(error)) from error
+    return FrozenOperationalActionLog(log_id=log["log_id"], log_version=log["log_version"], sha256=log["sha256"],
+                                      actions=tuple(actions))
+
+
+def check_operational_action_cross_reference(identity: DeterministicIdentity) -> str | None:
+    """DIESEL-1-R3f §9f.2 (3): the history, the log and the origin refs agree. Returns the break, or None.
+
+    Shared by the parser (a break is CAUSE_ORIGIN_INVALID) and by run setup (a break is a defect).
+    """
+    history = [entry for entry in identity.intervention_history if entry.startswith("OPERATIONAL_ACTION:")]
+    log = identity.operational_action_log
+    records = [*identity.causes, *identity.reporting_path_conditions]
+    refs = [record.action_ref for record in records if record.action_ref is not None]
+    if log is None:
+        if history:
+            return "intervention_history names operational actions and the run names no operational-action log."
+        if refs:
+            return "a cause or reporting-path condition names an operational action and the run names no log."
+        return None
+    expected = [f"OPERATIONAL_ACTION:{a.action_id}:{a.content_sha256}" for a in log.actions]
+    if history != expected:
+        return "intervention_history's operational actions differ from the frozen log's actions, or their order."
+    known = {f"{a.action_id}:{a.content_sha256}" for a in log.actions}
+    dangling = sorted(ref for ref in refs if ref not in known)
+    if dangling:
+        return f"action_ref {dangling[0]!r} names no action in the frozen operational-action log."
+    named = {cause.action_ref for cause in identity.causes if cause.action_ref is not None}
+    orphans = sorted(ref for ref in known if ref not in named)
+    if orphans:
+        return f"the frozen log's action {orphans[0]!r} is named by no cause."
+    return None
 
 
 def _parse_frozen_forcing(entry: Any) -> FrozenForcing:
@@ -1855,6 +2027,7 @@ def _parse_frozen_reporting_path_condition(
         timing_shape=shape,
         offset_minutes=offset,
         duration_minutes=duration,
+        **_parse_origin(raw, where="frozen_reporting_path_condition"),
     )
 
 

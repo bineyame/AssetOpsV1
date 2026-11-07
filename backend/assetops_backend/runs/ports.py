@@ -26,7 +26,7 @@ point of the record is that it cannot drift out from under a later execution.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Any, Mapping, Protocol, Sequence, runtime_checkable
 
 from assetops_backend.runs.models import (
     FrozenSignalMapping,
@@ -159,3 +159,31 @@ class RegisteredSiteSelection:
     #: run setup checks a publication profile's declared resolution unit
     #: against before freezing it.
     source_units: tuple[tuple[str, str, str], ...] = ()
+
+
+class OperationalActionLogUnavailable(Exception):
+    """DIESEL-1-R3f: the named operational-action log is missing, unreadable, not YAML or not a mapping."""
+
+
+@dataclass(frozen=True)
+class OperationalActionLogSource:
+    """DIESEL-1-R3f §9f.2 (5): one named operational-action log as read, and the LF-normalised hash of its bytes.
+
+    `document` is the parsed log, validated by `runs/operational_actions.py` (the port's shape is the Architect's
+    ruling, R3f §9f.2 (5)); nothing here names a path or a storage technology.
+    """
+
+    sha256: str
+    document: Mapping[str, Any]
+
+
+@runtime_checkable
+class OperationalActionLogPort(Protocol):
+    """DIESEL-1-R3f: the read-only operational-action log boundary at Lab run setup.
+
+    Read by an exact `(log_id, log_version)`, never "latest". The product never reads this log: only run setup
+    does, to freeze each action's physical effect; analytics read the records posted through the Work API.
+    """
+
+    def read_log(self, log_id: str, log_version: int) -> OperationalActionLogSource:
+        """The named log, or `OperationalActionLogUnavailable`."""

@@ -127,6 +127,12 @@ def read_run_records(root: Path) -> tuple[SimulationRun, ...]:
     return tuple(read_run_record(path) for path in document_paths(root))
 
 
+def load_yaml_text(text: str) -> object:
+    """The run adapters' one YAML load point; `yaml.YAMLError` propagates (DIESEL-1-R3i S5-b)."""
+    document = yaml.load(text, Loader=CSafeLoader)
+    return document
+
+
 def read_run_record(path: Path) -> SimulationRun:
     """Read and strictly validate one run document."""
     try:
@@ -147,7 +153,7 @@ def read_run_record(path: Path) -> SimulationRun:
         ) from error
 
     try:
-        document = yaml.load(text, Loader=CSafeLoader)
+        document = load_yaml_text(text)
     except yaml.YAMLError as error:
         raise RunConfigurationInvalid(
             f"Run document {path.name} is not valid YAML"
