@@ -2505,3 +2505,96 @@ Input: the coordinator's relay of the B1 stop. On `dd1b2d` the S2 comparison rer
 | **(e)** | **Still 0.35.** The Performance rerun is one child call inside B1's 0.2. Lane 2 stays at 1.35 |
 
 **Owner:** nothing new. R11 §6 item (1) already covers it, and the wording stays plain.
+
+## DD1b2-R13: closing the DD-1b2b review (M1, M2, L1-L4) (Architect, Claude, 2026-11-07)
+
+Binding checked: Claude (`.ai/ROLE_CONFIG.md:9`). Input: `.agent/review-DD-1b2b.md` (`851c94f3d`, verdict FIX), the packet, R6-R12. **READ** = code, cited. I ran nothing and wrote no DB row.
+
+### 1. M1: the COH-17 allowance, narrowed to the real recurrence shape
+
+**The reviewer's proposed key is wrong; the narrowing is right (READ).** The mill-recurrence COH-17 is not a Kobo-Site finding. It is the estate check L3, emitted with `site_code` None: "`{n}` distinct Verified threads in the table, claim `{m}`" (`tools/checks/chain_coherence.py:1282-1286`). The D14 precedent this ruling copies is exactly that shape: `site_code: null`, `window` week or month, `subject: "L3"` (`build-sheet-CH-6.md:1159-1162`). A `site_code == "KOBO-001"` key would never match it and would turn a true recurrence into a fault.
+
+**Rule (`tools/demo_combined_rows.coh_split`).** A COH-17 finding is allowed **only if all** hold:
+- `recurs` is True (R10 §2, stored rows);
+- `site_code` is None, `window` ∈ {`week`, `month`}, `subject == "L3"`;
+- `detail` parses as `"<n> distinct Verified threads in the table, claim <m>"` with `n - m == 1` (the one mill thread: its older row reads Verified, the claim reads RECURRED);
+- at most **one** allowed COH-17 per window; a second on the same window is a fault.
+
+An allowed entry carries `reason`: "mill recurrence: an older row reads Verified, the thread now reads RECURRED (CH6b3-R4)" and `owner`: "BL-07" (`:1559`). Everything else, including every "lacks … body" and "window is not the requested one" finding, is a fault.
+
+**Must-fail L0s** in `backend/tests/test_demo_combined_finish_rows.py` (the allowed case first, then each fails):
+1. allowed: L3, week, `n - m == 1`, recurs → allowed with the reason and owner;
+2. recurs False, same finding;
+3. L3 on window `S`;
+4. L3 on week with `n - m == 2`;
+5. site-less COH-17 subject `summary` ("a stamped bundle lacks the summary body");
+6. site-less COH-17 subject `window` (the `/estate/chain` window fault);
+7. COH-17 with `site_code` KOBO-001 (a V2 row) on week;
+8. two L3 findings on month: the second is a fault.
+
+No `check` rerun: `allowed_coh17` is `[]` on this build (`var/demo3_dd1b2/check.json`), so the stored F-COH result does not change. E3's self-check runs the narrowed rule.
+
+### 2. M2: every owed item without a closure
+
+The after tool is extended once (§5 B2). It runs read-only in the tree form (R9 §3), with `ASSETOPS_RESPONSE_STORE=compose` so the GETs store nothing (R11's method). E3 reruns the same tool on the E3 build at **E3.2** (§4), so each (i) below is checked again on the real build.
+
+| Item | Decision | How, and pass |
+|---|---|---|
+| O8 clone half (2)-(5), S+2 | **(i) now, on `dd1b2d`** | The after tool with S+2 added to its day offsets: the study ending S+2 (queued, status, eligible), the mill thread's events, the Grow and Assure rows on S+2's board, the Portfolio week and month counts. **Pass:** R7's result is still "Recurs" from OPP-000002, no WITHDRAWN or CLOSED, no RECURRED effective on S+2, Assure unchanged, Portfolio Grow counts the mill thread open. Anything else comes back to me, because the DS-1 line "the add changes nothing already shown" depends on it |
+| O8 (6), COH-17 after the S+2 add | **(ii) E3.3** | The post-add `check` rerun that R11 §1 already orders for CO-2. F-COH must pass under §1's rule |
+| O12, the Grow contributor on S-8 and S-5 | **(i) now, on `dd1b2`** | Record the Kobo Grow row's `nodes` (potential text and every contributor text) on S-8 and S-5. **Pass:** the potential reads "No potential found yet" and a contributor shows spare solar seen. If not, R6 §4's L6 line comes back to me before DS-1 |
+| O19, how E2 runs `test_demo_combined_postgres` | **Closed by this ruling** (statement, no read) | "E2 runs `test_demo_combined_postgres` on a TEMPLATE clone of the E3 build, with the DB named by env. On that clone it first runs R12 (c)'s two comparison reruns in the tree form and checks that the Kobo S board reads AVAILABLE. The env var and the fixture branch are written at E2, when they first run (DD1b2-R Q12)." The packet carries this text |
+| F-THREADS: earnings recompute | **Closed by citation** | WK-2a 42.08 USD = 168.3 kWh × 0.25 (`check.json`; packet O16) |
+| F-THREADS: ONE-SOURCE | **Closed by citation** for EV (WK-1, no money with no checked day, `check.json`); Kobo goes with the next row | |
+| F-THREADS: "Why?" price line | **(i) now, on `dd1b2`** | Read the Kobo Grow "Why?" for the pinned mill study (S-11). Assert that any price shown equals the stored selection price (0.25 USD per kWh), and that any money shown equals kWh × price at 2 dp. If it shows no money (LIMITED), assert none and record it |
+| F-THREADS: links with an explicit `known_at` | **(ii) E3.2** | Report only. The after tool lists them on the E3 build; the E3 packet carries the list |
+| F-THREADS: Portfolio plain landing for Cold and EV | **(ii) E3.2** | Report only, stated in the E3 packet (DS-1 opens Cold and EV from the story-day links, R9 §1) |
+| F-THREADS: Protect "Why?" names both Cold threads | **(i) now, on `dd1b2`** | Assert both Cold thread ids (`cold.json`) appear in the Cold Protect "Why?" on the window holding Cold's story days |
+| F-THREADS: MG-2 line | **Closed by citation** | CO-5/SP-1 records the MG-2 outcome in `check.json` (R10 §1). The packet quotes that entry |
+| F-THREADS: "Action agreed" on ACT-002/003 | **(i) now** | Assert from `check.json` F-THREADS `thread_states` (a file read): both `state_label`s read "Action agreed". If not: back to me |
+
+Nothing is dropped.
+
+### 3. L1-L4
+
+| Finding | Decision |
+|---|---|
+| **L1** EX-1 verdict | **Fix now, no rerun.** `tools/demo_combined_ex1.py`: exit non-zero when `comparison.passes` is false or when any read is not AVAILABLE; read `counts`, not `count`; any change in an `in_hand` item is an Action-words failure. L0s: exit code on a failing compare; `counts` read from the measured row shape; an `in_hand` text change fails. The valid run's whole-row diff was empty, so its verdict stands |
+| **L2** lineage | (a) **Fix now:** the packet names the after tool that ran as the tree copy that differs from `411817ae8` (top-level import, equivalent), and then the B2 rerun uses the committed file, copied. (b) **Fix now:** O16's reads move into the after tool as assertions (each fuel row's day is a story day; none on a `steady` or `steady-before` day; S-14 and S-7 PRICED with quantity 0). This also gives E3.2 the MONEY-B gate the review found missing. O10's output goes into `.agent/DD-1b2b-rehearsal.json` as recorded, and the packet says where the script ran. (c) **(ii) E3.5:** `perf_budget --story --report --runs 3 --record <path>` on the E3 build, naming each NOT MEASURED route. NOT MEASURED is never a pass |
+| **L3** DS-1 carry | **DS-1 draws from the rulings.** The packet gets a short index only (§6), not the full lines |
+| **L4** `domain_action_index` window | **Fix now, in the after tool:** read Cold's and EV's `domain_action_index` on the Site-local story day and on its week. Assert ≥ 1 row, with ACT-000002 on Cold and ACT-000003 on EV. The F-THREADS row is not changed |
+
+No new backlog item. **BL-50 stays free.**
+
+### 4. E3 steps named here (the E3 card collects them)
+
+- **E3.2** After the E3 prepare and self-check: `tools/demo_combined_after.py` in the tree form on the E3 build. It carries R13 §2's (i) asserts, the O16 asserts, the L4 reads, the `known_at` list and the Cold/EV Portfolio landing statement.
+- **E3.3** R11 §1's serve step (heartbeat, live add, `tick --until-drained`, lock timeout), then one tree-form `check` rerun after the add (CO-2 and post-add F-COH).
+- **E3.4** O13's browser path: Work → Maintenance → the mill row → "Target met", 42 → 110 (R11 §3).
+- **E3.5** `perf_budget --record`, with the NOT MEASURED routes named (L2 (c)).
+
+### 5. Fix round (Sonnet builder, about 0.2)
+
+- **B1.** M1 (§1) with its eight L0s.
+- **B2.** `tools/demo_combined_after.py`: an S+2 offset option; O12's S-8 and S-5 Grow nodes; the "Why?" price line; the Protect Cold-threads assert; the ACT-002/003 assert; L4's reads; O16's asserts; the `known_at` list and the Cold/EV landing statement (report rows). L0s on the pure parts. Exit non-zero on any failed assert.
+- **B3.** L1 with its L0s.
+- **B4.** Commit. Copy the after tool into `var/demo3_dd1b2/tree/tools/` and `var/demo3_dd1b2d/tree/tools/`. Run it once on `dd1b2` and once on `dd1b2d` (S+2 mode), tree form, `ASSETOPS_RESPONSE_STORE=compose`. No tick, prepare, add-day or suite. Scoped pytest of the touched test files only. Any failed assert: **stop**, back to me with the output.
+- **B5.** Packet: this ruling's table with each item's evidence path; L2 (a)'s note; O19's text; the MG-2 and earnings citations; §6's DS-1 index. Write/Edit only, `git add -f` the explicit paths, one commit.
+
+**Then a Sonnet re-review of the named findings** (M1, M2, L1, L2, L4). M1's rule and the new asserts are code, so a coordinator check is not enough for them. After ACCEPT, drop `dd1b2` and `dd1b2d` and their folders (R6 §6 step 9).
+
+### 6. The DS-1 source index (for L3; the packet copies this list)
+
+DS-1 takes its lines from these sections, with the measured numbers already filled in there:
+- **R6 §4:** the mill route; R4 "about 96 / about 22" (allowed, R11 §3 O14); L6, as worded unless R13 §2's O12 row sends it back; the generator line with "about 15 minutes" and no litre figure (R11 §3 O15); "Do not add a Cold or EV day live".
+- **The add-day line:** R6 §3's replacement line, plus R9 §2's clause ("Never run `tick --until-drained` after an add made without `--assess-now`") and R11 §2's numbers (add about 65 s, tick until drained about 200 s; the add changes nothing already shown).
+- **Q7's "recurs" lines:** the DS-1 block at `:1561-1564`; "Seen again" stays (R10 §2).
+- **R10 §4:** the month-start MG-1 line and the Depot fault-day income line.
+- **R11 §1:** the `serve` line.
+- **R12 (c):** the copy line. It is an E2/E3 line, not a presenter line.
+
+### 7. Size
+
+The first review spent 0.1 of the 0.15. New: the fix round, **+0.2**, and a Sonnet re-review, **+0.05**. **DD-1b2b has 0.3 left:** fix round 0.2, re-review 0.05, close 0.05. Its total is 2.95. **Lane 2 remaining: 0.3 + CH-5d1's 1.0 = 1.3.**
+
+**Owner:** nothing new. No decision is needed.
