@@ -912,3 +912,69 @@ A run cannot start mid-scenario and state is not carried between runs (DD1a1-R Q
 
 ### Handoff
 Wait for the owner's answers, then: G0, the files and v3, G1, the R25 probe, G2, the scoped tests and guards. Stops are as ruled above; a stop returns to this Architect with its report.
+
+## DD1a2-R2: G1 failed on "0 L" on the `steady-before` night: accept the measured litre, and say so (Architect, Claude, 2026-11-07)
+
+- Input: `.agent/DD-1a2-handoff.md` at `215984add`, `.agent/DD-1a2-g1.json`, `.agent/DD-1a2-g1-control.json`, `.agent/owner-dd1a2-answers-2026-11-07.md`. The owner chose the 06:00 start and to write the "before".
+
+### The report, checked
+
+| Claim | Result |
+|---|---|
+| 0.973 L, generator 04:00-06:00 | **Confirmed**, probe `B-early` in `kobo-night-handover-v1.json:546-571`: start 45.26 %, end 299.03 L, 30.0 %, RUNNING. |
+| G0 states (89.47 / 48.42, 86.32 / 45.26) | **Confirmed** in the same file. |
+| 3 NECESSARY intervals, 0 Findings; control finds 2 | **Confirmed** in the two JSON files. |
+| Money 0 rows on both | **Confirmed.** Money is unmeasured on this path. |
+| 3.167 kWh "in evidence" | **Not in `DD-1a2-g1.json`.** That file predates the builder's fuel-field change. It has no `generator_kwh`, and its `fuel_used_l` reads 0 on every day, including S-12, which is the vacuous figure the builder later removed. **That file must not be cited for litres.** The 3.167 is unverified here, though it is consistent with 0.973 L. Regenerate it (below). |
+| 7 days, about 6.8 L | The 7 days match the v3 table. 6.8 L is 7 × one probe, not measured as a sum. |
+
+### 1. Option: **(a), keep the 7 nights as measured.** G1 stays recorded as a fail on that line, accepted by this ruling.
+
+- **This does not redefine the gate.** The packet records: "G1: FAIL on 0 L for `steady-before`; accepted, DD1a2-R2". DD1a2-R said a G1 fail would likely mean the days cannot be full. That prediction does not apply: every join is STOPPED, the interval is NECESSARY, and there are 0 Findings. The only thing false is the "0 L" sentence, so the sentence changes, not the day.
+- **(b) is rejected, and the bound stays at 0.5 pp.** A 48 % start after a day measured ending at 45.26 % is a declared value, picked because it removes the fuel. That is exactly what R2 forbids ("measured handover, never chosen"), and the bound exists to catch it. I see no honest reading of a 2.74 pp step here. `check_full_day_chains` is unchanged.
+- **Branch B is rejected.** It is the route for days that cannot be full, and these can. The owner chose "write a 'before'".
+- **The frozen pattern stays frozen.** The cause is the authored afternoon load, and it is not revisited now that a result is known.
+- **Regenerate G1 (required, with handoff step 1).** Rerun through `host/tests/test_dd1a2_registered_kobo.py` with the current report and overwrite `.agent/DD-1a2-g1.json`. It must show `generator_kwh` per day and, for the 04:00-06:00 night, clinic and residential delivered equal requested (R3 check 1: nothing unserved; the battery sits at its reserve).
+  - **Pass:** NECESSARY, 0 Findings, nothing unserved, litres as the probe. If the litre figure differs, `BEFORE_NIGHT_DISCLOSURE` takes the measured figure and the build continues.
+  - **Fail (a Finding, a Candidate or Cannot-determine minute, or any unserved load):** stop and the Architect rules. No value changes.
+
+### What the screen and the demo say
+
+- **Screen: no new copy, and no litre figure is added.** No fuel signal reaches evidence on this Site (the builder's note, consistent with G1's signal list), so nothing shows these litres as a reading. The day's Cost row reads `COST_NO_MONEY`, "No fuel cost estimated for this day", because that row prices only time beyond need, from a Finding. Read from code: `mini.py:477`; confirm the shown text in F-THREADS. The night's source line already says it, through `BEFORE_NIGHT_DISCLOSURE`: "...the generator delivers energy and this night uses about 1 L of fuel."
+- **Demo script, if asked:** "On the days before the mill change, the evening ends with the battery a little lower, so the generator comes on from about 4am and uses about a litre. It was needed, so no problem is raised and no extra cost is estimated."
+- **Do not say** "the mill change saved a litre a day". The drop from about 1 L to 0 comes from the pattern we authored and the 06:00 start, not from a measured saving. **Do not say** "about 0 litres" of these 7 days.
+
+### 2. Owner: **informed, no question; the build does not wait.**
+
+The owner's choice was between about 0 L and about 22 L, and about 1 L on 7 days does not change which is better. The only other routes are a chosen number or losing "Target met". Line for the coordinator to send, with the right to overrule:
+
+> "A correction to what we told you about normal days on the Kobo example. Most run about 0 litres before dawn, but the 7 days before the mill change use about 1 litre each, because the generator comes on from 4am. It was needed, so no problem is raised and no extra cost is shown, and the night's explanation says so. We kept the measured figure instead of changing the numbers. We also said money stays the same: that isn't proven yet. It gets checked on a test build and again on the final rehearsal, and we'll tell you before the full build if it differs. The new full days do add their own mill sales figures, which is expected. Tell us if you'd like this handled differently."
+
+### 3. Money: proved in two named places, neither left vacuous
+
+- **Why it is expected to hold (read from code, not proof).** A fuel consequence comes only from a Finding's Candidate span (`financials/fuel_cost.py:284-311`, `NO_CANDIDATE_TIME`), so a day with 0 Findings has nothing to price.
+- **G2 (`MONEY-A`, DD-1a2).** After each build (`mill3`, `story-only`), run the same worker the prepare's ticks use (`--consequence-items`, `demo_combined.py:66`) until nothing is pending, then report the rows per local day.
+  - **Non-vacuity:** the `story-only` control must give rows or a stated priced result for S-14 and S-7. If it gives none, the check is vacuous: say so in the packet, and do not claim it.
+  - **Pass:** S-14 and S-7 equal between the builds, and no fuel-consequence row on any steady, `steady-before` or mill day.
+  - **Fail (a row differs, or one lands on a steady day):** stop and the Architect rules.
+  - **If it needs more than the worker call and the price seed the child already has (`demo_combined_kobo.py:138`):** do not build more here. Report it unproved in the packet, and `MONEY-B` carries it.
+- **DD-1b2 F-THREADS (`MONEY-B`, always, on the whole build).**
+  - Every Kobo fuel-consequence row traces to a Finding on a story day, and none lies on a steady day.
+  - The Cost headline on one `steady-before` day and one `steady` day is reported as shown.
+  - Each Grow figure reproduces from its rows (R12 item 2), which means the new full days' figures are stated, not assumed. Finish row WK-2a's S-1 figure (42.08 USD, `demo_combined_finish.py:527`) must stay equal, since S-1 is byte-equal.
+  - **If MONEY-B differs from what the owner was told, they hear it before E3.**
+- **Standing, +0, lane 1 (CH6b3-R2 in `build-sheet-CH-6.md`, once merged):** F-THREADS also reports every shown Kobo row state and fails on PRODUCER_NOT_SETTLED or a PARTIAL board.
+
+### 4. `test_demo_combined_postgres.py:198`: **no change.**
+
+- Line 198 reads the same default file that the test's prepare uses (`demo_combined.py:343`; that test file passes no `--days`), so the listed and resolved days agree on v3. EV's new `S-14d` fits the assertions by reading: the same count, the ruled weekday, and within the 7 days before the listed date. Not run.
+- **Prove that part now without the barred test (+0):** L0 in `test_demo_story_days.py` resolves v3 on 7 consecutive values of S and applies the same weekday assertions.
+- **The real consequence is cost, not line 198.** That test's fixture now prepares the whole of v3, about the same cost as E3. **DD-1b2 states how E2 runs it:** against the one E3 build, or pinned by `--days` to a shorter list. Any finish row it then breaks is DD-1b2's to fix. No change in DD-1a2.
+
+### Size
+
+**+0. DD-1a2 stays 2.25, DD-1 10.5.** All of this is inside existing G1, G2 and F-THREADS acceptance. Nothing goes to the backlog. SCOPE-1: both money checks are demo-critical, because the owner was told money stays the same.
+
+### Handoff
+
+Regenerate G1, then continue the handoff's order: R25 probe, L2 add-day, G2 with MONEY-A, the L0 above, the packet. The handoff's "Next" items otherwise stand.
