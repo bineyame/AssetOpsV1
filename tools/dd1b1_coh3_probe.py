@@ -244,7 +244,7 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
     pairs = list(cc.coh3_pairs(bundle))
     coh3 = cc.coh3_action_on_board(bundle)
     boards = {b.get("site_code"): b for b in (bundle.get(f"board.{d}") for d in bundle.day_windows()) if b}
-    extra = extra_reads(cc, app_client(url, work), picked, bundle, boards)
+    extra = extra_reads(cc, cc.InProcess(app_client(url, work)), picked, bundle, boards)
     doc["extra"] = extra
     doc["declare"] = {}
     for code, instant in instants.items():
