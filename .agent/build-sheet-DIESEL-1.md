@@ -1473,6 +1473,7 @@ None.
 - `generator_kwh = Σ kwh_t`; `loaded_litres = SFC × generator_kwh` (A2's `fuel = SFC × generator kWh`, every slot's kWh, as fuel-cost does); `idle_seconds = 300 × idle slots`; `idle_h = idle_seconds / 3600`.
 - Any `kwh_t` None → reason `GENERATOR_KWH_UNKNOWN`. Otherwise any `state_t` None → `IDLE_SECONDS_UNKNOWN` (A2's reason names).
 - `verification_rules.py` is **imported, never edited** (the two private helpers are imported by name; K6 owns the next edit of that file). K3 never reads a run, a trajectory or the simulator.
+- **Amended by DIESEL-1-R3h (§9h):** the idle test is the shared `verification_rules.idle_slot(...)`, which excludes the stop slot (RUNNING at `t`, a not-running sample at `t + 5 min`). K3 makes that one named edit to `verification_rules.py`.
 
 **Opening, closing and conflicts (F0's rule).**
 - Opening O = the value of the **last** accepted reading with `source_time` in `[start − 30 min, start]`; closing C = the **first** in `[end, end + 30 min]` (both ends inclusive).
@@ -2222,5 +2223,144 @@ None. For the owner, in plain words: the fuel delivery and the unrecorded remova
   - The packet lists it with that reason.
 
 ### 9g.6 Owner questions
+
+None.
+
+---
+
+## 9h. Ruling DIESEL-1-R3h: K3 stop S1 (600 idle seconds on every Kisiwa night)
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27).
+- Read on `task/DIESEL-K3-fuel-balance` at `3c239ad2c`: `B/fuel_balance/rules.py:171-201` (`use_from_readings`), `B/actions/verification_rules.py:222-330` (`_power_slot`, `_instant`), `:372-373`, `:478-491` (A2's idle count), `B/analytics/dispatch.py:97-98`, `:242-300` (run reconstruction, `_off_after`), `simulator/assetops_simulator/packs/mini_grid.py:29-33` (lifecycle timing), `backend/tests/test_tfc2.py:146-177`, `backend/tests/test_k3_fuel_balance_rules.py:155-230`.
+- Evidence: read-only SQL on `assetops_k3_test` (the stored windows of the failing run and their `accepted_evidence`).
+
+### 9h.1 The stop
+
+On nights 2, 4 and 6, `idle_seconds = 600` where the card and F0 expect 0. `use_high` and `residual_low` each differ from F0 by `539/600` L = `600/3600 h × 49/10 L/h × 11/10`. Every other term and all three states match F0.
+
+### 9h.2 Cause, with evidence
+
+**The idle slots are the two generator stop slots of each night.**
+- The SQL pairs each accepted `generator_state` sample at `t` with the `generator_power` mean over `[t, t + 5 min)`, the pairing that `use_from_readings` and A2 both use. In each window it finds exactly two slots that are RUNNING at 0 kW. In UTC, the same instants each night:
+
+  | Slot start (UTC) | Local | State at `t` | Mean kW over `[t, t+5)` | Mean kW over `[t−5, t)` | State at `t + 5` |
+  |---|---|---|---|---|---|
+  | 19:05 | 22:05 | RUNNING | 0 | 38 | STOPPED |
+  | 00:15 (next day) | 03:15 | RUNNING | 0 | 27 | STOPPED |
+
+- 2 × 300 s = 600 s on every night. No other slot is RUNNING at 0 kW.
+- Starts give no idle slot. Example: STOPPED at 17:05 with 0 kW over `[17:05, 17:10)`, then RUNNING at 17:10 with positive kW from 17:10.
+
+**Why the stop and the start differ.** The simulator's lifecycle timing (`mini_grid.py:29-33`) works like this:
+- A request emitted at `T` changes the state in phase F, after the sample at `T`. So the sample at the stop instant still says RUNNING, and the slot that follows carries 0 kW: the generator is already STOPPED for the whole slot and burns nothing.
+- At a start, the elapsed start delay moves STARTING to RUNNING in phase A, before the sample. So the STARTING step is published as STOPPED at 0 kW, and the first RUNNING sample opens a loaded slot.
+- The result is that every stop publishes one "RUNNING at the slot start, 0 kW over the slot" pair. That is an artefact of the sampling order, not idle running.
+
+**This is the shared slot rule, not a K3 bug.** K3 applies A2's rule exactly as §9d.2 ordered: `state_t ∈ RUNNING_STATES and kwh_t == 0` (`verification_rules.py:490`, mirrored at `rules.py:196`). A2's `generator_idle_seconds` would score the same two slots per night as 600 s, as K3 does; test A6 already pins that they are equal.
+
+**The product disagrees with itself here.** The dispatch analytic, whose Candidate time drives fuel-cost-2, ends a run at its last RUNNING sample when a 0 kW interval starts there (`dispatch.py:292-300`, `_off_after`). So the product's own run reconstruction reads the stop slot as stopped, while A2's slot rule reads it as idle.
+
+**F0's 0 is right.** L2 predicted that F0's true-trajectory terms could differ from the readings. Here the trajectory has 0 idle fuel, and the published evidence, read the way dispatch reads it, also has 0 idle.
+
+### 9h.3 Decision: (c), a shared slot-rule defect. Fix the rule once, in `verification_rules.py`; parity expectations stay as the card wrote them.
+
+- **Not (a).** Accepting 600 s would book about 0.9 L of "idle" fuel per Kisiwa night that the evidence does not show. The generator was published RUNNING only at the stop instant, and the product's own dispatch reading calls the following slot stopped. It would also make §9c.3 L2 (c) false ("Kisiwa has 0 idle minutes"), and it would put an artefact into A2's money wherever a trial window contains a stop.
+- **Not (b).** K3 followed the card.
+- **The rule (A2's, shared):** a slot is idle iff
+  - the sample at `t` is RUNNING, and
+  - the slot kWh is exactly 0, and
+  - the accepted sample at `t + 5 min` is **not** one of the not-running states (`STOPPED`, `STARTING`, `FAILED`, i.e. `dispatch.NOT_RUNNING_STATES`).
+
+  A missing, conflicting or non-GOOD sample at `t + 5 min` leaves the slot idle, exactly as today. The lookahead only removes a slot when there is a **positive** stop marker; it never makes a slot unknown. So no window's `None` or its problems change.
+- **Why that rule.** It is dispatch's `_off_after` boundary, stated per slot. It removes only the stop slot. A generator that idles unloaded for the whole slot and stops at the next boundary is still counted, because the sample at that boundary is still RUNNING (phase F order). The cost: a real engine that idled part of the slot and then stopped is not counted for that part. That undercounts by at most one slot per stop, the same treatment the start slot already gets. In the fuel balance this is at most 0.45 L of `use_high` per stop, against a 2a = 20 L margin.
+- **Tolerances are unchanged.** C keeps every exact item, 1/100000 L on the toleranced terms, and `idle_seconds == 0` on all three nights. No restatement is needed, because with the fix K3 equals F0.
+
+### 9h.4 Exactly what changes
+
+**1. `B/actions/verification_rules.py`** (named, narrow S4 exception, like R3g; nothing else in the file changes). Next to `RUNNING_STATES` (`:372-373`):
+```python
+#: DIESEL-1-R3h: the sampled values that end a run (`analytics.dispatch.NOT_RUNNING_STATES`)
+NOT_RUNNING_STATES = frozenset({"STOPPED", "STARTING", "FAILED"})
+
+
+def idle_slot(slot_start: datetime, state_value: Any, slot_kwh: Fraction | None,
+              state_readings: Iterable[Reading]) -> bool:
+    """A2's idle slot: sampled RUNNING at the slot start and exactly 0 kWh over the slot, unless the accepted sample at
+    the slot end is a not-running state. That slot is the stop slot: the sample precedes the stop, and dispatch's
+    `_off_after` ends the run there (DIESEL-1-R3h). A missing or unknown end sample keeps the slot idle."""
+    if state_value not in RUNNING_STATES or slot_kwh is None or slot_kwh != 0:
+        return False
+    return _instant(slot_start + SLOT, state_readings, numeric=False)[1] not in NOT_RUNNING_STATES
+```
+- In `window_evidence`, `:490` becomes `elif idle_slot(t, gen_value, slot_gen_kwh, state_readings):`.
+- The lookahead's payload is **discarded**: no `note(...)` and no `evidence.update(...)`. The window's problems, evidence ids, `plan_sha256` and stored details are therefore byte-equal. `generator_idle_seconds` is already outside `plan_sha256` and the details (`:435-436`, `test_out_e3_trial_comparison_postgres.py:52`).
+
+**2. `B/fuel_balance/rules.py`**:
+- `use_from_readings` imports `idle_slot` and replaces `value in RUNNING_STATES and kwh == 0` (`:196`) with `idle_slot(t, value, kwh, state)`. The unknown handling stays as it is.
+- The docstring says "A2's slot rule (`verification_rules.idle_slot`)".
+
+**3. Tests**
+- **`backend/tests/test_tfc2.py`**: add `test_window_idle_seconds_exclude_the_stop_slot`:
+  - gen 0 kW; RUNNING at slots 0–5, STOPPED at 6–11 → `generator_idle_seconds == 1500`, not 1800;
+  - RUNNING at 0–11 with STOPPED at the window end (`T0 + 60 min`, an extra point) → 3300;
+  - RUNNING at 0–11 with no end sample → 3600 (unchanged);
+  - RUNNING at 0–5, then a non-GOOD sample at slot 6 → 1800 (no positive stop marker).
+  - Each case must fail if the lookahead is removed or inverted.
+  - **The existing tests stay byte-unchanged.** Line 169's `three` case keeps 900, because the sample after slot 2 is `"ON"`, which is not a not-running state.
+- **`backend/tests/test_k3_fuel_balance_rules.py`**:
+  - **A3 fixture:** `running = set(range(25))`. The idle night has 25 RUNNING samples (slot starts 0–24) and STOPPED from 25, so 24 idle slots. All of A3's expected numbers stay as the card wrote them (7200 s, `539/50`, `1711/50`, BELOW_MATERIALITY, the r = 33/10 rerun).
+  - **New A14:** the Kisiwa stop shape. Slot `k` loaded at 38 kW, then RUNNING at `k+1` with 0 kW and STOPPED at `k+2` → `idle_seconds == 0`. Converse: RUNNING at `k+1` and `k+2`, 0 kW over both slots, STOPPED at `k+3` → 300 (slot `k+1` idle, slot `k+2` the stop slot).
+  - **A6 extended** with one stop slot inside the hour: K3's idle seconds equal `window_evidence(...)["generator_idle_seconds"]`.
+- **`host/tests/test_k3_fuel_balance_parity.py`**: no change. C is re-run as written, on `assetops_k3_test`, with the machine idle and free RAM checked. Expected: all three nights pass, with `idle_seconds == 0`.
+- **Must stay green unchanged** (localised runs, no full suite):
+  - `test_tfc2.py` (the existing cases);
+  - `test_s6_verification_rules.py`;
+  - `test_out_e3*` cost-check tests;
+  - `test_ch9b2_reserve_byte_equal_postgres.py` and `test_s6_verification_evaluator_postgres.py` (their goldens hold `generator_idle_seconds: 0`, and a rule that only removes slots cannot change a 0);
+  - K3's A1–A13 and B1–B6.
+
+  If any of them needs a behaviour edit, stop under S5.
+
+**4. What does not change:** `probe-result.json`, the probe, `PARAMETERS`, every C tolerance, `dispatch.py`, `fuel_cost_v2.py`, `trial_fuel_comparison.py`, and every Kobo, Cold and EV file.
+
+### 9h.5 Who does it
+
+- **A Sonnet fix round on `task/DIESEL-K3-fuel-balance`** (worktree `C:\Users\assef\Bineyame\AssetOpsV1-k3`). Order:
+  1. §9h.4 items 1–3 in one commit;
+  2. the localised runs;
+  3. part C, re-run;
+  4. the packet.
+- The packet lists the `verification_rules.py` diff under "S4 exception, DIESEL-1-R3h" and quotes this section's SQL table as the cause.
+- `git add -f` of explicit paths.
+- **K3's first review (Opus)** covers it. The reviewer applies two mutations to a scratch copy:
+  - delete the lookahead: the new tfc2 test, A14 and C must fail;
+  - replace `NOT_RUNNING_STATES` with `{"STOPPED"}`: the tfc2 non-GOOD case must still pass, which shows that only positive markers act.
+- **K6** merges main before its own `verification_rules.py` edit. The R3d note that K6 owns the next edit now reads "the next edit after R3h".
+
+### 9h.6 Kobo impact (A2, stated plainly)
+
+- **Kobo's idle-fuel money in the demo does not change.**
+  - A2 changes only in a verification window that contains a stop slot: a RUNNING sample, then 0 kWh, then a not-running sample.
+  - Kobo's trial baseline hour (09:00–10:00 local) sits inside a run that idles from 07:05 to 10:55 (`.agent/fuel-story-design-2026-11-07.md:66`, `:137`). Its later hour has no run. Neither hour contains a stop, so both keep 3600 s and 0 s.
+- **fuel-cost-2** (Kobo's three idle mornings) counts idle inside dispatch's Candidate time, which already ends at the last RUNNING sample. It is unaffected.
+- **The defect is real for Kobo in general.** Without the fix, any trial window that contains a generator stop would gain 300 s per stop: 0.275 L nominal, 0.3025 L upper at 3.3 L/h, about 0.34–0.38 USD at 1.25 USD/L. In a baseline window that inflates the claimed saving; in a later window it understates it. None of the demo's windows contains one.
+- **A3's check stands as the backstop.** If the stored trial-hour idle differs from 12 slots, it is a data finding (`build-sheet-FUEL-1.md:425`). A3 needs no edit.
+
+### 9h.7 Effect on the demo story
+
+- With the fix, every Kisiwa night shows **0 idle minutes and no idle fuel**. That is honest: the generator runs loaded and stops, and both the simulator and the product's dispatch reading say it never idles.
+- Night 4's band, and so K4's UNEXPLAINED figure, equals F0's exactly. Nights 2 and 6 stay WITHIN_MARGIN.
+- **The alternative is not honest.** Without the fix every night would carry about 0.9 L of idle fuel (2 × 5 min at 4.9 L/h × 1.1) that never happened, and night 4's lower residual would sit about 0.9 L below F0.
+- K4 and K5 add **no** idle line on Kisiwa (`idle_seconds` is 0). The idle term stays exercised only by A3, as §9c.3 L2 (c) says.
+
+### 9h.8 Size
+
+- About **0.15**: rule and helper 0.05, tests 0.05, part C re-run and packet 0.05. K3 goes from 1.6 to about 1.75, inside S7's 1.9.
+- It is paid from the remaining contingency (0.15 → 0), so the Kisiwa total stays **17.25**.
+- **Critical path:** about 8.9 lane-units (8.75 before). That is **below the 9.75 tripwire; no cut.**
+- **Demo date:** unchanged at about +3.25 working days.
+- **Contingency is now spent.** The next overrun on the Kisiwa lane is reported against the tripwire, not absorbed.
+
+### 9h.9 Owner questions
 
 None.
