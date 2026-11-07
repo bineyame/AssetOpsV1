@@ -1,0 +1,1334 @@
+{
+ "mode": "mill3",
+ "S": "2026-11-05T00:00:00Z",
+ "db": "assetops_dd1a2a_test",
+ "report": {
+  "days": {
+   "2026-10-22": {
+    "kind": "overuse",
+    "runs": [
+     "kobo-mini-grid-reserve-trial"
+    ],
+    "generator_local": [
+     [
+      "07:05",
+      "11:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [
+     {
+      "episode_start": "2026-10-22 04:35:00+00:00",
+      "episode_end": "2026-10-22 07:55:00+00:00",
+      "candidate_minutes": "200.0000",
+      "necessary_minutes": "0.0000",
+      "indeterminate_minutes": "0.0000",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "title": "Generator may have been on longer than needed"
+     }
+    ],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "start": "2026-10-22 00:00:00+00:00",
+      "end": "2026-10-23 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-22 00:00:00+00:00",
+      "end": "2026-10-23 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 0,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 1
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-22T04:05:00.000000Z",
+        "claim_level": "CANDIDATE_AVOIDABLE",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-22T04:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     97,
+     0,
+     1
+    ]
+   },
+   "2026-10-23": {
+    "kind": "steady-before-first",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-before-mill",
+     "kobo-rest-before-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-23 00:00:00+00:00",
+      "end": "2026-10-24 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-23 00:00:00+00:00",
+      "end": "2026-10-24 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-23T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-23T02:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-24": {
+    "kind": "steady-before",
+    "runs": [
+     "kobo-night-early-after-before-mill",
+     "kobo-steady-before-mill",
+     "kobo-rest-before-mill"
+    ],
+    "generator_local": [
+     [
+      "04:00",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 3.167,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-24 00:00:00+00:00",
+      "end": "2026-10-25 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-24 00:00:00+00:00",
+      "end": "2026-10-25 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-24T01:00:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-24T01:00:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-25": {
+    "kind": "steady-before",
+    "runs": [
+     "kobo-night-early-after-before-mill",
+     "kobo-steady-before-mill",
+     "kobo-rest-before-mill"
+    ],
+    "generator_local": [
+     [
+      "04:00",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 3.167,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-25 00:00:00+00:00",
+      "end": "2026-10-26 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-25 00:00:00+00:00",
+      "end": "2026-10-26 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-25T01:00:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-25T01:00:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-26": {
+    "kind": "missing",
+    "runs": [],
+    "generator_local": [],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-26 00:00:00+00:00",
+      "end": "2026-10-27 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 0,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": []
+     }
+    ]
+   },
+   "2026-10-27": {
+    "kind": "mill-midday",
+    "runs": [
+     "kobo-night-early",
+     "kobo-mill-midday",
+     "kobo-rest-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-27 00:00:00+00:00",
+      "end": "2026-10-28 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-27 00:00:00+00:00",
+      "end": "2026-10-28 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-27T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-27T02:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-28": {
+    "kind": "steady",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-day",
+     "kobo-rest-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-28 00:00:00+00:00",
+      "end": "2026-10-29 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-28 00:00:00+00:00",
+      "end": "2026-10-29 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-28T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-28T02:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-29": {
+    "kind": "overuse",
+    "runs": [
+     "kobo-mini-grid-reserve-trial"
+    ],
+    "generator_local": [
+     [
+      "07:05",
+      "11:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [
+     {
+      "episode_start": "2026-10-29 04:35:00+00:00",
+      "episode_end": "2026-10-29 07:55:00+00:00",
+      "candidate_minutes": "200.0000",
+      "necessary_minutes": "0.0000",
+      "indeterminate_minutes": "0.0000",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "title": "Generator may have been on longer than needed"
+     }
+    ],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "start": "2026-10-29 00:00:00+00:00",
+      "end": "2026-10-30 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-29 00:00:00+00:00",
+      "end": "2026-10-30 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 0,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 1
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-29T04:05:00.000000Z",
+        "claim_level": "CANDIDATE_AVOIDABLE",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-29T04:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     97,
+     0,
+     1
+    ]
+   },
+   "2026-10-30": {
+    "kind": "steady",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-day",
+     "kobo-rest-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-30 00:00:00+00:00",
+      "end": "2026-10-31 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-30 00:00:00+00:00",
+      "end": "2026-10-31 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-30T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-30T02:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   },
+   "2026-10-31": {
+    "kind": "steady",
+    "runs": [
+     "kobo-night-early",
+     "kobo-steady-day",
+     "kobo-rest-mill"
+    ],
+    "generator_local": [
+     [
+      "05:05",
+      "06:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "NECESSARY",
+      "start": "2026-10-31 00:00:00+00:00",
+      "end": "2026-11-01 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-31 00:00:00+00:00",
+      "end": "2026-11-01 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 1,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 0
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-31T02:05:00.000000Z",
+        "claim_level": "NECESSARY",
+        "assessment_key": "dispatch:interval:569a04d9-44b0-458d-8eb4-ab7b591e64a9:2026-10-31T02:05:00.000000Z"
+       }
+      ]
+     }
+    ],
+    "clinic_readings_unserved": [
+     288,
+     0,
+     2
+    ]
+   }
+  },
+  "signals": [
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "charge-requested-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "discharge-capability"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "state-of-charge"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "delivered-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "requested-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "status"
+   },
+   {
+    "device_id": "mill-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "available-power"
+   },
+   {
+    "device_id": "residential-meter",
+    "signal_id": "active-power"
+   }
+  ],
+  "money_rows": 6,
+  "money": [
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:42.775658+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "9c5b2b34-49bf-4e37-b2a7-0173455a924d",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "d0be7a610d5c79a17b2d9f4e713524032c8bebc875403e788abe9232d6bd0f1e",
+    "consequence_basis_sha256": "93c1bc1afb928d7088e18861be3525d4a6d20b890c2c9aa9d8d4e3ec28ce253d",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:42.928627+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "137dde57-52e7-42bd-8e5d-3972ab5d0305",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "8aba82fee53599dc3eda3751477662d1196b2a95285fd1b3a457db4e32739eb5",
+    "consequence_basis_sha256": "a50ab7955bdacbe11229703c88d69eaa88e937c08c7ec7dc58c643af68159347",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.197789+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "a3a838db-f2fc-45d1-9a88-3bf1ab7d1e67",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "44d204b52d49506a538b93a9348fa5d0f55270b300f3ed673906170f9d3c54ac",
+    "consequence_basis_sha256": "9d0b75e8b891a51d66ee8b14df7a5253c3329ab411feb5c0912614837a466bec",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.360449+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "4d64fda7-17bc-4125-ac43-9c0bb122058f",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "78819311aab1fcf5d64f41f85fe460a5e0ce7759a6fdbe020e188b85ec1e1596",
+    "consequence_basis_sha256": "279cd25009df5240121ba8249caa0bfa87e479ed0ade862b5829c6b67f394768",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.727671+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "9edd76de-8313-4007-a417-56d397506ccc",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "f7070327d7b9329d9d2e0b80e7960d752bd6b9c740ba4e7f4bc7fd31cdc9a864",
+    "consequence_basis_sha256": "75f222e0e2fbef4b35b71830a9613b6ba2553697e096767a03b12fc2eda87679",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.995134+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "f50c80ff-e42f-4c86-9e5e-1e1e67bc2760",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "51dc2d07c0b35fb877c844dc64d245cf855c9f58827383fb697b714c52ba5aa7",
+    "consequence_basis_sha256": "ffb2733bdfe7aa3e1cb6889430b65ffdd9afa8eeabd5dd68a2db0b0158ca6176",
+    "prior_consequence_revision_id": null
+   }
+  ],
+  "findings_total": 2
+ },
+ "money_a": {
+  "ticks": [
+   {
+    "tick": 1,
+    "exit": 0,
+    "rows": 6,
+    "stdout_tail": "rss_kb\": 60388}, \"cold_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 1533, \"peak_rss_kb\": 60196}, \"ev_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 2238, \"peak_rss_kb\": 63300}, \"chain_snapshots\": {\"code\": \"OK\", \"processed\": 200, \"deferred\": 231, \"elapsed_ms\": 12937, \"peak_rss_kb\": 79216}}}]}",
+    "stderr_tail": ""
+   },
+   {
+    "tick": 2,
+    "exit": 0,
+    "rows": 6,
+    "stdout_tail": "rss_kb\": 58500}, \"cold_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 1456, \"peak_rss_kb\": 60196}, \"ev_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 1755, \"peak_rss_kb\": 63268}, \"chain_snapshots\": {\"code\": \"OK\", \"processed\": 200, \"deferred\": 31, \"elapsed_ms\": 21922, \"peak_rss_kb\": 102120}}}]}",
+    "stderr_tail": ""
+   },
+   {
+    "tick": 3,
+    "exit": 0,
+    "rows": 6,
+    "stdout_tail": "eak_rss_kb\": 58500}, \"cold_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 1874, \"peak_rss_kb\": 59884}, \"ev_consequence\": {\"code\": \"OK\", \"deferred\": 0, \"selected\": 0, \"failed\": 0, \"backlog\": 0, \"elapsed_ms\": 2224, \"peak_rss_kb\": 63168}, \"chain_snapshots\": {\"code\": \"OK\", \"processed\": 31, \"deferred\": 0, \"elapsed_ms\": 5858, \"peak_rss_kb\": 87688}}}]}",
+    "stderr_tail": ""
+   }
+  ],
+  "columns": [
+   "id",
+   "tenant_id",
+   "site_id",
+   "finding_id",
+   "finding_revision_id",
+   "revision_no",
+   "prior_consequence_revision_id",
+   "window_start",
+   "window_end",
+   "sfc_upper_multiplier",
+   "quantity_low",
+   "quantity_high",
+   "price_revision_id",
+   "price_value",
+   "price_considered",
+   "amount_low",
+   "amount_high",
+   "limitations",
+   "recorded_at",
+   "quantity_reason",
+   "quantity_detail",
+   "quantity_unit",
+   "actor_id",
+   "technical_input_sha256",
+   "quantity_high_exact",
+   "consequence_type",
+   "price_state",
+   "price_reason",
+   "consequence_basis_sha256",
+   "currency",
+   "overlap_group",
+   "basis_kind",
+   "model_id",
+   "formula_version",
+   "parameter_version",
+   "parameter_sha256",
+   "price_currency",
+   "state",
+   "quantity_state"
+  ],
+  "rows": [
+   {
+    "id": "d7fb77f0-d545-46b3-bfc1-f6b0905020a9",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:42.775658+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "9c5b2b34-49bf-4e37-b2a7-0173455a924d",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "d0be7a610d5c79a17b2d9f4e713524032c8bebc875403e788abe9232d6bd0f1e",
+    "consequence_basis_sha256": "93c1bc1afb928d7088e18861be3525d4a6d20b890c2c9aa9d8d4e3ec28ce253d",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "id": "c5d4c6b1-8086-4047-bfca-23fd6f74f865",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:42.928627+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "137dde57-52e7-42bd-8e5d-3972ab5d0305",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "8aba82fee53599dc3eda3751477662d1196b2a95285fd1b3a457db4e32739eb5",
+    "consequence_basis_sha256": "a50ab7955bdacbe11229703c88d69eaa88e937c08c7ec7dc58c643af68159347",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "id": "def89faf-7a41-450a-bb00-3cae452d9cf3",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.197789+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "a3a838db-f2fc-45d1-9a88-3bf1ab7d1e67",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "44d204b52d49506a538b93a9348fa5d0f55270b300f3ed673906170f9d3c54ac",
+    "consequence_basis_sha256": "9d0b75e8b891a51d66ee8b14df7a5253c3329ab411feb5c0912614837a466bec",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "id": "9954066f-4259-443f-9bb3-38b1de53bd1e",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "window_end": "2026-10-22T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.360449+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-22T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:d47868fd-2e0f-41ac-9de3-b2f352d2f8d3",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-22T04:35:00.000000Z",
+      "2026-10-22T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "4d64fda7-17bc-4125-ac43-9c0bb122058f",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "78819311aab1fcf5d64f41f85fe460a5e0ce7759a6fdbe020e188b85ec1e1596",
+    "consequence_basis_sha256": "279cd25009df5240121ba8249caa0bfa87e479ed0ade862b5829c6b67f394768",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "id": "077fd1cb-1fec-4b28-8374-ad35b1aabd8c",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.727671+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "9edd76de-8313-4007-a417-56d397506ccc",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "f7070327d7b9329d9d2e0b80e7960d752bd6b9c740ba4e7f4bc7fd31cdc9a864",
+    "consequence_basis_sha256": "75f222e0e2fbef4b35b71830a9613b6ba2553697e096767a03b12fc2eda87679",
+    "prior_consequence_revision_id": null
+   },
+   {
+    "id": "423e976c-5c2a-4162-80a6-1ef55593475e",
+    "state": "PRICED",
+    "site_id": "024b6f73-fc23-474f-a232-a046f9fc9010",
+    "actor_id": "service:assetops-consequence-recompute",
+    "currency": "USD",
+    "model_id": "fuel-cost-1",
+    "tenant_id": "17a3c4f1-cc06-4078-b8b7-acd9e1f8a5fa",
+    "amount_low": 0,
+    "basis_kind": "MODELLED_CONDITIONAL",
+    "finding_id": "f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "window_end": "2026-10-29T07:55:00+00:00",
+    "amount_high": 0.0,
+    "limitations": [
+     "Modelled, assumption-conditioned potential fuel-cost exposure from zero to a stated upper amount.",
+     "This is not measured fuel saved, not expenditure and not a physical maximum.",
+     "The upper assumes actual L/kWh does not exceed 1.10 times the selected Foundation specific fuel consumption (fuel-cost-1 reviewed modelling allowance).",
+     "Only observed Candidate time fully covered by accepted generator-power means is counted; Necessary and Indeterminate time is never priced."
+    ],
+    "price_state": "PRICED",
+    "price_value": 1.25,
+    "recorded_at": "2026-11-07T01:48:43.995134+00:00",
+    "revision_no": 1,
+    "price_reason": null,
+    "quantity_low": 0,
+    "window_start": "2026-10-29T04:35:00+00:00",
+    "overlap_group": "POTENTIAL_FUEL_COST:finding:f9ab7897-e3e4-4f3a-9379-8ab0046d405d",
+    "quantity_high": 0,
+    "quantity_unit": "L",
+    "price_currency": "USD",
+    "quantity_state": "AVAILABLE",
+    "formula_version": "fuel-cost-1+fuel-cost-1/sfc-upper-multiplier/v1",
+    "quantity_detail": null,
+    "quantity_reason": null,
+    "consequence_type": "POTENTIAL_FUEL_COST",
+    "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
+    "price_considered": [
+     [
+      "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+      "2026-10-29T04:35:00.000000Z",
+      "2026-10-29T07:55:00.000000Z"
+     ]
+    ],
+    "parameter_version": "fuel-cost-1/sfc-upper-multiplier/v1",
+    "price_revision_id": "db0f2438-3ff9-4f5f-84fb-75798e0f3ca5",
+    "finding_revision_id": "f50c80ff-e42f-4c86-9e5e-1e1e67bc2760",
+    "quantity_high_exact": "0/1",
+    "sfc_upper_multiplier": 1.1,
+    "technical_input_sha256": "51dc2d07c0b35fb877c844dc64d245cf855c9f58827383fb697b714c52ba5aa7",
+    "consequence_basis_sha256": "ffb2733bdfe7aa3e1cb6889430b65ffdd9afa8eeabd5dd68a2db0b0158ca6176",
+    "prior_consequence_revision_id": null
+   }
+  ]
+ },
+ "mill3": {
+  "effective_day": "2026-10-27",
+  "today": "2026-11-07",
+  "baseline_selection": {
+   "state": "COMPLETE",
+   "found": 3,
+   "min_days": 3,
+   "days": [
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "candidates": {
+    "from": "2026-10-13",
+    "to": "2026-10-26"
+   },
+   "grades": {
+    "2026-10-13": "NO_DATA",
+    "2026-10-14": "NO_DATA",
+    "2026-10-15": "NO_DATA",
+    "2026-10-16": "NO_DATA",
+    "2026-10-17": "NO_DATA",
+    "2026-10-18": "NO_DATA",
+    "2026-10-19": "NO_DATA",
+    "2026-10-20": "NO_DATA",
+    "2026-10-21": "NO_DATA",
+    "2026-10-22": "PARTIAL",
+    "2026-10-23": "COMPLETE",
+    "2026-10-24": "COMPLETE",
+    "2026-10-25": "COMPLETE",
+    "2026-10-26": "NO_DATA"
+   }
+  },
+  "assess": {
+   "decided": true,
+   "outcome": "VERIFIED",
+   "reasons": [
+    "TARGET_MET"
+   ],
+   "baseline_days": [
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "later_days": [
+    "2026-10-28",
+    "2026-10-30",
+    "2026-10-31"
+   ],
+   "not_judged_text": null,
+   "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+   "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+   "look_ahead_closed": false,
+   "baseline_kwh": "126.000",
+   "baseline_mean": "42.00",
+   "threshold": "46.20",
+   "later_kwh": "330.000",
+   "later_mean": "110.00"
+  },
+  "days": {
+   "2026-10-22": {
+    "grade": "PARTIAL",
+    "productive_kwh": "0.000"
+   },
+   "2026-10-23": {
+    "grade": "COMPLETE",
+    "productive_kwh": "42.000"
+   },
+   "2026-10-24": {
+    "grade": "COMPLETE",
+    "productive_kwh": "42.000"
+   },
+   "2026-10-25": {
+    "grade": "COMPLETE",
+    "productive_kwh": "42.000"
+   },
+   "2026-10-26": {
+    "grade": "NO_DATA",
+    "productive_kwh": null
+   },
+   "2026-10-27": {
+    "grade": "COMPLETE",
+    "productive_kwh": "110.000"
+   },
+   "2026-10-28": {
+    "grade": "COMPLETE",
+    "productive_kwh": "110.000"
+   },
+   "2026-10-29": {
+    "grade": "PARTIAL",
+    "productive_kwh": "0.000"
+   },
+   "2026-10-30": {
+    "grade": "COMPLETE",
+    "productive_kwh": "110.000"
+   },
+   "2026-10-31": {
+    "grade": "COMPLETE",
+    "productive_kwh": "110.000"
+   }
+  }
+ },
+ "wall_s": 1113.4
+}
