@@ -104,3 +104,13 @@ DB `assetops_dd1a2rv_test` created and dropped. No code edited.
 - Anything on screen: board, history and index text are read from code. Layout evidence does not apply (no frontend file changed), and `npm test`, build and `tsc` were not run for the same reason.
 - Guards N, V, M were not run. The full suite, a prepare and `test_demo_combined_postgres` were not run (barred by the brief).
 - Whole-build behaviour: the finish rows on v3, and how much Grow and spare-solar figures move on the new days. Both owed to DD-1b2.
+
+## Re-review (DD1a2-R3)
+**Verdict: ACCEPT.** H1 only, `git diff 66115ca05...432a07d87`. No High or Medium.
+
+1. Guard: `plan_add_day` (`tools/demo_story_days.py:464-468`) fires for kobo, a kind with `complement`, offset = `trial-after` offset + 1, after `check_mill_side` and before any expansion, `DAY_NOT_IN_PAST` or provisioning. It is relative to the stored `trial-after` entry, so it holds for any S. `plan_add_runs` calls it first, and `demo_combined.add_day` (only caller, reads stored `days.json`) goes through `plan_add_runs`; I found no other add path or argument that bypasses it. `normal` S+2, `steady` S+3+ and the `steady-before-first` S-10 fill are untouched (L0 asserts each). Low: other complement-less kinds (`overuse`, `overcast`, `late`) on S+2 are not guarded and not measured; outside the ruling.
+2. Moved test (S+2 to S+3, `now` shifted, all assertions shifted equally, the `normal` S+2 and DAY_NOT_IN_PAST assertions kept) is legitimate; nothing weakened.
+3. L2 proves the chain it names (VERIFIED, then REASSESSMENT_PENDING, then VERIFIED x3, guard leaves reading count unchanged). Real timing differs: the live add happens right after S+2 ends, so received_at is much closer to the S+2 window than here (a day later). Not measured; the cause (S+1's selected run changing) is independent of delay, so this is residual risk, correctly owed to DD-1b2/EX-1. Low: REASSESSMENT_PENDING between add and tick 1 is a designed read state (Architect A-S6 answers: "late accepted readings immediately mark REASSESSMENT_PENDING and withdraw Verified presentation"); a client viewing the board in that gap would see it. Neither the DD1a2-R3 script lines nor a rule covers it: EX-1 should add "tick right after the add (or `--assess-now`) before showing the board".
+4. Packet `:18` and `:46` now state the truth and match the ruling.
+
+Checks: `test_demo_story_days.py` 77 passed (1.7 s). Not run: the 224 s L2, mutation check, guards, any DB.
