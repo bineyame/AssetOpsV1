@@ -1,5 +1,5 @@
 # CH-6b3 handoff
 
-- **State:** CH6b3-R3 steps 1-5, 7 done and committed; step 6 partly: drained polish clone passed (figures equal expected, 0 new, clone dropped); scoped backend 337 passed, 2 errors (TEMPLATE_STALE mechanism template, `test_ch6b_estate_postgres.py`); L3m and the Postgres Why route test not run until the states template is rebuilt (needs coordinator approval, ~1300 s).
-- **Packet:** `.agent/review-packet-CH-6b3.md` section "CH6b3-R3".
-- **Next:** coordinator decides the template rebuild; then run `test_ch6b_estate_postgres.py`, L3m collect/check (`--variant states`; L3m D14 recurrence may need `expected-mechanism.json` entries per the ruling); re-review.
+- **State:** CH6b3-R3 final runs done (packet "CH6b3-R3 final runs"). States template rebuilt once (matches checkout). L2m 2 passed; Postgres Why file 1 passed (Site route only); estate month Why `days_used` = `days_line` and no "32" confirmed on the L3m bundle.
+- **Open, blocks accept:** L3m check has 4 COH-17 findings: L3 week/month (1 Verified thread in the table, claim 0; maybe the D14 recurrence) and **N1 week/month: the Assure note branch "no evidence gaps on the days checked" still holds "days checked"** (a code defect, not D14). No `expected-mechanism.json` entry added.
+- **Next:** coordinator decides the N1 fix (the no-gaps Assure note branch), then rerun L3m `derive` + collect + check (template is current unless the fix changes template inputs); only then decide the L3/D14 entries (citing CH6b3-R3 and BL-07).

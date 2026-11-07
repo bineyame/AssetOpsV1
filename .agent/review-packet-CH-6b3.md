@@ -223,3 +223,13 @@ Commands as R2 step 2; drain one pass; collect 134 requests all 200; check with 
 
 ### Guard results (CH6b3-R3, one at a time, `check-all` not run)
 A architecture pass; W agent workflow pass; N navigation pass; V ledger valid (110 screens); M `test_mock_deviation_labels.mjs` 14 pass; frontend ratchet pass; COH fixtures 138 pass. Backend focused: `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5b_why`, `test_ch5a2_contract`, `test_cov_partial*` etc. pass inside the 337 of the scoped run.
+
+### CH6b3-R3 final runs (rebuild approved by the coordinator; results as run, nothing tuned)
+- **Template:** `mechanism_dataset.py build --variant states` (budget default stopped at 540 s twice, resumed with `--resume`, third with `--budget 3000`; total about 1300 s). New template `assetops_mechanism_tpl_abc64763_test`, matching this checkout. One rebuild.
+- **L2m** `test_ch6b_estate_postgres.py` (with `ASSETOPS_TEST_DATABASE_URL`; the first run without it skipped both, discarded): **2 passed**, 515 s. Estate rows agree with the claim.
+- **Postgres Why file** `test_ch5b_why_postgres.py`: **1 passed**, 420 s. That file covers the Site Why route only; it has no estate month assertion. The estate month evidence is the L3m bundle below: `why_estate.{week,S,month}.{PROTECT,OPTIMIZE,ASSURE}` `days_used` equals the card `days_line` on all 9, no "32" in `would_change` (month reads "Checking 21 more days").
+- **L3m** (`derive --variant states` 72 s, collect 109 requests, `check --variant states`; bundle `var/ch6b3r3_l3m_bundle`, report `var/ch6b3r3_l3m_report.json`): **FAILS, 4 new COH-17 findings, no expected entry added**:
+  - L3 week and month: "1 distinct Verified threads in the table, claim 0" (possibly the D14 recurrence; not confirmed, not entered).
+  - **N1 week and month: ASSURE_PERFORMANCE note 'No money credited - modelled, not saved - no evidence gaps on the days checked' holds "days checked"**. This is not D14. On the mechanism DB the Assure note has a no-evidence-gaps branch that still says "days checked" (M1 closed only the other branch). Needs a code fix by the coordinator's decision.
+  - All other rules 0; COH-17 compared 135, skipped 11; COH-18 compared 15.
+- `expected-mechanism.json` untouched. Stopped here per the brief.
