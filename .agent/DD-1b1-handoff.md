@@ -16,3 +16,6 @@ Branch `task/DD-1b1-story-time-actions`, worktree `AssetOpsV1-dd1b1`. **State: s
 
 ## DBs / processes alive
 No probe DB expected (the probe cleans up its own run; not separately verified). Keep-awake helpers of mine (PIDs 12084, 20492) self-exit; never stop them. Scratch `var/dd1b1-probe` is git-ignored.
+
+## R2 update
+Committed: actions_to read fix (read.py/cold.py/ev.py), whole-UTC-day story_links + chain_coherence.day_windows, `objectives_instants` + per-Site `demo_declare_objectives.py <url> <file> <site> <iso>`, L0s, probe adapted (1 tick, extra reads, judge_r2), BL-33 -> BL-38, R645 comment. Re-probe started: `var/dd1b1-probe/probe.json`. Then: guards A,W,N,V,M; test_ch1b_*, test_s6_verification_replay*, test_ch6b1*, test_ch6b2*; mutation proofs; packet.
