@@ -109,12 +109,10 @@ def kisiwa(tmp_path_factory):
     from kisiwa import KisiwaRegistered
     from test_w401_work_service_postgres import PRINCIPAL, VirtualDbClock
 
-    from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
     from assetops_backend.evidence.composition import build_link_rows_reader
-    from assetops_backend.fuel_balance.adapters.postgres_fuel_balance_store import PostgresFuelBalanceStore
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
     from assetops_backend.fuel_balance.service import FuelBalanceService
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
-    from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
     from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
     from assetops_backend.work.service import WorkService
 
@@ -134,8 +132,7 @@ def kisiwa(tmp_path_factory):
     work = PostgresWorkStore(URL, link_rows=build_link_rows_reader(), test_db_clock_override=work_clock)
     svc = WorkService(work)
     fb_clock = SetClock(INSTALL_AT)
-    fb = PostgresFuelBalanceStore(URL, actions=PostgresActionStore(URL), fuel_records=select_fuel_records,
-                                  test_db_clock_override=fb_clock)
+    fb = build_fuel_balance_store(URL, test_db_clock_override=fb_clock)  # the production composition (DIESEL-1-R3g)
     balance = FuelBalanceService(fb)
     records = _records(ref, tank)
     out: dict = {"tenant": tenant, "site": site, "tank": UUID(tank), "ref": ref, "engine": engine, "fb": fb,
