@@ -14,7 +14,11 @@ hash carried in the event id and in `intervention_history`. No scenario entry is
 Ten day-runs, each 15:00 to 15:00 local, from `2026-10-01T12:00:00Z`, chained at full precision; a reference chain of
 the same ten runs without the actions checks that dispatch is unaffected (F3). Night k is 18:00 to 12:00 local,
 steps [36, 252) of run k. Readings come from `registered-kobo-publication` v5 drafted for Kisiwa (F5) and are
-published in memory through the gateway mapping that profile resolves to (F6).
+turned into gateway report texts with `keyed_reports` against the run's frozen binding snapshot (F6).
+
+DIESEL-1-R3/R3a (§9, §9a): every run is set up on the registered path (c): Kisiwa imported and converted into an
+in-memory Foundation store, the real `RegisteredLabBasis` over it. Tank level from a probe-local mini-grid v7
+identical in content to K1a's; product code has no v7 until K1a merges.
 
 `python tools/probe_kisiwa_fuel.py` prints the result JSON; `--write` writes `.agent/DIESEL-F0/probe-result.json`
 and prints the per-night line; `--check` exits 1 if the committed JSON differs from a fresh run (F8). `--handover`
@@ -60,6 +64,7 @@ OPENING_ORIGIN = "OPERATIONAL_ACTION"
 TANK_SIGNAL = ("fuel-level-sensor", "fuel-level")
 REPORTING_STATE = "fuel-level-reporting-availability"
 REGISTERED_PROFILE = ("registered-kobo-publication", 5)
+TANK_CAPACITY_L = Fraction(1000)  # D0 §2.2 tank, the frozen fuel-tank-capacity (F11)
 D0_NIGHT_LITRES = Fraction(26057, 600)  # D0's measured night litres at stop 90 (.agent/DIESEL-D0/probe-result.json)
 
 # --- fuel-balance-1 parameters (§8.3), declared before any run; any change is a new parameter version ---------------
@@ -271,29 +276,79 @@ def _profile():
     return REGISTERED_KOBO_PUBLICATION_PROFILE_V5
 
 
-def kisiwa_registered_draft(document: dict[str, Any], start: str, end: str):
-    """D0's `kisiwa_draft` pattern with the `registered-kobo-publication` v5 profile."""
-    from assetops_backend.runs.profiles import MINI_GRID_V6_MODEL
-    from assetops_backend.runs.service import RunSetupService
-    from assetops_backend.scenarios.parsing import parse_scenario_document
-    from fixtures import FakeRuns, FakeScenarios, FakeSites
+SETUP_AT = "2026-09-29T10:00:00Z"  # run setup clock (after conversion, before run 1); knowledge_at absent
+PROBE_V7_LINE = ("Tank level from a probe-local mini-grid v7 identical in content to K1a's; product code has no v7 "
+                 "until K1a merges.")
+V7_SENTENCE = (" Version seven also samples the fuel in the tank at an instant, after that instant's events, so a "
+               "tank level sensor can report it.")
+V7_STOCK_STATEMENT = ("The fuel in the tank, initialized by the scenario, moved by accepted generator energy and by "
+                      "any frozen declared cause, such as a recorded operational action.")
 
-    profile = _profile()
-    definition = parse_scenario_document(copy.deepcopy(document), source="a Kisiwa probe scenario", origin="SHIPPED")
-    site = kisiwa_site()
-    setup = RunSetupService(
-        FakeRuns(), FakeSites((site,)), FakeScenarios((definition,)), model_profiles=(MINI_GRID_V6_MODEL,),
-        publication_profiles=(profile,), now=lambda: "2026-09-29T09:00:00Z")
-    return setup.create_draft_run({
-        "site_id": site.site_id, "foundation_version": site.foundation.version,
-        "scenario_id": definition.scenario_id, "scenario_version": definition.version.scenario_version,
-        "interval": {"start_time": start, "end_time": end}, "timestep_minutes": PROFILE["timestep_minutes"],
-        "seed": 20260929,
-        "model_profile": {"profile_id": MINI_GRID_V6_MODEL.model_profile_id,
-                          "profile_version": MINI_GRID_V6_MODEL.model_profile_version},
-        "publication_profile": {"profile_id": profile.publication_profile_id,
-                                "profile_version": profile.publication_profile_version},
-        "run_inputs": []})
+
+def probe_v7():
+    """DIESEL-1-R3 §9.2 K1a's content, built here only (probe-local; no product file is edited):
+    simulator `PROBE_V7_SIM` and product profile `PROBE_V7_PROFILE`."""
+    from assetops_backend.runs.profiles import MINI_GRID_V6_MODEL as product_v6
+    from assetops_simulator.packs import fuel
+    from assetops_simulator.packs.mini_grid import MINI_GRID_V6_MODEL as sim_v6
+
+    stock = [h for h in sim_v6.handlers if h.handler_id == "fuel-tank-volume-stock"]
+    assert len(stock) == 1, stock
+    handlers = tuple(replace(h, statement=V7_STOCK_STATEMENT) if h is stock[0] else h for h in sim_v6.handlers)
+    sim = replace(sim_v6, model_profile_version=7, statement=sim_v6.statement + V7_SENTENCE,
+                  handlers=handlers + (fuel.SAMPLE_HANDLER,))
+    states = tuple(
+        replace(s, supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}), statement=V7_STOCK_STATEMENT)
+        if s.state_key == "fuel-tank-volume" else s for s in product_v6.supported_states)
+    profile = replace(product_v6, model_profile_version=7, statement=product_v6.statement + V7_SENTENCE,
+                      supported_states=states)
+    return sim, profile
+
+
+class Registered:
+    """The (c) registered path: one in-memory store, the real `RegisteredLabBasis` over it."""
+
+    def __init__(self) -> None:
+        from assetops_backend.runs.registered_basis import RegisteredLabBasis
+        from assetops_backend.sites.cutover import ImportedSiteRegistry
+        from assetops_backend.sites.foundation_service import FoundationService
+
+        self.store, self.imported, self.conversion = register_kisiwa()
+        clock = lambda: datetime(2026, 9, 29, 10, 0, tzinfo=timezone.utc)  # noqa: E731
+        self.basis = RegisteredLabBasis(ImportedSiteRegistry(FoundationService(self.store, "demo", clock)))
+        self.v7_sim, self.v7_profile = probe_v7()
+        selection = self.basis.select(SITE_ID, start_time=_iso(RUN1_START),
+                                      end_time=_iso(RUN1_START + timedelta(days=1)), knowledge_at=None)
+        self.foundation_version = selection.basis.foundation_version
+
+    def draft(self, document: dict[str, Any], start: str, end: str, model: str = "v7"):
+        from assetops_backend.runs.profiles import MINI_GRID_V6_MODEL
+        from assetops_backend.runs.service import RunSetupService
+        from assetops_backend.scenarios.parsing import parse_scenario_document
+        from fixtures import FakeRuns, FakeScenarios, FakeSites
+
+        profile = _profile()
+        chosen = self.v7_profile if model == "v7" else MINI_GRID_V6_MODEL
+        definition = parse_scenario_document(copy.deepcopy(document), source="a Kisiwa probe scenario",
+                                             origin="SHIPPED")
+        setup = RunSetupService(
+            FakeRuns(), FakeSites(()), FakeScenarios((definition,)), model_profiles=(chosen,),
+            publication_profiles=(profile,), now=lambda: SETUP_AT, registered_bases=self.basis)
+        return setup.create_draft_run({
+            "site_id": SITE_ID, "foundation_version": self.foundation_version,
+            "scenario_id": definition.scenario_id, "scenario_version": definition.version.scenario_version,
+            "interval": {"start_time": start, "end_time": end}, "timestep_minutes": PROFILE["timestep_minutes"],
+            "seed": 20260929,
+            "model_profile": {"profile_id": chosen.model_profile_id,
+                              "profile_version": chosen.model_profile_version},
+            "publication_profile": {"profile_id": profile.publication_profile_id,
+                                    "profile_version": profile.publication_profile_version},
+            "run_inputs": []})
+
+    def sim(self, model: str):
+        from assetops_simulator.packs.mini_grid import MINI_GRID_V6_MODEL as sim_v6
+
+        return self.v7_sim if model == "v7" else sim_v6
 
 
 def node_count(document: Any) -> int:
@@ -327,19 +382,21 @@ def scenario_is_weather_and_loads_only(document: dict[str, Any]) -> list[str]:
 TIMINGS: list[float] = []
 
 
-def execute_day(k: int, soc, fuel, actions: list[dict[str, Any]] | None):
-    """One day-run: the unchanged weather-and-loads scenario, then (optionally) the actions on the frozen run."""
-    from execution_adapter import model_for, run_to_end
+def execute_day(reg: "Registered", k: int, soc, fuel, actions: list[dict[str, Any]] | None, model: str = "v7"):
+    """One day-run on the registered path: the unchanged weather-and-loads scenario, then (optionally) the actions
+    on the frozen run, executed on the probe-local v7 (or v6 for F3's physics comparison)."""
+    from execution_adapter import run_to_end
 
     start = _run_start(k)
     document = day_document(soc, fuel)
-    run = kisiwa_registered_draft(document, _iso(start), _iso(start + timedelta(days=1)))
+    run = reg.draft(document, _iso(start), _iso(start + timedelta(days=1)), model)
     assert run.execution_status == "READY", [(r.kind, r.subject) for r in run.blocking_reasons]  # F1
+    assert run.registered_basis is not None, "F1: the run did not freeze a registered basis"
     history: tuple = ()
     if actions is not None:
         run, history = apply_actions(run, actions, start)
     began = time.perf_counter()
-    execution = run_to_end(run, model_for(run))
+    execution = run_to_end(run, reg.sim(model))
     TIMINGS.append(time.perf_counter() - began)
     trajectory = execution.trajectory
     assert len(trajectory.boundaries) == STEPS_PER_RUN + 1, (k, len(trajectory.boundaries),
@@ -378,13 +435,27 @@ def fuel_limited_steps(trajectory) -> int:
 # --- readings and publication -------------------------------------------------------------------------------------
 
 
-def readings(run, trajectory):
-    from execution_adapter import model_for, reporting_inputs
+def readings(reg: "Registered", run, trajectory):
+    from execution_adapter import reporting_inputs
     from assetops_simulator.observation.transform import generate_observations
 
-    reporting = reporting_inputs(run, _profile(), model_for(run))
+    reporting = reporting_inputs(run, _profile(), reg.sim("v7"))
     observations = generate_observations(trajectory.boundaries, reporting)
     return reporting, observations
+
+
+def fuel_level_binding(snapshot_canonical: str) -> dict[str, Any] | None:
+    """The activated binding snapshot's `fuel_level` binding for fuel-level-sensor/fuel-level, or None."""
+    pending = [json.loads(snapshot_canonical)]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            if (value.get("device_id"), value.get("signal_id")) == TANK_SIGNAL and value.get("role") == "fuel_level":
+                return value
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+    return None
 
 
 def _tank_obs(observations):
@@ -408,27 +479,28 @@ def _band_json(result: dict[str, Any]) -> dict[str, Any]:
 
 
 def build() -> dict[str, Any]:
-    from execution_adapter import model_for
-    from assetops_simulator.gateway.mappings import gateway_mapping_for
-    from assetops_simulator.gateway.publish import publish
+    from gateway_publication import keyed_reports
 
     TIMINGS.clear()
-    register_kisiwa()  # §9.1 (c); a refusal here is S1/S6 and stops the probe
+    reg = Registered()  # §9.1 (c); a refusal here is S1/S6 and stops the probe
     actions = load_actions()
-    profile = _profile()
-    mapping = gateway_mapping_for(*REGISTERED_PROFILE)
 
     with_actions: dict[int, Any] = {}
     soc, fuel = START_SOC, START_FUEL
     ref_soc, ref_fuel = START_SOC, START_FUEL
-    runs, f0a_scenario_bad, nodes, added_causes, f3_diffs = [], [], {}, [], []
+    v6_soc, v6_fuel = START_SOC, START_FUEL
+    runs, f0a_scenario_bad, nodes, added_causes, f3_diffs, f3_v6_diffs = [], [], {}, [], [], []
     f2_rows, f4_steps, residual_steps = [], 0, []
-    reference_litres, f6_counts = {}, {"fuel_level_observations": 0, "fuel_level_reported": 0, "envelopes": 0,
-                                       "fuel_level_envelopes": 0}
-    night_rows, f5 = [], {}
+    reference_litres, f6 = {}, {"fuel_level_reported": 0, "fuel_level_report_texts": 0,
+                                "texts_one_per_reported_observation": True}
+    night_rows, f5, f11 = [], {}, []
     tank_obs_by_run: dict[int, list] = {}
+    basis_record = None
     for k in range(1, RUNS + 1):
-        document, run, execution, history = execute_day(k, soc, fuel, actions)
+        initial_fuel = Fraction(fuel)
+        document, run, execution, history = execute_day(reg, k, soc, fuel, actions)
+        if basis_record is None:
+            basis_record = run.registered_basis
         trajectory = execution.trajectory
         with_actions[k] = trajectory
         f0a_scenario_bad += [f"run {k}: {e}" for e in scenario_is_weather_and_loads_only(document)]
@@ -450,7 +522,7 @@ def build() -> dict[str, Any]:
         f4_steps += fuel_limited_steps(trajectory)
 
         # The reference step, the same run without the actions (F3).
-        _, _, ref_exec, _ = execute_day(k, ref_soc, ref_fuel, None)
+        _, _, ref_exec, _ = execute_day(reg, k, ref_soc, ref_fuel, None)
         TIMINGS.pop()
         ref = ref_exec.trajectory
         for j, (a, r) in enumerate(zip(trajectory.boundaries, ref.boundaries)):
@@ -458,31 +530,56 @@ def build() -> dict[str, Any]:
             if sa["soc"] != sr["soc"] or sa["generator"] != sr["generator"] or (
                     j < STEPS_PER_RUN and _energy(a) != _energy(r)):
                 f3_diffs.append(f"run {k} boundary {j}")
+        # F3 (R3): v6 without actions equals probe v7 without actions in physics at every boundary.
+        _, _, v6_exec, _ = execute_day(reg, k, v6_soc, v6_fuel, None, model="v6")
+        TIMINGS.pop()
+        v6 = v6_exec.trajectory
+        for j, (a, r) in enumerate(zip(ref.boundaries, v6.boundaries)):
+            if _state(a) != _state(r) or (j < STEPS_PER_RUN and _energy(a) != _energy(r)):
+                f3_v6_diffs.append(f"run {k} boundary {j}")
+        v6_end = _state(v6.boundaries[-1])
+        v6_soc, v6_fuel = float(v6_end["soc"]), float(v6_end["fuel"])
         reference_litres[k] = measure_night(ref)["night_litres"]
         ref_end = _state(ref.boundaries[-1])
         ref_soc, ref_fuel = float(ref_end["soc"]), float(ref_end["fuel"])
-        del ref, ref_exec
+        del ref, ref_exec, v6, v6_exec
 
-        # Readings (F5) and the registered gateway (F6).
-        reporting, observations = readings(run, trajectory)
+        # F11: K0's setup bounds for this run's actions (§9.3 item 2).
+        run_deliveries = [a for a in actions if a["kind"] == "FUEL_DELIVERY" and _in_run(_run_start(k), a["at"])]
+        run_removals = [a for a in actions if a["kind"] == "FUEL_REMOVAL_UNRECORDED"
+                        and _in_run(_run_start(k), a["at"])]
+        if run_deliveries or run_removals:
+            delivered = sum((Fraction(a["volume_l"]) for a in run_deliveries), Fraction(0))
+            earlier = sum((Fraction(a["volume_l"]) for a in run_deliveries
+                           if run_removals and _parse(a["at"]) < _parse(run_removals[0]["at"])), Fraction(0))
+            removed = sum((Fraction(a["volume_l"]) for a in run_removals), Fraction(0))
+            f11.append({"run": k, "initial_stock_l": dec(initial_fuel), "deliveries_l": str(delivered),
+                        "capacity_l": str(TANK_CAPACITY_L),
+                        "initial_plus_deliveries_l": dec(initial_fuel + delivered),
+                        "capacity_ok": initial_fuel + delivered <= TANK_CAPACITY_L,
+                        "removal_l": str(removed), "stock_available_for_removal_l": dec(initial_fuel + earlier),
+                        "removal_ok": removed <= initial_fuel + earlier})
+
+        # Readings (F5) and the registered report path (F6).
+        reporting, observations = readings(reg, run, trajectory)
         tank = _tank_obs(observations)
         tank_obs_by_run[k] = tank
-        f6_counts["fuel_level_observations"] += len(tank)
-        f6_counts["fuel_level_reported"] += sum(o.outcome == "REPORTED" for o in tank)
-        envelopes = publish(observations, mapping, reporting.interval, site_id=SITE_ID,
-                            source_id=profile.simulator_source_id, gateway_id=profile.gateway_id,
-                            delays=reporting.delays)
-        f6_counts["envelopes"] += len(envelopes)
-        f6_counts["fuel_level_envelopes"] += sum((e.device_id, e.signal_id) == TANK_SIGNAL for e in envelopes)
+        reported_tank = [o for o in tank if o.outcome == "REPORTED"]
+        reports = keyed_reports(run.run_id, run.registered_basis.snapshot_sha256, observations,
+                                PROFILE["timestep_minutes"])
+        tank_texts = [(o, key, text) for o, key, text in reports if (o.device_id, o.signal_id) == TANK_SIGNAL]
+        f6["fuel_level_reported"] += len(reported_tank)
+        f6["fuel_level_report_texts"] += len(tank_texts)
+        f6["texts_one_per_reported_observation"] = f6["texts_one_per_reported_observation"] and (
+            [o for o, _, _ in tank_texts] == reported_tank)
         if k == 1:
+            f6["example_fuel_level_report_text"] = tank_texts[0][2] if tank_texts else None
             f5["cadence_offsets_ok"] = sorted({o.at_offset_minutes for o in tank}) == list(range(0, 1441, 15))
             f5["outcomes_run1"] = {name: sum(o.outcome == name for o in tank) for name in sorted({o.outcome
                                                                                                  for o in tank})}
             f5["reporting_signals"] = [f"{s.device_id}/{s.signal_id} every {s.cadence_minutes} min bias {s.bias} "
                                        f"dropout {s.dropout_per_thousand}/1000" for s in reporting.signals
                                        if (s.device_id, s.signal_id) == TANK_SIGNAL]
-            f5["mapping"] = (f"{mapping.mapping_set_id} v{mapping.mapping_version}: "
-                             + ", ".join(f"{e.device_id}/{e.signal_id}" for e in mapping.entries))
         bias_ok = all(abs(o.reported_value - (dict(trajectory.boundaries[o.at_offset_minutes // STEP].stocks)[FUEL]
                                               - Fraction(1, 2))) <= Fraction(1, 2_000_000)
                       for o in tank if o.outcome == "REPORTED")
@@ -551,7 +648,7 @@ def build() -> dict[str, Any]:
                and len(delivery) == 1 and delivery[0]["run"] == 2)
     f3_litres = {k: str(v) for k, v in reference_litres.items()}
     measured = {k: measure_night(with_actions[k])["night_litres"] for k in with_actions}
-    f3_pass = not f3_diffs and all(v == D0_NIGHT_LITRES for v in reference_litres.values()) and all(
+    f3_pass = not f3_diffs and not f3_v6_diffs and all(v == D0_NIGHT_LITRES for v in reference_litres.values()) and all(
         v == D0_NIGHT_LITRES for v in measured.values())
     f5_pass = (f5.get("cadence_offsets_ok") and not f5.get("night4_in_gap") and bool(f5.get("night4_before"))
                and bool(f5.get("night4_after")) and f5.get("bias_ok") and bool(f5.get("reporting_signals")))
@@ -565,6 +662,10 @@ def build() -> dict[str, Any]:
     f9 = {"true_tank": [k for k, tb, _ in night_rows if not expect(k, tb)],
           "readings": [k for k, _, rb in night_rows if not expect(k, rb)]}
     dips = dip_values(with_actions, actions)
+    snapshot_binding = fuel_level_binding(basis_record.snapshot_canonical)
+    f6_pass = (snapshot_binding is not None and f6["fuel_level_report_texts"] > 0
+               and f6["fuel_level_report_texts"] == f6["fuel_level_reported"]
+               and f6["texts_one_per_reported_observation"])
     gates = {
         "F0a": {"pass": not f0a_scenario_bad and len(added_causes) == 2,
                 "scenario_entries_not_weather_or_load": f0a_scenario_bad,
@@ -576,15 +677,17 @@ def build() -> dict[str, Any]:
                                        "(asserted)"},
         "F2": {"pass": f2_pass, "detail": "tank[i+1] = tank[i] - E_i x 0.355 - removal_i + delivery_i at every step",
                "non_generator_steps": [{**r, "litres": str(r["litres"])} for r in residual_steps]},
-        "F3": {"pass": f3_pass, "boundaries_differing": f3_diffs[:20],
+        "F3": {"pass": f3_pass, "boundaries_differing_with_vs_without_actions": f3_diffs[:20],
+               "boundaries_differing_v7_vs_v6_without_actions": f3_v6_diffs[:20],
                "reference_night_litres": f3_litres, "d0_night_litres": str(D0_NIGHT_LITRES)},
         "F4": {"pass": f4_steps == 0, "fuel_limited_steps": f4_steps},
         "F5": {"pass": bool(f5_pass), **f5},
-        "F6": {"pass": None, "not_a_stop": True, "mapping": f5.get("mapping"), **f6_counts},
+        "F6": {"pass": bool(f6_pass), "snapshot_fuel_level_binding": snapshot_binding, **f6},
         "F7": {"pass": max(nodes.values()) < 4000, "largest_nodes": max(nodes.values())},
         "F8": {"pass": None, "detail": "checked by --check: a fresh run is byte-equal to the committed file"},
         "F9": {"pass": not f9["true_tank"] and not f9["readings"], "nights_differing": f9},
         "F10": {"pass": None, "detail": "checked by running tools/probe_kisiwa_nights.py --check (evidence file)"},
+        "F11": {"pass": bool(f11) and all(r["capacity_ok"] and r["removal_ok"] for r in f11), "runs": f11},
     }
     return {
         "id": "assetops.kisiwa-fuel-probe", "version": 1,
@@ -596,7 +699,16 @@ def build() -> dict[str, Any]:
             "start": {"soc_pct": START_SOC, "fuel_l": START_FUEL, "generator": "STOPPED"},
             "runs": RUNS, "run1_start": _iso(RUN1_START), "change_instant": _iso(_run_start(CHANGE_RUN)),
             "publication_profile": f"{REGISTERED_PROFILE[0]} v{REGISTERED_PROFILE[1]}",
-            "model": f"{PROFILE['model_profile']} v{PROFILE['model_profile_version']}, {PROFILE['timestep_minutes']} min",
+            "model": f"probe-local mini-grid v7 (K1a content), {PROFILE['timestep_minutes']} min",
+            "probe_local_v7": PROBE_V7_LINE,
+            "registered_path": {
+                "setup": "(c) DIESEL-1-R3 §9.1: import_site + convert into InMemoryFoundationStore, real "
+                         "RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, 'demo', clock)))",
+                "bindings_sha256": hashlib.sha256(BINDINGS.read_bytes()).hexdigest(),
+                "import_at": _iso(IMPORT_AT), "convert_at": _iso(CONVERT_AT), "setup_at": SETUP_AT,
+                "knowledge_at": None, "foundation_version": reg.foundation_version,
+                "binding_set_version": basis_record.binding_set_version,
+                "snapshot_sha256": basis_record.snapshot_sha256, "basis_selection": basis_record.selection},
             "foundation_valid_from": FOUNDATION_VALID_FROM, "fuel_balance_1": PARAMETERS},
         "runs": runs,
         "night4_tank_account": [[i, dec(before), dec(gen), dec(other), dec(after)] for i, before, gen, other, after
