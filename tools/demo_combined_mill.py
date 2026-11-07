@@ -35,7 +35,8 @@ EXPECTED_OUTCOME = "VERIFIED"
 PRINCIPAL = "service:w401-fixture"
 ACTOR = {"kind": "SERVICE", "id": PRINCIPAL, "attestation": "service=w401-fixture;job=demo-mill;rule=dd1b2-r"}
 KEY = "demo3-mill"
-STUDY_FIELDS = ("status", "eligible_days", "headroom_kw", "window_hours", "classification", "limitations")
+#: P1's measures as `frozen_result` stores them. It stores no `classification`: that only feeds its status.
+STUDY_FIELDS = ("status", "assessed_days", "eligible_days", "headroom_kw", "window_hours", "limitations")
 
 
 class Stop(SystemExit):
@@ -117,7 +118,9 @@ def study_row(engine: Any, revision_id: str) -> dict:
     return {**{k: result.get(k) for k in STUDY_FIELDS}, "first_day": str(row["first_day"]), "last_day": str(row["last_day"]),
             "created_at": wire(row["created_at"]), "selected_at": wire(row["selected_at"]),
             "opportunity_id": str(row["opportunity_id"]), "revision_id": str(revision_id),
-            "day_rows": result.get("days")}
+            "day_rows": [{"local_day": d["local_day"], "decision": d["decision"], "window_hours": d.get("window_hours"),
+                          "hours": [[h["decision"], h["constraints"], h["opportunity_kwh"]] for h in d.get("hours", [])]}
+                         for d in result.get("day_rows", [])]}
 
 
 def record_change(url: str, engine: Any, tenant_id: Any, site_id: Any, opportunity_id: str, revision_id: str,
