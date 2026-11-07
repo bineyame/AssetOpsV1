@@ -162,3 +162,64 @@ Run one at a time at `350b5a3a9`, `check-all` not run: A architecture pass; W ag
 ## Scoped re-run (CH6b3-R2)
 
 Two runs, both via `tools\run-host-tests.ps1`, all 0 failed, 0 skipped: (1) `test_w303_portfolio_comparison_postgres.py`, `test_ch5a2_chain_api_postgres.py`, `test_ch6b_estate_postgres.py`: 12 passed (663 s). (2) `test_w303_portfolio_api`, `_fixture_postgres`, `_reduction`, `_scope_snapshot_postgres`, `_workflow_labels`, `test_ch3_rows`, `test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`: 215 passed (718 s). The ruling expected 215 passed for the packet's scoped list; I could not reproduce that grouping exactly (the original list was written as "listed files"), so the figure is the two runs' sum, 227 passed. No full suite, no `check-all`, per the brief.
+
+
+## CH6b3-R3 (supersedes the Q4b table above, CH6b3-R2 step 4 and the BL-26 premise)
+
+Steps 1-5 and 7 done; step 6 partly (see "Not run"). Code commits: `c60bd8c07` (steps 1-3), the step 4 commit, lows/handoff.
+
+### Step evidence
+1. **H1, one claim.** `chain/claims.py` `LATEST_KNOWN = date.max`; `counted_threads` reads each thread's latest event visible at `k`. Text "{n} confirmed, from the days checked" (MD-CH6-8, R708, `v70/index.html:296`). L0 (a)-(d) in `test_ch6b2_portfolio_cards.py`; case (5) restricted with a comment. `test_ch5a2_contract.py` golden `estate_week_2026-10-25`: Kobo `threads` open 1 -> 0, in_hand 0 -> 1; cause: T1's ACTION_IN_HAND is effective 1 Nov and known by k. `count.open_threads` is still 1 (open + in hand).
+2. **M1.** Protect note None; Assure note = recovered value + evidence gap (no coverage clause); `checked_days_clause`, `note.checked_one/many` removed; coverage strip reads "N of M days assessed" / "not assessed:" (R622 updated). Case asserting neither note holds "days checked". Literal strings in `test_cov_partial*.py`, `w301-estate-golden.json`, frontend tests/fixture updated. (`note.withheld_one/many` left in the vocabulary, now unused.)
+3. **M2.** `_estate_why` uses the card's `days_line` (Optimize: Protect's) and `window_open` = expected - complete from `estate_counts`; `Trace.open_days`; `estate_text(days_used, window_open)`. L0 `test_estate_text_takes_the_cards_days_and_the_windows_open_days`; route test on the in-memory app, month window, three categories. **Not run:** the Postgres Why file route test (needs the mechanism template, see Not run) and the route time before/after (not measured).
+4. **COH-17 rows**, `tools/checks/chain_coherence.py`; `clean_full` edited by hand (portfolio.S one Verified row, `days_line`/`days_used` on the week cards and four Why bodies), `coh18_day_grades` portfolio.S likewise. `test_chain_coherence.py`: 138 pass.
+
+| Rule | Fails on real (old) bundle `var/ch6b3r2_bundle` | Planted break |
+|---|---|---|
+| L2 | week, S (summary 1, claim 0) | yes |
+| L3 | week, S (1 Verified thread in the table, claim 0) | yes |
+| W3 | all four categories, week/S/month | yes |
+| N1 | Protect and Assure notes, week and month | yes |
+| C2 absent key | n/a (both sides absent) | yes; with the new clause disabled the test fails, restored by `git checkout` |
+
+5. **Frontend:** lockfiles identical; `npx tsc --noEmit` exit 0; `vitest related` pulled in a `.py` file and aborted (Vite import analysis), so the five files in `src/estate/__tests__` were listed: 110 passed. This includes `namesOnePrioritySiteInTheSingular`. Junction removed with `rmdir`; plan2 `node_modules` intact.
+
+### Drained polish clone (new, dropped), figures against expected
+Commands as R2 step 2; drain one pass; collect 134 requests all 200; check with `expected-today.json`: COH-17 0 findings, compared 242, skipped 13; COH-18 0 findings, 21/0; 0 new (COH-2: the 2 known entries); self-check 2 pass, 8 resolved. No L3 finding, so no `expected-mechanism.json` entry was needed on this clone.
+
+| Value (week / S / month) | Expected | Measured |
+|---|---|---|
+| Fixes confirmed (card, legacy, claim) | 1/1/1 | 1/1/1 |
+| Priority Sites | 2/1/2 | 2/1/2 |
+| `count.open_threads` | 3/2/3 | 3/2/3 |
+| `count.sites_disrupted` | 2/1/2 | 2/1/2 |
+
+### Old -> new (replaces the Q4b table)
+| Value | Window | R2 packet | Now | Cause |
+|---|---|---|---|---|
+| Fixes confirmed | week / S | 0 / 0 | 1 / 1 | latest-known: Kobo's 1 Nov verification counts for the problem found in the window |
+| Fixes confirmed | month | 1 | 1 | unchanged |
+| Priority Sites | week / S / month | 3 / 2 / 2 | 2 / 1 / 2 | Kobo is verified, no longer open |
+| Open | week / S / month | 4 / 3 / 3 | 3 / 2 / 3 | same |
+| Sites disrupted | week / S / month | 2 / 1 / 2 | 2 / 1 / 2 | unchanged |
+| Assure card | all | "None confirmed on the days checked" (week, S) | "1 confirmed, from the days checked" | MD-CH6-8 |
+| Protect note | week, month | "3 of 7 days checked at Kobo mini-grid" | none | M1 |
+| Assure note | week | "... evidence gap at 1 site - 3 of 7 days checked at Kobo mini-grid" | "No money credited - modelled, not saved - evidence gap at 1 site" | M1 |
+
+**Day-bound on purpose:** board rows and Site dots. On S, Kobo Optimize reads "Needs attention" with "Before the change on 1 Nov" (CO-1): a dated statement. The Portfolio claim answers "status as known now" for the problems found in the window. BL-26 premise withdrawn.
+
+### Lows and notes
+- Test renamed `test_mg1_judged_on_checked_days_and_estate_optimize_row_equals_the_d13_board`, docstring fixed; "as CO-2" corrected to **CO-1b** (build sheet and this packet's reading: S+1 is CO-1b).
+- For the walkthrough: Portfolio Cold and EV rows read "No action agreed yet" on the week while ST-4/ST-5 boards show those Actions in hand (row cutoff, known COH-2 entries). DD-1b2 F-THREADS reports it.
+
+### Not run (stated plainly)
+- **Stale mechanism template:** the scoped run (20 files, `var/ch6b3r3_scoped.log`) gave 337 passed, 2 errors, 0 failed. Both errors are in `test_ch6b_estate_postgres.py` and are setup errors: `MechanismRefused TEMPLATE_STALE: template inputs 8d37cd0333dc != this checkout abc647639e60`. The code change in steps 1-3 changed the template inputs. A rebuild (`mechanism_dataset.py build --variant states`, about 1300 s) is needed; the brief says not to rebuild and to stop and ask, so I did not. Consequently **not run:** those two L2m tests, the L3m collect/check (L3m / L3m D14 expectation), and the Postgres Why route test.
+- No full backend suite, no `check-all`, no demo prepare, no layout evidence.
+
+### How a re-reviewer checks H1, M1, M2
+- H1: open `var/ch6b3r3_bundle` (if kept) or rerun; `portfolio.week.p1` Verified row thread `6c6258` and `chain_estate.week` `count.verified_results` 1; run the new COH-17 on `var/ch6b3r2_bundle` to see L2/L3 fail, on the new bundle to see them pass.
+- M1: `portfolio.*.p1` `summary.card_notes` hold no "days checked"; N1.
+- M2: `why_estate.{w}.PROTECT_ASSET` `text.days_used` equals `chain_estate.{w}` `cards.PROTECT_ASSET.days_line` (W3).
+
+### Guard results (CH6b3-R3, one at a time, `check-all` not run)
+A architecture pass; W agent workflow pass; N navigation pass; V ledger valid (110 screens); M `test_mock_deviation_labels.mjs` 14 pass; frontend ratchet pass; COH fixtures 138 pass. Backend focused: `test_ch6b2_portfolio_cards`, `test_ch5a2b_claims`, `test_ch5b_why`, `test_ch5a2_contract`, `test_cov_partial*` etc. pass inside the 337 of the scoped run.
