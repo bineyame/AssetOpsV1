@@ -26,7 +26,9 @@ from typing import Any, Callable
 
 import demo_combined_rows as demo_rows
 from assetops_backend.outcomes.display_code import display_code
-from assetops_backend.site_outcomes.board import THREAD_AFTER_JUDGED, THREAD_AFTER_NOT_JUDGED, THREAD_BEFORE
+from assetops_backend.site_outcomes.board import (
+    OPP_THREAD_CLOSED, OPP_THREAD_MONITORING, OPP_THREAD_SEEN_AGAIN, THREAD_AFTER_JUDGED, THREAD_AFTER_NOT_JUDGED,
+    THREAD_BEFORE)
 
 KOBO, COLD, EV = "KOBO-001", "COLD-LAB-001", "EV-LAB-001"
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
@@ -843,11 +845,66 @@ def f_threads(ctx: Ctx) -> dict:
                 faults[f"{code} {d['day']}"] = bad
     assert not faults, faults
     k = rows(_kobo_board_s(ctx))
-    return {"mill_ref": mill_ref, "cold_ev": other,
+    # MB-1b (MB-1-R §3.4): the S-8 Grow row carries the mill's thread line; its kind and text are reported.
+    s8 = mill_thread_line(ctx.board(KOBO, ctx.day(-8), ctx.day(-7)), m["action"]["code"], ctx.day(-8))
+    return {"mill_ref": mill_ref, "cold_ev": other, "mill_line_s8": {"kind": s8["kind"], "text": s8["text"]},
             "mg": {"objective": next((c["text"] for c in k["GROW_REVENUE"]["contributors"]
                                       if c["key"].startswith("declared_objective")), None),
                    "cost_headline": k["OPTIMIZE_COST"].get("headline")},
             "boards_read": len(ctx.days)}
+
+
+def _opp_line_text(item: dict) -> str:
+    """The OPP_THREAD_* literal for an item's kind, formatted from the item's own fields only."""
+    code, kind = display_code(item["action_code"]), item["kind"]
+    if kind == "MONITORING":
+        return OPP_THREAD_MONITORING.format(code=code, k=item["remaining_days"])
+    if kind == "CLOSED":
+        return OPP_THREAD_CLOSED.format(code=code, n=item["clean_days"])
+    d = datetime.fromisoformat(item["effective_day"])
+    return OPP_THREAD_SEEN_AGAIN.format(day=f"{d.day} {d:%b}", code=code)
+
+
+def _mini_close_after() -> int:
+    """The policy's close-after days for a MINIGRID Site (config/chain/thread-lifecycle-v1.json)."""
+    cfg = json.loads((Path(__file__).resolve().parents[1] / "config" / "chain" / "thread-lifecycle-v1.json")
+                     .read_text(encoding="utf-8"))["close_after_clean_complete_days"]
+    return int(cfg.get("by_site_type", {}).get("MINIGRID", cfg["default"]))
+
+
+def mill_thread_line(board: dict, code: str, day: Any = None, close_after: int | None = None) -> dict:
+    """MILL-4 (MB-1-R §3.4): the board's Grow `thread_lines` hold exactly one item for the mill Action `code`, of kind
+    MONITORING, CLOSED or RECURRED; its text is the matching literal formatted from its own fields; its ref is the
+    THREAD page. With the board `day` (a date or datetime): its `effective_day` is not after that day, and a
+    MONITORING line's `remaining_days` is within 0..close_after (the policy's, unless given). Returns the item."""
+    grow = rows(board)["GROW_REVENUE"]
+    mine = [t for t in grow.get("thread_lines", []) if t.get("action_code") == code]
+    assert len(mine) == 1, ("mill thread lines on Grow", code, grow.get("thread_lines"))
+    item = mine[0]
+    assert item["kind"] in ("MONITORING", "CLOSED", "RECURRED"), item
+    assert item["text"] == _opp_line_text(item), (item["text"], _opp_line_text(item))
+    assert (item.get("ref") or {}).get("kind") == "THREAD", item.get("ref")
+    if day is not None:
+        board_day = day.date() if isinstance(day, datetime) else day
+        assert datetime.fromisoformat(item["effective_day"]).date() <= board_day, ("line dated after the board day",
+                                                                                   item["effective_day"], board_day)
+        if item["kind"] == "MONITORING":
+            limit = _mini_close_after() if close_after is None else close_after
+            assert 0 <= item["remaining_days"] <= limit, ("remaining_days outside 0..close_after",
+                                                          item["remaining_days"], limit)
+    return item
+
+
+@row("MILL-4")
+def mill4(ctx: Ctx) -> dict:
+    """MB-1b (FUEL-1 MB-1-R §3.4): the S+0 and S-8 Kobo boards' Grow row carries the mill's thread line (computed,
+    never typed: kind, text and counts are reported as found)."""
+    code = _mill(ctx)["action"]["code"]
+    out = {}
+    for name, n in (("S+0", 0), ("S-8", -8)):
+        item = mill_thread_line(ctx.board(KOBO, ctx.day(n), ctx.day(n + 1)), code, ctx.day(n))
+        out[name] = {k: item.get(k) for k in ("kind", "text", "effective_day", "remaining_days", "clean_days")}
+    return out
 
 
 @row("MILL-5")
