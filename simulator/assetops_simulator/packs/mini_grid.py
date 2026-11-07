@@ -68,6 +68,7 @@ from assetops_simulator.packs.fuel import (
     FUEL_TANK_VOLUME,
     GENERATOR_OUTPUT_POWER,
     GENERATOR_SPECIFIC_CONSUMPTION,
+    SAMPLE_HANDLER as FUEL_TANK_SAMPLE_HANDLER,
     PhysicallyUnacceptable,
 )
 
@@ -1253,4 +1254,45 @@ MINI_GRID_V6_MODEL = replace(
     coupling=MINI_GRID_V6_COUPLING,
     measured_interval_states=MINI_GRID_V5_MODEL.measured_interval_states
     | {BATTERY_CHARGE_REQUESTED_POWER},
+)
+
+
+# --- `mini-grid` v7 (DIESEL-1-R3 K1a) ------------------------------------------
+
+#: The tank's stock handler, restated for v7 only. Same identity, role, kind,
+#: floor, law and initializer as v1-v6's; only the sentence changes, because
+#: from v7 a frozen declared cause (such as a recorded operational action) may
+#: also move the tank. v1-v6 keep their handler and its sentence untouched.
+FUEL_TANK_STOCK_V7 = replace(
+    next(
+        handler
+        for handler in MINI_GRID_V6_MODEL.handlers
+        if handler.handler_id == "fuel-tank-volume-stock"
+    ),
+    statement=(
+        "The fuel in the tank, initialized by the scenario, moved by accepted "
+        "generator energy and by any frozen declared cause, such as a recorded "
+        "operational action."
+    ),
+)
+
+V7_SENTENCE = (
+    " Version seven also samples the fuel in the tank at an instant, after that "
+    "instant's events, so a tank level sensor can report it."
+)
+
+#: v6 plus the fuel pack's state sample of the tank (`fuel.SAMPLE_HANDLER`,
+#: reused, never copied), so a `fuel-tank-volume` STATE_SIGNAL - the
+#: publication profile's `fuel-level-sensor`/`fuel-level` - is a reporting
+#: path on this model. Physics, decisions and every v6 measurement unchanged;
+#: a new version so v1-v6 trajectories and digests are unchanged.
+MINI_GRID_V7_MODEL = replace(
+    MINI_GRID_V6_MODEL,
+    model_profile_version=7,
+    statement=MINI_GRID_V6_MODEL.statement + V7_SENTENCE,
+    handlers=tuple(
+        FUEL_TANK_STOCK_V7 if handler.handler_id == FUEL_TANK_STOCK_V7.handler_id else handler
+        for handler in MINI_GRID_V6_MODEL.handlers
+    )
+    + (FUEL_TANK_SAMPLE_HANDLER,),
 )
