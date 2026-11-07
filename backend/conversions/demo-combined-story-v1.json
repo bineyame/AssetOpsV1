@@ -15,6 +15,22 @@
     "action": {"accept_at": "S+0d 13:00", "apply_at": "S+0d 14:00", "effective_from": "S+1d 00:00"},
     "plan": {"freeze_at": "S+0d 15:00"},
     "evaluate_at": "S+1d 13:00",
+    "mill": {
+      "study": {"from": "S-20d 21:00", "to": "S-15d 21:00", "at": "S-14d 06:00"},
+      "action_at": "S-10d 09:00",
+      "title": "Run the grain mill at midday on sunny days",
+      "owner_label": "Plant lead",
+      "request": {"occurred_at": "S-9d 04:00", "title": "Move the grain mill's run to midday on sunny days.",
+                  "narrative": "Move the grain mill's run to midday on sunny days."},
+      "record": {"occurred_at": "S-9d 04:30",
+                 "activity": "Mill schedule changed: on sunny days it now runs through midday, starting at 08:00."},
+      "assign_at": "S-9d 04:40",
+      "complete_at": "S-9d 05:00",
+      "commands_recorded_from": "S-9d 05:10",
+      "case_link_at": "S-9d 05:20",
+      "freeze_at": "S-9d 05:25",
+      "evaluate_at": "S-5d 23:00"
+    },
     "visits": [
       {"key": "gen-v1", "asset_type": "GENERATOR", "at": "S-20d 10:00", "title": "Generator inspection", "note": "Generator inspected; oil and filters checked"},
       {"key": "gen-v2", "asset_type": "GENERATOR", "at": "S-9d 10:00", "title": "Generator inspection", "note": "Generator inspected; no fault found"}

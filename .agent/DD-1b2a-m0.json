@@ -1,0 +1,692 @@
+{
+  "db": "assetops_demo3_dd1b2m_test",
+  "seams": {
+    "2026-10-23 start 00:00 local": {
+      "instant": "2026-10-22T21:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-22T20:55:00+00:00",
+          "batch_received_at": "2026-10-23T04:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-23 06:00 local": {
+      "instant": "2026-10-23T03:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T02:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-23 18:00 local": {
+      "instant": "2026-10-23T15:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-23T14:55:00+00:00",
+          "batch_received_at": "2026-10-23T16:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-23 end 24:00 local": {
+      "instant": "2026-10-23T21:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-24 start 00:00 local": {
+      "instant": "2026-10-23T21:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-23T20:55:00+00:00",
+          "batch_received_at": "2026-10-24T04:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-24 06:00 local": {
+      "instant": "2026-10-24T03:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_COMPLETED_INTERVAL",
+          "interval_start": "2026-10-24T02:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-24 18:00 local": {
+      "instant": "2026-10-24T15:00:00+00:00",
+      "rows": [
+        {
+          "channel": "battery-pcs-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/charge-requested-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/discharge-capability",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "battery-pcs-controller/state-of-charge",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/delivered-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "clinic-meter/requested-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "generator-controller/status",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": null,
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "mill-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/ac-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "pv-inverter-controller/available-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        },
+        {
+          "channel": "residential-meter/active-power",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "interval_start": "2026-10-24T14:55:00+00:00",
+          "batch_received_at": "2026-10-24T16:00:00+00:00"
+        }
+      ]
+    },
+    "2026-10-24 end 24:00 local": {
+      "instant": "2026-10-24T21:00:00+00:00",
+      "rows": []
+    }
+  },
+  "dispositions": {
+    "ACCEPTED": 9498
+  },
+  "delivered_days": [
+    "2026-10-22",
+    "2026-10-23",
+    "2026-10-24",
+    "2026-11-05",
+    "2026-11-06"
+  ],
+  "timezone": "Africa/Addis_Ababa"
+}

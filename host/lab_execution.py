@@ -2086,9 +2086,14 @@ class HostLabExecution:
         # publishes only the reports it keeps, so a full-day complement leaves out the instants a story run (or the
         # next complement) already sends on the shared epoch. Opt-in for the demo producers; None keeps every report.
         keep_source_time: Callable[[str], bool] | None = None,
+        # DD1b2-R2 (seam rule): on the Kobo registered path only, a predicate on the observation itself, used in place
+        # of `keep_source_time` so an interval reading can come from the run that ended at a seam and a state reading
+        # from the run that starts there. None keeps the time predicate.
+        keep_observation: Callable[[DeviceObservation], bool] | None = None,
     ) -> None:
         self._model = model
         self._keep_source_time = keep_source_time
+        self._keep_observation = keep_observation
         self._cold_inputs = cold_inputs
         self._ev_inputs = ev_inputs
         self._gateway = gateway
@@ -2882,7 +2887,9 @@ class HostLabExecution:
             text = f"registered publication refused: REPORT_NOT_ADAPTABLE: {rejected}"
             note(text)
             return text
-        if self._keep_source_time is not None:
+        if self._keep_observation is not None:
+            keyed = [k for k in keyed if self._keep_observation(k[0])]
+        elif self._keep_source_time is not None:
             keyed = [k for k in keyed if self._keep_source_time(k[0].source_sample_time)]
         try:
             schedule = self._schedules.read(session.run_id)

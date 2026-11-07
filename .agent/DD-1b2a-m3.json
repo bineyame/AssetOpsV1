@@ -1,0 +1,5572 @@
+{
+ "db": "assetops_demo3_dd1b2r_test",
+ "story": {
+  "S": "2026-11-05T00:00:00Z",
+  "code": "e513401e0",
+  "sites": [
+   "kobo"
+  ]
+ },
+ "steps": [
+  {
+   "step": "S-3",
+   "add": {
+    "day": "2026-11-02",
+    "kind": "late",
+    "assess": "tick",
+    "runs": 1,
+    "added": "2026-11-02",
+    "run_id": "run-10e6dc7dacde44c98b24b807bd5813a9",
+    "findings": []
+   },
+   "refused": null,
+   "ticks": [
+    "after-add-S-3-tick-1"
+   ]
+  },
+  {
+   "step": "S-1",
+   "add": {
+    "day": "2026-11-04",
+    "kind": "normal",
+    "assess": "tick",
+    "runs": 1,
+    "added": "2026-11-04",
+    "run_id": "run-3c286e6c09664180a3d76832aaf9ee89",
+    "findings": []
+   },
+   "refused": null,
+   "ticks": [
+    "after-add-S-1-tick-1"
+   ]
+  }
+ ],
+ "samples": {
+  "start": {
+   "name": "start",
+   "action_link": [
+    {
+     "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+     "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+     "linked_at": "2026-11-07T08:28:30.858716+00:00",
+     "linked_by": "backfill",
+     "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+     "thread_id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+     "action_kind": "DOMAIN_INTENT",
+     "origin_finding_id": null,
+     "origin_opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3"
+    }
+   ],
+   "thread_events": [
+    {
+     "seq": 1,
+     "state": "OPEN",
+     "cause_kind": "OCCURRENCE",
+     "recorded_at": "2026-11-07T08:28:30.734746+00:00",
+     "effective_day": "2026-10-17"
+    },
+    {
+     "seq": 2,
+     "state": "ACTION_IN_HAND",
+     "cause_kind": "ACTION_EVENT",
+     "recorded_at": "2026-11-07T08:28:30.957812+00:00",
+     "effective_day": "2026-10-26"
+    },
+    {
+     "seq": 3,
+     "state": "CHANGE_APPLIED",
+     "cause_kind": "DOMAIN_CASE",
+     "recorded_at": "2026-11-07T08:28:30.959872+00:00",
+     "effective_day": "2026-10-27"
+    },
+    {
+     "seq": 4,
+     "state": "RESOLVED_MONITORING",
+     "cause_kind": "VERIFICATION_OUTCOME",
+     "recorded_at": "2026-11-07T08:28:30.962361+00:00",
+     "effective_day": "2026-10-27"
+    }
+   ],
+   "threads_at_site": 2,
+   "outcomes": [
+    {
+     "outcome": "VERIFIED",
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    }
+   ],
+   "studies": [
+    {
+     "status": "LIMITED",
+     "last_day": "2026-10-21",
+     "first_day": "2026-10-17",
+     "created_at": "2026-10-22T06:00:00+00:00",
+     "eligible_days": "5"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T08:28:56.024904+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T08:28:57.864396+00:00",
+     "eligible_days": "0"
+    }
+   ],
+   "summary": {
+    "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+    "action_code": "ACT-000002",
+    "title": "Run the grain mill at midday on sunny days",
+    "rule_id": "midday-productive-shift-1",
+    "target": {
+     "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+     "over": "COMPLETE days of each window",
+     "ratio": [
+      11,
+      10
+     ],
+     "declared_by": "owner 2026-11-05"
+    },
+    "cost_check": null,
+    "trial_hours": null,
+    "state": "VERIFIED",
+    "reasons": [
+     "TARGET_MET"
+    ],
+    "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+    "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+    "not_judged_text": null,
+    "outcome": {
+     "outcome_id": "662565bc-af97-4b5a-b4fd-f51e953ba326",
+     "outcome": "VERIFIED",
+     "reasons": [
+      "TARGET_MET"
+     ],
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    },
+    "plan": {
+     "plan_id": "48709f96-ef44-4329-b7f7-952ed70faa53",
+     "effective_day": "2026-10-27",
+     "baseline_days": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25"
+     ],
+     "later_candidates": {
+      "to": "2026-11-10",
+      "from": "2026-10-28"
+     },
+     "later_days": [
+      "2026-10-28",
+      "2026-10-30",
+      "2026-10-31"
+     ]
+    },
+    "metrics": [
+     {
+      "metric_key": "midday_productive_kwh",
+      "label": "Midday use",
+      "unit": "kWh a day",
+      "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+      "before": "42.00",
+      "after": "110.00",
+      "threshold": "46.20",
+      "days_before": 3,
+      "days_after": 3,
+      "state": "PASS"
+     }
+    ]
+   },
+   "snapshot_dirty": 31,
+   "pending_snapshots_count": 0,
+   "pending_snapshots": []
+  },
+  "after-add-S-3": {
+   "name": "after-add-S-3",
+   "action_link": [
+    {
+     "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+     "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+     "linked_at": "2026-11-07T08:28:30.858716+00:00",
+     "linked_by": "backfill",
+     "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+     "thread_id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+     "action_kind": "DOMAIN_INTENT",
+     "origin_finding_id": null,
+     "origin_opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3"
+    }
+   ],
+   "thread_events": [
+    {
+     "seq": 1,
+     "state": "OPEN",
+     "cause_kind": "OCCURRENCE",
+     "recorded_at": "2026-11-07T08:28:30.734746+00:00",
+     "effective_day": "2026-10-17"
+    },
+    {
+     "seq": 2,
+     "state": "ACTION_IN_HAND",
+     "cause_kind": "ACTION_EVENT",
+     "recorded_at": "2026-11-07T08:28:30.957812+00:00",
+     "effective_day": "2026-10-26"
+    },
+    {
+     "seq": 3,
+     "state": "CHANGE_APPLIED",
+     "cause_kind": "DOMAIN_CASE",
+     "recorded_at": "2026-11-07T08:28:30.959872+00:00",
+     "effective_day": "2026-10-27"
+    },
+    {
+     "seq": 4,
+     "state": "RESOLVED_MONITORING",
+     "cause_kind": "VERIFICATION_OUTCOME",
+     "recorded_at": "2026-11-07T08:28:30.962361+00:00",
+     "effective_day": "2026-10-27"
+    }
+   ],
+   "threads_at_site": 2,
+   "outcomes": [
+    {
+     "outcome": "VERIFIED",
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    }
+   ],
+   "studies": [
+    {
+     "status": "LIMITED",
+     "last_day": "2026-10-21",
+     "first_day": "2026-10-17",
+     "created_at": "2026-10-22T06:00:00+00:00",
+     "eligible_days": "5"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T08:28:56.024904+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T08:28:57.864396+00:00",
+     "eligible_days": "0"
+    }
+   ],
+   "summary": {
+    "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+    "action_code": "ACT-000002",
+    "title": "Run the grain mill at midday on sunny days",
+    "rule_id": "midday-productive-shift-1",
+    "target": {
+     "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+     "over": "COMPLETE days of each window",
+     "ratio": [
+      11,
+      10
+     ],
+     "declared_by": "owner 2026-11-05"
+    },
+    "cost_check": null,
+    "trial_hours": null,
+    "state": "VERIFIED",
+    "reasons": [
+     "TARGET_MET"
+    ],
+    "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+    "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+    "not_judged_text": null,
+    "outcome": {
+     "outcome_id": "662565bc-af97-4b5a-b4fd-f51e953ba326",
+     "outcome": "VERIFIED",
+     "reasons": [
+      "TARGET_MET"
+     ],
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    },
+    "plan": {
+     "plan_id": "48709f96-ef44-4329-b7f7-952ed70faa53",
+     "effective_day": "2026-10-27",
+     "baseline_days": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25"
+     ],
+     "later_candidates": {
+      "to": "2026-11-10",
+      "from": "2026-10-28"
+     },
+     "later_days": [
+      "2026-10-28",
+      "2026-10-30",
+      "2026-10-31"
+     ]
+    },
+    "metrics": [
+     {
+      "metric_key": "midday_productive_kwh",
+      "label": "Midday use",
+      "unit": "kWh a day",
+      "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+      "before": "42.00",
+      "after": "110.00",
+      "threshold": "46.20",
+      "days_before": 3,
+      "days_after": 3,
+      "state": "PASS"
+     }
+    ]
+   },
+   "snapshot_dirty": 31,
+   "pending_snapshots_count": 1234,
+   "pending_snapshots": [
+    {
+     "event_id": "1189eb06-803d-4459-833d-d8931ae4c356",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.324521+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3d64502c-7d36-4356-b8c7-d4526c1a9b74",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.342772+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "23115acf-ba3f-4213-9364-3a528659eac8",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.359407+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9883d4a2-f7fd-4f86-9823-92c936dfee5e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.372647+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "67bf9660-c2f3-4a87-80ca-a9b74377221d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.386175+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e46efa1a-ef40-4ba1-86b3-35bf652641d9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.400264+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e505f82c-d04b-4af6-9303-493ec6630c25",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.412424+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6b9a1cd2-acc0-4c5b-a78c-f9620d45a79e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.420803+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0866f377-1f53-4387-afa3-f98df3d1dca1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.428719+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f2bc8ba2-630c-494c-93d3-e97489a84d88",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.436549+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4128f727-afd9-415a-bd63-9b5291e41735",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.444552+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "54702ad4-6e3d-44fa-a4a5-50ab970a4ab9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.452506+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "35e375bd-1948-4c63-bd7c-de48b969e4e0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.460478+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b54e98fa-6ce3-431d-aaa8-c0fee1a81162",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.468340+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "16e278ce-48d0-42ba-b267-ff01b8eed7bd",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.476382+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0c01d42e-00d0-45e2-8626-f6258b85752c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.483873+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1e6389ee-22b9-467a-98ac-24789d10b9ec",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.492646+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "dd996f9e-d219-4146-90ac-844574ec23f0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.502651+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "21133f90-d2fc-48d2-8283-0d003ed75517",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.512269+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9f836411-46c5-4764-92bb-ef85255a4dbd",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.522642+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6bc09e26-374e-4542-97f2-e7cf8eaaf57b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.532754+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0cfad115-8dc2-44c0-9b6c-5f5fde9b29a0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.544877+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e7379b54-e1b8-471c-a6eb-661100793a08",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.560094+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2b6afee5-786d-416c-9a2e-af72b53419a3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.573770+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "402f701c-aff5-4a33-98be-26ed7753b99a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.587271+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d2b3409a-2547-4ba2-9735-fa5ab387dc2a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.610093+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b8663d61-b3be-4406-aba4-e7d8ae9d1757",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.650644+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3e403c0a-fac0-4f28-8c7f-5551d78c5de8",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.671903+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "761464bb-57c5-4015-aaa4-e467c096e793",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.692090+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "737c2f91-0a6a-47d1-9ace-2721d92feeb5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.714392+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "612dfc73-4cbf-4112-9d4c-97de153a107d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.727529+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "934a0d63-365f-4a95-b250-f66f54daefbe",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.739702+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5e25e860-b105-4c74-bc69-27b5c51d4ea6",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.753509+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9ffdc9c4-b349-4001-b5d5-b9ac5247fa1c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.764984+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e7573e82-9e8b-4b74-9799-7a25415fd9d3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.774783+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "633f1a8a-7377-4bb9-9215-b60ce5e7cbfe",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.784972+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9a42494e-beb9-4c98-a6a3-594ad17a7a45",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.793434+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "96642df0-6cae-4ee5-90fe-2595a69606e4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.802510+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f9aca1b1-564f-413d-8432-3a72ead1ce50",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.811027+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d849eba2-eaac-49ab-965d-b3b88b6e9375",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.820993+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ec407e82-8799-4499-8394-21b25303c501",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.831149+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "eb12f1a8-3cbe-4338-8bb1-9d2221147a3b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.841290+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "10c47fb4-2693-40d6-b808-451f8dc217d7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.852314+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "10a58f5b-6c60-4ec9-ad64-8ebd7f646da3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.861027+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6169523f-29f1-47fb-bdb2-e62c71969166",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.870954+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "80ce56ea-ee86-4fc8-b640-f80347379032",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.879523+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "433cd7ef-e80f-4792-86b9-a7dc93433c87",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.888902+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "010eb4fe-f567-488c-9f3f-a8e92a57500b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.896995+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e0ae9de8-e34b-4a04-bc35-c5947f75658b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.905746+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f1dbd455-bfb7-4812-aea2-e6d192560c57",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.914144+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ea4022a8-798f-41d3-bc4f-4443b30952ae",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.922578+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d07701c3-5314-4e61-8f1b-8001b2304c24",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.930753+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0e9b06ac-0de0-46f5-b08a-2b752dc80dbb",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.939373+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2f6423c3-eafc-4c4a-886c-29fd4ae59c59",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.947520+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ed75b778-f71f-47d8-b3b0-da59db2183da",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.955880+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "085e9cf1-52fb-4d79-920d-4903c4a940b9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.963083+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "51ace8a0-8740-4850-9f7a-f5fb8633ed53",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.971683+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b3549fe3-fee3-4e43-800c-ffe21a7a876a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.979712+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c3b8aded-92ca-45ef-a111-c0208b910960",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.988429+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a11cab0b-3c6e-4d28-b0dc-d3686a9c8918",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:05.996384+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9792c70b-d583-488f-8faf-766223309d69",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.005430+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "36bc5aaf-ce74-4788-8344-64b8b6a2bb64",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.013427+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b288cfe1-63b7-4642-8719-cb59d8a6b9be",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.021497+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "163c2043-c492-460d-8bcd-61dc48e86b80",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.029319+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "06bddcc6-b531-4f38-95c9-b3268cbd1238",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.049539+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "e9164c62-3264-453a-b308-87bbde2e2e18",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.058132+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "eae08c44-78bf-4add-b83a-73afe9c1b385",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.074618+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "66469a6b-f07e-4edd-be62-a1cccb877107",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.076588+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "43353f41-3be9-4bdb-ac3d-96542ffa37db",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.084796+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "73245519-32f0-4769-ad68-f1ce26e7d3db",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.182897+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "0e316892-389a-439e-bf6b-3fad23666fad",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.189949+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "6c988751-638d-4917-9be9-22c413720cd4",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.276217+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "4ff6bd83-84de-4821-9374-05b7d6c25336",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.283707+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "a9b20d60-2b48-4802-a805-1fffdc934f85",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.360335+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "3ea260bd-865d-471f-89d0-77962d69055e",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.366629+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "7d9c6a71-c06e-4cc9-8177-a99ecc53e062",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.446587+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "58a38fae-3c77-4f3e-b4ba-99f3d4c1b091",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.453376+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "6ee91904-a33d-4cd4-9055-d383a16c8d96",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.539987+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "12504db1-cf80-48e0-828f-f07c684f149a",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.546787+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "96cb9da0-16c7-44dc-8a49-ad555ef8d611",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.588237+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "059c1b90-18cd-446c-b985-9bd305559eec",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.601041+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b14ee394-910e-4b86-82ba-c489d2e3a475",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.619749+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "42b1c906-49bf-402b-9b3e-bb805780fdb9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.636865+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5923d378-0f75-4fdf-8093-45a3dd0c3f26",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.651843+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "180154d8-492e-4ae9-b992-73b88c4786ac",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.664274+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a2e4af57-d9c0-44db-91f0-0d0f2ceb3aec",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.675856+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8db727d0-98fd-471e-904a-6fb670bc670d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.687891+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "61b215fb-a834-4727-98d5-0fd3fc86ce33",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.697676+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "01edd00d-b2a5-4a11-acf5-3aa31659972c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.706651+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e12a3b65-77e5-4f92-9820-172dd63adade",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.714783+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bc9f668e-4326-42d0-becf-da86b962e80c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.723112+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "64d52c4d-328d-4ada-bf59-3ff9b6c1d392",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.731280+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2d751a95-45eb-4405-91c7-56de92162db2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.740815+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "136d78b0-47ba-46a0-8623-186d92f5c465",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.750970+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "05269f09-4960-4e5c-aa58-f24584110b94",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.761783+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a90c0bbe-c5ef-45de-b216-ddc7ba350098",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.774933+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b0a185ce-cee5-45db-b890-7073155d8766",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.786323+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b3564f1a-ea0e-4f4d-8781-0e0e97e1cf2c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.796689+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "65dffdd7-f832-4781-bd3c-3ababe8467cc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.804818+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e2d7c399-5c99-4951-b484-f1598945c591",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.811561+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0c3fb1b1-6902-465f-8855-d57b6d4d560c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.818044+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a5947617-bb6a-44a5-b5f0-ebf03f780fed",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.824695+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "02bbde37-a0c7-4c7f-adb7-14a5533460b9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.832340+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "50b163d6-458c-4049-82f5-d76baaf71910",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.839854+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0516c3ff-5506-40b5-a3ed-caed16e6dda4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.848433+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "576e9317-4b21-403e-a855-69ae4f5db0e5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.856557+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "dc942314-33d9-47b7-bdb8-680552d04980",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.864561+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "395e923f-bb6b-4df2-8a77-64a3cba9630b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.873974+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c56140cc-5e50-498c-89ea-b5a136ba1d94",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.881507+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5e0a80c9-902b-4c04-929b-5ed652c44e59",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.889464+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c89aa893-b5a8-4200-9636-a5776fda5411",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.896673+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1c1d23ab-81ff-4946-b88d-9585064691f7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.904799+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "efa27f4c-bde0-4417-a029-b12f0784a18c",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.919724+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "9c7df4e5-80d5-4efa-9b3d-3ceddcf05e1d",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.988156+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "ca261ea1-9eb8-4c49-b0dd-fa154c1beac1",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:06.995473+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "aa61c000-4832-45fc-bd3f-795d160926d3",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.077741+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "78c44cd9-3d3e-4707-b830-b74960a4e03d",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.084564+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "c2f87f39-1128-4c22-a3ff-a9d32a1736c2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.271685+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "03ef19eb-bb3b-4521-8a4a-b46fab13334a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.279444+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e68c3288-82a6-450b-abcc-3604f4c8788f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.287480+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1b60543e-6528-4316-86e9-89a5dfc74320",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.294406+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1ee1c700-3ccf-4bcd-ae58-7ca4b7e1c153",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.302499+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "06cfb9d7-b80c-4380-8224-124825283917",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.310945+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1124432f-bbf6-40db-a12a-6a8ca4db5321",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.320096+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6b3b02f3-fe74-475c-9617-d357ca9cfc2a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.326798+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "57fb876a-1d9f-4728-9090-250ead9a8451",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.334561+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "adefad86-bf46-4bd3-93bb-9121131e0350",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.341468+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "df46c15d-18e0-4e17-85fe-c42bb1ce76ac",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.349284+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1a71fafb-224b-4e74-90b4-d4c57e54ff20",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.356689+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b7743804-9bf6-4e85-a8cc-c34e70d026f7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 03:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.367332+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d95047e6-60a8-47c6-b93c-f50eb019034d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.377012+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9ba95d15-0c85-49d5-9f56-3d89e61b1df1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.387028+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "28f37277-c431-47e5-b742-617f10381660",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.396566+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f80a3e92-f45f-4b94-b8aa-66f260d6b275",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.405848+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4976b9ef-e015-406e-a869-6e4c5a527598",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.413772+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "70b37c7d-e959-479e-a443-1402e6cfd260",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.424638+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "011b2864-e898-48f1-b716-40a38db4be82",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.435752+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "79a77b36-7193-4d82-b46b-418cdf9943ca",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.444362+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "06268334-71ab-4d8f-a06f-8f774c8ad916",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.453187+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1795ed5a-2b07-4612-ab51-ffa4955cd2f4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.460525+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "38df90d5-1970-4922-a0b7-0a2b25167a47",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.468689+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "962fbd1f-9348-4edb-b8f9-a54f3b36b874",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 04:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.475869+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "910a6d00-f848-48e7-bf96-9080f4a7c0eb",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.483687+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4de32e2f-0b4c-4885-9ee3-f69e96f7d413",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.490585+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a67f5753-c6b8-4363-8540-f79b15dbcb41",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.497449+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3c3676a7-fd87-44ad-b14d-cb29ec3156d3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.506296+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4d44d524-35e1-4b79-a54d-3ba88831b7b0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.513636+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2339bbf7-fb00-4c7b-94ff-340b62cdb329",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.523022+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a331247c-73a4-41e9-9100-e3d6195e1da0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.531810+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "704deb21-3954-4be1-ac16-51aba6c08478",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.539433+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e34b673a-2db2-42d7-a61a-11ed45a06f4b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.547546+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5052217a-9f4a-4add-82fa-e94d9ec03598",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.555665+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9e3889ba-7005-4c64-bc04-2b11dd55c390",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.563946+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "06a61156-ab53-4141-afa7-4795f76687fc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 05:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.571832+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "7ec0839a-bba8-4c05-a517-d1b9c76aa1aa",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.579943+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4b3d2738-3f6e-494a-b6d3-e69cc4eee316",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.587530+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "95aa5b39-3614-4b0d-8ab7-f823092a1a5f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.594903+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f1eb2027-52b8-4694-abb7-409c780b6c4b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.602165+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "77588dce-a3d9-4f6d-8245-1b2620cb1ea5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.609909+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f5f18e46-65f5-4f91-8339-f083afa1e1ca",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.617329+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8cff33e4-0fc4-4e59-8a1e-7d064c8ed64f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.626349+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "987aad92-a1cc-4a13-96f2-00885edd31d7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.638934+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a2486cd6-061d-4af7-873f-c4bad039563b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.650437+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "78d9e0bb-4b6d-4705-ab3b-852634671760",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.660152+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3e2f6083-5b2b-419e-8a72-91f5b11a0ec3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.670838+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "61955a53-2822-47a4-8faf-a72120598a46",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 06:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.683435+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "aee349ff-236e-419f-a46b-b25a8c3709b5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.694452+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6f89d934-efab-4cd0-894d-41110068941f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.706532+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ad76a946-9f08-47fe-8911-bafdb4f4d1b7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.715101+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9b83dfe7-678b-4969-b397-9698a4602c82",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.723860+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "108425be-7ff5-49f7-8794-e8d11b4fd6f4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.732613+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bc8cfc52-3303-44f9-8e11-d03925996eea",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.740785+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5310a60d-b5f2-4755-8b76-86ed077d607f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.749421+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bd467229-e61a-4ebf-bec4-e93e141b5355",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.757281+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e43df384-84f6-46c3-8470-21f415b41afc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.765669+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "02d718db-1b96-4186-84d5-0b1a7d8c3fee",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.773908+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c14fb1e6-0d5f-4adb-b140-e1bb6b402c34",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.781788+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "964cc271-1176-4950-ad71-68f0d627bf60",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 07:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.789796+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "09df0de4-6011-46d5-adea-f7ffe30b08c8",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.797713+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2ff97ffa-b17e-4ed3-9d07-fccddea528d6",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.805869+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "93611055-6fed-4cde-b504-20b25105854d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:07.813375+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a0b135c5-8ee9-4985-9468-2fac4e94166e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.303630+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ddf62d39-8709-488d-8908-14a4f69ee2b1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.312291+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4959dda0-7f2d-4998-abff-c725683b90b0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.322182+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ca8c7198-7b51-41f2-b0da-b1c4c0f54fde",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.330436+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9b767ba2-f97a-4fb9-91f2-01385fd2a556",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.338490+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "14efc36a-cf70-473a-a393-cfe60d2cd22f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.346173+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "028542e1-e971-4972-9e6a-f51b547a530e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.355113+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6fd3dd17-a6fb-49c1-a137-3e18ac85da9b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:50:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.364108+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "15558886-428d-44ad-8092-a112125e763f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 08:55:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.372558+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5f0511f6-7f44-4089-8e17-45cbd6950ed9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.381128+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "af420552-b282-4bb7-86c6-5a8c35675f31",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:05:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.389892+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2682c11d-d309-4674-a874-c8b60c5d2a26",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:10:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.398657+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0a4cfc50-3920-4e86-ba5d-5055082cbb00",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:15:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.406573+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "09ce9c0c-0f90-4f52-951d-049e80c6737b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:20:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.415083+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "082dbdb0-618f-4542-b79e-cfc4e34d1a42",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:25:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.424228+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0529a742-9575-4819-af84-1818ceefa628",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:30:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.434128+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a29d0e7a-f6eb-4e64-b0d8-e1679a242a88",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:35:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.442187+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a9597e91-a199-47c8-a160-be355c99c0e1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:40:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.451211+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "cad9293b-d4bc-4ba6-99f5-03701d87948b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-02 09:45:00+00:00",
+     "recorded_at": "2026-11-07 09:06:08.460120+00:00",
+     "source": "accepted_evidence"
+    }
+   ]
+  },
+  "after-add-S-3-tick-1": {
+   "name": "after-add-S-3-tick-1",
+   "action_link": [
+    {
+     "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+     "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+     "linked_at": "2026-11-07T08:28:30.858716+00:00",
+     "linked_by": "backfill",
+     "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+     "thread_id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+     "action_kind": "DOMAIN_INTENT",
+     "origin_finding_id": null,
+     "origin_opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3"
+    }
+   ],
+   "thread_events": [
+    {
+     "seq": 1,
+     "state": "OPEN",
+     "cause_kind": "OCCURRENCE",
+     "recorded_at": "2026-11-07T08:28:30.734746+00:00",
+     "effective_day": "2026-10-17"
+    },
+    {
+     "seq": 2,
+     "state": "ACTION_IN_HAND",
+     "cause_kind": "ACTION_EVENT",
+     "recorded_at": "2026-11-07T08:28:30.957812+00:00",
+     "effective_day": "2026-10-26"
+    },
+    {
+     "seq": 3,
+     "state": "CHANGE_APPLIED",
+     "cause_kind": "DOMAIN_CASE",
+     "recorded_at": "2026-11-07T08:28:30.959872+00:00",
+     "effective_day": "2026-10-27"
+    },
+    {
+     "seq": 4,
+     "state": "RESOLVED_MONITORING",
+     "cause_kind": "VERIFICATION_OUTCOME",
+     "recorded_at": "2026-11-07T08:28:30.962361+00:00",
+     "effective_day": "2026-10-27"
+    }
+   ],
+   "threads_at_site": 2,
+   "outcomes": [
+    {
+     "outcome": "VERIFIED",
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    }
+   ],
+   "studies": [
+    {
+     "status": "LIMITED",
+     "last_day": "2026-10-21",
+     "first_day": "2026-10-17",
+     "created_at": "2026-10-22T06:00:00+00:00",
+     "eligible_days": "5"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T08:28:56.024904+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T08:28:57.864396+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T09:06:48.28614+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T09:06:50.964427+00:00",
+     "eligible_days": "0"
+    }
+   ],
+   "summary": {
+    "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+    "action_code": "ACT-000002",
+    "title": "Run the grain mill at midday on sunny days",
+    "rule_id": "midday-productive-shift-1",
+    "target": {
+     "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+     "over": "COMPLETE days of each window",
+     "ratio": [
+      11,
+      10
+     ],
+     "declared_by": "owner 2026-11-05"
+    },
+    "cost_check": null,
+    "trial_hours": null,
+    "state": "VERIFIED",
+    "reasons": [
+     "TARGET_MET"
+    ],
+    "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+    "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+    "not_judged_text": null,
+    "outcome": {
+     "outcome_id": "662565bc-af97-4b5a-b4fd-f51e953ba326",
+     "outcome": "VERIFIED",
+     "reasons": [
+      "TARGET_MET"
+     ],
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    },
+    "plan": {
+     "plan_id": "48709f96-ef44-4329-b7f7-952ed70faa53",
+     "effective_day": "2026-10-27",
+     "baseline_days": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25"
+     ],
+     "later_candidates": {
+      "to": "2026-11-10",
+      "from": "2026-10-28"
+     },
+     "later_days": [
+      "2026-10-28",
+      "2026-10-30",
+      "2026-10-31"
+     ]
+    },
+    "metrics": [
+     {
+      "metric_key": "midday_productive_kwh",
+      "label": "Midday use",
+      "unit": "kWh a day",
+      "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+      "before": "42.00",
+      "after": "110.00",
+      "threshold": "46.20",
+      "days_before": 3,
+      "days_after": 3,
+      "state": "PASS"
+     }
+    ]
+   },
+   "snapshot_dirty": 0,
+   "pending_snapshots_count": 0,
+   "pending_snapshots": []
+  },
+  "after-add-S-1": {
+   "name": "after-add-S-1",
+   "action_link": [
+    {
+     "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+     "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+     "linked_at": "2026-11-07T08:28:30.858716+00:00",
+     "linked_by": "backfill",
+     "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+     "thread_id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+     "action_kind": "DOMAIN_INTENT",
+     "origin_finding_id": null,
+     "origin_opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3"
+    }
+   ],
+   "thread_events": [
+    {
+     "seq": 1,
+     "state": "OPEN",
+     "cause_kind": "OCCURRENCE",
+     "recorded_at": "2026-11-07T08:28:30.734746+00:00",
+     "effective_day": "2026-10-17"
+    },
+    {
+     "seq": 2,
+     "state": "ACTION_IN_HAND",
+     "cause_kind": "ACTION_EVENT",
+     "recorded_at": "2026-11-07T08:28:30.957812+00:00",
+     "effective_day": "2026-10-26"
+    },
+    {
+     "seq": 3,
+     "state": "CHANGE_APPLIED",
+     "cause_kind": "DOMAIN_CASE",
+     "recorded_at": "2026-11-07T08:28:30.959872+00:00",
+     "effective_day": "2026-10-27"
+    },
+    {
+     "seq": 4,
+     "state": "RESOLVED_MONITORING",
+     "cause_kind": "VERIFICATION_OUTCOME",
+     "recorded_at": "2026-11-07T08:28:30.962361+00:00",
+     "effective_day": "2026-10-27"
+    }
+   ],
+   "threads_at_site": 2,
+   "outcomes": [
+    {
+     "outcome": "VERIFIED",
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    }
+   ],
+   "studies": [
+    {
+     "status": "LIMITED",
+     "last_day": "2026-10-21",
+     "first_day": "2026-10-17",
+     "created_at": "2026-10-22T06:00:00+00:00",
+     "eligible_days": "5"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T08:28:56.024904+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T08:28:57.864396+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T09:06:48.28614+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T09:06:50.964427+00:00",
+     "eligible_days": "0"
+    }
+   ],
+   "summary": {
+    "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+    "action_code": "ACT-000002",
+    "title": "Run the grain mill at midday on sunny days",
+    "rule_id": "midday-productive-shift-1",
+    "target": {
+     "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+     "over": "COMPLETE days of each window",
+     "ratio": [
+      11,
+      10
+     ],
+     "declared_by": "owner 2026-11-05"
+    },
+    "cost_check": null,
+    "trial_hours": null,
+    "state": "VERIFIED",
+    "reasons": [
+     "TARGET_MET"
+    ],
+    "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+    "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+    "not_judged_text": null,
+    "outcome": {
+     "outcome_id": "662565bc-af97-4b5a-b4fd-f51e953ba326",
+     "outcome": "VERIFIED",
+     "reasons": [
+      "TARGET_MET"
+     ],
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    },
+    "plan": {
+     "plan_id": "48709f96-ef44-4329-b7f7-952ed70faa53",
+     "effective_day": "2026-10-27",
+     "baseline_days": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25"
+     ],
+     "later_candidates": {
+      "to": "2026-11-10",
+      "from": "2026-10-28"
+     },
+     "later_days": [
+      "2026-10-28",
+      "2026-10-30",
+      "2026-10-31"
+     ]
+    },
+    "metrics": [
+     {
+      "metric_key": "midday_productive_kwh",
+      "label": "Midday use",
+      "unit": "kWh a day",
+      "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+      "before": "42.00",
+      "after": "110.00",
+      "threshold": "46.20",
+      "days_before": 3,
+      "days_after": 3,
+      "state": "PASS"
+     }
+    ]
+   },
+   "snapshot_dirty": 0,
+   "pending_snapshots_count": 1234,
+   "pending_snapshots": [
+    {
+     "event_id": "44fb0be0-90ee-4e39-a5da-bf862dce955b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.492077+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9549c104-54c5-473e-8887-618b23fe1f5b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.503899+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a32b7cb1-f3f2-47bd-a47b-bd0b5715a431",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.513496+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "845d4d93-1df9-4b24-ae65-23fa748dd662",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.521704+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "994546c3-fe8e-42fe-aa33-88025080a6a1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.530722+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5ca878e8-9a93-4ac3-849b-d5324fe6ffdc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.540183+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d196bc62-e285-472e-bebc-e87b7d76867e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.549385+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "56613389-9bb0-45a3-8663-2eba252763a5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.557559+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "73d28df2-f90e-455e-a751-ebf90d6b5575",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.565063+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "cb1a1c0c-b6eb-439d-85a1-b95a7edfa42f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.573244+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "604d077e-b834-45bd-8cc0-b23d6758b3a2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.580765+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f8b64629-0328-49ed-8bd2-8569afb2ef0d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.587880+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "138bdd0f-64b8-4327-9c66-0603fbcbb572",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.594850+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f66e2a21-5d30-4b16-a9aa-29de8de26911",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.602535+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d750c020-4882-463b-8f6f-d2864e8a919e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.610353+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e6c03482-084b-4b4c-b9f5-7c093066f273",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.618246+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "805bbdeb-6e14-4065-bdd2-aac711f0d447",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.626556+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "31202684-36b8-482c-9978-0eb348d31dbc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.634258+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "40f11180-1cca-4d71-b661-47a6e7c8ac98",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.641879+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "12d05725-eb6d-4b7b-8f02-4aa5cb34f83b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.649452+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "06223ec3-fc98-43f9-aa21-e90b90645965",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.656244+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d7aafa6b-d0aa-4e71-9efb-f90d88727c2a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.664053+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "63228d85-579f-4766-81b9-9590bc86e937",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.671096+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f71fe78c-0b75-4e71-981c-1afc7194790c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.678945+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6c50a943-d0b0-4300-a1f9-96915cb7eca2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.686425+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6bca8819-874b-4db8-be52-ec85dfdfed77",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.694157+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b66f2d2c-f50b-4f8f-abcb-417a96fbe352",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.701425+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c9bf24d6-8eba-48c3-ad07-2dfc72ee654a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.708838+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "fc4359e9-2e50-47ff-a6e6-6f783b168685",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.716137+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "dbb2f72b-612a-4fa4-93a3-4e900c2c165b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.723379+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a91e538c-b882-420d-b977-a3e8a561d7d5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.731205+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0a961183-3ce2-49d9-9828-4228b9ef0a27",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.738305+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "121eabc4-7bd8-47f5-a025-2e7fa7fa7ead",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.746080+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "17e358e3-5440-4938-8b17-e1ae444a8430",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.753328+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "474f19e4-5ec6-4924-a7af-3e92e3ec9ba1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.761374+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6243b8bc-4d94-4b2e-adde-f0c436193d50",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.768788+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a8ecfd94-7843-4528-83c9-02016754af74",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.776688+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "07572e85-c788-4453-805c-9b2a3a40fc43",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.783916+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b27c1938-8e30-4aae-82a3-4e86076a85a5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.791344+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "dadee7de-f2ae-4986-a7d0-28231bd2a4a9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.798518+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ae5adf25-e1c6-47df-8f25-f4dc5a635089",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.805610+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0b41b31e-b918-484b-b900-f7619744d38c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.812964+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bb897675-edf4-46f3-85d4-425aed4a53be",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.821080+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "23bcbd9d-ebff-4890-9d0f-dad2e5f19c50",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.828149+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "cc71929e-a53c-451c-a6ef-7f4be1b33e55",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.835520+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ce955368-32e3-4ef7-8517-9440d2132b56",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.843450+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c0f179c5-3ac5-450c-b484-461695526f97",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.851357+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bb33c8d9-6ce0-4979-be18-89fcb5b198c0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.858961+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d5fd6fd8-e325-4792-900c-dc3ed413e9ee",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.866893+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "83b260e1-3f5d-4c71-a43c-29d1e3982ed7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.875077+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e4dfebf8-4f89-41e2-98a4-4edeb47a7dd7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.883404+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b91af705-96f4-4142-8450-d628648326f1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.891213+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5f2353ee-df5e-4ac1-8dc9-58649532df3c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.899483+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b73fd1ab-13b2-4c24-b95c-7108c8717bfc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.907113+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "90bac1c0-5821-412c-9720-0d1d79f0edd5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.914924+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ec339c66-1c09-4c04-b326-60f427ce6f02",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.922183+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "14027f8e-3209-4ee2-8534-f6a58eef3bc1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.930065+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2f6208a5-c609-44ed-9564-a43796f77f0c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.937747+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "81e0bcf4-c913-45ac-9552-2351ec554117",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.945788+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9de46ff4-0b64-4c5a-90e8-7cc3a5bf7b02",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.952792+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "be74a39b-81d7-4f2d-b9cc-cfe50f283f5e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.960396+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8c7b166f-bbfe-4f2c-95c9-d211709fd413",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.967669+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "26118291-7ed7-4898-a2f9-20c33d266043",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.975250+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a63b8252-7210-41fd-b977-317710d7fb4f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:02.982260+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "272a2bdd-b741-4f34-af3d-81578eb60b2b",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.000319+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "c202ac4c-2e3b-4af3-87ec-6fc63e04a26c",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.009685+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "ef3acf70-9f6d-4172-8823-57b3fee94984",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.024761+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "86b304a6-94ee-4330-b448-a3d859e9a676",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.026676+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "a60703b7-bc39-4abf-8bf7-09b53f0d1d11",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.035939+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "5bacd221-fdaf-4c40-a219-83dce200a561",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.135499+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "a78f317c-76c2-412e-b000-42cbaba4b148",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.144772+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "c3005089-318e-4335-98fa-affe6639dbda",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.232193+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "9f49d52f-aa9f-4714-a9f5-d2a6f19ceaec",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.239259+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "4acb4444-f433-40ee-b1f5-5bc7cfa2d43d",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.326988+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "e18b3435-dd41-4912-ba15-175ff4b393f2",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.334831+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "19de2271-9149-45a4-8af2-41e13d3017fc",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.424415+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "62e9651d-0ccb-4139-995a-8853145e89ab",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.434925+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "bedfb396-3d25-4788-b30a-0fbce1e14dbd",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.529119+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "dfad3249-df26-4015-ba16-7af13ca1a0fc",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.536001+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "db0408e6-c10f-495a-89a1-33c0c4cce9d5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.567270+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9bfd2fa7-eee4-459d-9c2d-39f9f32fa73e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.575716+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b7ec2857-08aa-4d2e-b14f-ae4d467f6134",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.583680+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5e2e5d9b-4079-451c-bc1f-d4e74a6fe13c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.591824+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "cd6ece2c-631a-45a0-a6f1-eefa23c0b4ca",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.600132+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "02a6f968-56a2-4220-a70a-7a9e59cb9801",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.608299+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "fb93130f-f844-4ca7-a032-5aff1baa0dd0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.616758+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9e61e3c0-6e6a-4844-ac2a-8e63bd40bec4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.624896+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6b7675ec-6284-4d9a-b72f-90489379761a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.633082+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "71cbb44e-8943-4dc8-adcf-a04bd88caa73",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.640215+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d3bf279e-6c1f-4e3d-b8f6-3529ed67693d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.647841+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b29d64a3-6e65-48b2-8834-091047108ffb",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.655253+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5d78f512-6d6e-4d47-a9e0-7f53e877202f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.663827+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ef7b64d9-2575-4238-8e1d-d225d67102a9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.671360+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ac0fca68-b94e-4dd0-b6a9-e261c97b7ede",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.679106+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f1423d24-4296-43b6-9742-aa0fb62a5000",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.686054+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a294d7e2-0bde-4b73-b3dc-5995380ea821",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.693481+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9e006c7c-a8a9-4b65-be9c-4851f63e4ad5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.700767+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "435a1c95-7e10-405d-8069-59e9ef683562",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.707797+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "86561b92-8d06-4c15-9d77-0eb23da524cc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.715273+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "35b88524-5442-47a4-9756-1e37340bc14e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.722682+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "14de282f-41a2-4aac-8120-bfdfd95efba3",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.730165+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5938d06f-61c1-438b-9193-75a0b5af0298",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.737113+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "9e2a277f-180d-4e29-aa06-55c9e25dc9c4",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.745266+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d390047b-cfd2-4344-9164-89dcbd4cacd5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.752898+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3874fba9-c65a-4606-bb7b-74034fd68c06",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.760497+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d62fbd54-c323-4ec6-8696-702f7659b0f8",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.768029+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "2fa01659-09f9-4717-b33d-59f6317d82eb",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.775725+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "afda2d61-221f-4f2f-bcca-0a7eb0589768",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.782904+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "be512096-0465-437b-9524-7699506325fd",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.790274+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "55e3c39f-1187-4c10-af84-ca13baf4c04a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.797553+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ba899fdc-93df-40f9-9c02-cb5f9c43cc01",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.804988+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "257e5862-1d91-40af-90a9-ec33f4fd2090",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.812376+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5ff0e5d5-92e1-406d-b417-a105219ef287",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.823282+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "696cc1b7-af97-4157-baf2-8edf6819940c",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.892269+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "bcff75cb-5c61-4fe6-bd14-d96bd9f3a1a7",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.899345+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "19a1e90d-7b0f-411d-ab52-56edd5ee4fcb",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.983934+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "2fea839d-637a-4f85-b1ac-cd689f53e2cd",
+     "type": "job.changed",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 10:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:03.991519+00:00",
+     "source": "recompute_job"
+    },
+    {
+     "event_id": "7a9b750a-39d4-4f6e-afea-75fa9abb928a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 02:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.222403+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e20e093c-f618-478f-9e39-7e3a4e7602b2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.230671+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "456a5f5e-7b6b-41eb-b2fe-fae96b98ab41",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.238468+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "16f1c694-9dc6-4b6a-943a-ecb69aa832f5",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.246754+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "16585483-9276-4947-b0c7-42baa0c4c8bf",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.254807+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "adddbefc-9b5f-4539-ad1a-b21ca4368228",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.264726+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "21facf4a-491a-45c1-947b-a34910633f0f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.273623+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "cbf70015-e273-4fb8-b4b3-b4be47594165",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.281049+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "fa7d9fed-8b4a-45e1-8dac-b0beb75a98a6",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.288937+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "61be111d-678f-4a73-9209-96db44117227",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.296822+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "28f8ea77-3a6b-490d-a431-c19f36537d2e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.306257+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a64418ed-d278-49fe-b886-63c4397c7367",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.314834+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "eee5bb85-1fdb-46be-a024-3db3758ca230",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 03:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.322341+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "68515f23-94d6-4a32-aee0-6d1813e5ab2b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.330508+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "05cbf810-0363-4ab5-be6d-78601dfd86ed",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.338315+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "7042a2a1-a204-4900-b6eb-ffab67a7a312",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.345814+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d7244ffa-d094-47c9-87b4-9154c7ea640b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.353538+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "20ab0280-0811-4e03-8633-60c1e3384993",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.361064+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "774876ca-f2e8-4b12-9a76-9c4704ad728e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.369478+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "edfb7882-432b-4280-bf1f-81e90a5dbf4d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.377938+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "714220dd-42e6-47d1-ba00-0709c48be171",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.385965+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8460f5bb-9c79-4ea9-9da4-dd4b06c449bc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.393799+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "76f5f512-0059-4cb5-bb4a-0de70c982de7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.401748+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "bd116317-04ca-421d-8c03-4944af96a87d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.409276+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d8150bf5-88c8-47dd-94c6-04eadac9bef6",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 04:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.416611+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1f166901-270f-48c6-a74d-f0f95033e912",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.425640+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "378c67a8-c1bc-4e52-a505-d2266e153c15",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.435339+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b5fc8a92-e87a-41a1-8e41-efa00a7be2d8",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.445957+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1fc1dc9d-bd39-484c-977c-40fefca7db13",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.454918+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1d20678e-df9a-4d39-b17f-8c3773a19b8d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.463764+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f301d8bd-bdf8-4967-b62e-64a866ab9ca9",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.474494+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e3beb592-2c8a-456a-9abf-1fed9ae3b05c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.485589+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "447944c0-1425-43f9-b752-5d01a5a13056",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.494462+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d625a35f-ec0d-4385-80fb-a3787d14a444",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.502818+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5428ef13-6f6a-4513-980a-874afc563563",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.510873+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f6a96881-523b-4781-a5f7-57a2e3dec5c7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.519701+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "7782e4a5-083d-4915-91f9-f5ef8f0684d6",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 05:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.528379+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "0b996396-c87f-4881-95e8-d488e95abcab",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.536949+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3c4b3830-7413-4e8b-af5a-3c431312d22b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.544750+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "57ce878a-f773-462a-a3d8-ca1084403d3a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.552978+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "49a29372-8acf-4c5f-98b3-39264532d59e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.560552+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3ec87fe2-c473-4dde-831c-b627b75a97d0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.568305+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a26e95ad-1211-4640-8243-01efa7eb651a",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.577219+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5a189b92-4fcc-493c-851a-739cf7e645fe",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.584701+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b10675a9-b3c7-4271-acf9-568ee85729d7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.592079+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e1454047-b92a-4a3c-a9a9-c64260d3affa",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.599619+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ef636413-a0d6-49b0-afbf-4d12c31a456b",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.606413+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "7ff77d0c-fff7-40bd-8106-945fdb6a2a75",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.614335+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "ec3b46d5-a363-445b-9274-6bfe0851f6c1",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 06:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.621706+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4ac045f7-6e93-460e-8340-db5bf3ea4f8e",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.629996+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "989e4d8b-d3cb-48d0-82f5-9e8b3e55f289",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.637151+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "60c61d2a-16ba-4e5f-8b02-47d8d6d23cfb",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.645099+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "76b8ceac-41b9-4d9f-a262-f2bcfa3a9a99",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.652149+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8814ed5a-bfe7-4fde-b298-9498a421cef2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.660073+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "552e1d5b-bfae-41fb-801f-58844cd98149",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.667238+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "5620ca85-848d-46b6-9d41-f9e2c1a3c2a0",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.674839+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "f89d8c9f-c04b-4d9f-a50c-babca4fcff77",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.682146+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6b6f82f3-7f24-4f7c-9fbf-42e119efe717",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.689447+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "846618ef-603c-4627-a446-bf380bd84f52",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.696823+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b0ab9162-8606-4683-903b-ed8cca37f1d7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.704460+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6431bf7f-75f2-4766-98bf-5a619648ba3f",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 07:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.712347+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "04bb6038-9581-4576-871f-dd324fecdd40",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.719710+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "6f184987-1725-45ec-bace-526d51f83ccc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.726921+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "90c94486-0934-4e51-b81a-c5fdacaca848",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:04.734222+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8909ca8f-9b58-4805-a2e1-222c70917c21",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.253511+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "a272c659-8a22-4a05-90b5-a2bd2c45d6a2",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.262315+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "8ef5700f-34b1-4259-9380-8b1b41f5ff39",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.271533+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "3e7a2fa0-86c8-4159-9bed-c3c154938c42",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.280252+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "e9f4ef13-09ba-4b44-820b-2a49bfe09f5c",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.288316+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "b7cc80a6-70d2-4139-ae2b-92ca81d095fc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.296365+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "63fa7099-b585-40fb-ac37-51e3cbc49280",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.303569+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4f19a9db-b13d-4dd5-a46a-19b099613613",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:50:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.311390+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4248eb9c-a93c-4035-9267-eedca31a2abc",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 08:55:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.318725+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "18677290-cb81-4287-bdc6-d889c3eb0268",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:00:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.325710+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "87fee012-5969-48fb-807c-dffab94fe207",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:05:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.333248+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "4008406c-80c0-4cb8-9198-84b5308b277d",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:10:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.341756+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "d8c6eba2-59b9-47b8-a74e-18fccb8aa127",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:15:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.350517+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "7e7f6b9e-256d-4118-bd14-e4e331838a52",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:20:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.357913+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "92608d36-2f07-4acd-a157-ae6718576e51",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:25:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.365601+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "c6bb0fc6-e06c-4adc-9578-1bde7c6afffd",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:30:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.372231+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "1d3bad98-c206-4dc7-ac2b-7fcf0240a7a7",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:35:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.379305+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "537c818a-24b4-4e63-b386-be677fb70558",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:40:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.386277+00:00",
+     "source": "accepted_evidence"
+    },
+    {
+     "event_id": "040589c1-9851-4741-abd9-2bf77b8da1ef",
+     "type": "reading.accepted",
+     "schema_version": 1,
+     "occurred_at": "2026-11-04 09:45:00+00:00",
+     "recorded_at": "2026-11-07 09:09:05.393918+00:00",
+     "source": "accepted_evidence"
+    }
+   ]
+  },
+  "after-add-S-1-tick-1": {
+   "name": "after-add-S-1-tick-1",
+   "action_link": [
+    {
+     "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+     "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+     "linked_at": "2026-11-07T08:28:30.858716+00:00",
+     "linked_by": "backfill",
+     "tenant_id": "9a391866-7f74-4673-8800-f6567cca087d",
+     "thread_id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+     "action_kind": "DOMAIN_INTENT",
+     "origin_finding_id": null,
+     "origin_opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3"
+    }
+   ],
+   "thread_events": [
+    {
+     "seq": 1,
+     "state": "OPEN",
+     "cause_kind": "OCCURRENCE",
+     "recorded_at": "2026-11-07T08:28:30.734746+00:00",
+     "effective_day": "2026-10-17"
+    },
+    {
+     "seq": 2,
+     "state": "ACTION_IN_HAND",
+     "cause_kind": "ACTION_EVENT",
+     "recorded_at": "2026-11-07T08:28:30.957812+00:00",
+     "effective_day": "2026-10-26"
+    },
+    {
+     "seq": 3,
+     "state": "CHANGE_APPLIED",
+     "cause_kind": "DOMAIN_CASE",
+     "recorded_at": "2026-11-07T08:28:30.959872+00:00",
+     "effective_day": "2026-10-27"
+    },
+    {
+     "seq": 4,
+     "state": "RESOLVED_MONITORING",
+     "cause_kind": "VERIFICATION_OUTCOME",
+     "recorded_at": "2026-11-07T08:28:30.962361+00:00",
+     "effective_day": "2026-10-27"
+    }
+   ],
+   "threads_at_site": 2,
+   "outcomes": [
+    {
+     "outcome": "VERIFIED",
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    }
+   ],
+   "studies": [
+    {
+     "status": "LIMITED",
+     "last_day": "2026-10-21",
+     "first_day": "2026-10-17",
+     "created_at": "2026-10-22T06:00:00+00:00",
+     "eligible_days": "5"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T08:28:56.024904+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T08:28:57.864396+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T09:06:48.28614+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T09:06:50.964427+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-05",
+     "first_day": "2026-11-01",
+     "created_at": "2026-11-07T09:09:40.735726+00:00",
+     "eligible_days": "0"
+    },
+    {
+     "status": "UNKNOWN",
+     "last_day": "2026-11-06",
+     "first_day": "2026-11-02",
+     "created_at": "2026-11-07T09:09:42.772027+00:00",
+     "eligible_days": "0"
+    }
+   ],
+   "summary": {
+    "action_id": "c0d5dcbe-0466-4b5b-82a3-f46c4186fdb1",
+    "action_code": "ACT-000002",
+    "title": "Run the grain mill at midday on sunny days",
+    "rule_id": "midday-productive-shift-1",
+    "target": {
+     "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+     "over": "COMPLETE days of each window",
+     "ratio": [
+      11,
+      10
+     ],
+     "declared_by": "owner 2026-11-05"
+    },
+    "cost_check": null,
+    "trial_hours": null,
+    "state": "VERIFIED",
+    "reasons": [
+     "TARGET_MET"
+    ],
+    "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+    "line": "Midday use before and after the change: 42.00 \u2192 110.00 kWh a day on 3 fully checked days each",
+    "not_judged_text": null,
+    "outcome": {
+     "outcome_id": "662565bc-af97-4b5a-b4fd-f51e953ba326",
+     "outcome": "VERIFIED",
+     "reasons": [
+      "TARGET_MET"
+     ],
+     "recorded_at": "2026-10-31T23:00:00+00:00"
+    },
+    "plan": {
+     "plan_id": "48709f96-ef44-4329-b7f7-952ed70faa53",
+     "effective_day": "2026-10-27",
+     "baseline_days": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25"
+     ],
+     "later_candidates": {
+      "to": "2026-11-10",
+      "from": "2026-10-28"
+     },
+     "later_days": [
+      "2026-10-28",
+      "2026-10-30",
+      "2026-10-31"
+     ]
+    },
+    "metrics": [
+     {
+      "metric_key": "midday_productive_kwh",
+      "label": "Midday use",
+      "unit": "kWh a day",
+      "rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
+      "before": "42.00",
+      "after": "110.00",
+      "threshold": "46.20",
+      "days_before": 3,
+      "days_after": 3,
+      "state": "PASS"
+     }
+    ]
+   },
+   "snapshot_dirty": 0,
+   "pending_snapshots_count": 0,
+   "pending_snapshots": []
+  }
+ },
+ "boards": {
+  "boards": {
+   "S-15": {
+    "day": "2026-10-21",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "estimated productive-use sales",
+     "headline_money": {
+      "amount_low": "10.50",
+      "amount_high": "10.50",
+      "currency": "USD"
+     },
+     "subline": "42 kWh used by Grain mill in 24 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 1,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "42 kWh used by Grain mill in 24 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Spare solar on 5 of 5 well-observed days",
+       "confidence": {
+        "label": "High",
+        "tone": "green"
+       },
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-16T21%3A00%3A00Z&to=2026-10-21T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-16T21:00:00Z",
+         "to": "2026-10-21T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [
+      {
+       "kind": "OPPORTUNITY",
+       "role": "MOVES",
+       "text": "Productive-use headroom",
+       "href": "/sites/KOBO-001/opportunities/630c709f-e70c-4605-ad19-643042efbbe3",
+       "link_ref": {
+        "kind": "OPPORTUNITY",
+        "site": "KOBO-001",
+        "id": "630c709f-e70c-4605-ad19-643042efbbe3"
+       },
+       "ref": {
+        "opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3",
+        "code": "OPP-000001",
+        "thread": {
+         "id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+         "occurrence_no": null,
+         "occurrences": 1,
+         "segment_no": null,
+         "state": "OPEN",
+         "state_effective_day": "2026-10-17",
+         "state_day": "2026-10-21"
+        }
+       }
+      }
+     ],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": {
+      "label": "Opportunity",
+      "text": "Productive-use headroom"
+     },
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "10.50",
+        "currency": "USD",
+        "kwh": "42.000",
+        "measured_seconds": 86400,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "COMPLETE",
+       "days": {
+        "complete": 1,
+        "partial": 0,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "10.50 USD over 1 of 1 day checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-10-21",
+        "last": "2026-10-21"
+       },
+       "days_line": "1 of 1 day checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "Limited evidence: readings come from mixed sources, so the size is not worked out yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "10.50 USD over 1 of 1 day checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S-11": {
+    "day": "2026-10-25",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "estimated productive-use sales",
+     "headline_money": {
+      "amount_low": "10.50",
+      "amount_high": "10.50",
+      "currency": "USD"
+     },
+     "subline": "42 kWh used by Grain mill in 24 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 1,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "42 kWh used by Grain mill in 24 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Spare solar on 4 of 4 well-observed days \u00b7 1 of the last 5 days not checked",
+       "confidence": {
+        "label": "High",
+        "tone": "green"
+       },
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-20T21%3A00%3A00Z&to=2026-10-25T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-20T21:00:00Z",
+         "to": "2026-10-25T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [
+      {
+       "kind": "OPPORTUNITY",
+       "role": "MOVES",
+       "text": "Productive-use headroom",
+       "href": "/sites/KOBO-001/opportunities/630c709f-e70c-4605-ad19-643042efbbe3",
+       "link_ref": {
+        "kind": "OPPORTUNITY",
+        "site": "KOBO-001",
+        "id": "630c709f-e70c-4605-ad19-643042efbbe3"
+       },
+       "ref": {
+        "opportunity_id": "630c709f-e70c-4605-ad19-643042efbbe3",
+        "code": "OPP-000001",
+        "thread": {
+         "id": "3f22e7a7-7df4-52fe-b154-fd12a8f8be17",
+         "occurrence_no": null,
+         "occurrences": 1,
+         "segment_no": null,
+         "state": "OPEN",
+         "state_effective_day": "2026-10-17",
+         "state_day": "2026-10-25"
+        }
+       }
+      }
+     ],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": {
+      "label": "Opportunity",
+      "text": "Productive-use headroom"
+     },
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "10.50",
+        "currency": "USD",
+        "kwh": "42.000",
+        "measured_seconds": 86400,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "COMPLETE",
+       "days": {
+        "complete": 1,
+        "partial": 0,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "10.50 USD over 1 of 1 day checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-10-25",
+        "last": "2026-10-25"
+       },
+       "days_line": "1 of 1 day checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "Limited evidence: readings come from mixed sources, so the size is not worked out yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "10.50 USD over 1 of 1 day checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S-8": {
+    "day": "2026-10-28",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "estimated productive-use sales",
+     "headline_money": {
+      "amount_low": "27.50",
+      "amount_high": "27.50",
+      "currency": "USD"
+     },
+     "subline": "110 kWh used by Grain mill in 24 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 0,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "110 kWh used by Grain mill in 24 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Spare solar on 4 of 4 well-observed days \u00b7 1 of the last 5 days not checked",
+       "confidence": {
+        "label": "High",
+        "tone": "green"
+       },
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-23T21%3A00%3A00Z&to=2026-10-28T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-23T21:00:00Z",
+         "to": "2026-10-28T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": null,
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "27.50",
+        "currency": "USD",
+        "kwh": "110.000",
+        "measured_seconds": 86400,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "COMPLETE",
+       "days": {
+        "complete": 1,
+        "partial": 0,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "27.50 USD over 1 of 1 day checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-10-28",
+        "last": "2026-10-28"
+       },
+       "days_line": "1 of 1 day checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No potential found yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "27.50 USD over 1 of 1 day checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S-5": {
+    "day": "2026-10-31",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "estimated productive-use sales",
+     "headline_money": {
+      "amount_low": "27.50",
+      "amount_high": "27.50",
+      "currency": "USD"
+     },
+     "subline": "110 kWh used by Grain mill in 24 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 0,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "110 kWh used by Grain mill in 24 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Spare solar on 4 of 4 well-observed days \u00b7 1 of the last 5 days not checked",
+       "confidence": {
+        "label": "High",
+        "tone": "green"
+       },
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-26T21:00:00Z",
+         "to": "2026-10-31T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": null,
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "27.50",
+        "currency": "USD",
+        "kwh": "110.000",
+        "measured_seconds": 86400,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "COMPLETE",
+       "days": {
+        "complete": 1,
+        "partial": 0,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "27.50 USD over 1 of 1 day checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-10-31",
+        "last": "2026-10-31"
+       },
+       "days_line": "1 of 1 day checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No potential found yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "27.50 USD over 1 of 1 day checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S-1": {
+    "day": "2026-11-04",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "estimated productive-use sales",
+     "headline_money": {
+      "amount_low": "42.08",
+      "amount_high": "42.08",
+      "currency": "USD"
+     },
+     "subline": "168.3 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 0,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "168.3 kWh used by Grain mill in 8 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Spare solar on 1 of 1 well-observed day \u00b7 4 of the last 5 days not checked",
+       "confidence": {
+        "label": "Unknown",
+        "tone": "gray"
+       },
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-30T21%3A00%3A00Z&to=2026-11-04T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-30T21:00:00Z",
+         "to": "2026-11-04T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": null,
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "42.08",
+        "currency": "USD",
+        "kwh": "168.333",
+        "measured_seconds": 28800,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "CHECKED_DAYS",
+       "days": {
+        "complete": 0,
+        "partial": 1,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "42.08 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-11-04",
+        "last": "2026-11-04"
+       },
+       "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No potential found yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "42.08 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S+0": {
+    "day": "2026-11-05",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "No productive-use sales on this day: Grain mill not used",
+     "headline_money": null,
+     "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 0,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "0 kWh used by Grain mill in 8 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+       "confidence": null,
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-10-31T21%3A00%3A00Z&to=2026-11-05T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-10-31T21:00:00Z",
+         "to": "2026-11-05T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": null,
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "0.00",
+        "currency": "USD",
+        "kwh": "0.000",
+        "measured_seconds": 28800,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "CHECKED_DAYS",
+       "days": {
+        "complete": 0,
+        "partial": 1,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-11-05",
+        "last": "2026-11-05"
+       },
+       "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No potential found yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   },
+   "S+1": {
+    "day": "2026-11-06",
+    "http": 200,
+    "grow": {
+     "category": "GROW_REVENUE",
+     "label": "Grow revenue",
+     "definition": "Capture more value from existing infrastructure and expand earning potential",
+     "icon": "grow",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "MG-1",
+      "label": "Productive electricity sales"
+     },
+     "headline": "No productive-use sales on this day: Grain mill not used",
+     "headline_money": null,
+     "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+     "thread_lines": [],
+     "not_measured_text": null,
+     "counts": {
+      "issues": 0,
+      "in_hand": 0
+     },
+     "must_not_harm": null,
+     "contributors": [
+      {
+       "key": "productive_sales",
+       "label": "Productive-use sales",
+       "text": "0 kWh used by Grain mill in 8 measured hours",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "productive_use",
+       "label": "Productive use",
+       "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+       "confidence": null,
+       "href": "/sites/KOBO-001/performance/renewable?from=2026-11-01T21%3A00%3A00Z&to=2026-11-06T21%3A00%3A00Z",
+       "link_ref": {
+        "kind": "EVIDENCE",
+        "site": "KOBO-001",
+        "capability": "renewable",
+        "window": {
+         "from": "2026-11-01T21:00:00Z",
+         "to": "2026-11-06T21:00:00Z"
+        }
+       }
+      },
+      {
+       "key": "productive_price",
+       "label": "Price per kWh",
+       "text": "Declared at 0.25 USD per kWh",
+       "confidence": {
+        "label": "Declared",
+        "tone": "neutral"
+       },
+       "href": "/sites/KOBO-001/financials/assumptions",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_assumptions"
+       }
+      },
+      {
+       "key": "cash_collected",
+       "label": "Cash collected",
+       "text": "Not available yet \u00b7 no billing or payment records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      },
+      {
+       "key": "site_earnings",
+       "label": "Site earnings",
+       "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+       "confidence": null,
+       "href": null,
+       "link_ref": null
+      }
+     ],
+     "issues": [],
+     "options": [
+      {
+       "text": "Productive-use what-if",
+       "href": "/sites/KOBO-001/financials/scenarios",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "KOBO-001",
+        "view": "financial_scenarios"
+       }
+      }
+     ],
+     "in_hand": [],
+     "earlier": [],
+     "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+     "evidence_link": {
+      "label": "Renewable evidence",
+      "href": "/sites/KOBO-001/performance/renewable",
+      "link_ref": {
+       "kind": "EVIDENCE",
+       "site": "KOBO-001",
+       "capability": "renewable"
+      }
+     },
+     "outcomes": [
+      {
+       "key": "MG-1",
+       "label": "Productive electricity sales",
+       "state": "UNKNOWN",
+       "reason": "PRODUCER_NOT_SETTLED"
+      },
+      {
+       "key": "MG-6",
+       "label": "Cash collected",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      },
+      {
+       "key": "MG-3",
+       "label": "Site profitability",
+       "state": "NOT_MEASURED",
+       "reason": "NOT_MEASURED_IN_CATALOGUE"
+      }
+     ],
+     "potential": null,
+     "nodes": {
+      "kpi": {
+       "key": "verdict.MG-1",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No target set yet",
+       "days_line": "No target, so no days are judged yet"
+      },
+      "earnings": {
+       "key": "money.estimated_income",
+       "value": {
+        "amount": "0.00",
+        "currency": "USD",
+        "kwh": "0.000",
+        "measured_seconds": 28800,
+        "price": {
+         "amount": "0.25",
+         "currency": "USD"
+        }
+       },
+       "basis": "CHECKED_DAYS",
+       "days": {
+        "complete": 0,
+        "partial": 1,
+        "low": 0,
+        "no_data": 0,
+        "pending": 0,
+        "expected": 1
+       },
+       "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+       "span": {
+        "first": "2026-11-06",
+        "last": "2026-11-06"
+       },
+       "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+      },
+      "potential": {
+       "key": "potential.daytime_solar_headroom",
+       "value": null,
+       "basis": "NOT_KNOWN",
+       "days": null,
+       "text": "No potential found yet",
+       "days_line": null
+      }
+     },
+     "target_note": null,
+     "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+    },
+    "failed_reads": null,
+    "status": null
+   }
+  },
+  "portfolio_week": {
+   "http": 200,
+   "query": "from=2026-10-30T00:00:00Z&to=2026-11-06T00:00:00Z",
+   "kobo": {
+    "site_id": "d05264b6-026d-4b09-9aaf-a615b3e94c59",
+    "site_code": "KOBO-001",
+    "site_name": "Kobo mini-grid",
+    "domain": "mini_grid",
+    "overview_href": "/sites/KOBO-001",
+    "read_state": "PARTIAL",
+    "rows": [
+     {
+      "category": "GROW_REVENUE",
+      "state": "UNKNOWN",
+      "state_label": "Unknown",
+      "tone": "gray",
+      "lead_outcome": {
+       "key": "MG-1",
+       "label": "Productive electricity sales"
+      },
+      "headline": "No productive-use sales on this day: Grain mill not used",
+      "short_value": null,
+      "headline_money": null,
+      "nodes": {
+       "kpi": {
+        "key": "verdict.MG-1",
+        "value": null,
+        "basis": "NOT_KNOWN",
+        "days": null,
+        "text": "No target set yet",
+        "days_line": "No target, so no days are judged yet"
+       },
+       "earnings": {
+        "key": "money.estimated_income",
+        "value": {
+         "amount": "139.16",
+         "currency": "USD",
+         "kwh": "556.666",
+         "measured_seconds": 259200,
+         "price": {
+          "amount": "0.25",
+          "currency": "USD"
+         }
+        },
+        "basis": "CHECKED_DAYS",
+        "days": {
+         "complete": 2,
+         "partial": 3,
+         "low": 0,
+         "no_data": 2,
+         "pending": 0,
+         "expected": 7
+        },
+        "text": "139.16 USD over 2 of 7 days checked \u00b7 3 partly checked \u00b7 not billed or collected",
+        "span": {
+         "first": "2026-10-30",
+         "last": "2026-11-05"
+        },
+        "days_line": "2 of 7 days checked \u00b7 3 partly checked"
+       },
+       "potential": {
+        "key": "potential.daytime_solar_headroom",
+        "value": null,
+        "basis": "NOT_KNOWN",
+        "days": null,
+        "text": "No potential found yet",
+        "days_line": null
+       }
+      }
+     },
+     {
+      "category": "OPTIMIZE_COST",
+      "state": "UNKNOWN",
+      "state_label": "Unknown",
+      "tone": "gray",
+      "lead_outcome": {
+       "key": "MG-2",
+       "label": "Supply cost per kWh"
+      },
+      "headline": null,
+      "short_value": null,
+      "headline_money": null,
+      "nodes": {
+       "kpi": {
+        "key": "verdict.MG-2",
+        "value": null,
+        "basis": "NOT_KNOWN",
+        "days": null,
+        "text": "No target set yet",
+        "days_line": "No target, so no days are judged yet"
+       },
+       "earnings": {
+        "key": "money.possible_extra_fuel_cost",
+        "value": null,
+        "basis": "NOT_KNOWN",
+        "days": null,
+        "text": "Not known yet",
+        "days_line": null
+       },
+       "potential": {
+        "key": "potential.none",
+        "value": null,
+        "basis": "NOT_KNOWN",
+        "days": null,
+        "text": "No potential found yet",
+        "days_line": null
+       }
+      }
+     },
+     {
+      "category": "PROTECT_ASSET",
+      "state": "UNKNOWN",
+      "state_label": "Unknown",
+      "tone": "gray",
+      "lead_outcome": {
+       "key": "MG-5",
+       "label": "Reliable service"
+      },
+      "headline": "1 early warning on battery and generator",
+      "short_value": null,
+      "headline_money": null,
+      "nodes": {
+       "kpi": null,
+       "earnings": null,
+       "potential": null
+      }
+     },
+     {
+      "category": "ASSURE_PERFORMANCE",
+      "state": "UNKNOWN",
+      "state_label": "Unknown",
+      "tone": "gray",
+      "lead_outcome": {
+       "key": "MG-7",
+       "label": "Evidence quality"
+      },
+      "headline": "1 verified result",
+      "short_value": null,
+      "headline_money": null,
+      "nodes": {
+       "kpi": null,
+       "earnings": null,
+       "potential": null
+      }
+     }
+    ],
+    "window": {
+     "from": "2026-11-04T21:00:00Z",
+     "to": "2026-11-05T21:00:00Z",
+     "known_at": null
+    },
+    "window_basis": "DAY",
+    "earnings": {
+     "estimated_income": {
+      "key": "money.estimated_income",
+      "value": {
+       "amount": "139.16",
+       "currency": "USD",
+       "kwh": "556.666",
+       "measured_seconds": 259200,
+       "price": {
+        "amount": "0.25",
+        "currency": "USD"
+       }
+      },
+      "basis": "CHECKED_DAYS",
+      "days": {
+       "complete": 2,
+       "partial": 3,
+       "low": 0,
+       "no_data": 2,
+       "pending": 0,
+       "expected": 7
+      },
+      "text": "139.16 USD over 2 of 7 days checked \u00b7 3 partly checked \u00b7 not billed or collected",
+      "span": {
+       "first": "2026-10-30",
+       "last": "2026-11-05"
+      }
+     }
+    }
+   }
+  },
+  "S": "2026-11-05T00:00:00Z"
+ }
+}

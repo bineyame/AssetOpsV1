@@ -809,3 +809,66 @@ def test_r3_a_full_day_straight_after_the_trial_is_refused_and_only_there():
     assert len(sd.plan_add_runs(doc, current, "kobo", "steady", S, later, day="S+3d", installs=INSTALLS)) == 3
     assert len(sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, later, day="S-10d",
                                 installs=INSTALLS)) == 3
+
+
+# DD1b2-R2 seam rule: at a seam an interval reading comes from the run whose span ended there, a state reading from the
+# run that starts there (a story run keeps its own closed span).
+def _obs(t, reading_class="INTERVAL_SIGNAL", outcome="REPORTED"):
+    from types import SimpleNamespace
+    return SimpleNamespace(source_sample_time=sd.iso(t), reading_class=reading_class, outcome=outcome)
+
+
+def _senders(runs, t, reading_class, outcome="REPORTED"):
+    """The runs that both produce this reading (a run reports from its start to its end; a reported interval needs a span
+    behind it, so none at the run's first boundary) and keep it."""
+    def produces(r):
+        if outcome == "NO_PRECEDING_INTERVAL":
+            return t == r.start
+        return (r.start < t if reading_class == "INTERVAL_SIGNAL" else r.start <= t) and t <= r.end
+    return [r for r in runs if produces(r) and r.keep_observation()(_obs(t, reading_class, outcome))]
+
+
+def test_seam_rule_interval_from_the_run_that_ended_and_state_from_the_run_that_starts():
+    runs = [r for r in sd.resolve(sd.load(sd.DEFAULT_FILE), S) if r.site == "kobo" and r.has_run and r.seam]
+    assert any(r.complement_of for r in runs)
+    by_stream: dict = {}
+    for r in runs:
+        by_stream.setdefault(r.epoch, []).append(r)
+    joints = 0
+    for stream in by_stream.values():
+        stream.sort(key=lambda r: r.start)
+        for a, b in zip(stream, stream[1:]):
+            end = a.covers_end or a.end
+            if end != b.start:
+                continue  # a gap (a split part A that ends one step short of the cut)
+            joints += 1
+            assert _senders(stream, b.start, "INTERVAL_SIGNAL") == [a], (a.kind, b.kind)
+            states = _senders(stream, b.start, "STATE_SIGNAL")
+            assert states == ([b] if a.complement_of else [a]), (a.kind, b.kind)  # a story run owns its closed span
+            assert _senders(stream, b.start, "INTERVAL_SIGNAL", "NO_PRECEDING_INTERVAL") == []
+            assert _senders(stream, b.start, "STATE_SIGNAL", "NO_PRECEDING_INTERVAL") == []
+    assert joints > 4
+
+
+def test_seam_rule_interior_instants_have_one_sender_and_story_only_days_have_no_predicate():
+    allruns = [r for r in sd.resolve(sd.load(sd.DEFAULT_FILE), S) if r.has_run]
+    assert all(r.keep_observation() is None for r in allruns if not r.seam)
+    assert any(not r.seam for r in allruns)
+    seamed = [r for r in allruns if r.seam and r.site == "kobo"]
+    group = [r for r in seamed if (r.site, r.day) == (seamed[0].site, seamed[0].day)]
+    t = min(r.start for r in group) + timedelta(minutes=35)
+    while t < max(r.covers_end or r.end for r in group) - timedelta(minutes=5):
+        for rc in ("INTERVAL_SIGNAL", "STATE_SIGNAL"):
+            assert len(_senders(group, t, rc)) <= 1, (sd.iso(t), rc)
+        t += timedelta(minutes=5)
+    # the story run keeps its own closed span: a state at its end is its own, and the rest run does not repeat it
+    story = next(r for r in group if not r.complement_of)
+    assert story in _senders(group, story.end, "STATE_SIGNAL") and len(_senders(group, story.end, "STATE_SIGNAL")) == 1
+
+
+def test_seam_rule_is_not_vacuous():
+    runs = [r for r in sd.resolve(sd.load(sd.DEFAULT_FILE), S) if r.site == "kobo" and r.has_run and r.complement_of]
+    night = runs[0]
+    # the old time rule alone drops the closing interval reading at emit_until
+    assert night.keep()(sd.iso(night.emit_until)) is False
+    assert night.keep_observation()(_obs(night.emit_until)) is True
