@@ -1354,3 +1354,108 @@ VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the 
 - Logged for the owner (Architect decision during delegated absence): the mill result will carry "on example data" like the trial, which costs +0.35.
 
 **Owner question: none.**
+
+---
+
+## WD-1m-R: ruling on the WD-1m pre-flight (Architect, Claude, 2026-11-08)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `cbb89ed60`; worktree `C:\Users\assef\Bineyame\AssetOpsV1-wd1m`. This section replaces WD-1-R §4's "source" paragraph. Everything else in WD-1-R §4 stands. `B/` = `backend/assetops_backend/`, `T/` = `tools/`. READ = I read the code; nothing here was measured.
+- The builder's first-choice finding is accepted. The mill outcome `details` has no `source` block (`B/actions/verification_families.py:382-390`), and `site_day_snapshot.evidence_class` is not a source class. The fallback applies.
+
+### 0. Code reality the ruling rests on (READ)
+
+- `B/evidence/source_provenance.py:40-41`: there are exactly two positive source classes, `AUTHORED_DEMONSTRATION` and `REGISTERED_SIMULATION`, and both are in `EXAMPLE_SOURCES` (`B/chain/vocabulary.py`). Field telemetry has no publication link; it is UNBOUND. So "any of the window's evidence is published under a positive class" means the same as "some of it is example data".
+- `batch_publication_link` is keyed by `batch_id` (`0017_evidence_publication.py:83`), so a class lives per batch, not per reading.
+- `accepted_evidence` has `source_time` and `received_at`, and the index `accepted_evidence_site_time (site_id, source_time DESC)` (`0005_evidence_ledger.py:214`). `site.timezone` is `text NOT NULL` (`0001`).
+
+### 1. Decisions (one line each)
+
+- **Q1 window: (ii).** The verdict's used days (`details.baseline.days` ∪ `details.later.days`), as Site-local dates, limited to evidence received by the outcome's `recorded_at`. Rejected: (i) labels on days the verdict never used; (iii) is exact but repeats the measure per day for a label.
+- **Q2 classification: "any example data labels it", not `classify`.** Return the smallest positive publication class found among the window's batches, else NULL. A mixed window still gets the label. `classify` would give MIXED/UNKNOWN and drop the label for a window that does contain example data, which breaks the owner's labelling rule. The trial's `source_pair` is a comparability gate, not a label rule, and is not reused.
+- **Q3 location: (a), as a guarded lateral on `_SITE_ACTIONS`.** (b) is rejected because it crosses OUT-B4 and the evidence boundary. (c) is rejected for now: the verdict code has no evidence ids, so (c) would need this same window query at verdict time *plus* a write path, golden churn and a rebuild. E3's rebuild does not remove the golden churn. (c) goes to the backlog as BL-"mill verdict stores its source", post-demo.
+- **Q4 speed: measure first; stop at more than 50 ms added per board read, or any seq scan** (§4).
+
+### 2. The SQL (`B/chain/adapters/postgres_chain_read.py`, `_SITE_ACTIONS`)
+
+- The existing lateral `v` also selects `o.details`. Add one guarded lateral and one output column, `source_class`. The intended form is below. The builder may adjust the syntax, but it must not change the semantics:
+  ```sql
+  -- in the select list:
+         v.outcome, v.recorded_at AS outcome_recorded_at, src.source_class
+  -- the existing lateral v also selects o.details:
+  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at, o.details FROM verification_outcome o ...) v ON true
+  -- WD-1m (WD-1m-R §2): the mill verdict's example-data class over its used days; NULL = none found.
+  -- No S4-05 commitment checks on purpose: a broken link can only add "on example data", never remove it.
+  LEFT JOIN LATERAL (
+    SELECT min(p.source_class) AS source_class
+      FROM site st,
+           LATERAL (SELECT array_agg(CAST(d AS date)) AS days
+                      FROM jsonb_array_elements_text(coalesce(v.details->'baseline'->'days', '[]'::jsonb)
+                                                     || coalesce(v.details->'later'->'days', '[]'::jsonb)) d) u
+      JOIN accepted_evidence e
+        ON e.tenant_id = a.tenant_id AND e.site_id = a.site_id
+       AND e.source_time >= (CAST((SELECT min(x) FROM unnest(u.days) x) AS timestamp) AT TIME ZONE st.timezone)
+       AND e.source_time <  (CAST((SELECT max(x) FROM unnest(u.days) x) + 1 AS timestamp) AT TIME ZONE st.timezone)
+       AND CAST(e.source_time AT TIME ZONE st.timezone AS date) = ANY(u.days)
+       AND e.received_at <= v.recorded_at
+      JOIN batch_publication_link l ON l.batch_id = e.batch_id
+      JOIN evidence_publication p ON p.id = l.publication_id
+     WHERE st.tenant_id = a.tenant_id AND st.id = a.site_id
+       AND a.kind = 'DOMAIN_INTENT' AND a.origin_opportunity_id IS NOT NULL AND v.outcome IS NOT NULL
+  ) src ON true
+  ```
+- **Guard.** The lateral runs only for an opportunity-origin domain Action that has an outcome. Trials and other Actions get NULL and no scan.
+- **Commitment checks are deliberately not repeated.** The S4-05 select (`postgres_evidence_ledger.py:1171-1194`) checks commitments, and a broken link resolves to BROKEN_LINK. Here a broken link to an example publication still labels. That is the conservative direction: a broken link can add the words "on example data", and it can never remove them. Write this in the packet.
+- **Approved cap.** If `test_ch9b1_origin_readers.py` counts the new `origin_opportunity_id` token, raise the `chain/adapters/postgres_chain_read.py` cap by exactly the counted tokens (expected +1, class "both") with a `# WD-1m-R` comment. Anything beyond +2: STOP.
+
+### 3. Pass-through and render
+
+- `B/chain/site_chain.py` `opportunity_actions` (`:175-178`): add `"source_class": a.get("source_class") if known else None`. The class follows the outcome's own cutoff visibility. If no outcome is known by the cutoff, there is no class.
+- `B/chain/claims.py:95` also calls `opportunity_actions`. It must ignore the new key. If any claims wire or golden gains the key, STOP.
+- `B/site_outcomes/board.py` `OpportunityActionFact`: add `source_class: str | None = None` with the comment `# WD-1m-R: example-data class over the verdict's used days (None = none found)`. Fill it where the fact is built from the `opportunity_actions` dict (`mini.py:444`).
+- `B/site_outcomes/mini.py:1084`: `provenance_suffix(None)` becomes `provenance_suffix(a.source_class)`. Literal: the existing `VERIFICATION_TEXT[s]` with " on example data", so the entry reads "ACT-… verified on example data". No new words and no mock deviation, because this is the trial's existing form.
+- `T/demo_combined_rows.py` MILL-5 (`:279-286`): the expected mill entry takes `provenance_suffix` by import, with the class read from the board body. The live S+0 Kobo mill entry must end with `provenance_suffix(<Kobo's publication class>)`; name the class in the packet. It must never be retyped.
+
+### 4. Speed check (before writing the render; STOP gate)
+
+- On the authorized test DB (`*_test` in `assetopsv1-postgres-1`) with the prepared Kobo story data, run `EXPLAIN (ANALYZE, BUFFERS)` on `_SITE_ACTIONS` for Kobo with and without the new lateral.
+- **STOP** and report the plan if either holds:
+  - the added time is more than **50 ms**;
+  - the plan reads `accepted_evidence` by seq scan rather than `accepted_evidence_site_time`.
+- Record both timings and the index line in the packet. Do not add an index or a migration to fix a slow plan; report it.
+
+### 5. Parity test (Postgres, test DB; new file `backend/tests/test_wd1m_mill_source_postgres.py`)
+
+- **Reference.** For the same window, select the ids of `accepted_evidence` on the used days that were received by `recorded_at`. Pass them to `link_rows_on`, apply `source_provenance.link_of` to each row, keep the links that are `BOUND` with a class in `EXAMPLE_SOURCES`, and take `min` of their classes, else None. The adapter column must equal the reference in every case below.
+- **Seed:** one Site whose `timezone` is not UTC, two batches on different days, one published as `REGISTERED_SIMULATION` and one unpublished (UNBOUND), and an opportunity-origin domain Action with a recorded outcome whose `details` name the days.
+- **Cases:**
+  1. used days only on the published batch: `REGISTERED_SIMULATION`;
+  2. used days only on the unpublished batch: None;
+  3. used days on both: `REGISTERED_SIMULATION` (the mixed window keeps the label; `classify` would say UNKNOWN, and the test asserts the difference on purpose);
+  4. the published batch's evidence lies on a day that is not used: None (proves the window);
+  5. the published evidence has `received_at` after `recorded_at`: None (proves the knowledge limit);
+  6. a reading at 23:30 Site-local on a used day, which is the next day in UTC: it counts (proves the Site-local mapping);
+  7. a `MINI_TRIAL` Action on the same Site: `source_class` is NULL (proves the guard).
+- **Non-vacuity:** remove `= ANY(u.days)` and case 4 fails; remove the `received_at` line and case 5 fails. Record both in the packet.
+- **L0:**
+  - In `test_mb1_opportunity_board.py`, a mill fact with `source_class="REGISTERED_SIMULATION"` renders the entry with `provenance_suffix(...)`, and one with None renders it plain.
+  - MILL-5's self-test gains a mill entry that is missing its suffix on an example Site, and that entry must FAIL.
+
+### 6. Goldens, files, size
+
+- **Golden diffs allowed:** only the Kobo mill "Verified results" entry gains " on example data", in any board or Portfolio golden that carries it. Any other change: STOP and report.
+- **Files:**
+  - `B/chain/adapters/postgres_chain_read.py`
+  - `B/chain/site_chain.py`
+  - `B/site_outcomes/board.py`
+  - `B/site_outcomes/mini.py`
+  - `T/demo_combined_rows.py` (MILL-5 only)
+  - `backend/tests/test_wd1m_mill_source_postgres.py` (new)
+  - `backend/tests/test_mb1_opportunity_board.py`
+  - MILL-5's self-test file
+  - `backend/tests/test_ch9b1_origin_readers.py` (the cap line only, if needed)
+  - the affected goldens
+- **Out of scope, a stop-check only.** The builder records whether the mill **verdict page** already says the result is on example data. If it does not, report it; it is not fixed in WD-1m.
+- **Size: WD-1m 0.35 → 0.45** (+0.1 for the Postgres parity test and the speed gate). Lane 1 total: 3.12 → **3.22**.
+- WD-1m is a screen-wording change. It joins the post-W6 owner walkthrough, with no separate walkthrough. Guards V and N run.
+
+**Owner question: none.**
