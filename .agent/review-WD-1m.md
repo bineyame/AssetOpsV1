@@ -83,7 +83,11 @@ All runs used python `AssetOpsV1-plan2\.venv`, with PYTHONPATH set to the worktr
 - **L0:** `pytest tests/test_ch9b3_mill_verdict.py tests/test_demo_combined_finish_rows.py tests/test_mb1_opportunity_board.py tests/test_ch9b1_origin_readers.py tests/test_out_c2_board.py -q` gave **102 passed** in 7.3 s.
 - **Postgres** (`assetops_wd1m_test` only): `pytest tests/test_wd1m_mill_source_postgres.py tests/test_ch9b3_mill_verdict_postgres.py -q` gave **11 passed** in 88.9 s.
 - **Mutants:** a scratch file outside the repo ran three mutants plus a re-run of the three WD-1m tests, giving **6 passed** (all three mutants killed) in 128 s.
-- **Guards:** `tools/check-architecture.ps1` was run without `-ExecutionPolicy`. Result: GUARD_RESULT.
+- **Guards:** `tools/check-architecture.ps1` was run without `-ExecutionPolicy` and exited 1. The failures do not come from this unit, but the guard is **not verified green** on this branch.
+  - **Rule 8, three messages:** the guard found no `INSERT INTO ev_consequence_*` in `financials/adapters/postgres_consequence_store.py`. This diff does not touch `financials/`, so I treat these as not caused by WD-1m. I did not re-run the guard on `main` to prove they are already there.
+  - **`chain-structure.ps1` did not run:** the worktree has no `.venv` and `ASSETOPS_GUARD_PYTHON` was not set.
+  - **Not run:** `check-agent-workflow.ps1`.
+  - **Before merge:** the coordinator should run guards V/N with `ASSETOPS_GUARD_PYTHON` set.
 - **Not run:**
   - the full suite (per the dispatch; the implementer's full-suite evidence is not in the packet, and the demo sprint has no full suite until E2);
   - the frontend (no frontend code changed);
