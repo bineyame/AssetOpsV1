@@ -87,7 +87,7 @@ COST_REASON_WORDS = {
     "NOT_COMPARABLE": "the two hours are not comparable",
     "SOURCE_NOT_COHERENT": "the two hours come from different sources",
     "EVIDENCE_REPLAY_MISMATCH": "the readings changed after the result was recorded",
-    "GENERATOR_KWH_UNKNOWN": "generator energy is not known for both hours",
+    "GENERATOR_KWH_UNKNOWN": "generator energy is not known for one or both hours",
     "ZERO_DEMAND": "an hour had no demand",
     "SFC_MISSING": "the generator fuel rate is not recorded",
     "SFC_DIFFERS": "the generator fuel rate differs between the hours",
