@@ -233,7 +233,9 @@ def test_0052_round_trip_and_refusal(mill) -> None:
         svc.freeze_domain_plan(mill.t, mill.s, action["id"])
     finally:
         _close(mill)
-    assert head(mill.engine) == pg_harness.alembic_head() == "0052_verification_plan_domain"
+    assert head(mill.engine) == pg_harness.alembic_head()
+    command.downgrade(_alembic(), "0052_verification_plan_domain")
+    assert head(mill.engine) == "0052_verification_plan_domain"
     with pytest.raises(Exception) as refused:
         command.downgrade(_alembic(), "0051_action_opportunity_origin")
     assert "0052" in str(refused.value), refused.value
@@ -249,7 +251,7 @@ def test_0052_round_trip_and_refusal(mill) -> None:
                                        "WHERE table_name = 'verification_plan'")).all())
     assert "domain_action_id" not in cols and nullable["action_id"] == "NO" and nullable["field"] == "NO"
     command.upgrade(_alembic(), "head")
-    assert head(mill.engine) == "0052_verification_plan_domain"
+    assert head(mill.engine) == pg_harness.alembic_head()
 
 
 def test_q10_site_action_rows_read_no_domain_plan(mill) -> None:
