@@ -2224,3 +2224,80 @@ Input: `.agent/DD-1b2b-preflight.md` (`5c05dd0a3`), plus the coordinator's facts
 S-3's study, queued or not, is reported only (R6 §1).
 
 **Owner:** nothing new now. After the run, the R6 §5 triggers apply, plus Q7's line if free RAM went under 2 GB: "During the full rehearsal the machine's free memory went down to [X] GB during [step]. The build finished. The final build on the demo machine needs [Y] free to be safe." **Size unchanged:** DD-1b2b has 1.75 left; lane 2 has 2.75.
+
+## DD1b2-R8: gaps before the one rehearsal (Architect, Claude, 2026-11-07)
+
+Binding checked: Claude (`.ai/ROLE_CONFIG.md:9`). Inputs: R6, R7, `.agent/DD-1b2b-handoff.md` (`9faf45ce4`), `tools/demo_combined{,_finish,_rows,_drain,_ex1}.py`, commits `d2f53caa0` and `d837b539c`. **READ** = code, cited. **MEASURED** = a read-only query or a stored log, named. I ran no build and wrote no code.
+
+### A. The unbuilt items: before or after the rehearsal
+
+Rule used: an item goes **before** only if it needs something only the build moment produces, or it runs inside the prepare. Nothing below does. Every item reads stored rows or served bodies on the kept `dd1b2` DB, and no tick runs on `dd1b2` after the prepare. So **all of them go after**, in one new step-7 tool, `tools/demo_combined_after.py` (reads only; report rows, plus the assertions named). **None of them is added to `CHECKS`.** The prepare archives HEAD at its start (`demo_combined.py:390-396`), so this tool may be written while the rehearsal runs. Its L0 runs after the prepare ends.
+
+| Item | When | SCOPE-1 | Pass, or what happens if it is not built |
+|---|---|---|---|
+| O14, unused-solar recompute | After (step 7) | Kept, timeboxed to 0.1 | As R6 O14. **If not built, "about 96 / about 22" leaves DS-1** (R6 §4's own fallback). The line keeps "solar that was going unused", without numbers |
+| O15, litre recompute | After (step 7) | Kept | As R6 O15. If not built, DS-1's generator line says "for about 15 minutes" with no litre figure, and no owner line goes |
+| O16, fuel-row trace and S-14/S-7 PRICED quantity 0 | After (step 7), stored rows | Kept (money is shown to clients) | As R6 O16. MONEY-B in the self-check stays as built. A different figure goes to the owner before E3 |
+| F-THREADS: earnings, ONE-SOURCE, "Why?" price line recompute | After, served reads | Kept (figures on screen) | Recomputed and asserted equal to the shown figures |
+| F-THREADS: MG-2 line | After | Report only | Recorded as shown |
+| F-THREADS: links with an explicit `known_at` | After (from `links`) | Report only | Listed in the packet |
+| F-THREADS: Portfolio plain landing for Cold/EV | After | Report only | Stated |
+| F-THREADS: Protect "Why?" names both Cold threads | After | Kept | Asserted |
+| F-THREADS: "Action agreed" / "No action agreed yet" | After | Kept | Asserted on ACT-002/003, from the `state_label`s that `check.json` already records |
+| EX-1: S+2 renewable selections exist before the first tick | After, before step 8 | Kept | Built into `demo_combined_ex1.py` between the add and the first tick (stored-row count for S+2's PV hours). **EX-1 can be repeated:** the clone is remade from `dd1b2` by `TEMPLATE`. Must exist before step 8 runs |
+
+Nothing is dropped. Two items are simplified by fallback (O14, O15) only if not built.
+
+### B. The four ambiguities
+
+| # | Fact (cited) | Ruling |
+|---|---|---|
+| 1 | A board row's `state` is one of eight states (`outcomes/status.py:18-20, 34`; `site_outcomes/board.py:790`). **PARTIAL is never a row state**, so `r.get("state") == "PARTIAL"` (`tools/demo_combined_rows.py:140`) can never fire: the check is empty, not too strict. The board-level PARTIAL is `read_state`, set when a producer port fails (`site_outcomes/read.py:472`; `mini.py:5-7, 545-547`; `cold.py:210`; `ev.py:282`). "Partly checked" on S is the day grade (`chain/grading.py:24`), a different field | **Change the check to the field R6 O5 meant: the board's `read_state != "AVAILABLE"` is a fault**, listing `failed` if the wire carries it. Keep the `PRODUCER_NOT_SETTLED` scan (`status.py:72`). A must-fail L0 with a `read_state: PARTIAL` board. This sharpens what the row asserts; this ruling authorizes it. S reading `read_state: PARTIAL` is a real fault (a failed producer read), not a property of a partly checked day |
+| 2 | Grade string: `NO_DATA = "NO_DATA"` (`chain/grading.py:26`). `days[].grade` is `day_grade` (`chain/site_chain.py:39`). A measure with no stored row reads NO_DATA (`chain/read.py:53-60`), and the weakest grade wins (`read.py:85-88`). Exception: a stored PENDING row wins over NO_DATA (`read.py:85`) | **The string is right. The built rule (`has_run` and kind ≠ `missing`) is right** (S-4 and S-2 are absent from `days.json`, so they are NO_DATA). One change: **assert NO_DATA only on local days before the Site-local today; record today without asserting it**, because today's open day can legitimately hold a PENDING row |
+| 3 | `ev.json` records no Finding ids, so EV's expectation is derived from the Portfolio rows it then checks. COH-10 is circular for EV. Separately, `build_expected_threads` skips any Kobo/Cold id that is on no Portfolio row (`demo_combined_rows.py:46-48`), which hides what COH-10 exists to catch | **Accepted for the rehearsal as a declared limit, with two additions:** (a) F-COH fails if the EV group is empty (the fault Tuesday must yield at least one thread); (b) the skipped Kobo/Cold ids are returned as `unplaced` in the row's output and listed in the packet. A non-empty `unplaced` is not a row failure: the reviewer and I rule each listed id. BL item, not now: record EV Finding ids in `ev.json` |
+| 4 | **Both columns exist, MEASURED and READ.** `domain_action.origin_opportunity_id`: `backend/migrations/versions/0051_action_opportunity_origin.py:70`. `verification_outcome.domain_action_id`: `0052_verification_plan_domain.py:121-122`. The DROPs in both files are downgrade SQL only (`0051:124-129`, `0052:149-173`; upgrade at `0051:138`, `0052:183`). 0052 is head. Read-only `information_schema` on `assetops_test` (alembic `0052_verification_plan_domain`) returns both columns. The mill outcome is written through `DOMAIN_OUTCOME_COLUMNS`, which uses `domain_action_id` (`actions/adapters/postgres_action_store.py:79-81, 802`). The page route exists (`action_api.py:315`) | **MILL-3 stands as written.** No change |
+
+### C. Risk control for the one-shot run
+
+**Can a wrong row or a drain error lose the run? (READ)**
+
+- **A finish row: no data is lost, but the timings are.** `run()` catches each row, runs all of them, and writes `check.json` before it returns 1 (`demo_combined_finish.py:831-845`). The prepare raises only after that (`demo_combined.py:539-540`). Nothing drops the DB on failure: drops happen only at a prepare's start (`:413-414`) and in `drop` (`:776-778`). **But `manifest.json` is written only after `finish_build` returns (`:448-456`),** so a self-check failure loses O3's timings and the wall time.
+- **The drain: yes, it can cost the run.** `drain-1` runs right after the mill (`:501-505`). `Demo.drain` raises on (a) any non-zero tick (`:596-598`), (b) a `counts` child crash (`check=True`, `:578`) or no JSON line (`IndexError`, `:580`), and (c) a fail verdict (`:606-607`). A real tick exits 1 when any Site is FAILED (`scheduling/run.py:94`). **MEASURED:** `AssetOpsV1-demo3/var/demo3_full/logs/59-tick.log` shows KOBO-001 FAILED with `["MINI", "TIMEOUT", "stage mini exceeded 120 s and was killed"]`. That is a load timeout, which a 2-3 h run can hit. An abort at drain-1 leaves a DB where the mill has run and objectives, S2, ticks, drain-2 and the self-check have not. The mill never reruns (R6 §6), so recovery would be a second build, which needs the owner.
+- Note: the drain does not parse tick stdout at all. Its only real-path parse is the `counts` JSON line. The `counts` SQL ran against Postgres in L2 (`test_dd1b2b_drain.py:113-139`). What has never run is the subprocess path and a real tick's return code.
+
+**Rulings (BUILD before the rehearsal, with L0s; commit; then P0):**
+
+- **C1. The drain never ends the prepare.** Inside `prepare`, a drain failure of any kind ((a)-(c) above) writes `drain-N.json` with `verdict: "fail"`, the reason, the history and the log. Then the prepare continues: objectives, S2, ticks, drain-2, self-check. After the self-check, the prepare exits non-zero with `DRAIN FAILED (deferred)`, and F-DRAIN fails on the record. **A non-zero tick is recorded, not fatal:** the log entry carries each Site's `failure` triple, parsed from the tick JSON or the last line if it does not parse, and the 2N and flat-tick rules still decide. This amends DD1b2-R Q8's "Exit 1 on a FAILED Site stops the prepare" (`:1592`). The CLI `tick --until-drained` keeps exit 1 on a fail verdict, so the presenter and EX-1 still see it. **After the run:** any FAILED tick is listed in the packet. A failure other than a stage TIMEOUT is an R6 §7 stop back to me, with the DB kept.
+- **C2. The manifest is always written.** The manifest write moves into a `finally` that records `failed_at` (step name) and the error, with the timings gathered so far.
+- **C3. A self-check failure is a step-7 fix, not a lost run.** R6 §6 step 7 stands: fix the row's tool, then rerun `python tools/demo_combined_finish.py check <url> var/demo3_dd1b2`. If the wall cap fires inside the self-check, the data is complete, and `check` reruns the same way.
+- **Unchanged:** a failure in the mill step, or a crash before it, is a stop, and a rerun needs the owner.
+
+**C4. Pre-run proof P0 (one partial build, own DB, dropped after).**
+
+The DD-1b2a probe list is not used: it is 18 of v3's 22 Kobo days, so it is close to a whole build. P0 copies the M0 precedent instead (DD1b2-R2 §1: a 4-day partial prepare, about 7 min).
+
+- **Days:** `.agent/DD-1b2b-p0-days.json`, v3 entries unchanged. Kobo S-13 `steady-before-first`, S-12 `steady-before`, S+0 `trial-before`, S+1 `trial-after` (M0's set). Cold S+0 `failure`. EV S+0 `fault`. If a join guard refuses, add only the ruled day it names, and say so.
+- **Runs, in order, after C1, C2 and the B fixes are committed:**
+  1. `prepare --sites kobo,cold,ev --no-finish --days .agent/DD-1b2b-p0-days.json --cap-seconds 2400`, on DB `assetops_demo3_dd1b2t_test` and work `var/demo3_dd1b2t`. With `--no-finish`, no mill step runs (`:466-467`).
+  2. `tick --until-drained`. This is the real `Demo.drain`: real tick children, real `counts` children, and the record.
+  3. `python tools/demo_combined_finish.py check <url> var/demo3_dd1b2t`. Every row runs on real served bodies. Each failure is classed as **absent data** (it names `mill.json`, a drain record, a day, a thread or an objective that P0 does not build) or as a **tool fault** (a KeyError on a wire shape, a 404 route, SQL, the F-COH `InProcess` collect, F-CAL's `chain?date=` shape). DD1b1-R4's rule applies (`:1439`): only absent data is excused, and each excused row is listed.
+  4. After 11:00Z: `tools/demo_combined_ex1.py` straight on the P0 DB (it is disposable, so no clone).
+  5. Fix each tool fault in place, with its L0, and commit. Rerun only step 3 (and step 4 if EX-1 changed). Never rerun the prepare. Then drop the DB and the folder. Evidence goes to `.agent/DD-1b2b-p0.json`, committed.
+- **Time:** an estimated 30-45 min (prepare 12-20, drain 3-5, check 5-10, EX-1 5-10). Cap 60 min for steps 1-4. Same start conditions as R7 Q7. One heavy job at a time.
+- **Permission:** the owner's standing rule bars a full data build. The owner's exception covers the one whole-list rehearsal. P0 is a 6-day partial build, the same class as M0 and the DD-1b2a probe. **This amends R6 §6's bar ("any demo prepare other than step 6") for P0 alone.** The owner is informed and is not asked.
+- **P0 does not prove** the mill's place in the drain order, the full-list values or the timings. C1 and C2 cover those risks.
+- **Freeze:** after P0's last fix commits, nothing the prepare archives changes until step 6 starts.
+- **Timeline:** fixes about 60 min, P0 about 45, P0 fixes about 30. That puts the rehearsal start at about 12:30-13:30Z, inside R7 Q8's window. If a P0 fault needs a ruling, the 17:30Z latest start still holds. Otherwise the run starts the next morning at or after 05:00Z.
+
+### D. Process slips (for the record)
+
+A `cat >>` heredoc appended to `test_demo_combined_finish_rows.py`, and a `sed -i` edited `test_ch9b1_origin_readers.py`. Both broke the Write/Edit-only rule. Both edits are committed, and the scoped tests cover them (303 passed; the allowlist count is checked by its own test). **No rework.** The builder declared both, which is what we want. The next builder's brief repeats the rule. A third slip goes to the coordinator as a process fault.
+
+### E. Size
+
+The unbuilt rows were already inside the 1.75, so moving them to step 7 adds nothing. New in this ruling: C1, C2, the B fixes and P0 together cost **+0.25**. **DD-1b2b now has 1.0 left:** step 6, the step-7 after tool and reads, step 8, step 9, and this ruling's 0.25. Its total is 2.25. **Lane 2 remaining: 1.0 + CH-5d1's 1.0 = 2.0.**
+
+### Owner
+
+- **Now (information, no decision):** "Before the full rehearsal we run one small test build (6 example days, about 40 minutes) to prove the new parts on real data. It is the same kind of small build as before, not a second full run. We also made sure a late check failure can't throw away the rehearsal's data."
+- **After the run:** R6 §5 and R7's triggers, unchanged.
