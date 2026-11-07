@@ -23,7 +23,9 @@
    "value": {
     "small": "on the days checked",
     "text": "None confirmed"
-   }
+   },
+   "value_lines": [],
+   "value_note": "No money credited · modelled, not saved"
   },
   "GROW_REVENUE": {
    "basis_text": "Opportunities · revenue not measured yet",

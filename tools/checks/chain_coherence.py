@@ -1235,6 +1235,56 @@ def coh17_optimize(w: str, summary: dict, files: list[str], tally: dict[str, int
     return [] if problem is None else [finding("COH-17", None, w, "O1", problem, files)]
 
 
+def _strings(node: Any) -> Iterator[str]:
+    """Every string in a JSON value (keys excluded)."""
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for x in node.values():
+            yield from _strings(x)
+    elif isinstance(node, (list, tuple)):
+        for x in node:
+            yield from _strings(x)
+
+
+def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
+    """PV-1-R §5 row PV1: (i) the Assure card's `value_lines` are the Sites' Assure `nodes.verified_values` texts in
+    Site order, each in the `assure.value_line` form; (ii) no string on the Assure card holds the exact sum of two
+    same-currency entry amounts (never added); (iii) `value_note` is `assure.values_separate` iff there are lines. A
+    summary without the keys (an older bundle) is skipped and counted."""
+    voc = _vocabulary()
+    card = (summary.get("cards") or {}).get(ASSURE)
+    if not card or "value_lines" not in card or "value_note" not in card:
+        tally["skipped"] += 1
+        return []
+    out = []
+
+    def check(ok: bool, detail: str) -> None:
+        tally["compared"] += 1
+        if not ok:
+            out.append(finding("COH-17", None, w, "PV1", detail, files))
+
+    entries, want = [], []
+    for s in summary.get("sites") or ():
+        for e in ((_rows_by_category(s.get("rows")).get(ASSURE) or {}).get("nodes") or {}).get("verified_values") or ():
+            entries.append(e)
+            want.append(voc.card_text("assure.value_line", site=_site_name(s), text=e.get("text")))
+    lines = list(card.get("value_lines") or ())
+    check(lines == want, f"Assure card value_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
+    strings = list(_strings(card))
+    sums = []
+    for i, a in enumerate(entries):
+        for b in entries[i + 1:]:
+            if a.get("currency") == b.get("currency") and a.get("amount") is not None and b.get("amount") is not None:
+                sums.append(f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}")
+    held = sorted({x for x in sums if any(x in t for t in strings)})
+    check(not held, f"the Assure card holds the sum of two same-currency amounts: {held!r}")
+    separate = voc.card_text("assure.values_separate")
+    note = card.get("value_note")
+    check((note == separate) == bool(lines), f"Assure value_note {note!r} with {len(lines)} value lines")
+    return out
+
+
 def _coh17_a1(w: str, code: str | None, assure: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
     """MB-1-R Q5 row A1 (a mini board, internal): the Assure headline's count equals the Assure "Verified results"
     entries that read as verified (" not yet verified" entries excluded)."""
@@ -1256,8 +1306,8 @@ def _coh17_a1(w: str, code: str | None, assure: dict, files: list[str], tally: d
 
 
 def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[str, int]) -> list[dict]:
-    """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1, Q2 rows W1, W2 and CH5d1-R row O1 for one estate window (Site sets
-    equal)."""
+    """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1, Q2 rows W1, W2, CH5d1-R row O1 and PV-1-R row PV1 for one estate
+    window (Site sets equal)."""
     out = []
     chain_files = bundle.files(f"chain_estate.{w}")
     summary = bundle.get(f"summary.{w}")
@@ -1287,6 +1337,7 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
         check("C2", not diff, f"{card} card against {key}: " + "; ".join(diff))
     check("C3", cards == summary.get("cards"), "chain `cards` differ from summary `cards`")
     out += coh17_optimize(w, summary, files, tally)
+    out += coh17_values(w, summary, files, tally)   # PV-1-R §5 row PV1
     # CH6b3-R3 L2: the summary's legacy verified count is the claim's value (both known).
     shown, claimed = summary.get("verified_result_count"), (counts.get("count.verified_results") or {}).get("value")
     if shown is not None and claimed is not None:
