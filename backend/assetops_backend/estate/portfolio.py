@@ -20,8 +20,7 @@ from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
 from assetops_backend.chain.claims import CLAIM_KEYS
 from assetops_backend.chain.threads import OPEN_CLASS, VERIFIED_CLASS, classify
-from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, checked_days_clause, count_basis,
-                                               evidence_gap_text)
+from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, count_basis, evidence_gap_text)
 from assetops_backend.outcomes.credit import recovered_value
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
@@ -659,15 +658,14 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
 def card_notes(summary: dict[str, Any], authorized: int,
                recovered_value: dict[str, Any] | None) -> dict[str, str | None]:
     """CH6b2-R Q1: the Portfolio-body clauses of the Protect and Assure cards as ONE server line each, rendered as
-    its own line and never joined in the browser (the browser's `checkedDaysClause` / `evidenceGapText` before
-    CH-6b2). Protect: the checked-days clause (None without one). Assure: the recovered-value text (CH3-R, I-24),
-    the evidence-gap clause, then the checked-days clause."""
+    its own line and never joined in the browser. CH6b3-R3 M1: "days checked" means graded COMPLETE (the card's days
+    line), so the coverage clause is gone. Protect: None. Assure: the recovered-value text (CH3-R, I-24) and the
+    evidence-gap clause."""
     on_checked = summary.get("count_basis") == CHECKED_DAYS_BASIS
-    clause = checked_days_clause(summary.get("checked_days"), on_checked)
     recovered_text = (recovered_value or {}).get("text")
     assure = [t for t in (recovered_text, evidence_gap_text(summary.get("evidence_gap_site_count"), authorized,
-                                                            on_checked), clause) if t]
-    return {"PROTECT_ASSET": clause, "ASSURE_PERFORMANCE": " · ".join(assure)}
+                                                            on_checked)) if t]
+    return {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": " · ".join(assure)}
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:

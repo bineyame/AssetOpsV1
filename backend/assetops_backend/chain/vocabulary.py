@@ -91,10 +91,11 @@ NOT_KNOWN_TEXT = "Not known yet"
 COUNT_TEXT = {
     "count.open_threads": ("{n} open finding", "{n} open findings", "{n} open on the days checked",
                            "None open on the days checked"),
-    "count.verified_results": ("{n} fix confirmed", "{n} fixes confirmed", "{n} confirmed on the days checked",
+    "count.verified_results": ("{n} fix confirmed", "{n} fixes confirmed", "{n} confirmed, from the days checked",
                                "None confirmed on the days checked"),
     "count.opportunities": ("{n} opportunity", "{n} opportunities", "{n} found on the days checked",
                             "None found on the days checked"),
+    # MOCK DEVIATION MD-CH6-8: "{n} confirmed, from the days checked" (CH6b3-R3): no mock example of this form.
     # CH6b2-R Q2: Sites with a primary Protect thread OPEN, RECURRED or ACTION_IN_HAND (`chain/claims.py`); the
     # §B2 forms. MOCK DEVIATION MD-CH6-4: the CHECKED_DAYS forms have no mock example.
     "count.sites_disrupted": ("{n} site disrupted", "{n} sites disrupted", "{n} found on the days checked",
@@ -504,8 +505,6 @@ CARD_TEXT = {
     "assure.targets": "targets declared at {sites}, for any outcome{unchecked}",
     "assure.unchecked": ", {sites} not checked",
     # The Portfolio-body clauses (`card_notes`, CH6b2-R Q1), today's `checkedDaysClause` / `evidenceGapText`.
-    "note.checked_one": "{checked} of {requested} days checked at {site}",
-    "note.checked_many": "days not checked yet at {n} sites",
     "note.withheld_one": " · findings next to unchecked days not shown yet",
     "note.withheld_many": " · findings next to those days not shown yet",
     "note.gap.unknown": "evidence gaps not assessed",
@@ -541,21 +540,6 @@ def evidence_gap_text(gaps: int | None, sites: int, checked_days: bool = False) 
     if gaps < sites:
         return card_text("note.gap.some", gaps=gaps, sites=sites)
     return card_text("note.gap.many", gaps=gaps)
-
-
-def checked_days_clause(checked_days: Sequence[Mapping[str, Any]] | None, on_checked_days: bool) -> str | None:
-    """WALK1-1 (WN-2, R670), moved from `checkedDaysClause`: how much of a partly checked estate was checked; None
-    unless the counts are on checked days."""
-    days = list(checked_days or ())
-    if not on_checked_days or not days:
-        return None
-    withheld = any(d.get("withheld") is True for d in days)
-    if len(days) == 1:
-        d = days[0]
-        base = card_text("note.checked_one", checked=d["checked"], requested=d["requested"], site=d["site_name"])
-        return base + card_text("note.withheld_one") if withheld else base
-    base = card_text("note.checked_many", n=len(days))
-    return base + card_text("note.withheld_many") if withheld else base
 
 
 def count_card_value(claim: Mapping[str, Any], zero: str | None = None) -> dict[str, Any]:

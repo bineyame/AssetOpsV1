@@ -782,7 +782,7 @@ function Loaded({
               <span key={site.site_id} className="portfolio-partial" data-portfolio-partial={site.site_code}>
                 {site.site_name}: {site.coverage.days?.text}
                 {(site.coverage.days?.gaps.length ?? 0) <= 7
-                  ? ` · not checked: ${gapDayList(site.coverage.days)}`
+                  ? ` · not assessed: ${gapDayList(site.coverage.days)}`
                   : " · the days are listed under Assessment scope & periods"}
               </span>
             ))}

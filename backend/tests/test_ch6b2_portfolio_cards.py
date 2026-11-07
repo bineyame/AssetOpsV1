@@ -193,10 +193,11 @@ def test_card_notes_are_one_server_line_each() -> None:
     summary = {"count_basis": "CHECKED_DAYS", "evidence_gap_site_count": 1,
                "checked_days": [{"site_name": "Kobo", "checked": 5, "requested": 7, "withheld": True}]}
     recovered = {"text": "No money credited · modelled, not saved"}
-    assert card_notes(summary, 3, recovered) == {
-        "PROTECT_ASSET": "5 of 7 days checked at Kobo · findings next to unchecked days not shown yet",
-        "ASSURE_PERFORMANCE": ("No money credited · modelled, not saved · evidence gap at 1 site · 5 of 7 days "
-                               "checked at Kobo · findings next to unchecked days not shown yet")}
+    notes = card_notes(summary, 3, recovered)
+    # CH6b3-R3 M1: "days checked" means graded COMPLETE (the card's days line); the coverage clause is gone.
+    assert notes == {"PROTECT_ASSET": None,
+                     "ASSURE_PERFORMANCE": "No money credited · modelled, not saved · evidence gap at 1 site"}
+    assert all("days checked" not in (t or "") for t in notes.values())
     complete = {"count_basis": "COMPLETE", "evidence_gap_site_count": 0, "checked_days": []}
     assert card_notes(complete, 3, None) == {"PROTECT_ASSET": None, "ASSURE_PERFORMANCE": "no evidence gaps"}
 
@@ -243,24 +244,6 @@ def test_evidence_gap_text_branches(gaps, sites, checked, expected) -> None:
         assert "6" in expected
 
 
-_KOBO = {"site_name": "Kobo", "checked": 5, "requested": 7}
-_HARBOUR = {"site_name": "Harbour", "checked": 4, "requested": 7}
-
-
-@pytest.mark.parametrize(("days", "on_checked", "expected"), [
-    ([_KOBO], True, "5 of 7 days checked at Kobo"),
-    ([{**_KOBO, "withheld": True}], True,
-     "5 of 7 days checked at Kobo · findings next to unchecked days not shown yet"),
-    ([_KOBO, _HARBOUR], True, "days not checked yet at 2 sites"),
-    ([_KOBO, {**_HARBOUR, "withheld": True}], True,
-     "days not checked yet at 2 sites · findings next to those days not shown yet"),
-    ([_KOBO, _HARBOUR], False, None),   # a COMPLETE basis carries no clause
-    ([], True, None),
-])
-def test_checked_days_clause_branches(days, on_checked, expected) -> None:
-    assert v.checked_days_clause(days, on_checked) == expected
-
-
 @pytest.mark.parametrize(("n", "unread", "expected"), [
     (3, 0, "targets declared at 3 sites, for any outcome"),
     (1, 0, "targets declared at 1 site, for any outcome"),
@@ -284,14 +267,16 @@ KNOWN = datetime(2026, 11, 2, 9, tzinfo=timezone.utc)           # `cause_known_a
 
 class _Req:
     """A request over one stored thread: the lifecycle events as `(state, cause_known_at)` after a Finding occurrence."""
-    def __init__(self, domain: str, mechanism: str, events, k=K) -> None:
+    def __init__(self, domain: str, mechanism: str, events, k=K, effective=None) -> None:
         self.k = k
+        eff = effective or datetime(2026, 10, 28).date()
         self.rows = {
             "occurrences": [{"thread_id": "t1", "finding_id": "f1", "opportunity_id": None, "mechanism": mechanism,
                              "episode_start": datetime(2026, 10, 28, 2, tzinfo=timezone.utc),
                              "episode_end": datetime(2026, 10, 28, 3, tzinfo=timezone.utc), "opportunity_no": None}],
             "events": [{"thread_id": "t1", "seq": n, "state": st, "cause_kind": "FINDING", "cause_id": "c",
-                        "effective_day": datetime(2026, 10, 28).date(), "recorded_at": at, "cause_known_at": at}
+                        "effective_day": (eff.get(st, datetime(2026, 10, 28).date()) if isinstance(eff, dict) else eff),
+                        "recorded_at": at, "cause_known_at": at}
                        for n, (st, at) in enumerate(events, 1)],
             "actions": []}
 
@@ -302,10 +287,10 @@ class _Req:
         return EVIDENCE
 
 
-def _real_counts(monkeypatch, domain: str, mechanism: str, events, k=K):
+def _real_counts(monkeypatch, domain: str, mechanism: str, events, k=K, effective=None):
     site = _Site("A", "GreenHarvest")
     site.domain = domain
-    req = _Req(domain, mechanism, events, k)
+    req = _Req(domain, mechanism, events, k, effective)
     monkeypatch.setattr(CL, "claim_days", lambda r, s, lo, hi: FULL)
     return CL.estate_count_claims(req, [site], LO, HI, [], (LookupError,))
 
@@ -347,10 +332,57 @@ def test_only_a_verified_event_reaches_verified_results(monkeypatch) -> None:
     assert done.claims[CL.VERIFIED_RESULTS].value == 1
 
 
+LATER = datetime(2026, 11, 1).date()                 # after the window's last day (31 Oct)
+_LIFE = [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN), ("CHANGE_APPLIED", KNOWN), ("RESOLVED_MONITORING", KNOWN)]
+_AFTER = {"CHANGE_APPLIED": LATER, "RESOLVED_MONITORING": LATER}
+
+
+@pytest.mark.parametrize(("domain", "mechanism"), [COLD, EV])
+def test_h1_a_fix_verified_after_the_window_counts_for_the_problem_found_in_it(monkeypatch, domain, mechanism) -> None:
+    """CH6b3-R3 (a): VERIFIED effective after the window's last day and known by k -> verified, not open."""
+    out = _real_counts(monkeypatch, domain, mechanism, _LIFE, effective=_AFTER)
+    assert out.claims[CL.VERIFIED_RESULTS].value == 1 and out.claims[CL.OPEN_THREADS].value == 0
+    assert out.claims[CL.SITES_DISRUPTED].value == 0
+
+
+def test_h1_b_the_same_event_known_after_k_leaves_the_thread_in_hand(monkeypatch) -> None:
+    """CH6b3-R3 (b): known after k, the verification is not visible: the thread is still ACTION_IN_HAND."""
+    late = datetime(2026, 11, 3, tzinfo=timezone.utc)
+    life = [("OPEN", KNOWN), ("ACTION_IN_HAND", KNOWN), ("CHANGE_APPLIED", late), ("RESOLVED_MONITORING", late)]
+    out = _real_counts(monkeypatch, *COLD, life, effective=_AFTER)
+    assert out.claims[CL.VERIFIED_RESULTS].value == 0 and out.claims[CL.OPEN_THREADS].value == 1
+
+
+def test_h1_c_a_thread_without_a_finding_occurrence_in_the_window_is_not_counted(monkeypatch) -> None:
+    """CH6b3-R3 (c): the window still selects WHICH problems count (no Finding occurrence -> not counted)."""
+    site = _Site("A", "GreenHarvest")
+    req = _Req(*COLD, _LIFE, K, _AFTER)
+    req.rows["occurrences"][0]["finding_id"] = None
+    monkeypatch.setattr(CL, "claim_days", lambda r, s, lo, hi: FULL)
+    out = CL.estate_count_claims(req, [site], LO, HI, [], (LookupError,))
+    assert out.claims[CL.VERIFIED_RESULTS].value == 0 and out.claims[CL.OPEN_THREADS].value == 0
+    other = (datetime(2026, 11, 8, tzinfo=timezone.utc), datetime(2026, 11, 15, tzinfo=timezone.utc))
+    out = _real_counts(monkeypatch, *COLD, _LIFE, effective=_AFTER)
+    assert out.claims[CL.VERIFIED_RESULTS].value == 1                       # the control: with the occurrence it counts
+    site2 = _Site("A", "GreenHarvest")
+    out = CL.estate_count_claims(_Req(*COLD, _LIFE, K, _AFTER), [site2], *other, [], (LookupError,))
+    assert out.claims[CL.VERIFIED_RESULTS].value == 0                       # an episode outside the window
+
+
+def test_h1_d_a_later_recurrence_counts_as_open(monkeypatch) -> None:
+    """CH6b3-R3 (d): a RECURRED event after the verification, known by k, reads the thread open."""
+    life = _LIFE + [("RECURRED", KNOWN)]
+    out = _real_counts(monkeypatch, *COLD, life, effective={**_AFTER, "RECURRED": LATER})
+    assert out.claims[CL.VERIFIED_RESULTS].value == 0 and out.claims[CL.OPEN_THREADS].value == 1
+    assert out.claims[CL.SITES_DISRUPTED].value == 1
+
+
 @pytest.mark.parametrize(("domain", "mechanism", "site_ref"), [(*COLD, "COLD"), (*EV, "EV")])
 def test_site_chain_thread_state_equals_the_claims_state(domain, mechanism, site_ref) -> None:
     """H1 case 5 (behavioural, L-R2-1): the served Site chain's thread state equals the claims' thread state for the
-    same lifecycle (OPEN, ACTION_IN_HAND known after the evidence cutoff but by k), for cold and EV."""
+    same lifecycle (OPEN, ACTION_IN_HAND known after the evidence cutoff but by k), for cold and EV. CH6b3-R3: this
+    holds only when no event is effective after the window's last day (the claim reads the latest known state, the
+    chain reads `window_day`); the lifecycle here is effective inside the window."""
     import test_ch5a1_board_contract as BC
     import test_ch5a2_contract as C
     ref = getattr(BC, site_ref)

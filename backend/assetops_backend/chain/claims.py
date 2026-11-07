@@ -17,7 +17,7 @@ Pure apart from the `ChainRequest` reads and the injected opportunity port.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Callable, Mapping, Sequence
 
 from assetops_backend import read_scope
@@ -32,6 +32,9 @@ OPEN_THREADS, VERIFIED_RESULTS, OPPORTUNITIES = "count.open_threads", "count.ver
 SITES_DISRUPTED = "count.sites_disrupted"   # CH6b2-R Q2: additive on `/estate/chain` `counts` and `summary.claims`
 CLAIM_KEYS = (OPEN_THREADS, VERIFIED_RESULTS, OPPORTUNITIES, SITES_DISRUPTED)
 PROTECT = "PROTECT_ASSET"
+#: CH6b3-R3 H1: the day a count claim reads a thread on: the last event visible at the request cutoff `k`, so a fix
+#: verified after the window's last day still counts for the problem found inside the window.
+LATEST_KNOWN = date.max
 DISRUPTED_STATES = ("OPEN", "RECURRED", "ACTION_IN_HAND")
 
 
@@ -76,8 +79,9 @@ def counted_threads(req: Any, site: Any, lo: datetime, hi: datetime) -> list[dic
     k = req.k
     cutoff = lifecycle_cutoff(k)
     wanted = _finding_threads(rows, lo, hi)
+    # CH6b3-R3: the window selects WHICH problems (`wanted`); each one's state is the latest event visible at `k`.
     threads = site_chain.threads_of(rows, site=site.site_code, domain=site.domain, tz=site.timezone, lo=lo, hi=hi,
-                                    day=window_day(lo, hi, site.timezone), cutoff=cutoff)
+                                    day=LATEST_KNOWN, cutoff=cutoff)
     return [t for t in threads if t["id"] in wanted]
 
 
