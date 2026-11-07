@@ -4,7 +4,7 @@ Nothing here reads the served app; `demo_combined_finish.py` feeds these functio
 expected figures (42.00, 110.00, the WK-2c sentence) are the rulings' own, quoted from the build sheet."""
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 
 MILL_BEFORE, MILL_AFTER = Decimal("42.00"), Decimal("110.00")
@@ -27,7 +27,7 @@ def drain_summary(record: dict) -> dict:
 
 
 def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], mill: dict | None,
-                           unplaced: list | None = None) -> list[dict]:
+                           unplaced: list | None = None, headroom: list[str] | None = None) -> list[dict]:
     """F-COH: the expected threads, generated from the build's own documents. A Finding id comes from `kobo.json` /
     `cold.json` (`days[].findings`, which is where the build recorded them); EV records none (`ev.json` has no
     `findings`), so EV's come from the served Portfolio rows of its Site (declared limit, packet). Findings are grouped
@@ -55,10 +55,97 @@ def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], m
             fids.sort(key=lambda f: (by_id[f].get("episode_start") or "", f))
             out.append({"name": f"{site.split('-')[0].lower()}-{mech.lower().replace('_', '-')}", "site_code": site,
                         "mechanism": mech, "findings": fids})
-    if mill and (mill.get("study") or {}).get("opportunity_id"):
+    if headroom:  # DD1b2-R10: the stored studies with eligible days (recurrence), not only the pinned one
+        out.append({"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": HEADROOM,
+                    "opportunities": [str(o) for o in headroom]})
+    elif mill and (mill.get("study") or {}).get("opportunity_id"):
         out.append({"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": HEADROOM,
                     "opportunities": [str(mill["study"]["opportunity_id"])]})
     return out
+
+
+def headroom_opportunities(stored: list[tuple]) -> list[str]:
+    """DD1b2-R10 F-COH: from stored rows `(opportunity_id, last_day, eligible_days of the latest revision)`, the
+    Kobo headroom occurrences: every study with at least one eligible day, ordered by `last_day`. A study with none is
+    not an occurrence."""
+    return [str(o) for o, _last, eligible in sorted(stored, key=lambda r: (str(r[1]), str(r[0])))
+            if eligible is not None and int(eligible) >= 1]
+
+
+def unknown_only_not_judged(outcomes: dict) -> list[str]:
+    """DD1b2-R10 CO-5/SP-1, SP-2: `outcomes` maps key -> (state, reason). On a window with no complete reading an
+    UNKNOWN outcome is acceptable only for reason OBJECTIVE_NOT_JUDGED, and NO_OBJECTIVE only for
+    NO_OBJECTIVE_DECLARED. Any other reason (PRODUCER_NOT_SETTLED, OBJECTIVES_NOT_READ, ...) fails. Returns the keys
+    that are UNKNOWN."""
+    unknown = []
+    for key, (state, reason) in outcomes.items():
+        if state == "UNKNOWN":
+            assert reason == "OBJECTIVE_NOT_JUDGED", ("UNKNOWN for a reason other than not-judged", key, reason)
+            unknown.append(key)
+        elif state == "NO_OBJECTIVE":
+            assert reason == "NO_OBJECTIVE_DECLARED", ("NO_OBJECTIVE for another reason", key, reason)
+    return unknown
+
+
+def wk4(state: str, text: str, complete: int | None) -> str:
+    """WK-4 branches: too early to judge (fewer checked days than the minimum); no fully checked day this month
+    (R10: UNKNOWN, `kpi.days.complete == 0`, the line ends "sales not recorded"); otherwise on pace or behind."""
+    if "too early to judge" in text:
+        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
+        return "TOO_EARLY"
+    if complete == 0:
+        assert state == "UNKNOWN" and text.endswith("sales not recorded"), (state, text)
+        return "NO_FULL_DAY"
+    assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text, complete)
+    return "JUDGED"
+
+
+def expected_index_gaps(days: list[dict], lo: datetime, hi: datetime) -> list[str]:
+    """DD1b2-R10 SP-4: the finding index works on UTC days. A UTC day in [lo, hi) is a gap when no built run window
+    `[start, end)` touches it."""
+    runs = [(_utc(d["start"]), _utc(d["end"])) for d in days
+            if d.get("has_run", True) and d.get("kind") != "missing" and d.get("start") and d.get("end")]
+    out = []
+    day = datetime(lo.year, lo.month, lo.day, tzinfo=timezone.utc)
+    while day < hi:
+        nxt = day + timedelta(days=1)
+        if not any(s < nxt and e > day for s, e in runs):
+            out.append(day.date().isoformat())
+        day = nxt
+    return out
+
+
+def _utc(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc)
+
+
+def site_day_start(day: date, zone) -> datetime:
+    """CO-6 (CH-5a1): the Site-local midnight that opens `day`, in UTC."""
+    return datetime(day.year, day.month, day.day, tzinfo=zone).astimezone(timezone.utc)
+
+
+def wk1(grow: dict) -> dict:
+    """WK-1 restated (R10): the earnings claim decides. With a counted day the headline carries money and the
+    `charging_delivered` line is not "Not known yet"; with none, `headline_money` is absent and the line starts
+    "Not known yet". Money on a day with too little data fails; so does a missing figure on a known one."""
+    money = grow.get("headline_money") or {}
+    line = next((c["text"] for c in grow.get("contributors", []) if c.get("key") == "charging_delivered"), None)
+    assert line, ("no charging_delivered line", grow.get("contributors"))
+    known = not line.startswith("Not known yet")
+    if known:
+        assert money.get("amount_high") and money.get("currency"), ("a known day shows no money", money, line)
+        assert grow["headline"] == "estimated charging income", grow["headline"]
+    else:
+        assert not money, ("money shown on a day with too little data", money, line)
+    return {"headline": grow["headline"], "money": money or None, "charging_delivered": line, "known": known}
+
+
+def nodes_potential_text(grow: dict) -> str:
+    """The Grow potential sentence: `nodes.potential.text` first, then the chip (`potential`)."""
+    node = (grow.get("nodes") or {}).get("potential")
+    if isinstance(node, dict) and node.get("text"):
+        return str(node["text"])
+    return potential_text(grow.get("potential"))
 
 
 COH2_REASON = "Portfolio does not join domain-Site Actions (estate/index.py:193); known, DS-1 covers it; BL-47"
@@ -144,8 +231,8 @@ def wk2b(grow: dict, kw_pattern) -> dict:
     assert not kw_pattern.fullmatch(grow["headline"]), grow["headline"]
     sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
     assert sales["text"].startswith("0 kWh used by Grain mill"), sales["text"]
-    assert NO_POTENTIAL in potential_text(grow.get("potential")), grow.get("potential")
-    return {"headline": grow["headline"], "sales": sales["text"], "potential": grow.get("potential")}
+    assert NO_POTENTIAL in nodes_potential_text(grow), (grow.get("nodes", {}).get("potential"), grow.get("potential"))
+    return {"headline": grow["headline"], "sales": sales["text"], "potential": nodes_potential_text(grow)}
 
 
 def potential_text(potential) -> str:
@@ -159,16 +246,21 @@ def wk2c(grow: dict, study: dict | None = None) -> dict:
     or money shows for it (a `value_line`, a money object, a digit-and-kW text)."""
     import re
 
-    potential = grow.get("potential")
-    assert potential, "no potential on the S-11 Grow row"
-    text = potential_text(potential).strip()
+    chip, node = grow.get("potential"), (grow.get("nodes") or {}).get("potential")
+    assert chip or node, "no potential on the S-11 Grow row"
+    text = nodes_potential_text(grow).strip()
     assert LIMITED_TEXT in text, text
-    assert not re.search(r"\d\s*(–|-|to)?\s*\d*\s*kW", text), ("a kW figure shows", text)
-    if isinstance(potential, dict):
-        assert not potential.get("value_line"), ("a value line shows", potential.get("value_line"))
-        assert not any(k for k in potential if "money" in k and potential[k]), ("money shows", potential)
-    assert not re.search(r"(USD|\$)\s*\d|\d\s*(USD|\$)", text), ("money shows", text)
-    out = {"potential": potential}
+    for shown in (node, chip):  # R10: the bars apply to the node and the chip alike
+        if not shown:
+            continue
+        t = potential_text(shown).strip()
+        assert not re.search(r"\d\s*(–|-|to)?\s*\d*\s*kW", t), ("a kW figure shows", t)
+        assert not re.search(r"(USD|\$)\s*\d|\d\s*(USD|\$)", t), ("money shows", t)
+        if isinstance(shown, dict):
+            assert not shown.get("value_line") and not shown.get("value") and not shown.get("days_line"), \
+                ("a value line shows", shown)
+            assert not any(k for k in shown if "money" in k and shown[k]), ("money shows", shown)
+    out = {"potential": node or chip, "chip": chip}
     if study is not None:
         out["status"], out["eligible_days"] = study.get("status"), study.get("eligible_days")
         assert study.get("status") == "LIMITED" and study.get("eligible_days") == 5, study

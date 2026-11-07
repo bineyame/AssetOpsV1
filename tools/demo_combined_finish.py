@@ -266,9 +266,13 @@ def sp1(ctx: Ctx) -> dict:
     cost = rows(ctx.board(KOBO, ctx.day(-28), ctx.day(-27)))["OPTIMIZE_COST"]
     day = next(d for d in ctx.docs["kobo"]["days"] if d["offset"] == -28)
     outcomes = {o["key"]: (o["state"], o.get("reason")) for o in cost["outcomes"]}
-    if not day.get("findings"):  # U1 P1 gave the normal day 0 avoidable minutes: no Finding, so On track
-        assert cost["state"] == "ON_TRACK", (cost["state"], outcomes)
-        branch = "ON_TRACK"
+    if not day.get("findings"):  # U1 P1 gave the normal day 0 avoidable minutes: no Finding
+        # DD1b2-R10: S-28 is a story-only 03:00-11:00Z run on Kobo's 24 h calendar (CH-1a), so the reading is not
+        # complete and the objective is NOT_JUDGED. On track, or Unknown only with OBJECTIVE_NOT_JUDGED.
+        assert cost["state"] in ("ON_TRACK", "UNKNOWN"), (cost["state"], outcomes)
+        unknown = demo_rows.unknown_only_not_judged(outcomes)
+        assert cost["state"] == "ON_TRACK" or unknown, ("UNKNOWN state with no not-judged outcome", outcomes)
+        branch = "ON_TRACK" if cost["state"] == "ON_TRACK" else "NOT_JUDGED"
     else:  # R585 stays standing: record the measured values
         assert all(s != "UNKNOWN" for s, _ in outcomes.values()), outcomes
         branch = "R585_STANDING"
@@ -297,7 +301,11 @@ def sp4(ctx: Ctx) -> dict:
                     **{"from": iso(ctx.day(-30)), "to": iso(ctx.day(1))})
     assert index["status"] == "PARTIAL", index["status"]
     gaps = {str(g.get("day"))[:10]: g.get("state") or g.get("status") for g in index.get("gaps") or []}
-    assert gaps.get(ctx.day(-10).date().isoformat()) == "UNASSESSED", gaps
+    # DD1b2-R10: the index works on UTC days, so a night run that starts at 21:00Z covers the next UTC day. The served
+    # gap days must equal the UTC days of the window that no built run touches.
+    want_gaps = demo_rows.expected_index_gaps(ctx.site_days("kobo"), ctx.day(-30), ctx.day(1))
+    assert want_gaps, "no expected index gap: the set is empty"
+    assert sorted(gaps) == want_gaps, (sorted(gaps), want_gaps)
     assert ctx.day(-3).date().isoformat() not in gaps, gaps
     want = {f for d in ctx.docs["kobo"]["days"] if d["offset"] in (-14, -7, 0) for f in d.get("findings") or []}
     got = {str(x["finding_id"]) for x in index["rows"]}
@@ -335,8 +343,9 @@ def sp2(ctx: Ctx) -> dict:
     lo, hi = ctx.window("cold", "normal")
     protect = rows(ctx.board(COLD, lo, hi))["PROTECT_ASSET"]
     outcomes = {o["key"]: (o["state"], o.get("reason")) for o in protect["outcomes"]}
-    if protect["state"] != "ON_TRACK":  # the recorded measured values (no status is forced)
-        assert all(s != "UNKNOWN" for s, _ in outcomes.values()), outcomes
+    # DD1b2-R10: the Cold `normal` run (16:00-17:05Z) is not a complete 24 h day, so CC-1/CC-6 are NOT_JUDGED and CC-5
+    # has no declared objective; UNKNOWN only with OBJECTIVE_NOT_JUDGED, NO_OBJECTIVE only with NO_OBJECTIVE_DECLARED
+    demo_rows.unknown_only_not_judged(outcomes)
     return {"state": protect["state"], "outcomes": outcomes}
 
 
@@ -438,7 +447,10 @@ def co6(ctx: Ctx) -> dict:
     finding_listed = ctx.docs["kobo"]["finding"] in listed
     if not days.get("withheld"):
         assert finding_listed, (listed, body.get("total_count"))
-    assert basis.get(KOBO) == "DAY" and (by_code[KOBO].get("window") or {}).get("from") == iso(ctx.S), by_code[KOBO]
+    # DD1b2-R10 (CH-5a1): the Kobo board day is the Site-local day, so its window opens at the Site-local midnight of S
+    local_s = iso(demo_rows.site_day_start(ctx.S.date(), _kobo_zone(ctx)))
+    assert basis.get(KOBO) == "DAY" and (by_code[KOBO].get("window") or {}).get("from") == local_s, (
+        local_s, by_code[KOBO])
     board = {r["category"]: r["state"] for r in _kobo_board_s(ctx)["rows"]}
     cells = {r["category"]: r["state"] for r in by_code[KOBO]["rows"]}
     assert cells == board, (cells, board)
@@ -513,10 +525,8 @@ def co12(ctx: Ctx) -> dict:
 def wk1(ctx: Ctx) -> dict:
     """WALK1-2: the Depot Grow row carries the estimated charging income at the declared tariff."""
     grow = rows(_ev_board(ctx))["GROW_REVENUE"]
-    assert grow["headline"] == "estimated charging income", grow["headline"]
-    money = grow.get("headline_money") or {}
-    assert money.get("amount_high") and money.get("currency"), money
-    return {"headline": grow["headline"], "money": money}
+    # DD1b2-R10: the earnings claim decides (CH-6a3 ONE-SOURCE); the fault run is 1 h of the session, so no day counts
+    return demo_rows.wk1(grow)
 
 
 @row("WK-2a")
@@ -562,12 +572,11 @@ def wk4(ctx: Ctx) -> dict:
     grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
     line = next(c for c in grow["contributors"] if c["key"] == "declared_objective:MG-1")
     text, state = line["text"], grow["state"]
-    if "too early to judge" in text:   # S early in its month: fewer checked days than the minimum (D-W1-15)
-        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
-    else:
-        assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text)
-    return {"state": grow["state"], "objective": line["text"], "chip": line["confidence"],
-            "potential": grow.get("potential")}
+    kpi = (grow.get("nodes") or {}).get("kpi") or {}
+    complete = (kpi.get("days") or {}).get("complete")
+    branch = demo_rows.wk4(state, text, complete)  # D-W1-15 too early; R10 no fully checked day; or judged
+    return {"branch": branch, "state": grow["state"], "objective": line["text"], "chip": line["confidence"],
+            "days": kpi.get("days"), "potential": grow.get("potential")}
 
 
 @row("WK-3", idx=True)
@@ -605,10 +614,20 @@ def wk6(ctx: Ctx) -> dict:
     # Addendum 8: the page prices the study at the start of its latest noon window (the S+1 opportunity body's last
     # pinned day, Site-local 12:00; Kobo is Africa/Nairobi, no DST, so that is the study's end minus 12 hours). The
     # server selects nothing without `valid_at`.
+    # DD1b2-R10: day rows no longer carry `mini_revision_id` (they carry `hours[]`), so the per-row pin is dropped. The
+    # S+1 study is reported (its v3 November days are 8 h runs, so 0 eligible days is expected); the tariff is read on
+    # the pinned mill study (`mill.json` `study.opportunity_id`): 5 eligible days, priced at its latest noon window.
     detail = ctx.get(f"/api/sites/{KOBO}/opportunities/{opp['id']}")
-    pinned = sorted(r["local_day"] for r in detail["opportunity"]["day_rows"] if r.get("mini_revision_id"))
-    assert pinned and pinned[-1] == opp["last_day"], (pinned, opp["last_day"])
-    valid_at = iso(hi - timedelta(hours=12))
+    s1 = {"code": opp["code"], "eligible_days": next((n.get("eligible_days") for n in walk(detail)
+                                                      if "eligible_days" in n), None),
+          "status": next((n.get("status") for n in walk(detail) if "eligible_days" in n), None)}
+    mill = _mill(ctx)["study"]
+    assert mill.get("opportunity_id"), ("mill.json names no study", mill)
+    assert mill.get("eligible_days") == 5, ("the mill study's eligible days", mill.get("eligible_days"))
+    mill_last = mill.get("last_day")  # the stored study's own last day (mill.json), Site-local
+    assert mill_last, ("the mill study has no last_day", sorted(mill))
+    valid_at = iso(demo_rows.site_day_start(datetime.fromisoformat(mill_last).date(), _kobo_zone(ctx))
+                   + timedelta(hours=12))
     series = ctx.get(f"/api/sites/{KOBO}/financial-assumptions", key="productive_use_price_per_kwh", limit=1,
                      valid_at=valid_at)
     selection = series.get("selection") or {}
@@ -618,6 +637,7 @@ def wk6(ctx: Ctx) -> dict:
     tariff = f"Declared price · {Decimal(str(price['value'])).normalize():f} {price['currency']} per kWh"
     assert tariff == "Declared price · 0.25 USD per kWh", tariff
     return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]], "valid_at": valid_at,
+            "s1_study": s1, "mill_study_last_day": mill_last,
             "declared_price": f"{price['value']} {price['currency']} per kWh", "tariff": tariff, "link": use["href"],
             "path": f"/sites/{KOBO}/opportunities/{opp['id']}"}
 
@@ -652,6 +672,20 @@ def f_drain(ctx: Ctx) -> dict:
     return out
 
 
+def _stored_headroom(ctx: Ctx) -> list[tuple]:
+    """DD1b2-R10 F-COH: every Kobo study with the eligible days of its latest stored revision, read from the rows
+    (not from a served body), so the expectation does not depend on what is under test."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        return c.execute(
+            "SELECT o.id, o.last_day, CAST(r.result->>'eligible_days' AS int) FROM mini_opportunity o "
+            "JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
+            "JOIN LATERAL (SELECT result FROM mini_opportunity_revision x WHERE x.tenant_id = o.tenant_id "
+            "AND x.site_id = o.site_id AND x.opportunity_id = o.id ORDER BY x.revision_no DESC LIMIT 1) r ON true "
+            "WHERE s.site_code = %s ORDER BY o.last_day, o.id", (KOBO,)).fetchall()
+
+
 def _coh(ctx: Ctx):
     """Collect the bundle, write `expected_threads` generated from the build's documents into its manifest, check."""
     import tempfile
@@ -666,7 +700,10 @@ def _coh(ctx: Ctx):
     docs = lambda n: json.loads((ctx.work / n).read_text(encoding="utf-8"))  # noqa: E731
     mill = docs("mill.json") if (ctx.work / "mill.json").is_file() else None
     unplaced: list = []
-    threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill, unplaced)
+    stored = _stored_headroom(ctx)
+    threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill, unplaced,
+                                               demo_rows.headroom_opportunities(stored))
+    ctx.cache["stored_headroom"] = [[str(o), str(last), e] for o, last, e in stored]
     ctx.cache["unplaced"] = unplaced
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     manifest["expected_threads"] = threads
@@ -690,7 +727,7 @@ def f_coh(ctx: Ctx) -> dict:
     assert not faults, [f"{f['rule']} {f.get('site_code')} {f.get('window')}: {f['detail']}"[:300] for f in faults[:8]]
     ctx.cache["coh"] = (out, threads)
     return {"threads": [{k: (len(v) if isinstance(v, list) else v) for k, v in t.items()} for t in threads],
-            "recurs": recurs, "allowed_coh17": [a for a in allowed if a["rule"] == "COH-17"],
+            "recurs": recurs, "stored_headroom": ctx.cache.get("stored_headroom"), "allowed_coh17": [a for a in allowed if a["rule"] == "COH-17"],
             "allowed_coh2": [{k: a.get(k) for k in ("site_code", "window", "subject", "reason")}
                              for a in allowed if a["rule"] == "COH-2"], "requests": report["bundle"]["request_count"],
             "unplaced": ctx.cache.get("unplaced", [])}  # R8 B3(b): ids on no Portfolio row, ruled by reviewer/Architect
@@ -716,7 +753,7 @@ def f_cal(ctx: Ctx) -> dict:
     kobo = ctx.site_days("kobo")
     built = {at(d["start"]).astimezone(timezone(timedelta(hours=3))).date() for d in kobo
              if d.get("has_run", True) and d["kind"] != "missing"}
-    first = min(at(d["start"]).astimezone(timezone(timedelta(hours=3))).date() for d in kobo)
+    first = min(at(d["start"]).astimezone(timezone(timedelta(hours=3))).date() for d in kobo if d.get("start"))  # R10
     today = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=3))).date()
     want = demo_rows.calendar_expectations(first, today, built)
     got, bad = {}, {}
@@ -770,7 +807,11 @@ def f_threads(ctx: Ctx) -> dict:
     assert seen, ("the mill Action is on no Kobo chain body", action_id)
     mill_ref = seen[0].get("ref") or {}
     assert demo_rows.action_ref_kind(seen[0]) == "DOMAIN_VERDICT", mill_ref
-    assert seen[0].get("verification") == "VERIFIED", seen[0].get("verification")
+    # DD1b2-R10: a domain intent's chain wire carries no `verification` (chain/site_chain.py:126, 142); the verdict
+    # is the DOMAIN_VERDICT page (the same read MILL-3 makes), which must be VERIFIED
+    assert seen[0].get("verification") is None, seen[0].get("verification")
+    verdict = ctx.get(f"/api/sites/{KOBO}/domain-work/actions/{action_id}/verification")
+    assert verdict.get("state") == "VERIFIED", ("DOMAIN_VERDICT page", verdict.get("state"), verdict.get("reasons"))
     other = {}
     for key, site in (("cold", COLD), ("ev", EV)):
         lo, hi = ctx.window(key, "failure" if key == "cold" else "fault")

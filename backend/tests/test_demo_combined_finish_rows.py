@@ -165,3 +165,105 @@ def test_ex1_compare_flags_a_changed_assure_line_or_a_new_finding() -> None:
     extra = {"rows": [{**board["rows"][0], "issues": [*board["rows"][0]["issues"],
                                                        {"kind": "FINDING", "ref": {"finding_id": "f2"}}]}]}
     assert ex1.compare(before, ex1.summarise(board, extra))["diff"]["S+1.new_findings"] == ["f2"]
+
+
+# ---- DD1b2-R10 restated rows -------------------------------------------------------------------------------------
+
+def test_headroom_occurrences_come_from_stored_studies_with_eligible_days() -> None:
+    one = [("OPP-1", date(2026, 10, 21), 5)]
+    two = [*one, ("OPP-2", date(2026, 11, 4), 1)]
+    none = [*two, ("OPP-3", date(2026, 11, 5), 0), ("OPP-4", date(2026, 11, 6), None)]
+    assert rows.headroom_opportunities(one) == ["OPP-1"]
+    assert rows.headroom_opportunities(two) == ["OPP-1", "OPP-2"]
+    assert rows.headroom_opportunities(none) == ["OPP-1", "OPP-2"]  # a study with 0 eligible days is not added
+    assert rows.headroom_opportunities([("OPP-3", date(2026, 11, 5), 0)]) == []
+    out = rows.build_expected_threads({"days": []}, {"days": []}, [], {"study": {"opportunity_id": "OPP-1"}}, None,
+                                      rows.headroom_opportunities(two))
+    assert out[-1]["opportunities"] == ["OPP-1", "OPP-2"]
+    # no stored list: the pinned study alone, as before
+    assert rows.build_expected_threads({"days": []}, {"days": []}, [], {"study": {"opportunity_id": "OPP-1"}}
+                                       )[-1]["opportunities"] == ["OPP-1"]
+
+
+def test_unknown_outcomes_pass_only_as_not_judged() -> None:
+    ok = {"CC-1": ("UNKNOWN", "OBJECTIVE_NOT_JUDGED"), "CC-5": ("NO_OBJECTIVE", "NO_OBJECTIVE_DECLARED"),
+          "CC-2": ("ON_TRACK", None)}
+    assert rows.unknown_only_not_judged(ok) == ["CC-1"]
+    for bad in ({"MG-2": ("UNKNOWN", "PRODUCER_NOT_SETTLED")}, {"MG-2": ("UNKNOWN", "OBJECTIVES_NOT_READ")},
+                {"MG-2": ("UNKNOWN", None)}, {"CC-5": ("NO_OBJECTIVE", "OBJECTIVES_NOT_READ")}):
+        with pytest.raises(AssertionError):
+            rows.unknown_only_not_judged(bad)
+
+
+def test_wk4_has_three_branches_and_each_can_fail() -> None:
+    early = "Productive electricity sales: at least 300 kWh · too early to judge (needs 3 checked days)"
+    none = "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded"
+    judged = "Productive electricity sales: 120 kWh so far this month"
+    assert rows.wk4("UNKNOWN", early, 1) == "TOO_EARLY"
+    assert rows.wk4("UNKNOWN", none, 0) == "NO_FULL_DAY"
+    assert rows.wk4("ON_TRACK", judged, 3) == "JUDGED"
+    for args in (("ON_TRACK", none, 0), ("UNKNOWN", "no days line", 0), ("UNKNOWN", judged, 3), ("WATCH", early, 1),
+                 ("UNKNOWN", none, 2)):
+        with pytest.raises(AssertionError):
+            rows.wk4(*args)
+
+
+def _day(start, end, kind="normal"):
+    return {"kind": kind, "start": start, "end": end}
+
+
+def test_index_gaps_are_the_utc_days_no_run_touches() -> None:
+    from datetime import datetime, timezone
+
+    days = [_day("2026-10-08T03:00:00Z", "2026-10-08T11:00:00Z"),
+            _day("2026-10-25T21:00:00Z", "2026-10-26T03:00:00Z", "night"),  # the night run covers UTC 10-26
+            _day("2026-10-27T03:00:00Z", "2026-10-27T11:00:00Z"), _day(None, None, "missing")]
+    lo, hi = datetime(2026, 10, 7, tzinfo=timezone.utc), datetime(2026, 10, 28, tzinfo=timezone.utc)
+    gaps = rows.expected_index_gaps(days, lo, hi)
+    assert "2026-10-26" not in gaps and "2026-10-25" not in gaps  # touched by the night run
+    assert "2026-10-07" in gaps and "2026-10-09" in gaps and "2026-10-27" not in gaps and "2026-10-08" not in gaps
+    # must-fail: without the night run 10-26 is a gap (and the set differs)
+    assert "2026-10-26" in rows.expected_index_gaps([days[0], days[2]], lo, hi)
+    assert rows.expected_index_gaps([], lo, hi)[0] == "2026-10-07"
+
+
+def test_site_day_start_is_the_local_midnight_in_utc() -> None:
+    from zoneinfo import ZoneInfo
+
+    got = rows.site_day_start(date(2026, 11, 5), ZoneInfo("Africa/Nairobi"))
+    assert got.strftime("%Y-%m-%dT%H:%M:%SZ") == "2026-11-04T21:00:00Z"
+    assert got.strftime("%Y-%m-%dT%H:%M:%SZ") != "2026-11-05T00:00:00Z"
+
+
+def _ev(money, line, headline="estimated charging income"):
+    return {"headline": headline, "headline_money": money,
+            "contributors": [{"key": "charging_delivered", "text": line}]}
+
+
+def test_wk1_money_needs_a_counted_day_and_a_counted_day_needs_money() -> None:
+    unknown = "Not known yet · 0 of 1 day checked · 1 with too little data, not counted"
+    assert rows.wk1(_ev(None, unknown))["known"] is False
+    m = {"amount_high": "9.00", "currency": "USD"}
+    assert rows.wk1(_ev(m, "12 kWh with a complete meter record"))["known"] is True
+    with pytest.raises(AssertionError):
+        rows.wk1(_ev(m, unknown))  # money on a day with too little data
+    with pytest.raises(AssertionError):
+        rows.wk1(_ev(None, "12 kWh with a complete meter record"))
+    with pytest.raises(AssertionError):
+        rows.wk1({"headline": "x", "headline_money": None, "contributors": []})
+
+
+def test_potential_is_read_from_the_node_and_both_node_and_chip_are_barred() -> None:
+    chip = {"label": "Opportunity", "text": "Productive-use headroom"}
+    node = {"text": rows.LIMITED_TEXT, "value": None, "days_line": None}
+    g = {**_grow(potential=chip), "nodes": {"potential": node}}
+    assert rows.wk2c(g, {"status": "LIMITED", "eligible_days": 5})["status"] == "LIMITED"
+    for bad_node, bad_chip in (({**node, "text": rows.LIMITED_TEXT + " 12–20 kW"}, chip), ({**node, "value": "5 kW"}, chip),
+                               (node, {**chip, "text": "5 kW spare"}), (node, {**chip, "money": {"a": 1}}),
+                               ({"text": "No potential found yet"}, chip)):
+        with pytest.raises(AssertionError):
+            rows.wk2c({**_grow(potential=bad_chip), "nodes": {"potential": bad_node}}, None)
+    b = {**_grow(potential=None), "nodes": {"potential": {"text": "No potential found yet"}}}
+    assert rows.wk2b(b, KW)["potential"] == "No potential found yet"
+    with pytest.raises(AssertionError):
+        rows.wk2b({**b, "nodes": {"potential": {"text": "Spare solar 5 kW"}}}, KW)
