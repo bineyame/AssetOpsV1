@@ -1,0 +1,171 @@
+{
+ "mode": "story-only",
+ "S": "2026-11-05T00:00:00Z",
+ "db": "assetops_dd1a2_test",
+ "report": {
+  "days": {
+   "2026-10-22": {
+    "kind": "overuse",
+    "runs": [
+     "kobo-mini-grid-reserve-trial"
+    ],
+    "generator_local": [
+     [
+      "07:05",
+      "11:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [
+     {
+      "episode_start": "2026-10-22 04:35:00+00:00",
+      "episode_end": "2026-10-22 07:55:00+00:00",
+      "candidate_minutes": "200.0000",
+      "necessary_minutes": "0.0000",
+      "indeterminate_minutes": "0.0000",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "title": "Generator may have been on longer than needed"
+     }
+    ],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "start": "2026-10-22 00:00:00+00:00",
+      "end": "2026-10-23 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-22 00:00:00+00:00",
+      "end": "2026-10-23 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 0,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 1
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-22T04:05:00.000000Z",
+        "claim_level": "CANDIDATE_AVOIDABLE",
+        "assessment_key": "dispatch:interval:b8aa9af2-178f-419f-8c2a-0693f8fb5162:2026-10-22T04:05:00.000000Z"
+       }
+      ]
+     }
+    ]
+   },
+   "2026-10-29": {
+    "kind": "overuse",
+    "runs": [
+     "kobo-mini-grid-reserve-trial"
+    ],
+    "generator_local": [
+     [
+      "07:05",
+      "11:00"
+     ]
+    ],
+    "generator_kwh": 0.0,
+    "findings": [
+     {
+      "episode_start": "2026-10-29 04:35:00+00:00",
+      "episode_end": "2026-10-29 07:55:00+00:00",
+      "candidate_minutes": "200.0000",
+      "necessary_minutes": "0.0000",
+      "indeterminate_minutes": "0.0000",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "title": "Generator may have been on longer than needed"
+     }
+    ],
+    "windows": [
+     {
+      "key": "interval",
+      "claim_level": "CANDIDATE_AVOIDABLE",
+      "start": "2026-10-29 00:00:00+00:00",
+      "end": "2026-10-30 00:00:00+00:00",
+      "counts": null,
+      "intervals": null
+     },
+     {
+      "key": "window",
+      "claim_level": "COMPLETE",
+      "start": "2026-10-29 00:00:00+00:00",
+      "end": "2026-10-30 00:00:00+00:00",
+      "counts": {
+       "NECESSARY": 0,
+       "INDETERMINATE": 0,
+       "CANDIDATE_AVOIDABLE": 1
+      },
+      "intervals": [
+       {
+        "first_on": "2026-10-29T04:05:00.000000Z",
+        "claim_level": "CANDIDATE_AVOIDABLE",
+        "assessment_key": "dispatch:interval:b8aa9af2-178f-419f-8c2a-0693f8fb5162:2026-10-29T04:05:00.000000Z"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "signals": [
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "charge-requested-power"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "discharge-capability"
+   },
+   {
+    "device_id": "battery-pcs-controller",
+    "signal_id": "state-of-charge"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "delivered-power"
+   },
+   {
+    "device_id": "clinic-meter",
+    "signal_id": "requested-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "generator-controller",
+    "signal_id": "status"
+   },
+   {
+    "device_id": "mill-meter",
+    "signal_id": "active-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "ac-power"
+   },
+   {
+    "device_id": "pv-inverter-controller",
+    "signal_id": "available-power"
+   },
+   {
+    "device_id": "residential-meter",
+    "signal_id": "active-power"
+   }
+  ],
+  "money_rows": 0,
+  "money": [],
+  "findings_total": 2
+ },
+ "wall_s": 93.6
+}
