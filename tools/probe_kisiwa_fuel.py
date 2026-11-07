@@ -235,6 +235,33 @@ def _run_start(k: int) -> datetime:
     return RUN1_START + timedelta(days=k - 1)
 
 
+BINDINGS = ROOT / ".agent" / "DIESEL-F0" / "kisiwa-001-bindings.draft.json"
+IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
+CONVERT_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
+IMPORT_PATH = "var/sites/kisiwa-001.yaml"
+
+
+def register_kisiwa():
+    """DIESEL-1-R3 §9.1 (c): import Kisiwa and convert its bindings in an in-memory Foundation store, with the
+    product's own `import_site` and `convert`. Only the storage engine is substituted."""
+    sys.path.insert(0, str(ROOT / "backend" / "tests"))
+    from foundation_fakes import InMemoryFoundationStore
+    from assetops_backend.sites.binding_conversion import convert
+    from assetops_backend.sites.binding_service import BindingService
+    from assetops_backend.sites.foundation_service import ImportSource, import_site
+    from assetops_backend.sites.site_parsing import render_site_document
+
+    record = kisiwa_site()
+    payload = yaml.safe_dump(render_site_document(record), sort_keys=True).encode("utf-8")
+    source = ImportSource(path=IMPORT_PATH, sha256=hashlib.sha256(payload).hexdigest(), record=record)
+    store = InMemoryFoundationStore()
+    imported = import_site(store, tenant_slug="demo", configured_tenant_slug="demo", source=source,
+                           legacy_documents=(), clock=lambda: IMPORT_AT)
+    fixture = json.loads(BINDINGS.read_text(encoding="utf-8"))
+    outcome = convert(store, BindingService(store, lambda: CONVERT_AT), imported.tenant, imported.site, fixture)
+    return store, imported, outcome
+
+
 def _profile():
     from assetops_backend.runs.profiles import find_publication_profile  # noqa: F401
     from assetops_backend.runs.profiles import REGISTERED_KOBO_PUBLICATION_PROFILE_V5
@@ -386,6 +413,7 @@ def build() -> dict[str, Any]:
     from assetops_simulator.gateway.publish import publish
 
     TIMINGS.clear()
+    register_kisiwa()  # §9.1 (c); a refusal here is S1/S6 and stops the probe
     actions = load_actions()
     profile = _profile()
     mapping = gateway_mapping_for(*REGISTERED_PROFILE)
