@@ -73,7 +73,8 @@ def test_coh2_is_allowed_only_for_a_recorded_cold_or_ev_action_from_the_domain_i
     assert all(a["reason"] == rows.COH2_REASON for a in allowed)
     # each must fail: Kobo, an estate-index Action on Cold, an unknown Action id, the wrong Site's index, no ids at all
     kobo = _coh2("KOBO-001", "A-COLD", "action_index.KOBO-001.week.p1.json")  # only the Site test can refuse this
-    estate = _coh2("COLD-LAB-001", "A-COLD", "actions.week.p1.json")
+    estate = _coh2("COLD-LAB-001", "A-COLD", "action_index.COLD-LAB-001.week.p1.json")
+    estate["bodies"].append("actions.week.p1.json")  # the Action also came from the estate index
     unknown = _coh2("COLD-LAB-001", "A-OTHER", "action_index.COLD-LAB-001.week.p1.json")
     wrong = _coh2("COLD-LAB-001", "A-COLD", "action_index.EV-LAB-001.week.p1.json")
     for bad in (kobo, estate, unknown, wrong):
