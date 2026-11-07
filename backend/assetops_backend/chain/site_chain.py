@@ -175,6 +175,8 @@ def opportunity_actions(rows: Mapping[str, Any], *, site: str, tz: str | None, c
         out.append({"action_id": a["action_id"], "code": a.get("action_code"), "thread_id": tid,
                     "origin_opportunity_id": a["origin_opportunity_id"], "accepted_at": accepted,
                     "outcome": outcome if known else None, "outcome_recorded_at": recorded if known else None,
+                    # WD-1m (WD-1m-R §3): the verdict's example-data class follows the outcome's cutoff visibility
+                    "source_class": a.get("source_class") if known else None,
                     "ref": action_wire_ref(site, a)})
     out.sort(key=lambda x: (x["code"] or "", x["action_id"]))
     return out

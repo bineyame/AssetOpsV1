@@ -88,9 +88,12 @@ SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id 
               WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
             ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)
        END AS accepted_at,
-       v.outcome, v.recorded_at AS outcome_recorded_at
+       v.outcome, v.recorded_at AS outcome_recorded_at, v.source_class
   FROM chain_action a
-  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at FROM verification_outcome o
+  -- WD-1m-R2: `source_class` is the example-data class stored with the verdict when it was judged (NULL = none found,
+  -- or a verdict stored before WD-1m). One jsonb field; the board read never scans evidence.
+  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at, o.details->'source'->>'source_class' AS source_class
+                       FROM verification_outcome o
                       WHERE a.kind = 'DOMAIN_INTENT' AND o.tenant_id = a.tenant_id AND o.domain_action_id = a.id
                       ORDER BY o.recorded_at, o.id LIMIT 1) v ON true
  WHERE a.tenant_id = :t AND a.site_id = :s AND a.thread_id IS NOT NULL

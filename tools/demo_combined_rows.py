@@ -270,20 +270,25 @@ def mill_value_page(page: dict, price: Decimal) -> dict:
             "cost_text": value["cost_text"]}
 
 
-def mill_assure(board: dict, chain: dict, mill_id: str, code: str, site: str = "KOBO-001") -> dict:
+def mill_assure(board: dict, chain: dict, mill_id: str, code: str, page: dict, site: str = "KOBO-001") -> dict:
     """MILL-5 (FUEL-1 MB-1-R §2.5): on the S+0 Kobo board the Assure row lists the mill with the DOMAIN_VERDICT link
     and the verified text (backend constants), and its headline count equals the verified entries; on the week
-    `/api/estate/chain` the verified claim is Σ threads.verified + Σ threads.verified_actions, Kobo's mill counted once."""
+    `/api/estate/chain` the verified claim is Σ threads.verified + Σ threads.verified_actions, Kobo's mill counted once.
+    WD-1m-R2: the mill entry's suffix is `provenance_suffix(page.outcome.source_class)` from the verdict-page body
+    `page`; on the S+0 Kobo story that class must be an example class (a None means the write path did not run)."""
     import re
 
-    from assetops_backend.chain.vocabulary import provenance_suffix
+    from assetops_backend.chain.vocabulary import EXAMPLE_SOURCES, provenance_suffix
     from assetops_backend.outcomes.display_code import display_code
     from assetops_backend.site_outcomes.mini import NO_VERIFIED, VERIFICATION_TEXT
 
     assure = next((r for r in board.get("rows") or () if r.get("category") == "ASSURE_PERFORMANCE"), None)
     assert assure is not None, "no Assure row on the S+0 Kobo board"
     entries = [c for c in assure.get("contributors") or () if c.get("key") == "verified_results"]
-    text = VERIFICATION_TEXT["VERIFIED"].format(code=display_code(code), suffix=provenance_suffix(None))
+    source_class = ((page or {}).get("outcome") or {}).get("source_class")
+    if site == "KOBO-001":
+        assert source_class in EXAMPLE_SOURCES, ("the S+0 Kobo mill verdict carries no example source class", source_class)
+    text = VERIFICATION_TEXT["VERIFIED"].format(code=display_code(code), suffix=provenance_suffix(source_class))
     mill = [c for c in entries if (c.get("link_ref") or {}).get("kind") == "DOMAIN_VERDICT"
             and str((c.get("link_ref") or {}).get("id")) == str(mill_id)]
     assert len(mill) == 1, ("the mill entry on the Assure row", [c.get("text") for c in entries])

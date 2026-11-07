@@ -916,7 +916,8 @@ def mill5(ctx: Ctx) -> dict:
     m = _mill(ctx)
     action_id, code = m["action"]["id"], m["action"]["code"]  # `mill.json` (tools/demo_combined_mill.py:179)
     week = ctx.get("/api/estate/chain", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
-    out = demo_rows.mill_assure(_kobo_board_s(ctx), week, action_id, code, KOBO)
+    page = ctx.get(f"/api/sites/{KOBO}/domain-work/actions/{action_id}/verification")  # the MILL-3 verdict page read
+    out = demo_rows.mill_assure(_kobo_board_s(ctx), week, action_id, code, page, KOBO)
     with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
         stored = [r[0] for r in c.execute("SELECT outcome FROM verification_outcome WHERE domain_action_id = %s",
                                           (action_id,)).fetchall()]

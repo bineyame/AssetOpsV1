@@ -202,6 +202,7 @@ class OpportunityActionFact:
     action_segment: int | None = None
     category: str | None = None
     count_known: bool = True
+    source_class: str | None = None     # WD-1m-R: example-data class over the verdict's used days (None = none found)
 
 
 @dataclass(frozen=True)
