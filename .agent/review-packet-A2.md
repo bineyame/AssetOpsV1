@@ -71,6 +71,14 @@
 - **R3:** `recovered_value` raises on a repeated outcome id. The Portfolio's action rows key by `_outcome_id`; two rows naming the same credited outcome would raise. Unreachable today (R2).
 - **R4:** `evidence()` (`verification.py:696`) wires whole windows, so the read-only evidence API now also shows `generator_idle_seconds`, as it already shows `generator_kwh`.
 
+## Fix round (review-A2 FIX; ruling A2-R1)
+
+- **H1:** regenerated `ch9b2_reserve_trial_golden.json` (`CH9B2_CAPTURE=1`) and `s6_verification_api_contract.json` (`ASSETOPS_WRITE_S6_VERIFICATION_CONTRACT=1`) on `assetops_a2_test`. Diff adds only `generator_idle_seconds: 0` (CH-9b2 x2, S6 x2) and `priced_total: null` (one cost-check read body each). Note: the CH-9b2 docstring says the golden was captured from unchanged 0051 code; it is now refreshed for A2's two additive keys. Commit `FUEL-1 A2 fix H1`.
+- **L3:** `postgres_estate_read.cost_checks` docstring now says a `/2` row may store a priced total that this port does not read.
+- **L1 (A2-R1):** `priced_total` is stored only when `amount > 0`; docstring clause added; test `test_improvement_with_more_fuel_in_the_later_hour_has_no_priced_total`. Non-vacuity: removing `and amount > 0` fails that test on the `priced_total` assertion (1 failed, 9 passed); restored by `git checkout`, 10 passed.
+- **L4 (A2-R1):** `IDLE_SECONDS_UNKNOWN` now reads "...not known for one or both hours"; line-89 comment replaced; line 85 unchanged.
+- **Runs:** `test_tfc2 test_ch3_rows test_out_e4_readback` 73 passed. Postgres (`assetops_a2_test`): CH-9b2 + S6 evaluator + `test_s6_action_records_postgres` rerun without capture vars, 15 passed (300 s). Main merged into the branch before the L1/L4 edits.
+
 ## User-review focus
 
 None for the owner. Reviewer: D1 words and file, D3 selection, D4 digest coverage, `_reason` ordering.
