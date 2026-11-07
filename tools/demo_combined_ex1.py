@@ -7,7 +7,8 @@ TREE FORM ONLY (DD1b2-R11 B1): run with cwd `<work>/tree/backend/tests`, `PYTHON
 and `DATABASE_URL` / `ASSETOPS_TEST_DATABASE_URL` the clone's URL, with this file run from the worktree. Outside that
 form the tool refuses: the worktree form composes over the worktree's own `var/` and reads a degraded board.
 Before the first read it reruns the S2 comparison on the copy (a TEMPLATE clone changes the database name and the store
-root, which the comparison is bound to) and asserts the Kobo S board reads AVAILABLE.
+root, which the comparison is bound to) and then the Performance comparison (bound to the database name; R12 (a)),
+and asserts the Kobo S board reads AVAILABLE.
 
 Reads the Kobo S and S+1 boards (whole rows plus `read_state`; Findings compared as a set per row), runs
 `demo_combined.py add-day --site KOBO-001 --kind normal --assess-now` (timed), then `tick --until-drained` (timed, tick
@@ -132,6 +133,9 @@ def main() -> int:
     # R11 B1 (b): the S2 comparison is bound to the database name and store root, which a copy changes
     s2 = dc.Demo(a.db, str(work)).py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo",
                                       "--site", KOBO, label="ex1-s2-comparison")
+    # R12 (a): the Performance gate is bound to the database name too; rerun it after S2, Kobo only, as the prepare does
+    perf = dc.Demo(a.db, str(work)).py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo",
+                                        "--site", KOBO, label="ex1-performance-comparison")
     ctx = fin.load(work, fin.app_client(url, work))
 
     def read() -> dict:
@@ -139,7 +143,8 @@ def main() -> int:
         return summarise(fin._kobo_board_s(ctx), fin._kobo_board_s1(ctx))
 
     base = [sys.executable, str(TOOLS / "demo_combined.py"), "--db", a.db, "--work", str(work)]
-    before, doc = read(), {"db": a.db, "s2_comparison_tail": s2.stdout.strip().splitlines()[-1:]}
+    before, doc = read(), {"db": a.db, "s2_comparison_tail": s2.stdout.strip().splitlines()[-1:],
+                                     "performance_comparison_tail": perf.stdout.strip().splitlines()[-1:]}
     for day in before:
         if before[day]["read_state"] != "AVAILABLE":
             raise SystemExit(f"EX-1: the {day} board reads {before[day]['read_state']!r}, not AVAILABLE, after the "
