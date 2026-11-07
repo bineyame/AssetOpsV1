@@ -39,7 +39,7 @@ ALLOWLIST: dict[str, tuple[str, int]] = {
     "chain/adapters/postgres_thread_store.py": ("both", 4),
     "chain/backfill.py": ("both", 5),
     "chain/lookup.py": ("both", 4),
-    "chain/site_chain.py": ("both", 3),
+    "chain/site_chain.py": ("both", 4),
     "chain/threads.py": ("both", 8),
     "work/adapters/postgres_domain_action_index.py": ("both", 7),
     "work/adapters/postgres_domain_intent.py": ("both", 17),

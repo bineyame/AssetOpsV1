@@ -40,6 +40,13 @@ class Recording(tool.Demo):
         self.db, self.work, self.tree = "assetops_demo3_fake_test", work, work / "tree"
         self.url, self.deadline, self.started, self.holds_busy = "fake", None, [], False
         self.calls: list[str] = []
+        self.drains: dict[str, float] = {}
+
+    def drain(self, name: str = "drain") -> dict:
+        """DD-1b2b O2: the R8 drain is its own tested unit (`test_dd1b2b_drain.py`); here only its place is recorded."""
+        self.calls.append(name)
+        self.drains[name] = 0.0
+        return {}
 
     def py(self, *argv: str, label: str = "", **kw) -> subprocess.CompletedProcess:
         self.calls.append(label or argv[0])
