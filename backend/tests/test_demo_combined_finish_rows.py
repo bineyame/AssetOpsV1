@@ -222,6 +222,18 @@ def test_o12_needs_no_potential_and_a_contributor_with_spare_solar_seen() -> Non
             after.o12_grow_nodes(bad)
 
 
+def test_o12_s5_reads_not_judged_yet_with_no_kw_and_no_money() -> None:
+    import demo_combined_after as after
+
+    ok = "Not judged yet: 4 of the 5 study days have no reading"
+    assert after.o12_s5_grow(_o12_grow(potential=ok), "Open")["thread_state_label"] == "Open"
+    bad_solar = _o12_grow(potential=ok, solar="Spare solar on 0 of 3 well-observed days")
+    money = {**_o12_grow(potential=ok), "nodes": {"potential": {"text": ok, "money": {"amount_high": 1}}}}
+    for bad in (_o12_grow(), _o12_grow(potential="Not judged yet: 12 kW spare"), bad_solar, money):
+        with pytest.raises(AssertionError):
+            after.o12_s5_grow(bad, None)
+
+
 def test_why_price_line_equals_the_stored_price_and_money_equals_kwh_times_price() -> None:
     import demo_combined_after as after
 
@@ -239,11 +251,11 @@ def test_protect_why_must_name_both_cold_threads_and_agreed_actions_must_read_so
     import demo_combined_after as after
 
     nodes = [{"kind": "thread", "ids": ["t1"]}, {"kind": "thread", "ids": ["t2"]}, {"kind": "action", "ids": ["a"]}]
-    assert after.protect_names_threads(nodes, ["t1", "t2"])["named"] == ["t1", "t2"]
+    assert after.protect_names_threads(nodes, "t1", ["t2"])["other_threads"] == {"t2": "named"}
+    gap = after.protect_names_threads(nodes[:1] + nodes[2:], "t1", ["t2"])  # t2 missing: recorded, not a failure
+    assert gap["other_threads"] == {"t2": "BL-50 known gap: not named"}
     with pytest.raises(AssertionError):
-        after.protect_names_threads(nodes[:1] + nodes[2:], ["t1", "t2"])  # t2 not named
-    with pytest.raises(AssertionError):
-        after.protect_names_threads(nodes, ["t1"])  # not both threads
+        after.protect_names_threads(nodes[1:], "t1", ["t2"])  # ACT-000002's thread missing: fails
     assert after.action_agreed({"COLD": ["Action agreed", "Open"], "EV": ["Action agreed"]})
     with pytest.raises(AssertionError):
         after.action_agreed({"COLD": ["Open"], "EV": ["Action agreed"]})

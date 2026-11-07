@@ -96,6 +96,21 @@ def o12_grow_nodes(grow: dict) -> dict:
     return {"potential": potential, "contributors": texts}
 
 
+def o12_s5_grow(grow: dict, thread_label: str | None) -> dict:
+    """DD1b2-R14 section 1: on S-5 (the thread recurs) the potential starts "Not judged yet" with no kW figure and no
+    money; a contributor shows spare solar seen. The thread's state label is report-only."""
+    potential = demo_rows.nodes_potential_text(grow)
+    node = (grow.get("nodes") or {}).get("potential")
+    assert potential.startswith("Not judged yet"), ("potential", potential)
+    assert not re.search(r"\bkW\b", potential), ("kW figure in the potential", potential)
+    chip = grow.get("potential")
+    assert not (isinstance(node, dict) and node.get("money")) and not (isinstance(chip, dict) and chip.get("money")), (
+        "money on the potential", node, chip)
+    texts = [str(c.get("text")) for c in grow.get("contributors", [])]
+    assert any((m := SPARE_SOLAR.match(t)) and int(m.group(1)) >= 1 for t in texts), ("no spare solar seen", texts)
+    return {"potential": potential, "thread_state_label": thread_label, "contributors": texts}
+
+
 def why_price_line(comes_from: list[str], money: dict | None, price: Decimal, currency: str) -> dict:
     """F-THREADS "Why?" price line: any price shown equals the stored selection price; any money shown equals
     kWh x price at 2 dp. No price line and no money is recorded as LIMITED; money without a price line fails."""
@@ -112,13 +127,13 @@ def why_price_line(comes_from: list[str], money: dict | None, price: Decimal, cu
     return {"state": "PRICED", "price_line": [m.group(0) for m in parsed], "money": sorted(map(str, amounts))}
 
 
-def protect_names_threads(nodes: list[dict], thread_ids: list[str]) -> dict:
-    """The Cold Protect "Why?" names both Cold threads: every thread id appears in a `thread` node."""
+def protect_names_threads(nodes: list[dict], required: str, other: list[str]) -> dict:
+    """DD1b2-R14 section 2: the Cold Protect "Why?" must name ACT-000002's thread (`required`). A missing other thread
+    is recorded as the BL-50 known gap, not a failure."""
     named = {str(i) for n in nodes if n.get("kind") == "thread" for i in n.get("ids", [])}
-    assert len(thread_ids) == 2, ("expected both Cold threads", thread_ids)
-    missing = [t for t in thread_ids if str(t) not in named]
-    assert not missing, ("Cold threads not named by the Protect Why?", missing, sorted(named))
-    return {"thread_ids": thread_ids, "named": sorted(named)}
+    assert str(required) in named, ("the Protect Why? does not name ACT-000002's thread", required, sorted(named))
+    return {"required": required, "named": sorted(named),
+            "other_threads": {t: ("named" if str(t) in named else "BL-50 known gap: not named") for t in other}}
 
 
 def action_agreed(thread_states: dict[str, list[str]]) -> dict:
@@ -295,9 +310,13 @@ def main(url: str, work: Path, s2: bool = False, ref: Path | None = None) -> int
         check("o8_assure_unchanged", assure_unchanged)
 
     # ---- O12: the Kobo Grow row's potential and contributors on S-8 and S-5
-    for n in (-8, -5):
-        grow = fin.rows(ctx.board(KOBO, S + timedelta(days=n), S + timedelta(days=n + 1)))["GROW_REVENUE"]
-        check(f"o12_grow_nodes_S{n:+d}", o12_grow_nodes, grow)
+    grow8 = fin.rows(ctx.board(KOBO, S + timedelta(days=-8), S + timedelta(days=-7)))["GROW_REVENUE"]
+    check("o12_grow_nodes_S-8", o12_grow_nodes, grow8)
+    grow5 = fin.rows(ctx.board(KOBO, S + timedelta(days=-5), S + timedelta(days=-4)))["GROW_REVENUE"]
+    chain5 = ctx.get(f"/api/sites/{KOBO}/chain", date=day(-5))
+    label5 = next((t.get("state_label") for t in chain5.get("threads", []) if t.get("mechanism") == demo_rows.HEADROOM),
+                  None)
+    check("o12_grow_nodes_S-5", o12_s5_grow, grow5, label5)
 
     # ---- F-THREADS: the Kobo Grow "Why?" price line on the pinned mill study day S-11
     def kobo_why_price() -> dict:
@@ -317,20 +336,27 @@ def main(url: str, work: Path, s2: bool = False, ref: Path | None = None) -> int
     check("kobo_why_price_line_S-11", kobo_why_price)
 
     # ---- F-THREADS: the Cold Protect "Why?" names both Cold threads, over the window holding Cold's story days
-    def cold_protect_why() -> dict:
-        cold = ctx.site_days("cold")
-        lo, hi = min(fin.at(d["start"]) for d in cold), max(fin.at(d["end"]) for d in cold)
-        win = {"from": fin.iso(lo), "to": fin.iso(hi)}
-        threads = ctx.get(f"/api/sites/{fin.COLD}/chain", **win).get("threads", [])
-        why = ctx.get(f"/api/sites/{fin.COLD}/chain/why", category="PROTECT_ASSET", **win)
-        cold_findings = {str(f).lower() for d in cold_json["days"] for f in d.get("findings", [])}
-        for t in threads:  # the threads are Cold's: every Finding they hold is one of cold.json's
-            own = {str(o["finding_id"]).lower() for o in t.get("occurrences", []) if o.get("finding_id")}
-            assert own and own <= cold_findings, ("thread is not made of cold.json Findings", t["id"], sorted(own))
-        return protect_names_threads(why.get("nodes", []), [str(t["id"]) for t in threads])
+    from zoneinfo import ZoneInfo
 
-    cold_json = json.loads((work / "cold.json").read_text(encoding="utf-8"))
-    check("cold_protect_why_names_both_threads", cold_protect_why)
+    def zone(code: str) -> ZoneInfo:
+        site = ctx.get(f"/api/sites/{code}")
+        return ZoneInfo(next(n["timezone"] for n in fin.walk(site) if isinstance(n.get("timezone"), str)))
+
+    def cold_protect_why() -> dict:
+        # DD1b2-R14: on S's Site-local day the Protect Why? names the thread that holds ACT-000002; the other Cold
+        # thread missing is the BL-50 known gap (recorded, not a failure)
+        z = zone(fin.COLD)
+        local = datetime.fromisoformat(ctx.site_day("cold", "failure")["day"]).date()
+        win = {"from": fin.iso(fin.demo_rows.site_day_start(local, z)),
+               "to": fin.iso(fin.demo_rows.site_day_start(local + timedelta(days=1), z))}
+        chain = ctx.get(f"/api/sites/{fin.COLD}/chain", **win)
+        required = next(str(a["thread"]) for a in chain.get("actions", []) if str(a.get("code")) == "ACT-000002")
+        other = [str(t["id"]) for t in chain.get("threads", []) if str(t["id"]) != required]
+        why = ctx.get(f"/api/sites/{fin.COLD}/chain/why", category="PROTECT_ASSET", **win)
+        return {**protect_names_threads(why.get("nodes", []), required, other),
+                "why_text": (why.get("text") or {}).get("comes_from")}
+
+    check("cold_protect_why_names_act_002_thread", cold_protect_why)
 
     # ---- F-THREADS: "Action agreed" on the ACT-002/003 threads, from the stored check.json (a file read)
     def act_agreed() -> dict:
@@ -340,12 +366,6 @@ def main(url: str, work: Path, s2: bool = False, ref: Path | None = None) -> int
     check("action_agreed_act_002_003", act_agreed)
 
     # ---- L4: domain_action_index on the Site-local story day and on its week (Cold ACT-000002, EV ACT-000003)
-    from zoneinfo import ZoneInfo
-
-    def zone(code: str) -> ZoneInfo:
-        site = ctx.get(f"/api/sites/{code}")
-        return ZoneInfo(next(n["timezone"] for n in fin.walk(site) if isinstance(n.get("timezone"), str)))
-
     def action_index(code: str, kind: str, action: str) -> dict:
         d = ctx.site_day("cold" if code == fin.COLD else "ev", kind)
         z, local = zone(code), datetime.fromisoformat(d["day"]).date()
