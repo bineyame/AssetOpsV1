@@ -9,7 +9,7 @@ subtracted from it (it is a total; the change is per kWh). No annualising, no re
 FUEL-1 A2 (`.agent/build-sheet-FUEL-1.md` §4.2): `trial-fuel-comparison/2` applies iff one positive declared
 generator no-load fuel rate r (L/h) is in force over each of the two windows. Its window fuel adds the idle term,
 SFC x generator kWh + r x idle seconds / 3600 (upper x the same multiplier), and a MODELLED_IMPROVEMENT result gains
-the stored, priced total of the trial hour (`priced_total`). Without a rate in force over both windows the result is
+the stored, priced total of the trial hour (`priced_total`, stored only when the amount is above 0). Without a rate in force over both windows the result is
 `trial-fuel-comparison/1`, byte-equal to before.
 """
 
@@ -193,9 +193,10 @@ def compare(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sf
         nominal, upper = b[0] - l[0], b[1] - l[1]
         change = {"nominal": fmt(nominal), "upper": fmt(upper)}
         state = "MODELLED_IMPROVEMENT" if nominal > 0 else "MODELLED_NO_IMPROVEMENT"
-        if v2 and state == "MODELLED_IMPROVEMENT":
-            bw, lw = windows["baseline"], windows["later"]
-            priced_total = {"amount": fmt(bw["_cost"][0] - lw["_cost"][0]), "currency": prices[0].currency,
+        bw, lw = windows["baseline"], windows["later"]
+        amount = bw["_cost"][0] - lw["_cost"][0] if v2 else None
+        if v2 and state == "MODELLED_IMPROVEMENT" and amount > 0:
+            priced_total = {"amount": fmt(amount), "currency": prices[0].currency,
                             "basis": PRICED_TOTAL_BASIS, "window": [_iso(later.start), _iso(later.end)],
                             "fuel_change_l": fmt(bw["_fuel"][0] - lw["_fuel"][0])}
     else:

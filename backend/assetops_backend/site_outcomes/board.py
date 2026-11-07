@@ -86,8 +86,8 @@ COST_REASON_WORDS = {
     "ZERO_DEMAND": "an hour had no demand",
     "SFC_MISSING": "the generator fuel rate is not recorded",
     "SFC_DIFFERS": "the generator fuel rate differs between the hours",
-    # FUEL-1 A2: builder-proposed words for the two `/2` reasons (Architect to confirm; not reached on Kobo)
-    "IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for both hours",
+    # FUEL-1 A2 (A2-R1): words for the two /2 reasons
+    "IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for one or both hours",
     "NO_LOAD_RATE_DIFFERS": "the generator's idle fuel rate differs between the hours",
     "PRICE_MISSING": "no diesel price covers both hours",
     "PRICE_BASIS_DIFFERS": "the two hours were priced from different diesel price records",

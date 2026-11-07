@@ -127,6 +127,14 @@ def test_no_improvement_has_no_priced_total():
     assert credit.credited(out, "VERIFIED") is None
 
 
+def test_improvement_with_more_fuel_in_the_later_hour_has_no_priced_total():
+    out = run(window(B0, 10, 0, ("b1",), Fraction(100)), window(L0, 10, 300, ("l1",), Fraction(110)))
+    assert (out["formula"], out["state"]) == ("trial-fuel-comparison/2", "MODELLED_IMPROVEMENT")
+    assert out["change_per_demand_kwh"]["nominal"] == vr.fmt(Fraction(1, 3520))
+    assert "priced_total" not in out
+    assert credit.credited({**out, "outcome_id": "outcome-1"}, "VERIFIED") is None
+
+
 def test_digest_covers_the_idle_inputs():
     base = run()
     assert run(baseline=replace(IDLE_BASE, idle_seconds=3300))["basis_sha256"] != base["basis_sha256"]
