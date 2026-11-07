@@ -52,14 +52,43 @@ def measure(db: str, days: list[str]) -> dict:
     return out
 
 
+def stored(db: str, work: Path, days: list[str]) -> dict:
+    """M1 / P8: `daylight_hours` per day (knowledge cutoff the database clock), and the dry run's own per-day report
+    (generator kWh, Findings, windows), as stored."""
+    from datetime import date
+
+    from sqlalchemy import create_engine, text
+
+    import dd1a2_mill3_dry_run as dry
+    from assetops_backend.mini_depth.store import daylight_hours, database_now
+
+    engine = create_engine(f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PORT}/{db}")
+    rows = json.loads((work / "days.json").read_text(encoding="utf-8"))["days"]
+    out: dict = {"daylight": {}}
+    with engine.connect() as c:
+        tenant, site = c.execute(text("SELECT tenant_id, id FROM site WHERE site_code = :c"), {"c": SITE}).one()
+        now = database_now(c)
+        for day in days:
+            d = daylight_hours(c, tenant, site, date.fromisoformat(day), now)
+            out["daylight"][day] = {"hours": list(d.hours), "missing": list(d.missing), "measured": d.measured}
+    rep = dry.report(engine, site, [r for r in rows if r["site"] == "kobo"])
+    out["days"] = {k: v for k, v in rep["days"].items() if k in days}
+    out["money_rows"] = rep["money_rows"]
+    engine.dispose()
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--db", required=True)
     parser.add_argument("--days", required=True, help="Site-local dates, comma separated")
     parser.add_argument("--out")
+    parser.add_argument("--work", help="the work folder: adds daylight hours, generator kWh and Findings per day")
     args = parser.parse_args()
     result = measure(args.db, args.days.split(","))
-    text = json.dumps(result, indent=2)
+    if args.work:
+        result["stored"] = stored(args.db, Path(args.work), args.days.split(","))
+    text = json.dumps(result, indent=2, default=str)
     if args.out:
         Path(args.out).write_text(text + "\n", encoding="utf-8")
     summary = {k: sorted({(r["quality"], r["unavailable_reason"]) for r in v["rows"]}, key=str)
