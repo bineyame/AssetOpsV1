@@ -88,7 +88,8 @@ Python: `AssetOpsV1-plan2\.venv`. DB: `assetops_k2_test` and its harness clones 
 | L0 mutations (5) / L2 read mutations (6) | 5/5 killed / 5/6 killed (L1) |
 | `npx.cmd tsc --noEmit` | exit 0 |
 | vitest `operationalRecords.test.tsx` + `workRequestRecord.test.tsx` | 36 passed (vitest ran in this session) |
-| `tools/check-architecture.ps1`, `tools/check-agent-workflow.ps1` | see the commit note below |
+| `tools/check-architecture.ps1` | passed. A first run without `ASSETOPS_GUARD_PYTHON` failed because the worktree has no `.venv` and the rule-8 extractor could not start. That is environmental and unrelated to K2. It passed with the variable set to the plan2 venv. |
+| `tools/check-agent-workflow.ps1` | passed |
 
 **Not run (dispatch):**
 - full suites, prepare, `test_demo_combined_postgres`;
