@@ -131,9 +131,30 @@ def judge(doc: dict, data: dict, pairs: list, coh3: list, received: dict, cold_d
 def _board_view(body) -> dict:
     rows = (body or {}).get("rows") or []
     return {"issues": [i.get("text") for r in rows for i in r.get("issues") or []],
-            "in_hand": [(i.get("text"), i.get("state_label")) for r in rows for i in r.get("in_hand") or []],
+            "in_hand": [(i.get("text"), i.get("state_label"), str(i.get("href"))) for r in rows
+                        for i in r.get("in_hand") or []],
+            "read_state": (body or {}).get("read_state"),
             "protect": [r.get("state") for r in rows if r.get("category") == "PROTECT_ASSET"],
             "window": (body or {}).get("window")}
+
+
+FAILED_READS: list[str] = []
+
+
+def hook_failed_reads() -> None:
+    """Probe-only: record each Reads port that fails (B.3 swallows it), by name."""
+    from assetops_backend.site_outcomes import mini
+
+    original = mini.Reads.call
+
+    def call(self, name, fn, *args, **kw):
+        before = len(self.failed)
+        out = original(self, name, fn, *args, **kw)
+        if len(self.failed) > before:
+            FAILED_READS.append(f"{self.site}:{name}")
+        return out
+
+    mini.Reads.call = call
 
 
 def extra_reads(cc, client, picked: list, bundle, boards: dict) -> dict:
@@ -149,9 +170,13 @@ def extra_reads(cc, client, picked: list, bundle, boards: dict) -> dict:
             lo = cc._midnight(local).astimezone(__import__("datetime").timezone.utc)
             reads["local_day"] = {"from": cc.iso(lo), "to": cc.iso(lo + timedelta(days=1))}
         out[code] = {}
+        reads["week"] = bundle.windows["week"]
+        reads["week"] = {"from": reads["week"]["from"], "to": reads["week"]["to"]}
         for name, params in reads.items():
+            FAILED_READS.clear()
             status, body = client.get(f"/api/sites/{code}/outcome-board", params)
-            out[code][name] = {"status": status, **_board_view(body if status == 200 else None), "params": params}
+            out[code][name] = {"status": status, **_board_view(body if status == 200 else None), "params": params,
+                               "failed_reads": list(FAILED_READS)}
         status, chain = client.get(f"/api/sites/{code}/chain", {"from": d["from"], "to": d["to"]})
         out[code]["chain_has_action_agreed"] = status == 200 and "Action agreed" in json.dumps(chain)
     return out
@@ -161,13 +186,22 @@ def judge_r2(doc: dict, bundle, extra: dict, data: dict) -> dict:
     checks: dict[str, bool] = {}
     for code, site in ((COLD, "cold"), (EV, "ev")):
         e = extra.get(code) or {}
-        day, event = e.get("utc_day") or {}, e.get("event_window") or {}
+        day, event, week = e.get("utc_day") or {}, e.get("event_window") or {}, e.get("week") or {}
+        action = next((a for a in data["actions"] if a["site_code"] == code), None)
+        aid = str(action["id"]) if action else "-none-"
+        mine = [x for x in day.get("in_hand") or [] if aid in x[2]]   # R3: judge the Action's own row only
         checks[f"r2.{site}.utc_day.finding_in_issues"] = bool(day.get("issues"))
-        checks[f"r2.{site}.utc_day.in_hand_open_no_suffix"] = bool(day.get("in_hand")) and all(
-            label == "Open" for _, label in day["in_hand"])
+        checks[f"r2.{site}.utc_day.action_row_exactly_Open"] = len(mine) >= 1 and all(x[1] == "Open" for x in mine)
         checks[f"r2.{site}.chain_action_agreed"] = bool(e.get("chain_has_action_agreed"))
         checks[f"r2.{site}.event_window.finding_shown"] = bool(event.get("issues"))
-        checks[f"r2.{site}.event_window.action_not_listed"] = not event.get("in_hand")
+        checks[f"r2.{site}.event_window.action_not_listed"] = not any(aid in x[2] for x in event.get("in_hand") or [])
+        checks[f"r3.{site}.week_lists_action"] = any(aid in x[2] for x in week.get("in_hand") or [])
+        checks[f"r3.{site}.utc_day.domain_action_index_not_failed"] = not any(
+            "domain_action_index" in f for f in day.get("failed_reads") or [])
+        checks[f"r3.{site}.event_window.domain_action_index_not_failed"] = not any(
+            "domain_action_index" in f for f in event.get("failed_reads") or [])
+        checks[f"r3.{site}.read_state_utc_day_equals_event_window"] = day.get("read_state") == event.get("read_state")
+    checks["r3.coh3.all_pairs_linked"] = bool(doc.get("coh3_pairs")) and all(p[4] for p in doc["coh3_pairs"])
     checks["r2.cold.utc_day.protect_needs_attention"] = (extra.get(COLD, {}).get("utc_day", {}).get("protect")
                                                          == ["NEEDS_ATTENTION"])
     checks["r2.objectives_instants.three_sites"] = sorted(doc["objectives_instants"]) == [
@@ -244,6 +278,7 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
     pairs = list(cc.coh3_pairs(bundle))
     coh3 = cc.coh3_action_on_board(bundle)
     boards = {b.get("site_code"): b for b in (bundle.get(f"board.{d}") for d in bundle.day_windows()) if b}
+    hook_failed_reads()
     extra = extra_reads(cc, cc.InProcess(app_client(url, work)), picked, bundle, boards)
     doc["extra"] = extra
     doc["declare"] = {}
