@@ -174,6 +174,12 @@ def _event(seq: int, event_id: str, offset: int, duration: int, category: str, s
                             "ownership": {"owner": "SCENARIO_INPUT", "initializes": False}}]}
 
 
+def _clock(offset: int) -> str:
+    """Local HH:MM `offset` minutes after a 15:00 local run start (the day index is dropped)."""
+    total = (15 * 60 + offset) % 1440
+    return f"{total // 60:02d}:{total % 60:02d}"
+
+
 def day_document(start_soc, start_fuel, days: int = 1) -> dict[str, Any]:
     """One 15:00-15:00 Kisiwa day (or `days` of them back to back) in memory. Event and parameter shapes copy
     `config/scenarios/kobo-s3-dispatch-necessary-run.yaml` and `config/scenarios/kobo-daytime.yaml`."""
@@ -183,11 +189,22 @@ def day_document(start_soc, start_fuel, days: int = 1) -> dict[str, Any]:
               ("water-pump", "LOAD", "load-demand@load-mill", "Water pump demand", "kW", 5))
     timeline, seq = [], 0
     for prefix, category, state_key, name, unit, column in series:
-        for day in range(days):
-            for n, window in enumerate(WINDOWS, start=1):
-                seq += 1
-                timeline.append(_event(seq, f"{prefix}-{day * len(WINDOWS) + n}", day * 1440 + window[0],
-                                       window[1], category, state_key, name, window[column], unit, window[6]))
+        spans = [[day * 1440 + w[0], w[1], w[column], w[6]] for day in range(days) for w in WINDOWS]
+        if days > 1:
+            # G4's continuous 5-day document only: the scenario parser refuses a document over 4000 nodes, so
+            # adjacent windows with the same level are joined. Every level at every minute is unchanged.
+            joined = [spans[0]]
+            for span in spans[1:]:
+                if span[2] == joined[-1][2]:
+                    joined[-1][1] += span[1]
+                    joined[-1][3] = f"{_clock(joined[-1][0])} to {_clock(joined[-1][0] + joined[-1][1])}"
+                else:
+                    joined.append(span)
+            spans = joined
+        for n, (offset, duration, value, label) in enumerate(spans, start=1):
+            seq += 1
+            timeline.append(_event(seq, f"{prefix}-{n}", offset, duration, category, state_key, name, value, unit,
+                                   label))
     return {
         "scenario_id": "kisiwa-probe-day",
         "display_name": "Kisiwa probe day (15:00 to 15:00 local, DIESEL-1 D0)",
