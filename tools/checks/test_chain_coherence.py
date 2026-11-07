@@ -205,6 +205,24 @@ def _edited(tmp_path: Path, src: str, manifest_edit=None, **files) -> cc.Bundle:
     return cc.Bundle(root)
 
 
+def test_coh3_pairs_share_the_rule_loop(tmp_path: Path) -> None:
+    """DD1b1-R Q6: linked pair, unlinked pair (the finding), and an Action after the window end (no pair)."""
+    assert (COLD, DC, A1, F1, True) in list(cc.coh3_pairs(cc.Bundle(BUNDLES / "clean")))
+    missing = cc.Bundle(BUNDLES / "coh3_board_missing_action")
+    assert (COLD, DC, A1, F1, False) in list(cc.coh3_pairs(missing))
+    assert [f["subject"] for f in cc.coh3_action_on_board(missing)] == [A1]
+
+    def later(body: dict) -> None:
+        for row in body["rows"]:
+            for key in ("raised_at", "created_at"):
+                if key in row:
+                    row[key] = "2026-12-31T00:00:00Z"
+
+    after = _edited(tmp_path, "clean", **{"action_index.COLD-LAB-001.week.p1.json": later,
+                                          "actions.week.p1.json": later})
+    assert [p for p in cc.coh3_pairs(after) if p[2] == A1] == []
+
+
 def test_a_non_200_body_fails_the_bundle_as_coh0(tmp_path: Path) -> None:
     def fail(m: dict) -> None:
         for r in m["requests"]:

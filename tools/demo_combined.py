@@ -62,6 +62,8 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 #: `kobo_expected_seconds` (DEMO-SPARSE U3 measured about 105 s per Kobo run: 110 s per run + 60 s).
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90}
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
+#: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
+TARIFF_AFTER_INSTALL = timedelta(minutes=30)
 TICK = ("-m", "assetops_backend.scheduling.run", "tick", "--environment", "default", "--max-sites", "5",
         "--s3-jobs", "10", "--consequence-items", "100")
 _OFFSET = re.compile(r"^S([+-]\d+)d (\d{2}):(\d{2})$")
@@ -85,6 +87,17 @@ def iso(value: datetime) -> str:
 
 def at(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def objectives_instant(story: dict) -> datetime:
+    """DD1b1-R Q7: every objective line is recorded at one story instant, `ev.install_at` + `TARIFF_AFTER_INSTALL`.
+    It must precede the first built day's start across the Sites; otherwise the prepare stops, never a moved date."""
+    instant = at(story["ev"]["install_at"]) + TARIFF_AFTER_INSTALL
+    first = min((d for d in story["days"] if d.get("start")), key=lambda d: at(d["start"]))
+    if instant >= at(first["start"]):
+        raise SystemExit(f"OBJECTIVES_INSTANT_CONFLICT: the objectives instant {iso(instant)} is not before the first "
+                         f"built day ({first['site']} {first['day']}, start {first['start']}).")
+    return instant
 
 
 def floor_day(value: datetime) -> datetime:
@@ -436,8 +449,9 @@ class Demo:
     def finish(self, story: dict) -> None:
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
         if set(story["sites"]) == set(SITES):
-            done = self.py("-m", "assetops_backend.declare_objective", "fixture", "--file",
-                           str(self.tree / "backend" / "conversions" / "demo-objectives.json"), label="objectives")
+            done = self.py(str(self.tree / "tools" / "demo_declare_objectives.py"), self.url,
+                           str(self.tree / "backend" / "conversions" / "demo-objectives.json"),
+                           iso(objectives_instant(story)), label="objectives")
             lines = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
             (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
             say(f"  objectives: {len(lines)} lines")
