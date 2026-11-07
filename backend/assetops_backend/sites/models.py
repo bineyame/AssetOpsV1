@@ -281,6 +281,13 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "generator-no-load-fuel-rate-basis": PropertyDefinition(
         unit="state", kind="PHYSICAL", display_name="Generator no-load fuel rate basis"
     ),
+    # DIESEL-1 K1 (R3c): the tank level sensor's declared accuracy, read by fuel-balance-1 (K3) as the margin term a.
+    "fuel-level-sensor-accuracy": PropertyDefinition(
+        unit="L", kind="PHYSICAL", display_name="Fuel level sensor accuracy"
+    ),
+    "fuel-level-sensor-accuracy-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Fuel level sensor accuracy basis"
+    ),
 }
 
 #: W2-05a: the component type that must carry each EV property.
@@ -305,6 +312,8 @@ STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"}),
     # FUEL-1 A1: where a declared generator no-load fuel rate comes from.
     "generator-no-load-fuel-rate-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    # DIESEL-1 K1: where a declared fuel level sensor accuracy comes from.
+    "fuel-level-sensor-accuracy-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_CALIBRATION"}),
 }
 
 #: W2-01: the component type that must carry each cold property
@@ -333,10 +342,14 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "supply-use": "LOAD",  # WALK1-3 §4.2
     "generator-no-load-fuel-rate": "GENERATOR",  # FUEL-1 A1
     "generator-no-load-fuel-rate-basis": "GENERATOR",  # FUEL-1 A1
+    "fuel-level-sensor-accuracy": "FUEL_TANK",  # DIESEL-1 K1
+    "fuel-level-sensor-accuracy-basis": "FUEL_TANK",  # DIESEL-1 K1
 }
 #: W4-02 closure 4 N2: the mini-grid depth properties that must be strictly positive (the other two are
-#: nonnegative, which the shared parser already enforces for every unsigned unit).
-MINIGRID_STRICTLY_POSITIVE_PROPERTIES: frozenset[str] = frozenset({"backup-recovery-target"})
+#: nonnegative, which the shared parser already enforces for every unsigned unit). DIESEL-1 K1: an accuracy of
+#: 0 L would claim a perfect sensor.
+MINIGRID_STRICTLY_POSITIVE_PROPERTIES: frozenset[str] = frozenset(
+    {"backup-recovery-target", "fuel-level-sensor-accuracy"})
 
 #: Property units whose values are signed: a temperature below zero is a
 #: temperature, not a direction (`D-2026-10-17-w2-01-answers` C). Every other

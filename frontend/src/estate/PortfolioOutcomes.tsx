@@ -63,6 +63,7 @@ interface CardContent {
   destination: string | null;
   tone: string;
   grow: EstatePortfolioCard["parts"] | null;
+  values: { lines: string[]; note: string | null } | null;
 }
 
 /** CH-6b2 (§B2, CH6b2-R Q1): a server card as markup: `{text} <small>{small}</small>`, the kept Grow gap. */
@@ -89,7 +90,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
   const note = key === "GROW_REVENUE" || key === "OPTIMIZE_COST" ? null : (body.summary.card_notes?.[key] ?? null);
   if (card === undefined) {
     // The summary has not loaded (or is older): the card says so, never a browser-built value.
-    return { value: "Not known yet", detail: null, note, days: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null };
+    return { value: "Not known yet", detail: null, note, days: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null, values: null };
   }
   return {
     value: serverValue(card),
@@ -100,6 +101,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
     destination: CARD_DESTINATION[key],
     tone: card.tone,
     grow: card.parts ?? null,
+    values: key === "ASSURE_PERFORMANCE" ? { lines: card.value_lines ?? [], note: card.value_note ?? null } : null,
   };
 }
 
@@ -220,6 +222,19 @@ export function CategoryCards({
               ) : null}
               {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}
               {c.detail ? <p data-portfolio-card-detail>{c.detail}</p> : null}
+              {/* MOCK DEVIATION MD-FUEL-PV1-1: v69 `:129` is one "Verified value recovered" tile ("Not established") and
+                  v70 `:492` puts the slot on the Assure card; we show one server line per verified result (its own
+                  basis) in that slot instead of one value, because v69 `:131` and `:482` forbid a combined total. */}
+              {c.values?.lines.map((line) => (
+                <p key={line} className="oc-pfnote" data-portfolio-card-value-line>
+                  {line}
+                </p>
+              ))}
+              {c.values?.note ? (
+                <p className="oc-pfnote" data-portfolio-card-value-note>
+                  {c.values.note}
+                </p>
+              ) : null}
               {/* CH6b2-R Q1: the Portfolio-body clause, one server line rendered on its own (never joined here). */}
               {c.note ? (
                 <p className="oc-pfnote" data-portfolio-card-note>

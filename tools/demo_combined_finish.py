@@ -867,6 +867,19 @@ def mill5(ctx: Ctx) -> dict:
     return {**out, "stored_outcome": stored[0]}
 
 
+@row("PV-A")
+def pv_a(ctx: Ctx) -> dict:
+    """PV-1 (FUEL-1 PV-1-R §5): on the week estate summary holding the S+0 Kobo board, the Assure card lists the mill
+    line equal to its verdict page's value, the trial-fuel line iff ACT-001's cost check is credited (the case is
+    reported), and no card string holds a sum of two same-currency amounts (`demo_rows.pv_values`)."""
+    m = _mill(ctx)
+    page = ctx.get(f"/api/sites/{KOBO}/domain-work/actions/{m['action']['id']}/verification")
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
+    action = _action(ctx)
+    cc = (action.get("verification") or {}).get("cost_check")
+    return demo_rows.pv_values(summary, page, m["action"]["code"], action.get("action_code") or "ACT-001", cc, KOBO)
+
+
 @row("MONEY-B")
 def money_b(ctx: Ctx) -> dict:
     """R6 O16, the part readable through the served boards: the Cost headline on one steady-before and one steady

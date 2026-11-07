@@ -4,7 +4,7 @@
  "assumptions": {
   "source": "DIESEL-1-R2 §8.3 (.agent/build-sheet-DIESEL-1.md, dc72cb72a); fixed before any run",
   "physics": "D0 §2.2 unchanged (tools/probe_kisiwa_nights.py imported), stop 90 % throughout",
-  "d0_template_sha256": "d9a4107a1682965bf4fb571c4f9046f6eec283680532b19f5aa503b40c7aaa11",
+  "d0_template_sha256": "261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b",
   "actions_sha256": "77777c82d82298ffba77a130f8d9ea2c6bb9a80c491ba4b2ac5248c4b735b634",
   "start": {
    "soc_pct": 100,

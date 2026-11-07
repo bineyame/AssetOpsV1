@@ -303,6 +303,66 @@ def mill_assure(board: dict, chain: dict, mill_id: str, code: str, site: str = "
             "week_threads": sites}
 
 
+def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_check: dict | None,
+              site: str = "KOBO-001") -> dict:
+    """PV-A (FUEL-1 PV-1-R §5): on the week estate summary holding the S+0 Kobo board, the Assure card's
+    `value_lines` holds the mill line built from the verdict page's own `value` (backend constants, never typed); the
+    trial-fuel line is present iff `credited(trial cost check, "VERIFIED")` is not None; and no card string holds the
+    sum of two same-currency entry amounts (never added)."""
+    from fractions import Fraction
+
+    from assetops_backend.chain.vocabulary import card_text
+    from assetops_backend.outcomes.credit import credited
+    from assetops_backend.outcomes.display_code import display_code
+    from assetops_backend.site_outcomes.mini import VALUE_LINE_MILL, VALUE_LINE_TRIAL_FUEL
+
+    card = (summary.get("cards") or {}).get("ASSURE_PERFORMANCE")
+    assert isinstance(card, dict) and "value_lines" in card, ("no Assure card value_lines", card)
+    lines = list(card["value_lines"])
+    s = next((x for x in summary.get("sites") or () if x.get("site_code") == site), None)
+    assert s is not None, ("Kobo not on the week summary", site)
+    name = s.get("site_name") or site
+    value = page.get("value") or {}
+    assert value.get("state") == "PRICED", ("mill value", value)
+    mill = card_text("assure.value_line", site=name, text=VALUE_LINE_MILL.format(
+        code=display_code(code), d=value["per_day"], cur=value["currency"]))
+    assert mill in lines, (mill, lines)
+    got = credited(trial_cost_check, "VERIFIED")
+    trial = None
+    if got is not None:
+        (n, d), cur = got
+        pt = (trial_cost_check or {}).get("priced_total") or {}
+        amount = f"{Decimal(round(Fraction(n, d) * 100)) / 100:.2f}"
+        litres = f"{Decimal(round(Fraction(str(pt['fuel_change_l'])) * 10)) / 10:.1f}"
+        trial = card_text("assure.value_line", site=name, text=VALUE_LINE_TRIAL_FUEL.format(
+            code=display_code(trial_code), l=litres, amount=amount, cur=cur))
+        assert trial in lines, (trial, lines)
+    else:
+        assert not any(display_code(trial_code) + ":" in x and "less diesel" in x for x in lines), lines
+    entries = [e for x in summary.get("sites") or () for r in x.get("rows") or ()
+               if r.get("category") == "ASSURE_PERFORMANCE" for e in (r.get("nodes") or {}).get("verified_values") or ()]
+    strings: list[str] = []
+
+    def walk(node) -> None:
+        if isinstance(node, str):
+            strings.append(node)
+        elif isinstance(node, dict):
+            for x in node.values():
+                walk(x)
+        elif isinstance(node, (list, tuple)):
+            for x in node:
+                walk(x)
+
+    walk(card)
+    sums = [f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}" for i, a in enumerate(entries)
+            for b in entries[i + 1:] if a.get("currency") == b.get("currency")]
+    held = sorted({x for x in sums if any(x in t for t in strings)})
+    assert not held, ("the Assure card holds a sum", held)
+    return {"value_lines": lines, "mill_line": mill, "trial_line": trial,
+            "trial_case": "credited" if trial else "not credited", "value_note": card.get("value_note"),
+            "sums_checked": len(sums)}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None

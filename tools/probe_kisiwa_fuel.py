@@ -137,6 +137,10 @@ def balance(terms: dict[str, Any]) -> dict[str, Any]:
 # --- the operational-action log -----------------------------------------------------------------------------------
 
 
+def _sha256_lf(path) -> str:
+    return hashlib.sha256(path.read_text(encoding="utf-8").encode("utf-8")).hexdigest()
+
+
 def _parse(text: str) -> datetime:
     return datetime.fromisoformat(text.replace("Z", "+00:00"))
 
@@ -695,8 +699,8 @@ def build() -> dict[str, Any]:
         "assumptions": {
             "source": "DIESEL-1-R2 §8.3 (.agent/build-sheet-DIESEL-1.md, dc72cb72a); fixed before any run",
             "physics": "D0 §2.2 unchanged (tools/probe_kisiwa_nights.py imported), stop 90 % throughout",
-            "d0_template_sha256": hashlib.sha256(D0_TEMPLATE.read_bytes()).hexdigest(),
-            "actions_sha256": hashlib.sha256(ACTIONS.read_bytes()).hexdigest(),
+            "d0_template_sha256": _sha256_lf(D0_TEMPLATE),
+            "actions_sha256": _sha256_lf(ACTIONS),
             "start": {"soc_pct": START_SOC, "fuel_l": START_FUEL, "generator": "STOPPED"},
             "runs": RUNS, "run1_start": _iso(RUN1_START), "change_instant": _iso(_run_start(CHANGE_RUN)),
             "publication_profile": f"{REGISTERED_PROFILE[0]} v{REGISTERED_PROFILE[1]}",
@@ -705,7 +709,7 @@ def build() -> dict[str, Any]:
             "registered_path": {
                 "setup": "(c) DIESEL-1-R3 §9.1: import_site + convert into InMemoryFoundationStore, real "
                          "RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, 'demo', clock)))",
-                "bindings_sha256": hashlib.sha256(BINDINGS.read_bytes()).hexdigest(),
+                "bindings_sha256": _sha256_lf(BINDINGS),
                 "import_at": _iso(IMPORT_AT), "convert_at": _iso(CONVERT_AT), "setup_at": SETUP_AT,
                 "knowledge_at": None, "foundation_version": reg.foundation_version,
                 "binding_set_version": basis_record.binding_set_version,

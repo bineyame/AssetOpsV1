@@ -134,7 +134,11 @@ class TestVocabulary:
                                                                          "ESSENTIAL_SERVICE"}),
                                                 # FUEL-1 A1: the declared no-load fuel rate's basis
                                                 "generator-no-load-fuel-rate-basis": frozenset({
-                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"})}
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+                                                # DIESEL-1 K1: the fuel level sensor accuracy basis
+                                                "fuel-level-sensor-accuracy-basis": frozenset({
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET",
+                                                    "SITE_CALIBRATION"})}
 
 
 class TestParserAndRender:
