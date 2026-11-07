@@ -371,6 +371,18 @@ def reserve_at_slots(starts: list[datetime], reserves: Iterable[ReserveValue]) -
 _SINGLE_POWER_ROLES = ("generator_power", "pcs_discharge_capability", "pv_available_power")
 #: FUEL-1 A2: the sampled `generator_state` values that mean running (`analytics.dispatch.RUNNING_STATES`)
 RUNNING_STATES = frozenset({"RUNNING"})
+#: DIESEL-1-R3h: the sampled values that end a run (`analytics.dispatch.NOT_RUNNING_STATES`)
+NOT_RUNNING_STATES = frozenset({"STOPPED", "STARTING", "FAILED"})
+
+
+def idle_slot(slot_start: datetime, state_value: Any, slot_kwh: Fraction | None,
+              state_readings: Iterable[Reading]) -> bool:
+    """A2's idle slot: sampled RUNNING at the slot start and exactly 0 kWh over the slot, unless the accepted sample at
+    the slot end is a not-running state. That slot is the stop slot: the sample precedes the stop, and dispatch's
+    `_off_after` ends the run there (DIESEL-1-R3h). A missing or unknown end sample keeps the slot idle."""
+    if state_value not in RUNNING_STATES or slot_kwh is None or slot_kwh != 0:
+        return False
+    return _instant(slot_start + SLOT, state_readings, numeric=False)[1] not in NOT_RUNNING_STATES
 
 
 def _by_role_asset(readings: list[Reading], role: str, asset_id: str | None) -> list[Reading]:
@@ -487,7 +499,7 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         # A2: a slot whose state or generator kWh is unknown leaves the idle seconds unknown (it may be idle)
         if gen_value is None or slot_gen_kwh is None or idle_total is None:
             idle_total = None
-        elif gen_value in RUNNING_STATES and slot_gen_kwh == 0:
+        elif idle_slot(t, gen_value, slot_gen_kwh, state_readings):
             idle_total += int(SLOT.total_seconds())
 
         if single_assets["battery_soc"] is None:

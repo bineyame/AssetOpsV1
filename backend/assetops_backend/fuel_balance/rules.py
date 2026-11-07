@@ -18,7 +18,7 @@ from fractions import Fraction
 from typing import Any, Iterable, Sequence
 
 from assetops_backend.actions.verification_rules import (
-    ACCEPTED_QUALITY, RUNNING_STATES, Reading, _instant, _power_slot, fmt, parse_exact)
+    ACCEPTED_QUALITY, Reading, _instant, _power_slot, fmt, idle_slot, parse_exact)
 from assetops_backend.financials.fuel_cost import sha256_canonical
 from assetops_backend.fuel_balance.model import (
     LIMITATIONS, PARAMETER_VERSION, REASONS, WINDOW_INVALID, FuelBalanceRefused)
@@ -171,7 +171,7 @@ def opening_closing(levels: list[tuple[datetime, Fraction, str]], start: datetim
 def use_from_readings(start: datetime, end: datetime, readings: Iterable[Reading],
                       generator_asset_id: str) -> dict[str, Any]:
     """A2's slot rule over every 5-minute slot of `[start, end)`: kWh from `_power_slot`, the state from `_instant`;
-    a slot is idle iff RUNNING at exactly 0 kWh. `generator_kwh`/`idle_seconds` are None when any slot is unknown."""
+    a slot is idle per A2's slot rule (`verification_rules.idle_slot`). `generator_kwh`/`idle_seconds` are None when any slot is unknown."""
     gen = str(generator_asset_id)
     readings = list(readings)
     power = [r for r in readings if r.role == GENERATOR_POWER and r.asset_id == gen]
@@ -193,7 +193,7 @@ def use_from_readings(start: datetime, end: datetime, readings: Iterable[Reading
             state_unknown = True
         if kwh is None or value is None:
             unknown_slots += 1
-        elif value in RUNNING_STATES and kwh == 0:
+        elif idle_slot(t, value, kwh, state):
             idle_slots += 1
         t += _SLOT
     idle = None if (kwh_unknown or state_unknown) else int(_SLOT.total_seconds()) * idle_slots

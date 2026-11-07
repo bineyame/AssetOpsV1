@@ -156,7 +156,7 @@ def test_a2_rule_parity_all_ten_nights() -> None:
 
 
 def _idle_night(r: rules.Declared) -> rules.WindowResult:
-    running = set(range(24))  # 24 slots RUNNING at 0 kW = 7200 s
+    running = set(range(25))  # 25 RUNNING samples at 0 kW, STOPPED from 25: 24 idle slots (slot 24 is the stop slot) = 7200 s
     readings = levels(100, 35) + generator(st=lambda i: "RUNNING" if i in running else "STOPPED")
     return assess(readings, no_load=r)
 
@@ -169,6 +169,20 @@ def test_a3_idle_term() -> None:
     assert out.state == "BELOW_MATERIALITY"  # without the idle term: residual_low 45, UNEXPLAINED
     other = _idle_night(rules.Declared(Fraction(33, 10), "GENERIC_DEFAULT", "rev-r2", START - timedelta(days=1)))
     assert Fraction(other.terms["use_high"]) == Fraction(363, 50)  # r is the declared value, not a constant
+
+
+# --- A14 the Kisiwa stop shape (DIESEL-1-R3h) ---------------------------------------------------------------------------
+
+
+def test_a14_stop_slot_is_not_idle() -> None:
+    k = 20
+    kw = lambda i: "38" if i == k else "0"  # noqa: E731
+    stop = generator(kw=kw, st=lambda i: "RUNNING" if k <= i <= k + 1 else "STOPPED")
+    mine = rules.use_from_readings(START, END, stop, GEN)
+    assert mine["idle_seconds"] == 0 and mine["generator_kwh"] is not None
+    # converse: RUNNING at k+1 and k+2, 0 kW over both, STOPPED at k+3: slot k+1 idle, slot k+2 the stop slot
+    longer = generator(kw=kw, st=lambda i: "RUNNING" if k <= i <= k + 2 else "STOPPED")
+    assert rules.use_from_readings(START, END, longer, GEN)["idle_seconds"] == 300
 
 
 # --- A4 the edges -------------------------------------------------------------------------------------------------------
@@ -228,6 +242,11 @@ def test_a6_kwh_and_idle_equal_a2_window_evidence() -> None:
     a2 = vr.window_evidence(hour, gen, load_asset_ids=[], critical_load_asset_id=None, reserves=[])
     assert vr.fmt(mine["generator_kwh"]) == a2["generator_kwh"]
     assert mine["idle_seconds"] == a2["generator_idle_seconds"] > 0
+    # with a stop slot inside the hour (slot 24 is 0 kW, STOPPED from slot 25): both rules drop it, and agree
+    stopped = generator(kw=_kw, st=lambda i: "RUNNING" if i <= 24 else "STOPPED")
+    mine = rules.use_from_readings(hour, hour + timedelta(hours=1), stopped, GEN)
+    a2 = vr.window_evidence(hour, stopped, load_asset_ids=[], critical_load_asset_id=None, reserves=[])
+    assert mine["idle_seconds"] == a2["generator_idle_seconds"] == 0
 
 
 def test_a6_static_no_run_or_simulator_reads() -> None:
