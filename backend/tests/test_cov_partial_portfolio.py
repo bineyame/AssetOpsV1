@@ -159,7 +159,7 @@ def test_x1_partial_site_never_reads_on_track(partial_estate) -> None:
     findings = partial_estate("findings")
     kobo = _site(findings)
     assert kobo["state"] == "PARTIAL"
-    assert kobo["days"]["text"] == "5 of 7 days checked · 2 days not available yet"
+    assert kobo["days"]["text"] == "5 of 7 days assessed · 2 days not available yet"
     assert findings["status"] != "CURRENT" and findings["status"] == "UNKNOWN"
     assert findings["total_count"] is None
     kobo_rows = [r for r in findings["rows"] if r["site_id"] == str(MG)]

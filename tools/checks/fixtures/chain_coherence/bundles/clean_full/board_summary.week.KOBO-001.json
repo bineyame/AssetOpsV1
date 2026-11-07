@@ -1,0 +1,31 @@
+{
+ "rows": [
+  {
+   "category": "GROW_REVENUE",
+   "headline": "Income estimated",
+   "headline_money": null,
+   "lead_outcome": {
+    "key": "grow"
+   },
+   "nodes": {
+    "earnings": {
+     "days": {
+      "complete": 5,
+      "expected": 7,
+      "low": 0,
+      "no_data": 1,
+      "partial": 1,
+      "pending": 0
+     },
+     "text": "84.16 USD",
+     "value": "84.16 USD"
+    },
+    "kpi": null,
+    "potential": null
+   },
+   "state": "NOT_MEASURED",
+   "state_label": "Not measured"
+  }
+ ],
+ "site_code": "KOBO-001"
+}

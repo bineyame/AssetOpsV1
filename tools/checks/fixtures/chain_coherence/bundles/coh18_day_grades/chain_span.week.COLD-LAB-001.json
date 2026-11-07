@@ -1,0 +1,47 @@
+{
+ "days": [
+  {
+   "day": "2026-10-25",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-26",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-27",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-28",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-29",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-30",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-10-31",
+   "grade": "COMPLETE",
+   "measures": {}
+  },
+  {
+   "day": "2026-11-01",
+   "grade": "COMPLETE",
+   "measures": {}
+  }
+ ],
+ "site": {
+  "code": "COLD-LAB-001"
+ }
+}

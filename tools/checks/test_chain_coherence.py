@@ -47,6 +47,7 @@ FAILING = {
     "coh15_earlier_segment": ("COH-15", COLD, "week", A1),
     "coh16_opportunity_disagree": ("COH-16", KOBO, "week", "07000000-0000-0000-0000-000000000004"),
     "coh17_claims_disagree": ("COH-17", None, "week", "count.open_threads"),
+    "coh18_day_grades": ("COH-18", None, "week", "count.open_threads"),
 }
 
 
@@ -733,7 +734,7 @@ def test_expected_mechanism_loads_and_only_names_declared_gaps() -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     assert data["schema"] == "chain-coherence-expected/1" and "GAP-K7" in data["rule"]
     for e in cc.load_expect(path):
-        assert e["register"].startswith(("MD-0:", "MD0b-R:")) and e.get("owner"), e
+        assert e["register"].startswith(("MD-0:", "MD0b-R:", "CH6b3-R4:")) and e.get("owner"), e
 
 
 def test_settle_also_accepts_the_mechanism_dbs_only() -> None:
@@ -802,3 +803,218 @@ def test_coh17_agreeing_claims_pass_and_each_break_is_named(tmp_path: Path) -> N
         m["requests"] = [r for r in m["requests"] if r["name"] != "chain_estate.week"]
     got = cc.coh17_count_claims(_edited(tmp_path / "c", "clean_claims", no_chain))
     assert [(f["window"], f["subject"]) for f in got] == [("week", "chain")]
+
+
+# ---- CH6b3-R: COH-17 rows C2-L1, W1, W2, COH-18 R1-R4, the info list and the tallies (`clean_full`) -------------------
+
+KOBO, COLD = "KOBO-001", "COLD-LAB-001"
+
+
+def _site(body: dict, code: str) -> dict:
+    key = "code" if "code" in body["sites"][0] else "site_code"
+    return next(s for s in body["sites"] if s[key] == code)
+
+
+def _chain_row(b: dict) -> dict:
+    return _site(b, KOBO)["rows"]["GROW_REVENUE"]
+
+
+def _second_currency(b: dict) -> None:
+    _site(b, COLD)["earnings"]["estimated_income"]["value"]["currency"] = "EUR"
+
+
+def _edit_card_claim(b: dict) -> None:
+    b["cards"]["PROTECT_ASSET"]["claim"]["value"] = 9
+
+
+def _edit_both_amounts(b: dict) -> None:
+    _site(b, COLD)["earnings"]["estimated_income"]["value"]["amount"] = "11.005"
+
+
+def test_clean_full_passes_and_compares_every_row() -> None:
+    bundle = cc.Bundle(BUNDLES / "clean_full")
+    report = cc.check(bundle)
+    assert report["findings"] == []
+    assert report["tallies"]["COH-17"]["compared"] > 0 and report["tallies"]["COH-18"]["compared"] > 0
+    assert report["info"]["COH-17-period-nodes"] == []
+
+
+@pytest.mark.parametrize("row,files", [
+    ("C2", {"chain_estate.week.json": _edit_card_claim}),
+    ("C3", {"summary.week.json": lambda b: b["cards"]["PROTECT_ASSET"].update(tone="red")}),
+    ("M1", {"summary.week.json": lambda b: b.update(money_total={**b["money_total"], "text": "other"})}),
+    # one Site's amount moves on both bodies, so M6 agrees and only the sum breaks
+    ("M2", {"chain_estate.week.json": _edit_both_amounts, "summary.week.json": _edit_both_amounts}),
+    ("M3", {"chain_estate.week.json": _second_currency, "summary.week.json": _second_currency}),
+    ("M4", {"chain_estate.week.json": lambda b: (b["money_total"]["lines"].pop(0), b["cards"]["GROW_REVENUE"]["parts"].update(
+        income=" · ".join(b["money_total"]["lines"])))}),
+    ("M5", {"chain_estate.week.json": lambda b: b["cards"]["GROW_REVENUE"]["parts"].update(income="other")}),
+    ("M6", {"summary.week.json": lambda b: _site(b, KOBO)["earnings"]["estimated_income"].update(text="other")}),
+    ("V1", {"chain_estate.week.json": lambda b: _chain_row(b).update(state_label="other")}),
+    ("V2", {f"board_summary.week.{KOBO}.json": lambda b: b["rows"][0].update(headline="other")}),
+    ("V3", {"chain_estate.week.json": lambda b: _chain_row(b).update(nodes={"kpi": None})}),
+    ("V4", {f"board_summary.S.{KOBO}.json": lambda b: b["rows"][0].update(nodes={"kpi": None})}),
+    ("L1", {"portfolio.week.p1.json": lambda b: b["summary"].update(verified_resolution_count=9)}),
+    ("L1", {"portfolio.week.p1.json": lambda b: b["progress"].update(verified_resolution_count=9)}),
+    ("L1", {"portfolio.week.p1.json": lambda b: b["summary"].update(priority_site_count=1)}),
+    # CH6b3-R3: L2, L3, W3, N1 and the C2 absent-key fix (a card or count key absent is a finding)
+    ("L2", {"summary.week.json": lambda b: b.update(verified_result_count=9)}),
+    ("L3", {"portfolio.S.p1.json": lambda b: b["rows"][0].update(workflow_label="No action agreed yet")}),
+    ("W3", {"why_estate.week.PROTECT_ASSET.json": lambda b: b["text"].update(days_used="other")}),
+    ("N1", {"portfolio.S.p1.json": lambda b: b["summary"].update(card_notes={"PROTECT_ASSET": "5 of 7 days checked at Kobo"})}),
+    # both sides absent: the old `{} == {}` passed this
+    ("C2", {"chain_estate.week.json": lambda b: (b["cards"]["ASSURE_PERFORMANCE"].pop("claim"),
+                                                 b["counts"].pop("count.verified_results"))}),
+])
+def test_coh17_each_row_fails_on_its_planted_break(tmp_path: Path, row: str, files: dict) -> None:
+    got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **files))
+    assert row in {f["subject"] for f in got}, got
+
+
+def test_coh17_mini_nodes_on_week_are_not_compared_and_unstamped_is_not_judged(tmp_path: Path) -> None:
+    def other_nodes(b):
+        b["rows"][0]["nodes"] = {"kpi": None}
+    assert cc.coh17_count_claims(_edited(tmp_path / "w", "clean_full", None, **{f"board_summary.week.{KOBO}.json": other_nodes})) == []
+
+    def unstamp(m):
+        m["full_claims"] = False
+    def wrong(b):
+        b["money_total"]["text"] = "other"
+    bundle = _edited(tmp_path / "u", "clean_full", unstamp, **{"chain_estate.week.json": wrong})
+    assert cc.coh17_count_claims(bundle) == []
+    assert cc.info_coh17_period_nodes(bundle) == []
+
+
+def test_coh17_findings_compare_only_their_one_key(tmp_path: Path) -> None:
+    """The trap in CH6b3-R Q1: `count.sites_disrupted` joins the Portfolio keys, not the Findings' one key."""
+    def findings(b):
+        b["summary"]["claims"].pop("count.sites_disrupted", None)
+    assert cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **{"findings_all.week.p1.json": findings})) == []
+    assert cc.FINDINGS_CLAIM_KEYS == ("count.opportunities",)
+
+
+def test_period_node_difference_is_listed_not_judged_and_unequal_days_is_not_unexplained(tmp_path: Path) -> None:
+    def other_frame(b):
+        b["rows"][0]["nodes"]["kpi"].update(text="Band held on one event", days={"complete": 1, "expected": 1})
+    bundle = _edited(tmp_path / "f", "clean_full", None, **{f"board_summary.week.{COLD}.json": other_frame})
+    assert cc.coh17_count_claims(bundle) == []
+    (item,) = cc.info_coh17_period_nodes(bundle)
+    assert (item["site_code"], item["window"], item["part"], item["unexplained"]) == (COLD, "week", "kpi", False)
+
+    def same_days(b):
+        b["rows"][0]["nodes"]["kpi"].update(text="Different words")
+    (item,) = cc.info_coh17_period_nodes(_edited(tmp_path / "s", "clean_full", None,
+                                                 **{f"board_summary.week.{COLD}.json": same_days}))
+    assert item["unexplained"] is True
+
+
+def _why_kobo_says(b):
+    _site(b, KOBO)["text"]["say"] = "other"
+
+
+def test_coh17_why_rows(tmp_path: Path) -> None:
+    got = cc.coh17_count_claims(_edited(tmp_path / "1", "clean_full", None,
+                                        **{"why_estate.week.GROW_REVENUE.json": _why_kobo_says}))
+    assert [f["subject"] for f in got] == ["W1"]
+
+    def extra(b):
+        b["text"]["comes_from"].insert(0, "GreenHarvest Cold Room: Compressor stopped")
+    got = cc.coh17_count_claims(_edited(tmp_path / "2", "clean_full", None,
+                                        **{"why_estate.week.PROTECT_ASSET.json": extra}))
+    assert [f["subject"] for f in got] == ["W2"]
+
+    def warning_only(b):   # the early-warning line alone names no Site: 0, against a claim of 1
+        b["text"]["comes_from"] = ["2 early warnings, counted separately"]
+    got = cc.coh17_count_claims(_edited(tmp_path / "3", "clean_full", None,
+                                        **{"why_estate.S.PROTECT_ASSET.json": warning_only}))
+    assert [(f["window"], f["subject"]) for f in got] == [("S", "W2")]
+    assert "Why? names [], count.sites_disrupted is 1" in got[0]["detail"]
+
+
+def _day_file(d: str) -> str:
+    return f"chain_day.{KOBO}.{d}.json"
+
+
+def test_coh18_sum_rule(tmp_path: Path) -> None:
+    def wrong_day(b):  # the planted wrong-day mapping (CH-5a `:684`): a COMPLETE day graded from another day's NO_DATA
+        b["days"][0]["grade"] = "NO_DATA"
+    got = cc.coh18_day_grades(_edited(tmp_path / "1", "clean_full", None, **{_day_file("2026-10-29"): wrong_day}))
+    assert {(f["site_code"], f["window"], f["subject"]) for f in got} == {(KOBO, "week", "days"),
+                                                                          *[(None, "week", k) for k in cc.CLAIM_KEYS]}
+    assert "complete: chain 5, day grades 4" in got[0]["detail"]
+
+    def wrong_claim(b):
+        b["counts"]["count.opportunities"]["days"]["complete"] = 1
+    got = cc.coh18_day_grades(_edited(tmp_path / "2", "clean_full", None, **{"chain_estate.week.json": wrong_claim}))
+    assert [(f["window"], f["subject"]) for f in got] == [("week", "count.opportunities")]
+
+    def missing_date(b):
+        b["days"] = [e for e in b["days"] if e["day"] != "2026-10-31"]
+    got = cc.coh18_day_grades(_edited(tmp_path / "3", "clean_full", None, **{f"chain_span.S.{COLD}.json": missing_date}))
+    assert ("S", "missing:2026-10-31") in [(f["window"], f["subject"]) for f in got]
+
+    def null_days(b):
+        _site(b, KOBO)["days"] = None
+    got = cc.coh18_day_grades(_edited(tmp_path / "4", "clean_full", None, **{"chain_estate.S.json": null_days}))
+    assert (KOBO, "S", "days") in [(f["site_code"], f["window"], f["subject"]) for f in got]
+
+    def unstamp(m):
+        m["day_bodies"] = False
+    assert cc.coh18_day_grades(_edited(tmp_path / "5", "clean_full", unstamp, **{_day_file("2026-10-29"): wrong_day})) == []
+
+
+def test_coh18_built_days_and_checked_days_basis_with_gap_days(tmp_path: Path) -> None:
+    clean = cc.Bundle(BUNDLES / "clean_full")
+    # Kobo's PARTIAL 26 Oct is built and not listed: R3 fails; listed it passes; with no list neither rule is judged.
+    assert cc.coh18_day_grades(clean) == []
+    got = cc.coh18_day_grades(clean, [])
+    assert [(f["site_code"], f["window"], f["subject"]) for f in got] == [(KOBO, "week", "built:2026-10-26")]
+    listed = [{"site_code": KOBO, "day": "2026-10-26", "gap": "GAP-X"}]
+    assert cc.coh18_day_grades(clean, listed) == []
+
+    def all_complete(b):
+        b["days"][0]["grade"] = "COMPLETE"
+    def checked_on_s(b):  # S is all COMPLETE, so no CHECKED_DAYS claim is allowed there
+        b["counts"]["count.open_threads"]["basis"] = "CHECKED_DAYS"
+        b["money_total"]["basis"] = "CHECKED_DAYS"
+        _site(b, KOBO)["earnings"]["estimated_income"]["basis"] = "CHECKED_DAYS"
+    got = cc.coh18_day_grades(_edited(tmp_path / "1", "clean_full", None, **{"chain_estate.S.json": checked_on_s}), listed)
+    assert sorted((f["site_code"] or "", f["subject"]) for f in got) == [
+        ("", "count.open_threads"), ("", "money_total"), (KOBO, "earnings.estimated_income")]
+
+    def no_data_on_s(b):
+        b["days"][0]["grade"] = "NO_DATA"
+    def s_days(b):
+        checked_on_s(b)
+        _site(b, KOBO)["days"].update(complete=0, no_data=1)
+        for c in b["counts"].values():
+            c["days"].update(complete=1, no_data=1)
+    assert cc.coh18_day_grades(_edited(tmp_path / "2", "clean_full", None, **{
+        "chain_estate.S.json": s_days, _day_file("2026-10-31"): no_data_on_s,
+        # 31 Oct is also in the week window: its tally moves with it
+        "chain_estate.week.json": lambda b: [_site(b, KOBO)["days"].update(complete=4, no_data=2),
+                                             *[c["days"].update(complete=11, no_data=2) for c in b["counts"].values()]],
+    }), listed) == []
+
+
+def test_gap_days_load_from_the_expectation_files(tmp_path: Path) -> None:
+    fixtures = BUNDLES.parent
+    assert cc.load_gap_days(fixtures / "expected-today.json") is None
+    (gap,) = cc.load_gap_days(fixtures / "expected-mechanism.json")
+    assert (gap["site_code"], gap["gap"]) == (KOBO, "GAP-K7")
+    spec = json.loads((cc.TOOLS.parent / "backend" / "conversions" / "mechanism-v1.json").read_text(encoding="utf-8"))
+    day_zero = datetime.fromisoformat(spec["story"]["day_zero"])
+    assert gap["day"] == (day_zero + timedelta(days=7)).date().isoformat()
+
+
+def test_a_stamped_bundle_comparing_nothing_fails_and_tallies_name_skips(tmp_path: Path) -> None:
+    def nothing(m):
+        m["requests"] = [r for r in m["requests"] if r["name"].startswith("chain_")
+                         and not r["name"].startswith("chain_estate") or r["name"] == "chain_estate.week"]
+        m["windows"] = {"S": m["windows"]["S"]}
+    got = cc.coh18_day_grades(_edited(tmp_path / "e", "clean_full", nothing))
+    assert ("vacuous") in {f["subject"] for f in got}
+    got = cc.coh17_count_claims(_edited(tmp_path / "f", "clean_full", nothing))
+    assert {f["subject"] for f in got} >= {"chain", "vacuous"}
+    tally = cc.rule_tallies(cc.Bundle(BUNDLES / "clean_claims"))
+    assert tally["COH-17"]["compared"] > 0 and tally["COH-18"] == {"compared": 0, "skipped": 0}

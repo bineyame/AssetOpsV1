@@ -382,11 +382,19 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
                     row = next((r for r in parts["board"]["rows"] if r["category"] == PROTECT_ASSET), {})
                     disrupted.append((ref.site_name or ref.site_code, threads, row))
             comes_from = why.disrupted_lines(disrupted) if category == PROTECT_ASSET else None
+            # CH6b3-R3 M2: the "Why?" days are the card's own days line (Optimize has none: Protect's, the Sites'
+            # days), and "Checking n more days" counts the estate window's unchecked days, not the board day's.
+            cards = service.summary(sites, lo, hi, parsed.known_at)["cards"]
+            days_used = (cards.get(category) or {}).get("days_line") or (cards.get(PROTECT_ASSET) or {}).get("days_line")
+            counts = service.estate_counts(sites, lo, hi, parsed.known_at)
+            window_open = None if counts is None else {
+                (ref.site_name or ref.site_code): max(0, d.expected - d.complete)
+                for ref in sites if (d := counts.days.get(ref.site_code)) is not None}
             return {ESTATE_WHY_ROUTE: jsonable_encoder({
                 "schema_version": why.SCHEMA_VERSION, "category": category,
                 "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
                 "text": why.estate_text(category, [(ref.site_name or ref.site_code, t) for ref, t in traced],
-                                        comes_from),
+                                        comes_from, days_used, window_open),
                 "sites": [{"code": ref.site_code, **t.to_json()} for ref, t in traced]})}
 
         category = request.query_params.getlist("category")

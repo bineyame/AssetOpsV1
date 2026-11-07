@@ -105,7 +105,7 @@ def test_t2_gap_with_clean_checked_day_is_partial() -> None:
     assert body["selection_id"] == "w0"
     assert body["days"] == {"policy": "estate-coverage/2", "requested": 2, "checked": 1,
                             "gaps": [{"day": "2026-10-07", "state": "UNASSESSED", "reason": "NO_ASSESSED_SELECTION"}],
-                            "withheld": False, "text": "1 of 2 days checked · 1 day not available yet"}
+                            "withheld": False, "text": "1 of 2 days assessed · 1 day not available yet"}
     assert [r["finding_id"] for r in body["rows"]] == [f"{FID[:-1]}0"]
     assert "PARTIAL" not in coverage.COVERED
 
@@ -142,7 +142,7 @@ def test_t7_head_next_to_a_gap_is_withheld() -> None:
     assert [r["finding_id"] for r in body["rows"]] == [morning["finding_id"]]
     assert body["selected_finding_revision_ids"] == [morning["finding_revision_id"]]
     assert body["days"]["withheld"] is True
-    assert body["days"]["text"] == ("1 of 2 days checked · 1 day not available yet"
+    assert body["days"]["text"] == ("1 of 2 days assessed · 1 day not available yet"
                                     "; Findings next to those days are not shown yet")
     # an open episode reads through the cutoff, so it reaches the gap day and is withheld
     body = cov([day(0), day(1, selected=False)], heads=[head(D0 + timedelta(hours=8), None)])

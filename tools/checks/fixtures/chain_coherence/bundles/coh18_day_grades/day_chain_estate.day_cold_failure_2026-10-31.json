@@ -1,0 +1,58 @@
+{
+ "counts": {
+  "count.open_threads": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 5,
+    "expected": 7,
+    "low": 0,
+    "no_data": 1,
+    "partial": 1,
+    "pending": 0
+   },
+   "key": "count.open_threads",
+   "text": "2 open on the days checked",
+   "value": 2
+  },
+  "count.opportunities": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 5,
+    "expected": 7,
+    "low": 0,
+    "no_data": 1,
+    "partial": 1,
+    "pending": 0
+   },
+   "key": "count.opportunities",
+   "text": "1 found on the days checked",
+   "value": 1
+  },
+  "count.verified_results": {
+   "basis": "CHECKED_DAYS",
+   "days": {
+    "complete": 5,
+    "expected": 7,
+    "low": 0,
+    "no_data": 1,
+    "partial": 1,
+    "pending": 0
+   },
+   "key": "count.verified_results",
+   "text": "1 confirmed on the days checked",
+   "value": 1
+  }
+ },
+ "money_total": null,
+ "schema_version": "outcome-chain-1",
+ "sites": [
+  {
+   "code": "KOBO-001"
+  }
+ ],
+ "window": {
+  "from": "2026-10-31T00:00:00Z",
+  "known_at": null,
+  "to": "2026-11-01T00:00:00Z"
+ }
+}

@@ -90,6 +90,16 @@ def test_two_actions_one_exact_origin_latest_event_then_id_tie() -> None:
     other_seg = finding_row()
     other_seg["_thread"]["segment_no"] = 2
     assert progress(covered, [older], T0, set(), [other_seg])[0]["rows"][0]["origin_selected"] is False
+    # CH-5a2b L1 (`:109` of the pipeline lows, CH6b3 Q5): the Action's segment is read at each row's own cutoff. At the
+    # default cutoff it is in segment 1 (the row's), at this row's cutoff in segment 2, so the rows must not join.
+    per_cutoff = action("a-1")
+    per_cutoff["action_code"], per_cutoff["_segment_at"] = "A-1", {"cold-k": 2}
+    row = finding_row()
+    row["_thread_cutoff"] = "cold-k"
+    assert progress(covered, [per_cutoff], T0, set(), [row])[0]["rows"][0]["origin_selected"] is False
+    # And the reverse: not in the row's segment at the default cutoff, in it at the row's cutoff.
+    per_cutoff["_segment_no"], per_cutoff["_segment_at"] = 2, {"cold-k": 1}
+    assert progress(covered, [per_cutoff], T0, set(), [row])[0]["rows"][0]["origin_selected"] is True
     # A row on another thread never joins; CH-5a2 B3: nor does a row with no thread (no exact-revision fallback).
     assert _action_for(finding_row(OTHER_REV), [older, newer]) is None
     assert _action_for({"finding_id": FINDING, "finding_revision_id": REV, "_thread": None}, [older]) is None

@@ -1,0 +1,38 @@
+{
+ "next_cursor": null,
+ "rows": [
+  {
+   "finding_id": "f1000000-0000-0000-0000-000000000001",
+   "lens_flags": [
+    "COST",
+    "RISK"
+   ],
+   "site_code": "COLD-LAB-001"
+  },
+  {
+   "finding_id": "f3000000-0000-0000-0000-000000000003",
+   "lens_flags": [
+    "OPPORTUNITY"
+   ],
+   "site_code": "KOBO-001"
+  }
+ ],
+ "summary": {
+  "claims": {
+   "count.opportunities": {
+    "basis": "COMPLETE",
+    "days": {
+     "complete": 2,
+     "expected": 2,
+     "low": 0,
+     "no_data": 0,
+     "partial": 0,
+     "pending": 0
+    },
+    "key": "count.opportunities",
+    "text": "1 found",
+    "value": 1
+   }
+  }
+ }
+}

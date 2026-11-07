@@ -188,7 +188,8 @@ def test_estate_chain_counts_are_claims_and_money_is_never_summed() -> None:
     assert (total["key"], total["value"], total["basis"]) == ("money.estate_income", None, "NOT_KNOWN")
     assert total["lines"] == ["Kobo: not known yet", "Depot: not known yet"] and total["text"] == "Not known yet"
     kobo = next(s for s in body["sites"] if s["code"] == "KOBO-001")
-    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 1, "in_hand": 0, "verified": 0}
+    assert kobo["days"]["requested"] == 7 and kobo["threads"] == {"open": 0, "in_hand": 1, "verified": 0}
+    # CH6b3-R3: T1's ACTION_IN_HAND is effective on 1 Nov (after the window) and known by k: the claim reads it now.
     assert [o["thread_id"] for o in kobo["opportunities"]] == [T2]
     assert set(kobo["rows"]) == {"GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"}
 
