@@ -2183,3 +2183,44 @@ Evidence file: `.agent/DD-1b2b-rehearsal.json`.
 ### 9. Size
 
 DD-1b2b is 1.5 + 0.25 (O1) + 0.25 (the diagnosis, already spent) = **2.0, of which 1.75 remains.** Option A, O2's extra condition, `tick --until-drained` and O10 add nothing (+0). **Lane 2 remaining: 1.75 + CH-5d1's 1.0 = 2.75.** BL-46 is new in the backlog and not counted. One fresh builder fits 1.75; it may hand over at step 5's commit, with a handoff that names this section.
+
+## DD1b2-R7: rulings on the DD-1b2b pre-flight (Architect, Claude, 2026-11-07)
+
+Input: `.agent/DD-1b2b-preflight.md` (`5c05dd0a3`), plus the coordinator's facts for Q7 and Q8: free RAM 3.3 GB MEASURED at 09:41Z with nothing heavy running, and `check-all` 17/17 on `29efab1d0`. Both R6 §1 corrections are confirmed. The builder's sharpening of the S-3 point stands. I ran nothing. **Every recommendation is accepted except where this table changes it.** The amendments in the second half of this section edit R6's O-rows in place: read R6 with them applied.
+
+| Q | Ruling |
+|---|---|
+| **Q1** | **Accepted.** O2's done condition adds two counts from the DB: live opportunity jobs (PENDING or LEASED) = 0, and `threads` pending = 0. Both use the same N/2N logic and are logged per Site. O8 reads only after a drain that met every condition |
+| **Q2** | **Accepted.** O8(2) measures every queued study (ending S-3, S-1, S+0, S+1, and S+2 on the clone). **"Recurs" means any study places RECURRED with its effective day after S-9;** the packet names the source study. §3's table is replaced below |
+| **Q3** | **Accepted.** Each R8 iteration runs the raw `TICK --no-prebuild` and parses its JSON. After each drain completes, performance runs once and `prebuild` runs once. `finish` keeps objectives, S2, `drain_mini`, `tick(2)`, R8 drain 2, then the self-check; F-DRAIN reads after drain 2. `tick --until-drained` takes the same path |
+| **Q4** | **Per Site: N = the maximum over Sites of the per-Site formula.** This follows the tick's per-Site bound and is not tuning |
+| **Q5** | **Accepted.** `--cap-seconds` bounds `prepare` only. **B-16 is triggered by the prepare's wall time alone, if it is over 10800 s.** F-PERF (step 7) and EX-1 are timed and reported beside it, with no cap |
+| Q6 | Noted (information). If the cap is hit, §7 applies |
+| **Q7** | **Start condition:** no other `check-all`, pytest, prepare or build running (process list, PIDs in the packet), and free RAM ≥ **2.5 GB** for 2 minutes. The coordinator holds other heavy jobs off for the run. **During the run:** free RAM under 2 GB is **recorded, not a stop**: the minimum, the duration and the step go in the packet, and the owner is told with the result, since E3 runs the same build. **Stop** (end the prepare and keep the DB) only if free RAM is under **1 GB** on two consecutive samples, or the stall monitor sees no child or tick output for 15 min. A stop counts as the one run: any second run needs the owner. This amends R6 O17 and §7 |
+| **Q8** | **Crossing Kobo's local midnight (21:00Z) is not a fault and needs no waiver** (READ): S is fixed in `story.json` when the prepare starts, and every read is relative to S. Only "today" moves, so F-CAL's day set, computed at check time, gains S+3 as NO_DATA, which its rule already expects. Every reading on `story.json`'s S is valid. **Preferred start: by 17:30Z.** If steps 1-5 overrun, start the next morning at or after 05:00Z: S moves a day, which is harmless, and EX-1 runs after 11:00Z that day. If the run does cross midnight, the packet says so and names the steps after 21:00Z |
+| **Q9** | **L2s included.** `test_ch9b*` means all of them, `*_postgres.py` included, through `tools\run-host-tests.ps1` on base `assetops_dd1b2b_test`, dropped after. They run only when no other heavy job is running |
+| **Q10** | **The mapping is correct.** Add `tools/checks/test_perf_budget.py` |
+| Q11 | **Accepted:** a scratchpad CDP script, serving on ports 8991/5491. If Chrome is unavailable, O13 is recorded as not run, and the Work → Maintenance → verdict API reads (200, VERIFIED, 42.00 → 110.00) stand in |
+| Q12 | **Accepted** as proposed |
+| Q13 | No objection (information) |
+| Q14 | **Confirmed**, as R6 §6 states it |
+
+**Amendments to R6:**
+- **O2:** add Q1's two counts, plus Q3's tick path and Q4's N.
+- **O8(2):** every queued study (Q2).
+- **O17 and §7:** Q7's start condition, the recording rule below 2 GB, and the stop below 1 GB. "Wall ≤ 10800 s" refers to the prepare (Q5).
+- **Step 6:** Q8's start window.
+
+**R6 §3's outcome table is replaced by:**
+
+| After drain 2 (all of Q1's counts at 0) | Result | Then |
+|---|---|---|
+| Any queued study placed RECURRED, effective after S-9 (source study named) | **Recurs** | Q7's "recurs" column. The COH-17 entry is owed only if it fires. Portfolio Grow counts the mill thread as open; Assure is unchanged |
+| No study with eligible ≥ 1, and no RECURRED | Does not recur | Q7's "does not recur" column; the "Seen again" lines leave DS-1 |
+| A study with eligible ≥ 1 and no RECURRED on the thread | **Stop** | Contradicts `lifecycle.py:55` |
+| S-1's study not queued (S-1 has no renewable heads) | **Stop** | The add-path gap reached the build |
+| RECURRED effective on or before S-9, or WITHDRAWN, or CLOSED | **Stop** | Q7's stop |
+
+S-3's study, queued or not, is reported only (R6 §1).
+
+**Owner:** nothing new now. After the run, the R6 §5 triggers apply, plus Q7's line if free RAM went under 2 GB: "During the full rehearsal the machine's free memory went down to [X] GB during [step]. The build finished. The final build on the demo machine needs [Y] free to be safe." **Size unchanged:** DD-1b2b has 1.75 left; lane 2 has 2.75.
