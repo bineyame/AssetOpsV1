@@ -188,7 +188,8 @@ try:
     db_now = now_utc(built.engine)
     # Attested raised_at values lie strictly between K0 and this DB read (the Action follows its evidence).
     step = (db_now - k0.known_at) / 7
-    raised = k0.known_at + step
+    # DD1b1-R Q2: `demo_combined_cold` sets DEMO_ACTION_AT in this namespace (the story instant); standalone w502 does not.
+    raised = globals().get("DEMO_ACTION_AT") or k0.known_at + step
     # K2 ruling 17: every Action raised_at is strictly after K0 and no later than the DB read before the POST.
     assert k0.known_at < raised <= db_now, (k0.known_at, raised, db_now)
     action = post("/actions", {"domain": "COLDCHAIN", "origin_finding_id": finding_id,
