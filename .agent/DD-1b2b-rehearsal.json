@@ -1,0 +1,2895 @@
+{
+  "runs": [
+    {
+      "label": "invalid read form (R11 \u00a72): worktree-form reads, S2 gate closed by the copy",
+      "ex1": {
+        "db": "assetops_demo3_dd1b2c_test",
+        "add_seconds": 64.7,
+        "add_rc": 0,
+        "add_tail": [
+          "mini-depth: 34 jobs processed",
+          "added KOBO-001 2026-11-07 normal (assessed now)"
+        ],
+        "renewable_selections_s2": 6,
+        "tick_seconds": 197.0,
+        "tick_rc": 0,
+        "ticks": 1,
+        "over_n": false,
+        "before": {
+          "S": {
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "UNKNOWN",
+            "cost_lines": [
+              "ACT-001"
+            ],
+            "findings": []
+          },
+          "S+1": {
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "UNKNOWN",
+            "cost_lines": [
+              "ACT-001"
+            ],
+            "findings": []
+          }
+        },
+        "after": {
+          "S": {
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "UNKNOWN",
+            "cost_lines": [
+              "ACT-001",
+              "Trial a lower generator stop setting",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": [
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4",
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4"
+            ]
+          },
+          "S+1": {
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "UNKNOWN",
+            "cost_lines": [
+              "ACT-001",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": []
+          }
+        },
+        "comparison": {
+          "unchanged": false,
+          "diff": {
+            "S.cost_lines": [
+              [
+                "ACT-001"
+              ],
+              [
+                "ACT-001",
+                "Trial a lower generator stop setting",
+                "Reliable service and battery and generator life checked as safeguards in ACT-001"
+              ]
+            ],
+            "S.new_findings": [
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4"
+            ],
+            "S+1.cost_lines": [
+              [
+                "ACT-001"
+              ],
+              [
+                "ACT-001",
+                "Reliable service and battery and generator life checked as safeguards in ACT-001"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "label": "valid: tree form, S2 then Performance comparison rerun on the copy, both reads AVAILABLE (R11 B1, R12)",
+      "ex1": {
+        "db": "assetops_demo3_dd1b2d_test",
+        "s2_comparison_tail": [
+          "Evidence cutover: permitted"
+        ],
+        "performance_comparison_tail": [
+          "Performance cutover: permitted"
+        ],
+        "add_seconds": 58.9,
+        "add_rc": 0,
+        "add_tail": [
+          "mini-depth: 34 jobs processed",
+          "added KOBO-001 2026-11-07 normal (assessed now)"
+        ],
+        "renewable_selections_s2": 6,
+        "tick_seconds": 180.1,
+        "tick_rc": 0,
+        "ticks": 1,
+        "over_n": false,
+        "before": {
+          "S": {
+            "read_state": "AVAILABLE",
+            "rows": {
+              "GROW_REVENUE": {
+                "category": "GROW_REVENUE",
+                "label": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "icon": "grow",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-1",
+                  "label": "Productive electricity sales"
+                },
+                "headline": "No productive-use sales on this day: Grain mill not used",
+                "headline_money": null,
+                "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "productive_sales",
+                    "label": "Productive-use sales",
+                    "text": "0 kWh used by Grain mill in 8 measured hours",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "declared_objective:MG-1",
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month \u00b7 sales not recorded",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "productive_use",
+                    "label": "Productive use",
+                    "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/renewable?from=2026-10-31T21%3A00%3A00Z&to=2026-11-05T21%3A00%3A00Z",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "renewable",
+                      "window": {
+                        "from": "2026-10-31T21:00:00Z",
+                        "to": "2026-11-05T21:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "key": "productive_price",
+                    "label": "Price per kWh",
+                    "text": "Declared at 0.25 USD per kWh",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "cash_collected",
+                    "label": "Cash collected",
+                    "text": "Not available yet \u00b7 no billing or payment records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "site_earnings",
+                    "label": "Site earnings",
+                    "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/financials/scenarios\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"financial_scenarios\"}, \"text\": \"Productive-use what-if\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Renewable evidence",
+                  "href": "/sites/KOBO-001/performance/renewable",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "renewable"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-1",
+                    "label": "Productive electricity sales",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-6",
+                    "label": "Cash collected",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  },
+                  {
+                    "key": "MG-3",
+                    "label": "Site profitability",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-1",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 3,
+                      "low": 0,
+                      "no_data": 2,
+                      "pending": 0,
+                      "expected": 5
+                    },
+                    "text": "sales not recorded",
+                    "span": {
+                      "first": "2026-11-01",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "1\u20135 Nov \u00b7 0 of 5 days checked \u00b7 3 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.estimated_income",
+                    "value": {
+                      "amount": "0.00",
+                      "currency": "USD",
+                      "kwh": "0.000",
+                      "measured_seconds": 28800,
+                      "price": {
+                        "amount": "0.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "potential": {
+                    "key": "potential.daytime_solar_headroom",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null,
+                "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+              },
+              "OPTIMIZE_COST": {
+                "category": "OPTIMIZE_COST",
+                "label": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "icon": "cost",
+                "state": "NEEDS_ATTENTION",
+                "state_label": "Needs attention",
+                "tone": "amber",
+                "lead_outcome": {
+                  "key": "MG-2",
+                  "label": "Supply cost per kWh"
+                },
+                "headline": "No fuel cost estimated: the generator was on but delivered no measured power",
+                "headline_money": null,
+                "subline": "Generator stayed on 200 minutes longer than needed \u00b7 Before the change on 6 Nov \u00b7 after the change: not judged yet, no fully checked day since 6 Nov",
+                "thread_lines": [
+                  {
+                    "kind": "BEFORE_CHANGE",
+                    "thread_id": "e7306c41-af61-58a2-9438-eee6021233a6",
+                    "action_code": "ACT-000001",
+                    "effective_day": "2026-11-06",
+                    "after": null,
+                    "remaining_days": null,
+                    "clean_days": null,
+                    "ref": {
+                      "kind": "THREAD",
+                      "site": "KOBO-001",
+                      "id": "e7306c41-af61-58a2-9438-eee6021233a6"
+                    },
+                    "text": "Before the change on 6 Nov \u00b7 after the change: not judged yet, no fully checked day since 6 Nov"
+                  }
+                ],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 1,
+                  "in_hand": 0
+                },
+                "must_not_harm": {
+                  "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count",
+                  "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                  "link_ref": {
+                    "kind": "ACTION",
+                    "site": "KOBO-001",
+                    "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                    "view": "verification",
+                    "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                  }
+                },
+                "contributors": [
+                  {
+                    "key": "generator_use",
+                    "label": "Generator use",
+                    "text": "200 min avoidable, 30 min unclear",
+                    "confidence": {
+                      "label": "High",
+                      "tone": "green"
+                    },
+                    "href": "/sites/KOBO-001/performance/dispatch",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "dispatch"
+                    }
+                  },
+                  {
+                    "key": "fuel",
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/fuel",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "fuel"
+                    }
+                  },
+                  {
+                    "key": "fuel_price",
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-2",
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed \u00b7 200 min longer than needed on this day",
+                    "confidence": {
+                      "label": "Missed",
+                      "tone": "amber"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4?revision_id=d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"kind\": \"FINDING\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"revision\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"site\": \"KOBO-001\"}, \"primary\": true, \"ref\": {\"finding_id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"finding_revision_id\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"thread\": {\"id\": \"e7306c41-af61-58a2-9438-eee6021233a6\", \"occurrence_no\": 3, \"occurrences\": 3, \"segment_no\": 1, \"state\": \"ACTION_IN_HAND\", \"state_day\": \"2026-11-05\", \"state_effective_day\": \"2026-11-05\"}}, \"role\": \"MOVES\", \"text\": \"Generator may have been on longer than needed\"}"
+                  ],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4/recommendation\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"site\": \"KOBO-001\", \"view\": \"recommendation\"}, \"text\": \"Trial a lower generator stop setting\"}",
+                    "{\"href\": \"/sites/KOBO-001/foundation/changes\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"foundation_changes\"}, \"text\": \"Proposed setting change\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": \"Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met \\u00b7 checked over 09:00\\u201310:00 on 6 Nov.\", \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\"}, \"result_label\": \"Verified on example data\", \"text\": \"ACT-001\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Dispatch evidence",
+                  "href": "/sites/KOBO-001/performance/dispatch",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "dispatch"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-2",
+                    "label": "Supply cost per kWh",
+                    "state": "NEEDS_ATTENTION",
+                    "reason": "PRIMARY_FINDING_OPEN"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-2",
+                    "value": "MISSED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "200 min longer than needed on this day",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.possible_extra_fuel_cost",
+                    "value": {
+                      "low": "0.00",
+                      "high": "0.00",
+                      "currency": "USD",
+                      "litres_low": "0",
+                      "litres_high": "0",
+                      "price": {
+                        "amount": "1.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "0.00 USD",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "PROTECT_ASSET": {
+                "category": "PROTECT_ASSET",
+                "label": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "icon": "protect",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-4",
+                  "label": "Battery and generator life"
+                },
+                "headline": "1 early warning on battery and generator",
+                "headline_money": null,
+                "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 2,
+                  "in_hand": 2
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "battery",
+                    "label": "Battery",
+                    "text": "No generator period at or near the reserve (1 assessed)",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/health",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "health"
+                    }
+                  },
+                  {
+                    "key": "generator",
+                    "label": "Generator",
+                    "text": "Service due at 500 operating hours \u00b7 hours since service not recorded",
+                    "confidence": {
+                      "label": "Plan record",
+                      "tone": "neutral"
+                    },
+                    "href": "/maintenance/preventive",
+                    "link_ref": {
+                      "kind": "ESTATE",
+                      "view": "maintenance_preventive"
+                    }
+                  },
+                  {
+                    "key": "service_delivery",
+                    "label": "Service delivery",
+                    "text": "Delivered power measured; demand not measured",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/service",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "service"
+                    }
+                  },
+                  {
+                    "key": "backup_readiness",
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/backup",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "backup"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-5",
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served \u00b7 critical demand not measured over the whole day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4?revision_id=d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"kind\": \"FINDING\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"revision\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"site\": \"KOBO-001\"}, \"primary\": false, \"ref\": {\"finding_id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"finding_revision_id\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"thread\": {\"id\": \"e7306c41-af61-58a2-9438-eee6021233a6\", \"occurrence_no\": 3, \"occurrences\": 3, \"segment_no\": 1, \"state\": \"ACTION_IN_HAND\", \"state_day\": \"2026-11-05\", \"state_effective_day\": \"2026-11-05\"}}, \"role\": \"CHECKED\", \"text\": \"Generator may have been on longer than needed \\u00b7 checked here as a safeguard\"}"
+                  ],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"EARLY_WARNING\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"ref\": \"PLAN_DUE_SOON:KOBO-001:c0a26e88-d3eb-4e20-92a0-4833c51bc2d6\", \"role\": \"MOVES\", \"text\": \"Battery capacity test due soon\"}"
+                  ]
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due at 500 operating hours\", \"text\": \"PM-003 \\u00b7 Generator 500-hour service\"}",
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due soon\", \"text\": \"PM-004 \\u00b7 Battery capacity test\"}"
+                  ]
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": null, \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\", \"view\": \"verification\"}, \"result_label\": \"Verified on example data\", \"text\": \"Reliable service and battery and generator life checked as safeguards in ACT-001\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-16T10:00:00Z\", \"result_label\": \"Did not fix it\", \"text\": \"WR-001 \\u00b7 Generator inspection\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T04:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-014 \\u00b7 Move the grain mill's run to midday on sunny days.\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T10:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-002 \\u00b7 Generator inspection\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Battery evidence",
+                  "href": "/sites/KOBO-001/health",
+                  "link_ref": {
+                    "kind": "SITE",
+                    "site": "KOBO-001",
+                    "view": "health"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-5",
+                    "label": "Reliable service",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-4",
+                    "label": "Battery and generator life",
+                    "state": "WATCH",
+                    "reason": "WARNING_WATCH"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-5",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "critical demand not measured over the whole day",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.not_known",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "ASSURE_PERFORMANCE": {
+                "category": "ASSURE_PERFORMANCE",
+                "label": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "icon": "assure",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-7",
+                  "label": "Evidence quality"
+                },
+                "headline": "1 verified result",
+                "headline_money": null,
+                "subline": null,
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "verified_results",
+                    "label": "Verified results",
+                    "text": "ACT-001 verified on example data",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                    "link_ref": {
+                      "kind": "ACTION",
+                      "site": "KOBO-001",
+                      "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                      "view": "verification",
+                      "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                    }
+                  },
+                  {
+                    "key": "actual_against_plan",
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met \u00b7 2 not checked yet",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "readings",
+                    "label": "Readings",
+                    "text": "Example data \u00b7 readiness Limited",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/evidence",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001"
+                    }
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Evidence overview",
+                  "href": "/sites/KOBO-001/evidence",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-7",
+                    "label": "Evidence quality",
+                    "state": "WATCH",
+                    "reason": "EVIDENCE_READINESS_LIMITED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": null,
+                  "earnings": null,
+                  "potential": null
+                },
+                "target_note": null
+              }
+            },
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "WATCH",
+            "cost_lines": [
+              "ACT-001",
+              "Trial a lower generator stop setting",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": [
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4",
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4"
+            ]
+          },
+          "S+1": {
+            "read_state": "AVAILABLE",
+            "rows": {
+              "GROW_REVENUE": {
+                "category": "GROW_REVENUE",
+                "label": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "icon": "grow",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-1",
+                  "label": "Productive electricity sales"
+                },
+                "headline": "No productive-use sales on this day: Grain mill not used",
+                "headline_money": null,
+                "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "productive_sales",
+                    "label": "Productive-use sales",
+                    "text": "0 kWh used by Grain mill in 8 measured hours",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "declared_objective:MG-1",
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month \u00b7 sales not recorded",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "productive_use",
+                    "label": "Productive use",
+                    "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/renewable?from=2026-11-01T21%3A00%3A00Z&to=2026-11-06T21%3A00%3A00Z",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "renewable",
+                      "window": {
+                        "from": "2026-11-01T21:00:00Z",
+                        "to": "2026-11-06T21:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "key": "productive_price",
+                    "label": "Price per kWh",
+                    "text": "Declared at 0.25 USD per kWh",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "cash_collected",
+                    "label": "Cash collected",
+                    "text": "Not available yet \u00b7 no billing or payment records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "site_earnings",
+                    "label": "Site earnings",
+                    "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/financials/scenarios\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"financial_scenarios\"}, \"text\": \"Productive-use what-if\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Renewable evidence",
+                  "href": "/sites/KOBO-001/performance/renewable",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "renewable"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-1",
+                    "label": "Productive electricity sales",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-6",
+                    "label": "Cash collected",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  },
+                  {
+                    "key": "MG-3",
+                    "label": "Site profitability",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-1",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 4,
+                      "low": 0,
+                      "no_data": 2,
+                      "pending": 0,
+                      "expected": 6
+                    },
+                    "text": "sales not recorded",
+                    "span": {
+                      "first": "2026-11-01",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "1\u20136 Nov \u00b7 0 of 6 days checked \u00b7 4 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.estimated_income",
+                    "value": {
+                      "amount": "0.00",
+                      "currency": "USD",
+                      "kwh": "0.000",
+                      "measured_seconds": 28800,
+                      "price": {
+                        "amount": "0.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "potential": {
+                    "key": "potential.daytime_solar_headroom",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null,
+                "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+              },
+              "OPTIMIZE_COST": {
+                "category": "OPTIMIZE_COST",
+                "label": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "icon": "cost",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-2",
+                  "label": "Supply cost per kWh"
+                },
+                "headline": "No fuel cost estimated for this day",
+                "headline_money": null,
+                "subline": "Fix verified, monitoring (ACT-001) \u00b7 7 more fully checked days to close",
+                "thread_lines": [
+                  {
+                    "kind": "MONITORING",
+                    "thread_id": "e7306c41-af61-58a2-9438-eee6021233a6",
+                    "action_code": "ACT-000001",
+                    "effective_day": "2026-11-06",
+                    "after": null,
+                    "remaining_days": 7,
+                    "clean_days": null,
+                    "ref": {
+                      "kind": "THREAD",
+                      "site": "KOBO-001",
+                      "id": "e7306c41-af61-58a2-9438-eee6021233a6"
+                    },
+                    "text": "Fix verified, monitoring (ACT-001) \u00b7 7 more fully checked days to close"
+                  }
+                ],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": {
+                  "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count",
+                  "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                  "link_ref": {
+                    "kind": "ACTION",
+                    "site": "KOBO-001",
+                    "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                    "view": "verification",
+                    "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                  }
+                },
+                "contributors": [
+                  {
+                    "key": "generator_use",
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/dispatch",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "dispatch"
+                    }
+                  },
+                  {
+                    "key": "fuel",
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/fuel",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "fuel"
+                    }
+                  },
+                  {
+                    "key": "fuel_price",
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-2",
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed \u00b7 0 min longer than needed on this day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/foundation/changes\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"foundation_changes\"}, \"text\": \"Proposed setting change\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": \"Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met \\u00b7 checked over 09:00\\u201310:00 on 6 Nov.\", \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\"}, \"result_label\": \"Verified on example data\", \"text\": \"ACT-001\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Dispatch evidence",
+                  "href": "/sites/KOBO-001/performance/dispatch",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "dispatch"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-2",
+                    "label": "Supply cost per kWh",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-2",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0 min longer than needed on this day",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.possible_extra_fuel_cost",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "PROTECT_ASSET": {
+                "category": "PROTECT_ASSET",
+                "label": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "icon": "protect",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-4",
+                  "label": "Battery and generator life"
+                },
+                "headline": "1 early warning on battery and generator",
+                "headline_money": null,
+                "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 1,
+                  "in_hand": 2
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "battery",
+                    "label": "Battery",
+                    "text": "Not available yet \u00b7 no generator period assessed on this day",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/health",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "health"
+                    }
+                  },
+                  {
+                    "key": "generator",
+                    "label": "Generator",
+                    "text": "Service due at 500 operating hours \u00b7 hours since service not recorded",
+                    "confidence": {
+                      "label": "Plan record",
+                      "tone": "neutral"
+                    },
+                    "href": "/maintenance/preventive",
+                    "link_ref": {
+                      "kind": "ESTATE",
+                      "view": "maintenance_preventive"
+                    }
+                  },
+                  {
+                    "key": "service_delivery",
+                    "label": "Service delivery",
+                    "text": "Delivered power measured; demand not measured",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/service",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "service"
+                    }
+                  },
+                  {
+                    "key": "backup_readiness",
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/backup",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "backup"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-5",
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served \u00b7 critical demand not measured over the whole day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"EARLY_WARNING\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"ref\": \"PLAN_DUE_SOON:KOBO-001:c0a26e88-d3eb-4e20-92a0-4833c51bc2d6\", \"role\": \"MOVES\", \"text\": \"Battery capacity test due soon\"}"
+                  ]
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due at 500 operating hours\", \"text\": \"PM-003 \\u00b7 Generator 500-hour service\"}",
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due soon\", \"text\": \"PM-004 \\u00b7 Battery capacity test\"}"
+                  ]
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": null, \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\", \"view\": \"verification\"}, \"result_label\": \"Verified on example data\", \"text\": \"Reliable service and battery and generator life checked as safeguards in ACT-001\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-16T10:00:00Z\", \"result_label\": \"Did not fix it\", \"text\": \"WR-001 \\u00b7 Generator inspection\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T04:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-014 \\u00b7 Move the grain mill's run to midday on sunny days.\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T10:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-002 \\u00b7 Generator inspection\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Battery evidence",
+                  "href": "/sites/KOBO-001/health",
+                  "link_ref": {
+                    "kind": "SITE",
+                    "site": "KOBO-001",
+                    "view": "health"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-5",
+                    "label": "Reliable service",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-4",
+                    "label": "Battery and generator life",
+                    "state": "WATCH",
+                    "reason": "WARNING_WATCH"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-5",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "critical demand not measured over the whole day",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.not_known",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "ASSURE_PERFORMANCE": {
+                "category": "ASSURE_PERFORMANCE",
+                "label": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "icon": "assure",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-7",
+                  "label": "Evidence quality"
+                },
+                "headline": "1 verified result",
+                "headline_money": null,
+                "subline": null,
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "verified_results",
+                    "label": "Verified results",
+                    "text": "ACT-001 verified on example data",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                    "link_ref": {
+                      "kind": "ACTION",
+                      "site": "KOBO-001",
+                      "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                      "view": "verification",
+                      "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                    }
+                  },
+                  {
+                    "key": "actual_against_plan",
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met \u00b7 3 not checked yet",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "readings",
+                    "label": "Readings",
+                    "text": "Source not resolved \u00b7 readiness Limited",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/evidence",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001"
+                    }
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Evidence overview",
+                  "href": "/sites/KOBO-001/evidence",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-7",
+                    "label": "Evidence quality",
+                    "state": "WATCH",
+                    "reason": "EVIDENCE_READINESS_LIMITED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": null,
+                  "earnings": null,
+                  "potential": null
+                },
+                "target_note": null
+              }
+            },
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "WATCH",
+            "cost_lines": [
+              "ACT-001",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": []
+          }
+        },
+        "after": {
+          "S": {
+            "read_state": "AVAILABLE",
+            "rows": {
+              "GROW_REVENUE": {
+                "category": "GROW_REVENUE",
+                "label": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "icon": "grow",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-1",
+                  "label": "Productive electricity sales"
+                },
+                "headline": "No productive-use sales on this day: Grain mill not used",
+                "headline_money": null,
+                "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "productive_sales",
+                    "label": "Productive-use sales",
+                    "text": "0 kWh used by Grain mill in 8 measured hours",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "declared_objective:MG-1",
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month \u00b7 sales not recorded",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "productive_use",
+                    "label": "Productive use",
+                    "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/renewable?from=2026-10-31T21%3A00%3A00Z&to=2026-11-05T21%3A00%3A00Z",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "renewable",
+                      "window": {
+                        "from": "2026-10-31T21:00:00Z",
+                        "to": "2026-11-05T21:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "key": "productive_price",
+                    "label": "Price per kWh",
+                    "text": "Declared at 0.25 USD per kWh",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "cash_collected",
+                    "label": "Cash collected",
+                    "text": "Not available yet \u00b7 no billing or payment records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "site_earnings",
+                    "label": "Site earnings",
+                    "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/financials/scenarios\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"financial_scenarios\"}, \"text\": \"Productive-use what-if\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Renewable evidence",
+                  "href": "/sites/KOBO-001/performance/renewable",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "renewable"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-1",
+                    "label": "Productive electricity sales",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-6",
+                    "label": "Cash collected",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  },
+                  {
+                    "key": "MG-3",
+                    "label": "Site profitability",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-1",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 3,
+                      "low": 0,
+                      "no_data": 2,
+                      "pending": 0,
+                      "expected": 5
+                    },
+                    "text": "sales not recorded",
+                    "span": {
+                      "first": "2026-11-01",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "1\u20135 Nov \u00b7 0 of 5 days checked \u00b7 3 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.estimated_income",
+                    "value": {
+                      "amount": "0.00",
+                      "currency": "USD",
+                      "kwh": "0.000",
+                      "measured_seconds": 28800,
+                      "price": {
+                        "amount": "0.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "potential": {
+                    "key": "potential.daytime_solar_headroom",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null,
+                "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+              },
+              "OPTIMIZE_COST": {
+                "category": "OPTIMIZE_COST",
+                "label": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "icon": "cost",
+                "state": "NEEDS_ATTENTION",
+                "state_label": "Needs attention",
+                "tone": "amber",
+                "lead_outcome": {
+                  "key": "MG-2",
+                  "label": "Supply cost per kWh"
+                },
+                "headline": "No fuel cost estimated: the generator was on but delivered no measured power",
+                "headline_money": null,
+                "subline": "Generator stayed on 200 minutes longer than needed \u00b7 Before the change on 6 Nov \u00b7 after the change: not judged yet, no fully checked day since 6 Nov",
+                "thread_lines": [
+                  {
+                    "kind": "BEFORE_CHANGE",
+                    "thread_id": "e7306c41-af61-58a2-9438-eee6021233a6",
+                    "action_code": "ACT-000001",
+                    "effective_day": "2026-11-06",
+                    "after": null,
+                    "remaining_days": null,
+                    "clean_days": null,
+                    "ref": {
+                      "kind": "THREAD",
+                      "site": "KOBO-001",
+                      "id": "e7306c41-af61-58a2-9438-eee6021233a6"
+                    },
+                    "text": "Before the change on 6 Nov \u00b7 after the change: not judged yet, no fully checked day since 6 Nov"
+                  }
+                ],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 1,
+                  "in_hand": 0
+                },
+                "must_not_harm": {
+                  "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count",
+                  "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                  "link_ref": {
+                    "kind": "ACTION",
+                    "site": "KOBO-001",
+                    "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                    "view": "verification",
+                    "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                  }
+                },
+                "contributors": [
+                  {
+                    "key": "generator_use",
+                    "label": "Generator use",
+                    "text": "200 min avoidable, 30 min unclear",
+                    "confidence": {
+                      "label": "High",
+                      "tone": "green"
+                    },
+                    "href": "/sites/KOBO-001/performance/dispatch",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "dispatch"
+                    }
+                  },
+                  {
+                    "key": "fuel",
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/fuel",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "fuel"
+                    }
+                  },
+                  {
+                    "key": "fuel_price",
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-2",
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed \u00b7 200 min longer than needed on this day",
+                    "confidence": {
+                      "label": "Missed",
+                      "tone": "amber"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4?revision_id=d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"kind\": \"FINDING\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"revision\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"site\": \"KOBO-001\"}, \"primary\": true, \"ref\": {\"finding_id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"finding_revision_id\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"thread\": {\"id\": \"e7306c41-af61-58a2-9438-eee6021233a6\", \"occurrence_no\": 3, \"occurrences\": 3, \"segment_no\": 1, \"state\": \"ACTION_IN_HAND\", \"state_day\": \"2026-11-05\", \"state_effective_day\": \"2026-11-05\"}}, \"role\": \"MOVES\", \"text\": \"Generator may have been on longer than needed\"}"
+                  ],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4/recommendation\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"site\": \"KOBO-001\", \"view\": \"recommendation\"}, \"text\": \"Trial a lower generator stop setting\"}",
+                    "{\"href\": \"/sites/KOBO-001/foundation/changes\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"foundation_changes\"}, \"text\": \"Proposed setting change\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": \"Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met \\u00b7 checked over 09:00\\u201310:00 on 6 Nov.\", \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\"}, \"result_label\": \"Verified on example data\", \"text\": \"ACT-001\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Dispatch evidence",
+                  "href": "/sites/KOBO-001/performance/dispatch",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "dispatch"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-2",
+                    "label": "Supply cost per kWh",
+                    "state": "NEEDS_ATTENTION",
+                    "reason": "PRIMARY_FINDING_OPEN"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-2",
+                    "value": "MISSED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "200 min longer than needed on this day",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.possible_extra_fuel_cost",
+                    "value": {
+                      "low": "0.00",
+                      "high": "0.00",
+                      "currency": "USD",
+                      "litres_low": "0",
+                      "litres_high": "0",
+                      "price": {
+                        "amount": "1.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "0.00 USD",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "PROTECT_ASSET": {
+                "category": "PROTECT_ASSET",
+                "label": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "icon": "protect",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-4",
+                  "label": "Battery and generator life"
+                },
+                "headline": "1 early warning on battery and generator",
+                "headline_money": null,
+                "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 2,
+                  "in_hand": 2
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "battery",
+                    "label": "Battery",
+                    "text": "No generator period at or near the reserve (1 assessed)",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/health",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "health"
+                    }
+                  },
+                  {
+                    "key": "generator",
+                    "label": "Generator",
+                    "text": "Service due at 500 operating hours \u00b7 hours since service not recorded",
+                    "confidence": {
+                      "label": "Plan record",
+                      "tone": "neutral"
+                    },
+                    "href": "/maintenance/preventive",
+                    "link_ref": {
+                      "kind": "ESTATE",
+                      "view": "maintenance_preventive"
+                    }
+                  },
+                  {
+                    "key": "service_delivery",
+                    "label": "Service delivery",
+                    "text": "Delivered power measured; demand not measured",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/service",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "service"
+                    }
+                  },
+                  {
+                    "key": "backup_readiness",
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/backup",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "backup"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-5",
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served \u00b7 critical demand not measured over the whole day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [
+                    "{\"href\": \"/sites/KOBO-001/findings/fcb15cac-da4b-49ce-8167-3a0a46a8bff4?revision_id=d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"kind\": \"FINDING\", \"link_ref\": {\"id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"kind\": \"FINDING\", \"revision\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"site\": \"KOBO-001\"}, \"primary\": false, \"ref\": {\"finding_id\": \"fcb15cac-da4b-49ce-8167-3a0a46a8bff4\", \"finding_revision_id\": \"d9a08e8a-5f2c-4cec-ad6c-4dd79785f2f6\", \"thread\": {\"id\": \"e7306c41-af61-58a2-9438-eee6021233a6\", \"occurrence_no\": 3, \"occurrences\": 3, \"segment_no\": 1, \"state\": \"ACTION_IN_HAND\", \"state_day\": \"2026-11-05\", \"state_effective_day\": \"2026-11-05\"}}, \"role\": \"CHECKED\", \"text\": \"Generator may have been on longer than needed \\u00b7 checked here as a safeguard\"}"
+                  ],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"EARLY_WARNING\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"ref\": \"PLAN_DUE_SOON:KOBO-001:c0a26e88-d3eb-4e20-92a0-4833c51bc2d6\", \"role\": \"MOVES\", \"text\": \"Battery capacity test due soon\"}"
+                  ]
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due at 500 operating hours\", \"text\": \"PM-003 \\u00b7 Generator 500-hour service\"}",
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due soon\", \"text\": \"PM-004 \\u00b7 Battery capacity test\"}"
+                  ]
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": null, \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\", \"view\": \"verification\"}, \"result_label\": \"Verified on example data\", \"text\": \"Reliable service and battery and generator life checked as safeguards in ACT-001\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-16T10:00:00Z\", \"result_label\": \"Did not fix it\", \"text\": \"WR-001 \\u00b7 Generator inspection\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T04:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-014 \\u00b7 Move the grain mill's run to midday on sunny days.\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T10:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-002 \\u00b7 Generator inspection\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Battery evidence",
+                  "href": "/sites/KOBO-001/health",
+                  "link_ref": {
+                    "kind": "SITE",
+                    "site": "KOBO-001",
+                    "view": "health"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-5",
+                    "label": "Reliable service",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-4",
+                    "label": "Battery and generator life",
+                    "state": "WATCH",
+                    "reason": "WARNING_WATCH"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-5",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "critical demand not measured over the whole day",
+                    "span": {
+                      "first": "2026-11-05",
+                      "last": "2026-11-05"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.not_known",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "ASSURE_PERFORMANCE": {
+                "category": "ASSURE_PERFORMANCE",
+                "label": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "icon": "assure",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-7",
+                  "label": "Evidence quality"
+                },
+                "headline": "1 verified result",
+                "headline_money": null,
+                "subline": null,
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "verified_results",
+                    "label": "Verified results",
+                    "text": "ACT-001 verified on example data",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                    "link_ref": {
+                      "kind": "ACTION",
+                      "site": "KOBO-001",
+                      "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                      "view": "verification",
+                      "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                    }
+                  },
+                  {
+                    "key": "actual_against_plan",
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met \u00b7 2 not checked yet",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "readings",
+                    "label": "Readings",
+                    "text": "Example data \u00b7 readiness Limited",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/evidence",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001"
+                    }
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Evidence overview",
+                  "href": "/sites/KOBO-001/evidence",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-7",
+                    "label": "Evidence quality",
+                    "state": "WATCH",
+                    "reason": "EVIDENCE_READINESS_LIMITED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": null,
+                  "earnings": null,
+                  "potential": null
+                },
+                "target_note": null
+              }
+            },
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "WATCH",
+            "cost_lines": [
+              "ACT-001",
+              "Trial a lower generator stop setting",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": [
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4",
+              "fcb15cac-da4b-49ce-8167-3a0a46a8bff4"
+            ]
+          },
+          "S+1": {
+            "read_state": "AVAILABLE",
+            "rows": {
+              "GROW_REVENUE": {
+                "category": "GROW_REVENUE",
+                "label": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "icon": "grow",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-1",
+                  "label": "Productive electricity sales"
+                },
+                "headline": "No productive-use sales on this day: Grain mill not used",
+                "headline_money": null,
+                "subline": "0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh \u00b7 not billed or collected",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "productive_sales",
+                    "label": "Productive-use sales",
+                    "text": "0 kWh used by Grain mill in 8 measured hours",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "declared_objective:MG-1",
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month \u00b7 sales not recorded",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "productive_use",
+                    "label": "Productive use",
+                    "text": "Not available yet \u00b7 spare solar not checked on the last 5 days",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/renewable?from=2026-11-01T21%3A00%3A00Z&to=2026-11-06T21%3A00%3A00Z",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "renewable",
+                      "window": {
+                        "from": "2026-11-01T21:00:00Z",
+                        "to": "2026-11-06T21:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "key": "productive_price",
+                    "label": "Price per kWh",
+                    "text": "Declared at 0.25 USD per kWh",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "cash_collected",
+                    "label": "Cash collected",
+                    "text": "Not available yet \u00b7 no billing or payment records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "site_earnings",
+                    "label": "Site earnings",
+                    "text": "Not available yet \u00b7 needs site income, operating cost and capital records",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/financials/scenarios\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"financial_scenarios\"}, \"text\": \"Productive-use what-if\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Renewable evidence",
+                  "href": "/sites/KOBO-001/performance/renewable",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "renewable"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-1",
+                    "label": "Productive electricity sales",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-6",
+                    "label": "Cash collected",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  },
+                  {
+                    "key": "MG-3",
+                    "label": "Site profitability",
+                    "state": "NOT_MEASURED",
+                    "reason": "NOT_MEASURED_IN_CATALOGUE"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-1",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 4,
+                      "low": 0,
+                      "no_data": 2,
+                      "pending": 0,
+                      "expected": 6
+                    },
+                    "text": "sales not recorded",
+                    "span": {
+                      "first": "2026-11-01",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "1\u20136 Nov \u00b7 0 of 6 days checked \u00b7 4 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.estimated_income",
+                    "value": {
+                      "amount": "0.00",
+                      "currency": "USD",
+                      "kwh": "0.000",
+                      "measured_seconds": 28800,
+                      "price": {
+                        "amount": "0.25",
+                        "currency": "USD"
+                      }
+                    },
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "potential": {
+                    "key": "potential.daytime_solar_headroom",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null,
+                "grow_headline": "0.00 USD over 0 of 1 day checked \u00b7 1 partly checked \u00b7 not billed or collected"
+              },
+              "OPTIMIZE_COST": {
+                "category": "OPTIMIZE_COST",
+                "label": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "icon": "cost",
+                "state": "UNKNOWN",
+                "state_label": "Unknown",
+                "tone": "gray",
+                "lead_outcome": {
+                  "key": "MG-2",
+                  "label": "Supply cost per kWh"
+                },
+                "headline": "No fuel cost estimated for this day",
+                "headline_money": null,
+                "subline": "Fix verified, monitoring (ACT-001) \u00b7 7 more fully checked days to close",
+                "thread_lines": [
+                  {
+                    "kind": "MONITORING",
+                    "thread_id": "e7306c41-af61-58a2-9438-eee6021233a6",
+                    "action_code": "ACT-000001",
+                    "effective_day": "2026-11-06",
+                    "after": null,
+                    "remaining_days": 7,
+                    "clean_days": null,
+                    "ref": {
+                      "kind": "THREAD",
+                      "site": "KOBO-001",
+                      "id": "e7306c41-af61-58a2-9438-eee6021233a6"
+                    },
+                    "text": "Fix verified, monitoring (ACT-001) \u00b7 7 more fully checked days to close"
+                  }
+                ],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": {
+                  "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count",
+                  "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                  "link_ref": {
+                    "kind": "ACTION",
+                    "site": "KOBO-001",
+                    "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                    "view": "verification",
+                    "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                  }
+                },
+                "contributors": [
+                  {
+                    "key": "generator_use",
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/performance/dispatch",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "dispatch"
+                    }
+                  },
+                  {
+                    "key": "fuel",
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/fuel",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "fuel"
+                    }
+                  },
+                  {
+                    "key": "fuel_price",
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "confidence": {
+                      "label": "Declared",
+                      "tone": "neutral"
+                    },
+                    "href": "/sites/KOBO-001/financials/assumptions",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "financial_assumptions"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-2",
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed \u00b7 0 min longer than needed on this day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/sites/KOBO-001/foundation/changes\", \"link_ref\": {\"kind\": \"SITE\", \"site\": \"KOBO-001\", \"view\": \"foundation_changes\"}, \"text\": \"Proposed setting change\"}"
+                  ]
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": \"Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met \\u00b7 checked over 09:00\\u201310:00 on 6 Nov.\", \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\"}, \"result_label\": \"Verified on example data\", \"text\": \"ACT-001\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Dispatch evidence",
+                  "href": "/sites/KOBO-001/performance/dispatch",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001",
+                    "capability": "dispatch"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-2",
+                    "label": "Supply cost per kWh",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-2",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "0 min longer than needed on this day",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.possible_extra_fuel_cost",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "PROTECT_ASSET": {
+                "category": "PROTECT_ASSET",
+                "label": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "icon": "protect",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-4",
+                  "label": "Battery and generator life"
+                },
+                "headline": "1 early warning on battery and generator",
+                "headline_money": null,
+                "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 1,
+                  "in_hand": 2
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "battery",
+                    "label": "Battery",
+                    "text": "Not available yet \u00b7 no generator period assessed on this day",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/health",
+                    "link_ref": {
+                      "kind": "SITE",
+                      "site": "KOBO-001",
+                      "view": "health"
+                    }
+                  },
+                  {
+                    "key": "generator",
+                    "label": "Generator",
+                    "text": "Service due at 500 operating hours \u00b7 hours since service not recorded",
+                    "confidence": {
+                      "label": "Plan record",
+                      "tone": "neutral"
+                    },
+                    "href": "/maintenance/preventive",
+                    "link_ref": {
+                      "kind": "ESTATE",
+                      "view": "maintenance_preventive"
+                    }
+                  },
+                  {
+                    "key": "service_delivery",
+                    "label": "Service delivery",
+                    "text": "Delivered power measured; demand not measured",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/service",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "service"
+                    }
+                  },
+                  {
+                    "key": "backup_readiness",
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "confidence": {
+                      "label": "Unknown",
+                      "tone": "gray"
+                    },
+                    "href": "/sites/KOBO-001/performance/backup",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001",
+                      "capability": "backup"
+                    }
+                  },
+                  {
+                    "key": "declared_objective:MG-5",
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served \u00b7 critical demand not measured over the whole day",
+                    "confidence": {
+                      "label": "Not checked yet",
+                      "tone": "gray"
+                    },
+                    "href": null,
+                    "link_ref": null
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"EARLY_WARNING\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"ref\": \"PLAN_DUE_SOON:KOBO-001:c0a26e88-d3eb-4e20-92a0-4833c51bc2d6\", \"role\": \"MOVES\", \"text\": \"Battery capacity test due soon\"}"
+                  ]
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": [
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due at 500 operating hours\", \"text\": \"PM-003 \\u00b7 Generator 500-hour service\"}",
+                    "{\"href\": \"/maintenance/preventive\", \"kind\": \"PLAN\", \"link_ref\": {\"kind\": \"ESTATE\", \"view\": \"maintenance_preventive\"}, \"state_label\": \"Due soon\", \"text\": \"PM-004 \\u00b7 Battery capacity test\"}"
+                  ]
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": [
+                    "{\"detail\": null, \"href\": \"/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"link_ref\": {\"event_id\": \"4cf2e305-3dfd-4d89-bbd1-fb23295d5c25\", \"id\": \"225fd896-39a5-4cf4-a14e-260d604edc5e\", \"kind\": \"ACTION\", \"site\": \"KOBO-001\", \"view\": \"verification\"}, \"result_label\": \"Verified on example data\", \"text\": \"Reliable service and battery and generator life checked as safeguards in ACT-001\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"8bc94124-8aa5-419f-b53e-95557bb408cf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-16T10:00:00Z\", \"result_label\": \"Did not fix it\", \"text\": \"WR-001 \\u00b7 Generator inspection\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"e0f76ccc-0a19-40d1-ac1f-fc8b1ed403d5\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T04:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-014 \\u00b7 Move the grain mill's run to midday on sunny days.\"}",
+                    "{\"detail\": null, \"href\": \"/maintenance/requests/a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"MAINTENANCE_REQUEST\", \"link_ref\": {\"id\": \"a85593ff-9b67-4652-953e-b7962937fabf\", \"kind\": \"CASE\", \"site\": \"KOBO-001\"}, \"occurred_at\": \"2026-10-27T10:00:00Z\", \"result_label\": \"Not yet verified\", \"text\": \"WR-002 \\u00b7 Generator inspection\"}"
+                  ]
+                },
+                "earlier_empty_text": null,
+                "evidence_link": {
+                  "label": "Battery evidence",
+                  "href": "/sites/KOBO-001/health",
+                  "link_ref": {
+                    "kind": "SITE",
+                    "site": "KOBO-001",
+                    "view": "health"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-5",
+                    "label": "Reliable service",
+                    "state": "UNKNOWN",
+                    "reason": "OBJECTIVE_NOT_JUDGED"
+                  },
+                  {
+                    "key": "MG-4",
+                    "label": "Battery and generator life",
+                    "state": "WATCH",
+                    "reason": "WARNING_WATCH"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": {
+                    "key": "verdict.MG-5",
+                    "value": "NOT_JUDGED",
+                    "basis": "CHECKED_DAYS",
+                    "days": {
+                      "complete": 0,
+                      "partial": 1,
+                      "low": 0,
+                      "no_data": 0,
+                      "pending": 0,
+                      "expected": 1
+                    },
+                    "text": "critical demand not measured over the whole day",
+                    "span": {
+                      "first": "2026-11-06",
+                      "last": "2026-11-06"
+                    },
+                    "days_line": "0 of 1 day checked \u00b7 1 partly checked"
+                  },
+                  "earnings": {
+                    "key": "money.not_known",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "Not known yet",
+                    "days_line": null
+                  },
+                  "potential": {
+                    "key": "potential.none",
+                    "value": null,
+                    "basis": "NOT_KNOWN",
+                    "days": null,
+                    "text": "No potential found yet",
+                    "days_line": null
+                  }
+                },
+                "target_note": null
+              },
+              "ASSURE_PERFORMANCE": {
+                "category": "ASSURE_PERFORMANCE",
+                "label": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "icon": "assure",
+                "state": "WATCH",
+                "state_label": "Watch",
+                "tone": "blue",
+                "lead_outcome": {
+                  "key": "MG-7",
+                  "label": "Evidence quality"
+                },
+                "headline": "1 verified result",
+                "headline_money": null,
+                "subline": null,
+                "thread_lines": [],
+                "not_measured_text": null,
+                "counts": {
+                  "issues": 0,
+                  "in_hand": 0
+                },
+                "must_not_harm": null,
+                "contributors": [
+                  {
+                    "key": "verified_results",
+                    "label": "Verified results",
+                    "text": "ACT-001 verified on example data",
+                    "confidence": null,
+                    "href": "/sites/KOBO-001/actions/225fd896-39a5-4cf4-a14e-260d604edc5e/verification?event_id=4cf2e305-3dfd-4d89-bbd1-fb23295d5c25",
+                    "link_ref": {
+                      "kind": "ACTION",
+                      "site": "KOBO-001",
+                      "id": "225fd896-39a5-4cf4-a14e-260d604edc5e",
+                      "view": "verification",
+                      "event_id": "4cf2e305-3dfd-4d89-bbd1-fb23295d5c25"
+                    }
+                  },
+                  {
+                    "key": "actual_against_plan",
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met \u00b7 3 not checked yet",
+                    "confidence": null,
+                    "href": null,
+                    "link_ref": null
+                  },
+                  {
+                    "key": "readings",
+                    "label": "Readings",
+                    "text": "Source not resolved \u00b7 readiness Limited",
+                    "confidence": {
+                      "label": "Limited",
+                      "tone": "amber"
+                    },
+                    "href": "/sites/KOBO-001/evidence",
+                    "link_ref": {
+                      "kind": "EVIDENCE",
+                      "site": "KOBO-001"
+                    }
+                  }
+                ],
+                "issues": {
+                  "findings": [],
+                  "others": []
+                },
+                "options": {
+                  "findings": [],
+                  "others": []
+                },
+                "in_hand": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier": {
+                  "findings": [],
+                  "others": []
+                },
+                "earlier_empty_text": "Not available yet \u00b7 no completed work or checked change for this outcome",
+                "evidence_link": {
+                  "label": "Evidence overview",
+                  "href": "/sites/KOBO-001/evidence",
+                  "link_ref": {
+                    "kind": "EVIDENCE",
+                    "site": "KOBO-001"
+                  }
+                },
+                "outcomes": [
+                  {
+                    "key": "MG-7",
+                    "label": "Evidence quality",
+                    "state": "WATCH",
+                    "reason": "EVIDENCE_READINESS_LIMITED"
+                  }
+                ],
+                "potential": null,
+                "nodes": {
+                  "kpi": null,
+                  "earnings": null,
+                  "potential": null
+                },
+                "target_note": null
+              }
+            },
+            "assure_headline": "1 verified result",
+            "assure_count": null,
+            "assure_state": "WATCH",
+            "cost_lines": [
+              "ACT-001",
+              "Reliable service and battery and generator life checked as safeguards in ACT-001"
+            ],
+            "findings": []
+          }
+        },
+        "comparison": {
+          "unchanged": true,
+          "passes": true,
+          "failures": [],
+          "diff": {}
+        }
+      }
+    }
+  ]
+}
