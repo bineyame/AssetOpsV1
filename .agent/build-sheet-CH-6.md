@@ -952,3 +952,94 @@ The CH-6b3 entry and the Scope cut stand, with these changes:
 - L3 clone: 0 new. L3m: 0 unexpected. Each report carries `{compared, skipped}`.
 - The packet carries the PERIOD information table and the Q4b old → new list.
 - **Backlog added:** BL-23, BL-24, BL-25 (not demo-critical; reasons in `.agent/backlog-post-demo.md`).
+
+## CH6b3-R2: KD-3b, the four test failures and the Q4b table (Architect, Claude, 2026-11-07)
+
+Input: `.agent/review-packet-CH-6b3.md` at `6bc8acfa1`. **CH-6b3: 1.1 → 1.3** (the four tests 0.1, the drained clone 0.1). No owner question. No screen changes. Written for a fresh Sonnet builder: do steps 1-5 in order, in this worktree, on this branch. These rulings come from reading code and the bundles on disk; nothing was re-run.
+
+### KD-3b: not a product defect. The bullet is restated, and one measurement is added
+
+**Cause on `mechanism_db()`, from the code.**
+- That database has no Performance comparison report (Coordinator note, `build-sheet-DD-1.md:462`). So `performance_gate` is closed (`main.py:401-411`).
+- `dispatch` then raises (`site_outcomes/read.py:255`, `_open`), and `finding_index_gate`, built on the same gate (`main.py:556`), closes too (`read.py:238`).
+- `dispatch is None` makes `base` False (`mini.py:422`), so every outcome reads UNKNOWN / PRODUCER_NOT_SETTLED, the board reads PARTIAL and "Generator use" reads "could not be loaded". With the Finding index closed, the board has no heads and so no thread lines.
+- **D13's chain omitting the generator thread is by design and separate:** `threads_of` lists a thread only with an occurrence or an event in the window (`_in_window`). D13 has neither.
+- The L2m bullet can therefore never hold on this data. It is a **wrong bullet on Kobo-only mechanism data**.
+
+**The real question is a different finding: the L3 polish clone also reads Optimize UNKNOWN on every Kobo day, for another reason.**
+- Bundle `var/ch6b3_bundle`: all 10 built Kobo days have `critical_served` PENDING, so `day_settled` is False and all four Kobo rows read UNKNOWN on every board, with "No fuel cost estimated for this day".
+- CH-9's packet (`review-packet-CH-9.md:311`) already names this: after migration 0049, `critical_served` reads PENDING until the queued service work drains. The L3 steps (create, backfill, settle) never drain it.
+- `tools/demo_combined.py` `prepare` runs `drain_mini()` (`:438`), and so does `add-day` for Kobo (`:533`), so the demo build should settle.
+- Its self-check hard-asserts `OPTIMIZE_COST` NEEDS_ATTENTION with `PRIMARY_FINDING_OPEN` on day S (`demo_combined_finish.py:185-187`, CO-1), and `prepare` fails if that fails. CO-2 asserts the "Fix verified, monitoring" line on S+1.
+- **What is not proved:** the last CO-1 result on disk (`var/ch6b3work/check.json`, 2 Nov) predates CH-9 (`fbf8973fe`, 5 Nov). So reading code says a client should not see an empty row on a demo story day, but no run since CH-9 shows it.
+- COH-17's V rows on this head compared Kobo rows that were all UNKNOWN, so they did not judge the demo's real verdicts. Hence step 2.
+
+### Step 1: the four failing tests (0.1). All are stale tests; none is a product defect; fix them here
+
+Each cause is a commit already in main (all ancestors of base `9b1c53ae3`), so all four fail on main today. Not demo-critical as behaviour, but the E2 full suite must not meet them first. **They merge with CH-6b3, no separate fix, no order issue.** Change only these lines.
+
+| Test | Cause | Fix |
+|---|---|---|
+| `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal` | `progress` gained `f_rows` in `3cea423fd`; the spy at `:88` takes 4 arguments | `def spy(a_sites, a_rows, k, selected_pairs, *rest):` and pass `*rest` to `real_progress` |
+| `::test_operating_cost_first_match_wins_across_partitions` | `link_ref` added to the wire in `1c3e3a075` | Add `"link_ref": card["link_ref"]` to the dict at `:252` |
+| `::test_ev_window_money_has_no_finding_attribution` | Same | Add `"link_ref"` to the set at `:330` |
+| `test_ch5a2_chain_api_postgres.py::test_estate_chain_has_one_read_per_key_and_count_claims` | `count.sites_disrupted` added in `6b4e682f2` (CH-6b2) | Add it to the set at `:117`; the comment becomes "the four" |
+
+- **The first test has never reached its assertions on this code,** including the verified counts at `:157`, `:193-195`, `:211`. It builds `Portfolio(engine, tenant)` with no `count_claims`, so Q4b's claim path does not run there (`estate/index.py:213`, `:221`) and its numbers should not move. **If a number fails after the spy fix, do not change it: stop and report it with both values.**
+- Run those two files, then the packet's scoped list. Expect 215 passed, 0 failed.
+
+### Step 2: the measurement (0.1, demo-critical: all four Kobo rows depend on it)
+
+On a new polish clone, using the same commands as `var/ch6b3_l3.log`:
+1. create, backfill, settle;
+2. drain: `python -m assetops_backend.mini_depth.worker run-pending --limit 500` against the clone until a pass returns fewer than 500 outcomes (as `drain_mini`);
+3. settle again;
+4. collect, then check with `expected-today.json`.
+
+Packet table: for `board.day_kobo_trial-before_2026-10-31` (S), `board.day_kobo_trial-after_2026-11-01` (S+1) and `board.day_kobo_overuse_2026-10-24`, give each row's state, `MG-2` outcome and reason, headline, and each day's `critical_served` grade.
+
+**Expected:**
+- `critical_served` is not PENDING.
+- S: Optimize NEEDS_ATTENTION, `PRIMARY_FINDING_OPEN`, a thread line "Before the change", as CO-1.
+- S+1: not `PRIMARY_FINDING_OPEN`, line "Fix verified, monitoring (ACT-001)", as CO-2.
+- COH-17 and COH-18: 0 new.
+
+**Stop and report, do not tune, if any of these happen:**
+- PRODUCER_NOT_SETTLED remains on any of the three days. That would be a real demo defect in every Kobo row.
+- The S row differs from CO-1.
+- There is a new COH finding.
+- The Q4b counts differ from the table below.
+
+The earlier undrained L3 result stays in the packet, labelled undrained. Drop the clone afterwards.
+
+### Step 3: the restated bullet
+
+Replace the L2m bullet "the Optimize row on D13 reads the ACT-K1 verdict" with:
+- **L2m:** the generator thread is RESOLVED_MONITORING since D12 on D13 (already `test_md0_mechanism_postgres.py:268`), and the estate row equals the board row (`test_ch6b_estate_postgres.py:210`). No new assertion.
+- **The board verdict is proved where the gate is open:** the step 2 table here, and CO-1 and CO-2 in every combined `prepare`.
+
+In `test_ch6b_estate_postgres.py:207-208`, replace the comment with: "On `mechanism_db()` no Performance comparison report exists, so the Performance gate is closed and every Kobo row reads UNKNOWN (CH6b3-R2). The verdict is proved on the drained clone and by CO-1 and CO-2." In the packet, mark KD-3b closed by this ruling; the acceptance row reads "Restated".
+
+### Step 4: Q4b table, confirmed
+
+"Fixes confirmed" 1/1/1 → 0/0/1 and "priority sites" 0/0/0 → 3/2/2 (week/S/month) are what the story should show:
+- **Week and S** end before the fix is verified (effective 1 Nov, after S on 31 Oct), so 0 confirmed is true. Kobo's fix is in hand, so Kobo is a priority Site.
+- **Month** runs to 3 Nov, so Kobo's fix is confirmed (1) and Kobo leaves priority.
+- **Priority Sites:** week = Kobo, Cold and EV; S = Kobo and Cold (EV's event is outside S); month = Cold and EV. These also fit `count.open_threads` 4/3/3.
+- The old 0/0/0 was the fault: `thread_progress` read null Cold and EV states.
+
+**One wording correction in the packet.** With no `known_at`, every event is visible. The state differs because it is read on the window's last day against the event's `effective_day` (`threads_of`, `lc.state_on`), not because of a "known" time. Replace "at their cutoff" and the "known 1 Nov" and "known 2 Nov" reasons with this. If the reasoning then fails for any row, stop and report.
+
+These values are the polish build's. DD-1 may change them; the CH6b2-R2 DD-1a1 trap still applies.
+
+### Step 5: the packet
+
+Update size 1.3, the scoped-test result, the step 2 table, KD-3b closed, the Q4b wording, and BL-26. Then the batched review.
+
+### Lane 2 (coordinator relays; DD-1 +0)
+
+DD-1b2 F-THREADS must also report, on every shown Kobo story day, each row's state, and fail on `PRODUCER_NOT_SETTLED` or a PARTIAL board. CO-1 covers only day S.
+
+### Backlog
+
+**BL-26** (not demo-critical): `count.verified_results` counts only threads with a Finding occurrence in the window, so a Portfolio opened on one later day (for example 1 Nov) can read "None confirmed" while Kobo's board that day reads "Fix verified, monitoring". The story links open the week and the month, which agree. **DS-1 must keep the Portfolio on those two windows.**
