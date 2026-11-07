@@ -1,0 +1,73 @@
+{
+  "unit": "DD-1b2b P0 (DD1b2-R8 C4), partial build on assetops_demo3_dd1b2t_test, work var/demo3_dd1b2t",
+  "commits": {"B_C1_C2_L0": "78f3b1c7f", "p0_days": "f4454f2d5", "R9_coh2_expectation": "2002db962 (with b44c0f01b before it)", "BL-47": "c02e12407"},
+  "prepare": {
+    "grade": "MEASURED",
+    "command": "prepare --sites kobo,cold,ev --no-finish --days .agent/DD-1b2b-p0-days.json --cap-seconds 2400",
+    "wall_seconds": 226, "exit": 0, "start": "10:21Z",
+    "kobo_seconds": 193, "kobo_runs": 8, "cold_seconds": 11.5, "ev_seconds": 11.8
+  },
+  "drain": {
+    "grade": "MEASURED",
+    "tick_until_drained_first": {"wall_seconds": 541, "exit": 1, "every_tick_exit": 0, "snapshots": "10150 -> 0 in tick 1",
+      "fail_reason": "past 2N: 9 ticks with N=4, because Kobo mini_deferred was 570 (--no-finish skips drain_mini)"},
+    "after_drain_mini_480_jobs": {"ticks": 1, "N": 2, "wall_seconds": 62},
+    "after_S2_comparison": {"ticks": 1},
+    "declared_manual_steps": ["drain_mini", "a re-drain", "evidence_migration run for KOBO-001", "performance", "prebuild"]
+  },
+  "check": {
+    "grade": "MEASURED",
+    "run1_worktree_form": {"pass": 10, "fail": 22, "wall_seconds": 186},
+    "run2_worktree_form_after_drain": {"pass": 12, "fail": 20},
+    "run3_tree_form": {"pass": 16, "fail": 16},
+    "run4_tree_form_after_R9_and_EX1": {"pass": 17, "fail": 15, "wall_seconds": 210.2,
+      "note": "tree/tools/demo_combined_rows.py and demo_combined_finish.py copied from commit 2002db962; the DB also holds EX-1's S+2 day",
+      "failing": ["CO-5/SP-1", "SP-4", "SP-5", "CO-5/SP-2", "CO-6", "CO-11", "WK-1", "WK-2a", "WK-2b", "WK-2c", "WK-4", "WK-6", "F-DRAIN", "MILL-3", "F-THREADS"],
+      "new_faults_vs_run3": "none (run 3 failing set minus F-COH)",
+      "F-COH": "pass; COH-2 allowed on COLD-LAB-001 (week, S, month: ACT b88686ed) and EV-LAB-001 (week, month: ACT 4d928fe5), 5 entries, reason text per R9; allowed_coh17 empty; unplaced empty; requests 126"},
+    "passing_run3_and_run4": ["CO-1", "CO-1b", "CO-2", "CO-3", "SP-3", "SP-6", "CO-7", "CO-9", "CO-10", "CO-6b", "CO-8", "CO-12", "WK-3", "F-COH3 (COH-10 fired once)", "F-CAL", "MONEY-B", "F-COH (run 4 only)"],
+    "worktree_form_false_409s": ["CO-2", "SP-4", "WK-6"],
+    "failures_classed_absent_data": {
+      "grade": "READ (classed from error text and code, not each traced)",
+      "rows": {
+        "F-DRAIN": "no drain-1.json (--no-finish)",
+        "MILL-3, WK-2c, F-THREADS": "no mill.json",
+        "CO-5/SP-1, SP-5, CO-5/SP-2, WK-4": "StopIteration: S-21, Cold S-7, MG-1 not in P0",
+        "SP-4": "UNASSESSED days not in P0",
+        "WK-1, WK-2a, CO-6, CO-11": "no S-1/S full data",
+        "WK-2b": "NO_OBJECTIVE (objectives not declared)",
+        "WK-6": "empty Kobo opportunity window"
+      }
+    },
+    "tool_faults_found": "COH-2 on Cold/EV (Architect ruled it a known product gap: DD1b2-R9 item 1, BL-47); no other tool fault classified"
+  },
+  "B1_read_state_on_real_boards": {"grade": "MEASURED",
+    "before_S2_comparison": "every Kobo board PARTIAL / PRODUCER_NOT_SETTLED and flagged",
+    "after": "all 10 story boards AVAILABLE"},
+  "EX-1": {
+    "grade": "MEASURED",
+    "form": "worktree tools/demo_combined_ex1.py with the tree environment (PYTHONPATH = tree's nine parts, DATABASE_URL = P0 DB), cwd = tree/backend/tests, --db assetops_demo3_dd1b2t_test --work var/demo3_dd1b2t",
+    "attempts": [
+      {"at": "~11:00Z", "result": "refused, run from tree/tools: demo_combined.py REPO = tree, so --work must sit under tree/var (guard Demo.__init__, demo_combined.py:287-290); an invocation-form error, not a tool fault. EX-1 must be run from the worktree tools"},
+      {"at": "11:00:52Z", "result": "DAY_NOT_IN_PAST: kobo 2026-11-07 ends after DB now - 0:05:00 (rc 0, reported as refused). The cut is 11:05Z, not 11:00Z, because of the 5-minute margin; a rehearsal EX-1 must start after 11:05Z on S+2"},
+      {"at": "11:06Z", "result": "ran"}
+    ],
+    "result": {
+      "add_day": {"seconds": 31.9, "rc": 0, "tail": "mini-depth: 34 jobs processed; added KOBO-001 2026-11-07 normal (assessed now)"},
+      "tick_until_drained": {"seconds": 84.0, "rc": 0, "ticks": 1, "over_n": false},
+      "wall_seconds": 124.8,
+      "comparison": {"unchanged": true, "diff": {}},
+      "S": "Assure '1 verified result' WATCH, ACT-001 trial lines, 1 finding id (listed twice), unchanged",
+      "S+1": "Assure '1 verified result' WATCH, ACT-001 safeguard line, no findings, unchanged"
+    },
+    "not_checked": "the S+2 renewable selections exist before the first tick (R8 A, owed in demo_combined_ex1.py before step 8)",
+    "tool_fault": "none; no EX-1 code change"
+  },
+  "not_proven": ["perf_budget --story", "mill drain order", "F-THREADS", "MILL-3", "full-list values", "timings", "the deferred-drain self-check path (L0 only)"],
+  "L0": {"grade": "MEASURED", "file": "backend/tests/test_demo_combined_finish_rows.py", "passed": 13,
+    "non_vacuity": "three mutations each failed the file (dropped Site test, dropped recorded-id test, dropped estate-body test); reverted"},
+  "deviations": [
+    "cold.json records no Action id (the Cold Action id sits in cold-replay-*/**/positive.json fixture.action.id), so the COH-2 recorded-id set for Cold reads those replay records as well as cold.json/ev.json (R9 says cold.json/ev.json)",
+    "scratch runners (runex1.py, runchk.py) in the session scratchpad were written with a heredoc, and the non-vacuity mutations of tools/demo_combined_rows.py were applied by a short python heredoc and reverted by git checkout (committed work first); no kept repo edit was made that way"
+  ]
+}
