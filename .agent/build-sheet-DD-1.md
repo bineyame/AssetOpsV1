@@ -1278,3 +1278,124 @@ Any other result: stop and report.
 **Owed to DD-1b2 (+0):** finish rows needing the Action read the day window; any in-app link carrying an exact event window that the script follows is listed and either avoided or stated; COH rules on the new Cold and EV day windows reconciled with `expected-today.json`.
 
 **Plan, for the coordinator:** DD-1b1 1.5; DD-1 11.5; lane 2 remaining +0.25; plan `:811`'s "reads 'Action agreed'" is the chain, and the board reads "Open".
+
+## DD1b1-R3: the re-probe failed because R2's own read fix asked for 32 days; the read is refused and swallowed (Architect, Claude, 2026-11-07)
+
+Input: `.agent/DD-1b1-coh3-probe-r2.json`, `.agent/DD-1b1-handoff.md` at `1f0602661`, the re-probe's stored bundle, and the code. **This section wins over R2 where they differ. No size change: DD-1b1 stays 1.5. No owner question now. The build resumes; it does not wait, and the §5 fallback is decided now.**
+
+**The miss was this Architect's.** R2 widened the Action read's upper end and left the lower end on the event. The R2 L0s used fake ports, so nothing met the real parser.
+
+### 0. What was measured, not read
+
+**Run on this commit, against the real parser** (`work/domain_action_index.parse_index_request`):
+
+| Read | From | To | Result |
+|---|---|---|---|
+| R2, EV UTC day | 2026-10-03T09:00Z (`event_hi` − 31 d) | 2026-11-04T00:00Z | **REFUSED `INVALID_WINDOW`** |
+| R2, Cold UTC day | 2026-10-05T17:05Z | 2026-11-06T00:00Z | **REFUSED `INVALID_WINDOW`** |
+| A', EV | 2026-10-04T00:00Z (`actions_to` − 31 d) | 2026-11-04T00:00Z | accepted, `known_at` None |
+| A', Cold | 2026-10-06T00:00Z | 2026-11-06T00:00Z | accepted, `known_at` None |
+
+**Stored re-probe bundle:** both UTC-day boards have `read_state: PARTIAL`, the mark of a swallowed read (`read.py:10`). The bundle does not name which read failed, and the re-probe below will show whether another one does. **No further measurement is needed before the fix**; the re-probe is the end-to-end proof.
+
+**The builder's hypothesis (`recorded_at <= :k` with `k` = event end) is refuted by the same probe.** The Cold local-day read has window `known_at` 17:05 and still lists the Action recorded at 17:15. The board's Action read does not take the board's cutoff: `_domain_actions(site, known_at)` passes only the **request's** `known_at`, here none, so `k` = `read_at` (`read.py:211-219`; `domain_action_index.py:400`). The stored `action_index` rows confirm `known_at` = read time. On this point R2 stands: the board's `known_at` does not exclude the Action.
+
+### 1. The trace, story link to row
+
+`GET /sites/{code}?from&to` → `board()` → `compose()` → `event_window` (a whole UTC day is accepted; a local day raises `EstateRefusal` and falls back) → `composer(lo=event_lo, hi=event_hi, actions_to=requested_hi)` → `reads.pages("domain_action_index", ...)` → `assemble` → `with_threads` → the row builder.
+
+**An Action lists under "Already in hand" only if all of these hold** (rows 7 to 9 are read, not run, on this path):
+
+| # | Condition | Where | UTC day under R2 |
+|---|---|---|---|
+| 1 | The window is valid: `to − from ≤ 31 d` | `parse_index_request:94` | **FAILS.** `Reads.call` swallows it: `action_rows` None, no Actions, `PARTIAL` |
+| 2 | `raised_at` in `[from, to)` | `actions_in_window` | not reached |
+| 3 | `recorded_at ≤ k`; `k` = the request's `known_at`, else read time | same; `:400` | not reached; would pass |
+| 4 | `origin_opportunity_id IS NULL` | same | would pass |
+| 5 | A non-null `title` | `cold.py` (B-Q21), EV alike | would pass |
+| 6 | A non-null origin Finding | `board.py:841` | would pass |
+| 7 | Not an Earlier result: `is_domain`, and not `_earlier_segment` | `board.py:852-854, 974` | would pass, one segment |
+| 8 | `a.open`, always True for a domain Action | `cold.domain_action` | would pass |
+| 9 | `cat in move_cats` of the origin's roles | `board.py:850, 865` | Protect, from the row's issues |
+
+**How it links.** `origin = by_id.get(origin_finding_id)`, else a Finding on the same thread (`:844-847`), else the suffix "linked finding outside this view". With the Finding on the board there is no suffix. COH-3's link is any `in_hand`, `earlier` or `issues` href containing the Action id (`_board_hrefs`); `action_ref(view="verification")` carries it.
+
+**Why ACT-001 shows on Cold.** It **is** the story Action. The probe builds no Kobo, so the shared `action_code_seq` gives Cold 000001 and EV 000002; a full build gives 000002 and 000003. On the local day no event resolves, so `actions_to` is None, the read spans exactly 31 d, condition 1 passes and the Action lists. Findings are read over a window with no selection, so it takes the suffix and Protect is UNKNOWN. That also settles R2's S2: the window was the cause, as the re-probe's event-window read showed (the Finding at 17:10 shown at `known_at` 17:05).
+
+### 2. `k`: what it is, and why an Action after it is truthful
+
+- **Deliberate, and it bounds evidence only.** The board's `window.known_at` is the overview's evidence cutoff (`board_cutoff`, `site_cutoff`; CH-5a1 R7). `lifecycle_cutoff` (CH6b2-R2, `chain/read.py:39-43`) says so: "R7's evidence cutoff bounds evidence only; a Finding is known after the evidence it assesses". So the board claims: **these readings were judged as of `k`, and the workflow is as known at the request's cutoff, else now.**
+- **Readers.** `window.known_at` on the wire; the thread lookup's `known_at=cutoff, visible_at=request`; per-Site cutoffs in `estate/index.py:156`. Actions and lifecycle take the request's cutoff. Kobo takes the request's cutoff only (`site_cutoff` mini branch). CO-1 reads Kobo's board and is not on this path.
+- **What protects a past read is unchanged.** With a request `known_at` before 17:15, `recorded_at ≤ k` still hides the Action, correctly.
+- **A' does not touch `k`, its consumers, or any known-time rule.** An Action agreed after the event, inside the requested window, is a fact as of now, and its `raised_at` is shown truthfully.
+
+### 3. Ruling: **A'**, a one-line correction of R2, with a decided fallback
+
+| | Client on the story-day link | Size | Risk this late |
+|---|---|---|---|
+| **A' (ruled)** | Finding, Needs attention, the Action "Open" under Already in hand, no suffix; "Action agreed" on the chain | +0 | Low. The cause was executed; one bound moves |
+| B by thread (BL-38) | The same, also on exact-window boards and on boards before the Action | 0.5 est. | A new as-known rule, on a board two rulings have already misjudged. It stays in the backlog |
+| C drop COH-3 on these boards | Finding and Needs attention, no Action on the board; the Action on Work › Actions and the chain. ST-4 and ST-5 change | about −0.25 | Low build risk, but it presents less than the owner was told |
+
+**Why not C or B, weighed against two misses.** Both misses were reasoning about a path nobody had run. This cause is executed, with the bundle's `PARTIAL` as independent evidence and the local-day read as a control. C would retreat from a one-line bug in a read that also hides real Actions on week boards, at the price of an owner question and a script change.
+
+**The edit, in both `cold.compose` and `ev.compose`.** Both bounds of the Action read come from one end:
+```python
+actions_hi = actions_to or hi
+action_rows = reads.pages("domain_action_index", ports.domain_actions, actions_hi - WORK_WINDOW, actions_hi)
+```
+Plans, incidents and visits keep `work_lo` and `hi`.
+
+**Regression surface, by construction:**
+- **Kobo: none.** The mini branch returns before this code (`read.py:370-377`); `mini.compose` is not edited; the Action index service and `k` are not edited. No Kobo build for this; `test_s6_verification_replay*` stays in the scoped list.
+- **Exact event window (finish rows on Cold and EV):** `event` equals the request, so `actions_hi = hi`, and the read is byte-equal to before R2.
+- **No event:** `actions_to` None, byte-equal.
+- **Wider window with an event (day, week, month, Portfolio's `board_summary`):** Actions raised after the event and inside the window now list. That is the intended change. Actions older than 31 d before the window's end drop out, the rule every other board has. `facts.actions` feeds in hand, Earlier and the thread lookup; a thread's state does not come from it.
+- **Today's R2 commit is worse than before R2:** every Cold and EV board with an event inside a wider window is `PARTIAL`, week boards included. **Do not merge without this line.**
+- **Main at `f7c045bee`:** no change under `site_outcomes`, `work` or `chain/lookup.py` since the merge base (checked by diff). CH-6b3's edits are `chain/claims.py`, `vocabulary.py` and `why.py`, none on this read. CH6b3-R2 concerns `PARTIAL` boards, so a further reason to clear it. Merge main **after** the re-probe passes, then rerun the scoped tests.
+
+### 4. Tests and the re-probe
+
+**L0 (new; real parser, no fake on this seam).** For Cold and EV: ports whose `domain_actions` calls the real `parse_index_request`.
+- Event inside a UTC day: the read is accepted; an Action after the event and inside the day listed; `domain_action_index` not in the failed reads.
+- An Action after the requested end: not listed.
+- Exact window: the same arguments as `hi − 31 d, hi`.
+- **Mutation:** restore `work_lo` as the lower bound and the test fails with the read refused.
+
+**Fix two probe checks first; both judged the wrong thing.**
+- `in_hand_open_no_suffix` requires **all** rows "Open", but PM rows are "Overdue". Judge only the row whose text begins with the Action's own code: present, state exactly "Open".
+- `event_window.action_not_listed` requires an empty `in_hand`. Judge only that the Action's code is absent.
+
+**Re-probe:** the same tool, own routed DB, Q6's terms and bars, 1 tick, about 3 min, cap 20. **Pass, all of:**
+- every R2 §5 check, as corrected above;
+- `coh3_pairs` ≥ 1 per Site, **all linked**, 0 COH-3 findings;
+- **new:** record `read_state` for the UTC-day and event-window boards on each Site, and the failed read names through a `Reads` log line or in-process hook in the probe only. `domain_action_index` is in neither. The UTC-day value equals the event-window value. If either is still `PARTIAL`, report which read failed; a read other than this one is reported, and does not itself fail the probe;
+- a week board (`board_summary.week`) for each Site lists the Action.
+
+**Then:** close R645 and correct the comment; mutation proofs; `test_ch1b_*`, `test_s6_verification_replay*`, `test_ch6b1*`, `test_ch6b2*`; guards A, W, N, V, M; merge main; rerun those scoped tests; packet.
+
+### 5. If this re-probe fails on the Action: **stop trying at the board. No third read fix.**
+
+The builder stops and reports. The coordinator then sends this question without waiting for another ruling:
+
+> **Owner question.** "We tried to show each GreenHarvest and Depot problem together with its agreed action on the same board, and the test failed. I recommend the board shows the problem and marks it Needs attention, and the action appears on the Site's chain as 'Action agreed' and on the Actions list, one click away. That keeps the story honest and gets the demo built now. You lose seeing both on one screen; the script would say 'the action is here'. The alternative is about half a unit more to rework how boards find actions, late, on a screen we've already misjudged twice. The rest of the build can continue while you decide."
+
+**On C, what stays:** the story clocks, instants, ACTION_IN_HAND, Cold's skipped APPLIED, per-Site objectives, the probe and `coh3_pairs`. **What is reverted:** `actions_to` (as committed it causes `PARTIAL`), the whole-day `story_links` and `day_windows`. COH-3 stays on Kobo; on Cold and EV it records the unlinked pairs as an expected, disclosed departure. R645 stays open, reworded. ST-4 and ST-5 change to "on the chain and the Actions list".
+
+**On A', all of R2's commits stay.**
+
+### 6. Scope and what is owed
+
+| Item | Class | Reason | Size |
+|---|---|---|---|
+| A' bound, real-parser L0, two probe check fixes | demo-critical | ST-4 and ST-5; and it undoes R2's `PARTIAL` boards | +0, inside R2's +0.25 |
+
+**R2 §6, updated, owed to DD-1b2 (+0):**
+- finish rows needing the Action read the day window;
+- **new:** a finish assertion that `domain_action_index` is not a failed read on Cold and EV story-day and week boards, since `Reads.call` hides a refusal silently;
+- any in-app link carrying an exact event window that the script follows is listed and either avoided or stated (the exact window lists no Action, by rule);
+- COH rules on the new Cold and EV day windows reconciled with `expected-today.json`.
+
+**Backlog: no new row.** `Reads.call` swallowing a refusal is by design (B.3, a failed read never refuses the board), and the finish assertion covers the demo.
+
+**Owner.** The R2 line stands, since a retest was already promised. Nothing further until the re-probe reports; do not say it is fixed yet.
