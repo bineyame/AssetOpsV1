@@ -143,6 +143,11 @@ export interface GlobalPreventiveSummary {
 /** W6-01e E2 (P-E2-1): the four stored operational record kinds. */
 export type GlobalOperationalKind = "OPERATOR_LOG" | "MANUAL_READING" | "SHIFT_NOTE" | "SITE_VISIT";
 export const GLOBAL_OPERATIONAL_KINDS: readonly GlobalOperationalKind[] = ["OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT"];
+/**
+ * DIESEL-K2: the two fuel record kinds. They appear under "All" only; the kind filter stays at the four v69 kinds
+ * (MOCK DEVIATION MD-FUEL-K2-1).
+ */
+export type FuelRecordKind = "FUEL_DELIVERY" | "TANK_DIP";
 
 /** W6-01e E2 (P-E2-1): the section 1 operational-records row, exactly. */
 export interface GlobalOperationalRow {
@@ -155,7 +160,7 @@ export interface GlobalOperationalRow {
   root_id: string;
   head_id: string;
   code: string;
-  kind: GlobalOperationalKind;
+  kind: GlobalOperationalKind | FuelRecordKind;
   body: string;
   root_occurred_at: string;
   occurred_at: string;

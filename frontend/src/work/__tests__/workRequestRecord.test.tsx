@@ -20,7 +20,7 @@ import type {
   GlobalWorkDetailResult,
   WorkCaseDetailRecord,
 } from "../globalWorkClient";
-import { WorkRequestRecordFrame } from "../WorkRequestRecord";
+import { WorkRequestRecordFrame, recKindLabel } from "../WorkRequestRecord";
 
 const CASE = "6f1c2d3e-4a5b-4c6d-8e7f-001122334455";
 const PAGE = `/maintenance/requests/${CASE}/record?site_id=KOBO-001`;
@@ -436,6 +436,14 @@ describe("W6-01c C3: work request Maintenance record", () => {
     // W6-01d C4 (P-C4-2): the explicit cutoff stays on the live History tab; Verification stays unavailable.
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", `${HISTORY}${cut}`);
     expect(text(tabs)).toContain("Verification · Not available yet");
+  });
+});
+
+describe("DIESEL-K2: fuel record kind labels", () => {
+  it("labels the two fuel kinds in plain words", () => {
+    expect(recKindLabel("FUEL_DELIVERY")).toBe("Fuel delivery");
+    expect(recKindLabel("TANK_DIP")).toBe("Tank dip");
+    expect(recKindLabel("OPERATOR_LOG")).toBe("Operator log");
   });
 });
 

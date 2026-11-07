@@ -184,7 +184,8 @@ class TestMigration0053:
         from alembic.script import ScriptDirectory
 
         script = ScriptDirectory.from_config(_alembic())
-        assert script.get_heads() == [MIGRATION] == [alembic_head()] and head(engine) == MIGRATION
+        # DIESEL-K2: 0054 follows 0053, so the single head is the repository head, no longer 0053 itself.
+        assert script.get_heads() == [alembic_head()] and head(engine) == alembic_head()
         assert script.get_revision(MIGRATION).down_revision == PREVIOUS
         with engine.connect() as c:
             defs = dict(c.execute(text(
@@ -207,7 +208,7 @@ class TestMigration0053:
         engine.dispose()
         with pytest.raises(Exception, match="0053 downgrade refused: fuel-cost-2"):
             command.downgrade(config, PREVIOUS)
-        assert head(engine) == MIGRATION
+        assert head(engine) == alembic_head()
 
     def test_empty_downgrade_restores_0011_and_0037(self, store, engine) -> None:  # noqa: F811
         from alembic import command
@@ -239,6 +240,6 @@ class TestMigration0053:
             assert "NO_LOAD_RATE_DIFFERS" not in defs_down["trial_cost_comparison_revision_reason_check"]
             command.upgrade(config, "head")
         finally:
-            if head(engine) != MIGRATION:
+            if head(engine) != alembic_head():
                 command.upgrade(config, "head")
         assert shape() == (cols_up, defs_up)

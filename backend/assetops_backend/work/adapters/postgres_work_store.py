@@ -136,6 +136,11 @@ class _Tx:
         return self._c.execute(text("SELECT 1 FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a"),
                                self._p(a=asset_id)).first() is not None
 
+    def asset_type(self, asset_id: str) -> str | None:
+        """DIESEL-K2: the scoped non-retired asset's type, or None for an unknown, foreign or retired asset."""
+        return self._c.execute(text("SELECT asset_type FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a "
+                                    "AND retired_at IS NULL"), self._p(a=asset_id)).scalar()
+
     def incident_in_scope(self, incident_id: str) -> bool:
         return self._c.execute(text("SELECT 1 FROM incident WHERE tenant_id = :t AND site_id = :s AND id = :i"),
                                self._p(i=incident_id)).first() is not None
@@ -268,10 +273,11 @@ class _Tx:
             "INSERT INTO operational_record (id, tenant_id, site_id, public_no, public_code, canonical_record_id, "
             "kind, body, period_end, unit, quantity, source_document_sha256, correction_reason, state, "
             "supersedes_record_id, case_id, occurred_at, actor_id, actor_kind, authorization_basis, attestation, "
-            "idempotency_key, payload_sha256, recorded_at) VALUES (:id, :t, :s, :public_no, :public_code, "
+            "idempotency_key, payload_sha256, asset_id, recorded_at) VALUES (:id, :t, :s, :public_no, :public_code, "
             ":canonical_record_id, :kind, :body, :period_end, :unit, :quantity, :source_document_sha256, "
             ":correction_reason, :state, :supersedes_record_id, :case_id, :occurred_at, :actor_id, :actor_kind, "
-            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :command_now)"), self._p(**r))
+            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :asset_id, :command_now)"),
+            self._p(**r))
 
 
 class PostgresWorkStore:
