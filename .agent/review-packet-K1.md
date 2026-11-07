@@ -125,3 +125,10 @@
 - The LF normalisation in `host/tests/test_k1_registered_kisiwa.py`: accept it, or treat it as the card's stop.
 - `register_in` follows the card's order and clocks; `register` publishes diesel v1 only.
 - The K8 findings list above, including the template's two signal names.
+
+## Fix round 1 (review-K1, verdict FIX)
+
+- **M1 closed.** `test_w402_roles_properties.py` carriers dict and `test_w205a_ev_vocabulary.py` `STATE_PROPERTY_VALUES` now include `fuel-level-sensor-accuracy` (L, PHYSICAL, FUEL_TANK) and `fuel-level-sensor-accuracy-basis` (state, PHYSICAL, FUEL_TANK; GENERIC_DEFAULT / MANUFACTURER_DATASHEET / SITE_CALIBRATION). Only those keys were added; no assertion weakened. The EV-named file edit is a shared-table assertion update, not an EV data change.
+- **L2 closed.** `test_k1_kisiwa_site_postgres.py` pins exactly 94 `fuel_level` records, first and last at 12:00Z to 12:00Z, and `analytic_id == "dispatch"`.
+- L1, the probe, `probe-result.json` and `.gitattributes` were not touched.
+- Main merged first. No-DB set (47 files plus the host registered test): 961 passed, 41 skipped.

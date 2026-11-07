@@ -123,8 +123,9 @@ def test_one_kisiwa_day_end_to_end(registered, tmp_path, monkeypatch) -> None:
         pg_harness.dispose(store)
     print("K1 fuel_level accepted", tuple(fuel))
     print("K1 assessments", assessed)
-    assert fuel[0] > 0
-    assert assessed and any("dispatch" in str(a[0]) for a in assessed), assessed
+    assert fuel[0] == 94, tuple(fuel)
+    assert (fuel[1], fuel[2]) == (rp._at(RUN_START), rp._at(RUN_END)), tuple(fuel)
+    assert assessed and any(a[0] == "dispatch" for a in assessed), assessed
 
     from fastapi.testclient import TestClient
 
