@@ -105,7 +105,9 @@ The code is correct against the card. It uses the three literals verbatim, compu
 - **Main snapshot.** `test_ch1a_grading.py` on main: the same failure.
 - **Postgres.** Not run by me. The builder's 26 passed on `assetops_mb1b_test` are from the pre-merge build commit `132e2f9c8`. None of those files reads the mill's `thread_lines`, so they do not exercise this line on real rows.
 - **Guards.**
-  - `tools/check-architecture.ps1` was started without `-ExecutionPolicy`, per the dispatch. Its result: see the hand-off report.
+  - `tools/check-architecture.ps1` was run without `-ExecutionPolicy`, per the dispatch.
+    - First run: exit 1. The chain-structure guard had no Python (`ASSETOPS_GUARD_PYTHON` unset). The run also printed Rule 8 "vacuous check" notes on `financials/adapters/postgres_consequence_store.py`, a file this slice does not touch.
+    - Rerun with `ASSETOPS_GUARD_PYTHON` set to the plan2 venv: "Architecture check passed.", exit 0.
   - `check-agent-workflow.ps1` was not run.
 - **Not run, per dispatch.** Full suite, prepare, `test_demo_combined_postgres`, frontend (no frontend change in the diff).
 
