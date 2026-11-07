@@ -1187,3 +1187,94 @@ DD-1b2 gets this at **+0.75** (its pre-flight confirms the seams; all read, not 
 
 ### Handoff
 The builder resumes on `task/DD-1b1-story-time-actions`: Q6's helper and L0s; Q1 and Q2's child swaps and the BUILD hook; `coh3_pairs`; Q7's objective seam and tool; Q4's pin; the probe; scoped checks; the R645 records; packet. Stops come back to this Architect. Own review.
+
+## DD1b1-R2: the Q6 probe failed; one read fix, whole-day links, per-Site objective instants (Architect, Claude, 2026-11-07)
+
+Input: `.agent/DD-1b1-coh3-probe.json`, `.agent/review-packet-DD-1b1.md` at `131f18e86`, the probe's bundle, and the code. **This section wins over DD1b1-R where they differ.** The misses were this Architect's, not the builder's: DD1b1-R Q6 expected a pair without tracing the board's read windows, Q7 did not check Kobo's first day, and "reads Action agreed" named the wrong screen. The builder stopped correctly and tuned nothing.
+
+**Size: DD-1b1 1.25 → 1.5 (+0.25, demo-critical: ST-4 and ST-5 cannot be shown truthfully without it). DD-1 11.5. Lane 2 remaining on the DD1b1-R basis: 4.5 → 4.75.** No owner question. **The build resumes; it does not wait.**
+
+### 1. What the client must see, and why no window reaches it today
+
+**Requirement (ST-4, ST-5, MA-1 M6, mock `:336`).** On the story-day board the client sees, together: the Finding; Protect at Needs attention; the Action under "Already in hand", state **"Open"**, with no "outside this view" suffix. "Action agreed" is the thread's word, on the Site chain (`chain_site` carries it; the board bundle has none). The board's "Open" is the mock's own badge and `board.py:865`. So plan `:811` is met on the chain, not by the board row. No label changes.
+
+**What the demo opens.** `story_links` (`demo_combined.py:237-262`): Cold `/sites/COLD-LAB-001?from=16:00&to=17:05`, EV `/sites/EV-LAB-001/ev?from=08:00&to=09:00`, each the day's event window. The finish rows read the same (`Ctx.window`). **The COH-3 collector reads something else for Cold**: the Site-local day (`day_windows`).
+
+**Why no window works (code; EV and Cold's local day are also observed in the probe).** The Action index selects `raised_at` in `[lo, hi)` (`postgres_domain_action_index.py:74-77`), and the composers call it with their `hi`.
+- **Event found in the window:** `compose` passes `read_hi` = the event's end as `hi` (`read.py:384-389`), whatever was requested. An Action follows its evidence, so `raised_at` ≥ `hi` always. The Finding shows and the Action never does. The week link has the same defect.
+- **No event found:** Findings are read over a window with no selection. The Action lists, as "outside this view", and the Finding does not.
+
+**S1 answered: `received_at` was not the wrong anchor.** No instant after the evidence can pass, and the board's `known_at` is not what excludes the Action. Moving the Action inside the event is **refused**: it would claim the Action before its Finding existed. **Q2's instants stand unchanged**, proved by the probe.
+
+**Options**
+
+| | Change | Client sees | Cost |
+|---|---|---|---|
+| **A. Ruled** | The board's Action read runs to the **requested** window's end; Cold and EV story links open the whole UTC day | Finding and Action together; Needs attention; the lead names the event's own time (CH6b1-R5). An event-only window still lists no Action | +0.25 |
+| B | In hand reads by thread, whatever the date | The same, and also on event-only windows and on boards before the Action | About +0.5 and a new as-known rule. Not demo-critical; BL-33 |
+| C | Drop COH-3 for these boards; no product change | Finding and no Action on the board; the Action only on Work › Actions; "Action agreed" on the chain. R645 stays. ST-4 and ST-5 are false and the plan and owner line change | 0, but it presents less than was told |
+
+**Why A is right beyond the demo.** On any real Site an Action follows its event, so today a week board can never list it. CH6b1-R3 already says the board's window stays the requested one; only this read drifted to the event. Nothing outside the requested window is read.
+
+### 2. The build (A), and the corrected values
+
+**Product, one read.** `read.py` `compose` passes `actions_to=hi` to the composer when `event` is not None. `cold.compose` and `ev.compose` take `actions_to: datetime | None = None` and call `ports.domain_actions(work_lo, actions_to or hi)`. With no event the call is unchanged. Plans, incidents and visits keep `hi`. Mini is untouched.
+
+**S1, S2 windows, by rule: a Cold or EV story day's board is its whole UTC day, `[00:00Z, next 00:00Z)`.** It is the existing no-event form in `story_links`, and the only day form the estate read accepts (`estate/scope.py:108-110`).
+- Probe days: EV `2026-11-03T00:00Z` to `2026-11-04T00:00Z`, containing 08:00-09:00 and the Action at 09:40; Cold `2026-11-05T00:00Z` to `2026-11-06T00:00Z`, containing 16:00-17:05 and 17:15.
+- `story_links`: every Cold and EV dated day uses it (labels keep their kind), and `LINK_FORMS` stands.
+- `chain_coherence.day_windows`: Cold and EV `from`/`to` are that day, `estate` the same. Kobo is unchanged. COH-3's rule is unchanged, `created <= to`.
+- **Refused:** a local-day Cold link. It falls back (`EstateRefusal`) unless the estate rule is widened, and BL-20's rule stands.
+- `demo_combined_finish.Ctx.window` is **not** changed here. Rows that need the Action move to the day window in DD-1b2.
+
+**S3, by rule: each Site's lines at that Site's own first declared knowledge instant. This reverses Q7's "one instant".** That Q7 reason was wrong: `declare_objective fixture` already takes `--site`, and one date per Site is not mixed dates on a board.
+
+| Site | Rule | Value | First built day |
+|---|---|---|---|
+| KOBO-001 | `price_recorded_at` (install + 1 h) | S-29d 12:00 | S-28d |
+| COLD-LAB-001 | `install_at` + `TARIFF_AFTER_INSTALL` | S-26d 06:30 | S-7d |
+| EV-LAB-001 | `install_at` + `TARIFF_AFTER_INSTALL` (its tariff instant) | S-26d 07:00 | S-14d, moved to its Tuesday |
+
+- `objectives_instant` becomes `objectives_instants(story) -> {site_code: instant}`, asserting per Site that the instant is before that Site's first built day, else `OBJECTIVES_INSTANT_CONFLICT`.
+- `demo_declare_objectives.py <url> <file> <site> <iso>` is called once per Site through `self.py`; `objectives.json` holds all the lines in the same shape. Update the L0s.
+
+### 3. The control: **no story-clock-off run. Read the same database three ways, inside the re-probe.**
+
+A story-off run costs another build and a new flag, and it proves less. On the one story-clock DB, read Cold's board over:
+1. the UTC day;
+2. the event window `[16:00, 17:05)`;
+3. the local day `[21:00Z, 21:00Z)`, for the record.
+
+**The attribution is (2).** Its `known_at` stays 17:05 and the Finding is 17:10. Finding shown: the window was the cause and `known_at` is cleared (leading reading now: the logged `EstateRefusal`; a build-dated Finding was also after 17:05 and shown on this window in the finish rows; EV shows a 09:35 Finding at `known_at` 09:00). **Finding absent on (1) and (2): the story clock hid it. Stop and return here; only then is the story-off control named.**
+
+### 4. R645: **the reversal stands, conditional on the re-probe.** Keep the register row open until it passes; then close it and correct the `demo_combined_ev.py` comment.
+
+**Corrected owner line, replacing the one sent:** "Correction to what I told you: this isn't proved yet. A retest is coming, after a small fix. Boards stopped looking at the end of the event, so an action agreed afterwards never appeared. With the fix, each GreenHarvest and Depot story-day link opens the whole day and shows the problem together with its action, marked 'Open'. 'Action agreed' appears on the Site's chain, not on the board row. The GreenHarvest inspection still shows completed, with the witnessed test still to do. No decision needed."
+
+### 5. The re-probe, the cheapest honest proof
+
+The same `tools/dd1b1_coh3_probe.py` on its own routed `*_test` DB, Q6's terms and bars. **1 tick instead of 3** (0 thread events are proved, and DD-1b2 repeats it on the whole build). About 3 min, cap 20.
+
+**Pass, all of:**
+- UTC-day boards: `coh3_pairs` ≥ 1 for each Site, 0 COH-3 findings; Protect `NEEDS_ATTENTION`; the Finding in `issues`; the Protect row's `in_hand` lists the Action, state "Open", no suffix;
+- `chain_site` for each day carries "Action agreed";
+- event-window boards: the Finding shown, and the Action **not** listed (recorded as the rule);
+- every instant and state check that already passed;
+- `objectives_instants` resolved on real v3 passes all three Sites, with no prepare.
+
+Any other result: stop and report.
+
+**New tests.** L0 for both composers: event inside a wider window: Action after the event and inside the window listed; Action after the requested end not listed; no event: arguments unchanged. Mutation: drop `actions_to` and a test fails. `test_demo_combined_links.py` and `test_chain_coherence.py` for the day form.
+
+**Then, as the handoff lists:** mutation proofs, `test_ch1b_*`, `test_s6_verification_replay*`, add `test_ch6b1*` and `test_ch6b2*`, guards A, W, N, V, M. `demo_declare_objectives.py` per Site runs end to end on the probe DB, for that part only. Add-day stays by construction, and its run is DD-1b2's.
+
+### 6. Scope
+
+| Item | Class | Reason | Size |
+|---|---|---|---|
+| `actions_to`, day links, collector, per-Site objectives | demo-critical | ST-4 and ST-5; a full prepare stops at finish without S3 | +0.25 |
+| Board in hand by thread, for any window (B) | backlog, **BL-33** | Day and week links show the Action; exact-window reads are not in the script | 0.5 est. |
+
+**Owed to DD-1b2 (+0):** finish rows needing the Action read the day window; any in-app link carrying an exact event window that the script follows is listed and either avoided or stated; COH rules on the new Cold and EV day windows reconciled with `expected-today.json`.
+
+**Plan, for the coordinator:** DD-1b1 1.5; DD-1 11.5; lane 2 remaining +0.25; plan `:811`'s "reads 'Action agreed'" is the chain, and the board reads "Open".
