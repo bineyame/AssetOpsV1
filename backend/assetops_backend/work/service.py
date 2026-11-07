@@ -35,7 +35,11 @@ PLAN_CORRECTION = ("supersedes_plan_id", "canonical_plan_id", "correction_reason
 OPERATIONAL_KEYS = ("kind", "body", "occurred_at", "period_end", "unit", "quantity", "source_document_sha256",
                     "case_id", "actor", "idempotency_key")
 OPERATIONAL_CORRECTION = ("supersedes_record_id", "canonical_record_id", "correction_reason")
-OPERATIONAL_KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT")
+OPERATIONAL_KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT", "FUEL_DELIVERY", "TANK_DIP")
+# DIESEL-K2 (build sheet DIESEL-1 §9c.2): the two fuel kinds name their tank (`asset_id`); no other kind carries the
+# key, so an existing kind's canonical body and command hash are byte-equal to before K2.
+FUEL_KINDS = ("FUEL_DELIVERY", "TANK_DIP")
+OPERATIONAL_OPTIONAL = OPERATIONAL_CORRECTION + ("asset_id",)
 
 
 def case_provenance(tx: Any, tenant_id: UUID, site_id: UUID, links: Mapping[str, Any], revision_id: str,
@@ -469,7 +473,7 @@ class WorkService:
 
     def post_operational_record(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
         self._gate(principal)
-        m.closed(body, OPERATIONAL_KEYS, OPERATIONAL_CORRECTION)
+        m.closed(body, OPERATIONAL_KEYS, OPERATIONAL_OPTIONAL)
         actor = self._actor(body, principal)
         correction = self._correction(body, OPERATIONAL_CORRECTION)
         kind = body["kind"]
@@ -485,11 +489,14 @@ class WorkService:
         if ((quantity is None) != (unit is None) or (kind == "MANUAL_READING" and quantity is None)
                 or (period_end is not None and period_end < occurred_at)):
             raise m.invalid()
+        asset_id = self._fuel_asset(body, kind, period_end, quantity, unit, digest)
         canon = {"kind": kind, "body": m.text_value(body["body"], 1, 4000), "occurred_at": m.iso(occurred_at),
                  "period_end": None if period_end is None else m.iso(period_end), "unit": unit,
                  "quantity": m.decimal_text(quantity), "source_document_sha256": digest,
                  "case_id": m.optional_uuid(body["case_id"]), "actor": actor.canonical(),
                  "idempotency_key": m.idempotency_key(body["idempotency_key"]), **(correction or {})}
+        if asset_id is not None:  # a fuel kind only: the key is absent otherwise (existing hashes unchanged)
+            canon["asset_id"] = asset_id
         path = {"site_id": str(site_id), **({"canonical_record_id": correction["canonical_record_id"]} if correction
                                             else {})}
         sha = m.command_sha256(path, canon)
@@ -502,6 +509,12 @@ class WorkService:
             m.check_occurrence(occurred_at, tx.db_now())
             if canon["case_id"] is not None and tx.case(canon["case_id"]) is None:
                 raise WorkRefused("WORK_LINK_SCOPE_INVALID")
+            if asset_id is not None:
+                asset_type = tx.asset_type(asset_id)
+                if asset_type is None:
+                    raise WorkRefused("WORK_LINK_SCOPE_INVALID")
+                if asset_type != "FUEL_TANK":
+                    raise WorkRefused("WORK_RECORD_ASSET_NOT_TANK")
             root, head = self._successor(tx, "operational_record", correction, OPERATIONAL_CORRECTION)
             rid, no = self._id(), tx.next_public_no()
             tx.insert_operational_record({
@@ -512,11 +525,31 @@ class WorkService:
                 "correction_reason": None if correction is None else correction["correction_reason"],
                 "state": "SUBMITTED", "supersedes_record_id": None if head is None else str(head["id"]),
                 "case_id": canon["case_id"], "occurred_at": occurred_at, "idempotency_key": canon["idempotency_key"],
-                "payload_sha256": sha, **self._actor_cols(actor)})
+                "payload_sha256": sha, "asset_id": asset_id, **self._actor_cols(actor)})
             return 201, self._lineage_body(tx, "operational_record", tx.lineage_by_key("operational_record",
                                                                                        canon["idempotency_key"]))
 
         return self._store.transaction(tenant_id, site_id, work)
+
+    @staticmethod
+    def _fuel_asset(body: Mapping[str, Any], kind: str, period_end: datetime | None, quantity: Any,
+                    unit: str | None, digest: str | None) -> str | None:
+        """DIESEL-K2 §9c.2 step 2, in order: the tank link, the instant, the litres, the ticket, the UUID shape.
+
+        Returns the canonical tank asset ID for a fuel kind and None for every other kind."""
+        if kind not in FUEL_KINDS:
+            if "asset_id" in body:
+                raise WorkRefused("WORK_RECORD_ASSET_NOT_ALLOWED")
+            return None
+        if body.get("asset_id") is None:
+            raise WorkRefused("WORK_RECORD_ASSET_REQUIRED")
+        if period_end is not None:
+            raise m.invalid()
+        if quantity is None or unit != "L" or (kind == "FUEL_DELIVERY" and quantity == 0):
+            raise WorkRefused("WORK_RECORD_QUANTITY_INVALID")
+        if kind == "FUEL_DELIVERY" and digest is None:
+            raise WorkRefused("WORK_RECORD_TICKET_REQUIRED")
+        return m.uuid_text(body["asset_id"])
 
     @staticmethod
     def _lineage_body(tx: Any, table: str, row: Mapping[str, Any]) -> dict[str, Any]:

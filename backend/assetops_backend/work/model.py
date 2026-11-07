@@ -56,13 +56,22 @@ MESSAGES = {
     "INVALID_LIMIT": "`limit` must be an integer from 1 to 100.",
     "INVALID_CURSOR": "The cursor is not a work-list cursor.",
     "WORK_BASIS_CHANGED": "The work list changed; request page one without a cursor.",
+    # DIESEL-K2 (build sheet DIESEL-1 §9c.2): fuel delivery and tank dip operational records.
+    "WORK_RECORD_ASSET_REQUIRED": "A fuel delivery or tank dip must name the fuel tank it concerns.",
+    "WORK_RECORD_ASSET_NOT_ALLOWED": "Only a fuel delivery or tank dip names a tank; other record kinds carry no asset.",
+    "WORK_RECORD_ASSET_NOT_TANK": "The named asset is not a fuel tank at this Site.",
+    "WORK_RECORD_QUANTITY_INVALID": "A fuel delivery needs a volume above 0 L, and a tank dip a volume of 0 L or more, "
+                                    "in L.",
+    "WORK_RECORD_TICKET_REQUIRED": "A fuel delivery needs the SHA-256 of its delivery ticket.",
 }
 STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CASE_NOT_FOUND": 404,
           "WORK_EVENT_DUPLICATE_KEY": 409, "WORK_TRANSITION_INVALID": 409, "WORK_OUTCOME_NOT_SUPPORTED": 409,
           "WORK_CORRECTION_CONFLICT": 409, "WORK_INPUT_INVALID": 422, "WORK_ATTESTATION_INVALID": 422,
           "WORK_LINK_SCOPE_INVALID": 422, "WORK_OCCURRED_AT_FUTURE": 422, "WORK_OCCURRED_AT_TOO_OLD": 422,
           "WORK_STORE_UNAVAILABLE": 503, "INVALID_KNOWN_AT": 422, "INVALID_WINDOW": 422, "INVALID_LIMIT": 422,
-          "INVALID_CURSOR": 422, "WORK_BASIS_CHANGED": 409}
+          "INVALID_CURSOR": 422, "WORK_BASIS_CHANGED": 409,
+          "WORK_RECORD_ASSET_REQUIRED": 422, "WORK_RECORD_ASSET_NOT_ALLOWED": 422, "WORK_RECORD_ASSET_NOT_TANK": 422,
+          "WORK_RECORD_QUANTITY_INVALID": 422, "WORK_RECORD_TICKET_REQUIRED": 422}
 
 
 class WorkRefused(Exception):

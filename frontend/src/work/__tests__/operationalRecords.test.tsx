@@ -515,6 +515,39 @@ describe("W6-01e E2: global Operational records", () => {
     expect(operationalKindOf(["all"])).toBeNull();
     expect(operationalKindOf(["SITE_VISIT"])).toBe("SITE_VISIT");
     for (const bad of [["ALL"], [""], ["all", "all"], ["OPERATOR_LOG", "SHIFT_NOTE"]]) expect(operationalKindOf(bad)).toBeUndefined();
+    // DIESEL-K2 MD-FUEL-K2-1: the fuel kinds have no chip, so a fuel kind in the URL stays the invalid-filter state.
+    expect(operationalKindOf(["FUEL_DELIVERY"])).toBeUndefined();
+    expect(operationalKindOf(["TANK_DIP"])).toBeUndefined();
+  });
+
+  it("DIESEL-K2: fuel delivery and tank dip rows show plain Type labels under All, with no new chip", async () => {
+    const rows = [
+      row(1, { kind: "TANK_DIP", body: "Tank dip at the 07:00 round: 706 L.", quantity: "706", unit: "L" }),
+      row(2, {
+        kind: "FUEL_DELIVERY",
+        body: "Fuel delivery of 300 L received, ticket KIS-DT-0001.",
+        quantity: "300",
+        unit: "L",
+        source_document_sha256: "a".repeat(64),
+      }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows)) }));
+    await settled();
+    const trs = Array.from(panelTitled("Operational records").querySelectorAll("tbody tr"));
+    expect(trs).toHaveLength(2);
+    expect(text(cell(trs[0], 1))).toBe("Tank dip");
+    expect(text(cell(trs[1], 1))).toBe("Fuel delivery");
+    expect(document.body.textContent).not.toContain("TANK_DIP");
+    expect(document.body.textContent).not.toContain("FUEL_DELIVERY");
+    expect(document.body.textContent).not.toContain("Reading:");
+    const chips = screen.getByRole("group", { name: "Record type" });
+    expect(Array.from(chips.querySelectorAll("button")).map(text)).toEqual([
+      "All",
+      "Operator log",
+      "Manual reading",
+      "Shift note",
+      "Site visit",
+    ]);
   });
 });
 

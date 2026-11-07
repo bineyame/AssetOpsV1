@@ -956,6 +956,9 @@ function Invoke-ConfigurationPersistenceCheck {
         "$backendRoot/work/adapters/postgres_work_read.py",
         # W6-01a A1Q G1: the read-only global work reader; the SQL-write refusal still applies to it.
         "$backendRoot/work/adapters/postgres_global_read.py",
+        # DIESEL-K2 (build sheet DIESEL-1 §9c.2): the read-only as-known fuel records reader (K3's port); the SQL-write
+        # refusal still applies to it.
+        "$backendRoot/work/adapters/postgres_fuel_records.py",
         # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
         "$backendRoot/mini_depth/read.py",
         # W5-02a ruling A5: the read-only Site Action index (K1b); the SQL-write refusal still applies to it.

@@ -51,6 +51,9 @@ const REC_KIND_LABEL: Readonly<Record<string, string>> = {
   MANUAL_READING: "Manual reading",
   SHIFT_NOTE: "Shift note",
   SITE_VISIT: "Site visit",
+  // DIESEL-K2: the two fuel kinds (no filter chip; MD-FUEL-K2-1).
+  FUEL_DELIVERY: "Fuel delivery",
+  TANK_DIP: "Tank dip",
 };
 
 export function recKindLabel(kind: string): string {
