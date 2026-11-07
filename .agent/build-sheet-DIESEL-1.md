@@ -884,3 +884,29 @@ then:        DS-1 -> E1–E6
 For the owner's information, in plain words:
 - The first fuel trial stopped before measuring anything, for two technical reasons: the example site wasn't set up the way the real product sets up a site, and the simulated generator site never reported its tank level at all (that is also why Kobo shows no tank readings). We fix both: the trial re-runs on the real set-up path, and the simulated site gains the ability to report its tank level. Kobo keeps working exactly as it does today; only Kisiwa uses the new tank reading.
 - Kisiwa now adds about **3¼ working days** before the demo, against about 3 before (range now 2¾ to 5¼, against 2½ to 5). The middle estimate is still inside what you accepted; the worst case is now about a quarter-day past your 5-day upper end. If the plan grows further, we will come back to you with a cut (most likely: skip the "after the fix" check page and end the Kisiwa story at the agreed action) before going over.
+
+---
+
+## 9a. Ruling DIESEL-1-R3a: F0r's S6 stop at conversion
+
+- Architect: Claude, 2026-11-07. Binding unchanged (`.ai/ROLE_CONFIG.md:9`). F0r branch commits be4bbceb6, 3a147f96e, bf70fd180, 1ba54aa43 (`AssetOpsV1-f0`). This amends §9.4 item 1 only.
+- Refusal, verbatim (`B/sites/binding_conversion.py:127-129`): "ConversionConflict: Legacy mappings ['battery-pcs-discharge-capability', 'generator-status', 'pv-inverter-available-power'] have no explicit conversion in the fixture." The stop was correct.
+- **Cause:** Kisiwa's template has 12 legacy mappings (D0 draft `:326-372`). Kobo's conversion fixture (`V/kobo-001-bindings.json`, `minigrid-roles-1`) predates three of them. Kobo's import has no such mappings, so it bound `generator-controller/status` with `legacy_mapping_id: null` and gained the two capability channels later by republication (`V/kobo-001-s3-dispatch-demo-config.json` `bindings.add`, roles-2). Copying Kobo's history onto a Site whose template already has these mappings does not fit.
+
+**Decision: fix (i), and it is the real K1 path too.** Kisiwa's conversion fixture converts **every** legacy mapping in its template, once, at import:
+1. `role_set` = **`minigrid-roles-2`**: the set `B/sites/binding_roles.py:36` names as the default for a new MINIGRID publication, and the lowest one holding `pv_available_power` and `pcs_discharge_capability`.
+2. `bindings` = 12 rows: the 9 F0r kept, plus:
+   - `generator-status`: Kobo's status row (`V/kobo-001-bindings.json`, role `generator_state`, `state`→`state`, ENUM map STOPPED/STARTING/RUNNING/FAILED) **with `legacy_mapping_id: "generator-status"`**, not null (the template has the mapping; `plan_requests` checks the row matches it, `:95-101`);
+   - `pv-inverter-available-power` and `battery-pcs-discharge-capability`: Kobo's two `add` rows from `V/kobo-001-s3-dispatch-demo-config.json` (roles `pv_available_power`, `pcs_discharge_capability`, kW→kW IDENTITY), each with its `legacy_mapping_id`.
+3. `declare_signals` = **`[]`**. **The builder's judgement call is overruled.** Keeping Kobo's entry is harmless to the code (`B/sites/binding_service.py:507-522` returns no change for an already-declared signal with the same unit), but its `reason` ("Absent from the original Kobo import…") is false for Kisiwa, whose template declares the signal (`:289`). A fixture must state only true provenance. Set `note` to: "Converted from the imported Kisiwa Foundation's legacy signal_mappings; every template mapping converted once, under minigrid-roles-2 (DIESEL-1-R3a)."
+- **Why not (ii):** republishing after conversion can't help, because conversion refuses first. Republication is only for channels the template does not have.
+- **Why not (iii):** it changes D0's template, which §8.1 item 2 forbids.
+- **Roles-3/4 stay a republication, as Kobo does.** The channels Kisiwa's template does not map (critical-load requested and delivered power, storage charge request, and the other roles-4 depth channels) stay for K1's `V/kisiwa-001-minigrid-roles-demo-config.json` through `B/sites/demo_configuration.py`, as §3.1 already says. F0r does **not** apply it, because none of its gates reads those channels. An unbound signal is not a reporting path (`B/runs/service.py:899-902`), so v5's resolutions for them are skipped. K1's registered-parity test proves the roles-4 step.
+- **Kobo:** its fixtures and configs are not edited.
+
+**F0r's other gates and stops stand unchanged** (§9.4: F0a–F11, S0–S8), with two additions:
+- if the corrected fixture is refused again (a role, unit or conversion check), that is **S6**: report it verbatim, and never drop a mapping or edit the template;
+- the evidence file records the 12-row fixture and the roles-2 choice in the pre-registration addendum before any run.
+- The S8 cap (0.75 of re-issued work) stands; this fix is about 0.05.
+
+**K1's size is unchanged at 1.25.** K1 promotes the corrected draft verbatim to `V/kisiwa-001-bindings.json`. It writes one roles-4 demo configuration for Kisiwa instead of replaying Kobo's three-step history (s3, s6, roles-4). That is no more work than §3.1 assumed. Totals and the date in §9.5 are unchanged.
