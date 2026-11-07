@@ -46,6 +46,36 @@ No expectation changes. The declared world, the parameters, the action log and t
 - **Probe-local mini-grid v7:** "Tank level from a probe-local mini-grid v7 identical in content to K1a's; product
   code has no v7 until K1a merges." Not built if conversion stops first.
 
+## F0r result: STOPPED at conversion (S6), as pre-registered in the addendum
+
+`tools/probe_kisiwa_fuel.py --write` at bf70fd180. `import_site` of KISIWA-001 into `InMemoryFoundationStore`
+succeeded at `2026-09-29T09:00:00Z`. `convert` with the bindings draft at `2026-09-29T09:30:00Z` then refused,
+verbatim:
+
+> assetops_backend.sites.binding_conversion.ConversionConflict: Legacy mappings
+> ['battery-pcs-discharge-capability', 'generator-status', 'pv-inverter-available-power'] have no explicit
+> conversion in the fixture.
+
+- Raised at `backend/assetops_backend/sites/binding_conversion.py:127-129` (`plan_requests`).
+- Cause: Kisiwa's template (copied from today's Kobo template) declares three legacy mappings at import. The Kobo
+  S1 import fixture predates them, so `backend/conversions/kobo-001-bindings.json` (`minigrid-roles-1`) has no
+  binding to carry for them. Kobo's binding for generator status has `legacy_mapping_id` null (a declared signal),
+  so §9.4 item 1 drops it.
+- Kobo receives these three channels later, as demo-configuration binding republications:
+  `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (also `kobo-001-s6-verification-demo-config.json`),
+  applied through `sites/demo_configuration.py`. They are not part of conversion.
+- Not tried; for the Architect to rule:
+  - (i) the bindings draft carries the three bindings from Kobo's own `kobo-001-s3-dispatch-demo-config.json`
+    rows, with whatever role set they require, rather than only `kobo-001-bindings.json`;
+  - (ii) conversion with `kobo-001-bindings.json` as ruled, then Kobo's demo-configuration republication on the
+    in-memory store, as Kobo gets them. This needs the three legacy mappings to be convertible first, so it does
+    not fix the refusal alone;
+  - (iii) import a Kisiwa record without the three mappings. This changes D0's template and is listed only for
+    completeness.
+- Nothing after conversion ran. No run setup, no v7, no gates F0a-F9 or F11, no `probe-result.json`, no per-night
+  numbers. F10 is unchanged (D0 files byte-equal to main; the earlier `--check` passed and no D0 file has changed
+  since). The probe-local v7 was not built.
+
 ## First attempt (stopped, aa49a18fd): STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
 
 No night was measured. No plain-words result line exists, there is no per-night table, and
