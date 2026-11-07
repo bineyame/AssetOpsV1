@@ -2598,3 +2598,44 @@ DS-1 takes its lines from these sections, with the measured numbers already fill
 The first review spent 0.1 of the 0.15. New: the fix round, **+0.2**, and a Sonnet re-review, **+0.05**. **DD-1b2b has 0.3 left:** fix round 0.2, re-review 0.05, close 0.05. Its total is 2.95. **Lane 2 remaining: 0.3 + CH-5d1's 1.0 = 1.3.**
 
 **Owner:** nothing new. No decision is needed.
+
+## DD1b2-R14: R13's two failed asserts on `dd1b2` (Architect, Claude, 2026-11-07)
+
+Input: the coordinator's relay of the stop (`28bb723d0`; after tool exit 1, 8 pass, 2 fail). **MEASURED** = my own read-only probes on `dd1b2`, tree form, `ASSETOPS_RESPONSE_STORE=compose`, `default_transaction_read_only=on` (scratchpad `r14_cold.py`, `r14_cold2.py`, `r14_cold3.py`). **READ** = code, cited. I wrote nothing to any DB.
+
+### 1. `o12_grow_nodes_S-5`: a wrong expectation (ours), not a product fault
+
+- R6 O12 took "No potential found yet" from the **does-not-recur** column. R6's own table gives S-5 under **Recurs** as "Seen again, no kW figure (the study is UNKNOWN)" (`:1549`). The build recurs (R10 §2): OPP-000002 is UNKNOWN with 1 eligible day (10-31). Its other four days are 11-01 and 11-03 (no run) and 11-02 and 11-04 (8 h runs). So "Not judged yet: 4 of the 5 study days have no reading" is the expected UNKNOWN sentence.
+- **Assert becomes:** S-8 is unchanged (it passed). S-5: the potential starts "Not judged yet", with no kW figure and no money (the WK-2c bars). Record the mill thread's `state_label` on S-5's board, report only.
+- **DS-1 (replaces R6 §4's L6 line):**
+  - **On 28 Oct (S-8):** "The day after the change, the mill is checked and working. Spare solar was still seen on the well-observed days; the opportunity's size isn't repeated while the change is being checked."
+  - **On 31 Oct (S-5):** "From 31 October the system saw spare solar again, so the opportunity is open again. Only one of its five check days has full readings so far, so it isn't sized yet." Use "Seen again" only if S-5's recorded label shows it. **Do not say** a kW or money figure on S-5.
+- **Not demo-critical as a product item.** No BL.
+
+### 2. `cold_protect_why_names_both_threads`: a product gap (Why? visibility cutoff), not demo data
+
+- **MEASURED.** Thread `b13f2110` (COLD_EXCURSION, Protect MOVES CC-1, OPEN) has one occurrence, Finding `08d87808`. Its `created_at` is 2026-11-05 17:10Z. Cold's resolved cutoff is the evidence end, 17:05Z: the Why? `window.known_at` reads 17:05Z on the run window, on S's Site-local day (11-04 21:00Z → 11-05 21:00Z) and on the week. On all three, the Protect "Why?" names `aacec8fa` (known since 11-02) and not `b13f2110`. Its text reads "Unknown · ACT-002 · Open · linked finding outside this view". The Site chain lists both threads. So the tool's window choice is not the cause.
+- **READ, probable cause:** the board looks up threads with `known_at=cutoff, visible_at=<request known_at>`, which is "as known now" when the request gives none (`site_outcomes/read.py:455-457`, "R-1: request bounds visibility"). The Why? reads `threads_through(..., cutoff=cutoff)` on the board's resolved cutoff (`chain/why.py:282-285`). For Cold and EV, that cutoff is the evidence end (`board_cutoff`, `read.py:805-809`). A Finding assessed after its evidence ends is therefore missing from the Why? but present on the board and chain. This affects every Cold and EV Finding created after its window's last reading, not only this demo day. The fix slice confirms the cause before it changes anything.
+- **Class:** (c), a product gap. **Not fixed in DD-1b2b.** It is a backend read path, so it is an R6 §7 class item, but it needs no data rebuild and blocks nothing in this slice.
+- **BL-50 (new, next free):** "The Site 'Why?' sees the same threads as the board. `site_trace` uses the board's visibility (`visible_at` = the request's cutoff, else now) and not Cold/EV's evidence-end cutoff, so a Finding assessed after its evidence ends is named in the 'Why?' (`chain/why.py:282-285`; `site_outcomes/read.py:455-457`). Proof: the Cold failure day's Protect 'Why?' names both Cold threads." Source: DD1b2-R14. Est. 0.25. Not demo-critical: the board and the Action are right, and DS-1 does not open this panel (below). **Added to the owner's walkthrough list.**
+- **Assert becomes:** on S's Site-local day, the Cold Protect "Why?" names `aacec8fa` (ACT-002's thread). That part fails if missing. Record whether `b13f2110` is named, with the text. A missing `b13f2110` is reported as "BL-50 known gap", not a failure. If BL-50 merges before E3, E3.2 asserts both again.
+- **DS-1 (new):** "On the Cold Room, explain the failure from the day's board and its Action. Do not open the Protect 'Why?' on the failure day." Also: "If a client opens it, it names the earlier cooling problem and says a linked finding is outside the view: that's a known display gap; the board above is complete."
+
+### 3. Builder interpretations
+
+- **(a) Confirmed.** Grow `open_findings` 1 on week and month is the mill thread counted open. It is Kobo's only Grow thread.
+- **(b) Confirmed.** R13 meant the threads that hold ACT-002 and ACT-003. Cold's second thread (`b13f2110`) has no Action, and "Open" is correct for it. Tighten if cheap: key the Cold check on the thread whose Action is ACT-000002.
+
+### 4. Resume, size, owner
+
+- **The builder resumes (Sonnet):**
+  1. Amend the two asserts (§1, §2) with their L0s.
+  2. Rerun the after tool once on `dd1b2`, then on `dd1b2d` in S+2 mode.
+  3. Do B5. The packet adds R14's DS-1 lines and BL-50.
+  4. Add BL-50 to `.agent/backlog-post-demo.md`.
+  - Any new failed assert stops the round, as R13 set.
+- **Then the Sonnet re-review** of R13's named findings plus R14's two asserts.
+- **Size:** the fix round has spent about 0.15, and these probes cost 0.05. Left: the builder about 0.1, re-review 0.05, close 0.05. **DD-1b2b has 0.2 left; its total is 3.0. Lane 2 has 1.2 left.** BL-50 is not counted.
+- **Owner (information, no decision; walkthrough list):**
+  - "On the Cold Room's failure day, the 'Why?' panel for protecting the asset names the earlier cooling problem but not the new temperature problem from that afternoon. It says a linked finding is outside the view. The board itself shows both. It's a display gap; we'll fix it after the demo, and in the demo we explain the Cold Room from the board."
+  - "On 31 October the solar opportunity shows as not yet sized, because only one of its five check days has full readings. The script now says exactly that."
