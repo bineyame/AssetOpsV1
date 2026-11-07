@@ -81,7 +81,9 @@ def _mg1(target="300", k=3):
 
 
 def test_mg1_text_with_no_counted_day():
-    assert v.mg1_text("NOT_JUDGED", None, 0, 5, 31, Decimal("300"), 3) == "sales not recorded"
+    assert v.mg1_text("NOT_JUDGED", None, 0, 5, 31, Decimal("300"), 3) == v.MG1_NO_DAY
+    # WD-1 / MD-WD1-2: the no-checked-day words say why there is no figure
+    assert v.MG1_NO_DAY == "no fully checked day counted yet this month" and "sales not recorded" not in v.MG1_NO_DAY
 
 
 def test_verdict_claim():

@@ -1289,3 +1289,256 @@ VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the 
 - PV-1 is a screen change (the Assure card). It joins the post-W6 owner walkthrough, with no separate walkthrough.
 
 **Owner question: none.**
+
+---
+
+## WD-1-R: ruling on the WD-1 pre-flight (Architect, Claude, 2026-11-07)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `4235318d6`. This section amends §3.2 for WD-1. `B/` = `backend/assetops_backend/`. READ = I read the code; nothing here was measured.
+- Sources: §3.2, A2-R1 L4 (the `GENERATOR_KWH_UNKNOWN` note), MB-1a-R2 §4 (the mill suffix note), BL-48.
+
+### 1. EV fault-day Grow headline: the §3.2 literal, confirmed
+
+- **READ.** `B/site_outcomes/ev.py:229` picks the headline from `priced` (the overview's money state). `_charging_from_claim` (`:293-309`) later sets `headline_money[GROW]` to None when the chain earnings claim is NOT_KNOWN, but leaves the headline. So a priced fault day shows "estimated charging income" with no amount.
+- **Decision.** The builder's proposal is the §3.2 card's literal. New constant in `ev.py`, beside `NO_TARIFF` (`:51`), verbatim:
+  ```python
+  NO_INCOME_FIGURE = "No income figure for this day: it is not fully checked"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
+  ```
+- **Rule (three cases, exhaustive):**
+  - shown Grow money has a value: `TARIFF_ESTIMATE` (unchanged);
+  - `priced` is true and the shown Grow money is None (the claim is NOT_KNOWN): `NO_INCOME_FIGURE`;
+  - `priced` is false: `NO_TARIFF` (unchanged; the reason there is a missing price, not a missing check).
+- **Code.** `_charging_from_claim` returns `"headline": {**facts.headline, GROW: NO_INCOME_FIGURE}` when `priced and money is None`, else it leaves the headline unchanged. Add `NO_INCOME_FIGURE` to the export tuple at `:79-82`. No other module changes.
+- **Test.** One new L0 case beside the existing EV Grow row tests: a priced day with a NOT_KNOWN claim gives `headline[GROW] == ev.NO_INCOME_FIGURE` and `headline_money[GROW] is None`. Non-vacuity: drop the override, and the case fails. Existing tests import the constants, never retype them.
+- **MOCK DEVIATION MD-WD1-1.** v69 shows the Depot Grow headline only with a figure ("gross tariff estimate"). It has no no-figure state, so this literal has no mock example.
+
+### 2. Kobo monthly sales line: the §3.2 literal, confirmed
+
+- **Decision.** `MG1_NO_DAY` (`B/chain/vocabulary.py:268`) and `MG1_ACTUAL` (`B/site_outcomes/mini.py:135`; §3.2 cited `:127`) both become, verbatim:
+  ```python
+  "no fully checked day counted yet this month"
+  ```
+  They must stay equal. Make it one literal: `mini.py:135` becomes `MG1_ACTUAL = MG1_NO_DAY`, added to the existing `chain.vocabulary` import at `mini.py:27` (READ: that import already brings in the `MG1_*` forms, so there is no new edge). Update the CH6a2-R Q5 twin comment at `vocabulary.py:267` to say so.
+- **Retyped strings: approved, by import.** These files change only to import the constant in place of the old text:
+  - `backend/tests/test_ch6_claims.py:84`
+  - `backend/tests/test_ch6_evaluator.py:90`
+  - `backend/tests/test_out_d4_board.py:124`
+  - `backend/tests/test_demo_combined_finish_rows.py:441`
+  - `tools/demo_combined_rows.py:93,98` (finish rows WK-1 and WK-4)
+- **Test.** One new L0 case: a month with no fully checked day renders the line equal to `MG1_NO_DAY`, and the text does not contain "sales not recorded".
+- **MOCK DEVIATION MD-WD1-2.** v69 shows the sales line only with a value. The empty state has no mock example; this replaces the earlier unlabelled empty-state words.
+
+### 3. `GENERATOR_KWH_UNKNOWN`: change it
+
+- **READ.** The reason fires when **either** window's generator energy is None (`B/financials/trial_fuel_comparison.py:129-130`). "Not known for both hours" is false when only one hour is missing. Rows store the reason code; the words are applied at read time (`B/site_outcomes/board.py:90`), so no stored row or golden carries the text (grep: the literal appears only at `board.py:90`).
+- **Decision** (`B/site_outcomes/board.py:90`), verbatim:
+  ```python
+  "GENERATOR_KWH_UNKNOWN": "generator energy is not known for one or both hours",
+  ```
+  It matches A2-R1's `IDLE_SECONDS_UNKNOWN` form. No mock deviation: the reason words have no v69 example, as for A2-R1 D1.
+- **Guard.** Run `backend/tests/test_out_e4_readback.py` (the no-code-on-screen and reason-set tests). If any other test or golden fails on this text, STOP and report it.
+
+### 4. Mill "verified" line suffix: the mill must be labelled; not in WD-1
+
+- **Decision.** Leaving the mill plain is **rejected**. The owner rule is that example data is clearly labelled as example data on client screens. On the S+0 Kobo board the mill verdict is judged on the same Site's example readings as the trial. A plain "ACT-… verified" beside "ACT-048 verified on example data" reads as a field result, and that is a false impression.
+- **The literal** is the existing one: the mill entry uses `VERIFICATION_TEXT[s]` with `provenance_suffix(<the verdict's source class>)`, giving "… verified on example data" (`B/chain/vocabulary.py:106-112`). No new words.
+- **Not in WD-1.** `OpportunityActionFact` (`B/site_outcomes/board.py:190`) and `site_chain.opportunity_actions` (`B/chain/site_chain.py:155-180`) carry no source class, and the verdict row has none on `_SITE_ACTIONS` (MB-1a-R2 §4). Labelling needs new plumbing: a source class read for the mill verdict, a field on the fact, the `provenance_suffix` call at `mini.py:1084`, MILL-5 in `tools/demo_combined_rows.py` taking the suffix by import, and the `estate_week_2026-10-25` golden check.
+- **New unit WD-1m, "mill example-data label", 0.35, lane 1, after WD-1 and before PV-1** (PV-1 reads the mill verdict line too). It is demo-critical, because the mill line is on the demo board. The WD-1m pre-flight names the source: the verdict's stored evidence source class if it exists; otherwise the Site's bound telemetry source class over the verdict window (`analytics/adapters/postgres_assessment_store.py:2760` pattern). It must never be a hard-coded "example" flag. If neither source is readable within 0.35, STOP and report to the Architect.
+- **Until WD-1m merges,** WD-1 leaves the mill line unchanged. WD-1's packet lists the asymmetry under residual risk, as "closed by WD-1m". It is not "accepted".
+
+### 5. Size and order
+
+- **WD-1: 0.15 → 0.17** (+0.02 for item 3: one literal and one guard run). Items 1 and 2 are inside the card's 0.15.
+- **WD-1m: +0.35, new.** Lane 1 becomes MV-1 → MB-1a → MB-1b → WD-1 (0.17) → **WD-1m (0.35)** → PV-1. That is 2.75 + 0.02 + 0.35 = **3.12**.
+- WD-1 and WD-1m are screen-wording changes. They join the post-W6 owner walkthrough, with no separate walkthrough. Guards V and N run on both.
+- Logged for the owner (Architect decision during delegated absence): the mill result will carry "on example data" like the trial, which costs +0.35.
+
+**Owner question: none.**
+
+---
+
+## WD-1m-R: ruling on the WD-1m pre-flight (Architect, Claude, 2026-11-08)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `cbb89ed60`; worktree `C:\Users\assef\Bineyame\AssetOpsV1-wd1m`. This section replaces WD-1-R §4's "source" paragraph. Everything else in WD-1-R §4 stands. `B/` = `backend/assetops_backend/`, `T/` = `tools/`. READ = I read the code; nothing here was measured.
+- The builder's first-choice finding is accepted. The mill outcome `details` has no `source` block (`B/actions/verification_families.py:382-390`), and `site_day_snapshot.evidence_class` is not a source class. The fallback applies.
+
+### 0. Code reality the ruling rests on (READ)
+
+- `B/evidence/source_provenance.py:40-41`: there are exactly two positive source classes, `AUTHORED_DEMONSTRATION` and `REGISTERED_SIMULATION`, and both are in `EXAMPLE_SOURCES` (`B/chain/vocabulary.py`). Field telemetry has no publication link; it is UNBOUND. So "any of the window's evidence is published under a positive class" means the same as "some of it is example data".
+- `batch_publication_link` is keyed by `batch_id` (`0017_evidence_publication.py:83`), so a class lives per batch, not per reading.
+- `accepted_evidence` has `source_time` and `received_at`, and the index `accepted_evidence_site_time (site_id, source_time DESC)` (`0005_evidence_ledger.py:214`). `site.timezone` is `text NOT NULL` (`0001`).
+
+### 1. Decisions (one line each)
+
+- **Q1 window: (ii).** The verdict's used days (`details.baseline.days` ∪ `details.later.days`), as Site-local dates, limited to evidence received by the outcome's `recorded_at`. Rejected: (i) labels on days the verdict never used; (iii) is exact but repeats the measure per day for a label.
+- **Q2 classification: "any example data labels it", not `classify`.** Return the smallest positive publication class found among the window's batches, else NULL. A mixed window still gets the label. `classify` would give MIXED/UNKNOWN and drop the label for a window that does contain example data, which breaks the owner's labelling rule. The trial's `source_pair` is a comparability gate, not a label rule, and is not reused.
+- **Q3 location: (a), as a guarded lateral on `_SITE_ACTIONS`.** (b) is rejected because it crosses OUT-B4 and the evidence boundary. (c) is rejected for now: the verdict code has no evidence ids, so (c) would need this same window query at verdict time *plus* a write path, golden churn and a rebuild. E3's rebuild does not remove the golden churn. (c) goes to the backlog as BL-"mill verdict stores its source", post-demo.
+- **Q4 speed: measure first; stop at more than 50 ms added per board read, or any seq scan** (§4).
+
+### 2. The SQL (`B/chain/adapters/postgres_chain_read.py`, `_SITE_ACTIONS`)
+
+- The existing lateral `v` also selects `o.details`. Add one guarded lateral and one output column, `source_class`. The intended form is below. The builder may adjust the syntax, but it must not change the semantics:
+  ```sql
+  -- in the select list:
+         v.outcome, v.recorded_at AS outcome_recorded_at, src.source_class
+  -- the existing lateral v also selects o.details:
+  LEFT JOIN LATERAL (SELECT o.outcome, o.recorded_at, o.details FROM verification_outcome o ...) v ON true
+  -- WD-1m (WD-1m-R §2): the mill verdict's example-data class over its used days; NULL = none found.
+  -- No S4-05 commitment checks on purpose: a broken link can only add "on example data", never remove it.
+  LEFT JOIN LATERAL (
+    SELECT min(p.source_class) AS source_class
+      FROM site st,
+           LATERAL (SELECT array_agg(CAST(d AS date)) AS days
+                      FROM jsonb_array_elements_text(coalesce(v.details->'baseline'->'days', '[]'::jsonb)
+                                                     || coalesce(v.details->'later'->'days', '[]'::jsonb)) d) u
+      JOIN accepted_evidence e
+        ON e.tenant_id = a.tenant_id AND e.site_id = a.site_id
+       AND e.source_time >= (CAST((SELECT min(x) FROM unnest(u.days) x) AS timestamp) AT TIME ZONE st.timezone)
+       AND e.source_time <  (CAST((SELECT max(x) FROM unnest(u.days) x) + 1 AS timestamp) AT TIME ZONE st.timezone)
+       AND CAST(e.source_time AT TIME ZONE st.timezone AS date) = ANY(u.days)
+       AND e.received_at <= v.recorded_at
+      JOIN batch_publication_link l ON l.batch_id = e.batch_id
+      JOIN evidence_publication p ON p.id = l.publication_id
+     WHERE st.tenant_id = a.tenant_id AND st.id = a.site_id
+       AND a.kind = 'DOMAIN_INTENT' AND a.origin_opportunity_id IS NOT NULL AND v.outcome IS NOT NULL
+  ) src ON true
+  ```
+- **Guard.** The lateral runs only for an opportunity-origin domain Action that has an outcome. Trials and other Actions get NULL and no scan.
+- **Commitment checks are deliberately not repeated.** The S4-05 select (`postgres_evidence_ledger.py:1171-1194`) checks commitments, and a broken link resolves to BROKEN_LINK. Here a broken link to an example publication still labels. That is the conservative direction: a broken link can add the words "on example data", and it can never remove them. Write this in the packet.
+- **Approved cap.** If `test_ch9b1_origin_readers.py` counts the new `origin_opportunity_id` token, raise the `chain/adapters/postgres_chain_read.py` cap by exactly the counted tokens (expected +1, class "both") with a `# WD-1m-R` comment. Anything beyond +2: STOP.
+
+### 3. Pass-through and render
+
+- `B/chain/site_chain.py` `opportunity_actions` (`:175-178`): add `"source_class": a.get("source_class") if known else None`. The class follows the outcome's own cutoff visibility. If no outcome is known by the cutoff, there is no class.
+- `B/chain/claims.py:95` also calls `opportunity_actions`. It must ignore the new key. If any claims wire or golden gains the key, STOP.
+- `B/site_outcomes/board.py` `OpportunityActionFact`: add `source_class: str | None = None` with the comment `# WD-1m-R: example-data class over the verdict's used days (None = none found)`. Fill it where the fact is built from the `opportunity_actions` dict (`mini.py:444`).
+- `B/site_outcomes/mini.py:1084`: `provenance_suffix(None)` becomes `provenance_suffix(a.source_class)`. Literal: the existing `VERIFICATION_TEXT[s]` with " on example data", so the entry reads "ACT-… verified on example data". No new words and no mock deviation, because this is the trial's existing form.
+- `T/demo_combined_rows.py` MILL-5 (`:279-286`): the expected mill entry takes `provenance_suffix` by import, with the class read from the board body. The live S+0 Kobo mill entry must end with `provenance_suffix(<Kobo's publication class>)`; name the class in the packet. It must never be retyped.
+
+### 4. Speed check (before writing the render; STOP gate)
+
+- On the authorized test DB (`*_test` in `assetopsv1-postgres-1`) with the prepared Kobo story data, run `EXPLAIN (ANALYZE, BUFFERS)` on `_SITE_ACTIONS` for Kobo with and without the new lateral.
+- **STOP** and report the plan if either holds:
+  - the added time is more than **50 ms**;
+  - the plan reads `accepted_evidence` by seq scan rather than `accepted_evidence_site_time`.
+- Record both timings and the index line in the packet. Do not add an index or a migration to fix a slow plan; report it.
+
+### 5. Parity test (Postgres, test DB; new file `backend/tests/test_wd1m_mill_source_postgres.py`)
+
+- **Reference.** For the same window, select the ids of `accepted_evidence` on the used days that were received by `recorded_at`. Pass them to `link_rows_on`, apply `source_provenance.link_of` to each row, keep the links that are `BOUND` with a class in `EXAMPLE_SOURCES`, and take `min` of their classes, else None. The adapter column must equal the reference in every case below.
+- **Seed:** one Site whose `timezone` is not UTC, two batches on different days, one published as `REGISTERED_SIMULATION` and one unpublished (UNBOUND), and an opportunity-origin domain Action with a recorded outcome whose `details` name the days.
+- **Cases:**
+  1. used days only on the published batch: `REGISTERED_SIMULATION`;
+  2. used days only on the unpublished batch: None;
+  3. used days on both: `REGISTERED_SIMULATION` (the mixed window keeps the label; `classify` would say UNKNOWN, and the test asserts the difference on purpose);
+  4. the published batch's evidence lies on a day that is not used: None (proves the window);
+  5. the published evidence has `received_at` after `recorded_at`: None (proves the knowledge limit);
+  6. a reading at 23:30 Site-local on a used day, which is the next day in UTC: it counts (proves the Site-local mapping);
+  7. a `MINI_TRIAL` Action on the same Site: `source_class` is NULL (proves the guard).
+- **Non-vacuity:** remove `= ANY(u.days)` and case 4 fails; remove the `received_at` line and case 5 fails. Record both in the packet.
+- **L0:**
+  - In `test_mb1_opportunity_board.py`, a mill fact with `source_class="REGISTERED_SIMULATION"` renders the entry with `provenance_suffix(...)`, and one with None renders it plain.
+  - MILL-5's self-test gains a mill entry that is missing its suffix on an example Site, and that entry must FAIL.
+
+### 6. Goldens, files, size
+
+- **Golden diffs allowed:** only the Kobo mill "Verified results" entry gains " on example data", in any board or Portfolio golden that carries it. Any other change: STOP and report.
+- **Files:**
+  - `B/chain/adapters/postgres_chain_read.py`
+  - `B/chain/site_chain.py`
+  - `B/site_outcomes/board.py`
+  - `B/site_outcomes/mini.py`
+  - `T/demo_combined_rows.py` (MILL-5 only)
+  - `backend/tests/test_wd1m_mill_source_postgres.py` (new)
+  - `backend/tests/test_mb1_opportunity_board.py`
+  - MILL-5's self-test file
+  - `backend/tests/test_ch9b1_origin_readers.py` (the cap line only, if needed)
+  - the affected goldens
+- **Out of scope, a stop-check only.** The builder records whether the mill **verdict page** already says the result is on example data. If it does not, report it; it is not fixed in WD-1m.
+- **Size: WD-1m 0.35 → 0.45** (+0.1 for the Postgres parity test and the speed gate). Lane 1 total: 3.12 → **3.22**.
+- WD-1m is a screen-wording change. It joins the post-W6 owner walkthrough, with no separate walkthrough. Guards V and N run.
+
+**Owner question: none.**
+
+---
+
+## WD-1m-R2: the speed gate failed; the class is stored at verdict time (Architect, Claude, 2026-11-08)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `cbb89ed60`; WIP `0bc9c2e14` on `task/FUEL-WD1m-mill-example-label`. This section **replaces WD-1m-R §1 Q3, §2, §4 and §5**. Its Q1 window (used days, Site-local, received by the knowledge time) and Q2 rule ("any example class in the window labels it; `min` of the classes, else None") stand unchanged. `B/` = `backend/assetops_backend/`, `T/` = `tools/`.
+- **The measurement is accepted.** The lateral adds a median of 663.5 ms per board read against the 50 ms limit. It is index-led (bitmap on `accepted_evidence_site_time`, 57,600 rows), and the cost is the per-row link and publication lookups. Real Kobo volume is very likely above the ~700 rows/day break-even. A per-read scan cannot be made honest and fast inside this unit.
+
+### 1. Decision: route (c), the verdict stores its own source class
+
+- **Why (c).** The mill verdict is computed and stored once (`MiddayShift.evaluate`, `B/actions/verification_families.py:197-216`; a stored outcome replays and never re-evaluates). One window query per verdict costs about the measured 0.66 s, once. Each board read then costs one jsonb field. This is also the trial's existing shape: a trial outcome carries `details.source.source_class`, and the chain read already selects that path (`B/chain/adapters/postgres_chain_read.py:134`).
+- **Rejected: a Site-level declared source** (publication profile or binding basis). It describes the Site, not the readings this verdict used. If a Site mixes field and example data, it would mislabel in one direction or the other. "On example data" must be true of the result shown.
+- **Rejected: descope** (plain line, DS-1 presenter line, a note elsewhere). A presenter line is not on screen. A note elsewhere leaves this line reading as a field result beside a labelled trial, which is exactly what the owner's labelling rule forbids.
+
+### 2. Write path
+
+- **Store port.** Add one method to the actions store port (`B/actions/ports.py`, beside `record_domain_outcome`) and implement it in `B/actions/adapters/postgres_action_store.py`:
+  ```python
+  def example_source_class(self, tenant_id: UUID, site_id: UUID, days: list[str], timezone: str,
+                           known_at: datetime) -> str | None:
+      """WD-1m-R2: `min` of the positive publication classes over the Site's accepted evidence on `days` (Site-local
+      dates in `timezone`) received by `known_at`; None = none found. No S4-05 commitment checks: a broken link can
+      only add "on example data", never remove it (WD-1m-R §2)."""
+  ```
+  The SQL is the WIP lateral's body (`0bc9c2e14`) with parameters in place of the lateral references: `:t`, `:s`, `:days` (`date[]`), `:tz`, `:k`. Keep the `source_time` range bound from min day to max day + 1 (Site-local), the `= ANY(:days)` day test, and `e.received_at <= :k`. Remove the `kind` / `origin` / `v.outcome` guard; the caller is the guard. Empty `days` returns None without querying.
+- **Evaluate** (`verification_families.py:212-216`). After `result["decided"]` is true and before `outcome_rows`:
+  ```python
+  used = [d.isoformat() for d in result["baseline_days"] + result["later_days"]]
+  source_class = store.example_source_class(tenant_id, site_id, used, plan["basis"]["timezone"], now)
+  outcome, metrics = outcome_rows(plan, result, now, source_class)
+  ```
+- **`outcome_rows`** (`:364`) takes `source_class: str | None = None` and adds `"source": {"source_class": source_class}` to `details`, always, with None allowed. It goes in `details`, never in `basis`, so `basis_sha256` and replay identity are unchanged.
+- **Fakes.** Every in-repo fake store that `evaluate` runs against gains `def example_source_class(self, *a, **k): return None`. If more than 3 fakes need it, STOP and report; do not add a `getattr` fallback.
+- **Stored verdicts written before this unit** have no `details.source`. They read NULL and show plain. Demo data gets the class at E3's rebuild. Do not write a backfill or a migration (`verification_outcome` is append-only). Note it in the packet under residual risk: "a verdict stored before WD-1m shows no suffix until the data is rebuilt".
+
+### 3. Read path
+
+- `B/chain/adapters/postgres_chain_read.py` `_SITE_ACTIONS`: **delete the WIP's evidence lateral.** The existing lateral `v` selects `o.details->'source'->>'source_class' AS source_class` (the `:134` form). The output column stays `source_class`.
+- The WIP pass-through stays as built: `site_chain.opportunity_actions` (`"source_class": ... if known else None`), `OpportunityActionFact.source_class`, and `claims.py:95` ignoring the key.
+- `B/site_outcomes/mini.py:1084`: `provenance_suffix(None)` becomes `provenance_suffix(a.source_class)`. Same literal as WD-1-R §4 ("ACT-… verified on example data"); no mock deviation.
+- **The origin-reader cap.** Undo any WIP cap change that the deleted lateral needed. If the new select still counts a token, apply WD-1m-R §2's rule (exact count, `# WD-1m-R2`, STOP beyond +2).
+
+### 4. MILL-5 field: the verdict page's `outcome.source_class`
+
+- The board wire carries no class, and it gains none. The field is on the mill verdict page wire. In `summary_wire`'s judged branch (`verification_families.py:464-466`), the `outcome` object gains:
+  ```python
+  "source_class": (d.get("source") or {}).get("source_class"),
+  ```
+  It is a wire field only, not shown on screen. This also gives the verdict page what it needs to label itself later; that is out of scope here, as in WD-1m-R §6.
+- `T/demo_combined_rows.py` `mill_assure` gains a `page: dict` parameter, the same verdict-page body that the mill value check reads. The call site passes it.
+  - The expected text uses `provenance_suffix((page.get("outcome") or {}).get("source_class"))`.
+  - On the S+0 Kobo story it also asserts that `source_class in EXAMPLE_SOURCES`, imported from `chain/vocabulary.py`. Kobo's readings are example data, so a None there means the write path did not run, and MILL-5 FAILS rather than passing on a plain line.
+  - MILL-5's self-test keeps WD-1m-R §5's FAIL case (no suffix on an example Site). Add a FAIL case for `outcome.source_class` None on the S+0 Kobo page.
+
+### 5. Tests
+
+- **Parity** (Postgres, test DB; refactor the WIP `test_wd1m_mill_source_postgres.py` to call the store method):
+  - Cases 1-6 of WD-1m-R §5 run against `store.example_source_class(...)`, with the same reference (`link_rows_on`, `link_of`, BOUND ∩ `EXAMPLE_SOURCES`, `min`) and the same non-vacuity (remove the day test and case 4 fails; remove `received_at` and case 5 fails).
+  - Case 7 is replaced. A mill outcome stored **without** `details.source` reads `source_class` NULL through `_SITE_ACTIONS`, and a `MINI_TRIAL` Action keeps its own class path unchanged.
+  - New end-to-end case: `MiddayShift.evaluate` on the seeded published-batch days stores `details.source.source_class == "REGISTERED_SIMULATION"`, `_SITE_ACTIONS` returns it, and `summary_wire` shows it as `outcome.source_class`.
+- **Speed:**
+  - **Board read (structural, L0):** assert that the `_SITE_ACTIONS` text does not contain `accepted_evidence`. This pins that the board read never scans evidence. Then rerun the WIP harness, with `EXPLAIN (ANALYZE)` on `_SITE_ACTIONS` over the same 268,800-row data, and record the timing. Expected near the old 0.655 ms. STOP if it is above 50 ms.
+  - **Verdict time:** time `example_source_class` once on the same data and record it. STOP if it is above **3 s**, because it runs once per verdict inside the evaluate step.
+- **L0:** the WD-1m-R §5 board cases stand (suffix with `"REGISTERED_SIMULATION"`, plain with None). Add an `outcome_rows` case: `details["source"] == {"source_class": X}` for X in (None, `"REGISTERED_SIMULATION"`), and `basis` is byte-equal to the case without it.
+
+### 6. WIP commit, goldens, files, size
+
+- **WIP `0bc9c2e14`:** keep it, and build on top of it on the same branch. Do not rewrite history. The next commit deletes the lateral and adds the write path. The branch's merged diff must contain no `accepted_evidence` in `postgres_chain_read.py`.
+- **Golden diffs allowed (E3 rebuilds the demo data; refresh only these):**
+  1. a stored mill outcome's `details` gains `"source": {"source_class": ...}`;
+  2. a mill verdict-page wire's `outcome` gains `source_class`;
+  3. the Kobo mill "Verified results" entry gains " on example data".
+  Any other diff: STOP and report it.
+- **Files** (WD-1m-R §6's list, minus nothing, plus):
+  - `B/actions/ports.py`
+  - `B/actions/adapters/postgres_action_store.py`
+  - `B/actions/verification_families.py` (`evaluate`, `outcome_rows`, `summary_wire` only)
+  - the fake stores (one line each, at most 3)
+  - the `mill_assure` call site in `T/`
+- **Size: WD-1m 0.45 → 0.7** (+0.25: port and adapter method, evaluate and `outcome_rows`, the wire field, fakes, the MILL-5 parameter, the end-to-end case, goldens). About 0.2 of the WIP is reused (pass-through, fact field, parity cases). Lane 1 total: 3.22 → **3.47**.
+- Logged for the owner (Architect decision during delegated absence): the mill result is labelled "on example data" from a class recorded when the result is judged, and the extra cost is +0.25.
+
+**Owner question: none.**

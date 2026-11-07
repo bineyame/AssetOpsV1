@@ -77,6 +77,9 @@ def _constants() -> list[str]:
              board.THREAD_BEFORE.format(e="1 Nov") + board.THREAD_AFTER_NOT_JUDGED.format(e="1 Nov"),
              board.THREAD_MONITORING.format(code="ACT-001", k=7), board.THREAD_CLOSED.format(code="ACT-001", n=7),
              board.THREAD_RECURRED.format(day="3 Nov", code="ACT-001"),
+             # MB-1-R Q3 (MB-1b): the opportunity thread's three lines (the mill)
+             board.OPP_THREAD_MONITORING.format(code="ACT-002", k=7), board.OPP_THREAD_CLOSED.format(code="ACT-002", n=7),
+             board.OPP_THREAD_SEEN_AGAIN.format(day="31 Oct", code="ACT-002"),
              board.TRIAL_SCOPE.format(start="10:00", end="11:00", day="1 Nov"), credit.MONEY_NOT_CREDITED]
     # PV-1-R §3: the two verified-value lines (the card prefixes the Site via CARD_TEXT `assure.value_line`).
     copy += [mini.VALUE_LINE_MILL.format(code="ACT-002", d="17.00", cur="USD"),

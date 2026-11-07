@@ -12,6 +12,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
 import demo_combined_rows as rows  # noqa: E402
+from assetops_backend.chain.vocabulary import MG1_NO_DAY  # noqa: E402
 
 ZERO = {"dirty": 0, "snapshots_pending": 0, "threads_pending": 0, "mini_deferred": 0, "opportunity_live": 0}
 
@@ -438,7 +439,7 @@ def test_unknown_outcomes_pass_only_as_not_judged() -> None:
 
 def test_wk4_has_three_branches_and_each_can_fail() -> None:
     early = "Productive electricity sales: at least 300 kWh · too early to judge (needs 3 checked days)"
-    none = "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded"
+    none = "Productive electricity sales: at least 300 kWh sold for productive use a month · " + MG1_NO_DAY
     judged = "Productive electricity sales: 120 kWh so far this month"
     assert rows.wk4("UNKNOWN", early, 1) == "TOO_EARLY"
     assert rows.wk4("UNKNOWN", none, 0) == "NO_FULL_DAY"

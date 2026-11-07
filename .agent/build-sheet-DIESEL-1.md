@@ -1473,6 +1473,7 @@ None.
 - `generator_kwh = Σ kwh_t`; `loaded_litres = SFC × generator_kwh` (A2's `fuel = SFC × generator kWh`, every slot's kWh, as fuel-cost does); `idle_seconds = 300 × idle slots`; `idle_h = idle_seconds / 3600`.
 - Any `kwh_t` None → reason `GENERATOR_KWH_UNKNOWN`. Otherwise any `state_t` None → `IDLE_SECONDS_UNKNOWN` (A2's reason names).
 - `verification_rules.py` is **imported, never edited** (the two private helpers are imported by name; K6 owns the next edit of that file). K3 never reads a run, a trajectory or the simulator.
+- **Amended by DIESEL-1-R3h (§9h):** the idle test is the shared `verification_rules.idle_slot(...)`, which excludes the stop slot (RUNNING at `t`, a not-running sample at `t + 5 min`). K3 makes that one named edit to `verification_rules.py`.
 
 **Opening, closing and conflicts (F0's rule).**
 - Opening O = the value of the **last** accepted reading with `source_time` in `[start − 30 min, start]`; closing C = the **first** in `[end, end + 30 min]` (both ends inclusive).
@@ -2148,3 +2149,321 @@ config/operational-actions/* text eol=lf
 ### 9f.7 Owner questions
 
 None. For the owner, in plain words: the fuel delivery and the unrecorded removal now enter the simulated world as logged operator actions, stamped with who did what and from which log. Runs that have no actions stay exactly as they were, to the byte.
+
+---
+
+## 9g. Ruling DIESEL-1-R3g: K3 stop S4 (K2's fuel-records reader in the composition)
+
+- Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27).
+- Read on `task/DIESEL-K3-fuel-balance` at `7ded13f1c` (phase A `202535b81`, rule-8 reorder `f864e9e1a`, main merged `3843c82e2`). Read: `tools/checks/configuration-persistence.ps1` rule 1 (`:223-274`), `B/work/composition.py`, `B/evidence/composition.py:89-98`, `B/fuel_balance/composition.py`, `B/fuel_balance/worker.py:38-73`, `B/fuel_balance/adapters/postgres_fuel_balance_store.py:160-190`, `B/work/adapters/postgres_fuel_records.py:40-46`.
+
+### 9g.1 Decision 1: allow the exposure in `B/work/composition.py` (a named, narrow exception to §9d.9 S4)
+
+- **Allowed.** It is the established pattern: `evidence/composition.py:89 build_link_rows_reader()` hands a caller-connection reader across domains in the same way, and `work/composition.py` already uses it. Rule 1 is kept as written: the only `work.adapters` import stays inside `work/composition.py`.
+- **Routes rejected:**
+  - a second fuel-records query in `fuel_balance/adapters/` would duplicate K2's correction semantics, the very rows K2 L1 and §9d.3 test;
+  - moving `select_fuel_records` out of `work/adapters/` changes K2's layout for no gain;
+  - widening rule 1 is never done.
+- **The exception is these lines only.** It covers no other `B/work/` edit and no behaviour change. S4 stays in force for everything else.
+
+### 9g.2 Exact change
+
+1. **`B/work/composition.py`**: add after `build_work_service`, with a lazy import like `build_link_rows_reader`:
+   ```python
+   def build_fuel_records_reader():
+       """DIESEL-K3 (DIESEL-1-R3g): K2's fuel-records read on a caller's connection, for the fuel-balance store."""
+       from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+       return select_fuel_records
+   ```
+   - Add `"build_fuel_records_reader"` to `__all__`, in alphabetical position.
+   - The name is `build_fuel_records_reader`, not `fuel_records_on_connection`, to match the `build_*_reader` precedent.
+2. **`B/fuel_balance/composition.py`**:
+   - The default branch becomes `from assetops_backend.work.composition import build_fuel_records_reader` and `fuel_records = build_fuel_records_reader()`.
+   - Remove the `type: ignore` and the "K3 STOP S4" comment.
+   - Keep the docstring, which names `work/composition.py`.
+3. No other file changes for this item. The adapter, K2's tests and the rule-1 script stay untouched.
+
+### 9g.3 Tests that the production path composes
+
+- **A13 (L0, append to `backend/tests/test_k3_fuel_balance_rules.py`, no DB):**
+  - (a) `work.composition.build_fuel_records_reader() is work.adapters.postgres_fuel_records.select_fuel_records`.
+  - (b) `store = fuel_balance.composition.build_fuel_balance_store("postgresql://unused@127.0.0.1:1/none")`. Assert `store._fuel_records is select_fuel_records`, `isinstance(store._actions, PostgresActionStore)`, `store._engine is None` (nothing connects) and `store.test_db_clock_override is None`.
+  - (c) **The worker's own branch.**
+    - Spy on `fuel_balance.composition.build_fuel_balance_store` with a wrapper that delegates to the real function and keeps the store it returns.
+    - With `DATABASE_URL` unset (monkeypatch `delenv`), run `worker.main(["assess", "--site", "KISIWA-001", "--from", "2026-10-06", "--to", "2026-10-07"])` with no `store=`. It must raise `RuntimeError` matching `"DATABASE_URL is not set"`.
+    - The spy must record exactly one call with `None`, and the kept store's `_fuel_records is select_fuel_records`.
+    - This test fails today with the `ImportError` the builder reported.
+- **C (parity, `host/tests/test_k3_fuel_balance_parity.py`):**
+  - Build the module's `kisiwa["fb"]` with `build_fuel_balance_store(URL, test_db_clock_override=<the existing virtual clock>)` instead of constructing `PostgresFuelBalanceStore` by hand with an adapter import.
+  - Every C assertion, the CLI `REUSED` step included, then runs through the production composition against a real DB. The virtual clock is the composition's own test-only parameter (§9d.4).
+  - Part B may keep its direct injection: its K2 L1 tests are about the reader, not the wiring.
+- No other test changes. A13 is L0. C runs as already planned for phase B (machine idle, `assetops_k3_test` only).
+
+### 9g.4 Who does it
+
+- **The planned Sonnet round on `task/DIESEL-K3-fuel-balance` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-k3`)**, in the same round that verifies and finishes phase B. Order:
+  1. §9g.2 and A13;
+  2. switch C's fixture to the composition;
+  3. run phase B's part C;
+  4. write the packet.
+- One commit for §9g.2 + A13, then phase-B commits. Use `git add -f` of explicit paths.
+- The packet lists the `work/composition.py` diff under "S4 exception, DIESEL-1-R3g".
+- K3's first review (Opus, §9d.10) reviews the whole branch, this item included.
+- Size: about 0.05, inside K3's 1.6. **Critical path, tripwire and date are unchanged.**
+
+### 9g.5 Builder calls confirmed
+
+- **K2 L2 single-head assertions made head-agnostic** (`backend/tests/test_k2_fuel_records_postgres.py:137-138, 168, 184, 186`, in `202535b81`): **confirmed**. This is a head-bookkeeping edit, not a behaviour change (not S5). It is the same allowance §9d.6 gives catalogue-count tests and K2 took for 0054.
+  - The single-head property is still asserted (`get_heads() == [alembic_head()]`), and 0054's `down_revision == PREVIOUS` is kept.
+  - The up/down/up and refused-downgrade tests still pass through 0054. Downgrading to `PREVIOUS` now also takes 0055 down first, on its empty table.
+  - Condition: the packet states that these lines changed and why, and the reviewer re-reads them.
+- **`$fuelBalanceWriter` moved before `$trialComparisonWriter` in rule 8's `$pgWriters`** (`f864e9e1a`, one line): **confirmed**.
+  - The list membership is identical, so the rule is not loosened.
+  - The order keeps `tools/checks/test_estate_guard.py:148`'s anchor `", $trialComparisonWriter)"`, which that self-test edits.
+  - The packet lists it with that reason.
+
+### 9g.6 Owner questions
+
+None.
+
+---
+
+## 9h. Ruling DIESEL-1-R3h: K3 stop S1 (600 idle seconds on every Kisiwa night)
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27).
+- Read on `task/DIESEL-K3-fuel-balance` at `3c239ad2c`: `B/fuel_balance/rules.py:171-201` (`use_from_readings`), `B/actions/verification_rules.py:222-330` (`_power_slot`, `_instant`), `:372-373`, `:478-491` (A2's idle count), `B/analytics/dispatch.py:97-98`, `:242-300` (run reconstruction, `_off_after`), `simulator/assetops_simulator/packs/mini_grid.py:29-33` (lifecycle timing), `backend/tests/test_tfc2.py:146-177`, `backend/tests/test_k3_fuel_balance_rules.py:155-230`.
+- Evidence: read-only SQL on `assetops_k3_test` (the stored windows of the failing run and their `accepted_evidence`).
+
+### 9h.1 The stop
+
+On nights 2, 4 and 6, `idle_seconds = 600` where the card and F0 expect 0. `use_high` and `residual_low` each differ from F0 by `539/600` L = `600/3600 h × 49/10 L/h × 11/10`. Every other term and all three states match F0.
+
+### 9h.2 Cause, with evidence
+
+**The idle slots are the two generator stop slots of each night.**
+- The SQL pairs each accepted `generator_state` sample at `t` with the `generator_power` mean over `[t, t + 5 min)`, the pairing that `use_from_readings` and A2 both use. In each window it finds exactly two slots that are RUNNING at 0 kW. In UTC, the same instants each night:
+
+  | Slot start (UTC) | Local | State at `t` | Mean kW over `[t, t+5)` | Mean kW over `[t−5, t)` | State at `t + 5` |
+  |---|---|---|---|---|---|
+  | 19:05 | 22:05 | RUNNING | 0 | 38 | STOPPED |
+  | 00:15 (next day) | 03:15 | RUNNING | 0 | 27 | STOPPED |
+
+- 2 × 300 s = 600 s on every night. No other slot is RUNNING at 0 kW.
+- Starts give no idle slot. Example: STOPPED at 17:05 with 0 kW over `[17:05, 17:10)`, then RUNNING at 17:10 with positive kW from 17:10.
+
+**Why the stop and the start differ.** The simulator's lifecycle timing (`mini_grid.py:29-33`) works like this:
+- A request emitted at `T` changes the state in phase F, after the sample at `T`. So the sample at the stop instant still says RUNNING, and the slot that follows carries 0 kW: the generator is already STOPPED for the whole slot and burns nothing.
+- At a start, the elapsed start delay moves STARTING to RUNNING in phase A, before the sample. So the STARTING step is published as STOPPED at 0 kW, and the first RUNNING sample opens a loaded slot.
+- The result is that every stop publishes one "RUNNING at the slot start, 0 kW over the slot" pair. That is an artefact of the sampling order, not idle running.
+
+**This is the shared slot rule, not a K3 bug.** K3 applies A2's rule exactly as §9d.2 ordered: `state_t ∈ RUNNING_STATES and kwh_t == 0` (`verification_rules.py:490`, mirrored at `rules.py:196`). A2's `generator_idle_seconds` would score the same two slots per night as 600 s, as K3 does; test A6 already pins that they are equal.
+
+**The product disagrees with itself here.** The dispatch analytic, whose Candidate time drives fuel-cost-2, ends a run at its last RUNNING sample when a 0 kW interval starts there (`dispatch.py:292-300`, `_off_after`). So the product's own run reconstruction reads the stop slot as stopped, while A2's slot rule reads it as idle.
+
+**F0's 0 is right.** L2 predicted that F0's true-trajectory terms could differ from the readings. Here the trajectory has 0 idle fuel, and the published evidence, read the way dispatch reads it, also has 0 idle.
+
+### 9h.3 Decision: (c), a shared slot-rule defect. Fix the rule once, in `verification_rules.py`; parity expectations stay as the card wrote them.
+
+- **Not (a).** Accepting 600 s would book about 0.9 L of "idle" fuel per Kisiwa night that the evidence does not show. The generator was published RUNNING only at the stop instant, and the product's own dispatch reading calls the following slot stopped. It would also make §9c.3 L2 (c) false ("Kisiwa has 0 idle minutes"), and it would put an artefact into A2's money wherever a trial window contains a stop.
+- **Not (b).** K3 followed the card.
+- **The rule (A2's, shared):** a slot is idle iff
+  - the sample at `t` is RUNNING, and
+  - the slot kWh is exactly 0, and
+  - the accepted sample at `t + 5 min` is **not** one of the not-running states (`STOPPED`, `STARTING`, `FAILED`, i.e. `dispatch.NOT_RUNNING_STATES`).
+
+  A missing, conflicting or non-GOOD sample at `t + 5 min` leaves the slot idle, exactly as today. The lookahead only removes a slot when there is a **positive** stop marker; it never makes a slot unknown. So no window's `None` or its problems change.
+- **Why that rule.** It is dispatch's `_off_after` boundary, stated per slot. It removes only the stop slot. A generator that idles unloaded for the whole slot and stops at the next boundary is still counted, because the sample at that boundary is still RUNNING (phase F order). The cost: a real engine that idled part of the slot and then stopped is not counted for that part. That undercounts by at most one slot per stop, the same treatment the start slot already gets. In the fuel balance this is at most 0.45 L of `use_high` per stop, against a 2a = 20 L margin.
+- **Tolerances are unchanged.** C keeps every exact item, 1/100000 L on the toleranced terms, and `idle_seconds == 0` on all three nights. No restatement is needed, because with the fix K3 equals F0.
+
+### 9h.4 Exactly what changes
+
+**1. `B/actions/verification_rules.py`** (named, narrow S4 exception, like R3g; nothing else in the file changes). Next to `RUNNING_STATES` (`:372-373`):
+```python
+#: DIESEL-1-R3h: the sampled values that end a run (`analytics.dispatch.NOT_RUNNING_STATES`)
+NOT_RUNNING_STATES = frozenset({"STOPPED", "STARTING", "FAILED"})
+
+
+def idle_slot(slot_start: datetime, state_value: Any, slot_kwh: Fraction | None,
+              state_readings: Iterable[Reading]) -> bool:
+    """A2's idle slot: sampled RUNNING at the slot start and exactly 0 kWh over the slot, unless the accepted sample at
+    the slot end is a not-running state. That slot is the stop slot: the sample precedes the stop, and dispatch's
+    `_off_after` ends the run there (DIESEL-1-R3h). A missing or unknown end sample keeps the slot idle."""
+    if state_value not in RUNNING_STATES or slot_kwh is None or slot_kwh != 0:
+        return False
+    return _instant(slot_start + SLOT, state_readings, numeric=False)[1] not in NOT_RUNNING_STATES
+```
+- In `window_evidence`, `:490` becomes `elif idle_slot(t, gen_value, slot_gen_kwh, state_readings):`.
+- The lookahead's payload is **discarded**: no `note(...)` and no `evidence.update(...)`. The window's problems, evidence ids, `plan_sha256` and stored details are therefore byte-equal. `generator_idle_seconds` is already outside `plan_sha256` and the details (`:435-436`, `test_out_e3_trial_comparison_postgres.py:52`).
+
+**2. `B/fuel_balance/rules.py`**:
+- `use_from_readings` imports `idle_slot` and replaces `value in RUNNING_STATES and kwh == 0` (`:196`) with `idle_slot(t, value, kwh, state)`. The unknown handling stays as it is.
+- The docstring says "A2's slot rule (`verification_rules.idle_slot`)".
+
+**3. Tests**
+- **`backend/tests/test_tfc2.py`**: add `test_window_idle_seconds_exclude_the_stop_slot`:
+  - gen 0 kW; RUNNING at slots 0–5, STOPPED at 6–11 → `generator_idle_seconds == 1500`, not 1800;
+  - RUNNING at 0–11 with STOPPED at the window end (`T0 + 60 min`, an extra point) → 3300;
+  - RUNNING at 0–11 with no end sample → 3600 (unchanged);
+  - RUNNING at 0–5, then a non-GOOD sample at slot 6 → 1800 (no positive stop marker).
+  - Each case must fail if the lookahead is removed or inverted.
+  - **The existing tests stay byte-unchanged.** Line 169's `three` case keeps 900, because the sample after slot 2 is `"ON"`, which is not a not-running state.
+- **`backend/tests/test_k3_fuel_balance_rules.py`**:
+  - **A3 fixture:** `running = set(range(25))`. The idle night has 25 RUNNING samples (slot starts 0–24) and STOPPED from 25, so 24 idle slots. All of A3's expected numbers stay as the card wrote them (7200 s, `539/50`, `1711/50`, BELOW_MATERIALITY, the r = 33/10 rerun).
+  - **New A14:** the Kisiwa stop shape. Slot `k` loaded at 38 kW, then RUNNING at `k+1` with 0 kW and STOPPED at `k+2` → `idle_seconds == 0`. Converse: RUNNING at `k+1` and `k+2`, 0 kW over both slots, STOPPED at `k+3` → 300 (slot `k+1` idle, slot `k+2` the stop slot).
+  - **A6 extended** with one stop slot inside the hour: K3's idle seconds equal `window_evidence(...)["generator_idle_seconds"]`.
+- **`host/tests/test_k3_fuel_balance_parity.py`**: no change. C is re-run as written, on `assetops_k3_test`, with the machine idle and free RAM checked. Expected: all three nights pass, with `idle_seconds == 0`.
+- **Must stay green unchanged** (localised runs, no full suite):
+  - `test_tfc2.py` (the existing cases);
+  - `test_s6_verification_rules.py`;
+  - `test_out_e3*` cost-check tests;
+  - `test_ch9b2_reserve_byte_equal_postgres.py` and `test_s6_verification_evaluator_postgres.py` (their goldens hold `generator_idle_seconds: 0`, and a rule that only removes slots cannot change a 0);
+  - K3's A1–A13 and B1–B6.
+
+  If any of them needs a behaviour edit, stop under S5.
+
+**4. What does not change:** `probe-result.json`, the probe, `PARAMETERS`, every C tolerance, `dispatch.py`, `fuel_cost_v2.py`, `trial_fuel_comparison.py`, and every Kobo, Cold and EV file.
+
+### 9h.5 Who does it
+
+- **A Sonnet fix round on `task/DIESEL-K3-fuel-balance`** (worktree `C:\Users\assef\Bineyame\AssetOpsV1-k3`). Order:
+  1. §9h.4 items 1–3 in one commit;
+  2. the localised runs;
+  3. part C, re-run;
+  4. the packet.
+- The packet lists the `verification_rules.py` diff under "S4 exception, DIESEL-1-R3h" and quotes this section's SQL table as the cause.
+- `git add -f` of explicit paths.
+- **K3's first review (Opus)** covers it. The reviewer applies two mutations to a scratch copy:
+  - delete the lookahead: the new tfc2 test, A14 and C must fail;
+  - replace `NOT_RUNNING_STATES` with `{"STOPPED"}`: the tfc2 non-GOOD case must still pass, which shows that only positive markers act.
+- **K6** merges main before its own `verification_rules.py` edit. The R3d note that K6 owns the next edit now reads "the next edit after R3h".
+
+### 9h.6 Kobo impact (A2, stated plainly)
+
+- **Kobo's idle-fuel money in the demo does not change.**
+  - A2 changes only in a verification window that contains a stop slot: a RUNNING sample, then 0 kWh, then a not-running sample.
+  - Kobo's trial baseline hour (09:00–10:00 local) sits inside a run that idles from 07:05 to 10:55 (`.agent/fuel-story-design-2026-11-07.md:66`, `:137`). Its later hour has no run. Neither hour contains a stop, so both keep 3600 s and 0 s.
+- **fuel-cost-2** (Kobo's three idle mornings) counts idle inside dispatch's Candidate time, which already ends at the last RUNNING sample. It is unaffected.
+- **The defect is real for Kobo in general.** Without the fix, any trial window that contains a generator stop would gain 300 s per stop: 0.275 L nominal, 0.3025 L upper at 3.3 L/h, about 0.34–0.38 USD at 1.25 USD/L. In a baseline window that inflates the claimed saving; in a later window it understates it. None of the demo's windows contains one.
+- **A3's check stands as the backstop.** If the stored trial-hour idle differs from 12 slots, it is a data finding (`build-sheet-FUEL-1.md:425`). A3 needs no edit.
+
+### 9h.7 Effect on the demo story
+
+- With the fix, every Kisiwa night shows **0 idle minutes and no idle fuel**. That is honest: the generator runs loaded and stops, and both the simulator and the product's dispatch reading say it never idles.
+- Night 4's band, and so K4's UNEXPLAINED figure, equals F0's exactly. Nights 2 and 6 stay WITHIN_MARGIN.
+- **The alternative is not honest.** Without the fix every night would carry about 0.9 L of idle fuel (2 × 5 min at 4.9 L/h × 1.1) that never happened, and night 4's lower residual would sit about 0.9 L below F0.
+- K4 and K5 add **no** idle line on Kisiwa (`idle_seconds` is 0). The idle term stays exercised only by A3, as §9c.3 L2 (c) says.
+
+### 9h.8 Size
+
+- About **0.15**: rule and helper 0.05, tests 0.05, part C re-run and packet 0.05. K3 goes from 1.6 to about 1.75, inside S7's 1.9.
+- It is paid from the remaining contingency (0.15 → 0), so the Kisiwa total stays **17.25**.
+- **Critical path:** about 8.9 lane-units (8.75 before). That is **below the 9.75 tripwire; no cut.**
+- **Demo date:** unchanged at about +3.25 working days.
+- **Contingency is now spent.** The next overrun on the Kisiwa lane is reported against the tripwire, not absorbed.
+
+### 9h.9 Owner questions
+
+None.
+
+---
+
+## 9i. Ruling DIESEL-1-R3i: K0's two S5 stops, five deviations, and a main-drift failure
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `bd15b0ca8`.
+- K0 was read on `task/DIESEL-K0-action-bridge`:
+  - `d782fc09f` holds the pins;
+  - `dd4a3874f` holds the bridge;
+  - `2b8ab3ab9` holds the packet `.agent/review-packet-K0.md`.
+
+**Code facts the Architect verified on the K0 worktree:**
+- `B/runs/composition.py` docstring: "the one place in the product allowed to import `assetops_backend.runs.adapters.*`".
+- `tools/checks/configuration-persistence.ps1:580-640`, rule 7:
+  - the run adapters hold exactly one `= yaml.load(..., Loader=CSafeLoader)`;
+  - `safe_load` is banned anywhere in the run adapters;
+  - the stated reason is one loader policy for the run domain (`D-2026-09-29-run-store-libyaml`).
+- `yaml_run_documents.py:150` is that one load point today.
+- `git diff d782fc09f 2b8ab3ab9 -- backend/tests/k0_byte_equal_pins.py` is empty. The pins have not moved since the first commit, and `seeded_uuid4()` was already in that commit.
+- `backend/tests/test_run_binds_scenario_to_site.py` was last edited at `aeb53fb86` (2026-10-31). `config/scenarios/kobo-rest-mill.yaml` was added at `8b68aaa14` (2026-11-06, DD1a1-R16). The test's set equality (`:242-245`) cannot hold for scenarios added after it.
+
+### 9i.1 Rulings
+
+**S5-a. Approved: `B/runs/composition.py` joins §9f.3's file list.**
+- Add `build_operational_action_log() -> OperationalActionLogPort`, which returns `YamlOperationalActionLog()`, beside `build_run_repository`. The docstring is one line.
+- `B/main.py` imports it from `runs.composition` and passes `operational_actions=build_operational_action_log()`. It never imports the adapter.
+- §9f.2 (6) is amended to read "through the composition".
+- **Test.** §9f.4 test 10, on `assetops_k0_test`, must exercise this composed path: the `main.py` app, not an injected router.
+  - It sets up Kisiwa run 4 with the named log.
+  - It gets no `OPERATIONAL_ACTION_LOG_UNAVAILABLE`.
+  - On readback it shows `answered_by="OPERATIONAL_ACTION"` rows.
+
+**S5-b. Option (i): a shared text-load function in `B/runs/adapters/yaml_run_documents.py`. That file joins §9f.3. The guard is not changed.**
+- In `yaml_run_documents.py`, add `def load_yaml_text(text: str) -> object: return yaml.load(text, Loader=CSafeLoader)`. It holds the one guarded line, and `yaml.YAMLError` propagates.
+- `read_run_record` calls `load_yaml_text(text)` inside its existing `try`. Its behaviour and messages are unchanged.
+- `yaml_operational_action_log.py` imports and calls `load_yaml_text`, and maps `yaml.YAMLError` to `OperationalActionLogUnavailable`. It no longer imports `CSafeLoader` or calls `yaml.load`.
+- This is rule 7's own intent: one loader policy at one load point in the run adapters.
+- §9f.2 (5)'s `yaml.safe_load` was the Architect's slip. The run domain's policy is libyaml `CSafeLoader`, and stop S4's hash and content-hash checks prove that the promoted log parses the same.
+- Acceptance:
+  - the architecture check and the estate-guard self-tests pass with **no** change to `configuration-persistence.ps1`;
+  - `rg "yaml\.load\(" backend/assetops_backend/runs/adapters` gives exactly one hit.
+- Option (ii) is refused. A guard is never loosened to fit a spec slip.
+
+**Deviation 1, EV pin under `seeded_uuid4()`: accepted, not an S6 stop.**
+- S6 exists so a pin cannot be meaningless. A render that varies only by random mapping ids would be meaningless.
+- Under a fixed seed, the pin is deterministic and still covers every byte K0 could move. K0 produces no mapping id.
+- The seeding has been in the first commit, unchanged since.
+- Condition: the pin's docstring states that the seeding fixes only identifiers K0 does not produce. The packet's S6 note cites this ruling.
+
+**Deviation 2, test 1 in `host/tests/test_k0_kisiwa_actions.py`: accepted.**
+Digest (c) needs `host/`'s `frozen_world_inputs`, and `backend/tests` does not import `host/`.
+
+**Deviation 3, the loader's `component_ids` keyword: accepted.**
+The pure loader receives the Site's component ids instead of a Site record, so it stays I/O-free. §9f.2 (5)'s signature is amended to `freeze_operational_actions(request, identity, log_source, *, model, start, end, component_ids)`.
+
+**Deviation 4, the coverage test excludes `operational_action_log`: accepted, with one tightening.**
+- The exclusion is right for a run that names no log: the field is None, and it has no row so the run stays byte-equal.
+- Add one K0 test assertion: for a run that **names** a log, the same coverage holds with **no** exclusion (`covered == declared`).
+- This turns the exclusion into a tested conditional.
+
+**Deviation 5, UNIT and EVENT_ID_CONFLICT reachable only by a direct loader call: accepted, kept as kinds.**
+- Both have live producers that guard real input combinations:
+  - UNIT: a selectable model profile whose `fuel-tank-volume` stock is not in L;
+  - EVENT_ID_CONFLICT: a scenario event-id grammar that admits `{id}/{effect}`.
+- Neither combination is shipped today. This is not the retired-kind case in `refusals.py:83-89`, where the producer had been deleted.
+- Add a comment to each kind in `refusals.py`: "reachable only by a model profile (or scenario id grammar) not shipped today; tested by a direct loader call".
+- The `produced` set keeps them, through those direct calls.
+
+**Main drift, `test_run_binds_scenario_to_site.py` (12 failures, `KeyError 'kobo-rest-mill'`): confirmed main drift, not K0.**
+- The test predates about 10 shipped Kobo scenarios added in the DD-1a1 and DD-1a2 rounds (up to 2026-11-06). K0 touches no scenario and not that test.
+- **Who fixes it:** a separate Sonnet fix unit, **DRIFT-RB1**.
+  - Branch `task/DRIFT-RB1-scenario-site-sample`, from main.
+  - It edits that one test file only.
+  - It does not block K0's review or merge, and K0 must not fix it.
+- **Rule for the fix.** `FROZEN_V1_SAMPLE` is the frozen v1 sample and gets no new entries with invented dates. Each new stem goes into `NEVER_SHIPPED_AS_V1`, or a sibling set with a one-line reason if that set's meaning does not fit.
+- **Verification:** that test file passes. `git diff --stat` shows one file. The coordinator verifies.
+- **Cost:** about 0.05. It is charged to the DD (Kobo-day) lane's follow-ups, not to Kisiwa.
+
+### 9i.2 Order
+
+1. **K0 Sonnet fix round** on the K0 branch:
+   - S5-a;
+   - S5-b;
+   - the deviation 1 docstring;
+   - the deviation 4 assertion;
+   - the deviation 5 comments;
+   - a packet update citing R3i.
+
+   It re-runs only the K0 tests (with test 10 on `assetops_k0_test`), the architecture check and the guard self-tests. There is no suite.
+2. **Then K0's Opus first review, straight after**, on the final tree. No review happens before the fix round: both S5 items change wiring the reviewer must see.
+3. **DRIFT-RB1** runs in parallel. It is independent.
+
+### 9i.3 Size, path, date
+
+- **K0: 2.5 → 2.6** (range 2.25–3.0, unchanged). The +0.1 covers the two S5 fixes and the EV-pin seeding.
+- The contingency is spent (§9h.8). So this is **reported, not absorbed**: the Kisiwa total goes **17.25 → 17.35**.
+- **Critical path unchanged at about 8.9 lane-units.** K0 is off it, and its float of about 2.3 absorbs the 0.1.
+- **Below the 9.75 tripwire; no cut.** The demo date is unchanged at about +3.25 working days.
+- DRIFT-RB1 (0.05) is outside the Kisiwa total.
+
+### 9i.4 Owner questions
+
+None.
