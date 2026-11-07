@@ -2148,3 +2148,79 @@ config/operational-actions/* text eol=lf
 ### 9f.7 Owner questions
 
 None. For the owner, in plain words: the fuel delivery and the unrecorded removal now enter the simulated world as logged operator actions, stamped with who did what and from which log. Runs that have no actions stay exactly as they were, to the byte.
+
+---
+
+## 9g. Ruling DIESEL-1-R3g: K3 stop S4 (K2's fuel-records reader in the composition)
+
+- Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27).
+- Read on `task/DIESEL-K3-fuel-balance` at `7ded13f1c` (phase A `202535b81`, rule-8 reorder `f864e9e1a`, main merged `3843c82e2`). Read: `tools/checks/configuration-persistence.ps1` rule 1 (`:223-274`), `B/work/composition.py`, `B/evidence/composition.py:89-98`, `B/fuel_balance/composition.py`, `B/fuel_balance/worker.py:38-73`, `B/fuel_balance/adapters/postgres_fuel_balance_store.py:160-190`, `B/work/adapters/postgres_fuel_records.py:40-46`.
+
+### 9g.1 Decision 1: allow the exposure in `B/work/composition.py` (a named, narrow exception to §9d.9 S4)
+
+- **Allowed.** It is the established pattern: `evidence/composition.py:89 build_link_rows_reader()` hands a caller-connection reader across domains in the same way, and `work/composition.py` already uses it. Rule 1 is kept as written: the only `work.adapters` import stays inside `work/composition.py`.
+- **Routes rejected:**
+  - a second fuel-records query in `fuel_balance/adapters/` would duplicate K2's correction semantics, the very rows K2 L1 and §9d.3 test;
+  - moving `select_fuel_records` out of `work/adapters/` changes K2's layout for no gain;
+  - widening rule 1 is never done.
+- **The exception is these lines only.** It covers no other `B/work/` edit and no behaviour change. S4 stays in force for everything else.
+
+### 9g.2 Exact change
+
+1. **`B/work/composition.py`**: add after `build_work_service`, with a lazy import like `build_link_rows_reader`:
+   ```python
+   def build_fuel_records_reader():
+       """DIESEL-K3 (DIESEL-1-R3g): K2's fuel-records read on a caller's connection, for the fuel-balance store."""
+       from assetops_backend.work.adapters.postgres_fuel_records import select_fuel_records
+       return select_fuel_records
+   ```
+   - Add `"build_fuel_records_reader"` to `__all__`, in alphabetical position.
+   - The name is `build_fuel_records_reader`, not `fuel_records_on_connection`, to match the `build_*_reader` precedent.
+2. **`B/fuel_balance/composition.py`**:
+   - The default branch becomes `from assetops_backend.work.composition import build_fuel_records_reader` and `fuel_records = build_fuel_records_reader()`.
+   - Remove the `type: ignore` and the "K3 STOP S4" comment.
+   - Keep the docstring, which names `work/composition.py`.
+3. No other file changes for this item. The adapter, K2's tests and the rule-1 script stay untouched.
+
+### 9g.3 Tests that the production path composes
+
+- **A13 (L0, append to `backend/tests/test_k3_fuel_balance_rules.py`, no DB):**
+  - (a) `work.composition.build_fuel_records_reader() is work.adapters.postgres_fuel_records.select_fuel_records`.
+  - (b) `store = fuel_balance.composition.build_fuel_balance_store("postgresql://unused@127.0.0.1:1/none")`. Assert `store._fuel_records is select_fuel_records`, `isinstance(store._actions, PostgresActionStore)`, `store._engine is None` (nothing connects) and `store.test_db_clock_override is None`.
+  - (c) **The worker's own branch.**
+    - Spy on `fuel_balance.composition.build_fuel_balance_store` with a wrapper that delegates to the real function and keeps the store it returns.
+    - With `DATABASE_URL` unset (monkeypatch `delenv`), run `worker.main(["assess", "--site", "KISIWA-001", "--from", "2026-10-06", "--to", "2026-10-07"])` with no `store=`. It must raise `RuntimeError` matching `"DATABASE_URL is not set"`.
+    - The spy must record exactly one call with `None`, and the kept store's `_fuel_records is select_fuel_records`.
+    - This test fails today with the `ImportError` the builder reported.
+- **C (parity, `host/tests/test_k3_fuel_balance_parity.py`):**
+  - Build the module's `kisiwa["fb"]` with `build_fuel_balance_store(URL, test_db_clock_override=<the existing virtual clock>)` instead of constructing `PostgresFuelBalanceStore` by hand with an adapter import.
+  - Every C assertion, the CLI `REUSED` step included, then runs through the production composition against a real DB. The virtual clock is the composition's own test-only parameter (§9d.4).
+  - Part B may keep its direct injection: its K2 L1 tests are about the reader, not the wiring.
+- No other test changes. A13 is L0. C runs as already planned for phase B (machine idle, `assetops_k3_test` only).
+
+### 9g.4 Who does it
+
+- **The planned Sonnet round on `task/DIESEL-K3-fuel-balance` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-k3`)**, in the same round that verifies and finishes phase B. Order:
+  1. §9g.2 and A13;
+  2. switch C's fixture to the composition;
+  3. run phase B's part C;
+  4. write the packet.
+- One commit for §9g.2 + A13, then phase-B commits. Use `git add -f` of explicit paths.
+- The packet lists the `work/composition.py` diff under "S4 exception, DIESEL-1-R3g".
+- K3's first review (Opus, §9d.10) reviews the whole branch, this item included.
+- Size: about 0.05, inside K3's 1.6. **Critical path, tripwire and date are unchanged.**
+
+### 9g.5 Builder calls confirmed
+
+- **K2 L2 single-head assertions made head-agnostic** (`backend/tests/test_k2_fuel_records_postgres.py:137-138, 168, 184, 186`, in `202535b81`): **confirmed**. This is a head-bookkeeping edit, not a behaviour change (not S5). It is the same allowance §9d.6 gives catalogue-count tests and K2 took for 0054.
+  - The single-head property is still asserted (`get_heads() == [alembic_head()]`), and 0054's `down_revision == PREVIOUS` is kept.
+  - The up/down/up and refused-downgrade tests still pass through 0054. Downgrading to `PREVIOUS` now also takes 0055 down first, on its empty table.
+  - Condition: the packet states that these lines changed and why, and the reviewer re-reads them.
+- **`$fuelBalanceWriter` moved before `$trialComparisonWriter` in rule 8's `$pgWriters`** (`f864e9e1a`, one line): **confirmed**.
+  - The list membership is identical, so the rule is not loosened.
+  - The order keeps `tools/checks/test_estate_guard.py:148`'s anchor `", $trialComparisonWriter)"`, which that self-test edits.
+  - The packet lists it with that reason.
+
+### 9g.6 Owner questions
+
+None.
