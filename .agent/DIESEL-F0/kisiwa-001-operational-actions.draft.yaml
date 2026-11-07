@@ -1,0 +1,70 @@
+# Kisiwa operational-action log, DRAFT (DIESEL-1 §8.2a OA-1, §8.3 declared world).
+# DEMONSTRATION values, fixed before the F0 probe ran; never tuned.
+# Lab-private: the product never reads this file. K0 promotes it verbatim to
+# config/operational-actions/kisiwa-001-v1.yaml.
+#
+# Each action is an operator's (or an unidentified person's) act. Its effects are derived from the action and are
+# never authored separately:
+#   FUEL_DELIVERY            -> INCREASE on fuel-tank-volume@fuel-tank at `at` (POINT); product record FUEL_DELIVERY
+#                               (ticket volume and reference), recorded `recorded_after_minutes` later.
+#   FUEL_REMOVAL_UNRECORDED  -> DECREASE on fuel-tank-volume@fuel-tank over [at, at + duration_minutes) (WINDOW);
+#                               `sensor_disconnected` makes fuel-level-reporting-availability@fuel-tank unavailable
+#                               over its span (the person unplugs the sensor). No product record.
+#   TANK_DIP                 -> no physical effect; product record TANK_DIP whose value is the run's tank stock at
+#                               `at`, rounded half-even to 1 L, read after the run. Never typed here.
+#   TANK_SEALED, SENSOR_POWER_PROTECTED -> no physical effect in v1; recorded as a Work SITE_VISIT record.
+#
+# Times are UTC instants (Kisiwa is Africa/Dar_es_Salaam, UTC+3); the local time is in each comment.
+log_id: kisiwa-001-operational-actions
+log_version: 1
+site_code: KISIWA-001
+timezone: Africa/Dar_es_Salaam
+actions:
+  - action_id: kis-delivery-1
+    kind: FUEL_DELIVERY
+    at: '2026-10-03T07:00:00Z'          # 10:00 local, the morning that closes night 2 (run 2, offset 1140)
+    actor: Fuel supplier
+    component_id: fuel-tank
+    volume_l: 300
+    ticket:
+      reference: KIS-DT-0001
+      volume_l: 300
+    recorded_after_minutes: 30
+  - action_id: kis-removal-1
+    kind: FUEL_REMOVAL_UNRECORDED
+    at: '2026-10-04T22:00:00Z'          # 01:00 local in night 4 (run 4, offset 600)
+    actor: Unidentified
+    component_id: fuel-tank
+    volume_l: 120
+    duration_minutes: 45                # 01:00 to 01:45 local
+    sensor_disconnected:
+      at: '2026-10-04T21:50:00Z'        # 00:50 local (run 4, offset 590)
+      duration_minutes: 90              # 00:50 to 02:20 local
+  - action_id: kis-dip-n4-0700
+    kind: TANK_DIP
+    at: '2026-10-05T04:00:00Z'          # 07:00 local, night 4 morning round (run 4, offset 960)
+    actor: Shift operator
+    component_id: fuel-tank
+  - action_id: kis-sealed-1
+    kind: TANK_SEALED
+    at: '2026-10-06T12:00:00Z'          # 15:00 local, start of run 6 (the change instant)
+    actor: Shift operator
+    component_id: fuel-tank
+    note: Tank cap sealed
+  - action_id: kis-sensor-power-1
+    kind: SENSOR_POWER_PROTECTED
+    at: '2026-10-06T12:00:00Z'          # 15:00 local, start of run 6 (the change instant)
+    actor: Shift operator
+    component_id: fuel-tank
+    note: Tank sensor moved to its own protected supply
+  # After the change: dips at 18:00 and 06:00 local every day in runs 6-10 (run offsets 180 and 900).
+  - {action_id: kis-dip-r6-1800, kind: TANK_DIP, at: '2026-10-06T15:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r6-0600, kind: TANK_DIP, at: '2026-10-07T03:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r7-1800, kind: TANK_DIP, at: '2026-10-07T15:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r7-0600, kind: TANK_DIP, at: '2026-10-08T03:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r8-1800, kind: TANK_DIP, at: '2026-10-08T15:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r8-0600, kind: TANK_DIP, at: '2026-10-09T03:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r9-1800, kind: TANK_DIP, at: '2026-10-09T15:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r9-0600, kind: TANK_DIP, at: '2026-10-10T03:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r10-1800, kind: TANK_DIP, at: '2026-10-10T15:00:00Z', actor: Shift operator, component_id: fuel-tank}
+  - {action_id: kis-dip-r10-0600, kind: TANK_DIP, at: '2026-10-11T03:00:00Z', actor: Shift operator, component_id: fuel-tank}

@@ -932,3 +932,164 @@ OPP_THREAD_SEEN_AGAIN = "Spare solar seen again on {day} after the change ({code
 - FUEL-1 total: +0.1 → **5.45**. The new plan total is ≈ 117.4.
 - §3.1's "Expected client view" S-5 line is superseded by Q4.
 - **Owner question: none.**
+
+---
+
+## A2-R1: ruling on review-A2 L1 and L4 (Architect, Claude, 2026-11-07)
+
+Source: `.agent/review-A2.md` (A2 worktree) L1 and L4. This amends §4.2. It lands in **A2's current fix round**, beside H1. No golden is affected: the H1 goldens are `/1` or rate-less, and they carry no `priced_total`.
+
+### L1: a priced total is stored only when it is a positive amount
+
+- **Decision.** Keep the classification as it is. The state stays per demand kWh, which is the v1 rule that `/1` byte-equality and the board's per-kWh line rest on. Add `priced_total` only when its amount is above 0. A `priced_total` names fuel the trial hour did not burn. A negative total is not that, and it must not exist as a stored fact for any reader (Portfolio, `_cost_check_read`, A3, PV-1).
+- **Rejected options.**
+  - Guarding in A3's copy leaves a negative "total" stored, append-only, and exposed by `_cost_check_read`. Every later reader would then have to repeat the guard.
+  - Reclassifying on the absolute difference changes v1 semantics and the state of rows that are already stored.
+- **Code** (`backend/assetops_backend/financials/trial_fuel_comparison.py`, `compare`, `:196-200`):
+  - compute `amount = bw["_cost"][0] - lw["_cost"][0]` first;
+  - set `priced_total` only when `v2 and state == "MODELLED_IMPROVEMENT" and amount > 0`. The dict is unchanged otherwise.
+  - Because `PRICE_BASIS_DIFFERS` guarantees one price revision, a positive price makes `amount > 0` equivalent to `fuel_change_l > 0`. A zero price gives no total, which is correct.
+  - Add one clause to the module docstring (`:12`): "stored only when the amount is above 0".
+  - The §4.2 bullet now reads: "on `MODELLED_IMPROVEMENT` **with a cost difference above 0**, the result gains `priced_total`".
+- **Test** (`backend/tests/test_tfc2.py`, next to `test_no_improvement_has_no_priced_total`):
+  - `test_improvement_with_more_fuel_in_the_later_hour_has_no_priced_total`:
+    - `out = run(window(B0, 10, 0, ("b1",), Fraction(100)), window(L0, 10, 300, ("l1",), Fraction(110)))`;
+    - assert `(out["formula"], out["state"]) == ("trial-fuel-comparison/2", "MODELLED_IMPROVEMENT")`;
+    - assert `out["change_per_demand_kwh"]["nominal"] == vr.fmt(Fraction(1, 3520))`;
+    - assert `"priced_total" not in out`;
+    - assert `credit.credited({**out, "outcome_id": "outcome-1"}, "VERIFIED") is None`.
+  - Non-vacuity: revert the `amount > 0` condition, and the test fails on the `priced_total` assertion. Record this in the packet.
+  - Run `test_tfc2.py` and `test_ch3_rows.py` only (L0, no DB).
+- **A3 consequence.** A3 needs no copy guard of its own. `COST_PRICED`, the Assure litres clause and the verification-page line key on the **presence** of `priced_total`, as §4.3 already says. A3 must not add a second sign check. Without the key, today's per-kWh lines stay.
+
+### L4: D1 wording for `IDLE_SECONDS_UNKNOWN`
+
+- **Decision** (`backend/assetops_backend/site_outcomes/board.py:90`):
+  `"IDLE_SECONDS_UNKNOWN": "the generator's idle time is not known for one or both hours",`
+- **Why not "for one of the hours".** The reason fires when either window's idle seconds are None, which includes both. "One or both" is true in every case, and it does not read as "neither".
+- Delete the "builder-proposed ... Architect to confirm" comment at `:89` and replace it with `# FUEL-1 A2 (A2-R1): words for the two /2 reasons`. `NO_LOAD_RATE_DIFFERS` keeps its text.
+- `GENERATOR_KWH_UNKNOWN` (`:85`, "not known for both hours") predates A2 and is shown on Kobo's stored rows. It is **not** changed here, and it goes to WD-1's money-wording pass as a note.
+- **Guard.** The words reuse the already-passing vocabulary ("the generator's idle time is not known for") and add only "one or both". Run `backend/tests/test_out_e4_readback.py` (`test_no_code_on_screen_and_saving_only_in_not_realised_savings` and the reason-set test) to confirm.
+
+**Owner question: none.**
+
+---
+
+## MB-1a-R2: ruling on the MB-1a build's stops and deviations (Architect, Claude, 2026-11-07)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `099b57c96`. Build `845ece111`, packet `fa186fa3c` (`.agent/review-packet-MB-1a.md` in the mb1 worktree).
+- This section **amends MB-1-R §1 Q1(c) and §2.1** for MB-1a. Every other part of MB-1-R stands. `B/` = `backend/assetops_backend/`, `T/` = `tools/`. READ = I read the code; nothing here was measured.
+
+### 0. Order of the fix round (builder, mb1 worktree, Sonnet)
+
+1. Merge main (`099b57c96` or later) into `task/FUEL-MB1-mill-on-board`. Reconcile the golden as in §3.
+2. Apply §1 (S-d) and §2 (cap).
+3. Run the checks in §6 and amend the packet as in §7. Commit. Do not push.
+
+### 1. S-d: the policy is injected by `site_outcomes/composition.py` (builder's option, approved)
+
+- **Decision.** `read.py` must not import `chain.composition`. OUT-B4 §B.3 (`backend/tests/test_out_b4_imports.py`) is the rule, and MB-1-R's "import locally" was wrong for `site_outcomes/`; the `postgres_estate_read.py` precedent is an adapter, not a `site_outcomes` module. Deferring to MB-1b is rejected: `ChainThreads` already carries the field, and leaving it unbound would hand MB-1b a half-wired port.
+- **READ facts.** `site_outcomes/composition.py:18` already imports from `assetops_backend.chain.composition`. `thread_lifecycle_policy` is `chain/composition.py:113`. `BoardServices` is `B/site_outcomes/read.py:85-113`.
+- **Code.**
+  - `B/site_outcomes/read.py` `BoardServices`, directly after `chain_reader` (`:108`), verbatim:
+    ```python
+    thread_policy: Callable[[], Any] | None = None  # MB-1a-R2: chain.composition.thread_lifecycle_policy (composition.py injects it; OUT-B4)
+    ```
+  - `B/site_outcomes/read.py` `chain_threads` binding (`:295-300`): delete the local import. The body becomes:
+    ```python
+    if s.chain_reader is None:
+        return None
+    req = chain()
+    return mini.ChainThreads(req.threads(sid), req.k, None if s.thread_policy is None else s.thread_policy())
+    ```
+    Update the comment above it: "... and the lifecycle policy (`BoardServices.thread_policy`, None when not injected)".
+  - `B/site_outcomes/composition.py:18`: `from assetops_backend.chain.composition import build_chain_reader, build_thread_sources, thread_lifecycle_policy`. In the `BoardServices(...)` call, add `thread_policy=thread_lifecycle_policy` after `chain_reader=chain_reader`. Pass the function, not its value (the policy is read per board read, as MB-1-R ruled).
+  - `B/site_outcomes/mini.py:210-212` comment: replace "(`chain.composition.thread_lifecycle_policy()`)" with "(`BoardServices.thread_policy`; None when not injected)". `ChainThreads.policy` stays typed `Any`; None is allowed.
+- **Test**, in `backend/tests/test_mb1_opportunity_board.py` (L0, no DB):
+  - `test_composition_injects_the_thread_policy(monkeypatch)`: monkeypatch `composition.build_chain_reader` to `lambda url, **kw: (None, lambda: None)` and `composition.build_thread_sources` to `lambda url: None`, as `test_out_b4_imports.py:76-77` does. Call `composition.build_outcome_board_service(None)` and assert `service.s.thread_policy is chain_composition.thread_lifecycle_policy`.
+  - In the existing board-service test (the `test_ch5a1_board_contract.Port` subclass, D6), assert the `ChainThreads` built there has `policy is None` when `thread_policy` is not set. That pins the None branch.
+- **MB-1b consequence (amends MB-1-R §3.3 step 4).** If `ct.policy is None`, the view is None, so there is no thread line, never a guessed `close_after`. Add one L0 case for it to `test_mb1_thread_line.py`. Production always injects the policy.
+- **Files approved:** `B/site_outcomes/composition.py` (the import line and one keyword argument only).
+
+### 2. Origin-reader cap: approved, `chain/site_chain.py` cap 8, class "both"
+
+- **Why.** The guard exists so that a new reader is classified before it lands. `opportunity_actions` is a chain reader that handles the opportunity origin on purpose. Class "both" is already correct, and its "names the opportunity origin" check still holds. The four new tokens are the verbatim docstring, the filter, and the item key and value. Nothing new is unclassified.
+- **Code.** `backend/tests/test_ch9b1_origin_readers.py:42` becomes:
+  ```python
+      "chain/site_chain.py": ("both", 8),  # MB-1a-R2: + opportunity_actions (MB-1-R Q1(b))
+  ```
+  Change nothing else in that file. The non-vacuity cases (`higher_count` uses `chain/lookup.py`; `both_ignores` uses `site_chain.py`'s text) are unaffected.
+- **Files approved:** `backend/tests/test_ch9b1_origin_readers.py` (that one line).
+
+### 3. D2, the `estate_week_2026-10-25` golden: take main's file, then regenerate; the only diff must be `verified_actions`
+
+- **Main already carries the card.** DRIFT-R1 (merge `7bba9e64f`, `.agent/build-sheet-TEST-drift.md` §2.2) added `cards.OPTIMIZE_COST` to this golden. The builder's "pre-existing drift" diagnosis is right, and main has settled it.
+- **Procedure during the merge in §0.**
+  1. On a conflict in `backend/tests/fixtures/ch5a2_chain_contract/estate_week_2026-10-25.json`, take main's version whole: `git checkout --theirs -- <that path>` (during `git merge main`, "theirs" is main). Never hand-merge the JSON.
+  2. If there is no conflict, still restore main's file before regenerating: `git checkout main -- <that path>`.
+  3. Regenerate with DRIFT-R1 §2.2's procedure, using the mb1 worktree paths in place of `AssetOpsV1-drift`. Then run `tests/test_ch5a2_contract.py` without the variable.
+- **Acceptance (STOP if any fails):**
+  - `git diff main -- backend/tests/fixtures/ch5a2_chain_contract/` touches only `estate_week_2026-10-25.json`.
+  - That diff adds only `"verified_actions": 0` inside each `sites[].threads` object. It adds no other key, it does not move the `OPTIMIZE_COST` card, and it changes no value.
+  - If another golden or key changes, stop and report the diff. Do not commit it.
+- D2 is confirmed on those terms. In the packet, replace D2's "pre-existing drift ... please confirm" with "main's DRIFT-R1 golden plus `verified_actions: 0` per Site (MB-1a-R2 §3)".
+
+### 4. Deviations D3-D6 and the wording check
+
+- **D3, MILL-5 in `T/demo_combined_rows.py`: confirmed. The file is approved retroactively for `mill_assure` only.** The precedent is MILL-3b, whose pure logic lives in the same file with its L0 self-test beside it. The function is pure over the board and chain bodies. It imports only backend constants (`VERIFICATION_TEXT`, `NO_VERIFIED`, `display_code`, `provenance_suffix`) and never retypes them. No other edit to that file.
+- **D4, A1 skips a mini board with no Assure row: confirmed. It does not weaken A1.**
+  - A1's rule is "headline count == listed verified entries". With no Assure row there is no headline to judge, so judging would mean inventing a value.
+  - The skip is counted (`tally["skipped"]`), never silent.
+  - The live story board is held separately. MILL-5 asserts that the S+0 Kobo Assure row exists (`"no Assure row on the S+0 Kobo board"`). E3 also checks every live mini board's rows through the V-rows (summary nodes vs board nodes).
+- **D5, A1 excludes the `NO_VERIFIED` entry: confirmed. It does not weaken A1.**
+  - The exclusion is exact string equality with the backend constant, not a pattern.
+  - "No verified result yet" is the empty-state entry, not a verified result. Counting it would make A1 fire on every board with nothing verified, which is a false finding, not a stricter rule.
+  - Add one self-test to `T/checks/test_chain_coherence.py`: headline "1 verified result" with one verified entry plus a `NO_VERIFIED` entry must FAIL. That shape is impossible on a real board, and the test proves that the exclusion cannot hide a real mismatch the other way.
+- **D1 and D6: confirmed.** D1 is the cutoff rule MB-1-R Q1(b) already states (outcome None when not known by the cutoff). D6 is a stronger form of §2.5 item 4.
+- **"ACT-048 verified on example data": confirmed as the existing trial (ACT-001-class) entry, byte-equal to today.**
+  - It is `VERIFICATION_TEXT["VERIFIED"]` with `provenance_suffix(a.source_class)` (`mini.py:1021`), and the fake carries an example-data source class (`EXAMPLE_SOURCES`, `chain/vocabulary.py:106-112`).
+  - The mill entry is `provenance_suffix(None)`, which reads "ACT-… verified" with no suffix, as MB-1-R §2.3 ruled. A domain verdict row carries no source class on `_SITE_ACTIONS`.
+  - **Note, not an MB-1a change.** If the live S+0 Kobo board shows the trial "on example data" while the mill, on the same Site's data, shows no suffix, that asymmetry is a wording question. It goes to **WD-1** (money and verdict wording) as an item. WD-1 decides whether the mill line gains the suffix from the Site's source mode. MB-1a adds no literal.
+
+### 5. Main-branch drift (not MB-1a's)
+
+- **`test_ch9b2_midday_plan_postgres.py::test_0052_round_trip_and_refusal`: test drift. Fix it in a small Sonnet round on main**, on its own branch `task/TEST-drift-0053` from main, in worktree `C:\Users\assef\Bineyame\AssetOpsV1-drift2`. It runs in parallel with MB-1a.
+  - Cause (READ): the test pins the Alembic head literally (`:236`, `:240`, `:252`). `0053_fuel_cost_2` (A1, `4be7bbc44`) is now head. `test_ch9b1_opportunity_actions_postgres.py:218,222,239` already uses the head-agnostic form; follow it.
+  - Code, in `test_0052_round_trip_and_refusal` only:
+    - `:236` → `assert head(mill.engine) == pg_harness.alembic_head()`. Then add `command.downgrade(_alembic(), "0052_verification_plan_domain")` and `assert head(mill.engine) == "0052_verification_plan_domain"`. The fixture has no fuel-cost-2 or `/2` rows, so 0053's downgrade does not refuse (`0053_fuel_cost_2.py:62-73`). Lines 237-250 are then unchanged and test 0052 itself.
+    - `:252` → `assert head(mill.engine) == pg_harness.alembic_head()`.
+    - Docstring line 1: add "(head-agnostic since 0053, MB-1a-R2 §5)".
+  - Check: that one test plus `test_0052_checks_exactly_one_action_and_family_coupling`, on pg_harness base `assetops_drift2_test`. Drop it after the merge. No other test, no suite.
+  - Review: a fresh Sonnet reviewer checks the diff against this item. The coordinator merges on ACCEPT.
+- **`test_out_d2_objectives.py::test_policy_is_v2`** (packet, fast tier): DRIFT-R1 §2.1 is on main, so this should pass once MB-1a merges main. If it still fails after the merge, record it in the packet as main drift. It is not an MB-1a stop.
+- **`test_ch5a1_mechanism_postgres` and `test_ch6b_estate_postgres`, `TEMPLATE_STALE`: rebuild once, at the start of E2, not now.**
+  - Why: the template fingerprint covers the input writers. Lane 2 (A3), MB-1b and the Kisiwa story will change writers again before E2. Each rebuild costs about 1300-1700 s of machine time, and every rebuild before the last writer change is wasted.
+  - Who and when: the coordinator, once, on an idle machine (the quiet-suites rule), as E2's first step and before E2's full suites. Use the exact command that the `TEMPLATE_STALE` message prints (`backend/tests/mechanism_dataset.py:1205-1243`).
+  - Until then: these two tests failing with `TEMPLATE_STALE` is expected. It does not block any unit's review or merge, MB-1a's included, because MB-1a's L2 proof builds its own DB (`test_mb1_site_actions_postgres.py`).
+  - Exception: if a later unit's acceptance needs a mechanism-template test, that unit's ruling orders the rebuild then, and E2 does not repeat it unless the fingerprint has moved again.
+
+### 6. Checks for the fix round
+
+- **L0:** `test_mb1_opportunity_board.py`, `test_out_b4_imports.py`, `test_ch9b1_origin_readers.py`, `test_ch5a2_contract.py`, `test_ch5a1_board_contract.py`, `test_out_b2_mini.py`, `test_out_b3_cold_ev.py`, `test_out_d2_objectives.py`. Also `T/checks/test_chain_coherence.py`, which includes the new D5 case.
+- **Fast tier:** the same scoped set as the packet (48 files, `-m "not slow"`). Expected: 0 failures.
+- **Guards:** A, W, N, V, M, chain coherence, and `node tools/checks/frontend-hardwiring.mjs` (no rise). The orphan-scan `MODULE_NOT_FOUND` stays a known worktree condition (no `npm ci`). Say so in the packet.
+- **L2:** do not rerun `test_mb1_site_actions_postgres.py` unless `read.py` / `composition.py` changes touch its path. They do not, because it calls the chain reader and claims directly.
+- **Not run:** the full suite, prepare, the template rebuild.
+
+### 7. Packet amendments
+
+- Change the status to "built; S-d and the cap closed by MB-1a-R2".
+- Stops: mark both closed and cite §1 and §2.
+- D2 as in §3. D3, D4 and D5 marked "confirmed (MB-1a-R2 §4)".
+- Add the two approved extra files (`composition.py`, `test_ch9b1_origin_readers.py`) and `T/demo_combined_rows.py` to the files table, with their MB-1a-R2 reason.
+- Add the WD-1 note on the provenance suffix (§4) under residual risk.
+- Main-drift lines: point to §5. MB-1a fixes none of them.
+
+### 8. Size and review
+
+- **Size:** +0.05 (S-d wiring and test 0.02, cap 0.01, merge and golden reconcile 0.02). **MB-1a = 0.85**, inside S-f (0.9). Lane 1 = 2.8. FUEL-1 total = 5.5.
+- The drift-0053 round is ≈0.05 of main-maintenance work outside FUEL-1.
+- **Review:** MB-1a has had no review yet. After this fix round it goes **straight to its first review**: a fresh Opus reviewer, per Model by role. There is no separate re-review of this round. The reviewer reads MB-1-R §2, this section, and the packet. Review focus: §1's injection and the OUT-B4 guard passing, §3's golden diff limited to `verified_actions`, D4 and D5 against §4, and R4 (Cold and EV byte-equal).
+- MB-1b stays blocked on MB-1a's merge. Its card gains only §1's "policy None → no line" case.
+
+**Owner question: none.** For information only: two main tests were stale against migration 0053 and the mechanism template, and are scheduled as above.

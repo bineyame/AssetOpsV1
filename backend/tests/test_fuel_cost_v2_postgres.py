@@ -91,6 +91,28 @@ class TestStoreRoundTrip:
         assert (model["no_load_fuel_rate_l_per_h"], model["no_load_fuel_rate_basis"], model["idle_seconds"]) == (
             "3.3", "GENERIC_DEFAULT", 0)
 
+    def test_stored_fuel_cost_2_head_reads_current(self, v2site, engine) -> None:  # noqa: F811
+        """A1 review L1 (closed in A2): a stored fuel-cost-2 head re-derives to the same basis through both
+        `ConsequenceReadService` currentness paths (`read` and `select_consequence_on`), so it reads CURRENT, not
+        STALE / TECHNICAL_INPUT_CHANGED. Reverting either path to `fuel_cost.quantify` fails this test."""
+        from money_gate_stub import AUTHORED, ELIGIBLE
+
+        site = v2site
+        site.publish("v1", "v2", "v3")
+        rev = site.on(POWER_DAY)
+        c = _derive(site, rev)
+        assert fc2.is_v2(c.quantity)
+        site.store.append(c)
+        reads = cr.ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE, provenance=AUTHORED)
+        body = reads.read(site.tenant, site.site, rev["finding_id"], rev["id"], finding_revision_is_latest=True,
+                          source_open=True)
+        assert (body["currentness"]["state"], body["currentness"]["reasons"]) == ("CURRENT", [])
+        assert body["consequence"]["model"]["model_id"] == "fuel-cost-2"
+        with engine.connect() as conn:
+            known_at = conn.execute(text("SELECT clock_timestamp()")).scalar_one()
+            on = reads.select_consequence_on(conn, site.tenant, site.site, rev["id"], known_at)
+        assert on["currentness"] == {"state": "CURRENT", "reasons": []}
+
     def test_idle_intervals_are_counted_at_the_declared_rate(self, v2site) -> None:
         """The same persisted Finding, with two of its five counted means read as 0 kW in memory, so the store
         writes an idle fuel-cost-2 consequence: 3 x 20 kW x 5 min x 0.3 + 2 x 5 min x 3.3, all x 1.10."""

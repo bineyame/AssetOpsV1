@@ -1366,6 +1366,36 @@ MINI_GRID_V6_MODEL = replace(
     ),
 )
 
+#: DIESEL-1-R3 K1a. `mini-grid` v7: v6 unchanged, plus a state sample of the
+#: fuel in the tank, so `registered-kobo-publication`'s
+#: `fuel-level-sensor`/`fuel-level` STATE_SIGNAL is a reporting path on it
+#: (`fuel-tank-volume` supports REPORTED_OBSERVATION beside CAUSAL_INPUT). Its
+#: stock statement is restated for v7 only. Physics and decisions unchanged; a
+#: new version so v1-v6 trajectories and digests are unchanged. Kobo stays on v6.
+MINI_GRID_V7_MODEL = replace(
+    MINI_GRID_V6_MODEL,
+    model_profile_version=7,
+    statement=(
+        MINI_GRID_V6_MODEL.statement
+        + " Version seven also samples the fuel in the tank at an instant, after "
+        "that instant's events, so a tank level sensor can report it."
+    ),
+    supported_states=tuple(
+        replace(
+            item,
+            supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
+            statement=(
+                "The fuel in the tank, initialized by the scenario, moved by "
+                "accepted generator energy and by any frozen declared cause, such "
+                "as a recorded operational action."
+            ),
+        )
+        if item.state_key == "fuel-tank-volume"
+        else item
+        for item in MINI_GRID_V6_MODEL.supported_states
+    ),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -2170,6 +2200,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V4_MODEL,
     MINI_GRID_V5_MODEL,
     MINI_GRID_V6_MODEL,
+    MINI_GRID_V7_MODEL,
     COLD_THERMAL_MODEL,
     EV_CHARGER_MODEL,
 )

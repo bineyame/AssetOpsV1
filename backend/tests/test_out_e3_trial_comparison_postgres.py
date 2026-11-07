@@ -49,6 +49,7 @@ def built(tmp_path_factory) -> dict[str, dict]:
 def _plan_and_details_unchanged(rec: dict) -> None:
     assert rec["plan_sha256_frozen"] == rec["plan_sha256_stored"]
     assert "generator_kwh" not in rec["details_window_keys"] and "feeder_demand_kwh" in rec["details_window_keys"]
+    assert "generator_idle_seconds" not in rec["details_window_keys"]  # FUEL-1 A2: the same exclusion
 
 
 def test_verified_appends_one_improvement_and_a_replay_appends_none(built) -> None:
@@ -69,6 +70,8 @@ def test_verified_appends_one_improvement_and_a_replay_appends_none(built) -> No
     assert result["windows"]["baseline"]["feeder_demand_kwh"] == "120"
     assert result["windows"]["later"]["feeder_demand_kwh"] == "126"
     assert rev["intervention_cost"] == {"amount": "0", "currency": "USD", "source": SOURCE}
+    # FUEL-1 A2: no no-load rate is declared here, so the stored result is `/1` and carries no priced total
+    assert result["formula"] == "trial-fuel-comparison/1" and "priced_total" not in result
     _plan_and_details_unchanged(rec)
 
 

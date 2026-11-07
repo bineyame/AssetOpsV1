@@ -53,7 +53,7 @@ KEY = bytes.fromhex(KEY_HEX)
 
 
 #: CH-3 §5 (OD-3): nothing credited.
-NOT_CREDITED_VALUE = {"state": "NOT_CREDITED", "text": "No money credited · modelled, not saved", "amounts": []}
+NOT_CREDITED_VALUE = {"state": "NOT_CREDITED", "text": "No money credited · modelled, not saved", "items": []}
 
 
 @pytest.fixture(autouse=True)
