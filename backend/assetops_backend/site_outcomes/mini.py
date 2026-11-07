@@ -440,7 +440,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     ct = reads.call("chain_threads", ports.chain_threads)
     opp = () if ct is None else tuple(
         OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"],
-                              **opportunity_thread(ct, a, c, day, work_lo, end, site_timezone, day_facts))
+                              **opportunity_thread(ct, a, c, day, work_lo, end, site_timezone, day_facts),
+                              source_class=a.get("source_class"))  # WD-1m-R §3
         for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
     verified_values = _verified_values(reads, ports, actions, opp)
