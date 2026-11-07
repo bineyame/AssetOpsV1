@@ -76,6 +76,20 @@ verbatim:
   numbers. F10 is unchanged (D0 files byte-equal to main; the earlier `--check` passed and no D0 file has changed
   since). The probe-local v7 was not built.
 
+## F0r R3a pre-registration addendum (DIESEL-1-R3a §9a, a5fd09971; committed before any run)
+
+No expectation changes.
+
+- **Bindings draft:** corrected to 12 rows under `minigrid-roles-2`, with `declare_signals: []` and the ruled note.
+  - The 9 rows kept earlier.
+  - `generator-status` (Kobo's status row with `legacy_mapping_id: "generator-status"`).
+  - `pv-inverter-available-power` and `battery-pcs-discharge-capability` (Kobo's two `add` rows from
+    `backend/conversions/kobo-001-s3-dispatch-demo-config.json`, each with its legacy mapping id).
+- Every template mapping is converted once. The roles-3/4 republication is not applied (none of F0r's gates reads
+  those channels).
+- Setup (c), clocks, and the probe-local v7 are as in the F0r addendum above. Gates F0a-F11 and stops S0-S8 stand.
+  A refusal of the corrected fixture is S6.
+
 ## First attempt (stopped, aa49a18fd): STOPPED at run setup (S1 refusal on F1; S4 also certain by code reading)
 
 No night was measured. No plain-words result line exists, there is no per-night table, and
