@@ -1,0 +1,390 @@
+display_name: Kisiwa island mini-grid
+foundation:
+  components:
+  - component_id: pv-array
+    component_type: PV_ARRAY
+    display_name: PV array
+    properties:
+    - property_key: pv-rated-power
+      source: TEMPLATE
+      source_version: 1
+      unit: kW
+      value: 20.0
+    rating:
+      unit: kW
+      value: 20.0
+  - component_id: pv-inverter
+    component_type: INVERTER
+    display_name: PV inverter
+    properties:
+    - property_key: inverter-ac-limit
+      source: TEMPLATE
+      source_version: 1
+      unit: kW
+      value: 20.0
+    rating:
+      unit: kW
+      value: 20.0
+  - component_id: battery
+    component_type: BATTERY
+    display_name: Battery energy storage
+    properties:
+    - property_key: battery-energy-capacity
+      source: TEMPLATE
+      source_version: 1
+      unit: kWh
+      value: 60.0
+    - property_key: reserve-state-of-charge
+      source: TEMPLATE
+      source_version: 1
+      unit: '%'
+      value: 30.0
+    rating:
+      unit: kWh
+      value: 60.0
+  - component_id: battery-pcs
+    component_type: POWER_CONVERSION_SYSTEM
+    display_name: Battery power conversion system
+    properties:
+    - property_key: pcs-charge-limit
+      source: TEMPLATE
+      source_version: 1
+      unit: kW
+      value: 20.0
+    - property_key: pcs-discharge-limit
+      source: TEMPLATE
+      source_version: 1
+      unit: kW
+      value: 20.0
+    - property_key: pcs-conversion-efficiency
+      source: TEMPLATE
+      source_version: 1
+      unit: '%'
+      value: 95.0
+    rating:
+      unit: kW
+      value: 20.0
+  - component_id: generator
+    component_type: GENERATOR
+    display_name: Diesel generator
+    properties:
+    - property_key: specific-fuel-consumption
+      source: TEMPLATE
+      source_version: 1
+      unit: L/kWh
+      value: 0.355
+    - property_key: minimum-runtime
+      source: TEMPLATE
+      source_version: 1
+      unit: min
+      value: 30.0
+    - property_key: start-soc-threshold
+      source: TEMPLATE
+      source_version: 1
+      unit: '%'
+      value: 35.0
+    - property_key: stop-soc-threshold
+      source: TEMPLATE
+      source_version: 1
+      unit: '%'
+      value: 90.0
+    - property_key: start-delay
+      source: TEMPLATE
+      source_version: 1
+      unit: min
+      value: 5.0
+    - property_key: generator-rated-power
+      source: TEMPLATE
+      source_version: 1
+      unit: kW
+      value: 60.0
+    rating:
+      unit: kW
+      value: 60.0
+  - component_id: fuel-tank
+    component_type: FUEL_TANK
+    display_name: Generator fuel tank
+    properties:
+    - property_key: tank-capacity
+      source: TEMPLATE
+      source_version: 1
+      unit: L
+      value: 1000.0
+    rating:
+      unit: L
+      value: 1000.0
+  - component_id: ac-bus
+    component_type: AC_BUS
+    display_name: AC bus
+    properties: null
+    rating:
+      unit: V
+      value: 400.0
+  - component_id: load-res
+    component_type: LOAD
+    display_name: Households
+    properties: null
+    rating:
+      unit: kW
+      value: 15.0
+  - component_id: load-clinic
+    component_type: LOAD
+    display_name: Cold store (ice and fish)
+    properties: null
+    rating:
+      unit: kW
+      value: 6.0
+  - component_id: load-mill
+    component_type: LOAD
+    display_name: Water pump
+    properties: null
+    rating:
+      unit: kW
+      value: 8.0
+  control_assumptions:
+  - assumption_id: generator-charges-when-running
+    basis: TEMPLATE
+    component_id: generator
+    display_name: The generator charges the battery while it runs
+    statement: When the generator runs it serves load first and charges the battery
+      with what is left, within the PCS limit, until the stop setting.
+  - assumption_id: cold-store-protected
+    basis: TEMPLATE
+    component_id: load-clinic
+    display_name: The cold store is protected first
+    statement: The archetype assumes the cold store keeps supply when nothing else
+      can. The typed critical-load-priority Site Control is what a controller reads;
+      this sentence is documentation of the intent.
+  devices:
+  - component_id: pv-inverter
+    device_id: pv-inverter-controller
+    device_type: CONTROLLER
+    display_name: PV inverter controller
+    signals:
+    - display_name: AC output power
+      signal_id: ac-power
+      unit: kW
+    - display_name: Available AC power
+      signal_id: available-power
+      unit: kW
+  - component_id: pv-array
+    device_id: pv-irradiance-sensor
+    device_type: SENSOR
+    display_name: Plane-of-array irradiance sensor
+    signals:
+    - display_name: Plane-of-array irradiance
+      signal_id: irradiance
+      unit: W/m2
+  - component_id: battery-pcs
+    device_id: battery-pcs-controller
+    device_type: CONTROLLER
+    display_name: Battery PCS controller
+    signals:
+    - display_name: AC power at the PCS
+      signal_id: ac-power
+      unit: kW
+    - display_name: Battery state of charge
+      signal_id: state-of-charge
+      unit: '%'
+    - display_name: Battery discharge capability
+      signal_id: discharge-capability
+      unit: kW
+  - component_id: generator
+    device_id: generator-controller
+    device_type: CONTROLLER
+    display_name: Generator controller
+    signals:
+    - display_name: Generator output power
+      signal_id: ac-power
+      unit: kW
+    - display_name: Generator status
+      signal_id: status
+      unit: state
+  - component_id: fuel-tank
+    device_id: fuel-level-sensor
+    device_type: SENSOR
+    display_name: Fuel level sensor
+    signals:
+    - display_name: Fuel level
+      signal_id: fuel-level
+      unit: L
+  - component_id: load-res
+    device_id: residential-meter
+    device_type: METER
+    display_name: Households meter
+    signals:
+    - display_name: Active power to the residential feeder
+      signal_id: active-power
+      unit: kW
+  - component_id: load-clinic
+    device_id: clinic-meter
+    device_type: METER
+    display_name: Cold store meter
+    signals:
+    - display_name: Active power to the clinic
+      signal_id: active-power
+      unit: kW
+  - component_id: load-mill
+    device_id: mill-meter
+    device_type: METER
+    display_name: Water pump meter
+    signals:
+    - display_name: Active power to the mill
+      signal_id: active-power
+      unit: kW
+  signal_mappings:
+  - component_id: pv-inverter
+    device_id: pv-inverter-controller
+    mapping_id: pv-inverter-ac-power
+    signal_id: ac-power
+  - component_id: pv-inverter
+    device_id: pv-inverter-controller
+    mapping_id: pv-inverter-available-power
+    signal_id: available-power
+  - component_id: pv-array
+    device_id: pv-irradiance-sensor
+    mapping_id: pv-array-irradiance
+    signal_id: irradiance
+  - component_id: battery-pcs
+    device_id: battery-pcs-controller
+    mapping_id: battery-pcs-ac-power
+    signal_id: ac-power
+  - component_id: battery
+    device_id: battery-pcs-controller
+    mapping_id: battery-state-of-charge
+    signal_id: state-of-charge
+  - component_id: battery-pcs
+    device_id: battery-pcs-controller
+    mapping_id: battery-pcs-discharge-capability
+    signal_id: discharge-capability
+  - component_id: generator
+    device_id: generator-controller
+    mapping_id: generator-ac-power
+    signal_id: ac-power
+  - component_id: generator
+    device_id: generator-controller
+    mapping_id: generator-status
+    signal_id: status
+  - component_id: fuel-tank
+    device_id: fuel-level-sensor
+    mapping_id: fuel-tank-level
+    signal_id: fuel-level
+  - component_id: load-res
+    device_id: residential-meter
+    mapping_id: residential-active-power
+    signal_id: active-power
+  - component_id: load-clinic
+    device_id: clinic-meter
+    mapping_id: clinic-active-power
+    signal_id: active-power
+  - component_id: load-mill
+    device_id: mill-meter
+    mapping_id: mill-active-power
+    signal_id: active-power
+  site_controls:
+  - control_key: source-priority
+    members:
+    - pv-array
+    - generator
+    - battery
+    source: TEMPLATE
+    source_version: 1
+  - control_key: critical-load-priority
+    members:
+    - load-clinic
+    - load-res
+    - load-mill
+    source: TEMPLATE
+    source_version: 1
+  summary: 'Island diesel-hybrid mini-grid: a small PV array behind one inverter,
+    one battery behind one power conversion system, and a 60 kW diesel generator with
+    its tank that carries the night and charges the battery while it runs. Serves
+    households, a cold store for ice and fish, and a water pump as three separately
+    metered loads. Declares design ratings, typed physical and control properties,
+    typed Site Controls for source and critical-load priority, the electrical topology,
+    the configured devices and signals, the device-to-signal mappings, and the operating
+    assumptions the archetype makes.'
+  topology:
+    connections:
+    - connection_id: pv-array-to-inverter
+      from_node: pv-array
+      medium: DC
+      to_node: pv-inverter
+    - connection_id: pv-inverter-to-bus
+      from_node: pv-inverter
+      medium: AC
+      to_node: ac-bus
+    - connection_id: battery-to-pcs
+      from_node: battery
+      medium: DC
+      to_node: battery-pcs
+    - connection_id: pcs-to-bus
+      from_node: battery-pcs
+      medium: AC
+      to_node: ac-bus
+    - connection_id: fuel-tank-to-generator
+      from_node: fuel-tank
+      medium: FUEL
+      to_node: generator
+    - connection_id: generator-to-bus
+      from_node: generator
+      medium: AC
+      to_node: ac-bus
+    - connection_id: bus-to-residential
+      from_node: ac-bus
+      medium: AC
+      to_node: load-res
+    - connection_id: bus-to-clinic
+      from_node: ac-bus
+      medium: AC
+      to_node: load-clinic
+    - connection_id: bus-to-mill
+      from_node: ac-bus
+      medium: AC
+      to_node: load-mill
+    nodes:
+    - component_id: pv-array
+      node_id: pv-array
+      node_role: GENERATION
+    - component_id: pv-inverter
+      node_id: pv-inverter
+      node_role: CONVERSION
+    - component_id: battery
+      node_id: battery
+      node_role: STORAGE
+    - component_id: battery-pcs
+      node_id: battery-pcs
+      node_role: CONVERSION
+    - component_id: generator
+      node_id: generator
+      node_role: GENERATION
+    - component_id: fuel-tank
+      node_id: fuel-tank
+      node_role: FUEL_STORAGE
+    - component_id: ac-bus
+      node_id: ac-bus
+      node_role: BUS
+    - component_id: load-res
+      node_id: load-res
+      node_role: LOAD
+    - component_id: load-clinic
+      node_id: load-clinic
+      node_role: LOAD
+    - component_id: load-mill
+      node_id: load-mill
+      node_role: LOAD
+  valid_from: '2026-09-01T00:00:00Z'
+  version: 1
+lifecycle_status: PLANNED
+location:
+  country: Uganda
+  locality: Kalangala
+origin: USER
+site_id: KISIWA-001
+site_type: MINIGRID
+source:
+  mode: SIMULATED
+template:
+  template_id: kisiwa-diesel-hybrid-60kw
+  template_version: 1
+timezone: Africa/Dar_es_Salaam

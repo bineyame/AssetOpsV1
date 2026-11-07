@@ -36,6 +36,10 @@ PINNED_TEMPLATE_FINGERPRINTS: dict[tuple[str, int], str] = {
     ("hybrid-mini-grid-100kw", 2): (
         "25f0659d0c441b9eff371a89f29b87d0f173a417b37a2a81648a20dc79dae8d7"
     ),
+    # DIESEL-1 K1 (R3c): the Kisiwa diesel-hybrid island archetype.
+    ("kisiwa-diesel-hybrid-60kw", 1): (
+        "013c3bbc9c9fcf6897eab6eb3d811637c606ee980feb06e53730f9903d4ca07c"
+    ),
     ("kobo-mini-grid-60kw", 2): (
         "43ede0213293914efaaa14e48fa69f56ab4a07565b8a84e7f90d89f7aae786bf"
     ),
