@@ -51,6 +51,18 @@ def compare(before: dict, after: dict) -> dict:
     return {"unchanged": not diff, "diff": diff}
 
 
+def renewable_selections(url: str, site_code: str, lo, hi) -> int:
+    """The stored renewable-hour selections (`mini_depth_selection`, domain `renewable`) of a Site whose hour starts in
+    [lo, hi): the heads exist before any tick, so the tick can queue the study."""
+    import psycopg
+
+    with psycopg.connect(url.replace("+psycopg", "")) as c:
+        return c.execute(
+            "SELECT count(DISTINCT s.window_start) FROM mini_depth_selection s JOIN site st ON st.tenant_id = "
+            "s.tenant_id AND st.id = s.site_id WHERE st.site_code = %s AND s.domain = 'renewable' "
+            "AND s.window_start >= %s AND s.window_start < %s", (site_code, lo, hi)).fetchone()[0]
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--db", required=True)
@@ -82,6 +94,10 @@ def main() -> int:
         elif add.returncode != 0:
             raise SystemExit(f"add-day failed rc={add.returncode}: {doc['add_tail']}")
         else:
+            # R8 A: S+2's renewable selections must exist (stored rows) after the add and before the first tick
+            doc["renewable_selections_s2"] = renewable_selections(url, fin.KOBO, ctx.day(2), ctx.day(3))
+            if not doc["renewable_selections_s2"]:
+                raise SystemExit("EX-1: no stored renewable selection for S+2 after the add: stop, tick not run")
             t1 = time.monotonic()
             tick = subprocess.run([*base, "tick", "--until-drained"], capture_output=True, text=True)
             doc["tick_seconds"], doc["tick_rc"] = round(time.monotonic() - t1, 1), tick.returncode

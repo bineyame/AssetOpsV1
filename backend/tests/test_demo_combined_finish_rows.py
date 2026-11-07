@@ -167,6 +167,20 @@ def test_ex1_compare_flags_a_changed_assure_line_or_a_new_finding() -> None:
     assert ex1.compare(before, ex1.summarise(board, extra))["diff"]["S+1.new_findings"] == ["f2"]
 
 
+def test_after_tool_sums_five_minute_kw_per_local_day_and_gates_the_quote() -> None:
+    from datetime import datetime, timezone
+
+    import demo_combined_after as after
+
+    t = lambda h, m=0: datetime(2026, 10, 23, h, m, tzinfo=timezone.utc)  # noqa: E731
+    rows_ = [("pv", "a", t(8), "12"), ("pv", "a", t(8), "12"), ("pv", "a", t(8, 5), "12"), ("pv", "a", t(8, 10), "x"),
+             ("pv", "a", t(22), "12")]  # a duplicate and a non-numeric are skipped; 22:00Z is the next local day
+    got = after.kwh_per_local_day(rows_, lambda d, s: (d, s) == ("pv", "a"))
+    assert got == {"2026-10-23": 2 * 12 * after.Decimal(5) / 60, "2026-10-24": 12 * after.Decimal(5) / 60}
+    assert after.quotable(96.4, 22.4) and after.quotable(96.0, 22.8)
+    assert not after.quotable(90.0, 22.4) and not after.quotable(96.4, 30.0)  # must-fail: figures that moved
+
+
 # ---- DD1b2-R10 restated rows -------------------------------------------------------------------------------------
 
 def test_headroom_occurrences_come_from_stored_studies_with_eligible_days() -> None:
