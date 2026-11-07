@@ -72,6 +72,11 @@ THREAD_AFTER_NOT_JUDGED = " · after the change: not judged yet, no fully checke
 THREAD_MONITORING = "Fix verified, monitoring ({code}) · {k} more fully checked days to close"
 THREAD_CLOSED = "Fix verified and closed ({code}) · no return in {n} fully checked days"
 THREAD_RECURRED = "Came back on {day} after the fix ({code})"
+#: MB-1-R Q3: the thread line of an opportunity thread (the mill): a change to use spare solar, not a fix of a fault;
+#: "checked and working" is the thread page's own word for RESOLVED_MONITORING.
+OPP_THREAD_MONITORING = "Change checked and working ({code}) · {k} more fully checked days to close"
+OPP_THREAD_CLOSED = "Change checked and closed ({code}) · spare solar not seen again in {n} fully checked days"
+OPP_THREAD_SEEN_AGAIN = "Spare solar seen again on {day} after the change ({code})"
 TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
@@ -190,6 +195,13 @@ class OpportunityActionFact:
     thread_id: str
     outcome: str | None                 # VERIFIED | INEFFECTIVE | INCONCLUSIVE known by the cutoff; None = not judged
     verdict_ref: Mapping[str, Any]      # the DOMAIN_VERDICT Ref (`site_chain.action_wire_ref`)
+    #: MB-1b (MB-1-R §3.3): the thread's `lifecycle.thread_view` on the board day (None = no thread line), this
+    #: Action's segment (`site_chain.actions_of`), the thread's first MOVES category, and whether the board's window
+    #: sees every fully checked day since the verified day (False = no MONITORING count is shown).
+    view: Mapping[str, Any] | None = None
+    action_segment: int | None = None
+    category: str | None = None
+    count_known: bool = True
 
 
 @dataclass(frozen=True)
@@ -704,6 +716,42 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
     return None if item is None else item["text"]
 
 
+def _line_item(kind: str, text: str, tid: str, action_code: str | None, site_code: str, effective: Any,
+               after: Any = None, remaining: int | None = None, clean: int | None = None) -> dict[str, Any]:
+    """CH-5a2 B4: one structured ThreadLine (lifted unchanged from `thread_line_item` for MB-1b)."""
+    return {"kind": kind, "thread_id": tid, "action_code": action_code,
+            "effective_day": None if effective is None else effective.isoformat(), "after": after,
+            "remaining_days": remaining, "clean_days": clean, "ref": refs.thread_ref(site_code, tid),
+            "text": text}
+
+
+def opportunity_line_item(o: OpportunityActionFact, facts: SiteFacts) -> dict[str, Any] | None:
+    """MB-1b (MB-1-R §3.3): the Grow row's ThreadLine of an opportunity-origin domain Action (the mill) on the board
+    day, else None. MOCK DEVIATION MD-FUEL-MB1-2: v69's Grow row has no thread line; the CH-3 thread line (already a
+    deviation on the Optimize row) also appears on Grow for an opportunity thread, in opportunity wording."""
+    d, v = facts.day, o.view
+    if v is None or d is None:
+        return None
+    code, e, tid = display_code(o.code), v.get("change_day"), o.thread_id
+
+    def item(kind: str, text: str, effective: Any, remaining: int | None = None,
+             clean: int | None = None) -> dict[str, Any]:
+        return _line_item(kind, text, tid, o.code, facts.site_code, effective, None, remaining, clean)
+
+    if e is not None and d < e:
+        return item("BEFORE_CHANGE", THREAD_BEFORE.format(e=_short_day(e)), e)
+    seg, n = o.action_segment, int(v["close_after"])
+    if v.get("state") == "RECURRED" and seg is not None and seg < v["segment_no"] and v.get("recurred_day") is not None:
+        day = v["recurred_day"]
+        return item("RECURRED", OPP_THREAD_SEEN_AGAIN.format(day=_short_day(day), code=code), day)
+    if v.get("state") == "CLOSED" and seg == v["segment_no"]:
+        return item("CLOSED", OPP_THREAD_CLOSED.format(code=code, n=n), e, clean=n)
+    if v.get("state") == "RESOLVED_MONITORING" and seg == v["segment_no"] and o.count_known:
+        r = max(0, n - int(v["checked_days"]))
+        return item("MONITORING", OPP_THREAD_MONITORING.format(code=code, k=r), e, remaining=r)
+    return None
+
+
 def thread_line_item(f: FindingFact, facts: SiteFacts, judge: Any = None) -> dict[str, Any] | None:
     """CH-5a2 B4: the structured ThreadLine of a Finding on the board day, else None. `judge(day)` gives the row's
     `(state, state_label)` on a day after the change; `text` is the CH-3 literal, rendered exactly as before."""
@@ -715,10 +763,8 @@ def thread_line_item(f: FindingFact, facts: SiteFacts, judge: Any = None) -> dic
 
     def item(kind: str, text: str, a: ActionFact | None, effective: Any, after: Any = None,
              remaining: int | None = None, clean: int | None = None) -> dict[str, Any]:
-        return {"kind": kind, "thread_id": tid, "action_code": None if a is None else a.code,
-                "effective_day": None if effective is None else effective.isoformat(), "after": after,
-                "remaining_days": remaining, "clean_days": clean, "ref": refs.thread_ref(facts.site_code, tid),
-                "text": text}
+        return _line_item(kind, text, tid, None if a is None else a.code, facts.site_code, effective, after,
+                          remaining, clean)
 
     if e is not None and d < e:
         line = THREAD_BEFORE.format(e=_short_day(e))
@@ -968,6 +1014,12 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         moves = roles[f.finding_id].moves
         if moves and OUTCOME_BY_KEY[moves[0]].category == cat:
             line = thread_line_item(f, facts, lambda day, f=f: state_on(f, day))
+            if line and all(line["text"] != x["text"] for x in thread_lines):
+                thread_lines.append(line)
+    # MB-1b (MB-1-R §3.3), MOCK DEVIATION MD-FUEL-MB1-2: an opportunity thread's line (the mill) after the Findings'.
+    for o in sorted(facts.opportunity_actions, key=lambda o: (o.code or "", o.action_id)):
+        if o.category == cat:
+            line = opportunity_line_item(o, facts)
             if line and all(line["text"] != x["text"] for x in thread_lines):
                 thread_lines.append(line)
     subline = " · ".join(x for x in (facts.subline.get(cat), *(t["text"] for t in thread_lines)) if x) or None

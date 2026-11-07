@@ -20,10 +20,11 @@ from assetops_backend import perf, read_scope
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
+from assetops_backend.chain import lifecycle as lc
 from assetops_backend.chain import refs, site_chain
 from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts moved unchanged
     MG1_MISSED, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, provenance_suffix)
-from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
@@ -31,6 +32,7 @@ from assetops_backend.chain.outcomes import (
     NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, potential_shown, site_nodes)
 from assetops_backend.outcomes.catalogue import MINI, SITE_OUTCOMES
 from assetops_backend.outcomes.display_code import display_code
+from assetops_backend.outcomes.outcome_map import categories_for, thread_signal_key
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
@@ -429,7 +431,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     # read is recorded by `Reads` (PARTIAL) and lists no mill, never a "0" claim.
     ct = reads.call("chain_threads", ports.chain_threads)
     opp = () if ct is None else tuple(
-        OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"])
+        OpportunityActionFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"],
+                              **opportunity_thread(ct, a, c, day, work_lo, end, site_timezone, day_facts))
         for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
@@ -567,6 +570,36 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                            {"from": start, "to": end}, zone_name if tz is not None else None,
                            {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {},
                            node_in)
+
+
+def opportunity_thread(ct: ChainThreads, a: Mapping[str, Any], c: str, day: date, work_lo: datetime, end: datetime,
+                       site_timezone: str | None, day_facts: Any) -> dict[str, Any]:
+    """MB-1b (MB-1-R §3.3, MB-1a-R2 §1): the thread view of one opportunity-origin domain Action on the board day,
+    its segment, its category and whether the work window sees its whole MONITORING count. The fully checked days
+    are the lifecycle runner's own (`lifecycle_run.thread_clean_days`'s measures, subject and occurrence starts) over
+    the board's own snapshot rows; no policy, no snapshot read or no zone -> no view (never a guessed count)."""
+    tid = a["thread_id"]
+    occs = [o for o in ct.rows.get("occurrences", ()) if o["thread_id"] == tid]
+    started = [o for o in occs if o["episode_start"] is not None and o["episode_start"] < end]
+    latest = max(started, key=lambda o: o["occurrence_no"], default=None)
+    moves = [i for i in categories_for(thread_signal_key(None if latest is None else latest["mechanism"]),
+                                       MINI)["items"] if i["role"] == "MOVES"]
+    out: dict[str, Any] = {"category": moves[0]["category"] if moves else None}
+    if latest is None or day_facts is None or site_timezone is None or ct.policy is None:
+        return out
+    evs = lc.visible(site_chain._events(ct.rows).get(tid, []), ct.k)
+    starts = [lc.local_day(o["episode_start"], site_timezone) for o in occs if o["episode_start"] is not None]
+    complete = lc.fully_checked_days(day_facts.rows, latest["subject_ref"],
+                                     ct.policy.measures_for(latest["mechanism"]), starts)
+    view = lc.thread_view(evs, lc.Occurrence(latest["opportunity_id"] or latest["finding_id"],
+                                             lc.local_day(latest["episode_start"], site_timezone)),
+                          day, ct.k, complete, ct.policy.close_after(SITE_TYPE_OF_DOMAIN[MINI]))
+    verified = [eff for _, state, eff in view["events"] if state == "RESOLVED_MONITORING" and eff <= day]
+    verified_day = verified[-1] if verified else None
+    segs = [x["segment_no"] for x in site_chain.actions_of(ct.rows, [tid], site=c, tz=site_timezone, cutoff=ct.k,
+                                                           verification={}) if x["id"] == a["action_id"]]
+    return {**out, "view": view, "action_segment": segs[0] if segs else None,
+            "count_known": verified_day is None or verified_day >= local_days(work_lo, end, site_timezone)[0]}
 
 
 def renewable_bounds(start: datetime, tz_name: str | None) -> tuple[datetime, datetime]:
