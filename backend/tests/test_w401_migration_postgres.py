@@ -40,8 +40,9 @@ TRIGGERS = ("work_case_immutable", "incident_immutable", "maintenance_work_reque
 INDEXES = ("work_case_site_window", "work_case_site_kind", "work_revision_head", "work_event_order",
            "maintenance_plan_site", "maintenance_record_case", "operational_record_site")
 # 11 primary keys + 27 UNIQUE constraints (work_case 5, incident 1, request 1, revision 5, event 2, plan 5,
-# record 3, operational record 5) + the 7 explicit indexes.
-INDEX_TOTAL = 11 + 27 + 7
+# record 3, operational record 5) + the 7 explicit indexes + DIESEL-K2's 0054 partial index `operational_record_asset`
+# (at head; the 0026 round trip still expects 0).
+INDEX_TOTAL = 11 + 27 + 7 + 1
 # Scoped foreign keys whose exact column lists are the second boundary behind the service (spec section).
 SCOPED_FKS = {
     "work_case_site_fk": "FOREIGN KEY (tenant_id, site_id) REFERENCES site(tenant_id, id)",

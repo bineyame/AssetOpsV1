@@ -223,7 +223,7 @@ def test_checks_hold_below_the_service(kobo, engine) -> None:  # noqa: F811
 
     def insert(match: str, **p) -> None:
         i = uuid4()
-        params = {"i": i, "t": kobo.t, "s": kobo.s, "code": f"REC-9{i.hex[:5]}", "k": "TANK_DIP", "u": "L", "q": "5",
+        params = {"i": i, "t": kobo.t, "s": kobo.s, "code": f"REC-9{int(i.hex[:8], 16) % 100000:05d}", "k": "TANK_DIP", "u": "L", "q": "5",
                   "d": None, "o": LO, "key": f"raw-{i.hex[:12]}", "h": "a" * 64, "a": kobo.tank, **p}
         with pytest.raises(IntegrityError, match=match):
             with engine.begin() as c:
