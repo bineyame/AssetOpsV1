@@ -1,40 +1,37 @@
-# DD-1b2b handoff (partial: steps 1-2 done; resume at step 3)
+# DD-1b2b handoff (partial: steps 1-3 done plus the O7 text; resume at step 4, the finish rows)
 
-Card: `build-sheet-DD-1.md` **"DD1b2-R6"** (owed list O1-O20, steps 0-9) **as amended by "DD1b2-R7"** (end of the file; R7 rewrites O2, O8(2), O17, §7, step 6 and the §3 outcome table). Pre-flight: `.agent/DD-1b2b-preflight.md` (`5c05dd0a3`). Worktree `AssetOpsV1-dd1b2`, branch `task/DD-1b2-finish-rehearsal`. The handover is early, after step 2 rather than at step 5, because the first builder's context was heavy.
+Card: `build-sheet-DD-1.md` **"DD1b2-R6"** (owed list O1-O20, steps 0-9) **as amended by "DD1b2-R7"** (end of file). Rulings the rows cite: **DD1b2-R Q9, Q10, Q11, Q13, Q14** (`build-sheet-DD-1.md:1598-1634`), the Q7 table just above it (`:1500-1566`), R2 (S-10/S-4 no-data), R3 `§2-3` (WK-2c), R4 `§5`, R5. Pre-flight: `.agent/DD-1b2b-preflight.md`. Worktree `AssetOpsV1-dd1b2`, branch `task/DD-1b2-finish-rehearsal`. This second handover is early (about 90k context) because step 4 is large (15 rows plus three tools); a fresh builder starts it clean.
 
 ## Done
 
 | Step | Result | Evidence |
 |---|---|---|
-| 1 | Dropped `assetops_demo3_dd1b2{p,q,r}_test` (`m`, `n` never existed). Deleted `var/demo3_dd1b2{m,n,p,q,r}`. Ran `npm ci` in `frontend` (179 packages, exit 0) | MEASURED: afterwards `pg_database LIKE 'assetops_demo3_dd1b2%'` = `[]`; `var/demo3_*` is absent |
-| 2 | O1 committed as `44919e51f`. `chain/refs.py`: kind `DOMAIN_VERDICT` in `KINDS`, `domain_verdict_ref`, `href_for` → `/sites/{s}/domain-actions/{id}/verification`. `chain/site_chain.py`: `action_wire_ref(site, a)` used in `actions_of`. Frontend: `chainRef.ts` union, a `routeFor` case → `siteMillVerificationHref`, a `route-refs.json` row, `routeRefs.test.ts:15` | MEASURED: `test_dd1b2b_action_ref.py` + `test_ch5a2_refs.py` 70 passed; vitest `routeRefs.test.ts` 60 passed. Non-vacuous: with the branch in `action_wire_ref` disabled, `test_domain_intent_from_an_opportunity_is_the_verdict_page` FAILED; restored by `git checkout` |
+| 1 | Spent DBs and folders dropped; `npm ci` done | earlier handoff |
+| 2 | O1 `44919e51f` (mill Action wire ref is `DOMAIN_VERDICT`) | `test_dd1b2b_action_ref.py` + `test_ch5a2_refs.py` 70 passed; vitest `routeRefs.test.ts` 60 passed |
+| 3 | O2 + O3 committed `83f4926b6`. `tools/demo_combined_drain.py` (new): `counts` runs in the private tree and prints per-Site `dirty`, `snapshots_pending`, `threads_pending`, `mini_deferred`, `opportunity_live`, `pending_ids`; pure `n_for` (max over Sites of ceil((dirty+snap)/200)+2), `step` (done / continue / over_n / fail on past 2N or three equal snapshots = two flat ticks; same pending ids count as flat). `Demo.drain(name)` in `tools/demo_combined.py` runs the raw `TICK --no-prebuild`, reads stdout and exit code, then `performance_and_prebuild()` once; writes `<work>/<name>.json`. Drain 1 is after `backfill-bcd` in `after_children`; drain 2 is after `tick(2)` in `finish`, before the self-check. `tick --until-drained` calls `drain("tick-until-drained")`. `prepare --cap-seconds`. The manifest gains `step_timings_seconds` (mini-depth, backfill-a, mill, backfill-bcd, drain-1, finish-ticks, drain-2, finish-rows) and `tree_seconds`; `timed` lines carry `[x s]` | MEASURED: `backend/tests/test_dd1b2b_drain.py` 8 passed on `assetops_dd1b2b_test` (4 L0, 4 L2, none skipped). Non-vacuous: with the flat-tick check disabled, `test_step_done_continue_over_n_and_the_two_fails` and `test_the_drain_fails_on_two_flat_ticks` FAILED (2 failed, 6 passed); restored by `git checkout` |
+| 4 (part) | O7 text replaced at `docs/demo-sprint/client-demo-plan.html:588` | READ; **uncommitted until the next commit** (this handoff's commit includes it) |
 
-`tsc --noEmit` has not been run yet; it belongs to step 5.
+Base DB `assetops_dd1b2b_test` **exists now** (created for the L2; the harness clones `assetops_dd1b2b_pt<run>_*_test` and drops those itself). Run tests with `ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:<repo default>@127.0.0.1:55432/assetops_dd1b2b_test` (the default password is `PW` in `tools/demo_combined.py:50`), through `tools\run-host-tests.ps1 -- <files>`, `ASSETOPS_GUARD_PYTHON` set. **Drop `assetops_dd1b2b_test` after step 5's `test_ch9b*` run.** A scratchpad helper exists: `...\scratchpad\mkdb.py <name> create|drop` (name must match `assetops_dd1b2*_test`).
 
-## Anchors for step 3 onward (READ)
+Not run yet: `tsc --noEmit` (step 5). Free RAM now about 3.4 GB, no python running.
 
-- `tools/demo_combined.py`:
-  - `prepare` `:360`: the cap is computed at `:366-368`; there is no `--cap-seconds` yet. The CLI is `main` `:736`; `add-day` and `--assess-now` are at `:757-761`.
-  - `finish_build` `:454`, `after_children` `:467` (backfill-bcd at `:491`, where R8 drain 1 goes after it), `finish` `:496` (the `tick(times=2)` is at `:513`, and R8 drain 2 goes after it, before the self-check at `:514`).
-  - `drain_mini` `:522`, `tick` `:539` (runs performance + prebuild on every call; R7 Q3: each drain iteration uses the raw `TICK --no-prebuild`, then performance once and prebuild once). `TICK` `:67`, `EXPECTED_SECONDS` `:63`, `PG_ADMIN` `:52`, `DB_RE` `:53`, ports `:57`.
-- Counts for the done condition (O2 + R7 Q1):
-  - dirty: `snapshot_dirty` per Site (`PostgresEventStore.queued`, `chain/adapters/postgres_event_store.py:146`).
-  - pending: `PostgresEventStore.pending(consumer, t, s, types)` `:103`, for consumer `snapshots` and consumer `threads`, with types from `load_event_register().consumes(<consumer>)`, partitioned at `@` as in `scheduling/stages.py` `chain_snapshots`.
-  - Kobo mini deferred: `live_mini_jobs`, PENDING or LEASED (`stages.py:151-156`).
-  - Live opportunity jobs: the `live_opportunity_jobs` of the assessment store (`scheduling/tick.py:224`).
-  - N = max over Sites of ceil((dirty + snapshots pending)/200) + 2, where 200 = `chain_snapshot_items` (`tick.py:75`).
-- `tools/checks/perf_budget.py` CLI `:178-185` has no `--story` flag; build one (DD1b2-R Q9). `chain_perf_probe.py:35-42` has hardcoded dates.
-- The O7 line is `docs/demo-sprint/client-demo-plan.html:588`. Keep the cell up to "(WN-6/7)." and replace the rest (R7 Q12).
-- Whole list (MEASURED offline): 54 runs; Kobo 48 (47 delivering), Cold 3, EV 3. S-3 is kind `late` (`received_at` S-1 12:30, `assess: build`).
-- Free RAM at 09:41Z was 3.3 GB (coordinator). R7 Q7's start condition is ≥ 2.5 GB for 2 min with nothing heavy running. Stop only below 1 GB on two consecutive samples, or after 15 min with no output.
-- Step 6 start: by 17:30Z, otherwise the next morning at or after 05:00Z (R7 Q8).
-- L2 base `assetops_dd1b2b_test` through `tools\run-host-tests.ps1`, dropped after (R7 Q9).
+## Step 4 still owed (all of it; each row passes or is a listed fault, no row edited to pass)
 
-## Next
+Existing rows are in `tools/demo_combined_finish.py` (`co1`..`wk6`, `run` at `:638`, `row()` decorator `:122`, `Ctx` `:57`). Add, per R6 §2:
+- **O4**: F-DRAIN (read `drain-1.json`/`drain-2.json` and recount: 0/0/0, report `over_n`); F-COH (write `expected_threads` generated from `kobo.json`, `cold.json`, `ev.json` into the bundle manifest, which `chain_coherence.py:864` honours; `check` with no `--expect`; ACT-002/003 "Action agreed"; COH-17 on the mill thread on week and month windows is the only exception, and only if the thread recurs); F-PERF (`tools/checks/perf_budget.py` has no `--story` flag, CLI at `:178-185`: add an optional `--story <work>/story.json` that maps the route windows to story days, Kobo S, Cold S+0, EV S+0, the week ending S; fixture path unchanged; L0 in the new `tools/checks/test_perf_budget.py`; `chain_perf_probe.py:35-42` has hardcoded dates, touch only if `perf_budget` calls it; report only, 3 runs); F-CAL (every local day first evidence to today; S-10, S-4, S-2 asserted NO_DATA); F-COH3 non-vacuous.
+- **O5**: F-THREADS per Q10 (MILL-3 outcome count 1, VERIFIED, 42.00 -> 110.00, `origin_opportunity_id`, CHANGE_APPLIED, not SHORT; earnings, ONE-SOURCE and the "Why?" price line recomputed; MG-1 and MG-2; every `story_links` board and bare board on the 3 Sites with no PRODUCER_NOT_SETTLED/PARTIAL; links with explicit `known_at` listed; `domain_action_index` not a failed read on Cold/EV; Portfolio plain landing for Cold/EV; Cold/EV "No action agreed yet" reported; Protect "Why?" names both Cold threads; ACT-002/003 "Action agreed").
+- **O6**: WK-2b restated (on S: no headline money, headline not the kW pattern, sales contributor starts "0 kWh used by Grain mill", potential "No potential found yet"); WK-2c on S-11 (potential equals "Limited evidence: readings come from mixed sources, so the size is not worked out yet", no kW, no `value_line`, no money; fails if any kW or money shows; status LIMITED, 5 eligible days, reported). `wk2b` is at `:535`.
+- **O9**: new `tools/demo_combined_ex1.py` (EX-1 on the clone: read boards; `add-day --site KOBO-001 --kind normal --assess-now` timed; `tick --until-drained` with tick count; read again; compare Assure count, trial line, Action words, new Findings; renewable selections for S+2's PV hours exist before the first tick; `DAY_NOT_IN_PAST` is not a fault, rerun after 11:00Z).
+- **O14**: unused-solar recompute (S-13..S-11, S-8, S-6, S-5), REPORT-ONLY; script may quote "about 96 / about 22" only if unused reads 96.4 and 22.4 (+-0.5).
+- **O15**: litre recompute on `steady-before` nights, old vs new, owner line only if different at one decimal. **O16**: MONEY-B (fuel rows trace to a story-day Finding, none on a steady day; S-14 and S-7 PRICED with quantity 0; Cost headline on one `steady-before` and one `steady` day; WK-2a 42.08).
+- Their L0s (follow `backend/tests/test_demo_combined_finish_*.py`). **Commit everything before step 6: prepare archives HEAD.**
 
-Step 3 (O2, O3, `tick --until-drained`, L0 + L2), then step 4, step 5, and the one rehearsal (step 6), as R6 §6 and R7 order them. The rehearsal is the one run: if it stops, keep the DB and go back to the coordinator.
+## Steps 5-9
+
+As R6 §6 and R7. Step 5: guards A, W, N, V, M via `tools/check-all.ps1:55-66` pieces (A = `tools/check-architecture.ps1`, W = `check-agent-workflow.ps1`, N = navigation, V = v69 registry, M = mock labels/vocabulary), plus `tools/checks/test_perf_budget.py`, scoped pytest (`tools/checks/test_chain_coherence.py`, `test_ch9b*` incl. `*_postgres.py` via run-host-tests, the `test_demo_combined_*` L0s, `test_ch5a2_refs.py`, `test_dd1b2b_action_ref.py`, `test_dd1b2b_drain.py`), `tsc --noEmit`, vitest `routeRefs.test.ts` and `millVerification.test.tsx` listed by file. No full suite. Step 6 (the one rehearsal): `demo_combined.py --db assetops_demo3_dd1b2_test --work var/demo3_dd1b2 prepare --cap-seconds 10800`, start by 17:30Z else next morning >= 05:00Z, no other heavy job and >= 2.5 GB free for 2 min, sampler every 30 s, stall monitor (15 min no output), stop only under 1 GB twice in a row; keep-awake already running. Mill-step failure: stop and report, no rerun.
 
 ## Open risks
 
-- The whole-list time is unmeasured; my estimate is 120-160 min against the 10800 s cap.
-- The 8 stuck `snapshots` events (`DD-0c-probe-results.md:45`): the same ids on two ticks is a §7 stop.
+- The whole-list time is unmeasured (estimate 120-160 min vs the 10800 s cap).
+- The 8 stuck `snapshots` events (`DD-0c-probe-results.md:45`): the same ids over two flat ticks now fails the drain with the counts (R6 section 7 stop).
+- `Demo.drain` has only been exercised with a simulated tick (L2); the real tick path (`serve_env`, JSON parse of `counts`) first runs in the rehearsal. `counts` is a child run in the tree; if it errors the prepare stops with its log, which is early in `after_children`. Consider running `demo_combined_drain.py counts` once against any prepared DB before step 6 if one is available (none is; do not build one).
