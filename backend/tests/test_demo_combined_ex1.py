@@ -16,7 +16,7 @@ def _finding(fid: str, text: str = "f") -> dict:
 
 def _board(read_state: str = "AVAILABLE", **over: object) -> dict:
     rows = [
-        {"category": "ASSURE_PERFORMANCE", "headline": "1 verified result", "count": 1, "state": "OK",
+        {"category": "ASSURE_PERFORMANCE", "headline": "1 verified result", "counts": {"issues": 1, "in_hand": 0}, "state": "OK",
          "issues": [], "in_hand": [], "earlier": [], "options": []},
         {"category": "OPTIMIZE_COST", "headline": "h", "state": "OK",
          "issues": [_finding("a"), _finding("b")], "in_hand": [], "earlier": [{"text": "ACT-001"}], "options": []},
@@ -67,3 +67,27 @@ def test_a_changed_assure_headline_or_trial_line_fails() -> None:
     assert not out["passes"] and "S.assure_headline" in out["failures"]
     out = ex1.compare(_sum(_board()), _sum(_board(OPTIMIZE_COST={"in_hand": [{"text": "Trial a lower stop"}]})))
     assert not out["passes"] and "S.cost_lines" in out["failures"]
+
+
+def test_l1_exit_code_is_non_zero_on_a_failed_compare_or_a_read_that_is_not_available() -> None:
+    ok = ex1.compare(_sum(_board()), _sum(_board()))
+    bad = ex1.compare(_sum(_board()), _sum(_board(ASSURE_PERFORMANCE={"headline": "2 verified results"})))
+    assert ex1.exit_code({"comparison": ok}) == 0
+    assert ex1.exit_code({"comparison": bad}) == 1  # must fail
+    assert ex1.exit_code({"comparison": ok, "after_not_available": "S+1"}) == 1  # must fail
+    assert ex1.exit_code({}) == 1  # no comparison is never a pass
+
+
+def test_l1_counts_are_read_from_the_measured_row_shape() -> None:
+    s = _sum(_board())
+    assert s["S"]["assure_count"] == {"issues": 1, "in_hand": 0}
+    after = _board(ASSURE_PERFORMANCE={"counts": {"issues": 2, "in_hand": 0}})
+    out = ex1.compare(s, _sum(after))
+    assert not out["passes"] and "S.assure_count" in out["failures"]  # must fail
+
+
+def test_l1_any_in_hand_text_change_is_an_action_words_failure() -> None:
+    before = _board(OPTIMIZE_COST={"in_hand": [{"text": "Action agreed"}]})
+    after = _board(OPTIMIZE_COST={"in_hand": [{"text": "Action in hand"}]})  # no "trial"/"ACT-" in either text
+    out = ex1.compare(_sum(before), _sum(after))
+    assert not out["passes"] and "S.in_hand_items" in out["failures"]

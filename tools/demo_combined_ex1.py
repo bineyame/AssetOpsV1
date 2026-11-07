@@ -31,7 +31,12 @@ KOBO = "KOBO-001"
 
 
 LISTS = ("issues", "in_hand", "earlier", "options")
-O9_KEYS = ("assure_headline", "assure_count", "assure_state", "cost_lines")
+O9_KEYS = ("assure_headline", "assure_count", "assure_state", "cost_lines", "in_hand_items")
+
+
+def exit_code(doc: dict) -> int:
+    """L1 (DD1b2-R13 section 3): non-zero when the comparison fails or any read after the add is not AVAILABLE."""
+    return 1 if (not doc.get("comparison", {}).get("passes") or doc.get("after_not_available")) else 0
 
 
 def tree_form(backend_file: str, work: Path) -> bool:
@@ -68,7 +73,8 @@ def summarise(board_s: dict, board_s1: dict) -> dict:
         texts = [i.get("text") for r in board["rows"] for k in LISTS for i in r.get(k, [])]
         out[name] = {"read_state": board.get("read_state"),
                      "rows": {c: canon_row(r) for c, r in rows.items()},
-                     "assure_headline": assure.get("headline"), "assure_count": assure.get("count"),
+                     "assure_headline": assure.get("headline"), "assure_count": assure.get("counts"),
+                     "in_hand_items": [_key(i) for r in board["rows"] for i in r.get("in_hand", [])],
                      "assure_state": assure.get("state"),
                      "cost_lines": [t for t in texts if t and ("trial" in t.lower() or "ACT-" in t)],
                      "findings": sorted(str((i.get("ref") or {}).get("finding_id"))
@@ -180,7 +186,7 @@ def main() -> int:
     doc.update(before=before, after=after, comparison=compare(before, after))
     (work / "ex1.json").write_text(json.dumps(doc, indent=2, default=str), encoding="utf-8")
     print(json.dumps(doc, indent=2, default=str))
-    return 0
+    return exit_code(doc)
 
 
 if __name__ == "__main__":

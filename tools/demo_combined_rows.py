@@ -4,6 +4,7 @@ Nothing here reads the served app; `demo_combined_finish.py` feeds these functio
 expected figures (42.00, 110.00, the WK-2c sentence) are the rulings' own, quoted from the build sheet."""
 from __future__ import annotations
 
+import re
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 
@@ -181,15 +182,32 @@ def _coh2_known_gap(f: dict, action_ids: set[str]) -> bool:
             and not any(str(b).startswith("actions.") for b in bodies))
 
 
+COH17_REASON = "mill recurrence: an older row reads Verified, the thread now reads RECURRED (CH6b3-R4)"
+_L3_DETAIL = re.compile(r"^(\d+) distinct Verified threads in the table, claim (\d+)$")
+
+
+def _coh17_mill_recurrence(f: dict, recurs: bool) -> bool:
+    """DD1b2-R13 section 1: the shape of the estate check L3 when one thread's older row reads Verified."""
+    if not (recurs and f.get("rule") == "COH-17" and f.get("site_code") is None and f.get("subject") == "L3"
+            and f.get("window") in ("week", "month")):
+        return False
+    m = _L3_DETAIL.match(str(f.get("detail")))
+    return bool(m) and int(m.group(1)) - int(m.group(2)) == 1
+
+
 def coh_split(findings: list[dict], recurs: bool, action_ids: set[str] | frozenset[str] = frozenset()
               ) -> tuple[list[dict], list[dict]]:
-    """F-COH: (faults, allowed). Allowed: COH-17 on Kobo's mill thread, only when the thread recurs (R6 O4, Q7 entry),
-    and COH-2 on Cold/EV for a recorded Action read from that Site's domain `action_index` (DD1b2-R9 item 1; reason
-    COH2_REASON). Everything else is a fault, including any COH-2 on Kobo."""
+    """F-COH: (faults, allowed). Allowed: the estate check L3 for the one recurring mill thread (DD1b2-R13 section 1:
+    COH-17, no Site, window week or month, subject L3, "n distinct Verified threads in the table, claim m" with
+    n - m == 1, `recurs` true, at most one per window; reason COH17_REASON, owner BL-07), and COH-2 on Cold/EV for a
+    recorded Action read from that Site's domain `action_index` (DD1b2-R9 item 1; reason COH2_REASON). Everything else
+    is a fault, including any COH-2 on Kobo and any other COH-17."""
     faults, allowed = [], []
+    taken: set[str] = set()
     for f in findings:
-        if recurs and f["rule"] == "COH-17" and f.get("site_code") in (None, "KOBO-001"):
-            allowed.append(f)
+        if _coh17_mill_recurrence(f, recurs) and f["window"] not in taken:
+            taken.add(f["window"])
+            allowed.append({**f, "reason": COH17_REASON, "owner": "BL-07"})
         elif _coh2_known_gap(f, set(action_ids)):
             allowed.append({**f, "reason": COH2_REASON})
         else:

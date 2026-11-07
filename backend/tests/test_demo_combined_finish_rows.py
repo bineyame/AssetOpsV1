@@ -50,13 +50,37 @@ def test_expected_threads_group_by_site_and_mechanism_in_episode_order() -> None
     assert rows.build_expected_threads(kobo, cold, portfolio, None)[-1]["name"] != "kobo-headroom"
 
 
-def test_coh17_is_allowed_only_on_kobo_and_only_when_the_mill_thread_recurs() -> None:
-    f17 = {"rule": "COH-17", "site_code": "KOBO-001"}
+def _l3(window: str = "week", n: int = 3, m: int = 2, **over: object) -> dict:
+    f = {"rule": "COH-17", "site_code": None, "window": window, "subject": "L3",
+         "detail": f"{n} distinct Verified threads in the table, claim {m}", "bodies": ["portfolio.week.p1.json"]}
+    f.update(over)
+    return f
+
+
+def test_coh17_allowed_only_for_the_l3_mill_recurrence_shape() -> None:
+    # 1. allowed: L3, week, n - m == 1, recurs: carries the reason and the owner
+    f = _l3()
+    faults, allowed = rows.coh_split([f, _l3("month")], recurs=True)
+    assert faults == [] and [a["window"] for a in allowed] == ["week", "month"]
+    assert allowed[0] == {**f, "reason": rows.COH17_REASON, "owner": "BL-07"}
+    assert "CH6b3-R4" in rows.COH17_REASON
+    # each of 2-8 must fail
+    assert rows.coh_split([f], recurs=False) == ([f], [])  # 2. recurs False
+    s = _l3("S")
+    assert rows.coh_split([s], recurs=True) == ([s], [])  # 3. window S
+    two = _l3(n=4, m=2)
+    assert rows.coh_split([two], recurs=True) == ([two], [])  # 4. n - m == 2
+    summary = _l3(subject="summary", detail="a stamped bundle lacks the summary body")
+    assert rows.coh_split([summary], recurs=True) == ([summary], [])  # 5. site-less, subject summary
+    window = _l3(subject="window", detail="the `/estate/chain` window is not the requested one")
+    assert rows.coh_split([window], recurs=True) == ([window], [])  # 6. site-less, subject window
+    kobo = _l3(site_code="KOBO-001")
+    assert rows.coh_split([kobo], recurs=True) == ([kobo], [])  # 7. a Kobo-Site COH-17 (a V2 row)
+    first, second = _l3("month"), _l3("month")  # 8. a second L3 on the same window
+    faults, allowed = rows.coh_split([first, second], recurs=True)
+    assert len(allowed) == 1 and faults == [second]
     other = {"rule": "COH-2", "site_code": "KOBO-001"}
-    faults, allowed = rows.coh_split([f17, other], recurs=True)
-    assert faults == [other] and allowed == [f17]
-    assert rows.coh_split([f17], recurs=False) == ([f17], [])
-    assert rows.coh_split([{"rule": "COH-17", "site_code": "COLD-LAB-001"}], recurs=True)[1] == []
+    assert rows.coh_split([other], recurs=True) == ([other], [])
 
 
 def _coh2(site: str, subject: str, body: str) -> dict:
@@ -179,6 +203,88 @@ def test_after_tool_sums_five_minute_kw_per_local_day_and_gates_the_quote() -> N
     assert got == {"2026-10-23": 2 * 12 * after.Decimal(5) / 60, "2026-10-24": 12 * after.Decimal(5) / 60}
     assert after.quotable(96.4, 22.4) and after.quotable(96.0, 22.8)
     assert not after.quotable(90.0, 22.4) and not after.quotable(96.4, 30.0)  # must-fail: figures that moved
+
+
+# ---- DD1b2-R13 B2: the pure asserts of the after tool; each has a case that must fail ------------------------------
+
+def _o12_grow(potential: str = "No potential found yet", solar: str = "Spare solar on 1 of 3 well-observed days") -> dict:
+    return {"nodes": {"potential": {"text": potential}}, "contributors": [{"key": "a", "text": "x"},
+                                                                           {"key": "b", "text": solar}]}
+
+
+def test_o12_needs_no_potential_and_a_contributor_with_spare_solar_seen() -> None:
+    import demo_combined_after as after
+
+    assert after.o12_grow_nodes(_o12_grow())["potential"] == "No potential found yet"
+    for bad in (_o12_grow(potential="96 kW of daytime solar unused"), _o12_grow(solar="Not available yet · spare solar "
+                "not checked on the last 5 days"), _o12_grow(solar="Spare solar on 0 of 3 well-observed days")):
+        with pytest.raises(AssertionError):
+            after.o12_grow_nodes(bad)
+
+
+def test_why_price_line_equals_the_stored_price_and_money_equals_kwh_times_price() -> None:
+    import demo_combined_after as after
+
+    p = after.Decimal("0.25")
+    line = ["168.3 kWh × 0.25 USD/kWh"]
+    assert after.why_price_line(line, {"amount_high": "42.08"}, p, "USD")["state"] == "PRICED"
+    assert after.why_price_line(["Nothing has been recorded for this yet"], None, p, "USD")["state"] == "LIMITED"
+    for args in ((["168.3 kWh × 0.30 USD/kWh"], None), (line, {"amount_high": "42.00"}),
+                 (["Nothing has been recorded for this yet"], {"amount_high": "42.08"})):
+        with pytest.raises(AssertionError):
+            after.why_price_line(args[0], args[1], p, "USD")
+
+
+def test_protect_why_must_name_both_cold_threads_and_agreed_actions_must_read_so() -> None:
+    import demo_combined_after as after
+
+    nodes = [{"kind": "thread", "ids": ["t1"]}, {"kind": "thread", "ids": ["t2"]}, {"kind": "action", "ids": ["a"]}]
+    assert after.protect_names_threads(nodes, ["t1", "t2"])["named"] == ["t1", "t2"]
+    with pytest.raises(AssertionError):
+        after.protect_names_threads(nodes[:1] + nodes[2:], ["t1", "t2"])  # t2 not named
+    with pytest.raises(AssertionError):
+        after.protect_names_threads(nodes, ["t1"])  # not both threads
+    assert after.action_agreed({"COLD": ["Action agreed", "Open"], "EV": ["Action agreed"]})
+    with pytest.raises(AssertionError):
+        after.action_agreed({"COLD": ["Open"], "EV": ["Action agreed"]})
+
+
+def test_fuel_rows_sit_on_story_days_only_and_s14_s7_are_priced_with_quantity_zero() -> None:
+    import demo_combined_after as after
+
+    from datetime import datetime, timezone
+
+    def w(day: int):  # a window start whose Site-local (UTC+3) day is 2026-10-<day>
+        return datetime(2026, 10, day, 0, 0, tzinfo=timezone.utc)
+
+    kinds = {"2026-10-22": "overuse", "2026-10-29": "overuse", "2026-10-28": "steady"}
+    offs = {"2026-10-22": -14, "2026-10-29": -7, "2026-10-28": -8}
+    good = [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 0, 0)]
+    assert after.fuel_rows_ok(good, kinds, offs)["rows"] == 2
+    for bad in ([*good, (w(28), "PRICED", 0, 0)],  # a steady day
+                [*good, (w(25), "PRICED", 0, 0)],  # not a story day at all
+                [(w(22), "PRICED", 0, 0)],  # no S-7 row
+                [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 1, 1)],  # S-7 quantity not 0
+                [(w(22), "UNPRICED", 0, 0), (w(29), "PRICED", 0, 0)]):  # S-14 not PRICED
+        with pytest.raises(AssertionError):
+            after.fuel_rows_ok(bad, kinds, offs)
+
+
+def test_action_index_recurrence_and_link_reports() -> None:
+    import demo_combined_after as after
+
+    assert after.action_index_ok([{"code": "ACT-000002"}], "ACT-000002", "cold") == 1
+    for rows_ in ([], [{"code": "ACT-000009"}]):
+        with pytest.raises(AssertionError):
+            after.action_index_ok(rows_, "ACT-000002", "cold")
+    ev = [("OPEN", "2026-10-17"), ("RECURRED", "2026-10-31")]
+    assert after.recurrence_holds(ev, "2026-11-07")
+    for bad in ([*ev, ("RECURRED", "2026-11-07")], [*ev, ("WITHDRAWN", "2026-11-07")], ev[:1], [*ev, ("CLOSED", "x")]):
+        with pytest.raises(AssertionError):
+            after.recurrence_holds(bad, "2026-11-07")
+    assert after.known_at_links([{"a": ["/x?known_at=2026-11-05", "/y"]}]) == ["/x?known_at=2026-11-05"]
+    assert after.site_links({"h": "/sites/COLD-LAB-001/x", "o": "/sites/KOBO-001"}, ("COLD-LAB-001",)) == [
+        "/sites/COLD-LAB-001/x"]
 
 
 # ---- DD1b2-R10 restated rows -------------------------------------------------------------------------------------
