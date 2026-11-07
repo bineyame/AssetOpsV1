@@ -910,3 +910,51 @@ For the owner's information, in plain words:
 - The S8 cap (0.75 of re-issued work) stands; this fix is about 0.05.
 
 **K1's size is unchanged at 1.25.** K1 promotes the corrected draft verbatim to `V/kisiwa-001-bindings.json`. It writes one roles-4 demo configuration for Kisiwa instead of replaying Kobo's three-step history (s3, s6, roles-4). That is no more work than §3.1 assumed. Totals and the date in §9.5 are unchanged.
+
+---
+
+## 9b. Ruling DIESEL-1-R3b: F0r result, F8, merge, next K units, setup clock
+
+- Architect: Claude, 2026-11-07. Binding unchanged. F0r commits 0011ad361, 77ad11f17, 77958a20c, ab33768d7, 9e5fad4e1 on `task/DIESEL-F0-kisiwa-fuel-probe`. The result matches the pre-registration:
+  - night 4 is UNEXPLAINED from both sources, [95.657, 144.343] L, with a 105-min gap (the builder's pre-run 105-min expectation, not the 90-min span);
+  - every other night is WITHIN_MARGIN (±24.343 L; the delivery night ±27.343 L);
+  - F0a, F1–F7, F9, F10 and F11 pass.
+- Foundation selection v1 is correct: with R3a's `declare_signals: []` the conversion makes no joint Foundation revision.
+
+**1. F8: seed the ids; F0 then closes PASS.**
+- **The fix:** inside `T/probe_kisiwa_fuel.py` only, wrap the in-memory import and conversion in a context manager that replaces `uuid4` with a seeded generator: `random.Random(20260929)`, `uuid.UUID(int=rng.getrandbits(128), version=4)`.
+  - Patch it at every name the store, the services and the conversion actually call (`uuid.uuid4` and any module-level `from uuid import uuid4` binding; the builder lists them in the evidence file).
+  - Restore it on exit.
+  - No product or `backend/tests/` file is edited.
+- **Rejected: marking or omitting the ids as volatile.** The snapshot hash and the report key are part of what F6 proves, and a check that skips them cannot see a real regression in them.
+- **Fallback:** if any id still varies after seeding, the builder stops and reports which one. Volatile marking is not a quiet alternative.
+- **Who can apply it:** this is a Sonnet fix round.
+- **Mechanical verification, by the coordinator, no reviewer judgement needed:**
+  - (a) `--write`, then `--check` in a **fresh process**, prints "probe result current";
+  - (b) a second fresh `--check` does the same;
+  - (c) `git diff` of `probe-result.json` against 9e5fad4e1 changes only the id fields and the values derived from them (snapshot sha, report key and the ids listed). Every litre, band, state, gap, count and gate value is byte-equal;
+  - (d) `T/probe_kisiwa_nights.py --check` still prints "probe result current".
+- **Then F0 closes PASS**, with all gates F0a–F11 met.
+
+**2. Merge: yes, as evidence-only, like D0.**
+- The merge carries `T/probe_kisiwa_fuel.py`, `host/tests/test_probe_kisiwa_fuel_band.py`, `.agent/DIESEL-F0/` (the action-log draft, the bindings draft, the result JSON) and `.agent/DIESEL-F0-probe-results.md`. No product code.
+- One fresh Opus reviewer runs §9.4's review: re-run both `--check`s, read (c) against `test_s2_registered_basis.py`, and diff the probe-local v7 against §9.2.
+- The review starts once (1) verifies, and its finding goes in the same packet. Merge on ACCEPT.
+- K0 promotes the action log later, and K1 promotes the bindings draft. Neither is moved now.
+
+**3. K units: order and readiness**
+
+| Order | Unit | Lane, start | Readiness |
+|---|---|---|---|
+| 1 | K1a | in build now | its card is §9.2 |
+| 2 | **K1** Kisiwa Site (critical path) | lane 3, after F0 merges and K1a merges | **needs one consolidated card.** It is spread over §3.1, §8.4, §9.2 and §9a, and ROLE_CONFIG Token Efficiency item 5 requires one card. **The Architect writes it next (R3c)**, before K1a merges. |
+| 3 | **K2** fuel records on the Work path (0054) | lane 2, after A2 merges | **needs a card**: the API body and refusal literals, the `fuel_records` read signature, migration 0054's exact CHECK and column, and the tests. §8.4 pins the decisions but not the literals. The Architect writes it in the same R3c round, after K1. |
+| 4 | **K0** operational-action bridge | lane 2 after A3, or any lane that idles first (it has about 2.3 units of float) | **build-ready from §9.3 as its card**, with one pre-flight: the builder names the PRE-FLIGHT items (the contract reporting-condition class, every run store's render/parse, the harness constructor) and batches any questions before writing code. The Architect answers them within that pre-flight. No further card is needed. |
+
+- Everything after these (K3 onward) keeps §9.5's order, and each gets its card at the round before it starts.
+
+**4. The setup clock is confirmed: `2026-09-29T10:00:00Z`.**
+- It falls after the 09:30 conversion, so the binding basis is recorded at setup, and before run 1 at `2026-10-01T12:00:00Z`.
+- It is a probe-only constant and is recorded in the result JSON.
+- R3 should have named it; this ruling fixes that omission.
+- K1 and K7 use their own install and setup instants from the story calendar, never this one.
