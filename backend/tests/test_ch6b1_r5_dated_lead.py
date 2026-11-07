@@ -15,7 +15,7 @@ EV_LO, EV_HI = datetime(2026, 10, 26, 13, 0, tzinfo=timezone.utc), datetime(2026
 
 
 def _compose(monkeypatch, lo, hi):
-    def fake(ports, *, site_code, lo, hi, site_timezone):
+    def fake(ports, *, site_code, lo, hi, site_timezone, actions_to=None):
         facts = SiteFacts(domain="COLD", site_code=site_code, headline={cold.PROTECT: LEAD})
         return MiniComposition(facts, "AVAILABLE", (), (), {"from": lo, "to": hi}, site_timezone)
     monkeypatch.setattr(read.cold, "compose", fake)

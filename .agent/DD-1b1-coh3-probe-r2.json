@@ -1,0 +1,637 @@
+{
+ "probe": "DD1b1-R Q6",
+ "cap_seconds": 1200,
+ "seconds": {
+  "cold": 16,
+  "ev": 35,
+  "backfill": 40,
+  "ticks": 114
+ },
+ "stopped": null,
+ "database": "assetops_pt3ef499e7_dd1b1_test",
+ "objectives_instants": {
+  "KOBO-001": "2026-10-07T12:00:00Z",
+  "COLD-LAB-001": "2026-10-10T06:30:00Z",
+  "EV-LAB-001": "2026-10-10T07:00:00Z"
+ },
+ "received_at": {
+  "ev": "2026-11-03T09:30:00Z",
+  "cold": "2026-11-05T17:05:00Z"
+ },
+ "step_d": {
+  "counts": {
+   "ACTION_IN_HAND": 2
+  },
+  "skipped": 1,
+  "skipped_causes": [
+   {
+    "cause": "ACTION_APPLIED",
+    "cause_id": "ad030a69-107f-41e8-adcb-40c6bd9d880e",
+    "from_state": "OPEN",
+    "reason": "ILLEGAL_TRANSITION",
+    "thread_id": "2421d60b-4f2a-5e10-b77d-f588430d5f73"
+   }
+  ],
+  "step": "d",
+  "threads": [
+   {
+    "effective_day": "2026-11-05",
+    "mechanism": "COLD_EXCURSION",
+    "site_code": "COLD-LAB-001",
+    "site_id": "e42b8515-a5da-4381-9cb8-1ef623afe3df",
+    "state": "OPEN",
+    "thread_id": "a50c9930-835e-5070-a112-514fdc5a992f"
+   },
+   {
+    "effective_day": "2026-11-05",
+    "mechanism": "COLD_START_FAILURE",
+    "site_code": "COLD-LAB-001",
+    "site_id": "e42b8515-a5da-4381-9cb8-1ef623afe3df",
+    "state": "ACTION_IN_HAND",
+    "thread_id": "2421d60b-4f2a-5e10-b77d-f588430d5f73"
+   },
+   {
+    "effective_day": "2026-11-03",
+    "mechanism": "EV_INTERRUPTION",
+    "site_code": "EV-LAB-001",
+    "site_id": "700f2c38-3983-4c9e-9703-d4d39524776b",
+    "state": "ACTION_IN_HAND",
+    "thread_id": "3a43664a-5205-59e5-8189-216ec83ede25"
+   }
+  ],
+  "written": 2
+ },
+ "tick_events": 0,
+ "ticks": 1,
+ "extra": {
+  "EV-LAB-001": {
+   "utc_day": {
+    "status": 200,
+    "issues": [
+     "Observed EV charging interruption",
+     "Observed EV charging interruption",
+     "Connector c1 out of service",
+     "Connector inspection overdue",
+     "Charger fault and overdue inspection"
+    ],
+    "in_hand": [
+     [
+      "PM-009 \u00b7 Connector inspection",
+      "Overdue"
+     ]
+    ],
+    "protect": [
+     "NEEDS_ATTENTION"
+    ],
+    "window": {
+     "from": "2026-11-03T00:00:00Z",
+     "to": "2026-11-04T00:00:00Z",
+     "known_at": "2026-11-03T09:00:00Z"
+    },
+    "params": {
+     "from": "2026-11-03T00:00:00Z",
+     "to": "2026-11-04T00:00:00Z"
+    }
+   },
+   "event_window": {
+    "status": 200,
+    "issues": [
+     "Observed EV charging interruption",
+     "Observed EV charging interruption",
+     "Connector c1 out of service",
+     "Connector inspection overdue",
+     "Charger fault and overdue inspection"
+    ],
+    "in_hand": [
+     [
+      "PM-009 \u00b7 Connector inspection",
+      "Overdue"
+     ]
+    ],
+    "protect": [
+     "NEEDS_ATTENTION"
+    ],
+    "window": {
+     "from": "2026-11-03T08:00:00Z",
+     "to": "2026-11-03T09:00:00Z",
+     "known_at": "2026-11-03T09:00:00Z"
+    },
+    "params": {
+     "from": "2026-11-03T08:00:00Z",
+     "to": "2026-11-03T09:00:00Z"
+    }
+   },
+   "chain_has_action_agreed": true
+  },
+  "COLD-LAB-001": {
+   "utc_day": {
+    "status": 200,
+    "issues": [
+     "Backup generator did not start when the grid failed \u00b7 checked here as a safeguard",
+     "Repeated maintenance without a result",
+     "Backup generator did not start when the grid failed",
+     "Cold room temperature outside its policy band",
+     "Witnessed backup start test overdue",
+     "Compressor coil cleaning due soon",
+     "Repeated maintenance without a result"
+    ],
+    "in_hand": [
+     [
+      "INC-001 \u00b7 Backup response failure",
+      "Open"
+     ],
+     [
+      "PM-005 \u00b7 Witnessed backup start test",
+      "Overdue"
+     ],
+     [
+      "PM-006 \u00b7 Compressor coil cleaning",
+      "Due soon"
+     ]
+    ],
+    "protect": [
+     "NEEDS_ATTENTION"
+    ],
+    "window": {
+     "from": "2026-11-05T00:00:00Z",
+     "to": "2026-11-06T00:00:00Z",
+     "known_at": "2026-11-05T17:05:00Z"
+    },
+    "params": {
+     "from": "2026-11-05T00:00:00Z",
+     "to": "2026-11-06T00:00:00Z"
+    }
+   },
+   "event_window": {
+    "status": 200,
+    "issues": [
+     "Backup generator did not start when the grid failed \u00b7 checked here as a safeguard",
+     "Repeated maintenance without a result",
+     "Backup generator did not start when the grid failed",
+     "Cold room temperature outside its policy band",
+     "Witnessed backup start test overdue",
+     "Compressor coil cleaning due soon",
+     "Repeated maintenance without a result"
+    ],
+    "in_hand": [
+     [
+      "INC-001 \u00b7 Backup response failure",
+      "Open"
+     ],
+     [
+      "PM-005 \u00b7 Witnessed backup start test",
+      "Overdue"
+     ],
+     [
+      "PM-006 \u00b7 Compressor coil cleaning",
+      "Due soon"
+     ]
+    ],
+    "protect": [
+     "NEEDS_ATTENTION"
+    ],
+    "window": {
+     "from": "2026-11-05T16:00:00Z",
+     "to": "2026-11-05T17:05:00Z",
+     "known_at": "2026-11-05T17:05:00Z"
+    },
+    "params": {
+     "from": "2026-11-05T16:00:00Z",
+     "to": "2026-11-05T17:05:00Z"
+    }
+   },
+   "local_day": {
+    "status": 200,
+    "issues": [
+     "Witnessed backup start test overdue",
+     "Compressor coil cleaning due soon"
+    ],
+    "in_hand": [
+     [
+      "ACT-001 \u00b7 Witness automatic-start test",
+      "Open \u00b7 linked finding outside this view"
+     ],
+     [
+      "INC-001 \u00b7 Backup response failure",
+      "Open \u00b7 linked finding outside this view"
+     ],
+     [
+      "PM-005 \u00b7 Witnessed backup start test",
+      "Overdue"
+     ],
+     [
+      "PM-006 \u00b7 Compressor coil cleaning",
+      "Due soon"
+     ]
+    ],
+    "protect": [
+     "UNKNOWN"
+    ],
+    "window": {
+     "from": "2026-11-04T21:00:00Z",
+     "to": "2026-11-05T21:00:00Z",
+     "known_at": "2026-11-05T17:05:00Z"
+    },
+    "params": {
+     "from": "2026-11-04T21:00:00Z",
+     "to": "2026-11-05T21:00:00Z"
+    }
+   },
+   "chain_has_action_agreed": true
+  }
+ },
+ "declare": {
+  "KOBO-001": [
+   {
+    "site_code": "KOBO-001",
+    "outcome_key": "MG-2",
+    "skipped": "SITE_NOT_IMPORTED"
+   },
+   {
+    "site_code": "KOBO-001",
+    "outcome_key": "MG-1",
+    "skipped": "SITE_NOT_IMPORTED"
+   },
+   {
+    "site_code": "KOBO-001",
+    "outcome_key": "MG-5",
+    "skipped": "SITE_NOT_IMPORTED"
+   }
+  ],
+  "COLD-LAB-001": [
+   {
+    "site_code": "COLD-LAB-001",
+    "outcome_key": "CC-6",
+    "revision_id": "397df3bf-f4a8-458c-9f23-d9d7eecd947e",
+    "revision_no": 1,
+    "measure_key": "backup_start_failures",
+    "target": "0",
+    "inserted": true,
+    "recorded_at": "2026-10-10T06:30:00+00:00",
+    "actor_id": "service:assetops-objective-declarer"
+   }
+  ],
+  "EV-LAB-001": [
+   {
+    "site_code": "EV-LAB-001",
+    "outcome_key": "EV-1",
+    "revision_id": "e8077425-4420-4a8f-9681-0670fdd5f1ae",
+    "revision_no": 1,
+    "measure_key": "interrupted_sessions",
+    "target": "0",
+    "inserted": true,
+    "recorded_at": "2026-10-10T07:00:00+00:00",
+    "actor_id": "service:assetops-objective-declarer"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "outcome_key": "EV-2",
+    "revision_id": "f635bdb3-1d3d-4f2a-ad47-e6ae34a6b176",
+    "revision_no": 1,
+    "measure_key": "energy_cost_per_km",
+    "target": "0.2",
+    "inserted": true,
+    "recorded_at": "2026-10-10T07:00:00+00:00",
+    "actor_id": "service:assetops-objective-declarer"
+   }
+  ]
+ },
+ "coh3_pairs": [
+  [
+   "EV-LAB-001",
+   "day:ev:fault:2026-11-03",
+   "19892da5-61fb-4514-9657-5f2f5334ea7f",
+   "51d28de9-10b1-4ceb-8229-e82d245818ca",
+   false
+  ],
+  [
+   "COLD-LAB-001",
+   "day:cold:failure:2026-11-05",
+   "d720c773-fdbe-4d06-891a-f608da58e980",
+   "e7469115-e6a2-40b4-b9c9-e5f2392b9ba0",
+   false
+  ]
+ ],
+ "coh3_findings": [
+  {
+   "rule": "COH-3",
+   "site_code": "EV-LAB-001",
+   "window": "day:ev:fault:2026-11-03",
+   "subject": "19892da5-61fb-4514-9657-5f2f5334ea7f",
+   "detail": "Finding 51d28de9-10b1-4ceb-8229-e82d245818ca is on the board and Action 19892da5-61fb-4514-9657-5f2f5334ea7f answering it existed by the window end, but no board link names the Action",
+   "bodies": [
+    "action_index.EV-LAB-001.week.p1.json",
+    "board.day_ev_fault_2026-11-03.json"
+   ]
+  },
+  {
+   "rule": "COH-3",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-11-05",
+   "subject": "d720c773-fdbe-4d06-891a-f608da58e980",
+   "detail": "Finding e7469115-e6a2-40b4-b9c9-e5f2392b9ba0 is on the board and Action d720c773-fdbe-4d06-891a-f608da58e980 answering it existed by the window end, but no board link names the Action",
+   "bodies": [
+    "action_index.COLD-LAB-001.week.p1.json",
+    "board.day_cold_failure_2026-11-05.json"
+   ]
+  }
+ ],
+ "stored": {
+  "actions": [
+   {
+    "site_code": "COLD-LAB-001",
+    "id": "d720c773-fdbe-4d06-891a-f608da58e980",
+    "action_code": "ACT-000001",
+    "origin_finding_id": "e7469115-e6a2-40b4-b9c9-e5f2392b9ba0",
+    "raised_at": "2026-11-05 17:15:00+00:00",
+    "recorded_at": "2026-11-05 17:15:01+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "id": "19892da5-61fb-4514-9657-5f2f5334ea7f",
+    "action_code": "ACT-000002",
+    "origin_finding_id": "51d28de9-10b1-4ceb-8229-e82d245818ca",
+    "raised_at": "2026-11-03 09:40:00+00:00",
+    "recorded_at": "2026-11-03 09:40:01+00:00"
+   }
+  ],
+  "intents": [
+   {
+    "action_id": "d720c773-fdbe-4d06-891a-f608da58e980",
+    "declared_at": "2026-11-05 17:15:04+00:00",
+    "recorded_at": "2026-11-05 17:15:05+00:00"
+   },
+   {
+    "action_id": "19892da5-61fb-4514-9657-5f2f5334ea7f",
+    "declared_at": "2026-11-03 09:40:02+00:00",
+    "recorded_at": "2026-11-03 09:40:03+00:00"
+   }
+  ],
+  "completes": [
+   {
+    "site_code": "COLD-LAB-001",
+    "occurred_at": "2026-11-05 16:42:00+00:00",
+    "recorded_at": "2026-11-05 17:11:04+00:00",
+    "action_id": "d720c773-fdbe-4d06-891a-f608da58e980"
+   }
+  ],
+  "findings": [
+   {
+    "site_code": "COLD-LAB-001",
+    "finding_id": "52e17c19-43a3-42e6-a77b-c969c703304b",
+    "mechanism": "COLD_EXCURSION",
+    "created_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "finding_id": "e7469115-e6a2-40b4-b9c9-e5f2392b9ba0",
+    "mechanism": "COLD_START_FAILURE",
+    "created_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "finding_id": "51d28de9-10b1-4ceb-8229-e82d245818ca",
+    "mechanism": "EV_INTERRUPTION",
+    "created_at": "2026-11-03 09:35:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "finding_id": "51d28de9-10b1-4ceb-8229-e82d245818ca",
+    "mechanism": "EV_INTERRUPTION",
+    "created_at": "2026-11-03 09:35:00+00:00"
+   }
+  ],
+  "selections": [
+   {
+    "site_code": "COLD-LAB-001",
+    "window_start": "2026-11-05 16:00:00+00:00",
+    "selected_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "window_start": "2026-11-05 16:00:00+00:00",
+    "selected_at": "2026-11-05 17:10:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "window_start": "2026-11-03 08:00:00+00:00",
+    "selected_at": "2026-11-03 09:35:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "window_start": "2026-11-03 08:00:00+00:00",
+    "selected_at": "2026-11-03 09:35:00+00:00"
+   }
+  ],
+  "jobs": [
+   {
+    "site_code": "COLD-LAB-001",
+    "domain": "cold_chain",
+    "available_at": "2026-11-05 17:05:00+00:00",
+    "created_at": "2026-11-05 17:05:00+00:00"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "domain": "ev_charging",
+    "available_at": "2026-11-03 09:00:00+00:00",
+    "created_at": "2026-11-03 09:00:00+00:00"
+   }
+  ],
+  "threads": [
+   {
+    "site_code": "COLD-LAB-001",
+    "mechanism": "COLD_START_FAILURE",
+    "thread_id": "2421d60b-4f2a-5e10-b77d-f588430d5f73",
+    "state": "ACTION_IN_HAND",
+    "effective_day": "2026-11-05",
+    "action_id": "d720c773-fdbe-4d06-891a-f608da58e980"
+   },
+   {
+    "site_code": "EV-LAB-001",
+    "mechanism": "EV_INTERRUPTION",
+    "thread_id": "3a43664a-5205-59e5-8189-216ec83ede25",
+    "state": "ACTION_IN_HAND",
+    "effective_day": "2026-11-03",
+    "action_id": "19892da5-61fb-4514-9657-5f2f5334ea7f"
+   },
+   {
+    "site_code": "COLD-LAB-001",
+    "mechanism": "COLD_EXCURSION",
+    "thread_id": "a50c9930-835e-5070-a112-514fdc5a992f",
+    "state": "OPEN",
+    "effective_day": "2026-11-05",
+    "action_id": null
+   }
+  ],
+  "event_count": 5,
+  "linked_case_events": [
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "COMPLETE"
+   },
+   {
+    "case_kind": "INCIDENT",
+    "event": "CREATED"
+   },
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "ASSIGN"
+   },
+   {
+    "case_kind": "MAINTENANCE_REQUEST",
+    "event": "CREATED"
+   }
+  ]
+ },
+ "boards": {
+  "EV-LAB-001": {
+   "window": {
+    "from": "2026-11-03T00:00:00Z",
+    "known_at": "2026-11-03T09:00:00Z",
+    "to": "2026-11-04T00:00:00Z"
+   },
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "WATCH",
+     "in_hand": []
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NOT_MEASURED",
+     "in_hand": []
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NEEDS_ATTENTION",
+     "in_hand": [
+      {
+       "href": "/maintenance/preventive",
+       "kind": "PLAN",
+       "link_ref": {
+        "kind": "ESTATE",
+        "view": "maintenance_preventive"
+       },
+       "state_label": "Overdue",
+       "text": "PM-009 \u00b7 Connector inspection"
+      }
+     ]
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "WATCH",
+     "in_hand": []
+    }
+   ]
+  },
+  "COLD-LAB-001": {
+   "window": {
+    "from": "2026-11-05T00:00:00Z",
+    "known_at": "2026-11-05T17:05:00Z",
+    "to": "2026-11-06T00:00:00Z"
+   },
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "NOT_MEASURED",
+     "in_hand": []
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NEEDS_ATTENTION",
+     "in_hand": []
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NEEDS_ATTENTION",
+     "in_hand": [
+      {
+       "href": "/sites/COLD-LAB-001/work/incidents",
+       "kind": "INCIDENT",
+       "link_ref": {
+        "kind": "SITE",
+        "site": "COLD-LAB-001",
+        "view": "work_incidents"
+       },
+       "occurred_at": "2026-11-05T16:11:00Z",
+       "state_label": "Open",
+       "text": "INC-001 \u00b7 Backup response failure"
+      },
+      {
+       "href": "/maintenance/preventive",
+       "kind": "PLAN",
+       "link_ref": {
+        "kind": "ESTATE",
+        "view": "maintenance_preventive"
+       },
+       "state_label": "Overdue",
+       "text": "PM-005 \u00b7 Witnessed backup start test"
+      },
+      {
+       "href": "/maintenance/preventive",
+       "kind": "PLAN",
+       "link_ref": {
+        "kind": "ESTATE",
+        "view": "maintenance_preventive"
+       },
+       "state_label": "Due soon",
+       "text": "PM-006 \u00b7 Compressor coil cleaning"
+      }
+     ]
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "WATCH",
+     "in_hand": []
+    }
+   ]
+  }
+ },
+ "cold_blocked": [
+  null
+ ],
+ "checks": {
+  "pairs.cold>=1": true,
+  "action.cold.exists": true,
+  "action.cold.raised_at": true,
+  "action.cold.recorded_at": true,
+  "findings.cold.non_empty": true,
+  "findings.cold.created_at": true,
+  "thread.cold.linked": true,
+  "thread.cold.ACTION_IN_HAND": true,
+  "board.cold.in_hand_lists_action": false,
+  "pairs.ev>=1": true,
+  "action.ev.exists": true,
+  "action.ev.raised_at": true,
+  "action.ev.recorded_at": true,
+  "findings.ev.non_empty": true,
+  "findings.ev.created_at": true,
+  "thread.ev.linked": true,
+  "thread.ev.ACTION_IN_HAND": true,
+  "board.ev.in_hand_lists_action": false,
+  "coh3.findings==0": false,
+  "cold.complete.exists": true,
+  "cold.complete.recorded_at": true,
+  "cold.no_CHANGE_APPLIED": true,
+  "cold.applied_skipped": true,
+  "tick.writes_no_thread_event": true,
+  "cold.protect.NEEDS_ATTENTION": true,
+  "cold.wr_completed": true,
+  "cold.blocked_null": true,
+  "r2.cold.utc_day.finding_in_issues": true,
+  "r2.cold.utc_day.in_hand_open_no_suffix": false,
+  "r2.cold.chain_action_agreed": true,
+  "r2.cold.event_window.finding_shown": true,
+  "r2.cold.event_window.action_not_listed": false,
+  "r2.ev.utc_day.finding_in_issues": true,
+  "r2.ev.utc_day.in_hand_open_no_suffix": false,
+  "r2.ev.chain_action_agreed": true,
+  "r2.ev.event_window.finding_shown": true,
+  "r2.ev.event_window.action_not_listed": false,
+  "r2.cold.utc_day.protect_needs_attention": true,
+  "r2.objectives_instants.three_sites": true,
+  "r2.declare.cold_ev_inserted": true
+ },
+ "wall_seconds": 159,
+ "pass": false
+}

@@ -18,7 +18,7 @@ this child swaps, in its own process only (the w601 module-swap pattern, `tools/
 - the w504 `E_START`/`E_END` constants for the reads after the replay.
 
 Work rows on the `fault` day only (DEMO-COMBINED U5): w504 `_declare` (`tools/w504_ev_work_walkthrough.py:214`,
-mode `positive`: K0 over the day's E, the positive Action raised at DB now and its intent), then `story.json` `ev`
+mode `positive`: K0 over the day's E, the positive Action raised at its story instant and its intent), then `story.json` `ev`
 `visits` (two completed "Connector inspection" visits) and `plans` ("Connector inspection", due S-6 d) through the
 work service on the selected session's connector asset, the asset the CONNECTOR fault row names (CO-10/CO-11, R569).
 """
@@ -36,15 +36,14 @@ from pathlib import Path
 import yaml
 
 import demo_story_days as sd
-from demo_combined import at, iso
+from demo_combined import TARIFF_AFTER_INSTALL, at, iso
+from demo_story_clock import story_commands, worker_instant
 
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
 BASE_DAY = datetime(2026, 10, 6, tzinfo=timezone.utc)
 #: WALK1-2 (WN-7, D-W1-1, R675): the Depot's declared charging tariff, published once by the SYSTEM publisher.
 FIXTURE_TARIFF = REPO / "backend" / "conversions" / "demo-ev-tariff-publications.json"
-#: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
-TARIFF_AFTER_INSTALL = timedelta(minutes=30)
 
 
 def _shift_text(value: str, delta: timedelta) -> str:
@@ -151,23 +150,33 @@ def write_work(url: str, built, story: dict, asset_id: str, tag: str, shift: tim
 
 
 def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: dict) -> dict:
-    """The fault day's w504 positive Action + intent, then the connector visits and plan on its connector."""
+    """The fault day's w504 positive Action + intent, then the connector visits and plan on its connector, all on the
+    story clocks (`demo_story_clock`, DD1b1-R Q2). `_db_now` reads the domain clock, so its first read is the Action's
+    instant."""
     import w504_ev_work_walkthrough as W
 
     tag = f"demo3-{day.epoch}"
-    declared = W._declare(url, "positive", tag, replayed)
-    asset_id = declared["selection"]["connector_asset_id"]
-    if not asset_id:
-        raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")
-    # POLISH §1.3 (P-08): the API returns `action_code`/`intent_id`; record them and the Action's own `raised_at`
-    # as posted (build time, after every story window, so the fault-window board does not list it: R645). The create
+    with story_commands(url, day.received_at) as (_work, domain):
+        saved = W._db_now
+        W._db_now = lambda _url: domain()
+        try:
+            declared = W._declare(url, "positive", tag, replayed)
+        finally:
+            W._db_now = saved
+        asset_id = declared["selection"]["connector_asset_id"]
+        if not asset_id:
+            raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")
+        visits = write_work(url, built, story, asset_id, tag, timedelta(days=day.offset))
+    # POLISH §1.3 (P-08): the API returns `action_code`/`intent_id`; record them and the Action's own `raised_at` as
+    # posted. DD1b1-R2: story-dated after the evidence, so the Depot's whole-UTC-day board lists it under "in hand"
+    # (closes R645: DD1b1-R3 re-probe passed); the exact event-window board does not (BL-38). The create
     # response carries no `raised_at`, so it is the posted body's.
     return {"action": {"id": declared["action"]["id"], "code": declared["action"]["action_code"],
                        "raised_at": declared["action_posted"]["raised_at"]},
             "intent_id": declared["intent"]["intent_id"],
             "finding_id": declared["selection"]["finding_id"],
             "finding_revision_id": declared["selection"]["finding_revision_id"],
-            "work": write_work(url, built, story, asset_id, tag, timedelta(days=day.offset))}
+            "work": visits}
 
 
 #: POLISH §3 "Lab Site names" (D-5, R646): the demo build's Depot name, the mock's; the fixture YAML keeps its own.
@@ -183,18 +192,27 @@ def _install(registered):
                                         display_name=DISPLAY_NAME)
 
 
-def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: dict | None = None) -> dict:
-    """One EV story day: the registered replay on the day's window (the `native_replay` body)."""
+def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: dict | None = None,
+            story_clock: bool = False) -> dict:
+    """One EV story day: the registered replay on the day's window (the `native_replay` body). `story_clock` (prepare
+    only, DD1b1-R Q1): the worker and `select_exact` run at `received_at` + 5 min; add-day stays on wall time."""
     from collections import Counter
 
     os.environ["DATABASE_URL"] = os.environ["ASSETOPS_TEST_DATABASE_URL"] = url
     import test_w205b_ev_replay_postgres as registered
+    import test_w206_ev_store_postgres as w206
     import w504_ev_work_cases as P
 
     registered.SEAL_ONCE = True  # DD0c-R Q1: L1 batching, the demo prepare / add-day producers only
     from run_fixtures import FakeScenarios
     from test_w206_ev_store_postgres import run_worker, select_exact
+    from assetops_backend.analytics.composition import build_ev_assessment_worker
     from assetops_backend.scenarios.ev_parsing import parse_ev_scenario_document
+
+    clock = None
+    if story_clock:
+        worker_at = worker_instant(url, day.received_at)
+        clock = lambda: worker_at  # noqa: E731
 
     base_id = day.scenario["scenario_id"]
     case = f"{base_id.removeprefix('ev-')}-{day.epoch}"  # unique gateway epoch `ev-<case>` per story day
@@ -215,6 +233,9 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
                     assert mine.scalar_one() == sources.scalar_one() > 0
 
     saved = _swaps(registered, P, day, install_at)
+    saved_worker = w206.build_ev_assessment_worker
+    if clock is not None:  # `select_exact` builds its own worker through this name
+        w206.build_ev_assessment_worker = lambda u, **kw: saved_worker(u, clock=clock, **kw)
     try:
         definition = parse_ev_scenario_document(shifted_document(base_id, at(day.day + "T00:00:00Z") - BASE_DAY,
                                                                  scenario_id))
@@ -223,7 +244,14 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
             built.open(fresh=False, install=_install(registered), scenarios=FakeScenarios((definition,)),
                        scenario_id=scenario_id)
             built.start_release_upload()
-            outcomes = run_worker(built)
+            if clock is None:
+                outcomes = run_worker(built)
+            else:
+                worker = build_ev_assessment_worker(url, clock=clock)
+                try:
+                    outcomes = run_worker(built, worker)
+                finally:
+                    w206._dispose(worker)
             select_exact(built, P.E_START, P.E_END)
             decisions = Counter(d[1] for b in built.batches() for d in b["dispositions"])
             assert decisions.get("ACCEPTED"), dict(decisions)
@@ -236,6 +264,7 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
         finally:
             built.close()
     finally:
+        w206.build_ev_assessment_worker = saved_worker
         _restore(registered, P, saved)
 
 
@@ -277,7 +306,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                  "epoch": day.epoch, "received_at": iso(day.received_at) if day.received_at else None,
                  "run_id": None}
         if day.has_run:
-            entry.update(run_day(url, tmp, day, install_at, story))
+            entry.update(run_day(url, tmp, day, install_at, story, story_clock=True))
         entry["status_after_build"] = "ASSESSED" if day.has_run else "NO_RUN"
         records.append(entry)
         print("ev day", day.day, day.kind, entry.get("run_id"), flush=True)

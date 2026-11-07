@@ -107,18 +107,20 @@ class ColdPorts:
 
 
 def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
-            site_timezone: str | None) -> Composition:
+            site_timezone: str | None, actions_to: datetime | None = None) -> Composition:
     """`lo`/`hi` are the request window, passed unchanged (B-Q7). Findings are read over that window (the selected
-    assessment, every lifecycle); work, domain Actions and plans over the 31-day work window ending at `hi`."""
+    assessment, every lifecycle); work and plans over the 31-day work window ending at `hi`; domain Actions over the same window ending at
+    `actions_to` (the requested end; `hi` when None)."""
     c = site_code
     reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     work_lo = hi - WORK_WINDOW
+    actions_hi = actions_to or hi   # DD1b1-R3: both bounds of the Action read come from one end (31 d at most)
 
     overview = reads.call("cold_overview", ports.overview, lo, hi)
     finding_rows = reads.pages("cold_findings", ports.findings, lo, hi, key="items")
     findings_ok = finding_rows is not None
-    action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
+    action_rows = reads.pages("domain_action_index", ports.domain_actions, actions_hi - WORK_WINDOW, actions_hi)
     readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     chain_rows = reads.call("chain_rows", ports.chain_rows, lo, hi) or ()

@@ -6,6 +6,7 @@ from __future__ import annotations
 from link_parity import checked
 
 from datetime import date, datetime, timedelta, timezone
+from dataclasses import replace
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -480,3 +481,72 @@ def test_ev_priced_flag_sets_the_optimize_not_measured_text() -> None:
     assert comp.facts.ev_priced is False
     assert rows[COST]["not_measured_text"] == (
         "Energy cost per km needs odometer readings and a published charging tariff")
+
+
+# ================================================================ DD1b1-R2: the Action read runs to the requested end
+
+def _action_reads(fake: Fake) -> list[tuple]:
+    return [args for name, args in fake.calls if name == "domain_actions"]
+
+
+def test_cold_actions_read_to_actions_to_when_given_and_to_hi_otherwise() -> None:
+    wider = HI + timedelta(hours=20)
+    fake = Fake()
+    cold.compose(cold_ports(fake), site_code=C, lo=LO, hi=HI, site_timezone=ZONE, actions_to=wider)
+    assert _action_reads(fake) == [(wider - cold.WORK_WINDOW, wider)]       # an Action after the event, inside the window
+    fake = Fake()
+    cold.compose(cold_ports(fake), site_code=C, lo=LO, hi=HI, site_timezone=ZONE)
+    assert _action_reads(fake) == [(HI - cold.WORK_WINDOW, HI)]          # no event: the arguments are unchanged
+
+
+def test_ev_actions_read_to_actions_to_when_given_and_to_hi_otherwise() -> None:
+    wider = HI + timedelta(hours=20)
+    fake = Fake()
+    ev.compose(ev_ports(fake), site_code=E, lo=LO, hi=HI, site_timezone=ZONE, actions_to=wider)
+    assert _action_reads(fake) == [(wider - ev.WORK_WINDOW, wider)]
+    fake = Fake()
+    ev.compose(ev_ports(fake), site_code=E, lo=LO, hi=HI, site_timezone=ZONE)
+    assert _action_reads(fake) == [(HI - ev.WORK_WINDOW, HI)]
+
+
+# ================================================================ DD1b1-R3: the Action read meets the real parser
+
+from assetops_backend.work.domain_action_index import parse_index_request  # noqa: E402
+
+
+def _real_parser_ports(make_ports, rows: list[dict], raised: dict[str, datetime]):
+    """The composer's ports with `domain_actions` behind the REAL request parser (a refused window raises, as in the
+    app), selecting rows by `raised_at` in `[lo, hi)`."""
+    def domain_actions(lo, hi, cur):
+        request = parse_index_request(lo.isoformat(), hi.isoformat(), None, [], None)   # INVALID_WINDOW if over 31 d
+        return {"rows": [r for r in rows if request.start <= raised[r["action_id"]] < request.end], "next_cursor": None}
+
+    ports = make_ports(Fake())
+    return replace(ports, domain_actions=domain_actions)
+
+
+def _kinds():
+    return ((cold, cold_ports, C, DA1, cold.WORK_WINDOW), (ev, ev_ports, E, EA1, ev.WORK_WINDOW))
+
+
+def test_wider_window_with_an_event_reads_a_valid_window_and_lists_the_action_after_the_event() -> None:
+    day_end = HI                                              # the requested end
+    event_lo, event_hi = LO + timedelta(hours=16), LO + timedelta(hours=17)
+    for mod, make, code, action, _window in _kinds():
+        late = {action["action_id"]: LO + timedelta(hours=17, minutes=15)}       # after the event, inside the day
+        comp = mod.compose(_real_parser_ports(make, [action], late), site_code=code, lo=event_lo, hi=event_hi,
+                           site_timezone=ZONE, actions_to=day_end)
+        assert "domain_action_index" not in comp.failed and comp.read_state == "AVAILABLE", (code, comp.failed)
+        assert [a.action_id for a in comp.facts.actions] == [action["action_id"]]
+        after = {action["action_id"]: day_end + timedelta(minutes=1)}               # after the requested end
+        comp = mod.compose(_real_parser_ports(make, [action], after), site_code=code, lo=event_lo, hi=event_hi,
+                           site_timezone=ZONE, actions_to=day_end)
+        assert "domain_action_index" not in comp.failed and comp.facts.actions == ()
+
+
+def test_exact_window_reads_hi_minus_31_days_to_hi() -> None:
+    for mod, make, code, action, window in _kinds():
+        fake = Fake()
+        mod.compose(make(fake), site_code=code, lo=LO, hi=HI, site_timezone=ZONE)
+        reads = [a for n, a in fake.calls if n == "domain_actions"]
+        assert reads == [(HI - window, HI)]

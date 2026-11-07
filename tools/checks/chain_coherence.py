@@ -70,9 +70,8 @@ def estate_windows(story: dict) -> dict[str, tuple[str, str]]:
 
 
 def day_windows(days: list[dict]) -> list[dict[str, Any]]:
-    """Board windows (CH-5a1 R6): a Kobo or Cold built day is its Site-local day (`LOCAL_DAY_TZ`; Kobo's board reads
-    `?date=`, Cold's the local-day `from`/`to`); an EV day is its `[start, end)`, as `demo_combined_finish.Ctx.window`
-    reads it. `estate` is the enclosing UTC-midnight window the estate routes accept (they refuse a non-midnight
+    """Board windows (CH-5a1 R6, DD1b1-R2): a Kobo built day is its Site-local day (`LOCAL_DAY_TZ`; the board reads
+    `?date=`); a Cold or EV built day is its whole UTC day, the form `demo_combined.story_links` opens. `estate` is the enclosing UTC-midnight window the estate routes accept (they refuse a non-midnight
     bound)."""
     out = []
     for d in days:
@@ -80,7 +79,10 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
             continue
         start, end = at(d["start"]), at(d["end"])
         zone = LOCAL_DAY_TZ.get(d["site"])
-        if zone:
+        if d["site"] in ("cold", "ev"):   # DD1b1-R2: a Cold or EV story day is its whole UTC day
+            lo = _midnight(start)
+            hi = lo + timedelta(days=1)
+        elif zone:
             local = _midnight(start.astimezone(ZoneInfo(zone)))
             lo, hi = local.astimezone(timezone.utc), (local + timedelta(days=1)).astimezone(timezone.utc)
         else:
@@ -487,8 +489,9 @@ def coh2_action_on_portfolio(bundle: Bundle) -> list[dict]:
     return out
 
 
-def coh3_action_on_board(bundle: Bundle) -> list[dict]:
-    out = []
+def _coh3_evaluate(bundle: Bundle) -> Iterator[tuple[dict, str, dict, bool]]:
+    """COH-3's one loop: each (board, day, Action, linked) whose origin Finding is on the board and which existed by
+    the board window's end."""
     for d in bundle.day_windows():
         board = bundle.get(f"board.{d}")
         if not board:
@@ -502,13 +505,23 @@ def coh3_action_on_board(bundle: Bundle) -> list[dict]:
         hrefs = _board_hrefs(board)
         on_board = {f for _, f in _board_findings(board)}
         for a in actions.values():
-            if (a["origin"] and str(a["origin"]) in on_board and a["created"] and at(a["created"]) <= to
-                    and not any(a["action_id"] in h for h in hrefs)):
-                out.append(finding("COH-3", board.get("site_code"), d, a["action_id"],
-                                   f"Finding {a['origin']} is on the board and Action {a['action_id']} answering it "
-                                   "existed by the window end, but no board link names the Action",
-                                   [*bundle.files(f"board.{d}"), *bundle.files(a["file"])]))
-    return out
+            if a["origin"] and str(a["origin"]) in on_board and a["created"] and at(a["created"]) <= to:
+                yield board, d, a, any(a["action_id"] in h for h in hrefs)
+
+
+def coh3_pairs(bundle: Bundle) -> Iterator[tuple[Any, str, str, str, bool]]:
+    """DD1b1-R Q6: the pairs COH-3 evaluates, `(site_code, day, action_id, finding_id, linked)`. A rule that reports
+    only findings cannot show it looked at anything, so F-COH3 and the probe count these."""
+    for board, d, a, linked in _coh3_evaluate(bundle):
+        yield board.get("site_code"), d, a["action_id"], str(a["origin"]), linked
+
+
+def coh3_action_on_board(bundle: Bundle) -> list[dict]:
+    return [finding("COH-3", board.get("site_code"), d, a["action_id"],
+                    f"Finding {a['origin']} is on the board and Action {a['action_id']} answering it "
+                    "existed by the window end, but no board link names the Action",
+                    [*bundle.files(f"board.{d}"), *bundle.files(a["file"])])
+            for board, d, a, linked in _coh3_evaluate(bundle) if not linked]
 
 
 def _finding_rows(bundle: Bundle, name: str, site_code: str | None = None) -> dict[str, dict]:

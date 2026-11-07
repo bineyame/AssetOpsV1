@@ -62,6 +62,8 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 #: `kobo_expected_seconds` (DEMO-SPARSE U3 measured about 105 s per Kobo run: 110 s per run + 60 s).
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90}
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
+#: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
+TARIFF_AFTER_INSTALL = timedelta(minutes=30)
 TICK = ("-m", "assetops_backend.scheduling.run", "tick", "--environment", "default", "--max-sites", "5",
         "--s3-jobs", "10", "--consequence-items", "100")
 _OFFSET = re.compile(r"^S([+-]\d+)d (\d{2}):(\d{2})$")
@@ -85,6 +87,24 @@ def iso(value: datetime) -> str:
 
 def at(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def objectives_instants(story: dict) -> dict[str, datetime]:
+    """DD1b1-R2 S3: each Site's objective lines are recorded at that Site's own first declared knowledge instant
+    (Kobo `price_recorded_at`; Cold and EV `install_at` + `TARIFF_AFTER_INSTALL`). Each must precede that Site's first
+    built day's start; otherwise the prepare stops, never a moved date."""
+    instants = {"KOBO-001": at(story["kobo"]["price_recorded_at"]),
+                "COLD-LAB-001": at(story["cold"]["install_at"]) + TARIFF_AFTER_INSTALL,
+                "EV-LAB-001": at(story["ev"]["install_at"]) + TARIFF_AFTER_INSTALL}
+    for site, code in SITE_CODE.items():
+        built = [d for d in story["days"] if d.get("site") == site and d.get("start")]
+        if not built:
+            continue
+        first = min(built, key=lambda d: at(d["start"]))
+        if instants[code] >= at(first["start"]):
+            raise SystemExit(f"OBJECTIVES_INSTANT_CONFLICT: the {code} objectives instant {iso(instants[code])} is not "
+                             f"before its first built day ({first['day']}, start {first['start']}).")
+    return instants
 
 
 def floor_day(value: datetime) -> datetime:
@@ -240,10 +260,11 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> l
             if site == "kobo":
                 rows.append((label, f"{base}/sites/{code}?date={d['day']}"))
                 continue
-            start, end = d.get("start"), d.get("end")
-            if not start or not end:
-                day = datetime.fromisoformat(d["day"]).replace(tzinfo=timezone.utc)
-                start, end = iso(day), iso(day + timedelta(days=1))
+            # DD1b1-R2 S1: a Cold or EV story day opens its whole UTC day (the board lists an Action agreed after the
+            # event only over a window that reaches it); the label keeps the day's kind.
+            day = datetime.fromisoformat(d["day"]).replace(tzinfo=timezone.utc)
+            start, end = iso(day), iso(day + timedelta(days=1))
+            if not d.get("start") or not d.get("end"):
                 label += ", no event: whole day"
             path = f"/sites/{code}/ev" if site == "ev" else f"/sites/{code}"
             rows.append((label, f"{base}{path}?from={start}&to={end}"))
@@ -421,7 +442,7 @@ class Demo:
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1] + f"  [{timings[site]} s]")
         if finish:
             t0 = time.monotonic()
-            self.finish(story)
+            self.finish({**story, "days": days})
             timings["finish"] = round(time.monotonic() - t0, 1)
         manifest = {"db": self.db, "S": story["S"], "code": story["code"], "sites": story["sites"],
                     "timings_seconds": timings, "wall_seconds": round(time.monotonic() - began, 1),
@@ -436,9 +457,12 @@ class Demo:
     def finish(self, story: dict) -> None:
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
         if set(story["sites"]) == set(SITES):
-            done = self.py("-m", "assetops_backend.declare_objective", "fixture", "--file",
-                           str(self.tree / "backend" / "conversions" / "demo-objectives.json"), label="objectives")
-            lines = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
+            lines = []
+            for code, instant in objectives_instants(story).items():
+                done = self.py(str(self.tree / "tools" / "demo_declare_objectives.py"), self.url,
+                               str(self.tree / "backend" / "conversions" / "demo-objectives.json"), code, iso(instant),
+                               label=f"objectives {code}")
+                lines += [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
             (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
             say(f"  objectives: {len(lines)} lines")
         if "kobo" in story["sites"]:

@@ -383,9 +383,12 @@ class SiteOutcomeBoardService:
         # cost and repeat warning); the board's window stays the requested one. With no window the overview resolves it.
         event = self.event_window(site, lo, hi, known_at, windows) if lo is not None and hi is not None else None
         read_lo, read_hi = event if event is not None else (lo, hi)
+        # DD1b1-R2: the Action read runs to the REQUESTED end, not the event's (an Action follows its evidence)
+        actions_to = hi if event is not None else None
         r_lo, r_hi, cutoff, comp = self.cold_ev_cutoff(
             site, ports, read_lo, read_hi, known_at,
-            lambda p, a, b: composer(p, site_code=site.site_code, lo=a, hi=b, site_timezone=site.timezone))
+            lambda p, a, b: composer(p, site_code=site.site_code, lo=a, hi=b, site_timezone=site.timezone,
+                                     actions_to=actions_to))
         if event is None:
             lo, hi = r_lo, r_hi
         elif event[1] - event[0] < hi - lo:   # CH6b1-R5: a longer window names the event's own date and time

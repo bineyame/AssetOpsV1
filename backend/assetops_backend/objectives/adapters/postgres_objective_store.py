@@ -12,6 +12,7 @@ which is what keeps an earlier reading reproducible after a later declaration.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
@@ -24,6 +25,7 @@ from assetops_backend import read_scope
 from assetops_backend.financials.assumptions import SystemPrincipal
 from assetops_backend.objectives.model import (
     CHANNELS, Declaration, ObjectiveRefused, measure_of, payload_sha256, validate)
+from assetops_backend.prepare_clock import require_prepare_database
 
 
 class ObjectiveStoreUnavailable(RuntimeError):
@@ -42,8 +44,21 @@ def _row(r) -> dict[str, Any]:
     return dict(r._mapping)
 
 
+def _insert_statement(recorded_at_sql: str = "clock_timestamp()") -> str:
+    """The one INSERT; `recorded_at` is the server's clock unless a prepare passes its story instant (DD1b1-R Q7)."""
+    return (f"INSERT INTO outcome_objective_revision ({COLUMNS}) VALUES (:id, :t, :s, :o, :no, :sup, :m, :kind, "
+            ":cmp, :target, :unit, :cur, :win, :src, :note, :actor_kind, :actor_id, :basis, :channel, :k, :sha, "
+            f"{recorded_at_sql}, :min_days) RETURNING {COLUMNS}")
+
+
 class PostgresObjectiveStore:
-    def __init__(self, database_url: str | None) -> None:
+    def __init__(self, database_url: str | None, *,
+                 test_recorded_clock_override: Callable[[], datetime] | None = None) -> None:
+        """`test_recorded_clock_override` replaces only the recording instant, for a demo prepare or a test database;
+        anywhere else it is refused here, before any connection. Production composition never passes it."""
+        if test_recorded_clock_override is not None:
+            require_prepare_database(database_url)
+        self.test_recorded_clock_override = test_recorded_clock_override
         self._database_url = database_url
         self._engine: Engine | None = None
 
@@ -120,11 +135,10 @@ class PostgresObjectiveStore:
                 raise ObjectiveRefused(409, "OBJECTIVE_PRIOR_MISMATCH",
                                        f"The expected prior revision {decl.expected_prior} is not the current "
                                        f"revision {head_id} of {decl.outcome_key}; nothing was written.")
+            override = self.test_recorded_clock_override
             stored = c.execute(text(
-                f"INSERT INTO outcome_objective_revision ({COLUMNS}) VALUES (:id, :t, :s, :o, :no, :sup, :m, :kind, "
-                ":cmp, :target, :unit, :cur, :win, :src, :note, :actor_kind, :actor_id, :basis, :channel, :k, :sha, "
-                f"clock_timestamp(), :min_days) RETURNING {COLUMNS}"),
-                {**scope, "id": uuid4(), "no": 1 if head is None else head.revision_no + 1, "sup": head_id,
+                _insert_statement() if override is None else _insert_statement(":recorded_at")),
+                {**({} if override is None else {"recorded_at": override()}), **scope, "id": uuid4(), "no": 1 if head is None else head.revision_no + 1, "sup": head_id,
                  "m": measure.key, "kind": measure.kind, "cmp": measure.comparison, "target": decl.target,
                  "unit": measure.unit, "cur": decl.currency, "win": measure.window_rule, "src": decl.source,
                  "note": decl.source_note, "actor_kind": principal.actor_kind, "actor_id": principal.actor_id,

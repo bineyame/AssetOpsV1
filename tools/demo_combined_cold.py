@@ -17,7 +17,8 @@ alone (no work rows). No test module is edited; this child swaps, in its own pro
 - the w202 Batch V2 ingestion clock -> the day's `received_at` (D 17:05) instead of wall time;
 - `ShiftedChain.attest`'s recording instant (`datetime.now`) -> the day's setup instant (start - 1 h): with the
   knowledge cutoff at `received_at`, an attestation recorded at wall time is not yet known, so every reading
-  would be excluded `CLOCK_UNATTESTED` and no Finding written (first dev prepare, 2026-10-31).
+  would be excluded `CLOCK_UNATTESTED` and no Finding written (first dev prepare, 2026-10-31);
+- in a prepare only (`demo_story_clock`, DD1b1-R Q1, Q2), the worker and the failure day's work and Action commands.
 
 The Site is installed once at `cold.install_at` (S-26d 06:00); each later `install_cold_lab` is idempotent.
 """
@@ -33,6 +34,7 @@ from pathlib import Path
 
 import demo_story_days as sd
 from demo_combined import at, iso
+from demo_story_clock import story_commands, worker_instant
 
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
@@ -119,30 +121,70 @@ def install(url: str, install_at) -> None:
         pg_harness.dispose(store)
 
 
-def run_day(url: str, tmp: Path, day: "sd.DayRun") -> dict:
-    """One cold story day. `failure` runs the w502 positive BUILD body; other kinds the replay only."""
-    P, w202, base = _patch(url)
-    factory = _day_swaps(P, w202, base, day, tmp)
-    out = tmp / f"{day.day}-{day.kind}-{day.start:%H%M}"  # DD-1a1: 24 runs per full day
-    out.mkdir(parents=True)
-    if day.kind == "failure":
-        import w502_cold_work_walkthrough as W
+def _refuse_enqueue_window(_built) -> None:
+    """DD1b1-R Q1: this job's `available_at` is `now()`, so a story clock would never lease it. Stop, do not patch."""
+    raise SystemExit("STORY_CLOCK_WINDOW: a built Cold day needs `enqueue_window`, which a story-clock worker never leases.")
 
-        # POLISH Addendum 9 Q2: the demo build passes each request title as its narrative; standalone w502 does not.
-        argv, ns = sys.argv, {"__name__": "__w502_build__", "DEMO_NARRATIVES": True}
+
+def _failure_day(url: str, out: Path, day: "sd.DayRun", story_clock: bool) -> dict:
+    """The w502 positive BUILD body; on the story clock (DD1b1-R Q2) its cases, Action, links and intent are story-dated."""
+    import w502_cold_work_walkthrough as W
+
+    # POLISH Addendum 9 Q2: the demo build passes each request title as its narrative; standalone w502 does not.
+    ns = {"__name__": "__w502_build__", "DEMO_NARRATIVES": True}
+
+    def build() -> None:
+        argv = sys.argv
         sys.argv = ["w502-build", "positive", str(out)]
         try:
             exec(compile(W.BUILD, "w502_cold_work_walkthrough.BUILD", "exec"), ns)
         finally:
             sys.argv = argv
-        doc = json.loads((out / "positive.json").read_text(encoding="utf-8"))
-        return {"run_id": str(getattr(ns["built"].run, "run_id", "")), "scenario_id": doc.get("scenario_id"), "work": doc.get("out_c"),
-                "blocked": doc.get("blocked")}
-    built = P.produce(lambda m: factory(m, out / "chain").open(), "ordinary")
+
+    if story_clock:
+        import test_w502_domain_intent_postgres as intent
+
+        with story_commands(url, day.received_at) as (_work, domain):
+            ns["DEMO_ACTION_AT"] = domain.start
+            saved = intent.now_utc
+            intent.now_utc = lambda _engine: domain()
+            try:
+                build()
+            finally:
+                intent.now_utc = saved
+    else:
+        build()
+    doc = json.loads((out / "positive.json").read_text(encoding="utf-8"))
+    if story_clock and doc.get("blocked"):
+        raise SystemExit(f"STORY_CLOCK_BLOCKED: the Cold failure day is blocked: {doc['blocked']}")
+    return {"run_id": str(getattr(ns["built"].run, "run_id", "")), "scenario_id": doc.get("scenario_id"), "work": doc.get("out_c"),
+            "blocked": doc.get("blocked")}
+
+
+def run_day(url: str, tmp: Path, day: "sd.DayRun", story_clock: bool = False) -> dict:
+    """One cold story day. `failure` runs the w502 positive BUILD body; other kinds the replay only. `story_clock`
+    (prepare only, DD1b1-R Q1): the worker runs at `received_at` + 5 min; add-day stays on wall time."""
+    P, w202, base = _patch(url)
+    factory = _day_swaps(P, w202, base, day, tmp)
+    out = tmp / f"{day.day}-{day.kind}-{day.start:%H%M}"  # DD-1a1: 24 runs per full day
+    out.mkdir(parents=True)
+    saved = P.run, P.enqueue_window
+    if story_clock:
+        import test_w203_cold_replay_postgres as w203
+
+        worker_at = worker_instant(url, day.received_at)
+        P.run = lambda built: w203.run(built, clock=lambda: worker_at)
+        P.enqueue_window = _refuse_enqueue_window
     try:
-        return {"run_id": str(getattr(built.run, "run_id", "")), "scenario_id": built.shifted.scenario_id}
+        if day.kind == "failure":
+            return _failure_day(url, out, day, story_clock)
+        built = P.produce(lambda m: factory(m, out / "chain").open(), "ordinary")
+        try:
+            return {"run_id": str(getattr(built.run, "run_id", "")), "scenario_id": built.shifted.scenario_id}
+        finally:
+            built.close()
     finally:
-        built.close()
+        P.run, P.enqueue_window = saved
 
 
 def findings_on(url: str, day: str) -> list[str]:
@@ -173,7 +215,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                  "epoch": day.epoch, "assess": day.assess,
                  "received_at": iso(day.received_at) if day.received_at else None, "run_id": None}
         if day.has_run:
-            entry.update(run_day(url, tmp, day))
+            entry.update(run_day(url, tmp, day, story_clock=True))
         entry["findings"] = findings_on(url, day.day)
         entry["status_after_build"] = "NO_RUN" if not day.has_run else "ASSESSED"
         records.append(entry)
