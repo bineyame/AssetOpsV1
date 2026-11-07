@@ -13,40 +13,14 @@ import type {
   EstatePortfolioCard,
   EstateQuery,
   EstateResult,
-  EstateValueCard,
 } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
-import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE } from "./estateFinancialsWords";
 import { estateHref } from "./estateShared";
-import { CARD_VALUE } from "./portfolioWords";
 
 type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
 
 export const amountOf = (value: { low: unknown; high: unknown; currency: string | null } | null | undefined) =>
   (value ?? null) as FinancialAmount | null;
-
-/** The value and detail of one server value card (W3-03 closure 1). Money formatting lives here only. */
-export function cardValue(card: EstateValueCard, body: EstatePortfolioBody): { value: string; detail: string } {
-  const detail = card.detail ?? "";
-  if (card.state === "COMPARABLE_GROUP") {
-    const group = body.money.groups.find((g) => g.group_key === card.group_key);
-    const window = group ? moneyWindowText(group.window_start, group.window_end) : null;
-    return {
-      value: (group && moneyText(amountOf(group.amount), "outward")) ?? NOT_DISPLAYABLE,
-      detail: card.detail ?? `${categoryLabel(group?.category ?? "")} · ${window ?? "Window not recorded"} · ${card.line_keys.length} Site lines`,
-    };
-  }
-  if (card.state === "SITE_OWNED") {
-    const line = body.selected_lines.find((x) => x.line_key === card.line_keys[0]);
-    const rounding = line?.domain === "ev_charging" ? "even2" : "outward";
-    const window = line ? moneyWindowText(line.window_start, line.window_end) : null;
-    return {
-      value: (line && moneyText(amountOf(line.amount), rounding)) ?? NOT_DISPLAYABLE,
-      detail: card.detail ?? `${line?.site_name ?? ""} · ${categoryLabel(line?.category ?? "")} · ${window ?? "Window not recorded"}`,
-    };
-  }
-  return { value: card.display_value ?? CARD_VALUE[card.state] ?? "Not known yet", detail };
-}
 
 /** OUT-A A6: the four outcome categories in canonical order, with the v7.0 mock's names and definitions. */
 export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: string; definition: string }[] = [
@@ -71,15 +45,6 @@ export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: s
     definition: "Establish with defensible evidence whether the infrastructure is delivering expected results",
   },
 ];
-
-/** Addendum 2: the backend always sends OPERATING_COST; its absence is a malformed body (the unknown wording). */
-export const OPTIMIZE_COST_MISSING = {
-  value: "Not assessed",
-  detail: "Operating cost is not assessed for this selection",
-  basis: "No value line",
-  destination: "/financials",
-  tone: "neutral",
-} as const;
 
 /** The card links (markup only); every card's words come from the server (CH-6b2). */
 const CARD_DESTINATION: Record<OutcomeCategoryKey, string> = {
@@ -119,15 +84,9 @@ function serverValue(card: EstatePortfolioCard): ReactNode {
 }
 
 function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {
-  if (key === "OPTIMIZE_COST") {
-    // CH6b2-R Q3: Optimize stays on its CH-5c money line, with no days line (MD-CH5b-4 kept for Optimize).
-    const cost = body.value_cards.find((c) => c.key === "OPERATING_COST");
-    if (cost === undefined) return { ...OPTIMIZE_COST_MISSING, note: null, days: null, grow: null };
-    const { value, detail } = cardValue(cost, body);
-    return { value, detail, note: null, days: null, basis: cost.basis_text, destination: cost.destination, tone: cost.tone, grow: null };
-  }
+  // CH5d1-R 2.3: Optimize is a server card too (each Site's chain cost claim); like Grow it carries no body note.
   const card = summary?.cards?.[key];
-  const note = key === "GROW_REVENUE" ? null : (body.summary.card_notes?.[key] ?? null);
+  const note = key === "GROW_REVENUE" || key === "OPTIMIZE_COST" ? null : (body.summary.card_notes?.[key] ?? null);
   if (card === undefined) {
     // The summary has not loaded (or is older): the card says so, never a browser-built value.
     return { value: "Not known yet", detail: null, note, days: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null };

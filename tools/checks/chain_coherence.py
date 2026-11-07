@@ -1128,6 +1128,7 @@ CLAIM_KEYS = ("count.open_threads", "count.verified_results", "count.opportuniti
 FINDINGS_CLAIM_KEYS = ("count.opportunities",)  # the estate Findings carry only this one (`estate/index.py`)
 CLAIM_FIELDS = ("value", "basis", "text")
 GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
+COST = "OPTIMIZE_COST"
 MINI_DOMAIN = "mini_grid"
 NODE_PARTS = ("kpi", "earnings", "potential")
 SITE_DAY_KEYS = ("requested", "expected", "complete", "partial", "low", "no_data", "not_expected", "pending")
@@ -1202,8 +1203,41 @@ def _coh17_money(w: str, chain: dict, summary: dict, files: list[str], tally: di
     return out
 
 
+def coh17_optimize(w: str, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
+    """CH5d1-R 2.4 row O1: the summary's Optimize card is the priced Sites' cost claims (`sites[].rows[OPTIMIZE_COST]
+    .nodes.earnings` with a value): none -> "Not known yet" and no claim; one -> that claim, its text the value; two
+    or more -> each priced Site's name prefixes one detail line and no claim (never summed). C3 ties the chain's card
+    to this one and V3/V4 tie the nodes to the board. An absent card is a finding."""
+    voc = _vocabulary()
+    tally["compared"] += 1
+    card = (summary.get("cards") or {}).get(COST)
+    priced = []
+    for s in summary.get("sites") or ():
+        claim = ((_rows_by_category(s.get("rows")).get(COST) or {}).get("nodes") or {}).get("earnings")
+        if claim is not None and claim.get("value") is not None:
+            priced.append((s, claim))
+    if not card:
+        problem = "the summary has no Optimize card"
+    elif not priced:
+        ok = (card.get("value") or {}).get("text") == voc.NOT_KNOWN_TEXT and card.get("claim") is None
+        problem = None if ok else f"no priced Site, card value {card.get('value')!r}, claim {card.get('claim')!r}"
+    elif len(priced) == 1:
+        (_, claim), = priced
+        ok = card.get("claim") == claim and (card.get("value") or {}).get("text") == claim.get("text")
+        problem = None if ok else (f"one priced Site claim {claim!r}, card value {card.get('value')!r}, "
+                                   f"claim {card.get('claim')!r}")
+    else:
+        lines = str(card.get("detail") or "").split(" · ")
+        missing = [_site_name(s) for s, _ in priced if not any(x.startswith(f"{_site_name(s)}: ") for x in lines)]
+        problem = (f"{len(priced)} priced Sites, the detail lacks {missing}" if missing
+                   else f"{len(priced)} priced Sites, card claim {card.get('claim')!r}" if card.get("claim") is not None
+                   else None)
+    return [] if problem is None else [finding("COH-17", None, w, "O1", problem, files)]
+
+
 def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[str, int]) -> list[dict]:
-    """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1 and Q2 rows W1, W2 for one estate window (Site sets equal)."""
+    """CH6b3-R Q1 rows C2, C3, M1-M6, V1-V4, L1, Q2 rows W1, W2 and CH5d1-R row O1 for one estate window (Site sets
+    equal)."""
     out = []
     chain_files = bundle.files(f"chain_estate.{w}")
     summary = bundle.get(f"summary.{w}")
@@ -1232,6 +1266,7 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
             diff.append(f"absent: card claim {'present' if a else 'missing'}, counts {'present' if b else 'missing'}")
         check("C2", not diff, f"{card} card against {key}: " + "; ".join(diff))
     check("C3", cards == summary.get("cards"), "chain `cards` differ from summary `cards`")
+    out += coh17_optimize(w, summary, files, tally)
     # CH6b3-R3 L2: the summary's legacy verified count is the claim's value (both known).
     shown, claimed = summary.get("verified_result_count"), (counts.get("count.verified_results") or {}).get("value")
     if shown is not None and claimed is not None:

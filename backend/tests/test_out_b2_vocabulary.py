@@ -93,8 +93,10 @@ def _constants() -> list[str]:
     # CH-6b2: every Portfolio card template (the browser's card rules before CH-6b2), and the headroom units.
     card = {"amount": "7.50 USD", "site": "Kobo", "text": "7.50 USD over 3 of 3 days checked", "w": 2,
             "warnings": "warnings", "sites": "2 sites", "unchecked": ", 1 site not checked", "checked": 3,
-            "requested": 5, "n": 2, "gaps": 2, "line": "3 of 3 days checked"}
+            "requested": 5, "n": 2, "gaps": 2, "line": "3 of 3 days checked",
+            "small": "possible extra fuel cost"}   # CH-5d1: the Optimize `cost.site` line
     copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
+    copy += list(cv.COST_SMALL.values())
     return [c.strip(" ·") for c in copy]
 
 

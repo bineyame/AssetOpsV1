@@ -426,7 +426,23 @@ export function serverCard(over: Partial<EstatePortfolioCard> = {}): EstatePortf
   };
 }
 
-/** The three server cards with the default wording of a one-Site-gap estate; `over` replaces any of them. */
+/** CH5d1-R: the Optimize server card for one priced Site (Kobo's stored-consequence cost claim, the amount alone). */
+export const OPTIMIZE_ONE_SITE = serverCard({
+  value: { text: "3.31 USD", small: "possible extra fuel cost" },
+  detail: "At Kobo · not added across sites",
+  basis_text: "Modelled from the stored record and the declared price · not a saving",
+  tone: "amber",
+  claim: { key: "money.possible_extra_fuel_cost", basis: "NOT_KNOWN", text: "3.31 USD", value: { amount: "3.31", currency: "USD" } },
+});
+
+/** CH5d1-R: the Optimize server card with no priced Site. */
+export const OPTIMIZE_NONE = serverCard({
+  value: { text: "Not known yet", small: null },
+  detail: "No cost worked out yet at any site",
+  basis_text: "A cost needs a priced record",
+});
+
+/** The four server cards with the default wording of a one-Site-gap estate; `over` replaces any of them. */
 export function serverCards(over: NonNullable<EstateOutcomeSummaryBody["cards"]> = {}): NonNullable<EstateOutcomeSummaryBody["cards"]> {
   return {
     GROW_REVENUE: serverCard({
@@ -435,6 +451,7 @@ export function serverCards(over: NonNullable<EstateOutcomeSummaryBody["cards"]>
       detail: "Site income not recorded",
       basis_text: "Opportunities · revenue not measured yet",
     }),
+    OPTIMIZE_COST: OPTIMIZE_ONE_SITE,
     PROTECT_ASSET: serverCard({
       value: { text: "2", small: "sites disrupted" },
       detail: "Service disruptions recorded as findings · loss not priced",
