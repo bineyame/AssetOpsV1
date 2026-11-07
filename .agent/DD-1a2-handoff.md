@@ -1,6 +1,12 @@
 # DD-1a2 handoff
 
-## State: STOPPED at G1 (`DD1a2-R` Q1, sheet `:751-752`). The Architect rules. No value changed.
+## UPDATE after DD1a2-R2 (commit `281a2bd54` and later)
+- G1 regenerated (`.agent/DD-1a2-g1.json`): `steady-before` 10-24 generator 04:00-06:00, 3.167 kWh exact, litres 0.973 (registered probe `B-early`, G0 test asserts it equals the committed handover); NECESSARY, window COMPLETE, 0 Findings; clinic requested = delivered on every reading with both values (288 a day; 2 per day have a missing value, none in 04-06); residential records no requested power. Recorded as a FAIL on "0 L", accepted by R2.
+- v3 weekday L0 added (`test_demo_story_days.py`, 7 values of S). R25 probe `host/tests/test_dd1a2_r25_probe.py` PASSES (25 % reserve: steady-day STOPPED 18:00 and 24:00, 0 starts, night-early no generator, ends 31.16 %; non-vacuity assert on B-early passed).
+- DONE after that: G2 PASS (VERIFIED 42 to 110 kWh), MONEY-A not vacuous and equal, add-day L2 (S-10 fill), scoped tests and guards A W N V M pass, packet `.agent/review-packet-DD-1a2.md` written. Remaining for the coordinator: task status/ACTIVE_CONTEXT/CODE_STATE, plan HTML text, R2 owner line. DBs dropped.
+- (superseded) Next: G2 `mill3` (own DB `assetops_dd1a2a_test`, output `m3work/mill3.json` in scratch), then `story-only`, MONEY-A, add-day L2 (fill S-10 on the mill3 DB), stream probe, scoped tests, guards, packet.
+
+## (older) State: STOPPED at G1 (`DD1a2-R` Q1, sheet `:751-752`). The Architect rules. No value changed.
 Size 2.25. R25 probe, G2 (MILL-3), the L2 add-day test and the packet are NOT done: they follow G1 in the ruling's order. Nothing past the stop was run.
 
 ## The G1 result (registered KOBO-001, own `*_test` DB, one day of each profile; raw: `.agent/DD-1a2-g1.json`)
