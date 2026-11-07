@@ -64,4 +64,28 @@
 
 ## Checks run
 
-PENDING
+Python `AssetOpsV1-plan2\.venv`; PYTHONPATH absolute under the worktree; `assetops_backend` and `assetops_contracts` resolve into the worktree.
+
+| Check | Revision | Result |
+|---|---|---|
+| `tests/test_mb1_thread_line.py` | `132e2f9c8` | 33 passed |
+| Adjacent L0: `test_ch3_rows`, `test_out_b2_mini`, `test_out_b3_cold_ev` (unchanged), `test_out_b2_vocabulary`, `test_mb1_opportunity_board`, `test_demo_combined_finish_rows`, `test_demo_combined_finish_co1`, `test_out_b4_imports`, `test_ch9b1_origin_readers`, `test_ch5a1_board_contract`, `test_ch5a2_contract`, `tools/checks/test_chain_coherence.py` | `132e2f9c8` | 369 passed |
+| Broader L0 (`test_out_*`, `test_ch*`, `test_mb1*`, `test_pv1*`, `test_estate_*`, `test_portfolio*`, `test_w303*`, `test_demo_combined_finish*`, non-Postgres) + `test_chain_coherence.py`, `-n 4` | `5220ad13a` (main + PV-1 merged) | 1438 passed, 1 skipped, **1 failed**: `test_ch1a_grading.py::test_period_bounds_addis_utc_tue_only_and_24h` (`ValueError: unknown period 'midday'`). Not this slice: the test, `chain/grading.py` and `chain/policy.py` are identical to main (CH-9 removed the midday period; stale test on main) |
+| Postgres, DB `assetops_mb1b_test` (harness clones): `test_mb1_site_actions_postgres`, `test_ch9b1_opportunity_actions_postgres`, `test_ch9b3_mill_verdict_postgres`, `test_out_b4_board_postgres`, `test_ch5c2_real_composers_postgres` | `132e2f9c8` | 26 passed, 0 skipped, 856 s wall |
+| `tools/check-all.ps1 -Python <venv>` (`ASSETOPS_GUARD_PYTHON` set) | `5220ad13a` | 15 of 17 PASS; the 2 missing-claim guards failed on `MODULE_NOT_FOUND` (no `frontend/node_modules`). After `npm ci`: `missing-claim-scan.mjs` passed, `test_missing_claim_scan.mjs` 26 pass / 0 fail |
+
+Not run, per dispatch: prepare, baseline build, full suite, `test_demo_combined_postgres`. MILL-4 and F-THREADS run at E3.
+
+## Known deviations
+
+- None from the card. P1-P4 above are interpretations of unstated details.
+
+## Residual risk
+
+- The Postgres run was on the pre-merge build commit. The PV-1 merge auto-resolved with no conflict (PV-1 added a `SiteFacts` field and a `verdict_value` port; MB-1b adds none). The merged revision passed L0 only.
+- The real `k` for S-8 and whether the 10-31 recurrence is a visible started occurrence on S-5..S+0 are only proven at E3 (MILL-4). S-i (a counted lifecycle day missing from `day_facts.rows`) can only appear on real rows. L0 parity shows both sides use one function over the same inputs.
+
+## User-review focus
+
+- The Grow subline wording on S-8 vs S+0 (MONITORING then "Spare solar seen again on 31 Oct ...") next to the Assure row's "verified" mill entry (MB-1-R Q4 accepted this reading).
+- USER_REVIEW_REQUIRED: not on its own. It goes into the combined owner walkthrough.
