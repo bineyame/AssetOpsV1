@@ -134,9 +134,15 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
     import pg_harness
     from sqlalchemy import create_engine, text
 
+    # Unrouted, `fresh_database` would reset the shared base database in place, so routing is required here.
+    os.environ.setdefault("ASSETOPS_TEST_DATABASE_URL",
+                          f"postgresql+psycopg://assetops:{dc.PW}@127.0.0.1:{dc.PG_PORT}/assetops_test")
+    pg_harness.route("dd1b1")
+    if not pg_harness.routed():
+        raise Stop("not routed to a run-owned database; refusing to reset the shared base database")
     url = pg_harness.fresh_database()
     db = url.rsplit("/", 1)[-1].split("?")[0]
-    if not db.endswith("_test") or "polish" in db or "demo3" in db:
+    if not db.endswith("_test") or "polish" in db or "demo3" in db or db == "assetops_test":
         raise Stop(f"not this run's own *_test database: {db}")
     doc["database"] = db
     env = {**os.environ, "DATABASE_URL": url, "ASSETOPS_TEST_DATABASE_URL": url, "PYTHONUNBUFFERED": "1"}
@@ -211,6 +217,10 @@ def main(argv: list[str]) -> int:
         run(work, doc, started + CAP_SECONDS)
     except Stop as stop:
         doc["stopped"] = str(stop)
+    finally:
+        import pg_harness
+
+        pg_harness.cleanup()  # this run's own database and template
     doc["wall_seconds"] = round(time.monotonic() - started)
     checks = doc.get("checks") or {}
     doc["pass"] = doc["stopped"] is None and bool(checks) and all(checks.values())
