@@ -1093,3 +1093,199 @@ Source: `.agent/review-A2.md` (A2 worktree) L1 and L4. This amends §4.2. It lan
 - MB-1b stays blocked on MB-1a's merge. Its card gains only §1's "policy None → no line" case.
 
 **Owner question: none.** For information only: two main tests were stale against migration 0053 and the mechanism template, and are scheduled as above.
+
+---
+
+## PV-1-R: ruling on the PV-1 pre-flight (Architect, Claude, 2026-11-07)
+
+- Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Main at `70a5e8699` (MB-1a merged).
+- This section **replaces §3.3's build detail**. §3.3's two line literals, MOCK DEVIATION MD-FUEL-PV1-1 and the no-total rule stand. Every other part of §3.3 is superseded where this section differs.
+- `B/` = `backend/assetops_backend/`, `F/` = `frontend/src/`, `T/` = `tools/`. READ = I read the code; nothing here was measured.
+- **Order.** PV-1 and MB-1b both edit `board.py` `SiteFacts` (last field) and `_row`. Whichever merges second merges main first and puts its field after the other's. Neither waits for the other.
+
+### 0. Code reality (READ)
+
+- **Mill value.** `VerificationService.domain_summary` (`B/actions/verification.py:381-401`) returns the verdict page's `value`. That is `mill_value(details, outcome, _mill_price(...))`, with the price as known at the outcome's `recorded_at` (`:403-419`). For a VERIFIED outcome it reads the context, the outcomes and one price. It runs no live assessment.
+- **The board already holds that service.** `BoardServices.verification` (`B/site_outcomes/read.py:98`) is built in `site_outcomes/composition.py:59` as `VerificationService(actions)`. Its ports come from `actions.verification_ports` (`verification.py:547`), and they include `productive_price` (`B/actions/composition.py:125`). It is the same port the verdict page uses.
+- **Trial fuel.** The board's `ActionFact.cost_check` is the verification summary's `cost_check`, passed whole (`B/chain/read.py:416`). Since A2 it carries `priced_total` (`verification.py:1210`), which holds `amount`, `currency`, `basis`, `window` and `fuel_change_l` (`B/financials/trial_fuel_comparison.py:199-201`).
+- **Summary path.** The Portfolio summary rows' `nodes` come from `_window_parts`, which is `assemble(replace(comp.facts, nodes=...))` (`read.py:496-522`). A new `SiteFacts` field set in `mini.compose` therefore reaches both the board and the summary rows unchanged.
+- **Card note.** `card_notes` (`B/estate/portfolio.py:658-668`) joins the recovered-value text and the evidence-gap clause into one server line. The browser renders it whole (`F/estate/PortfolioOutcomes.tsx:89`). The estate read cannot see the board's value lines.
+
+### 1. S1: the mill line reads the verdict page's own `value` through the board's existing verification service (option c)
+
+- **Decision.** Add one `MiniPorts` port, bound in `read.py` to the already-injected `s.verification.domain_summary(...)["value"]`.
+- **Rejected.**
+  - **(b)**, widening `_SITE_ACTIONS` and adding a price read, re-derives MV-1. Two code paths would then decide the same figure, and PV-A could drift after a price revision.
+  - **(a) as proposed**, a new composition injection, is unnecessary: the service is already injected, and calling a method on an injected instance imports nothing. OUT-B4 holds with no new import in `site_outcomes/`.
+  - The board's day price (`read.py:286`) is never used for this line.
+- **No leak past the cutoff.** The port is called only for an opportunity Action whose `outcome == "VERIFIED"` is known by the board cutoff (`opportunity_actions` already nulls a later outcome). Domain verdicts are single and decisive (MB-1-R §0), and the price is read as known at that verdict's `recorded_at`, which is at or before the cutoff.
+- **Code, `B/site_outcomes/mini.py`.** `MiniPorts` gains, last and defaulted, verbatim:
+  ```python
+  #: PV-1-R §1: the verdict page's own `value` (`VerificationService.domain_summary`, MV-1 `mill_value` at the price as
+  #: known when the verdict was recorded) of one VERIFIED opportunity-origin domain Action; None = no value.
+  verdict_value: Callable[[str], Any] = lambda action_id: None
+  ```
+- **Code, `B/site_outcomes/read.py` `mini_ports`,** beside `chain_threads`:
+  ```python
+  def verdict_value(action_id: str) -> Any:
+      return jsonable_encoder(_need(s.verification, "verification").domain_summary(t, sid, UUID(action_id))["value"])
+  ```
+  Pass `verdict_value=verdict_value` to `mini.MiniPorts(...)`.
+- **Code, in `mini.compose` after `opp` and `actions` exist,** for `o` in `opp` with `o.outcome == "VERIFIED"`:
+  - `v = reads.call("verdict_value", ports.verdict_value, o.action_id, memo=True)`.
+  - A failure is recorded by `Reads` (board PARTIAL, `verdict_value` in `failed`) and gives no line.
+  - `None`, or `v["state"] != "PRICED"`, gives no line. The verdict page already states why a value is unpriced.
+  - The port is never called when there is no VERIFIED opportunity Action. The CH-5a1 contract fixture has none, so its goldens do not move on this account.
+
+### 2. S2: the money clause moves from `card_notes` to the Assure card (option c)
+
+- **Decision.**
+  - The Assure card, built by `portfolio_cards` (the one source that sees the board rows), carries the value lines **and** the money clause.
+  - `card_notes` keeps only the evidence-gap clause.
+  - `recovered()` and the estate `cost_checks` port do **not** change in PV-1. The estate body's `summary.recovered_value` field stays as it is: it is still computed, and it is no longer rendered on the card.
+- **Rejected.**
+  - (a) as stated: `portfolio_cards` cannot rebuild the evidence-gap clause, because that comes from the estate body. The browser must not split or join server lines.
+  - (b): the estate read would have to compose boards.
+- **Code, `B/estate/portfolio.py` `card_notes`.**
+  - The signature becomes `card_notes(summary, authorized)`.
+  - Assure = `evidence_gap_text(...)` alone.
+  - Docstring: "PV-1-R §2: the money clause is the Assure card's `value_note` (`portfolio_cards`)."
+  - Update the one call at `:894` (drop the third argument).
+- **Code, `B/chain/vocabulary.py` `CARD_TEXT`,** under the Assure block, verbatim:
+  ```python
+  # PV-1-R §2: the Assure card's verified-value lines (one per result, never added) and their clause.
+  "assure.value_line": "{site} · {text}",
+  "assure.values_separate": "Each result's money is shown on its own and never added together",
+  ```
+- **Code, `B/site_outcomes/read.py` `portfolio_cards`.** The `ASSURE` card dict gains two keys after `"claim"`:
+  - `"value_lines"`: for each `s` in `sites` (summary order), for each `e` in that Site's `ASSURE_PERFORMANCE` row's `(nodes or {}).get("verified_values") or []` (already in code order), the string `card_text("assure.value_line", site=s.get("site_name") or s["site_code"], text=e["text"])`.
+  - `"value_note"`: `card_text("assure.values_separate")` if `value_lines`, else `MONEY_NOT_CREDITED` (imported from `B/outcomes/credit.py`).
+  - Grow, Optimize and Protect are untouched.
+  - There is no total, no sum and no arithmetic across entries.
+
+### 3. The builder's defaults
+
+**Default 1, entry shape: amended.** Each `verified_values` entry is a dict with these keys, in this order:
+`{"key": action_id, "action_code": code, "basis": <stored basis>, "amount": <shown money text>, "currency": cur, "text": <line without the Site>}`.
+- **No `site` key.** The board does not know the Site's display name. The card adds the Site via `assure.value_line`, as every other card Site line does.
+- `amount` and `currency` exist so that COH PV1 can prove nothing is summed.
+- `basis` is the stored value: the mill's `v["basis"]` (`ESTIMATED_SALES_AT_DECLARED_PRICE`) or the cost check's `priced_total["basis"]` (`TRIAL_HOUR_MODELLED_FUEL`). It is never retyped.
+
+**Default 2, carriage: confirmed, with one change. The key is emitted only when the list is non-empty.**
+- `B/site_outcomes/board.py` `SiteFacts` gains `verified_values: tuple[Mapping[str, Any], ...] = ()`, last field.
+- `mini.compose` passes it in the existing `SiteFacts(...)` call, after `opportunity_actions=opp`.
+- In `_row` (`board.py:816`), directly after the `GROW_REVENUE` `grow_headline` block and **before** the `NOT_MEASURED` early return:
+  ```python
+  if cat == "ASSURE_PERFORMANCE" and facts.verified_values:   # PV-1-R §3: nodes only; the board shows no new line
+      row["nodes"] = {**row["nodes"], "verified_values": [dict(v) for v in facts.verified_values]}
+  ```
+- Cold and EV never set the field, so they carry no key, and every board and golden without a value line is byte-equal. A reader takes an absent key as `[]`.
+
+**Default 3, trial fuel: confirmed, with exact rounding.**
+- For each trial `a` in `actions` (`not a.is_domain`) with `a.verification_state == "VERIFIED"`:
+  - `got = credited(a.cost_check, "VERIFIED")` (from `B/outcomes/credit.py`);
+  - `pt = (a.cost_check or {}).get("priced_total") or {}`.
+  - A line is produced only when `got` is not None and `pt.get("fuel_change_l")` is set.
+- `(n, d), cur = got`.
+- `amount = f"{Decimal(round(Fraction(n, d) * 100)) / 100:.2f}"`. Python's `round` on a `Fraction` is exact half-even, the same rule as `money2`.
+- `litres = f"{Decimal(round(Fraction(str(pt['fuel_change_l'])) * 10)) / 10:.1f}"`.
+- No new read.
+
+**Literals, `B/site_outcomes/mini.py`, beside `VERIFICATION_TEXT`, verbatim.** These are §3.3's lines without the Site prefix, which the card adds:
+```python
+#: PV-1-R §3: a verified result's money, one line each, never added together (the card prefixes the Site).
+VALUE_LINE_MILL = "{code}: about {d} {cur} a day more in estimated sales to productive users (your declared price)"
+VALUE_LINE_TRIAL_FUEL = "{code}: about {l} L, {amount} {cur} less diesel in the one-hour trial (modelled, not metered)"
+```
+
+**Building the entries.**
+- Mill: `{"key": o.action_id, "action_code": o.code, "basis": v["basis"], "amount": v["per_day"], "currency": v["currency"], "text": VALUE_LINE_MILL.format(code=display_code(o.code), d=v["per_day"], cur=v["currency"])}`.
+- Trial: `{"key": a.action_id, "action_code": a.code, "basis": pt["basis"], "amount": amount, "currency": cur, "text": VALUE_LINE_TRIAL_FUEL.format(code=display_code(a.code), l=litres, amount=amount, cur=cur)}`.
+- Order: all entries sorted by `(action_code or "", key)`, the Assure contributors' order.
+- Add both literals and both `CARD_TEXT` strings to `backend/tests/test_out_b2_vocabulary.py`'s list. If guard V or N rejects any of them, stop (S-a) with the message.
+
+### 4. Frontend (`F/estate/estateClient.ts`, `F/estate/PortfolioOutcomes.tsx`)
+
+- `EstatePortfolioCard` gains `value_lines?: string[]; value_note?: string | null;`.
+- `CardContent` gains `values: { lines: string[]; note: string | null } | null`.
+  - In `content()`, set `values` to `key === "ASSURE_PERFORMANCE" && card ? { lines: card.value_lines ?? [], note: card.value_note ?? null } : null`.
+  - It is `null` on the not-loaded path. `grow` is unchanged.
+- **Render**, after `c.detail` and before `c.note`, using existing classes only:
+  - each line as `<p className="oc-pfnote" data-portfolio-card-value-line>{line}</p>`;
+  - then, when set, `<p className="oc-pfnote" data-portfolio-card-value-note>{c.values.note}</p>`.
+  - Server text only. No join, no new CSS.
+- Header comment at the render: **MOCK DEVIATION MD-FUEL-PV1-1** (text as in §3.3). Add a packet row.
+
+### 5. COH and finish row
+
+- **COH-17 row PV1.** Name it PV1, not V1, because V1 already exists in COH-17 (CH6b3-R Q1). Put it in a new function `coh17_values(w, summary, files, tally)`, called in `_coh17_full` right after `coh17_optimize` (`T/checks/chain_coherence.py`, ~`:1290`).
+  - (i) `cards.ASSURE_PERFORMANCE.value_lines` must equal the list rebuilt from `summary.sites[]`'s Assure `nodes.verified_values`, using the `assure.value_line` form imported from `CARD_TEXT`.
+  - (ii) For every pair of entries with the same currency, the exact sum `f"{Decimal(a) + Decimal(b):.2f}"` must not appear as a substring of any string in the Assure card (walk the card JSON).
+  - (iii) `value_note` is `values_separate` if and only if there are lines.
+  - A summary without the keys (an older bundle) is skipped and counted.
+- **Self-tests (`T/checks/test_chain_coherence.py`):**
+  - pass: two Sites with one entry each;
+  - fail (i): a card line differs;
+  - fail (ii): a card `detail` holding the sum of two same-currency amounts;
+  - fail (iii);
+  - skipped: an older bundle.
+- **Finish row PV-A (written now, runs at E3), `T/demo_combined_finish.py` after MILL-5,** with pure logic in `T/demo_combined_rows.py` `pv_values` (the D3 precedent):
+  - On the week estate summary that contains the S+0 Kobo board, the Assure card's `value_lines` contains `card_text("assure.value_line", site=<Kobo name>, text=VALUE_LINE_MILL.format(code=display_code(code), d=page["value"]["per_day"], cur=page["value"]["currency"]))`. Here `page` is the mill's verdict page body (`GET` the domain verdict, as MILL-3b reads it).
+  - The trial-fuel line is present **if and only if** `credited(ACT-001's summary cost_check, "VERIFIED")` is not None. Report which case holds.
+  - No card string contains the sum of two same-currency amounts.
+  - Add an L0 self-test with pass and fail bodies.
+
+### 6. Tests
+
+- **New `backend/tests/test_pv1_value_lines.py` (L0, fake ports, no DB):**
+  - 0, 1 and 2 entries: no mill and no credited trial; mill only; mill plus trial, in code order.
+  - The mill `UNPRICED` or None gives no entry.
+  - `verdict_value` raising gives board PARTIAL with `verdict_value` in `failed`, and no entry.
+  - The port is not called when there is no VERIFIED opportunity Action (a counting fake).
+  - A trial whose `credited` is None (a `/1` result, `priced_total` absent, a negative or zero amount, or INEFFECTIVE) gives no entry.
+  - Rounding: `amount` for `"1/3"` is `0.33`, `"0.125"` gives `0.12`, `"0.135"` gives `0.14`; litres for `"0.25"` is `0.2`.
+  - The Assure row `nodes.verified_values` is present only when non-empty. Kobo Grow, Optimize and Protect rows are byte-equal with and without entries.
+  - `portfolio_cards`: `value_lines` order (Site order, then code order); `value_note` in both forms; the Grow, Optimize and Protect cards byte-equal; no card string equal to or containing the Decimal sum of the two amounts.
+  - `card_notes` gives the gap clause alone.
+  - Parity: the mill entry's `amount` equals `mill_value(details, "VERIFIED", price)["per_day"]` for the same fake details and price.
+- **Existing tests, updated by import, never retyped:**
+  - `test_ch6b2_portfolio_cards.py:195-205` (`card_notes` without the money clause);
+  - `test_w303_portfolio_api.py:422-423`;
+  - `test_ch5a2_contract.py` goldens, regenerated by the DRIFT-R1 §2.2 procedure. **Acceptance:** the diff against main is only `cards.ASSURE_PERFORMANCE` gaining `"value_lines": []` and `"value_note": "No money credited · modelled, not saved"`. Anything else is a stop (S-b).
+  - `test_out_b3_cold_ev.py` must pass unchanged;
+  - `test_out_b2_mini.py`;
+  - `test_out_b4_imports.py`;
+  - `F/estate/__tests__/estatePortfolio.test.tsx` and `portfolioFixtures.ts`: the Assure card renders its lines and note; a card without the keys renders neither; the body note is the gap clause.
+- **Guards:** A, W, N, V, M, chain coherence, and `node tools/checks/frontend-hardwiring.mjs` (no rise). Fast tier for `board.py`, `mini.py`, `read.py` and `portfolio.py`. Frontend: the two test files plus `tsc`. **Not run:** the full suite, prepare.
+
+### 7. Files (complete list)
+
+- Backend:
+  - `B/site_outcomes/mini.py`;
+  - `B/site_outcomes/board.py` (the field and the `_row` lines only);
+  - `B/site_outcomes/read.py` (`verdict_value`, `portfolio_cards`);
+  - `B/estate/portfolio.py` (`card_notes` and its call);
+  - `B/chain/vocabulary.py` (two `CARD_TEXT` entries).
+- Tools: `T/checks/chain_coherence.py`, `T/checks/test_chain_coherence.py`, `T/demo_combined_finish.py`, `T/demo_combined_rows.py`.
+- Frontend: `F/estate/estateClient.ts`, `F/estate/PortfolioOutcomes.tsx`.
+- Tests: as in §6.
+- No other file. In particular, `recovered()` and `postgres_estate_read.py` `cost_checks` are not changed.
+
+### 8. Stops
+
+- **S-a.** A guard rejects a literal.
+- **S-b.** A golden diff beyond §6, or any Grow, Optimize or Protect card or row byte change, or any Cold or EV change.
+- **S-c.** `domain_summary`'s `value` for the mill differs from `mill_value` over the same details and price (the parity test).
+- **S-d.** The work exceeds 1.0 unit.
+
+### 9. Size and review
+
+- **Size:** +0.1. The `verdict_value` port is 0.03; moving the clause out of `card_notes` and its two test updates is 0.04; COH PV1 is 0.03. **PV-1 = 0.85.** Lane 1 = 2.9 and FUEL-1 = 5.6.
+- **Review:** PV-1 has had no review. After the build it goes to its first review with a fresh Opus reviewer. Focus:
+  - S1 parity with the verdict page;
+  - the no-sum proof;
+  - the `card_notes` move and the card-render order;
+  - the golden diff limited to the Assure card.
+- PV-1 is a screen change (the Assure card). It joins the post-W6 owner walkthrough, with no separate walkthrough.
+
+**Owner question: none.**
