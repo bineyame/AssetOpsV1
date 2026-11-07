@@ -39,3 +39,41 @@ All 11 R10 rows plus F-COH, F-CAL, F-THREADS pass. One failure, **CO-2**: `/over
 ## Known deviations / process
 - CO-2 recorded as age-dependent. Mutation proofs not run as a separate step (R11).
 - Process (this unit): an earlier empty `python - <<` heredoc (no file written); a no-op `sed -i` against `/dev/null` in the previous round (nothing edited). This round: none. All repo edits used Write/Edit; scratch scripts (`run_ex1.ps1`, `run_diag.ps1`, `diag_ex1.py`, `o10_o16.py`, `combine_ex1.py`) are in the session scratchpad, and `combine_ex1.py` wrote `.agent/DD-1b2b-rehearsal.json`.
+
+# Fix round (DD1b2-R13, R14): evidence
+
+Commits: `28bb723d0` (M1, after-tool asserts, L1), `2c2f49e8b` (R14: S-5 and Cold "Why?" asserts). L0s: `test_demo_combined_finish_rows.py` 27 passed, `test_demo_combined_ex1.py` 9 passed (plan2 venv, worktree PYTHONPATH; those files only). Not run: any full suite, prepare, tick, add-day.
+
+**Lineage (L2a).** The first after-tool run used a tree copy that differed from `411817ae8` (top-level import, equivalent). Both reruns below used the committed `2c2f49e8b` `demo_combined_after.py` and `demo_combined_rows.py`, copied into `var/demo3_dd1b2/tree/tools/` and `var/demo3_dd1b2d/tree/tools/` by `run_after_r13.ps1` (scratchpad). Tree form, `ASSETOPS_RESPONSE_STORE=compose` (nothing stored), no DB write. The tool writes `<work>/after.json` (this overwrote the earlier `dd1b2` and the stale `dd1b2d` copies). The first R13 run stopped on two asserts, both ruled in R14.
+
+**Results (exit 0, no failed assert on either run).** Evidence: `var/demo3_dd1b2/after.json`, `var/demo3_dd1b2d/after.json` (S+2 mode, `--ref` the dd1b2 file).
+
+| Item | Result | Evidence |
+|---|---|---|
+| M1 COH-17 | Narrowed to the L3 shape; eight L0s incl. must-fail cases; no `check` rerun (`allowed_coh17` is `[]`) | `demo_combined_rows.py`, L0s |
+| O8 clone half (S+2, `dd1b2d`) | Study OPP-000005 ends 2026-11-07, UNKNOWN, 0 eligible. Thread events unchanged: one RECURRED, effective 2026-10-31, no WITHDRAWN or CLOSED, none on S+2. Assure unchanged on S-5, S-1, S+0, S+1; S+2 reads WATCH, "1 verified result". Portfolio Grow `open_findings` 1 on week, month, week_s2, month_s2. S+2 renewable selections 6 | `dd1b2d` after.json: `o8_*`, `portfolio_grow_counts_mill_thread_open` |
+| O12 | S-8 potential "No potential found yet", contributor "Spare solar on 4 of 4 well-observed days". S-5 (R14 §1) potential "Not judged yet: 4 of the 5 study days have no reading", no kW, no money; thread label on S-5 is "Seen again" | `o12_grow_nodes_S-8`, `_S-5` |
+| O19 | Closed by statement: "E2 runs `test_demo_combined_postgres` on a TEMPLATE clone of the E3 build, with the DB named by env. On that clone it first runs R12 (c)'s two comparison reruns in the tree form and checks that the Kobo S board reads AVAILABLE. The env var and the fixture branch are written at E2, when they first run (DD1b2-R Q12)." | R13 §2 |
+| F-THREADS earnings | 42.08 USD = 168.3 kWh x 0.25 | `check.json` WK-2a |
+| F-THREADS ONE-SOURCE | EV WK-1: money null with "0 of 1 day checked" (no money with no checked day). Kobo goes with the next row | `check.json` WK-1 |
+| "Why?" price line (S-11) | "42 kWh x 0.25 USD/kWh" equals the stored selection price 0.25 USD; Grow money 10.50 = 42 x 0.25 | `kobo_why_price_line_S-11` |
+| Protect "Why?" (R14 §2) | On S's Site-local day it names `aacec8fa`, ACT-000002's thread (text "ACT-002 · Open · linked finding outside this view"). `b13f2110` is not named: recorded as **BL-50 known gap**, not a failure | `cold_protect_why_names_act_002_thread` |
+| "Action agreed" ACT-002/003 | Cold ["Action agreed", "Open"], EV ["Action agreed"]; the check is that each Site's Action thread reads "Action agreed" (R14 §3b). The Cold "Open" thread has no Action | `action_agreed_act_002_003` |
+| MG-2 line | `check.json` CO-5/SP-1: branch NOT_JUDGED, state UNKNOWN, `MG-2: ["UNKNOWN", "OBJECTIVE_NOT_JUDGED"]` | `check.json` |
+| L4 `domain_action_index` | Cold: 1 row on the day, 1 on the week, ACT-000002 present. EV: 1 and 1, ACT-000003 present | `l4_action_index_*` |
+| O16 | 11 fuel rows (S-14 4, S-7 4, S+0 3); each on a story day, none on a steady or steady-before day; S-14 and S-7 PRICED, quantity 0 | `o16_fuel_rows` |
+| `known_at` links | 4 listed in `known_at_links` | after.json |
+| Portfolio landing, Cold and EV | Reported: 17 Portfolio paths name Cold or EV (Site page, evidence, financials, Finding links with from/to/known_at); statement in `portfolio_landing`. DS-1 opens Cold and EV from the story-day links (R9 §1) | after.json |
+| L1 | EX-1 exits non-zero on a failed compare or non-AVAILABLE read; `counts` read; any `in_hand` change fails; three L0s | `demo_combined_ex1.py` |
+| E3 items | E3.2 reruns this tool on the E3 build (with BL-50 asserting both Cold threads if it merged); E3.3 `check` rerun after the add (CO-2, post-add F-COH); E3.4 browser path; E3.5 `perf_budget --record` naming each NOT MEASURED route | R13 §4 |
+
+**DS-1 lines added by R14.**
+- On 28 Oct (S-8): "The day after the change, the mill is checked and working. Spare solar was still seen on the well-observed days; the opportunity's size isn't repeated while the change is being checked."
+- On 31 Oct (S-5): "From 31 October the system saw spare solar again, so the opportunity is open again. Only one of its five check days has full readings so far, so it isn't sized yet." S-5's recorded label is "Seen again", so that phrase may be used. Say no kW or money figure on S-5.
+- Cold Room: "Explain the failure from the day's board and its Action. Do not open the Protect 'Why?' on the failure day." If a client opens it: it names the earlier cooling problem and says a linked finding is outside the view; that is a known display gap and the board above is complete.
+
+**BL-50** (new, `.agent/backlog-post-demo.md`): the Site "Why?" uses the board's visibility, not Cold/EV's evidence-end cutoff, so a Finding assessed after its evidence ends is missing from it. Not demo-critical; est. 0.25; on the owner's walkthrough list.
+
+**DS-1 source index (R13 §6; lines come from the rulings).** R6 §4 (mill route; R4 "about 96 / about 22", allowed by R11 §3 O14; generator line "about 15 minutes" with no litre figure, R11 §3 O15; "Do not add a Cold or EV day live"; its L6 line is replaced by R14 §1). The add-day line: R6 §3's replacement plus R9 §2's `--assess-now` clause and R11 §2's numbers. Q7 "recurs" lines at `build-sheet-DD-1.md:1561-1564`; "Seen again" stays (R10 §2). R10 §4 (month-start MG-1 line; Depot fault-day income line). R11 §1 (`serve` line). R12 (c) (copy line; E2/E3, not a presenter line).
+
+**Process this round.** No heredocs, sed or redirection into files. Scratch files (`run_after_r13.ps1`, `show_after.py`) are in the session scratchpad. Nothing was written into `.agent` by a tool. Both DBs and work folders are kept.
