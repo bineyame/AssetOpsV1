@@ -1032,7 +1032,7 @@ class VerificationService:
             return tfc.WindowFacts(tuple(w["evidence_ids"]), bool(w["complete"]),
                                    rules.parse_exact(w.get("generator_kwh")),
                                    rules.parse_exact(w.get("feeder_demand_kwh")), plan[f"{name}_start"],
-                                   plan[f"{name}_end"])
+                                   plan[f"{name}_end"], w.get("generator_idle_seconds"))
 
         facts_out = tfc.OutcomeFacts(str(outcome["id"]), str(plan["id"]), str(basis["origin_finding_revision_id"]),
                                      outcome["outcome"], {n: tuple(basis["evidence_ids"].get(n) or ())
@@ -1043,10 +1043,13 @@ class VerificationService:
                           .get("generator_power") or [])
         sfc = [] if len(generators) != 1 else self.store.sfc_history(
             tenant_id, site_id, generators[0], plan["baseline_start"], plan["later_end"], now)
+        # FUEL-1 A2: the generator's declared no-load fuel rate history, read beside the SFC history
+        no_load = [] if len(generators) != 1 else self.store.no_load_history(
+            tenant_id, site_id, generators[0], plan["baseline_start"], plan["later_end"], now)
         prices = tuple(ports.price_selection(tenant_id, site_id, plan[f"{n}_start"], plan[f"{n}_end"], now)
                        for n in tfc.WINDOWS)
         cost = tfc.InterventionCost(Fraction(0), None, COST_CHECK_SOURCE)
-        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost)
+        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost, no_load)
         key = f"auto:{outcome['id']}"
         # CC-D2: the body without the idempotency key (the hook's body: outcome and intervention cost)
         payload = {"outcome_id": str(outcome["id"]), "intervention_cost": result["intervention_cost"]}
@@ -1200,9 +1203,11 @@ class VerificationService:
         if row is not None:
             change = (row["result"] or {}).get("change_per_demand_kwh") or {}
             price = (row["result"] or {}).get("price") or {}
+            # FUEL-1 A2 (additive): the stored priced total of a `/2` MODELLED_IMPROVEMENT, else None
             cost = {"state": row["state"], "reason": row["reason"], "nominal": change.get("nominal"),
                     "upper": change.get("upper"), "currency": price.get("currency"),
-                    "recorded_at": _wire(row["recorded_at"])}
+                    "recorded_at": _wire(row["recorded_at"]),
+                    "priced_total": (row["result"] or {}).get("priced_total")}
         outcome = next((o for o in self.store.outcomes(tenant_id, site_id, action_id)
                         if str(o["id"]) == str(outcome_id)), None)
         seconds: dict[str, int | None] = {"BASELINE": None, "LATER": None}

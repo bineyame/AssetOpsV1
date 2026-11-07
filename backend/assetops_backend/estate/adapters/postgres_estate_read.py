@@ -365,8 +365,8 @@ class EstateSnapshot:
 
     def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:
         """CH-3 §5 (I-24, OD-3): the latest stored trial cost check of each listed verification outcome (read only;
-        `{outcome_id: {state, currency}}`). CH3-R: the per-kWh rate is not read as money, and no priced total is
-        stored, so the money rule credits nothing. A database without the table reads as none."""
+        `{outcome_id: {state, currency}}`). CH3-R: the per-kWh rate is not read as money. A `/2` row may store a
+        priced total, but this port does not read it, so the money rule credits nothing. A database without the table reads as none."""
         if not outcome_ids or self._c.execute(text(
                 "SELECT to_regclass('trial_cost_comparison_revision') IS NULL")).scalar_one():
             return {}

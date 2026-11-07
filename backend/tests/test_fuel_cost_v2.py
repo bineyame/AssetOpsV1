@@ -190,6 +190,22 @@ def test_conflicting_basis_is_a_conflict() -> None:
     assert fc2.quantify(f).reason == "NO_LOAD_RATE_CONFLICT"
 
 
+def test_basis_outside_the_three_reads_basis_missing() -> None:
+    """A1 review L2 (closed in A2): a stored basis value outside the three states is no basis."""
+    f = finding([(0, 60, "0", "F1")], [foundation("F1", basis=("GUESSED",))])
+    q = fc2.quantify(f)
+    assert fc2.is_v2(q) and q.reason == "NO_LOAD_RATE_BASIS_MISSING"
+
+
+def test_loaded_reading_on_a_non_declaring_revision_stays_available() -> None:
+    """A1 review L2 (closed in A2): MISSING applies to idle readings only, so a Finding whose loaded reading spans a
+    Foundation revision without the rate, next to a declaring one, stays AVAILABLE and prices the idle reading."""
+    f = finding([(0, 60, "20", "F2"), (60, 90, "0", "F1")], [foundation("F1"), foundation("F2", no_load=(), basis=())])
+    q = fc2.quantify(f)
+    assert fc2.is_v2(q) and q.state == "AVAILABLE", (q.reason, q.detail)
+    assert q.high_exact == Fraction(11, 10) * (20 * Fraction(3, 10) + Fraction(30, 60) * Fraction(33, 10))
+
+
 # ---- the Site parser ------------------------------------------------------------------------------------------
 
 KOBO = yaml.safe_load((Path(__file__).resolve().parent / "fixtures" / "s1" / "kobo-001.yaml").read_text(
