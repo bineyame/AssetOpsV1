@@ -94,6 +94,45 @@ Owner line, filled in for R2 section 6 (the "all pass" line does not apply):
 
 `assetops_demo3_dd1b2p_test` (probe, work `var/demo3_dd1b2p`, mill partly run) and `assetops_demo3_dd1b2q_test` (clone before the mill step, work `var/demo3_dd1b2q`). The rest are dropped.
 
+## DD1b2-R3 results (code `4b4a9d906` plus the working tree; clone `assetops_demo3_dd1b2q_test`, kept)
+
+Evidence `.agent/DD-1b2a-m2.json`, `.agent/DD-1b2a-probe-3.json`. New own tool `tools/dd1b2a_m2.py` (read-only; committed `4b4a9d906`). **No product code changed.** R3 section 4 tooling: `tools/demo_combined_mill.py` (the literal `vf.FULL` fix alone, declared) copied into `var/demo3_dd1b2q/tree/tools/`; `dd1b2a_probe.py` was already identical there. `dd1b2a_probe.py ticks` ran first time with no tooling problem.
+
+### M2 (MEASURED, read-only, last day 2026-10-21, 5 days x 12 hours, 60 of 60 hours present, 8,935 accepted IDs)
+
+- (i) Resolver: `MIXED`, reasons exactly `[MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS]` (10 run IDs, 8,935 IDs); the worker's `provenance_blocks` also says `MIXED`. No `RUN_IDENTITY_CONFLICT`, `BOUND_AND_UNBOUND` or other reason.
+- (ii) 10 runs (`run-2810f774...`, `-381a5776...`, `-4072da8a...`, `-48c1888e...`, `-598b9ff3...`, `-77049902...`, `-77233ab3...`, `-a6f884a4...`, `-d15c955c...`, `-de27fa78...`; per run 1,776 or 11 IDs). Equal across all 10: snapshot SHA256 `2f53383e1f08...`, foundation revision `c89d1a93...` (version 15), binding set revision `3b1bce20...` (version 14). **Different per run: `run_identity_sha256`** (one digest per run, no conflict within a run). Whether `run_identity_sha256` belongs in "one basis" is the field-list question for the successor; the other three fields are equal.
+- (iii) In memory, `frozen_result(heads, "REGISTERED_SIMULATION")`: **SUPPORTED**, 5 assessed, 5 eligible, `headroom_kw` {low 0, high 2}, `window_hours` 3, `value_line` "0-2 kW over 3 daylight hours on every eligible day" (en dash in the code). Money line, arithmetic from the declared price 0.25 USD per kWh (price READ from `demo_combined_finish.wk6`'s asserted text, not read from the DB): 0 to 6 kWh a day, 0.00 to 1.50 USD a day. **Note the low bound is 0**: "a figure of zero" in R3 section 1 is open to two readings (the range's low end is 0, its high end is 2 kW). I report it, I do not rule.
+- **Outcome against R3 section 1:** reasons are exactly the expected one and (iii) is SUPPORTED with a non-zero high end, so the stated option-(b) kill conditions are not met on these fields, **except** the zero low bound and the differing `run_identity_sha256` above. Option (b) was NOT built.
+
+### Mill step and `after-children` remainder (MEASURED)
+
+`mill: ACT-000002 VERIFIED study LIMITED 5 eligible`; timings mini-depth 1.9 s, backfill-a 22.1 s, mill 17.2 s, backfill-bcd 1.9 s. Steps b/c/d: NEW_THREAD 2, LINKED 2, `skipped_causes` empty.
+
+### Probe rows P2-P7 under (a) (MEASURED from `DD-1b2a-probe-3.json`; the clone can only show (a))
+
+| Row | Result (a) |
+|---|---|
+| P2 | Pass. ACT-000002 recorded 2026-10-26T09:00Z (S-10), case COMPLETED, case link 2026-10-27T05:20Z. `origin_opportunity_id` not read (my ad hoc query returned no row; not chased) |
+| P3 | Pass. Baseline COMPLETE, found 3, exactly S-13, S-12, S-11 (2026-10-23/24/25), before any tick; 42.000 kWh each. S-9 change day (10-27); later candidates 10-28..11-10 |
+| P4 | Pass. Evaluate recorded VERIFIED at 2026-10-31T23:00Z (S-5), reasons `[TARGET_MET]`, later days S-8, S-6, S-5 (10-28, 10-30, 10-31). **42.00 -> 110.00 kWh a day on 3 fully checked days each**, threshold 46.20, same as the dry run |
+| P5 | Pass. Events OPEN 2026-10-17 (S-19; `OCCURRENCE`), ACTION_IN_HAND 10-26 (S-10), CHANGE_APPLIED 10-27 (S-9), RESOLVED_MONITORING 10-27 (S-9; `VERIFICATION_OUTCOME`); no skipped cause; 2 threads at the Site (mill + generator); identical before and after both ticks |
+| P6 | See below. Outcome count stays 1 after both ticks |
+| P7 | **0 stuck `snapshots` events, not 8.** Before the ticks: 57,472 pending (first 200 by type: reading.accepted 169, foundation.revised 15, job.changed 14, price.revised 2); after tick 1 and tick 2: 0 pending (dirty 231, then 31). Nothing is left behind |
+
+### P6 detail (MEASURED)
+
+- **S-11 opportunity line** (board Grow row, node `potential`): "Limited evidence: readings come from mixed sources, so the size is not worked out yet" (same on S-15). Opportunity "Productive-use headroom", OPP-000001, thread OPEN since 2026-10-17. Contributor "Spare solar on 4 of 4 well-observed days · 1 of the last 5 days not checked". No kW, no money for the potential. The earnings line is the mill's: 42 kWh, 10.50 USD (S-11); 110 kWh, 27.50 USD on S-8 and S-5. **It does not read "Seen again".**
+- **"Seen again" appeared nowhere** (0 hits in the whole probe file). **No recurrence**: after the ticks the only new studies are 11-01..11-05 and 11-02..11-06, both UNKNOWN, 0 eligible; no study ends on S-8, S-6 or S-5, so the thread has no later source. S-8, S-5, S-1, S+0, S+1 read "No potential found yet"; the Grow rows there show no thread line, no "Checked and working" (0 hits; the probe samples only the Grow row, so the Assure row and the Action line are **not measured here**).
+- **"Target met":** the string is not in the probe file. Measured is the stored outcome VERIFIED / `TARGET_MET` on 2026-10-31 (S-5), effective S-9 (10-27), with the domain summary sentence "Midday use rose by at least the declared 10% on fully checked days". The UI label "Target met" itself is **READ** only (not captured by the probe).
+- **Portfolio, week 2026-10-30 to 11-06 (Kobo):** Grow row: no thread counted, potential "No potential found yet", earnings 55.00 USD over 2 of 7 days; Assure row: "**1 verified result**"; Protect row: "1 early warning on battery and generator". So the mill thread counts as 1 verified result (Q7's "does not recur" column), not as open.
+
+### Acceptance state after R3
+
+P1 (a): LIMITED, eligible 5 (restated, MEASURED again). P2-P5, P7: pass. P6: matches Q7's "does not recur" column on the Grow rows captured; the Q7 "recurs" expectations ("Seen again" on S-5, S-1) did not occur. No P4 or P5 failure. The owner question (R3 section 2) can now be sent with figure "0-2 kW over 3 daylight hours" and P4's result 42.00 -> 110.00 kWh a day.
+
+Not run: full backend suite, `check-all`, guards, prepare, baseline, `test_demo_combined_postgres`. DBs kept: `assetops_demo3_dd1b2p_test`, `assetops_demo3_dd1b2q_test`. Stray: the probe's own `prebuild` reported `"code": "FAILED"` with `non_200` on EV board URLs (EV-LAB-001); a Cold/EV read is outside this unit's Kobo-only clone, not investigated.
+
 ## User review
 
 Yes, an owner question (above) is needed before the build goes on. The unit keeps its own fresh-Claude review after the re-probe.
