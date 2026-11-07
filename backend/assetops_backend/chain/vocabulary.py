@@ -336,7 +336,7 @@ def _one_decimal(value: Any) -> str:
 def mg1_text(verdict: str | None, value: Any, checked: int, elapsed: int, month_days: int, target: Any,
              min_checked_days: int) -> str:
     """§A4 `verdict.*`: the MG-1 month text for `judge_month`'s verdict, by `mini.mg1_reading`'s rule; with no
-    counted day, the board's "sales not recorded" (CH6a2-R Q5)."""
+    counted day, `MG1_NO_DAY` (CH6a2-R Q5, reworded by WD-1)."""
     if value is None or not checked:
         return MG1_NO_DAY
     words = {"mtd": _one_decimal(value), "c": checked, "e": elapsed, "m": month_days}

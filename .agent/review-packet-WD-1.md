@@ -23,9 +23,17 @@ test_out_b3_cold_ev.py `test_ev_priced_day_with_unknown_claim_never_names_an_est
   (vocabulary patterns): 240 passed, imports resolved into the worktree.
 - Non-vacuity: with the override disabled the new EV case fails (AssertionError); restored, it passes.
 - No other test failed on the GENERATOR_KWH_UNKNOWN text. No DB, no full suite.
-- check-architecture / check-agent-workflow: see report.
+- Fix round (review-WD-1 M1/L2): regenerated only `ch5a1_board_contract/ev_2026-10-27.json` (`rows/0/headline`) and
+  `ch5a2_chain_contract/site_ev_2026-10-27.json` (`outcomes/0/headline`); each shows one changed line, "estimated
+  charging income" -> "No income figure for this day: it is not fully checked". The regen switches also rewrote
+  line endings on three other ch5a1 goldens (no content change); restored with `git checkout --`. test_ch5a1_board_contract,
+  test_ch5a2_contract, test_ch6_contract: 51 passed without the env vars. Stale `mg1_text` docstring fixed (L2).
+- Guards run by the reviewer: check-architecture passed; check-agent-workflow passed.
 
 ## Residual risk
+- L1: the EV headline says "for this day" also on part-day windows (e.g. the golden's 08:00-16:00 UTC window); literal is
+  the Architect's verbatim MD-WD1-1 choice. Fine on one-day board windows; a walkthrough item.
+- The longer EV headline's fit on the Depot Grow card is not checked in a browser.
 - Mill verified line has no " on example data" suffix while the trial entry does (MB-1a-R2 note). Not changed here per
   WD-1-R section 4; closed by WD-1m.
 - Existing finish-row WK-4 relies on the new text ending; verified only by unit test, not a live run.
