@@ -17,4 +17,4 @@ Re-probe in full, about 40 min to the stop plus the rest: `prepare --sites kobo 
 
 ## Own DBs
 
-`assetops_demo3_dd1b2p_test` with `var/demo3_dd1b2p`, and `assetops_dd1b2a_test`: see the packet's Checks for whether they were dropped.
+All dropped: `assetops_demo3_dd1b2p_test` with `var/demo3_dd1b2p`, and `assetops_dd1b2a_test`. A re-probe rebuilds from nothing.

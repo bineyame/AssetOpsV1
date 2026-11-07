@@ -69,10 +69,10 @@ Wall: Kobo prepare 1741 s (15 built days, 41 runs), `after_children` to the stop
 
 ## Checks
 
-See the handoff for the final guard lines and commit.
-
-- L0: `test_demo_combined_mill.py`, `test_ch9b3_mill_verdict.py`, `test_demo_combined_finish_days.py`, `test_demo_combined_links.py`, `tools/checks/test_chain_coherence.py`: 182 passed.
-- L2, own DB `assetops_dd1b2a_test`: `test_mini_opportunity_story_clock_postgres.py`, `test_ch9b1_opportunity_actions_postgres.py`: 8 passed. Rerun was not made after one later edit, which only tightened a `match=` in that L2.
+- L0: `test_demo_combined_mill.py`, `test_ch9b3_mill_verdict.py`, `test_demo_combined_finish_days.py`, `test_demo_combined_links.py`, `tools/checks/test_chain_coherence.py`: 182 passed, before the `day_rows` fix.
+- L2, own DB `assetops_dd1b2a_test`: `test_mini_opportunity_story_clock_postgres.py`, `test_ch9b1_opportunity_actions_postgres.py`: 8 passed. After the `match=` tightening and the `day_rows` fix: the story-clock L2 and `test_demo_combined_mill.py`, 17 passed.
+- Guards A, W, N, V, M: all exit 0. They started before the `day_rows` fix and the packet edits and were not rerun.
+- Dropped: `assetops_demo3_dd1b2p_test` with `var/demo3_dd1b2p`, and `assetops_dd1b2a_test`.
 
 ## Known Deviations
 
