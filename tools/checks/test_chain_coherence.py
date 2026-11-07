@@ -857,6 +857,14 @@ def test_clean_full_passes_and_compares_every_row() -> None:
     ("L1", {"portfolio.week.p1.json": lambda b: b["summary"].update(verified_resolution_count=9)}),
     ("L1", {"portfolio.week.p1.json": lambda b: b["progress"].update(verified_resolution_count=9)}),
     ("L1", {"portfolio.week.p1.json": lambda b: b["summary"].update(priority_site_count=1)}),
+    # CH6b3-R3: L2, L3, W3, N1 and the C2 absent-key fix (a card or count key absent is a finding)
+    ("L2", {"summary.week.json": lambda b: b.update(verified_result_count=9)}),
+    ("L3", {"portfolio.S.p1.json": lambda b: b["rows"][0].update(workflow_label="No action agreed yet")}),
+    ("W3", {"why_estate.week.PROTECT_ASSET.json": lambda b: b["text"].update(days_used="other")}),
+    ("N1", {"portfolio.S.p1.json": lambda b: b["summary"].update(card_notes={"PROTECT_ASSET": "5 of 7 days checked at Kobo"})}),
+    # both sides absent: the old `{} == {}` passed this
+    ("C2", {"chain_estate.week.json": lambda b: (b["cards"]["ASSURE_PERFORMANCE"].pop("claim"),
+                                                 b["counts"].pop("count.verified_results"))}),
 ])
 def test_coh17_each_row_fails_on_its_planted_break(tmp_path: Path, row: str, files: dict) -> None:
     got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **files))

@@ -1214,8 +1214,15 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
     for card, key in ((PROTECT, "count.sites_disrupted"), (ASSURE, "count.verified_results")):
         a, b = (cards.get(card) or {}).get("claim") or {}, counts.get(key) or {}
         diff = [f"{f}: card {a.get(f)!r}, counts {b.get(f)!r}" for f in CLAIM_FIELDS if a.get(f) != b.get(f)]
+        # CH6b3-R3 (reviewer L3): an absent card claim or count key is a finding, never `{} == {}`.
+        if not a or not b:
+            diff.append(f"absent: card claim {'present' if a else 'missing'}, counts {'present' if b else 'missing'}")
         check("C2", not diff, f"{card} card against {key}: " + "; ".join(diff))
     check("C3", cards == summary.get("cards"), "chain `cards` differ from summary `cards`")
+    # CH6b3-R3 L2: the summary's legacy verified count is the claim's value (both known).
+    shown, claimed = summary.get("verified_result_count"), (counts.get("count.verified_results") or {}).get("value")
+    if shown is not None and claimed is not None:
+        check("L2", shown == claimed, f"summary verified_result_count {shown!r}, count.verified_results {claimed!r}")
     out += _coh17_money(w, chain, summary, files, tally)
 
     for s in chain.get("sites") or ():
@@ -1257,6 +1264,16 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
         priority = None if any(t is None for t in threads) else sum(1 for t in threads if t["open"] + t["in_hand"] > 0)
         check("L1", s.get("priority_site_count") == priority,
               f"priority_site_count {s.get('priority_site_count')!r}, Sites with open threads {priority!r}", where)
+        # CH6b3-R3 L3: the Findings table's "Verified" rows are the claim's threads (one row per Finding, one
+        # thread counted once); only on a complete (unpaged) table and a known claim.
+        if portfolio.get("next_cursor") is None and want is not None:
+            verified = {str((r.get("thread") or {}).get("id")) for r in _rows(portfolio)
+                        if r.get("workflow_label") == "Verified" and (r.get("thread") or {}).get("id")}
+            check("L3", len(verified) == want, f"{len(verified)} distinct Verified threads in the table, claim {want!r}",
+                  where)
+        # CH6b3-R3 N1: "days checked" means graded COMPLETE; no card note speaks of the coverage count with it.
+        for card, note in sorted((s.get("card_notes") or {}).items()):
+            check("N1", "days checked" not in str(note or ""), f"{card} note {note!r} holds \"days checked\"", where)
 
     for cat in _categories():
         name = f"why_estate.{w}.{cat}"
@@ -1272,6 +1289,11 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
             row = _rows_by_category((sites.get(code) or {}).get("rows")).get(cat) or {}
             say, want_say = (t.get("text") or {}).get("say"), row.get("headline") or row.get("state_label")
             check("W1", say == want_say, f"{cat}: Why? says {say!r}, the summary row {want_say!r}", where, code)
+        # CH6b3-R3 W3: the Why? days are the card's own days line (Optimize has none: Protect's).
+        want_days = (cards.get(cat) or {}).get("days_line") or (cards.get(PROTECT) or {}).get("days_line")
+        used = (why.get("text") or {}).get("days_used")
+        if want_days is not None:
+            check("W3", used == want_days, f"{cat}: Why? days {used!r}, card days {want_days!r}", where)
         value = (counts.get("count.sites_disrupted") or {}).get("value")
         if cat == PROTECT and value is not None:
             lines = (why.get("text") or {}).get("comes_from") or ()

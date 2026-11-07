@@ -68,7 +68,15 @@
   "rows": [],
   "verified_resolution_count": 1
  },
- "rows": [],
+ "rows": [
+  {
+   "thread": {
+    "id": "00000000-0000-0000-0000-0000000000a1",
+    "state": "RESOLVED_MONITORING"
+   },
+   "workflow_label": "Verified"
+  }
+ ],
  "summary": {
   "checked_days": [
    {

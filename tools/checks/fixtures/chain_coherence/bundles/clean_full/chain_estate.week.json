@@ -43,6 +43,7 @@
    }
   },
   "PROTECT_ASSET": {
+   "days_line": "Kobo mini-grid: 3 of 7 days checked",
    "claim": {
     "basis": "CHECKED_DAYS",
     "days": {
