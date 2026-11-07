@@ -52,6 +52,7 @@ def test_three_site_prepare_finishes_with_the_plan_days(monkeypatch) -> None:
 
     monkeypatch.setattr(psycopg, "connect", lambda *a, **k: _Conn(db_now))
     monkeypatch.setattr(demo, "py", py)
+    monkeypatch.setattr(demo, "drain", lambda name="drain": demo.drains.__setitem__(name, 0.0) or {})  # DD-1b2b O2: tested on its own (test_dd1b2b_drain.py)
     monkeypatch.setattr(tool.shutil, "which", lambda name: None)  # no git: the copy branch, stubbed below
     monkeypatch.setattr(tool.shutil, "copytree", lambda *a, **k: None)
     monkeypatch.setattr(tool.shutil, "copy2", lambda *a, **k: None)

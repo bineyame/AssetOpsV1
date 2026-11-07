@@ -60,7 +60,8 @@ SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 #: Expected wall seconds per step; the cap is twice the sum of the selected steps. Kobo is
 #: `kobo_expected_seconds` (DEMO-SPARSE U3 measured about 105 s per Kobo run: 110 s per run + 60 s).
-EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90}
+#: DD1b2-R11 O18: `mill` is the measured 18.7 s; `drain` is drain-1 278.4 + drain-2 58.3 = 336.7 s, rounded up to 10 s.
+EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90, "mill": 20, "drain": 340}
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 #: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
 TARIFF_AFTER_INSTALL = timedelta(minutes=30)
@@ -277,6 +278,10 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> l
 
 
 class Demo:
+    step = ""  # DD1b2-R8 C2: the label of the last child started (the manifest's `failed_at`)
+    defer_drain = False  # DD1b2-R8 C1: inside `prepare` a drain failure is recorded and the prepare goes on
+    drain_failures: tuple = ()
+
     def __init__(self, db: str, work: str) -> None:
         if not DB_RE.fullmatch(db):
             raise SystemExit(f"Refused: --db {db!r} must match {DB_RE.pattern}")
@@ -289,6 +294,7 @@ class Demo:
         self.deadline: float | None = None
         self.started: list[int] = []
         self.holds_busy = False
+        self.drains: dict[str, float] = {}
 
     # ---- environment -------------------------------------------------------------------------------------------
     def env(self, *, keys: bool = False) -> dict[str, str]:
@@ -318,6 +324,7 @@ class Demo:
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
         name = label or argv[0].split("/")[-1].split("\\")[-1]
+        self.step = name
         log_path = logs / f"{len(list(logs.iterdir())):02d}-{re.sub(r'[^a-z0-9_.-]', '_', name.lower())[:40]}.log"
         with open(log_path, "w", encoding="utf-8") as log:
             proc = subprocess.Popen([str(PY), *argv], cwd=str(cwd or self.tree), env=self.serve_env() if serve_env else self.env(), stdout=log,
@@ -358,13 +365,15 @@ class Demo:
 
     # ---- prepare -----------------------------------------------------------------------------------------------
     def prepare(self, sites: tuple[str, ...] = SITES, finish: bool = True, days_file: str | None = None,
-                baseline: str = "b22") -> dict:
+                baseline: str = "b22", cap_seconds: int | None = None) -> dict:
         import psycopg
 
         days_path = Path(days_file).resolve() if days_file else sd.DEFAULT_FILE
         days_doc = sd.load(days_path)
         expected = {**EXPECTED_SECONDS, "kobo": kobo_expected_seconds(days_doc)}
-        cap = 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0))
+        # DD1b2-R6 O3: `--cap-seconds` replaces the 2x-sum cap (the whole-list rehearsal runs on 10800 s)
+        cap = (cap_seconds if cap_seconds is not None
+               else 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0)))
         self.deadline = time.monotonic() + cap
         began = time.monotonic()
         if (self.work / ".busy").exists():
@@ -432,37 +441,59 @@ class Demo:
         (self.work / "keys.json").write_text(json.dumps(keys), encoding="utf-8")
         say(f"  tree {self.tree} (code {story['code']}); S = {story['S']}; install order {story['install_order']}")
 
+        return self.build_and_record(story, days, finish, cap, began, time.monotonic() - began)
+
+    def build_and_record(self, story: dict, days: list[dict], finish: bool, cap: int, began: float,
+                         tree_seconds: float) -> dict:
+        """The Site children and the finish, with `manifest.json` written whatever happens (DD1b2-R8 C2): a failure
+        records `failed_at` (the last child's label) and the error, with the timings gathered so far."""
         timings: dict[str, float] = {}
-        for n, site in enumerate(story["sites"], start=2):
-            say(f"=== {n}. {SITE_CODE[site]} (installs {story['installs'][site]}) ===")
-            t0 = time.monotonic()
-            done = self.py(str(self.tree / "tools" / f"demo_combined_{site}.py"), "build", self.url, str(self.work),
-                           cwd=self.tree / "backend" / "tests", label=f"build-{site}")
-            timings[site] = round(time.monotonic() - t0, 1)
-            say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1] + f"  [{timings[site]} s]")
-        self.finish_build(story, days, finish, timings)
-        manifest = {"db": self.db, "S": story["S"], "code": story["code"], "sites": story["sites"],
-                    "timings_seconds": timings, "wall_seconds": round(time.monotonic() - began, 1),
-                    "wall_cap_seconds": cap}
-        for site in story["sites"]:
-            path = self.work / f"{site}.json"
-            manifest[site] = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
-        (self.work / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
+        steps: dict[str, float] = {}
+        self.defer_drain, self.drain_failures = True, ()  # DD1b2-R8 C1
+        error: str | None = None
+        try:
+            for n, site in enumerate(story["sites"], start=2):
+                say(f"=== {n}. {SITE_CODE[site]} (installs {story['installs'][site]}) ===")
+                t0 = time.monotonic()
+                done = self.py(str(self.tree / "tools" / f"demo_combined_{site}.py"), "build", self.url,
+                               str(self.work), cwd=self.tree / "backend" / "tests", label=f"build-{site}")
+                timings[site] = round(time.monotonic() - t0, 1)
+                say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1] + f"  [{timings[site]} s]")
+            self.finish_build(story, days, finish, timings, steps)
+        except BaseException as exc:  # recorded in the manifest (R8 C2), then re-raised
+            error = f"{type(exc).__name__}: {exc}"[:2000]
+            raise
+        finally:
+            steps.update(self.drains)
+            manifest = {"db": self.db, "S": story["S"], "code": story["code"], "sites": story["sites"],
+                        "timings_seconds": timings, "step_timings_seconds": steps,
+                        "tree_seconds": round(tree_seconds, 1), "wall_seconds": round(time.monotonic() - began, 1),
+                        "wall_cap_seconds": cap, "failed_at": self.step if error else None, "error": error}
+            for site in story["sites"]:
+                path = self.work / f"{site}.json"
+                manifest[site] = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+            (self.work / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
         say(f"Prepared in {manifest['wall_seconds']} s (cap {cap} s). Next: links, serve.")
         return manifest
 
-    def finish_build(self, story: dict, days: list[dict], finish: bool, timings: dict[str, float]) -> None:
+    def finish_build(self, story: dict, days: list[dict], finish: bool, timings: dict[str, float],
+                     steps: dict[str, float] | None = None) -> None:
         """What follows the Site children: the mill sequence on a three-Site prepare (DD1b2-R Q4), then the finish. A
-        one-Site or two-Site prepare keeps the plain finish: the mill step needs all three Sites' Action codes."""
+        one-Site or two-Site prepare keeps the plain finish: the mill step needs all three Sites' Action codes.
+        `steps` collects the DD1b2-R6 O3 timings (mini-depth, backfill, mill, drains, finish rows)."""
+        steps = steps if steps is not None else {}
         if not finish:
             return
         if set(story["sites"]) == set(SITES):
             t0 = time.monotonic()
-            self.after_children(story, days)
+            out = self.after_children(story, days)
             timings["after_children"] = round(time.monotonic() - t0, 1)
+            steps.update(out.get("timings_seconds", {}))
         t0 = time.monotonic()
-        self.finish({**story, "days": days})
+        self.finish({**story, "days": days}, steps)
         timings["finish"] = round(time.monotonic() - t0, 1)
+        steps.update(self.drains)
+        self.raise_deferred_drain()
 
     def after_children(self, story: dict, days: list[dict], stop_before_mill: bool = False) -> dict:
         """DD1b2-R Q4 steps 2 to 5, after every Site child: `drain_mini` (the study needs the renewable heads), backfill
@@ -477,7 +508,8 @@ class Demo:
             t0 = time.monotonic()
             done = self.py(*argv, label=name, **kw)
             out["timings_seconds"][name] = round(time.monotonic() - t0, 1)
-            say(f"  {name}: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200])
+            say(f"  {name}: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200]
+                + f"  [{out['timings_seconds'][name]} s]")
             return done
 
         t0 = time.monotonic()
@@ -490,10 +522,13 @@ class Demo:
               cwd=self.tree / "backend" / "tests")
         done = timed("backfill-bcd", "-m", "assetops_backend.chain.backfill", "--steps", "b,c,d")
         out["threads"] = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
+        self.drain("drain-1")  # DD1b2-R6 O2: the R8 drain after `b,c,d`
+        out["timings_seconds"]["drain-1"] = self.drains["drain-1"]
         (self.work / "after-children.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
         return out
 
-    def finish(self, story: dict) -> None:
+    def finish(self, story: dict, steps: dict[str, float] | None = None) -> None:
+        steps = steps if steps is not None else {}
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
         if set(story["sites"]) == set(SITES):
             lines = []
@@ -510,14 +545,20 @@ class Demo:
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
         if "kobo" in story["sites"]:
             self.drain_mini()
+        t0 = time.monotonic()
         self.tick(times=2)
+        steps["finish-ticks"] = round(time.monotonic() - t0, 1)
         if set(story["sites"]) == set(SITES):
+            self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
+            t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
                            cwd=self.tree / "backend" / "tests", label="self-check", check=False)
+            steps["finish-rows"] = round(time.monotonic() - t0, 1)
             tail = done.stdout.strip().splitlines()
-            say("  " + (tail or ["(no output)"])[-1])
+            say("  " + (tail or ["(no output)"])[-1] + f"  [{steps['finish-rows']} s]")
             if done.returncode != 0:
-                raise SystemExit(f"SELF-CHECK FAILED; see {self.work / 'check.json'}")
+                deferred = f" (and DRAIN FAILED (deferred): {list(self.drain_failures)})" if self.drain_failures else ""
+                raise SystemExit(f"SELF-CHECK FAILED; see {self.work / 'check.json'}{deferred}")
 
     def drain_mini(self, limit: int = 500) -> None:
         """WALK1-4 F2: the Kobo mini-depth jobs (roles-4 from commissioning) number in the hundreds and the tick's mini
@@ -542,6 +583,9 @@ class Demo:
         for _ in range(times):
             done = self.py(*TICK, "--no-prebuild", label="tick", check=False, serve_env=True)
             say("  tick: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        self.performance_and_prebuild()
+
+    def performance_and_prebuild(self) -> None:
         for site in ("KOBO-001",):
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
@@ -549,6 +593,75 @@ class Demo:
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+
+    # ---- the R8 drain (DD1b2-R6 O2, R7 Q1-Q4) -----------------------------------------------------------------
+    def counts(self) -> dict:
+        done = self.py(str(self.tree / "tools" / "demo_combined_drain.py"), "counts", label="drain-counts",
+                       cwd=self.tree / "backend" / "tests")
+        return json.loads([x for x in done.stdout.splitlines() if x.startswith("{")][-1])
+
+    def raise_deferred_drain(self) -> None:
+        """DD1b2-R8 C1: after the self-check, a deferred drain failure ends the prepare with a non-zero exit."""
+        if self.drain_failures:
+            self.step = "drain (deferred)"
+            raise SystemExit(f"DRAIN FAILED (deferred): {list(self.drain_failures)}")
+
+    def drain(self, name: str = "drain") -> dict:
+        """Tick (raw, no pre-build) until every count is 0: dirty rows, pending `snapshots` and `threads` events, Kobo
+        mini jobs still PENDING or LEASED, live opportunity jobs. N is read after the first tick, as the maximum over
+        Sites of ceil((dirty + snapshots pending) / 200) + 2. Past N the drain goes on while the counts move
+        (`over_n`); past 2N or on two flat ticks it fails with the counts. Performance and pre-build run once after.
+
+        DD1b2-R8 C1: a non-zero tick is recorded per Site (the `failure` triple) and does not stop the drain. Any
+        failure (a counts child that crashes or prints no JSON, a fail verdict) writes `<name>.json` with
+        `verdict: "fail"`. Inside `prepare` (`defer_drain`) the prepare then goes on and ends non-zero after the
+        self-check; elsewhere (`tick --until-drained`) the failure raises, so the presenter sees exit 1."""
+        import demo_combined_drain as dr
+
+        t0 = time.monotonic()
+        history: list[dict] = []
+        n, ticks, over_n, log, failure = None, 0, False, [], None
+        try:
+            history.append(self.counts())
+            say(f"  {name}: start " + json.dumps({k: {f: v[f] for f in dr.FIELDS} for k, v in history[0].items()}))
+            while True:
+                done = self.py(*TICK, "--no-prebuild", label=f"{name}-tick", check=False, serve_env=True)
+                ticks += 1
+                failed = dr.tick_failures(done.stdout) if done.returncode != 0 else None
+                history.append(self.counts())
+                n = dr.n_for(history[-1]) if n is None else n
+                verdict, reason = dr.step(history, ticks, n)
+                over_n = over_n or verdict == "over_n"
+                log.append({"tick": ticks, "counts": {k: {f: v[f] for f in dr.FIELDS} for k, v in history[-1].items()},
+                            "total": dr.total(history[-1]), "verdict": verdict,
+                            **({"tick_rc": done.returncode, "tick_failure": failed} if failed else {})})
+                say(f"  {name}: tick {ticks}/N={n}: total {dr.total(history[-1])} ({verdict})"
+                    + (f" [tick exited {done.returncode}: {json.dumps(failed)[:200]}]" if failed else ""))
+                if verdict == "fail":
+                    failure = f"{reason}; counts {json.dumps(history[-1])}"
+                    break
+                if verdict == "done":
+                    break
+        except SystemExit as exc:  # the counts child crashed (its own FAILED exit); the wall cap is not ours to absorb
+            if str(exc).startswith("WALL CAP"):
+                raise
+            failure = f"counts failed: {str(exc)[:600]}"
+        except (IndexError, ValueError, KeyError) as exc:  # the counts child printed no JSON line, or an odd one
+            failure = f"counts output unreadable: {type(exc).__name__}: {exc}"
+        self.drains[name] = round(time.monotonic() - t0, 1)
+        record = {"name": name, "verdict": "fail" if failure else "done", "reason": failure, "ticks": ticks, "N": n,
+                  "over_n": over_n, "seconds": self.drains[name], "start": history[0] if history else None,
+                  "end": history[-1] if history else None, "log": log}
+        (self.work / f"{name}.json").write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
+        if failure and not self.defer_drain:
+            raise SystemExit(f"DRAIN FAILED: {name}: {failure}")
+        self.performance_and_prebuild()
+        if failure:
+            self.drain_failures = (*self.drain_failures, f"{name}: {failure}")
+            say(f"  {name}: FAILED (deferred): {failure[:300]}")
+        else:
+            say(f"  {name}: drained in {ticks} ticks (N={n}, over_n={over_n}) [{self.drains[name]} s]")
+        return record
 
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
     def delivered_days(self, site_code: str) -> set[str]:
@@ -744,13 +857,17 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v3.json)")
     p.add_argument("--baseline", default="b22", choices=sorted(sd.BASELINE_FROM),
                    help="b16: the owner's fallback if the rehearsal measures the whole prepare over 3 h")
+    p.add_argument("--cap-seconds", type=int, default=None,
+                   help="wall cap for the whole prepare (default twice the expected sum; the rehearsal uses 10800)")
     lk = sub.add_parser("links")
     lk.add_argument("--web-port", type=int, default=WEB_PORT)
     s = sub.add_parser("serve")
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
-    sub.add_parser("tick")
-    ac = sub.add_parser("after-children", help="development only (DD1b2-R probe): the real after_children on a prepared work folder")
+    tk = sub.add_parser("tick")
+    tk.add_argument("--until-drained", action="store_true",
+                    help="DD1b2-R6 O2: raw ticks until the R8 counts are 0 (a live add: run this, then show the board)")
+    ac =sub.add_parser("after-children", help="development only (DD1b2-R probe): the real after_children on a prepared work folder")
     ac.add_argument("--cap-seconds", type=int, default=1800)
     ac.add_argument("--stop-before-mill", action="store_true", help="drain_mini and backfill step a only, then stop (clone here)")
     ad = sub.add_parser("add-day")
@@ -767,7 +884,8 @@ def main(argv: list[str] | None = None) -> None:
         if not set(sites) <= set(SITES):
             raise SystemExit(f"--sites must be a subset of {SITES}")
         try:
-            demo.prepare(sites, finish=not args.no_finish, days_file=args.days, baseline=args.baseline)
+            demo.prepare(sites, finish=not args.no_finish, days_file=args.days, baseline=args.baseline,
+                         cap_seconds=args.cap_seconds)
         finally:
             if demo.holds_busy:
                 (demo.work / ".busy").unlink(missing_ok=True)
@@ -779,7 +897,10 @@ def main(argv: list[str] | None = None) -> None:
         demo.add_day(args.site, args.kind, day=args.day, as_kind=args.as_kind, assess_now=args.assess_now)
     elif args.cmd == "tick":
         demo.story()
-        demo.tick()
+        if args.until_drained:
+            demo.drain("tick-until-drained")
+        else:
+            demo.tick()
     elif args.cmd == "after-children":
         demo.deadline = time.monotonic() + args.cap_seconds
         built = json.loads((demo.work / "days.json").read_text(encoding="utf-8"))

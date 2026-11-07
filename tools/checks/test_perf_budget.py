@@ -89,3 +89,52 @@ def test_report_mode_exits_zero_on_a_breach(monkeypatch, tmp_path: Path) -> None
 def test_a_breach_exits_one_without_report(monkeypatch, tmp_path: Path) -> None:
     _stub_measure(monkeypatch, "breach-cold.json")
     assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path)]) == 1
+
+
+# --- DD-1b2b O4 (DD1b2-R Q9, Q10): `--story` -----------------------------------------------------------------------
+
+_STORY = {"S": "2026-11-05T00:00:00Z"}
+_DAYS = [
+    {"site": "kobo", "kind": "normal", "start": "2026-11-05T00:00:00Z", "end": "2026-11-06T00:00:00Z"},
+    {"site": "cold", "kind": "failure", "start": "2026-11-05T16:00:00Z", "end": "2026-11-05T17:05:00Z"},
+    {"site": "ev", "kind": "fault", "start": "2026-11-05T08:00:00Z", "end": "2026-11-05T09:00:00Z"},
+]
+
+
+def _story_files(tmp_path: Path, days=_DAYS) -> Path:
+    (tmp_path / "story.json").write_text(json.dumps(_STORY), encoding="utf-8")
+    (tmp_path / "days.json").write_text(json.dumps({"days": days}), encoding="utf-8")
+    return tmp_path / "story.json"
+
+
+def test_story_urls_keep_every_route_key_and_move_to_the_story_days(tmp_path: Path) -> None:
+    urls = perf_budget.all_urls(_story_files(tmp_path))
+    assert set(urls) == set(perf_budget.all_urls())  # same keys: the budgets still match every route
+    assert urls["kobo_board_31oct"].endswith("date=2026-11-05")
+    assert "from=2026-11-05T16:00:00Z&to=2026-11-05T17:05:00Z" in urls["cold_board_failure_night"]
+    assert "from=2026-11-05T08:00:00Z&to=2026-11-05T09:00:00Z" in urls["ev_chain_27oct"]
+    assert "from=2026-10-30T00:00:00Z&to=2026-11-06T00:00:00Z" in urls["portfolio_week"]  # S-6 .. S+1
+    assert not any("2026-10-31" in u or "2026-10-27" in u for u in urls.values())  # non-vacuous: all moved
+
+
+def test_without_story_the_fixed_dates_are_unchanged() -> None:
+    urls = perf_budget.all_urls()
+    assert urls["kobo_chain_31oct"] == "/api/sites/KOBO-001/chain?date=2026-10-31"
+    assert perf_budget.WEEK in urls["summary_week"]
+
+
+def test_a_story_without_the_cold_failure_run_is_refused_not_defaulted(tmp_path: Path) -> None:
+    import pytest
+
+    story = _story_files(tmp_path, [d for d in _DAYS if d["kind"] != "failure"])
+    with pytest.raises(StopIteration):
+        perf_budget.all_urls(story)
+
+
+def test_main_passes_story_to_measure(monkeypatch, tmp_path: Path) -> None:
+    seen: dict = {}
+    rec = json.loads((perf_budget.FIXTURES / "breach-cold.json").read_text(encoding="utf-8"))["record"]
+    monkeypatch.setattr(perf_budget, "measure", lambda *a, **k: seen.update(args=a) or rec)
+    story = _story_files(tmp_path)
+    perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--story", str(story), "--report"])
+    assert seen["args"][-1] == story
