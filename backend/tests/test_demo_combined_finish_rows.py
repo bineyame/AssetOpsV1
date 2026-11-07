@@ -25,6 +25,14 @@ def test_drain_summary_passes_at_zero_and_fails_on_any_remaining_count() -> None
         rows.drain_summary({**rec, "end": {}})
 
 
+def test_a_drain_record_with_verdict_fail_fails_even_with_zero_counts() -> None:
+    rec = {"name": "drain-1", "ticks": 3, "N": 5, "over_n": False, "seconds": 9.0, "end": {"KOBO-001": ZERO},
+           "verdict": "done"}
+    assert rows.drain_summary(rec)["ticks"] == 3
+    with pytest.raises(AssertionError):
+        rows.drain_summary({**rec, "verdict": "fail", "reason": "counts failed"})
+
+
 def test_expected_threads_group_by_site_and_mechanism_in_episode_order() -> None:
     portfolio = [
         {"finding_id": "B", "site_code": "KOBO-001", "mechanism": "GEN", "episode_start": "2026-11-02"},
@@ -53,8 +61,9 @@ def test_coh17_is_allowed_only_on_kobo_and_only_when_the_mill_thread_recurs() ->
 
 def test_calendar_asserts_no_data_for_unbuilt_days_and_nothing_for_built_ones() -> None:
     built = {date(2026, 11, 1), date(2026, 11, 3)}
-    want = rows.calendar_expectations(date(2026, 11, 1), date(2026, 11, 4), built)
-    assert want == {"2026-11-01": None, "2026-11-02": "NO_DATA", "2026-11-03": None, "2026-11-04": "NO_DATA"}
+    want = rows.calendar_expectations(date(2026, 11, 1), date(2026, 11, 5), built)
+    assert want == {"2026-11-01": None, "2026-11-02": "NO_DATA", "2026-11-03": None, "2026-11-04": "NO_DATA",
+                    "2026-11-05": None}
 
 
 def _page(before="42.0", after="110.0", state="VERIFIED"):
@@ -96,9 +105,29 @@ def test_wk2c_fails_if_any_kw_or_money_shows() -> None:
 
 
 def test_board_faults() -> None:
-    assert rows.board_faults({"rows": [{"category": "A", "state": "ON_TRACK"}]}) == []
-    assert rows.board_faults({"rows": [{"category": "A", "state": "PARTIAL"}]}) == ["A: PARTIAL"]
-    assert rows.board_faults({"x": "PRODUCER_NOT_SETTLED", "rows": []}) == ["PRODUCER_NOT_SETTLED"]
+    ok = {"read_state": "AVAILABLE", "rows": [{"category": "A", "state": "ON_TRACK"}]}
+    assert rows.board_faults(ok) == []
+    # must-fail: a board whose producer read failed (R8 B1)
+    assert rows.board_faults({"read_state": "PARTIAL", "rows": []}) == ["read_state PARTIAL"]
+    assert rows.board_faults({"read_state": "PARTIAL", "failed": ["MINI"], "rows": []}) == [
+        "read_state PARTIAL (failed: ['MINI'])"]
+    assert rows.board_faults({"rows": []}) == ["read_state None"]
+    assert rows.board_faults({"read_state": "AVAILABLE", "x": "PRODUCER_NOT_SETTLED", "rows": []}) == [
+        "PRODUCER_NOT_SETTLED"]
+
+
+def test_ev_group_must_not_be_empty_and_unplaced_ids_are_returned() -> None:
+    with pytest.raises(AssertionError):
+        rows.require_ev_group([{"site_code": "KOBO-001"}])
+    rows.require_ev_group([{"site_code": "EV-LAB-001"}])
+    unplaced: list = []
+    rows.build_expected_threads({"days": [{"findings": ["K1"]}]}, {"days": []}, [], None, unplaced)
+    assert unplaced == [{"site_code": "KOBO-001", "finding_id": "k1"}]
+
+
+def test_calendar_does_not_assert_today() -> None:
+    want = rows.calendar_expectations(date(2026, 11, 1), date(2026, 11, 3), {date(2026, 11, 1)})
+    assert want == {"2026-11-01": None, "2026-11-02": "NO_DATA", "2026-11-03": None}
 
 
 def test_ex1_compare_flags_a_changed_assure_line_or_a_new_finding() -> None:

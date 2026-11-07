@@ -665,7 +665,9 @@ def _coh(ctx: Ctx):
     portfolio = [r for w in bundle.estate_windows() for r in cc._rows(bundle.get(f"portfolio.{w}"))]
     docs = lambda n: json.loads((ctx.work / n).read_text(encoding="utf-8"))  # noqa: E731
     mill = docs("mill.json") if (ctx.work / "mill.json").is_file() else None
-    threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill)
+    unplaced: list = []
+    threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill, unplaced)
+    ctx.cache["unplaced"] = unplaced
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     manifest["expected_threads"] = threads
     (out / "manifest.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
@@ -677,6 +679,7 @@ def f_coh(ctx: Ctx) -> dict:
     """R6 O4: `chain_coherence check` with no `--expect`. Any finding is a fault except COH-17 on the mill thread, and
     only if that thread recurs (Q7 entry, owner BL-07). ACT-002/003 "Action agreed" are in the generated threads."""
     cc, out, threads = _coh(ctx)
+    demo_rows.require_ev_group(threads)  # R8 B3(a): an empty EV group makes COH-10 vacuous for EV
     thread = _mill_thread(ctx)
     recurs = bool(thread) and any(e.get("state") == "RECURRED" for e in thread.get("events", []))
     report = cc.check(cc.Bundle(out))
@@ -684,7 +687,8 @@ def f_coh(ctx: Ctx) -> dict:
     assert not faults, [f"{f['rule']} {f.get('site_code')} {f.get('window')}: {f['detail']}"[:300] for f in faults[:8]]
     ctx.cache["coh"] = (out, threads)
     return {"threads": [{k: (len(v) if isinstance(v, list) else v) for k, v in t.items()} for t in threads],
-            "recurs": recurs, "allowed_coh17": allowed, "requests": report["bundle"]["request_count"]}
+            "recurs": recurs, "allowed_coh17": allowed, "requests": report["bundle"]["request_count"],
+            "unplaced": ctx.cache.get("unplaced", [])}  # R8 B3(b): ids on no Portfolio row, ruled by reviewer/Architect
 
 
 @row("F-COH3")

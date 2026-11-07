@@ -52,6 +52,21 @@ def step(history: list[dict], ticks: int, n: int) -> tuple[str, str]:
     return ("over_n", f"tick {ticks} is past N={n}; counts still moving") if ticks > n else ("continue", "")
 
 
+def tick_failures(output: str) -> dict:
+    """DD1b2-R8 C1: what a non-zero tick says, per Site. The tick prints one JSON report; each Site's `failure` triple
+    (stage, code, detail) is taken from it. If no JSON line parses, the last output line is kept, so the record is
+    never empty."""
+    lines = [x for x in output.splitlines() if x.startswith("{")]
+    try:
+        report = json.loads(lines[-1])
+        sites = {s.get("site_code") or str(s.get("site_id")): s.get("failure")
+                 for s in report.get("sites", []) if s.get("result") == "FAILED" or s.get("failure")}
+        return {"outcome": report.get("outcome"), "failure": report.get("failure"), "sites": sites}
+    except (IndexError, ValueError, AttributeError):
+        tail = output.strip().splitlines()
+        return {"unparsed": (tail[-1] if tail else "(no output)")[:300]}
+
+
 def counts(url: str) -> dict:
     """Per Site (by code): dirty rows, pending `snapshots` and `threads` events, Kobo-style mini jobs still PENDING or
     LEASED, and live opportunity jobs (PENDING or LEASED). Counted from the DB, not from the tick's report."""

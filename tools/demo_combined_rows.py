@@ -17,6 +17,7 @@ def drain_summary(record: dict) -> dict:
     """F-DRAIN: a drain record (`<work>/drain-N.json`) must end with every count 0 on every Site. Recounted here from
     the record's own `end` counts, not from its verdict. Reports `over_n`."""
     fields = ("dirty", "snapshots_pending", "threads_pending", "mini_deferred", "opportunity_live")
+    assert record.get("verdict", "done") != "fail", ("the drain failed (R8 C1)", record.get("name"), record.get("reason"))
     assert record.get("end"), ("drain record has no end counts", record.get("name"))
     left = {site: {f: int(c[f]) for f in fields if int(c[f])} for site, c in record["end"].items()}
     left = {s: v for s, v in left.items() if v}
@@ -25,7 +26,8 @@ def drain_summary(record: dict) -> dict:
             "seconds": record.get("seconds"), "sites": sorted(record["end"])}
 
 
-def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], mill: dict | None) -> list[dict]:
+def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], mill: dict | None,
+                           unplaced: list | None = None) -> list[dict]:
     """F-COH: the expected threads, generated from the build's own documents. A Finding id comes from `kobo.json` /
     `cold.json` (`days[].findings`, which is where the build recorded them); EV records none (`ev.json` has no
     `findings`), so EV's come from the served Portfolio rows of its Site (declared limit, packet). Findings are grouped
@@ -45,6 +47,8 @@ def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], m
         for fid in dict.fromkeys(ids):
             row = by_id.get(fid)
             if row is None:  # recorded by the build but on no Portfolio row of the windows read: not asserted
+                if unplaced is not None:  # R8 B3(b): returned so the packet lists each id
+                    unplaced.append({"site_code": site, "finding_id": fid})
                 continue
             groups.setdefault(row["mechanism"], []).append(fid)
         for mech, fids in sorted(groups.items()):
@@ -71,9 +75,10 @@ def local_days(first: date, today: date) -> list[date]:
 
 
 def calendar_expectations(first: date, today: date, built: set[date]) -> dict[str, str | None]:
-    """F-CAL (Q11): every local day from first evidence to today. A day with no built run is asserted NO_DATA (S-10,
-    S-4, S-2, and any day after the last built one up to today); a built day carries no asserted grade (None)."""
-    return {d.isoformat(): (None if d in built else "NO_DATA") for d in local_days(first, today)}
+    """F-CAL (Q11, R8 B2): every local day from first evidence to today. A day with no built run is asserted NO_DATA
+    only BEFORE the Site-local today (S-10, S-4, S-2, ...); today's open day may hold a PENDING row, so it is read and
+    recorded but not asserted. A built day carries no asserted grade (None)."""
+    return {d.isoformat(): (None if d in built or d >= today else "NO_DATA") for d in local_days(first, today)}
 
 
 def mill_page(page: dict) -> dict:
@@ -131,11 +136,21 @@ def wk2c(grow: dict, study: dict | None = None) -> dict:
 
 
 def board_faults(board: dict) -> list[str]:
-    """Every story board: no PRODUCER_NOT_SETTLED anywhere, no row in state PARTIAL."""
+    """Every story board (DD1b2-R8 B1): no PRODUCER_NOT_SETTLED anywhere, and the board's `read_state` must be
+    AVAILABLE (a PARTIAL `read_state` means a producer port failed; a row is never in state PARTIAL). The failed port
+    names are listed if the wire carries them."""
     import json
 
     bad = []
     if "PRODUCER_NOT_SETTLED" in json.dumps(board):
         bad.append("PRODUCER_NOT_SETTLED")
-    bad += [f"{r.get('category')}: PARTIAL" for r in board.get("rows", []) if r.get("state") == "PARTIAL"]
+    if board.get("read_state") != "AVAILABLE":
+        failed = board.get("failed")
+        bad.append(f"read_state {board.get('read_state')}" + (f" (failed: {failed})" if failed else ""))
     return bad
+
+
+def require_ev_group(threads: list[dict]) -> None:
+    """DD1b2-R8 B3(a): EV's expected threads come from the served Portfolio rows, so an empty EV group would make
+    COH-10 vacuous for EV. The fault Tuesday must yield at least one thread."""
+    assert any(t.get("site_code") == "EV-LAB-001" for t in threads), "no expected EV thread: the EV group is empty"
