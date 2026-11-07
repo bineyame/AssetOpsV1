@@ -8,8 +8,7 @@ the URL and opens no connection. Production composition never imports this modul
 from __future__ import annotations
 
 import re
-
-from sqlalchemy.engine import make_url
+from urllib.parse import unquote, urlsplit
 
 PREPARE_DATABASE = re.compile(r"^assetops_polish_.*$|^.*_test$")
 
@@ -20,7 +19,7 @@ class PrepareClockRefused(RuntimeError):
 
 def require_prepare_database(url: str | None) -> None:
     """Refuse a story clock unless the database is `assetops_polish_*` or `*_test`."""
-    database = None if not url else make_url(url).database
+    database = None if not url else (unquote(urlsplit(url).path).lstrip("/") or None)
     if database is None or PREPARE_DATABASE.match(database) is None:
         raise PrepareClockRefused(f"PREPARE_CLOCK_REFUSED: a story clock is not allowed on database {database!r}; "
                                   "it needs assetops_polish_* or *_test.")
