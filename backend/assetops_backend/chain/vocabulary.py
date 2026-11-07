@@ -293,6 +293,9 @@ NODE_TEXT = {
 }
 #: §A4: the earnings labels whose money is an estimate at a declared price (MA-1 M3 suffix).
 INCOME_LABELS = ("estimated_income", "estimated_charging_income")
+#: CH5d1-R 2.2: the Optimize card's small words per cost label (AG-24: modelled money is labelled). An unknown label
+#: is a KeyError (fail loud, never blank). MOCK DEVIATION MD-CH5d-1 (v70 `outcomes.js:190`, `pfCard` `cost`).
+COST_SMALL = {"possible_extra_fuel_cost": "possible extra fuel cost"}
 
 
 def node_text(key: str, **fields: Any) -> str:
@@ -515,6 +518,16 @@ CARD_TEXT = {
     "note.gap.some": "evidence gaps at {gaps} of {sites} sites",
     "note.gap.many": "evidence gaps at {gaps} sites",
     "days.site": "{site}: {line}",
+    # Optimize (CH5d1-R 2.2): each Site's cost claim, never summed across Sites (design A6, D-AW-5).
+    # MOCK DEVIATION MD-CH5d-1 (v70 `outcomes.js:190`, `pfCard` `cost`): the mock's detail ("Kobo generator time, 1
+    # trial in hand"), basis ("Modelled + scenario · one-hour window ...") and days line have no source behind this
+    # claim; we show the claim's amount with `COST_SMALL` words, these detail and basis words, and no days line.
+    "cost.detail.none": "No cost worked out yet at any site",
+    "cost.detail.one": "At {site} · not added across sites",
+    "cost.site": "{site}: {text} {small}",
+    "cost.sites": "Costs at {sites}",
+    "cost.basis.money": "Modelled from the stored record and the declared price · not a saving",
+    "cost.basis.none": "A cost needs a priced record",
 }
 
 

@@ -29,9 +29,9 @@ from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cu
 from assetops_backend.chain.read import board_day as local_board_day
 from assetops_backend.chain.claims import (SITES_DISRUPTED, VERIFIED_RESULTS, EstateCounts, estate_count_claims,
                                            opportunity_items)
-from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, INCOME_LABELS, NOT_KNOWN_TEXT, card_text,
-                                               count_card_value, days_line, estate_income, money_text, node_text,
-                                               sites_text)
+from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, COST_SMALL, INCOME_LABELS, NOT_KNOWN_TEXT,
+                                               card_text, count_card_value, days_line, estate_income, money_text,
+                                               node_text, sites_text)
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI,
     SITE_OUTCOMES)
@@ -687,6 +687,7 @@ def portfolio_parts(sites: list[dict[str, Any]]) -> tuple[dict[str, dict[str, An
 
 
 GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
+COST = "OPTIMIZE_COST"
 
 
 def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any]) -> str | None:
@@ -742,13 +743,45 @@ def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict
                       "income_note": note if lines and note != NOT_KNOWN_TEXT else None}}
 
 
+def _cost_claim(s: dict[str, Any]) -> dict[str, Any] | None:
+    """CH5d1-R 2.1: the Site's Optimize cost claim, its `OPTIMIZE_COST` row's `nodes.earnings` (None for a failed
+    board, whose row has no nodes)."""
+    row = next((r for r in s.get("rows") or () if r["category"] == COST), None) or {}
+    return (row.get("nodes") or {}).get("earnings")
+
+
+def _optimize_card(sites: list[dict[str, Any]]) -> dict[str, Any]:
+    """CH5d1-R 2.1: the Optimize card from each Site's chain cost claim (`avoided_cost@1` over `money_head`), the
+    claim the board shows, so the card and its "Why?" share one source. Never summed across Sites (design A6,
+    D-AW-5): one priced Site shows its claim text byte-equal; two or more list each Site's claim."""
+    priced = [(s, c) for s in sites if (c := _cost_claim(s)) is not None and c.get("value") is not None]
+    name = lambda s: s.get("site_name") or s["site_code"]   # noqa: E731
+    small = lambda c: COST_SMALL[c["key"].removeprefix("money.")]   # noqa: E731  (unknown label: KeyError)
+    claim = None
+    if not priced:
+        value, detail, basis, tone = ({"text": NOT_KNOWN_TEXT, "small": None}, card_text("cost.detail.none"),
+                                      card_text("cost.basis.none"), "neutral")
+    elif len(priced) == 1:
+        (s, claim), = priced
+        value = {"text": claim["text"], "small": small(claim)}
+        detail, basis, tone = card_text("cost.detail.one", site=name(s)), card_text("cost.basis.money"), "amber"
+    else:
+        value = {"text": card_text("cost.sites", sites=sites_text(len(priced))), "small": None}
+        detail = " · ".join(card_text("cost.site", site=name(s), text=c["text"], small=small(c)) for s, c in priced)
+        basis, tone = card_text("cost.basis.money"), "amber"
+    days = {s["site_code"]: c.get("days") for s, c in priced}
+    return {"value": value, "missing": False, "detail": detail, "basis_text": basis,
+            "days_line": _site_days([s for s, _ in priced], lambda s: days[s["site_code"]]),
+            "tone": tone, "claim": claim}
+
+
 def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, money_total: dict[str, Any],
                     categories: list[dict[str, Any]], objective_sites: int | None,
                     objectives_unread: int) -> dict[str, dict[str, Any]]:
-    """CH6b2-R Q1 (build sheet CH-6 §B2): the ONE builder of the Portfolio's Grow, Protect and Assure cards, called
-    by the summary and carried by `/api/estate/chain`, so they agree by construction. Each card is `{value: {text,
-    small}, missing, detail, basis_text, days_line, tone, claim, parts?}`; the browser renders markup only. Optimize
-    stays on its CH-5c money line (no days line, CH6b2-R Q3). The Portfolio-body clauses are its `card_notes`."""
+    """CH6b2-R Q1 (build sheet CH-6 §B2): the ONE builder of the Portfolio's four cards (Grow, Optimize, Protect,
+    Assure), called by the summary and carried by `/api/estate/chain`, so they agree by construction. Each card is
+    `{value: {text, small}, missing, detail, basis_text, days_line, tone, claim, parts?}`; the browser renders markup
+    only. Optimize is each Site's chain cost claim (CH5d1-R 2.1). The Portfolio-body clauses are its `card_notes`."""
     claims = {} if counted is None else counted.claims_json()
     days = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
     site_days = _site_days(sites, days)
@@ -770,6 +803,7 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
         assure_detail = card_text("assure.targets", sites=sites_text(n), unchecked=unchecked)
     return {
         GROW: _grow_card(sites, money_total),
+        COST: _optimize_card(sites),
         PROTECT: {"value": count_card_value(disrupted), "missing": False,
                   "detail": card_text("protect.detail.none") if w is None
                   else card_text("protect.detail", w=w, warnings="warning" if w == 1 else "warnings"),

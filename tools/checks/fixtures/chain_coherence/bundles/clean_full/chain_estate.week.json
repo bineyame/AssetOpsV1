@@ -42,6 +42,13 @@
     "income": "GreenHarvest Cold Room: 10.00 USD over checked days \u00b7 Kobo mini-grid: 84.16 USD over checked days"
    }
   },
+  "OPTIMIZE_COST": {
+   "claim": null,
+   "value": {
+    "small": null,
+    "text": "Not known yet"
+   }
+  },
   "PROTECT_ASSET": {
    "days_line": "Kobo mini-grid: 3 of 7 days checked",
    "claim": {
