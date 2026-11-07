@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tools" / "checks"))
 
 CAP_SECONDS = 20 * 60
-MAX_TICKS = 3
+MAX_TICKS = 1   # DD1b1-R2 §5: one tick (0 thread events are proved; DD-1b2 repeats it on the whole build)
 COLD, EV = "COLD-LAB-001", "EV-LAB-001"
 
 
@@ -128,6 +128,56 @@ def judge(doc: dict, data: dict, pairs: list, coh3: list, received: dict, cold_d
     return checks
 
 
+def _board_view(body) -> dict:
+    rows = (body or {}).get("rows") or []
+    return {"issues": [i.get("text") for r in rows for i in r.get("issues") or []],
+            "in_hand": [(i.get("text"), i.get("state_label")) for r in rows for i in r.get("in_hand") or []],
+            "protect": [r.get("state") for r in rows if r.get("category") == "PROTECT_ASSET"],
+            "window": (body or {}).get("window")}
+
+
+def extra_reads(cc, client, picked: list, bundle, boards: dict) -> dict:
+    """DD1b1-R2 §3: Cold over the UTC day (the collected board), the event window and the local day, on one DB; EV over
+    the UTC day and the event window."""
+    out: dict = {}
+    for d in cc.day_windows(picked):
+        code, start = d["site_code"], next(r for r in picked if r["site"] == ("cold" if d["site_code"] == COLD else "ev"))
+        reads = {"utc_day": {"from": d["from"], "to": d["to"]},
+                 "event_window": {"from": start["start"], "to": start["end"]}}
+        if code == COLD:
+            local = cc.at(start["start"]).astimezone(__import__("zoneinfo").ZoneInfo("Africa/Addis_Ababa"))
+            lo = cc._midnight(local).astimezone(__import__("datetime").timezone.utc)
+            reads["local_day"] = {"from": cc.iso(lo), "to": cc.iso(lo + timedelta(days=1))}
+        out[code] = {}
+        for name, params in reads.items():
+            status, body = client.get(f"/api/sites/{code}/outcome-board", params)
+            out[code][name] = {"status": status, **_board_view(body if status == 200 else None), "params": params}
+        status, chain = client.get(f"/api/sites/{code}/chain", {"from": d["from"], "to": d["to"]})
+        out[code]["chain_has_action_agreed"] = status == 200 and "Action agreed" in json.dumps(chain)
+    return out
+
+
+def judge_r2(doc: dict, bundle, extra: dict, data: dict) -> dict:
+    checks: dict[str, bool] = {}
+    for code, site in ((COLD, "cold"), (EV, "ev")):
+        e = extra.get(code) or {}
+        day, event = e.get("utc_day") or {}, e.get("event_window") or {}
+        checks[f"r2.{site}.utc_day.finding_in_issues"] = bool(day.get("issues"))
+        checks[f"r2.{site}.utc_day.in_hand_open_no_suffix"] = bool(day.get("in_hand")) and all(
+            label == "Open" for _, label in day["in_hand"])
+        checks[f"r2.{site}.chain_action_agreed"] = bool(e.get("chain_has_action_agreed"))
+        checks[f"r2.{site}.event_window.finding_shown"] = bool(event.get("issues"))
+        checks[f"r2.{site}.event_window.action_not_listed"] = not event.get("in_hand")
+    checks["r2.cold.utc_day.protect_needs_attention"] = (extra.get(COLD, {}).get("utc_day", {}).get("protect")
+                                                         == ["NEEDS_ATTENTION"])
+    checks["r2.objectives_instants.three_sites"] = sorted(doc["objectives_instants"]) == [
+        "COLD-LAB-001", "EV-LAB-001", "KOBO-001"]
+    checks["r2.declare.cold_ev_inserted"] = all(
+        any(x.get("site_code") == c and not x.get("refused") and not x.get("skipped") for x in doc["declare"][c])
+        for c in (COLD, EV))
+    return checks
+
+
 def run(work: Path, doc: dict, deadline: float) -> dict:
     import demo_combined as dc
     import demo_story_days as sd
@@ -155,6 +205,8 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
         db_now = c.execute(text("SELECT clock_timestamp()")).scalar_one()
     story = dc.resolve_story(db_now, days_doc=sd.load())
     rows = story.pop("days")
+    instants = dc.objectives_instants({**story, "days": rows})   # DD1b1-R2 §5: all three Sites on real v3, no prepare
+    doc["objectives_instants"] = {k: dc.iso(v) for k, v in instants.items()}
     picked = [r for r in rows if (r["site"], r["kind"]) in (("cold", "failure"), ("ev", "fault"))]
     if sorted(r["site"] for r in picked) != ["cold", "ev"]:
         raise Stop(f"expected one Cold failure and one EV fault day: {picked}")
@@ -192,6 +244,14 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
     pairs = list(cc.coh3_pairs(bundle))
     coh3 = cc.coh3_action_on_board(bundle)
     boards = {b.get("site_code"): b for b in (bundle.get(f"board.{d}") for d in bundle.day_windows()) if b}
+    extra = extra_reads(cc, app_client(url, work), picked, bundle, boards)
+    doc["extra"] = extra
+    doc["declare"] = {}
+    for code, instant in instants.items():
+        out = child([str(ROOT / "tools" / "demo_declare_objectives.py"), url,
+                     str(ROOT / "backend" / "conversions" / "demo-objectives.json"), code, dc.iso(instant)], env,
+                    work / f"objectives-{code}.log", deadline)
+        doc["declare"][code] = [json.loads(x) for x in out.splitlines() if x.startswith("{")]
     data = stored(engine)
     cold_doc = json.loads((work / "cold.json").read_text(encoding="utf-8"))
     doc["coh3_pairs"] = pairs
@@ -203,6 +263,7 @@ def run(work: Path, doc: dict, deadline: float) -> dict:
                      for code, b in boards.items()}
     doc["cold_blocked"] = [d.get("blocked") for d in cold_doc["days"]]
     doc["checks"] = judge(doc, data, pairs, coh3, received, cold_doc, boards, step_d, tick_events)
+    doc["checks"].update(judge_r2(doc, bundle, extra, data))
     engine.dispose()
     return doc
 
