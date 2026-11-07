@@ -1141,3 +1141,65 @@ From `frontend`: `npx tsc --noEmit`, then `npx vitest related --run src/estate/E
 
 - **BL-26 restated:** a window containing no occurrence of the thread (for example 1 Nov alone) reads "None confirmed", while the board's work-window count reads "1 verified result". **The week and month story links now agree, and L2 and L3 guard it.**
 - **DS-1:** the Portfolio stays on the week and month story links, for this reason only. The presenter says: "these are the problems found this week, and where they stand today."
+
+## CH6b3-R4: the four L3m findings, the template and the Why run (Architect, Claude, 2026-11-07)
+
+Input: packet "CH6b3-R3 final runs" at `b705917e3`, `var/ch6b3r3_l3m_report.json`, `var/ch6b3r3_l3m_bundle`. **CH-6b3: 2.1 → 2.2.** No owner question. **No third template rebuild** (section 3). Fresh Sonnet builder: read sections 1-3, then do steps A-C in order. Stop rule stands: any other finding means stop and report.
+
+### 1. L3 on week and month: it is the D14 recurrence, not H1 (expected entries, as proof only)
+
+**Confirmed from the bundle.** `chain_day.KOBO-001.2026-11-01.json`: thread `3f4db97f` is RECURRED since 2026-11-01 with occurrences 22 Oct, 29 Oct, 1 Nov (D4, D11, D14; `test_md0_mechanism_postgres.py:242`). 1 Nov is D14 (`backend/tests/mechanism_dataset.py:98`).
+- Week: the 29 Oct row is segment 1, "Verified". The claim reads the latest state, RECURRED: `open` 1, `verified` 0.
+- Month: two segment 1 rows read "Verified", and the segment 2 row reads "No action agreed yet". Same claim.
+- Both sides are true: that fix was verified, and the problem then came back. Polish has no recurrence (L3 = 0 there), and the demo does not present one (BL-07).
+
+**Exact entries.** In `tools/checks/fixtures/chain_coherence/expected-mechanism.json`, `"expectations"` becomes:
+```json
+[
+ {"rule": "COH-17", "site_code": null, "window": "week", "subject": "L3", "variants": ["states"],
+  "reason": "D14 recurrence: an older row reads Verified, the thread now reads RECURRED (CH6b3-R4)", "owner": "BL-07"},
+ {"rule": "COH-17", "site_code": null, "window": "month", "subject": "L3", "variants": ["states"],
+  "reason": "D14 recurrence: an older row reads Verified, the thread now reads RECURRED (CH6b3-R4)", "owner": "BL-07"}
+]
+```
+
+### 2. N1: one more branch, and one browser twin (demo-critical: same word, same page)
+
+**Replacement.** `backend/assetops_backend/chain/vocabulary.py:512`: `"note.gap.zero_checked": "no evidence gaps on the days assessed"`. Keep the key. The evidence-gap count follows coverage (`estate/portfolio.py` `evidence_known`), so "assessed" is the true word under CH6b3-R3 M1.
+
+**Why polish gave 0 findings.** This branch needs gaps = 0 on a CHECKED_DAYS estate. Polish has gaps 1 on week and month and null on S, so the sentence never appears there, and N1 only tests what the data reaches. The combined build could reach it, so it is fixed regardless.
+
+**What else escapes that way:**
+- **Notes:** nothing else. `card_notes` is built only from the recovered value and `evidence_gap_text`, and `note.gap.zero_checked` is the only branch holding the phrase. New L0 in `test_ch6b2_portfolio_cards.py`: for gaps in (None, 0, 1, 2, 4, 6) and both `checked` values, the text holds no "days checked". Update `:237` to the new text.
+- **The browser twin:** `frontend/src/estate/EstatePortfolio.tsx:102` `NONE_ON_CHECKED_DAYS`, used only by the evidence-gap pulse (`:803`), says the same thing on the same branch, and N1 cannot see it. Change its value to `"None found on the days assessed"`; update any literal in `estatePortfolio.test.tsx`.
+- **Left alone, on purpose:** the count claims' "on the days checked" forms and `OPPORTUNITY_NONE_DETAIL`. They follow the graded basis, which is what "checked" now means. On polish, with 0 COMPLETE days, "None found on the days checked" is thin but not false, and DD-1's full days change that. For the walkthrough.
+
+**Register:** no new row. In `.agent/mock-departure-register.md` **R670**, replace `Assure "no evidence gaps on the days checked"` with the new text and name the pulse's new text. Both spots already sit under R670.
+
+### 3. No third rebuild: the proof does not need one
+
+Read from code and the template's own tag:
+- The fingerprint covers the data trees (`backend/conversions`, `backend/migrations`, `backend/tests/fixtures`, `config/site-templates`, `contracts`) and every repo module the build loaded, **with `chain/**` excluded** (`DERIVE_TREE`, `backend/tests/mechanism_dataset.py:1056`, `:1071`).
+- `chain/vocabulary.py` is therefore **not an input**. Nor are `frontend/`, `tools/checks/`, `.agent/`, or a `backend/tests/*.py` test file the build does not load. The tag on `assetops_mechanism_tpl_abc64763_test` holds 367 modules, including `estate/*` and `chain_api.py`. The last stale fits the `estate/` and `chain_api.py` edits in `c60bd8c07`.
+- **Condition:** this round edits only the files named here. An edit under `backend/assetops_backend/` outside `chain/` makes the template stale; if you think you need one, stop and report.
+- The template stays valid, so the rerun below is the normal procedure on the same data, not a shortcut. Merging this text to main does not stale the template either.
+
+### Step A: edit and confirm
+
+Sections 1 and 2 only. Then `python tools/mechanism_dataset.py status` must print `usable: true` for `states`. If not, stop and report; do not build.
+
+### Step B: runs
+
+1. L0: `tools/checks/test_chain_coherence.py`, `backend/tests/test_ch6b2_portfolio_cards.py`, `backend/tests/test_w303_portfolio_api.py`.
+2. Frontend, with the junction and commands from CH6b3-R3 step 5: `npx tsc --noEmit`, `npx vitest related --run src/estate/EstatePortfolio.tsx`.
+3. L3m: `derive --variant states` (about 72 s), collect (about 436 s), `check --variant states --threads var/mechanism/expected-threads.json`. **Expected: 0 unexpected;** the two L3 entries matched; N1 = 0; W3, L2 and COH-18 still 0; no RESOLVED entry.
+4. **Not re-run, with the reason in the packet:** L2m and the polish clone. Only one text value, one browser constant and an expectation file changed. No read path or number moved, and polish never reaches this branch.
+5. Guards V and M, one at a time.
+
+### Step C: packet
+
+Add "CH6b3-R4 run": the fingerprint unchanged at `abc64763`, the L3m result, the two entries with their cause, the N1 text old → new, and the reason for each run not repeated. No further Architect round unless the stop rule fires; the coordinator chooses whether a short fresh look at this small diff is needed.
+
+### The named Why run: accepted, nothing owed
+
+`test_ch5b_why_postgres.py` passed and covers the Site route. The estate month Why is proved on real data: W3 compares `days_used` with the card on each window and category in the bundle, in L3m (9 pairs, no "32", "Checking 21 more days") and in `var/ch6b3r3_bundle` (12 pairs). The in-memory M2 route test stays, as the re-review's Low accepted. The packet says this in place of the re-review's named run.
