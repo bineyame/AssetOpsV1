@@ -172,8 +172,10 @@ class TestShippedCatalog:
         # Three since T024: the Kobo archetype with three addressed loads,
         # the electrical properties the daytime model needs, and typed Site
         # Controls.
+        # Four since DIESEL-1 K1: the Kisiwa diesel-hybrid island archetype.
         assert [t.template_id for t in templates] == [
             "hybrid-mini-grid-100kw",
+            "kisiwa-diesel-hybrid-60kw",
             "kobo-mini-grid-60kw",
             "twin-tank-mini-grid-150kw",
         ]

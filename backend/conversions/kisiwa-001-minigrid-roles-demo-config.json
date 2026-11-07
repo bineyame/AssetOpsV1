@@ -1,0 +1,30 @@
+{
+  "schema": {"id": "assetops.demo-configuration", "version": 1},
+  "status": "SIMULATED DEMO CONFIGURATION - DIESEL-1-R3c (K1). Not operator-entered Site truth.",
+  "label": "kisiwa-minigrid-roles-4-demo-config-v1",
+  "site_code": "KISIWA-001",
+  "component_properties": {
+    "effective_from": "2026-09-29T09:57:00Z",
+    "asset_code": "fuel-tank",
+    "note": "Generic level-sensor accuracy, about 1 % of a 1000 L tank; not this sensor's calibration.",
+    "properties": [
+      {"property_key": "fuel-level-sensor-accuracy", "value": 10, "unit": "L", "source": "SITE", "source_version": 1},
+      {"property_key": "fuel-level-sensor-accuracy-basis", "value": "GENERIC_DEFAULT", "unit": "state", "source": "SITE", "source_version": 1}
+    ]
+  },
+  "bindings": {
+    "effective_from": "2026-09-29T09:57:00Z",
+    "role_set": "minigrid-roles-4",
+    "note": "DIESEL-1-R3c K1 simulated demo configuration (kisiwa-minigrid-roles-4-demo-config-v1): every binding converted at import carried unchanged (12 rows, minigrid-roles-2), plus the cold store's (load-clinic, first in critical-load-priority) simulated requested and delivered power and the battery converter's charge request (registered-kobo-publication v5, mini-grid v7).",
+    "declare_signals": [
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "display_name": "Cold store requested power (simulated critical load)", "unit": "kW"},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "display_name": "Cold store delivered power (simulated critical load)", "unit": "kW"},
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "display_name": "Battery charge requested power (simulated)", "unit": "kW"}
+    ],
+    "add": [
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "asset_code": "load-clinic", "role": "critical_load_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "asset_code": "load-clinic", "role": "critical_load_delivered_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "asset_code": "battery", "role": "storage_charge_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}}
+    ]
+  }
+}
