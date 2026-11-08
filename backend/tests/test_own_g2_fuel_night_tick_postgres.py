@@ -10,6 +10,8 @@ latest local 15:00 at or before DB now - 15 min and 1, 2 and 9 days before it; e
 accepted with the decision clock at DB now - 10 min. Night N2 is assessed and raised through the CLI at a virtual
 instant before the ticks (P6). The tick's other stages run in process; `fuel_night` runs as a real `StageRunner`
 child on the database's own clock.
+
+Measured: 5 passed in 989 s (16.5 min), one process, file order, `-s`, no `-k`/`-n` (R3.2).
 """
 
 from __future__ import annotations

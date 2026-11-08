@@ -39,7 +39,7 @@ drift (cf. branch `task/FIX-clock-dependent-power-fixture`). A baseline on the p
 `git worktree add` into the scratchpad failed (path length), so "pre-existing" is unverified. `test_w402_mini_stage_postgres.py`
 (the `:147` pin) passed.
 
-## Known deviations / stops
+## Known deviations / stops (1-2 resolved by R3.1/R3.2/R3.7; 3-4 accepted by R3.3 except item 4, replaced by R3.7)
 
 1. **STOP: the ruled Postgres fixture cannot meet the 10-minute cap.** R2 Q5 requires K1's path (a real gateway and
    S2 ingestion). One Kisiwa 15:00-15:00 run stages 1828 batches / 3659 envelopes. The first attempt ran 750 s and was
@@ -64,33 +64,33 @@ drift (cf. branch `task/FIX-clock-dependent-power-fixture`). A baseline on the p
 
 ## Residual risk
 
-- P1-P7 are unproven on Postgres. `schedule_inputs` and the stage child have only been exercised through fakes.
 - KIS-11 was not run on a real build: no demo prepare, as instructed.
 
-## Phase 3 (R3 proof run, 2026-11-08) — Postgres file: 4 passed, 1 FAILED (Q1)
+## Phase 3 (R3 / R3.7 proof run, 2026-11-09)
 
-- Main merged (G3a in), clean. Marker `pytest.mark.slow` added (commit `60ab27462`).
-- No-DB set after the merge: 160 passed (3 G2 files, ch0 tick timing, `test_ch1b_drain.py` run, passed, no edit needed;
-  cold_drain_stage, w402/w403 stage, finish rows) + 43 passed (k3, k4a rules).
-- `test_own_g2_fuel_night_tick_postgres.py`, one process, file order, `-s`, own DB: run 1 = 4 failed, 1 passed, 1133 s;
-  after two test-code fixes, run 2 = **1 failed, 4 passed, 1172 s (19.5 min)**.
-- Test-code fixes (no change to what is proved): (a) FUEL_DELIVERY records now carry a ticket digest
-  (`WORK_RECORD_TICKET_REQUIRED` in P4b/P4c/P5); (b) `record_ids` is returned as a list of lists, flattened by `_ids()`
-  (P4a/P5).
-- Passing: P1/P2/P3/P6/P7 (`test_p1_p2_p3_p6_p7_two_ticks`), P4a, P4b/c, P5. G2 print lines: tick 1 fuel_night
-  `eligible True, processed 3, appended 2, reused 1, raised NO_FINDING 3`; P3 Kobo `eligible True, nights [], processed 0`;
-  P4a `APPENDED rev 2 WITHIN_MARGIN, limitation DIP_SENSOR_CONFLICT`; P4b `85 L, APPENDED OPENED, UNEXPLAINED`; P4c
-  `APPENDED WITHDRAWN rev 3 WITHIN_MARGIN`; P5 `records 3, night 2026-10-29 APPENDED rev 2`.
-- **FAILING: `test_q1_bucket_edges_and_q12_a_site_without_fuel_assets`** at `:216`. The Kisiwa fuel_level readings
-  (376 over 4 runs, about 94 a day, so a 15-minute cadence) are at 17:30 and 12:30 but NOT at 17:25 / 12:25
-  (`G2 Q1 edge readings 376 ['12:30', '17:30']`). R3.3 item 4 assumed real 5-minute readings and says to keep the
-  assert that all four edge times are present; the data cannot satisfy it. Not edited: it changes what is proved.
-  Ruling needed (e.g. assert the real edge readings 17:30 in / 12:30 out, and use 17:15 / 12:15 or night_of on
-  synthetic 17:25 / 12:25 for the outside neighbours).
+- Main merged (G3a, R3.7 doc commits), clean. `pytest.mark.slow` added (R3.2).
+- No-DB set (all 203): 160 + 43 -> **203 passed in 7.5 s** after the product change (3 G2 files, ch0 tick timing,
+  `test_ch1b_drain.py` (run, passed, no edit needed), cold_drain_stage, w402/w403 stage, finish rows, k3, k4a).
+- **`test_own_g2_fuel_night_tick_postgres.py`: 5 passed in 989 s (16.5 min)**, one process, file order, `-s`, no
+  `-k`/`-n`, own `*_test` DB. Earlier runs: 4 failed/1 passed (1133 s), 1 failed/4 passed (1172 s).
+- **D-R3.7 (PRODUCT change, R3.7):** the night bucket is closed, `[17:30, 12:30]`. `scheduled.night_of` uses
+  `<= end`; the SQL `CASE` is the module constant `NIGHT_BUCKET_SQL` in `postgres_fuel_balance_store.py`, used by
+  `schedule_inputs`, ending `<= :ne`. Reason: the assessment reads `[start-30, end+30]` closed and can pick a 12:30
+  reading as the closing reading, so a late 12:30 reading must trigger the re-check. No-DB due test edges updated
+  (12:30 in, 12:30:01 out, 17:29:59 out, 11:30:01 out).
+- Q1 rewritten per R3.7 (a) every real reading SQL == `night_of`, incl. 17:30/12:30 (Kisiwa cadence is 15 min:
+  376 readings, minutes [0, 15, 30, 45]); (b) 11 synthetic times through Postgres; (c) store `reading_nights` and
+  trigger times. Q12 unchanged.
+- Test-code fixes accepted by R3.7: delivery ticket digest; `_ids()` flattening of `record_ids`.
+- G2 print lines: tick 1 `eligible True, processed 3, appended 2, reused 1, raised NO_FINDING 3`; P3 Kobo
+  `eligible True, nights [], processed 0`; P4a `APPENDED rev 2 WITHIN_MARGIN, DIP_SENSOR_CONFLICT`; P4b `85 L,
+  APPENDED OPENED, UNEXPLAINED`; P4c `APPENDED WITHDRAWN rev 3 WITHIN_MARGIN`; P5 `records 3, night 2026-10-29
+  APPENDED rev 2`; Q1 `readings 376 minutes [0,15,30,45] edges ['12:30','17:30']`, reading nights = N0, N1, N2, N9.
 - `test_w402_mini_stage_postgres.py` + `test_fix_cold_drain_tick_postgres.py::test_p4_...unchanged_apart_from_four_zero_count_keys`:
-  4 passed, 201.9 s.
-- Module docstring runtime not yet added (run is not a clean pass).
+  4 passed in 201.9 s (run before D-R3.7, which does not touch the stage, tick or limits files).
+- `test_fix_cold_drain_tick_postgres.py` p1-p3: pre-existing replay-fixture family (R3.4), tracked to E2; the
+  confirming run on main is the reviewer's.
 
 ## User review
 
-Not required by itself. The cap/fixture ruling in Deviation 1 is needed before review can close G2.
+Not required by itself. D-R3.7 is logged for owner review (R3.7).
