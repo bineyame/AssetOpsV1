@@ -5,8 +5,11 @@ import { AppHeader, NavRail, type NavRailItem } from "../ui";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
 
-/** POLISH §6 D-1 (R651): the one quiet, app-wide note that this build shows example Sites and records. */
-export const DEMONSTRATION_BANNER = "Demonstration · example sites and records prepared for this walkthrough";
+/**
+ * POLISH §6 D-1 (R651): the one quiet, app-wide note that this build shows example Sites and records. OWN-G3b (R2-G3b
+ * 16): "prepared for this walkthrough" dropped (client-facing wording).
+ */
+export const DEMONSTRATION_BANNER = "Demonstration · example sites and records";
 
 /**
  * Operator navigation layout.

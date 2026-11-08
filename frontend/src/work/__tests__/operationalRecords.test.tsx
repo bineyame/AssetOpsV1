@@ -326,42 +326,44 @@ describe("W6-01e E2: global Operational records", () => {
     expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
     expect(document.body.textContent).not.toMatch(/Accepted|In review ·|Requested ·/);
 
-    // P-E2-5: the inert mock form; only the two authorized fixture Site names.
+    // OWN-G3b (§3.3): the live form; with no covered Site in the response, one placeholder and Submit disabled.
     const form = panelTitled("Record a manual reading");
-    expect(text(form.querySelector(".panel__description"))).toBe("Manual readings cannot be submitted from this page.");
+    expect(text(form.querySelector(".panel__description"))).toBe("Saved records are listed above as Submitted.");
     expect(form.querySelectorAll(".input-row")).toHaveLength(2);
-    expect(Array.from(form.querySelectorAll("label.field")).map((l) => l.firstChild?.textContent?.trim())).toEqual([
+    expect(Array.from(form.querySelectorAll(".field > label")).map(text)).toEqual([
       "Site",
       "Reading",
       "Value",
-      "Taken at",
+      "Taken at (Site local time)",
     ]);
     const [site, reading] = Array.from(form.querySelectorAll("select"));
     // Post-W6 W6 Q17 (R362): no mock Site; with no covered Site in the response, one empty placeholder.
     expect(Array.from(site.querySelectorAll("option")).map(text)).toEqual(["No Site selected"]);
-    expect(Array.from(reading.querySelectorAll("option")).map(text)).toEqual(["Fuel tank dip", "Stock in chamber", "Meter reading"]);
-    expect((form.querySelectorAll("input")[0] as HTMLInputElement).placeholder).toBe("e.g. 192 L");
-    expect((form.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("");
-    expect((form.querySelectorAll("input")[1] as HTMLInputElement).placeholder).toBe("Event time");
+    expect(Array.from(reading.querySelectorAll("option")).map(text)).toEqual([
+      "Fuel tank dip",
+      "Fuel delivery",
+      "Stock in chamber",
+      "Meter reading",
+    ]);
+    expect((form.querySelector("[data-global-work-form-value]") as HTMLInputElement).placeholder).toBe("e.g. 192 L");
+    expect((form.querySelector("[data-global-work-form-time]") as HTMLInputElement).value).toBe("");
     expect(text(form.querySelector('[data-mock-deviation="R362"]'))).toBe("MOCK DEVIATION D4 (R362)");
-    for (const control of Array.from(form.querySelectorAll("select, input, button"))) {
-      expect(control).toBeDisabled();
-    }
     const submit = form.querySelector(".form-footer button") as HTMLButtonElement;
-    expect(text(submit)).toBe("Submit for review · Not available yet");
-    expect(submit.querySelector("[data-link-unavailable='Submit for review']")).not.toBeNull();
-    expect(text(form.querySelector("[data-global-work-form-reason]"))).toBe("Recording requires an authorized work service.");
+    expect(text(submit)).toBe("Submit for review");
+    expect(submit).toBeDisabled();
+    expect(form.querySelector("[data-link-unavailable]")).toBeNull();
     expect(form.textContent).not.toContain("REC-307");
     expect(form.textContent).not.toContain("Depot");
     fireEvent.click(submit);
     expect(reads.calls).toHaveLength(1);
 
-    // P-E2-6: two paragraphs, bold Operator record.
+    // P-E2-6: two paragraphs, bold Operator record; OWN-G3b adds a third (R2-G3b 9).
     const prose = panelTitled("How records are used").querySelector(".prose") as HTMLElement;
     const paragraphs = Array.from(prose.querySelectorAll("p")).map(text);
     expect(paragraphs).toEqual([
       "Authored records are kept apart from measured readings. This page shows them as Operator record; none is accepted equipment evidence.",
       "A reading that has not been taken remains a visible gap; this page has no request list to count it.",
+      "Fuel tank dips and fuel deliveries are read by the nightly fuel check. Stock and meter readings are stored and listed; no check reads them yet.",
     ]);
     expect(text(prose.querySelector("p strong"))).toBe("Operator record");
 
@@ -596,7 +598,7 @@ describe("W6-01e E2: the /operational-records route in the app shell", () => {
 describe("Post-W6 W6: Operational records corrections", () => {
   afterEach(cleanup);
 
-  it("R362: the inert form offers only the response's covered Sites, named by a returned row", async () => {
+  it("R362: the form offers only the response's covered Sites, named by a returned row", async () => {
     const value = body([row(1)], {
       coverage: {
         state: "COMPLETE",
@@ -614,7 +616,9 @@ describe("Post-W6 W6: Operational records corrections", () => {
     expect(options.map(text)).toEqual([`${row(1).site_name} · KOBO-001`, "COLD-LAB-001"]);
     expect(form.textContent).not.toMatch(/Kobo Mini-grid|GreenHarvest|EAT/);
     expect(form.querySelector("[data-global-work-form-time]")).toHaveValue("");
-    expect(form.querySelector("[data-rec-submit]")).toBeDisabled();
+    // OWN-G3b: with Sites, the first is selected and Submit is enabled.
+    expect(form.querySelector("[data-global-work-form-site]")).toHaveValue("KOBO-001");
+    expect(form.querySelector("[data-rec-submit]")).toBeEnabled();
   });
 
   it("M1: Next from a URL-opened later page still states no numeric range (the offset stays unknown)", async () => {
