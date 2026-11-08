@@ -43,7 +43,7 @@ request page never sends one to a W1 Action page.
 | Thread link with no new code | Met; L2 6 |
 | Five messages and summary pass guard V and H4 | Met; L0 5, `test_out_b2_vocabulary` |
 | Must stay green unchanged | Met, with the coordinator-cleared :132 DDL pin (Known Deviations 1) |
-| Guards | Not run (machine busy; held by the coordinator) |
+| Guards | Met: `tools\check-all.ps1 -Python <plan2 venv>` on `723360e51`, all 17 guards passed (1,445 s), including architecture seams and agent workflow |
 
 ## Checks run (DB `assetops_k6_test`, created empty for this unit; harness clones)
 
