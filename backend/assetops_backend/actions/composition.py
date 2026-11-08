@@ -119,10 +119,63 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
         run = reads.store.run_detail(tenant_id, site_id, run_id)
         return None if run is None else list(run["revisions"])
 
+    fuel, site_visits = fuel_verification_ports(database_url)
     return VerificationPorts(day_status=day_status, provenance=provenance, run_assessments=run_assessments,
                              trial_comparison=build_trial_comparison_ports(database_url),
                              snapshots=build_snapshot_reader(database_url),
-                             productive_price=build_productive_price_selection(database_url))
+                             productive_price=build_productive_price_selection(database_url),
+                             fuel_windows=fuel, fuel_findings=fuel, site_visits=site_visits)
+
+
+class _Lazy:
+    """An object built on its first attribute read, so wiring a port opens nothing until a fuel read is made."""
+
+    def __init__(self, build: Callable[[], Any]) -> None:
+        self._build, self._built = build, None
+
+    def __getattr__(self, name: str) -> Any:
+        if self._built is None:
+            self._built = self._build()
+        return getattr(self._built, name)
+
+
+def fuel_verification_ports(database_url: str | None) -> tuple[Any, Callable[..., list[dict[str, Any]]]]:
+    """DIESEL-K6b: the fuel-balance store (K3's window read and K4a's Finding read, one object) and the case's
+    SITE_VISIT operational records through the W6 global work read (`case_operational_records`). Both are built on
+    first use."""
+    def fuel() -> Any:
+        from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+
+        return build_fuel_balance_store(database_url)
+
+    def work() -> Any:
+        from assetops_backend.work.composition import build_global_work_read
+
+        return build_global_work_read(database_url)
+
+    reader = _Lazy(work)
+
+    def site_visits(tenant_id: UUID, site_id: UUID, case_id: str, known_at: Any) -> list[dict[str, Any]]:
+        return [r for r in reader.snapshot(lambda gx: gx.case_operational_records(tenant_id, site_id, case_id,
+                                                                                  known_at))
+                if r["kind"] == "SITE_VISIT"]
+
+    return _Lazy(fuel), site_visits
+
+
+def build_fuel_verification_service(database_url: str, *, test_clock: Callable[[], Any] | None = None) -> Any:
+    """DIESEL-K6b (§9m.4): the verification service with the fuel ports. `test_clock` is test-only and
+    constructor-only (§9d.4 precedent); production never passes it and the clock is the Actions' `utc_now`."""
+    from types import SimpleNamespace
+
+    from assetops_backend.actions.service import utc_now
+    from assetops_backend.actions.verification import VerificationService
+
+    fuel, site_visits = fuel_verification_ports(database_url)
+    actions = SimpleNamespace(store=build_action_store(database_url), clock=test_clock or utc_now,
+                              verification_ports=VerificationPorts(fuel_windows=fuel, fuel_findings=fuel,
+                                                                   site_visits=site_visits))
+    return VerificationService(actions)
 
 
 def evaluate_domain_plans(database_url: str, tenant_id: UUID, site_id: UUID, snapshots: Any, now: Any,

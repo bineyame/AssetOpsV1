@@ -131,6 +131,12 @@ def _constants() -> list[str]:
     # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
     from assetops_backend.work import domain_action as da
     copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]
+    # DIESEL-1-R3m (K6b): the fuel verdict literals, formatted with plain sample values.
+    from assetops_backend.actions import fuel_verification as fv
+    copy += list(fv.LITERALS) + [fv.VERIFIED_TEXT.format(n=3), fv.MISS_BAND_TEXT.format(date="4 Oct"),
+                                 fv.MISS_GAP_TEXT.format(date="4 Oct"), fv.LATER_TEXT.format(n=2),
+                                 fv.LATER_SHORT_TEXT.format(n=2), fv.SENSOR_GAP.format(m=90),
+                                 fv.NIGHT_TEXT.format(date="4 Oct"), fv.RANGE_TEXT.format(lo="45.0", hi="60.0")]
     return [c.strip(" ·") for c in copy]
 
 

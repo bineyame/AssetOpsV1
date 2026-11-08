@@ -172,6 +172,34 @@
   "path": "/sites/KOBO-001/domain-actions/7f1e0a52-2222-4a1e-9e7d-000000000004/verification"
  },
  {
+  "name": "fuel finding (DIESEL-1-R3l)",
+  "ref": {
+   "kind": "FUEL_FINDING",
+   "site": "KISIWA-001",
+   "id": "7f1e0a52-3333-4a1e-9e7d-000000000005"
+  },
+  "path": "/sites/KISIWA-001/fuel-findings/7f1e0a52-3333-4a1e-9e7d-000000000005"
+ },
+ {
+  "name": "fuel finding pinned revision (DIESEL-1-R3l)",
+  "ref": {
+   "kind": "FUEL_FINDING",
+   "site": "KISIWA-001",
+   "id": "7f1e0a52-3333-4a1e-9e7d-000000000005",
+   "revision": "7f1e0a52-3333-4a1e-9e7d-000000000006"
+  },
+  "path": "/sites/KISIWA-001/fuel-findings/7f1e0a52-3333-4a1e-9e7d-000000000005?revision_id=7f1e0a52-3333-4a1e-9e7d-000000000006"
+ },
+ {
+  "name": "fuel verdict (DIESEL-1-R3m)",
+  "ref": {
+   "kind": "FUEL_VERDICT",
+   "site": "KISIWA-001",
+   "id": "7f1e0a52-4444-4a1e-9e7d-000000000007"
+  },
+  "path": "/sites/KISIWA-001/domain-actions/7f1e0a52-4444-4a1e-9e7d-000000000007/fuel-verification"
+ },
+ {
   "name": "opportunity",
   "ref": {
    "kind": "OPPORTUNITY",

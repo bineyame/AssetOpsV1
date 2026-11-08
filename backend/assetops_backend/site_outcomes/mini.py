@@ -39,7 +39,7 @@ from assetops_backend.outcomes.outcome_map import categories_for, thread_signal_
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    OpportunityActionFact, PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
+    FuelVerdictFact, OpportunityActionFact, PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
     unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
@@ -453,6 +453,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                               **opportunity_thread(ct, a, c, day, work_lo, end, site_timezone, day_facts),
                               source_class=a.get("source_class"))  # WD-1m-R §3
         for a in site_chain.opportunity_actions(ct.rows, site=c, tz=site_timezone, cutoff=ct.k, lo=work_lo, hi=end))
+    # DIESEL-1-R3m: the FUEL_BALANCE domain Actions of the work window as of the cutoff (Assure only; no value line).
+    fuel = () if ct is None else tuple(
+        FuelVerdictFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"], a.get("source_class"))
+        for a in site_chain.fuel_verdict_actions(ct.rows, site=c, cutoff=ct.k, lo=work_lo, hi=end))
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
     verified_values = _verified_values(reads, ports, actions, opp)
 
@@ -496,7 +500,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
-                        "action_facts" in reads.failed or action_rows is None, no_run, opp),
+                        "action_facts" in reads.failed or action_rows is None, no_run, opp, fuel=fuel),
     }
     options = {GROW: (Option(OPTION_WHAT_IF, refs.site_ref(c, "financial_scenarios")),),
                COST: tuple(o for o in (
@@ -566,7 +570,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
                       work_window=(work_lo, end),  # WALK1-3b §A2.3: (a), then (b), then (c)
-                      opportunity_actions=opp, verified_values=verified_values)
+                      opportunity_actions=opp, fuel_verdicts=fuel, verified_values=verified_values)
     suffix ="" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -1078,20 +1082,22 @@ def _verified_values(reads: Reads, ports: MiniPorts, actions: tuple[ActionFact, 
 
 def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bool, readiness: Any, rc: Any,
             limitations: list[str], actions_failed: bool, no_run: bool = False,
-            opp: tuple[OpportunityActionFact, ...] = ()) -> tuple[Contributor, ...]:
+            opp: tuple[OpportunityActionFact, ...] = (), *,
+            fuel: tuple[FuelVerdictFact, ...] = ()) -> tuple[Contributor, ...]:
     # MOCK DEVIATION MD-FUEL-MB1-1: v69 lists verified Actions under Assure "Verified results", each opening its
     # Action. The mill has no Action page (v70 D1), so its entry opens the verdict page (DOMAIN_VERDICT), as the chain
     # wire already does (DD1b2-R6 O1). MB-1-R §2.3: trials and opportunity Actions are one list in code order.
     out: list[Contributor] = []
     mine = sorted((a for a in actions if not a.is_domain), key=lambda a: (a.code or "", a.action_id))
-    merged: list[ActionFact | OpportunityActionFact] = sorted(
-        [*mine, *opp], key=lambda a: (a.code or "", a.action_id))
+    # MOCK DEVIATION MD-FUEL-K6-5 (DIESEL-1-R3m): as MD-FUEL-MB1-1, a fuel Action has no Action page; its Verified results entry opens its verdict page (FUEL_VERDICT). It carries no value line (H2).
+    merged: list[ActionFact | OpportunityActionFact | FuelVerdictFact] = sorted(
+        [*mine, *opp, *fuel], key=lambda a: (a.code or "", a.action_id))
     if actions_failed and not merged:
         out.append(not_available("verified_results", "Verified results"))
     elif not merged:
         out.append(Contributor("verified_results", "Verified results", NO_VERIFIED))
     for a in merged:
-        if isinstance(a, OpportunityActionFact):
+        if isinstance(a, (OpportunityActionFact, FuelVerdictFact)):
             s = a.outcome if a.outcome in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE") else "PENDING"
             out.append(Contributor("verified_results", "Verified results",
                                    VERIFICATION_TEXT[s].format(code=display_code(a.code), suffix=provenance_suffix(a.source_class)),

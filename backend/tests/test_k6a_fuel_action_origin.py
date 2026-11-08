@@ -161,7 +161,10 @@ def test_request_action_link_gives_a_fuel_action_no_href():
     seen = {"lineage": True}
     base = {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None}
     fuel = si._action_link("KISIWA-001", {**base, "finding_revision_id": rev, "action_domain": "FUEL_BALANCE"}, seen)
-    assert fuel["href"] is None and fuel["label"] == "Action"
+    # DIESEL-1-R3m2 (K6b): the assertion flips to the fuel verdict page's address once K6b's page exists.
+    assert fuel["href"] == f"/sites/KISIWA-001/domain-actions/{aid}/fuel-verification" and fuel["label"] == "Action"
+    assert si._action_link("KISIWA-001", {**base, "finding_revision_id": rev, "action_domain": "FUEL_BALANCE"},
+                           {"lineage": False})["href"] is None
     cold = si._action_link("COLD-001", {**base, "finding_revision_id": rev}, seen)
     assert cold["href"] == f"/sites/COLD-001/actions/{aid}/verification"
     mill = si._action_link("KOBO-001", {**base, "finding_revision_id": None, "opportunity_revision_id": opp}, seen)

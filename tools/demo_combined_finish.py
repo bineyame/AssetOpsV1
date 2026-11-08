@@ -1003,6 +1003,92 @@ def kis_4(ctx: Ctx) -> dict:
     return {"kisiwa": "present", **demo_rows.kis4(windows, findings, consequences, prices, dispatch, served)}
 
 
+def _kisiwa_fuel(ctx: Ctx) -> dict | None:
+    """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
+    through the backend's own stores (None: no Kisiwa Site in this dataset, before K7 adds it)."""
+    if "kisiwa_fuel" in ctx.cache:
+        return ctx.cache["kisiwa_fuel"]
+    import psycopg
+
+    from assetops_backend.actions.composition import build_action_store
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+        if site is None:
+            ctx.cache["kisiwa_fuel"] = None
+            return None
+        t, s = site
+        found = c.execute("SELECT id FROM domain_action WHERE site_id = %s AND domain = 'FUEL_BALANCE' "
+                          "ORDER BY recorded_at, id LIMIT 1", (s,)).fetchone()
+        assert found is not None, "Kisiwa holds no FUEL_BALANCE Action (K7-D step 5 raises it)"
+        aid = found[0]
+        action_thread = c.execute("SELECT CAST(thread_id AS text) FROM chain_action WHERE id = %s", (aid,)).fetchone()
+    store, fuel = build_action_store(ctx.url), build_fuel_balance_store(ctx.url)
+    try:
+        fc = store.fuel_plan_context(t, s, aid)
+        outcomes = store.domain_outcomes(t, s, aid)
+        plan = fc["plan"]
+        assert plan is not None and outcomes, ("the Kisiwa fuel Action has no fuel plan or outcome", plan, outcomes)
+        o = outcomes[0]
+        pins = [o["details"]["baseline"], *o["details"]["later"]]
+        read_back = {}
+        for p in pins:
+            w = fuel.window(t, s, p["window_id"])
+            if w is not None:
+                read_back[str(p["window_id"])] = {"revision": w.revision, "input_sha256": w.input_sha256}
+        lo = datetime.fromisoformat(plan["later_selection_rule"]["candidates"]["from"]).date()
+        windows = {w.night_date: w for w in fuel.windows(t, s, plan["basis"]["tank_asset_id"], lo,
+                                                         lo + timedelta(days=14),
+                                                         known_at=o["recorded_at"].astimezone(timezone.utc))}
+        with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+            finding_thread = c.execute(
+                "SELECT CAST(o.thread_id AS text) FROM finding_thread_occurrence o JOIN finding_thread t "
+                "ON t.id = o.thread_id WHERE o.finding_id = %s AND t.mechanism = 'UNEXPLAINED_FUEL' LIMIT 1",
+                (fc["action"]["origin_finding_id"],)).fetchone()
+    finally:
+        store.dispose()
+        fuel.dispose()
+    out = {"t": t, "s": s, "aid": str(aid), "fc": fc, "plan": plan, "outcome": o, "read_back": read_back,
+           "windows": windows, "action_thread": None if action_thread is None else action_thread[0],
+           "finding_thread": None if finding_thread is None else finding_thread[0]}
+    ctx.cache["kisiwa_fuel"] = out
+    return out
+
+
+@row("KIS-5")
+def kis_5(ctx: Ctx) -> dict:
+    """DIESEL-K6b (DIESEL-1-R3m §9m.4, moved here from K9, run at E3): the Kisiwa fuel Action's stored verdict
+    reproduces from its pinned windows (`demo_rows.kis5`); the served page has no value, cost check or money key, and
+    the fixed H1 line. A dataset without Kisiwa is reported as such, never as a check."""
+    k = _kisiwa_fuel(ctx)
+    if k is None:
+        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+    summary = ctx.get(f"/api/sites/{KISIWA}/domain-work/actions/{k['aid']}/fuel-verification")
+    return {"kisiwa": "present", **demo_rows.kis5(k["plan"], k["outcome"], k["read_back"], k["windows"], summary)}
+
+
+@row("KIS-10")
+def kis_10(ctx: Ctx) -> dict:
+    """DIESEL-K6b (DIESEL-1-R3m §9m.4, run at E3): fuel verification coherence (`demo_rows.kis10`): frozen before the
+    first later night, effective at the case's COMPLETE, the origin and baseline pins, one thread, the Kisiwa board's
+    FUEL_VERDICT Verified results entry on the outcome's Site-local day + 1, and no value line naming the Action."""
+    from zoneinfo import ZoneInfo
+
+    k = _kisiwa_fuel(ctx)
+    if k is None:
+        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+    fc, o = k["fc"], k["outcome"]
+    zone = ZoneInfo(fc["action"]["timezone"])
+    lo = demo_rows.site_day_start(o["recorded_at"].astimezone(zone).date() + timedelta(days=1), zone)
+    board = ctx.board(KISIWA, lo, lo + timedelta(days=1))
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(lo - timedelta(days=6)), "to": iso(lo + timedelta(days=1))})
+    lines = list(((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {}).get("value_lines") or ())
+    return {"kisiwa": "present", **demo_rows.kis10(k["plan"], fc["applied"], fc["action"], fc["origin_window_id"],
+                                                   k["action_thread"], k["finding_thread"], board,
+                                                   fc["action"]["action_code"], lines)}
+
+
 @row("MONEY-B")
 def money_b(ctx: Ctx) -> dict:
     """R6 O16, the part readable through the served boards: the Cost headline on one steady-before and one steady
