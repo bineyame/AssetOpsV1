@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -179,7 +179,7 @@ describe("DIESEL-K5 F8: the Site Findings Fuel checks panel", () => {
       </MemoryRouter>,
     );
     await vi.waitFor(() => expect(c.getFuelFindings).toHaveBeenCalled());
-    await Promise.resolve();
+    await act(() => new Promise((r) => setTimeout(r, 0)));
     expect(container.innerHTML).toBe("");
   });
 });
