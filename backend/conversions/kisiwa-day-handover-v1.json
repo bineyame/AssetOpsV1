@@ -1,0 +1,366 @@
+{
+  "base_run1_start": "2026-10-01T12:00:00Z",
+  "dips": [
+    {
+      "action_id": "kis-dip-n4-0700",
+      "at": "2026-10-05T04:00:00Z",
+      "dip_l": 706
+    },
+    {
+      "action_id": "kis-dip-r6-1800",
+      "at": "2026-10-06T15:00:00Z",
+      "dip_l": 663
+    },
+    {
+      "action_id": "kis-dip-r6-0600",
+      "at": "2026-10-07T03:00:00Z",
+      "dip_l": 619
+    },
+    {
+      "action_id": "kis-dip-r7-1800",
+      "at": "2026-10-07T15:00:00Z",
+      "dip_l": 619
+    },
+    {
+      "action_id": "kis-dip-r7-0600",
+      "at": "2026-10-08T03:00:00Z",
+      "dip_l": 576
+    },
+    {
+      "action_id": "kis-dip-r8-1800",
+      "at": "2026-10-08T15:00:00Z",
+      "dip_l": 576
+    },
+    {
+      "action_id": "kis-dip-r8-0600",
+      "at": "2026-10-09T03:00:00Z",
+      "dip_l": 533
+    },
+    {
+      "action_id": "kis-dip-r9-1800",
+      "at": "2026-10-09T15:00:00Z",
+      "dip_l": 533
+    },
+    {
+      "action_id": "kis-dip-r9-0600",
+      "at": "2026-10-10T03:00:00Z",
+      "dip_l": 489
+    },
+    {
+      "action_id": "kis-dip-r10-1800",
+      "at": "2026-10-10T15:00:00Z",
+      "dip_l": 489
+    },
+    {
+      "action_id": "kis-dip-r10-0600",
+      "at": "2026-10-11T03:00:00Z",
+      "dip_l": 446
+    }
+  ],
+  "nights": [
+    {
+      "k": 1,
+      "night_date": "2026-10-01",
+      "readings": {
+        "closing_exact": "656071667/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "1399/2",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 2,
+      "night_date": "2026-10-02",
+      "readings": {
+        "closing_exact": "912643333/1000000",
+        "deliveries_exact": "300",
+        "delivery_tolerance_exact": "3",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "656071667/1000000",
+        "residual_high_exact": "13671417/500000",
+        "residual_low_exact": "-41014249/1500000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 3,
+      "night_date": "2026-10-03",
+      "readings": {
+        "closing_exact": "173843/200",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "912643333/1000000",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 4,
+      "night_date": "2026-10-04",
+      "readings": {
+        "closing_exact": "705786667/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 105,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "173843/200",
+        "residual_high_exact": "144342833/1000000",
+        "residual_low_exact": "286971499/3000000",
+        "state": "UNEXPLAINED",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 5,
+      "night_date": "2026-10-05",
+      "readings": {
+        "closing_exact": "662358333/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "705786667/1000000",
+        "residual_high_exact": "12171417/500000",
+        "residual_low_exact": "-36514249/1500000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 6,
+      "night_date": "2026-10-06",
+      "readings": {
+        "closing_exact": "61893/100",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "662358333/1000000",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 7,
+      "night_date": "2026-10-07",
+      "readings": {
+        "closing_exact": "575501667/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "61893/100",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 8,
+      "night_date": "2026-10-08",
+      "readings": {
+        "closing_exact": "532073333/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "575501667/1000000",
+        "residual_high_exact": "12171417/500000",
+        "residual_low_exact": "-36514249/1500000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 9,
+      "night_date": "2026-10-09",
+      "readings": {
+        "closing_exact": "97729/200",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "532073333/1000000",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    },
+    {
+      "k": 10,
+      "night_date": "2026-10-10",
+      "readings": {
+        "closing_exact": "445216667/1000000",
+        "deliveries_exact": "0",
+        "delivery_tolerance_exact": "0",
+        "gap_minutes": 0,
+        "loaded_litres_exact": "26057/600",
+        "opening_exact": "97729/200",
+        "residual_high_exact": "24342833/1000000",
+        "residual_low_exact": "-73028501/3000000",
+        "state": "WITHIN_MARGIN",
+        "use_high_exact": "286627/6000",
+        "use_low_exact": "78171/2000"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "end": {
+        "fuel": "393943/600",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 1,
+      "start": {
+        "fuel": "700",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "273943/300",
+        "soc": "100"
+      },
+      "intervention_history": [
+        "OPERATIONAL_ACTION:kis-delivery-1:881d75f69365834df26000d1c9dbdb4c1216a5390da96725f744189ad53ab9f0"
+      ],
+      "k": 2,
+      "start": {
+        "fuel": "393943/600",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "173943/200",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 3,
+      "start": {
+        "fuel": "273943/300",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "105943/150",
+        "soc": "100"
+      },
+      "intervention_history": [
+        "OPERATIONAL_ACTION:kis-removal-1:12e4a4f683bd27843c0ea85e4a1c82113161e6f14a7bc83d683a9f7bba896eea"
+      ],
+      "k": 4,
+      "start": {
+        "fuel": "173943/200",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "79543/120",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 5,
+      "start": {
+        "fuel": "105943/150",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "61943/100",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 6,
+      "start": {
+        "fuel": "79543/120",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "345601/600",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 7,
+      "start": {
+        "fuel": "61943/100",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "39943/75",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 8,
+      "start": {
+        "fuel": "345601/600",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "97829/200",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 9,
+      "start": {
+        "fuel": "39943/75",
+        "soc": "100"
+      }
+    },
+    {
+      "end": {
+        "fuel": "26743/60",
+        "soc": "100"
+      },
+      "intervention_history": [],
+      "k": 10,
+      "start": {
+        "fuel": "97829/200",
+        "soc": "100"
+      }
+    }
+  ],
+  "schema": {
+    "id": "assetops.kisiwa-day-handover",
+    "version": 1
+  },
+  "source": {
+    "actions_sha256": "77777c82d82298ffba77a130f8d9ea2c6bb9a80c491ba4b2ac5248c4b735b634",
+    "probe_result_sha256": "4358539908058b4c013cefd8d3b52eb5e3dc8df7cee74638dc2d6272df7bfe7e"
+  }
+}

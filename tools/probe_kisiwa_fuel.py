@@ -21,8 +21,12 @@ in-memory Foundation store, the real `RegisteredLabBasis` over it. Tank level fr
 identical in content to K1a's; product code has no v7 until K1a merges.
 
 `python tools/probe_kisiwa_fuel.py` prints the result JSON; `--write` writes `.agent/DIESEL-F0/probe-result.json`
-and prints the per-night line; `--check` exits 1 if the committed JSON differs from a fresh run (F8). `--handover`
-is K7's and is not built.
+and prints the per-night line; `--check` exits 1 if the committed JSON differs from a fresh run (F8), or if the
+committed day handover differs from the projection of that fresh run.
+
+K7 (DIESEL-1-R3l §9l.3): `--handover` writes `backend/conversions/kisiwa-day-handover-v1.json`, a pure projection of
+the committed `probe-result.json` (start and end states, histories, dip values and each night's readings band) that
+the combined demo prepare reads from its `git archive` tree, where `.agent/` is not present.
 """
 
 from __future__ import annotations
@@ -773,10 +777,55 @@ def seeded_uuid4():
         uuid.uuid4 = original
 
 
+HANDOVER = ROOT / "backend" / "conversions" / "kisiwa-day-handover-v1.json"
+HANDOVER_READING_TERMS = {  # handover key -> (where in the night, key) of F0's text, verbatim
+    "opening_exact": ("night", "opening_reading_l"), "closing_exact": ("night", "closing_reading_l"),
+    "deliveries_exact": ("readings", "deliveries"), "delivery_tolerance_exact": ("readings", "delivery_tolerance"),
+    "loaded_litres_exact": ("night", "loaded_litres"), "use_low_exact": ("readings", "use_low"),
+    "use_high_exact": ("readings", "use_high"), "residual_low_exact": ("readings", "residual_low"),
+    "residual_high_exact": ("readings", "residual_high"),
+}
+
+
+def handover_text(result_text: str) -> str:
+    """K7 (DIESEL-1-R3l §9l.3): the day handover, a pure projection of a probe-result text. Sorted keys, indent 2,
+    LF, one trailing newline; exact values are F0's text, verbatim."""
+    result = json.loads(result_text)
+
+    def exact(node):
+        return None if node is None else node["exact"]
+
+    nights = []
+    for n in result["nights"]:
+        r = n["readings"]
+        readings = {"state": r["state"], "gap_minutes": r["gap_minutes"]}
+        for key, (where, name) in HANDOVER_READING_TERMS.items():
+            readings[key] = exact((n if where == "night" else r).get(name))
+        nights.append({"k": n["night"], "night_date": n["window_local"][:10], "readings": readings})
+    doc = {
+        "schema": {"id": "assetops.kisiwa-day-handover", "version": 1},
+        "source": {"probe_result_sha256": hashlib.sha256(result_text.replace("\r\n", "\n").encode("utf-8")).hexdigest(),
+                   "actions_sha256": result["assumptions"]["actions_sha256"]},
+        "base_run1_start": result["assumptions"]["run1_start"],
+        "runs": [{"k": r["run"], "start": {"soc": r["start"]["soc"], "fuel": r["start"]["fuel"]},
+                  "end": {"soc": r["end"]["soc"], "fuel": r["end"]["fuel"]},
+                  "intervention_history": list(r["intervention_history"])} for r in result["runs"]],
+        "dips": [{"action_id": d["action_id"], "at": d["at"], "dip_l": d["dip_l"]} for d in result["dips"]],
+        "nights": nights,
+    }
+    return json.dumps(doc, indent=2, sort_keys=True, ensure_ascii=True) + "\n"
+
+
+def handover_current(result_text: str, handover_path: Path = HANDOVER) -> bool:
+    current = handover_path.read_text(encoding="utf-8") if handover_path.exists() else ""
+    return current == handover_text(result_text)
+
+
 def main(argv: list[str]) -> int:
     if "--handover" in argv:
-        print("--handover is K7's and is not built in F0.")
-        return 2
+        HANDOVER.write_text(handover_text(RESULT.read_text(encoding="utf-8")), encoding="utf-8", newline="\n")
+        print(f"handover written {HANDOVER.relative_to(ROOT).as_posix()}")
+        return 0
     with seeded_uuid4() as patched:
         result = build()
     if "--patched" in argv:
@@ -787,6 +836,9 @@ def main(argv: list[str]) -> int:
         current = RESULT.read_text(encoding="utf-8") if RESULT.exists() else ""
         if current != text:
             print("probe result differs from the committed file")
+            return 1
+        if not handover_current(text):
+            print("day handover differs from the projection of a fresh run")
             return 1
         print("probe result current")
         return 0

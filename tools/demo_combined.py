@@ -56,12 +56,18 @@ MARKER = ".demo3-combined-work"
 STORY_FILE = REPO / "backend" / "conversions" / "demo-combined-story-v1.json"
 API_PORT, WEB_PORT = 8990, 5490
 TICK_EVERY_SECONDS = 120
-SITES = ("kobo", "cold", "ev")
-SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
+#: DIESEL-1-R3l §9l.3 (K7): the three core Sites, and Kisiwa as the fourth (K7-F: part of the default prepare,
+#: `SITES`). Every loop that means "the three Sites" iterates `CORE_SITES`.
+CORE_SITES = ("kobo", "cold", "ev")
+SITES = CORE_SITES + ("kisiwa",)
+SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "kisiwa": "KISIWA-001"}
 #: Expected wall seconds per step; the cap is twice the sum of the selected steps. Kobo is
 #: `kobo_expected_seconds` (DEMO-SPARSE U3 measured about 105 s per Kobo run: 110 s per run + 60 s).
 #: DD1b2-R11 O18: `mill` is the measured 18.7 s; `drain` is drain-1 278.4 + drain-2 58.3 = 336.7 s, rounded up to 10 s.
-EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90, "mill": 20, "drain": 340}
+# DIESEL-1-R3n: measured in K7-D's scratch prepare (3568 s build step)
+EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "kisiwa": 3600, "finish": 90, "mill": 20,
+                    "drain": 340}
+KISIWA_STORY_FILE = REPO / "backend" / "conversions" / "demo-kisiwa-story-v1.json"
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 #: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
 TARIFF_AFTER_INSTALL = timedelta(minutes=30)
@@ -97,7 +103,8 @@ def objectives_instants(story: dict) -> dict[str, datetime]:
     instants = {"KOBO-001": at(story["kobo"]["price_recorded_at"]),
                 "COLD-LAB-001": at(story["cold"]["install_at"]) + TARIFF_AFTER_INSTALL,
                 "EV-LAB-001": at(story["ev"]["install_at"]) + TARIFF_AFTER_INSTALL}
-    for site, code in SITE_CODE.items():
+    for site in CORE_SITES:  # K7: Kisiwa declares no objectives (K8 rules on them)
+        code = SITE_CODE[site]
         built = [d for d in story["days"] if d.get("site") == site and d.get("start")]
         if not built:
             continue
@@ -141,19 +148,22 @@ def story_day(db_now: datetime, doc: dict | None = None) -> datetime:
     return floor_day(db_now) + timedelta(days=doc["story_day_offset_days"])
 
 
-def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | None = None) -> dict:
+def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | None = None,
+                  kisiwa: bool = False, kisiwa_doc: dict | None = None) -> dict:
     """The story clock: S, every resolved instant, the install clocks and their order, and the day list in build
     order (`days`). Raises `INSTALL_CLOCK_CONFLICT` / `STORY_CLOCK_OUT_OF_RANGE` (Addendum 1 R3) and the day
-    list's `StoryDaysError` codes (DEMO-SPARSE U2)."""
+    list's `StoryDaysError` codes (DEMO-SPARSE U2). With `kisiwa` (K7, opt-in) it adds `story["kisiwa"]`
+    (`tools/demo_combined_kisiwa.py` `resolve`) and appends Kisiwa to `install_order`; without it the output is the
+    three-Site story, byte-equal (`backend/tests/k7_story_pins.py`)."""
     doc = doc or json.loads(STORY_FILE.read_text(encoding="utf-8"))
     days_doc = days_doc or sd.load()
     S = story_day(db_now, doc)
-    story = _resolve({k: v for k, v in doc.items() if k in SITES}, S)
+    story = _resolve({k: v for k, v in doc.items() if k in CORE_SITES}, S)
     kobo = story["kobo"]
     kobo["import_at"] = iso(at(kobo["install_at"]) - timedelta(hours=kobo["import_before_install_hours"]))
     kobo["price_recorded_at"] = iso(at(kobo["install_at"]) + timedelta(hours=kobo["price_after_install_hours"]))
     # DD1a1-R7: the Kobo Action's effective instant is the Foundation revision boundary a complement may not span
-    days = sd.resolve(days_doc, S, db_now=db_now, installs={n: at(story[n]["install_at"]) for n in SITES},
+    days = sd.resolve(days_doc, S, db_now=db_now, installs={n: at(story[n]["install_at"]) for n in CORE_SITES},
                       revision_boundaries=(at(kobo["action"]["effective_from"]),))
     kobo["runs"], kobo["windows"] = {}, {}
     _trial(kobo, days, days_doc["trial"]["window_hour"])
@@ -171,12 +181,12 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
         "cold": min(at(cold["earliest_row_at"]), at(cold["normal_night_day"]) + timedelta(hours=16)),
         "ev": min([at(v["at"]) for v in ev["visits"] + ev["plans"]] + [at(ev["e_start"])]),
     }
-    installs = {name: at(story[name]["install_at"]) for name in SITES}
-    order = sorted(SITES, key=lambda n: installs[n])
+    installs = {name: at(story[name]["install_at"]) for name in CORE_SITES}
+    order = sorted(CORE_SITES, key=lambda n: installs[n])
     if len(set(installs.values())) != len(installs):
         raise StoryClockError(f"INSTALL_CLOCK_CONFLICT: install instants are not distinct {installs}")
     lead = timedelta(hours=doc["install_min_lead_hours"])
-    for name in SITES:
+    for name in CORE_SITES:
         if installs[name] + lead > earliest[name]:
             raise StoryClockError(f"INSTALL_CLOCK_CONFLICT: {name} installs at {iso(installs[name])}, less than "
                                   f"{lead} before its earliest row {iso(earliest[name])}")
@@ -186,9 +196,23 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
         if at(value) < floor or at(value) > db_now + timedelta(minutes=5):
             raise StoryClockError(f"STORY_CLOCK_OUT_OF_RANGE: work occurred_at {value} is outside "
                                   f"[{iso(floor)}, {iso(db_now + timedelta(minutes=5))}]")
+    if kisiwa:
+        import demo_combined_kisiwa
+
+        block = demo_combined_kisiwa.resolve(S, kisiwa_doc or json.loads(KISIWA_STORY_FILE.read_text(encoding="utf-8")))
+        k_install = at(block["install_at"])
+        if k_install in installs.values() or not all(k_install > v for v in installs.values()):
+            raise StoryClockError(f"INSTALL_CLOCK_CONFLICT: Kisiwa installs at {iso(k_install)}; it must be distinct "
+                                  f"from and after the three core installs {installs}")
+        if k_install + lead > at(block["run1_start"]):
+            raise StoryClockError(f"INSTALL_CLOCK_CONFLICT: kisiwa installs at {iso(k_install)}, less than {lead} "
+                                  f"before its run 1 {block['run1_start']}")
+        story["kisiwa"] = block
+        order = order + ["kisiwa"]
     return {"schema": doc["schema"], "label": doc["label"], "db_now": iso(db_now), "S": iso(S),
             "S_date": S.date().isoformat(), "install_order": order,
-            "installs": {n: iso(installs[n]) for n in order}, "earliest_rows": {n: iso(v) for n, v in earliest.items()},
+            "installs": {n: iso(installs[n]) for n in order if n in CORE_SITES},
+            "earliest_rows": {n: iso(v) for n, v in earliest.items()},
             "days": [r.payload() for r in days], **story}
 
 
@@ -196,7 +220,8 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
 #: `/sites/{code}/outcomes` or `/sites/{code}/overview` route).
 LINK_FORMS = ("/portfolio?", "/findings?", "/maintenance/preventive?", "/maintenance?", "/sites/KOBO-001?date=",
               "/sites/COLD-LAB-001?from=", "/sites/EV-LAB-001/ev?from=", "/sites/KOBO-001/actions/",
-              "/sites/KOBO-001/findings/")
+              "/sites/KOBO-001/findings/", "/sites/KISIWA-001?date=", "/sites/KISIWA-001/performance/fuel?night=",
+              "/sites/KISIWA-001/fuel-findings/", "/sites/KISIWA-001/domain-actions/")
 
 
 def story_week_query(story: dict) -> str:
@@ -242,10 +267,13 @@ def prewarm(port: int, story: dict, fetch: Any = None, clock: Any = time.monoton
     return True
 
 
-def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> list[tuple[str, str]]:
+def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
+                kisiwa: dict | None = None) -> list[tuple[str, str]]:
     """The walkthrough links (POLISH §4, Addendum 9 Q3): week and month lists around S, one board per story day (Kobo
     by `date`; cold and EV on the day's event window from `days.json`, or the whole calendar day when the day has
-    no event), the Kobo Overview on S, and the Kobo Action's verification and Finding when `kobo.json` exists."""
+    no event), the Kobo Overview on S, and the Kobo Action's verification and Finding when `kobo.json` exists.
+    K7: when Kisiwa is in the prepare and `kisiwa.json` exists, its two boards, its Fuel night S-6d, its
+    unexplained-fuel Finding (once the build stored one) and, K7-F, its Action's fuel verification."""
     S = at(story["S"])
     base = f"http://localhost:{web}"
     week = story_week_query(story)
@@ -274,6 +302,20 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> l
                  (f"Action {kobo.get('action_code')} verification",
                   f"{base}/sites/KOBO-001/actions/{kobo['action']}/verification"),
                  ("Finding", f"{base}/sites/KOBO-001/findings/{kobo['finding']}?revision_id={kobo['finding_revision']}")]
+    if kisiwa is not None and "kisiwa" in story["sites"]:
+        day = lambda n: (S + timedelta(days=n)).date().isoformat()  # noqa: E731
+        rows += [("KISIWA-001 board, morning after the unexplained-fuel night (S-5d)",
+                  f"{base}/sites/KISIWA-001?date={day(-5)}"),
+                 ("KISIWA-001 board, day S", f"{base}/sites/KISIWA-001?date={day(0)}"),
+                 ("KISIWA-001 Fuel, night S-6d", f"{base}/sites/KISIWA-001/performance/fuel?night={day(-6)}")]
+        # K7-F: `kisiwa.json` carries the Finding id on its Action (`action.finding_id`); `finding.id` is read first
+        action = kisiwa.get("action") or {}
+        finding = (kisiwa.get("finding") or {}).get("id") or action.get("finding_id")
+        if finding:
+            rows.append(("KISIWA-001 unexplained-fuel finding", f"{base}/sites/KISIWA-001/fuel-findings/{finding}"))
+        if action.get("id") and kisiwa.get("verdict"):  # DIESEL-1-R3m §9m.5: once the plan is frozen and judged
+            rows.append(("KISIWA-001 fuel verification",
+                         f"{base}/sites/KISIWA-001/domain-actions/{action['id']}/fuel-verification"))
     return rows
 
 
@@ -429,7 +471,7 @@ class Demo:
             if missing:
                 say(f"  {SITE_CODE[site]}: ruled days in the {baseline} baseline with no entry (reported, not moved): "
                     f"{', '.join(missing)}")
-        story = resolve_story(db_now, days_doc=days_doc)
+        story = resolve_story(db_now, days_doc=days_doc, kisiwa="kisiwa" in sites)
         days = story.pop("days")
         (self.work / "days.json").write_text(json.dumps(
             {"schema": days_doc["schema"], "source": str(days_path), "S": story["S"], "trial": days_doc["trial"],
@@ -453,7 +495,8 @@ class Demo:
         error: str | None = None
         try:
             for n, site in enumerate(story["sites"], start=2):
-                say(f"=== {n}. {SITE_CODE[site]} (installs {story['installs'][site]}) ===")
+                install = story["installs"][site] if site in CORE_SITES else story[site]["install_at"]
+                say(f"=== {n}. {SITE_CODE[site]} (installs {install}) ===")
                 t0 = time.monotonic()
                 done = self.py(str(self.tree / "tools" / f"demo_combined_{site}.py"), "build", self.url,
                                str(self.work), cwd=self.tree / "backend" / "tests", label=f"build-{site}")
@@ -484,7 +527,7 @@ class Demo:
         steps = steps if steps is not None else {}
         if not finish:
             return
-        if set(story["sites"]) == set(SITES):
+        if set(CORE_SITES) <= set(story["sites"]):
             t0 = time.monotonic()
             out = self.after_children(story, days)
             timings["after_children"] = round(time.monotonic() - t0, 1)
@@ -530,7 +573,7 @@ class Demo:
     def finish(self, story: dict, steps: dict[str, float] | None = None) -> None:
         steps = steps if steps is not None else {}
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
-        if set(story["sites"]) == set(SITES):
+        if set(CORE_SITES) <= set(story["sites"]):
             lines = []
             for code, instant in objectives_instants(story).items():
                 done = self.py(str(self.tree / "tools" / "demo_declare_objectives.py"), self.url,
@@ -543,12 +586,12 @@ class Demo:
             done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
                            label="s2-comparison")
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
-        if "kobo" in story["sites"]:
+        if {"kobo", "kisiwa"} & set(story["sites"]):
             self.drain_mini()
         t0 = time.monotonic()
         self.tick(times=2)
         steps["finish-ticks"] = round(time.monotonic() - t0, 1)
-        if set(story["sites"]) == set(SITES):
+        if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
             t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
@@ -754,7 +797,9 @@ class Demo:
         story_days = json.loads(days_file.read_text(encoding="utf-8"))["days"] if days_file.is_file() else []
         kobo = self.work / "kobo.json"
         k = json.loads(kobo.read_text(encoding="utf-8")) if kobo.is_file() else None
-        rows = story_links(story, story_days, k, web)
+        kis = self.work / "kisiwa.json"
+        kisiwa = json.loads(kis.read_text(encoding="utf-8")) if kis.is_file() else None
+        rows = story_links(story, story_days, k, web, kisiwa)
         say(f"Story day S = {story['S_date']} (dates move on every rebuild; quote them from here). Code {story['code']}.")
         for label, url in rows:
             say(f"  {label}\n    {url}")
@@ -852,7 +897,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--work", required=True, help="work folder var/demo3* or var/polish* under this repository")
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("prepare")
-    p.add_argument("--sites", default=",".join(SITES), help="development only: a subset of kobo,cold,ev")
+    p.add_argument("--sites", default=",".join(SITES),
+                   help="a subset of kobo,cold,ev,kisiwa (K7-F: the default is all four Sites)")
     p.add_argument("--no-finish", action="store_true", help="development only: skip objectives/comparisons/ticks")
     p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v3.json)")
     p.add_argument("--baseline", default="b22", choices=sorted(sd.BASELINE_FROM),
@@ -871,7 +917,7 @@ def main(argv: list[str] | None = None) -> None:
     ac.add_argument("--cap-seconds", type=int, default=1800)
     ac.add_argument("--stop-before-mill", action="store_true", help="drain_mini and backfill step a only, then stop (clone here)")
     ad = sub.add_parser("add-day")
-    ad.add_argument("--site", required=True, choices=sorted(SITE_CODE.values()))
+    ad.add_argument("--site", required=True, choices=sorted(SITE_CODE[s] for s in CORE_SITES))  # no Kisiwa day kinds
     ad.add_argument("--kind", required=True)
     ad.add_argument("--day", default=None, help="S[+-]Nd; default the day after the Site's last story day")
     ad.add_argument("--as", dest="as_kind", default=None, choices=sd.LATE_AS, help="late Kobo day: the run it carries")

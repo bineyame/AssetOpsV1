@@ -56,6 +56,16 @@ def iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def utc_aligned_window(lo: datetime, hi: datetime) -> tuple[datetime, datetime]:
+    """Estate scope accepts only UTC-midnight bounds: widen [lo, hi) to the UTC midnight at/before lo and at/after hi."""
+    lo, hi = lo.astimezone(timezone.utc), hi.astimezone(timezone.utc)
+    start = lo.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = hi.replace(hour=0, minute=0, second=0, microsecond=0)
+    if end < hi:
+        end += timedelta(days=1)
+    return start, end
+
+
 def at(text: str) -> datetime:
     return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc)
 
@@ -955,6 +965,7 @@ def pv_a(ctx: Ctx) -> dict:
 
 
 KISIWA = "KISIWA-001"
+KisiwaMissing = demo_rows.KisiwaMissing  # carry R3k2 L2: every KIS row fails on a dataset with no Kisiwa Site
 
 
 @row("KIS-4")
@@ -963,7 +974,7 @@ def kis_4(ctx: Ctx) -> dict:
     `fuel-residual-1` litres equal its cited window's band, PRICED amounts equal litres x the stored price (whose
     revision a re-run of `select_window_price` at the window end reproduces), no `financial_consequence_revision` row
     cites a fuel Finding, and no stored or served amount is a sum (`demo_rows.kis4`). A dataset without the Kisiwa Site
-    (before K7 adds it) is reported as such, never as a check: K7's prepare holds Kisiwa, so at E3 the row checks."""
+    fails the row (DIESEL-1-R3k2 L2, carried by K7): `KisiwaMissing`."""
     import psycopg
 
     from assetops_backend.financials.composition import build_trial_comparison_ports
@@ -972,7 +983,7 @@ def kis_4(ctx: Ctx) -> dict:
     with psycopg.connect(url) as c:
         site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
         if site is None:
-            return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+            raise KisiwaMissing()  # carry R3k2 L2: a dataset without Kisiwa is a failure, not a skip
         t, s = site
         cols = lambda cur: [d.name for d in cur.description]  # noqa: E731
 
@@ -1004,7 +1015,7 @@ def kis_4(ctx: Ctx) -> dict:
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
     """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
-    through the backend's own stores (None: no Kisiwa Site in this dataset, before K7 adds it)."""
+    through the backend's own stores (None: no Kisiwa Site in this dataset; the rows then fail, carry R3k2 L2)."""
     if "kisiwa_fuel" in ctx.cache:
         return ctx.cache["kisiwa_fuel"]
     import psycopg
@@ -1059,10 +1070,10 @@ def _kisiwa_fuel(ctx: Ctx) -> dict | None:
 def kis_5(ctx: Ctx) -> dict:
     """DIESEL-K6b (DIESEL-1-R3m §9m.4, moved here from K9, run at E3): the Kisiwa fuel Action's stored verdict
     reproduces from its pinned windows (`demo_rows.kis5`); the served page has no value, cost check or money key, and
-    the fixed H1 line. A dataset without Kisiwa is reported as such, never as a check."""
+    the fixed H1 line. A dataset without the Kisiwa Site fails the row (`KisiwaMissing`, carry R3k2 L2, K7-F)."""
     k = _kisiwa_fuel(ctx)
     if k is None:
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()
     summary = ctx.get(f"/api/sites/{KISIWA}/domain-work/actions/{k['aid']}/fuel-verification")
     return {"kisiwa": "present", **demo_rows.kis5(k["plan"], k["outcome"], k["read_back"], k["windows"], summary)}
 
@@ -1076,12 +1087,13 @@ def kis_10(ctx: Ctx) -> dict:
 
     k = _kisiwa_fuel(ctx)
     if k is None:
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()  # carry R3k2 L2 (K7-F): a dataset without Kisiwa fails the row
     fc, o = k["fc"], k["outcome"]
     zone = ZoneInfo(fc["action"]["timezone"])
     lo = demo_rows.site_day_start(o["recorded_at"].astimezone(zone).date() + timedelta(days=1), zone)
     board = ctx.board(KISIWA, lo, lo + timedelta(days=1))
-    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(lo - timedelta(days=6)), "to": iso(lo + timedelta(days=1))})
+    s_from, s_to = utc_aligned_window(lo - timedelta(days=6), lo + timedelta(days=1))
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(s_from), "to": iso(s_to)})
     lines = list(((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {}).get("value_lines") or ())
     return {"kisiwa": "present", **demo_rows.kis10(k["plan"], fc["applied"], fc["action"], fc["origin_window_id"],
                                                    k["action_thread"], k["finding_thread"], board,
@@ -1154,6 +1166,130 @@ def a3_page(ctx: Ctx) -> dict:
     return {"fuel_value": demo_rows.trial_page(body, _trial_result(ctx))}
 
 
+# ---- DIESEL-K7 (ruling DIESEL-1-R3l §9l.3): KIS-3 and KIS-9, written by K7 -----------------------------------------
+
+KISIWA_SITE = "KISIWA-001"
+
+
+def _kisiwa_read(ctx: Ctx) -> dict | None:
+    """Kisiwa's stored rows (cached on `ctx`): the latest window per night as known now, the operational records, and
+    the handover, calendar, build document and derived log. None when the dataset holds no Kisiwa Site."""
+    if "kisiwa" in ctx.cache:
+        return ctx.cache["kisiwa"]
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA_SITE,)).fetchone()
+        if site is None:
+            ctx.cache["kisiwa"] = None
+            return None
+
+        def fetch(sql: str, *p) -> list[dict]:
+            cur = c.execute(sql, p)
+            names = [d.name for d in cur.description]
+            return [dict(zip(names, r)) for r in cur.fetchall()]
+
+        windows = fetch("SELECT DISTINCT ON (night_date) id, night_date, revision, recorded_at, state, reason, "
+                        "residual_low, residual_high, gap_minutes, gap_spans, limitations, terms FROM fuel_balance_window "
+                        "WHERE site_id = %s AND recorded_at <= clock_timestamp() ORDER BY night_date, revision DESC",
+                        site[1])
+        records = fetch("SELECT id, kind, body, occurred_at, recorded_at, quantity, source_document_sha256, case_id "
+                        "FROM operational_record WHERE site_id = %s ORDER BY occurred_at, recorded_at", site[1])
+    import demo_combined_kisiwa as kis
+
+    calendar = ctx.story["kisiwa"]
+    build = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
+    log_text = Path(build["log"]["path"]).read_text(encoding="utf-8")
+    assert kis.lf_sha256(log_text) == build["log"]["sha256"], "the derived log changed after the build"
+    nights = {r["night_date"]: r["k"] for r in calendar["runs"]}
+    out = {"tenant_id": site[0], "site_id": site[1], "handover": kis.load_handover(), "calendar": calendar,
+           "build": build, "actions": kis.parse_log(log_text)["actions"],
+           "runs": [(at(r["start"]), at(r["end"])) for r in calendar["runs"]],
+           "windows": {nights[w["night_date"].isoformat()]: w for w in windows if w["night_date"].isoformat() in nights},
+           "records": records}
+    ctx.cache["kisiwa"] = out
+    return out
+
+
+@row("KIS-3")
+def kis_3(ctx: Ctx) -> dict:
+    """KIS-3 (DIESEL-1-R3l §9l.3, moved from K9 to K7): Kisiwa's ten stored nights reproduce the handover's readings
+    band (`demo_rows.kis3`). A dataset without the Kisiwa Site fails the row (`KisiwaMissing`, carry R3k2 L2)."""
+    k = _kisiwa_read(ctx)
+    if k is None:
+        raise KisiwaMissing()
+    return {"kisiwa": "present", **demo_rows.kis3(k["windows"], k["handover"], k["calendar"]["delta_days"])}
+
+
+def _kisiwa_sql(ctx: Ctx, sql: str, *params) -> list[dict]:
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        cur = c.execute(sql, params)
+        names = [d.name for d in cur.description]
+        return [dict(zip(names, r)) for r in cur.fetchall()]
+
+
+def _kisiwa_finding(ctx: Ctx, k: dict) -> dict | None:
+    """KIS-9 (d): the fuel Finding read, from stored rows as known now: each fuel Finding's latest revision (its
+    lifecycle, window id and revision, stamp), the mechanisms of the threads that hold it, its latest consequence
+    (state and price revision), and the Site's diesel price v1 revision."""
+    s = k["site_id"]
+    found = _kisiwa_sql(
+        ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, r.created_at, "
+        "r.claim->>'fuel_balance_window_id' AS window_id, (r.claim->>'window_revision')::int AS window_revision "
+        "FROM finding_revision r WHERE r.site_id = %s AND r.domain = 'fuel_balance' "
+        "ORDER BY r.finding_id, r.revision_no DESC", s)
+    for f in found:
+        f["thread_kinds"] = [r["mechanism"] for r in _kisiwa_sql(
+            ctx, "SELECT t.mechanism FROM finding_thread t JOIN finding_thread_occurrence o ON o.thread_id = t.id "
+            "WHERE o.site_id = %s AND o.finding_id = %s ORDER BY t.mechanism", s, f["finding_id"])]
+        cons = _kisiwa_sql(ctx, "SELECT state, price_revision_id FROM fuel_residual_consequence_revision "
+                                "WHERE finding_revision_id = %s", f["revision_id"])
+        f["consequence_state"] = cons[0]["state"] if cons else None
+        f["price_revision_id"] = cons[0]["price_revision_id"] if cons else None
+    diesel = _kisiwa_sql(ctx, "SELECT id FROM financial_assumption_revision WHERE site_id = %s "
+                              "AND assumption_key = 'diesel_price_per_litre' AND revision_no = 1", s)
+    assert len(diesel) == 1, ("want exactly one diesel price v1 revision for the Site", diesel)
+    return {"findings": found, "diesel_v1_revision_id": diesel[0]["id"]}
+
+
+def _kisiwa_action(ctx: Ctx, k: dict) -> dict | None:
+    """KIS-9 (e): the Action read: its origin Finding, the cases linked to it, the linked case's state (its
+    latest work event's kind) and, K7-F, the stamps of its verification plans and outcomes."""
+    s = k["site_id"]
+    acts = _kisiwa_sql(ctx, "SELECT id, action_code, domain, origin_finding_id FROM domain_action WHERE site_id = %s "
+                            "AND domain = 'FUEL_BALANCE'", s)
+    assert len(acts) == 1, ("want exactly one FUEL_BALANCE Action", acts)
+    a = acts[0]
+    links = _kisiwa_sql(ctx, "SELECT case_id FROM domain_action_case_link WHERE site_id = %s AND action_id = %s "
+                             "ORDER BY recorded_at", s, a["id"])
+    assert links, ("the Action has no case link", a)
+    case_id = links[-1]["case_id"]
+    last = _kisiwa_sql(ctx, "SELECT kind FROM work_event WHERE site_id = %s AND case_id = %s "
+                            "ORDER BY recorded_at DESC, id DESC LIMIT 1", s, case_id)
+    plans = _kisiwa_sql(ctx, "SELECT recorded_at FROM verification_plan WHERE site_id = %s AND domain_action_id = %s "
+                             "ORDER BY recorded_at", s, a["id"])
+    outcomes = _kisiwa_sql(ctx, "SELECT recorded_at FROM verification_outcome WHERE site_id = %s "
+                                "AND domain_action_id = %s ORDER BY recorded_at", s, a["id"])
+    return {"origin_finding_id": a["origin_finding_id"], "case_id": case_id, "case_state": last[0]["kind"],
+            "linked_case_ids": [r["case_id"] for r in links],
+            "plan_recorded_at": [r["recorded_at"] for r in plans],  # K7-F: KIS-9 (e)
+            "outcome_recorded_at": [r["recorded_at"] for r in outcomes]}
+
+
+@row("KIS-9")
+def kis_9(ctx: Ctx) -> dict:
+    """KIS-9 (DIESEL-1-R3l §9l.3): Kisiwa story coherence: records, dip quantities, every action in one run, the
+    Finding, the Action, every run's frozen log and history, and story-instant stamps (`demo_rows.kis9`)."""
+    k = _kisiwa_read(ctx)
+    if k is None:
+        raise KisiwaMissing()
+    return {"kisiwa": "present", **demo_rows.kis9(
+        records=k["records"], handover=k["handover"], calendar=k["calendar"], build=k["build"], actions=k["actions"],
+        runs=k["runs"], windows=k["windows"], finding=_kisiwa_finding(ctx, k), action=_kisiwa_action(ctx, k))}
+
+
 # ---- runner ----------------------------------------------------------------------------------------------------
 
 def load(work: Path, client) -> Ctx:
@@ -1186,7 +1322,7 @@ def run(url: str, work: Path) -> int:
         try:
             results[check_id] = {"status": "pass", "read": fn(ctx)}
         except Exception as exc:  # recorded per row; the prepare fails after all rows ran
-            results[check_id] = {"status": "fail", "error": f"{type(exc).__name__}: {exc}"[:2000]}
+            results[check_id] = demo_rows.failed_result(exc)
             failed.append(check_id)
     (work / "check.json").write_text(json.dumps({"idx_present": have_idx, "rows": results}, indent=2, default=str),
                                      encoding="utf-8")

@@ -110,6 +110,18 @@ def _constants() -> list[str]:
             "small": "possible extra fuel cost"}   # CH-5d1: the Optimize `cost.site` line
     copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
     copy += list(cv.COST_SMALL.values())
+    # DIESEL-K7 (§9l.3): the Kisiwa story's Action, request and record literals (calendar and injector templates).
+    import json
+    import sys
+
+    sys.path.insert(0, str(REPO / "tools"))
+    import demo_combined_kisiwa as kis
+
+    act = json.loads(kis.STORY_FILE.read_text(encoding="utf-8"))["action"]
+    copy += [act["title"], act["owner_label"], act["request"]["title"], act["request"]["narrative"],
+             act["record"]["activity"], act["site_visit"]["body"],
+             kis.DELIVERY_BODY.format(volume_l=300, reference="KIS-DT-0001"),
+             kis.DIP_BODY.format(hhmm="07:00", dip_l="706")]
     # DIESEL-K4a (§9j.8 A4/§9j.9 item 9): the unexplained-fuel Finding literals, formatted with plain sample values.
     from assetops_backend.fuel_balance import finding_text as ft
     copy += [ft.TITLE, ft.CLAIM_LINE.format(lo="95.7", hi="144.3", date="4 Oct"),

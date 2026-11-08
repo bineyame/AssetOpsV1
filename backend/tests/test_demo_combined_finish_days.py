@@ -57,7 +57,7 @@ def test_three_site_prepare_finishes_with_the_plan_days(monkeypatch) -> None:
     monkeypatch.setattr(tool.shutil, "copytree", lambda *a, **k: None)
     monkeypatch.setattr(tool.shutil, "copy2", lambda *a, **k: None)
     try:
-        manifest = demo.prepare(days_file=str(sd.DEFAULT_FILE))
+        manifest = demo.prepare(tool.CORE_SITES, days_file=str(sd.DEFAULT_FILE))  # K7-F: the default is four Sites
     finally:
         shutil.rmtree(demo.work, ignore_errors=True)
     assert manifest["sites"] == ["kobo", "cold", "ev"]
