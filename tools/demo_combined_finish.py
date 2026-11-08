@@ -1120,6 +1120,35 @@ def kis_7(ctx: Ctx) -> dict:
     return {"kisiwa": "present", **demo_rows.kis7(s_body, bodies)}
 
 
+@row("KIS-OV")
+def kis_ov(ctx: Ctx) -> dict:
+    """KIS-OV (DIESEL-1-R3r §9r.2): the Kisiwa Overview answers 200 on S-5d and S, exactly one NO_LEGACY_EVIDENCE
+    cutover basis row names the Site's own import, and the S board's `read_state` is reported (`demo_rows.kis_ov`).
+    No Kisiwa: `KisiwaMissing`."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+        if site is None:
+            raise KisiwaMissing()
+        basis = [{"basis": b, "same_import": same_import, "same_sha": same_sha} for b, same_import, same_sha in
+                 c.execute("SELECT b.basis, b.site_import_id = i.id, b.source_sha256 = i.source_sha256 "
+                           "FROM site_cutover_basis b LEFT JOIN site_import i ON i.tenant_id = b.tenant_id "
+                           "AND i.site_id = b.site_id WHERE b.tenant_id = %s AND b.site_id = %s", site).fetchall()]
+    reads = []
+    for label, offset in (("S-5d", -5), ("S", 0)):
+        r = ctx.client.get(f"/api/sites/{KISIWA}/overview", params={"date": ctx.day(offset).date().isoformat()})
+        try:
+            body = r.json()
+        except ValueError:
+            body = None
+        detail = body.get("detail") if isinstance(body, dict) else None
+        reads.append({"label": label, "status": r.status_code, "body": body,
+                      "code": detail.get("code") if isinstance(detail, dict) else None})
+    board = ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=ctx.S.date().isoformat())
+    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, board.get("read_state"))}
+
+
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
     """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
     through the backend's own stores (None: no Kisiwa Site in this dataset; the rows then fail, carry R3k2 L2)."""

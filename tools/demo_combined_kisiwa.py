@@ -167,6 +167,11 @@ def register(url: str, work: Path, import_at: datetime, install_at: datetime) ->
     engine = create_engine(url)
     try:
         result = register_in(store, import_at, install_at)
+        # DIESEL-1-R3r (q12-6): the import carries no legacy documents (`legacy_documents=()` above), so record the
+        # explicit NO_LEGACY_EVIDENCE cutover basis with it (w402_demo.py's pattern). Never a comparison; idempotent.
+        from uuid import UUID
+
+        store.record_no_legacy_evidence_basis(UUID(result["tenant_id"]), UUID(result["site_id"]), now=import_at)
         with engine.begin() as c:
             c.execute(text("UPDATE gateway SET disabled_at = NULL WHERE site_id = :s"), {"s": result["site_id"]})
             c.execute(text("UPDATE source SET disabled_at = NULL WHERE site_id = :s"), {"s": result["site_id"]})

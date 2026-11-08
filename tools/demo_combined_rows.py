@@ -1168,3 +1168,18 @@ def kis7(summary_s: dict, bodies: list[object]) -> dict:
     sums = never_summed(amounts, bodies)
     assert sums > 0, "no sum of priced Sites checked"
     return {"priced": codes, "card": want, "amounts_high": amounts, "sums_checked": sums, "bodies": len(bodies)}
+
+
+def kis_ov(reads: list[dict], basis_rows: list[dict], board_read_state: object) -> dict:
+    """KIS-OV (DIESEL-1-R3r §9r.2): the Kisiwa Overview answers 200 on each read day (`reads`: label, status, code,
+    body) and exactly one `site_cutover_basis` row is `NO_LEGACY_EVIDENCE` for the Site's own import row and digest
+    (`basis_rows`: basis, same_import, same_sha). The S board's `read_state` is reported, never asserted."""
+    for r in reads:
+        assert r.get("status") == 200 and isinstance(r.get("body"), dict) and r["body"], (
+            "Kisiwa Overview not served", r.get("label"), r.get("status"), r.get("code"))
+    assert len(basis_rows) == 1, ("expected exactly one Kisiwa cutover basis row", basis_rows)
+    b = basis_rows[0]
+    assert b.get("basis") == "NO_LEGACY_EVIDENCE" and b.get("same_import") is True and b.get("same_sha") is True, (
+        "Kisiwa cutover basis is not the no-legacy basis of its own import", b)
+    return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
+            "board_read_state": board_read_state}

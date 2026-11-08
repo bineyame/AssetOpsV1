@@ -900,3 +900,81 @@ def test_kis7_optimize_two_priced_sites_no_sum_and_each_break_fails() -> None:
             pytest.fail(name)
     with pytest.raises(rows.KisiwaMissing):
         rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [])
+
+
+# ---- DIESEL-K9 R3r (DIESEL-1-R3r §9r.2): KIS-OV and the register call ----------------------------------------------------
+
+def _ov_reads(status: int = 200, code=None):
+    return [{"label": label, "status": status, "code": code, "body": {"window": label} if status == 200 else {}}
+            for label in ("S-5d", "S")]
+
+
+_OV_BASIS = [{"basis": "NO_LEGACY_EVIDENCE", "same_import": True, "same_sha": True}]
+
+
+def test_kis_ov_is_wired_after_kis7() -> None:
+    import demo_combined_finish as finish
+
+    ids = [c[0] for c in finish.CHECKS]
+    assert ids.index("KIS-OV") == ids.index("KIS-7") + 1
+
+
+def test_kis_ov_pass_and_each_break_fails() -> None:
+    got = rows.kis_ov(_ov_reads(), _OV_BASIS, "PARTIAL")
+    assert got == {"overview_status": {"S-5d": 200, "S": 200}, "basis": "NO_LEGACY_EVIDENCE",
+                   "board_read_state": "PARTIAL"}  # reported, not asserted
+    assert rows.kis_ov(_ov_reads(), _OV_BASIS, None)["board_read_state"] is None
+    for name, (reads, basis) in {
+            "409 awaiting evidence migration": (_ov_reads(409, "AWAITING_EVIDENCE_MIGRATION"), _OV_BASIS),
+            "no basis row": (_ov_reads(), []),
+            "two basis rows": (_ov_reads(), _OV_BASIS * 2),
+            "another basis": (_ov_reads(), [{**_OV_BASIS[0], "basis": "COMPARED"}]),
+            "another import": (_ov_reads(), [{**_OV_BASIS[0], "same_import": False}]),
+            "another digest": (_ov_reads(), [{**_OV_BASIS[0], "same_sha": False}])}.items():
+        with pytest.raises(AssertionError):
+            rows.kis_ov(reads, basis, "OK")
+            pytest.fail(name)
+
+
+def test_register_records_the_no_legacy_basis_after_register_in(monkeypatch, tmp_path) -> None:
+    import sqlalchemy
+
+    import demo_combined_kisiwa as kis
+    import pg_harness
+    from assetops_backend.sites.adapters import postgres_foundation_store as pfs
+    from datetime import datetime, timezone
+    from uuid import UUID
+
+    calls: list = []
+    tenant, site = "00000000-0000-0000-0000-0000000000a1", "00000000-0000-0000-0000-0000000000b2"
+
+    class Store:
+        def __init__(self, url):
+            pass
+
+        def record_no_legacy_evidence_basis(self, t, s, *, now):
+            calls.append(("basis", t, s, now))
+
+    class Conn:
+        def execute(self, *a, **k):
+            calls.append(("sql",))
+
+    class Engine:
+        def begin(self):
+            import contextlib
+            return contextlib.nullcontext(Conn())
+
+        def dispose(self):
+            pass
+
+    import_at = datetime(2026, 10, 1, tzinfo=timezone.utc)
+    install_at = datetime(2026, 10, 2, tzinfo=timezone.utc)
+    monkeypatch.setattr(pfs, "PostgresFoundationStore", Store)
+    monkeypatch.setattr(sqlalchemy, "create_engine", lambda url: Engine())
+    monkeypatch.setattr(pg_harness, "dispose", lambda store: None)
+    monkeypatch.setattr(kis, "register_in", lambda store, i, n: calls.append(("register_in",)) or
+                        {"tenant_id": tenant, "site_id": site})
+    monkeypatch.setattr(kis, "publish_price", lambda *a, **k: None)
+    kis.register("postgresql://x", tmp_path, import_at, install_at)
+    assert calls[0] == ("register_in",)
+    assert calls[1] == ("basis", UUID(tenant), UUID(site), import_at)
