@@ -220,3 +220,54 @@ these reads (codes of trees A and B); facts are unchanged. Proof scripts and tre
 **Process deviations.** I used shell `grep`, `head`, `tail`, `cut`, `wc` and one `>` redirect (an analysis dump to a scratch file) in the Bash
 tool before noticing the rule; no repo file was written that way. One extra diagnostic read (`dbg.py`, date 2026-11-02, a monkeypatch that only
 printed port failures) found the environment cause of the PARTIAL result. Kobo S-5d/d1 boards, Cold, EV and Portfolio bodies were not read (cut 3).
+
+## Fix round (R3t4, steps 1-4)
+
+Commit `e543085cb` (after `git merge main`, ruling 88f1a0eec). Scope: R3t4 order steps 1-4. Step 5 (R3u step 3) and the KIS-7 `money2` change are not done here.
+
+**Gate.** `chain/reader.py` `site_never_declared(revisions)` (pure, as in 9t4.1). `PostgresChainRead.declared_none_of`: the validity-span filter is gone from
+`_DECLARED_NONE` (still one statement, D2 known-at-k form; the `lo`/`hi` params are dropped); it returns `frozenset()` when any known revision has a
+productive load, else `declared_none_day` per day. Existing cases that relied on a mid-window mill giving partial days were changed to `frozenset()`
+(pure test line ~221; adapter `case_6`, `revision_change_inside_the_day_with_a_load`).
+
+**Tests added.** Pure (`test_k10_declared_none_rule.py`): gate; Kobo history empty on S, S-5d, d1, 10-05; Kisiwa-shaped R3t3 results kept; mill valid
+only after the window blocks; the R3t3 cases on a never-declared Site. Adapter on `assetops_k10_test`: Kobo history (4 windows), mill superseded before k
+and mill recorded after k do not block, mill valid after the window blocks. The pure file cannot model "superseded/recorded after k" (that is the SQL), so
+those two live in the adapter file only.
+
+**Targeted runs.** The three K10 files: `44 passed, 2 warnings in 19.25s`. Ten adjacent files (`test_out_b2_vocabulary`, `test_ch6_claims`,
+`test_ch5c2_clock_guard`, `test_out_b3_cold_ev`, `test_ch5a1_board_contract`, `test_ch5a2_contract`, `test_ch6_contract`, `test_out_b2_mini`,
+`test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`): `206 passed, 2 warnings in 19.72s`.
+
+**Mutation.** After the commit, `if not site_never_declared(revs)` became `if False and not ...`: `7 failed, 27 passed` (rule: 3 failed - the existing
+bounds test, Kobo, mill-after-window; adapter: 4 failed - case 6, revision-change-with-load, Kobo, mill-after-window). Reverted with `git checkout --`; tree clean.
+Not caught by the mutation: the two "does not block" cases (they pass with or without the gate by design).
+
+**performance_migration on the clone** (`assetops_k9_audit_r3u`, `DATABASE_URL` to it; a K10 code tree at HEAD `e543085cb` built in the scratchpad
+`k10r3t4/code` (backend, config, contracts, host, simulator, gateway, field), its `var` a junction to the copied `var/demo3_r3u/tree/var`; the tool's
+evidence root is `REPO_ROOT/var/evidence` with `REPO_ROOT = parents[2]` of `config.py`). No hand restamp; the original DB and var untouched.
+- KOBO-001: `PASSED` (empty-set comparison), lineage selected_runs 98, all break counts 0, `Performance cutover: permitted`, exit 0.
+  Report `.../migration-performance/kobo-001/20261108T145050532957Z-351a2141-1e29-44ed-97e9-c375cb050b35.json`.
+- KISIWA-001: `PASSED` (empty-set comparison), selected_runs 11, break counts 0, `Performance cutover: permitted`, exit 0.
+  Report `.../migration-performance/kisiwa-001/20261108T145052461888Z-191bfa62-71fc-4dff-ab16-452a70af844f.json`.
+No gate was closed. Before the reads, `chain_response` rows built after 14:00 UTC (6, my earlier reads) were deleted from the clone.
+
+**Re-run (S = 2026-11-06, d1 = 2026-10-28; probe `k10r3t4/probe.py`, comparison `cmp.py`, full-body recursive diff):**
+
+| Check | Result |
+|---|---|
+| Kobo S board body vs K9 baseline (`out_A_k9.json`) | **0 differing paths** (status 200, PARTIAL; gap line "11 of the last 31 days have no checked readings yet", no note) |
+| Kobo declared absent, S / S-5d / d1 / 10-05 windows (31 days each) | `[]` on all four |
+| Kobo declared absent, Portfolio 1-Site (Oct 9), 3-Site (Oct 23-24), 4-Site week (S-6d..S), every day Sep 1 .. Nov 7 | `[]` on all |
+| Kisiwa d1 board vs packet table (K10 body `out_B_k10.json`) | **0 differing paths**: read_state AVAILABLE; Grow NO_OBJECTIVE "No productive-use equipment declared · 0 kWh"; Optimize NEEDS_ATTENTION "possible extra fuel cost on this day"; Protect WATCH; Assure WATCH "No verified result yet"; gap line "30 of the last 31 days ... · Productive use not assessed: no productive-use equipment declared for this site (0 kWh)" |
+| Kisiwa S-5d board vs packet table | **0 differing paths**: Grow NO_OBJECTIVE; Optimize NO_OBJECTIVE; Protect NEEDS_ATTENTION; Assure WATCH; gap line "29 of the last 31 days ... · Productive use not assessed ..." |
+| Kisiwa declared absent Oct 26 .. Nov 7 | all 13 days (unchanged from phase 2) |
+
+The Optimize `0.00 to 26.28 USD` and MG-8 entries are inside the compared bodies (zero differing paths), so they are unchanged. Head `8a98f683...` amount_high
+26.27739583...; the KIS-7 `money2` comparison belongs to K9.
+
+**Stops:** K10-s1 cleared (Kobo empty sets, S body equal baseline). K10-s5 not triggered. No other stop.
+
+**Process deviations.** Two wasted steps: a full-repo `git archive` unpack (1.4 GB, killed) replaced by a partial tree; a Glob over the old scratch folder listed
+the old proof trees (read-only, no effect). The old hand-restamped proof trees in `k10p2` were not used. The Bash tool was not used. Cold, EV and Portfolio
+bodies were still not read (cut 3); only the Kobo S board was compared to baseline.
