@@ -1019,10 +1019,10 @@ def kis_8a(ctx: Ctx) -> dict:
     """DIESEL-K4b (DIESEL-1-R3j §9j.12, written by K4b, run at E3): the week estate summary holding Kisiwa's S+0 board
     lists Kisiwa's night-4 unexplained-fuel line on the Protect card, built from its Protect node, and COH-17 row UF1
     passes on it (`demo_rows.kis8_protect`). Night 4 is the Site-local night starting S−6d (K7, §9l.3). A dataset
-    without the Kisiwa Site is reported as such, never as a check."""
+    without the Kisiwa Site on the summary fails the row (`KisiwaMissing`, carry R3k2 L2; K9, coordinator Q6)."""
     summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
     if not any(s.get("site_code") == KISIWA for s in summary.get("sites") or ()):
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()
     return {"kisiwa": "present", **demo_rows.kis8_protect(summary, ctx.day(-6).date(), KISIWA)}
 
 
