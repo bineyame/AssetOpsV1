@@ -31,7 +31,10 @@ for extra in (REPO / "tools", REPO / "host", REPO / "host" / "tests", REPO / "ga
         sys.path.insert(0, str(extra))
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
-pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+pytestmark = [
+    pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"),
+    pytest.mark.slow,
+]
 
 UTC = timezone.utc
 COUNTED = ("fuel_balance_window", "finding_revision", "fuel_residual_consequence_revision")
