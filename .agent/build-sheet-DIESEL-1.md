@@ -4383,3 +4383,33 @@ For the owner's information, in plain words:
 ### 9n.5 Owner note (plain words)
 
 The reviewer found that if a fuel delivery is recorded on the wrong night and then corrected, the unexplained-fuel check would crash, or would leave an old warning showing. The fix makes each correction add a fresh, correct entry, as the generator findings already do. It also adds a test that the fuel price used is the one known at the end of the night. The work grows by a tenth of a unit, and the demo date does not move in any way you would notice.
+
+---
+
+## 9m2. Ruling DIESEL-1-R3m2: K6a stop S-a3 (the maintenance request's Action link)
+
+- Architect: Claude, 2026-11-08. Binding: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. READ on main at `1e0020df8` and on K4a's branch. Nothing was run.
+- **The stop is confirmed.** `work/site_index.py:229-241` `_action_link` gives every domain link that has lineage and a `finding_revision_id` the address `/sites/{site}/actions/{aid}/verification`. On a MINIGRID Site that address is the W1 Action frame, and a fuel Action has no W1 row.
+- **Owner: K6a.** K6a is the unit that creates the fuel Action, so it must not ship a link that leads to a "not found" page. K6b fills in the real address.
+- **Exact change (K6a):**
+  1. `work/adapters/postgres_work_read.py:169-172` (the `domain` list in the case links read): add a conditional key, exactly as the opportunity key is added: `**({"action_domain": r["action_domain"]} if r["action_domain"] == FUEL_DOMAIN else {})`.
+     - `_domain_links` already selects `a.domain AS action_domain` (`:60`).
+     - Cold, EV and mill link dicts stay byte-equal.
+  2. `work/site_index.py` `_action_link`, at the start of the `DOMAIN_ACTION` branch:
+     ```python
+     if link.get("action_domain") == FUEL_DOMAIN:  # DIESEL-1-R3m2: a fuel Action has no W1 page; K6b sets its verdict address
+         href = None
+     elif lineage and link["finding_revision_id"] is not None:
+         ...
+     ```
+     The `elif`s that follow are unchanged. `FUEL_DOMAIN` is imported from `work.domain_action`.
+  3. K6a's approved file list gains these two edits only.
+- **What the link reads between the two merges:** the plain label "Action" (`ACTION_LABEL`) with `href` None. That is the existing no-link rendering (the label is shown, but it is not clickable). It is honest and needs no new literal.
+- **K6b (added to §9m.4):** the fuel branch becomes `href = f"/sites/{site_code}/domain-actions/{aid}/fuel-verification" if lineage else None`. K6b adds `work/site_index.py` to its file list. Its L0 test flips the K6a assertion below to that address.
+- **Tests (K6a):**
+  - **L0**, in `test_k6a_fuel_action_origin.py`: `_action_link` on a fuel link with lineage true gives `href is None` and label "Action". The same link without `action_domain` (a Cold link) still gives `/actions/{aid}/verification`. A mill link still gives `/domain-actions/{aid}/verification`. Must fail if the fuel branch is removed (the fuel link then yields `/actions/…/verification`).
+  - **L2**, item 5 of K6a's L2: the request detail and index for the fuel Action's case serve no `href` that contains `/actions/` for that Action id. Must fail on the same mutation.
+- **Confirmed:**
+  - 0057's `down_revision` = `"0056_unexplained_fuel_finding"`. That is K4a's `revision` (and K4a's own `down_revision` is `0055_fuel_balance_window`), read on `task/DIESEL-K4a-unexplained-fuel-finding`.
+  - `test_w502_domain_intent_api.py` failing to collect without a DB URL (`NameError: COLD`) is **not K6a's to fix**. The file imports `COLD` from `test_w502_domain_intent_postgres` inside its DB-gated block (`:23`), and K6a does not touch that file. It is a pre-existing collection quirk, so the coordinator adds it to the follow-up list. K6a runs it with `ASSETOPS_TEST_DATABASE_URL` set to `assetops_k6_test`.
+- **Size:** K6a +0.03 (within its 0.8 stop). The critical path is unchanged at about 8.9. Owner questions: none.
