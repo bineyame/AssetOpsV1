@@ -201,7 +201,8 @@ def _mill(**kw):
 def _verified_results(comp) -> int:
     """`site_outcomes/read.py` board `_verified_results` (MB-1-R Q5), the same expression."""
     return (sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED")
-            + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED"))
+            + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED")
+            + sum(1 for f in comp.facts.fuel_verdicts if f.outcome == "VERIFIED"))  # DIESEL-1-R3u
 
 
 def test_s0_shape_lists_the_trial_and_the_mill_in_code_order() -> None:
@@ -312,6 +313,37 @@ def test_the_board_service_verified_results_is_the_assure_headline_number() -> N
     shown = 0 if assure["headline"] == mini.NO_VERIFIED else int(assure["headline"].split()[0])
     assert body["_verified_results"] == shown >= 1
     assert any((c["link_ref"] or {}).get("kind") == "DOMAIN_VERDICT" for c in assure["contributors"])
+
+
+def test_the_board_service_verified_results_includes_the_fuel_verdict() -> None:
+    """DIESEL-1-R3u U3 item 4: `_verified_results` counts a VERIFIED fuel verdict (FUEL_BALANCE domain Action) as
+    the Assure headline does; with the mill it is one more than the mill alone."""
+    import test_ch5a1_board_contract as BC
+    from assetops_backend import read_scope
+    from assetops_backend.site_outcomes.read import SiteOutcomeBoardService
+
+    fuel = {"action_id": "a-fuel", "action_code": "ACT-000004", "kind": "DOMAIN_INTENT", "thread_id": "t-fuel",
+            "origin_finding_id": "f-fuel", "origin_opportunity_id": None, "action_domain": "FUEL_BALANCE",
+            "accepted_at": BC.at(21), "outcome": "VERIFIED", "outcome_recorded_at": BC.at(22),
+            "source_class": None}
+    fuel_occ = {**_occ("t-fuel", "f-fuel", None, BC.at(20)), "mechanism": "UNEXPLAINED_FUEL"}
+
+    def body_of(with_fuel):
+        class Port(BC.Port):
+            def site_threads(self, tenant_id, site_id, known_at):
+                occ = (_occ(MILL_T, None, OPP, BC.at(20)),) + ((fuel_occ,) if with_fuel else ())
+                acts = (_act(accepted=BC.at(21), recorded=BC.at(22)),) + ((fuel,) if with_fuel else ())
+                return _rows(*acts, occurrences=occ)
+
+        with read_scope.scope("test:k6c"):
+            return SiteOutcomeBoardService(BC.services(Port(), [])).board(BC.KOBO, known_at=BC.KNOWN,
+                                                                          day=date(2026, 10, 31))
+
+    without, body = body_of(False), body_of(True)
+    assure = next(r for r in body["rows"] if r["category"] == mini.ASSURE)
+    shown = 0 if assure["headline"] == mini.NO_VERIFIED else int(assure["headline"].split()[0])
+    assert body["_verified_results"] == shown == without["_verified_results"] + 1 >= 2
+    assert any((c["link_ref"] or {}).get("kind") == "FUEL_VERDICT" for c in assure["contributors"])
 
 
 def test_composition_injects_the_thread_policy(monkeypatch) -> None:
