@@ -103,12 +103,30 @@ def test_no_revision_gives_no_day(world):
     assert call(port, tenant, mid) == frozenset({D2, D3})
 
 
-def test_two_overlapping_revisions_give_no_day(world):
+def test_two_overlapping_revisions_follow_r3t3(world):
     engine, tenant, port = world
-    # A superseded after k and B current, both known at k, validity overlapping: ambiguous setup
+    # A superseded after k and B current, both known at k, validity overlapping: R3t3 allows overlap, a mill vetoes
     s = site(engine, tenant, (NONE_DECLARED, T0, None, T0, K + timedelta(days=2)),
              (NONE_DECLARED, T0, None, T0 + timedelta(days=1), None))
-    assert call(port, tenant, s) == frozenset()
+    assert call(port, tenant, s) == frozenset({D1, D2, D3})
+    m = site(engine, tenant, (NONE_DECLARED, T0, None, T0, K + timedelta(days=2)),
+             (WITH_LOAD, T0, None, T0 + timedelta(days=1), None))
+    assert call(port, tenant, m) == frozenset()
+
+
+def test_r3t3_case_6_mid_day_mill_gives_no_day(world):
+    engine, tenant, port = world
+    s = site(engine, tenant, (NONE_DECLARED, T0, local(D2, 8), T0, None), (WITH_LOAD, local(D2, 8), local(D2, 14), T0, None),
+             (NONE_DECLARED, local(D2, 14), None, T0, None))
+    assert call(port, tenant, s, days=(D2,)) == frozenset()
+    assert call(port, tenant, s) == frozenset({D1, D3})
+
+
+def test_r3t3_case_7_mid_day_gap_gives_no_day(world):
+    engine, tenant, port = world
+    s = site(engine, tenant, (NONE_DECLARED, T0, local(D2, 8), T0, None), (NONE_DECLARED, local(D2, 14), None, T0, None))
+    assert call(port, tenant, s, days=(D2,)) == frozenset()
+    assert call(port, tenant, s) == frozenset({D1, D3})
 
 
 def test_revision_change_inside_the_day_with_a_load_at_the_end_gives_no_day(world):

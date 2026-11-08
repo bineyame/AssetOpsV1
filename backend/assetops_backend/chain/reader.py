@@ -56,6 +56,23 @@ def _day_grade(grades: Sequence[str]) -> str:
 DECLARED_SUBJECT_MEASURES = frozenset({"productive_kwh"})
 
 
+def declared_none_day(revisions: Sequence[tuple[datetime, datetime | None, bool]],
+                      lo: datetime, hi: datetime) -> bool:
+    """R3t3: (valid_from, valid_to, has_productive) of the revisions known at k. True only when the revisions
+    overlapping [lo, hi) (valid_from < hi and (valid_to is None or valid_to > lo)) are at least one, none has a
+    productive load, and together they cover [lo, hi) with no gap: sorted by valid_from, cursor = lo; a revision
+    with valid_from > cursor is a gap -> False; cursor = max(cursor, valid_to or +inf); finally cursor >= hi."""
+    over = sorted((r for r in revisions if r[0] < hi and (r[1] is None or r[1] > lo)), key=lambda r: r[0])
+    if not over or any(r[2] for r in over):
+        return False
+    cursor: datetime | None = lo      # None stands for +infinity (an open-ended revision)
+    for vf, vt, _ in over:
+        if cursor is not None and vf > cursor:
+            return False
+        cursor = None if vt is None or cursor is None else max(cursor, vt)
+    return cursor is None or cursor >= hi
+
+
 def applicable_measures(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str],
                         none_declared: Collection[str] = ()) -> tuple[str, ...]:
     """R3t: `measures` without each m in `none_declared` ∩ DECLARED_SUBJECT_MEASURES that has no row this day,

@@ -145,6 +145,25 @@ def test_mg1_with_objective_and_declared_absent_is_never_on_track_or_met():
     assert rows[GROW]["state"] != "ON_TRACK"
 
 
+def test_mg1_evaluator_reads_none_never_zero_on_a_declared_absent_window():
+    """R3t3 L1: the evaluator itself, not only the rendered board (the board assertions alone survive a 0 reading)."""
+    from datetime import timedelta
+    from assetops_backend.chain.outcomes import NodeInputs, OutcomeEvaluator
+    from assetops_backend.outcomes.catalogue import MINI
+    from assetops_backend.outcomes.objectives import AT_LEAST, MET, ON_PACE, ObjectiveFact, judge_month
+    o = ObjectiveFact("MG-1", "productive_use_kwh", AT_LEAST, Decimal(300), False, "t", "DECLARED", None)
+    inp = NodeInputs(site_code=b2.C, domain=MINI, tz=b2.ZONE, window=(b2.DAY - timedelta(days=6), b2.DAY),
+                     objectives=(o,), none_declared=frozenset({KWH}))
+    ev = OutcomeEvaluator()
+    reading, _, _ = ev._month_reading(inp, KWH)
+    assert reading.value is None, reading          # never 0
+    assert reading.complete is False, reading
+    assert judge_month(o, reading) not in (MET, ON_PACE)
+    r2 = ev.readings(inp)["MG-1"]
+    assert r2.value is None and r2.complete is False
+    assert judge_month(o, r2) not in (MET, ON_PACE)
+
+
 def test_kobo_shaped_composition_body_equal_to_before():
     plain, _ = run(b2.Fake())
     keyed, _ = run(b2.Fake(day={"none_declared": {}}))

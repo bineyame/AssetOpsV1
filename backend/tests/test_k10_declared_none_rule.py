@@ -217,13 +217,40 @@ def test_declared_none_of_needs_exactly_one_revision_at_both_bounds():
     assert declared_none_of(tz, [], days) == frozenset()
     assert declared_none_of(tz, [(None, None, None)], days) == frozenset()              # LEFT JOIN, no revision
     assert declared_none_of(None, [(t0, None, none)], days) == frozenset()              # no timezone
-    assert declared_none_of(tz, [(t0, None, none), (t0, None, none)], days) == frozenset()   # ambiguous
+    assert declared_none_of(tz, [(t0, None, none), (t0, None, none)], days) == {D1, D2, D3}  # R3t3: overlap allowed
+    assert declared_none_of(tz, [(t0, None, none), (t0, None, load)], days) == frozenset()   # any overlapping mill
     assert declared_none_of(tz, [(t0, mid, none), (mid, None, load)], days) == {D1}      # load at D2's end
     assert declared_none_of(tz, [(t0, mid, load), (mid, None, none)], days) == {D3}      # load at D2's start
     assert declared_none_of(tz, [(t0, mid, none), (mid, None, none)], days) == {D1, D2, D3}
     # the local end bound: a revision ending at local midnight D3 leaves D3 uncovered
     end_d2 = datetime(2026, 10, 27, 21, tzinfo=timezone.utc)
     assert declared_none_of(tz, [(t0, end_d2, none)], days) == {D1, D2}
+
+
+def _h(n):
+    from datetime import datetime, timezone
+    return datetime(2026, 10, 27, tzinfo=timezone.utc) + timedelta(hours=n)
+
+
+LO, HI = _h(0), _h(24)
+
+
+def test_r3t3_declared_none_day_eleven_cases():
+    f = rd.declared_none_day
+    assert f([(_h(-5), _h(30), False)], LO, HI) is True                                  # 1 one covers the day
+    assert f([(_h(-5), None, False)], LO, HI) is True                                    # 2 open-ended
+    assert f([(_h(-5), _h(12), False), (_h(12), _h(30), False)], LO, HI) is True         # 3 contiguous at 12:00
+    assert f([(_h(-9), LO, False), (LO, _h(30), False)], LO, HI) is True                 # 4 one ends exactly at lo
+    assert f([(_h(-5), HI, False)], LO, HI) is True                                      # 5 valid_to == hi (half-open)
+    assert f([(_h(-5), _h(8), False), (_h(8), _h(14), True), (_h(14), None, False)], LO, HI) is False   # 6 mid-day mill
+    assert f([(_h(-5), _h(8), False), (_h(14), None, False)], LO, HI) is False           # 7 mid-day gap
+    assert f([(_h(0.5), None, False)], LO, HI) is False                                  # 8 gap at the start
+    assert f([(_h(-5), _h(23), False)], LO, HI) is False                                 # 9 gap at the end
+    assert f([], LO, HI) is False                                                        # 10 no revisions
+    assert f([(_h(-5), None, False), (_h(8), _h(14), True)], LO, HI) is False            # 11 overlap, one with a mill
+    # only revisions overlapping the day count: one ending at lo, or starting at hi, is ignored
+    assert f([(_h(-9), LO, True), (LO, HI, False), (HI, None, True)], LO, HI) is True
+    assert f([(_h(-9), LO, False)], LO, HI) is False
 
 
 def test_counts_rule_with_declaration_over_a_window():

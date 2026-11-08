@@ -20,6 +20,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from assetops_backend.chain.read import FindingHead
+from assetops_backend.chain.reader import declared_none_day
 from assetops_backend.mini_depth.read import productive_loads
 from assetops_backend.evidence.public_provenance import (LinkRowsReads, PublicProvenance, estate_projection,
                                                          finding_row_selection)
@@ -181,23 +182,19 @@ SELECT s.timezone, r.valid_from, r.valid_to, r.content
 
 
 def declared_none_of(tz: str | None, revisions: Sequence[tuple[Any, Any, Any]], days: Sequence[date]) -> frozenset[date]:
-    """K10 v2 (R3t safeguard 1), pure: the days of `days` whose local start AND local end - 1 us are each covered by
-    exactly one revision (`valid_from <= at < valid_to`), each declaring no productive load (`productive_loads`,
-    the builder's subject filter). No timezone, no revision, or more than one at a bound: not declared absent."""
+    """K10 v2 (R3t safeguard 1, R3t3), pure: the days of `days` that `declared_none_day` accepts, i.e. whole-day
+    coverage by revisions with no productive load (`productive_loads`, the builder's subject filter) and no gap.
+    No timezone or no revision: not declared absent."""
     if not tz or not days:
         return frozenset()
     zone = ZoneInfo(tz)
-    revs = [(vf, vt, c if isinstance(c, Mapping) else json.loads(c)) for vf, vt, c in revisions if vf is not None]
-
-    def none_at(at: datetime) -> bool:
-        cover = [c for vf, vt, c in revs if vf <= at and (vt is None or vt > at)]
-        return len(cover) == 1 and productive_loads(cover[0]) == []
-
+    revs = [(vf, vt, bool(productive_loads(c if isinstance(c, Mapping) else json.loads(c))))
+            for vf, vt, c in revisions if vf is not None]
     out = set()
     for d in days:
-        start = datetime.combine(d, time.min, zone).astimezone(timezone.utc)
-        end = datetime.combine(d + timedelta(days=1), time.min, zone).astimezone(timezone.utc) - timedelta(microseconds=1)
-        if none_at(start) and none_at(end):
+        lo = datetime.combine(d, time.min, zone).astimezone(timezone.utc)
+        hi = datetime.combine(d + timedelta(days=1), time.min, zone).astimezone(timezone.utc)
+        if declared_none_day(revs, lo, hi):
             out.add(d)
     return frozenset(out)
 
@@ -247,7 +244,7 @@ class PostgresChainRead:
 
     def finding_heads(self, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                       hi: datetime, known_at: datetime | None) -> tuple[FindingHead, ...]:
-        params ={"t": tenant_id, "s": site_id, "domain": domain, "analytic": analytic_id, "lo": lo, "hi": hi,
+        params = {"t": tenant_id, "s": site_id, "domain": domain, "analytic": analytic_id, "lo": lo, "hi": hi,
                   "k": known_at}
         with self._engine.connect() as c:
             rows = c.execute(_FINDING_HEADS, params).mappings().all()
