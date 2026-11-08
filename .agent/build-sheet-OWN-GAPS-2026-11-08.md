@@ -1793,3 +1793,168 @@ for 7 nights. Revisit only if a site sends generator data on a separate link.
 
 **D-R3.10 (for owner review).** A problem with one night's stored history (a clock that moved backwards) no longer stops
 the checks of later nights; the Site still shows the failure in health. Cost: about 10 lines and two no-DB tests.
+
+---
+
+## R4 — DS-1a residual rulings (2026-11-09)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`, main `b73c65eb6`). Owner away; decisions delegated
+(`.agent/owner-away-architect-decides-2026-11-08.md`). Read-only; no Postgres run. Input: the two residual risks in
+`AssetOpsV1-ds1a/.agent/review-DS-1a.md` ("Residual risk"). **READ** = code or file, cited.
+
+### R4.1 Cold room "No action yet" on the Portfolio against ACT-002 in step 4: a product inconsistency; fix before E1
+
+**Cause (READ).**
+- `select_action_scope` reads Actions only for mini-grid Sites (`estate/index.py:256-259`, `applicable = ... == MINI_GRID`).
+  Cold and EV domain Actions never reach `_action_for`, so every Cold/EV row gets `workflow_label(None)` = "No action
+  agreed yet" (`estate/portfolio.py:226-229`), the bold cell "No action yet" (`EstatePortfolio.tsx:207`) and the
+  placement reason "No action agreed yet · review the recommendation" (`estate/placement.py:33, 51`).
+- The chain already knows the truth: thread sources include `domain_action` (`chain/adapters/postgres_thread_sources.py:73, 185`),
+  `attach_threads` puts each row's thread (with `state`) on the row, and the K9 rehearsal build's F-THREADS read shows
+  Cold threads `["Action agreed", "Open"]` and EV `["Action agreed"]` (`AssetOpsV1-k9/var/demo3_k9rehearsal/check.json`).
+- So the Portfolio says "no action agreed" while the board, the Work page and the chain say one is. This is the same
+  class as K8 L1, which R-1 fixed for the fuel row only (`FUEL_THREAD_LABEL`, `estate/portfolio.py:257-267`;
+  `EstatePortfolio.tsx:153-154, 202-204`). DD1b2-R9's "nothing shown is false" was wrong: the row states "No action
+  agreed yet", and that is false for the start-failure thread.
+- **Why it matters on a real Site:** the Portfolio exists to tell a manager where nobody is acting yet. A row that says
+  "no action agreed" when the site team already owns a witnessed start test sends the manager to chase work that is
+  in hand, and teaches him not to trust the list. That is a fundamental, not polish.
+
+**Ruling: fix it now with the R-1 mechanism, generalised. BL-47 (joining the Action itself, code and link) stays in
+the backlog.** One source for "is someone acting": the thread state the chain already computed, read at the row's own
+cutoff, exactly as the fuel row does. No new query, port, table or migration.
+
+**Product change (branch `task/R4-1-domain-row-thread-state`, from main):**
+1. `backend/assetops_backend/estate/portfolio.py`
+   - Rename `FUEL_THREAD_LABEL` to `THREAD_LABEL` (same four entries; update its comment: "a row whose Action the
+     Portfolio does not join: the fuel row (FUEL_BALANCE domain) and every Cold/EV row (`select_action_scope` reads
+     mini-grid Actions only)").
+   - In `portfolio_row`, replace the `label = ...` statement with:
+     ```python
+     unjoined = r.get("_mechanism") == "UNEXPLAINED_FUEL" or (
+         action is None and DOMAIN_OF_SITE_TYPE.get(r["_domain"], NOT_APPLICABLE) in (COLD, EV))
+     label = (THREAD_LABEL.get((r.get("_thread") or {}).get("state"), "No action agreed yet") if unjoined else None)
+     ```
+     (`COLD`, `EV`, `DOMAIN_OF_SITE_TYPE`, `NOT_APPLICABLE` are already imported at `:25-26`.) Mini-grid rows are
+     unchanged: their join is authoritative, so a mini row with no joined Action keeps "No action agreed yet".
+   - Effect: ACTION_IN_HAND → "Pending" (placement reason ACTION_PENDING, "Action accepted, not yet applied"; Cold
+     start-failure rows stay in Act now because their episode is open); CHANGE_APPLIED → "Applied";
+     RESOLVED_MONITORING/CLOSED → "Verified"; OPEN, RECURRED, no thread → "No action agreed yet" (unchanged). The Cold
+     temperature row stays "No action yet": its own thread is Open, which is true.
+2. `frontend/src/estate/EstatePortfolio.tsx`: rename `fuelThread` to `threadState` and drop the mechanism test:
+   `const threadState = row.action_id === null && row.workflow_label !== "No action agreed yet";` (for a mini row with
+   no Action the label is always "No action agreed yet", so mini rows are unchanged). Extend the MOCK DEVIATION
+   comment: "MD-FUEL-K4-1, extended by R4.1 to Cold/EV rows: the Action column shows the row's thread state in bold
+   when the Portfolio does not join the Site's Actions."
+3. No change to `actionIndex.tsx`, the estate Actions list, `select_action_scope`, the cursor, COH-2's named
+   expectation (`action_id` stays null, so it still applies) or any tool.
+
+**Tests (no DB; no Postgres file is touched):**
+- Backend, new `backend/tests/test_r4_domain_row_thread_state.py` (pure `portfolio_row` with a Cold and an EV row
+  fixture; copy the row shape from `test_w303_portfolio_workflow_labels.py`):
+  (a) Cold, no Action, thread `ACTION_IN_HAND` → `workflow_label` "Pending", placement ACT_NOW with reasons
+  `[EPISODE_OPEN, ACTION_PENDING]`; (b) Cold, thread `OPEN` → "No action agreed yet"; (c) EV, `CHANGE_APPLIED` →
+  "Applied"; (d) Cold, `_thread` None → "No action agreed yet"; (e) **must-fail guard**: a mini-grid row with no
+  Action and thread `ACTION_IN_HAND` → "No action agreed yet"; (f) the fuel row is unchanged (one case).
+- Frontend, `frontend/src/estate/__tests__/estatePortfolio.test.tsx`: a Cold row with `action_id: null`,
+  `workflow_label: "Pending"` renders bold "Pending" with `data-portfolio-workflow`, has no "No action yet" text in
+  its Action cell, and keeps the "Review finding" link; a Cold row with "No action agreed yet" still renders "No action
+  yet" plus the workflow text.
+- Run: the two files above, `test_w303_portfolio_workflow_labels.py`, `test_cc_placement.py`, and vitest for
+  `estatePortfolio.test.tsx` and `estateRoots.test.tsx`. An existing test that pinned "No action agreed yet" on a
+  Cold/EV row **with an in-hand thread** is updated and listed in the packet; any other change to an existing
+  assertion stops the work and comes to the Architect.
+
+**Proof on the demo build (E4 checklist item, no code):** on the "Portfolio, week to story day S" link, the two Cold
+"Backup generator did not start" rows and the EV row read **Pending**, and the Cold temperature row reads **No action
+yet**. If a start-failure row reads "No action yet", the Portfolio's thread state disagrees with the board (COH-13
+would also fire): stop and bring it to the Architect; do not change the script to match.
+
+**Size and slot:** 0.25 unit (Sonnet build; fresh Opus light review, High/Medium block). Lane B (free since G3b merged),
+merged before E1 (Thu 12, 08:00), then check-all on main per R1.3. It touches no G1 file.
+
+**DS-1a / DS-1f changes:**
+- Replace `demo-script-img/03-portfolio-act-first.png` with the same crop from E5's Portfolio capture (1440), so the
+  illustrative picture does not show the old text. ST-1 quotes the row words from that crop.
+- ST-4, presenter note (add after the Say): "On the Portfolio, the start-failure rows read Pending: an action is
+  agreed and not yet done, and the action is ACT-002 on this page. The temperature row reads No action yet, which is
+  correct: no action has been agreed on the temperature itself."
+- ST-4 "If asked" (add): "Why does the Portfolio not name ACT-002?" → "The Portfolio shows whether someone is acting;
+  the action itself, its owner and its test are on the Site's Work page, one click away."
+- Callout 3 stays: the Work page does show the owner.
+
+**D-R4.1 (for owner review).** The Portfolio now reads "Pending" (not "No action yet") on Cold and EV findings that
+already have an agreed action, from the same chain state the board shows. Naming the action itself on the Portfolio
+row (BL-47, about 0.5 unit) stays after the demo.
+
+### R4.2 Step 7, "a new day arrives": hold yesterday back for Kobo, release it during the session
+
+**What exists (READ).**
+- A real Site's readings arrive all day from its gateway; nobody adds a day. A whole day arriving at once does
+  happen on remote sites: a gateway that loses its uplink stores its readings and sends them when the link returns.
+  That is the only honest real-site picture of "a day arrives during the meeting".
+- `add-dates` is the demo's gateway (§4.1). Per date it runs the Site's child and then one `Demo.tick()`, the product's
+  own scheduled tick (`AssetOpsV1-g1/tools/demo_combined.py:1069-1090`); readings keep their story time and are
+  recorded at real time (client-demo-plan §2.5.1a "Honesty rules"). R1.5's estimate: Kobo about 7 min plus one tick
+  about 2 min, so **about 9 min** from start to the day being checked. Nothing arrives in 3 minutes.
+- The morning catch-up (`add-dates`, to yesterday) leaves no ended day free, so the old plan's "the live step adds
+  S+2" (client-demo-plan §2.5.1a) has no day to add unless one is held back.
+- The frontend does not poll (no `refetchInterval`/`setInterval` in `frontend/src`): the presenter reloads the page.
+- The serve's scheduler also ticks every two minutes (CO-2); the tool's tick only runs the same check sooner.
+
+**Ruling.**
+1. **The held day is Kobo's yesterday** (Site-local date). It is exactly the day the morning catch-up would have
+   added, with the same `normal` kind, so no story content changes. Kobo is chosen because it is the Site the client
+   has just seen and its board grades the day against its objectives.
+2. **Morning runbook (replaces R1.5's single `add-dates` line on a demo day):**
+   ```
+   ... add-dates --site COLD-LAB-001,EV-LAB-001,KISIWA-001 --no-check      (catch up to yesterday)
+   ... add-dates --site KOBO-001 --to <day before yesterday>               (Kobo stops one day short; ends with the finish check)
+   ... links
+   ```
+   If `<day before yesterday>` is a Kobo story day, the second command refuses with `STORY_DAY`: nothing is missing,
+   so run `... add-dates --site KOBO-001 --to <day before yesterday> --dry-run` to confirm, and run the first command
+   without `--no-check` instead. If **yesterday** is itself a Kobo story day (a session on S+2 or earlier), there is
+   no day to hold: run the R1.5 catch-up unchanged, and step 7 uses the backup pictures and says so.
+3. **Live command (during the session, off-screen, in a second window):**
+   `... add-dates --site KOBO-001 --to yesterday --no-check`. After the client leaves: `... add-dates` with no options
+   (it adds nothing or today's catch-up and always ends with the finish check, `:1091-1092`). A FAIL retires the
+   build (R1.5).
+4. **When to start it:** at the end of the last Kobo step (ST-3, or ST-3b when present). That leaves ST-4 to ST-6
+   (3 + 2 + 6 + 2 = 13 min) for about 9 min of work. The Fri 13 owner walkthrough times it; if start-to-checked
+   exceeds 11 min, start it at the end of step 0 instead (the before view then moves to step 0).
+5. **The before view is shown live**, so the change is seen, not asserted: at the end of the last Kobo step the
+   presenter opens `http://localhost:<web>/sites/KOBO-001?date=<yesterday>` (the `links` Kobo board form with
+   yesterday's date) and shows the day with no readings, quoting the board's own words (DS-1f placeholder from the
+   walkthrough). In step 7 the presenter reloads that page.
+6. **Only the Kobo board is promised.** The Portfolio's story-week link ends before yesterday, so step 7 does not
+   claim a Portfolio change. The checklist row 7 "Expected" becomes: "Kobo board for yesterday: before, no readings
+   (board's words); after reload, the day is checked (board's words)."
+7. **Not done in time** (the tool's plain line "KOBO-001: added …" has not printed when step 7 opens, or it refused):
+   show the walkthrough's before/after pictures, say "Yesterday's readings are still arriving; we will open the day
+   again at questions", and do so. Never say the day has arrived before the line has printed.
+
+**Exact script wording (DS-1a, ST-7; replaces the current Say, "If asked" and "What it means"):**
+- *End of the last Kobo step, Say:* "One more thing at Kobo. This is yesterday: no readings yet. In this demo we held
+  yesterday's readings back, the way a site's gateway keeps them when its connection drops. I am letting them
+  through now; we will come back to this day at the end."
+- *Step 7, Say:* "Kobo's readings for yesterday have now arrived, as a gateway sends its stored readings when its
+  connection returns. I reload the page: the day has been checked by the same rules as every other day. Nobody
+  rebuilt a report or touched a spreadsheet."
+- *What it means:* "Data arrives from the site and the checks follow on their own. A late day is checked like any
+  other, and the screens state which days were checked."
+- *If asked, "How often does it update?":* "In this demo, at the next background refresh, every two minutes. How
+  often a real Site's readings arrive is agreed for a pilot." (the M2 fix).
+- *If asked, "Who added that day?":* "In this demo, I released readings that were held back. On a real Site they come
+  from your meters through the gateway; nobody adds them."
+- Step 7's time stays 3 min. The step-map label changes from "New day" to "Yesterday arrives".
+- Still forbidden: "live", "real time", "within minutes" without "in this demo", and any claim that the day arrived
+  by itself without the held-back sentence.
+
+**No code change.** G1 is not reopened: everything above uses `add-dates` options in §4.2. DS-1a's Sonnet refresh
+takes R4.1's script lines and R4.2's wording and runbook; DS-1f fills the before/after words from the Fri 13
+walkthrough.
+
+**D-R4.2 (for owner review).** Step 7 shows one real held-back day (Kobo's yesterday) being released during the
+session and checked by the product's normal background check, said plainly as held back in this demo. It takes about
+9 minutes, so it starts after the Kobo steps and is revealed at step 7; the morning catch-up stops Kobo one day short.
