@@ -743,3 +743,68 @@ None blocking. For information: on 10 Nov the Portfolio will show "Some Sites ca
 (CO-6, R3v). DS-1a gives the presenter a line for it. If the owner prefers that the client not see this badge on the
 opening screen, the only demo-safe change is in the script: open on the Sites list and come to the Portfolio second.
 No product change is proposed before the demo.
+
+---
+
+## Part F. Ruling on the R-1 T6 stop (w301 golden verify fails 4 of 6)
+
+Read-only ruling from code; no Postgres or test run was made. R-1 worktree `AssetOpsV1-r1` at `6edb36976`.
+
+### F.1 Cause: not the mechanism template; most likely a host-vs-database clock skew (environmental)
+
+- **Not the stale template (T8).** The mechanism template exists only for tests that import
+  `backend/tests/mechanism_dataset.py` (`TEMPLATE_STALE` at `:1211`, `:1243`). Those tests are md0, ch5a1, ch5b, ch6 and
+  ch6b. `test_w301_estate_golden_postgres.py` (imports `:71-84`) and every module it imports (w202, w205b, s1 bindings,
+  s4 finding store, s6 action store, w203, w206, w301 index, `pg_harness`) do not import it. The "template" in
+  `pg_harness.py` is the per-run migrated DB template, built fresh each run (`:266-278`). E2's template rebuild will
+  not change these 4 failures.
+- **Not the golden content.** `run_pending` returning `[]` (`test_w203_cold_replay_postgres.py:79-80`) happens before any
+  estate read is compared, so it has nothing to do with `claims`. The rewrite and diff gate are fine. The manifest was
+  rightly not committed, because a verify run has not passed.
+- **Mechanism that fits the symptom.** The ledger stamps a new cold job's `available_at` with the **database**
+  `clock_timestamp()` (`evidence/adapters/postgres_evidence_ledger.py:13-20`, `:525-528`, insert `:666-676`). The test
+  calls `ColdAssessmentWorker.run_pending` directly (`test_w203...:79`). That worker leases with its default clock,
+  `utc_now` = `read_scope.clock()` = the **host** `datetime.now` (`analytics/assessment_worker.py:66-67`, `:224`,
+  `:256-257`), and the lease takes only `available_at <= :now` (`postgres_assessment_store.py:377-383`). If the Docker
+  Postgres VM clock is ahead of the Windows host clock, which is common after sleep/hibernate, then no job is due and
+  `run_pending` returns `[]`. The EV worker has the same default (`assessment_worker.py:318`, via `run_worker`). The
+  product path is not exposed: the scheduled tick leases cold/EV at DB time (FIX-COLD-DRAIN, `scheduling/stages.py:24`).
+  So this is a test-harness sensitivity plus the environment, not a product regression and not a date effect. The
+  replay's own dates are fixed (`test_w203...:41-44`, attestation `:65-66`), and the TLS test cert is valid to 2126.
+- **Not fully explained.** The "Lab run FAILED where COMPLETED expected" case (probably `test_w202...:247`) was not traced
+  to the clock by reading. The same check below covers it. K4a (`review-packet-K4a.md:124`) already saw cold/ev/mixed
+  fail on main, and compared only the mini_grid text. So these three branches may have been failing for this reason
+  since before R-1.
+
+**Cheapest single check** (seconds, not a heavy job; it fits now, or as soon as K8c-r is between pages): compare
+`docker exec assetopsv1-postgres-1 psql -U <user> -Atc "select clock_timestamp()"` with the host's `date -u` at the same
+moment.
+- **Skew of about 1 s or more, with the DB ahead:** the cause is confirmed. Re-sync the VM clock (Docker Desktop
+  restart, or `wsl --shutdown`) **only after K8c-r finishes**, because a restart kills the serve. Then rerun T6 (write,
+  then verify).
+- **No skew:** run `test_w203_cold_replay_postgres.py::test_all_six_w202_manifests_through_intake[normal]` alone on a
+  `*_test` DB after K8c-r finishes. If it fails, it is a real failure and goes to E2's fix round (see F.3).
+
+### F.2 R-1 merges now without T6
+
+Yes. T6 changes only a test fixture, R-1 did not commit it, and R-1 touches no product backend file. The other seven
+items are green and the review says ACCEPT WITH NOTES. Holding the merge gains nothing and delays DS-1 and E1/E2.
+**T6 moves into E2** as a named item, with the same procedure and diff gate as A.2: write once with
+`ASSETOPS_WRITE_W301_GOLDEN=1`, diff only `claims` under the Findings `summary`, then verify without the flag, all 6
+passing. Do it after the clock check, before the full fast tier. Its commit goes on E2's fix-round branch. Until then,
+the 6 w301 golden tests are a known failure that is listed and not counted as an E2 regression.
+
+### F.3 E2 adjustments
+
+- **E2 step 0 (new, about 1 min):** the clock check from F.1. If the skew is 1 s or more, re-sync before E2a, because the
+  full suite has many direct-worker Postgres tests (w202/w203/w205b/w206 and others) that would all fail the same way.
+  Repeat the check before E3 and before each E4-lite. The demo path leases at DB time, but the check is cheap
+  insurance.
+- **E2a** stays the mechanism template rebuild (clears T8 and lets T9 run).
+- **E2a′ (new):** T6 as in F.2 (about 15–25 min of machine time, one heavy job).
+- **Reserved fix round (still about 0.5 unit):** add "w203/w202 cold replay fails with no skew" as its first
+  candidate. The allowed fix is **test-side only**: give the test's direct workers a DB-time clock
+  (`clock=lambda: db_now(engine)`), as the scheduler does. If the "Lab run FAILED" case needs a product change, stop
+  and ask the Architect. It does not block E3: the demo prepare uses the scheduled path, and E3's in-prepare
+  self-check is the gate for demo data.
+- The schedule otherwise stands. If step 0 needs a Docker restart, it adds about 5 min before 08:15.
