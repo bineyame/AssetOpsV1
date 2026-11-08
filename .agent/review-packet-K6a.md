@@ -42,7 +42,7 @@ request page never sends one to a W1 Action page.
 | R3m2: no `/actions/{id}` href for a fuel Action (detail and index) | Met; L0 R3m2 test, L2 5 |
 | Thread link with no new code | Met; L2 6 |
 | Five messages and summary pass guard V and H4 | Met; L0 5, `test_out_b2_vocabulary` |
-| Must stay green unchanged | **Not met for one assertion**: see Known Deviations 1 |
+| Must stay green unchanged | Met, with the coordinator-cleared :132 DDL pin (Known Deviations 1) |
 | Guards | Not run (machine busy; held by the coordinator) |
 
 ## Checks run (DB `assetops_k6_test`, created empty for this unit; harness clones)
@@ -51,7 +51,7 @@ request page never sends one to a W1 Action page.
 - L2: `test_k6a_fuel_action_origin_postgres.py`: 7 passed in 22 s.
 - Must stay green (`ASSETOPS_TEST_DATABASE_URL` = `assetops_k6_test`), each step run alone with free RAM checked first (3.0-3.4 GB):
   - `test_w502_*` (index API/postgres, intent API/postgres, work links): 26 passed (452 s).
-  - `test_w504_*` (intent API/postgres, work producer): 24 passed, **1 failed** (820 s), see Known Deviations 1.
+  - `test_w504_*` (intent API/postgres, work producer): 24 passed, 1 failed (820 s) on the :132 DDL pin; after the cleared edit, `test_w504_ev_intent_postgres.py` 15 passed (528 s).
   - `test_ch9b1_*`, `test_ch9b2_*` (both), `test_ch9b3_*`, `test_s4_finding_domain_filter_postgres`: 24 passed (118 s).
   - `test_k4a_*`, `test_k3_*`, `test_k2_*`: 32 passed (74 s).
 - Must-fail proofs. Each was applied after the commit and reverted with `git checkout --`.
