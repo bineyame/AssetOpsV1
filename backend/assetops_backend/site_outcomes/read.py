@@ -324,7 +324,8 @@ class SiteOutcomeBoardService:
             return () if tank is None else _need(s.fuel_balance, "fuel_balance").windows(t, sid, UUID(tank), lo, hi, k)
 
         def fuel_findings(lo: datetime, hi: datetime) -> Any:
-            return _need(s.fuel_balance, "fuel_balance").fuel_findings(t, sid, lo, hi, known_at)
+            _tank, k = fuel_context()  # R3j3 L1: the same cutoff as the window reads
+            return _need(s.fuel_balance, "fuel_balance").fuel_findings(t, sid, lo, hi, k)
 
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,

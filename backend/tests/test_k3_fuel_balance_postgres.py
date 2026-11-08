@@ -147,7 +147,8 @@ def shape(engine) -> tuple:  # noqa: F811
         indexes = dict(c.execute(text("SELECT indexname, indexdef FROM pg_indexes WHERE tablename = :t"),
                                  {"t": TABLE}).all())
         triggers = tuple(c.execute(text("SELECT tgname, pg_get_triggerdef(oid) FROM pg_trigger "
-                                        "WHERE tgrelid = to_regclass(:t) AND NOT tgisinternal"), {"t": TABLE}).all())
+                                        "WHERE tgrelid = to_regclass(:t) AND NOT tgisinternal "
+                                        "AND tgname NOT LIKE '%\\_cic\\_%'"), {"t": TABLE}).all())  # 0058's W2 triggers
     return cols, defs, indexes, triggers
 
 

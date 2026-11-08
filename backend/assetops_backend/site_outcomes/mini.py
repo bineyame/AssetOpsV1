@@ -501,7 +501,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     fuel_rows = reads.call("fuel_findings", ports.fuel_findings, work_lo, end) if has_fuel is True else None
     findings = findings + _fuel_findings(fuel_rows or (), c, start, end, work_lo, None if ct is None else ct.policy)
     unexplained_fuel = _unexplained_fuel(fuel_rows or (), work_lo, end)
-    plan_facts =tuple(plan_fact(p, tz) for p in plans or ())
+    plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
     verified_values = _verified_values(reads, ports, actions, opp)
 
     # CH5a1-R Q2: `base` = the source gate, the settled board day and a dispatch read (CLOSED was the gate).
@@ -815,7 +815,7 @@ def _fuel_findings(rows: Any, c: str, start: datetime, end: datetime, work_lo: d
     and lifecycle view come from the board's one thread lookup (`read.py`, `with_threads`), which keys on Finding ids.
     R3j2 §9j2.4: when the lifecycle policy declares no clean-day measure for the mechanism, the view is marked
     `close_measured: False` (kept by `with_threads`), so the board never shows a close countdown for it."""
-    no_close = policy is not None and tuple(policy.measures_for(FUEL_MECHANISM)) == ()
+    no_close = policy is None or tuple(policy.measures_for(FUEL_MECHANISM)) == ()
     out = []
     for f in rows:
         lo, hi = f.window.window_start, f.window.window_end

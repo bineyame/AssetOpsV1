@@ -210,6 +210,49 @@ def test_no_close_countdown_without_a_clean_day_measure() -> None:
     assert _verified({})["kind"] == "MONITORING"
 
 
+def test_all_three_fuel_reads_share_one_cutoff_when_no_known_at() -> None:
+    """R3j3 L1: with `known_at=None` the applicability, window and Finding reads receive `night_context`'s instant.
+    Must fail if `fuel_findings` reverts to the raw `known_at` (None)."""
+    from datetime import datetime, timezone
+    from uuid import uuid4
+
+    from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
+
+    instant = datetime(2026, 10, 21, 5, 30, tzinfo=timezone.utc)
+    seen: dict[str, object] = {}
+
+    class Store:
+        def night_context(self, t, s):
+            return "Africa/Addis_Ababa", str(uuid4()), instant
+
+        def has_windows(self, t, s, k):
+            seen["has_windows"] = k
+            return True
+
+        def windows(self, t, s, tank, lo, hi, k):
+            seen["windows"] = k
+            return ()
+
+        def fuel_findings(self, t, s, lo, hi, k):
+            seen["fuel_findings"] = k
+            return ()
+
+    t, s = uuid4(), uuid4()
+    ports = SiteOutcomeBoardService(BoardServices(fuel_balance=Store())).mini_ports(
+        SiteRef(t, s, C, "Kobo", "MINIGRID", B2.ZONE), None)
+    ports.fuel_has_windows()
+    ports.fuel_windows(NIGHT, NIGHT)
+    ports.fuel_findings(T(19, 15), T(20, 9))
+    assert seen == {"has_windows": instant, "windows": instant, "fuel_findings": instant}
+
+
+def test_fuel_finding_without_a_policy_never_counts_down() -> None:
+    """R3j3 L2: an unknown lifecycle policy (`None`) marks the view `close_measured: False`. Must fail on the old
+    `policy is not None and ...` form."""
+    (fact,) = mini._fuel_findings([finding()], C, T(19, 15), T(20, 9), T(19, 15), None)
+    assert fact.lifecycle_view == {"close_measured": False}
+
+
 def test_composer_marks_the_fuel_view_and_with_threads_keeps_it() -> None:
     policy = load_thread_lifecycle()
     ff = mini._fuel_findings([finding()], C, B2.LO, B2.HI, B2.LO - timedelta(days=30), policy)
