@@ -502,3 +502,9 @@ def family_of(plan: Mapping[str, Any]) -> Any:
         return FAMILIES[plan["rule_id"]]
     except KeyError:
         raise ActionRefused(409, "VERIFICATION_FAMILY_UNSUPPORTED", "Unknown verification family.") from None
+
+
+# DIESEL-K6b (DIESEL-1-R3m): the fuel family, registered last (`fuel_verification` never imports this module).
+from assetops_backend.actions.fuel_verification import FUEL, FuelResidual  # noqa: E402
+
+FAMILIES[FUEL] = FuelResidual()

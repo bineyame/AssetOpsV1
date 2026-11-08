@@ -74,6 +74,9 @@ DOMAIN_PLAN_COLUMNS = ("id, tenant_id, site_id, domain_action_id, plan_version, 
                        "coverage, later_selection_rule, plan_sha256, actor_kind, actor_id, source_channel, "
                        "authorization_basis, triggering_service, triggering_fixture, idempotency_key, payload, "
                        "payload_sha256, recorded_at")
+#: DIESEL-K6b (DIESEL-1-R3m): the `fuel-residual-within-band-1` columns: the domain plan's plus the origin Finding
+#: revision (0019's FK); `DOMAIN_PLAN_COLUMNS` is unchanged so every mill read and body is byte-equal.
+FUEL_PLAN_COLUMNS = DOMAIN_PLAN_COLUMNS + ", origin_finding_revision_id"
 PLAN_JSON = frozenset({"baseline_selection", "baseline_evidence_ids", "basis", "target", "guardrails", "bands",
                        "coverage", "later_selection_rule", "payload"})
 BINDING_COLUMNS = ("id, tenant_id, site_id, plan_id, window_name, selection, selection_sha256, actor_kind, actor_id, "
@@ -792,6 +795,56 @@ class PostgresActionStore:
                                          PLAN_JSON)
             c.execute(text(f"INSERT INTO verification_plan ({DOMAIN_PLAN_COLUMNS}) VALUES ({params})"), binds)
             return dict(c.execute(text(f"SELECT {DOMAIN_PLAN_COLUMNS} FROM verification_plan WHERE id = :i"),
+                                  {"i": plan["id"]}).one()._mapping), False
+        return self._run(work)
+
+    # ---- DIESEL-K6b: the `fuel-residual-within-band-1` plan of a FUEL_BALANCE domain Action (DIESEL-1-R3m) --------
+
+    def fuel_plan_context(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> dict[str, Any] | None:
+        """The domain Action (its domain, owner and origin Finding pair), the Site's code and timezone, the window id
+        the origin revision's claim cites, the first COMPLETE work event of a linked case (the mill's statement, with
+        the case's public code) and its fuel plan; None: no such Action."""
+        def work(c):
+            p = {"t": tenant_id, "s": site_id, "a": domain_action_id}
+            action = c.execute(text(
+                "SELECT d.id, d.action_code, d.title, d.owner_label, d.domain, d.origin_finding_id, "
+                "d.origin_finding_revision_id, s.timezone, s.site_code, "
+                "(SELECT r.claim->>'fuel_balance_window_id' FROM finding_revision r WHERE r.tenant_id = d.tenant_id "
+                "AND r.site_id = d.site_id AND r.id = d.origin_finding_revision_id) AS origin_window_id "
+                "FROM domain_action d JOIN site s ON s.tenant_id = d.tenant_id AND s.id = d.site_id "
+                "WHERE d.tenant_id = :t AND d.site_id = :s AND d.id = :a"), p).first()
+            if action is None:
+                return None
+            applied = c.execute(text(
+                "SELECT w.id, w.case_id, w.occurred_at, k.public_code FROM domain_action_case_link l JOIN work_event w "
+                "ON w.tenant_id = l.tenant_id AND w.site_id = l.site_id AND w.case_id = l.case_id "
+                "AND w.kind = 'COMPLETE' JOIN work_case k ON k.tenant_id = w.tenant_id AND k.site_id = w.site_id "
+                "AND k.id = w.case_id WHERE l.tenant_id = :t AND l.site_id = :s AND l.action_id = :a "
+                "ORDER BY w.occurred_at, w.id LIMIT 1"), p).first()
+            plan = c.execute(text(f"SELECT {FUEL_PLAN_COLUMNS} FROM verification_plan WHERE tenant_id = :t "
+                                  "AND site_id = :s AND domain_action_id = :a "
+                                  "AND rule_id = 'fuel-residual-within-band-1'"), p).first()
+            row = dict(action._mapping)
+            return {"action": {k: v for k, v in row.items() if k not in ("site_code", "origin_window_id")},
+                    "site_code": row["site_code"], "origin_window_id": row["origin_window_id"],
+                    "applied": None if applied is None else dict(applied._mapping),
+                    "plan": None if plan is None else dict(plan._mapping)}
+        return self._read(work)
+
+    def freeze_fuel_plan(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+        """Insert the fuel Action's one plan (`UNIQUE (domain_action_id)`), or return the plan already frozen for it
+        (`replayed=True`); the mill's `freeze_domain_plan` body with `FUEL_PLAN_COLUMNS` and the same lock key form."""
+        def work(c):
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+                      {"k": f"verification-plan:{plan['domain_action_id']}"})
+            existing = c.execute(text(f"SELECT {FUEL_PLAN_COLUMNS} FROM verification_plan "
+                                      "WHERE domain_action_id = :a"), {"a": plan["domain_action_id"]}).first()
+            if existing is not None:
+                return dict(existing._mapping), True
+            params, binds = self._values(FUEL_PLAN_COLUMNS, {**plan, "tenant_id": tenant_id, "site_id": site_id},
+                                         PLAN_JSON)
+            c.execute(text(f"INSERT INTO verification_plan ({FUEL_PLAN_COLUMNS}) VALUES ({params})"), binds)
+            return dict(c.execute(text(f"SELECT {FUEL_PLAN_COLUMNS} FROM verification_plan WHERE id = :i"),
                                   {"i": plan["id"]}).one()._mapping), False
         return self._run(work)
 

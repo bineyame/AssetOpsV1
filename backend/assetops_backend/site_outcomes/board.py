@@ -208,6 +208,18 @@ class OpportunityActionFact:
 
 
 @dataclass(frozen=True)
+class FuelVerdictFact:
+    """DIESEL-1-R3m: a FUEL_BALANCE domain Action on a mini board; listed under Assure "Verified results" with no
+    value line (H2), never in `actions` or `verified_values`."""
+    action_id: str
+    code: str | None
+    thread_id: str
+    outcome: str | None                 # VERIFIED | INEFFECTIVE | INCONCLUSIVE known by the cutoff; None = not judged
+    verdict_ref: Mapping[str, Any]      # the FUEL_VERDICT Ref (`site_chain.action_wire_ref`)
+    source_class: str | None = None
+
+
+@dataclass(frozen=True)
 class CaseFact:
     case_id: str
     code: str | None
@@ -322,6 +334,8 @@ class SiteFacts:
     ev_priced: bool | None = None
     #: MB-1-R §2.3: the board's opportunity-origin domain Actions (the mill), apart from `actions` (R4).
     opportunity_actions: tuple[OpportunityActionFact, ...] = ()
+    #: DIESEL-1-R3m: the board's FUEL_BALANCE domain Actions (Assure "Verified results" only, no value line).
+    fuel_verdicts: tuple[FuelVerdictFact, ...] = ()
     #: PV-1-R §3: the Assure row's verified-value entries (one per verified result with money, never added); mini only.
     verified_values: tuple[Mapping[str, Any], ...] = ()
 

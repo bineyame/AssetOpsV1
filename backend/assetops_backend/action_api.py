@@ -317,6 +317,14 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         code, tenant_id, site_id = open_scope(request, site_code, access)
         return {"access_basis": access_basis, **run(lambda: verification.domain_summary(tenant_id, site_id, action_id))}
 
+    # ---- DIESEL-K6b (DIESEL-1-R3m): the fuel verdict of a FUEL_BALANCE domain Action, read-only ---------------------
+
+    @router.get("/api/sites/{site_code}/domain-work/actions/{action_id}/fuel-verification")
+    def fuel_verification(request: Request, site_code: str, action_id: UUID) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        return {"access_basis": access_basis,
+                **run(lambda: verification.fuel_summary(tenant_id, site_id, action_id, code))}
+
     return router
 
 
