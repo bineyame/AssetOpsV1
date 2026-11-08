@@ -993,11 +993,19 @@ def test_kis7_expectations_from_data_pass_and_each_break_fails() -> None:
     assert got["priced_on_s"] == ["KOBO-001"] and got["kisiwa_priced_on_s"] is False
     assert got["d1"] == "2026-10-28" and asked == ["2026-10-28"] and got["d1_amount_high"] == "7.5"
     assert got["sums_checked"] == 0 and "not reached" in got["multi_site_bodies"]
+    assert got["d1_priced"].startswith("REPORT-ONLY (R3s2): priced")
+    # R3s2: item 3 (d1 priced) is report-only; an unpriced d1 passes and reports the reason
+    unpriced = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(None))
+    assert unpriced["d1_amount_high"] is None
+    assert "d1 is unsettled: no `productive_kwh` subject (R3s2)" in unpriced["d1_priced"]
+    assert "differs" in rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6"))["d1_priced"]
     for name, args in {
             "Kisiwa priced on S while expected unpriced": (_kis7("7.5"), [_kis7()], _HEADS7, _S7, _board7()),
-            "d1 unpriced": (_kis7(), [_kis7()], _HEADS7, _S7, _board7(None)),
-            "d1 amount differs": (_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6")),
-            "d1 shows the later head's amount": (_kis7(), [_kis7()], _HEADS7, _S7, _board7("3.0")),
+            "item 1: card differs from the priced Sites": ({**_kis7(), "cards": {"OPTIMIZE_COST": {
+                "claim": None, "value": {"text": "x"}, "detail": ""}}}, [_kis7()], _HEADS7, _S7, _board7()),
+            "two priced Sites summed (item 4)": (_kis7("7.5", extra=" Total 22.63 USD"),
+                                                  [_kis7("7.5", extra=" Total 22.63 USD")], _HEADS7,
+                                                  date(2026, 10, 28), _board7()),
             "no priced head at all": (_kis7(), [_kis7()], [{**h, "state": "NOT_PRICED"} for h in _HEADS7], _S7,
                                       _board7())}.items():
         with pytest.raises(AssertionError):

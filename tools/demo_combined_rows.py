@@ -1198,13 +1198,20 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
     board = board_at(d1.isoformat())
     row = next((r for r in board.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
     money = earnings_money((row.get("nodes") or {}).get("earnings"))
-    assert money is not None, ("d1: the Kisiwa board's Optimize earnings is unpriced", d1.isoformat())
+    # Item 3 (d1 priced) is REPORT-ONLY for this rehearsal (DIESEL-1-R3s2 §9s2.4, R3s cut option 1): Kisiwa has no
+    # `productive_kwh` subject, so every Kisiwa board day is unsettled and d1 earnings read "Not known yet". The
+    # reason is quoted in the row output; DIESEL-K10 (measure applicability) would re-assert it. Items 1, 2, 4 assert.
+    d1_report = None
     day_heads = overlapping(d1)
     latest = max(h["episode_start"] for h in day_heads)
     lead = min((h for h in day_heads if h["episode_start"] == latest), key=lambda h: str(h["finding_id"]))
-    assert lead.get("state") == "PRICED", ("d1: the lead head is not PRICED", d1.isoformat(), lead.get("state"))
-    assert Decimal(str(money["amount_high"])) == Decimal(str(lead["amount_high"])), (
-        "d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"], lead["amount_high"])
+    if money is None:
+        d1_report = ("d1 is unsettled: no `productive_kwh` subject (R3s2)", "board earnings unpriced", d1.isoformat())
+    elif lead.get("state") != "PRICED":
+        d1_report = ("d1: the lead head is not PRICED", lead.get("state"), d1.isoformat())
+    elif Decimal(str(money["amount_high"])) != Decimal(str(lead["amount_high"])):
+        d1_report = ("d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"],
+                     lead["amount_high"])
     sums, reached = 0, 0
     for body in [summary_s] + [b for b in bodies if isinstance(b, dict) and "sites" in b]:
         got = _optimize_priced(body)
@@ -1212,7 +1219,9 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
             reached += 1
             sums += never_summed([str(earnings_money(c)["amount_high"]) for _, c in got], bodies)
     return {"optimize_card": card, "kisiwa_priced_on_s": KIS_SITE in codes, "priced_on_s": codes, "d1": d1.isoformat(),
-            "d1_amount_high": str(money["amount_high"]), "sums_checked": sums,
+            "d1_amount_high": None if money is None else str(money["amount_high"]),
+            "d1_priced": "REPORT-ONLY (R3s2): " + "; ".join(map(str, d1_report)) if d1_report else "REPORT-ONLY (R3s2): priced and equal",
+            "sums_checked": sums,
             "multi_site_bodies": reached or "no summary prices two Sites on real data (>=2 path not reached; L0 covers it)",
             "bodies": len(bodies)}
 
