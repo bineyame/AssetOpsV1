@@ -9,6 +9,7 @@ import {
   FindingDetailFrame,
   SiteActionFrame,
   SiteMillVerificationFrame,
+  SiteFuelVerificationFrame,
   SiteWorkFrame,
   SiteWorkCasesFrame,
   SiteFoundationChangeFrame,
@@ -49,6 +50,7 @@ import {
   SITE_HEALTH_ROUTE_PATH,
   SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_MILL_VERIFICATION_ROUTE_PATH,
+  SITE_FUEL_VERIFICATION_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
   SITE_OPPORTUNITY_ROUTE_PATH,
@@ -499,6 +501,8 @@ export function App({
           ))}
           {/* CH-9b3 (CH9b3-R Q6): the mill verdict of a MINI domain Action, at its own address. */}
           <Route path={SITE_MILL_VERIFICATION_ROUTE_PATH} element={<SiteMillVerificationFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          {/* DIESEL-K6b (DIESEL-1-R3m): the fuel verdict of a FUEL_BALANCE domain Action, at its own address. */}
+          <Route path={SITE_FUEL_VERIFICATION_ROUTE_PATH} element={<SiteFuelVerificationFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           {/* W3-01: the estate Finding lens roots and the Actions root, registered before the legacy
               `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
           <Route path={FINDINGS_PATH} element={<EstateFindingsFrame lens="all" client={estateIndex} />} />

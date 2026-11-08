@@ -430,6 +430,88 @@ def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: 
             "sums_checked": len(sums), "served_strings": len(served)}
 
 
+_MONEY_KEY = ("amount", "price", "currency", "money")
+
+
+def _money_keys(node, path: str = "") -> list[str]:
+    if isinstance(node, dict):
+        return [p for k, v in node.items() for p in ([f"{path}.{k}"] if any(m in str(k).lower() for m in _MONEY_KEY)
+                                                     else []) + _money_keys(v, f"{path}.{k}")]
+    if isinstance(node, (list, tuple)):
+        return [p for i, v in enumerate(node) for p in _money_keys(v, f"{path}[{i}]")]
+    return []
+
+
+def kis5(plan: dict, outcome: dict, read_back: dict, windows_by_date: dict, summary: dict) -> dict:
+    """KIS-5 (DIESEL-1-R3m §9m.4): the Kisiwa FUEL_BALANCE Action's stored fuel verdict reproduces.
+
+    `plan`: the stored fuel plan; `outcome`: its stored outcome (`outcome`, `reasons`, `details`, `recorded_at`);
+    `read_back`: window id -> `window(id)` read now (`revision`, `input_sha256`); `windows_by_date`: the candidate
+    nights' latest windows as known at the outcome's `recorded_at`; `summary`: the served verdict page body.
+
+    - every pinned window in `details` (baseline and later) reads back equal to its pin (revision, `input_sha256`);
+    - the later pins are exactly the first 3 COMPLETE candidates as known at `recorded_at`;
+    - `assess` over those windows gives the stored outcome and reasons (the verdict is recorded as computed: an
+      INEFFECTIVE or INCONCLUSIVE that reproduces passes);
+    - the served summary has `value` and `cost_check` null, no money key, and the fixed H1 line."""
+    from assetops_backend.actions import fuel_verification as fv
+
+    details = outcome["details"]
+    pins = [details["baseline"], *details["later"]]
+    for pin in pins:
+        got = read_back.get(str(pin["window_id"]))
+        assert got is not None, ("a pinned window cannot be read back", pin)
+        assert (got["revision"], got["input_sha256"]) == (pin["revision"], pin["input_sha256"]), ("pin differs", pin, got)
+    result = fv.assess(plan, windows_by_date, outcome["recorded_at"])
+    chosen = [str(w.id) for w in result["chosen"]]
+    assert chosen == [str(p["window_id"]) for p in details["later"]], ("later pins are not the first 3 COMPLETE", chosen)
+    assert result["decided"] and (result["outcome"], list(result["reasons"])) == (
+        outcome["outcome"], list(outcome["reasons"])), ("assess does not reproduce the stored verdict", result, outcome)
+    assert summary.get("value") is None and summary.get("cost_check") is None, ("H2: a value on the fuel verdict",
+                                                                               summary.get("value"))
+    held = _money_keys(summary)
+    assert not held, ("H2: a money key on the fuel verdict", held)
+    assert summary.get("fixed_line") == fv.FIXED_LINE, ("H1 fixed line", summary.get("fixed_line"))
+    return {"outcome": outcome["outcome"], "reasons": list(outcome["reasons"]), "pins_checked": len(pins),
+            "later_nights": [p["night_date"] for p in details["later"]]}
+
+
+def kis10(plan: dict, applied: dict, action: dict, claim_window_id: str, action_thread: str | None,
+          finding_thread: str | None, board: dict, code: str, portfolio_lines: list[str]) -> dict:
+    """KIS-10 (DIESEL-1-R3m §9m.4): fuel verification coherence.
+
+    - the plan was recorded before the first later night began (`recorded_at < later_start`);
+    - `effective_from` is the linked case's first COMPLETE `occurred_at` (`applied`);
+    - the plan's origin Finding revision is the Action's; its baseline window is the one the revision's claim cites;
+    - the Action's chain thread is the Finding's `UNEXPLAINED_FUEL` thread;
+    - the Kisiwa board (the outcome's Site-local day + 1) lists a Verified results entry starting with the Action's
+      display code whose Ref is FUEL_VERDICT;
+    - no Kisiwa board `verified_values` entry and no Portfolio value line names this Action (H2)."""
+    from assetops_backend.outcomes.display_code import display_code
+
+    assert plan["recorded_at"] < plan["later_start"], ("frozen after the first later night began", plan["recorded_at"],
+                                                       plan["later_start"])
+    assert plan["effective_from"] == applied["occurred_at"], ("effective_from", plan["effective_from"], applied)
+    assert str(plan["origin_finding_revision_id"]) == str(action["origin_finding_revision_id"]), "origin revision"
+    assert str(plan["baseline_selection"]["window_id"]) == str(claim_window_id), ("baseline window", claim_window_id)
+    assert action_thread is not None and action_thread == finding_thread, ("thread", action_thread, finding_thread)
+    shown = display_code(code)
+    assure = next((r for r in board.get("rows") or () if r.get("category") == "ASSURE_PERFORMANCE"), None)
+    assert assure is not None, "no Assure row on the Kisiwa board"
+    entries = [c for c in assure.get("contributors") or () if c.get("key") == "verified_results"
+               and str(c.get("text") or "").startswith(shown) and (c.get("link_ref") or {}).get("kind") == "FUEL_VERDICT"
+               and str((c.get("link_ref") or {}).get("id")) == str(action["id"])]
+    assert len(entries) == 1, ("the fuel Action's Verified results entry", [c.get("text") for c in
+                                                                           assure.get("contributors") or ()])
+    values = [v for r in board.get("rows") or () for v in (r.get("nodes") or {}).get("verified_values") or ()]
+    values += list(board.get("verified_values") or ())
+    named = [v for v in values if str(v.get("key")) == str(action["id"]) or v.get("action_code") == code]
+    assert not named, ("H2: a verified value names the fuel Action", named)
+    lines = [x for x in portfolio_lines if shown in x]
+    assert not lines, ("H2: a Portfolio value line names the fuel Action", lines)
+    return {"entry": entries[0].get("text"), "thread": action_thread}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None
