@@ -2943,3 +2943,858 @@ Each "must fail" names the mutation that the reviewer applies to a scratch copy.
 ### 9k.8 Owner questions
 
 None. For the owner's information, in plain words: before building, the builder found two places where the system would have mixed the new "unexplained fuel" finding into the generator's fuel-cost checks. That could have given it a fuel-cost figure it must never have, or made the Kisiwa overview look out of date. Both places now look only at generator findings, as one similar place already does. This also closes a small existing gap on the cold-room and EV sites. Nothing on their screens changes. The work grows by a tenth of a unit, and the demo date does not move.
+
+---
+
+## 9l. Ruling DIESEL-1-R3l: the K5 and K7 consolidated cards
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27). Main at `0c4aa7310` (K0 merged `a268b3ff6`; K1, K1a, K2, K3, F0/F0e merged; K4a in build in `AssetOpsV1-k4a`; A3 in pre-flight in `AssetOpsV1-a3`).
+- Owner decisions in force, verbatim: `.agent/owner-scenario-data-2026-11-07.md` ("dont be limited by existing data, data that is reasonable and can reflect a situation can be legitmately added via a scneario for days that are not covered today"; "this is not true, these are injected through operational actions"); `.agent/owner-missing-fuel-2026-11-07.md` ("'Unexplained fuel', never 'theft'"); `.agent/owner-kisiwa-scope-2026-11-07.md` ("Build it, with the action link (Recommended)"); `.agent/owner-diesel-night-window-2026-11-07.md` (a night runs "6 pm to noon").
+- **These two cards replace** the K5 and K7 rows of §8.4 and §9.5, §8.6's Action time, §8.4's "Wording (K5)" block (K4a owns those two strings now, §9j.7) and §9j.14's K5 and K7 bullets. Builders read only their own card. Paths use the header's short forms; `T/` = `tools/`. READ = the Architect read the code at `0c4aa7310`; nothing was run.
+- **Honesty rules H1–H5 (§8.2) bind both cards.** Client copy never says theft, stolen, stole, siphon or pilfer, and never implies them. Every client literal below was checked by hand against guard V's whole-word terms (`F/test/productVocabulary.json`): none uses run, runs, ran, running, load, claim, candidate, necessary, analytic, scenario, simulation, binding, mapping, stage or fixture. "Modelled use" replaces "running" (K4a's precedent). Guard V's own run is the builder's acceptance (stop S-a).
+
+### 9l.1 Code reality and the decisions it forces (READ)
+
+1. **The F0 world sits at absolute dates, but the demo story moves with the database clock.** The promoted log `C/operational-actions/kisiwa-001-operational-actions-v1.yaml` holds UTC instants from `2026-10-01` to `2026-10-11`. The combined prepare places every story day relative to `S = floor_utc_day(DB now) − 2 d` (`T/demo_combined.py:139-142`). The Portfolio and Findings week runs from `S−6d` to `S+1d` (`:202-205`). Today `S` is about 6 November, so:
+   - the October nights would fall outside the week;
+   - the Protect line (K4b, KIS-8a) would never show night 4;
+   - the Work API's 30-day backdate rule (`B/work/model.py:36-37`) would soon refuse the records.
+
+   **Decision: the Kisiwa story is the F0 world moved by a whole number of days.** This is the EV pattern (`base_e_start` plus `day_delta_days`, `T/demo_combined.py:161-163`).
+2. **A whole-day move changes no physics and no published reading.**
+   - The day document is date-free (`T/probe_kisiwa_nights.py` `day_document(soc, fuel)`).
+   - The publication draw is keyed by seed, stream and **step index** (`S/observation/transform.py:189-201`), not by instant.
+   - Kisiwa's zone (`Africa/Dar_es_Salaam`, UTC+3) has no daylight saving.
+
+   So run k at `start + N days` gives F0's trajectory, readings, dropouts, gap and dips exactly. K7 proves this for each run (the physics guard) and each night (KIS-3). Any difference is a stop, never a retune.
+3. **The log is named by version and never edited, so a moved log is a new log.** K0 reads `{root}/{log_id}-v{log_version}.yaml` and freezes its sha256 (§9f.2 (5)).
+   - K7 therefore writes a derived log for each prepare, into the work folder. Its own id is `kisiwa-001-story-{yyyymmdd of night 1}`, version 1.
+   - K7 hands `YamlOperationalActionLog(root=<work>/operational-actions)` to run setup.
+   - The derived log's content is v1 with every `at` (and `sensor_disconnected.at`) moved by N days. Nothing else changes.
+   - The shipped v1 file, its hash `77777c82…b634` and K0's pins are untouched.
+4. **Every action already sits inside one run's day.** Run k runs from 15:00 local on day k to 15:00 local on day k+1. In those terms:
+   - the delivery is in run 2;
+   - the removal and the sensor span are in run 4, and so is the night-4 dip;
+   - the seal and sensor-power actions are at run 6's start, which is inside `[start, end)`;
+   - each after-change dip is in its own run, 6 to 10.
+
+   No v2 action is needed: the story uses exactly F0's actions. K0's residual (an action that straddles a run start is silently dropped) is closed by a mechanical check (KIS-9 (c) and an L0 test), not by trust.
+5. **The boards read as known at story cutoffs, so every stamp must be a story instant.**
+   - K3's CLI stamps the database's wall clock (`B/fuel_balance/worker.py`). That clock is after every story cutoff, so boards for story days would not see the windows.
+   - K3's and K4a's stores take a test-only clock override. It is constructor-only (§9d.4); K4a's form is `build_fuel_finding_service(…, test_db_clock_override=)`.
+   - K3's `worker.main(argv, store=…)` takes an injected store (`host/tests/test_k3_fuel_balance_parity.py:263`).
+
+   **Decision:** K7 calls the K3 CLI entry point in process, with an injected store whose clock is the story instant. It calls K4a's service the same way. Tools already set this seam for story stamps (`T/demo_combined_mill.py:138`, `:146`).
+6. **The Finding cannot exist at 12:30 local on day 5.** Night 4's data arrive with run 4, which ends at 15:00 local on day 5 (§8.3: day-runs run 15:00–15:00). §8.6's "12:30 local … after the closing reading" came before that reading was delivered. **Corrected:** the Action is raised at **16:00 local on day 5**. By then run 4 has been received (+10 min), assessed (+30 min) and raised (+31 min). The effective instant (15:00 local, run 6's start) and the partition of nights are unchanged.
+7. **Kobo's prepare must not move.**
+   - `T/demo_combined.py` treats "all Sites" as exactly three in several places (`:100`, `:151`, `:176-182`, `:487`, `:533`, `:551`).
+   - No tick may run before Kobo's mill step (`:498-501`).
+   - The chain backfill takes `--site` (`B/chain/backfill.py:4`, `:33`), so a Kisiwa-scoped threads step touches no Kobo thread.
+   - The S3 dispatch worker (`host/tests/test_s6_verification_replay.py:112-115`) drains every pending job, so K7 never calls it. Kisiwa's dispatch windows are assessed by the prepare's existing ticks and drains, as Kobo's `tick` days are.
+8. **The Site Finding page is dispatch-shaped and has no domain filter.** `GET /api/sites/{code}/findings/{id}` reads `finding_detail` with no domain predicate (`B/analytics/finding_read.py:359-372`). It renders dispatch currentness and windows (`B/finding_api.py:111-143`), so a fuel Finding there would read wrongly. **Decision:** the fuel Finding gets its own address, as the mill verdict did (`DOMAIN_VERDICT`, `F/shell/operatorSiteRoutes.ts:593-594`). That means a new Ref kind `FUEL_FINDING` and the route `/sites/{site}/fuel-findings/{id}`. The dispatch route is not edited.
+9. **The Kobo Fuel page is an hour read** (`F/sites/MiniPerformance.tsx:1574-1622`, `GET …/mini-depth/fuel`), but Kisiwa's night check is K3's stored window. **Decision:** the Fuel page has two modes:
+   - **night mode** iff the Site has at least one stored fuel-balance window as known;
+   - **hour mode** otherwise, exactly as today and byte-equal (Kobo).
+
+### 9l.2 K5 card: the Fuel page night mode, the fuel Finding page and the Site Findings fuel panel, 1.3 (range 1.15–1.5)
+
+**What K5 delivers.**
+- **Site › Performance › Fuel in night mode,** on a Site with stored windows:
+  - a night selector;
+  - the v69 `fuel` cards, waterfall and bridge, filled from the stored window;
+  - a "Deliveries and tank dips" table;
+  - the reworded notice (K4a's constant, imported);
+  - a "Finding for this night" panel.
+- The **fuel Finding page** at its own address, with K4a's server lines.
+- A **"Fuel checks" panel** on the Site Findings index, only when the Site has a fuel Finding.
+- The read routes for all three. All text is formatted on the server; the browser formats no number.
+- The `FUEL_FINDING` Ref kind.
+- **Unchanged:**
+  - Kobo's Fuel page in hour mode: every byte except K4a's two reworded strings. K5 does **not** edit those two lines (`FUEL_NOTICE` and the RESIDUAL row at `F/sites/MiniPerformance.tsx:1310-1311`, `:1343`).
+  - every dispatch Finding page and route;
+  - every Cold and EV byte;
+  - K3's and K4a's write paths.
+- **Moved out of K5:** the fuel Finding's entry in the **estate** Findings lists goes to K8 (+0.15 there), with the four-Site lists K8 already owns.
+
+**Phases (K5 can start before K4a merges).**
+- **Phase A, now (about 0.75):**
+  - the pre-flight;
+  - the nights routes and the night text below, except the two K4a lines;
+  - night mode and the records table;
+  - tests A1–A5, B1–B3 and F1–F4.
+- **Phase B, after K4a merges (about 0.45):**
+  - `git merge main`;
+  - the margin and gap lines, imported from K4a's `B/fuel_balance/finding_text.py`;
+  - the fuel Finding route and page, and the Ref kind;
+  - the Site Findings panel, and the night page's Finding panel;
+  - tests A6–A7, B4–B5 and F5–F8.
+- **Captures (about 0.1):** taken after K7-D's Kisiwa scratch prepare has run (§9l.3), against its kept database. K5 merges after the captures.
+- K4b may start after K5's phase B build, before K5's captures (lane-1 order).
+
+**Backend: `B/fuel_balance/night_text.py` (new, pure, no I/O).**
+- Litres: one decimal, half-even on the exact Fraction (K4a's rule). Phase A copies K4a's one-line helper; phase B replaces it with the import from `finding_text`.
+- kWh: one decimal. SFC: as stored. Times: Site-local `HH:MM`. `{date}` = `f"{d.day} {d:%b}"`.
+```python
+NIGHT_LABEL = "Night of {date} · 6 pm to noon"
+STATUS = {
+    "UNEXPLAINED": "Fuel balance: unexplained fuel",
+    "WITHIN_MARGIN": "Fuel balance: accounted for within the margin",
+    "BELOW_MATERIALITY": "Fuel balance: a small difference, below the 40 L the check flags",
+    "EXCESS": "Fuel balance: more fuel than recorded",
+    "NOT_ASSESSED": "Fuel balance: not checked",
+}
+STATUS_TONE = {"UNEXPLAINED": "amber", "WITHIN_MARGIN": "neutral", "BELOW_MATERIALITY": "neutral",
+               "EXCESS": "amber", "NOT_ASSESSED": "neutral"}
+FUEL_REASON_WORDS = {  # K4b imports these (amended, §9l.4); §9j.11's literals, with "no-load" made guard-V safe
+    "NO_SENSOR_ACCURACY": "no tank sensor accuracy declared",
+    "SFC_MISSING": "no generator fuel rate declared",
+    "NO_LOAD_RATE_MISSING": "no generator idle fuel rate declared",
+    "MISSING_OPENING": "no tank reading at 6 pm",
+    "MISSING_CLOSING": "no tank reading at noon",
+    "FUEL_LEVEL_CONFLICT": "two different tank readings at the same time",
+    "GENERATOR_KWH_UNKNOWN": "generator power readings incomplete",
+    "IDLE_SECONDS_UNKNOWN": "generator state readings incomplete",
+}
+NOT_CHECKED = "Not checked: {why}"
+# cards (label, value, note); labels are the existing ones (MiniPerformance.tsx:1417-1444)
+OPENING_NOTE = "Tank reading at {hh_mm}"
+DELIVERIES_NONE = "None recorded"
+DELIVERIES_NOTE_ONE = "1 delivery record"
+DELIVERIES_NOTE_MANY = "{n} delivery records"
+DELIVERIES_NOTE_NONE = "Absence of record does not prove none occurred"          # v69 :625, verbatim
+USE_NOTE = "Modelled: {kwh} kWh × {sfc} L/kWh, 10 % either way"
+USE_NOTE_IDLE = "Modelled: {kwh} kWh × {sfc} L/kWh plus {m} min idle at {r} L/h, 10 % either way"
+RESIDUAL_NOTE = {"UNEXPLAINED": "Above the 40 L the check flags", "WITHIN_MARGIN": "Zero lies inside this range",
+                 "BELOW_MATERIALITY": "Below the 40 L the check flags", "EXCESS": "More fuel than recorded"}
+CANNOT_COMPUTE = "Cannot compute"                                                  # v69 :626
+UNKNOWN_VALUE = "Unknown"
+# bridge rows: (term, label, evidence basis, treatment); the row shows "{label} · {value}"
+BRIDGE = (
+    ("OPENING", "Opening inventory", "Tank reading at {hh_mm}", "Declared sensor accuracy ±{a} L"),
+    ("DELIVERIES", "Plus deliveries", "{deliveries_basis}", "1 % allowance on each ticket"),
+    ("USE", "Less generator consumption", "Generator output × declared fuel coefficient",
+     "Modelled range, not a fuel-meter reading"),
+    ("CLOSING", "Less closing inventory", "Tank reading at {hh_mm}", "Declared sensor accuracy ±{a} L"),
+    ("RESIDUAL", "Unexplained residual", "Opening + deliveries − use − closing",
+     "Compared with the combined margin; never says why fuel left"),
+)
+DELIVERIES_BASIS_NONE = "No delivery record"     # else DELIVERIES_NOTE_ONE / _MANY
+# records table
+RECORD_KIND = {"FUEL_DELIVERY": "Fuel delivery", "TANK_DIP": "Tank dip"}           # K2's labels
+RECORD_WHEN = "{hh_mm}, {date}"
+RECORDS_EMPTY = "No delivery or tank dip recorded this night"
+DIP_CONFLICT = "A tank dip differs from the nearest tank reading by more than the declared accuracy plus 10 L."
+DELIVERY_LATE = "A delivery was first recorded after the night could be checked."
+# Finding panel on the night page
+FINDING_NONE_WITHIN = "No finding: the fuel was accounted for within the margin."
+FINDING_NONE = "No finding for this night."
+FINDING_NOT_RAISED = "Not available yet · the finding for this night has not been raised"
+FUEL_NIGHT_LINK = "Open this night on the Fuel page"
+# fuel Finding page and the Site Findings panel
+LIFECYCLE = {"SUPPORTED": "Supported by the latest check", "NO_LONGER_SUPPORTED": "No longer supported"}
+VERSION_ROW = "Version {n} · {lifecycle} · {hh_mm}, {date}"
+FUEL_CHECKS_ROW = "{title} · {date} · about {lo}–{hi} L"
+```
+- Placeholder formats:
+  - `{a}` is the stored `accuracy_l`, to 0.1, without a trailing ".0" for whole litres ("10");
+  - `{m}` is whole minutes;
+  - `{r}` is the rate as stored.
+- In phase B, the night page's margin note is K4a's `finding_text.margin_line(accuracy_l)`. Its gap line is K4a's `finding_text.gap_line(spans, tz)`, shown when `gap_minutes > 0`. In phase A both are absent, and the chart note is only the existing sentence "A residual is shown only when every term has a supported range."
+
+**Backend: `B/fuel_balance/night_read.py` (new) and `B/fuel_balance_api.py` (a new router), registered in `B/main.py`.**
+- Scope, Site resolution and refusals copy `B/finding_api.py:46-100`: `open_scope`, development access, and 404 for a Site outside the configured tenant.
+- Reads go through:
+  - K3's `PostgresFuelBalanceStore` (`windows`, `window`);
+  - K2's `select_fuel_records`;
+  - K4a's `fuel_findings` and `fuel_finding` (phase B);
+  - one new read-only store method, `has_windows(tenant_id, site_id, known_at) -> bool` (`SELECT EXISTS … recorded_at <= :k`).
+- The provenance block is the one the mini-depth fuel read already returns. PRE-FLIGHT (a) names its builder. It is reused, never re-derived.
+
+The four routes:
+1. `GET /api/sites/{site_code}/fuel-balance/nights?from=YYYY-MM-DD&to=YYYY-MM-DD[&known_at=ISO]`
+   - Body: `{"site_code", "mode": "NIGHTS"|"NONE", "time_zone", "known_at", "nights": [{"night_date", "label", "state", "status", "tone", "revision"}], "provenance"}`.
+   - `mode` is `NONE` iff `has_windows` is false (Kobo); `nights` is then `[]`.
+   - Without `from`/`to`, the range is the 14 nights ending with the latest stored night as known.
+   - A span over 31 nights, `from >= to`, or a malformed date gives 422 `FUEL_BALANCE_RANGE_INVALID`, with the message "Choose up to 31 nights, with the first night before the last."
+2. `GET /api/sites/{site_code}/fuel-balance/nights/{night_date}[?known_at=ISO]`
+   - Body: `{"site_code", "night_date", "label", "time_zone", "known_at", "state", "status", "tone", "revision", "window_start", "window_end", "cards": [{"key", "label", "value", "note", "word"}] (4), "bars": [{"key", "label", "value_l", "text"}] (5), "bridge": [{"term", "label", "value", "basis", "treatment", "evidence_count"}] (5), "notes": [...], "records": [{"code", "kind", "when", "volume", "occurred_at"}], "finding": null | {"finding_id", "title", "text", "href"}, "finding_note": str | null, "provenance", "links": {"evidence", "fuel_page"}}`.
+   - Card labels are the existing ones (`MiniPerformance.tsx:1417-1444`): "Opening evidence", "Recorded deliveries", "Modelled expected use", "Residual". Bar labels are the existing ones (`:1458-1462`).
+   - `value_l` is a float used only to scale a bar. Every visible number is in `text` or `value`.
+   - `notes`, in this fixed order:
+     - the gap line (phase B);
+     - `DIP_CONFLICT`, iff that limitation is set;
+     - `DELIVERY_LATE`, iff that limitation is set;
+     - `NOT_CHECKED`, iff the night is NOT_ASSESSED.
+   - `records`: the K2 fuel records with occurrence in `[window_start, window_end)` as known, ordered by occurrence. `volume` = "{q} L" (whole litres when integral).
+   - `finding` (phase B): the fuel Finding whose latest revision, as known, cites this night's window. `title` = K4a's `TITLE`, `text` = its `claim` line, `href` = `/sites/{code}/fuel-findings/{id}`.
+   - If there is no such Finding, `finding_note` is `FINDING_NONE_WITHIN` for WITHIN_MARGIN, `FINDING_NOT_RAISED` for UNEXPLAINED, and `FINDING_NONE` otherwise.
+   - In phase A, `finding` and `finding_note` are both null.
+   - No window as known gives 404 `FUEL_BALANCE_NIGHT_NOT_FOUND`, "No fuel check is stored for this night."
+3. `GET /api/sites/{site_code}/fuel-findings?from=ISO&to=ISO[&known_at=ISO]` (phase B)
+   - Body: `{"site_code", "rows": [{"finding_id", "night_date", "lifecycle", "text", "href"}]}`. `text` is `FUEL_CHECKS_ROW` with K4a's title.
+4. `GET /api/sites/{site_code}/fuel-findings/{finding_id}[?revision_id=]` (phase B)
+   - Body: `{"site_code", "finding_id", "revision_id", "revision_no", "lifecycle", "lifecycle_text", "night_date", "label", "lines": finding_text.finding_lines(...), "night": <route 2's body for the cited window revision, without its finding block>, "revisions": [{"revision_id", "revision_no", "text"}], "provenance", "links": {"canonical", "fuel_night"}}`.
+   - An unknown id, another Site's id, or a revision not of this Finding gives 404 `FUEL_FINDING_NOT_FOUND`, "No such fuel finding for this Site."
+
+**Ref kind** (`B/chain/refs.py`): `fuel_finding_ref(site, finding_id, revision=None) -> _ref("FUEL_FINDING", site=…, id=…, revision=…)`. The kind joins the kinds list and every validator that list feeds (PRE-FLIGHT (c)).
+
+**Frontend.**
+- `F/sites/fuelBalanceClient.ts` (new): `getNights`, `getNight`, `getFuelFindings`, `getFuelFinding`. Bodies are typed as above, with the existing `MiniRead` result shape.
+- `F/sites/MiniFuelNights.tsx` (new): `MiniFuelNightsPage`, composed of existing components only:
+  - `StatusBar`;
+  - `MetricCards` and `MetricCard`;
+  - `Panel`, `ValueBars` and `ChartNote`;
+  - `BoundedPanel` and `DataTable`;
+  - `Notice`, with the imported `FUEL_NOTICE`.
+
+  No new CSS, unless PRE-FLIGHT (d) shows a mock budget the existing classes miss.
+  - **Night selector** (in place of `MiniHourBar`):
+    - a `<nav aria-label="Nights">` holding a select of nights. Each option's text is the server `label` + " · " + the server `status`;
+    - two buttons, "Previous night" and "Next night", disabled at the ends;
+    - the address carries `?night=YYYY-MM-DD`. Without it, the page opens the latest listed night. A reload reopens the same night.
+  - **Order** (v69 `:623-630`, MD-FUEL-K-1):
+    1. the status bar: the badge (`status`, `tone`), provenance chips, and `notes` as strip items;
+    2. the cards;
+    3. "Fuel balance at a glance": the bars and the chart note;
+    4. "Balance bridge": five rows, with `evidence_count` and the Evidence link as today's bridge has them;
+    5. **"Deliveries and tank dips"**: columns "Time", "Record", "Volume", "Reference"; `RECORDS_EMPTY` when there are none;
+    6. the notice;
+    7. **"Finding for this night"**: the Finding's title as a link and its `text`, or `finding_note`. In phase A this panel is absent.
+- `F/sites/MiniPerformance.tsx`: `MiniFuel` gains an optional prop, `fuelBalance?: FuelBalanceClient`.
+  - With the prop, it first calls `getNights(siteCode)`. `mode === "NIGHTS"` renders `MiniFuelNightsPage`, with no hour bar.
+  - `mode === "NONE"`, a failed read, or an absent prop renders today's hour-mode branch, unchanged.
+  - **No other line of `MiniPerformance.tsx` changes.** The two K4a lines are not touched.
+- `F/shell/SiteAnalyticsFrames.tsx` passes `fuelBalance` to `MiniFuel` (one prop).
+- `F/sites/SiteFuelFinding.tsx` (new) at `SITE_FUEL_FINDING_ROUTE_PATH = ${SITE_DETAIL_ROUTE_PATH}/fuel-findings/:findingId`. The route and `siteFuelFindingHref(site, id, revision?)` live in `F/shell/operatorSiteRoutes.ts`; `?revision_id=` works as it does on the dispatch page. Layout, in order:
+  1. `SitePageHeader`, and `OperatorSiteTabs current="Findings"`;
+  2. a status bar: the badge `lifecycle_text`, the `label`, provenance chips;
+  3. `BigClaim` with `lines.claim` (or `lines.no_longer`);
+  4. a fact list of `lines.gap`, `lines.money`, `lines.margin` and `lines.not_why`, each only when present;
+  5. the panel "How the night was checked": the bridge table component shared with the Fuel page, plus the `FUEL_NIGHT_LINK` link to `/sites/{code}/performance/fuel?night=…`;
+  6. the panel "Deliveries and tank dips" (the shared component);
+  7. the panel "Versions" (`revisions[].text`).
+- `F/sites/chainRef.ts` gains `{ kind: "FUEL_FINDING"; site: string; id: string; revision?: string }`.
+- `routeFor` gains `case "FUEL_FINDING": return siteFuelFindingHref(r.site, r.id, r.revision)`.
+- `F/test/linkRefs.ts` parses the new path back to the Ref.
+- `F/App.tsx` registers the route beside `SITE_FINDING_ROUTE_PATH`.
+- The Site Findings index (`F/sites/SiteFindingIndex.tsx` or its frame; PRE-FLIGHT (e) names the component): on a MINIGRID Site, a panel "Fuel checks" after the dispatch table, with one link row per `rows[]`. It renders **only when `rows` is non-empty**, so Kobo stays byte-equal.
+
+**MOCK DEVIATIONs (a header comment at each render, and one packet row each).**
+- **MD-FUEL-K-1** (kept): a night window (6 pm to noon) with a night selector, instead of v69's hour bar (`:623-630` shows Kobo's selected hour).
+- **MD-FUEL-K5-1:** the "Deliveries and tank dips" table. v69's `fuel` screen has no record list; its bridge names "Delivery / operator records" (`:627`).
+- **MD-FUEL-K5-2:** in night mode, "Finding for this night" replaces v69's "Inspect existing generator fuel interpretation" (`:629`), which is about the dispatch consequence of a Kobo hour. Hour mode keeps v69's panel.
+- **MD-FUEL-K5-3:** the "Fuel checks" panel on the Site Findings index. v69's Findings index lists dispatch Findings only.
+- **MD-FUEL-K4-1** (K4a's, cited): the fuel Finding page itself. v69 has no unexplained-fuel Finding and defers "theft detection" (`:630`).
+
+**Tests (localised; no full suite).** Every "must fail" names the mutation the reviewer applies to a scratch copy.
+- **A. L0 `backend/tests/test_k5_fuel_night_text.py` (no DB).**
+  1. Night 4, from `.agent/DIESEL-F0/probe-result.json` `nights[3].readings` (exact), with a = 10 and SFC 0.355, gives:
+     - the residual value "95.7–144.3 L";
+     - the status `STATUS["UNEXPLAINED"]` and its `RESIDUAL_NOTE`;
+     - the use card's `USE_NOTE` with its kWh and SFC.
+
+     Must fail if litres round half-up: the synthetic band [1.25, 2.35] must give "1.2–2.4".
+  2. Night 2: the deliveries value "300 L", the note `DELIVERIES_NOTE_ONE`, the basis "1 delivery record". Night 1: `DELIVERIES_NONE`, with v69's note.
+  3. Each state's status, tone and residual note. NOT_ASSESSED gives the value `CANNOT_COMPUTE` and `NOT_CHECKED` with each reason word.
+  4. The idle note appears only when `idle_seconds > 0`.
+  5. **Wording (local):**
+     - every literal in `night_text.py`, lower-cased, holds none of theft, stolen, stole, siphon or pilfer;
+     - guard V's `_patterns` (`backend/tests/test_out_b2_vocabulary.py`) pass on each one;
+     - the K5 literals join that test's scan list.
+  6. (phase B) The margin and gap lines equal K4a's `finding_text` output (imported, not retyped).
+  7. (phase B) `FUEL_CHECKS_ROW` for night 4 = "Unexplained fuel overnight · 4 Oct · about 95.7–144.3 L".
+- **B. L2 `backend/tests/test_k5_fuel_night_api_postgres.py`, on its own `assetops_k5_test`.** Kobo is imported as in K3's B tests; synthetic windows go through `PostgresFuelBalanceStore.append` with the test clock; records go through K2.
+  1. Kobo with no window: nights gives `mode == "NONE"` and `nights == []`. The hour read is unchanged.
+  2. With windows:
+     - the list is as known (a revision recorded after `known_at` is absent);
+     - the default range;
+     - the 422 cases;
+     - 404 for an unknown night and for another tenant's Site.
+  3. The night body:
+     - cards, bars and bridge;
+     - records ordered, and half-open at both window edges;
+     - the order of `notes`;
+     - no number left for the browser: every `value` and `text` is a string.
+  4. (phase B) With a Finding raised by `raise_night`:
+     - the night body's `finding`;
+     - the fuel-findings list;
+     - the fuel Finding body (lines, `night`, revisions);
+     - 404 for another Site's Finding id, and for a dispatch Finding's id. Must fail if the route reads `finding_detail` without the `fuel_balance` domain.
+  5. (phase B) `fuel_finding_ref` resolves through the Ref validator.
+- **F. Frontend** (`F/sites/__tests__/miniFuelNights.test.tsx`, `siteFuelFinding.test.tsx`, plus the existing route and ref tests):
+  1. Night mode renders the server strings verbatim. A static test checks that `MiniFuelNights.tsx` and `SiteFuelFinding.tsx` call no `toFixed`, `Intl.NumberFormat` or `NUMBER.format`.
+  2. The selector: with `?night=` absent it opens the latest night; Previous and Next change the address; both are disabled at the ends.
+  3. The records table, and its empty text.
+  4. Hour mode: with `mode: "NONE"`, with a failed nights read, and with no `fuelBalance` prop, the rendered DOM equals today's. The existing `miniFuelRoutes.test.tsx` passes unchanged except for K4a's two literals. Must fail if night mode renders on `NONE`.
+  5. (phase B) The Finding panel: the link, `FINDING_NONE_WITHIN`, `FINDING_NOT_RAISED`.
+  6. (phase B) The fuel Finding page: the SUPPORTED lines, the NO_LONGER_SUPPORTED lines, the night link, and `?revision_id=` pinning.
+  7. (phase B) `routeFor({kind: "FUEL_FINDING", …})`, and the `linkRefs` round-trip.
+  8. (phase B) The "Fuel checks" panel is present with rows and absent with none.
+- **Must stay green unchanged:**
+  - every existing mini page test;
+  - `siteFinding*.test.tsx` and the Findings index tests;
+  - K3's and K4a's tests;
+  - `test_out_b2_vocabulary.py` (it gains literals only);
+  - `tsc`.
+- **Guards:** run directly, with no `-ExecutionPolicy`:
+  - `tools\check-all.ps1`;
+  - `tools\check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON` if there is no venv);
+  - `tools\check-agent-workflow.ps1`;
+  - `tools\check-navigation-truthfulness.ps1`;
+  - `node tools/checks/frontend-hardwiring.mjs` (no rise);
+  - mock-deviation-labels;
+  - guards A, W, N, V and M.
+
+  Allowlist joins (rule-8 readers for the new router's reads, the Ref kind lists) are membership only, and the packet lists them.
+
+**Layout evidence at 1440 and 390.** Taken with `node tools/layout-evidence.mjs` against `T/demo_combined.py … serve` on K7-D's kept `assetops_demo3_kisiwa_test`, or the coordinator-run equivalent.
+- Pages to capture:
+  - Kisiwa Fuel, night 4 (UNEXPLAINED, the gap note, one dip) and night 6 (WITHIN_MARGIN, two dips);
+  - the night-2 delivery night, at 1440 only;
+  - the fuel Finding page for night 4;
+  - Kisiwa Site Findings with the "Fuel checks" panel;
+  - Kobo's Fuel page in hour mode, at both widths, compared with main's capture of the same page: only K4a's two strings may differ.
+- Before the build, `node tools/measure-mock-panels.mjs .agent/K5-mock-measurements fuel` is run and committed as `.agent/K5-mock-measurements.md`.
+- The night page meets those panel budgets. The records table's height cap is sized for 10 rows; the worst case today is 2 dips plus at most 1 delivery a night. `ShowAll` applies after 6 rows.
+- There is no horizontal scroll at 390, and every table scrolls inside its own panel.
+
+**PRE-FLIGHT (no code first; batch every question in one message).**
+- (a) The mini-depth fuel read's provenance builder (file:line) and its body key.
+- (b) Where `B/main.py` registers `build_finding_router`, and confirmation that `host/lab_app.py` serves the same app (so `serve` exposes the new routes).
+- (c) Every list or validator a new Ref kind must join, file:line: the backend refs, the chain-coherence link checks, the frontend `Ref` union and its exhaustive switches.
+- (d) The `.agent/K5-mock-measurements.md` budgets, and whether the existing mini classes meet them.
+- (e) The Site Findings index component and its MINIGRID branch.
+- (f) Whether K4a's merged `finding_text.finding_lines` signature matches §9j.7 (phase B).
+
+**Stops (report to the Architect; never design around them).**
+- **S-a** guard V or N rejects a literal. Report the message; never reword silently.
+- **S-b** any of these changes: a Kobo Fuel-page byte other than K4a's two strings; any Cold or EV byte; any dispatch Finding page or route.
+- **S-c** a need to edit any of: K4a's two lines; K3's or K4a's write paths; `B/finding_api.py`; `B/analytics/`; `B/work/` (K2's read is called, not edited); any migration.
+- **S-d** the provenance block cannot be reused (PRE-FLIGHT (a)).
+- **S-e** the new Ref kind needs any change beyond list membership and one `routeFor` case.
+- **S-f** more than 1.5 units.
+
+**Files (approved list):**
+- New: `B/fuel_balance/night_text.py`, `B/fuel_balance/night_read.py`, `B/fuel_balance_api.py`; `F/sites/fuelBalanceClient.ts`, `F/sites/MiniFuelNights.tsx`, `F/sites/SiteFuelFinding.tsx`; `.agent/K5-mock-measurements.md`.
+- Edited:
+  - `B/fuel_balance/adapters/postgres_fuel_balance_store.py` (`has_windows` only);
+  - `B/main.py` (router registration);
+  - `B/chain/refs.py` (`fuel_finding_ref` and the kind);
+  - `F/sites/MiniPerformance.tsx` (the `MiniFuel` prop and branch only);
+  - `F/shell/SiteAnalyticsFrames.tsx` (one prop);
+  - `F/shell/operatorSiteRoutes.ts`, `F/sites/chainRef.ts`, `F/App.tsx`;
+  - the Site Findings index component (PRE-FLIGHT (e));
+  - `F/test/linkRefs.ts`.
+- Also: the tests above, and guard allowlists (membership only).
+
+**Dependencies, start, branch, DB, size.**
+- **Depends on:** K3 merged (yes). Phase B needs K4a merged. The captures need K7-D's scratch prepare.
+- **Lane:** lane 1. K5 starts now if lane 1 is free; otherwise the next free builder takes it.
+- **Branch:** `task/DIESEL-K5-fuel-screens`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k5`, from main at or after `0c4aa7310`.
+  - `git merge main` (never rebase) before phase B and again before the packet.
+  - Opus does the first build and the first review.
+  - Commit with `git add -f` of explicit paths.
+- **DB:**
+  - only `assetops_k5_test` (and its harness clones);
+  - the captures read K7-D's `assetops_demo3_kisiwa_test` through `serve` and never write to it;
+  - never `assetops_demo3_full_test`;
+  - no prepare, tick or suite.
+- **Size 1.3** (range 1.15–1.5):
+
+  | Item | Units |
+  |---|---|
+  | Night routes and text | 0.25 |
+  | Night mode and records table | 0.3 |
+  | Fuel Finding route and page | 0.25 |
+  | Ref kind and Site Findings panel | 0.15 |
+  | Tests | 0.2 |
+  | Captures and pre-flight | 0.15 |
+
+  That is +0.3 against §9.5's 1.0. The increase covers the Finding's own address and route (§9l.1 item 8), the records table and the Site panel, less the estate-list entry moved to K8.
+- **Reading budget:**
+  - this §9l.1–§9l.2;
+  - §9d.2 (result terms) and §9d.5;
+  - §9j.5 (read types) and §9j.7;
+  - `F/sites/MiniPerformance.tsx:1308-1622`;
+  - `F/shell/SiteAnalyticsFrames.tsx:330-380`;
+  - `F/shell/operatorSiteRoutes.ts:150-170`, `:575-600`;
+  - `F/sites/chainRef.ts`;
+  - `B/finding_api.py:1-145`;
+  - `B/chain/refs.py:1-200`;
+  - `B/fuel_balance/model.py`;
+  - `B/fuel_balance/adapters/postgres_fuel_balance_store.py`;
+  - `B/work/adapters/postgres_fuel_records.py`;
+  - v69 `frontend/mockups/v69/index.html:623-630`.
+
+### 9l.3 K7 card: the Kisiwa story days in the demo prepare, 2.4 (range 2.15–2.7), in two phases, K7-D and K7-F
+
+**What K7 delivers.**
+- Kisiwa (KISIWA-001) as the fourth Site of `T/demo_combined.py`, built after EV by `T/demo_combined_kisiwa.py build`. The build covers:
+  - the registration;
+  - ten day-runs on the story calendar, with F0's operational actions entering through K0;
+  - the delivery, dip and site-visit records, through K2's Work API;
+  - the ten nightly fuel checks (K3);
+  - the unexplained-fuel Finding (K4a);
+  - the threads;
+  - the Action, with its maintenance request;
+  - in K7-F, the plan freeze and the evaluation (K6).
+- One Kisiwa-only scratch prepare per phase, with its gate rows.
+- **Unchanged:**
+  - every Kobo, Cold and EV child, day, instant and step;
+  - a three-Site prepare's `story.json` (byte-equal, pinned);
+  - the shipped v1 log, the probe files and `probe-result.json`;
+  - every product module: K7 edits tools and conversions only.
+
+**Phases.**
+- **K7-D (data), 1.9, starts now** (K0, K1, K2, K3 are merged).
+  - Everything up to the Action, except the Finding raise and the Action itself, can be built and tested before K4a merges.
+  - After K4a merges: `git merge main`, then the raise and Action steps, then the K7-D scratch prepare.
+  - **K7-D merges on review ACCEPT with Kisiwa opt-in** (`--sites kobo,cold,ev,kisiwa`). The default prepare stays three Sites.
+- **K7-F (freeze), 0.5, after K6 merges** (see "The freeze step" below). It flips the default to four Sites.
+
+**The story calendar: `V/demo-kisiwa-story-v1.json` (new).** Offsets use the existing form `S[+-]<days>d HH:MM` (UTC) and resolve against the prepare's one `S`.
+```json
+{
+  "schema": {"id": "assetops.demo-kisiwa-story", "version": 1},
+  "label": "Kisiwa diesel-hybrid example Site: the F0 world (DIESEL-1 §8.3) placed on the story calendar by a whole-day move",
+  "base_log": {"log_id": "kisiwa-001-operational-actions", "log_version": 1,
+               "sha256": "77777c82d82298ffba77a130f8d9ea2c6bb9a80c491ba4b2ac5248c4b735b634"},
+  "base_run1_start": "2026-10-01T12:00:00Z",
+  "run1_start": "S-9d 12:00",
+  "runs": 10,
+  "import_at": "S-11d 09:00",
+  "install_at": "S-11d 09:30",
+  "setup_at": "S-11d 11:00",
+  "received_after_run_end_minutes": 10,
+  "assess_after_run_end_minutes": 30,
+  "raise_after_run_end_minutes": 31,
+  "dip_recorded_after_minutes": 15,
+  "site_visit_recorded_after_minutes": 15,
+  "story_log_id_prefix": "kisiwa-001-story-",
+  "action": {
+    "raised_at": "S-5d 13:00",
+    "title": "Seal the tank cap, sign the dip log at every shift change, and put the tank sensor on its own protected power supply",
+    "owner_label": "Site lead",
+    "request": {"occurred_at": "S-5d 13:10",
+                "title": "Seal the tank cap and put the tank sensor on its own protected power supply.",
+                "narrative": "Seal the tank cap and put the tank sensor on its own protected power supply. Sign the dip log at every shift change."},
+    "request_recorded_from": "S-5d 13:10",
+    "assign_at": "S-5d 13:20",
+    "record": {"occurred_at": "S-4d 12:00",
+               "activity": "Tank cap sealed; tank sensor moved to its own protected supply. The dip log is now signed at every shift change."},
+    "complete_at": "S-4d 12:05",
+    "change_recorded_from": "S-4d 12:10",
+    "site_visit": {"occurred_at": "S-4d 12:00",
+                   "body": "Tank cap sealed; tank sensor moved to its own protected supply."},
+    "case_link_at": "S-4d 12:20",
+    "effective_at": "S-4d 12:00"
+  },
+  "plan": {"freeze_at": "S-4d 12:30"},
+  "evaluate_at": "S-1d 13:00"
+}
+```
+- **Derived values:**
+  - `delta_days = (resolve(run1_start) − base_run1_start) / 1 day`. A non-integer is stop **S-1** (`STORY_SHIFT_NOT_WHOLE_DAYS`).
+  - Run k = `[run1_start + (k−1) d, run1_start + k d)`.
+  - Night k = the Site-local date of run k's start.
+- **The resulting story (night 1 = `S−9d`):**
+
+| Night (local date) | Run k (UTC) | What happens (the F0 world, moved) |
+|---|---|---|
+| 1 `S−9d` | `S−9d 12:00` → `S−8d 12:00` | clean |
+| 2 `S−8d` | `S−8d` → `S−7d` | delivery of 300 L at `S−7d 07:00` (10:00 local), recorded `07:30` |
+| 3 `S−7d` | | clean |
+| 4 `S−6d` | `S−6d` → `S−5d` | removal of 120 L at `S−6d 22:00–22:45` (01:00–01:45 local), sensor unplugged `21:50–23:20`; dip at `S−5d 04:00` (07:00 local), recorded `04:15`; nothing records the removal |
+| 5 `S−5d` | | run 4 received `S−5d 12:10`; night 4 assessed `12:30` and raised `12:31`; **Action at `13:00` (16:00 local)**; request `13:10`, assigned `13:20` |
+| 6 `S−4d` | `S−4d` → `S−3d` | the change at `S−4d 12:00` (15:00 local, run 6's start): seal, sensor power, site visit, maintenance record; COMPLETE `12:05`, link `12:20`; **plan frozen `12:30`**, before night 6 opens at `15:00`; dips at 18:00 and 06:00 local from here on |
+| 7 `S−3d`, 8 `S−2d` | | after-nights; night 8 assessed `S−1d 12:30` |
+| — | | **evaluation at `S−1d 13:00`** |
+| 9 `S−1d`, 10 `S+0d` | run 10 ends `S+1d 12:00` | after-nights; night 10 assessed `S+1d 12:30`, at least 11.5 h before any prepare's DB now (`S+2d 00:00` or later) |
+
+- What the calendar guarantees:
+  - Night 4's window `[S−6d 15:00, S−5d 09:00)` lies inside the story week `[S−6d, S+1d)`, so the Portfolio Protect line (K4b, KIS-8a) can show it.
+  - Night 8 closes before the S+0 board. The S+0 board's night D−1 is night 9 (WITHIN_MARGIN).
+  - Kisiwa's install, `S−11d 09:30`, is distinct from Kobo `S−29d 11:00`, Cold `S−26d 06:00` and EV `S−26d 06:30`. It is later than all three, so Kisiwa builds last, and it is more than `install_min_lead_hours` before run 1.
+  - The records' 30-day backdate window (`B/work/model.py:36-37`) holds: the earliest Kisiwa record occurs at `S−7d 07:00`.
+- **Order check** (stop S-2, `STORY_CLOCK_ORDER`, the mill's `instants_in_order` pattern). Each instant must come before the next:
+  1. the night-4 raise;
+  2. `raised_at`;
+  3. `request.occurred_at` (≤ `request_recorded_from`);
+  4. `assign_at`;
+  5. `record.occurred_at`, which equals `effective_at` and run 6's start;
+  6. `complete_at`;
+  7. `change_recorded_from`;
+  8. the site visit's recorded instant;
+  9. `case_link_at`;
+  10. `plan.freeze_at`;
+  11. night 6's window start;
+  12. night 8 assessed;
+  13. `evaluate_at`;
+  14. run 10 received.
+
+**The derived log, written for each prepare: `<work>/operational-actions/kisiwa-001-story-{yyyymmdd}-v1.yaml`,** where `yyyymmdd` is night 1's local date.
+- Read `C/operational-actions/kisiwa-001-operational-actions-v1.yaml` from the prepare tree. Assert that its LF sha256 equals `base_log.sha256` (else stop S-3).
+- Parse it with `B/runs/adapters/yaml_run_documents.load_yaml_text`.
+- Set `log_id` to the story id. Keep `log_version: 1`, `site_code` and `timezone`, and keep every action mapping, in order, with every key.
+- Add `delta_days` to each `at` and each `sensor_disconnected.at`, in the same `YYYY-MM-DDTHH:MM:SSZ` form. Nothing else changes.
+- Write the file as:
+  - four `#` comment lines: "Kisiwa story operational-action log (DIESEL-1-R3l). Derived by tools/demo_combined_kisiwa.py from config/operational-actions/kisiwa-001-operational-actions-v1.yaml (sha256 77777c82…b634) by a move of {N} whole days; no other change. Lab-private: the product never reads this file. Never edit by hand.";
+  - then `json.dumps(doc, indent=2, ensure_ascii=True)`, with LF line endings and a trailing newline.
+
+  JSON is valid YAML, so K0's loader reads it unchanged.
+- Run setup gets `KisiwaRegistered(store, setup_at, actions=YamlOperationalActionLog(root=<work>/operational-actions))`, and `draft(..., operational_actions={"log_id": <story id>, "log_version": 1})` on **every** Kisiwa run. A run with no effect-bearing action freezes the log with `actions: []` (§9f.2 (2)).
+- **Straddle check (K0's residual):** before any run is drafted, every action's span must lie inside exactly one run's `[start, end)`. The span is `[at, at]` for a point action, and `[at, at + duration)` for a removal and for its sensor span. Otherwise it is stop S-4. An L0 test runs the same check on the base log against F0's run list.
+
+**The handover: `V/kisiwa-day-handover-v1.json` (new), written by `T/probe_kisiwa_fuel.py --handover`.** It is needed because the prepare tree is a `git archive` of `backend, gateway, host, simulator, contracts, config, contract-fixtures, tools` (`T/demo_combined.py:397`), so `.agent/DIESEL-F0/probe-result.json` is not available there.
+- **Content:** a pure projection of the committed `probe-result.json`:
+  ```
+  {"schema": {"id": "assetops.kisiwa-day-handover", "version": 1},
+   "source": {"probe_result_sha256": <LF sha256 of probe-result.json>, "actions_sha256": "77777c82…b634"},
+   "base_run1_start": "2026-10-01T12:00:00Z",
+   "runs": [{"k", "start": {"soc", "fuel"}, "end": {"soc", "fuel"}, "intervention_history"}] (10),
+   "dips": [{"action_id", "at", "dip_l"}] (11),
+   "nights": [{"k", "night_date", "readings": {"state", "gap_minutes", "opening_exact", "closing_exact",
+               "deliveries_exact", "delivery_tolerance_exact", "loaded_litres_exact", "use_low_exact",
+               "use_high_exact", "residual_low_exact", "residual_high_exact"}}] (10)}
+  ```
+  Keys are sorted, indent 2, LF. Exact values are F0's text, verbatim.
+- `--handover` writes it from the committed result.
+- `--check` also asserts that the handover equals the projection of a fresh run, and exits 1 otherwise.
+- `--write` is unchanged, `probe-result.json` stays byte-equal, and `--check` still prints "probe result current". `T/probe_kisiwa_nights.py` is not edited.
+
+**The Kisiwa child: `T/demo_combined_kisiwa.py build <url> <work>`.** This is a new subcommand; `register` is unchanged. It refuses any database that `require_prepare_database` (`B/prepare_clock.py`, as the mill tool uses it) does not accept. Steps:
+1. **Read and check the inputs.** Read `<work>/story.json` (its `story["kisiwa"]` block, written by the parent, below) and the handover. Write the derived log and run the straddle check.
+2. **Register.** `register(url, work, import_at, install_at)` (K1, unchanged; diesel price v1 at install + 1 h).
+3. **Build one event timeline,** sorted by instant. Ties go in this order: record posts, then publish, then assess, then raise.
+   - **Record posts** go through `build_work_service(url)` (`B/work/composition.py`, the Work API's service, as in `T/demo_combined_mill.py:131-134`). For each post, the store clock is set to the record's recorded instant (`_store.test_db_clock_override`). Bodies are built with `test_w401_work_service_postgres.oprec` and `PRINCIPAL`, exactly as in K3's parity test (`host/tests/test_k3_fuel_balance_parity.py:76-94`).
+     - **The `FUEL_DELIVERY`,** from the log:
+       - body `f"Fuel delivery of {volume_l} L received, ticket {ticket.reference}."` ("Fuel delivery of 300 L received, ticket KIS-DT-0001.");
+       - `occurred_at` = the moved `at`, recorded `recorded_after_minutes` (30) later;
+       - quantity `str(volume_l)`, unit L;
+       - `source_document_sha256` = the sha256 of the ASCII text `f"Fuel delivery ticket {reference}, {volume_l} L"`;
+       - `asset_id` = the tank; key `kisiwa-kis-delivery-1`.
+     - **Each `TANK_DIP`:**
+       - body `f"Tank dip at the {HH:MM local} round: {dip_l} L."`;
+       - `occurred_at` = the moved `at`, recorded 15 min later;
+       - quantity = the handover's `dip_l` for that `action_id`;
+       - key `f"kisiwa-{action_id}"`.
+     - **One `SITE_VISIT`,** covering `TANK_SEALED` and `SENSOR_POWER_PROTECTED` together:
+       - body `action.site_visit.body`;
+       - `occurred_at` `S−4d 12:00`, recorded `S−4d 12:15`;
+       - `case_id` = the Action's maintenance request (step 5); no quantity;
+       - key `kisiwa-kis-sealed-1`.
+     - `FUEL_REMOVAL_UNRECORDED` posts **nothing**.
+   - **Publish run k** at run end + 10 min:
+     - the start state comes from the handover's `runs[k−1].start` (the probe's own chaining);
+     - the document is `probe_kisiwa_nights.day_document(soc, fuel)`;
+     - draft through `host/tests/kisiwa.py` `KisiwaRegistered(store, setup_at, actions=…)`, with the request key;
+     - assert READY and that `registered_basis` is present;
+     - then call `test_s6_verification_replay._publish_and_accept(<work>/kisiwa-replay/r{k:02d}, run, f"epoch-{k}", run_end + 10 min)` (K3's call).
+
+     Guards. Each failure is stop S-5, reported with both values:
+     - the frozen `intervention_history` holds exactly the run's effect-bearing actions (run 2 the delivery, run 4 the removal, the others none), and the frozen log `sha256` equals the derived file's LF hash;
+     - **physics:** the last boundary of `run_to_end(run, reg.sim("v7"))` has tank and SOC exactly equal to the handover's `runs[k−1].end`;
+     - **dips:** for each dip in run k, the trajectory's tank at the dip instant, rounded half-even to 1 L, equals the handover's `dip_l`.
+   - **Assess night k** at run end + 30 min. Call `fuel_balance.worker.main(["assess", "--site", "KISIWA-001", "--from", night_k, "--to", night_k + 1 d], store=<build_fuel_balance_store(url, test_db_clock_override=clock)>)`, with `clock` set to that instant. This is the K3 CLI entry point, in process (§9l.1 item 5). The printed line must be `APPENDED`, revision 1.
+   - **Raise night k** at run end + 31 min: `build_fuel_finding_service(url, test_db_clock_override=clock).raise_night(tenant, site, night_k)` (K4a). Night 4 must give `OPENED`, and every other night `NO_FINDING`. Anything else is stop S-6.
+4. **Threads, Kisiwa only.** Run `python -m assetops_backend.chain.backfill --site KISIWA-001 --steps a,b,c,d` as a child process in the tree, after the timeline and after the Action (step 5). It never runs for another Site, and the Kisiwa child runs no tick (§9l.1 item 7).
+5. **The Action and its change.** These run after the timeline, and every stamp is its story instant. They follow the mill's `record_change` pattern (`T/demo_combined_mill.py:126-184`) with Kisiwa's literals:
+   - **The Action:** `build_domain_intent_service(url).create_action(tenant, site, "KISIWA-001", {"domain": "MINI", "origin_finding_id": <night-4 Finding>, "origin_finding_revision_id": <its revision>, "title": action.title, "owner_label": "Site lead", "due_at": None, "raised_at": "S−5d 13:00", "actor": ACTOR, "idempotency_key": "kisiwa-fuel-action"}, PRINCIPAL)`, with the domain store's clock at `raised_at`. PRE-FLIGHT (b) names the two origin keys. A refusal of a `fuel_balance` origin is stop S-7 (K6 rules on the Action path, §9j.14).
+   - **The maintenance request:** kind `MAINTENANCE_REQUEST`, `asset_id` None, the request's title and narrative, key `kisiwa-fuel-request`, recorded from `request_recorded_from`. Then `ASSIGN` to "Site lead" at `assign_at` (key `kisiwa-fuel-assign`).
+   - **The change:** the maintenance record (`activity`, `occurred_at` `S−4d 12:00`, key `kisiwa-fuel-record`) and `COMPLETE` at `complete_at` (key `kisiwa-fuel-complete`). Both are recorded from `change_recorded_from`, using a second `StepClock`, so nothing is recorded before it occurred. Then the `SITE_VISIT` record of step 3.
+   - **The link:** `post_case_link` at `case_link_at` (key `kisiwa-fuel-link`).
+6. **Checks in the child: the CLI calls, as known now.**
+   - `worker.main(["assess", "--site", "KISIWA-001", "--from", night 1, "--to", night 11], store=<store with the DB clock>)` must print 10 lines, all `REUSED`, revision 1.
+   - K4a's `worker.main(["raise", …])` must give night 4 `UNCHANGED` and the others `NO_FINDING`. If that entry point takes no injected service, call `raise_night` per night instead (PRE-FLIGHT (c)).
+   - Anything else is stop S-6.
+7. **Write `<work>/kisiwa.json`.** It holds:
+   - the register result;
+   - `delta_days`, and the derived log's path, id and sha256;
+   - per run: `run_id`, start, end, received, history, the physics and dip checks, seconds;
+   - per record: code, kind, occurred, recorded, quantity;
+   - per night: the window id, revision, state, band, gap and stamps;
+   - the Finding: id, revision, consequence id, thread id;
+   - the Action: id, code, case id, link;
+   - the CLI lines;
+   - K7-F's plan and verdict.
+
+**`T/demo_combined.py` changes (exact; the three-Site path stays byte-equal):**
+- **Constants:**
+  - `CORE_SITES = ("kobo", "cold", "ev")`;
+  - `SITES = CORE_SITES + ("kisiwa",)`;
+  - `SITE_CODE["kisiwa"] = "KISIWA-001"`;
+  - `EXPECTED_SECONDS["kisiwa"] = 2520`: 10 days at about 240 s each (K1's and K3's 3–5 min per gateway day), plus 120 s for the register;
+  - `KISIWA_STORY_FILE = REPO / "backend" / "conversions" / "demo-kisiwa-story-v1.json"`.
+- **`objectives_instants`** iterates `CORE_SITES`. Kisiwa declares no objectives in K7; K8 rules on Kisiwa objectives with the four-Site estate.
+- **`resolve_story(db_now, doc=None, days_doc=None, kisiwa=False)`:**
+  - every existing loop over `SITES` iterates `CORE_SITES`;
+  - only when `kisiwa` is true:
+    - `story["kisiwa"] = demo_combined_kisiwa.resolve(S, kisiwa_doc)`, imported inside the function (the module imports `at` and `iso` from `demo_combined`);
+    - the four installs are asserted distinct, with Kisiwa's after all three (else `INSTALL_CLOCK_CONFLICT`);
+    - Kisiwa's install plus the lead must precede run 1;
+    - `"kisiwa"` is appended to `install_order`;
+  - `story["installs"]` stays the three core Sites;
+  - **with `kisiwa=False` the output equals today's** (pinned, test L0-1).
+- **`prepare`** passes `kisiwa="kisiwa" in sites`.
+- **`finish_build` and `finish`:** each `set(story["sites"]) == set(SITES)` becomes `set(CORE_SITES) <= set(story["sites"])`. The mini-depth drain in `finish` runs when `{"kobo", "kisiwa"} & set(story["sites"])` is non-empty.
+- **`story_links`:** when `"kisiwa"` is in `story["sites"]` and `<work>/kisiwa.json` exists, add these rows:
+  - "KISIWA-001 board, morning after the unexplained-fuel night (S-5d)": `/sites/KISIWA-001?date={S−5d}`;
+  - "KISIWA-001 board, day S": `/sites/KISIWA-001?date={S}`;
+  - "KISIWA-001 Fuel, night S-6d": `/sites/KISIWA-001/performance/fuel?night={S−6d}`;
+  - "KISIWA-001 unexplained-fuel finding": `/sites/KISIWA-001/fuel-findings/{id}`.
+
+  `LINK_FORMS` gains `"/sites/KISIWA-001?date="`, `"/sites/KISIWA-001/performance/fuel?night="` and `"/sites/KISIWA-001/fuel-findings/"`. K7-F adds the verification form that K6 names.
+- **`--sites` default:** `",".join(CORE_SITES)` in K7-D; `",".join(SITES)` in K7-F.
+- **`add-day`** for KISIWA-001 keeps today's refusal (there are no Kisiwa day kinds). Nothing else changes.
+- **Not edited:** the Kobo, Cold and EV children, `demo_story_days.py`, `demo-combined-story-v1.json` and `demo-story-days-v3.json`.
+
+**The freeze step (K7-F, after K6 merges).** K6's card is not written yet. K7-F's exact calls are folded into this card at K6's card round. What is fixed now:
+- **When:**
+  - The plan freezes at `plan.freeze_at` (`S−4d 12:30`): after the case link, and before night 6's window opens.
+  - The evaluation runs at `evaluate_at` (`S−1d 13:00`), after night 8 is assessed.
+  - Both are story instants, set through K6's service with the test-only clock seam, as the mill step does (`T/demo_combined_mill.py:282-293`).
+- **The effective instant** is `S−4d 12:00` (15:00 local, run 6's start). K6's card names the field that carries it: the Action, the case COMPLETE or the plan. If K6 pins a different mechanism, K7-F follows K6's card.
+- **The verdict:** K7-F records it **as computed** (VERIFIED, INEFFECTIVE or INCONCLUSIVE) in `kisiwa.json`. It never asserts a verdict. KIS-5 (K9) reads it.
+- **What else K7-F does:**
+  - it flips the default `--sites`;
+  - it adds the verification link form;
+  - it extends KIS-9 (e);
+  - it runs the second scratch prepare.
+
+**Finish rows** (pure logic in `T/demo_combined_rows.py`, wired in `T/demo_combined_finish.py` after KIS-4; each has L0 self-tests with pass and fail bodies).
+- **KIS-3 (moved from K9 to K7, because it checks K7's data).** For nights 1–10, take the latest stored window, as known now:
+  - **Exact:** `state`, `reason` (None), `gap_minutes`, opening, closing, D and D_tol equal the handover's night exactly.
+  - **Within 1/100000 L:** `loaded_litres`, `use_low`, `use_high`, `residual_low`, `residual_high`. This is K3's parity rule (§9d.6 C): power is published at 0.000001 kW, so §8.4's "exact" is corrected for these five terms.
+  - **Reproduced:** the band re-computed by `B/fuel_balance/rules.balance` from the stored terms equals the stored band exactly.
+  - **Night 4:** `UNEXPLAINED`; `gap_spans` = F0's `[21:45, 23:30)` UTC (K3's literal) moved by `delta_days`; limitations `("REPORTING_GAP",)`.
+  - **Every other night:** `WITHIN_MARGIN`, gap 0, no limitation.
+  - **All ten nights:** `idle_seconds` 0.
+- **KIS-9 (new): Kisiwa story coherence.**
+  - (a) **Records:**
+    - exactly one `FUEL_DELIVERY` (300 L, the ticket digest), recorded 30 min after it occurred;
+    - eleven `TANK_DIP`s, one per log dip, each recorded 15 min after it occurred;
+    - one `SITE_VISIT`, with `action.site_visit.body`;
+    - **no** operational record of the Site occurs inside the removal's span or names the removal.
+  - (b) Each dip's stored quantity equals the handover's `dip_l` and the build's trajectory check in `kisiwa.json`.
+  - (c) Every action of the derived log lies inside exactly one run's `[start, end)` (the K0 residual).
+  - (d) **The Finding:** exactly one fuel Finding, SUPPORTED, citing night 4's window revision 1, on one `UNEXPLAINED_FUEL` thread. Its consequence is PRICED at Kisiwa diesel v1. No other night has a fuel Finding.
+  - (e) **The Action:** its origin is that Finding; its case is COMPLETE and linked; the site-visit record cites the case. K7-F adds: the plan is frozen at `plan.freeze_at`, and a verdict is stored at `evaluate_at`.
+  - (f) Every Kisiwa run's frozen identity names the derived log (its id, version 1, its sha256), and its history holds exactly that run's effect-bearing actions.
+  - (g) **Stamps are story instants:**
+    - each window's `recorded_at` = run end + 30 min;
+    - night 4's Finding revision `created_at` = run end + 31 min;
+    - every record's `recorded_at` is as the calendar says.
+- KIS-1, KIS-2, KIS-5, KIS-6, KIS-7 and KIS-8 stay K9's (with K4b's KIS-8a). K9's size is unchanged.
+
+**The Kisiwa-only scratch prepare (one per phase).**
+- **Command:** `python tools/demo_combined.py --db assetops_demo3_kisiwa_test --work var/demo3_kisiwa prepare --sites kisiwa --cap-seconds 5400`. The database name matches `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$` (`T/demo_combined.py:53`) and the authorized `*_test` rule.
+- **When:**
+  - K7-D: after its L0 tests are green and committed, and after K4a has merged into the branch.
+  - K7-F: after K6 has merged into the branch.
+- **Gate before starting (all required):**
+  - **Only one heavy job** on the machine: no other prepare, suite, L2 run or template rebuild. The coordinator confirms the other lanes are idle.
+  - **RAM gate:** at least 2.5 GB free for 2 consecutive minutes, sampled every 30 s. The samples go in the packet.
+  - `tools/keep-awake-during-tests.ps1` is running (no `-ExecutionPolicy`).
+- **During:**
+  - Sample free RAM and the prepare's peak working set every 60 s, and record the peak.
+  - If free RAM drops below 1.0 GB: stop, drop the DB and the work folder, and report (S-8).
+  - **Cap 5400 s:** the tool's 2× rule over about 42 min, enforced by the tool.
+  - A stall with no output for 10 min is reported, not retried.
+- **Reads:** `T/demo_combined_kisiwa.py check <url> <work>` runs KIS-3, KIS-4 and KIS-9 against the scratch DB and prints one JSON line per row. Every row must pass. The packet records:
+  - seconds per Kisiwa day;
+  - the register, assess and raise times;
+  - the whole wall time (K9's E3 figure).
+- **Afterwards:**
+  - K7-D **keeps** the database and work folder, for K5's captures (read-only `serve`).
+  - K7-F's prepare replaces them: the tool drops and recreates a database whose marker it owns.
+  - K7-F runs `drop` after its packet evidence is recorded.
+
+**Tests (localised; no full suite).**
+- **L0 `backend/tests/test_k7_kisiwa_story.py` (no DB; it imports the tools as K3's tests do).** Every "must fail" names its mutation.
+  1. **The three-Site story stays byte-equal.** `resolve_story(db_now)` with `kisiwa=False`, for two fixed `db_now` values, equals pins taken on main **as the branch's first commit**, before any production edit (the K0 precedent). Must fail if any core loop iterates `SITES`.
+  2. **Kisiwa resolve:**
+     - the table above, for a fixed `S`;
+     - `delta_days` integral, and `STORY_SHIFT_NOT_WHOLE_DAYS` for a half-day `run1_start`;
+     - install order, distinctness and lead;
+     - `STORY_CLOCK_ORDER` for each adjacent pair swapped.
+  3. **The derived log:**
+     - its parsed actions, minus `at` and `sensor_disconnected.at`, equal v1's;
+     - each moved instant differs by exactly `delta_days`;
+     - the header lines, and LF;
+     - K0's `freeze_operational_actions` accepts it for runs 2 and 4 with a matching id, and refuses `OPERATIONAL_ACTION_LOG_MISMATCH` if the id is left as v1's.
+  4. **Straddle:** the base log against F0's run list passes. A synthetic dip at a run's end instant fails, and so does a removal that crosses a run start.
+  5. **Injector bodies:** the delivery, the night-4 dip and the site visit match their literals; the removal yields no body.
+  6. **Timeline order,** for a fixed `S`: records come before the publishes they precede, and assess comes before raise.
+  7. **Handover:** `--handover`'s output equals the projection of the committed result; `--check` exits 0; a one-character change in the handover makes `--check` exit 1.
+  8. **Prepare paths:**
+     - `finish_build` takes the after-children path for `{kobo, cold, ev}` and for all four Sites, and not for `{kisiwa}` alone;
+     - `objectives_instants` never sees KISIWA-001;
+     - `LINK_FORMS` covers every printed Kisiwa link.
+  9. **Row self-tests:** KIS-3 and KIS-9 (one pass body, and one fail body per item).
+- **Must stay green unchanged:**
+  - every existing `T/demo_combined*` test;
+  - both probe `--check`s ("probe result current");
+  - K0's, K1's, K2's, K3's and K4a's tests;
+  - `test_out_b2_vocabulary.py`, which gains only the Action, request and record literals.
+- **Guards:** `tools\check-all.ps1`, `tools\check-architecture.ps1` and `tools\check-agent-workflow.ps1`, run directly, with no `-ExecutionPolicy`.
+
+**PRE-FLIGHT (no code first; batch every question in one message).**
+- (a) Confirm, with file:line, that `YamlOperationalActionLog(root=…)` reads a work-folder root, and that `host/tests/kisiwa.py` `draft(..., operational_actions=…)` forwards the key.
+- (b) The `create_action` body keys for a Finding origin (file:line in the domain intent service), and whether it checks the origin's domain.
+- (c) K4a's merged `raise` entry point: does `worker.main` take an injected service or store?
+- (d) Confirm that `_publish_and_accept` accepts a K0-frozen run (causes with `origin` and `action_ref`) unchanged. K3 proved it for F0's carrier.
+- (e) Where the existing `T/demo_combined*` L0 tests live, so that `test_k7_kisiwa_story.py` follows them.
+- (f) `require_prepare_database`'s rule, and confirmation that `assetops_demo3_kisiwa_test` passes it.
+
+**Stops (report to the Architect and the coordinator; never design around them).**
+- **S-1** a day move that is not a whole number of days.
+- **S-2** a break in the story-clock order.
+- **S-3** the shipped v1 log's hash differs from `77777c82…b634`.
+- **S-4** an action straddles a run start, or lies in no run.
+- **S-5** a run guard fails (history, log hash, physics or dip). Report the run and both values. **Never** change a start state, an action, the seed, the calendar move or the handover.
+- **S-6** an assess or raise status differs from this card, or KIS-3 fails. Never edit K3's parameters, the tolerance, the probe or its result.
+- **S-7** `create_action` refuses a `fuel_balance` origin (K6 rules).
+- **S-8** the RAM floor or the cap is reached.
+- **S-9** for a three-Site prepare, a Kobo, Cold or EV step, instant or `story.json` field changes (L0-1); or a need to edit their children, the day list or the shared story file.
+- **S-10** a need to edit product code under `B/`, `F/`, `contracts/` or `S/`, or `host/execution_adapter.py`, or the shipped log.
+- **S-11** more than 2.2 units in K7-D, or more than 0.7 in K7-F.
+
+**Files (approved list):**
+- New: `V/demo-kisiwa-story-v1.json`, `V/kisiwa-day-handover-v1.json`.
+- `T/demo_combined_kisiwa.py`: `resolve`, `build`, `check`, the derived log and the injector.
+- `T/demo_combined.py`: the changes above only.
+- `T/probe_kisiwa_fuel.py`: `--handover` and its `--check`.
+- `T/demo_combined_rows.py` and `T/demo_combined_finish.py`: KIS-3 and KIS-9.
+- `backend/tests/test_k7_kisiwa_story.py`, and its pins module (the first commit).
+- `backend/tests/test_out_b2_vocabulary.py`: literals added to the scan list.
+
+**Dependencies, start, branch, DB, size.**
+- **Dependencies:**
+  - K7-D depends on K0, K1, K2 and K3 merged (all yes). Its raise and Action steps need K4a merged, and its scratch prepare needs both.
+  - K7-F depends on K7-D merged and K6 merged.
+- **Lanes:**
+  - K7-D: lane 2 after A3, or any builder free now. Its first ~1.2 units need nothing from K4a.
+  - K7-F: lane 3, straight after K6 (critical path).
+- **Branches:**
+  - K7-D: `task/DIESEL-K7-kisiwa-story`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k7`, from main at or after `0c4aa7310`.
+  - K7-F: a fresh branch `task/DIESEL-K7F-kisiwa-freeze`, from main after K6 merges, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k7f`.
+  - `git merge main`, never rebase. Opus does the first build and the first review in each phase. Commit with `git add -f` of explicit paths.
+- **DB:**
+  - only `assetops_demo3_kisiwa_test` with `var/demo3_kisiwa` (the scratch prepare); K7 has no other L2 test;
+  - never `assetops_demo3_full_test` or any other DB;
+  - no tick, no suite, and no `serve` except K5's read-only captures on the kept K7-D DB.
+- **Size 2.4** (range 2.15–2.7), +0.15 against §9.5's 2.25.
+
+  K7-D, 1.9:
+
+  | Item | Units |
+  |---|---|
+  | Calendar, resolver, `demo_combined` changes and pins | 0.35 |
+  | Handover | 0.15 |
+  | Derived log and straddle check | 0.1 |
+  | Build child, runs through K0, and guards | 0.35 |
+  | Injector | 0.15 |
+  | Assess, raise, threads and CLI checks | 0.15 |
+  | Action and change | 0.15 |
+  | KIS-3 and KIS-9 | 0.2 |
+  | L0 tests | 0.15 |
+  | Scratch prepare and evidence | 0.15 |
+
+  K7-F, 0.5:
+
+  | Item | Units |
+  |---|---|
+  | K6 wiring | 0.15 |
+  | Default, links, KIS-9 (e) | 0.1 |
+  | Second scratch prepare and evidence | 0.2 |
+  | Packet | 0.05 |
+
+  The +0.15 pays for the whole-day move (§9l.1 items 1–3) and for the story-instant stamping (item 5), neither of which §8.4 foresaw.
+- **Reading budget:**
+  - this §9l.1 and §9l.3;
+  - §8.3's declared world; §9f.2 (5)–(6); §9d.4 (store, CLI); §9j.6;
+  - `T/demo_combined.py:1-200`, `:360-560`;
+  - `T/demo_combined_kisiwa.py`;
+  - `host/tests/kisiwa.py`;
+  - `host/tests/test_k3_fuel_balance_parity.py`;
+  - `T/demo_combined_mill.py:120-300`;
+  - `T/demo_combined_kobo.py:355-480`;
+  - `T/probe_kisiwa_fuel.py:1-60`, `:200-260`, `:700-804`;
+  - `C/operational-actions/kisiwa-001-operational-actions-v1.yaml`;
+  - `V/demo-combined-story-v1.json`.
+
+### 9l.4 Effects on other cards
+
+- **K4b:**
+  - the board issue links with `refs.fuel_finding_ref(c, finding_id)` (K5), not `refs.finding_ref`;
+  - `FUEL_REASON_WORDS` is imported from `B/fuel_balance/night_text.py` (K5), not retyped;
+  - K4b starts after K5's phase B build;
+  - everything else in §9j.10–§9j.13 stands.
+- **K6:**
+  - its verification page links the origin Finding with `fuel_finding_ref`;
+  - its card names the effective-instant field, and the freeze and evaluate calls K7-F makes, with K7's instants (`effective_at` `S−4d 12:00`, `freeze_at` `S−4d 12:30`, `evaluate_at` `S−1d 13:00`);
+  - its pre-flight confirms that `create_action` accepts a `fuel_balance` origin. If K7-D has already stopped on S-7, K6 rules on it.
+- **K8:**
+  - gains the fuel Finding's entry in the estate Findings lists (+0.15; K8 is now 1.0, range 1.0–1.25 with §9c.4's device-copy risk);
+  - rules on Kisiwa objectives;
+  - its all-26 recapture adds the Kisiwa pages K5 built.
+- **K9:**
+  - KIS-3 has moved to K7;
+  - the DS-1 beat's dates come from `links`;
+  - the E3 Kisiwa figure is K7-F's measured wall time.
+- **§8.6 is superseded** for the Action's time: 16:00 local on day 5 (§9l.1 item 6). Its title, effective instant, night 5 and the after-nights stand.
+
+### 9l.5 Order, lanes, critical path, tripwire, size and date
+
+**Remaining Kisiwa order** (lane-units; about 3 per lane-day including review):
+```
+now (t=0):    K4a (lane 3, in build, 1.5) | A3 (lane 2, pre-flight, 0.91) | K5 phase A (lane 1, 0.75)
+              K7-D phase 1 (any free builder; else lane 2 after A3)
+t≈0.9:        A3 merged -> K7-D (lane 2, if not started)
+t≈1.5:        K4a merged -> K6 (lane 3, 1.5) | K5 phase B (lane 1) | K7-D raise + Action
+t≈1.95:       K5 build done -> K4b (lane 1, 1.0)
+t≈2.6–2.8:    K7-D scratch prepare (about 45 min machine time) -> K5 captures -> K5 merged; K7-D merged
+t≈2.95:       K4b merged -> K8 code (lane 1, 1.0–1.25)
+t≈3.0:        K6 merged -> K7-F (lane 3, 0.5, incl. its scratch prepare)
+t≈3.5:        K7-F merged -> K8 captures (0.25)
+t≈3.75–4.75:  K9 (finish rows, guard, rehearsal prepare)
+then:         DS-1 -> E1–E6
+```
+- **Critical path:** spent 3.65 (F0r, K1, K3) → K4a 1.5 → K6 1.5 → K7-F 0.5 → K8 captures 0.25 → K9 1.0 ≈ **8.4 lane-units**. K6's size is §9.5's figure; its card is not yet written. **That is below the 9.75 tripwire, with about 1.35 of headroom. No cut.**
+- **K7-D stays off the critical path** if it merges before K6 does (t≈3.0).
+  - Started on lane 2 at t≈0.9, it ends at about 2.8: about 0.2 of float.
+  - Started now, it has about 1.0 of float.
+  - **Recommendation to the coordinator: start K7-D now, on a free builder.**
+- **Lane 1** (K5 1.3 → K4b 1.0 → K8 ≤ 1.25) ends at about 3.55, beside K7-F, and joins at the captures.
+- **Sizes:**
+
+  | Unit | Before | Now |
+  |---|---|---|
+  | K5 | 1.0 | **1.3** |
+  | K7 | 2.25 | **2.4** |
+  | K8 | 0.85 | **1.0** (the estate Findings entry) |
+
+  Net **+0.6**, reported, not absorbed (the contingency is spent, §9h.8). **Kisiwa total: 17.7 → 18.3.**
+- **Demo date: unchanged** at about +3.25 working days (range 2.75–5.25). The extra 0.6 sits on lanes 1 and 2, beside the critical path.
+- **Machine time:** two Kisiwa-only scratch prepares of about 45 min each (K7-D and K7-F).
+- **E3:**
+  - Kisiwa's share is now about 45–50 min, not R2's 25–35. That covers 10 gateway days at 3–5 min each, the register, assess, raise, threads and its mini-depth drain.
+  - So **E3 ≈ 1.45–1.65 h of the 3 h cap.**
+  - K9 restates the figure from K7-F's measured time. If the rehearsal exceeds 2.5 h, the Architect rules before E3.
+- **Plan HTML rows (for the coordinator):**
+  - **Build-units table:** the DIESEL-1-R3 row becomes 18.3, with "K5 1.3, K7 2.4 (K7-D 1.9, K7-F 0.5), K8 1.0".
+  - **Lanes figure:** K7-D on lane 2 (or on a fourth builder now); K7-F on lane 3 after K6.
+  - **Rulings table:** add "DIESEL-1-R3l: K5 and K7 cards; Kisiwa story = F0 world moved by whole days into the story week (derived log per prepare, never editing v1); stamps at story instants through the K3/K4a test-only clocks; Action at 16:00 local (after night 4's data arrive); fuel Finding at its own address (FUEL_FINDING ref); Fuel page night mode; KIS-3 to K7, KIS-9 new".
+  - **E3 row:** "Kisiwa: 10 day-runs, about 45–50 min; E3 ≈ 1.45–1.65 h of the 3 h cap".
+  - **Machine-time note:** two 45-min Kisiwa scratch prepares.
+
+### 9l.6 Owner questions
+
+None.
+
+For the owner's information, in plain words:
+- **The dates move, nothing else does.** The Kisiwa example days are the same ten days we already tested, moved onto the demo calendar so that the missing-fuel night falls in the week the demo shows. The fuel, the readings and the result are identical.
+- **The fix is now agreed in the afternoon after the bad night.** Before, it was agreed at lunchtime, before that night's readings could have arrived. Now it comes once they have.
+- **New screens for Kisiwa only.** The fuel page gets a night-by-night view for Kisiwa, and the finding gets its own page. Kobo's fuel page stays as it is.
+- **The demo date does not move.** The work is about 0.6 unit bigger, all of it outside the longest chain of dependent steps.
+- **Preparing the demo takes a little longer.** The full demo preparation takes about 15 minutes more than first estimated. That is still well inside its 3-hour limit.

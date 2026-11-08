@@ -1,53 +1,50 @@
-# Coordinator handoff — 2026-11-07 afternoon (replaces all earlier versions; older text is in git history)
+# Coordinator handoff — 2026-11-08 (replaces all earlier versions; older text is in git history)
 
 Read this first on resume. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
 
 ## Role
-Coordinator: report to the owner in plain language, short (1–2 lines on routine events; full status on "where are we overall"). Route decisions to the lane's Architect (Claude subagent, reused via SendMessage until moderate context, then fresh). Builders = implementers (Opus for pre-flight/first build, Sonnet for continuation/fix rounds); first reviews Opus, re-reviews Sonnet; coordinator verifies mechanically-checkable and paper-only closures when the Architect rules so. Merge with `git merge --no-ff` on ACCEPT, then run `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` in the background from the PowerShell tool, logging to the scratchpad (17 guards, ~25 min). Its wrapper exit code proves nothing: read the log's last line. In a worktree without `frontend/node_modules` the two missing-claim guards fail with MODULE_NOT_FOUND; they must pass on main.
+Coordinator: report to the owner in plain language, short (1–2 lines on routine events; full status on "where are we overall"). Route decisions to a lane Architect (Claude subagent; reuse via SendMessage while under ~200k context, else fresh). Builders: Opus first build, Sonnet fix rounds; first reviews Opus, re-reviews Sonnet; the coordinator verifies mechanical closures (tiny test-only/golden/docstring diffs) by reading the diff. Merge `git merge --no-ff` on ACCEPT, then `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` in the background (PowerShell tool, log to scratchpad, read `All 17 guards passed.` line). Never merge while check-all runs on main. Batch merges into one check-all when memory is tight.
 
-## Current plan
-- Plan doc: `Docs/demo-sprint/client-demo-plan.html`. Build sheets `.agent/build-sheet-*.md` (rulings appended at the end of each). Architect standing context: `.agent/architect-handoff-demo-plan-2026-11-04.md`. Backlog: `.agent/backlog-post-demo.md` (BL-43..50 recorded; next free BL-51; Architects have reused ids, check). Lows: `.agent/demo-sprint-lows-2026-10-31-pipeline.md`.
-- Scope rule SCOPE-1 (owner 2026-11-05): only what we present defensibly to first clients; everything else → backlog.
-- Units: about 111.2 of ~112.2 merged; 1.0 left (CH-5d1). Plan size rows NOT yet updated: CH-6b3 2.2, DD-1a2 2.25, DD-1b1 1.5, DD-1b2 4.5 (a 1.5 + b 3.0), DD-1 ≈13.0.
-- Recent main merges: DD-1a2 (`1dd3b1862`), CH-6b3 (`f7c045bee`), DD-1b1 (`aaea00962`), DD-1b2a (`29efab1d0`), DD-1b2b (`1c2e5ed28`; check-all 17/17 after it). DD-1b2b test DBs `dd1b2`/`dd1b2d` and their var folders dropped.
-- DD-1b2b record: rulings DD1b2-R8..R14 in `.agent/build-sheet-DD-1.md`; packet `.agent/review-packet-DD-1b2b.md`; reviews `review-DD-1b2b.md` (FIX) and `-r2.md` (ACCEPT). Rehearsal: 3585 s of 10800, min free RAM 3.07 GB, self-check 31/32 (CO-2 age-dependent, R11); EX-1 on a copy: add ~60 s, tick ~180 s, boards unchanged; mill RECURRED 10-31 ("Seen again" true); O14 96.4 → 22.4 quotable; O15 no fuel signal (no litres).
+## Scope as of 2026-11-08 (owner decisions, verbatim files in `.agent/`)
+- `owner-fuel-scope-2026-11-07.md`: build shortlist items 1–4 (mill dollars, mill on board, Portfolio value lines, money wording) AND idle fuel (Option A) before the demo script; generic 3.3 L/h labelled generic; example tank left as is, explained in "Why?"; "inject days, i don't see why it should be mutually exclusive".
+- `owner-diesel-site-2026-11-07.md` + `owner-diesel-night-window-2026-11-07.md`: diesel Site before the demo; ≥20% pass mark; stop-at-60% lever; night 6 pm–noon; mill "No cost recorded". D0 then measured 4.4% → NOT MET.
+- `owner-missing-fuel-2026-11-07.md`: Kisiwa with the missing-fuel story; "Unexplained fuel", never "theft"; client not specifically diesel-heavy.
+- `owner-scenario-data-2026-11-07.md`: reasonable authored days are legitimate; fuel events are "injected through operational actions" (owner correction).
+- `owner-kisiwa-scope-2026-11-07.md`: build Kisiwa with the operational-action link (~15 units at the time).
+- Demo date: about +3.25 working days vs. a plan without Kisiwa (range 2.75–5.25; owner accepted 2.5–5). Tripwire: if the Kisiwa critical path exceeds 9.75 lane-units, pause and bring cut options (first candidate K6).
 
-## In flight
-- CH-5d1: fresh Architect pre-flight launched after the DD-1b2b merge.
-- E3 owes (R11–R14): serve heartbeat sampling (≤240 s, else TICK_EVERY_SECONDS=60), post-add check, after tool (E3.2), browser path to "Target met" (E3.4), perf --record (E3.5); on any copy rerun S2 then Performance (Kobo) and assert AVAILABLE.
-- Keep-awake: memory pressure reaped it once on 2026-11-07; owner said "restart both". Standing one restarted.
+## Build sheets (rulings appended at the end of each)
+- `.agent/build-sheet-FUEL-1.md`: MV-1, MB-1a/b, WD-1, WD-1m, PV-1, A1, A2, A3 + rulings MB-1-R, MB-1a-R2, PV-1-R, A2-R1, WD-1-R, WD-1m-R/R2, A3-R.
+- `.agent/build-sheet-DIESEL-1.md`: Kisiwa D0/F0/K0–K9 + rulings R2 (§8) … R3k (§9k); R3l (K5/K7 cards) being written.
+- `.agent/build-sheet-CH-5d.md` (CH-5d1), `.agent/build-sheet-TEST-drift.md` (DRIFT-R1).
+- Review Lows not yet fixed: `.agent/followups-fuel-kisiwa-2026-11-07.md` — an Architect decides which go into one Sonnet round before DS-1.
 
-## Remaining
-- CH-5d1 (1, fresh Architect).
-- Then DS-1 demo script, then end-game E1–E6 (merge freeze → full suite → one prepare/baseline B-22 → finish/coherence/perf incl. E4 stored-hit check → captures incl. layout evidence at 1440/390 owed by CH-5b3, CH-6a3, CH-6b2 → owner walkthrough). Hold one rerun of E3 (up to 3 h) in reserve.
-- The mechanism `states` template is stale on merged main; expect one rebuild (~1300 s) before its next use.
+## Merged on main (all reviewed; check-all 17/17 after each batch)
+DD-1b2b, CH-5d1, MV-1, A1, A2, MB-1a, MB-1b, PV-1, WD-1, WD-1m, D0 (evidence, NOT MET), F0+F0e (evidence), K1a (mini-grid v7), K1 (Kisiwa Site), K2 (fuel records, 0054), K3 (fuel balance, 0055; shared idle slot rule excludes stop slots R3h), K0 (operational-action bridge), DRIFT-R1, TEST-drift-0053, DRIFT-RB1. Last check-all on main: 17/17 after K0/WD-1m (main ~b70be217b+).
 
-## Carry into DS-1 from DD-1b2b
-Index of ruling sections (R13 §6): R6 §4, R6 §3 + R9 §2 + R11 §2 (add-day), Q7 block (build-sheet `:1561-1564`), R10 §4, R11 §1, R14 (S-8 and S-5 lines; Cold "Why?" avoid line + fallback). Present only from the prepare-built DB; start `serve`, wait for "ready:", leave it running; live add ≈5 min. Owner was offered COO/CFO extras (mill on board ~1–1.5, dollars on verdict page, BL-48 wording ~0.15, BL-50 Cold "Why?" ~0.25) — undecided.
+## In flight (2026-11-08)
+- K4a (unexplained-fuel Finding, 0056): builder resumed under R3k (domain filters on `findings_over` and `latest_revisions_overlapping`). Worktree `AssetOpsV1-k4a`.
+- A3 (idle fuel on Kobo screens): builder building under A3-R; must STOP before the Kobo scratch prepare (`assetops_demo3_fuela3_test`, ~41 min, cap 3600 s) for the coordinator's one-heavy-job gate.
+- Architect writing R3l (K5 fuel page night mode, K7 story days).
+- Remaining after these: K4b (Protect row MG-8 + Portfolio Protect line), K5, K6 (after-check), K7 (story days + Kisiwa scratch prepare), K8 (four-Site screens), K9 (finish rows + rehearsal), the follow-up Lows round, then DS-1, then E1–E6, then the owner walkthrough.
+- Sizes: Kisiwa total ≈17.7 (no contingency left); FUEL-1 lane 1 ≈3.47, A3 0.91. Critical path ≈8.5 lane-units.
 
-## Carry into DS-1 (none is checked against a script yet)
-- Start each normal day at 6am: the script explains the battery jump; no client screen does (DD1a2-R3). The generator runs ~15 min shortly before 6am on most before-days (not "from about 4am"; DD1b2-R4). Do not claim the mill change saves fuel (S-13 had the old pattern and 0 generator; no fuel rows).
-- Live add on S+2: `add-day normal --assess-now` after 11:00Z, then `tick --until-drained`, then show the board (DD1b2-R6 §4 replaces "tick right after the add"). `add-day` refuses a full day there (`FULL_DAY_AFTER_TRIAL`); use `normal`.
-- Mill: "more daytime use", not the same work moved (4 afternoon hours became 8 from 8am; earnings 10.50 → 27.50 USD a day, authored). The extra came from unused solar (~96 → ~22 kWh/day; quotable only if DD-1b2b's report-only row matches); battery still full by 2pm. Do not say the mill could run like this every day on solar (6am battery restart covers ~40 kWh/day; continuous days unrun).
-- Grow row reads "Limited evidence: readings come from mixed sources, so the size is not worked out yet" (owner "Leave it"); presenter: "We generated these example days in separate runs, and the system won't size across those. A real site reports continuously."
-- Mill "Target met": route Work → Maintenance → mill row → verdict page (42.00 → 110.00). The board's "1 verified result" is ACT-001, not the mill (owner chose route, BL-45 for boards). No screen shows the thread's Action link (corrected; DD-1b2b fixes the data anyway).
-- Kobo's money is mill sales (WK-2a 42.08 USD); the generator problem carries no fuel money figure.
-- Cold and EV: open from the printed story-day links. Portfolio site-name click lands on the latest event, without the Action row (BL-39). No live Cold add-day.
-- Portfolio stays on week and month story links; one later day conflicts (BL-36). Month table shows three Verified rows beside "1 fix confirmed". Longer build shows extra Finding history entries. S-8/S-5 read "Spare solar on 4 of 4 well-observed days" beside "No potential found yet" (review L6).
+## Known for end-game
+- E2 first step: rebuild the mechanism template (~1300–1700 s) on an idle machine; until then TEMPLATE_STALE failures in `test_ch5a1_mechanism_postgres`, `test_ch6b_estate_postgres` are expected.
+- `test_ch1a_grading.py::test_period_bounds_addis_utc_tue_only_and_24h` fails on main ("unknown period 'midday'") — untraced drift.
+- WD-1m: real Kobo data must yield an example source class at E3 or MILL-5 fails. MB-1b: MILL-4 bounds but does not prove k.
+- E3 owes from DD-1b2b: serve heartbeat sampling, post-add check, after tool, browser path, perf record; on any DB copy rerun S2 then Performance (Kobo) and assert AVAILABLE.
 
-## For the owner's walkthrough
-6am jump note on screen; three Verified rows; "days checked" on count lines; Portfolio click (BL-39); Cold/EV Portfolio rows "No action agreed yet" against ST-4/5 "in hand"; mill result reached by route, not on the board; Grow "Limited evidence" line. Owner told the generator story has no fuel money and may overrule. Added: Cold "Why?" names one of two threads on the failure day (BL-50); "sales not recorded" and EV income-estimate wording (BL-48); S-5 "Not judged yet".
-
-## Owner decisions this sprint (verbatim files in `.agent/`)
-owner-scope-backlog-2026-11-05, owner-mill-pass-margin-2026-11-05, owner-kobo-nights-2026-11-06, owner-build-time-2026-11-06, owner-cold-days-2026-11-06, owner-kobo-partial-days-2026-11-07, owner-dd1a2-answers-2026-11-07, owner-rehearsal-whole-list-2026-11-07 (one whole-list run, own `*_test` DB, ≤3 h), owner-grow-size-2026-11-07 ("Leave it"), owner-mill-route-2026-11-07 ("Fix link, use route"), owner-efficiency-2026-11-05 and -2026-11-06.
+## Owner walkthrough list (additions)
+Mill on board ("ACT-002 verified on example data", thread line); Portfolio value lines (mill above trial order, PV-1 L1); EV "No income figure for this day: it is not fully checked"; Kobo month line "no fully checked day counted yet this month"; Kisiwa four-Site Portfolio and "Unexplained fuel overnight" card; Cold "Why?" names one of two threads (BL-50).
 
 ## Standing constraints
-- NO full backend suite, NO demo prepare, NO baseline build until end-game (owner), except DD-1b2b's one whole-list rehearsal on its own `*_test` DB. Localised tests only; polish clones allowed. Don't run `test_demo_combined_postgres`.
-- DBs: `*_test` and `<prefix>_audit*` only; polish read-only, never ticked; never touch `assetops_demo3_full_test`; never write into `AssetOpsV1-polC`. DB host 127.0.0.1:55432. Route every test to its own DB. Do not guess credentials.
-- NEVER pass any `-ExecutionPolicy` flag. Kill processes by PID only. Never stop keep-awake (running, `-MaxHours 168`). Edits Write/Edit only; stage explicit paths. Never tune numbers. Agent launches: no `isolation` (worktree/remote) — builders work in the existing lane worktree beside its local DB.
-- PYTHONPATH absolute: worktree `backend;contracts;tools;simulator;gateway;host;field` (+ `backend\tests;host\tests` for host tests); python `AssetOpsV1-plan2\.venv\Scripts\python.exe`; set `ASSETOPS_GUARD_PYTHON`. Run vitest by listing files or a folder.
-- `git add -f` for `.agent`; commits end "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>". Leave the uncommitted `.agent/owner-walkthrough-notes-2026-11-01.md` and `Docs/demo-sprint/implementation-logic-design-proposal.html` on main alone.
-- Reviews have repeatedly found what code-reading rulings missed: ask for a measurement when a ruling depends on an unrun path.
+- NO full backend suite, NO demo prepare, NO baseline build until end-game, except Architect-ruled trimmed scratch prepares (A3 Kobo-only, K7 Kisiwa-only) under the gate: one heavy job, ≥2.5 GB free RAM for 2 min, keep-awake running, stop under 1 GB.
+- DBs: `*_test` and `<prefix>_audit*` only; never `assetops_demo3_full_test`. Host 127.0.0.1:55432; credentials `assetops`/`assetops-local-dev`.
+- NEVER pass `-ExecutionPolicy`. Kill by PID only. Keep-awake: restart only if the owner asks (memory reap once on 2026-11-07; owner said "restart both").
+- Builders: Write/Edit only; no sed/awk/heredoc/`>`/`>>`/Set-Content/Tee-Object; no sleep polling; no subagents; PYTHONPATH must include the worktree's `contracts` (the venv's editable install points at the stale checkout); `.gitattributes` pins `.agent/DIESEL-F0/*`, `.agent/DIESEL-D0/*`, `config/operational-actions/*` to LF.
+- `git add -f` for `.agent`; commits end "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"; never push. Leave the uncommitted `.agent/owner-walkthrough-notes-2026-11-01.md` and `Docs/demo-sprint/implementation-logic-design-proposal.html` on main alone.
+- Plan HTML (`Docs/demo-sprint/client-demo-plan.html`) size rows are NOT yet updated for FUEL-1/DIESEL-1 (rulings list the rows).
 
 ## Restart guidance
-Restart the coordinator session only when no agents are running. On resume: read this file, then `git log --oneline -15` on main, then the in-flight worktree's `.agent/*-handoff.md` / packets / review files.
+Restart only when no agents are running. On resume: read this file, `git log --oneline -20` on main, then the in-flight worktrees' packets/reviews and the last build-sheet rulings.
