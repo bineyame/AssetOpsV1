@@ -54,7 +54,6 @@ from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.fuel_balance_api import build_fuel_balance_router
 from assetops_backend.fuel_balance.composition import build_fuel_balance_store
 from assetops_backend.fuel_balance.night_read import FuelNightRead
-from assetops_backend.work.composition import build_fuel_records_reader
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
 from assetops_backend.chain.composition import build_response_store
@@ -557,8 +556,7 @@ def create_app(
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
     # DIESEL-K5 (DIESEL-1-R3l): the fuel-balance nights, the fuel Finding page and the Site's fuel checks; typed 503
     # without a database. Stores come from their compositions; the read only reads.
-    fuel_nights = (FuelNightRead(database_url(), store=build_fuel_balance_store(database_url()),
-                                 fuel_records=build_fuel_records_reader(), link_rows=build_link_rows_reader())
+    fuel_nights = (FuelNightRead(store=build_fuel_balance_store(database_url()), link_rows=build_link_rows_reader())
                    if database_url() else None)
     if fuel_nights is not None:
         app.router.on_shutdown.append(fuel_nights.dispose)

@@ -2,10 +2,10 @@
 the fuel Finding page and the Site Findings "Fuel checks" panel.
 
 Read-only. Windows and fuel Findings come through K3/K4a's `PostgresFuelBalanceStore` (`has_windows`, `windows`,
-`fuel_findings`, `fuel_finding`); the fuel records through K2's caller-connection read (`select_fuel_records`,
-injected by the composition); provenance through the mini-depth builder `mini_depth.provenance.mini_blocks` (the
-block the mini-depth fuel read returns), reused on this reader's own `REPEATABLE READ READ ONLY` snapshot with the
-window revision as the basis selection. Every visible string is composed by `night_text` (or K4a's `finding_text`).
+`fuel_findings`, `fuel_finding`) and its two K5 snapshot reads (`night_context`; `night_records_and_provenance`, which
+runs K2's caller-connection `select_fuel_records` and the mini-depth provenance builder `mini_blocks`, the block the
+mini-depth fuel read returns, with the window revision as the basis selection). No storage technology here: the
+store is the adapter. Every visible string is composed by `night_text` (or K4a's `finding_text`).
 """
 
 from __future__ import annotations
@@ -15,14 +15,8 @@ from typing import Any, Callable
 from urllib.parse import quote
 from uuid import UUID
 
-from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
-
-from assetops_backend import read_scope
 from assetops_backend.chain import refs
 from assetops_backend.fuel_balance import finding_text, night_text
-from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
 
 #: Nights list: the default span and the most a request may ask for.
 DEFAULT_NIGHTS = 14
@@ -49,73 +43,42 @@ def fuel_page_href(code: str, night_date: date) -> str:
 
 
 class FuelNightRead:
-    def __init__(self, database_url: str | None, *, store: Any, fuel_records: Callable[..., Any],
-                 link_rows: LinkRowsOn, test_read_clock_override: Callable[[], datetime] | None = None) -> None:
-        """`store` is the fuel-balance store, `fuel_records` K2's caller-connection read and `link_rows` the evidence
-        link-row reader, all injected by `main.py` from their compositions."""
-        self._database_url = database_url
-        self._engine: Engine | None = None
+    def __init__(self, *, store: Any, link_rows: Any,
+                 test_read_clock_override: Callable[[], datetime] | None = None) -> None:
+        """`store` is the fuel-balance store (`fuel_balance/composition.py`) and `link_rows` the evidence link-row
+        reader (`evidence/composition.py`), both injected by `main.py`."""
         self._store = store
-        self._fuel_records = fuel_records
         self._link_rows = link_rows
         # Test-only virtual read instant; the production composition never passes it.
         self.test_read_clock_override = test_read_clock_override
 
-    def _connect(self) -> Engine:
-        if not self._database_url:
-            raise FuelNightUnavailable("No product database is configured.")
-        if self._engine is None:
-            self._engine = create_engine(self._database_url, pool_pre_ping=True)
-        return self._engine
-
     def dispose(self) -> None:
-        if self._engine is not None:
-            self._engine.dispose()
-            self._engine = None
         self._store.dispose()
 
-    def _snapshot(self, work: Callable[[Connection], Any]) -> Any:
-        try:
-            with self._connect().connect().execution_options(isolation_level="REPEATABLE READ") as c, c.begin():
-                c.execute(text("SET TRANSACTION READ ONLY"))
-                return work(c)
-        except (OperationalError, ProgrammingError, DBAPIError) as error:
-            raise FuelNightUnavailable(f"The fuel night read failed: {error.__class__.__name__}") from error
-
-    def _guard(self, work: Callable[[], Any]) -> Any:
+    @staticmethod
+    def _guard(work: Callable[[], Any]) -> Any:
+        """A store failure is a typed unavailable read (the API's 503); a refusal or a programming error is not."""
         try:
             return work()
-        except (OperationalError, ProgrammingError, DBAPIError) as error:
+        except (FuelNightRefused, ValueError, TypeError, KeyError, AttributeError):
+            raise
+        except Exception as error:  # the adapter's driver errors; the domain layer names no storage technology
             raise FuelNightUnavailable(f"The fuel night read failed: {error.__class__.__name__}") from error
 
     def _context(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> tuple[str, str | None, datetime]:
         """The Site's time zone, its one active fuel tank (None when not exactly one) and the as-known instant."""
-        def work(c: Connection) -> tuple[str, str | None, datetime]:
-            p = {"t": tenant_id, "s": site_id}
-            tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"), p).scalar_one()
-            tanks = c.execute(text("SELECT id FROM asset WHERE tenant_id = :t AND site_id = :s "
-                                   "AND asset_type = 'FUEL_TANK' AND retired_at IS NULL"), p).scalars().all()
-            now = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
-            if self.test_read_clock_override is not None:
-                now = self.test_read_clock_override()
-            now = now.astimezone(timezone.utc)
-            if known_at is not None and known_at > now:
-                raise FuelNightRefused("INVALID_KNOWN_AT")
-            return tz, (str(tanks[0]) if len(tanks) == 1 else None), (now if known_at is None else known_at)
-        return self._snapshot(work)
+        tz, tank, now = self._guard(lambda: self._store.night_context(tenant_id, site_id))
+        if self.test_read_clock_override is not None:
+            now = self.test_read_clock_override()
+        now = now.astimezone(timezone.utc)
+        if known_at is not None and known_at > now:
+            raise FuelNightRefused("INVALID_KNOWN_AT")
+        return tz, tank, (now if known_at is None else known_at)
 
     def _records_and_provenance(self, tenant_id: UUID, site_id: UUID, windows: list[Any],
                                 known: datetime, records_of: Any = None) -> tuple[list[Any], dict[str, Any]]:
-        def work(c: Connection) -> tuple[list[Any], dict[str, Any]]:
-            records = [] if records_of is None else list(self._fuel_records(
-                c, tenant_id, site_id, records_of.tank_asset_id, records_of.window_start, records_of.window_end,
-                known))
-            blocks = mini_blocks(c, self._link_rows, tenant_id, site_id,
-                                 selected_revision_ids=[w.id for w in windows],
-                                 selected_evidence_ids=[i for w in windows for i in w.evidence_ids],
-                                 pending_evidence_ids=None)
-            return records, blocks
-        return self._snapshot(work)
+        return self._guard(lambda: self._store.night_records_and_provenance(
+            tenant_id, site_id, windows, known, records_of, self._link_rows))
 
     # --- route 1: the nights list ------------------------------------------------------------------------------
 

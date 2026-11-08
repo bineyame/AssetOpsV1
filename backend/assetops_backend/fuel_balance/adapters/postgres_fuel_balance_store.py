@@ -22,6 +22,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 
+from assetops_backend import read_scope
 from assetops_backend.actions.verification_rules import Reading, parse_exact
 from assetops_backend.fuel_balance.model import (
     FINDINGS_REFUSED, PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow, FuelFinding)
@@ -231,6 +232,36 @@ class PostgresFuelBalanceStore:
         return bool(self._read(lambda c: c.execute(text(
             "SELECT EXISTS (SELECT 1 FROM fuel_balance_window WHERE tenant_id = :t AND site_id = :s "
             "AND recorded_at <= :k)"), {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()))
+
+    def night_context(self, tenant_id: UUID, site_id: UUID) -> tuple[str | None, str | None, datetime]:
+        """DIESEL-K5 (§9l.2): the Site's time zone, its one active fuel tank (None unless exactly one) and the read
+        instant (`clock_timestamp()` through `read_scope`), on one read-only snapshot."""
+        def work(c: Connection) -> tuple[str | None, str | None, datetime]:
+            p = {"t": tenant_id, "s": site_id}
+            tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"), p).scalar_one_or_none()
+            tanks = c.execute(text("SELECT id FROM asset WHERE tenant_id = :t AND site_id = :s "
+                                   "AND asset_type = 'FUEL_TANK' AND retired_at IS NULL"), p).scalars().all()
+            now = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
+            return tz, (str(tanks[0]) if len(tanks) == 1 else None), _utc(now)
+        return self._read(work)
+
+    def night_records_and_provenance(self, tenant_id: UUID, site_id: UUID, windows: list[FuelBalanceWindow],
+                                     known_at: datetime, records_of: FuelBalanceWindow | None,
+                                     link_rows: Any) -> tuple[list[FuelRecord], dict[str, Any]]:
+        """DIESEL-K5 (§9l.2): on one read-only snapshot, K2's fuel records occurring in `records_of`'s window as known
+        at `known_at` (none when `records_of` is None) and the mini-depth provenance blocks (`mini_blocks`, reused) with
+        the windows' ids as the basis selection and their evidence ids as the cited set."""
+        from assetops_backend.mini_depth.provenance import mini_blocks
+
+        def work(c: Connection) -> tuple[list[FuelRecord], dict[str, Any]]:
+            records = [] if records_of is None else list(self._fuel_records(
+                c, tenant_id, site_id, records_of.tank_asset_id, records_of.window_start, records_of.window_end,
+                known_at))
+            blocks = mini_blocks(c, link_rows, tenant_id, site_id, selected_revision_ids=[w.id for w in windows],
+                                 selected_evidence_ids=[i for w in windows for i in w.evidence_ids],
+                                 pending_evidence_ids=None)
+            return records, blocks
+        return self._read(work)
 
     def window(self, tenant_id: UUID, site_id: UUID, window_id: UUID) -> FuelBalanceWindow | None:
         def work(c):

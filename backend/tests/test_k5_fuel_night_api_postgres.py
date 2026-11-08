@@ -52,7 +52,7 @@ class Api:
         with engine.connect() as c:
             self.code = c.execute(text("SELECT site_code FROM site WHERE id = :s"), {"s": site_id}).scalar_one()
         self.fuel = Fuel(engine, tenant_id, site_id)
-        self.read = FuelNightRead(URL, store=build_fuel_balance_store(URL), fuel_records=select_fuel_records,
+        self.read = FuelNightRead(store=build_fuel_balance_store(URL, fuel_records=select_fuel_records),
                                   link_rows=build_link_rows_reader())
         scope = {self.code.lower(): (self.code, tenant_id, site_id)}
         app = FastAPI()
