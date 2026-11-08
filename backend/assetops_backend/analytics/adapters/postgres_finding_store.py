@@ -786,9 +786,12 @@ class PostgresFindingStore:
         from assetops_backend.actions.verification_rules import fmt
         from assetops_backend.fuel_balance import finding_text
 
-        if c.execute(text("SELECT 1 FROM finding_revision WHERE finding_id = :f AND basis_sha256 = :b "
-                          "AND transition = :tr"), {"f": fid, "b": window.input_sha256, "tr": transition}).first():
-            return None  # this exact basis and transition is already recorded
+        # DIESEL-1-R3k2: latest revision only (0015 LR-01 rule); a basis that returns after another revision is a
+        # new revision.
+        last = c.execute(text("SELECT basis_sha256, transition FROM finding_revision WHERE finding_id = :f "
+                              "ORDER BY revision_no DESC LIMIT 1"), {"f": fid}).first()
+        if last is not None and last[0] == window.input_sha256 and last[1] == transition:
+            return None  # this exact basis and transition is already the latest revision
         n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM finding_revision WHERE finding_id = :f"),
                       {"f": fid}).scalar_one()
         tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),

@@ -81,7 +81,8 @@ class Fuel:
         self.svc = build_fuel_finding_service(URL, test_db_clock_override=self.clock)
         self.store = self.svc.stores.fuel
 
-    def put(self, night: date, state: str, low: str | None, high: str | None, *, gap: bool = False):
+    def put(self, night: date, state: str, low: str | None, high: str | None, *, gap: bool = False,
+            digest: str | None = None):
         """Append the night's next window revision, recorded at the window end + 1 h (or later)."""
         start, end = rules.night_window(night, self.tz)
         self.clock.now = max(self.clock.now + timedelta(minutes=1), end + timedelta(hours=1))
@@ -97,7 +98,8 @@ class Fuel:
                    "terms": {"accuracy_l": "10", "accuracy_revision_id": None, "sfc_revision_id": None,
                              "no_load_revision_id": None},
                    "evidence_ids": [], "record_ids": [],
-                   "input_sha256": hashlib.sha256(f"{night}{state}{low}{self.clock.now}".encode()).hexdigest()}
+                   "input_sha256": digest or hashlib.sha256(
+                       f"{night}{state}{low}{self.clock.now}".encode()).hexdigest()}
             return tx.append(latest, row)
         return self.store.transaction(self.t, self.s, work)
 
@@ -397,6 +399,61 @@ def test_b3_no_price_declared_is_unpriced(kobo) -> None:
     kobo.put(SECOND_NIGHT, "BELOW_MATERIALITY", "10", "30")
     assert kobo.raise_(SECOND_NIGHT).status == "NO_FINDING"
     assert kobo.rows("SELECT count(*) FROM assessment_revision WHERE analytic_id = 'fuel-balance-1'")[0][0] == 1
+
+
+def test_b10_a_window_that_returns_to_an_earlier_digest(kobo) -> None:
+    """DIESEL-1-R3k2 / review M1: A -> B -> A -> B on one night, with fixed digests."""
+    da, db = hashlib.sha256(b"digest A").hexdigest(), hashlib.sha256(b"digest B").hexdigest()
+    steps = [("UNEXPLAINED", "45", "60", da), ("WITHIN_MARGIN", "-5", "10", db),
+             ("UNEXPLAINED", "45", "60", da), ("WITHIN_MARGIN", "-5", "10", db)]
+    results, windows = [], []
+    for state, low, high, digest in steps:
+        windows.append(kobo.put(PRICED_NIGHT, state, low, high, digest=digest))
+        results.append(kobo.raise_(PRICED_NIGHT))
+    assert [r.status for r in results] == ["OPENED", "WITHDRAWN", "REVISED", "WITHDRAWN"]
+    fid = results[0].finding_id
+    assert {r.finding_id for r in results} == {fid}
+    revs = kobo.rows("SELECT transition, lifecycle, claim FROM finding_revision WHERE finding_id = :f "
+                     "ORDER BY revision_no", f=fid)
+    assert [(r.transition, r.lifecycle) for r in revs] == [
+        ("OPENED", "SUPPORTED"), ("NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED"),
+        ("SUPPORT_CHANGED", "SUPPORTED"), ("NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED")]
+    window_ids = [str(r.claim["fuel_balance_window_id"]) for r in revs]
+    assert window_ids == [str(w.id) for w in windows]
+    runs = kobo.rows("SELECT id, input_sha256 FROM analytic_run WHERE analytic_id = 'fuel-balance-1'")
+    assert sorted(r.input_sha256 for r in runs) == sorted([da, db])
+    run_of = {r.input_sha256: r.id for r in runs}
+    ars = kobo.rows("SELECT revision_no, analytic_run_id FROM assessment_revision "
+                    "WHERE analytic_id = 'fuel-balance-1' ORDER BY revision_no")
+    assert [(a.revision_no, a.analytic_run_id) for a in ars] == [
+        (1, run_of[da]), (2, run_of[db]), (3, run_of[da]), (4, run_of[db])]
+    assert len(kobo.rows("SELECT 1 FROM analytic_run_assessment")) == 4
+    assert len(kobo.consequences(fid)) == 2
+    now = kobo.store.fuel_finding(kobo.t, kobo.s, fid, None)
+    assert now.lifecycle == "NO_LONGER_SUPPORTED" and now.consequence is None
+    assert kobo.raise_(PRICED_NIGHT).status == "UNCHANGED"
+    assert len(kobo.rows("SELECT 1 FROM finding_revision WHERE finding_id = :f", f=fid)) == 4
+    assert len(kobo.rows("SELECT 1 FROM analytic_run WHERE analytic_id = 'fuel-balance-1'")) == 2
+    assert len(kobo.rows("SELECT 1 FROM assessment_revision WHERE analytic_id = 'fuel-balance-1'")) == 4
+
+
+def test_b11_the_price_is_the_one_known_at_the_window_end(kobo, capsys) -> None:
+    """Review L1: a price recorded after the night but before the raise leaves the night UNPRICED."""
+    night = date(2026, 10, 10)                      # its window ended before the price below is really recorded
+    prices = PostgresAssumptionStore(URL)
+    try:
+        run_fixture(prices, capsys, "v1")
+    finally:
+        prices.dispose()
+    kobo.clock.now = datetime.now(UTC) + timedelta(days=1)    # the raise happens after the price exists
+    kobo.put(night, "UNEXPLAINED", "45", "60")
+    opened = kobo.raise_(night)
+    assert opened.status == "OPENED"
+    (row,) = kobo.consequences(opened.finding_id)
+    assert (row.state, row.price_reason) == ("UNPRICED", "NO_PRICE")
+    assert (row.price_revision_id, row.price_assignment_id, row.price_value, row.currency, row.amount_low,
+            row.amount_high) == (None,) * 6
+    assert row.price_known_at == rules.night_window(night, kobo.tz)[1]   # the cutoff it was looked up at
 
 
 def test_cli_raise_prints_one_line_per_night(kobo, capsys) -> None:
