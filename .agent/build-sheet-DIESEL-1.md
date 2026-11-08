@@ -4413,3 +4413,99 @@ The reviewer found that if a fuel delivery is recorded on the wrong night and th
   - 0057's `down_revision` = `"0056_unexplained_fuel_finding"`. That is K4a's `revision` (and K4a's own `down_revision` is `0055_fuel_balance_window`), read on `task/DIESEL-K4a-unexplained-fuel-finding`.
   - `test_w502_domain_intent_api.py` failing to collect without a DB URL (`NameError: COLD`) is **not K6a's to fix**. The file imports `COLD` from `test_w502_domain_intent_postgres` inside its DB-gated block (`:23`), and K6a does not touch that file. It is a pre-existing collection quirk, so the coordinator adds it to the follow-up list. K6a runs it with `ASSETOPS_TEST_DATABASE_URL` set to `assetops_k6_test`.
 - **Size:** K6a +0.03 (within its 0.8 stop). The critical path is unchanged at about 8.9. Owner questions: none.
+
+## 9j2. Ruling DIESEL-1-R3j2: K4b pre-flight stop S-a (the chain graph refuses `FINDING:UNEXPLAINED_FUEL`)
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27). READ on main at `c1324273b` (the K4b worktree base; K4a, K6a, K6b merged) and on `task/DIESEL-K5-fuel-screens` (not merged). Nothing was run.
+- **This ruling amends §9j.11–§9j.13 and §9l.4's K4b bullets.** Everything not named here stands.
+
+### 9j2.1 The stop (READ, confirmed)
+
+- `chain/graph.py:159-160` rejects an `ENTRIES` key `FINDING:<m>` unless `<m>` is a key of the thread-lifecycle `clean_day_measures` (`chain_keys`, `:107-111`, through `thread_signal_key`). The check runs at app start (`main.py:644`), in `test_ch5b_graph.py::test_main_config_passes` and in `chain_graph_render`.
+- `config/chain/thread-lifecycle-v1.json` has no `UNEXPLAINED_FUEL` key, and `parse_thread_lifecycle` (`chain/lifecycle.py:101-103`) rejects an empty list.
+- §9j.11 adds the map entry and never names the lifecycle side. That was an Architect miss in R3j, not a builder error. It is recorded as D3 (structural oversight).
+
+### 9j2.2 Decision: route (b), an explicit empty clean-day list
+
+**Options weighed:**
+- **(a) A real fuel clean-day measure** (a chain measure such as "night accounted for within the margin", register input, adapter, snapshot rows, lifecycle entry). **Rejected for the demo.** It is about 0.6–0.9 of new chain work. It would also change how the fuel thread closes (after N clean nights), and nothing in K6b's verdict or K7's story depends on that. It goes on the after-the-demo list: "fuel clean-night measure, so a verified fuel thread can close".
+- **(b) An empty list is a valid declaration. Chosen.**
+  - Runtime is unchanged. `measures_for` already returns `()` for a missing mechanism (`lifecycle.py:74-75`), `complete_days` returns `set()` for no measures (`:293-294`), `used_measures` uses `.get` (`why.py:91`), and `postgres_thread_sources.py:192`/`:269` take a union in which an empty list adds nothing. The fuel thread behaves exactly as it does today on main.
+  - It is honest. It says in configuration what is true: this mechanism has no clean-day measure, so its thread never closes on clean days.
+  - It is consistent with how a fuel thread is meant to end. K4a's lifecycle withdraws an Action-less thread when support is lost (`OPEN` + `SUPPORT_LOST` → `WITHDRAWN`, `lifecycle.py:57`). K6b's verdict drives `CHANGE_APPLIED` → `RESOLVED_MONITORING` on VERIFIED, or `REOPENED` on INEFFECTIVE / expired INCONCLUSIVE. A later UNEXPLAINED night is a new occurrence on the same thread, so `RESOLVED_MONITORING` → `RECURRED`. None of these needs a clean-day measure. The only transition the fuel thread cannot take is `RESOLVED_MONITORING` → `CLOSED` (`CLEAN_DAYS`), and with (b) that is a declared fact rather than an accident.
+- **(c) Let the graph accept a `FINDING:` key with a `NOT_CHAIN_SOURCED` row.** **Rejected.** It widens a guard whose purpose is that every Finding mechanism has a lifecycle. A `FINDING:` key that the threads step does handle (it does, through `SUBJECT_COLUMN`) would be mislabelled "not chain-sourced".
+
+**The policy version stays `thread-lifecycle/1`.** The effective policy is identical for every mechanism, including `UNEXPLAINED_FUEL` (empty before by default, empty now by declaration). No stored event changes meaning.
+
+### 9j2.3 Exact changes for S-a (K4b)
+
+1. `B/chain/lifecycle.py` `parse_thread_lifecycle`, the per-mechanism check (`:102`):
+   - becomes `if not isinstance(names, list) or not all(isinstance(n, str) and n for n in names):` (the `or not names` term is removed). The error message is unchanged.
+   - Comment above the loop, verbatim: `# DIESEL-1-R3j2: an empty list declares a mechanism with no clean-day measure; its thread never closes on clean days (it stays RESOLVED_MONITORING until a recurrence).`
+   - The top-level "must be a non-empty object" check (`:98-99`) is unchanged.
+2. `config/chain/thread-lifecycle-v1.json`: `"UNEXPLAINED_FUEL": []` added as the **last** key of `clean_day_measures`. No other byte changes.
+3. `B/outcomes/outcome_map.py` `ENTRIES`: `"FINDING:UNEXPLAINED_FUEL": (("MG-8",), ()),  # DIESEL-1-R3j: no mock F-id (MD-FUEL-K4-1)` placed **directly after** `"FINDING:EV_INTERRUPTION"`. The group comment `# stored Finding mechanisms (the four that exist)` becomes `(the five that exist)`.
+4. `Docs/demo-sprint/chain-graph.dot` and `.svg` regenerated with `chain_graph_render` (no hand edit). The mechanism node has no measure edge; that is correct.
+5. Tests:
+   - `test_ch5b_graph.py:31` becomes `"chain graph OK: 7 measures, 6 lifecycle mechanisms, 16 outcome-map entries"`. The mutation table is unchanged (its "Finding without lifecycle mechanism" case still fires).
+   - `test_ch6_contributions.py` `ENTRIES_TODAY` gains the same line in the same position.
+   - **New L0, in `test_k4b_protect_fuel.py`:**
+     - `parse_thread_lifecycle` accepts `{"X": []}` and gives `measures_for("X") == ()`; it still raises `ChainConfigError` for `{"X": "a"}`, `{"X": [""]}` and `{}` (must fail if the list-type check is dropped too).
+     - `load_thread_lifecycle().measures_for("UNEXPLAINED_FUEL") == ()` and `"UNEXPLAINED_FUEL" in load_thread_lifecycle().clean_day_measures` (must fail if the config line is removed: the graph check then raises `entry_source`).
+     - `check(chain_graph_inputs())` passes (the app-start check).
+   - `test_ch3_lifecycle.py`, `test_ch2_threads.py`, `test_md0b_ensure.py` and the CH-5a2 contract goldens stay green unchanged. The goldens hold no fuel thread, so the new key cannot reach them. Any change there is stop S-b.
+
+### 9j2.4 The fuel thread line after a verdict (honesty guard)
+
+- After K6b's VERIFIED, the fuel thread sits in `RESOLVED_MONITORING` and never closes. `THREAD_MONITORING` ("… · {k} more fully checked days to close") would then promise a countdown that never moves.
+- Today that line cannot appear for the fuel thread: `_thread_action` (`board.py:725-732`) looks only at W1 `ActionFact`s, and the fuel Action is a domain Action. The verdict reaches the board as the Assure contributor (`FuelVerdictFact`, K6b). K4b keeps it that way with a guard, so a later change cannot produce the false countdown:
+  - `B/site_outcomes/mini.py`: a fuel `FindingFact`'s `lifecycle_view` is `{**view, "close_measured": False}` when `ct.policy.measures_for(mechanism) == ()`. Dispatch views do not get the key.
+  - `B/site_outcomes/board.py` `thread_line_item`, first line of the `if f.thread.get("verified"):` branch: `if view.get("close_measured") is False: return None  # DIESEL-1-R3j2: no clean-day measure, so no countdown; the verdict is the Assure contributor`.
+  - L0 test: a fuel `FindingFact` with a verified thread **and** an `ActionFact` on that thread gives `thread_line_item(...) is None`; the same fact without `close_measured` gives a `MONITORING` item (non-vacuous). Must fail if the guard is removed.
+  - Every dispatch, Cold and EV thread line stays byte-equal (no `close_measured` key).
+
+### 9j2.5 Answers to the builder's other questions
+
+1. **`site_outcomes/composition.py`: approved.**
+   - `build_outcome_board_service` builds `fuel_balance = build_fuel_balance_store(database_url) if database_url else None`, with a function-local import from `assetops_backend.fuel_balance.composition` (this avoids an import cycle through `work.composition`). It passes `fuel_balance=fuel_balance` to `BoardServices`, and `dispose()` calls `fuel_balance.dispose()` when it is not None.
+   - `BoardServices` (`read.py:87`) gains `fuel_balance: Any = None` as its **last** field, with the comment `# PostgresFuelBalanceStore (DIESEL-1-R3j2; K4b's fuel_windows/fuel_findings/has_windows)`.
+   - `read.py` `mini_ports` binds `fuel_windows`, `fuel_findings` and the applicability read (`has_windows`) from it. If it is None, the port raises `PortUnavailable` as every other `BoardServices` port does, and `Reads` records PARTIAL. It is never a "0" or "not applicable" claim. **Exception, so Kobo stays byte-equal:** MG-8's `not_applicable` comes from `has_windows`. If that read fails, MG-8 is `UNKNOWN` (`findings_ok` rule), never N/A.
+   - `test_out_b4_imports.py` stays unchanged and green (only `composition.py` imports another composition).
+2. **The K5 code (store methods, `night_text.py`, `fuel_finding_ref`): no byte-for-byte copies.**
+   - **Why:** K4b needs more of K5 than the builder listed. §9l.4 also requires `refs.fuel_finding_ref` and the `FUEL_FINDING` ref kind, which on K5's branch come with frontend counterparts (`linkRefs`, the client href builder). K5's `FUEL_REASON_WORDS` is already amended against §9j.11 (the guard-V-safe "no-load" wording), and K5 still has captures pending. Copies of a moving branch drift, and a partial copy of the store file (two of K5's three methods plus its import) is a real conflict, not a trivial one.
+   - **Order:**
+     - **Now:** K4b builds everything that does not need K5: §9j2.3, §9j2.4, MG-8 and applicability plumbing, the composition and ports (with `night_context`/`has_windows` calls written against K5's signatures as read above), the claims exclusion (§9j2.5 item 4), the Portfolio card keys and frontend, UF1 and KIS-8a, and their tests with fake ports.
+     - **Preferred:** K5 merges to main, and K4b runs `git merge main` at its next commit boundary. It then imports `night_context`, `has_windows`, `FUEL_REASON_WORDS` (from `fuel_balance/night_text.py`) and `fuel_finding_ref` as they stand on main.
+     - **Fallback**, only if K5 has not merged when K4b's K5-independent work is committed: the coordinator may tell K4b to `git merge task/DIESEL-K5-fuel-screens` (a real merge at K5's accepted head). K4b then **must not merge to main before K5 does**, and it merges main again before its packet.
+     - In neither case does K4b edit a K5 file.
+   - **New stop S-f:** K4b needs a change inside a K5 file (signature, literal or ref kind). Report it; K5's owner fixes it on main.
+3. **The Protect category count: intended in K4b.** It does not wait for K8.
+   - Once mapped, the fuel thread's primary category is Protect everywhere `outcome_roles` is read: `estate/portfolio.py:297` `category_counts` (`open_findings` and `sites_with_primary_finding`), the Findings lens chips (`lens_flags`) and thread `categories`. Kisiwa's Portfolio Protect count rises by one while an unexplained-fuel Finding is open.
+   - That is true, and it is the purpose of the mapping. Holding it back would need a mechanism filter in `category_counts`, which is a special case that hides a real Protect finding.
+   - **Goldens:** no Kobo, Cold or EV golden holds a fuel Finding, so §9j.13's golden acceptance stands unchanged. The Kisiwa effect first appears in K7's data. **K8** re-expects it in its COH rows and the all-26 recapture. The K8 card gains one line: "Kisiwa Protect `open_findings` +1 while the night-4 thread is open (R3j2)".
+4. **`claims.disrupting`: exclude `UNEXPLAINED_FUEL`. Confirmed.** Unexplained fuel is a loss-of-stock finding, not a service disruption. `SITES_DISRUPTED` must not count it.
+   - `B/chain/claims.py`: `NOT_DISRUPTION_MECHANISMS = frozenset({"UNEXPLAINED_FUEL"})  # DIESEL-1-R3j2: a stock finding, not a service disruption` beside `DISRUPTED_STATES` (`:41`). `disrupting` (`:112-114`) gains `and t.get("mechanism") not in NOT_DISRUPTION_MECHANISMS`. The thread wire carries `mechanism` (`site_chain.py:81`). Both callers (`claims.py:148`, `chain_api.py:379`) take the exclusion with no edit.
+   - L0 test: an `OPEN` primary-Protect thread with `mechanism` `UNEXPLAINED_FUEL` is not in `disrupting(...)`; the same thread with `COLD_EXCURSION` is (must fail if the predicate is removed).
+   - `threads.classify` (open/in-hand/verified counts) still includes the fuel thread, as §9j.11 says.
+
+### 9j2.6 Approved files (added to §9j.13)
+
+- `B/chain/lifecycle.py` (the `:102` predicate and its comment only)
+- `config/chain/thread-lifecycle-v1.json` (one key)
+- `Docs/demo-sprint/chain-graph.dot`, `Docs/demo-sprint/chain-graph.svg` (regenerated)
+- `B/site_outcomes/composition.py` (the store, the field and the dispose)
+- `B/chain/claims.py` (now required, no longer conditional)
+- `backend/tests/test_ch5b_graph.py` (the count line), `backend/tests/test_ch6_contributions.py` (`ENTRIES_TODAY`)
+- `B/site_outcomes/board.py` and `mini.py` were already on the list; the §9j2.4 guard is in scope.
+- **Removed from §9l.4:** "K4b starts after K5's phase B build" is replaced by the order in §9j2.5 item 2.
+
+### 9j2.7 Size, stops, critical path
+
+- **K4b: 1.0 → 1.1** (range 0.95–1.3). That is +0.1: the S-a route and its tests 0.04, the thread-line guard 0.02, the claims exclusion 0.02, the composition field and dispose 0.02. **Stop S-e's ceiling becomes 1.3.** The increase is reported, not absorbed: **Kisiwa total +0.1.**
+- **Critical path:** K4b stays off it. Lane 1 (K5 merge → K4b 1.1 → K8 → captures) was about 8.15–8.4; with +0.1 and a short wait for K5's merge it is about 8.3–8.6. That is still below the main path of **about 9.0**, which is unchanged. **Headroom to the 9.75 tripwire: about 0.75.** No cut is needed and the demo date does not move.
+- **After-the-demo list (coordinator):** "fuel clean-night measure, so a verified fuel thread can close".
+- **Plan HTML rows (coordinator):** K4b becomes 1.1. The rulings table gains "DIESEL-1-R3j2: `UNEXPLAINED_FUEL` declared with no clean-day measure (thread never closes on clean days); fuel thread excluded from `SITES_DISRUPTED`; Kisiwa Protect count +1 while open; K4b imports K5 after K5 merges (no copies); K4b 1.1".
+
+### 9j2.8 Owner questions
+
+None. For the owner's information, in plain words: the system has a rule that every kind of finding must say how it is closed. The unexplained-fuel finding had no such rule yet, so the system would have refused to start. It now states openly how this finding ends. It is withdrawn when a later check no longer supports it. Once a fix is verified, it stays under watch and comes back if fuel goes missing again. It does not yet close by itself after a run of clean nights. While the finding is open, Kisiwa's "Protect" count shows one more item, which is true. That count is not presented as a service outage. The work grows by a tenth of a unit, and the demo date does not move.
