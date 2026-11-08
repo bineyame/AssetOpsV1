@@ -399,6 +399,24 @@ def test_b3_no_price_declared_is_unpriced(kobo) -> None:
     assert kobo.rows("SELECT count(*) FROM assessment_revision WHERE analytic_id = 'fuel-balance-1'")[0][0] == 1
 
 
+def test_cli_raise_prints_one_line_per_night(kobo, capsys) -> None:
+    import json
+
+    from assetops_backend.fuel_balance.worker import main as worker_main
+
+    kobo.put(PRICED_NIGHT, "UNEXPLAINED", "45", "60")
+    kobo.clock.now += timedelta(minutes=1)
+    capsys.readouterr()
+    code = worker_main(["raise", "--site", "KOBO-001", "--from", "2027-01-10", "--to", "2027-01-12"],
+                       finding_service=kobo.svc)
+    lines = [json.loads(x) for x in capsys.readouterr().out.splitlines()]
+    assert code == 0 and [(x["night_date"], x["status"]) for x in lines] == [
+        ("2027-01-10", "OPENED"), ("2027-01-11", "NO_WINDOW")]
+    assert set(lines[0]) == {"site_code", "night_date", "status", "finding_id", "revision_id"}
+    assert worker_main(["raise", "--site", "NOPE-001", "--from", "2027-01-10", "--to", "2027-01-11"],
+                       finding_service=kobo.svc) == 2
+
+
 # --- B7-B9 the dispatch readers, the price recompute and the evidence path (§9k.5) -------------------------------
 
 
