@@ -9,10 +9,14 @@ estate summary's `verified_result_count` is the chain claim's value (one computa
 Expected texts are built from the backend constants, never typed."""
 from __future__ import annotations
 
+import sys
 from dataclasses import replace
 from datetime import date, datetime, timezone
+from pathlib import Path
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))  # `checks.chain_coherence`
 
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.claims import CLAIM_KEYS, VERIFIED_RESULTS, EstateCounts

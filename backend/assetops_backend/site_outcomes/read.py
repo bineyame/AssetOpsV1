@@ -516,7 +516,8 @@ class SiteOutcomeBoardService:
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
-            # WALK1-1 (WN-1): stripped by the route like `_short_values`; the estate Assure card's verified count.
+            # WALK1-1 (WN-1): stripped by the route like `_short_values`. No production reader remains: the estate
+            # Assure card's verified count is the chain claim's value (K6c), not this board sum.
             # MB-1-R Q5: plus the opportunity-origin domain Actions (the mill), the Assure headline's number.
             "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED")
             + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED")

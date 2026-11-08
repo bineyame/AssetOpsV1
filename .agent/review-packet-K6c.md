@@ -3,6 +3,11 @@
 Ruling: `.agent/build-sheet-DIESEL-1.md` §9u (DIESEL-1-R3u, main 886341aff), items U2 (A1), U3 (L2), U6 (guard modules) and §9u.2 order.
 Branch: `task/DIESEL-K6c-assure-fuel-count` from main 886341aff. Build commit: 5a7192741.
 
+## Path fix (review-K6c)
+M1: `test_k6c_assure_fuel_count.py` inserts `tools` on `sys.path` at module level (as `test_ch5c2_clock_guard.py` does),
+so `checks.chain_coherence` imports without `tools` on PYTHONPATH; run alone it passes 8/8. L1: the stale
+`_verified_results` comment in `site_outcomes/read.py` now says no production reader remains.
+
 ## Outcome
 - **U2 (A1).** `site_outcomes/mini.py:572-574`: the Assure headline count adds `sum(1 for f in fuel if f.outcome == "VERIFIED")`. `site_outcomes/read.py:521-524` `_verified_results` adds the same term over `comp.facts.fuel_verdicts` (cold/EV facts default `()`, `board.py:338`). Kisiwa with ACT-004 VERIFIED reads "1 verified result".
 - **U3 (L2).** `read.py` `_summary`: `verified_result_count` is `None if counted is None else counted.claims[VERIFIED_RESULTS].value` (`VERIFIED_RESULTS` was already imported). The per-board `verified +=` sum is removed; `verified_read` is kept for `verified_sites_unread` (unchanged).
