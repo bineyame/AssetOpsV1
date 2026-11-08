@@ -357,8 +357,11 @@ class Demo:
     def serve_env(self) -> dict[str, str]:
         """CH5c-R6: the one environment of the serve child AND the tick child, so the tick's pre-built rows carry
         the server's `code_version` (the cursor keys are hashed into it). Clone settles stay keyless
-        (`chain_clone.settle_env`): they are never served."""
-        return self.env(keys=True)
+        (`chain_clone.settle_env`): they are never served. OWN-G3a (§3.2): the served app saves operational records
+        typed on screen (`ASSETOPS_OPERATIONAL_ENTRY=on`, read by `host/lab_app.py`)."""
+        out = self.env(keys=True)
+        out["ASSETOPS_OPERATIONAL_ENTRY"] = "on"
+        return out
 
     def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "",
            serve_env: bool = False) -> subprocess.CompletedProcess:
