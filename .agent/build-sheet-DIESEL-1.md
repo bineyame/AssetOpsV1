@@ -5140,3 +5140,186 @@ None (conditional on §9p.17's parallel start). For the owner's information, in 
 - Kisiwa's overview now names its own loads: households, the cold store and the water pump, not a clinic and a mill. Kobo's pages are unchanged.
 - Kisiwa declares no targets for the demo, and the screens say so.
 - The work grows by about 0.2 unit. The demo date moves by about a tenth of a working day, provided the final check-and-rehearsal step starts now, alongside this work.
+
+## 9q. Ruling DIESEL-1-R3q — K9 pre-rehearsal answers (Q1–Q5)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md` 2026-10-27). Read-only code reading in `AssetOpsV1-k9` (`task/DIESEL-K9-checks-rehearsal`, after 319236613) and main 6913b3454. No DB, no suites. This ruling amends §9p.7 items 2 and 6 and §9p.18 where they differ.
+
+### 9q.1 Q1: Kisiwa board collection. The builder's proposal is confirmed, with the exact form below
+
+**What the code does (READ).** `SITE_CODE` alone collects nothing for Kisiwa. `day_windows(days)` (`T/checks/chain_coherence.py:72`) iterates `days.json`, and `resolve_story` builds that file from `CORE_SITES` only (`T/demo_combined.py:166`). Kisiwa's calendar lives in `story["kisiwa"]`, and `date=` is sent only for Kobo (`:92`). §9p.7 item 6's sentence "extending `SITE_CODE` collects Kisiwa boards" was wrong. This section replaces it.
+
+**Days.** Use exactly the two boards `story_links` opens (`T/demo_combined.py:306-309`), and no others:
+- `S−5d`, the morning after the unexplained-fuel night: `(at(story["S"]) − 5 d).date()`;
+- `S`: `at(story["S"]).date()`.
+
+The S−6d board (the evening night 4 opens) is **not** collected. Neither story_links nor DS-1 opens it.
+
+**Form.**
+```python
+SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "kisiwa": "KISIWA-001"}
+LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa", "kisiwa": "Africa/Dar_es_Salaam"}
+#: DIESEL-1-R3q: the Kisiwa boards `demo_combined.story_links` opens (offset from S in days, id kind).
+KISIWA_BOARD_DAYS = ((-5, "fuel-morning"), (0, "S"))
+
+def kisiwa_day_windows(story: dict) -> list[dict[str, Any]]:
+    """DIESEL-1-R3q: Kisiwa's board days, from `story["kisiwa"]` (not `days.json`), only when Kisiwa is in
+    `story["sites"]`. Each is its Site-local day read by `?date=` (mini board), in `day_windows`' row shape."""
+```
+- **Gate.** Return `[]` unless `"kisiwa" in (story.get("sites") or [])` and `story.get("kisiwa")`. A three-Site or Kisiwa-less work folder therefore collects exactly what it collects today.
+- **Row.** For each `(n, kind)`:
+  - `day = (at(story["S"]) + timedelta(days=n)).date()`;
+  - `local = datetime.combine(day, time(0), tzinfo=ZoneInfo(LOCAL_DAY_TZ["kisiwa"]))`;
+  - `lo, hi` = `local` and `local + 1 d`, both in UTC (Dar es Salaam is UTC+3 with no DST, so `[D−1 21:00Z, D 21:00Z)`);
+  - `estate` = `day_windows`' existing enclosing-midnight formula, which gives `[D−1 00:00Z, D+1 00:00Z)`;
+  - `id = f"day:kisiwa:{kind}:{day.isoformat()}"`, `site_code = "KISIWA-001"`, `date = day.isoformat()`.
+- **`day_windows`** skips `site == "kisiwa"` explicitly (its days come only from the function above). It is otherwise byte-equal for the three core Sites.
+- **`collect`:** `days_out = day_windows(days) + kisiwa_day_windows(story)`. The board, `chain_site` and `day_` estate fetches then run unchanged (`date=` for both Kisiwa fetches).
+- **`_coh7a_window`:** after the change, the K8 lookup `{**{SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}, **SUMMARY_SITE_TZ}` maps `KISIWA-001` to the same zone twice. That is harmless.
+- **Merge note.** Whichever of K8 and K9 merges second keeps the union:
+  - K9's `"kisiwa"` entries in `SITE_CODE` and `LOCAL_DAY_TZ`;
+  - K8's `SUMMARY_SITE_TZ` line and lookup, both unchanged (not removed: removal is churn with no effect).
+
+**L0 tests (in `T/checks/test_chain_coherence.py`).**
+1. With a story whose `sites` includes `kisiwa`, the two rows equal the `date=` values `story_links` prints for `KISIWA-001` boards on the same story. Call `demo_combined.story_links` with a stub `kisiwa` doc and parse its links. This proves "the boards the presenter opens".
+2. The S−5d row's date equals `story["kisiwa"]["runs"][INCIDENT_K − 1]["night_date"] + 1 day`.
+3. Without `kisiwa` in `sites`, `kisiwa_day_windows` returns `[]` and `day_windows` output is unchanged.
+4. `LOCAL_DAY_TZ["kisiwa"] == demo_combined_kisiwa.ZONE`.
+
+**Which rules then run on Kisiwa boards, and what must hold (READ against `board.py`, `mini.py:492-503`, `:811-827`).** The fuel Finding reaches the board as an ordinary `kind: "FINDING"` issue (`board.py:1105`) only where it is open and its night window meets the board day (`board.py:707`, `mini.py:825`):
+- on **S−5d**, night 4's window `[S−6d 15:00Z, S−5d 09:00Z)` meets the local day, so it is a Protect MOVES issue;
+- on **S** it does not, so it is not an issue there.
+
+Kisiwa's dispatch Findings appear as issues on both days in the ordinary way.
+
+| Rule | On Kisiwa boards | Expectation |
+|---|---|---|
+| COH-0 | 2 boards, 2 `chain_site`, 2 × `day_` estate reads | every one 200 |
+| COH-3 | **0 Kisiwa pairs, by design** | see exception E1 |
+| COH-4 (board half) | the fuel Finding (S−5d) and dispatch Findings are in `day_findings_all` for KISIWA-001 | pass. K8's estate fuel rows use the same intersect rule; the S−5d estate window `[S−6d, S−4d)` contains night 4's window |
+| COH-5 | fuel: Protect → RISK, and K8 gives `lens_flags == ["RISK"]`; dispatch: Cost → COST | pass |
+| COH-6 | Kisiwa shows no opportunity | vacuous, pass |
+| COH-10 | Portfolio leg: the `kisiwa-fuel` thread (853fc207d), occurrence 1 of 1 in week and month (not in S, which does not contain night 4; "observed" needs one window). Board leg: the S−5d ref thread equals the Portfolio thread in week and month (both contain the S−5d window) | pass |
+| COH-13 | S−5d board state (before the verdict) against the Portfolio state (`RESOLVED_MONITORING` if VERIFIED, effective on the evaluate day) | pass through the "hi took effect later" branch. Time-zone free |
+| COH-14 | S: the Protect row may carry the fuel thread's MONITORING thread line with no MOVES Finding | pass: no Protect outcome is NEEDS_ATTENTION / PRIMARY_FINDING_OPEN on S |
+| COH-17 (day leg) | `day_chain_estate` against `day_findings_all` on both Kisiwa day windows | pass (one computation) |
+
+- **No countdown, multi-night window: no exception needed.**
+  - No rule reads the countdown. R3j2 §9j2.4 `close_measured: False` changes only the line copy, and COH-14 keys on `thread_lines[].kind`, not on a countdown.
+  - The multi-night window is judged per board, and only S−5d shows it.
+- **Exception E1 (COH-3, named).** The fuel Action is a `FUEL_BALANCE` **domain** Action. It is absent from `/api/estate/actions` (mini `actions.site_window_on`, `postgres_estate_read.py:330`), and Kisiwa is not in `DOMAIN_SITES`, so `_actions` never yields it. Kisiwa's dispatch Findings have no Action. COH-3 therefore evaluates 0 Kisiwa pairs.
+  - **Not extended.** Adding Kisiwa to `DOMAIN_SITES` also switches COH-2/8/11 onto a domain-Action row shape never proven on a mini Site. That is new scope with no demo beat (owner 2026-11-05).
+  - The Finding → Action link is proven by KIS-10 (thread link) and KIS-9 (e).
+  - The packet states "COH-3 Kisiwa pairs: 0 (R3q E1)". After-the-demo list: "COH-3 for mini-Site domain Actions (Kisiwa fuel)".
+- **At the rehearsal:** a Kisiwa COH finding fails F-COH. It is a stop reported with its `check.json` entry (§9p.9), never edited.
+
+### 9q.2 Q2: KIS-6 confirmed as CO-6's pattern. The Optimize no-sum is KIS-7
+
+**Pick.** §8.7 is the row list: KIS-6 holds the counts, KIS-7 holds the Optimize card. §9p.7 item 2's "the no-sum check stays in K9's KIS-6" used the withdrawn §4.3 numbering, so it reads **KIS-7**. §9p.3's Assure line is a count and goes in **KIS-6** (as §9p.18 says).
+
+**KIS-6** (`demo_rows.kis6`, pure; wired after KIS-8a; on a dataset without Kisiwa it raises `KisiwaMissing`, the KIS-4 pattern). It reads the week window `[S−6d, S+1d)`:
+1. **Four Sites from data.**
+   - Outcome-summary `sites[].site_code`, `/api/estate/chain` `sites[].code` and the Portfolio `objectives` site codes (the list CO-6 reads after K8) each equal `sorted([KOBO, COLD, EV, KISIWA])`.
+   - `objective_site_count == 3` is CO-6's and is not repeated here.
+2. **Kisiwa's summary cells equal its S board.**
+   - `{category: state}` of the summary's KISIWA-001 `rows` equals `{category: state}` of `/api/sites/KISIWA-001/outcome-board?date=<S date>`.
+   - The summary entry has `window_basis == "DAY"` and `window.from == iso(demo_rows.site_day_start(S.date(), "Africa/Dar_es_Salaam"))`.
+3. **Assure line (§9p.3), with the verdict read from data.**
+   - `want = 1 if kisiwa.json["verdict"] == "VERIFIED" else 0`. The verdict is recorded as computed (H, §9m.5) and never forced.
+   - The chain `sites` entry for KISIWA-001 has `threads.verified == want`.
+   - The Portfolio Assure card `claim.value` equals the chain `counts["count.verified_results"].value`.
+   - No Assure value line exists for Kisiwa (H2).
+4. **Return** the four code lists, Kisiwa's cells, `want` and the two Assure values.
+5. **L0 self-test:** one pass body, plus one fail body for each of items 1–3.
+
+**KIS-7** (`demo_rows.kis7`, pure; wired after KIS-6; `KisiwaMissing` if absent). It reads the S window (CH5D1-O1's).
+1. The priced codes, read from each summary Site's cost claim (never typed), are exactly `[KOBO, KISIWA]` in Site order.
+2. `card.claim is None`, and `card.value.text == card_text("cost.sites", sites=sites_text(2))`.
+3. `demo_rows.never_summed([each priced Site's claim amount_high], bodies) > 0` and finds no sum. The bodies are the S and week outcome-summary bodies and the Portfolio week body.
+4. If Kisiwa is not priced on S, the row fails and the failure is reported as a stop. It is never re-expected to the one-Site path.
+5. **L0 self-test:** a pass body, plus fail bodies for one priced Site, a present claim and a summed string.
+
+### 9q.3 Q3: KIS-1 sources and expected values
+
+**"As known" means as known now.** Read the Site's Foundation revisions through `PostgresFoundationStore(ctx.url).revisions(tenant_id, site_id)` (`sites/foundation_records.py:269`). Keep only the current-knowledge rows (`superseded_at is None`). The components are in `RevisionRow.content`. Pure logic goes in `demo_rows.kis1(revisions, register, prices)`, and a dataset without Kisiwa raises `KisiwaMissing`.
+
+| Item | Source | Expected |
+|---|---|---|
+| Site | `site` row `site_code_key = lower('KISIWA-001')` | exists |
+| Stop setting, "90 throughout" | the `generator` component's `stop-soc-threshold` in **every** current revision (template `config/site-templates/kisiwa-diesel-hybrid-60kw.yaml:123`, fixture `backend/tests/fixtures/s1/kisiwa-001.yaml:86`) | one value across all revisions: `90`, unit `%`. "Throughout" means no revision changes it: Kisiwa's lever is the Action, not a stop setting (R2). K0's RUN_GUARD_HISTORY already proves every run froze this stored history |
+| No-load rate | the `generator` component's `generator-no-load-fuel-rate` and `-basis` in every current revision with `valid_from ≥ kisiwa-register.json["no_load_effective_from"]` | equals `demo_combined_kisiwa.NO_LOAD` (read, never retyped) **and** the §8.7 literal `4.9` `L/h`, `GENERIC_DEFAULT`. No revision in that range lacks it |
+| Sensor accuracy | the `fuel-tank` component's `fuel-level-sensor-accuracy` and `-basis` in every current revision with `valid_from ≥ register["roles4_effective_from"]` | equals `ROLES4["component_properties"]["properties"]` (`backend/conversions/kisiwa-001-minigrid-roles-demo-config.json`) **and** the literal `10` `L`, `GENERIC_DEFAULT` |
+| Diesel price v1 | `build_trial_comparison_ports(ctx.url).price_selection(t, s, w.window_start, w.window_end, w.window_end)` for each of the 10 stored night windows (KIS-4's call) | every selection is priced with **one** `revision_id`, and its value and currency equal step `v1` of `backend/conversions/demo-diesel-price-publications.json` (`1.25` `USD`, read from the file). No later step was published for Kisiwa |
+
+- **Component lookup.** Look up components by `component_id` (`generator`, `fuel-tank`) in `content`.
+- **Content keys.** The builder confirms the content key path on the in-memory store from `register_in`, in the L0 test. If the path is not `components[].properties[]`, that is a one-line adaptation, not a stop.
+- **L0 self-test:** a pass body, plus fail bodies for stop 60 in one revision, no-load 3.3, a missing accuracy basis and two price revisions.
+
+### 9q.4 Q4: KIS-2 is the fuel-cost-2 formula over the stored power intervals, with exact equality
+
+**Stored columns (READ).**
+- `financial_consequence_revision` (0011 + 0053): `finding_id`, `finding_revision_id`, `revision_no`, `recorded_at`, `model_id`, `state`, `sfc_upper_multiplier`, `quantity_high_exact` (`n/d` text), `quantity_high` (ceiling Decimal), `no_load_fuel_rate_l_per_h`, `no_load_fuel_rate_basis`, `idle_seconds`.
+- The "segments" are its `financial_consequence_power_interval` rows (`consequence_revision_id`, `mean_kw`, `duration_seconds`, `sfc_l_per_kwh`; written at `postgres_consequence_store.py:249-259`).
+
+Kobo's `idle_morning` covers only the idle term, so KIS-2 needs its own function.
+
+**Selection.**
+- Kisiwa's dispatch Findings are `finding_revision` rows on KISIWA-001 in the dispatch domain. Bind the same backend constant the R3k filter binds, never a retyped literal.
+- For each Finding, take the latest revision (`revision_no` DESC) and its head consequence: the Kobo `_consequence_heads` ordering, with the Site as a parameter.
+- **At least one** Finding is required.
+
+**Per Finding** (`demo_rows.kis2(heads, intervals_by_head, latest_revisions)`, pure, exact `Fraction`):
+1. The latest Finding revision is `SUPPORTED`, and the head consequence cites it (`finding_revision_id`).
+2. `model_id == "fuel-cost-2"`, `state == "PRICED"`, and `Decimal(sfc_upper_multiplier) == fuel_cost_v2.MULTIPLIER`.
+3. `no_load_fuel_rate_l_per_h == 4.9` and its basis is `GENERIC_DEFAULT`. These equal KIS-1's Foundation value.
+4. The computation:
+   ```
+   loaded = Σ_{mean_kw > 0}  F(mean_kw) × F(duration_seconds, 3600) × F(sfc_l_per_kwh)
+   idle   = Σ_{mean_kw == 0} F(duration_seconds, 3600) × F(no_load_fuel_rate_l_per_h)
+   exact  = F(sfc_upper_multiplier) × (loaded + idle)
+   ```
+   Here `F(x) = Fraction(str(x))`, which is exact for stored numerics.
+5. **Tolerance zero:**
+   - `exact == Fraction(quantity_high_exact)`;
+   - `Decimal(quantity_high) == fuel_cost.to_decimal_ceiling(exact)` (import it, never re-implement it);
+   - `idle_seconds == Σ duration_seconds over mean_kw == 0`.
+6. Kisiwa has 0 idle minutes (§9d.6), so `idle` is 0 on the real data. That is **reported** (`idle_seconds` printed per Finding) and not asserted. The idle term is exercised by the self-test.
+7. A non-SUPPORTED latest revision, or a non-PRICED head, fails the row and is reported as a stop. It is never forced.
+
+**L0 self-test:**
+- one pass body with one loaded and one idle interval;
+- fail bodies for: a ×1.00 multiplier, a dropped idle interval, `quantity_high` rounded half-up instead of ceiling, `fuel-cost-1`, and `UNPRICED`.
+
+### 9q.5 Q5: COH-17 and V4 confirmed
+
+- The collector fetches `board_summary.{w}.{code}` for every summary Site (`chain_coherence.py:186-191`).
+- `_coh17_full` iterates `chain["sites"]` (`:1395-1420`). V1–V3 run for every Site and window. V4 runs on the S window for every mini Site, so Kisiwa is included with no code change.
+- K9's part is **self-tests only**, in `test_chain_coherence.py`, on a four-Site fixture bundle:
+  - Kisiwa V4 passes when the nodes are equal and fails (`site_code == "KISIWA-001"`) when one node differs;
+  - one C2/V2 pass and fail case on the Kisiwa entry.
+- **Rehearsal evidence:** the packet quotes the `board_summary.S.KISIWA-001` request at status 200. That shows V4 actually compared Kisiwa: the Site-set guard at `:1368` did not skip the window.
+
+### 9q.6 Files (added to K9's list)
+
+- `T/checks/chain_coherence.py`: §9q.1.
+- `T/checks/test_chain_coherence.py`: the §9q.1 tests and the §9q.5 self-tests, with fixture bundle(s) under `T/checks/fixtures/chain_coherence/bundles/`.
+- `T/demo_combined_rows.py`: `kis1`, `kis2`, `kis6`, `kis7`.
+- `T/demo_combined_finish.py`: the four rows, wired after KIS-8a in the order KIS-1, KIS-2, KIS-6, KIS-7.
+- The existing row self-test file for the L0 bodies.
+
+### 9q.7 Size, path, tripwire
+
+- **K9 stays 1.0.** The answers match the builder's proposals, apart from these additions:
+  - the E1 note;
+  - the conditional `want` in KIS-6;
+  - KIS-1's per-window price read;
+  - KIS-2's interval read.
+
+  Each is within its estimate. The pre-rehearsal work is about 0.25 spent plus 0.3–0.35, so **0.55–0.6, inside the 0.6 budget**.
+- **Watch item.** If pre-rehearsal work passes 0.7, the builder reports before the rehearsal. The first lever is moving the KIS-7 Portfolio body out of `never_summed` (−0.02). No row is dropped.
+- **Critical path unchanged: about 9.25 (captures overlapping K9's reading) to 9.5,** against the 9.75 tripwire. Not crossed, no cut.
+- **Plan HTML (coordinator):** the rulings table gains "DIESEL-1-R3q: K9 pre-rehearsal answers; Kisiwa boards S−5d and S collected from `story.kisiwa` (`date=`, Site-local), COH-0/4/5/6/10/13/14/17 on them, COH-3 0 Kisiwa pairs by design (E1, domain Action); KIS-6 counts + Assure (verdict-conditional), KIS-7 Optimize no-sum; KIS-1 Foundation as known now (stop 90 every revision, 4.9 L/h, 10 L, price v1 1.25 USD); KIS-2 fuel-cost-2 over stored power intervals, exact; COH-17/V4 self-tests only; K9 1.0; path 9.25–9.5".
+
+### 9q.8 Owner questions
+
+None.
