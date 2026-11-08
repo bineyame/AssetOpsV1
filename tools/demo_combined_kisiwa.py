@@ -1136,7 +1136,7 @@ def add_night(url: str, work: Path, payload: dict) -> dict:
         entries = [e for e in read_days(work) if e["night_date"] != entry["night_date"]] + [entry]
         write_days(work, entries)  # Rev 1 step 4: a crash after this point resumes at step 5
     else:
-        entry = plan
+        entry = {k: v for k, v in plan.items() if k != "resume"}
     entry = {**entry, "records": _post_records(url, work, story["S_date"], night, entry)}
     write_days(work, [e for e in read_days(work) if e["night_date"] != entry["night_date"]] + [entry])
     _wait(url, entry)
