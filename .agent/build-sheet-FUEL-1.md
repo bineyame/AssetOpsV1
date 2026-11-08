@@ -1842,3 +1842,44 @@ COST_PRICED = COST_PREFIX + "about {l} L less diesel in the trial hour, {amount}
 - Logged for the owner (Architect decision during delegated absence): the "Why?" line about the example tank shows only on example data; on field data it would be false.
 
 **Owner question: none.**
+
+---
+
+## A3-R2: ruling on A3 deviations D3 and D4 (Architect, Claude, 2026-11-08)
+
+- Build `58b09582c`, packet `9074ac4e6` (A3 worktree). This addendum amends A3-R §3.9, §4 and §6. Everything else in A3-R stands. D1, D2, D5 and D6 are noted as reported and accepted; no change.
+
+### D3: update O16; do not retire it
+
+- **Why keep it.** O16 (`T/demo_combined_after.py:146-159`, `fuel_rows_ok`) is the only check on the stored rows themselves, rather than on the served board:
+  - every fuel row lies on a story day;
+  - no fuel row lies on a steady or steady-before day.
+  
+  MONEY-B does not cover either rule. Only the "quantity 0" half is false after A3.
+- **New assertions** (`fuel_rows_ok`; the signature and return shape are unchanged):
+  - **Unchanged:** each row's Site-local day is a story day and not in `STEADY_KINDS`.
+  - **Replaced:** for offsets −14 and −7, there is at least one row, and every row has `state == "PRICED"`, `Decimal(lo) == 0` and `Decimal(hi) > 0`.
+  - **Exact values stay with MONEY-B** (`idle_seconds == 12000`, `high_exact`, the amount). O16 must not repeat them, so the two rows cannot drift apart.
+  - Update the docstring: "S-14 and S-7 are PRICED above 0 (idle fuel since FUEL-1 A3); the exact figures are MONEY-B's (A3-R2)".
+- **Self-tests** (`backend/tests/test_demo_combined_finish_rows.py:408-415`):
+  - the "good" fixture's S-14 and S-7 rows become `hi > 0` and pass;
+  - add a FAIL case with `hi == 0` on S-14, the old PRICED-0 shape, which must now fail;
+  - keep the existing steady-day FAIL case.
+- **Who and when:** A3's fix round (Sonnet), **before** the scratch prepare. The prepare's reads (A3-R §6) then also run `fuel_rows_ok` over the scratch DB's stored rows through the `:384-391` query, and the packet records its result.
+- **File approved:** `T/demo_combined_after.py` (`fuel_rows_ok` only).
+
+### D4: the builder's `steady_day` is confirmed; A3-R is corrected
+
+- **The correction.** A3-R §3.9 and §6 read 3 said steady days show `COST_MONEY` with 0 idle seconds. That was wrong. O16 holds that steady and steady-before days have **no fuel row**, so they have no PRICED head, and the headline is whatever the no-row path shows.
+- **The rule, as built:**
+  - every stored head row on the day (normally none) has no idle seconds;
+  - the headline is not the `COST_IDLE` form;
+  - the headline and money are reported as shown.
+- **Combined with O16:** if a fuel row ever appears on a steady day, O16 fails. A3 must not make that happen.
+- §6 read 3 now reads: "Steady and steady-before days: no fuel row (O16), no idle line; report the headline and money".
+
+### Size
+
+- +0.02 (O16 rewrite and one self-test). **A3 = 0.93**, inside S-g (1.0). Lane 2 and FUEL-1 rise by another +0.02.
+
+**Owner question: none.**
