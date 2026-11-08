@@ -30,6 +30,7 @@ from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, b
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.fuel_balance import finding_text as fuel_text
+from assetops_backend.fuel_balance.night_text import FUEL_REASON_WORDS, UNKNOWN_VALUE  # K5 (§9l.4): never retyped
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.chain.outcomes import (
     NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, idle_fuel, potential_shown, site_nodes)
@@ -214,6 +215,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         MG1_TOO_EARLY.format(mtd="40", c=1, d="day", k=3), MG1_TOO_EARLY.format(mtd="80", c=2, d="days", k=5),
         *FINDING_TITLE_BY_MECHANISM[FUEL_MECHANISM].values(), FUEL_STOCK_LABEL,
         FUEL_NO_WINDOW.format(date="4 Oct"), FUEL_WITHIN.format(date="4 Oct"),
+        *(FUEL_NOT_CHECKED.format(date="4 Oct", why=w) for w in FUEL_REASON_WORDS.values()),
         FUEL_BELOW.format(lo="12.0", hi="30.5", date="4 Oct"), FUEL_UNEXPLAINED.format(lo="61.2", hi="98.4", date="4 Oct"),
         FUEL_EXCESS.format(date="4 Oct"),
         FUEL_LINE.format(date="4 Oct", lo="61.2", hi="98.4", lo_m="76.50", hi_m="123.00", cur="USD"),
@@ -545,7 +547,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         GROW: _grow(c, depth, rc, sales["contributors"],
                      renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
-        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
+        # DIESEL-1-R3j: "Fuel in the tank" after "Backup readiness", only on a Site with a stored fuel-balance window.
+        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc) + (
+            () if has_fuel is not True else
+            (not_available(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, refs.evidence_ref(c, "fuel")),) if night_windows is None
+            else (fuel_stock(c, night, fuel_window, FUEL_REASON_WORDS),)),
         ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
                         "action_facts" in reads.failed or action_rows is None, no_run, opp, fuel=fuel),
     }
@@ -852,7 +858,7 @@ def fuel_stock(c: str, night: date, window: Any, reason_words: Mapping[str, str]
         return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_NO_WINDOW.format(date=d), None, link)
     state = window.state
     if state == "NOT_ASSESSED":
-        text = FUEL_NOT_CHECKED.format(date=d, why=reason_words[str(window.reason)])
+        text = FUEL_NOT_CHECKED.format(date=d, why=reason_words.get(window.reason or "", UNKNOWN_VALUE))
         return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, text, UNKNOWN_CHIP, link)
     if state == "WITHIN_MARGIN":
         return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_WITHIN.format(date=d), HIGH_CHIP, link)

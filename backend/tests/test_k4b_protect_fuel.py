@@ -132,6 +132,43 @@ def test_applied_fuel_thread_is_watch() -> None:
     assert outcome(rows[PROTECT], "MG-8")["state"] == "WATCH"
 
 
+# ---- the "Fuel in the tank" contributor ------------------------------------------------------------------------------
+
+UNKNOWN = {"label": "Unknown", "tone": "gray"}
+CASES = [
+    ([], "Not available yet · no fuel check for the night of 19 Oct", None),
+    ([window("NOT_ASSESSED", reason="MISSING_OPENING")],
+     "Not available yet · the night of 19 Oct could not be checked: no tank reading at 6 pm", UNKNOWN),
+    ([window("NOT_ASSESSED", reason="NO_LOAD_RATE_MISSING")],
+     "Not available yet · the night of 19 Oct could not be checked: no generator idle fuel rate declared", UNKNOWN),
+    ([window("WITHIN_MARGIN")], "Accounted for within the margin on the night of 19 Oct",
+     {"label": "High", "tone": "green"}),
+    ([window("BELOW_MATERIALITY", low="12.04", high="30.46")],
+     "About 12.0–30.5 L unexplained on the night of 19 Oct, below the 40 L the check flags", UNKNOWN),
+    ([window()], "About 61.2–98.4 L unexplained on the night of 19 Oct", {"label": "Limited", "tone": "amber"}),
+    ([window("EXCESS")], "More fuel in the tank than recorded on the night of 19 Oct; a delivery may be unrecorded",
+     UNKNOWN),
+]
+
+
+@pytest.mark.parametrize("windows,text,chip", CASES)
+def test_fuel_stock_contributor_cases_follow_backup_readiness(windows, text, chip) -> None:
+    _, rows = compose(fuel_ports(B2.Fake(), windows=windows))
+    keys = [c["key"] for c in rows[PROTECT]["contributors"]]
+    assert keys[keys.index("backup_readiness") + 1] == "fuel_stock"
+    c = B2.contributor(rows[PROTECT], "fuel_stock")
+    assert (c["label"], c["text"], c["confidence"]) == ("Fuel in the tank", text, chip)
+    assert "fuel" in c["href"]  # `refs.evidence_ref(c, "fuel")`
+    for cat in (GROW, COST, ASSURE):
+        assert all(x["key"] != "fuel_stock" for x in rows[cat]["contributors"])
+
+
+def test_failed_window_read_reads_not_loaded() -> None:
+    comp, rows = compose(fuel_ports(B2.Fake(), refuse=("fuel_windows",)))
+    assert "fuel_windows" in comp.failed
+    assert B2.contributor(rows[PROTECT], "fuel_stock")["text"] == mini.NOT_LOADED
+
+
 # ---- the dispatch-only paths ---------------------------------------------------------------------------------------
 
 def test_cost_lead_and_trial_option_ignore_the_fuel_finding() -> None:
