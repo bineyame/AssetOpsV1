@@ -1026,6 +1026,10 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(tr)).toContain("No action yetVerified");
     const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === href);
     expect(anchor?.textContent).toContain("Unexplained fuel overnight");
+    // K8 coordinator ruling: the mechanism line names the recorded mechanism, never "Mechanism not recorded".
+    expect(mechanismWords("UNEXPLAINED_FUEL")).toBe("Unexplained fuel overnight");
+    expect(Array.from(tr.querySelectorAll("small")).map(text)).toContain("Unexplained fuel overnight");
+    expect(text(tr)).not.toContain("Mechanism not recorded");
     const { violations } = scanProductVocabulary(tr, "portfolio fuel row");
     expect(violations, describeViolations(violations)).toEqual([]);
   });
