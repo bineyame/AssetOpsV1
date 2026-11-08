@@ -6088,3 +6088,85 @@ None. The path stays inside the accepted range after cuts 1–4. U2 is a correct
 - S−5d Protect: NEEDS_ATTENTION in the served body, and K10 does not touch MG-8; pinned in KIS-OV.
 - One clone, three code states (K10 baseline, K10 proof, then the full check plus guard); the kept DB is untouched.
 - Path about +0.05–0.08, inside the accepted range after cuts 1–4. No owner question."
+
+## 9t4. Ruling DIESEL-1-R3t4 — K10 stop K10-s1 (Kobo pre-mill days), KIS-7 rounding, step-3 gates
+
+Claude Architect (binding: Claude). Read-only. Trigger: `.agent/review-packet-K10.md` (37a7082fe on `task/DIESEL-K10-declared-absent`), clone `assetops_k9_audit_r3u`. This ruling amends R3t3's adapter rule. `declared_none_day` stays as it is.
+
+### 9t4.1 K10-s1: a Site that has ever declared productive equipment is never "declared absent" (option c)
+
+**Cause.** Kobo's revisions valid from 2026-09-29 declare no mill. The mill appears 2026-10-08 11:25Z. So Sep 30 to Oct 7 pass R3t3's per-day rule, and the S, S−5d and d1 gap lines gain the note. The note says "no productive-use equipment declared for this site", which is false for Kobo today.
+
+**Rejected options.**
+- **(a)** Note only when the window end declares none. This fixes the sentence, but Kobo's pre-mill days would still be taken out of settlement and counts, with no statement anywhere. That is the silent drop the owner rejected.
+- **(b)** Only from the Site's first evidence. Kobo's pre-mill days *have* evidence, so (b) does not stop this.
+
+**The rule (c).** Productive use is "declared absent" only on a Site where **no revision known at `k` declares productive equipment, at any validity time**. On such a Site, each day still needs R3t3's whole-day coverage (`declared_none_day`).
+- A Site with productive equipment anywhere in its known setup history keeps today's rule: a day with no productive row is a gap, "not assessed", conservative.
+- This makes the note's sentence true whenever it appears.
+- It keeps the owner's rule: a missing contributor is never treated as checked, and it is never dropped silently.
+- **Known at `k`** means the D2 form: recorded by `k` and not superseded at `k`. A mill revision that was corrected away before `k` does not count; one recorded after `k` does not count.
+
+**Code** (`PostgresChainRead.declared_none_of`, still one statement):
+- Drop the validity-span filter. Select every known-at-`k` revision of the Site (`valid_from`, `valid_to`, `content`); a Site has only a few.
+- Pure gate in `chain/reader.py`:
+```python
+def site_never_declared(revisions: Sequence[tuple[datetime, datetime | None, bool]]) -> bool:
+    """R3t4: True when no known revision (any validity) has a productive load; else no day is declared absent."""
+    return not any(has for _, _, has in revisions)
+```
+- In the adapter: if `site_never_declared(revs)` is False, return `frozenset()`. Otherwise, apply `declared_none_day` per day over the revisions that overlap that day.
+
+**Tests** (pure, in `test_k10_declared_none_rule.py`; the adapter suite adds the Kobo history as a case):
+1. **Kobo history**: a no-mill revision from 2026-09-29, and a mill revision from 2026-10-08T11:25Z.
+   - The result is `frozenset()` for windows ending on the S, S−5d and d1 dates.
+   - It is also `frozenset()` for a window that ends 2026-10-05, before the mill.
+2. **Kisiwa history** (no-mill revisions only): the R3t3 per-day results are unchanged.
+3. A mill revision superseded before `k`, with no-mill revisions otherwise: declared-absent days are still given.
+4. A mill revision recorded after `k`: it does not block.
+5. A mill revision whose validity starts after the window: it blocks.
+6. All 11 R3t3 cases still hold on a never-declared Site.
+
+**Kisiwa stays the same.** No Kisiwa revision declares a productive load (R3s2: ESSENTIAL_SERVICE, HOUSEHOLD, HOUSEHOLD). So the gate passes, and the d1 and S−5d results in the packet stay as they are: Grow "No productive-use equipment declared · 0 kWh", Optimize "0.00 to 26.28 USD", the Protect, Assure and MG-8 states, and the gap lines with their note.
+- The re-run asserts these results unchanged.
+- If any Kisiwa result changes, that is stop **K10-s5**.
+- Kobo's declared-absent set must be empty on all R3t3 windows (S, S−5d, d1, and the one-, three- and four-Site Portfolio windows), and its bodies must equal the K9 baseline. Otherwise K10-s1 stands.
+
+### 9t4.2 K10-s3 flag: KIS-7 item 3 compares through the product's `money2`
+
+- The board's 26.28 is the product's display rule: `chain/vocabulary.py:320-325` `money2`, two places, half even (the twin of `frontend/src/ui/money.ts`).
+- KIS-7 item 3 asserts `money2(board amount_high) == money2(stored head amount_high)`, and that the currencies are equal. It imports `money2` and does not choose its own rounding.
+- The same applies to `amount_low` when present.
+- This is a check-side change in K9's file (`tools/demo_combined_rows.py:1226`), so K9 owns it. If K9 is already merged, K10 makes it on its branch.
+- Add L0 cases: an unrounded stored head passes, and a 1-cent difference fails.
+
+### 9t4.3 Step-3 environment: run the product's tool, do not restamp
+
+- **Step 3 runs `python -m assetops_backend.performance_migration run --tenant demo --site <S>` on the clone**, for each Site the prepare compares (KOBO-001, KISIWA-001). Use the clone's environment and the copied var folder. This is the product's own tool, as in the R3s precedent.
+- **Restamping report files by hand is withdrawn**, including in the builder's proof trees. It edits gate evidence outside the product. Steps 1–2 bodies taken under restamped reports are kept, but are confirmed again under the tool's reports (§9t4.4).
+- **Stop:** if any report is not PASSED, or a gate is still closed, report it. Do not restamp.
+- **After-demo list (product issue, not demo-critical).** A Performance report stamped with the DB name closes the gates on any clone or restore. The fix is to bind the stamp to a stored instance identity, or to rerun the comparison on restore. The demo-day prepare runs on its own DB and is not affected.
+
+### 9t4.4 Order, size, path
+
+**Order:**
+1. The §9t4.1 code and tests, plus L0 for §9t4.2. The K9 owner makes the KIS-7 change in parallel.
+2. Targeted tests: the rule, the adapter (Postgres) and the board.
+3. On the clone: `performance_migration run` for both Sites.
+4. Rerun steps 1–2, limited to the Kobo windows (empty sets and equal bodies) and the Kisiwa d1 and S−5d windows (unchanged).
+5. Step 3 as in R3u.
+6. Re-review the §9t4.1 diff, named items only, with Sonnet. It may be folded into the K10 phase-2 review.
+
+**Size:** about +0.10 on K10:
+- code 0.03;
+- tests 0.02;
+- `money2` compare 0.01;
+- tool runs 0.02;
+- partial rerun 0.02.
+
+**Path.**
+- About +0.06–0.08, because items 1–2 overlap the K9 and K6c builds. That takes R3u's post-cut 9.71–9.99 to about **9.77–10.07**.
+- Apply R3u cut 5 (−0.03, selected rows in step 3) and the new **cut 6**: fold the §9t4.1 re-review into the K10 phase-2 review (−0.02). That gives about **9.72–10.02**, at the top of the owner-accepted 9.7–10.0.
+- **Tripwire:** if, at the start of step 3, the projected path is over 10.0, the coordinator asks the owner, in plain language: "Kisiwa's fix is proven but the final full check would end slightly past the agreed time; run it in full (a little late) or check only the affected rows now and the rest on demo day?" Otherwise, no owner question.
+
+**Plan HTML (coordinator):** "DIESEL-1-R3t4: K10-s1 (Kobo pre-mill days got the 'none declared' note) → declared absent only on a Site with no productive revision known at k, any validity (site_never_declared gate + R3t3 per-day coverage); Kisiwa unchanged (K10-s5 if not); KIS-7 item 3 compares via product money2 (K9 file); step 3 uses performance_migration run on the clone, restamping withdrawn, DB-name stamp to after-demo list; +0.10 on K10, path ~9.72–10.02 after cuts 5–6; owner question only if >10.0 at step 3."
