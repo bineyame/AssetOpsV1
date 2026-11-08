@@ -67,11 +67,9 @@ request page never sends one to a W1 Action page.
 
 ## Known deviations
 
-1. **Stop S-a5 (reported, not fixed):** `test_w504_ev_intent_postgres.py:130-133`
-   `test_sole_head_chain_and_named_checks` pins `domain_action_domain_chk` as pg prints it after 0051
-   (`ARRAY['COLDCHAIN', 'EV_CHARGING', 'MINI']`). 0057 adds `'FUEL_BALANCE'::text` by design, so it fails. The
-   fix is a one-line assertion edit (append `, 'FUEL_BALANCE'::text` at :132), the same kind as the approved :154
-   edit, but it is outside the card's exceptions, so it awaits an Architect ruling.
+1. Coordinator-cleared S-a5: DDL pin follows 0057 (§9m), same kind as the approved :154 edit.
+   `test_w504_ev_intent_postgres.py:132` (`test_sole_head_chain_and_named_checks`) now ends
+   `'MINI'::text, 'FUEL_BALANCE'::text])))`; nothing else in that file changed.
 2. L2 4's Cold row is a raw `COLDCHAIN` `domain_action` insert on the Kobo Site carrying the fuel Finding pair (the
    0051 CHECKs admit it), not a Cold Action built as `test_w502_*` does. It proves the positive filter still lists a
    Cold row without standing up the cold Site; the real Cold path is covered by the unchanged `test_w502_*` run.

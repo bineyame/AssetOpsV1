@@ -129,7 +129,7 @@ def test_sole_head_chain_and_named_checks(ev) -> None:
     # CH-9b1 (0051): the same CHECK also admits MINI, and `domain_action_mini_origin` ties MINI to an opportunity origin.
     assert domain_checks(ev.engine) == {
         "domain_action_domain_chk": "CHECK ((domain = ANY (ARRAY['COLDCHAIN'::text, 'EV_CHARGING'::text, "
-                                    "'MINI'::text])))",
+                                    "'MINI'::text, 'FUEL_BALANCE'::text])))",
         "domain_action_mini_origin": "CHECK (((domain = 'MINI'::text) = (origin_opportunity_id IS NOT NULL)))"}
     assert checks(ev.engine)["domain_action_intent_criteria_count_chk"] == (
         "CHECK (((jsonb_typeof(criteria) = 'array'::text) AND (jsonb_array_length(criteria) = ANY (ARRAY[3, 4]))))")
