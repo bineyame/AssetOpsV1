@@ -110,7 +110,7 @@ export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow 
     application_state: null,
     resolution_state: null,
     verification_outcome: null,
-    workflow_label: "Recommendation not accepted",
+    workflow_label: "No action agreed yet",
     next_move: null,
     source_provenance: { state: "KNOWN" },
     links: {

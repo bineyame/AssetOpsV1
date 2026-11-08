@@ -179,7 +179,7 @@ describe("estate Portfolio page", () => {
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
     expect(cells[4]).toBe("Well supported Supported finding · Prepared example data source");
-    expect(cells[5]).toBe("No action yet Recommendation not accepted Review finding");
+    expect(cells[5]).toBe("No action yet No action agreed yet Review finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
