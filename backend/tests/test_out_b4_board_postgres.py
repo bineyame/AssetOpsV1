@@ -406,6 +406,7 @@ def test_kobo_guardrail_closed_s2_is_partial_unknown(kobo_guardrail, monkeypatch
     outcomes = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
     _record("kobo_guardrail_day_a_closed_outcomes", outcomes)
     assert set(_states(body)) == {"UNKNOWN"}, _states(body)
+    assert outcomes.pop("MG-8") == "NOT_APPLICABLE"  # DIESEL-K4b: Kobo stores no fuel-balance window (R3j)
     assert outcomes and set(outcomes.values()) <= {"UNKNOWN", "NOT_MEASURED"}, outcomes
     assert "UNKNOWN" in outcomes.values(), outcomes
 
@@ -432,6 +433,7 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     for body in (a, b):
         assert [r["category"] for r in body["rows"]] == CATEGORIES, [r["category"] for r in body["rows"]]
         measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
+        assert measured.pop("MG-8") == "NOT_APPLICABLE"  # DIESEL-K4b: Kobo stores no fuel-balance window (R3j)
         assert measured and set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
         assert "UNKNOWN" in measured.values(), measured
     _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
@@ -486,6 +488,7 @@ def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
     # acceptance (estate 10-21 has no Finding rows while coverage is not current). Recorded states only.
     assert [r["category"] for r in body["rows"]] == CATEGORIES
     measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
+    assert measured.pop("MG-8") == "NOT_APPLICABLE"  # DIESEL-K4b: Kobo stores no fuel-balance window (R3j)
     assert set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
     _record("kobo_estate_read", {"read_state": body["read_state"], "failed": failed, "outcomes": measured})
 

@@ -88,6 +88,7 @@
   "assetops_backend.financials.money_eligibility",
   "assetops_backend.financials.recompute",
   "assetops_backend.finding_api",
+  "assetops_backend.fuel_balance.adapters.postgres_fuel_balance_store",
   "assetops_backend.main",
   "assetops_backend.mini_depth.inputs",
   "assetops_backend.mini_depth.provenance",
