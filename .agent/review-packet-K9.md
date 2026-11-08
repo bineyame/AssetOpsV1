@@ -195,3 +195,46 @@ Focused: `test_demo_combined_finish_rows`, `test_k7_kisiwa_story`, `test_k9_fini
 - Process note: review `tools/checks/chain_coherence.py` at f994e3cf9, not at 85af3d702 (which holds conflict markers). At this HEAD the file has no `<<<<<<<|>>>>>>>|=======` line starts (Grep).
 
 **Checks (focused, no DB, no check-all):** `test_demo_combined_finish_rows.py` 52 passed; `test_k7_kisiwa_story.py` 99 passed; `test_k9_finish_callsites.py` 2 passed; `tools/checks/test_chain_coherence.py` 177 passed; `tools/checks/test_fuel_wording.py` 21 passed.
+
+## Rehearsal (four-Site prepare on `assetops_demo3_k9rehearsal_test`, `var/demo3_k9rehearsal`)
+
+Read-only checks; no code or expectation edited. `check.json` copied to `check-rehearsal.json`.
+
+**Run.** Started 14:38:07, last log write 16:59:36: wall 2 h 21 m 29 s (8489 s). Exit code 1. Kisiwa 3180 s, Kobo 1811 s, prebuild OK (23 requests, 0 non-200), drain-2 one tick (79 s), self-check 1183 s: 46 pass, 4 fail, 0 skipped. Peak working set: known only to 0.37 GB at 56 min (watchers reaped by low memory).
+
+### Failing rows (4)
+
+**KIS-8a** `AssertionError: ('COH-17 UF1', [{'rule': 'COH-17', 'site_code': None, 'window': 'week', 'subject': 'UF1', 'detail': "a Portfolio card holds the sum of an unexplained-fuel amount and another amount: ['119.57', '180.43']", 'bodies': []}], {'compared': 3, 'skipped': 0})`. Class (i), wrong expectation in the shared UF1 rule. Asserts before it passed (`demo_combined_rows.py:476-483`: night-4 node entry and `protect.fuel_line` in `fuel_lines`); it fails at `:485-486`, which calls `coh17_fuel`. Data (week `summary.week.json`): Kisiwa Protect `unexplained_fuel` amount_low 119.57, amount_high 180.43 USD; Kobo Optimize earnings value low `0.00` USD (`value.low`, schema pins amount_low to 0). `tools/checks/chain_coherence.py:1339,1342,1347-1350` pairs every fuel amount with every other same-currency amount and flags a two-place sum found in any card string: 119.57 + 0.00 = 119.57 and 180.43 + 0.00 = 180.43, each of which is printed in the Protect fuel line itself. Nothing is added in the product; the rule has no exclusion for a zero addend, and it never met a fuel amount alongside Kobo's 0.00 low before the four-Site estate.
+
+**F-COH** `AssertionError` with 8 COH-17 faults, all COH-17, none other rules:
+- UF1 on week and on S (the same zero-addend cause as KIS-8a, class (i)).
+- A1 on KISIWA-001, week/S/month: "Assure headline 'No verified result yet', 1 verified entries" (`chain_coherence.py:1358-1375`, row at `:1443-1445`). Class (ii), a real product defect: `site_outcomes/mini.py:572-573` counts `verified` from `actions` and `opp` only, not the `fuel` verdicts that `_assure` lists (`mini.py:1210-1222`, "ACT-004 verified on example data", `link_ref.kind` FUEL_VERDICT); the headline at `:580-581` falls to `NO_VERIFIED`.
+- L2 summary `verified_result_count` against `count.verified_results` (`chain_coherence.py:1413-1415`): week 2 vs 3, month 2 vs 3, S 2 vs 1. Week and month: class (ii), same cause (`site_outcomes/read.py:521` `_verified_results` counts `comp.facts.actions` only; chain counts Kisiwa's verified thread: `threads.verified` 1). S is 2 vs 1 and Kisiwa is 0 on both sides on S, so Kisiwa does not explain it. Chain S Kobo shows `verified` 1, `verified_actions` 0 while the S summary counts two Kobo entries; not diagnosed (possible older Kobo S-window row, class (i) or (ii) unknown).
+V1, V2, V3, V4 and the other COH-17 rows raised no finding. Bundle dirs: `dd1b2-coh-4cpxq610`, `dd1b2-coh-havc4t61`.
+
+**MILL-5** `NameError: name 'psycopg' is not defined`. Class (i), a defect in the row code, not the WD-1m watch item: `tools/demo_combined_finish.py:966` uses `psycopg` in `mill5` (`:955-970`) with no local `import psycopg` (every other row imports it inside the function). `demo_rows.mill_assure` at `:965` ran first and did not raise, so the WD-1m check (an example source class at E3) was not what failed; the stored-outcome SQL at `:966-969` never ran, so `stored == ["VERIFIED"]` is unverified.
+
+**KIS-6** `AssertionError: ('Kisiwa verified threads', 1, 'verdict', {'evaluated_at': '2026-11-05T13:00:00Z', 'outcome_id': '0a2b66c6-5af9-4d4a-8bc9-f09100975c10', 'replayed': False, 'state': 'VERIFIED', 'stored': True})`. Class (i), wrong expectation: `demo_combined_rows.py:1140` compares `kisiwa_doc.get("verdict") == "VERIFIED"`, but `kisiwa.json` `verdict` is a dict (`demo_combined_kisiwa.py:688`; state "VERIFIED"), so `want` is 0 against the chain's `threads.verified` 1 (correct; the verdict is VERIFIED). The asserts before it passed (four Sites in summary, chain and objectives; summary cells equal the S board; window basis DAY and start). The Assure card claim and H2 asserts at `:1144-1153` did not run. K10 (measure applicability, read side) settles Grow, Optimize and Assure cells on both the board and the summary, so `cells == board` stays equal; K10 does not touch `:1140`, so KIS-6 would still fail until the row reads `verdict["state"]`.
+
+### Passing rows (quotes)
+
+- KIS-1 `current_revisions 3, stop_soc 90 %, no_load 4.9 L/h GENERIC_DEFAULT, sensor 10 L GENERIC_DEFAULT, price 1.25 USD (v1), windows_priced 10`. KIS-2 `findings 2` (17 and 16 intervals). KIS-3 `nights 10`, states 4=UNEXPLAINED else WITHIN_MARGIN, `max_diff_l` all 0. KIS-4 `supported 1, priced 1, sums_checked 5, served_strings 652`. KIS-5 `VERIFIED, TARGET_MET, pins_checked 4`, later nights 11-02..11-04. KIS-8 `bodies 90, naming_site 17, hits 0, repository_files 443`. KIS-9 `records 13, dips 11, placed 15`. KIS-10 `ACT-004 verified on example data`, thread 561002f3-68d6-521c-9035-0777be9a09ba.
+- KIS-7 item 3 (report-only): `d1_priced: "REPORT-ONLY (R3s2): d1 is unsettled: no productive_kwh subject (R3s2); board earnings unpriced; 2026-10-28"`; `kisiwa_priced_on_s false, priced_on_s ["KOBO-001"], sums_checked 0, optimize_card "0.00 to 15.13 USD"`.
+- KIS-OV: `overview_status {S-5d: 200, S: 200}, basis NO_LEGACY_EVIDENCE, performance_report {outcome: PASSED, empty_set: true}, board_read_state {S-5d: AVAILABLE, S: AVAILABLE}`.
+- CO-6: `status UNKNOWN, kisiwa_present true`, `window_basis` COLD PERIOD, EV PERIOD, KISIWA DAY, KOBO DAY; Kobo days "5 of 7 days assessed · 2 days not available yet". CH5D1-O1: `0.00 to 15.13 USD`.
+- COH-17 V1-V4: no finding on any of them in the F-COH report (V4 compares summary nodes to board nodes on S for the mini Sites, Kisiwa included).
+- `board_summary.S.KISIWA-001`: request status 200 (path `/api/sites/KISIWA-001/outcome-board`, from 2026-11-05T21:00Z to 11-06T21:00Z).
+
+### Kisiwa S-5d board (2026-11-01, in process, `ctx.get`)
+
+- Protect row: state `UNKNOWN`, label "Unknown", lead `{key: MG-5, label: Reliable service}`, headline "Battery and generator condition are not assessed", `nodes.unexplained_fuel` one entry: night 2026-10-31, 95.7-144.3 L, 119.57-180.43 USD, "Unexplained fuel on the night of 31 Oct: about 95.7–144.3 L, 119.57–180.43 USD at your declared price (a modelled range, shown on its own)". This differs from the R3s2 note above ("row state NEEDS_ATTENTION"): on S-5d the row reads UNKNOWN.
+- MG-8's own outcome entry (`rows[2].outcomes[2]`): `{"key": "MG-8", "label": "Fuel accounted for", "state": "UNKNOWN", "reason": "PRODUCER_NOT_SETTLED"}`.
+
+### Watermark guard CLI (`tools/chain_watermark_guard.py`, R3j3, 256 s)
+
+`requests 46 non-200 0 tables read 80 unresolved [] untracked [] event_consumption_read True clock_predicates 0 file_violations 0 modules 143 unlisted_modules ['assetops_backend.actions.fuel_verification', 'assetops_backend.actions.verification_families', 'assetops_backend.financials.assumptions', 'assetops_backend.financials.composition', 'assetops_backend.financials.fuel_cost_v2']`, exit 1. `fuel_balance_window`, `fuel_residual_consequence_revision` and `financial_consequence_revision` are in `all.read`. Result: **S-h** (`unlisted_modules` is not `[]`, exit not 0).
+
+### Notes
+
+- No server started; all reads were in process (TestClient), so no PIDs to kill. The DB and work folder are kept. The served reads write read-through board cache rows as in the prepare; no other DB write.
+- Summary of causes: UF1 (KIS-8a, F-COH) i; KIS-6 i; MILL-5 i (row-code import); Kisiwa Assure headline and legacy verified count (F-COH A1, L2) ii; S-window L2 undiagnosed. None is an environment artefact (iii).
