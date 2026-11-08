@@ -658,3 +658,61 @@ def test_kis8_protect_passes_on_the_node_line_and_fails_otherwise() -> None:
         rows.kis8_protect(_kis8_summary(), date(2026, 10, 15))
     with pytest.raises(AssertionError):
         rows.kis8_protect(_kis8_summary(amount_detail="199.50 USD in all"), date(2026, 10, 14))  # low + high
+
+
+# ---- DIESEL-K9: COH-10's Kisiwa fuel thread (DIESEL-1-R3p §9p.7 item 5) ------------------------------------------------
+
+KIS_FID = "1E0D2C3B-0000-4000-8000-00000000F0E1"
+
+
+def test_kisiwa_fuel_thread_is_added_only_with_kisiwa_json() -> None:
+    three = rows.build_expected_threads({"days": []}, {"days": []}, [], None)
+    assert rows.build_expected_threads({"days": []}, {"days": []}, [], None, kisiwa=None) == three
+    assert not any(t["site_code"] == "KISIWA-001" for t in three)  # a three-Site dataset stays as it was
+    four = rows.build_expected_threads({"days": []}, {"days": []}, [], None, kisiwa={"finding": {"id": KIS_FID}})
+    assert four == [*three, {"name": "kisiwa-fuel", "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL",
+                             "findings": [KIS_FID.lower()]}]
+    # K7-F's `kisiwa.json` may carry the id on its Action only (the `story_links` rule)
+    assert rows.kisiwa_fuel_thread({"action": {"finding_id": KIS_FID}})["findings"] == [KIS_FID.lower()]
+    with pytest.raises(AssertionError):
+        rows.kisiwa_fuel_thread({"action": {"id": "A"}})
+
+
+class _Coh10Bundle:
+    """The reads `chain_coherence.coh10_thread_identity` makes: one stamped estate window, no board days."""
+
+    def __init__(self, portfolio_rows: list[dict]) -> None:
+        self.manifest = {"threads": True}
+        self._bodies = {"portfolio.week": {"rows": portfolio_rows}}
+
+    def estate_windows(self) -> list[str]:
+        return ["week"]
+
+    def day_windows(self) -> list[str]:
+        return []
+
+    def get(self, name: str):
+        return self._bodies.get(name)
+
+    def files(self, name: str) -> list[str]:
+        return [f"{name}.json"]
+
+
+def _kis_row(thread: dict | None) -> dict:
+    return {"finding_id": KIS_FID, "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL", "thread": thread}
+
+
+def test_coh10_judges_the_kisiwa_fuel_thread() -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "checks"))
+    import chain_coherence as cc
+
+    threads = [rows.kisiwa_fuel_thread({"finding": {"id": KIS_FID}})]
+    ok = _kis_row({"id": "T1", "occurrence_no": 1, "occurrences": 1})
+    assert cc.coh10_thread_identity(_Coh10Bundle([ok]), threads) == []
+    # fails: the fuel row is on no Portfolio row (K8 not merged, or the Finding dropped out of the estate lists)
+    missing = cc.coh10_thread_identity(_Coh10Bundle([]), threads)
+    assert [(f["rule"], f["site_code"], f["subject"]) for f in missing] == [("COH-10", "KISIWA-001", "kisiwa-fuel")]
+    # fails: the row shows the Finding as occurrence 1 of 2
+    split = cc.coh10_thread_identity(_Coh10Bundle([_kis_row({"id": "T1", "occurrence_no": 1, "occurrences": 2})]),
+                                     threads)
+    assert len(split) == 1 and "expected 1 of 1" in split[0]["detail"], split

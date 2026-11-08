@@ -28,8 +28,22 @@ def drain_summary(record: dict) -> dict:
             "seconds": record.get("seconds"), "sites": sorted(record["end"])}
 
 
+#: DIESEL-1-R3p §9p.7 item 5 (K9): the Kisiwa unexplained-fuel thread's name and mechanism, as the ruling writes them.
+KISIWA_FUEL_THREAD = {"name": "kisiwa-fuel", "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL"}
+
+
+def kisiwa_fuel_thread(kisiwa: dict) -> dict:
+    """DIESEL-1-R3p §9p.7 item 5 (K9): COH-10's Kisiwa fuel thread. Its one Finding is the night-4 Finding id from
+    `kisiwa.json`, read the way `demo_combined.story_links` reads it (`finding.id`, else the Action's `finding_id`).
+    A `kisiwa.json` without that id is a failure, never an empty thread."""
+    fid = (kisiwa.get("finding") or {}).get("id") or (kisiwa.get("action") or {}).get("finding_id")
+    assert fid, ("kisiwa.json carries no unexplained-fuel Finding id", sorted(kisiwa))
+    return {**KISIWA_FUEL_THREAD, "findings": [str(fid).lower()]}
+
+
 def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], mill: dict | None,
-                           unplaced: list | None = None, headroom: list[str] | None = None) -> list[dict]:
+                           unplaced: list | None = None, headroom: list[str] | None = None,
+                           kisiwa: dict | None = None) -> list[dict]:
     """F-COH: the expected threads, generated from the build's own documents. A Finding id comes from `kobo.json` /
     `cold.json` (`days[].findings`, which is where the build recorded them); EV records none (`ev.json` has no
     `findings`), so EV's come from the served Portfolio rows of its Site (declared limit, packet). Findings are grouped
@@ -63,6 +77,8 @@ def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], m
     elif mill and (mill.get("study") or {}).get("opportunity_id"):
         out.append({"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": HEADROOM,
                     "opportunities": [str(mill["study"]["opportunity_id"])]})
+    if kisiwa is not None:  # DIESEL-1-R3p §9p.7 item 5: only when the dataset holds Kisiwa (`kisiwa.json` exists)
+        out.append(kisiwa_fuel_thread(kisiwa))
     return out
 
 

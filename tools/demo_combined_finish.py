@@ -729,8 +729,9 @@ def _coh(ctx: Ctx):
     mill = docs("mill.json") if (ctx.work / "mill.json").is_file() else None
     unplaced: list = []
     stored = _stored_headroom(ctx)
+    kisiwa = docs("kisiwa.json") if (ctx.work / "kisiwa.json").is_file() else None  # DIESEL-1-R3p §9p.7 item 5
     threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill, unplaced,
-                                               demo_rows.headroom_opportunities(stored))
+                                               demo_rows.headroom_opportunities(stored), kisiwa=kisiwa)
     ctx.cache["stored_headroom"] = [[str(o), str(last), e] for o, last, e in stored]
     ctx.cache["unplaced"] = unplaced
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
