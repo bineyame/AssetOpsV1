@@ -29,6 +29,8 @@ from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts m
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
+from assetops_backend.fuel_balance import finding_text as fuel_text
+from assetops_backend.fuel_balance.night_text import FUEL_REASON_WORDS, UNKNOWN_VALUE  # K5 (§9l.4): never retyped
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.chain.outcomes import (
     NodeInputs, OutcomeEvaluator, earnings_parts, headroom_signal_on, idle_fuel, potential_shown, site_nodes)
@@ -163,6 +165,26 @@ PRICE_NOT_DECLARED = "Not available yet · no price per kWh declared"
 SALES_HEADLINE = "estimated productive-use sales"
 SALES_ZERO_HEADLINE = "No productive-use sales on this day: {names} not used"
 SALES_SUBLINE = SALES_USED + ", at the declared price of {p} {cur} per kWh · not billed or collected"
+#: DIESEL-1-R3j (§9j.11), MOCK DEVIATION MD-FUEL-K4-1: the board names an unexplained-fuel Finding by its lifecycle; v69
+#: has no such Finding kind (`:623-630`). The dispatch `FINDING_TITLE` stays the title of every other mechanism.
+FUEL_MECHANISM = "UNEXPLAINED_FUEL"
+FINDING_TITLE_BY_MECHANISM = {FUEL_MECHANISM: {
+    "SUPPORTED": "Unexplained fuel overnight",
+    "NO_LONGER_SUPPORTED": "Unexplained fuel no longer supported by the latest check"}}
+#: DIESEL-1-R3j (§9j.11), MOCK DEVIATION MD-FUEL-K4-2: the Protect contributor "Fuel in the tank" for night D − 1.
+FUEL_STOCK_KEY, FUEL_STOCK_LABEL = "fuel_stock", "Fuel in the tank"
+FUEL_NO_WINDOW = "Not available yet · no fuel check for the night of {date}"
+FUEL_NOT_CHECKED = "Not available yet · the night of {date} could not be checked: {why}"
+FUEL_WITHIN = "Accounted for within the margin on the night of {date}"
+FUEL_BELOW = "About {lo}–{hi} L unexplained on the night of {date}, below the 40 L the check flags"
+FUEL_UNEXPLAINED = "About {lo}–{hi} L unexplained on the night of {date}"
+FUEL_EXCESS = "More fuel in the tank than recorded on the night of {date}; a delivery may be unrecorded"
+#: DIESEL-1-R3j (§9j.11), MOCK DEVIATION MD-FUEL-K4-3: the Protect node's line per unexplained-fuel Finding (PV-1's
+#: pattern: one line each, its own basis, never added to any other money).
+FUEL_BASIS = "UNEXPLAINED_FUEL_AT_DECLARED_PRICE"
+FUEL_LINE = ("Unexplained fuel on the night of {date}: about {lo}–{hi} L, {lo_m}–{hi_m} {cur} at your declared price "
+             "(a modelled range, shown on its own)")
+FUEL_LINE_UNPRICED = "Unexplained fuel on the night of {date}: about {lo}–{hi} L (no money estimate)"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
@@ -190,7 +212,14 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         SALES_SUBLINE.format(kwh="168.3", names="Grain mill", h="8", hours="hours", p="0.25", cur="USD"),
         MG1_SO_FAR.format(mtd="673.2", c=4, e=29), MG1_MISSED.format(mtd="250", m=30),
         MG1_PACE.format(mtd="200", c=4, e=12, avg="50", need="10"),
-        MG1_TOO_EARLY.format(mtd="40", c=1, d="day", k=3), MG1_TOO_EARLY.format(mtd="80", c=2, d="days", k=5))
+        MG1_TOO_EARLY.format(mtd="40", c=1, d="day", k=3), MG1_TOO_EARLY.format(mtd="80", c=2, d="days", k=5),
+        *FINDING_TITLE_BY_MECHANISM[FUEL_MECHANISM].values(), FUEL_STOCK_LABEL,
+        FUEL_NO_WINDOW.format(date="4 Oct"), FUEL_WITHIN.format(date="4 Oct"),
+        *(FUEL_NOT_CHECKED.format(date="4 Oct", why=w) for w in FUEL_REASON_WORDS.values()),
+        FUEL_BELOW.format(lo="12.0", hi="30.5", date="4 Oct"), FUEL_UNEXPLAINED.format(lo="61.2", hi="98.4", date="4 Oct"),
+        FUEL_EXCESS.format(date="4 Oct"),
+        FUEL_LINE.format(date="4 Oct", lo="61.2", hi="98.4", lo_m="76.50", hi_m="123.00", cur="USD"),
+        FUEL_LINE_UNPRICED.format(date="4 Oct", lo="61.2", hi="98.4"))
 
 
 @dataclass(frozen=True)
@@ -232,6 +261,12 @@ class MiniPorts:
     #: PV-1-R §1: the verdict page's own `value` (`VerificationService.domain_summary`, MV-1 `mill_value` at the price as
     #: known when the verdict was recorded) of one VERIFIED opportunity-origin domain Action; None = no value.
     verdict_value: Callable[[str], Any] = lambda action_id: None
+    #: DIESEL-1-R3j (§9j.11) / R3j2: the Site's stored fuel-balance windows for Site-local nights `[lo, hi)` (K3's
+    #: `windows`, the tank resolved by the port), its unexplained-fuel Findings whose window meets `[lo, hi)` (K4a's
+    #: `fuel_findings`), both as known at the board cutoff, and whether any window is stored (MG-8 applicability).
+    fuel_windows: Callable[[date, date], Any] = lambda lo, hi: ()
+    fuel_findings: Callable[[datetime, datetime], Any] = lambda lo, hi: ()
+    fuel_has_windows: Callable[[], bool] = lambda: False
 
 
 @dataclass(frozen=True)
@@ -457,6 +492,15 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     fuel = () if ct is None else tuple(
         FuelVerdictFact(a["action_id"], a["code"], a["thread_id"], a["outcome"], a["ref"], a.get("source_class"))
         for a in site_chain.fuel_verdict_actions(ct.rows, site=c, cutoff=ct.k, lo=work_lo, hi=end))
+    # DIESEL-1-R3j (§9j.11) / R3j2: the fuel-balance reads, only on a Site with a stored window (MG-8 applicability).
+    # A failed applicability read leaves MG-8 UNKNOWN (never N/A); a failed window or Finding read is PARTIAL.
+    has_fuel = reads.call("fuel_has_windows", ports.fuel_has_windows)
+    night = day - timedelta(days=1)  # night D − 1 ends on the board day D
+    night_windows = reads.call("fuel_windows", ports.fuel_windows, night, day) if has_fuel is True else None
+    fuel_window = next((w for w in night_windows or () if w.night_date == night), None)
+    fuel_rows = reads.call("fuel_findings", ports.fuel_findings, work_lo, end) if has_fuel is True else None
+    findings = findings + _fuel_findings(fuel_rows or (), c, start, end, work_lo, None if ct is None else ct.policy)
+    unexplained_fuel = _unexplained_fuel(fuel_rows or (), work_lo, end)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
     verified_values = _verified_values(reads, ports, actions, opp)
 
@@ -476,7 +520,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     no_run = no_run_day(base, assessment, readiness)
     settled = {"MG-1": base and depth_ok, "MG-6": base, "MG-3": base, "MG-2": base and dispatch is not None,
                "MG-5": base and depth_ok, "MG-4": base and dispatch is not None,
-               "MG-7": base and (readiness not in (None, "UNKNOWN") or no_run)}
+               "MG-7": base and (readiness not in (None, "UNKNOWN") or no_run),
+               # DIESEL-1-R3j: night D − 1's window exists as known, is assessed, and the fuel Finding read succeeded
+               "MG-8": (has_fuel is True and fuel_window is not None and fuel_window.state != "NOT_ASSESSED"
+                        and fuel_rows is not None)}
     for key in finding_moved_outcomes(MINI):  # addendum 3 M1: the Finding source is a status producer
         settled[key] = settled.get(key, False) and findings_ok
 
@@ -484,7 +531,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     # CH9-R4 F2: the Grow headline figure and the headroom signal read the selected study (the Portfolio's read).
     item = _opportunity_item(reads, ports, c, start, site_timezone)
     study = (item or {}).get("study") or None
-    lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
+    # DIESEL-1-R3j: the COST lead and the Trial option stay on dispatch Findings only (a fuel Finding never leads).
+    lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id))
+                 if f.open and f.in_window and f.mechanism == FINDING_MECHANISM), None)
 
     signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", headroom_signal_on(item), HEADROOM_ISSUE,
                           renewable_ref(c, start, site_timezone)),
@@ -498,7 +547,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         GROW: _grow(c, depth, rc, sales["contributors"],
                      renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
-        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
+        # DIESEL-1-R3j: "Fuel in the tank" after "Backup readiness", only on a Site with a stored fuel-balance window.
+        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc) + (
+            () if has_fuel is not True else
+            (not_available(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, refs.evidence_ref(c, "fuel")),) if night_windows is None
+            else (fuel_stock(c, night, fuel_window, FUEL_REASON_WORDS),)),
         ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
                         "action_facts" in reads.failed or action_rows is None, no_run, opp, fuel=fuel),
     }
@@ -570,7 +623,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
                       work_window=(work_lo, end),  # WALK1-3b §A2.3: (a), then (b), then (c)
-                      opportunity_actions=opp, fuel_verdicts=fuel, verified_values=verified_values)
+                      opportunity_actions=opp, fuel_verdicts=fuel, verified_values=verified_values,
+                      not_applicable=frozenset({"MG-8"}) if has_fuel is False else frozenset(),
+                      unexplained_fuel=unexplained_fuel)
     suffix ="" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -751,6 +806,69 @@ def _findings(rows: Any, placements: Any, c: str, start: datetime,
                                in_work_window=work_lo is not None and lo is not None and lo < end
                                and (hi is None or hi > work_lo)))
     return tuple(out)
+
+
+def _fuel_findings(rows: Any, c: str, start: datetime, end: datetime, work_lo: datetime,
+                   policy: Any) -> tuple[FindingFact, ...]:
+    """DIESEL-1-R3j (§9j.11): one `FindingFact` per unexplained-fuel Finding (K4a's `fuel_findings`, latest revision as
+    known), appended to the dispatch Findings. `in_window` = the cited night window meets the board day. Its thread
+    and lifecycle view come from the board's one thread lookup (`read.py`, `with_threads`), which keys on Finding ids.
+    R3j2 §9j2.4: when the lifecycle policy declares no clean-day measure for the mechanism, the view is marked
+    `close_measured: False` (kept by `with_threads`), so the board never shows a close countdown for it."""
+    no_close = policy is None or tuple(policy.measures_for(FUEL_MECHANISM)) == ()
+    out = []
+    for f in rows:
+        lo, hi = f.window.window_start, f.window.window_end
+        title = FINDING_TITLE_BY_MECHANISM[FUEL_MECHANISM].get(str(f.lifecycle), fuel_text.TITLE)
+        out.append(FindingFact(str(f.finding_id), str(f.revision_id), title, FUEL_MECHANISM, str(f.lifecycle),
+                               refs.fuel_finding_ref(c, str(f.finding_id)),
+                               in_window=lo < end and hi > start, in_work_window=lo < end and hi > work_lo,
+                               lifecycle_view={"close_measured": False} if no_close else None))
+    return tuple(out)
+
+
+def _unexplained_fuel(rows: Any, work_lo: datetime, end: datetime) -> tuple[dict[str, Any], ...]:
+    """DIESEL-1-R3j (§9j.11): the Protect node entries, by night: every SUPPORTED fuel Finding whose window ends
+    inside the board's work window. Litres are the cited window's residual band (one decimal), money the Finding's own
+    `fuel-residual-1` row when PRICED (else no money). Each entry stands alone; nothing here adds amounts."""
+    out = []
+    for f in sorted(rows, key=lambda f: (f.night_date, str(f.finding_id))):
+        w = f.window
+        if f.lifecycle != "SUPPORTED" or not (work_lo < w.window_end <= end):
+            continue
+        lo, hi, d = fuel_text.litres1(w.residual_low), fuel_text.litres1(w.residual_high), fuel_text.short_day(f.night_date)
+        q = f.consequence or {}
+        priced = q.get("state") == "PRICED"
+        lo_m = fuel_text.money(q["amount_low"]) if priced else None
+        hi_m = fuel_text.money(q["amount_high"]) if priced else None
+        cur = q.get("currency") if priced else None
+        text = (FUEL_LINE.format(date=d, lo=lo, hi=hi, lo_m=lo_m, hi_m=hi_m, cur=cur) if priced
+                else FUEL_LINE_UNPRICED.format(date=d, lo=lo, hi=hi))
+        out.append({"key": str(f.finding_id), "night_date": f.night_date.isoformat(), "basis": FUEL_BASIS,
+                    "litres_low": lo, "litres_high": hi, "amount_low": lo_m, "amount_high": hi_m, "currency": cur,
+                    "text": text})
+    return tuple(out)
+
+
+def fuel_stock(c: str, night: date, window: Any, reason_words: Mapping[str, str]) -> Contributor:
+    """DIESEL-1-R3j (§9j.11): the Protect contributor "Fuel in the tank" for night D − 1's window (latest as known);
+    `reason_words` are K5's `FUEL_REASON_WORDS` (`fuel_balance/night_text.py`)."""
+    link, d = refs.evidence_ref(c, "fuel"), fuel_text.short_day(night)
+    if window is None:
+        return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_NO_WINDOW.format(date=d), None, link)
+    state = window.state
+    if state == "NOT_ASSESSED":
+        text = FUEL_NOT_CHECKED.format(date=d, why=reason_words.get(window.reason or "", UNKNOWN_VALUE))
+        return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, text, UNKNOWN_CHIP, link)
+    if state == "WITHIN_MARGIN":
+        return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_WITHIN.format(date=d), HIGH_CHIP, link)
+    if state == "EXCESS":
+        return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_EXCESS.format(date=d), UNKNOWN_CHIP, link)
+    lo, hi = fuel_text.litres1(window.residual_low), fuel_text.litres1(window.residual_high)
+    if state == "BELOW_MATERIALITY":
+        return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_BELOW.format(lo=lo, hi=hi, date=d), UNKNOWN_CHIP, link)
+    return Contributor(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, FUEL_UNEXPLAINED.format(lo=lo, hi=hi, date=d),
+                       PLACEMENT_CHIP["LIMITED"], link)
 
 
 def _actions(reads: Reads, ports: MiniPorts, rows: Any, chain_rows: Any,

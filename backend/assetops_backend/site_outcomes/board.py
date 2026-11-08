@@ -338,6 +338,10 @@ class SiteFacts:
     fuel_verdicts: tuple[FuelVerdictFact, ...] = ()
     #: PV-1-R §3: the Assure row's verified-value entries (one per verified result with money, never added); mini only.
     verified_values: tuple[Mapping[str, Any], ...] = ()
+    #: DIESEL-1-R3j: outcome keys not applicable on this Site (mini MG-8 with no stored fuel-balance window); cold/EV never set it.
+    not_applicable: frozenset[str] = frozenset()
+    #: DIESEL-1-R3j: the Protect row's unexplained-fuel entries (one per SUPPORTED fuel Finding, never added); mini only.
+    unexplained_fuel: tuple[Mapping[str, Any], ...] = ()
 
 
 # ---------------------------------------------------------------- helpers
@@ -806,6 +810,8 @@ def thread_line_item(f: FindingFact, facts: SiteFacts, judge: Any = None) -> dic
             return None
         return item("RECURRED", THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code)), a, day)
     if f.thread.get("verified"):
+        if view.get("close_measured") is False:
+            return None  # DIESEL-1-R3j2: no clean-day measure, so no countdown; the verdict is the Assure contributor
         a = _thread_action(f, facts, earlier=False)
         if a is None:
             return None
@@ -860,8 +866,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     states = []
     for o in outcomes:
         st, reason = outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=signals,
-                                   readiness=facts.readiness, objective=verdicts.get(o.key),
-                                   objectives_ok=facts.objectives_ok)
+                                   readiness=facts.readiness, applicable=o.key not in facts.not_applicable,
+                                   objective=verdicts.get(o.key), objectives_ok=facts.objectives_ok)
         states.append((o, st, reason))
     # OUT-D U4: one "Declared objective" line per objective of this row's outcomes, after the domain contributors,
     # in catalogue order. A not-measured outcome shows none (R583).
@@ -887,6 +893,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         row["grow_headline"] = grow_headline(row.get("nodes"))
     if cat == "ASSURE_PERFORMANCE" and facts.verified_values:   # PV-1-R §3: nodes only; the board shows no new line
         row["nodes"] = {**row["nodes"], "verified_values": [dict(v) for v in facts.verified_values]}
+    if cat == "PROTECT_ASSET" and facts.unexplained_fuel:   # DIESEL-1-R3j: nodes only (the Portfolio Protect line's source)
+        row["nodes"] = {**row["nodes"], "unexplained_fuel": [dict(v) for v in facts.unexplained_fuel]}
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
         if (domain, cat) == (EV, "OPTIMIZE_COST") and (
@@ -1027,7 +1035,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
                        applied=st in view.get("applied_states", ()))
                if s.kind == FINDING and s.ref == f.finding_id else s for s in signals]
         alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
-                                            readiness=facts.readiness, objective=verdicts.get(o.key),
+                                            readiness=facts.readiness, applicable=o.key not in facts.not_applicable,
+                                            objective=verdicts.get(o.key),
                                             objectives_ok=facts.objectives_ok)[0]) for o in outcomes]
         if not alt_states:
             return None
@@ -1115,9 +1124,16 @@ def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> Si
         facts = replace(facts, signals_extra=tuple(
             replace(s, link_ref=item["link_refs"]["opportunity"], ref=ref)
             if s.signal_key == "SIGNAL:PRODUCTIVE_USE_HEADROOM" else s for s in facts.signals_extra))
+    def view_of(f: FindingFact) -> Mapping[str, Any] | None:
+        """DIESEL-1-R3j2 §9j2.4: the composer's `close_measured: False` marker survives the lookup's view."""
+        view = views.get(f.finding_id.lower())
+        if view is not None and (f.lifecycle_view or {}).get("close_measured") is False:
+            return {**view, "close_measured": False}
+        return view
+
     return replace(facts,
                    findings=tuple(replace(f, thread=fs.get(f.finding_id.lower()),
-                                          lifecycle_view=views.get(f.finding_id.lower())) for f in facts.findings),
+                                          lifecycle_view=view_of(f)) for f in facts.findings),
                    actions=tuple(replace(a, thread_id=acts.get(a.action_id.lower()),
                                          segment_no=segs.get(a.action_id.lower())) for a in facts.actions))
 

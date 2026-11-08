@@ -64,6 +64,8 @@ interface CardContent {
   tone: string;
   grow: EstatePortfolioCard["parts"] | null;
   values: { lines: string[]; note: string | null } | null;
+  /** DIESEL-1-R3j (Protect only): one server line per unexplained-fuel Finding, never added; and its clause. */
+  fuel?: { lines: string[]; note: string | null } | null;
 }
 
 /** CH-6b2 (§B2, CH6b2-R Q1): a server card as markup: `{text} <small>{small}</small>`, the kept Grow gap. */
@@ -102,6 +104,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
     tone: card.tone,
     grow: card.parts ?? null,
     values: key === "ASSURE_PERFORMANCE" ? { lines: card.value_lines ?? [], note: card.value_note ?? null } : null,
+    fuel: key === "PROTECT_ASSET" ? { lines: card.fuel_lines ?? [], note: card.fuel_note ?? null } : null,
   };
 }
 
@@ -222,6 +225,18 @@ export function CategoryCards({
               ) : null}
               {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}
               {c.detail ? <p data-portfolio-card-detail>{c.detail}</p> : null}
+              {/* MOCK DEVIATION MD-FUEL-K4-3 (DIESEL-1-R3j): v69 has no unexplained-fuel line on the Protect card; v69
+                  `:131` and `:482` forbid a combined total, so each Finding is its own server line (as MD-FUEL-PV1-1). */}
+              {c.fuel?.lines.map((line) => (
+                <p key={line} className="oc-pfnote" data-portfolio-card-fuel-line>
+                  {line}
+                </p>
+              ))}
+              {c.fuel?.note ? (
+                <p className="oc-pfnote" data-portfolio-card-fuel-note>
+                  {c.fuel.note}
+                </p>
+              ) : null}
               {/* MOCK DEVIATION MD-FUEL-PV1-1: v69 `:129` is one "Verified value recovered" tile ("Not established") and
                   v70 `:492` puts the slot on the Assure card; we show one server line per verified result (its own
                   basis) in that slot instead of one value, because v69 `:131` and `:482` forbid a combined total. */}

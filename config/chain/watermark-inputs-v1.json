@@ -54,6 +54,8 @@
     "finding_thread_event",
     "finding_thread_occurrence",
     "foundation_revision",
+    "fuel_balance_window",
+    "fuel_residual_consequence_revision",
     "ingestion_batch",
     "ingestion_disposition",
     "maintenance_plan",

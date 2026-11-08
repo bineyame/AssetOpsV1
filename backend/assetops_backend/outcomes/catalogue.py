@@ -47,6 +47,8 @@ SITE_OUTCOMES = (
     _o("MG-2", MINI, "OPTIMIZE_COST", "Supply cost per kWh"),
     _o("MG-5", MINI, "PROTECT_ASSET", "Reliable service"),
     _o("MG-4", MINI, "PROTECT_ASSET", "Battery and generator life"),  # measured from C (R541 resolved)
+    # MOCK DEVIATION MD-FUEL-K4-2 (DIESEL-1-R3j): v69 has no Protect fuel outcome (`:345` "Fuel balance · None").
+    _o("MG-8", MINI, "PROTECT_ASSET", "Fuel accounted for"),
     _o("MG-7", MINI, "ASSURE_PERFORMANCE", "Evidence quality"),
     _o("EV-3", EV, "GROW_REVENUE", "Charger use"),
     _o("EV-6", EV, "GROW_REVENUE", "Energy billed against metered", "no settlement records"),

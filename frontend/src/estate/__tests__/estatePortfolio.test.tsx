@@ -27,6 +27,7 @@ import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
 import {
   ASSURE_WITH_VALUES,
+  PROTECT_WITH_FUEL,
   COLD_EVENT_HREF,
   COLD_ROW,
   coverageSite,
@@ -1513,6 +1514,30 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
       expect(card(key).querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
     }
     expect(scanCards()).toBe("");
+  });
+
+  it("k4bProtectCardRendersEachFuelLineThenItsClauseAfterTheDetail", async () => {
+    // DIESEL-1-R3j: one server line per unexplained-fuel Finding (never a total), then its clause.
+    renderServer({ PROTECT_ASSET: PROTECT_WITH_FUEL });
+    await settledScreen();
+    const protect = card("PROTECT_ASSET");
+    const lines = [...protect.querySelectorAll("[data-portfolio-card-fuel-line]")];
+    expect(lines.map((n) => n.textContent)).toEqual(PROTECT_WITH_FUEL.fuel_lines);
+    expect(lines.every((n) => n.className === "oc-pfnote")).toBe(true);
+    expect(text(protect.querySelector("[data-portfolio-card-fuel-note]"))).toBe(PROTECT_WITH_FUEL.fuel_note);
+    const order = [...protect.querySelectorAll("[data-portfolio-card-detail], [data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")]
+      .map((n) => [...n.attributes].map((a) => a.name).find((a) => a.startsWith("data-portfolio-card-")));
+    expect(order).toEqual(["data-portfolio-card-detail", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-note"]);
+    for (const key of ["GROW_REVENUE", "OPTIMIZE_COST", "ASSURE_PERFORMANCE"]) {
+      expect(card(key).querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
+    }
+    expect(scanCards()).toBe("");
+  });
+
+  it("k4bProtectCardWithoutOrWithEmptyKeysRendersNoFuelLine", async () => {
+    renderServer({ PROTECT_ASSET: serverCard({ detail: "Service disruptions recorded as findings · loss not priced", fuel_lines: [], fuel_note: null }) });
+    await settledScreen();
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
   });
 
   it("pv1AssureCardWithoutTheKeysRendersNeitherLinesNorClause", async () => {

@@ -1285,6 +1285,53 @@ def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int])
     return out
 
 
+def _amounts(currency: Any, *values: Any) -> list[tuple[Any, Decimal]]:
+    return [(currency, Decimal(str(x))) for x in values if x is not None]
+
+
+def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
+    """DIESEL-1-R3j §9j.12 row UF1: (i) the Protect card's `fuel_lines` are the Sites' Protect `nodes.unexplained_fuel`
+    texts in Site order, each in the `protect.fuel_line` form; (ii) for every same-currency pair drawn from the fuel
+    amounts, the Optimize claim amounts and the Assure `verified_values` amounts, with at least one fuel amount, the
+    two-place sum appears in no string of any Portfolio card (never added); (iii) `fuel_note` is
+    `protect.fuel_separate` iff there are lines. A summary without the keys (an older bundle) is skipped and counted."""
+    voc = _vocabulary()
+    cards = summary.get("cards") or {}
+    card = cards.get(PROTECT)
+    if not card or "fuel_lines" not in card or "fuel_note" not in card:
+        tally["skipped"] += 1
+        return []
+    out = []
+
+    def check(ok: bool, detail: str) -> None:
+        tally["compared"] += 1
+        if not ok:
+            out.append(finding("COH-17", None, w, "UF1", detail, files))
+
+    want, fuel, other = [], [], []
+    for s in summary.get("sites") or ():
+        rows = _rows_by_category(s.get("rows"))
+        for e in ((rows.get(PROTECT) or {}).get("nodes") or {}).get("unexplained_fuel") or ():
+            want.append(voc.card_text("protect.fuel_line", site=_site_name(s), text=e.get("text")))
+            fuel += _amounts(e.get("currency"), e.get("amount_low"), e.get("amount_high"))
+        claim = ((rows.get(COST) or {}).get("nodes") or {}).get("earnings") or {}
+        value = claim.get("value") or {}
+        other += _amounts(value.get("currency"), value.get("low"), value.get("high"), value.get("amount"))
+        for e in ((rows.get(ASSURE) or {}).get("nodes") or {}).get("verified_values") or ():
+            other += _amounts(e.get("currency"), e.get("amount"))
+    lines = list(card.get("fuel_lines") or ())
+    check(lines == want, f"Protect card fuel_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
+    pairs = [(a, b) for i, a in enumerate(fuel) for b in fuel[i + 1:]] + [(a, b) for a in fuel for b in other]
+    sums = {f"{a[1] + b[1]:.2f}" for a, b in pairs if a[0] is not None and a[0] == b[0]}
+    strings = list(_strings(cards))
+    held = sorted(x for x in sums if any(x in t for t in strings))
+    check(not held, f"a Portfolio card holds the sum of an unexplained-fuel amount and another amount: {held!r}")
+    separate = voc.card_text("protect.fuel_separate")
+    note = card.get("fuel_note")
+    check((note == separate) == bool(lines), f"Protect fuel_note {note!r} with {len(lines)} fuel lines")
+    return out
+
+
 def _coh17_a1(w: str, code: str | None, assure: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
     """MB-1-R Q5 row A1 (a mini board, internal): the Assure headline's count equals the Assure "Verified results"
     entries that read as verified (" not yet verified" entries excluded)."""
@@ -1338,6 +1385,7 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
     check("C3", cards == summary.get("cards"), "chain `cards` differ from summary `cards`")
     out += coh17_optimize(w, summary, files, tally)
     out += coh17_values(w, summary, files, tally)   # PV-1-R §5 row PV1
+    out += coh17_fuel(w, summary, files, tally)     # DIESEL-1-R3j §9j.12 row UF1
     # CH6b3-R3 L2: the summary's legacy verified count is the claim's value (both known).
     shown, claimed = summary.get("verified_result_count"), (counts.get("count.verified_results") or {}).get("value")
     if shown is not None and claimed is not None:

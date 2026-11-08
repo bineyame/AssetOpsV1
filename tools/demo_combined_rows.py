@@ -443,6 +443,34 @@ def _money_keys(node, path: str = "") -> list[str]:
     return []
 
 
+def kis8_protect(summary: dict, night: date, site: str = "KISIWA-001") -> dict:
+    """KIS-8a (DIESEL-1-R3j §9j.12, the Protect half of KIS-8): on the week estate summary holding Kisiwa's S+0 board,
+    the Protect card's `fuel_lines` holds `protect.fuel_line` built from Kisiwa's Protect node entry for `night`
+    (night 4), and COH-17 row UF1 passes on that summary. The wording-guard half of KIS-8 stays K9's."""
+    import sys
+    from pathlib import Path
+
+    from assetops_backend.chain.vocabulary import card_text
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    from chain_coherence import coh17_fuel, new_tally
+
+    card = (summary.get("cards") or {}).get("PROTECT_ASSET")
+    assert isinstance(card, dict) and "fuel_lines" in card, ("no Protect card fuel_lines", card)
+    s = next((x for x in summary.get("sites") or () if x.get("site_code") == site), None)
+    assert s is not None, ("Kisiwa not on the week summary", site)
+    protect = next((r for r in s.get("rows") or () if r.get("category") == "PROTECT_ASSET"), None) or {}
+    entries = (protect.get("nodes") or {}).get("unexplained_fuel") or []
+    entry = next((e for e in entries if e.get("night_date") == night.isoformat()), None)
+    assert entry is not None, ("no Kisiwa unexplained-fuel node entry for the night", night.isoformat(), entries)
+    line = card_text("protect.fuel_line", site=s.get("site_name") or site, text=entry["text"])
+    assert line in card["fuel_lines"], (line, card["fuel_lines"])
+    tally = new_tally()
+    found = coh17_fuel("week", summary, [], tally)
+    assert not found and tally["compared"] == 3, ("COH-17 UF1", found, tally)
+    return {"night": night.isoformat(), "line": line, "fuel_lines": len(card["fuel_lines"]), "uf1": "pass"}
+
+
 def kis5(plan: dict, outcome: dict, read_back: dict, windows_by_date: dict, summary: dict) -> dict:
     """KIS-5 (DIESEL-1-R3m §9m.4): the Kisiwa FUEL_BALANCE Action's stored fuel verdict reproduces.
 

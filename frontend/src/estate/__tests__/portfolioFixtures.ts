@@ -482,6 +482,18 @@ export const ASSURE_WITH_VALUES = serverCard({
   value_note: "Each result's money is shown on its own and never added together",
 });
 
+/** DIESEL-1-R3j: the Protect server card with two unexplained-fuel lines (one per Finding, never added). */
+export const PROTECT_WITH_FUEL = serverCard({
+  value: { text: "No sites disrupted", small: null },
+  detail: "Service disruptions recorded as findings · loss not priced",
+  basis_text: "Measured events, counted separately · loss not priced",
+  fuel_lines: [
+    "Kisiwa · Unexplained fuel on the night of 15 Oct: about 61.2–98.4 L, 76.55–122.95 USD at your declared price (a modelled range, shown on its own)",
+    "Kisiwa · Unexplained fuel on the night of 17 Oct: about 40.1–55.0 L (no money estimate)",
+  ],
+  fuel_note: "Unexplained fuel is shown on its own and never added to any other money",
+});
+
 export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {}): EstateOutcomeSummaryBody {
   const rows: Record<string, EstateOutcomeSummaryRow[]> = {
     "KOBO-001": [

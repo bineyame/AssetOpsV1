@@ -530,6 +530,9 @@ CARD_TEXT = {
                       "loss not priced",
     "protect.basis": "Measured events, counted separately · loss not priced",
     "protect.small.checked": "on the days checked",
+    # DIESEL-1-R3j (§9j.11): the Protect card's unexplained-fuel lines (one per Finding, never added) and their clause.
+    "protect.fuel_line": "{site} · {text}",
+    "protect.fuel_separate": "Unexplained fuel is shown on its own and never added to any other money",
     # Assure (§B2: today's `assureDetailText` words; the verified lead is the value now).
     "assure.basis": "Completed work does not establish savings",
     "assure.zero": "No verified result yet",

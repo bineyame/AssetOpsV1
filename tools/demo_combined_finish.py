@@ -1013,6 +1013,18 @@ def kis_4(ctx: Ctx) -> dict:
     return {"kisiwa": "present", **demo_rows.kis4(windows, findings, consequences, prices, dispatch, served)}
 
 
+@row("KIS-8a")
+def kis_8a(ctx: Ctx) -> dict:
+    """DIESEL-K4b (DIESEL-1-R3j §9j.12, written by K4b, run at E3): the week estate summary holding Kisiwa's S+0 board
+    lists Kisiwa's night-4 unexplained-fuel line on the Protect card, built from its Protect node, and COH-17 row UF1
+    passes on it (`demo_rows.kis8_protect`). Night 4 is the Site-local night starting S−6d (K7, §9l.3). A dataset
+    without the Kisiwa Site is reported as such, never as a check."""
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
+    if not any(s.get("site_code") == KISIWA for s in summary.get("sites") or ()):
+        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+    return {"kisiwa": "present", **demo_rows.kis8_protect(summary, ctx.day(-6).date(), KISIWA)}
+
+
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
     """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
     through the backend's own stores (None: no Kisiwa Site in this dataset; the rows then fail, carry R3k2 L2)."""

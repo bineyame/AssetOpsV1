@@ -959,6 +959,76 @@ def test_coh17_pv1_an_older_bundle_without_the_keys_is_skipped() -> None:
     assert got == [] and tally["skipped"] == 1 and tally["compared"] == 0
 
 
+# ---- DIESEL-1-R3j §9j.12 row UF1: the Protect card's unexplained-fuel lines, never summed ------------------------
+
+def _uf1_entry(key: str, night: str, low: str | None, high: str | None) -> dict:
+    return {"key": key, "night_date": night, "basis": "UNEXPLAINED_FUEL_AT_DECLARED_PRICE", "litres_low": "61.2",
+            "litres_high": "98.4", "amount_low": low, "amount_high": high, "currency": "USD" if low else None,
+            "text": f"Unexplained fuel on the night of {night}"}
+
+
+UF1_A = _uf1_entry("f1", "15 Oct", "76.55", "122.95")
+UF1_B = _uf1_entry("f2", "17 Oct", "10.00", "20.00")
+UF1_COST = {"value": {"low": "3.31", "high": "3.97", "currency": "USD"}, "text": "3.31–3.97 USD"}
+
+
+def _uf1_summary(**card_over) -> dict:
+    from assetops_backend.chain.vocabulary import card_text
+
+    sites = [{"site_code": "KIS", "site_name": "Kisiwa", "rows": [
+        {"category": "PROTECT_ASSET", "nodes": {"kpi": None, "unexplained_fuel": [UF1_A, UF1_B]}},
+        {"category": "OPTIMIZE_COST", "nodes": {"earnings": UF1_COST}},
+        {"category": "ASSURE_PERFORMANCE", "nodes": {"verified_values": [PV1_MILL]}}]}]
+    card = {"value": {"text": "No sites disrupted", "small": None}, "detail": "Service disruptions recorded",
+            "fuel_lines": [card_text("protect.fuel_line", site="Kisiwa", text=UF1_A["text"]),
+                           card_text("protect.fuel_line", site="Kisiwa", text=UF1_B["text"])],
+            "fuel_note": card_text("protect.fuel_separate"), **card_over}
+    return {"sites": sites, "cards": {"PROTECT_ASSET": card, "OPTIMIZE_COST": {"detail": None},
+                                      "ASSURE_PERFORMANCE": {"detail": None}}}
+
+
+def _uf1(summary: dict) -> tuple[list[dict], dict]:
+    tally = cc.new_tally()
+    return cc.coh17_fuel("week", summary, [], tally), tally
+
+
+def test_coh17_uf1_two_lines_pass() -> None:
+    got, tally = _uf1(_uf1_summary())
+    assert got == [] and tally["compared"] == 3 and tally["skipped"] == 0
+
+
+def test_coh17_uf1_a_card_line_that_differs_fails() -> None:
+    summary = _uf1_summary()
+    summary["cards"]["PROTECT_ASSET"]["fuel_lines"][1] = "Kisiwa · something else"
+    got, _ = _uf1(summary)
+    assert [f["subject"] for f in got] == ["UF1"] and "fuel_lines" in got[0]["detail"]
+
+
+def test_coh17_uf1_a_detail_holding_a_fuel_plus_optimize_sum_fails() -> None:
+    got, _ = _uf1(_uf1_summary(detail="79.86 USD at risk"))  # 76.55 + 3.31
+    assert [f["subject"] for f in got] == ["UF1"] and "'79.86'" in got[0]["detail"]
+
+
+def test_coh17_uf1_another_card_holding_a_fuel_plus_fuel_sum_fails() -> None:
+    summary = _uf1_summary()
+    summary["cards"]["ASSURE_PERFORMANCE"]["detail"] = "86.55 USD in all"  # 76.55 + 10.00
+    got, _ = _uf1(summary)
+    assert [f["subject"] for f in got] == ["UF1"] and "'86.55'" in got[0]["detail"]
+
+
+def test_coh17_uf1_a_note_that_does_not_match_the_lines_fails() -> None:
+    got, _ = _uf1(_uf1_summary(fuel_note=None))
+    assert [f["subject"] for f in got] == ["UF1"] and "fuel_note" in got[0]["detail"]
+
+
+def test_coh17_uf1_an_older_bundle_without_the_keys_is_skipped() -> None:
+    summary = _uf1_summary()
+    for k in ("fuel_lines", "fuel_note"):
+        summary["cards"]["PROTECT_ASSET"].pop(k)
+    got, tally = _uf1(summary)
+    assert got == [] and tally["skipped"] == 1 and tally["compared"] == 0
+
+
 def test_clean_full_passes_and_compares_every_row() -> None:
     bundle = cc.Bundle(BUNDLES / "clean_full")
     report = cc.check(bundle)

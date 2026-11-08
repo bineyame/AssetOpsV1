@@ -77,6 +77,14 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
        _WRITER + " (the tick's schedule store)"
        for q in ("claim_site.work", "claim_tick.work", "enrol.work", "fail_tick", "finish_tick", "record_s4",
                  "release_site", "set_cursor.work", "set_stage")},
+    # DIESEL-K4b (R3j2 §9j2.5 item 1, found by the F4/Q5 test): the board now holds the fuel-balance store. Its board
+    # read instant is K5's `night_context` capture; `transaction` (K3's assess) and `night_window_on` (K4a's raise)
+    # are writers that a stored compose never calls.
+    (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.night_context.work"): _CAPTURE,
+    (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.transaction"):
+        _WRITER + " (the fuel-balance assessment, K3)",
+    (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.night_window_on"):
+        _WRITER + " (the unexplained-fuel Finding raise, K4a)",
     (_B + "work.adapters.postgres_domain_action_index", "PostgresDomainActionRead.snapshot"): _CAPTURE,
     (_B + "work.adapters.postgres_global_read", "PostgresGlobalWorkRead.snapshot"): _CAPTURE,
     (_B + "work.adapters.postgres_work_read", "PostgresWorkRead.snapshot"): _CAPTURE,

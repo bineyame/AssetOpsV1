@@ -28,7 +28,7 @@ def _rules(inputs) -> set[tuple[str, str]]:
 
 def test_main_config_passes(g) -> None:
     lines = check(g)
-    assert lines[0].startswith("chain graph OK: 7 measures, 5 lifecycle mechanisms, 15 outcome-map entries")
+    assert lines[0].startswith("chain graph OK: 7 measures, 6 lifecycle mechanisms, 16 outcome-map entries")
     assert "known gap: no producer: WARNING:CHARGERS_MOSTLY_IDLE (owner BL-06)" in lines
 
 

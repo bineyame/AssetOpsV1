@@ -36,9 +36,18 @@ def _migration_tables() -> tuple[str, ...]:
     return module.INPUT_TABLES
 
 
+def _migration_0058_tables() -> tuple[str, ...]:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "m0058", ROOT / "backend" / "migrations" / "versions" / "0058_fuel_watermark_inputs.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.INPUT_TABLES
+
+
 def test_declared_inputs_equal_the_frozen_migration_list() -> None:
     declared = json.loads((ROOT / "config" / "chain" / "watermark-inputs-v1.json").read_text())["tables"]
-    assert set(declared) - {"chain_action"} == set(_migration_tables())
+    assert set(declared) - {"chain_action"} == set(_migration_tables()) | set(_migration_0058_tables())
 
 
 def _wm(engine, tenant, sites):
@@ -54,7 +63,7 @@ def test_every_declared_input_has_the_four_change_triggers(engine) -> None:  # n
     events: dict[str, int] = {}
     for table, tgtype in rows:  # tgtype bits: 4 INSERT, 8 DELETE, 16 UPDATE, 32 TRUNCATE
         events[table] = events.get(table, 0) | (tgtype & (4 | 8 | 16 | 32))
-    missing = [t for t in _migration_tables() if events.get(t) != 60]
+    missing = [t for t in (*_migration_tables(), *_migration_0058_tables()) if events.get(t) != 60]
     assert not missing, missing
 
 
@@ -189,6 +198,32 @@ def test_real_table_out_of_order_update_and_late_outbox_row(engine) -> None:  # 
     finally:
         t1.close()
         t2.close()
+
+
+def test_fuel_window_insert_flips_only_its_site(engine) -> None:  # noqa: F811
+    """DIESEL-1-R3j3: a `fuel_balance_window` write (no Finding, no outbox row) moves its own Site's watermark only."""
+    tenant, (a, b, _) = _seed(engine)
+    tank, gen = uuid4(), uuid4()
+    with engine.begin() as c:
+        for asset_id, code in ((tank, "TANK"), (gen, "GEN")):
+            c.execute(text("INSERT INTO asset (id, tenant_id, site_id, asset_code, asset_type, attributes, created_at) "
+                           "VALUES (:i, :t, :s, :c, 'LOAD', '{}'::jsonb, now())"),
+                      {"i": asset_id, "t": tenant, "s": a, "c": code})
+    wa, wb = _wm(engine, tenant, [a]), _wm(engine, tenant, [b])
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO fuel_balance_window (id, tenant_id, site_id, tank_asset_id, generator_asset_id, night_date, "
+            "window_start, window_end, revision, parameter_version, recorded_at, state, reason, residual_low, "
+            "residual_high, gap_minutes, gap_spans, limitations, terms, evidence_ids, record_ids, input_sha256) "
+            "VALUES (:i, :t, :s, :tank, :gen, '2026-10-20', '2026-10-19T20:00:00Z', '2026-10-20T04:00:00Z', 1, "
+            "'fuel-balance-1/v1', now(), 'BELOW_MATERIALITY', NULL, 0, 1, 0, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, "
+            "'[]'::jsonb, '[]'::jsonb, :sha)"),
+            {"i": uuid4(), "t": tenant, "s": a, "tank": tank, "gen": gen, "sha": "0" * 64})
+    assert _wm(engine, tenant, [a]) != wa and _wm(engine, tenant, [b]) == wb
+    with engine.connect() as c:
+        rows = c.execute(text("SELECT site_id FROM chain_input_change WHERE table_name = 'fuel_balance_window' "
+                              "AND tenant_id = :t"), {"t": tenant}).all()
+    assert [r[0] for r in rows] == [a]
 
 
 def test_flip_depends_on_the_trigger_non_vacuous(engine) -> None:  # noqa: F811

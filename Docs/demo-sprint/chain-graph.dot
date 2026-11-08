@@ -24,12 +24,14 @@ digraph chain {
     "mech:EV_INTERRUPTION" [label="EV_INTERRUPTION"];
     "mech:GENERATOR_SUPPORT_CANDIDATE" [label="GENERATOR_SUPPORT_CANDIDATE"];
     "mech:PRODUCTIVE_USE_HEADROOM" [label="PRODUCTIVE_USE_HEADROOM"];
+    "mech:UNEXPLAINED_FUEL" [label="UNEXPLAINED_FUEL"];
   }
   subgraph col3 { rank=same;
     "key:FINDING:COLD_EXCURSION" [label="FINDING:COLD_EXCURSION"];
     "key:FINDING:COLD_START_FAILURE" [label="FINDING:COLD_START_FAILURE"];
     "key:FINDING:EV_INTERRUPTION" [label="FINDING:EV_INTERRUPTION"];
     "key:FINDING:GENERATOR_SUPPORT_CANDIDATE" [label="FINDING:GENERATOR_SUPPORT_CANDIDATE"];
+    "key:FINDING:UNEXPLAINED_FUEL" [label="FINDING:UNEXPLAINED_FUEL"];
     "key:SIGNAL:EVIDENCE_GAP" [label="SIGNAL:EVIDENCE_GAP", style=dashed];
     "key:SIGNAL:EVIDENCE_READINESS" [label="SIGNAL:EVIDENCE_READINESS", style=dashed];
     "key:SIGNAL:PRODUCTIVE_USE_HEADROOM" [label="SIGNAL:PRODUCTIVE_USE_HEADROOM"];
@@ -60,6 +62,7 @@ digraph chain {
     "out:MG-4" [label="MG-4"];
     "out:MG-5" [label="MG-5"];
     "out:MG-7" [label="MG-7"];
+    "out:MG-8" [label="MG-8"];
   }
   "assessment.revised@1" -> "measure:avoidable_gen_min";
   "assessment.revised@1" -> "measure:backup_start_chain";
@@ -89,6 +92,7 @@ digraph chain {
   "key:FINDING:GENERATOR_SUPPORT_CANDIDATE" -> "out:MG-2";
   "key:FINDING:GENERATOR_SUPPORT_CANDIDATE" -> "out:MG-4" [style=dashed];
   "key:FINDING:GENERATOR_SUPPORT_CANDIDATE" -> "out:MG-5" [style=dashed];
+  "key:FINDING:UNEXPLAINED_FUEL" -> "out:MG-8";
   "key:SIGNAL:EVIDENCE_GAP" -> "out:MG-2" [style=dashed];
   "key:SIGNAL:EVIDENCE_GAP" -> "out:MG-7";
   "key:SIGNAL:EVIDENCE_READINESS" -> "out:@EVIDENCE";
@@ -116,6 +120,7 @@ digraph chain {
   "mech:EV_INTERRUPTION" -> "key:FINDING:EV_INTERRUPTION";
   "mech:GENERATOR_SUPPORT_CANDIDATE" -> "key:FINDING:GENERATOR_SUPPORT_CANDIDATE";
   "mech:PRODUCTIVE_USE_HEADROOM" -> "key:SIGNAL:PRODUCTIVE_USE_HEADROOM";
+  "mech:UNEXPLAINED_FUEL" -> "key:FINDING:UNEXPLAINED_FUEL";
   "price.revised@1" -> "measure:charging_kwh";
   "price.revised@1" -> "measure:productive_kwh";
   "reading.accepted@1" -> "measure:backup_start_chain";

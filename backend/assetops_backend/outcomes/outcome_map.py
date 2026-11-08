@@ -15,11 +15,12 @@ from assetops_backend.outcomes.catalogue import CATEGORY_LABEL, COLD, DOMAINS, E
 POLICY_VERSION = "outcome-map/1"
 
 ENTRIES: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
-    # stored Finding mechanisms (the four that exist)
+    # stored Finding mechanisms (the five that exist)
     "FINDING:GENERATOR_SUPPORT_CANDIDATE": (("MG-2",), ("MG-5", "MG-4")),  # mock outcomes.js:23 F-104
     "FINDING:COLD_START_FAILURE": (("CC-6", "CC-1"), ("CC-5", "CC-3")),  # F-118
     "FINDING:COLD_EXCURSION": (("CC-1",), ()),  # F-119
     "FINDING:EV_INTERRUPTION": (("EV-1", "EV-3"), ("EV-4",)),  # F-130
+    "FINDING:UNEXPLAINED_FUEL": (("MG-8",), ()),  # DIESEL-1-R3j: no mock F-id (MD-FUEL-K4-1)
     # existing non-Finding signals (B)
     "SIGNAL:PRODUCTIVE_USE_HEADROOM": (("MG-1",), ("MG-2", "MG-5")),  # F-109 in the mock
     "SIGNAL:EVIDENCE_GAP": (("MG-7",), ("MG-2",)),  # F-108 in the mock (mini only)

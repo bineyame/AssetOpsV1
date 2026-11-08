@@ -547,6 +547,12 @@
      "label": "Battery and generator life",
      "reason": "PRODUCER_NOT_SETTLED",
      "state": "UNKNOWN"
+    },
+    {
+     "key": "MG-8",
+     "label": "Fuel accounted for",
+     "reason": "CONFIGURATION_NOT_APPLICABLE",
+     "state": "NOT_APPLICABLE"
     }
    ],
    "potential": null,
