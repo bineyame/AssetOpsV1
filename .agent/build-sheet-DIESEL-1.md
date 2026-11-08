@@ -5852,3 +5852,59 @@ The builder updates the K10 tests to the new literals and reruns the vocabulary 
 - It is the established "as known now" form in `postgres_chain_read.py`, and the clock guard accepts it.
 - It differs from R3t only for a revision whose `superseded_at` is in the future. Treating that revision as superseded is the conservative choice: it can only fail to declare absent, so the day stays missing data. Safeguard 1 holds.
 - The adapter test adds no case for this.
+
+### 9t3. Ruling DIESEL-1-R3t3 — K10 review M1 (whole-day coverage), L1, L2, phase-2 Kobo check
+
+Claude Architect (binding: Claude). Read-only. Trigger: `.agent/review-K10.md` (717838ed7, FIX), finding M1. This ruling replaces the two-bound rule in §9t.3 item 3.
+
+**M1: the reviewer's option (a), whole-day coverage.** The reviewer is right: two bounds miss a mid-day mill and a mid-day gap.
+- With a mid-day gap, a failed setup read would become "declared absent". That breaks R3t safeguard 1.
+- (a) is honest. It can only make fewer days count as declared absent than the current code.
+- (b) would also wrongly refuse an ordinary day on which a no-mill revision is replaced by another no-mill revision.
+
+**The rule.** A pure function in `chain/reader.py`, next to `applicable_measures`, called by `PostgresChainRead.declared_none_of` for each day. The adapter keeps its one statement.
+```python
+def declared_none_day(revisions: Sequence[tuple[datetime, datetime | None, bool]],
+                      lo: datetime, hi: datetime) -> bool:
+    """R3t3: (valid_from, valid_to, has_productive) of the revisions known at k. True only when the revisions
+    overlapping [lo, hi) (valid_from < hi and (valid_to is None or valid_to > lo)) are at least one, none has a
+    productive load, and together they cover [lo, hi) with no gap: sorted by valid_from, cursor = lo; a revision
+    with valid_from > cursor is a gap -> False; cursor = max(cursor, valid_to or +inf); finally cursor >= hi."""
+```
+- `[lo, hi)` is the Site-local day as UTC instants, the same instants `board_day` gives.
+- `has_productive = bool(productive_loads(content))`.
+- The SQL keeps the D2 known-at form. Its overlap filter becomes the whole requested span: `valid_from < :hi_span AND (valid_to IS NULL OR valid_to > :lo_span)`.
+- Overlapping revisions are allowed by the rule. The exclusion constraint prevents them among current revisions anyway. If any overlapping revision has a productive load, the result is False.
+
+**Required pure test cases** (`test_k10_declared_none_rule.py`):
+1. One no-mill revision covers the day: True.
+2. Open-ended `valid_to = None`: True.
+3. Two contiguous no-mill revisions changing at 12:00: True.
+4. A revision ending exactly at `lo` (excluded), then a no-mill revision from `lo`: True.
+5. `valid_to == hi` exactly: True (half-open).
+6. **Mid-day mill**, as the reviewer described (none, mill 08:00–14:00, none): False.
+7. **Mid-day gap**, as the reviewer described (none, no revision 08:00–14:00, none): False.
+8. A gap at the start (first revision from 00:30): False.
+9. A gap at the end (`valid_to` 23:00): False.
+10. No revisions: False.
+11. Overlapping revisions, one with a mill: False.
+
+The two reviewer cases (6 and 7) are also kept as adapter cases on the `*_test` DB. Each must return `{}` through `declared_none_of`.
+
+**L1: fix now** (about 0.01). Add direct evaluator assertions to the safeguard-7 test, on a declared-absent window with an MG-1 objective:
+- the `_month_reading` value is `None`, never `0`;
+- `complete` is False;
+- the verdict is neither MET nor ON_PACE.
+
+Both surviving mutations must then fail the test. Record this in the packet.
+
+**L2: revert now.** Revert the whitespace slip at `:250`.
+
+**Phase-2 Kobo check: confirmed, and made explicit.**
+- The K10-s1 body comparison already catches a changed Kobo body. In addition, the proof records Kobo's declared-absent result, through a direct `declared_none_of` call or a debug of `DayFacts.none_declared`, over:
+  - the S−5d, S and d1 board windows;
+  - the one-Site, three-Site and four-Site Portfolio windows.
+- **Any non-empty Kobo set is stop K10-s1**, even if the bodies happen to be equal.
+- One extra Kobo statement on such a day is expected and is recorded, not a stop.
+
+**Size:** about +0.04 on K10: rule and tests 0.03, L1 and L2 0.01. The path moves within §9t.5's range. The cut order is unchanged.
