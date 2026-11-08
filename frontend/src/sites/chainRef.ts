@@ -40,6 +40,7 @@ export type Ref =
   | { kind: "FINDING"; site: string; id: string; revision?: string; view?: FindingChildView; window?: RefWindow }
   | { kind: "ACTION"; site: string; id: string; view?: RefActionView; event_id?: string; recorded_at?: string }
   | { kind: "DOMAIN_VERDICT"; site: string; id: string }
+  | { kind: "FUEL_FINDING"; site: string; id: string; revision?: string }
   | { kind: "OPPORTUNITY"; site: string; id: string; known_at?: string }
   | { kind: "CASE"; site: string; id: string }
   | { kind: "EVIDENCE"; site: string; capability?: string; window?: RefWindow }

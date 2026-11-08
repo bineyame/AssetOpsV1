@@ -16,6 +16,7 @@ import {
   SiteFinancialsFrame,
   SiteFindingFrame,
   SiteFindingsFrame,
+  SiteFuelFindingFrame,
   SitePerformanceFrame,
   SiteOpportunityFrame,
 } from "./shell/SiteAnalyticsFrames";
@@ -55,6 +56,7 @@ import {
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
   SITE_FINDING_VIEW_ROUTE_PATH,
+  SITE_FUEL_FINDING_ROUTE_PATH,
   SITE_FINDINGS_ROUTE_PATH,
   SITE_WORK_ROUTE_PATH,
   SITE_WORK_INCIDENTS_ROUTE_PATH,
@@ -478,6 +480,8 @@ export function App({
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} miniDecisions={miniDecisions} />}
             />
           ))}
+          {/* DIESEL-K5 (DIESEL-1-R3l): the unexplained-fuel Finding at its own address. */}
+          <Route path={SITE_FUEL_FINDING_ROUTE_PATH} element={<SiteFuelFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} evDepth={evDepth} />} />
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

@@ -12,7 +12,7 @@ describe("routeFor (CH-5a2a B1)", () => {
 
   it("has a fixture row for every kind and enumerated view", () => {
     const kinds = new Set(fixture.map((row) => row.ref.kind));
-    expect([...kinds].sort()).toEqual(["ACTION", "CASE", "DOMAIN_VERDICT", "ESTATE", "EVIDENCE", "FINDING", "OPPORTUNITY", "SITE", "THREAD"]);
+    expect([...kinds].sort()).toEqual(["ACTION", "CASE", "DOMAIN_VERDICT", "ESTATE", "EVIDENCE", "FINDING", "FUEL_FINDING", "OPPORTUNITY", "SITE", "THREAD"]);
     const siteViews = new Set(fixture.flatMap((row) => (row.ref.kind === "SITE" ? [row.ref.view ?? "home"] : [])));
     expect([...siteViews].sort()).toEqual([...REF_SITE_VIEWS].sort());
     const estateViews = new Set(fixture.flatMap((row) => (row.ref.kind === "ESTATE" ? [row.ref.view] : [])));
@@ -26,5 +26,12 @@ describe("routeFor (CH-5a2a B1)", () => {
   it("renders no link without a ref", () => {
     expect(linkFor(undefined)).toBeNull();
     expect(linkFor(null)).toBeNull();
+  });
+
+  it("routes a FUEL_FINDING ref to the fuel Finding page (DIESEL-K5 F7)", () => {
+    expect(routeFor({ kind: "FUEL_FINDING", site: "KISIWA-001", id: "f-1" })).toBe("/sites/KISIWA-001/fuel-findings/f-1");
+    expect(routeFor({ kind: "FUEL_FINDING", site: "KISIWA 1", id: "f/1", revision: "r 2" })).toBe(
+      "/sites/KISIWA%201/fuel-findings/f%2F1?revision_id=r%202",
+    );
   });
 });

@@ -215,7 +215,8 @@ class FuelNightRead:
                                "text": night_text.version_row(r.revision_no, r.lifecycle, r.created_at, tz)}
                               for r in sorted(revisions, key=lambda r: r.revision_no)],
                 "provenance": night["provenance"],
-                "links": {"canonical": canonical, "fuel_night": fuel_page_href(code, chosen.night_date)}}
+                "links": {"canonical": canonical, "fuel_night": fuel_page_href(code, chosen.night_date),
+                          "fuel_night_label": night_text.FUEL_NIGHT_LINK}}
 
 
 __all__ = ["DEFAULT_NIGHTS", "MAX_NIGHTS", "FuelNightRead", "FuelNightRefused", "FuelNightUnavailable",

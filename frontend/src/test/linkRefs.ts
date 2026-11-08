@@ -30,6 +30,10 @@ function parse(href: string): Ref | null {
     const revision = q.get("revision_id") ?? undefined;
     return { kind: "FINDING", site: seg(m[1]), id: seg(m[2]), ...(revision ? { revision } : {}) };
   }
+  if ((m = path.match(/^\/sites\/([^/]+)\/fuel-findings\/([^/]+)$/))) {
+    const revision = q.get("revision_id") ?? undefined;
+    return { kind: "FUEL_FINDING", site: seg(m[1]), id: seg(m[2]), ...(revision ? { revision } : {}) };
+  }
   if ((m = path.match(/^\/sites\/([^/]+)\/actions\/([^/]+)(?:\/(verification|plan|history))?$/))) {
     const event = q.get("event_id") ?? undefined;
     const view = m[3] as "verification" | "plan" | "history" | undefined;

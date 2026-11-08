@@ -376,6 +376,16 @@ export const SITE_MILL_VERIFICATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/doma
 export function siteMillVerificationHref(siteId: string, actionId: string): string {
   return `${siteDetailHref(siteId)}/domain-actions/${encodeURIComponent(actionId)}/verification`;
 }
+/**
+ * DIESEL-K5 (DIESEL-1-R3l): an unexplained-fuel Finding at its own address, beside the dispatch Finding routes (which
+ * are not edited). An exact version is `?revision_id=`, as on the dispatch Finding page.
+ */
+export const SITE_FUEL_FINDING_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/fuel-findings/:findingId`;
+
+export function siteFuelFindingHref(siteId: string, findingId: string, revisionId?: string | null): string {
+  const base = `${siteDetailHref(siteId)}/fuel-findings/${encodeURIComponent(findingId)}`;
+  return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
 export const ACTION_CHILD_VIEWS = ["plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionChildView = (typeof ACTION_CHILD_VIEWS)[number];
 
@@ -592,6 +602,8 @@ export function routeFor(r: Ref): string | null {
       return siteActionHref(r.site, r.id, r.view ?? "overview", { eventId: r.event_id, recordedAt: r.recorded_at });
     case "DOMAIN_VERDICT": // DD1b2-R6 O1: the mill verdict of a MINI domain Action
       return siteMillVerificationHref(r.site, r.id);
+    case "FUEL_FINDING": // DIESEL-1-R3l: the unexplained-fuel Finding page
+      return siteFuelFindingHref(r.site, r.id, r.revision);
     case "OPPORTUNITY":
       return siteOpportunityHref(r.site, r.id, r.known_at);
     case "CASE":

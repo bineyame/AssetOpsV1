@@ -257,7 +257,7 @@ def night_view(window: Any, records: Sequence[Any], tz: str) -> dict[str, Any]:
             "revision": window.revision, "window_start": window.window_start.isoformat(),
             "window_end": window.window_end.isoformat(), "cards": cards, "bars": bars, "bridge": bridge,
             "notes": notes, "margin": None if a is None else finding_text.margin_line(t.get("accuracy_l")),
-            "records": record_rows(records, tz)}
+            "records": record_rows(records, tz), "records_empty": RECORDS_EMPTY}
 
 
 def night_summary(window: Any) -> dict[str, Any]:

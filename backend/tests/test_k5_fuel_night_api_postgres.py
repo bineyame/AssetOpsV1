@@ -264,7 +264,9 @@ def test_b4_fuel_finding_routes_and_dispatch_id_refused(store, engine, capsys) -
         assert "finding" not in page["night"] and page["night"]["night_date"] == "2026-10-05"
         assert [r["revision_no"] for r in page["revisions"]] == [1]
         assert page["links"] == {"canonical": f"/sites/{api.code}/fuel-findings/{fid}",
-                                 "fuel_night": f"/sites/{api.code}/performance/fuel?night=2026-10-05"}
+                                 "fuel_night": f"/sites/{api.code}/performance/fuel?night=2026-10-05",
+                                 "fuel_night_label": nt.FUEL_NIGHT_LINK}
+        assert page["night"]["records_empty"] == nt.RECORDS_EMPTY
 
         # a later check withdraws it: two versions, the pinned first still readable
         api.put(night, "WITHIN_MARGIN", "-24.343", "24.343")
