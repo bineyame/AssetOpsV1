@@ -5829,3 +5829,26 @@ The plain-language polish batch may reword these, but it may not drop the "0 kWh
 - The rehearsal's Kisiwa board captures show the current state (Unknown Grow, Optimize and Assure rows; Protect fuel beat correct). They are not demo assets. The K10 captures come from the clone proof, or from the demo-day prepare under cut 4.
 - **Files.** K10 touches `chain/reader.py`, `chain/read.py`, `chain/outcomes.py`, `chain/vocabulary.py`, `chain/adapters/postgres_chain_read.py`, `mini_depth/read.py` and `site_outcomes/mini.py`. K9 touches `T/demo_combined.py` and the demo check rows. No overlap is expected, and the pre-flight confirms it.
 - **Plan HTML (coordinator):** the rulings table gains "DIESEL-1-R3t: owner answer read (zero shown; absence never 'checked'); K10 v1 withdrawn (row-absence inference unsound: builder swallows a failed site-setup read as no subjects); K10 v2 = declared-absent productive_kwh from one successful Foundation read per day bound, left out of the day's applicable measures but never graded or counted checked; stated '0 kWh · no productive-use load declared' on Grow line, headline, MG-1 earnings and gap note; one shared rule in chain/reader.py; Kobo/Cold/EV byte-unchanged; proof on a clone (code_version correction); ~0.40, path ~9.75–10.0 → cuts 1–4; owner question (build / wording only / leave); rehearsal proceeds now".
+
+### 9t2. Ruling DIESEL-1-R3t2 — K10 stop K10-v1 (vocabulary) and deviation D2
+
+Claude Architect (binding: Claude). Owner approved K10 v2 ("Build it (Recommended)", ae6d4cb71). Read-only. Trigger: phase 1 on `task/DIESEL-K10-declared-absent` (56256bbc9, be6b27b8f) stopped at K10-v1. The cause is `frontend/src/test/productVocabulary.json:56`, which bans "load" as an unexplained abbreviation. All four R3t literals use it, so `test_out_b2_vocabulary::test_board_and_status_copy_pass_vocabulary` reports 4 hits.
+
+**Ruling: option (a), reword "load" to "equipment".**
+- "Equipment" is the owner's own word in the approved question: "productive-use equipment (like a mill)".
+- It is not on the banned list.
+- The guard stays unchanged, with no exact-text allowance. Line 184's precedent allows only exact v6.9 mock labels, and these literals are not mock labels.
+- The "0 kWh" and "not assessed" clauses stay as they are.
+
+The four literals below replace the §9t.3 literals. MD-K10-1 is unchanged.
+- `SALES_NONE_DECLARED = "0 kWh · no productive-use equipment declared for this site · not a metered reading"`
+- `GROW_NONE_HEADLINE = "No productive-use equipment declared · 0 kWh"`
+- `GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use equipment declared for this site (0 kWh)"`
+- `vocabulary.py`: `"money.none_declared": "No productive-use sales · no productive-use equipment declared"`
+
+The builder updates the K10 tests to the new literals and reruns the vocabulary test and the three K10 test files. If any other vocabulary hit appears, that is a stop to report, not a guard edit.
+
+**D2: confirmed.** The builder replaced R3t's `COALESCE(:known_at, clock_timestamp())` with the file's existing form: `CAST(:k AS timestamptz) IS NULL OR recorded_at <= :k`, plus `superseded_at IS NULL` when k is null. I confirm it because:
+- It is the established "as known now" form in `postgres_chain_read.py`, and the clock guard accepts it.
+- It differs from R3t only for a revision whose `superseded_at` is in the future. Treating that revision as superseded is the conservative choice: it can only fail to declare absent, so the day stays missing data. Safeguard 1 holds.
+- The adapter test adds no case for this.
