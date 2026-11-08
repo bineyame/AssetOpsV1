@@ -53,7 +53,7 @@
 - §4 files: met, plus D1 (test file placement).
 - §5 tests and must-fail proofs: met (below).
 - §6 scratch prepare: **run 2026-11-08, results below**. S-c not hit on the stored rows; two reads are not measurable in the Kobo-only scratch.
-- §7 stops: none hit so far. S-c and S-f can only be judged at §6.
+- §7 stops: none hit. S-c not hit on the stored rows at the §6 scratch prepare; S-f judged at §6 (see the scratch section). The scratch's MONEY-B/WK-2a/CH5D1-O1/A3-PAGE reads are re-read at E3 (review-A3 focus 7).
 
 ## Must-fail proofs (each on the committed build, reverted with `git checkout --`, tree clean after)
 
@@ -80,14 +80,15 @@
 - **D2** §3.8 asks for "the existing verdict-detail class". The mill verdict page's value line (MV-1 precedent, `SiteMillVerification.tsx:90`) uses a bare `<p>`; the trial line does the same (`<p data-verification-fuel-value>`). No CSS added.
 - **D3 CLOSED by A3-R2 (fix round)**: `fuel_rows_ok` now keeps the story-day and no-steady-day rules and asserts S-14 and S-7 each have at least one row, every such row PRICED with low 0 and high above 0 (no exact figures; those stay with MONEY-B). Self-tests: good fixture high above 0; new FAIL case for the old priced-at-0 shape on S-14; steady-day FAIL case kept. Scratch prepare is still owed and will also run `fuel_rows_ok` over the stored rows (A3-R2).
 - **D4 CONFIRMED by A3-R2**: `steady_day` as built stands; A3-R corrected (steady days have no fuel row per O16, no idle line; headline and money reported as shown).
-- (original D3 text) `tools/demo_combined_after.py` O16 `fuel_rows_ok` (`:146-159`) still asserts S-14 and S-7 are PRICED with quantity 0. After A3 they are PRICED above 0, so O16 in the after-run will fail at E3. The file is not on A3-R §4's list, so it was not edited. MONEY-B now carries the O16 idle checks; the fix is a small edit in `demo_combined_after.py` (or retiring that half of O16).
-- **D4** §3.9 says steady days have "stored `idle_seconds == 0` and the headline is `COST_MONEY`". O16 asserts steady days have **no** fuel row at all, so the board shows `COST_NO_MONEY` there. `steady_day` therefore asserts: every stored head row on the day (if any) has 0 or no idle seconds, and the headline is not the idle line; it reports the headline and money as shown.
 - **D5** `chain/outcomes.idle_fuel` checks `model_id == "fuel-cost-2"` as a literal: `chain/` does not import `financials/` outside its composition, so `fuel_cost_v2.MODEL_ID` is not imported.
-- **D6** MONEY-B's "week estate body" sum check walks the S week summary (S-6 to S+1) **and** the three idle-morning boards, because S-14 and S-7 fall outside that week.
+- **D6** MONEY-B's sum check walks the S week summary (S-6 to S+1), the three idle-morning boards, **and** an outcome summary S-14 to S+1 spanning all three mornings (added by the M1 fix).
+- **M1 CLOSED** (review-A3, commit `f37a7245d`): `never_summed` now takes the stored `amount_high` values (15.125) and searches each sum half-even, half-up, rounded up, and as the sum of outward-rounded parts: 30.25 and 30.26 for two mornings, 45.38 and 45.39 for three. Self-test fails on a body holding any of the four; mutation (search reverted to shown amounts only) made it FAIL at the 30.25 case, restored with `git checkout --`.
+- **L1-L3 (review-A3)** go to the follow-up list: L1 mixed rounding on S (15.13 vs 4.12) for the walkthrough; L2 idle litres (12.1 L) not reproducing from the 3.3 L/h shown (spec literal); L3 CH5D1-O1 "exactly one priced Site" to reconcile with Kisiwa KIS-6 when the second lane merges.
+- **L4 CLOSED**: stale §7 stops line, "unproven until §6" and the old D3/D4 texts corrected in this packet. The §6 peak working set is still unsampled.
 
 ## Residual risk
 
-- All stored figures (12000 s per morning, 3600 s trial baseline, the 15.125 high) are unproven until §6. The board's money prefix is the consequence read's outward display (`ROUND_CEILING`), so a stored exact 15.125 reads **15.13**, not 15.12 (§2.2's question answered from code: `consequence_read.display`).
+- All stored figures (12000 s per morning, 3600 s trial baseline, the 15.125 high) were read at the §6 scratch prepare (below); the S-board and MONEY-B reads are re-recorded at E3. The board's money prefix is the consequence read's outward display (`ROUND_CEILING`), so a stored exact 15.125 reads **15.13**, not 15.12 (§2.2's question answered from code: `consequence_read.display`).
 - Every Kobo Finding becomes fuel-cost-2 once declared (A1 selection). WK-2a's 42.08 must still hold at §6 (no 0 kW reading inside its Candidate time).
 - The Foundation display name "Generator no-load fuel rate" (backlog item, A3-R §8): grep of `frontend/src` finds no screen that renders a component property's `display_name`; the Foundation views render asset and component names only. Not changed.
 - Template fingerprint goes stale (writer changed); rebuild owed at E2 (MB-1a-R2 §5).
