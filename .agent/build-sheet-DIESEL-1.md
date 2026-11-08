@@ -4509,3 +4509,90 @@ The reviewer found that if a fuel delivery is recorded on the wrong night and th
 ### 9j2.8 Owner questions
 
 None. For the owner's information, in plain words: the system has a rule that every kind of finding must say how it is closed. The unexplained-fuel finding had no such rule yet, so the system would have refused to start. It now states openly how this finding ends. It is withdrawn when a later check no longer supports it. Once a fix is verified, it stays under watch and comes back if fuel goes missing again. It does not yet close by itself after a run of clean nights. While the finding is open, Kisiwa's "Protect" count shows one more item, which is true. That count is not presented as a service outage. The work grows by a tenth of a unit, and the demo date does not move.
+
+---
+
+## 9o. Ruling DIESEL-1-R3n: after K7-D's scratch prepare (E3 timing, the KOBO-001 404s, KIS-3's evidence, K7-F start)
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. READ on main at `c5b25066c` and on `task/DIESEL-K7-kisiwa-story` at `63f60f986` (packet `.agent/review-packet-K7.md`; `tools/demo_combined.py:404-633`; `tools/demo_combined_rows.py:526-590`). Nothing was run.
+- **This ruling amends §9l.3 (K7-F, the scratch prepare, `EXPECTED_SECONDS`), §9l.5's E3 lines and §9m.6's path.** Everything not named here stands.
+
+### 9o.1 E3 timing, restated from measured figures
+
+- **Measured:**
+  - three-Site whole-list prepare: 3585 s (DD-1b2b);
+  - Kisiwa build step (Kisiwa-only scratch): 3568 s (10 days at 315–382 s, mean about 353 s; register 2 s);
+  - Kisiwa-only total: 4199.5 s, so the shared tree, finish, ticks and prebuild cost about 630 s, and they are already inside the 3585 s.
+- **Four-Site estimate:**
+
+  | Part | Seconds |
+  |---|---|
+  | Three-Site prepare as measured | 3585 |
+  | Slack for K4b/K5/K6 reads in the ticks and prebuild since DD-1b2b | 0–300 |
+  | Kisiwa build, as measured | 3568 |
+  | Slack for Kisiwa days built last, on a database that already holds Kobo, Cold and EV (up to +15%) | 0–535 |
+  | Kisiwa's share of the shared steps: mini-depth drain, two ticks and prebuild with a fourth Site, KIS rows in the self-check | 150–400 |
+  | **Total** | **about 7300–8390 s, 2.0–2.35 h** |
+
+- **Margin against the 3 h cap (10800 s): about 2400–3500 s (0.65–0.95 h, 22–32%).** The top of the range is about 600 s under the 2.5 h (9000 s) re-ruling trigger. **It fits. It is not close to 3 h, so there is no owner question.**
+- **Parallel: no.** Kisiwa installs after all three core Sites (§9l.3 install order), every step writes one database at story instants, and the K7-D run's lowest free RAM was 1.91 GB with a single job against the 1.0 GB floor. A second concurrent child would break the "one heavy job" gate and risk the floor.
+- **Trim: none.** Every per-day step is a guard or a product write (publish and accept, the physics and dip checks, assess, raise). None is cut to save time. If K9's rehearsal exceeds 2.5 h, the first lever the Architect will weigh is profiling the per-day cost (where the 353 s go against K1/K3's 180–300 s). It is not parallelism and not a cap raise.
+- **`EXPECTED_SECONDS["kisiwa"]` becomes 3600** in K7-F (10 × about 353 s, plus register, assess and raise; replaces 2520). Comment: `# DIESEL-1-R3n: measured in K7-D's scratch prepare (3568 s build step)`. This only feeds the default 2× cap; E3 and the rehearsal pass `--cap-seconds 10800` explicitly.
+- **K9's rehearsal, restated:** a four-Site whole-list prepare on its own `*_test` database with `--cap-seconds 10800`, keep-awake on, about **2.0–2.35 h** of machine time (was about 1.5 h). It is machine time outside K9's 1.0 lane-units, as before. K9 restates E3 from the rehearsal's measured wall time. **Stops stand:** above 9000 s, the Architect rules before E3. If the run reaches the 10800 s cap, the cap is never raised silently: a higher cap or a cut goes to the owner.
+- **The first four-Site run is K9's rehearsal.** It is also the first run in which Kisiwa sits beside the core Sites in the full self-check. A non-KIS row that fails only because Kisiwa is present (estate or Portfolio counts, COH rows, for example Protect `open_findings` +1, §9j2.5 item 3) is K8's re-expectation, reported as a stop to the Architect. K7-F does not edit those rows.
+
+### 9o.2 The KOBO-001 404s in a Kisiwa-only prepare: expected, not a defect. Leave them alone.
+
+- **Cause (READ):** `performance_and_prebuild` (`tools/demo_combined.py:626-633`) hard-codes `("KOBO-001",)` for the Performance comparison. That call and the prebuild both run with `check=False`. The prebuild warms pages that include Kobo's. Any partial prepare without Kobo (Cold-only, EV-only or Kisiwa-only) prints the same lines. This predates K7, and neither line can fail the prepare.
+- **Decision: no `--sites` skip.** E3, K9's rehearsal and the default prepare after K7-F always include Kobo. A skip would edit a shared step for a scratch-only cosmetic gain, and the three-Site path must stay byte-equal in behaviour (S-9).
+- **K7-F's scratch packet** lists these two lines as "expected in a Kisiwa-only prepare (R3n)". It also **records the prepare's exit code**: it must be 0, and a non-zero exit is stop S-6.
+
+### 9o.3 KIS-3: it already asserts the tolerance; K7-F adds the printed evidence
+
+- `kis3` (`tools/demo_combined_rows.py:555-571`) already asserts every one of the five terms against `Fraction("1/100000")` and fails the row beyond it. A pass therefore means "within 1/100000 L". No new assertion is needed.
+- **What is missing is the evidence.** K7-F adds to KIS-3's pass body `"tolerance_l": "1/100000"` and `"max_diff_l": {term: str(<largest |stored − handover| over the ten nights>)}` for the five terms. The values are exact `Fraction` text. The L0 pass self-test asserts both keys, and every `max_diff_l` is ≤ the tolerance.
+- **Owner: K7-F** (it already edits `T/demo_combined_rows.py` for KIS-9 (e)). Its second scratch packet quotes the printed line.
+- **K7-D's ASSIGN deviation (packet "Deviation") is ratified.** The ASSIGN is recorded at `assign_at` (`S−5d 13:20`) on its own clock, because the Work API refuses an occurred-at more than 5 min after the recorded-at (`B/work/model.py:36`). It is at its story instant, and the calendar is unchanged.
+
+### 9o.4 K7-F starts now, branched from K7-D; the two merge to main together
+
+- **Start now.** K6a and K6b are merged, which was K7-F's dependency.
+- **Branch:** `task/DIESEL-K7F-kisiwa-freeze` in `C:\Users\assef\Bineyame\AssetOpsV1-k7f`, **from `task/DIESEL-K7-kisiwa-story` at `63f60f986`** (this replaces §9l.3's "from main after K6 merges"). Then `git merge main` to bring in K6b. Never rebase.
+- **Scope:** §9l.3 "The freeze step" as fixed by §9m.5, plus this ruling: `EXPECTED_SECONDS` (§9o.1), KIS-3 evidence (§9o.3), the default `--sites` flip, the verification link form and KIS-9 (e).
+- **K7-D's review runs in parallel** on its own branch, against the K7-D diff. Any K7-D fix commits land on `task/DIESEL-K7-kisiwa-story`, and K7-F runs `git merge task/DIESEL-K7-kisiwa-story` before its packet. K7-F's review covers only the K7-F delta (`git diff <K7-D accepted head>...K7-F head`).
+- **Merge:** after **both** reviews ACCEPT, the coordinator merges `task/DIESEL-K7F-kisiwa-freeze` into main **once**. It carries K7-D, and the merge message names both. K7-D is never merged alone, because the R3k2 L2 carry makes a three-Site default fail the KIS rows until the default flips.
+- **Second scratch prepare (K7-F), same command and database as K7-D's:** `python tools/demo_combined.py --db assetops_demo3_kisiwa_test --work var/demo3_kisiwa prepare --sites kisiwa --cap-seconds 5400`.
+  - **When:** after K7-F's L0 tests are green and committed, with main (K6b) merged in.
+  - **Gate (all required):**
+    - only one heavy job on the machine, which the coordinator confirms;
+    - no K5 capture or `serve` reading `assetops_demo3_kisiwa_test` during the run, because the tool drops and recreates it;
+    - free RAM ≥ 2.5 GB for 2 consecutive minutes, sampled every 30 s, with the samples in the packet;
+    - `tools/keep-awake-during-tests.ps1` running (no `-ExecutionPolicy`).
+  - **Cap 5400 s.** Measured 4199.5 s, plus seconds for the freeze and evaluation, is about 1.29×. The worst measured day ×10 gives about 4450 s. Stop at the free-RAM floor of 1.0 GB (S-8). A stall with no output for 10 min is reported, not retried.
+  - **Run with `PYTHONUNBUFFERED=1`**, set in the environment, so the stall rule can actually see output: K7-D's log was blind for about 60 min. Also sample the prepare's peak working set every 60 s (K7-D missed it).
+  - **Reads:**
+    - `demo_combined_kisiwa.py check`: KIS-3 (with `max_diff_l`), KIS-4 and KIS-9 including (e). Every row must pass.
+    - §9m.5's freeze and evaluate assertions, and the verdict as computed.
+    - Seconds per day, the wall time and the exit code.
+  - **Afterwards:** keep the database and work folder until the coordinator confirms K5's captures no longer need them, then `drop`. The K7-F data are a superset of K7-D's, so K5 can capture from them.
+- **K7-F size: 0.5 → 0.65** (range 0.6–0.75):
+  - the second scratch prepare runs about 70 min, not 45, so +0.1;
+  - `EXPECTED_SECONDS`, KIS-3 evidence and the branch merges, +0.05.
+
+  **S-11's K7-F ceiling becomes 0.8.** The increase is reported, not absorbed: **Kisiwa total +0.15.**
+
+### 9o.5 Critical path against the 9.75 tripwire
+
+- R3k2's **9.0**, with K7-F 0.5 → 0.65, gives **about 9.15 lane-units**: spent 3.65 → K4a 1.6 → K6a 0.6 → K6b 1.4 → K7-F 0.65 → K8 captures 0.25 → K9 1.0.
+- **Headroom: about 0.6. No cut, and no owner question.** The cut candidates in §9m.6 stay named if a later stop eats the headroom.
+- K7-D's review runs beside K7-F's build. It joins the path only if a K7-D fix round outlasts K7-F's build and scratch prepare, which take about 0.65 together.
+- K9's rehearsal grows by about 0.5–0.85 h of machine time, outside lane-units. **Demo date:** about +0.1 working day on R3m's +3.4, so about **+3.5** (range 3.0–5.5).
+- **Plan HTML rows (coordinator):**
+  - K7 becomes 2.55, with "K7-D 1.9, K7-F 0.65".
+  - The E3 row becomes "Kisiwa build measured 3568 s (about 353 s per day); four-Site E3 ≈ 2.0–2.35 h of the 3 h cap".
+  - The machine-time note becomes "K7-F scratch about 70 min; rehearsal about 2.0–2.35 h".
+  - The rulings table gains "DIESEL-1-R3n: E3 restated from measured Kisiwa days (2.0–2.35 h, fits the 3 h cap); KOBO-001 lines in a Kisiwa-only scratch expected, no skip; KIS-3 prints `max_diff_l`; K7-F from K7-D, one merge carrying both; K7-F 0.65; path about 9.15".
+
+### 9o.6 Owner questions
+
+None. For the owner's information, in plain words: each Kisiwa example day takes about twice as long to prepare as we estimated, about 6 minutes instead of 3. Preparing the full four-Site demo should now take about 2 to 2⅓ hours, still inside the 3-hour limit you set, with at least 40 minutes to spare. The full practice run will confirm the figure first. If that run takes more than 2½ hours, we will look at it again before the real one. If it ever needs more than 3 hours, we will ask you rather than raise the limit. The work grows by about 0.15 unit, and the demo date moves by about a tenth of a working day.
