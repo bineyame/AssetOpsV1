@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
+from uuid import UUID
 
 import demo_combined_rows as demo_rows
 from assetops_backend.outcomes.display_code import display_code
@@ -1057,11 +1058,11 @@ def _kisiwa_fuel(ctx: Ctx) -> dict | None:
         pins = [o["details"]["baseline"], *o["details"]["later"]]
         read_back = {}
         for p in pins:
-            w = fuel.window(t, s, p["window_id"])
+            w = fuel.window(t, s, UUID(str(p["window_id"])))  # K6b review L4: the store's port takes UUIDs
             if w is not None:
                 read_back[str(p["window_id"])] = {"revision": w.revision, "input_sha256": w.input_sha256}
         lo = datetime.fromisoformat(plan["later_selection_rule"]["candidates"]["from"]).date()
-        windows = {w.night_date: w for w in fuel.windows(t, s, plan["basis"]["tank_asset_id"], lo,
+        windows = {w.night_date: w for w in fuel.windows(t, s, UUID(str(plan["basis"]["tank_asset_id"])), lo,
                                                          lo + timedelta(days=14),
                                                          known_at=o["recorded_at"].astimezone(timezone.utc))}
         with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
