@@ -1,0 +1,327 @@
+[
+ {
+  "screen": "fuel",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1477,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Fuel balance: evidence limitedIllustrates the minimum balance terms; no residual",
+    "top": 354,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Opening evidence | Recorded deliveries | Expected use | Residual",
+    "top": 416,
+    "h": 129,
+    "w": 1161,
+    "children": [
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 563,
+    "h": 271,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 852,
+    "h": 332,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     45,
+     45,
+     45,
+     45,
+     44
+    ],
+    "thead": 33,
+    "cols": [
+     "Term:268",
+     "Evidence basis:379",
+     "Treatment:474"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "A fuel residual is unexplained inventory movement with uncertainty. It cannot es",
+    "top": 1202,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1262,
+    "h": 149,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · fuel reconciliation and uncertainty",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1429,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "fuel",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2125,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Fuel balance: evidence limitedIllustrates the minimum balance terms; no residual",
+    "top": 523,
+    "h": 71,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Opening evidence | Recorded deliveries | Expected use | Residual",
+    "top": 612,
+    "h": 264,
+    "w": 360,
+    "children": [
+     {
+      "top": 612,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 612,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 750,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 750,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 894,
+    "h": 287,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 1199,
+    "h": 526,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 320,
+    "rows": [
+     62,
+     97,
+     80,
+     80,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Term:94",
+     "Evidence basis:115",
+     "Treatment:111"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "A fuel residual is unexplained inventory movement with uncertainty. It cannot es",
+    "top": 1742,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1839,
+    "h": 192,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · fuel reconciliation and uncertainty",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2049,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

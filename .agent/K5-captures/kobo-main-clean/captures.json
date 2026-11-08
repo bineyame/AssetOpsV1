@@ -1,0 +1,124 @@
+[
+ {
+  "name": "kobo-fuel-main",
+  "width": 1440,
+  "url": "http://localhost:5491/sites/KOBO-001/performance/fuel",
+  "wide": [],
+  "pageH": 1201,
+  "scrollW": 1425,
+  "clientW": 1425,
+  "h1": "Kobo mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Inspect existing generator fuel interpretation"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 320,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 381,
+    "h": 114,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 512,
+    "h": 294,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 824,
+    "h": 96,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 938,
+    "h": 61,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1017,
+    "h": 134,
+    "w": 1145
+   }
+  ],
+  "tables": [],
+  "text": "Sites\nKobo mini-grid\nPerformance\nKobo mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nSite-local hour 2026-11-08 12:00–13:00 (Africa/Addis_Ababa)\n8 Nov 2026, 09:00–10:00\nTimes in UTC\nDay\nHour\n00:00\n01:00\n02:00\n03:00\n04:00\n05:00\n06:00\n07:00\n08:00\n09:00\n10:00\n11:00\n12:00\n13:00\n14:00\n15:00\n16:00\n17:00\n18:00\n19:00\n20:00\n21:00\n22:00\n23:00\nApply\nFuel balance: Unknown\nNo selected assessment\nLimited by 1 condition\nOpening evidence\nUnknown\nAccepted tank opening or Unknown\nRecorded deliveries\nDelivery completeness unconfirmed\nComplete delivery record unavailable\nModelled expected use\nUnknown\nModelled quantity unavailable\nResidual\nCannot compute\nCannot compute without complete deliveries\nFuel balance at a glance\n\nOpening + deliveries − use − closing\n\nFuel balance terms\nOpening tank\nUnknown\n+ Deliveries\nUnknown\n− Modelled generator use\nUnknown\n− Closing tank\nUnknown\n= Unexplained\nUnknown\n\nHatched bars are missing evidence. A residual is shown only when every term has a supported range.\n\nBalance bridge\n\nNo fuel hour has been assessed for this period.\n\nUnexplained fuel is fuel that left the tank and that the generator's modelled use and the recorded deliveries don't account for, within a stated margin. It does not say why the fuel left, and it is never added to the generator's possible extra fuel.\nInspect existing generator fuel interpret"
+ },
+ {
+  "name": "kobo-fuel-main",
+  "width": 390,
+  "url": "http://localhost:5491/sites/KOBO-001/performance/fuel",
+  "wide": [],
+  "pageH": 1693,
+  "scrollW": 390,
+  "clientW": 390,
+  "h1": "Kobo mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Inspect existing generator fuel interpretation"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 505,
+    "h": 67,
+    "w": 358
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 589,
+    "h": 291,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 898,
+    "h": 310,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 1226,
+    "h": 96,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 1340,
+    "h": 99,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1457,
+    "h": 193,
+    "w": 358
+   }
+  ],
+  "tables": [],
+  "text": "Sites\nKobo mini-grid\nPerformance\nKobo mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nSite-local hour 2026-11-08 12:00–13:00 (Africa/Addis_Ababa)\n8 Nov 2026, 09:00–10:00\nTimes in UTC\nDay\nHour\n00:00\n01:00\n02:00\n03:00\n04:00\n05:00\n06:00\n07:00\n08:00\n09:00\n10:00\n11:00\n12:00\n13:00\n14:00\n15:00\n16:00\n17:00\n18:00\n19:00\n20:00\n21:00\n22:00\n23:00\nApply\nFuel balance: Unknown\nNo selected assessment\nLimited by 1 condition\nOpening evidence\nUnknown\nAccepted tank opening or Unknown\nRecorded deliveries\nDelivery completeness unconfirmed\nComplete delivery record unavailable\nModelled expected use\nUnknown\nModelled quantity unavailable\nResidual\nCannot compute\nCannot compute without complete deliveries\nFuel balance at a glance\n\nOpening + deliveries − use − closing\n\nFuel balance terms\nOpening tank\nUnknown\n+ Deliveries\nUnknown\n− Modelled generator use\nUnknown\n− Closing tank\nUnknown\n= Unexplained\nUnknown\n\nHatched bars are missing evidence. A residual is shown only when every term has a supported range.\n\nBalance bridge\n\nNo fuel hour has been assessed for this period.\n\nUnexplained fuel is fuel that left the tank and that the generator's modelled use and the recorded deliveries don't account for, within a stated margin. It does not say why the fuel left, and it is never added to the generator's possible extra fuel.\nInspect existing generator fuel interpret"
+ }
+]

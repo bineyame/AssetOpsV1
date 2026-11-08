@@ -1,0 +1,694 @@
+[
+ {
+  "name": "kisiwa-fuel-n4",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KISIWA-001/performance/fuel?night=2026-10-31",
+  "wide": [],
+  "pageH": 1632,
+  "scrollW": 1425,
+  "clientW": 1425,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Finding for this night"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 320,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 381,
+    "h": 103,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 501,
+    "h": 294,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 813,
+    "h": 353,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1184,
+    "h": 162,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 1363,
+    "h": 61,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Finding for this night",
+    "top": 1443,
+    "h": 140,
+    "w": 1145
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 273,
+    "boxScrollH": 273
+   },
+   {
+    "rows": 2,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 82,
+    "boxScrollH": 82
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nPerformance\nKisiwa island mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nNight\nNight of 28 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 29 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 30 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 31 Oct · 6 pm to noon · Fuel balance: unexplained fuel\nNight of 1 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 2 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 3 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 4 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 5 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 6 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nPrevious night\nNext night\nFuel balance: unexplained fuel\nSelected sources: Example data, not field readings\nThe tank sensor sent no readings from 00:45 to 02:30.\nOpening evidence\n869.2 L\nTank reading at 18:00\nRecorded deliveries\nNone recorded\nAbsence of record does not prove none occurred\nModelled expected use\n39.1–47.8 L\nModelled: 122.3 kWh × 0.355 L/kWh, 10 % either way\nResidual\n95.7–144.3 L\nAbove the 40 L the check flags\nFuel balance at a glance\n\nOpening + del"
+ },
+ {
+  "name": "kisiwa-fuel-n4",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KISIWA-001/performance/fuel?night=2026-10-31",
+  "wide": [
+   {
+    "tag": "LABEL",
+    "cls": "v69-chip-field",
+    "w": 456,
+    "c": false
+   },
+   {
+    "tag": "SELECT",
+    "cls": "v69-chip-control",
+    "w": 423,
+    "c": false
+   }
+  ],
+  "pageH": 2337,
+  "scrollW": 473,
+  "clientW": 390,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Finding for this night"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 492,
+    "h": 93,
+    "w": 358
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 603,
+    "h": 243,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 864,
+    "h": 343,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 1225,
+    "h": 579,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1822,
+    "h": 162,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 2002,
+    "h": 99,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Finding for this night",
+    "top": 2119,
+    "h": 177,
+    "w": 358
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 318,
+    "scrollsInOwnPanel": true,
+    "boxW": 318,
+    "boxScrollW": 318,
+    "boxH": 500,
+    "boxScrollH": 536
+   },
+   {
+    "rows": 2,
+    "tableW": 318,
+    "scrollsInOwnPanel": true,
+    "boxW": 318,
+    "boxScrollW": 318,
+    "boxH": 82,
+    "boxScrollH": 82
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nPerformance\nKisiwa island mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nNight\nNight of 28 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 29 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 30 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 31 Oct · 6 pm to noon · Fuel balance: unexplained fuel\nNight of 1 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 2 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 3 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 4 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 5 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 6 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nPrevious night\nNext night\nFuel balance: unexplained fuel\nSelected sources: Example data, not field readings\nThe tank sensor sent no readings from 00:45 to 02:30.\nOpening evidence\n869.2 L\nTank reading at 18:00\nRecorded deliveries\nNone recorded\nAbsence of record does not prove none occurred\nModelled expected use\n39.1–47.8 L\nModelled: 122.3 kWh × 0.355 L/kWh, 10 % either way\nResidual\n95.7–144.3 L\nAbove the 40 L the check flags\nFuel balance at a glance\n\nOpening + del"
+ },
+ {
+  "name": "kisiwa-fuel-n6",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KISIWA-001/performance/fuel?night=2026-11-02",
+  "wide": [],
+  "pageH": 1643,
+  "scrollW": 1425,
+  "clientW": 1425,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Finding for this night"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 320,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 381,
+    "h": 103,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 501,
+    "h": 294,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 813,
+    "h": 353,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1184,
+    "h": 209,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 1411,
+    "h": 61,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Finding for this night",
+    "top": 1490,
+    "h": 103,
+    "w": 1145
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 273,
+    "boxScrollH": 273
+   },
+   {
+    "rows": 3,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 130,
+    "boxScrollH": 130
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nPerformance\nKisiwa island mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nNight\nNight of 28 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 29 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 30 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 31 Oct · 6 pm to noon · Fuel balance: unexplained fuel\nNight of 1 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 2 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 3 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 4 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 5 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 6 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nPrevious night\nNext night\nFuel balance: accounted for within the margin\nSelected sources: Example data, not field readings\nOpening evidence\n662.4 L\nTank reading at 18:00\nRecorded deliveries\nNone recorded\nAbsence of record does not prove none occurred\nModelled expected use\n39.1–47.8 L\nModelled: 122.3 kWh × 0.355 L/kWh, 10 % either way\nResidual\n-24.3–24.3 L\nZero lies inside this range\nFuel balance at a glance\n\nOpening + deliveries − use − closing\n\nFuel balance term"
+ },
+ {
+  "name": "kisiwa-fuel-n6",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KISIWA-001/performance/fuel?night=2026-11-02",
+  "wide": [
+   {
+    "tag": "LABEL",
+    "cls": "v69-chip-field",
+    "w": 456,
+    "c": false
+   },
+   {
+    "tag": "SELECT",
+    "cls": "v69-chip-control",
+    "w": 423,
+    "c": false
+   }
+  ],
+  "pageH": 2303,
+  "scrollW": 473,
+  "clientW": 390,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Finding for this night"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 492,
+    "h": 70,
+    "w": 358
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 580,
+    "h": 243,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 842,
+    "h": 343,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 1203,
+    "h": 579,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1800,
+    "h": 209,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 2027,
+    "h": 99,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Finding for this night",
+    "top": 2144,
+    "h": 117,
+    "w": 358
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 318,
+    "scrollsInOwnPanel": true,
+    "boxW": 318,
+    "boxScrollW": 318,
+    "boxH": 500,
+    "boxScrollH": 536
+   },
+   {
+    "rows": 3,
+    "tableW": 318,
+    "scrollsInOwnPanel": true,
+    "boxW": 318,
+    "boxScrollW": 318,
+    "boxH": 130,
+    "boxScrollH": 130
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nPerformance\nKisiwa island mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nNight\nNight of 28 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 29 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 30 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 31 Oct · 6 pm to noon · Fuel balance: unexplained fuel\nNight of 1 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 2 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 3 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 4 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 5 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 6 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nPrevious night\nNext night\nFuel balance: accounted for within the margin\nSelected sources: Example data, not field readings\nOpening evidence\n662.4 L\nTank reading at 18:00\nRecorded deliveries\nNone recorded\nAbsence of record does not prove none occurred\nModelled expected use\n39.1–47.8 L\nModelled: 122.3 kWh × 0.355 L/kWh, 10 % either way\nResidual\n-24.3–24.3 L\nZero lies inside this range\nFuel balance at a glance\n\nOpening + deliveries − use − closing\n\nFuel balance term"
+ },
+ {
+  "name": "kisiwa-fuel-n2",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KISIWA-001/performance/fuel?night=2026-10-29",
+  "wide": [],
+  "pageH": 1595,
+  "scrollW": 1425,
+  "clientW": 1425,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Fuel balance at a glance",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Finding for this night"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 320,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "",
+    "top": 381,
+    "h": 103,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 501,
+    "h": 294,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 813,
+    "h": 353,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1184,
+    "h": 162,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Unexplained fuel is fuel that left the tank and that the gen",
+    "top": 1363,
+    "h": 61,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Finding for this night",
+    "top": 1443,
+    "h": 103,
+    "w": 1145
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 273,
+    "boxScrollH": 273
+   },
+   {
+    "rows": 2,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 82,
+    "boxScrollH": 82
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nPerformance\nKisiwa island mini-grid\nExample data\n\nReview the generator-use model and incomplete inventory balance.\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nService\nDispatch\nFuel\nRenewable\nBackup\nNight\nNight of 28 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 29 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 30 Oct · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 31 Oct · 6 pm to noon · Fuel balance: unexplained fuel\nNight of 1 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 2 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 3 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 4 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 5 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nNight of 6 Nov · 6 pm to noon · Fuel balance: accounted for within the margin\nPrevious night\nNext night\nFuel balance: accounted for within the margin\nSelected sources: Example data, not field readings\nOpening evidence\n656.1 L\nTank reading at 18:00\nRecorded deliveries\n300 L\n1 delivery record\nModelled expected use\n39.1–47.8 L\nModelled: 122.3 kWh × 0.355 L/kWh, 10 % either way\nResidual\n-27.3–27.3 L\nZero lies inside this range\nFuel balance at a glance\n\nOpening + deliveries − use − closing\n\nFuel balance terms\nOpening tank\n656.1 L\n+ Deliveries\n3"
+ },
+ {
+  "name": "kisiwa-fuel-finding-n4",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KISIWA-001/fuel-findings/bddd2f26-0f32-4d8f-853e-8f711a86e6f9",
+  "wide": [],
+  "pageH": 1269,
+  "scrollW": 1425,
+  "clientW": 1425,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "How the night was checked",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Versions"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 217,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "How the night was checked",
+    "top": 447,
+    "h": 473,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 507,
+    "h": 353,
+    "w": 1105
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 939,
+    "h": 162,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Versions",
+    "top": 1118,
+    "h": 101,
+    "w": 1145
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 1050,
+    "scrollsInOwnPanel": true,
+    "boxW": 1050,
+    "boxScrollW": 1050,
+    "boxH": 273,
+    "boxScrollH": 273
+   },
+   {
+    "rows": 2,
+    "tableW": 1090,
+    "scrollsInOwnPanel": true,
+    "boxW": 1090,
+    "boxScrollW": 1090,
+    "boxH": 82,
+    "boxScrollH": 82
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nFindings\nUnexplained fuel overnight\nKisiwa island mini-grid\nExample data\n\nFindings · conclusions about this site and the limits of their evidence\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSupported by the latest check\nNight of 31 Oct · 6 pm to noon\nSelected sources: Example data, not field readings\n\nAbout 95.7–144.3 L left the tank on the night of 31 Oct (6 pm to noon) that the generator's modelled use and the recorded deliveries don't explain.\n\nThe tank sensor sent no readings from 00:45 to 02:30.\nWorth about 119.57–180.43 USD at your declared 1.25 USD per litre (a modelled range that includes the stated margin)\nThe range allows for the tank sensor's declared accuracy of 10 L at each reading, 10 % either way on the generator's modelled use, and 1 % on each recorded delivery.\nThis does not say why the fuel left the tank.\nHow the night was checked\nBalance bridge\nTERM\tEVIDENCE BASIS\tTREATMENT\nOpening inventory · 869.2 L\tTank reading at 18:00 · 1 cited record · Evidence\tDeclared sensor accuracy ±10 L\nPlus deliveries · None recorded\tNo delivery record · 0 cited records\t1 % allowance on each ticket\nLess generator consumption · 39.1–47.8 L\tGenerator output × declared fuel coefficient · 528 cited records · Evidence\tModelled range, not a fuel-meter reading\nLess closing inventory · 705.8 L\tTank reading at 12:15 · 1 cited record · Evidence\tDeclared sensor accuracy ±10 L\nUnexplained residual · 95.7–144.3 L\tOpening + deliverie"
+ },
+ {
+  "name": "kisiwa-fuel-finding-n4",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KISIWA-001/fuel-findings/bddd2f26-0f32-4d8f-853e-8f711a86e6f9",
+  "wide": [],
+  "pageH": 1902,
+  "scrollW": 390,
+  "clientW": 390,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "How the night was checked",
+   "Balance bridge",
+   "Deliveries and tank dips",
+   "Versions"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 401,
+    "h": 70,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "How the night was checked",
+    "top": 841,
+    "h": 700,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 900,
+    "h": 579,
+    "w": 318
+   },
+   {
+    "kind": "panel",
+    "title": "Deliveries and tank dips",
+    "top": 1558,
+    "h": 162,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Versions",
+    "top": 1738,
+    "h": 122,
+    "w": 358
+   }
+  ],
+  "tables": [
+   {
+    "rows": 6,
+    "tableW": 278,
+    "scrollsInOwnPanel": true,
+    "boxW": 278,
+    "boxScrollW": 278,
+    "boxH": 500,
+    "boxScrollH": 630
+   },
+   {
+    "rows": 2,
+    "tableW": 318,
+    "scrollsInOwnPanel": true,
+    "boxW": 318,
+    "boxScrollW": 318,
+    "boxH": 82,
+    "boxScrollH": 82
+   }
+  ],
+  "text": "Sites\nKisiwa island mini-grid\nFindings\nUnexplained fuel overnight\nKisiwa island mini-grid\nExample data\n\nFindings · conclusions about this site and the limits of their evidence\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSupported by the latest check\nNight of 31 Oct · 6 pm to noon\nSelected sources: Example data, not field readings\n\nAbout 95.7–144.3 L left the tank on the night of 31 Oct (6 pm to noon) that the generator's modelled use and the recorded deliveries don't explain.\n\nThe tank sensor sent no readings from 00:45 to 02:30.\nWorth about 119.57–180.43 USD at your declared 1.25 USD per litre (a modelled range that includes the stated margin)\nThe range allows for the tank sensor's declared accuracy of 10 L at each reading, 10 % either way on the generator's modelled use, and 1 % on each recorded delivery.\nThis does not say why the fuel left the tank.\nHow the night was checked\nBalance bridge\nTERM\tEVIDENCE BASIS\tTREATMENT\nOpening inventory · 869.2 L\tTank reading at 18:00 · 1 cited record · Evidence\tDeclared sensor accuracy ±10 L\nPlus deliveries · None recorded\tNo delivery record · 0 cited records\t1 % allowance on each ticket\nLess generator consumption · 39.1–47.8 L\tGenerator output × declared fuel coefficient · 528 cited records · Evidence\tModelled range, not a fuel-meter reading\nLess closing inventory · 705.8 L\tTank reading at 12:15 · 1 cited record · Evidence\tDeclared sensor accuracy ±10 L\nUnexplained residual · 95.7–144.3 L\tOpening + deliverie"
+ },
+ {
+  "name": "kisiwa-findings",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KISIWA-001/findings?from=2026-10-28T00:00:00Z&to=2026-11-08T00:00:00Z",
+  "wide": [],
+  "pageH": 1000,
+  "scrollW": 1440,
+  "clientW": 1440,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Findings at this site",
+   "Fuel checks"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 266,
+    "h": 90,
+    "w": 1160
+   },
+   {
+    "kind": "panel",
+    "title": "Findings at this site",
+    "top": 374,
+    "h": 257,
+    "w": 1160
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel checks",
+    "top": 648,
+    "h": 101,
+    "w": 1160
+   }
+  ],
+  "tables": [],
+  "text": "Sites\nKisiwa island mini-grid\nFindings\nKisiwa island mini-grid\nExample data\n\nFindings · conclusions about this site and the limits of their evidence\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nAll\nCost Not available yet\nRisks Not available yet\nOpportunities Not available yet\nFindings list closed for this Site\nNot released for this Site\nThis Site's assessments are not released, so no Findings list can be shown. It is not empty.\nMini-grid dispatch Findings at this site · 28 Oct 2026 to 7 Nov 2026 · As of: time not recorded\nManage in Findings →\nFindings at this site\n\nDomain links back to the Performance view that produced the finding.\n\nOpportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.\n\nFrom\nTo (included)\nShow Findings\nTimes in UTC\n\nNo Performance comparison report exists for this Site; the file-backed comparison must run.\n\nNo Findings are listed and no count is given. A link to an exact Finding version still opens it as audit material.\n\nFuel checks\nUnexplained fuel overnight · 31 Oct · about 95.7–144.3 L"
+ },
+ {
+  "name": "kisiwa-findings",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KISIWA-001/findings?from=2026-10-28T00:00:00Z&to=2026-11-08T00:00:00Z",
+  "wide": [],
+  "pageH": 1239,
+  "scrollW": 390,
+  "clientW": 390,
+  "h1": "Kisiwa island mini-grid",
+  "h2": [
+   "Findings at this site",
+   "Fuel checks"
+  ],
+  "panels": [
+   {
+    "kind": "statusbar",
+    "title": "statusbar",
+    "top": 462,
+    "h": 160,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Findings at this site",
+    "top": 640,
+    "h": 417,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel checks",
+    "top": 1076,
+    "h": 122,
+    "w": 358
+   }
+  ],
+  "tables": [],
+  "text": "Sites\nKisiwa island mini-grid\nFindings\nKisiwa island mini-grid\nExample data\n\nFindings · conclusions about this site and the limits of their evidence\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nAll\nCost Not available yet\nRisks Not available yet\nOpportunities Not available yet\nFindings list closed for this Site\nNot released for this Site\nThis Site's assessments are not released, so no Findings list can be shown. It is not empty.\nMini-grid dispatch Findings at this site · 28 Oct 2026 to 7 Nov 2026 · As of: time not recorded\nManage in Findings →\nFindings at this site\n\nDomain links back to the Performance view that produced the finding.\n\nOpportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.\n\nFrom\nTo (included)\nShow Findings\nTimes in UTC\n\nNo Performance comparison report exists for this Site; the file-backed comparison must run.\n\nNo Findings are listed and no count is given. A link to an exact Finding version still opens it as audit material.\n\nFuel checks\nUnexplained fuel overnight · 31 Oct · about 95.7–144.3 L"
+ }
+]

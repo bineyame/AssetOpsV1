@@ -120,6 +120,7 @@ import {
   siteEvidenceRecordHref,
   siteEvidenceAcceptedRecordHref,
   siteFindingHref,
+  siteFuelFindingHref,
   siteFindingViewHref,
   siteFindingAlternativesHref,
   siteFindingsHref,
@@ -139,6 +140,8 @@ import {
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
+import { createFuelBalanceClient, type FuelBalanceClient } from "../sites/fuelBalanceClient";
+import { SiteFuelChecks, SiteFuelFindingBody, useFuelFinding } from "../sites/SiteFuelFinding";
 import { AffectsLine, type OutcomeCategories } from "../sites/outcomeCategories";
 import { miniBoardDay, SiteEarlyWarnings } from "../sites/EarlyWarnings";
 import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
@@ -217,6 +220,9 @@ const DEFAULT_COLD_DEPTH = createColdDepthClient();
 
 const DEFAULT_MINI_DEPTH = createMiniDepthClient();
 
+/** DIESEL-K5: the fuel-balance night and fuel Finding reads (night mode, the fuel Finding page, "Fuel checks"). */
+const DEFAULT_FUEL_BALANCE = createFuelBalanceClient();
+
 /** W5-03a: the EV Performance subtabs with a live page. */
 const EV_PERFORMANCE_VIEWS: Record<string, EvPerformanceView> = { sessions: "sessions", availability: "availability", energy: "energy" };
 
@@ -232,10 +238,13 @@ export function SitePerformanceFrame({
   miniDecisions,
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
+  fuelBalance = DEFAULT_FUEL_BALANCE,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  /** DIESEL-K5: the fuel-balance nights; a MINIGRID Site with stored windows renders the Fuel page in night mode. */
+  fuelBalance?: FuelBalanceClient;
   /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
   coldAssessment?: ColdAssessmentClient;
   /** W2-06: the selected EV session reads; an EV_CHARGING Site renders `sessions` from them. */
@@ -367,6 +376,7 @@ export function SitePerformanceFrame({
                   timeZone={timeZone}
                   window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
                   pageHref={pageHref}
+                  fuelBalance={fuelBalance}
                 />
               ) : (
                 <MiniRenewable
@@ -478,11 +488,14 @@ export function SiteFindingsFrame({
   coldAssessment,
   evAssessment,
   outcomeBoard,
+  fuelBalance = DEFAULT_FUEL_BALANCE,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  /** DIESEL-K5 (MD-FUEL-K5-3): a MINIGRID Site's fuel Findings, listed under the dispatch table when there are any. */
+  fuelBalance?: FuelBalanceClient;
   /** OUT-C U5: the Site board, for the early-warning list under the Findings list. */
   outcomeBoard?: OutcomeBoardClient;
   /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
@@ -557,6 +570,15 @@ export function SiteFindingsFrame({
             opportunityHelper={site.site_type === "MINIGRID"}
             client={findingIndex}
             scope={scope}
+            fuelChecks={
+              // Only a Site with fuel Findings (a MINIGRID Site with a fuel tank) gets rows; with none it renders nothing.
+              <SiteFuelChecks
+                client={fuelBalance}
+                siteCode={site.site_id}
+                window={{ from: scope.from, to: scope.to }}
+                findingHref={(id) => siteFuelFindingHref(site.site_id, id)}
+              />
+            }
             earlyWarnings={
               outcomeBoard === undefined || site.site_type !== "MINIGRID" ? null : (
                 <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={{ date: miniBoardDay(scope.to) }} />
@@ -2546,6 +2568,77 @@ export function SiteWorkCasesFrame({
         );
       }}
     </SiteScoped>
+  );
+}
+
+/**
+ * DIESEL-K5 (DIESEL-1-R3l): the unexplained-fuel Finding at its own address (`SITE_FUEL_FINDING_ROUTE_PATH`); the
+ * dispatch Finding frame and route are not edited. `?revision_id=` pins a stored version, as on the dispatch page.
+ * MOCK DEVIATION MD-FUEL-K4-1 (DIESEL-1-R3j): v69 has no unexplained-fuel Finding page (index.html:630).
+ */
+export const SITE_FUEL_FINDING_HEADING_ID = "site-fuel-finding-heading";
+
+export function SiteFuelFindingFrame({
+  detail,
+  sitesPath,
+  client = DEFAULT_FUEL_BALANCE,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  client?: FuelBalanceClient;
+}) {
+  const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  const [params] = useSearchParams();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Findings" headingId={SITE_FUEL_FINDING_HEADING_ID}>
+      {(site) => (
+        <SiteFuelFindingPage site={site} sitesPath={sitesPath} siteId={siteId} findingId={findingId ?? ""} revisionId={params.get("revision_id")} client={client} />
+      )}
+    </SiteScoped>
+  );
+}
+
+function SiteFuelFindingPage({
+  site,
+  sitesPath,
+  siteId,
+  findingId,
+  revisionId,
+  client,
+}: {
+  site: LoadedSite;
+  sitesPath: string;
+  siteId: string | undefined;
+  findingId: string;
+  revisionId: string | null;
+  client: FuelBalanceClient;
+}) {
+  const read = useFuelFinding(client, site.site_id, findingId, revisionId);
+  const title = read?.status === "loaded" ? read.value.lines.title : null;
+  return (
+    <main aria-labelledby={SITE_FUEL_FINDING_HEADING_ID}>
+      <Breadcrumbs
+        trail={[
+          { label: "Sites", to: sitesPath },
+          { label: site.display_name, to: siteDetailHref(site.site_id) },
+          title === null ? { label: "Findings" } : { label: "Findings", to: siteFindingsHref(site.site_id) },
+          ...(title === null ? [] : [{ label: title }]),
+        ]}
+      />
+      <SitePageHeader
+        siteName={site.display_name}
+        siteId={site.site_id}
+        mode={siteSourceModeLabel(site)}
+        description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
+        headingId={SITE_FUEL_FINDING_HEADING_ID}
+      />
+      <OperatorSiteTabs siteId={siteId} current="Findings" />
+      <SiteFuelFindingBody
+        read={read}
+        revisionHref={(revision) => siteFuelFindingHref(site.site_id, findingId, revision)}
+        nightHref={(night) => `${sitePerformanceHref(site.site_id, "fuel")}?night=${encodeURIComponent(night)}`}
+      />
+    </main>
   );
 }
 

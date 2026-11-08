@@ -45,6 +45,8 @@ import {
   type ServiceRow,
 } from "./miniDepthClient";
 import type { MiniDecisionsClient } from "./miniDecisionsClient";
+import type { FuelBalanceClient } from "./fuelBalanceClient";
+import { MiniFuelNightsPage, useFuelNights } from "./MiniFuelNights";
 import { OpportunityDecisionEntry } from "./MiniOpportunity";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
@@ -1593,21 +1595,26 @@ export function MiniFuel({
   timeZone,
   window,
   pageHref,
+  fuelBalance,
 }: {
   client: MiniDepthClient;
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
   pageHref: (search: string) => string;
+  /** DIESEL-K5 (DIESEL-1-R3l): with stored fuel-balance windows the page is in night mode; otherwise hour mode. */
+  fuelBalance?: FuelBalanceClient;
 }): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
+  const nights = useFuelNights(fuelBalance, siteCode);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<FuelRead>(
     () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window)),
     key,
     attempt,
   );
+  if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} />;
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
