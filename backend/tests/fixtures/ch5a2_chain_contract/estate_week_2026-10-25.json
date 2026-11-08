@@ -96,6 +96,8 @@
    },
    "days_line": "Kobo: 6 of 7 days checked · 1 partly checked · GreenHarvest: 0 of 7 days checked · 2 partly checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
    "detail": "Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced",
+   "fuel_lines": [],
+   "fuel_note": null,
    "missing": false,
    "tone": "neutral",
    "value": {

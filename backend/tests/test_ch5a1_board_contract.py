@@ -260,6 +260,15 @@ def services(port: Port, never: list[str]) -> BoardServices:
             rows = [B3.DA1] if c == COLD.site_code else [B3.EA1]
             return {"rows": copy.deepcopy(rows), "next_cursor": None}
 
+    class NoFuelBalance:
+        """DIESEL-K4b (R3j2): Kobo stores no fuel-balance window (MG-8 not applicable); no other read is made."""
+
+        def night_context(self, t, s):
+            return ADDIS, None, KNOWN
+
+        def has_windows(self, t, s, known_at):
+            return False
+
     return BoardServices(
         overview=Never("mini_overview", never),
         overview_source=open_gate, mini_depth=Depth(), dispatch=Dispatch(), performance_gate=open_gate,
@@ -267,7 +276,8 @@ def services(port: Port, never: list[str]) -> BoardServices:
         parse_action_index=lambda *a: a, estate=Estate(), cold_site=ColdSite(), cold_reads=ColdReads(),
         ev_site=EvSite(), ev_reads=EvReads(), ev_depth=EvDepth(), domain_actions=DomainActions(),
         parse_domain_index=lambda *a: a,
-        chain_reader=ChainReader(port, verification=_verification, money=_money), threads=Opportunities())
+        chain_reader=ChainReader(port, verification=_verification, money=_money), threads=Opportunities(),
+        fuel_balance=NoFuelBalance())
 
 
 CASES = {
