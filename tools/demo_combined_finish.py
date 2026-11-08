@@ -958,6 +958,8 @@ def mill5(ctx: Ctx) -> dict:
     verified text), its headline count equals the verified entries, the week `/api/estate/chain` verified claim is
     Σ threads.verified + Σ threads.verified_actions with Kobo's mill counted once, and the mill's one stored
     `verification_outcome` is VERIFIED (SQL)."""
+    import psycopg
+
     m = _mill(ctx)
     action_id, code = m["action"]["id"], m["action"]["code"]  # `mill.json` (tools/demo_combined_mill.py:179)
     week = ctx.get("/api/estate/chain", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
@@ -1179,10 +1181,21 @@ def kis_ov(ctx: Ctx) -> dict:
     from assetops_backend.evidence.composition import build_performance_comparison_reports
 
     report = build_performance_comparison_reports().latest(KISIWA)
-    states = {label: ctx.get(f"/api/sites/{KISIWA}/outcome-board",
-                             date=ctx.day(offset).date().isoformat()).get("read_state")
+    bodies = {label: ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=ctx.day(offset).date().isoformat())
               for label, offset in (("S-5d", -5), ("S", 0))}
-    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, states, report)}
+    states = {label: body.get("read_state") for label, body in bodies.items()}
+
+    def second_read() -> dict:  # R3u U7: the same day by the local from/to pair, recorded when the pin fails
+        from zoneinfo import ZoneInfo
+
+        d = ctx.day(-5).date()
+        zone = ZoneInfo(demo_rows.KIS_ZONE)
+        lo, hi = (demo_rows.site_day_start(x, zone).strftime("%Y-%m-%dT%H:%M:%SZ") for x in (d, d + timedelta(days=1)))
+        b = ctx.get(f"/api/sites/{KISIWA}/outcome-board", **{"from": lo, "to": hi})
+        protect = next((r for r in b.get("rows") or () if r.get("category") == "PROTECT_ASSET"), None) or {}
+        return {"read_state": b.get("read_state"), "warnings": b.get("warnings"), "protect_state": protect.get("state")}
+
+    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, states, report, bodies["S-5d"], second_read)}
 
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:

@@ -257,6 +257,16 @@ def test_pva_reads_the_mill_line_the_trial_case_and_no_sum() -> None:
             rows.pv_values(summary, _value_page(), "ACT-000002", "ACT-001", cc)
 
 
+def test_pva_zero_addend_is_no_sum_but_a_planted_nonzero_sum_is_still_found() -> None:
+    """R3u U1 site 3: an entry amount of 0.00 shows no adding (mill + 0.00 is the mill's own printed amount)."""
+    summary = _pva_summary()
+    summary["sites"][0]["rows"][0]["nodes"]["verified_values"][1]["amount"] = "0.00"
+    got = rows.pv_values(summary, _value_page(), "ACT-000002", "ACT-001", _pva_cost_check())
+    assert got["sums_checked"] == 0
+    with pytest.raises(AssertionError, match="holds a sum"):
+        rows.pv_values(_pva_summary(detail="21.12 USD"), _value_page(), "ACT-000002", "ACT-001", _pva_cost_check())
+
+
 KW = re.compile(r"\d+–\d+ kW of daytime solar unused")
 
 
@@ -918,12 +928,17 @@ def _kis6(verdict: str = "VERIFIED", verified: int = 1, board_protect: str = "NE
     portfolio = {"objectives": [{"site_code": c} for c in objectives]}
     board = {"rows": [{"category": "PROTECT_ASSET", "state": board_protect},
                       {"category": "ASSURE_PERFORMANCE", "state": "ON_TRACK"}]}
-    return summary, chain, portfolio, board, {"verdict": verdict}, s_day
+    return summary, chain, portfolio, board, {"verdict": {"state": verdict, "stored": True}}, s_day
 
 
 def test_kis6_counts_cells_and_assure_pass_and_each_item_fails() -> None:
     got = rows.kis6(*_kis6())
+    # R3u U5: a dict verdict VERIFIED passes and reaches the Assure card claim and the H2 asserts (the return)
     assert got["want_verified"] == 1 and got["assure_card"] == 2 and got["sites"]["objectives"] == FOUR
+    assert got["verdict"] == "VERIFIED" and got["chain_verified_results"] == 2
+    s, ch, po, bo, doc, day = _kis6()
+    with pytest.raises(AssertionError, match="Kisiwa verified threads"):  # no verdict at all: want 0, chain says 1
+        rows.kis6(s, ch, po, bo, {"verdict": None}, day)
     assert rows.kis6(*_kis6(verdict="INEFFECTIVE", verified=0))["want_verified"] == 0  # read from data, never forced
     for name, body in {"1: three objective Sites": _kis6(objectives=FOUR[:2] + FOUR[3:]),
                        "2: a cell differs from the S board": _kis6(board_protect="ON_TRACK"),
@@ -993,12 +1008,21 @@ def test_kis7_expectations_from_data_pass_and_each_break_fails() -> None:
     assert got["priced_on_s"] == ["KOBO-001"] and got["kisiwa_priced_on_s"] is False
     assert got["d1"] == "2026-10-28" and asked == ["2026-10-28"] and got["d1_amount_high"] == "7.5"
     assert got["sums_checked"] == 0 and "not reached" in got["multi_site_bodies"]
-    assert got["d1_priced"].startswith("REPORT-ONLY (R3s2): priced")
-    # R3s2: item 3 (d1 priced) is report-only; an unpriced d1 passes and reports the reason
-    unpriced = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(None))
+    assert got["d1_priced"] == "priced and equal"
+    # R3u U8: item 3 (d1 priced) asserts again: an unpriced d1 or a differing d1 amount fails
+    for board in (_board7(None), _board7("7.6")):
+        with pytest.raises(AssertionError, match="KIS-7 item 3"):
+            rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, board)
+    # a lead head that is not PRICED fails too (d1 lead is f1)
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], [{**_HEADS7[0], "state": "UNPRICED"}, _HEADS7[1]], _S7, _board7())
+    # the R3s2 report-only form stays reachable (K10 held)
+    unpriced = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(None), item3_report_only=True)
     assert unpriced["d1_amount_high"] is None
+    assert "REPORT-ONLY (R3s2)" in unpriced["d1_priced"]
     assert "d1 is unsettled: no `productive_kwh` subject (R3s2)" in unpriced["d1_priced"]
-    assert "differs" in rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6"))["d1_priced"]
+    assert "differs" in rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6"),
+                                  item3_report_only=True)["d1_priced"]
     for name, args in {
             "Kisiwa priced on S while expected unpriced": (_kis7("7.5"), [_kis7()], _HEADS7, _S7, _board7()),
             "item 1: card differs from the priced Sites": ({**_kis7(), "cards": {"OPTIMIZE_COST": {
@@ -1050,7 +1074,8 @@ _OV_BOARDS = {"S-5d": "AVAILABLE", "S": "AVAILABLE"}
 def test_kis_ov_pass_and_each_break_fails() -> None:
     got = rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT)
     assert got == {"overview_status": {"S-5d": 200, "S": 200}, "basis": "NO_LEGACY_EVIDENCE",
-                   "performance_report": {"outcome": "PASSED", "empty_set": True}, "board_read_state": _OV_BOARDS}
+                   "performance_report": {"outcome": "PASSED", "empty_set": True}, "board_read_state": _OV_BOARDS,
+                   "s5d_protect": None}
     for name, (reads, basis, boards, report) in {
             "409 awaiting evidence migration": (_ov_reads(409, "AWAITING_EVIDENCE_MIGRATION"), _OV_BASIS, _OV_BOARDS,
                                                 _OV_REPORT),
@@ -1069,6 +1094,33 @@ def test_kis_ov_pass_and_each_break_fails() -> None:
         with pytest.raises(AssertionError):
             rows.kis_ov(reads, basis, boards, report)
             pytest.fail(name)
+
+
+def _s5d_board(protect="NEEDS_ATTENTION", mg8=("NEEDS_ATTENTION", "PRIMARY_FINDING_OPEN"), read_state="AVAILABLE"):
+    outcomes = [{"key": "MG-5", "state": "UNKNOWN", "reason": "PRODUCER_NOT_SETTLED"}]
+    if mg8 is not None:
+        outcomes.append({"key": "MG-8", "state": mg8[0], "reason": mg8[1]})
+    return {"read_state": read_state, "warnings": [], "rows": [
+        {"category": "PROTECT_ASSET", "state": protect, "outcomes": outcomes}]}
+
+
+def test_kis_ov_pins_the_s5d_protect_row_and_mg8_entry_r3u() -> None:
+    """R3u U7: Protect NEEDS_ATTENTION and MG-8 {NEEDS_ATTENTION, PRIMARY_FINDING_OPEN}; the lead is not asserted."""
+    got = rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, _s5d_board())
+    assert got["s5d_protect"] == "NEEDS_ATTENTION"
+    for name, board in {"the packet's UNKNOWN / PRODUCER_NOT_SETTLED shape": _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED")),
+                        "Protect UNKNOWN": _s5d_board(protect="UNKNOWN"),
+                        "MG-8 another reason": _s5d_board(mg8=("NEEDS_ATTENTION", "OTHER")),
+                        "MG-8 absent": _s5d_board(mg8=None)}.items():
+        with pytest.raises(AssertionError, match="R3u-s1"):
+            rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, board)
+            pytest.fail(name)
+    # the failure records the board's read_state and warnings and the second read by the local from/to pair
+    with pytest.raises(AssertionError) as err:
+        rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED"),
+                    read_state="PARTIAL"), lambda: {"read_state": "AVAILABLE", "protect_state": "UNKNOWN"})
+    text = str(err.value)
+    assert "PARTIAL" in text and "second_read" in text and "'protect_state': 'UNKNOWN'" in text
 
 
 def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:

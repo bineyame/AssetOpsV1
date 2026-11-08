@@ -1038,6 +1038,29 @@ def test_coh17_pv1_a_detail_holding_the_sum_of_two_amounts_fails() -> None:
     assert [f["subject"] for f in got] == ["PV1"] and "'21.12'" in got[0]["detail"]
 
 
+def test_coh17_pv1_a_zero_addend_is_no_sum_but_a_planted_nonzero_sum_is_found() -> None:
+    """R3u: mill 17.00 + a 0.00 entry is the mill's own printed 17.00, no adding; 17.00 + 4.12 still is."""
+    from assetops_backend.chain.vocabulary import card_text
+
+    zero_fuel = {**PV1_FUEL, "amount": "0.00"}
+    summary = _pv1_summary()
+    summary["sites"] = [_pv1_site("K", "Kobo", PV1_MILL), _pv1_site("D", "Depot", zero_fuel)]
+    got, _ = _pv1(summary)
+    assert got == [], got
+    summary["cards"]["ASSURE_PERFORMANCE"]["detail"] = "21.12 USD recovered"
+    summary["sites"] = [_pv1_site("K", "Kobo", PV1_MILL), _pv1_site("D", "Depot", PV1_FUEL)]
+    got, _ = _pv1(summary)
+    assert [f["subject"] for f in got] == ["PV1"] and "'21.12'" in got[0]["detail"]
+
+
+def test_nonzero_pair_sums_excludes_a_zero_addend_and_mixed_currencies() -> None:
+    from decimal import Decimal as D
+
+    pairs = [(("USD", D("119.57")), ("USD", D("0.00"))), (("USD", D("119.57")), ("USD", D("15.13"))),
+             (("USD", D("1.00")), ("TZS", D("2.00"))), ((None, D("1.00")), (None, D("2.00")))]
+    assert cc.nonzero_pair_sums(pairs) == {"134.70"}
+
+
 def test_coh17_pv1_a_note_that_does_not_match_the_lines_fails() -> None:
     from assetops_backend.outcomes.credit import MONEY_NOT_CREDITED
 
@@ -1101,6 +1124,28 @@ def test_coh17_uf1_a_card_line_that_differs_fails() -> None:
 def test_coh17_uf1_a_detail_holding_a_fuel_plus_optimize_sum_fails() -> None:
     got, _ = _uf1(_uf1_summary(detail="79.86 USD at risk"))  # 76.55 + 3.31
     assert [f["subject"] for f in got] == ["UF1"] and "'79.86'" in got[0]["detail"]
+
+
+def _uf1_rehearsal_summary(optimize_low: str, optimize_high: str, detail: str | None = None) -> dict:
+    """The rehearsal shape: Kisiwa's fuel line prints 119.57 and 180.43 on their own; Kobo's Optimize low is 0.00."""
+    from assetops_backend.chain.vocabulary import card_text
+
+    fuel = _uf1_entry("f1", "15 Oct", "119.57", "180.43")
+    fuel["text"] = "Unexplained fuel worth about 119.57–180.43 USD"
+    cost = {"value": {"low": optimize_low, "high": optimize_high, "currency": "USD"}, "text": "x"}
+    summary = _uf1_summary()
+    summary["sites"][0]["rows"][0]["nodes"]["unexplained_fuel"] = [fuel]
+    summary["sites"][0]["rows"][1]["nodes"]["earnings"] = cost
+    summary["cards"]["PROTECT_ASSET"]["fuel_lines"] = [card_text("protect.fuel_line", site="Kisiwa", text=fuel["text"])]
+    summary["cards"]["ASSURE_PERFORMANCE"]["detail"] = detail
+    return summary
+
+
+def test_coh17_uf1_a_zero_addend_is_no_sum_but_a_planted_nonzero_sum_is_found() -> None:
+    got, _ = _uf1(_uf1_rehearsal_summary("0.00", "0.00"))
+    assert got == [], got   # 119.57 + 0.00 and 180.43 + 0.00 are printed amounts, not sums
+    got, _ = _uf1(_uf1_rehearsal_summary("0.00", "15.13", detail="134.70 USD"))   # 119.57 + 15.13
+    assert [f["subject"] for f in got] == ["UF1"] and "'134.70'" in got[0]["detail"]
 
 
 def test_coh17_uf1_another_card_holding_a_fuel_plus_fuel_sum_fails() -> None:

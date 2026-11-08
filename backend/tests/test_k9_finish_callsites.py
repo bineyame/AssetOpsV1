@@ -21,6 +21,37 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 
 import demo_combined_finish as finish  # noqa: E402
 
+def _psycopg_import_gaps(source: str) -> list[str]:
+    """R3u U4: names of the functions that use `psycopg` without `import psycopg` in their own body, plus a module-level
+    `import psycopg` (the module has none, so a function that relies on one would raise NameError at run time)."""
+    import ast
+
+    tree = ast.parse(source)
+    gaps = [f"<module>:{n.lineno}" for n in tree.body if isinstance(n, ast.Import) and any(a.name == "psycopg" for a in n.names)]
+    for fn in ast.walk(tree):
+        if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        uses = any(isinstance(x, ast.Name) and x.id == "psycopg" for x in ast.walk(fn))
+        imports = any(isinstance(x, ast.Import) and any(a.name == "psycopg" for a in x.names) for x in ast.walk(fn))
+        if uses and not imports:
+            gaps.append(fn.name)
+    return gaps
+
+
+def test_every_finish_function_using_psycopg_imports_it_locally_r3u() -> None:
+    path = Path(finish.__file__)
+    assert _psycopg_import_gaps(path.read_text(encoding="utf-8")) == []
+    assert any("psycopg" in line for line in path.read_text(encoding="utf-8").splitlines())  # non-vacuous: it is used
+
+
+def test_the_psycopg_import_guard_fails_on_the_rehearsal_shape_r3u() -> None:
+    src = Path(finish.__file__).read_text(encoding="utf-8")
+    start = src.index("def mill5(")
+    planted = src[:start] + src[start:].replace("    import psycopg\n", "", 1)   # mill5's local import removed
+    assert _psycopg_import_gaps(planted) == ["mill5"]
+    assert _psycopg_import_gaps("import psycopg\n\ndef f():\n    psycopg.connect()\n") == ["<module>:1", "f"]
+
+
 T, S, AID = UUID(int=1), UUID(int=2), UUID(int=3)
 WINDOW_ID, TANK_ID = "00000000-0000-4000-8000-0000000000a1", "00000000-0000-4000-8000-0000000000b2"
 RECORDED = datetime(2026, 10, 20, 9, 30, tzinfo=timezone.utc)  # 12:30 in Dar es Salaam, 20 Oct

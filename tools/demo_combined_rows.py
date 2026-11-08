@@ -377,8 +377,10 @@ def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_
                 walk(x)
 
     walk(card)
-    sums = [f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}" for i, a in enumerate(entries)
-            for b in entries[i + 1:] if a.get("currency") == b.get("currency")]
+    from chain_coherence import nonzero_pair_sums
+
+    amts = [(e.get("currency"), Decimal(str(e["amount"]))) for e in entries if e.get("amount") is not None]
+    sums = sorted(nonzero_pair_sums((a, b) for i, a in enumerate(amts) for b in amts[i + 1:]))
     held = sorted({x for x in sums if any(x in t for t in strings)})
     assert not held, ("the Assure card holds a sum", held)
     return {"value_lines": lines, "mill_line": mill, "trial_line": trial,
@@ -434,11 +436,17 @@ def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: 
         return f"{Decimal(round(Fraction(x) * 100)) / 100:.2f}"
 
     # a zero operand is no addition (dispatch PRICED-0 days store amount_high 0), so it never makes a sum
-    dispatch_high = [x for x in (parse_exact(d["amount_high"]) for d in dispatch_consequences
-                                 if d.get("amount_high") is not None) if x]
-    operands = [a for a in fuel_amounts if a]
-    sums = {two(a + b) for a in operands for b in dispatch_high}
-    sums |= {two(a + b) for i, a in enumerate(operands) for b in operands[i + 1:]}
+    all_high = [parse_exact(d["amount_high"]) for d in dispatch_consequences if d.get("amount_high") is not None]
+    dispatch_high = [x for x in all_high if x]
+    from chain_coherence import nonzero_pair_sums
+
+    def dec(x) -> tuple[str, Decimal]:
+        return ("amount", Decimal(Fraction(x).numerator) / Decimal(Fraction(x).denominator))
+
+    operands = [dec(a) for a in fuel_amounts]
+    others = [dec(b) for b in all_high]  # zero addends are excluded by the helper
+    sums = nonzero_pair_sums([(a, b) for a in operands for b in others]
+                             + [(a, b) for i, a in enumerate(operands) for b in operands[i + 1:]])
     stored = {two(x) for x in fuel_amounts + dispatch_high}
     stored |= {two(parse_exact(d["amount_low"])) for d in dispatch_consequences if d.get("amount_low") is not None}
     held = sorted((sums & stored) | {s for s in sums for text in served if s in text})
@@ -1137,10 +1145,11 @@ def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc:
     start = site_day_start(s_day, ZoneInfo(KIS_ZONE)).strftime("%Y-%m-%dT%H:%M:%SZ")
     assert s.get("window_basis") == "DAY" and (s.get("window") or {}).get("from") == start, (
         "Kisiwa summary window", s.get("window_basis"), s.get("window"), start)
-    want = 1 if kisiwa_doc.get("verdict") == "VERIFIED" else 0
+    verdict_state = (kisiwa_doc.get("verdict") or {}).get("state")  # R3u U5: `kisiwa.json` verdict is a dict
+    want = 1 if verdict_state == "VERIFIED" else 0
     c = next(x for x in chain["sites"] if x.get("code") == KIS_SITE)
     verified = (c.get("threads") or {}).get("verified")
-    assert verified == want, ("Kisiwa verified threads", verified, "verdict", kisiwa_doc.get("verdict"))
+    assert verified == want, ("Kisiwa verified threads", verified, "verdict", verdict_state)
     card = ((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {})
     card_value = (card.get("claim") or {}).get("value")
     count = ((chain.get("counts") or {}).get("count.verified_results") or {}).get("value")
@@ -1151,7 +1160,7 @@ def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc:
     lines = [x for x in card.get("value_lines") or () if str(x).startswith(f"{name}:") or KIS_SITE in str(x)]
     assert not (assure.get("nodes") or {}).get("verified_values") and not lines, ("H2: a Kisiwa Assure value line",
                                                                                   lines)
-    return {"sites": codes, "kisiwa_cells": cells, "verdict": kisiwa_doc.get("verdict"), "want_verified": want,
+    return {"sites": codes, "kisiwa_cells": cells, "verdict": verdict_state, "want_verified": want,
             "assure_card": card_value, "chain_verified_results": count}
 
 
@@ -1165,7 +1174,11 @@ def _optimize_priced(summary: dict) -> list[tuple[str, dict]]:
     return out
 
 
-def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, board_at) -> dict:
+KIS7_ITEM3_REPORT_ONLY = False  # R3u U8: True restores the R3s2 report-only form (K10 held)
+
+
+def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, board_at,
+         item3_report_only: bool | None = None) -> dict:
     """KIS-7 (DIESEL-1-R3s §9s.3, replaces R3q §9q.2 KIS-7): expectations derived from stored rows, never typed.
     `heads`: each Kisiwa dispatch Finding's latest revision episode (`episode_start`, `episode_end` or None, aware
     datetimes) with its latest money head (`state`, `amount_high`, `finding_id`); `board_at(date_iso)`: the Kisiwa
@@ -1198,9 +1211,10 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
     board = board_at(d1.isoformat())
     row = next((r for r in board.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
     money = earnings_money((row.get("nodes") or {}).get("earnings"))
-    # Item 3 (d1 priced) is REPORT-ONLY for this rehearsal (DIESEL-1-R3s2 §9s2.4, R3s cut option 1): Kisiwa has no
-    # `productive_kwh` subject, so every Kisiwa board day is unsettled and d1 earnings read "Not known yet". The
-    # reason is quoted in the row output; DIESEL-K10 (measure applicability) would re-assert it. Items 1, 2, 4 assert.
+    # Item 3 (d1 priced) asserts again (DIESEL-1-R3u U8): K10 settles d1. The R3s2 report-only form (Kisiwa has no
+    # `productive_kwh` subject, so d1 earnings read "Not known yet") stays reachable with `item3_report_only=True`
+    # (module `KIS7_ITEM3_REPORT_ONLY`), for a run where K10 is held.
+    report_only = KIS7_ITEM3_REPORT_ONLY if item3_report_only is None else item3_report_only
     d1_report = None
     day_heads = overlapping(d1)
     latest = max(h["episode_start"] for h in day_heads)
@@ -1212,6 +1226,8 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
     elif Decimal(str(money["amount_high"])) != Decimal(str(lead["amount_high"])):
         d1_report = ("d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"],
                      lead["amount_high"])
+    if d1_report and not report_only:
+        raise AssertionError(("KIS-7 item 3 (R3u)",) + d1_report)
     sums, reached = 0, 0
     for body in [summary_s] + [b for b in bodies if isinstance(b, dict) and "sites" in b]:
         got = _optimize_priced(body)
@@ -1220,13 +1236,15 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
             sums += never_summed([str(earnings_money(c)["amount_high"]) for _, c in got], bodies)
     return {"optimize_card": card, "kisiwa_priced_on_s": KIS_SITE in codes, "priced_on_s": codes, "d1": d1.isoformat(),
             "d1_amount_high": None if money is None else str(money["amount_high"]),
-            "d1_priced": "REPORT-ONLY (R3s2): " + "; ".join(map(str, d1_report)) if d1_report else "REPORT-ONLY (R3s2): priced and equal",
+            "d1_priced": (("REPORT-ONLY (R3s2): " if report_only else "") + "; ".join(map(str, d1_report))
+                          if d1_report else ("REPORT-ONLY (R3s2): " if report_only else "") + "priced and equal"),
             "sums_checked": sums,
             "multi_site_bodies": reached or "no summary prices two Sites on real data (>=2 path not reached; L0 covers it)",
             "bodies": len(bodies)}
 
 
-def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report: dict | None) -> dict:
+def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report: dict | None,
+           s5d_board: dict | None = None, second_read=None) -> dict:
     """KIS-OV (DIESEL-1-R3r §9r.2, extended by R3s §9s.2): the Kisiwa Overview answers 200 on each read day (`reads`:
     label, status, code, body); exactly one `site_cutover_basis` row is `NO_LEGACY_EVIDENCE` for the Site's own import
     row and digest (`basis_rows`); the newest Kisiwa Performance report (`report`: `outcome`, `empty_set`) is PASSED and
@@ -1243,6 +1261,19 @@ def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report
         "Kisiwa Performance report is not a PASSED empty-set report", report.get("outcome"), report.get("empty_set"))
     assert set(board_states) == {"S-5d", "S"} and all(v == "AVAILABLE" for v in board_states.values()), (
         "a Kisiwa board does not read AVAILABLE", board_states)
+    protect_state = None
+    if s5d_board is not None:
+        # R3u U7 pin: the S-5d Protect row is NEEDS_ATTENTION and MG-8 is {NEEDS_ATTENTION, PRIMARY_FINDING_OPEN};
+        # the lead is not asserted (K10 may settle MG-5/MG-4)
+        protect = next((r for r in s5d_board.get("rows") or () if r.get("category") == "PROTECT_ASSET"), None) or {}
+        mg8 = next((o for o in protect.get("outcomes") or () if o.get("key") == "MG-8"), None) or {}
+        if not (protect.get("state") == "NEEDS_ATTENTION" and mg8.get("state") == "NEEDS_ATTENTION"
+                and mg8.get("reason") == "PRIMARY_FINDING_OPEN"):
+            raise AssertionError(("R3u-s1: the S-5d Protect row / MG-8 is not NEEDS_ATTENTION / PRIMARY_FINDING_OPEN",
+                                  {"protect_state": protect.get("state"), "mg8": mg8,
+                                   "read_state": s5d_board.get("read_state"), "warnings": s5d_board.get("warnings"),
+                                   "second_read": second_read() if callable(second_read) else None}))
+        protect_state = protect["state"]
     return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
             "performance_report": {"outcome": report["outcome"], "empty_set": report["empty_set"]},
-            "board_read_state": board_states}
+            "board_read_state": board_states, "s5d_protect": protect_state}

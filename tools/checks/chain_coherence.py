@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterable, Iterator
 from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
@@ -1295,11 +1295,8 @@ def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int])
     lines = list(card.get("value_lines") or ())
     check(lines == want, f"Assure card value_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
     strings = list(_strings(card))
-    sums = []
-    for i, a in enumerate(entries):
-        for b in entries[i + 1:]:
-            if a.get("currency") == b.get("currency") and a.get("amount") is not None and b.get("amount") is not None:
-                sums.append(f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}")
+    amts = [x for e in entries for x in _amounts(e.get("currency"), e.get("amount"))]
+    sums = nonzero_pair_sums((a, b) for i, a in enumerate(amts) for b in amts[i + 1:])
     held = sorted({x for x in sums if any(x in t for t in strings)})
     check(not held, f"the Assure card holds the sum of two same-currency amounts: {held!r}")
     separate = voc.card_text("assure.values_separate")
@@ -1310,6 +1307,11 @@ def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int])
 
 def _amounts(currency: Any, *values: Any) -> list[tuple[Any, Decimal]]:
     return [(currency, Decimal(str(x))) for x in values if x is not None]
+
+
+def nonzero_pair_sums(pairs: Iterable[tuple[tuple[Any, Decimal], tuple[Any, Decimal]]]) -> set[str]:
+    """R3u: the two-place sums of same-currency pairs, neither addend zero (a sum with 0 shows no adding)."""
+    return {f"{a[1] + b[1]:.2f}" for a, b in pairs if a[0] is not None and a[0] == b[0] and a[1] != 0 and b[1] != 0}
 
 
 def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
@@ -1345,7 +1347,7 @@ def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -
     lines = list(card.get("fuel_lines") or ())
     check(lines == want, f"Protect card fuel_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
     pairs = [(a, b) for i, a in enumerate(fuel) for b in fuel[i + 1:]] + [(a, b) for a in fuel for b in other]
-    sums = {f"{a[1] + b[1]:.2f}" for a, b in pairs if a[0] is not None and a[0] == b[0]}
+    sums = nonzero_pair_sums(pairs)
     strings = list(_strings(cards))
     held = sorted(x for x in sums if any(x in t for t in strings))
     check(not held, f"a Portfolio card holds the sum of an unexplained-fuel amount and another amount: {held!r}")
