@@ -122,7 +122,26 @@ def test_k8_fuel_row_in_estate_findings_never_in_money(kobo, capsys, monkeypatch
         assert [r["code"] for r in provenance["reasons"]] == ["EMPTY_CITATION_SET"]
 
         # Money: the Portfolio over the same forced Finding coverage; its money scope reads real coverage.
+        # Join placement guard: the money path (select_financial_scope) must never reach the fuel reader.
+        from assetops_backend.estate import portfolio as portfolio_mod
+        real_scope, money_calls, fuel_touches = portfolio_mod.select_financial_scope, [], []
+
+        class _SpySnap:
+            def __init__(self, inner) -> None:
+                self._inner = inner
+
+            def __getattr__(self, name):
+                if name == "fuel_findings":
+                    fuel_touches.append(name)
+                return getattr(self._inner, name)
+
+        def spy_scope(snap, *a, **kw):
+            money_calls.append(1)
+            return real_scope(_SpySnap(snap), *a, **kw)
+        monkeypatch.setattr(portfolio_mod, "select_financial_scope", spy_scope)
         p = portfolio_svc.portfolio(kobo.t, _request(), admit)
+        assert money_calls, "the money path did not run, so the placement spy is vacuous"
+        assert fuel_touches == [], "select_financial_scope reached the fuel reader"
         assert any(r.get("finding_id") == fid for r in p["rows"])          # the row reaches the Portfolio list
         money_ids = _ids(p["money"]["groups"]) | _ids(p["selected_lines"])
         assert fid not in money_ids and frid not in money_ids and str(money.id) not in money_ids

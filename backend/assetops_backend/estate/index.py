@@ -221,8 +221,9 @@ def _fuel_rows(snap: Any, tenant_id: Any, site: dict[str, Any], cov: dict[str, A
     from assetops_backend.estate.evidence_money import site_home_ref  # import cycle
     from assetops_backend.fuel_balance import finding_text as fuel_text
 
-    reader = getattr(snap, "fuel_findings", None)
-    if reader is None:
+    try:
+        reader = snap.fuel_findings
+    except (AttributeError, KeyError):  # a snapshot without the read (test fakes) has no fuel rows
         return []
     code, out = site["site_code"], []
     for item in reader(tenant_id, site["site_id"], req.from_, req.to, k):
