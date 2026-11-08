@@ -27,7 +27,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
-from assetops_backend.work.domain_action import DOMAINS
+from assetops_backend.work.domain_action import DOMAINS, FUEL_DOMAIN, FUEL_FINDING_DOMAIN
 from assetops_backend.work.link_coverage import DOMAIN_ACTION
 from assetops_backend.work.model import WorkStoreUnavailable
 
@@ -90,7 +90,8 @@ _ELIGIBLE = ("SELECT CAST(c.id AS text) AS id, c.kind, c.public_code, CAST(c.ass
 _MEMBER = {"INCIDENT": "occurred_at", "MAINTENANCE_REQUEST": "created_at"}
 #: W5-04a pre-flight 9 / readiness 12: the stored domain Action literal -> its Finding (analytics) domain, from the
 #: closed `DOMAINS`; an unreviewed domain maps to nothing and its link stays UNKNOWN.
-_FINDING_DOMAIN_OF = {name: spec.finding_domain for name, spec in DOMAINS.items()}
+_FINDING_DOMAIN_OF = {**{name: spec.finding_domain for name, spec in DOMAINS.items()},
+                      FUEL_DOMAIN: FUEL_FINDING_DOMAIN}  # DIESEL-1-R3m: lineage true, pin None (like the mill)
 
 
 def _rows(result) -> list[dict[str, Any]]:

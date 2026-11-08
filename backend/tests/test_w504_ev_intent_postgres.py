@@ -151,7 +151,8 @@ def test_domain_dispatch_is_closed() -> None:
     the read adapter's link mapping is derived from the same table, and nothing else resolves."""
     assert {k: v.finding_domain for k, v in d.DOMAINS.items()} == {"COLDCHAIN": "cold_chain",
                                                                    "EV_CHARGING": "ev_charging"}
-    assert wr._FINDING_DOMAIN_OF == {"COLDCHAIN": "cold_chain", "EV_CHARGING": "ev_charging"}
+    assert wr._FINDING_DOMAIN_OF == {"COLDCHAIN": "cold_chain", "EV_CHARGING": "ev_charging",
+                                     "FUEL_BALANCE": "fuel_balance"}  # DIESEL-1-R3m (approved one-key edit)
     ev_spec = d.DOMAINS["EV_CHARGING"]
     assert [k for k, _, _ in ev_spec.criteria] == ["WITNESSED_SESSION", "NO_FAULT_RECURRENCE", "NO_SERVICE_REDUCTION"]
     assert ev_spec.initial_results == ("PENDING", "PENDING", "PENDING")

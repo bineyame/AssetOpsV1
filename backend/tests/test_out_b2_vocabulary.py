@@ -103,6 +103,9 @@ def _constants() -> list[str]:
             "small": "possible extra fuel cost"}   # CH-5d1: the Optimize `cost.site` line
     copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
     copy += list(cv.COST_SMALL.values())
+    # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
+    from assetops_backend.work import domain_action as da
+    copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]
     return [c.strip(" ·") for c in copy]
 
 
