@@ -587,8 +587,9 @@ def test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch() -> None:
     """Every KIS row's no-Site branch raises `KisiwaMissing`; nothing returns "not in this dataset"."""
     text = (Path(__file__).resolve().parents[2] / "tools" / "demo_combined_finish.py").read_text(encoding="utf-8")
     assert "not in this dataset" not in text
-    # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9, K4b's KIS-8a and K9's KIS-8 (wording half)
-    assert text.count("raise KisiwaMissing()") == 7
+    # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9, K4b's KIS-8a and K9's KIS-8 (wording half),
+    # KIS-1, KIS-2, KIS-6 and KIS-7 (K9, DIESEL-1-R3q)
+    assert text.count("raise KisiwaMissing()") == 11
 
 
 def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:

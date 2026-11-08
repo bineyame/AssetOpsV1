@@ -729,3 +729,174 @@ def test_kis8_wording_passes_on_clean_bodies_and_fails_otherwise() -> None:
             rows.kis8_wording({**clean, "other": bad})
     with pytest.raises(AssertionError):
         rows.kis8_wording({"board": {"site_code": "KOBO-001"}})
+
+
+# ---- DIESEL-K9 (DIESEL-1-R3q §9q.2-§9q.4): KIS-1, KIS-2, KIS-6, KIS-7 L0 bodies ------------------------------------------
+
+def test_kis_rows_are_wired_after_kis8a_in_order() -> None:
+    import demo_combined_finish as finish
+
+    ids = [c[0] for c in finish.CHECKS]
+    at = ids.index("KIS-8a")
+    assert ids[at + 1:at + 5] == ["KIS-1", "KIS-2", "KIS-6", "KIS-7"], ids[at:]
+    assert ids.index("KIS-7") < ids.index("KIS-8")  # KIS-8's wording read sees their bodies
+
+
+def _kis1_inputs():
+    """Real revisions: `register_in` on the in-memory Foundation store (confirms `components[].properties[]`)."""
+    import copy
+    from uuid import UUID
+
+    from foundation_fakes import InMemoryFoundationStore
+    import demo_combined_kisiwa as kis
+    from test_k1_kisiwa_fixtures import IMPORT_AT, INSTALL_AT
+
+    store = InMemoryFoundationStore()
+    reg = kis.register_in(store, IMPORT_AT, INSTALL_AT)
+    revs = [{"valid_from": r.valid_from, "superseded_at": r.superseded_at, "content": copy.deepcopy(r.content)}
+            for r in store.revisions(UUID(reg["tenant_id"]), UUID(reg["site_id"]))]
+    prices = [{"state": "PRICED", "revision_id": "p1", "value": rows.Decimal("1.25"), "currency": "USD"}
+              for _ in range(10)]
+    return revs, reg, prices
+
+
+def _set_prop(rev: dict, component: str, key: str, value=None, drop: bool = False) -> None:
+    comp = next(c for c in rev["content"]["components"] if c["component_id"] == component)
+    if drop:
+        comp["properties"] = [p for p in comp["properties"] if p["property_key"] != key]
+    else:
+        next(p for p in comp["properties"] if p["property_key"] == key)["value"] = value
+
+
+def test_kis1_foundation_as_known_now_passes_and_each_break_fails() -> None:
+    revs, reg, prices = _kis1_inputs()
+    got = rows.kis1(revs, reg, prices)
+    assert (got["stop_soc_threshold"], got["no_load"], got["sensor_accuracy"], got["price"], got["windows_priced"]) == (
+        "90 %", "4.9 L/h GENERIC_DEFAULT", "10 L GENERIC_DEFAULT", "1.25 USD (v1)", 10)
+    current = [r for r in revs if r["superseded_at"] is None]
+    for name, edit in (
+            ("stop 60 in one revision", lambda r: _set_prop(r[0], "generator", "stop-soc-threshold", 60)),
+            ("no-load 3.3", lambda r: _set_prop(r[-1], "generator", "generator-no-load-fuel-rate", 3.3)),
+            ("missing accuracy basis", lambda r: _set_prop(r[-1], "fuel-tank", "fuel-level-sensor-accuracy-basis",
+                                                           drop=True))):
+        broken, _, _ = _kis1_inputs()
+        edit([r for r in broken if r["superseded_at"] is None])
+        with pytest.raises((AssertionError, StopIteration)):
+            rows.kis1(broken, reg, prices)
+            pytest.fail(name)
+    with pytest.raises(AssertionError, match="more than one price revision"):
+        rows.kis1(revs, reg, [*prices[:-1], {**prices[-1], "revision_id": "p2"}])
+    with pytest.raises(rows.KisiwaMissing):
+        rows.kis1([], reg, prices)
+    assert len(current) >= 1
+
+
+def _kis2_body(**over):
+    from fractions import Fraction
+
+    from assetops_backend.financials import fuel_cost, fuel_cost_v2
+
+    intervals = [{"mean_kw": "10", "duration_seconds": 1200, "sfc_l_per_kwh": "0.25"},   # 10 kW x 1/3 h x 0.25
+                 {"mean_kw": "0", "duration_seconds": 300, "sfc_l_per_kwh": "0.3"}]     # idle 300 s x 4.9 L/h
+    exact = Fraction(str(fuel_cost_v2.MULTIPLIER)) * (Fraction(5, 6) + Fraction(300, 3600) * Fraction("4.9"))
+    head = {"id": "c1", "finding_id": "f1", "finding_revision_id": "r1", "state": "PRICED", "model_id": "fuel-cost-2",
+            "idle_seconds": 300, "no_load_fuel_rate_l_per_h": "4.9", "no_load_fuel_rate_basis": "GENERIC_DEFAULT",
+            "sfc_upper_multiplier": str(fuel_cost_v2.MULTIPLIER),
+            "quantity_high_exact": f"{exact.numerator}/{exact.denominator}",
+            "quantity_high": fuel_cost.to_decimal_ceiling(exact)}
+    head.update(over)
+    return {"f1": head}, {"c1": intervals}, [{"finding_id": "f1", "revision_id": "r1", "lifecycle": "SUPPORTED"}]
+
+
+def test_kis2_is_fuel_cost_2_over_the_stored_intervals_exactly() -> None:
+    from decimal import ROUND_HALF_UP, localcontext
+    from fractions import Fraction
+
+    from assetops_backend.financials import fuel_cost
+
+    heads, ivs, latest = _kis2_body()
+    got = rows.kis2(heads, ivs, latest)
+    assert got["findings"] == 1 and got["per_finding"][0]["idle_seconds"] == 300
+    exact = Fraction(heads["f1"]["quantity_high_exact"])
+    with localcontext() as ctx:
+        ctx.prec, ctx.rounding = fuel_cost.QUANTITY_DIGITS, ROUND_HALF_UP
+        half_up = rows.Decimal(exact.numerator) / rows.Decimal(exact.denominator)
+    assert half_up != fuel_cost.to_decimal_ceiling(exact)  # the fixture distinguishes the two roundings
+    for name, (h, i, l) in {
+            "x1.00 multiplier": _kis2_body(sfc_upper_multiplier="1.00"),
+            "dropped idle interval": (heads, {"c1": ivs["c1"][:1]}, latest),
+            "half-up quantity_high": _kis2_body(quantity_high=half_up),
+            "fuel-cost-1": _kis2_body(model_id="fuel-cost-1"),
+            "UNPRICED": _kis2_body(state="UNPRICED"),
+            "not SUPPORTED": (heads, ivs, [{**latest[0], "lifecycle": "CANDIDATE"}]),
+            "idle seconds": _kis2_body(idle_seconds=0)}.items():
+        with pytest.raises(AssertionError):
+            rows.kis2(h, i, l)
+            pytest.fail(name)
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch Finding"):
+        rows.kis2({}, {}, [])
+
+
+FOUR = ["COLD-LAB-001", "EV-LAB-001", "KISIWA-001", "KOBO-001"]
+
+
+def _kis6(verdict: str = "VERIFIED", verified: int = 1, board_protect: str = "NEEDS_ATTENTION",
+          objectives=FOUR, card_value: int = 2, value_lines=("Kobo mini-grid: 42.00 USD",)):
+    from zoneinfo import ZoneInfo
+
+    s_day = date(2026, 11, 7)
+    start = rows.site_day_start(s_day, ZoneInfo("Africa/Dar_es_Salaam")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    kis_rows = [{"category": "PROTECT_ASSET", "state": "NEEDS_ATTENTION"},
+                {"category": "ASSURE_PERFORMANCE", "state": "ON_TRACK", "nodes": {"verified_values": []}}]
+    summary = {"sites": [{"site_code": c} for c in FOUR if c != "KISIWA-001"] + [
+        {"site_code": "KISIWA-001", "site_name": "Kisiwa island mini-grid", "rows": kis_rows, "window_basis": "DAY",
+         "window": {"from": start, "to": "x"}}],
+        "cards": {"ASSURE_PERFORMANCE": {"claim": {"value": card_value}, "value_lines": list(value_lines)}}}
+    chain = {"sites": [{"code": c, "threads": {"verified": verified if c == "KISIWA-001" else 0}} for c in FOUR],
+             "counts": {"count.verified_results": {"value": 2}}}
+    portfolio = {"objectives": [{"site_code": c} for c in objectives]}
+    board = {"rows": [{"category": "PROTECT_ASSET", "state": board_protect},
+                      {"category": "ASSURE_PERFORMANCE", "state": "ON_TRACK"}]}
+    return summary, chain, portfolio, board, {"verdict": verdict}, s_day
+
+
+def test_kis6_counts_cells_and_assure_pass_and_each_item_fails() -> None:
+    got = rows.kis6(*_kis6())
+    assert got["want_verified"] == 1 and got["assure_card"] == 2 and got["sites"]["objectives"] == FOUR
+    assert rows.kis6(*_kis6(verdict="INEFFECTIVE", verified=0))["want_verified"] == 0  # read from data, never forced
+    for name, body in {"1: three objective Sites": _kis6(objectives=FOUR[:2] + FOUR[3:]),
+                       "2: a cell differs from the S board": _kis6(board_protect="ON_TRACK"),
+                       "3: verified against the verdict": _kis6(verdict="INEFFECTIVE", verified=1),
+                       "3: card against the chain count": _kis6(card_value=1),
+                       "3: a Kisiwa value line (H2)": _kis6(value_lines=("Kisiwa island mini-grid: 3.00 USD",))}.items():
+        with pytest.raises(AssertionError):
+            rows.kis6(*body)
+            pytest.fail(name)
+    summary, *rest = _kis6()
+    with pytest.raises(rows.KisiwaMissing):
+        rows.kis6({**summary, "sites": summary["sites"][:3]}, *rest)
+
+
+def _kis7(kisiwa_high: str | None = "7.5", claim=None, extra: str = ""):
+    def site(code, high):
+        cost = None if high is None else {"key": "money.avoided_cost", "text": f"{high} USD",
+                                          "value": {"low": high, "high": high, "currency": "USD"}}
+        return {"site_code": code, "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": cost}}]}
+    summary = {"sites": [site("COLD-LAB-001", None), site("KISIWA-001", kisiwa_high), site("KOBO-001", "15.125")],
+               "cards": {"OPTIMIZE_COST": {"claim": claim, "value": {"text": "Costs at 2 sites"}, "detail": extra}}}
+    summary["sites"] = [summary["sites"][2], summary["sites"][0], summary["sites"][1]]  # Site order: Kobo first
+    return summary
+
+
+def test_kis7_optimize_two_priced_sites_no_sum_and_each_break_fails() -> None:
+    got = rows.kis7(_kis7(), [_kis7()])
+    assert got["priced"] == ["KOBO-001", "KISIWA-001"] and got["sums_checked"] == 1
+    for name, (body, bodies) in {
+            "one priced Site": (_kis7(kisiwa_high=None), [_kis7()]),
+            "a present claim": (_kis7(claim={"value": 1}), [_kis7()]),
+            "a summed string": (_kis7(), [_kis7(extra="Total 22.63 USD")])}.items():
+        with pytest.raises(AssertionError):
+            rows.kis7(body, bodies)
+            pytest.fail(name)
+    with pytest.raises(rows.KisiwaMissing):
+        rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [])

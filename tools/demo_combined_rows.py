@@ -982,3 +982,189 @@ def trial_page(body: dict, result: dict) -> str:
         basis=NO_LOAD_BASIS_WORDS.get((result.get("no_load") or {}).get("basis"), NO_LOAD_BASIS_WORDS[None]))
     assert body.get("fuel_value") == want, (body.get("fuel_value"), want)
     return want
+
+
+# ---- DIESEL-K9 (ruling DIESEL-1-R3q §9q.2-§9q.4): KIS-1, KIS-2, KIS-6, KIS-7 -----------------------------------------
+
+KIS_SITE = "KISIWA-001"
+KIS_ZONE = "Africa/Dar_es_Salaam"
+KIS_FOUR = ("COLD-LAB-001", "EV-LAB-001", "KISIWA-001", "KOBO-001")  # sorted
+
+
+def _field(row, name: str):
+    return row.get(name) if isinstance(row, dict) else getattr(row, name)
+
+
+def _props(content: dict, component_id: str) -> dict[str, dict]:
+    comp = next((c for c in content.get("components") or () if c.get("component_id") == component_id), None)
+    return {p["property_key"]: p for p in (comp or {}).get("properties") or ()}
+
+
+def kis1(revisions: list, register: dict, prices: list[dict]) -> dict:
+    """KIS-1 (DIESEL-1-R3q §9q.3): Kisiwa's Foundation as known now. `revisions`: the Site's Foundation revisions
+    (`RevisionRow` or dicts with `valid_from`, `superseded_at`, `content`); only current-knowledge rows count.
+    `register`: `kisiwa-register.json`; `prices`: one `price_selection` per stored night window (`state`, `revision_id`,
+    `value`, `currency`). Stop setting 90 % in every current revision; no-load 4.9 L/h GENERIC_DEFAULT and sensor
+    accuracy 10 L GENERIC_DEFAULT in every revision from their effective instants (equal to the declarations, read);
+    every window priced by one revision equal to diesel price step v1 (read from the fixture file)."""
+    import demo_combined_kisiwa as kis
+
+    current = [r for r in revisions if _field(r, "superseded_at") is None]
+    if not current:
+        raise KisiwaMissing()
+    stops = {(Decimal(str(p.get("value"))), p.get("unit")) for r in current
+             for p in [_props(_field(r, "content"), "generator").get("stop-soc-threshold") or {}]}
+    assert stops == {(Decimal("90"), "%")}, ("stop setting is not 90 % in every current revision", sorted(map(str, stops)))
+
+    def since(key: str) -> list:
+        lo = _kis_utc(register[key])
+        got = [r for r in current if _kis_utc(_field(r, "valid_from")) >= lo]
+        assert got, ("no current revision from", key, register[key])
+        return got
+
+    def declared(props: list[dict], key: str) -> tuple:
+        p = next(x for x in props if x["property_key"] == key)
+        return Decimal(str(p["value"])) if p["unit"] != "state" else p["value"], p["unit"]
+
+    no_load = (declared(kis.NO_LOAD, "generator-no-load-fuel-rate"),
+               declared(kis.NO_LOAD, "generator-no-load-fuel-rate-basis"))
+    assert no_load == ((Decimal("4.9"), "L/h"), ("GENERIC_DEFAULT", "state")), ("declared no-load", no_load)
+    accuracy_props = kis.ROLES4["component_properties"]["properties"]
+    accuracy = (declared(accuracy_props, "fuel-level-sensor-accuracy"),
+                declared(accuracy_props, "fuel-level-sensor-accuracy-basis"))
+    assert accuracy == ((Decimal("10"), "L"), ("GENERIC_DEFAULT", "state")), ("declared accuracy", accuracy)
+    for key, component, names, want in (
+            ("no_load_effective_from", "generator", ("generator-no-load-fuel-rate", "generator-no-load-fuel-rate-basis"),
+             no_load),
+            ("roles4_effective_from", "fuel-tank", ("fuel-level-sensor-accuracy", "fuel-level-sensor-accuracy-basis"),
+             accuracy)):
+        for r in since(key):
+            props = _props(_field(r, "content"), component)
+            missing = [n for n in names if n not in props]
+            assert not missing, ("a current revision lacks", missing, str(_field(r, "valid_from")))
+            assert tuple(declared(list(props.values()), n) for n in names) == want, (
+                component, str(_field(r, "valid_from")), [props[n] for n in names])
+    v1 = next(s for s in json.loads(kis.FIXTURE_PRICES.read_text(encoding="utf-8"))["steps"] if s["step"] == "v1")
+    assert (v1["value"], v1["currency"]) == ("1.25", "USD"), v1
+    assert prices, "no stored night window was priced"
+    assert all(p["state"] == "PRICED" for p in prices), ("an unpriced night window", prices)
+    revs = sorted({str(p["revision_id"]) for p in prices})
+    assert len(revs) == 1, ("the nights are priced by more than one price revision", revs)
+    assert all(Decimal(str(p["value"])) == Decimal(v1["value"]) and p["currency"] == v1["currency"] for p in prices), (
+        "a night is not priced at step v1", prices)
+    return {"current_revisions": len(current), "stop_soc_threshold": "90 %", "no_load": "4.9 L/h GENERIC_DEFAULT",
+            "sensor_accuracy": "10 L GENERIC_DEFAULT", "price": f"{v1['value']} {v1['currency']} (v1)",
+            "price_revision_id": revs[0], "windows_priced": len(prices)}
+
+
+def kis2(heads: dict, intervals_by_head: dict, latest_revisions: list[dict]) -> dict:
+    """KIS-2 (DIESEL-1-R3q §9q.4): every Kisiwa dispatch Finding's latest revision is SUPPORTED and its head
+    consequence (`heads[finding_id]`, SQL column names incl. `id`) cites it, is fuel-cost-2 PRICED at the model's
+    multiplier with the declared no-load 4.9 L/h GENERIC_DEFAULT, and its `quantity_high_exact` is exactly the
+    fuel-cost-2 formula over its stored power intervals (`intervals_by_head[id]`); `quantity_high` is its ceiling and
+    `idle_seconds` the idle intervals' seconds. Tolerance zero."""
+    from fractions import Fraction
+
+    import demo_combined_kisiwa as kis
+    from assetops_backend.financials import fuel_cost, fuel_cost_v2
+
+    assert latest_revisions, "no Kisiwa dispatch Finding"
+    declared = Decimal(str(next(p["value"] for p in kis.NO_LOAD if p["property_key"] == "generator-no-load-fuel-rate")))
+    F = lambda x: Fraction(str(x))  # noqa: E731
+    out = []
+    for rev in latest_revisions:
+        fid = str(rev["finding_id"])
+        assert rev["lifecycle"] == "SUPPORTED", ("S: a latest dispatch Finding revision is not SUPPORTED", rev)
+        h = heads.get(fid)
+        assert h is not None, ("S: a SUPPORTED dispatch Finding has no head consequence", fid)
+        assert str(h["finding_revision_id"]) == str(rev["revision_id"]), ("head cites another revision", h, rev)
+        assert h["model_id"] == "fuel-cost-2" and h["state"] == "PRICED", ("S: head not fuel-cost-2 PRICED", fid,
+                                                                              h["model_id"], h["state"])
+        assert Decimal(str(h["sfc_upper_multiplier"])) == fuel_cost_v2.MULTIPLIER, ("multiplier", h)
+        rate = Decimal(str(h["no_load_fuel_rate_l_per_h"]))
+        assert rate == Decimal("4.9") == declared and h["no_load_fuel_rate_basis"] == "GENERIC_DEFAULT", (
+            "no-load", rate, h["no_load_fuel_rate_basis"])
+        ivs = intervals_by_head.get(str(h["id"])) or []
+        assert ivs, ("a head consequence with no stored power interval", h["id"])
+        loaded = sum((F(i["mean_kw"]) * Fraction(int(i["duration_seconds"]), 3600) * F(i["sfc_l_per_kwh"])
+                      for i in ivs if F(i["mean_kw"]) > 0), Fraction(0))
+        idle_s = sum(int(i["duration_seconds"]) for i in ivs if F(i["mean_kw"]) == 0)
+        idle = Fraction(idle_s, 3600) * F(rate)
+        exact = F(h["sfc_upper_multiplier"]) * (loaded + idle)
+        assert exact == Fraction(str(h["quantity_high_exact"])), ("quantity_high_exact", fid, h["quantity_high_exact"],
+                                                                  f"{exact.numerator}/{exact.denominator}")
+        assert Decimal(str(h["quantity_high"])) == fuel_cost.to_decimal_ceiling(exact), (
+            "quantity_high is not the ceiling", h["quantity_high"], fuel_cost.to_decimal_ceiling(exact))
+        assert int(h["idle_seconds"] or 0) == idle_s, ("idle_seconds", h["idle_seconds"], idle_s)
+        out.append({"finding_id": fid, "intervals": len(ivs), "idle_seconds": idle_s,
+                    "quantity_high": str(h["quantity_high"])})
+    return {"findings": len(out), "per_finding": out}
+
+
+def _site_codes(items, key: str) -> list[str]:
+    return sorted(str(x.get(key)) for x in items or ())
+
+
+def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc: dict, s_day: date) -> dict:
+    """KIS-6 (DIESEL-1-R3q §9q.2): on the week `[S-6d, S+1d)`: four Sites from data (summary, estate chain and the
+    Portfolio objectives); Kisiwa's summary cells are its S board (`window_basis` DAY from the Site-local midnight);
+    the Assure line: Kisiwa's verified threads are 1 iff `kisiwa.json`'s verdict is VERIFIED (never forced), the
+    Assure card claim equals the chain `count.verified_results`, and no Assure value line names Kisiwa (H2)."""
+    from zoneinfo import ZoneInfo
+
+    s = next((x for x in summary.get("sites") or () if x.get("site_code") == KIS_SITE), None)
+    if s is None:
+        raise KisiwaMissing()
+    codes = {"summary": _site_codes(summary.get("sites"), "site_code"), "chain": _site_codes(chain.get("sites"), "code"),
+             "objectives": sorted({str(o.get("site_code")) for o in portfolio.get("objectives") or ()})}
+    for name, got in codes.items():
+        assert got == list(KIS_FOUR), (f"{name} Sites", got)
+    cells = {r["category"]: r.get("state") for r in s.get("rows") or ()}
+    board = {r["category"]: r.get("state") for r in board_s.get("rows") or ()}
+    assert cells == board, ("Kisiwa summary cells are not its S board", cells, board)
+    start = site_day_start(s_day, ZoneInfo(KIS_ZONE)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    assert s.get("window_basis") == "DAY" and (s.get("window") or {}).get("from") == start, (
+        "Kisiwa summary window", s.get("window_basis"), s.get("window"), start)
+    want = 1 if kisiwa_doc.get("verdict") == "VERIFIED" else 0
+    c = next(x for x in chain["sites"] if x.get("code") == KIS_SITE)
+    verified = (c.get("threads") or {}).get("verified")
+    assert verified == want, ("Kisiwa verified threads", verified, "verdict", kisiwa_doc.get("verdict"))
+    card = ((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {})
+    card_value = (card.get("claim") or {}).get("value")
+    count = ((chain.get("counts") or {}).get("count.verified_results") or {}).get("value")
+    assert card_value is not None and card_value == count, ("Assure card claim against the chain count", card_value,
+                                                            count)
+    name = s.get("site_name") or KIS_SITE
+    assure = next((r for r in s.get("rows") or () if r.get("category") == "ASSURE_PERFORMANCE"), None) or {}
+    lines = [x for x in card.get("value_lines") or () if str(x).startswith(f"{name}:") or KIS_SITE in str(x)]
+    assert not (assure.get("nodes") or {}).get("verified_values") and not lines, ("H2: a Kisiwa Assure value line",
+                                                                                  lines)
+    return {"sites": codes, "kisiwa_cells": cells, "verdict": kisiwa_doc.get("verdict"), "want_verified": want,
+            "assure_card": card_value, "chain_verified_results": count}
+
+
+def kis7(summary_s: dict, bodies: list[object]) -> dict:
+    """KIS-7 (DIESEL-1-R3q §9q.2): CH-5d1's Optimize card on the >=2-priced-Sites path on the S summary: the priced
+    Sites (read from each Site's cost claim) are exactly Kobo then Kisiwa in Site order, the card has no claim and its
+    value is `cost.sites` for 2 sites, and no string in `bodies` holds a sum of the priced amounts (`never_summed`).
+    Kisiwa unpriced on S fails the row (a stop, never re-expected to the one-Site path)."""
+    from assetops_backend.chain.outcomes import earnings_money
+    from assetops_backend.chain.vocabulary import card_text, sites_text
+
+    if not any(x.get("site_code") == KIS_SITE for x in summary_s.get("sites") or ()):
+        raise KisiwaMissing()
+    priced = []
+    for s in summary_s.get("sites") or ():
+        row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+        claim = (row.get("nodes") or {}).get("earnings")
+        if claim is not None and claim.get("value") is not None:
+            priced.append((s.get("site_code"), claim))
+    codes = [code for code, _ in priced]
+    assert codes == ["KOBO-001", KIS_SITE], ("S: priced Sites on S", codes)
+    card = (summary_s.get("cards") or {}).get("OPTIMIZE_COST") or {}
+    want = card_text("cost.sites", sites=sites_text(2))
+    assert card.get("claim") is None and (card.get("value") or {}).get("text") == want, ("Optimize card", card, want)
+    amounts = [str(earnings_money(c)["amount_high"]) for _, c in priced]
+    sums = never_summed(amounts, bodies)
+    assert sums > 0, "no sum of priced Sites checked"
+    return {"priced": codes, "card": want, "amounts_high": amounts, "sums_checked": sums, "bodies": len(bodies)}
