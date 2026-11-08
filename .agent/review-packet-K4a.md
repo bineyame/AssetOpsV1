@@ -126,6 +126,15 @@ Python is the plan2 `.venv`. PYTHONPATH is the worktree paths (imports verified 
 - Frontend: `miniFuelRoutes.test.tsx` 11 passed; `npm run typecheck` clean; `vite build` built.
 - Guards: `tools\check-all.ps1 -Python <plan2 venv>` with `ASSETOPS_GUARD_PYTHON` set: **All 17 guards passed**. These include Architecture seams (`check-architecture`), Agent workflow (`check-agent-workflow`), Navigation truthfulness, Mock deviation labels and client vocabulary, and the estate guard self-tests (15 passed).
 - Mutation proofs at HEAD `72f4a41e0`; the tree was restored clean after each one.
+
+## Fix round (DIESEL-1-R3k2, build sheet §9n; main merged at eb62b1555; fix commit 80328f3e5)
+
+- **M1 closed.** `fuel_balance_persist` reuses an `analytic_run` with the same `analytic_run_basis_unique` key (no new run or run-evidence rows; RuntimeError on a differing evidence set = S10, did not fire). It always inserts the new assessment revision and its link row. `_insert_fuel_revision` compares only with the Finding's latest revision (0015 rule).
+- **L1 closed.** B11: a price recorded after the night and before the raise gives UNPRICED `NO_PRICE` (the row keeps `price_known_at` = the window end, the cutoff used).
+- **B10** A,B,A,B: OPENED, WITHDRAWN, REVISED, WITHDRAWN; 2 runs, 4 assessment revisions (1,3 cite run A; 2,4 cite run B), 4 links, 2 consequence rows; Finding ends NO_LONGER_SUPPORTED, consequence None; fifth raise UNCHANGED, no new rows.
+- **Mutations (edited, run, restored with `git checkout --`):** run reuse disabled makes B10 fail (UniqueViolation `analytic_run_basis_unique`); guard over all revisions makes B10 fail (`UNCHANGED != WITHDRAWN` at index 3); price `known_at = now` makes B11 fail (`PRICED != UNPRICED`).
+- **Re-run** (`assetops_k4_test`): K4a postgres (A, B, B7-B9, B10, B11) + rules, K3 postgres + rules, domain filter pg, finding store pg, cold replay pg, EV store pg: **100 passed** (927 s). Part C not re-run.
+- **L2 carry to K7** (R3k2 §9n.3): KIS rows with the "not in this dataset (K7 adds it)" branch must fail, not skip, once K7 merges. No K4a code change.
 - Not run: the full backend/frontend suites and the K3 part C parity (§9j.9: no full suite).
 
 ## Known deviations
