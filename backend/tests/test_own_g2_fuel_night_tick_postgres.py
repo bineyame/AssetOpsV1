@@ -58,6 +58,14 @@ def _windows(engine, site_id) -> list[dict]:
                       "ORDER BY night_date, revision", s=site_id)
 
 
+def _ids(rev: dict) -> list[str]:
+    """`record_ids` as flat strings (the column may hold a list of lists)."""
+    flat: list[str] = []
+    for x in rev["record_ids"]:
+        flat.extend(str(y) for y in x) if isinstance(x, (list, tuple)) else flat.append(str(x))
+    return flat
+
+
 def _latest(engine, site_id, night: date) -> dict:
     return [w for w in _windows(engine, site_id) if w["night_date"] == night][-1]
 
@@ -198,7 +206,8 @@ def _record(site, kind: str, key: str, occurred: datetime, quantity: str, **over
     from test_w401_work_service_postgres import oprec
 
     return {**oprec(key, kind=kind, body=f"G2 test {kind.lower()}", occurred_at=occurred.strftime(
-        "%Y-%m-%dT%H:%M:%SZ"), unit="L", quantity=quantity, source_document_sha256=None, asset_id=site["tank"]),
+        "%Y-%m-%dT%H:%M:%SZ"), unit="L", quantity=quantity,
+        source_document_sha256="ab" * 32 if kind == "FUEL_DELIVERY" else None, asset_id=site["tank"]),
         "_t": site["tenant_id"], "_s": site["site_id"], **over}
 
 
@@ -284,7 +293,7 @@ def test_p4a_a_conflicting_dip_appends_revision_2_with_the_limitation(site) -> N
     rev2 = _latest(engine, s, n0)
     print("G2 P4a", entry, rev2["limitations"], rev2["record_ids"])
     assert entry and (entry["assess"], entry["revision"]) == ("APPENDED", 2), entry
-    assert rev2["revision"] == 2 and dip["id"] in [str(x) for x in rev2["record_ids"]], rev2["record_ids"]
+    assert rev2["revision"] == 2 and dip["id"] in _ids(rev2), rev2["record_ids"]
     assert "DIP_SENSOR_CONFLICT" in rev2["limitations"], rev2["limitations"]
 
 
@@ -358,4 +367,4 @@ def test_p5_an_old_assessed_night_is_rechecked_and_a_40_day_record_is_not_read(s
     entry = _night(fuel, n9)
     print("G2 P5", entry, dip["id"])
     assert entry and (entry["assess"], entry["revision"]) == ("APPENDED", 2), entry
-    assert dip["id"] in [str(x) for x in _latest(engine, s, n9)["record_ids"]]
+    assert dip["id"] in _ids(_latest(engine, s, n9))
