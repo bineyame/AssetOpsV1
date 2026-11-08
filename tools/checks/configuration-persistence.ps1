@@ -704,6 +704,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # way: the assessment store alone INSERTs them (never UPDATE/DELETE/upsert); EV Findings stay with the Finding store.
     $evSessionTables = @('ev_session', 'ev_session_revision', 'ev_session_evidence', 'ev_meter_interval')
     $coldTransactionOwner = "$backendRoot/analytics/assessment_worker.py"
+    # DIESEL-K4a (ruling DIESEL-1-R3k §9k.4): the unexplained-fuel Finding service owns its one shared transaction
+    # across the assessment, Finding and consequence stores the same way; it writes no table itself.
+    $fuelTransactionOwner = "$backendRoot/fuel_balance/findings_service.py"
     $assessInserts = $assessTables + @('recompute_job')
     # W4-03 closure 4 S2: the one coalescing UPDATE of a PENDING mini_opportunity job, issued only by
     # enqueue_opportunity_job under the study-key advisory lock. Exact text: no other column, domain or status.
@@ -745,7 +748,8 @@ function Invoke-ConfigurationPersistenceCheck {
     $evConsequenceMigration = 'backend/migrations/versions/0026_w2_ev_money.py'
     $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
         'financial_consequence_assumption_revision', 'financial_consequence_power_interval',
-        'financial_consequence_work_attempt') + $coldConsequenceTables + $evConsequenceTables
+        'financial_consequence_work_attempt') + $coldConsequenceTables + $evConsequenceTables +
+        @('fuel_residual_consequence_revision')  # DIESEL-K4a (0056): `fuel-residual-1`, the same sole writer
     # S4-02d adds the eighth writer, the schedule store (D-2026-10-14-s402d-schedule-storage-and-install-gate):
     # the sole runtime writer of the four migration-0013 schedule tables, and it writes no other table. It may
     # INSERT into those tables and UPDATE only the named mutable schedule-state columns below (environment tick
@@ -1839,7 +1843,7 @@ function Invoke-ConfigurationPersistenceCheck {
     # W2-03: the cold writer policy fails closed. Each declared owner module must exist, and the rule-8 mutation
     # corpus must keep its pass probe and its foreign-INSERT, UPDATE, DELETE and DO UPDATE fail probes for every cold
     # episode table and for the cold Finding tables, so a removed owner or probe cannot leave the policy unproven.
-    foreach ($owner in @($assessWriter, $findingWriter, $coldTransactionOwner)) {
+    foreach ($owner in @($assessWriter, $findingWriter, $coldTransactionOwner, $fuelTransactionOwner)) {
         if (-not (Test-Path -LiteralPath $owner -PathType Leaf)) {
             $failures.Add("Rule 8 declares cold writer owner '$owner', which does not exist; update the check.") | Out-Null
         }

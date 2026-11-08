@@ -6,6 +6,9 @@ taken first, then the Site's timezone and assets, the per-night advisory lock, t
 the no-load rate are read through `PostgresActionStore` with the same `known_at`; those reads are as-known filtered on
 append-only rows, so they need no shared snapshot. A row is inserted only when its inputs digest differs from the
 latest revision's. The read port reads in one `REPEATABLE READ READ ONLY` transaction.
+
+DIESEL-K4a adds `night_window_on` (the Finding service's clock, lock and window read on its own connection) and the
+`FuelFindingReadPort` reads (`fuel_findings`, `fuel_finding`), read-only.
 """
 
 from __future__ import annotations
@@ -21,7 +24,7 @@ from sqlalchemy.engine import Connection, Engine
 
 from assetops_backend.actions.verification_rules import Reading, parse_exact
 from assetops_backend.fuel_balance.model import (
-    PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow)
+    FINDINGS_REFUSED, PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow, FuelFinding)
 from assetops_backend.work.fuel_records import FuelRecord
 
 #: K2's `select_fuel_records(c, tenant, site, tank, lo, hi, known_at)`, injected by the composition (rule 1: only
@@ -228,3 +231,66 @@ class PostgresFuelBalanceStore:
                                  "AND id = :i"), {"t": tenant_id, "s": site_id, "i": window_id}).first()
             return None if row is None else to_window(row)
         return self._read(work)
+
+    # --- DIESEL-K4a (§9j.5, §9j.6): the unexplained-fuel Finding ---------------------------------------------
+
+    def night_window_on(self, c: Connection, tenant_id: UUID, site_id: UUID,
+                        night_date: date) -> tuple[datetime, FuelBalanceWindow | None]:
+        """On the Finding service's connection: `known_at` (`clock_timestamp()` or the test-only override), the
+        per-night Finding lock, and the night's latest window revision as known at `known_at` (None when none)."""
+        known_at = _utc(self.test_db_clock_override() if self.test_db_clock_override is not None
+                        else c.execute(text("SELECT clock_timestamp()")).scalar_one())
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtext('fuel-finding:' || :s || ':' || :d))"),
+                  {"s": str(site_id), "d": night_date.isoformat()})
+        row = c.execute(text(
+            f"SELECT {_COLUMNS} FROM fuel_balance_window WHERE tenant_id = :t AND site_id = :s AND night_date = :d "
+            "AND recorded_at <= :k ORDER BY recorded_at DESC, revision DESC LIMIT 1"),
+            {"t": tenant_id, "s": site_id, "d": night_date, "k": known_at}).first()
+        return known_at, None if row is None else to_window(row)
+
+    def _fuel_findings(self, c: Connection, tenant_id: UUID, site_id: UUID, finding_id: UUID | None,
+                       known_at: datetime | None) -> list[FuelFinding]:
+        p = {"t": tenant_id, "s": site_id, "f": None if finding_id is None else str(finding_id), "k": known_at}
+        heads = c.execute(text(
+            "SELECT DISTINCT ON (f.id) f.id AS finding_id, r.id AS revision_id, r.revision_no, r.lifecycle, r.claim, "
+            "r.created_at, r.episode_start, r.episode_end FROM finding f JOIN finding_revision r "
+            "ON r.tenant_id = f.tenant_id AND r.site_id = f.site_id AND r.finding_id = f.id "
+            "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = 'fuel_balance' "
+            "AND (CAST(:f AS uuid) IS NULL OR f.id = CAST(:f AS uuid)) "
+            "AND (CAST(:k AS timestamptz) IS NULL OR r.created_at <= CAST(:k AS timestamptz)) "
+            "ORDER BY f.id, r.revision_no DESC"), p).all()
+        out = []
+        for h in heads:
+            w = c.execute(text(f"SELECT {_COLUMNS} FROM fuel_balance_window WHERE tenant_id = :t AND site_id = :s "
+                               "AND id = :i"), {**p, "i": h.claim["fuel_balance_window_id"]}).one()
+            row = c.execute(text(
+                "SELECT * FROM fuel_residual_consequence_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND finding_revision_id = :r"), {**p, "r": h.revision_id}).first()
+            consequence = None if row is None else {
+                k: (None if v is None else v if isinstance(v, datetime) else str(v)) for k, v in row._mapping.items()}
+            window = to_window(w)
+            out.append(FuelFinding(h.finding_id, h.revision_id, h.revision_no, h.lifecycle, window.night_date, window,
+                                   consequence, _utc(h.created_at)))
+        return out
+
+    @staticmethod
+    def _instant(value: Any) -> bool:
+        return isinstance(value, datetime) and value.tzinfo is not None and value.utcoffset() == timedelta(0)
+
+    def fuel_findings(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                      known_at: datetime | None) -> tuple[FuelFinding, ...]:
+        """The latest revision per fuel Finding as known at `known_at` (None = now) whose cited window intersects
+        `[lo, hi)`, ordered by night."""
+        if (not self._instant(lo) or not self._instant(hi) or not lo < hi
+                or (known_at is not None and not self._instant(known_at))):
+            raise ValueError(FINDINGS_REFUSED)
+        found = self._read(lambda c: self._fuel_findings(c, tenant_id, site_id, None, known_at))
+        kept = [f for f in found if f.window.window_start < hi and f.window.window_end > lo]
+        return tuple(sorted(kept, key=lambda f: (f.night_date, str(f.finding_id))))
+
+    def fuel_finding(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+                     known_at: datetime | None) -> FuelFinding | None:
+        if known_at is not None and not self._instant(known_at):
+            raise ValueError(FINDINGS_REFUSED)
+        found = self._read(lambda c: self._fuel_findings(c, tenant_id, site_id, finding_id, known_at))
+        return found[0] if found else None

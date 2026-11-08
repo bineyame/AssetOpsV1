@@ -27,3 +27,20 @@ def build_fuel_balance_store(database_url: str | None, *, fuel_records: Callable
 
 def build_fuel_balance_service(store: PostgresFuelBalanceStore) -> FuelBalanceService:
     return FuelBalanceService(store)
+
+
+def build_fuel_finding_service(database_url: str | None, *,
+                               test_db_clock_override: Callable[[], datetime] | None = None):
+    """DIESEL-K4a (§9j.6): the unexplained-fuel Finding service over the fuel-balance store (its clock, lock and
+    window read), the assessment store (shared transaction, `fuel_balance_persist`), the Finding store
+    (`fuel_apply`), the consequence store (`fuel_residual_append`) and the Trial comparison's diesel price selection.
+    `test_db_clock_override` is test-only and constructor-only, as K3's."""
+    from assetops_backend.analytics.composition import build_finding_store, build_postgres_assessment_store
+    from assetops_backend.financials.composition import build_consequence_store, build_trial_comparison_ports
+    from assetops_backend.fuel_balance.findings_service import FuelFindingService, FuelFindingStores
+
+    return FuelFindingService(FuelFindingStores(
+        fuel=build_fuel_balance_store(database_url, test_db_clock_override=test_db_clock_override),
+        assessments=build_postgres_assessment_store(database_url), findings=build_finding_store(database_url),
+        consequences=build_consequence_store(database_url),
+        price_selection=build_trial_comparison_ports(database_url).price_selection))

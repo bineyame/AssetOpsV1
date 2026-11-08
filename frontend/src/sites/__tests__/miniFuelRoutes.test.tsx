@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { FuelRead, FuelRow, MiniDepthClient, MiniRead } from "../miniDepthClient";
+import { FUEL_NOTICE } from "../MiniPerformance";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -185,11 +186,9 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
       ["Plus deliveries · Delivery completeness unconfirmed", "No attested delivery record · 0 cited records", "Delivery completeness unconfirmed"],
       ["Less generator consumption · 0–3.3 L", "Generator output × selected fuel coefficient · 1 cited record · Evidence", "Modelled range, not a fuel-meter reading"],
       ["Less closing inventory · Unknown", "Missing · 0 cited records", "Missing"],
-      ["Unexplained residual · Cannot compute", "Missing · 0 cited records", "Needs every term with a supported range; never infers theft"],
+      ["Unexplained residual · Cannot compute", "Missing · 0 cited records", "Needs every term with a supported range; never says why fuel left"],
     ]);
-    expect(document.querySelector('[data-mini-notice="fuel"]')?.textContent).toBe(
-      "A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fuel exposure.",
-    );
+    expect(document.querySelector('[data-mini-notice="fuel"]')?.textContent).toBe(FUEL_NOTICE);
     const interp = panelTitled("Inspect existing generator fuel interpretation");
     expect(interp.textContent).toContain("Dispatch may have a separate modelled fuel quantity for a selected Finding.");
     expect(interp.querySelector('[data-link-unavailable="dispatch-consequence"]')?.textContent).toBe("No linked dispatch consequence");

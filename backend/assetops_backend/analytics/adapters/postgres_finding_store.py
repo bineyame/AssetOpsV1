@@ -7,6 +7,8 @@ under, so a selection that lands between the read and the write is never
 half-applied: the caller re-plans instead. Revisions are append-only and immutable
 (`finding_revision_no_unique`); replay is idempotent against the Finding's latest revision only
 (`_insert_revision`), so a basis may return (A -> B -> A, migration 0015) and append a new revision.
+
+Domains written here: mini_grid (dispatch), cold_chain (W2-03), ev_charging (W2-06), fuel_balance (DIESEL-K4a).
 """
 
 from __future__ import annotations
@@ -41,6 +43,16 @@ COLD_MATCHER_VERSION = "cold-episode/1"
 COLD_MECHANISMS = {"EXCURSION": "COLD_EXCURSION", "START_RESPONSE": "COLD_START_FAILURE"}
 COLD_TITLES = {"EXCURSION": "Cold room temperature outside its policy band",
                "START_RESPONSE": "Backup generator did not start when the grid failed"}
+
+
+#: DIESEL-K4a (§9j.4) unexplained-fuel Finding identity: one Finding per tank night, ever.
+FUEL_DOMAIN, FUEL_MECHANISM, FUEL_ANALYTIC = "fuel_balance", "UNEXPLAINED_FUEL", "fuel-balance-1"
+FUEL_MATCHER_VERSION = "fuel-finding/1"      # finding_type = "UNEXPLAINED_FUEL@fuel-finding/1"
+FUEL_MODEL_VERSION = "fuel-balance-1/v1"
+
+
+def _fuel_key(window: Any) -> str:
+    return f"fuel:{window.tank_asset_id}:{window.night_date.isoformat()}"
 
 
 #: W2-06 Q15 EV interruption Finding: matcher version and the exact limitation sentences.
@@ -457,13 +469,18 @@ class PostgresFindingStore:
                     "matched": seq is not None and row is not None and row[1] >= seq and not deferred}
         return self._read(work)
 
-    def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]:
-        """Latest revision of every Finding whose latest bounds overlap [lo, hi), with its cited window IDs."""
+    def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime, domain: str = DOMAIN,
+                      analytic_id: str = DISPATCH_ANALYTIC_ID) -> list[dict[str, Any]]:
+        """Latest revision of every Finding whose latest bounds overlap [lo, hi), with its cited window IDs.
+        FIX-K4a (DIESEL-1-R3k): one domain's and analytic's Findings only (the `episodes` predicate); a Site's
+        fuel-balance, cold or EV Findings never reach the dispatch readers."""
         def work(c: Connection) -> list[dict[str, Any]]:
             rows = [dict(r._mapping) for r in c.execute(text(
                 "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, r.transition, "
                 "r.episode_start, r.episode_end FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
-                "ORDER BY r.finding_id, r.revision_no DESC"), {"t": tenant_id, "s": site_id})]
+                "AND r.domain = :d AND r.analytic_id = :a "
+                "ORDER BY r.finding_id, r.revision_no DESC"),
+                {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id})]
             rows = [r for r in rows if r["episode_start"] < hi and lo <= r["episode_end"]]
             for r in rows:
                 r["window_assessment_revision_ids"] = [x for (x,) in c.execute(text(
@@ -700,6 +717,116 @@ class PostgresFindingStore:
              "es": start, "ee": end, "claim": json.dumps(claim), "limits": json.dumps(limits),
              "b": persisted["basis"], "sup": sha256_json(support), "cited": sha256_json(digests),
              "input": persisted["basis"], "now": now})
+        c.execute(text(
+            "INSERT INTO finding_revision_assessment (finding_revision_id, assessment_revision_id, tenant_id, site_id, "
+            "analytic_run_id, scope, is_primary) VALUES (:r, :a, :t, :s, :run, 'WINDOW', true)"),
+            {"r": rid, "a": persisted["revision_id"], "t": tenant_id, "s": site_id, "run": persisted["run_id"]})
+        if support:
+            c.execute(text("INSERT INTO finding_revision_evidence (finding_revision_id, evidence_id, tenant_id, "
+                           "site_id) VALUES (:r, :e, :t, :s)"),
+                      [{"r": rid, "e": e, "t": tenant_id, "s": site_id} for e in support])
+        return rid
+
+    # --- fuel_balance (DIESEL-K4a, §9j.4): unexplained-fuel Findings on the fuel Finding service's connection ----
+    # The cold pattern: this module alone inserts the fuel `finding`, `finding_revision`, `finding_revision_assessment`
+    # and `finding_revision_evidence` rows, on the caller's transaction. A fuel Finding carries
+    # `domain='fuel_balance'`, the tank as `subject_asset_id`, NULL `generator_asset_id` and NULL dispatch minutes; its
+    # claim names the exact `fuel_balance_window` revision it cites.
+
+    @staticmethod
+    def fuel_held(c: Connection, tenant_id: UUID, site_id: UUID, window: Any) -> tuple[UUID, str | None] | None:
+        """(finding_id, the window id its latest revision cites) of the tank night's Finding, or None."""
+        row = c.execute(text(
+            "SELECT f.id, (SELECT r.claim->>'fuel_balance_window_id' FROM finding_revision r WHERE r.finding_id = f.id "
+            "ORDER BY r.revision_no DESC LIMIT 1) FROM finding f WHERE f.tenant_id = :t AND f.site_id = :s "
+            "AND f.domain = 'fuel_balance' AND f.finding_key = :k"),
+            {"t": tenant_id, "s": site_id, "k": _fuel_key(window)}).first()
+        return None if row is None else (row[0], row[1])
+
+    def fuel_apply(self, c: Connection, tenant_id: UUID, site_id: UUID, window: Any, persisted: dict[str, Any],
+                   consequence_writer: Any, now: datetime) -> list[UUID]:
+        """Open, revise or withdraw the tank night's Finding for the window revision `window` (§9j.4's table). A
+        SUPPORTED revision calls `consequence_writer(c, finding_id, revision_id, window, now)` in this transaction.
+        Re-running with the same window writes nothing."""
+        from assetops_backend.fuel_balance.findings_service import fuel_transition
+
+        held = self.fuel_held(c, tenant_id, site_id, window)
+        decided = fuel_transition(held is not None, None if held is None else held[1], str(window.id), window.state)
+        if decided is None:
+            return []
+        transition, lifecycle = decided
+        fid = held[0] if held is not None else self._insert_fuel_finding(c, tenant_id, site_id, window, persisted,
+                                                                           now)
+        rid = self._insert_fuel_revision(c, tenant_id, site_id, fid, window, persisted, transition, lifecycle, now)
+        if rid is None:
+            return []
+        if lifecycle == "SUPPORTED":
+            consequence_writer(c, fid, rid, window, now)
+        return [rid]
+
+    @staticmethod
+    def _insert_fuel_finding(c: Connection, tenant_id: UUID, site_id: UUID, window: Any, persisted: dict[str, Any],
+                             now: datetime) -> UUID:
+        fid = uuid4()
+        c.execute(text(
+            "INSERT INTO finding (id, tenant_id, site_id, finding_key, domain, mechanism, analytic_id, "
+            "generator_asset_id, subject_asset_id, anchor_start, anchor_assessment_revision_id, cohort_sha256, "
+            "matcher_version, recurs_after_finding_id, split_from_finding_id, opened_at, created_at) VALUES "
+            "(:id, :t, :s, :k, 'fuel_balance', :m, :a, NULL, :subject, :anchor, :anchor_rev, NULL, :mv, NULL, "
+            "NULL, :now, :now)"),
+            {"id": fid, "t": tenant_id, "s": site_id, "k": _fuel_key(window), "m": FUEL_MECHANISM,
+             "a": FUEL_ANALYTIC, "subject": window.tank_asset_id, "anchor": window.window_start,
+             "anchor_rev": persisted["revision_id"], "mv": FUEL_MATCHER_VERSION, "now": now})
+        return fid
+
+    @staticmethod
+    def _insert_fuel_revision(c: Connection, tenant_id: UUID, site_id: UUID, fid: UUID, window: Any,
+                              persisted: dict[str, Any], transition: str, lifecycle: str,
+                              now: datetime) -> UUID | None:
+        from assetops_backend.actions.verification_rules import fmt
+        from assetops_backend.fuel_balance import finding_text
+
+        # DIESEL-1-R3k2: latest revision only (0015 LR-01 rule); a basis that returns after another revision is a
+        # new revision.
+        last = c.execute(text("SELECT basis_sha256, transition FROM finding_revision WHERE finding_id = :f "
+                              "ORDER BY revision_no DESC LIMIT 1"), {"f": fid}).first()
+        if last is not None and last[0] == window.input_sha256 and last[1] == transition:
+            return None  # this exact basis and transition is already the latest revision
+        n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM finding_revision WHERE finding_id = :f"),
+                      {"f": fid}).scalar_one()
+        tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                       {"t": tenant_id, "s": site_id}).scalar_one()
+        accuracy = window.terms.get("accuracy_l")
+        claim = {"fuel_balance_window_id": str(window.id), "window_revision": window.revision,
+                 "night_date": window.night_date.isoformat(), "tank_asset_id": str(window.tank_asset_id),
+                 "state": window.state, "residual_low": fmt(window.residual_low),
+                 "residual_high": fmt(window.residual_high), "gap_minutes": window.gap_minutes,
+                 "gap_spans": [[a.isoformat(), b.isoformat()] for a, b in window.gap_spans],
+                 "limitations": list(window.limitations), "parameter_version": window.parameter_version,
+                 "accuracy_l": accuracy}
+        limits = [finding_text.NOT_WHY, finding_text.margin_line(accuracy)]
+        if window.gap_minutes > 0:
+            limits.append(finding_text.gap_line(window.gap_spans, tz))
+        support = sorted(str(e) for e in window.evidence_ids)
+        digests = [r[0] for r in c.execute(text(
+            "SELECT envelope_sha256 FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(CAST(:ids AS uuid[])) ORDER BY id"),
+            {"t": tenant_id, "s": site_id, "ids": support}).all()] if support else []
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, domain, revision_no, transition, "
+            "lifecycle, claim_level, title, mechanism, matcher_version, analytic_id, model_version, "
+            "assessment_revision_id, analytic_run_id, window_assessment_revision_id, episode_start, episode_end, "
+            "candidate_minutes, necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, "
+            "support_sha256, cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, "
+            "'fuel_balance', :n, :tr, :life, 'COMPLETE', :title, :m, :mv, :a, :model, :ar, :run, NULL, :es, :ee, "
+            "NULL, NULL, NULL, CAST(:claim AS jsonb), CAST(:limits AS jsonb), :b, :sup, :cited, :input, :now)"),
+            {"id": rid, "t": tenant_id, "s": site_id, "f": fid, "n": n, "tr": transition, "life": lifecycle,
+             "title": finding_text.TITLE, "m": FUEL_MECHANISM, "mv": FUEL_MATCHER_VERSION, "a": FUEL_ANALYTIC,
+             "model": FUEL_MODEL_VERSION, "ar": persisted["revision_id"], "run": persisted["run_id"],
+             "es": window.window_start, "ee": window.window_end, "claim": json.dumps(claim),
+             "limits": json.dumps(limits), "b": window.input_sha256, "sup": sha256_json(support),
+             "cited": sha256_json(digests), "input": window.input_sha256, "now": now})
         c.execute(text(
             "INSERT INTO finding_revision_assessment (finding_revision_id, assessment_revision_id, tenant_id, site_id, "
             "analytic_run_id, scope, is_primary) VALUES (:r, :a, :t, :s, :run, 'WINDOW', true)"),

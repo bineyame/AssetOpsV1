@@ -29,7 +29,7 @@ OPP_MIN_ELIGIBLE_DAYS = 1
 
 #: Subject mapping (build sheet §3, R4). A further domain needs one row here, nothing else.
 SUBJECT_COLUMN = {"mini_grid": "generator_asset_id", "cold_chain": "subject_asset_id",
-                  "ev_charging": "subject_asset_id"}
+                  "ev_charging": "subject_asset_id", "fuel_balance": "subject_asset_id"}
 
 RECURS_FROM = ("RESOLVED_MONITORING", "CLOSED")
 OPENS_FROM = (None, "WITHDRAWN")

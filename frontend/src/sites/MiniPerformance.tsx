@@ -1307,8 +1307,9 @@ export function MiniService({
 
 /* ---------- Fuel page (v69 `fuel`, q3-3 state table, q9 page dry-read, copy ledger, Q20) ---------- */
 
+// MOCK DEVIATION MD-FUEL-K-2 (DIESEL-1-R3j): v69 :627-628 say "never infer theft" / "cannot establish theft"; owner 2026-11-07: "'Unexplained fuel', never 'theft'".
 export const FUEL_NOTICE =
-  "A fuel residual is unexplained inventory movement with uncertainty. It cannot establish theft or be added to dispatch fuel exposure.";
+  "Unexplained fuel is fuel that left the tank and that the generator's modelled use and the recorded deliveries don't account for, within a stated margin. It does not say why the fuel left, and it is never added to the generator's possible extra fuel.";
 export const FUEL_SECONDARY = "A complete inventory balance needs deliveries and closing evidence.";
 export const FUEL_INTERPRETATION =
   "Dispatch may have a separate modelled fuel quantity for a selected Finding. It is not a complete inventory balance.";
@@ -1340,7 +1341,8 @@ function fuelTreatment(row: FuelRow): string {
     const bounded = row.value !== null && row.value.low !== null && row.value.high !== null;
     return bounded ? "Accepted tank reading with bounded uncertainty" : "No bounded tank uncertainty is registered";
   }
-  if (row.term === "RESIDUAL") return "Needs every term with a supported range; never infers theft";
+  // MOCK DEVIATION MD-FUEL-K-2 (DIESEL-1-R3j): v69 :627-628 say "never infer theft" / "cannot establish theft"; owner 2026-11-07: "'Unexplained fuel', never 'theft'".
+  if (row.term === "RESIDUAL") return "Needs every term with a supported range; never says why fuel left";
   return "Missing";
 }
 

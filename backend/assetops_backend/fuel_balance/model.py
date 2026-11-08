@@ -1,5 +1,5 @@
 """DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.5, ruling DIESEL-1-R3d): the stored `fuel-balance-1` night window
-and the read port K4 (Finding) and K6 (verification) use.
+and the read port K4 (Finding) and K6 (verification) use; K4a adds the unexplained-fuel Finding read (§9j.5).
 
 Reason and limitation codes are internal. Client wording belongs to K4/K5.
 """
@@ -75,3 +75,27 @@ class FuelBalanceReadPort(Protocol):
                 lo: date, hi: date, known_at: datetime) -> tuple[FuelBalanceWindow, ...]: ...
 
     def window(self, tenant_id: UUID, site_id: UUID, window_id: UUID) -> FuelBalanceWindow | None: ...
+
+
+# --- DIESEL-K4a (§9j.5): the unexplained-fuel Finding read ------------------------------------------------------
+FINDINGS_REFUSED = "fuel findings need lo < hi and UTC instants"
+
+
+@dataclass(frozen=True)
+class FuelFinding:
+    finding_id: UUID
+    revision_id: UUID
+    revision_no: int
+    lifecycle: str                      # SUPPORTED | NO_LONGER_SUPPORTED
+    night_date: date
+    window: FuelBalanceWindow           # the revision the Finding revision cites
+    consequence: Mapping[str, Any] | None   # the row's columns (exact text), None when NO_LONGER_SUPPORTED
+    created_at: datetime
+
+
+class FuelFindingReadPort(Protocol):
+    def fuel_findings(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                      known_at: datetime | None) -> tuple[FuelFinding, ...]: ...
+
+    def fuel_finding(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+                     known_at: datetime | None) -> FuelFinding | None: ...
