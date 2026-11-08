@@ -67,7 +67,7 @@ All on the branch head (`7b77886f0` code; the packet commit adds only this file)
   - `test_ch5c2_real_composers_postgres.py`: 6 passed (155 s) after KD-5; it first failed F4 (`['assetops_backend.fuel_balance.adapters.postgres_fuel_balance_store']` unlisted), then the clock guard named the store's three SQL clock sites.
   - `test_w301_estate_golden_postgres.py`: 6 failed, `$.summary.claims` holds an extra `count.opportunities` the golden lacks. **Pre-existing on main** (recorded by the K4a builder, `.agent/followups-fuel-kisiwa-2026-11-07.md:26`); K4b adds no claim key.
   - `test_ch6b_estate_postgres.py`: not run, `MechanismRefused: TEMPLATE_STALE` (the mechanism dataset template belongs to another checkout; the rebuild, `tools/mechanism_dataset.py build --variant states --budget 540`, is a heavy step not taken during the Kisiwa prepare). Unverified here.
-- **Guards:** `check-all.ps1 -Python` on part 1: 17/17 passed. Final run: CHECKALL_FINAL.
+- **Guards:** `check-all.ps1 -Python` on part 1: 17/17 passed. Final run on `7b77886f0`: 17/17 passed (1574 s; estate guard self-tests 20 min under the Kisiwa prepare's load; hard-wiring totals unchanged {"api":12,"href":24,"lit":70,"cmp":51,"code":3}).
 - **Not run:** full suites, prepare, layout evidence (not layout-sensitive: two server-text `<p>` lines with existing classes on an existing card).
 
 ## Known deviations
