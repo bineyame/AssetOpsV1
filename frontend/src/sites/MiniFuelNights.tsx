@@ -12,6 +12,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { Badge, ChartNote, DataTable, MetricCard, MetricCards, Notice, Panel, ShowAll, StatusBar, ValueBars } from "../ui";
 import { sourceQualification } from "../ui/productWords";
+import { useLinkFor } from "./chainRef";
 import type { FuelBalanceClient, FuelBridgeRow, FuelNightBody, FuelNightSummary, FuelProvenance, FuelRecordRow } from "./fuelBalanceClient";
 import type { MiniRead } from "./miniDepthClient";
 import { FUEL_NOTICE, MINI_LOADING, MINI_UNAVAILABLE, UNKNOWN } from "./MiniPerformance";
@@ -215,16 +216,22 @@ function NightSelector({ nights, current, onPick }: { nights: FuelNightSummary[]
  * interpretation" (index.html:629), which is about the dispatch consequence of a Kobo hour. Hour mode keeps v69's panel.
  */
 function NightFindingPanel({ night }: { night: FuelNightBody }) {
+  const linkFor = useLinkFor();
+  const findingLink = night.finding ? linkFor({ kind: "FUEL_FINDING", site: night.site_code, id: night.finding.finding_id }) : null;
   return (
     <Panel heading="Finding for this night" headingId="fuel-night-finding-heading" className="mini-bound mini-max--fuel-interpretation">
       <div className="mini-scroll" tabIndex={0} role="group" aria-label="Panel content (scrolls)" data-fuel-night-finding>
         {night.finding ? (
           <>
             <p>
-              {/* The server's `href_for(fuel_finding_ref)`, the same path as `siteFuelFindingHref` (route-refs fixture). */}
-              <Link to={night.finding.href} data-fuel-night-finding-link>
-                {night.finding.title}
-              </Link>
+              {/* The shell's `linkFor` of the FUEL_FINDING Ref (`siteFuelFindingHref`), never a server path. */}
+              {findingLink === null ? (
+                night.finding.title
+              ) : (
+                <Link to={findingLink} data-fuel-night-finding-link>
+                  {night.finding.title}
+                </Link>
+              )}
             </p>
             <p className="prose">{night.finding.text}</p>
           </>

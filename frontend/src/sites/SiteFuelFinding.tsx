@@ -34,10 +34,13 @@ export function useFuelFinding(client: FuelBalanceClient, siteCode: string, find
 export function SiteFuelFindingBody({
   read,
   revisionHref,
+  nightHref,
 }: {
   read: MiniRead<FuelFindingBody> | null;
   /** The shell's `siteFuelFindingHref(site, id, revision)`. */
   revisionHref: (revisionId: string) => string;
+  /** The shell's Fuel page address for one night (`sitePerformanceHref(site, "fuel")` + `?night=`). */
+  nightHref: (nightDate: string) => string;
 }) {
   if (read === null) return <p role="status">{MINI_LOADING}</p>;
   if (read.status !== "loaded") {
@@ -78,7 +81,7 @@ export function SiteFuelFindingBody({
       <Panel heading="How the night was checked" headingId="fuel-finding-check-heading">
         <FuelNightBridge rows={body.night.bridge} evidenceHref={body.night.links.evidence} headingId="fuel-finding-bridge-heading" />
         <p>
-          <Link to={body.links.fuel_night} data-fuel-finding-night-link>
+          <Link to={nightHref(body.night_date)} data-fuel-finding-night-link>
             {body.links.fuel_night_label}
           </Link>
         </p>

@@ -569,14 +569,13 @@ export function SiteFindingsFrame({
             client={findingIndex}
             scope={scope}
             fuelChecks={
-              site.site_type !== "MINIGRID" ? null : (
-                <SiteFuelChecks
-                  client={fuelBalance}
-                  siteCode={site.site_id}
-                  window={{ from: scope.from, to: scope.to }}
-                  findingHref={(id) => siteFuelFindingHref(site.site_id, id)}
-                />
-              )
+              // Only a Site with fuel Findings (a MINIGRID Site with a fuel tank) gets rows; with none it renders nothing.
+              <SiteFuelChecks
+                client={fuelBalance}
+                siteCode={site.site_id}
+                window={{ from: scope.from, to: scope.to }}
+                findingHref={(id) => siteFuelFindingHref(site.site_id, id)}
+              />
             }
             earlyWarnings={
               outcomeBoard === undefined || site.site_type !== "MINIGRID" ? null : (
@@ -2632,7 +2631,11 @@ function SiteFuelFindingPage({
         headingId={SITE_FUEL_FINDING_HEADING_ID}
       />
       <OperatorSiteTabs siteId={siteId} current="Findings" />
-      <SiteFuelFindingBody read={read} revisionHref={(revision) => siteFuelFindingHref(site.site_id, findingId, revision)} />
+      <SiteFuelFindingBody
+        read={read}
+        revisionHref={(revision) => siteFuelFindingHref(site.site_id, findingId, revision)}
+        nightHref={(night) => `${sitePerformanceHref(site.site_id, "fuel")}?night=${encodeURIComponent(night)}`}
+      />
     </main>
   );
 }

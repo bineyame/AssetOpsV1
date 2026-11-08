@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { FuelBalanceClient, FuelNightBody, FuelNightSummary, FuelNightsBody } from "../fuelBalanceClient";
@@ -7,6 +7,7 @@ import type { FuelRead, MiniDepthClient, MiniRead } from "../miniDepthClient";
 import { FUEL_NOTICE, MiniFuel } from "../MiniPerformance";
 import nightsSource from "../MiniFuelNights.tsx?raw";
 import findingSource from "../SiteFuelFinding.tsx?raw";
+import { LinkedMemoryRouter } from "../../test/refLinks";
 import { settledScreen } from "../../test/settled";
 
 /*
@@ -128,10 +129,10 @@ function LocationProbe() {
 
 function renderFuel(fuelBalance: FuelBalanceClient | undefined, path = `/sites/${CODE}/performance/fuel`) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
+    <LinkedMemoryRouter initialEntries={[path]}>
       <MiniFuel client={miniClient()} siteCode={CODE} timeZone={TZ} window={WINDOW} pageHref={(s) => `/x${s}`} fuelBalance={fuelBalance} />
       <LocationProbe />
-    </MemoryRouter>,
+    </LinkedMemoryRouter>,
   );
 }
 
