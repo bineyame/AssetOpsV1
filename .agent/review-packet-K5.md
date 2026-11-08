@@ -186,3 +186,12 @@ every table scrolls inside its own panel; the records table's cap. Until then ev
 - The default nights read loads every stored window of the tank to find the latest night (one indexed query; fine for
   the demo's tens of nights).
 - The fuel Finding's estate list entry is K8's (§9l.2 "Moved out of K5").
+
+## Fix round 1 (review-K5.md, 5f559a735, verdict FIX)
+
+- M1 CLOSED (commit 44aa77c8c): F8 "absent with no rows" now waits `await act(() => new Promise(r => setTimeout(r, 0)))`
+  so the read's `setRows` re-render lands before the empty-DOM assertion. Bite proof: with
+  `SiteFuelFinding.tsx:138` mutated to `if (rows === null) return null;`, F8 fails (1 failed, 4 passed); restored with
+  `git checkout --`. Result after restore: siteFuelFinding + miniFuelRoutes 2 files, 16 tests pass; `tsc --noEmit` clean.
+- L1-L4 go to the follow-up list (not fixed here).
+- Layout captures are still owed (not run in this round).
