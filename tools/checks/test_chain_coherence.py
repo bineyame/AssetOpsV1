@@ -387,6 +387,62 @@ def test_day_windows_take_the_addis_local_day_across_utc_midnight(site: str, sta
     assert w["date"] == (day if site == "kobo" else None)
 
 
+# ---- DIESEL-1-R3q §9q.1: Kisiwa's two boards (S-5d and S), Site-local, from `story["kisiwa"]` -------------------
+
+KIS_S = "2026-11-07T00:00:00Z"
+
+
+def _kisiwa_story(sites=("kobo", "cold", "ev", "kisiwa")) -> dict:
+    import demo_combined_kisiwa
+
+    S = cc.at(KIS_S)
+    return {"S": KIS_S, "S_date": S.date().isoformat(), "sites": list(sites),
+            "kisiwa": demo_combined_kisiwa.resolve(S)}
+
+
+def test_kisiwa_day_windows_are_the_boards_story_links_opens() -> None:
+    import demo_combined
+
+    story = _kisiwa_story()
+    got = cc.kisiwa_day_windows(story)
+    links = demo_combined.story_links(story, [], None, 5173, {"action": {}})
+    opened = [url.split("?date=")[1] for _, url in links if "/sites/KISIWA-001?date=" in url]
+    assert [w["date"] for w in got] == opened and len(opened) == 2
+    assert all(w["site_code"] == "KISIWA-001" for w in got)
+    s5, s0 = got
+    assert s5["id"] == f"day:kisiwa:fuel-morning:{s5['date']}" and s0["id"] == f"day:kisiwa:S:{s0['date']}"
+    # Dar es Salaam is UTC+3 with no DST: [D-1 21:00Z, D 21:00Z); the estate window is the enclosing UTC midnights
+    d = datetime.fromisoformat(s0["date"]).replace(tzinfo=timezone.utc)
+    assert (s0["from"], s0["to"]) == (cc.iso(d - timedelta(hours=3)), cc.iso(d + timedelta(hours=21)))
+    assert s0["estate"] == (cc.iso(d - timedelta(days=1)), cc.iso(d + timedelta(days=1)))
+
+
+def test_kisiwa_s5_board_is_the_morning_after_the_incident_night() -> None:
+    import demo_combined_kisiwa
+
+    story = _kisiwa_story()
+    s5 = cc.kisiwa_day_windows(story)[0]
+    night = story["kisiwa"]["runs"][demo_combined_kisiwa.INCIDENT_K - 1]["night_date"]
+    assert s5["date"] == (datetime.fromisoformat(night) + timedelta(days=1)).date().isoformat()
+
+
+def test_without_kisiwa_nothing_more_is_collected_and_day_windows_skips_it() -> None:
+    assert cc.kisiwa_day_windows(_kisiwa_story(("kobo", "cold", "ev"))) == []
+    assert cc.kisiwa_day_windows({**_kisiwa_story(), "kisiwa": None}) == []
+    days = [{"site": "kobo", "kind": "normal", "day": "2026-10-30", "assess": "build",
+             "start": "2026-10-30T03:00:00Z", "end": "2026-10-30T11:00:00Z"}]
+    kis = [{"site": "kisiwa", "kind": "normal", "day": "2026-10-30", "assess": "build",
+            "start": "2026-10-30T03:00:00Z", "end": "2026-10-30T11:00:00Z"}]
+    assert cc.day_windows(days + kis) == cc.day_windows(days) and len(cc.day_windows(days)) == 1
+
+
+def test_kisiwa_local_day_zone_is_the_story_zone() -> None:
+    import demo_combined_kisiwa
+
+    assert cc.LOCAL_DAY_TZ["kisiwa"] == demo_combined_kisiwa.ZONE
+    assert cc.SITE_CODE["kisiwa"] == "KISIWA-001"
+
+
 def test_category_lens_map_is_the_outcome_map_reading() -> None:
     assert cc.CATEGORY_LENS == {"OPTIMIZE_COST": "COST", "PROTECT_ASSET": "RISK", "GROW_REVENUE": "OPPORTUNITY"}
 
@@ -1027,6 +1083,86 @@ def test_coh17_uf1_an_older_bundle_without_the_keys_is_skipped() -> None:
         summary["cards"]["PROTECT_ASSET"].pop(k)
     got, tally = _uf1(summary)
     assert got == [] and tally["skipped"] == 1 and tally["compared"] == 0
+
+
+# ---- DIESEL-1-R3q §9q.5: COH-17 V2 and V4 on a four-Site bundle (clean_full + EV and Kisiwa) ----------------------
+
+KIS = "KISIWA-001"
+EV = "EV-LAB-001"
+_KIS_NODES = {"earnings": None, "potential": None,
+              "kpi": {"days": {"complete": 1, "expected": 1, "low": 0, "no_data": 0, "partial": 0, "pending": 0},
+                      "text": "Fuel within margin", "value": "Fuel within margin"}}
+_FOUR = {KIS: ("Kisiwa island mini-grid", "mini_grid"), EV: ("EV charging lab", "ev_charging")}
+
+
+def _four_site(tmp_path: Path, **edits) -> cc.Bundle:
+    """clean_full with EV and Kisiwa added on both estate windows (summary, chain and board bodies), no money."""
+    def summary_site(code: str) -> dict:
+        name, domain = _FOUR[code]
+        return {"domain": domain, "overview_href": f"/sites/{code}", "site_code": code, "site_name": name,
+                "rows": [{"category": "PROTECT_ASSET", "headline": "Fuel use within margin", "headline_money": None,
+                          "lead_outcome": {"key": "protect"}, "nodes": json.loads(json.dumps(_KIS_NODES)),
+                          "state": "NOT_MEASURED", "state_label": "Not measured"}],
+                "window": {"from": "2026-10-30T21:00:00Z", "to": "2026-10-31T21:00:00Z"}, "window_basis": "DAY"}
+
+    def chain_site(code: str) -> dict:
+        return {"code": code, "domain": _FOUR[code][1], "threads": {"in_hand": 0, "open": 0, "verified": 0},
+                "rows": {"PROTECT_ASSET": {"lead": {"key": "protect"}, "nodes": json.loads(json.dumps(_KIS_NODES)),
+                                           "state": "NOT_MEASURED", "state_label": "Not measured"}}}
+
+    root = _edited(tmp_path / "base", "clean_full").root
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    manifest["requests"] += [{"file": f"board_summary.{w}.{code}.json", "name": f"board_summary.{w}.{code}",
+                              "page": None, "params": {}, "path": f"/api/sites/{code}/outcome-board", "status": 200,
+                              "window": w} for w in ("S", "week") for code in (KIS, EV)]
+    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    for w in ("S", "week"):
+        for name, add in ((f"summary.{w}.json", summary_site), (f"chain_estate.{w}.json", chain_site)):
+            path = root / name
+            body = json.loads(path.read_text(encoding="utf-8"))
+            body["sites"] += [add(KIS), add(EV)]
+            path.write_text(json.dumps(body), encoding="utf-8")
+        for code in (KIS, EV):
+            board = {"rows": summary_site(code)["rows"], "site_code": code}
+            (root / f"board_summary.{w}.{code}.json").write_text(json.dumps(board), encoding="utf-8")
+    for name, edit in edits.items():
+        path = root / name
+        body = json.loads(path.read_text(encoding="utf-8"))
+        edit(body)
+        path.write_text(json.dumps(body), encoding="utf-8")
+    return cc.Bundle(root)
+
+
+def _kis_v(bundle: cc.Bundle) -> tuple[list[dict], dict]:
+    tally = cc.new_tally()
+    return [f for f in cc.coh17_count_claims(bundle, tally)], tally
+
+
+def test_four_site_bundle_compares_kisiwa_v2_and_v4_and_passes(tmp_path: Path) -> None:
+    got, tally = _kis_v(_four_site(tmp_path))
+    assert got == [], got
+    clean_tally = cc.new_tally()
+    cc.coh17_count_claims(cc.Bundle(BUNDLES / "clean_full"), clean_tally)
+    # Kisiwa adds one V1, V3 per window, one V2 per window and one V4 on S; EV adds V1, V3, V2 per window (no V4)
+    # (other per-Site rows add more; the Site-set guard did not skip either window)
+    assert tally["compared"] - clean_tally["compared"] >= 2 * (3 + 3) + 1, (tally, clean_tally)
+
+
+def test_kisiwa_v4_fails_when_a_board_node_differs(tmp_path: Path) -> None:
+    edit = {f"board_summary.S.{KIS}.json": lambda b: b["rows"][0]["nodes"]["kpi"].update(text="other")}
+    got, _ = _kis_v(_four_site(tmp_path, **edit))
+    assert [(f["subject"], f["site_code"], f["window"]) for f in got] == [("V4", KIS, "S")], got
+
+
+def test_kisiwa_v2_fails_when_the_board_headline_differs(tmp_path: Path) -> None:
+    edit = {f"board_summary.week.{KIS}.json": lambda b: b["rows"][0].update(headline="other")}
+    got, _ = _kis_v(_four_site(tmp_path, **edit))
+    assert [(f["subject"], f["site_code"], f["window"]) for f in got] == [("V2", KIS, "week")], got
+
+
+def test_kisiwa_v4_is_not_judged_on_the_week(tmp_path: Path) -> None:
+    edit = {f"board_summary.week.{KIS}.json": lambda b: b["rows"][0]["nodes"]["kpi"].update(text="other")}
+    assert _kis_v(_four_site(tmp_path, **edit))[0] == []
 
 
 def test_clean_full_passes_and_compares_every_row() -> None:

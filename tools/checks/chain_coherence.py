@@ -33,10 +33,12 @@ ROUTES_FILE = HERE / "fixtures" / "chain_coherence" / "screen_routes.json"
 THREADS_FILE = HERE / "fixtures" / "chain_coherence" / "expected-threads.json"
 BUNDLE_SCHEMA = "chain-coherence-bundle/1"
 REPORT_SCHEMA = "chain-coherence-report/1"
-SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
+SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "kisiwa": "KISIWA-001"}
 #: CH-5a1 (R6, CH5a1-R Q8; closes MD0-R R10): the Sites whose board day is their Site-local day. EV keeps its
-#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`).
-LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa"}
+#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`). DIESEL-1-R3q: Kisiwa's boards are its Site-local day too.
+LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa", "kisiwa": "Africa/Dar_es_Salaam"}
+#: DIESEL-1-R3q: the Kisiwa boards `demo_combined.story_links` opens (offset from S in days, id kind).
+KISIWA_BOARD_DAYS = ((-5, "fuel-morning"), (0, "S"))
 DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
 ESTATE_WINDOWS = ("week", "S", "month")
 HTTP_TIMEOUT_SECONDS = 30
@@ -77,6 +79,8 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
     for d in days:
         if d.get("assess") != "build" or not d.get("start") or d.get("site") not in SITE_CODE:
             continue
+        if d["site"] == "kisiwa":  # DIESEL-1-R3q: Kisiwa's board days come only from `kisiwa_day_windows`
+            continue
         start, end = at(d["start"]), at(d["end"])
         zone = LOCAL_DAY_TZ.get(d["site"])
         if d["site"] in ("cold", "ev"):   # DD1b1-R2: a Cold or EV story day is its whole UTC day
@@ -91,6 +95,24 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
         out.append({"id": f"day:{d['site']}:{d['kind']}:{d['day']}", "site_code": SITE_CODE[d["site"]],
                     "from": iso(lo), "to": iso(hi), "date": local.date().isoformat() if d["site"] == "kobo" else None,
                     "estate": (iso(e_lo), iso(e_hi))})
+    return out
+
+
+def kisiwa_day_windows(story: dict) -> list[dict[str, Any]]:
+    """DIESEL-1-R3q: Kisiwa's board days, from `story["kisiwa"]` (not `days.json`), only when Kisiwa is in
+    `story["sites"]`. Each is its Site-local day read by `?date=` (mini board), in `day_windows`' row shape."""
+    if "kisiwa" not in (story.get("sites") or []) or not story.get("kisiwa"):
+        return []
+    from datetime import time
+
+    out = []
+    for n, kind in KISIWA_BOARD_DAYS:
+        day = (at(story["S"]) + timedelta(days=n)).date()
+        local = datetime.combine(day, time(0), tzinfo=ZoneInfo(LOCAL_DAY_TZ["kisiwa"]))
+        lo, hi = local.astimezone(timezone.utc), (local + timedelta(days=1)).astimezone(timezone.utc)
+        e_lo, e_hi = _midnight(lo), _midnight(hi - timedelta(microseconds=1)) + timedelta(days=1)
+        out.append({"id": f"day:kisiwa:{kind}:{day.isoformat()}", "site_code": SITE_CODE["kisiwa"],
+                    "from": iso(lo), "to": iso(hi), "date": day.isoformat(), "estate": (iso(e_lo), iso(e_hi))})
     return out
 
 
@@ -219,7 +241,7 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
     windows = estate_windows(story)
     for wid, (lo, hi) in windows.items():
         c.estate(wid, lo, hi)
-    days_out = day_windows(days)
+    days_out = day_windows(days) + kisiwa_day_windows(story)  # DIESEL-1-R3q: Kisiwa's two boards (`date=`)
     for d in days_out:
         c.board(f"board.{d['id']}", d["site_code"], d["id"], d["from"], d["to"], d["date"])
         c.fetch(f"chain_site.{d['id']}", f"/api/sites/{d['site_code']}/chain",
