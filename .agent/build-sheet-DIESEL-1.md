@@ -5516,3 +5516,90 @@ Order:
 ### 9s.6 Owner questions
 
 None now. Cut option 3 (§9s.5) becomes one only if a probe stop forces it.
+
+## 9s2. Ruling DIESEL-1-R3s2 — R3s addendum: why Kisiwa's board days never settle (probe stop S-s4)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only code reading in `AssetOpsV1-k9` (f994e3cf9, d2c62c73c) and the probe's board JSON (`k9r3s/out/`, the "after" files). No DB, no suites.
+
+### 9s2.1 Cause: Kisiwa has no subject for `productive_kwh`. A prepare will not fix this
+
+The causal chain, READ:
+1. **The measure set.** MINIGRID measures are `productive_kwh` (ASSET), `daylight_headroom_kw` (SITE), `critical_served` (SITE) and `avoidable_gen_min` (ASSET) (`chain/measures.py:44-59`).
+2. **The subjects.** The subjects of `productive_kwh` are the Site's assets with `supply-use = PRODUCTIVE` (`chain/measure_impls.py:131`, `mini_depth/read.py:378-391`). Kisiwa declares `ESSENTIAL_SERVICE`, `HOUSEHOLD` and `HOUSEHOLD` only (`T/demo_combined_kisiwa.py:62`). So the builder writes **no `productive_kwh` row on any Kisiwa day** (`chain/builder.py:57`, one row per subject).
+3. **The calendar.** Kisiwa has no calendar entry, so it takes the all-day default (`config/chain/operating-calendar-v1.json`). No NOT_EXPECTED row covers the day.
+4. **Settlement.** `day_settled` needs a row for **every** measure (`chain/read.py:92-98`). So every Kisiwa board day is unsettled.
+5. **Gaps.** `_day_grades` (`:53-60`) counts a missing measure as NO_DATA. So `day_gaps` names every day, which gives "31 of 31 days are not assessed yet" even on days whose dispatch was assessed. `chain/reader.py:59-82` counts the same way.
+6. **The board.** `settled_day` is False, so `base` is False (`site_outcomes/mini.py:521`). MG-1 to MG-7 are PRODUCER_NOT_SETTLED. `money_head` needs `settled` (`chain/read.py:438`), so the d1 Optimize earnings read "Not known yet" even though the Finding and the price exist.
+
+**A prepare-side contributor (fixed by a real prepare, but not sufficient).** The clone never had `after_children`'s `backfill-a` snapshot build, because that runs only when all three core Sites are present (`T/demo_combined.py:530`, `:561`). A four-Site prepare runs it for every tenant Site, Kisiwa included (`chain/backfill.py:111-155`). Step 4 still fails there, so S-s4 would recur in the rehearsal.
+
+**Site-list audit (every list that could leave Kisiwa out):**
+
+| List | Kisiwa included? | Effect |
+|---|---|---|
+| `evidence_migration` (`demo_combined.py:585-588`) | No (Kobo only) | covered by R3r's basis |
+| Performance loop (`:631`) | yes after R3s | — |
+| Objectives (`:576-584`) | No (core only) | by design (R3p Q3). MG-8 "NO_OBJECTIVE" on S is that honest state |
+| `drain_mini` | yes (`:589`) | — |
+| `after_children` / `backfill-a` | yes (all tenant Sites) | — |
+| Tick | yes | `--max-sites 5` covers 4 Sites. The 240 s cap can defer a Site to the next tick through the fair cursor, which is not an exclusion |
+| Prebuilt routes (`config/chain/prebuilt-routes-v1.json`) | No: `days.json` boards only | the first Kisiwa board open is a cold build, not a wrong one. **Presenter note:** open the S−5d Kisiwa board link once before the client joins |
+
+No other list leaves Kisiwa out.
+
+**MG-8 on d1 (UNKNOWN, PRODUCER_NOT_SETTLED) is correct.** MG-8 settles from night D−1's fuel window (`mini.py:521-525`). d1 is 2026-10-28, and night 10-27 has no window because night 1 is 10-28.
+
+### 9s2.2 Probe: none needed to decide; the rehearsal goes ahead now
+
+- No tick or prebuild run on the clone can create a `productive_kwh` subject. The cause is decided by code.
+- **Optional, non-blocking (5 minutes, SELECT only, on the clone):** count Kisiwa snapshot rows by measure and confirm that `productive_kwh` is absent. If the builder runs it, the result goes in the packet.
+- In the rehearsal itself, KIS-OV's AVAILABLE-board assertion stands; the probe showed AVAILABLE.
+
+### 9s2.3 MG-8 "state null" on S−5d is not a defect
+
+- The probe read the S−5d Protect row's `lead_outcome`, which carries only `{key, label}` (`{"key": "MG-8", "label": "Fuel accounted for"}`).
+- The row itself reads `NEEDS_ATTENTION`, with the `unexplained_fuel` node for night 10-31 (95.7–144.3 L, 119.57–180.43 USD). So the K4b fuel beat renders.
+- The K9 packet quotes the row state and the MG-8 entry from the board's outcome list.
+- **Stop:** only if that outcome entry itself carries a null state.
+
+### 9s2.4 Changes, owners, size, path
+
+**Before the rehearsal (K9, about +0.01).**
+- KIS-7 item 3 (d1 priced) and R3s stop S-s4 become **report-only for this rehearsal**, with the reason quoted: "d1 is unsettled: no `productive_kwh` subject (R3s2)". This is R3s cut option 1.
+- KIS-7 items 1, 2 and 4 stay asserted. Item 2's `expected_s` is False and is observed False.
+- No product code changes before the prepare. **The rehearsal prepare starts after the delta review.**
+
+**The product fix is a separate unit, `DIESEL-K10` (measure applicability). It is built only if the owner says yes (§9s2.5).**
+- **Rule.** An ASSET-kind measure with no snapshot row anywhere in the read's day range is not applicable to that Site. It is left out of `day_settled`, `readiness_of`, `day_gaps` and the `chain/reader.py` counts, **provided** at least one other measure has a row on that day.
+  - A day with no rows at all stays unsettled.
+  - A missing SITE-kind measure stays NO_DATA.
+  - A subject declared part-way through the range keeps its earlier days unsettled, which is conservative.
+- **Why it is sound.** The builder writes a row for every subject on every built day, including NO_DATA rows. So a measure missing from the whole range means the Site declares no subject for it. It does not mean "not built yet".
+- **Where.** One shared pure helper, `applicable_measures(rows, measures)`, in `chain/read.py`, called by `ChainRequest.day` and by `chain/reader.py`'s counts. One helper keeps the COH coherence pairs equal.
+- **Tests.**
+  - A Kisiwa-shaped day (no `productive_kwh` rows) settles.
+  - Kobo-shaped rows are byte-equal to before.
+  - An empty day stays unsettled.
+  - A missing SITE measure stays a gap.
+  - A mid-range subject case.
+- **Proof.** Serve the rehearsal DB with the K10 code. This is a read-side change, so no re-prepare. If `serve` cannot swap the tree, the proof and the Kisiwa board captures move to the demo-day prepare.
+  - d1 earnings are priced, equal to the stored head's `amount_high` (KIS-7 item 3 asserted again).
+  - The Kisiwa gap text names only the days before Kisiwa's first evidence.
+  - Kobo, Cold and EV board bodies are unchanged on the story days.
+- **Size and path.**
+  - K10 is about 0.25: code 0.05, tests 0.08, review 0.05, served proof 0.07.
+  - It overlaps the 2-hour rehearsal, so the path becomes **about 9.6–9.85, which can cross the 9.75 tripwire**.
+  - Without K10, the path stays **about 9.5–9.75**.
+- **If K10 is approved and crosses the tripwire, cut in this order:**
+  1. Move the K8c four-Site Kisiwa Overview capture to the demo-day prepare (−0.05).
+  2. Move the Service empty-default-day check (R3r §9r.4) to the polish batch (−0.02).
+  3. Cut K10's served proof to Kisiwa d1 and S−5d only (−0.03).
+- **Polish batch either way:** "N of 31 days are not assessed yet" also counts the days before the Site existed. That is a wording item.
+
+### 9s2.5 Owner question
+
+**Should the Kisiwa board days settle for the demo?**
+- **Without K10.** The Kisiwa board's Protect row (the unexplained-fuel beat) renders correctly. But Grow, Optimize and Assure read "Unknown", and the board says "31 of 31 days are not assessed yet" beside an assessed fuel Finding. That is honest by the current rule, but it contradicts itself on screen.
+- **With K10** (+0.25, path about 9.6–9.85, may cross the 9.75 tripwire), those rows settle and the d1 fuel-cost money shows.
+- **Architect recommendation:** yes, K10. The contradiction sits on a demo beat. Use cut 1 first if the path crosses.
+- **Default until the owner answers:** the rehearsal runs without K10, and K10 is not started (owner 2026-11-05, no new commitments).
