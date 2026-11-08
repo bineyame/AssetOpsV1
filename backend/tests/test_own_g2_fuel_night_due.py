@@ -23,9 +23,10 @@ KNOWN = END_L + timedelta(hours=2)
 TANK, GEN = "00000000-0000-0000-0000-00000000000a", "00000000-0000-0000-0000-00000000000b"
 
 
-def inputs(reading_nights=None, records=(), latest=None, known_at=KNOWN, tank=TANK) -> ScheduleInputs:
+def inputs(reading_nights=None, records=(), latest=None, known_at=KNOWN, tank=TANK, window_records=None,
+           record_heads=None) -> ScheduleInputs:
     return ScheduleInputs(known_at, TZ, tank, None if tank is None else GEN, dict(reading_nights or {}),
-                          tuple(records), dict(latest or {}))
+                          tuple(records), dict(latest or {}), dict(window_records or {}), dict(record_heads or {}))
 
 
 def seen(*nights: date, at: datetime = KNOWN - timedelta(hours=1)) -> dict[date, datetime]:
@@ -174,6 +175,29 @@ def test_5_records_older_than_the_lookback_are_not_read() -> None:
     assert store.calls == [("schedule_inputs", timedelta(days=31))]
     assert scheduled.RECORD_LOOKBACK == timedelta(days=31) and scheduled.QUIET == timedelta(minutes=5)
     assert scheduled.BASE_NIGHTS == 7 and scheduled.EDGE == timedelta(minutes=30)
+
+
+def test_5b_a_record_that_left_an_old_night_rechecks_it() -> None:
+    """D-R3.8. Fails on a record set that only looks at where a record is now."""
+    old = L - timedelta(days=10)
+    held = KNOWN - timedelta(days=9)
+    stored = {old: (("r1", "h1"),)}
+    # the stored record was corrected (new head; it now occurs elsewhere, so `records` has nothing on `old`)
+    assert due_nights(inputs(seen(old), [], {old: held}, window_records=stored,
+                             record_heads={"r1": "h2"})).nights == (old,)
+    # the stored record is no longer a fuel record of this tank in the read (moved out of range, tank or kind)
+    assert due_nights(inputs(seen(old), [], {old: held}, window_records=stored)).nights == (old,)
+    # unchanged: same head, recorded before the window -> not due (fails on "any stored record makes it due")
+    assert due_nights(inputs(seen(old), [(inside(old), held)], {old: held}, window_records=stored,
+                             record_heads={"r1": "h1"})).nights == ()
+    # not ready (no readings) -> not due, even with a changed record
+    assert due_nights(inputs({}, [], {old: held}, window_records=stored, record_heads={"r1": "h2"})).nights == ()
+    # the read-range edge: KNOWN - 31 d is 6 Oct 14:00 local. Night 6 Oct starts 18:00 local (inside) -> compared;
+    # night 5 Oct starts before the read (a stored record may simply be unread) -> never compared (fails on spin)
+    inside_read, outside_read = L - timedelta(days=30), L - timedelta(days=31)
+    both = {inside_read: (("r1", "h1"),), outside_read: (("r2", "h2"),)}
+    assert due_nights(inputs(seen(inside_read, outside_read), [], {inside_read: held, outside_read: held},
+                             window_records=both)).nights == (inside_read,)
 
 
 def test_base_set_is_the_last_seven_closed_nights() -> None:

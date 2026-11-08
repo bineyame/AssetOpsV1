@@ -6,7 +6,7 @@ Reason and limitation codes are internal. Client wording belongs to K4/K5.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from fractions import Fraction
 from typing import Any, Mapping, Protocol
@@ -84,6 +84,8 @@ class ScheduleInputs:
     reading_nights: Mapping[date, datetime]         # night -> latest decided_at of its tank fuel_level readings
     records: tuple[tuple[datetime, datetime], ...]  # (occurred_at, head recorded_at) of the tank's fuel records
     latest: Mapping[date, datetime]                 # night -> its latest window's recorded_at
+    window_records: Mapping[date, tuple[tuple[str, str], ...]] = field(default_factory=dict)  # night -> its latest window's stored (root_id, head_id) pairs
+    record_heads: Mapping[str, str] = field(default_factory=dict)  # root_id -> current head_id, same read as `records`
 
 
 @dataclass(frozen=True)

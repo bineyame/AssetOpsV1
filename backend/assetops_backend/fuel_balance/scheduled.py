@@ -11,6 +11,8 @@ The `fuel_night` stage (`scheduling/stages.py`) calls `run_site` once per Site p
 - **Base set:** every ready night of the last `BASE_NIGHTS` closed nights `[L - 6, L]`.
 - **Record set:** an older ready night touched by a fuel record recorded after its latest window (or with no window),
   within `RECORD_LOOKBACK`.
+- **Left-record set (D-R3.8):** an older ready night whose latest window cites a fuel record that has since been
+  corrected or no longer counts for this tank.
 """
 
 from __future__ import annotations
@@ -21,7 +23,7 @@ from uuid import UUID
 
 from assetops_backend.fuel_balance import rules
 from assetops_backend.fuel_balance.model import (
-    ASSETS_UNSUPPORTED, WINDOW_OPEN, DuePlan, FuelBalanceRefused, ScheduleInputs)
+    ASSETS_UNSUPPORTED, CLOCK_BACKWARDS, WINDOW_OPEN, DuePlan, FuelBalanceRefused, ScheduleInputs)
 from assetops_backend.fuel_balance.service import FuelBalanceService
 
 BASE_NIGHTS = 7
@@ -95,6 +97,17 @@ def due_nights(inputs: ScheduleInputs) -> DuePlan:
         held = inputs.latest.get(night)
         if held is None or recorded_at > held:
             due.add(night)
+    # 4b (D-R3.8): an older ready night whose stored records changed since its latest window: a stored root whose
+    # current head differs, or that is no longer a fuel record of this tank occurring inside the record read
+    # (corrected to another time, tank or kind). Only nights whose whole window lies inside the record read are
+    # compared; for an earlier night a stored record could be missing only because the read starts after it, which
+    # would make the night due on every tick without changing its result.
+    read_from = known_at - RECORD_LOOKBACK
+    for night, held_ids in inputs.window_records.items():
+        if night >= first_base or not ready(night) or rules.night_window(night, tz)[0] < read_from:
+            continue
+        if any(inputs.record_heads.get(root) != head for root, head in held_ids):
+            due.add(night)
     return DuePlan(True, tuple(sorted(due)))
 
 
@@ -109,6 +122,7 @@ def run_site(store: Any, findings: Any, tenant_id: UUID, site_id: UUID, limit: i
     appended = reused = 0
     raised: dict[str, int] = {}
     eligible = True
+    refused_nights: list[tuple[date, FuelBalanceRefused]] = []
     for night in plan.nights:
         if len(nights) >= limit or (deadline is not None and deadline()):
             break
@@ -122,6 +136,11 @@ def run_site(store: Any, findings: Any, tenant_id: UUID, site_id: UUID, limit: i
             if refused.code == ASSETS_UNSUPPORTED:
                 eligible = False
                 break
+            if refused.code == CLOCK_BACKWARDS:  # D-R3.10: this night only; later nights still run
+                nights.append({"night_date": night.isoformat(), "assess": "REFUSED", "revision": None,
+                               "state": None, "raise": None})
+                refused_nights.append((night, refused))
+                continue
             raise
         r = findings.raise_night(tenant_id, site_id, night)
         appended += int(result.appended)
@@ -129,6 +148,10 @@ def run_site(store: Any, findings: Any, tenant_id: UUID, site_id: UUID, limit: i
         raised[r.status] = raised.get(r.status, 0) + 1
         nights.append({"night_date": night.isoformat(), "assess": "APPENDED" if result.appended else "REUSED",
                        "revision": result.window.revision, "state": result.window.state, "raise": r.status})
+    if refused_nights:
+        raise FuelBalanceRefused(CLOCK_BACKWARDS, f"{len(refused_nights)} night(s) refused "
+                                 f"({', '.join(d.isoformat() for d, _ in refused_nights)}); first: "
+                                 f"{refused_nights[0][1].detail}")
     return {"code": "OK", "eligible": eligible, "processed": len(nights), "deferred": len(plan.nights) - len(nights),
             "appended": appended, "reused": reused, "raised": raised, "nights": nights}
 

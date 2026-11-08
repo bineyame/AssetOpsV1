@@ -9,7 +9,7 @@ import pytest
 from test_own_g2_fuel_night_due import L, FakeFindings, FakeStore, inputs, seen
 
 from assetops_backend.fuel_balance import scheduled
-from assetops_backend.fuel_balance.model import CLOCK_BACKWARDS, WINDOW_OPEN, FuelBalanceRefused
+from assetops_backend.fuel_balance.model import CLOCK_BACKWARDS, WINDOW_INVALID, WINDOW_OPEN, FuelBalanceRefused
 from assetops_backend.fuel_balance.scheduled import run_site
 from assetops_backend.scheduling import stages
 from test_own_g2_fuel_night_due import FakeService
@@ -47,12 +47,22 @@ def test_window_open_is_skipped_without_a_raise_and_counts_as_processed() -> Non
     assert out["processed"] + out["deferred"] == 2 and out["processed"] == 2
 
 
-def test_clock_backwards_raises_and_the_stage_fails_with_the_code() -> None:
-    store = FakeStore(inputs(seen(PREV, L)), {L: FuelBalanceRefused(CLOCK_BACKWARDS, "before revision 1")})
+def test_clock_backwards_on_one_night_still_checks_later_nights_then_fails_the_stage() -> None:
+    """D-R3.10. Fails on the old re-raise (L is never assessed) and on swallowing the refusal (no raise)."""
+    store = FakeStore(inputs(seen(PREV, L)), {PREV: FuelBalanceRefused(CLOCK_BACKWARDS, "before revision 1")})
+    findings = FakeFindings()
+    with pytest.raises(FuelBalanceRefused) as refused:
+        run_site(store, findings, "t", "s", 10, None)
+    assert [c[1] for c in store.calls if c[0] == "assess"] == [PREV, L] and findings.calls == [L]
+    assert refused.value.code == CLOCK_BACKWARDS and PREV.isoformat() in str(refused.value)
+    assert stages.classify(refused.value) == "FAILED" and CLOCK_BACKWARDS in str(refused.value)
+
+
+def test_any_other_refusal_still_fails_at_once() -> None:
+    store = FakeStore(inputs(seen(PREV, L)), {PREV: FuelBalanceRefused(WINDOW_INVALID, "bad window")})
     with pytest.raises(FuelBalanceRefused) as refused:
         run_site(store, FakeFindings(), "t", "s", 10, None)
-    assert refused.value.code == CLOCK_BACKWARDS
-    assert stages.classify(refused.value) == "FAILED" and CLOCK_BACKWARDS in str(refused.value)
+    assert refused.value.code == WINDOW_INVALID and [c[1] for c in store.calls if c[0] == "assess"] == [PREV]
 
 
 def test_a_passed_deadline_starts_no_night_and_defers_them() -> None:

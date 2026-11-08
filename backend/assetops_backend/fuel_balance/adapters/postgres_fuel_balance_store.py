@@ -243,7 +243,8 @@ class PostgresFuelBalanceStore:
         """OWN-G2 (build sheet OWN-GAPS §2.4, R2-G2 Q1-Q3, Q10): on one read-only snapshot, `known_at` first
         (`clock_timestamp()`, or the test-only override), the Site's timezone, its one tank and one generator (else the
         read stops), the tank's `fuel_level` readings bucketed by night (latest `decided_at` per night, the
-        `window_readings` join and acceptance filter), its fuel records and each night's latest window."""
+        `window_readings` join and acceptance filter), its fuel records and each night's latest window; per night, its latest window's stored record pairs, and per
+        fuel record its current head (D-R3.8)."""
         from zoneinfo import ZoneInfo
 
         from assetops_backend.fuel_balance.scheduled import bucket_bounds
@@ -270,14 +271,17 @@ class PostgresFuelBalanceStore:
                 "AND e.asset_id = CAST(:a AS uuid)) b WHERE night IS NOT NULL GROUP BY night"),
                 {**p, "tz": tz, "ns": night_start, "ne": night_end, "k": known_at, "a": tank,
                  "lo": known_at - record_lookback - timedelta(days=1)})}
-            records = tuple((r.occurred_at, r.recorded_at) for r in self._fuel_records(
-                c, tenant_id, site_id, UUID(tank), known_at - record_lookback, known_at, known_at))
+            fuel = self._fuel_records(c, tenant_id, site_id, UUID(tank), known_at - record_lookback, known_at, known_at)
+            records = tuple((r.occurred_at, r.recorded_at) for r in fuel)
+            record_heads = {str(r.root_id): str(r.head_id) for r in fuel}
             zone = ZoneInfo(str(tz))
             lo = (known_at - record_lookback - timedelta(days=1)).astimezone(zone).date()
             hi = known_at.astimezone(zone).date() + timedelta(days=1)
-            latest = {w.night_date: w.recorded_at
-                      for w in _windows_on(c, tenant_id, site_id, UUID(tank), lo, hi, known_at)}
-            return ScheduleInputs(known_at, tz, tank, generators[0], reading_nights, records, latest)
+            stored = _windows_on(c, tenant_id, site_id, UUID(tank), lo, hi, known_at)
+            latest = {w.night_date: w.recorded_at for w in stored}
+            window_records = {w.night_date: tuple((str(a), str(b)) for a, b in w.record_ids) for w in stored}
+            return ScheduleInputs(known_at, tz, tank, generators[0], reading_nights, records, latest,
+                                  window_records, record_heads)
         return self._read(work)
 
     def has_windows(self, tenant_id: UUID, site_id: UUID, known_at: datetime) -> bool:

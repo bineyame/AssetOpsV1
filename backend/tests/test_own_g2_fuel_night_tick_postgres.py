@@ -396,3 +396,39 @@ def test_p5_an_old_assessed_night_is_rechecked_and_a_40_day_record_is_not_read(s
     print("G2 P5", entry, dip["id"])
     assert entry and (entry["assess"], entry["revision"]) == ("APPENDED", 2), entry
     assert dip["id"] in _ids(_latest(engine, s, n9))
+    site["p5_dip"] = str(dip["id"])
+
+
+def test_p5b_a_correction_that_moves_the_dip_out_of_an_old_night_rechecks_it(site) -> None:
+    """D-R3.8: N9 (outside the base set) is re-checked when its stored dip is corrected to the afternoon, returns to
+    exactly its pre-dip result, and is not due again on the next tick."""
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+    from assetops_backend.fuel_balance.scheduled import RECORD_LOOKBACK, due_nights
+
+    engine, s, n9 = site["engine"], site["site_id"], site["nights"][9]
+    dip_id = site["p5_dip"]
+    revs = [w for w in _windows(engine, s) if w["night_date"] == n9]
+    rev1, rev2 = revs[0], revs[-1]
+    assert (rev1["revision"], rev2["revision"]) == (1, 2) and dip_id in _ids(rev2), revs
+    moved = datetime.combine(n9, time(15), site["zone"]).astimezone(UTC)  # before N9 starts, after N8 ends
+    correction = _post(_record(site, "TANK_DIP", "g2-p5b-correction", moved, "1", supersedes_record_id=dip_id,
+                               canonical_record_id=dip_id, correction_reason="Dip was taken in the afternoon"))
+    store = build_fuel_balance_store(URL)
+    try:
+        inputs = store.schedule_inputs(site["tenant_id"], s, RECORD_LOOKBACK)
+    finally:
+        store.dispose()
+    print("G2 P5b heads", inputs.record_heads.get(dip_id), "held", inputs.window_records.get(n9))
+    assert (dip_id, dip_id) in inputs.window_records[n9]
+    assert inputs.record_heads[dip_id] == str(correction["id"])
+    assert n9 in due_nights(inputs).nights
+    fuel = _fuel(_tick(engine)[0], s)
+    entry, rev3 = _night(fuel, n9), _latest(engine, s, n9)
+    print("G2 P5b", entry, rev3["state"], rev3["limitations"], rev3["record_ids"])
+    assert entry and (entry["assess"], entry["revision"]) == ("APPENDED", 3) and entry["raise"] is not None, entry
+    assert dip_id not in _ids(rev3) and str(correction["id"]) not in _ids(rev3), rev3["record_ids"]
+    assert (rev3["state"], sorted(_ids(rev3)), list(rev3["limitations"])) == (
+        rev1["state"], sorted(_ids(rev1)), list(rev1["limitations"])), (rev1, rev3)
+    again = _fuel(_tick(engine)[0], s)
+    print("G2 P5b again", _night(again, n9))
+    assert _night(again, n9) is None and _latest(engine, s, n9)["revision"] == 3
