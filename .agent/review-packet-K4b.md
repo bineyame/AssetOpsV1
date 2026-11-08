@@ -93,3 +93,16 @@ K4b copies no K5 code. It imports `night_text.FUEL_REASON_WORDS`/`UNKNOWN_VALUE`
 
 - The Protect wording: "Fuel accounted for", "Fuel in the tank" texts, "Unexplained fuel overnight", the Portfolio line and clause ("Unexplained fuel is shown on its own and never added to any other money").
 - Kobo shows MG-8 as N/A only in the outcome list (not rendered on the board today); its Protect state, tone, lead and headline are unchanged.
+
+## Fix round (R3j3)
+
+Ruling DIESEL-1-R3j3 (`.agent/build-sheet-DIESEL-1.md` §9j3). Fix commit `889470636`, on `main` merged first (build sheet 130dc3689).
+
+- **H1:** `backend/migrations/versions/0058_fuel_watermark_inputs.py` loads 0047 as 0048 loads 0029 and reuses `_columns`, `_trigger_sql`, `_TENANT_COLUMN`, `_SITE_COLUMN` (no copy; S-g not hit). Four `_cic_` triggers on `fuel_balance_window` and `fuel_residual_consequence_revision`; downgrade drops them in reverse order. 0047 untouched. `config/chain/watermark-inputs-v1.json` gains both tables after `foundation_revision`.
+- **Tests (`test_ch5c_watermark_postgres.py`):** frozen list = 0047 + 0058; four triggers on each table (`events == 60`); new `test_fuel_window_insert_flips_only_its_site` (Site A insert moves A, not B, and logs one `chain_input_change` row for A). Non-vacuity: removing `fuel_balance_window` from the JSON fails `test_declared_inputs_equal_the_frozen_migration_list`; reverted. No test hard-codes 0057 as head (K3/K4a/K6a use `alembic_head()`). The K3 and K4a migration-shape tests listed all triggers on their table exactly; they now exclude the `_cic_` triggers (0058's), a necessary side change in two test files.
+- **L1:** `read.py` `fuel_findings` takes `k` from `fuel_context()`. L0 `test_all_three_fuel_reads_share_one_cutoff_when_no_known_at` (fails on the old `known_at`; proven).
+- **L2:** `mini.py` `no_close = policy is None or ...`. L0 `test_fuel_finding_without_a_policy_never_counts_down` (fails on the old form; proven).
+- **L3:** space restored in `plan_facts = tuple(...)`.
+- **Guard CLI (W6): moved to K9 (R3j3).** No kept, current Kobo-bearing prepared `*_test` database exists (coordinator decision); no prepare or CLI run in this round. K9's rehearsal carries it: `untracked []`, both fuel tables in `all.read`.
+- **Migration up/down/up:** no scratch `assetops_k4b_audit_mig` created; covered by the K3 and K4a `test_b1_migration_up_down_up` tests on `assetops_k4b_test` (downgrade to 0054 passes through 0058, then upgrade to head).
+- **Checks (all on `assetops_k4b_test`, free RAM >= 3.7 GB before each step):** L0 (`test_k4b_protect_fuel`, `test_ch5a1_board_contract`, `test_ch5a2_contract`, `test_ch2_threads`, `test_pv1_value_lines`): 121 passed. `test_ch5c_watermark_postgres.py`: 10 passed. `test_out_b4_board_postgres.py -k kobo`: 3 passed (93 s). `test_ch5c2_real_composers_postgres.py`: 6 passed (135 s). K3+K4a `-k "b1 or migration or head"`: 11 passed. Templates rebuilt once as expected.
