@@ -122,7 +122,21 @@ Heights in px, 1440 / 390; budget from `.agent/K5-mock-measurements.md`.
 | Finding for this night | 173 / 216 | 140 / 177 | 103 / 117 | 103 / - | within |
 | Deliveries and tank dips | 366 / 579 | 162 / 162 | 209 / 209 | 162 / - | within |
 
-- **Horizontal scroll at 390 (DEFECT, High for the "no horizontal scroll at 390" claim):** night pages 4 and 6 have
+- **FIX ROUND (2026-11-08): horizontal scroll fixed; re-captured at 390 (`captures-fixround.json`, PNGs replaced).**
+  New rule in `frontend/src/sites/w4-mini-performance.css` (no existing class constrains a chip select; labelled under
+  MD-FUEL-K-1): `.mini-period-bar .v69-chip-field` and its `select.v69-chip-control` get `max-width:100%; min-width:0`,
+  select also `text-overflow:ellipsis`. Night 4 and night 6 at 390: `scrollWidth` 390 / 390. "Fuel balance at a glance"
+  at 390 is now **310** (was 343; budget 316, so within; the 343 was inflated by the 473 px layout width). No vitest
+  added: jsdom has no layout and the repo has no CSS-layout assertion pattern; the 390 measurement is the evidence.
+- **Kobo hour mode vs clean main: DONE, identical.** Main `d48e52a30` in a temporary clean detached worktree (main is
+  checked out in plan2, so `--detach`), backend + vite against `assetops_demo3_fixmainone_test`, read-only, no ticks, no
+  local `var/sites` file, so no 503. Kobo Fuel at 1440 and 390: `scrollWidth` 1425/1425 and 390/390, page height
+  1201 / 1693 on both, all panel kinds, titles and heights equal, h2 list equal, first 1500 characters of main text
+  equal to K5 (so no visible difference in that range; K4a's two strings were not inside it or did not render on
+  this page). Raw: `.agent/K5-captures/kobo-main-clean/`. Frontend deps were shared from K5 `node_modules` by a
+  temporary junction (removed with the worktree).
+- Records-table 10-row cap: still unexercised (see below).
+- **Original finding, now closed -- Horizontal scroll at 390 (was DEFECT):** night pages 4 and 6 had
   document `scrollWidth` 473 on a 390 viewport. Culprit: the night selector (`label.v69-chip-field` 456 px,
   `select.v69-chip-control` 423 px, `MiniFuelNights.tsx` night nav ~l.186-202), whose option text ("Night of 28 Oct ·
   6 pm to noon · Fuel balance: accounted for within the margin") sets an intrinsic width; it is not clipped by a
@@ -140,7 +154,7 @@ Heights in px, 1440 / 390; budget from `.agent/K5-mock-measurements.md`.
 - Records-table cap: night 4 has 1 delivery-or-dip row (2 table rows incl. header), night 6 has 2; the 10-row cap is
   not exercised by this data (worst case present: 3 rows), so the cap itself remains unmeasured.
 - Night-2 delivery night at 1440: records table shows 2 rows (header + 1 record), no scroll, page 1595 px, 1425/1425.
-- **Kobo hour mode: K5 side measured, main comparison NOT done.** K5 Kobo hour mode (database
+- (Superseded by the fix round above.) **Kobo hour mode: K5 side measured, main comparison was not done then.** K5 Kobo hour mode (database
   `assetops_demo3_fixmainone_test`, K5 backend): 1440 status bar 43, cards 114, glance 294, bridge 96, notice 61,
   interpretation 134, no horizontal scroll; 390 status bar 67, cards 291, glance 310, bridge 96, notice 99,
   interpretation 193, no horizontal scroll (all within the mock budgets above). Main's capture could not be taken:
