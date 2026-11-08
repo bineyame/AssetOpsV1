@@ -24,10 +24,14 @@ Build-sheet rulings: `.agent/build-sheet-DIESEL-1.md` through §9v (R3v).
 - Clone `assetops_k9_audit_r3u` + `C:\Users\assef\Bineyame\AssetOpsV1-k10\var\demo3_r3u` (has K9+K10+K6c verification; evidence/performance reports re-run by product tools). Verification-only int branch `task/DIESEL-int-r3u` (do not merge).
 - `assetops_demo3_kisiwa_test` (K7-F Kisiwa-only).
 
-## Next, in order
-1. **K8c four-Site captures** (~0.25; R3p §9p.9(b)): Portfolio, Findings, Sites list, all-26 recapture. Since K10/K6c changed reads, capture from the clone `assetops_k9_audit_r3u` with main code (serve read-only), not the pre-fix rehearsal DB — confirm with the Architect in the combined pass if unsure. Cut: Kisiwa Overview capture moves to demo day.
-2. **One combined Architect pass**: sort `.agent/followups-fuel-kisiwa-2026-11-07.md` (~40 Lows incl. demo-visible K8 L1 "No action yet" above "Verified", K8 L2 label wrap; main drift: ch1a midday, w301 golden ×6, out_b1 ×2, demo_a0 clock seam, w502 collection; after-demo items: Kisiwa Evidence tab 409, DB-name-stamped reports, COH-3 Kisiwa pairs, why.py days line) into before-DS-1 / before-E3 / after-demo, AND scope DS-1's two HTML documents.
-3. DS-1 (two HTML docs), then E1–E6 (E2 first: mechanism template rebuild; demo-day prepare's self-check re-checks untouched rows; CO-2 needs live ticks), then the owner walkthrough.
+## Next, in order (updated 2026-11-08 late evening — supersedes the K8c/DS-1 order)
+Owner: build OWN-GAPS now, agent speed, reassess tomorrow (`.agent/owner-proceed-own-gaps-2026-11-08.md`; answers `.agent/owner-answers-own-gaps-2026-11-08.md`). 10-Nov session moves; owner to set date.
+Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Revision 1 at top). Rulings so far: `.agent/architect-combined-pass-2026-11-08.md` Parts A–F; `.agent/architect-answers-owner-ingest-captures-2026-11-08.md`.
+- Merged since: R-1 (733eaf75c), check-all 18/18. T6 (w301 golden, 4 replay failures; DB clock NOT skewed, checked) moved into E2 (Part F).
+- In flight (pre-flight phase, Opus; each writes `.agent/preflight-<item>.md` on its branch, then waits): G2 `task/OWN-G2-diesel-night-check` (wt AssetOpsV1-g2), G3a `task/OWN-G3a-operational-entry-api` (wt -g3a), G3b `task/OWN-G3b-operational-entry-form` (wt -g3b), G1 `task/OWN-G1-add-dates` (wt -g1). Next: batch all preflight questions to ONE Architect, then SendMessage builders to build. Merge order G3a → G2 → G3b → G1.
+- DS-1a client script drafted on `task/DS-1a-client-script` (wt -ds1a; 12 placeholders; not reviewed). Open writer questions for the Architect: Kisiwa Findings/Service dated links absent from `story_links`; no Kobo idle-fuel capture; Sites list shows "Simulator Lab"/"prepared for this walkthrough"; `revision_id` in Kobo link. Refresh per R1.4 (illustrative pictures, Portfolio opens, auto diesel wording, live dip, "Entered by site admin").
+- K8c captures branch not merged (first set taken with gate closed; K8c-r stopped: Kobo legacy-comparison record stamped for another DB). Owner: illustrative pictures taken once are fine.
+- Then E2 (incl. T6, clock check) → E3 demo build → E4/E5 → owner walkthrough (runs add-dates + one on-screen dip).
 
 ## Standing constraints
 - NO full backend suite, NO demo prepare, NO baseline build until end-game, except Architect-ruled scratch prepares under the gate: one heavy job, ≥2.5 GB free RAM for 2 min, keep-awake running, stop under 1 GB. Memory pressure reaps background shells — prefer foreground commands <10 min and Wait-Process on PIDs.
