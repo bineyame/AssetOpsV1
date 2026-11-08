@@ -106,6 +106,27 @@ Each mutation was applied after commit `56256bbc9`, run, then reverted with `git
 - Kisiwa's statement count rises by one per board/day read (only when the trigger fires). Kobo, Cold and EV make no extra call by construction (test 8).
 - `code_version` makes every stored prebuilt body stale under this code. Serve only a clone (R3t §9t.4).
 
+## Fix round (R3t3)
+
+Ruling §9t3 of `build-sheet-DIESEL-1.md`; review `.agent/review-K10.md` (M1, L1, L2). Code commit d56a9dbfc.
+
+- **M1.** `declared_none_day(revisions, lo, hi)` added to `chain/reader.py` (R3t3 cursor algorithm; `(valid_from, valid_to, has_productive)` tuples). `declared_none_of` in `postgres_chain_read.py` computes `[lo, hi)` per Site-local day and calls it once per day. The SQL already filtered on the whole requested span with D2's known-at form, so it is unchanged: still one statement. Pure tests: `test_r3t3_declared_none_day_eleven_cases` holds all 11 cases (plus two extra: revisions ending at `lo` or starting at `hi` are ignored). Two older assertions changed to match R3t3: duplicate no-mill revisions now give all days (overlap allowed), and a duplicate with a mill gives none. Adapter cases 6 (mid-day mill) and 7 (mid-day gap) added to `test_k10_declared_none_adapter_postgres.py`; they return `{}` for D2 through `declared_none_days` and skip until the DB phase. `test_two_overlapping_revisions_*` updated the same way. Neither adapter test has run on a DB.
+- **L1.** `test_mg1_evaluator_reads_none_never_zero_on_a_declared_absent_window`: on a declared-absent window with an MG-1 objective, `_month_reading` value is None, `complete` is False, and `judge_month` is neither MET nor ON_PACE. The same through `readings()`.
+- **L2.** `params = {` restored at `postgres_chain_read.py:250`.
+
+**Mutations** (committed first, then `git checkout`; tree clean after each):
+
+| Mutation | Result |
+|---|---|
+| Drop the gap check in `declared_none_day` | fails `test_r3t3_declared_none_day_eleven_cases` (case 7 returned True) |
+| Drop the productive veto | fails the eleven-cases test and `test_declared_none_of_needs_exactly_one_revision_at_both_bounds` |
+| `_month_reading` value 0 for a declared-absent month (L1 D) | fails the new evaluator test |
+| `_month_reading` `complete` forced True (L1 E) | fails the new evaluator test |
+
+**Tests (pure, no DB):** the three K10 files, `test_out_b2_vocabulary`, `test_ch6_claims`, `test_ch5c2_clock_guard`, `test_out_b3_cold_ev`, `test_ch5a1_board_contract`, `test_ch5a2_contract`, `test_ch6_contract`, `test_out_b2_mini`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`: 234 passed, 8 skipped (the Postgres adapter file). No DB, no check-all run (rehearsal in progress).
+
+**Phase-2 duty (R3t3):** record Kobo's `declared_none_of` result over the S-5d, S, d1 board windows and the one-, three- and four-Site Portfolio windows. Any non-empty Kobo set is stop K10-s1.
+
 ## User review
 
 R3t needs no separate owner walkthrough for this slice: the owner already answered §9t.6. The reviewer should check the
