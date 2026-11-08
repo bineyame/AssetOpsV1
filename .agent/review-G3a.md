@@ -71,8 +71,12 @@ No High. No Medium.
   (`test_ch5c_env_parity::test_the_tick_child_and_the_serve_child_compute_one_code_version`, `SystemExit: Run prepare
   first.`). I reproduced the same failure on main `1d666d410` in `AssetOpsV1-plan2`, so it is pre-existing and not
   caused by this slice.
-- `tools/check-architecture.ps1`: ARCH_RESULT
-- `tools/check-agent-workflow.ps1`: WF_RESULT
+- `tools/check-architecture.ps1` (`powershell -NoProfile -File`): the first run **failed** (exit 1, 303 s) for an
+  environment reason. The worktree has no `.venv`, so the chain-structure guard refused ("no Python interpreter"), and
+  three Rule 8 "vacuous EV consequence insert" lines appeared, although the file contains the INSERT and this diff
+  does not touch `financials/` or `tools/checks/`. When I reran it with `ASSETOPS_GUARD_PYTHON` set to the plan2 venv,
+  it printed **"Architecture check passed."**, exit 0, 271 s.
+- `tools/check-agent-workflow.ps1`: **"Agent workflow check passed."**, exit 0.
 - Frontend checks: not applicable (no frontend files in the diff). Layout evidence: not applicable (backend slice).
 - No full suites (per brief and the demo-sprint suite policy). The packet records none either.
 
