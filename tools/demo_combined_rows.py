@@ -1155,41 +1155,73 @@ def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc:
             "assure_card": card_value, "chain_verified_results": count}
 
 
-def kis7(summary_s: dict, bodies: list[object]) -> dict:
-    """KIS-7 (DIESEL-1-R3q §9q.2): CH-5d1's Optimize card on the >=2-priced-Sites path on the S summary: the priced
-    Sites (read from each Site's cost claim) are exactly Kobo and Kisiwa, in the order the server lists Sites, the card has no claim and its
-    value is `cost.sites` for 2 sites, and no string in `bodies` holds a sum of the priced amounts (`never_summed`).
-    Kisiwa unpriced on S fails the row (a stop, never re-expected to the one-Site path)."""
-    from assetops_backend.chain.outcomes import earnings_money
-    from assetops_backend.chain.vocabulary import card_text, sites_text
-
-    if not any(x.get("site_code") == KIS_SITE for x in summary_s.get("sites") or ()):
-        raise KisiwaMissing()
-    priced = []
-    for s in summary_s.get("sites") or ():
+def _optimize_priced(summary: dict) -> list[tuple[str, dict]]:
+    out = []
+    for s in summary.get("sites") or ():
         row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
         claim = (row.get("nodes") or {}).get("earnings")
         if claim is not None and claim.get("value") is not None:
-            priced.append((s.get("site_code"), claim))
-    codes = [code for code, _ in priced]
-    # R3q's literal "[KOBO, KISIWA]" is a slip about order only: the set is the intent. The server lists Sites by
-    # `site_code_key` (kisiwa-001 before kobo-001), so the order is what it returns, never a hard-coded Kobo-first.
-    assert sorted(codes) == sorted(["KOBO-001", KIS_SITE]), ("S: priced Sites on S", codes)
-    served = [s.get("site_code") for s in summary_s.get("sites") or () if s.get("site_code") in {"KOBO-001", KIS_SITE}]
-    assert codes == served, ("S: priced Sites are not in the server's Site order", codes, served)
-    card = (summary_s.get("cards") or {}).get("OPTIMIZE_COST") or {}
-    want = card_text("cost.sites", sites=sites_text(2))
-    assert card.get("claim") is None and (card.get("value") or {}).get("text") == want, ("Optimize card", card, want)
-    amounts = [str(earnings_money(c)["amount_high"]) for _, c in priced]
-    sums = never_summed(amounts, bodies)
-    assert sums > 0, "no sum of priced Sites checked"
-    return {"priced": codes, "card": want, "amounts_high": amounts, "sums_checked": sums, "bodies": len(bodies)}
+            out.append((s.get("site_code"), claim))
+    return out
 
 
-def kis_ov(reads: list[dict], basis_rows: list[dict], board_read_state: object) -> dict:
-    """KIS-OV (DIESEL-1-R3r §9r.2): the Kisiwa Overview answers 200 on each read day (`reads`: label, status, code,
-    body) and exactly one `site_cutover_basis` row is `NO_LEGACY_EVIDENCE` for the Site's own import row and digest
-    (`basis_rows`: basis, same_import, same_sha). The S board's `read_state` is reported, never asserted."""
+def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, board_at) -> dict:
+    """KIS-7 (DIESEL-1-R3s §9s.3, replaces R3q §9q.2 KIS-7): expectations derived from stored rows, never typed.
+    `heads`: each Kisiwa dispatch Finding's latest revision episode (`episode_start`, `episode_end` or None, aware
+    datetimes) with its latest money head (`state`, `amount_high`, `finding_id`); `board_at(date_iso)`: the Kisiwa
+    outcome board body. 1. The S summary's Optimize card is `optimize_card(..., KOBO, allowed=(KOBO, KISIWA))`.
+    2. Kisiwa is priced on S iff some PRICED head's episode overlaps Kisiwa's S local day. 3. On the Kisiwa date of
+    the earliest PRICED head's episode start (d1) the board's Optimize earnings has a value equal to the stored
+    `amount_high` of that day's lead head (greatest episode start, smallest Finding id: `lead_finding`).
+    4. `never_summed` over `bodies` for every summary with two or more priced Sites, else reported as not reached."""
+    from zoneinfo import ZoneInfo
+
+    from assetops_backend.chain.outcomes import earnings_money
+
+    if not any(x.get("site_code") == KIS_SITE for x in summary_s.get("sites") or ()):
+        raise KisiwaMissing()
+    zone = ZoneInfo(KIS_ZONE)
+    card = optimize_card(summary_s, "KOBO-001", allowed=("KOBO-001", KIS_SITE))
+
+    def overlapping(day: date) -> list[dict]:
+        lo, hi = site_day_start(day, zone), site_day_start(day + timedelta(days=1), zone)
+        return [h for h in heads if h["episode_start"] < hi and (h.get("episode_end") is None or h["episode_end"] > lo)]
+
+    priced_heads = [h for h in heads if h.get("state") == "PRICED"]
+    expected_s = any(h in priced_heads for h in overlapping(s_day))
+    codes = [c for c, _ in _optimize_priced(summary_s)]
+    assert (KIS_SITE in codes) == expected_s, ("S: Kisiwa priced on S does not match its stored heads", codes,
+                                              "expected priced on S:", expected_s)
+    assert priced_heads, ("no PRICED Kisiwa head to price a board day from", len(heads))
+    first = min(priced_heads, key=lambda h: (h["episode_start"], str(h["finding_id"])))
+    d1 = first["episode_start"].astimezone(zone).date()
+    board = board_at(d1.isoformat())
+    row = next((r for r in board.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+    money = earnings_money((row.get("nodes") or {}).get("earnings"))
+    assert money is not None, ("d1: the Kisiwa board's Optimize earnings is unpriced", d1.isoformat())
+    day_heads = overlapping(d1)
+    latest = max(h["episode_start"] for h in day_heads)
+    lead = min((h for h in day_heads if h["episode_start"] == latest), key=lambda h: str(h["finding_id"]))
+    assert lead.get("state") == "PRICED", ("d1: the lead head is not PRICED", d1.isoformat(), lead.get("state"))
+    assert Decimal(str(money["amount_high"])) == Decimal(str(lead["amount_high"])), (
+        "d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"], lead["amount_high"])
+    sums, reached = 0, 0
+    for body in [summary_s] + [b for b in bodies if isinstance(b, dict) and "sites" in b]:
+        got = _optimize_priced(body)
+        if len(got) >= 2:
+            reached += 1
+            sums += never_summed([str(earnings_money(c)["amount_high"]) for _, c in got], bodies)
+    return {"optimize_card": card, "kisiwa_priced_on_s": KIS_SITE in codes, "priced_on_s": codes, "d1": d1.isoformat(),
+            "d1_amount_high": str(money["amount_high"]), "sums_checked": sums,
+            "multi_site_bodies": reached or "no summary prices two Sites on real data (>=2 path not reached; L0 covers it)",
+            "bodies": len(bodies)}
+
+
+def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report: dict | None) -> dict:
+    """KIS-OV (DIESEL-1-R3r §9r.2, extended by R3s §9s.2): the Kisiwa Overview answers 200 on each read day (`reads`:
+    label, status, code, body); exactly one `site_cutover_basis` row is `NO_LEGACY_EVIDENCE` for the Site's own import
+    row and digest (`basis_rows`); the newest Kisiwa Performance report (`report`: `outcome`, `empty_set`) is PASSED and
+    empty-set; and the S-5d and S boards (`board_states`: label -> `read_state`) read AVAILABLE."""
     for r in reads:
         assert r.get("status") == 200 and isinstance(r.get("body"), dict) and r["body"], (
             "Kisiwa Overview not served", r.get("label"), r.get("status"), r.get("code"))
@@ -1197,5 +1229,11 @@ def kis_ov(reads: list[dict], basis_rows: list[dict], board_read_state: object) 
     b = basis_rows[0]
     assert b.get("basis") == "NO_LEGACY_EVIDENCE" and b.get("same_import") is True and b.get("same_sha") is True, (
         "Kisiwa cutover basis is not the no-legacy basis of its own import", b)
+    assert report is not None, "no Kisiwa Performance comparison report"
+    assert report.get("outcome") == "PASSED" and report.get("empty_set") is True, (
+        "Kisiwa Performance report is not a PASSED empty-set report", report.get("outcome"), report.get("empty_set"))
+    assert set(board_states) == {"S-5d", "S"} and all(v == "AVAILABLE" for v in board_states.values()), (
+        "a Kisiwa board does not read AVAILABLE", board_states)
     return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
-            "board_read_state": board_read_state}
+            "performance_report": {"outcome": report["outcome"], "empty_set": report["empty_set"]},
+            "board_read_state": board_states}

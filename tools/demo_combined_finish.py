@@ -1127,21 +1127,34 @@ def kis_6(ctx: Ctx) -> dict:
 
 @row("KIS-7")
 def kis_7(ctx: Ctx) -> dict:
-    """KIS-7 (DIESEL-1-R3q §9q.2): CH-5d1's Optimize card on the >=2-priced-Sites path on the S summary (Kobo and
-    Kisiwa), with no sum in the S and week summaries or the Portfolio week body (`demo_rows.kis7`). No Kisiwa:
-    `KisiwaMissing`."""
+    """KIS-7 (DIESEL-1-R3s §9s.3): Kisiwa's S pricing and its first priced board day, expected from the stored
+    Findings' latest heads (`demo_rows.kis7`), with no sum in the S and week summaries or the Portfolio week body.
+    No Kisiwa: `KisiwaMissing`."""
     s_body = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(0)), "to": iso(ctx.day(1))})
     if not any(s.get("site_code") == KISIWA for s in s_body.get("sites") or ()):
         raise KisiwaMissing()
+    site = _kisiwa_site(ctx)
+    from assetops_backend.analytics.dispatch import ANALYTIC_ID
+    from assetops_backend.analytics.finding_episode import DOMAIN
+
+    heads = _kisiwa_sql(
+        ctx, "SELECT f.finding_id, f.episode_start, f.episode_end, h.state, h.amount_high FROM "
+             "(SELECT DISTINCT ON (r.finding_id) r.finding_id, r.episode_start, r.episode_end FROM finding_revision r "
+             "WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s ORDER BY r.finding_id, r.revision_no DESC) f "
+             "LEFT JOIN (SELECT DISTINCT ON (c.finding_id) c.finding_id, c.state, c.amount_high FROM "
+             "financial_consequence_revision c WHERE c.site_id = %s ORDER BY c.finding_id, c.recorded_at DESC, "
+             "c.revision_no DESC) h ON h.finding_id = f.finding_id", site[1], DOMAIN, ANALYTIC_ID, site[1])
     week = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}
     bodies = [s_body, ctx.get("/api/estate/outcome-summary", **week), ctx.get("/api/estate/portfolio", **week)]
-    return {"kisiwa": "present", **demo_rows.kis7(s_body, bodies)}
+    return {"kisiwa": "present", **demo_rows.kis7(
+        s_body, bodies, heads, ctx.S.date(), lambda d: ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=d))}
 
 
 @row("KIS-OV")
 def kis_ov(ctx: Ctx) -> dict:
     """KIS-OV (DIESEL-1-R3r §9r.2): the Kisiwa Overview answers 200 on S-5d and S, exactly one NO_LEGACY_EVIDENCE
-    cutover basis row names the Site's own import, and the S board's `read_state` is reported (`demo_rows.kis_ov`).
+    cutover basis row names the Site's own import, the newest Performance report is PASSED and empty-set, and the S-5d
+    and S boards read AVAILABLE (`demo_rows.kis_ov`, R3s §9s.2).
     No Kisiwa: `KisiwaMissing`."""
     import psycopg
 
@@ -1163,8 +1176,13 @@ def kis_ov(ctx: Ctx) -> dict:
         detail = body.get("detail") if isinstance(body, dict) else None
         reads.append({"label": label, "status": r.status_code, "body": body,
                       "code": detail.get("code") if isinstance(detail, dict) else None})
-    board = ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=ctx.S.date().isoformat())
-    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, board.get("read_state"))}
+    from assetops_backend.evidence.composition import build_performance_comparison_reports
+
+    report = build_performance_comparison_reports().latest(KISIWA)
+    states = {label: ctx.get(f"/api/sites/{KISIWA}/outcome-board",
+                             date=ctx.day(offset).date().isoformat()).get("read_state")
+              for label, offset in (("S-5d", -5), ("S", 0))}
+    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, states, report)}
 
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:

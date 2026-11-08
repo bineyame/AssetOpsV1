@@ -938,36 +938,84 @@ def test_kis6_counts_cells_and_assure_pass_and_each_item_fails() -> None:
         rows.kis6({**summary, "sites": summary["sites"][:3]}, *rest)
 
 
-def _kis7(kisiwa_high: str | None = "7.5", claim=None, extra: str = ""):
-    def site(code, high):
-        cost = None if high is None else {"key": "money.avoided_cost", "text": f"{high} USD",
-                                          "value": {"low": high, "high": high, "currency": "USD"}}
-        return {"site_code": code, "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": cost}}]}
-    summary = {"sites": [site("COLD-LAB-001", None), site("KISIWA-001", kisiwa_high), site("KOBO-001", "15.125")],
-               "cards": {"OPTIMIZE_COST": {"claim": claim, "value": {"text": "Costs at 2 sites"}, "detail": extra}}}
-    # the server's real Site order: by lower-case site code (cold, ev, kisiwa, kobo), so Kisiwa comes before Kobo
-    summary["sites"].sort(key=lambda s: s["site_code"].lower())
-    return summary
+def _cost(high):
+    return None if high is None else {"key": "money.possible_extra_fuel_cost", "text": f"{high} USD",
+                                      "value": {"low": high, "high": high, "currency": "USD"}}
 
 
-def test_kis7_optimize_two_priced_sites_no_sum_and_each_break_fails() -> None:
-    got = rows.kis7(_kis7(), [_kis7()])
-    # H1: the row does not hard-code Kobo first; the priced Sites come in the server's order (Kisiwa, Kobo)
-    assert got["priced"] == ["KISIWA-001", "KOBO-001"] and got["sums_checked"] == 1
-    # the set is still exact: a third priced Site, or a missing one, fails
-    third = _kis7()
-    third["sites"][0]["rows"][0]["nodes"]["earnings"] = {"value": {"high": "1"}, "key": "money.avoided_cost"}
-    with pytest.raises(AssertionError):
-        rows.kis7(third, [_kis7()])
-    for name, (body, bodies) in {
-            "one priced Site": (_kis7(kisiwa_high=None), [_kis7()]),
-            "a present claim": (_kis7(claim={"value": 1}), [_kis7()]),
-            "a summed string": (_kis7(), [_kis7(extra="Total 22.63 USD")])}.items():
+def _site7(code, high):
+    return {"site_code": code, "site_name": code.title(),
+            "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": _cost(high)}}]}
+
+
+def _kis7(kisiwa_high: str | None = None, extra: str = "", kobo_high: str = "15.125"):
+    """An S summary as the server lists it (cold, kisiwa, kobo); the Optimize card follows the priced Sites."""
+    from assetops_backend.chain.vocabulary import COST_SMALL, card_text, sites_text
+
+    sites = [_site7("COLD-LAB-001", None), _site7("KISIWA-001", kisiwa_high), _site7("KOBO-001", kobo_high)]
+    priced = [(s, s["rows"][0]["nodes"]["earnings"]) for s in sites if s["rows"][0]["nodes"]["earnings"]]
+    if len(priced) == 1:
+        card = {"claim": priced[0][1], "value": {"text": priced[0][1]["text"]}, "detail": extra}
+    else:
+        detail = " · ".join(card_text("cost.site", site=s["site_name"], text=c["text"],
+                                      small=COST_SMALL[c["key"].removeprefix("money.")]) for s, c in priced)
+        card = {"claim": None, "value": {"text": card_text("cost.sites", sites=sites_text(len(priced)))},
+                "detail": detail + extra}
+    return {"sites": sites, "cards": {"OPTIMIZE_COST": card}}
+
+
+def _utc(m, d, h, mi):
+    from datetime import datetime, timezone
+    return datetime(2026, m, d, h, mi, tzinfo=timezone.utc)
+
+
+# the two PRICED night-1 heads of the real story (Kisiwa is UTC+3): 20:40-22:05 on 28 Oct and 01:55-03:15 on 29 Oct
+_HEADS7 = [{"finding_id": "f1", "episode_start": _utc(10, 28, 17, 40), "episode_end": _utc(10, 28, 19, 5),
+            "state": "PRICED", "amount_high": "7.5"},
+           {"finding_id": "f2", "episode_start": _utc(10, 28, 22, 55), "episode_end": _utc(10, 29, 0, 15),
+            "state": "PRICED", "amount_high": "3.0"}]
+_S7 = date(2026, 11, 3)
+
+
+def _board7(high="7.5", asked=None):
+    def board_at(day):
+        if asked is not None:
+            asked.append(day)
+        return {"rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": _cost(high)}}]}
+    return board_at
+
+
+def test_kis7_expectations_from_data_pass_and_each_break_fails() -> None:
+    asked: list[str] = []
+    got = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(asked=asked))
+    # no Kisiwa head overlaps S (3 Nov): Kisiwa unpriced on S, Kobo alone priced; d1 is the Kisiwa local date of the
+    # earliest priced head's start (28 Oct 20:40), whose lead head is f1
+    assert got["priced_on_s"] == ["KOBO-001"] and got["kisiwa_priced_on_s"] is False
+    assert got["d1"] == "2026-10-28" and asked == ["2026-10-28"] and got["d1_amount_high"] == "7.5"
+    assert got["sums_checked"] == 0 and "not reached" in got["multi_site_bodies"]
+    for name, args in {
+            "Kisiwa priced on S while expected unpriced": (_kis7("7.5"), [_kis7()], _HEADS7, _S7, _board7()),
+            "d1 unpriced": (_kis7(), [_kis7()], _HEADS7, _S7, _board7(None)),
+            "d1 amount differs": (_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6")),
+            "d1 shows the later head's amount": (_kis7(), [_kis7()], _HEADS7, _S7, _board7("3.0")),
+            "no priced head at all": (_kis7(), [_kis7()], [{**h, "state": "NOT_PRICED"} for h in _HEADS7], _S7,
+                                      _board7())}.items():
         with pytest.raises(AssertionError):
-            rows.kis7(body, bodies)
+            rows.kis7(*args)
             pytest.fail(name)
     with pytest.raises(rows.KisiwaMissing):
-        rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [])
+        rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [], _HEADS7, _S7, _board7())
+
+
+def test_kis7_priced_on_s_when_a_head_overlaps_and_two_priced_sites_are_never_summed() -> None:
+    s_day = date(2026, 10, 28)  # S local day [27 Oct 21:00Z, 28 Oct 21:00Z) holds f1
+    two = _kis7("7.5")
+    got = rows.kis7(two, [two], _HEADS7, s_day, _board7())
+    assert got["priced_on_s"] == ["KISIWA-001", "KOBO-001"] and got["sums_checked"] >= 1  # server Site order
+    with pytest.raises(AssertionError):  # expected priced on S, but the S summary shows Kisiwa unpriced
+        rows.kis7(_kis7(), [_kis7()], _HEADS7, s_day, _board7())
+    with pytest.raises(AssertionError):  # a summed string
+        rows.kis7(two, [two, _kis7("7.5", extra=" Total 22.63 USD")], _HEADS7, s_day, _board7())
 
 
 # ---- DIESEL-K9 R3r (DIESEL-1-R3r §9r.2): KIS-OV and the register call ----------------------------------------------------
@@ -987,21 +1035,50 @@ def test_kis_ov_is_wired_after_kis7() -> None:
     assert ids.index("KIS-OV") == ids.index("KIS-7") + 1
 
 
+_OV_REPORT = {"outcome": "PASSED", "empty_set": True}
+_OV_BOARDS = {"S-5d": "AVAILABLE", "S": "AVAILABLE"}
+
+
 def test_kis_ov_pass_and_each_break_fails() -> None:
-    got = rows.kis_ov(_ov_reads(), _OV_BASIS, "PARTIAL")
+    got = rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT)
     assert got == {"overview_status": {"S-5d": 200, "S": 200}, "basis": "NO_LEGACY_EVIDENCE",
-                   "board_read_state": "PARTIAL"}  # reported, not asserted
-    assert rows.kis_ov(_ov_reads(), _OV_BASIS, None)["board_read_state"] is None
-    for name, (reads, basis) in {
-            "409 awaiting evidence migration": (_ov_reads(409, "AWAITING_EVIDENCE_MIGRATION"), _OV_BASIS),
-            "no basis row": (_ov_reads(), []),
-            "two basis rows": (_ov_reads(), _OV_BASIS * 2),
-            "another basis": (_ov_reads(), [{**_OV_BASIS[0], "basis": "COMPARED"}]),
-            "another import": (_ov_reads(), [{**_OV_BASIS[0], "same_import": False}]),
-            "another digest": (_ov_reads(), [{**_OV_BASIS[0], "same_sha": False}])}.items():
+                   "performance_report": {"outcome": "PASSED", "empty_set": True}, "board_read_state": _OV_BOARDS}
+    for name, (reads, basis, boards, report) in {
+            "409 awaiting evidence migration": (_ov_reads(409, "AWAITING_EVIDENCE_MIGRATION"), _OV_BASIS, _OV_BOARDS,
+                                                _OV_REPORT),
+            "no basis row": (_ov_reads(), [], _OV_BOARDS, _OV_REPORT),
+            "two basis rows": (_ov_reads(), _OV_BASIS * 2, _OV_BOARDS, _OV_REPORT),
+            "another basis": (_ov_reads(), [{**_OV_BASIS[0], "basis": "COMPARED"}], _OV_BOARDS, _OV_REPORT),
+            "another import": (_ov_reads(), [{**_OV_BASIS[0], "same_import": False}], _OV_BOARDS, _OV_REPORT),
+            "another digest": (_ov_reads(), [{**_OV_BASIS[0], "same_sha": False}], _OV_BOARDS, _OV_REPORT),
+            "no report": (_ov_reads(), _OV_BASIS, _OV_BOARDS, None),
+            "a FAILED report": (_ov_reads(), _OV_BASIS, _OV_BOARDS, {**_OV_REPORT, "outcome": "FAILED"}),
+            "a PASSED report that is not empty-set": (_ov_reads(), _OV_BASIS, _OV_BOARDS,
+                                                      {**_OV_REPORT, "empty_set": False}),
+            "a PARTIAL S board": (_ov_reads(), _OV_BASIS, {**_OV_BOARDS, "S": "PARTIAL"}, _OV_REPORT),
+            "a PARTIAL S-5d board": (_ov_reads(), _OV_BASIS, {**_OV_BOARDS, "S-5d": "PARTIAL"}, _OV_REPORT),
+            "a board not read": (_ov_reads(), _OV_BASIS, {"S": "AVAILABLE"}, _OV_REPORT)}.items():
         with pytest.raises(AssertionError):
-            rows.kis_ov(reads, basis, "OK")
+            rows.kis_ov(reads, basis, boards, report)
             pytest.fail(name)
+
+
+def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
+    import types
+
+    import demo_combined as dc
+
+    def run(sites):
+        seen: list[str] = []
+
+        def py(*args, **kw):
+            seen.append(args[args.index("--site") + 1] if "--site" in args else args[-1])
+            return types.SimpleNamespace(stdout="ok")
+        dc.Demo.performance_and_prebuild(types.SimpleNamespace(story=lambda: {"sites": sites}, py=py))
+        return seen[:-1]  # the last call is the pre-build
+
+    assert run(["kobo", "kisiwa"]) == ["KOBO-001", "KISIWA-001"]
+    assert run(["kobo"]) == ["KOBO-001"]
 
 
 def test_register_records_the_no_legacy_basis_after_register_in(monkeypatch, tmp_path) -> None:

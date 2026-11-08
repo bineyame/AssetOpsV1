@@ -35,16 +35,11 @@ BUNDLE_SCHEMA = "chain-coherence-bundle/1"
 REPORT_SCHEMA = "chain-coherence-report/1"
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "kisiwa": "KISIWA-001"}
 #: CH-5a1 (R6, CH5a1-R Q8; closes MD0-R R10): the Sites whose board day is their Site-local day. EV keeps its
-<<<<<<< HEAD
 #: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`). DIESEL-1-R3q: Kisiwa's boards are its Site-local day too.
 LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa", "kisiwa": "Africa/Dar_es_Salaam"}
+SUMMARY_SITE_TZ = {"KISIWA-001": "Africa/Dar_es_Salaam"}  # DIESEL-1-R3p: config/operational-actions/kisiwa-001-operational-actions-v1.yaml timezone; Kisiwa boards stay K9's (SITE_CODE)
 #: DIESEL-1-R3q: the Kisiwa boards `demo_combined.story_links` opens (offset from S in days, id kind).
 KISIWA_BOARD_DAYS = ((-5, "fuel-morning"), (0, "S"))
-=======
-#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`).
-LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa"}
-SUMMARY_SITE_TZ = {"KISIWA-001": "Africa/Dar_es_Salaam"}  # DIESEL-1-R3p: config/operational-actions/kisiwa-001-operational-actions-v1.yaml timezone; Kisiwa boards stay K9's (SITE_CODE)
->>>>>>> main
 DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
 ESTATE_WINDOWS = ("week", "S", "month")
 HTTP_TIMEOUT_SECONDS = 30
