@@ -20,7 +20,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from assetops_backend.chain.read import FindingHead
-from assetops_backend.chain.reader import declared_none_day
+from assetops_backend.chain.reader import declared_none_day, site_never_declared
 from assetops_backend.mini_depth.read import productive_loads
 from assetops_backend.evidence.public_provenance import (LinkRowsReads, PublicProvenance, estate_projection,
                                                          finding_row_selection)
@@ -164,7 +164,7 @@ _END = datetime(9999, 1, 1, tzinfo=timezone.utc)
 
 #: K10 v2 (R3t §9t.3 item 3): ONE statement - the Site's timezone (the column the builder's Site read gives
 #: `SiteRef.timezone`) plus every Foundation revision of the Site known at `k` (as `MiniDepthRead.productive_users`
-#: reads it) whose validity overlaps `[local start of lo, local start of hi + 1 day)`. `k` None = live, in this
+#: reads it), at any validity (R3t4: the gate needs the whole known history). `k` None = live, in this
 #: file's `CAST(:k AS timestamptz) IS NULL OR ...` form (no SQL clock read: CH-5c2 C3 clock guard): live means every
 #: recorded revision not superseded, which is `COALESCE(:k, clock_timestamp())` for rows the database already holds.
 _DECLARED_NONE = text("""
@@ -175,8 +175,6 @@ SELECT s.timezone, r.valid_from, r.valid_to, r.content
    AND (CAST(:k AS timestamptz) IS NULL OR r.recorded_at <= CAST(:k AS timestamptz))
    AND (r.superseded_at IS NULL
         OR (CAST(:k AS timestamptz) IS NOT NULL AND r.superseded_at > CAST(:k AS timestamptz)))
-   AND r.valid_from < (CAST(:hi AS timestamp) AT TIME ZONE s.timezone)
-   AND (r.valid_to IS NULL OR r.valid_to > (CAST(:lo AS timestamp) AT TIME ZONE s.timezone))
  WHERE s.tenant_id = :t AND s.id = :s
 """)
 
@@ -190,6 +188,8 @@ def declared_none_of(tz: str | None, revisions: Sequence[tuple[Any, Any, Any]], 
     zone = ZoneInfo(tz)
     revs = [(vf, vt, bool(productive_loads(c if isinstance(c, Mapping) else json.loads(c))))
             for vf, vt, c in revisions if vf is not None]
+    if not site_never_declared(revs):   # R3t4: a Site that ever declared productive equipment declares nothing absent
+        return frozenset()
     out = set()
     for d in days:
         lo = datetime.combine(d, time.min, zone).astimezone(timezone.utc)
@@ -233,9 +233,7 @@ class PostgresChainRead:
         `ChainReadPort` method). Only `productive_kwh`; one statement; never inferred from a missing row."""
         if measure != "productive_kwh" or not days:
             return frozenset()
-        lo, hi = min(days), max(days)
-        params = {"t": tenant_id, "s": site_id, "k": known_at, "lo": datetime.combine(lo, time.min),
-                  "hi": datetime.combine(hi + timedelta(days=1), time.min)}
+        params = {"t": tenant_id, "s": site_id, "k": known_at}
         with self._engine.connect() as c:
             rows = c.execute(_DECLARED_NONE, params).all()
         if not rows:

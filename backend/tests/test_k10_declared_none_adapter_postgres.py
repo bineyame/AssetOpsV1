@@ -119,7 +119,7 @@ def test_r3t3_case_6_mid_day_mill_gives_no_day(world):
     s = site(engine, tenant, (NONE_DECLARED, T0, local(D2, 8), T0, None), (WITH_LOAD, local(D2, 8), local(D2, 14), T0, None),
              (NONE_DECLARED, local(D2, 14), None, T0, None))
     assert call(port, tenant, s, days=(D2,)) == frozenset()
-    assert call(port, tenant, s) == frozenset({D1, D3})
+    assert call(port, tenant, s) == frozenset()   # R3t4: the Site ever declared a mill, so no day is declared absent
 
 
 def test_r3t3_case_7_mid_day_gap_gives_no_day(world):
@@ -133,10 +133,40 @@ def test_revision_change_inside_the_day_with_a_load_at_the_end_gives_no_day(worl
     engine, tenant, port = world
     change = local(D2, 12)   # midday local D2
     s = site(engine, tenant, (NONE_DECLARED, T0, change, T0, None), (WITH_LOAD, change, None, T0, None))
-    assert call(port, tenant, s) == frozenset({D1})
+    assert call(port, tenant, s) == frozenset()   # R3t4: ever a mill
     # the same change with no load on either side: each bound has exactly one revision declaring none
     t = site(engine, tenant, (NONE_DECLARED, T0, change, T0, None), (NONE_DECLARED, change, None, T0, None))
     assert call(port, tenant, t) == frozenset({D1, D2, D3})
+
+
+def test_r3t4_kobo_history_gives_no_day_on_any_window(world):
+    engine, tenant, port = world
+    kobo_none_from = datetime(2026, 9, 29, 11, 57, tzinfo=timezone.utc)
+    mill_from = datetime(2026, 10, 8, 11, 25, tzinfo=timezone.utc)
+    rec = datetime(2026, 10, 8, 11, 30, tzinfo=timezone.utc)
+    s = site(engine, tenant, (NONE_DECLARED, kobo_none_from, mill_from, rec, None), (WITH_LOAD, mill_from, None, rec, None))
+    k = datetime(2026, 11, 7, tzinfo=timezone.utc)
+    for end in (date(2026, 11, 6), date(2026, 11, 1), date(2026, 10, 28), date(2026, 10, 5)):
+        days = [end - timedelta(days=i) for i in range(30, -1, -1)]
+        assert call(port, tenant, s, days=days, known_at=k) == frozenset(), end
+
+
+def test_r3t4_mill_superseded_before_k_or_recorded_after_k_does_not_block(world):
+    engine, tenant, port = world
+    gone = site(engine, tenant, (NONE_DECLARED, T0, None, T0, None),
+                (WITH_LOAD, T0, None, T0, K - timedelta(days=1)))             # corrected away before k
+    assert call(port, tenant, gone) == frozenset({D1, D2, D3})
+    after = datetime(2026, 12, 1, tzinfo=timezone.utc)
+    later = site(engine, tenant, (NONE_DECLARED, T0, after, T0, None),
+                 (WITH_LOAD, after, None, K + timedelta(days=1), None))       # recorded after k
+    assert call(port, tenant, later) == frozenset({D1, D2, D3})
+
+
+def test_r3t4_mill_valid_only_after_the_window_still_blocks(world):
+    engine, tenant, port = world
+    after = datetime(2026, 12, 1, tzinfo=timezone.utc)
+    s = site(engine, tenant, (NONE_DECLARED, T0, after, T0, None), (WITH_LOAD, after, None, T0, None))
+    assert call(port, tenant, s) == frozenset()
 
 
 def test_the_call_is_exactly_one_statement(world):

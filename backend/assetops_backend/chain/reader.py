@@ -73,6 +73,11 @@ def declared_none_day(revisions: Sequence[tuple[datetime, datetime | None, bool]
     return cursor is None or cursor >= hi
 
 
+def site_never_declared(revisions: Sequence[tuple[datetime, datetime | None, bool]]) -> bool:
+    """R3t4: True when no known revision (any validity) has a productive load; else no day is declared absent."""
+    return not any(has for _, _, has in revisions)
+
+
 def applicable_measures(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str],
                         none_declared: Collection[str] = ()) -> tuple[str, ...]:
     """R3t: `measures` without each m in `none_declared` ∩ DECLARED_SUBJECT_MEASURES that has no row this day,

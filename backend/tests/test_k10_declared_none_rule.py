@@ -219,8 +219,8 @@ def test_declared_none_of_needs_exactly_one_revision_at_both_bounds():
     assert declared_none_of(None, [(t0, None, none)], days) == frozenset()              # no timezone
     assert declared_none_of(tz, [(t0, None, none), (t0, None, none)], days) == {D1, D2, D3}  # R3t3: overlap allowed
     assert declared_none_of(tz, [(t0, None, none), (t0, None, load)], days) == frozenset()   # any overlapping mill
-    assert declared_none_of(tz, [(t0, mid, none), (mid, None, load)], days) == {D1}      # load at D2's end
-    assert declared_none_of(tz, [(t0, mid, load), (mid, None, none)], days) == {D3}      # load at D2's start
+    assert declared_none_of(tz, [(t0, mid, none), (mid, None, load)], days) == frozenset()   # R3t4: ever a mill
+    assert declared_none_of(tz, [(t0, mid, load), (mid, None, none)], days) == frozenset()   # R3t4: ever a mill
     assert declared_none_of(tz, [(t0, mid, none), (mid, None, none)], days) == {D1, D2, D3}
     # the local end bound: a revision ending at local midnight D3 leaves D3 uncovered
     end_d2 = datetime(2026, 10, 27, 21, tzinfo=timezone.utc)
@@ -251,6 +251,72 @@ def test_r3t3_declared_none_day_eleven_cases():
     # only revisions overlapping the day count: one ending at lo, or starting at hi, is ignored
     assert f([(_h(-9), LO, True), (LO, HI, False), (HI, None, True)], LO, HI) is True
     assert f([(_h(-9), LO, False)], LO, HI) is False
+
+
+# ---- R3t4: a Site that ever declared productive equipment declares nothing absent ----------------------------------
+
+def _rev(content_kind):
+    house = {"component_id": "HH", "component_type": "LOAD",
+             "properties": [{"property_key": "supply-use", "unit": "state", "value": "ESSENTIAL"}]}
+    mill = {"component_id": "MILL", "component_type": "LOAD",
+            "properties": [{"property_key": "supply-use", "unit": "state", "value": "PRODUCTIVE"}]}
+    return {"components": [house, mill] if content_kind == "mill" else [house]}
+
+
+def _window(end, n=31):
+    return [end - timedelta(days=i) for i in range(n - 1, -1, -1)]
+
+
+def test_r3t4_site_never_declared_pure_gate():
+    from datetime import datetime, timezone
+    t = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    assert rd.site_never_declared([]) is True
+    assert rd.site_never_declared([(t, None, False), (t, t, False)]) is True
+    assert rd.site_never_declared([(t, None, False), (t, None, True)]) is False
+
+
+def test_r3t4_kobo_history_declares_nothing_absent_on_any_window():
+    from datetime import datetime, timezone
+    from assetops_backend.chain.adapters.postgres_chain_read import declared_none_of
+    tz = "Africa/Dar_es_Salaam"
+    revs = [(datetime(2026, 9, 29, 11, 57, tzinfo=timezone.utc), datetime(2026, 10, 8, 11, 25, tzinfo=timezone.utc), _rev("none")),
+            (datetime(2026, 10, 8, 11, 25, tzinfo=timezone.utc), None, _rev("mill"))]
+    for end in (date(2026, 11, 6), date(2026, 11, 1), date(2026, 10, 28), date(2026, 10, 5)):   # S, S-5d, d1, 10-05
+        assert declared_none_of(tz, revs, _window(end)) == frozenset(), end
+
+
+def test_r3t4_kisiwa_shaped_history_keeps_the_r3t3_results():
+    from datetime import datetime, timezone
+    from assetops_backend.chain.adapters.postgres_chain_read import declared_none_of
+    tz = "Africa/Dar_es_Salaam"
+    t0 = datetime(2026, 10, 26, 10, tzinfo=timezone.utc)   # 13:00 local on D1: D1 is not covered
+    revs = [(t0, datetime(2026, 11, 2, tzinfo=timezone.utc), _rev("none")), (datetime(2026, 11, 2, tzinfo=timezone.utc), None, _rev("none"))]
+    assert declared_none_of(tz, revs, (D1, D2, D3)) == {D2, D3}
+    assert declared_none_of(tz, [(datetime(2026, 9, 1, tzinfo=timezone.utc), None, _rev("none"))], (D1, D2, D3)) == {D1, D2, D3}
+
+
+def test_r3t4_a_mill_valid_only_after_the_window_still_blocks():
+    from datetime import datetime, timezone
+    from assetops_backend.chain.adapters.postgres_chain_read import declared_none_of
+    tz = "Africa/Dar_es_Salaam"
+    t0 = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    revs = [(t0, datetime(2026, 12, 1, tzinfo=timezone.utc), _rev("none")), (datetime(2026, 12, 1, tzinfo=timezone.utc), None, _rev("mill"))]
+    assert declared_none_of(tz, revs, (D1, D2, D3)) == frozenset()
+
+
+def test_r3t4_the_eleven_r3t3_cases_hold_on_a_never_declared_site():
+    # the 11 cases carry has_productive=True revisions; a Site with any such revision now declares nothing, so the
+    # cases that hold with only no-load revisions are 1-5 and 7-10; 6 and 11 are blocked by the gate (False either way)
+    f = rd.declared_none_day
+    for revs, want in (([(_h(-5), _h(30), False)], True), ([(_h(-5), None, False)], True),
+                       ([(_h(-5), _h(12), False), (_h(12), _h(30), False)], True), ([(_h(-5), HI, False)], True),
+                       ([(_h(-5), _h(8), False), (_h(14), None, False)], False), ([(_h(0.5), None, False)], False),
+                       ([(_h(-5), _h(23), False)], False), ([], False)):
+        assert rd.site_never_declared(revs) is True and f(revs, LO, HI) is want
+    mill_cases = ([(_h(-5), _h(8), False), (_h(8), _h(14), True), (_h(14), None, False)],
+                  [(_h(-5), None, False), (_h(8), _h(14), True)])
+    for revs in mill_cases:
+        assert rd.site_never_declared(revs) is False
 
 
 def test_counts_rule_with_declaration_over_a_window():
