@@ -616,7 +616,8 @@ class _FakeEngine:
         return contextlib.nullcontext(SimpleNamespace(execute=lambda *a, **k: result))
 
 
-def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", **plan_changes) -> list[tuple]:
+def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", freeze_status: int = 201,
+                   **plan_changes) -> list[tuple]:
     """K6b's service replaced by a fake that records each call with its clock's instant."""
     from types import SimpleNamespace
 
@@ -630,7 +631,7 @@ def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", **plan_ch
     def build(url, *, test_clock):
         def freeze(t, s, a):
             calls.append(("freeze", test_clock()))
-            return 201, {"replayed": False, "plan": plan}
+            return freeze_status, {"replayed": freeze_status != 201, "plan": plan}
 
         def evaluate(t, s, a):
             calls.append(("evaluate", test_clock()))
@@ -675,6 +676,15 @@ def test_k7f_a_plan_off_the_card_is_stop_s6(monkeypatch, change: dict) -> None:
     cal = calendar()
     _fake_services(monkeypatch, cal, **change)
     with pytest.raises(SystemExit, match="FREEZE \\(stop S-6\\)"):
+        kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
+
+
+def test_k7f_a_freeze_answered_200_is_stop_s6(monkeypatch) -> None:
+    """K7-F review L2 (K9): the freeze must create the plan (201); a 200 (a replay of an earlier plan) with an
+    otherwise on-card plan is stop S-6, so the `status` entry of the freeze check is not vacuous."""
+    cal = calendar()
+    _fake_services(monkeypatch, cal, freeze_status=200)
+    with pytest.raises(SystemExit, match="FREEZE \\(stop S-6\\).*'status': \\(200, 201\\)"):
         kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
 
 
