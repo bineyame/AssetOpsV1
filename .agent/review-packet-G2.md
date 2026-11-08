@@ -91,6 +91,26 @@ drift (cf. branch `task/FIX-clock-dependent-power-fixture`). A baseline on the p
 - `test_fix_cold_drain_tick_postgres.py` p1-p3: pre-existing replay-fixture family (R3.4), tracked to E2; the
   confirming run on main is the reviewer's.
 
+## Fix round R3.8 (review REJECT on M1, `review-G2.md` e2400a0d1), 2026-11-09
+
+Files: `fuel_balance/model.py` (`ScheduleInputs.window_records`, `record_heads`, defaulted trailing),
+`adapters/postgres_fuel_balance_store.py` (`schedule_inputs` keeps the heads and the stored record pairs: no new query),
+`fuel_balance/scheduled.py` (due step 4b; per-night CLOCK_BACKWARDS in `run_site`); tests `test_own_g2_fuel_night_due.py`
+(`inputs` helper, `test_5b`), `test_own_g2_fuel_night_stage.py` (clock-backwards test replaced, other-refusal test added),
+`test_own_g2_fuel_night_tick_postgres.py` (`site["p5_dip"]`, `test_p5b` last).
+
+| Ruling | Evidence |
+|---|---|
+| D-R3.8 (M1): a record that leaves an old night re-checks it (window start >= known_at - 31 d) | `test_5b_a_record_that_left_an_old_night_rechecks_it` (changed head, missing head, unchanged, not ready, 31-d edge); Postgres `test_p5b` (N9 due, rev 3 equals rev 1, not due on the next tick) |
+| D-R3.10 (L3): CLOCK_BACKWARDS night recorded REFUSED, later nights continue, one refusal raised after the loop | `test_clock_backwards_on_one_night_still_checks_later_nights_then_fails_the_stage`, `test_any_other_refusal_still_fails_at_once` |
+| D-R3.9 (L2): accepted, no code | none |
+
+- No-DB set: **205 passed in 6.8 s** (203 - 1 replaced + 1 `test_5b` + 2 stage).
+- `test_own_g2_fuel_night_tick_postgres.py`, whole, one process, file order, `-s`, no `-k`/`-n`: **6 passed in 1038 s
+  (17.3 min)**. P5b lines: `heads 7e9d3fc1-... held ((dc6695d5-..., dc6695d5-...),)`; `APPENDED rev 3, night
+  2026-10-29, NO_FINDING, WITHIN_MARGIN, limitations []`; `again None`.
+- R3.6 item 3 pins not rerun (no stage, tick or limits file changed).
+
 ## User review
 
 Not required by itself. D-R3.7 is logged for owner review (R3.7).

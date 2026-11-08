@@ -1,4 +1,4 @@
-"""OWN-G2 (build sheet OWN-GAPS §2.7 P1-P7, as amended by R2-G2 Q1, Q5, Q6, Q7, Q10, Q12): the schedule tick's
+"""OWN-G2 (build sheet OWN-GAPS §2.7 P1-P7 and P5b (D-R3.8), as amended by R2-G2 Q1, Q5, Q6, Q7, Q10, Q12): the schedule tick's
 `fuel_night` stage on Postgres.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database; skipped without it.
@@ -11,7 +11,7 @@ accepted with the decision clock at DB now - 10 min. Night N2 is assessed and ra
 instant before the ticks (P6). The tick's other stages run in process; `fuel_night` runs as a real `StageRunner`
 child on the database's own clock.
 
-Measured: 5 passed in 989 s (16.5 min), one process, file order, `-s`, no `-k`/`-n` (R3.2).
+Measured: 6 passed in 1038 s (17.3 min), one process, file order, `-s`, no `-k`/`-n` (R3.2).
 """
 
 from __future__ import annotations
