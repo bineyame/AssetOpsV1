@@ -1053,6 +1053,42 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(tr)).toContain("No action yetNo action agreed yet");
   });
 
+  it("R4.1: a Cold row with a thread state shows it in bold; one with no action agreed keeps the no-action text", async () => {
+    const link = (fid: string) => ({
+      links: { site: "/sites/COLD-001", finding: `/sites/COLD-001/findings/${fid}`, action: null },
+      link_refs: {
+        site: { kind: "SITE" as const, site: "COLD-001" },
+        finding: { kind: "FUEL_FINDING" as const, site: "COLD-001", id: fid },
+        action: null,
+      },
+    });
+    const pending = row({
+      finding_id: "c1c1c1c1-0000-4000-8000-000000000001",
+      finding_revision_id: "d1d1d1d1-0000-4000-8000-000000000001",
+      mechanism: "COLD_START_FAILURE",
+      action_id: null,
+      workflow_label: "Pending",
+      ...link("c1c1c1c1-0000-4000-8000-000000000001"),
+    });
+    const none = row({
+      finding_id: "c2c2c2c2-0000-4000-8000-000000000002",
+      finding_revision_id: "d2d2d2d2-0000-4000-8000-000000000002",
+      mechanism: "COLD_EXCURSION",
+      action_id: null,
+      workflow_label: "No action agreed yet",
+      ...link("c2c2c2c2-0000-4000-8000-000000000002"),
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [pending, none] }))));
+    await settledScreen();
+    const p = document.querySelector(`[data-portfolio-row^='c1c1c1c1']`) as HTMLElement;
+    const cell = p.querySelectorAll("td")[5] as HTMLElement;
+    expect(cell.querySelector("strong[data-portfolio-workflow]")?.textContent).toBe("Pending");
+    expect(text(cell)).not.toContain("No action yet");
+    expect(text(cell)).toContain("Review finding");
+    const n = document.querySelector(`[data-portfolio-row^='c2c2c2c2']`) as HTMLElement;
+    expect(text(n)).toContain("No action yetNo action agreed yet");
+  });
+
   it("namesOnePrioritySiteInTheSingular", async () => {
     const base = portfolioBody();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));

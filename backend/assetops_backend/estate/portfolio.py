@@ -252,10 +252,11 @@ def line_groups(lines: list[dict[str, Any]], groups: list[dict[str, Any]]) -> di
     return out
 
 
-#: DIESEL-1-R3p: a fuel row's Action is a FUEL_BALANCE domain Action, which `_action_for` cannot see; its column
-#: reads its thread state with the existing workflow words. Cold and EV rows are unchanged.
-FUEL_THREAD_LABEL = {"RESOLVED_MONITORING": "Verified", "CLOSED": "Verified", "CHANGE_APPLIED": "Applied",
-                     "ACTION_IN_HAND": "Pending"}
+#: DIESEL-1-R3p, generalised by R4.1: a row whose Action the Portfolio does not join (the fuel row, FUEL_BALANCE
+#: domain, and every Cold/EV row, since `select_action_scope` reads mini-grid Actions only) reads its thread state
+#: with the existing workflow words.
+THREAD_LABEL = {"RESOLVED_MONITORING": "Verified", "CLOSED": "Verified", "CHANGE_APPLIED": "Applied",
+                "ACTION_IN_HAND": "Pending"}
 
 
 def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: dict[str, Any] | None = None,
@@ -263,8 +264,9 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
     site = r["_site"]
     fid, frid = r["finding_id"], r["finding_revision_id"]
     action = _action_for(r, actions)
-    label = (FUEL_THREAD_LABEL.get((r.get("_thread") or {}).get("state"), "No action agreed yet")
-             if r.get("_mechanism") == "UNEXPLAINED_FUEL" else None)
+    unjoined = r.get("_mechanism") == "UNEXPLAINED_FUEL" or (
+        action is None and DOMAIN_OF_SITE_TYPE.get(r["_domain"], NOT_APPLICABLE) in (COLD, EV))
+    label = (THREAD_LABEL.get((r.get("_thread") or {}).get("state"), "No action agreed yet") if unjoined else None)
     placed = place(r, action, site_cov or {}, line_group, label=label)  # CC-R2: row facts only; `priority` null
     return {
         "site_id": r["site_id"], "site_code": r["site_code"], "site_name": r["site_name"], "domain": r["_domain"],
