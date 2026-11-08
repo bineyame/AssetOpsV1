@@ -971,7 +971,14 @@ const loadName = (row: ServiceRow): string => (row.role === "CRITICAL" ? `${row.
 
 /** Final review ruling 2 (M2): the clinic bar and row name the feeder series, never the critical-service record. */
 export const CLINIC_FEEDER_LABEL = "Clinic feeder delivered power";
-const feederName = (row: ServiceRow): string => (row.role === "CRITICAL" ? CLINIC_FEEDER_LABEL : row.load_label);
+/** DIESEL-1-R3p R-LOAD, MOCK DEVIATION MD-KIS-K1-1: a critical load named as a clinic or health load keeps v69's
+ *  words (Kobo byte-equal); any other critical load names its own feeder. */
+export const feederName = (row: ServiceRow): string =>
+  row.role !== "CRITICAL"
+    ? row.load_label
+    : /clinic|health/i.test(row.load_label)
+      ? CLINIC_FEEDER_LABEL
+      : `${row.load_label} feeder delivered power`;
 
 /** Ruling 2: the critical card's note names its own record and its own coverage; never the feeder's. */
 const CRITICAL_RECORD = "Critical-service delivered power record";

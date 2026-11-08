@@ -298,6 +298,8 @@ function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
 export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<string>): boolean {
   // CH5a2-R4(c): the gate reads the Ref sibling, never the legacy href text.
   const ref = row.link_refs?.finding;
+  // DIESEL-1-R3p: an unexplained-fuel Finding opens its own page (one address, no window or revision to prove).
+  if (ref?.kind === "FUEL_FINDING") return Boolean(linkFor(ref));
   if (!ref || ref.kind !== "FINDING" || !linkFor(ref)) return false;
   if (miniGridIds.has(row.site_id)) return true;
   const w = ref.window;

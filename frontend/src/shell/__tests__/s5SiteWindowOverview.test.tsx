@@ -12,6 +12,7 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
+import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import type { FindingIndexClient } from "../../sites/findingIndexClient";
 import type {
   OverviewSelection,
@@ -23,6 +24,8 @@ import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/eviden
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import {
   MINIGRID_OBJECTIVE,
+  OBJECTIVE_NO_LOADS,
+  minigridObjective,
   MONEY_STATE_WORDS,
   MONEY_ZERO,
   MONEY_ZERO_NOTE,
@@ -38,11 +41,24 @@ import { settledScreen } from "../../test/settled";
 import { expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
-const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
+/** DIESEL-1-R3p R-LOAD: the shared hybrid fixture with a Site's own LOAD names in place of its one
+ *  "Distribution load" (the shared fixture is not changed; it serves many other files). */
+function withLoadNames(names: readonly string[]): SiteDetailReadModel {
+  const others = HYBRID_MINI_GRID_SITE.foundation.components.filter((c) => c.component_type !== "LOAD");
+  const template = HYBRID_MINI_GRID_SITE.foundation.components.find((c) => c.component_type === "LOAD")!;
+  const loads = names.map((display_name, i) => ({ ...template, component_id: i === 0 ? template.component_id : `${template.component_id}-${i}`, display_name }));
+  return { ...HYBRID_MINI_GRID_SITE, foundation: { ...HYBRID_MINI_GRID_SITE.foundation, components: [...others, ...loads] } };
+}
+/** Kobo's served Foundation LOAD names (`kobo-mini-grid-60kw.yaml`), so the H3 tests keep asserting v69's sentence. */
+const KOBO_LOAD_NAMES = ["Residential feeder", "Health clinic", "Grain mill"] as const;
+const KISIWA_LOAD_NAMES = ["Households", "Cold store (ice and fish)", "Water pump"] as const;
+const SITE = withLoadNames(KOBO_LOAD_NAMES);
+const SITE_ID = SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
-const DETAIL: SiteDetailClient = {
-  getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }),
-};
+const detailOf = (site: SiteDetailReadModel): SiteDetailClient => ({
+  getSite: () => Promise.resolve({ status: "loaded", site }),
+});
+const DETAIL: SiteDetailClient = detailOf(SITE);
 
 function LocationProbe() {
   const location = useLocation();
@@ -65,13 +81,13 @@ const NO_MINI: MiniDepthClient = (() => {
   return { getCapabilities: no, getService: no, getFuel: no, getRenewable: no, getBackup: no };
 })();
 
-function renderAt(path: string, overview: SiteOverviewClient) {
+function renderAt(path: string, overview: SiteOverviewClient, detail: SiteDetailClient = DETAIL) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <App
         flags={featureFlagsWith(false)}
         siteDirectory={DIRECTORY}
-        siteDetail={DETAIL}
+        siteDetail={detail}
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteOverview={overview}
         siteFindingIndex={NO_INDEX}
@@ -433,6 +449,37 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(disclosure.scanned).toBeGreaterThan(2);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
     expectLatestCheckedLine(objectiveCard());
+  });
+
+  it("DIESEL-1-R3p R-LOAD: a Site with no clinic or health load states its own loads, in product vocabulary", async () => {
+    const { client } = clientOf(() => summary());
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client, detailOf(withLoadNames(KISIWA_LOAD_NAMES)));
+    await settledScreen();
+    const line = document.querySelector("[data-objective-statement]")?.textContent;
+    expect(line).toBe(minigridObjective(KISIWA_LOAD_NAMES));
+    expect(line).toBe("Objective: serve Households, Cold store (ice and fish) and Water pump while protecting the battery reserve.");
+    expect(line).not.toBe(MINIGRID_OBJECTIVE);
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview own loads (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(5);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const all = scanProductVocabulary(container, "overview own loads");
+    expect(all.violations, describeViolations(all.violations)).toEqual([]);
+  });
+});
+
+describe("DIESEL-1-R3p R-LOAD: minigridObjective", () => {
+  it("keeps v69's words for no names and for a clinic or health load, else names the loads", () => {
+    expect(minigridObjective(undefined)).toBe(MINIGRID_OBJECTIVE);
+    expect(minigridObjective(KOBO_LOAD_NAMES)).toBe(MINIGRID_OBJECTIVE);
+    expect(minigridObjective(["Health post"])).toBe(MINIGRID_OBJECTIVE);
+    expect(minigridObjective(KISIWA_LOAD_NAMES)).toBe(
+      "Objective: serve Households, Cold store (ice and fish) and Water pump while protecting the battery reserve.",
+    );
+    expect(minigridObjective([])).toBe(OBJECTIVE_NO_LOADS);
+    expect(minigridObjective(["Water pump"])).toBe("Objective: serve Water pump while protecting the battery reserve.");
+    expect(minigridObjective(["Households", "Water pump"])).toBe(
+      "Objective: serve Households and Water pump while protecting the battery reserve.",
+    );
   });
 });
 

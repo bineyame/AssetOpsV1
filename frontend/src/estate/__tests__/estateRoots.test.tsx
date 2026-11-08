@@ -216,6 +216,40 @@ describe("W3-01 estate roots", () => {
     view.unmount();
   });
 
+  it("DIESEL-1-R3p: the fuel Finding row links its own fuel page, shows its own interval and adds no client words", async () => {
+    // A FUEL_FINDING ref is live on its own (one page, no revision or window); the server sends every word.
+    const fid = "10000000-0000-4000-8000-000000000177";
+    const href = `/sites/KISIWA-001/fuel-findings/${fid}`;
+    const fuel = findingRow(7, {
+      finding_id: fid,
+      site_code: "KISIWA-001",
+      site_name: "Kisiwa Island Mini-grid",
+      title: "Unexplained fuel overnight",
+      lens_flags: ["RISK"],
+      consequence: {
+        state: "PRICED",
+        amount: "41.25",
+        amount_low: "41.25",
+        amount_high: "57.75",
+        currency: "USD",
+        source_revision_id: "10000000-0000-4000-8000-000000000377",
+      },
+      links: { finding: href, site: "/sites/KISIWA-001" },
+      link_refs: { finding: { kind: "FUEL_FINDING", site: "KISIWA-001", id: fid }, site: { kind: "SITE", site: "KISIWA-001" } },
+    });
+    const view = renderAt(`/findings/risks?${WINDOW}`, fakeClient(() => loaded(findingsBody("risks", { rows: [fuel] }))));
+    await settledScreen();
+    const row = main().querySelector("tbody tr") as HTMLElement;
+    const title = within(row).getByText("Unexplained fuel overnight");
+    expect(title.tagName).toBe("A");
+    expect(title.getAttribute("href")).toBe(href);
+    expect(row.textContent).toContain("41.25–57.75 USD");
+    expect(row.textContent).not.toContain("Finding detail unavailable");
+    const { violations } = scanProductVocabulary(main(), "estate fuel row");
+    expect(violations, describeViolations(violations)).toEqual([]);
+    view.unmount();
+  });
+
   it("test_date_bar_cutoff_copy_by_state", async () => {
     // L2: loading and refusal read `latest`; page one adds the suffix; a continuation and an explicit cutoff do not.
     const cutoff = () => main().querySelector("[data-estate-cutoff]")?.textContent;

@@ -5401,3 +5401,118 @@ Either stop means report to the Architect, with no patch and no prepare.
 ### 9r.6 Owner questions
 
 None.
+
+## 9s. Ruling DIESEL-1-R3s — Kisiwa's closed Performance gate (board PARTIAL) and KIS-7 on real data
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only code reading in `AssetOpsV1-k9` (`task/DIESEL-K9-checks-rehearsal` at 53421ce0d) and main 96d597573 (K8 merged). No DB, no suites. Trigger: the K9 fix round found the Kisiwa board PARTIAL from the closed Performance gate, and KIS-7 likely unpriced for Kisiwa on S. This ruling amends §9r.2 (R3r's statement that the Performance gate stays closed) and R3q §9q.2 KIS-7 item 4.
+
+### 9s.1 What the closed gate costs on the demo (READ)
+
+**The coordinator's cause is confirmed.**
+- `dispatch` (`site_outcomes/read.py:257`) and `chain_findings` (`:240`) both go through `_open` (`:140-143`), which raises `PortUnavailable`.
+- The gates are `performance_gate` and `finding_index_gate` = `basis_aware_gate(performance_gate, ...)` (`main.py:404-414`, `:566`). The second changes only the reason, never the permit.
+- `performance_and_prebuild` runs the Performance comparison for `("KOBO-001",)` only (`T/demo_combined.py:631-635`).
+
+**The Kisiwa board with the gate closed (`site_outcomes/mini.py:458-530`).**
+- `read_state` is PARTIAL with `dispatch` and `chain_findings` failed.
+- There is no Dispatch assessment. MG-2, MG-4 and MG-6 are unsettled because `base` needs `dispatch is not None`.
+- No dispatch Finding and no lead is shown, because `lead_finding` needs heads and `source_open`. The Optimize `earnings` (MG-2 fuel cost) is never priced on **any** Kisiwa day.
+- **The fuel story is hit as well.** `finding_moved_outcomes(MINI)` includes **MG-8**, because `outcome_map.py:23` maps `FINDING:UNEXPLAINED_FUEL` to MG-8. The loop at `mini.py:526-527` therefore sets MG-8 unsettled whenever `findings_ok` is false (`heads is None`).
+- So the K4b Protect fuel row's **status is UNKNOWN** on every Kisiwa board, even though its `fuel_*` reads are ungated and succeed.
+- The fuel thread line comes from `chain_threads`, which is ungated, and should still render. The R3m Assure fuel verdict is also ungated.
+- **KIS-6** passes either way: the summary cells and the S board come from the same composition.
+- **Conclusion.** The S−5d "morning after" board beat would show a partial-read notice and an UNKNOWN fuel outcome. That is demo-critical.
+
+### 9s.2 (a) The honest fix: run the product's own Performance comparison for Kisiwa (empty-set)
+
+**No legacy evidence is needed.**
+- `performance_migration run` reads the file-backed dispatch history through `JsonAssessmentStore.load_history`, which returns an empty history when the Site has no file (`json_assessment_store.py:47-52`).
+- `compare` then writes a designed **empty-set report** (`performance_comparison.py:139-158`). Its statement is "Empty-set comparison: the file-backed baseline holds no dispatch claim for KISIWA-001, so no claim is said to match; a zero-inventory statement, not claim parity."
+- Its outcome is PASSED **only if** the live lineage has no breaks and no head selected under another model (`:141-146`, `:219-252`).
+- This is the S3-01 tool run as designed, the same command Kobo gets. It is not tuned and not forced. If the lineage is broken, the report says FAILED and the gate stays closed with that reason.
+
+**Rejected: opening the ports under the q12-6 cutover basis.**
+- q12-6 is an *Evidence* cutover basis. Ruling 3 (M4) limited its effect on the Performance gate to the reason text (`basis_reason`), on purpose.
+- Widening it is a product-semantics change. It is not a demo step.
+
+**Rejected: accepting PARTIAL.** It loses MG-8 on the fuel beat (§9s.1).
+
+**The change (K9, `T/demo_combined.py` `performance_and_prebuild`, `:631`):**
+```python
+for site in ("KOBO-001",) + (("KISIWA-001",) if "kisiwa" in self.story().get("sites", ()) else ()):
+```
+- `story.json` exists before the children run (`:481`). `performance_and_prebuild` is first called from `finish` → `tick` (`:592`).
+- The serve loop's ticks then rerun Kisiwa's comparison as they do Kobo's: a new report after new assessments, so the gate never goes stale on a rehearsal day.
+- R3r's cutover basis **stays**. It answers the separate S2 Evidence gate (Overview and board `source`).
+
+**What changes on screen (honest).**
+- Kisiwa's dispatch Findings and their money appear where the stored data has them. The Kisiwa board day of night 1 (local 2026-10-28/29) shows the MG-2 fuel-cost earnings.
+- MG-8 settles. The boards read AVAILABLE.
+- The Performance source reason on Kisiwa's screens becomes the report's own empty-set statement. Its system wording goes to the post-rehearsal plain-language polish batch and does not block.
+
+**Proof (K9, extend KIS-OV; no new row).**
+- KIS-OV also asserts that the newest Kisiwa Performance report is `outcome == "PASSED"` and `empty_set is True`, read through `build_performance_comparison_reports().latest("KISIWA-001")` in the served environment.
+- It asserts that the S−5d and S boards read `read_state == "AVAILABLE"`, which replaces R3r's "reported, not asserted".
+- L0 self-test: add fail bodies for a FAILED report and for a PARTIAL board.
+
+### 9s.3 (b) Expectations: KIS-7 is rewritten from data; KIS-6 and CH5D1-O1 unchanged
+
+**Real data has no priced Kisiwa Finding on S.**
+- The two PRICED fuel-cost-2 heads are both on night 1 (2026-10-28 17:40–19:05Z and 22:55Z – 10-29 00:15Z).
+- `lead_finding` (`chain/read.py:176-198`) picks a head only if its episode overlaps the board day `[local 00:00 S, +1 d)`.
+- So Kisiwa is truthfully **unpriced on S** even with the gate open. R3q's KIS-7 premise ("Kisiwa priced on S") was wrong, and its item 4 ("never re-expected to the one-Site path") is withdrawn.
+- **No story change.** Adding a priced consequence on S would tune data to a check.
+
+**KIS-7 (replaces §9q.2 KIS-7).** It is pure in `demo_rows.kis7`, with its expectations derived from stored rows and never typed:
+1. **S summary.** Run main's `optimize_card(s_body, KOBO, allowed=(KOBO, KISIWA))` (K8, data-tolerant, one-Site and ≥2 paths).
+2. **Kisiwa on S matches the data.** `expected_s` = whether some Kisiwa dispatch Finding with a PRICED latest money head (KIS-2's head and interval reads) has an episode overlapping Kisiwa's S local day. Assert `(KISIWA in priced codes) == expected_s`. On the current story `expected_s` is False and Kobo alone is priced; that is reported.
+3. **Kisiwa priced where the data is.** `d1` = the Kisiwa local date of the earliest PRICED head's episode start. Read `GET /api/sites/KISIWA-001/outcome-board?date=<d1>`. Its OPTIMIZE_COST `earnings` has a value, and `earnings_money(claim)["amount_high"]` equals the stored money head's `amount_high` for the lead head of that day.
+4. **No sum.** `never_summed` runs over the S and week summaries and the Portfolio week body whenever two or more Sites are priced in any of them. Otherwise it is reported as "≥2 path not reached on real data" and stays covered by the L0 self-tests.
+5. **L0:** pass bodies for the one-Site S and for priced `d1`; fail bodies for "Kisiwa priced on S while `expected_s` is False", "`d1` unpriced", "`d1` amount differs" and "a summed string".
+
+**Unchanged.**
+- **KIS-6:** its cells equal the board in either state.
+- **CH5D1-O1** (main, K8): it already allows one or two priced Sites from `(KOBO, KISIWA)`.
+- **Prerequisite:** K9 must merge main (96d597573, K8) before the prepare, since `optimize_card`'s `allowed` and the K8 re-expectations are not on K9 yet. That merge was needed for the rehearsal anyway.
+
+### 9s.4 (c) Owner K9, before the rehearsal prepare, after one clone probe
+
+Order:
+1. Merge main into K9.
+2. Make the §9s.2 change and the KIS-7 rewrite, then commit.
+3. **Clone probe (about 20 minutes).**
+   - Use a fresh `*_test` clone of `assetops_demo3_kisiwa_test` and a **copy** of `AssetOpsV1-k7f\var\demo3_kisiwa`. The K7-F folder itself is never written.
+   - Record the R3r basis.
+   - In the prepare's environment, run `python -m assetops_backend.performance_migration run --tenant demo --site KISIWA-001`.
+   - Serve and record the following, before and after:
+     - the report outcome and `empty_set`;
+     - the S−5d and S boards' `read_state` and failed ports;
+     - MG-8 state;
+     - the `d1` board's Optimize earnings;
+     - whether the estate Findings list holds Kisiwa's fuel Finding row (K8's after-coverage join);
+     - the Kisiwa rows check-all runs on that DB.
+4. The delta review (same addendum as R3r): only High or Medium findings block.
+5. The 2-hour prepare.
+
+**Stops (report to the Architect; no patch, no prepare):**
+- **S-s1:** the Kisiwa report is not PASSED, or the gate is still closed after it.
+- **S-s2:** any Kisiwa row passes before and fails after.
+- **S-s3:** a board still reads PARTIAL after the report, with any failed port.
+- **S-s4:** `d1` is unpriced after the report.
+
+### 9s.5 (d) Size, path, tripwire
+
+- **K9 +0.15:** 0.02 for the loop line, 0.06 for the KIS-7 rewrite, 0.02 for the KIS-OV extension, and 0.05 for the probe.
+- Pre-rehearsal work is about 0.8–0.85, **over R3q's 0.7 watch line**. This ruling reports it.
+- **Critical path about 9.5–9.75.** That is at the tripwire, not over it. The probe overlaps the delta review.
+- **If a stop fires and the path would cross 9.75**, the cut options in order are:
+  1. Keep the §9s.2 change, and make KIS-7 report-only for this rehearsal, asserting after it (−0.05).
+  2. Drop the K8c four-Site Kisiwa Overview capture to the post-rehearsal batch (−0.05).
+  3. Fall back to PARTIAL: revert the loop line, state the board's partial notice and MG-8 UNKNOWN honestly, and keep the S−5d board link out of the demo script (−0.1). This loses the fuel beat's outcome status, so it needs the owner's acceptance.
+
+  Only option 3 is an owner question, and only if it is reached.
+- **Plan HTML (coordinator):** the rulings table gains "DIESEL-1-R3s: Kisiwa Performance gate closed → board PARTIAL, MG-8 (fuel) unsettled via FINDING:UNEXPLAINED_FUEL; fix = product's own empty-set Performance comparison for KISIWA-001 in performance_and_prebuild (PASSED only on clean lineage; not the q12-6 basis); KIS-OV asserts PASSED/empty-set and AVAILABLE boards; KIS-7 rewritten from data (Kisiwa truthfully unpriced on S; priced on its night-1 board day; no story change); KIS-6/CH5D1-O1 unchanged; K9 merges main first; clone probe stops S-s1..S-s4; K9 +0.15; path 9.5–9.75".
+
+### 9s.6 Owner questions
+
+None now. Cut option 3 (§9s.5) becomes one only if a probe stop forces it.

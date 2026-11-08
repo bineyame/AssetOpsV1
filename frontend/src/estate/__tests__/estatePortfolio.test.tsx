@@ -996,6 +996,44 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(priority)).not.toMatch(/\bscore\b/i);
   });
 
+  it("DIESEL-1-R3p: a verified fuel Finding row shows its own interval, the server's Verified and its fuel page link", async () => {
+    const fid = "f7f7f7f7-0000-4000-8000-000000000007";
+    const href = `/sites/KOBO-001/fuel-findings/${fid}`;
+    const fuel = row({
+      finding_id: fid,
+      finding_revision_id: "e7e7e7e7-0000-4000-8000-000000000007",
+      finding_label: "Unexplained fuel overnight",
+      title: "Unexplained fuel overnight",
+      mechanism: "UNEXPLAINED_FUEL",
+      lens_flags: ["RISK"],
+      placement: {
+        policy_version: "estate-placement/1",
+        group: "MONITOR",
+        group_rank: 5,
+        reasons: [{ code: "VERIFIED_WATCH_RETURN", text: "Verified; watch for a return" }],
+      },
+      consequence: { state: "PRICED", amount: "41.25", amount_low: "41.25", amount_high: "57.75", currency: "USD", source_revision_id: "c7c7c7c7-0000-4000-8000-000000000007" },
+      workflow_label: "Verified",
+      links: { site: "/sites/KOBO-001", finding: href, action: null },
+      link_refs: { site: { kind: "SITE", site: "KOBO-001" }, finding: { kind: "FUEL_FINDING", site: "KOBO-001", id: fid }, action: null },
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [fuel] }))));
+    await settledScreen();
+    const tr = document.querySelector(`[data-portfolio-row^='f7f7f7f7']`) as HTMLElement;
+    expect(tr).not.toBeNull();
+    expect(text(tr)).toContain("$41.25–$57.75");
+    expect(text(tr)).toContain("MonitorVerified; watch for a return");
+    expect(text(tr)).toContain("No action yetVerified");
+    const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === href);
+    expect(anchor?.textContent).toContain("Unexplained fuel overnight");
+    // K8 coordinator ruling: the mechanism line names the recorded mechanism, never "Mechanism not recorded".
+    expect(mechanismWords("UNEXPLAINED_FUEL")).toBe("Unexplained fuel overnight");
+    expect(Array.from(tr.querySelectorAll("small")).map(text)).toContain("Unexplained fuel overnight");
+    expect(text(tr)).not.toContain("Mechanism not recorded");
+    const { violations } = scanProductVocabulary(tr, "portfolio fuel row");
+    expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
   it("namesOnePrioritySiteInTheSingular", async () => {
     const base = portfolioBody();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
