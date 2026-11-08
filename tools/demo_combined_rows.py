@@ -1022,6 +1022,32 @@ def _field(row, name: str):
     return row.get(name) if isinstance(row, dict) else getattr(row, name)
 
 
+# ---- OWN-G1 (OWN-GAPS R2-G1 Q3): the KIS rows read the story calendar only -----------------------------------------
+# `add-dates` appends nights after the story; the KIS rows pin the prepared story, so each bounded read keeps only the
+# calendar's nights and what occurred in `[run1_start, runs[-1].end)` from `story.json`.
+
+def kis_story_range(calendar: dict) -> tuple[datetime, datetime]:
+    return _kis_utc(calendar["run1_start"]), _kis_utc(calendar["runs"][-1]["end"])
+
+
+def kis_story_windows(windows: list[dict], calendar: dict) -> list[dict]:
+    """Stored window rows (with `night_date`) of the calendar's nights only."""
+    nights = {r["night_date"] for r in calendar["runs"]}
+    return [w for w in windows if str(w["night_date"])[:10] in nights]
+
+
+def kis_story_records(records: list[dict], calendar: dict) -> list[dict]:
+    """Operational records that occurred inside the story's runs."""
+    lo, hi = kis_story_range(calendar)
+    return [r for r in records if lo <= _kis_utc(r["occurred_at"]) < hi]
+
+
+def kis_story_dispatch(latest: list[dict], calendar: dict) -> list[dict]:
+    """Dispatch Finding revisions whose episode starts inside the story's runs."""
+    lo, hi = kis_story_range(calendar)
+    return [r for r in latest if lo <= _kis_utc(r["episode_start"]) < hi]
+
+
 def _props(content: dict, component_id: str) -> dict[str, dict]:
     comp = next((c for c in content.get("components") or () if c.get("component_id") == component_id), None)
     return {p["property_key"]: p for p in (comp or {}).get("properties") or ()}

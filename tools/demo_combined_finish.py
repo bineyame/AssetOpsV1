@@ -1073,8 +1073,9 @@ def kis_1(ctx: Ctx) -> dict:
         import pg_harness
         pg_harness.dispose(store)
     register = json.loads((ctx.work / "kisiwa-register.json").read_text(encoding="utf-8"))
-    windows = _kisiwa_sql(ctx, "SELECT DISTINCT ON (night_date) window_start, window_end FROM fuel_balance_window "
-                               "WHERE site_id = %s ORDER BY night_date, revision DESC", s)
+    windows = demo_rows.kis_story_windows(_kisiwa_sql(  # OWN-G1 R2-G1 Q3: story nights only
+        ctx, "SELECT DISTINCT ON (night_date) night_date, window_start, window_end FROM fuel_balance_window "
+             "WHERE site_id = %s ORDER BY night_date, revision DESC", s), ctx.story["kisiwa"])
     select = build_trial_comparison_ports(ctx.url).price_selection
     prices = []
     for w in windows:
@@ -1096,9 +1097,10 @@ def kis_2(ctx: Ctx) -> dict:
     if site is None:
         raise KisiwaMissing()
     s = site[1]
-    latest = _kisiwa_sql(ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle "
-                              "FROM finding_revision r WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s "
-                              "ORDER BY r.finding_id, r.revision_no DESC", s, DOMAIN, ANALYTIC_ID)
+    latest = demo_rows.kis_story_dispatch(_kisiwa_sql(  # OWN-G1 R2-G1 Q3: Findings of the story's runs only
+        ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, r.episode_start "
+             "FROM finding_revision r WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s "
+             "ORDER BY r.finding_id, r.revision_no DESC", s, DOMAIN, ANALYTIC_ID), ctx.story["kisiwa"])
     heads = {str(h["finding_id"]): h for h in _kisiwa_sql(
         ctx, "SELECT DISTINCT ON (r.finding_id) r.id, r.finding_id, r.finding_revision_id, r.state, r.model_id, "
         "r.idle_seconds, r.no_load_fuel_rate_l_per_h, r.no_load_fuel_rate_basis, r.sfc_upper_multiplier, "
@@ -1385,6 +1387,7 @@ def _kisiwa_read(ctx: Ctx) -> dict | None:
     import demo_combined_kisiwa as kis
 
     calendar = ctx.story["kisiwa"]
+    records = demo_rows.kis_story_records(records, calendar)  # OWN-G1 R2-G1 Q3: added nights' records are not story
     build = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
     log_text = Path(build["log"]["path"]).read_text(encoding="utf-8")
     assert kis.lf_sha256(log_text) == build["log"]["sha256"], "the derived log changed after the build"

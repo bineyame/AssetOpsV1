@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import asdict, dataclass, replace
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +51,25 @@ def weekday_offset(site: str, S: datetime, offset: int) -> int:
     if site not in SITE_WEEKDAY:
         return offset
     return offset - ((S + timedelta(days=offset)).weekday() - SITE_WEEKDAY[site]) % 7
+
+
+def date_offset(day: date, S: datetime) -> int:
+    """OWN-G1 §4.2: a calendar date as its story offset (`S+Nd`). S is a UTC midnight and a day's date is
+    `(S + offset).date()`, so the offset is the plain day difference."""
+    return (day - S.date()).days
+
+
+def offset_date(S: datetime, offset: int) -> date:
+    return (S + timedelta(days=offset)).date()
+
+
+def local_yesterday(db_now: datetime, zone: str) -> date:
+    """OWN-G1 §4.2: the day before DB now in the Site's own timezone (read from the build's `site` row)."""
+    from zoneinfo import ZoneInfo
+
+    return db_now.astimezone(ZoneInfo(zone)).date() - timedelta(days=1)
+
+
 DEFAULT_KNOWN_AT = "D-1d 12:00"
 _DAY = re.compile(r"^S([+-]\d+)d$")
 _TIME = re.compile(r"^D([+-]\d+)d (\d{2}):(\d{2})$")

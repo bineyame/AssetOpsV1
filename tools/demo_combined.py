@@ -4,6 +4,8 @@
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main links
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main serve
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main tick
+    python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main add-dates [--site ...] [--from D]
+        [--to D|yesterday] [--kind K] [--dry-run] [--no-check]     (OWN-G1: catch the Sites up to yesterday)
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main drop
 
 Build sheet: `AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md` (rev 1 + Addendum 1). Every story instant comes
@@ -221,7 +223,8 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
 LINK_FORMS = ("/portfolio?", "/findings?", "/maintenance/preventive?", "/maintenance?", "/sites/KOBO-001?date=",
               "/sites/COLD-LAB-001?from=", "/sites/EV-LAB-001/ev?from=", "/sites/KOBO-001/actions/",
               "/sites/KOBO-001/findings/", "/sites/KISIWA-001?date=", "/sites/KISIWA-001/performance/fuel?night=",
-              "/sites/KISIWA-001/fuel-findings/", "/sites/KISIWA-001/domain-actions/")
+              "/sites/KISIWA-001/fuel-findings/", "/sites/KISIWA-001/domain-actions/", "/sites/KISIWA-001/findings?",
+              "/sites/KISIWA-001/performance/service?")
 
 
 def story_week_query(story: dict) -> str:
@@ -316,7 +319,200 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
         if action.get("id") and kisiwa.get("verdict"):  # DIESEL-1-R3m §9m.5: once the plan is frozen and judged
             rows.append(("KISIWA-001 fuel verification",
                          f"{base}/sites/KISIWA-001/domain-actions/{action['id']}/fuel-verification"))
+        # OWN-GAPS R2-DS1a 1: the K5 Findings capture's and the K8 story-hour capture's windows, relative to S
+        hour = S - timedelta(days=3)
+        rows += [("KISIWA-001 Findings, story nights S-9d to S+1d",
+                  f"{base}/sites/KISIWA-001/findings?from={iso(S - timedelta(days=9))}&to={iso(S + timedelta(days=2))}"),
+                 ("KISIWA-001 Service, story hour S-3d 09:00-10:00Z",
+                  f"{base}/sites/KISIWA-001/performance/service?from={iso(hour + timedelta(hours=9))}"
+                  f"&to={iso(hour + timedelta(hours=10))}")]
     return rows
+
+
+def added_night_links(entries: list[dict], web: int) -> list[tuple[str, str]]:
+    """OWN-G1 §4.5 `links`: one Fuel link per added Kisiwa night, then the live-dip line (owner Q2): the newest added
+    night's 06:00 local dip and the litres its run read, for the on-screen beat."""
+    base = f"http://localhost:{web}"
+    added = sorted((e for e in entries if e.get("status") in ("DONE", "PUBLISHED")), key=lambda e: e["night_date"])
+    rows = [(f"KISIWA-001 Fuel, added night {e['night_date']} ({e['kind']})",
+             f"{base}/sites/KISIWA-001/performance/fuel?night={e['night_date']}") for e in added]
+    if added:
+        newest = added[-1]
+        dip = next(a for a in newest["actions"] if a["action_id"].endswith("-dip-0600"))
+        import demo_combined_kisiwa as kis
+
+        rows.append(("Live dip: Operational records, KISIWA-001, Fuel tank dip, taken "
+                     f"{kis.taken_at_local(at(dip['at']))}, value {newest['dips'][dip['action_id']]} L",
+                     f"{base}/sites/KISIWA-001/performance/fuel?night={newest['night_date']}"))
+    return rows
+
+
+# ---- add-dates (OWN-GAPS §4, Revision 2 R2-G1): the owner's catch-up tool -------------------------------------------
+
+ADD_DATES_ORDER = ("kobo", "cold", "ev", "kisiwa")
+ALREADY_PRESENT = "already present"
+NIGHT_NOT_OVER = "NIGHT_NOT_OVER"
+
+
+def _days(lo: Any, hi: Any) -> list:
+    return [lo + timedelta(days=n) for n in range((hi - lo).days + 1)] if lo <= hi else []
+
+
+def select_sites(arg: str, story: dict) -> list[str]:
+    """`--site all` = the build's Sites; any named Site the build did not prepare refuses (R2-G1 Q9 a)."""
+    built = [s for s in ADD_DATES_ORDER if s in story["sites"]]
+    if arg == "all":
+        return built
+    code_site = {v: k for k, v in SITE_CODE.items()}
+    out = []
+    for code in (c.strip() for c in arg.split(",") if c.strip()):
+        site = code_site.get(code)
+        if site is None or site not in built:
+            raise sd.StoryDaysError("SITE_NOT_IN_BUILD", f"{code} is not in this build.")
+        out.append(site)
+    return [s for s in ADD_DATES_ORDER if s in out]
+
+
+def last_story_day(days_json: dict, site: str, S: datetime) -> Any:
+    """R2-G1 Q5: the max `weekday_offset` over the build's (baselined) calendar entries; `add-day` never edits it."""
+    return sd.offset_date(S, max(sd.weekday_offset(site, S, sd.day_offset(e["day"]))
+                                 for e in days_json["doc"]["sites"][site]))
+
+
+def plan_add_dates(story: dict, days_json: dict, kisiwa_entries: list[dict], *, sites: list[str], date_from: Any,
+                   date_to: Any, kind: str | None, db_now: datetime, zones: dict[str, str],
+                   delivered: dict[str, set[str]]) -> dict:
+    """§4.2-§4.4 and R2-G1, pure: each selected Site's dates (in its own timezone), the whole-command refusals
+    (`StoryDaysError`), and what is skipped, left empty or has no EV session. `date_from` / `date_to` are dates or
+    None (None: the Site's default; `--to yesterday` passes None)."""
+    import demo_combined_kisiwa as kis
+
+    S = at(story["S"])
+    if date_from is not None and date_to is not None and date_from > date_to:
+        raise sd.StoryDaysError("FROM_AFTER_TO", "--from is after --to.")
+    plans: dict[str, dict] = {}
+    for site in sites:
+        code = SITE_CODE[site]
+        yesterday = sd.local_yesterday(db_now, zones[code])
+        if date_to is not None and date_to > yesterday:
+            raise sd.StoryDaysError("DATE_NOT_PAST", f"Data can be added only up to yesterday ({yesterday.isoformat()}).")
+        story_last = (kis.last_story_night(story["kisiwa"]) if site == "kisiwa"
+                      else last_story_day(days_json, site, S))
+        for value in (date_from, date_to):
+            if value is not None and value <= story_last:
+                raise sd.StoryDaysError("STORY_DAY", f"{code} {value.isoformat()} is part of the prepared story and "
+                                                     "cannot be changed.")
+        plan = {"dates": [], "skipped": [], "left_empty": [], "no_session": []}
+        if site == "kisiwa":
+            last = kis.last_night(story["kisiwa"], kisiwa_entries)
+            if date_from is not None and date_from > last + timedelta(days=1):
+                raise sd.StoryDaysError("GAP_NOT_ALLOWED", f"Kisiwa nights must follow on from {last.isoformat()}; "
+                                                           f"start at {(last + timedelta(days=1)).isoformat()}.")
+            finished = kis.latest_finished_night(story["kisiwa"], db_now)
+            lo = date_from or last + timedelta(days=1)
+            for d in _days(lo, date_to or finished):
+                entry = kis._entry(kisiwa_entries, d)
+                if entry is not None and entry.get("status") == "DONE":
+                    plan["skipped"].append((d, ALREADY_PRESENT))
+                elif d > finished:
+                    plan["skipped"].append((d, NIGHT_NOT_OVER))
+                else:
+                    plan["dates"].append(d)
+            new = [d for d in plan["dates"] if (kis._entry(kisiwa_entries, d) or {}).get("status") != "PUBLISHED"]
+            if new and kis.date_too_old(story["kisiwa"], new[0], db_now):
+                raise sd.StoryDaysError("DATE_TOO_OLD", f"Kisiwa {new[0].isoformat()} is too old to add records for; "
+                                                        "prepare a fresh build.")
+        else:
+            mine = [d for d in days_json["days"] if d["site"] == site]
+            default = sd.offset_date(S, max(d["offset"] for d in mine) + 1)
+            weekday = sd.SITE_WEEKDAY.get(site)
+            if weekday is not None:  # EV: the next ruled weekday (R2-G1 Q5)
+                default += timedelta(days=(weekday - default.weekday()) % 7)
+            lo = date_from or default
+            present = {d["day"] for d in mine if d.get("received_at")} | set(delivered.get(code, ()))
+            if date_from is not None and date_from > default:
+                plan["left_empty"] = [d for d in _days(default, date_from - timedelta(days=1))
+                                      if weekday is None or d.weekday() == weekday]
+            for d in _days(lo, date_to or yesterday):
+                if weekday is not None and d.weekday() != weekday:
+                    plan["no_session"].append(d)
+                elif d.isoformat() in present:
+                    plan["skipped"].append((d, ALREADY_PRESENT))
+                else:
+                    plan["dates"].append(d)
+        plan["kind"] = kind if kind is not None else (None if site == "kisiwa" else "normal")
+        plans[site] = plan
+    if kind is not None:
+        span = [d for p in plans.values() for d in p["dates"] + [x for x, _ in p["skipped"]] + p["no_session"]]
+        if len(sites) != 1 or len(span) != 1:
+            raise sd.StoryDaysError("KIND_NEEDS_ONE_DATE", "--kind needs exactly one Site and one date.")
+    order = sorted({d for p in plans.values() for d in p["dates"]})
+    return {"sites": plans, "order": order}
+
+
+def preflight_refusal(done_rc: int | None, line: dict | None, kisiwa: bool) -> sd.StoryDaysError | None:
+    """R2-G1 Q7, in order: the tree's Kisiwa child missing or failing -> BUILD_TOO_OLD (always); then, only with
+    Kisiwa selected, no `fuel_night` stage, a 403 WORK_WRITE_FORBIDDEN, anything but 422 OPREC_ENTRY_INVALID."""
+    if done_rc is None or done_rc != 0 or line is None:
+        return sd.StoryDaysError("BUILD_TOO_OLD", "This build predates add-dates; prepare a fresh build from current "
+                                                  "main.")
+    if not kisiwa:
+        return None
+    if not line.get("fuel_stage"):
+        return sd.StoryDaysError("FUEL_STAGE_MISSING", "This build's code has no automatic diesel-night check (G2).")
+    if line.get("entry_status") == 403 and line.get("entry_code") == "WORK_WRITE_FORBIDDEN":
+        return sd.StoryDaysError("ENTRY_DISABLED", "Saving records is not switched on for this build "
+                                                   "(ASSETOPS_OPERATIONAL_ENTRY).")
+    if (line.get("entry_status"), line.get("entry_code")) != (422, "OPREC_ENTRY_INVALID"):
+        return sd.StoryDaysError("ENTRY_DISABLED", "This build's code has no working record entry (G3a); prepare a "
+                                                   "fresh build from current main.")
+    return None
+
+
+def kisiwa_stage(report: dict | None) -> tuple[bool, dict | None]:
+    """R2-G2 Q9 / R2-G1 Q6: whether the tick visited KISIWA-001 (its `fuel_night` stage entry) and that entry."""
+    for site in (report or {}).get("sites") or ():
+        if site.get("site_code") == "KISIWA-001" and "fuel_night" in (site.get("stages") or {}):
+            return True, site["stages"]["fuel_night"]
+    return False, None
+
+
+def failed_rows(path: Path) -> list[str]:
+    """The failed row ids of a `check.json` (`demo_combined_finish.run`), or [] when it cannot be read."""
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return []
+    return [k for k, v in rows.items() if isinstance(v, dict) and v.get("status") == "fail"]
+
+
+def short_date(d: Any) -> str:
+    return f"{d.day} {d.strftime('%b')}"
+
+
+def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], left_empty: dict) -> list[str]:
+    """§4.4: one plain line per Site."""
+    lines = []
+    for code in [SITE_CODE[s] for s in ADD_DATES_ORDER]:
+        mine = [a for a in added if a["site"] == code]
+        parts = []
+        if mine:
+            items = []
+            for a in mine:
+                extra = (f", ticket {a['ticket']}" if a.get("ticket") else "")
+                late = " (delivery entered after the night)" if a.get("ticket") else ""
+                items.append(f"{short_date(a['date'])} ({a['kind']}{extra}){late}")
+            n = len(mine)
+            tail = (f"{'the night' if n == 1 else 'both nights' if n == 2 else f'all {n} nights'} checked: within "
+                    "margin" if code == "KISIWA-001" else "checked by the background refresh")
+            parts.append(f"added {', '.join(items)}; {tail}")
+        parts += [f"{short_date(s['date'])} {s.get('text') or s['reason']}" for s in skipped if s["site"] == code]
+        if left_empty.get(code):
+            parts.append("left empty: " + ", ".join(short_date(d) for d in left_empty[code]))
+        lines += [f"{code}: " + "; ".join(parts) + "."] if parts else []
+        lines += [f"{code} {d['date'].isoformat()}: no charging session (the simulated charger runs on Tuesdays)"
+                  for d in no_session if d["site"] == code]
+    return lines
 
 
 class Demo:
@@ -729,66 +925,230 @@ class Demo:
 
     def add_day(self, site_code: str, kind: str, day: str | None = None, as_kind: str | None = None,
                 assess_now: bool = False) -> dict:
-        """Append one story day, live on real time (sheet U4). Refuses with a `StoryDaysError` code."""
+        """Append one story day, live on real time (sheet U4). Refuses with a `StoryDaysError` code. OWN-G1: a
+        KISIWA-001 night (`--kind normal|delivery`, `--day S+Nd`) runs as a one-night `add-dates` without the check."""
         story = self.story()
+        if site_code == "KISIWA-001":
+            if as_kind is not None or assess_now:
+                raise sd.StoryDaysError("OPTION_NOT_FOR_KISIWA", "--as and --assess-now do not apply to Kisiwa nights.")
+            import demo_combined_kisiwa as kis
+
+            night = (sd.offset_date(at(story["S"]), sd.day_offset(day)) if day
+                     else kis.last_night(story["kisiwa"], kis.read_days(self.work)) + timedelta(days=1))
+            return self.add_dates("KISIWA-001", night, night, kind, no_check=True)
         site = sd.CODE_SITE.get(site_code)
         if site is None:
             raise sd.StoryDaysError("UNKNOWN_KIND", f"--site must be one of {sorted(sd.CODE_SITE)}")
         if assess_now and kind == "late":
             raise sd.StoryDaysError("UNKNOWN_KIND", "--assess-now is for non-late kinds; a late day waits for a tick")
+        busy = self.hold_busy(f"add-day {site_code} {kind}")
+        try:
+            return self._add_core_day(story, site_code, kind, day=day, as_kind=as_kind, assess_now=assess_now)
+        finally:
+            busy.unlink(missing_ok=True)
+
+    def hold_busy(self, what: str) -> Path:
         busy = self.work / ".busy"
         try:
             fd = os.open(busy, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError:
             raise SystemExit(f"Refused: another prepare/add-day holds {busy}")
-        try:
-            os.write(fd, f"add-day {site_code} {kind} pid={os.getpid()}\n".encode())
-            os.close(fd)
-            days_path = self.work / "days.json"
-            doc = json.loads(days_path.read_text(encoding="utf-8"))
-            current = sd.from_payload(doc["days"])
-            # DD1a2-R Q8.3: a full-day kind is several runs, delivered in source-time order
-            runs = sd.plan_add_runs(doc["doc"], current, site, kind, at(story["S"]), self.db_now(), day=day,
-                                    as_kind=as_kind, delivered_days=self.delivered_days(site_code),
-                                    installs={n: at(v) for n, v in story["installs"].items()})
-            if assess_now and runs[0].has_run:
-                runs = [sd.DayRun(**{**r.__dict__, "assess": "build"}) for r in runs]
-            planned = next(r for r in runs if not r.complement_of)
-            out: dict = {"day": planned.day, "kind": planned.kind, "assess": planned.assess, "runs": len(runs)}
-            if planned.has_run:
-                child = self.tree / "tools" / f"demo_combined_{site}.py"
-                if site != "kobo" and not child.is_file():
-                    raise SystemExit(f"add-day for {site_code} is not built yet")
-                self.deadline = time.monotonic() + 2 * 140 * len(runs)
-                payload = planned.payload() if len(runs) == 1 else [r.payload() for r in runs]
+        os.write(fd, f"{what} pid={os.getpid()}\n".encode())
+        os.close(fd)
+        return busy
+
+    def _add_core_day(self, story: dict, site_code: str, kind: str, day: str | None = None,
+                      as_kind: str | None = None, assess_now: bool = False) -> dict:
+        """One Kobo / Cold / EV day under a held `.busy` (the body `add-day` always had)."""
+        site = sd.CODE_SITE[site_code]
+        days_path = self.work / "days.json"
+        doc = json.loads(days_path.read_text(encoding="utf-8"))
+        current = sd.from_payload(doc["days"])
+        # DD1a2-R Q8.3: a full-day kind is several runs, delivered in source-time order
+        runs = sd.plan_add_runs(doc["doc"], current, site, kind, at(story["S"]), self.db_now(), day=day,
+                                as_kind=as_kind, delivered_days=self.delivered_days(site_code),
+                                installs={n: at(v) for n, v in story["installs"].items()})
+        if assess_now and runs[0].has_run:
+            runs = [sd.DayRun(**{**r.__dict__, "assess": "build"}) for r in runs]
+        planned = next(r for r in runs if not r.complement_of)
+        out: dict = {"day": planned.day, "kind": planned.kind, "assess": planned.assess, "runs": len(runs)}
+        if planned.has_run:
+            child = self.tree / "tools" / f"demo_combined_{site}.py"
+            if site != "kobo" and not child.is_file():
+                raise SystemExit(f"add-day for {site_code} is not built yet")
+            self.deadline = time.monotonic() + 2 * 140 * len(runs)
+            payload = planned.payload() if len(runs) == 1 else [r.payload() for r in runs]
+            try:
                 done = self.py(str(child), "add-day", self.url, str(self.work), json.dumps(payload),
                                cwd=self.tree / "backend" / "tests", label=f"add-day-{site}")
-                line = [x for x in done.stdout.splitlines() if x.startswith('{"added"')]
-                out.update(json.loads(line[-1]) if line else {})
-                if site == "kobo" and planned.assess == "build":
-                    self.drain_mini()
-            # a filled `missing` day replaces its no-run entry (R4 FILL-1)
-            doc["days"] = [d for d in doc["days"] if not (d["site"] == site and d["day"] == planned.day
-                                                          and d["received_at"] is None)]
-            doc["days"].extend(r.payload() for r in runs)
-            days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
-            say(f"added {site_code} {planned.day} {planned.kind}" +
-                ("" if not planned.has_run else
-                 " (assessed now)" if planned.assess == "build" else " (not checked yet: the next serve tick assesses it)"))
-            return out
+            finally:
+                self.deadline = None  # OWN-G1: the per-day cap must not bound the ticks that follow
+            line = [x for x in done.stdout.splitlines() if x.startswith('{"added"')]
+            out.update(json.loads(line[-1]) if line else {})
+            if site == "kobo" and planned.assess == "build":
+                self.drain_mini()
+        # a filled `missing` day replaces its no-run entry (R4 FILL-1)
+        doc["days"] = [d for d in doc["days"] if not (d["site"] == site and d["day"] == planned.day
+                                                      and d["received_at"] is None)]
+        doc["days"].extend(r.payload() for r in runs)
+        days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+        say(f"added {site_code} {planned.day} {planned.kind}" +
+            ("" if not planned.has_run else
+             " (assessed now)" if planned.assess == "build" else " (not checked yet: the next serve tick assesses it)"))
+        return out
+
+    def add_dates_line(self) -> str:
+        """R2-G1 Q9 d: `serve`'s one catch-up line."""
+        return f"python tools/demo_combined.py --db {self.db} --work {self.work.relative_to(REPO).as_posix()} add-dates"
+
+    # ---- add-dates (OWN-GAPS §4, R2-G1) -------------------------------------------------------------------------
+    def site_zones(self) -> dict[str, str]:
+        """R2-G1 header: each Site's timezone from the build's `site` row."""
+        import psycopg
+
+        with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
+            return {r[0]: r[1] for r in c.execute("SELECT site_code, timezone FROM site").fetchall()}
+
+    def kisiwa_child(self, verb: str, *args: str, label: str, seconds: int) -> tuple[int, dict | None, str]:
+        """A tree Kisiwa child in the serve env (R2-G1 header); its last JSON line, or the refusal it exited with."""
+        self.deadline = time.monotonic() + seconds
+        try:
+            done = self.py(str(self.tree / "tools" / "demo_combined_kisiwa.py"), verb, self.url, str(self.work), *args,
+                           cwd=self.tree / "backend" / "tests", label=label, check=False, serve_env=True)
+        finally:
+            self.deadline = None
+        lines = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
+        return done.returncode, (lines[-1] if lines else None), done.stdout
+
+    @staticmethod
+    def child_refusal(output: str) -> sd.StoryDaysError | None:
+        """A child's `StoryDaysError` exit ("CODE: detail" as its last line), re-raised in the parent."""
+        tail = [x for x in output.strip().splitlines() if x.strip()]
+        m = re.match(r"^([A-Z][A-Z_]+): (.*)$", tail[-1]) if tail else None
+        return sd.StoryDaysError(m.group(1), m.group(2)) if m else None
+
+    def add_dates(self, site_arg: str = "all", date_from: Any = None, date_to: Any = None, kind: str | None = None,
+                  dry_run: bool = False, no_check: bool = False) -> dict:
+        """OWN-G1: add the missing dates for the selected Sites, date-major (each Site one date, then one tick), then
+        `finish check`. Whole-command refusals first; nothing is written before they pass."""
+        import demo_combined_kisiwa as kis
+
+        story = self.story()
+        sites = select_sites(site_arg, story)
+        if (self.work / ".busy").exists():
+            raise SystemExit(f"Refused: another prepare/add-day holds {self.work / '.busy'}")
+        days_json = json.loads((self.work / "days.json").read_text(encoding="utf-8"))
+        entries = kis.read_days(self.work)
+        db_now, zones = self.db_now(), self.site_zones()
+        delivered = {SITE_CODE[s]: self.delivered_days(SITE_CODE[s]) for s in sites if s != "kisiwa"}
+        plan = plan_add_dates(story, days_json, entries, sites=sites, date_from=date_from, date_to=date_to, kind=kind,
+                              db_now=db_now, zones=zones, delivered=delivered)
+        skipped = [{"site": SITE_CODE[s], "date": d, "reason": r,
+                    **({"text": "the night is not over yet (it ends "
+                                + kis.night_end(story["kisiwa"], d).astimezone(kis.ZoneInfo(zones["KISIWA-001"]))
+                                .strftime("%H:%M") + " local)"} if r == NIGHT_NOT_OVER else {})}
+                   for s, p in plan["sites"].items() for d, r in p["skipped"]]
+        no_session = [{"site": SITE_CODE[s], "date": d} for s, p in plan["sites"].items() for d in p["no_session"]]
+        left_empty = {SITE_CODE[s]: p["left_empty"] for s, p in plan["sites"].items() if p["left_empty"]}
+        say("add-dates plan: " + json.dumps({SITE_CODE[s]: [d.isoformat() for d in p["dates"]]
+                                             for s, p in plan["sites"].items()}))
+        if dry_run:
+            for line in plain_lines([], skipped, no_session, left_empty):
+                say(line)
+            say("--dry-run: nothing written (the build checks run only on a real run).")
+            return {"plan": plan}
+        rc, line, _ = self.kisiwa_child("preflight", label="add-dates-preflight", seconds=600)
+        refusal = preflight_refusal(rc, (line or {}).get("preflight"), "kisiwa" in sites)
+        if refusal is not None:
+            raise refusal
+        busy = self.hold_busy("add-dates")
+        added: list[dict] = []
+        check = "not run"
+        try:
+            for d in plan["order"]:
+                today: list[dict] = []
+                for site in sites:
+                    p = plan["sites"][site]
+                    if d not in p["dates"]:
+                        continue
+                    if site == "kisiwa":
+                        today.append(self.add_kisiwa_night(d, p["kind"]))
+                        continue
+                    try:
+                        out = self._add_core_day(story, SITE_CODE[site], p["kind"],
+                                                 day=f"S{sd.date_offset(d, at(story['S'])):+d}d")
+                    except sd.StoryDaysError as refusal:
+                        if refusal.error_code not in ("DUPLICATE_DAY", "DAY_HAS_EVIDENCE"):
+                            raise
+                        skipped.append({"site": SITE_CODE[site], "date": d, "reason": ALREADY_PRESENT})
+                        continue
+                    today.append({"site": SITE_CODE[site], "date": d, "kind": out["kind"],
+                                  "records": [], "checked": "tick"})
+                if today:
+                    added += self.tick_and_verify(today)
+            if not no_check:
+                check = self.finish_check()
         finally:
             busy.unlink(missing_ok=True)
+        summary = {"added": [{**a, "date": a["date"].isoformat()} for a in added],
+                   "skipped": [{**s, "date": s["date"].isoformat()} for s in skipped],
+                   "left_empty": {k: [d.isoformat() for d in v] for k, v in left_empty.items()},
+                   "no_session": [{**s, "date": s["date"].isoformat()} for s in no_session], "finish_check": check}
+        say(json.dumps(summary, default=str))
+        for text in plain_lines(added, skipped, no_session, left_empty):
+            say(text)
+        if check.startswith("FAIL"):
+            raise SystemExit("This build no longer passes its checks; prepare a fresh one before a demo.")
+        return summary
 
-    def next_free_days(self) -> list[str]:
-        story, doc = self.story(), json.loads((self.work / "days.json").read_text(encoding="utf-8"))
-        current = sd.from_payload(doc["days"])
-        lines = []
-        for site in story["sites"]:
-            mine = [r.offset for r in current if r.site == site]
-            nxt = (max(mine) + 1) if mine else 0
-            lines.append(f"python tools/demo_combined.py --db {self.db} --work {self.work.relative_to(REPO).as_posix()} "
-                         f"add-day --site {SITE_CODE[site]} --kind normal --day S{nxt:+d}d")
-        return lines
+    def add_kisiwa_night(self, night: Any, kind: str | None) -> dict:
+        """§4.5 steps 1-6 in the tree child (the entry is PUBLISHED when it returns)."""
+        payload = json.dumps({"night_date": night.isoformat(), "kind": kind})
+        rc, line, output = self.kisiwa_child("add-day", payload, label="add-dates-kisiwa", seconds=2 * 900)
+        if rc != 0 or line is None or "added" not in line:
+            raise self.child_refusal(output) or SystemExit(f"FAILED: Kisiwa add-day {night} (exit {rc})\n{output[-3000:]}")
+        entry = line["added"]
+        ticket = next((a["ticket"]["reference"] for a in entry["actions"] if a["kind"] == "FUEL_DELIVERY"), None)
+        return {"site": "KISIWA-001", "date": night, "kind": entry["kind"], "ticket": ticket,
+                "records": [r["code"] for r in entry["records"]], "checked": None}
+
+    def tick_and_verify(self, today: list[dict]) -> list[dict]:
+        """§4.4: one tick after the date; then each added Kisiwa night verified (R2-G1 Q6: up to two more ticks, 30 s
+        apart, while its window is absent)."""
+        import demo_combined_kisiwa as kis
+
+        report = self.tick()  # R2-G2 Q9 c: the tick returns its parsed report (None on a build before G2)
+        for item in today:
+            if item["site"] != "KISIWA-001":
+                continue
+            for attempt in range(3):
+                visited, stage = kisiwa_stage(report)
+                payload = json.dumps({"night_date": item["date"].isoformat(), "fuel_night": stage if visited else None})
+                rc, line, output = self.kisiwa_child("verify-day", payload, label="add-dates-verify", seconds=600)
+                if rc != 0 or line is None or "verified" not in line:
+                    raise self.child_refusal(output) or SystemExit(f"FAILED: Kisiwa verify-day (exit {rc})\n"
+                                                                   f"{output[-3000:]}")
+                result = line["verified"]
+                if result["state"] == "DONE":
+                    item["checked"] = f"{result['entry']['window']['state']} (revision {result['entry']['window']['revision']})"
+                    break
+                if result["state"] == "UNEXPECTED" or attempt == 2:
+                    raise sd.StoryDaysError("ADD_NIGHT_UNEXPECTED", f"KISIWA-001 {item['date'].isoformat()}: "
+                                                                    f"{result['line']}")
+                time.sleep(kis.WAIT_POLL_SECONDS)
+                report = self.tick()
+        for item in today:
+            if item["site"] != "KISIWA-001":
+                item["checked"] = "tick " + str((report or {}).get("outcome", "ran"))
+        return today
+
+    def finish_check(self) -> str:
+        """§4.4: `finish check` on the build (writes `<work>/check.json`); "PASS" or "FAIL <rows>"."""
+        done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
+                       cwd=self.tree / "backend" / "tests", label="add-dates-check", check=False)
+        if done.returncode == 0:
+            return "PASS"
+        return "FAIL " + (",".join(failed_rows(self.work / "check.json")) or f"exit {done.returncode}")
 
     # ---- reading -----------------------------------------------------------------------------------------------
     def links(self, web: int) -> None:
@@ -801,6 +1161,10 @@ class Demo:
         kisiwa = json.loads(kis.read_text(encoding="utf-8")) if kis.is_file() else None
         rows = story_links(story, story_days, k, web, kisiwa)
         say(f"Story day S = {story['S_date']} (dates move on every rebuild; quote them from here). Code {story['code']}.")
+        if kisiwa is not None and "kisiwa" in story["sites"]:
+            import demo_combined_kisiwa as kis
+
+            rows += added_night_links(kis.read_days(self.work), web)  # OWN-G1 §4.5 `links`
         for label, url in rows:
             say(f"  {label}\n    {url}")
         days_path = self.work / "days.json"
@@ -838,9 +1202,8 @@ class Demo:
         say(f'Frontend, from frontend/:  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
         self.links(web)
         if (self.work / "days.json").is_file():
-            say("Add a story day live (it shows as not checked yet until the next tick):")
-            for line in self.next_free_days():
-                say(f"  {line}")
+            say("Bring every Site up to yesterday (adds the missing dates, then checks the build):")
+            say(f"  {self.add_dates_line()}")
         try:
             warmed = False
             while api.poll() is None:
@@ -891,6 +1254,16 @@ def _kill_tree(pid: int) -> None:
         pass
 
 
+def _cli_date(text: str):
+    """`--from` / `--to`: a calendar date in each Site's own timezone; `yesterday` is the default (None)."""
+    if text == "yesterday":
+        return None
+    try:
+        return datetime.strptime(text, "%Y-%m-%d").date()
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{text!r} is not YYYY-MM-DD or yesterday")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="tools/demo_combined.py")
     parser.add_argument("--db", required=True, help="private database, assetops_demo3_<name>_test or assetops_polish_<name>_test")
@@ -917,11 +1290,20 @@ def main(argv: list[str] | None = None) -> None:
     ac.add_argument("--cap-seconds", type=int, default=1800)
     ac.add_argument("--stop-before-mill", action="store_true", help="drain_mini and backfill step a only, then stop (clone here)")
     ad = sub.add_parser("add-day")
-    ad.add_argument("--site", required=True, choices=sorted(SITE_CODE[s] for s in CORE_SITES))  # no Kisiwa day kinds
-    ad.add_argument("--kind", required=True)
+    ad.add_argument("--site", required=True, choices=sorted(SITE_CODE.values()))
+    ad.add_argument("--kind", required=True, help="KISIWA-001: normal or delivery")
     ad.add_argument("--day", default=None, help="S[+-]Nd; default the day after the Site's last story day")
     ad.add_argument("--as", dest="as_kind", default=None, choices=sd.LATE_AS, help="late Kobo day: the run it carries")
     ad.add_argument("--assess-now", action="store_true", help="non-late kinds: assess and match in process")
+    adds = sub.add_parser("add-dates", help="OWN-G1: add the missing dates up to yesterday, then finish check")
+    adds.add_argument("--site", default="all", help="all, or a comma list of KOBO-001,COLD-LAB-001,EV-LAB-001,KISIWA-001")
+    adds.add_argument("--from", dest="date_from", type=_cli_date, default=None,
+                      help="YYYY-MM-DD; default per Site: the day after its last day")
+    adds.add_argument("--to", dest="date_to", type=_cli_date, default=None,
+                      help="YYYY-MM-DD or yesterday (default; Kisiwa: its last finished night)")
+    adds.add_argument("--kind", default=None, help="only with one Site and one date")
+    adds.add_argument("--dry-run", action="store_true", help="print the plan and the refusals, write nothing")
+    adds.add_argument("--no-check", action="store_true", help="skip the closing finish check (not for demo days)")
     sub.add_parser("drop")
     args = parser.parse_args(argv)
     demo = Demo(args.db, args.work)
@@ -941,6 +1323,9 @@ def main(argv: list[str] | None = None) -> None:
         demo.serve(args.port, args.web_port)
     elif args.cmd == "add-day":
         demo.add_day(args.site, args.kind, day=args.day, as_kind=args.as_kind, assess_now=args.assess_now)
+    elif args.cmd == "add-dates":
+        demo.add_dates(args.site, args.date_from, args.date_to, args.kind, dry_run=args.dry_run,
+                       no_check=args.no_check)
     elif args.cmd == "tick":
         demo.story()
         if args.until_drained:

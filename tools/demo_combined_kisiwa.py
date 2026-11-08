@@ -4,6 +4,12 @@ prepare will register it. K7 (ruling DIESEL-1-R3l §9l.3) adds the story part be
     python tools/demo_combined_kisiwa.py register <database-url> <work> <import-at ISO> <install-at ISO>
     python tools/demo_combined_kisiwa.py build <database-url> <work>
     python tools/demo_combined_kisiwa.py check <database-url> <work>
+    python tools/demo_combined_kisiwa.py preflight <database-url> <work>
+    python tools/demo_combined_kisiwa.py add-day <database-url> <work> <night-json>
+    python tools/demo_combined_kisiwa.py verify-day <database-url> <work> <night-json>
+
+OWN-G1 (`preflight`, `add-day`, `verify-day`): the nights `tools/demo_combined.py add-dates` adds after the story,
+fed through the gateway path and the G3a entry route at DB now (build sheet OWN-GAPS §4.5, Revision 2 R2-G1).
 
 Steps, in order (modelled on `tools/demo_combined_kobo.py` `build` and `configure_at`):
 1. import the Site from `backend/tests/fixtures/s1/kisiwa-001.yaml` (the shipped `kisiwa-diesel-hybrid-60kw`
@@ -37,6 +43,7 @@ import copy
 import hashlib
 import io
 import json
+import os
 import sys
 from datetime import date, datetime, time as dtime, timedelta, timezone
 from fractions import Fraction
@@ -871,7 +878,382 @@ def check(url: str, work: Path) -> int:
     return 1 if failed else 0
 
 
+# ---- OWN-G1 (build sheet OWN-GAPS §4.5, R2-G1): added nights after the story ----------------------------------------
+#
+# `preflight` answers the parent's whole-command build checks; `add-day` runs §4.5 steps 1-6 for one night and leaves
+# its `kisiwa-days.json` entry PUBLISHED; the parent ticks; `verify-day` runs steps 7-8 and marks it DONE (R2-G1 Q2).
+# Nothing here stamps a story instant: readings are received at DB now and records go through the G3a entry route.
+
+DAYS_FILE = "kisiwa-days.json"
+ADD_KINDS = ("normal", "delivery")
+#: §4.5: below this start level the default kind is `delivery`; an explicit `normal` refuses.
+LOW_FUEL_L = Fraction(250)
+#: §4.5 `DELIVERY_TANK_FULL`: the fill limit the card names (the tank's template capacity is 1000 L).
+TANK_FILL_LIMIT_L = Fraction(950)
+DELIVERY_L = 300
+#: Minutes from the night's run start (d 15:00 local): dips at 18:00 and 06:00 local, the delivery at 10:00 local.
+DIP_OFFSETS = (("1800", 180), ("0600", 900))
+DELIVERY_OFFSET = 1140
+PAST_MARGIN = timedelta(minutes=5)
+#: G2's `QUIET` (R2-G2 crossing G1): a night is first checked once its readings have been quiet this long.
+QUIET = timedelta(minutes=5)
+WAIT_AFTER_END = timedelta(minutes=30)
+WAIT_CAP = timedelta(minutes=8)
+WAIT_POLL_SECONDS = 30
+#: R2-G1 Q8: G3a refuses a record more than 30 days back; one hour of margin.
+RECORD_AGE_LIMIT = timedelta(days=30) - timedelta(hours=1)
+ENTRY_ENV = "ASSETOPS_OPERATIONAL_ENTRY"
+ENTRY_PATH = f"/api/sites/{SITE_CODE}/work/operational-entries"
+ADD_LOG_HEADER = (
+    "# Kisiwa added-night operational-action log (OWN-G1, build sheet OWN-GAPS §4.5).\n"
+    "# Written by tools/demo_combined_kisiwa.py add-day for one night after the story; the night's actions only.\n"
+    "# Lab-private: the product never reads this file. Never edit by hand.\n"
+)
+
+
+def _refuse(code: str, detail: str):
+    from demo_story_days import StoryDaysError
+
+    return StoryDaysError(code, detail)
+
+
+def _ymd(night: date) -> str:
+    return night.strftime("%Y%m%d")
+
+
+def last_story_night(kisiwa: dict) -> date:
+    return date.fromisoformat(kisiwa["runs"][-1]["night_date"])
+
+
+def night_start(kisiwa: dict, night: date) -> datetime:
+    """Night d's run start: the story's run cadence carried on (`run1_start` + whole days)."""
+    first = date.fromisoformat(kisiwa["runs"][0]["night_date"])
+    return at(kisiwa["run1_start"]) + (night - first).days * DAY
+
+
+def night_end(kisiwa: dict, night: date) -> datetime:
+    return night_start(kisiwa, night) + DAY
+
+
+def latest_finished_night(kisiwa: dict, db_now: datetime) -> date:
+    """R2-G1 Q1: the latest night whose run end + 5 min is not after DB now (yesterday after about 15:05 local)."""
+    first = date.fromisoformat(kisiwa["runs"][0]["night_date"])
+    k = (db_now - PAST_MARGIN - at(kisiwa["run1_start"])) // DAY  # runs fully ended
+    return first + timedelta(days=k - 1)
+
+
+def read_days(work: Path) -> list[dict]:
+    path = work / DAYS_FILE
+    return json.loads(path.read_text(encoding="utf-8"))["nights"] if path.is_file() else []
+
+
+def write_days(work: Path, entries: list[dict]) -> None:
+    doc = {"schema": {"id": "assetops.demo-kisiwa-added-nights", "version": 1},
+           "nights": sorted(entries, key=lambda e: e["night_date"])}
+    (work / DAYS_FILE).write_text(json.dumps(doc, indent=2, default=str) + "\n", encoding="utf-8")
+
+
+def _entry(entries: list[dict], night: date) -> dict | None:
+    return next((e for e in entries if e["night_date"] == night.isoformat()), None)
+
+
+def last_night(kisiwa: dict, entries: list[dict]) -> date:
+    """R2-G1 Q5: the later of the last story night and the last DONE / PUBLISHED added night."""
+    added = [date.fromisoformat(e["night_date"]) for e in entries if e.get("status") in ("DONE", "PUBLISHED")]
+    return max([last_story_night(kisiwa), *added])
+
+
+def start_state(build: dict, entries: list[dict]) -> tuple[Fraction, Fraction]:
+    """§4.5 step 1: the last DONE / PUBLISHED entry's end state, else the story's last run (exact fractions)."""
+    chained = [e for e in entries if e.get("status") in ("DONE", "PUBLISHED")]
+    state = (max(chained, key=lambda e: e["night_date"])["end_state"] if chained else build["runs"][-1]["physics"])
+    return Fraction(state["soc"]), Fraction(state["fuel"])
+
+
+def choose_kind(kind: str | None, fuel: Fraction) -> str:
+    """§4.5: `delivery` by default below 250 L, else `normal`; the explicit-kind refusals."""
+    if kind is not None and kind not in ADD_KINDS:
+        raise _refuse("UNKNOWN_KIND", f"{SITE_CODE} kind {kind!r} is not one of {list(ADD_KINDS)}")
+    if kind is None:
+        kind = "delivery" if fuel < LOW_FUEL_L else "normal"
+    if kind == "normal" and fuel < LOW_FUEL_L:
+        raise _refuse("FUEL_LOW_USE_DELIVERY", f"{SITE_CODE}: the tank starts at {float(fuel):.1f} L, below "
+                                               f"{LOW_FUEL_L} L; use --kind delivery")
+    if kind == "delivery" and fuel + DELIVERY_L > TANK_FILL_LIMIT_L:
+        raise _refuse("DELIVERY_TANK_FULL", f"{SITE_CODE}: the tank starts at {float(fuel):.1f} L; a {DELIVERY_L} L "
+                                            f"delivery would pass {TANK_FILL_LIMIT_L} L")
+    return kind
+
+
+def plan_night(kisiwa: dict, build: dict, entries: list[dict], night: date, kind: str | None, db_now: datetime,
+               replay_exists: bool = False) -> dict:
+    """§4.5 per-night refusals, in order; a PUBLISHED entry for `night` resumes at step 5 (R1 step 9)."""
+    if kind is not None and kind not in ADD_KINDS:
+        raise _refuse("UNKNOWN_KIND", f"{SITE_CODE} kind {kind!r} is not one of {list(ADD_KINDS)}")
+    entry = _entry(entries, night)
+    if night <= last_story_night(kisiwa) or (entry is not None and entry.get("status") == "DONE"):
+        raise _refuse("DUPLICATE_DAY", f"{SITE_CODE} already has the night {night.isoformat()}")
+    if entry is not None and entry.get("status") == "PUBLISHED":
+        return {"resume": True, **entry}
+    if entry is not None or replay_exists:
+        raise _refuse("PARTIAL_NIGHT", f"{SITE_CODE} {night.isoformat()} was left part-way (no PUBLISHED entry, but "
+                                       f"its readings folder or entry exists); ask the Architect")
+    nxt = last_night(kisiwa, entries) + timedelta(days=1)
+    if night != nxt:
+        raise _refuse("NOT_NEXT_NIGHT", f"{SITE_CODE} {night.isoformat()} is not the next night ({nxt.isoformat()})")
+    start, end = night_start(kisiwa, night), night_end(kisiwa, night)
+    if end > db_now - PAST_MARGIN:
+        raise _refuse("DAY_NOT_IN_PAST", f"{SITE_CODE} {night.isoformat()} ends {iso(end)}, after DB now - "
+                                         f"{PAST_MARGIN} ({iso(db_now)})")
+    soc, fuel = start_state(build, entries)
+    return {"resume": False, "night_date": night.isoformat(), "kind": choose_kind(kind, fuel), "start": iso(start),
+            "end": iso(end), "start_state": {"soc": str(soc), "fuel": str(fuel)}}
+
+
+def date_too_old(kisiwa: dict, night: date, db_now: datetime) -> bool:
+    """R2-G1 Q8: the night's 18:00 dip is more than 30 days - 1 hour before DB now."""
+    return night_start(kisiwa, night) + timedelta(minutes=DIP_OFFSETS[0][1]) < db_now - RECORD_AGE_LIMIT
+
+
+def add_log_id(S_date: str, night: date) -> str:
+    return f"kisiwa-001-story-{S_date.replace('-', '')}-add-{_ymd(night)}"
+
+
+def add_actions(start: datetime, night: date, kind: str) -> list[dict]:
+    """§4.5 step 2: this night's actions only, in the shipped log's shape."""
+    ymd = _ymd(night)
+    actions = [{"action_id": f"kis-add-{ymd}-dip-{hhmm}", "kind": "TANK_DIP",
+                "at": log_instant(start + timedelta(minutes=minutes)), "actor": "Shift operator",
+                "component_id": "fuel-tank"} for hhmm, minutes in DIP_OFFSETS]
+    if kind == "delivery":
+        actions.append({"action_id": f"kis-add-{ymd}-delivery", "kind": "FUEL_DELIVERY",
+                        "at": log_instant(start + timedelta(minutes=DELIVERY_OFFSET)), "actor": "Fuel supplier",
+                        "component_id": "fuel-tank", "volume_l": DELIVERY_L,
+                        "ticket": {"reference": f"KIS-DT-{ymd}", "volume_l": DELIVERY_L},
+                        "recorded_after_minutes": 30})
+    return sorted(actions, key=lambda a: a["at"])
+
+
+def add_log_text(log_id: str, actions: list[dict]) -> str:
+    doc = {"log_id": log_id, "log_version": 1, "site_code": SITE_CODE, "timezone": ZONE, "actions": actions}
+    return ADD_LOG_HEADER + json.dumps(doc, indent=2, ensure_ascii=True) + "\n"
+
+
+def entry_key(S_date: str, night: date, action_id: str) -> str:
+    digest = hashlib.sha256(f"kisiwa-add|{S_date}|{night.isoformat()}|{action_id}".encode("utf-8")).hexdigest()
+    return "oprec-entry-" + digest[:32]
+
+
+def taken_at_local(instant: datetime) -> str:
+    return instant.astimezone(ZoneInfo(ZONE)).strftime("%Y-%m-%dT%H:%M")
+
+
+def entry_bodies(S_date: str, night: date, actions: list[dict], dips: dict[str, int]) -> list[dict]:
+    """§4.5 step 5: the G3a request bodies (§3.2), one per action, with deterministic idempotency keys."""
+    out = []
+    for a in actions:
+        delivery = a["kind"] == "FUEL_DELIVERY"
+        out.append({"entry": a["kind"], "value": str(a["volume_l"] if delivery else dips[a["action_id"]]),
+                    "taken_at_local": taken_at_local(at(a["at"])),
+                    "ticket_reference": a["ticket"]["reference"] if delivery else None,
+                    "idempotency_key": entry_key(S_date, night, a["action_id"])})
+    return out
+
+
+def wait_until(entry: dict) -> datetime:
+    """§4.5 step 6: the night is checkable once its run ended 30 min ago and its readings have been quiet 5 min."""
+    return max(at(entry["end"]) + WAIT_AFTER_END, at(entry["received_at"]) + QUIET)
+
+
+def verify_window(window: dict | None, findings: int, stage: dict | None) -> tuple[str, str]:
+    """§4.5 step 7 (R2-G1 Q6, late-delivery header): ABSENT when no window is stored yet; DONE when the latest
+    revision >= 1 is WITHIN_MARGIN (any limitation set), no fuel Finding cites the night and, when the tick visited
+    Kisiwa (`stage` not None), its `fuel_night` code is OK; else UNEXPECTED with the window line."""
+    if window is None:
+        return "ABSENT", "no stored window for the night yet"
+    line = (f"window revision {window['revision']} {window['state']} limitations {window.get('limitations')}; "
+            f"fuel Findings {findings}; fuel_night {None if stage is None else stage.get('code')}")
+    ok = (int(window["revision"]) >= 1 and window["state"] == "WITHIN_MARGIN" and findings == 0
+          and (stage is None or stage.get("code") == "OK"))
+    return ("DONE" if ok else "UNEXPECTED"), line
+
+
+def _db(url: str):
+    import psycopg
+
+    return psycopg.connect(url.replace("+psycopg", ""), autocommit=True)
+
+
+def _db_now(url: str) -> datetime:
+    with _db(url) as c:
+        return c.execute("SELECT clock_timestamp()").fetchone()[0]
+
+
+def _site_ids(url: str) -> tuple[str, str]:
+    with _db(url) as c:
+        row = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (SITE_CODE,)).fetchone()
+    if row is None:
+        raise _refuse("SITE_NOT_IN_BUILD", f"{SITE_CODE} is not in this build.")
+    return str(row[0]), str(row[1])
+
+
+def _response_code(response) -> str | None:
+    try:
+        body = response.json()
+    except ValueError:
+        return None
+    if not isinstance(body, dict):
+        return None
+    detail = body.get("detail")
+    return (detail.get("code") if isinstance(detail, dict) else None) or body.get("code")
+
+
+def preflight(url: str, work: Path) -> dict:
+    """R2-G1 Q7: this build's code has the `fuel_night` stage, and an invalid entry body answers the entry route's
+    shape refusal (422 `OPREC_ENTRY_INVALID`) rather than 403 (switched off) or 404 (no route). Writes nothing."""
+    os.environ[ENTRY_ENV] = "on"  # R2-G3a 6: before the first `lab_app` import
+    from assetops_backend.scheduling.tick import STAGE_LIMIT_FIELDS
+
+    import demo_combined_finish as finish
+
+    response = finish.app_client(url, work).post(ENTRY_PATH, json={"probe": True})
+    return {"fuel_stage": "fuel_night" in STAGE_LIMIT_FIELDS, "entry_status": response.status_code,
+            "entry_code": _response_code(response)}
+
+
+def add_night(url: str, work: Path, payload: dict) -> dict:
+    """§4.5 steps 1-6 for one night (`payload`: `night_date`, `kind` or null). Leaves the entry PUBLISHED."""
+    os.environ[ENTRY_ENV] = "on"
+    story = json.loads((work / "story.json").read_text(encoding="utf-8"))
+    kisiwa = story["kisiwa"]
+    build = json.loads((work / "kisiwa.json").read_text(encoding="utf-8"))
+    night = date.fromisoformat(payload["night_date"])
+    entries = read_days(work)
+    replay = work / "kisiwa-replay" / f"add-{_ymd(night)}"
+    plan = plan_night(kisiwa, build, entries, night, payload.get("kind"), _db_now(url), replay.exists())
+    if not plan["resume"]:
+        entry = _publish_night(url, work, story, plan, replay)
+        entries = [e for e in read_days(work) if e["night_date"] != entry["night_date"]] + [entry]
+        write_days(work, entries)  # Rev 1 step 4: a crash after this point resumes at step 5
+    else:
+        entry = plan
+    entry = {**entry, "records": _post_records(url, work, story["S_date"], night, entry)}
+    write_days(work, [e for e in read_days(work) if e["night_date"] != entry["night_date"]] + [entry])
+    _wait(url, entry)
+    return entry
+
+
+def _publish_night(url: str, work: Path, story: dict, plan: dict, replay: Path) -> dict:
+    """§4.5 steps 2-4: the night's log, its registered v7 run from the chained start state, and its readings through
+    the gateway path received at DB now."""
+    import pg_harness
+    import probe_kisiwa_fuel as probe
+    import probe_kisiwa_nights as nights
+    import test_s6_verification_replay as rp
+    from execution_adapter import run_to_end
+
+    from assetops_backend.runs.adapters.yaml_operational_action_log import YamlOperationalActionLog
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+
+    kisiwa, night = story["kisiwa"], date.fromisoformat(plan["night_date"])
+    start, end = at(plan["start"]), at(plan["end"])
+    log_id = add_log_id(story["S_date"], night)
+    actions = add_actions(start, night, plan["kind"])
+    root = work / "operational-actions"
+    root.mkdir(parents=True, exist_ok=True)
+    (root / f"{log_id}-v1.yaml").write_text(add_log_text(log_id, actions), encoding="utf-8", newline="\n")
+    port = YamlOperationalActionLog(root=root)
+    log_sha = port.read_log(log_id, 1).sha256
+    foundation = PostgresFoundationStore(url)
+    try:
+        reg = story_registered(foundation, kisiwa["setup_at"], kisiwa["run1_start"], port)
+        soc, fuel = Fraction(plan["start_state"]["soc"]), Fraction(plan["start_state"]["fuel"])
+        run = reg.draft(nights.day_document(float(soc), float(fuel)), plan["start"], plan["end"], "v7",
+                        {"log_id": log_id, "log_version": 1})
+        if run.execution_status != "READY" or run.registered_basis is None:
+            raise _refuse("RUN_NOT_READY", f"{SITE_CODE} {night.isoformat()}: {run.execution_status} "
+                                           f"{[(b.kind, b.subject) for b in run.blocking_reasons]}")
+        trajectory = run_to_end(run, reg.sim("v7")).trajectory
+        last = dict(trajectory.boundaries[-1].stocks)
+        dips = {}
+        for a in actions:
+            if a["kind"] == "TANK_DIP":
+                offset = int((at(a["at"]) - start).total_seconds()) // 60
+                dips[a["action_id"]] = probe._round_litre(dict(trajectory.boundaries[offset // probe.STEP].stocks)[
+                    probe.FUEL])
+        received = _db_now(url)
+        published = rp._publish_and_accept(replay, run, f"epoch-add-{_ymd(night)}", received)
+    finally:
+        pg_harness.dispose(foundation)
+    return {"night_date": night.isoformat(), "kind": plan["kind"], "status": "PUBLISHED", "run_id": run.run_id,
+            "start": plan["start"], "end": plan["end"], "received_at": iso(received),
+            "start_state": plan["start_state"], "end_state": {"soc": str(last[probe.SOC]), "fuel": str(last[probe.FUEL])},
+            "log": {"id": log_id, "sha256": log_sha}, "actions": actions, "dips": dips, "published": published}
+
+
+def _post_records(url: str, work: Path, S_date: str, night: date, entry: dict) -> list[dict]:
+    """§4.5 step 5: the dips (and the delivery) through the G3a entry route; a re-post answers 200."""
+    import demo_combined_finish as finish
+
+    client = finish.app_client(url, work)
+    out = []
+    for body in entry_bodies(S_date, night, entry["actions"], entry["dips"]):
+        response = client.post(ENTRY_PATH, json=body)
+        if response.status_code not in (200, 201):
+            raise _refuse("RECORD_REFUSED", f"{SITE_CODE} {night.isoformat()} {body['entry']} at "
+                                            f"{body['taken_at_local']} answered {response.status_code}: "
+                                            f"{response.text[:300]}")
+        out.append({"code": response.json().get("public_code"), "kind": body["entry"], "quantity": body["value"],
+                    "taken_at_local": body["taken_at_local"], "ticket_reference": body["ticket_reference"]})
+    return out
+
+
+def _wait(url: str, entry: dict) -> None:
+    import time as clock_time
+
+    until, began = wait_until(entry), clock_time.monotonic()
+    while _db_now(url) < until and clock_time.monotonic() - began < WAIT_CAP.total_seconds():
+        clock_time.sleep(WAIT_POLL_SECONDS)
+
+
+def _night_window(url: str, night: date) -> tuple[dict | None, int]:
+    _, site = _site_ids(url)
+    with _db(url) as c:
+        row = c.execute("SELECT id, revision, state, limitations FROM fuel_balance_window WHERE site_id = %s "
+                        "AND night_date = %s ORDER BY revision DESC LIMIT 1", (site, night)).fetchone()
+        findings = c.execute(
+            "SELECT count(*) FROM finding_revision r JOIN fuel_balance_window w "
+            "ON w.id::text = r.claim->>'fuel_balance_window_id' WHERE r.site_id = %s AND r.domain = 'fuel_balance' "
+            "AND w.night_date = %s", (site, night)).fetchone()[0]
+    window = None if row is None else {"id": str(row[0]), "revision": row[1], "state": row[2], "limitations": row[3]}
+    return window, int(findings)
+
+
+def verify_night(url: str, work: Path, payload: dict) -> dict:
+    """§4.5 steps 7-8 (`payload`: `night_date`, `fuel_night` = the tick's Kisiwa stage or null when not visited)."""
+    night = date.fromisoformat(payload["night_date"])
+    entry = _entry(read_days(work), night)
+    if entry is None or entry.get("status") not in ("PUBLISHED", "DONE"):
+        raise _refuse("PARTIAL_NIGHT", f"{SITE_CODE} {night.isoformat()} has no PUBLISHED entry to verify")
+    window, findings = _night_window(url, night)
+    state, line = verify_window(window, findings, payload.get("fuel_night"))
+    if state == "DONE":
+        entry = {**entry, "status": "DONE", "window": {"revision": window["revision"], "state": window["state"],
+                                                       "limitations": window["limitations"]}}
+        write_days(work, [e for e in read_days(work) if e["night_date"] != entry["night_date"]] + [entry])
+    return {"state": state, "line": line, "night_date": night.isoformat(), "entry": entry}
+
+
 def main(argv: list[str]) -> int:
+    if len(argv) == 3 and argv[0] == "preflight":
+        print(json.dumps({"preflight": preflight(argv[1], Path(argv[2]))}))
+        return 0
+    if len(argv) == 4 and argv[0] == "add-day":
+        print(json.dumps({"added": add_night(argv[1], Path(argv[2]), json.loads(argv[3]))}, default=str))
+        return 0
+    if len(argv) == 4 and argv[0] == "verify-day":
+        print(json.dumps({"verified": verify_night(argv[1], Path(argv[2]), json.loads(argv[3]))}, default=str))
+        return 0
     if len(argv) == 5 and argv[0] == "register":
         _, url, work, import_at, install_at = argv
         result = register(url, Path(work), at(import_at), at(install_at))
