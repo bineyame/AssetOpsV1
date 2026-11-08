@@ -581,6 +581,12 @@ def test_a3_never_summed_and_steady_day() -> None:
     assert rows.never_summed(["15.13", "15.13", "15.13"], [{"t": "15.13 USD"}]) == 4
     with pytest.raises(AssertionError):
         rows.never_summed(["15.13", "15.13"], [{"t": ["total 30.26 USD"]}])
+    # stored amounts: 15.125 x 2 -> 30.25 / 30.26; x 3 -> 45.38 / 45.39
+    stored = ["15.125", "15.125", "15.125"]
+    assert rows.never_summed(stored, [{"t": "15.13 USD, 15.12 USD"}]) == 4
+    for shown in ("30.25", "30.26", "45.38", "45.39"):
+        with pytest.raises(AssertionError):
+            rows.never_summed(stored, [{"t": [f"idle fuel total {shown} USD"]}])
     assert rows.steady_day("d", [], {"headline": "possible extra fuel cost on this day"})["stored_rows"] == 0
     with pytest.raises(AssertionError):
         rows.steady_day("d", [{"idle_seconds": 600}], {"headline": "x"})

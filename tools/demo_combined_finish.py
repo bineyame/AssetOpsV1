@@ -978,7 +978,9 @@ def money_b(ctx: Ctx) -> dict:
         mornings.append(demo_rows.idle_morning(day["day"], heads[0], rows(board)["OPTIMIZE_COST"]))
         bodies.append(board)
     bodies.append(ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}))
-    sums = demo_rows.never_summed([m["shown_high"] for m in mornings], bodies)
+    # a body that spans the idle mornings (S-14, S-7, S), so a sum of mornings could appear in it
+    bodies.append(ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-14)), "to": iso(ctx.day(1))}))
+    sums = demo_rows.never_summed([m["amount_high"] for m in mornings], bodies)
     assert sums > 0, "no sum of mornings checked"
     return {**shown, "idle_mornings": mornings, "sums_checked": sums}
 

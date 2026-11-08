@@ -485,8 +485,10 @@ def idle_morning(day: str, stored: dict, cost_row: dict) -> dict:
 
 
 def never_summed(amounts: list[str], bodies: list[object]) -> int:
-    """A3-R §3.9: no string in `bodies` holds the exact sum of two (or all) mornings' shown amounts. Returns the number
-    of sums checked (0 only when fewer than two amounts were given, which the caller asserts against)."""
+    """A3-R §3.9: no string in `bodies` holds the sum of two (or all) mornings' amounts. `amounts` are the STORED
+    `amount_high` values (e.g. 15.125); each sum is searched half-even, half-up and rounded up, and as the sum of the
+    outward-rounded parts (15.125 x 2 -> 30.25 and 30.26; x 3 -> 45.38 and 45.39). Returns the number of combinations
+    checked (0 only when fewer than two amounts were given, which the caller asserts against)."""
     from itertools import combinations
 
     strings: list[str] = []
@@ -503,11 +505,20 @@ def never_summed(amounts: list[str], bodies: list[object]) -> int:
 
     for b in bodies:
         walk(b)
-    sums = [f"{sum(Decimal(a) for a in combo):.2f}" for n in range(2, len(amounts) + 1)
-            for combo in combinations(amounts, n)]
-    hit = [(s, x) for s in sums for x in strings if s in x]
+    from decimal import ROUND_CEILING, ROUND_HALF_EVEN, ROUND_HALF_UP
+
+    cent = Decimal("0.01")
+    combos = [combo for n in range(2, len(amounts) + 1) for combo in combinations(amounts, n)]
+    sums: set[str] = set()
+    for combo in combos:
+        exact = sum(Decimal(a) for a in combo)
+        for mode in (ROUND_HALF_EVEN, ROUND_HALF_UP, ROUND_CEILING):
+            sums.add(f"{exact.quantize(cent, rounding=mode)}")
+        # the sum of the outward-rounded (shown) parts, as code summing displayed amounts would give
+        sums.add(f"{sum(Decimal(a).quantize(cent, rounding=ROUND_CEILING) for a in combo)}")
+    hit = [(s, x) for s in sorted(sums) for x in strings if s in x]
     assert not hit, ("a sum of mornings is shown", hit[:3])
-    return len(sums)
+    return len(combos)
 
 
 def steady_day(day: str, stored: list[dict], cost_row: dict) -> dict:
