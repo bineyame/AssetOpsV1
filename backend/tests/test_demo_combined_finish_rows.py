@@ -770,7 +770,7 @@ def _set_prop(rev: dict, component: str, key: str, value=None, drop: bool = Fals
 
 def test_kis1_foundation_as_known_now_passes_and_each_break_fails() -> None:
     revs, reg, prices = _kis1_inputs()
-    got = rows.kis1(revs, reg, prices)
+    got = rows.kis1(revs, reg, prices, 10)
     assert (got["stop_soc_threshold"], got["no_load"], got["sensor_accuracy"], got["price"], got["windows_priced"]) == (
         "90 %", "4.9 L/h GENERIC_DEFAULT", "10 L GENERIC_DEFAULT", "1.25 USD (v1)", 10)
     current = [r for r in revs if r["superseded_at"] is None]
@@ -782,13 +782,31 @@ def test_kis1_foundation_as_known_now_passes_and_each_break_fails() -> None:
         broken, _, _ = _kis1_inputs()
         edit([r for r in broken if r["superseded_at"] is None])
         with pytest.raises((AssertionError, StopIteration)):
-            rows.kis1(broken, reg, prices)
+            rows.kis1(broken, reg, prices, 10)
             pytest.fail(name)
     with pytest.raises(AssertionError, match="more than one price revision"):
-        rows.kis1(revs, reg, [*prices[:-1], {**prices[-1], "revision_id": "p2"}])
-    with pytest.raises(rows.KisiwaMissing):
-        rows.kis1([], reg, prices)
+        rows.kis1(revs, reg, [*prices[:-1], {**prices[-1], "revision_id": "p2"}], 10)
+    # L2: a priced subset of the stored nights is not "every night window"; the expected count is the story's
+    with pytest.raises(AssertionError, match="not every stored night window was priced"):
+        rows.kis1(revs, reg, prices[:3], 10)
+    with pytest.raises(AssertionError, match="not every stored night window was priced"):
+        rows.kis1(revs, reg, [], 10)
+    assert rows.kis1(revs, reg, prices[:3], 3)["windows_priced"] == 3
+    # L3: a Site with no current revision is a plain assertion, not "Kisiwa missing"
+    superseded = [{**r, "superseded_at": r["valid_from"]} for r in revs]
+    with pytest.raises(AssertionError, match="no current Foundation revision") as caught:
+        rows.kis1(superseded, reg, prices, 10)
+    assert not isinstance(caught.value, rows.KisiwaMissing)
     assert len(current) >= 1
+
+
+def test_kis_1_reads_the_night_count_from_kisiwa_json() -> None:
+    import inspect
+
+    import demo_combined_finish as finish
+
+    src = inspect.getsource(finish.kis_1)
+    assert "kisiwa.json" in src and '["runs"]' in src and "nights" in src and "10" not in re.sub(r"R3q|9q\.\d", "", src)
 
 
 def _kis2_body(**over):
@@ -829,6 +847,7 @@ def test_kis2_is_fuel_cost_2_over_the_stored_intervals_exactly() -> None:
             "fuel-cost-1": _kis2_body(model_id="fuel-cost-1"),
             "UNPRICED": _kis2_body(state="UNPRICED"),
             "not SUPPORTED": (heads, ivs, [{**latest[0], "lifecycle": "CANDIDATE"}]),
+            "head cites an older revision (L1)": _kis2_body(finding_revision_id="r0"),
             "idle seconds": _kis2_body(idle_seconds=0)}.items():
         with pytest.raises(AssertionError):
             rows.kis2(h, i, l)
@@ -884,13 +903,20 @@ def _kis7(kisiwa_high: str | None = "7.5", claim=None, extra: str = ""):
         return {"site_code": code, "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": cost}}]}
     summary = {"sites": [site("COLD-LAB-001", None), site("KISIWA-001", kisiwa_high), site("KOBO-001", "15.125")],
                "cards": {"OPTIMIZE_COST": {"claim": claim, "value": {"text": "Costs at 2 sites"}, "detail": extra}}}
-    summary["sites"] = [summary["sites"][2], summary["sites"][0], summary["sites"][1]]  # Site order: Kobo first
+    # the server's real Site order: by lower-case site code (cold, ev, kisiwa, kobo), so Kisiwa comes before Kobo
+    summary["sites"].sort(key=lambda s: s["site_code"].lower())
     return summary
 
 
 def test_kis7_optimize_two_priced_sites_no_sum_and_each_break_fails() -> None:
     got = rows.kis7(_kis7(), [_kis7()])
-    assert got["priced"] == ["KOBO-001", "KISIWA-001"] and got["sums_checked"] == 1
+    # H1: the row does not hard-code Kobo first; the priced Sites come in the server's order (Kisiwa, Kobo)
+    assert got["priced"] == ["KISIWA-001", "KOBO-001"] and got["sums_checked"] == 1
+    # the set is still exact: a third priced Site, or a missing one, fails
+    third = _kis7()
+    third["sites"][0]["rows"][0]["nodes"]["earnings"] = {"value": {"high": "1"}, "key": "money.avoided_cost"}
+    with pytest.raises(AssertionError):
+        rows.kis7(third, [_kis7()])
     for name, (body, bodies) in {
             "one priced Site": (_kis7(kisiwa_high=None), [_kis7()]),
             "a present claim": (_kis7(claim={"value": 1}), [_kis7()]),

@@ -1061,7 +1061,8 @@ def kis_1(ctx: Ctx) -> dict:
     for w in windows:
         p = select(t, s, w["window_start"], w["window_end"], w["window_end"])
         prices.append({"state": p.state, "revision_id": p.revision_id, "value": p.value, "currency": p.currency})
-    return {"kisiwa": "present", **demo_rows.kis1(revisions, register, prices)}
+    nights = len(json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))["runs"])
+    return {"kisiwa": "present", **demo_rows.kis1(revisions, register, prices, nights)}
 
 
 @row("KIS-2")

@@ -1000,18 +1000,19 @@ def _props(content: dict, component_id: str) -> dict[str, dict]:
     return {p["property_key"]: p for p in (comp or {}).get("properties") or ()}
 
 
-def kis1(revisions: list, register: dict, prices: list[dict]) -> dict:
+def kis1(revisions: list, register: dict, prices: list[dict], nights: int) -> dict:
     """KIS-1 (DIESEL-1-R3q §9q.3): Kisiwa's Foundation as known now. `revisions`: the Site's Foundation revisions
     (`RevisionRow` or dicts with `valid_from`, `superseded_at`, `content`); only current-knowledge rows count.
     `register`: `kisiwa-register.json`; `prices`: one `price_selection` per stored night window (`state`, `revision_id`,
     `value`, `currency`). Stop setting 90 % in every current revision; no-load 4.9 L/h GENERIC_DEFAULT and sensor
     accuracy 10 L GENERIC_DEFAULT in every revision from their effective instants (equal to the declarations, read);
-    every window priced by one revision equal to diesel price step v1 (read from the fixture file)."""
+    every window priced by one revision equal to diesel price step v1 (read from the fixture file). `nights`: the
+    stored night count the story expects (`len(kisiwa.json["runs"])`); all of them are priced, not a subset."""
     import demo_combined_kisiwa as kis
 
     current = [r for r in revisions if _field(r, "superseded_at") is None]
-    if not current:
-        raise KisiwaMissing()
+    # the Site exists (the row wrapper raises KisiwaMissing without it); no current revision is a different fault
+    assert current, ("Kisiwa has no current Foundation revision", len(list(revisions)))
     stops = {(Decimal(str(p.get("value"))), p.get("unit")) for r in current
              for p in [_props(_field(r, "content"), "generator").get("stop-soc-threshold") or {}]}
     assert stops == {(Decimal("90"), "%")}, ("stop setting is not 90 % in every current revision", sorted(map(str, stops)))
@@ -1046,7 +1047,7 @@ def kis1(revisions: list, register: dict, prices: list[dict]) -> dict:
                 component, str(_field(r, "valid_from")), [props[n] for n in names])
     v1 = next(s for s in json.loads(kis.FIXTURE_PRICES.read_text(encoding="utf-8"))["steps"] if s["step"] == "v1")
     assert (v1["value"], v1["currency"]) == ("1.25", "USD"), v1
-    assert prices, "no stored night window was priced"
+    assert prices and len(prices) == nights, ("not every stored night window was priced", len(prices), "expected", nights)
     assert all(p["state"] == "PRICED" for p in prices), ("an unpriced night window", prices)
     revs = sorted({str(p["revision_id"]) for p in prices})
     assert len(revs) == 1, ("the nights are priced by more than one price revision", revs)
@@ -1145,7 +1146,7 @@ def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc:
 
 def kis7(summary_s: dict, bodies: list[object]) -> dict:
     """KIS-7 (DIESEL-1-R3q §9q.2): CH-5d1's Optimize card on the >=2-priced-Sites path on the S summary: the priced
-    Sites (read from each Site's cost claim) are exactly Kobo then Kisiwa in Site order, the card has no claim and its
+    Sites (read from each Site's cost claim) are exactly Kobo and Kisiwa, in the order the server lists Sites, the card has no claim and its
     value is `cost.sites` for 2 sites, and no string in `bodies` holds a sum of the priced amounts (`never_summed`).
     Kisiwa unpriced on S fails the row (a stop, never re-expected to the one-Site path)."""
     from assetops_backend.chain.outcomes import earnings_money
@@ -1160,7 +1161,11 @@ def kis7(summary_s: dict, bodies: list[object]) -> dict:
         if claim is not None and claim.get("value") is not None:
             priced.append((s.get("site_code"), claim))
     codes = [code for code, _ in priced]
-    assert codes == ["KOBO-001", KIS_SITE], ("S: priced Sites on S", codes)
+    # R3q's literal "[KOBO, KISIWA]" is a slip about order only: the set is the intent. The server lists Sites by
+    # `site_code_key` (kisiwa-001 before kobo-001), so the order is what it returns, never a hard-coded Kobo-first.
+    assert sorted(codes) == sorted(["KOBO-001", KIS_SITE]), ("S: priced Sites on S", codes)
+    served = [s.get("site_code") for s in summary_s.get("sites") or () if s.get("site_code") in {"KOBO-001", KIS_SITE}]
+    assert codes == served, ("S: priced Sites are not in the server's Site order", codes, served)
     card = (summary_s.get("cards") or {}).get("OPTIMIZE_COST") or {}
     want = card_text("cost.sites", sites=sites_text(2))
     assert card.get("claim") is None and (card.get("value") or {}).get("text") == want, ("Optimize card", card, want)

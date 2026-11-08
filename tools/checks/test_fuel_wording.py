@@ -32,12 +32,18 @@ CLEAN = {
                                       'def f():\n    """siphon in a docstring"""\n    return "unexplained fuel"\n'),
     "config/a.json": '{"text": "Unexplained fuel"}\n',
     "config/b.yaml": "# pilfer in a comment\ntext: Fuel accounted for\n",
+    "frontend/src/sites/profiles.json": '{"labels": {"fuel": "Unexplained fuel", "mood": "stealth mode"}}\n',
+    "frontend/src/shell/__fixtures__/f.json": '{"t": "thief"}\n',
+    "frontend/src/shell/__tests__/t.json": '{"t": "thieves"}\n',
+    "frontend/src/test/v.json": '{"t": "stealing"}\n',
+    "frontend/index.html": "<!-- a thief comment -->\n<title>AssetOps</title>\n",
 }
 
 
 def test_clean_tree_passes(tmp_path: Path) -> None:
     hits, files = fw.scan(_tree(tmp_path, CLEAN))
-    assert hits == [] and files == 4  # A.tsx, m.py, a.json, b.yaml; the three test files are out of scope
+    # A.tsx, m.py, a.json, b.yaml, profiles.json, index.html; the test files and fixtures are out of scope
+    assert hits == [] and files == 6
 
 
 @pytest.mark.parametrize("rel, text, word", [
@@ -48,6 +54,15 @@ def test_clean_tree_passes(tmp_path: Path) -> None:
     ("backend/assetops_backend/m.py", 'def f(n):\n    return f"{n} L stole"\n', "stole"),
     ("config/a.json", '{"lines": ["Thefts"]}\n', "Thefts"),
     ("config/b.yml", "note: someone may siphon fuel\n", "siphon"),
+    ("frontend/src/sites/A.tsx", 'export const A = () => <p>Someone steals fuel</p>;\n', "steals"),
+    ("frontend/src/x.ts", "export const W = 'stealing';\n", "stealing"),
+    ("frontend/src/x.ts", "export const W = 'steal';\n", "steal"),
+    ("frontend/src/x.ts", "export const W = 'a thief';\n", "thief"),
+    ("backend/assetops_backend/m.py", 'TEXT = "the thieves came"\n', "thieves"),
+    ("backend/assetops_backend/m.py", 'TEXT = "thievery"\n', "thievery"),
+    ("frontend/src/sites/profiles.json", '{"labels": {"fuel": "Possible theft"}}\n', "theft"),
+    ("frontend/src/sites/profiles.json", '{"stolen": "x"}\n', "stolen"),
+    ("frontend/index.html", "<title>Fuel thief tracker</title>\n", "thief"),
 ])
 def test_each_scope_fails_on_a_forbidden_word(tmp_path: Path, rel: str, text: str, word: str) -> None:
     hits, _ = fw.scan(_tree(tmp_path, {**CLEAN, rel: text}))
@@ -77,3 +92,7 @@ def test_repository_is_clean_and_every_scope_is_scanned() -> None:
     assert any((root / "backend" / "assetops_backend").rglob("*.py"))
     assert any((root / "config").rglob("*.json")) and any((root / "config").rglob("*.yaml"))
     assert files > 300, files
+    assert (root / "frontend" / "src" / "sites" / "presentationProfiles.json").is_file()
+    assert (root / "frontend" / "index.html").is_file()
+    served_json = [p for p in (root / "frontend" / "src").rglob("*.json") if not fw._is_fixture(p.relative_to(root).as_posix())]
+    assert served_json, "no bundled client-label JSON in scope"

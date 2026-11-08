@@ -4,6 +4,8 @@
 Scanned (tests and code comments excluded):
 - `frontend/src/**/*.ts(x)`: comments stripped (block, JSX and `//` comments, the guard-12 rule), every remaining
   character scanned; test files (`__tests__/`, `*.test.*`, `src/test/`) are out of scope;
+- `frontend/src/**/*.json` (not `__tests__/`, `__fixtures__/`, `src/test/`) and `frontend/index.html` (HTML comments
+  stripped): bundled labels and page text;
 - `backend/assetops_backend/**/*.py`: every string literal (f-string parts included) except docstrings and other bare
   string statements, read through `ast`, so comments never count;
 - `config/**/*.json|yaml|yml`: every string key and value after parsing (YAML comments never count).
@@ -25,7 +27,10 @@ from typing import Any, Iterator
 
 ROOT = Path(__file__).resolve().parents[2]
 #: H4: the forbidden words, case-insensitive, whole words; "siphon" and "pilfer" with any ending.
-WORDS = re.compile(r"\b(?:thefts?|stolen|stole|siphon\w*|pilfer\w*)\b", re.IGNORECASE)
+#: H4 "never imply": also steal / steals / stealing and thief / thieves / thievery ("stealth" is a different word).
+WORDS = re.compile(r"\b(?:thefts?|stolen|stole|steal(?:s|ing)?|thie(?:f|ves|very)|siphon\w*|pilfer\w*)\b",
+                   re.IGNORECASE)
+_HTML_COMMENT = re.compile(r"<!--[\s\S]*?-->")
 _BLOCK = re.compile(r"/\*[\s\S]*?\*/")
 _LINE = re.compile(r"(^|[^:\\])//[^\n]*")
 
@@ -90,17 +95,35 @@ def _is_ts_test(rel: str) -> bool:
     return "/__tests__/" in f"/{rel}" or ".test." in rel or rel.startswith("frontend/src/test/")
 
 
+def _is_fixture(rel: str) -> bool:
+    return _is_ts_test(rel) or "/__fixtures__/" in f"/{rel}"
+
+
+def html_hits(path: str, source: str) -> list[str]:
+    code = _HTML_COMMENT.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), source.replace("\r\n", "\n"))
+    return [f"{path}:{code.count(chr(10), 0, m.start()) + 1}: {m.group(0)!r}" for m in WORDS.finditer(code)]
+
+
 def scan(root: Path = ROOT) -> tuple[list[str], int]:
-    """(hits, files scanned) over the three scopes under `root`."""
+    """(hits, files scanned) over the scopes under `root`."""
     hits, files = [], 0
 
     def rel(p: Path) -> str:
         return p.relative_to(root).as_posix()
 
     for p in sorted((root / "frontend" / "src").rglob("*")):
-        if p.suffix in (".ts", ".tsx") and p.is_file() and not _is_ts_test(rel(p)):
+        if not p.is_file():
+            continue
+        if p.suffix in (".ts", ".tsx") and not _is_ts_test(rel(p)):
             files += 1
             hits += ts_hits(rel(p), p.read_text(encoding="utf-8"))
+        elif p.suffix == ".json" and not _is_fixture(rel(p)):  # bundled client labels (presentationProfiles.json)
+            files += 1
+            hits += data_hits(rel(p), p.read_text(encoding="utf-8"))
+    index = root / "frontend" / "index.html"
+    if index.is_file():
+        files += 1
+        hits += html_hits(rel(index), index.read_text(encoding="utf-8"))
     for p in sorted((root / "backend" / "assetops_backend").rglob("*.py")):
         files += 1
         hits += py_hits(rel(p), p.read_text(encoding="utf-8"))
