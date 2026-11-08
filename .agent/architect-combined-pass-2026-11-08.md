@@ -453,3 +453,158 @@ them at E6.
   DS-1b is the technical version (data flow, per-step rules and checks, the Kisiwa deep dive, the demo-day build,
   failure recovery). DS-1f finalises both after E5.
 - Owner questions: Q1 (skip E2's built-in prepare), Q2 (the session date).
+
+---
+
+## Part D. Ruling on the owner's answers: the 10-Nov session and the 16–20 Nov demos
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only on code, main `343b25f31`. Owner answers, verbatim
+(`.agent/owner-answers-endgame-2026-11-08.md`): "my response 1. yes 2. i want flexibility on this but lets say it
+happens on 10-Nov, i will also hold several demos the following week". **Q1 = (a):** E2 skips
+`test_demo_combined_postgres.py`. Today is Sunday 2026-11-08, evening. In flight: K8c captures and R-1 (both Sonnet).
+
+### D.1 What a unit is in calendar time
+
+- The project's rate is **about 3 units per lane-day, including review** (`Docs/demo-sprint/client-demo-plan.html:938`
+  and `:1175`; used in `.agent/build-sheet-DIESEL-1.md:4308`, "0.5 lane-unit … at about 3 lane-units a day").
+- So **1 unit is about a third of a working day: about 2.5 h of wall time, review loop included.** Machine steps (E2 to
+  E5) are counted in hours, not units.
+- Work left before the 10-Nov session:
+  - agent work on the longest lane: R-1 rest (about 0.2), DS-1b 1.0 (DS-1a 0.75 runs beside it), DS-1f 0.25. That is
+    about **1.45 units, about 3.5–4 h**;
+  - machine work: E2 about 1.3–2 h, E3 2.0–2.35 h (cap 3 h), E4 + E5 about 0.5 h. That is **about 4–5 h**;
+  - owner: E6, 60–90 min.
+- Planned serially, that is about 10 h. With the overlaps in D.2, it is **one long working day, Monday 9 Nov.**
+
+**E2 time, corrected.** Part C said about 38 min for the backend suite. The wrapper's cap basis is 74.2 min for all
+tiers at 4 workers (`tools/run-backend-suite-in-container.ps1:138-141`; `backend/TESTING.md:362`). Budget **40–75
+min**. With Q1 the run is `-Tier fast` (which leaves out every slow-marked test, including the four-Site prepare file;
+`backend/TESTING.md:318-329`), then `-Tier slow -Targets 'backend/tests/test_s4_schedule_health_postgres.py
+backend/tests/test_s4_schedule_tick_postgres.py'` (about 7 min). The two JUnit results together are the whole suite
+minus the one file the owner approved skipping. That is the documented split form (`backend/TESTING.md`, "a `fast` run
+plus a `slow` run"). `--ignore` cannot be passed: `tools/run-backend-suite-in-container.sh:94` refuses `=`.
+
+### D.2 Ruling 1: is 10-Nov reachable?
+
+**Yes, with no slack.** Three conditions:
+
+1. R-1 is ACCEPTED and merged by Monday about 08:00.
+2. E2 is green, or green after its one reserved fix round (0.5 unit, about 1.25 h).
+3. E3 completes first time, inside its 3-h cap.
+
+If any two of these fail, 10-Nov is **not** reachable (see the fallback below).
+
+**Changes that make it reachable.** None of them cuts a check that protects what the client sees.
+
+- **(a) DS-1a/b start when the K8c captures land, not after the R-1 merge.**
+  - Part A.5 ordered DS-1 after R-1 only for two screenshots: the Portfolio fuel row and the Kisiwa Service page.
+  - DS-1f already swaps in every E5 capture (§B.6), so those two get a placeholder now. Each is listed in the hidden
+    provisional list.
+- **(b) R-1c, the capture retake, is cut.** E5 retakes both pages from the real build. If K8c has not yet taken them,
+  K8c skips them.
+- **(c) E1 is a code freeze only:** R-1 and K8c merged, main tagged. DS-1 changes only files in `Docs/`, which neither
+  E2 nor E3 reads, so DS-1 drafts and reviews run during E2/E3. The DS-1a/b branches merge **once, after DS-1f**, with
+  one check-all. That avoids a check-all during E3.
+- **(d) DS-1 builders do not serve the clone while E2, E3 or E4 runs** (one-heavy-job rule). They read screens before
+  E2 starts, or from the K8c capture folders.
+- **(e) DS-1b (the technical document) trails.** The client session does not need it. It is drafted alongside, but its
+  review and its DS-1f pass may move to Wed 11 to Thu 12 Nov, before the following week's demos.
+  - **DS-1a is not trailed.** Its full §B.6 review (forbidden words, no cross-Site sums, figures matching the
+    captures) stays before E6.
+- **(f) E6 notes, triage.**
+  - Before 10 Nov, fix only a **High**: anything that would mislead the client (a wrong figure, a summed total,
+    forbidden wording, a claim the screen does not support). That costs one fix round plus one E3–E5 re-run overnight
+    Mon→Tue. Tue 10 Nov is a legal prepare day: S = 8 Nov.
+  - All other notes go to the 11–14 Nov fix round and reach the client in the following week's build.
+
+**Not cut:**
+- E2, except the one approved file;
+- E3's self-check over all rows;
+- all of E4 (live ticks, `finish check`, `chain_coherence.py`, `perf_budget.py`, register reconcile, the §A.2 E4
+  checklist);
+- E5;
+- the DS-1a review;
+- E6.
+
+**Fallback.** If E4 is not green by Tue 08:00, nothing honest is ready for 10 Nov. The older builds lack Kisiwa and
+R-1. The session should move to Wed 11 Nov or later (see the owner question).
+
+### D.3 Ruling 2: staying demo-ready across 10 Nov and 16–20 Nov
+
+**What exists (cited).**
+- **S is fixed when the build is prepared.**
+  - `story_day` = the DB's day − 2 (`tools/demo_combined.py:152-154`).
+  - Hence the date rule: never prepare on the 3rd to 5th of a month (`Docs/demo-sprint/client-demo-plan.html:1176-1180`;
+    the month-start reason is D-W1-15, `.agent/decisions-while-owner-away-2026-11-02.md:27`).
+- **There is no re-date mechanism.**
+  - `add-day` (`tools/demo_combined.py:919-924`) only appends a day at the build's own S ("A fill uses the build's S",
+    `client-demo-plan.html:857`).
+  - `tools/chain_clone.py` copies only the fixed source `assetops_polish_full_test` (`:31`, `:62-64`) and keeps its S.
+  - So moving the story date means re-running **E3–E5, about 2.5 h of machine time and no agent work.**
+- **What does exist: cheap daily checks.**
+  - **`python tools/demo_combined_finish.py check <db-url> <work>`** (`tools/demo_combined_finish.py:1-12`, `:1567`)
+    runs every acceptance row against the existing build through the app. Rows that write data are skipped (`:1538-1539`).
+  - **`demo_combined.py … links`** (`:794-805`) reprints the dated story links for that build. It says "dates move on
+    every rebuild; quote them from here".
+- **How long a build stays valid.** The ~3-day rule is a standing estimate (`.agent/architect-handoff-demo-plan-2026-11-04.md:100`),
+  not a measured limit. The known date-sensitive reads include the 30-day work rule (`.agent/build-sheet-DEMO-SPARSE.md:296`).
+
+**Recommendation (cheapest reliable).**
+
+1. **One build covers about 4 consecutive days:** its prepare day and the 3 days after.
+2. **Every demo morning (or the evening before), run a light refresh, "E4-lite", about 20 min:**
+   - serve with the scheduler ticking;
+   - wait for one completed tick;
+   - `finish check`, then `prewarm`.
+   - If any row fails, that build is retired and E3–E5 re-runs. That is why it runs at least 3 h before a demo.
+3. **Measure the real validity window for free.** Run `finish check` on the 10-Nov build each morning, 11 to 14 Nov.
+   If it stays green for 6 days or more, the week can use fewer builds.
+4. **Two builds for 16–20 Nov, alternating DB names** (`assetops_polish_client_test` /
+   `assetops_polish_client2_test`, both allowed by `--db`, `tools/demo_combined.py:896`). The previous build stays the
+   fallback until the new one passes E4.
+   - W-1: E3 on **Sun 15 Nov** (S = 13 Nov). It covers Mon 16 to Wed 18.
+   - W-2: E3 on **Wed 18 Nov, evening, after that day's demo** (S = 16 Nov). It covers Thu 19 to Sat 21.
+   - If the owner's demo days fit inside any 4 consecutive days, **one build is enough**: E3 on the first demo day's eve.
+5. **For each build, DS-1a gets a refresh** (about 0.1 unit, Sonnet). It takes in that build's E5 captures and `links`
+   output, and its figures are checked against that build's `check.json`. A Sonnet diff check is enough; no full
+   re-review is needed.
+
+**Option for the owner, not recommended: an in-place re-date tool.** It would shift every instant of an existing build
+by N days. Size is about 3–5 units plus review. The risk is high: every instant, including `known_at`, `recorded_at`,
+the outbox and the response-store watermark (CH5c-R4 W1–W6), would have to move together, or the screens show false
+evidence. A re-prepare costs about 2.5 h of machine time and no developer time.
+
+### D.4 Ruling 3: the schedule (one heavy job at a time)
+
+Heavy jobs: captures, any DB test run, the E2 suite, E3, E4/E5. **Two of them never run at the same time.**
+
+| When | Step | Heavy? |
+|---|---|---|
+| Sun 8 Nov, evening–night | K8c captures finish. **Then** R-1's T6/T7 DB tests run. R-1 Opus review. DS-1a/b start once K8c lands. | yes, one at a time |
+| Mon 9 Nov, 08:00 | R-1 merge, check-all (7 min). E1 code freeze, tag main. | yes |
+| 08:15–08:35 | E2a: mechanism template rebuild | yes |
+| 08:35–~10:15 | E2b fast tier (40–75 min), then E2c slow pair (~7 min), E2d vitest (~8 min), E2e check-all (~7 min) | yes |
+| (10:15–11:30 reserve) | E2 fix round 0.5 unit, scoped re-run | yes |
+| 10:30 (or 12:00) – 12:45 (or 14:15) | **E3** into `assetops_polish_client_test`. Prepare day 9 Nov, so S = 7 Nov. The date rule passes. | yes |
+| until ~13:00 | DS-1a/b drafts and Opus reviews (no clone serving) | no |
+| +15 min, then +10 min | E4 (live tick first), then E5 | yes |
+| ~14:00–15:00 | DS-1f for DS-1a (Sonnet), check, merge DS-1a, check-all | yes (check-all) |
+| **~15:30–17:00** (latest 18:00) | **E6 owner walkthrough** with DS-1a on the build | no |
+| Mon night | Only if a High: fix round, then E3–E5 overnight (Tue 10 is a legal prepare day, S = 8 Nov) | yes |
+| **Tue 10 Nov**, ≥3 h before the session | E4-lite (serve, tick, `finish check`, prewarm), about 20 min. **Client session.** | light |
+| Wed 11–Fri 13 Nov | E6 non-High notes (one fix round); DS-1b review and its DS-1f; daily `finish check` on the 10-Nov build (D.3 point 3) | DB tests one at a time |
+| Sat 14 Nov | If backend product code changed after E2: a fast-tier run plus check-all (about 1.5 h). Otherwise scoped tests plus check-all. | yes |
+| Sun 15 Nov | **W-1:** E3 into `assetops_polish_client2_test` (S = 13 Nov), then E4, E5, DS-1a refresh | yes |
+| Mon 16–Wed 18 | Each demo day: E4-lite on W-1 | light |
+| Wed 18, evening | **W-2:** E3 into `assetops_polish_client_test` (S = 16 Nov), then E4, E5, DS-1a refresh. Skip it if no demo falls after Wed 18, or if D.3 point 3 measured a long enough window. | yes |
+| Thu 19–Fri 20 | Each demo day: E4-lite on W-2 | light |
+
+Keep-awake runs through every E-step. Nothing in this schedule touches any other DB.
+
+### D.5 Owner questions
+
+1. **At what time is the 10-Nov session?** If it is in the morning, the only walkthrough slot is Monday about
+   15:30–17:00, and only a misleading-to-the-client issue can still be fixed before it. If it is in the afternoon, a Tuesday
+   morning walkthrough is possible too.
+2. **Which days are the 16–20 Nov demos, when you know them?** If they fit inside 4 consecutive days, one build (E3 on
+   the eve of the first demo) covers them all. Otherwise we use the two builds above.
