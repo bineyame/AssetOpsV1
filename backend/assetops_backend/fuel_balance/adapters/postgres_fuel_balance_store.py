@@ -25,8 +25,14 @@ from sqlalchemy.engine import Connection, Engine
 from assetops_backend import read_scope
 from assetops_backend.actions.verification_rules import Reading, parse_exact
 from assetops_backend.fuel_balance.model import (
-    FINDINGS_REFUSED, PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow, FuelFinding)
+    FINDINGS_REFUSED, PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow, FuelFinding, ScheduleInputs)
 from assetops_backend.work.fuel_records import FuelRecord
+
+# The one SQL source of the night bucket (alias `e`; binds :tz, :ns, :ne). Closed at both ends, as
+# `scheduled.night_of` (D-R3.7): the assessment reads both edges.
+_LOCAL = "(COALESCE(e.interval_start, e.source_time) AT TIME ZONE :tz)"
+NIGHT_BUCKET_SQL = (f"CASE WHEN {_LOCAL}::time >= :ns THEN {_LOCAL}::date "
+                    f"WHEN {_LOCAL}::time <= :ne THEN {_LOCAL}::date - 1 END")
 
 #: K2's `select_fuel_records(c, tenant, site, tank, lo, hi, known_at)`, injected by the composition (rule 1: only
 #: `work/composition.py` may import `work.adapters`); it runs on this store's connection.
@@ -80,6 +86,17 @@ def to_window(row: Any) -> FuelBalanceWindow:
         gap_minutes=m["gap_minutes"], gap_spans=tuple((_time(a), _time(b)) for a, b in m["gap_spans"]),
         limitations=tuple(m["limitations"]), terms=dict(m["terms"]), evidence_ids=tuple(m["evidence_ids"]),
         record_ids=tuple((a, b) for a, b in m["record_ids"]), input_sha256=m["input_sha256"])
+
+
+def _windows_on(c: Connection, tenant_id: UUID, site_id: UUID, tank_asset_id: Any, lo: date, hi: date,
+                known_at: datetime) -> tuple[FuelBalanceWindow, ...]:
+    """Each night's latest window in `[lo, hi)` as known at `known_at`, on the caller's connection (OWN-G2 R2-G2 Q3:
+    shared by `windows` and `schedule_inputs`)."""
+    return tuple(to_window(r) for r in c.execute(text(
+        f"SELECT DISTINCT ON (night_date) {_COLUMNS} FROM fuel_balance_window WHERE tenant_id = :t "
+        "AND site_id = :s AND tank_asset_id = :a AND night_date >= :lo AND night_date < :hi "
+        "AND recorded_at <= :k ORDER BY night_date, revision DESC"),
+        {"t": tenant_id, "s": site_id, "a": tank_asset_id, "lo": lo, "hi": hi, "k": known_at}))
 
 
 class _Tx:
@@ -220,11 +237,52 @@ class PostgresFuelBalanceStore:
                 or isinstance(hi, datetime) or not lo < hi or not isinstance(known_at, datetime)
                 or known_at.tzinfo is None or known_at.utcoffset() != timedelta(0)):
             raise ValueError(WINDOWS_REFUSED)
-        return self._read(lambda c: tuple(to_window(r) for r in c.execute(text(
-            f"SELECT DISTINCT ON (night_date) {_COLUMNS} FROM fuel_balance_window WHERE tenant_id = :t "
-            "AND site_id = :s AND tank_asset_id = :a AND night_date >= :lo AND night_date < :hi "
-            "AND recorded_at <= :k ORDER BY night_date, revision DESC"),
-            {"t": tenant_id, "s": site_id, "a": tank_asset_id, "lo": lo, "hi": hi, "k": known_at})))
+        return self._read(lambda c: _windows_on(c, tenant_id, site_id, tank_asset_id, lo, hi, known_at))
+
+    def schedule_inputs(self, tenant_id: UUID, site_id: UUID, record_lookback: timedelta) -> ScheduleInputs:
+        """OWN-G2 (build sheet OWN-GAPS §2.4, R2-G2 Q1-Q3, Q10): on one read-only snapshot, `known_at` first
+        (`clock_timestamp()`, or the test-only override), the Site's timezone, its one tank and one generator (else the
+        read stops), the tank's `fuel_level` readings bucketed by night (latest `decided_at` per night, the
+        `window_readings` join and acceptance filter), its fuel records and each night's latest window; per night, its latest window's stored record pairs, and per
+        fuel record its current head (D-R3.8)."""
+        from zoneinfo import ZoneInfo
+
+        from assetops_backend.fuel_balance.scheduled import bucket_bounds
+
+        def work(c: Connection) -> ScheduleInputs:
+            known_at = _utc(self.test_db_clock_override() if self.test_db_clock_override is not None
+                            else c.execute(text("SELECT clock_timestamp()")).scalar_one())
+            p = {"t": tenant_id, "s": site_id}
+            tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"), p).scalar_one_or_none()
+            assets = c.execute(text("SELECT id, asset_type FROM asset WHERE tenant_id = :t AND site_id = :s "
+                                    "AND retired_at IS NULL AND asset_type IN ('FUEL_TANK', 'GENERATOR')"), p).all()
+            tanks = [str(i) for i, kind in assets if kind == "FUEL_TANK"]
+            generators = [str(i) for i, kind in assets if kind == "GENERATOR"]
+            if len(tanks) != 1 or len(generators) != 1:
+                return ScheduleInputs(known_at, tz, None, None, {}, (), {})
+            tank = tanks[0]
+            night_start, night_end = bucket_bounds()
+            reading_nights = {r.night: _utc(r.seen) for r in c.execute(text(
+                f"SELECT night, max(decided_at) AS seen FROM (SELECT {NIGHT_BUCKET_SQL} AS night, d.decided_at "
+                "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+                "AND d.ordinal = e.ordinal WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+                "AND d.accepted_evidence_id = e.id AND d.decided_at <= :k AND e.source_time >= :lo "
+                "AND COALESCE(e.interval_start, e.source_time) <= :k AND e.role = 'fuel_level' "
+                "AND e.asset_id = CAST(:a AS uuid)) b WHERE night IS NOT NULL GROUP BY night"),
+                {**p, "tz": tz, "ns": night_start, "ne": night_end, "k": known_at, "a": tank,
+                 "lo": known_at - record_lookback - timedelta(days=1)})}
+            fuel = self._fuel_records(c, tenant_id, site_id, UUID(tank), known_at - record_lookback, known_at, known_at)
+            records = tuple((r.occurred_at, r.recorded_at) for r in fuel)
+            record_heads = {str(r.root_id): str(r.head_id) for r in fuel}
+            zone = ZoneInfo(str(tz))
+            lo = (known_at - record_lookback - timedelta(days=1)).astimezone(zone).date()
+            hi = known_at.astimezone(zone).date() + timedelta(days=1)
+            stored = _windows_on(c, tenant_id, site_id, UUID(tank), lo, hi, known_at)
+            latest = {w.night_date: w.recorded_at for w in stored}
+            window_records = {w.night_date: tuple((str(a), str(b)) for a, b in w.record_ids) for w in stored}
+            return ScheduleInputs(known_at, tz, tank, generators[0], reading_nights, records, latest,
+                                  window_records, record_heads)
+        return self._read(work)
 
     def has_windows(self, tenant_id: UUID, site_id: UUID, known_at: datetime) -> bool:
         """DIESEL-K5 (§9l.2): whether the Site has at least one stored window as known at `known_at` (the Fuel

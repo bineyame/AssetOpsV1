@@ -264,6 +264,70 @@ export interface GlobalWorkClient {
   operationalRecords?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalOperationalBody>>;
   /** W6-01c C2: the request detail read (`global-work-detail-1`); absent reads as `WORK_STORE_UNAVAILABLE`. */
   detail?(query: GlobalWorkDetailQuery): Promise<GlobalWorkDetailResult>;
+  /**
+   * OWN-G3b (R2-G3b 5): `POST /api/sites/{site_code}/work/operational-entries` (build sheet OWN-GAPS §3.2). Absent, the
+   * form shows the 403 "not switched on" outcome.
+   */
+  submitOperationalEntry?(siteCode: string, body: OperationalEntryBody): Promise<OperationalEntryResult>;
+}
+
+/** OWN-G3b: the Site-scoped write base (R2-G3b 5); the reads keep `GLOBAL_WORK_API_PATH`. */
+export const SITE_WORK_API_PATH = "/api/sites";
+/** §3.2: the success body's schema (`work/model.py` `SCHEMA_OPERATIONAL`). */
+export const OPERATIONAL_RECORD_SCHEMA = "operational-record-1";
+
+export type OperationalEntryKind = "TANK_DIP" | "FUEL_DELIVERY" | "STOCK_IN_CHAMBER" | "METER_READING";
+
+/** §3.2: the closed request object; the browser never sends an actor. */
+export interface OperationalEntryBody {
+  entry: OperationalEntryKind;
+  value: string;
+  taken_at_local: string;
+  ticket_reference: string | null;
+  idempotency_key: string;
+}
+
+/**
+ * R2-G3b 1/5: `saved` is a 200/201 with an `operational-record-1` body and a string `public_code`; `refused` is any
+ * other non-2xx with its `detail.code` when present; `unconfirmed` is a network failure or an unreadable 2xx.
+ */
+export type OperationalEntryResult =
+  | { status: "saved"; publicCode: string }
+  | { status: "refused"; httpStatus: number; code: string | null }
+  | { status: "unconfirmed" };
+
+/**
+ * §3.3 / R2-G3b 6: `oprec-entry-` plus 32 lowercase hex. `crypto.randomUUID` only exists in a secure context, so a
+ * LAN `http://` address falls back to 16 random bytes from `crypto.getRandomValues`.
+ */
+export function operationalEntryKey(): string {
+  const source = globalThis.crypto;
+  if (typeof source.randomUUID === "function") return `oprec-entry-${source.randomUUID().replace(/-/g, "")}`;
+  const bytes = source.getRandomValues(new Uint8Array(16));
+  return `oprec-entry-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export async function postOperationalEntry(path: string, body: OperationalEntryBody): Promise<OperationalEntryResult> {
+  let response: Response;
+  try {
+    response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  } catch {
+    return { status: "unconfirmed" };
+  }
+  let value: unknown = null;
+  try {
+    value = await response.json();
+  } catch {
+    value = null;
+  }
+  if (response.ok) {
+    return isObject(value) && value.schema_version === OPERATIONAL_RECORD_SCHEMA && typeof value.public_code === "string"
+      ? { status: "saved", publicCode: value.public_code }
+      : { status: "unconfirmed" };
+  }
+  const detail = isObject(value) ? value.detail : null;
+  const code = isObject(detail) && typeof detail.code === "string" ? detail.code : null;
+  return { status: "refused", httpStatus: response.status, code };
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -323,8 +387,14 @@ export async function readGlobalWork<T>(path: string, root: GlobalWorkRoot): Pro
   return { status: "refused", code: code !== null && KNOWN_CODES.has(code) ? (code as GlobalWorkRefusalCode) : "WORK_STORE_UNAVAILABLE" };
 }
 
-export function createGlobalWorkClient(basePath: string = GLOBAL_WORK_API_PATH): GlobalWorkClient {
+export function createGlobalWorkClient(
+  basePath: string = GLOBAL_WORK_API_PATH,
+  sitesPath: string = SITE_WORK_API_PATH,
+): GlobalWorkClient {
   return {
+    submitOperationalEntry(siteCode, body) {
+      return postOperationalEntry(`${sitesPath}/${encodeURIComponent(siteCode)}/work/operational-entries`, body);
+    },
     incidents(query) {
       return readGlobalWork<GlobalIncidentsBody>(`${basePath}/incidents?${globalWorkApiQuery(query)}`, "incidents");
     },

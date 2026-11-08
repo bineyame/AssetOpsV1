@@ -1330,3 +1330,46 @@ def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report
     return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
             "performance_report": {"outcome": report["outcome"], "empty_set": report["empty_set"]},
             "board_read_state": board_states, "s5d_protect": protect_state}
+
+
+# ---- OWN-G2 (build sheet OWN-GAPS §2.5, R2-G2 Q9): the automatic diesel-night check ------------------------------------
+
+def last_json_object(stdout: str) -> dict | None:
+    """The last stdout line that parses as a JSON object (R2-G2 Q9 c), or None when no line does."""
+    for line in reversed((stdout or "").splitlines()):
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            value = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
+def fuel_night_entry(report: dict | None, site: str = KIS_SITE) -> dict | None:
+    """The `fuel_night` stage entry for `site` in a tick report, or None when the tick did not visit it (absent,
+    `SKIPPED_CLAIMED`, or retry back-off all leave no stage entry)."""
+    for s in (report or {}).get("sites") or ():
+        if s.get("site_code") == site and isinstance((s.get("stages") or {}).get("fuel_night"), dict):
+            return s["stages"]["fuel_night"]
+    return None
+
+
+def kis11(report: dict | None, story_revisions: dict, fuel_findings: int, kobo_windows: int) -> dict:
+    """KIS-11 (OWN-GAPS §2.5): the last tick visited KISIWA-001's `fuel_night` stage with code OK and `eligible: true`;
+    every story night's latest window is revision 1 (`story_revisions`: night -> revision); Kisiwa holds exactly one
+    fuel Finding; KOBO-001 has no `fuel_balance_window` row."""
+    entry = fuel_night_entry(report)
+    assert entry is not None, "KISIWA-001 was not visited by the last tick"
+    assert entry.get("code") == "OK" and entry.get("eligible") is True, (
+        "KISIWA-001's fuel_night stage is not OK and eligible", {k: entry.get(k) for k in ("code", "eligible", "error")})
+    assert story_revisions, "no Kisiwa story night has a window"
+    moved = {str(n): r for n, r in story_revisions.items() if r != 1}
+    assert not moved, ("a story night's latest window is not revision 1", moved)
+    assert fuel_findings == 1, ("want exactly one Kisiwa fuel Finding", fuel_findings)
+    assert kobo_windows == 0, ("KOBO-001 has fuel_balance_window rows", kobo_windows)
+    return {"fuel_night": {k: entry.get(k) for k in ("code", "eligible", "processed", "deferred")},
+            "story_nights": len(story_revisions), "fuel_findings": fuel_findings, "kobo_windows": kobo_windows}

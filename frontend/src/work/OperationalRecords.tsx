@@ -8,25 +8,34 @@
  * MOCK DEVIATIONS (register `.agent/mock-departure-register.md`):
  * - D4 (R29): cards 2-4 keep their headings, the amber fourth tone and the first note, but state that no publication
  *   link, review workflow or request list is established, instead of the mock's example counts and REC codes.
- * - D1 (R12): `Record a manual reading` keeps its form, fields and `Submit for review` button, inert; the false
- *   `Fills REC-307 when submitted` sub-line and the other tenant's Site option are not rendered.
+ * - R12 (D1, the inert form) is closed by OWN-G3b: `Record a manual reading` saves through the server's entry route
+ *   (build sheet OWN-GAPS §3.3, R2-G3b). The mock's `Fills REC-307 when submitted` sub-line is still not rendered.
+ * - MD-OWN-G3-1: the "Fuel delivery" Reading option, its Ticket reference row, and the per-reading unit suffix and
+ *   placeholder are additions to the mock form.
+ * - MD-OWN-G3-2: `Taken at` is a native date-time input labelled "(Site local time)", not the mock's filled text field.
+ * - MD-OWN-G3-3: the result line under the footer and the replaced panel description line.
+ * - MD-OWN-G3-4: the "Entered by site admin" By label and the added third `How records are used` paragraph.
  * - D4 (R31): `How records are used` keeps its two paragraphs and bold `Operator record`, bounded to what is stored.
  * - D4 (R30): table rows are the persisted Submitted heads with stored actor IDs, not the mock's example rows/roles.
  * A refusal, a read failure or a changed list is stated, never zero.
  */
+import { useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
-import { UnavailableInline } from "../ui/UnavailableEntry";
 import { CellDisclosure } from "./CellDisclosure";
 import {
   GLOBAL_OPERATIONAL_KINDS,
+  createGlobalWorkClient,
   globalWorkHref,
   globalWorkUtc,
+  operationalEntryKey,
   type GlobalOperationalBody,
   type GlobalOperationalKind,
   type GlobalOperationalRow,
   type GlobalWorkClient,
+  type OperationalEntryKind,
+  type OperationalEntryResult,
 } from "./globalWorkClient";
 import {
   CHANGE_WINDOW,
@@ -55,8 +64,8 @@ export const OPERATIONAL_RECORDS_SUBTITLE = "Operator logs, manual readings, shi
 export const OPERATIONAL_RECORDS_LOADING = "Loading the operational records across the estate.";
 /** P-E2-4: the mock panel sub-line, verbatim, as the Panel description (A2Q7). */
 export const OPERATIONAL_RECORDS_DESCRIPTION = "What people on site recorded, and the evidence each one feeds";
-export const MANUAL_READING_DESCRIPTION = "Manual readings cannot be submitted from this page.";
-export const MANUAL_READING_REASON = "Recording requires an authorized work service.";
+/** §3.3 (MD-OWN-G3-3): the form panel's description line. */
+export const MANUAL_READING_DESCRIPTION = "Saved records are listed above as Submitted.";
 /** Post-W6 W6 Q7: the stored time that places a record in the window. */
 export const OPERATIONAL_RECORDS_MEMBERSHIP = "Listed by the time each record's event happened.";
 export const NO_OPERATIONAL_RECORDS = "No operational records in this window.";
@@ -72,6 +81,66 @@ export const RECORDS_USED_FIRST_BEFORE = "Authored records are kept apart from m
 export const RECORDS_USED_FIRST_AFTER = "; none is accepted equipment evidence.";
 export const RECORDS_USED_SECOND =
   "A reading that has not been taken remains a visible gap; this page has no request list to count it.";
+/** §3.3 / R2-G3b 9 (MD-OWN-G3-4): the added third paragraph. */
+export const RECORDS_USED_THIRD =
+  "Fuel tank dips and fuel deliveries are read by the nightly fuel check. Stock and meter readings are stored and listed; no check reads them yet.";
+
+/** §3.1 Rev 1 (MD-OWN-G3-4): the server entry service's id and its By label; other ids show as stored. */
+export const OPERATOR_ENTRY_ACTOR = "service:operator-entry";
+export const OPERATOR_ENTRY_LABEL = "Entered by site admin";
+export const actorLabel = (actorId: string): string => (actorId === OPERATOR_ENTRY_ACTOR ? OPERATOR_ENTRY_LABEL : actorId);
+
+/** §3.3: the Reading options, in order, with each one's unit suffix and Value placeholder (MD-OWN-G3-1). */
+export const READING_OPTIONS: readonly { entry: OperationalEntryKind; label: string; unit: string; placeholder: string }[] = [
+  { entry: "TANK_DIP", label: "Fuel tank dip", unit: "L", placeholder: "e.g. 192 L" },
+  { entry: "FUEL_DELIVERY", label: "Fuel delivery", unit: "L", placeholder: "e.g. 300 L" },
+  { entry: "STOCK_IN_CHAMBER", label: "Stock in chamber", unit: "kg", placeholder: "e.g. 40 kg" },
+  { entry: "METER_READING", label: "Meter reading", unit: "kWh", placeholder: "e.g. 1520 kWh" },
+];
+
+/** §3.3 client validation literals (R2-G3b 10 adds the ticket-pattern message). */
+export const ENTRY_ERRORS = {
+  site: "Choose a Site.",
+  value: "Enter a number of 0 or more, with at most 3 decimals.",
+  delivery: "Enter the delivered litres (more than 0).",
+  time: "Enter the time the reading was taken.",
+  ticket: "Enter the delivery ticket reference.",
+  ticketPattern: "Use letters, digits, spaces and / . _ - only, up to 40 characters, starting with a letter or digit.",
+} as const;
+
+/** §3.3 outcome literals (R2-G3b 2 changes the success line). */
+export const ENTRY_OUTCOMES = {
+  fuelRecheck:
+    "If this Site's tank level is measured, the night it falls in is checked again at the next background refresh.",
+  forbidden: "Saving records is not switched on for this installation.",
+  noTank: "This Site has no single fuel tank to record against.",
+  future: "The time taken is in the future.",
+  tooOld: "The time taken is more than 30 days ago.",
+  duplicate: "This entry was already saved with different values. Reload the page and enter it again.",
+  other: "Check the values and try again.",
+  unconfirmed: "The record could not be confirmed. Try again; it will not be saved twice.",
+} as const;
+export const savedLine = (publicCode: string): string => `Saved as ${displayCode(publicCode)}, status Submitted.`;
+
+/** §3.2's server patterns, checked before sending. */
+const VALUE_PATTERN = /^\d{1,6}(\.\d{1,3})?$/;
+const TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const TICKET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 /._-]{0,39}$/;
+const isFuel = (entry: OperationalEntryKind) => entry === "TANK_DIP" || entry === "FUEL_DELIVERY";
+
+/** §3.3 outcome table / R2-G3b 14: the result lines for one answer. */
+export function entryOutcome(result: OperationalEntryResult, entry: OperationalEntryKind): string[] {
+  if (result.status === "saved") return isFuel(entry) ? [savedLine(result.publicCode), ENTRY_OUTCOMES.fuelRecheck] : [savedLine(result.publicCode)];
+  if (result.status === "unconfirmed") return [ENTRY_OUTCOMES.unconfirmed];
+  const { httpStatus, code } = result;
+  if (code === "WORK_EVENT_DUPLICATE_KEY") return [ENTRY_OUTCOMES.duplicate];
+  if (httpStatus >= 500) return [ENTRY_OUTCOMES.unconfirmed];
+  if (httpStatus === 403 && code === "WORK_WRITE_FORBIDDEN") return [ENTRY_OUTCOMES.forbidden];
+  if (httpStatus === 422 && code === "OPREC_ENTRY_NO_TANK") return [ENTRY_OUTCOMES.noTank];
+  if (httpStatus === 422 && code === "WORK_OCCURRED_AT_FUTURE") return [ENTRY_OUTCOMES.future];
+  if (httpStatus === 422 && code === "WORK_OCCURRED_AT_TOO_OLD") return [ENTRY_OUTCOMES.tooOld];
+  return [ENTRY_OUTCOMES.other];
+}
 
 /** The mock chips, in order; `All` maps to no `kind` in the URL (P-E2-2). */
 export const KIND_CHIPS: readonly [string, GlobalOperationalKind | null][] = [
@@ -141,7 +210,7 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
       </td>
       <td>
         <CellDisclosure column="By" row={row.code} data={{ "data-global-work-actor": "" }}>
-          {row.actor_id}
+          {actorLabel(row.actor_id)}
         </CellDisclosure>
       </td>
       <td>
@@ -296,59 +365,211 @@ export function manualReadingSites(body: GlobalOperationalBody | null): { code: 
   });
 }
 
+type EntryErrors = Partial<Record<"site" | "value" | "time" | "ticket", string>>;
+
+function entryErrors(site: string | null, entry: OperationalEntryKind, value: string, takenAt: string, ticket: string): EntryErrors {
+  const errors: EntryErrors = {};
+  if (site === null) errors.site = ENTRY_ERRORS.site;
+  if (!VALUE_PATTERN.test(value)) errors.value = ENTRY_ERRORS.value;
+  else if (entry === "FUEL_DELIVERY" && !(Number(value) > 0)) errors.value = ENTRY_ERRORS.delivery;
+  if (!TIME_PATTERN.test(takenAt)) errors.time = ENTRY_ERRORS.time;
+  if (entry === "FUEL_DELIVERY") {
+    if (ticket === "") errors.ticket = ENTRY_ERRORS.ticket;
+    else if (!TICKET_PATTERN.test(ticket)) errors.ticket = ENTRY_ERRORS.ticketPattern;
+  }
+  return errors;
+}
+
+/** One field cell: the label, its control, and its message under the control once a Submit was attempted. */
+function EntryField({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
+  return (
+    <div className="field" data-global-work-field={label}>
+      <label htmlFor={id}>{label}</label>
+      {children}
+      {error !== undefined ? (
+        <span className="field-error global-work-field-error" id={`${id}-error`} data-global-work-field-error>
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 /**
- * P-E2-5: the mock form, inert (MOCK DEVIATION D1, R12): no POST, no state change, no REC allocated. Post-W6 W6 Q17
- * (R362, D4): selected Sites or an empty placeholder, an empty `Event time` input, and the D4 label beside the form.
+ * OWN-G3b (build sheet OWN-GAPS §3.3, R2-G3b): the live entry form. Sites are the response's own authorized Sites
+ * (R362; the visible D4 label stays). The browser sends the closed §3.2 body; the server supplies the actor. The
+ * idempotency key is made at the first valid submit, kept after a refusal or a failed confirmation, and replaced
+ * after any field edit or a success (R2-G3b 11). Fields stay enabled while a save is in flight (R2-G3b 12).
  */
-function ManualReadingPanel({ body }: { body: GlobalOperationalBody | null }) {
+function ManualReadingPanel({
+  body,
+  client,
+  onSaved,
+}: {
+  body: GlobalOperationalBody | null;
+  client: GlobalWorkClient;
+  onSaved: () => void;
+}) {
   const sites = manualReadingSites(body);
+  const [siteChoice, setSiteChoice] = useState<string | null>(null);
+  const [entry, setEntry] = useState<OperationalEntryKind>("TANK_DIP");
+  const [value, setValue] = useState("");
+  const [takenAt, setTakenAt] = useState("");
+  const [ticket, setTicket] = useState("");
+  const [attempted, setAttempted] = useState(false);
+  const [inFlight, setInFlight] = useState(false);
+  const [result, setResult] = useState<string[]>([]);
+  const key = useRef<string | null>(null);
+  const ids = useId();
+  const id = (name: string) => `${ids}-${name}`;
+
+  // R2-G3b 4: the kept Site is re-selected when the options return; otherwise the first option.
+  const site = sites.find((s) => s.code === siteChoice)?.code ?? sites[0]?.code ?? null;
+  const reading = READING_OPTIONS.find((option) => option.entry === entry) ?? READING_OPTIONS[0];
+  const errors = entryErrors(site, entry, value.trim(), takenAt, ticket.trim());
+  const shownErrors: EntryErrors = attempted ? errors : {};
+  const edit =
+    <T,>(set: (next: T) => void) =>
+    (next: T) => {
+      key.current = null;
+      set(next);
+    };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setAttempted(true);
+    if (inFlight || site === null || Object.keys(errors).length > 0) return;
+    key.current ??= operationalEntryKey();
+    const sent = entry;
+    setInFlight(true);
+    let answer: OperationalEntryResult;
+    if (client.submitOperationalEntry === undefined) {
+      answer = { status: "refused", httpStatus: 403, code: "WORK_WRITE_FORBIDDEN" };
+    } else {
+      try {
+        answer = await client.submitOperationalEntry(site, {
+          entry: sent,
+          value: value.trim(),
+          taken_at_local: takenAt,
+          ticket_reference: sent === "FUEL_DELIVERY" ? ticket.trim() : null,
+          idempotency_key: key.current,
+        });
+      } catch {
+        answer = { status: "unconfirmed" };
+      }
+    }
+    setInFlight(false);
+    setResult(entryOutcome(answer, sent));
+    if (answer.status === "saved") {
+      key.current = null;
+      setValue("");
+      setTicket("");
+      setTakenAt("");
+      setAttempted(false);
+      onSaved();
+    }
+  };
+
+  const describe = (name: keyof EntryErrors, extra?: string) =>
+    [shownErrors[name] !== undefined ? `${id(name)}-error` : null, extra].filter(Boolean).join(" ") || undefined;
+
   return (
     <Panel heading="Record a manual reading" headingId={FORM_HEADING_ID} description={MANUAL_READING_DESCRIPTION}>
-      <div className="global-work-form" data-global-work-manual-form>
+      <form className="global-work-form" data-global-work-manual-form noValidate onSubmit={(e) => void submit(e)}>
         <MockDeviation category="D4" id="R362" />
         <div className="input-row">
-          <label className="field">
-            Site
-            <select disabled aria-disabled="true" data-global-work-form-site>
+          <EntryField id={id("site")} label="Site" error={shownErrors.site}>
+            <select
+              id={id("site")}
+              value={site ?? ""}
+              onChange={(e) => edit(setSiteChoice)(e.target.value)}
+              aria-invalid={shownErrors.site !== undefined || undefined}
+              aria-describedby={describe("site")}
+              data-global-work-form-site
+            >
               {sites.length === 0 ? (
                 <option value="">No Site selected</option>
               ) : (
-                sites.map((site) => (
-                  <option key={site.code} value={site.code}>
-                    {site.label}
+                sites.map((s) => (
+                  <option key={s.code} value={s.code}>
+                    {s.label}
                   </option>
                 ))
               )}
             </select>
-          </label>
-          <label className="field">
-            Reading
-            <select disabled aria-disabled="true">
-              <option>Fuel tank dip</option>
-              <option>Stock in chamber</option>
-              <option>Meter reading</option>
+          </EntryField>
+          <EntryField id={id("reading")} label="Reading">
+            <select
+              id={id("reading")}
+              value={entry}
+              onChange={(e) => edit(setEntry)(e.target.value as OperationalEntryKind)}
+              data-global-work-form-reading
+            >
+              {READING_OPTIONS.map((option) => (
+                <option key={option.entry} value={option.entry}>
+                  {option.label}
+                </option>
+              ))}
             </select>
-          </label>
+          </EntryField>
         </div>
         <div className="input-row">
-          <label className="field">
-            Value
-            <input disabled aria-disabled="true" defaultValue="" placeholder="e.g. 192 L" />
-          </label>
-          <label className="field">
-            Taken at
-            <input disabled aria-disabled="true" defaultValue="" placeholder="Event time" data-global-work-form-time />
-          </label>
+          <EntryField id={id("value")} label="Value" error={shownErrors.value}>
+            <span className="global-work-value">
+              <input
+                id={id("value")}
+                inputMode="decimal"
+                value={value}
+                placeholder={reading.placeholder}
+                onChange={(e) => edit(setValue)(e.target.value)}
+                aria-invalid={shownErrors.value !== undefined || undefined}
+                aria-describedby={describe("value", id("unit"))}
+                data-global-work-form-value
+              />
+              <span className="global-work-unit" id={id("unit")} data-global-work-form-unit>
+                {reading.unit}
+              </span>
+            </span>
+          </EntryField>
+          <EntryField id={id("time")} label="Taken at (Site local time)" error={shownErrors.time}>
+            <input
+              id={id("time")}
+              type="datetime-local"
+              step={60}
+              value={takenAt}
+              onChange={(e) => edit(setTakenAt)(e.target.value)}
+              aria-invalid={shownErrors.time !== undefined || undefined}
+              aria-describedby={describe("time")}
+              data-global-work-form-time
+            />
+          </EntryField>
         </div>
+        {entry === "FUEL_DELIVERY" ? (
+          <div className="input-row" data-global-work-ticket-row>
+            <EntryField id={id("ticket")} label="Ticket reference" error={shownErrors.ticket}>
+              <input
+                id={id("ticket")}
+                value={ticket}
+                placeholder="e.g. KIS-DT-0002"
+                onChange={(e) => edit(setTicket)(e.target.value)}
+                aria-invalid={shownErrors.ticket !== undefined || undefined}
+                aria-describedby={describe("ticket")}
+                data-global-work-form-ticket
+              />
+            </EntryField>
+          </div>
+        ) : null}
         <div className="form-footer">
-          <button className="button primary" type="button" disabled aria-disabled="true" data-rec-submit>
-            <UnavailableInline label="Submit for review" />
+          <button className="button primary" type="submit" disabled={inFlight || site === null} data-rec-submit>
+            Submit for review
           </button>
-          <span className="global-work-form-reason" data-global-work-form-reason>
-            {MANUAL_READING_REASON}
-          </span>
         </div>
-      </div>
+        <div className="global-work-form-result" role="status" aria-live="polite" data-global-work-form-result>
+          {result.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
+      </form>
     </Panel>
   );
 }
@@ -364,6 +585,7 @@ function RecordsUsedPanel() {
           {RECORDS_USED_FIRST_AFTER}
         </p>
         <p>{RECORDS_USED_SECOND}</p>
+        <p>{RECORDS_USED_THIRD}</p>
       </div>
     </Panel>
   );
@@ -378,6 +600,7 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
   );
   const { body, shown, query, trail } = page;
   const kind = query?.kind ?? null;
+  const writes = useMemo(() => client ?? createGlobalWorkClient(), [client]);
 
   return (
     <div className="global-work global-work--oprecords" data-global-work-root="operational-records">
@@ -411,7 +634,7 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
         ) : null}
       </Panel>
       <div className="panel-pair global-work-pair">
-        <ManualReadingPanel body={shown ? body : null} />
+        <ManualReadingPanel body={shown ? body : null} client={writes} onSaved={page.reload} />
         <RecordsUsedPanel />
       </div>
     </div>

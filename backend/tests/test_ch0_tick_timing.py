@@ -34,8 +34,9 @@ from assetops_backend.scheduling.tick import (
 UTC = timezone.utc
 T, S = UUID(int=1), UUID(int=2)
 NOW = datetime(2026, 11, 3, tzinfo=UTC)
-SITE_STAGES = ("s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "chain_threads", "consequence",
-               "cold_consequence", "ev_consequence", "chain_snapshots")  # CH-2: chain_threads after s4; CH-1b
+SITE_STAGES = ("s3", "cold_assess", "ev_assess", "mini", "fuel_night", "opportunity", "s4", "chain_threads",
+               "consequence", "cold_consequence", "ev_consequence",
+               "chain_snapshots")  # CH-2: chain_threads after s4; CH-1b; OWN-G2 fuel_night after mini
 
 
 class FakeStore:

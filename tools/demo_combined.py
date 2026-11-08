@@ -45,6 +45,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import demo_combined_rows as demo_rows
 import demo_story_days as sd
 
 REPO = Path(__file__).resolve().parents[1]
@@ -88,6 +89,18 @@ def kobo_expected_seconds(days_doc: dict) -> int:
 
 def say(text: str = "") -> None:
     print(text, flush=True)
+
+
+def retry_until_visited(report: dict | None, tick_once, site: str = "KISIWA-001", extra: int = 2,
+                        pause: float = 30.0, sleep=time.sleep) -> tuple[dict | None, int]:
+    """OWN-G2 (R2-G2 Q9 addition, also G1's per-date rule R2-G1 Q6): when `report` has no `fuel_night` stage entry
+    for `site`, run up to `extra` more ticks, `pause` seconds apart. Returns the last report and the extra-tick count."""
+    ran = 0
+    while demo_rows.fuel_night_entry(report, site) is None and ran < extra:
+        sleep(pause)
+        report = tick_once()
+        ran += 1
+    return report, ran
 
 
 def iso(value: datetime) -> str:
@@ -553,8 +566,11 @@ class Demo:
     def serve_env(self) -> dict[str, str]:
         """CH5c-R6: the one environment of the serve child AND the tick child, so the tick's pre-built rows carry
         the server's `code_version` (the cursor keys are hashed into it). Clone settles stay keyless
-        (`chain_clone.settle_env`): they are never served."""
-        return self.env(keys=True)
+        (`chain_clone.settle_env`): they are never served. OWN-G3a (§3.2): the served app saves operational records
+        typed on screen (`ASSETOPS_OPERATIONAL_ENTRY=on`, read by `host/lab_app.py`)."""
+        out = self.env(keys=True)
+        out["ASSETOPS_OPERATIONAL_ENTRY"] = "on"
+        return out
 
     def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "",
            serve_env: bool = False) -> subprocess.CompletedProcess:
@@ -785,7 +801,11 @@ class Demo:
         if {"kobo", "kisiwa"} & set(story["sites"]):
             self.drain_mini()
         t0 = time.monotonic()
-        self.tick(times=2)
+        report = self.tick(times=2)
+        if "kisiwa" in story["sites"]:  # OWN-G2 (R2-G2 Q9 addition): a serve loop may have claimed KISIWA-001
+            report, extra = retry_until_visited(report, lambda: self.tick(times=1))
+            if extra:
+                say(f"  tick: {extra} extra tick(s) for KISIWA-001's fuel_night stage")
         steps["finish-ticks"] = round(time.monotonic() - t0, 1)
         if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
@@ -816,13 +836,23 @@ class Demo:
                 break
         say(f"  mini-depth: {total} jobs processed")
 
-    def tick(self, times: int = 1) -> None:
+    def tick(self, times: int = 1) -> dict | None:
         """CH5c-R7 F5: the tick without its pre-build stage, then the Performance comparison (a new report moves
-        `F`), then the pre-build alone in the serve env, so the next request after a loop tick is a hit."""
+        `F`), then the pre-build alone in the serve env, so the next request after a loop tick is a hit.
+        OWN-G2 (R2-G2 Q9 c): each tick's report (the last stdout line that parses as a JSON object) is written to
+        `<work>/last-tick.json`, a stale file is removed when no line parses, and the last report is returned."""
+        report = None
         for _ in range(times):
             done = self.py(*TICK, "--no-prebuild", label="tick", check=False, serve_env=True)
             say("  tick: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+            report = demo_rows.last_json_object(done.stdout)
+            path = self.work / "last-tick.json"
+            if report is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
         self.performance_and_prebuild()
+        return report
 
     def performance_and_prebuild(self) -> None:
         for site in ("KOBO-001",) + (("KISIWA-001",) if "kisiwa" in self.story().get("sites", ()) else ()):

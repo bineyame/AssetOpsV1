@@ -17,7 +17,8 @@ A tick:
 4. visits at most `max_sites` of them in (tenant_id, site_id) order after the durable fair cursor, skipping a
    Site inside its schedule-level back-off (`RETRY_DUE`) and deferring the rest to later ticks;
 5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`,
-   `cold_assess`, `ev_assess`, `mini`, `opportunity`, `s4`, `chain_threads` (CH-2, under the `S4` head stage),
+   `cold_assess`, `ev_assess`, `mini`, `fuel_night` (OWN-G2, under the `MINI` head stage), `opportunity`, `s4`,
+   `chain_threads` (CH-2, under the `S4` head stage),
    `consequence`, `cold_consequence` and `ev_consequence`
    stage children in that order (the claim is re-checked before each child), each killable at its wall-time
    bound with server-side statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
@@ -26,6 +27,9 @@ A tick:
 
 Every stage runs even after an earlier stage of the same Site failed: S4 leaves non-CURRENT windows unchanged
 and the drain is independent, so one failed stage never freezes the Site's other work.
+
+OWN-G2 adds `fuel_night` after `mini`: the due diesel nights of the Site are assessed and their unexplained-fuel
+Finding raised, at DB time.
 """
 
 from __future__ import annotations
@@ -78,6 +82,8 @@ class TickLimits:
     domain_jobs_per_site: int = 10  # FIX-COLD-DRAIN: cold and EV assessment jobs per Site, each domain
     domain_assess_seconds: float = 120
     domain_consequence_seconds: float = 60  # the cold/EV drains reuse `consequence_items_per_site`
+    fuel_nights_per_site: int = 10  # OWN-G2: the `fuel_night` stage's nights per Site per tick
+    fuel_night_seconds: float = 90
     tick_seconds: float = 240
     prebuild_seconds: float = 120  # CH-5c Q8: the stored-route pre-build stage (run only by `ScheduleTick(prebuild=True)`)
     statement_timeout_ms: int = 30_000
@@ -88,7 +94,7 @@ class TickLimits:
     def __post_init__(self) -> None:
         if min(self.max_sites, self.s3_jobs_per_site, self.mini_jobs_per_site, self.opportunity_jobs_per_site,
                self.consequence_items_per_site, self.domain_jobs_per_site, self.chain_snapshot_items,
-               self.chain_consume_events) < 1:
+               self.chain_consume_events, self.fuel_nights_per_site) < 1:
             raise ValueError("Every per-tick bound is at least 1.")
         if self.s3_seconds >= S3_JOB_LEASE_SECONDS:
             raise ValueError("The S3 stage bound must be shorter than the five-minute S3 job lease.")
@@ -104,17 +110,20 @@ class TickLimits:
             raise ValueError("The chain_threads stage bound must be positive.")
         if not 0 < self.chain_snapshot_seconds:
             raise ValueError("The chain_snapshots stage bound must be positive.")
+        if not 0 < self.fuel_night_seconds:
+            raise ValueError("The fuel_night stage bound must be positive.")
         if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.mini_seconds,
                                                    self.opportunity_seconds, self.s4_seconds, self.chain_seconds,
                                                    self.consequence_seconds, self.domain_assess_seconds,
-                                                   self.domain_consequence_seconds, self.chain_snapshot_seconds):
+                                                   self.domain_consequence_seconds, self.chain_snapshot_seconds,
+                                                   self.fuel_night_seconds):
             raise ValueError("The server statement timeout must be shorter than every stage bound.")
 
     @property
     def site_lease_seconds(self) -> float:
         return (self.s3_seconds + self.mini_seconds + self.opportunity_seconds + self.s4_seconds + self.chain_seconds
                 + self.consequence_seconds + 2 * self.domain_assess_seconds
-                + 2 * self.domain_consequence_seconds + self.chain_snapshot_seconds + 60)
+                + 2 * self.domain_consequence_seconds + self.chain_snapshot_seconds + self.fuel_night_seconds + 60)
 
     @property
     def tick_lease_seconds(self) -> float:
@@ -193,7 +202,7 @@ class TickReport:
                        "reason": s.reason, "result": s.result, "failure": s.failure,
                        "stages": {k: {x: v.get(x) for x in ("code", "error", "processed", "deferred", "selected",
                                                             "failed", "backlog", "revision_ids", "elapsed_ms",
-                                                            "peak_rss_kb")
+                                                            "peak_rss_kb", "eligible")
                                       if x in v} for k, v in s.stages.items()}}
                       for s in self.selected]}, default=str))
 
@@ -271,7 +280,7 @@ def _deadline_at(seconds: float) -> float:
 
 STAGE_LIMIT_FIELDS: dict[str, str] = {
     "s3": "s3_seconds", "cold_assess": "domain_assess_seconds", "ev_assess": "domain_assess_seconds",
-    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds", "chain_threads": "chain_seconds",
+    "mini": "mini_seconds", "fuel_night": "fuel_night_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds", "chain_threads": "chain_seconds",
     "consequence": "consequence_seconds", "cold_consequence": "domain_consequence_seconds",
     "ev_consequence": "domain_consequence_seconds", "chain_snapshots": "chain_snapshot_seconds"}
 
@@ -455,6 +464,17 @@ class ScheduleTick:
             self.store.record_mini(t, s, token, int(rm["processed"]), int(rm["deferred"]), int(rm["failed"]))
         else:
             failure = failure or ("MINI", rm["code"], str(rm.get("error")))
+
+        # OWN-G2 (build sheet OWN-GAPS §2.2): assess and raise this Site's due diesel nights, under the MINI head
+        # stage (no stage CHECK change); before `chain_threads`, so a raised fuel Finding is placed this tick.
+        if not stage("MINI"):
+            return
+        rf = self.runner.run("fuel_night", {**ids, "limit": self.limits.fuel_nights_per_site,
+                                            "deadline_at": _deadline_at(self.limits.fuel_night_seconds)},
+                             self.limits.fuel_night_seconds)
+        site.stages["fuel_night"] = rf
+        if rf["code"] != "OK":
+            failure = failure or ("FUEL_NIGHT", rf["code"], str(rf.get("error")))
 
         if not stage("OPPORTUNITY"):
             return

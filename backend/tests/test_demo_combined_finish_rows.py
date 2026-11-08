@@ -1254,3 +1254,77 @@ def test_register_records_the_no_legacy_basis_after_register_in(monkeypatch, tmp
     kis.register("postgresql://x", tmp_path, import_at, install_at)
     assert calls[0] == ("register_in",)
     assert calls[1] == ("basis", UUID(tenant), UUID(site), import_at)
+
+
+# ---- OWN-G2 (build sheet OWN-GAPS §2.5, R2-G2 Q9): KIS-11, last-tick.json, the closing-tick retry --------------------
+
+def _tick_report(fuel: dict | None = None, site: str = "KISIWA-001") -> dict:
+    stages = {"mini": {"code": "OK"}}
+    if fuel is not None:
+        stages["fuel_night"] = fuel
+    return {"outcome": "COMPLETED", "sites": [{"site_code": "KOBO-001", "stages": {"fuel_night": {"code": "OK"}}},
+                                              {"site_code": site, "stages": stages}]}
+
+
+_FUEL_OK = {"code": "OK", "eligible": True, "processed": 0, "deferred": 0}
+
+
+def test_kis11_passes_on_a_visited_ok_eligible_tick_and_story_revision_one() -> None:
+    out = rows.kis11(_tick_report(_FUEL_OK), {1: 1, 2: 1, 4: 1}, 1, 0)
+    assert out["fuel_night"]["code"] == "OK" and out["story_nights"] == 3
+
+
+def test_kis11_fails_when_kisiwa_was_not_visited_and_on_each_break() -> None:
+    for report in (None, _tick_report(None), _tick_report(_FUEL_OK, site="OTHER-001")):
+        with pytest.raises(AssertionError, match="KISIWA-001 was not visited by the last tick"):
+            rows.kis11(report, {1: 1}, 1, 0)
+    breaks = [((_tick_report({**_FUEL_OK, "code": "FAILED"}), {1: 1}, 1, 0), "not OK and eligible"),
+              ((_tick_report({**_FUEL_OK, "eligible": False}), {1: 1}, 1, 0), "not OK and eligible"),
+              ((_tick_report(_FUEL_OK), {1: 1, 4: 2}, 1, 0), "not revision 1"),
+              ((_tick_report(_FUEL_OK), {}, 1, 0), "no Kisiwa story night"),
+              ((_tick_report(_FUEL_OK), {1: 1}, 2, 0), "exactly one Kisiwa fuel Finding"),
+              ((_tick_report(_FUEL_OK), {1: 1}, 1, 3), "KOBO-001 has fuel_balance_window rows")]
+    for args, message in breaks:
+        with pytest.raises(AssertionError, match=message):
+            rows.kis11(*args)
+
+
+def test_kis11_is_wired_right_after_kis9() -> None:
+    import demo_combined_finish as finish
+
+    ids = [c[0] for c in finish.CHECKS]
+    assert ids.index("KIS-11") == ids.index("KIS-9") + 1
+
+
+def test_last_json_object_takes_the_last_parsable_object_line() -> None:
+    assert rows.last_json_object('{"a": 1}\nnoise\n{"b": 2}\n{broken\n[1]\n') == {"b": 2}
+    assert rows.last_json_object("no json here\n[1, 2]\n") is None
+    assert rows.last_json_object("") is None
+
+
+def test_demo_tick_writes_last_tick_json_and_removes_a_stale_one(tmp_path) -> None:
+    import types
+
+    import demo_combined as dc
+
+    outs = iter(['log\n{"outcome": "COMPLETED", "sites": []}\n', "no report\n"])
+    demo = types.SimpleNamespace(work=tmp_path, performance_and_prebuild=lambda: None,
+                                 py=lambda *a, **k: types.SimpleNamespace(stdout=next(outs)))
+    assert dc.Demo.tick(demo) == {"outcome": "COMPLETED", "sites": []}
+    assert (tmp_path / "last-tick.json").exists()
+    assert dc.Demo.tick(demo) is None
+    assert not (tmp_path / "last-tick.json").exists()
+
+
+def test_closing_tick_retries_at_most_two_more_ticks_30_s_apart() -> None:
+    import demo_combined as dc
+
+    def run(reports):
+        it, sleeps = iter(reports), []
+        report, extra = dc.retry_until_visited(_tick_report(None), lambda: next(it), sleep=sleeps.append)
+        return report, extra, sleeps
+
+    assert run([_tick_report(None), _tick_report(None), _tick_report(_FUEL_OK)])[1:] == (2, [30.0, 30.0])
+    report, extra, sleeps = run([_tick_report(_FUEL_OK)])
+    assert extra == 1 and sleeps == [30.0] and rows.fuel_night_entry(report) == _FUEL_OK
+    assert dc.retry_until_visited(_tick_report(_FUEL_OK), lambda: 1 / 0) == (_tick_report(_FUEL_OK), 0)
