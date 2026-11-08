@@ -4596,3 +4596,139 @@ None. For the owner's information, in plain words: the system has a rule that ev
 ### 9o.6 Owner questions
 
 None. For the owner's information, in plain words: each Kisiwa example day takes about twice as long to prepare as we estimated, about 6 minutes instead of 3. Preparing the full four-Site demo should now take about 2 to 2⅓ hours, still inside the 3-hour limit you set, with at least 40 minutes to spare. The full practice run will confirm the figure first. If that run takes more than 2½ hours, we will look at it again before the real one. If it ever needs more than 3 hours, we will ask you rather than raise the limit. The work grows by about 0.15 unit, and the demo date moves by about a tenth of a working day.
+
+---
+
+## 9j3. Ruling DIESEL-1-R3j3: K4b review FIX, H1 (two untracked fuel tables on stored routes) and L1–L3
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. READ on main at `58e401900` (K3, K4a, K6a, K6b, K5 merged) and on `task/DIESEL-K4b-protect-fuel` at `9331a094e` (review `.agent/review-K4b.md`). Read: migrations 0047, 0050–0057; `config/chain/watermark-inputs-v1.json`; `config/chain/stored-composer-modules-v1.json`; `tools/chain_watermark_guard.py`; `backend/tests/test_ch5c_watermark_postgres.py`; every `responses.serve` caller; every backend reader of `fuel_balance_window`, `fuel_residual_consequence_revision` and `operational_record`. Nothing was run.
+- **This ruling amends §9j.13 and §9j2.6 (K4b's approved files) and §9j2.5 item 1, which approved the store injection without naming watermark coverage. That was an Architect miss in R3j2, recorded as D3 (structural oversight).** Everything not named here stands.
+- **H1 is confirmed. Its fix is required before K4b merges.** No exemption: these tables change the stored board, summary and Portfolio bodies, and the guard contract has no exemption path except the store's own tables.
+
+### 9j3.1 The fix: migration `0058_fuel_watermark_inputs`
+
+**Is the gap already covered by Finding triggers? (READ)**
+- `finding` and `finding_revision` are in 0047's `INPUT_TABLES` and carry the four `_cic_` triggers.
+- **`fuel_residual_consequence_revision`: covered by accident, not by contract.** Its only writer is `fuel_residual_append` (`financials/adapters/postgres_consequence_store.py:405`). The raise calls it from `fuel_balance/findings_service.py:89-91` on the raise's connection, in the same transaction as `fuel_apply`'s `finding_revision` insert. So today every consequence row commits together with a `finding_revision` row, and that moves `W` for the Site. This holds only while there is one writer that shares the transaction. A later re-price or backfill would break it silently. The W6 guard reads `pg_trigger`, not co-commit habits, so it would still report the table `untracked`. **It gets its own triggers.**
+- **`fuel_balance_window`: not covered.** K3's assess writes windows in their own transactions (0055: not a chain-event producer, no outbox, and no Finding or assessment write). The K4a raise reads the window later, in a separate transaction. A WITHIN_MARGIN, BELOW_MATERIALITY, EXCESS or NOT_ASSESSED night, or a Site's first window, never touches a tracked table. Even an UNEXPLAINED night leaves stale bodies between the K3 commit and the raise commit. **It needs triggers.**
+
+**New file `backend/migrations/versions/0058_fuel_watermark_inputs.py`** (0058 is free on main, in K4b, and in K7-F):
+- `revision = "0058_fuel_watermark_inputs"`, `down_revision = "0057_fuel_verification"`.
+- The docstring says this migration extends the CH-5c W2 change log to the two fuel tables that the stored board, summary and Portfolio read since K4b (DIESEL-1-R3j3). The tables are append-only (`ledger_append_only`), so in practice only the INSERT trigger fires. All four are created because the W6 guard requires them.
+- `INPUT_TABLES = ("fuel_balance_window", "fuel_residual_consequence_revision")`
+- **Reuse 0047's generator. Do not copy it.** Load `0047_chain_response.py` through `importlib.util.spec_from_file_location("_m0047_chain_response", Path(__file__).with_name("0047_chain_response.py"))`, exactly as 0048 loads 0029 (`0048_daylight_enqueue.py:29-35`).
+- `upgrade()`: for each table, `cols = _M._columns(bind, table)`. Raise `RuntimeError(f"watermark input table {table!r} does not exist")` when the table is empty. Then:
+  - `tenant = _M._TENANT_COLUMN.get(table, "tenant_id" if "tenant_id" in cols else None)`
+  - `site = _M._SITE_COLUMN.get(table, "site_id" if "site_id" in cols else None)`
+  - `op.execute(_M._trigger_sql(table, tenant, site))`
+
+  Both tables carry `tenant_id` and `site_id`, so the change rows are Site-scoped. A Kisiwa window write does not move Kobo's board watermark. It does move the estate summary and Portfolio, which is correct.
+- **Created objects:** functions `chain_input_change_fuel_balance_window()` and `chain_input_change_fuel_residual_consequence_revision()`, plus the triggers `<table>_cic_ins`, `_cic_upd`, `_cic_del` and `_cic_trunc` on each table. Every name is under 63 characters.
+- `downgrade()`, for each table in reverse order: `DROP TRIGGER IF EXISTS <table>_cic_trunc|_cic_del|_cic_upd|_cic_ins ON <table>`, then `DROP FUNCTION IF EXISTS chain_input_change_<table>()`. `chain_input_change` rows already written stay, because the log is append-only. That is the safe direction.
+- **No backfill row.** The new alembic head changes `code_version` (the `file_code_version` head hash). Every stored body is therefore rebuilt once after the upgrade, and the demo's prebuild runs after prepare.
+- **0047 is not edited.** It is an applied migration, and its frozen tuple stays as it is.
+
+**Config:** `config/chain/watermark-inputs-v1.json` `tables` gains `"fuel_balance_window"` and `"fuel_residual_consequence_revision"`, in alphabetical position: after `"foundation_revision"` and before `"ingestion_batch"`. No other byte changes. `version` stays `watermark-inputs-v1`: the change adds coverage only, and over-invalidation is the safe direction.
+
+**Tests (in `backend/tests/test_ch5c_watermark_postgres.py`, `assetops_k4b_test` only):**
+1. Add `_migration_0058_tables()`, the same loader pattern as `_migration_tables()`. `test_declared_inputs_equal_the_frozen_migration_list` becomes `set(declared) - {"chain_action"} == set(_migration_tables()) | set(_migration_0058_tables())`. This must fail if either JSON line is removed, or if 0058 lists a table the JSON does not.
+2. `test_every_declared_input_has_the_four_change_triggers` checks `_migration_tables() + _migration_0058_tables()`. This must fail if 0058's `upgrade` is skipped for either table.
+3. **New `test_fuel_window_insert_flips_only_its_site(engine)`:** insert one `fuel_balance_window` row for Site A, using the existing real-table helpers' tenant, Site and asset setup or the K4a Postgres fixture pattern; the builder picks whichever is smaller. Then `read_watermark(A)` changes and `read_watermark(B)` does not. This must fail if the trigger is dropped. The consequence table is covered by test 2. Its insert needs the full Finding chain (FKs to `finding`, `finding_revision`, `fuel_balance_window`), which K4a's Postgres tests already exercise.
+
+**Guard CLI evidence (W6), in the packet:**
+- **Required in the fix round,** only if the coordinator names a kept, Kobo-bearing prepared `*_test` database and its work folder. Clone it to a producer scratch database `assetops_k4b_audit_guard` (`CREATE DATABASE … TEMPLATE …`, with no open connections to the template). Upgrade the clone to head at the K4b fix commit, then run:
+
+  `python tools/chain_watermark_guard.py --database-url <clone> --work <work dir> --out var/k4b-guard.json`
+
+  The packet quotes the printed summary line. Acceptance:
+  - `untracked []` and `unresolved []`;
+  - `fuel_balance_window` appears in `all.read` (it proves the Kobo `has_windows` path was listened to);
+  - `unlisted_modules []`;
+  - exit 0.
+
+  Drop the clone afterwards.
+- **If no such database is kept,** do not run a prepare (about 1 h) only for this evidence. Tests 1–3 are the contract, because the guard's `untracked` predicate is the same `pg_trigger` four-event check as test 2. **The CLI then moves to K9's rehearsal** (four-Site prepare, with a Kisiwa fuel Finding present, so `_fuel_findings` also reads the consequence table). K9's packet gets the same acceptance as above, plus `fuel_residual_consequence_revision` in `all.read`. The K9 card gains the line: "W6 guard CLI on the rehearsal database: `untracked []`, both fuel tables read (R3j3)".
+- Either way, add **one row to the after-the-demo list**: "F4 checks modules, not tables: add a table-level W6 check to a Postgres test so a new stored read of an untriggered table fails in CI, not only in the CLI".
+
+### 9j3.2 Scope across merged units: the gap is K4b's alone (READ)
+
+The stored routes are exactly the `responses.serve` callers:
+- `outcome_api.py:220` (board) and `:252` (outcome summary);
+- `estate_portfolio_api.py:75` (Portfolio);
+- `estate_api.py:64` (Findings index);
+- `chain_api.py:165` and `:308` (the chain and "Why?" routes).
+
+None of them reads a fuel table on main:
+
+| Merged surface | Fuel table read | Stored composer? | Gap on main? |
+|---|---|---|---|
+| K3 `fuel_balance_window` (0055) | The table itself. Writers: K3 assess, K4a raise | Written only, never read by a stored route on main | No |
+| K4a raise and `fuel_residual_consequence_revision` (0056) | Writes. `analytics/adapters/postgres_finding_store.py:740` and `actions/adapters/postgres_action_store.py:812` read only `finding_revision.claim->>'fuel_balance_window_id'` (JSON text, not the table) | Those modules are listed, but the reads are claim JSON on tracked tables | No |
+| K5 Fuel page nights, night detail, fuel Finding list and page (`fuel_balance_api.py:98-142`) | `fuel_balance_window`, consequence, K2 records | **No.** Plain `served(...)`, with no `ResponseStore` | No |
+| K6b verdict page (`action_api.py:322`, `actions/verification.py`, `fuel_verification.py`) | `fuel_balance_window` (night choice), `operational_record` (site visits through `case_operational_records`) | **No.** `action_api` never calls `responses.serve` | No |
+| K6b board entry (`FuelVerdictFact`, `mini.py:458`, `site_chain.fuel_verdict_actions`) | Chain snapshot rows from `domain_action` and `verification_*`, all tracked | Yes, stored | No (tracked tables only) |
+| K2 fuel records on `operational_record` (0054) | `work/adapters/postgres_fuel_records.py`, `postgres_global_read.py` | Read by work detail, the verdict page and K5 night detail. None of them is stored | No. **Residual:** `operational_record` is untracked. Any future stored read of it needs the same treatment |
+
+- K4b's own board binding reads `site` and `asset` (`night_context`), and `finding` and `finding_revision` (`_fuel_findings`). All of these are tracked. The two fuel tables are the only untracked reads. K4b does **not** bind `night_records_and_provenance` (K2 records) into the board, so `operational_record` stays off stored routes.
+- **Conclusion:** the gap opens with K4b's injection (§9j2.5 item 1). It is not a pre-existing hole, and no merged unit needs a fix.
+
+### 9j3.3 Who does it, and the order with K7-F
+
+- **K4b's fix round does it,** on `task/DIESEL-K4b-protect-fuel`, with a Sonnet builder (fix-round rule). There is no separate unit: the gap is K4b's alone, and the migration is what makes K4b's reads lawful.
+- **Re-review:** a fresh Claude reviewer checks H1 and L1–L3 only, plus the 0058 file and the JSON diff. Merge on ACCEPT.
+- **Order with K7-F: independent, either may merge first.** Whichever merges second runs `git merge main` first. Never rebase. K7-F adds no migration, so there is no number clash, and neither branch touches the other's files.
+- **K7-F's scratch database without the triggers does not matter:**
+  - On K7-F's tree no stored route reads a fuel table, because K4b's board binding is absent. Its stored bodies are therefore correct without them, and none of its KIS evidence depends on the change log.
+  - `demo_combined.py prepare` drops, recreates and upgrades to head. The first database built on a main holding both K4b and K7-F carries 0058, and its K7 backdated writes then log change rows. The watermark is a count, not a time, so a backdated write still expires the historical (`known_at`) bodies. That closes the reviewer's K7 concern.
+  - **No K7-F scratch re-run** and no edit to K7-F.
+  - The extra cost per prepared window write is one statement-level insert into `chain_input_change`, which is negligible against the measured 353 s per day.
+- **Test template:** the new head makes the `pg_harness` templates stale. They rebuild once at the first Postgres test run, at about the cost of minutes. This is expected and not a defect.
+
+### 9j3.4 K4b's Lows: all three in the same round
+
+- **L1, fix.** In `read.py` `mini_ports` → `fuel_findings`: `_tank, k = fuel_context()` and pass `k` (not `known_at`) to `.fuel_findings(t, sid, lo, hi, k)`. Now one board reads the window, applicability and Finding at one cutoff (§9j.11 "as known at the board cutoff"). Stored and historical composes are unchanged, because `k == known_at` when `known_at` is given.
+  - L0 test in `test_k4b_protect_fuel.py`: with `known_at=None`, a fake store records the instant that `has_windows`, `windows` and `fuel_findings` receive. All three are equal to `night_context`'s instant. This must fail if `fuel_findings` reverts to `known_at`.
+- **L2, fix (one token, safe direction).** In `mini.py` `_fuel_findings`: `no_close = policy is None or tuple(policy.measures_for(FUEL_MECHANISM)) == ()`.
+  - With no policy (a failed `chain_threads` read, or `thread_policy` not injected), a fuel Finding never shows a countdown. The fuel mechanism's lifecycle is declared empty in configuration (§9j2.3 item 2), so "unknown policy" can only mean "no countdown we can stand behind".
+  - L0 test: a fuel `FindingFact` composed with `policy=None` carries `close_measured: False`. This must fail on the old `policy is not None and …` form.
+  - Dispatch, Cold and EV views are unchanged (still no key).
+- **L3, fix.** Restore the space at `mini.py:504`: `plan_facts = tuple(...)`.
+
+### 9j3.5 Approved files (added to §9j.13 and §9j2.6)
+
+- `backend/migrations/versions/0058_fuel_watermark_inputs.py` (new)
+- `config/chain/watermark-inputs-v1.json` (two lines)
+- `backend/tests/test_ch5c_watermark_postgres.py` (tests 1–3 of §9j3.1)
+- `B/site_outcomes/read.py` and `mini.py` (already approved: L1–L3), and `backend/tests/test_k4b_protect_fuel.py` (L1 and L2 tests)
+- `.agent/review-packet-K4b.md` (a fix-round section, plus the guard CLI line or the note "CLI moved to K9 (R3j3)")
+
+**New stops:**
+- **S-g:** `_trigger_sql` from 0047 cannot be reused unchanged (signature or behaviour). Report it; do not copy or fork the generator.
+- **S-h:** the guard CLI, when run, reports any `untracked` or `unresolved` table other than these two, or any `non_200`. Report it with the JSON; do not fix outside these files.
+
+**Focused runs only:**
+- `test_ch5c_watermark_postgres.py` and `test_k4b_protect_fuel.py`;
+- the L0 files the review listed for `mini.py` and `read.py` (`test_ch5a1_board_contract.py`, `test_ch5a2_contract.py`, `test_ch2_threads.py`, `test_pv1_value_lines.py`);
+- `test_out_b4_board_postgres.py -k kobo`.
+
+No full suite.
+
+### 9j3.6 Size and critical path
+
+- **K4b: 1.1 → 1.25** (range 1.2–1.3). That is +0.15:
+  - migration and JSON 0.04;
+  - the three watermark tests 0.04;
+  - L1 and L2 with their tests, plus L3, 0.03;
+  - the guard CLI clone run or the K9 note 0.02;
+  - re-review 0.02.
+
+  This is inside stop S-e's ceiling of 1.3. The increase is reported, not absorbed: **Kisiwa total +0.15.** If K9 takes over the CLI, K9 absorbs it inside its 1.0, because the guard is about 10 min on the already-built rehearsal database.
+- **Critical path: about 9.15, unchanged. Headroom to the 9.75 tripwire: about 0.6.** The path is spent 3.65 → K4a 1.6 → K6a 0.6 → K6b 1.4 → K7-F 0.65 → K8 captures 0.25 → K9 1.0.
+  - K4b's fix round (about 0.15) runs beside K7-F's remaining review and merge, and K8 waits for both.
+  - K4b joins the path only if its fix round and re-review outlast K7-F's merge. Then the path grows by at most the overlap, which is ≤ 0.15, giving ≤ 9.3, still about 0.45 under the tripwire.
+- No cut, and the demo date does not move.
+- **Plan HTML rows (coordinator):** K4b becomes 1.25. The rulings table gains "DIESEL-1-R3j3: 0058 adds W2 change triggers on `fuel_balance_window` and `fuel_residual_consequence_revision` (watermark-inputs +2); gap is K4b's alone (no merged stored route reads fuel tables); K4b fix round, independent of K7-F's merge; L1 one cutoff, L2 no countdown without a policy, L3 whitespace; K4b 1.25".
+
+### 9j3.7 Owner questions
+
+None. For the owner's information, in plain words: some pages are saved after they are first built, so they open quickly. A saved page is rebuilt when the data behind it changes. The new Protect fuel line reads two fuel records the system was not yet watching for changes, so a saved page could have kept showing an old fuel status. This fix makes the system watch both records. Any new fuel check now refreshes the saved pages straight away, including the ones for earlier days. It also tidies three small points. The work grows by about 0.15 unit and does not move the demo date.
