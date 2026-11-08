@@ -116,7 +116,7 @@ rows marked in bold above.
 
 ### T2. What ages on a build, and what rolling forward changes
 
-- S = prepare day − 2 and is fixed (`tools/demo_combined.py:147-149`). `add-day` appends days at the build's S,
+- S = prepare day − 2 and is fixed (`tools/demo_combined.py:146-148`). `add-day` appends days at the build's S,
   received at DB now (`tools/demo_story_days.py:512-528`). It refuses a day that has not ended
   (`DAY_NOT_IN_PAST`, `PAST_MARGIN` 5 min, `:38`, `:502`, `:525`) and a day before S−board-window (`:485`). Cold and
   EV step weekly (`:476`). There is no multi-day command: one call per Site-day. Calling it daily is the supported
@@ -142,7 +142,7 @@ rows marked in bold above.
 
 - **Kisiwa `add-day`** (demo tool only): about 1.0 unit plus review, medium risk.
   - Draft a day run from the previous run's end state of charge and fuel. The handover holds start states for story
-    runs only (`tools/demo_combined_kisiwa.py:775-776`).
+    runs only (`tools/demo_combined_kisiwa.py:773`).
   - Publish it through the gateway helper.
   - Optionally post a dip record.
   - Then call assess and raise for that night. These are the same calls as `:513-544`, but on the DB clock.
