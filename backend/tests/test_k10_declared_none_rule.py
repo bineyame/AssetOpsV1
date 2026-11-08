@@ -319,6 +319,97 @@ def test_r3t4_the_eleven_r3t3_cases_hold_on_a_never_declared_site():
         assert rd.site_never_declared(revs) is False
 
 
+# ---- R3v: the chain body's per-day grades are over the same applicable measures as the counts ---------------------------
+
+from assetops_backend.chain import measures as _ms
+from assetops_backend.chain import site_chain as sc
+
+K0 = date(2026, 10, 9)
+GRADE_FIELDS = ("complete", "partial", "low", "no_data", "not_expected", "pending")
+
+
+def _tally(days):
+    return {f: sum(1 for e in days if e["grade"] == f.upper()) for f in GRADE_FIELDS}
+
+
+def _old_days_of(facts, measures):
+    """days_of exactly as before R3v."""
+    out = []
+    for d in facts.days:
+        per = {m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures}
+        per = {m: g for m, g in per.items() if g}
+        out.append({"day": d.isoformat(), "grade": cr.day_grade(per, measures),
+                    "measures": {m: cr.day_grade(per, [m]) for m in measures}})
+    return out
+
+
+def _kisiwa_month():
+    """31 days: 3 PARTIAL (the 10-28/10-29/11-07 shapes), 8 with avoidable_gen_min missing (the 10-30 shape), 20 empty."""
+    rows, shape = [], {}
+    for i in range(31):
+        d = K0 + timedelta(days=i)
+        if i in (19, 20, 29):
+            rows += kisiwa_day(d, PARTIAL); shape[d] = "partial"
+        elif 21 <= i <= 28:
+            rows += kisiwa_day(d, COMPLETE, skip=("avoidable_gen_min",)); shape[d] = "gap"
+        else:
+            shape[d] = "empty"
+    declared = {d for d, s in shape.items() if s != "empty"}
+    return _day(DeclaringPort(rows, declared=declared), days=[K0 + timedelta(days=i) for i in range(31)]), shape
+
+
+def test_r3v_days_of_tally_equals_grade_counts_of_on_kisiwa_month():
+    f, _ = _kisiwa_month()
+    gc = rd.grade_counts_of(f, MG)
+    tally = _tally(sc.days_of(f, MG))
+    assert tally == {x: getattr(gc, x) for x in GRADE_FIELDS}
+    assert tally["partial"] == 3 and tally["no_data"] == 28
+    # the old call form disagrees (the COH-18 defect)
+    assert _tally(_old_days_of(f, MG))["partial"] == 0
+
+
+def _plain_facts(site_type, with_gaps):
+    specs = [m.key for m in _ms.measures_for(site_type)]
+    rows = []
+    for i in range(6):
+        d = K0 + timedelta(days=i)
+        for j, m in enumerate(specs):
+            if with_gaps and i == 4 and j == 0:
+                continue
+            rows.append(Row(SITE, d, m, "SITE", PARTIAL if (i == 2 and j == 1) else COMPLETE, 1))
+    return _day(Port(rows), site_type=site_type, days=[K0 + timedelta(days=i) for i in range(7)]), tuple(specs)
+
+
+def test_r3v_other_site_types_identity_and_bytes_unchanged():
+    types = sorted({m.site_type for m in _ms.MEASURES.values()})
+    assert len(types) >= 2
+    for st in types:
+        for gaps in (False, True):
+            f, ms = _plain_facts(st, gaps)
+            assert dict(f.none_declared) == {}
+            new = sc.days_of(f, ms)
+            gc = rd.grade_counts_of(f, ms)
+            assert _tally(new) == {x: getattr(gc, x) for x in GRADE_FIELDS}
+            assert new == _old_days_of(f, ms)
+            assert json.dumps(new, sort_keys=True) == json.dumps(_old_days_of(f, ms), sort_keys=True)
+            assert all("none_declared" not in e for e in new)
+
+
+def test_r3v_day_entry_shape():
+    f, shape = _kisiwa_month()
+    by = {e["day"]: e for e in sc.days_of(f, MG)}
+    p = by[(K0 + timedelta(days=19)).isoformat()]      # a 10-28 shape
+    assert p["grade"] == PARTIAL and p["measures"][KWH] == NO_DATA and p["none_declared"] == [KWH]
+    g = by[(K0 + timedelta(days=22)).isoformat()]      # a 10-30 shape: another measure is NO_DATA
+    assert g["grade"] == NO_DATA and g["none_declared"] == [KWH]
+    e = by[K0.isoformat()]                              # no rows at all
+    assert e["grade"] == NO_DATA and "none_declared" not in e
+    # a productive_kwh row always wins: no key
+    f2 = _day(DeclaringPort(kobo_day(D1), declared={D1}), days=[D1])
+    d2 = sc.days_of(f2, MG)[0]
+    assert d2["grade"] == COMPLETE and "none_declared" not in d2
+
+
 def test_counts_rule_with_declaration_over_a_window():
     rows = [r for i in range(5) for r in kisiwa_day(D1 + timedelta(days=i))]
     nd = {D1 + timedelta(days=i): frozenset({KWH}) for i in range(5)}
