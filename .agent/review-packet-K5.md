@@ -116,9 +116,27 @@ at 1440 and 390 unless noted:
 Claims owed by those captures: panel budgets from `.agent/K5-mock-measurements.md`; no horizontal scroll at 390;
 every table scrolls inside its own panel; the records table's cap. Until then every layout claim above is unverified.
 
-## Checks
+## Checks (actual output; Python = `AssetOpsV1-plan2\.venv`, PYTHONPATH resolves into this worktree)
 
-(filled in below)
+- `tools\check-all.ps1 -Python <plan2 venv>` at `34e064f2a`: **17/17 PASS** (Architecture seams, Estate guard
+  self-tests 15 passed, Navigation truthfulness, Agent workflow, Mock deviation labels and client vocabulary (guard V),
+  Missing-claim scan (guard M), Screen ledger, Chain coherence 158, Event register 12, Chain graph, Perf budget 8/8,
+  Frontend hard-wiring ratchet "passed", totals unchanged `{"api":12,"href":24,"lit":70,"cmp":51,"code":3}`).
+  Earlier runs failed and were fixed: driver import in `night_read.py` (deviation 0), hard-wiring rises (deviation 2-3).
+- Backend, DB `assetops_k5_test` only (pg_harness clones), after the last backend change:
+  `test_k5_fuel_night_api_postgres.py test_k5_fuel_night_text.py test_out_b2_vocabulary.py test_ch5a2_refs.py
+  test_k3_fuel_balance_postgres.py test_k4a_fuel_finding_postgres.py test_k6a_fuel_action_origin_postgres.py` →
+  **133 passed** (68.7 s). Earlier on the same code paths: + `test_k4a_fuel_finding_rules.py test_k3_fuel_balance_rules.py
+  test_k2_fuel_records_postgres.py test_dd1b2b_action_ref.py` → 174 passed; `test_k6a_fuel_action_origin.py` passed
+  after the merge. No full suite (card).
+- Frontend: `vitest run` over `src/sites/__tests__/mini*`, `siteFinding*`, `siteFuelFinding`, `coldFindingIndex`,
+  `evFindingIndex`, `linkRefOnly`, all of `src/shell/__tests__` → **74 files, 1702 passed**; `tsc --noEmit` clean;
+  `npm run build` → built.
+- Mutation proofs (each applied to the committed tree, test run, then `git checkout --`; tree clean afterwards):
+  - A1: litres rounded half-up (Decimal ROUND_HALF_UP in `night_text.litres`) → `test_a1_litres_round_half_even` FAILS.
+  - F4: night mode on any loaded nights read (dropped `mode === "NIGHTS"`) → F4 FAILS.
+  - B4: fuel Finding read without the `fuel_balance` domain predicate → B4 FAILS (`KeyError: 'fuel_balance_window_id'`
+    instead of the 404), so a dispatch Finding id never reaches the fuel page.
 
 ## Known deviations / builder decisions (none changes product semantics; each is for the reviewer to accept or rule)
 
