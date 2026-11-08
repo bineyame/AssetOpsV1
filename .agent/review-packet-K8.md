@@ -200,3 +200,10 @@ The rehearsal DB and work folder are kept until it is done.
 
 - The selection token does not cover fuel rows (§9p.10, after the demo).
 - Cold and EV rows still read "No action agreed yet" next to domain Actions. This is pre-existing and listed in §9p.10.
+
+## Fix round (review-K8.md M1, L3)
+
+- **M1.** `estate/index.py` `_fuel_rows` now reads `snap.fuel_findings` inside `try/except (AttributeError, KeyError)` and returns no rows (same pattern as `opportunity_read`). Before, `getattr(snap, "fuel_findings", None)` let a fake snapshot's `KeyError` escape. New L0 test `test_k8_m1_snapshot_whose_fuel_lookup_raises_keyerror_or_attributeerror_yields_no_fuel_rows` in `test_w301_estate_api.py` covers both exceptions.
+- **L3 join placement.** `test_k8_estate_fuel_postgres.py` wraps `portfolio.select_financial_scope` with a spy snapshot that records any `fuel_findings` access, and asserts the wrapper ran (non-vacuous) and recorded no touch. Mutation (committed code first): added `getattr(snap, "fuel_findings", None)` to `select_financial_scope`; the test failed with `AssertionError: select_financial_scope reached the fuel reader`; reverted with `git checkout`.
+- **L3 provenance.** The evidence-backed provenance state is proven only in the Kisiwa clone printout; the K4a fixture cites no evidence, so the Postgres test asserts UNKNOWN/EMPTY_CITATION_SET. The K8c capture phase on the rehearsal DB will confirm the evidence-backed state.
+- **Tests.** `test_w301_estate_api.py`, `test_k8_estate_fuel.py`, `test_k8_estate_fuel_postgres.py` (on `assetops_k8_test`): 34 passed. L1 and L2 untouched.
