@@ -131,3 +131,92 @@ Ruling §9t3 of `build-sheet-DIESEL-1.md`; review `.agent/review-K10.md` (M1, L1
 
 R3t needs no separate owner walkthrough for this slice: the owner already answered §9t.6. The reviewer should check the
 literals against §9t.1 and resolve Stop K10-v1 with the Architect before merge.
+
+## Phase 2 (R3u steps 1-2)
+
+Runner: K10 phase-2 builder. Cut 3 applied (R3u 9u.3): Kisiwa d1 and S-5d, plus the Kobo S body; Cold and EV bodies not read.
+**Result: stop K10-s1 triggered (Kobo). No patch made. Stopped after step 2; step 3 not started.**
+
+**Step 1, adapter test.** `backend/tests/test_k10_declared_none_adapter_postgres.py` on `assetops_k10_test` (created; was missing):
+`8 passed, 2 warnings in 12.46s`, 0 skipped. The SQL had never run before; it passes on its first run.
+
+**Clone.** `assetops_k9_audit_r3u` created `TEMPLATE assetops_demo3_k9rehearsal_test` (0 open connections on the template before).
+`var/demo3_k9rehearsal` (3,456 files) copied by a Python script to `var/demo3_r3u` in this worktree (gitignored). The template and the
+original var folder were not touched. Free RAM before: 3.3 GB. Reads in process (TestClient, no server, no ticks).
+
+**Code states.** Tree A = `git archive d681480be` (K9 HEAD, contains main 886341aff). Tree B = `git archive 44909ec0d` (K10).
+K9 changes only `backend/tests`, `tools/` and `.agent`, no backend source or `config/`, so B differs from A in exactly the seven K10 backend
+files (`diff -rq` on `backend/assetops_backend` lists those seven; none on `config/`). Merging K9 into B is therefore a no-op for this
+read-side proof. Each tree got a copy of `var/demo3_r3u/tree/var` (`evidence/`, `sites/`). Both trees are in the scratchpad `k10p2` folder.
+Cold builds: the clone's `chain_response` rows from my own earlier reads were deleted (built after 14:00 UTC) before the final A and B reads.
+
+**Environment finding for step 3 (not a K10 result).** The first A and B reads came back `PARTIAL` (the dispatch and finding-index gates
+closed: "The newest Performance comparison report was made for another tenant or environment"). A report's `environment` is the DB identity
+(`postgresql://127.0.0.1:55432/assetops_demo3_k9rehearsal_test`, `legacy_comparison.environment_identity`), so any clone under another DB name
+closes the gate. Fix used, in proof trees A and B only: a byte-preserving swap of that string to `.../assetops_k9_audit_r3u` in the 7 report
+files under `var/evidence` (no hash covers them). `var/demo3_r3u/tree/var` is NOT restamped; step 3 on `var/demo3_r3u` needs the same swap
+(or `python -m assetops_backend.performance_migration run`) or its Kisiwa rows will read PARTIAL.
+
+### Before / after (clone `assetops_k9_audit_r3u`, S = 2026-11-06, d1 = 2026-10-28)
+
+| Read | A (main + K9) | B (K10) |
+|---|---|---|
+| Kisiwa d1 `read_state` | AVAILABLE | AVAILABLE |
+| d1 Grow row | UNKNOWN (PRODUCER_NOT_SETTLED); no headline; earnings "Not known yet", "No readings on 28 Oct"; contributor "Not available yet · no productive users identified for this site"; subline "Sales to productive users are not metered, so revenue itself is not measured yet" | NO_OBJECTIVE; headline "No productive-use equipment declared · 0 kWh"; earnings value None, basis NOT_KNOWN, text "No productive-use sales · no productive-use equipment declared"; contributor "0 kWh · no productive-use equipment declared for this site · not a metered reading"; no subline |
+| d1 Optimize row | UNKNOWN; headline "No fuel cost estimated for this day"; earnings value None, "Not known yet" | NEEDS_ATTENTION (PRIMARY_FINDING_OPEN); headline "possible extra fuel cost on this day"; earnings `0.00 to 26.28 USD` (high 26.28, 21 L at 1.25 USD) |
+| d1 Protect row | UNKNOWN; headline "1 early warning on battery and generator" | WATCH; same headline |
+| d1 Assure row | UNKNOWN | WATCH (EVIDENCE_READINESS_LIMITED); "No verified result yet" |
+| d1 MG-8 entry (Protect row) | `{"key":"MG-8","label":"Fuel accounted for","state":"UNKNOWN","reason":"PRODUCER_NOT_SETTLED"}` | same, unchanged |
+| d1 gap line | "31 of the last 31 days have no checked readings yet" (Sep 28 .. Oct 28) | "30 of the last 31 days have no checked readings yet · Productive use not assessed: no productive-use equipment declared for this site (0 kWh)" (Sep 28 .. Oct 27) |
+| S-5d (2026-11-01) `read_state` | AVAILABLE | AVAILABLE |
+| S-5d Grow | UNKNOWN; as A d1 Grow (earnings "No readings on 1 Nov") | NO_OBJECTIVE; the same K10 literals as B d1 |
+| S-5d Optimize | UNKNOWN; earnings "Not known yet" | NO_OBJECTIVE (NO_OBJECTIVE_DECLARED); earnings value None, "Not known yet" |
+| S-5d Protect | NEEDS_ATTENTION; "Battery and generator condition are not assessed" | NEEDS_ATTENTION; same (lead outcome MG-8 in both) |
+| S-5d Assure | UNKNOWN | WATCH (EVIDENCE_READINESS_LIMITED) |
+| S-5d MG-8 entry | `{"state":"NEEDS_ATTENTION","reason":"PRIMARY_FINDING_OPEN"}` | same, unchanged |
+| S-5d gap line | "31 of the last 31 days ..." (Oct 2 .. Nov 1) | "29 of the last 31 days have no checked readings yet · Productive use not assessed: no productive-use equipment declared for this site (0 kWh)"; days Oct 2 .. Oct 27, Oct 30, Oct 31, Nov 1 |
+| **Kobo S board body** | baseline | **differs**: only `finding_gaps.text`: "11 of the last 31 days have no checked readings yet" becomes "... yet · Productive use not assessed: no productive-use equipment declared for this site (0 kWh)". The day list and the count (11) are unchanged; every other path is equal. |
+
+**Kobo declared-absent record (R3t3), K10 code, `PostgresChainRead.declared_none_days(..., "productive_kwh", days, None)`:**
+
+| Window | Days asked | Declared absent |
+|---|---|---|
+| Kobo S board (31 days to 2026-11-06) | 2026-10-07 .. 11-06 | **2026-10-07** |
+| Kobo S-5d board (to 2026-11-01) | 2026-10-02 .. 11-01 | **2026-10-02 .. 10-07 (6 days)** |
+| Kobo d1 board (to 2026-10-28) | 2026-09-28 .. 10-28 | **2026-09-30 .. 10-07 (8 days)** |
+| Portfolio 4-Site week (S-6d .. S) | 2026-10-31 .. 11-06 | none |
+| Portfolio 1-Site (Oct 9) and 3-Site (Oct 23-24) day sets | as named | none (those exact days only; the Portfolio lookback was not read) |
+| Every day Sep 1 .. Nov 7 | 68 | 2026-09-30 .. 10-07 (8 days) |
+
+Cause: Kobo's `foundation_revision` rows 1-8 (valid from 2026-09-29 11:57 UTC, recorded 2026-10-08 10:00-11:30) have no productive load; the
+first load appears in revision 9 (valid from 2026-10-08 11:25 UTC). The current revision 3 covers Sep 29 .. Oct 8 11:10 with no productive
+load, so each whole local day Sep 30 .. Oct 7 is "declared absent". Those days precede Kobo's install (2026-10-08 11:00) and hold only NO_DATA
+rows of the other measures, so they enter the lazy trigger's ask set. (My first probe windows started at Oct 9 and missed this; the table
+above is from the full 31-day windows.)
+
+### Stops
+
+- **K10-s1: TRIGGERED.** Kobo S body not equal (one path, `finding_gaps.text`), and the Kobo declared-absent set is non-empty on all three board
+  windows (R3t3: non-empty is a stop even if bodies were equal). Not patched. Question for the Architect: should declared-absent apply to days
+  before a Site's install or first evidence? Kobo's pre-install days Sep 30 .. Oct 7 are NO_DATA gap days in its 31-day window and now carry
+  the "not assessed" note.
+- **K10-s2: not triggered.** The adapter declares every Kisiwa day Oct 26 .. Nov 7 absent (13 of 13 asked). Kisiwa holds no `productive_kwh`
+  snapshot row on any day. The days the boards settle are 10-28 (d1) and 10-28/10-29 (S-5d), which hold PARTIAL rows of the applicable
+  measures; Oct 26-27 are declared but stay gaps (NO_DATA only). No day settles where setup was missing or ambiguous.
+- **K10-s3: not triggered (priced), with a note.** d1 earnings are priced: `0.00 to 26.28 USD`. The stored lead head (finding
+  8a98f683-479b-4ccf-ae2a-2841fe383c94, PRICED, episode 2026-10-28 17:40 .. 19:05 UTC) has `amount_high`
+  26.27739583333333333333333333333333333333333333333375. Equal at two decimals (half-up): True. Strict `Decimal` equality, as KIS-7 item 3
+  is written in `tools/demo_combined_rows.py:1226`: **False**. Step 3 will fail KIS-7 item 3 ("d1: board amount differs from the stored head")
+  unless the comparison rounds to the board's precision.
+- **K10-s4: not triggered.** No Kisiwa row shows productive use as checked, complete or on track: Grow is NO_OBJECTIVE, earnings value None.
+- **Gap line.** d1: every gap day (Sep 28 .. Oct 27) precedes Kisiwa's first evidence (Oct 28); all hold NO_DATA rows only. S-5d: Oct 2 .. Oct 27
+  precede it too; Oct 30, Oct 31, Nov 1 do not: they hold `avoidable_gen_min` NO_DATA with `daylight_headroom_kw` PARTIAL (an applicable
+  measure with NO_DATA, allowed by 9t.4, but neither "before first evidence" nor PENDING as worded in the task). Both lines end with
+  `GAPS_NONE_DECLARED` (reworded "equipment", R3t2).
+
+**State left for step 3:** clone `assetops_k9_audit_r3u` and `var/demo3_r3u` kept (not dropped). The clone holds extra `chain_response` rows from
+these reads (codes of trees A and B); facts are unchanged. Proof scripts and trees: scratchpad `k10p2` (probe.py, kobo_decl.py, gaps.py, restamp.py, codeA, codeB).
+
+**Process deviations.** I used shell `grep`, `head`, `tail`, `cut`, `wc` and one `>` redirect (an analysis dump to a scratch file) in the Bash
+tool before noticing the rule; no repo file was written that way. One extra diagnostic read (`dbg.py`, date 2026-11-02, a monkeypatch that only
+printed port failures) found the environment cause of the PARTIAL result. Kobo S-5d/d1 boards, Cold, EV and Portfolio bodies were not read (cut 3).
