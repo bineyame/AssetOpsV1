@@ -6,7 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { MiniDepthClient, MiniRead, ServiceRead, ServiceRow } from "../miniDepthClient";
 import { localHourWindow, serviceWindowFromParams } from "../miniDepthClient";
-import { CLINIC_FEEDER_LABEL, feederName } from "../MiniPerformance";
+import { barLabel, CLINIC_FEEDER_LABEL, feederName } from "../MiniPerformance";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -143,6 +143,16 @@ describe("DIESEL-1-R3p R-LOAD: feederName", () => {
     const other = row(1);
     expect(other.role).not.toBe("CRITICAL");
     expect(feederName(other)).toBe(other.load_label);
+  });
+});
+
+describe("MD-KIS-K1-1: barLabel", () => {
+  it("keeps the clinic words, shortens a non-clinic critical label and leaves a non-critical row alone", () => {
+    expect(barLabel(row(0, { load_label: "Health post", role: "CRITICAL" }))).toBe("Clinic feeder delivered power · Critical load");
+    expect(barLabel(row(0, { load_label: "Cold store (ice and fish)", role: "CRITICAL" }))).toBe("Cold store (ice and fish) · Critical load");
+    const other = row(1);
+    expect(other.role).not.toBe("CRITICAL");
+    expect(barLabel(other)).toBe(other.load_label);
   });
 });
 

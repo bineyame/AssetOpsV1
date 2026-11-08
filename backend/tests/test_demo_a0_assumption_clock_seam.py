@@ -16,13 +16,18 @@ import pytest
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 KW = "test_recorded_clock_override"
 PKG = Path(__file__).resolve().parents[1] / "assetops_backend"
-STORE_FILE = PKG / "financials" / "adapters" / "postgres_assumption_store.py"
+SEAM_OWNERS = {
+    PKG / "financials" / "adapters" / "postgres_assumption_store.py",
+    PKG / "objectives" / "adapters" / "postgres_objective_store.py",
+}
 
 
 def test_no_product_module_passes_the_recorded_clock_override():
+    for owner in SEAM_OWNERS:
+        assert KW in owner.read_text(encoding="utf-8")  # the exemption is not vacuous
     offenders = []
     for path in PKG.rglob("*.py"):
-        if path == STORE_FILE:
+        if path in SEAM_OWNERS:
             continue
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and any(k.arg == KW for k in node.keywords):
@@ -30,7 +35,7 @@ def test_no_product_module_passes_the_recorded_clock_override():
             if isinstance(node, ast.Attribute) and node.attr == KW:
                 offenders.append(f"{path.relative_to(PKG)}:{node.lineno}")
     assert offenders == []
-    for name in ("financials/composition.py", "main.py"):
+    for name in ("financials/composition.py", "objectives/composition.py", "main.py"):
         assert KW not in (PKG / name).read_text(encoding="utf-8")
 
 

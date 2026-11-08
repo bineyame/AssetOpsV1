@@ -108,8 +108,8 @@ def test_period_bounds_addis_utc_tue_only_and_24h(tmp_path) -> None:
     lo, hi = period_bounds(cal.entry_for("ADDIS"), "Africa/Addis_Ababa", date(2026, 10, 31), "operating_hours")
     assert (lo, hi) == (_t(21, day=30), _t(21, day=31))
     assert (hi - lo) == timedelta(hours=24)
-    lo, hi = period_bounds(cal.entry_for("ADDIS"), "Africa/Addis_Ababa", date(2026, 10, 31), "midday")
-    assert (lo, hi) == (_t(9), _t(10))
+    with pytest.raises(ValueError, match="unknown period 'midday'"):
+        period_bounds(cal.entry_for("ADDIS"), "Africa/Addis_Ababa", date(2026, 10, 31), "midday")
     lo, hi = period_bounds(cal.entry_for("COLD"), "Africa/Addis_Ababa", date(2026, 10, 31), "operating_hours")
     assert (lo, hi) == (_t(16), _t(17, 5))
     # EV: Tuesday only, UTC. 27 Oct 2026 is a Tuesday, 26 Oct a Monday.
