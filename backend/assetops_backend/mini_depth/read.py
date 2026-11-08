@@ -25,7 +25,7 @@ import json
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
-from typing import Any, Callable, Iterable, Sequence
+from typing import Any, Callable, Iterable, Mapping, Sequence
 from urllib.parse import quote
 from uuid import UUID
 
@@ -83,6 +83,15 @@ class MiniReadRefused(ValueError):
 
 class MiniReadUnavailable(RuntimeError):
     """The mini store, its lineage or the provenance resolver failed: 503, never an empty or guessed result."""
+
+
+def productive_loads(content: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """K10 v2 (R3t): the LOAD components of one Foundation revision's `content` declared `supply-use = PRODUCTIVE`.
+    The one filter shared by `MiniDepthRead.productive_users` (the builder's subject rule) and the chain adapter's
+    `declared_none_days`, so "declared absent" and "no subject" cannot drift apart."""
+    return [x for x in content.get("components") or () if x.get("component_type") == "LOAD"
+            and any(q.get("property_key") == SUPPLY_USE and q.get("unit") == "state"
+                    and q.get("value") == PRODUCTIVE for q in x.get("properties") or ())]
 
 
 def iso(at: datetime | None) -> str | None:
@@ -386,9 +395,7 @@ class MiniDepthRead:
             if len(rows) != 1:
                 raise MiniReadUnavailable("No single Foundation revision covers the productive-use instant")
             content = rows[0][0] if isinstance(rows[0][0], dict) else json.loads(rows[0][0])
-            users = [x for x in content.get("components") or () if x.get("component_type") == "LOAD"
-                     and any(q.get("property_key") == SUPPLY_USE and q.get("unit") == "state"
-                             and q.get("value") == PRODUCTIVE for q in x.get("properties") or ())]
+            users = productive_loads(content)
             ids = dict(c.execute(text("SELECT asset_code, id FROM asset WHERE tenant_id = :t AND site_id = :s"),
                                  p).all())
             return [{"asset_code": x["component_id"], "asset_id": ids.get(x["component_id"]),

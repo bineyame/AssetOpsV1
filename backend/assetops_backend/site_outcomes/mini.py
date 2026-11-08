@@ -27,6 +27,7 @@ from assetops_backend.chain.vocabulary import (  # CH-6a2 §A4: the MG-1 texts m
     MG1_MISSED, MG1_NO_DAY, MG1_PACE, MG1_SO_FAR, MG1_TOO_EARLY, NO_LOAD_BASIS_WORDS, money_text, price_text,
     provenance_suffix, trial_litres)
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, assessment_state, board_day, lead_finding, local_days
+from assetops_backend.chain.read import DECLARED_SUBJECT_MEASURES  # K10 v2 (R3t): the one rule's measure set
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import workflow_label
 from assetops_backend.fuel_balance import finding_text as fuel_text
@@ -156,6 +157,12 @@ PLAN_NOT_READ = "Not available yet · declared objectives could not be loaded"
 #: WALK1-3 §4.4: estimated productive-use sales = measured use by declared productive users x the declared price per
 #: kWh. Always an estimate at a declared price; never billed, collected or measured income.
 SALES_NO_USERS = "Not available yet · no productive users identified for this site"
+#: K10 v2 (DIESEL-1-R3t §9t.3), MOCK DEVIATION MD-K10-1: v69's Grow row has no "none declared" state. A day whose
+#: site setup declares no productive-use load states a zero that is NOT a reading and NOT assessed. The polish batch
+#: may reword these but may not drop the "0 kWh" or the "not assessed" clauses.
+SALES_NONE_DECLARED = "0 kWh · no productive-use load declared for this site · not a metered reading"
+GROW_NONE_HEADLINE = "No productive-use load declared · 0 kWh"
+GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use load declared for this site (0 kWh)"
 SALES_NO_READINGS = "Not available yet · no measured use by {names} on this day"
 SALES_CONFLICT = "Not available yet · {names} {verb} conflicting readings on this day, so use is not estimated"
 SALES_USED = "{kwh} kWh used by {names} in {h} measured {hours}"
@@ -202,7 +209,8 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
         *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
-        SALES_NO_USERS, SALES_NO_READINGS.format(names="Grain mill"),
+        SALES_NO_USERS, SALES_NONE_DECLARED, GROW_NONE_HEADLINE, GAPS_NONE_DECLARED,
+        SALES_NO_READINGS.format(names="Grain mill"),
         SALES_CONFLICT.format(names="Grain mill", verb="has"), SALES_CONFLICT.format(names="A, B", verb="have"),
         SALES_USED.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
         SALES_USED.format(kwh="0", names="Grain mill", h="1", hours="hour"),
@@ -353,9 +361,15 @@ class Reads:
 def finding_gap_line(day_facts: Any, requested: int) -> dict[str, Any] | None:
     """R8 / CH5a1-R Q9: the note under the board rows naming the requested days whose day grade is PENDING or
     NO_DATA (a missing row is NO_DATA), or None. "No checked readings" when no gap day holds a PENDING row.
-    The index's PARTIAL-mode withholding is not reproduced (CH5a1-R Q4), so `withheld` is always False."""
-    if day_facts is None or not day_facts.gaps:
+    The index's PARTIAL-mode withholding is not reproduced (CH5a1-R Q4), so `withheld` is always False.
+    K10 v2 (R3t): when any window day has a declared-absent measure, the stated note `GAPS_NONE_DECLARED` follows
+    the gap text (or stands alone, with no days, when there is no gap day)."""
+    if day_facts is None:
         return None
+    declared = getattr(day_facts, "none_declared", None) or {}
+    note = any(declared.get(d) for d in day_facts.days)
+    if not day_facts.gaps:
+        return {"text": GAPS_NONE_DECLARED, "days": [], "withheld": False} if note else None
     g = len(day_facts.gaps)
     pending = any("PENDING" in subjects.values() for d in day_facts.gaps
                   for subjects in (day_facts.grades.get(d) or {}).values())
@@ -363,6 +377,8 @@ def finding_gap_line(day_facts: Any, requested: int) -> dict[str, Any] | None:
         text = GAPS_NO_READINGS.format(g=g, n=requested, verb="has" if g == 1 else "have")
     else:
         text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
+    if note:
+        text += " · " + GAPS_NONE_DECLARED
     return {"text": text, "days": sorted(d.isoformat() for d in day_facts.gaps), "withheld": False}
 
 
@@ -472,7 +488,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     visits = maintenance_cases(reads, ports.work, c, end)  # C: 60 days by occurrence (R571)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
-    sales = _productive_sales(reads, ports, c, start, end)
+    # K10 v2 (R3t): the board day's productive use is declared absent (the chain read proved it from the setup).
+    decl = day_facts is not None and "productive_kwh" in (getattr(day_facts, "none_declared", {}).get(day) or ())
+    sales = _productive_sales(reads, ports, c, start, end, decl)
 
     # CH-5a2b R1 (§B14 Q3): the chip's placement facts for the board-day heads only; the labels' Action rows.
     day_ids = [str(h.revision_id) for h in heads or () if _meets(h, start, end)]
@@ -587,6 +605,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     if sales.get("headline") is not None and not (sales.get("zero") and headline[GROW] is not None):
         headline[GROW] = sales["headline"]
         headline_money[GROW] = sales.get("money")
+    if sales.get("none_declared") and headline[GROW] is None:  # K10 v2 (R3t): spare solar still leads; no money
+        headline[GROW] = GROW_NONE_HEADLINE
     subline = {GROW: sales.get("subline"),
                COST: f"Generator stayed on {num(avoidable)} {plural(num(avoidable), 'minute', 'minutes')} longer "
                      "than needed"
@@ -602,7 +622,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         rows=() if day_facts is None else day_facts.rows, objectives=objectives, readings=readings,
         opportunity=item, money_heads={} if lead_money is None or money_head is None else {lead_money[0]: money_head},
         lead_findings=_lead_findings(heads, lead_money),
-        price=sales.get("price"))
+        price=sales.get("price"),
+        # K10 v2 (R3t): measures declared absent on every node-window day (the mini node window is (day, day)).
+        none_declared=frozenset(m for m in DECLARED_SUBJECT_MEASURES if day_facts is not None
+                                and m in (getattr(day_facts, "none_declared", {}).get(day) or ())))
     readings = OutcomeEvaluator().readings(node_in)
     if objective_rows is None:
         plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
@@ -952,14 +975,19 @@ def _sales_line(text: str, chip: Any = None) -> Contributor:
     return Contributor("productive_sales", "Productive-use sales", text, chip)
 
 
-def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end: datetime) -> dict[str, Any]:
+def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end: datetime,
+                      decl: bool = False) -> dict[str, Any]:
     """WALK1-3 §4.4 table: the Grow headline, money, subline, MG-1 kWh and the two contributors for the board's UTC
     day `[start, end)`. The measured hours are those the readings cover; nothing is scaled to the whole day. A failed
-    port reads "Not available yet · this record could not be loaded" and makes the board PARTIAL (B-Q17)."""
+    port reads "Not available yet · this record could not be loaded" and makes the board PARTIAL (B-Q17).
+    K10 v2 (R3t): no users on a day the chain read proved declared absent (`decl`) states the zero (no chip, no
+    link, no subline); otherwise (e.g. a revision change inside the day) the conservative `SALES_NO_USERS`."""
     users = reads.call("productive_users", ports.productive_users, start)
     if users is None:
         return {"subline": None, "contributors": (_sales_line(NOT_LOADED),)}
     if not users:
+        if decl:
+            return {"subline": None, "contributors": (_sales_line(SALES_NONE_DECLARED),), "none_declared": True}
         return {"subline": GROW_SUBLINE, "contributors": (_sales_line(SALES_NO_USERS),)}
     return {**_measured_sales(reads, ports, c, start, end, users), "users": list(users)}
 

@@ -11,7 +11,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
 from collections import namedtuple
-from typing import Any, Mapping, Sequence
+from typing import Any, Collection, Mapping, Sequence
 from uuid import UUID
 
 from .grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
@@ -52,10 +52,29 @@ def _day_grade(grades: Sequence[str]) -> str:
     return NO_DATA
 
 
-def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures: Sequence[str]) -> GradeCounts:
+#: K10 v2 (R3t): ASSET measures whose subjects are a site-setup declaration; only these can be declared absent.
+DECLARED_SUBJECT_MEASURES = frozenset({"productive_kwh"})
+
+
+def applicable_measures(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str],
+                        none_declared: Collection[str] = ()) -> tuple[str, ...]:
+    """R3t: `measures` without each m in `none_declared` ∩ DECLARED_SUBJECT_MEASURES that has no row this day,
+    provided the day has a row of some other measure. A declared-absent measure is out of the day's grades; it is
+    never COMPLETE and never a gap."""
+    if not none_declared:
+        return tuple(measures)
+    drop = {m for m in none_declared
+            if m in DECLARED_SUBJECT_MEASURES and not per_measure.get(m)
+            and any(g for x, g in per_measure.items() if x != m)}
+    return tuple(m for m in measures if m not in drop)
+
+
+def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures: Sequence[str],
+            none_declared: Mapping[date, Collection[str]] | None = None) -> GradeCounts:
     by_day: dict[date, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     for r in rows:
         by_day[r.local_day][r.measure].append(r.grade)
+    declared = none_declared or {}
     tally = {COMPLETE: 0, PARTIAL: 0, LOW: 0, NO_DATA: 0, NOT_EXPECTED: 0, PENDING: 0}
     enough = 0
     requested = (to_day - from_day).days + 1
@@ -64,7 +83,7 @@ def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures:
         per_measure = by_day.get(day, {})
         not_expected_day = any(NOT_EXPECTED in g for g in per_measure.values())
         grades: list[str] = []
-        for m in measures:
+        for m in applicable_measures(per_measure, measures, declared.get(day, ())):
             # A requested measure with no stored row for the day has no data, unless the day is not expected
             # (CH-1a L2: the operating calendar is per Site, so a NOT_EXPECTED row covers the whole day).
             grades.extend(per_measure.get(m) or [NOT_EXPECTED if not_expected_day else NO_DATA])
@@ -91,16 +110,19 @@ def day_grade(grades: Sequence[str]) -> str:
     return _day_grade(grades)
 
 
-def counts(rows: Sequence[Any], from_day: date, to_day: date, measures: Sequence[str]) -> GradeCounts:
-    """CH-6a2 (pre-flight "day grade rule"): `_counts` under a public name for the OutcomeEvaluator; no rule change."""
-    return _counts(rows, from_day, to_day, measures)
+def counts(rows: Sequence[Any], from_day: date, to_day: date, measures: Sequence[str],
+           none_declared: Mapping[date, Collection[str]] | None = None) -> GradeCounts:
+    """CH-6a2 (pre-flight "day grade rule"): `_counts` under a public name for the OutcomeEvaluator; no rule change.
+    K10 v2 (R3t): `none_declared` passes through to the one rule."""
+    return _counts(rows, from_day, to_day, measures, none_declared)
 
 
 def grade_counts_of(facts: Any, measures: Sequence[str]) -> GradeCounts:
     """CH-5a2b (review L2): the `GradeCounts` of one `ChainRequest.day` result (`chain.read.DayFacts`: day -> measure
-    -> subject -> grade) over its requested days, by the one `_counts` rule."""
+    -> subject -> grade) over its requested days, by the one `_counts` rule (with the facts' R3t declared-absent
+    days, so the board and the counts cannot diverge)."""
     rows = [_DayRow(d, m, s, g) for d, per in facts.grades.items() for m, subj in per.items() for s, g in subj.items()]
-    return _counts(rows, facts.days[0], facts.days[-1], measures)
+    return _counts(rows, facts.days[0], facts.days[-1], measures, getattr(facts, "none_declared", {}))
 
 
 class SnapshotReader:
