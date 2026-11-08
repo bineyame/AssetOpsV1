@@ -1,0 +1,132 @@
+{
+ "app-1440-idle": {
+  "docOverflow": 0,
+  "panelWidth": 734,
+  "controls": 6,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)"
+  ],
+  "button": "Submit for review",
+  "result": [],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "app-1440-delivery-errors": {
+  "docOverflow": 0,
+  "panelWidth": 734,
+  "controls": 10,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)",
+   "Ticket reference"
+  ],
+  "button": "Submit for review",
+  "result": [],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "app-1440-delivery-saved": {
+  "docOverflow": 0,
+  "panelWidth": 734,
+  "controls": 9,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)",
+   "Ticket reference"
+  ],
+  "button": "Submit for review",
+  "result": [
+   "Saved as REC-042, status Submitted.",
+   "If this Site's tank level is measured, the night it falls in is checked again at the next background refresh."
+  ],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "app-390-idle": {
+  "docOverflow": 0,
+  "panelWidth": 358,
+  "controls": 6,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)"
+  ],
+  "button": "Submit for review",
+  "result": [],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "app-390-delivery-errors": {
+  "docOverflow": 0,
+  "panelWidth": 358,
+  "controls": 10,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)",
+   "Ticket reference"
+  ],
+  "button": "Submit for review",
+  "result": [],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "app-390-delivery-saved": {
+  "docOverflow": 0,
+  "panelWidth": 358,
+  "controls": 9,
+  "controlsOutsidePanel": [],
+  "labels": [
+   "Site",
+   "Reading",
+   "Value",
+   "Taken at (Site local time)",
+   "Ticket reference"
+  ],
+  "button": "Submit for review",
+  "result": [
+   "Saved as REC-042, status Submitted.",
+   "If this Site's tank level is measured, the night it falls in is checked again at the next background refresh."
+  ],
+  "byLabels": [
+   "Entered by site admin",
+   "Entered by site admin",
+   "service:w401-fixture"
+  ]
+ },
+ "mock-1440": {
+  "docOverflow": 0
+ },
+ "mock-390": {
+  "docOverflow": 0
+ }
+}

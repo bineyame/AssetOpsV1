@@ -477,8 +477,9 @@
   border-color: var(--badge-lifecycle-text);
 }
 
-.global-work-field-error {
+.global-work-form .global-work-field-error {
   font-size: 11px;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
