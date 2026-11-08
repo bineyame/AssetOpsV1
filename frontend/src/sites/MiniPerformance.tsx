@@ -980,6 +980,15 @@ export const feederName = (row: ServiceRow): string =>
       ? CLINIC_FEEDER_LABEL
       : `${row.load_label} feeder delivered power`;
 
+/** MOCK DEVIATION MD-KIS-K1-1 (combined pass 2026-11-08, K8 L2): a non-clinic critical feeder's bar label drops
+ *  "feeder delivered power" so it fits the bar-label column; v69's clinic words are kept. */
+export const barLabel = (row: ServiceRow): string =>
+  row.role !== "CRITICAL"
+    ? feederName(row)
+    : feederName(row) === CLINIC_FEEDER_LABEL
+      ? `${CLINIC_FEEDER_LABEL} · Critical load`
+      : `${row.load_label} · Critical load`;
+
 /** Ruling 2: the critical card's note names its own record and its own coverage; never the feeder's. */
 const CRITICAL_RECORD = "Critical-service delivered power record";
 function criticalNote(coverage: MiniCoverage | null | undefined): string {
@@ -1137,7 +1146,7 @@ function PowerPanel({ read }: { read: ServiceRead }) {
             ...read.rows.map((row) => ({
               key: row.asset_id,
               // Q3: red only beside the words `Critical load`, from the stored CRITICAL role; others keep the default series.
-              label: row.role === "CRITICAL" ? `${feederName(row)} · Critical load` : feederName(row),
+              label: barLabel(row),
               value: row.delivered_kw,
               valueText: kw(row.delivered_kw),
               tone: row.role === "CRITICAL" ? ("critical" as const) : undefined,

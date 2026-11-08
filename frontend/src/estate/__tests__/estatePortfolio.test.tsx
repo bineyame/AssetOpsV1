@@ -1023,7 +1023,9 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(tr).not.toBeNull();
     expect(text(tr)).toContain("$41.25–$57.75");
     expect(text(tr)).toContain("MonitorVerified; watch for a return");
-    expect(text(tr)).toContain("No action yetVerified");
+    expect(text(tr)).not.toContain("No action yet");
+    expect(text(tr.querySelectorAll("td")[5] as HTMLElement)).toBe("VerifiedReview finding");
+    expect(tr.querySelectorAll("[data-portfolio-workflow]").length).toBe(1);
     const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === href);
     expect(anchor?.textContent).toContain("Unexplained fuel overnight");
     // K8 coordinator ruling: the mechanism line names the recorded mechanism, never "Mechanism not recorded".
@@ -1032,6 +1034,23 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(tr)).not.toContain("Mechanism not recorded");
     const { violations } = scanProductVocabulary(tr, "portfolio fuel row");
     expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
+  it("MD-FUEL-K4-1: a fuel row with no thread keeps the no-action fallback", async () => {
+    const fid = "f8f8f8f8-0000-4000-8000-000000000008";
+    const fuel = row({
+      finding_id: fid,
+      finding_revision_id: "e8e8e8e8-0000-4000-8000-000000000008",
+      mechanism: "UNEXPLAINED_FUEL",
+      workflow_label: "No action agreed yet",
+      links: { site: "/sites/KOBO-001", finding: `/sites/KOBO-001/fuel-findings/${fid}`, action: null },
+      link_refs: { site: { kind: "SITE", site: "KOBO-001" }, finding: { kind: "FUEL_FINDING", site: "KOBO-001", id: fid }, action: null },
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [fuel] }))));
+    await settledScreen();
+    const tr = document.querySelector(`[data-portfolio-row^='f8f8f8f8']`) as HTMLElement;
+    expect(tr).not.toBeNull();
+    expect(text(tr)).toContain("No action yetNo action agreed yet");
   });
 
   it("namesOnePrioritySiteInTheSingular", async () => {

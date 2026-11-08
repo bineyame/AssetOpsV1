@@ -150,6 +150,8 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
     finding: linkFor(row.link_refs?.finding),
     action: linkFor(row.link_refs?.action),
   };
+  const fuelThread =
+    row.action_id === null && row.mechanism === "UNEXPLAINED_FUEL" && row.workflow_label !== "No action agreed yet";
   return (
     <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
       <td>
@@ -198,12 +200,17 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           <Link to={links.action} data-portfolio-action-link>
             <strong>{row.action_title}</strong>
           </Link>
+        ) : fuelThread ? (
+          // MOCK DEVIATION MD-FUEL-K4-1 (Architect combined pass 2026-11-08, K8 L1): v69 has no fuel row; a fuel Action has no Action page, so the column shows the fuel thread's state in bold.
+          <strong data-portfolio-workflow>{row.workflow_label}</strong>
         ) : (
           <strong>{row.action_id !== null ? row.action_title : "No action yet"}</strong>
         )}
-        <span className="workflow-text" data-portfolio-workflow>
-          {row.workflow_label}
-        </span>
+        {fuelThread ? null : (
+          <span className="workflow-text" data-portfolio-workflow>
+            {row.workflow_label}
+          </span>
+        )}
         {row.action_id === null ? (
           links.finding !== null ? (
             <small>

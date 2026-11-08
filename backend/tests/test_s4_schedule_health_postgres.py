@@ -29,7 +29,7 @@ if URL:
         DAY_A, DAY_B, FAST, InProcessRunner, block, by_site, deliver, import_site, jobs, kobo, make_tick, rows,
     )
 
-    from assetops_backend import recompute_consequences
+    from assetops_backend import read_scope, recompute_consequences
     from assetops_backend.analytics import assess_dispatch, assessment_worker, finding_service
     from assetops_backend.analytics.composition import build_postgres_assessment_store
     from assetops_backend.financials import recompute
@@ -289,7 +289,7 @@ class TestDatabaseTime:
             def now(cls, tz=None):
                 return datetime.now(tz) + SKEW
 
-        monkeypatch.setattr(assessment_worker, "datetime", Ahead)
+        monkeypatch.setattr(read_scope, "clock", lambda: datetime.now(UTC) + SKEW)
         monkeypatch.setattr(finding_service, "datetime", Ahead)
         monkeypatch.setattr(recompute, "datetime", Ahead)  # the worker's default clock (`_utc_now`) reads this
         assert assessment_worker.utc_now() > datetime.now(UTC) + SKEW - timedelta(minutes=1)  # the skew is live

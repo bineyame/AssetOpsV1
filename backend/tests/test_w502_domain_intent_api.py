@@ -47,13 +47,15 @@ class Api:
         app.include_router(build_domain_work_router(self.svc, WorkGate(scope, **kwargs), reads=self.reads))
         self.client = TestClient(app)
 
-    def post(self, suffix: str, body, code: str = COLD):
+    def post(self, suffix: str, body, code: str | None = None):
+        code = COLD if code is None else code
         url = BASE.format(code=code) + suffix
         if body is None:
             return self.client.post(url, content=b"not json", headers={"content-type": "application/json"})
         return self.client.post(url, json=body)
 
-    def get(self, path: str, code: str = COLD, **params):
+    def get(self, path: str, code: str | None = None, **params):
+        code = COLD if code is None else code
         return self.client.get(f"/api/sites/{code}/domain-work{path}", params=params)
 
     def close(self) -> None:
