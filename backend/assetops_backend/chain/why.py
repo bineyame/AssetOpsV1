@@ -21,7 +21,7 @@ from typing import Any, Mapping, Sequence
 from assetops_backend.chain import refs
 from assetops_backend.chain.grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
 from assetops_backend.chain.read import DayFacts, day_grade
-from assetops_backend.chain.vocabulary import MEASURE_LABEL, day_text, why, why_days
+from assetops_backend.chain.vocabulary import EXAMPLE_SOURCES, MEASURE_LABEL, day_text, why, why_days
 from assetops_backend.outcomes.catalogue import CATEGORIES, CATEGORY_LABEL, SITE_OUTCOMES
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import CONTRIBUTIONS, NODE_EARNINGS
@@ -122,6 +122,9 @@ def price_lines(earnings: Mapping[str, Any] | None) -> tuple[str | None, str | N
         fuel = (why("why.from.fuel_price_one", lo=lo, price=_plain(p["amount"]), cur=p.get("currency") or "")
                 if lo == hi else
                 why("why.from.fuel_price", lo=lo, hi=hi, price=_plain(p["amount"]), cur=p.get("currency") or ""))
+        # FUEL-1 A3-R G5: owner decision 3, the example tank explained; only on example data with idle time
+        if value.get("idle_seconds") and value.get("source_class") in EXAMPLE_SOURCES:
+            fuel = fuel + " · " + why("why.from.fuel_idle_example")
     return energy, fuel
 
 

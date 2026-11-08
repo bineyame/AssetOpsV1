@@ -12,6 +12,7 @@ from typing import Any
 
 from assetops_backend.chain import refs
 from assetops_backend.chain.vocabulary import days_line as node_days_line, node_text, provenance_suffix
+from assetops_backend.chain.vocabulary import money_text, price_text, trial_litres
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
@@ -58,6 +59,7 @@ REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
 #: POLISH §3.1 / Addendum 6 Q6: plain read-side copy (the stored `trial_fuel_comparison.LABEL` is unchanged).
 COST_PREFIX = "Estimated effect of the trial (not money saved): "
 COST_CHANGE = COST_PREFIX + "{amount} {currency} less supply cost per kWh."
+COST_PRICED = COST_PREFIX + "about {l} L less diesel in the trial hour, {amount} at {p} {cur} per litre."  # A3-R; MD-FUEL-A3-4
 COST_NO_CHANGE = COST_PREFIX + "no lower supply cost per kWh."
 COST_NOT_CALCULATED = "Modelled change not calculated: {words}"
 COST_NOT_YET = "Not calculated yet"
@@ -533,6 +535,11 @@ def cost_line(a: ActionFact) -> str | None:
     if cc.get("state") == "MODELLED_IMPROVEMENT":
         if a.verification_state != "VERIFIED":
             return COST_NOT_CREDITED
+        pt, p = cc.get("priced_total"), price_text(cc.get("price_per_litre"))
+        if pt and p is not None:  # FUEL-1 A3-R §3.5: keyed on the stored priced total (A2-R1: no sign check)
+            return COST_PRICED.format(l=trial_litres(pt["fuel_change_l"]),
+                                      amount=money_text(pt["amount"], None, pt.get("currency")), p=p,
+                                      cur=pt.get("currency") or "")
         return COST_CHANGE.format(amount=per_kwh_amount(cc), currency=cc.get("currency") or "")
     if cc.get("state") == "MODELLED_NO_IMPROVEMENT":
         return COST_NO_CHANGE

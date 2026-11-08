@@ -12,6 +12,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
+from fractions import Fraction
 from typing import Any
 
 from assetops_backend.chain import vocabulary as v
@@ -288,15 +289,39 @@ def _litres(value: Any) -> str:
     return text.rstrip("0").rstrip(".") if "." in text else text
 
 
+def idle_fuel(head: Any) -> dict[str, Any] | None:
+    """FUEL-1 A3-R Q2: the idle part of a fuel-cost-2 consequence on the money head: {"idle_seconds", "rate",
+    "basis", "litres_high", "idle_only"}; None for fuel-cost-1, no idle time (idle_seconds None or 0), or a
+    missing rate, multiplier or exact quantity. `idle_only` is exact: high_exact == multiplier x idle_h x rate."""
+    cons = ((getattr(head, "body", None) or {}).get("consequence")) or {}
+    model, q = cons.get("model") or {}, cons.get("quantity") or {}
+    # Only a fuel-cost-2 row's model block carries `idle_seconds` (`financials/consequence_read.py` dto, A1).
+    idle, rate, mult = model.get("idle_seconds"), model.get("no_load_fuel_rate_l_per_h"), model.get("sfc_upper_multiplier")
+    if model.get("model_id") != "fuel-cost-2" or not idle or rate is None or mult is None \
+            or q.get("high_exact") is None or q.get("high") is None:
+        return None
+    idle_part = Fraction(str(mult)) * Fraction(int(idle), 3600) * Fraction(str(rate))
+    return {"idle_seconds": int(idle), "rate": str(rate), "basis": model.get("no_load_fuel_rate_basis"),
+            "litres_high": _litres(q["high"]), "idle_only": Fraction(str(q["high_exact"])) == idle_part}
+
+
 def fuel_basis(head: Any) -> dict[str, Any] | None:
     """MG-2: the stored consequence's litres (`quantity` low/high, unit L) and its one declared fuel price
-    (`financials/consequence_read.py`). None (no line) when the body carries no price."""
+    (`financials/consequence_read.py`). None (no line) when the body carries no price. FUEL-1 A3-R G5: a fuel-cost-2
+    row with idle time also names its idle seconds, its stored basis and its example source class (else None)."""
     cons = ((getattr(head, "body", None) or {}).get("consequence")) or {}
     q, p = cons.get("quantity") or {}, cons.get("price") or {}
     if q.get("low") is None or q.get("high") is None or p.get("value") is None:
         return None
-    return {"litres_low": _litres(q["low"]), "litres_high": _litres(q["high"]),
-            "price": {"amount": str(p["value"]), "currency": p.get("currency")}}
+    out = {"litres_low": _litres(q["low"]), "litres_high": _litres(q["high"]),
+           "price": {"amount": str(p["value"]), "currency": p.get("currency")}}
+    idle = idle_fuel(head)
+    if idle is not None:
+        prov = getattr(head, "source_provenance", None)
+        src = prov.get("state") if isinstance(prov, Mapping) else None
+        out.update({"idle_seconds": idle["idle_seconds"], "no_load_basis": idle["basis"],
+                    "source_class": src if src in v.EXAMPLE_SOURCES else None})
+    return out
 
 
 def has_node(outcome_key: str, objectives: tuple[ObjectiveFact, ...]) -> bool:

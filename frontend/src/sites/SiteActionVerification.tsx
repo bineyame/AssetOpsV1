@@ -389,6 +389,11 @@ export function ActionVerification({
           }
         />
       ) : null}
+      {/* MOCK DEVIATION MD-FUEL-A3-1 (FUEL-1 A3-R G3): v69 `:498-505` shows no money on Verification; the trial's
+          modelled fuel value is shown with its basis, as the server's one line (the browser formats none). */}
+      {view === "verification" && outcome?.fuel_value ? (
+        <p data-verification-fuel-value>{outcome.fuel_value}</p>
+      ) : null}
       {/* CC-R1 / R500 (Q-C16, CC-R1-Q1): a VERIFIED or INEFFECTIVE displayed outcome is a verified technical result;
           POLISH PB-2 states it inside the status strip (above), which fixes the W1-F4 C2 leading-element failures. */}
       {view === "verification" ? (

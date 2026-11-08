@@ -243,3 +243,47 @@ class TestMigration0053:
             if head(engine) != alembic_head():
                 command.upgrade(config, "head")
         assert shape() == (cols_up, defs_up)
+
+
+# ---- FUEL-1 A3-R §5.4 (G4(b)): `no_load_history` returns the rate's basis read from the same revision ----------------
+
+@pytest.fixture()
+def rate_only_site(store, engine, capsys, monkeypatch):  # noqa: F811
+    """The PowerSite with the no-load rate declared but no basis property."""
+    import test_s4_finding_store_postgres as finding_cases
+
+    demo = copy.deepcopy(finding_cases.DEMO)
+    demo["component_properties"]["properties"] += copy.deepcopy(NO_LOAD[:1])
+    monkeypatch.setattr(finding_cases, "DEMO", demo)
+    s = PowerSite(store, engine, capsys)
+    yield s
+    s.prices.dispose()
+    s.store.dispose()
+
+
+def _histories(site, engine):  # noqa: F811
+    from datetime import datetime, timezone
+
+    from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
+
+    with engine.connect() as c:
+        gen = c.execute(text("SELECT id FROM asset WHERE site_id = :s AND asset_code = 'generator'"),
+                        {"s": site.site}).scalar_one()
+    actions = PostgresActionStore(URL)
+    lo, hi, k = (datetime(y, 1, 1, tzinfo=timezone.utc) for y in (2000, 2100, 2100))
+    try:
+        return (actions.no_load_history(site.tenant, site.site, gen, lo, hi, k),
+                actions.sfc_history(site.tenant, site.site, gen, lo, hi, k))
+    finally:
+        actions.dispose()
+
+
+class TestNoLoadBasisRead:
+    def test_rate_with_basis_reads_generic_default_and_sfc_is_unchanged(self, v2site, engine) -> None:  # noqa: F811
+        rates, sfc = _histories(v2site, engine)
+        assert rates and {(r.value_l_per_h, r.basis) for r in rates} == {(Decimal("3.3"), "GENERIC_DEFAULT")}
+        assert sfc and all(not hasattr(s, "basis") for s in sfc)
+
+    def test_rate_without_basis_reads_none(self, rate_only_site, engine) -> None:  # noqa: F811
+        rates, _ = _histories(rate_only_site, engine)
+        assert rates and {(r.value_l_per_h, r.basis) for r in rates} == {(Decimal("3.3"), None)}

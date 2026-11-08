@@ -25,6 +25,8 @@ from assetops_backend.actions import verification_rules as rules
 from assetops_backend.actions.lifecycle import APPLIED, RESOLUTION_WITHDRAWN, RESOLVED, SYSTEM_DEMO, latest_resolution
 from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.analytics.assessment_inputs import BRACKET
+from assetops_backend.chain.vocabulary import (  # FUEL-1 A3-R §3.6 (precedent `verification_families.py:41`)
+    FUEL_VALUE_PAGE, NO_LOAD_BASIS_WORDS, money_text, price_text, trial_litres)
 from assetops_backend.sites.binding_roles import VERIFICATION_POINT_ROLES, VERIFICATION_POWER_ROLES
 
 VERIFY = "VERIFY"
@@ -1160,7 +1162,26 @@ class VerificationService:
             body["superseded_by_outcome_id"] = superseded_by.get(str(chosen["id"]))
             if not body["is_latest_outcome"] or outcome_id is not None or recorded_at is not None:
                 body["historical_label"] = "Historical: an exact earlier outcome; the current state is separate."
+            fuel_value = self._fuel_value(tenant_id, site_id, chosen)
+            if fuel_value is not None:
+                body["fuel_value"] = fuel_value
         return body
+
+    def _fuel_value(self, tenant_id: UUID, site_id: UUID, chosen: dict[str, Any]) -> str | None:
+        """FUEL-1 A3-R G3: the trial page's money line (MOCK DEVIATION MD-FUEL-A3-1) from the chosen outcome's own
+        stored trial row; None unless that outcome is VERIFIED and the row has a priced total and a shown price."""
+        ports = self._ports().trial_comparison
+        if chosen.get("outcome") != "VERIFIED" or ports is None:
+            return None
+        row = ports.store.latest(tenant_id, site_id, UUID(str(chosen["id"])))
+        result = (row or {}).get("result") or {}
+        pt, p = result.get("priced_total"), price_text((result.get("price") or {}).get("value"))
+        if not pt or p is None:
+            return None
+        return FUEL_VALUE_PAGE.format(
+            l=trial_litres(pt["fuel_change_l"]), amount=money_text(pt["amount"], None, pt.get("currency")), p=p,
+            cur=pt.get("currency") or "",
+            basis=NO_LOAD_BASIS_WORDS.get((result.get("no_load") or {}).get("basis"), NO_LOAD_BASIS_WORDS[None]))
 
     def history(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID) -> dict[str, Any]:
         if self.store.action(tenant_id, site_id, action_id) is None:
@@ -1208,6 +1229,8 @@ class VerificationService:
                     "upper": change.get("upper"), "currency": price.get("currency"),
                     "recorded_at": _wire(row["recorded_at"]),
                     "priced_total": (row["result"] or {}).get("priced_total")}
+            if cost["priced_total"] is not None:  # FUEL-1 A3-R G2: the stored shared price, never amount / litres
+                cost["price_per_litre"] = price.get("value")
         outcome = next((o for o in self.store.outcomes(tenant_id, site_id, action_id)
                         if str(o["id"]) == str(outcome_id)), None)
         seconds: dict[str, int | None] = {"BASELINE": None, "LATER": None}
