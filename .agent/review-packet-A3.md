@@ -1,7 +1,7 @@
 # Review packet: FUEL-1 A3, idle fuel on Kobo's screens and story
 
 - Card: `.agent/build-sheet-FUEL-1.md` **A3-R** (replaces §4.3's build detail; main `0c4aa7310`). Branch `task/FUEL-A3-kobo-idle-fuel`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-a3`. Cut from `b70be217b`; `git merge main` (fast-forward to `0c4aa7310`) before the build. No rebase.
-- Build commit `58b09582c`. **Scratch prepare (§6) NOT run**: held at the coordinator's one-heavy-job gate. Its reads (§6 items 1-5) and the RAM samples are owed and will be appended here.
+- Build commit `58b09582c`, fix round `3b4136321`. Scratch prepare (§6) run on `3b4136321`; results in "Scratch prepare (§6)" below.
 - `USER_REVIEW_REQUIRED`: screen-wording change; joins the post-W6 owner walkthrough (A3-R §8), no separate walkthrough.
 
 ## Outcome delivered
@@ -52,7 +52,7 @@
 - §3.9 finish rows: written with L0 pass/fail self-tests; run at §6 / E3. Deviations D3, D4.
 - §4 files: met, plus D1 (test file placement).
 - §5 tests and must-fail proofs: met (below).
-- §6 scratch prepare: **not run (gate)**.
+- §6 scratch prepare: **run 2026-11-08, results below**. S-c not hit on the stored rows; two reads are not measurable in the Kobo-only scratch.
 - §7 stops: none hit so far. S-c and S-f can only be judged at §6.
 
 ## Must-fail proofs (each on the committed build, reverted with `git checkout --`, tree clean after)
@@ -91,6 +91,25 @@
 - Every Kobo Finding becomes fuel-cost-2 once declared (A1 selection). WK-2a's 42.08 must still hold at §6 (no 0 kW reading inside its Candidate time).
 - The Foundation display name "Generator no-load fuel rate" (backlog item, A3-R §8): grep of `frontend/src` finds no screen that renders a component property's `display_name`; the Foundation views render asset and component names only. Not changed.
 - Template fingerprint goes stale (writer changed); rebuild owed at E2 (MB-1a-R2 §5).
+
+## Scratch prepare (§6), run 2026-11-08 on `3b4136321`
+
+- Command: `demo_combined.py --db assetops_demo3_fuela3_test --work var/demo3_fuela3 prepare --sites kobo --cap-seconds 3600`, exit 0, "Prepared in 3021.8 s (cap 3600 s)"; wall 50 min 22 s. No stall.
+- Gate: keep-awake was not running; started (pid 23744, no `-ExecutionPolicy`). Free RAM, 5 samples over 2 min: 3.70, 3.75, 3.72, 2.76, 3.50 GB (all above 2.5). During the run, sampled every 60 s: lowest free RAM 2.46 GB (S-f not hit). The prepare's peak working set was not sampled.
+- The tool's self-check (`check.json`) is not produced for a Kobo-only prepare; the rows below were called directly against the scratch DB and the tree's `lab_app` (read-only). The prebuild line reports `FAILED` for EV-LAB boards (non-200), expected for a Kobo-only install.
+- **Stored rows (SQL)**, S-14 (23 Oct), S-7 (30 Oct), S (6 Nov): each `fuel-cost-2`, `PRICED`, `idle_seconds` 12000, rate 3.3 L/h `GENERIC_DEFAULT`, multiplier 1.10, `quantity_low` 0, `quantity_high` 12.1 (exact 121/10), `amount_low` 0, `amount_high` 15.125 USD, price 1.25. Expected 12000 per morning: met, **S-c not hit**. (Raw revision rows per day 4, 4, 3.)
+- **Steady days**: 0 fuel rows (29 Oct, 31 Oct, 1 Nov and every steady-before day); board Optimize cost "No fuel cost estimated for this day", no money, no idle line. Unchanged.
+- **Trial**: `/2` `MODELLED_IMPROVEMENT`, baseline idle 3600 s, later 0, `fuel_change_l` 3.3, `priced_total.amount` 4.125 (shown 4.12), `price_per_litre` 1.25, per-demand 0.275 kWh, `no_load.basis` `GENERIC_DEFAULT`. All as expected; SP-6 (`PROBE_CHOSEN`) and A3-PAGE pass.
+- **Rendered lines**:
+  - S-14 and S-7 Optimize cost headline: "possible extra fuel cost on this day: generator on for 200 minutes delivering no power, up to about 12.1 L · counted at a generic idle fuel rate of 3.3 L/h, not measured"; money 0.00 to 15.13 USD (stored 15.125); subline "Generator stayed on 200 minutes longer than needed · Before the change on 7 Nov · after the change: not judged yet, no fully checked day since 7 Nov".
+  - Trial (boards of 6, 7, 8 Nov): Optimize earlier item "Estimated effect of the trial (not money saved): about 3.3 L less diesel in the trial hour, 4.12 USD at 1.25 USD per litre."; Assure contributor "ACT-001 verified on example data: estimated effect of the trial (not money saved): about 3.3 L less diesel in the trial hour, 4.12 USD at 1.25 USD per litre"; verified value "ACT-001: about 3.3 L, 4.12 USD less diesel in the one-hour trial (modelled, not metered)".
+  - Verification page `fuel_value`: "About 3.3 L less diesel in the trial hour, about 4.12 USD at 1.25 USD per litre · modelled from a generic idle fuel rate, not measured by a fuel meter" (equals `FUEL_VALUE_PAGE` from the stored row).
+  - "Why?" (S-7, Optimize cost): "Generator may have been on longer than needed, seen 2 times since 23 Oct" and "0-12.1 L x 1.25 USD/L · The example data's fuel tank does not count fuel while the generator idles; this estimate does, at the declared idle fuel rate, so the two differ".
+- **O16 `fuel_rows_ok` over the stored rows**: pass (11 rows: S-14 4, S-7 4, S+0 3; PRICED, low 0, high above 0, none on a steady day).
+- **MONEY-B**: passes for the steady days, S-14 and S-7 (12000, exact, amount = upper litres x price, headline equals `COST_IDLE`, money equals stored display). **Fails at S (6 Nov)**: the board shows "No fuel cost estimated for this day" and no money, because 6 Nov has no checked readings in this scratch (gap list 27 Oct, 31 Oct, 1-6 Nov; "No readings on 6 Nov"; outcome reason `PRODUCER_NOT_SETTLED`), although the stored S row is correct. Not S-c. To be read at E3 on the full prepare.
+- **Not measurable here**: WK-2a 42.08 (S-1 = 5 Nov has no checked readings; Grow row reads "Not known yet · No readings on 5 Nov") and CH5D1-O1 (S Optimize card "Not known yet", same cause). Owed to E3. Nothing in A3 touches the Grow row.
+- Observation: board money 15.13 from stored 15.125 (upper bound) while the trial 4.125 shows 4.12 (PV-1 half-even); both are existing helpers.
+- Afterwards: `drop` ran: "dropped database assetops_demo3_fuela3_test", "removed ...\var\demo3_fuela3".
 
 ## User-review focus
 
