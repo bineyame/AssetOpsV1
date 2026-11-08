@@ -608,3 +608,138 @@ Keep-awake runs through every E-step. Nothing in this schedule touches any other
    morning walkthrough is possible too.
 2. **Which days are the 16–20 Nov demos, when you know them?** If they fit inside 4 consecutive days, one build (E3 on
    the eve of the first demo) covers them all. Otherwise we use the two builds above.
+
+---
+
+## Part E. Ruling on the K8c capture findings
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only on code, main `f04f875d5` (product code equal
+to `b0663c1eb`). Inputs: the "K8c capture phase" section of `.agent/review-packet-K8.md` on `task/DIESEL-K8c-captures`
+(`e5380b6c4`), its `.agent/K8c-captures/` folder (captures.json, all26/audit.json, the PNGs), build sheet §9p.9 (b),
+Parts A.5, C and D above, and the r3u work folder `AssetOpsV1-k10\var\demo3_r3u`. Rule: demo-critical scope only.
+
+### E.1 Root cause: the K8c serve could not see the build's evidence store
+
+Most of the reported symptoms have one cause, and it is in the capture setup, not in the product.
+
+- The comparison reports that open the Performance gate are files under `REPO_ROOT/var/evidence/migration-performance`
+  (`backend/assetops_backend/evidence/composition.py:112-116`; `REPO_ROOT` is the code checkout,
+  `evidence/adapters/json_evidence_store.py:53-57`).
+- A prepare writes them into its own code tree, `<work>/tree/var/evidence` (`tools/demo_combined.py:16`, `git archive`
+  into `<work>/tree`). The r3u tree holds them, and the newest Kobo and Kisiwa reports are `PASSED` and stamped for
+  `postgresql://127.0.0.1:55432/assetops_k9_audit_r3u`
+  (`tree/var/evidence/migration-performance/{kobo-001,kisiwa-001}/20261108T1450*.json`).
+- `demo_combined.py serve` runs uvicorn with `cwd=<work>/tree/host` and the tree's code (`tools/demo_combined.py:815-822`),
+  so it finds them. K8c served `uvicorn lab_app:app` from the main checkout, whose `var/evidence` has no report for
+  this clone.
+- With no report the gate is closed (`analytics/performance_comparison.py:223-224`); for a Site with an empty-legacy
+  basis only the reason text changes (`:191-216`). The Finding index and the Overview both use this gate
+  (`backend/assetops_backend/main.py:404-414`, `:565-570`).
+
+Proof it was the serve, not the data: on the same clone, `finish check` (run from the tree) passed **KIS-OV** with
+Overview 200 at S−5d and S, `performance_report` PASSED/empty-set and both boards AVAILABLE
+(`demo3_r3u/check-r3v-rows.json`, row KIS-OV). The K8c captures themselves name the cause: the Kobo Finding page reads
+"Reason given: No Performance comparison report exists for this Site"
+(`all26/partC-findings-financials/finding-notfound-1440-app.png`), and the Kobo story-day board reads "Awaiting
+evidence migration" in all five panels (`all26/partA-site-model/mini-kobo-story-1440-app.png`).
+
+**Consequence.** Every gate-dependent page in the K8c all-26 set shows a closed-gate state, not the demo state. That
+includes the Kobo board on S, the Kobo Finding, Finding Evidence and Recommendation pages, Dispatch, and the Kisiwa
+board. The "8 match, 16 taller" counts are therefore not evidence about the demo screens. The four-Site estate pages,
+Sites list, navigation, K5 fuel nights, K5 fuel Finding, K6b verdict and K4b Protect line read persisted stores. They
+show the expected content (the fuel row, "Verified", the 95.7–144.3 L line) and stand.
+
+### E.2 Each finding, ruled
+
+| # | Finding | Ruling | Evidence |
+|---|---|---|---|
+| 1 | Kisiwa board: `/finding-index?…mini-grid-dispatch` 409 twice | **Covered by E4.** It is the closed gate of E.1, not a Kisiwa defect. The demo build is served by `demo_combined.py serve` from its tree, and E4's `finish check` re-proves KIS-OV (Overview 200, boards AVAILABLE, report PASSED) on that build. K8c-r (E.3) re-proves it tonight. | E.1; `captures.json` kisiwa-board `badApi`; KIS-OV in `check-r3v-rows.json` |
+| 1b | The board's default date is today (8 Nov, after S) | **After the demo.** With the gate open, a day after S has no readings and the page says so ("0 readings on this day"). The demo uses dated links from `demo_combined.py … links` (`tools/demo_combined.py:794-805`), never the bare Site link. DS-1a's presenter checklist must use those links. After-demo item: open a Site board on the latest data day when today has none. | capture text, kisiwa-board |
+| 2 | Kobo legacy `/api/sites/KOBO-001/findings` and `/evidence` 409 `AWAITING_EVIDENCE_MIGRATION` | **Covered by E4.** Same cause: the serve read the main checkout's file-backed store, not the tree's `var/evidence/migration`. | E.1; `tree/var/evidence/migration/kobo-001/*.json` |
+| 3 | Portfolio outcome summary "Loading…" / "Not known yet" for about 1–2 min | **Covered by E4 and D.3:** `prewarm` in E4, and E4-lite (serve, one tick, `finish check`, `prewarm`) on the morning of 10 Nov. Add one line to DS-1a's presenter checklist: open the Portfolio once after the prewarm, before the client joins. | Part C E4; D.3 point 2 |
+| 4 | Portfolio coverage: Kisiwa "0 of 7 days checked", Kobo "2 of 7", badge "Some Sites cannot be compared yet" | **Accepted; it will appear on 10 Nov.** It is the data and the ruled design, not a stale-clone effect, so ticks and prewarm do not change it. (a) Kobo's sparse story days leave named gaps, and **CO-6** asserts that the Portfolio status is `PARTIAL` or `UNKNOWN`, never `CURRENT` (`tools/demo_combined_finish.py:455-491`). The status precedence that gives `UNKNOWN` is `estate/portfolio.py:821-831`, and its badge is `estate/portfolioWords.ts:98-99`. (b) Kisiwa's story-week days are NO_DATA because `avoidable_gen_min` has no data there, and the node days line counts only COMPLETE days and does not print NO_DATA (`chain/vocabulary.py:383-399`). R3v ruled this the honest side ("never COMPLETE"; build sheet §9v, line 6191). On the demo build (S = 7 Nov, week 1–7 Nov), 7 Nov grades PARTIAL, so Kisiwa will read about "0 of 7 days checked · 1 partly checked". **No fix.** DS-1a ST-1 already makes coverage a beat ("n of 7 days checked"). The presenter line: "The Portfolio says which days it could check. Kisiwa's fuel story is judged night by night on its own page, not by these daily objectives." | as cited |
+| 5 | `finding:notfound` (zero UUID) shows full Finding panels | **Not a defect.** The designed not-found state is the four panels with a "Finding not found" notice (W1-F5b `part08-finding/finding-notfound-1440-app.png`). K8c shows the closed-gate notice instead because of E.1. K8c-r confirms it. | both PNGs |
+| F1 | `health` for COLD-LAB-001 and EV-LAB-001: one panel against two | **Capture mapping error, not a product failure.** The audit compared Cold and EV with `#/health` (mini-grid). v69 has its own `cold-health` and `ev-health` screens (`frontend/mockups/v69/screen-manifest.json`), and both end at "Condition and evidence" (`frontend/src/shell/SiteHealthFrames.tsx:95`, `:103`; rulings R22 and R60 withdrawn). Fixed in K8c-r: map these two cases to `#/cold-health` and `#/ev-health`. | `all26/audit.json` health rows |
+| F2 | `asset` refusal (unknown asset on KOBO-002): "No such site" against three panels | **Accepted as an expected refusal state** (KOBO-002 does not exist; `frontend/src/shell/SiteAnalyticsFrames.tsx:188`). Not in the demo path. K8c-r labels it "refusal state, no mock" in the index note; nothing else changes. | `all26/audit.json` asset refusal rows |
+
+**R-1 is not extended.** None of these findings is a product change. R-1 keeps its approved file list (§A.5). **No
+separate product round before E3 is needed.**
+
+### E.3 K8c-r: a capture retake on the K8c branch, tonight (about 0.1 unit, Sonnet, one heavy job)
+
+Why it is demo-critical: DS-1a drafts quote "What you see" from these captures (§B.3: Kobo board on S, the Kobo
+Finding, ACT-001 verification, the Kisiwa board on S−5d and S). The present files would put "Awaiting evidence
+migration" into the draft. And §9p.9 (b)'s purpose, finding a four-Site layout problem before E3, is not met for any
+gate-dependent page. E5 is too late for a layout fix before the walkthrough.
+
+Spec (the builder follows it exactly; anything else is a stop):
+
+1. **Timing.** Run as the one heavy job, never while R-1's T6/T7 DB tests run. The coordinator schedules it either
+   before or after them tonight.
+2. **Environment.** Use the K8c worktree `C:\Users\assef\Bineyame\AssetOpsV1-k8c` (main code plus capture commits; no
+   product file changes).
+   - If `var\evidence` or `var\sites` exist, rename them to `var\evidence.k8c-aside` and `var\sites.k8c-aside`.
+   - **Copy** (never link) `AssetOpsV1-k10\var\demo3_r3u\tree\var\evidence` and `…\tree\var\sites` into the worktree's
+     `var\`.
+3. **Serve.** Run `uvicorn lab_app:app` from the worktree's `host\`, with no tick loop, the same cursor keys
+   (`demo3_r3u\keys.json`), and a database URL whose host, port and name give exactly
+   `postgresql://127.0.0.1:55432/assetops_k9_audit_r3u` (host `127.0.0.1`, not `localhost`). Add the vite dev server
+   from the worktree's `frontend\`, as before.
+4. **Probe, before any capture** (S = 6 Nov, S−5d = 1 Nov on this clone):
+   - (a) `GET /api/sites/KISIWA-001/finding-index?domain=mini-grid-dispatch&from=2026-11-01T00:00:00Z&to=2026-11-02T00:00:00Z&limit=2`
+     answers 200;
+   - (b) `/sites/KOBO-001?date=2026-11-06` shows neither "Awaiting evidence migration" nor "not released";
+   - (c) the Kobo Finding page `b824c41c-…?revision_id=830285fe-…` does not contain "not released".
+   - If any probe fails: **stop** after at most 15 min of checking the setup (URL string, copied folders), and report.
+     Do not debug product code. DS-1 then uses placeholders for these pages, and E5 supplies them.
+5. **Retake.**
+   - The full all-26 set by the same script and case list, replacing the 84 pairs in place (same names), with F1's
+     mock mapping fixed (`cold` → `#/cold-health`, `ev` → `#/ev-health`).
+   - The Kisiwa board at `?date=2026-11-01` and `?date=2026-11-06`, at 1440 and 390 (`kisiwa-board-s5d`,
+     `kisiwa-board-s`). Delete the old `kisiwa-board` pair.
+   - Regenerate `all26/index.html` and `audit.json` with `tools/w1-fidelity-audit-index.mjs`.
+   - Do not retake the four-Site estate, Sites, navigation, K4b, K5 or K6b captures (they stand, E.1).
+6. **Clean up.** Stop the servers by PID. Delete the copied `var\evidence` and `var\sites`, and restore any aside
+   folders. The clone and the r3u work folder are only read.
+7. **Packet.** Append "K8c-r" to the K8c section:
+   - the probe results;
+   - the new counts (match / taller / failing);
+   - one line stating that the first all-26 pass was served without the build's evidence store (gate closed) and is
+     replaced;
+   - F2 labelled as a refusal state;
+   - any **new** panel-count or overflow failure, reported and not edited.
+
+   A new layout failure on a DS-1 page comes back to me. Other new failures go to the after-demo list.
+
+### E.4 The two indexes, and merging K8c
+
+- **The 84-pair clone index sits beside the 168-pair fixture index; it does not replace it.**
+  - The fixture index (W1-F5b, `.agent/W1-F5b-evidence/`) is the only proof of the empty, stale, failed and held states.
+    That data does not exist on a prepared build.
+  - The clone index is the only proof of the live four-Site states.
+  - The counts are not comparable and are never summed. Both stay, under their own folders, and each index page says
+    which data it was taken from.
+  - E5's strict captures on the demo build supersede the clone index for DS-1. They do not supersede the fixture index.
+- **K8c merges after K8c-r, not now.**
+  - Order: K8c-r commit on `task/DIESEL-K8c-captures` → coordinator capture check (the probe results are in the packet;
+    the Kobo board and Kisiwa board PNGs show the open-gate content; overflow 0) → merge per §9p.9.
+  - No review is needed beyond the coordinator check: the branch has captures and packet text only.
+  - If the K8c-r probe fails, K8c still merges with the first set, which the packet then labels "gate closed, not
+    demo screens". DS-1 must not quote from those files.
+- **DS-1 need not wait.** DS-1a/b may start now from the K8c branch folder for the pages that stand (Sites, navigation,
+  Portfolio, estate Findings, K4b, K5, K6b). They take the Kobo and Kisiwa-board pages from K8c-r when it lands.
+  Part D's schedule otherwise stands.
+
+### E.5 After-the-demo list (adds)
+
+- Site board default date: when today has no readings, open on the latest data day (E.2 1b).
+- A capture helper that serves main's code against a prepared tree's evidence store without hand-copying (the cause of
+  E.1). It belongs with the "DB-name stamp" item already on the list (R3t4/R3v).
+
+### E.6 Owner question
+
+None blocking. For information: on 10 Nov the Portfolio will show "Some Sites cannot be compared yet", with Kisiwa at
+"0 of 7 days checked" (about "· 1 partly checked") and Kobo with named unchecked days. This is truthful and ruled
+(CO-6, R3v). DS-1a gives the presenter a line for it. If the owner prefers that the client not see this badge on the
+opening screen, the only demo-safe change is in the script: open on the Sites list and come to the Portfolio second.
+No product change is proposed before the demo.
