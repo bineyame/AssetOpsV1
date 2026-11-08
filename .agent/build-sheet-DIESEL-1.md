@@ -6170,3 +6170,123 @@ def site_never_declared(revisions: Sequence[tuple[datetime, datetime | None, boo
 - **Tripwire:** if, at the start of step 3, the projected path is over 10.0, the coordinator asks the owner, in plain language: "Kisiwa's fix is proven but the final full check would end slightly past the agreed time; run it in full (a little late) or check only the affected rows now and the rest on demo day?" Otherwise, no owner question.
 
 **Plan HTML (coordinator):** "DIESEL-1-R3t4: K10-s1 (Kobo pre-mill days got the 'none declared' note) → declared absent only on a Site with no productive revision known at k, any validity (site_never_declared gate + R3t3 per-day coverage); Kisiwa unchanged (K10-s5 if not); KIS-7 item 3 compares via product money2 (K9 file); step 3 uses performance_migration run on the clone, restamping withdrawn, DB-name stamp to after-demo list; +0.10 on K10, path ~9.72–10.02 after cuts 5–6; owner question only if >10.0 at step 3."
+
+## 9v. Ruling DIESEL-1-R3v — step-3 failures CO-2 and F-COH (COH-18 Kisiwa month)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only. Code read on `task/DIESEL-int-r3u` (`AssetOpsV1-int`, d5582fe61 = K9 18b3eac00 + K10 51c037445 + K6c 96b27e26d). Evidence: `.agent/r3u-step3-results.md` (int branch), the F-COH bundle `AssetOpsV1-k10/var/demo3_r3u/dd1b2-coh-flv026yn` (31 `chain_day.KISIWA-001.*` bodies, `chain_estate.{month,week,S}.json`), `check.json` and `check-rehearsal.json`. No suites, no DB writes; no DB read was needed.
+
+### 9v.1 CO-2: environmental. Confirmed
+
+- The row asserts `overview.freshness.state == "CURRENT"` (`tools/demo_combined_finish.py:253-256`). Freshness compares the schedule heartbeat with the wall clock (300 s limit).
+- The clone has no ticks, and the check ran about 1 h 40 min after the last tick (heartbeat age 6119 s). The same row passed in the rehearsal (`check-rehearsal.json` CO-2: overview CURRENT, index CURRENT), where the self-check runs straight after the prepare's ticks.
+- No K9, K10 or K6c code is on this path. **Not a defect; no fix.** It fails on any later read of this clone, so it is left out of the re-check (§9v.4). The demo-day prepare's own self-check covers it.
+
+### 9v.2 F-COH (COH-18 R1 and R2): cause found. K10 applies declared-absent in the counts but not in the per-day chain body
+
+**The two sides.**
+- **Counts side (applies the rule).** The chain's Site `days` come from `grade_counts_of(facts, measures)` → `_counts(..., facts.none_declared)` (`backend/assetops_backend/chain/reader.py:142-147`, `:94-127`), which grades each day over `applicable_measures` (`reader.py:81-91`). `ChainRequest.day` fills `DayFacts.none_declared` (`chain/read.py:357-361`, `:363-380`).
+- **Per-day body side (ignores it).** The `/api/sites/{code}/chain` route builds `days` with `site_chain.days_of(p["facts"], …)` (`backend/assetops_backend/chain_api.py:221`). `days_of` calls `day_grade(per, measures)` **without** `none_declared` (`backend/assetops_backend/chain/site_chain.py:32-41`, the call at `:39`), so `productive_kwh` with no row is still graded NO_DATA and drags the day to NO_DATA.
+- COH-18 R1 compares these two (`tools/checks/chain_coherence.py:1664-1688`, the day grades from `_site_day_grades` `:1602-1613`). R3t §9t.3 item 2 listed `_day_grades`, `readiness_of`, `day_grade`, `day_settled` and `day_gaps` as the places that take `none_declared`, but not their **callers outside `chain/read.py`**. `days_of` is one such caller, and it was missed. K10's test 7 checked the pair `grade_counts_of` = `_counts`, not the pair COH-18 checks (the chain body's day grades = `grade_counts_of`).
+
+**The 3 days, from the bundle.** Recomputing each Kisiwa `chain_day` entry's grade over its own `measures` map without `productive_kwh` gives PARTIAL on exactly **2026-10-28, 2026-10-29 and 2026-11-07**. All three have every other measure PARTIAL or COMPLETE and `productive_kwh` NO_DATA. All other 28 days stay NO_DATA because another applicable measure is NO_DATA (for example 10-30 to 11-06: `avoidable_gen_min` NO_DATA). That is exactly the chain's `partial 3, no_data 28`.
+
+**R2 is the same 3 days.** R2's "Sites summed" side is built from the same per-day bodies (`chain_coherence.py:1674-1679`, `:1694`), so Kisiwa contributes partial 0 / no_data 31 there, while the claim carries the chain's partial 3 / no_data 28. 11 = 8 (Kobo) + 3, and 70 = 67 + 3. R2 has no separate cause. The week (10-31…11-06) and S (11-06) windows hold none of the 3 days, which is why only the month failed.
+
+**Not K9 and not K6c.** K9 changed the check tool's sum pairs (UF1), not COH-18. K6c changed the Assure headline and the summary's verified count, not day grades. The defect is K10's.
+
+### 9v.3 Which side is honest: PARTIAL, on both sides (the counts side is right; the per-day body is wrong)
+
+- Owner, verbatim: "The component contributor being non existent doesn't mean it is checked." Then, on the R3t question "Its days then count only for what Kisiwa actually has: generator, fuel, service and solar … A day only counts if the site setup really says 'none'": "Build it (Recommended)".
+- So a day with declared-absent productive use and its other measures PARTIAL grades **PARTIAL**, everywhere. PARTIAL is not "checked": it is never COMPLETE, never in `enough_data_days`, and readiness stays LIMITED. Productive use is not graded at all on that day, and the screen says "not assessed … (0 kWh)".
+- NO_DATA would be the dishonest side here. It contradicts the board, which settles d1 (2026-10-28) and prices it (KIS-7 item 3, passing), and it files a declared fact as missing data, which R3t §9t.1 rejected.
+- A declared-absent day whose other measures include NO_DATA stays NO_DATA (the 28 days). That is unchanged and correct.
+
+### 9v.4 The fix (owner: K10, on `task/DIESEL-K10-declared-absent`)
+
+**1. `backend/assetops_backend/chain/site_chain.py` `days_of` (`:32-41`).** Grade the day by the one rule, and state the left-out measure on the day entry.
+```python
+def days_of(facts: DayFacts, measures: Sequence[str]) -> list[dict[str, Any]]:
+    """... R3v: the day grade is over the day's applicable measures (`facts.none_declared`, the rule `_counts` uses),
+    so a chain body's day grades always sum to the chain's Site `days` (COH-18 R1)."""
+    declared = getattr(facts, "none_declared", None) or {}
+    out = []
+    for d in facts.days:
+        per = {m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures}
+        per = {m: g for m, g in per.items() if g}
+        nd = declared.get(d, ())
+        entry = {"day": d.isoformat(), "grade": day_grade(per, measures, none_declared=nd),
+                 "measures": {m: day_grade(per, [m]) for m in measures}}
+        left_out = [m for m in measures if m not in applicable_measures(per, measures, nd)]
+        if left_out:
+            entry["none_declared"] = left_out   # R3v: stated, never silently dropped; only when non-empty
+        out.append(entry)
+    return out
+```
+- Import `applicable_measures` from `chain/reader.py`. No new rule: `day_grade` and `applicable_measures` are the existing shared functions.
+- The `measures` map is unchanged. `productive_kwh` keeps its own grade, NO_DATA, which is true (there is no reading). The new `none_declared` key says why it is not in the day grade. Together: no reading, declared absent, not assessed.
+- The key appears only when a measure was actually left out (a row wins; a day with no other row is never left out). So Kobo, Cold and EV bodies are byte-identical, and no frontend reads `days` (`frontend/src/sites/chainClient.ts` has no `measures` or `grade` reader). MOCK DEVIATION: none; this is wire-only, with no screen text.
+
+**2. Not changed, on purpose.**
+- `chain/why.py:136-138` `day_grades` (the "Why" trace's days line) also calls `day_grade` without `none_declared`. It is conservative: it can only call a declared-absent day "not available", never checked. No check compares it, it is not on a demo beat, and the R3t "other measure" condition would need the trace's measure subset rather than the Site's. **After-demo list**, not this fix.
+- `chain_api.py`, `reader.py`, `read.py`, the board and the check tool: no change.
+
+**3. Tests (targeted only).** Add to `backend/tests/test_k10_declared_none_rule.py`:
+1. **The COH-18 identity (the test that would have caught this).** For a Kisiwa-shaped `DayFacts` over the 31 days with `none_declared` on the day-rows days (shapes of 10-28, 10-29, 11-07, 10-30 and a no-row day), the tally of `days_of(facts, measures)` grades (complete, partial, low, no_data, not_expected, pending) equals `grade_counts_of(facts, measures)` field by field. Expect partial 3. Non-vacuity: with `days_of` called the old way (no `none_declared`), the test fails.
+2. The same identity on Kobo-, Cold- and EV-shaped facts with `none_declared` empty. The `days_of` output equals the pre-R3v output byte for byte (no `none_declared` key on any entry).
+3. Day entry shape: on the 10-28 shape the grade is PARTIAL, `measures.productive_kwh` is NO_DATA, and `none_declared == ["productive_kwh"]`. On the 10-30 shape the grade stays NO_DATA and the key is present. On a no-row day the grade is NO_DATA and the key is absent. A day with a `productive_kwh` row has no key.
+4. Re-run the three K10 test files, `test_ch5a1_reader.py` (it calls `days_of`) and `tools/checks/test_chain_coherence.py`. No full suite.
+
+**Review:** a fresh Sonnet reviewer, named items only (the `days_of` diff and the three tests), folded into the K10 phase-2 review record.
+
+### 9v.5 Re-check: targeted COH-18 and Kisiwa rows on the same clone. Sound; no full 22-minute run
+
+**Why a targeted run is sound.**
+- The fix changes one function, `site_chain.days_of`, which only the `/api/sites/{code}/chain` route calls (`chain_api.py:221`). Every other body is built by code that is unchanged.
+- `code_version` changes, so every body recomposes. But the clone's facts do not move (no ticks), and the composition is deterministic over the same rows, so the other bodies equal those that passed at d5582fe61.
+- The 48 passing rows were run on this clone with code that differs only in this function. The demo-day prepare's own self-check runs all rows again anyway.
+
+**Steps (the runner is the K10 builder, one context):**
+1. Commit the fix and tests on K10. Re-merge K10 into `task/DIESEL-int-r3u` (ort, as before). The diff of int against d5582fe61 must be `site_chain.py` and the test file only.
+2. Use the same clone `assetops_k9_audit_r3u` and work folder `AssetOpsV1-k10/var/demo3_r3u`, cwd `int/backend/tests`, as in step 3. Copy `check.json` to `check-r3u-full.json` first, to keep the 48/50 evidence. Delete no `chain_response` rows: under the new `code_version` none is reused.
+3. Run a **scratch harness** (in the session scratchpad, not committed; its text goes in the packet). It imports `tools/demo_combined_finish.py`, keeps `CHECKS` in its order, filtered to the rows below, calls `run(url, work)`, and then renames the output to `check-r3v-rows.json`. No change to the tool. Rows:
+   - the rows that read a Site chain route or the COH bundle: **F-DRAIN, F-COH, F-COH3, F-CAL, MILL-3, MILL-3b, F-THREADS, MILL-4, MILL-5, KIS-8** (KIS-8 scans the bundle's bodies, which now carry the new key);
+   - every Kisiwa row: **KIS-1, KIS-2, KIS-3, KIS-4, KIS-5, KIS-6, KIS-7, KIS-8a, KIS-9, KIS-10, KIS-OV**;
+   - the four-Site rows: **CO-6, CH5D1-O1, PV-A**.
+   - The runner lists, from a grep of `demo_combined_finish.py`, every row whose function or helper calls `ctx.get("/api/sites/…/chain…")` or reads `ctx.cache["coh"]`, and shows that each one is in this set. A row that is missing is added to the set, not argued away.
+   - A selected row that fails because an unselected row had filled a `ctx.cache` key is not a product failure: add the producer row and run again.
+4. **Expect:** every selected row passes. F-COH has no COH-18 finding. The Kisiwa month `chain_day` bodies grade 10-28, 10-29 and 11-07 PARTIAL with `none_declared: ["productive_kwh"]`, and the other 28 days NO_DATA. Record those three entries in the packet. KIS-7 item 3 stays "priced and equal". KIS-OV keeps S−5d Protect NEEDS_ATTENTION.
+5. **Do not re-run the watermark guard.** The module set is unchanged: `site_chain` is already in the stored-composer list, and no import was added outside `chain/`. If the reviewer finds a new import outside `chain/reader.py`, re-run the guard with `--modules-out` (about 4 minutes).
+6. **Stops (report; do not patch):**
+   - **R3v-s1:** any Kobo, Cold or EV `chain_day` or `chain_span` body gains a `none_declared` key.
+   - **R3v-s2:** any selected row fails other than for a missing cache key.
+   - **R3v-s3:** a Kisiwa day count other than partial 3 / no_data 28 for the month.
+   - A comparison gate reads closed: re-run the product tool for that Site (§9v.6) and record it. Never restamp.
+
+**After it passes:** merge order to main is unchanged from R3u: K9 → K10 → K6c. CO-2 is accepted as environmental on the record of §9v.1.
+
+### 9v.6 Process call: the builder's `evidence_migration run --site KOBO-001` on the clone. Accepted
+
+- It is the product's own tool, run on the clone with the clone's environment. It is not a hand restamp, so it meets R3t4 §9t4.3's rule ("run the product's tool, do not restamp"). The report read PASSED with cutover permitted.
+- R3t4 named only `performance_migration` because only those reports had been seen to close a gate. The Kobo Evidence (S2) comparison report has the same DB-name binding. Running its own tool is the same precedent, not a new one.
+- Replacing the `var` junction with a real copy is also accepted. The junction made the Site file appear twice, so the copy is the correct environment, not a change to the evidence.
+- **After-demo list (amends §9t4.3's item; one item, not two):** "Evidence (S2) and Performance comparison reports are stamped with the DB name, so a clone or restore closes their gates until the product tools are re-run. Bind the stamp to a stored instance identity, or re-run the comparisons on restore." Not demo-critical: the demo-day prepare runs on its own DB.
+- Add to the same list: "`chain/why.py:136-138` days line does not apply declared-absent (R3v §9v.4 item 2)."
+
+### 9v.7 Size, critical path, owner question
+
+**Size: about 0.07.**
+- code 0.01;
+- tests 0.02;
+- Sonnet review 0.01;
+- re-merge, targeted run (about 12–15 minutes: the F-COH collection dominates) and packet 0.03.
+
+**Critical path.** None of this overlaps other work, because it is the last gate before the merges. So the path is **about +0.07, taking 9.72–10.0 to about 9.79–10.07** (central about 9.93). The full 22-minute run instead of the targeted one adds about 0.02, so about 9.81–10.09.
+
+**Owner question.** The top of the range crosses 10.0, so R3t4's tripwire applies. The coordinator asks it now, in parallel with the build, and does not wait for the answer:
+
+> "Kisiwa's fix is proven but the final full check would end slightly past the agreed time; run it in full (a little late) or check only the affected rows now and the rest on demo day?"
+
+- **Recommendation and default: check only the affected rows now** (§9v.5). It is sound by the code argument in §9v.5. The other rows passed on this clone at d5582fe61, and the demo-day prepare's self-check runs all of them again.
+- If the owner chooses the full run, run `finish check` in full in place of step 3 of §9v.5. Expect 49 pass and CO-2 failing for the environmental reason in §9v.1.
+
+**Plan HTML (coordinator):** add to the rulings table: "DIESEL-1-R3v: step 3 at 48/50. CO-2 environmental (no ticks on the clone; passed in the rehearsal). F-COH = K10 miss: `site_chain.days_of` (`site_chain.py:39`, the chain route's per-day grades) did not pass `none_declared`, while the counts did; Kisiwa 10-28, 10-29 and 11-07 read NO_DATA in the day bodies and PARTIAL in the counts; R2 is the same 3 days. Honest side: PARTIAL (the owner's 'count only for what Kisiwa has'; never COMPLETE). Fix in K10: one-rule grade plus a stated `none_declared` key on the day entry, Kobo/Cold/EV byte-identical; COH-18 identity test. Targeted re-check (F-COH, chain/bundle rows, all KIS rows, four-Site rows) on the same clone. `evidence_migration` re-run accepted (same precedent as R3t4); one after-demo item for the DB-name stamp. About 0.07, path about 9.79–10.07; owner asked (default: affected rows now)."
