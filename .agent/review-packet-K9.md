@@ -114,3 +114,30 @@ No row passes before and fails after (S-r2 clear); Overview 200 (S-r1 clear). KI
 ### Screenshot
 `.agent/k9-r3r-kisiwa-overview-1440.png` (1440 wide, `/sites/KISIWA-001?date=2026-11-06`, served read-only from the clone by uvicorn + vite on ports 18431/18432, both killed by PID).
 The Overview renders. Its objective line reads "Objective: serve residential, clinic and productive loads while protecting the battery reserve." (K9's `SiteWindowOverview.tsx:484`), not the R3p "Households, Cold store (ice and fish) and Water pump" wording: that wording is in K8's unmerged branch, so it is not on K9 yet. Not a stop; it should appear after K8 merges into K9.
+
+## Fix round (review `.agent/review-K9-pre.md`: H1, L1-L5)
+
+Commit `afdbc9c81`. Focused tests after the change: finish rows + K7 story + K9 call sites + wording guard + chain coherence, 342 passed.
+
+| Finding | Change |
+|---|---|
+| H1 | `kis7` asserts `sorted(codes) == sorted([KOBO, KISIWA])` and `codes ==` the priced Sites in the order `summary_s["sites"]` serves. L0 fixture now sorted by lower-case code (the server's `site_code_key` order, Kisiwa before Kobo); the pass test expects `["KISIWA-001", "KOBO-001"]` and fails if the row hard-codes Kobo first. A third priced Site also fails. |
+| L1 | KIS-2 fail body `_kis2_body(finding_revision_id="r0")`. |
+| L2 | `kis1(..., nights)`: `len(prices) == nights`; `kis_1` passes `len(kisiwa.json["runs"])` (no literal 10). L0: 3 of 10 fails, 0 fails, 3 of 3 passes; a source test pins that `kis_1` reads `kisiwa.json` `["runs"]`. |
+| L3 | No current revision is `assert current, ...`, not `KisiwaMissing`; L0 asserts the failure is not a `KisiwaMissing`. The wrapper still raises `KisiwaMissing` with no Site (carry count unchanged). |
+| L4 | `fuel_wording.py` also scans `frontend/src/**/*.json` (not `__tests__/`, `__fixtures__/`, `src/test/`) and `frontend/index.html` (HTML comments stripped), and adds `steal`, `steals`, `stealing`, `thief`, `thieves`, `thievery` (`stealth` stays clean). Self-tests: 9 new fail rows, fixtures and comment exclusions in the clean tree. Repo scan: clean, 693 files (was 691). |
+| L5 | No change. |
+
+**Coordinator note (H1):** R3q §9q.2's literal `[KOBO, KISIWA]` was a slip about order only; the intent is the set of two priced Sites. The row now matches the set and the served order.
+
+**Mutations** (committed first, mutated, tests failed, then `git checkout`):
+- `kis7` back to `codes == ["KOBO-001", KIS_SITE]`: `test_kis7_...` fails.
+- KIS-2 head-cites-revision becomes `assert True or ...`: `test_kis2_...` fails (it passed before this round, review M3).
+- `kis1` count check reduced to `assert prices`: `test_kis1_...` fails.
+- `kis1` no-current-revision restored to `raise KisiwaMissing()`: `test_kis1_...` fails.
+- Wording: new words removed from `WORDS`: 7 failed; JSON and `index.html` scans disabled: 4 failed.
+
+### Read-only data check, `assetops_demo3_kisiwa_test` (SELECT only; no work folder, so no served read)
+1. **KIS-2: ready.** Kisiwa has 2 dispatch Findings, both latest revision SUPPORTED; each head consequence is `fuel-cost-2` PRICED and cites that latest revision (episodes 2026-10-28 17:40-19:05Z and 2026-10-28 22:55Z-10-29 00:15Z; `amount_high` 26.277 and 17.573 USD). A third Finding is `fuel_balance` (not in KIS-2's filter).
+2. **KIS-7: not ready on this clone.** The 10 nights run 2026-10-28 to 2026-11-06, but both priced dispatch consequences lie on night 1 (2026-10-28/29 local). Nothing is priced in Kisiwa's S local day (2026-11-05 21:00Z to 11-06 21:00Z). If the S board prices only consequences in its day, Kisiwa is unpriced on S and KIS-7 fails as a stop. Not confirmed by a served read; needs a live S summary on the four-Site prepare. The clone has only Kisiwa and no cutover basis row (pre-R3r).
+3. **Board PARTIAL: cause found by code reading, not by a served read.** The cutover basis does not change it. Kisiwa has no Performance comparison report, so `performance_gate` (`main.py:404`) returns closed. In `site_outcomes/read.py` the mini ports `dispatch` (`:257`, `_open(s.performance_gate)`) and `chain_findings` (`:240`, `_open(s.finding_index_gate)`) then raise `PortUnavailable("... closed: ...")`, which `Reads` records, so `read_state` is PARTIAL. `basis_aware_gate` (`performance_comparison.py:199`) only changes the reason text, never the permit. R3r's basis fixed the `source` port (`OverviewClosed`), not these two. A four-Site prepare would not change it, since only Kobo has a Performance report. Consequence for KIS-7: if `chain_findings` is what feeds Kisiwa's Optimize earnings, a closed finding-index gate leaves Kisiwa unpriced on S regardless of the day. For the Architect.
