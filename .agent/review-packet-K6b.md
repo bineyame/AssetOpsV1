@@ -12,7 +12,9 @@
 |---|---|
 | `d25f95ccb` | First commit: the mill path pins (`tests/fixtures/k6b_mill_pins.json`) captured on unchanged mill code, with the L2 item-5 comparison |
 | `aa7020754` | The family, service methods, store context, composition, API route, FUEL_FINDING/FUEL_VERDICT Refs, chain Ref fix, board entry, request link, page, client, frame, route, KIS-5/KIS-10, L0 and frontend tests |
-| (see report) | L2 tests 1-4, packet |
+| `9f647dd95` | L2 tests 1-4 |
+| `aea425856` | Register row R709, the vocabulary scan joins the K6b literals, the page test's settle helper, packet draft |
+| (last) | Packet completed |
 
 ## Pre-flight answers (no code first; nothing here needed the Architect)
 
@@ -62,4 +64,71 @@
 | MD-FUEL-K6-4 | "Outcome evidence" prose and example button | the server's sentence and the fixed H1 line |
 | MD-FUEL-K6-5 | Assure entries open their Action | the fuel entry opens its verdict page (FUEL_VERDICT); no value line |
 
-## Acceptance (criterion by criterion): see the report section filled in at the end of this file.
+## Verdicts with the rendered literals (L0 and L2)
+
+| State | Headline | Sentence / text |
+|---|---|---|
+| VERIFIED (L2 1_2, L0 3) | Fuel stayed accounted for | "On 3 fully checked nights after the change, the fuel in the tank matched the generator's modelled use and the recorded deliveries within the stated margin, and the tank sensor sent readings all night." |
+| INEFFECTIVE, gap (L2 2) | Target not met | "On the night of {d Mon}, after the change, the tank sensor did not send readings all night." (row "No readings for 90 min", "Sensor gap") |
+| INEFFECTIVE, band (L0 3) | Target not met | "On the night of {d Mon}, after the change, the fuel in the tank did not match the generator's modelled use and the recorded deliveries within the stated margin." |
+| INCONCLUSIVE (L0 3) | Could not conclude | "Only 2 of 3 fully checked nights after the change in the 14 nights allowed, so no verdict is given" |
+| NOT_JUDGED (L2 1_2) | Not judged yet | "Not judged yet: only 2 of 3 fully checked nights after the change" (no outcome row) |
+| NO_PLAN (L0 5) | No verification plan yet | cards 2-3 "Not checked yet" |
+
+Every state carries `fixed_line` = H1 verbatim; `value` and `cost_check` are null; no wire key matches
+`amount|price|currency|money` (L0 5, L2 3, frontend all five states).
+
+## Acceptance
+
+| Item | Status | Evidence |
+|---|---|---|
+| Family (choice by grade, exact band, gap, four verdicts) | met | L0 1-3; mutations below |
+| `build_fuel_verification_service`; freeze / evaluate / summary; 404/409/503 codes | met | L2 1_2, 1 refusals, 1_3, 2 |
+| `effective_from` = first COMPLETE `occurred_at` | met | L2 1_2; KIS-10 at E3 |
+| Literals verbatim, H1 fixed line | met | L0 4; `test_out_b2_vocabulary.py` scans `fv.LITERALS` |
+| H2 (no value, no money key, no money import, `_verified_values` untouched) | met | L0 5, 7 |
+| Page, route, FUEL_VERDICT, API route | met | `fuelVerification.test.tsx` 13, `routeRefs.test.ts`, L2 3 |
+| `_SITE_ACTIONS.action_domain`; `action_wire_ref` FUEL_VERDICT (K6a residual closed) | met | L0 8; L2 4 |
+| Kisiwa Assure entry, out of `_verified_values` | met | L0 7; MD-FUEL-K6-5 comment in `mini.py` |
+| §9m2 request link | met | L0 8, K6a L0 flipped, K6a L2 green |
+| KIS-5, KIS-10 | written; L0 self-tests (1 pass + 6 / 9 fail bodies); run at E3 | L0 9 |
+| Mill byte-equal | met | L2 5 vs first-commit pins; ch9b2/ch9b3/mv1/mb1/pv1/wd1m green |
+| Kobo / Cold / EV unchanged | met | ch5a1/ch5a2/ch6/ch6b2 board contracts green; `fuel_verdict_actions` keys on FUEL_BALANCE |
+| Layout evidence | not run | no persisted K6b dataset to `serve` (L2 data lives in dropped pg_harness clones); K8's all-26 recapture adds the page |
+
+## Checks run (final revision)
+
+- L0: `test_k6b_fuel_verification_rules.py` 38 passed; with vocabulary / origin readers / refs / K6a L0: 129 passed;
+  `test_out_b2_vocabulary.py` 4 passed with the K6b literals.
+- Adjacent non-DB (16 files): green except `test_out_b1_board.py::test_board_imports_only_outcomes_and_stdlib`,
+  **pre-existing on main** (main's `board.py` already imports `chain.vocabulary`; K6b adds no import).
+- L2 on `assetops_k6_test`: `test_k6b_fuel_verification_postgres.py` 6 passed (~21 s).
+- Adjacent Postgres and golden contracts (18 files, 6 min 54 s): 277 passed, 6 failed, all
+  `test_w301_estate_golden_postgres.py` (`$.summary.claims` gains `count.opportunities` "Not known yet"). Not a K6b path
+  (claims / opportunities untouched); judged pre-existing, **not re-run on main** (no clean main checkout here).
+- Frontend: `fuelVerification.test.tsx` 13 passed (x3 after the settle fix), `routeRefs.test.ts` 63,
+  `millVerification.test.tsx` 10; `tsc --noEmit` clean.
+- Guards: `check-architecture`, `check-agent-workflow`, `check-navigation-truthfulness` passed; `check-all.ps1 -Python
+  <plan2 .venv>`: all 17 passed.
+- Non-vacuous proofs (committed code mutated, run, `git checkout --`): `<` -> `<=` in `later_nights`; choice filtered on
+  `passes`; a 1e-5 L tolerance; the site_index fuel branch disabled; `fuel` added to `_verified_values`. 9 named
+  failures (L0 + K6a L0), reverted clean.
+
+## Known deviations (S-b4 technically triggered; each forced by a spec item)
+
+1. Files outside the list: `route-refs.json`, `routeRefs.test.ts` (KINDS validators); `test/linkRefs.ts` (the spec's
+   round-trip); `test_ch9b1_origin_readers.py` (classify the new reader: `fuel_verification.py` both/7,
+   `verification.py` 5->8, `postgres_action_store.py` 15->19); `test_k6a_fuel_action_origin.py` (§9m2 flip);
+   `.agent/mock-departure-register.md` R709 (guard 12 needs a registered id; may collide with K5's numbering).
+2. `VerificationPorts.site_visits` (third port, PRE-FLIGHT (d)); `fuel_plan_context` also returns the origin claim's
+   window id and the Site code, and reads the plan only with `rule_id = fuel-...`.
+3. `fuel_verification.py` imports `chain.refs` (stdlib-only) for the wire's Refs.
+4. `fuel_summary_wire(..., site_visit=)`; the Activity panel is omitted when `activity` is null and the Owner cell when
+   `owner_label` is null (no invented gap words).
+5. FUEL_FINDING items copied verbatim from K5's `418cd75ec`; the second to merge takes main's copy.
+
+## Residual risk
+
+- KIS-5/KIS-10 DB plumbing in `demo_combined_finish.py` is untested until a Kisiwa dataset exists (E3).
+- `complete()` reads `terms["unknown_slots"]` as specified; an assessed window lacking it would raise.
+- The lazily built global work read behind `site_visits` is never disposed.
