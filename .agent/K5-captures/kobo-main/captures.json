@@ -1,0 +1,50 @@
+[
+ {
+  "name": "kobo-fuel-main",
+  "width": 1440,
+  "url": "http://localhost:5491/sites/KOBO-001/performance/fuel",
+  "wide": [],
+  "pageH": 1000,
+  "scrollW": 1440,
+  "clientW": 1440,
+  "h1": "Performance",
+  "h2": [
+   "Site unavailable"
+  ],
+  "panels": [
+   {
+    "kind": "panel",
+    "title": "Site unavailable",
+    "top": 76,
+    "h": 103,
+    "w": 1160
+   }
+  ],
+  "tables": [],
+  "text": "Performance\nSite unavailable\n\nThe site store could not be read, so nothing is known about whether the site is configured."
+ },
+ {
+  "name": "kobo-fuel-main",
+  "width": 390,
+  "url": "http://localhost:5491/sites/KOBO-001/performance/fuel",
+  "wide": [],
+  "pageH": 1000,
+  "scrollW": 390,
+  "clientW": 390,
+  "h1": "Performance",
+  "h2": [
+   "Site unavailable"
+  ],
+  "panels": [
+   {
+    "kind": "panel",
+    "title": "Site unavailable",
+    "top": 493,
+    "h": 126,
+    "w": 358
+   }
+  ],
+  "tables": [],
+  "text": "Performance\nSite unavailable\n\nThe site store could not be read, so nothing is known about whether the site is configured."
+ }
+]

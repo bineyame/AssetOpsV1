@@ -27,4 +27,11 @@ describe("routeFor (CH-5a2a B1)", () => {
     expect(linkFor(undefined)).toBeNull();
     expect(linkFor(null)).toBeNull();
   });
+
+  it("routes a FUEL_FINDING ref to the fuel Finding page (DIESEL-K5 F7)", () => {
+    expect(routeFor({ kind: "FUEL_FINDING", site: "KISIWA-001", id: "f-1" })).toBe("/sites/KISIWA-001/fuel-findings/f-1");
+    expect(routeFor({ kind: "FUEL_FINDING", site: "KISIWA 1", id: "f/1", revision: "r 2" })).toBe(
+      "/sites/KISIWA%201/fuel-findings/f%2F1?revision_id=r%202",
+    );
+  });
 });

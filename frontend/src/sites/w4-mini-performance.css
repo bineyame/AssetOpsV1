@@ -7,6 +7,20 @@
   flex-wrap: wrap;
 }
 
+/* K5 fix round, MOCK DEVIATION MD-FUEL-K-1 (night selector): the select's option text ("Night of 28 Oct · 6 pm to
+   noon · Fuel balance: ...") sets an intrinsic width wider than a 390 px viewport; the field and select are held
+   to the bar's width and the long option text is clipped inside the control instead of scrolling the page. */
+.mini-period-bar .v69-chip-field {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.mini-period-bar .v69-chip-field select.v69-chip-control {
+  max-width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+
 .mini-cited {
   color: var(--text-secondary);
   font-size: var(--text-sm);

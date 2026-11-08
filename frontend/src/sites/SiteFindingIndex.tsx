@@ -195,6 +195,8 @@ export interface SiteFindingIndexProps {
   opportunityHelper?: boolean;
   /** OUT-C U5: the Site's early warnings (from its outcome board), under the list. */
   earlyWarnings?: ReactNode;
+  /** DIESEL-K5 (MD-FUEL-K5-3): a MINIGRID Site's "Fuel checks" panel, after the dispatch table; renders nothing without rows. */
+  fuelChecks?: ReactNode;
 }
 
 const HEADING_ID = "site-finding-index-heading";
@@ -1025,6 +1027,7 @@ export function SiteFindingIndex({
   fallback,
   opportunityHelper = false,
   earlyWarnings = null,
+  fuelChecks = null,
 }: SiteFindingIndexProps) {
   const [result, setResult] = useState<FindingIndexResult | null>(null);
   const { domain, from, to, limit, cursor } = scope;
@@ -1064,6 +1067,7 @@ export function SiteFindingIndex({
           <Refused result={result} scope={scope} links={links} />
         )}
       </PanelControls.Provider>
+      {fuelChecks}
       </LensRow.Provider>
       </PanelWarnings.Provider>
       </ManageHref.Provider>
