@@ -26,6 +26,8 @@ edited: each prepare writes a derived log `<work>/operational-actions/kisiwa-001
 `at` moved by `delta_days`, nothing else) that K0 freezes into every Kisiwa run. Start states, dip values and the
 expected nights come from the day handover `backend/conversions/kisiwa-day-handover-v1.json` (written by
 `tools/probe_kisiwa_fuel.py --handover`). Every stamp is a story instant, set through the stores' test-only clocks.
+K7-F (DIESEL-1-R3m §9m.5): after the Action's case link, the fuel plan freezes at `plan.freeze_at` and is judged at
+`evaluate_at` through K6b's `build_fuel_verification_service`; the verdict is recorded as computed in `kisiwa.json`.
 """
 
 from __future__ import annotations
@@ -624,6 +626,63 @@ def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -
         work._store.dispose()
 
 
+def freeze_and_evaluate(url: str, engine, tenant, site, kisiwa: dict, action: dict) -> dict:
+    """K7-F (§9l.3 "The freeze step", exact in §9m.5): freeze the Action's `fuel-residual-within-band-1` plan at
+    `plan.freeze_at` and judge it at `evaluate_at`, each through K6b's service on its test-only clock. The asserts are
+    stop S-6. The verdict is recorded as computed, never asserted; NOT_JUDGED is stop S-6."""
+    from uuid import UUID
+
+    import pg_harness
+    from sqlalchemy import text
+
+    from assetops_backend.actions.composition import build_fuel_verification_service
+
+    def service(instant: datetime):
+        return build_fuel_verification_service(url, test_clock=lambda: instant)
+
+    def dispose(svc) -> None:
+        pg_harness.dispose(svc.store)
+        svc.actions.verification_ports.fuel_windows.dispose()
+
+    action_id = UUID(action["id"])
+    freeze_at, evaluate_at = at(kisiwa["plan"]["freeze_at"]), at(kisiwa["evaluate_at"])
+    svc = service(freeze_at)
+    try:
+        status, frozen = svc.freeze_fuel_plan(tenant, site, action_id)
+    finally:
+        dispose(svc)
+    plan = frozen.get("plan") or {}
+    run4, run6 = kisiwa["runs"][INCIDENT_K - 1], kisiwa["runs"][5]
+    with engine.connect() as c:  # night 4's window: its latest revision as stored
+        night4 = str(c.execute(text("SELECT id FROM fuel_balance_window WHERE site_id = :s AND night_date = :d "
+                                    "ORDER BY revision DESC LIMIT 1"),
+                               {"s": site, "d": date.fromisoformat(run4["night_date"])}).scalar_one())
+    effective = plan.get("effective_from")
+    want = {"status": (status, 201),
+            "effective_from": (effective and iso(at(effective)), iso(at(kisiwa["action"]["complete_at"]))),
+            "effective_from before night 6": (bool(effective) and at(effective) < night_opens(
+                date.fromisoformat(run6["night_date"])), True),
+            "candidates.from": ((plan.get("later_selection_rule") or {}).get("candidates", {}).get("from"),
+                                run6["night_date"]),
+            "baseline window": ((plan.get("baseline_selection") or {}).get("window_id"), night4),
+            "recorded_at": (plan.get("recorded_at") and iso(at(plan["recorded_at"])), iso(freeze_at))}
+    bad = {k: v for k, v in want.items() if v[0] != v[1]}
+    if bad:
+        raise SystemExit(f"FREEZE (stop S-6): {bad}; answered {status}: {frozen}")
+    svc = service(evaluate_at)
+    try:
+        judged = svc.evaluate_fuel_plan(tenant, site, action_id)
+        summary = svc.fuel_summary(tenant, site, action_id, SITE_CODE)
+    finally:
+        dispose(svc)
+    if judged.get("state") not in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE") or not judged.get("stored"):
+        raise SystemExit(f"EVALUATE (stop S-6): the evaluation at {iso(evaluate_at)} answered {judged}")
+    return {"plan": {"plan_id": plan["plan_id"], "status": status, "recorded_at": plan["recorded_at"],
+                     "effective_from": effective, "later_candidates": plan["later_selection_rule"]["candidates"],
+                     "baseline_window_id": plan["baseline_selection"]["window_id"]},
+            "verdict": {**judged, "evaluated_at": iso(evaluate_at)}, "summary": summary}
+
+
 def threads(work: Path) -> list[dict]:
     """§9l.3 step 4: the Kisiwa-only chain backfill, as a child process in this tree (no other Site's thread)."""
     import subprocess
@@ -730,6 +789,10 @@ def build(url: str, work: Path) -> dict:
         # 5. the Action and its change; 4. threads (after the Action)
         finding = next(n["raise"] for n in out["nights"] if n["k"] == 4)
         out["action"] = record_action(url, engine, tenant_id, site_id, kisiwa, finding)
+        # K7-F: the plan freeze (S-4d 12:30) and the evaluation (S-1d 13:00), before the threads read the chain
+        t0 = clock_time.monotonic()
+        out.update(freeze_and_evaluate(url, engine, tenant_id, site_id, kisiwa, out["action"]))
+        out["freeze_evaluate_seconds"] = round(clock_time.monotonic() - t0, 1)
         out["threads"] = threads(work)
         # 6. the CLI calls, as known now (stores on the database's own clock)
         out["cli"]["assess"] = cli_assess_check(build_fuel_balance_store(url), kisiwa)

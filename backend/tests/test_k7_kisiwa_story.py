@@ -375,15 +375,32 @@ def test_8_objectives_never_see_kisiwa_and_links_use_route_forms() -> None:
         assert any(url[len(base):].startswith(form) for form in dc.LINK_FORMS), url
     assert (f"{base}/sites/KISIWA-001?date=2026-11-01") in [u for _, u in kisiwa]
     assert f"{base}/sites/KISIWA-001/performance/fuel?night=2026-10-31" in [u for _, u in kisiwa]
+    # K7-F: the build document's shape (the Finding id on the Action) and the verification link once judged
+    built = {"action": {"id": "a-7", "finding_id": "f-9"}, "verdict": {"state": "VERIFIED"}}
+    links = dc.story_links(story, [], None, 5490, built)
+    kisiwa = dict((label, url) for label, url in links if "KISIWA-001" in url)
+    assert len(kisiwa) == 5
+    for _, url in links:
+        assert any(url[len(base):].startswith(form) for form in dc.LINK_FORMS), url
+    assert kisiwa["KISIWA-001 unexplained-fuel finding"] == f"{base}/sites/KISIWA-001/fuel-findings/f-9"
+    assert kisiwa["KISIWA-001 fuel verification"] == f"{base}/sites/KISIWA-001/domain-actions/a-7/fuel-verification"
+    assert "KISIWA-001 fuel verification" not in dict(dc.story_links(story, [], None, 5490, {"action": {"id": "a-7"}}))
     assert not [u for _, u in dc.story_links({**story, "sites": ["kobo", "cold", "ev"]}, [], None, 5490,
                                              {"finding": {"id": "f-9"}}) if "KISIWA" in u]
 
 
-def test_8_add_day_keeps_refusing_kisiwa_and_the_default_is_three_sites() -> None:
+def test_8_add_day_keeps_refusing_kisiwa_and_the_default_is_four_sites(monkeypatch) -> None:
+    """K7-F flips the default prepare to all four Sites (§9l.3 "`--sites` default"); add-day still refuses Kisiwa."""
     with pytest.raises(SystemExit):
         dc.main(["--db", "assetops_demo3_kisiwa_test", "--work", "var/demo3_kisiwa", "add-day", "--site",
                  "KISIWA-001", "--kind", "normal"])
-    assert dc.Demo.prepare.__defaults__[0] == ("kobo", "cold", "ev")
+    assert dc.Demo.prepare.__defaults__[0] == ("kobo", "cold", "ev", "kisiwa") == dc.SITES
+    seen: list[tuple] = []
+    monkeypatch.setattr(dc.Demo, "prepare", lambda self, sites, **kw: seen.append(sites))
+    dc.main(["--db", "assetops_demo3_kisiwa_test", "--work", "var/demo3_kisiwa", "prepare"])
+    assert seen == [("kobo", "cold", "ev", "kisiwa")]
+    # DIESEL-1-R3n §9o.1: Kisiwa's expected seconds feed the default 2x cap
+    assert dc.EXPECTED_SECONDS["kisiwa"] == 3600
 
 
 # ---- 9. row self-tests --------------------------------------------------------------------------------------------
@@ -408,14 +425,43 @@ def _windows() -> dict[int, dict]:
     return {n["k"]: _window(n["k"], n) for n in kis.load_handover()["nights"]}
 
 
+KIS3_TOLERANCED = ("loaded_litres", "use_low", "use_high", "residual_low", "residual_high")
+
+
 def test_9_kis3_passes_on_a_true_body() -> None:
+    from fractions import Fraction
+
     out = rows.kis3(_windows(), kis.load_handover(), 27)
     assert out["nights"] == 10 and out["states"][4] == "UNEXPLAINED"
+    # DIESEL-1-R3n §9o.3: the pass body prints the tolerance and the largest difference per toleranced term
+    assert out["tolerance_l"] == "1/100000"
+    assert sorted(out["max_diff_l"]) == sorted(KIS3_TOLERANCED)
+    assert all(Fraction(v) <= Fraction(out["tolerance_l"]) for v in out["max_diff_l"].values())
+    print("KIS-3 pass body:", json.dumps({k: out[k] for k in ("tolerance_l", "max_diff_l")}, sort_keys=True))
+
+
+def test_9_kis3_max_diff_is_the_largest_difference_within_tolerance() -> None:
+    """Differences inside 1/100000 L pass, and `max_diff_l` is the largest over the nights, exact, per term."""
+    from fractions import Fraction
+
+    windows = _windows()
+    for k, extra in ((2, "1/400000"), (6, "3/400000"), (9, "1/200000")):
+        t = windows[k]["terms"]
+        t["use_low"] = str(Fraction(t["use_low"]) + Fraction(extra))
+    handover = kis.load_handover()  # the stored band must reproduce, so the handover side moves for the residual
+    night3 = next(n for n in handover["nights"] if n["k"] == 3)["readings"]
+    night3["residual_high_exact"] = str(Fraction(night3["residual_high_exact"]) + Fraction("1/100000"))
+    out = rows.kis3(windows, handover, 27)
+    assert out["max_diff_l"] == {"loaded_litres": "0", "use_low": "3/400000", "use_high": "0", "residual_low": "0",
+                                 "residual_high": "1/100000"}
+    print("KIS-3 within-tolerance body:", json.dumps({k: out[k] for k in ("tolerance_l", "max_diff_l")},
+                                                     sort_keys=True))
 
 
 @pytest.mark.parametrize("night, change", [
     (1, {"state": "BELOW_MATERIALITY"}), (2, {"reason": "SFC_MISSING"}), (3, {"gap_minutes": 5}),
     (5, ("opening_l", "1")), (6, ("loaded_litres", "+1/1000")), (4, {"residual_low": "0"}),
+    (9, ("use_high", "+1000001/100000000000")),  # K7-F: just beyond 1/100000 L
     (7, ("idle_seconds", 60)), (4, {"gap_spans": []}), (4, {"limitations": []}), (8, {"limitations": ["REPORTING_GAP"]}),
 ])
 def test_9_kis3_fails_per_item(night: int, change) -> None:
@@ -451,7 +497,8 @@ def _kis9_body() -> dict:
                              "thread_kinds": ["UNEXPLAINED_FUEL"], "consequence_state": "PRICED",
                              "price_revision_id": "p-1", "created_at": cal["runs"][3]["raised_at"]}],
                "diesel_v1_revision_id": "p-1"}
-    action = {"origin_finding_id": "f-1", "case_id": "case-1", "case_state": "COMPLETE", "linked_case_ids": ["case-1"]}
+    action = {"origin_finding_id": "f-1", "case_id": "case-1", "case_state": "COMPLETE", "linked_case_ids": ["case-1"],
+              "plan_recorded_at": [cal["plan"]["freeze_at"]], "outcome_recorded_at": [cal["evaluate_at"]]}
     return {"records": records, "handover": kis.load_handover(), "calendar": cal,
             "build": {"log": {"log_id": cal["story_log_id"], "log_version": 1, "sha256": "s" * 64}, "runs": build_runs},
             "actions": doc["actions"], "runs": story_runs(), "windows": windows, "finding": finding, "action": action}
@@ -498,6 +545,13 @@ KIS9_FAILS = {
     "e-case-open": lambda b: b["action"].update(case_state="IN_PROGRESS"),
     "e-not-linked": lambda b: b["action"].update(linked_case_ids=[]),
     "e-visit-case": lambda b: _rec(b, "SITE_VISIT").update(case_id="case-2"),
+    # K7-F: the plan frozen at plan.freeze_at, one verdict stored at evaluate_at
+    "e-no-plan": lambda b: b["action"].update(plan_recorded_at=[]),
+    "e-plan-stamp": lambda b: b["action"].update(plan_recorded_at=[dc.iso(_day(-4, 12, 31))]),
+    "e-two-plans": lambda b: b["action"]["plan_recorded_at"].append(b["action"]["plan_recorded_at"][0]),
+    "e-no-verdict": lambda b: b["action"].update(outcome_recorded_at=[]),
+    "e-verdict-stamp": lambda b: b["action"].update(outcome_recorded_at=[dc.iso(_day(-1, 13, 1))]),
+    "e-two-verdicts": lambda b: b["action"]["outcome_recorded_at"].append(b["action"]["outcome_recorded_at"][0]),
     "f-log-id": lambda b: b["build"]["log"].update(log_id="kisiwa-001-operational-actions"),
     "f-history": lambda b: b["build"]["runs"][1].update(history=[]),
     "f-run-log": lambda b: b["build"]["runs"][5].update(log_sha256="t" * 64),
@@ -533,7 +587,7 @@ def test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch() -> None:
     """Every KIS row's no-Site branch raises `KisiwaMissing`; nothing returns "not in this dataset"."""
     text = (Path(__file__).resolve().parents[2] / "tools" / "demo_combined_finish.py").read_text(encoding="utf-8")
     assert "not in this dataset" not in text
-    assert text.count("raise KisiwaMissing()") == 3  # KIS-4, KIS-3, KIS-9
+    assert text.count("raise KisiwaMissing()") == 5  # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9
 
 
 def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:
@@ -546,3 +600,93 @@ def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:
     assert 'idempotency_key": "kisiwa-fuel-action"' in action_src
     assert "build_fuel_finding_service" in inspect.getsource(kis.raise_night)
     assert kis.INCIDENT_K == 4
+
+
+# ---- K7-F: the freeze step (DIESEL-1-R3m §9m.5) -----------------------------------------------------------------------
+
+class _FakeEngine:
+    """Answers the night-4 window query with `w-4`."""
+
+    def connect(self):
+        import contextlib
+        from types import SimpleNamespace
+
+        result = SimpleNamespace(scalar_one=lambda: "w-4")
+        return contextlib.nullcontext(SimpleNamespace(execute=lambda *a, **k: result))
+
+
+def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", **plan_changes) -> list[tuple]:
+    """K6b's service replaced by a fake that records each call with its clock's instant."""
+    from types import SimpleNamespace
+
+    from assetops_backend.actions import composition
+
+    calls: list[tuple] = []
+    plan = {"plan_id": "p-1", "recorded_at": cal["plan"]["freeze_at"], "effective_from": cal["action"]["complete_at"],
+            "later_selection_rule": {"candidates": {"from": cal["runs"][5]["night_date"], "to": "x"}},
+            "baseline_selection": {"window_id": "w-4"}, **plan_changes}
+
+    def build(url, *, test_clock):
+        def freeze(t, s, a):
+            calls.append(("freeze", test_clock()))
+            return 201, {"replayed": False, "plan": plan}
+
+        def evaluate(t, s, a):
+            calls.append(("evaluate", test_clock()))
+            return {"state": state, "stored": state != "NOT_JUDGED", "replayed": False, "outcome_id": "o-1"}
+
+        def summary(t, s, a, code=None):
+            calls.append(("summary", test_clock()))
+            return {"state": state}
+
+        return SimpleNamespace(freeze_fuel_plan=freeze, evaluate_fuel_plan=evaluate, fuel_summary=summary,
+                               store=object(), actions=SimpleNamespace(verification_ports=SimpleNamespace(
+                                   fuel_windows=SimpleNamespace(dispose=lambda: calls.append(("dispose", None))))))
+
+    monkeypatch.setattr(composition, "build_fuel_verification_service", build)
+    return calls
+
+
+@pytest.mark.parametrize("state", ["VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"])
+def test_k7f_freeze_and_evaluate_at_story_instants_record_the_verdict_as_computed(monkeypatch, state: str) -> None:
+    cal = calendar()
+    calls = _fake_services(monkeypatch, cal, state)
+    out = kis.freeze_and_evaluate("postgresql+psycopg://x/y", _FakeEngine(), "t", "s", cal,
+                                  {"id": "00000000-0000-0000-0000-000000000007"})
+    freeze_at, evaluate_at = _at(cal["plan"]["freeze_at"]), _at(cal["evaluate_at"])
+    assert (freeze_at, evaluate_at) == (_day(-4, 12, 30), _day(-1, 13))
+    assert calls == [("freeze", freeze_at), ("dispose", None), ("evaluate", evaluate_at), ("summary", evaluate_at),
+                     ("dispose", None)]
+    assert out["verdict"]["state"] == state and out["verdict"]["evaluated_at"] == dc.iso(evaluate_at)
+    assert out["plan"]["baseline_window_id"] == "w-4" and out["summary"] == {"state": state}
+    # §9m.5: effective_from is the first COMPLETE occurred_at (S-4d 12:05), before night 6's window (S-4d 15:00)
+    assert _at(out["plan"]["effective_from"]) == _day(-4, 12, 5) < kis.night_opens(date.fromisoformat(
+        cal["runs"][5]["night_date"])) == _day(-4, 15)
+
+
+@pytest.mark.parametrize("change", [
+    {"effective_from": "2026-11-02T12:00:00+00:00"},                                        # the record, not COMPLETE
+    {"later_selection_rule": {"candidates": {"from": "2026-11-03", "to": "x"}}},             # not night 6
+    {"baseline_selection": {"window_id": "w-5"}},                                            # not night 4's window
+    {"recorded_at": "2026-11-02T12:31:00+00:00"},                                            # not freeze_at
+])
+def test_k7f_a_plan_off_the_card_is_stop_s6(monkeypatch, change: dict) -> None:
+    cal = calendar()
+    _fake_services(monkeypatch, cal, **change)
+    with pytest.raises(SystemExit, match="FREEZE \\(stop S-6\\)"):
+        kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
+
+
+def test_k7f_not_judged_is_stop_s6(monkeypatch) -> None:
+    cal = calendar()
+    _fake_services(monkeypatch, cal, "NOT_JUDGED")
+    with pytest.raises(SystemExit, match="EVALUATE \\(stop S-6\\)"):
+        kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
+
+
+def test_k7f_build_freezes_after_the_action_and_before_the_threads() -> None:
+    import inspect
+
+    src = inspect.getsource(kis.build)
+    action, freeze, threads = (src.index(s) for s in ("record_action(", "freeze_and_evaluate(", "threads(work)"))
+    assert action < freeze < threads

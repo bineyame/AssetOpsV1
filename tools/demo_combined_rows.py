@@ -628,7 +628,8 @@ def kis3(windows: dict[int, dict], handover: dict, delta_days: int) -> dict:
     Within 1/100000 L: loaded litres, use low/high, residual low/high. The band re-computed by
     `fuel_balance.rules.balance` from the stored terms equals the stored band exactly. Night 4 UNEXPLAINED with F0's
     gap span moved by `delta_days` and `("REPORTING_GAP",)`; every other night WITHIN_MARGIN, gap 0, no limitation;
-    idle seconds 0 on all ten."""
+    idle seconds 0 on all ten. A pass prints `tolerance_l` and `max_diff_l` (DIESEL-1-R3n §9o.3): per toleranced
+    term, the largest |stored - handover| over the ten nights, as exact `Fraction` text."""
     from fractions import Fraction
 
     from assetops_backend.actions.verification_rules import parse_exact
@@ -636,6 +637,8 @@ def kis3(windows: dict[int, dict], handover: dict, delta_days: int) -> dict:
 
     tol = Fraction(KIS_TOLERANCE_L)
     states = {}
+    # DIESEL-1-R3n §9o.3: the largest |stored - handover| over the ten nights, per toleranced term (the evidence)
+    max_diff = {term: Fraction(0) for term in (*KIS_TOLERANCED_TERMS.values(), "residual_low", "residual_high")}
     for night in handover["nights"]:
         k, want = night["k"], night["readings"]
         w = windows.get(k)
@@ -651,6 +654,9 @@ def kis3(windows: dict[int, dict], handover: dict, delta_days: int) -> dict:
                   for s in ("low", "high")}
         far = {key: str(abs(a - b)) for key, (a, b) in close.items() if abs(a - b) > tol}
         assert not far, ("night", k, "differs by more than 1/100000 L", far)
+        for key, (a, b) in close.items():
+            term = key.removesuffix("_exact")
+            max_diff[term] = max(max_diff[term], abs(a - b))
         assert t["idle_seconds"] == 0, ("night", k, "idle seconds", t["idle_seconds"])
         band = balance(opening=parse_exact(t["opening_l"]), closing=parse_exact(t["closing_l"]),
                        deliveries=[parse_exact(t["deliveries_l"])], loaded_litres=parse_exact(t["loaded_litres"]),
@@ -669,7 +675,8 @@ def kis3(windows: dict[int, dict], handover: dict, delta_days: int) -> dict:
             assert (w["state"], w["gap_minutes"], list(w["limitations"])) == ("WITHIN_MARGIN", 0, []), (
                 "night", k, w["state"], w["gap_minutes"], w["limitations"])
         states[k] = w["state"]
-    return {"nights": len(states), "states": states}
+    return {"nights": len(states), "states": states, "tolerance_l": KIS_TOLERANCE_L,
+            "max_diff_l": {term: str(value) for term, value in max_diff.items()}}
 
 
 def kis9(*, records: list[dict], handover: dict, calendar: dict, build: dict, actions: list[dict],
@@ -683,7 +690,8 @@ def kis9(*, records: list[dict], handover: dict, calendar: dict, build: dict, ac
     (`id`, `revision`, `recorded_at`); `finding`: the fuel Finding read (`findings`: `finding_id`, `lifecycle`,
     `window_id`, `window_revision`, `thread_kinds`, `consequence_state`, `price_revision_id`, `created_at`; and
     `diesel_v1_revision_id`); `action`: the Action read (`origin_finding_id`, `case_id`, `case_state`,
-    `linked_case_ids`)."""
+    `linked_case_ids`, and K7-F's `plan_recorded_at` and `outcome_recorded_at`: the stamps of its verification plans
+    and outcomes)."""
     import hashlib
     from fractions import Fraction
 
@@ -742,6 +750,10 @@ def kis9(*, records: list[dict], handover: dict, calendar: dict, build: dict, ac
     assert action["case_state"] == "COMPLETE" and str(action["case_id"]) in map(str, action["linked_case_ids"]), (
         "(e) case", action)
     assert str(visits[0]["case_id"]) == str(action["case_id"]), ("(e) the site visit does not cite the case", visits)
+    # (e) K7-F: the plan is frozen at `plan.freeze_at` and one verdict is stored at `evaluate_at` (§9m.5)
+    plans, outcomes = action.get("plan_recorded_at") or [], action.get("outcome_recorded_at") or []
+    assert [_kis_utc(p) for p in plans] == [_kis_utc(calendar["plan"]["freeze_at"])], ("(e) plan stamp", plans)
+    assert [_kis_utc(o) for o in outcomes] == [_kis_utc(calendar["evaluate_at"])], ("(e) verdict stamp", outcomes)
     # (f) every run's frozen identity names the derived log and exactly its effect-bearing actions
     assert (build["log"]["log_id"], build["log"]["log_version"]) == (calendar["story_log_id"], 1), ("(f)", build["log"])
     assert [r["k"] for r in build["runs"]] == list(range(1, len(runs) + 1)), ("(f) runs", [r["k"] for r in build["runs"]])

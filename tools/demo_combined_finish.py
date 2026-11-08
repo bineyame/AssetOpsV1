@@ -1005,7 +1005,7 @@ def kis_4(ctx: Ctx) -> dict:
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
     """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
-    through the backend's own stores (None: no Kisiwa Site in this dataset, before K7 adds it)."""
+    through the backend's own stores (None: no Kisiwa Site in this dataset; the rows then fail, carry R3k2 L2)."""
     if "kisiwa_fuel" in ctx.cache:
         return ctx.cache["kisiwa_fuel"]
     import psycopg
@@ -1060,10 +1060,10 @@ def _kisiwa_fuel(ctx: Ctx) -> dict | None:
 def kis_5(ctx: Ctx) -> dict:
     """DIESEL-K6b (DIESEL-1-R3m §9m.4, moved here from K9, run at E3): the Kisiwa fuel Action's stored verdict
     reproduces from its pinned windows (`demo_rows.kis5`); the served page has no value, cost check or money key, and
-    the fixed H1 line. A dataset without Kisiwa is reported as such, never as a check."""
+    the fixed H1 line. A dataset without the Kisiwa Site fails the row (`KisiwaMissing`, carry R3k2 L2, K7-F)."""
     k = _kisiwa_fuel(ctx)
     if k is None:
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()
     summary = ctx.get(f"/api/sites/{KISIWA}/domain-work/actions/{k['aid']}/fuel-verification")
     return {"kisiwa": "present", **demo_rows.kis5(k["plan"], k["outcome"], k["read_back"], k["windows"], summary)}
 
@@ -1077,7 +1077,7 @@ def kis_10(ctx: Ctx) -> dict:
 
     k = _kisiwa_fuel(ctx)
     if k is None:
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()  # carry R3k2 L2 (K7-F): a dataset without Kisiwa fails the row
     fc, o = k["fc"], k["outcome"]
     zone = ZoneInfo(fc["action"]["timezone"])
     lo = demo_rows.site_day_start(o["recorded_at"].astimezone(zone).date() + timedelta(days=1), zone)
@@ -1244,8 +1244,8 @@ def _kisiwa_finding(ctx: Ctx, k: dict) -> dict | None:
 
 
 def _kisiwa_action(ctx: Ctx, k: dict) -> dict | None:
-    """KIS-9 (e): the Action read: its origin Finding, the cases linked to it, and the linked case's state (its
-    latest work event's kind)."""
+    """KIS-9 (e): the Action read: its origin Finding, the cases linked to it, the linked case's state (its
+    latest work event's kind) and, K7-F, the stamps of its verification plans and outcomes."""
     s = k["site_id"]
     acts = _kisiwa_sql(ctx, "SELECT id, action_code, domain, origin_finding_id FROM domain_action WHERE site_id = %s "
                             "AND domain = 'FUEL_BALANCE'", s)
@@ -1257,8 +1257,14 @@ def _kisiwa_action(ctx: Ctx, k: dict) -> dict | None:
     case_id = links[-1]["case_id"]
     last = _kisiwa_sql(ctx, "SELECT kind FROM work_event WHERE site_id = %s AND case_id = %s "
                             "ORDER BY recorded_at DESC, id DESC LIMIT 1", s, case_id)
+    plans = _kisiwa_sql(ctx, "SELECT recorded_at FROM verification_plan WHERE site_id = %s AND domain_action_id = %s "
+                             "ORDER BY recorded_at", s, a["id"])
+    outcomes = _kisiwa_sql(ctx, "SELECT recorded_at FROM verification_outcome WHERE site_id = %s "
+                                "AND domain_action_id = %s ORDER BY recorded_at", s, a["id"])
     return {"origin_finding_id": a["origin_finding_id"], "case_id": case_id, "case_state": last[0]["kind"],
-            "linked_case_ids": [r["case_id"] for r in links]}
+            "linked_case_ids": [r["case_id"] for r in links],
+            "plan_recorded_at": [r["recorded_at"] for r in plans],  # K7-F: KIS-9 (e)
+            "outcome_recorded_at": [r["recorded_at"] for r in outcomes]}
 
 
 @row("KIS-9")
