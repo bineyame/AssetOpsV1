@@ -103,18 +103,53 @@ owner walkthrough is the standing post-W6 one. **K5 merges only after the owed c
 | MD-FUEL-K5-3 | `SiteFuelChecks` | "Fuel checks" panel on the Site Findings index (v69 lists dispatch Findings only) |
 | MD-FUEL-K4-1 | `SiteFuelFinding.tsx`, `SiteFuelFindingFrame` | the fuel Finding page itself (K4a's, cited; v69 `:630`) |
 
-## Layout evidence owed (not run)
+## Layout evidence (captured 2026-11-08, after the K7-D kept database existed)
 
-`layout evidence: not run` — blocking precondition: K7-D's kept scratch database `assetops_demo3_kisiwa_test` does
-not exist yet (§9l.2 Captures; §9l.3). Owed, with `node tools/layout-evidence.mjs` against `serve` on that database,
-at 1440 and 390 unless noted:
-1. Kisiwa Fuel, night 4 (UNEXPLAINED, gap note, one dip) and night 6 (WITHIN_MARGIN, two dips);
-2. Kisiwa Fuel, the night-2 delivery night (1440 only);
-3. the fuel Finding page for night 4;
-4. Kisiwa Site Findings with the Fuel checks panel (use a window covering night 4);
-5. Kobo Fuel in hour mode, compared with main's capture of the same page: only K4a's two strings may differ.
-Claims owed by those captures: panel budgets from `.agent/K5-mock-measurements.md`; no horizontal scroll at 390;
-every table scrolls inside its own panel; the records table's cap. Until then every layout claim above is unverified.
+Source: K5 branch backend (`uvicorn lab_app:app`, no schedule loop, no ticks, reads only) and K5 vite dev server on
+the kept `assetops_demo3_kisiwa_test` (cursor keys from its `keys.json`). Not `demo_combined.py serve`, whose loop
+ticks and pre-warms. Headless Chrome over CDP with a scratch measuring script (the stock `layout-evidence.mjs` has no
+fuel-night sections); same panel selectors and budget rule as `measure-mock-panels.mjs` (max = mock + max(24 px, 10 %)).
+Raw: `.agent/K5-captures/captures.json` + PNGs. Nights: 4 = 2026-10-31, 6 = 2026-11-02, 2 = 2026-10-29.
+Heights in px, 1440 / 390; budget from `.agent/K5-mock-measurements.md`.
+
+| Panel | Budget | Night 4 | Night 6 | Night 2 | Verdict |
+|---|---|---|---|---|---|
+| status bar | 68 / 95 | 43 / 93 | 43 / 70 | 43 / - | within |
+| cards | 153 / 291 | 103 / 243 | 103 / 243 | 103 / - | within |
+| Fuel balance at a glance | 298 / 316 | 294 / **343** | 294 / **343** | 294 / - | 1440 within; **390 over by 27** |
+| Balance bridge | 366 / 579 | 353 / 579 | 353 / 579 | 353 / - | within (390 at the cap) |
+| notice | 66 / 102 | 61 / 99 | 61 / 99 | 61 / - | within |
+| Finding for this night | 173 / 216 | 140 / 177 | 103 / 117 | 103 / - | within |
+| Deliveries and tank dips | 366 / 579 | 162 / 162 | 209 / 209 | 162 / - | within |
+
+- **Horizontal scroll at 390 (DEFECT, High for the "no horizontal scroll at 390" claim):** night pages 4 and 6 have
+  document `scrollWidth` 473 on a 390 viewport. Culprit: the night selector (`label.v69-chip-field` 456 px,
+  `select.v69-chip-control` 423 px, `MiniFuelNights.tsx` night nav ~l.186-202), whose option text ("Night of 28 Oct ·
+  6 pm to noon · Fuel balance: accounted for within the margin") sets an intrinsic width; it is not clipped by a
+  scroll container. Every other measured page is 390/390. Needs a fix (`max-width: 100%` / wrap on the control, in
+  `w4-mini-performance.css` or the night nav) and a re-capture of these two pages at 390.
+- Glance panel at 390: 343 vs budget 316 (hour mode is 310). Over because night mode adds the chart note and K4a's
+  margin line to the panel. Either raise the card's budget or tighten; for the reviewer to rule.
+- Fuel Finding page (night 4, `bddd2f26`): no horizontal scroll at either width (1425/1425, 390/390). Panels: How the
+  night was checked 473 / 700, Balance bridge 353 / 579, Deliveries and tank dips 162 / 162, Versions 101 / 122. Both
+  tables scroll inside their own panel (`overflow-x` box), the bridge table's box is height-capped (500 px at 390,
+  content 630 px, so it scrolls vertically). No mock budget exists for this page (MD-FUEL-K4-1).
+- Site Findings with the Fuel checks panel (window `from=2026-10-28T00:00:00Z&to=2026-11-08T00:00:00Z`; a date-only
+  `from` is rejected by the existing window validation): panel renders, 101 px at 1440, 122 at 390, no horizontal
+  scroll (1440/1440, 390/390).
+- Records-table cap: night 4 has 1 delivery-or-dip row (2 table rows incl. header), night 6 has 2; the 10-row cap is
+  not exercised by this data (worst case present: 3 rows), so the cap itself remains unmeasured.
+- Night-2 delivery night at 1440: records table shows 2 rows (header + 1 record), no scroll, page 1595 px, 1425/1425.
+- **Kobo hour mode: K5 side measured, main comparison NOT done.** K5 Kobo hour mode (database
+  `assetops_demo3_fixmainone_test`, K5 backend): 1440 status bar 43, cards 114, glance 294, bridge 96, notice 61,
+  interpretation 134, no horizontal scroll; 390 status bar 67, cards 291, glance 310, bridge 96, notice 99,
+  interpretation 193, no horizontal scroll (all within the mock budgets above). Main's capture could not be taken:
+  main's checkout carries a local `var/sites/kobo-001.yaml` that differs from the DB import, so main's backend serves
+  `SITE_STORE_UNAVAILABLE` (503) for KOBO-001 and main's UI shows "Site unavailable" (`.agent/K5-captures/kobo-main`
+  holds that failed capture, not a comparison). Main's frontend against K5's backend showed the same page. The
+  "only K4a's two strings differ" claim is therefore unverified; it needs a clean main checkout (or a Kobo DB main can
+  read) to finish.
+- K6b: not captured here (see the report); the verdict page would show NO_PLAN on this database.
 
 ## Checks (actual output; Python = `AssetOpsV1-plan2\.venv`, PYTHONPATH resolves into this worktree)
 
