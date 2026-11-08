@@ -56,6 +56,16 @@ def iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def utc_aligned_window(lo: datetime, hi: datetime) -> tuple[datetime, datetime]:
+    """Estate scope accepts only UTC-midnight bounds: widen [lo, hi) to the UTC midnight at/before lo and at/after hi."""
+    lo, hi = lo.astimezone(timezone.utc), hi.astimezone(timezone.utc)
+    start = lo.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = hi.replace(hour=0, minute=0, second=0, microsecond=0)
+    if end < hi:
+        end += timedelta(days=1)
+    return start, end
+
+
 def at(text: str) -> datetime:
     return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc)
 
@@ -1082,7 +1092,8 @@ def kis_10(ctx: Ctx) -> dict:
     zone = ZoneInfo(fc["action"]["timezone"])
     lo = demo_rows.site_day_start(o["recorded_at"].astimezone(zone).date() + timedelta(days=1), zone)
     board = ctx.board(KISIWA, lo, lo + timedelta(days=1))
-    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(lo - timedelta(days=6)), "to": iso(lo + timedelta(days=1))})
+    s_from, s_to = utc_aligned_window(lo - timedelta(days=6), lo + timedelta(days=1))
+    summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(s_from), "to": iso(s_to)})
     lines = list(((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {}).get("value_lines") or ())
     return {"kisiwa": "present", **demo_rows.kis10(k["plan"], fc["applied"], fc["action"], fc["origin_window_id"],
                                                    k["action_thread"], k["finding_thread"], board,

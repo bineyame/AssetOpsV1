@@ -31,5 +31,14 @@ Branch `task/DIESEL-K7F-kisiwa-freeze`, code `f1f7dca2a`. Ruling DIESEL-1-R3n (Â
 
 KIS-10 cause (read, not changed): `kis_10` (`tools/demo_combined_finish.py:1071-1090`) builds the estate summary window from Kisiwa's Site-local day starts (Africa/Dar_es_Salaam, 21:00Z). `estate/scope.py:108` requires midnight-aligned UTC bounds, so the estate route refuses it. The other estate-summary rows use `ctx.day(...)` (UTC-aligned). Needs a code fix (align the window to UTC midnight) before KIS-10 can pass; it is a stop to the coordinator and the Architect, not edited here.
 
+## KIS-10 fix and check re-run (coordinator decision, mechanical)
+- Fix: `tools/demo_combined_finish.py` new `utc_aligned_window(lo, hi)` (UTC midnight at/before `lo`, at/after `hi`); `kis_10` calls the estate summary with it, over the same story days (window now 2026-10-30T00:00Z to 2026-11-07T00:00Z). KIS-10's assertion, `demo_rows.kis10` and the estate scope rule are unchanged.
+- L0 test `backend/tests/test_k7f_kis10_window.py` (3 tests): the old local-start window is refused by the real `estate.scope.check_window` (so the test fails against the old window); the aligned window passes it and covers the story days; an already aligned window is unchanged.
+- Re-run (check only, no prepare, read-only) against kept DB `assetops_demo3_kisiwa_test`, work `var/demo3_kisiwa`: `demo_combined_kisiwa.py check <url> var/demo3_kisiwa` from `backend/tests`, exit 0. KIS-3, KIS-4, KIS-5, KIS-9 and KIS-10 all pass. KIS-10 read: entry "ACT-001 verified on example data", one thread; no extra night became visible.
+- Tests: K7 story, KIS-10 window, finish CO1, K6b rules, chain coherence: 302 passed. `probe_kisiwa_fuel.py --check` and `probe_kisiwa_nights.py --check`: both "probe result current", exit 0.
+
+## Deviation accepted by the coordinator
+The `.demo3-combined-work` marker was hand-copied from the k7 work folder into `var/demo3_kisiwa` for the scratch prepare. The database is a throwaway test DB; the coordinator accepts this and it is recorded here as a deviation.
+
 ## Kept
 Database `assetops_demo3_kisiwa_test` and `var/demo3_kisiwa` kept, nothing dropped. `assetops_demo3_full_test` untouched.
