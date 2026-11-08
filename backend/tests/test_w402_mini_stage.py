@@ -81,7 +81,9 @@ class FakeRunner:
                    "ev_consequence": {"code": "OK", "selected": 0, "deferred": 0},
                    # CH-2 / CH-1b: the chain children (0-count OK by default)
                    "chain_threads": {"code": "OK", "processed": 0, "deferred": 0},
-                   "chain_snapshots": {"code": "OK", "processed": 0, "deferred": 0}}[stage]
+                   "chain_snapshots": {"code": "OK", "processed": 0, "deferred": 0},
+                   # OWN-G2: the fuel_night child (an ineligible Site by default)
+                   "fuel_night": {"code": "OK", "eligible": False, "processed": 0, "deferred": 0}}[stage]
         return self.results.get(stage, default)
 
 
@@ -97,8 +99,8 @@ def test_limits_bound_the_mini_stage() -> None:
     assert (limits.mini_jobs_per_site, limits.mini_seconds) == (10, 120)
     assert (limits.statement_timeout_ms, limits.lock_timeout_ms) == (30_000, 5_000)
     # W4-03 adds the 120 s OPPORTUNITY stage; FIX-COLD-DRAIN adds 2 x 120 s cold/EV assessment and 2 x 60 s drains
-    # CH-2 adds the 60 s chain_threads stage; CH-1b the 60 s chain_snapshots stage
-    assert limits.site_lease_seconds == 1080
+    # CH-2 adds the 60 s chain_threads stage; CH-1b the 60 s chain_snapshots stage; OWN-G2 the 90 s fuel_night stage
+    assert limits.site_lease_seconds == 1170
     assert MINI_JOB_LEASE_SECONDS == 300 == MiniDepthWorker(None, None).lease.total_seconds()
     for bad in (0, -1, 300, 301):
         with pytest.raises(ValueError, match="MINI stage bound"):
@@ -113,15 +115,15 @@ def test_limits_bound_the_mini_stage() -> None:
 def test_stage_order_budget_and_counts() -> None:
     runner, store = FakeRunner(), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
-                                          "chain_threads", "consequence", "cold_consequence", "ev_consequence",
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "fuel_night", "opportunity",
+                                          "s4", "chain_threads", "consequence", "cold_consequence", "ev_consequence",
                                           "chain_snapshots"]
-    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "OPPORTUNITY", "S4", "S4",
-                                                               "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE",
+    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "MINI", "OPPORTUNITY", "S4",
+                                                               "S4", "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE",
                                                                "CONSEQUENCE"]
     _, args, seconds = runner.calls[3]
     assert args == {"tenant_id": str(T), "site_id": str(S), "limit": 10} and seconds == 120
-    assert ("record_mini", (4, 6, 1)) in store.calls and ("claim", 1080) in store.calls
+    assert ("record_mini", (4, 6, 1)) in store.calls and ("claim", 1170) in store.calls
     assert site.result == "COMPLETED" and site.failure is None and site.stages["mini"]["processed"] == 4
     assert "mini" in STAGES
 
@@ -130,8 +132,8 @@ def test_stage_order_budget_and_counts() -> None:
 def test_mini_failure_is_retained_and_later_stages_still_run(code) -> None:
     runner, store = FakeRunner({"mini": {"code": code, "error": "child died"}}), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
-                                          "chain_threads", "consequence", "cold_consequence", "ev_consequence",
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "fuel_night", "opportunity",
+                                          "s4", "chain_threads", "consequence", "cold_consequence", "ev_consequence",
                                           "chain_snapshots"]
     assert not [c for c in store.calls if c[0] == "record_mini"]  # no invented counts
     assert site.failure == ("MINI", code, "child died") and site.result == "FAILED"
@@ -142,7 +144,8 @@ def test_mini_failure_is_retained_and_later_stages_still_run(code) -> None:
 
 
 @pytest.mark.parametrize("lose,ran", [("MINI", ["s3", "cold_assess", "ev_assess"]),
-                                       ("S4", ["s3", "cold_assess", "ev_assess", "mini", "opportunity"])])
+                                       ("S4", ["s3", "cold_assess", "ev_assess", "mini", "fuel_night",
+                                               "opportunity"])])  # OWN-G2 fuel_night after mini
 def test_lost_site_claim_stops_before_the_next_stage(lose, ran) -> None:
     runner, store = FakeRunner(), FakeStore(lose=lose)
     site = visit(runner, store)

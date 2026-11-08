@@ -2,8 +2,8 @@
 
     python -m assetops_backend.scheduling.stages <stage> '<json arguments>'
 
-<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|chain_threads|consequence|cold_consequence|ev_consequence|
-    chain_snapshots
+<stage>: discover|s3|cold_assess|ev_assess|mini|fuel_night|opportunity|s4|chain_threads|consequence|cold_consequence|
+    ev_consequence|chain_snapshots
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -11,7 +11,8 @@ options to every connection the child opens), and kills it when the stage's wall
 reaches the database only through the existing writer and store modules, by their compositions. Its last stdout
 line is `STAGE_RESULT {json}` with a typed `code`:
 
-- `OK` (discover, s3, cold_assess, ev_assess, mini, opportunity, consequence, cold_consequence, ev_consequence),
+- `OK` (discover, s3, cold_assess, ev_assess, mini, fuel_night, opportunity, consequence, cold_consequence,
+  ev_consequence),
   `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
 - `FENCE_MOVED`: the matcher fence moved under every planned attempt; retryable.
 - `MATCH_EVIDENCE_NOT_ACCEPTED`: the matcher cited an evidence ID that is not accepted in this Site; the same
@@ -469,9 +470,25 @@ def prebuild(url: str, args: dict[str, Any]) -> dict[str, Any]:
     return chain_prebuild.run(url)
 
 
+def fuel_night(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """OWN-G2 (build sheet OWN-GAPS §2.3): assess this Site's due diesel nights and raise their unexplained-fuel
+    Finding (`fuel_balance/scheduled.py` `run_site`), at most `limit`, before `deadline_at`, at DB time (both stores
+    are composed with no clock override)."""
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store, build_fuel_finding_service
+    from assetops_backend.fuel_balance.scheduled import run_site
+
+    t, s = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    store = build_fuel_balance_store(url)
+    findings = build_fuel_finding_service(url)
+    try:
+        return run_site(store, findings, t, s, int(args["limit"]), _deadline(args))
+    finally:
+        _dispose(store, findings)
+
+
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
     "discover": discover, "s3": s3, "cold_assess": cold_assess, "ev_assess": ev_assess, "mini": mini,
-    "opportunity": opportunity, "s4": s4, "chain_threads": chain_threads, "consequence": consequence,
+    "fuel_night": fuel_night, "opportunity": opportunity, "s4": s4, "chain_threads": chain_threads, "consequence": consequence,
     "cold_consequence": cold_consequence, "ev_consequence": ev_consequence, "chain_snapshots": chain_snapshots,
     "prebuild": prebuild}
 

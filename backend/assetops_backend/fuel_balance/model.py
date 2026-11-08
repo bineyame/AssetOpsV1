@@ -6,7 +6,7 @@ Reason and limitation codes are internal. Client wording belongs to K4/K5.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from fractions import Fraction
 from typing import Any, Mapping, Protocol
@@ -70,11 +70,37 @@ class AssessResult:
     appended: bool
 
 
+@dataclass(frozen=True)
+class ScheduleInputs:
+    """OWN-G2 (build sheet OWN-GAPS §2.4, R2-G2 Q2): the one read the `fuel_night` stage takes per Site.
+
+    `tank_asset_id`/`generator_asset_id` are set only when the Site has exactly one active FUEL_TANK and exactly one
+    active GENERATOR; otherwise both are None and the three maps are empty."""
+
+    known_at: datetime                              # UTC, taken first
+    timezone: str | None
+    tank_asset_id: str | None
+    generator_asset_id: str | None
+    reading_nights: Mapping[date, datetime]         # night -> latest decided_at of its tank fuel_level readings
+    records: tuple[tuple[datetime, datetime], ...]  # (occurred_at, head recorded_at) of the tank's fuel records
+    latest: Mapping[date, datetime]                 # night -> its latest window's recorded_at
+    window_records: Mapping[date, tuple[tuple[str, str], ...]] = field(default_factory=dict)  # night -> its latest window's stored (root_id, head_id) pairs
+    record_heads: Mapping[str, str] = field(default_factory=dict)  # root_id -> current head_id, same read as `records`
+
+
+@dataclass(frozen=True)
+class DuePlan:
+    eligible: bool
+    nights: tuple[date, ...]
+
+
 class FuelBalanceReadPort(Protocol):
     def windows(self, tenant_id: UUID, site_id: UUID, tank_asset_id: UUID,
                 lo: date, hi: date, known_at: datetime) -> tuple[FuelBalanceWindow, ...]: ...
 
     def window(self, tenant_id: UUID, site_id: UUID, window_id: UUID) -> FuelBalanceWindow | None: ...
+
+    def schedule_inputs(self, tenant_id: UUID, site_id: UUID, record_lookback: Any) -> ScheduleInputs: ...
 
 
 # --- DIESEL-K4a (§9j.5): the unexplained-fuel Finding read ------------------------------------------------------
