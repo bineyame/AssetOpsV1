@@ -3798,3 +3798,527 @@ For the owner's information, in plain words:
 - **New screens for Kisiwa only.** The fuel page gets a night-by-night view for Kisiwa, and the finding gets its own page. Kobo's fuel page stays as it is.
 - **The demo date does not move.** The work is about 0.6 unit bigger, all of it outside the longest chain of dependent steps.
 - **Preparing the demo takes a little longer.** The full demo preparation takes about 15 minutes more than first estimated. That is still well inside its 3-hour limit.
+
+---
+
+## 9m. Ruling DIESEL-1-R3m: K7-D stop S-7 (the fuel Finding as an Action origin) and the K6 consolidated card, split K6a / K6b
+
+- Architect: Claude, 2026-11-08. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27). Main at `4f6a5cae4`. K4a read on `task/DIESEL-K4a-unexplained-fuel-finding` at `ee86b5dea` (review packet; migration `0056_unexplained_fuel_finding`; `fuel_balance/finding_text.py`, `model.py` `FuelFinding`/`FuelFindingReadPort`, `composition.build_fuel_finding_service`).
+- Owner decisions in force, verbatim: `.agent/owner-missing-fuel-2026-11-07.md` ("'Unexplained fuel', never 'theft'"); `.agent/owner-scenario-data-2026-11-07.md` ("these are injected through operational actions"); `.agent/owner-kisiwa-scope-2026-11-07.md` ("Build it, with the action link (Recommended)").
+- **This ruling replaces** the K6 rows of §8.4 and §9.5, §8.5 (folded in below; its decisions stand except where named) and §9l.4's K6 bullets. It amends one line of §9l.3 (K7-D step 5) and fixes K7-F's freeze calls. Builders read only their part: K6a = §9m.1–§9m.3; K6b = §9m.1, §9m.4; K7 = §9m.5.
+- **H1–H5 (§8.2) bind every literal below.** Each client literal was checked by hand against guard V (`F/test/productVocabulary.json`: run/runs/ran/running, load, claim, candidate, necessary, analytic, scenario, simulat*, draft, commit, fixture, stage, mapping, binding, payload, replay, digest, UUID and the closed upper-case codes) and against H4 (theft, stolen, stole, siphon, pilfer). None contains a money figure, a currency or a price. "Modelled use" replaces "running" (K4a's precedent). Guard V's own run is the builder's acceptance (stops S-a6 / S-a6b).
+- READ = the Architect read the code at `4f6a5cae4` (and K4a at `ee86b5dea`); nothing was run.
+
+### 9m.1 Code reality: why S-7 fires, and the decisions it forces (READ)
+
+1. **Three independent refusals, not one.**
+   - `work/domain_action.py:118` `MINI_SPEC` has `origin=ORIGIN_OPPORTUNITY`, so `_action_body` (`:283-294`) demands the opportunity pair and refuses `origin_finding_*` keys.
+   - `work/domain_intent.py:102-109`: a Finding origin needs `revision["domain"] == spec.finding_domain` (no spec has `fuel_balance`), then `tx.selected_pin(revision)`. That is `work/adapters/postgres_work_read.py:299-309` `_pin`, which returns None for any domain other than `mini_grid`, `cold_chain`, `ev_charging`. So even a `fuel_balance` spec would be refused at the pin.
+   - **The database refuses it too.** `0051_action_opportunity_origin.py:78-79` `domain_action_mini_origin CHECK ((domain = 'MINI') = (origin_opportunity_id IS NOT NULL))`: a `MINI` Action with a Finding origin cannot be stored.
+2. **Options weighed.**
+   - **(A) A new Action domain `FUEL_BALANCE`, Finding origin. Chosen.** It follows the Cold/EV pattern (`COLDCHAIN`/`cold_chain`, `EV_CHARGING`/`ev_charging`). `domain_action_mini_origin` stays exactly as it is and, unchanged, forces `FUEL_BALANCE` to carry a Finding origin. The mill's `MINI` contract and every MINI reader stay byte-equal. One DDL line widens `domain_action_domain_chk`.
+   - **(B) Let `MINI` take either origin.** Rejected. It relaxes `domain_action_mini_origin`, and several readers treat `MINI` as "the mill" (`actions/verification.py:387`, `verification_families.py:137`, the MB-1 board path). Each would need a second test. It mixes two levers under one literal.
+   - **(C) A W1 `action` (the reserve-trial table).** Rejected: its plan columns are reserve-shaped (Foundation change, battery asset, 60-minute windows; 0019, 0052's reserve arm).
+   - **(D) Let K7-D write the Action with SQL.** Rejected: it bypasses the sole writer and K7's S-10.
+3. **The fuel selection check.** A fuel Finding has no dispatch, cold or EV selection to pin. Its "selected" revision is simply the Finding's latest revision as known, if it is SUPPORTED (K4a's lifecycle, §9j.4). K6a adds that check to the domain-intent transaction and skips `selected_pin` for the fuel domain. `_pin` is not edited.
+4. **Readers keyed by Action domain** (`git grep "FROM domain_action"`, READ):
+   - `work/adapters/postgres_domain_action_index.py:66-79`: the Cold/EV Action surface. It excludes the mill by `origin_opportunity_id IS NULL`, so a fuel Action would appear there, where the page dispatches by `spec_of` and Cold/EV criteria. **Decision:** both predicates become the positive `domain IN ('COLDCHAIN', 'EV_CHARGING')`. Today this is the same set: 0051 ties `MINI` to the opportunity pair, so `origin_opportunity_id IS NULL` holds exactly for those two domains. The R3k precedent applies (a positive filter, never a deny-list).
+   - `work/adapters/postgres_work_read.py:93` `_FINDING_DOMAIN_OF` (the maintenance request's domain-link lineage, `:275`). Without an entry the request page would show the fuel Action's link with broken lineage. **Decision:** one entry, `"FUEL_BALANCE": "fuel_balance"`. The row then reads like the mill's: lineage true, pin None. `backend/tests/test_w504_ev_intent_postgres.py:154` pins the map; it gains that one key (an approved assertion edit; the Cold and EV values are unchanged).
+   - Safe as they are: `actions/adapters/postgres_action_store.py:298` (the code collision check) and `:748` (the mill context, which refuses non-MINI); `chain/adapters/postgres_chain_read.py:89`; `chain/adapters/postgres_thread_sources.py:73`, `:185`; `chain/lookup.py:44`; `work/adapters/postgres_work_read.py:52` (codes).
+5. **The chain links the Action to the fuel thread with no new code.** `postgres_thread_sources.py:44-56` links a `DOMAIN_INTENT` by `origin_finding_id`, and K4a's thread (`UNEXPLAINED_FUEL`, ASSET, tank) holds the Finding. K7's Kisiwa-only backfill (`--steps a,b,c,d`, §9l.3 step 4) runs after the Action.
+6. **But the chain's Action Ref would be wrong.** `chain/site_chain.py:147-152` `action_wire_ref` gives every Finding-origin `DOMAIN_INTENT` an `ACTION` Ref (`/sites/{site}/actions/{id}`, the W1 Action page). The fuel Action has no W1 row, so the link would show "not found". `_SITE_ACTIONS` (`postgres_chain_read.py:83-101`) does not carry the Action domain. **Decision (K6b):** `_SITE_ACTIONS` gains an `action_domain` column (a scalar subquery, like `accepted_at`; no view or DDL change), and `action_wire_ref` sends a `FUEL_BALANCE` Action to its verdict page, as DD1b2-R6 O1 did for the mill.
+7. **The verification store is domain-ready but mill-hardwired.**
+   - 0052 already made `verification_plan`, `verification_evaluation_request` and `verification_outcome` domain-Action-capable (`domain_action_id`, the three one-of CHECKs). Only the family CHECK (`verification_plan_family`) and the `rule_id`/`plan_version` CHECKs name the families. 0057 adds the fuel arm.
+   - `VerificationService.freeze_domain_plan`/`evaluate_domain_plan`/`domain_summary` (`actions/verification.py:356-397`) call `FAMILIES[MIDDAY]` directly, and `domain_summary` refuses non-MINI. **Decision:** the mill methods stay byte-equal. K6b adds three fuel methods beside them, and a separate store context and freeze for the fuel plan, so the mill's `DOMAIN_PLAN_COLUMNS`, `domain_plan_context` and plan wire stay byte-equal. The outcome writer, the outcome read and `example_source_class` are shared unchanged.
+8. **Why split.** The origin fix (K6a, about 0.6) unblocks K7-D's Action step and is small enough to merge fast. The verification family, verdict page and board entry (K6b, about 1.4) follow. **One migration (0057), owned by K6a, carries both DDL parts.** K6b then needs no migration, and the family columns are pinned now, in §9m.2.
+
+### 9m.2 Migration `backend/migrations/versions/0057_fuel_verification.py` (owned by K6a)
+
+`revision = "0057_fuel_verification"`, `down_revision = "0056_unexplained_fuel_finding"`. The renumber rule (§8.4) stands: if another migration lands first, K6a takes the next number. The head-agnostic single-head test (§9j.8 B6) catches a miss.
+
+1. **Action domain.** `ALTER TABLE domain_action DROP CONSTRAINT domain_action_domain_chk, ADD CONSTRAINT domain_action_domain_chk CHECK (domain IN ('COLDCHAIN', 'EV_CHARGING', 'MINI', 'FUEL_BALANCE'));` `domain_action_mini_origin`, `domain_action_one_origin`, the FKs and the code-collision trigger are **not** touched. Unchanged, they force a `FUEL_BALANCE` row to carry the Finding pair.
+2. **Verification families.** In one `ALTER TABLE verification_plan`, drop and re-add, by the same names:
+   - `verification_plan_plan_version_check CHECK (plan_version IN ('reserve-trial-verification-1', 'midday-productive-shift-verification-1', 'fuel-residual-verification-1'))`;
+   - `verification_plan_rule_id_check CHECK (rule_id IN ('reserve-trial-1', 'midday-productive-shift-1', 'fuel-residual-within-band-1'))`;
+   - `verification_plan_family CHECK (` 0052's `_FAMILY` text verbatim (both arms) `OR (rule_id = 'fuel-residual-within-band-1' AND plan_version = 'fuel-residual-verification-1' AND action_id IS NULL AND applied_event_id IS NULL AND change_id IS NULL AND old_foundation_revision_id IS NULL AND new_foundation_revision_id IS NULL AND battery_asset_id IS NULL AND field IS NULL AND baseline_candidate_seconds IS NULL AND domain_action_id IS NOT NULL AND origin_finding_revision_id IS NOT NULL AND applied_work_event_id IS NOT NULL AND origin_opportunity_revision_id IS NULL AND supersedes_plan_id IS NULL AND triggering_fixture = 'fuel-seal-dip-sensor-power@1' AND baseline_start < baseline_end AND later_end - later_start = interval '14 days' AND baseline_end <= later_start))`.
+   - Build the fuel arm with 0052's `_all` helper and copy 0052's `_FAMILY` as `FAMILY_0052` (used by the downgrade). The reserve arm keeps every reserve column NOT NULL, so a fuel row (reserve columns NULL except `origin_finding_revision_id`) can only match the fuel arm.
+   - `origin_finding_revision_id` keeps its 0019 FK to `finding_revision`, which is how the plan cites the fuel Finding revision. 0019's `verification_plan_window_order` (`baseline_end <= effective_from AND later_start >= effective_from`) applies unchanged.
+   - Nothing changes on `verification_evaluation_request`, `verification_outcome`, `verification_metric` or the 0044 producer (0052 made them domain-capable).
+3. **Downgrade.** `LOCK TABLE verification_metric, verification_outcome, verification_evaluation_request, verification_plan, domain_action_case_link, domain_action_intent, domain_action IN ACCESS EXCLUSIVE MODE`. Refuse with `RuntimeError("0057 downgrade requires no fuel-balance Actions or fuel verification plans")` if any `domain_action.domain = 'FUEL_BALANCE'` or `verification_plan.rule_id = 'fuel-residual-within-band-1'` row exists. Otherwise restore 0052's three CHECKs and 0051's domain CHECK (constants `..._0052`, `DOMAIN_CHK_0051`).
+4. No other object changes.
+
+### 9m.3 K6a card: the fuel Finding as a domain-Action origin (0057), 0.6 (range 0.5–0.75)
+
+**What K6a delivers.** Migration 0057 (§9m.2); the `FUEL_BALANCE` domain-Action contract; the fuel selection check; the Cold/EV index filter; the request-lineage map entry. **No verification code, no Ref kind, no page, no board edit** (K6b).
+
+**Exact specification.**
+1. `B/work/domain_action.py`, beside `MINI_SPEC`:
+   ```python
+   #: DIESEL-1-R3m: an Action raised from an unexplained-fuel Finding (lever `fuel-seal-dip-sensor-power@1`: seal the
+   #: tank cap, sign the dip log at every shift change, put the tank sensor on its own protected supply). Finding
+   #: origin (the 0051 CHECK forces it); no declared intent (`DOMAINS` stays the intent-capable Cold/EV set);
+   #: APPLIED is its linked case's COMPLETE.
+   FUEL_DOMAIN = "FUEL_BALANCE"
+   FUEL_FINDING_DOMAIN = "fuel_balance"
+   FUEL_MESSAGES = {
+       "DOMAIN_INTENT_INVALID": "The fuel Action declaration is incomplete or invalid.",
+       "DOMAIN_INTENT_LINK_INVALID": "The declared unexplained-fuel Finding is not its current supported version at this site and time.",
+       "DOMAIN_INTENT_CONFLICT": "This Action declaration has a newer version; reload it.",
+       "DOMAIN_INTENT_BASIS_CHANGED": "The selected fuel work basis changed; reload the Action.",
+       "ACTION_NOT_FOUND": "Action was not found at this site.",
+   }
+   FUEL_SPEC = DomainSpec(FUEL_DOMAIN, FUEL_FINDING_DOMAIN, (), "Seal the tank cap, sign the dip log, protect the tank sensor's power",
+                          (), FUEL_MESSAGES, (), origin=ORIGIN_FINDING, site_type="MINIGRID")
+   ACTION_DOMAINS: Mapping[str, DomainSpec] = {**DOMAINS, MINI_DOMAIN: MINI_SPEC, FUEL_DOMAIN: FUEL_SPEC}
+   ```
+   - `DOMAINS`, `BY_FINDING_DOMAIN`, `_COMMON_BASIS` and `_ANY_BASIS` are unchanged (pinned by test A2). `_action_body` needs no edit: `origin=ORIGIN_FINDING` selects the Finding pair.
+2. `B/work/domain_intent.py` `create_action`, the Finding branch (`:101-110`) becomes:
+   ```python
+   revision = tx.finding_revision(normalized["origin_finding_id"], normalized["origin_finding_revision_id"])
+   if revision is None or revision["domain"] != spec.finding_domain:
+       raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+   if spec.domain == d.FUEL_DOMAIN:
+       # DIESEL-1-R3m: a fuel Finding has no analytic selection to pin; its selected revision is its latest as known,
+       # when SUPPORTED (K4a lifecycle).
+       if not tx.fuel_finding_selected(revision["finding_id"], revision["id"]):
+           raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+   else:
+       pin = tx.selected_pin(revision)
+       if pin is None or (spec.domain == d.EV_DOMAIN and selected_ev_finding(tx, pin, revision["id"]) is None):
+           raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+   origin = {k: normalized[k] for k in ("origin_finding_id", "origin_finding_revision_id")}
+   ```
+   - The site-type gate (`:94`) already refuses a non-MINIGRID Site, because `FUEL_SPEC.site_type == "MINIGRID"`.
+   - `post_intent` already refuses (`:152-153`, no criteria). `post_case_link` already works (domain-independent; `_spec` finds `FUEL_SPEC`).
+   - `_check_basis` is never reached for the fuel domain (there is no intent).
+3. `B/work/adapters/postgres_domain_intent.py` `_DomainTx` gains:
+   ```python
+   def fuel_finding_selected(self, finding_id: str, revision_id: str) -> bool:
+       """DIESEL-1-R3m: this revision is its Finding's latest by `command_now`, of the fuel domain and analytic, and
+       SUPPORTED."""
+       return self._c.execute(text(
+           "SELECT EXISTS (SELECT 1 FROM finding_revision fr WHERE fr.tenant_id = :t AND fr.site_id = :s "
+           "AND fr.finding_id = :f AND fr.id = :r AND fr.domain = 'fuel_balance' AND fr.analytic_id = 'fuel-balance-1' "
+           "AND fr.lifecycle = 'SUPPORTED' AND fr.created_at <= :now AND fr.revision_no = (SELECT max(x.revision_no) "
+           "FROM finding_revision x WHERE x.tenant_id = :t AND x.site_id = :s AND x.finding_id = :f "
+           "AND x.created_at <= :now))"), self._p(f=finding_id, r=revision_id)).scalar_one()
+   ```
+   `insert_action`'s Finding-pair INSERT (`:139-144`) already writes it. No other store change.
+4. `B/work/adapters/postgres_domain_action_index.py:69-79`: in both `action` and `actions_in_window`, `AND origin_opportunity_id IS NULL` becomes `AND domain IN ('COLDCHAIN', 'EV_CHARGING')`. The comment at `:66-67` gains: "DIESEL-1-R3m: positive Cold/EV filter (the same set under 0051's MINI tie); a fuel Action is read through the chain and its verdict page."
+5. `B/work/adapters/postgres_work_read.py:93`: `_FINDING_DOMAIN_OF = {**{name: spec.finding_domain for name, spec in DOMAINS.items()}, FUEL_DOMAIN: FUEL_FINDING_DOMAIN}` (import the two names).
+
+**Client wording (K6a):** only the five `FUEL_MESSAGES` (API refusal texts) and `FUEL_SPEC.summary`. They are added to `test_out_b2_vocabulary.py`'s scan list.
+
+**Tests (localised; no full suite).** Each "must fail" names the mutation the reviewer applies to a scratch copy.
+- **L0 `backend/tests/test_k6a_fuel_action_origin.py` (no DB, fake tx):**
+  1. `action_body` for `FUEL_BALANCE` with the Finding pair normalizes; with the opportunity pair (or both pairs) → 422 with `FUEL_MESSAGES["DOMAIN_INTENT_INVALID"]`. Must fail if `FUEL_SPEC.origin` is `ORIGIN_OPPORTUNITY`.
+  2. `set(ACTION_DOMAINS) == {COLDCHAIN, EV_CHARGING, MINI, FUEL_BALANCE}`; `DOMAINS` and `BY_FINDING_DOMAIN` equal their pinned values. Must fail if `FUEL_SPEC` is added to `DOMAINS` (that would make an intent possible).
+  3. `create_action` with a fake tx: a `mini_grid` revision → LINK_INVALID; `fuel_finding_selected` False → LINK_INVALID; site type `COLDCHAIN` → LINK_INVALID; selected → 201 with `domain = FUEL_BALANCE` and the Finding pair. The fake's `selected_pin` raises if called. Must fail if the fuel branch falls through to `selected_pin`.
+  4. `post_intent` on a stored `FUEL_BALANCE` Action → 422 with the fuel literal.
+  5. The five messages and the summary pass guard V's terms and the H4 words.
+- **L2 `backend/tests/test_k6a_fuel_action_origin_postgres.py`, own `assetops_k6_test`.** A fuel Finding is raised the K4a way (synthetic windows through `PostgresFuelBalanceStore.append` with the test clock, then `build_fuel_finding_service(…).raise_night`, as §9j.8 B3):
+  1. **0057** up/down/up on empty tables. The domain CHECK and the three family CHECKs as pg prints them. Downgrade refused with a `FUEL_BALANCE` Action and with a fuel plan row. Raw inserts: `MINI` + Finding pair, and `FUEL_BALANCE` + opportunity pair, both refused (`domain_action_mini_origin`). A fuel plan row with a reserve column set, or a different `triggering_fixture`, or `later_end − later_start ≠ 14 days`, refused (`verification_plan_family`). Single alembic head, head-agnostic.
+  2. **Create:** 201 with an `ACT-` code; an identical retry → 200; another body under the same key → 409.
+     - The Finding's later NO_LONGER_SUPPORTED revision → LINK_INVALID. Must fail if `fr.lifecycle = 'SUPPORTED'` is dropped.
+     - An older SUPPORTED revision while a newer one exists → LINK_INVALID. Must fail if the `max(revision_no)` predicate is dropped.
+     - A revision created after `command_now` → LINK_INVALID.
+  3. **Case:** create a `MAINTENANCE_REQUEST`, post a record, `ASSIGN`, `COMPLETE`, then `post_case_link` on the head → 201.
+  4. **Index:** `PostgresDomainActionRead` `action(id)` is None and `actions_in_window` omits the fuel Action, while the K6a test's Cold Action (built as `test_w502_*` does) is still listed. Must fail if the predicate reverts to `origin_opportunity_id IS NULL`.
+  5. **Request lineage:** the request detail's domain-link row for the fuel Action has `lineage` true and `pin` None.
+  6. **Thread link:** after `run_threads` (`chain/backfill.py:33`), one `chain_action_thread` row joins the Action to the fuel Finding's thread.
+- **Must stay green unchanged:** `test_w502_*`, `test_w504_*` (except the one pin line, item 5 above), `test_ch9b1_*`, `test_ch9b2_*`, `test_ch9b3_*`, the `test_s4_*` domain-action tests, K4a's tests. Any behaviour edit is stop S-a5.
+- **Guards:** `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1`, run directly, with no `-ExecutionPolicy`.
+
+**Files (approved list; anything else is stop S-a4).** `backend/migrations/versions/0057_fuel_verification.py`; `B/work/domain_action.py`; `B/work/domain_intent.py`; `B/work/adapters/postgres_domain_intent.py`; `B/work/adapters/postgres_domain_action_index.py`; `B/work/adapters/postgres_work_read.py` (`:93` only); the two test files; `backend/tests/test_w504_ev_intent_postgres.py:154`; `backend/tests/test_out_b2_vocabulary.py`; the K3/K4a head tests only if they still name a fixed head (head bookkeeping, §9j.8 B6).
+
+**PRE-FLIGHT (no code first; batch every question in one message).**
+- (a) Every reader of `domain_action` or of `chain_action` rows that dispatches on the Action domain (`git grep -n "spec_of\|ACTION_DOMAINS\|\.domain\b" backend/assetops_backend/work backend/assetops_backend/chain`), with file:line, and what each does with `FUEL_BALANCE`. A reader that raises or mis-renders and is not fixed by this card is stop S-a3.
+- (b) The frontend text the maintenance request page shows for a domain link with `lineage` true and `pin` None (the mill's case), with file:line.
+- (c) Whether any golden or test asserts the exact `actions_in_window` SQL text.
+- (d) That K4a's `raise_night` gives a `finding_revision.lifecycle = 'SUPPORTED'` row with `analytic_id = 'fuel-balance-1'` (READ on the K4a branch).
+
+**Stops (report to the Architect; never design around them).**
+- **S-a1** 0057 needs any object beyond §9m.2.
+- **S-a2** `domain_action_mini_origin` or `domain_action_one_origin` would need relaxing.
+- **S-a3** a PRE-FLIGHT (a) reader fails on `FUEL_BALANCE`.
+- **S-a4** a file outside the list, or any Cold, EV or mill served byte changes.
+- **S-a5** an existing test needs a behaviour change (head bookkeeping and the one pin line excepted).
+- **S-a6** guard V or the H4 scan flags a K6a literal.
+- **S-a7** more than 0.8 units.
+
+**Dependencies, start, branch, DB, size.**
+- **Before K4a merges:** pre-flight, the migration text (with `down_revision` 0056), the spec, the service branch, the store method and the L0 tests can all be written and run.
+- **After K4a merges:** `git merge main`, then L2. **K6a merges before K6b starts its L2 and before K7-D's Action step.**
+- Branch `task/DIESEL-K6a-fuel-action-origin`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k6a`, from main at or after this ruling's commit. Opus does the first build and the first review. `git add -f` of explicit paths; `git merge main`, never rebase.
+- **DB: only `assetops_k6_test`** (and its harness clones). Never `assetops_demo3_full_test` or any other DB. No prepare, tick, `serve` or suite.
+- **Size 0.6** (range 0.5–0.75): migration 0.2; spec, branch, store method, index, map 0.12; L0 0.08; L2 0.15; pre-flight and packet 0.05.
+- **Reading budget:** §9m.1–§9m.3; `work/domain_action.py`; `work/domain_intent.py`; `work/adapters/postgres_domain_intent.py:30-145`; `work/adapters/postgres_domain_action_index.py:55-95`; `work/adapters/postgres_work_read.py:50-95`, `:240-298`; `0051_action_opportunity_origin.py:60-100`; `0052_verification_plan_domain.py`; `0019_verification_core.py:40-110`; K4a's `0056_unexplained_fuel_finding.py` and `backend/tests/test_k4a_fuel_finding_postgres.py` (the raise helpers).
+
+### 9m.4 K6b card: `fuel-residual-within-band-1`, the verdict page and the board entry, 1.4 (range 1.25–1.6)
+
+**What K6b delivers.**
+- The pure family (`B/actions/fuel_verification.py`): night choice, verdict, outcome rows and client text.
+- The plan freeze and the evaluation (service methods, a separate store context, ports, composition).
+- The verdict read API and the page `F/sites/SiteFuelResidualVerification.tsx` at its own route, with the Ref kind `FUEL_VERDICT`.
+- The chain Action Ref fix (§9m.1 item 6) and the Kisiwa board's Assure "Verified results" entry. **No value line, anywhere (H2).**
+- Finish rows **KIS-5** (moved here from K9) and **KIS-10** (new).
+- **Not in K6b:** a tick stage (the evaluation is explicit, as K3's assess and K4a's raise are; the after-the-demo list gains "fuel verdict tick stage"), the Portfolio Assure count (K8), the Protect thread line (K4b), and any edit to the mill's methods, columns, wire or page.
+
+**The family (pure; no I/O; `B/actions/fuel_verification.py`).** It imports `reserve_trial`, `verification_rules as rules`, `actions.ports.ActionRefused`, `actions.lifecycle.SYSTEM_DEMO`, `fuel_balance.model` (types only) and `fuel_balance.finding_text` (`litres1`, `short_day`). It never imports `verification_families` (that avoids a cycle), `financials`, `fuel_cost*` or any price module.
+```python
+FUEL = "fuel-residual-within-band-1"
+FUEL_PLAN_VERSION = "fuel-residual-verification-1"
+FUEL_LEVER = "fuel-seal-dip-sensor-power@1"          # verification_plan.triggering_fixture (0057 pins it)
+FREEZE_COMMAND = "FREEZE_FUEL_VERIFICATION_PLAN"
+MIN_NIGHTS, LOOK_NIGHTS = 3, 14
+METRIC_KEY = "fuel_residual_night"
+EVALUATOR_JOB = "fuel-verification-evaluator"
+#: §8.5, verbatim; frozen in the plan; never fitted.
+TARGET = {"rule": "every later night: residual_low <= 0 <= residual_high and reporting_gap_minutes == 0",
+          "over": "first 3 COMPLETE nights after the change",
+          "basis": "owner-reviewed design, fuel-loss-feasibility Part A §3 Verify, chosen 2026-11-07"}
+NIGHT_RULE = ("A night counts only when its stored fuel check is assessed (state is not NOT_ASSESSED) and every "
+              "generator slot of the night is known (terms.unknown_slots == 0); nights are chosen by data quality "
+              "only, never by value.")
+BASIS_TEXT = ("SYSTEM_DEMONSTRATION: story-time freeze of a fuel Action's verification plan after its work case is "
+              "COMPLETE and linked; no verified human principal exists, so no operator approval is recorded")
+TARGET_MET, TARGET_MISS, LATER_SHORT = "TARGET_MET", rules.TARGET_MISS, "LATER_SHORT"
+```
+- **Later candidates** `later_nights(effective_from, tz) -> list[date]` (14 dates). `d0` = the Site-local date of `effective_from`. If the window start of `d0` (18:00 local on `d0`, as UTC) is earlier than `effective_from`, use `d0 + 1` instead. The candidates are `d0 … d0 + 13`. A window that starts exactly at `effective_from` counts (`>=`).
+- **COMPLETE night** `complete(w) -> bool`: `w is not None and w.state != "NOT_ASSESSED" and int(w.terms["unknown_slots"]) == 0`. Gap minutes do **not** affect COMPLETE: a gap is part of the target and fails it.
+- **Night passes** `passes(w) -> (bool, reason|None)`: `w.residual_low <= 0 <= w.residual_high` (exact `Fraction`; no tolerance) **and** `w.gap_minutes == 0`. The failure reason is `"BAND"` when the band test fails (checked first), else `"GAP"`.
+- **Verdict** `assess(plan, windows_by_date, now) -> dict`. `windows_by_date` = the latest revision per candidate night as known at `now` (`FuelBalanceReadPort.windows(…, d0, d0 + 14, known_at=now)`):
+  1. `chosen` = the first 3 candidates, in date order, that are COMPLETE (chosen by grade, never by value).
+  2. `closed` = the window end of the 14th candidate (12:00 local on `d0 + 14`) is `<= now`.
+  3. If 3 are chosen, or `closed`: if any chosen night fails → `INEFFECTIVE`, `[TARGET_MISS]`, with the sentence naming the **first** failing night; else if 3 are chosen → `VERIFIED`, `[TARGET_MET]`; else → `INCONCLUSIVE`, `[LATER_SHORT]`.
+  4. Otherwise: not decided (`NOT_JUDGED`; nothing is stored).
+- **Outcome rows** `outcome_rows(plan, result, now, source_class)`, the mill's shape (`verification_families.outcome_rows`):
+  - Metrics, PK `(outcome_id, metric_key, window_name)`, all with `METRIC_KEY`:
+    - BASELINE: `PASS`, `value` = the baseline range text, `reason` = "night {date}: UNEXPLAINED".
+    - LATER: `PASS` if 3 were chosen, else `UNKNOWN`; `value` = `"{n} of 3"`; `reason` = the chosen night dates joined by ", ".
+    - COMPARISON: `PASS`/`FAIL`/`UNKNOWN` by outcome; `reason` = `TARGET["rule"]`.
+    - `unit` = "L".
+  - `basis` = `{plan_id, plan_sha256, rule_id: FUEL, plan_version, target: TARGET, windows_known_at}`.
+  - `details` = `{"baseline": {window pin}, "later": [{night_date, window_id, revision, input_sha256, state, residual_low, residual_high, gap_minutes, passes, fail_reason}], "first_fail": date|None, "sentence", "source": {"source_class"}, "look_ahead_closed"}`.
+  - `idempotency_key` = `f"fuel-outcome-{plan_id}"`; `actor_id` "service:verification-evaluator"; `triggering_job` = `EVALUATOR_JOB`.
+- **Client literals** (all server-composed; the browser formats no number; litres via K4a's `finding_text.litres1`, dates via `finding_text.short_day`):
+```python
+HEADLINE = {"VERIFIED": "Fuel stayed accounted for", "INEFFECTIVE": "Target not met",
+            "INCONCLUSIVE": "Could not conclude", "NOT_JUDGED": "Not judged yet",
+            "NO_PLAN": "No verification plan yet"}
+VERIFIED_TEXT = ("On {n} fully checked nights after the change, the fuel in the tank matched the generator's "
+                 "modelled use and the recorded deliveries within the stated margin, and the tank sensor sent "
+                 "readings all night.")
+FIXED_LINE = ("This check shows the fuel stayed accounted for after the change; it does not measure how much the "
+              "change itself prevented.")                     # H1, §8.2 verbatim; shown in every state
+MISS_BAND_TEXT = ("On the night of {date}, after the change, the fuel in the tank did not match the generator's "
+                  "modelled use and the recorded deliveries within the stated margin.")
+MISS_GAP_TEXT = "On the night of {date}, after the change, the tank sensor did not send readings all night."
+LATER_TEXT = "Not judged yet: only {n} of 3 fully checked nights after the change"
+LATER_SHORT_TEXT = ("Only {n} of 3 fully checked nights after the change in the 14 nights allowed, so no verdict "
+                    "is given")
+CRITERION_TEXT = ("3 fully checked nights after the change within the stated margin, with the tank sensor sending "
+                  "readings all night")
+RULE_TEXT = ("Rule fixed before the check: the first 3 fully checked nights after the change must each stay within "
+             "the stated margin, with the tank sensor sending readings all night.")
+ACTIVITY_NOTE = "Completed work is evidence of activity, not resolution."     # v69 :502, verbatim
+NIGHT_TEXT = "{date} (6 pm to noon)"
+RANGE_TEXT = "{lo} to {hi} L"
+SENSOR_ALL = "Readings all night"
+SENSOR_GAP = "No readings for {m} min"
+RESULT_PASS, RESULT_BAND, RESULT_GAP = "Within the margin", "Outside the margin", "Sensor gap"
+BASELINE_ROW = "The night of the finding"
+BASELINE_RESULT = "Unexplained fuel found"
+NOT_CHECKED = "Not checked yet"
+CARDS = (("Nights checked after the change", "{n} of 3", "Chosen by data quality, never by result"),
+         ("Fuel accounted for", "{k} of {n} nights", "Within the stated margin"),
+         ("Tank sensor", "Readings all night on {g} of {n} nights", "A gap is more than 60 minutes without a reading"),
+         ("Final outcome", "{headline}", "Decided by the rule fixed before the check"))
+LITERALS = (...every string above...)        # scanned by the local guard test and test_out_b2_vocabulary.py
+```
+  - When `n == 0`, cards 2 and 3 show `NOT_CHECKED` as the value.
+  - `{m}` is the stored `gap_minutes`.
+  - `{date}` is `short_day(night_date)` ("4 Oct" form).
+
+**Freeze** `VerificationService.freeze_fuel_plan(tenant_id, site_id, domain_action_id) -> (int, dict)`. A service method, with no HTTP route, as the mill's is. In order:
+1. `ctx = store.fuel_plan_context(t, s, a)`, a new read in `postgres_action_store.py`. It returns the Action (`id, action_code, title, owner_label, domain, origin_finding_id, origin_finding_revision_id`, Site `timezone`), `applied` (the first COMPLETE `work_event` of a linked case: `id, case_id, occurred_at`, plus the case's `public_code`; the mill's statement) and the existing plan (`FUEL_PLAN_COLUMNS` = `DOMAIN_PLAN_COLUMNS + ", origin_finding_revision_id"`). None → 404 `ACTION_NOT_FOUND` "No such Action for this Site.".
+2. If a plan exists → 200 `{"replayed": True, "plan": plan_wire(plan)}`.
+3. `domain != "FUEL_BALANCE"` → 409 `VERIFICATION_FAMILY_UNSUPPORTED` "Only an Action raised from an unexplained-fuel Finding has a fuel verification plan."
+4. `applied is None` → 409 `VERIFICATION_ACTION_NOT_APPLIED` "A verification plan needs the Action's linked work case to be COMPLETE."
+5. Either fuel port is None → 503 `VERIFICATION_FUEL_READ_UNAVAILABLE` "The fuel checks cannot be read."
+6. `ff = ports.fuel_findings.fuel_finding(t, s, origin_finding_id, known_at=now)`. If it is None, or the window its origin revision cites cannot be read (the plan cites **the Action's** `origin_finding_revision_id`: read that revision's claim `fuel_balance_window_id`, then `ports.fuel_windows.window(t, s, id)`) → 409 `VERIFICATION_ORIGIN_UNAVAILABLE` "The Action's unexplained-fuel Finding or its night check cannot be read."
+7. `effective_from = applied["occurred_at"]` (UTC). **This is the effective-time field: `verification_plan.effective_from`, the linked case's first COMPLETE `occurred_at`** (the mill's anchor, `applied_work_event_id`).
+   - `effective_from < baseline.window_end` → 409 `VERIFICATION_EFFECTIVE_BEFORE_BASELINE` "The change is recorded before the end of the night it answers."
+8. Compute `later = later_nights(effective_from, tz)`. If `later_start` (the window start of `later[0]`) is `<= now` → 409 `VERIFICATION_LATER_WINDOW_STARTED` "The first night after the change has already begun; the plan must be frozen before it." (pre-registration).
+9. Plan row:
+   - `rule_id` FUEL; `plan_version`; `domain_action_id`; `origin_finding_revision_id`; `applied_work_event_id`; `effective_from`;
+   - `baseline_start`/`baseline_end` = the baseline window's; `later_start` = `later[0]`'s window start; `later_end` = `later_start + 14 days`;
+   - `baseline_selection` = `{"state": "COMPLETE", "night_date", "window_id", "window_revision", "input_sha256", "state_found": "UNEXPLAINED", "residual_low", "residual_high", "gap_minutes"}` (exact text); `baseline_evidence_ids []`;
+   - `basis` = `{"timezone", "night_rule": NIGHT_RULE, "applied": {work_event_id, case_id, occurred_at}, "origin": {finding_id, revision_id}, "tank_asset_id", "windows_known_at": now}`;
+   - `target` = `TARGET`; `guardrails {}`; `bands {}`;
+   - `coverage {"min_nights": 3, "look_ahead_nights": 14}`;
+   - `later_selection_rule {"rule": "the first 3 COMPLETE nights whose window starts at or after effective_from, at most 14 nights ahead, chosen by grade only at evaluation", "min_nights": 3, "candidates": {"from", "to"}}`;
+   - `plan_sha256` = `reserve_trial.sha(content)`; the `SYSTEM_DEMO` actor columns; `authorization_basis` = `BASIS_TEXT`; `triggering_fixture` = `FUEL_LEVER`;
+   - `idempotency_key` = `f"fuel-plan-{domain_action_id}"`; `payload` = `{"command": FREEZE_COMMAND, "domain_action_id"}`; `recorded_at` = now.
+10. `store.freeze_fuel_plan(t, s, plan)` (the mill's `freeze_domain_plan` body with `FUEL_PLAN_COLUMNS`, the same advisory lock key form `verification-plan:{id}`) → 201, or 200 replayed.
+
+**Evaluate** `VerificationService.evaluate_fuel_plan(tenant_id, site_id, domain_action_id) -> dict`. Mirrors `MiddayShift.evaluate`:
+- 404 if there is no context.
+- `{"state": "NO_PLAN", "stored": False}` if the plan is missing or not FUEL.
+- If an outcome exists → `{"state", "stored": False, "replayed": True, "outcome_id"}`.
+- 503 if a port is missing.
+- `assess`. If not decided → `{"state": "NOT_JUDGED", "stored": False, "not_judged_text": LATER_TEXT…}`.
+- Otherwise `source_class = store.example_source_class(t, s, used_dates, tz, now)`, where `used_dates` = for the baseline night and each chosen night, its `night_date` and `night_date + 1`, sorted and distinct (WD-1m-R2). Then `outcome_rows`, then `store.record_domain_outcome` (shared, unchanged) → `{"state", "stored", "replayed", "outcome_id"}`.
+
+**Summary** `VerificationService.fuel_summary(tenant_id, site_id, domain_action_id) -> dict`. Read-only, the page's only read. A stored outcome is read back, never recomputed; with no outcome, the live `assess` gives the not-judged text. 404 if there is no context; 409 `VERIFICATION_FAMILY_UNSUPPORTED` for a non-fuel Action. Wire, `fuel_summary_wire(ctx, plan, outcomes, live, origin, baseline, site_code)`:
+```
+{"action_id", "action_code", "title", "owner_label", "rule_id": FUEL,
+ "state": VERIFIED|INEFFECTIVE|INCONCLUSIVE|NOT_JUDGED|NO_PLAN, "headline": HEADLINE[state],
+ "sentence": VERIFIED_TEXT|MISS_*_TEXT|LATER_SHORT_TEXT|None, "not_judged_text": LATER_TEXT|None,
+ "fixed_line": FIXED_LINE, "criterion_text": CRITERION_TEXT, "rule_text": RULE_TEXT,
+ "cards": [{"label", "value", "note"}] (4),
+ "origin": {"finding_id", "revision_id", "title": finding_text.TITLE, "night_text", "ref": fuel_finding_ref(...), "href"},
+ "nights": [{"role": "BASELINE"|"LATER", "label": BASELINE_ROW|NIGHT_TEXT, "range_text", "sensor_text",
+             "result_text", "passes": bool|None, "window_id", "revision"}],   # baseline first, then chosen later nights
+ "activity": {"case_code", "case_ref": case_ref(...), "case_href", "completed_text": "{d} {Mon} {HH:MM}" Site-local,
+              "site_visit_text": the SITE_VISIT body citing the case, or None, "note": ACTIVITY_NOTE} | None,
+ "effective_from": ISO, "plan": {"plan_id", "later_candidates": {"from","to"}} | None,
+ "outcome": {"outcome_id", "outcome", "reasons", "recorded_at", "source_class"} | None,
+ "value": None, "cost_check": None}
+```
+- `value` and `cost_check` are **always** null (H2).
+- No key anywhere in the wire contains `amount`, `price`, `currency` or `money`.
+- The SITE_VISIT text is read through the existing Work read port (PRE-FLIGHT (d) names it). It is the first `SITE_VISIT` operational record whose `case_id` is the linked case, as known. If it is absent, the field is None and the row is omitted.
+
+**Ports and composition.**
+- `VerificationPorts` (`actions/verification.py:54-72`) gains `fuel_windows: Any = None` (a `FuelBalanceReadPort`) and `fuel_findings: Any = None` (K4a's `FuelFindingReadPort`). Both are implemented by `PostgresFuelBalanceStore`.
+- `B/actions/composition.py` gains `build_fuel_verification_service(database_url, *, test_clock=None) -> VerificationService`. It wires the existing verification store builder (PRE-FLIGHT (a) names it), `VerificationPorts(fuel_windows=s, fuel_findings=s)` with `s = build_fuel_balance_store(database_url)`, and `clock = test_clock or <the production clock the API uses>`. The test-only clock is constructor-only (§9d.4 precedent); production never passes it.
+- `verification_families.py` gains only, at the bottom: `from assetops_backend.actions.fuel_verification import FUEL, FuelResidual` and `FAMILIES[FUEL] = FuelResidual()`, where `FuelResidual` is a frozen dataclass (`rule_id`, `plan_version`, `owner="domain_action"`). `family_of` then knows the family.
+
+**API** (`B/action_api.py`, beside the mill's `:315`): `GET /api/sites/{site_code}/domain-work/actions/{action_id}/fuel-verification` → `{"access_basis", **verification.fuel_summary(...)}`, through the same `run(...)` error mapping. The router's verification service is built with `build_fuel_verification_service` (or the existing one gains the two ports; PRE-FLIGHT (b)).
+
+**Ref kind and route.**
+- `B/chain/refs.py`: `KINDS` gains `"FUEL_VERDICT"`. `href_for` gains `if kind == "FUEL_VERDICT": return f"{_site(ref)}/domain-actions/{_seg(ref['id'])}/fuel-verification"`. New constructor `fuel_verdict_ref(site, action_id) -> _ref("FUEL_VERDICT", site=site, id=str(action_id))`. It joins every validator the kinds list feeds (PRE-FLIGHT (c)).
+- `F/sites/chainRef.ts` gains `| { kind: "FUEL_VERDICT"; site: string; id: string }`. `F/shell/operatorSiteRoutes.ts` gains ``SITE_FUEL_VERIFICATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/domain-actions/:actionId/fuel-verification` ``, `siteFuelVerificationHref(siteId, actionId)`, and `case "FUEL_VERDICT": return siteFuelVerificationHref(r.site, r.id);`. `F/App.tsx` registers the route beside `SITE_MILL_VERIFICATION_ROUTE_PATH` (`:501`), with a `SiteFuelVerificationFrame` in `F/shell/SiteAnalyticsFrames.tsx` (the mill frame's pattern, `:2600-2620`).
+- **`fuel_finding_ref` (the origin link, §9l.4).** If K5 phase B has merged, import it. If not, K6b adds `FUEL_FINDING`, `fuel_finding_ref`, `siteFuelFindingHref` and `SITE_FUEL_FINDING_ROUTE_PATH` **exactly as §9l.2 specifies** (`refs.py` per `:3139`; frontend per `:3168-3177`), and whichever of K5 and K6b merges second takes main's copy. Until K5's page merges, the origin link has no page (Kisiwa is opt-in until K7-F, so no default prepare shows it).
+
+**Chain Ref fix.**
+- `postgres_chain_read.py` `_SITE_ACTIONS` gains `CASE WHEN a.kind = 'DOMAIN_INTENT' THEN (SELECT d.domain FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id) END AS action_domain`. Nothing else in the statement changes.
+- `site_chain.action_wire_ref` gains, after the mill branch: `if a["kind"] == "DOMAIN_INTENT" and a.get("action_domain") == "FUEL_BALANCE": return refs.fuel_verdict_ref(site, a["action_id"])`. Docstring: "DIESEL-1-R3m: a fuel Action has no Action page; its Ref is the fuel verdict page."
+
+**The board entry (Kisiwa Assure "Verified results").**
+- `site_chain.fuel_verdict_actions(rows, *, site, cutoff, lo, hi)` is `opportunity_actions` with three differences:
+  - the filter is `kind == "DOMAIN_INTENT" and action_domain == "FUEL_BALANCE"`;
+  - the thread occurrence tested against `[lo, hi)` is one with a `finding_id`;
+  - it returns `{action_id, code, thread_id, outcome (known by cutoff, else None), outcome_recorded_at, source_class, ref}`.
+- `B/site_outcomes/board.py` gains `@dataclass(frozen=True) class FuelVerdictFact: action_id, code, thread_id, outcome, verdict_ref, source_class=None`, and the facts dataclass that holds `opportunity_actions` gains `fuel_verdicts: tuple[FuelVerdictFact, ...] = ()`.
+- `B/site_outcomes/mini.py`:
+  - builds `fuel = tuple(FuelVerdictFact(...) for a in site_chain.fuel_verdict_actions(ct.rows, site=c, cutoff=ct.k, lo=work_lo, hi=end))` beside `opp` (`:440-445`; an empty tuple when `ct is None`);
+  - passes `fuel=fuel` to `_assure`, which merges it into the same code-ordered list and renders it as the `OpportunityActionFact` branch does: `VERIFICATION_TEXT[s].format(code=…, suffix=provenance_suffix(source_class))`, `PENDING_CHIP` when not judged, link `verdict_ref`;
+  - **`_verified_values` is not given `fuel` and its signature does not change** (H2, structural).
+  - The comment at the merge reads: `# MOCK DEVIATION MD-FUEL-K6-5 (DIESEL-1-R3m): as MD-FUEL-MB1-1, a fuel Action has no Action page; its Verified results entry opens its verdict page (FUEL_VERDICT). It carries no value line (H2).`
+- On Kobo, Cold and EV no `FUEL_BALANCE` Action exists, so their boards and goldens are byte-equal (test B6).
+- **Lane note:** K4b also edits `mini.py` and `board.py` (Protect). The edits are disjoint; whichever merges second merges main.
+
+**The verdict page `F/sites/SiteFuelResidualVerification.tsx` (new) and `F/sites/fuelVerificationClient.ts` (new; the mill client's shape, `GET …/fuel-verification`, 404 → `not_found`).**
+- Layout follows v69 `verification` (`frontend/mockups/v69/index.html:498-503`), top to bottom, with the existing `ui` components (`Panel`, `DataTable`, `Badge`) and the W1 verification card classes (`verificationCards.tsx` / `w1f4-verification.css`). No new CSS unless a class is missing; then add it in the page's own CSS file.
+  1. **Status line:** `Badge` "{action_code} · {headline}", and the subtitle "{action_code} · source: {origin.title}, {origin.night_text} · owner: {owner_label}" (v69 `:503` `subtitle` form).
+  2. **Header** (v69 `mheader`): Owner = `owner_label`; State = `headline`; Source = `origin.title` linked by `routeFor(origin.ref)`; Success criterion = `criterion_text`.
+  3. **Four cards** from `cards` (v69's four `metric` cards).
+  4. **Panel "Target evaluated night by night"** (v69 "Target and guardrails evaluated together"): a `DataTable` with columns "Night", "Role", "Unexplained fuel range", "Tank sensor", "Result". Rows come from `nights`. Role is "Before the change" for the baseline row and "Target" for the others. The panel note is `rule_text`.
+  5. **Pair:** "Activity evidence" (v69 `:502`): Maintenance request = `case_code` linked by `routeFor(case_ref)`; Completed = `completed_text`; Site visit = `site_visit_text`; then the note `ACTIVITY_NOTE`. "Outcome evidence": `sentence` or `not_judged_text`, then **`fixed_line` in every state**.
+  6. The `mock-deviation-line` paragraph listing MD-FUEL-K6-1 to -4.
+- **States:**
+  - loading: "Loading the fuel check." (`FUEL_LOADING`);
+  - not found: "No such Action for this site." (the mill's `MILL_NOT_FOUND` literal, imported);
+  - error: the server's message.
+- **Header comment, MOCK DEVIATIONs** (each also in the packet's "Mock to new"):
+  - `MD-FUEL-K6-1`: v69 `:501` evaluates one target **with guardrails**. The fuel check has one target and no guardrails (`guardrails = {}`, the BL-09/SCOPE-1 mill precedent), and its table lists nights, not metrics.
+  - `MD-FUEL-K6-2`: v69's four cards (`:500`: target change, reserve breaches, critical service, final outcome) become nights checked, fuel accounted for, tank sensor and final outcome. **There is no money card and no "Realized savings"** (H2).
+  - `MD-FUEL-K6-3`: v69's "Provisional target pass" badge is not shown. A night is either checked or "Not checked yet", and an undecided check reads `LATER_TEXT`.
+  - `MD-FUEL-K6-4`: v69's "Outcome evidence" prose and its "Review a complete evidence example" button are replaced by the server's sentence and the fixed H1 line.
+  - `MD-FUEL-K6-5` is on the board (above).
+- **Layout evidence:** captures at 1440 and 390 of the VERIFIED state (the K6b L2 data, read-only `serve` on `assetops_k6_test`), plus NOT_JUDGED from a fixture. Height cap: the page fits 1440×1800 with three later nights. The K8 all-26 recapture adds this page.
+
+**Finish rows** (pure logic in `T/demo_combined_rows.py`, wired in `T/demo_combined_finish.py` after KIS-4; each has an L0 self-test with pass and fail bodies; they run at E3):
+- **KIS-5 (moved from K9 to K6b):** for the Kisiwa `FUEL_BALANCE` Action:
+  - each pinned window in the outcome's `details` (baseline and later) is read back by `window(id)` and equals its pin (revision, `input_sha256`);
+  - the later pins are exactly the first 3 COMPLETE candidates as known at the outcome's `recorded_at` (re-run `later_nights` + `complete`);
+  - `fuel_verification.assess` over those windows gives the stored outcome and reasons. **The verdict is recorded as computed**; INEFFECTIVE or INCONCLUSIVE pass the row if they reproduce;
+  - the served summary has `value is None`, `cost_check is None`, no money key, and `fixed_line == FIXED_LINE`.
+- **KIS-10 (new): fuel verification coherence.**
+  - `plan.recorded_at < later_start` (frozen before the first later night);
+  - `effective_from` equals the linked case's first COMPLETE `occurred_at`;
+  - `plan.origin_finding_revision_id` equals the Action's;
+  - the baseline window id equals the origin revision's claim `fuel_balance_window_id`;
+  - the Action's chain thread equals the Finding's `UNEXPLAINED_FUEL` thread;
+  - the Kisiwa board on the outcome's Site-local day + 1 lists a Verified results entry whose text starts with the Action's display code and whose Ref is `FUEL_VERDICT`;
+  - no Kisiwa board `verified_values` entry or Portfolio value line names this Action.
+
+**Tests (localised; no full suite).** Each "must fail" names the mutation the reviewer applies to a scratch copy.
+- **L0 `backend/tests/test_k6b_fuel_verification_rules.py` (no DB):**
+  1. **`later_nights`:** effective 12:05 UTC (15:05 in Dar es Salaam) gives the same local date first; 18:30 local gives the next date; exactly 18:00 local gives the same date. Must fail if `>=` becomes `>`.
+  2. **Choice:** NOT_ASSESSED and `unknown_slots > 0` nights are skipped; a COMPLETE failing night before two passing ones is chosen, which gives INEFFECTIVE. Must fail if the choice filters on `passes`.
+  3. **Verdict table:**
+     - 3 passes → VERIFIED with `VERIFIED_TEXT` ("On 3 fully checked nights …").
+     - A band failure → INEFFECTIVE, `MISS_BAND_TEXT` naming the first failing night; a gap failure → `MISS_GAP_TEXT`; band and gap together → band.
+     - `residual_low == 0` passes; `residual_high == 0` passes; `residual_low == Fraction(1, 10**6)` fails (must fail if any tolerance is added); EXCESS (`residual_high < 0`) fails.
+     - 2 nights and open → NOT_JUDGED; 2 nights and closed → INCONCLUSIVE `LATER_SHORT_TEXT`; closed with a failing night → INEFFECTIVE.
+  4. **Literals:**
+     - `FIXED_LINE` equals §8.2 H1's text byte for byte;
+     - every literal passes guard V's terms, the upper-case code pattern and the H4 words;
+     - no literal contains a currency code, `$` or "price".
+  5. **H2 static:** an AST check of `fuel_verification.py` shows no import of `financials`, `fuel_cost`, `fuel_cost_v2` or any `price` module. A fully populated `fuel_summary_wire` has `value is None`, `cost_check is None` and no key matching `amount|price|currency|money` at any depth. Must fail if a value line is added.
+  6. **Outcome rows:** the three metric windows, reasons, pins, the idempotency key, and `source.source_class` in `details` (never in `basis`).
+  7. **Board:**
+     - `_assure` with a VERIFIED `FuelVerdictFact` gives "{code} verified on example data" (`source_class` example) with the `FUEL_VERDICT` Ref;
+     - with no outcome it gives "{code} not yet verified" and `PENDING_CHIP`;
+     - `inspect.signature(mini._verified_values)` is unchanged.
+     - Must fail if `fuel` is passed into `_verified_values`.
+  8. **Refs:** `href_for(fuel_verdict_ref("KISIWA-001", id))` = `/sites/KISIWA-001/domain-actions/{id}/fuel-verification`; `action_wire_ref` gives `FUEL_VERDICT` for a `FUEL_BALANCE` row, `DOMAIN_VERDICT` for the mill and `ACTION` for a Cold row.
+  9. **KIS-5 and KIS-10 self-tests:** one pass body, and one fail body per item.
+- **L2 `backend/tests/test_k6b_fuel_verification_postgres.py`, own `assetops_k6_test`.** The test builds:
+  - synthetic K3 windows (test clock) for night N (UNEXPLAINED) and nights N+2, N+3, N+4 (WITHIN_MARGIN, gap 0);
+  - the Finding through K4a's `raise_night`;
+  - the Action through K6a's `create_action`;
+  - the case with its record, COMPLETE and link.
+
+  Then:
+  1. **Freeze:** at an instant before N+2's window start → 201. The row's columns match the spec, `effective_from` equals the COMPLETE `occurred_at`, and a retry → 200 replayed. A second Action frozen after N+2's start → 409 `VERIFICATION_LATER_WINDOW_STARTED`. A mill Action → 409 `VERIFICATION_FAMILY_UNSUPPORTED`. Before COMPLETE → 409 `VERIFICATION_ACTION_NOT_APPLIED`.
+  2. **Evaluate:** before night N+4 is known → NOT_JUDGED, with no outcome row. After → VERIFIED stored with three metrics; a retry → replayed. A WITHIN_MARGIN → UNEXPLAINED revision of N+3 appended after the outcome does not change the read-back. A separate DB state with N+3 set to a gap of 90 min → INEFFECTIVE, `MISS_GAP_TEXT`.
+  3. **API** (TestClient): GET `…/fuel-verification` → 200 with the wire. An unknown id → 404. A mill Action → 409. The mill route on the fuel Action → 409 (its existing literal).
+  4. **Chain:** after `run_threads`, `_SITE_ACTIONS` gives `action_domain = 'FUEL_BALANCE'`, and the thread detail's Action entry carries the `FUEL_VERDICT` Ref.
+  5. **The mill path stays byte-equal:** `freeze_domain_plan`/`evaluate_domain_plan`/`domain_summary` outputs for the CH-9b fixture equal their pins taken **as the branch's first commit**.
+  6. **Board goldens:** Kobo, Cold and EV board goldens are byte-equal. Must fail if `_SITE_ACTIONS` drops a row or reorders.
+- **Frontend `F/sites/__tests__/fuelVerification.test.tsx`:**
+  - each state renders from a fixture wire;
+  - `fixed_line` is present in all five states;
+  - no "$", currency code or "price" text appears;
+  - the origin link resolves `routeFor({kind: "FUEL_FINDING", …})` and the case link `routeFor({kind: "CASE", …})`;
+  - `routeFor({kind: "FUEL_VERDICT", …})` and the `linkRefs` round-trip work;
+  - the MOCK DEVIATION line is present;
+  - the page text passes the existing product-vocabulary scan helper.
+- **Must stay green unchanged:** `test_ch9b2_*`, `test_ch9b3_*`, `test_mv1_*`, `test_mb1*`, `test_pv1*`, `test_wd1m*`, `millVerification.test.tsx`, K4a's and K6a's tests, and both probe `--check`s. Any behaviour edit is stop S-b5.
+- **Guards:** `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1` (new route), run directly, with no `-ExecutionPolicy`.
+
+**Files (approved list; anything else is stop S-b4).**
+1. `B/actions/fuel_verification.py` (new); `B/actions/verification_families.py` (the bottom registration only); `B/actions/verification.py` (the ports and the three fuel methods only); `B/actions/adapters/postgres_action_store.py` (`FUEL_PLAN_COLUMNS`, `fuel_plan_context`, `freeze_fuel_plan`); `B/actions/composition.py`; `B/action_api.py` (one route).
+2. `B/chain/refs.py`; `B/chain/adapters/postgres_chain_read.py` (`_SITE_ACTIONS`); `B/chain/site_chain.py`; `B/site_outcomes/board.py`; `B/site_outcomes/mini.py`.
+3. `F/sites/SiteFuelResidualVerification.tsx`, `F/sites/fuelVerificationClient.ts` (new); `F/sites/chainRef.ts`; `F/shell/operatorSiteRoutes.ts`; `F/shell/SiteAnalyticsFrames.tsx` (the frame only); `F/App.tsx` (one route); the K5 `FUEL_FINDING` items only if K5 has not merged.
+4. `T/demo_combined_rows.py`, `T/demo_combined_finish.py` (KIS-5, KIS-10).
+5. Tests: the L0, L2 and frontend files above, their pins module, and `backend/tests/test_out_b2_vocabulary.py`.
+
+**PRE-FLIGHT (no code first; batch every question in one message).**
+- (a) The builder of the verification store and the production clock the action API uses (file:line).
+- (b) How `action_api.py` obtains its `VerificationService`, and whether adding the two ports there changes any existing route's wire.
+- (c) Every validator fed by `refs.KINDS` (backend and frontend), and any JSON schema of Refs.
+- (d) The Work read that gives a case's `SITE_VISIT` operational records with `case_id` (K2's store), and whether `actions` may import it (architecture guard).
+- (e) Whether the architecture guard allows `actions` → `fuel_balance` imports (`model`, `finding_text`, `composition`). If not, that is stop S-b3.
+- (f) The chain lifecycle's handling of a `verification.outcome` event on an `UNEXPLAINED_FUEL` thread (`chain/lifecycle_run.py`, `config/chain/thread-lifecycle-v1.json`): does it raise for a mechanism with no `clean_day_measures`? If it raises, that is stop S-b6.
+- (g) Whether any board or chain golden compares `_SITE_ACTIONS` row dicts exactly (the new key).
+
+**Stops (report to the Architect; never design around them).**
+- **S-b1** any mill method, column list, wire, page or golden would change.
+- **S-b2** a money field, value line or price read is needed anywhere on the fuel path (H2).
+- **S-b3** PRE-FLIGHT (e) forbids the import.
+- **S-b4** a file outside the list, or a Kobo, Cold or EV served byte or golden changes.
+- **S-b5** an existing test needs a behaviour change.
+- **S-b6** PRE-FLIGHT (f) shows the lifecycle raises.
+- **S-a6b** guard V, the H4 scan or the navigation-truthfulness guard flags a K6b literal or route.
+- **S-b7** more than 1.6 units.
+
+**Dependencies, start, branch, DB, size.**
+- **Needs K4a and K6a merged** (0057 and the fuel Action). Not K4b, K5 or K7.
+- **What can start earlier:** `fuel_verification.py` with its L0 tests, and the page with its fixture tests. They need only K3's types (on main) and K4a's `finding_text` (on main once K4a merges). A builder may begin them on the K6b branch from main as soon as K4a merges, while K6a is in review.
+- Branch `task/DIESEL-K6b-fuel-verification`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k6b`, from main after K4a merges. `git merge main` after K6a merges, before L2. Opus does the first build and the first review. `git add -f` of explicit paths; never rebase.
+- **DB: only `assetops_k6_test`** (and its harness clones). Never `assetops_demo3_full_test` or any other DB. No prepare, tick or suite. `serve` only read-only on `assetops_k6_test`, for the layout captures.
+- **Size 1.4** (range 1.25–1.6):
+
+  | Item | Units |
+  |---|---|
+  | Pure family and literals | 0.3 |
+  | Service, store context and freeze, ports, composition, API | 0.25 |
+  | Ref kind, chain Ref fix, board entry | 0.15 |
+  | Page, client, route, frame | 0.3 |
+  | KIS-5, KIS-10 | 0.1 |
+  | Tests (L0, L2, frontend) and captures | 0.25 |
+  | Pre-flight and packet | 0.05 |
+- **Reading budget:**
+  - this §9m.1 and §9m.4; §8.2 (H1–H5); §9d.5; §9j.4–§9j.7;
+  - `actions/verification_families.py`; `actions/verification.py:40-80`, `:350-420`;
+  - `actions/adapters/postgres_action_store.py:60-90`, `:740-850`;
+  - `0052_verification_plan_domain.py`; `0019_verification_core.py:40-240`;
+  - `chain/refs.py`; `chain/site_chain.py:120-185`; `chain/adapters/postgres_chain_read.py:80-101`;
+  - `site_outcomes/board.py:180-210`; `site_outcomes/mini.py:430-460`, `:1030-1100`;
+  - `F/sites/SiteMillVerification.tsx`, `F/sites/millVerificationClient.ts`; `F/shell/operatorSiteRoutes.ts:360-380`, `:580-600`;
+  - `frontend/mockups/v69/index.html:498-503`;
+  - K4a's `fuel_balance/finding_text.py` and `model.py`.
+
+### 9m.5 Effects on K7 (K7-D step 5 and K7-F's freeze step)
+
+- **K7-D, §9l.3 step 5, "The Action":** the body's `"domain": "MINI"` becomes **`"domain": "FUEL_BALANCE"`**. Nothing else changes: the keys `origin_finding_id`/`origin_finding_revision_id` (PRE-FLIGHT (b) is answered: `domain_action.py:283-294`; the domain is checked at `domain_intent.py:104`), the title, `owner_label` "Site lead", `raised_at` `S−5d 13:00`, `idempotency_key` "kisiwa-fuel-action", and the domain store's clock at `raised_at`. Full call:
+  ```python
+  domain._store.test_db_clock_override = lambda: at(action["raised_at"])          # S-5d 13:00
+  status, act = domain.create_action(tenant_id, site_id, "KISIWA-001", {
+      "domain": "FUEL_BALANCE", "origin_finding_id": <night-4 Finding id>,
+      "origin_finding_revision_id": <its SUPPORTED revision id>, "title": action["title"], "owner_label": "Site lead",
+      "due_at": None, "raised_at": wire(at(action["raised_at"])), "actor": dict(ACTOR),
+      "idempotency_key": "kisiwa-fuel-action"}, PRINCIPAL)                        # expect 201
+  ```
+- **The remaining step-5 calls stand as K7-D chose them,** following `T/demo_combined_mill.py:126-184`:
+  - `work.create_case` `MAINTENANCE_REQUEST` (`asset_id` None, `finding_links []`, `action_links []`, the request title and narrative, key `kisiwa-fuel-request`), with a `StepClock` from `S−5d 13:10`;
+  - `post_event` `ASSIGN` to "Site lead", occurred `S−5d 13:20` (key `kisiwa-fuel-assign`);
+  - with a second `StepClock` from `S−4d 12:10`: `post_record` (`activity`, occurred `S−4d 12:00`, key `kisiwa-fuel-record`), then `post_event` `COMPLETE` occurred `S−4d 12:05` (`maintenance_record_id`, key `kisiwa-fuel-complete`);
+  - the `SITE_VISIT` operational record (occurred `S−4d 12:00`, recorded `S−4d 12:15`, `case_id` = the request, key `kisiwa-kis-sealed-1`);
+  - then `post_case_link` with the case's head revision and its latest event by `recorded_at`, with the domain clock at `S−4d 12:20` (key `kisiwa-fuel-link`).
+  - **Stop S-7 is cleared once K6a merges.** K7-D merges main after K6a, then builds the Action step. If `create_action` still refuses, that is a K6a defect: report it, never work around it.
+- **K7-F, "The freeze step" (§9l.3), now exact:**
+  ```python
+  from assetops_backend.actions.composition import build_fuel_verification_service
+  svc = build_fuel_verification_service(url, test_clock=lambda: at(story["kisiwa"]["plan"]["freeze_at"]))  # S-4d 12:30
+  status, frozen = svc.freeze_fuel_plan(tenant_id, site_id, UUID(action_id))      # expect 201
+  svc = build_fuel_verification_service(url, test_clock=lambda: at(story["kisiwa"]["evaluate_at"]))       # S-1d 13:00
+  judged = svc.evaluate_fuel_plan(tenant_id, site_id, UUID(action_id))            # {"state", "stored", "replayed", "outcome_id"}
+  summary = svc.fuel_summary(tenant_id, site_id, UUID(action_id))
+  ```
+  - **The effective-time field is `verification_plan.effective_from`** (`frozen["plan"]["effective_from"]`): the linked case's first COMPLETE `occurred_at`, which on K7's calendar is **`S−4d 12:05`** (15:05 local), the resolved `action.complete_at`. K7's `action.effective_at` (`S−4d 12:00`) stays the physical change instant: the record, the site visit and run 6's start. The two differ by 5 minutes, and both precede night 6's window start (`S−4d 15:00` UTC, 18:00 local). The night partition is unchanged.
+  - K7-F asserts, as stop S-6 on failure: `status == 201`; `effective_from == iso(resolve(complete_at))`; `effective_from < night 6 window_start`; `later_selection_rule.candidates.from == night 6's local date`; `baseline_selection.window_id` = night 4's window id. It records `judged["state"]` **as computed** (VERIFIED, INEFFECTIVE or INCONCLUSIVE; a NOT_JUDGED there is stop S-6) and `summary` in `kisiwa.json`. It never asserts a verdict.
+  - **Story link and form** (K7-F): "KISIWA-001 fuel verification": `/sites/KISIWA-001/domain-actions/{id}/fuel-verification`. `LINK_FORMS` gains `"/sites/KISIWA-001/domain-actions/"`.
+  - KIS-9 (e)'s K7-F half reads `plan.recorded_at == freeze_at` and an outcome `recorded_at == evaluate_at`.
+  - K7-F's size is unchanged (0.5): these calls were its "K6 wiring" item.
+- **K9:** KIS-5 has moved to K6b, so K9's size is unchanged. KIS-10 runs at E3 with the other rows.
+- **K8:** the Portfolio Assure **count** includes the Kisiwa fuel verdict (as §8.4 said), read from the board's Verified results entry. **There is no Portfolio value line for it (H2).** K8's all-26 recapture adds the fuel verdict page.
+- **After-the-demo list (coordinator):** "fuel verdict tick stage (the evaluation is explicit in v1)"; "list fuel Actions on a Site Actions surface".
+
+### 9m.6 Sizes, critical path, tripwire, date
+
+- **K6 = K6a 0.6 + K6b 1.4 = 2.0** (§9.5 had 1.5). The +0.5 covers:
+  - the S-7 origin work (a new Action domain and its selection check, §9m.1 items 1–4), about 0.4 of K6a, which §8.4 did not foresee;
+  - the chain Ref fix (item 6);
+  - the v69-shaped page in place of a single panel.
+
+  It is reported, not absorbed (the contingency is spent, §9h.8). **Kisiwa total: 18.3 → 18.8.**
+- **Critical path:** spent 3.65 (F0r, K1, K3) → K4a 1.5 → K6a 0.6 → K6b 1.4 → K7-F 0.5 → K8 captures 0.25 → K9 1.0 ≈ **8.9 lane-units**. That is up from R3l's 8.4 and **below the 9.75 tripwire, with about 0.85 of headroom. No cut, and no owner question.**
+  - If K6b's pure module and page start while K6a is in review (§9m.4), about 0.3 overlaps and the path is about 8.6.
+  - **Watch item:** the headroom is now the smallest it has been. If K6a ends above its 0.8 stop, or K6b above its 1.6 stop, together adding more than 0.85, the Architect re-rules before K7-F and puts the cut question to the owner. The first candidate stays as named before: drop the verdict **page and board entry** (K6b's 0.45 of UI), keeping the stored verdict and KIS-5; the second is dropping K6 entirely.
+- **Lanes:**
+  - lane 3 runs K4a (finishing) → K6a → K6b → K7-F;
+  - K7-D (lane 2 / the fourth builder) builds its Action step after K6a merges, at about t≈K4a+0.6. It keeps its float, because it must merge before K7-F starts, about 2.0 later;
+  - lane 1 (K5 → K4b → K8) is unchanged and shares `mini.py`/`board.py` with K6b (disjoint edits).
+- **Demo date:** about **+3.4 working days** (range 2.9–5.4) against the plan without Kisiwa, up about 0.15 day from R3l's +3.25 (0.5 lane-unit on the critical path at about 3 lane-units a day).
+- **Machine time:** unchanged (K6 adds no prepare; two L2 files on `assetops_k6_test` when the machine is idle).
+- **Plan HTML rows (coordinator):**
+  - **Build-units table:** the DIESEL-1-R3 row becomes **18.8**, with "K6 2.0 (K6a 0.6, K6b 1.4)".
+  - **Lanes figure:** lane 3 strip K4a → K6a → K6b → K7-F.
+  - **Rulings table:** add "DIESEL-1-R3m: K7-D stop S-7 ruled: fuel Finding raises a `FUEL_BALANCE` domain Action (0057 widens the domain CHECK; MINI unchanged); fuel selection = latest SUPPORTED revision; K6 split K6a/K6b; family `fuel-residual-within-band-1` in 0057; effective time = linked case COMPLETE `occurred_at`; fuel verdict page at its own route (FUEL_VERDICT); Assure entry without value line (H2); KIS-5 to K6b, KIS-10 new; Kisiwa 18.8; path about 8.9".
+  - **After-the-demo list:** the two items in §9m.5.
+
+### 9m.7 Owner questions
+
+None.
+
+For the owner's information, in plain words:
+- **Why the fix needed a small change first.** The system only let a finding about the generator, the cold room or the chargers start an action. The new "unexplained fuel" finding could not, so the builder correctly stopped. We now add a fuel-specific kind of action ("seal the tank cap, sign the dip log, protect the sensor's power"). Kobo's mill action and the cold-room and charger actions stay exactly as they are.
+- **What the check says.** After the fix, the system looks at the first 3 fully checked nights. If on each of them the fuel stayed inside the stated margin and the tank sensor sent readings all night, it says the fuel stayed accounted for. It always adds: "This check shows the fuel stayed accounted for after the change; it does not measure how much the change itself prevented." It shows no money, and it never says the fix stopped a loss.
+- **The result is whatever the data says.** The nights are chosen by data quality before anyone looks at the result. If a night fails, the page says so.
+- **Cost.** About half a unit more than planned, all on the longest chain of steps. The demo moves by about 0.15 of a working day. We are still inside the limit we set for that chain, with less room to spare than before.
