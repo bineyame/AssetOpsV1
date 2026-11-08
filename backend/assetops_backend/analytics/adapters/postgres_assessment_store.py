@@ -1496,6 +1496,71 @@ class PostgresAssessmentStore:
         return {"run_id": run_id, "revision_id": revision_id, "created": True, "basis": basis,
                 "previous_revision_id": None if latest is None else latest[0], "coverage": assessment.coverage}
 
+    @staticmethod
+    def fuel_balance_persist(c: Connection, window: Any, now: datetime) -> dict[str, Any]:
+        """DIESEL-K4a (§9j.4): the `fuel-balance-1` run and assessment revision one stored `fuel_balance_window`
+        revision is cited through, on the caller's connection. Idempotent per window revision. A window revision whose digest an earlier
+        revision of the same night already had cites that earlier run (`analytic_run_basis_unique`, 0007:64): same
+        digest, same inputs (DIESEL-1-R3k2)."""
+        from assetops_backend.actions.verification_rules import fmt
+
+        analytic, model = "fuel-balance-1", "fuel-balance-1/v1"
+        t, s = window.tenant_id, window.site_id
+        key = f"{window.tank_asset_id}:{window.night_date.isoformat()}"
+        held = c.execute(text(
+            "SELECT id, analytic_run_id FROM assessment_revision WHERE site_id = :s AND analytic_id = :a "
+            "AND assessment_key = :key AND revision_no = :n"),
+            {"s": s, "a": analytic, "key": key, "n": window.revision}).first()
+        if held is not None:
+            return {"revision_id": held[0], "run_id": held[1], "basis": window.input_sha256}
+        terms = window.terms
+        foundation = sorted({str(x) for x in (terms.get("accuracy_revision_id"), terms.get("sfc_revision_id"),
+                                              terms.get("no_load_revision_id")) if x is not None})
+        evidence_ids = sorted(str(e) for e in window.evidence_ids)
+        revision_id = uuid4()
+        reused = c.execute(text(
+            "SELECT id FROM analytic_run WHERE site_id = :s AND analytic_id = :a AND model_version = :m "
+            "AND window_start = :ws AND window_end = :we AND input_sha256 = :b"),
+            {"s": s, "a": analytic, "m": model, "ws": window.window_start, "we": window.window_end,
+             "b": window.input_sha256}).first()
+        if reused is not None:
+            run_id = reused[0]
+            held_ev = sorted(str(r[0]) for r in c.execute(text(
+                "SELECT evidence_id FROM analytic_run_evidence WHERE run_id = :r"), {"r": run_id}))
+            if held_ev != evidence_ids:
+                raise RuntimeError("fuel-balance-1 run reused with a different evidence set")
+        else:
+            run_id = uuid4()
+            c.execute(text(
+                "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, "
+                "window_end, knowledge_cutoff, input_sha256, cohort_status, cohort_sha256, cohort, "
+                "configuration_sha256, foundation_revision_ids, binding_set_revision_ids, role_coverage, "
+                "watermarks, selection, job_id, status, started_at, completed_at) VALUES (:id, :t, :s, :a, :m, "
+                ":ws, :we, :k, :b, 'COMPLETE', :cohort_sha, '[]'::jsonb, :b, CAST(:fids AS jsonb), '[]'::jsonb, "
+                "'{}'::jsonb, '{}'::jsonb, 'EXPLICIT', NULL, 'COMPLETED', :now, :now)"),
+                {"id": run_id, "t": t, "s": s, "a": analytic, "m": model, "ws": window.window_start,
+                 "we": window.window_end, "k": window.recorded_at, "b": window.input_sha256,
+                 "cohort_sha": sha256_json([]), "fids": json.dumps(foundation), "now": now})
+            if evidence_ids:
+                c.execute(text("INSERT INTO analytic_run_evidence (run_id, evidence_id, tenant_id, site_id) "
+                               "VALUES (:r, :e, :t, :s)"),
+                          [{"r": run_id, "e": e, "t": t, "s": s} for e in evidence_ids])
+        result = {"fuel_balance_window_id": str(window.id), "revision": window.revision, "state": window.state,
+                  "residual_low": fmt(window.residual_low), "residual_high": fmt(window.residual_high),
+                  "gap_minutes": window.gap_minutes, "limitations": list(window.limitations)}
+        c.execute(text(
+            "INSERT INTO assessment_revision (id, tenant_id, site_id, analytic_id, model_version, "
+            "assessment_key, revision_no, analytic_run_id, window_start, window_end, claim_level, result, "
+            "evidence_ids, basis_sha256, created_at) VALUES (:id, :t, :s, :a, :m, :key, :n, :run, :ws, :we, "
+            "'COMPLETE', CAST(:result AS jsonb), CAST(:ids AS jsonb), :b, :now)"),
+            {"id": revision_id, "t": t, "s": s, "a": analytic, "m": model, "key": key, "n": window.revision,
+             "run": run_id, "ws": window.window_start, "we": window.window_end, "result": json.dumps(result),
+             "ids": json.dumps(evidence_ids), "b": window.input_sha256, "now": now})
+        c.execute(text("INSERT INTO analytic_run_assessment (run_id, assessment_revision_id, tenant_id, site_id, "
+                       "scope) VALUES (:r, :a, :t, :s, 'WINDOW')"),
+                  {"r": run_id, "a": revision_id, "t": t, "s": s})
+        return {"revision_id": revision_id, "run_id": run_id, "basis": window.input_sha256}
+
     def cold_episodes(self, c: Connection, inputs: cold.ColdInputs, assessment: cold.ColdAssessment,
                       persisted: dict[str, Any], now: datetime) -> list[dict[str, Any]]:
         """Episodes of one new assessment revision: an excursion per confirmed crossing, a chain per start

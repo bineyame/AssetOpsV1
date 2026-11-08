@@ -103,6 +103,12 @@ def _constants() -> list[str]:
             "small": "possible extra fuel cost"}   # CH-5d1: the Optimize `cost.site` line
     copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
     copy += list(cv.COST_SMALL.values())
+    # DIESEL-K4a (§9j.8 A4/§9j.9 item 9): the unexplained-fuel Finding literals, formatted with plain sample values.
+    from assetops_backend.fuel_balance import finding_text as ft
+    copy += [ft.TITLE, ft.CLAIM_LINE.format(lo="95.7", hi="144.3", date="4 Oct"),
+             ft.GAP_LINE.format(spans=ft.SPAN.format(a="00:45", b="02:30")),
+             ft.MONEY_LINE.format(lo_m="119.57", hi_m="180.43", cur="USD", p="1.25"), ft.UNPRICED_NO_PRICE,
+             ft.UNPRICED_PRICE_CHANGES, ft.UNPRICED_OTHER, ft.NOT_WHY, ft.MARGIN_LINE.format(a="10"), ft.NO_LONGER]
     # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
     from assetops_backend.work import domain_action as da
     copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]

@@ -4322,3 +4322,94 @@ For the owner's information, in plain words:
 - **What the check says.** After the fix, the system looks at the first 3 fully checked nights. If on each of them the fuel stayed inside the stated margin and the tank sensor sent readings all night, it says the fuel stayed accounted for. It always adds: "This check shows the fuel stayed accounted for after the change; it does not measure how much the change itself prevented." It shows no money, and it never says the fix stopped a loss.
 - **The result is whatever the data says.** The nights are chosen by data quality before anyone looks at the result. If a night fails, the page says so.
 - **Cost.** About half a unit more than planned, all on the longest chain of steps. The demo moves by about 0.15 of a working day. We are still inside the limit we set for that chain, with less room to spare than before.
+
+## 9n. Ruling DIESEL-1-R3k2: K4a review FIX, M1 (a window that returns to an earlier digest) and L1/L2
+
+- Architect: Claude, 2026-11-08. Binding: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. Review: `.agent/review-K4a.md` on `task/DIESEL-K4a-unexplained-fuel-finding` at `979c9da3e` (FIX, M1 reproduced on `assetops_k4_test`).
+- **M1 is accepted as a gap the spec caused.** §9j.4 relied on two unique constraints. One of them, `finding_revision_basis_unique`, was dropped in `0015_finding_returning_basis.py`. The other, `analytic_run_basis_unique` (`0007:64`), makes the run unique per digest, not per window revision. **This ruling replaces §9j.4's two "Idempotent" sentences** (the persist bullet and "Re-running with the same window writes nothing").
+
+### 9n.1 Fix (K4a fix round; same files, no new file)
+
+1. **`PostgresAssessmentStore.fuel_balance_persist`** (`B/analytics/adapters/postgres_assessment_store.py:1508-1530`):
+   - Keep the first check unchanged: if an `assessment_revision` already exists for `(site, 'fuel-balance-1', "{tank}:{night}", window.revision)`, return it.
+   - **Then reuse the run:** `SELECT id FROM analytic_run WHERE site_id = :s AND analytic_id = 'fuel-balance-1' AND model_version = 'fuel-balance-1/v1' AND window_start = :ws AND window_end = :we AND input_sha256 = :b` (the exact `analytic_run_basis_unique` key).
+     - If a run is found, use its id. Do not insert into `analytic_run` or `analytic_run_evidence`.
+     - Otherwise insert both, as now.
+   - **Always** insert the new `assessment_revision` (`revision_no = window.revision`, `result` naming *this* window's id) and its `analytic_run_assessment` row, citing that run. `analytic_run_assessment`'s PK `(run_id, assessment_revision_id)` (`0007:112`) allows one run for several revisions.
+   - Docstring: "Idempotent per window revision. A window revision whose digest an earlier revision of the same night already had cites that earlier run (`analytic_run_basis_unique`, 0007:64): same digest, same inputs (DIESEL-1-R3k2)."
+   - **Run evidence must match.** When a run is reused, its `analytic_run_evidence` set must equal `window.evidence_ids`. If it differs, raise `RuntimeError("fuel-balance-1 run reused with a different evidence set")`. Never insert into the run to make them agree. If this ever fires in a test, that is stop **S10**.
+2. **`PostgresFindingStore._insert_fuel_revision`** (`B/analytics/adapters/postgres_finding_store.py:789-791`):
+   - The replay guard compares with the Finding's **latest** revision only, which has been the house rule since 0015 (`_insert_revision`):
+     ```sql
+     SELECT basis_sha256, transition FROM finding_revision WHERE finding_id = :f ORDER BY revision_no DESC LIMIT 1
+     ```
+   - It returns None only when both values equal `(window.input_sha256, transition)`.
+   - Comment: `# DIESEL-1-R3k2: latest revision only (0015 LR-01 rule); a basis that returns after another revision is a new revision.`
+3. Nothing else changes: the lifecycle table in §9j.4, `fuel_transition`, the service, the consequence writer, and the R3k filters all stay as they are.
+
+### 9n.2 Tests (added to `backend/tests/test_k4a_fuel_finding_postgres.py`, `assetops_k4_test` only)
+
+- **B10. A → B → A → B on one night.**
+  - Append four window revisions through `PostgresFuelBalanceStore.append`, each with a **fixed** `input_sha256`: A, B, A, B. Their states are UNEXPLAINED, WITHIN_MARGIN, UNEXPLAINED, WITHIN_MARGIN. They need distinct `recorded_at`, but the digests are set explicitly and do not include the clock.
+  - Call `raise_night` after each append.
+  - **Expected statuses:** OPENED, WITHDRAWN, REVISED, WITHDRAWN.
+  - **Expected Finding revisions (four):** `OPENED/SUPPORTED`, `NO_LONGER_SUPPORTED`, `SUPPORT_CHANGED/SUPPORTED`, `NO_LONGER_SUPPORTED`. Each claim's `fuel_balance_window_id` is the window revision it was raised from.
+  - **Expected rows:**
+    - exactly **2** `analytic_run` rows for the night (digests A and B);
+    - **4** `assessment_revision` rows (`revision_no` 1–4), where revisions 1 and 3 cite run A and revisions 2 and 4 cite run B;
+    - **2** `fuel_residual_consequence_revision` rows (for Finding revisions 1 and 3);
+    - `fuel_finding(...)` reads NO_LONGER_SUPPORTED with `consequence None`.
+  - Calling `raise_night` a fifth time with no new window gives UNCHANGED and writes nothing.
+  - **Must fail** if the run reuse is removed (IntegrityError at the third raise), or if the guard goes back to "any revision" (the fourth raise returns UNCHANGED and the Finding stays SUPPORTED).
+- **B11 (review L1, in this round). The price is the one known at the window end.**
+  - Set up a stored UNEXPLAINED window for night N with no diesel price. Then publish a price whose validity covers night N, but **recorded after** `window_end` and before the raise (test clock).
+  - `raise_night` gives OPENED with an **UNPRICED** consequence: `price_reason = 'NO_PRICE'`, and every price and amount field NULL.
+  - **Must fail** if `findings_service.py:90` passes `known_at = now` instead of `w.window_end` (the reviewer's m3 mutation).
+- Re-run: §9j.8 A and B, B7–B9, the K3 L2 file, and the must-stay-green list of §9j.8 and §9k.5 that touches these two store files: the cold and EV Finding store tests and `test_s4_finding_domain_filter_postgres.py`. **Part C is not re-run**, because night 4 has one window revision and the fix does not affect it. No suite.
+
+### 9n.3 L2: carry for K7's card (the coordinator passes it to K7 verbatim)
+
+> **K7 carry (DIESEL-1-R3k2, from K4a review L2):** once K7 merges, a combined dataset without Kisiwa is a failure, not a skip. In `tools/demo_combined_finish.py:957-959`, KIS-4 (and every other KIS row that has the same "not in this dataset (K7 adds it)" branch) returns a failing body `{"kisiwa": "missing: no KISIWA-001 Site in this dataset", "checked": 0}` with the row marked failed, in place of the skip. K7 adds an L0 self-test fail body for a summary with no `KISIWA-001`, and changes any existing self-test that expected the skip. K7's packet lists these lines as "carry R3k2 L2". If any KIS row would then fail on a dataset that legitimately lacks Kisiwa, K7 stops and reports it.
+
+- No K4a code change for L2. K7's size grows by about 0.03, which is absorbed inside K7's range.
+
+### 9n.4 Size, critical path, tripwire
+
+- **K4a fix round: about 0.1** (two store edits 0.03, B10 0.04, B11 0.03). That takes K4a from **1.5 to 1.6**, inside S7's ceiling of 1.7. Reported, not absorbed.
+- **Kisiwa total: +0.1** on whatever the coordinator's current figure is after R3m.
+- **Critical path:** R3m's 8.9 plus 0.1, so **about 9.0 lane-units**. That is below the 9.75 tripwire, with about 0.75 of headroom. No cut and no owner question. The demo date moves by about 0.03 day, which is within the current range.
+- Fix round on Sonnet, from this card, in worktree `AssetOpsV1-k4a`. The re-review goes to a fresh Claude reviewer and checks M1 and L1 by name, including the two B10 mutations and the B11 mutation.
+
+### 9n.5 Owner note (plain words)
+
+The reviewer found that if a fuel delivery is recorded on the wrong night and then corrected, the unexplained-fuel check would crash, or would leave an old warning showing. The fix makes each correction add a fresh, correct entry, as the generator findings already do. It also adds a test that the fuel price used is the one known at the end of the night. The work grows by a tenth of a unit, and the demo date does not move in any way you would notice.
+
+---
+
+## 9m2. Ruling DIESEL-1-R3m2: K6a stop S-a3 (the maintenance request's Action link)
+
+- Architect: Claude, 2026-11-08. Binding: `.ai/ROLE_CONFIG.md:9`, Architect = Claude. READ on main at `1e0020df8` and on K4a's branch. Nothing was run.
+- **The stop is confirmed.** `work/site_index.py:229-241` `_action_link` gives every domain link that has lineage and a `finding_revision_id` the address `/sites/{site}/actions/{aid}/verification`. On a MINIGRID Site that address is the W1 Action frame, and a fuel Action has no W1 row.
+- **Owner: K6a.** K6a is the unit that creates the fuel Action, so it must not ship a link that leads to a "not found" page. K6b fills in the real address.
+- **Exact change (K6a):**
+  1. `work/adapters/postgres_work_read.py:169-172` (the `domain` list in the case links read): add a conditional key, exactly as the opportunity key is added: `**({"action_domain": r["action_domain"]} if r["action_domain"] == FUEL_DOMAIN else {})`.
+     - `_domain_links` already selects `a.domain AS action_domain` (`:60`).
+     - Cold, EV and mill link dicts stay byte-equal.
+  2. `work/site_index.py` `_action_link`, at the start of the `DOMAIN_ACTION` branch:
+     ```python
+     if link.get("action_domain") == FUEL_DOMAIN:  # DIESEL-1-R3m2: a fuel Action has no W1 page; K6b sets its verdict address
+         href = None
+     elif lineage and link["finding_revision_id"] is not None:
+         ...
+     ```
+     The `elif`s that follow are unchanged. `FUEL_DOMAIN` is imported from `work.domain_action`.
+  3. K6a's approved file list gains these two edits only.
+- **What the link reads between the two merges:** the plain label "Action" (`ACTION_LABEL`) with `href` None. That is the existing no-link rendering (the label is shown, but it is not clickable). It is honest and needs no new literal.
+- **K6b (added to §9m.4):** the fuel branch becomes `href = f"/sites/{site_code}/domain-actions/{aid}/fuel-verification" if lineage else None`. K6b adds `work/site_index.py` to its file list. Its L0 test flips the K6a assertion below to that address.
+- **Tests (K6a):**
+  - **L0**, in `test_k6a_fuel_action_origin.py`: `_action_link` on a fuel link with lineage true gives `href is None` and label "Action". The same link without `action_domain` (a Cold link) still gives `/actions/{aid}/verification`. A mill link still gives `/domain-actions/{aid}/verification`. Must fail if the fuel branch is removed (the fuel link then yields `/actions/…/verification`).
+  - **L2**, item 5 of K6a's L2: the request detail and index for the fuel Action's case serve no `href` that contains `/actions/` for that Action id. Must fail on the same mutation.
+- **Confirmed:**
+  - 0057's `down_revision` = `"0056_unexplained_fuel_finding"`. That is K4a's `revision` (and K4a's own `down_revision` is `0055_fuel_balance_window`), read on `task/DIESEL-K4a-unexplained-fuel-finding`.
+  - `test_w502_domain_intent_api.py` failing to collect without a DB URL (`NameError: COLD`) is **not K6a's to fix**. The file imports `COLD` from `test_w502_domain_intent_postgres` inside its DB-gated block (`:23`), and K6a does not touch that file. It is a pre-existing collection quirk, so the coordinator adds it to the follow-up list. K6a runs it with `ASSETOPS_TEST_DATABASE_URL` set to `assetops_k6_test`.
+- **Size:** K6a +0.03 (within its 0.8 stop). The critical path is unchanged at about 8.9. Owner questions: none.
