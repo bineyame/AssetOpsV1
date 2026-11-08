@@ -26,6 +26,8 @@ def build_estate_read(database_url: str | None) -> Any:
     from assetops_backend.financials.composition import (
         build_cold_consequence_store, build_consequence_read_service, build_ev_money_reads)
     from assetops_backend.financials.money_eligibility import MoneyEligibility
+    # DIESEL-1-R3p: function-local (the site_outcomes pattern; avoids the work.composition import cycle)
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
 
     findings = build_finding_store(database_url)
     link_rows = build_link_rows_reader()
@@ -44,7 +46,7 @@ def build_estate_read(database_url: str | None) -> Any:
         inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, selection_pin_refused()),
         unavailable=(ColdReadUnavailable, EvReadUnavailable),
         cold_site=ColdSiteReadService(cold, build_cold_consequence_store(database_url)),
-        ev_site=EvSiteReads(ev, ev_money), ev_money=ev_money)
+        ev_site=EvSiteReads(ev, ev_money), ev_money=ev_money, fuel=build_fuel_balance_store(database_url))
 
 
 def build_estate_index_service(database_url: str | None) -> EstateIndexService | None:
@@ -62,7 +64,7 @@ def build_estate_evidence_service(database_url: str | None) -> Any:
 
     base = build_estate_read(database_url)
     keys = ("findings", "assessments", "actions", "consequences", "eligibility", "cold", "ev", "provenance_reads",
-            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money", "link_rows_many")
+            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money", "link_rows_many", "fuel")
     return EstateEvidenceService(PostgresEvidenceMoneyRead(
         database_url, claim_limits=ClaimLimitReadService(base.assessments), claim_limit_refused=(ClaimLimitRefusal,),
         **{k: getattr(base, k) for k in keys}))

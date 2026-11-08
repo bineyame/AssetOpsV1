@@ -252,12 +252,20 @@ def line_groups(lines: list[dict[str, Any]], groups: list[dict[str, Any]]) -> di
     return out
 
 
+#: DIESEL-1-R3p: a fuel row's Action is a FUEL_BALANCE domain Action, which `_action_for` cannot see; its column
+#: reads its thread state with the existing workflow words. Cold and EV rows are unchanged.
+FUEL_THREAD_LABEL = {"RESOLVED_MONITORING": "Verified", "CLOSED": "Verified", "CHANGE_APPLIED": "Applied",
+                     "ACTION_IN_HAND": "Pending"}
+
+
 def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: dict[str, Any] | None = None,
                   line_group: str | None = None) -> dict[str, Any]:
     site = r["_site"]
     fid, frid = r["finding_id"], r["finding_revision_id"]
     action = _action_for(r, actions)
-    placed = place(r, action, site_cov or {}, line_group)  # CC-R2: row facts only; `priority` stays null
+    label = (FUEL_THREAD_LABEL.get((r.get("_thread") or {}).get("state"), "No action agreed yet")
+             if r.get("_mechanism") == "UNEXPLAINED_FUEL" else None)
+    placed = place(r, action, site_cov or {}, line_group, label=label)  # CC-R2: row facts only; `priority` null
     return {
         "site_id": r["site_id"], "site_code": r["site_code"], "site_name": r["site_name"], "domain": r["_domain"],
         "finding_id": fid, "finding_revision_id": frid, "finding_label": r["finding_label"], "title": r["title"],
@@ -282,7 +290,7 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "application_state": None if action is None else action["application_state"],
         "resolution_state": None if action is None else action["resolution_state"],
         "verification_outcome": None if action is None else action["verification_outcome"],
-        "workflow_label": workflow_label(action),
+        "workflow_label": workflow_label(action) if label is None else label,
         "next_move": None, "source_provenance": r["source_provenance"],
         # Post-W6 W3-estate Q2/Q10 (S12 inert restriction removed): the Site home (EV `/sites/{code}/ev`) and the
         # Finding route `select_finding_scope` proved: mini-grid `revision_id`; cold/EV the selected Site window

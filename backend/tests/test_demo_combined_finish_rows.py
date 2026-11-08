@@ -635,6 +635,48 @@ def test_a3_optimize_card_and_trial_page() -> None:
         rows.trial_page({}, result)
 
 
+def test_r3p_expected_site_codes_read_from_data() -> None:
+    """DIESEL-1-R3p CO-6: the core three Sites, plus Kisiwa iff the dataset holds it (a three-Site prepare stays green)."""
+    import demo_combined_finish as finish
+
+    assert finish.expected_site_codes(False) == ["COLD-LAB-001", "EV-LAB-001", "KOBO-001"]
+    assert finish.expected_site_codes(True) == ["COLD-LAB-001", "EV-LAB-001", "KISIWA-001", "KOBO-001"]
+
+
+def _r3p_optimize_summary(kisiwa_priced: bool = True, kobo_priced: bool = True) -> dict:
+    kobo = {"key": "money.possible_extra_fuel_cost", "value": {"low": "0.00"}, "text": "0.00 to 15.13 USD"}
+    kis = {"key": "money.possible_extra_fuel_cost", "value": {"low": "1.10"}, "text": "1.10 to 6.40 USD"}
+    row = lambda claim: [{"category": "OPTIMIZE_COST", "nodes": {"earnings": claim}}]  # noqa: E731
+    return {"sites": [{"site_code": "KOBO-001", "site_name": "Kobo Mini-grid", "rows": row(kobo) if kobo_priced else []},
+                      {"site_code": "COLD-LAB-001", "rows": []},
+                      {"site_code": "KISIWA-001", "site_name": "Kisiwa Island Mini-grid",
+                       "rows": row(kis) if kisiwa_priced else []}]}
+
+
+def test_r3p_optimize_card_two_priced_sites_listed_never_summed() -> None:
+    """DIESEL-1-R3p CH5D1-O1: Kobo and Kisiwa priced -> "Costs at 2 sites", claim None, each Site's claim on its own."""
+    detail = ("Kobo Mini-grid: 0.00 to 15.13 USD possible extra fuel cost · "
+              "Kisiwa Island Mini-grid: 1.10 to 6.40 USD possible extra fuel cost")
+    summary = {**_r3p_optimize_summary(),
+               "cards": {"OPTIMIZE_COST": {"value": {"text": "Costs at 2 sites"}, "claim": None, "detail": detail}}}
+    allowed = ("KOBO-001", "KISIWA-001")
+    assert rows.optimize_card(summary, allowed=allowed) == {"text": "Costs at 2 sites",
+                                                            "priced": ["KOBO-001", "KISIWA-001"]}
+    with pytest.raises(AssertionError):  # Kisiwa priced but not allowed
+        rows.optimize_card(summary)
+    with pytest.raises(AssertionError):  # a summed or reworded detail
+        rows.optimize_card({**summary, "cards": {"OPTIMIZE_COST": {**summary["cards"]["OPTIMIZE_COST"],
+                                                                   "detail": "1.10 to 21.53 USD"}}}, allowed=allowed)
+    with pytest.raises(AssertionError):  # Kobo unpriced
+        unpriced = {**_r3p_optimize_summary(kobo_priced=False), "cards": summary["cards"]}
+        rows.optimize_card(unpriced, allowed=allowed)
+    # One priced Site with Kisiwa allowed keeps the single-Site assertions (three-Site dataset).
+    one = _r3p_optimize_summary(kisiwa_priced=False)
+    claim = one["sites"][0]["rows"][0]["nodes"]["earnings"]
+    one["cards"] = {"OPTIMIZE_COST": {"value": {"text": claim["text"]}, "claim": claim}}
+    assert rows.optimize_card(one, allowed=allowed) == {"text": claim["text"]}
+
+
 def _kis8_summary(line_text: str | None = None, amount_detail: str = "Service disruptions recorded") -> dict:
     from assetops_backend.chain.vocabulary import card_text
 

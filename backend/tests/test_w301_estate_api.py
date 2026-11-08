@@ -160,6 +160,17 @@ def test_ch4_d2_opportunity_count_is_the_item_count_even_when_finding_coverage_i
     assert other["summary"]["opportunity_count"] == 1 and other["opportunities"] == []  # count is lens-independent
 
 
+def test_k8_m1_snapshot_whose_fuel_lookup_raises_keyerror_or_attributeerror_yields_no_fuel_rows() -> None:
+    from assetops_backend.estate.index import _fuel_rows
+
+    class NoAttr:
+        pass
+
+    for snap in (FakeSnapshot(), NoAttr()):  # FakeSnapshot.__getattr__ raises KeyError('fuel_findings')
+        assert _fuel_rows(snap, T, {"site_code": "X", "site_id": "s", "site_name": "X"}, {"state": "CURRENT"},
+                          None, READ_AT) == []
+
+
 def test_ch4_m1_a_failed_opportunity_read_is_null_count_and_null_items_never_an_empty_list() -> None:
     def boom(*a):
         raise RuntimeError("read failed")

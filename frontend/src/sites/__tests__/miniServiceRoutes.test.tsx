@@ -6,6 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { MiniDepthClient, MiniRead, ServiceRead, ServiceRow } from "../miniDepthClient";
 import { localHourWindow, serviceWindowFromParams } from "../miniDepthClient";
+import { CLINIC_FEEDER_LABEL, feederName } from "../MiniPerformance";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -131,6 +132,19 @@ const subtabs = () =>
   ]);
 const bodyRows = () =>
   Array.from(document.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.querySelectorAll("td")).map((td) => td.textContent));
+
+describe("DIESEL-1-R3p R-LOAD: feederName", () => {
+  it("keeps v69's clinic words for a clinic or health critical load and names any other critical feeder", () => {
+    expect(feederName(row(0, { load_label: "Health post", role: "CRITICAL" }))).toBe(CLINIC_FEEDER_LABEL);
+    expect(feederName(row(0, { load_label: "Health clinic", role: "CRITICAL" }))).toBe(CLINIC_FEEDER_LABEL);
+    expect(feederName(row(0, { load_label: "Cold store (ice and fish)", role: "CRITICAL" }))).toBe(
+      "Cold store (ice and fish) feeder delivered power",
+    );
+    const other = row(1);
+    expect(other.role).not.toBe("CRITICAL");
+    expect(feederName(other)).toBe(other.load_label);
+  });
+});
 
 describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed-load table", () => {
   it("supported hour: exact cards with measured minutes, critical first, tab order and the local noon hour", async () => {

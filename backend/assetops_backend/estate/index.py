@@ -180,7 +180,70 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "_recurs_after": r.get("recurs_after_finding_id"), "_recurs_after_title": r.get("recurs_after_title"),
                 "_transition": r.get("transition"),
                 "_revision_no": r.get("revision_no")})
+        if domain == MINI_GRID and cov["state"] in (CURRENT, HISTORICAL, PARTIAL):
+            rows += _fuel_rows(snap, tenant_id, site, cov, req, scope["k"])
     return per_site, rows
+
+
+# DIESEL-1-R3p, MOCK DEVIATION MD-FUEL-K4-1: the unexplained-fuel Finding joins the estate Finding rows here, after
+# coverage and outside site_coverage/_mini_grid, so it never reaches select_financial_scope, selected_lines, money
+# groups, estate_total or double_count_violations. Its money is its own fuel-residual-1 row, shown on its own and never
+# added.
+FUEL_MECHANISM = "UNEXPLAINED_FUEL"
+# equals the stored fuel_residual_consequence_revision.basis and site_outcomes/mini.py FUEL_BASIS
+FUEL_CONSEQUENCE_BASIS = "UNEXPLAINED_FUEL_AT_DECLARED_PRICE"
+
+
+def _fuel_consequence(q: Any, live: bool) -> dict[str, Any]:
+    """§9p.2 item 6: the row's own `fuel-residual-1` interval; PRICED only on a CURRENT Site."""
+    from assetops_backend.fuel_balance import finding_text as fuel_text
+
+    out = {"state": "UNPRICED", "amount": None, "amount_low": None, "amount_high": None, "currency": None,
+           "source_revision_id": None, "basis": FUEL_CONSEQUENCE_BASIS}
+    if q is None:
+        return out
+    out["source_revision_id"] = str(q["id"])
+    if q.get("state") != "PRICED":
+        return out
+    if not live:
+        out["state"] = "UNKNOWN"
+        return out
+    low = fuel_text.money(q["amount_low"])
+    out.update(state="PRICED", amount=low, amount_low=low, amount_high=fuel_text.money(q["amount_high"]),
+               currency=q.get("currency"))
+    return out
+
+
+def _fuel_rows(snap: Any, tenant_id: Any, site: dict[str, Any], cov: dict[str, Any], req: EstateRequest,
+               k: datetime) -> list[dict[str, Any]]:
+    """DIESEL-1-R3p §9p.2 item 4: one estate row per unexplained-fuel Finding of this mini Site (every key a mini row
+    has, in the same order); none from a snapshot without the read."""
+    from assetops_backend.estate.evidence_money import site_home_ref  # import cycle
+    from assetops_backend.fuel_balance import finding_text as fuel_text
+
+    try:
+        reader = snap.fuel_findings
+    except (AttributeError, KeyError):  # a snapshot without the read (test fakes) has no fuel rows
+        return []
+    code, out = site["site_code"], []
+    for item in reader(tenant_id, site["site_id"], req.from_, req.to, k):
+        f = item["finding"]
+        fid, frid = str(f.finding_id), str(f.revision_id)
+        out.append({
+            "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
+            "site_code": code, "site_name": site["site_name"], "finding_label": finding_label(fuel_text.TITLE),
+            "title": fuel_text.TITLE, "priority": None, "confidence": None, "confidence_reasons": [],
+            "lifecycle": str(f.lifecycle), "lens_flags": lens_flags(finding_signal_key(FUEL_MECHANISM), MINI_GRID),
+            "consequence": _fuel_consequence(f.consequence, cov["state"] == CURRENT),
+            "source_provenance": snap.finding_provenance(tenant_id, site["site_id"], frid, item["evidence_ids"]),
+            "episode_start": wire_time(f.window.window_start), "status": cov["state"],
+            "categories": categories_for(finding_signal_key(FUEL_MECHANISM), MINI_GRID),
+            **_links({"finding": refs.fuel_finding_ref(code, fid), "site": site_home_ref(code, MINI_GRID)}),
+            "_at": f.window.window_start, "_site": site, "_domain": site["site_type"],
+            "_episode_end": f.window.window_end, "_mechanism": FUEL_MECHANISM,
+            "_recurs_after": None, "_recurs_after_title": None, "_transition": None,
+            "_revision_no": f.revision_no})
+    return out
 
 
 def select_action_scope(snap: Any, tenant_id: Any, req: EstateRequest,

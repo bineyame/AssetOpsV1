@@ -195,6 +195,8 @@ export const MECHANISM_WORDS: Record<string, string> = {
   COLD_EXCURSION: "Chamber temperature above policy",
   COLD_START_FAILURE: "Automatic start failed",
   EV_INTERRUPTION: "Charging session interrupted",
+  /** DIESEL-1-R3p (K8 coordinator ruling): the backend's approved SUPPORTED title, `site_outcomes/mini.py` FINDING_TITLE_BY_MECHANISM. */
+  UNEXPLAINED_FUEL: "Unexplained fuel overnight",
 };
 export function mechanismWords(code: string | null | undefined): string {
   return (code != null && Object.prototype.hasOwnProperty.call(MECHANISM_WORDS, code) && MECHANISM_WORDS[code]) || MECHANISM_NOT_RECORDED;

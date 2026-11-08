@@ -1,12 +1,12 @@
 """DEMO-A U6 / DEMO-SPARSE U6: the combined demo dataset build test (build sheet DEMO-SPARSE §5, DEMO-COMBINED §4).
 
-One `tools/demo_combined.py prepare` (all three Sites, the shipped day list) in a module fixture on its own database
+One `tools/demo_combined.py prepare` (all four Sites, the shipped day list) in a module fixture on its own database
 `assetops_demo3_t<run>_test`, then every acceptance row of `tools/demo_combined_finish.py` (`CHECKS`) as its own test,
 read through `host/lab_app.py` in a child process of the private tree (`finish check` once after the prepare; SP-7's
 reads through `finish get`). The rows cannot read in this process: the file stores resolve under the importing
 package's REPO_ROOT, and the dataset's stores are in the private tree, not this worktree. The **[IDX]** rows skip until IDX-GAPS is on this tree
 (`finding_index.POLICY_VERSION == "finding-index/2"`); at merge none may skip. SP-7 writes to the dataset (add-day,
-one tick), so it runs last. Slow tier: one prepare is about 20-25 min (backend/TESTING.md "Slow tier").
+one tick), so it runs last. Slow tier: one prepare is about 2.0-2.35 h (DIESEL-1-R3n) (backend/TESTING.md "Slow tier").
 """
 
 from __future__ import annotations

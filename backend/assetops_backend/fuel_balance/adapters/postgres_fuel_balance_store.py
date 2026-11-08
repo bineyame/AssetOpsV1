@@ -319,10 +319,16 @@ class PostgresFuelBalanceStore:
                       known_at: datetime | None) -> tuple[FuelFinding, ...]:
         """The latest revision per fuel Finding as known at `known_at` (None = now) whose cited window intersects
         `[lo, hi)`, ordered by night."""
+        return self._read(lambda c: self.fuel_findings_on(c, tenant_id, site_id, lo, hi, known_at))
+
+    def fuel_findings_on(self, c: Connection, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                         known_at: datetime | None) -> tuple[FuelFinding, ...]:
+        """DIESEL-1-R3p: `fuel_findings` on the caller's read-only connection (the estate snapshot); same refusal,
+        same filter and order. Opens no transaction."""
         if (not self._instant(lo) or not self._instant(hi) or not lo < hi
                 or (known_at is not None and not self._instant(known_at))):
             raise ValueError(FINDINGS_REFUSED)
-        found = self._read(lambda c: self._fuel_findings(c, tenant_id, site_id, None, known_at))
+        found = self._fuel_findings(c, tenant_id, site_id, None, known_at)
         kept = [f for f in found if f.window.window_start < hi and f.window.window_end > lo]
         return tuple(sorted(kept, key=lambda f: (f.night_date, str(f.finding_id))))
 

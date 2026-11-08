@@ -148,12 +148,13 @@ def _confidence(row: Mapping[str, Any], src: str | None, cons: str | None,
 
 
 def place(row: Mapping[str, Any], action: Mapping[str, Any] | None, site_cov: Mapping[str, Any],
-          line_group: str | None) -> Placement:
+          line_group: str | None, label: str | None = None) -> Placement:
     """First match wins over the row's own facts. `action` is the row's exact Action (or None), `site_cov` its
-    Site's coverage, `line_group` the money group `state` holding the row's line (None without a line)."""
+    Site's coverage, `line_group` the money group `state` holding the row's line (None without a line). `label`
+    (DIESEL-1-R3p: a fuel row's thread-state label) replaces the Action's workflow label when given."""
     from assetops_backend.estate.portfolio import workflow_label  # the one label precedence (closure 5 S7)
 
-    label = workflow_label(action)  # type: ignore[arg-type]
+    label = workflow_label(action) if label is None else label  # type: ignore[arg-type]
     src = (row.get("source_provenance") or {}).get("state", "UNKNOWN")
     cons = (row.get("consequence") or {}).get("state")
     suffix = provenance_suffix(((action or {}).get("_raw") or {}).get("_source_class"))  # B7: stored class

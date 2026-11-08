@@ -182,6 +182,44 @@ def test_screen_routes_file_is_the_app_route_list() -> None:
     assert routes == sorted(set(routes)) and "/portfolio" in routes and "*" not in routes and "/" not in routes
 
 
+@pytest.mark.parametrize("href", [
+    "/sites/KISIWA-001/fuel-findings/50000000-0000-4000-8000-000000000001",
+    "/sites/KISIWA-001/domain-actions/50000000-0000-4000-8000-000000000009/fuel-verification",
+    "/sites/KOBO-001/domain-actions/50000000-0000-4000-8000-000000000008/verification",
+])
+def test_r3p_coh1_accepts_the_fuel_finding_and_verdict_routes(href: str) -> None:
+    """DIESEL-1-R3p COH-1: the fuel Finding page, the fuel verdict and the mill verdict are App routes."""
+    assert cc.link_problem(href, cc.load_routes()) is None
+    assert cc.link_problem(href, ROUTES) is not None  # the matcher is not vacuous on these hrefs
+
+
+class _SummaryBundle:
+    """The four reads `coh7_summary_basis` makes, over one estate window and one summary body."""
+
+    def __init__(self, sites: list[dict], requested: dict) -> None:
+        self.windows, self._summary = {"week": requested}, {"sites": sites}
+
+    def estate_windows(self) -> list[str]:
+        return ["week"]
+
+    def get(self, name: str):
+        return self._summary if name == "summary.week" else None
+
+    def files(self, name: str) -> list[str]:
+        return [name]
+
+
+@pytest.mark.parametrize("window,ok", [
+    ({"from": "2026-10-22T21:00:00Z", "to": "2026-10-23T21:00:00Z"}, True),   # the Dar es Salaam local day
+    ({"from": "2026-10-23T00:00:00Z", "to": "2026-10-24T00:00:00Z"}, False),  # the UTC-midnight day
+])
+def test_r3p_coh7a_kisiwa_summary_card_is_its_dar_local_day(window: dict, ok: bool) -> None:
+    requested = {"from": "2026-10-23T00:00:00Z", "to": "2026-10-24T00:00:00Z"}
+    site = {"site_code": "KISIWA-001", "domain": "mini_grid", "window_basis": "DAY", "window": window}
+    found = [f for f in cc.coh7_summary_basis(_SummaryBundle([site], requested)) if f["rule"] == "COH-7a"]
+    assert (found == []) is ok, found
+
+
 def test_pagination_pages_are_concatenated() -> None:
     bundle = cc.Bundle(BUNDLES / "clean")
     assert bundle.files("portfolio.week") == ["portfolio.week.p1.json", "portfolio.week.p2.json"]

@@ -173,6 +173,10 @@ export function SiteDetailFrame({
                     siteCode: canonicalId,
                     timeZone: site.timezone,
                     detailHref: (domain, window) => `${sitePerformanceHref(canonicalId, domain)}${miniWindowSearch(window)}`,
+                    // DIESEL-1-R3p R-LOAD: the Foundation LOAD names, in document order, for the objective line.
+                    loadNames: site.foundation.components
+                      .filter((c) => c.component_type === "LOAD")
+                      .map((c) => c.display_name),
                   }
                 : undefined
             }

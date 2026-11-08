@@ -919,21 +919,32 @@ def trial_cost(cc: dict, result: dict) -> dict:
             "basis": result["no_load"]["basis"]}
 
 
-def optimize_card(summary: dict, site: str = "KOBO-001") -> dict:
-    """A3-R §3.9 CH-5d1 / O1: on the S summary exactly one Site is priced (Kobo, after the declaration), and the
-    Optimize card's value is that Site's cost claim text byte-equal, its `claim` that claim (replacing CH5d1-R §4's
-    "Not known yet" forecast)."""
+def optimize_card(summary: dict, site: str = "KOBO-001", allowed: tuple[str, ...] = ("KOBO-001",)) -> dict:
+    """A3-R §3.9 CH-5d1 / O1: on the S summary `site` (Kobo, after the declaration) is priced and every priced Site is
+    one of `allowed`. Exactly one priced Site: the Optimize card's value is that Site's cost claim text byte-equal,
+    its `claim` that claim (replacing CH5d1-R §4's "Not known yet" forecast). DIESEL-1-R3p (A3 L3): two or more
+    priced Sites (Kisiwa's dispatch Findings): the card lists each one's claim on its own, in Site order, never summed."""
     priced = []
     for s in summary.get("sites") or ():
         row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
         claim = (row.get("nodes") or {}).get("earnings")
         if claim is not None and claim.get("value") is not None:
-            priced.append((s.get("site_code"), claim))
-    assert [code for code, _ in priced] == [site], ("priced Sites on S", [code for code, _ in priced])
+            priced.append((s, claim))
+    codes = [s.get("site_code") for s, _ in priced]
+    assert site in codes and set(codes) <= set(allowed), ("priced Sites on S", codes, allowed)
     card = (summary.get("cards") or {}).get("OPTIMIZE_COST") or {}
-    claim = priced[0][1]
-    assert (card.get("value") or {}).get("text") == claim.get("text") and card.get("claim") == claim, (card, claim)
-    return {"text": claim["text"]}
+    if len(priced) == 1:
+        claim = priced[0][1]
+        assert (card.get("value") or {}).get("text") == claim.get("text") and card.get("claim") == claim, (card, claim)
+        return {"text": claim["text"]}
+    from assetops_backend.chain.vocabulary import COST_SMALL, card_text, sites_text
+
+    text = card_text("cost.sites", sites=sites_text(len(priced)))
+    detail = " · ".join(card_text("cost.site", site=s.get("site_name") or s.get("site_code"), text=c["text"],
+                                  small=COST_SMALL[c["key"].removeprefix("money.")]) for s, c in priced)
+    card_value = (card.get("value") or {}).get("text")
+    assert card_value == text and card.get("claim") is None and card.get("detail") == detail, (card, text, detail)
+    return {"text": card_value, "priced": codes}
 
 
 def trial_page(body: dict, result: dict) -> str:
