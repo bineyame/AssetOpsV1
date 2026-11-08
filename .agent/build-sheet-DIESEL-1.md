@@ -5323,3 +5323,81 @@ Kobo's `idle_morning` covers only the idle term, so KIS-2 needs its own function
 ### 9q.8 Owner questions
 
 None.
+
+## 9r. Ruling DIESEL-1-R3r — Kisiwa Overview evidence state
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`, owner 2026-10-27). Read-only code reading in `AssetOpsV1-k9` (`task/DIESEL-K9-checks-rehearsal` at 8375e3864) and `AssetOpsV1-k8` (ee9c9805f). No DB, no suites. Trigger: K8 builder 3 served a clone of `assetops_demo3_kisiwa_test` and Kisiwa's Overview showed "Awaiting evidence migration" (409 `AWAITING_EVIDENCE_MIGRATION`), so R3p's Kisiwa objective line was never on screen.
+
+### 9r.1 Q1: the default four-Site prepare does not open Kisiwa's Overview either (READ)
+
+- **The gate.** `site_overview/route.py:139-147`: an imported Site's Overview is served only with a passing S2 Evidence comparison (`imported_scope`) **or** a persisted `NO_LEGACY_EVIDENCE` cutover basis for its current import (`no_legacy_basis`, wired at `main.py:430-432` to `PostgresFoundationStore.no_legacy_evidence_basis`, `postgres_foundation_store.py:254-268`).
+- **The prepare.** `T/demo_combined.py` `finish` (`:585-588`) runs `evidence_migration run` for `KOBO-001` only. Nothing in the parent, in `T/demo_combined_kisiwa.py` `build`/`register` (`:159-181`, `:699-808`) or in `register_in` (`:121-141`) writes a comparison or a cutover basis for Kisiwa. The only basis writer in the code is `sites/w402_demo.py:62-66`, and no demo child calls it.
+- **So the gap is not a Kisiwa-only-prepare artifact.** The four-Site rehearsal DB would show the same 409 on both Kisiwa board links `story_links` prints (`/sites/KISIWA-001?date=` for S−5d and S, `T/demo_combined.py:307-309`).
+- **How the other Sites get past it.** Kobo: the S2 comparison in `finish`. Cold and EV: they never reach this gate. `SiteDetailFrame.tsx:130-156` sends a `COLDCHAIN` Site to the cold Overview and an `EV_CHARGING` Site to the EV page, and neither reads `/overview`. Kisiwa is `MINIGRID`, so it gets Kobo's mini Overview and therefore Kobo's gate (`SiteOverview.tsx:138`, `:182-196`).
+- **Side effect today.** The outcome board's mini `source` port uses the same decision (`site_outcomes/composition.py:35-45`, `read.py:233-235`). It raises `OverviewClosed` for Kisiwa, so a Kisiwa board can read `read_state` PARTIAL with a failed port. That is a latent risk for the Kisiwa boards R3q §9q.1 now collects.
+
+### 9r.2 Q2: ruling (a), record the honest no-legacy cutover basis at Kisiwa's import
+
+**Why this is not faking.** Kisiwa is imported with `legacy_documents=()` (`demo_combined_kisiwa.py:127-128`), and the prepare tree's `var/sites` holds only `kobo-001.yaml` (`demo_combined.py:449-451`). No legacy evidence set exists to compare. q12-6 (W4-02) defines `NO_LEGACY_EVIDENCE` for exactly this case: "only an installer whose import carries no legacy documents calls this". `w402_demo.py:62-66` is the precedent.
+
+The basis does **not** open the Performance gate. Kisiwa has no Performance comparison report, so S3, Finding and money claims on the Overview stay closed under the gate's own honest reason, `NO_LEGACY_EVIDENCE_REASON` ("No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.", `performance_comparison.py:186-196`). No comparison is written, nothing is tuned and nothing is forced.
+
+(b) is rejected. It leaves two printed story links (the S−5d "morning after" board beat and the S board) on a refusal page. It also needs a links change of the same size as (a), and keeps the board-port risk in §9r.1.
+
+**The change (K9, `T/demo_combined_kisiwa.py` `register`, Postgres path only):**
+- Inside the `try`, directly after `result = register_in(store, import_at, install_at)` (`:169`), add:
+  ```python
+  # DIESEL-1-R3r (q12-6): the import carries no legacy documents (`legacy_documents=()` above), so record the
+  # explicit NO_LEGACY_EVIDENCE cutover basis with it (w402_demo.py's pattern). Never a comparison; idempotent.
+  store.record_no_legacy_evidence_basis(UUID(result["tenant_id"]), UUID(result["site_id"]), now=import_at)
+  ```
+  Import `UUID` locally.
+- `register_in` is **not** changed, because the in-memory K1 callers keep their store contract. No new keys go into `kisiwa-register.json` or `kisiwa.json`, so KIS-1 (`kis1(..., register, ...)`) is byte-stable.
+- **No frontend change.** R3p's objective line and its tests stand.
+
+**Proof row (K9, `T/demo_combined_finish.py`): `KIS-OV`**, wired after KIS-7, using the existing `KisiwaMissing` pattern when Kisiwa is absent:
+- `GET /api/sites/KISIWA-001/overview?date=<S−5d>` and `?date=<S>` (the two `story_links` days) each answer 200 with a selected-day window summary. Any 409 or 503 fails the row with the status and `detail.code`.
+- One SQL read: exactly one `site_cutover_basis` row for Kisiwa, `basis = 'NO_LEGACY_EVIDENCE'`, with `site_import_id` and `source_sha256` equal to its `site_import` row.
+- It reports, and does not assert, the Kisiwa S board's `read_state`.
+- L0 self-test: one pass body; fail bodies for a 409 `AWAITING_EVIDENCE_MIGRATION` and for a missing basis row.
+
+**Pre-rehearsal clone probe (K9 builder, before the 2-hour prepare, about 15 minutes):**
+1. Clone `assetops_demo3_kisiwa_test` to a new `*_test` DB (authorized).
+2. Upgrade it to head and call `record_no_legacy_evidence_basis` for Kisiwa (`now` = the stored `site_import` instant).
+3. Serve it and confirm the Kisiwa Overview answers 200 for S−5d and S and shows the R3p objective line.
+4. Record the Kisiwa S board `read_state` before and after.
+5. Run whichever Kisiwa rows K9's check-all already ran on that DB, before and after.
+
+**Stops:**
+- **S-r1:** the Overview answers anything but 200 after the basis is recorded.
+- **S-r2:** any Kisiwa row passes before and fails after.
+
+Either stop means report to the Architect, with no patch and no prepare.
+
+**Known honest gaps that stay** (presenter note, not fixed before the demo):
+- Kisiwa's **Evidence tab** still answers 409. `imported_scope`/`ImportedEvidenceReads.scope` (`evidence/ledger_reads.py:212-232`) honours only the comparison, not the basis, so the Overview's evidence links lead to "Awaiting evidence migration".
+- The demo script does not open Kisiwa's Evidence tab.
+- After-the-demo list: "Evidence routes honour the no-legacy cutover basis".
+
+### 9r.3 Q3: owner K9, before its rehearsal prepare
+
+- The prepare archives `git archive HEAD` (`demo_combined.py:440`), so the change must be **committed on K9's branch before the prepare starts**. A rehearsal without it would need a second 2-hour prepare to put the Kisiwa board beat and the K8 (b) Overview capture on screen.
+- **Review.** K9's pre-rehearsal review is in flight. This delta (register line, KIS-OV and its self-test) goes to the same review as an addendum, or to a fresh Claude delta review. Only the delta is gated, and only High or Medium findings block.
+- **K8.** No change. K8 merges on its clone captures. Its Kisiwa Overview capture with the objective line moves to the (b) captures on K9's rehearsal DB (§9p, "captures (a) clone + (b) on K9's rehearsal DB"). R3p's pre-flight (a), "`site_overview.serve` serves `KISIWA-001`", is answered by KIS-OV on the rehearsal DB.
+
+### 9r.4 Q4: the Service page's empty default day is acceptable
+
+- The default day (the DB's current day) has no Kisiwa run. The story hours do, and the script links the story hour, so the empty day is not on the demo path.
+- **Condition (checked in K8's or K9's captures, not built):** the default day must read as an explicit "no records for this day" state, not blank cards or zeros. If it shows zeros or blank cards, log it as a High finding for the post-rehearsal polish batch. It does not block the rehearsal.
+- No new link is added.
+
+### 9r.5 Q5: size, path, tripwire
+
+- **K9 +0.1:** about 0.02 for the register line, 0.05 for KIS-OV and its self-test, and 0.03 for the clone probe.
+- Pre-rehearsal work is about 0.65–0.7. That is at the R3q watch line (0.7), so the builder reports if it passes 0.7. The R3q lever stays first in line.
+- **Critical path about 9.35–9.6** against the 9.75 tripwire. Not crossed, no cut. The clone probe overlaps K8's review.
+- **Plan HTML (coordinator):** the rulings table gains "DIESEL-1-R3r: Kisiwa Overview 409 on every prepare (only Kobo gets the S2 comparison; Cold/EV never read /overview); K9 records the honest q12-6 NO_LEGACY_EVIDENCE cutover basis at Kisiwa's import (no comparison, Performance gate stays closed); KIS-OV proves 200 on S−5d and S; clone probe before the prepare (stops S-r1/S-r2); Kisiwa Evidence tab 409 stays (after-demo); Service empty default day acceptable if stated; K9 +0.1; path 9.35–9.6".
+
+### 9r.6 Owner questions
+
+None.
