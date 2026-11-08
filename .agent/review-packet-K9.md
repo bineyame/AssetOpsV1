@@ -238,3 +238,26 @@ V1, V2, V3, V4 and the other COH-17 rows raised no finding. Bundle dirs: `dd1b2-
 
 - No server started; all reads were in process (TestClient), so no PIDs to kill. The DB and work folder are kept. The served reads write read-through board cache rows as in the prepare; no other DB write.
 - Summary of causes: UF1 (KIS-8a, F-COH) i; KIS-6 i; MILL-5 i (row-code import); Kisiwa Assure headline and legacy verified count (F-COH A1, L2) ii; S-window L2 undiagnosed. None is an environment artefact (iii).
+
+## Fix round (R3u) (ruling DIESEL-1-R3u, build sheet §9u; main 886341aff merged)
+
+Commit `0be93c2ce` (code and tests). Tools-only plus tests: no backend or config diff, so `code_version` is unchanged. No DB, no check-all, kept DB and `var/demo3_k9rehearsal` untouched. The K6c (U2, U3, U6) items are not in this round.
+
+| Item | Change |
+|---|---|
+| UF1 / U1 | `nonzero_pair_sums(pairs)` in `tools/checks/chain_coherence.py` (same-currency, non-None currency, neither addend zero). Used at all four sites: UF1 (`coh17_fuel`), PV1 (`coh17_values`), `pv_values`, and `kis4` (fuel x dispatch `amount_high` and fuel x fuel; the dispatch zero now reaches the helper instead of a pre-filter; the `stored` set still drops zero). |
+| MILL-5 / U4 | `import psycopg` first statement of `mill5` (after its docstring). L0 AST test `_psycopg_import_gaps`: every function naming `psycopg` imports it in its own body, and the module has no top-level import. |
+| KIS-6 / U5 | `(kisiwa_doc.get("verdict") or {}).get("state") == "VERIFIED"`; the assert message and the return `verdict` report the state. |
+| KIS-OV / U7 | `kis_ov(..., s5d_board=None, second_read=None)`: S-5d Protect row state `NEEDS_ATTENTION` and MG-8 outcome `{NEEDS_ATTENTION, PRIMARY_FINDING_OPEN}`; the lead is not asserted. A failure raises with "R3u-s1" plus the board `read_state`, `warnings` and a second read by the Site-local `from`/`to` pair (lazy callable from the row). The row reads the S-5d body once and derives `read_state` from it. |
+| KIS-7 item 3 / U8 | Asserted again ("KIS-7 item 3 (R3u)": unpriced d1, differing amount, non-PRICED lead head all fail). The R3s2 report-only form stays reachable: `kis7(..., item3_report_only=True)` or module `KIS7_ITEM3_REPORT_ONLY = True` (K10 held), with its quoted reasons. Default is asserting. |
+
+**Tests (pure; PYTHONPATH absolute under the k9 worktree):** `test_demo_combined_finish_rows.py`, `test_k7_kisiwa_story.py`, `test_k9_finish_callsites.py`, `test_k4a_fuel_finding_rules.py`, `tools/checks/test_chain_coherence.py`, `tools/checks/test_fuel_wording.py`: 383 passed in 46 s. New: helper unit test; UF1, PV1, `pv_values`, KIS-4 each with a zero case (no finding) and a planted non-zero case (134.70 for UF1: 119.57 + 15.13; 21.12 for PV1) still found; KIS-6 dict VERIFIED reaches the card and H2 returns, INEFFECTIVE with `threads.verified` 1 fails, a null verdict fails; KIS-OV pass, the packet's UNKNOWN / PRODUCER_NOT_SETTLED shape fails, Protect UNKNOWN fails, MG-8 other reason or absent fails, and the failure text carries `read_state` and the second read; KIS-7 item 3 break cases plus the report-only form.
+
+**Mutations (committed first, all five applied together, 10 tests failed as listed, then `git checkout --`; tree clean):**
+- helper zero check removed: the UF1, PV1 and helper tests in `test_chain_coherence.py`, `test_pva_zero_addend_...`, and `test_kis4_zero_dispatch_...`.
+- `mill5` local import removed: both psycopg AST tests.
+- KIS-6 back to whole-verdict compare: `test_kis6_counts_cells_...`.
+- KIS-OV pin disabled (`if False and`): `test_kis_ov_pins_the_s5d_protect_row_and_mg8_entry_r3u`.
+- KIS-7 item 3 raise disabled: `test_kis7_expectations_from_data_pass_and_each_break_fails`.
+
+**Process deviations:** the first `mill5` mutation Edit matched two places and was rejected; retried with more context (no change made by the failed call). The `test_k4a_fuel_finding_rules.py` file (not in the named list) was edited for the KIS-4 zero case and run. The `second_read` pair format (`from`/`to` ISO UTC of the Site-local day) is my reading of "the local `from`/`to` pair"; it has not been served-tested (R3u-s1 applies at the clone run).
