@@ -30,6 +30,7 @@ ENTRIES_TODAY = {
     "FINDING:COLD_START_FAILURE": (("CC-6", "CC-1"), ("CC-5", "CC-3")),
     "FINDING:COLD_EXCURSION": (("CC-1",), ()),
     "FINDING:EV_INTERRUPTION": (("EV-1", "EV-3"), ("EV-4",)),
+    "FINDING:UNEXPLAINED_FUEL": (("MG-8",), ()),
     "SIGNAL:PRODUCTIVE_USE_HEADROOM": (("MG-1",), ("MG-2", "MG-5")),
     "SIGNAL:EVIDENCE_GAP": (("MG-7",), ("MG-2",)),
     "SIGNAL:EVIDENCE_READINESS": (("@EVIDENCE",), ()),

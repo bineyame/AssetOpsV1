@@ -98,8 +98,9 @@ def parse_thread_lifecycle(payload: Mapping[str, Any], source: str = "thread-lif
     if not isinstance(measures, dict) or not measures:
         raise ChainConfigError(f"{source}: clean_day_measures must be a non-empty object")
     parsed: dict[str, tuple[str, ...]] = {}
+    # DIESEL-1-R3j2: an empty list declares a mechanism with no clean-day measure; its thread never closes on clean days (it stays RESOLVED_MONITORING until a recurrence).
     for mechanism, names in measures.items():
-        if not isinstance(names, list) or not names or not all(isinstance(n, str) and n for n in names):
+        if not isinstance(names, list) or not all(isinstance(n, str) and n for n in names):
             raise ChainConfigError(f"{source}: clean_day_measures.{mechanism} must list measure names")
         parsed[str(mechanism)] = tuple(names)
     return LifecyclePolicy(pv, default, by_type, expiry, parsed)

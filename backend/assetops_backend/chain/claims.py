@@ -39,6 +39,7 @@ PROTECT = "PROTECT_ASSET"
 #: verified after the window's last day still counts for the problem found inside the window.
 LATEST_KNOWN = date.max
 DISRUPTED_STATES = ("OPEN", "RECURRED", "ACTION_IN_HAND")
+NOT_DISRUPTION_MECHANISMS = frozenset({"UNEXPLAINED_FUEL"})  # DIESEL-1-R3j2: a stock finding, not a service disruption
 
 
 @dataclass(frozen=True)
@@ -111,7 +112,8 @@ def primary_category(thread: Mapping[str, Any]) -> str | None:
 
 def disrupting(threads: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
     """CH6b2-R Q2: the counted threads that disrupt service: primary Protect and OPEN, RECURRED or ACTION_IN_HAND."""
-    return [t for t in threads if t.get("state") in DISRUPTED_STATES and primary_category(t) == PROTECT]
+    return [t for t in threads if t.get("state") in DISRUPTED_STATES and primary_category(t) == PROTECT
+            and t.get("mechanism") not in NOT_DISRUPTION_MECHANISMS]
 
 
 def opportunity_items(port: Any, sites: Sequence[Any], lo: datetime, hi: datetime,

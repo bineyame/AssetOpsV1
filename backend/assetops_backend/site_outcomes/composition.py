@@ -57,6 +57,11 @@ def build_outcome_board_service(
     objectives = build_objective_store(database_url)  # OUT-D U4: the declared-objective read (None without a DB)
     threads = build_thread_sources(database_url)  # CH-2 §5.2: the board's one thread lookup (None without a DB)
     verification = None if actions is None else VerificationService(actions)
+    # DIESEL-1-R3j2 §9j2.5 item 1: the board's fuel-balance reads (local import: avoids a cycle through work.composition).
+    fuel_balance = None
+    if database_url:
+        from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+        fuel_balance = build_fuel_balance_store(database_url)
 
     def verify(t: UUID, s: UUID, code: str, action_id: str) -> Any:
         from fastapi.encoders import jsonable_encoder
@@ -81,9 +86,11 @@ def build_outcome_board_service(
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
         work_access_basis=ACCESS_BASIS, objectives=objectives,
         threads=threads, chain_reader=chain_reader,
-        thread_policy=thread_lifecycle_policy)
+        thread_policy=thread_lifecycle_policy, fuel_balance=fuel_balance)
 
     def dispose() -> None:
+        if fuel_balance is not None:
+            fuel_balance.dispose()
         if global_work is not None:
             global_work.dispose()
         if objectives is not None:

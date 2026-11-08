@@ -119,6 +119,7 @@ class BoardServices:
     action_selector: Callable[[UUID | None, datetime | None], Any] | None = None  # actions/lifecycle.py:146
     access_basis: str = ""            # the Finding-route access basis (finding_api.ACCESS_BASIS)
     work_access_basis: str = ""       # work_api.ACCESS_BASIS
+    fuel_balance: Any = None          # PostgresFuelBalanceStore (DIESEL-1-R3j2; K4b's fuel_windows/fuel_findings/has_windows)
 
 
 def wire(at: datetime | None) -> str | None:
@@ -304,13 +305,36 @@ class SiteOutcomeBoardService:
         def verdict_value(action_id: str) -> Any:
             return jsonable_encoder(_need(s.verification, "verification").domain_summary(t, sid, UUID(action_id))["value"])
 
+        # DIESEL-1-R3j2 §9j2.5 item 1: the fuel-balance store's reads as known at the board cutoff (None = the store's
+        # own read instant). No store: each port raises `PortUnavailable`, recorded by `Reads` (PARTIAL; MG-8 UNKNOWN).
+        fuel_ctx: dict[str, Any] = {}
+
+        def fuel_context() -> tuple[str | None, datetime]:
+            if not fuel_ctx:
+                _tz, tank, now = _need(s.fuel_balance, "fuel_balance").night_context(t, sid)
+                fuel_ctx.update(tank=tank, k=known_at if known_at is not None else now)
+            return fuel_ctx["tank"], fuel_ctx["k"]
+
+        def fuel_has_windows() -> bool:
+            _tank, k = fuel_context()
+            return bool(_need(s.fuel_balance, "fuel_balance").has_windows(t, sid, k))
+
+        def fuel_windows(lo: date, hi: date) -> Any:
+            tank, k = fuel_context()
+            return () if tank is None else _need(s.fuel_balance, "fuel_balance").windows(t, sid, UUID(tank), lo, hi, k)
+
+        def fuel_findings(lo: datetime, hi: datetime) -> Any:
+            return _need(s.fuel_balance, "fuel_balance").fuel_findings(t, sid, lo, hi, known_at)
+
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
                               placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
                               productive_readings=productive_readings, productive_price=productive_price,
-                              opportunity=opportunity, chain_threads=chain_threads, verdict_value=verdict_value)
+                              opportunity=opportunity, chain_threads=chain_threads, verdict_value=verdict_value,
+                              fuel_windows=fuel_windows, fuel_findings=fuel_findings,
+                              fuel_has_windows=fuel_has_windows)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -822,6 +846,12 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
                    for s in sites
                    for r in s.get("rows") or () if r["category"] == ASSURE
                    for e in (r.get("nodes") or {}).get("verified_values") or ()]
+    # DIESEL-1-R3j (§9j.11), MOCK DEVIATION MD-FUEL-K4-3: one line per unexplained-fuel Finding, Site order then night
+    # order (the node's order); no total, no sum, no arithmetic across entries or with any other card.
+    fuel_lines = [card_text("protect.fuel_line", site=s.get("site_name") or s["site_code"], text=e["text"])
+                  for s in sites
+                  for r in s.get("rows") or () if r["category"] == PROTECT
+                  for e in (r.get("nodes") or {}).get("unexplained_fuel") or ()]
     return {
         GROW: _grow_card(sites, money_total),
         COST: _optimize_card(sites),
@@ -829,7 +859,9 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
                   "detail": card_text("protect.detail.none") if w is None
                   else card_text("protect.detail", w=w, warnings="warning" if w == 1 else "warnings"),
                   "basis_text": card_text("protect.basis"), "days_line": site_days,
-                  "tone": "red" if (disrupted.get("value") or 0) >= 1 else "neutral", "claim": disrupted},
+                  "tone": "red" if (disrupted.get("value") or 0) >= 1 else "neutral", "claim": disrupted,
+                  "fuel_lines": fuel_lines,
+                  "fuel_note": card_text("protect.fuel_separate") if fuel_lines else None},
         ASSURE: {"value": count_card_value(verified, card_text("assure.zero")), "missing": False,
                  "detail": assure_detail, "basis_text": card_text("assure.basis"), "days_line": site_days,
                  "tone": "neutral", "claim": verified, "value_lines": value_lines,

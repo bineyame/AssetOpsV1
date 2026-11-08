@@ -633,3 +633,28 @@ def test_a3_optimize_card_and_trial_page() -> None:
     assert rows.trial_page({"fuel_value": want}, result) == want
     with pytest.raises(AssertionError):
         rows.trial_page({}, result)
+
+
+def _kis8_summary(line_text: str | None = None, amount_detail: str = "Service disruptions recorded") -> dict:
+    from assetops_backend.chain.vocabulary import card_text
+
+    entry = {"key": "f4", "night_date": "2026-10-14", "basis": "UNEXPLAINED_FUEL_AT_DECLARED_PRICE",
+             "litres_low": "61.2", "litres_high": "98.4", "amount_low": "76.55", "amount_high": "122.95",
+             "currency": "USD", "text": "Unexplained fuel on the night of 14 Oct: about 61.2–98.4 L"}
+    site = {"site_code": "KISIWA-001", "site_name": "Kisiwa", "rows": [
+        {"category": "PROTECT_ASSET", "nodes": {"unexplained_fuel": [entry]}}]}
+    line = card_text("protect.fuel_line", site="Kisiwa", text=line_text or entry["text"])
+    card = {"detail": amount_detail, "fuel_lines": [line], "fuel_note": card_text("protect.fuel_separate")}
+    return {"sites": [site], "cards": {"PROTECT_ASSET": card}}
+
+
+def test_kis8_protect_passes_on_the_node_line_and_fails_otherwise() -> None:
+    """KIS-8a (DIESEL-1-R3j §9j.12): pass on the night-4 line; fail on a differing line, a missing night or a sum."""
+    out = rows.kis8_protect(_kis8_summary(), date(2026, 10, 14))
+    assert out["uf1"] == "pass" and out["line"].startswith("Kisiwa · Unexplained fuel on the night of 14 Oct")
+    with pytest.raises(AssertionError):
+        rows.kis8_protect(_kis8_summary(line_text="something else"), date(2026, 10, 14))
+    with pytest.raises(AssertionError):
+        rows.kis8_protect(_kis8_summary(), date(2026, 10, 15))
+    with pytest.raises(AssertionError):
+        rows.kis8_protect(_kis8_summary(amount_detail="199.50 USD in all"), date(2026, 10, 14))  # low + high
