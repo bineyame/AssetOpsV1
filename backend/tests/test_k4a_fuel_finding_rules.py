@@ -356,6 +356,18 @@ def test_kis4_passes_on_a_true_body() -> None:
     assert out["supported"] == 1 and out["priced"] == 1 and out["sums_checked"] == 3
 
 
+def test_kis4_zero_dispatch_amount_high_makes_no_sum() -> None:
+    """R3u U1 site 4: fuel + a zero dispatch `amount_high` is the fuel amount itself, which is no addition."""
+    kis4, windows, findings, consequence, prices, dispatch = _kis4_body()
+    dispatch[0]["amount_high"] = "0"
+    served = [f"Worth about {Decimal(round(parse_exact(consequence['amount_high']) * 100)) / 100:.2f} USD"]
+    out = kis4(windows, findings, [consequence], prices, dispatch, served)
+    assert out["sums_checked"] == 1      # only the fuel low + fuel high pair
+    with pytest.raises(AssertionError, match="is a sum"):   # a planted non-zero sum is still found
+        total = parse_exact(consequence["amount_low"]) + parse_exact(consequence["amount_high"])
+        kis4(windows, findings, [consequence], prices, dispatch, [f"Total {Decimal(round(total * 100)) / 100:.2f}"])
+
+
 @pytest.mark.parametrize("mutation, match", [
     ("litres", "litres"), ("amount", "amounts are not litres x price"), ("price", "price re-run differs"),
     ("dispatch_cites", "cites a fuel Finding"), ("served_sum", "is a sum"), ("missing", "has no consequence")])

@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterable, Iterator
 from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
@@ -33,11 +33,13 @@ ROUTES_FILE = HERE / "fixtures" / "chain_coherence" / "screen_routes.json"
 THREADS_FILE = HERE / "fixtures" / "chain_coherence" / "expected-threads.json"
 BUNDLE_SCHEMA = "chain-coherence-bundle/1"
 REPORT_SCHEMA = "chain-coherence-report/1"
-SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
+SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "kisiwa": "KISIWA-001"}
 #: CH-5a1 (R6, CH5a1-R Q8; closes MD0-R R10): the Sites whose board day is their Site-local day. EV keeps its
-#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`).
-LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa"}
+#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`). DIESEL-1-R3q: Kisiwa's boards are its Site-local day too.
+LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa", "kisiwa": "Africa/Dar_es_Salaam"}
 SUMMARY_SITE_TZ = {"KISIWA-001": "Africa/Dar_es_Salaam"}  # DIESEL-1-R3p: config/operational-actions/kisiwa-001-operational-actions-v1.yaml timezone; Kisiwa boards stay K9's (SITE_CODE)
+#: DIESEL-1-R3q: the Kisiwa boards `demo_combined.story_links` opens (offset from S in days, id kind).
+KISIWA_BOARD_DAYS = ((-5, "fuel-morning"), (0, "S"))
 DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
 ESTATE_WINDOWS = ("week", "S", "month")
 HTTP_TIMEOUT_SECONDS = 30
@@ -78,6 +80,8 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
     for d in days:
         if d.get("assess") != "build" or not d.get("start") or d.get("site") not in SITE_CODE:
             continue
+        if d["site"] == "kisiwa":  # DIESEL-1-R3q: Kisiwa's board days come only from `kisiwa_day_windows`
+            continue
         start, end = at(d["start"]), at(d["end"])
         zone = LOCAL_DAY_TZ.get(d["site"])
         if d["site"] in ("cold", "ev"):   # DD1b1-R2: a Cold or EV story day is its whole UTC day
@@ -92,6 +96,24 @@ def day_windows(days: list[dict]) -> list[dict[str, Any]]:
         out.append({"id": f"day:{d['site']}:{d['kind']}:{d['day']}", "site_code": SITE_CODE[d["site"]],
                     "from": iso(lo), "to": iso(hi), "date": local.date().isoformat() if d["site"] == "kobo" else None,
                     "estate": (iso(e_lo), iso(e_hi))})
+    return out
+
+
+def kisiwa_day_windows(story: dict) -> list[dict[str, Any]]:
+    """DIESEL-1-R3q: Kisiwa's board days, from `story["kisiwa"]` (not `days.json`), only when Kisiwa is in
+    `story["sites"]`. Each is its Site-local day read by `?date=` (mini board), in `day_windows`' row shape."""
+    if "kisiwa" not in (story.get("sites") or []) or not story.get("kisiwa"):
+        return []
+    from datetime import time
+
+    out = []
+    for n, kind in KISIWA_BOARD_DAYS:
+        day = (at(story["S"]) + timedelta(days=n)).date()
+        local = datetime.combine(day, time(0), tzinfo=ZoneInfo(LOCAL_DAY_TZ["kisiwa"]))
+        lo, hi = local.astimezone(timezone.utc), (local + timedelta(days=1)).astimezone(timezone.utc)
+        e_lo, e_hi = _midnight(lo), _midnight(hi - timedelta(microseconds=1)) + timedelta(days=1)
+        out.append({"id": f"day:kisiwa:{kind}:{day.isoformat()}", "site_code": SITE_CODE["kisiwa"],
+                    "from": iso(lo), "to": iso(hi), "date": day.isoformat(), "estate": (iso(e_lo), iso(e_hi))})
     return out
 
 
@@ -220,7 +242,7 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
     windows = estate_windows(story)
     for wid, (lo, hi) in windows.items():
         c.estate(wid, lo, hi)
-    days_out = day_windows(days)
+    days_out = day_windows(days) + kisiwa_day_windows(story)  # DIESEL-1-R3q: Kisiwa's two boards (`date=`)
     for d in days_out:
         c.board(f"board.{d['id']}", d["site_code"], d["id"], d["from"], d["to"], d["date"])
         c.fetch(f"chain_site.{d['id']}", f"/api/sites/{d['site_code']}/chain",
@@ -1273,11 +1295,8 @@ def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int])
     lines = list(card.get("value_lines") or ())
     check(lines == want, f"Assure card value_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
     strings = list(_strings(card))
-    sums = []
-    for i, a in enumerate(entries):
-        for b in entries[i + 1:]:
-            if a.get("currency") == b.get("currency") and a.get("amount") is not None and b.get("amount") is not None:
-                sums.append(f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}")
+    amts = [x for e in entries for x in _amounts(e.get("currency"), e.get("amount"))]
+    sums = nonzero_pair_sums((a, b) for i, a in enumerate(amts) for b in amts[i + 1:])
     held = sorted({x for x in sums if any(x in t for t in strings)})
     check(not held, f"the Assure card holds the sum of two same-currency amounts: {held!r}")
     separate = voc.card_text("assure.values_separate")
@@ -1288,6 +1307,11 @@ def coh17_values(w: str, summary: dict, files: list[str], tally: dict[str, int])
 
 def _amounts(currency: Any, *values: Any) -> list[tuple[Any, Decimal]]:
     return [(currency, Decimal(str(x))) for x in values if x is not None]
+
+
+def nonzero_pair_sums(pairs: Iterable[tuple[tuple[Any, Decimal], tuple[Any, Decimal]]]) -> set[str]:
+    """R3u: the two-place sums of same-currency pairs, neither addend zero (a sum with 0 shows no adding)."""
+    return {f"{a[1] + b[1]:.2f}" for a, b in pairs if a[0] is not None and a[0] == b[0] and a[1] != 0 and b[1] != 0}
 
 
 def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -> list[dict]:
@@ -1323,7 +1347,7 @@ def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -
     lines = list(card.get("fuel_lines") or ())
     check(lines == want, f"Protect card fuel_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
     pairs = [(a, b) for i, a in enumerate(fuel) for b in fuel[i + 1:]] + [(a, b) for a in fuel for b in other]
-    sums = {f"{a[1] + b[1]:.2f}" for a, b in pairs if a[0] is not None and a[0] == b[0]}
+    sums = nonzero_pair_sums(pairs)
     strings = list(_strings(cards))
     held = sorted(x for x in sums if any(x in t for t in strings))
     check(not held, f"a Portfolio card holds the sum of an unexplained-fuel amount and another amount: {held!r}")

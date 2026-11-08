@@ -629,7 +629,7 @@ class Demo:
         self.performance_and_prebuild()
 
     def performance_and_prebuild(self) -> None:
-        for site in ("KOBO-001",):
+        for site in ("KOBO-001",) + (("KISIWA-001",) if "kisiwa" in self.story().get("sites", ()) else ()):
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])

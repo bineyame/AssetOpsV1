@@ -28,8 +28,22 @@ def drain_summary(record: dict) -> dict:
             "seconds": record.get("seconds"), "sites": sorted(record["end"])}
 
 
+#: DIESEL-1-R3p §9p.7 item 5 (K9): the Kisiwa unexplained-fuel thread's name and mechanism, as the ruling writes them.
+KISIWA_FUEL_THREAD = {"name": "kisiwa-fuel", "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL"}
+
+
+def kisiwa_fuel_thread(kisiwa: dict) -> dict:
+    """DIESEL-1-R3p §9p.7 item 5 (K9): COH-10's Kisiwa fuel thread. Its one Finding is the night-4 Finding id from
+    `kisiwa.json`, read the way `demo_combined.story_links` reads it (`finding.id`, else the Action's `finding_id`).
+    A `kisiwa.json` without that id is a failure, never an empty thread."""
+    fid = (kisiwa.get("finding") or {}).get("id") or (kisiwa.get("action") or {}).get("finding_id")
+    assert fid, ("kisiwa.json carries no unexplained-fuel Finding id", sorted(kisiwa))
+    return {**KISIWA_FUEL_THREAD, "findings": [str(fid).lower()]}
+
+
 def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], mill: dict | None,
-                           unplaced: list | None = None, headroom: list[str] | None = None) -> list[dict]:
+                           unplaced: list | None = None, headroom: list[str] | None = None,
+                           kisiwa: dict | None = None) -> list[dict]:
     """F-COH: the expected threads, generated from the build's own documents. A Finding id comes from `kobo.json` /
     `cold.json` (`days[].findings`, which is where the build recorded them); EV records none (`ev.json` has no
     `findings`), so EV's come from the served Portfolio rows of its Site (declared limit, packet). Findings are grouped
@@ -63,6 +77,8 @@ def build_expected_threads(kobo: dict, cold: dict, portfolio_rows: list[dict], m
     elif mill and (mill.get("study") or {}).get("opportunity_id"):
         out.append({"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": HEADROOM,
                     "opportunities": [str(mill["study"]["opportunity_id"])]})
+    if kisiwa is not None:  # DIESEL-1-R3p §9p.7 item 5: only when the dataset holds Kisiwa (`kisiwa.json` exists)
+        out.append(kisiwa_fuel_thread(kisiwa))
     return out
 
 
@@ -361,8 +377,14 @@ def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_
                 walk(x)
 
     walk(card)
-    sums = [f"{Decimal(str(a['amount'])) + Decimal(str(b['amount'])):.2f}" for i, a in enumerate(entries)
-            for b in entries[i + 1:] if a.get("currency") == b.get("currency")]
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    from chain_coherence import nonzero_pair_sums
+
+    amts = [(e.get("currency"), Decimal(str(e["amount"]))) for e in entries if e.get("amount") is not None]
+    sums = sorted(nonzero_pair_sums((a, b) for i, a in enumerate(amts) for b in amts[i + 1:]))
     held = sorted({x for x in sums if any(x in t for t in strings)})
     assert not held, ("the Assure card holds a sum", held)
     return {"value_lines": lines, "mill_line": mill, "trial_line": trial,
@@ -418,11 +440,21 @@ def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: 
         return f"{Decimal(round(Fraction(x) * 100)) / 100:.2f}"
 
     # a zero operand is no addition (dispatch PRICED-0 days store amount_high 0), so it never makes a sum
-    dispatch_high = [x for x in (parse_exact(d["amount_high"]) for d in dispatch_consequences
-                                 if d.get("amount_high") is not None) if x]
-    operands = [a for a in fuel_amounts if a]
-    sums = {two(a + b) for a in operands for b in dispatch_high}
-    sums |= {two(a + b) for i, a in enumerate(operands) for b in operands[i + 1:]}
+    all_high = [parse_exact(d["amount_high"]) for d in dispatch_consequences if d.get("amount_high") is not None]
+    dispatch_high = [x for x in all_high if x]
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    from chain_coherence import nonzero_pair_sums
+
+    def dec(x) -> tuple[str, Decimal]:
+        return ("amount", Decimal(Fraction(x).numerator) / Decimal(Fraction(x).denominator))
+
+    operands = [dec(a) for a in fuel_amounts]
+    others = [dec(b) for b in all_high]  # zero addends are excluded by the helper
+    sums = nonzero_pair_sums([(a, b) for a in operands for b in others]
+                             + [(a, b) for i, a in enumerate(operands) for b in operands[i + 1:]])
     stored = {two(x) for x in fuel_amounts + dispatch_high}
     stored |= {two(parse_exact(d["amount_low"])) for d in dispatch_consequences if d.get("amount_low") is not None}
     held = sorted((sums & stored) | {s for s in sums for text in served if s in text})
@@ -469,6 +501,23 @@ def kis8_protect(summary: dict, night: date, site: str = "KISIWA-001") -> dict:
     found = coh17_fuel("week", summary, [], tally)
     assert not found and tally["compared"] == 3, ("COH-17 UF1", found, tally)
     return {"night": night.isoformat(), "line": line, "fuel_lines": len(card["fuel_lines"]), "uf1": "pass"}
+
+
+def kis8_wording(bodies: dict[str, object], site: str = "KISIWA-001") -> dict:
+    """KIS-8, the wording half (DIESEL-1 H4, §8.7; K9): no served body says theft, stolen, stole, siphon or pilfer
+    (`tools/checks/fuel_wording.py` words, keys and values). `bodies` maps a name to a parsed served body. The check
+    is not vacuous: at least one body must name `site` (the Kisiwa pages are among those read)."""
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    from fuel_wording import served_hits
+
+    hits = {name: found for name, body in bodies.items() if (found := served_hits(body))}
+    assert not hits, ("H4: forbidden words in served bodies", dict(list(hits.items())[:8]))
+    naming = [n for n, b in bodies.items() if site in json.dumps(b, default=str)]
+    assert naming, ("KIS-8 read no served body naming the Site", site, len(bodies))
+    return {"bodies": len(bodies), "naming_site": len(naming), "hits": 0}
 
 
 def kis5(plan: dict, outcome: dict, read_back: dict, windows_by_date: dict, summary: dict) -> dict:
@@ -960,3 +1009,298 @@ def trial_page(body: dict, result: dict) -> str:
         basis=NO_LOAD_BASIS_WORDS.get((result.get("no_load") or {}).get("basis"), NO_LOAD_BASIS_WORDS[None]))
     assert body.get("fuel_value") == want, (body.get("fuel_value"), want)
     return want
+
+
+# ---- DIESEL-K9 (ruling DIESEL-1-R3q §9q.2-§9q.4): KIS-1, KIS-2, KIS-6, KIS-7 -----------------------------------------
+
+KIS_SITE = "KISIWA-001"
+KIS_ZONE = "Africa/Dar_es_Salaam"
+KIS_FOUR = ("COLD-LAB-001", "EV-LAB-001", "KISIWA-001", "KOBO-001")  # sorted
+
+
+def _field(row, name: str):
+    return row.get(name) if isinstance(row, dict) else getattr(row, name)
+
+
+def _props(content: dict, component_id: str) -> dict[str, dict]:
+    comp = next((c for c in content.get("components") or () if c.get("component_id") == component_id), None)
+    return {p["property_key"]: p for p in (comp or {}).get("properties") or ()}
+
+
+def kis1(revisions: list, register: dict, prices: list[dict], nights: int) -> dict:
+    """KIS-1 (DIESEL-1-R3q §9q.3): Kisiwa's Foundation as known now. `revisions`: the Site's Foundation revisions
+    (`RevisionRow` or dicts with `valid_from`, `superseded_at`, `content`); only current-knowledge rows count.
+    `register`: `kisiwa-register.json`; `prices`: one `price_selection` per stored night window (`state`, `revision_id`,
+    `value`, `currency`). Stop setting 90 % in every current revision; no-load 4.9 L/h GENERIC_DEFAULT and sensor
+    accuracy 10 L GENERIC_DEFAULT in every revision from their effective instants (equal to the declarations, read);
+    every window priced by one revision equal to diesel price step v1 (read from the fixture file). `nights`: the
+    stored night count the story expects (`len(kisiwa.json["runs"])`); all of them are priced, not a subset."""
+    import demo_combined_kisiwa as kis
+
+    current = [r for r in revisions if _field(r, "superseded_at") is None]
+    # the Site exists (the row wrapper raises KisiwaMissing without it); no current revision is a different fault
+    assert current, ("Kisiwa has no current Foundation revision", len(list(revisions)))
+    stops = {(Decimal(str(p.get("value"))), p.get("unit")) for r in current
+             for p in [_props(_field(r, "content"), "generator").get("stop-soc-threshold") or {}]}
+    assert stops == {(Decimal("90"), "%")}, ("stop setting is not 90 % in every current revision", sorted(map(str, stops)))
+
+    def since(key: str) -> list:
+        lo = _kis_utc(register[key])
+        got = [r for r in current if _kis_utc(_field(r, "valid_from")) >= lo]
+        assert got, ("no current revision from", key, register[key])
+        return got
+
+    def declared(props: list[dict], key: str) -> tuple:
+        p = next(x for x in props if x["property_key"] == key)
+        return Decimal(str(p["value"])) if p["unit"] != "state" else p["value"], p["unit"]
+
+    no_load = (declared(kis.NO_LOAD, "generator-no-load-fuel-rate"),
+               declared(kis.NO_LOAD, "generator-no-load-fuel-rate-basis"))
+    assert no_load == ((Decimal("4.9"), "L/h"), ("GENERIC_DEFAULT", "state")), ("declared no-load", no_load)
+    accuracy_props = kis.ROLES4["component_properties"]["properties"]
+    accuracy = (declared(accuracy_props, "fuel-level-sensor-accuracy"),
+                declared(accuracy_props, "fuel-level-sensor-accuracy-basis"))
+    assert accuracy == ((Decimal("10"), "L"), ("GENERIC_DEFAULT", "state")), ("declared accuracy", accuracy)
+    for key, component, names, want in (
+            ("no_load_effective_from", "generator", ("generator-no-load-fuel-rate", "generator-no-load-fuel-rate-basis"),
+             no_load),
+            ("roles4_effective_from", "fuel-tank", ("fuel-level-sensor-accuracy", "fuel-level-sensor-accuracy-basis"),
+             accuracy)):
+        for r in since(key):
+            props = _props(_field(r, "content"), component)
+            missing = [n for n in names if n not in props]
+            assert not missing, ("a current revision lacks", missing, str(_field(r, "valid_from")))
+            assert tuple(declared(list(props.values()), n) for n in names) == want, (
+                component, str(_field(r, "valid_from")), [props[n] for n in names])
+    v1 = next(s for s in json.loads(kis.FIXTURE_PRICES.read_text(encoding="utf-8"))["steps"] if s["step"] == "v1")
+    assert (v1["value"], v1["currency"]) == ("1.25", "USD"), v1
+    assert prices and len(prices) == nights, ("not every stored night window was priced", len(prices), "expected", nights)
+    assert all(p["state"] == "PRICED" for p in prices), ("an unpriced night window", prices)
+    revs = sorted({str(p["revision_id"]) for p in prices})
+    assert len(revs) == 1, ("the nights are priced by more than one price revision", revs)
+    assert all(Decimal(str(p["value"])) == Decimal(v1["value"]) and p["currency"] == v1["currency"] for p in prices), (
+        "a night is not priced at step v1", prices)
+    return {"current_revisions": len(current), "stop_soc_threshold": "90 %", "no_load": "4.9 L/h GENERIC_DEFAULT",
+            "sensor_accuracy": "10 L GENERIC_DEFAULT", "price": f"{v1['value']} {v1['currency']} (v1)",
+            "price_revision_id": revs[0], "windows_priced": len(prices)}
+
+
+def kis2(heads: dict, intervals_by_head: dict, latest_revisions: list[dict]) -> dict:
+    """KIS-2 (DIESEL-1-R3q §9q.4): every Kisiwa dispatch Finding's latest revision is SUPPORTED and its head
+    consequence (`heads[finding_id]`, SQL column names incl. `id`) cites it, is fuel-cost-2 PRICED at the model's
+    multiplier with the declared no-load 4.9 L/h GENERIC_DEFAULT, and its `quantity_high_exact` is exactly the
+    fuel-cost-2 formula over its stored power intervals (`intervals_by_head[id]`); `quantity_high` is its ceiling and
+    `idle_seconds` the idle intervals' seconds. Tolerance zero."""
+    from fractions import Fraction
+
+    import demo_combined_kisiwa as kis
+    from assetops_backend.financials import fuel_cost, fuel_cost_v2
+
+    assert latest_revisions, "no Kisiwa dispatch Finding"
+    declared = Decimal(str(next(p["value"] for p in kis.NO_LOAD if p["property_key"] == "generator-no-load-fuel-rate")))
+    F = lambda x: Fraction(str(x))  # noqa: E731
+    out = []
+    for rev in latest_revisions:
+        fid = str(rev["finding_id"])
+        assert rev["lifecycle"] == "SUPPORTED", ("S: a latest dispatch Finding revision is not SUPPORTED", rev)
+        h = heads.get(fid)
+        assert h is not None, ("S: a SUPPORTED dispatch Finding has no head consequence", fid)
+        assert str(h["finding_revision_id"]) == str(rev["revision_id"]), ("head cites another revision", h, rev)
+        assert h["model_id"] == "fuel-cost-2" and h["state"] == "PRICED", ("S: head not fuel-cost-2 PRICED", fid,
+                                                                              h["model_id"], h["state"])
+        assert Decimal(str(h["sfc_upper_multiplier"])) == fuel_cost_v2.MULTIPLIER, ("multiplier", h)
+        rate = Decimal(str(h["no_load_fuel_rate_l_per_h"]))
+        assert rate == Decimal("4.9") == declared and h["no_load_fuel_rate_basis"] == "GENERIC_DEFAULT", (
+            "no-load", rate, h["no_load_fuel_rate_basis"])
+        ivs = intervals_by_head.get(str(h["id"])) or []
+        assert ivs, ("a head consequence with no stored power interval", h["id"])
+        loaded = sum((F(i["mean_kw"]) * Fraction(int(i["duration_seconds"]), 3600) * F(i["sfc_l_per_kwh"])
+                      for i in ivs if F(i["mean_kw"]) > 0), Fraction(0))
+        idle_s = sum(int(i["duration_seconds"]) for i in ivs if F(i["mean_kw"]) == 0)
+        idle = Fraction(idle_s, 3600) * F(rate)
+        exact = F(h["sfc_upper_multiplier"]) * (loaded + idle)
+        assert exact == Fraction(str(h["quantity_high_exact"])), ("quantity_high_exact", fid, h["quantity_high_exact"],
+                                                                  f"{exact.numerator}/{exact.denominator}")
+        assert Decimal(str(h["quantity_high"])) == fuel_cost.to_decimal_ceiling(exact), (
+            "quantity_high is not the ceiling", h["quantity_high"], fuel_cost.to_decimal_ceiling(exact))
+        assert int(h["idle_seconds"] or 0) == idle_s, ("idle_seconds", h["idle_seconds"], idle_s)
+        out.append({"finding_id": fid, "intervals": len(ivs), "idle_seconds": idle_s,
+                    "quantity_high": str(h["quantity_high"])})
+    return {"findings": len(out), "per_finding": out}
+
+
+def _site_codes(items, key: str) -> list[str]:
+    return sorted(str(x.get(key)) for x in items or ())
+
+
+def kis6(summary: dict, chain: dict, portfolio: dict, board_s: dict, kisiwa_doc: dict, s_day: date) -> dict:
+    """KIS-6 (DIESEL-1-R3q §9q.2): on the week `[S-6d, S+1d)`: four Sites from data (summary, estate chain and the
+    Portfolio objectives); Kisiwa's summary cells are its S board (`window_basis` DAY from the Site-local midnight);
+    the Assure line: Kisiwa's verified threads are 1 iff `kisiwa.json`'s verdict is VERIFIED (never forced), the
+    Assure card claim equals the chain `count.verified_results`, and no Assure value line names Kisiwa (H2)."""
+    from zoneinfo import ZoneInfo
+
+    s = next((x for x in summary.get("sites") or () if x.get("site_code") == KIS_SITE), None)
+    if s is None:
+        raise KisiwaMissing()
+    codes = {"summary": _site_codes(summary.get("sites"), "site_code"), "chain": _site_codes(chain.get("sites"), "code"),
+             "objectives": sorted({str(o.get("site_code")) for o in portfolio.get("objectives") or ()})}
+    for name, got in codes.items():
+        assert got == list(KIS_FOUR), (f"{name} Sites", got)
+    cells = {r["category"]: r.get("state") for r in s.get("rows") or ()}
+    board = {r["category"]: r.get("state") for r in board_s.get("rows") or ()}
+    assert cells == board, ("Kisiwa summary cells are not its S board", cells, board)
+    start = site_day_start(s_day, ZoneInfo(KIS_ZONE)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    assert s.get("window_basis") == "DAY" and (s.get("window") or {}).get("from") == start, (
+        "Kisiwa summary window", s.get("window_basis"), s.get("window"), start)
+    verdict_state = (kisiwa_doc.get("verdict") or {}).get("state")  # R3u U5: `kisiwa.json` verdict is a dict
+    want = 1 if verdict_state == "VERIFIED" else 0
+    c = next(x for x in chain["sites"] if x.get("code") == KIS_SITE)
+    verified = (c.get("threads") or {}).get("verified")
+    assert verified == want, ("Kisiwa verified threads", verified, "verdict", verdict_state)
+    card = ((summary.get("cards") or {}).get("ASSURE_PERFORMANCE") or {})
+    card_value = (card.get("claim") or {}).get("value")
+    count = ((chain.get("counts") or {}).get("count.verified_results") or {}).get("value")
+    assert card_value is not None and card_value == count, ("Assure card claim against the chain count", card_value,
+                                                            count)
+    name = s.get("site_name") or KIS_SITE
+    assure = next((r for r in s.get("rows") or () if r.get("category") == "ASSURE_PERFORMANCE"), None) or {}
+    lines = [x for x in card.get("value_lines") or () if str(x).startswith(f"{name}:") or KIS_SITE in str(x)]
+    assert not (assure.get("nodes") or {}).get("verified_values") and not lines, ("H2: a Kisiwa Assure value line",
+                                                                                  lines)
+    return {"sites": codes, "kisiwa_cells": cells, "verdict": verdict_state, "want_verified": want,
+            "assure_card": card_value, "chain_verified_results": count}
+
+
+def _optimize_priced(summary: dict) -> list[tuple[str, dict]]:
+    out = []
+    for s in summary.get("sites") or ():
+        row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+        claim = (row.get("nodes") or {}).get("earnings")
+        if claim is not None and claim.get("value") is not None:
+            out.append((s.get("site_code"), claim))
+    return out
+
+
+KIS7_ITEM3_REPORT_ONLY = False  # R3u U8: True restores the R3s2 report-only form (K10 held)
+
+
+def _kis7_d1_equal(money: dict, lead: dict) -> bool:
+    """R3t4 §9t4: the board shows two places, so compare through the product's `money2` (half-even), never strict
+    Decimal: high always, low when present; currencies equal."""
+    from assetops_backend.chain.vocabulary import money2
+
+    if money.get("currency") != lead.get("currency"):
+        return False
+    pairs = [(money["amount_high"], lead["amount_high"])]
+    if money.get("amount_low") is not None and lead.get("amount_low") is not None:
+        pairs.append((money["amount_low"], lead["amount_low"]))
+    return all(money2(a) == money2(b) for a, b in pairs)
+
+
+def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, board_at,
+         item3_report_only: bool | None = None) -> dict:
+    """KIS-7 (DIESEL-1-R3s §9s.3, replaces R3q §9q.2 KIS-7): expectations derived from stored rows, never typed.
+    `heads`: each Kisiwa dispatch Finding's latest revision episode (`episode_start`, `episode_end` or None, aware
+    datetimes) with its latest money head (`state`, `amount_high`, `finding_id`); `board_at(date_iso)`: the Kisiwa
+    outcome board body. 1. The S summary's Optimize card is `optimize_card(..., KOBO, allowed=(KOBO, KISIWA))`.
+    2. Kisiwa is priced on S iff some PRICED head's episode overlaps Kisiwa's S local day. 3. On the Kisiwa date of
+    the earliest PRICED head's episode start (d1) the board's Optimize earnings has a value equal to the stored
+    `amount_high` of that day's lead head (greatest episode start, smallest Finding id: `lead_finding`).
+    4. `never_summed` over `bodies` for every summary with two or more priced Sites, else reported as not reached."""
+    from zoneinfo import ZoneInfo
+
+    from assetops_backend.chain.outcomes import earnings_money
+
+    if not any(x.get("site_code") == KIS_SITE for x in summary_s.get("sites") or ()):
+        raise KisiwaMissing()
+    zone = ZoneInfo(KIS_ZONE)
+    card = optimize_card(summary_s, "KOBO-001", allowed=("KOBO-001", KIS_SITE))
+
+    def overlapping(day: date) -> list[dict]:
+        lo, hi = site_day_start(day, zone), site_day_start(day + timedelta(days=1), zone)
+        return [h for h in heads if h["episode_start"] < hi and (h.get("episode_end") is None or h["episode_end"] > lo)]
+
+    priced_heads = [h for h in heads if h.get("state") == "PRICED"]
+    expected_s = any(h in priced_heads for h in overlapping(s_day))
+    codes = [c for c, _ in _optimize_priced(summary_s)]
+    assert (KIS_SITE in codes) == expected_s, ("S: Kisiwa priced on S does not match its stored heads", codes,
+                                              "expected priced on S:", expected_s)
+    assert priced_heads, ("no PRICED Kisiwa head to price a board day from", len(heads))
+    first = min(priced_heads, key=lambda h: (h["episode_start"], str(h["finding_id"])))
+    d1 = first["episode_start"].astimezone(zone).date()
+    board = board_at(d1.isoformat())
+    row = next((r for r in board.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+    money = earnings_money((row.get("nodes") or {}).get("earnings"))
+    # Item 3 (d1 priced) asserts again (DIESEL-1-R3u U8): K10 settles d1. The R3s2 report-only form (Kisiwa has no
+    # `productive_kwh` subject, so d1 earnings read "Not known yet") stays reachable with `item3_report_only=True`
+    # (module `KIS7_ITEM3_REPORT_ONLY`), for a run where K10 is held.
+    report_only = KIS7_ITEM3_REPORT_ONLY if item3_report_only is None else item3_report_only
+    d1_report = None
+    day_heads = overlapping(d1)
+    latest = max(h["episode_start"] for h in day_heads)
+    lead = min((h for h in day_heads if h["episode_start"] == latest), key=lambda h: str(h["finding_id"]))
+    if money is None:
+        d1_report = ("d1 is unsettled: no `productive_kwh` subject (R3s2)", "board earnings unpriced", d1.isoformat())
+    elif lead.get("state") != "PRICED":
+        d1_report = ("d1: the lead head is not PRICED", lead.get("state"), d1.isoformat())
+    elif not _kis7_d1_equal(money, lead):
+        d1_report = ("d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"],
+                     lead["amount_high"])
+    if d1_report and not report_only:
+        raise AssertionError(("KIS-7 item 3 (R3u)",) + d1_report)
+    sums, reached = 0, 0
+    for body in [summary_s] + [b for b in bodies if isinstance(b, dict) and "sites" in b]:
+        got = _optimize_priced(body)
+        if len(got) >= 2:
+            reached += 1
+            sums += never_summed([str(earnings_money(c)["amount_high"]) for _, c in got], bodies)
+    return {"optimize_card": card, "kisiwa_priced_on_s": KIS_SITE in codes, "priced_on_s": codes, "d1": d1.isoformat(),
+            "d1_amount_high": None if money is None else str(money["amount_high"]),
+            "d1_priced": (("REPORT-ONLY (R3s2): " if report_only else "") + "; ".join(map(str, d1_report))
+                          if d1_report else ("REPORT-ONLY (R3s2): " if report_only else "") + "priced and equal"),
+            "sums_checked": sums,
+            "multi_site_bodies": reached or "no summary prices two Sites on real data (>=2 path not reached; L0 covers it)",
+            "bodies": len(bodies)}
+
+
+def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report: dict | None,
+           s5d_board: dict | None = None, second_read=None) -> dict:
+    """KIS-OV (DIESEL-1-R3r §9r.2, extended by R3s §9s.2): the Kisiwa Overview answers 200 on each read day (`reads`:
+    label, status, code, body); exactly one `site_cutover_basis` row is `NO_LEGACY_EVIDENCE` for the Site's own import
+    row and digest (`basis_rows`); the newest Kisiwa Performance report (`report`: `outcome`, `empty_set`) is PASSED and
+    empty-set; and the S-5d and S boards (`board_states`: label -> `read_state`) read AVAILABLE."""
+    for r in reads:
+        assert r.get("status") == 200 and isinstance(r.get("body"), dict) and r["body"], (
+            "Kisiwa Overview not served", r.get("label"), r.get("status"), r.get("code"))
+    assert len(basis_rows) == 1, ("expected exactly one Kisiwa cutover basis row", basis_rows)
+    b = basis_rows[0]
+    assert b.get("basis") == "NO_LEGACY_EVIDENCE" and b.get("same_import") is True and b.get("same_sha") is True, (
+        "Kisiwa cutover basis is not the no-legacy basis of its own import", b)
+    assert report is not None, "no Kisiwa Performance comparison report"
+    assert report.get("outcome") == "PASSED" and report.get("empty_set") is True, (
+        "Kisiwa Performance report is not a PASSED empty-set report", report.get("outcome"), report.get("empty_set"))
+    assert set(board_states) == {"S-5d", "S"} and all(v == "AVAILABLE" for v in board_states.values()), (
+        "a Kisiwa board does not read AVAILABLE", board_states)
+    protect_state = None
+    if s5d_board is not None:
+        # R3u U7 pin: the S-5d Protect row is NEEDS_ATTENTION and MG-8 is {NEEDS_ATTENTION, PRIMARY_FINDING_OPEN};
+        # the lead is not asserted (K10 may settle MG-5/MG-4)
+        protect = next((r for r in s5d_board.get("rows") or () if r.get("category") == "PROTECT_ASSET"), None) or {}
+        mg8 = next((o for o in protect.get("outcomes") or () if o.get("key") == "MG-8"), None) or {}
+        if not (protect.get("state") == "NEEDS_ATTENTION" and mg8.get("state") == "NEEDS_ATTENTION"
+                and mg8.get("reason") == "PRIMARY_FINDING_OPEN"):
+            second = None
+            if callable(second_read):
+                try:  # an error from the diagnostic read never replaces the R3u-s1 message
+                    second = second_read()
+                except Exception as exc:  # noqa: BLE001
+                    second = {"second_read_error": f"{type(exc).__name__}: {exc}"}
+            raise AssertionError(("R3u-s1: the S-5d Protect row / MG-8 is not NEEDS_ATTENTION / PRIMARY_FINDING_OPEN",
+                                  {"protect_state": protect.get("state"), "mg8": mg8,
+                                   "read_state": s5d_board.get("read_state"), "warnings": s5d_board.get("warnings"),
+                                   "second_read": second}))
+        protect_state = protect["state"]
+    return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
+            "performance_report": {"outcome": report["outcome"], "empty_set": report["empty_set"]},
+            "board_read_state": board_states, "s5d_protect": protect_state}

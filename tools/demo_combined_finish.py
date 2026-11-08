@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
+from uuid import UUID
 
 import demo_combined_rows as demo_rows
 from assetops_backend.outcomes.display_code import display_code
@@ -746,8 +747,9 @@ def _coh(ctx: Ctx):
     mill = docs("mill.json") if (ctx.work / "mill.json").is_file() else None
     unplaced: list = []
     stored = _stored_headroom(ctx)
+    kisiwa = docs("kisiwa.json") if (ctx.work / "kisiwa.json").is_file() else None  # DIESEL-1-R3p §9p.7 item 5
     threads = demo_rows.build_expected_threads(docs("kobo.json"), docs("cold.json"), portfolio, mill, unplaced,
-                                               demo_rows.headroom_opportunities(stored))
+                                               demo_rows.headroom_opportunities(stored), kisiwa=kisiwa)
     ctx.cache["stored_headroom"] = [[str(o), str(last), e] for o, last, e in stored]
     ctx.cache["unplaced"] = unplaced
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
@@ -956,6 +958,8 @@ def mill5(ctx: Ctx) -> dict:
     verified text), its headline count equals the verified entries, the week `/api/estate/chain` verified claim is
     Σ threads.verified + Σ threads.verified_actions with Kobo's mill counted once, and the mill's one stored
     `verification_outcome` is VERIFIED (SQL)."""
+    import psycopg
+
     m = _mill(ctx)
     action_id, code = m["action"]["id"], m["action"]["code"]  # `mill.json` (tools/demo_combined_mill.py:179)
     week = ctx.get("/api/estate/chain", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
@@ -1035,11 +1039,163 @@ def kis_8a(ctx: Ctx) -> dict:
     """DIESEL-K4b (DIESEL-1-R3j §9j.12, written by K4b, run at E3): the week estate summary holding Kisiwa's S+0 board
     lists Kisiwa's night-4 unexplained-fuel line on the Protect card, built from its Protect node, and COH-17 row UF1
     passes on it (`demo_rows.kis8_protect`). Night 4 is the Site-local night starting S−6d (K7, §9l.3). A dataset
-    without the Kisiwa Site is reported as such, never as a check."""
+    without the Kisiwa Site on the summary fails the row (`KisiwaMissing`, carry R3k2 L2; K9, coordinator Q6)."""
     summary = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))})
     if not any(s.get("site_code") == KISIWA for s in summary.get("sites") or ()):
-        return {"kisiwa": "not in this dataset (K7 adds it)", "checked": 0}
+        raise KisiwaMissing()
     return {"kisiwa": "present", **demo_rows.kis8_protect(summary, ctx.day(-6).date(), KISIWA)}
+
+
+# ---- DIESEL-K9 (ruling DIESEL-1-R3q §9q.2-§9q.4): KIS-1, KIS-2, KIS-6, KIS-7, wired after KIS-8a -----------------------
+
+def _kisiwa_site(ctx: Ctx) -> tuple | None:
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        return c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+
+
+@row("KIS-1")
+def kis_1(ctx: Ctx) -> dict:
+    """KIS-1 (DIESEL-1-R3q §9q.3): Kisiwa's Foundation as known now (current revisions) and diesel price v1 on every
+    stored night window (KIS-4's `price_selection` call) (`demo_rows.kis1`). No Kisiwa Site: `KisiwaMissing`."""
+    from assetops_backend.financials.composition import build_trial_comparison_ports
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+
+    site = _kisiwa_site(ctx)
+    if site is None:
+        raise KisiwaMissing()
+    t, s = site
+    store = PostgresFoundationStore(ctx.url)
+    try:
+        revisions = list(store.revisions(t, s))
+    finally:
+        import pg_harness
+        pg_harness.dispose(store)
+    register = json.loads((ctx.work / "kisiwa-register.json").read_text(encoding="utf-8"))
+    windows = _kisiwa_sql(ctx, "SELECT DISTINCT ON (night_date) window_start, window_end FROM fuel_balance_window "
+                               "WHERE site_id = %s ORDER BY night_date, revision DESC", s)
+    select = build_trial_comparison_ports(ctx.url).price_selection
+    prices = []
+    for w in windows:
+        p = select(t, s, w["window_start"], w["window_end"], w["window_end"])
+        prices.append({"state": p.state, "revision_id": p.revision_id, "value": p.value, "currency": p.currency})
+    nights = len(json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))["runs"])
+    return {"kisiwa": "present", **demo_rows.kis1(revisions, register, prices, nights)}
+
+
+@row("KIS-2")
+def kis_2(ctx: Ctx) -> dict:
+    """KIS-2 (DIESEL-1-R3q §9q.4): Kisiwa's dispatch Findings (the R3k filter's domain and analytic, bound from the
+    backend) are SUPPORTED and their head consequence's `quantity_high` is fuel-cost-2 over its stored power intervals,
+    exactly (`demo_rows.kis2`). No Kisiwa Site: `KisiwaMissing`."""
+    from assetops_backend.analytics.dispatch import ANALYTIC_ID
+    from assetops_backend.analytics.finding_episode import DOMAIN
+
+    site = _kisiwa_site(ctx)
+    if site is None:
+        raise KisiwaMissing()
+    s = site[1]
+    latest = _kisiwa_sql(ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle "
+                              "FROM finding_revision r WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s "
+                              "ORDER BY r.finding_id, r.revision_no DESC", s, DOMAIN, ANALYTIC_ID)
+    heads = {str(h["finding_id"]): h for h in _kisiwa_sql(
+        ctx, "SELECT DISTINCT ON (r.finding_id) r.id, r.finding_id, r.finding_revision_id, r.state, r.model_id, "
+        "r.idle_seconds, r.no_load_fuel_rate_l_per_h, r.no_load_fuel_rate_basis, r.sfc_upper_multiplier, "
+        "r.quantity_high_exact, r.quantity_high FROM financial_consequence_revision r WHERE r.site_id = %s "
+        "ORDER BY r.finding_id, r.recorded_at DESC, r.revision_no DESC", s)}
+    intervals: dict[str, list[dict]] = {}
+    for h in heads.values():
+        intervals[str(h["id"])] = _kisiwa_sql(
+            ctx, "SELECT mean_kw, duration_seconds, sfc_l_per_kwh FROM financial_consequence_power_interval "
+                 "WHERE consequence_revision_id = %s", h["id"])
+    return {"kisiwa": "present", **demo_rows.kis2(heads, intervals, latest)}
+
+
+@row("KIS-6")
+def kis_6(ctx: Ctx) -> dict:
+    """KIS-6 (DIESEL-1-R3q §9q.2): on the week `[S-6d, S+1d)`, four Sites from data, Kisiwa's summary cells equal its S
+    board, and the Assure line with the verdict read from `kisiwa.json` (`demo_rows.kis6`). No Kisiwa: `KisiwaMissing`."""
+    days = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}
+    summary = ctx.get("/api/estate/outcome-summary", **days)
+    if not any(s.get("site_code") == KISIWA for s in summary.get("sites") or ()):
+        raise KisiwaMissing()
+    chain = ctx.get("/api/estate/chain", **days)
+    portfolio = ctx.get("/api/estate/portfolio", **days)
+    board = ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=ctx.S.date().isoformat())
+    kisiwa = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
+    return {"kisiwa": "present", **demo_rows.kis6(summary, chain, portfolio, board, kisiwa, ctx.S.date())}
+
+
+@row("KIS-7")
+def kis_7(ctx: Ctx) -> dict:
+    """KIS-7 (DIESEL-1-R3s §9s.3): Kisiwa's S pricing and its first priced board day, expected from the stored
+    Findings' latest heads (`demo_rows.kis7`), with no sum in the S and week summaries or the Portfolio week body.
+    No Kisiwa: `KisiwaMissing`."""
+    s_body = ctx.get("/api/estate/outcome-summary", **{"from": iso(ctx.day(0)), "to": iso(ctx.day(1))})
+    if not any(s.get("site_code") == KISIWA for s in s_body.get("sites") or ()):
+        raise KisiwaMissing()
+    site = _kisiwa_site(ctx)
+    from assetops_backend.analytics.dispatch import ANALYTIC_ID
+    from assetops_backend.analytics.finding_episode import DOMAIN
+
+    heads = _kisiwa_sql(
+        ctx, "SELECT f.finding_id, f.episode_start, f.episode_end, h.state, h.amount_high, h.currency FROM "
+             "(SELECT DISTINCT ON (r.finding_id) r.finding_id, r.episode_start, r.episode_end FROM finding_revision r "
+             "WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s ORDER BY r.finding_id, r.revision_no DESC) f "
+             "LEFT JOIN (SELECT DISTINCT ON (c.finding_id) c.finding_id, c.state, c.amount_high, c.currency FROM "
+             "financial_consequence_revision c WHERE c.site_id = %s ORDER BY c.finding_id, c.recorded_at DESC, "
+             "c.revision_no DESC) h ON h.finding_id = f.finding_id", site[1], DOMAIN, ANALYTIC_ID, site[1])
+    week = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}
+    bodies = [s_body, ctx.get("/api/estate/outcome-summary", **week), ctx.get("/api/estate/portfolio", **week)]
+    return {"kisiwa": "present", **demo_rows.kis7(
+        s_body, bodies, heads, ctx.S.date(), lambda d: ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=d))}
+
+
+@row("KIS-OV")
+def kis_ov(ctx: Ctx) -> dict:
+    """KIS-OV (DIESEL-1-R3r §9r.2): the Kisiwa Overview answers 200 on S-5d and S, exactly one NO_LEGACY_EVIDENCE
+    cutover basis row names the Site's own import, the newest Performance report is PASSED and empty-set, and the S-5d
+    and S boards read AVAILABLE (`demo_rows.kis_ov`, R3s §9s.2).
+    No Kisiwa: `KisiwaMissing`."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+        if site is None:
+            raise KisiwaMissing()
+        basis = [{"basis": b, "same_import": same_import, "same_sha": same_sha} for b, same_import, same_sha in
+                 c.execute("SELECT b.basis, b.site_import_id = i.id, b.source_sha256 = i.source_sha256 "
+                           "FROM site_cutover_basis b LEFT JOIN site_import i ON i.tenant_id = b.tenant_id "
+                           "AND i.site_id = b.site_id WHERE b.tenant_id = %s AND b.site_id = %s", site).fetchall()]
+    reads = []
+    for label, offset in (("S-5d", -5), ("S", 0)):
+        r = ctx.client.get(f"/api/sites/{KISIWA}/overview", params={"date": ctx.day(offset).date().isoformat()})
+        try:
+            body = r.json()
+        except ValueError:
+            body = None
+        detail = body.get("detail") if isinstance(body, dict) else None
+        reads.append({"label": label, "status": r.status_code, "body": body,
+                      "code": detail.get("code") if isinstance(detail, dict) else None})
+    from assetops_backend.evidence.composition import build_performance_comparison_reports
+
+    report = build_performance_comparison_reports().latest(KISIWA)
+    bodies = {label: ctx.get(f"/api/sites/{KISIWA}/outcome-board", date=ctx.day(offset).date().isoformat())
+              for label, offset in (("S-5d", -5), ("S", 0))}
+    states = {label: body.get("read_state") for label, body in bodies.items()}
+
+    def second_read() -> dict:  # R3u U7: the same day by the local from/to pair, recorded when the pin fails
+        from zoneinfo import ZoneInfo
+
+        d = ctx.day(-5).date()
+        zone = ZoneInfo(demo_rows.KIS_ZONE)
+        lo, hi = (demo_rows.site_day_start(x, zone).strftime("%Y-%m-%dT%H:%M:%SZ") for x in (d, d + timedelta(days=1)))
+        b = ctx.get(f"/api/sites/{KISIWA}/outcome-board", **{"from": lo, "to": hi})
+        protect = next((r for r in b.get("rows") or () if r.get("category") == "PROTECT_ASSET"), None) or {}
+        return {"read_state": b.get("read_state"), "warnings": b.get("warnings"), "protect_state": protect.get("state")}
+
+    return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, states, report, bodies["S-5d"], second_read)}
 
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
@@ -1073,11 +1229,11 @@ def _kisiwa_fuel(ctx: Ctx) -> dict | None:
         pins = [o["details"]["baseline"], *o["details"]["later"]]
         read_back = {}
         for p in pins:
-            w = fuel.window(t, s, p["window_id"])
+            w = fuel.window(t, s, UUID(str(p["window_id"])))  # K6b review L4: the store's port takes UUIDs
             if w is not None:
                 read_back[str(p["window_id"])] = {"revision": w.revision, "input_sha256": w.input_sha256}
         lo = datetime.fromisoformat(plan["later_selection_rule"]["candidates"]["from"]).date()
-        windows = {w.night_date: w for w in fuel.windows(t, s, plan["basis"]["tank_asset_id"], lo,
+        windows = {w.night_date: w for w in fuel.windows(t, s, UUID(str(plan["basis"]["tank_asset_id"])), lo,
                                                          lo + timedelta(days=14),
                                                          known_at=o["recorded_at"].astimezone(timezone.utc))}
         with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
@@ -1319,6 +1475,39 @@ def kis_9(ctx: Ctx) -> dict:
     return {"kisiwa": "present", **demo_rows.kis9(
         records=k["records"], handover=k["handover"], calendar=k["calendar"], build=k["build"], actions=k["actions"],
         runs=k["runs"], windows=k["windows"], finding=_kisiwa_finding(ctx, k), action=_kisiwa_action(ctx, k))}
+
+
+# ---- DIESEL-K9 (build sheet §8.7 KIS-8, H4): the wording half of KIS-8 -------------------------------------------------
+
+@row("KIS-8")
+def kis_8(ctx: Ctx) -> dict:
+    """KIS-8, the wording half (DIESEL-1 H4; KIS-8a is the Protect half): no served body says theft, stolen, stole,
+    siphon or pilfer (`demo_rows.kis8_wording`), over every body this self-check has read (the F-COH bundle included)
+    plus Kisiwa's own fuel pages: the nights and the night S-6d, the fuel Findings list and the night-4 Finding page.
+    The repository scan (`tools/checks/fuel_wording.py`) runs too. A dataset without Kisiwa fails the row (`KisiwaMissing`,
+    carry R3k2 L2)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    import fuel_wording
+
+    if not (ctx.work / "kisiwa.json").is_file():
+        raise KisiwaMissing()
+    kisiwa = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
+    fid = demo_rows.kisiwa_fuel_thread(kisiwa)["findings"][0]
+    ctx.get(f"/api/sites/{KISIWA}/fuel-balance/nights",
+            **{"from": ctx.day(-10).date().isoformat(), "to": ctx.day(1).date().isoformat()})
+    ctx.get(f"/api/sites/{KISIWA}/fuel-balance/nights/{ctx.day(-6).date().isoformat()}")
+    ctx.get(f"/api/sites/{KISIWA}/fuel-findings", **{"from": iso(ctx.day(-10)), "to": iso(ctx.day(1))})
+    ctx.get(f"/api/sites/{KISIWA}/fuel-findings/{fid}")
+    # `ctx.get` caches under (path, params); other cache keys are plain names (e.g. "coh", "kisiwa")
+    bodies: dict[str, object] = {f"{key[0]}?{list(key[1])}": body for key, body in ctx.cache.items()
+                                 if isinstance(key, tuple) and len(key) == 2 and str(key[0]).startswith("/api/")}
+    coh = ctx.cache.get("coh")
+    if coh is not None:  # F-COH's bundle: every estate, board and chain body it collected
+        bodies.update({f"bundle:{p.name}": json.loads(p.read_text(encoding="utf-8")) for p in Path(coh[0]).rglob("*.json")
+                       if p.name != "manifest.json"})
+    repo_hits, files = fuel_wording.scan()
+    assert not repo_hits, ("H4: forbidden words in client or served copy", repo_hits[:8])
+    return {"kisiwa": "present", **demo_rows.kis8_wording(bodies, KISIWA), "repository_files": files}
 
 
 # ---- runner ----------------------------------------------------------------------------------------------------

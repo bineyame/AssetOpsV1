@@ -587,7 +587,9 @@ def test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch() -> None:
     """Every KIS row's no-Site branch raises `KisiwaMissing`; nothing returns "not in this dataset"."""
     text = (Path(__file__).resolve().parents[2] / "tools" / "demo_combined_finish.py").read_text(encoding="utf-8")
     assert "not in this dataset" not in text
-    assert text.count("raise KisiwaMissing()") == 5  # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9
+    # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9, K4b's KIS-8a and K9's KIS-8 (wording half),
+    # KIS-1, KIS-2, KIS-6 and KIS-7 (K9, DIESEL-1-R3q), KIS-OV (K9, DIESEL-1-R3r)
+    assert text.count("raise KisiwaMissing()") == 12
 
 
 def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:
@@ -615,7 +617,8 @@ class _FakeEngine:
         return contextlib.nullcontext(SimpleNamespace(execute=lambda *a, **k: result))
 
 
-def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", **plan_changes) -> list[tuple]:
+def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", freeze_status: int = 201,
+                   **plan_changes) -> list[tuple]:
     """K6b's service replaced by a fake that records each call with its clock's instant."""
     from types import SimpleNamespace
 
@@ -629,7 +632,7 @@ def _fake_services(monkeypatch, cal: dict, state: str = "INEFFECTIVE", **plan_ch
     def build(url, *, test_clock):
         def freeze(t, s, a):
             calls.append(("freeze", test_clock()))
-            return 201, {"replayed": False, "plan": plan}
+            return freeze_status, {"replayed": freeze_status != 201, "plan": plan}
 
         def evaluate(t, s, a):
             calls.append(("evaluate", test_clock()))
@@ -674,6 +677,15 @@ def test_k7f_a_plan_off_the_card_is_stop_s6(monkeypatch, change: dict) -> None:
     cal = calendar()
     _fake_services(monkeypatch, cal, **change)
     with pytest.raises(SystemExit, match="FREEZE \\(stop S-6\\)"):
+        kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
+
+
+def test_k7f_a_freeze_answered_200_is_stop_s6(monkeypatch) -> None:
+    """K7-F review L2 (K9): the freeze must create the plan (201); a 200 (a replay of an earlier plan) with an
+    otherwise on-card plan is stop S-6, so the `status` entry of the freeze check is not vacuous."""
+    cal = calendar()
+    _fake_services(monkeypatch, cal, freeze_status=200)
+    with pytest.raises(SystemExit, match="FREEZE \\(stop S-6\\).*'status': \\(200, 201\\)"):
         kis.freeze_and_evaluate("u", _FakeEngine(), "t", "s", cal, {"id": "00000000-0000-0000-0000-000000000007"})
 
 

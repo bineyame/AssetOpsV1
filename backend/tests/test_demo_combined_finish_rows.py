@@ -257,6 +257,16 @@ def test_pva_reads_the_mill_line_the_trial_case_and_no_sum() -> None:
             rows.pv_values(summary, _value_page(), "ACT-000002", "ACT-001", cc)
 
 
+def test_pva_zero_addend_is_no_sum_but_a_planted_nonzero_sum_is_still_found() -> None:
+    """R3u U1 site 3: an entry amount of 0.00 shows no adding (mill + 0.00 is the mill's own printed amount)."""
+    summary = _pva_summary()
+    summary["sites"][0]["rows"][0]["nodes"]["verified_values"][1]["amount"] = "0.00"
+    got = rows.pv_values(summary, _value_page(), "ACT-000002", "ACT-001", _pva_cost_check())
+    assert got["sums_checked"] == 0
+    with pytest.raises(AssertionError, match="holds a sum"):
+        rows.pv_values(_pva_summary(detail="21.12 USD"), _value_page(), "ACT-000002", "ACT-001", _pva_cost_check())
+
+
 KW = re.compile(r"\d+–\d+ kW of daytime solar unused")
 
 
@@ -700,3 +710,547 @@ def test_kis8_protect_passes_on_the_node_line_and_fails_otherwise() -> None:
         rows.kis8_protect(_kis8_summary(), date(2026, 10, 15))
     with pytest.raises(AssertionError):
         rows.kis8_protect(_kis8_summary(amount_detail="199.50 USD in all"), date(2026, 10, 14))  # low + high
+
+
+# ---- DIESEL-K9: COH-10's Kisiwa fuel thread (DIESEL-1-R3p §9p.7 item 5) ------------------------------------------------
+
+KIS_FID = "1E0D2C3B-0000-4000-8000-00000000F0E1"
+
+
+def test_kisiwa_fuel_thread_is_added_only_with_kisiwa_json() -> None:
+    three = rows.build_expected_threads({"days": []}, {"days": []}, [], None)
+    assert rows.build_expected_threads({"days": []}, {"days": []}, [], None, kisiwa=None) == three
+    assert not any(t["site_code"] == "KISIWA-001" for t in three)  # a three-Site dataset stays as it was
+    four = rows.build_expected_threads({"days": []}, {"days": []}, [], None, kisiwa={"finding": {"id": KIS_FID}})
+    assert four == [*three, {"name": "kisiwa-fuel", "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL",
+                             "findings": [KIS_FID.lower()]}]
+    # K7-F's `kisiwa.json` may carry the id on its Action only (the `story_links` rule)
+    assert rows.kisiwa_fuel_thread({"action": {"finding_id": KIS_FID}})["findings"] == [KIS_FID.lower()]
+    with pytest.raises(AssertionError):
+        rows.kisiwa_fuel_thread({"action": {"id": "A"}})
+
+
+class _Coh10Bundle:
+    """The reads `chain_coherence.coh10_thread_identity` makes: one stamped estate window, no board days."""
+
+    def __init__(self, portfolio_rows: list[dict]) -> None:
+        self.manifest = {"threads": True}
+        self._bodies = {"portfolio.week": {"rows": portfolio_rows}}
+
+    def estate_windows(self) -> list[str]:
+        return ["week"]
+
+    def day_windows(self) -> list[str]:
+        return []
+
+    def get(self, name: str):
+        return self._bodies.get(name)
+
+    def files(self, name: str) -> list[str]:
+        return [f"{name}.json"]
+
+
+def _kis_row(thread: dict | None) -> dict:
+    return {"finding_id": KIS_FID, "site_code": "KISIWA-001", "mechanism": "UNEXPLAINED_FUEL", "thread": thread}
+
+
+def test_coh10_judges_the_kisiwa_fuel_thread() -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "checks"))
+    import chain_coherence as cc
+
+    threads = [rows.kisiwa_fuel_thread({"finding": {"id": KIS_FID}})]
+    ok = _kis_row({"id": "T1", "occurrence_no": 1, "occurrences": 1})
+    assert cc.coh10_thread_identity(_Coh10Bundle([ok]), threads) == []
+    # fails: the fuel row is on no Portfolio row (K8 not merged, or the Finding dropped out of the estate lists)
+    missing = cc.coh10_thread_identity(_Coh10Bundle([]), threads)
+    assert [(f["rule"], f["site_code"], f["subject"]) for f in missing] == [("COH-10", "KISIWA-001", "kisiwa-fuel")]
+    # fails: the row shows the Finding as occurrence 1 of 2
+    split = cc.coh10_thread_identity(_Coh10Bundle([_kis_row({"id": "T1", "occurrence_no": 1, "occurrences": 2})]),
+                                     threads)
+    assert len(split) == 1 and "expected 1 of 1" in split[0]["detail"], split
+
+
+def test_kis8_wording_passes_on_clean_bodies_and_fails_otherwise() -> None:
+    """KIS-8 wording half (DIESEL-1 H4): clean bodies naming Kisiwa pass; a forbidden word anywhere fails; a read
+    that names no Kisiwa body fails (not vacuous)."""
+    clean = {"fuel": {"site_code": "KISIWA-001", "rows": [{"text": "Unexplained fuel on the night of 14 Oct"}]},
+             "board": {"site_code": "KOBO-001", "rows": []}}
+    assert rows.kis8_wording(clean) == {"bodies": 2, "naming_site": 1, "hits": 0}
+    for bad in ({"text": "possible theft"}, {"lines": ["Fuel was siphoned"]}, {"Stolen": 1}):
+        with pytest.raises(AssertionError):
+            rows.kis8_wording({**clean, "other": bad})
+    with pytest.raises(AssertionError):
+        rows.kis8_wording({"board": {"site_code": "KOBO-001"}})
+
+
+# ---- DIESEL-K9 (DIESEL-1-R3q §9q.2-§9q.4): KIS-1, KIS-2, KIS-6, KIS-7 L0 bodies ------------------------------------------
+
+def test_kis_rows_are_wired_after_kis8a_in_order() -> None:
+    import demo_combined_finish as finish
+
+    ids = [c[0] for c in finish.CHECKS]
+    at = ids.index("KIS-8a")
+    assert ids[at + 1:at + 5] == ["KIS-1", "KIS-2", "KIS-6", "KIS-7"], ids[at:]
+    assert ids.index("KIS-7") < ids.index("KIS-8")  # KIS-8's wording read sees their bodies
+
+
+def _kis1_inputs():
+    """Real revisions: `register_in` on the in-memory Foundation store (confirms `components[].properties[]`)."""
+    import copy
+    from uuid import UUID
+
+    from foundation_fakes import InMemoryFoundationStore
+    import demo_combined_kisiwa as kis
+    from test_k1_kisiwa_fixtures import IMPORT_AT, INSTALL_AT
+
+    store = InMemoryFoundationStore()
+    reg = kis.register_in(store, IMPORT_AT, INSTALL_AT)
+    revs = [{"valid_from": r.valid_from, "superseded_at": r.superseded_at, "content": copy.deepcopy(r.content)}
+            for r in store.revisions(UUID(reg["tenant_id"]), UUID(reg["site_id"]))]
+    prices = [{"state": "PRICED", "revision_id": "p1", "value": rows.Decimal("1.25"), "currency": "USD"}
+              for _ in range(10)]
+    return revs, reg, prices
+
+
+def _set_prop(rev: dict, component: str, key: str, value=None, drop: bool = False) -> None:
+    comp = next(c for c in rev["content"]["components"] if c["component_id"] == component)
+    if drop:
+        comp["properties"] = [p for p in comp["properties"] if p["property_key"] != key]
+    else:
+        next(p for p in comp["properties"] if p["property_key"] == key)["value"] = value
+
+
+def test_kis1_foundation_as_known_now_passes_and_each_break_fails() -> None:
+    revs, reg, prices = _kis1_inputs()
+    got = rows.kis1(revs, reg, prices, 10)
+    assert (got["stop_soc_threshold"], got["no_load"], got["sensor_accuracy"], got["price"], got["windows_priced"]) == (
+        "90 %", "4.9 L/h GENERIC_DEFAULT", "10 L GENERIC_DEFAULT", "1.25 USD (v1)", 10)
+    current = [r for r in revs if r["superseded_at"] is None]
+    for name, edit in (
+            ("stop 60 in one revision", lambda r: _set_prop(r[0], "generator", "stop-soc-threshold", 60)),
+            ("no-load 3.3", lambda r: _set_prop(r[-1], "generator", "generator-no-load-fuel-rate", 3.3)),
+            ("missing accuracy basis", lambda r: _set_prop(r[-1], "fuel-tank", "fuel-level-sensor-accuracy-basis",
+                                                           drop=True))):
+        broken, _, _ = _kis1_inputs()
+        edit([r for r in broken if r["superseded_at"] is None])
+        with pytest.raises((AssertionError, StopIteration)):
+            rows.kis1(broken, reg, prices, 10)
+            pytest.fail(name)
+    with pytest.raises(AssertionError, match="more than one price revision"):
+        rows.kis1(revs, reg, [*prices[:-1], {**prices[-1], "revision_id": "p2"}], 10)
+    # L2: a priced subset of the stored nights is not "every night window"; the expected count is the story's
+    with pytest.raises(AssertionError, match="not every stored night window was priced"):
+        rows.kis1(revs, reg, prices[:3], 10)
+    with pytest.raises(AssertionError, match="not every stored night window was priced"):
+        rows.kis1(revs, reg, [], 10)
+    assert rows.kis1(revs, reg, prices[:3], 3)["windows_priced"] == 3
+    # L3: a Site with no current revision is a plain assertion, not "Kisiwa missing"
+    superseded = [{**r, "superseded_at": r["valid_from"]} for r in revs]
+    with pytest.raises(AssertionError, match="no current Foundation revision") as caught:
+        rows.kis1(superseded, reg, prices, 10)
+    assert not isinstance(caught.value, rows.KisiwaMissing)
+    assert len(current) >= 1
+
+
+def test_kis_1_reads_the_night_count_from_kisiwa_json() -> None:
+    import inspect
+
+    import demo_combined_finish as finish
+
+    src = inspect.getsource(finish.kis_1)
+    assert "kisiwa.json" in src and '["runs"]' in src and "nights" in src and "10" not in re.sub(r"R3q|9q\.\d", "", src)
+
+
+def _kis2_body(**over):
+    from fractions import Fraction
+
+    from assetops_backend.financials import fuel_cost, fuel_cost_v2
+
+    intervals = [{"mean_kw": "10", "duration_seconds": 1200, "sfc_l_per_kwh": "0.25"},   # 10 kW x 1/3 h x 0.25
+                 {"mean_kw": "0", "duration_seconds": 300, "sfc_l_per_kwh": "0.3"}]     # idle 300 s x 4.9 L/h
+    exact = Fraction(str(fuel_cost_v2.MULTIPLIER)) * (Fraction(5, 6) + Fraction(300, 3600) * Fraction("4.9"))
+    head = {"id": "c1", "finding_id": "f1", "finding_revision_id": "r1", "state": "PRICED", "model_id": "fuel-cost-2",
+            "idle_seconds": 300, "no_load_fuel_rate_l_per_h": "4.9", "no_load_fuel_rate_basis": "GENERIC_DEFAULT",
+            "sfc_upper_multiplier": str(fuel_cost_v2.MULTIPLIER),
+            "quantity_high_exact": f"{exact.numerator}/{exact.denominator}",
+            "quantity_high": fuel_cost.to_decimal_ceiling(exact)}
+    head.update(over)
+    return {"f1": head}, {"c1": intervals}, [{"finding_id": "f1", "revision_id": "r1", "lifecycle": "SUPPORTED"}]
+
+
+def test_kis2_is_fuel_cost_2_over_the_stored_intervals_exactly() -> None:
+    from decimal import ROUND_HALF_UP, localcontext
+    from fractions import Fraction
+
+    from assetops_backend.financials import fuel_cost
+
+    heads, ivs, latest = _kis2_body()
+    got = rows.kis2(heads, ivs, latest)
+    assert got["findings"] == 1 and got["per_finding"][0]["idle_seconds"] == 300
+    exact = Fraction(heads["f1"]["quantity_high_exact"])
+    with localcontext() as ctx:
+        ctx.prec, ctx.rounding = fuel_cost.QUANTITY_DIGITS, ROUND_HALF_UP
+        half_up = rows.Decimal(exact.numerator) / rows.Decimal(exact.denominator)
+    assert half_up != fuel_cost.to_decimal_ceiling(exact)  # the fixture distinguishes the two roundings
+    for name, (h, i, l) in {
+            "x1.00 multiplier": _kis2_body(sfc_upper_multiplier="1.00"),
+            "dropped idle interval": (heads, {"c1": ivs["c1"][:1]}, latest),
+            "half-up quantity_high": _kis2_body(quantity_high=half_up),
+            "fuel-cost-1": _kis2_body(model_id="fuel-cost-1"),
+            "UNPRICED": _kis2_body(state="UNPRICED"),
+            "not SUPPORTED": (heads, ivs, [{**latest[0], "lifecycle": "CANDIDATE"}]),
+            "head cites an older revision (L1)": _kis2_body(finding_revision_id="r0"),
+            "idle seconds": _kis2_body(idle_seconds=0)}.items():
+        with pytest.raises(AssertionError):
+            rows.kis2(h, i, l)
+            pytest.fail(name)
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch Finding"):
+        rows.kis2({}, {}, [])
+
+
+FOUR = ["COLD-LAB-001", "EV-LAB-001", "KISIWA-001", "KOBO-001"]
+
+
+def _kis6(verdict: str = "VERIFIED", verified: int = 1, board_protect: str = "NEEDS_ATTENTION",
+          objectives=FOUR, card_value: int = 2, value_lines=("Kobo mini-grid: 42.00 USD",)):
+    from zoneinfo import ZoneInfo
+
+    s_day = date(2026, 11, 7)
+    start = rows.site_day_start(s_day, ZoneInfo("Africa/Dar_es_Salaam")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    kis_rows = [{"category": "PROTECT_ASSET", "state": "NEEDS_ATTENTION"},
+                {"category": "ASSURE_PERFORMANCE", "state": "ON_TRACK", "nodes": {"verified_values": []}}]
+    summary = {"sites": [{"site_code": c} for c in FOUR if c != "KISIWA-001"] + [
+        {"site_code": "KISIWA-001", "site_name": "Kisiwa island mini-grid", "rows": kis_rows, "window_basis": "DAY",
+         "window": {"from": start, "to": "x"}}],
+        "cards": {"ASSURE_PERFORMANCE": {"claim": {"value": card_value}, "value_lines": list(value_lines)}}}
+    chain = {"sites": [{"code": c, "threads": {"verified": verified if c == "KISIWA-001" else 0}} for c in FOUR],
+             "counts": {"count.verified_results": {"value": 2}}}
+    portfolio = {"objectives": [{"site_code": c} for c in objectives]}
+    board = {"rows": [{"category": "PROTECT_ASSET", "state": board_protect},
+                      {"category": "ASSURE_PERFORMANCE", "state": "ON_TRACK"}]}
+    return summary, chain, portfolio, board, {"verdict": {"state": verdict, "stored": True}}, s_day
+
+
+def test_kis6_counts_cells_and_assure_pass_and_each_item_fails() -> None:
+    got = rows.kis6(*_kis6())
+    # R3u U5: a dict verdict VERIFIED passes and reaches the Assure card claim and the H2 asserts (the return)
+    assert got["want_verified"] == 1 and got["assure_card"] == 2 and got["sites"]["objectives"] == FOUR
+    assert got["verdict"] == "VERIFIED" and got["chain_verified_results"] == 2
+    s, ch, po, bo, doc, day = _kis6()
+    with pytest.raises(AssertionError, match="Kisiwa verified threads"):  # no verdict at all: want 0, chain says 1
+        rows.kis6(s, ch, po, bo, {"verdict": None}, day)
+    assert rows.kis6(*_kis6(verdict="INEFFECTIVE", verified=0))["want_verified"] == 0  # read from data, never forced
+    for name, body in {"1: three objective Sites": _kis6(objectives=FOUR[:2] + FOUR[3:]),
+                       "2: a cell differs from the S board": _kis6(board_protect="ON_TRACK"),
+                       "3: verified against the verdict": _kis6(verdict="INEFFECTIVE", verified=1),
+                       "3: card against the chain count": _kis6(card_value=1),
+                       "3: a Kisiwa value line (H2)": _kis6(value_lines=("Kisiwa island mini-grid: 3.00 USD",))}.items():
+        with pytest.raises(AssertionError):
+            rows.kis6(*body)
+            pytest.fail(name)
+    summary, *rest = _kis6()
+    with pytest.raises(rows.KisiwaMissing):
+        rows.kis6({**summary, "sites": summary["sites"][:3]}, *rest)
+
+
+def _cost(high):
+    return None if high is None else {"key": "money.possible_extra_fuel_cost", "text": f"{high} USD",
+                                      "value": {"low": high, "high": high, "currency": "USD"}}
+
+
+def _site7(code, high):
+    return {"site_code": code, "site_name": code.title(),
+            "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": _cost(high)}}]}
+
+
+def _kis7(kisiwa_high: str | None = None, extra: str = "", kobo_high: str = "15.125"):
+    """An S summary as the server lists it (cold, kisiwa, kobo); the Optimize card follows the priced Sites."""
+    from assetops_backend.chain.vocabulary import COST_SMALL, card_text, sites_text
+
+    sites = [_site7("COLD-LAB-001", None), _site7("KISIWA-001", kisiwa_high), _site7("KOBO-001", kobo_high)]
+    priced = [(s, s["rows"][0]["nodes"]["earnings"]) for s in sites if s["rows"][0]["nodes"]["earnings"]]
+    if len(priced) == 1:
+        card = {"claim": priced[0][1], "value": {"text": priced[0][1]["text"]}, "detail": extra}
+    else:
+        detail = " · ".join(card_text("cost.site", site=s["site_name"], text=c["text"],
+                                      small=COST_SMALL[c["key"].removeprefix("money.")]) for s, c in priced)
+        card = {"claim": None, "value": {"text": card_text("cost.sites", sites=sites_text(len(priced)))},
+                "detail": detail + extra}
+    return {"sites": sites, "cards": {"OPTIMIZE_COST": card}}
+
+
+def _utc(m, d, h, mi):
+    from datetime import datetime, timezone
+    return datetime(2026, m, d, h, mi, tzinfo=timezone.utc)
+
+
+# the two PRICED night-1 heads of the real story (Kisiwa is UTC+3): 20:40-22:05 on 28 Oct and 01:55-03:15 on 29 Oct
+_HEADS7 = [{"finding_id": "f1", "episode_start": _utc(10, 28, 17, 40), "episode_end": _utc(10, 28, 19, 5),
+            "state": "PRICED", "amount_high": "7.5", "currency": "USD"},
+           {"finding_id": "f2", "episode_start": _utc(10, 28, 22, 55), "episode_end": _utc(10, 29, 0, 15),
+            "state": "PRICED", "amount_high": "3.0", "currency": "USD"}]
+_S7 = date(2026, 11, 3)
+
+
+def _board7(high="7.5", asked=None):
+    def board_at(day):
+        if asked is not None:
+            asked.append(day)
+        return {"rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": _cost(high)}}]}
+    return board_at
+
+
+def test_kis7_expectations_from_data_pass_and_each_break_fails() -> None:
+    asked: list[str] = []
+    got = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(asked=asked))
+    # no Kisiwa head overlaps S (3 Nov): Kisiwa unpriced on S, Kobo alone priced; d1 is the Kisiwa local date of the
+    # earliest priced head's start (28 Oct 20:40), whose lead head is f1
+    assert got["priced_on_s"] == ["KOBO-001"] and got["kisiwa_priced_on_s"] is False
+    assert got["d1"] == "2026-10-28" and asked == ["2026-10-28"] and got["d1_amount_high"] == "7.5"
+    assert got["sums_checked"] == 0 and "not reached" in got["multi_site_bodies"]
+    assert got["d1_priced"] == "priced and equal"
+    # R3u U8: item 3 (d1 priced) asserts again: an unpriced d1 or a differing d1 amount fails
+    for board in (_board7(None), _board7("7.6")):
+        with pytest.raises(AssertionError, match="KIS-7 item 3"):
+            rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, board)
+    # a lead head that is not PRICED fails too (d1 lead is f1)
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], [{**_HEADS7[0], "state": "UNPRICED"}, _HEADS7[1]], _S7, _board7())
+    # the R3s2 report-only form stays reachable (K10 held)
+    unpriced = rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7(None), item3_report_only=True)
+    assert unpriced["d1_amount_high"] is None
+    assert "REPORT-ONLY (R3s2)" in unpriced["d1_priced"]
+    assert "d1 is unsettled: no `productive_kwh` subject (R3s2)" in unpriced["d1_priced"]
+    assert "differs" in rows.kis7(_kis7(), [_kis7()], _HEADS7, _S7, _board7("7.6"),
+                                  item3_report_only=True)["d1_priced"]
+    for name, args in {
+            "Kisiwa priced on S while expected unpriced": (_kis7("7.5"), [_kis7()], _HEADS7, _S7, _board7()),
+            "item 1: card differs from the priced Sites": ({**_kis7(), "cards": {"OPTIMIZE_COST": {
+                "claim": None, "value": {"text": "x"}, "detail": ""}}}, [_kis7()], _HEADS7, _S7, _board7()),
+            "two priced Sites summed (item 4)": (_kis7("7.5", extra=" Total 22.63 USD"),
+                                                  [_kis7("7.5", extra=" Total 22.63 USD")], _HEADS7,
+                                                  date(2026, 10, 28), _board7()),
+            "no priced head at all": (_kis7(), [_kis7()], [{**h, "state": "NOT_PRICED"} for h in _HEADS7], _S7,
+                                      _board7())}.items():
+        with pytest.raises(AssertionError):
+            rows.kis7(*args)
+            pytest.fail(name)
+    with pytest.raises(rows.KisiwaMissing):
+        rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [], _HEADS7, _S7, _board7())
+
+
+def test_kis7_item3_compares_through_money2_r3t4() -> None:
+    """R3t4 §9t4: an unrounded stored amount equals the two-place board amount; a one-cent difference fails;
+    a different currency fails."""
+    heads = [{**_HEADS7[0], "amount_high": "26.27739583"}, _HEADS7[1]]
+    got = rows.kis7(_kis7(), [_kis7()], heads, _S7, _board7("26.28"))
+    assert got["d1_priced"] == "priced and equal"
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], heads, _S7, _board7("26.29"))
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], [{**heads[0], "currency": "EUR"}, heads[1]], _S7, _board7("26.28"))
+
+
+def test_kis7_priced_on_s_when_a_head_overlaps_and_two_priced_sites_are_never_summed() -> None:
+    s_day = date(2026, 10, 28)  # S local day [27 Oct 21:00Z, 28 Oct 21:00Z) holds f1
+    two = _kis7("7.5")
+    got = rows.kis7(two, [two], _HEADS7, s_day, _board7())
+    assert got["priced_on_s"] == ["KISIWA-001", "KOBO-001"] and got["sums_checked"] >= 1  # server Site order
+    with pytest.raises(AssertionError):  # expected priced on S, but the S summary shows Kisiwa unpriced
+        rows.kis7(_kis7(), [_kis7()], _HEADS7, s_day, _board7())
+    with pytest.raises(AssertionError):  # a summed string
+        rows.kis7(two, [two, _kis7("7.5", extra=" Total 22.63 USD")], _HEADS7, s_day, _board7())
+
+
+# ---- DIESEL-K9 R3r (DIESEL-1-R3r §9r.2): KIS-OV and the register call ----------------------------------------------------
+
+def _ov_reads(status: int = 200, code=None):
+    return [{"label": label, "status": status, "code": code, "body": {"window": label} if status == 200 else {}}
+            for label in ("S-5d", "S")]
+
+
+_OV_BASIS = [{"basis": "NO_LEGACY_EVIDENCE", "same_import": True, "same_sha": True}]
+
+
+def test_kis_ov_is_wired_after_kis7() -> None:
+    import demo_combined_finish as finish
+
+    ids = [c[0] for c in finish.CHECKS]
+    assert ids.index("KIS-OV") == ids.index("KIS-7") + 1
+
+
+_OV_REPORT = {"outcome": "PASSED", "empty_set": True}
+_OV_BOARDS = {"S-5d": "AVAILABLE", "S": "AVAILABLE"}
+
+
+def test_kis_ov_pass_and_each_break_fails() -> None:
+    got = rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT)
+    assert got == {"overview_status": {"S-5d": 200, "S": 200}, "basis": "NO_LEGACY_EVIDENCE",
+                   "performance_report": {"outcome": "PASSED", "empty_set": True}, "board_read_state": _OV_BOARDS,
+                   "s5d_protect": None}
+    for name, (reads, basis, boards, report) in {
+            "409 awaiting evidence migration": (_ov_reads(409, "AWAITING_EVIDENCE_MIGRATION"), _OV_BASIS, _OV_BOARDS,
+                                                _OV_REPORT),
+            "no basis row": (_ov_reads(), [], _OV_BOARDS, _OV_REPORT),
+            "two basis rows": (_ov_reads(), _OV_BASIS * 2, _OV_BOARDS, _OV_REPORT),
+            "another basis": (_ov_reads(), [{**_OV_BASIS[0], "basis": "COMPARED"}], _OV_BOARDS, _OV_REPORT),
+            "another import": (_ov_reads(), [{**_OV_BASIS[0], "same_import": False}], _OV_BOARDS, _OV_REPORT),
+            "another digest": (_ov_reads(), [{**_OV_BASIS[0], "same_sha": False}], _OV_BOARDS, _OV_REPORT),
+            "no report": (_ov_reads(), _OV_BASIS, _OV_BOARDS, None),
+            "a FAILED report": (_ov_reads(), _OV_BASIS, _OV_BOARDS, {**_OV_REPORT, "outcome": "FAILED"}),
+            "a PASSED report that is not empty-set": (_ov_reads(), _OV_BASIS, _OV_BOARDS,
+                                                      {**_OV_REPORT, "empty_set": False}),
+            "a PARTIAL S board": (_ov_reads(), _OV_BASIS, {**_OV_BOARDS, "S": "PARTIAL"}, _OV_REPORT),
+            "a PARTIAL S-5d board": (_ov_reads(), _OV_BASIS, {**_OV_BOARDS, "S-5d": "PARTIAL"}, _OV_REPORT),
+            "a board not read": (_ov_reads(), _OV_BASIS, {"S": "AVAILABLE"}, _OV_REPORT)}.items():
+        with pytest.raises(AssertionError):
+            rows.kis_ov(reads, basis, boards, report)
+            pytest.fail(name)
+
+
+def _s5d_board(protect="NEEDS_ATTENTION", mg8=("NEEDS_ATTENTION", "PRIMARY_FINDING_OPEN"), read_state="AVAILABLE"):
+    outcomes = [{"key": "MG-5", "state": "UNKNOWN", "reason": "PRODUCER_NOT_SETTLED"}]
+    if mg8 is not None:
+        outcomes.append({"key": "MG-8", "state": mg8[0], "reason": mg8[1]})
+    return {"read_state": read_state, "warnings": [], "rows": [
+        {"category": "PROTECT_ASSET", "state": protect, "outcomes": outcomes}]}
+
+
+def test_kis_ov_pins_the_s5d_protect_row_and_mg8_entry_r3u() -> None:
+    """R3u U7: Protect NEEDS_ATTENTION and MG-8 {NEEDS_ATTENTION, PRIMARY_FINDING_OPEN}; the lead is not asserted."""
+    got = rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, _s5d_board())
+    assert got["s5d_protect"] == "NEEDS_ATTENTION"
+    for name, board in {"the packet's UNKNOWN / PRODUCER_NOT_SETTLED shape": _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED")),
+                        "Protect UNKNOWN": _s5d_board(protect="UNKNOWN"),
+                        "MG-8 another reason": _s5d_board(mg8=("NEEDS_ATTENTION", "OTHER")),
+                        "MG-8 absent": _s5d_board(mg8=None)}.items():
+        with pytest.raises(AssertionError, match="R3u-s1"):
+            rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, board)
+            pytest.fail(name)
+    # the failure records the board's read_state and warnings and the second read by the local from/to pair
+    with pytest.raises(AssertionError) as err:
+        rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT, _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED"),
+                    read_state="PARTIAL"), lambda: {"read_state": "AVAILABLE", "protect_state": "UNKNOWN"})
+    text = str(err.value)
+    assert "PARTIAL" in text and "second_read" in text and "'protect_state': 'UNKNOWN'" in text
+
+
+def test_kis_ov_second_read_error_never_replaces_the_r3u_s1_message() -> None:
+    """review-K9-r3u L2: a failing second read is recorded inside the R3u-s1 assertion, not raised in its place."""
+    def boom() -> dict:
+        raise RuntimeError("second read exploded")
+
+    with pytest.raises(AssertionError, match="R3u-s1") as err:
+        rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT,
+                    _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED")), boom)
+    assert "second_read_error" in str(err.value) and "second read exploded" in str(err.value)
+
+
+_FRESH_PATH_SCRIPT = r"""
+import importlib.util, sys
+from decimal import Decimal
+from fractions import Fraction
+from pathlib import Path
+
+test_file, tools = sys.argv[1], Path(sys.argv[2])
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.path.insert(0, str(tools))
+spec = importlib.util.spec_from_file_location("finish_rows_under_test", test_file)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.modules.pop("chain_coherence", None)
+assert not any(Path(p or ".").resolve() == (tools / "checks").resolve() for p in sys.path)
+
+import demo_combined_rows as rows
+from assetops_backend.actions.verification_rules import fmt
+
+got = rows.pv_values(mod._pva_summary(), mod._value_page(), "ACT-000002", "ACT-001", mod._pva_cost_check())
+assert got["sums_checked"] == 1, got
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.modules.pop("chain_coherence", None)
+
+low, high = Fraction(1), Fraction(2)
+windows = {"w": {"residual_low": fmt(low), "residual_high": fmt(high)}}
+findings = [{"finding_id": "f", "revision_id": "r", "lifecycle": "SUPPORTED", "window_id": "w"}]
+cons = {"finding_id": "f", "finding_revision_id": "r", "fuel_balance_window_id": "w", "state": "PRICED",
+        "litres_low": fmt(low), "litres_high": fmt(high), "price_value": Decimal("1.25"), "price_revision_id": "p",
+        "amount_low": fmt(low * Fraction(5, 4)), "amount_high": fmt(high * Fraction(5, 4)), "currency": "USD"}
+prices = {"w": {"state": "PRICED", "revision_id": "p", "value": Decimal("1.25")}}
+dispatch = [{"finding_id": "other", "amount_low": "0", "amount_high": "4.12"}]
+out = rows.kis4(windows, findings, [cons], prices, dispatch, [])
+assert out["supported"] == 1, out
+print("FRESH_PATH_OK")
+"""
+
+
+def test_pv_values_and_kis4_import_chain_coherence_without_tools_checks_on_the_path() -> None:
+    """review-K9-r3u H1 (L0): both functions add tools/checks themselves, in a fresh interpreter without it."""
+    import subprocess
+
+    tools = Path(__file__).resolve().parents[2] / "tools"
+    done = subprocess.run([sys.executable, "-c", _FRESH_PATH_SCRIPT, str(Path(__file__).resolve()), str(tools)],
+                          capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0 and "FRESH_PATH_OK" in done.stdout, (done.stdout[-800:], done.stderr[-1500:])
+
+
+def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
+    import types
+
+    import demo_combined as dc
+
+    def run(sites):
+        seen: list[str] = []
+
+        def py(*args, **kw):
+            seen.append(args[args.index("--site") + 1] if "--site" in args else args[-1])
+            return types.SimpleNamespace(stdout="ok")
+        dc.Demo.performance_and_prebuild(types.SimpleNamespace(story=lambda: {"sites": sites}, py=py))
+        return seen[:-1]  # the last call is the pre-build
+
+    assert run(["kobo", "kisiwa"]) == ["KOBO-001", "KISIWA-001"]
+    assert run(["kobo"]) == ["KOBO-001"]
+
+
+def test_register_records_the_no_legacy_basis_after_register_in(monkeypatch, tmp_path) -> None:
+    import sqlalchemy
+
+    import demo_combined_kisiwa as kis
+    import pg_harness
+    from assetops_backend.sites.adapters import postgres_foundation_store as pfs
+    from datetime import datetime, timezone
+    from uuid import UUID
+
+    calls: list = []
+    tenant, site = "00000000-0000-0000-0000-0000000000a1", "00000000-0000-0000-0000-0000000000b2"
+
+    class Store:
+        def __init__(self, url):
+            pass
+
+        def record_no_legacy_evidence_basis(self, t, s, *, now):
+            calls.append(("basis", t, s, now))
+
+    class Conn:
+        def execute(self, *a, **k):
+            calls.append(("sql",))
+
+    class Engine:
+        def begin(self):
+            import contextlib
+            return contextlib.nullcontext(Conn())
+
+        def dispose(self):
+            pass
+
+    import_at = datetime(2026, 10, 1, tzinfo=timezone.utc)
+    install_at = datetime(2026, 10, 2, tzinfo=timezone.utc)
+    monkeypatch.setattr(pfs, "PostgresFoundationStore", Store)
+    monkeypatch.setattr(sqlalchemy, "create_engine", lambda url: Engine())
+    monkeypatch.setattr(pg_harness, "dispose", lambda store: None)
+    monkeypatch.setattr(kis, "register_in", lambda store, i, n: calls.append(("register_in",)) or
+                        {"tenant_id": tenant, "site_id": site})
+    monkeypatch.setattr(kis, "publish_price", lambda *a, **k: None)
+    kis.register("postgresql://x", tmp_path, import_at, install_at)
+    assert calls[0] == ("register_in",)
+    assert calls[1] == ("basis", UUID(tenant), UUID(site), import_at)
