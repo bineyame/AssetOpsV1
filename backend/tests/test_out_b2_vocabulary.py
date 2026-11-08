@@ -116,6 +116,9 @@ def _constants() -> list[str]:
              ft.GAP_LINE.format(spans=ft.SPAN.format(a="00:45", b="02:30")),
              ft.MONEY_LINE.format(lo_m="119.57", hi_m="180.43", cur="USD", p="1.25"), ft.UNPRICED_NO_PRICE,
              ft.UNPRICED_PRICE_CHANGES, ft.UNPRICED_OTHER, ft.NOT_WHY, ft.MARGIN_LINE.format(a="10"), ft.NO_LONGER]
+    # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
+    from assetops_backend.work import domain_action as da
+    copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]
     return [c.strip(" ·") for c in copy]
 
 
