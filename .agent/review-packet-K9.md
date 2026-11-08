@@ -180,3 +180,18 @@ Focused: `test_demo_combined_finish_rows`, `test_k7_kisiwa_story`, `test_k9_fini
 **Screenshot:** not taken (stop S-s4; no frontend/API server started). Board JSON per day: scratchpad `k9r3s\out\board-{before,after}-{S-5d,S,d1}.json`.
 
 **Process deviations:** the merge commit includes unresolved conflict markers (a failed Edit followed by a chained commit); fixed forward in `f994e3cf9`, no amend. Scratch `clone.py` was written with `Set-Content`. Free RAM was 2.6-2.75 GB while waiting for the coordinator's check-all, which was above the 2.5 GB floor.
+
+## R3s2 (ruling DIESEL-1-R3s2, build sheet §9s2)
+
+**Change** (`tools/demo_combined_rows.py` `kis7`, commit 8f0370c25; no product code):
+- KIS-7 item 3 (d1 priced and equal to the stored lead head) is report-only. The row output carries `d1_priced`, e.g. "REPORT-ONLY (R3s2): d1 is unsettled: no `productive_kwh` subject (R3s2); board earnings unpriced; 2026-10-28". A code comment quotes the reason. Stop S-s4 is not a code assertion (it was a probe stop), so it is report-only by construction here.
+- Items 1 (Optimize card follows the priced Sites), 2 (Kisiwa priced on S iff a PRICED head overlaps S) and 4 (`never_summed`) stay asserted. The "no PRICED head at all" precondition also stays asserted (it is data, present in the story).
+- L0 (`test_demo_combined_finish_rows.py`): an unpriced d1 and a differing d1 amount now pass and report; new break cases for item 1 (tampered card) and item 4 (summed total on a two-priced S).
+- Mutation (committed first, then `git checkout`): neutering item 2's assert fails 2 tests; replacing `never_summed` with `0 *` fails the item-4 test; `card = None` (item 1 dropped) fails the break-loop test. Tree clean after each revert.
+
+**Packet notes**
+- The Protect-row claim quotes the row state (NEEDS_ATTENTION, `unexplained_fuel` night 10-31) and MG-8's own entry in the board's outcome list, not the `lead_outcome` field, which carries only `{key, label}`. The earlier "MG-8 state null" line in the S-5d row above is that field read, not a defect (§9s2.3).
+- Presenter note: open the S-5d Kisiwa board once before the client joins (Kisiwa is not in the prebuilt routes; the first open is a cold build).
+- Process note: review `tools/checks/chain_coherence.py` at f994e3cf9, not at 85af3d702 (which holds conflict markers). At this HEAD the file has no `<<<<<<<|>>>>>>>|=======` line starts (Grep).
+
+**Checks (focused, no DB, no check-all):** `test_demo_combined_finish_rows.py` 52 passed; `test_k7_kisiwa_story.py` 99 passed; `test_k9_finish_callsites.py` 2 passed; `tools/checks/test_chain_coherence.py` 177 passed; `tools/checks/test_fuel_wording.py` 21 passed.
