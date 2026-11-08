@@ -404,13 +404,14 @@ def test_fuel_rows_sit_on_story_days_only_and_s14_s7_are_priced_with_quantity_ze
 
     kinds = {"2026-10-22": "overuse", "2026-10-29": "overuse", "2026-10-28": "steady"}
     offs = {"2026-10-22": -14, "2026-10-29": -7, "2026-10-28": -8}
-    good = [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 0, 0)]
+    good = [(w(22), "PRICED", 0, 5), (w(29), "PRICED", 0, 7)]
     assert after.fuel_rows_ok(good, kinds, offs)["rows"] == 2
-    for bad in ([*good, (w(28), "PRICED", 0, 0)],  # a steady day
-                [*good, (w(25), "PRICED", 0, 0)],  # not a story day at all
-                [(w(22), "PRICED", 0, 0)],  # no S-7 row
-                [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 1, 1)],  # S-7 quantity not 0
-                [(w(22), "UNPRICED", 0, 0), (w(29), "PRICED", 0, 0)]):  # S-14 not PRICED
+    for bad in ([*good, (w(28), "PRICED", 0, 5)],  # a steady day
+                [*good, (w(25), "PRICED", 0, 5)],  # not a story day at all
+                [(w(22), "PRICED", 0, 5)],  # no S-7 row
+                [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 0, 7)],  # S-14 old priced-at-0 shape
+                [(w(22), "PRICED", 0, 5), (w(29), "PRICED", 1, 7)],  # S-7 low not 0
+                [(w(22), "UNPRICED", 0, 5), (w(29), "PRICED", 0, 7)]):  # S-14 not PRICED
         with pytest.raises(AssertionError):
             after.fuel_rows_ok(bad, kinds, offs)
 
