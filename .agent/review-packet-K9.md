@@ -141,3 +141,42 @@ Commit `afdbc9c81`. Focused tests after the change: finish rows + K7 story + K9 
 1. **KIS-2: ready.** Kisiwa has 2 dispatch Findings, both latest revision SUPPORTED; each head consequence is `fuel-cost-2` PRICED and cites that latest revision (episodes 2026-10-28 17:40-19:05Z and 2026-10-28 22:55Z-10-29 00:15Z; `amount_high` 26.277 and 17.573 USD). A third Finding is `fuel_balance` (not in KIS-2's filter).
 2. **KIS-7: not ready on this clone.** The 10 nights run 2026-10-28 to 2026-11-06, but both priced dispatch consequences lie on night 1 (2026-10-28/29 local). Nothing is priced in Kisiwa's S local day (2026-11-05 21:00Z to 11-06 21:00Z). If the S board prices only consequences in its day, Kisiwa is unpriced on S and KIS-7 fails as a stop. Not confirmed by a served read; needs a live S summary on the four-Site prepare. The clone has only Kisiwa and no cutover basis row (pre-R3r).
 3. **Board PARTIAL: cause found by code reading, not by a served read.** The cutover basis does not change it. Kisiwa has no Performance comparison report, so `performance_gate` (`main.py:404`) returns closed. In `site_outcomes/read.py` the mini ports `dispatch` (`:257`, `_open(s.performance_gate)`) and `chain_findings` (`:240`, `_open(s.finding_index_gate)`) then raise `PortUnavailable("... closed: ...")`, which `Reads` records, so `read_state` is PARTIAL. `basis_aware_gate` (`performance_comparison.py:199`) only changes the reason text, never the permit. R3r's basis fixed the `source` port (`OverviewClosed`), not these two. A four-Site prepare would not change it, since only Kobo has a Performance report. Consequence for KIS-7: if `chain_findings` is what feeds Kisiwa's Optimize earnings, a closed finding-index gate leaves Kisiwa unpriced on S regardless of the day. For the Architect.
+
+## R3s (DIESEL-1-R3s): Kisiwa Performance comparison, KIS-7 from data, KIS-OV extension, clone probe
+
+Commits: merge `85af3d702` (main into K9; its conflict markers were committed by mistake and fixed in) and `f994e3cf9` (the R3s change). Merge conflict: only `tools/checks/chain_coherence.py` (`LOCAL_DAY_TZ`/`SUMMARY_SITE_TZ`); both sides kept, plus `KISIWA_BOARD_DAYS`. Auto-merged: `test_demo_combined_finish_rows.py`, `test_chain_coherence.py`, `demo_combined_finish.py`, `demo_combined_rows.py`.
+
+**Changes.** (1) `demo_combined.py` `performance_and_prebuild`: KISIWA-001 joins the loop when `"kisiwa"` is in `story["sites"]`. (2) `demo_rows.kis7(summary_s, bodies, heads, s_day, board_at)` rewritten per §9s.3, with expectations from stored heads (`finding_revision` episode + latest `financial_consequence_revision`); `kis_7` row reads them. (3) `demo_rows.kis_ov(reads, basis, board_states, report)`: newest Kisiwa report (`build_performance_comparison_reports().latest`) must be PASSED and empty-set, S-5d and S boards AVAILABLE.
+
+**L0 and mutations** (`test_demo_combined_finish_rows.py`, 52 pass): each mutation committed-then-reverted by `git checkout`, tree clean after.
+| Mutation | Result |
+|---|---|
+| remove the `Kisiwa priced on S == expected_s` assert | 2 tests fail |
+| remove the d1 amount equality | 1 fails |
+| remove the PASSED/empty-set assert | 1 fails |
+| remove the AVAILABLE board assert | 1 fails |
+| loop line back to `("KOBO-001",)` | 1 fails |
+
+Focused: `test_demo_combined_finish_rows`, `test_k7_kisiwa_story`, `test_k9_finish_callsites`, `test_chain_coherence`, `test_fuel_wording` = 349 passed before the final test edits; finish_rows re-run 52 passed after.
+
+**Clone probe** (`assetops_k9_audit_r3s` from `assetops_demo3_kisiwa_test`, 0 open connections, free RAM 2.7 GB, coordinator check-all finished first; upgraded to head; work folder copied from `AssetOpsV1-k7f` to scratch, tree = `git archive HEAD` of K9; R3r cutover `NO_LEGACY_EVIDENCE` recorded at the stored import 2026-10-26T09:00Z before the "before" read; read in-process through `TestClient`, so no server PID; dropped after). The clone holds only Kisiwa, so KIS-6 and KIS-7 fail before and after on the missing Sites (not a regression).
+
+| Read | Before (basis, no report) | After (`performance_migration run`) |
+|---|---|---|
+| Report | none | PASSED, `empty_set` true, "Performance cutover: permitted"; lineage 11 runs, all break counts 0 |
+| S-5d board `read_state` | PARTIAL (2 "could not be loaded") | AVAILABLE (0) |
+| S board `read_state` | PARTIAL (2) | AVAILABLE (0) |
+| d1 (2026-10-28) board | PARTIAL (2) | AVAILABLE (0); a dispatch FINDING issue now shows ("Generator may have been on longer than needed") |
+| MG-8 (S-5d / S / d1) | UNKNOWN PRODUCER_NOT_SETTLED on all three | node found with state null / NO_OBJECTIVE / UNKNOWN PRODUCER_NOT_SETTLED |
+| d1 Optimize earnings | "Not known yet"; MG-2 UNKNOWN PRODUCER_NOT_SETTLED | **"Not known yet"; MG-2 UNKNOWN PRODUCER_NOT_SETTLED** |
+| Night-1 day earnings (S-5d, S) | Not known yet | Not known yet |
+| Estate Findings (week) Kisiwa fuel rows | 3 | 3 |
+| Kisiwa rows KIS-4, 8a, 1, 2, 5, 10, 3, 9, 8 | pass | pass |
+| KIS-OV | FAIL (no report) | pass |
+| KIS-6, KIS-7 | FAIL (clone has one Site) | FAIL (same) |
+
+**Stop S-s4 fired: d1 is unpriced after the report.** S-s1 (report PASSED, gate open), S-s2 (no row passes-then-fails) and S-s3 (boards AVAILABLE, no failed port) did not fire. Both S boards also show `finding_gaps` "Not available yet · 31 of 31 days are not assessed yet" before and after. Reading, not a patch: the dispatch Finding is visible on d1 but MG-2 stays PRODUCER_NOT_SETTLED, so the Optimize earnings is not priced from the board's own snapshots. The clone was never ticked (the schedule/prebuild steps of `finish` did not run on it), which may be why the producer is unsettled; unconfirmed, for the Architect. No patch, no prepare.
+
+**Screenshot:** not taken (stop S-s4; no frontend/API server started). Board JSON per day: scratchpad `k9r3s\out\board-{before,after}-{S-5d,S,d1}.json`.
+
+**Process deviations:** the merge commit includes unresolved conflict markers (a failed Edit followed by a chained commit); fixed forward in `f994e3cf9`, no amend. Scratch `clone.py` was written with `Set-Content`. Free RAM was 2.6-2.75 GB while waiting for the coordinator's check-all, which was above the 2.5 GB floor.
