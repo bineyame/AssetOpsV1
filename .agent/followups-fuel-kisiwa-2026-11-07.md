@@ -16,4 +16,5 @@ Coordinator list so non-blocking review findings are not lost. Each line cites i
 - F0 (`review-F0.md`): L1/L2 routed to K0/K3 cards (R3c §9c.3).
 - K1 (`review-K1.md`): L1 handled by F0e (R3e); L3 Kisiwa template meter names "clinic"/"mill" → K8.
 - Main drift: `test_ch1a_grading.py::test_period_bounds_addis_utc_tue_only_and_24h` fails on main (`unknown period 'midday'`), reported by the MB-1b builder; not yet traced.
+- Main drift (reported by the K4a builder, same failure on main): 6 tests in `test_w301_estate_golden_postgres` (`$.summary.claims` has an extra `count.opportunities` the golden lacks) and `test_s4_schedule_health_postgres::TestDatabaseTime::test_skewed_application_clocks…` (clock-skew patch ineffective). Not yet traced.
 - Main drift: two TEMPLATE_STALE mechanism tests (and three `test_ch6b_estate_postgres` setup errors) until the E2 template rebuild.
