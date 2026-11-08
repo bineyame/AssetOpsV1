@@ -487,6 +487,23 @@ def kis8_protect(summary: dict, night: date, site: str = "KISIWA-001") -> dict:
     return {"night": night.isoformat(), "line": line, "fuel_lines": len(card["fuel_lines"]), "uf1": "pass"}
 
 
+def kis8_wording(bodies: dict[str, object], site: str = "KISIWA-001") -> dict:
+    """KIS-8, the wording half (DIESEL-1 H4, §8.7; K9): no served body says theft, stolen, stole, siphon or pilfer
+    (`tools/checks/fuel_wording.py` words, keys and values). `bodies` maps a name to a parsed served body. The check
+    is not vacuous: at least one body must name `site` (the Kisiwa pages are among those read)."""
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    from fuel_wording import served_hits
+
+    hits = {name: found for name, body in bodies.items() if (found := served_hits(body))}
+    assert not hits, ("H4: forbidden words in served bodies", dict(list(hits.items())[:8]))
+    naming = [n for n, b in bodies.items() if site in json.dumps(b, default=str)]
+    assert naming, ("KIS-8 read no served body naming the Site", site, len(bodies))
+    return {"bodies": len(bodies), "naming_site": len(naming), "hits": 0}
+
+
 def kis5(plan: dict, outcome: dict, read_back: dict, windows_by_date: dict, summary: dict) -> dict:
     """KIS-5 (DIESEL-1-R3m §9m.4): the Kisiwa FUEL_BALANCE Action's stored fuel verdict reproduces.
 

@@ -716,3 +716,16 @@ def test_coh10_judges_the_kisiwa_fuel_thread() -> None:
     split = cc.coh10_thread_identity(_Coh10Bundle([_kis_row({"id": "T1", "occurrence_no": 1, "occurrences": 2})]),
                                      threads)
     assert len(split) == 1 and "expected 1 of 1" in split[0]["detail"], split
+
+
+def test_kis8_wording_passes_on_clean_bodies_and_fails_otherwise() -> None:
+    """KIS-8 wording half (DIESEL-1 H4): clean bodies naming Kisiwa pass; a forbidden word anywhere fails; a read
+    that names no Kisiwa body fails (not vacuous)."""
+    clean = {"fuel": {"site_code": "KISIWA-001", "rows": [{"text": "Unexplained fuel on the night of 14 Oct"}]},
+             "board": {"site_code": "KOBO-001", "rows": []}}
+    assert rows.kis8_wording(clean) == {"bodies": 2, "naming_site": 1, "hits": 0}
+    for bad in ({"text": "possible theft"}, {"lines": ["Fuel was siphoned"]}, {"Stolen": 1}):
+        with pytest.raises(AssertionError):
+            rows.kis8_wording({**clean, "other": bad})
+    with pytest.raises(AssertionError):
+        rows.kis8_wording({"board": {"site_code": "KOBO-001"}})

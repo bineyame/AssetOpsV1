@@ -1303,6 +1303,39 @@ def kis_9(ctx: Ctx) -> dict:
         runs=k["runs"], windows=k["windows"], finding=_kisiwa_finding(ctx, k), action=_kisiwa_action(ctx, k))}
 
 
+# ---- DIESEL-K9 (build sheet §8.7 KIS-8, H4): the wording half of KIS-8 -------------------------------------------------
+
+@row("KIS-8")
+def kis_8(ctx: Ctx) -> dict:
+    """KIS-8, the wording half (DIESEL-1 H4; KIS-8a is the Protect half): no served body says theft, stolen, stole,
+    siphon or pilfer (`demo_rows.kis8_wording`), over every body this self-check has read (the F-COH bundle included)
+    plus Kisiwa's own fuel pages: the nights and the night S-6d, the fuel Findings list and the night-4 Finding page.
+    The repository scan (`tools/checks/fuel_wording.py`) runs too. A dataset without Kisiwa fails the row (`KisiwaMissing`,
+    carry R3k2 L2)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
+    import fuel_wording
+
+    if not (ctx.work / "kisiwa.json").is_file():
+        raise KisiwaMissing()
+    kisiwa = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
+    fid = demo_rows.kisiwa_fuel_thread(kisiwa)["findings"][0]
+    ctx.get(f"/api/sites/{KISIWA}/fuel-balance/nights",
+            **{"from": ctx.day(-10).date().isoformat(), "to": ctx.day(1).date().isoformat()})
+    ctx.get(f"/api/sites/{KISIWA}/fuel-balance/nights/{ctx.day(-6).date().isoformat()}")
+    ctx.get(f"/api/sites/{KISIWA}/fuel-findings", **{"from": iso(ctx.day(-10)), "to": iso(ctx.day(1))})
+    ctx.get(f"/api/sites/{KISIWA}/fuel-findings/{fid}")
+    # `ctx.get` caches under (path, params); other cache keys are plain names (e.g. "coh", "kisiwa")
+    bodies: dict[str, object] = {f"{key[0]}?{list(key[1])}": body for key, body in ctx.cache.items()
+                                 if isinstance(key, tuple) and len(key) == 2 and str(key[0]).startswith("/api/")}
+    coh = ctx.cache.get("coh")
+    if coh is not None:  # F-COH's bundle: every estate, board and chain body it collected
+        bodies.update({f"bundle:{p.name}": json.loads(p.read_text(encoding="utf-8")) for p in Path(coh[0]).rglob("*.json")
+                       if p.name != "manifest.json"})
+    repo_hits, files = fuel_wording.scan()
+    assert not repo_hits, ("H4: forbidden words in client or served copy", repo_hits[:8])
+    return {"kisiwa": "present", **demo_rows.kis8_wording(bodies, KISIWA), "repository_files": files}
+
+
 # ---- runner ----------------------------------------------------------------------------------------------------
 
 def load(work: Path, client) -> Ctx:
