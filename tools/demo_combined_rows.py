@@ -377,6 +377,10 @@ def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_
                 walk(x)
 
     walk(card)
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
     from chain_coherence import nonzero_pair_sums
 
     amts = [(e.get("currency"), Decimal(str(e["amount"]))) for e in entries if e.get("amount") is not None]
@@ -438,6 +442,10 @@ def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: 
     # a zero operand is no addition (dispatch PRICED-0 days store amount_high 0), so it never makes a sum
     all_high = [parse_exact(d["amount_high"]) for d in dispatch_consequences if d.get("amount_high") is not None]
     dispatch_high = [x for x in all_high if x]
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "checks"))
     from chain_coherence import nonzero_pair_sums
 
     def dec(x) -> tuple[str, Decimal]:
@@ -1269,10 +1277,16 @@ def kis_ov(reads: list[dict], basis_rows: list[dict], board_states: dict, report
         mg8 = next((o for o in protect.get("outcomes") or () if o.get("key") == "MG-8"), None) or {}
         if not (protect.get("state") == "NEEDS_ATTENTION" and mg8.get("state") == "NEEDS_ATTENTION"
                 and mg8.get("reason") == "PRIMARY_FINDING_OPEN"):
+            second = None
+            if callable(second_read):
+                try:  # an error from the diagnostic read never replaces the R3u-s1 message
+                    second = second_read()
+                except Exception as exc:  # noqa: BLE001
+                    second = {"second_read_error": f"{type(exc).__name__}: {exc}"}
             raise AssertionError(("R3u-s1: the S-5d Protect row / MG-8 is not NEEDS_ATTENTION / PRIMARY_FINDING_OPEN",
                                   {"protect_state": protect.get("state"), "mg8": mg8,
                                    "read_state": s5d_board.get("read_state"), "warnings": s5d_board.get("warnings"),
-                                   "second_read": second_read() if callable(second_read) else None}))
+                                   "second_read": second}))
         protect_state = protect["state"]
     return {"overview_status": {r["label"]: r["status"] for r in reads}, "basis": b["basis"],
             "performance_report": {"outcome": report["outcome"], "empty_set": report["empty_set"]},

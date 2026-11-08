@@ -4,6 +4,14 @@ Branch `task/DIESEL-K9-checks-rehearsal` (worktree `AssetOpsV1-k9`). Binding rul
 merged as 1b1b05e0c), §8.7 rows. Rehearsal DB `assetops_demo3_k9rehearsal_test`, work folder `var/demo3_k9rehearsal`
 (replaces the build sheet's name). USER_REVIEW_REQUIRED: no (the rehearsal waits for K8's merge and coordinator clearance).
 
+## Path fix (review-K9-r3u)
+
+H1: `pv_values` and `kis4` in `tools/demo_combined_rows.py` now insert `tools/checks` on `sys.path` before importing
+`chain_coherence` (as `kis8_protect` does). New L0 test `test_pv_values_and_kis4_import_chain_coherence_without_tools_checks_on_the_path`
+runs both in a fresh subprocess with `tools/checks` stripped. L2: `kis_ov` wraps `second_read()` in try/except; an error
+is recorded as `second_read_error` inside the R3u-s1 message (test added). `test_demo_combined_finish_rows.py` (56) and
+`test_k9_finish_callsites.py` (4) each pass alone with PYTHONPATH excluding `tools` and `tools/checks`.
+
 ## Pre-rehearsal (R3q Q1-Q5)
 
 ### Commits

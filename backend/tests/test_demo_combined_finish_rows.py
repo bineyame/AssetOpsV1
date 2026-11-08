@@ -1123,6 +1123,65 @@ def test_kis_ov_pins_the_s5d_protect_row_and_mg8_entry_r3u() -> None:
     assert "PARTIAL" in text and "second_read" in text and "'protect_state': 'UNKNOWN'" in text
 
 
+def test_kis_ov_second_read_error_never_replaces_the_r3u_s1_message() -> None:
+    """review-K9-r3u L2: a failing second read is recorded inside the R3u-s1 assertion, not raised in its place."""
+    def boom() -> dict:
+        raise RuntimeError("second read exploded")
+
+    with pytest.raises(AssertionError, match="R3u-s1") as err:
+        rows.kis_ov(_ov_reads(), _OV_BASIS, _OV_BOARDS, _OV_REPORT,
+                    _s5d_board("UNKNOWN", ("UNKNOWN", "PRODUCER_NOT_SETTLED")), boom)
+    assert "second_read_error" in str(err.value) and "second read exploded" in str(err.value)
+
+
+_FRESH_PATH_SCRIPT = r"""
+import importlib.util, sys
+from decimal import Decimal
+from fractions import Fraction
+from pathlib import Path
+
+test_file, tools = sys.argv[1], Path(sys.argv[2])
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.path.insert(0, str(tools))
+spec = importlib.util.spec_from_file_location("finish_rows_under_test", test_file)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.modules.pop("chain_coherence", None)
+assert not any(Path(p or ".").resolve() == (tools / "checks").resolve() for p in sys.path)
+
+import demo_combined_rows as rows
+from assetops_backend.actions.verification_rules import fmt
+
+got = rows.pv_values(mod._pva_summary(), mod._value_page(), "ACT-000002", "ACT-001", mod._pva_cost_check())
+assert got["sums_checked"] == 1, got
+sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != (tools / "checks").resolve()]
+sys.modules.pop("chain_coherence", None)
+
+low, high = Fraction(1), Fraction(2)
+windows = {"w": {"residual_low": fmt(low), "residual_high": fmt(high)}}
+findings = [{"finding_id": "f", "revision_id": "r", "lifecycle": "SUPPORTED", "window_id": "w"}]
+cons = {"finding_id": "f", "finding_revision_id": "r", "fuel_balance_window_id": "w", "state": "PRICED",
+        "litres_low": fmt(low), "litres_high": fmt(high), "price_value": Decimal("1.25"), "price_revision_id": "p",
+        "amount_low": fmt(low * Fraction(5, 4)), "amount_high": fmt(high * Fraction(5, 4)), "currency": "USD"}
+prices = {"w": {"state": "PRICED", "revision_id": "p", "value": Decimal("1.25")}}
+dispatch = [{"finding_id": "other", "amount_low": "0", "amount_high": "4.12"}]
+out = rows.kis4(windows, findings, [cons], prices, dispatch, [])
+assert out["supported"] == 1, out
+print("FRESH_PATH_OK")
+"""
+
+
+def test_pv_values_and_kis4_import_chain_coherence_without_tools_checks_on_the_path() -> None:
+    """review-K9-r3u H1 (L0): both functions add tools/checks themselves, in a fresh interpreter without it."""
+    import subprocess
+
+    tools = Path(__file__).resolve().parents[2] / "tools"
+    done = subprocess.run([sys.executable, "-c", _FRESH_PATH_SCRIPT, str(Path(__file__).resolve()), str(tools)],
+                          capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0 and "FRESH_PATH_OK" in done.stdout, (done.stdout[-800:], done.stderr[-1500:])
+
+
 def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
     import types
 
