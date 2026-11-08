@@ -170,7 +170,9 @@ class _ReadTx:
         domain = [{"kind": DOMAIN_ACTION, "action_id": r["action_id"], "action_event_id": None,
                    "finding_revision_id": r["origin_finding_revision_id"],
                    **({} if r["origin_opportunity_revision_id"] is None
-                      else {"opportunity_revision_id": r["origin_opportunity_revision_id"]})}
+                      else {"opportunity_revision_id": r["origin_opportunity_revision_id"]}),
+                   # DIESEL-1-R3m2: only a fuel link names its domain (Cold, EV and mill dicts unchanged).
+                   **({"action_domain": r["action_domain"]} if r["action_domain"] == FUEL_DOMAIN else {})}
                   for r in self._domain_links(revision_id, known_at)]
         return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars()),
                 "domain_action_links": domain}

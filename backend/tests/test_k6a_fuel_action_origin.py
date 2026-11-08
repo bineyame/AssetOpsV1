@@ -150,7 +150,25 @@ def test_post_intent_on_a_fuel_action_is_refused_with_the_fuel_literal():
     assert e.value.message == d.FUEL_MESSAGES["DOMAIN_INTENT_INVALID"]
 
 
-# --- 5. client literals: guard V and H4 ---------------------------------------------------------------------------
+# --- R3m2: the request page's Action link never sends a fuel Action to a W1 Action page --------------------------
+
+def test_request_action_link_gives_a_fuel_action_no_href():
+    """DIESEL-1-R3m2. Must fail if the fuel branch in `site_index._action_link` is removed."""
+    from assetops_backend.work import site_index as si
+    from assetops_backend.work.link_coverage import DOMAIN_ACTION
+
+    aid, rev, opp = str(uuid4()), str(uuid4()), str(uuid4())
+    seen = {"lineage": True}
+    base = {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None}
+    fuel = si._action_link("KISIWA-001", {**base, "finding_revision_id": rev, "action_domain": "FUEL_BALANCE"}, seen)
+    assert fuel["href"] is None and fuel["label"] == "Action"
+    cold = si._action_link("COLD-001", {**base, "finding_revision_id": rev}, seen)
+    assert cold["href"] == f"/sites/COLD-001/actions/{aid}/verification"
+    mill = si._action_link("KOBO-001", {**base, "finding_revision_id": None, "opportunity_revision_id": opp}, seen)
+    assert mill["href"] == f"/sites/KOBO-001/domain-actions/{aid}/verification"
+
+
+# --- 5. client literals: guard V and H4---------------------------------------------------------------------------
 
 H4 = re.compile(r"\b(theft|stolen|stole|siphon\w*|pilfer\w*)\b", re.IGNORECASE)
 
