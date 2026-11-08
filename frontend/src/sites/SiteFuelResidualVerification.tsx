@@ -153,7 +153,7 @@ export function FuelVerificationView({ body }: { body: FuelVerification }) {
           </p>
         </Panel>
       </div>
-      <p className="mock-deviation-line" data-mock-deviation="MD-FUEL-K6">
+      <p className="mock-deviation-line" data-mock-deviation="R709">
         {FUEL_MOCK_DEVIATIONS}
       </p>
     </div>

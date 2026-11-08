@@ -4,7 +4,7 @@
  * loading, not found, error, and each state (VERIFIED, INEFFECTIVE, INCONCLUSIVE, NOT_JUDGED, NO_PLAN) from fixture
  * wires; the fixed H1 line in every state; no money text; the origin and case links; FUEL_VERDICT routing.
  */
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -162,6 +162,12 @@ function renderAt(c: FuelVerificationClient) {
 
 const main = () => screen.getByRole("main");
 
+/** The settled screen, then the fuel read's own settled body: the page (`data-fuel-state`) or its alert. */
+async function loadedPage() {
+  await settledScreen();
+  await waitFor(() => expect(document.querySelector("[data-fuel-state], [role='alert']")).not.toBeNull());
+}
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -174,21 +180,21 @@ describe("fuel verdict page", () => {
     renderAt(c);
     expect(await screen.findByText(FUEL_LOADING)).toBeTruthy();
     resolve({ status: "loaded", body: STATES.VERIFIED });
-    await settledScreen();
+    await loadedPage();
     expect(c.read).toHaveBeenCalledWith(SITE, ACTION);
     expect(screen.queryByText(FUEL_LOADING)).toBeNull();
   });
 
   it("not found state", async () => {
     renderAt(client({ status: "not_found" }));
-    await settledScreen();
+    await loadedPage();
     expect((await screen.findByRole("alert")).textContent).toBe(FUEL_NOT_FOUND);
     expect(FUEL_NOT_FOUND).toBe("No such Action for this site.");
   });
 
   it("error state shows the server's message", async () => {
     renderAt(client({ status: "error", message: "Only an Action raised from an unexplained-fuel Finding has a fuel verification plan." }));
-    await settledScreen();
+    await loadedPage();
     expect((await screen.findByRole("alert")).textContent).toBe(
       "Only an Action raised from an unexplained-fuel Finding has a fuel verification plan.",
     );
@@ -197,7 +203,7 @@ describe("fuel verdict page", () => {
   it.each(Object.keys(STATES) as FuelState[])("%s renders its headline, cards and the fixed H1 line, with no money text", async (state) => {
     const body = STATES[state];
     renderAt(client({ status: "loaded", body }));
-    await settledScreen();
+    await loadedPage();
     const root = main();
     expect(root.querySelector("[data-fuel-state]")?.getAttribute("data-fuel-state")).toBe(state);
     expect(root.querySelector(".v69-statusbar")?.textContent).toContain(`ACT-003 · ${HEADLINE[state]}`);
@@ -225,7 +231,7 @@ describe("fuel verdict page", () => {
 
   it("INEFFECTIVE names the failing night's sensor gap in the table", async () => {
     renderAt(client({ status: "loaded", body: STATES.INEFFECTIVE }));
-    await settledScreen();
+    await loadedPage();
     const failing = main().querySelector('[data-fuel-pass="false"]');
     expect([...(failing?.querySelectorAll("th, td") ?? [])].map((c) => c.textContent)).toEqual([
       "23 Oct (6 pm to noon)",
@@ -238,7 +244,7 @@ describe("fuel verdict page", () => {
 
   it("links the source to the fuel Finding page and the request to its case page", async () => {
     renderAt(client({ status: "loaded", body: STATES.VERIFIED }));
-    await settledScreen();
+    await loadedPage();
     const source = screen.getByRole("link", { name: "Unexplained fuel overnight" });
     expect(source.getAttribute("href")).toBe(routeFor({ kind: "FUEL_FINDING", site: SITE, id: FINDING, revision: REVISION }));
     expect(source.getAttribute("href")).toBe(STATES.VERIFIED.origin.href);
