@@ -117,8 +117,23 @@ MINI_MESSAGES = {
 }
 MINI_SPEC = DomainSpec(MINI_DOMAIN, "", (), "Run the mill at midday", (), MINI_MESSAGES, (),
                        origin=ORIGIN_OPPORTUNITY, site_type="MINIGRID")
-#: Every Action domain the 0051 domain CHECK admits; creation and stored-domain dispatch read this.
-ACTION_DOMAINS: Mapping[str, DomainSpec] = {**DOMAINS, MINI_DOMAIN: MINI_SPEC}
+#: DIESEL-1-R3m: an Action raised from an unexplained-fuel Finding (lever `fuel-seal-dip-sensor-power@1`: seal the
+#: tank cap, sign the dip log at every shift change, put the tank sensor on its own protected supply). Finding
+#: origin (the 0051 CHECK forces it); no declared intent (`DOMAINS` stays the intent-capable Cold/EV set);
+#: APPLIED is its linked case's COMPLETE.
+FUEL_DOMAIN = "FUEL_BALANCE"
+FUEL_FINDING_DOMAIN = "fuel_balance"
+FUEL_MESSAGES = {
+    "DOMAIN_INTENT_INVALID": "The fuel Action declaration is incomplete or invalid.",
+    "DOMAIN_INTENT_LINK_INVALID": "The declared unexplained-fuel Finding is not its current supported version at this site and time.",
+    "DOMAIN_INTENT_CONFLICT": "This Action declaration has a newer version; reload it.",
+    "DOMAIN_INTENT_BASIS_CHANGED": "The selected fuel work basis changed; reload the Action.",
+    "ACTION_NOT_FOUND": "Action was not found at this site.",
+}
+FUEL_SPEC = DomainSpec(FUEL_DOMAIN, FUEL_FINDING_DOMAIN, (), "Seal the tank cap, sign the dip log, protect the tank sensor's power",
+                       (), FUEL_MESSAGES, (), origin=ORIGIN_FINDING, site_type="MINIGRID")
+#: Every Action domain the 0057 domain CHECK admits; creation and stored-domain dispatch read this.
+ACTION_DOMAINS: Mapping[str, DomainSpec] = {**DOMAINS, MINI_DOMAIN: MINI_SPEC, FUEL_DOMAIN: FUEL_SPEC}
 
 
 def spec_of(domain: Any) -> DomainSpec | None:

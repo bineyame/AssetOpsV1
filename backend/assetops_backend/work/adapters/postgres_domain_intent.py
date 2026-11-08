@@ -127,6 +127,16 @@ class _DomainTx:
             "AND x.selected_at <= :now ORDER BY x.selected_at DESC, x.seq DESC LIMIT 1))"),
             self._p(o=opportunity_id, r=revision_id)).scalar_one()
 
+    def fuel_finding_selected(self, finding_id: str, revision_id: str) -> bool:
+        """DIESEL-1-R3m: this revision is its Finding's latest by `command_now`, of the fuel domain and analytic, and
+        SUPPORTED."""
+        return self._c.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM finding_revision fr WHERE fr.tenant_id = :t AND fr.site_id = :s "
+            "AND fr.finding_id = :f AND fr.id = :r AND fr.domain = 'fuel_balance' AND fr.analytic_id = 'fuel-balance-1' "
+            "AND fr.lifecycle = 'SUPPORTED' AND fr.created_at <= :now AND fr.revision_no = (SELECT max(x.revision_no) "
+            "FROM finding_revision x WHERE x.tenant_id = :t AND x.site_id = :s AND x.finding_id = :f "
+            "AND x.created_at <= :now))"), self._p(f=finding_id, r=revision_id)).scalar_one()
+
     def insert_action(self, row: dict[str, Any]) -> None:
         if row.get("origin_opportunity_id") is not None:
             self._c.execute(text(

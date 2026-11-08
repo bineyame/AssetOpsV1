@@ -129,7 +129,7 @@ def test_sole_head_chain_and_named_checks(ev) -> None:
     # CH-9b1 (0051): the same CHECK also admits MINI, and `domain_action_mini_origin` ties MINI to an opportunity origin.
     assert domain_checks(ev.engine) == {
         "domain_action_domain_chk": "CHECK ((domain = ANY (ARRAY['COLDCHAIN'::text, 'EV_CHARGING'::text, "
-                                    "'MINI'::text])))",
+                                    "'MINI'::text, 'FUEL_BALANCE'::text])))",
         "domain_action_mini_origin": "CHECK (((domain = 'MINI'::text) = (origin_opportunity_id IS NOT NULL)))"}
     assert checks(ev.engine)["domain_action_intent_criteria_count_chk"] == (
         "CHECK (((jsonb_typeof(criteria) = 'array'::text) AND (jsonb_array_length(criteria) = ANY (ARRAY[3, 4]))))")
@@ -151,7 +151,8 @@ def test_domain_dispatch_is_closed() -> None:
     the read adapter's link mapping is derived from the same table, and nothing else resolves."""
     assert {k: v.finding_domain for k, v in d.DOMAINS.items()} == {"COLDCHAIN": "cold_chain",
                                                                    "EV_CHARGING": "ev_charging"}
-    assert wr._FINDING_DOMAIN_OF == {"COLDCHAIN": "cold_chain", "EV_CHARGING": "ev_charging"}
+    assert wr._FINDING_DOMAIN_OF == {"COLDCHAIN": "cold_chain", "EV_CHARGING": "ev_charging",
+                                     "FUEL_BALANCE": "fuel_balance"}  # DIESEL-1-R3m (approved one-key edit)
     ev_spec = d.DOMAINS["EV_CHARGING"]
     assert [k for k, _, _ in ev_spec.criteria] == ["WITNESSED_SESSION", "NO_FAULT_RECURRENCE", "NO_SERVICE_REDUCTION"]
     assert ev_spec.initial_results == ("PENDING", "PENDING", "PENDING")

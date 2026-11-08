@@ -128,6 +128,9 @@ def _constants() -> list[str]:
              nt.BRIDGE[0][3].format(a="10"),
              nt.VERSION_ROW.format(n=1, lifecycle=nt.LIFECYCLE["SUPPORTED"], hh_mm="16:00", date="5 Oct"),
              nt.FUEL_CHECKS_ROW.format(title=ft.TITLE, date="4 Oct", lo="95.7", hi="144.3")]
+    # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
+    from assetops_backend.work import domain_action as da
+    copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]
     return [c.strip(" ·") for c in copy]
 
 

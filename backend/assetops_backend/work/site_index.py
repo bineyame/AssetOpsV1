@@ -37,6 +37,7 @@ from assetops_backend.outcomes.asset_words import asset_label as plain_asset_lab
 from assetops_backend.outcomes.display_code import display_code, finding_label
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at
+from assetops_backend.work.domain_action import FUEL_DOMAIN
 from assetops_backend.work.link_coverage import (CURRENT, DOMAIN_ACTION, HISTORICAL, UNKNOWN, coverage_of,
                                                  link_state, worst)
 from assetops_backend.work.model import WorkRefused
@@ -233,7 +234,9 @@ def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str
         # MINIGRID W1 `/actions/{id}/verification` dispatch stays untouched.
         lineage = selection is not None and selection["lineage"]
         href = None
-        if lineage and link["finding_revision_id"] is not None:
+        if link.get("action_domain") == FUEL_DOMAIN:
+            href = None  # DIESEL-1-R3m2: no W1 Action page exists for a fuel Action; K6b adds its own page
+        elif lineage and link["finding_revision_id"] is not None:
             href = f"/sites/{site_code}/actions/{aid}/verification"
         elif lineage and link.get("opportunity_revision_id") is not None:
             href = f"/sites/{site_code}/domain-actions/{aid}/verification"
