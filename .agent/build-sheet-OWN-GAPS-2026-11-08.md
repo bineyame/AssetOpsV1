@@ -501,14 +501,14 @@ one read-only transaction, with `known_at` = `clock_timestamp()` taken first. It
   `e.role = 'fuel_level' AND e.asset_id = :tank`. It buckets the Site-local instant `lt = COALESCE(e.interval_start,
   e.source_time) AT TIME ZONE :tz` like this:
   - `lt::time >= '17:30'` → `lt::date`;
-  - `lt::time < '12:30'` → `lt::date - 1`;
+  - `lt::time <= '12:30'` → `lt::date - 1`;
   - otherwise no night.
 
   **Rev 1:** the two bounds are not typed as literals. They are computed from the rule's own constants:
   `rules.NIGHT_START − EDGE` (17:30) and `rules.NIGHT_END + EDGE` (12:30), passed to the SQL as bound parameters, so the
   fuel-balance-1 night window has one source. A unit test pins that changing `NIGHT_START` moves the bucket.
 
-  This is a night's read range `[start − 30 min, end + 30 min)` in local time. Two nights' ranges never overlap. The
+  This is a night's read range `[start − 30 min, end + 30 min]` (closed, D-R3.7) in local time. Two nights' ranges never overlap. The
   bucket is only a trigger: the assessment itself uses the exact `rules.night_window`. Time range read:
   `[known_at − record_lookback − 1 day, known_at]`.
 - `records: list[(occurred_at, recorded_at)]`: the tank's fuel records as known, from the existing injected
@@ -1529,3 +1529,267 @@ in `schedule_inputs`. The packet lists D-R3.7 as a product change with this reas
 12:30), because the assessment uses that reading and real gateways deliver late readings; leaving it out would let a
 late closing reading go unnoticed. Cost: one comparison in two places, one extracted SQL constant, and the Postgres
 rerun Q1 needed anyway.
+
+### R3.8 — G2 review rulings (2026-11-09)
+
+Claude Architect (binding: Claude, `AssetOpsV1-plan2/.ai/ROLE_CONFIG.md:9`), under the owner's delegation of 2026-11-08
+(`.agent/owner-away-architect-decides-2026-11-08.md`). Read-only; no Postgres run. Inputs: `AssetOpsV1-g2/.agent/review-G2.md`
+(commit `e2400a0d1`, REJECT on M1) on `task/OWN-G2-diesel-night-check` at `e33d8f113`. **This wins over §2.4 step 4,
+§2.4 "What this means", `run_site` step 2.1, §2.7 and R3.6 items 1-2 where they differ.** The builder (Sonnet) makes no
+further decision. Branch: the same G2 branch; one fix round.
+
+**Ruled: M1 fixed now (D-R3.8); L2 accepted for now, no change (D-R3.9); L3 fixed now, narrowly (D-R3.10); L1 fixed in
+this sheet (§2.4 lines 504 and 511 now read `<= '12:30'` and `[start − 30 min, end + 30 min]`).**
+
+#### R3.8.1 M1 — a record that LEAVES an old night re-checks that night (D-R3.8)
+
+Real-site case: a delivery keyed with the wrong date (or to the wrong tank, or as the wrong kind) is corrected days
+later. The night it left must be re-checked, or an "unexplained fuel" Finding the data no longer supports stays open in
+front of the client. The base set covers this only for the last 7 nights; the record set (§2.4 step 4) sees only where a
+record *is now*, never where it *was*. The stored window already says where it was: `fuel_balance_window.record_ids`
+holds the `[root_id, head_id]` pairs the assessment used (`service.py:124`).
+
+**Data read: no new query, no migration, no index.** `schedule_inputs` already reads, on its one snapshot, (a) the tank's
+fuel records as known in `[known_at − RECORD_LOOKBACK, known_at)` through K2's `select_fuel_records`, which returns
+each record's `root_id` and current `head_id` (head = latest version as known; membership by the head's kind, tank and
+occurrence), and (b) each night's latest window through `_windows_on`, which returns `record_ids`. Both are already
+bounded to about 32 days. The fix only keeps two more fields from those two reads.
+
+**Model (`fuel_balance/model.py`).** Add `field` to the `dataclasses` import. Append two fields at the END of
+`ScheduleInputs` (defaults keep every existing positional constructor call valid, including the early return
+`ScheduleInputs(known_at, tz, None, None, {}, (), {})`):
+
+```python
+    window_records: Mapping[date, tuple[tuple[str, str], ...]] = field(default_factory=dict)  # night -> its latest window's stored (root_id, head_id) pairs
+    record_heads: Mapping[str, str] = field(default_factory=dict)  # root_id -> current head_id, same read as `records`
+```
+
+`records` keeps its 2-tuple shape (P5 unpacks it).
+
+**Store (`fuel_balance/adapters/postgres_fuel_balance_store.py`, `schedule_inputs.work`).** Replace the `records = ...`
+statement through the final `return ScheduleInputs(...)` of `work` with:
+
+```python
+            fuel = self._fuel_records(c, tenant_id, site_id, UUID(tank), known_at - record_lookback, known_at, known_at)
+            records = tuple((r.occurred_at, r.recorded_at) for r in fuel)
+            record_heads = {str(r.root_id): str(r.head_id) for r in fuel}
+            zone = ZoneInfo(str(tz))
+            lo = (known_at - record_lookback - timedelta(days=1)).astimezone(zone).date()
+            hi = known_at.astimezone(zone).date() + timedelta(days=1)
+            stored = _windows_on(c, tenant_id, site_id, UUID(tank), lo, hi, known_at)
+            latest = {w.night_date: w.recorded_at for w in stored}
+            window_records = {w.night_date: tuple((str(a), str(b)) for a, b in w.record_ids) for w in stored}
+            return ScheduleInputs(known_at, tz, tank, generators[0], reading_nights, records, latest,
+                                  window_records, record_heads)
+```
+
+Docstring of `schedule_inputs`: append "; per night, its latest window's stored record pairs, and per fuel record its
+current head (D-R3.8)".
+
+**Due rule (`fuel_balance/scheduled.py` `due_nights`).** New step 4b, inserted after the record loop and before
+`return`:
+
+```python
+    # 4b (D-R3.8): an older ready night whose stored records changed since its latest window: a stored root whose
+    # current head differs, or that is no longer a fuel record of this tank occurring inside the record read
+    # (corrected to another time, tank or kind). Only nights whose whole window lies inside the record read are
+    # compared; for an earlier night a stored record could be missing only because the read starts after it, which
+    # would make the night due on every tick without changing its result.
+    read_from = known_at - RECORD_LOOKBACK
+    for night, held_ids in inputs.window_records.items():
+        if night >= first_base or not ready(night) or rules.night_window(night, tz)[0] < read_from:
+            continue
+        if any(inputs.record_heads.get(root) != head for root, head in held_ids):
+            due.add(night)
+```
+
+Why it converges (no spin): the re-assessment reads the night's records as they are now, and its digest covers the
+record pairs (`rules.input_sha256(..., records=...)`), so a changed or removed pair always appends a revision whose
+stored pairs equal the current heads; the night stops being due on the next tick. A night that is not ready (no
+readings, or not quiet) is not touched, as in step 4.
+
+Module docstring of `scheduled.py`, after the "Record set" bullet, add: "- **Left-record set (D-R3.8):** an older
+ready night whose latest window cites a fuel record that has since been corrected or no longer counts for this tank."
+§2.4 "What this means" gains, in effect: a correction that moves a record out of a night up to 31 days back re-checks
+that night (its window must start at or after `known_at − 31 d`).
+
+**No-DB test (`backend/tests/test_own_g2_fuel_night_due.py`).** Extend the helper, keeping the existing keyword order:
+
+```python
+def inputs(reading_nights=None, records=(), latest=None, known_at=KNOWN, tank=TANK, window_records=None,
+           record_heads=None) -> ScheduleInputs:
+    return ScheduleInputs(known_at, TZ, tank, None if tank is None else GEN, dict(reading_nights or {}),
+                          tuple(records), dict(latest or {}), dict(window_records or {}), dict(record_heads or {}))
+```
+
+Add after `test_5_records_older_than_the_lookback_are_not_read`:
+
+```python
+def test_5b_a_record_that_left_an_old_night_rechecks_it() -> None:
+    """D-R3.8. Fails on a record set that only looks at where a record is now."""
+    old = L - timedelta(days=10)
+    held = KNOWN - timedelta(days=9)
+    stored = {old: (("r1", "h1"),)}
+    # the stored record was corrected (new head; it now occurs elsewhere, so `records` has nothing on `old`)
+    assert due_nights(inputs(seen(old), [], {old: held}, window_records=stored,
+                             record_heads={"r1": "h2"})).nights == (old,)
+    # the stored record is no longer a fuel record of this tank in the read (moved out of range, tank or kind)
+    assert due_nights(inputs(seen(old), [], {old: held}, window_records=stored)).nights == (old,)
+    # unchanged: same head, recorded before the window -> not due (fails on "any stored record makes it due")
+    assert due_nights(inputs(seen(old), [(inside(old), held)], {old: held}, window_records=stored,
+                             record_heads={"r1": "h1"})).nights == ()
+    # not ready (no readings) -> not due, even with a changed record
+    assert due_nights(inputs({}, [], {old: held}, window_records=stored, record_heads={"r1": "h2"})).nights == ()
+    # the read-range edge: KNOWN - 31 d is 6 Oct 14:00 local. Night 6 Oct starts 18:00 local (inside) -> compared;
+    # night 5 Oct starts before the read (a stored record may simply be unread) -> never compared (fails on spin)
+    inside_read, outside_read = L - timedelta(days=30), L - timedelta(days=31)
+    both = {inside_read: (("r1", "h1"),), outside_read: (("r2", "h2"),)}
+    assert due_nights(inputs(seen(inside_read, outside_read), [], {inside_read: held, outside_read: held},
+                             window_records=both)).nights == (inside_read,)
+```
+
+**Postgres test (`backend/tests/test_own_g2_fuel_night_tick_postgres.py`).** At the end of `test_p5_...` add one line:
+`site["p5_dip"] = str(dip["id"])`. Then add, as the LAST test in the file (file order: Q1, P1/P2/P3/P6/P7, P4a, P4b/c,
+P5, P5b):
+
+```python
+def test_p5b_a_correction_that_moves_the_dip_out_of_an_old_night_rechecks_it(site) -> None:
+    """D-R3.8: N9 (outside the base set) is re-checked when its stored dip is corrected to the afternoon, returns to
+    exactly its pre-dip result, and is not due again on the next tick."""
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+    from assetops_backend.fuel_balance.scheduled import RECORD_LOOKBACK, due_nights
+
+    engine, s, n9 = site["engine"], site["site_id"], site["nights"][9]
+    dip_id = site["p5_dip"]
+    revs = [w for w in _windows(engine, s) if w["night_date"] == n9]
+    rev1, rev2 = revs[0], revs[-1]
+    assert (rev1["revision"], rev2["revision"]) == (1, 2) and dip_id in _ids(rev2), revs
+    moved = datetime.combine(n9, time(15), site["zone"]).astimezone(UTC)  # before N9 starts, after N8 ends
+    correction = _post(_record(site, "TANK_DIP", "g2-p5b-correction", moved, "1", supersedes_record_id=dip_id,
+                               canonical_record_id=dip_id, correction_reason="Dip was taken in the afternoon"))
+    store = build_fuel_balance_store(URL)
+    try:
+        inputs = store.schedule_inputs(site["tenant_id"], s, RECORD_LOOKBACK)
+    finally:
+        store.dispose()
+    print("G2 P5b heads", inputs.record_heads.get(dip_id), "held", inputs.window_records.get(n9))
+    assert (dip_id, dip_id) in inputs.window_records[n9]
+    assert inputs.record_heads[dip_id] == str(correction["id"])
+    assert n9 in due_nights(inputs).nights
+    fuel = _fuel(_tick(engine)[0], s)
+    entry, rev3 = _night(fuel, n9), _latest(engine, s, n9)
+    print("G2 P5b", entry, rev3["state"], rev3["limitations"], rev3["record_ids"])
+    assert entry and (entry["assess"], entry["revision"]) == ("APPENDED", 3) and entry["raise"] is not None, entry
+    assert dip_id not in _ids(rev3) and str(correction["id"]) not in _ids(rev3), rev3["record_ids"]
+    assert (rev3["state"], sorted(_ids(rev3)), list(rev3["limitations"])) == (
+        rev1["state"], sorted(_ids(rev1)), list(rev1["limitations"])), (rev1, rev3)
+    again = _fuel(_tick(engine)[0], s)
+    print("G2 P5b again", _night(again, n9))
+    assert _night(again, n9) is None and _latest(engine, s, n9)["revision"] == 3
+```
+
+Rev 3 equals rev 1 because N9's readings and Foundation are unchanged since the CLI's rev 1, and its records are again
+the ones rev 1 had. The dip's first version is its own root and head, hence `(dip_id, dip_id)`. If `_post` rejects the
+correction body, copy P4c's exact call shape (it passed on Postgres); any other failure stops and goes to the Architect.
+
+**How it fits the whole-file run (R3.2 unchanged).** P5b adds one correction post, one store read and two ticks after
+P5, on the same module fixture; expect +2-4 min on the reviewer's measured 17.7 min, inside the 45-minute budget and the
+stall rule. Run the file whole, one process, file order, `-s`, no `-k`/`-n`, as the only heavy job. Update the module
+docstring's "Measured:" line to the new result ("6 passed in N s") and add "P5b (D-R3.8)" to its first line's case list.
+
+#### R3.8.2 L2 — quiet looks only at tank readings: accepted for now, no change (D-R3.9)
+
+- **Fail-safe by construction.** The assessment's slot rule is strict: any 5-minute slot of the night without a generator
+  power or state reading makes `GENERATOR_KWH_UNKNOWN` / `IDLE_SECONDS_UNKNOWN` true (`fuel_balance/rules.py:170-203`;
+  `actions/verification_rules.py:222` and `:295` match a slot's own readings only), and any such reason gives
+  `NOT_ASSESSED` (`rules.py:304-315`), never `UNEXPLAINED`. So a night checked before its generator readings land can
+  show "not assessed" for a while, but cannot open an unexplained-fuel Finding on missing generator data. The
+  reviewer's "open then withdraw" path needs generator data that is complete and then changes, which is a correction,
+  not lateness.
+- **How real sites send data.** One site gateway publishes tank and generator signals in the same store-and-forward
+  batches (Kisiwa's path), so 5 minutes of quiet on the tank readings is quiet on the generator readings too. A site
+  with a separate generator logger on another link is the case that differs; there the night is re-checked on every
+  tick for 7 nights (base set), so it settles as soon as the readings land.
+- **After the demo** (added to §2.4's out-of-scope list in effect): quiet over every role the assessment reads, if a
+  site with a separate generator data path is onboarded.
+
+#### R3.8.3 L3 — one refused night blocks later nights: fixed now, narrowly (D-R3.10)
+
+Real-site reasoning: nights are independent (each has its own lock and its own revision chain). A refusal about one
+night's stored history must not stop the checks of later nights, which are the most recent and the ones the operator
+acts on. The failure must still be visible (Site failure, `last_failure_stage`, back-off capped at 16 min,
+`tick.py:91-92`, `:132-133`). `CLOCK_BACKWARDS` is the only per-night refusal the scheduler can meet (a window recorded
+at an instant later than DB now: a DB clock step back or failover, or a tool that assessed at a future virtual instant).
+`WINDOW_INVALID` cannot come from scheduler-computed nights and stays a defect that fails at once.
+
+**`run_site` (`fuel_balance/scheduled.py`).** Import `CLOCK_BACKWARDS` from `model`. Before the loop add
+`refused_nights: list[tuple[date, FuelBalanceRefused]] = []`. In the `except FuelBalanceRefused as refused:` block,
+after the `ASSETS_UNSUPPORTED` branch and before the bare `raise`:
+
+```python
+            if refused.code == CLOCK_BACKWARDS:  # D-R3.10: this night only; later nights still run
+                nights.append({"night_date": night.isoformat(), "assess": "REFUSED", "revision": None,
+                               "state": None, "raise": None})
+                refused_nights.append((night, refused))
+                continue
+```
+
+After the loop, before building the return dict (so it also applies after an `ASSETS_UNSUPPORTED` break):
+
+```python
+    if refused_nights:
+        raise FuelBalanceRefused(CLOCK_BACKWARDS, f"{len(refused_nights)} night(s) refused "
+                                 f"({', '.join(d.isoformat() for d, _ in refused_nights)}); first: "
+                                 f"{refused_nights[0][1].detail}")
+```
+
+A refused night counts toward `limit` (it used an assess call). The raise keeps the stage contract unchanged
+(`stages.classify` gives `FAILED`; the error holds the code), while every later night's assess and raise are already
+committed in their own transactions. Any other refusal (`WINDOW_INVALID`) still raises at once, unchanged.
+
+**No-DB test (`backend/tests/test_own_g2_fuel_night_stage.py`).** Import `WINDOW_INVALID` beside `CLOCK_BACKWARDS`.
+Replace `test_clock_backwards_raises_and_the_stage_fails_with_the_code` with:
+
+```python
+def test_clock_backwards_on_one_night_still_checks_later_nights_then_fails_the_stage() -> None:
+    """D-R3.10. Fails on the old re-raise (L is never assessed) and on swallowing the refusal (no raise)."""
+    store = FakeStore(inputs(seen(PREV, L)), {PREV: FuelBalanceRefused(CLOCK_BACKWARDS, "before revision 1")})
+    findings = FakeFindings()
+    with pytest.raises(FuelBalanceRefused) as refused:
+        run_site(store, findings, "t", "s", 10, None)
+    assert [c[1] for c in store.calls if c[0] == "assess"] == [PREV, L] and findings.calls == [L]
+    assert refused.value.code == CLOCK_BACKWARDS and PREV.isoformat() in str(refused.value)
+    assert stages.classify(refused.value) == "FAILED" and CLOCK_BACKWARDS in str(refused.value)
+
+
+def test_any_other_refusal_still_fails_at_once() -> None:
+    store = FakeStore(inputs(seen(PREV, L)), {PREV: FuelBalanceRefused(WINDOW_INVALID, "bad window")})
+    with pytest.raises(FuelBalanceRefused) as refused:
+        run_site(store, FakeFindings(), "t", "s", 10, None)
+    assert refused.value.code == WINDOW_INVALID and [c[1] for c in store.calls if c[0] == "assess"] == [PREV]
+```
+
+§2.4 `run_site` step 2.1 now reads, in effect: `WINDOW_OPEN` skip; `ASSETS_UNSUPPORTED` stop as ineligible;
+`CLOCK_BACKWARDS` record the night as `REFUSED`, continue, and fail the stage after the loop; any other refusal raise.
+
+#### R3.8.4 Merge condition (replaces R3.6 items 1-2; items 3-5 stand)
+
+1. `test_own_g2_fuel_night_tick_postgres.py` whole file under R3.2: **6 passed** (Q1/Q12, P1/P2/P3/P6/P7, P4a, P4b/c,
+   P5, P5b), by the builder and again by the reviewer; the packet records the runtime and the `G2 ...` lines incl. P5b's.
+2. The R3.6 item 2 no-DB set is green, including `test_5b_...` and the two stage tests above.
+3. R3.6 item 3 needs no rerun (no stage, tick or limits file changes). The R3.4 confirming run on main is done
+   (`review-G2.md` run 3) and stands.
+4. A fresh Claude re-review of this fix round (M1, L3, the tests), then `--no-ff` merge and check-all on main, as R1.3
+   says.
+
+**D-R3.8 (for owner review).** A correction that moves a fuel record out of a night (wrong date, tank or kind) now
+re-checks that night up to 31 days back, so an unexplained-fuel Finding never stays open on data that was corrected.
+It reuses two reads the check already makes: no new query, table or migration. Cost: about 15 lines, one no-DB case
+and one Postgres case (+2-4 min on the G2 run).
+
+**D-R3.9 (for owner review).** Not changed now: a night may be checked before late generator readings arrive. It is
+safe because missing generator data makes the night "not assessed", never "unexplained", and the night is re-checked
+for 7 nights. Revisit only if a site sends generator data on a separate link.
+
+**D-R3.10 (for owner review).** A problem with one night's stored history (a clock that moved backwards) no longer stops
+the checks of later nights; the Site still shows the failure in health. Cost: about 10 lines and two no-DB tests.
