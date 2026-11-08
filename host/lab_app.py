@@ -33,11 +33,13 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from assetops_backend import perf
-from assetops_backend.config import FeatureFlags, database_url, load_feature_flags
+from assetops_backend.config import ConfigurationError, FeatureFlags, database_url, load_feature_flags
 from assetops_backend.main import create_app
+from assetops_backend.work.operational_entry import ENTRY_PRINCIPAL
+from assetops_backend.work_api import Principal
 from assetops_backend.runs.registered_release import publisher_for
 from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.sites.composition import build_foundation_store
@@ -54,6 +56,8 @@ from assetops_gateway.ipc import GatewayLink
 #: Unset means no gateway, and registered runs then stage nothing - fail closed.
 GATEWAY_ADDRESS_ENV = "ASSETOPS_GATEWAY_ADDRESS"
 GATEWAY_CREDENTIAL_ENV = "ASSETOPS_GATEWAY_CREDENTIAL"
+#: OWN-G3a (build sheet OWN-GAPS §3.1): the server switch for saving operational records from the screen.
+OPERATIONAL_ENTRY_ENV = "ASSETOPS_OPERATIONAL_ENTRY"
 
 
 def gateway_from_environment() -> RegisteredGatewayPublisher | None:
@@ -64,6 +68,23 @@ def gateway_from_environment() -> RegisteredGatewayPublisher | None:
     return RegisteredGatewayPublisher(GatewayLink(address, Path(credential)))
 
 
+def operational_entry_principal(request: Request, site_code: str) -> str:
+    """OWN-G3a §3.1: the server-configured entry service that writes records typed on screen ("Entered by site
+    admin"). It names the entry point's role, never a person; the browser never sends an actor."""
+    return ENTRY_PRINCIPAL
+
+
+def operational_entry_from_environment() -> Principal | None:
+    """OWN-G3a §3.2 / R2-G3a 6: `ASSETOPS_OPERATIONAL_ENTRY=on` switches the entry route on; unset or empty leaves it
+    off (403); any other value refuses startup."""
+    value = os.environ.get(OPERATIONAL_ENTRY_ENV)
+    if not value:
+        return None
+    if value != "on":
+        raise ConfigurationError("ASSETOPS_OPERATIONAL_ENTRY must be 'on' or unset")
+    return operational_entry_principal
+
+
 def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI:
     """The product application with an execution port behind the gated Lab.
 
@@ -71,6 +92,9 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     the stores exactly as it does against the product entry point and gets the
     real kernel behind them.
     """
+    entry = operational_entry_from_environment()  # OWN-G3a: refuses startup before anything is built
+    if entry is not None:
+        overrides.setdefault("operational_entry_principal", entry)
     perf.enable_log()  # CH0-R: QW-1's request lines and the tick line reach the serve log (idempotent)
     resolved = load_feature_flags() if flags is None else flags
     execution = None

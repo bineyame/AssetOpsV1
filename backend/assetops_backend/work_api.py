@@ -8,6 +8,8 @@ Under `/api/sites/{site_code}/work` (Lane A mount in `main.py`):
 - `POST /cases/{case_id}/records` - performed activity on a request (`maintenance-record-1`, outcome UNVERIFIED).
 - `POST /plans` - an immutable DRAFT plan or its correction successor (`maintenance-plan-1`).
 - `POST /operational-records` - an authored SUBMITTED record or its correction (`operational-record-1`).
+- `POST /operational-entries` - OWN-G3a: a screen entry composed by the server into an operational record under the
+  separately injected entry principal `service:operator-entry` (`work/operational_entry.py`).
 - `GET /cases/{case_id}?known_at=` - the B3 `work-case-detail-1` read at one cutoff (Run 3 ruling 8).
 - `GET /incidents`, `GET /maintenance` `?from=&to=&known_at=&limit=&cursor=` - the commit-4 `site-work-index-1`
   lists (q7-5: two literal paths mounted before `/cases/{case_id}`, no `{kind}` catch-all). Every list refusal is
@@ -37,6 +39,7 @@ from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from assetops_backend.work.detail import WorkDetailService
 from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
+from assetops_backend.work.operational_entry import compose_entry, validate_entry
 from assetops_backend.work.service import WorkService
 from assetops_backend.work.site_index import WorkIndexService, parse_list_request
 
@@ -46,6 +49,9 @@ W401_FIXTURE_SERVICE_PRINCIPAL_ID = "service:w401-fixture"
 
 # (request, site_code) -> the authenticated server SERVICE principal ID, or None when there is none.
 Principal = Callable[[Request, str], "str | None"]
+# OWN-G3a: (tenant_id, site_id) -> (the Site's time zone, its one active fuel tank ID or None). A store outage raises
+# `WorkStoreUnavailable` (composed in `main.py`, R2-G3a 2).
+SiteContext = Callable[[UUID, UUID], "tuple[str, str | None]"]
 
 _NOT_JSON = object()  # a body that is not JSON reaches the service as a non-object (422 after the write gate)
 
@@ -101,7 +107,8 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
                       access: Access = development_access, command_access: Access = development_access,
                       principal: Principal = no_service_principal,
                       details: WorkDetailService | None = None, lists: WorkIndexService | None = None,
-                      access_basis: str = ACCESS_BASIS) -> APIRouter:
+                      access_basis: str = ACCESS_BASIS, entry_principal: Principal = no_service_principal,
+                      site_context: SiteContext | None = None) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
     gate = WorkGate(scope, unavailable, access, command_access, principal)
@@ -187,6 +194,26 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
         tenant_id, site_id, who = open_scope(request, site_code)
         body = await body_of(request)
         return run(lambda: service.post_operational_record(tenant_id, site_id, body, who))
+
+    @router.post("/api/sites/{site_code}/work/operational-entries")
+    async def post_operational_entry(request: Request, site_code: str) -> JSONResponse:
+        """OWN-G3a (build sheet OWN-GAPS §3.2, R2-G3a 1): read access, Site 404, write grant (the shared gate),
+        then the entry principal 403, store 503, entry shape 422, the Site's tank and time zone, then the service.
+        The browser sends no actor; the server composes it (`work/operational_entry.py`)."""
+        tenant_id, site_id, _, _ = gate.open_scope(request, site_code, True)
+        who = entry_principal(request, site_code)
+        if who is None:
+            raise _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
+        if service is None or site_context is None:
+            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+        body = await body_of(request)
+
+        def work() -> tuple[int, dict[str, Any]]:
+            validate_entry(body)
+            zone, tank_id = site_context(tenant_id, site_id)
+            return service.post_operational_record(tenant_id, site_id, compose_entry(body, zone, tank_id), who)
+
+        return run(work)
 
     @router.get("/api/sites/{site_code}/work/cases/{case_id}")
     async def case_detail(request: Request, site_code: str, case_id: str) -> JSONResponse:

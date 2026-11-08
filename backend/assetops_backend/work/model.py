@@ -63,6 +63,10 @@ MESSAGES = {
     "WORK_RECORD_QUANTITY_INVALID": "A fuel delivery needs a volume above 0 L, and a tank dip a volume of 0 L or more, "
                                     "in L.",
     "WORK_RECORD_TICKET_REQUIRED": "A fuel delivery needs the SHA-256 of its delivery ticket.",
+    # OWN-G3a (build sheet OWN-GAPS §3.2, R2-G3a 5): the operational entry route's own shape refusals.
+    "OPREC_ENTRY_INVALID": "The entry, value, time taken, ticket reference or key is not valid.",
+    "OPREC_ENTRY_TICKET_REQUIRED": "A fuel delivery needs its ticket reference.",
+    "OPREC_ENTRY_NO_TANK": "This Site has no single fuel tank to record against.",
 }
 STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CASE_NOT_FOUND": 404,
           "WORK_EVENT_DUPLICATE_KEY": 409, "WORK_TRANSITION_INVALID": 409, "WORK_OUTCOME_NOT_SUPPORTED": 409,
@@ -71,7 +75,8 @@ STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CAS
           "WORK_STORE_UNAVAILABLE": 503, "INVALID_KNOWN_AT": 422, "INVALID_WINDOW": 422, "INVALID_LIMIT": 422,
           "INVALID_CURSOR": 422, "WORK_BASIS_CHANGED": 409,
           "WORK_RECORD_ASSET_REQUIRED": 422, "WORK_RECORD_ASSET_NOT_ALLOWED": 422, "WORK_RECORD_ASSET_NOT_TANK": 422,
-          "WORK_RECORD_QUANTITY_INVALID": 422, "WORK_RECORD_TICKET_REQUIRED": 422}
+          "WORK_RECORD_QUANTITY_INVALID": 422, "WORK_RECORD_TICKET_REQUIRED": 422,
+          "OPREC_ENTRY_INVALID": 422, "OPREC_ENTRY_TICKET_REQUIRED": 422, "OPREC_ENTRY_NO_TANK": 422}
 
 
 class WorkRefused(Exception):

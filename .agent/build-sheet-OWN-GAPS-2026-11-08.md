@@ -1286,3 +1286,114 @@ excluded from "product".
 | A long gap costs catch-up time (about 20 min per date) | Demo artefact (the simulator) | If more than about 7 dates are missing, prepare fresh (about 2.5 h) instead |
 | EV data only on Tuesdays | Simulator pin (E) | Printed by the tool. After the demo: `ev-scenario/2` |
 | Host-vs-database clock skew (Part F) | Environment | The clock check before E2, E3 and each E4-lite |
+
+---
+
+## Revision 3 — G2 test rulings (2026-11-08)
+
+Claude Architect (binding: Claude, `AssetOpsV1-plan2/.ai/ROLE_CONFIG.md:9`). Read-only; no Postgres run. Inputs: branch
+`task/OWN-G2-diesel-night-check` at `a5a5ffaf0` (worktree `AssetOpsV1-g2`), its `.agent/review-packet-G2.md`
+(Deviations 1-6) and `backend/tests/test_own_g2_fuel_night_tick_postgres.py`. **This revision wins over R2-G2 Q5 and
+§2.6/§2.7 where they differ.** The builder makes no further decision on the items below.
+
+### R3.1 Fixture: keep K1's real path and all four runs; no shortcut
+
+- **Ruled: the fixture stays exactly as written at `a5a5ffaf0`** (K1's path: `kis.register`, `day_document` runs, a real
+  gateway, `_publish_and_accept` into S2 `BatchIngestionService`; `OFFSETS = (0, 1, 2, 9)`), plus the `received_at`
+  fix already made (Deviation 2).
+- **Rejected: readings straight into `BatchIngestionService` without the gateway.** No Kisiwa batch builder exists
+  (the w402 `cases.build_batches` precedent is mini-grid only), so the builder would have to design batch bytes, and the
+  readings would stop being the story-shaped ones P6 and KIS-11 depend on. That lowers fidelity; the owner said not to.
+- **Rejected: night-only runs.** `day_document` is a fixed 15:00-15:00 day; changing it is design work for about a 20 %
+  saving.
+- **Rejected: dropping a run.** Each run carries a distinct proof (N0: P1, P4a, P7, Q1; N1: P1, P4b/c on a
+  WITHIN_MARGIN night; N2: P6's pre-assessed night; N9: P5 outside the base set). Merging them couples P4a and P4b on
+  one night's records.
+- Measured reference: `host/tests/test_k4a_kisiwa_night4.py` (one Kisiwa night on the same path) took 348 s
+  (`review-packet-K4a.md:124`), so four runs plus ticks is about 20-25 min. That is the expected cost, not a defect.
+
+### R3.2 The cap: this file is one background heavy job with a 45-minute budget
+
+- The 10-minute figure is the per-command tool limit, not a limit on a test file (precedents: the estate guard
+  self-tests, about 20 min, `review-CH-5b2.md:77`; T6 at 15-25 min in E2, combined pass F.3). It does not apply here.
+- **Run the file whole, in one process, in file order**: no `-k` split and no `-n` (its tests share the module fixture
+  and run in order: P1/P6/P7 tick, then P4a, P4b/c, P5). Under the container runner's `--dist loadfile` the module stays
+  on one worker, so the full-suite tiers are safe.
+- **How:** `run_in_background`, as the only heavy job on the machine (not while check-all or any other Postgres run is
+  going), on its own `*_test` DB, with `-s` so the `G2 ...` print lines land in the log.
+- **Budget: 45 minutes hard** (about 2x the estimate, per the long-run rule). **Stall rule:** check every 5 min with
+  `SELECT count(*) FROM ingestion_disposition` on that DB (cheap, read-only) until the fixture ends; if the count does
+  not move for 10 min during the fixture, or the budget is reached, kill the run and report. Do not retry blindly.
+- **Marker:** add `pytest.mark.slow` to the module's `pytestmark` (a list beside the existing `skipif`), as R2-G2 Q5
+  ruled for over 120 s. Add the measured runtime to the module docstring.
+- The reviewer reruns it the same way, as its one heavy job. E2 runs it as its own named item (about 25 min, inside
+  the 08:00-10:45 E2 window; R1.3 already counts it).
+
+### R3.3 Fixture deviations (packet Deviations 3 and 4): all accepted
+
+1. **15:00-15:00 local day runs ending at the latest local 15:00 at or before DB now - 15 min, and 1, 2 and 9 days
+   before it.** Accepted. Each run holds exactly one whole night (17:30 to 12:30 sits inside 15:00 to 15:00), and the
+   ticks' L can move by at most one night during a 25-min run, which keeps N0-N2 in the base set and N9 out of it.
+2. **P5's old night at 9 nights, not 10.** Accepted. The requirement is "outside the base set `[L - 6, L]`, inside
+   `RECORD_LOOKBACK`"; 9 nights meets it, and `_night(fuel, n[9]) is None` after tick 1 proves "outside".
+3. **Only `fuel_night` as a real `StageRunner` child; the other stages in process.** Accepted. G2 changes only the
+   `fuel_night` child path (its args, `deadline_at`, JSON result); the other stages' child paths are unchanged and
+   covered by the s4 tick tests. "Real `StageRunner` children" in R2-G2 Q5 means the stage under test.
+4. **Q1 edges at the real 5-minute readings 17:25 / 17:30 / 12:25 / 12:30.** Accepted. The SQL bounds are bound from
+   `bucket_bounds()` (one source), and the inclusive/exclusive edges are exactly 17:30 (in) and 12:30 (out), both real
+   readings in the set. The minute-exact 17:29 / 12:29 proof stays in no-DB case 1 on `night_of`. Keep the assert that
+   all four edge times are present.
+5. **Q12 with a Site id that has no FUEL_TANK or GENERATOR rows (an unknown id).** Accepted. `schedule_inputs` takes the
+   same early return for any Site without exactly one tank and one generator. The real Cold and EV Sites are proven on
+   the real build at E4 (`eligible: false` for Cold/EV, R1.3).
+
+### R3.4 `test_fix_cold_drain_tick_postgres.py` p1/p2/p3: the pre-existing replay-fixture failure family
+
+**Ruled: the same failure family as R-1 T6 / w203 (combined pass Part F), not caused by G2, not a G2 blocker. Tracked
+into E2's reserved fix round.** Evidence:
+
+- **Where they fail.** All three fail inside the replay fixtures, before the tick and before any line G2 changed: p1 at
+  `assert jobs` (`test_fix_cold_drain_tick_postgres.py:101`, no PENDING `cold_chain` job after `opened("excursion",
+  cold_chain)`); p2 at the EV replay's Lab run `FAILED`; p3 at an unpack of the cold fixture's rows. G2's only edits to
+  this file are the two stage-list pins (`:106-108`, `:199-201`).
+- **Same factories as T6.** p1-p3 build their data with `test_w203_cold_replay_postgres.opened` and
+  `test_w301_estate_golden_postgres.cold_chain` / `ev_chain`. Those are exactly the factories of the w301 golden
+  replays that failed on main at R-1 (`733eaf75c`, an ancestor of G2's base `1d666d410`) with "cold `run_pending` -> []"
+  and "a Lab run FAILED" (Part F.1). Neither w203 nor w301 imports `scheduling` or `fuel_balance` (grep: no match), so
+  no G2 module runs in these fixtures.
+- **Clock skew is ruled out** (DB clock checked, not skewed; coordinator handoff line 30). With no skew, Part F.1's
+  branch applies: a real fixture failure that goes to E2's fix round. p1 failing at `assert jobs` (no job at all, not a
+  job that is merely not yet due) fits a replay that never reaches the job, the same as T6's empty `run_pending`.
+- **G2's own pin is still proven on Postgres:** p4 (`test_p4_mini_only_site_...`, the full stage list including
+  `fuel_night`) passed, and `test_w402_mini_stage_postgres.py` passed.
+
+**What the builder and reviewer do:**
+- Builder: no further change to this file. The packet lists p1-p3 as "pre-existing, replay-fixture family (R-1 T6 /
+  w203, Part F), tracked to E2" with the three failure lines.
+- **One confirming run, required before merge (about 2 min, in the reviewer's heavy-job slot, after the G2 file):**
+  `test_fix_cold_drain_tick_postgres.py::test_p1_one_tick_assesses_and_drains_cold_work` alone on the **main**
+  checkout (`AssetOpsV1-plan2`, main HEAD, own `*_test` DB, only when no other heavy job runs). If it fails at the same
+  line on main, the ruling stands. **If it passes on main, G2 caused it: that is a High finding and G2 does not merge.**
+- E2's reserved fix round gains the item "cold_drain p1-p3 replay fixtures" beside "w203/w202 cold replay fails with no
+  skew" (Part F.3), under the same test-side-only rule; a product change there stops and goes to the Architect.
+
+### R3.5 `test_ch1b_drain.py` (§2.6 pin file)
+
+- It needs no edit by reading: its tick tests use `test_ch0_tick_timing.FakeRunner`, which G2 already updated and which
+  returns an OK result for any stage, and its lease assert is relative (`site_lease_seconds + 30`,
+  `test_ch1b_drain.py:400`), so the added `fuel_night_seconds` does not move it.
+- **Builder runs it** (no DB, seconds) with the no-DB set. If it passes unchanged, the packet says "run, passed, no edit
+  needed". If any test fails, edit only a stage-list or lease pin, exactly as in the other pin files; any other failure
+  stops and goes to the Architect.
+
+### R3.6 G2 merge condition (all must hold)
+
+1. `test_own_g2_fuel_night_tick_postgres.py` completes under R3.2 with **every test passing** (Q1/Q12, P1/P2/P3/P6/P7,
+   P4a, P4b/c, P5), by the builder and again by the reviewer; the packet records the runtime and the `G2 ...` lines.
+2. The no-DB set is green: the three G2 files, the pin files (`test_ch0_tick_timing.py`, `test_ch1b_drain.py`,
+   `test_fix_cold_drain_stage.py`, `test_w402_mini_stage.py`, `test_w403_opportunity_stage.py`), the k3 and k4a rules
+   files and `test_demo_combined_finish_rows.py`.
+3. `test_w402_mini_stage_postgres.py` and `test_fix_cold_drain_tick_postgres.py::test_p4_...` pass (already shown at
+   `a5a5ffaf0`; rerun only if a stage, tick or limits file changes again).
+4. The R3.4 confirming run on main fails at the same line (pre-existing). p1-p3 are then listed, not counted.
+5. A fresh Opus review with no open High or Medium finding; then `--no-ff` merge and check-all on main, as R1.3 says.

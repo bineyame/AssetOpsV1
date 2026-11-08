@@ -90,6 +90,7 @@ from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_ac
                                                build_domain_intent_service, build_global_work_detail_service,
                                                build_global_work_index_service, build_work_detail_service,
                                                build_work_index_service, build_work_service)
+from assetops_backend.work.operational_entry import entry_site_context
 from assetops_backend.work_api import Principal, WorkGate, build_work_router, no_service_principal
 from assetops_backend.domain_work_api import build_domain_work_router
 from assetops_backend.global_work_api import build_global_work_router
@@ -241,6 +242,7 @@ def create_app(
     mini_decision_principal: DecisionPrincipalResolver = no_decision_principal,
     domain_work_principal: Principal = no_service_principal,
     site_read_access: Access = development_access,
+    operational_entry_principal: Principal = no_service_principal,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -556,8 +558,10 @@ def create_app(
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
     # DIESEL-K5 (DIESEL-1-R3l): the fuel-balance nights, the fuel Finding page and the Site's fuel checks; typed 503
     # without a database. Stores come from their compositions; the read only reads.
-    fuel_nights = (FuelNightRead(store=build_fuel_balance_store(database_url()), link_rows=build_link_rows_reader())
-                   if database_url() else None)
+    # OWN-G3a (R2-G3a 2): the one fuel-balance store also answers the operational entry route's Site context.
+    fuel_store = build_fuel_balance_store(database_url()) if database_url() else None
+    fuel_nights = (FuelNightRead(store=fuel_store, link_rows=build_link_rows_reader())
+                   if fuel_store is not None else None)
     if fuel_nights is not None:
         app.router.on_shutdown.append(fuel_nights.dispose)
     app.include_router(build_fuel_balance_router(fuel_nights, registry.ledger_scope))
@@ -606,7 +610,11 @@ def create_app(
     app.include_router(build_work_router(
         build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
         details=build_work_detail_service(database_url()) if database_url() else None,
-        lists=work_lists, access=site_read_access))
+        lists=work_lists, access=site_read_access,
+        # OWN-G3a (build sheet OWN-GAPS §3.1-§3.2): the entry route's principal is injected only by `host/lab_app.py`
+        # when ASSETOPS_OPERATIONAL_ENTRY=on; by default none, so an entry is 403.
+        entry_principal=operational_entry_principal,
+        site_context=entry_site_context(fuel_store.night_context) if fuel_store is not None else None))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(
