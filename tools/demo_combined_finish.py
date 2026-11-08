@@ -1477,6 +1477,25 @@ def kis_9(ctx: Ctx) -> dict:
         runs=k["runs"], windows=k["windows"], finding=_kisiwa_finding(ctx, k), action=_kisiwa_action(ctx, k))}
 
 
+@row("KIS-11")
+def kis_11(ctx: Ctx) -> dict:
+    """KIS-11 (OWN-GAPS §2.5, R2-G2 Q9 d): the automatic diesel-night check. The last tick report
+    (`<work>/last-tick.json`, written by `Demo.tick`) has KISIWA-001's `fuel_night` entry OK and eligible; every story
+    night's latest window is still revision 1; Kisiwa has exactly one fuel Finding; KOBO-001 has no
+    `fuel_balance_window` row (`demo_rows.kis11`). A dataset without Kisiwa fails the row (`KisiwaMissing`)."""
+    k = _kisiwa_read(ctx)
+    if k is None:
+        raise KisiwaMissing()
+    path = ctx.work / "last-tick.json"
+    report = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    findings = _kisiwa_sql(ctx, "SELECT count(DISTINCT finding_id) AS n FROM finding_revision WHERE site_id = %s "
+                                "AND domain = 'fuel_balance'", k["site_id"])[0]["n"]
+    kobo = _kisiwa_sql(ctx, "SELECT count(*) AS n FROM fuel_balance_window w JOIN site s ON s.id = w.site_id "
+                            "WHERE s.site_code_key = lower(%s)", "KOBO-001")[0]["n"]
+    return {"kisiwa": "present", **demo_rows.kis11(report, {n: w["revision"] for n, w in k["windows"].items()},
+                                                  findings, kobo)}
+
+
 # ---- DIESEL-K9 (build sheet §8.7 KIS-8, H4): the wording half of KIS-8 -------------------------------------------------
 
 @row("KIS-8")
