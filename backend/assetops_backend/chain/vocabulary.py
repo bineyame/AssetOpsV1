@@ -5,7 +5,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, InvalidOperation
+from fractions import Fraction
 from typing import Any, Mapping, Sequence
 
 from assetops_backend.mini_decisions.scenario_rules import decimal_text
@@ -105,6 +106,13 @@ COUNT_TEXT = {
 COUNT_ZERO = {"count.sites_disrupted": "No sites disrupted"}
 #: B7 / R2: the source classes whose verified result is worded "on example data".
 EXAMPLE_SOURCES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
+#: FUEL-1 A3-R: the declared idle (no-load) fuel rate's basis in client words; guard V refuses "no-load" and "load".
+#: None = a rate whose basis is not stored (the trial row's basis differs between hours, or is missing).
+NO_LOAD_BASIS_WORDS = {"GENERIC_DEFAULT": "a generic idle fuel rate", "MANUFACTURER_DATASHEET": "the datasheet idle fuel rate",
+                       "SITE_TEST": "the site-tested idle fuel rate", None: "a declared idle fuel rate"}
+#: FUEL-1 A3-R G3: the trial verification page's money line (MOCK DEVIATION MD-FUEL-A3-1).
+FUEL_VALUE_PAGE = ("About {l} L less diesel in the trial hour, about {amount} at {p} {cur} per litre · modelled from "
+                   "{basis}, not measured by a fuel meter")
 
 
 def provenance_suffix(source_state: str | None) -> str:
@@ -188,6 +196,10 @@ WHY_TEXT = {
     "why.from.price_several": "{kwh} kWh at {n} declared prices over these days",
     "why.from.fuel_price": "{lo}–{hi} L × {price} {cur}/L",
     "why.from.fuel_price_one": "{lo} L × {price} {cur}/L",
+    # FUEL-1 A3-R G5, MOCK DEVIATION MD-FUEL-A3-3: the mock's "Why?" has no idle-fuel line. True for the simulator's
+    # linear tank law (no idle fuel); if the after-demo 'simulator idle law' item lands, remove or re-gate this line.
+    "why.from.fuel_idle_example": "The example data's fuel tank does not count fuel while the generator idles; this "
+                                  "estimate does, at the declared idle fuel rate, so the two differ",
     # MOCK DEVIATION (CH5b2-R Q7): the mock always has 2-4 lines; a trace with none says so.
     "why.from.none": "Nothing has been recorded for this yet",
     "why.change.days": "Checking {n} more day{s}",
@@ -311,6 +323,22 @@ def money2(value: Any) -> str:
     q = abs(d).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
     text = f"{q:f}"
     return f"-{text}" if d < 0 and q != 0 else text
+
+
+def trial_litres(value: Any) -> str:
+    """FUEL-1 A3-R §2.4: a trial's litres to one place, exact half even (PV-1-R §3's expression, moved verbatim)."""
+    return f"{Decimal(round(Fraction(str(value)) * 10)) / 10:.1f}"
+
+
+def price_text(value: Any) -> str | None:
+    """B2 review L6: a declared price for display: two decimal places, more only when the stored value has them.
+    FUEL-1 A3-R §2.4: moved verbatim from `site_outcomes/mini.py` (which keeps the name by import)."""
+    try:
+        d = Decimal(str(value))
+    except InvalidOperation:
+        return None
+    cents = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return f"{cents:f}" if cents == d else f"{d.normalize():f}"
 
 
 def money_text(low: Any, high: Any = None, currency: str | None = None) -> str | None:

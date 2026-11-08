@@ -103,10 +103,16 @@ class DomainIntentService:
                                                normalized["origin_finding_revision_id"])
                 if revision is None or revision["domain"] != spec.finding_domain:
                     raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
-                pin = tx.selected_pin(revision)
-                if pin is None or (spec.domain == d.EV_DOMAIN
-                                   and selected_ev_finding(tx, pin, revision["id"]) is None):
-                    raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+                if spec.domain == d.FUEL_DOMAIN:
+                    # DIESEL-1-R3m: a fuel Finding has no analytic selection to pin; its selected revision is its
+                    # latest as known, when SUPPORTED (K4a lifecycle).
+                    if not tx.fuel_finding_selected(revision["finding_id"], revision["id"]):
+                        raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
+                else:
+                    pin = tx.selected_pin(revision)
+                    if pin is None or (spec.domain == d.EV_DOMAIN
+                                       and selected_ev_finding(tx, pin, revision["id"]) is None):
+                        raise spec.refuse("DOMAIN_INTENT_LINK_INVALID")
                 origin = {k: normalized[k] for k in ("origin_finding_id", "origin_finding_revision_id")}
             number = tx.next_action_no()
             row = {"id": self._id(), "action_no": number, "action_code": f"ACT-{number:06d}",

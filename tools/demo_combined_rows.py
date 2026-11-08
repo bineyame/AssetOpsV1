@@ -369,6 +369,67 @@ def pv_values(summary: dict, page: dict, code: str, trial_code: str, trial_cost_
             "sums_checked": len(sums)}
 
 
+def kis4(windows: dict, findings: list[dict], consequences: list[dict], prices: dict,
+         dispatch_consequences: list[dict], served: list[str] = ()) -> dict:
+    """KIS-4 (DIESEL-1-R3j §9j.9): the unexplained-fuel money of Kisiwa's stored fuel Findings.
+
+    `windows`: window id -> its stored row (`residual_low`/`residual_high` exact text); `findings`: each fuel Finding's
+    latest revision (`finding_id`, `revision_id`, `lifecycle`, `window_id`); `consequences`: the stored
+    `fuel_residual_consequence_revision` rows; `prices`: window id -> a re-run of `select_window_price` at
+    `known_at = window_end` (`state`, `revision_id`, `value`); `dispatch_consequences`: the Site's
+    `financial_consequence_revision` rows (`finding_id`, `amount_low`, `amount_high`); `served`: served strings.
+
+    - every SUPPORTED fuel Finding revision has one consequence whose litres equal its cited window's band exactly;
+    - PRICED amounts equal litres x the stored price value exactly, and the stored price revision equals the re-run;
+    - no `financial_consequence_revision` row has a fuel Finding's id;
+    - no stored or served amount equals (two places) the sum of a fuel amount with any dispatch `amount_high`, or of
+      two fuel amounts (never added)."""
+    from fractions import Fraction
+
+    from assetops_backend.actions.verification_rules import parse_exact
+
+    by_revision = {str(c["finding_revision_id"]): c for c in consequences}
+    supported = [f for f in findings if f["lifecycle"] == "SUPPORTED"]
+    assert supported, ("no SUPPORTED Kisiwa fuel Finding", findings)
+    fuel_amounts: list[Fraction] = []
+    for f in supported:
+        c = by_revision.get(str(f["revision_id"]))
+        assert c is not None, ("a SUPPORTED fuel Finding revision has no consequence", f)
+        w = windows[str(f["window_id"])]
+        assert str(c["fuel_balance_window_id"]) == str(f["window_id"]), ("consequence cites another window", c, f)
+        lo, hi = parse_exact(w["residual_low"]), parse_exact(w["residual_high"])
+        assert (parse_exact(c["litres_low"]), parse_exact(c["litres_high"])) == (lo, hi), ("litres", c, w)
+        if c["state"] == "PRICED":
+            value = Fraction(str(c["price_value"]))
+            assert parse_exact(c["amount_low"]) == lo * value and parse_exact(c["amount_high"]) == hi * value, (
+                "amounts are not litres x price", c)
+            again = prices[str(f["window_id"])]
+            assert (again["state"], str(again["revision_id"]), Fraction(str(again["value"]))) == (
+                "PRICED", str(c["price_revision_id"]), value), ("price re-run differs", again, c)
+            fuel_amounts += [parse_exact(c["amount_low"]), parse_exact(c["amount_high"])]
+        else:
+            assert c["amount_low"] is None and c["amount_high"] is None, ("UNPRICED with an amount", c)
+    fuel_ids = {str(f["finding_id"]) for f in findings}
+    cited = sorted({str(d["finding_id"]) for d in dispatch_consequences} & fuel_ids)
+    assert not cited, ("a financial_consequence_revision row cites a fuel Finding", cited)
+
+    def two(x) -> str:
+        return f"{Decimal(round(Fraction(x) * 100)) / 100:.2f}"
+
+    # a zero operand is no addition (dispatch PRICED-0 days store amount_high 0), so it never makes a sum
+    dispatch_high = [x for x in (parse_exact(d["amount_high"]) for d in dispatch_consequences
+                                 if d.get("amount_high") is not None) if x]
+    operands = [a for a in fuel_amounts if a]
+    sums = {two(a + b) for a in operands for b in dispatch_high}
+    sums |= {two(a + b) for i, a in enumerate(operands) for b in operands[i + 1:]}
+    stored = {two(x) for x in fuel_amounts + dispatch_high}
+    stored |= {two(parse_exact(d["amount_low"])) for d in dispatch_consequences if d.get("amount_low") is not None}
+    held = sorted((sums & stored) | {s for s in sums for text in served if s in text})
+    assert not held, ("a stored or served amount is a sum", held)
+    return {"supported": len(supported), "priced": sum(c["state"] == "PRICED" for c in consequences),
+            "sums_checked": len(sums), "served_strings": len(served)}
+
+
 def action_ref_kind(action: dict) -> str | None:
     ref = action.get("ref")
     return ref.get("kind") if isinstance(ref, dict) else None
@@ -593,3 +654,155 @@ def kis9(*, records: list[dict], handover: dict, calendar: dict, build: dict, ac
     assert _kis_utc(visits[0]["recorded_at"]) == _kis_utc(calendar["site_visit_recorded_at"]), ("(g) visit", visits)
     return {"records": len(records), "dips": len(dips), "placed": len(placed), "finding": str(f["finding_id"]),
             "action_case": str(action["case_id"])}
+
+
+# ---- FUEL-1 A3 (A3-R §3.9): idle fuel on Kobo, written now, run at E3 ------------------------------------------------
+
+#: A3-R S-c: the probe's idle seconds (200 min per idle morning; 12 slots of the trial's baseline hour). A difference is
+#: a data finding, never a retune.
+IDLE_MORNING_SECONDS, TRIAL_BASELINE_IDLE_SECONDS = 12000, 3600
+
+
+def _declared_rate() -> Decimal:
+    """The Kobo declaration's own value (`demo_combined_kobo.NO_LOAD`), never retyped here."""
+    from demo_combined_kobo import NO_LOAD
+
+    return Decimal(str(next(p["value"] for p in NO_LOAD if p["property_key"] == "generator-no-load-fuel-rate")))
+
+
+def idle_morning(day: str, stored: dict, cost_row: dict) -> dict:
+    """A3-R §3.9 MONEY-B (O16): one idle morning. `stored` is the day's head consequence row (SQL column names);
+    `cost_row` is that day's board OPTIMIZE_COST row. The row is fuel-cost-2 PRICED, idle-only and exact, its idle
+    seconds are the probe's, the headline is `COST_IDLE` built through the board's own helpers from the stored fields,
+    and the money prefix is the stored row's outward display (`headline_money` unchanged)."""
+    from fractions import Fraction
+
+    from assetops_backend.chain.outcomes import _litres
+    from assetops_backend.financials.consequence_read import display
+    from assetops_backend.site_outcomes.mini import idle_headline
+
+    assert stored.get("model_id") == "fuel-cost-2" and stored.get("state") == "PRICED", (day, stored)
+    idle = stored.get("idle_seconds")
+    assert idle == IDLE_MORNING_SECONDS, ("S-c: stored idle seconds", day, idle, "want", IDLE_MORNING_SECONDS)
+    rate = Decimal(str(stored["no_load_fuel_rate_l_per_h"]))
+    assert rate == _declared_rate(), (day, "stored rate", rate)
+    exact = Fraction(str(stored["sfc_upper_multiplier"])) * Fraction(idle, 3600) * Fraction(str(rate))
+    assert Fraction(str(stored["quantity_high_exact"])) == exact, ("S-c: not idle-only", day, stored, exact)
+    assert Fraction(str(stored["amount_high"])) == Fraction(str(stored["quantity_high"])) * Fraction(
+        str(stored["price_value"])), (day, "amount is not upper litres x stored price", stored)
+    want = idle_headline({"idle_seconds": idle, "rate": str(rate), "basis": stored.get("no_load_fuel_rate_basis"),
+                          "litres_high": _litres(stored["quantity_high"])})
+    assert cost_row.get("headline") == want, (day, cost_row.get("headline"), want)
+    shown = display({"state": stored["state"], "currency": stored["currency"], "amount_low": stored["amount_low"],
+                     "amount_high": stored["amount_high"]})
+    money = cost_row.get("headline_money") or {}
+    assert Decimal(str(money.get("amount_high"))) == Decimal(str(shown["amount_high"])), (day, money, shown)
+    return {"day": day, "idle_seconds": idle, "high_exact": str(stored["quantity_high_exact"]),
+            "amount_high": str(stored["amount_high"]), "shown_high": str(money.get("amount_high")),
+            "headline": cost_row.get("headline")}
+
+
+def never_summed(amounts: list[str], bodies: list[object]) -> int:
+    """A3-R §3.9: no string in `bodies` holds the sum of two (or all) mornings' amounts. `amounts` are the STORED
+    `amount_high` values (e.g. 15.125); each sum is searched half-even, half-up and rounded up, and as the sum of the
+    outward-rounded parts (15.125 x 2 -> 30.25 and 30.26; x 3 -> 45.38 and 45.39). Returns the number of combinations
+    checked (0 only when fewer than two amounts were given, which the caller asserts against)."""
+    from itertools import combinations
+
+    strings: list[str] = []
+
+    def walk(node: object) -> None:
+        if isinstance(node, str):
+            strings.append(node)
+        elif isinstance(node, dict):
+            for x in node.values():
+                walk(x)
+        elif isinstance(node, (list, tuple)):
+            for x in node:
+                walk(x)
+
+    for b in bodies:
+        walk(b)
+    from decimal import ROUND_CEILING, ROUND_HALF_EVEN, ROUND_HALF_UP
+
+    cent = Decimal("0.01")
+    combos = [combo for n in range(2, len(amounts) + 1) for combo in combinations(amounts, n)]
+    sums: set[str] = set()
+    for combo in combos:
+        exact = sum(Decimal(a) for a in combo)
+        for mode in (ROUND_HALF_EVEN, ROUND_HALF_UP, ROUND_CEILING):
+            sums.add(f"{exact.quantize(cent, rounding=mode)}")
+        # the sum of the outward-rounded (shown) parts, as code summing displayed amounts would give
+        sums.add(f"{sum(Decimal(a).quantize(cent, rounding=ROUND_CEILING) for a in combo)}")
+    hit = [(s, x) for s in sorted(sums) for x in strings if s in x]
+    assert not hit, ("a sum of mornings is shown", hit[:3])
+    return len(combos)
+
+
+def steady_day(day: str, stored: list[dict], cost_row: dict) -> dict:
+    """A3-R §3.9: a steady or steady-before day has no idle fuel: every stored head row (if any) has 0 or no idle
+    seconds, and the headline is not the idle line. The headline and money are reported as shown."""
+    from assetops_backend.site_outcomes.mini import COST_IDLE
+
+    assert all(not r.get("idle_seconds") for r in stored), (day, stored)
+    head = str(cost_row.get("headline") or "")
+    assert not head.startswith(COST_IDLE.split(":")[0] + ":"), (day, head)
+    return {"day": day, "stored_rows": len(stored), "headline": cost_row.get("headline"),
+            "money": cost_row.get("headline_money")}
+
+
+def trial_cost(cc: dict, result: dict) -> dict:
+    """A3-R §3.9 PROBE_CHOSEN: ACT-001's stored `/2` row. MODELLED_IMPROVEMENT; the baseline idle seconds are the 12
+    slots R3h kept (S-c); `fuel_change_l` = stored rate x (baseline - later idle seconds) / 3600; the priced total is
+    that x the stored price; the stored basis is GENERIC_DEFAULT; the summary's price per litre is the stored price."""
+    from fractions import Fraction
+
+    assert cc.get("state") == "MODELLED_IMPROVEMENT" and result.get("state") == "MODELLED_IMPROVEMENT", (cc, result)
+    assert result.get("formula") == "trial-fuel-comparison/2", result.get("formula")
+    w = result.get("windows") or {}
+    b, l = (w.get("baseline") or {}).get("idle_seconds"), (w.get("later") or {}).get("idle_seconds")
+    assert b == TRIAL_BASELINE_IDLE_SECONDS, ("S-c: trial baseline idle seconds", b, "want", TRIAL_BASELINE_IDLE_SECONDS)
+    rate = Fraction(str((result.get("no_load") or {}).get("value_l_per_h")))
+    assert rate == Fraction(str(_declared_rate())), ("stored rate", rate)
+    pt, price = result.get("priced_total") or {}, Fraction(str((result.get("price") or {}).get("value")))
+    change = rate * Fraction(b - (l or 0), 3600)
+    assert Fraction(str(pt.get("fuel_change_l"))) == change, (pt, change)
+    assert Fraction(str(pt.get("amount"))) == change * price, (pt, change, price)
+    assert (result.get("no_load") or {}).get("basis") == "GENERIC_DEFAULT", result.get("no_load")
+    assert Fraction(str(cc.get("price_per_litre"))) == price and cc.get("priced_total") == pt, cc
+    return {"baseline_idle_seconds": b, "later_idle_seconds": l, "fuel_change_l": pt.get("fuel_change_l"),
+            "amount": pt.get("amount"), "price": str(result["price"]["value"]),
+            "per_demand_kwh": (result.get("change_per_demand_kwh") or {}).get("nominal"),
+            "basis": result["no_load"]["basis"]}
+
+
+def optimize_card(summary: dict, site: str = "KOBO-001") -> dict:
+    """A3-R §3.9 CH-5d1 / O1: on the S summary exactly one Site is priced (Kobo, after the declaration), and the
+    Optimize card's value is that Site's cost claim text byte-equal, its `claim` that claim (replacing CH5d1-R §4's
+    "Not known yet" forecast)."""
+    priced = []
+    for s in summary.get("sites") or ():
+        row = next((r for r in s.get("rows") or () if r.get("category") == "OPTIMIZE_COST"), None) or {}
+        claim = (row.get("nodes") or {}).get("earnings")
+        if claim is not None and claim.get("value") is not None:
+            priced.append((s.get("site_code"), claim))
+    assert [code for code, _ in priced] == [site], ("priced Sites on S", [code for code, _ in priced])
+    card = (summary.get("cards") or {}).get("OPTIMIZE_COST") or {}
+    claim = priced[0][1]
+    assert (card.get("value") or {}).get("text") == claim.get("text") and card.get("claim") == claim, (card, claim)
+    return {"text": claim["text"]}
+
+
+def trial_page(body: dict, result: dict) -> str:
+    """A3-R §3.9 A3-PAGE: ACT-001's verification outcome body carries `fuel_value` equal to `FUEL_VALUE_PAGE` built
+    from the stored row through the imported helpers."""
+    from assetops_backend.chain.vocabulary import (
+        FUEL_VALUE_PAGE, NO_LOAD_BASIS_WORDS, money_text, price_text, trial_litres)
+
+    pt = result.get("priced_total") or {}
+    want = FUEL_VALUE_PAGE.format(
+        l=trial_litres(pt["fuel_change_l"]), amount=money_text(pt["amount"], None, pt.get("currency")),
+        p=price_text(result["price"]["value"]), cur=pt.get("currency") or "",
+        basis=NO_LOAD_BASIS_WORDS.get((result.get("no_load") or {}).get("basis"), NO_LOAD_BASIS_WORDS[None]))
+    assert body.get("fuel_value") == want, (body.get("fuel_value"), want)
+    return want

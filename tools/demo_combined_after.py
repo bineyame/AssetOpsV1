@@ -145,7 +145,8 @@ def action_agreed(thread_states: dict[str, list[str]]) -> dict:
 
 def fuel_rows_ok(rows_: list[tuple], kind_by_day: dict[str, str], offset_by_day: dict[str, int]) -> dict:
     """O16: `rows_` are (window_start, state, quantity_low, quantity_high). Each fuel row's Site-local day is a story
-    day of days.json and is not a steady or steady-before day; S-14 and S-7 are PRICED with quantity 0."""
+    day of days.json and is not a steady or steady-before day. S-14 and S-7 are PRICED above 0 (idle fuel since
+    FUEL-1 A3); the exact figures are MONEY-B's (A3-R2)."""
     by_offset: dict[int, list[tuple]] = {}
     for w0, state, lo, hi in rows_:
         d = local_day(w0).isoformat()
@@ -155,7 +156,7 @@ def fuel_rows_ok(rows_: list[tuple], kind_by_day: dict[str, str], offset_by_day:
     for off in (-14, -7):
         got = by_offset.get(off)
         assert got, ("no fuel row on", f"S{off}")
-        assert all(s == "PRICED" and Decimal(str(lo)) == 0 and Decimal(str(hi)) == 0 for s, lo, hi in got), (off, got)
+        assert all(s == "PRICED" and Decimal(str(lo)) == 0 and Decimal(str(hi)) > 0 for s, lo, hi in got), (off, got)
     return {"rows": len(rows_), "by_offset": {f"S{k:+d}": len(v) for k, v in sorted(by_offset.items())}}
 
 

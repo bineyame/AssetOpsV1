@@ -386,15 +386,53 @@ class PostgresConsequenceStore:
     def latest_revisions_overlapping(self, tenant_id: UUID, site_id: UUID, lo: datetime,
                                      hi: datetime | None) -> list[tuple[UUID, UUID]]:
         """(finding_id, latest FindingRevision id) of every Finding of this Site whose latest revision's
-        episode overlaps `[lo, hi)` (half-open; `hi` None is open-ended)."""
+        episode overlaps `[lo, hi)` (half-open; `hi` None is open-ended).
+        FIX-K4a (DIESEL-1-R3k): `mini_grid` revisions only, the domain the fuel-cost work triggers cover (0022); the
+        dispatch fuel-cost model is never derived for another domain's Finding."""
         def work(c: Connection):
             return [(r[0], r[1]) for r in c.execute(text(
                 "SELECT r.finding_id, r.id FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                "AND r.domain = 'mini_grid' "
                 "AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x WHERE x.finding_id = "
                 "r.finding_id) AND r.episode_end > :lo "
                 "AND (CAST(:hi AS timestamptz) IS NULL OR r.episode_start < CAST(:hi AS timestamptz)) "
                 "ORDER BY r.episode_start, r.id"), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi})]
         return self._run(work, "REPEATABLE READ")
+
+    # ---- DIESEL-K4a (§9j.5): `fuel-residual-1`, the unexplained-fuel money (own table, own basis, never added) ----
+
+    @staticmethod
+    def fuel_residual_append(c: Connection, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+                             finding_revision_id: UUID, window: Any, price: Any, now: datetime) -> UUID:
+        """One `fuel_residual_consequence_revision` row for one SUPPORTED fuel Finding revision, on the caller's
+        connection. Litres are the cited window's exact band; PRICED amounts are litres x the one declared diesel
+        price over the window as known at its end (`price` is that `PriceSelection`), exact; UNPRICED carries the
+        selection's reason. Never a `financial_consequence_revision` row, and never added to any other money."""
+        from fractions import Fraction
+
+        from assetops_backend.actions.verification_rules import fmt
+
+        low, high = window.residual_low, window.residual_high
+        priced = price.state == "PRICED"
+        value = Fraction(str(price.value)) if priced else None
+        basis = fc.sha256_canonical({
+            "model": "fuel-residual-1", "window_id": str(window.id), "residual": [fmt(low), fmt(high)],
+            "price": [price.revision_id, str(price.value), price.currency] if priced else [price.reason]})
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO fuel_residual_consequence_revision (id, tenant_id, site_id, finding_id, finding_revision_id, "
+            "fuel_balance_window_id, model_id, basis, litres_low, litres_high, state, price_reason, price_revision_id, "
+            "price_assignment_id, price_value, currency, amount_low, amount_high, price_known_at, basis_sha256, "
+            "recorded_at) VALUES (:id, :t, :s, :f, :r, :w, 'fuel-residual-1', 'UNEXPLAINED_FUEL_AT_DECLARED_PRICE', "
+            ":ll, :lh, :state, :reason, :pr, :pa, :pv, :cur, :al, :ah, :known, :b, :now)"),
+            {"id": rid, "t": tenant_id, "s": site_id, "f": finding_id, "r": finding_revision_id, "w": window.id,
+             "ll": fmt(low), "lh": fmt(high), "state": "PRICED" if priced else "UNPRICED",
+             "reason": None if priced else price.reason, "pr": price.revision_id if priced else None,
+             "pa": price.assignment_id if priced else None, "pv": price.value if priced else None,
+             "cur": price.currency if priced else None,
+             "al": fmt(low * value) if priced else None, "ah": fmt(high * value) if priced else None,
+             "known": window.window_end, "b": basis, "now": now})
+        return rid
 
     def site_history(self, tenant_id: UUID, site_id: UUID, cutoff: datetime | None,
                      after: tuple[datetime, UUID] | None, limit: int) -> dict[str, Any]:

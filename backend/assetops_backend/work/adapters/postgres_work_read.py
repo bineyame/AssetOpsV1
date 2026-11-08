@@ -27,7 +27,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
-from assetops_backend.work.domain_action import DOMAINS
+from assetops_backend.work.domain_action import DOMAINS, FUEL_DOMAIN, FUEL_FINDING_DOMAIN
 from assetops_backend.work.link_coverage import DOMAIN_ACTION
 from assetops_backend.work.model import WorkStoreUnavailable
 
@@ -90,7 +90,8 @@ _ELIGIBLE = ("SELECT CAST(c.id AS text) AS id, c.kind, c.public_code, CAST(c.ass
 _MEMBER = {"INCIDENT": "occurred_at", "MAINTENANCE_REQUEST": "created_at"}
 #: W5-04a pre-flight 9 / readiness 12: the stored domain Action literal -> its Finding (analytics) domain, from the
 #: closed `DOMAINS`; an unreviewed domain maps to nothing and its link stays UNKNOWN.
-_FINDING_DOMAIN_OF = {name: spec.finding_domain for name, spec in DOMAINS.items()}
+_FINDING_DOMAIN_OF = {**{name: spec.finding_domain for name, spec in DOMAINS.items()},
+                      FUEL_DOMAIN: FUEL_FINDING_DOMAIN}  # DIESEL-1-R3m: lineage true, pin None (like the mill)
 
 
 def _rows(result) -> list[dict[str, Any]]:
@@ -169,7 +170,9 @@ class _ReadTx:
         domain = [{"kind": DOMAIN_ACTION, "action_id": r["action_id"], "action_event_id": None,
                    "finding_revision_id": r["origin_finding_revision_id"],
                    **({} if r["origin_opportunity_revision_id"] is None
-                      else {"opportunity_revision_id": r["origin_opportunity_revision_id"]})}
+                      else {"opportunity_revision_id": r["origin_opportunity_revision_id"]}),
+                   # DIESEL-1-R3m2: only a fuel link names its domain (Cold, EV and mill dicts unchanged).
+                   **({"action_domain": r["action_domain"]} if r["action_domain"] == FUEL_DOMAIN else {})}
                   for r in self._domain_links(revision_id, known_at)]
         return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars()),
                 "domain_action_links": domain}

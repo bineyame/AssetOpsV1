@@ -6,8 +6,9 @@ For one Site, one fuel tank and one Site-local night `[d 18:00, d+1 12:00)`, the
 deliveries. The band, the states and their order are F0's (`tools/probe_kisiwa_fuel.py` `balance`); the parameters are
 F0's declaration, copied byte-for-byte, and any change is a new parameter version, never a retune.
 
-Use comes only from accepted generator readings through A2's slot rule (`verification_rules._power_slot` and
-`_instant`, imported by name and never edited). This module never reads a run or the simulator.
+Use comes only from accepted generator readings through A2's slot rule (`verification_rules._power_slot`, `_instant`
+and `idle_slot`, the shared idle rule of ruling DIESEL-1-R3h; imported by name and never edited here). This module
+never reads a run or the simulator.
 """
 
 from __future__ import annotations
@@ -171,7 +172,8 @@ def opening_closing(levels: list[tuple[datetime, Fraction, str]], start: datetim
 def use_from_readings(start: datetime, end: datetime, readings: Iterable[Reading],
                       generator_asset_id: str) -> dict[str, Any]:
     """A2's slot rule over every 5-minute slot of `[start, end)`: kWh from `_power_slot`, the state from `_instant`;
-    a slot is idle per A2's slot rule (`verification_rules.idle_slot`). `generator_kwh`/`idle_seconds` are None when any slot is unknown."""
+    a slot is idle per A2's slot rule (`verification_rules.idle_slot`). `generator_kwh`/`idle_seconds` are None
+    when any slot is unknown."""
     gen = str(generator_asset_id)
     readings = list(readings)
     power = [r for r in readings if r.role == GENERATOR_POWER and r.asset_id == gen]

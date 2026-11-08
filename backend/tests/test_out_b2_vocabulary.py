@@ -86,6 +86,13 @@ def _constants() -> list[str]:
              mini.VALUE_LINE_TRIAL_FUEL.format(code="ACT-001", l="3.3", amount="4.12", cur="USD")]
     # CH-5b2: every "Why?" template, formatted with plain sample values, and every measure label.
     from assetops_backend.chain import vocabulary as cv
+    # FUEL-1 A3-R §5.1 item 7: the four idle-fuel lines, each formatted with every basis word.
+    for word in cv.NO_LOAD_BASIS_WORDS.values():
+        copy += [mini.COST_IDLE.format(h="200 minutes", l="12.1", basis=word, r="3.3"),
+                 cv.FUEL_VALUE_PAGE.format(l="3.3", amount="4.12 USD", p="1.25", cur="USD", basis=word)]
+    copy += [mini.VERIFIED_WITH_FUEL.format(code="ACT-001", suffix=" on example data", l="3.3", amount="4.12 USD",
+                                            p="1.25", cur="USD"),
+             board.COST_PRICED.format(l="3.3", amount="4.12 USD", p="1.25", cur="USD")]
     sample = {"site": "Kobo", "category": "Grow revenue", "label": "Unused daytime solar", "k": 3, "s": "s",
               "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
               "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked",
@@ -115,6 +122,15 @@ def _constants() -> list[str]:
              act["record"]["activity"], act["site_visit"]["body"],
              kis.DELIVERY_BODY.format(volume_l=300, reference="KIS-DT-0001"),
              kis.DIP_BODY.format(hhmm="07:00", dip_l="706")]
+    # DIESEL-K4a (§9j.8 A4/§9j.9 item 9): the unexplained-fuel Finding literals, formatted with plain sample values.
+    from assetops_backend.fuel_balance import finding_text as ft
+    copy += [ft.TITLE, ft.CLAIM_LINE.format(lo="95.7", hi="144.3", date="4 Oct"),
+             ft.GAP_LINE.format(spans=ft.SPAN.format(a="00:45", b="02:30")),
+             ft.MONEY_LINE.format(lo_m="119.57", hi_m="180.43", cur="USD", p="1.25"), ft.UNPRICED_NO_PRICE,
+             ft.UNPRICED_PRICE_CHANGES, ft.UNPRICED_OTHER, ft.NOT_WHY, ft.MARGIN_LINE.format(a="10"), ft.NO_LONGER]
+    # DIESEL-1-R3m (K6a): the fuel Action's API refusal texts and its summary.
+    from assetops_backend.work import domain_action as da
+    copy += list(da.FUEL_MESSAGES.values()) + [da.FUEL_SPEC.summary]
     return [c.strip(" ·") for c in copy]
 
 

@@ -404,13 +404,14 @@ def test_fuel_rows_sit_on_story_days_only_and_s14_s7_are_priced_with_quantity_ze
 
     kinds = {"2026-10-22": "overuse", "2026-10-29": "overuse", "2026-10-28": "steady"}
     offs = {"2026-10-22": -14, "2026-10-29": -7, "2026-10-28": -8}
-    good = [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 0, 0)]
+    good = [(w(22), "PRICED", 0, 5), (w(29), "PRICED", 0, 7)]
     assert after.fuel_rows_ok(good, kinds, offs)["rows"] == 2
-    for bad in ([*good, (w(28), "PRICED", 0, 0)],  # a steady day
-                [*good, (w(25), "PRICED", 0, 0)],  # not a story day at all
-                [(w(22), "PRICED", 0, 0)],  # no S-7 row
-                [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 1, 1)],  # S-7 quantity not 0
-                [(w(22), "UNPRICED", 0, 0), (w(29), "PRICED", 0, 0)]):  # S-14 not PRICED
+    for bad in ([*good, (w(28), "PRICED", 0, 5)],  # a steady day
+                [*good, (w(25), "PRICED", 0, 5)],  # not a story day at all
+                [(w(22), "PRICED", 0, 5)],  # no S-7 row
+                [(w(22), "PRICED", 0, 0), (w(29), "PRICED", 0, 7)],  # S-14 old priced-at-0 shape
+                [(w(22), "PRICED", 0, 5), (w(29), "PRICED", 1, 7)],  # S-7 low not 0
+                [(w(22), "UNPRICED", 0, 5), (w(29), "PRICED", 0, 7)]):  # S-14 not PRICED
         with pytest.raises(AssertionError):
             after.fuel_rows_ok(bad, kinds, offs)
 
@@ -532,3 +533,103 @@ def test_potential_is_read_from_the_node_and_both_node_and_chip_are_barred() -> 
     assert rows.wk2b(b, KW)["potential"] == "No potential found yet"
     with pytest.raises(AssertionError):
         rows.wk2b({**b, "nodes": {"potential": {"text": "Spare solar 5 kW"}}}, KW)
+
+
+# ---- FUEL-1 A3-R §3.9: the idle-fuel finish rows, pass and fail ---------------------------------------------------
+
+def _stored(**over) -> dict:
+    """One idle morning's head consequence row as SQL returns it (expected values computed, never typed from a run)."""
+    from decimal import Decimal
+    from fractions import Fraction
+
+    high = Fraction(11, 10) * Fraction(12000, 3600) * Fraction(33, 10)
+    row = {"model_id": "fuel-cost-2", "state": "PRICED", "idle_seconds": 12000,
+           "no_load_fuel_rate_l_per_h": Decimal("3.3"), "no_load_fuel_rate_basis": "GENERIC_DEFAULT",
+           "sfc_upper_multiplier": Decimal("1.10"), "quantity_high_exact": f"{high.numerator}/{high.denominator}",
+           "quantity_high": Decimal(high.numerator) / high.denominator, "amount_low": Decimal(0),
+           "amount_high": Decimal(high.numerator) / high.denominator * Decimal("1.25"), "currency": "USD",
+           "price_value": Decimal("1.25")}
+    return {**row, **over}
+
+
+def _idle_cost_row(stored: dict) -> dict:
+    from assetops_backend.chain.outcomes import _litres
+    from assetops_backend.financials.consequence_read import display
+    from assetops_backend.site_outcomes.mini import idle_headline
+
+    shown = display({k: stored[k] for k in ("state", "currency", "amount_low", "amount_high")})
+    return {"headline": idle_headline({"idle_seconds": stored["idle_seconds"], "rate": "3.3",
+                                       "basis": stored["no_load_fuel_rate_basis"],
+                                       "litres_high": _litres(stored["quantity_high"])}),
+            "headline_money": {"amount_low": shown["amount_low"], "amount_high": shown["amount_high"], "currency": "USD"}}
+
+
+def test_a3_idle_morning_passes_and_fails() -> None:
+    s = _stored()
+    got = rows.idle_morning("2026-10-25", s, _idle_cost_row(s))
+    assert got["shown_high"] == "15.13" and got["idle_seconds"] == 12000
+    for bad in (dict(idle_seconds=11700), dict(model_id="fuel-cost-1"), dict(quantity_high_exact="131/10")):
+        with pytest.raises(AssertionError):
+            rows.idle_morning("2026-10-25", _stored(**bad), _idle_cost_row(s))
+    with pytest.raises(AssertionError):
+        rows.idle_morning("2026-10-25", s, {**_idle_cost_row(s), "headline": "possible extra fuel cost on this day"})
+    with pytest.raises(AssertionError):
+        rows.idle_morning("2026-10-25", s, {**_idle_cost_row(s), "headline_money": {"amount_high": "15.12"}})
+
+
+def test_a3_never_summed_and_steady_day() -> None:
+    assert rows.never_summed(["15.13", "15.13", "15.13"], [{"t": "15.13 USD"}]) == 4
+    with pytest.raises(AssertionError):
+        rows.never_summed(["15.13", "15.13"], [{"t": ["total 30.26 USD"]}])
+    # stored amounts: 15.125 x 2 -> 30.25 / 30.26; x 3 -> 45.38 / 45.39
+    stored = ["15.125", "15.125", "15.125"]
+    assert rows.never_summed(stored, [{"t": "15.13 USD, 15.12 USD"}]) == 4
+    for shown in ("30.25", "30.26", "45.38", "45.39"):
+        with pytest.raises(AssertionError):
+            rows.never_summed(stored, [{"t": [f"idle fuel total {shown} USD"]}])
+    assert rows.steady_day("d", [], {"headline": "possible extra fuel cost on this day"})["stored_rows"] == 0
+    with pytest.raises(AssertionError):
+        rows.steady_day("d", [{"idle_seconds": 600}], {"headline": "x"})
+    with pytest.raises(AssertionError):
+        rows.steady_day("d", [], _idle_cost_row(_stored()))
+
+
+def _trial(**over) -> tuple[dict, dict]:
+    pt = {"amount": "4.125", "currency": "USD", "basis": "TRIAL_HOUR_MODELLED_FUEL", "window": ["a", "b"],
+          "fuel_change_l": "3.3"}
+    result = {"formula": "trial-fuel-comparison/2", "state": "MODELLED_IMPROVEMENT", "priced_total": pt,
+              "windows": {"baseline": {"idle_seconds": 3600}, "later": {"idle_seconds": 0}},
+              "no_load": {"value_l_per_h": "3.3", "basis": "GENERIC_DEFAULT"},
+              "price": {"value": "1.25", "currency": "USD"}, "change_per_demand_kwh": {"nominal": "0.275"}}
+    result.update(over)
+    cc = {"state": "MODELLED_IMPROVEMENT", "priced_total": result["priced_total"], "price_per_litre": "1.25"}
+    return cc, result
+
+
+def test_a3_trial_cost_passes_and_fails() -> None:
+    assert rows.trial_cost(*_trial())["fuel_change_l"] == "3.3"
+    for bad in (dict(windows={"baseline": {"idle_seconds": 3300}, "later": {"idle_seconds": 0}}),
+                dict(no_load={"value_l_per_h": "3.3", "basis": None}),
+                dict(state="MODELLED_NO_IMPROVEMENT")):
+        with pytest.raises(AssertionError):
+            rows.trial_cost(*_trial(**bad))
+    cc, result = _trial()
+    with pytest.raises(AssertionError):
+        rows.trial_cost(cc, {**result, "priced_total": {**result["priced_total"], "amount": "4.13"}})
+
+
+def test_a3_optimize_card_and_trial_page() -> None:
+    from assetops_backend.chain.vocabulary import FUEL_VALUE_PAGE
+
+    claim = {"key": "money.possible_extra_fuel_cost", "value": {"low": "0.00"}, "text": "0.00 to 15.13 USD"}
+    summary = {"sites": [{"site_code": "KOBO-001", "rows": [{"category": "OPTIMIZE_COST", "nodes": {"earnings": claim}}]},
+                         {"site_code": "COLD-LAB-001", "rows": []}],
+               "cards": {"OPTIMIZE_COST": {"value": {"text": claim["text"]}, "claim": claim}}}
+    assert rows.optimize_card(summary)["text"] == claim["text"]
+    with pytest.raises(AssertionError):
+        rows.optimize_card({**summary, "cards": {"OPTIMIZE_COST": {"value": {"text": "Not known yet"}, "claim": None}}})
+    _, result = _trial()
+    want = FUEL_VALUE_PAGE.format(l="3.3", amount="4.12 USD", p="1.25", cur="USD", basis="a generic idle fuel rate")
+    assert rows.trial_page({"fuel_value": want}, result) == want
+    with pytest.raises(AssertionError):
+        rows.trial_page({}, result)

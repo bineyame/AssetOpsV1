@@ -82,7 +82,7 @@ def test_idle_only_demo_figures_from_the_inputs():
     assert out["windows"]["baseline"]["fuel_l"] == {"nominal": vr.fmt(fuel(0, 3600)),
                                                     "upper": vr.fmt(fuel(0, 3600) * Fraction(MULTIPLIER))}
     assert (out["windows"]["baseline"]["idle_seconds"], out["windows"]["later"]["idle_seconds"]) == (3600, 0)
-    assert out["no_load"] == {"value_l_per_h": "3.3"}
+    assert out["no_load"] == {"value_l_per_h": "3.3", "basis": None}  # A3-R G4(b): no basis declared here
     assert credit.credited({**out, "outcome_id": "outcome-1"}, "VERIFIED") == ((33, 8), "USD")
     assert credit.recovered_value([(out, "VERIFIED")])["items"] == [
         {"key": "outcome-1", "currency": "USD", "amount": "4.125", "basis": "TRIAL_HOUR_MODELLED_FUEL"}]
@@ -119,6 +119,19 @@ def test_idle_seconds_unknown_and_no_load_rate_differs():
     assert differs["no_load"] is None and differs["change_per_demand_kwh"] is None
     # SFC reasons still come first
     assert run(no_load=two, sfc=())["reason"] == "SFC_MISSING"
+
+
+def test_a3_no_load_block_stores_the_basis_outside_the_digest():
+    """FUEL-1 A3-R §5.3 (G4(b)): the stored `no_load` block carries the rate's basis (None when the hours differ),
+    and the basis is not a digest input."""
+    generic = tuple(replace(r, basis="GENERIC_DEFAULT") for r in RATE)
+    out = run(no_load=generic)
+    assert out["no_load"] == {"value_l_per_h": "3.3", "basis": "GENERIC_DEFAULT"}
+    split = (tfc.NoLoadValue(REV, R, B0, B0 + H, "GENERIC_DEFAULT"),
+             tfc.NoLoadValue(UUID(int=8), R, L0, None, "SITE_TEST"))
+    assert run(no_load=split)["no_load"] == {"value_l_per_h": "3.3", "basis": None}
+    # must-fail: adding `basis` to the digest input makes the first two digests differ
+    assert out["basis_sha256"] == run(no_load=RATE)["basis_sha256"]
 
 
 def test_no_improvement_has_no_priced_total():
@@ -178,6 +191,10 @@ def test_window_idle_seconds_exclude_the_stop_slot():
     end_stopped = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",
                                                       unit="state")]
     assert s6.evidence(end_stopped)["generator_idle_seconds"] == 3300
+    # K3 review L1 (DIESEL-K4a §9j.8 A8): FAILED at the window end is a stop marker too (NOT_RUNNING_STATES)
+    end_failed = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "FAILED",
+                                                     unit="state")]
+    assert s6.evidence(end_failed)["generator_idle_seconds"] == 3300
     assert s6.evidence(_states(zero, running))["generator_idle_seconds"] == 3600  # no end sample: unchanged
     # a non-GOOD end sample is not a positive stop marker: the last slot stays idle
     suspect_end = _states(zero, running) + [s6.point("generator_state", "gen", s6.T0 + vr.WINDOW, "STOPPED",

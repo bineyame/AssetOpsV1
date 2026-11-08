@@ -93,6 +93,7 @@ def configure_at(store, result, install_at: datetime) -> dict:
     applied = apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, ver)
     assert applied.periods[-1]["role_set"] == "minigrid-roles-3"
     declare_supply_uses(foundation, result, install_at)
+    declare_no_load_rate(foundation, result, install_at)
     roles4 = configure_roles4(store, foundation, bindings, result, install_at)
     return {"labels": [s3["label"], ver["label"]],
             "properties_effective_from": s3["component_properties"]["effective_from"],
@@ -132,6 +133,24 @@ def declare_supply_uses(foundation, result, install_at: datetime) -> None:
             note="Demonstration supply use declared at commissioning",
             properties=[{"property_key": "supply-use", "value": use, "unit": "state", "source": "SITE",
                          "source_version": 1}])
+
+
+#: FUEL-1 §4.3 / A3-R §3.1 (owner 2026-11-07: "Generic 3.3 L/h, labelled"): the declared generator no-load fuel
+#: rate and its basis. 3.3 is the owner's value, never changed to reach a figure.
+NO_LOAD = [{"property_key": "generator-no-load-fuel-rate", "value": 3.3, "unit": "L/h", "source": "SITE",
+            "source_version": 1},
+           {"property_key": "generator-no-load-fuel-rate-basis", "value": "GENERIC_DEFAULT", "unit": "state",
+            "source": "SITE", "source_version": 1}]
+NO_LOAD_NOTE = ("Generic no-load fuel rate for a 40 kW diesel set (common design-software default, about 0.08 L/h "
+                "per kW of rating); not this generator's datasheet. Owner decision 2026-11-07.")
+
+
+def declare_no_load_rate(foundation, result, install_at: datetime) -> None:
+    """FUEL-1 A3-R §3.1: one additive Foundation change on the generator at install + 25 min (with the supply uses),
+    so every later revision carries the rate and its basis; every other generator property is kept."""
+    foundation.publish_component_properties(
+        result.tenant, result.site, asset_code="generator", effective_from=install_at + CONFIG_OFFSETS["uses"],
+        note=NO_LOAD_NOTE, properties=copy.deepcopy(NO_LOAD))
 
 
 def publish_price(url: str, recorded_at: datetime) -> None:
