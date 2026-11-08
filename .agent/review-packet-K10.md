@@ -217,6 +217,21 @@ above is from the full 31-day windows.)
 **State left for step 3:** clone `assetops_k9_audit_r3u` and `var/demo3_r3u` kept (not dropped). The clone holds extra `chain_response` rows from
 these reads (codes of trees A and B); facts are unchanged. Proof scripts and trees: scratchpad `k10p2` (probe.py, kobo_decl.py, gaps.py, restamp.py, codeA, codeB).
 
+## Fix round (R3v)
+
+Ruling `.agent/build-sheet-DIESEL-1.md` §9v.4 (COH-18 R1/R2: the chain body's day grades ignored `none_declared`). Code only; no re-check run.
+
+- **Fix** (`backend/assetops_backend/chain/site_chain.py` `days_of`): each day is graded `day_grade(per, measures, none_declared=facts.none_declared.get(d, ()))`;
+  the entry gains `"none_declared": [left-out measures]` (via `applicable_measures`) only when non-empty. `measures` map unchanged. `chain/why.py` untouched (after-demo list).
+- **Tests** (`backend/tests/test_k10_declared_none_rule.py`, 3 new): `test_r3v_days_of_tally_equals_grade_counts_of_on_kisiwa_month` (31 days, tally == `grade_counts_of`, partial 3, no_data 28;
+  old form gives partial 0); `test_r3v_other_site_types_identity_and_bytes_unchanged` (every non-Kisiwa-shaped site type in `MEASURES`, with and without gaps: identity, equal to a
+  reimplemented pre-R3v `days_of` byte for byte, no `none_declared` key); `test_r3v_day_entry_shape` (10-28 shape PARTIAL + key, 10-30 shape NO_DATA + key, no-row day no key, kwh row no key).
+- **Mutation** (fix committed at 9900ec4da, then reverted the call to `day_grade(per, measures)`): 2 failed (the Kisiwa identity and the entry shape), 1 passed (other site types, as expected: no declaration);
+  restored by `git checkout`.
+- **Run**: the three K10 test files, `test_ch5a1_reader`, `test_ch5c2_clock_guard`, `tools/checks/test_chain_coherence.py`, and the golden files `test_out_b3_cold_ev`, `test_ch5a1_board_contract`,
+  `test_ch5a2_contract`, `test_ch6_contract`, `test_out_b2_mini`, `test_ch6b_estate_chain`, `test_ch6b2_portfolio_cards`: 422 passed, 11 skipped (the Postgres-backed tests, no DB), 27 s.
+- **Not run**: COH-18 on the clone (R3v §9.5 re-check is separate).
+
 **Process deviations.** I used shell `grep`, `head`, `tail`, `cut`, `wc` and one `>` redirect (an analysis dump to a scratch file) in the Bash
 tool before noticing the rule; no repo file was written that way. One extra diagnostic read (`dbg.py`, date 2026-11-02, a monkeypatch that only
 printed port failures) found the environment cause of the PARTIAL result. Kobo S-5d/d1 boards, Cold, EV and Portfolio bodies were not read (cut 3).
