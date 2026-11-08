@@ -225,6 +225,13 @@ class PostgresFuelBalanceStore:
             "AND recorded_at <= :k ORDER BY night_date, revision DESC"),
             {"t": tenant_id, "s": site_id, "a": tank_asset_id, "lo": lo, "hi": hi, "k": known_at})))
 
+    def has_windows(self, tenant_id: UUID, site_id: UUID, known_at: datetime) -> bool:
+        """DIESEL-K5 (§9l.2): whether the Site has at least one stored window as known at `known_at` (the Fuel
+        page's night mode; read-only)."""
+        return bool(self._read(lambda c: c.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM fuel_balance_window WHERE tenant_id = :t AND site_id = :s "
+            "AND recorded_at <= :k)"), {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()))
+
     def window(self, tenant_id: UUID, site_id: UUID, window_id: UUID) -> FuelBalanceWindow | None:
         def work(c):
             row = c.execute(text(f"SELECT {_COLUMNS} FROM fuel_balance_window WHERE tenant_id = :t AND site_id = :s "

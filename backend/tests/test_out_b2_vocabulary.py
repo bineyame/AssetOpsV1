@@ -116,6 +116,18 @@ def _constants() -> list[str]:
              ft.GAP_LINE.format(spans=ft.SPAN.format(a="00:45", b="02:30")),
              ft.MONEY_LINE.format(lo_m="119.57", hi_m="180.43", cur="USD", p="1.25"), ft.UNPRICED_NO_PRICE,
              ft.UNPRICED_PRICE_CHANGES, ft.UNPRICED_OTHER, ft.NOT_WHY, ft.MARGIN_LINE.format(a="10"), ft.NO_LONGER]
+    # DIESEL-K5 (§9l.2 A5): the Fuel page night-mode literals, templates formatted with plain sample values.
+    from datetime import date
+
+    from assetops_backend.fuel_balance import night_text as nt
+    copy += [text for text in nt.LITERALS if "{" not in text]
+    copy += [nt.night_label(date(2026, 10, 4)), nt.not_checked("MISSING_OPENING"),
+             nt.USE_NOTE.format(kwh="122.3", sfc="0.355"),
+             nt.USE_NOTE_IDLE.format(kwh="122.3", sfc="0.355", m=25, r="4.9"), nt.DELIVERIES_NOTE_MANY.format(n=2),
+             nt.OPENING_NOTE.format(hh_mm="18:00"), nt.RECORD_WHEN.format(hh_mm="07:00", date="5 Oct"),
+             nt.BRIDGE[0][3].format(a="10"),
+             nt.VERSION_ROW.format(n=1, lifecycle=nt.LIFECYCLE["SUPPORTED"], hh_mm="16:00", date="5 Oct"),
+             nt.FUEL_CHECKS_ROW.format(title=ft.TITLE, date="4 Oct", lo="95.7", hi="144.3")]
     return [c.strip(" ·") for c in copy]
 
 

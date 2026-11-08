@@ -51,6 +51,10 @@ from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import ACCESS_BASIS, Access, build_finding_router, development_access
 from assetops_backend.finding_index_api import build_finding_index_router
+from assetops_backend.fuel_balance_api import build_fuel_balance_router
+from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+from assetops_backend.fuel_balance.night_read import FuelNightRead
+from assetops_backend.work.composition import build_fuel_records_reader
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
 from assetops_backend.chain.composition import build_response_store
@@ -551,6 +555,14 @@ def create_app(
         # S4-02b phase 2a: the stored fuel-cost consequence read and the Financials bridge summary.
         consequences=build_consequence_read_service(database_url()) if database_url() else None,
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
+    # DIESEL-K5 (DIESEL-1-R3l): the fuel-balance nights, the fuel Finding page and the Site's fuel checks; typed 503
+    # without a database. Stores come from their compositions; the read only reads.
+    fuel_nights = (FuelNightRead(database_url(), store=build_fuel_balance_store(database_url()),
+                                 fuel_records=build_fuel_records_reader(), link_rows=build_link_rows_reader())
+                   if database_url() else None)
+    if fuel_nights is not None:
+        app.router.on_shutdown.append(fuel_nights.dispose)
+    app.include_router(build_fuel_balance_router(fuel_nights, registry.ledger_scope))
     # S4-04 phase 1: the Site Finding index read (D-2026-10-15-s404-contract); typed 503 without a database.
     finding_index = build_finding_index_service(database_url(), finding_manifest) if database_url() else None
     finding_index_gate = basis_aware_gate(performance_gate, basis_reader, (SiteStoreUnavailable,))
