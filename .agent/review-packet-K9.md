@@ -12,6 +12,11 @@ runs both in a fresh subprocess with `tools/checks` stripped. L2: `kis_ov` wraps
 is recorded as `second_read_error` inside the R3u-s1 message (test added). `test_demo_combined_finish_rows.py` (56) and
 `test_k9_finish_callsites.py` (4) each pass alone with PYTHONPATH excluding `tools` and `tools/checks`.
 
+R3t4 (§9t4): KIS-7 item 3 (`_kis7_d1_equal` in `tools/demo_combined_rows.py`) compares `money2(board amount_high) ==
+money2(stored amount_high)` (and `amount_low` when both present) plus equal currencies, instead of strict Decimal.
+The KIS-7 head query in `demo_combined_finish.py` now also selects `currency`. Tests: stored 26.27739583 vs board 26.28
+passes; 26.29 fails; differing currency fails. Non-vacuity: with the strict comparison restored the first test fails.
+
 ## Pre-rehearsal (R3q Q1-Q5)
 
 ### Commits

@@ -1185,6 +1185,19 @@ def _optimize_priced(summary: dict) -> list[tuple[str, dict]]:
 KIS7_ITEM3_REPORT_ONLY = False  # R3u U8: True restores the R3s2 report-only form (K10 held)
 
 
+def _kis7_d1_equal(money: dict, lead: dict) -> bool:
+    """R3t4 §9t4: the board shows two places, so compare through the product's `money2` (half-even), never strict
+    Decimal: high always, low when present; currencies equal."""
+    from assetops_backend.chain.vocabulary import money2
+
+    if money.get("currency") != lead.get("currency"):
+        return False
+    pairs = [(money["amount_high"], lead["amount_high"])]
+    if money.get("amount_low") is not None and lead.get("amount_low") is not None:
+        pairs.append((money["amount_low"], lead["amount_low"]))
+    return all(money2(a) == money2(b) for a, b in pairs)
+
+
 def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, board_at,
          item3_report_only: bool | None = None) -> dict:
     """KIS-7 (DIESEL-1-R3s §9s.3, replaces R3q §9q.2 KIS-7): expectations derived from stored rows, never typed.
@@ -1231,7 +1244,7 @@ def kis7(summary_s: dict, bodies: list[object], heads: list[dict], s_day: date, 
         d1_report = ("d1 is unsettled: no `productive_kwh` subject (R3s2)", "board earnings unpriced", d1.isoformat())
     elif lead.get("state") != "PRICED":
         d1_report = ("d1: the lead head is not PRICED", lead.get("state"), d1.isoformat())
-    elif Decimal(str(money["amount_high"])) != Decimal(str(lead["amount_high"])):
+    elif not _kis7_d1_equal(money, lead):
         d1_report = ("d1: board amount differs from the stored head", d1.isoformat(), money["amount_high"],
                      lead["amount_high"])
     if d1_report and not report_only:

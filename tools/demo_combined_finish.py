@@ -1140,10 +1140,10 @@ def kis_7(ctx: Ctx) -> dict:
     from assetops_backend.analytics.finding_episode import DOMAIN
 
     heads = _kisiwa_sql(
-        ctx, "SELECT f.finding_id, f.episode_start, f.episode_end, h.state, h.amount_high FROM "
+        ctx, "SELECT f.finding_id, f.episode_start, f.episode_end, h.state, h.amount_high, h.currency FROM "
              "(SELECT DISTINCT ON (r.finding_id) r.finding_id, r.episode_start, r.episode_end FROM finding_revision r "
              "WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s ORDER BY r.finding_id, r.revision_no DESC) f "
-             "LEFT JOIN (SELECT DISTINCT ON (c.finding_id) c.finding_id, c.state, c.amount_high FROM "
+             "LEFT JOIN (SELECT DISTINCT ON (c.finding_id) c.finding_id, c.state, c.amount_high, c.currency FROM "
              "financial_consequence_revision c WHERE c.site_id = %s ORDER BY c.finding_id, c.recorded_at DESC, "
              "c.revision_no DESC) h ON h.finding_id = f.finding_id", site[1], DOMAIN, ANALYTIC_ID, site[1])
     week = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}

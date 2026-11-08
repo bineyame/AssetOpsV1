@@ -986,9 +986,9 @@ def _utc(m, d, h, mi):
 
 # the two PRICED night-1 heads of the real story (Kisiwa is UTC+3): 20:40-22:05 on 28 Oct and 01:55-03:15 on 29 Oct
 _HEADS7 = [{"finding_id": "f1", "episode_start": _utc(10, 28, 17, 40), "episode_end": _utc(10, 28, 19, 5),
-            "state": "PRICED", "amount_high": "7.5"},
+            "state": "PRICED", "amount_high": "7.5", "currency": "USD"},
            {"finding_id": "f2", "episode_start": _utc(10, 28, 22, 55), "episode_end": _utc(10, 29, 0, 15),
-            "state": "PRICED", "amount_high": "3.0"}]
+            "state": "PRICED", "amount_high": "3.0", "currency": "USD"}]
 _S7 = date(2026, 11, 3)
 
 
@@ -1037,6 +1037,18 @@ def test_kis7_expectations_from_data_pass_and_each_break_fails() -> None:
             pytest.fail(name)
     with pytest.raises(rows.KisiwaMissing):
         rows.kis7({"sites": [{"site_code": "KOBO-001"}]}, [], _HEADS7, _S7, _board7())
+
+
+def test_kis7_item3_compares_through_money2_r3t4() -> None:
+    """R3t4 §9t4: an unrounded stored amount equals the two-place board amount; a one-cent difference fails;
+    a different currency fails."""
+    heads = [{**_HEADS7[0], "amount_high": "26.27739583"}, _HEADS7[1]]
+    got = rows.kis7(_kis7(), [_kis7()], heads, _S7, _board7("26.28"))
+    assert got["d1_priced"] == "priced and equal"
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], heads, _S7, _board7("26.29"))
+    with pytest.raises(AssertionError, match="KIS-7 item 3"):
+        rows.kis7(_kis7(), [_kis7()], [{**heads[0], "currency": "EUR"}, heads[1]], _S7, _board7("26.28"))
 
 
 def test_kis7_priced_on_s_when_a_head_overlaps_and_two_priced_sites_are_never_summed() -> None:
