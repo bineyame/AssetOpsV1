@@ -24,11 +24,12 @@ MARKER = "CH-9b1 origin: Finding-only"
 PLAN_MARKER = "CH-9b2 plan origin"
 
 ALLOWLIST: dict[str, tuple[str, int]] = {
-    "actions/adapters/postgres_action_store.py": ("action_plan", 15),
+    "actions/adapters/postgres_action_store.py": ("action_plan", 19),  # DIESEL-K6b: + fuel_plan_context, the fuel plan
     "actions/service.py": ("action", 14),
     "actions/site_index.py": ("action", 2),
-    "actions/verification.py": ("action", 5),
+    "actions/verification.py": ("action", 8),  # DIESEL-K6b: + the fuel freeze / read (the Action's Finding origin)
     "actions/verification_families.py": ("both", 5),
+    "actions/fuel_verification.py": ("both", 7),  # DIESEL-K6b: the fuel plan row (Finding origin; opportunity None)
     "estate/adapters/postgres_estate_read.py": ("action", 3),
     "estate/coverage.py": ("action", 4),
     "estate/portfolio.py": ("action", 2),

@@ -39,6 +39,8 @@ import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { MillVerificationBody, useMillVerification } from "../sites/SiteMillVerification";
 import { createMillVerificationClient, type MillVerificationClient } from "../sites/millVerificationClient";
+import { FuelVerificationBody, useFuelVerification } from "../sites/SiteFuelResidualVerification";
+import { createFuelVerificationClient, type FuelVerificationClient } from "../sites/fuelVerificationClient";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
@@ -2704,6 +2706,74 @@ function MillVerificationPage({ site, actionId, client }: { site: LoadedSite; ac
         actions={<Link to={siteDetailHref(site.site_id)}>Open site</Link>}
       />
       <MillVerificationBody state={state} />
+    </main>
+  );
+}
+
+const DEFAULT_FUEL_VERIFICATION = createFuelVerificationClient();
+export const SITE_FUEL_VERIFICATION_HEADING_ID = "site-fuel-verification-heading";
+
+/**
+ * DIESEL-K6b (DIESEL-1-R3m): `/sites/{code}/domain-actions/{id}/fuel-verification`, the fuel verdict of a
+ * FUEL_BALANCE domain Action at its own address (the mill frame's pattern). The header names the Action once its one
+ * read has loaded ("Action" while loading or refused).
+ */
+export function SiteFuelVerificationFrame({
+  detail,
+  client = DEFAULT_FUEL_VERIFICATION,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  client?: FuelVerificationClient;
+}) {
+  const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_FUEL_VERIFICATION_HEADING_ID}>
+      {(site) => <FuelVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
+    </SiteScoped>
+  );
+}
+
+function FuelVerificationPage({ site, actionId, client }: { site: LoadedSite; actionId: string; client: FuelVerificationClient }) {
+  const state = useFuelVerification(client, site.site_id, actionId);
+  const body = state?.status === "loaded" ? state.body : null;
+  const code = body?.action_code ? displayCode(body.action_code) : null;
+  return (
+    <main aria-labelledby={SITE_FUEL_VERIFICATION_HEADING_ID}>
+      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
+        <ol className="breadcrumbs__list">
+          <li className="breadcrumbs__item">
+            <Link to="/actions">Actions</Link>
+          </li>
+          {code === null ? null : <li className="breadcrumbs__item">{code}</li>}
+          <li className="breadcrumbs__item">
+            <span className="breadcrumbs__current" aria-current="page">
+              Verification
+            </span>
+          </li>
+        </ol>
+        <span className="mini-finding-crumbs__site">
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
+          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+        </span>
+      </nav>
+      <PageHeader
+        title={
+          body?.title ? (
+            <>
+              {code === null ? null : `${code} · `}
+              {/* The Action's stored title is the user's own words (the frontend exemption). */}
+              <span data-vocabulary-exempt="user-owned">{body.title}</span>
+            </>
+          ) : (
+            "Action"
+          )
+        }
+        headingId={SITE_FUEL_VERIFICATION_HEADING_ID}
+        subtitle={site.display_name}
+        actions={<Link to={siteDetailHref(site.site_id)}>Open site</Link>}
+      />
+      <FuelVerificationBody state={state} />
     </main>
   );
 }

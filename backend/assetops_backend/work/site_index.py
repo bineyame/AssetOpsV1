@@ -235,7 +235,8 @@ def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str
         lineage = selection is not None and selection["lineage"]
         href = None
         if link.get("action_domain") == FUEL_DOMAIN:
-            href = None  # DIESEL-1-R3m2: no W1 Action page exists for a fuel Action; K6b adds its own page
+            # DIESEL-1-R3m2: no W1 Action page exists for a fuel Action; K6b's fuel verdict page is its address
+            href = f"/sites/{site_code}/domain-actions/{aid}/fuel-verification" if lineage else None
         elif lineage and link["finding_revision_id"] is not None:
             href = f"/sites/{site_code}/actions/{aid}/verification"
         elif lineage and link.get("opportunity_revision_id") is not None:

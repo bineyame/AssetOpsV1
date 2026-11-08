@@ -72,6 +72,13 @@ class VerificationPorts:
     #: MV-1: the declared productive-use price over one span as known at a cutoff (`PriceSelection`); None: the mill
     #: value reads UNPRICED
     productive_price: Callable[[UUID, UUID, datetime, datetime, datetime], Any] | None = None
+    #: DIESEL-K6b: K3's `FuelBalanceReadPort` (`windows`, `window`) and K4a's `FuelFindingReadPort`, both implemented
+    #: by `PostgresFuelBalanceStore`; None: the fuel freeze, evaluation and read are refused (503)
+    fuel_windows: Any = None
+    fuel_findings: Any = None
+    #: DIESEL-K6b: `site_visits(tenant, site, case_id, known_at)` -> the case's SITE_VISIT operational records (the W6
+    #: global work read, `case_operational_records`); None: the verdict page omits the site-visit row
+    site_visits: Callable[[UUID, UUID, str, datetime], list[dict[str, Any]]] | None = None
 
 
 def _wire(value: Any) -> Any:
@@ -401,6 +408,113 @@ class VerificationService:
         if outcomes and outcomes[0]["outcome"] == vf.VERIFIED:
             return vf.summary_wire(ctx, outcomes, live, price=self._mill_price(tenant_id, site_id, plan, outcomes[0]))
         return vf.summary_wire(ctx, outcomes, live)
+
+    # ---- DIESEL-K6b: `fuel-residual-within-band-1`, the verification of a FUEL_BALANCE domain Action ---------------
+
+    def _fuel_ports(self) -> tuple[Any, Any]:
+        ports = self._ports()
+        if ports.fuel_windows is None or ports.fuel_findings is None:
+            raise ActionRefused(503, "VERIFICATION_FUEL_READ_UNAVAILABLE", "The fuel checks cannot be read.")
+        return ports.fuel_windows, ports.fuel_findings
+
+    def _fuel_context(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> dict[str, Any]:
+        ctx = self.store.fuel_plan_context(tenant_id, site_id, domain_action_id)
+        if ctx is None:
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        return ctx
+
+    def _fuel_windows(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], now: datetime) -> dict[date, Any]:
+        from assetops_backend.actions import fuel_verification as fv
+
+        windows, _ = self._fuel_ports()
+        lo = date.fromisoformat(plan["later_selection_rule"]["candidates"]["from"])
+        got = windows.windows(tenant_id, site_id, UUID(plan["basis"]["tank_asset_id"]), lo,
+                              lo + timedelta(days=fv.LOOK_NIGHTS), known_at=now)
+        return {w.night_date: w for w in got}
+
+    def freeze_fuel_plan(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> tuple[int, dict[str, Any]]:
+        """DIESEL-1-R3m: freeze the `fuel-residual-within-band-1` plan of a FUEL_BALANCE domain Action, once, after its
+        work case is COMPLETE and linked and before the first night after the change begins. A service method (story
+        time and tests); no route."""
+        from assetops_backend.actions import fuel_verification as fv
+
+        ctx = self._fuel_context(tenant_id, site_id, domain_action_id)
+        if ctx["plan"] is not None:
+            return 200, {"replayed": True, "plan": fv.plan_wire(ctx["plan"])}
+        action, applied = ctx["action"], ctx["applied"]
+        if action["domain"] != "FUEL_BALANCE":
+            raise fv.refused_family()
+        if applied is None:
+            raise ActionRefused(409, "VERIFICATION_ACTION_NOT_APPLIED",
+                                "A verification plan needs the Action's linked work case to be COMPLETE.")
+        windows, findings = self._fuel_ports()
+        now = self.clock()
+        ff = findings.fuel_finding(tenant_id, site_id, action["origin_finding_id"], known_at=now)
+        window_id = ctx["origin_window_id"]
+        baseline = None if ff is None or window_id is None else windows.window(tenant_id, site_id, UUID(window_id))
+        if baseline is None:
+            raise ActionRefused(409, "VERIFICATION_ORIGIN_UNAVAILABLE",
+                                "The Action's unexplained-fuel Finding or its night check cannot be read.")
+        effective = applied["occurred_at"].astimezone(timezone.utc)
+        if effective < baseline.window_end:
+            raise ActionRefused(409, "VERIFICATION_EFFECTIVE_BEFORE_BASELINE",
+                                "The change is recorded before the end of the night it answers.")
+        later = fv.later_nights(effective, action["timezone"])
+        if fv.night_bounds(later[0], action["timezone"])[0] <= now:
+            raise ActionRefused(409, "VERIFICATION_LATER_WINDOW_STARTED",
+                                "The first night after the change has already begun; the plan must be frozen before "
+                                "it.")
+        plan = fv.plan_row(domain_action_id, action, applied, baseline, now)
+        row, replayed = self.store.freeze_fuel_plan(tenant_id, site_id, plan)
+        return (200 if replayed else 201), {"replayed": replayed, "plan": fv.plan_wire(row)}
+
+    def evaluate_fuel_plan(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID) -> dict[str, Any]:
+        """DIESEL-1-R3m: judge the fuel plan once, storing the one decisive outcome or nothing (explicit; no tick)."""
+        from assetops_backend.actions import fuel_verification as fv
+
+        ctx = self._fuel_context(tenant_id, site_id, domain_action_id)
+        plan = ctx["plan"]
+        if plan is None or plan["rule_id"] != fv.FUEL:
+            return {"state": fv.NO_PLAN, "stored": False}
+        prior = self.store.domain_outcomes(tenant_id, site_id, domain_action_id)
+        if prior:
+            return {"state": prior[0]["outcome"], "stored": False, "replayed": True, "outcome_id": str(prior[0]["id"])}
+        now = self.clock()
+        result = fv.assess(plan, self._fuel_windows(tenant_id, site_id, plan, now), now)
+        if not result["decided"]:
+            return {"state": fv.NOT_JUDGED, "stored": False, "not_judged_text": result["not_judged_text"]}
+        source_class = self.store.example_source_class(tenant_id, site_id, fv.used_dates(plan, result),
+                                                       plan["basis"]["timezone"], now)  # WD-1m-R2
+        outcome, metrics = fv.outcome_rows(plan, result, now, source_class)
+        row, replayed = self.store.record_domain_outcome(tenant_id, site_id, outcome, metrics)
+        return {"state": row["outcome"], "stored": not replayed, "replayed": replayed, "outcome_id": str(row["id"])}
+
+    def fuel_summary(self, tenant_id: UUID, site_id: UUID, domain_action_id: UUID,
+                     site_code: str | None = None) -> dict[str, Any]:
+        """DIESEL-1-R3m: the read-only fuel verdict of a FUEL_BALANCE domain Action (one GET; the page's only read)."""
+        from assetops_backend.actions import fuel_verification as fv
+
+        ctx = self._fuel_context(tenant_id, site_id, domain_action_id)
+        action, plan = ctx["action"], ctx["plan"]
+        if action["domain"] != "FUEL_BALANCE":
+            raise fv.refused_family()
+        windows, _ = self._fuel_ports()
+        now = self.clock()
+        outcomes = [] if plan is None else self.store.domain_outcomes(tenant_id, site_id, domain_action_id)
+        live = None
+        if plan is not None and not outcomes:
+            live = fv.assess(plan, self._fuel_windows(tenant_id, site_id, plan, now), now)
+        window_id = ctx["origin_window_id"]
+        baseline = None if window_id is None else windows.window(tenant_id, site_id, UUID(window_id))
+        visit = None
+        port = self._ports().site_visits
+        if port is not None and ctx["applied"] is not None:
+            visits = port(tenant_id, site_id, str(ctx["applied"]["case_id"]), now)
+            first = next((v for v in visits if v.get("kind") == "SITE_VISIT"), None)
+            visit = first["body"] if first is not None and isinstance(first.get("body"), str) else None
+        origin = {"finding_id": action["origin_finding_id"], "revision_id": action["origin_finding_revision_id"]}
+        return fv.fuel_summary_wire(ctx, plan, outcomes, live, origin, baseline,
+                                    site_code or ctx["site_code"], site_visit=visit)
 
     def _mill_price(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], outcome: dict[str, Any]) -> Any:
         """MV-1 (FUEL-1 §2.2(c)): the declared productive-use price over the Site-local span from the first baseline

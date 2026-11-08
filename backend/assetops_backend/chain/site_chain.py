@@ -146,9 +146,13 @@ def actions_of(rows: Mapping[str, Any], thread_ids: Iterable[str], *, site: str,
 
 def action_wire_ref(site: str, a: Mapping[str, Any]) -> dict[str, Any]:
     """DD1b2-R6 O1: a domain intent raised from an opportunity (the mill) has no Action page; its Ref is the verdict
-    page. Every other Action (MINI_TRIAL, a Finding's domain intent) keeps its ACTION Ref."""
+    page. Every other Action (MINI_TRIAL, a Cold/EV Finding's domain intent) keeps its ACTION Ref.
+
+    DIESEL-1-R3m: a fuel Action has no Action page; its Ref is the fuel verdict page."""
     if a["kind"] == "DOMAIN_INTENT" and a.get("origin_opportunity_id") is not None:
         return refs.domain_verdict_ref(site, a["action_id"])
+    if a["kind"] == "DOMAIN_INTENT" and a.get("action_domain") == "FUEL_BALANCE":
+        return refs.fuel_verdict_ref(site, a["action_id"])
     return refs.action_ref(site, a["action_id"])
 
 
@@ -176,6 +180,32 @@ def opportunity_actions(rows: Mapping[str, Any], *, site: str, tz: str | None, c
                     "origin_opportunity_id": a["origin_opportunity_id"], "accepted_at": accepted,
                     "outcome": outcome if known else None, "outcome_recorded_at": recorded if known else None,
                     # WD-1m (WD-1m-R §3): the verdict's example-data class follows the outcome's cutoff visibility
+                    "source_class": a.get("source_class") if known else None,
+                    "ref": action_wire_ref(site, a)})
+    out.sort(key=lambda x: (x["code"] or "", x["action_id"]))
+    return out
+
+
+def fuel_verdict_actions(rows: Mapping[str, Any], *, site: str, cutoff: datetime | None,
+                         lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+    """DIESEL-1-R3m: `opportunity_actions` for the Site's FUEL_BALANCE domain Actions: kind DOMAIN_INTENT with
+    `action_domain` FUEL_BALANCE and a thread; the same `accepted_at` test; the thread has an occurrence with a
+    `finding_id` whose episode meets `[lo, hi)`. `outcome` is the stored decisive outcome when known by `cutoff`."""
+    occs = _occurrences(rows)
+    out = []
+    for a in rows.get("actions", ()):
+        tid, accepted = a.get("thread_id"), a.get("accepted_at")
+        if a.get("kind") != "DOMAIN_INTENT" or a.get("action_domain") != "FUEL_BALANCE" or tid is None:
+            continue
+        if accepted is None or accepted >= hi or (cutoff is not None and accepted > cutoff):
+            continue
+        if not any(o.get("finding_id") is not None and o["episode_start"] is not None and o["episode_start"] < hi
+                   and (o["episode_end"] is None or o["episode_end"] > lo) for o in occs.get(tid, ())):
+            continue
+        outcome, recorded = a.get("outcome"), a.get("outcome_recorded_at")
+        known = outcome is not None and (cutoff is None or (recorded is not None and recorded <= cutoff))
+        out.append({"action_id": a["action_id"], "code": a.get("action_code"), "thread_id": tid,
+                    "outcome": outcome if known else None, "outcome_recorded_at": recorded if known else None,
                     "source_class": a.get("source_class") if known else None,
                     "ref": action_wire_ref(site, a)})
     out.sort(key=lambda x: (x["code"] or "", x["action_id"]))

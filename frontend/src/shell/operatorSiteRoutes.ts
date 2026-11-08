@@ -386,6 +386,12 @@ export function siteFuelFindingHref(siteId: string, findingId: string, revisionI
   const base = `${siteDetailHref(siteId)}/fuel-findings/${encodeURIComponent(findingId)}`;
   return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
 }
+/** DIESEL-K6b (DIESEL-1-R3m): the fuel verdict of a fuel domain Action, at its own address beside the mill's. */
+export const SITE_FUEL_VERIFICATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/domain-actions/:actionId/fuel-verification`;
+
+export function siteFuelVerificationHref(siteId: string, actionId: string): string {
+  return `${siteDetailHref(siteId)}/domain-actions/${encodeURIComponent(actionId)}/fuel-verification`;
+}
 export const ACTION_CHILD_VIEWS = ["plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionChildView = (typeof ACTION_CHILD_VIEWS)[number];
 
@@ -604,6 +610,8 @@ export function routeFor(r: Ref): string | null {
       return siteMillVerificationHref(r.site, r.id);
     case "FUEL_FINDING": // DIESEL-1-R3l: the unexplained-fuel Finding page
       return siteFuelFindingHref(r.site, r.id, r.revision);
+    case "FUEL_VERDICT": // DIESEL-1-R3m: the fuel verdict of a fuel domain Action
+      return siteFuelVerificationHref(r.site, r.id);
     case "OPPORTUNITY":
       return siteOpportunityHref(r.site, r.id, r.known_at);
     case "CASE":

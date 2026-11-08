@@ -244,3 +244,12 @@ Heights in px, 1440 / 390; budget from `.agent/K5-mock-measurements.md`.
   `git checkout --`. Result after restore: siteFuelFinding + miniFuelRoutes 2 files, 16 tests pass; `tsc --noEmit` clean.
 - L1-L4 go to the follow-up list (not fixed here).
 - Layout captures are still owed (not run in this round).
+
+## Merge of main (K6b) into the K5 branch
+
+K6b had copied K5's FUEL_FINDING ref items byte for byte and added FUEL_VERDICT beside them. Six files conflicted
+(`chain/refs.py` x4 hunks, `route-refs.json`, `routeRefs.test.ts`, `operatorSiteRoutes.ts` x2, `chainRef.ts`,
+`linkRefs.ts`). In each the K5 side was empty or the identical FUEL_FINDING copy, so the resolution is one FUEL_FINDING copy plus
+K6b's FUEL_VERDICT additions (KINDS ends with both kinds; the kind-list assertion lists both; K5's extra FUEL_FINDING
+test kept). `App.tsx`, `SiteAnalyticsFrames.tsx` and `test_out_b2_vocabulary.py` auto-merged with both sides present. K5 added
+no register row, so R709 (K6b) stands and nothing was renumbered. No conflict outside the listed set.

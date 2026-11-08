@@ -88,6 +88,7 @@ SELECT CAST(a.id AS text) AS action_id, a.action_code, a.kind, CAST(a.thread_id 
               WHERE x.tenant_id = a.tenant_id AND x.action_id = a.id AND x.kind = 'ACCEPTED')
             ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id)
        END AS accepted_at,
+       CASE WHEN a.kind = 'DOMAIN_INTENT' THEN (SELECT d.domain FROM domain_action d WHERE d.tenant_id = a.tenant_id AND d.id = a.id) END AS action_domain,
        v.outcome, v.recorded_at AS outcome_recorded_at, v.source_class
   FROM chain_action a
   -- WD-1m-R2: `source_class` is the example-data class stored with the verdict when it was judged (NULL = none found,

@@ -34,6 +34,9 @@ function parse(href: string): Ref | null {
     const revision = q.get("revision_id") ?? undefined;
     return { kind: "FUEL_FINDING", site: seg(m[1]), id: seg(m[2]), ...(revision ? { revision } : {}) };
   }
+  if ((m = path.match(/^\/sites\/([^/]+)\/domain-actions\/([^/]+)\/fuel-verification$/))) {
+    return { kind: "FUEL_VERDICT", site: seg(m[1]), id: seg(m[2]) };
+  }
   if ((m = path.match(/^\/sites\/([^/]+)\/actions\/([^/]+)(?:\/(verification|plan|history))?$/))) {
     const event = q.get("event_id") ?? undefined;
     const view = m[3] as "verification" | "plan" | "history" | undefined;
