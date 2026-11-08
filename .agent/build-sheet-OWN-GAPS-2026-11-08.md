@@ -1397,3 +1397,135 @@ into E2's reserved fix round.** Evidence:
    `a5a5ffaf0`; rerun only if a stage, tick or limits file changes again).
 4. The R3.4 confirming run on main fails at the same line (pre-existing). p1-p3 are then listed, not counted.
 5. A fresh Opus review with no open High or Medium finding; then `--no-ff` merge and check-all on main, as R1.3 says.
+
+### R3.7 — G2 Q1 edge ruling (2026-11-08)
+
+Claude Architect, under the owner's delegation of 2026-11-08 (`.agent/owner-away-architect-decides-2026-11-08.md`:
+decide from how real sites work, no corner cutting on fundamentals). Read-only; no Postgres run. Inputs: branch
+`task/OWN-G2-diesel-night-check` at `11f284e80`, packet Phase 3, `test_own_g2_fuel_night_tick_postgres.py:215-244`.
+**This wins over R3.3 item 4, R2-G2 Q1's Postgres case and §2.4's half-open read range where they differ.** Logged for
+owner review (decision D-R3.7 below).
+
+**1. The cadence is 15 minutes; R3.3 item 4 was wrong.** The fixture's runs use `registered-kobo-publication` v5
+(`tools/demo_combined_kisiwa.py:73-75`). Its `fuel-level-sensor/fuel-level` declaration is inherited unchanged from
+`LAB_PUBLICATION_PROFILE` (`backend/assetops_backend/runs/profiles.py:1496-1498`: `cadence_minutes=15`,
+`dropout_per_thousand=40`) through v1 (`:1873-1890`); v4's five-minute set `_V4_FIVE_MINUTE` (`:1996-2005`) does not
+contain it and v5 changes only PV output (`:2087`). 96 slots a day less 4 % dropout is about 92-94 a day, matching the
+builder's 376 over 4 runs. The "five-minute publication profile" wording (`sites/binding_roles.py:275`) is about the
+other signals; that is where R3.3's assumption came from. Readings sit on :00/:15/:30/:45, so 17:30 and 12:30 exist and
+17:25 / 12:25 never will.
+
+**2. Found while ruling: the bucket's end was open, but the assessment's read is closed. Fixed here (D-R3.7).** The
+assessment reads `[start - 30 min, end + 30 min]` closed (`fuel_balance/service.py:108`, with `window_readings`'
+`<= :hi`, `actions/adapters/postgres_action_store.py:606`) and picks the closing reading from `end <= t <= end + 30 min`
+(`fuel_balance/rules.py:160`). So a reading at exactly local 12:30 can be the night's closing reading: on a 15-minute
+sensor with 4 % dropout, a lost 12:00 and 12:15 makes the 12:30 reading the closing one, and `rules.py:160-168` also uses
+it for the conflict check. The bucket put 12:30 in no night (`< 12:30`). On a real remote mini-grid, readings arrive
+late routinely (gateway store-and-forward after a link outage); a late 12:30 reading would change night d-1's inputs but
+never trigger its re-check. The bucket is the re-check trigger, so it must cover exactly what the assessment reads.
+**Ruled: the bucket is `[17:30, 12:30]`, closed at both ends.** Two nights' ranges still never overlap (12:30 to 17:30
+lies outside both). The start side is already right (opening search `start - 30 <= t <= start`, bucket `>= 17:30`).
+
+Product changes (G2 branch only, nothing else moves):
+- `fuel_balance/scheduled.py` `night_of`: `if local.time() <= end:` (was `<`). `bucket_bounds` docstring: "`[NIGHT_START
+  - EDGE, NIGHT_END + EDGE]` (closed: the assessment reads both edges)".
+- `fuel_balance/adapters/postgres_fuel_balance_store.py`: move the `CASE` into a module constant `NIGHT_BUCKET_SQL`
+  (alias `e`, binds `:tz`, `:ns`, `:ne`), ending `... WHEN {local}::time <= :ne THEN {local}::date - 1 END`, and use it
+  unchanged in `schedule_inputs` (`SELECT {NIGHT_BUCKET_SQL} AS night, d.decided_at FROM ...`). It is the one SQL source
+  the Postgres test evaluates; no other behaviour changes.
+- §2.4's "`[start − 30 min, end + 30 min)`" now reads "`[start − 30 min, end + 30 min]`".
+
+**3. What Q1 must prove on Postgres.** That the store's own SQL bucket and `night_of` give the same night for every
+instant, at second precision, at both edges, for the real Kisiwa readings and for any cadence another site may report on
+(1, 5, 10, 15 or 60 min, or unaligned clocks such as 17:29:58). A set equality on `reading_nights` alone cannot prove an
+edge: every night already has dozens of readings, so moving the 17:30 or 12:30 reading in or out leaves the set
+unchanged. Hence a per-reading check through the store's own expression, plus synthetic instants for other cadences
+evaluated by Postgres. No new evidence is written, so P1-P7 are untouched and R3.1's no-hand-built-batch rule holds.
+
+**Exact asserts, replacing `test_q1_...` body lines 216-242 (the Q12 assert at the end stays as it is):**
+
+```python
+from assetops_backend.fuel_balance.adapters.postgres_fuel_balance_store import NIGHT_BUCKET_SQL
+from assetops_backend.fuel_balance.composition import build_fuel_balance_store
+from assetops_backend.fuel_balance.scheduled import RECORD_LOOKBACK, bucket_bounds, night_of
+
+engine = site["engine"]
+ns, ne = bucket_bounds()
+b = {"tz": site["tz"], "ns": ns, "ne": ne}
+# (a) every real tank reading, through the store's join, acceptance filter and its own CASE
+rows = _q(engine, "SELECT COALESCE(e.interval_start, e.source_time) AS at, d.decided_at, "
+          f"{NIGHT_BUCKET_SQL} AS night FROM accepted_evidence e JOIN ingestion_disposition d "
+          "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal WHERE e.site_id = :s AND d.decision = 'ACCEPTED' "
+          "AND d.accepted_evidence_id = e.id AND e.role = 'fuel_level' AND e.asset_id = CAST(:a AS uuid)",
+          s=site["site_id"], a=site["tank"], **b)
+local = [(r["at"].astimezone(site["zone"]), r) for r in rows]
+hhmm = {t.strftime("%H:%M") for t, _ in local}
+print("G2 Q1 readings", len(rows), "minutes", sorted({t.minute for t, _ in local}), "edges",
+      sorted(hhmm & {"17:30", "12:30"}))
+assert len(rows) > 0 and {"17:30", "12:30"} <= hhmm, sorted(hhmm)   # the real edge readings exist
+for t, r in local:
+    assert r["night"] == night_of(t), (t, r["night"])              # SQL == Python, every reading
+    if t.strftime("%H:%M") == "17:30":
+        assert r["night"] == t.date(), t                           # start edge in
+    if t.strftime("%H:%M") == "12:30":
+        assert r["night"] == t.date() - timedelta(days=1), t       # end edge in (closed, = closing search)
+# (b) any cadence: synthetic instants around N0, evaluated by Postgres through the same expression
+d, z = site["nights"][0], site["zone"]
+d1 = d + timedelta(days=1)
+probe = {datetime.combine(d, time(17, 25), z): None, datetime.combine(d, time(17, 29, 59), z): None,
+         datetime.combine(d, time(17, 30), z): d, datetime.combine(d, time(17, 30, 1), z): d,
+         datetime.combine(d, time(23, 55), z): d, datetime.combine(d1, time(0, 5), z): d,
+         datetime.combine(d1, time(12, 25), z): d, datetime.combine(d1, time(12, 29, 59), z): d,
+         datetime.combine(d1, time(12, 30), z): d, datetime.combine(d1, time(12, 30, 1), z): None,
+         datetime.combine(d1, time(15), z): None}
+for at, want in probe.items():
+    [got] = _q(engine, f"SELECT {NIGHT_BUCKET_SQL} AS night FROM (SELECT CAST(:x AS timestamptz) AS interval_start, "
+               "CAST(NULL AS timestamptz) AS source_time) e", x=at.astimezone(UTC), **b)
+    assert got["night"] == night_of(at) == want, (at, got["night"], night_of(at), want)
+# (c) the store itself: same nights, and each night's trigger instant is its readings' latest decided_at
+store = build_fuel_balance_store(URL)
+try:
+    inputs = store.schedule_inputs(site["tenant_id"], site["site_id"], RECORD_LOOKBACK)
+    empty = store.schedule_inputs(site["tenant_id"], uuid4(), RECORD_LOOKBACK)
+finally:
+    store.dispose()
+want = {}
+for t, r in local:
+    n = night_of(t)
+    if n is not None:
+        want[n] = max(want.get(n, r["decided_at"]), r["decided_at"])
+print("G2 Q1 reading nights", sorted(inputs.reading_nights), "want", sorted(want))
+assert set(inputs.reading_nights) == set(want) == {site["nights"][k] for k in OFFSETS}
+assert all(inputs.reading_nights[n].astimezone(UTC) == want[n].astimezone(UTC) for n in want), (inputs.reading_nights,
+                                                                                                want)
+assert inputs.tank_asset_id == site["tank"] and inputs.generator_asset_id is not None
+```
+
+Builder rules: `UTC`, `time`, `datetime`, `timedelta`, `uuid4`, `OFFSETS`, `URL` and `_q` (keyword binds) are already in
+the file. If `_q` cannot take the `time` binds, use `engine.connect()` + `text(...)` with the same binds; nothing else.
+No `-k` split (R3.2 stands).
+
+**No-DB case 1 (`test_own_g2_fuel_night_due.py:97-112`):**
+- `:102` becomes `assert night_of(datetime(2026, 11, 6, 12, 30)) == d  # fails if the end is open (the closing search
+  includes end + 30 min)`; add `assert night_of(datetime(2026, 11, 6, 12, 30, 1)) is None  # fails past end + 30 min`
+  and `assert night_of(datetime(2026, 11, 5, 17, 29, 59)) is None`.
+- `:112` becomes `assert night_of(datetime(2026, 11, 6, 11, 30)) == date(2026, 11, 5)`; add
+  `assert night_of(datetime(2026, 11, 6, 11, 30, 1)) is None`.
+
+**4. The two Phase 3 test-code fixes (`0dd9e5af6`) are accepted; neither changes what is proved.**
+- (a) Delivery ticket digest: the product refuses a `FUEL_DELIVERY` without a ticket SHA-256 (`work/service.py:550-551`,
+  `WORK_RECORD_TICKET_REQUIRED`), which is right for a real site (no ticket, no delivery credit). Before the fix
+  P4b/P4c/P5 stopped at `_post`'s 201 assert, before their proof; volumes, times and tank are unchanged, so the fix only
+  lets the tests reach what they were written to prove.
+- (b) `_ids()`: `record_ids` is stored as `[[root, head], ...]` (`fuel_balance/service.py:124`, `model.py:63`), so the
+  old `str(x)` compare could never match. Each dip has one revision (root == head), so "the dip's id is among the
+  flattened ids" is the same claim as "the dip is a counted record".
+
+**5. Merge condition update (R3.6).** Item 1 now includes these Q1 asserts passing in the same whole-file run. The no-DB
+set (item 2) is rerun after the `night_of` change. The reviewer confirms `NIGHT_BUCKET_SQL` is the only bucket `CASE`
+in `schedule_inputs`. The packet lists D-R3.7 as a product change with this reason.
+
+**D-R3.7 (for owner review).** The night re-check trigger now includes a reading at exactly the closing edge (local
+12:30), because the assessment uses that reading and real gateways deliver late readings; leaving it out would let a
+late closing reading go unnoticed. Cost: one comparison in two places, one extracted SQL constant, and the Postgres
+rerun Q1 needed anyway.
