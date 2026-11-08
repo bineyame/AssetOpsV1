@@ -73,7 +73,9 @@ merged as 1b1b05e0c), §8.7 rows. Rehearsal DB `assetops_demo3_k9rehearsal_test`
 ### Checks
 - `tools/checks/test_chain_coherence.py`: 172 passed. `backend/tests/test_demo_combined_finish_rows.py` +
   `test_k7_kisiwa_story.py`: 143 passed.
-- `tools/check-all.ps1`: CHECKALL_RESULT
+- `npm ci` in `frontend`, then `tools/check-all.ps1 -Python ...plan2\.venv\Scripts\python.exe` on 70639ecac: exit 0,
+  "All 18 guards passed", wall 1502 s. The estate guard self-tests alone took 1148 s (15 passed), probably because of
+  memory pressure: free RAM was 2.67 GB at the start, with K8 running in parallel.
 
 ### Deviations and notes
 - Q5 four-Site bundle is built in the test from `clean_full` (adds EV and Kisiwa entries plus manifest requests) rather
