@@ -84,3 +84,33 @@ merged as 1b1b05e0c), §8.7 rows. Rehearsal DB `assetops_demo3_k9rehearsal_test`
   Portfolio page draws); the portfolio body itself carries `summary.claims`, not cards.
 - KIS-1 prices: the latest stored revision per night (`DISTINCT ON (night_date)`), the 10 nights.
 - No DB or rehearsal step was run (pre-rehearsal only).
+
+## R3r addendum (DIESEL-1-R3r §9r, main 9db00ce17)
+
+### Delta (commit 39d4d2aa5)
+- `tools/demo_combined_kisiwa.py` `register()`: after `register_in`, `store.record_no_legacy_evidence_basis(UUID(tenant_id), UUID(site_id), now=import_at)`
+  (Postgres path only; `register_in` and the JSON outputs unchanged, so KIS-1 is byte-stable).
+- `tools/demo_combined_rows.py` `kis_ov` (pure body) and `tools/demo_combined_finish.py` `KIS-OV` (wired right after KIS-7): Overview 200 for S-5d and S;
+  exactly one `site_cutover_basis` row, `NO_LEGACY_EVIDENCE`, same import row and digest; board `read_state` reported, not asserted;
+  `KisiwaMissing` when no Kisiwa Site (carry count in `test_k7_kisiwa_story.py` 11 -> 12).
+- L0 tests (`test_demo_combined_finish_rows.py`): wiring, pass body, six fail bodies (409 AWAITING_EVIDENCE_MIGRATION, no basis, two basis, other basis, other import, other digest), and a `register` test that proves the call and its arguments after `register_in`.
+- Tests: `test_demo_combined_finish_rows.py` + `test_k7_kisiwa_story.py`, 146 passed.
+- Non-vacuity (committed first, then mutated, then `git checkout`): removing the one-row assertion and removing the register call each failed `test_kis_ov_pass_and_each_break_fails` and `test_register_records_the_no_legacy_basis_after_register_in` (2 failed, 1 passed).
+
+### Clone probe (`assetops_k9_audit_r3r`, dropped after)
+Free RAM 3.67 GB (>= 2.5); template had 0 open connections; `CREATE DATABASE ... TEMPLATE assetops_demo3_kisiwa_test`, upgraded to head; template touched only as the clone source.
+Cutover recorded with the same store call at the stored import instant (2026-10-26T09:00:00Z). Read through K9 code with the K7 work folder (`keys.json`, `story.json`, `kisiwa.json`).
+
+| Read (S = 2026-11-06) | Before | After |
+|---|---|---|
+| Overview S-5d / S | 409 AWAITING_EVIDENCE_MIGRATION / 409 | 200 / 200 |
+| Kisiwa S board `read_state` | PARTIAL | PARTIAL |
+| KIS-1, KIS-2, KIS-3, KIS-4, KIS-5, KIS-8a, KIS-9, KIS-10 | pass | pass |
+| KIS-6, KIS-7, KIS-8 | fail | fail (same) |
+| KIS-OV | fail | pass |
+
+No row passes before and fails after (S-r2 clear); Overview 200 (S-r1 clear). KIS-6/7/8 fail on both sides because a Kisiwa-only clone has no Kobo/four-Site summary (they need the full prepare); not caused by the basis.
+
+### Screenshot
+`.agent/k9-r3r-kisiwa-overview-1440.png` (1440 wide, `/sites/KISIWA-001?date=2026-11-06`, served read-only from the clone by uvicorn + vite on ports 18431/18432, both killed by PID).
+The Overview renders. Its objective line reads "Objective: serve residential, clinic and productive loads while protecting the battery reserve." (K9's `SiteWindowOverview.tsx:484`), not the R3p "Households, Cold store (ice and fish) and Water pump" wording: that wording is in K8's unmerged branch, so it is not on K9 yet. Not a stop; it should appear after K8 merges into K9.
