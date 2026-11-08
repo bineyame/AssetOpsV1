@@ -9,6 +9,256 @@ be saved , the entry form should be updated as well as the subsequent backend lo
 
 ---
 
+## Revision 2 — pre-flight rulings 2026-11-08
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9` on the live main checkout `AssetOpsV1-plan2`). Read-only on
+code; no Postgres or heavy run. Owner, verbatim (`.agent/owner-proceed-own-gaps-2026-11-08.md`): "the thing is that
+these estiamtes are done based on human elivery speend. just proceed the the implementation of my request and we'll
+reassess where are tomorrow". Question files: `AssetOpsV1-g3a/.agent/preflight-G3a.md`, `AssetOpsV1-g2/.agent/preflight-G2.md`,
+`AssetOpsV1-g3b/.agent/preflight-G3b.md`, `AssetOpsV1-g1/.agent/preflight-G1.md`, and the DS-1a packet
+`AssetOpsV1-ds1a/.agent/review-packet-DS-1a.md` (Spec vs screen 5 and 6; forbidden-word scan).
+
+**Where this revision and Revision 1 or the sections below differ, this revision wins.** Each ruling is numbered after
+the builder's question. "Accepted" means the builder's proposal is the spec, exactly as written in the question file.
+**Merge order stays G3a → G2 → G3b → G1.** The DS-1a refresh (R1.4, extended in R2-DS1a) follows G1.
+
+### R2-G3a (Lane B)
+
+1. **Accepted.** The order is `gate.open_scope(request, code, True)` (read access, 404, write grant 401/403), then entry
+   principal absent → 403 `WORK_WRITE_FORBIDDEN`, then 503 `WORK_STORE_UNAVAILABLE` when `service is None` or
+   `site_context is None`, then shape 422, then tank and timezone, then the service. The write grant step stays in.
+   §3.2's refusal order is to be read with this step 1b inserted.
+2. **Accepted.** `site_context=None` is the keyword default (503 after the principal check). `main.py` builds one
+   `fuel_store = build_fuel_balance_store(database_url())`, passes it to `FuelNightRead` as today (which keeps disposal),
+   and composes `site_context` from `fuel_store.night_context`: the instant is dropped, and `SQLAlchemyError` (and the
+   no-URL `RuntimeError`) map to `WorkStoreUnavailable` → 503 `WORK_STORE_UNAVAILABLE`. No second store.
+3. **Accepted.** `{value}` in the body, in the ticket digest text and in `quantity` is `m.decimal_text(Decimal(value))`.
+   Example: typed `198.50` stores `198.5` and the body reads "… 198.5 L.". §3.5 G3a gains one unit: `198`, `198.0` and
+   `0198` compose identical bodies and digests.
+4. **Accepted.** All five keys are required. `ticket_reference` must be present, and null is allowed. A missing key →
+   422 `OPREC_ENTRY_INVALID`. For `FUEL_DELIVERY`, `null` → `OPREC_ENTRY_TICKET_REQUIRED`, and `""` or a pattern miss →
+   `OPREC_ENTRY_INVALID`. Validation stops at the first failing step in §3.2's order.
+5. **Accepted.** These are the `MESSAGES` literals. `OPREC_ENTRY_INVALID`: "The entry, value, time taken, ticket
+   reference or key is not valid." `OPREC_ENTRY_TICKET_REQUIRED`: "A fuel delivery needs its ticket reference."
+6. **Accepted.** The helper goes in `host/lab_app.py`: `OPERATIONAL_ENTRY_ENV = "ASSETOPS_OPERATIONAL_ENTRY"`, and
+   `operational_entry_from_environment() -> Principal | None` raises `ConfigurationError("ASSETOPS_OPERATIONAL_ENTRY must
+   be 'on' or unset")` for any other non-empty value. `build_app` calls it before `create_app`, and
+   `overrides.setdefault("operational_entry_principal", …)` is set only when the variable is on. Its tests (`on`, unset,
+   empty, `yes`) go in the new `host/tests/test_own_g3_entry_env.py`, and §3.5's startup-refusal case moves there.
+   G1 depends on this: G1's in-process `app_client` must set the variable in `os.environ` before `lab_app` is first
+   imported (see the R2-G1 header).
+7. **FYI for G1, ruled in R2-G1 Q8 and the R2-G1 "late delivery" header.** G3a does not change. The 30-day refusal
+   stays.
+8. **FYI for G3b, ruled in R2-G3b Q2.** G3a does not change. The record-kind filter keeps no fuel chip; fuel records list
+   under "All". A fuel kind chip is an after-the-demo item.
+
+### R2-G2 (Lane A)
+
+1. **Accepted.** `scheduled.py` exports `bucket_bounds() -> (time, time)` (from `rules.NIGHT_START/NIGHT_END` and `EDGE`,
+   computed through `datetime.combine`) and the pure `night_of(local_dt) -> date | None`, which mirrors the SQL `CASE`.
+   No-DB case 1 tests `night_of`. The Rev 1 pin monkeypatches `rules.NIGHT_START` and asserts that both functions move.
+   The Postgres file adds one case: readings at local 17:29, 17:30, 12:29 and 12:30, and `schedule_inputs(...).reading_nights`
+   must agree with `night_of`.
+2. **Accepted.** `ScheduleInputs` (a frozen dataclass) and `DuePlan` live in `fuel_balance/model.py`. `schedule_inputs` is
+   added to the `FuelBalanceReadPort` Protocol. §2.6's "`ScheduleInputs` in the adapter" is replaced.
+3. **Accepted.** A `_windows_on(c, …)` helper is shared by `windows()` and `schedule_inputs`, in the same transaction.
+   The `latest` nights are `[local date of (known_at − record_lookback − 1 day), local date of known_at]` inclusive.
+   `schedule_inputs(tenant_id, site_id, record_lookback)` drops the `base_nights` parameter; `due_nights` uses
+   `BASE_NIGHTS`.
+4. **Accepted.** The signature is `run_site(…, deadline: Callable[[], bool] | None)`, with the `chain_threads` idiom
+   before each night.
+5. **Accepted**, as proposed: one module-scoped Kisiwa Site through K1's path, registered at DB now − 12 d. Its runs
+   end at the last three real-night ends and are accepted with the decision clock at DB now − 10 min. P2 is a night with
+   no run. P3 imports Kobo. P5's old night is a fourth run about 10 nights back. P6 runs the CLI at a virtual instant
+   before the ticks. The children are real `StageRunner` children. If the file's measured runtime is over 120 s, mark it
+   with the repo's existing slow-tier marker; E2 runs it explicitly either way (R1.3).
+6. **Accepted: the builder is right, and §2.7 P4 was backwards.** A recorded delivery raises the residual
+   (`rules.py:225-227`), and a dip only adds a limitation (`rules.limitations`, "never changes the state"). P4 now reads:
+   - (a) DIP_SENSOR_CONFLICT, as written.
+   - (b) A `FUEL_DELIVERY`, posted on a WITHIN_MARGIN night, that the sensor does not show. Its quantity is chosen so
+     that `rules.balance` gives UNEXPLAINED, and the test asserts the state. The next tick appends a revision that is
+     UNEXPLAINED, and the raise is `OPENED`.
+   - (c) A work-service **correction** of that record that moves `occurred_at` out of the night. The next tick appends a
+     WITHIN_MARGIN revision, and the raise is `WITHDRAWN`.
+7. **Accepted, the cheaper form.** The 40-day record is posted through the work store on a `VirtualDbClock` set to
+   occurred + 29 d. The test asserts that `schedule_inputs(...).records` excludes it. The no-row proof stays on the
+   10-day case only.
+8. **Accepted.** The five tick-wiring units go in the new no-DB `backend/tests/test_own_g2_fuel_night_tick.py`, with the
+   `FakeStore` and fake runner pattern of `test_fix_cold_drain_stage.py`.
+9. **Accepted (a)–(d), with one addition (changed).**
+   - (a) A pure `demo_rows.kis11(…)` with 2–3 no-DB cases.
+   - (b) KIS-11 is registered right after KIS-9.
+   - (c) `Demo.tick` writes `<work>/last-tick.json` from the last stdout line that parses as a JSON object, and removes
+     a stale file when no line parses. It also **returns** the parsed report, for G1's per-date check.
+   - (d) KIS-11 reads the last-written file.
+   - **Addition:** a serve loop running beside the tool can claim the Site, so a tick report can lack a visited
+     KISIWA-001 (absent, `SKIPPED_CLAIMED`, or retry back-off). When the report from `Demo.finish`'s closing tick has
+     no `fuel_night` stage entry for KISIWA-001, `Demo.finish` runs up to two more ticks, 30 s apart. KIS-11 then fails
+     with "KISIWA-001 was not visited by the last tick" only if none visited it. The same retry rule serves G1
+     (R2-G1 Q6). One no-DB test covers the retry count.
+10. **Accepted.** `schedule_inputs` honours `test_db_clock_override`. The stage composes no override, so P7 stands.
+11. **Accepted.** An OPEN night is `{"assess": "OPEN", "revision": None, "state": None, "raise": None}`. It makes no
+    raise call and counts as processed, so `processed + deferred == len(due)` always holds.
+12. **Accepted.** No-DB: for 0 tanks or 2 generators, `run_site` makes exactly one store call and no assess or raise
+    call. Postgres: a Cold-like Site gets empty `reading_nights`, `records` and `latest`.
+
+**Crossing G1:** G1's step 6 quiet rule (`decided_at + 5 min`) is G2's `QUIET`, and G1 reads Demo.tick's returned
+report (Q9 c). Added Kisiwa nights are later than S, so KIS-11's story-night `revision = 1` and its one-Finding facts
+are unaffected by G1.
+
+### R2-G3b (Lane B)
+
+1. **Accepted.** The client reads `public_code`. A 2xx whose body is not an object with
+   `schema_version === "operational-record-1"` and a string `public_code` takes the "could not be confirmed" row, and the
+   key is kept.
+2. **Changed: neither (a) nor (b).** The success line makes no claim about where the record appears. First line:
+   **"Saved as {displayCode(public_code)}, status Submitted."** The fuel second line is unchanged. The list still
+   re-reads. Why: the list is newest-recorded-first (`operational_index.py:96`) over a 7-day window, so the demo beat
+   shows the dip at the top anyway, and the line stays true for a back-dated or filtered entry. §3.3's outcome row and
+   §3.5's test literal change to this text. R1.4's beat still shows the row in the list.
+3. **Accepted.** The form is enabled wherever `shown` is true.
+4. **Accepted.** The form keeps its selected Site code across the re-read. While the options are empty it shows the
+   placeholder and the button is disabled. The kept code is re-selected if present, otherwise the first option. The
+   result line survives the re-read.
+5. **Accepted.** `SITE_WORK_API_PATH = "/api/sites"`; `createGlobalWorkClient(basePath, sitesPath = SITE_WORK_API_PATH)`;
+   an optional `submitOperationalEntry` with the `saved | refused | unconfirmed` union. A client without the method shows
+   the 403 row.
+6. **Accepted, and required.** The owner may present from another device over plain http on a LAN address, which is not
+   a secure context. Use `crypto.randomUUID` when it is a function; otherwise use 16 bytes from
+   `crypto.getRandomValues` as 32 lowercase hex. One vitest stubs `randomUUID` as undefined and asserts the
+   `oprec-entry-<32 hex>` form.
+7. **Accepted.** These fold into MD-OWN-G3-1: "Fuel delivery option, its Ticket row, and the per-reading unit suffix and
+   placeholder".
+8. **Accepted.** MD-OWN-G3-1..4 appear in code comments and the register only. The visible `MOCK DEVIATION D4 (R362)`
+   label stays. The R362 row gets the note "Taken at superseded by MD-OWN-G3-2". R12 is closed by G3b.
+9. **Accepted.** The new sentence is a third `<p>`.
+10. **Accepted, with one change.** The timing is as proposed (messages appear after the first Submit and then update
+    live), and Value and Ticket are trimmed. **Change:** the client also checks the ticket against the server's pattern
+    `^[A-Za-z0-9][A-Za-z0-9 /._-]{0,39}$`, and a miss shows **"Use letters, digits, spaces and / . _ - only, up to 40
+    characters, starting with a letter or digit."** under the field. Empty still shows "Enter the delivery ticket
+    reference.". Why: a typo should get a precise message, not "Check the values and try again." during a live demo.
+    §3.5 gains this message in its validation list.
+11. **Accepted.** The key is made at the first valid submit. It is cleared on any field edit and on success. It is kept
+    after a network error, a 5xx and a 4xx.
+12. **Accepted (fields stay enabled).** An edit made while a save is in flight clears the key. On success, Value, Ticket
+    and Taken at are cleared.
+13. **Accepted.** Taken at is empty on load and after a success. Reading defaults to "Fuel tank dip". Site defaults to
+    the first option.
+14. **Accepted** as proposed: one `role="status"` `aria-live="polite"` region; the second line for TANK_DIP and
+    FUEL_DELIVERY only; the "other 4xx" list; the duplicate row matched on the code; 503 takes the 5xx row.
+15. **Accepted.** Only the Operational records By column changes. `WorkRequestHistory` and `SiteActionVerification` are
+    after-the-demo items: G1 nights and the live dip are later than every story Action's verification window, so the
+    raw id does not reach a demo screen.
+16. **New item, from R2-DS1a 3 (G3b owns it, +0.05 unit).** `frontend/src/shell/OperatorShellLayout.tsx:9`
+    `DEMONSTRATION_BANNER` becomes **"Demonstration · example sites and records"**. Tests that pin the literal are
+    updated. The register row R651 gets the note "OWN-G3b: 'prepared for this walkthrough' dropped (client-facing
+    wording, owner rule)". No layout change.
+
+### R2-G1 (Lane A, after G2 and G3a merge)
+
+**Header rulings (crossing items):**
+- **Timezones.** The tool reads each Site's timezone from the build, never assuming UTC+3: the `site` row, or the same
+  source `delivered_days` uses. **EV-LAB-001 is `Etc/UTC`**, so its dates, `yesterday` and the Tuesday 08:00–16:00
+  window are UTC. One §4.7 test: at 22:30Z on a Monday, EV's yesterday is Sunday's UTC date and Kisiwa's local date is
+  already Tuesday.
+- **Entry env.** As in R2-G3a 6, the child sets `ASSETOPS_OPERATIONAL_ENTRY=on` in `os.environ` before the first
+  `lab_app` import, and runs with `serve_env=True`.
+- **Late delivery (from G3a Q7).** A back-filled `FUEL_DELIVERY` is recorded at DB now, more than 30 min after its night
+  closed, so its window carries `DELIVERY_RECORDED_LATE`. That limitation is information only and never changes the
+  state (`rules.limitations`). It is honest: the record really was entered after the night. Step 7 checks the state
+  only and allows any limitation set. The tool's plain line for a delivery night adds "(delivery entered after the
+  night)".
+- **New in G1, from R2-DS1a 1:** two `story_links` rows (spec in R2-DS1a 1), with a no-DB test in
+  `test_own_g1_add_dates.py`.
+
+1. **Accepted.** The default `--to` for KISIWA-001 alone is the latest night whose run end + 5 min ≤ DB now (yesterday
+   after about 15:05 local, otherwise the day before). An explicit `--to` naming an unfinished Kisiwa night prints
+   "KISIWA-001 {date}: the night is not over yet (it ends {15:00 local})", lists it under `skipped` with reason
+   `NIGHT_NOT_OVER`, and is not a refusal. The other Sites keep yesterday. R1.5's runbook text gains: "Kisiwa's last
+   night is added once it is over, after 15:05 local; a morning run adds it up to the night before."
+2. **Accepted.**
+   - The child `add-day` does steps 1–6 and exits with the entry `PUBLISHED`.
+   - The parent runs `Demo.tick()` (which returns the report, R2-G2 Q9 c).
+   - The new child verb `demo_combined_kisiwa.py verify-day <url> <work> <json>` does steps 7–8.
+   - Resume covers a crash between the two.
+   - The parent ticks only on a date where at least one Site added something.
+3. **Changed (broadened).** The pre-authorised bound covers **every KIS-n row that fails only because of added-night
+   content** (KIS-1, KIS-2, KIS-4, KIS-6, KIS-9, and any other KIS row the rehearsal shows), not just KIS-2 and KIS-6.
+   Each such row's window, dispatch and record queries are bounded to the story calendar: nights in
+   `story["kisiwa"]["runs"]` and `occurred_at` in `[run1_start, runs[-1].end)` from `story.json`. KIS-11 is already
+   story-scoped. Each bounded row gets a no-DB case with one added night present. A COH row or a non-KIS failure still
+   stops the work and goes to the Architect.
+4. **Accepted.** After the copy to `var/g1_audit`, `tree` is replaced with a `git archive` of the G1 branch HEAD (G2 and
+   G3a merged), with the same parts as `prepare`. `keys.json`, `story.json`, `days.json`, `kisiwa.json` and
+   `operational-actions/` are kept. The clone name stays `assetops_k9_audit_g1` (inside the owner's authorised `_audit*`
+   scratch names), and no `require_prepare_database` call is added. Expect a one-time `chain_snapshots` rebuild,
+   because the tree's code version changes. The rehearsal is capped at 2× its 1.5 h estimate.
+5. **Accepted.** Last story day per Site = the max of `weekday_offset(site, S, day_offset(e["day"]))` over
+   `days.json["doc"]["sites"][site]`. The default `--from` = the day after the max offset in `days.json["days"]` for that
+   Site (EV: the next Tuesday). Kisiwa: last story night = `story["kisiwa"]["runs"][-1]["night_date"]`; last night = the
+   max of that and the last `DONE`/`PUBLISHED` `kisiwa-days.json` entry.
+6. **Accepted, aligned with R2-G2 Q9.** The pass condition is the night's window (revision ≥ 1, `WITHIN_MARGIN`, no fuel
+   Finding for that night). The tick's `fuel_night` code must be `OK` only when the tick visited KISIWA-001. If the
+   window is absent, up to two more ticks run, 30 s apart, before `ADD_NIGHT_UNEXPECTED`.
+7. **Accepted, with exact codes (changed).** A new tree child `demo_combined_kisiwa.py preflight <url> <work>`
+   (`serve_env=True`) prints `{fuel_stage, entry_status, entry_code}`. The rules, in order:
+   - The child is missing or exits non-zero → `BUILD_TOO_OLD`, "This build predates add-dates; prepare a fresh build
+     from current main.".
+   - `fuel_stage` is false → `FUEL_STAGE_MISSING` (§4.3).
+   - 403 `WORK_WRITE_FORBIDDEN` → `ENTRY_DISABLED` (§4.3 message).
+   - Anything else other than 422 `OPREC_ENTRY_INVALID` → `ENTRY_DISABLED`, with the message "This build's code has no
+     working record entry (G3a); prepare a fresh build from current main.".
+   - All of these are whole-command refusals, checked only when Kisiwa is selected (except `BUILD_TOO_OLD`, which is
+     always checked).
+8. **Accepted.** `DATE_TOO_OLD` (Kisiwa only, whole-command): the first planned night's 18:00 dip is more than 30 days −
+   1 hour before DB now. Message: "Kisiwa {date} is too old to add records for; prepare a fresh build." It joins the
+   §4.3 table.
+9. **Changed in (a) and (b); (c) and (d) accepted.**
+   - (a) A `--site` not in `story["sites"]` → **`SITE_NOT_IN_BUILD`**, "{site} is not in this build."; `--site all` = the
+     build's Sites.
+   - (b) `add-day --site KISIWA-001` with `--as` or `--assess-now` → **`OPTION_NOT_FOR_KISIWA`**, "--as and
+     --assess-now do not apply to Kisiwa nights.".
+   - (c) Accepted: `story["S"]`'s date as written, a new header constant, and the shipped log's fields.
+   - (d) Accepted: one `add-dates` line in `serve`.
+
+### R2-DS1a (folded into R1.4; Sonnet refresh after G1 merges)
+
+1. **The two missing links are added to `story_links` (`tools/demo_combined.py:270`) by G1, not hand-built.** Inside the
+   existing Kisiwa block:
+   - `("KISIWA-001 Findings, story nights S-9d to S+1d", f"{base}/sites/KISIWA-001/findings?from={iso(S - timedelta(days=9))}&to={iso(S + timedelta(days=2))}")`
+   - `("KISIWA-001 Service, story hour S-3d 09:00-10:00Z", f"{base}/sites/KISIWA-001/performance/service?from={iso(S - timedelta(days=3) + timedelta(hours=9))}&to={iso(S - timedelta(days=3) + timedelta(hours=10))}")`
+
+   These are the windows of the K5 Findings capture and the K8 story-hour capture
+   (`captures-kisiwa-service-feeders-story.json`), re-expressed relative to S. The no-DB test asserts both URLs for a
+   fixed S. DS-1a takes them from `links` like every other link.
+2. **`revision_id` is kept.** The href is `story_links`' verbatim URL. It pins the Finding revision the script
+   describes, and it is not visible copy. The owner's vocabulary rule governs what the presentation says on screen and
+   in text, not query strings. The forbidden-word scan excludes `href` values.
+3. **The Sites-list wording is not acceptable in client pictures.**
+   - (a) Drop `01-sites-list` from the script. The opening is now the Portfolio (R1.4, owner Q6), and no other crop
+     shows the sidebar footer.
+   - (b) **Banner:** the app-wide note becomes "Demonstration · example sites and records" (R2-G3b 16, a product
+     change). It still says honestly that the data is example data, but drops the internal "prepared for this
+     walkthrough".
+   - (c) **"Simulator Lab"** stays as the workspace footer entry for this build. It is gated by
+     `config/app-config.json` `simulator_lab.enabled`, which also gates the backend Lab execution. Switching it off is
+     not on the demo path and is not proven safe for the demo tool. Crops exclude the footer. The presenter-only "Be
+     ready for" box adds: "If asked about 'Simulator Lab': it is where this demonstration's example data is generated;
+     on a real Site the data comes from your meters and gateway." Hiding the entry from a client build is an
+     after-the-demo item; see the owner note.
+4. **Kobo idle fuel.** E5 adds one capture: the Kobo board on day S, cost row (1440 and 390). DS-1f quotes the idle-fuel
+   figure from that capture, with the screen's own qualifier. If the E5 board shows no idle-fuel line, **ST-3b is
+   removed** from the script and from the story-map minutes. It is not filled by hand.
+5. **Added nights (from the R2-G1 late-delivery header).** Presenter note: an added Kisiwa delivery night shows that
+   the delivery was entered after the night. That is true, because records are entered later in the demo. Keep the
+   live-dip beat on a dip (R1.4); a dip carries no late flag.
+
+**Owner, for information (no decision needed for the build):** the banner wording change (R2-G3b 16) and the choice to
+keep the "Simulator Lab" footer entry for this demo. If you would rather hide the Lab entry from the client build, say
+so; it needs a separate check that the demo tool does not depend on the Lab gate.
+
+---
+
 ## Revision 1 — owner answers 2026-11-08
 
 Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only on code, main `9aae0d003`. No Postgres or heavy
@@ -90,6 +340,9 @@ check-all on main.
   and demo-ready becomes Sat 14 (no High) or Sun 15 (with one).
 
 ### R1.4 DS-1a client script refresh (branch `task/DS-1a-client-script`) — size 0.5 unit
+
+Rev 2: also R2-DS1a 1–5 (story links from G1, `revision_id` kept, `01-sites-list` dropped, Kobo idle-fuel capture or
+ST-3b removed, late-delivery presenter note).
 
 Sonnet build, 0.3; fresh Opus light review (forbidden words, no cross-Site sums, claims the screen supports), 0.2.
 Wed 11, before E1; finalised in DS-1f on Thu.
@@ -390,7 +643,7 @@ readings and record fixtures of `test_k4a_fuel_finding_postgres.py`; real `Stage
   `fuel_balance_window`, `finding_revision` or `fuel_residual_consequence_revision` (counts equal).
 - **P2.** A night with no `fuel_level` readings gets no row.
 - **P3.** A Kobo-like Site (tank and generator, no `fuel_level`): zero `fuel_balance_window` rows after two ticks.
-- **P4.** A dip posted after night N's revision 1, which conflicts with the sensor: the next tick appends revision 2
+- **P4.** (Rev 2: replaced by R2-G2 Q6; the delivery half below was backwards.) A dip posted after night N's revision 1, which conflicts with the sensor: the next tick appends revision 2
   with the record in `record_ids` and the `DIP_SENSOR_CONFLICT` limitation.
   - A delivery that turns an UNEXPLAINED night into WITHIN_MARGIN: the next tick's raise is `WITHDRAWN`.
   - The fixture has one UNEXPLAINED night, so `OPENED` is proven too.
@@ -574,7 +827,7 @@ The panel pair and "How records are used" are unchanged.
 
 | Outcome | Text (live region `role="status"`) | Then |
 |---|---|---|
-| 201 / 200 | "Saved as {displayCode(code)}. It is listed above as Submitted." For a fuel entry, a second line: "If this Site's tank level is measured, the night it falls in is checked again at the next background refresh." | the list re-reads (the page's existing refresh); the form clears Value, Ticket and Taken at |
+| 201 / 200 | (Rev 2, R2-G3b Q2) "Saved as {displayCode(public_code)}, status Submitted." For a fuel entry, a second line: "If this Site's tank level is measured, the night it falls in is checked again at the next background refresh." | the list re-reads (the page's existing refresh); the form clears Value, Ticket and Taken at |
 | 403 `WORK_WRITE_FORBIDDEN` | "Saving records is not switched on for this installation." | form kept |
 | 422 `OPREC_ENTRY_NO_TANK` | "This Site has no single fuel tank to record against." | form kept |
 | 422 `WORK_OCCURRED_AT_FUTURE` | "The time taken is in the future." | form kept |
@@ -702,6 +955,9 @@ python tools/demo_combined.py --db <db> --work <work> add-dates
 
 ### 4.3 Whole-command refusals (checked first; nothing is written; `StoryDaysError` codes)
 
+Rev 2 adds `BUILD_TOO_OLD`, `DATE_TOO_OLD`, `SITE_NOT_IN_BUILD`, `OPTION_NOT_FOR_KISIWA` and the second `ENTRY_DISABLED`
+message (R2-G1 Q7–Q9); a Kisiwa night that is not over is skipped, not refused (R2-G1 Q1).
+
 | Code | When | Message |
 |---|---|---|
 | `DATE_NOT_PAST` | `--to` is today or later in any selected Site's timezone | "Data can be added only up to yesterday ({date})." |
@@ -783,6 +1039,9 @@ No kind creates unexplained fuel, an Action or a Finding (those are prepare-only
 
 **`links`** prints each added night's dated Kisiwa link and the **live-dip line**: the newest added night, 06:00 local,
 with the dip litres from step 3, for the on-screen beat (owner Q2 yes).
+
+**Rev 2:** steps 6–8 are split between the child, the parent's tick and `verify-day` (R2-G1 Q2, Q6); the pre-authorised
+bound below covers every KIS row (R2-G1 Q3).
 
 **Guards for the story verdicts:** story nights cannot be touched (`STORY_DAY`, `DUPLICATE_DAY`); no kind can raise a
 Finding; every command ends with `finish check` (KIS rows read story nights only; KIS-11 pins revision 1 on them). If
