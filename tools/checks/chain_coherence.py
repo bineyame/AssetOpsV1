@@ -37,6 +37,7 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 #: CH-5a1 (R6, CH5a1-R Q8; closes MD0-R R10): the Sites whose board day is their Site-local day. EV keeps its
 #: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`).
 LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa"}
+SUMMARY_SITE_TZ = {"KISIWA-001": "Africa/Dar_es_Salaam"}  # DIESEL-1-R3p: config/operational-actions/kisiwa-001-operational-actions-v1.yaml timezone; Kisiwa boards stay K9's (SITE_CODE)
 DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
 ESTATE_WINDOWS = ("week", "S", "month")
 HTTP_TIMEOUT_SECONDS = 30
@@ -643,7 +644,7 @@ def _coh7a_window(site: dict, requested: dict) -> tuple[str, str]:
         sys.path.insert(0, backend)
     from assetops_backend.chain.read import board_day, window_day
 
-    tz = {SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}.get(site.get("site_code"))
+    tz = {**{SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}, **SUMMARY_SITE_TZ}.get(site.get("site_code"))
     lo, hi = board_day(window_day(at(requested["from"]), at(requested["to"]), tz), tz)
     return iso(lo), iso(hi)
 

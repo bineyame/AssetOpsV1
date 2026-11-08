@@ -94,6 +94,8 @@ export interface OverviewMiniReads {
   timeZone: string;
   /** The Performance tab for one domain at the exact window and cutoff the card read. */
   detailHref: (domain: OverviewMiniDomain, window: MiniWindowQuery) => string;
+  /** DIESEL-1-R3p R-LOAD: the Site's Foundation LOAD display names in document order (the objective line). */
+  loadNames?: readonly string[];
 }
 
 export interface SiteWindowOverviewProps {
@@ -483,12 +485,34 @@ function overviewReadable(state: OverviewMiniState | null): OverviewReadable {
 export const MINIGRID_OBJECTIVE =
   "Objective: serve residential, clinic and productive loads while protecting the battery reserve.";
 
+/** DIESEL-1-R3p R-LOAD, MOCK DEVIATION MD-KIS-K1-1: the objective names the Site's own loads; a Site with a clinic
+ *  or health load keeps v69's words (Kobo byte-equal). */
+export const OBJECTIVE_NO_LOADS = "Objective: serve this site's loads while protecting the battery reserve.";
+
+export function minigridObjective(loadNames: readonly string[] | undefined): string {
+  if (loadNames === undefined || loadNames.some((name) => /clinic|health/i.test(name))) return MINIGRID_OBJECTIVE;
+  if (loadNames.length === 0) return OBJECTIVE_NO_LOADS;
+  const list =
+    loadNames.length === 1
+      ? loadNames[0]
+      : `${loadNames.slice(0, -1).join(", ")} and ${loadNames[loadNames.length - 1]}`;
+  return `Objective: serve ${list} while protecting the battery reserve.`;
+}
+
 /** The mock's objective line: the assessment states no operating objective, so none is shown. */
-function ObjectiveLine({ summary, minigrid }: { summary: SiteWindowSummary; minigrid: boolean }) {
+function ObjectiveLine({
+  summary,
+  minigrid,
+  loadNames,
+}: {
+  summary: SiteWindowSummary;
+  minigrid: boolean;
+  loadNames?: readonly string[];
+}) {
   if (minigrid) {
     return (
       <p className="v69-objective" data-objective-statement="minigrid">
-        {MINIGRID_OBJECTIVE}
+        {minigridObjective(loadNames)}
       </p>
     );
   }
@@ -1106,7 +1130,7 @@ export function SiteWindowOverview({
                 on Dispatch and Evidence. */}
             <DaySelector summary={summary} onSelectDay={onSelectDay} />
             <DayStatus summary={summary} links={links} reads={minigrid ? overviewReadable(miniState) : null} />
-            <ObjectiveLine summary={summary} minigrid={minigrid} />
+            <ObjectiveLine summary={summary} minigrid={minigrid} loadNames={mini?.loadNames} />
             {/* OUT-B B5: the outcome board replaces the old objective cards (doc §6.4 deviation 1, R540). It reads the
                 same selected day (and Finding pin) the overview read. */}
             {outcomeBoard === undefined ? null : (

@@ -422,6 +422,22 @@ def co10(ctx: Ctx) -> dict:
 
 # ---- estate and every Site -------------------------------------------------------------------------------------
 
+def _kisiwa_present(ctx: Ctx) -> bool:
+    """DIESEL-1-R3p: whether the dataset holds the Kisiwa Site (cached)."""
+    if "kisiwa_present" not in ctx.cache:
+        import psycopg
+
+        with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+            ctx.cache["kisiwa_present"] = c.execute(
+                "SELECT 1 FROM site WHERE site_code_key = lower(%s)", (KISIWA_SITE,)).fetchone() is not None
+    return ctx.cache["kisiwa_present"]
+
+
+def expected_site_codes(kisiwa: bool) -> list[str]:
+    """DIESEL-1-R3p: the estate's Site codes, read from data (a three-Site partial prepare stays green)."""
+    return sorted([KOBO, COLD, EV] + ([KISIWA_SITE] if kisiwa else []))
+
+
 def _estate(ctx: Ctx, lo: datetime, hi: datetime) -> tuple[dict, dict, dict, dict]:
     """(portfolio, outcome summary, Finding coverage by Site code, summary Site by code) over [lo, hi)."""
     days = {"from": iso(lo), "to": iso(hi)}
@@ -448,7 +464,8 @@ def co6(ctx: Ctx) -> dict:
 
     body, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     codes = sorted({o["site_code"] for o in body["objectives"]})
-    assert codes == sorted([KOBO, COLD, EV]), codes
+    kisiwa = _kisiwa_present(ctx)
+    assert codes == expected_site_codes(kisiwa), codes  # DIESEL-1-R3p: the core three, plus Kisiwa iff present
     assert double_count_violations(body, financials=None) == []
     assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
@@ -483,7 +500,7 @@ def co6(ctx: Ctx) -> dict:
     cells = {r["category"]: r["state"] for r in by_code[KOBO]["rows"]}
     assert cells == board, (cells, board)
     others = {code: _cov(coverage.get(code)) for code in (COLD, EV)}
-    return {"status": body["status"], "kobo_coverage": _cov(kobo), "kobo_days": days,
+    return {"status": body["status"], "kisiwa_present": kisiwa, "kobo_coverage": _cov(kobo), "kobo_days": days,
             "kobo_unassessed_days": unassessed, "kobo_finding_in_rows": finding_listed,
             "cold_ev_coverage": others, "window_basis": basis, "kobo_cells_from_day_S": cells}
 
@@ -1165,9 +1182,11 @@ def _on(stored: list[dict], day: dict) -> list[dict]:
 @row("CH5D1-O1")
 def ch5d1_o1(ctx: Ctx) -> dict:
     """FUEL-1 A3-R §3.9: the S Optimize card equals the one priced Site's (Kobo's) cost claim text, replacing
-    CH5d1-R §4's "Not known yet" forecast (`demo_rows.optimize_card`)."""
+    CH5d1-R §4's "Not known yet" forecast (`demo_rows.optimize_card`). DIESEL-1-R3p (A3 L3): Kobo is priced; Kisiwa
+    may be too (read from its board claim, never typed), and then each claim is listed on its own."""
     return demo_rows.optimize_card(ctx.get("/api/estate/outcome-summary",
-                                           **{"from": iso(ctx.day(0)), "to": iso(ctx.day(1))}), KOBO)
+                                           **{"from": iso(ctx.day(0)), "to": iso(ctx.day(1))}), KOBO,
+                                   allowed=(KOBO, KISIWA_SITE))
 
 
 @row("A3-PAGE")

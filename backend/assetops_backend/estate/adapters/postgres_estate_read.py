@@ -63,8 +63,9 @@ class PostgresEstateRead:
                  inconsistent: tuple[type[BaseException], ...] = (),
                  unavailable: tuple[type[BaseException], ...] = (), engine: Any = None,
                  cold_site: Any = None, ev_site: Any = None, ev_money: Any = None,
-                 link_rows_many: Callable[..., dict] | None = None) -> None:
+                 link_rows_many: Callable[..., dict] | None = None, fuel: Any = None) -> None:
         self._url, self._engine = database_url, engine
+        self.fuel = fuel  # DIESEL-1-R3p: PostgresFuelBalanceStore (fuel_findings_on on this connection); None = no fuel rows
         self.findings, self.assessments, self.actions = findings, assessments, actions
         self.consequences, self.eligibility, self.cold, self.ev = consequences, eligibility, cold, ev
         self.provenance_reads, self.inconsistent, self.unavailable = provenance_reads, inconsistent, unavailable
@@ -85,6 +86,8 @@ class PostgresEstateRead:
     def dispose(self) -> None:
         if self._engine is not None:
             self._engine.dispose()
+        if self.fuel is not None:
+            self.fuel.dispose()
 
     def read(self, work: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
         try:
@@ -162,6 +165,23 @@ class EstateSnapshot:
 
     def finding_index(self, t: UUID, s: UUID, k: datetime) -> dict[str, Any]:
         return self._o.findings.index_snapshot_on(self._c, t, s, FINDING_DOMAIN, dispatch_contract.ANALYTIC_ID, k)
+
+    def fuel_findings(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> list[dict[str, Any]]:
+        """DIESEL-1-R3p: the Site's unexplained-fuel Findings (latest revision as known at `k` whose cited night
+        window meets `[from_, to)`) on this connection, each with its pinned evidence ids; [] without a fuel store."""
+        if self._o.fuel is None:
+            return []
+        found = self._o.fuel.fuel_findings_on(self._c, t, s, from_, to, k)
+        if not found:
+            return []
+        rows = self._c.execute(text(
+            "SELECT finding_revision_id, evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+            "AND site_id = :s AND finding_revision_id = ANY(CAST(:ids AS uuid[]))"),
+            {"t": t, "s": s, "ids": [str(f.revision_id) for f in found]}).all()
+        cited: dict[str, list[str]] = {}
+        for r in rows:
+            cited.setdefault(str(r[0]).lower(), []).append(str(r[1]))
+        return [{"finding": f, "evidence_ids": sorted(cited.get(str(f.revision_id).lower(), []))} for f in found]
 
     def finding_lineage(self, t: UUID, s: UUID, revision_ids: list[Any], k: datetime) -> dict[str, Any]:
         """Exact pinned lineage; a refused pin (`FindingPinRefused`, a LookupError) is an inconsistent selection."""
