@@ -252,7 +252,8 @@ def test_walk1_summary_verified_count_and_headline_money(monkeypatch) -> None:
     svc = SiteOutcomeBoardService(BoardServices())
     assert svc.board(KOBO, day=date(2026, 10, 6))["_verified_results"] == 1
     out = svc.summary([KOBO, COLD, ODD], lo, hi)
-    assert out["verified_result_count"] == 1 and out["verified_sites_unread"] == 1  # ODD's board fails
+    # DIESEL-1-R3u (U3): the count is the chain claim's value, never the board sum; no chain reader here, so None.
+    assert out["verified_result_count"] is None and out["verified_sites_unread"] == 1  # ODD's board fails
     kobo, cold, odd = out["sites"]
     assert kobo["rows"][0]["headline_money"] == money
     assert all(r["headline_money"] is None for r in [*kobo["rows"][1:], *odd["rows"]])

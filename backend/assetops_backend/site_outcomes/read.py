@@ -516,10 +516,13 @@ class SiteOutcomeBoardService:
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
-            # WALK1-1 (WN-1): stripped by the route like `_short_values`; the estate Assure card's verified count.
+            # WALK1-1 (WN-1): stripped by the route like `_short_values`. No production reader remains: the estate
+            # Assure card's verified count is the chain claim's value (K6c), not this board sum.
             # MB-1-R Q5: plus the opportunity-origin domain Actions (the mill), the Assure headline's number.
             "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED")
-            + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED"),
+            + sum(1 for o in comp.facts.opportunity_actions if o.outcome == "VERIFIED")
+            # DIESEL-1-R3u: plus the fuel verdicts (FUEL_BALANCE domain Actions), as the Assure headline counts them.
+            + sum(1 for f in comp.facts.fuel_verdicts if f.outcome == "VERIFIED"),
             **extra_body,
         }
 
@@ -643,7 +646,7 @@ class SiteOutcomeBoardService:
         # OUT-D U4 (review M2): Sites whose board loaded AND whose objectives were read, and of those the ones that
         # list a declared objective; every other Site (a failed board or a failed objectives read) is unread.
         read_sites = objective_sites = 0
-        verified, verified_read = 0, 0  # WALK1-1 (WN-1): VERIFIED Actions over the Sites whose board loaded
+        verified_read = 0  # WALK1-1 (WN-1): the Sites whose board loaded (`verified_sites_unread`)
         for site in sites:
             basis, b_day, b_lo, b_hi = self.summary_window(site, lo, hi, known_at)
             earnings: dict[str, Any] | None = None
@@ -660,7 +663,6 @@ class SiteOutcomeBoardService:
                 warnings += body["warnings"]
                 window: dict[str, Any] | None = body["window"]
                 window_basis: str | None = basis
-                verified += body.get("_verified_results", 0)
                 verified_read += 1
                 if body.get("objectives_read"):
                     read_sites += 1
@@ -685,7 +687,8 @@ class SiteOutcomeBoardService:
                 "window": {"from": wire(lo), "to": wire(hi)}, "sites": out, "categories": categories,
                 "warnings": warnings, "objective_site_count": objective_sites if read_sites else None,
                 "objective_sites_unread": len(sites) - read_sites,
-                "verified_result_count": verified if verified_read else None,
+                # DIESEL-1-R3u (CH6b3-R3 L2): one computation, the chain claim's value; None without a reader.
+                "verified_result_count": None if counted is None else counted.claims[VERIFIED_RESULTS].value,
                 "verified_sites_unread": len(sites) - verified_read, "money_total": money_total,
                 # CH6b2-R Q1: the ONE card builder; `/api/estate/chain` carries the same `cards`.
                 "cards": portfolio_cards(out, counted, money_total, categories,

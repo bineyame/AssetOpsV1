@@ -588,7 +588,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     zero = priced and _is_zero(money.get("amount_high"))  # §1.1: amount_low is pinned to 0 by the schema
     avoidable, _ = _dispatch_minutes(dispatch)
     verified = (sum(1 for a in actions if a.verification_state == "VERIFIED")
-                + sum(1 for o in opp if o.outcome == "VERIFIED"))
+                + sum(1 for o in opp if o.outcome == "VERIFIED")
+                + sum(1 for f in fuel if f.outcome == "VERIFIED"))   # R3u: the fuel verdicts `_assure` lists
     idle = idle_fuel(money_head) if priced and not zero else None  # FUEL-1 A3-R §3.4
     headline = {GROW: f"{lo_kw}–{hi_kw} kW of daytime solar unused" if lo_kw and hi_kw else None,
                 COST: (idle_headline(idle) if idle and idle["idle_only"] else
