@@ -201,8 +201,14 @@ LOG_HEADER = (
     "# (sha256 {sha256}) by a move of {days} whole days; no other change.\n"
     "# Lab-private: the product never reads this file. Never edit by hand.\n"
 )
-#: The marked final step of K7-D: needs K4a (the unexplained-fuel Finding) merged into this branch.
-K4A_PENDING = "K7-D FINAL STEP PENDING: needs K4a (the unexplained-fuel Finding) merged into this branch"
+
+def wire(value: datetime) -> str:
+    """The Work API's instant form (microseconds, Z), as `tools/demo_combined_mill.py` `wire`."""
+    return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+#: The night with the unexplained fuel (run 4); K4a raises its Finding and no other night's.
+INCIDENT_K = 4
 
 
 def load_story_doc(path: Path = STORY_FILE) -> dict:
@@ -511,15 +517,111 @@ def assess_night(store, clock: SetClock, instant: datetime, night: str) -> dict:
     return lines[0]
 
 
-def raise_night(url: str, tenant, site, night: str, instant: datetime) -> dict:
-    """K4a's `raise_night` at the story instant: night 4 OPENED, every other night NO_FINDING (stop S-6)."""
-    raise SystemExit(f"{K4A_PENDING}: raise night {night} at {iso(instant)}")
+def raise_night(url: str, tenant, site, night: str, instant: datetime, k: int) -> dict:
+    """K4a's `worker.main(["raise", ...])` in process, its Finding service on the story instant: night 4 OPENED, every
+    other night NO_FINDING (stop S-6). Returns the printed line (`finding_id`, `revision_id` are the Finding's)."""
+    from assetops_backend.fuel_balance.composition import build_fuel_finding_service
+    from assetops_backend.fuel_balance.worker import main as fuel_balance_cli
+
+    want = "OPENED" if k == INCIDENT_K else "NO_FINDING"
+    nxt = (date.fromisoformat(night) + DAY).isoformat()
+    service = build_fuel_finding_service(url, test_db_clock_override=lambda: instant)
+    try:
+        code, lines = _cli_lines(lambda: fuel_balance_cli(
+            ["raise", "--site", SITE_CODE, "--from", night, "--to", nxt], finding_service=service))
+    finally:
+        service.dispose()
+    if code != 0 or len(lines) != 1 or lines[0]["status"] != want:
+        raise SystemExit(f"RAISE_STATUS (stop S-6): night {night} at {iso(instant)} printed {lines} (exit {code}); "
+                         f"want one {want} line")
+    return lines[0]
 
 
 def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -> dict:
-    """§9l.3 step 5: the Action from the night-4 Finding, its maintenance request, ASSIGN, the change record,
-    COMPLETE, the SITE_VISIT record citing the case, and the case link, each at its story instant."""
-    raise SystemExit(f"{K4A_PENDING}: the Action and its change")
+    """§9l.3 step 5 with §9m.5's domain: the Action from the night-4 Finding, its maintenance request, ASSIGN, the
+    change record, COMPLETE, the SITE_VISIT record citing the case, and the case link, each at its story instant.
+    Follows `tools/demo_combined_mill.py` `record_change`. The fuel Action's request link has no page before K6b, so
+    nothing in the demo path may follow it."""
+    from sqlalchemy import text
+    from test_w401_work_service_postgres import ACTOR, PRINCIPAL, oprec
+
+    from assetops_backend.work.composition import build_domain_intent_service, build_work_service
+    from demo_story_clock import StepClock
+
+    a = kisiwa["action"]
+    domain, work = build_domain_intent_service(url), build_work_service(url)
+    try:
+        raised = at(a["raised_at"])
+        domain._store.test_db_clock_override = lambda: raised
+        status, action = domain.create_action(tenant, site, SITE_CODE, {
+            "domain": "FUEL_BALANCE", "origin_finding_id": finding["finding_id"],
+            "origin_finding_revision_id": finding["revision_id"], "title": a["title"],
+            "owner_label": a["owner_label"], "due_at": None, "raised_at": wire(raised), "actor": dict(ACTOR),
+            "idempotency_key": "kisiwa-fuel-action"}, PRINCIPAL)
+        if status != 201:
+            raise SystemExit(f"ACTION_REFUSED (stop S-7; a K6a defect): create_action answered {status}: {action}")
+        # the request at its own instant, ASSIGN on a clock at assign_at (its occurred_at is 10 min after the request,
+        # beyond the 5 minute future slack of the request's clock)
+        work._store.test_db_clock_override = StepClock(at(a["request_recorded_from"]))
+        s, case = work.create_case(tenant, site, {
+            "kind": "MAINTENANCE_REQUEST", "occurred_at": a["request"]["occurred_at"], "asset_id": None,
+            "finding_links": [], "action_links": [], "title": a["request"]["title"],
+            "narrative": a["request"]["narrative"], "cited_accepted_evidence_ids": [], "actor": dict(ACTOR),
+            "idempotency_key": "kisiwa-fuel-request"}, PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"CASE_REFUSED: create_case answered {s}: {case}")
+        case_id, rev_id = case["id"], case["revision"]["id"]
+        assigned = at(a["assign_at"])
+        work._store.test_db_clock_override = StepClock(assigned)
+        s, got = work.post_event(tenant, site, case_id, {
+            "kind": "ASSIGN", "occurred_at": a["assign_at"], "payload": {"assignee": a["owner_label"]},
+            "actor": dict(ACTOR), "idempotency_key": "kisiwa-fuel-assign"}, PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"CASE_REFUSED: ASSIGN answered {s}: {got}")
+        # the change, on a second clock
+        changed = StepClock(at(a["change_recorded_from"]))
+        work._store.test_db_clock_override = changed
+        s, rec = work.post_record(tenant, site, case_id, {
+            "activity": a["record"]["activity"], "outcome_note": None, "occurred_at": a["record"]["occurred_at"],
+            "actor": dict(ACTOR), "idempotency_key": "kisiwa-fuel-record"}, PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"CASE_REFUSED: post_record answered {s}: {rec}")
+        s, done = work.post_event(tenant, site, case_id, {
+            "kind": "COMPLETE", "occurred_at": a["complete_at"], "payload": {"maintenance_record_id": rec["id"]},
+            "actor": dict(ACTOR), "idempotency_key": "kisiwa-fuel-complete"}, PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"CASE_REFUSED: COMPLETE answered {s}: {done}")
+        # the one SITE_VISIT citing the case
+        post = site_visit_post(kisiwa, case_id)
+        visit_at = at(post["recorded_at"])
+        if changed.last >= visit_at:
+            raise SystemExit(f"STORY_CLOCK_ORDER: last change command {changed.last} is not before the visit {visit_at}")
+        work._store.test_db_clock_override = lambda: visit_at
+        s, visit = work.post_operational_record(tenant, site, oprec(
+            post["key"], kind=post["kind"], body=post["body"], occurred_at=post["occurred_at"], unit=None,
+            quantity=None, source_document_sha256=None, case_id=case_id), PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"RECORD_REFUSED: {post['key']} answered {s}: {visit}")
+        # the link
+        link_at = at(a["case_link_at"])
+        if visit_at >= link_at:
+            raise SystemExit(f"STORY_CLOCK_ORDER: the visit {visit_at} is not before the link {link_at}")
+        with engine.connect() as c:
+            head = str(c.execute(text("SELECT id FROM work_event WHERE case_id = :c ORDER BY recorded_at DESC, id DESC "
+                                      "LIMIT 1"), {"c": case_id}).scalar_one())
+        domain._store.test_db_clock_override = lambda: link_at
+        s, linked = domain.post_case_link(tenant, site, SITE_CODE, action["id"], {
+            "case_id": case_id, "case_revision_id": rev_id, "case_event_id": head, "actor": dict(ACTOR),
+            "idempotency_key": "kisiwa-fuel-link"}, PRINCIPAL)
+        if s != 201:
+            raise SystemExit(f"LINK_REFUSED: post_case_link answered {s}: {linked}")
+        return {"id": action["id"], "code": action["action_code"], "recorded_at": action["recorded_at"],
+                "case_id": case_id, "case_state": done.get("state"), "case_link_recorded_at": linked["recorded_at"],
+                "site_visit_code": visit.get("public_code"), "site_visit_recorded_at": post["recorded_at"],
+                "finding_id": finding["finding_id"], "finding_revision_id": finding["revision_id"]}
+    finally:
+        domain._store.dispose()
+        work._store.dispose()
 
 
 def threads(work: Path) -> list[dict]:
@@ -623,7 +725,8 @@ def build(url: str, work: Path) -> dict:
                 out["nights"].append({"k": item, "night_date": by_k[item]["night_date"], "assessed_at": iso(instant),
                                       "line": line})
             else:
-                out["nights"][-1]["raise"] = raise_night(url, tenant_id, site_id, by_k[item]["night_date"], instant)
+                out["nights"][-1]["raise"] = raise_night(url, tenant_id, site_id, by_k[item]["night_date"], instant,
+                                                         item)
         # 5. the Action and its change; 4. threads (after the Action)
         finding = next(n["raise"] for n in out["nights"] if n["k"] == 4)
         out["action"] = record_action(url, engine, tenant_id, site_id, kisiwa, finding)
@@ -660,15 +763,32 @@ def cli_assess_check(store, kisiwa: dict) -> list[dict]:
 
 
 def cli_raise_check(url: str, kisiwa: dict) -> list[dict]:
-    """§9l.3 step 6: K4a's raise as known now, night 4 UNCHANGED and the others NO_FINDING (stop S-6)."""
-    raise SystemExit(f"{K4A_PENDING}: the raise CLI check")
+    """§9l.3 step 6: K4a's raise as known now (the Finding service on the database's own clock), night 4 UNCHANGED and
+    the others NO_FINDING (stop S-6)."""
+    from assetops_backend.fuel_balance.composition import build_fuel_finding_service
+    from assetops_backend.fuel_balance.worker import main as fuel_balance_cli
+
+    first = kisiwa["runs"][0]["night_date"]
+    after = (date.fromisoformat(kisiwa["runs"][-1]["night_date"]) + DAY).isoformat()
+    service = build_fuel_finding_service(url)
+    try:
+        code, lines = _cli_lines(lambda: fuel_balance_cli(
+            ["raise", "--site", SITE_CODE, "--from", first, "--to", after], finding_service=service))
+    finally:
+        service.dispose()
+    incident = kisiwa["runs"][INCIDENT_K - 1]["night_date"]
+    bad = [x for x in lines if x["status"] != ("UNCHANGED" if x["night_date"] == incident else "NO_FINDING")]
+    if code != 0 or len(lines) != len(kisiwa["runs"]) or bad:
+        raise SystemExit(f"RAISE_STATUS (stop S-6): the CLI as known now printed {lines} (exit {code})")
+    return lines
 
 
 def check(url: str, work: Path) -> int:
-    """KIS-3 and KIS-9 (and KIS-4 once K4a merges) against the database, one JSON line per row."""
+    """Every KIS row (KIS-3, KIS-4, KIS-9) against the database, one JSON line per row."""
     import demo_combined_finish as finish
 
-    ctx = finish.Ctx(client=None, work=work, story=json.loads((work / "story.json").read_text(encoding="utf-8")))
+    client = finish.app_client(url, work) if (work / "keys.json").exists() else None  # KIS-4 reads the served summary
+    ctx = finish.Ctx(client=client, work=work, story=json.loads((work / "story.json").read_text(encoding="utf-8")))
     ctx.url = url
     failed = 0
     for check_id, _, _, fn in finish.CHECKS:
@@ -677,7 +797,7 @@ def check(url: str, work: Path) -> int:
         try:
             line = {"row": check_id, "status": "pass", "read": fn(ctx)}
         except Exception as exc:  # one line per row; the exit code says whether any failed
-            line = {"row": check_id, "status": "fail", "error": f"{type(exc).__name__}: {exc}"[:2000]}
+            line = {"row": check_id, **finish.demo_rows.failed_result(exc)}
             failed += 1
         print(json.dumps(line, default=str))
     return 1 if failed else 0

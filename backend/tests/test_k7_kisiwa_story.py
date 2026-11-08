@@ -513,3 +513,36 @@ def test_9_kis9_fails_per_item(name: str) -> None:
     KIS9_FAILS[name](body)
     with pytest.raises(AssertionError):
         rows.kis9(**body)
+
+
+# ---- final steps (K4a and K6a merged): carry R3k2 L2, the raise and Action bodies --------------------------------------
+
+def test_carry_r3k2_l2_a_summary_with_no_kisiwa_fails_every_kis_row() -> None:
+    """A dataset with no KISIWA-001 Site is a failure with the carry's body, not a skip."""
+    want = {"kisiwa": "missing: no KISIWA-001 Site in this dataset", "checked": 0}
+    assert rows.KISIWA_MISSING_BODY == want
+    exc = rows.KisiwaMissing()
+    assert isinstance(exc, AssertionError) and exc.body == want
+    got = rows.failed_result(exc)
+    assert got["status"] == "fail" and got["read"] == want
+    # an ordinary failure carries no body
+    assert "read" not in rows.failed_result(AssertionError("x"))
+
+
+def test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch() -> None:
+    """Every KIS row's no-Site branch raises `KisiwaMissing`; nothing returns "not in this dataset"."""
+    text = (Path(__file__).resolve().parents[2] / "tools" / "demo_combined_finish.py").read_text(encoding="utf-8")
+    assert "not in this dataset" not in text
+    assert text.count("raise KisiwaMissing()") == 3  # KIS-4, KIS-3, KIS-9
+
+
+def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:
+    """The pending markers are gone; the Action body names the FUEL_BALANCE domain (DIESEL-1-R3m)."""
+    import inspect
+
+    assert not hasattr(kis, "K4A_PENDING")
+    action_src = inspect.getsource(kis.record_action)
+    assert '"domain": "FUEL_BALANCE"' in action_src and '"MINI"' not in action_src
+    assert 'idempotency_key": "kisiwa-fuel-action"' in action_src
+    assert "build_fuel_finding_service" in inspect.getsource(kis.raise_night)
+    assert kis.INCIDENT_K == 4

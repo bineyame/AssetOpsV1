@@ -4,6 +4,7 @@ Nothing here reads the served app; `demo_combined_finish.py` feeds these functio
 expected figures (42.00, 110.00, the WK-2c sentence) are the rulings' own, quoted from the build sheet."""
 from __future__ import annotations
 
+import json
 import re
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
@@ -500,6 +501,26 @@ def require_ev_group(threads: list[dict]) -> None:
 
 
 # ---- DIESEL-K7 (ruling DIESEL-1-R3l §9l.3): KIS-3 and KIS-9 ---------------------------------------------------------
+
+#: Carry DIESEL-1-R3k2 L2: a combined dataset without the Kisiwa Site is a failure of every KIS row, not a skip.
+KISIWA_MISSING_BODY = {"kisiwa": "missing: no KISIWA-001 Site in this dataset", "checked": 0}
+
+
+class KisiwaMissing(AssertionError):
+    """A KIS row ran on a dataset with no `KISIWA-001` Site. The row is marked failed and its failing body is `body`."""
+
+    body = KISIWA_MISSING_BODY
+
+    def __init__(self) -> None:
+        super().__init__(json.dumps(self.body))
+
+
+def failed_result(exc: Exception) -> dict:
+    """A failed row's `check.json` entry: the error text, and the failing body when the failure carries one."""
+    out = {"status": "fail", "error": f"{type(exc).__name__}: {exc}"[:2000]}
+    if isinstance(exc, KisiwaMissing):
+        out["read"] = exc.body
+    return out
 
 #: K3's literal: night 4's reporting gap in the F0 world (moved by the story's `delta_days`).
 KIS_F0_GAP_SPAN = ("2026-10-04T21:45:00Z", "2026-10-04T23:30:00Z")
