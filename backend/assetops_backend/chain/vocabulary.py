@@ -287,7 +287,7 @@ NODE_TEXT = {
     "money.not_known": NOT_KNOWN_TEXT,
     "money.currency_mixed": "Not shown · amounts in more than one currency",
     #: K10 v2 (R3t, MD-K10-1): the MG-1 earnings node on a declared-absent window; value None, never summed.
-    "money.none_declared": "No productive-use sales · no productive-use load declared",
+    "money.none_declared": "No productive-use sales · no productive-use equipment declared",
     "potential.value": "{lo}–{hi} kW of daytime solar unused",
     "potential.money": "{lo}–{hi} {cur} per hour of use, at the declared price",
     "potential.none": "No potential found yet",

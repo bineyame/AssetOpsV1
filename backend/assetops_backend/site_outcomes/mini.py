@@ -160,9 +160,9 @@ SALES_NO_USERS = "Not available yet · no productive users identified for this s
 #: K10 v2 (DIESEL-1-R3t §9t.3), MOCK DEVIATION MD-K10-1: v69's Grow row has no "none declared" state. A day whose
 #: site setup declares no productive-use load states a zero that is NOT a reading and NOT assessed. The polish batch
 #: may reword these but may not drop the "0 kWh" or the "not assessed" clauses.
-SALES_NONE_DECLARED = "0 kWh · no productive-use load declared for this site · not a metered reading"
-GROW_NONE_HEADLINE = "No productive-use load declared · 0 kWh"
-GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use load declared for this site (0 kWh)"
+SALES_NONE_DECLARED = "0 kWh · no productive-use equipment declared for this site · not a metered reading"
+GROW_NONE_HEADLINE = "No productive-use equipment declared · 0 kWh"
+GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use equipment declared for this site (0 kWh)"
 SALES_NO_READINGS = "Not available yet · no measured use by {names} on this day"
 SALES_CONFLICT = "Not available yet · {names} {verb} conflicting readings on this day, so use is not estimated"
 SALES_USED = "{kwh} kWh used by {names} in {h} measured {hours}"

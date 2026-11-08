@@ -80,7 +80,8 @@ Each mutation was applied after commit `56256bbc9`, run, then reverted with `git
 
 ## Stops
 
-- **K10-v1 (new, for the Architect): the R3t literals fail the product vocabulary scan.**
+- **CLOSED by R3t2 (§9t2, main 766bfed78): Stop K10-v1 resolved with option (a). "load" is now "equipment" in the four literals, and `test_out_b2_vocabulary` passes. D2 is confirmed by the same ruling.** Tests after the reword: vocabulary, the K10 board and rule files, `test_ch6_claims` and the clock guard gave 46 passed, 6 skipped (the Postgres adapter file, no DB). The text below is the original stop, kept as history.
+- **K10-v1 (was open, for the Architect): the R3t literals fail the product vocabulary scan.**
   - `frontend/src/test/productVocabulary.json:56` lists `"load"` as an unexplained abbreviation.
   - All four R3t literals say "productive-use load", so `test_out_b2_vocabulary::test_board_and_status_copy_pass_vocabulary` fails with 4 hits.
   - I kept the literals exactly as R3t gives them (binding). I did not add an exemption or change the guard.
@@ -93,7 +94,7 @@ Each mutation was applied after commit `56256bbc9`, run, then reverted with `git
 ## Known deviations
 
 - **D1.** The branch name follows the dispatch, not §9t.3.
-- **D2.** R3t wrote `k = COALESCE(:known_at, clock_timestamp())`. I implemented the file's existing live form instead: `CAST(:k AS timestamptz) IS NULL OR recorded_at <= k`, and when k is null, `superseded_at IS NULL`.
+- **D2 (confirmed by R3t2).** R3t wrote `k = COALESCE(:known_at, clock_timestamp())`. I implemented the file's existing live form instead: `CAST(:k AS timestamptz) IS NULL OR recorded_at <= k`, and when k is null, `superseded_at IS NULL`.
   - Why: a SQL clock read in `postgres_chain_read.py` fails the CH-5c2 C3 clock guard (`test_ch5c2_clock_guard`). Allowlisting it would loosen that guard.
   - The two forms are equivalent for rows already stored (no future `recorded_at` or `superseded_at`).
 - **D3.** `none_declared` defaults to `None` rather than `{}` in the signatures. The behaviour is identical.

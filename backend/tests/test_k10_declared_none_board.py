@@ -45,11 +45,12 @@ def earnings(row):
 
 
 def test_literals_are_r3t_exactly():
-    assert mini.SALES_NONE_DECLARED == "0 kWh · no productive-use load declared for this site · not a metered reading"
-    assert mini.GROW_NONE_HEADLINE == "No productive-use load declared · 0 kWh"
-    assert mini.GAPS_NONE_DECLARED == ("Productive use not assessed: no productive-use load declared for this site "
-                                       "(0 kWh)")
-    assert v.NODE_TEXT["money.none_declared"] == "No productive-use sales · no productive-use load declared"
+    assert mini.SALES_NONE_DECLARED == ("0 kWh · no productive-use equipment declared for this site · "
+                                        "not a metered reading")
+    assert mini.GROW_NONE_HEADLINE == "No productive-use equipment declared · 0 kWh"
+    assert mini.GAPS_NONE_DECLARED == ("Productive use not assessed: no productive-use equipment declared for this "
+                                       "site (0 kWh)")
+    assert v.NODE_TEXT["money.none_declared"] == "No productive-use sales · no productive-use equipment declared"
 
 
 def test_declared_absent_day_states_the_zero_on_line_headline_and_earnings():
@@ -63,7 +64,7 @@ def test_declared_absent_day_states_the_zero_on_line_headline_and_earnings():
     assert comp.facts.headline_money.get(GROW) is None                   # no headline money
     assert comp.node_inputs.none_declared == frozenset({KWH})
     e = earnings(grow)
-    assert e["text"] == "No productive-use sales · no productive-use load declared"
+    assert e["text"] == "No productive-use sales · no productive-use equipment declared"
     assert e.get("value") is None                                         # never priced, so never summed
 
 
