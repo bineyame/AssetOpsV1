@@ -5603,3 +5603,488 @@ No other list leaves Kisiwa out.
 - **With K10** (+0.25, path about 9.6–9.85, may cross the 9.75 tripwire), those rows settle and the d1 fuel-cost money shows.
 - **Architect recommendation:** yes, K10. The contradiction sits on a demo beat. Use cut 1 first if the path crosses.
 - **Default until the owner answers:** the rehearsal runs without K10, and K10 is not started (owner 2026-11-05, no new commitments).
+
+## 9t. Ruling DIESEL-1-R3t — K10 v2 after owner answer
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only code reading in `AssetOpsV1-k9` (`task/DIESEL-K9-checks-rehearsal` at 62bcb1f97) and main 8b6efd868. No DB, no suites. Input: the owner's answer, verbatim in `.agent/owner-kisiwa-measure-applicability-2026-11-08.md`. This ruling **withdraws K10 v1** (§9s2.4 "Rule") and replaces it with K10 v2 below. Everything else in §9s2 stands.
+
+### 9t.1 Reading the owner
+
+Owner, verbatim: "if the contributing dimensions to growth, whether productive use or otherwise are 0, it should be indicated as such. The component contributor being non existent doesn't mean it is checked.Let the architect weigh in as well."
+
+My reading has four parts.
+1. **Show it.** A Grow contributor that is zero must appear on screen as zero. It must not be hidden or dropped, and it must not read "Unknown" when the zero is a known fact.
+2. **Not checked.** A contributor that does not exist at the Site has not been checked. Nothing may present it as assessed, complete or met: not a chip, not a state, not a count.
+3. **"Whether productive use or otherwise."** This is a general rule for Grow contributors, not a Kisiwa patch. It does **not** say that unknowns become zeros. A contributor whose value is simply not known (cash collected, site earnings) stays "Not available yet". Only a zero that is a **declared fact** reads as zero.
+4. **"Let the architect weigh in."** The owner asks for a design view before deciding. I do not read it as approval to build. See §9t.6.
+
+**Where I differ from the coordinator's reading.**
+- The coordinator writes "zero / not present" as one state. I split it in two:
+  - **declared absent:** the site setup declares no productive-use load. Zero is a sourced fact, shown, and not assessed.
+  - **expected but missing:** a load is declared, or the setup cannot be read, but there is no data. This is "Not available yet", a gap, and the day is unsettled.
+- The coordinator writes "its absence must not by itself make the day count as checked". I agree. But I do not read the owner as forbidding the day to settle on the measures Kisiwa **does** have: generator minutes, daylight headroom and critical service. The owner rejects two things: a silent drop, and productive use reading as checked. A day that settles on the three measures that apply, and says on screen that productive use was not assessed and is zero by declaration, does neither.
+- That last step is my interpretation, not the owner's words. So it goes back to the owner as one plain question (§9t.6).
+
+**v1 fails the owner's test, and fails on a code fact as well.** v1 inferred "doesn't apply" from "no snapshot row in the range". But the builder's subject read **swallows a failed site-setup read as "no subjects"**: `postgres_chain_inputs.py:209-214` `productive_assets` returns `[]` on `MiniReadUnavailable`, which is raised when no single Foundation revision covers the instant (`mini_depth/read.py:386-387`). So a missing row can mean "the setup could not be read". It does not prove "nothing declared", and v1 would have counted a missing-data day as checked. v2 uses only the successful setup read.
+
+### 9t.2 Is there an honest design? Yes: "declared absent, so zero, stated; not assessed"
+
+The Site's setup already holds the fact.
+- `MiniDepthRead.productive_users` (`mini_depth/read.py:375-397`) returns `[]` only when exactly one Foundation revision is in force and it declares no `LOAD` with `supply-use = PRODUCTIVE`.
+- It **raises** when the revision is missing or ambiguous ("never 'none declared'", `:379`).
+- The board already reads it: `_productive_sales` at `mini.py:959-963`. Today the empty list renders `SALES_NO_USERS` "Not available yet · no productive users identified for this site". That files a declared fact under missing data, which is the wrong category on the owner's terms.
+
+**The three states of `productive_kwh` on a Site-local day:**
+
+| State | Condition | Settlement and gaps | Screen |
+|---|---|---|---|
+| Measured | the day has a `productive_kwh` row | as today | as today |
+| **Declared absent** | no `productive_kwh` row, **and** the site setup declares no productive-use load at the day's start and at its end (one revision each, known at `k`), **and** the day has a row of another measure | `productive_kwh` is left out of that day's applicable measures. It is never graded, never COMPLETE and never counted as checked | stated: "0 kWh · no productive-use load declared …" |
+| Missing | anything else (a load is declared but there is no row, the setup is missing or ambiguous, or the day has no row at all) | NO_DATA, a gap, unsettled (today's rule) | "Not available yet" (today's wording) |
+
+No zero row is written. Zero is a statement, not a measured value or a money figure: it is never priced, never summed and never graded.
+
+**What the Kisiwa board shows with v2.** States are derived from the data; the proof records them per day (§9t.4).
+- **Grow** (MG-1, MG-6, MG-3).
+  - MG-1 settles. Kisiwa has no declared objective (R3p Q3), so `outcome_state` (`outcomes/status.py:55-102`) gives **Opportunity** when the headroom thread is open on that day, else **No objective**. It can never give "On track", because ON_TRACK needs an objective verdict, and a declared-absent day gives no reading.
+  - MG-6 and MG-3 stay Not measured.
+  - Productive-use sales line: `SALES_NONE_DECLARED`.
+  - Headline: the spare-solar headline if there is one (`mini.py:575`), else `GROW_NONE_HEADLINE`.
+  - MG-1 earnings node: `money.none_declared` instead of "Not known yet".
+  - Cash collected and Site earnings keep their current "not available" texts. They are unknown, not zero.
+- **Optimize** (MG-2): settles (`base`). On d1 (local 2026-10-28) the lead dispatch Finding's money head is priced (`chain/read.py:437-438` now sees `settled`), so `earnings` shows the stored head's amount (KIS-7 item 3). The state follows the open primary Finding as on Kobo.
+- **Protect** (MG-5, MG-4, MG-8): MG-5 and MG-4 settle. MG-8 is unchanged (night D−1 window, §9s2.1). The fuel beat is unchanged.
+- **Assure** (MG-7): settles. Its readiness is R5 over the **applicable** measures only. Productive use never lifts it to Full.
+- **Gap line under the rows** (`finding_gap_line`, `mini.py:353-366`):
+  - It counts only days that miss an **applicable** measure: days before Kisiwa's first evidence (no rows at all) and days with PENDING rows.
+  - Whenever any window day is declared absent, it adds the stated note `GAPS_NONE_DECLARED`.
+  - Before: "Not available yet · 31 of 31 days are not assessed yet". After: "Not available yet · {g} of 31 days {verb} not assessed yet · Productive use not assessed: no productive-use load declared for this site (0 kWh)". The template switches to `GAPS_NO_READINGS` when no gap day holds a PENDING row (unchanged rule). When `g = 0`, the line is the note alone, with `days: []`.
+  - Effect: `finding_gaps` is non-null on Kisiwa, so the Issues column reads "… on the days checked" (`OutcomeBoard.tsx:342`). That is truthful, and it is intended.
+
+### 9t.3 K10 v2 unit card (consolidated; this card is all the builder reads)
+
+**Branch:** `task/DIESEL-K10-declared-none` from main. Do not build until the owner answers yes (§9t.6).
+
+**1. Shared rule: `backend/assetops_backend/chain/reader.py`.** This is the "one day-count rule" module. `chain/read.py` imports from it, so the board and the counts cannot diverge.
+```python
+#: K10 v2 (R3t): ASSET measures whose subjects are a site-setup declaration; only these can be declared absent.
+DECLARED_SUBJECT_MEASURES = frozenset({"productive_kwh"})
+
+def applicable_measures(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str],
+                        none_declared: Collection[str] = ()) -> tuple[str, ...]:
+    """R3t: `measures` without each m in `none_declared` ∩ DECLARED_SUBJECT_MEASURES that has no row this day,
+    provided the day has a row of some other measure. A declared-absent measure is out of the day's grades; it is
+    never COMPLETE and never a gap."""
+```
+- `_counts` gains `none_declared: Mapping[date, Collection[str]] = {}`, and computes each day's grades over `applicable_measures(per_measure, measures, none_declared.get(day, ()))`.
+- `counts` passes the same keyword. `grade_counts_of(facts, measures)` passes `getattr(facts, "none_declared", {})`.
+- `GradeCounts` is unchanged: no new field, so the wire JSON is unchanged.
+- `SnapshotReader.grade_counts` and `grade_counts_many` are unchanged. They feed the `snapshots` CLI report only, and keep counting raw rows.
+
+**2. `chain/read.py`.**
+- `_day_grades`, `readiness_of`, `day_grade`, `day_settled` and `day_gaps` each gain a keyword-only `none_declared` argument, defaulting to empty. Each applies `applicable_measures` per day before its current logic. With the default, behaviour is byte-identical.
+- `DayFacts` gains `none_declared: Mapping[date, frozenset[str]] = field(default_factory=dict)`.
+- `ChainRequest.day`, after the snapshot read:
+  1. `cands = set(measures) & DECLARED_SUBJECT_MEASURES`. If it is empty, use `{}` (Cold and EV never reach step 2).
+  2. **Lazy trigger.** `ask` = the days that hold a row of some measure but no row of the candidate. If it is empty, use `{}` (on Kobo's story days, no extra statement).
+  3. If the port has no `declared_none_days` attribute, use `{}`. Test fakes stay unchanged.
+  4. Otherwise: `read_scope.memo("chain.none_declared", ports.declared_none_days, tenant_id, site_id, m, tuple(ask), k)` gives a `frozenset[date]`. Store it as `{d: frozenset({m})}`.
+  5. Pass the result to `day_settled`, `readiness_of` and `day_gaps`, and keep it on `DayFacts`.
+- A port error propagates as any chain read does. The board then reads PARTIAL, and a failed read never becomes a claim.
+
+**3. Port and adapter.**
+- `ChainReadPort` documents an optional method: `declared_none_days(tenant_id, site_id, measure, days, known_at) -> frozenset[date]`.
+- `PostgresChainRead.declared_none_days`:
+  - It returns `frozenset()` for any measure other than `productive_kwh`.
+  - **One statement**: the Site's timezone, plus every `foundation_revision` row of the Site with `recorded_at <= k AND (superseded_at IS NULL OR superseded_at > k)` whose validity overlaps `[local start of min(days), local end of max(days))`. `k` = `COALESCE(:known_at, clock_timestamp())`.
+  - Use the same timezone column the builder's Site read gives `site.timezone` (`chain/builder.py:48`). The pre-flight names the column.
+  - In Python, a day is declared absent only when **both** its local start and its local end − 1 µs are covered by exactly one revision, and `productive_loads(content) == []` for each.
+- **Pure filter, shared with the builder's subject rule.** Move the component filter at `mini_depth/read.py:389-391` into a module-level pure function, `productive_loads(content) -> list[dict]`. `productive_users` and the adapter both call it, so "declared absent" and the builder's "no subject" cannot drift apart.
+- Wire the adapter wherever the composition builds `PostgresChainRead`. No new port object.
+
+**4. OutcomeEvaluator: `chain/outcomes.py` and `chain/vocabulary.py`.**
+- `NodeInputs` gains `none_declared: frozenset[str] = frozenset()`: the measures declared absent on **every** day of the node window.
+- In `_earnings`, for a non-FINDING record: if `measure in inp.none_declared` and `rows` is empty, return `v.money_claim(label, None, None, "NONE_DECLARED")`.
+- `money_claim` maps reason `NONE_DECLARED` to `node_text("money.none_declared")`.
+- Value None and basis NOT_KNOWN mean the claim is never priced and never added to `estate_income` (`never_summed` is unaffected).
+- `_kpi` is unchanged. With no objective it gives "no target", and with an objective and no reading it gives NOT_JUDGED (UNKNOWN), never MET.
+
+**5. Board: `site_outcomes/mini.py`.**
+- `decl = day_facts is not None and "productive_kwh" in day_facts.none_declared.get(day, ())`.
+- In `_productive_sales`, when `users == []`:
+  - if `decl`, return the contributor `_sales_line(SALES_NONE_DECLARED)` (no chip, no link), `subline: None`, and the flag `"none_declared": True`;
+  - otherwise keep `SALES_NO_USERS` and `GROW_SUBLINE` as today. This covers a revision change inside the day, where the two reads disagree, and stays conservative.
+- Headline: `headline[GROW]` = the spare-solar headline if there is one, else `GROW_NONE_HEADLINE` when the flag is set. No headline money.
+- `node_in` gets `none_declared = frozenset(m for m in DECLARED_SUBJECT_MEASURES if all(m in day_facts.none_declared.get(d, ()) for d in node window days))`. For the mini board the node window is `(day, day)`.
+- `finding_gap_line(day_facts, requested)`:
+  - `note` = any window day has a declared-absent measure;
+  - with gaps: the current text, plus `" · " + GAPS_NONE_DECLARED` when `note`;
+  - with no gaps and `note`: `{"text": GAPS_NONE_DECLARED, "days": [], "withheld": False}`;
+  - with no gaps and no `note`: None, as today.
+- `settled`, `base` and every other line are unchanged. They follow `day_facts.settled`.
+
+**Literals** (backend only; no frontend change, no wire key added). MOCK DEVIATION **MD-K10-1**: v69's Grow row shows a site with productive users (`frontend/mockups/v69/index.html`, Grow row) and has no "none declared" state. These literals are the honest addition, and they sit in the existing contributor, headline and gap-note slots.
+- `SALES_NONE_DECLARED = "0 kWh · no productive-use load declared for this site · not a metered reading"`
+- `GROW_NONE_HEADLINE = "No productive-use load declared · 0 kWh"`
+- `GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use load declared for this site (0 kWh)"`
+- `vocabulary.py`: `"money.none_declared": "No productive-use sales · no productive-use load declared"`
+
+The plain-language polish batch may reword these, but it may not drop the "0 kWh" or the "not assessed" clauses.
+
+**Safeguards (each one has a test):**
+1. Declared absent comes only from a successful setup read: exactly one revision in force at both day bounds. A missing or ambiguous revision means missing data.
+2. Only `productive_kwh`. Every other measure keeps today's rule.
+3. A row for the measure on a day always wins.
+4. A day with no row of any other measure stays NO_DATA and unsettled.
+5. The excluded measure is never COMPLETE, never in `enough_data_days` on its own account, and never lifts readiness.
+6. No zero row and no money. The MG-1 earnings value is None, so it is never summed.
+7. MG-1 can never be ON_TRACK or MET because of a declared-absent day.
+8. Without the port method, with no candidate measure, or with an empty trigger, the output is byte-identical to today, and so is the statement count.
+
+**Tests** (targeted only; no full suite, per test-suite policy):
+- `backend/tests/test_k10_declared_none_rule.py` (pure; Kisiwa-, Kobo- and Cold-shaped rows):
+  1. A Kisiwa-shaped day with declared absent settles, and readiness is over 3 measures.
+  2. The same day without the declaration stays unsettled and is a gap (v1's hole).
+  3. A day with no rows stays unsettled even when declared absent.
+  4. A `productive_kwh` row present while "declared absent" is passed: the row wins.
+  5. A missing SITE measure on a declared-absent day is still a gap.
+  6. Kobo-shaped rows give `DayFacts` and `GradeCounts` equal to before (with and without the keyword).
+  7. `grade_counts_of` equals `_counts` with the same `none_declared` (the COH pair).
+  8. The lazy trigger: a fake port records zero calls on Kobo-shaped rows and on a Cold site type.
+- `backend/tests/test_k10_declared_none_adapter_postgres.py` (authorized `*_test` DB):
+  - one revision with no productive load gives the day;
+  - one revision with a productive load gives no day;
+  - no revision gives no day;
+  - two overlapping revisions give no day;
+  - a revision change inside the day, where the end bound declares a load, gives no day;
+  - the call is exactly one statement.
+- `backend/tests/test_k10_declared_none_board.py` (mini compose with fakes):
+  - the Grow line, headline and MG-1 earnings node literals on a declared-absent day;
+  - the spare-solar headline still leads when present;
+  - `users == []` without `decl` keeps `SALES_NO_USERS`;
+  - the gap line in its three forms;
+  - MG-1 with an objective and declared absent is not ON_TRACK;
+  - a Kobo-shaped composition body is equal to before.
+
+### 9t.4 Proof plan: read-side, so no re-prepare. Confirmed, with one correction
+
+- **Still read-side.** No stored row, migration or prepare step changes. It reads `foundation_revision`, which every prepare already writes. **Confirmed.**
+- **Correction to R3s2.** `code_version` hashes every backend source file (`chain/adapters/file_code_version.py:3`, `:58`). So under K10 code, every stored prebuilt body is stale, and a serve with ticks would re-prebuild into that database.
+  - **Do not serve the rehearsal DB itself.** Serve a fresh `*_test` clone of it, with a **copy** of its var folder (the R3s §9s.4 pattern). The rehearsal DB stays untouched.
+  - The code is K10 merged with K9: K9 merged to main first, or merged locally into the K10 worktree for the proof.
+- **Kisiwa assertions.**
+  - KIS-7 item 3 is asserted again: d1 earnings are priced and equal to the stored head's `amount_high`.
+  - R3s stop S-s4 is asserted again.
+  - The d1, S−5d and S Kisiwa boards read AVAILABLE. On a declared-absent day their Grow line, headline and MG-1 earnings carry the §9t.3 literals.
+  - Every Kisiwa gap day either holds no row at all or holds a PENDING or NO_DATA row of an **applicable** measure. This is derived from the stored rows, never typed.
+  - The gap line carries `GAPS_NONE_DECLARED`.
+  - Record `g` and the gap days.
+- **Unchanged checks.**
+  - **Kobo, Cold and EV byte-unchanged.** Their board bodies (S−5d, S, d1) and the one-Site and three-Site Portfolio bodies are compared, K9 code against K10 code on the same clone, cold builds both. They must be equal after removing only the keys that differ between two K9-code reads of the same route (record that key list; it is expected to be empty).
+  - **Why they are unchanged, by code.** Cold and EV have no candidate measure. Kobo declares productive users, so the trigger is empty or the port finds no day. No wire key is added.
+  - The four-Site Portfolio changes only in Kisiwa's contribution. Record the before and after card texts, and the reviewer reads them against §9t.1.
+  - KIS-6 and CH5D1-O1 must pass unchanged.
+- **Stops (report to the Architect; no patch):**
+  - **K10-s1:** any Kobo, Cold or EV body differs.
+  - **K10-s2:** a Kisiwa day settles where the adapter found the setup missing or ambiguous.
+  - **K10-s3:** d1 is still unpriced.
+  - **K10-s4:** any Kisiwa row shows productive use as checked, complete or on track.
+
+### 9t.5 Size, critical path, cuts
+
+- **K10 v2 is about 0.40**, against 0.25 for v1:
+  - code 0.12: rule and wiring 0.04, port, adapter and filter 0.05, evaluator, board and literals 0.03;
+  - tests 0.10;
+  - review 0.06;
+  - clone and served proof 0.12.
+- **Why it grew:** a real site-setup read replaces v1's unsound inference, the MG-1 earnings node must stop saying "Not known yet" beside a stated zero, and the proof needs a clone (the `code_version` correction).
+- **Path.** It overlaps the 2-hour rehearsal. Using R3s2's overlap ratio, the path is **about 9.75–10.0** against the **9.75 tripwire**, so it crosses. Without K10 it is about 9.5–9.75.
+- **Cuts, in order:**
+  1. Move the K8c four-Site Kisiwa Overview capture to the demo-day prepare (−0.05).
+  2. Move the Service empty-default-day check (R3r §9r.4) to the polish batch (−0.02).
+  3. Cut the served proof to Kisiwa d1 and S−5d plus the Kobo S body equality. Cold and EV equality rests on the code argument and the lazy-trigger test (−0.04).
+  4. Move the whole served proof and the Kisiwa board captures to the demo-day prepare. K10 then merges on its targeted tests and review (−0.06).
+- After cuts 1–3 the path is about 9.65–9.9. After cut 4 it is about 9.6–9.85. **That can still cross 9.75**, so §9t.6 asks the owner.
+- **Never cut:** the stated-zero literals, the "not assessed" note, or safeguard 1. Without them, the owner's two conditions fail.
+
+### 9t.6 Owner question (one, plain language)
+
+> Kisiwa has no productive-use equipment (like a mill), so there is nothing to measure there. Proposed: Kisiwa's board says "0 kWh · no productive-use load declared for this site", and clearly says productive use was **not** assessed. Its days then count only for what Kisiwa actually has: generator, fuel, service and solar. As a result, the cost, service and evidence rows show real results, and night 1's generator cost shows its money. A day only counts if the site setup really says "none". Missing data is still shown as missing. Cost: about 0.4 units, running alongside the rehearsal. Even after moving lower-priority screenshots to demo day, the finish may land up to about a quarter unit past the 9.75 limit.
+> Options:
+> 1. **Build it (recommended).**
+> 2. **Wording only now** (about 0.05): Kisiwa shows the "0 kWh · none declared" line and says honestly that its other rows are not assessed yet. The demo stays on Kisiwa's fuel story, and the full fix comes after the demo.
+> 3. **Leave as is.**
+
+- **Recommendation: option 1.** The on-screen contradiction sits on a demo beat. v2 meets both of the owner's conditions, and it is the only design that settles the days honestly.
+- **Default until the owner answers.** K10 v2 is not started (owner 2026-11-05). The rehearsal is unaffected.
+- **Option 2 literals** (`mini.py` only; no rule change):
+  - `SALES_NO_USERS` is replaced by `SALES_NONE_DECLARED`, but only when `productive_users` returned `[]`.
+  - The gap text gains `" · days here are not settled yet: the system needs a productive-use figure and none is declared (0 kWh)"` when that read returned `[]`.
+  - The demo script keeps the Kisiwa Grow, Optimize and Assure rows and the d1 board out of the talk track, and stays on the Protect fuel beat.
+
+### 9t.7 Rehearsal interplay
+
+- **The rehearsal proceeds now, without K10.** K10 v2 changes no prepare step, story, stored row or check expectation used before or during the prepare.
+- R3s2 §9s2.4 stands for the rehearsal: KIS-7 item 3 and S-s4 stay report-only with their quoted reason, KIS-7 items 1, 2 and 4 stay asserted, and KIS-OV stays as it is.
+- The rehearsal's Kisiwa board captures show the current state (Unknown Grow, Optimize and Assure rows; Protect fuel beat correct). They are not demo assets. The K10 captures come from the clone proof, or from the demo-day prepare under cut 4.
+- **Files.** K10 touches `chain/reader.py`, `chain/read.py`, `chain/outcomes.py`, `chain/vocabulary.py`, `chain/adapters/postgres_chain_read.py`, `mini_depth/read.py` and `site_outcomes/mini.py`. K9 touches `T/demo_combined.py` and the demo check rows. No overlap is expected, and the pre-flight confirms it.
+- **Plan HTML (coordinator):** the rulings table gains "DIESEL-1-R3t: owner answer read (zero shown; absence never 'checked'); K10 v1 withdrawn (row-absence inference unsound: builder swallows a failed site-setup read as no subjects); K10 v2 = declared-absent productive_kwh from one successful Foundation read per day bound, left out of the day's applicable measures but never graded or counted checked; stated '0 kWh · no productive-use load declared' on Grow line, headline, MG-1 earnings and gap note; one shared rule in chain/reader.py; Kobo/Cold/EV byte-unchanged; proof on a clone (code_version correction); ~0.40, path ~9.75–10.0 → cuts 1–4; owner question (build / wording only / leave); rehearsal proceeds now".
+
+### 9t2. Ruling DIESEL-1-R3t2 — K10 stop K10-v1 (vocabulary) and deviation D2
+
+Claude Architect (binding: Claude). Owner approved K10 v2 ("Build it (Recommended)", ae6d4cb71). Read-only. Trigger: phase 1 on `task/DIESEL-K10-declared-absent` (56256bbc9, be6b27b8f) stopped at K10-v1. The cause is `frontend/src/test/productVocabulary.json:56`, which bans "load" as an unexplained abbreviation. All four R3t literals use it, so `test_out_b2_vocabulary::test_board_and_status_copy_pass_vocabulary` reports 4 hits.
+
+**Ruling: option (a), reword "load" to "equipment".**
+- "Equipment" is the owner's own word in the approved question: "productive-use equipment (like a mill)".
+- It is not on the banned list.
+- The guard stays unchanged, with no exact-text allowance. Line 184's precedent allows only exact v6.9 mock labels, and these literals are not mock labels.
+- The "0 kWh" and "not assessed" clauses stay as they are.
+
+The four literals below replace the §9t.3 literals. MD-K10-1 is unchanged.
+- `SALES_NONE_DECLARED = "0 kWh · no productive-use equipment declared for this site · not a metered reading"`
+- `GROW_NONE_HEADLINE = "No productive-use equipment declared · 0 kWh"`
+- `GAPS_NONE_DECLARED = "Productive use not assessed: no productive-use equipment declared for this site (0 kWh)"`
+- `vocabulary.py`: `"money.none_declared": "No productive-use sales · no productive-use equipment declared"`
+
+The builder updates the K10 tests to the new literals and reruns the vocabulary test and the three K10 test files. If any other vocabulary hit appears, that is a stop to report, not a guard edit.
+
+**D2: confirmed.** The builder replaced R3t's `COALESCE(:known_at, clock_timestamp())` with the file's existing form: `CAST(:k AS timestamptz) IS NULL OR recorded_at <= :k`, plus `superseded_at IS NULL` when k is null. I confirm it because:
+- It is the established "as known now" form in `postgres_chain_read.py`, and the clock guard accepts it.
+- It differs from R3t only for a revision whose `superseded_at` is in the future. Treating that revision as superseded is the conservative choice: it can only fail to declare absent, so the day stays missing data. Safeguard 1 holds.
+- The adapter test adds no case for this.
+
+### 9t3. Ruling DIESEL-1-R3t3 — K10 review M1 (whole-day coverage), L1, L2, phase-2 Kobo check
+
+Claude Architect (binding: Claude). Read-only. Trigger: `.agent/review-K10.md` (717838ed7, FIX), finding M1. This ruling replaces the two-bound rule in §9t.3 item 3.
+
+**M1: the reviewer's option (a), whole-day coverage.** The reviewer is right: two bounds miss a mid-day mill and a mid-day gap.
+- With a mid-day gap, a failed setup read would become "declared absent". That breaks R3t safeguard 1.
+- (a) is honest. It can only make fewer days count as declared absent than the current code.
+- (b) would also wrongly refuse an ordinary day on which a no-mill revision is replaced by another no-mill revision.
+
+**The rule.** A pure function in `chain/reader.py`, next to `applicable_measures`, called by `PostgresChainRead.declared_none_of` for each day. The adapter keeps its one statement.
+```python
+def declared_none_day(revisions: Sequence[tuple[datetime, datetime | None, bool]],
+                      lo: datetime, hi: datetime) -> bool:
+    """R3t3: (valid_from, valid_to, has_productive) of the revisions known at k. True only when the revisions
+    overlapping [lo, hi) (valid_from < hi and (valid_to is None or valid_to > lo)) are at least one, none has a
+    productive load, and together they cover [lo, hi) with no gap: sorted by valid_from, cursor = lo; a revision
+    with valid_from > cursor is a gap -> False; cursor = max(cursor, valid_to or +inf); finally cursor >= hi."""
+```
+- `[lo, hi)` is the Site-local day as UTC instants, the same instants `board_day` gives.
+- `has_productive = bool(productive_loads(content))`.
+- The SQL keeps the D2 known-at form. Its overlap filter becomes the whole requested span: `valid_from < :hi_span AND (valid_to IS NULL OR valid_to > :lo_span)`.
+- Overlapping revisions are allowed by the rule. The exclusion constraint prevents them among current revisions anyway. If any overlapping revision has a productive load, the result is False.
+
+**Required pure test cases** (`test_k10_declared_none_rule.py`):
+1. One no-mill revision covers the day: True.
+2. Open-ended `valid_to = None`: True.
+3. Two contiguous no-mill revisions changing at 12:00: True.
+4. A revision ending exactly at `lo` (excluded), then a no-mill revision from `lo`: True.
+5. `valid_to == hi` exactly: True (half-open).
+6. **Mid-day mill**, as the reviewer described (none, mill 08:00–14:00, none): False.
+7. **Mid-day gap**, as the reviewer described (none, no revision 08:00–14:00, none): False.
+8. A gap at the start (first revision from 00:30): False.
+9. A gap at the end (`valid_to` 23:00): False.
+10. No revisions: False.
+11. Overlapping revisions, one with a mill: False.
+
+The two reviewer cases (6 and 7) are also kept as adapter cases on the `*_test` DB. Each must return `{}` through `declared_none_of`.
+
+**L1: fix now** (about 0.01). Add direct evaluator assertions to the safeguard-7 test, on a declared-absent window with an MG-1 objective:
+- the `_month_reading` value is `None`, never `0`;
+- `complete` is False;
+- the verdict is neither MET nor ON_PACE.
+
+Both surviving mutations must then fail the test. Record this in the packet.
+
+**L2: revert now.** Revert the whitespace slip at `:250`.
+
+**Phase-2 Kobo check: confirmed, and made explicit.**
+- The K10-s1 body comparison already catches a changed Kobo body. In addition, the proof records Kobo's declared-absent result, through a direct `declared_none_of` call or a debug of `DayFacts.none_declared`, over:
+  - the S−5d, S and d1 board windows;
+  - the one-Site, three-Site and four-Site Portfolio windows.
+- **Any non-empty Kobo set is stop K10-s1**, even if the bodies happen to be equal.
+- One extra Kobo statement on such a day is expected and is recorded, not a stop.
+
+**Size:** about +0.04 on K10: rule and tests 0.03, L1 and L2 0.01. The path moves within §9t.5's range. The cut order is unchanged.
+
+## 9u. Ruling DIESEL-1-R3u — four-Site rehearsal failures (F-COH, MILL-5, KIS-8a, KIS-6), guard S-h, Kisiwa S−5d Protect
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Read-only. Code read in `AssetOpsV1-k9` (`task/DIESEL-K9-checks-rehearsal` at eacdd5bad; it has no `backend/` or `config/` diff against its merge base f34376322). Evidence: `var/demo3_k9rehearsal` (`check.json`, the COH bundle `dd1b2-coh-havc4t61`, `kisiwa.json`). SELECT-only reads on `assetops_demo3_k9rehearsal_test`. No suites, no writes.
+
+### 9u.1 Verdicts, item by item
+
+**U1. UF1 (KIS-8a, F-COH week and S). Cause confirmed: false positive. Owner: K9 fix round.**
+- `tools/checks/chain_coherence.py:1347-1348` pairs every fuel amount with every other same-currency amount. Kobo's Optimize earnings `value.low` is `0.00` USD (the schema pins `amount_low` to 0), so 119.57 + 0.00 and 180.43 + 0.00 are "found" in the Protect fuel line, which prints those amounts on their own. Nothing is added.
+- **Fix: exclude a pair with a zero addend.** A sum with 0 equals its other addend, so it can never show adding. Excluding it loses no detection. I rejected the wider rule "drop any sum equal to a listed amount", because it could hide a real total that happens to equal another amount.
+- Put one helper in `chain_coherence.py`. `demo_combined_rows.py` already imports from that file.
+  ```python
+  def nonzero_pair_sums(pairs: Iterable[tuple[tuple[Any, Decimal], tuple[Any, Decimal]]]) -> set[str]:
+      """R3u: the two-place sums of same-currency pairs, neither addend zero (a sum with 0 shows no adding)."""
+  ```
+- Use it at all four places that search for a sum of two amounts. All four have the same zero-addend hole:
+  1. UF1, `chain_coherence.py:1347-1348`;
+  2. PV1, `:1299-1302`;
+  3. `demo_combined_rows.py:380-381` (`pv_values`);
+  4. the KIS-4 sum, fuel amount + dispatch `amount_high` and fuel + fuel (`demo_combined_rows.py` `kis4`, after `:431`).
+- **Tests** in `tools/checks/test_chain_coherence.py` and `backend/tests/test_demo_combined_finish_rows.py`:
+  - A Kobo low of `0.00` with Kisiwa 119.57/180.43 printed in the fuel line gives no UF1 finding. This is the rehearsal shape.
+  - A planted non-zero sum, 119.57 + 15.13 = `134.70`, in a card string is still a finding. This is the non-vacuity case.
+  - The same pair of cases for PV1 and for `pv_values`.
+  - A KIS-4 case with a zero dispatch `amount_high`.
+
+**U2. A1 (KISIWA-001, week/S/month). Cause confirmed: real product defect, demo-visible. Owner: new product unit DIESEL-K6c (K6b area).**
+- The Assure headline counts `actions` and `opp` only (`site_outcomes/mini.py:572-573`). But `_assure` lists `fuel` verdicts as entries (`:1211-1222`).
+- The bundle's Kisiwa S board reads headline "No verified result yet" beside "ACT-004 verified on example data" (`FUEL_VERDICT`). It is the same on all three windows.
+- **Fix:**
+  ```python
+  verified = (sum(1 for a in actions if a.verification_state == "VERIFIED")
+              + sum(1 for o in opp if o.outcome == "VERIFIED")
+              + sum(1 for f in fuel if f.outcome == "VERIFIED"))   # R3u: the fuel verdicts `_assure` lists
+  ```
+- A fuel Action is a FUEL_BALANCE domain Action. It reaches the board only through `site_chain.fuel_verdict_actions` (`mini.py:492-494`), and its verification state is not counted VERIFIED among `actions`. That is why A1 fired. So there is no double count.
+- Kisiwa's headline becomes "1 verified result" on boards whose work window holds ACT-004. This matches v69's count form, so it is not a mock deviation.
+- `site_outcomes/read.py:521-522` `_verified_results` documents itself as "the Assure headline's number" (MB-1-R Q5). Add the same term to it: `+ sum(1 for f in comp.facts.fuel_verdicts if f.outcome == "VERIFIED")`.
+
+**U3. L2 (summary `verified_result_count` against `count.verified_results`). Cause confirmed, two parts. Owner: DIESEL-K6c.**
+- **Week 2 vs 3 and month 2 vs 3.** This is U2's cause, through `read.py:521`. The chain counts Kisiwa's verified fuel thread; the summary does not.
+- **S, 2 vs 1. This is not Kisiwa, and it predates the K lane.** The bundle shows:
+  - The summary sums each board's `_verified_results`. A mini board counts the VERIFIED Actions of its **work window** (`mini.py:450`, `WORK_WINDOW` back from the board day). Kobo's S board lists ACT-001 (trial, ACTION) and ACT-005 (mill, DOMAIN_VERDICT), so it gives 2.
+  - The claim (`chain/claims.py:133-164`) counts only threads with a Finding occurrence meeting `[lo, hi)`, plus opportunity Actions whose opportunity occurrence meets `[lo, hi)`. On S, Kobo gives `verified` 1 (the ACT-001 thread) and `verified_actions` 0 (the mill's opportunity episode is not on the S day).
+  - The two numbers have different definitions, so they agree only when every verified Action's episode is inside the window. They split on any one-day window.
+  - With U2's fuel term alone, S would go to 3 vs 1, because ACT-004's night 10-31 is in Kisiwa's work window but not on S.
+- **Fix: one computation.** The summary's legacy count becomes the claim's value, which is what CH6b3-R3 L2 states it should be. In `SiteOutcomeBoardService._summary` (`read.py:639-692`):
+  - set `"verified_result_count": None if counted is None else counted.claims[VERIFIED_RESULTS].value`, with `VERIFIED_RESULTS` imported from `chain/claims.py`;
+  - remove the `verified += body.get("_verified_results", 0)` sum;
+  - keep `verified_read` for `verified_sites_unread`, which is unchanged.
+- The field has no reader on screen (`frontend/src/estate/estateClient.ts:660` types it; nothing renders it). So there is no visible change and no mock question. L2 now holds by construction and stays as a guard against regression.
+- **K6c tests** (new file `backend/tests/test_k6c_assure_fuel_count.py`, plus edits):
+  1. Mini compose with fakes: one VERIFIED `FuelVerdictFact`, no trial or mill. The headline is "1 verified result", the verified entries are 1, and the A1 rule (`_coh17_a1`) passes.
+  2. A fuel verdict that is PENDING, INEFFECTIVE or INCONCLUSIVE is not counted.
+  3. A VERIFIED trial, mill and fuel verdict together give "3 verified results".
+  4. `board(...)["_verified_results"]` includes the fuel verdict (extend `test_mb1_opportunity_board.py:280-313`).
+  5. A summary where the board-sum would be 2 and the claim is 1 (the S shape) reports 1. Without a chain reader it reports None.
+  6. Update `test_out_b4_read.py:250-259` to rule 5. Keep its `verified_sites_unread` assert.
+  7. Non-vacuity: dropping the fuel term fails 1 and 4. Restoring the board-sum fails 5.
+
+**U4. MILL-5. Cause confirmed: mechanical. Owner: K9 fix round.**
+- `tools/demo_combined_finish.py:966` uses `psycopg` in `mill5` (`:955-970`) with no local import. Eleven other rows import it locally (`:359`, `:429`, …).
+- `demo_rows.mill_assure` (`:965`) returned before the error, so WD-1m holds. The stored-outcome SQL never ran.
+- **Fix:** add `import psycopg` as the first statement of `mill5`.
+- **Test:** an L0 AST test over `tools/demo_combined_finish.py`. Every function that names `psycopg` must import it in its own body, because the module has no top-level import. Planting the rehearsal shape (removing the import) must fail it.
+
+**U5. KIS-6. Cause confirmed: mechanical. Owner: K9 fix round.**
+- `kisiwa.json` `verdict` is a dict, `{…, "state": "VERIFIED", "stored": true}` (`demo_combined_kisiwa.py:688`). Line `demo_combined_rows.py:1140` compares the whole dict with the string.
+- **Fix:** `want = 1 if (kisiwa_doc.get("verdict") or {}).get("state") == "VERIFIED" else 0`. In the assert message, report `(kisiwa_doc.get("verdict") or {}).get("state")`.
+- **Tests:**
+  - a dict verdict VERIFIED with `threads.verified` 1 passes;
+  - a dict verdict INEFFECTIVE with `threads.verified` 1 fails;
+  - a case runs past `:1143`, so the Assure card claim and the H2 asserts are reached.
+
+**U6. Watermark guard stop S-h (`unlisted_modules`, 5). Legitimate reach, predates K9. Owner: DIESEL-K6c (`config/` is hashed into `code_version`, so this is a product-side change).**
+- **What the list is.** It is the clock-guard scan set (`backend/tests/test_ch5c2_clock_guard.py:3`). An unlisted module that a stored compose runs is a hole in the static wall-clock scan. It is not a wrong read: `untracked []`, `unresolved []`, 0 non-200.
+- **Which unit introduced each:**
+
+  | Module | Introduced | Reached in compose through |
+  |---|---|---|
+  | `actions.fuel_verification` | K6b (aa7020754) | the fuel verdict read (`actions/verification.py:427-495` lazy imports); its ports are built lazily (`actions/composition.py:130-163` `_Lazy`, K6b) |
+  | `actions.verification_families` | CH-9b2 (cbbf3325d); fuel family registered by K6b, value code by MV-1 | `verification.py:368-392`, `:523` lazy imports, through the mill verdict value (`mini.py:1179` `verdict_value`, PV-1/MV-1) and the fuel path |
+  | `financials.composition`, `financials.assumptions` | S4-02a (28668d956); the productive-price builder by MV-1 (4791d7b27) | `VerificationPorts` builders (`actions/composition.py:114`, `:126`) and the lazy `PRODUCTIVE_PRICE_KEY` import (`financials/composition.py:164`), first run inside a compose |
+  | `financials.fuel_cost_v2` | FUEL-1 A1 (972dc747f) | the consequence store or read (`postgres_consequence_store.py:33`, `consequence_read.py:37`), built when K6b's lazy fuel-balance store is first used (`fuel_balance/composition.py:39`) |
+
+- **All five predate K9.** They are ancestors of K8 (ffc23b202), and K9 has no product or config diff.
+- **Why the guard missed them.** K8's guard run (+2 modules) used a database without both the mill VERIFIED verdict and Kisiwa's fuel verdict. This rehearsal is the first guard run where both exist in one estate, so these lazy paths ran for the first time.
+- **No forbidden reach.**
+  - `fuel_verification` still imports no `financials`, `fuel_cost*` or price module (its docstring, `:16`).
+  - The financials modules are reached through lazy port construction, which is the `_Lazy` design.
+  - Grep of the five files finds no `datetime.now`, `utcnow`, `date.today`, `time.time`, `now()`, `clock_timestamp` or `current_timestamp`.
+- **Fix:** add the five names to `config/chain/stored-composer-modules-v1.json` in sorted order, as a reviewed diff. `test_ch5c2_clock_guard.py` must pass with them listed. Any hit from it is a stop to report, not an allowlist edit.
+- **Proof:** the post-fix guard run (§9u.2 step 3) uses `--modules-out`. The observed list must equal the committed list exactly. Any other unlisted module is stop **R3u-s2**.
+
+**U7. Kisiwa S−5d board: Protect UNKNOWN, MG-8 PRODUCER_NOT_SETTLED. K10 does not decide it, and the evidence conflicts. Owner: K9 fix round (pin) and the runner.**
+- **K10 settles MG-5 and MG-4.** It makes declared-absent days settled, so `base` is true (`mini.py:510`, `:521-522`), and Grow, Optimize and Assure settle with them.
+- **K10 does not touch MG-8.** MG-8 settles from night D−1's window, its assessed state and the fuel Finding read (`mini.py:525-526`). It does not depend on `productive_kwh`.
+- **The R3s2 expectation is met without K10.** The rehearsal's own served body of the same board (`dd1b2-coh-havc4t61/board.day_kisiwa_fuel-morning_2026-11-01.json`, window 10-31T21Z to 11-01T21Z, AVAILABLE) reads:
+  - Protect `NEEDS_ATTENTION`, lead MG-8;
+  - MG-8 `{state: NEEDS_ATTENTION, reason: PRIMARY_FINDING_OPEN}`;
+  - MG-5 and MG-4 UNKNOWN.
+- **The data agree with that body.** Night 10-31's window exists, revision 1, `UNEXPLAINED`, recorded 2026-11-01T12:30Z. Kisiwa has 0 unconsumed `finding.revised` events.
+- **The packet's UNKNOWN quote is a second, unreconciled read.** I cannot reproduce it from code or data without a compose, which would write cache rows to the kept database. So I treat it as unexplained, not as the product state.
+- **Pin (K9 fix round, in KIS-OV, which already reads the S−5d board through `ctx.get(date=…)`):**
+  - assert that the S−5d Protect row `state` is `NEEDS_ATTENTION`;
+  - assert that its MG-8 outcome entry is `{state: NEEDS_ATTENTION, reason: PRIMARY_FINDING_OPEN}`;
+  - do not assert the lead, because with K10, MG-5 and MG-4 may settle;
+  - when the assert fails, the row records the board's `read_state` and `warnings`, and a second read of the same day by the local `from`/`to` pair.
+- **Stop R3u-s1:** UNKNOWN on the post-fix clone. That is a demo beat; report it to the Architect with both reads and do not patch.
+- **Tests (L0):** a NEEDS_ATTENTION board with that MG-8 entry passes; the packet's UNKNOWN/PRODUCER_NOT_SETTLED shape fails.
+- **Note, not a fix.** The Protect headline "Battery and generator condition are not assessed" is the fixed `PROTECT_HEADLINE` literal (`mini.py:579`). K10 does not change it.
+
+**U8. KIS-7 item 3 and stop S-s4: asserted again (K9 fix round).**
+- R3s2 made them report-only only while d1 was unsettled. K10 settles d1 (§9t.4).
+- **Fix:** restore the R3s2-relaxed assert and its L0 break cases (an unpriced d1, or a d1 amount that differs, fails again).
+- The check that exercises them runs only with K10 in (§9u.2). If K10 is held, revert to R3s2's report-only form with its quoted reason.
+
+### 9u.2 Order: no re-check on the kept DB; one clone serves K10 phase 2 and the post-fix check
+
+**Can a product fix be checked on the kept DB without a new prepare?**
+- **No new prepare is needed.** Every fix is read-side: a board headline term, a summary field, a config list and check-tool code. No stored row, prepare step or story changes.
+- **But it cannot be checked on the kept DB.** `code_version` hashes every backend `.py` **and every `config/` file** (`chain/adapters/file_code_version.py:3`, `:46-54`). So K6c, which includes the module list, and K10 both make every stored body stale. A `finish check` would then recompose and write read-through rows into the kept database, and the kept database would stop being the rehearsal evidence.
+- **The kept DB stays untouched.**
+- **No tools-only re-check on the kept DB either.** K9's tools-only fixes (U1, U4, U5) do not change `code_version`. But such a run would still fail A1/L2 and costs about 20 minutes of machine time, so it is folded into the clone check below.
+
+**One clone, three code states, in this order** (the runner is the K10 phase-2 builder, in one context):
+0. **Clone.** Create `assetops_k9_audit_r3u` from the kept DB (authorized scratch pattern), and copy `var/demo3_k9rehearsal` to `var/demo3_r3u`. Reads are in process (TestClient), with no server and no ticks, as in the rehearsal. Then the clone's facts never move, and only `chain_response` rows are added.
+   - If K10's proof must use `serve` with ticks, it takes this clone, and step 3 takes a **second fresh clone** of the kept DB. That costs minutes, not a prepare.
+1. **Code A = main + K9** (as merged, fix round included or not; the K10 baseline does not read the failing rows). Take the K10 baseline reads (§9t.4, cold builds).
+2. **Code B = A + K10.** Run the K10 proof: K10-s1 to s4, and the Kobo declared-absent sets (§9t3).
+   - K6c is **not** in A or B. Its summary-field change would otherwise show up in K10-s1's Portfolio body comparison.
+3. **Code C = B + K9 fix round + K6c,** merged locally in the proof worktree. Run `finish check <clone-url> var/demo3_r3u` (all rows), then `tools/chain_watermark_guard.py --modules-out`.
+   - Expect 50 pass and 0 fail, including KIS-7 item 3, S-s4, the KIS-OV pin, F-COH (A1, L2, UF1), MILL-5 (`stored_outcome` VERIFIED) and KIS-6 (Assure card and H2 reached).
+   - Expect the guard to show `unlisted_modules []` and exit 0.
+   - Stops: R3u-s1 (U7), R3u-s2 (U6), any K10 stop, and any new failing row (report it; do not patch).
+
+**What must land before step 3** (each one reviewed ACCEPT): the K9 fix round (U1, U4, U5, U7 pin, U8) and DIESEL-K6c (U2, U3, U6). K10 is already ACCEPTED.
+- Steps 0–2 do not wait for them. They start now, overlapping the two builds.
+
+**Merge order to main after step 3 passes:** K9 → K10 → K6c.
+- K6c branches from main now (`task/DIESEL-K6c-assure-fuel-count`).
+- K10 also edits `mini.py`, near the headline block (`:575-589`), and is adjacent to U2's `:572-573`. K6c rebases after K10 merges. Any conflict is textual only.
+- No re-run after the rebase if the reviewer confirms that the rebased diff equals the reviewed diff.
+
+### 9u.3 Size, critical path, cuts
+
+- **K9 fix round** about 0.06:
+  - U1 (helper at 4 sites and tests) 0.03;
+  - U4, U5 and U8 0.01;
+  - U7 pin 0.01;
+  - re-review (Sonnet) 0.01.
+- **DIESEL-K6c** about 0.07: code 0.02, tests 0.03, review 0.02.
+- **Step 3** about 0.04: the check takes about 20 minutes, the guard about 4 minutes, plus the packet.
+- **Critical path.**
+  - Both builds run in parallel with K10 steps 0–2, which are already in the base estimate.
+  - The path adds step 3 and any wait for the builds: **about +0.05 to +0.08**.
+  - That makes about **9.8–10.08** before cuts, against the accepted 9.75–10.0.
+- **Cuts, in order:**
+  1. §9t.5 cut 1: move the K8c four-Site Kisiwa Overview capture to the demo-day prepare (−0.05).
+  2. §9t.5 cut 2: move the Service empty-default-day check to the polish batch (−0.02).
+  3. §9t.5 cut 3: narrow K10's served proof to Kisiwa d1 and S−5d plus Kobo S body equality (−0.04).
+  4. R3u-a: one reviewer reviews the K9 fix round and K6c together, two diffs in one context (−0.02).
+  5. R3u-b: step 3 runs only the affected rows (F-COH, KIS-1…KIS-10, KIS-OV, MILL-1…MILL-5, PV-A, CO-6, CH5D1-O1), if `finish check` can select rows (−0.03).
+- After cuts 1–2 the path is about 9.73–10.01. After 1–4 it is about 9.71–9.99. **That is inside the range the owner accepted.**
+- §9t.5 cut 4 (moving the proof to demo day) is withdrawn. The post-fix check needs the clone anyway.
+- **Never cut:** U2, U3, the U6 list and guard re-run, the U7 pin, or the full F-COH run.
+
+### 9u.4 Owner question
+
+None. The path stays inside the accepted range after cuts 1–4. U2 is a correctness fix that makes the screen honest ("1 verified result" beside the listed ACT-004 entry), with no new product choice.
+
+**Plan HTML (coordinator):** add to the rulings table: "DIESEL-1-R3u: rehearsal 46/4 ruled.
+- UF1: false positive (0.00 addend); zero-addend pairs excluded at 4 sum checks.
+- A1: real defect (Assure headline omits fuel verdicts); new unit DIESEL-K6c.
+- L2: summary legacy count = the claim value (one computation; the S 2-vs-1 was a pre-K work-window vs [lo,hi) split).
+- MILL-5 and KIS-6: mechanical, in the K9 fix round.
+- Guard S-h: 5 lazily reached modules (K6b/MV-1/FUEL-1 A1), legitimate; added to the list in K6c.
+- S−5d Protect: NEEDS_ATTENTION in the served body, and K10 does not touch MG-8; pinned in KIS-OV.
+- One clone, three code states (K10 baseline, K10 proof, then the full check plus guard); the kept DB is untouched.
+- Path about +0.05–0.08, inside the accepted range after cuts 1–4. No owner question."
