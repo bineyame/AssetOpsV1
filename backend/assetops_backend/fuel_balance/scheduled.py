@@ -33,7 +33,7 @@ _ANCHOR = date(2000, 1, 3)  # any date: `time` arithmetic goes through `datetime
 
 
 def bucket_bounds() -> tuple[time, time]:
-    """The local read range of a night, `[NIGHT_START - EDGE, NIGHT_END + EDGE)` (17:30 and 12:30 today), from the
+    """The local read range of a night, `[NIGHT_START - EDGE, NIGHT_END + EDGE]` (17:30 and 12:30 today; closed: the assessment reads both edges), from the
     rule's own constants (R1 §2.4: one source for the night window). Bound to the `schedule_inputs` SQL."""
     start = (datetime.combine(_ANCHOR, rules.NIGHT_START) - EDGE).time()
     end = (datetime.combine(_ANCHOR, rules.NIGHT_END) + EDGE).time()
@@ -45,7 +45,7 @@ def night_of(local: datetime) -> date | None:
     start, end = bucket_bounds()
     if local.time() >= start:
         return local.date()
-    if local.time() < end:
+    if local.time() <= end:
         return local.date() - timedelta(days=1)
     return None
 

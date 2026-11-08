@@ -99,7 +99,9 @@ def test_1_bucket_edges_in_site_local_time() -> None:
     assert night_of(datetime(2026, 11, 5, 17, 29)) is None          # fails if the bucket starts at 17:00
     assert night_of(datetime(2026, 11, 5, 17, 30)) == d             # fails if it starts at 18:00
     assert night_of(datetime(2026, 11, 6, 12, 29)) == d             # fails if it ends at 12:00
-    assert night_of(datetime(2026, 11, 6, 12, 30)) is None          # fails if the end is closed
+    assert night_of(datetime(2026, 11, 6, 12, 30)) == d  # fails if the end is open (the closing search includes end + 30 min)
+    assert night_of(datetime(2026, 11, 6, 12, 30, 1)) is None  # fails past end + 30 min
+    assert night_of(datetime(2026, 11, 5, 17, 29, 59)) is None
     assert scheduled.bucket_bounds() == (time(17, 30), time(12, 30))
 
 
@@ -109,7 +111,8 @@ def test_1_rev1_the_bucket_follows_the_rule_constants(monkeypatch) -> None:
     assert scheduled.bucket_bounds() == (time(18, 30), time(11, 30))  # fails on typed literals
     assert night_of(datetime(2026, 11, 5, 17, 30)) is None
     assert night_of(datetime(2026, 11, 5, 18, 30)) == date(2026, 11, 5)
-    assert night_of(datetime(2026, 11, 6, 11, 30)) is None
+    assert night_of(datetime(2026, 11, 6, 11, 30)) == date(2026, 11, 5)
+    assert night_of(datetime(2026, 11, 6, 11, 30, 1)) is None
 
 
 # --- 2. closed edge ----------------------------------------------------------------------------------------------

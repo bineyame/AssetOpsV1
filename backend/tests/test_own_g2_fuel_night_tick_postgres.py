@@ -212,33 +212,59 @@ def _record(site, kind: str, key: str, occurred: datetime, quantity: str, **over
 
 
 def test_q1_bucket_edges_and_q12_a_site_without_fuel_assets(site) -> None:
+    from assetops_backend.fuel_balance.adapters.postgres_fuel_balance_store import NIGHT_BUCKET_SQL
     from assetops_backend.fuel_balance.composition import build_fuel_balance_store
-    from assetops_backend.fuel_balance.scheduled import RECORD_LOOKBACK, night_of
+    from assetops_backend.fuel_balance.scheduled import RECORD_LOOKBACK, bucket_bounds, night_of
 
-    readings = _q(site["engine"], "SELECT COALESCE(interval_start, source_time) AS at FROM accepted_evidence "
-                                  "WHERE site_id = :s AND role = 'fuel_level' AND asset_id = CAST(:a AS uuid)",
-                  s=site["site_id"], a=site["tank"])
-    local = [r["at"].astimezone(site["zone"]) for r in readings]
-    edges = {t.strftime("%H:%M"): night_of(t) for t in local if t.strftime("%H:%M") in ("17:25", "17:30", "12:25",
-                                                                                        "12:30")}
-    print("G2 Q1 edge readings", len(readings), sorted(edges))
-    assert set(edges) == {"17:25", "17:30", "12:25", "12:30"}, sorted(edges)  # non-empty edge set
-    for t in local:
-        if t.strftime("%H:%M") == "17:25" or t.strftime("%H:%M") == "12:30":
-            assert night_of(t) is None
+    engine = site["engine"]
+    ns, ne = bucket_bounds()
+    b = {"tz": site["tz"], "ns": ns, "ne": ne}
+    # (a) every real tank reading, through the store's join, acceptance filter and its own CASE
+    rows = _q(engine, "SELECT COALESCE(e.interval_start, e.source_time) AS at, d.decided_at, "
+              f"{NIGHT_BUCKET_SQL} AS night FROM accepted_evidence e JOIN ingestion_disposition d "
+              "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal WHERE e.site_id = :s AND d.decision = 'ACCEPTED' "
+              "AND d.accepted_evidence_id = e.id AND e.role = 'fuel_level' AND e.asset_id = CAST(:a AS uuid)",
+              s=site["site_id"], a=site["tank"], **b)
+    local = [(r["at"].astimezone(site["zone"]), r) for r in rows]
+    hhmm = {t.strftime("%H:%M") for t, _ in local}
+    print("G2 Q1 readings", len(rows), "minutes", sorted({t.minute for t, _ in local}), "edges",
+          sorted(hhmm & {"17:30", "12:30"}))
+    assert len(rows) > 0 and {"17:30", "12:30"} <= hhmm, sorted(hhmm)  # the real edge readings exist
+    for t, r in local:
+        assert r["night"] == night_of(t), (t, r["night"])  # SQL == Python, every reading
         if t.strftime("%H:%M") == "17:30":
-            assert night_of(t) == t.date()
-        if t.strftime("%H:%M") == "12:25":
-            assert night_of(t) == t.date() - timedelta(days=1)
+            assert r["night"] == t.date(), t  # start edge in
+        if t.strftime("%H:%M") == "12:30":
+            assert r["night"] == t.date() - timedelta(days=1), t  # end edge in (closed, = closing search)
+    # (b) any cadence: synthetic instants around N0, evaluated by Postgres through the same expression
+    d, z = site["nights"][0], site["zone"]
+    d1 = d + timedelta(days=1)
+    probe = {datetime.combine(d, time(17, 25), z): None, datetime.combine(d, time(17, 29, 59), z): None,
+             datetime.combine(d, time(17, 30), z): d, datetime.combine(d, time(17, 30, 1), z): d,
+             datetime.combine(d, time(23, 55), z): d, datetime.combine(d1, time(0, 5), z): d,
+             datetime.combine(d1, time(12, 25), z): d, datetime.combine(d1, time(12, 29, 59), z): d,
+             datetime.combine(d1, time(12, 30), z): d, datetime.combine(d1, time(12, 30, 1), z): None,
+             datetime.combine(d1, time(15), z): None}
+    for at, want in probe.items():
+        [got] = _q(engine, f"SELECT {NIGHT_BUCKET_SQL} AS night FROM (SELECT CAST(:x AS timestamptz) AS "
+                   "interval_start, CAST(NULL AS timestamptz) AS source_time) e", x=at.astimezone(UTC), **b)
+        assert got["night"] == night_of(at) == want, (at, got["night"], night_of(at), want)
+    # (c) the store itself: same nights, and each night's trigger instant is its readings' latest decided_at
     store = build_fuel_balance_store(URL)
     try:
         inputs = store.schedule_inputs(site["tenant_id"], site["site_id"], RECORD_LOOKBACK)
         empty = store.schedule_inputs(site["tenant_id"], uuid4(), RECORD_LOOKBACK)
     finally:
         store.dispose()
-    want = {night_of(t) for t in local} - {None}
+    want = {}
+    for t, r in local:
+        n = night_of(t)
+        if n is not None:
+            want[n] = max(want.get(n, r["decided_at"]), r["decided_at"])
     print("G2 Q1 reading nights", sorted(inputs.reading_nights), "want", sorted(want))
-    assert set(inputs.reading_nights) == want == {site["nights"][k] for k in OFFSETS}
+    assert set(inputs.reading_nights) == set(want) == {site["nights"][k] for k in OFFSETS}
+    assert all(inputs.reading_nights[n].astimezone(UTC) == want[n].astimezone(UTC) for n in want), (
+        inputs.reading_nights, want)
     assert inputs.tank_asset_id == site["tank"] and inputs.generator_asset_id is not None
     # Q12: no FUEL_TANK/GENERATOR rows (an unknown Site id): nothing is read
     assert (empty.tank_asset_id, dict(empty.reading_nights), empty.records, dict(empty.latest)) == (None, {}, (), {})

@@ -28,6 +28,12 @@ from assetops_backend.fuel_balance.model import (
     FINDINGS_REFUSED, PARAMETER_VERSION, WINDOWS_REFUSED, FuelBalanceWindow, FuelFinding, ScheduleInputs)
 from assetops_backend.work.fuel_records import FuelRecord
 
+# The one SQL source of the night bucket (alias `e`; binds :tz, :ns, :ne). Closed at both ends, as
+# `scheduled.night_of` (D-R3.7): the assessment reads both edges.
+_LOCAL = "(COALESCE(e.interval_start, e.source_time) AT TIME ZONE :tz)"
+NIGHT_BUCKET_SQL = (f"CASE WHEN {_LOCAL}::time >= :ns THEN {_LOCAL}::date "
+                    f"WHEN {_LOCAL}::time <= :ne THEN {_LOCAL}::date - 1 END")
+
 #: K2's `select_fuel_records(c, tenant, site, tank, lo, hi, known_at)`, injected by the composition (rule 1: only
 #: `work/composition.py` may import `work.adapters`); it runs on this store's connection.
 FuelRecordsOnConnection = Callable[[Connection, UUID, UUID, UUID, datetime, datetime, datetime],
@@ -255,11 +261,8 @@ class PostgresFuelBalanceStore:
                 return ScheduleInputs(known_at, tz, None, None, {}, (), {})
             tank = tanks[0]
             night_start, night_end = bucket_bounds()
-            local = "(COALESCE(e.interval_start, e.source_time) AT TIME ZONE :tz)"
             reading_nights = {r.night: _utc(r.seen) for r in c.execute(text(
-                "SELECT night, max(decided_at) AS seen FROM (SELECT CASE "
-                f"WHEN {local}::time >= :ns THEN {local}::date "
-                f"WHEN {local}::time < :ne THEN {local}::date - 1 END AS night, d.decided_at "
+                f"SELECT night, max(decided_at) AS seen FROM (SELECT {NIGHT_BUCKET_SQL} AS night, d.decided_at "
                 "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
                 "AND d.ordinal = e.ordinal WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
                 "AND d.accepted_evidence_id = e.id AND d.decided_at <= :k AND e.source_time >= :lo "
