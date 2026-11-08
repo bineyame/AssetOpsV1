@@ -18,7 +18,7 @@ from assetops_backend.scheduling.stages import DOMAIN_JOB_LEASE_SECONDS, STAGES
 from assetops_backend.scheduling.tick import TickLimits
 
 T, S = UUID(int=1), UUID(int=2)
-ORDER = ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "chain_threads", "consequence",
+ORDER = ["s3", "cold_assess", "ev_assess", "mini", "fuel_night", "opportunity", "s4", "chain_threads", "consequence",
          "cold_consequence", "ev_consequence", "chain_snapshots"]  # CH-2 chain_threads; CH-1b chain_snapshots
 NEW = {"cold_assess": "COLD_ASSESS", "ev_assess": "EV_ASSESS", "cold_consequence": "COLD_CONSEQUENCE",
        "ev_consequence": "EV_CONSEQUENCE"}
@@ -41,7 +41,7 @@ def test_t1_exact_order_markers_and_arguments() -> None:
     runner, store = FakeRunner(), FakeStore()
     site = visit(runner, store)
     assert [c[0] for c in runner.calls] == ORDER
-    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "OPPORTUNITY", "S4", "S4",
+    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "MINI", "OPPORTUNITY", "S4", "S4",
                                                                "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE",
                                                                "CONSEQUENCE"]  # CH-2 S4 chain_threads; CH-1b
     by = {c[0]: (c[1], c[2]) for c in runner.calls}
@@ -61,7 +61,8 @@ def test_t2_limits_and_lease_sum() -> None:
     assert limits.site_lease_seconds == (limits.s3_seconds + limits.mini_seconds + limits.opportunity_seconds
                                          + limits.s4_seconds + limits.consequence_seconds
                                          + 2 * 120 + 2 * 60 + 60
-                                         + limits.chain_seconds + limits.chain_snapshot_seconds) == 1080
+                                         + limits.chain_seconds + limits.chain_snapshot_seconds
+                                         + limits.fuel_night_seconds) == 1170  # OWN-G2 fuel_night
     assert DOMAIN_JOB_LEASE_SECONDS == 300
     assert ColdAssessmentWorker(None, None).lease.total_seconds() == 300 == EvAssessmentWorker(
         None, None).lease.total_seconds()
@@ -89,8 +90,8 @@ def test_t3_new_child_failure_is_first_failure_and_later_children_run(name, code
     assert visit(runner, FakeStore()).failure == ("S3", "FAILED", "s3")
 
 
-@pytest.mark.parametrize("nth,name", [(2, "cold_assess"), (3, "ev_assess"), (9, "cold_consequence"),
-                                      (10, "ev_consequence")])  # CH-2/CH-1b: the S4 chain_threads marker
+@pytest.mark.parametrize("nth,name", [(2, "cold_assess"), (3, "ev_assess"), (10, "cold_consequence"),
+                                      (11, "ev_consequence")])  # CH-2/CH-1b: the S4 chain_threads marker; OWN-G2 MINI
 def test_t4_lost_claim_stops_before_a_new_child(nth, name) -> None:
     runner, store = FakeRunner(), NthLoss(nth)
     site = visit(runner, store)

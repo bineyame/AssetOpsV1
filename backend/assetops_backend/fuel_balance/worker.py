@@ -5,7 +5,8 @@
 Nights `[from, to)`, using `DATABASE_URL`. One JSON line per night:
 `{"site_code", "night_date", "status": "APPENDED"|"REUSED"|"OPEN", "revision", "state", "reason"}`. A night whose
 window is not yet closed prints `OPEN` and the run continues; any other refusal prints a `REFUSED` line with its code
-and exits 2. There is no tick stage, job domain or HTTP route in v1.
+and exits 2. OWN-G2: the schedule tick's `fuel_night` stage assesses and raises the due nights automatically; this CLI
+remains for explicit runs.
 
     python -m assetops_backend.fuel_balance.worker raise --site <code> --from <local date> --to <local date>
 
