@@ -2,21 +2,26 @@
 
 Tables read: `site_day_snapshot` (through the snapshot store), `finding_thread_occurrence`, `finding_thread`,
 `finding`, `finding_revision`, `finding_merge`, `action_policy_change`, `event_outbox`, `event_consumption`, and
-(CH-5a2a `site_threads`) `finding_thread_event`, `mini_opportunity`, `chain_action`, `action_event`, `domain_action`.
+(CH-5a2a `site_threads`) `finding_thread_event`, `mini_opportunity`, `chain_action`, `action_event`, `domain_action`, and (K10 v2 R3t
+`declared_none_days`) `site`, `foundation_revision`.
 Every value handed out is frozen (`FindingHead` dataclasses, tuples, a `MappingProxyType`), CH5a-R R1.
 """
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+import json
+from datetime import date, datetime, time, timedelta, timezone
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from assetops_backend.chain.read import FindingHead
+from assetops_backend.chain.reader import declared_none_day, site_never_declared
+from assetops_backend.mini_depth.read import productive_loads
 from assetops_backend.evidence.public_provenance import (LinkRowsReads, PublicProvenance, estate_projection,
                                                          finding_row_selection)
 
@@ -157,6 +162,42 @@ SELECT CAST(f.id AS text) AS finding_id, CAST(r.id AS text) AS revision_id, r.re
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _END = datetime(9999, 1, 1, tzinfo=timezone.utc)
 
+#: K10 v2 (R3t §9t.3 item 3): ONE statement - the Site's timezone (the column the builder's Site read gives
+#: `SiteRef.timezone`) plus every Foundation revision of the Site known at `k` (as `MiniDepthRead.productive_users`
+#: reads it), at any validity (R3t4: the gate needs the whole known history). `k` None = live, in this
+#: file's `CAST(:k AS timestamptz) IS NULL OR ...` form (no SQL clock read: CH-5c2 C3 clock guard): live means every
+#: recorded revision not superseded, which is `COALESCE(:k, clock_timestamp())` for rows the database already holds.
+_DECLARED_NONE = text("""
+SELECT s.timezone, r.valid_from, r.valid_to, r.content
+  FROM site s
+  LEFT JOIN foundation_revision r
+    ON r.tenant_id = s.tenant_id AND r.site_id = s.id
+   AND (CAST(:k AS timestamptz) IS NULL OR r.recorded_at <= CAST(:k AS timestamptz))
+   AND (r.superseded_at IS NULL
+        OR (CAST(:k AS timestamptz) IS NOT NULL AND r.superseded_at > CAST(:k AS timestamptz)))
+ WHERE s.tenant_id = :t AND s.id = :s
+""")
+
+
+def declared_none_of(tz: str | None, revisions: Sequence[tuple[Any, Any, Any]], days: Sequence[date]) -> frozenset[date]:
+    """K10 v2 (R3t safeguard 1, R3t3), pure: the days of `days` that `declared_none_day` accepts, i.e. whole-day
+    coverage by revisions with no productive load (`productive_loads`, the builder's subject filter) and no gap.
+    No timezone or no revision: not declared absent."""
+    if not tz or not days:
+        return frozenset()
+    zone = ZoneInfo(tz)
+    revs = [(vf, vt, bool(productive_loads(c if isinstance(c, Mapping) else json.loads(c))))
+            for vf, vt, c in revisions if vf is not None]
+    if not site_never_declared(revs):   # R3t4: a Site that ever declared productive equipment declares nothing absent
+        return frozenset()
+    out = set()
+    for d in days:
+        lo = datetime.combine(d, time.min, zone).astimezone(timezone.utc)
+        hi = datetime.combine(d + timedelta(days=1), time.min, zone).astimezone(timezone.utc)
+        if declared_none_day(revs, lo, hi):
+            out.add(d)
+    return frozenset(out)
+
 
 class PostgresChainRead:
     """The `ChainReadPort` (`chain/read.py`). `snapshots` reuses the snapshot store's latest-row read."""
@@ -185,6 +226,19 @@ class PostgresChainRead:
                        measures: Sequence[str], known_at: datetime | None) -> tuple[Any, ...]:
         """CH6b1-R Q3: every Site's rows in one statement (ordered by Site, measure, day, subject)."""
         return tuple(self._snapshots.latest_many(tenant_id, list(site_ids), lo, hi, list(measures), known_at))
+
+    def declared_none_days(self, tenant_id: UUID, site_id: UUID, measure: str, days: Sequence[date],
+                           known_at: datetime | None) -> frozenset[date]:
+        """K10 v2 (R3t): the days of `days` on which the site setup declares no productive-use load (the optional
+        `ChainReadPort` method). Only `productive_kwh`; one statement; never inferred from a missing row."""
+        if measure != "productive_kwh" or not days:
+            return frozenset()
+        params = {"t": tenant_id, "s": site_id, "k": known_at}
+        with self._engine.connect() as c:
+            rows = c.execute(_DECLARED_NONE, params).all()
+        if not rows:
+            return frozenset()
+        return declared_none_of(rows[0][0], [(r[1], r[2], r[3]) for r in rows], days)
 
     def finding_heads(self, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                       hi: datetime, known_at: datetime | None) -> tuple[FindingHead, ...]:

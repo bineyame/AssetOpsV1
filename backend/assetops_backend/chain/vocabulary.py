@@ -286,6 +286,8 @@ NODE_TEXT = {
     "money.income_suffix": " · not billed or collected",
     "money.not_known": NOT_KNOWN_TEXT,
     "money.currency_mixed": "Not shown · amounts in more than one currency",
+    #: K10 v2 (R3t, MD-K10-1): the MG-1 earnings node on a declared-absent window; value None, never summed.
+    "money.none_declared": "No productive-use sales · no productive-use equipment declared",
     "potential.value": "{lo}–{hi} kW of daytime solar unused",
     "potential.money": "{lo}–{hi} {cur} per hour of use, at the declared price",
     "potential.none": "No potential found yet",
@@ -416,7 +418,8 @@ def money_claim(label: str, money: Mapping[str, Any] | None, days: Any, reason: 
     key = f"money.{label}"
     d = _days_of(days)
     if not money:
-        text = node_text("money.currency_mixed" if reason == "CURRENCY_MIXED" else "money.not_known")
+        text = node_text({"CURRENCY_MIXED": "money.currency_mixed",
+                          "NONE_DECLARED": "money.none_declared"}.get(reason or "", "money.not_known"))
         return Claim(key, None, NOT_KNOWN_BASIS, d, text, None if d is None else span)
     cur = money.get("currency")
     if "amount" in money:

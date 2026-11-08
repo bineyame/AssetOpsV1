@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta, timezone
-from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
+from typing import Any, Callable, Collection, Iterable, Mapping, Protocol, Sequence
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
@@ -18,6 +18,7 @@ from assetops_backend import read_scope
 from assetops_backend.actions import lifecycle as action_lifecycle
 from assetops_backend.chain.grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
 from assetops_backend.chain.measures import measures_for
+from assetops_backend.chain.reader import DECLARED_SUBJECT_MEASURES, applicable_measures
 
 FULL, LIMITED, NONE, UNKNOWN = "FULL", "LIMITED", "NONE", "UNKNOWN"
 MINI_DOMAIN = "mini_grid"
@@ -51,23 +52,28 @@ def _per_day(rows: Iterable[Any]) -> dict[date, dict[str, list[str]]]:
     return out
 
 
-def _day_grades(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str]) -> list[str]:
+def _day_grades(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str], *,
+                none_declared: Collection[str] = ()) -> list[str]:
     """CH5a1-R Q9 (the `chain/reader.py` `_counts` rule): a measure with no stored row is NO_DATA, unless the day
-    carries a NOT_EXPECTED row."""
+    carries a NOT_EXPECTED row. K10 v2 (R3t): over the day's applicable measures (`none_declared` is this day's
+    declared-absent measures; identity when empty)."""
     not_expected_day = any(NOT_EXPECTED in g for g in per_measure.values())
     grades: list[str] = []
-    for m in measures:
+    for m in applicable_measures(per_measure, measures, none_declared):
         grades.extend(per_measure.get(m) or [NOT_EXPECTED if not_expected_day else NO_DATA])
     return grades
 
 
-def readiness_of(rows: Iterable[Any], days: Iterable[date], measures: Sequence[str]) -> str:
+def readiness_of(rows: Iterable[Any], days: Iterable[date], measures: Sequence[str], *,
+                 none_declared: Mapping[date, Collection[str]] | None = None) -> str:
     """R5 over a day set (CH5a1-R Q8, rows pooled): any PENDING or no expected row -> UNKNOWN; every expected row
-    COMPLETE -> FULL; any COMPLETE or PARTIAL -> LIMITED; else (LOW or NO_DATA only) -> NONE."""
+    COMPLETE -> FULL; any COMPLETE or PARTIAL -> LIMITED; else (LOW or NO_DATA only) -> NONE. R3t: over each day's
+    applicable measures."""
     by_day = _per_day(rows)
+    nd = none_declared or {}
     grades: list[str] = []
     for d in days:
-        grades.extend(_day_grades(by_day.get(d, {}), measures))
+        grades.extend(_day_grades(by_day.get(d, {}), measures, none_declared=nd.get(d, ())))
     expected = [g for g in grades if g != NOT_EXPECTED]
     if not expected or PENDING in expected:
         return UNKNOWN
@@ -78,9 +84,11 @@ def readiness_of(rows: Iterable[Any], days: Iterable[date], measures: Sequence[s
     return NONE
 
 
-def day_grade(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str]) -> str:
-    """The weakest grade of the day's expected rows (`chain/reader.py` `_day_grade`), missing rows as Q9."""
-    expected = [g for g in _day_grades(per_measure, measures) if g != NOT_EXPECTED]
+def day_grade(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str], *,
+              none_declared: Collection[str] = ()) -> str:
+    """The weakest grade of the day's expected rows (`chain/reader.py` `_day_grade`), missing rows as Q9. R3t:
+    `none_declared` is this day's declared-absent measures."""
+    expected = [g for g in _day_grades(per_measure, measures, none_declared=none_declared) if g != NOT_EXPECTED]
     if not expected:
         return NOT_EXPECTED
     for g in (PENDING, NO_DATA, LOW, PARTIAL, COMPLETE):
@@ -89,19 +97,25 @@ def day_grade(per_measure: Mapping[str, Sequence[str]], measures: Sequence[str])
     return NO_DATA
 
 
-def day_settled(rows: Iterable[Any], day: date, measures: Sequence[str]) -> bool:
+def day_settled(rows: Iterable[Any], day: date, measures: Sequence[str], *,
+                none_declared: Mapping[date, Collection[str]] | None = None) -> bool:
     """R4: a board day is settled when every measure's latest snapshot at the cutoff exists and is not PENDING
-    (a NOT_EXPECTED row covers the whole day)."""
+    (a NOT_EXPECTED row covers the whole day). R3t: every applicable measure."""
     per = _per_day(rows).get(day, {})
     if any(NOT_EXPECTED in g for g in per.values()):
         return not any(PENDING in g for g in per.values())
-    return bool(measures) and all(per.get(m) and PENDING not in per[m] for m in measures)
+    ms = applicable_measures(per, measures, (none_declared or {}).get(day, ()))
+    return bool(ms) and all(per.get(m) and PENDING not in per[m] for m in ms)
 
 
-def day_gaps(rows: Iterable[Any], days: Iterable[date], measures: Sequence[str]) -> tuple[date, ...]:
-    """R8 / Q9: the requested days whose day grade is PENDING or NO_DATA (a missing row counts as NO_DATA)."""
+def day_gaps(rows: Iterable[Any], days: Iterable[date], measures: Sequence[str], *,
+             none_declared: Mapping[date, Collection[str]] | None = None) -> tuple[date, ...]:
+    """R8 / Q9: the requested days whose day grade is PENDING or NO_DATA (a missing row counts as NO_DATA). R3t:
+    over each day's applicable measures."""
     by_day = _per_day(rows)
-    return tuple(d for d in days if day_grade(by_day.get(d, {}), measures) in (PENDING, NO_DATA))
+    nd = none_declared or {}
+    return tuple(d for d in days
+                 if day_grade(by_day.get(d, {}), measures, none_declared=nd.get(d, ())) in (PENDING, NO_DATA))
 
 
 def _zone(tz: str | None) -> Any:
@@ -211,6 +225,9 @@ class DayFacts:
     values: Mapping[date, Mapping[str, Mapping[str, Any]]] = field(default_factory=dict)
     #: CH-6a3 (P4): the raw `SnapshotRow`s of the same memoised read, for the OutcomeEvaluator's `NodeInputs.rows`.
     rows: tuple[Any, ...] = ()
+    #: K10 v2 (R3t): day -> the measures declared absent that day (no row, one Foundation revision in force at both
+    #: day bounds declaring no such load, and a row of another measure). Empty unless the port proves it.
+    none_declared: Mapping[date, frozenset[str]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -307,6 +324,12 @@ class ChainReadPort(Protocol):
     def trace_facts(self, tenant_id: UUID, site_id: UUID, finding_ids: Sequence[str],
                     known_at: datetime | None) -> Mapping[str, Any]: ...
 
+    # K10 v2 (R3t), OPTIONAL (read by `getattr`; a port without it declares nothing absent):
+    # def declared_none_days(self, tenant_id: UUID, site_id: UUID, measure: str, days: Sequence[date],
+    #                        known_at: datetime | None) -> frozenset[date]
+    # The days of `days` whose site setup declares no subject of `measure` at the day's local start and end (exactly
+    # one Foundation revision in force at each bound, known at `known_at`). Never infers absence from a missing row.
+
 
 @dataclass(frozen=True)
 class ChainRequest:
@@ -331,9 +354,30 @@ class ChainRequest:
             grades.setdefault(r.local_day, {}).setdefault(r.measure, {})[r.subject_ref] = r.grade
             values.setdefault(r.local_day, {}).setdefault(r.measure, {})[r.subject_ref] = getattr(r, "value", None)
         ready = days if readiness_days is None else tuple(sorted(readiness_days))
-        return DayFacts(days, read_scope.freeze(grades), day_settled(rows, days[-1], measures),
-                        readiness_of(rows, ready, measures), day_gaps(rows, days, measures),
-                        read_scope.freeze(values), tuple(rows))
+        nd = self._none_declared(site_id, measures, grades, tuple(sorted(set(days) | set(ready))))
+        return DayFacts(days, read_scope.freeze(grades), day_settled(rows, days[-1], measures, none_declared=nd),
+                        readiness_of(rows, ready, measures, none_declared=nd),
+                        day_gaps(rows, days, measures, none_declared=nd),
+                        read_scope.freeze(values), tuple(rows), read_scope.freeze(nd))
+
+    def _none_declared(self, site_id: UUID, measures: Sequence[str], grades: Mapping[date, Mapping[str, Any]],
+                       days: Sequence[date]) -> dict[date, frozenset[str]]:
+        """K10 v2 (R3t): the declared-absent days of the candidate measures. Lazy: asks the port only for days that
+        hold a row of some measure and no row of the candidate; `{}` with no candidate, no such day, or a port
+        without `declared_none_days` (so the output and the statement count are as before). A port error
+        propagates as any chain read does."""
+        cands = sorted(set(measures) & DECLARED_SUBJECT_MEASURES)
+        if not cands:
+            return {}
+        port = getattr(self.reader.ports, "declared_none_days", None)
+        out: dict[date, set[str]] = {}
+        for m in cands:
+            ask = tuple(d for d in days if grades.get(d) and m not in grades[d])
+            if not ask or port is None:
+                continue
+            for d in read_scope.memo("chain.none_declared", port, self.tenant_id, site_id, m, ask, self.k):
+                out.setdefault(d, set()).add(m)
+        return {d: frozenset(ms) for d, ms in out.items()}
 
     def seed_days(self, specs: Sequence[tuple[UUID, str, Sequence[date]]]) -> int | None:
         """CH6b1-R Q3: ONE snapshot read for every `(site_id, site_type, days)` of `specs`, over the union day range

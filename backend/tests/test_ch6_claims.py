@@ -42,6 +42,7 @@ A4 = {
     "money.income_suffix": " · not billed or collected",
     "money.not_known": "Not known yet",
     "money.currency_mixed": "Not shown · amounts in more than one currency",
+    "money.none_declared": "No productive-use sales · no productive-use equipment declared",   # K10 v2 (R3t)
     "potential.value": "{lo}–{hi} kW of daytime solar unused",
     "potential.money": "{lo}–{hi} {cur} per hour of use, at the declared price",
     "potential.none": "No potential found yet",

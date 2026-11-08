@@ -65,6 +65,8 @@ class NodeInputs:
     price: Mapping[str, Any] | None = None     # the declared productive price {"amount", "currency"} at hi
     #: Additive (CH-6a2): the lead Finding id per mechanism, so an `avoided_cost@1` record finds its money head.
     lead_findings: Mapping[str, str] = field(default_factory=dict)
+    #: K10 v2 (R3t): the measures declared absent on EVERY day of `window` (`DayFacts.none_declared`).
+    none_declared: frozenset[str] = frozenset()
 
 
 def headroom_signal_on(item: Mapping[str, Any] | None) -> bool:
@@ -195,6 +197,9 @@ class OutcomeEvaluator:
         lo, hi = inp.window
         measure = (rec.money or {}).get("measure") or name
         rows = self._rows(inp, measure, lo, hi)
+        if measure in inp.none_declared and not rows:
+            # K10 v2 (R3t): declared absent on every window day - a stated zero, never priced, never summed.
+            return v.money_claim(label, None, None, "NONE_DECLARED")
         e = strategy.effect(ContributionContext(rec, day_rows=rows))
         claim = v.money_claim(label, e.money, counts(rows, lo, hi, [measure]), e.reason, (lo, hi))
         return claim if not e.money else _with(claim, energy_basis(rows, inp.price))

@@ -15,6 +15,7 @@ from typing import Any, Iterable, Mapping, Sequence
 from assetops_backend.chain import lifecycle as lc
 from assetops_backend.chain import refs
 from assetops_backend.chain.read import DayFacts, day_grade, local_days
+from assetops_backend.chain.reader import applicable_measures
 from assetops_backend.chain.vocabulary import THREAD_STATE_WORDS
 from assetops_backend.outcomes.outcome_map import categories_for, lens_flags, thread_signal_key
 
@@ -31,13 +32,21 @@ def _local(at: datetime | None, tz: str | None) -> date | None:
 
 def days_of(facts: DayFacts, measures: Sequence[str]) -> list[dict[str, Any]]:
     """One entry per requested Site-local day: the day grade (`day_grade`, missing rows as CH5a1-R Q9) and each
-    measure's own grade by the same rule."""
+    measure's own grade by the same rule. R3v: the day grade is over the day's applicable measures
+    (`facts.none_declared`, the rule `_counts` uses), so these grades always sum to the chain's Site `days`."""
+    declared = getattr(facts, "none_declared", None) or {}
     out = []
     for d in facts.days:
         per = {m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures}
         per = {m: g for m, g in per.items() if g}
-        out.append({"day": d.isoformat(), "grade": day_grade(per, measures),
-                    "measures": {m: day_grade(per, [m]) for m in measures}})
+        nd = declared.get(d, ())
+        entry = {"day": d.isoformat(), "grade": day_grade(per, measures, none_declared=nd),
+                 "measures": {m: day_grade(per, [m]) for m in measures}}
+        kept = applicable_measures(per, measures, nd)
+        left_out = [m for m in measures if m not in kept]
+        if left_out:
+            entry["none_declared"] = left_out   # R3v: stated, never silently dropped; only when non-empty
+        out.append(entry)
     return out
 
 
