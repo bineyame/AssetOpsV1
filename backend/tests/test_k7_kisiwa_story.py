@@ -369,7 +369,7 @@ def test_8_objectives_never_see_kisiwa_and_links_use_route_forms() -> None:
     assert set(dc.objectives_instants(story)) == {"KOBO-001", "COLD-LAB-001", "EV-LAB-001"}
     links = dc.story_links(story, [], None, 5490, {"finding": {"id": "f-9"}})
     kisiwa = [(label, url) for label, url in links if "KISIWA-001" in url]
-    assert len(kisiwa) == 4
+    assert len(kisiwa) == 6  # OWN-GAPS R2-DS1a 1: + the story-nights Findings and the story-hour Service links
     base = "http://localhost:5490"
     for _, url in links:
         assert any(url[len(base):].startswith(form) for form in dc.LINK_FORMS), url
@@ -379,7 +379,7 @@ def test_8_objectives_never_see_kisiwa_and_links_use_route_forms() -> None:
     built = {"action": {"id": "a-7", "finding_id": "f-9"}, "verdict": {"state": "VERIFIED"}}
     links = dc.story_links(story, [], None, 5490, built)
     kisiwa = dict((label, url) for label, url in links if "KISIWA-001" in url)
-    assert len(kisiwa) == 5
+    assert len(kisiwa) == 7
     for _, url in links:
         assert any(url[len(base):].startswith(form) for form in dc.LINK_FORMS), url
     assert kisiwa["KISIWA-001 unexplained-fuel finding"] == f"{base}/sites/KISIWA-001/fuel-findings/f-9"
@@ -389,11 +389,15 @@ def test_8_objectives_never_see_kisiwa_and_links_use_route_forms() -> None:
                                              {"finding": {"id": "f-9"}}) if "KISIWA" in u]
 
 
-def test_8_add_day_keeps_refusing_kisiwa_and_the_default_is_four_sites(monkeypatch) -> None:
-    """K7-F flips the default prepare to all four Sites (§9l.3 "`--sites` default"); add-day still refuses Kisiwa."""
-    with pytest.raises(SystemExit):
-        dc.main(["--db", "assetops_demo3_kisiwa_test", "--work", "var/demo3_kisiwa", "add-day", "--site",
-                 "KISIWA-001", "--kind", "normal"])
+def test_8_add_day_kisiwa_options_and_the_default_is_four_sites(monkeypatch) -> None:
+    """K7-F flips the default prepare to all four Sites (§9l.3 "`--sites` default"). OWN-G1 (R2-G1 Q9 b): add-day
+    takes KISIWA-001 nights, but refuses the Kobo-only options for them."""
+    monkeypatch.setattr(dc.Demo, "story", lambda self: {"S": "2026-11-06T00:00:00Z", "sites": list(dc.SITES)})
+    for extra in (["--assess-now"], ["--as", "normal"]):
+        with pytest.raises(SystemExit) as refused:
+            dc.main(["--db", "assetops_demo3_kisiwa_test", "--work", "var/demo3_kisiwa", "add-day", "--site",
+                     "KISIWA-001", "--kind", "normal", *extra])
+        assert refused.value.error_code == "OPTION_NOT_FOR_KISIWA"
     assert dc.Demo.prepare.__defaults__[0] == ("kobo", "cold", "ev", "kisiwa") == dc.SITES
     seen: list[tuple] = []
     monkeypatch.setattr(dc.Demo, "prepare", lambda self, sites, **kw: seen.append(sites))
@@ -588,8 +592,8 @@ def test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch() -> None:
     text = (Path(__file__).resolve().parents[2] / "tools" / "demo_combined_finish.py").read_text(encoding="utf-8")
     assert "not in this dataset" not in text
     # KIS-4, KIS-5, KIS-10 (K6b's, carried in K7-F), KIS-3, KIS-9, K4b's KIS-8a and K9's KIS-8 (wording half),
-    # KIS-1, KIS-2, KIS-6 and KIS-7 (K9, DIESEL-1-R3q), KIS-OV (K9, DIESEL-1-R3r)
-    assert text.count("raise KisiwaMissing()") == 12
+    # KIS-1, KIS-2, KIS-6 and KIS-7 (K9, DIESEL-1-R3q), KIS-OV (K9, DIESEL-1-R3r), KIS-11 (OWN-G2)
+    assert text.count("raise KisiwaMissing()") == 13
 
 
 def test_raise_and_action_steps_are_wired_to_the_merged_services() -> None:

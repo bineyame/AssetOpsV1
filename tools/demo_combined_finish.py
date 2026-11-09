@@ -641,7 +641,8 @@ def wk6(ctx: Ctx) -> dict:
     (`mini.renewable_href`); the opportunity list is read over exactly those bounds (Site-local midnights, never UTC
     midnights, or the list refuses INVALID_WINDOW). The Tariff line is the page's own `tariffDeclared` text, built
     from the served price fields, so the check asserts those served fields (a PRICED series with a positive value and
-    a currency); the wording itself is pinned by vitest and the capture."""
+    a currency); the wording itself is pinned by vitest and the capture.
+    R6.2: the study is selected by its last day; later studies from added days are other days' studies."""
     from urllib.parse import parse_qs, urlparse
 
     board = _kobo_board_s1(ctx)
@@ -654,8 +655,7 @@ def wk6(ctx: Ctx) -> dict:
     listing = ctx.get(f"/api/sites/{KOBO}/opportunities", **{"from": iso(lo), "to": iso(hi), "limit": 100})
     found = [r["opportunity"] for r in listing["rows"] if r.get("opportunity")]
     assert found, ("no Kobo opportunity for the study ending S+1", iso(lo), iso(hi))
-    opp = max(found, key=lambda o: o["last_day"])
-    assert opp["last_day"] == ctx.day(1).date().isoformat(), (opp["last_day"], ctx.day(1).date().isoformat())
+    opp = demo_rows.study_ending(found, ctx.day(1).date().isoformat())  # R6.2: the study is selected by its last day
     assert opp["scenario_id"] is None, opp["scenario_id"]  # a linked what-if reads "Unavailable in this read"
     # Addendum 8: the page prices the study at the start of its latest noon window (the S+1 opportunity body's last
     # pinned day, Site-local 12:00; Kobo is Africa/Nairobi, no DST, so that is the study's end minus 12 hours). The
@@ -1073,8 +1073,9 @@ def kis_1(ctx: Ctx) -> dict:
         import pg_harness
         pg_harness.dispose(store)
     register = json.loads((ctx.work / "kisiwa-register.json").read_text(encoding="utf-8"))
-    windows = _kisiwa_sql(ctx, "SELECT DISTINCT ON (night_date) window_start, window_end FROM fuel_balance_window "
-                               "WHERE site_id = %s ORDER BY night_date, revision DESC", s)
+    windows = demo_rows.kis_story_windows(_kisiwa_sql(  # OWN-G1 R2-G1 Q3: story nights only
+        ctx, "SELECT DISTINCT ON (night_date) night_date, window_start, window_end FROM fuel_balance_window "
+             "WHERE site_id = %s ORDER BY night_date, revision DESC", s), ctx.story["kisiwa"])
     select = build_trial_comparison_ports(ctx.url).price_selection
     prices = []
     for w in windows:
@@ -1096,9 +1097,10 @@ def kis_2(ctx: Ctx) -> dict:
     if site is None:
         raise KisiwaMissing()
     s = site[1]
-    latest = _kisiwa_sql(ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle "
-                              "FROM finding_revision r WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s "
-                              "ORDER BY r.finding_id, r.revision_no DESC", s, DOMAIN, ANALYTIC_ID)
+    latest = demo_rows.kis_story_dispatch(_kisiwa_sql(  # OWN-G1 R2-G1 Q3: Findings of the story's runs only
+        ctx, "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, r.episode_start "
+             "FROM finding_revision r WHERE r.site_id = %s AND r.domain = %s AND r.analytic_id = %s "
+             "ORDER BY r.finding_id, r.revision_no DESC", s, DOMAIN, ANALYTIC_ID), ctx.story["kisiwa"])
     heads = {str(h["finding_id"]): h for h in _kisiwa_sql(
         ctx, "SELECT DISTINCT ON (r.finding_id) r.id, r.finding_id, r.finding_revision_id, r.state, r.model_id, "
         "r.idle_seconds, r.no_load_fuel_rate_l_per_h, r.no_load_fuel_rate_basis, r.sfc_upper_multiplier, "
@@ -1385,6 +1387,7 @@ def _kisiwa_read(ctx: Ctx) -> dict | None:
     import demo_combined_kisiwa as kis
 
     calendar = ctx.story["kisiwa"]
+    records = demo_rows.kis_story_records(records, calendar)  # OWN-G1 R2-G1 Q3: added nights' records are not story
     build = json.loads((ctx.work / "kisiwa.json").read_text(encoding="utf-8"))
     log_text = Path(build["log"]["path"]).read_text(encoding="utf-8")
     assert kis.lf_sha256(log_text) == build["log"]["sha256"], "the derived log changed after the build"
