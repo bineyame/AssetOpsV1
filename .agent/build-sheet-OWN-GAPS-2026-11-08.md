@@ -1958,3 +1958,201 @@ walkthrough.
 **D-R4.2 (for owner review).** Step 7 shows one real held-back day (Kobo's yesterday) being released during the
 session and checked by the product's normal background check, said plainly as held back in this demo. It takes about
 9 minutes, so it starts after the Kobo steps and is revealed at step 7; the morning catch-up stops Kobo one day short.
+
+## R5 — G1 rehearsal F-THREADS (2026-11-09)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Owner away; decisions delegated ("let the architect make
+decisions ... based on understanding of how real sites work and what assetops is trying to achieve, no cutting
+corners on fundamentals"). Input: `AssetOpsV1-g1/.agent/OWN-G1-phase-2-handoff.md`, branch `task/OWN-G1-add-dates`
+head `d9540c26c`. **READ** = code cited; **DB** = read-only query on `assetops_demo3_g1audit_test` (session
+`default_transaction_read_only = on`; the drain `counts` child, which only SELECTs). Nothing was written to the clone.
+
+### R5.1 Root cause (READ + DB): the added days' mini-depth work was still queued when "checked" was reported
+
+- **DB, after run 1** (`demo_combined_drain.py counts`): every count is 0 except `mini_deferred`: **KOBO-001 24,
+  KISIWA-001 70**. `recompute_job` rows created by run 1: Kobo 34 (10 `DONE`, 24 `PENDING`, all created 00:09:48Z,
+  windows 2026-11-08 02:00–12:00Z = the added day); Kisiwa 92 (22 `DONE`, 70 `PENDING`, created 00:01:12Z, windows
+  2026-11-07 14:00Z – 11-08 13:00Z = the added night). Nothing else is pending (dirty, snapshots, threads,
+  opportunity all 0).
+- **Why one tick is not enough (READ).** The tick's `mini` stage leases at most `TickLimits.mini_jobs_per_site = 10`
+  jobs per Site (`scheduling/tick.py:70`, `scheduling/stages.py:140-155`). A day arriving at once creates ~34 Kobo jobs
+  and ~92 Kisiwa jobs. §4.4 runs exactly one tick per date (`tick_and_verify`, `demo_combined.py:1145-1173`), so 10
+  Kobo jobs ran and 24 stayed queued. `_add_core_day` drains mini only for `assess == "build"` (`:1018`); `add-dates`
+  days are not "build".
+- **Why the board says Unknown (READ).** The mini board's settledness needs every depth domain's head for the board
+  day: `depth_ok = all(depth.get(d) is not None for d in DEPTH_DOMAINS)` (`site_outcomes/mini.py`, `compose`), and
+  `settled["MG-1"] = settled["MG-5"] = base and depth_ok`; an unsettled outcome is `UNKNOWN / PRODUCER_NOT_SETTLED`
+  (`outcomes/status.py:71-72`). F-THREADS (`demo_combined_finish.py:856-891`) reads every delivered `days.json` day's
+  board through `board_faults` and found that code on KOBO-001 2026-11-08.
+- **The builder's guess is right in substance, with one correction:** it is not the late assessment as such, nor a
+  missing second tick. It is that the tool reported a day "checked" while the product's own queue for that day still
+  held work. `serve` does not drain either (`:1209-1245`: one tick every 120 s); it simply keeps ticking, and would
+  have settled Kobo after ~3 more ticks (~6 min) and Kisiwa after ~7 (~14 min).
+- **Same defect on Kisiwa, uncaught.** The added Kisiwa night's board day had 70 depth jobs queued. No row caught it:
+  F-THREADS reads only `days.json` days (Kobo, Cold, EV); Kisiwa nights live in `kisiwa-days.json`; KIS rows read story
+  nights only. The fix below covers it at the producer level; R5.5 adds a rehearsal read of the Kisiwa boards.
+- **Is the late arrival handled correctly by the product? Yes.** The readings went through the gateway path, were
+  accepted at real time, and the product queued exactly the depth work a real gateway reconnecting after an outage
+  would cause. The product is right; the tool's claim was premature. **No product change.**
+
+### R5.2 Ruling: settle each date through the product's own producers before moving on (no product code; G1 tool only)
+
+How a real site works: readings arrive, the product queues the work they cause, and the day is "checked" only when
+that work has run. A whole day arriving at once (the R4.2 gateway-reconnect story) is a burst; the scheduler works it
+off at its bounded rate. The tool simulates the gateway and also stands in for wall-clock time, so before it says a
+day is checked, or sends the next day, it must let the queue run to empty **through the same producers**. It must not
+skip, special-case or mark anything.
+
+Both mechanisms below already exist and are the ones `prepare` uses (`finish`, `:785-808`):
+- `drain_mini()` (`:810-826`): the worker's own CLI `mini_depth.worker run-pending`, i.e. the same
+  `MiniDepthWorker.run_pending` the tick's `mini` stage calls, with the same DB-time lease and cutoff, without the
+  per-tick bound of 10. Outputs are identical; only the throughput differs.
+- `drain(name)` (`:878-934`): the product's scheduled tick (`TICK`, raw), repeated until every count (dirty,
+  snapshots, threads, mini, opportunity) is 0 on every Site, with the N / 2N / two-flat-ticks failure guards; then
+  Performance and pre-build once (as `tick()` does).
+
+`drain()` alone is **not** enough: its N ignores `mini_deferred` (`demo_combined_drain.py:26-31`), so 70 Kisiwa jobs
+at 10 per tick would fail "past 2N" (N = 2). `drain_mini()` comes first, exactly as in `prepare`.
+
+**Exact change, `tools/demo_combined.py` only:**
+
+1. New method:
+   ```python
+   def settle(self, name: str) -> dict:
+       """R5.2: run the queued work of the added data through the product's own producers until nothing is due:
+       the mini-depth worker (no per-tick bound), then the scheduled tick until every drain count is 0."""
+       self.drain_mini()
+       return self.drain(name)
+   ```
+   `defer_drain` stays False in `add-dates`, so a failed drain raises `SystemExit("DRAIN FAILED: …")` (`:925-926`).
+2. In `add_dates`, the per-date block (`if today: added += self.tick_and_verify(today)`) becomes:
+   - **A date with a Kisiwa night:** `self.drain_mini()`, then `tick_and_verify(today)` (unchanged: its `tick()`
+     writes `last-tick.json`, which KIS-11 reads, and verify-day needs that report), then
+     `record = self.drain(f"settle-{d.isoformat()}")`.
+   - **A date with only Kobo/Cold/EV days:** `record = self.settle(f"settle-{d.isoformat()}")` and no separate
+     `tick()`. `drain`'s first tick is the date's tick (§4.4's "one tick" becomes "ticks until settled"). This saves
+     one ~80 s tick per date, which matters for R4.2's live step. It also leaves `last-tick.json` as the last
+     Kisiwa-visiting report, as in `prepare`, where the drain ticks after `tick(times=2)` do not rewrite it.
+   - Then, for every non-Kisiwa item of the date: `item["checked"] = f"settled ({record['ticks']} ticks)"` (replaces
+     `"tick " + outcome`). Every item of the date also gets `"tick_failures"`: the `tick_failure` entries of
+     `record["log"]` (an empty list when none). A non-empty list is printed in the item's plain line as "(a background
+     step reported a failure; see logs)". It does not stop the command (prepare's own drains record and continue, and
+     the closing `finish check` judges the build). The rehearsal requires it to be empty (R5.5).
+   - Kisiwa's `tick_and_verify` loop is otherwise unchanged; for a Kisiwa-only date the non-Kisiwa `checked` loop
+     simply has nothing to do.
+3. **Closing settle (resume after a crash or a stopped run).** After the date loop and before `finish check`,
+   whether or not any date was added, read `self.counts()`; if `demo_combined_drain.total(counts) > 0`, say "settling
+   work left from an earlier run" and run `self.settle("settle-close")`. This makes the "already present" second run
+   (§4.7 step 2) finish what a crashed or stopped first run left. It runs also under `--no-check`. With all counts 0 it
+   costs one counts child and no tick.
+4. `--no-check` skips only `finish check`, never the settle (R4.2's live command uses `--no-check`, and the presenter's
+   reload must show the day checked, not Unknown).
+5. A drain failure inside `add-dates` leaves earlier dates in place (append-only, as §4.5). The `SystemExit` message is
+   prefixed with "{site list} {date}: the added data did not finish processing; " and ends with "prepare a fresh build
+   before a demo." `.busy` is removed by the existing `finally`.
+6. No change to `add-day` for Kobo/Cold/EV outside `add-dates` (its `late` kind deliberately leaves the day for the
+   serve tick, DEMO-SPARSE U4), to `drain`, `drain_mini`, `n_for`, the tick limits or any product file.
+
+**Time effect.** Per date add one `drain_mini` pass (Kobo 34 jobs) and usually 1–2 ticks. R4.2's live Kobo step goes
+from ~9 min to an estimated ~10–11 min. R4.2 item 4 already says: if the Fri 13 walkthrough measures start-to-checked
+above 11 min, start it at the end of step 0. Report the measured `settle-*` seconds in the packet.
+
+### R5.3 Tests (no DB), `backend/tests/test_own_g1_add_dates.py`
+
+Use a `Demo` test double: `object.__new__(Demo)` with `story`, `_add_core_day`, `add_kisiwa_night`, `kisiwa_child`,
+`tick`, `drain_mini`, `drain`, `counts`, `finish_check`, `db_now`, `site_zones`, `delivered_days`, `hold_busy`
+replaced by recorders that append `(name, args)` to one call list. `work` is a `tmp_path` holding `days.json` and an
+empty `kisiwa-days.json`.
+1. **Kobo-only date:** call order `_add_core_day(KOBO-001)`, `drain_mini`, `drain("settle-<date>")`; **no** `tick`;
+   the summary item's `checked` is `"settled (2 ticks)"` from a drain record `{"ticks": 2, "log": []}`. **Must-fail
+   guard:** with the settle removed this test fails (it asserts both `drain_mini` and `drain` are called, in that order,
+   after the child).
+2. **Date with a Kisiwa night and a Kobo day:** order `add_kisiwa_night`, `_add_core_day(KOBO-001)`, `drain_mini`,
+   `tick`, `kisiwa_child("verify-day", …)`, `drain("settle-<date>")`. `drain` runs after verify-day, and `tick` is called
+   exactly once when verify answers DONE the first time.
+3. **Date-major preserved:** two dates; date 1's `drain` precedes date 2's first child.
+4. **Drain failure stops the command:** `drain` raises `SystemExit("DRAIN FAILED: …")` on date 1; date 2's child is
+   never called, `finish_check` is never called, `.busy` does not exist afterwards, and the message carries the
+   R5.2 item 5 prefix and suffix.
+5. **`--no-check` still settles:** order as test 1, `finish_check` not called.
+6. **Nothing added, nothing pending:** every date "already present" (`_add_core_day` raises `DUPLICATE_DAY`), `counts`
+   returns all zeros → no `drain_mini`, no `tick`, no `drain`; `finish_check` called once.
+7. **Closing settle on resume:** as test 6 but `counts` returns Kobo `mini_deferred: 24` → `drain_mini`, then
+   `drain("settle-close")`, then `finish_check`.
+8. **Tick failures carried:** drain record `log` has one entry with `tick_failure` → the item's `tick_failures` has it,
+   its plain line has the R5.2 text, and the command does not stop.
+9. Existing `--dry-run` test extended: none of `drain_mini`, `drain`, `counts`, `tick` is called.
+
+Run: `test_own_g1_add_dates.py` plus the phase-2 no-DB set; the same 5 known failures minus the one fixed in R5.6
+(so 4, all identical on main).
+
+### R5.4 F-THREADS: correct; it stays as is
+
+F-THREADS states a fundamental: no board for a day with delivered data says Unknown because a producer has not
+finished. A manager who opens yesterday and sees Grow and Cost "Unknown" learns that the product is not ready to be
+looked at. It fired on exactly the board R4.2 step 7 will reload in front of the client. Including added days is
+correct: they are delivered days in `days.json`. **No bound, no exclusion, no change.** R2-G1 Q3's pre-authorised
+bound is for KIS rows only and does not extend to F-THREADS.
+
+Kisiwa added nights are outside F-THREADS (R5.1). The producer-level guarantee (R5.2: `drain` ends only at all counts 0
+on every Site) covers them for G1. A permanent Kisiwa added-night board row in `finish check` is **BL-52** (the coordinator adds it to `.agent/backlog-post-demo.md`;
+not demo-critical given that guarantee; 0.25 unit).
+
+### R5.5 Rehearsal re-run
+
+The run-1 clone is in exactly the failing state. Use it first to prove the fix and the resume path. Then re-clone, to
+prove the per-date path on fresh data, which the reused clone cannot show (its dates are already present).
+
+0. Commit the R5.2 change, the R5.3 tests and R5.6 as separate commits; rebuild `tree` from the new HEAD (handoff
+   recipe: `git archive`, prepare's parts + `var/sites/kobo-001.yaml`); expect the one-time `chain_snapshots` rebuild.
+1. **Reused clone (resume proof):** the same command,
+   `add-dates --site KOBO-001,KISIWA-001,EV-LAB-001 --to 2026-11-08`, on `assetops_demo3_g1audit_test` /
+   `var/demo3_g1audit`. Expect: plan with nothing new (or Kisiwa 11-08 if run after 12:05Z, which is then added and
+   settled per date), "already present" for the run-1 days, "settling work left from an earlier run", `settle-close`
+   `verdict: done`, **finish check PASS (51/51)**. Keep `check.json` and `settle-close.json` as evidence. Then rename
+   the folder to `var/demo3_g1audit_run1` (evidence; untracked) and drop the database.
+2. **Fresh clone:** no serve on the template; `CREATE DATABASE assetops_demo3_g1audit_test TEMPLATE
+   assetops_k9_audit_r3u`; robocopy `AssetOpsV1-k10\var\demo3_r3u` → `var/demo3_g1audit` without `tree`; `tree` from
+   the new HEAD; `evidence_migration run` (KOBO-001) and `performance_migration run` (KOBO-001, KISIWA-001), all
+   "cutover: permitted" (as phase 2).
+3. **Run A:** `add-dates --site KOBO-001,KISIWA-001,EV-LAB-001 --to 2026-11-08` (`yesterday` also works once every
+   Site's yesterday is 11-08). Expect per-date `settle-<date>.json` with `verdict: done`, every item's `tick_failures`
+   empty, the Kisiwa night(s) `WITHIN_MARGIN (revision 1)`, Kobo `settled (n ticks)`, **finish check PASS (51/51)**.
+4. **Run B:** the same command: everything "already present", counts all 0 so no settle (no `settle-close.json`
+   written), finish check PASS.
+5. `--to` today: the run-1 evidence (`DATE_NOT_PAST`, nothing written) stands; that path is unchanged. Do not repeat it.
+6. Read-only proofs after run B: the drain `counts` child shows 0 for every field on every Site. A scratch
+   (uncommitted) read through `finish.app_client` of the KISIWA-001 board for each added `night_date` gives
+   `board_faults == []`. For the last added night's next board day, record the faults; they are not blocking.
+   `chain_coherence collect` + `check` gives EX-2 = 0.
+7. Then the review packet `.agent/review-packet-G1.md` with the settle timings, run A wall time and both `check.json`
+   summaries. Keep the fresh clone until review ACCEPT, then drop it.
+   **Stops:** any non-PASS row, any `tick_failures`, a `settle-*` `verdict: fail`, or a Kisiwa board fault on an added
+   `night_date` → back to the Architect with the file. A KIS row failing only on added-night content still takes the
+   R2-G1 Q3 bound. Cap: the original 2 × 1.5 h for steps 1–6.
+
+### R5.6 `test_carry_r3k2_l2_no_kis_row_keeps_the_skip_branch` (12 vs 13): fix it on the G1 branch
+
+READ: main's `demo_combined_finish.py` has 13 `raise KisiwaMissing()`. The 13th is KIS-11's no-Kisiwa branch
+(`:1489-1490`, added by OWN-G2 u2 `06c09b95b`). It is the same skip-branch pattern the test protects, and the test
+pin was simply not updated when G2 merged. A known-red test hides real failures behind "fails on main too", so it is
+not left to E2. **Fix on the G1 branch as its own commit:** `== 12` → `== 13` and add "KIS-11 (OWN-G2)" to the comment
+list on `:594-595`. If the builder's count of the 13 raises does not match the 13 `@row("KIS-…")` rows one-to-one
+(KIS-4, 8a, 1, 2, 6, 7, OV, 5, 10, 3, 9, 11, 8), stop and report; do not change the count.
+
+### R5.7 Decisions logged for owner review
+
+- **D-R5.1** Cause of the G1 rehearsal failure: the tool said Kobo's added day was checked after one background
+  refresh, while the product still had 24 of that day's 34 analysis jobs queued (10 run per refresh). Kisiwa's added
+  night had 70 queued, and no check caught it. The product handled the late day correctly; the tool's claim was early.
+  No product change.
+- **D-R5.2** Fix: before `add-dates` reports a day checked or sends the next day, it runs the queued work through the
+  product's own workers and scheduled refresh until nothing is due (the method `prepare` already uses), under
+  `--no-check` too. It also does this once at the end if an earlier run left work pending. The live Kobo step may take
+  ~1–2 min longer (R4.2's start-earlier rule covers it).
+- **D-R5.3** The failing check (F-THREADS: no board may say "Unknown" because processing has not finished) is right and
+  stays unchanged. A Kisiwa equivalent for added nights is backlog BL-52; the settle covers Kisiwa now.
+- **D-R5.4** Rehearsal: first on the failing clone (proves the fix and the resume path), then on a fresh clone (two
+  identical runs), all checks green before review.
+- **D-R5.5** The stale Kisiwa test count (12 → 13 after the diesel-night check added KIS-11) is fixed on the G1 branch
+  now, not left red until E2.
