@@ -438,8 +438,16 @@ function ManualReadingPanel({
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setAttempted(true);
-    if (inFlight || site === null || Object.keys(errors).length > 0) return;
+    if (inFlight) return;
+    // Polish L2: a refused Submit moves focus to the first invalid field, in form order, so its message is announced.
+    const firstInvalid = (["site", "value", "time", "ticket"] as const).find((name) => errors[name] !== undefined);
+    if (firstInvalid !== undefined) {
+      document.getElementById(id(firstInvalid))?.focus();
+      return;
+    }
+    if (site === null) return;
     key.current ??= operationalEntryKey();
+    setResult([]); // Polish L1: a repeated identical outcome is then a DOM change, so the live region re-announces it
     const sent = entry;
     setInFlight(true);
     let answer: OperationalEntryResult;

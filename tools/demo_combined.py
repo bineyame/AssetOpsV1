@@ -1383,7 +1383,8 @@ def main(argv: list[str] | None = None) -> None:
     adds.add_argument("--to", dest="date_to", type=_cli_date, default=None,
                       help="YYYY-MM-DD or yesterday (default; Kisiwa: its last finished night)")
     adds.add_argument("--kind", default=None, help="only with one Site and one date")
-    adds.add_argument("--dry-run", action="store_true", help="print the plan and the refusals, write nothing")
+    adds.add_argument("--dry-run", action="store_true", help="print the plan and the refusals, add nothing. It runs the read-only preflight, so the build's DB "
+                                                          "and serve environment must be reachable; it writes only the child's log under <work>/logs")
     adds.add_argument("--no-check", action="store_true", help="skip the closing finish check (not for demo days)")
     sub.add_parser("drop")
     args = parser.parse_args(argv)

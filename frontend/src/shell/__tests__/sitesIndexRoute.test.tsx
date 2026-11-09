@@ -137,6 +137,13 @@ describe("the Sites index is an operator capability", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the app-wide demonstration note with the client-facing wording (OWN-G3b R2-G3b 16)", async () => {
+    renderSites(ENABLED, [SITE]);
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
+
+    expect(screen.getByRole("note")).toHaveTextContent(/^Demonstration · example sites and records$/);
+  });
+
   it("renders the same listing markup in both gate states", async () => {
     const enabled = renderSites(ENABLED, [SITE]);
     await within(enabled.container).findByRole("table", { name: INVENTORY_TABLE });

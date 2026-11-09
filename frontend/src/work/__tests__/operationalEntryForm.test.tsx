@@ -6,6 +6,7 @@ import { act, cleanup, fireEvent, render, waitFor, within } from "@testing-libra
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import globalWorkCss from "../globalWork.css?raw";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
@@ -218,6 +219,41 @@ describe("OWN-G3b: the Record a manual reading form", () => {
       "Enter the delivery ticket reference.",
       "Use letters, digits, spaces and / . _ - only, up to 40 characters, starting with a letter or digit.",
     ]);
+  });
+
+  it("moves focus to the first invalid field in form order on a refused Submit (polish L2)", async () => {
+    const c = client(async () => saved);
+    await mount(c.reader);
+    fireEvent.click(submitButton());
+    expect(q("[data-global-work-form-value]")).toHaveFocus();
+    set("[data-global-work-form-value]", "198");
+    fireEvent.click(submitButton());
+    expect(q("[data-global-work-form-time]")).toHaveFocus();
+    set("[data-global-work-form-reading]", "FUEL_DELIVERY");
+    set("[data-global-work-form-time]", TIME);
+    fireEvent.click(submitButton());
+    expect(q("[data-global-work-form-ticket]")).toHaveFocus();
+    expect(c.sent).toEqual([]);
+  });
+
+  it("keeps the live region rendered and clears it when a send starts, so a repeat is announced (polish L1)", async () => {
+    const pending: ((v: OperationalEntryResult) => void)[] = [];
+    const c = client(() => new Promise((resolve) => pending.push(resolve)));
+    await mount(c.reader);
+    const region = q<HTMLElement>("[data-global-work-form-result]");
+    expect(region.isConnected).toBe(true);
+    expect(region.getAttribute("role")).toBe("status");
+    fillDip();
+    fireEvent.click(submitButton());
+    await act(async () => pending[0]({ status: "unconfirmed" }));
+    expect(result()).toEqual([ENTRY_OUTCOMES.unconfirmed]);
+    fireEvent.click(submitButton());
+    await waitFor(() => expect(pending).toHaveLength(2));
+    expect(result()).toEqual([]);
+    await act(async () => pending[1]({ status: "unconfirmed" }));
+    expect(result()).toEqual([ENTRY_OUTCOMES.unconfirmed]);
+    // The empty region must not be taken out of the accessibility tree by the stylesheet.
+    expect(globalWorkCss).not.toMatch(/\.global-work-form-result:empty\s*\{[^}]*display:\s*none/);
   });
 
   it("states Choose a Site when no Site is offered, with Submit disabled", async () => {

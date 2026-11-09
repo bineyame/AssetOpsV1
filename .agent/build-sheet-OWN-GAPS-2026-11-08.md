@@ -371,7 +371,8 @@ python tools/demo_combined.py --db assetops_polish_client_test --work var/polish
 
 `add-dates` ends with `finish check` and prints one line per Site and date. About 20 min per missing date for all four
 Sites (Kobo ~7, Cold ~4.5, Kisiwa ~3–8 incl. its 5-min quiet wait, EV ~3.5 on Tuesdays only, one tick ~2), plus ~5 min
-for the check. If more than about 7 dates are missing, a fresh prepare (~2.5 h) costs the same; if the demo is more than
+for the check. `add-dates --dry-run` runs the read-only preflight: the build's DB and serve environment must be
+reachable, and it writes only the child's log under `<work>/logs` (nothing is added). If more than about 7 dates are missing, a fresh prepare (~2.5 h) costs the same; if the demo is more than
 about 25 days after S, prepare fresh (§7.3).
 
 ### R1.6 Remaining owner question

@@ -256,6 +256,18 @@ def test_child_refuses_a_new_night_while_an_earlier_one_is_published() -> None:
     assert kis.plan_night(k, b, [PUBLISHED_1107], D("2026-11-07"), None, LATER)["resume"] is True
 
 
+def test_child_refuses_to_resume_a_later_published_night_over_an_earlier_one() -> None:
+    """Must-fail guard (review L-A): the stuck-night check runs before the PUBLISHED-resume branch returns."""
+    story, _ = build()
+    k, b = story["kisiwa"], _kisiwa_build()
+    later = {"night_date": "2026-11-08", "status": "PUBLISHED", "end_state": {"soc": "80", "fuel": "400"}}
+    with pytest.raises(SystemExit) as refused:
+        kis.plan_night(k, b, [PUBLISHED_1107, later], D("2026-11-08"), None, LATER)
+    assert refused.value.error_code == "NIGHT_NOT_FINISHED"
+    assert "--from 2026-11-07" in str(refused.value)
+    assert kis.plan_night(k, b, [PUBLISHED_1107, later], D("2026-11-07"), None, LATER)["resume"] is True
+
+
 def test_start_state_chains_done_and_published_over_the_story() -> None:
     b = _kisiwa_build()
     assert kis.start_state(b, []) == (Fraction(100), Fraction(273943, 300))
