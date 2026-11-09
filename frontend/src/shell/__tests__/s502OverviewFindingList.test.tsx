@@ -18,7 +18,7 @@ import type { OverviewSelection, SiteOverviewClient, SiteWindowSummary } from ".
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { indexBody, indexRow, notCurrent } from "../../sites/__tests__/findingIndexFixtures";
 import { overviewClient, populatedOverview } from "../../sites/__tests__/overviewFixtures";
-import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import { HYBRID_MINI_GRID_SITE, KOBO_LOAD_NAMES, withLoadNames } from "../../sites/__tests__/sldFixtures";
 import { OVERVIEW_FINDING_PREVIEW_LIMIT } from "../../sites/OverviewFindingList";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible } from "../../test/productPresentation";
@@ -27,7 +27,7 @@ import { FID, RID, WA, summary } from "./s5WindowFixtures";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
-const DETAIL: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }) };
+const DETAIL: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: withLoadNames(HYBRID_MINI_GRID_SITE, KOBO_LOAD_NAMES) }) };
 const OTHER_FID = "0c0c0c0c-0000-4000-8000-00000000000c";
 const OTHER_RID = "1c1c1c1c-0000-4000-8000-00000000001c";
 const DAY = "2026-10-15";

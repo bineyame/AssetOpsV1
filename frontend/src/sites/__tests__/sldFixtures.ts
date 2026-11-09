@@ -420,3 +420,14 @@ export function withReorderedTopology(
     },
   };
 }
+
+/** DIESEL-1-R3p R-LOAD: a fixture Site with a Site's own LOAD names in place of its one "Distribution load" (the shared
+ *  fixture is not changed; it serves many other files). Shared by the Overview tests that render the objective line. */
+export function withLoadNames(site: SiteDetailReadModel, names: readonly string[]): SiteDetailReadModel {
+  const others = site.foundation.components.filter((c) => c.component_type !== "LOAD");
+  const template = site.foundation.components.find((c) => c.component_type === "LOAD")!;
+  const loads = names.map((display_name, i) => ({ ...template, component_id: i === 0 ? template.component_id : `${template.component_id}-${i}`, display_name }));
+  return { ...site, foundation: { ...site.foundation, components: [...others, ...loads] } };
+}
+/** Kobo's served Foundation LOAD names (`kobo-mini-grid-60kw.yaml`), so the tests keep asserting v69's sentence. */
+export const KOBO_LOAD_NAMES = ["Residential feeder", "Health clinic", "Grain mill"] as const;

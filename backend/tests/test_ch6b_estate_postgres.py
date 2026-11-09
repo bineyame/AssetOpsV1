@@ -216,8 +216,9 @@ def test_mg1_judged_on_checked_days_and_estate_optimize_row_equals_the_d13_board
 
 def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_board(mech, monkeypatch, tmp_path) -> None:  # noqa: F811,E501
     """CH-5d1 L2m (CH5d1-R §3): for the week window the summary's Optimize card is `_optimize_card` over that body's
-    own Site rows, `/api/estate/chain` carries the same `cards`, and the Kobo Optimize row's `nodes` equal the board's
-    over the same window (its cost claim also equals the S-day (D13) board's: a stored consequence has no days)."""
+    own Site rows, `/api/estate/chain` carries the same `cards`, and the Kobo Optimize row's `nodes` equal the board's on S
+    (one day on both). On the week only the cost claim is compared, because the KPI days differ by design
+    (CH6b1-R Q1, V4); the cost claim also equals the S-day (D13) board's: a stored consequence has no days."""
     from assetops_backend.site_outcomes.read import _optimize_card
 
     engine, _ = mech
@@ -239,11 +240,21 @@ def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_b
     assert chain["cards"] == summary["cards"]
     row = next(r for r in kobo["rows"] if r["category"] == "OPTIMIZE_COST")
     there = next(r for r in board["rows"] if r["category"] == "OPTIMIZE_COST")
-    assert row["nodes"] == there["nodes"], (row["nodes"], there["nodes"])
+    # On the week the KPI node's `days` differ by design (summary: D7..D13; mini board: the one board day, CH6b1-R Q1, V4),
+    # so only the node set and the cost claim are compared here; the full-nodes equality is the S check below.
+    assert set(row["nodes"]) == set(there["nodes"]), (row["nodes"], there["nodes"])
+    assert row["nodes"]["earnings"] == there["nodes"]["earnings"], (row["nodes"]["earnings"], there["nodes"]["earnings"])
     claim = row["nodes"]["earnings"]
     assert claim["key"] == "money.possible_extra_fuel_cost", claim   # S1: the cost claim is present
     d13_claim = (next(r for r in day["rows"] if r["category"] == "OPTIMIZE_COST")["nodes"] or {}).get("earnings")
     assert claim == d13_claim, (claim, d13_claim)
     # S4: money on the card iff the board's claim carries a value
     assert (card["claim"] is not None) == (claim["value"] is not None), (card, claim)
+    # V4 at L2m: on S (one day on both) the Portfolio row's nodes equal the board's exactly.
+    with b4._client() as c:
+        one_day = _read(c, "/api/estate/outcome-summary", {"from": _utc(d13), "to": _utc(d13 + timedelta(days=1))})
+    (kobo_s,) = one_day["sites"]
+    row_s = next(r for r in kobo_s["rows"] if r["category"] == "OPTIMIZE_COST")
+    day_s = next(r for r in day["rows"] if r["category"] == "OPTIMIZE_COST")
+    assert row_s["nodes"] == day_s["nodes"], (row_s["nodes"], day_s["nodes"])
     print("CH5D1_L2M", card, claim)
