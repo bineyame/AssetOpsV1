@@ -132,7 +132,7 @@ SOURCE_UNRESOLVED = "Source not resolved"
 FINDING_WINDOW_DAYS = 31
 GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
 GAPS_PARTLY_CHECKED = "{p} of the last {n} days {verb} only partly checked"
-_COUNTED_GRADES = frozenset({"COMPLETE", "PARTIAL", "LOW"})
+_COUNTED_GRADES = frozenset({"COMPLETE", "PARTIAL"})  # LOW is "too little data, not counted"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.

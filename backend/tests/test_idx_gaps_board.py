@@ -56,8 +56,10 @@ def test_gap_line_separates_no_readings_from_only_partly_checked() -> None:
     both = finding_gap_line(f(DAYS[:3], {DAYS[0]: nodata, DAYS[1]: partial, DAYS[2]: partial}), 31)
     assert both["text"] == ("1 of the last 31 days has no checked readings yet"
                             " · 2 of the last 31 days are only partly checked")
-    for g in ("PARTIAL", "LOW"):
-        assert "only partly checked" in finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": g}}}), 31)["text"]
+    assert "only partly checked" in finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": "PARTIAL"}}}), 31)["text"]
+    # LOW is "too little data, not counted": a LOW-only day keeps the no-readings wording
+    assert finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": "LOW"}}}), 31)["text"] == (
+        "1 of the last 31 days has no checked readings yet")
     # a day with no grades at all (missing rows) is still "no checked readings"
     assert finding_gap_line(f([DAYS[0]], {}), 31)["text"] == "1 of the last 31 days has no checked readings yet"
 
