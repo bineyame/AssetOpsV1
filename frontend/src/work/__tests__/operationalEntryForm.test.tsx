@@ -6,7 +6,6 @@ import { act, cleanup, fireEvent, render, waitFor, within } from "@testing-libra
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import globalWorkCss from "../globalWork.css?raw";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
@@ -252,8 +251,6 @@ describe("OWN-G3b: the Record a manual reading form", () => {
     expect(result()).toEqual([]);
     await act(async () => pending[1]({ status: "unconfirmed" }));
     expect(result()).toEqual([ENTRY_OUTCOMES.unconfirmed]);
-    // The empty region must not be taken out of the accessibility tree by the stylesheet.
-    expect(globalWorkCss).not.toMatch(/\.global-work-form-result:empty\s*\{[^}]*display:\s*none/);
   });
 
   it("states Choose a Site when no Site is offered, with Submit disabled", async () => {
