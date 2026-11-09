@@ -1134,6 +1134,12 @@ class Demo:
                     raise SystemExit(f"the added data did not finish processing; {exc}. "
                                      "prepare a fresh build before a demo.") from None
             if not no_check:
+                report = self.tick()  # R6.1: the check reads the served state; the schedule must have just run
+                if "kisiwa" in story["sites"]:
+                    report, extra = retry_until_visited(report, lambda: self.tick(times=1),
+                                                        sleep=lambda s: time.sleep(s))
+                    if extra:
+                        say(f"  tick: {extra} extra tick(s) for KISIWA-001's fuel_night stage")
                 check = self.finish_check()
         finally:
             busy.unlink(missing_ok=True)

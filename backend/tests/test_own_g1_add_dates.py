@@ -346,9 +346,14 @@ QUEUED = {"KOBO-001": {**ZERO["KOBO-001"], "mini_deferred": 24}}
 DONE_RECORD = {"ticks": 2, "log": []}
 
 
-def _loop(monkeypatch, tmp_path: Path, dates: dict, *, counts=ZERO, record=DONE_RECORD, duplicate=False, drain=None):
+VISIT = {"outcome": "COMPLETED", "sites": [{"site_code": "KISIWA-001", "stages": {"fuel_night": {"code": "OK"}}}]}
+
+
+def _loop(monkeypatch, tmp_path: Path, dates: dict, *, counts=ZERO, record=DONE_RECORD, duplicate=False, drain=None,
+          report=VISIT):
     """`add_dates` with every child replaced by a recorder; `dates` maps a date to the sites it holds."""
     story, _ = build()
+    story = {**story, "sites": ["kobo", "cold", "ev", "kisiwa"]}
     demo = _demo()
     demo.work = tmp_path
     (tmp_path / "days.json").write_text(json.dumps({"days": []}), encoding="utf-8")
@@ -388,10 +393,11 @@ def _loop(monkeypatch, tmp_path: Path, dates: dict, *, counts=ZERO, record=DONE_
 
     monkeypatch.setattr(demo, "_add_core_day", core)
     monkeypatch.setattr(demo, "kisiwa_child", child)
-    monkeypatch.setattr(demo, "tick", lambda *a, **k: calls.append(("tick",)) or {"outcome": "COMPLETED", "sites": []})
+    monkeypatch.setattr(demo, "tick", lambda *a, **k: calls.append(("tick",)) or report)
     monkeypatch.setattr(demo, "drain_mini", lambda *a, **k: calls.append(("drain_mini",)))
     monkeypatch.setattr(demo, "drain", do_drain)
-    monkeypatch.setattr(demo, "counts", lambda: counts)
+    monkeypatch.setattr(demo, "counts", lambda: calls.append(("counts",)) or counts)
+    monkeypatch.setattr(dc.time, "sleep", lambda s: None)
     monkeypatch.setattr(demo, "finish_check", lambda: calls.append(("finish_check",)) or "PASS")
     return demo, calls
 
@@ -403,7 +409,7 @@ def test_kobo_only_date_settles_before_it_is_checked(monkeypatch, tmp_path: Path
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
     out = demo.add_dates("all")
     assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("drain_mini",), ("drain", "settle-2026-11-07"),
-                     ("finish_check",)]
+                     ("counts",), ("tick",), ("finish_check",)]  # R6.1: no tick before the drain; one after it
     assert out["added"][0]["checked"] == "settled (2 ticks)" and out["added"][0]["tick_failures"] == []
 
 
@@ -411,7 +417,8 @@ def test_a_kisiwa_date_verifies_then_drains(monkeypatch, tmp_path: Path) -> None
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo", "kisiwa"]})
     out = demo.add_dates("all")
     assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("child", "add-day"), ("drain_mini",), ("tick",),
-                     ("child", "verify-day"), ("drain", "settle-2026-11-07"), ("finish_check",)]
+                     ("child", "verify-day"), ("drain", "settle-2026-11-07"), ("counts",), ("tick",),
+                     ("finish_check",)]
     by_site = {a["site"]: a for a in out["added"]}
     assert by_site["KOBO-001"]["checked"] == "settled (2 ticks)"
     assert by_site["KISIWA-001"]["checked"] == "WITHIN_MARGIN (revision 1)"
@@ -442,19 +449,27 @@ def test_no_check_still_settles(monkeypatch, tmp_path: Path) -> None:
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
     demo.add_dates("all", no_check=True)
     assert ("drain_mini",) in calls and ("drain", "settle-2026-11-07") in calls and ("finish_check",) not in calls
+    assert ("tick",) not in calls  # R6.1: no tick of its own under --no-check
 
 
 def test_nothing_added_and_nothing_pending_does_not_settle(monkeypatch, tmp_path: Path) -> None:
+    """Must-fail guard (R6.1): with the closing tick removed this fails."""
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]}, duplicate=True)
     demo.add_dates("all")
-    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("finish_check",)]
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("counts",), ("tick",), ("finish_check",)]
+
+
+def test_closing_tick_retries_while_kisiwa_is_not_visited(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]}, duplicate=True, report={"outcome": "COMPLETED", "sites": []})
+    demo.add_dates("all")
+    assert calls[-4:] == [("tick",), ("tick",), ("tick",), ("finish_check",)]  # the closing tick plus two extra
 
 
 def test_work_left_by_an_earlier_run_is_settled_at_the_end(monkeypatch, tmp_path: Path) -> None:
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]}, duplicate=True, counts=QUEUED)
     demo.add_dates("all")
-    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("drain_mini",), ("drain", "settle-close"),
-                     ("finish_check",)]
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("counts",), ("drain_mini",), ("drain", "settle-close"),
+                     ("tick",), ("finish_check",)]
 
 
 def test_tick_failures_are_carried_and_do_not_stop_the_command(monkeypatch, tmp_path: Path, capsys) -> None:
