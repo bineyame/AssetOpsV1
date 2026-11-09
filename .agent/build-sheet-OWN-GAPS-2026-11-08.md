@@ -2542,3 +2542,210 @@ Architect.**
   run. They are not needed before E3, because E3 and E4 do not run the wrapper.
 - **D-E2.8** E3 starts after FR-A merges, when every red in the scoped run is either fixed or stopped and ruled. A stop
   on a presented beat holds E3 until it is ruled.
+
+## FR-A stop rulings (2026-11-09)
+
+- Architect: Claude (assetops-architect), delegated by the owner. Binding checked: `.ai/ROLE_CONFIG.md` makes the
+  Architect Claude since 2026-10-27. Input: `AssetOpsV1-e2fa/.agent/review-packet-E2-fix-A.md` (`task/E2-fix-A`,
+  d0e678eb9) and the console log of its run `20261109-160557-644a04`. I read the code at d0e678eb9. I ran read-only
+  queries on the latest demo builds: `assetops_demo3_g1audit_test`, `assetops_demo3_k9rehearsal_test` and
+  `assetops_demo3_kisiwa_test`. Nothing else was touched.
+
+### R-1 G-e: a real inconsistency that no presented screen shows. Bounded deferral with an E4 check. (D-E2.9)
+
+**What the board does.** The MG-2 NEEDS_ATTENTION and MG-4 WATCH states come from a Finding, not from readiness.
+- Status rule 5 (`outcomes/status.py:69-77`) gives NEEDS_ATTENTION for an open primary Finding and WATCH for an open
+  secondary one.
+- `board.py:688-694` raises those signals only for Findings whose episode is inside the board day (`in_window`).
+- MG-2 and MG-4 count as `settled` (`mini.py:539-540`) when the source gate is open, the board day is settled and the
+  dispatch read returned.
+- `day_settled` (`chain/read.py:100-108`) treats a stored NO_DATA row as settled.
+
+So a day can be "settled" with nothing checked.
+
+**What the gap line counts.** "N of the last 31 days have no checked readings yet" (`mini.py:133`, `:361-385`) counts
+the days whose day grade is NO_DATA or PENDING. A day's grade is the weakest grade among its measures. NO_DATA means
+`covered_seconds <= 0` (`chain/grading.py:76-97`). MG-2's measure is `avoidable_gen_min`. Its coverage is the union of
+the evidence intervals of the selected dispatch run (`chain/measure_impls.py:286-318`, `analytic_run_evidence`).
+
+**What s602b stores.** On 10-06, 10-21 and 11-02, all three stored measures are NO_DATA (packet, G-f). The same boards
+hold SUPPORTED or UNCONFIRMED generator Findings with episodes inside those days. From the run log: 10-06
+08:00-09:00Z, 11-02 09:30-09:45Z and 10-21 08:00-09:00Z. `mini_depth` returned 0 rows.
+
+**How a site lead reads it.** A Finding is a claim about one episode, judged on its own evidence. On a real Site a
+Finding often falls on a day that is only partly checked. "Needs attention" next to "only part of today is checked"
+is honest, and it is how a site lead triages. s602b is different. On the Finding's own day, the generator measure that
+the Finding moves has zero counted evidence, and the board says the day has no checked readings. A site lead reads
+that as "you judged a day you say you did not check", or as "the checking is broken". This is not a legitimate design:
+two producers disagree about the same generator hour. The likely cause is in the fixture. s602b's dispatch runs come
+from the S3-01 Performance comparison path, which stores no `analytic_run_evidence` rows. But nothing in the product
+prevents the combination, so it counts as a product inconsistency.
+
+**The demo build does not show it.** On both demo builds, every generator Finding falls on a PARTIAL day with counted
+evidence:
+
+| Site | Finding days | `avoidable_gen_min` grade | Covered |
+|---|---|---|---|
+| KOBO-001 | 10-23, 10-30, 11-06 | PARTIAL | 29,100 s |
+| KISIWA-001 | 10-28, 10-29 | PARTIAL | 32,700 s and 32,400 s |
+
+The Kobo NO_DATA days (10-27, 11-02, 11-04 and early October) have no in-window Finding.
+`assetops_demo3_kisiwa_test` shows PENDING on the Kisiwa days, but it is an intermediate database that was never
+settled, not a presented build. So no presented beat shows the case today.
+
+One risk remains. The demo Kobo declares an MG-2 objective ("avoidable generator minutes at most 0", BOARD_DAY), and
+`mini_readings` judges it from the dispatch read, not from the snapshot. In principle a NO_DATA day could therefore
+read "On track". E4 checks this (below).
+
+**Why there is no product fix now.** The right fix is at the producer: the measure a Finding moves must count that
+Finding's evidence. A mask on the board would hide one producer's output behind the other's. Either fix changes the
+board or the chain under every mini screen, two days before E3, for a case the demo build does not contain. That is
+the corner the owner warned against cutting. The E4 check proves the demo build is clean, and BL-63 carries the fix.
+
+**Builder changes (tests only, `backend/tests/test_out_b4_board_postgres.py`):**
+1. `test_kobo_guardrail_two_board_days`: replace the loop asserts at `:430-438`. Keep the CATEGORIES assert and the
+   MG-8 pop. For each of `a` and `b`:
+   - Assert that `measured` equals the exact dict the board returns. Copy that dict in full from a focused run into
+     `S602B_STATES`, with MG-8 removed.
+   - Assert the reasons on the wire (`board.py:888`): MG-2's `reason` is `"PRIMARY_FINDING_OPEN"` and MG-4's is
+     `"SECONDARY_FINDING_OPEN"`.
+   - Assert `LAST_PORTS[key]["chain_day"] == {"settled": True, "readiness": "NONE", "gaps": 31}`. Either capture the
+     port right after each `_board` call, or move this assert after the overview loop that records `chain_day`.
+   - Replace the comment with: "D-E2.9: since CH-5a1 the states come from the in-window Findings over the chain day,
+     not from the STALE_PROJECTION overview. s602b stores no counted dispatch evidence, so the same day grades
+     NO_DATA. That contradiction is BL-63, held by `test_kobo_s602b_no_judgement_on_unchecked_day` (strict xfail)."
+
+   The asserts after the loop (F01 MOVES, SAFEGUARD, Action keys, the ACT index) stay unchanged. The first failing
+   assert stops the test today, so they never run. Now they must run and pass. If any of them fails, stop.
+2. `test_kobo_estate_finding_rows_and_states`: make the same change for the 10-21 board. Pin the exact recorded dict
+   with MG-8 popped, the two reasons and the `chain_day` port. If the dict differs from `S602B_STATES`, put it in a
+   second constant.
+3. Add `test_kobo_s602b_no_judgement_on_unchecked_day(kobo_guardrail, monkeypatch)`, marked
+   `@pytest.mark.xfail(strict=True, reason="BL-63: a Finding-driven state on a day whose moved measure has no counted
+   evidence")`.
+   - Read both boards (10-06 and 11-02).
+   - For each board, read the latest stored `avoidable_gen_min` grade for that Site-local day from
+     `site_day_snapshot` (`DISTINCT ON (local_day, measure, subject_ref) ... ORDER BY revision DESC`).
+   - If the grade is NO_DATA or PENDING, or there is no row: assert that no outcome on the board has a `reason`
+     starting with `PRIMARY_FINDING_` or `SECONDARY_FINDING_`, or equal to `OBJECTIVE_MET`, `OBJECTIVE_MISSED` or
+     `OBJECTIVE_ON_PACE`.
+
+   Today the test must report XFAIL. When BL-63 lands it will XPASS, which fails the run, and the mark comes off.
+4. Run focused on the host (`tools\run-host-tests.ps1`, on `assetops_test` only). `test_out_b4_board_postgres.py`
+   must show these two tests passed, the new test as 1 xfailed, and every other test as before. Record the pinned
+   dicts in the packet.
+
+**E4-GE (new E4 item, no code).** Run on the E3 build, before E6:
+- (a) Read-only SQL. For every Finding head with mechanism `GENERATOR_SUPPORT_CANDIDATE` on a mini Site (KOBO-001,
+  KISIWA-001), the Site-local day of `episode_start` must have a latest `avoidable_gen_min` row with
+  `covered_seconds > 0` and a grade that is neither NO_DATA nor PENDING. Use the query the Architect ran on g1audit,
+  and record it in the E4 notes.
+- (b) Read-only board check. Read `GET /api/sites/{code}/outcome-board?date=D` for every Kobo and Kisiwa day the demo
+  script opens, and for every Kobo day from D7 to the last story day. On any day whose `avoidable_gen_min` grade is
+  NO_DATA or PENDING, no MG-2 or MG-4 outcome may have a reason in `PRIMARY_FINDING_*`, `SECONDARY_FINDING_*`,
+  `OBJECTIVE_MET`, `OBJECTIVE_MISSED` or `OBJECTIVE_ON_PACE`.
+- A hit on a day the script opens is a High, and E6 waits. A hit only on a day the script does not open is a Medium
+  for the owner walkthrough list. Either way, BL-63 is promoted.
+
+### R-2 G-h: the cause is the test's normalizer, not the clock. Fix the normalizer and transform the pins. Do not freeze `_BASE` and do not re-capture. (D-E2.10)
+
+**Diagnosis.** `_Norm` (`test_k6b_fuel_verification_postgres.py:124-153`) has two faults:
+- It makes every value relative to the effective day but leaves dict keys absolute (`{k: self(x) ...}`). The
+  `grades` map is keyed by date over `LOOK_DAYS = 14` (`verification_families.py:51`), so its keys move with the wall
+  clock.
+- It treats the rule's declaration date as a story date. `TARGET["declared_by"] = "owner 2026-11-05"`
+  (`verification_families.py:55-56`, CH9b1-R P1) is a constant the owner declared, yet it reads `<d-3>` on 11-08 and
+  `<d-4>` on 11-09.
+
+The verdict, the counts and the values do not move (packet capture). The effective day follows the real clock:
+`at()` sets the COMPLETE `occurred_at`. The fixture also reads the DB clock (`_now(engine)` for `raised_at`,
+`test_ch9b1...:52-60`), and the store stamps rows with DB time.
+
+**Why not freeze `_BASE`.** Freezing `_BASE` puts the Action's completion on a fixed past date while `raised_at` and
+the store stay on the DB clock. One story would then run on two clocks, the failure family FIX-W401b fixed, and the
+completion could fall before the Action was raised. On a real Site one clock orders these events. The test has to
+keep them on one clock and compare relatively.
+
+**Why not re-capture.** The pins prove that the mill path is byte-equal to its state before K6b (d25f95ccb). A new
+capture would lose that proof. A mechanical transform of the original file keeps it.
+
+**Builder changes (tests only):**
+1. `_Norm.__call__`, dict branch: `{(self(k) if isinstance(k, str) else k): self(x) for k, x in v.items()}`.
+2. `_Norm.__call__`, string branch, as its first line: `if v == fv_families.TARGET["declared_by"]: return v`. Import
+   `assetops_backend.actions.verification_families` as `fv_families`, or reuse the import if it already exists. A
+   change to the declared rule is a product change that the pin must catch, so the date stays literal.
+3. `fixtures/k6b_mill_pins.json`: edit it by hand or by script. Do **not** use `K6B_CAPTURE_PINS`. The capture's
+   effective day is 2026-11-08: the commit time is 2026-11-08 06:25 +0300, and the baseline COMPLETE days 11-05 to
+   11-07 read `<d-3>` to `<d-1>`. Make these changes:
+   - Rewrite the `grades` keys `"2026-10-25"` to `"2026-11-07"` as `"<d-14>"` to `"<d-1>"`.
+   - Rewrite the three `"owner <d-3>"` values as `"owner 2026-11-05"`.
+   - Apply the same rule to any other date-shaped key.
+
+   The file diff must contain exactly these lines. The commit message names d25f95ccb as the source.
+4. In `test_5`, after `got`: assert that no key or value in `got` matches `\d{4}-\d{2}-\d{2}`, except the literal
+   `TARGET["declared_by"]`. This makes independence from the wall clock checkable.
+5. Run `test_k6b_fuel_verification_postgres.py` focused on the host: every test passes. Mutation proof: temporarily set
+   `TARGET["declared_by"]` to `"owner 2026-11-06"`, confirm that `test_5` fails, then revert.
+
+**Stop rule.** If today's output still differs from the transformed pins anywhere besides those lines, stop:
+something other than the clock has moved.
+
+### R-3 G-g deviation: accepted. (D-E2.11)
+
+My spec premise was wrong. `test_ch6_nodes_postgres::test_kobo_estate_grow_nodes` builds the S4/s602b test-scoped
+Kobo, not the mechanism Kobo. The builder's fix states a fact about that Site and proves it from stored data: every
+`foundation_revision` has zero PRODUCTIVE loads, and the test first checks that the set is not empty. "No
+productive-use equipment declared" is therefore true for that Site, and the text is K10 v2's (56256bbc9). The demo
+Kobo declares its mill, which `test_walk1_productive_producer_postgres` covers.
+
+**E4-GG (no code).** On the E3 build, the Kobo board on the ST-3 story day must not contain "no productive-use
+equipment declared", and its Grow row must show the mill's sales line. A miss is a High.
+
+### R-4 G-i follow-up: confirmed for FR-B. (D-E2.12)
+
+`pin_read_at` (`test_w301_estate_index_postgres.py:398-410`) patches only `postgres_estate_read.EstateSnapshot`.
+`EvidenceMoneySnapshot(EstateSnapshot)` (`estate/adapters/postgres_evidence_money_read.py:55`) binds its base class at
+first import, so a Portfolio read under the helper depends on import order. The helper has five users: w301_golden,
+w301_estate_index, w302_evidence_scope_snapshot, w303_portfolio_fixture and w303_selectors. It produces no wrong
+product output, and k8 already has a local fix, so it does not block E3.
+
+**FR-B adds** (beyond its earlier file list):
+- `pin_read_at` also patches `postgres_evidence_money_read.EvidenceMoneySnapshot` with the same `present()` pin.
+- k8 drops its local `_PinnedMoney` and uses the helper.
+- FR-B's run targets add the five helper users and `test_k8_estate_fuel_postgres.py`, each run after one estate
+  test, which is the order that exposed the hole.
+
+The reviewer checks this with the rest of FR-B.
+
+### R-5 E3 start
+
+E3 starts once all of the following hold:
+1. FR-A carries R-1 (test edits 1-4) and R-2 (edits 1-5).
+2. Focused host runs of `test_out_b4_board_postgres.py` and `test_k6b_fuel_verification_postgres.py` are green,
+   with exactly one xfail.
+3. `check-all` passes 18/18.
+4. A fresh Claude reviewer (Opus) accepts the whole FR-A diff. The reviewer checks each stale claim against its named
+   commit, and checks that every state R-1 pins has the strict xfail beside it.
+5. FR-A is merged.
+
+No new container run is needed. The two files changed only in themselves, and every other scoped file was already
+green at 52190948d. BL-63 does not hold E3. E4 adds E4-GE and E4-GG beside E4-K8 and E4-env.
+
+### Decisions
+- **D-E2.9** G-e is a real inconsistency that no presented screen shows. On s602b, a Finding-driven NEEDS_ATTENTION
+  or WATCH appears on days whose generator measure has no counted evidence ("no checked readings"). The demo builds
+  put every generator Finding on a PARTIAL day with counted evidence. Ruling: a bounded deferral.
+  - The tests pin the recorded states, the reasons and the `chain_day` port.
+  - A strict-xfail test holds the invariant.
+  - E4-GE proves the E3 build is clean, including objective verdicts on NO_DATA days.
+  - The producer-side fix is BL-63. A board-side mask is rejected.
+- **D-E2.10** G-h: the k6b normalizer left date keys absolute and treated the owner's rule date as a story date. Fix
+  the normalizer, and transform the d25f95ccb pins: the keys become relative and the rule date stays literal. Assert
+  that no absolute date remains. Do not freeze `_BASE`, because that splits one story across two clocks. Do not
+  re-capture.
+- **D-E2.11** The G-g deviation is accepted. The test's Site is the s602b Kobo, which has no productive loads, proved
+  from its stored Foundation revisions. E4-GG checks that the demo Kobo never reads "none declared".
+- **D-E2.12** The `pin_read_at` import-order hole goes to FR-B. Patch `EvidenceMoneySnapshot` in the helper, drop
+  k8's local pin, and run the five helper users plus k8.
+- **D-E2.13** E3 starts after FR-A merges. That needs R-1 and R-2 built, the two files green with one strict xfail,
+  check-all at 18/18 and the reviewer's ACCEPT. No new container run is needed. BL-63 is post-demo.
