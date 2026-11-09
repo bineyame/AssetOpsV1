@@ -2793,3 +2793,194 @@ E3 = `task/E3-demo-build` 80f4a21d4, `assetops_polish_client2_test`, S = 2026-11
 - **D-E3.4** FLAG 2 is not a defect. New check E4-FN: in `last-tick.json`, KOBO-001 `fuel_night` is `OK`,
   `eligible: true`, `processed: 0`, `deferred: 0`; KISIWA-001 is `OK`/eligible; COLD/EV are `eligible: false`. Then
   `SELECT count(*) FROM fuel_balance_window` for KOBO-001 = 0 (P3). Any Kobo row is a High.
+
+## E4 stop rulings (2026-11-09)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`), under the owner's delegation of 2026-11-08
+(`.agent/owner-away-architect-decides-2026-11-08.md`): "let the architect make decisions if there are any input
+required from my side and make sure it makes decisions based on understanding of how real sites work and what assetops
+is trying to achieve, no cutting corners on fundamentals". Input: `AssetOpsV1-e3/.agent/E4-results.md` (690c54532),
+code at that commit, and read-only SQL on `assetops_polish_client2_test`. **READ** = code cited; **DB** = queried.
+
+### D-E4.1 STOP 1 (E4-PARITY): a defect. The warm list is a frozen copy of an old story calendar.
+
+**Root cause (READ).**
+- The prebuild sends every request in `config/chain/prebuilt-routes-v1.json` (`chain/prebuild.py:28-35`, via
+  `file_chain_config.load_prebuilt_routes`, `:99-103`). That file is static. It was committed once in CH-5c u2
+  (36d0e08de) with the note "Generated from the demo story calendar (S=2026-10-31)". No generator exists in the repo,
+  and neither `prepare` nor `add-dates` writes the file. So every build since S moved has warmed October boards that no
+  script opens. Parity itself holds: 20 of 20 listed routes hit.
+- This is also a miss in the Q7 audit (§7.1): a product config file carries demo-story dates.
+- **Real-site sense:** the warm list exists so that the pages people open next answer at once. On a real Site those
+  pages are the latest days and this week. In the demo they are the pages the script opens. A list that warms neither
+  does no useful work. The presenter's first open of each story board then pays a compose of 5 to 9.5 s.
+
+**Fix: product root plus tool.** Branch `task/E4-C2-prebuild-follows-calendar`, Opus builder, about 0.75 unit.
+1. **Product.** `chain/adapters/file_chain_config.load_prebuilt_routes` reads the file named by
+   `ASSETOPS_PREBUILT_ROUTES` when that variable is set. The schema is the same (`chain/prebuilt.parse`). When it is not
+   set, it reads the config default.
+   - Do **not** add the variable to `chain/watermark.COMPOSER_ENV` or `SERVE_KEYS`. The list chooses what to warm and
+     never changes a body.
+   - Test, new `backend/tests/test_e4_prebuilt_routes_source.py`, no DB:
+     - with the variable set, `prebuilt_requests()` returns the file's requests;
+     - without it, the default;
+     - `code_version()` is equal with and without it (clear the `lru_cache`);
+     - the name is not in `COMPOSER_ENV`.
+2. **Tool.** In `tools/demo_combined.py`, add a pure function
+   `prebuilt_routes(story, days, kisiwa, sites_last_day)`.
+   - It derives the requests **from `story_links`'s own rows**, so what is warmed equals what the script opens, by
+     construction.
+   - It maps each web link to the stored-route API request(s) its page issues, with the exact query the frontend
+     sends:
+     - Portfolio (`lens=all`);
+     - outcome-summary;
+     - Findings (`lens=all&state=all`);
+     - each `/sites/{code}` board to `/api/sites/{code}/outcome-board`, with the same `date=` or `from/to`.
+   - It also adds each Site's board for every date from S+1 to that Site's last added date (Kobo by `date`). The story
+     step 7 day is then warm as soon as the tick after its release ends.
+   - The tool writes `<work>/prebuilt-routes.json` before every prebuild (`performance_and_prebuild`) and at `serve`
+     start. It sets `ASSETOPS_PREBUILT_ROUTES` in `serve_env`, so both the tool's prebuild and the serve loop's prebuild
+     read the file.
+   - Tests, no DB (in `backend/tests/test_own_g1_add_dates.py` or a new file):
+     - S=2026-11-07 gives a `board.day` request for every story-day link, plus the week, S and month estate requests;
+     - no date falls outside the story calendar or the added dates;
+     - the file is rewritten when the last added date moves.
+3. **Config default.** It stays as it is, for the existing tests and `chain_watermark_guard.py`. **BL-64 (post-demo):**
+   replace it with a relative production list (the latest local day per Site and the current week, anchored on DB now).
+
+### D-E4.2 STOP 2 (Cold/EV "Pending"): a defect. The Portfolio reads thread state at the evidence cutoff.
+
+**Root cause (READ + DB).**
+- `estate/portfolio.attach_threads` (`:144-162`) reads each Cold/EV row's thread state with `known_at` set to the
+  Site's **evidence cutoff**: `cutoffs[site_code]`, from `select_finding_scope` (`estate/index.py:151-156`,
+  `site_cutoff`). That cutoff is `max(ingestion_disposition.decided_at)`, the Site's last reading.
+- CH-6b2 R2 (cb73f7409) ruled the opposite for lifecycle reads. `chain/read.lifecycle_cutoff` says the evidence cutoff
+  bounds evidence only, and the request cutoff `k` bounds a thread's lifecycle. That commit changed the board
+  (`chain_api.py:185-187`) and the claims (`chain/claims.py:84, 97`). It missed the Portfolio.
+- DB, EV: the last reading is 2026-11-03 09:00Z. The ACTION_IN_HAND event has `cause_known_at` 11-03 09:40Z, after
+  that reading. So the event is never visible, and the row reads OPEN.
+- DB, Cold: the ACTION_IN_HAND event is at 11-07 17:15Z. The Cold rows read "Pending" only once add-dates wrote readings
+  after that instant. Cold's last `decided_at` is now 11-09 17:09Z.
+- So R4.1's label code is right; the state it is given is wrong. Neither stale storage nor the prepare order is the
+  cause.
+- **Real-site sense:** an action agreed after the last reading is still agreed. A cold room whose logger is quiet is
+  the case where the manager most needs to see that someone is acting, and bounding the state by the last reading hides
+  exactly that case.
+
+**Fix.** Branch `task/E4-C1-portfolio-lifecycle-cutoff`, Opus builder, about 0.25 unit.
+- In `estate/portfolio.attach_threads`, read every row's thread state and Action segments at
+  `lifecycle_cutoff(default)`, as one group rather than one group per Site.
+  - `day_at` (`req.to - 1µs`) and `visible_at` (`default`) are unchanged.
+  - Set `_thread_cutoff` to the same value, so `action_segment_for` stays consistent.
+  - Update the comment to cite CH6b2-R2.
+  - Keep the `cutoffs` parameter for its callers; it no longer bounds the lifecycle.
+  - Mini-grid rows are unchanged: their cutoff was already `default`.
+- Tests: a new no-DB file, `backend/tests/test_e4_portfolio_lifecycle_cutoff.py`, with a fake `threads` port that
+  records its kwargs:
+  - (a) a Cold row whose evidence cutoff is earlier than `k` is read with `known_at == k`;
+  - (b) the same row, with the fake state `ACTION_IN_HAND`, gives `workflow_label` "Pending";
+  - (c) an EV row behaves like (a) and (b);
+  - (d) a mini row's call is unchanged.
+- Run `test_ch2_threads.py`, `test_ch3_rows.py`, `test_ch5a1_r1_visibility.py`,
+  `test_w303_portfolio_workflow_labels.py` and `test_r4_domain_row_thread_state.py`.
+  - An assertion that pinned a Cold/EV state at the evidence cutoff may be updated, and is listed in the packet.
+  - Any other changed assertion is a stop.
+  - Occurrence visibility (CH5a1-R2 R-1) must not move.
+- **Proof on the fresh build, before any add-dates.** On the Portfolio week link, both Cold start-failure rows and the
+  EV row read "Pending". The Cold temperature row reads "No action yet".
+
+### D-E4.3 STOP 3 (E4-GE any-outcome sweep): all 4 hits are correct behaviour; the sweep's test was too strict
+
+**Kobo 10-28 and 11-05, MG-1 OBJECTIVE_MET (READ).**
+- MG-1 is the only monthly measure (`outcomes/objectives.py:46, 61`).
+- `judge_month` judges it over the Site-local month **up to the board day** (`chain/outcomes.py:108-123`). No later day
+  is read.
+- MET means the month-to-date kWh has already reached an at-least target. Missing days can only add to the total.
+- The row text says so: "{mtd} kWh so far this month, on {c} of {e} days checked" (`chain/vocabulary.py:275`).
+- **Real-site sense:** a site lead reads "the month's target is already reached; today's readings are not in yet".
+  Both are true, and both are on the screen.
+- This is not the BL-63 case. BL-63 is a day-scoped verdict (MG-2/MG-4) on a day whose own measure has no counted
+  evidence.
+
+**Kisiwa 11-01 and 11-02, MG-8 PRIMARY_FINDING_OPEN (DB).**
+- On both days `critical_served` is COMPLETE (82,800 s) and `daylight_headroom_kw` is PARTIAL. Only
+  `avoidable_gen_min` is NO_DATA.
+- The Finding is the unexplained-fuel night. Its own measure, the night's fuel balance, is graded.
+- By D-E2.9's principle (a Finding is judged on the evidence of the measure it moves), this is honest.
+
+**Ruling: no High and no fix.**
+- E4-GE(b) is restated for every later run: "no outcome may carry a Finding or objective reason on a day where **that
+  outcome's own measure** has no counted evidence over **its judged span**".
+- The judged span is the board day for MG-2/MG-4, the month up to the board day for MG-1, and the Finding's night or
+  episode for a Finding reason.
+- DS-1a presenter note for the Kobo 10-28 beat: "The monthly target was already reached; this day's readings had not
+  arrived yet. Both are on the screen."
+
+### D-E4.4 Items E4 did not run
+
+**(a) COH.** There is no number to invent. The finish check's F-COH and F-COH3 rows are the COH gate, and both pass
+(51/51). Closed as PASS.
+
+**(b) Forced unfinished Kisiwa night.** This check is still required: on a demo morning the catch-up must never write
+a night that has not ended.
+- Run it at the next E4-lite, before 15:00 local:
+  1. `add-dates --site KISIWA-001 --to <today-1> --dry-run`;
+  2. then the same command without `--dry-run`.
+- Expected: "night not over yet" and NIGHT_NOT_OVER. The Kisiwa evidence and `fuel_balance_window` counts do not change
+  (take a snapshot before and after).
+- Any write is a High.
+- Meanwhile the unit pins (`test_own_g1_add_dates.py:179, 611`) stand. This check does not block E5.
+
+**(c) Perf: the budgets, now named.**
+- **PF1.** After one serve tick and its prebuild, every API request behind every `links` row answers
+  `X-AssetOps-Stored: hit` on first open. This replaces the single-page check in D-E3.3.
+- **PF2.** Each of those hits answers in 1.0 s or less (`curl` time_total).
+- **PF3.** A serve tick with no new data has prebuild states `stored: 0` and `prebuild_ms` of 120,000 or less.
+  - The limit is the product's own EX-3 rule: 50% of `TickLimits.tick_seconds` (240 s; `scheduling/tick.py:87, 303-306`).
+  - The observed 134-149 s were data-arrival ticks. A data-arrival tick over 120 s is recorded, not a stop.
+  - A no-data tick with `stored` above 0 is a stop: it means the watermark moved without data.
+- **PF4.** Report the composed (cold) Portfolio week read and the slowest board. Either one over 15 s is a Medium for
+  the walkthrough. PF1 keeps cold reads off the presented beats.
+
+### D-E4.5 Re-prepare: yes, once C1 and C2 have merged
+
+- Neither fix changes stored data. But the `tree` under `var/polish_client2/tree` is a code snapshot, and R6.3's runbook
+  rule stands: "Never replace or edit a build's `tree`. New code means a fresh `prepare`."
+- R4.1 must be proven on a **fresh** build before any add-dates. Only a fresh prepare can prove that.
+- So: one fresh E3 prepare from main after both merges (about 2 h 12 m, machine idle). No demo patch, and no tree swap.
+
+### D-E4.6 Observation, not an E4 stop: the board gap line over-states on Kisiwa
+
+- `site_outcomes/mini.py:133, 361-385` counts a day as "no checked readings" when its **weakest** measure is NO_DATA.
+- On Kisiwa from 11-01 to 11-07, `critical_served` is COMPLETE. Even so, those days are counted as having no checked
+  readings ("28 of the last 31 days").
+- A real manager reads that line as "the gateway was down", which is false.
+- **Ruling: an honesty defect on a presented board. Fix it with two tiers.**
+  - Days with no counted measure keep `GAPS_NO_READINGS`.
+  - Days where some measures are counted read "{p} of the last {n} days {verb} only partly checked".
+  - Branch `task/E4-C3-gap-line-tiers`, Sonnet builder, about 0.5 unit.
+  - Tests: the `finding_gap_line` cases and the IDX-GAPS pins. List any capture change.
+- C3 joins the re-prepare only if it is reviewed and merged when C1 and C2 are. Otherwise it is a Medium on the owner
+  walkthrough list and lands in the Sun-15 build. It never holds E5.
+
+### D-E4.7 Order of work
+
+1. C1 and C2 build in parallel, and each gets a fresh Opus review; only High or Medium findings block. C3 builds
+   alongside them on Sonnet. Merge, then run check-all on main.
+2. A fresh E3 prepare from main (one heavy job).
+3. E4 again, in full. It includes D-E4.2's proof before any add-dates, D-E4.3's restated GE(b), and PF1-PF4.
+4. E5 screenshots (1440/390), then the DS-1a refresh (the R4.1 lines and D-E4.3's note), then the owner walkthrough.
+   Item (b) runs at the first morning E4-lite.
+
+### Decisions logged for owner review
+
+- **D-E4.1** The warm list follows the story calendar. It is derived from the script links, and the product reads it
+  from a deployment input. The production default goes to BL-64.
+- **D-E4.2** The Portfolio reads a thread's lifecycle state at the request cutoff, as the board does. Cold/EV "Pending"
+  then shows on a fresh build.
+- **D-E4.3** Two cases are honest: a monthly "met" on a no-data day, and a fuel Finding on a day whose generator measure
+  is unchecked. The sweep is restated per measure.
+- **D-E4.4** COH is closed by F-COH and F-COH3. The resume check runs at the next E4-lite. The perf budgets are
+  PF1-PF4.
+- **D-E4.5** A fresh prepare after the fixes; no tree swap.
+- **D-E4.6** The gap line separates "no checked readings" from "only partly checked".
