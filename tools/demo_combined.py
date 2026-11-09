@@ -344,6 +344,31 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
 
 #: E4 D-E4.1 (C2): the product reads this file when `ASSETOPS_PREBUILT_ROUTES` names it (never part of `code_version`).
 PREBUILT_ROUTES_FILE = "prebuilt-routes.json"
+PERFORMANCE_MARKS_FILE = "performance-marks.json"
+
+
+def read_marks(path: Path) -> dict[str, str]:
+    """E4 D-E4.8 (C4): the Site -> DB-watermark marks of the last successful Performance runs; {} when absent."""
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {str(k): str(v) for k, v in doc.items()} if isinstance(doc, dict) else {}
+
+
+def write_marks(path: Path, marks: dict[str, str]) -> None:
+    """Atomic: a temp file in the same folder, then `os.replace` (as C2 writes the routes file)."""
+    temp = path.with_name(path.name + ".tmp")
+    temp.write_text(json.dumps(marks, indent=1, sort_keys=True), encoding="utf-8")
+    os.replace(temp, path)
+
+
+def performance_due(site: str, mark: str | None, marks: dict[str, str], report_dir: Path) -> bool:
+    """E4 D-E4.8 (C4): rerun the Performance comparison only when the Site has no report, no recorded mark, or its
+    DB watermark differs from the recorded one. A mark that could not be read (None) is always due."""
+    if not report_dir.is_dir() or not any(report_dir.glob("*.json")):
+        return True
+    return mark is None or marks.get(site) != mark
 PREBUILT_ROUTES_ENV = "ASSETOPS_PREBUILT_ROUTES"
 PREBUILT_SCHEMA = "chain-prebuilt-routes-1"
 #: The Sites whose board link carries `date=` (local day); the others open a whole UTC day by `from`/`to`.
@@ -1013,11 +1038,37 @@ class Demo:
         self.performance_and_prebuild()
         return report
 
+    def read_site_mark(self, site: str) -> str | None:
+        """E4 D-E4.8 (C4): the Site's DB watermark, the predicate of `postgres_response_store.read_watermark` for one
+        Site (the tenant's rows for the Site plus the tenant-wide NULL rows), on one short read-only connection."""
+        import psycopg
+
+        url = self.url.replace("postgresql+psycopg://", "postgresql://")
+        with psycopg.connect(url, autocommit=True) as c:
+            c.read_only = True
+            row = c.execute("SELECT t.id, s.id FROM site s JOIN tenant t ON t.id = s.tenant_id "
+                            "WHERE t.slug = 'demo' AND s.site_code_key = lower(%s)", (site,)).fetchone()
+            if row is None:
+                return None
+            count = c.execute("SELECT count(*) FROM chain_input_change WHERE (tenant_id = %s OR tenant_id IS NULL) "
+                              "AND (site_id = ANY(%s) OR site_id IS NULL)", (row[0], [row[1]])).fetchone()[0]
+        return f"cic:{count}"
+
     def performance_and_prebuild(self) -> None:
+        marks_path = self.work / PERFORMANCE_MARKS_FILE
+        marks = read_marks(marks_path)
         for site in ("KOBO-001",) + (("KISIWA-001",) if "kisiwa" in self.story().get("sites", ()) else ()):
+            report_dir = self.tree / "var" / "evidence" / "migration-performance" / site.lower()
+            mark = self.read_site_mark(site)  # before the run: a write during the run forces a rerun next time
+            if not performance_due(site, mark, marks, report_dir):
+                say(f"  performance: skipped (no change since mark {mark})")
+                continue
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+            if done.returncode == 0 and mark is not None:
+                marks[site] = mark
+                write_marks(marks_path, marks)
         self.write_prebuilt_routes()  # E4 D-E4.1: the list follows the calendar and the added dates
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
