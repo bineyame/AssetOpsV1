@@ -45,9 +45,10 @@ copy_start=$(date +%s)
 code=/tmp/assetops-worktree
 rm -rf "$code"
 mkdir -p "$code"
-# Only what the backend suite reads (code, shipped data, fixtures, tools, var/ without results, the frontend source).
+# Only what the backend suite reads (code, shipped data, fixtures, tools, var/ without results, the frontend source, and the tracked test inputs under .agent/DIESEL-*, Docs/demo-sprint and .gitattributes).
 tar -C /workspace --exclude=./var/test-results --exclude='*/__pycache__' --exclude='*/node_modules' -cf - \
   ./backend ./contracts ./simulator ./gateway ./host ./field ./config ./contract-fixtures ./tools ./var ./frontend/src ./frontend/docs \
+  ./.agent/DIESEL-D0 ./.agent/DIESEL-F0 ./Docs/demo-sprint ./.gitattributes \
   ./docker-compose.yml ./docker-compose.test.yml | tar -C "$code" -xf -
 echo "worktree copied to $code in $(( $(date +%s) - copy_start )) s" | tee "$out/worktree-copy.txt"
 cd "$code"

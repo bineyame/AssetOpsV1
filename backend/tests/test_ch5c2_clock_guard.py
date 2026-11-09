@@ -83,6 +83,9 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
     (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.night_context.work"): _CAPTURE,
     (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.transaction"):
         _WRITER + " (the fuel-balance assessment, K3)",
+    (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.schedule_inputs.work"):
+        _WRITER + " (OWN-G2: the fuel_night tick stage's due-night read, scheduled.run_site; the same DB clock as "
+        "`transaction`, which assesses each due night)",
     (_B + "fuel_balance.adapters.postgres_fuel_balance_store", "PostgresFuelBalanceStore.night_window_on"):
         _WRITER + " (the unexplained-fuel Finding raise, K4a)",
     (_B + "work.adapters.postgres_domain_action_index", "PostgresDomainActionRead.snapshot"): _CAPTURE,
@@ -182,6 +185,18 @@ def test_module_list_is_recorded_and_resolves() -> None:
 
 def test_composer_modules_have_no_unaccounted_clock_read() -> None:
     assert violations(listed_modules()) == []
+
+
+def test_schedule_inputs_is_called_only_by_the_tick_stage() -> None:
+    """D-E2.1: the `schedule_inputs` clock read is allow-listed as a writer; this makes that claim checkable."""
+    callers = set()
+    for path in sorted((BACKEND / "assetops_backend").rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "schedule_inputs":
+                callers.add(path.relative_to(BACKEND).as_posix())
+    assert callers == {"assetops_backend/fuel_balance/scheduled.py"}
+    assert "assetops_backend.fuel_balance.scheduled" not in listed_modules()
 
 
 def test_allowlist_has_no_stale_entry() -> None:
