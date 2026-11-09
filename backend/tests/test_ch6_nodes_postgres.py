@@ -24,7 +24,10 @@ def _grow(body: dict) -> dict:
     return next(r for r in body["rows"] if r["category"] == "GROW_REVENUE")
 
 
-def _check_nodes(row: dict, key: str) -> dict:
+NONE_DECLARED_TEXT = "No productive-use sales · no productive-use equipment declared"
+
+
+def _check_nodes(row: dict, key: str, none_declared: bool = False) -> dict:
     nodes = row.get("nodes")
     b4._record(key, {"nodes": nodes, "headline_money": row.get("headline_money")})
     assert isinstance(nodes, dict) and set(nodes) == {"kpi", "potential", "earnings"}, nodes
@@ -34,7 +37,12 @@ def _check_nodes(row: dict, key: str) -> dict:
         if c["basis"] == "NOT_KNOWN":
             assert c["value"] is None, c  # the target and potential read their own words ("No target set yet")
             if c["key"] == "money.estimated_income":
-                assert "Not known yet" in c["text"], c
+                # K10 v2 (56256bbc9, R3t, MD-K10-1): a Site whose Foundation declares no productive-use load says so,
+                # in place of "Not known yet" (`none_declared=True`, proved against the stored Foundation by the caller).
+                if none_declared:
+                    assert c["text"] == NONE_DECLARED_TEXT, c
+                else:
+                    assert "Not known yet" in c["text"], c
     return nodes
 
 
@@ -45,11 +53,31 @@ def test_kobo_estate_grow_nodes(monkeypatch, tmp_path) -> None:
         b4._pin_kobo(monkeypatch, spec)
         with b4._client() as c:
             body, _ = b4._board(c, "KOBO-001", "kobo_ch6_nodes", date="2026-10-21")
+        # K10 v2 (56256bbc9): this case's test-scoped Kobo (the S4 F01/F02 fixture, not the mechanism dataset's Kobo, whose
+        # Foundation declares its mill) declares no productive-use load in any Foundation revision. That is what makes
+        # the stated "none declared" earnings claim true here; check it against the stored revisions, not by assumption.
+        import json as _json
+
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+
+        from assetops_backend.mini_depth.read import productive_loads
+
+        engine = create_engine(url, poolclass=NullPool)
+        try:
+            with engine.connect() as conn:
+                contents = [r[0] for r in conn.execute(text(
+                    "SELECT f.content FROM foundation_revision f JOIN site s ON s.id = f.site_id "
+                    "WHERE s.site_code = 'KOBO-001'"))]
+        finally:
+            engine.dispose()
+        assert contents, "no Foundation revision read for KOBO-001: the declared-none premise is unproved"
+        assert all(productive_loads(x if isinstance(x, dict) else _json.loads(x)) == [] for x in contents)
     row = _grow(body)
-    nodes = _check_nodes(row, "kobo_ch6_grow")
+    nodes = _check_nodes(row, "kobo_ch6_grow", none_declared=True)
     assert any(v is not None for v in nodes.values()), nodes
-    if nodes["earnings"] and nodes["earnings"]["basis"] == "NOT_KNOWN":
-        assert row["headline_money"] is None  # Q4: the Grow money is the earnings claim, never an invented figure
+    assert nodes["earnings"]["key"] == "money.estimated_income" and nodes["earnings"]["basis"] == "NOT_KNOWN", nodes
+    assert row["headline_money"] is None  # Q4: the Grow money is the earnings claim, never an invented figure
 
 
 def test_cold_w502_nodes(monkeypatch, tmp_path) -> None:
