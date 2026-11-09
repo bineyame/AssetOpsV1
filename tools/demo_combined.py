@@ -514,7 +514,8 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
             for a in mine:
                 extra = (f", ticket {a['ticket']}" if a.get("ticket") else "")
                 late = " (delivery entered after the night)" if a.get("ticket") else ""
-                items.append(f"{short_date(a['date'])} ({a['kind']}{extra}){late}")
+                warn = " (a background step reported a failure; see logs)" if a.get("tick_failures") else ""
+                items.append(f"{short_date(a['date'])} ({a['kind']}{extra}){late}{warn}")
             n = len(mine)
             tail = (f"{'the night' if n == 1 else 'both nights' if n == 2 else f'all {n} nights'} checked: within "
                     "margin" if code == "KISIWA-001" else "checked by the background refresh")
@@ -1115,7 +1116,23 @@ class Demo:
                     today.append({"site": SITE_CODE[site], "date": d, "kind": out["kind"],
                                   "records": [], "checked": "tick"})
                 if today:
-                    added += self.tick_and_verify(today)
+                    codes = ", ".join(a["site"] for a in today)
+                    try:
+                        added += self.settled_date(d, today)
+                    except SystemExit as exc:  # R5.2 item 5: earlier dates stay (append-only)
+                        if not str(exc).startswith("DRAIN FAILED"):
+                            raise
+                        raise SystemExit(f"{codes} {d.isoformat()}: the added data did not finish processing; {exc}. "
+                                         "prepare a fresh build before a demo.") from None
+            import demo_combined_drain as dr
+
+            if dr.total(self.counts()) > 0:  # R5.2 item 3: work left by a crashed or stopped earlier run
+                say("settling work left from an earlier run")
+                try:
+                    self.settle("settle-close")
+                except SystemExit as exc:
+                    raise SystemExit(f"the added data did not finish processing; {exc}. "
+                                     "prepare a fresh build before a demo.") from None
             if not no_check:
                 check = self.finish_check()
         finally:
@@ -1130,6 +1147,27 @@ class Demo:
         if check.startswith("FAIL"):
             raise SystemExit("This build no longer passes its checks; prepare a fresh one before a demo.")
         return summary
+
+    def settle(self, name: str) -> dict:
+        """R5.2: run the queued work of the added data through the product's own producers until nothing is due:
+        the mini-depth worker (no per-tick bound), then the scheduled tick until every drain count is 0."""
+        self.drain_mini()
+        return self.drain(name)
+
+    def settled_date(self, d: Any, today: list[dict]) -> list[dict]:
+        """R5.2 item 2: one date's items, checked only once the product's queue for the data is empty."""
+        if any(a["site"] == "KISIWA-001" for a in today):
+            self.drain_mini()
+            self.tick_and_verify(today)
+            record = self.drain(f"settle-{d.isoformat()}")
+        else:
+            record = self.settle(f"settle-{d.isoformat()}")
+        failures = [e["tick_failure"] for e in record["log"] if e.get("tick_failure")]
+        for item in today:
+            if item["site"] != "KISIWA-001":
+                item["checked"] = f"settled ({record['ticks']} ticks)"
+            item["tick_failures"] = failures
+        return today
 
     def add_kisiwa_night(self, night: Any, kind: str | None) -> dict:
         """§4.5 steps 1-6 in the tree child (the entry is PUBLISHED when it returns)."""
@@ -1167,9 +1205,6 @@ class Demo:
                                                                     f"{result['line']}")
                 time.sleep(kis.WAIT_POLL_SECONDS)
                 report = self.tick()
-        for item in today:
-            if item["site"] != "KISIWA-001":
-                item["checked"] = "tick " + str((report or {}).get("outcome", "ran"))
         return today
 
     def finish_check(self) -> str:
