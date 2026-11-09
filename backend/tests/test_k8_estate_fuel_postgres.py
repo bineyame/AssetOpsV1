@@ -86,6 +86,18 @@ def test_k8_fuel_row_in_estate_findings_never_in_money(kobo, capsys, monkeypatch
     opened, money = _priced_fuel_finding(kobo, capsys)
     fid, frid = str(opened.finding_id), str(opened.revision_id)
     pin_read_at(monkeypatch, lambda: READ_AT)
+    # E2 FR-A G-i: `pin_read_at` replaces `postgres_estate_read.EstateSnapshot`, but the Portfolio reads through
+    # `EvidenceMoneySnapshot(EstateSnapshot)`, whose base class is bound when its module is first imported. So the pin
+    # reached the Portfolio only if that import happened after the patch (this file alone), and not after any other
+    # estate test in the same process, where the Portfolio read at the real database clock (2026-11) and could not see
+    # the fixture's 2027 Finding. The pin is applied to that class explicitly, so the setup no longer depends on order.
+    from assetops_backend.estate.adapters import postgres_evidence_money_read as money_read
+
+    class _PinnedMoney(money_read.EvidenceMoneySnapshot):
+        def __init__(self, owner, c, read_at) -> None:
+            super().__init__(owner, c, READ_AT)
+
+    monkeypatch.setattr(money_read, "EvidenceMoneySnapshot", _PinnedMoney)
     admit = lambda code: True  # noqa: E731
     svc = build_estate_index_service(URL)
     portfolio_svc = build_estate_portfolio_service(URL)
