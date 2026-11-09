@@ -332,8 +332,138 @@ def test_dry_run_writes_nothing_and_calls_no_child(monkeypatch, tmp_path: Path) 
     monkeypatch.setattr(demo, "site_zones", lambda: ZONES)
     monkeypatch.setattr(demo, "delivered_days", lambda code: set())
     monkeypatch.setattr(demo, "py", lambda *a, **k: pytest.fail("a child was started in --dry-run"))
+    for name in ("drain_mini", "drain", "counts", "tick"):
+        monkeypatch.setattr(demo, name, lambda *a, _n=name, **k: pytest.fail(f"{_n} was called in --dry-run"))
     out = demo.add_dates("all", dry_run=True)
     assert out["plan"]["order"] and sorted(p.name for p in tmp_path.iterdir()) == before
+
+
+# ---- R5.2: settle each date before it is called checked ----------------------------------------------------------------
+
+ZERO = {"KOBO-001": {f: 0 for f in ("dirty", "snapshots_pending", "threads_pending", "mini_deferred",
+                                    "opportunity_live")}}
+QUEUED = {"KOBO-001": {**ZERO["KOBO-001"], "mini_deferred": 24}}
+DONE_RECORD = {"ticks": 2, "log": []}
+
+
+def _loop(monkeypatch, tmp_path: Path, dates: dict, *, counts=ZERO, record=DONE_RECORD, duplicate=False, drain=None):
+    """`add_dates` with every child replaced by a recorder; `dates` maps a date to the sites it holds."""
+    story, _ = build()
+    demo = _demo()
+    demo.work = tmp_path
+    (tmp_path / "days.json").write_text(json.dumps({"days": []}), encoding="utf-8")
+    calls: list = []
+    sites = [s for s in ("kobo", "kisiwa") if any(s in v for v in dates.values())]
+    monkeypatch.setattr(dc, "select_sites", lambda arg, st: sites)
+    monkeypatch.setattr(dc, "plan_add_dates", lambda *a, **k: {
+        "order": list(dates),
+        "sites": {s: {"dates": [d for d, v in dates.items() if s in v], "kind": None, "skipped": [], "no_session": [],
+                      "left_empty": {}} for s in sites}})
+    monkeypatch.setattr(dc, "preflight_refusal", lambda *a: None)
+    monkeypatch.setattr(demo, "story", lambda: story)
+    monkeypatch.setattr(demo, "db_now", lambda: LATER)
+    monkeypatch.setattr(demo, "site_zones", lambda: ZONES)
+    monkeypatch.setattr(demo, "delivered_days", lambda code: set())
+
+    def core(st, site_code, kind, day=None):
+        calls.append(("core", site_code))
+        if duplicate:
+            raise sd.StoryDaysError("DUPLICATE_DAY", "x")
+        return {"kind": "normal"}
+
+    def child(verb, *args, **kw):
+        calls.append(("child", verb))
+        if verb == "preflight":
+            return 0, {"preflight": {}}, ""
+        if verb == "add-day":
+            return 0, {"added": {"kind": "normal", "actions": [], "records": []}}, ""
+        entry = {"window": {"revision": 1, "state": "WITHIN_MARGIN"}}
+        return 0, {"verified": {"state": "DONE", "line": "x", "entry": entry}}, ""
+
+    def do_drain(name="drain"):
+        calls.append(("drain", name))
+        if drain is not None:
+            raise drain
+        return record
+
+    monkeypatch.setattr(demo, "_add_core_day", core)
+    monkeypatch.setattr(demo, "kisiwa_child", child)
+    monkeypatch.setattr(demo, "tick", lambda *a, **k: calls.append(("tick",)) or {"outcome": "COMPLETED", "sites": []})
+    monkeypatch.setattr(demo, "drain_mini", lambda *a, **k: calls.append(("drain_mini",)))
+    monkeypatch.setattr(demo, "drain", do_drain)
+    monkeypatch.setattr(demo, "counts", lambda: counts)
+    monkeypatch.setattr(demo, "finish_check", lambda: calls.append(("finish_check",)) or "PASS")
+    return demo, calls
+
+
+D1, D2 = D("2026-11-07"), D("2026-11-08")
+
+
+def test_kobo_only_date_settles_before_it_is_checked(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
+    out = demo.add_dates("all")
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("drain_mini",), ("drain", "settle-2026-11-07"),
+                     ("finish_check",)]
+    assert out["added"][0]["checked"] == "settled (2 ticks)" and out["added"][0]["tick_failures"] == []
+
+
+def test_a_kisiwa_date_verifies_then_drains(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo", "kisiwa"]})
+    out = demo.add_dates("all")
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("child", "add-day"), ("drain_mini",), ("tick",),
+                     ("child", "verify-day"), ("drain", "settle-2026-11-07"), ("finish_check",)]
+    by_site = {a["site"]: a for a in out["added"]}
+    assert by_site["KOBO-001"]["checked"] == "settled (2 ticks)"
+    assert by_site["KISIWA-001"]["checked"] == "WITHIN_MARGIN (revision 1)"
+
+
+def test_date_major_order_is_kept_with_a_drain_between_dates(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo", "kisiwa"], D2: ["kobo", "kisiwa"]})
+    demo.add_dates("all")
+    first_drain = calls.index(("drain", "settle-2026-11-07"))
+    second_child = calls.index(("child", "add-day"), calls.index(("child", "add-day")) + 1)
+    assert first_drain < second_child
+    assert calls.count(("drain", "settle-2026-11-08")) == 1
+
+
+def test_a_failed_drain_stops_the_command(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo", "kisiwa"], D2: ["kobo", "kisiwa"]},
+                        drain=SystemExit("DRAIN FAILED: settle-2026-11-07: past 2N"))
+    with pytest.raises(SystemExit) as stopped:
+        demo.add_dates("all")
+    text = str(stopped.value)
+    assert text.startswith("KOBO-001, KISIWA-001 2026-11-07: the added data did not finish processing; DRAIN FAILED")
+    assert text.endswith("prepare a fresh build before a demo.")
+    assert calls.count(("child", "add-day")) == 1 and ("finish_check",) not in calls
+    assert not (tmp_path / ".busy").exists()
+
+
+def test_no_check_still_settles(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
+    demo.add_dates("all", no_check=True)
+    assert ("drain_mini",) in calls and ("drain", "settle-2026-11-07") in calls and ("finish_check",) not in calls
+
+
+def test_nothing_added_and_nothing_pending_does_not_settle(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]}, duplicate=True)
+    demo.add_dates("all")
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("finish_check",)]
+
+
+def test_work_left_by_an_earlier_run_is_settled_at_the_end(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]}, duplicate=True, counts=QUEUED)
+    demo.add_dates("all")
+    assert calls == [("child", "preflight"), ("core", "KOBO-001"), ("drain_mini",), ("drain", "settle-close"),
+                     ("finish_check",)]
+
+
+def test_tick_failures_are_carried_and_do_not_stop_the_command(monkeypatch, tmp_path: Path, capsys) -> None:
+    failure = {"site": "KOBO-001", "stage": "mini"}
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]},
+                        record={"ticks": 2, "log": [{"tick": 1, "tick_failure": failure}, {"tick": 2}]})
+    out = demo.add_dates("all")
+    assert out["added"][0]["tick_failures"] == [failure] and ("finish_check",) in calls
+    assert "(a background step reported a failure; see logs)" in capsys.readouterr().out
 
 
 def test_busy_refuses_before_anything(monkeypatch, tmp_path: Path) -> None:
