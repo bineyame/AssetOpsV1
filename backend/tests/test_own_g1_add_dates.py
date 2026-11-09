@@ -405,6 +405,16 @@ def _loop(monkeypatch, tmp_path: Path, dates: dict, *, counts=ZERO, record=DONE_
 D1, D2 = D("2026-11-07"), D("2026-11-08")
 
 
+def test_wk6_selects_the_study_by_its_last_day_not_the_newest() -> None:
+    found = [{"id": "a", "last_day": "2026-11-06"}, {"id": "b", "last_day": "2026-11-07"},
+             {"id": "c", "last_day": "2026-11-08"}]
+    assert rows.study_ending(found, "2026-11-07")["id"] == "b"  # max() would return "c"
+    with pytest.raises(AssertionError):
+        rows.study_ending([found[0], found[2]], "2026-11-07")
+    with pytest.raises(AssertionError):
+        rows.study_ending([found[1], {"id": "d", "last_day": "2026-11-07"}], "2026-11-07")
+
+
 def test_kobo_only_date_settles_before_it_is_checked(monkeypatch, tmp_path: Path) -> None:
     demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
     out = demo.add_dates("all")

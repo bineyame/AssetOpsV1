@@ -641,7 +641,8 @@ def wk6(ctx: Ctx) -> dict:
     (`mini.renewable_href`); the opportunity list is read over exactly those bounds (Site-local midnights, never UTC
     midnights, or the list refuses INVALID_WINDOW). The Tariff line is the page's own `tariffDeclared` text, built
     from the served price fields, so the check asserts those served fields (a PRICED series with a positive value and
-    a currency); the wording itself is pinned by vitest and the capture."""
+    a currency); the wording itself is pinned by vitest and the capture.
+    R6.2: the study is selected by its last day; later studies from added days are other days' studies."""
     from urllib.parse import parse_qs, urlparse
 
     board = _kobo_board_s1(ctx)
@@ -654,8 +655,7 @@ def wk6(ctx: Ctx) -> dict:
     listing = ctx.get(f"/api/sites/{KOBO}/opportunities", **{"from": iso(lo), "to": iso(hi), "limit": 100})
     found = [r["opportunity"] for r in listing["rows"] if r.get("opportunity")]
     assert found, ("no Kobo opportunity for the study ending S+1", iso(lo), iso(hi))
-    opp = max(found, key=lambda o: o["last_day"])
-    assert opp["last_day"] == ctx.day(1).date().isoformat(), (opp["last_day"], ctx.day(1).date().isoformat())
+    opp = demo_rows.study_ending(found, ctx.day(1).date().isoformat())  # R6.2: the study is selected by its last day
     assert opp["scenario_id"] is None, opp["scenario_id"]  # a linked what-if reads "Unavailable in this read"
     # Addendum 8: the page prices the study at the start of its latest noon window (the S+1 opportunity body's last
     # pinned day, Site-local 12:00; Kobo is Africa/Nairobi, no DST, so that is the study's end minus 12 hours). The

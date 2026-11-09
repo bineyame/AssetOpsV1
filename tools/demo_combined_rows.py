@@ -1349,6 +1349,13 @@ def last_json_object(stdout: str) -> dict | None:
     return None
 
 
+def study_ending(found: list[dict], last_day: str) -> dict:
+    """WK-6 (OWN-GAPS R6.2): the one opportunity whose study ends on `last_day`; later rolling studies are ignored."""
+    hits = [o for o in found if o.get("last_day") == last_day]
+    assert len(hits) == 1, ("expected exactly one study ending", last_day, sorted(o.get("last_day") for o in found))
+    return hits[0]
+
+
 def fuel_night_entry(report: dict | None, site: str = KIS_SITE) -> dict | None:
     """The `fuel_night` stage entry for `site` in a tick report, or None when the tick did not visit it (absent,
     `SKIPPED_CLAIMED`, or retry back-off all leave no stage entry)."""
