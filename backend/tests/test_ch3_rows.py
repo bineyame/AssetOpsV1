@@ -304,8 +304,10 @@ def test_attach_threads_reads_actions_in_every_cutoff_group():
     a_rows = [{"action_id": "A1"}]
     req = type("R", (), {"to": k, "known_at": None})()
     portfolio.attach_threads(snap, "t", f_rows, a_rows, req, k, {"MG": None, "COLD": cold_k})
-    assert all(aids == ("A1",) for _, aids, _ in calls) and len(calls) == 2
-    assert a_rows[0]["_segment_no"] == 2 and a_rows[0]["_segment_at"] == {k: 2, cold_k: 1}
+    # D-E4.2 (CH6b2-R2): the cold Site's evidence cutoff no longer bounds the lifecycle; one group at k.
+    assert calls == [(("FM", "FC"), ("A1",), k)]
+    assert a_rows[0]["_segment_no"] == 2 and a_rows[0]["_segment_at"] == {k: 2}
+    assert all(r["_thread_cutoff"] == k for r in f_rows)
 
 
 # CH-5a2 B4: the structured ThreadLine; its text is the CH-3 literal thread_line renders.

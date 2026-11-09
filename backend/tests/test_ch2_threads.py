@@ -253,7 +253,7 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
     assert seen["known_at"] == k
     attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req())  # no resolved cutoff given: the request's (None)
     assert seen["known_at"] is None
-    row_k = datetime(2026, 10, 31, 9, tzinfo=timezone.utc)  # a cold/EV row reads at its Site's evidence cutoff
+    row_k = datetime(2026, 10, 31, 9, tzinfo=timezone.utc)  # a cold/EV Site's evidence cutoff
     calls = []
 
     class Snap2:
@@ -261,11 +261,10 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
             calls.append((sorted(fids), sorted(aids), kw["known_at"]))
             return {"findings": {}, "actions": {}}
 
-    # CH-5a2 B3 (R7): the Site -> cutoff map gives f1's Site its cutoff; f2's Site has none.
+    # D-E4.2 (CH6b2-R2): the evidence cutoff bounds evidence only; every row's lifecycle is read at k, as one group.
     attach_threads(Snap2(), T, [{"finding_id": "f1", "site_code": "COLD"}, {"finding_id": "f2", "site_code": "MG"}],
                    [{"action_id": "a1"}], Req(), k, {"COLD": row_k, "MG": None})
-    # fix round 2: the Actions are read in every cutoff group, so their segments match the row's cutoff
-    assert sorted(calls, key=lambda c: c[0]) == [(["f1"], ["a1"], row_k), (["f2"], ["a1"], k)]
+    assert calls == [(["f1", "f2"], ["a1"], k)]
 
 
 def test_board_lists_a_domain_action_in_hand_by_thread():
