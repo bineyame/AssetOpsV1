@@ -41,6 +41,27 @@ def test_gap_line_counts_the_gap_days_by_day_grade() -> None:
         "1 of the last 31 days has no checked readings yet")
 
 
+def test_gap_line_separates_no_readings_from_only_partly_checked() -> None:
+    """D-E4.6: a gap day with some counted measure (COMPLETE/PARTIAL/LOW) is "only partly checked"."""
+    def f(gaps, grades):
+        return DayFacts(DAYS, grades, True, "LIMITED", tuple(gaps))
+
+    partial = {"critical_served": {"s": "COMPLETE"}, "generator_runtime": {"gen": "NO_DATA"}}
+    nodata = {"critical_served": {"s": "NO_DATA"}}
+    only = finding_gap_line(f(DAYS[:28], {d: partial for d in DAYS[:28]}), 31)
+    assert only["text"] == "28 of the last 31 days are only partly checked"
+    assert only["days"] == REQUESTED[:28]
+    one = finding_gap_line(f([DAYS[0]], {DAYS[0]: partial}), 31)
+    assert one["text"] == "1 of the last 31 days is only partly checked"
+    both = finding_gap_line(f(DAYS[:3], {DAYS[0]: nodata, DAYS[1]: partial, DAYS[2]: partial}), 31)
+    assert both["text"] == ("1 of the last 31 days has no checked readings yet"
+                            " · 2 of the last 31 days are only partly checked")
+    for g in ("PARTIAL", "LOW"):
+        assert "only partly checked" in finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": g}}}), 31)["text"]
+    # a day with no grades at all (missing rows) is still "no checked readings"
+    assert finding_gap_line(f([DAYS[0]], {}), 31)["text"] == "1 of the last 31 days has no checked readings yet"
+
+
 def test_index_settledness_is_gone() -> None:
     assert not hasattr(mini, "index_settled")  # R8: `ChainRequest.findings_settled`
 
@@ -48,7 +69,8 @@ def test_index_settledness_is_gone() -> None:
 def test_gap_line_copy_passes_the_vocabulary_scan() -> None:
     from test_out_b2_vocabulary import _patterns
 
-    texts = [GAPS_NO_READINGS.format(g=23, n=31, verb="have"), GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is")]
+    texts = [GAPS_NO_READINGS.format(g=23, n=31, verb="have"), GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"),
+             mini.GAPS_PARTLY_CHECKED.format(p=28, n=31, verb="are")]
     hits = [(t, name) for t in texts for name, p in _patterns() if p.search(t)]
     assert hits == []
     assert any(p.search("23 of 31 STALE_PROJECTION days") for _, p in _patterns())  # the scan can fail

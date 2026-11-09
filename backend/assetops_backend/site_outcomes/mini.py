@@ -131,6 +131,8 @@ SOURCE_UNRESOLVED = "Source not resolved"
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
 GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
+GAPS_PARTLY_CHECKED = "{p} of the last {n} days {verb} only partly checked"
+_COUNTED_GRADES = frozenset({"COMPLETE", "PARTIAL", "LOW"})
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
@@ -208,6 +210,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
+        GAPS_PARTLY_CHECKED.format(p=1, n=31, verb="is"), GAPS_PARTLY_CHECKED.format(p=28, n=31, verb="are"),
         *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
         SALES_NO_USERS, SALES_NONE_DECLARED, GROW_NONE_HEADLINE, GAPS_NONE_DECLARED,
         SALES_NO_READINGS.format(names="Grain mill"),
@@ -374,7 +377,17 @@ def finding_gap_line(day_facts: Any, requested: int) -> dict[str, Any] | None:
     pending = any("PENDING" in subjects.values() for d in day_facts.gaps
                   for subjects in (day_facts.grades.get(d) or {}).values())
     if not pending:
-        text = GAPS_NO_READINGS.format(g=g, n=requested, verb="has" if g == 1 else "have")
+        # D-E4.6: a day with some counted measure is only partly checked, not a day without readings.
+        part = sum(1 for d in day_facts.gaps
+                   if any(gr in _COUNTED_GRADES for subjects in (day_facts.grades.get(d) or {}).values()
+                          for gr in subjects.values()))
+        none = g - part
+        tiers = []
+        if none:
+            tiers.append(GAPS_NO_READINGS.format(g=none, n=requested, verb="has" if none == 1 else "have"))
+        if part:
+            tiers.append(GAPS_PARTLY_CHECKED.format(p=part, n=requested, verb="is" if part == 1 else "are"))
+        text = " · ".join(tiers)
     else:
         text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
     if note:
