@@ -114,5 +114,6 @@ def test_portfolio_cold_row_visibility_follows_the_envelope_not_the_story_cutoff
     snap, row = Snap(), {"finding_id": "f1", "site_code": "COLD"}
     attach_threads(snap, "t", [row], [], Req(), envelope_k, {"COLD": STORY_CUTOFF})  # CH-5a2 B3: per-Site map
     (kw,) = snap.calls
-    assert kw["known_at"] == STORY_CUTOFF and kw["visible_at"] == envelope_k
+    # D-E4.2 (CH6b2-R2): the lifecycle is read at the request cutoff, not the story (evidence) cutoff.
+    assert kw["known_at"] == envelope_k and kw["visible_at"] == envelope_k
     assert (row["_thread"] is not None) is shown

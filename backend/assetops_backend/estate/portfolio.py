@@ -18,6 +18,7 @@ from typing import Any, Callable, Iterable, Mapping
 from assetops_backend import perf, read_scope
 from assetops_backend.chain import refs
 from assetops_backend.chain.lookup import public_thread
+from assetops_backend.chain.read import lifecycle_cutoff
 from assetops_backend.chain.claims import CLAIM_KEYS
 from assetops_backend.chain.threads import OPEN_CLASS, VERIFIED_CLASS, classify
 from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, count_basis, evidence_gap_text)
@@ -136,39 +137,37 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
     """CH-2 (build sheet §5.1): each Finding row's thread (`_thread`: id, occurrence number, occurrence count) and
     each Action row's thread (`_thread_id`), from one snapshot query. A snapshot without the thread port, or a row
     with no thread, carries None, and `_action_for` then matches no Action (CH-5a2 B3: no exact-revision join).
-    `cutoffs` is the Site code -> cutoff map (`select_finding_scope(cutoffs=)`, CH-5a2 B3/R7)."""
+    `cutoffs` is the Site code -> evidence cutoff map (`select_finding_scope(cutoffs=)`, CH-5a2 B3/R7); it is kept
+    for its callers but no longer bounds the lifecycle (D-E4.2)."""
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
     segments_at: dict[Any, dict[str, int]] = {}  # cutoff -> {action_id: segment at that cutoff}
+    default = known_at if known_at is not None else (None if req is None else req.known_at)
     if port is not None and (f_rows or a_rows):
         # CH-3 §5, CH3-R (AG-27, COH-13): the thread state on each Site's local day holding the window's last
-        # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV Site's
-        # evidence cutoff (`cutoffs[site_code]`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
-        # coalesce(cause_known_at, recorded_at) <= k); a request's own cutoff, when given, is that envelope value.
-        # Review side-question 1: the Action segments are read per cutoff group too, so a row's Finding segment and
-        # the Action segment it is compared with (`same_segment`) come from the same cutoff.
-        default = known_at if known_at is not None else (None if req is None else req.known_at)
-        by_cutoff: dict[Any, list[Any]] = {default: []}
+        # instant (as the board reads it). CH6b2-R2 (`chain.read.lifecycle_cutoff`), D-E4.2: every row's lifecycle
+        # (thread state and Action segments) is read at the request cutoff `k`, the envelope's resolved
+        # `window.known_at` (`known_at`, D-b rule coalesce(cause_known_at, recorded_at) <= k), as one group. A
+        # cold/EV Site's evidence cutoff (`cutoffs[site_code]`) bounds evidence only, never the lifecycle: an action
+        # agreed after the Site's last reading is still agreed. Review side-question 1: `_thread_cutoff` is that same
+        # value, so a row's Finding segment and the Action segment it is compared with come from one cutoff.
+        cutoff = lifecycle_cutoff(default)
         for r in f_rows:
-            r["_thread_cutoff"] = (cutoffs or {}).get(r.get("site_code")) or default
-            by_cutoff.setdefault(r["_thread_cutoff"], []).append(r["finding_id"])
-        for cutoff, fids in by_cutoff.items():
-            if not fids and not (cutoff == default and a_rows):
-                continue
-            # CH5a1-R2 R-1: `cutoff` (story time for a cold/EV row) bounds the state only; occurrence visibility is
-            # bounded by the envelope's transaction-time `default` alone (never by a story-time cutoff).
-            kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff,
-                                         "visible_at": default}
-            part = port(tenant_id, fids, [a["action_id"] for a in a_rows], **kw)
-            for key in ("findings", "actions"):
-                found.setdefault(key, {}).update(part.get(key) or {})
-            segments_at[cutoff] = part.get("action_segments") or {}
+            r["_thread_cutoff"] = cutoff
+        fids = [r["finding_id"] for r in f_rows]
+        # CH5a1-R2 R-1: occurrence visibility is bounded by the envelope's transaction-time `default` alone.
+        kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff,
+                                     "visible_at": default}
+        part = port(tenant_id, fids, [a["action_id"] for a in a_rows], **kw)
+        for key in ("findings", "actions"):
+            found.setdefault(key, {}).update(part.get(key) or {})
+        segments_at[cutoff] = part.get("action_segments") or {}
     for r in f_rows:
         r["_thread"] = found["findings"].get(str(r["finding_id"]).lower())
     for a in a_rows:
         aid = str(a["action_id"]).lower()
         a["_thread_id"] = found["actions"].get(aid)
-        a["_segment_no"] = (segments_at.get(default) or {}).get(aid)
+        a["_segment_no"] = (segments_at.get(lifecycle_cutoff(default)) or {}).get(aid)
         a["_segment_at"] = {c: seg[aid] for c, seg in segments_at.items() if aid in seg}
 
 
