@@ -357,6 +357,20 @@ def _api_query(text: str, *extra: tuple[str, str]) -> str:
     return urlencode(parse_qsl(text, keep_blank_values=True) + list(extra))
 
 
+def _mini_board_day(to: str | None) -> str | None:
+    """`frontend/src/sites/EarlyWarnings.tsx` `miniBoardDay`: the UTC day of `to`, the day before when `to` is a UTC
+    midnight (an exclusive end); None without a readable `to`."""
+    if not to:
+        return None
+    try:
+        end = at(to).astimezone(timezone.utc)
+    except ValueError:
+        return None
+    if (end.hour, end.minute, end.second, end.microsecond) == (0, 0, 0, 0):
+        end -= timedelta(days=1)
+    return end.date().isoformat()
+
+
 def _as_date(value: Any) -> Any:
     return date.fromisoformat(value) if isinstance(value, str) else value
 
@@ -395,6 +409,21 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
             day = params.get("date") or params.get("from", "")[:10]
             add(f"board.day:{code_site.get(segs[1], segs[1])}:{day}", f"/api/sites/{segs[1]}/outcome-board",
                 _api_query(parts.query))
+        elif len(segs) == 3 and segs[0] == "sites" and segs[2] == "findings":
+            # C2 review M1: a Site Findings page's warnings panel reads the Site board
+            # (`frontend/src/shell/SiteAnalyticsFrames.tsx` `SiteEarlyWarnings`): a MINIGRID Site (Kobo, Kisiwa) by
+            # `date=miniBoardDay(to)`; Cold and EV by the link's own `from`/`to`/`known_at` (`coldWindowFromParams`).
+            site = code_site.get(segs[1], segs[1])
+            params = dict(parse_qsl(parts.query))
+            if site in DATE_BOARD_SITES:
+                day = _mini_board_day(params.get("to"))
+                if day is not None:
+                    add(f"board.day:{site}:{day}", f"/api/sites/{segs[1]}/outcome-board", _api_query(f"date={day}"))
+            else:
+                window = [(k, params[k]) for k in ("from", "to", "known_at") if params.get(k)]
+                if window:
+                    add(f"board.day:{site}:{params.get('from', '')[:10]}", f"/api/sites/{segs[1]}/outcome-board",
+                        _api_query("", *window))
     windows = {"S": (S, S + timedelta(days=1)), "month": (S - timedelta(days=28), S + timedelta(days=3))}
     for name, (lo, hi) in windows.items():
         q = _api_query(f"from={iso(lo)}&to={iso(hi)}")
@@ -697,7 +726,9 @@ class Demo:
         last = sites_last_day(story, days, kis.read_days(self.work))
         doc = prebuilt_routes_doc(prebuilt_routes(story, days, kisiwa, last), story["S_date"])
         path = self.work / PREBUILT_ROUTES_FILE
-        path.write_text(json.dumps(doc, indent=1), encoding="utf-8")
+        temp = path.with_name(PREBUILT_ROUTES_FILE + ".tmp")  # C2 review L3: a reader never sees a half-written file
+        temp.write_text(json.dumps(doc, indent=1), encoding="utf-8")
+        os.replace(temp, path)
         return path
 
     def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "",

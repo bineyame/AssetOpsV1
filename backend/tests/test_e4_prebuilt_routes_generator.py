@@ -84,6 +84,7 @@ def test_no_date_falls_outside_the_story_calendar_or_the_added_dates() -> None:
     requests = _routes(last)
     story = {(d["site"], d["day"]) for d in DAYS} | {("kobo", "2026-11-07")}
     story |= {("kisiwa", (S - timedelta(days=5)).isoformat()), ("kisiwa", S.isoformat())}
+    story |= {("kisiwa", (S + timedelta(days=1)).isoformat())}  # the Findings S-9d..S+1d link's warnings board
     added = {(site, (S + timedelta(days=n)).isoformat()) for site, hi in last.items() if hi
              for n in range(1, (hi - S).days + 1)}
     got = _board_dates(requests)
@@ -98,6 +99,34 @@ def test_no_date_falls_outside_the_story_calendar_or_the_added_dates() -> None:
             "from=2026-11-09T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z") in q
     assert len({(r["path"], r["query"]) for r in requests}) == len(requests)
     assert len({r["id"] for r in requests}) == len(requests)
+
+
+def test_a_site_findings_link_warms_the_board_its_warnings_panel_reads() -> None:
+    """C2 review M1: the "KISIWA-001 Findings, story nights S-9d to S+1d" link (`to` = S+2d, a UTC midnight) opens a
+    page whose warnings panel reads `/api/sites/KISIWA-001/outcome-board?date=miniBoardDay(to)` = S+1, even with no
+    added Kisiwa night (`SiteAnalyticsFrames.tsx` `SiteEarlyWarnings`, `EarlyWarnings.tsx` `miniBoardDay`)."""
+    q = {(r["path"], r["query"]) for r in _routes(last={})}
+    assert ("/api/sites/KISIWA-001/outcome-board", "date=2026-11-08") in q
+    assert tool._mini_board_day("2026-11-09T00:00:00Z") == "2026-11-08"
+    assert tool._mini_board_day("2026-11-09T10:00:00Z") == "2026-11-09"
+    assert tool._mini_board_day(None) is None
+
+
+def test_a_cold_site_findings_link_warms_its_own_window(monkeypatch) -> None:
+    """Cold and EV Findings pages read the board on the link's own window (`coldWindowFromParams`)."""
+    monkeypatch.setattr(tool, "story_links", lambda *a, **k: [
+        ("Cold findings", "http://localhost:0/sites/COLD-LAB-001/findings?from=2026-11-01T00:00:00Z"
+                          "&to=2026-11-08T00:00:00Z")])
+    requests = tool.prebuilt_routes({**STORY, "sites": ["cold"]}, [], None, {})
+    assert ("/api/sites/COLD-LAB-001/outcome-board",
+            "from=2026-11-01T00%3A00%3A00Z&to=2026-11-08T00%3A00%3A00Z") in {(r["path"], r["query"]) for r in requests}
+
+
+def test_the_file_is_replaced_atomically(tmp_path) -> None:
+    """C2 review L3: written to a temp file in the same folder, then `os.replace`d; no temp file is left."""
+    demo = _demo(tmp_path)
+    demo.write_prebuilt_routes()
+    assert sorted(p.name for p in tmp_path.iterdir() if "prebuilt" in p.name) == [tool.PREBUILT_ROUTES_FILE]
 
 
 def test_sites_last_day_reads_the_calendar_and_the_added_nights() -> None:

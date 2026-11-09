@@ -1,6 +1,7 @@
 """CH-5c Q8 (CH5c-R5 R5-1(d)): the pre-build of the stored routes after the tick's Site loop.
 
-Each request of `config/chain/prebuilt-routes-v1.json` (page 1 only, Q11) is sent through the application's own
+Each request of the pre-built route list (page 1 only, Q11; E4 D-E4.1: the file named by `ASSETOPS_PREBUILT_ROUTES`
+when set, else `config/chain/prebuilt-routes-v1.json`) is sent through the application's own
 route code (an in-process ASGI client over `create_app`), so a pre-built body is exactly a request's body: the
 same admission, watermark, compose and before/after store rule. A request whose watermark has not moved is a
 store hit and composes nothing (about 50 ms), so the pre-build runs every tick (CH5c-R7 C5): it builds
