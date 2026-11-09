@@ -2984,3 +2984,106 @@ a night that has not ended.
   PF1-PF4.
 - **D-E4.5** A fresh prepare after the fixes; no tree swap.
 - **D-E4.6** The gap line separates "no checked readings" from "only partly checked".
+
+## E4 L2 ruling (2026-11-09)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`), under the owner's delegation of 2026-11-08. Input: C2 review
+L2 (`AssetOpsV1-c2/.agent/C2-review.md`), the E4 serve logs (`AssetOpsV1-e3/var/polish_client2/logs/39..111-*`), code on
+main 0c8f7f668 and C2 7c71854c7, and read-only SQL on `assetops_polish_client2_test` (`chain_input_change`,
+`chain_response`). **READ** = code cited; **DB** = queried; **LOG** = serve logs.
+
+### D-E4.8 The per-tick rebuild is a defect: the serve loop moves `F` with no new data
+
+**Root cause.**
+- **No data arrived (LOG + DB).** Every serve tick from 92 onward reports `processed: 0` at every stage of every Site
+  (s4 `SKIPPED_UNCHANGED_FENCE`; Kisiwa `fuel_night` re-reads 7 nights and writes nothing). The last
+  `chain_input_change` row is 17:17:56Z; the ticks at 17:30-18:16Z wrote none. The serve loop ingests no simulator
+  readings: data arrives only through `add-dates` and drains.
+- **The DB watermark is stable; only `F` moves (DB).** In `chain_response`, successive rows for one request key carry
+  the same `cic:` count (estate `cic:1130129`, Kobo `cic:675643`) and a different `|f:` term on each tick. The Sites
+  whose `F` is stable (Cold, EV) are the 8-9 hits.
+- **What moves `F` (READ).** `tools/demo_combined.Demo.tick` ends with `performance_and_prebuild` (`:842-867`), which
+  reruns `performance_migration run` for KOBO-001 and KISIWA-001 on **every** tick. Each run writes a new timestamped
+  report under `{evidence}/migration-performance/{site_key}/` (LOG: `97-performance.log`, `98-performance.log`). That
+  directory is a declared `F` root (`config/chain/file-inputs-v1.json`, hashed by size and `mtime_ns` in
+  `chain/adapters/file_inputs.file_state`). So every estate request (`F` over all Sites: 7 routes plus 3 scope-ids) and
+  every Kobo and Kisiwa board misses. That is the 14-15 stored. The tool's own docstring says so: "a new report moves
+  `F`".
+- **The correction to D-E4.4(c).** The 134-149 s ticks were recorded there as data-arrival ticks. They were not: they
+  were no-data ticks. Under PF3 as written they are a stop (`stored` above 0 on a no-data tick), which is what PF3 was
+  for. The store and watermark rules are right; the tool feeds them a false change.
+- **Real-site sense.** A comparison that re-reads unchanged evidence has nothing new to say. On a real Site the
+  Performance gate is rerun when the evidence it compares has changed, not on a timer. Rerunning it on a timer turns a
+  quiet store into a full rebuild every two minutes, and a presenter's click during that rebuild lands on a cold compose
+  or a race.
+
+**Fix card E4-C4: Performance comparison only on change.** Branch `task/E4-C4-performance-on-change`, cut from the C2
+head (it edits the same file); merges after C2. Sonnet builder, about 0.25 unit. Tool only; no product code changes.
+1. In `tools/demo_combined.py` `performance_and_prebuild`, run `performance_migration run` for a Site only when
+   `performance_due(site, mark, marks, report_dir)` is true. This is a new pure function. It returns true when any of
+   these holds:
+   - the Site has no report file under its `migration-performance/{site_key}` directory;
+   - `<work>/performance-marks.json` has no mark for the Site;
+   - the recorded mark differs from `mark`.
+2. `mark` is the Site's DB watermark, read **before** the run with the same predicate as
+   `chain/adapters/postgres_response_store.read_watermark` for that one Site: the tenant's rows for the Site plus the
+   tenant-wide NULL rows. Use one short read-only connection to the build's DB. Record `mark` after a run that exits
+   0. Reading it before the run is the safe direction: a write during the run forces a rerun next time. Write the marks
+   file atomically, as C2 does for the routes file.
+3. Print one line per Site: `performance: skipped (no change since mark N)` or the run's last line, as now.
+4. The prebuild still runs every tick, as now. With `F` quiet, it is a store hit for every request.
+5. Tests (new `backend/tests/test_e4_performance_on_change.py`, no DB):
+   - `performance_due` is true with no report, true with no mark, true on a changed mark, and false on an equal mark
+     with a report present;
+   - with a fake `py` and a fake mark reader, two `tick()` calls on an unchanged mark run `performance` once and
+     `prebuild` twice;
+   - a changed mark between the two calls runs `performance` twice;
+   - a failed run (non-zero exit) records no mark.
+   - Run `test_demo_combined_finish_rows.py` and the C2 tests. Any changed assertion is listed in the packet.
+6. **BL-65 (post-demo).** Have `performance_migration` write a new report only when the comparison differs from the
+   newest report. The product would then be quiet on its own, whoever schedules the comparison.
+
+### D-E4.9 PF3, measured honestly
+
+- **A no-data tick** is a serve tick for which (i) every Site's DB mark is equal before the tick and after its prebuild,
+  and (ii) no `add-dates`, drain or other writer ran in that span. The E4 run records the four marks with read-only SQL
+  around at least **three consecutive** serve ticks, and those ticks are PF3's sample.
+- **On a no-data tick** the prebuild must show `stored: 0`, `race: 0`, and every request a `hit`. Its `prebuild_ms`
+  must be 120,000 or less, the EX-3 rule. The expected figure is under 15 s (45 hits at about 50 ms, plus the child's
+  start). `stored` above 0 is still a **stop**: with C4 in place it means something other than data moved a watermark.
+- **A data-arrival tick** is the first prebuild after `add-dates` or a drain. It rebuilds the estate requests and the
+  changed Sites' boards. That is legitimate: the store's watermark is Site-wide by design (W2/W4), so late data
+  re-checks history.
+  - The prebuild that follows `add-dates` (and each post-drain prebuild in `prepare`) is recorded, not budgeted. The
+    gate is PF1 after it.
+  - Any **other** data-arrival tick over 240 s (one full tick: it would overrun the next) is a Medium.
+
+### D-E4.10 C2's longer list stands; no scoping down
+
+- C2's 42 requests are `story_links`'s own rows, plus the S and month estate requests and each Site's boards from S+1
+  to its last added date. The script links already **are** the DS-1a dates. The S+1 tail is one or two days per Site.
+  These are the days a real manager opens first, and the step 7 day is among them. Cutting the list would move cold
+  composes of 5-9.5 s onto presented beats, which is the failure D-E4.1 fixed.
+- **Live-demo cost after C4.** A no-data tick is all hits (seconds). The full rebuild of about 5-6 min happens once,
+  after the morning `add-dates`.
+- **Prepare cost.** Each post-drain prebuild grows to about 5-6 min, about 10 min more in total on a run of about
+  2 h 12 m. It is offline on an idle machine, and accepted.
+- **Presenter rule (DS-1a runbook line, added at the DS-1a refresh).** Run `add-dates` at least 10 minutes before
+  presenting. Do not open the first link until a `prebuild:` line after it shows `stored: 0` (the store is quiet). A
+  click before that point is still correct, only slower.
+- Pages outside the list compose on demand and are measured by PF4, as ruled.
+
+### D-E4.11 Order (amends D-E4.7)
+
+1. C4 is built and reviewed (fresh Claude review; only High or Medium findings block). It merges after C2 and before
+   the fresh prepare.
+2. The re-prepare (D-E4.5) waits for C1, C2 and C4.
+3. The E4 rerun measures PF3 by D-E4.9.
+
+### Decisions logged for owner review
+
+- **D-E4.8** The rebuild on every tick is a tool defect. The serve loop reran the Performance comparison on a timer,
+  and each new report moved the file term. The fix reruns it only when the Site's data changed.
+- **D-E4.9** PF3 is measured on ticks proven quiet by the DB marks. The rebuild after `add-dates` is recorded, not
+  budgeted.
+- **D-E4.10** The full story-derived warm list stays. The presenter waits for one quiet prebuild after `add-dates`.
