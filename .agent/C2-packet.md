@@ -42,6 +42,28 @@ Branch `task/E4-C2-prebuild-follows-calendar` (from main 1f40cca0d). Commits 58f
   revert, 15 tests pass.
 - Not run: the full suite or `prepare` (per brief); `check-architecture.ps1`.
 
+## Fix round (review 1fb4f7915), commit 3cdf78544
+- **M1:** each `/sites/{code}/findings` link now warms the board that its warnings panel reads (`SiteEarlyWarnings`).
+  - MINIGRID Sites (Kobo, Kisiwa) read `date=miniBoardDay(to)`. For the Kisiwa story link that is S+1.
+  - Cold and EV read the link's own `from`/`to`/`known_at`.
+  - New tests cover both cases.
+- **L3:** the file is written to `prebuilt-routes.json.tmp`, then `os.replace`d. It has its own test.
+- **L4:** the docstring at `prebuild.py:3` is fixed. L2 is untouched.
+- **Non-vacuity check:** with the findings branch and `os.replace` disabled, 3 tests failed. Both mutations were
+  reverted.
+- **Per-file results, one file at a time (free RAM 2.29-2.46 GB):**
+
+  | File | Result |
+  |---|---|
+  | `test_e4_prebuilt_routes_source` | 5 passed |
+  | `test_e4_prebuilt_routes_generator` | 10 passed |
+  | `test_ch5c_env_parity` | 3 passed |
+  | `test_demo_combined_links` | 11 passed |
+  | `test_ch5c_store_off` | 17 passed |
+  | `test_demo_combined_finish_rows` | 63 passed |
+  | `test_demo_combined_mill` | 15 passed |
+  | `test_own_g1_add_dates` | 45 passed |
+
 ## Deviations / notes
 - `test_demo_combined_finish_rows.py:1208`: its `SimpleNamespace` stub gained `write_prebuilt_routes=lambda: None`.
   This is test-only.
