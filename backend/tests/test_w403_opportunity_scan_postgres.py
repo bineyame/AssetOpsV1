@@ -95,10 +95,15 @@ def test_routine_scan_retention_edge_and_missing_day(store, engine) -> None:  # 
     with PostgresMiniDecisionStore(engine).snapshot() as c:
         heads = projection.day_heads(PostgresMiniDecisionStore(engine), c, t, s, ZONE,
                                      projection.study_days(DAYS[-2]))
-    assert heads[0].local_day == date(2026, 10, 5) and heads[0].mini_revision_id is None
-    assert heads[0].hash_day() == {"local_day": "2026-10-05", "mini_revision_id": None, "input_sha256": None,
-                                   "decision": None, "evidence_ids": []}
-    assert all(h.mini_revision_id for h in heads[1:])
+    # CH-9 u2 (badd2fbb9, mini-opportunity/2): heads are per study HOUR. The unmeasured 5 Oct has no measured daylight
+    # hour, so every one of its operating hours is an explicit missing head (24 consecutive hours from local midnight),
+    # and each of 6-9 Oct holds its one measured daylight hour (noon), selected.
+    missing_day, later = heads[:24], heads[24:]
+    assert [h.window.start for h in missing_day] == [_midnight(date(2026, 10, 5)) + timedelta(hours=i) for i in range(24)]
+    assert all(h.local_day == date(2026, 10, 5) and h.mini_revision_id is None for h in missing_day)
+    assert missing_day[0].hash_day() == {"local_day": "2026-10-05", "mini_revision_id": None, "input_sha256": None,
+                                         "decision": None, "evidence_ids": []}
+    assert [h.local_day for h in later] == DAYS[:-1] and all(h.mini_revision_id for h in later)
     assert len(jobs(engine)) == 2
 
 
@@ -106,7 +111,10 @@ def test_uf6_failed_job_is_retained_until_the_selected_input_changes(store, engi
     """uF 6 (final review L10): repeated routine scans over an unchanged study with a terminal FAILED job queue
     nothing; a new W4-02 selection (late evidence) queues exactly one new job."""
     installed, t, s = _setup(store, engine)
-    _reconcile(engine, DAYS[1:])  # selected before evidence: the 6-10 Oct study has a missing 6 Oct
+    # CH-9 u2 (badd2fbb9, E2 FR-A): a study hour is selected only from measured daylight hours, so the measured hours
+    # are ingested up front (no hour can be selected without them). The late input is then the 6 Oct selection.
+    _ingest(engine, installed)
+    _reconcile(engine, DAYS[1:])  # 7-10 Oct selected, 6 Oct not yet: the 6-10 Oct study has a missing 6 Oct
     w = worker(engine)
     w.jobs.test_clock_override = lambda: local_noon(DAYS[-1], ZONE).start + timedelta(days=5)
     assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "INSERTED")]
@@ -117,8 +125,7 @@ def test_uf6_failed_job_is_retained_until_the_selected_input_changes(store, engi
     for _ in range(3):
         assert w.enqueue_from_selections(t, s) == []
     assert jobs(engine) == before and {j.status for j in before} == {"FAILED"}
-    _ingest(engine, installed)
-    _reconcile(engine, DAYS)
+    _reconcile(engine, DAYS)  # the 6 Oct selection arrives
     assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "INSERTED")]
     assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "COALESCED")]
     assert sorted(j.status for j in jobs(engine)) == ["FAILED", "PENDING"]  # exactly one new job

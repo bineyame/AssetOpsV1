@@ -205,7 +205,9 @@ def test_backfill_places_one_thread_and_both_adapters_agree(store, engine) -> No
     assert item["occurrences"] == 1
     assert item["study"] == {"opportunity_id": oid, "code": f"OPP-{seed['b_no']:06d}", "first_day": "2026-10-06",
                              "last_day": "2026-10-10", "status": "SUPPORTED", "eligible_days": 3,
-                             "assessed_days": 5, "headroom_kw": {"low": "16", "high": "19"}, "window_hours": 1}
+                             "assessed_days": 5, "headroom_kw": {"low": "16", "high": "19"}, "window_hours": 1,
+                             # CH-6b2 (6b4e682f2): the study carries the unit its headroom is stated in.
+                             "headroom_unit": "kW over 1 daylight hour"}
     assert (item["evidence"], item["evidence_label"], item["filter_state"]) == ("SUPPORTED", "Supported", "supported")
     assert item["seen_line"] == "Seen on 3 of 5 well-observed days · 6 Oct–10 Oct"
     # CH-9 §2 (owned copy change): a seeded `/1` study was sized over one hour.

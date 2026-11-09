@@ -291,6 +291,26 @@ def _states(body: dict) -> list[str]:
     return [r["state"] for r in body["rows"]]
 
 
+# D-E2.9: the s602b Kobo board's outcome states (MG-8 removed), the same on 2026-10-06, 2026-11-02 and 2026-10-21.
+S602B_STATES: dict[str, str] = {"MG-1": "NO_OBJECTIVE", "MG-2": "NEEDS_ATTENTION", "MG-3": "NOT_MEASURED",
+                                "MG-4": "NO_OBJECTIVE", "MG-5": "NO_OBJECTIVE", "MG-6": "NOT_MEASURED",
+                                "MG-7": "WATCH"}
+S602B_CHAIN_DAY = {"settled": True, "readiness": "NONE", "gaps": 31}
+
+
+def _reasons(body: dict) -> dict[str, str | None]:
+    return {o["key"]: o["reason"] for r in body["rows"] for o in r["outcomes"]}
+
+
+def _assert_finding_reasons(body: dict) -> None:
+    reasons = _reasons(body)
+    # The ruling (R-1) expected MG-4 WATCH / SECONDARY_FINDING_OPEN; the recorded board has MG-4 NO_OBJECTIVE and the
+    # WATCH on MG-7 from readiness NONE (see the packet, "Stop rulings applied"). Pinned as recorded.
+    assert reasons["MG-2"] == "PRIMARY_FINDING_OPEN", reasons
+    assert reasons["MG-4"] == "NO_OBJECTIVE_DECLARED", reasons
+    assert reasons["MG-7"] == "EVIDENCE_READINESS_NONE", reasons
+
+
 # ------------------------------------------------------------------ Kobo (s602b builders)
 
 def _build_kobo(url: str, work: Path, case: str) -> tuple[dict, list]:
@@ -427,15 +447,16 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
             _record(f"{key}_must_not_harm", _rows(body)["OPTIMIZE_COST"]["must_not_harm"])
         assert _rows(a)["OPTIMIZE_COST"]["must_not_harm"] is None
 
-    # Addendum 6: the s602b overview is STALE_PROJECTION, so the outcomes stay UNKNOWN/NOT_MEASURED. The Day A F01
-    # checks are restored below (IDX-GAPS); Must-not-harm on both days follows LINK-LINEAGE (above); Day A
-    # NEEDS_ATTENTION stays with DEMO-SPARSE CO-1.
-    for body in (a, b):
+    # D-E2.9: since CH-5a1 the states come from the in-window Findings over the chain day, not from the
+    # STALE_PROJECTION overview. s602b stores no counted dispatch evidence, so the same day grades NO_DATA. That
+    # contradiction is BL-63, held by `test_kobo_s602b_no_judgement_on_unchecked_day` (strict xfail).
+    for key, body in (("kobo_guardrail_day_a", a), ("kobo_guardrail_day_b", b)):
         assert [r["category"] for r in body["rows"]] == CATEGORIES, [r["category"] for r in body["rows"]]
         measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
         assert measured.pop("MG-8") == "NOT_APPLICABLE"  # DIESEL-K4b: Kobo stores no fuel-balance window (R3j)
-        assert measured and set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
-        assert "UNKNOWN" in measured.values(), measured
+        assert measured == S602B_STATES, measured
+        _assert_finding_reasons(body)
+        assert LAST_PORTS[key]["chain_day"] == S602B_CHAIN_DAY, LAST_PORTS[key].get("chain_day")
     _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
     if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): import-time artefact
         # R8 (E2): the fixture settles the chain (`_settle_chain`), so the Findings are settled. CH-5a2b R1: the
@@ -474,6 +495,40 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
 
 
+@pytest.mark.xfail(strict=True, reason="BL-63: a Finding-driven state on a day whose moved measure has no counted "
+                                       "evidence")
+def test_kobo_s602b_no_judgement_on_unchecked_day(kobo_guardrail, monkeypatch) -> None:
+    """D-E2.9 / BL-63: on a Site-local day whose latest `avoidable_gen_min` grade is NO_DATA or PENDING (or has no
+    row), no outcome may carry a Finding or objective verdict. Today s602b does; when BL-63 lands this XPASSes (a
+    strict failure) and the mark comes off."""
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.pool import NullPool
+
+    url, work, spec, _ = kobo_guardrail
+    _serve(monkeypatch, url, work)
+    _pin_kobo(monkeypatch, spec)
+    judged = ("PRIMARY_FINDING_", "SECONDARY_FINDING_")
+    verdicts = ("OBJECTIVE_MET", "OBJECTIVE_MISSED", "OBJECTIVE_ON_PACE")
+    with _client() as c:
+        boards = {day: _board(c, "KOBO-001", f"kobo_s602b_unchecked_{day}", date=day)[0]
+                  for day in ("2026-10-06", "2026-11-02")}
+    engine = create_engine(url, poolclass=NullPool)
+    try:
+        for day, body in boards.items():
+            with engine.connect() as connection:
+                grades = [g for (g,) in connection.execute(text(
+                    "SELECT DISTINCT ON (local_day, measure, subject_ref) grade FROM site_day_snapshot s "
+                    "JOIN site t ON t.id = s.site_id WHERE t.site_code = 'KOBO-001' AND s.local_day = :d "
+                    "AND s.measure = 'avoidable_gen_min' "
+                    "ORDER BY local_day, measure, subject_ref, revision DESC"), {"d": day})]
+            if not grades or all(g in ("NO_DATA", "PENDING") for g in grades):
+                bad = {k: r for k, r in _reasons(body).items()
+                       if r and (r.startswith(judged) or r in verdicts)}
+                assert not bad, (day, bad)
+    finally:
+        engine.dispose()
+
+
 def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
     """Addendum 5 #2: the `estate` case puts KOBO in estate scope with Finding rows on 2026-10-21 (F05, an
     UNCONFIRMED GENERATOR_SUPPORT_CANDIDATE, open primary, no Action): the real row keys and B.7 #2's states."""
@@ -489,7 +544,9 @@ def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
     assert [r["category"] for r in body["rows"]] == CATEGORIES
     measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
     assert measured.pop("MG-8") == "NOT_APPLICABLE"  # DIESEL-K4b: Kobo stores no fuel-balance window (R3j)
-    assert set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
+    assert measured == S602B_STATES, measured  # D-E2.9: Finding-driven since CH-5a1; see BL-63
+    _assert_finding_reasons(body)
+    assert LAST_PORTS["kobo_estate_2026_10_21"]["chain_day"] == S602B_CHAIN_DAY, LAST_PORTS["kobo_estate_2026_10_21"]
     _record("kobo_estate_read", {"read_state": body["read_state"], "failed": failed, "outcomes": measured})
 
 

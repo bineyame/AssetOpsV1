@@ -21,7 +21,7 @@ import type {
 } from "../../sites/siteOverviewClient";
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
-import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import { HYBRID_MINI_GRID_SITE, KOBO_LOAD_NAMES, withLoadNames } from "../../sites/__tests__/sldFixtures";
 import {
   MINIGRID_OBJECTIVE,
   OBJECTIVE_NO_LOADS,
@@ -41,18 +41,8 @@ import { settledScreen } from "../../test/settled";
 import { expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
-/** DIESEL-1-R3p R-LOAD: the shared hybrid fixture with a Site's own LOAD names in place of its one
- *  "Distribution load" (the shared fixture is not changed; it serves many other files). */
-function withLoadNames(names: readonly string[]): SiteDetailReadModel {
-  const others = HYBRID_MINI_GRID_SITE.foundation.components.filter((c) => c.component_type !== "LOAD");
-  const template = HYBRID_MINI_GRID_SITE.foundation.components.find((c) => c.component_type === "LOAD")!;
-  const loads = names.map((display_name, i) => ({ ...template, component_id: i === 0 ? template.component_id : `${template.component_id}-${i}`, display_name }));
-  return { ...HYBRID_MINI_GRID_SITE, foundation: { ...HYBRID_MINI_GRID_SITE.foundation, components: [...others, ...loads] } };
-}
-/** Kobo's served Foundation LOAD names (`kobo-mini-grid-60kw.yaml`), so the H3 tests keep asserting v69's sentence. */
-const KOBO_LOAD_NAMES = ["Residential feeder", "Health clinic", "Grain mill"] as const;
 const KISIWA_LOAD_NAMES = ["Households", "Cold store (ice and fish)", "Water pump"] as const;
-const SITE = withLoadNames(KOBO_LOAD_NAMES);
+const SITE = withLoadNames(HYBRID_MINI_GRID_SITE, KOBO_LOAD_NAMES);
 const SITE_ID = SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
 const detailOf = (site: SiteDetailReadModel): SiteDetailClient => ({
@@ -453,7 +443,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
 
   it("DIESEL-1-R3p R-LOAD: a Site with no clinic or health load states its own loads, in product vocabulary", async () => {
     const { client } = clientOf(() => summary());
-    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client, detailOf(withLoadNames(KISIWA_LOAD_NAMES)));
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client, detailOf(withLoadNames(HYBRID_MINI_GRID_SITE, KISIWA_LOAD_NAMES)));
     await settledScreen();
     const line = document.querySelector("[data-objective-statement]")?.textContent;
     expect(line).toBe(minigridObjective(KISIWA_LOAD_NAMES));

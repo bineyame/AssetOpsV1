@@ -116,7 +116,9 @@ def test_w302_financials_links_fall_back_without_provable_cutoff(chain, monkeypa
     Every cold line then keeps the base Site route for `site`, `bridge` and `evidence` with `Opens current Site
     view`, never a windowed Site link."""
     built = cold_money(chain)
-    original = financials.window_links
+    # CH-5a2a phase 1 (1c3e3a075): financials builds its links from `window_link_refs` (the Ref-returning builder; the
+    # legacy hrefs are split from it), so the tamper wraps that name; `window_links` no longer exists in `financials`.
+    original = financials.window_link_refs
     seen = []
 
     def unprovable(code, domain, pin, cutoff, k):
@@ -124,7 +126,7 @@ def test_w302_financials_links_fall_back_without_provable_cutoff(chain, monkeypa
         assert pin is not None and pin.get("known") is not None and pin["known"] == cutoff
         return original(code, domain, {**pin, "watermark": pin["known"] - timedelta(microseconds=1)}, cutoff, k)
 
-    monkeypatch.setattr(financials, "window_links", unprovable)
+    monkeypatch.setattr(financials, "window_link_refs", unprovable)
     body = _read_financials(built.tenant_id, DAY)
     lines = [r for r in body["rows"] if r["domain"] == "cold_chain"]
     assert lines, [(r["line_key"], r["eligibility"]) for r in body["rows"]]

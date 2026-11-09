@@ -106,7 +106,11 @@ def test_sole_head_chain_and_catalog(engine) -> None:  # noqa: F811
     assert names(engine, "c") == CHECKS and names(engine, "f") == FKS and names(engine, "u") == UNIQUES
     assert index.endswith("(tenant_id, site_id, outcome_key, recorded_at)"), index
     # tgtype 27 = ROW | BEFORE | DELETE | UPDATE; 4 = STATEMENT | AFTER | INSERT (the CH-1b 0044 producer).
-    assert triggers == [f"{TABLE}_chain_event:chain_event_{TABLE}:4", f"{TABLE}_immutable:w4_append_only:27"]
+    # 0047_chain_response.py (CH-5c) adds the four statement-level `*_cic_*` triggers: 8 = DELETE, 4 = INSERT,
+    # 32 = TRUNCATE, 16 = UPDATE (all STATEMENT | AFTER). The append-only trigger stays.
+    assert triggers == sorted([f"{TABLE}_chain_event:chain_event_{TABLE}:4", f"{TABLE}_immutable:w4_append_only:27"]
+                              + [f"{TABLE}_cic_{s}:chain_input_change_{TABLE}:{t}"
+                                 for s, t in (("ins", 4), ("upd", 16), ("del", 8), ("trunc", 32))])
 
 
 @pytest.mark.parametrize(("over", "constraint"), [

@@ -178,7 +178,9 @@ class TestMovingAndBoard:
         snapshots via `ChainRequest.day`). Adapted, not loosened: the index-era p5 settled 10-06 on the dispatch
         assessment; the chain grades measure readings, and this S4 case delivers dispatch blocks only, so step (a)
         writes NO_DATA snapshots and every window day - 10-06 included - is a "no checked readings" gap and the
-        board day is unsettled. Gap lines over real readings are the L2m mechanism_db cases (MD-0)."""
+        board day is unsettled. Gap lines over real readings are the L2m mechanism_db cases (MD-0).
+        K10 v2 (56256bbc9, E2 FR-A): a declared-absent measure no longer blocks settling, so 10-06 (NO_DATA rows for
+        every applicable measure, `productive_kwh` declared absent) settles but still reads NONE and a gap."""
         from datetime import timedelta
 
         from assetops_backend.chain.backfill import main as backfill
@@ -200,11 +202,24 @@ class TestMovingAndBoard:
 
             for board in (date(2026, 10, 6), date(2026, 10, 7)):
                 f = facts(board)
-                assert not f.settled and f.readiness in ("NONE", "UNKNOWN"), (board, f.readiness)
+                # K10 v2 (56256bbc9, R3t): each board day (10-06, 10-07) holds stored NO_DATA rows for the three measures
+                # a Site with no declared productive use applies (the fourth, `productive_kwh`, has no row and is declared
+                # absent on that day), so it SETTLES (every applicable measure stored, none PENDING) while still reading
+                # NONE and a gap.
+                assert f.settled, (board, f.settled)
+                assert f.readiness in ("NONE", "UNKNOWN"), (board, f.readiness)
+                assert f.none_declared[board] == frozenset({"productive_kwh"}), f.none_declared
+                assert f.none_declared[date(2026, 10, 6)] == frozenset({"productive_kwh"}), f.none_declared
+                for day in {board, date(2026, 10, 6)}:   # only `productive_kwh` lacks a row; the other three are stored
+                    assert set(f.grades[day]) == {"avoidable_gen_min", "critical_served", "daylight_headroom_kw"}, day
                 grades = {g for m in (f.grades.get(date(2026, 10, 6)) or {}).values() for g in m.values()}
                 assert grades == {"NO_DATA"}, grades  # step (a) wrote the day; nothing checked on it
                 gaps = mini.finding_gap_line(f, mini.FINDING_WINDOW_DAYS)
-                assert gaps["text"] == "31 of the last 31 days have no checked readings yet", gaps["text"]
+                # The declared-absent note follows the gap text; it states the absence in plain words and does not name
+                # the measure key.
+                assert gaps["text"] == ("31 of the last 31 days have no checked readings yet · Productive use not "
+                                        "assessed: no productive-use equipment declared for this site (0 kWh)"), gaps["text"]
+                assert "productive_kwh" not in gaps["text"]
                 assert gaps["days"][0] == (board - timedelta(days=30)).isoformat() and "2026-10-06" in gaps["days"]
                 assert gaps["withheld"] is False
         finally:

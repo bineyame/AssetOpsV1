@@ -80,8 +80,12 @@ def test_kobo_declares_supply_uses_and_the_reader_finds_the_productive_user(stor
     assert {k for code in story for k in story[code].keys() - after[code].keys()} <= {
         "renewable-retained-margin", "pv-available-uncertainty"}
     # additive: every property declared before the change is still declared, with its value
+    # FUEL-1 A1 (972dc747f): the configuration also declares the generic no-load fuel rate on the generator, with its basis.
+    fuel_1 = {"generator-no-load-fuel-rate": 3.3, "generator-no-load-fuel-rate-basis": "GENERIC_DEFAULT"}
+    added = {code: {k: v for k, v in props.items() if k in fuel_1} for code, props in after.items()}
+    assert [a for a in added.values() if a] == [fuel_1], added   # exactly one component carries them, with these values
     for code, props in before.items():
-        assert {k: v for k, v in after[code].items() if k != "supply-use"} == props
+        assert {k: v for k, v in after[code].items() if k != "supply-use" and k not in fuel_1} == props
 
     reader = MiniDepthRead(engine, link_rows=None)
     t, s = result.tenant.id, result.site.id

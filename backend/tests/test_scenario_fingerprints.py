@@ -80,6 +80,55 @@ PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
     ("kobo-mini-grid-stop-60", 2): (
         "730b3e81bd4e5c3b1602fb62a3a45dff76668522d896ab37e5020c66f1866ebf"
     ),
+    # E2 FR-A: the ten scenarios first shipped as version 1 by the DD-1a1 / DD-1a2 slices (merges eae5174b7 and
+    # 1dd3b1862). Each file is unchanged since its slice: every commit that touches it is a DD-1a1 or DD-1a2 commit.
+    # Introducing commit, per entry, is listed in FIRST_SHIPPED_AS_V1 below.
+    ("kobo-mill-midday", 1): (
+        "e1094acd9998d1d144e10072279902b7ef92720da0021056b8e50c7fb855f4a2"
+    ),
+    ("kobo-night-early-after-before-mill", 1): (
+        "a78723d4287813a5c07ab800b3a86b6d655c072daae8e3dc4df247ba9441744c"
+    ),
+    ("kobo-night-early-from-0300", 1): (
+        "916020ef35409f0c2aaf0c93254902a941008dfeb2f9ef19983a28f30089c555"
+    ),
+    ("kobo-night-early-until-0255", 1): (
+        "98b1206c33011b93a1eccb0dcd4fe689af85037243e8fdb698abd7571cd7b58c"
+    ),
+    ("kobo-night-early-until-0300", 1): (
+        "7da4a7f56a73af9bf1b77574de607e7f7dbea80d7571fc204ed8c33beeb0f730"
+    ),
+    ("kobo-night-early", 1): (
+        "9bddb9a056d3a19c4baa1faad0c14288d153f8e3195449f29b1d634a6ae3940f"
+    ),
+    ("kobo-rest-before-mill", 1): (
+        "1e4ce10c7defe4e23a209e66d9a9fe53130468d06df1087410571ce642bebc2e"
+    ),
+    ("kobo-rest-mill", 1): (
+        "42d180e1ba99cac3c84494359e61990180c97f7697f54e2467b2dd33a1ddf9c5"
+    ),
+    ("kobo-steady-before-mill", 1): (
+        "f39bee89b4882ea9278b73a67e24cbb39cb07a76b1753377902e99f6ae094462"
+    ),
+    ("kobo-steady-day", 1): (
+        "5b5ee65a488285867f8d5f422a3bd0281337ec3c5f8e5deb52e898df7fd23feb"
+    ),
+}
+
+#: E2 FR-A: scenarios first shipped as version 1 after the T025g v2 bump, by the DD-1a1 and DD-1a2 slices. The rule
+#: "every other shipped scenario is v2 superseding v1" stays strict for the original 14. The value is the commit that
+#: introduced the file (`git log --diff-filter=A -- config/scenarios/<id>.yaml`).
+FIRST_SHIPPED_AS_V1: dict[str, str] = {
+    "kobo-mill-midday": "9c0a3f510",  # DD-1a1 R4
+    "kobo-night-early-after-before-mill": "5a5211639",  # DD-1a2
+    "kobo-night-early-from-0300": "97e91b8f1",  # DD1a1-R7a
+    "kobo-night-early-until-0255": "a02f72ff3",  # DD1a1-R7b
+    "kobo-night-early-until-0300": "97e91b8f1",  # DD1a1-R7a
+    "kobo-night-early": "870e33119",  # DD-1a1 (DD1a1-R2)
+    "kobo-rest-before-mill": "5a5211639",  # DD-1a2
+    "kobo-rest-mill": "8b68aaa14",  # DD1a1-R16
+    "kobo-steady-before-mill": "5a5211639",  # DD-1a2
+    "kobo-steady-day": "17e69a295",  # DD-1a1 (partial)
 }
 
 #: Keys that would name a site, or choose sites by lineage, in a shipped
@@ -144,7 +193,8 @@ def site_naming_failure(path_name: str, document: dict[str, Any]) -> str | None:
 
 def test_the_shipped_scenarios_were_found() -> None:
     documents = shipped_documents()
-    assert len(documents) == 14, [path.name for path, _ in documents]
+    # The original 14 plus the ten first shipped as v1 by DD-1a1 / DD-1a2 (FIRST_SHIPPED_AS_V1).
+    assert len(documents) == 14 + len(FIRST_SHIPPED_AS_V1), [path.name for path, _ in documents]
 
 
 def test_every_shipped_scenario_matches_its_pinned_fingerprint() -> None:
@@ -191,7 +241,7 @@ NEW_SINCE_T025G = {
 def test_every_shipped_scenario_is_v2_superseding_v1() -> None:
     for path, document in shipped_documents():
         version = document["version"]
-        if document["scenario_id"] in NEW_SINCE_T025G:
+        if document["scenario_id"] in NEW_SINCE_T025G or document["scenario_id"] in FIRST_SHIPPED_AS_V1:
             assert version["scenario_version"] == 1, path.name
             assert "supersedes" not in version, path.name
             continue

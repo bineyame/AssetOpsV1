@@ -86,13 +86,15 @@ def test_0043_catalogue_and_insert_only(store, engine) -> None:  # noqa: F811
         indexes = {r[0] for r in c.execute(text("SELECT indexname FROM pg_indexes WHERE tablename IN "
                                                 "('site_day_snapshot', 'accepted_evidence')"))}
         trigger = c.execute(text("SELECT tgname FROM pg_trigger WHERE tgrelid = 'site_day_snapshot'::regclass "
-                                 "AND NOT tgisinternal")).scalars().all()
+                                 "AND NOT tgisinternal ORDER BY tgname")).scalars().all()
     assert {"tenant_id", "site_id", "local_day", "subject_kind", "subject_ref", "measure", "evidence_class",
             "revision", "expected", "required_seconds", "covered_seconds", "coverage_pct", "grade", "value", "money",
             "policy_version", "calendar_version", "catalogue_version", "input_fp", "computed_at"} <= cols
     assert checks >= 12, checks
     assert {"site_day_snapshot_read", "accepted_evidence_site_role_time"} <= indexes
-    assert trigger == ["site_day_snapshot_immutable"]
+    # 0047_chain_response.py (CH-5c) added the four `*_cic_*` change-recording triggers; the append-only one stays.
+    assert trigger == ["site_day_snapshot_cic_del", "site_day_snapshot_cic_ins", "site_day_snapshot_cic_trunc",
+                       "site_day_snapshot_cic_upd", "site_day_snapshot_immutable"]
 
     _, t, s = w402._setup(store, engine)
     snaps = PostgresSnapshotStore(URL)

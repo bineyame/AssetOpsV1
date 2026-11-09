@@ -39,20 +39,20 @@
      ],
      "found": 3,
      "grades": {
-      "2026-10-25": "NO_DATA",
-      "2026-10-26": "NO_DATA",
-      "2026-10-27": "NO_DATA",
-      "2026-10-28": "NO_DATA",
-      "2026-10-29": "NO_DATA",
-      "2026-10-30": "NO_DATA",
-      "2026-10-31": "NO_DATA",
-      "2026-11-01": "NO_DATA",
-      "2026-11-02": "NO_DATA",
-      "2026-11-03": "NO_DATA",
-      "2026-11-04": "NO_DATA",
-      "2026-11-05": "COMPLETE",
-      "2026-11-06": "COMPLETE",
-      "2026-11-07": "COMPLETE"
+      "<d-14>": "NO_DATA",
+      "<d-13>": "NO_DATA",
+      "<d-12>": "NO_DATA",
+      "<d-11>": "NO_DATA",
+      "<d-10>": "NO_DATA",
+      "<d-9>": "NO_DATA",
+      "<d-8>": "NO_DATA",
+      "<d-7>": "NO_DATA",
+      "<d-6>": "NO_DATA",
+      "<d-5>": "NO_DATA",
+      "<d-4>": "NO_DATA",
+      "<d-3>": "COMPLETE",
+      "<d-2>": "COMPLETE",
+      "<d-1>": "COMPLETE"
      },
      "min_days": 3,
      "pins": [
@@ -125,7 +125,7 @@
     "rule_id": "midday-productive-shift-1",
     "source_channel": "SYSTEM_DEMONSTRATION_API",
     "target": {
-     "declared_by": "owner <d-3>",
+     "declared_by": "owner 2026-11-05",
      "over": "COMPLETE days of each window",
      "ratio": [
       11,
@@ -193,7 +193,7 @@
   "sentence": "Midday use rose by at least the declared 10% on fully checked days",
   "state": "VERIFIED",
   "target": {
-   "declared_by": "owner <d-3>",
+   "declared_by": "owner 2026-11-05",
    "over": "COMPLETE days of each window",
    "ratio": [
     11,
@@ -256,7 +256,7 @@
   "sentence": null,
   "state": "NOT_JUDGED",
   "target": {
-   "declared_by": "owner <d-3>",
+   "declared_by": "owner 2026-11-05",
    "over": "COMPLETE days of each window",
    "ratio": [
     11,
