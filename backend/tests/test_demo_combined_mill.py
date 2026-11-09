@@ -44,6 +44,9 @@ class Recording(tool.Demo):
         self.calls: list[str] = []
         self.drains: dict[str, float] = {}
 
+    def read_site_mark(self, site: str) -> None:  # E4-C4: no database here; no mark means the run is due
+        return None
+
     def drain(self, name: str = "drain") -> dict:
         """DD-1b2b O2: the R8 drain is its own tested unit (`test_dd1b2b_drain.py`); here only its place is recorded."""
         self.calls.append(name)

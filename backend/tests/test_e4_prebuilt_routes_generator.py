@@ -174,6 +174,7 @@ def test_the_list_is_written_before_every_prebuild_and_at_serve_start(tmp_path, 
         return Done()
 
     monkeypatch.setattr(demo, "py", py)
+    monkeypatch.setattr(demo, "read_site_mark", lambda site: None)  # E4-C4: no database; no mark means due
     demo.performance_and_prebuild()
     assert ("prebuild", True) in calls
     (tmp_path / tool.PREBUILT_ROUTES_FILE).unlink()

@@ -38,6 +38,7 @@ def _captured_envs(tmp_path, monkeypatch) -> dict[str, dict[str, str]]:
     (tmp_path / "keys.json").write_text(json.dumps({k: os.urandom(32).hex() for k in tool.KEY_NAMES}),
                                         encoding="utf-8")
     seen: dict[str, dict[str, str]] = {}
+    demo.read_site_mark = lambda site: None  # E4-C4: no database here; no mark means the run is due
 
     def popen(argv, **kw):
         seen["tick" if "tick" in argv else "serve" if "uvicorn" in argv else str(argv[1:3])] = dict(kw["env"])
