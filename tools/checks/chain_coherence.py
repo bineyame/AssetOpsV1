@@ -1018,6 +1018,36 @@ def _state_reads(bundle: Bundle) -> Iterator[tuple[str, str, str, dict, dict]]:
                         yield d, w, f, b, p
 
 
+#: D-E3b.2 (E4-C5): the COH-13 text of a listed Finding whose thread read carries no state.
+STATELESS_TEXT = "listed Finding with no thread state"
+
+
+def _stateless_threads(bundle: Bundle) -> list[dict]:
+    """D-E3b.2 (no agreement in blindness): a board or Portfolio thread, read on a `state_day`, of a LISTED Finding with
+    `state` None is a COH-13 finding. A listed Finding has a thread, and its lifecycle is read at the request cutoff;
+    two reads that both see no state agree only because both are blind (client2's 51/51, D-E3b.1)."""
+    out: list[dict] = []
+    for d in bundle.day_windows():
+        board = bundle.get(f"board.{d}") or {}
+        seen: set[str] = set()
+        for ref in _board_refs(board):
+            t, f = ref.get("thread"), str(ref["finding_id"]).lower()
+            if isinstance(t, dict) and t.get("state_day") and t.get("state") is None and f not in seen:
+                seen.add(f)
+                out.append(finding("COH-13", board.get("site_code"), d, f,
+                                   f"{STATELESS_TEXT}: board thread on {t['state_day']}", bundle.files(f"board.{d}")))
+    for w in bundle.estate_windows():
+        seen = set()
+        for r in _rows(bundle.get(f"portfolio.{w}")):
+            t, f = r.get("thread"), str(r.get("finding_id") or "").lower()
+            if f and isinstance(t, dict) and t.get("state_day") and t.get("state") is None and f not in seen:
+                seen.add(f)
+                out.append(finding("COH-13", r.get("site_code"), w, f,
+                                   f"{STATELESS_TEXT}: Portfolio ({w}) thread on {t['state_day']}",
+                                   bundle.files(f"portfolio.{w}")))
+    return out
+
+
 def coh13_lifecycle_agreement(bundle: Bundle) -> list[dict]:
     """CH-3 COH-13 (time-zone free): a board read and a Portfolio read of one Finding's thread agree. The two reads
     are ordered by their `state_day` into lo and hi. With no state at hi, both are equal; when hi's state took effect
@@ -1028,7 +1058,7 @@ def coh13_lifecycle_agreement(bundle: Bundle) -> list[dict]:
     missing = _missing_state_day(bundle, "COH-13")
     if missing:
         return missing
-    out, seen = [], set()
+    out, seen = _stateless_threads(bundle), set()
     for d, w, f, b, p in _state_reads(bundle):
         lo, hi = sorted((b, p), key=lambda t: t["state_day"])
         pair = (lambda t: (t.get("state"), t.get("state_effective_day")))

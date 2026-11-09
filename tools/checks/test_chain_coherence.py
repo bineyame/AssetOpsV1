@@ -581,6 +581,26 @@ def test_coh13_orders_reads_by_their_day(tmp_path: Path, hi: tuple, lo: tuple, o
     assert (cc.coh13_lifecycle_agreement(cc.Bundle(root)) == []) is ok
 
 
+def test_coh13_a_listed_finding_with_no_thread_state_fails_even_when_both_reads_agree(tmp_path: Path) -> None:
+    """D-E3b.2 (E4-C5): no agreement in blindness. A board and a Portfolio read that BOTH see no state agree as a
+    pair, yet each is a listed Finding with no thread state, so each side is a COH-13 finding."""
+    root = tmp_path / "b"
+    shutil.copytree(BUNDLES / "clean_lifecycle", root)
+    board, port = root / "board.day_cold_failure_2026-10-31.json", root / "portfolio.week.p2.json"
+    b, p = json.loads(board.read_text(encoding="utf-8")), json.loads(port.read_text(encoding="utf-8"))
+    for row in b["rows"]:
+        for i in row["issues"]:
+            if i.get("kind") == "FINDING":
+                i["ref"]["thread"].update(state=None, state_effective_day=None)
+    p["rows"][0]["thread"].update(state=None, state_effective_day=None)
+    board.write_text(json.dumps(b), encoding="utf-8")
+    port.write_text(json.dumps(p), encoding="utf-8")
+    found = cc.coh13_lifecycle_agreement(cc.Bundle(root))
+    assert sorted(cc._key(f) for f in found) == sorted([("COH-13", COLD, DC, F1), ("COH-13", COLD, "week", F1)])
+    assert all(f["detail"].startswith(cc.STATELESS_TEXT) for f in found)
+    assert cc.coh13_lifecycle_agreement(cc.Bundle(BUNDLES / "clean_lifecycle")) == []  # states present: passes
+
+
 def test_stamped_bundle_without_the_lifecycle_keys_fails(tmp_path: Path) -> None:
     """CH-3: the `lifecycle` stamp decides; a dropped `state_day` or `action_segment_no` fails (COH-0 style)."""
     root = tmp_path / "b"
