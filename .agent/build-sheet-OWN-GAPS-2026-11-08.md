@@ -2156,3 +2156,145 @@ list on `:594-595`. If the builder's count of the 13 raises does not match the 1
   identical runs), all checks green before review.
 - **D-R5.5** The stale Kisiwa test count (12 → 13 after the diesel-night check added KIS-11) is fixed on the G1 branch
   now, not left red until E2.
+
+## R6 — G1 resume run: CO-2, WK-6 and the tree rebuild (2026-11-09)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). Owner away; same delegation and fundamentals instruction
+as R5. Input: `AssetOpsV1-g1/.agent/OWN-G1-phase-3-handoff.md` (branch head `7bf811898`). **READ** = code cited;
+**DB** = read-only query on `assetops_demo3_g1audit_test`. R5's settle fix is confirmed: `settle-close` drained 94
+mini jobs, every count reached 0, and F-THREADS passed.
+
+### R6.1 CO-2 (STALE_PROJECTION: SCHEDULE_STOPPED, SITE_VISIT_STALE): the product is right; add-dates ticks once before the check
+
+**What the product does (READ).** `UpstreamCurrentness` (`scheduling/upstream.py:176-183`) blocks currentness with
+`SCHEDULE_STOPPED` when the environment heartbeat is older than its threshold (300 s), and with `SITE_VISIT_STALE` when
+the Site head is not observed. CO-2 (`demo_combined_finish.py:252-264`) requires the Kobo overview freshness `CURRENT`.
+After 23 min with no tick, the overview says the figures are not current.
+
+**What a real stopped schedule must show.** Exactly that. If the background schedule stops on a real Site, the
+figures stop being refreshed, and the screen must say "not current" rather than present old figures as current. That
+honesty is a fundamental, so **the check does not tolerate a stale heartbeat, with or without a serve.** Exempting it
+would let a build pass while its screens say "not current".
+
+**What `finish check` asserts.** The build as served, with the schedule running, as on a demo day (`serve` ticks every
+120 s). `prepare` meets that by ticking right before its check (`finish`: `tick(times=2)` + `retry_until_visited`,
+then the check). `add-dates` must meet it the same way. A run that adds nothing and has nothing pending still ends in a
+check of the served state, so it ticks once. This is the scheduler running, not a cosmetic heartbeat touch: the tick is
+the product's full scheduled tick and does real work if any is due.
+
+**Change (`tools/demo_combined.py`, `add_dates`).** Immediately before `check = self.finish_check()`, and only when
+the check runs (not under `--no-check`):
+```python
+report = self.tick()   # R6.1: the check reads the served state; the schedule must have just run (as prepare's finish)
+if "kisiwa" in story["sites"]:
+    report, extra = retry_until_visited(report, lambda: self.tick(times=1))
+    if extra:
+        say(f"  tick: {extra} extra tick(s) for KISIWA-001's fuel_night stage")
+```
+This always runs after the closing settle (R5.2 item 3). It rewrites `last-tick.json` with a Kisiwa-visiting report,
+which KIS-11 reads, exactly as in `prepare`. Under `--no-check` nothing changes: the serve keeps the schedule running
+during the demo. Runbook line (DS-1a refresh, R1.5): "A check of a build with no serve running is valid only right
+after `add-dates`, which runs the schedule first; on the demo machine `serve` must be running whenever a screen is
+shown. If a screen says the figures are not current, `serve` has stopped."
+
+**Test changes (`test_own_g1_add_dates.py`, no DB):**
+- R5.3 test 6 (nothing added, nothing pending): the order becomes `counts`, `tick`, `finish_check`; no `drain_mini`
+  and no `drain`.
+- R5.3 test 7 (closing settle): `drain_mini`, `drain("settle-close")`, `tick`, `finish_check`.
+- R5.3 test 1: no `tick` between the child and `drain`; exactly one `tick`, after the last `drain` and directly before
+  `finish_check`.
+- R5.3 test 5 (`--no-check`): no `tick` at all on a Kobo-only date.
+- New: Kisiwa in the story and the closing tick's report has no KISIWA-001 `fuel_night` entry → one extra
+  `tick(times=1)` (patch `time.sleep`), then `finish_check`.
+- **Must-fail guard:** test 6 fails if the closing tick is removed.
+
+### R6.2 WK-6: select the study the row is about (the one ending S+1), not the newest
+
+**What happened (DB).** Kobo's rolling five-day productive-use studies: #9 is `2026-11-03..11-07` (S+1 = 11-07; S =
+11-06), created by prepare. #11 is `2026-11-04..11-08`, created at 03:55Z by the added day. #9 is still there and
+unchanged. WK-6 lists opportunities over the S+1 board link's five days (`:647-655`), which overlap #11 too. It then
+takes `max(found, key=last_day)` (`:657`) and asserts `last_day == S+1`.
+
+**Ruling.** WK-6's own docstring names its subject: "the Kobo productive-use opportunity page for the 5-day study
+ending S+1". `max()` was a stand-in that held only while S+1 was the newest day. A real Site makes a new rolling study
+every day, so a check that wants a specific day's study must select it by that day. This is the row's intent made
+exact. It is not a loosening and not a bound that hides content: #11 is correct product output, and other rows (and the
+board for 11-08) cover it.
+- New pure helper in `tools/demo_combined_rows.py`:
+  ```python
+  def study_ending(found: list[dict], last_day: str) -> dict:
+      """WK-6 (OWN-GAPS R6.2): the one opportunity whose study ends on `last_day`; later rolling studies are ignored."""
+      hits = [o for o in found if o.get("last_day") == last_day]
+      assert len(hits) == 1, ("expected exactly one study ending", last_day, sorted(o.get("last_day") for o in found))
+      return hits[0]
+  ```
+- `wk6`: replace `:657-658` with `opp = demo_rows.study_ending(found, ctx.day(1).date().isoformat())`. Everything else
+  in the row is unchanged (the `scenario_id`, mill and tariff asserts). Add to the docstring: "R6.2: the study is
+  selected by its last day; later studies from added days are other days' studies."
+- No-DB tests (in `test_own_g1_add_dates.py`): (a) `found` = studies ending 11-06, 11-07, 11-08 → returns the 11-07 one
+  (**must-fail guard**: `max()` would return 11-08); (b) no study ends 11-07 → `AssertionError`; (c) two ending 11-07
+  → `AssertionError`.
+
+**Narrow pre-authorisation for the rest of the rehearsal.** A non-KIS row that fails **only** because an added day
+produced a newer object may get the same fix, but only when all of these hold:
+1. The row's docstring names a story day or story object as its subject.
+2. The fix selects that object by its story key (day, code or id from `story.json` / `days.json` / the row's own docs).
+3. No assertion on the object's content changes.
+4. It comes with a no-DB test that includes the newer object, and it is listed in the packet.
+
+Anything else, including any assertion change, any CO-2-style state failure or any COH row, stops and comes to the
+Architect.
+
+### R6.3 Rebuilding `tree` deleted the legacy comparison report: recipe fix only; no add-dates or E3 guard
+
+**What happened (handoff).** The legacy S2 comparison report is file-backed inside `tree`. Replacing `tree` removed
+it, and the Kobo overview answered 409 `AWAITING_EVIDENCE_MIGRATION` until `evidence_migration run` was repeated.
+`performance_migration` already runs on every `tick()` (`performance_and_prebuild`, `:857-865`).
+
+**Ruling.**
+- Only the rehearsal recipe (R2-G1 Q4) replaces `tree` on an existing build. On the demo path `tree` is written once,
+  by `prepare`, whose `finish` runs `evidence_migration` (`:796-799`). `add-dates`, `serve` and E3 (a fresh `prepare`)
+  never replace it. So this is a **recipe step**. The R2-G1 Q4 recipe gains: "after replacing `tree`, run
+  `evidence_migration run --tenant demo --site KOBO-001` and `performance_migration run` for KOBO-001 and KISIWA-001,
+  and require 'cutover: permitted' before any `add-dates` or check."
+- **No add-dates guard.** The failure is not silent: the product answers 409 with its reason, and `finish check`
+  fails on many rows. Making `add-dates` run a migration would turn a data-arrival tool into a deployment tool, which no
+  real gateway does. Refusing would duplicate a signal that is already loud.
+- Runbook line (DS-1a refresh, R1.5): "Never replace or edit a build's `tree`. New code means a fresh `prepare`."
+- E3 unchanged.
+
+### R6.4 Rehearsal from here (replaces R5.5 steps 1–4)
+
+0. Commit R6.1 (closing tick + tests) and R6.2 (helper, WK-6, tests) as two commits. Run the no-DB set (expected: the
+   4 known failures only). Rebuild `tree` from the new HEAD **for the fresh clone only** (step 2).
+1. **Reused clone: no further run.** Its two runs are kept as evidence: `settle-close-attempt1.json` (R5 resume proof)
+   and `check.json` (49/51, CO-2 and WK-6, the input to this ruling). A third run there would repeat run B below. Rename
+   the folder to `var/demo3_g1audit_run1`, then drop `assetops_demo3_g1audit_test`.
+2. **Fresh clone:** as R5.5 step 2. After the new `tree` is in place, run `evidence_migration` (KOBO-001) and
+   `performance_migration` (KOBO-001, KISIWA-001); all "cutover: permitted" (R6.3).
+3. **Run A, kept:** `add-dates --site KOBO-001,KISIWA-001,EV-LAB-001 --to 2026-11-08`. Must show: per-date
+   `settle-<date>.json` `verdict: done`; every `tick_failures` empty; Kisiwa night(s) `WITHIN_MARGIN (revision 1)`;
+   Kobo `settled (n ticks)`; the closing tick; **finish check 51/51 PASS**; F-THREADS, CO-2, WK-6 and KIS-11 named in
+   the packet as passing.
+4. **Run B, kept:** the same command, started **at least 10 minutes after run A ends** (so the heartbeat is stale
+   before it starts, which proves R6.1 on real wall time). Must show: everything "already present", counts all 0, no
+   settle, one closing tick, **finish check 51/51 PASS**.
+5. R5.5 step 6 read-only proofs after run B (counts 0 everywhere; Kisiwa added-`night_date` boards with
+   `board_faults == []`; `chain_coherence` EX-2 = 0). The `--to` today refusal is not repeated.
+6. Packet `.agent/review-packet-G1.md`: both runs' wall times, `settle-*` seconds, the closing-tick seconds, both
+   `check.json` summaries, and any R6.2 pre-authorised fix used. Keep the fresh clone until review ACCEPT.
+   **Stops:** as R5.5, plus anything outside R6.2's pre-authorisation. Cap: the remaining part of 2 × 1.5 h, counted
+   from the fresh clone's creation.
+
+### R6.5 Decisions logged for owner review
+
+- **D-R6.1** When the background schedule has stopped, the product says the figures are not current, and that stays:
+  it is what a real Site must show. The build check reads the build as served, so `add-dates` runs the product's
+  scheduled refresh once right before its check, as `prepare` does. On demo days `serve` must be running.
+- **D-R6.2** The productive-use check now picks the study that ends on the story day it is about, not the newest
+  study. Real Sites produce a new rolling study every day. Further fixes of this exact kind are pre-authorised under
+  four conditions; anything else comes back to the Architect.
+- **D-R6.3** A build's code folder is never replaced on the demo path. The rehearsal recipe re-runs the comparison
+  setup after replacing it. `add-dates` does not run deployment steps, and E3 is unchanged.
+- **D-R6.4** Rehearsal keeps both fresh-clone runs (A: add and settle; B: nothing to add, started on a stopped
+  schedule), each 51/51. The reused clone runs no more; its earlier runs are kept as evidence.
