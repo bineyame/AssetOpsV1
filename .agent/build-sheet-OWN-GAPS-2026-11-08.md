@@ -2749,3 +2749,47 @@ green at 52190948d. BL-63 does not hold E3. E4 adds E4-GE and E4-GG beside E4-K8
   k8's local pin, and run the five helper users plus k8.
 - **D-E2.13** E3 starts after FR-A merges. That needs R-1 and R-2 built, the two files green with one strict xfail,
   check-all at 18/18 and the reviewer's ACCEPT. No new container run is needed. BL-63 is post-demo.
+
+## E3 stop rulings (2026-11-09)
+
+Claude Architect, under the owner's delegation of 2026-11-08 (`.agent/owner-away-architect-decides-2026-11-08.md`):
+"let the architect make decisions if there are any input required from my side and make sure it makes decisions based
+on understanding of how real sites work and what assetops is trying to achieve, no cutting corners on fundamentals".
+E3 = `task/E3-demo-build` 80f4a21d4, `assetops_polish_client2_test`, S = 2026-11-07, finish check 51/51.
+
+### STOP 1 (G-m): the builder's reading is right; the G-m premise was wrong
+- Code path: `Demo.tick()` ends in `performance_and_prebuild()` (`tools/demo_combined.py:861`), which calls
+  `self.story()` and reads `<self.work>/story.json`. The parity test sets `demo.work = tmp_path` and calls `demo.tick()`;
+  the mill tests build `Recording(tmp_path)`, and `finish_build` -> `finish` -> `tick(times=2)` reaches the same read.
+  The prepared `var/` is never read, so no prepare can make them pass. The read came in with f994e3cf9 (K9 R3s); the
+  tests predate it. This is a test-fixture defect, not a product or build defect.
+- What E3 already proves: the 3-Site mill order is proven by outcome. A tick before the mill step skips every mill
+  cause, and the finish-check rows on `mill.json` would then fail (VERIFIED mill Action, 5 eligible days, MILL-4 thread
+  line, COH-17 on the mill thread only). The one-Site plain finish is not exercised. Tick/serve `code_version` parity
+  is not checked by any finish row; the prebuild's "8 hit" compares prebuild with prebuild, not tick with serve.
+- Ruling: fix the tests now (option a) and add a live parity check to E4. Skipping the unit proof is a corner cut:
+  only the L0 test has the keyless control that shows the comparison can fail.
+
+### FLAG 2: Kobo `fuel_night` `eligible: true, processed: 0` is correct
+- `due_nights` returns eligible when the Site has a tank asset, and a night is due only when it has tank `fuel_level`
+  readings (`fuel_balance/scheduled.py` docstring: "Kobo (a tank with no `fuel_level`) gets no row"; spec §2.4 P2, P3).
+- Real-site sense: Kobo runs a genset with a tank but no level sensor; diesel is known only from deliveries. A night
+  balance needs a level read at both edges, so producing nothing is the honest result. Eligible means "the stage
+  applies to this Site", not "a night was found". Not a defect.
+
+### Decisions
+- **D-E3.1** G-m test fix on `task/E3-gm-story-fixture` (Sonnet builder, fresh Claude Sonnet reviewer, test files only):
+  1. `test_ch5c_env_parity.py::_captured_envs`: write `tmp_path/"story.json"` = `{"sites": list(tool.SITES)}` (the
+     three Sites, so the Kisiwa performance branch runs too).
+  2. `test_demo_combined_mill.py`: each test that reaches `finish_build(..., True, ...)` writes
+     `tmp_path/"story.json"` = `{"sites": story["sites"]}` after it sets `story["sites"]`.
+  3. Fix both module docstrings: the work folder is `tmp_path` holding the `story.json` that prepare would write.
+  No product code changes and no assertion is weakened. The rest of BL-62 stays in the backlog. Run the two files
+  (L0, seconds): all pass. Merge before E4.
+- **D-E3.2** E4-env runs the fixed files in the E3 checkout (with the merged fix applied) and stays an E4 stop.
+- **D-E3.3** New check E4-PARITY: with the demo server up, after one loop tick (tick plus its serve-env prebuild),
+  GET the first page the demo opens (the S+0 Kobo board request). It must answer `X-AssetOps-Stored: hit`. A
+  `stored` or `composed` answer means tick and serve disagree on `code_version`, and that is an E4 stop.
+- **D-E3.4** FLAG 2 is not a defect. New check E4-FN: in `last-tick.json`, KOBO-001 `fuel_night` is `OK`,
+  `eligible: true`, `processed: 0`, `deferred: 0`; KISIWA-001 is `OK`/eligible; COLD/EV are `eligible: false`. Then
+  `SELECT count(*) FROM fuel_balance_window` for KOBO-001 = 0 (P3). Any Kobo row is a High.
