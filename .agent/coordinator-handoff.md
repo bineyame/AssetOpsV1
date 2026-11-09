@@ -1,4 +1,4 @@
-# Coordinator handoff — 2026-11-08, evening (replaces all earlier versions; older text is in git history)
+# Coordinator handoff — 2026-11-09 (replaces all earlier versions; older text is in git history)
 
 Read this first on resume. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
 
@@ -24,14 +24,14 @@ Build-sheet rulings: `.agent/build-sheet-DIESEL-1.md` through §9v (R3v).
 - Clone `assetops_k9_audit_r3u` + `C:\Users\assef\Bineyame\AssetOpsV1-k10\var\demo3_r3u` (has K9+K10+K6c verification; evidence/performance reports re-run by product tools). Verification-only int branch `task/DIESEL-int-r3u` (do not merge).
 - `assetops_demo3_kisiwa_test` (K7-F Kisiwa-only).
 
-## Next, in order (updated 2026-11-08 late evening — supersedes the K8c/DS-1 order)
-Owner: build OWN-GAPS now, agent speed, reassess tomorrow (`.agent/owner-proceed-own-gaps-2026-11-08.md`; answers `.agent/owner-answers-own-gaps-2026-11-08.md`). 10-Nov session moves; owner to set date.
-Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Revision 1 at top). Rulings so far: `.agent/architect-combined-pass-2026-11-08.md` Parts A–F; `.agent/architect-answers-owner-ingest-captures-2026-11-08.md`.
-- Merged since: R-1 (733eaf75c), check-all 18/18. T6 (w301 golden, 4 replay failures; DB clock NOT skewed, checked) moved into E2 (Part F).
-- In flight (pre-flight phase, Opus; each writes `.agent/preflight-<item>.md` on its branch, then waits): G2 `task/OWN-G2-diesel-night-check` (wt AssetOpsV1-g2), G3a `task/OWN-G3a-operational-entry-api` (wt -g3a), G3b `task/OWN-G3b-operational-entry-form` (wt -g3b), G1 `task/OWN-G1-add-dates` (wt -g1). Next: batch all preflight questions to ONE Architect, then SendMessage builders to build. Merge order G3a → G2 → G3b → G1.
-- DS-1a client script drafted on `task/DS-1a-client-script` (wt -ds1a; 12 placeholders; not reviewed). Open writer questions for the Architect: Kisiwa Findings/Service dated links absent from `story_links`; no Kobo idle-fuel capture; Sites list shows "Simulator Lab"/"prepared for this walkthrough"; `revision_id` in Kobo link. Refresh per R1.4 (illustrative pictures, Portfolio opens, auto diesel wording, live dip, "Entered by site admin").
-- K8c captures branch not merged (first set taken with gate closed; K8c-r stopped: Kobo legacy-comparison record stamped for another DB). Owner: illustrative pictures taken once are fine.
-- Then E2 (incl. T6, clock check) → E3 demo build → E4/E5 → owner walkthrough (runs add-dates + one on-screen dip).
+## Next, in order (updated 2026-11-09 — supersedes earlier)
+Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Rev 1–3, R4, R5, R6). Owner away since 2026-11-08 night with Architect delegation (`owner-away-architect-decides-2026-11-08.md`); report decisions D-R3.7–3.10, D-R4.1–4.2, D-R5.1–5.5, D-R6.1–6.4 on return. Coordinator calls to report: R4.1 stale-fixture fix, G1 L5 (`--dry-run` runs read-only preflight). Owner to set client session date.
+- OWN-GAPS ALL MERGED: R-1, G3a, G2, G3b, R4.1 (b497d42ef), G1 (575c13222; rehearsal A/B 51/51; clone `assetops_demo3_g1audit_test` + `AssetOpsV1-g1\var\demo3_g1audit` can be dropped). check-all 18/18 after 575c13222.
+- Owner Q&A 2026-11-09: no file upload (BL-59); simulator-dependency audit `.agent/architect-answer-simulator-dependency-2026-11-09.md` (product independent; leaks L1/L4 Medium → BL-53..58).
+- In flight: POLISH-1 (Sonnet, `task/OWN-POLISH-1`, wt AssetOpsV1-polish1): G3b Lows + G1 L-A + L-B. Then Sonnet review → merge → check-all.
+- DS-1a client script on `task/DS-1a-client-script` (wt -ds1a, 9bc611cf0, re-review ACCEPT WITH NOTES); merge after DS-1f fills placeholders from E5 captures.
+- K8c captures branch not merged; owner accepted illustrative pictures.
+- Then E2 (clock check, mechanism template rebuild, T6 w301 golden, full backend `-Tier fast` then `-Tier slow -Targets` skipping test_demo_combined_postgres, vitest, check-all; one reserved fix round for the w203/cold_drain replay family; 8 standalone chain_coherence findings are fixture/BL-47, not defects) → E3 demo build into `assetops_polish_client_test` (not the 3rd–5th of a month) → E4 serve + checks incl. KIS-11, Cold/EV rows "Pending", first real add-dates run, a forced unfinished-Kisiwa-night resume check (G1 r2 suggestion) → E5 captures → DS-1f → owner walkthrough → DS-1b technical doc.
 
 ## Standing constraints
 - NO full backend suite, NO demo prepare, NO baseline build until end-game, except Architect-ruled scratch prepares under the gate: one heavy job, ≥2.5 GB free RAM for 2 min, keep-awake running, stop under 1 GB. Memory pressure reaps background shells — prefer foreground commands <10 min and Wait-Process on PIDs.
@@ -42,4 +42,4 @@ Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Revision 1 at top). Rulings s
 - Plan HTML (`Docs/demo-sprint/client-demo-plan.html`) size rows NOT yet updated for FUEL-1/DIESEL-1.
 
 ## Restart guidance
-Restart only when no agents are running. On resume: read this file, `git log --oneline -20` on main, then the last build-sheet rulings (§9u, §9v).
+Restart only when no agents are running. On resume: read this file, `git log --oneline -20` on main, then the latest OWN-GAPS build-sheet rulings (R5, R6). Lesson 2026-11-09: tell builders to wait in place with Monitor on long jobs (one handed back while waiting and stalled).
