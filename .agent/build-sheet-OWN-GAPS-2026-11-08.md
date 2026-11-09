@@ -3087,3 +3087,124 @@ head (it edits the same file); merges after C2. Sonnet builder, about 0.25 unit.
 - **D-E4.9** PF3 is measured on ticks proven quiet by the DB marks. The rebuild after `add-dates` is recorded, not
   budgeted.
 - **D-E4.10** The full story-derived warm list stays. The presenter waits for one quiet prebuild after `add-dates`.
+
+## E3b stop ruling (2026-11-10)
+
+Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`), under the owner's delegation of 2026-11-08. Input:
+`AssetOpsV1-e3b/.agent/E3b-results.md` and `var/polish_client3/check.json` (8b13c7f95), code on main da68db6d4, and
+read-only SQL on `assetops_polish_client3_test`. **READ** = code cited; **DB** = queried.
+
+### D-E3b.1 Root cause: the board's thread lookup still reads the lifecycle at the evidence cutoff
+
+**The board side (READ).**
+- `site_outcomes/read.py` `board()` (`:470-495`) reads each listed Finding's thread with
+  `known_at=cutoff`, where `cutoff = window["known_at"]`.
+- For cold/EV, that value is `board_cutoff` (`:897`), which is `site_cutoff`. That is the window's last reading
+  (`decided_at`), bounded by `k`.
+- So the outcome-board reads the lifecycle at the **evidence** cutoff. This is the read CH6b2-R2 ruled out.
+
+**The Portfolio side (READ).** After C1, `estate/portfolio.attach_threads` reads at `lifecycle_cutoff(k)`.
+
+**The other readers (READ).** The `/chain` route (`chain_api.py:185-187`) and the claims (`chain/claims.py:84, 97`)
+already read at `k`.
+
+**My error.** D-E4.2 cited `chain_api.py:185-187` as "the board". That is the `/chain` route, not the outcome-board
+composer. So C1 moved the Portfolio to `k` and left the board behind. The C1 review's L3 ("they agree at read time")
+was wrong for the same reason.
+
+**What F-COH requests (READ).** `_coh` calls `cc.collect(..., known_at=None)`, so both sides get the live request.
+- The board resolves its cutoff to the window's last reading.
+- The Portfolio resolves it to the envelope `k`.
+
+**DB: all 8 mismatches are explained.**
+
+| Site | Evidence cutoff | Thread events | Board sees | Portfolio sees |
+|---|---|---|---|---|
+| EV | 11-03 09:00Z | OPEN 09:35Z, ACTION_IN_HAND 09:40Z | neither: (None, None) | ACTION_IN_HAND |
+| Cold, 11-07 window | 17:05Z | thread 3eef: OPEN on 11-04, ACTION_IN_HAND 17:15Z | OPEN | ACTION_IN_HAND |
+| Cold, 11-07 window | 17:05Z | thread 8adc: OPEN 17:10Z | (None, None) | OPEN |
+
+- EV gives 2 mismatches: the week and month windows.
+- Cold gives 6: 2 threads in each of the week, S and month windows.
+
+**Why client2 passed 51/51.** Before C1, both sides read at the evidence cutoff. They agreed because both were blind.
+The board listed a Finding whose thread had no state at all.
+
+**Verdict.**
+- The **board** is wrong.
+- The **check** is right. It caught the gap as soon as one side was fixed.
+- The **Portfolio** (C1) is right.
+
+**Real-site sense.**
+- A Finding is always known after the evidence it assesses. A reading cutoff therefore hides the Finding's own
+  opening, and any action agreed after it.
+- A manager who opens EV on 11-03 must see that someone agreed an action that day, at 09:40Z. The time-travel
+  honesty comes from the state **day** (`state_on(evs, board_day)`, each event's effective day), not from the
+  reading cutoff.
+- A board that lists a fault with no state, while the Portfolio says "Pending" for it, contradicts itself on the
+  presented beat. R4.1's "Pending" intent holds on both screens only once the board reads at `k`.
+
+### D-E3b.2 Fix card E4-C5: the board reads thread lifecycle at `k`
+
+Branch `task/E4-C5-board-lifecycle-cutoff`, cut from main da68db6d4. Opus builder, about 0.5 unit. Fresh Claude
+review; only High or Medium findings block. Do the pre-flight questions before writing code.
+
+1. **Product.** In `site_outcomes/read.py` `board()`, pass `known_at=lifecycle_cutoff(known_at)` (the raw request,
+   as `chain_api.py:185` does) to `self.s.threads.lookup`.
+   - `visible_at=known_at` is unchanged (CH5a1-R2 R-1).
+   - `day=board_day` is unchanged.
+   - `facts.known_at` and every evidence read stay at `cutoff`.
+   - Mini boards do not change, because `board_cutoff` is already the request's cutoff for mini. The opportunity
+     read stays at `cutoff`.
+   - Update the comment at `:472-475` to cite CH6b2-R2 and D-E3b.1.
+   - The pre-flight confirms that no other board-side lifecycle read (Action refs, thread lines, `dated_lead`) uses the
+     evidence cutoff. If one does, it moves to `k` in this change and is listed. Evidence reads never move.
+2. **Check (fundamental: no agreement in blindness).** Extend `tools/checks/chain_coherence.py` COH-13. In a
+   lifecycle-stamped bundle, a board or Portfolio thread on a **listed** Finding with `state` None is a finding:
+   "listed Finding with no thread state".
+   - Add one fixture to `tools/checks/test_chain_coherence.py` (the both-None pair fires).
+   - Any existing fixture that relied on None is listed in the packet.
+3. **Tests.**
+   - New no-DB `backend/tests/test_e3b_board_lifecycle_cutoff.py`, with a fake `threads.lookup` that records its
+     kwargs:
+     - (a) a cold board with an evidence cutoff earlier than the request reads with `known_at` equal to the request
+       value (None when live);
+     - (b) an EV board behaves the same;
+     - (c) a mini board's call is unchanged.
+   - Run `test_ch2_threads.py`, `test_ch3_rows.py`, `test_ch5a1_r1_visibility.py`, `test_ch5a2_contract.py`,
+     `test_e4_portfolio_lifecycle_cutoff.py`, `test_r4_domain_row_thread_state.py`, `test_chain_coherence.py` and
+     `test_demo_combined_finish_rows.py`.
+   - Rule for changed assertions:
+     - An assertion that pinned a cold/EV **board** thread state at the evidence cutoff may change, and is listed.
+     - Any other changed assertion is a stop.
+     - Occurrence visibility must not move.
+4. **In-process proof before the prepare (cheap; the machine is idle).** From the C5 worktree, run the finish rows
+   F-COH and F-COH3 in-process against `assetops_polish_client3_test` / `var/polish_client3`. That DB is discarded
+   and is a `*_test` DB.
+   - Pass condition: F-COH passes, with the EV 11-03 and both Cold 11-07 pairs present and equal.
+   - This is the gate for item 5, not a demo patch. client3's `tree` is never edited.
+
+### D-E3b.3 Rebuild path
+
+- Another full prepare is required: client4, from main after C5 merges, about 2 h 10 m on an idle machine.
+- Reasons:
+  - R6.3 forbids editing or replacing client3's `tree`.
+  - The demo build must serve the fixed board code.
+  - R4.1 must still be proven on a fresh build before any add-dates (D-E4.2's proof, plus: the EV 11-03 board and the
+    Cold 11-07 board show those Findings as "Action agreed"/in hand).
+- Nothing short of that proves the build. The in-process proof (D-E3b.2 item 4) only guards against wasting 2 h.
+- client3 is retired. Do not serve it.
+- D-E4.4(b), the forced unfinished Kisiwa night, runs on client2 as the coordinator proposed.
+  - Snapshot before and after.
+  - client2 already has add-dates through 11-09, so the only pending night is the unfinished one.
+  - Run it before 15:00, never concurrently with the prepare.
+- Order: C5 build and review, then the in-process proof, merge, check-all, prepare client4, the full E4 rerun
+  (PF1-PF4, GE(b) per D-E4.3), then E5, DS-1a and the walkthrough.
+
+### Decisions logged for owner review
+
+- **D-E3b.1** The board, not the Portfolio, was wrong. My D-E4.2 ruling missed the board composer's thread read.
+  Client2's earlier pass was agreement in blindness.
+- **D-E3b.2** The board reads thread lifecycle at the request cutoff. COH-13 now refuses a listed Finding with no
+  state.
+- **D-E3b.3** A fresh prepare after C5. client3 is retired. The Kisiwa resume check runs on client2.
