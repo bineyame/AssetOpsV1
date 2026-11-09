@@ -6483,5 +6483,7 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
 - Tests: `backend/tests/test_own_g1_add_dates.py` (38, no DB); K7 skip-branch count is 13 (KIS-11).
 - Rehearsal (fresh clone): run A 51/51 PASS (2545 s; settles 87.2 s and 109.6 s, 1 tick each), run B (10.5 min later, nothing
   to add, one closing tick) 51/51 PASS (1364 s). Packet `.agent/review-packet-G1.md`.
-- Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog); `chain_coherence` shows 8 findings
-  (COH-2 x5, COH-10 x3) identical to the template baseline, 0 from G1; the "EX-2 = 0" wording needs Architect confirmation.
+- Review fix round: a PUBLISHED Kisiwa night is resumed (planner starts after the last DONE night) and the child refuses any later
+  night (`NIGHT_NOT_FINISHED`); `--dry-run` runs the read-only preflight; a stopped command prints what it added.
+- Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog). EX-2 = F-COH PASS in runs A and B (F-COH3 proves it is
+  not vacuous); the standalone 8 findings are the old fixture's COH-10 x3 and the known BL-47 COH-2 x5, 0 from G1.

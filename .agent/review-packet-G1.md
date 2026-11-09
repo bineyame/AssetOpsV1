@@ -54,10 +54,10 @@ performance_migration (KOBO-001, KISIWA-001): all "cutover: permitted" (R6.3 rec
 - Drain `counts`: 0 for every field on all four Sites.
 - Kisiwa boards through the app: `night_date 2026-11-07` status 200 `board_faults == []`; next board day 2026-11-08 status 200
   `board_faults == []` (not blocking, recorded).
-- `chain_coherence collect` (336 requests, all 200) + `check`: 8 NEW findings (COH-2 x5 on COLD/EV Actions, COH-10 x3 threads
-  kobo-generator, cold-start-failure, ev-interruption), 0 on Kisiwa. **The same 8, with identical ids and text, are produced from the
-  template DB before any add-dates** (collected with the same tree code), so G1 adds none. The sheet's "EX-2 = 0" does not
-  map to this output (no counter of that name); see Known Deviations.
+- EX-2 is met by the F-COH row in `finish check` (`chain_coherence check` with no expectation file), which PASSED in runs A and B;
+  F-COH3 proves the row is not vacuous. The standalone run (`collect` 336 requests, all 200, then `check` against the old fixture
+  threads file) showed 8 findings: 3 x COH-10 from that fixture's stale thread names (kobo-generator, cold-start-failure,
+  ev-interruption) and 5 x COH-2, the known BL-47 entries F-COH allows. G1 adds none, 0 on Kisiwa. (Corrected per review L1.)
 
 ## Known deviations / open points
 
@@ -78,3 +78,27 @@ performance_migration (KOBO-001, KISIWA-001): all "cutover: permitted" (R6.3 rec
   `study_ending` as the sole WK-6 change, and BL-52 (Kisiwa added-night board row) remaining a backlog item.
 
 Clone kept until review ACCEPT: database `assetops_demo3_g1audit_test`, folder `var/demo3_g1audit`.
+
+## Fix round (review H1)
+
+Code and tests are in commit `cf6c468ce`; the DB rehearsal was not re-run (these paths are covered by no-DB tests).
+
+- **H1.** `plan_add_dates` (Kisiwa) now starts after the last story night or last DONE night, so a PUBLISHED night is planned first and
+  resumed (`GAP_NOT_ALLOWED` is measured from the same point). `kis.plan_night` refuses a new night while an earlier PUBLISHED entry
+  exists: `NIGHT_NOT_FINISHED`, naming the night and `--from <date>`; it raises before any write. Tests:
+  `test_planner_resumes_a_published_night_first`, `test_child_refuses_a_new_night_while_an_earlier_one_is_published`;
+  `test_plan_night_refusals_and_resume` updated (chaining is asserted from a DONE night, PUBLISHED refuses).
+  Mutations: planner back to `kis.last_night` fails the planner test; `if False and stuck` fails the child test and the updated
+  refusals test. Both restored.
+- **L2.** `test_wk6_calls_study_ending` (source of `wk6` must call `study_ending`, no `max(`). Mutation: `max(found, ...)` fails it.
+- **L3.** On any stop, `add_dates` prints the dates already added and settled. `test_a_stopped_command_prints_the_dates_already_added`.
+  Mutation: handler disabled fails it.
+- **L4.** The per-date wrapper also matches "mini-depth FAILED". `test_a_mini_depth_failure_in_a_settle_gets_the_drain_wording`.
+  Mutation: back to DRAIN FAILED only fails it.
+- **L5.** `--dry-run` runs the preflight before printing the plan, so refusals show; no `.busy`, no add, no drain, no tick. The preflight
+  child still writes its own log under `<work>/logs` (as on a real run). `test_dry_run_runs_the_preflight_refusals_and_writes_nothing`
+  and the updated `test_dry_run_writes_nothing_and_calls_no_child`. Mutation: ignoring the refusal under dry run fails it.
+- **L1.** Packet and CODE_STATE wording corrected (EX-2 = F-COH PASS in runs A and B).
+- Deviation: the fix and its tests share one file, so H1, L2-L5 are one commit, not one each.
+- Checks: G1 + K7 files 143 passed; with the adjacent no-DB set 351 passed, 4 failed (the known mill x2, ch5c_env_parity,
+  ch5c2_clock_guard).
