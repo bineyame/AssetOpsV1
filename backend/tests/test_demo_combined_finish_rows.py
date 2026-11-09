@@ -1205,7 +1205,8 @@ def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
         def py(*args, **kw):
             seen.append(args[args.index("--site") + 1] if "--site" in args else args[-1])
             return types.SimpleNamespace(stdout="ok")
-        dc.Demo.performance_and_prebuild(types.SimpleNamespace(story=lambda: {"sites": sites}, py=py))
+        dc.Demo.performance_and_prebuild(types.SimpleNamespace(story=lambda: {"sites": sites}, py=py,
+                                                               write_prebuilt_routes=lambda: None))  # E4-C2
         return seen[:-1]  # the last call is the pre-build
 
     assert run(["kobo", "kisiwa"]) == ["KOBO-001", "KISIWA-001"]
