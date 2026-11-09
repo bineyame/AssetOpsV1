@@ -998,6 +998,10 @@ def plan_night(kisiwa: dict, build: dict, entries: list[dict], night: date, kind
     if entry is not None or replay_exists:
         raise _refuse("PARTIAL_NIGHT", f"{SITE_CODE} {night.isoformat()} was left part-way (no PUBLISHED entry, but "
                                        f"its readings folder or entry exists); ask the Architect")
+    stuck = sorted(e["night_date"] for e in entries if e.get("status") == "PUBLISHED" and e["night_date"] < night.isoformat())
+    if stuck:  # a night whose own check did not finish is never built on
+        raise _refuse("NIGHT_NOT_FINISHED", f"{SITE_CODE} {stuck[0]} was added but its check did not finish; finish it "
+                                            f"first with --from {stuck[0]}")
     nxt = last_night(kisiwa, entries) + timedelta(days=1)
     if night != nxt:
         raise _refuse("NOT_NEXT_NIGHT", f"{SITE_CODE} {night.isoformat()} is not the next night ({nxt.isoformat()})")

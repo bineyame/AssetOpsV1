@@ -41,7 +41,7 @@ import subprocess
 import sys
 import tarfile
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -417,7 +417,9 @@ def plan_add_dates(story: dict, days_json: dict, kisiwa_entries: list[dict], *, 
                                                      "cannot be changed.")
         plan = {"dates": [], "skipped": [], "left_empty": [], "no_session": []}
         if site == "kisiwa":
-            last = kis.last_night(story["kisiwa"], kisiwa_entries)
+            # H1: start after the last DONE night, so a PUBLISHED night (check not finished) is resumed, never skipped
+            last = max([kis.last_story_night(story["kisiwa"]),
+                        *[date.fromisoformat(e["night_date"]) for e in kisiwa_entries if e.get("status") == "DONE"]])
             if date_from is not None and date_from > last + timedelta(days=1):
                 raise sd.StoryDaysError("GAP_NOT_ALLOWED", f"Kisiwa nights must follow on from {last.isoformat()}; "
                                                            f"start at {(last + timedelta(days=1)).isoformat()}.")
@@ -1081,17 +1083,19 @@ class Demo:
                    for s, p in plan["sites"].items() for d, r in p["skipped"]]
         no_session = [{"site": SITE_CODE[s], "date": d} for s, p in plan["sites"].items() for d in p["no_session"]]
         left_empty = {SITE_CODE[s]: p["left_empty"] for s, p in plan["sites"].items() if p["left_empty"]}
+        # The preflight is read-only (its one request is rejected as invalid), so a dry run runs it too: a dry run never
+        # shows a plan for a request the real run would refuse.
+        rc, line, _ = self.kisiwa_child("preflight", label="add-dates-preflight", seconds=600)
+        refusal = preflight_refusal(rc, (line or {}).get("preflight"), "kisiwa" in sites)
+        if refusal is not None:
+            raise refusal
         say("add-dates plan: " + json.dumps({SITE_CODE[s]: [d.isoformat() for d in p["dates"]]
                                              for s, p in plan["sites"].items()}))
         if dry_run:
             for line in plain_lines([], skipped, no_session, left_empty):
                 say(line)
-            say("--dry-run: nothing written (the build checks run only on a real run).")
+            say("--dry-run: nothing added (the build checks run only on a real run).")
             return {"plan": plan}
-        rc, line, _ = self.kisiwa_child("preflight", label="add-dates-preflight", seconds=600)
-        refusal = preflight_refusal(rc, (line or {}).get("preflight"), "kisiwa" in sites)
-        if refusal is not None:
-            raise refusal
         busy = self.hold_busy("add-dates")
         added: list[dict] = []
         check = "not run"
@@ -1120,7 +1124,7 @@ class Demo:
                     try:
                         added += self.settled_date(d, today)
                     except SystemExit as exc:  # R5.2 item 5: earlier dates stay (append-only)
-                        if not str(exc).startswith("DRAIN FAILED"):
+                        if not str(exc).startswith(("DRAIN FAILED", "mini-depth FAILED")):
                             raise
                         raise SystemExit(f"{codes} {d.isoformat()}: the added data did not finish processing; {exc}. "
                                          "prepare a fresh build before a demo.") from None
@@ -1141,6 +1145,12 @@ class Demo:
                     if extra:
                         say(f"  tick: {extra} extra tick(s) for KISIWA-001's fuel_night stage")
                 check = self.finish_check()
+        except BaseException:
+            if added:  # L3: the process is append-only; say what is now in the build before the error
+                say("The command stopped. These dates were already added and settled:")
+                for text in plain_lines(added, [], [], {}):
+                    say(text)
+            raise
         finally:
             busy.unlink(missing_ok=True)
         summary = {"added": [{**a, "date": a["date"].isoformat()} for a in added],

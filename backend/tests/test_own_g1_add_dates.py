@@ -228,8 +228,32 @@ def test_plan_night_refusals_and_resume() -> None:
     assert code(lambda: kis.plan_night(k, b, [{**published, "status": "DONE"}], D("2026-11-07"), None,
                                        LATER)) == "DUPLICATE_DAY"
     assert code(lambda: kis.plan_night(k, b, [], D("2026-11-07"), None, LATER, replay_exists=True)) == "PARTIAL_NIGHT"
-    assert kis.plan_night(k, b, [published], D("2026-11-08"), None, LATER)["start_state"] == {"soc": "90",
-                                                                                              "fuel": "500"}
+    done = {**published, "status": "DONE"}  # H1: only a finished night is built on
+    assert kis.plan_night(k, b, [done], D("2026-11-08"), None, LATER)["start_state"] == {"soc": "90", "fuel": "500"}
+    assert code(lambda: kis.plan_night(k, b, [published], D("2026-11-08"), None, LATER)) == "NIGHT_NOT_FINISHED"
+
+
+PUBLISHED_1107 = {"night_date": "2026-11-07", "status": "PUBLISHED", "end_state": {"soc": "90", "fuel": "500"}}
+
+
+def test_planner_resumes_a_published_night_first() -> None:
+    """Must-fail guard (review H1): a night left PUBLISHED is planned first, never stepped over."""
+    out = plan(sites=["kisiwa"], entries=[PUBLISHED_1107])["sites"]["kisiwa"]
+    assert out["dates"][0] == D("2026-11-07") and out["dates"][:2] == [D("2026-11-07"), D("2026-11-08")]
+    done = plan(sites=["kisiwa"], entries=[{**PUBLISHED_1107, "status": "DONE"}])["sites"]["kisiwa"]
+    assert done["dates"][0] == D("2026-11-08")  # a DONE night is still the point to continue from
+    assert code(lambda: plan(sites=["kisiwa"], entries=[PUBLISHED_1107], date_from=D("2026-11-08"))) == "GAP_NOT_ALLOWED"
+
+
+def test_child_refuses_a_new_night_while_an_earlier_one_is_published() -> None:
+    """Must-fail guard (review H1): nothing builds on a night whose own check did not finish."""
+    story, _ = build()
+    k, b = story["kisiwa"], _kisiwa_build()
+    with pytest.raises(SystemExit) as refused:
+        kis.plan_night(k, b, [PUBLISHED_1107], D("2026-11-08"), None, LATER)
+    assert refused.value.error_code == "NIGHT_NOT_FINISHED"
+    assert "2026-11-07" in str(refused.value) and "--from 2026-11-07" in str(refused.value)
+    assert kis.plan_night(k, b, [PUBLISHED_1107], D("2026-11-07"), None, LATER)["resume"] is True
 
 
 def test_start_state_chains_done_and_published_over_the_story() -> None:
@@ -331,11 +355,43 @@ def test_dry_run_writes_nothing_and_calls_no_child(monkeypatch, tmp_path: Path) 
     monkeypatch.setattr(demo, "db_now", lambda: LATER)
     monkeypatch.setattr(demo, "site_zones", lambda: ZONES)
     monkeypatch.setattr(demo, "delivered_days", lambda code: set())
+    verbs: list[str] = []
+    monkeypatch.setattr(demo, "kisiwa_child", lambda verb, *a, **k: verbs.append(verb) or (0, {"preflight": {
+        "fuel_stage": True, "entry_status": 422, "entry_code": "OPREC_ENTRY_INVALID"}}, ""))
     monkeypatch.setattr(demo, "py", lambda *a, **k: pytest.fail("a child was started in --dry-run"))
-    for name in ("drain_mini", "drain", "counts", "tick"):
+    monkeypatch.setattr(demo, "hold_busy", lambda *a, **k: pytest.fail("--dry-run took .busy"))
+    for name in ("drain_mini", "drain", "counts", "tick", "_add_core_day", "add_kisiwa_night", "finish_check"):
         monkeypatch.setattr(demo, name, lambda *a, _n=name, **k: pytest.fail(f"{_n} was called in --dry-run"))
     out = demo.add_dates("all", dry_run=True)
     assert out["plan"]["order"] and sorted(p.name for p in tmp_path.iterdir()) == before
+    assert verbs == ["preflight"]  # only the read-only preflight runs
+
+
+def test_dry_run_runs_the_preflight_refusals_and_writes_nothing(monkeypatch, tmp_path: Path, capsys) -> None:
+    story, days_json = build()
+    demo = _demo()
+    demo.work = tmp_path
+    (tmp_path / "days.json").write_text(json.dumps(days_json), encoding="utf-8")
+    before = sorted(p.name for p in tmp_path.iterdir())
+    monkeypatch.setattr(demo, "story", lambda: story)
+    monkeypatch.setattr(demo, "db_now", lambda: LATER)
+    monkeypatch.setattr(demo, "site_zones", lambda: ZONES)
+    monkeypatch.setattr(demo, "delivered_days", lambda code: set())
+    monkeypatch.setattr(demo, "kisiwa_child", lambda verb, *a, **k: (1, None, ""))  # a build with no working child
+    with pytest.raises(SystemExit) as refused:
+        demo.add_dates("all", dry_run=True)
+    assert refused.value.error_code == "BUILD_TOO_OLD"
+    assert "add-dates plan" not in capsys.readouterr().out  # no plan is shown for a request the real run refuses
+    assert sorted(p.name for p in tmp_path.iterdir()) == before
+
+
+def test_wk6_calls_study_ending() -> None:
+    """Must-fail guard (review L2): wk6 must select the study through `study_ending`, not by the newest study."""
+    import inspect
+    import demo_combined_finish as fin
+
+    source = inspect.getsource(fin.wk6)
+    assert "demo_rows.study_ending(found, ctx.day(1).date().isoformat())" in source and "max(" not in source
 
 
 # ---- R5.2: settle each date before it is called checked ----------------------------------------------------------------
@@ -452,6 +508,39 @@ def test_a_failed_drain_stops_the_command(monkeypatch, tmp_path: Path) -> None:
     assert text.startswith("KOBO-001, KISIWA-001 2026-11-07: the added data did not finish processing; DRAIN FAILED")
     assert text.endswith("prepare a fresh build before a demo.")
     assert calls.count(("child", "add-day")) == 1 and ("finish_check",) not in calls
+    assert not (tmp_path / ".busy").exists()
+
+
+def test_a_stopped_command_prints_the_dates_already_added(monkeypatch, tmp_path: Path, capsys) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"], D2: ["kobo"]})
+    real = demo.drain
+
+    def second_fails(name="drain"):
+        if name == "settle-2026-11-08":
+            raise SystemExit("DRAIN FAILED: settle-2026-11-08: past 2N")
+        return real(name)
+
+    monkeypatch.setattr(demo, "drain", second_fails)
+    with pytest.raises(SystemExit):
+        demo.add_dates("all")
+    out = capsys.readouterr().out
+    assert "The command stopped. These dates were already added and settled:" in out
+    tail = out.split("The command stopped.")[1]
+    assert "added 7 Nov" in tail and "8 Nov" not in tail
+
+
+def test_a_mini_depth_failure_in_a_settle_gets_the_drain_wording(monkeypatch, tmp_path: Path) -> None:
+    demo, calls = _loop(monkeypatch, tmp_path, {D1: ["kobo"]})
+
+    def failing() -> None:
+        raise SystemExit("mini-depth FAILED: [{'job': 1}]")
+
+    monkeypatch.setattr(demo, "drain_mini", failing)
+    with pytest.raises(SystemExit) as stopped:
+        demo.add_dates("all")
+    text = str(stopped.value)
+    assert text.startswith("KOBO-001 2026-11-07: the added data did not finish processing; mini-depth FAILED")
+    assert text.endswith("prepare a fresh build before a demo.") and ("finish_check",) not in calls
     assert not (tmp_path / ".busy").exists()
 
 
