@@ -6466,3 +6466,22 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   verdict, opportunity rides as `potential` (second chip); POLICY now `outcome-status/3` and `outcome-objectives/2` (supersedes the /2 and /1
   mentions above); Assure line lists met / on pace / behind pace / too early / not checked. The two main test failures are fixed.
   Demo-date rule: S = prepare day - 2; do not prepare on days 3-5 of a month (MG-1 reads "too early to judge").
+
+## OWN-G1 - add-dates (built, in_review)
+
+- `tools/demo_combined.py add-dates` (build sheet OWN-GAPS §4, R2-G1, R5, R6): plan (`plan_add_dates`), then per date the
+  Kobo/Cold/EV day (`_add_core_day`) and Kisiwa night (tree child `add-day`), date-major, then `finish check`.
+- R5.2 settle: before a date is called checked, `drain_mini` (worker CLI, no per-tick bound) then `drain("settle-<date>")`
+  (scheduled ticks until every count is 0); Kisiwa dates run `drain_mini`, `tick_and_verify`, then `drain`. Items carry
+  `tick_failures`; a `DRAIN FAILED` stops the command with earlier dates in place. A closing `settle-close` runs if counts are
+  above 0 after the last date (also under `--no-check`).
+- R6.1: when the check runs, one `tick()` plus `retry_until_visited` precedes `finish_check` (the schedule must have just run;
+  the product reports "not current" after 300 s without a tick, and that stays). R6.2: WK-6 uses
+  `demo_combined_rows.study_ending(found, S+1)` (exactly one study ending that day) instead of `max()`.
+- Recipe, not code: replacing a build's `tree` deletes its file-backed legacy comparison report; re-run `evidence_migration` and
+  `performance_migration` after (R6.3). Never replace `tree` on the demo path.
+- Tests: `backend/tests/test_own_g1_add_dates.py` (38, no DB); K7 skip-branch count is 13 (KIS-11).
+- Rehearsal (fresh clone): run A 51/51 PASS (2545 s; settles 87.2 s and 109.6 s, 1 tick each), run B (10.5 min later, nothing
+  to add, one closing tick) 51/51 PASS (1364 s). Packet `.agent/review-packet-G1.md`.
+- Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog); `chain_coherence` shows 8 findings
+  (COH-2 x5, COH-10 x3) identical to the template baseline, 0 from G1; the "EX-2 = 0" wording needs Architect confirmation.
