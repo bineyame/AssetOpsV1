@@ -93,3 +93,18 @@ def test_marks_are_written_atomically(tmp_path, monkeypatch) -> None:
     tool.write_marks(path, {"KOBO-001": "cic:1"})
     assert replaced and replaced[0][1] == path and not replaced[0][0].exists()
     assert tool.read_marks(path) == {"KOBO-001": "cic:1"}
+
+
+def test_an_unreadable_mark_is_due_and_raises_nothing(tmp_path, monkeypatch) -> None:
+    import psycopg
+
+    def refuse(*a, **kw):
+        raise psycopg.OperationalError("connection refused")
+
+    monkeypatch.setattr(psycopg, "connect", refuse)
+    d = _demo(tmp_path, {})
+    d.url = "postgresql+psycopg://x:y@127.0.0.1:1/none_test"
+    mark = tool.Demo.read_site_mark(d, "KOBO-001")
+    assert mark is None
+    assert tool.performance_due("KOBO-001", mark, {"KOBO-001": "cic:7"}, d.tree / "var" / "evidence" /
+                                "migration-performance" / "kobo-001")

@@ -1044,14 +1044,17 @@ class Demo:
         import psycopg
 
         url = self.url.replace("postgresql+psycopg://", "postgresql://")
-        with psycopg.connect(url, autocommit=True) as c:
-            c.read_only = True
-            row = c.execute("SELECT t.id, s.id FROM site s JOIN tenant t ON t.id = s.tenant_id "
-                            "WHERE t.slug = 'demo' AND s.site_code_key = lower(%s)", (site,)).fetchone()
-            if row is None:
-                return None
-            count = c.execute("SELECT count(*) FROM chain_input_change WHERE (tenant_id = %s OR tenant_id IS NULL) "
-                              "AND (site_id = ANY(%s) OR site_id IS NULL)", (row[0], [row[1]])).fetchone()[0]
+        try:  # review M1: an unreadable mark is "due", never an error that ends the serve loop
+            with psycopg.connect(url, autocommit=True) as c:
+                row = c.execute("SELECT t.id, s.id FROM site s JOIN tenant t ON t.id = s.tenant_id "
+                                "WHERE t.slug = 'demo' AND s.site_code_key = lower(%s)", (site,)).fetchone()
+                if row is None:
+                    return None
+                count = c.execute("SELECT count(*) FROM chain_input_change WHERE (tenant_id = %s OR "
+                                  "tenant_id IS NULL) AND (site_id = ANY(%s) OR site_id IS NULL)",
+                                  (row[0], [row[1]])).fetchone()[0]
+        except psycopg.Error:
+            return None
         return f"cic:{count}"
 
     def performance_and_prebuild(self) -> None:
