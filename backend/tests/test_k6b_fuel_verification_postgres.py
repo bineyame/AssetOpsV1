@@ -130,11 +130,15 @@ class _Norm:
         self.effective, self.eff_day, self.ids, self.tz = effective, eff_day, {}, ZoneInfo(tz)
 
     def __call__(self, v):
-        if isinstance(v, dict):
-            return {k: self(x) for k, x in v.items()}
+        from assetops_backend.actions import verification_families as fv_families
+
+        if isinstance(v, dict):  # D-E2.10: a date-shaped key (the `grades` map) is a story date too
+            return {(self(k) if isinstance(k, str) else k): self(x) for k, x in v.items()}
         if isinstance(v, (list, tuple)):
             return [self(x) for x in v]
         if isinstance(v, str):
+            if v == fv_families.TARGET["declared_by"]:  # the owner's declaration date is a rule constant, not a story date
+                return v
             if _UUID.match(v):
                 return self.ids.setdefault(v, f"<uuid:{len(self.ids)}>")
             if _SHA.match(v):
@@ -185,6 +189,22 @@ def test_5_mill_path_outputs_equal_the_first_commit_pins(mill) -> None:  # noqa:
         pytest.skip("pins captured")
     want = json.loads(PINS.read_text(encoding="utf-8"))
     assert got == want, _diff(got, want)
+    # D-E2.10: independence from the wall clock is checkable: no absolute date survives normalisation, except the
+    # rule's own declaration literal.
+    from assetops_backend.actions import verification_families as fv_families
+
+    declared = fv_families.TARGET["declared_by"]
+
+    def _absolute(x) -> list[str]:
+        if isinstance(x, dict):
+            return [h for k, v in x.items() for h in _absolute(k) + _absolute(v)]
+        if isinstance(x, list):
+            return [h for v in x for h in _absolute(v)]
+        if isinstance(x, str) and x != declared and re.search(r"\d{4}-\d{2}-\d{2}", x):
+            return [x]
+        return []
+
+    assert not _absolute(got), _absolute(got)
 
 
 def _plan_row(kit, aid):  # noqa: F811
