@@ -125,3 +125,41 @@ freeze the story clock for this test (set `_BASE`) and re-pin once. Needs a ruli
 
 ## User review
 Not required by the task; Architect ruling needed for G-e and G-h before E3.
+
+## Stop rulings applied (D-E2.9 G-e, D-E2.10 G-h)
+Main 8dae46bd9 merged in (f7ad4b13c). Test-only; no product code changed.
+
+### G-h (commit 6e886c3cd)
+- `_Norm`: dict keys that are strings are normalised; `TARGET["declared_by"]` stays literal (lazy import of
+  `verification_families`).
+- `k6b_mill_pins.json`: mechanical transform of the d25f95ccb pins, no re-capture: 14 `grades` keys
+  `"2026-10-25".."2026-11-07"` -> `"<d-14>".."<d-1>"` and 3 `"owner <d-3>"` -> `"owner 2026-11-05"`. Diff is exactly
+  17 lines changed (17+/17-), nothing else.
+- `test_5`: new assert that no absolute date remains in `got` (except the `declared_by` literal).
+- Host run: `test_k6b_fuel_verification_postgres.py` 6 passed, no other difference from the transformed pins (stop rule
+  not hit).
+- Mutation proof: `TARGET["declared_by"]` set to `"owner 2026-11-06"` in `verification_families.py` -> `test_5` FAILED
+  (1 failed, 5 passed); reverted with `git checkout` (tree clean).
+
+### G-e (commit 9d04c7a30)
+- Pinned `S602B_STATES` (MG-8 removed), identical on 10-06, 11-02 and the estate 10-21 board (no second constant):
+  `{MG-1: NO_OBJECTIVE, MG-2: NEEDS_ATTENTION, MG-3: NOT_MEASURED, MG-4: NO_OBJECTIVE, MG-5: NO_OBJECTIVE,
+  MG-6: NOT_MEASURED, MG-7: WATCH}`. `chain_day` port `{"settled": true, "readiness": "NONE", "gaps": 31}` asserted on
+  all three boards. Wire reasons: MG-2 `PRIMARY_FINDING_OPEN`, MG-4 `NO_OBJECTIVE_DECLARED`, MG-7
+  `EVIDENCE_READINESS_NONE` (MG-1/5 `NO_OBJECTIVE_DECLARED`, MG-3/6 `NOT_MEASURED_IN_CATALOGUE`, MG-8
+  `CONFIGURATION_NOT_APPLICABLE`).
+- The asserts after the loop (F01 MOVES, SAFEGUARD, Action keys, ACT index) now run and pass.
+- New `test_kobo_s602b_no_judgement_on_unchecked_day`, `xfail(strict=True)` citing BL-63. Run with `--runxfail` it fails on
+  `('2026-10-06', {'MG-2': 'PRIMARY_FINDING_OPEN'})`, i.e. for the intended reason.
+- Host run of `test_out_b4_board_postgres.py`: 5 passed, 1 xfailed (143.67 s).
+
+### Check-all
+`tools\check-all.ps1 -Python ...plan2\.venv\Scripts\python.exe` at 9d04c7a30: "All 18 guards passed." (exit 0).
+
+### Deviation from the ruling's premise (for the Architect)
+R-1 expected `MG-4: WATCH` with reason `SECONDARY_FINDING_OPEN`. The recorded board has MG-4 = NO_OBJECTIVE
+(`NO_OBJECTIVE_DECLARED`); the board's WATCH is on MG-7 with reason `EVIDENCE_READINESS_NONE` (readiness, not a
+Finding). No secondary-Finding reason is on the wire. I pinned the states and reasons exactly as recorded and did not
+assert `SECONDARY_FINDING_OPEN`. The product inconsistency BL-63 describes still holds through MG-2 (primary Finding
+state on a NO_DATA day); the xfail guard fires on it. The "MG-4 WATCH" description in the original packet STOP section
+was a mislabel of the MG-7 state.
