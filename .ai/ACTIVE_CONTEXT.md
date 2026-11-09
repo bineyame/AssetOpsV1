@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-11-09 OWN-G1 (add-dates, with R5 settle and R6 closing tick / WK-6) is built, `in_review`** on `task/OWN-G1-add-dates` (worktree `AssetOpsV1-g1`, main b73c65eb6 merged). Built state `.ai/CODE_STATE.md` "OWN-G1"; packet `.agent/review-packet-G1.md`. Clone `assetops_demo3_g1audit_test` kept until ACCEPT.
+
 **2026-11-01 POLISH PA-3 ([producers, links and rebuild](../tasks/POLISH-PA-3-producers-rebuild.md)) is built, `in_review`** on `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, main `0ad27df7f` merged). Rebuilt demo DB `assetops_polish_full_test` / `var/polish_full` (17/17; slow build test 19/19). Packet `.agent/POLISH-PA-3-packet.md`; built state `.ai/CODE_STATE.md` "POLISH PA-3".
 **2026-11-01 Demo lane: DEMO-B (captures, v70 comparison, walkthrough runbook) is built, `in_review`** on `task/DEMO-B-captures` (worktree `AssetOpsV1-demob`, from main d2e8407e4; no task file, coordinator brief). Tool `tools/demo-combined-evidence.mjs`; packet `.agent/DEMO-B-packet.md` (runbook, R625-R634, polish P-01..P-10, client-copy list); captures `.agent/DEMO-B-captures/`. Built state `.ai/CODE_STATE.md` "DEMO-B".
 **2026-10-31 Demo lane: DEMO-A ([combined three-Site dataset](../tasks/DEMO-A-combined-dataset.md)) is built, `in_review`** on `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main c8702bb2b merged). Built state `.ai/CODE_STATE.md` "DEMO-A"; packet `.agent/DEMO-A-packet.md`; kept DB `assetops_demo3_full_test`. Final round on main `c8702bb2b`: self-check 17/17, build test 19/19, `-Tier all` green; awaits review.
