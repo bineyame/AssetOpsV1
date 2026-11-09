@@ -1194,7 +1194,7 @@ def test_pv_values_and_kis4_import_chain_coherence_without_tools_checks_on_the_p
     assert done.returncode == 0 and "FRESH_PATH_OK" in done.stdout, (done.stdout[-800:], done.stderr[-1500:])
 
 
-def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
+def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story(tmp_path) -> None:
     import types
 
     import demo_combined as dc
@@ -1205,8 +1205,9 @@ def test_performance_loop_runs_kisiwa_only_when_it_is_in_the_story() -> None:
         def py(*args, **kw):
             seen.append(args[args.index("--site") + 1] if "--site" in args else args[-1])
             return types.SimpleNamespace(stdout="ok")
-        dc.Demo.performance_and_prebuild(types.SimpleNamespace(story=lambda: {"sites": sites}, py=py,
-                                                               write_prebuilt_routes=lambda: None))  # E4-C2
+        dc.Demo.performance_and_prebuild(types.SimpleNamespace(
+            story=lambda: {"sites": sites}, py=py, write_prebuilt_routes=lambda: None,  # E4-C2
+            work=tmp_path, tree=tmp_path, read_site_mark=lambda site: None))  # E4-C4: no mark, so every run is due
         return seen[:-1]  # the last call is the pre-build
 
     assert run(["kobo", "kisiwa"]) == ["KOBO-001", "KISIWA-001"]

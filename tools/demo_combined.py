@@ -1066,7 +1066,7 @@ class Demo:
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
-            if done.returncode == 0 and mark is not None:
+            if mark is not None and done.returncode == 0:
                 marks[site] = mark
                 write_marks(marks_path, marks)
         self.write_prebuilt_routes()  # E4 D-E4.1: the list follows the calendar and the added dates
