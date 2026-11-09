@@ -7,6 +7,7 @@ JSON file. The shipped files are read once per process.
 from __future__ import annotations
 
 import json
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -95,9 +96,26 @@ def _default_lifecycle() -> LifecyclePolicy:
     return parse_thread_lifecycle(_read_json(DEFAULT_LIFECYCLE_PATH), str(DEFAULT_LIFECYCLE_PATH))
 
 
-@lru_cache(maxsize=1)
+#: E4 D-E4.1 (C2): a deployment input naming the pre-built route list to read instead of the config default. It
+#: chooses what is warmed and never changes a body, so it is not in `chain.watermark.COMPOSER_ENV` or `SERVE_KEYS`
+#: (`code_version` does not move with it).
+PREBUILT_ROUTES_ENV = "ASSETOPS_PREBUILT_ROUTES"
+
+
 def load_prebuilt_routes():
-    """CH-5c Q8 (CH5c-R6: read below the port): `config/chain/prebuilt-routes-v1.json`, parsed by `chain.prebuilt`."""
+    """CH-5c Q8 (CH5c-R6: read below the port): the pre-built route list, parsed by `chain.prebuilt`. E4 D-E4.1: the
+    file named by `ASSETOPS_PREBUILT_ROUTES` when it is set (read on every call; the demo tool rewrites it), else
+    `config/chain/prebuilt-routes-v1.json` (read once per process)."""
+    from assetops_backend.chain.prebuilt import parse
+
+    named = os.environ.get(PREBUILT_ROUTES_ENV)
+    if named:
+        return parse(_read_json(Path(named)))
+    return _default_prebuilt_routes()
+
+
+@lru_cache(maxsize=1)
+def _default_prebuilt_routes():
     from assetops_backend.chain.prebuilt import CONFIG_NAME, parse
 
     return parse(_read_json(REPO_ROOT / "config" / "chain" / CONFIG_NAME))

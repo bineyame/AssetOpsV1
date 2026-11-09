@@ -342,6 +342,109 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
     return rows
 
 
+#: E4 D-E4.1 (C2): the product reads this file when `ASSETOPS_PREBUILT_ROUTES` names it (never part of `code_version`).
+PREBUILT_ROUTES_FILE = "prebuilt-routes.json"
+PREBUILT_ROUTES_ENV = "ASSETOPS_PREBUILT_ROUTES"
+PREBUILT_SCHEMA = "chain-prebuilt-routes-1"
+#: The Sites whose board link carries `date=` (local day); the others open a whole UTC day by `from`/`to`.
+DATE_BOARD_SITES = ("kobo", "kisiwa")
+
+
+def _api_query(text: str, *extra: tuple[str, str]) -> str:
+    """A web link's query as the frontend sends it to the API (`URLSearchParams`: `:` as `%3A`)."""
+    from urllib.parse import parse_qsl, urlencode
+
+    return urlencode(parse_qsl(text, keep_blank_values=True) + list(extra))
+
+
+def _as_date(value: Any) -> Any:
+    return date.fromisoformat(value) if isinstance(value, str) else value
+
+
+def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
+                    sites_last_day: dict[str, Any]) -> list[dict[str, str]]:
+    """E4 D-E4.1 (C2), pure: the pre-built route list for this build, derived from `story_links`'s own rows, so what
+    is warmed is what the script opens. Each web link maps to the stored-route API request(s) its page issues, with
+    the frontend's query: Portfolio -> `portfolio` (`lens=all`) and `outcome-summary`; Findings -> `findings`
+    (`lens=all&state=all`); each `/sites/{code}` board (the EV page's too) -> `/api/sites/{code}/outcome-board` with
+    the same `date=` or `from`/`to`. Then the S and month estate requests (the CH-5c Q8 list's), and each Site's
+    board for every date from S+1 to its last added date (`sites_last_day`: Site name -> date or ISO date; Kobo and
+    Kisiwa by `date`, Cold and EV on the whole UTC day). Duplicates keep the first id."""
+    from urllib.parse import parse_qsl, urlsplit
+
+    S = at(story["S"])
+    out: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    def add(rid: str, path: str, query: str) -> None:
+        if (path, query) not in seen:
+            seen.add((path, query))
+            out.append({"id": rid, "path": path, "query": query})
+
+    code_site = {v: k for k, v in SITE_CODE.items()}
+    for label, url in story_links(story, days, None, 0, kisiwa):
+        parts = urlsplit(url)
+        segs = [s for s in parts.path.split("/") if s]
+        if segs == ["portfolio"]:
+            add("portfolio.week", "/api/estate/portfolio", _api_query(parts.query, ("lens", "all")))
+            add("summary.week", "/api/estate/outcome-summary", _api_query(parts.query))
+        elif segs == ["findings"]:
+            add("findings.week", "/api/estate/findings", _api_query(parts.query, ("lens", "all"), ("state", "all")))
+        elif len(segs) in (2, 3) and segs[0] == "sites" and (len(segs) == 2 or segs[2] == "ev"):
+            params = dict(parse_qsl(parts.query))
+            day = params.get("date") or params.get("from", "")[:10]
+            add(f"board.day:{code_site.get(segs[1], segs[1])}:{day}", f"/api/sites/{segs[1]}/outcome-board",
+                _api_query(parts.query))
+    windows = {"S": (S, S + timedelta(days=1)), "month": (S - timedelta(days=28), S + timedelta(days=3))}
+    for name, (lo, hi) in windows.items():
+        q = _api_query(f"from={iso(lo)}&to={iso(hi)}")
+        add(f"portfolio.{name}", "/api/estate/portfolio", _api_query(q, ("lens", "all")))
+        add(f"summary.{name}", "/api/estate/outcome-summary", q)
+    if "kobo" in story["sites"]:  # the "KOBO-001 Overview, day S" link (printed once `kobo.json` exists)
+        add(f"board.day:kobo:{story['S_date']}", "/api/sites/KOBO-001/outcome-board",
+            _api_query(f"date={story['S_date']}"))
+    for site in story["sites"]:
+        last = _as_date(sites_last_day.get(site))
+        if last is None:
+            continue
+        code = SITE_CODE[site]
+        for d in _days(S.date() + timedelta(days=1), last):
+            if site in DATE_BOARD_SITES:
+                query = _api_query(f"date={d.isoformat()}")
+            else:
+                day = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+                query = _api_query(f"from={iso(day)}&to={iso(day + timedelta(days=1))}")
+            add(f"board.day:{site}:{d.isoformat()}", f"/api/sites/{code}/outcome-board", query)
+    return out
+
+
+def sites_last_day(story: dict, days: list[dict], kisiwa_entries: list[dict]) -> dict[str, Any]:
+    """Each Site's latest date (its calendar and added dates): the core Sites' latest `days.json` day, Kisiwa's
+    latest story or added (DONE / PUBLISHED) night."""
+    out: dict[str, Any] = {}
+    for site in story["sites"]:
+        if site == "kisiwa":
+            if story.get("kisiwa"):
+                import demo_combined_kisiwa as kis
+
+                nights = [kis.last_story_night(story["kisiwa"])]
+                nights += [date.fromisoformat(e["night_date"]) for e in kisiwa_entries
+                           if e.get("status") in ("DONE", "PUBLISHED")]
+                out[site] = max(nights)
+            continue
+        mine = [date.fromisoformat(d["day"]) for d in days if d["site"] == site]
+        if mine:
+            out[site] = max(mine)
+    return out
+
+
+def prebuilt_routes_doc(requests: list[dict[str, str]], S_date: str) -> dict:
+    return {"schema": PREBUILT_SCHEMA,
+            "note": "E4 D-E4.1: written by tools/demo_combined.py before every prebuild and at serve start, from the "
+                    f"story links and each Site's dates after S={S_date} up to its last added date.",
+            "requests": requests}
+
+
 def added_night_links(entries: list[dict], web: int) -> list[tuple[str, str]]:
     """OWN-G1 §4.5 `links`: one Fuel link per added Kisiwa night, then the live-dip line (owner Q2): the newest added
     night's 06:00 local dip and the litres its run read, for the on-screen beat."""
@@ -573,7 +676,29 @@ class Demo:
         typed on screen (`ASSETOPS_OPERATIONAL_ENTRY=on`, read by `host/lab_app.py`)."""
         out = self.env(keys=True)
         out["ASSETOPS_OPERATIONAL_ENTRY"] = "on"
+        routes = self.work / PREBUILT_ROUTES_FILE
+        if routes.is_file():  # E4 D-E4.1: the tool's and the serve loop's prebuild read the story's own list
+            out[PREBUILT_ROUTES_ENV] = str(routes)
         return out
+
+    def write_prebuilt_routes(self) -> Path | None:
+        """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
+        up to its last added date. Called before every prebuild and at `serve` start; None (nothing written) when
+        the build has no story day S yet."""
+        story = self.story()
+        if not story.get("S"):
+            return None
+        import demo_combined_kisiwa as kis
+
+        days_file = self.work / "days.json"
+        days = json.loads(days_file.read_text(encoding="utf-8"))["days"] if days_file.is_file() else []
+        kis_file = self.work / "kisiwa.json"
+        kisiwa = json.loads(kis_file.read_text(encoding="utf-8")) if kis_file.is_file() else None
+        last = sites_last_day(story, days, kis.read_days(self.work))
+        doc = prebuilt_routes_doc(prebuilt_routes(story, days, kisiwa, last), story["S_date"])
+        path = self.work / PREBUILT_ROUTES_FILE
+        path.write_text(json.dumps(doc, indent=1), encoding="utf-8")
+        return path
 
     def py(self, *argv: str, cwd: Path | None = None, check: bool = True, label: str = "",
            serve_env: bool = False) -> subprocess.CompletedProcess:
@@ -862,6 +987,7 @@ class Demo:
             done = self.py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", site,
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        self.write_prebuilt_routes()  # E4 D-E4.1: the list follows the calendar and the added dates
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
@@ -1259,6 +1385,7 @@ class Demo:
 
     def serve(self, port: int, web: int) -> None:
         self.story()
+        self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
         log = open(logs / f"api-{port}.log", "w", encoding="utf-8")
