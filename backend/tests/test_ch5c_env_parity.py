@@ -1,6 +1,7 @@
 """CH-5c CH5c-R6 (L0/L1, no database): the tick child and the serve child of `tools/demo_combined.py` share one
 environment, so the tick's pre-built rows carry the server's `code_version`.
 
+The work folder is `tmp_path`, holding the `story.json` that prepare would write (the tick reads it).
 The children are captured (no process starts for them); each captured environment's `code_version()` is computed
 in a fresh child interpreter over this worktree's backend, so the comparison is the one a real tick and a real
 server would make. The keyless control proves the comparison can fail: the cursor keys move `code_version`.
@@ -33,6 +34,7 @@ class _Child:
 def _captured_envs(tmp_path, monkeypatch) -> dict[str, dict[str, str]]:
     demo = tool.Demo("assetops_demo3_parity_test", "var/demo3_parity")
     demo.work, demo.tree = tmp_path, tmp_path / "tree"
+    (tmp_path / "story.json").write_text(json.dumps({"sites": list(tool.SITES)}), encoding="utf-8")
     (tmp_path / "keys.json").write_text(json.dumps({k: os.urandom(32).hex() for k in tool.KEY_NAMES}),
                                         encoding="utf-8")
     seen: dict[str, dict[str, str]] = {}

@@ -1,7 +1,9 @@
 """DD-1b2a L0 (DD1b2-R Q2, Q4, Q6): the mill step's story instants, the order of the steps after the Site children, and
-the store seam's refusal. No database and no work folder; the order is driven on the shape `prepare` passes (H1's style)."""
+the store seam's refusal. No database; the work folder is `tmp_path` holding the `story.json` that prepare would write; the order is driven
+on the shape `prepare` passes (H1's style)."""
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -59,6 +61,7 @@ def _order(demo: Recording) -> list[str]:
 
 def test_three_sites_run_the_mill_sequence_before_the_finish(resolved, tmp_path) -> None:
     story, days = resolved
+    (tmp_path / "story.json").write_text(json.dumps({"sites": story["sites"]}), encoding="utf-8")
     demo = Recording(tmp_path)
     timings: dict[str, float] = {}
     demo.finish_build(story, days, True, timings)
@@ -73,6 +76,7 @@ def test_three_sites_run_the_mill_sequence_before_the_finish(resolved, tmp_path)
 def test_a_one_site_prepare_keeps_the_plain_finish(resolved, tmp_path) -> None:
     story, days = resolved
     story["sites"] = ["kobo"]
+    (tmp_path / "story.json").write_text(json.dumps({"sites": story["sites"]}), encoding="utf-8")
     demo = Recording(tmp_path)
     demo.finish_build(story, days, True, {})
     assert "mill" not in demo.calls and "backfill-a" not in demo.calls
