@@ -483,10 +483,8 @@
   overflow-wrap: anywhere;
 }
 
-.global-work-form-result:empty {
-  display: none;
-}
-
+/* Polish L1: the live region stays rendered (never display:none) so screen readers register it before its first
+   outcome; empty it has no box, because the paragraphs carry the only margin. */
 .global-work-form-result p {
   margin: 10px 0 0;
   font-size: 12px;

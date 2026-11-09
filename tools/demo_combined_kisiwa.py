@@ -993,15 +993,15 @@ def plan_night(kisiwa: dict, build: dict, entries: list[dict], night: date, kind
     entry = _entry(entries, night)
     if night <= last_story_night(kisiwa) or (entry is not None and entry.get("status") == "DONE"):
         raise _refuse("DUPLICATE_DAY", f"{SITE_CODE} already has the night {night.isoformat()}")
+    stuck = sorted(e["night_date"] for e in entries if e.get("status") == "PUBLISHED" and e["night_date"] < night.isoformat())
+    if stuck:  # a night whose own check did not finish is never built on, nor is a later one resumed (L-A)
+        raise _refuse("NIGHT_NOT_FINISHED", f"{SITE_CODE} {stuck[0]} was added but its check did not finish; finish it "
+                                            f"first with --from {stuck[0]}")
     if entry is not None and entry.get("status") == "PUBLISHED":
         return {"resume": True, **entry}
     if entry is not None or replay_exists:
         raise _refuse("PARTIAL_NIGHT", f"{SITE_CODE} {night.isoformat()} was left part-way (no PUBLISHED entry, but "
                                        f"its readings folder or entry exists); ask the Architect")
-    stuck = sorted(e["night_date"] for e in entries if e.get("status") == "PUBLISHED" and e["night_date"] < night.isoformat())
-    if stuck:  # a night whose own check did not finish is never built on
-        raise _refuse("NIGHT_NOT_FINISHED", f"{SITE_CODE} {stuck[0]} was added but its check did not finish; finish it "
-                                            f"first with --from {stuck[0]}")
     nxt = last_night(kisiwa, entries) + timedelta(days=1)
     if night != nxt:
         raise _refuse("NOT_NEXT_NIGHT", f"{SITE_CODE} {night.isoformat()} is not the next night ({nxt.isoformat()})")
