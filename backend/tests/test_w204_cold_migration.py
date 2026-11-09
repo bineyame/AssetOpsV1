@@ -119,13 +119,36 @@ _DIESEL_ONLY = {
 }
 
 
+# 0053_fuel_cost_2.py (FUEL-1 A1, 972dc747f; above 0026) adds these `financial_consequence_revision` columns and
+# constraints and widens `model_id_check` to ('fuel-cost-1', 'fuel-cost-2'); a downgrade below 0026 passes through its
+# downgrade, which drops them and restores the single-model check.
+_FC = "financial_consequence_revision"
+_0053_CONSTRAINTS = {f"{_FC}_no_load_rate_check", f"{_FC}_no_load_basis_check", f"{_FC}_idle_seconds_check",
+                     f"{_FC}_fuel_cost_1_no_idle"}
+_0053_COLUMNS = ("no_load_fuel_rate_l_per_h", "no_load_fuel_rate_basis", "idle_seconds")
+_FUEL_COST_1_ONLY = "CHECK ((model_id = 'fuel-cost-1'::text))"
+
+
 def below_0026(snapshot: dict) -> dict:
-    cons = sorted((t, n, _DIESEL_ONLY.get(n, d)) for t, n, d in snapshot["constraints"]
+    cons = sorted((t, n, _FUEL_COST_1_ONLY if n == f"{_FC}_model_id_check" else _DIESEL_ONLY.get(n, d))
+                  for t, n, d in snapshot["constraints"]
                   if n not in ("financial_assumption_revision_ev_positive",
-                               "financial_assumption_revision_productive_positive"))  # WALK1-3: 0040
+                               "financial_assumption_revision_productive_positive")  # WALK1-3: 0040
+                  and n not in _0053_CONSTRAINTS)
     # CH-1b: 0044 (above 0026) adds the statement-level outbox producer on financial_assumption_revision.
-    triggers = [t for t in snapshot["triggers"] if t[0] != "financial_assumption_revision_chain_event"]
-    return {**snapshot, "constraints": cons, "triggers": triggers}
+    # CH-5c: 0047 (above 0026) adds the four `<table>_cic_*` change-log triggers on every financial_* input table.
+    triggers = [t for t in snapshot["triggers"]
+                if t[0] != "financial_assumption_revision_chain_event" and "_cic_" not in t[0]]
+    # FUEL-1 A1: the three 0053 columns are null on every pre-0053 (fuel-cost-1) row and gone after the downgrade.
+    data = dict(snapshot["data"])
+    stripped = []
+    for row in data.get(_FC, []):
+        for column in _0053_COLUMNS:
+            assert f',"{column}":null' in row, (column, row)
+            row = row.replace(f',"{column}":null', "")
+        stripped.append(row)
+    data[_FC] = sorted(stripped)
+    return {**snapshot, "data": data, "constraints": cons, "triggers": triggers}
 
 
 def insert_consequence(engine, ctx, frev, erev, **over):  # noqa: F811

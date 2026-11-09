@@ -147,7 +147,10 @@ def expected_at_head(latest: bool = False) -> dict:
     """At 0030 (`HEAD`); `latest=True` at the Alembic head, where CH-1b's 0044 adds the statement-level outbox
     producer `mini_opportunity_revision_chain_event`."""
     chain = ["mini_opportunity_revision_chain_event"] if latest else []
-    return {"tables": sorted(TABLES), "pk": sorted(f"{t}_pkey" for t in TABLES), "uk": sorted(UNIQUES),
+    # Migration 0051_action_opportunity_origin.py adds the unique key `mini_opportunity_revision_opportunity_scope`
+    # (tenant_id, site_id, opportunity_id, id) so `domain_action` can reference an opportunity revision by scope.
+    uk = UNIQUES + (("mini_opportunity_revision_opportunity_scope",) if latest else ())
+    return {"tables": sorted(TABLES), "pk": sorted(f"{t}_pkey" for t in TABLES), "uk": sorted(uk),
             "fk": sorted(FKS), "ck": sorted(CHECKS), "indexes": sorted(INDEXES),
             "triggers": sorted([f"{t}_immutable" for t in TABLES] + chain), "sequence": 1,
             "stage": f"CHECK ((stage = ANY (ARRAY[{STAGES_AT_HEAD}])))",

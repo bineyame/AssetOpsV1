@@ -96,13 +96,19 @@ def remove_sessions(engine) -> None:  # noqa: F811
 
 def financial_constraints(engine) -> dict:  # noqa: F811
     """Every constraint on the 0010-0012 financial tables except the two widened key/unit CHECKs and the EV-only
-    positive CHECK: byte-identical across 0025 and 0026."""
+    positive CHECK: byte-identical across 0025 and 0026. Also excluded: the five `financial_consequence_revision`
+    constraints migration `0053_fuel_cost_2.py` (FUEL-1 A1, 972dc747f) widens (`model_id_check`) or adds
+    (`no_load_rate_check`, `no_load_basis_check`, `idle_seconds_check`, `fuel_cost_1_no_idle`); 0053 sits above 0026,
+    so a downgrade to 0025 removes them."""
     with engine.connect() as c:
         return {r[0]: r[1] for r in c.execute(text(
             "SELECT conrelid::regclass::text || '.' || conname, pg_get_constraintdef(oid) FROM pg_constraint "
             "WHERE conrelid::regclass::text LIKE 'financial\\_%' AND conname NOT IN ("
             "'financial_assumption_revision_assumption_key_check', 'financial_assumption_revision_unit_check', "
-            "'financial_assumption_revision_ev_positive', 'financial_assumption_revision_productive_positive')"))}
+            "'financial_assumption_revision_ev_positive', 'financial_assumption_revision_productive_positive', "
+            "'financial_consequence_revision_model_id_check', 'financial_consequence_revision_no_load_rate_check', "
+            "'financial_consequence_revision_no_load_basis_check', 'financial_consequence_revision_idle_seconds_check', "
+            "'financial_consequence_revision_fuel_cost_1_no_idle')"))}
 
 
 def counted(engine, sql, **params) -> int:  # noqa: F811

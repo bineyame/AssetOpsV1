@@ -129,7 +129,10 @@ def test_chain_sole_head_and_trial_catalog(engine) -> None:  # noqa: F811
     assert names(engine, "p") == [f"{TABLE}_pkey"]
     assert names(engine, "c") == CHECKS and names(engine, "f") == FKS and names(engine, "u") == UNIQUES
     assert index.endswith("(tenant_id, site_id, action_id, recorded_at)"), index
-    assert triggers == [f"{TABLE}_immutable:w4_append_only"]
+    # 0047_chain_response.py (CH-5c) adds the four statement-level `*_cic_*` change-recording triggers on this table;
+    # the 0027 append-only trigger stays.
+    assert triggers == sorted([f"{TABLE}_immutable:w4_append_only"]
+                              + [f"{TABLE}_cic_{s}:chain_input_change_{TABLE}" for s in ("ins", "upd", "del", "trunc")])
     assert KIND in scalar(engine, "SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname = :n",
                           n=KIND_CHECK)
 
@@ -216,7 +219,8 @@ def test_trial_rows_chain_scope_and_append_only(runner, engine) -> None:  # noqa
         with engine.begin() as c:
             c.execute(text(TRIAL_INSERT), second)
 
-        # State, reason and formula vocabularies; reason iff UNAVAILABLE.
+        # State, reason and formula vocabularies; reason iff UNAVAILABLE. Migration 0053_fuel_cost_2 (FUEL-1 A1,
+        # 972dc747f) made `trial-fuel-comparison/2` valid, so the invalid formula example is `/9`.
         rejects(engine, TRIAL_INSERT, trial(t, s, a, o, 3, second["id"], reason=None), f"{TABLE}_reason_state_check")
         rejects(engine, TRIAL_INSERT, trial(t, s, a, o, 3, second["id"], state="MODELLED_NO_IMPROVEMENT"),
                 f"{TABLE}_reason_state_check")
@@ -224,7 +228,7 @@ def test_trial_rows_chain_scope_and_append_only(runner, engine) -> None:  # noqa
                 f"{TABLE}_reason_check")
         rejects(engine, TRIAL_INSERT, trial(t, s, a, o, 3, second["id"], state="SAVED", reason=None),
                 f"{TABLE}_state_check")
-        rejects(engine, TRIAL_INSERT, trial(t, s, a, o, 3, second["id"], formula="trial-fuel-comparison/2"),
+        rejects(engine, TRIAL_INSERT, trial(t, s, a, o, 3, second["id"], formula="trial-fuel-comparison/9"),
                 f"{TABLE}_formula_check")
 
         # Uniques: one basis per outcome, one idempotency key per Action.
