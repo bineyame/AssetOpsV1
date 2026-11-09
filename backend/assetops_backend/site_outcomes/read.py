@@ -25,7 +25,8 @@ from assetops_backend import perf
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.chain.outcomes import site_nodes
-from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, local_days, site_cutoff, window_day, window_days
+from assetops_backend.chain.read import (SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, local_days, site_cutoff, window_day,
+                                         window_days)
 from assetops_backend.chain.read import board_day as local_board_day
 from assetops_backend.chain.claims import (SITES_DISRUPTED, VERIFIED_RESULTS, EstateCounts, estate_count_claims,
                                            opportunity_items)
@@ -469,8 +470,11 @@ class SiteOutcomeBoardService:
         """The board body. `node_days` (the estate summary only, CH6b1-R Q1) adds `_window`: the rows' nodes and the
         Site's income earnings re-evaluated over those Site-local days; the board route never passes it."""
         comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin, windows=windows)
-        # CH-3 §5: the thread state is read on the board's Site-local day as of the request's cutoff, else the
-        # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
+        # CH-3 §5: the thread state is read on the board's Site-local day; mini boards take their overview day, cold
+        # and EV the window's last day. CH6b2-R2, D-E3b.1 (E4-C5): the lifecycle is read as known at the REQUEST's
+        # cutoff `k` (`lifecycle_cutoff`, as `/chain` and the Portfolio do), never at the evidence cutoff: a Finding is
+        # known after the evidence it assesses, so the evidence cutoff hides its OPEN and any Action agreed after it.
+        # The evidence (facts.known_at, every evidence read) stays at `cutoff`; time-travel honesty is the state day.
         # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
         # was recorded by the story cutoff shows, and one whose cause was recorded at build time stays hidden.
         cutoff = window.get("known_at")  # `board_cutoff`, resolved by `compose` for every domain (review L1)
@@ -493,7 +497,8 @@ class SiteOutcomeBoardService:
                     extra = {}
             comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
                 site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions],
-                day=board_day, known_at=cutoff, visible_at=known_at, **extra)))  # R-1: request bounds visibility
+                day=board_day, known_at=lifecycle_cutoff(known_at), visible_at=known_at,  # R-1: request bounds visibility
+                **extra)))
         extra_body = {} if node_days is None else {"_window": self._window_parts(site, comp, node_days, known_at)}
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:

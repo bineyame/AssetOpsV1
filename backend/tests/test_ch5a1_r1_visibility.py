@@ -4,8 +4,8 @@
 clock (2 Nov 18:42Z) while the Cold evidence cutoff is story time (31 Oct 17:05Z). Comparing the two hid every
 Cold/EV thread (COH-10 x7, COH-11 x2). The fakes below apply the SQL predicate of `chain/lookup.py` `LOOKUP`
 (`:kv IS NULL OR coalesce(source_known_at, joined_at) <= :kv`) to the bound each caller hands the port, so a caller
-that passes the story cutoff as the visibility bound fails here. The story cutoff still reaches the port as the
-*state* bound (`known_at`).
+that passes the story cutoff as the visibility bound fails here. Since D-E3b.2 (E4-C5) the board's *state* bound
+(`known_at`) is the request's cutoff too (`lifecycle_cutoff`), never the story/evidence cutoff.
 """
 
 from __future__ import annotations
@@ -59,11 +59,12 @@ def _cold_board(known_at: datetime | None) -> tuple[dict, Threads]:
 @pytest.mark.parametrize("request_known_at", [None, LATER])
 def test_board_shows_an_occurrence_created_after_the_story_cutoff(request_known_at):
     """Live, or a request `known_at` after `created_at`: the thread shows although `created_at` is after the
-    Cold story cutoff; the state is still read at the board's own cutoff, not at the request's."""
+    Cold story cutoff. D-E3b.2 (E4-C5): the state is read at the request's cutoff (`lifecycle_cutoff`), not at the
+    board's evidence cutoff."""
     body, threads = _cold_board(request_known_at)
     (call,) = threads.calls
     assert call["visible_at"] == request_known_at
-    assert call["known_at"] is not None and call["known_at"] != call["visible_at"]
+    assert call["known_at"] == request_known_at
     shown = [f for f in _findings(body) if f is not None]
     assert shown, body["rows"]
 
