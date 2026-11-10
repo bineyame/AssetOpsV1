@@ -577,16 +577,27 @@ def wk1(ctx: Ctx) -> dict:
 
 @row("WK-2a")
 def wk2a(ctx: Ctx) -> dict:
-    """WALK1-3 / D-W1-13: on day S-1 (a cloudy, mill-working day) Kobo's Grow row leads with the estimated
-    productive-use sales: 168.3 kWh measured x the declared 0.25 USD/kWh = 42.08 USD."""
+    """WALK1-3 / D-W1-13: on day S-1 (a mill-working steady day) Kobo's Grow row leads with the estimated
+    productive-use sales at the declared 0.25 USD/kWh.
+    D-E5.13 item 4 (restated with its cause, D-E5.12; not edited to pass): the money follows S-1's calendar kind.
+    `steady` (v4) gives 110.000 kWh x 0.25 = 27.50 USD; `normal` (v3, the `--days` rollback) gives 168.3 kWh x 0.25
+    = 42.08 USD."""
+    s1 = ctx.day(-1).date().isoformat()
+    kind = next((d["kind"] for d in ctx.site_days("kobo") if d["day"] == s1 and not d.get("complement_of")), None)
+    want = WK2A_MONEY.get(kind)
+    assert want is not None, ("S-1 has no ruled Grow money for its kind", s1, kind)
     grow = rows(ctx.board(KOBO, ctx.day(-1), ctx.S))["GROW_REVENUE"]
     money = grow.get("headline_money") or {}
     assert grow["headline"] == "estimated productive-use sales", grow["headline"]
-    assert Decimal(str(money.get("amount_high"))) == Decimal("42.08") and money.get("currency") == "USD", money
+    assert Decimal(str(money.get("amount_high"))) == want and money.get("currency") == "USD", (kind, want, money)
     sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
     price = next(c for c in grow["contributors"] if c["key"] == "productive_price")
     return {"headline": grow["headline"], "money": money, "sales": sales["text"], "price": price["text"],
-            "subline": grow["subline"], "state": grow["state"]}
+            "subline": grow["subline"], "state": grow["state"], "s1_kind": kind}
+
+
+#: D-E5.13 item 4: WK-2a's S-1 Grow money by S-1's calendar kind.
+WK2A_MONEY = {"steady": Decimal("27.50"), "normal": Decimal("42.08")}
 
 
 @row("WK-2b")
@@ -595,11 +606,18 @@ def wk2b(ctx: Ctx) -> dict:
     and the sales line states the measured zero use. Under outcome-status/3 the state follows the MG-1 objective
     verdict (WK-4), never OPPORTUNITY; the spare solar rides as `potential` (the second chip)."""
     # DD1b2-R Q10 / R6 O6 (Architect restatement with its cause: the potential moved to S-11, WK-2c; not edited to
-    # pass): no money, the headline is NOT the kW pattern, the sales line, and "No potential found yet".
+    # pass): no money, the headline is NOT the kW pattern, the sales line.
+    # D-E5.13 item 4 (restated with its cause, D-E5.12): the potential follows the study ending S, read from the stored
+    # rows. With >= 1 eligible day (v4) it is the "Not judged yet" sentence with no kW and no money; with 0 (v3) it is
+    # "No potential found yet".
+    s = ctx.S.date().isoformat()
+    study = [e for _, last, e in _stored_headroom(ctx) if str(last) == s]
+    eligible = study[-1] if study else 0
     grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
     assert grow["state"] in ("ON_TRACK", "WATCH", "UNKNOWN"), grow["state"]
-    out = demo_rows.wk2b(grow, re.compile(r"\d+–\d+ kW of daytime solar unused"))
-    return {**out, "subline": grow["subline"], "state": grow["state"]}
+    out = demo_rows.wk2b(grow, re.compile(r"\d+–\d+ kW of daytime solar unused"), eligible or 0)
+    return {**out, "subline": grow["subline"], "state": grow["state"], "study_ending_s_eligible_days": eligible,
+            "study_ending_s_found": bool(study)}
 
 
 @row("WK-2c")
@@ -634,6 +652,69 @@ def wk3(ctx: Ctx) -> dict:
     return {"count_basis": basis, "checked_days": (body.get("summary") or {}).get("checked_days")}
 
 
+def _week_grades(ctx: Ctx, lo: str, hi: str) -> dict[str, dict[str, dict[str, str]]]:
+    """WK-GAP: {measure: {subject: {local_day: grade}}} from the latest Kobo `site_day_snapshot` revision per day,
+    measure and subject, read from the rows (not from a served body)."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        found = c.execute(
+            "SELECT DISTINCT ON (x.measure, x.local_day, x.subject_kind, x.subject_ref) x.measure, "
+            "x.subject_kind || ':' || x.subject_ref, x.local_day, x.grade FROM site_day_snapshot x "
+            "JOIN site s ON s.tenant_id = x.tenant_id AND s.id = x.site_id WHERE s.site_code = %s "
+            "AND x.measure = ANY(%s) AND x.local_day BETWEEN %s AND %s "
+            "ORDER BY x.measure, x.local_day, x.subject_kind, x.subject_ref, x.revision DESC",
+            (KOBO, list(demo_rows.WEEK_GAP_MEASURES), lo, hi)).fetchall()
+    out: dict[str, dict[str, dict[str, str]]] = {}
+    for measure, subject, day, grade in found:
+        out.setdefault(measure, {}).setdefault(subject, {})[str(day)] = grade
+    return out
+
+
+@row("WK-GAP", idx=True)
+def wkgap(ctx: Ctx) -> dict:
+    """D-E5.13 item 3 (owner 2026-11-10: "1 missed day with 1 partly missing would make sense"): on the story week
+    S-6..S Kobo's day snapshots for critical_served, daylight_headroom_kw, productive_kwh and avoidable_gen_min are
+    NO_DATA on exactly the one missed day, PARTIAL on exactly the one partly checked day and COMPLETE on the other
+    five; the Portfolio week's Kobo days line reads "5 of 7 days checked · 1 partly checked" and the CO-6 coverage
+    names only the missed day. The expected days come from the built calendar (`days.json`), so a v3 (`--days`)
+    rebuild, with 2 missed and 3 partly checked days, fails here: that is the intended alarm.
+    D-E5.19 adds the month clause on [S-28, S] (`demo_rows.month_gap_pattern`)."""
+    from assetops_backend.chain.vocabulary import days_line
+
+    week = [ctx.day(n).date().isoformat() for n in range(-6, 1)]
+    missed, partial = demo_rows.week_day_classes(ctx.site_days("kobo"), week)
+    out = demo_rows.week_gap_pattern(_week_grades(ctx, week[0], week[-1]), week, missed, partial)
+    _, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
+    gaps = [g["day"] for g in ((coverage.get(KOBO) or {}).get("days") or {}).get("gaps", [])]
+    assert gaps == missed, ("CO-6 coverage gaps", gaps, missed)
+    want = days_line({"complete": len(out["complete"]), "expected": len(week), "partial": len(partial), "low": 0,
+                      "no_data": len(missed), "pending": 0})
+    assert want == "5 of 7 days checked · 1 partly checked", want
+    name = by_code[KOBO].get("site_name") or KOBO
+    lines = {cat: ((summary.get("cards") or {}).get(cat) or {}).get("days_line")
+             for cat in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}
+    for cat, line in lines.items():
+        assert demo_rows.site_days_segment(line, name) == want, (cat, line, want)
+    # D-E5.19 item 3, the month clause: on [S-28, S] NO_DATA is exactly the `missing`-kind days and PARTIAL exactly
+    # the story-only days, both from the built calendar (v4 as amended: S-10, S-4; S-28, S-21, S-14, S-7, S)
+    month = [ctx.day(n).date().isoformat() for n in range(-28, 1)]
+    m_missed, m_partial = demo_rows.month_day_classes(ctx.site_days("kobo"), month)
+    month_out = demo_rows.month_gap_pattern(_week_grades(ctx, month[0], month[-1]), month, m_missed, m_partial)
+    return {**out, "coverage_gaps": gaps, "days_line": lines["PROTECT_ASSET"], "kobo_days_line": want,
+            "month": month_out}
+
+
+@row("WK-FILL")
+def wk_fill(ctx: Ctx) -> dict:
+    """D-E5.19 item 4, reported and never failed: S-28..S-11 is one gateway stream on v4 as amended, so the epoch
+    strings of S-21 and S-14 change (their readings do not). Records each Kobo story day's epoch on [S-28, S-11] and
+    the kinds built on S-27..S-22, for the build report."""
+    kobo = [d for d in ctx.site_days("kobo") if -28 <= d.get("offset", 1) <= -11 and not d.get("complement_of")]
+    return {"epochs": {f"S{d['offset']:+d}": d.get("epoch") for d in kobo},
+            "fill": {f"S{d['offset']:+d}": d.get("kind") for d in kobo if -27 <= d["offset"] <= -22}}
+
+
 @row("WK-6")
 def wk6(ctx: Ctx) -> dict:
     """WALK1-5 (Addendum 7, G2): the Kobo productive-use opportunity page for the 5-day study ending S+1 (the
@@ -661,7 +742,8 @@ def wk6(ctx: Ctx) -> dict:
     # pinned day, Site-local 12:00; Kobo is Africa/Nairobi, no DST, so that is the study's end minus 12 hours). The
     # server selects nothing without `valid_at`.
     # DD1b2-R10: day rows no longer carry `mini_revision_id` (they carry `hours[]`), so the per-row pin is dropped. The
-    # S+1 study is reported (its v3 November days are 8 h runs, so 0 eligible days is expected); the tariff is read on
+    # S+1 study is reported, not asserted (D-E5.13: on v4 its S-3, S-2 and S-1 are full days and S, S+1 the trial's
+    # 8 h runs; on v3 its November days were all 8 h runs, so 0 eligible days); the tariff is read on
     # the pinned mill study (`mill.json` `study.opportunity_id`): 5 eligible days, priced at its latest noon window.
     detail = ctx.get(f"/api/sites/{KOBO}/opportunities/{opp['id']}")
     s1 = {"code": opp["code"], "eligible_days": next((n.get("eligible_days") for n in walk(detail)
@@ -795,8 +877,8 @@ def f_coh3(ctx: Ctx) -> dict:
 
 @row("F-CAL")
 def f_cal(ctx: Ctx) -> dict:
-    """R6 O4 / Q11: every Kobo local day from first evidence to today is read. A day with no built run (S-10, S-4, S-2,
-    and any day after the last built one) is asserted NO_DATA; a built day is only recorded (no grade asserted)."""
+    """R6 O4 / Q11: every Kobo local day from first evidence to today is read. A day with no built run (S-10, S-4 on v4;
+    v3 also S-2 and S-27..S-22; and any day after the last built one) is asserted NO_DATA; a built day is only recorded (no grade asserted)."""
     kobo = ctx.site_days("kobo")
     built = {at(d["start"]).astimezone(timezone(timedelta(hours=3))).date() for d in kobo
              if d.get("has_run", True) and d["kind"] != "missing"}

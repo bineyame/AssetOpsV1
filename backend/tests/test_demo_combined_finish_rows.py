@@ -2,9 +2,10 @@
 a case that must fail, so none is vacuous."""
 from __future__ import annotations
 
+import copy
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -281,6 +282,144 @@ def test_wk2b_restated_passes_and_each_clause_can_fail() -> None:
                 _grow(sales="12 kWh used by Grain mill"), _grow(potential="Spare solar 5 kW")):
         with pytest.raises(AssertionError):
             rows.wk2b(bad, KW)
+
+
+def test_wk2b_with_eligible_days_reads_not_judged_yet_with_no_kw_and_no_money() -> None:
+    """D-E5.13 item 4: the study ending S has eligible days (v4), so the potential is the "Not judged yet" sentence."""
+    ok = "Not judged yet: 2 of the 5 study days have no reading"
+    assert rows.wk2b(_grow(potential={"text": ok}), KW, 3)["potential"] == ok
+    one = "Not judged yet: 1 of the 5 study days has no reading"
+    assert rows.wk2b({**_grow(potential=None), "nodes": {"potential": {"text": one}}}, KW, 4)["potential"] == one
+    for bad in (_grow(), _grow(potential={"text": "Not judged yet: 1 of the 5 study days have no reading"}),
+                _grow(potential={"text": ok, "value_line": "12–20 kW over 6 daylight hours"}),
+                {**_grow(potential={"text": ok, "money": {"amount_high": 1}})},
+                {**_grow(potential="Spare 5 kW"), "nodes": {"potential": {"text": ok}}}):
+        with pytest.raises(AssertionError):
+            rows.wk2b(bad, KW, 3)
+    with pytest.raises(AssertionError):  # 0 eligible days (v3): the sentence is "No potential found yet"
+        rows.wk2b(_grow(potential={"text": ok}), KW, 0)
+
+
+WEEK = [f"2026-11-0{d}" for d in range(2, 9)]  # S = 8 Nov: S-6 .. S
+
+
+def _calendar(missed, partial):
+    """A `days.json` Kobo list: full days carry a complement, story-only days do not, missed days have a `missing`
+    entry or none."""
+    out = []
+    for day in WEEK:
+        if day in missed:
+            if day == missed[0]:
+                out.append({"site": "kobo", "day": day, "kind": "missing", "has_run": False})
+            continue
+        out.append({"site": "kobo", "day": day, "kind": "trial-before" if day in partial else "steady"})
+        if day not in partial:
+            out += [{"site": "kobo", "day": day, "kind": k, "complement_of": "steady"} for k in ("night-early", "mill-rest")]
+    return out
+
+
+def _grades(no_data, partial):
+    by_day = {d: "NO_DATA" if d in no_data else "PARTIAL" if d in partial else "COMPLETE" for d in WEEK}
+    return {m: {"SITE:SITE": dict(by_day)} for m in rows.WEEK_GAP_MEASURES}
+
+
+def test_week_gap_pattern_passes_on_v4_and_fails_on_client4s_v3_pattern() -> None:
+    """D-E5.13 item 3: WK-GAP passes on one missed day (S-4) and one partly checked day (S); it fails on client4's
+    real v3 pattern (NO_DATA 4 and 6 Nov, PARTIAL 5, 7 and 8 Nov), whether the calendar or only the grades are v3."""
+    v4_missed, v4_partial = ["2026-11-04"], ["2026-11-08"]
+    v3_missed, v3_partial = ["2026-11-04", "2026-11-06"], ["2026-11-05", "2026-11-07", "2026-11-08"]
+    assert rows.week_day_classes(_calendar(v4_missed, v4_partial), WEEK) == (v4_missed, v4_partial)
+    assert rows.week_day_classes(_calendar(v3_missed, v3_partial), WEEK) == (v3_missed, v3_partial)
+    got = rows.week_gap_pattern(_grades(v4_missed, v4_partial), WEEK, v4_missed, v4_partial)
+    assert got["complete"] == ["2026-11-02", "2026-11-03", "2026-11-05", "2026-11-06", "2026-11-07"]
+    assert len(got["measures"]) == 4
+    with pytest.raises(AssertionError):  # must-fail: client4's pattern, calendar and grades
+        rows.week_gap_pattern(_grades(v3_missed, v3_partial), WEEK, v3_missed, v3_partial)
+    with pytest.raises(AssertionError):  # must-fail: a v4 calendar whose snapshots read the v3 pattern
+        rows.week_gap_pattern(_grades(v3_missed, v3_partial), WEEK, v4_missed, v4_partial)
+    for measure in rows.WEEK_GAP_MEASURES:  # each measure is checked on its own
+        bad = _grades(v4_missed, v4_partial)
+        bad[measure]["SITE:SITE"]["2026-11-06"] = "PARTIAL"
+        with pytest.raises(AssertionError):
+            rows.week_gap_pattern(bad, WEEK, v4_missed, v4_partial)
+        bad = _grades(v4_missed, v4_partial)
+        del bad[measure]
+        with pytest.raises(AssertionError):
+            rows.week_gap_pattern(bad, WEEK, v4_missed, v4_partial)
+    bad = _grades(v4_missed, v4_partial)
+    del bad["productive_kwh"]["SITE:SITE"]["2026-11-04"]  # a day with no snapshot row
+    with pytest.raises(AssertionError):
+        rows.week_gap_pattern(bad, WEEK, v4_missed, v4_partial)
+
+
+MONTH = [(datetime(2026, 11, 8) + timedelta(days=n)).date().isoformat() for n in range(-28, 1)]  # S-28 .. S
+
+
+def _month(s_offsets_missing, s_offsets_partial, unbuilt=()):
+    """A `days.json` Kobo month: `missing` entries, story-only entries, full days (with complements), and unbuilt
+    offsets with no entry at all; plus the grades such a build reads (unbuilt days read NO_DATA)."""
+    cal, by_day = [], {}
+    for n, day in zip(range(-28, 1), MONTH):
+        if n in unbuilt:
+            by_day[day] = "NO_DATA"
+        elif n in s_offsets_missing:
+            cal.append({"site": "kobo", "day": day, "kind": "missing", "has_run": False})
+            by_day[day] = "NO_DATA"
+        elif n in s_offsets_partial:
+            cal.append({"site": "kobo", "day": day, "kind": "overuse"})
+            by_day[day] = "PARTIAL"
+        else:
+            cal += [{"site": "kobo", "day": day, "kind": "steady-before"},
+                    {"site": "kobo", "day": day, "kind": "night-early", "complement_of": "steady-before"}]
+            by_day[day] = "COMPLETE"
+    return cal, {m: {"SITE:SITE": dict(by_day)} for m in rows.WEEK_GAP_MEASURES}
+
+
+V4_MONTH_MISSING, V4_MONTH_PARTIAL = (-10, -4), (-28, -21, -14, -7, 0)
+
+
+def test_month_gap_clause_passes_on_amended_v4_and_fails_on_the_unbuilt_stretch() -> None:
+    """D-E5.19 item 3: the month clause passes when NO_DATA is exactly the `missing` days (S-10, S-4) and PARTIAL
+    exactly the story-only days; it fails on the un-amended v4 (S-27..S-22 unbuilt, reading NO_DATA), on v3 (also
+    S-4, S-2 unbuilt) and when one measure reads a full day PARTIAL."""
+    cal, grades = _month(V4_MONTH_MISSING, V4_MONTH_PARTIAL)
+    missed, partial = rows.month_day_classes(cal, MONTH)
+    assert missed == ["2026-10-29", "2026-11-04"]
+    assert partial == ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08"]
+    got = rows.month_gap_pattern(grades, MONTH, missed, partial)
+    assert got["days"] == 29 and len(got["measures"]) == 4
+    for unbuilt in ((-27, -26, -25, -24, -23, -22), (-27, -26, -25, -24, -23, -22, -4, -2)):  # un-amended v4; v3
+        cal, grades = _month((-10,), V4_MONTH_PARTIAL, unbuilt)
+        missed, partial = rows.month_day_classes(cal, MONTH)
+        assert missed == ["2026-10-29"]  # an unbuilt day is not a `missing` day
+        with pytest.raises(AssertionError):
+            rows.month_gap_pattern(grades, MONTH, missed, partial)
+    cal, grades = _month(V4_MONTH_MISSING, V4_MONTH_PARTIAL)
+    missed, partial = rows.month_day_classes(cal, MONTH)
+    for measure in rows.WEEK_GAP_MEASURES:
+        bad = copy.deepcopy(grades)
+        bad[measure]["SITE:SITE"]["2026-10-15"] = "PARTIAL"
+        with pytest.raises(AssertionError):
+            rows.month_gap_pattern(bad, MONTH, missed, partial)
+    bad = copy.deepcopy(grades)
+    del bad["critical_served"]["SITE:SITE"]["2026-10-15"]  # no snapshot on a full day counts as NO_DATA: fails
+    with pytest.raises(AssertionError):
+        rows.month_gap_pattern(bad, MONTH, missed, partial)
+    ok = copy.deepcopy(grades)
+    del ok["critical_served"]["SITE:SITE"]["2026-11-04"]  # no snapshot on a `missing` day is no checked reading: passes
+    assert rows.month_gap_pattern(ok, MONTH, missed, partial)["measures"]["critical_served|SITE:SITE"][
+        "no_snapshot"] == ["2026-11-04"]
+
+
+def test_site_days_segment_reads_one_site_part() -> None:
+    line = ("Kobo mini-grid: 5 of 7 days checked · 1 partly checked · GreenHarvest Cold Room: 3 of 7 days checked "
+            "· 1 with too little data, not counted")
+    assert rows.site_days_segment(line, "Kobo mini-grid") == "5 of 7 days checked · 1 partly checked"
+    assert rows.site_days_segment(line, "GreenHarvest Cold Room") == \
+        "3 of 7 days checked · 1 with too little data, not counted"
+    assert rows.site_days_segment("Kobo mini-grid: 2 of 7 days checked · 3 partly checked", "Kobo mini-grid") == \
+        "2 of 7 days checked · 3 partly checked"
+    assert rows.site_days_segment(None, "Kobo mini-grid") is None
 
 
 def test_wk2c_fails_if_any_kw_or_money_shows() -> None:

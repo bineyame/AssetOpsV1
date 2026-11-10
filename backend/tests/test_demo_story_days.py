@@ -25,7 +25,8 @@ def _codes(doc, s=S, **kw):
 
 
 def test_offsets_resolve_against_s_and_the_entry_day():
-    runs = {(r.site, r.offset): r for r in sd.resolve(sd.load(), S)}
+    # D-E5.12: v4 has no late Kobo day; the late S-3 entry is v3's
+    runs = {(r.site, r.offset): r for r in sd.resolve(sd.load(sd.V3_FILE), S)}
     normal = runs[("kobo", -28)]
     assert normal.day == "2026-10-01" and normal.kind == "normal"
     assert normal.start == datetime(2026, 10, 1, 3, tzinfo=timezone.utc)
@@ -57,15 +58,19 @@ def test_build_order_is_by_received_at_with_fresh_epochs():
     assert kobo[late].received_at > S - timedelta(days=1, hours=1)
 
 
+@pytest.mark.parametrize("path,full,story_only", [
+    (sd.DEFAULT_FILE, 22, 6),  # D-E5.12/D-E5.17 (v4): S-3..S-1 and S-27..S-22 are full days; S-4 is missing
+    (sd.V3_FILE, 13, 8),  # DD1a2-R (v3, the `--days` rollback)
+])
 @pytest.mark.parametrize("s", [S, datetime(2027, 3, 1, tzinfo=timezone.utc)])
-def test_default_file_validates_on_relative_dates(s):
+def test_default_file_validates_on_relative_dates(s, path, full, story_only):
     db_now = s + timedelta(days=2, hours=4)
     installs = {"kobo": s + timedelta(days=-29, hours=11), "cold": s + timedelta(days=-26, hours=6),
                 "ev": s + timedelta(days=-26, hours=6, minutes=30)}
-    runs = sd.resolve(sd.load(), s, db_now=db_now, installs=installs)
+    runs = sd.resolve(sd.load(path), s, db_now=db_now, installs=installs)
     assert {r.site for r in runs} == {"kobo", "cold", "ev"}
-    assert sum(r.has_run and not r.complement_of for r in runs if r.site == "kobo") == 21  # DD1a2-R: 13 full + 8 story-only
-    assert sum(r.has_run for r in runs if r.site == "kobo") == 13 * 3 + 8
+    assert sum(r.has_run and not r.complement_of for r in runs if r.site == "kobo") == full + story_only
+    assert sum(r.has_run for r in runs if r.site == "kobo") == full * 3 + story_only
 
 
 @pytest.mark.parametrize("s", [S, datetime(2026, 11, 3, tzinfo=timezone.utc), datetime(2027, 3, 1, tzinfo=timezone.utc)])
@@ -92,7 +97,7 @@ def test_unknown_kind():
     doc = copy.deepcopy(sd.load())
     doc["sites"]["ev"].append({"day": "S-5d", "kind": "overuse"})
     assert _codes(doc) == "UNKNOWN_KIND"
-    doc = copy.deepcopy(sd.load())
+    doc = copy.deepcopy(sd.load(sd.V3_FILE))  # D-E5.12: the late entry is v3's
     next(e for e in doc["sites"]["kobo"] if e["kind"] == "late").pop("as")
     assert _codes(doc) == "UNKNOWN_KIND"
 
@@ -104,15 +109,15 @@ def test_duplicate_day():
 
 
 def test_duplicate_received_at():
-    # S-3 late (D+2d) set back to 12:00 shares S-1 normal's 12:00 delivery; acceptance is counted by received_at
-    doc = copy.deepcopy(sd.load())
+    # S-3 late (D+2d) set back to 12:00 shares S-1 normal's 12:00 delivery; acceptance is counted by received_at (v3)
+    doc = copy.deepcopy(sd.load(sd.V3_FILE))
     doc["kinds"]["kobo"]["late"]["received_at"] = "D+2d 12:00"
     assert _codes(doc) == "DUPLICATE_RECEIVED_AT"
 
 
 @pytest.mark.parametrize("change", ["drop_after", "after_not_next_day", "two_before"])
 def test_trial_pair_invalid(change):
-    doc = copy.deepcopy(sd.load())
+    doc = copy.deepcopy(sd.load(sd.V3_FILE))  # D-E5.12: `two_before` needs v3's free S-2 (v4 builds it)
     kobo = doc["sites"]["kobo"]
     if change == "drop_after":
         kobo[:] = [e for e in kobo if e["kind"] != "trial-after"]
@@ -596,8 +601,8 @@ def _v3_entry(doc, offset):
 
 
 def test_v3_resolves_on_the_ruled_table():
-    runs = sd.resolve(sd.load(), S)
-    assert Path(sd.DEFAULT_FILE).name == "demo-story-days-v3.json" and sd.load()["mill_change_day"] == "S-9d"
+    runs = sd.resolve(sd.load(sd.V3_FILE), S)  # D-E5.12: v3 is history and the `--days` rollback
+    assert Path(sd.V3_FILE).name == "demo-story-days-v3.json" and sd.load(sd.V3_FILE)["mill_change_day"] == "S-9d"
     kobo = [r for r in runs if r.site == "kobo"]
     story = {r.offset: r for r in kobo if not r.complement_of}
     assert {n: story[n].kind for n in V3_FULL} == V3_FULL
@@ -622,10 +627,138 @@ def test_v3_resolves_on_the_ruled_table():
 def test_v3_story_only_days_equal_v1_except_their_epoch():
     drop = ("epoch",)
     v1 = {(r.site, r.offset): r for r in sd.resolve(sd.load(sd.V1_FILE), S)}
-    v3 = {(r.site, r.offset): r for r in sd.resolve(sd.load(), S) if not r.complement_of}
+    v3 = {(r.site, r.offset): r for r in sd.resolve(sd.load(sd.V3_FILE), S) if not r.complement_of}
     for key in [("kobo", n) for n in V3_STORY_ONLY] + [k for k in v1 if k[0] == "cold"]:
         want, got = v1[key].payload(), v3[key].payload()
         assert {k: v for k, v in got.items() if k not in drop} == {k: v for k, v in want.items() if k not in drop}, key
+
+
+# ---- D-E5.12 (FX-KOBO-GAPS): the story week S-6..S has one missed day and one partly checked day --------------
+WEEK_S = [datetime(2026, 11, d, tzinfo=timezone.utc) for d in (7, 8, 9)]
+#: The ruled v4 week (D-E5.12): offset -> kind of the one missed day and of the one partly checked day; every other
+#: day of S-6..S is a full day.
+V4_MISSED = {-4: "missing"}
+V4_PARTIAL = {0: "trial-before"}
+V4_FULL = [n for n in range(-6, 1) if n not in V4_MISSED and n not in V4_PARTIAL]
+#: The Kobo entries v4 changes against v3 (v4's days; the v3 days they replace). Everything else is v3, byte-equal.
+V4_CHANGED_DAYS = {"S-4d", "S-3d", "S-2d", "S-1d"}
+V3_REPLACED_DAYS = {"S-3d", "S-1d"}
+#: D-E5.17/D-E5.19: the six before-mill full days v4 adds on S-27..S-22 (no v3 entry is replaced).
+V4_MONTH_FILL = {-27: "steady-before-first", **{n: "steady-before" for n in range(-26, -21)}}
+V4_MONTH_DAYS = {f"S{n}d" for n in V4_MONTH_FILL}
+#: The only days in [S-28, S] with no run on v4 as amended: the FILL-1 beat S-10 and the week's missed day S-4.
+V4_MONTH_NO_RUN = {-10, -4}
+
+
+def _tiles(kobo: list, s: datetime, n: int) -> bool:
+    """The Kobo runs on S+n tile [00:00, 24:00) local, back to back, with more than one run."""
+    day = sorted((r for r in kobo if r.offset == n and r.has_run), key=lambda r: r.start)
+    lo = s + timedelta(days=n) + sd.LOCAL_DAY_START
+    cursor = lo
+    for r in day:
+        if r.start != cursor:
+            return False
+        cursor = r.covers_end or r.end
+    return len(day) > 1 and cursor == lo + timedelta(hours=24)
+
+
+def _month_fill_problems(doc: dict, s: datetime) -> list[str]:
+    """Every way the Kobo month [S-28, S] differs from D-E5.18: S-27 `steady-before-first`, S-26..S-22
+    `steady-before`, each tiling the local day, and no run only on `V4_MONTH_NO_RUN`. Empty means it holds."""
+    installs = {"kobo": s + timedelta(days=-29, hours=11), "cold": s + timedelta(days=-26, hours=6),
+                "ev": s + timedelta(days=-26, hours=6, minutes=30)}
+    kobo = [r for r in sd.resolve(doc, s, installs=installs) if r.site == "kobo"]
+    problems = []
+    for n, kind in V4_MONTH_FILL.items():
+        kinds = {r.kind for r in kobo if r.offset == n and not r.complement_of}
+        if kinds != {kind}:
+            problems.append(f"S{n:+d} kinds {sorted(kinds)}, want {kind}")
+        elif not _tiles(kobo, s, n):
+            problems.append(f"S{n:+d} does not tile the local day")
+    no_run = {n for n in range(-28, 1) if not any(r.offset == n and r.has_run for r in kobo)}
+    if no_run != V4_MONTH_NO_RUN:
+        problems.append(f"days with no run {sorted(no_run)}, want {sorted(V4_MONTH_NO_RUN)}")
+    return problems
+
+
+def _week_pattern_problems(doc: dict, s: datetime) -> list[str]:
+    """Every way the Kobo week S-6..S differs from the owner's 2026-11-10 pattern: exactly one day with no run
+    (`V4_MISSED`), exactly one story-only day (`V4_PARTIAL`), the other five days' runs tile [00:00, 24:00) local,
+    and no `late` entry. Empty means the pattern holds."""
+    installs = {"kobo": s + timedelta(days=-29, hours=11), "cold": s + timedelta(days=-26, hours=6),
+                "ev": s + timedelta(days=-26, hours=6, minutes=30)}
+    runs = sd.resolve(doc, s, installs=installs)
+    kobo = [r for r in runs if r.site == "kobo"]
+    problems = []
+    if any(e["kind"] == "late" for e in doc["sites"]["kobo"]):
+        problems.append("a late Kobo entry remains")
+    no_run, story_only, full = [], [], []
+    for n in range(-6, 1):
+        day = sorted((r for r in kobo if r.offset == n and r.has_run), key=lambda r: r.start)
+        if not day:
+            no_run.append(n)
+            continue
+        if len(day) == 1:
+            story_only.append(n)
+            continue
+        lo = s + timedelta(days=n) + sd.LOCAL_DAY_START
+        cursor = lo
+        for r in day:
+            if r.start != cursor:
+                break
+            cursor = r.covers_end or r.end
+        if cursor == lo + timedelta(hours=24):
+            full.append(n)
+        else:
+            problems.append(f"S{n:+d} does not tile the local day")
+    missed = {r.offset: r.kind for r in kobo if -6 <= r.offset <= 0 and not r.has_run}
+    if no_run != sorted(V4_MISSED) or missed != V4_MISSED:
+        problems.append(f"days with no run {no_run} (kinds {missed}), want {V4_MISSED}")
+    partial = {r.offset: r.kind for r in kobo if r.offset in story_only}
+    if story_only != sorted(V4_PARTIAL) or partial != V4_PARTIAL:
+        problems.append(f"story-only days {partial}, want {V4_PARTIAL}")
+    if full != V4_FULL:
+        problems.append(f"full days {full}, want {V4_FULL}")
+    return problems
+
+
+@pytest.mark.parametrize("s", WEEK_S, ids=lambda s: s.date().isoformat())
+def test_v4_story_week_one_missed_one_partial(s):
+    assert sd.DEFAULT_FILE.name == "demo-story-days-v4.json"
+    assert _week_pattern_problems(sd.load(), s) == []
+    # D-E5.19: v4 minus its 4 week entries and its 6 S-27..S-22 entries equals v3 minus its 2 week entries; the kinds,
+    # the trial block and every other key are byte-equal
+    v4, v3 = sd.load(), sd.load(sd.V3_FILE)
+    added = V4_CHANGED_DAYS | V4_MONTH_DAYS
+    assert {e["day"] for e in v4["sites"]["kobo"]} >= added
+    assert {e["day"] for e in v3["sites"]["kobo"] if e["day"] in added | V3_REPLACED_DAYS} == V3_REPLACED_DAYS
+    assert [e for e in v4["sites"]["kobo"] if e["day"] not in added] == [
+        e for e in v3["sites"]["kobo"] if e["day"] not in V3_REPLACED_DAYS]
+    rest = ("schema", "label", "status", "sites")
+    assert {k: v for k, v in v4.items() if k not in rest} == {k: v for k, v in v3.items() if k not in rest}
+    assert {k: v for k, v in v4["sites"].items() if k != "kobo"} == {k: v for k, v in v3["sites"].items() if k != "kobo"}
+    assert "D-E5.12, D-E5.17" in v4["label"]
+
+
+@pytest.mark.parametrize("s", WEEK_S, ids=lambda s: s.date().isoformat())
+def test_v4_month_fill(s):
+    """D-E5.19: S-27 `steady-before-first` and S-26..S-22 `steady-before`, each a full local day through the normal
+    resolve (installs given); the only days in [S-28, S] with no run are S-10 and S-4. Must-fail: the un-amended v4
+    (the six entries removed) fails."""
+    assert _month_fill_problems(sd.load(), s) == []
+    unamended = copy.deepcopy(sd.load())
+    unamended["sites"]["kobo"] = [e for e in unamended["sites"]["kobo"] if e["day"] not in V4_MONTH_DAYS]
+    assert _week_pattern_problems(unamended, s) == []  # the week alone still holds there
+    problems = _month_fill_problems(unamended, s)
+    assert len(problems) == 7 and problems[-1].startswith("days with no run [-27, -26, -25, -24, -23, -22, -10, -4]"), \
+        problems
+
+
+@pytest.mark.parametrize("s", WEEK_S, ids=lambda s: s.date().isoformat())
+def test_v4_story_week_check_fails_on_the_v3_pattern(s):
+    """Must-fail: the same week check run against v3 (2 days with no run, 3 story-only days, a late entry)."""
+    problems = _week_pattern_problems(sd.load(sd.V3_FILE), s)
+    assert len(problems) == 4, problems  # the late entry, the no-run days, the story-only days and the full days
 
 
 def test_before_mill_differs_from_kobo_daytime_in_exactly_the_six_mill_windows():
@@ -748,7 +881,7 @@ def test_add_day_steady_expands_to_three_runs_at_db_now_in_source_order():
 
 
 def test_s10_is_fillable_with_the_fresh_before_day_and_keeps_the_refusals_first():
-    doc = sd.load()
+    doc = sd.load(sd.V3_FILE)  # D-E5.12: the LATE_IN_STREAM neighbours S-4 / S-2 are v3's
     current = sd.resolve(doc, S)
     now = S + timedelta(days=3)
     runs = sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, now, day="S-10d")

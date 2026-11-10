@@ -595,15 +595,107 @@ def action_ref_kind(action: dict) -> str | None:
     return ref.get("kind") if isinstance(ref, dict) else None
 
 
-def wk2b(grow: dict, kw_pattern) -> dict:
+#: D-E5.13 item 3 (WK-GAP): the Kobo day measures whose week pattern the owner judged (2026-11-10).
+WEEK_GAP_MEASURES = ("critical_served", "daylight_headroom_kw", "productive_kwh", "avoidable_gen_min")
+
+
+def week_day_classes(site_days: list[dict], week: list[str]) -> tuple[list[str], list[str]]:
+    """WK-GAP: (missed, partial) days of `week` from the built calendar (`days.json`), never from hard-coded dates. A
+    missed day has no run (a `missing` kind, or no entry at all); a partly checked day has runs but no complement
+    (a story-only kind: its example hours only)."""
+    ran = {d["day"] for d in site_days if d.get("kind") != "missing" and d.get("has_run", True)}
+    full = {d["day"] for d in site_days if d.get("complement_of")}
+    return [d for d in week if d not in ran], [d for d in week if d in ran and d not in full]
+
+
+def week_gap_pattern(grades_by_measure: dict[str, dict[str, dict[str, str]]], week: list[str], missed: list[str],
+                     partial: list[str]) -> dict:
+    """WK-GAP (D-E5.13 item 3): the owner's week pattern, "1 missed day with 1 partly missing". `grades_by_measure`
+    is {measure: {subject: {local_day: grade}}} from the latest `site_day_snapshot` revisions. The calendar must hold
+    exactly one missed and one partly checked day, and for every measure and subject: NO_DATA on exactly the missed
+    day, PARTIAL on exactly the partly checked day, COMPLETE on the other days of the week."""
+    assert len(missed) == 1 and len(partial) == 1, ("not one missed and one partly checked day", missed, partial)
+    complete = [d for d in week if d not in missed and d not in partial]
+    out = {}
+    for m in WEEK_GAP_MEASURES:
+        subjects = grades_by_measure.get(m) or {}
+        assert subjects, ("no day snapshot for the measure", m)
+        for subject, by_day in sorted(subjects.items()):
+            got = {g: [d for d in week if by_day.get(d) == g] for g in ("NO_DATA", "PARTIAL", "COMPLETE")}
+            absent = [d for d in week if d not in by_day]
+            assert not absent, (m, subject, "days with no snapshot", absent)
+            assert got == {"NO_DATA": missed, "PARTIAL": partial, "COMPLETE": complete}, (
+                m, subject, got, {d: by_day[d] for d in week})
+            out[f"{m}|{subject}"] = got
+    return {"missed": missed, "partial": partial, "complete": complete, "measures": out}
+
+
+def month_day_classes(site_days: list[dict], days: list[str]) -> tuple[list[str], list[str]]:
+    """WK-GAP month clause (D-E5.19 item 3): (missing-kind, story-only) days of `days` from the built calendar. Unlike
+    the week, a day with no entry at all is in neither list, so if it reads NO_DATA the clause fails (an unbuilt
+    stretch such as v3's S-27..S-22 is the alarm)."""
+    missing = {d["day"] for d in site_days if d.get("kind") == "missing"}
+    ran = {d["day"] for d in site_days if d.get("kind") != "missing" and d.get("has_run", True)}
+    full = {d["day"] for d in site_days if d.get("complement_of")}
+    return [d for d in days if d in missing], [d for d in days if d in ran and d not in full]
+
+
+def month_gap_pattern(grades_by_measure: dict[str, dict[str, dict[str, str]]], days: list[str], missed: list[str],
+                      partial: list[str]) -> dict:
+    """WK-GAP month clause (D-E5.19 item 3): on [S-28, S], for every measure and subject, NO_DATA on exactly the
+    `missing`-kind days and PARTIAL on exactly the story-only days. A day with no snapshot row counts as NO_DATA (no
+    checked reading), so it passes only on a `missing` day. Other grades are not judged here."""
+    out = {}
+    for m in WEEK_GAP_MEASURES:
+        subjects = grades_by_measure.get(m) or {}
+        assert subjects, ("no day snapshot for the measure", m)
+        for subject, by_day in sorted(subjects.items()):
+            got = {g: [d for d in days if by_day.get(d, "NO_DATA") == g] for g in ("NO_DATA", "PARTIAL")}
+            assert got == {"NO_DATA": missed, "PARTIAL": partial}, (m, subject, "month", got, missed, partial)
+            out[f"{m}|{subject}"] = {**got, "no_snapshot": [d for d in days if d not in by_day]}
+    return {"missed": missed, "partial": partial, "days": len(days), "measures": out}
+
+
+def site_days_segment(line: str | None, name: str) -> str | None:
+    """The "{name}: ..." part of a card days line ("{Site}: {line}" parts, " · "-joined), up to the next Site part."""
+    i = (line or "").find(f"{name}: ")
+    if i < 0:
+        return None
+    rest = line[i + len(name) + 2:]
+    nxt = re.search(r" · (?=[^·:]+: )", rest)
+    return rest[:nxt.start()] if nxt else rest
+
+
+def not_judged_texts() -> set[str]:
+    """Every `LIMIT_UNKNOWN` sentence the vocabulary can render for a 5-day study (1 to 5 days with no reading)."""
+    from assetops_backend.chain import vocabulary as v
+
+    return {v.limit_line("UNKNOWN", (), [None] * n + ["ELIGIBLE"] * (5 - n)) for n in range(1, 6)}
+
+
+def wk2b(grow: dict, kw_pattern, eligible_days: int = 0) -> dict:
     """WK-2b restated (R6 O6; DD1b2-R Q10): on S no headline money, the headline is not the kW pattern, the sales
-    contributor starts "0 kWh used by Grain mill", the potential reads "No potential found yet"."""
+    contributor starts "0 kWh used by Grain mill".
+    D-E5.13 item 4 (cause D-E5.12): the potential follows the study ending S. With `eligible_days` >= 1 (v4) it is
+    the "Not judged yet: n of the 5 study days ..." sentence, with no kW and no money on the node or the chip; with 0
+    (v3) it reads "No potential found yet"."""
     assert not grow.get("headline_money"), grow.get("headline_money")
     assert not kw_pattern.fullmatch(grow["headline"]), grow["headline"]
     sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
     assert sales["text"].startswith("0 kWh used by Grain mill"), sales["text"]
-    assert NO_POTENTIAL in nodes_potential_text(grow), (grow.get("nodes", {}).get("potential"), grow.get("potential"))
-    return {"headline": grow["headline"], "sales": sales["text"], "potential": nodes_potential_text(grow)}
+    text = nodes_potential_text(grow).strip()
+    if eligible_days:
+        assert text in not_judged_texts(), ("the study ending S has eligible days", eligible_days, text)
+        for shown in ((grow.get("nodes") or {}).get("potential"), grow.get("potential")):
+            t = potential_text(shown)
+            assert not re.search(r"\d\s*(–|-|to)?\s*\d*\s*kW", t), ("a kW figure shows", t)
+            assert not re.search(r"(USD|\$)\s*\d|\d\s*(USD|\$)", t), ("money shows", t)
+            if isinstance(shown, dict):
+                assert not shown.get("value_line") and not shown.get("value"), ("a value line shows", shown)
+                assert not any(k for k in shown if "money" in k and shown[k]), ("money shows", shown)
+    else:
+        assert NO_POTENTIAL in text, (grow.get("nodes", {}).get("potential"), grow.get("potential"))
+    return {"headline": grow["headline"], "sales": sales["text"], "potential": text}
 
 
 def potential_text(potential) -> str:

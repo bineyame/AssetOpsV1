@@ -207,6 +207,9 @@ def test_copy_literals():
         "Limited evidence: 2 of the 5 study days lack a reading needed to size it"
     assert v.limit_line("UNKNOWN", [], [None, None, "ELIGIBLE", "EXCLUDED", "EXCLUDED"]) == \
         "Not judged yet: 2 of the 5 study days have no reading"
+    # D-E5.13 item 5: one empty study day reads in the singular
+    assert v.limit_line("UNKNOWN", [], [None, "ELIGIBLE", "ELIGIBLE", "ELIGIBLE", "ELIGIBLE"]) == \
+        "Not judged yet: 1 of the 5 study days has no reading" == v.LIMIT_UNKNOWN_ONE
     assert v.limit_line("SUPPORTED", [], []) is None
     assert v.EVIDENCE_LABEL == {"SUPPORTED": "Supported", "LIMITED": "Limited evidence", "UNKNOWN": "Not judged yet"}
     assert v.THREAD_STATE_WORDS["RESOLVED_MONITORING"] == "Checked and working, monitoring"
