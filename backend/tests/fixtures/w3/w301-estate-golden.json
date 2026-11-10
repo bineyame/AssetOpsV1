@@ -87,10 +87,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -161,12 +171,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -241,10 +261,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -392,10 +422,20 @@
               },
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -484,12 +524,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -655,10 +705,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -729,12 +789,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -809,10 +879,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -960,10 +1040,20 @@
               },
               "awaiting_verification": 0,
               "basis_count": 0,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -1052,12 +1142,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -1376,10 +1476,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 2,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 2
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": 2,
             "window": {
@@ -1551,10 +1661,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 2,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 2
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": 2,
             "window": {
@@ -1723,10 +1843,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 2,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 2
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": 2,
             "window": {
@@ -1906,12 +2036,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -2080,10 +2220,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 1,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 1,
             "window": {
@@ -2159,10 +2309,20 @@
             "summary": {
               "awaiting_verification": 0,
               "basis_count": 1,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 0,
             "window": {
@@ -2424,10 +2584,20 @@
               "as_of": "2026-10-30T10:03:00Z",
               "awaiting_verification": 0,
               "basis_count": 2,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 2
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": 2,
             "window": {
@@ -2509,12 +2679,22 @@
             "status": "HISTORICAL",
             "summary": {
               "as_of": "2026-10-30T10:03:00Z",
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -2591,12 +2771,22 @@
             "state_filter": "all",
             "status": "PENDING_RECOMPUTE",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -2766,10 +2956,20 @@
               "as_of": "2026-10-30T15:25:00Z",
               "awaiting_verification": 0,
               "basis_count": 1,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": 0
+              "supported_findings": 0,
+              "unconfirmed_findings": 0
             },
             "total_count": 1,
             "window": {
@@ -3057,12 +3257,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -3675,12 +3885,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
@@ -4105,12 +4325,22 @@
             "state_filter": "all",
             "status": "UNKNOWN",
             "summary": {
-              "awaiting_verification": null,
+              "awaiting_verification": 0,
               "basis_count": null,
+              "claims": {
+                "count.opportunities": {
+                  "basis": "NOT_KNOWN",
+                  "days": null,
+                  "key": "count.opportunities",
+                  "text": "Not known yet",
+                  "value": null
+                }
+              },
               "high_priority": null,
               "low_confidence": null,
               "opportunity_count": 0,
-              "supported_findings": null
+              "supported_findings": 2,
+              "unconfirmed_findings": 0
             },
             "total_count": null,
             "window": {
