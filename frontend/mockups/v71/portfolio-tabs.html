@@ -38,9 +38,19 @@ body.embed .draftbar{display:none}
 .pf-coverage .sites span{white-space:nowrap}
 .pf-coverage .rule{color:#6f5a2a}
 .pf-coverage a{margin-left:auto;font-weight:650}
+.pf-term{text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+.pf-glossary{flex-basis:100%;font-size:12px}
+.pf-glossary summary{cursor:pointer;font-weight:650;color:var(--blue)}
+.pf-glossary dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:8px 0 4px}
+.pf-glossary dt{font-weight:650}
+.pf-glossary dd{margin:0}
+.pf-glossary p{margin-top:4px;color:#6f5a2a}
+@media(max-width:760px){.pf-glossary dl{grid-template-columns:1fr}.pf-glossary dd{margin-bottom:6px}}
 .oc-pfexception{display:block;margin-top:6px;font-size:11px;color:var(--amber)}
 
 /* Change 2: Portfolio section tabs (same row as the Site tabs: links, aria-current, wraps under 760px) */
+.pf-topbar{position:sticky;top:46px;z-index:15}
+body.embed .pf-topbar{top:0}
 .pf-tabs{margin:0 0 18px;border-bottom:1px solid var(--line)}
 .pf-tabs ol{list-style:none;margin:0;padding:0;display:flex;gap:24px;overflow-x:auto;scrollbar-width:thin}
 .pf-tabs a{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#58667f;padding:11px 0 12px;border-bottom:2px solid transparent;white-space:nowrap}
@@ -99,29 +109,36 @@ body.show-notes .note-pin{display:block}
 </div>
 
 <div class="proposed shell">
- <nav class="rail" aria-label="Main">
-  <div style="color:#fff;font-weight:700;font-size:15px;padding:0 8px">AssetOps</div>
-  <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;padding:0 8px">
-   <span style="color:#fff;font-weight:650">Portfolio</span><span>Sites</span><span>Findings</span><span>Actions</span><span>Evidence</span><span>Financials</span>
-  </div>
- </nav>
+ <!-- Left menu: copied verbatim from the rendered v7.0 shell (index.html#/portfolio, rail(s)); only the link targets point back into v7.0. Same items, order, groups and icons as the product rail (OperatorShellLayout.tsx). -->
+ <aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div><div class="rail-group"><div class="eyebrow">OPERATIONS</div><a class="active" href="../v70/index.html#/portfolio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"></path></svg>Portfolio</a><a class="" href="../v70/index.html#/sites"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14 M8 21v-5h8v5 M7 8v3 M12 7v4 M17 8v3"></path></svg>Sites</a><a class="" href="../v70/index.html#/assets"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16H7z M10 1h4 M10 8h4 M10 12h4 M10 16h4"></path></svg>Assets</a></div><div class="rail-group"><div class="eyebrow">INTELLIGENCE</div><a class="" href="../v70/index.html#/findings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L2 21h20L12 3z M12 9v5 M12 17v1"></path></svg>Findings</a></div><div class="rail-group"><div class="eyebrow">WORK</div><a class="" href="../v70/index.html#/actions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v17H5V4h3 M9 2h6v4H9z M8 12l3 3 5-6"></path></svg>Actions</a><a class="" href="../v70/index.html#/incidents"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10 M12 17v1 M4 3h16v18H4z"></path></svg>Incidents</a><a class="" href="../v70/index.html#/maintenance"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4a5 5 0 0 0-6 6L2 16l6 6 6-6a5 5 0 0 0 6-6l-4 4-5-5 3-5z"></path></svg>Maintenance</a><a class="" href="../v70/index.html#/oprecords"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4"></path></svg>Operational records</a></div><div class="rail-group"><div class="eyebrow">ASSURANCE</div><a class="" href="../v70/index.html#/globalevidence"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5z M14 3v5h5 M8 12h8 M8 16h6"></path></svg>Evidence</a></div><div class="rail-group"><div class="eyebrow">BUSINESS</div><a class="" href="../v70/index.html#/globalfinancials"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20 M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H6"></path></svg>Financials</a></div><div class="rail-group"><div class="eyebrow">ADMIN</div><a class="" href="../v70/index.html#/settings-policies"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2"></path></svg>Settings</a></div><div class="rail-footer"><div class="eyebrow">WORKSPACE</div><a class="" href="../v70/index.html#/lab"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2v7L3 19q-1 3 3 3h12q4 0 3-3L15 9V2 M7 2h10 M7 15h10"></path></svg>Simulator Lab</a><div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>
  <main class="workspace">
-  <header class="topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><span class="badge">30 Sep – 6 Oct 2026</span><span class="avatar">BY</span></div></header>
+  <!-- Top bar: copied from the rendered v7.0 shell; the date range picker stays here, at the top of the screen, on every tab. -->
+  <header class="topbar pf-topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><button class="searchbox" data-index=""><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M15 15l6 6"></path></svg>Find a screen</button><div class="range-picker"><button class="range-button" data-range-toggle="" aria-expanded="false" aria-label="Choose analysis window"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v6l4 2"></path></svg><span class="range-name">Window: Custom</span><span id="topbar-window">30 Sep – 6 Oct 2026</span><span aria-hidden="true">▾</span></button></div><span class="avatar">BY</span></div></header>
   <div class="canvas portfolio-v2">
    <div class="page-heading"><div><div class="title-row"><h1>Portfolio Value &amp; Operations</h1></div><p>Operating decisions across the estate: cost, service, productive use and asset value</p></div></div>
 
+   <p class="note-pin"><b>Change 0 · Unchanged frame (owner item 4).</b> The left menu is the v7.0 menu exactly (copied from its shell, not redrawn). The date range picker stays at the top of the screen, in the top bar, and does not move when you change tabs. Current and Side by side show v7.0 itself, which already has both.</p>
    <p class="note-pin"><b>Change 1 · Coverage once.</b> The date range and this one coverage line sit above the tabs, so they apply to every tab. The per-Site notes in the header row and the days line under every card are gone. A card keeps a days line only when its figures come from different days than this line (see Grow revenue).</p>
 
    <div class="portfolio-context"><div><span class="badge amber">Portfolio: Needs attention</span><span>3 simulated sites · 1 mini-grid / 1 cold room / 1 charging hub</span></div></div>
 
    <div class="pf-coverage" role="note" aria-label="Days checked">
     <span class="dot" aria-hidden="true"></span>
-    <b>Some days are not fully checked yet.</b>
-    <span class="sites"><span>Kobo: 6 Oct partly checked</span><span>GreenHarvest: 7 of 7 days checked</span><span>Depot: 6 Oct, 7 of 8 hours checked</span></span>
-    <span class="rule">Every figure on this page uses only the checked days.</span>
+    <b>Some days have incomplete readings.</b>
+    <span class="sites"><span>Kobo: 6 Oct <abbr class="pf-term" title="Partial readings: readings arrived for 25–80% of the hours the day needed. Shown, and named wherever used.">partial readings</abbr></span><span>GreenHarvest: <abbr class="pf-term" title="Complete readings: readings arrived for at least 80% of the hours the day needed (every daylight hour for spare solar).">complete readings</abbr> on 7 of 7 days</span><span>Depot: 6 Oct complete readings · 1 of 8 operating hours missing</span></span>
+    <span class="rule">Figures on this page count days with complete readings.</span>
+    <details class="pf-glossary"><summary>What these words mean</summary><dl>
+     <dt>Complete readings</dt><dd>Readings arrived for at least 80% of the hours the day needed (for spare solar: every daylight hour). The day is counted.</dd>
+     <dt>Partial readings</dt><dd>Readings arrived for 25–80% of those hours. The day is shown, and named wherever it is used.</dd>
+     <dt>Too few readings</dt><dd>Readings arrived for under 25% of those hours. The day is not counted.</dd>
+     <dt>No readings received</dt><dd>Nothing arrived from the site for that day.</dd>
+     <dt>Still processing</dt><dd>Readings arrived and are being analysed; results follow.</dd>
+     <dt>Not analysed yet</dt><dd>The day has not been through the site analysis yet, whatever readings it has.</dd>
+    </dl><p>AssetOps looks at every day. These words describe the data that arrived, not whether anyone looked.</p></details>
     <a href="#scope" data-tab-link="scope">Which days, and why →</a>
    </div>
 
+   <p class="note-pin"><b>Change 1b · Words that describe the data (owner item 3).</b> "Checked" is gone: it read as if the system had not looked. The words now say what arrived: complete readings, partial readings, too few readings, no readings received, still processing, not analysed yet. Each is defined in one line under "What these words mean" and on hover. "7 of 8 hours checked" becomes "complete readings · 1 of 8 operating hours missing": by the product rule, 7 of 8 hours is enough for a complete day.</p>
    <p class="note-pin"><b>Change 2 · Section tabs.</b> One row of links, the same row the Site pages use. Each tab has its own address, and the date range travels with it, so a tab can be bookmarked or shared. The counts say what is inside before you open it.</p>
 
    <nav class="pf-tabs" aria-label="Portfolio sections">
@@ -141,8 +158,8 @@ body.show-notes .note-pin{display:block}
     <h2 id="h-overview" class="pf-sr">Overview</h2>
     <div class="value-grid oc-pfgrid">
      <div class="value-card green oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/renewable"><span>Grow revenue</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Capture more value from existing infrastructure and expand earning potential</p><div class="oc-pfval"><div class="value-number">18–20 <small>kW unused</small></div><button class="why-btn" type="button">Why?</button></div>
-      <small class="oc-pfexception">Different days: Kobo potential comes from a separate 5-day study, 3 of 5 days checked</small>
-      <dl class="oc-pfgrow"><div><dt>Target</dt><dd>No target set yet at any site</dd></div><div><dt>Potential</dt><dd>Kobo: 18–20 kW of daytime solar · Depot: chargers under a fifth used</dd></div><div><dt>Estimated income</dt><dd>Kobo: $7.50 over 3 checked study days ($2.50 per window) · Depot: $36.00 on 6 Oct · GreenHarvest: not measured yet</dd><dd class="oc-pfnote">Different days at each site, so not added together · not billed or collected</dd></div></dl>
+      <small class="oc-pfexception">Different days: Kobo potential comes from a separate 5-day study, complete readings on 3 of 5 days</small>
+      <dl class="oc-pfgrow"><div><dt>Target</dt><dd>No target set yet at any site</dd></div><div><dt>Potential</dt><dd>Kobo: 18–20 kW of daytime solar · Depot: chargers under a fifth used</dd></div><div><dt>Estimated income</dt><dd>Kobo: $7.50 over 3 study days with complete readings ($2.50 per window) · Depot: $36.00 on 6 Oct · GreenHarvest: not measured yet</dd><dd class="oc-pfnote">Different days at each site, so not added together · not billed or collected</dd></div></dl>
       <div class="oc-sitedots"><span class="tone-green"><i></i>Kobo</span><span class="tone-none"><i></i>GreenHarvest</span><span class="tone-blue"><i></i>Depot</span></div><div class="value-basis">Opportunities · revenue not measured yet</div></div>
      <div class="value-card amber oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/financials"><span>Optimize cost and efficiency</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Eliminate avoidable expenditure and get more output from operational resources</p><div class="oc-pfval"><div class="value-number">$3.31–3.97</div><button class="why-btn" type="button">Why?</button></div>
       <p>Kobo generator time, 1 trial in hand · 3 repair visits without a result at GreenHarvest, cost not recorded</p>
@@ -238,12 +255,12 @@ body.show-notes .note-pin{display:block}
 
    <!-- SCOPE & COVERAGE (deep tab) -->
    <section class="pf-panel pf-scope" id="panel-scope" data-panel="scope" tabindex="-1" aria-labelledby="h-scope">
-    <p class="note-pin">The deep tab. It holds what v7.0 puts in the "Assessment scope &amp; periods" drawer and the page footer: each Site's days, the days not checked, the assessment periods, what is left out and why, and the source records. The coverage line above links here.</p>
-    <section class="panel"><div class="panel-head"><div><h2 id="h-scope">Days checked, per site</h2><p>A day counts as checked when its readings are complete and assessed. Figures elsewhere on this page use only these days.</p></div></div>
-     <div class="table-wrap"><table><thead><tr><th>Site</th><th>Type</th><th>Days checked</th><th>Not checked yet</th><th>Assessment period</th></tr></thead><tbody>
-      <tr><td><strong>Kobo</strong></td><td>Mini-grid</td><td>6 Oct partly checked</td><td>6 Oct · 14:50 battery report missing</td><td>30 Sep – 6 Oct · study 1–5 Oct</td></tr>
+    <p class="note-pin">The deep tab. It holds what v7.0 puts in the "Assessment scope &amp; periods" drawer and the page footer: each Site's readings per day, the days with incomplete or missing readings, the assessment periods, what is left out and why, and the source records. The coverage line above links here.</p>
+    <section class="panel"><div class="panel-head"><div><h2 id="h-scope">Readings per site</h2><p>Complete readings: readings arrived for at least 80% of the hours the day needed. Figures elsewhere on this page count those days.</p></div></div>
+     <div class="table-wrap"><table><thead><tr><th>Site</th><th>Type</th><th>Complete readings</th><th>Incomplete or missing</th><th>Assessment period</th></tr></thead><tbody>
+      <tr><td><strong>Kobo</strong></td><td>Mini-grid</td><td>6 of 7 days</td><td>6 Oct partial readings · battery-limit reports missing for part of the day</td><td>30 Sep – 6 Oct · study 1–5 Oct</td></tr>
       <tr><td><strong>GreenHarvest</strong></td><td>Cold room</td><td>7 of 7 days</td><td>None · door and loading not recorded</td><td>30 Sep – 6 Oct</td></tr>
-      <tr><td><strong>Depot</strong></td><td>EV charging</td><td>6 Oct, 7 of 8 hours</td><td>6 Oct · 1 hour partly checked</td><td>6 Oct</td></tr>
+      <tr><td><strong>Depot</strong></td><td>EV charging</td><td>1 of 1 day (6 Oct)</td><td>6 Oct · 1 of 8 operating hours (08:00–16:00) missing; the day still has enough to count</td><td>6 Oct</td></tr>
      </tbody></table></div>
     </section>
     <section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2>What is left out, and why</h2></div></div>

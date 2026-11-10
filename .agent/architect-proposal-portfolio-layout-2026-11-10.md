@@ -12,7 +12,9 @@
 - **One thing I found that needs fixing first.** The header row and the cards count "checked days" by **two different rules** today (the header uses "an assessment exists for the day"; the cards use "the day's readings are fully checked"). While they are shown in different places, nobody notices. Shown once, the line must use one rule. I propose the cards' rule (fully checked), with "not assessed yet" days named in the same line. This is a small server change.
 - **Section tabs: yes, with one change.** A row of tabs under the coverage line: **Overview · Act first · Outcomes by site · Opportunity · What changed · Scope & coverage**. The cards stay on Overview. Each tab has its own address, and the date range travels with it.
 - **My pushback: keep the top three "act first" findings on the Overview.** The page's job is "where should management act first". If that only lives on a second tab, an executive who lands on the page sees four cards and no instruction. So the Overview shows the top three with "See all 6 findings →", and the full ranked list, lenses and warnings sit on Act first. The counts strip on the Overview becomes links to the tabs, so the Overview doubles as the table of contents.
-- **Size and timing.** About **1.5 build units** (coverage once 0.5, tabs 1.0). **Not before Thursday**: the technical demo build is frozen Wednesday, and this changes the page the demo opens on. It **should land before the client session**, in a lane beside ANY-1, before ANY-2 starts on the same Portfolio code.
+- **Words for "checked" (item 3).** "Checked" goes wherever it describes data. The new words say what arrived: **complete readings, partial readings, too few readings, no readings received, still processing, not analysed yet**, each defined in one line on the page (section 10). "7 of 8 hours checked" exists only in the v7.0 mock, not in the app; by the app's own rule 7 of 8 hours is a complete day, so the mock now reads "complete readings · 1 of 8 operating hours missing".
+- **Frame unchanged (item 4).** The draft uses the v7.0 left menu exactly, copied from its shell, and the date range sits at the top of the screen in the top bar on every tab, where v7.0 has it (section 11).
+- **Size and timing.** About **2.25 build units** (coverage once 0.5, tabs 1.0, wording 0.75). **Not before Thursday**: the technical demo build is frozen Wednesday, and this changes the page the demo opens on. It **should land before the client session**, in a lane beside ANY-1, before ANY-2 starts on the same Portfolio code.
 
 ## 2. Item 1, money: recorded
 
@@ -100,9 +102,10 @@ From `EstatePortfolio.tsx:751-842` and v70 `portfolio.js:43-60`:
 |---|---|---|
 | **PF-C** Coverage once | server `coverage_line` from `counted.days` + exception-only card `days_line`; frontend line, removals, C7 wording; tests; R620/R622 replaced | 0.5 |
 | **PF-T** Section tabs | route `/portfolio/:tab?`, tab row, Overview top 3, pulse links, panels regrouped, redirects, focus, 760 px wrap; tests; captures re-baselined against v71 | 1.0 |
+| **PF-W** Wording ("checked" to the readings family) | backend vocabulary and frontend words files (section 10 inventory), tests' expected strings, register rows | 0.75 |
 | Mock (this draft) | done; once approved, folded into `frontend/mockups/v71/` as the Portfolio spec | 0 |
 
-- **Total 1.5 units, one slice** (well under the 6-unit split rule).
+- **Total 2.25 units, one slice** (well under the 6-unit split rule). PF-W can also run on its own.
 - **Before Thursday: no.** The demo build must be ready a day early (Wednesday); this changes the opening page and the technical script DS-1b's Portfolio steps, and would need build, review and recapture in under a day. For Thursday the presenter can say "coverage is the line at the top; the repeats go in the next build".
 - **Before the client session: yes.** Run it as a lane beside ANY-1 (no shared files: ANY-1 is the Site boards). PF-C touches `site_outcomes/read.py` portfolio cards, which ANY-2 / AR-4 also touch, so PF lands **before ANY-2 starts**, or PF-C folds into ANY-2 if ANY-2 is already running. DS-1b's client version takes the new tab steps.
 
@@ -110,4 +113,108 @@ From `EstatePortfolio.tsx:751-842` and v70 `portfolio.js:43-60`:
 
 1. Approve the tab set and names (Overview · Act first · Outcomes by site · Opportunity · What changed · Scope & coverage)?
 2. Agree to keep the top 3 findings on the Overview (pushback 1)?
-3. Agree the one coverage line uses "fully checked days" (the cards' rule) for every Site?
+3. Agree the one coverage line uses the cards' rule (complete readings) for every Site?
+4. Agree the reading words (complete / partial / too few / no readings received / still processing / not analysed yet), and that "complete" means at least 80% of the hours the day needed, stated on the page?
+
+## 10. Item 3: the word "checked" (owner, verbatim, item 3)
+
+### 10.1 What "checked" means today (verified in code)
+
+The day grade is set per measure by `chain/grading.py:76-97` `classify_day`, with the bands in `config/chain/coverage-policy-v1.json` (complete 0.80, partial 0.25). It compares the seconds covered by readings with the hours the measure needs that day (its declared operating or daylight hours):
+- COMPLETE: at least 80%.
+- PARTIAL: 25-80%.
+- LOW: above 0 and under 25%.
+- NO_DATA: no readings.
+- PENDING: readings arrived but are not analysed yet.
+- NOT_EXPECTED: no readings are due.
+
+A measure may set its own threshold: spare solar (`measure_impls.py:164-171`) needs every daylight hour. A day takes the weakest grade of its measures (`chain/read.py:87-97`).
+
+B = backend wording, F = frontend wording.
+
+| Source | Strings (shape) | Technical meaning |
+|---|---|---|
+| B `chain/vocabulary.py:96-106` | "{n} found / None found / None open / None confirmed on the days checked" | count over COMPLETE days (CH6b3-R3 M1) |
+| B `vocabulary.py:287-311` | "{amount} over {k} of {m} days checked · {p} partly checked", "Estimated income from checked days", "At least {total} … from checked days" | money over COMPLETE days; PARTIAL days named |
+| B `vocabulary.py:299-302` `days_line.*` | "{k} of {m} days checked · {p} partly checked · {n} with too little data, not counted" | COMPLETE / PARTIAL / LOW counts of the claim's days |
+| B `vocabulary.py:194, 210-222` `why.*` | "{label} on {k} checked days", "{c} of {e} days checked", "{d} partly checked", "Checking {n} more days" | the same grades in "Why?"; "Checking more days" means more COMPLETE days would change the answer |
+| B `vocabulary.py:278-284` MG-1 | "… on {c} of {e} days checked", "all {m} days checked", "no fully checked day counted yet this month" | month to date over COMPLETE days |
+| B `vocabulary.py:538, 547, 553-554` | "on the days checked", ", {sites} not checked", "findings next to unchecked days not shown yet" | COMPLETE days; objectives not judged; Findings held back next to days that are not assessed |
+| B `site_outcomes/mini.py:94, 96, 133-134, 186` | "spare solar not checked on the last 5 days", "{g} of the last {n} days have no checked readings yet", "… only partly checked", "the night of {date} could not be checked" | gap line: NO_DATA, versus a day with some COMPLETE or PARTIAL measure; a fuel night that cannot be assessed |
+| B `site_outcomes/board.py:73-80` | "no fully checked day since", "{k} more fully checked days to close" | COMPLETE days counted by the close rule (`lifecycle.py:309`) |
+| B `site_outcomes/ev.py:52` | "No income figure for this day: it is not fully checked" | the day is not COMPLETE |
+| B `actions/verification_families.py`, `actions/fuel_verification.py` | "fully checked days/nights before/after the change", "Nights checked after the change", "Not checked yet" | COMPLETE days or nights used by the verdict; NOT_JUDGED |
+| B `outcomes/objectives.py:17-20`, `site_outcomes/objective_facts.py:26` | "Not checked yet", " · {u} not checked yet" | objective verdict NOT_JUDGED |
+| B `fuel_balance/night_text.py:28, 42` | "Fuel balance: not checked", "Not checked: {why}" | the night is not assessed |
+| F `estate/portfolioWords.ts:97, 148`, `estateShared.tsx:168, 196`, `EstateEvidence.tsx:85` | "Some days not checked yet", "Portfolio: Partly checked", "Partly checked" | estate coverage PARTIAL: some requested days have **no assessment selection**. This is a different rule, from `estate/coverage.py`, whose own text already says "assessed" |
+| F `estate/EstatePortfolio.tsx:122, 284, 300, 396`, `estate/findingIndex.tsx:125, 265` | "Partly checked · value shown once every day is checked", "some days not checked", "Nothing seen on the days checked", "{sites} are partly checked; totals are unknown" | the same estate PARTIAL rule; the value is withheld until every day is assessed |
+| F `sites/OutcomeBoard.tsx:53, 93` | "None found on the days checked", "No open issues on the days checked" | COMPLETE days |
+| Mock only: v70 `outcomes.js:114-119` | "6 Oct, 7 of 8 hours checked · 1 hour partly checked" | no app source (10.3) |
+
+These stay, because they are not about data:
+- "checked as a safeguard" (`board.py:33, 958, 995`) means an outcome is watched so that a change does not harm it.
+- "Checked and working, monitoring" means a verified fix.
+
+Both say that a person checked a change, which is true.
+
+### 10.2 The new words: say what arrived, not whether we looked
+
+| Term on screen | One-line definition shown on the page | Grade |
+|---|---|---|
+| **Complete readings** | Readings arrived for at least 80% of the hours the day needed (spare solar: every daylight hour). The day is counted. | COMPLETE |
+| **Partial readings** | Readings arrived for 25-80% of those hours. The day is shown, and named wherever it is used. | PARTIAL |
+| **Too few readings** | Readings arrived for under 25% of those hours. The day is not counted. | LOW |
+| **No readings received** | Nothing arrived from the site for that day. | NO_DATA |
+| **Still processing** | Readings arrived and are being analysed. | PENDING |
+| **Not analysed yet** | The day has not been through the site analysis yet. | estate PARTIAL / UNASSESSED |
+
+How the patterns read:
+- Days: "Complete readings on {k} of {m} days · {p} partial · {n} too few".
+- Zeros: "None found on days with complete readings".
+- Money: "{amount} over {k} days with complete readings".
+- Verdicts: "Not judged yet: only {n} of 3 days with complete readings after the change".
+- Objectives: "Not judged yet".
+
+Where the mock explains them:
+- The coverage line has a "What these words mean" disclosure with all six definitions.
+- Each term in the line shows its definition on hover and focus (dotted underline).
+- In the build, the same definitions sit in the "Days used" line of the "Why?" dialog.
+
+Basis: Nielsen Norman Group heuristic 2 (use the user's words, not system states), and GOV.UK content style (say what happened).
+
+### 10.3 "7 of 8 hours checked"
+
+- **Source.** This string exists only in the v7.0 mock's example Depot data (`outcomes.js:114-119`, `PFDAYS`). Depot's operating window on 6 Oct was 08:00-16:00, which is 8 hours, and connector 2 was out for 1 hour. The app never shows it, because its day lines count days, not hours.
+- **Logic.** Under the app's rule, 7 of 8 hours is 87.5%, which is **complete** (at least 80%). So the mock's "partly checked" contradicts the product. The app's logic is right and the mock is wrong. The v7.1 draft reads: "Depot: 6 Oct complete readings · 1 of 8 operating hours missing".
+- **One owner choice: what "complete" covers.**
+  - The draft lets "complete" cover a day with up to 20% of its hours missing, and says so in the definition.
+  - "Enough readings" would avoid that, but reads less naturally.
+  - Raising the band to 100% would turn many real days partial. That is a logic change, and I do not propose it.
+
+### 10.4 This also settles the two-rules finding (section 3)
+
+The two rules get two different names:
+- **Reading completeness** ("complete / partial readings"): the day grades the cards and the one coverage line use.
+- **Analysis status** ("not analysed yet"): the estate rule.
+
+Neither is called "checked", so they can no longer look like one number that disagrees with itself. The coverage line uses the reading words, and adds "{n} days not analysed yet" only when that happens.
+
+### 10.5 Before Thursday?
+
+- **Frontend strings (F rows):** about 12 strings in 7 files. They could go in after tonight's build without a rebuild.
+- **Backend strings (B rows):** about 45 strings. They need a rebuild, and tests pin many of them.
+- **Recommendation: change neither before Thursday.** A frontend-only pass would put "complete readings" next to the backend's "days checked" on the same card, which is worse than one consistent old word.
+  - Do PF-W in one pass with PF, before the client session.
+  - For Thursday, the presenter can say: "checked means the readings for that day were complete".
+
+## 11. Item 4: date at the top, left menu unchanged (owner, verbatim, item 4)
+
+- **Left menu.** The mock now uses the v7.0 menu copied exactly from the rendered v7.0 shell:
+  - six groups: Operations, Intelligence, Work, Assurance, Business, Admin;
+  - eleven items: Portfolio, Sites, Assets, Findings, Actions, Incidents, Maintenance, Operational records, Evidence, Financials, Settings;
+  - the Workspace footer.
+
+  The items match the product rail (`shell/OperatorShellLayout.tsx:57-69`). The product's phone behaviour (the menu sits behind a Menu button at phone width) does not change.
+- **Date range.** The mock uses v7.0's top-bar date picker. It sits at the top of the screen, stays there while scrolling, and is the same on every tab.
+- **Current and Side by side** show v7.0 itself, which already has both.
+- **Build note.** The app today shows the Portfolio date bar (`EstateDateBar`) below the page title, not in the top bar. PF-T moves it to the top, above the coverage line and the tabs. This is inside PF-T's 1.0 units.
