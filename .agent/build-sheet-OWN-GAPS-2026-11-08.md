@@ -3724,3 +3724,59 @@ note are BL-67.
 - **D-MONEY.3** No stored totals.
 - **D-MONEY.4** Money goes in the BL-66 rows, not a separate ledger.
 - **D-MONEY.5** MN-1/2/3 fold into AR-4 (+1.0 unit); the rest is BL-67.
+
+## Portfolio lens ruling (2026-11-10)
+
+- Architect: Claude (fresh `assetops-architect`, owner delegation `.agent/owner-away-architect-decides-2026-11-08.md`).
+  Owner question verbatim: walkthrough item 6, `.agent/owner-walkthrough-2026-11-10.md`. Ruling: **(c) both**.
+- Verified in code: `backend/assetops_backend/estate/portfolio.py:842-930`. The lens filters `members` into `shown`
+  only. It changes `rows`, `total_count`, `next_cursor`, `selection_token` (lens is in the token, so the cursor is
+  lens-bound) and the echoed `lens`. Everything else (summary counts, `placement_counts`, `category_counts`, claims,
+  value cards, objectives, evidence prompt, opportunity, progress, money, footer, scope disclosure) is computed over
+  `members` or the window and is identical for every lens. The outcome summary read is window-keyed and never refetched
+  on a lens change. So only the "Where management should act first" panel depends on `lens`.
+
+### D-E5.22 Frontend: keep the page while the lens loads (card PL-1, Sonnet, 0.25 unit; lands any time, no rebuild)
+
+`frontend/src/estate/EstatePortfolio.tsx` `EstatePortfolioPage`: when the held read is `loaded` and differs from the
+new key **only in lens** (same `from|to|known_at`), keep rendering the held body. The page never mixes two reads:
+when the new response arrives it replaces the whole body (as today), so every figure stays from one response,
+"as known at k". While it is pending:
+- `PriorityPanel` gets `pending: EstateLens | null`. The chip for the pending lens is `aria-pressed`. The section has
+  `aria-busy="true"`. Both count spans read "Loading findings". The table body is one row,
+  `data-portfolio-loading-rows`: "Loading the {label} findings." The held rows are never shown under the new lens.
+  "Load more Findings" is hidden. Early warnings stay (window-keyed).
+- The other panels stay as rendered (the server values are lens-independent, see above).
+- A refusal replaces everything, as today. A window change still shows the full loading slot.
+- Rapid clicks: the existing `live` guard keeps only the last lens.
+Tests in `frontend/src/estate/__tests__/estatePortfolio.test.tsx` (deferred-promise client): (1) on a lens click,
+the cards, pulse and context stay in the DOM and `data-estate-loading` is absent; (2) the panel shows the loading
+row, `aria-busy`, and no held row; (3) when it resolves, the new rows and `total_count` are shown; (4) a refusal on
+the lens read replaces the page; (5) cost, then risks quickly, shows the risks body only. No captures change (the
+settled states are unchanged). MOCK DEVIATION: none (v69/v70 do not specify a lens loading state).
+
+### D-E5.23 Tools: pre-build the lens variants (card PL-2, Sonnet, 0.25 unit; MUST merge before tonight's build)
+
+`tools/demo_combined.py` `prebuilt_routes`: for each of `portfolio.week`, `portfolio.S` and `portfolio.month`, also
+add `portfolio.{name}.{lens}` for `cost`, `risks`, `opportunities`, with the same query and `("lens", lens)` in place
+of `("lens", "all")` (the response store keys the parsed lens, `chain/response_store.py:83-87`). There are 9 more
+requests. `findings.week` is unchanged (not asked). Test: in `backend/tests/test_e4_prebuilt_routes_generator.py`,
+assert the 9 ids and queries; the uniqueness asserts stay. Cost: a cold compose is about 4-10 s, so the build adds
+about 40-90 s, and so does each add-dates tick that moves the watermark. An unmoved tick adds about 9 x 50 ms. Stop
+rule: if the prebuild report exceeds the EX-3 "50% of the tick limit" budget, keep the `week` variants only and
+report. The numbers do not change: a stored hit is the same route's body.
+
+### D-E5.24 Client-side filtering by `lens_flags` is refused
+
+Page one holds 50 rows. `total_count` and the cursor are server-side and bound to the lens, and the page rule is "the
+page never re-sorts, re-selects or sums". A client filter would show a frontend count that is wrong past 50 rows.
+
+### Interactions
+
+- **PF-T (Portfolio tabs proposal)**: the lens loading state moves with `PriorityPanel` to Act first. Overview links
+  drop `lens`, so the Overview top 3 reads `lens=all`, which is already pre-built. PL-1 is kept and only moved.
+- **ANY-2**: stored period rows make cold composes fast. PL-2's list stays valid and harmless, and PL-1 stays.
+  Splitting the lens rows into a separate read stays an ANY-2 option, per proposal §7.4.
+
+Decisions logged for owner review: **D-E5.22** keep the page while the lens loads; **D-E5.23** pre-build the 9 lens
+variants; **D-E5.24** no client-side lens filtering.
