@@ -47,6 +47,23 @@ def test_later_clean_assessment_keeps_the_linked_start_failure_and_its_repeat_wa
     assert rows[cold.PROTECT]["subline"] == cold.PROTECT_SUBLINE
 
 
+def test_linked_finding_with_null_bounds_never_counts_in_the_clean_window() -> None:
+    """Review H1: real START_RESPONSE revisions store NULL episode bounds, so a Finding added only by the linked
+    read must not count as in-window (no Protect claim, no primary issue) yet still feed the repeat notice."""
+    null = dict(F118, episode_bounds=None)
+    comp, rows, calls = run(lambda fid: null if fid == "f118" else None)
+    assert calls == ["f118"]
+    assert [w.kind for w in comp.facts.warnings].count(REPEATED) == 1
+    for row in rows.values():
+        assert not [i for i in row["issues"] if i["kind"] == "FINDING"], (row["category"], row["issues"])
+    protect = rows[cold.PROTECT]
+    assert protect["subline"] == cold.PROTECT_SUBLINE
+    assert protect["state"] != "NEEDS_ATTENTION", protect
+    assert rows[cold.COST]["state"] == "NEEDS_ATTENTION"
+    (f,) = [f for f in comp.facts.findings if f.finding_id == "f118"]
+    assert f.in_window is False and f.open
+
+
 def test_refused_single_read_unsettles_cc3_and_names_the_finding_source() -> None:
     def refuse(fid):
         raise PermissionError("refused")

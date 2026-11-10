@@ -60,6 +60,10 @@ def test_clean_assessment_after_the_failure_keeps_the_repeat_notice(monkeypatch,
             board, _ = _board(c, SITE, "fx_cold_day_board", **{"from": _z(day), "to": _z(day + timedelta(days=1))})
             later, _ = _board(c, SITE, "fx_cold_clean_board",
                               **{"from": _z(clean_start), "to": _z(clean_start + timedelta(minutes=65))})
+            listed = c.get("/api/estate/findings", params={"from": _z(clean_start),
+                                                           "to": _z(clean_start + timedelta(minutes=65))})
+            assert listed.status_code == 200, listed.text
+            coh4 = _coh4(tmp_path, later, listed.json())
 
     # the clean run is a later selected window with no Finding of its own, and the summary reads Cold on it
     assert clean.get("run_id"), clean
@@ -80,3 +84,43 @@ def test_clean_assessment_after_the_failure_keeps_the_repeat_notice(monkeypatch,
     # the Site board over the same day, and over the clean window alone, say the same
     for body in (board, later):
         assert [w["kind"] for w in body["warnings"]].count(REPEATED) == 1, body["warnings"]
+
+    # review H1: the Findings the linked read adds feed the repeat notice only. The clean window claims neither the
+    # start failure nor the excursion: no FINDING issue on any row, and Protect is not the start-failure subline.
+    from assetops_backend.site_outcomes.cold import PROTECT_SUBLINE_START
+
+    for body in (later, board):
+        issues = [(r["category"], i["ref"]["finding_id"]) for r in body["rows"] for i in r["issues"]
+                  if i["kind"] == "FINDING"]
+        _record("fx_cold_board_finding_issues", issues)
+        assert issues == [], issues
+        protect = next(r for r in body["rows"] if r["category"] == "PROTECT_ASSET")
+        assert protect["subline"] != PROTECT_SUBLINE_START, protect
+    later_protect = next(r for r in later["rows"] if r["category"] == "PROTECT_ASSET")
+    summary_protect = next(r for r in site["rows"] if r["category"] == "PROTECT_ASSET")
+    assert summary_protect["state"] == later_protect["state"], (summary_protect, later_protect)
+    # COH-4 in process: every board Finding is in the Findings list of the board's window and Site
+    assert coh4 == [], coh4
+
+
+def _coh4(tmp_path, board: dict, findings: dict) -> list[dict]:
+    """`chain_coherence.coh4_findings_contain` over a one-day bundle of this board and its Findings list."""
+    import sys
+
+    from test_out_b4_board_postgres import ROOT
+
+    sys.path.insert(0, str(ROOT / "tools" / "checks"))
+    import chain_coherence as cc
+
+    root = tmp_path / "coh4"
+    root.mkdir()
+    w = f"day:cold:clean:{SITE}"
+    reqs = [("board", "/api/sites/COLD-LAB-001/outcome-board", board),
+            ("day_findings_all", "/api/estate/findings", findings)]
+    manifest = {"windows": {w: {}}, "requests": []}
+    for name, path, body in reqs:
+        (root / f"{name}.json").write_text(json.dumps(body), encoding="utf-8")
+        manifest["requests"].append({"file": f"{name}.json", "name": f"{name}.{w}", "page": None, "params": {},
+                                     "path": path, "status": 200, "window": w})
+    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    return cc.coh4_findings_contain(cc.Bundle(root))
