@@ -13,6 +13,7 @@ import type {
   EstateCheckedDays,
   EstateClient,
   EstateOutcomeSummaryBody,
+  EstatePortfolioBody,
   EstatePortfolioCard,
   EstatePortfolioQuery,
   EstatePortfolioScopeIdsBody,
@@ -1918,5 +1919,23 @@ describe("PL-1: a lens change keeps the page and loads the panel only", () => {
     expect(text(p)).not.toContain("Fresh cost row");
     expect(text(p)).not.toContain("Held all-lens row");
     expect(within(p).getByRole("button", { name: "Risks" }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("a refused load-more after a lens change replaces the page", async () => {
+    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    await act(async () => {
+      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 7, lens: "cost", next_cursor: "cur-2" })));
+    });
+    await settledScreen();
+    await click("Load more Findings");
+    expect(d.pending[1].query).toMatchObject({ lens: "cost", cursor: "cur-2" });
+    await act(async () => {
+      d.pending[1].resolve(refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable."));
+    });
+    await settledScreen();
+    expect(document.querySelector("[data-portfolio-panel='priority']")).toBeNull();
+    expect(document.body.textContent).not.toContain("Fresh cost row");
+    expect(document.body.textContent).toContain("The estate store is unavailable.");
   });
 });

@@ -913,7 +913,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
             setRead((prev) => {
               if (prev === null || prev.key !== key) return prev;
               // Any refusal replaces everything shown, so no stale privileged row survives (401, 409, 503).
-              if (page.status !== "loaded") return { key, first: page, more: [], next: null };
+              if (page.status !== "loaded") return { ...prev, first: page, more: [], next: null };
               return { ...prev, more: [...prev.more, ...page.value.rows], next: page.value.next_cursor };
             });
           });
