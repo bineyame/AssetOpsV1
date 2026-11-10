@@ -62,3 +62,13 @@ Coordinator findings, from the code:
 
 ## 11. Non-Kobo Site pages look empty
 "Another obervation is for non-kobo sites, the site pate doesn't really seem to have a lot of data and most of the counters and data points show all sorts of effectively not resolved values. i want the architect to review and say if this is data issue or product bug. it should address this problem whichever category it falls for a converting client demo"
+
+## 12. Owner answers: scalable outcomes (item 9), pricing (item 10), shared date range
+"1. yes design is approved for now, although i want the architect to give honest take on how assetops UI can be turned into a modern, international grade high quality  for a later focussed work(not a priority before the demo but it does affect some users first impression) 2. yes 3. as recommened 4. yes 5.yes"
+
+What each answer refers to:
+1. The scalable estate-outcomes design (frontend/mockups/v71/estate-outcomes-scale.html) is approved for now. The owner also asks the Architect for an honest assessment of how to make the AssetOps UI modern and international-grade, as later focused work: not a priority before the demo, but it affects users' first impressions.
+2. Add a region (or client/programme) attribute to Sites: yes.
+3. The default view is "By outcome group", as recommended.
+4. Specify the "price it" journey for unpriced items (item 10): yes.
+5. Add one shared date range across all pages to the layout proposal and mockup: yes.
