@@ -30,3 +30,11 @@ Coordinator diagnosis, from the code:
 - `frontend/src/estate/EstatePortfolio.tsx`: a lens click calls navigate(). The data key includes the lens, so `current` becomes null and the WHOLE page is replaced by "Loading the Portfolio across the estate." while the entire Portfolio body is fetched again with `lens=<x>`. It is not a browser reload, but every panel blanks.
 - The prebuilt list only warms `lens=all`. The cost, risks and opportunities lens requests are therefore composed cold, which can take up to about 10 s.
 - The rows already carry `lens_flags`.
+
+## 7. Findings summary cards
+"i click on the  outcome card and it takes me to findings and there are cards on which i see "supported findings: "some data missing", High prioity: "not assessed" , Low confidence: "not assessed", Awaiting verfication: "Some data missing", why do they have such values and what is their purpose"
+
+Coordinator diagnosis, from the code:
+- `frontend/src/estate/findingIndex.tsx:136-170`. "High priority" and "Low confidence" are hard-coded "Not assessed". They come from the v69 mockup slots, and no backend produces them.
+- In `backend/assetops_backend/estate/index.py:415-424`, `supported_findings` and `awaiting_verification` stay null, and the card shows "Some data missing", unless Finding coverage is complete for EVERY Site in the window.
+- `awaiting_verification` only counts MINI_GRID Sites. Cold and EV Actions awaiting verification are never counted.
