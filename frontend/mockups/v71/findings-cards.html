@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Findings Cards Draft</title>
+<!-- v7.1 DRAFT for owner approval (2026-11-10, walkthrough item 7). Not the layout spec until the owner approves it.
+     Replaces the four estate Findings summary cards of v6.9 findingsScreen() (Open findings / High priority /
+     Low confidence / Awaiting verification). Reuses the v7.0 stylesheets unchanged.
+     Ruling: .agent/build-sheet-OWN-GAPS-2026-11-08.md "Findings cards ruling (2026-11-10)", D-E5.25 to D-E5.28.
+     Numbers are illustrative, not demo-build numbers. -->
+<link rel="stylesheet" href="../v70/mockups.css">
+<style>
+body{background:var(--page);margin:0;padding:24px 16px;font-family:inherit}
+.wrap{max-width:1100px;margin:0 auto}
+.draftbar{padding:10px 14px;background:#f3eefc;border:1px solid #dccff5;border-radius:8px;font-size:12px;color:#40306b;margin-bottom:20px}
+h1{font-size:20px;margin:0 0 6px}h2{font-size:14px;margin:26px 0 10px}
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.cards3{grid-template-columns:1fr}}
+.metric.amber{border-color:#f0d08a}
+.why{font-size:12px;color:#40306b;margin:8px 0 0;line-height:1.6}
+.state-note{font-size:12px;color:var(--muted);margin:6px 0 0}
+ul.why{padding-left:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="draftbar"><strong>DRAFT v7.1 · Findings summary cards</strong> · for owner approval · replaces the four v6.9 cards on the estate Findings page</div>
+<h1>Findings across the estate</h1>
+
+<h2>A. Every site fully analysed for the period</h2>
+<div class="cards3" aria-label="Findings summary">
+ <div class="metric"><div class="metric-label">Confirmed findings</div><div class="metric-value">4</div><div class="metric-note">Across 3 sites</div></div>
+ <div class="metric"><div class="metric-label">Not yet confirmed</div><div class="metric-value">1</div><div class="metric-note">Seen, but the readings do not yet confirm it · read with care</div></div>
+ <div class="metric"><div class="metric-label">Awaiting verification</div><div class="metric-value">1</div><div class="metric-note">Action taken; outcome open · mini-grid sites only; cold room and EV charging are not counted here yet</div></div>
+</div>
+
+<h2>B. Some sites not fully analysed (the usual demo case)</h2>
+<div class="cards3" aria-label="Findings summary">
+ <div class="metric"><div class="metric-label">Confirmed findings</div><div class="metric-value">3</div><div class="metric-note">So far: 1 of 3 sites fully analysed · 1 site with days not analysed yet · 1 site still processing</div></div>
+ <div class="metric"><div class="metric-label">Not yet confirmed</div><div class="metric-value">1</div><div class="metric-note">So far: 1 of 3 sites fully analysed · 1 site with days not analysed yet · 1 site still processing</div></div>
+ <div class="metric"><div class="metric-label">Awaiting verification</div><div class="metric-value">0</div><div class="metric-note">So far · mini-grid sites only; cold room and EV charging are not counted here yet</div></div>
+</div>
+<p class="state-note">"So far" because findings on days not analysed yet are not shown, so more may appear once those days are analysed.</p>
+
+<h2>C. Fallback, only if the backend change misses tonight's build</h2>
+<div class="cards3" aria-label="Findings summary">
+ <div class="metric amber"><div class="metric-label">Confirmed findings</div><div class="metric-value">Not counted yet</div><div class="metric-note">Counted once every site is fully analysed · 1 site with days not analysed yet · 1 site still processing</div></div>
+ <div class="metric amber"><div class="metric-label">Not yet confirmed</div><div class="metric-value">Not counted yet</div><div class="metric-note">Counted once every site is fully analysed</div></div>
+ <div class="metric amber"><div class="metric-label">Awaiting verification</div><div class="metric-value">Not counted yet</div><div class="metric-note">Counted once every site is fully analysed</div></div>
+</div>
+
+<h2>What changes from v6.9, and why</h2>
+<ul class="why">
+ <li><strong>"High priority" is removed.</strong> AssetOps does not grade findings by priority. "Where management should act first" on the Portfolio (Act first tab) is the ranking, and it has its own reasons. A card that always says "Not assessed" tells the reader nothing.</li>
+ <li><strong>"Low confidence" becomes "Not yet confirmed".</strong> There is no per-finding confidence grade on this page. "Not yet confirmed" is a real state every finding already carries, and it answers the same question: which findings should be read with care?</li>
+ <li><strong>"Supported findings" becomes "Confirmed findings"</strong>, the same word as the state chip on this page.</li>
+ <li><strong>Counts show with an honest qualifier</strong> instead of "Some data missing". The qualifier uses the analysis words (fully analysed / days not analysed yet / still processing / no new readings received / not analysed yet), not the reading words, because a site's findings depend on whether its days were analysed.</li>
+</ul>
+</div>
+</body>
+</html>

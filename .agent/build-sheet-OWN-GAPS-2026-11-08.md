@@ -3780,3 +3780,83 @@ page never re-sorts, re-selects or sums". A client filter would show a frontend 
 
 Decisions logged for owner review: **D-E5.22** keep the page while the lens loads; **D-E5.23** pre-build the 9 lens
 variants; **D-E5.24** no client-side lens filtering.
+
+## Findings cards ruling (2026-11-10)
+
+Walkthrough item 7 (`.agent/owner-walkthrough-2026-11-10.md`). Architect: Claude, under the owner's delegation
+(`.agent/owner-away-architect-decides-2026-11-08.md`). Mockup draft for owner approval:
+`frontend/mockups/v71/findings-cards.html`. MOCK DEVIATION from v6.9 `findingsScreen()` until the owner approves it.
+
+Code facts verified:
+- `frontend/src/estate/findingIndex.tsx:151-152`: "High priority" and "Low confidence" are literal "Not assessed".
+- `backend/assetops_backend/estate/index.py:169,235`: every Findings row has `priority: None` and `confidence: None`.
+  The summary keys `high_priority` and `low_confidence` (`:415`) are never set. No Finding-level priority or
+  confidence exists anywhere.
+- Related concepts that do exist: Portfolio placement groups (`estate/placement.py` `_rule`: ACT_NOW, etc.) and a
+  placement confidence (`_confidence`: UNKNOWN / LIMITED / SUPPORTED_SOURCE_COHERENT). These sit on Portfolio rows
+  only and are computed with Action and money context. Dispatch analytics also has a confidence, but that belongs
+  to each analysis, not to a Finding.
+- `index.py:417-424`: the counts are computed only when `_coverage_state == "COMPLETE"`, which needs every applicable
+  Site to be CURRENT or HISTORICAL. A PARTIAL Site does return rows, but Findings next to its unanalysed days are
+  withheld (`coverage.py` DAYS_WITHHELD). Any count with a PARTIAL Site in scope is therefore a lower bound.
+- `index.py:421`: awaiting verification counts MINI_GRID only. The cause is structural. Cold and EV Actions are
+  `domain_action` rows, and their plans are keyed by `domain_action_id`. The estate has no Finding-to-domain-Action
+  join (`portfolio.py` R4.1 comment above THREAD_LABEL). The Portfolio's Cold/EV "Pending" is thread state
+  ACTION_IN_HAND, meaning the action is agreed but not applied. That is not "awaiting verification", so the
+  Portfolio and this card do not disagree about any fact.
+
+### D-E5.25 "High priority" removed; "Low confidence" replaced by "Not yet confirmed"
+Nothing can honestly feed "High priority". v6.9's intent ("Decision needed") is already served by the Portfolio's
+"Where management should act first" (Act first tab), so this card is removed. v6.9's "Low confidence" intent
+("evidence constrained, read with care") is served honestly by the stored lifecycle UNCONFIRMED. That state is the
+existing "Not yet confirmed" chip on this page. "Supported findings" is relabelled "Confirmed findings" to match
+LIFECYCLE_WORDS. Placement on Findings rows (to restore an "Act first" count here) is refused for the demo. It is
+backlog: not demo-critical, and Opus, about 1 unit.
+
+### D-E5.26 Show the counts with an honest qualifier; do not withhold
+Withholding hides real, read rows, and with the demo data it hides them almost always. Rule: compute
+`supported_findings`, `awaiting_verification` and the new `unconfirmed_findings` over the rows read, whatever the
+coverage. When the coverage is not COMPLETE, the frontend marks each count "So far" and lists the Site breakdown.
+The qualifier uses **analysis** words, not reading words. The brief's "1 site has partial readings" is refused: the
+estate PARTIAL state means days not analysed yet, not partial readings. The proposal's term table maps estate
+PARTIAL to "not analysed yet". Site state words: CURRENT/HISTORICAL "fully analysed"; PARTIAL "with days not
+analysed yet"; PENDING_RECOMPUTE "still processing"; STALE_SOURCE "no new readings received"; UNKNOWN "not analysed
+yet"; NOT_APPLICABLE is left out of the denominator.
+Literal: `So far: {full} of {applicable} sites fully analysed` followed by each non-zero part
+` · {n} site(s) with days not analysed yet` / ` · {n} site(s) still processing` / ` · {n} site(s) with no new readings received` /
+` · {n} site(s) not analysed yet`, with "site" and "sites" chosen by count. The complete case is unchanged:
+`Across {n} sites`. The cards no longer show "Some data missing".
+
+### D-E5.27 Awaiting verification: mini-grid only is a disclosure defect (Medium), not a counting defect
+The count is right by its stated rule, but the card reads as estate-wide. Fix now: the note appends
+`mini-grid sites only; cold room and EV charging are not counted here yet`. The estate-wide count is backlog: chain
+threads in CHANGE_APPLIED with an open verification window, labelled to match the Portfolio's "Outcome pending".
+It is not demo-critical, and Opus, about 1 unit.
+
+### D-E5.28 What each card is for (plain language, for the owner)
+- **Confirmed findings:** how many problems or opportunities the readings confirm in this period.
+- **Not yet confirmed:** things seen that the readings do not yet confirm. Read these with care.
+- **Awaiting verification:** actions already taken where we are still waiting to see whether they worked.
+- **High priority (removed):** "what needs a decision first". The Portfolio's Act first tab answers that.
+
+### Fix cards
+**FC-1 Frontend (Sonnet, 0.5 unit; lands before Thursday, no rebuild; after owner approves the mockup).**
+- Files: `frontend/src/estate/findingIndex.tsx` (Cards: 3 cards, labels, D-E5.26/27 notes) and
+  `frontend/src/estate/estateClient.ts` (`unconfirmed_findings?: number | null`).
+- Null count (before FC-2): value `Not counted yet`, amber. Note `Counted once every site is fully analysed`
+  followed by the same parts.
+- Tests: `frontend/src/estate/__tests__/estateRoots.test.tsx` (complete; partial with numbers; partial with null;
+  no "Not assessed" or "Some data missing" in the cards; the mini-grid note) and `estateFixtures.ts`.
+
+**FC-2 Backend (Sonnet, 0.25 unit; MUST merge before tonight's build to land Thursday).**
+- File: `backend/assetops_backend/estate/index.py:417-424`. Compute the three counts unconditionally and add
+  `unconfirmed_findings`. Leave `basis_count` and `total_count` unchanged (null unless COMPLETE). Remove
+  `high_priority` and `low_confidence` from the summary only if the frontend type is updated in the same pass;
+  otherwise leave them null.
+- Tests: regenerate `backend/tests/fixtures/w3/w301-estate-golden.json` (review the diff: only summary keys may
+  change). Add one backend test: a PARTIAL scope returns numeric counts equal to the rows read. The prebuilt lens
+  variants (D-E5.23) pick the change up in the build.
+- If FC-2 misses the build, FC-1's null path is the honest fallback (mockup section C).
+
+Decisions logged for owner review: **D-E5.25** to **D-E5.28**. The owner approves `frontend/mockups/v71/findings-cards.html`
+before FC-1 merges.
