@@ -3250,3 +3250,180 @@ computed and moves on. The owner is shown the measured numbers before the walkth
 - **D-ANY.2** ANY-1 (boards, 3.0 units) is built before the client session, after FR-B.
 - **D-ANY.3** No warm-up of more pages.
 - **D-ANY.4** Presenter stays on script ranges until the fix lands.
+
+## E5 rulings (2026-11-10)
+
+This section was written by the Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`). It works under the owner's delegation of 2026-11-08 ("no cutting
+corners on fundamentals"). The owner can be reached today and will do the walkthrough this afternoon, so owner calls are listed separately and are not ruled here.
+
+Inputs:
+- `AssetOpsV1-ds1a/.agent/E5-captures.md` (c252b6cf3) and its `e5/text/*.txt`;
+- the DS-1a draft on `task/DS-1a-client-script`;
+- client4 (`assetops_polish_client4_test`, `var/polish_client4`, S = 11-08, tree code b234cea2a);
+- `AssetOpsV1-e3c/.agent/E4b-results.md`.
+
+**READ** means the code is cited, from main d5549feb6. `git diff b234cea2a main` over `frontend/src backend/assetops_backend host contracts config tools/demo_combined.py` is empty, so main's code is client4's code. **DB** means a read-only query on client4.
+
+### D-E5.0 How a fix reaches client4 without a rebuild (READ)
+
+- **The backend serves from the frozen tree.** `serve` starts uvicorn with `cwd=<work>/tree/host` (`tools/demo_combined.py:1477-1479`), and the tree is a `git archive` of the build commit (`:825-840`). A fix to the backend, `config/`, `host/` or `contracts/` therefore needs a new prepare. R6.3 still holds: the tree is never edited or replaced.
+- **The frontend is not served from the tree.** `serve` prints "Frontend, from frontend/: npm run dev" (`:1495`), and E5 ran Vite from the e3c checkout.
+- **`code_version` does not cover the frontend.** It hashes the alembic head, the backend sources, `config/`, `host/**/*.py` and `contracts/**` only (`chain/adapters/file_code_version.py:3`). A frontend change therefore touches neither the tree nor any stored page.
+- **`tools/demo_combined.py` runs from the checkout.** Its `links` command is also outside `code_version`.
+- **So:** a frontend or `links` fix applies by restarting Vite, and re-running `links`, from a checkout at the fix's merge. **No item below needs a rebuild of client4.**
+
+### D-E5.1 STOP-1, "Yesterday arrives": R4.2 stands for demo day; today no Site has a day to release
+
+**Root cause (READ and `days.json`).** S is the prepare day minus 2 (`demo_combined.py:12-13`). On 11-10, no Site has a finished day that has not been added yet:
+- Kobo's story days run to S+1 (11-09, `trial-after`).
+- Kisiwa's story nights also run to S+1 (`story_links`, "S-9d to S+1d"; the E4b dry-run gave `KISIWA-001: []`).
+- E4b already added Cold 11-09.
+- EV adds data on Tuesdays only, and 11-09 is a Monday.
+- Today, 11-10, has not ended.
+
+The product and the tool are working correctly. The build is one day too young for this beat.
+
+**General rule, added to R4.2 item 2.** The live beat exists only when yesterday is later than S+1. That means the session date must be at least S+3, which is the **prepare date + 1**. A build prepared on the session day never has the beat.
+
+**Demo day.** R4.2 is unchanged: Kobo's yesterday is held back and the script wording stays. Using Cold or Kisiwa instead is refused:
+- a Cold day shows no change the client would notice;
+- holding Kisiwa back would clash with the live-dip night (D-E5.2).
+
+**Today's walkthrough.** Step 7 is shown in words, with the two honest stand-ins:
+- 05, captioned "A day whose readings have not arrived yet (10 Nov)";
+- 04, captioned "A checked day (9 Nov)".
+
+They must never be captioned as the before and after of one day. The presenter says the real release is rehearsed tomorrow, in E5b.
+
+**E5b** is an agent run on client4 on Wed 11 Nov, after Kobo-local midnight. It changes no product code and writes only add-dates data and one dip:
+1. Run the morning runbook from R4.2 item 2: `add-dates --site COLD-LAB-001,EV-LAB-001,KISIWA-001 --no-check`, up to 11-10. EV adds its Tuesday. The Kobo command `--to 11-09` refuses with `STORY_DAY`. Confirm this with `--dry-run`, then run the first command again without `--no-check`.
+2. Capture the "before" view: `/sites/KOBO-001?date=2026-11-10` at 1440 and 390, recording the board's words.
+3. Run `add-dates --site KOBO-001 --to yesterday --no-check`. Time it from start until "KOBO-001: added" prints; R4.2 item 4's 11-minute rule is decided on this number. Reload the same URL and capture the "after" view.
+4. Save the live dip (D-E5.2). Then run plain `add-dates`, which ends with the finish check; a FAIL retires client4. Then one tick, the prebuild, and PF1 on the `links` rows (every request must be a hit).
+5. Take the D-E5.5 capture: the OPP-000003 page. Write the results to `.agent/E5b-results.md` on `task/E5-captures`.
+
+### D-E5.2 STOP-2, the dip: no dip on client4 today; a real save is rehearsed in E5b; no fixture pictures in the client script
+
+**Root cause (READ and E5).** R1.4 ties the dip to the newest *added* Kisiwa night and to the value `links` prints (`added_night_links`, `demo_combined.py:1456-1459`). client4 has no added Kisiwa night (D-E5.1), so no night is safe. Three options are refused:
+- **A story night.** Every Kisiwa night in client4 is a story night. A dip there would honestly re-check that night and could change the ACT-004 verdict (R1.4 presenter note).
+- **Tonight (11-10).** A dip there would sit in a night that later receives simulated tank data, and could create unexplained fuel that does not belong to the story.
+- **Any other night.** None exists.
+
+**Ruling.** §5.3 says the after-submit state is captured only in G3b fixtures, never on the demo DB. That is **amended for E5b only**:
+- E5b saves one dip through the Operational records form, which uses the product's entry route (`service:operator-entry`).
+- The dip goes on the newest added Kisiwa night from E5b step 1, at 06:00, with the value `links` prints.
+- Capture, at 1440 and 390:
+  - the form after the save;
+  - the records list showing the dip as "Submitted", "Entered by site admin";
+  - after the next tick, that night's Fuel page, checked again.
+
+This is exactly the session's beat. At the session the newest added night will be a later one, so the rehearsal dip simply stays as one more true record.
+
+**Order.** E5-FX (D-E5.3) merges and Vite restarts on it before the E5b dip, so the list shows the fixed labels.
+
+**Client script.** The `*-FIXTURE.png` pictures are never used: they show another Site and other values (REC-041, 198 L). If E5b is not done before DS-1f, step K has no saved-dip picture.
+
+### D-E5.3 STOP-3, `service:w401-fixture` in the By column: a product display defect; frontend fix, no rebuild
+
+**Root cause (READ).**
+- The prepare seeds every story record through `WorkService` in process, with `PRINCIPAL = "service:w401-fixture"`: Kisiwa `demo_combined_kisiwa.py:719, 772`, Kobo `:172`, EV `:109`, mill `:35-36`. This is the documented actor for example records (`demo_combined.py:14-15`, `work_api.py:48`).
+- The list renders `actorLabel(row.actor_id)` (`OperationalRecords.tsx:213`). That function maps only `service:operator-entry` (`:89-91`) and prints any other ID as it is stored.
+- R30 (W6-01 E2) accepted stored actor IDs at a time when no client screen existed.
+
+**Why the seeding path is not changed.** Re-seeding the story records through the entry route would:
+- claim the site admin typed records that the prepare created;
+- be unable to place them at their story `recorded_at`;
+- need a rebuild.
+
+It is refused.
+
+**Card E5-FX, part A.** Branch `task/E5-FX-actor-label-links` from main. **Sonnet**. Parts A and B together are **0.25 unit**, including a fresh Claude light review; only High or Medium findings block.
+- Change `actorLabel` in `frontend/src/work/OperationalRecords.tsx`:
+  - `service:operator-entry` → "Entered by site admin" (unchanged);
+  - `service:w401-fixture` → **"Prepared example record"**;
+  - any other `service:` ID → "Entered by a system service";
+  - any other value is unchanged.
+- `data-global-work-actor` keeps the raw ID as a test hook; it is not visible.
+- Add the comment `MOCK DEVIATION MD-E5-1` and register row **R714**. R714 amends R30 for the By cell only; WorkRequestHistory's "Stored actor" disclosure (R39) is unchanged.
+- **Tests.**
+  - `frontend/src/work/__tests__/operationalRecords.test.tsx` gains the three mappings.
+  - An assertion that pinned the raw `service:w401-fixture` By text may change; list it in the packet. Any other changed assertion is a stop.
+  - Run that file and `operationalEntryForm.test.tsx` only; no full suite.
+- **No rebuild needed** (D-E5.0): restart Vite from a checkout at the merge.
+
+### D-E5.4 The Kobo finding link pins revision 1 of 3: a `story_links` defect; drop the pin
+
+**Root cause (READ and DB).**
+- `story_links` builds `?revision_id={kobo['finding_revision']}` (`demo_combined.py:320`).
+- `kobo.json` stores the revision current when the Action was raised: `fc457881`, revision 1, 11-08 12:07.
+- The Finding then gained two `BASIS_REFRESHED` revisions at story times, 11-08 14:02 and 11-09 12:07, with the same claim (200 candidate minutes). This is correct product behaviour, not tick churn.
+- Version 1 says "Earlier version ... not the current answer" and "No current amount can be shown". The script describes the current conclusion and its cost.
+- R2-DS1a 2 kept the pin because it was the revision the script describes; that no longer holds. **R2-DS1a 2 is superseded.**
+
+**Card E5-FX, part B.**
+- `tools/demo_combined.py:320` links to `/sites/KOBO-001/findings/{kobo['finding']}` with no query string.
+- Update `backend/tests/test_demo_combined_links.py:56`, and run that file.
+- The pre-built route list is unaffected, because it is built with `kobo=None` (`:424`).
+- No rebuild: `links` runs from the checkout.
+
+### D-E5.5 The Kobo opportunity hop lands on OPP-000005: the product is right; E5 used the wrong route
+
+**READ.**
+- The board's Grow option is "Productive-use what-if". It goes to the Site's financial scenarios (`site_outcomes/mini.py:589`), then to Renewable evaluation and OPP-000005. That page is the headroom study, and it honestly says "Five-day study incomplete".
+- On 11-09 the board's Grow potential reads "No potential found yet". The midday-solar opportunity, OPP-000003 "Daytime solar unused at Kobo mini-grid", was seen on 3-7 Nov, outside that day.
+
+This is not a defect.
+
+**Ruling.**
+- The script's opportunity page is **OPP-000003**. It is reached from Findings › Opportunities on the story week (capture 07) or from the Portfolio Grow card.
+- The presenter never takes the hop from the board's what-if.
+- E5b captures the OPP-000003 page at 1440 and 390, from 07's row.
+- OPP-000005's header, "Global Findings unavailable ...", is system wording, but it is off the script path: backlog Low, not demo-critical.
+
+### D-E5.6 "4.50 USD" is not stale; the Portfolio writes it as "$4.50"
+
+**READ.** The line is the Portfolio context footer (`EstatePortfolio.tsx:731`). Capture 01 has it at line 350: "Depot Charging Hub delivered 15 kWh in selected records; $4.50 at the recorded tariff, before costs (a what-if)". E5 searched the EV board for "4.50 USD"; the EV board only points to Financials.
+
+**Ruling.**
+- Keep the value. Quote "$4.50" exactly as the screen writes it, and attribute it to the Portfolio, not the EV board.
+- The Portfolio page mixes "$" and "USD": backlog Low, not demo-critical.
+
+### D-E5.7 DS-1f brief (Sonnet, after E5b; fresh Opus light review)
+
+- **All steps.**
+  - Quote dates as story days. Take real dates and every href from `links` on the session build.
+  - Replace the draft's hard-coded checklist hrefs with `links` placeholders; for example the step 2 Finding `b824c41c...?revision_id=...`, dated "6 Nov".
+  - Keep the "rehearsal build" caption.
+- **Step 1.** Crop from 01 (the act-first view and the outcomes grid). The "$4.50" footer line goes here.
+- **Step 2.** Use the finding picture from **03b** (the current version), never 03.
+- **Step 3.**
+  - Crop 02's Grow row, E5b's OPP-000003 page and 07. Never use 06.
+  - The placeholder "the midday mill opportunity page" becomes "the daytime solar opportunity page".
+  - Quote "Daytime solar unused at Kobo mini-grid" and "Size not worked out yet".
+  - The "about 17 USD a day" figure is ACT-005, taken from 01.
+- **Step 3b.** Kept. Crop 02's cost row with the screen's qualifier: "counted at a generic idle fuel rate of 3.3 L/h, not measured".
+- **EV step.**
+  - Keep the board crop from 10.
+  - Move the "What you see" bullet with "$4.50" to step 1, or mark it "on the Portfolio".
+  - "If asked" quotes "$4.50 ... (a what-if)".
+- **Step K.**
+  - The saved-dip picture comes from E5b only; without E5b, there is none.
+  - Presenter line: "Records marked 'Prepared example record' came with the example site; the one I save now is listed as entered by the site admin."
+- **Step 7.**
+  - The backup pictures are E5b's before and after of the same Kobo day.
+  - Caption: "Kobo board, one day, before and after its readings arrived (rehearsal)".
+  - Add the D-E5.1 rule to the runbook: the beat exists only when the session is at least one day after the prepare.
+
+### Decisions logged for owner review
+
+- **D-E5.1** Yesterday-arrives stays as Kobo's held-back day on demo day. It needs a session at least one day after the prepare. Today it is walked with honest stand-ins, and E5b rehearses it for real on 11-11.
+- **D-E5.2** No dip on client4 today. One real rehearsal dip goes on the newest added night in E5b. Fixture pictures are not used in the client script.
+- **D-E5.3** Example records read "Prepared example record" in the By column. This is a frontend fix; no rebuild.
+- **D-E5.4** The Kobo Finding link opens the current version.
+- **D-E5.5 and D-E5.6** Neither is a defect. The opportunity route and the "$4.50" attribution are script corrections.
+
+### Questions for the owner (not ruled)
+
+1. **On-screen dip today.** It cannot be done honestly on client4 today. Would you rather watch the E5b rehearsal tomorrow, or see its pictures?
+2. **Label wording.** Records that came with the example sites will read "Prepared example record". Keep this, or use other wording on a client screen?
+3. **Session date and build.** Please confirm the client session date and which build serves it. The live beat needs a build prepared at least the day before.
