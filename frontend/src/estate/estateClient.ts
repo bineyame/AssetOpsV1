@@ -153,11 +153,14 @@ export interface EstateFindingsBody extends EstateEnvelope {
   lens: EstateLens;
   state_filter: EstateStateFilter;
   summary: {
-    high_priority: number | null;
-    low_confidence: number | null;
+    /** FC-1: no longer shown; the backend still sends null (D-E5.25). */
+    high_priority?: number | null;
+    low_confidence?: number | null;
     awaiting_verification: number | null;
     basis_count: number | null;
     supported_findings: number | null;
+    /** FC-2 (D-E5.26): findings in the Not yet confirmed state over the rows read; absent on an older body. */
+    unconfirmed_findings?: number | null;
     as_of?: string;
     /** CH-4: opportunity items before the state filter; absent on an older body. */
     opportunity_count?: number | null;

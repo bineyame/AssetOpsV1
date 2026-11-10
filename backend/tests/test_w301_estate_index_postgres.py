@@ -224,7 +224,23 @@ def test_cold_ev_window_outside_day_is_unknown(chain) -> None:  # noqa: F811
     assert body["status"] == "UNKNOWN" and body["coverage"]["state"] == "UNKNOWN" and site["state"] == "UNKNOWN"
     assert site["selection_id"] is None and body["scope"]["covered_site_count"] == 0
     assert body["rows"] == [] and body["total_count"] is None
-    assert all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert all(v is None for k, v in body["summary"].items() if k not in COUNTS_ANYWAY)
+
+
+# FC-2 (D-E5.26): these summary keys are numbers whatever the coverage; the rest stay null unless COMPLETE.
+COUNTS_ANYWAY = ("opportunity_count", "claims", "awaiting_verification", "supported_findings", "unconfirmed_findings")
+
+
+def test_partial_scope_counts_equal_the_rows_read(chain) -> None:  # noqa: F811
+    built, estate = cold_estate(chain)
+    add_empty_site(built.engine, built.site_id, "W301-EMPTY-001")  # an unanalysed Site makes the scope PARTIAL
+    body = estate.ok("findings", **{"from": iso(DAY), "to": iso(DAY + timedelta(days=1))})
+    assert body["coverage"]["state"] == "PARTIAL" and body["rows"]
+    summary = body["summary"]
+    assert summary["supported_findings"] == sum(r["lifecycle"] == "SUPPORTED" for r in body["rows"])
+    assert summary["unconfirmed_findings"] == sum(r["lifecycle"] == "UNCONFIRMED" for r in body["rows"])
+    assert isinstance(summary["awaiting_verification"], int)
+    assert summary["basis_count"] is None and body["total_count"] is None  # unchanged: null unless COMPLETE
 
 
 def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: F811
@@ -236,7 +252,7 @@ def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: 
     assert states == {str(built.site_id): "CURRENT", empty: "UNKNOWN"}
     assert body["scope"]["authorized_site_count"] == 2 and body["scope"]["covered_site_count"] == 1
     assert body["coverage"]["state"] == "PARTIAL" and body["status"] == "UNKNOWN"
-    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k not in COUNTS_ANYWAY)
     assert body["rows"] and {r["site_id"] for r in body["rows"]} == {str(built.site_id)}  # settled rows stay
     # The committed-import rule: a Site imported at or after `to` is outside the scope.
     imported_before(built.engine, built.tenant_id, empty, DAY + timedelta(days=1))
@@ -479,9 +495,10 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     (site,) = before["coverage"]["sites"]
     assert (site["state"], site["match_state"]) == ("UNKNOWN", "PENDING")
     assert before["rows"] == [] and before["total_count"] is None
-    # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; every count stays null.
+    # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; basis_count stays null, the FC-2 counts are 0.
     assert before["summary"].pop("as_of") == before["window"]["known_at"]
-    assert all(v is None for k, v in before["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert all(v is None for k, v in before["summary"].items() if k not in COUNTS_ANYWAY)
+    assert before["summary"]["supported_findings"] == before["summary"]["awaiting_verification"] == 0
     # At the exact cutoff and live: the NO_LONGER_SUPPORTED revision, in All, outside Supported.
     assert rows_of(exact) == rows_of(live) == [(finding_id, rev3, "NO_LONGER_SUPPORTED", "2026-10-21T08:00:00Z")]
     assert exact["status"] == "HISTORICAL" and live["status"] == "CURRENT"
@@ -496,7 +513,7 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     pending = estate.ok("findings", **day)
     (site,) = pending["coverage"]["sites"]
     assert pending["status"] == site["state"] == "PENDING_RECOMPUTE" and site["job_state"] == "PENDING"
-    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k not in COUNTS_ANYWAY)
     held = estate.ok("findings", **day, known_at=iso(c3))
     assert held["rows"] == exact["rows"] and held["selection_token"] == exact["selection_token"]
     assert held["coverage"] == exact["coverage"] and held["status"] == "HISTORICAL"
@@ -718,6 +735,14 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
         assert at_accept["summary"]["awaiting_verification"] == 0
         # Controls: later_end is exclusive (the window is closed at it).
         assert estate.ok("findings", **f01_day, known_at=iso(end))["summary"]["awaiting_verification"] == 0
+        # FC-2 (D-E5.26): a PARTIAL scope (an unanalysed second Site) still runs the awaiting join and returns the
+        # number over the rows read, equal to the complete-scope read of the same Site (an honest zero here).
+        empty = add_empty_site(engine, runner.site, "W301-EMPTY-002")
+        imported_before(engine, runner.tenant, empty, datetime(2026, 10, 1, tzinfo=timezone.utc))
+        partial_read = estate.ok("findings", **f01_day, known_at=iso(start))
+        assert partial_read["coverage"]["state"] == "PARTIAL"
+        assert partial_read["summary"]["awaiting_verification"] == in_window["summary"]["awaiting_verification"] == 0
+        assert partial_read["summary"]["basis_count"] is None
         # VERIFIED: RESOLVED closes the Action; the 30-day lookback counts the outcome's recorded instant.
         h.clock.at = CLOSED + timedelta(hours=1)
         outcome = evaluate(h, action_id, "eval-0001").json()["outcome"]

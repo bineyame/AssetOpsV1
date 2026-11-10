@@ -113,9 +113,8 @@ describe("W3-01 estate roots", () => {
       // Cards, chips and columns.
       const cards = within(screen.getByRole("list", { name: "Findings summary" })).getAllByRole("listitem");
       expect(cards.map((c) => c.querySelector(".v69-metric__label")?.textContent)).toEqual([
-        "Supported findings",
-        "High priority",
-        "Low confidence",
+        "Confirmed findings",
+        "Not yet confirmed",
         "Awaiting verification",
       ]);
       const chips = within(screen.getByRole("list", { name: "Workflow state" })).getAllByRole("link");
@@ -423,6 +422,41 @@ describe("W3-01 estate roots", () => {
     }
   });
 
+  it("findingsCardsAreCompleteSoFarOrNotCountedYet", async () => {
+    const MINI = "mini-grid sites only; cold room and EV charging are not counted here yet";
+    const rows = [findingRow(1), findingRow(2, { lifecycle: "UNCONFIRMED" })];
+    const notes = () =>
+      within(screen.getByRole("list", { name: "Findings summary" }))
+        .getAllByRole("listitem")
+        .map((c) => [c.querySelector(".v69-metric__value")?.textContent, c.querySelector(".v69-metric__note")?.textContent]);
+    // Complete: unchanged "Across n sites", the Not yet confirmed note, the mini-grid-only disclosure; no So far.
+    let view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(findingsBody("all", { rows }))));
+    await settledScreen();
+    expect(notes()).toEqual([
+      ["1", "Across 2 sites"],
+      ["1", "Seen, but the readings do not yet confirm it · read with care"],
+      ["0", expect.stringContaining(`No Actions from selected Finding revisions are awaiting verification in this window. · ${MINI}`)],
+    ]);
+    expect(main().querySelector("[data-estate-so-far]")).toBeNull();
+    view.unmount();
+    // Partial with numbers: "So far" plus the Site breakdown in analysis words, and the explanation under the cards.
+    const sites = [site(SITE_A, "CURRENT"), site(SITE_B, "PARTIAL"), site("20000000-0000-4000-8000-000000000003", "PENDING_RECOMPUTE"), site("20000000-0000-4000-8000-000000000004", "NOT_APPLICABLE")];
+    const partial = findingsBody("all", { rows, coverage: { state: "PARTIAL", sites }, total_count: null });
+    view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(partial)));
+    await settledScreen();
+    const soFar = "So far: 1 of 3 sites fully analysed · 1 site with days not analysed yet · 1 site still processing";
+    expect(notes()).toEqual([
+      ["1", soFar],
+      ["1", soFar],
+      ["0", expect.stringContaining(`So far · ${MINI}`)],
+    ]);
+    expect(main().querySelector("[data-estate-so-far]")?.textContent).toBe(
+      "\"So far\" because findings on days not analysed yet are not shown, so more may appear once those days are analysed.",
+    );
+    expect(screen.getByRole("list", { name: "Findings summary" }).textContent).not.toMatch(/Some data missing|Not assessed|High priority|Low confidence|Supported findings/);
+    view.unmount();
+  });
+
   it("test_null_cards_partial_and_unpriced_copy", async () => {
     // Partial coverage: null cards, partial line, limitation before the static notice; every consequence state.
     const rows = [
@@ -444,18 +478,25 @@ describe("W3-01 estate roots", () => {
       status: "PENDING_RECOMPUTE",
       coverage: { state: "PARTIAL", sites: [site(SITE_A, "CURRENT"), site(SITE_B, "PENDING_RECOMPUTE")] },
       total_count: null,
-      summary: { high_priority: null, low_confidence: null, awaiting_verification: null, basis_count: null, supported_findings: null },
+      summary: { awaiting_verification: null, basis_count: null, supported_findings: null, unconfirmed_findings: null },
     });
     let view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(partial)));
     await settledScreen();
     expectV69Panels("findings");
     const cards = within(screen.getByRole("list", { name: "Findings summary" })).getAllByRole("listitem");
     expect(cards.map((c) => c.querySelector(".v69-metric__value")?.textContent)).toEqual([
-      "Some data missing",
-      "Not assessed",
-      "Not assessed",
-      "Some data missing",
+      "Not counted yet",
+      "Not counted yet",
+      "Not counted yet",
     ]);
+    // FC-1 (D-E5.26): the null path says when it will be counted, with the analysis words; no old card wording.
+    expect(cards.map((c) => c.querySelector(".v69-metric__note")?.textContent)).toEqual([
+      "Counted once every site is fully analysed · 1 site still processing",
+      "Counted once every site is fully analysed",
+      "Counted once every site is fully analysed",
+    ]);
+    expect(main().querySelector("[data-estate-so-far]")).toBeNull();
+    expect(screen.getByRole("list", { name: "Findings summary" }).textContent).not.toMatch(/Not assessed|Some data missing|High priority|Low confidence/);
     const text = main().textContent ?? "";
     for (const words of [
       "No consequence recorded",

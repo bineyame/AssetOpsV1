@@ -87,11 +87,10 @@ export function findingsBody(lens: EstateLens, over: Partial<EstateFindingsBody>
     lens,
     state_filter: "all",
     summary: {
-      high_priority: null,
-      low_confidence: null,
       awaiting_verification: 0,
       basis_count: rows.length,
       supported_findings: rows.filter((r) => r.lifecycle === "SUPPORTED").length,
+      unconfirmed_findings: rows.filter((r) => r.lifecycle === "UNCONFIRMED").length,
     },
     order: "episode_start desc, finding_id asc",
     total_count: rows.length,
