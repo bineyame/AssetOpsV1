@@ -599,6 +599,14 @@ def action_ref_kind(action: dict) -> str | None:
 WEEK_GAP_MEASURES = ("critical_served", "daylight_headroom_kw", "productive_kwh", "avoidable_gen_min")
 
 
+def gap_gated(days_schema) -> bool:
+    """D-E5.21: WK-GAP asserts the week and month patterns only when the built `days.json` schema version is 4 or
+    higher (key on the version, not the file name). `days_schema` is the `schema` dict ({"id", "version"}) or the
+    version itself. Anything unreadable is not gated."""
+    version = days_schema.get("version") if isinstance(days_schema, dict) else days_schema
+    return isinstance(version, int) and not isinstance(version, bool) and version >= 4
+
+
 def week_day_classes(site_days: list[dict], week: list[str]) -> tuple[list[str], list[str]]:
     """WK-GAP: (missed, partial) days of `week` from the built calendar (`days.json`), never from hard-coded dates. A
     missed day has no run (a `missing` kind, or no entry at all); a partly checked day has runs but no complement

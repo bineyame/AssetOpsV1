@@ -880,6 +880,19 @@ def test_add_day_steady_expands_to_three_runs_at_db_now_in_source_order():
     assert err.value.error_code == "DAY_NOT_IN_PAST"
 
 
+def test_s10_is_fillable_on_v4_with_the_fresh_before_day():
+    """FX-KOBO review Low 3: the positive half of the S-10 fillable test on the default (v4) calendar."""
+    doc = sd.load(sd.DEFAULT_FILE)
+    assert doc["schema"]["version"] >= 4
+    current = sd.resolve(doc, S)
+    runs = sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, S + timedelta(days=3), day="S-10d")
+    assert [r.scenario["scenario_id"] for r in runs] == ["kobo-night-early", "kobo-steady-before-mill", "kobo-rest-before-mill"]
+    with pytest.raises(sd.StoryDaysError) as err:
+        sd.plan_add_runs(doc, current, "kobo", "steady-before-first", S, S + timedelta(days=3), day="S-10d",
+                         delivered_days={"2026-10-19"})
+    assert err.value.error_code == "DAY_HAS_EVIDENCE"
+
+
 def test_s10_is_fillable_with_the_fresh_before_day_and_keeps_the_refusals_first():
     doc = sd.load(sd.V3_FILE)  # D-E5.12: the LATE_IN_STREAM neighbours S-4 / S-2 are v3's
     current = sd.resolve(doc, S)
