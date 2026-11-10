@@ -45,6 +45,8 @@ warning (REPEATED_MAINTENANCE_NO_RESULT) still fires and the Maintenance "Repeat
   test_out_w2_summary_window 9; test_out_b2_vocabulary 4 - all passed.
 - Postgres: test_out_c3_repeat_visits_postgres 1 passed (79 s); test_fx_cold_linked_postgres 1 passed (111 s on
   the fix; 97 s on the rerun after restoring the fix).
+- `tools/check-architecture.ps1` passed (with `ASSETOPS_GUARD_PYTHON` set to the plan2 venv; without it the worktree
+  has no `.venv` and the guard refuses).
 - No full suite (demo-sprint policy).
 
 ## Known deviations / notes
