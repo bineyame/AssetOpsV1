@@ -1300,7 +1300,7 @@ def kis_ov(ctx: Ctx) -> dict:
 KISIWA_COHORT_SQL = (
     "SELECT DISTINCT ON (s.window_start, s.window_end) s.window_start, s.window_end, r.cohort_status, "
     "EXISTS (SELECT 1 FROM accepted_evidence e WHERE e.site_id = s.site_id AND e.source_time >= s.window_start "
-    "AND e.source_time < s.window_end) AS has_readings "
+    "AND e.source_time < s.window_end) AS has_readings, r.cohort -> 'limits' AS limits "
     "FROM analytic_run_selection s JOIN analytic_run r ON r.id = s.run_id "
     "WHERE s.tenant_id = %s AND s.site_id = %s AND s.analytic_id = 'dispatch' "
     "ORDER BY s.window_start, s.window_end, s.seq DESC")
@@ -1317,8 +1317,8 @@ def kisiwa_cohort(ctx: Ctx) -> dict:
         site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
         if site is None:
             raise KisiwaMissing()
-        windows = [{"window_start": a, "window_end": b, "cohort_status": s, "has_readings": h}
-                   for a, b, s, h in c.execute(KISIWA_COHORT_SQL, site).fetchall()]
+        windows = [{"window_start": a, "window_end": b, "cohort_status": s, "has_readings": h, "limits": lim}
+                   for a, b, s, h, lim in c.execute(KISIWA_COHORT_SQL, site).fetchall()]
     return {"kisiwa": "present", **demo_rows.kisiwa_cohort(windows)}
 
 

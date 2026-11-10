@@ -694,7 +694,8 @@ def _fake_gateway(monkeypatch) -> list[dict]:
     monkeypatch.setattr(nights, "day_document", lambda *a, **k: {})
     monkeypatch.setattr(execution_adapter, "run_to_end", lambda *a, **k: SimpleNamespace(trajectory=trajectory))
     monkeypatch.setattr(rp, "_publish_and_accept", lambda tmp, run_, epoch, received, *, gateway_dir=None, keep=None:
-                        calls.append({"tmp": tmp, "epoch": epoch, "gateway_dir": gateway_dir}) or {"batches": 1})
+                        calls.append({"tmp": tmp, "epoch": epoch, "gateway_dir": gateway_dir, "keep": keep})
+                        or {"batches": 1})
     monkeypatch.setenv(kis.ENTRY_ENV, "on")
     return calls
 
@@ -757,6 +758,65 @@ def test_data1_a_calendar_day_spanning_two_nights_resolves_to_one_session(monkey
     got = select_cohort((reading(morning, by_night["2026-11-07"], 200), reading(evening, by_night["2026-11-08"], 201)),
                         day)
     assert got.status == "SELECTED_UNIQUE", (got.status, got.reason)
+
+
+def _night_readings(start: datetime, end: datetime, epoch: str, keep, first_seq: int) -> list:
+    """One night's battery-soc readings as the simulator emits them: every 5 minutes from its start to its end, both
+    instants included (so consecutive nights both emit their shared boundary), filtered by the `keep` the tool
+    passed to `_publish_and_accept` (None sends all), numbered on the session in publish order."""
+    from uuid import UUID, uuid4
+
+    from assetops_backend.analytics.assessment_inputs import AcceptedReading
+
+    out, t = [], start
+    while t <= end:
+        if keep is None or keep(t.strftime("%Y-%m-%dT%H:%M:%SZ")):
+            seq = first_seq + len(out)
+            out.append(AcceptedReading(
+                evidence_id=uuid4(), envelope_sha256=f"sha-{epoch}-{seq}", batch_id=UUID(int=9), gateway_id=UUID(int=1),
+                source_id=UUID(int=2), sequence_epoch=epoch, sequence=seq, role="battery-soc", asset_id=UUID(int=3),
+                source_time=t, interval_start=None, interval_end=None, published_at=t, received_at=t, accepted_at=t,
+                quality="GOOD", value="90", unit="%", foundation_revision_id=UUID(int=4),
+                binding_set_revision_id=UUID(int=5), binding_revision_id=UUID(int=6), source_mode="SIMULATED"))
+        t += timedelta(minutes=5)
+    return out
+
+
+def _boundary_cohort(calls: list[dict], kisiwa: dict, *, honour_keep: bool):
+    """Nights 7 and 8 Nov published as the recorded calls say, and the dispatch cohort of the UTC day holding their
+    shared boundary instant (night 7 Nov's end = night 8 Nov's start)."""
+    from assetops_backend.analytics.assessment_inputs import Window
+    from assetops_backend.analytics.cohort import select_cohort
+
+    readings: list = []
+    for call, night in zip(calls, (D("2026-11-07"), D("2026-11-08"))):
+        readings += _night_readings(kis.night_start(kisiwa, night), kis.night_end(kisiwa, night), call["epoch"],
+                                    call["keep"] if honour_keep else None, len(readings) + 1)
+    boundary = kis.night_end(kisiwa, D("2026-11-07")).astimezone(timezone.utc)
+    lo = boundary.replace(hour=0, minute=0)
+    window = Window(lo, lo + timedelta(days=1))
+    inside = tuple(r for r in readings if lo - timedelta(hours=1) <= r.source_time < lo + timedelta(days=1, hours=1))
+    return select_cohort(inside, window), sum(r.source_time == boundary for r in inside), boundary
+
+
+def test_data1_a_shared_boundary_instant_is_published_once_on_the_session(monkeypatch, tmp_path: Path) -> None:
+    """DATA-1 fix H1: consecutive nights share their boundary instant (night 7 Nov ends where night 8 Nov starts) and
+    the simulator emits it in both. On one epoch two readings at one instant are a REPORTS_OVERLAP (`cohort.py`
+    `series_limits`), which dispatch answers AMBIGUOUS_SERIES. With the `keep` `add_night` passes, the boundary is
+    published once and the day's cohort has no overlap limit; sending both nights whole (the control) does."""
+    work, calls = _added_nights(monkeypatch, tmp_path)
+    kisiwa = json.loads((work / "story.json").read_text(encoding="utf-8"))["kisiwa"]
+    got, at_boundary, boundary = _boundary_cohort(calls[:2], kisiwa, honour_keep=True)
+    assert got.status == "SELECTED_UNIQUE", (got.status, got.reason)
+    assert at_boundary == 1, (boundary, at_boundary)
+    assert [x.kind for x in got.limits if x.kind == "REPORTS_OVERLAP"] == [], got.limits
+    control, twice, _ = _boundary_cohort(calls[:2], kisiwa, honour_keep=False)
+    assert twice == 2 and any(x.kind == "REPORTS_OVERLAP" and x.start == boundary for x in control.limits), (
+        twice, control.limits)
+    # the first added night continues after the story's last night, so its own start is not sent again
+    first = kis.night_start(kisiwa, D("2026-11-07"))
+    assert calls[0]["keep"] is not None and calls[0]["keep"](first.strftime("%Y-%m-%dT%H:%M:%SZ")) is False
+    assert calls[0]["keep"]((first + timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")) is True
 
 
 def test_data1_resume_after_an_interrupted_night_publishes_once_on_the_same_session(monkeypatch,

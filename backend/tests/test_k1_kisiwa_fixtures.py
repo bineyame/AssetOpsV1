@@ -225,23 +225,33 @@ def v3_model(document) -> tuple[str, int]:
 # ---- DATA-1 (D-E5.30): one Kisiwa recording session ------------------------------------------------------------------
 
 def test_data1_every_night_publish_gets_one_epoch_and_one_gateway_dir(tmp_path: Path) -> None:
-    """D-E5.30: both publish paths (the story `build` and `add-day`'s `_publish_night`) go through `publish_night`,
-    never `_publish_and_accept` directly; every night it calls gets one epoch and the one `work/kisiwa-gateway`."""
-    import inspect
+    """D-E5.30: every story night `publish_night` sends (with `build`'s `story_previous_end`) gets one epoch and the
+    one `work/kisiwa-gateway`, and the nights' shared boundary instants are sent once (DATA-1 fix H1). The add-day
+    path is exercised through the real `add_night` in `test_own_g1_add_dates.py`."""
     from types import SimpleNamespace
 
+    import demo_combined as dc
     import demo_combined_kisiwa as kis
 
-    for fn in (kis.build, kis._publish_night):
-        source = inspect.getsource(fn)
-        assert "publish_night(rp, " in source and "_publish_and_accept" not in source, fn.__name__
     calls: list[tuple] = []
     rp = SimpleNamespace(_publish_and_accept=lambda tmp, run, epoch, received, *, gateway_dir=None, keep=None:
-                         calls.append((tmp, epoch, gateway_dir)) or {})
+                         calls.append((tmp, epoch, gateway_dir, keep)) or {})
     received = datetime(2026, 11, 1, 10, 0, tzinfo=timezone.utc)
-    for k in range(1, 11):  # the story's ten nights, then two added ones
-        kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"r{k:02d}", tmp_path, object(), received)
-    for ymd in ("20261107", "20261108"):
-        kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"add-{ymd}", tmp_path, object(), received)
-    assert {(epoch, gw) for _, epoch, gw in calls} == {("kisiwa-gw-1", tmp_path / "kisiwa-gateway")}, calls[:2]
-    assert len({tmp for tmp, _, _ in calls}) == 12
+    kisiwa = dc.resolve_story(datetime(2026, 11, 8, 10, 0, tzinfo=timezone.utc), kisiwa=True)["kisiwa"]
+    for k in range(1, len(kisiwa["runs"]) + 1):  # the story's nights as `build` publishes them
+        kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"r{k:02d}", tmp_path, object(), received,
+                          kis.story_previous_end(kisiwa, k))
+    assert {(epoch, gw) for _, epoch, gw, _ in calls} == {("kisiwa-gw-1", tmp_path / "kisiwa-gateway")}, calls[:2]
+    assert len({c[0] for c in calls}) == len(kisiwa["runs"])
+    # DATA-1 fix H1: each night's 5-minute instants [start, end] filtered by its `keep`: every instant of the story is
+    # sent exactly once (the shared boundary by the earlier night), none twice, none lost
+    sent: list[datetime] = []
+    for (_, _, _, keep), run in zip(calls, kisiwa["runs"]):
+        t, end = kis.at(run["start"]), kis.at(run["end"])
+        while t <= end:
+            if keep is None or keep(t.strftime("%Y-%m-%dT%H:%M:%SZ")):
+                sent.append(t)
+            t += kis.timedelta(minutes=5)
+    first, last = kis.at(kisiwa["runs"][0]["start"]), kis.at(kisiwa["runs"][-1]["end"])
+    assert calls[0][3] is None and all(c[3] is not None for c in calls[1:])
+    assert len(sent) == len(set(sent)) == int((last - first).total_seconds()) // 300 + 1, (len(sent), len(set(sent)))

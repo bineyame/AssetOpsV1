@@ -228,10 +228,32 @@ def kisiwa_gateway(work: Path) -> Path:
     return work / "kisiwa-gateway"
 
 
-def publish_night(rp, tmp: Path, work: Path, run, received_at: datetime) -> dict:
+def after_previous_night(previous_end: datetime | None):
+    """D-E5.30 seam rule (Kobo's `keep`, `demo_story_days.DayRun.keep`): on the one session, a night after the
+    session's first sends only the instants after the previous night's end. Consecutive nights share their boundary
+    instant (night k ends where night k+1 starts), and two readings of one channel at one instant on one epoch are a
+    `REPORTS_OVERLAP` (`cohort.py` `series_limits`), which `dispatch_v3` answers `AMBIGUOUS_SERIES`. The previous
+    night keeps the boundary reading. None (the session's first night) sends everything."""
+    if previous_end is None:
+        return None
+    bound = previous_end.astimezone(timezone.utc)
+
+    def keep(source_time: str) -> bool:
+        return datetime.fromisoformat(source_time.replace("Z", "+00:00")) > bound
+    return keep
+
+
+def story_previous_end(kisiwa: dict, k: int) -> datetime | None:
+    """The end of story run k-1 (None for run 1, the session's first night): `publish_night`'s `previous_end`."""
+    return at(kisiwa["runs"][k - 2]["end"]) if k > 1 else None
+
+
+def publish_night(rp, tmp: Path, work: Path, run, received_at: datetime, previous_end: datetime | None) -> dict:
     """D-E5.30: one night's readings through the real gateway on Kisiwa's one session (`KISIWA_EPOCH`, reopening
-    `kisiwa_gateway(work)`); `tmp` keeps the night's own host and replay files."""
-    return rp._publish_and_accept(tmp, run, KISIWA_EPOCH, received_at, gateway_dir=kisiwa_gateway(work))
+    `kisiwa_gateway(work)`); `tmp` keeps the night's own host and replay files. `previous_end`: the end of the
+    night published before it on the session (None for the session's first), see `after_previous_night`."""
+    return rp._publish_and_accept(tmp, run, KISIWA_EPOCH, received_at, gateway_dir=kisiwa_gateway(work),
+                                  keep=after_previous_night(previous_end))
 
 
 def wire(value: datetime) -> str:
@@ -804,7 +826,8 @@ def build(url: str, work: Path) -> dict:
                     raise SystemExit(f"RUN_NOT_READY: run {item}: {run.execution_status} "
                                      f"{[(b.kind, b.subject) for b in run.blocking_reasons]}")
                 guards = run_guards(run, reg, item, handover, actions, placed, log_sha, kisiwa)
-                published = publish_night(rp, work / "kisiwa-replay" / f"r{item:02d}", work, run, instant)
+                published = publish_night(rp, work / "kisiwa-replay" / f"r{item:02d}", work, run, instant,
+                                          story_previous_end(kisiwa, item))
                 out["runs"].append({"k": item, "run_id": run.run_id, "start": r["start"], "end": r["end"],
                                     "received_at": iso(instant), **guards, "published": published,
                                     "seconds": round(clock_time.monotonic() - t0, 1)})
@@ -1017,8 +1040,14 @@ def plan_night(kisiwa: dict, build: dict, entries: list[dict], night: date, kind
     if entry is not None and entry.get("status") == "PUBLISHED":
         return {"resume": True, **entry}
     if entry is not None or replay_exists:
+        # DATA-1 fix L1: the Site's one gateway state may still hold this night's unsent envelopes (they would go out
+        # with the next night and break its acceptance count), and a new state restarts KISIWA_EPOCH at sequence 1.
         raise _refuse("PARTIAL_NIGHT", f"{SITE_CODE} {night.isoformat()} was left part-way (no PUBLISHED entry, but "
-                                       f"its readings folder or entry exists); ask the Architect")
+                                       f"its readings folder or entry exists). It cannot be resumed in place: the "
+                                       f"gateway state {kisiwa_gateway(Path('work'))} may still hold its unsent "
+                                       f"readings. Do not delete that folder or the night's folder (a new gateway "
+                                       f"state restarts {KISIWA_EPOCH} at sequence 1, a MESSAGE_CONFLICT); run a "
+                                       f"fresh prepare to add the night, or ask the Architect")
     nxt = last_night(kisiwa, entries) + timedelta(days=1)
     if night != nxt:
         raise _refuse("NOT_NEXT_NIGHT", f"{SITE_CODE} {night.isoformat()} is not the next night ({nxt.isoformat()})")
@@ -1203,7 +1232,8 @@ def _publish_night(url: str, work: Path, story: dict, plan: dict, replay: Path) 
                 dips[a["action_id"]] = probe._round_litre(dict(trajectory.boundaries[offset // probe.STEP].stocks)[
                     probe.FUEL])
         received = _db_now(url)
-        published = publish_night(rp, replay, work, run, received)  # D-E5.30: the same session continues
+        # D-E5.30: the same session continues after the previous night (a story night or an added one)
+        published = publish_night(rp, replay, work, run, received, night_end(kisiwa, night - timedelta(days=1)))
     finally:
         pg_harness.dispose(foundation)
     return {"night_date": night.isoformat(), "kind": plan["kind"], "status": "PUBLISHED", "run_id": run.run_id,
