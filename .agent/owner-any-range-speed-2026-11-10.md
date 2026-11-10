@@ -12,3 +12,6 @@ The owner's earlier words, from `.agent/owner-walkthrough-notes-2026-11-01.md` (
 Coordinator proposal, which the owner answered "yes go ahead":
 (1) The Architect gives a measured answer against the 2026-11-03 instruction. It covers where the 5–9.5 s goes on a page that was not pre-loaded, which parts could come from day snapshots or other stored daily rows, the smallest proper fix to reach under 2 s for any date range, and whether that fix is needed before the client session.
 (2) A backlog item is added now, citing the 2026-11-03 words.
+
+Owner decision, 2026-11-10 (selected option, verbatim label): "Both before client (Recommended)". Option text: build ANY-1 and ANY-2 before the client session, so any date range a CFO picks loads in under 2 s. The client session moves until after both land, about a week after the fix round. The owner walkthrough goes ahead now on the script's dates. This supersedes the conditional part of D-ANY.1: ANY-2 is now demo-critical and comes before the client session.
+
