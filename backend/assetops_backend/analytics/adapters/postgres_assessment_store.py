@@ -2584,6 +2584,35 @@ class ColdReadService:
                     "episode_revision_id": claim.get("episode_revision_id"), "revisions": history}
         return self._read(work)
 
+    def linked_finding(self, tenant_id: UUID, site_id: UUID, code: str, finding_id: UUID,
+                       known_at: datetime | None) -> dict[str, Any] | None:
+        """FX-COLD-LINKED (D-E5.8): one cold Finding row by id at its latest revision as of `known_at` (else the
+        ingestion watermark), independent of any selected assessment or window. `finding` above keeps the snapshot
+        filter (anchor inside the window); the board resolves a visit- or Action-linked Finding the selected
+        assessment leaves out through this read. The row's links use the window of the run that wrote that revision.
+        None when the Finding is not this Site's cold Finding or has no revision known by the cutoff."""
+        def work(c):
+            p = {"t": tenant_id, "s": site_id}
+            known = known_at or c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
+                                               "AND site_id = :s"), p).scalar()
+            if known is None:
+                return None
+            row = c.execute(text(
+                "SELECT f.id, f.anchor_start, f.subject_asset_id, f.split_from_finding_id FROM finding f "
+                "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = 'cold_chain' AND f.id = :f"),
+                {**p, "f": finding_id}).first()
+            if row is None:
+                return None
+            revisions = self._revisions(c, {"known": known}, finding_id, True)
+            if not revisions:
+                return None
+            window = c.execute(text(
+                "SELECT ar.window_start, ar.window_end FROM finding_revision r JOIN analytic_run ar "
+                "ON ar.id = r.analytic_run_id WHERE r.id = :r"), {"r": revisions[0][0]}).first()
+            snap = {"code": code, "t": tenant_id, "s": site_id, "lo": window[0], "hi": window[1], "known": known}
+            return self._item(c, snap, row, revisions[0])
+        return self._read(work)
+
 
     # --- W2-04 commit 3: caller-connection reads for `analytics/cold_site_reads.py` ---------------------------
     # `.agent/W2-04-build-spec.md` "Five API reads" and "How does the API keep one snapshot?": the Site read

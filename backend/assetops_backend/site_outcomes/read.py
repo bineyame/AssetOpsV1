@@ -349,7 +349,12 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.cold_reads, "cold_findings").findings(
                 t, sid, c, lo, hi, known_at, cursor, ASSESSMENT_PAGE))
 
-        return cold.ColdPorts(overview=overview, findings=findings,
+        def finding(finding_id: str, lo: datetime, hi: datetime) -> dict[str, Any] | None:
+            # FX-COLD-LINKED (D-E5.8): by id at `known_at`, never filtered by the selected assessment or window
+            body = _need(s.cold_reads, "cold_findings").linked_finding(t, sid, c, UUID(finding_id), known_at)
+            return None if body is None else jsonable_encoder(body)
+
+        return cold.ColdPorts(overview=overview, findings=findings, finding=finding,
                               domain_actions=self._domain_actions(site, known_at), work=shared["work"],
                               plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
                               chain_rows=shared["chain_rows"])

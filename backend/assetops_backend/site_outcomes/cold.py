@@ -104,6 +104,8 @@ class ColdPorts:
     readiness: Callable[[datetime, datetime], str | None]                          # readiness_of (CH-5a1)
     chain_rows: Callable[[datetime, datetime], tuple[Any, ...]] = lambda lo, hi: ()   # CH-6a3: snapshot rows
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                    # OUT-D objective store (current)
+    #: FX-COLD-LINKED (D-E5.8): one Finding by id at the cutoff, independent of the selected assessment
+    finding: Callable[[str, datetime, datetime], dict[str, Any] | None] = lambda fid, lo, hi: None
 
 
 def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
@@ -130,8 +132,27 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
-    findings = tuple(_finding(r, lo, hi, c) for r in finding_rows or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
+    finding_rows = list(finding_rows or ())
+    selected = len(finding_rows)  # rows past this index come from the linked read only
+    if findings_ok:  # FX-COLD-LINKED (D-E5.8), as EV addendum 3 (d): resolve each linked Finding the selection lacks
+        known = {str(r["finding_id"]) for r in finding_rows}
+        linked = sorted({a.origin_finding_id for a in actions if a.origin_finding_id}
+                        | {fid for case in cases for fid in case.finding_ids})
+        for fid in (x for x in linked if x not in known):
+            try:
+                row = ports.finding(fid, lo, hi)
+            except Exception:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+                findings_ok = False
+                if "cold_findings" not in reads.failed:
+                    reads.failed.append("cold_findings")
+                continue
+            if row is not None:
+                finding_rows.append(row)
+    # FX-COLD-LINKED review H1: the selection's read already holds every Finding anchored in the window as of k, so a
+    # Finding only the linked read found is never in-window (its NULL start-failure bounds would otherwise count it).
+    # It feeds the repeat-visit notice, the CC-3 row and link resolution, never Protect or a primary issue.
+    findings = tuple(_finding(r, lo, hi, c, selected=i < selected) for i, r in enumerate(finding_rows))
     by_mech = {m: [f for f in sorted(findings, key=lambda f: (f.title, f.finding_id))
                    if f.mechanism == m and f.open and f.in_window] for m in (EXCURSION, START_FAILURE)}
     claims = {str(r["finding_id"]): r for r in finding_rows or ()}
@@ -225,11 +246,11 @@ def domain_action(r: dict[str, Any], c: str) -> ActionFact:
                       is_domain=True)
 
 
-def _finding(r: dict[str, Any], lo: datetime, hi: datetime, c: str) -> FindingFact:
+def _finding(r: dict[str, Any], lo: datetime, hi: datetime, c: str, *, selected: bool = True) -> FindingFact:
     bounds = r.get("episode_bounds") or {}
     start = utc((bounds.get("start") or {}).get("earliest"))
     end = utc((bounds.get("end") or {}).get("latest"))
-    in_window = start is None or (start < hi and (end is None or end > lo))
+    in_window = selected and (start is None or (start < hi and (end is None or end > lo)))
     kind = r.get("kind")
     return FindingFact(str(r["finding_id"]), str(r["revision_id"]), r.get("title") or "",
                        COLD_KIND_MECHANISM.get(kind, kind), r.get("lifecycle") or "",
