@@ -3670,3 +3670,57 @@ Branch `task/FX-KOBO-V3`.
 5. Review Low 4 (B-16 keeps the six fill days): no change; backlog.
 
 Decision logged for owner review: **D-E5.21** the v3 fallback is a presentable build; WK-GAP gates v4 only.
+
+## Money snapshot ruling (2026-11-10)
+
+- Architect: Claude (fresh `assetops-architect`). Full answer: `.agent/architect-answer-money-snapshot-2026-11-10.md`.
+  Owner question verbatim: `.agent/owner-money-snapshot-2026-11-10.md`.
+
+### D-MONEY.1 Store the amount with its receipt (hybrid), rebuild on event, never recompute on read
+
+Each stored money line carries `amount` (or `low`/`high`), `currency`, `basis` and
+`receipt{v, formula, qty, unit, rate, rate_unit, rate_ref, segments: null, fx: null}`. The amount is computed from the
+unrounded quantity and rounded to the cent half-up; a rebuild must reproduce it exactly. A corrected price or tariff
+is a new assumption revision, and the affected days are rebuilt as new snapshot revisions. Old revisions are kept, so
+"as known at k" holds. Amount-only storage (no audit, no explainable restatement) and recompute-on-read (slow,
+code-dependent) are both refused.
+
+### D-MONEY.2 Original currency only; conversion is read-time and named
+
+No converted amount is stored. A later reporting-currency view converts at read time from an append-only, bitemporal
+FX rate store (BL-67a), and shows the rate, its source and its date. Until then mixed currencies stay
+`CURRENCY_MIXED`.
+
+### D-MONEY.3 No stored totals
+
+No row kind, migration or builder writes a cross-Site, cross-currency or verified-result total (A6, OWN-1104 R10,
+FUEL-1 A2). The BL-66 estate roll-up rows hold per-Site money lines only. MN-3 adds a guard for this.
+
+### D-MONEY.4 It lives in the BL-66 design; no separate ledger now
+
+Day money stays in `site_day_snapshot.money`. Window, potential and evidence money go in `site_period_read`, under the
+`money.lines` kind (with `money.potential` per Site-local day), in AR-4. `input_fp` includes every `rate_ref`. The
+existing bitemporal assumption store is the minimal tariff catalogue. AR-1's generic contract takes this shape before
+its migration is written. No new columns.
+
+### D-MONEY.5 Sizing
+
+MN-1 (receipts on `productive_kwh.money`, 0.25), MN-2 (stored potential money, 0.5) and MN-3 (no-total guard, 0.25)
+fold into AR-4. ANY-2 goes from 3.75 to 4.75 units. ANY-1 is unchanged. FX, structured tariffs and the restatement
+note are BL-67.
+
+### Owner questions (open)
+
+1. Reporting currency policy: one reporting currency? Which one, and which rate (transaction-date, period-average, or
+   report-date)?
+2. Restatement display: (i) the restated figure with a "restated on <date>, was X" note (the Architect's
+   recommendation), or (ii) the original figure plus an adjustment line in the period of the correction?
+3. Will AssetOps ever issue or settle invoices? If so, an immutable settlement ledger is needed later.
+
+### Decisions logged for owner review
+
+- **D-MONEY.1** Store the amount together with its receipt; rebuild on event.
+- **D-MONEY.2** Store the original currency only; no stored conversions.
+- **D-MONEY.3** No stored totals.
+- **D-MONEY.4** Money goes in the BL-66 rows, not a separate ledger.
+- **D-MONEY.5** MN-1/2/3 fold into AR-4 (+1.0 unit); the rest is BL-67.
