@@ -30,7 +30,8 @@ const KNOWN = "2026-10-21T12:00:00Z";
 const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const PAGE = `/operational-records?${WINDOW}`;
 const LONG = "Operator checked the panel and logged readings ".repeat(90).slice(0, 4000);
-const ACTOR128 = "service:".concat("x".repeat(120));
+// A 128-character id that is not a `service:` id, so the By cell still shows it as stored (E5-FX, MD-E5-1).
+const ACTOR128 = "user:".concat("x".repeat(123));
 
 function row(n: number, over: Partial<GlobalOperationalRow> = {}): GlobalOperationalRow {
   const id = `00000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`;
@@ -286,7 +287,8 @@ describe("W6-01e E2: global Operational records", () => {
     expect(cell(first, 1).querySelector(".v69-chip, .w1f4-action-badge")).toBeNull();
     expect(within(cell(first, 2)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
     expect(text(cell(first, 3))).toBe("18 Oct 2026, 09:00");
-    expect(text(cell(first, 4))).toBe("service:w401-fixture");
+    expect(text(cell(first, 4))).toBe("Prepared example record");
+    expect(cell(first, 4).querySelector("[data-global-work-actor]")?.getAttribute("data-global-work-actor")).toBe("service:w401-fixture");
     expect(text(cell(first, 5).querySelector("[data-global-work-body]"))).toBe(
       "Shift note at KOBO-001: generator stop handed over to the next shift.",
     );

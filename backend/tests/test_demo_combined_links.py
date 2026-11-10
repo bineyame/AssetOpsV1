@@ -53,7 +53,7 @@ def test_week_month_and_kobo_rows() -> None:
     assert urls["KOBO-001 Overview, day S"] == f"{BASE}/sites/KOBO-001?date=2026-10-29"
     assert urls["KOBO-001 board, missing day S-1d (2026-10-28)"] == f"{BASE}/sites/KOBO-001?date=2026-10-28"
     assert urls["Action ACT-000001 verification"] == f"{BASE}/sites/KOBO-001/actions/a-1/verification"
-    assert urls["Finding"] == f"{BASE}/sites/KOBO-001/findings/f-1?revision_id=r-1"
+    assert urls["Finding"] == f"{BASE}/sites/KOBO-001/findings/f-1"
 
 
 def test_cold_and_ev_boards_open_the_whole_utc_day() -> None:

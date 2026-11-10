@@ -416,13 +416,28 @@ describe("OWN-G3b: the Record a manual reading form", () => {
     await waitFor(() => expect(result()).toEqual([ENTRY_OUTCOMES.forbidden]));
   });
 
-  it("labels the entry service's records Entered by site admin and leaves other ids as stored", async () => {
-    const two = { ...BODY, total_count: 2, rows: [row(), row({ root_id: "r2", head_id: "r2", code: "REC-000002", actor_id: "service:w401-fixture" })] };
+  it("labels the entry service, the prepared example, any other system service, and leaves other ids as stored (MD-E5-1)", async () => {
+    const rows = [
+      row(),
+      row({ root_id: "r2", head_id: "r2", code: "REC-000002", actor_id: "service:w401-fixture" }),
+      row({ root_id: "r3", head_id: "r3", code: "REC-000003", actor_id: "service:something-else" }),
+      row({ root_id: "r4", head_id: "r4", code: "REC-000004", actor_id: "user:jane" }),
+    ];
+    const two = { ...BODY, total_count: 4, rows };
     const reader: GlobalWorkClient = { async incidents() { throw new Error("never"); }, async operationalRecords() { return { status: "loaded", value: two }; } };
     await mount(reader);
-    expect(Array.from(document.querySelectorAll("[data-global-work-actor]")).map(text)).toEqual([
+    const cells = Array.from(document.querySelectorAll("[data-global-work-actor]"));
+    expect(cells.map(text)).toEqual([
       "Entered by site admin",
+      "Prepared example record",
+      "Entered by a system service",
+      "user:jane",
+    ]);
+    expect(cells.map((c) => c.getAttribute("data-global-work-actor"))).toEqual([
+      "service:operator-entry",
       "service:w401-fixture",
+      "service:something-else",
+      "user:jane",
     ]);
   });
 });
