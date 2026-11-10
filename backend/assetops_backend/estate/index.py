@@ -413,15 +413,19 @@ class EstateIndexService:
         key = (lambda r: (-r["_at"].timestamp(), r["finding_id"]))
         page, last = _page(shown, key, None if after is None else (-after[0].timestamp(), after[1]), req.limit)
         summary: dict[str, Any] = {"high_priority": None, "low_confidence": None, "awaiting_verification": None,
-                                   "basis_count": None, "supported_findings": None}
+                                   "basis_count": None, "supported_findings": None, "unconfirmed_findings": None}
+        # FC-2 (D-E5.26): the three counts are computed over the rows read, whatever the coverage; the page marks them
+        # "So far" from `coverage.sites` when the coverage is not COMPLETE. basis_count stays null unless COMPLETE.
+        awaiting = 0
+        for site, domain, cov in per_site:
+            pairs = [(r["finding_id"], r["finding_revision_id"]) for r in basis if r["_site"] is site]
+            if domain == MINI_GRID and pairs:
+                awaiting += snap.awaiting_verification(tenant_id, site["site_id"], pairs, scope["k"])
+        summary.update(awaiting_verification=awaiting,
+                       supported_findings=sum(1 for r in basis if r["lifecycle"] == "SUPPORTED"),
+                       unconfirmed_findings=sum(1 for r in basis if r["lifecycle"] == "UNCONFIRMED"))
         if complete:
-            awaiting = 0
-            for site, domain, cov in per_site:
-                pairs = [(r["finding_id"], r["finding_revision_id"]) for r in basis if r["_site"] is site]
-                if domain == MINI_GRID and pairs:
-                    awaiting += snap.awaiting_verification(tenant_id, site["site_id"], pairs, scope["k"])
-            summary.update(awaiting_verification=awaiting, basis_count=len(basis),
-                           supported_findings=sum(1 for r in basis if r["lifecycle"] == "SUPPORTED"))
+            summary.update(basis_count=len(basis))
         if scope["historical"]:  # q12 ruling 1: a HISTORICAL response carries `as_of`, complete or not
             summary["as_of"] = wire_time(scope["k"])
         covered = sum(1 for s in states if s in COVERED)

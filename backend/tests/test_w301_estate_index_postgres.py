@@ -224,7 +224,23 @@ def test_cold_ev_window_outside_day_is_unknown(chain) -> None:  # noqa: F811
     assert body["status"] == "UNKNOWN" and body["coverage"]["state"] == "UNKNOWN" and site["state"] == "UNKNOWN"
     assert site["selection_id"] is None and body["scope"]["covered_site_count"] == 0
     assert body["rows"] == [] and body["total_count"] is None
-    assert all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert all(v is None for k, v in body["summary"].items() if k not in COUNTS_ANYWAY)
+
+
+# FC-2 (D-E5.26): these summary keys are numbers whatever the coverage; the rest stay null unless COMPLETE.
+COUNTS_ANYWAY = ("opportunity_count", "claims", "awaiting_verification", "supported_findings", "unconfirmed_findings")
+
+
+def test_partial_scope_counts_equal_the_rows_read(chain) -> None:  # noqa: F811
+    built, estate = cold_estate(chain)
+    add_empty_site(built.engine, built.site_id, "W301-EMPTY-001")  # an unanalysed Site makes the scope PARTIAL
+    body = estate.ok("findings", **{"from": iso(DAY), "to": iso(DAY + timedelta(days=1))})
+    assert body["coverage"]["state"] == "PARTIAL" and body["rows"]
+    summary = body["summary"]
+    assert summary["supported_findings"] == sum(r["lifecycle"] == "SUPPORTED" for r in body["rows"])
+    assert summary["unconfirmed_findings"] == sum(r["lifecycle"] == "UNCONFIRMED" for r in body["rows"])
+    assert isinstance(summary["awaiting_verification"], int)
+    assert summary["basis_count"] is None and body["total_count"] is None  # unchanged: null unless COMPLETE
 
 
 def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: F811
@@ -236,7 +252,7 @@ def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: 
     assert states == {str(built.site_id): "CURRENT", empty: "UNKNOWN"}
     assert body["scope"]["authorized_site_count"] == 2 and body["scope"]["covered_site_count"] == 1
     assert body["coverage"]["state"] == "PARTIAL" and body["status"] == "UNKNOWN"
-    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k not in COUNTS_ANYWAY)
     assert body["rows"] and {r["site_id"] for r in body["rows"]} == {str(built.site_id)}  # settled rows stay
     # The committed-import rule: a Site imported at or after `to` is outside the scope.
     imported_before(built.engine, built.tenant_id, empty, DAY + timedelta(days=1))

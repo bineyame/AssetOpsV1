@@ -112,7 +112,8 @@ def test_empty_is_zero_only_after_complete_read() -> None:
         assert findings["coverage"] == {"state": "COMPLETE", "sites": []} and findings["status"] == "CURRENT"
         assert findings["rows"] == [] and findings["total_count"] == 0
         assert findings["summary"] == {"high_priority": None, "low_confidence": None, "awaiting_verification": 0,
-                                       "basis_count": 0, "supported_findings": 0, "opportunity_count": 0,
+                                       "basis_count": 0, "supported_findings": 0, "unconfirmed_findings": 0,
+                                       "opportunity_count": 0,
                                        # CH-5a2b: no count computation injected -> not known
                                        "claims": {"count.opportunities": {
                                            "key": "count.opportunities", "value": None, "basis": "NOT_KNOWN",
@@ -130,8 +131,12 @@ def test_empty_is_zero_only_after_complete_read() -> None:
     body = client(FakeStore(missing)).get("/api/estate/findings?" + urlencode(DAY)).json()
     assert body["coverage"]["state"] == "UNKNOWN" and body["status"] == "UNKNOWN"
     # CH-4 D2: the opportunity count is the item count whatever the Finding coverage (here 0 items, still a number).
+    # FC-2 (D-E5.26): the three counts are over the rows read (none here: 0); basis_count stays null unless COMPLETE.
     assert body["total_count"] is None and all(v is None for k, v in body["summary"].items()
-                                               if k not in ("opportunity_count", "claims"))
+                                               if k not in ("opportunity_count", "claims", "awaiting_verification",
+                                                            "supported_findings", "unconfirmed_findings"))
+    assert (body["summary"]["awaiting_verification"], body["summary"]["supported_findings"],
+            body["summary"]["unconfirmed_findings"]) == (0, 0, 0)
     assert body["summary"]["opportunity_count"] == 0
     assert body["coverage"]["sites"] == [{"site_id": str(S), "state": "UNKNOWN", "committed_watermark": None,
                                           "selection_id": None, "match_state": "MISSING", "job_state": "NONE",
