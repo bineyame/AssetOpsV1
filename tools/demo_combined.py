@@ -400,6 +400,9 @@ def _as_date(value: Any) -> Any:
     return date.fromisoformat(value) if isinstance(value, str) else value
 
 
+PORTFOLIO_LENSES = ("cost", "risks", "opportunities")  # D-E5.23: the Portfolio lens variants, pre-built too
+
+
 def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
                     sites_last_day: dict[str, Any]) -> list[dict[str, str]]:
     """E4 D-E4.1 (C2), pure: the pre-built route list for this build, derived from `story_links`'s own rows, so what
@@ -426,6 +429,8 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
         segs = [s for s in parts.path.split("/") if s]
         if segs == ["portfolio"]:
             add("portfolio.week", "/api/estate/portfolio", _api_query(parts.query, ("lens", "all")))
+            for lens in PORTFOLIO_LENSES:
+                add(f"portfolio.week.{lens}", "/api/estate/portfolio", _api_query(parts.query, ("lens", lens)))
             add("summary.week", "/api/estate/outcome-summary", _api_query(parts.query))
         elif segs == ["findings"]:
             add("findings.week", "/api/estate/findings", _api_query(parts.query, ("lens", "all"), ("state", "all")))
@@ -453,6 +458,8 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
     for name, (lo, hi) in windows.items():
         q = _api_query(f"from={iso(lo)}&to={iso(hi)}")
         add(f"portfolio.{name}", "/api/estate/portfolio", _api_query(q, ("lens", "all")))
+        for lens in PORTFOLIO_LENSES:
+            add(f"portfolio.{name}.{lens}", "/api/estate/portfolio", _api_query(q, ("lens", lens)))
         add(f"summary.{name}", "/api/estate/outcome-summary", q)
     if "kobo" in story["sites"]:  # the "KOBO-001 Overview, day S" link (printed once `kobo.json` exists)
         add(f"board.day:kobo:{story['S_date']}", "/api/sites/KOBO-001/outcome-board",

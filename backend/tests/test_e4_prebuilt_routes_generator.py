@@ -79,6 +79,24 @@ def test_the_week_s_and_month_estate_requests() -> None:
     assert got["summary.month"] == ("/api/estate/outcome-summary", month)
 
 
+def test_the_portfolio_lens_variants_are_prebuilt_for_week_s_and_month() -> None:
+    """D-E5.23: the cost, risks and opportunities lens of each Portfolio window is a stored hit."""
+    requests = _routes()
+    got = {r["id"]: (r["path"], r["query"]) for r in requests}
+    base = {"week": "from=2026-11-01T00%3A00%3A00Z&to=2026-11-08T00%3A00%3A00Z",
+            "S": "from=2026-11-07T00%3A00%3A00Z&to=2026-11-08T00%3A00%3A00Z",
+            "month": "from=2026-10-10T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z"}
+    count = 0
+    for name, q in base.items():
+        for lens in ("cost", "risks", "opportunities"):
+            assert got[f"portfolio.{name}.{lens}"] == ("/api/estate/portfolio", f"{q}&lens={lens}")
+            count += 1
+    assert count == 9
+    keys = [(r["path"], r["query"]) for r in requests]
+    assert len(keys) == len(set(keys))
+    assert len({r["id"] for r in requests}) == len(requests)
+
+
 def test_no_date_falls_outside_the_story_calendar_or_the_added_dates() -> None:
     last = {"kobo": date(2026, 11, 10), "cold": date(2026, 11, 9), "ev": None, "kisiwa": date(2026, 11, 8)}
     requests = _routes(last)
