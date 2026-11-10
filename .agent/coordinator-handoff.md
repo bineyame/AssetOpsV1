@@ -52,6 +52,10 @@ Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Rev 1–3, R4, R5, R6). Owner
 - Then E2 (clock check, mechanism template rebuild, T6 w301 golden, full backend `-Tier fast` then `-Tier slow -Targets` skipping test_demo_combined_postgres, vitest, check-all; one reserved fix round for the w203/cold_drain replay family; 8 standalone chain_coherence findings are fixture/BL-47, not defects) → E3 demo build into `assetops_polish_client_test` (not the 3rd–5th of a month) → E4 serve + checks incl. KIS-11, Cold/EV rows "Pending", first real add-dates run, a forced unfinished-Kisiwa-night resume check (G1 r2 suggestion) → E5 captures → DS-1f → owner walkthrough → DS-1b technical doc.
 
 ## Standing constraints
+- **Owner standing rule (2026-11-10), verbatim:** "make sure to check for internet re-connections incase connection is lost, as a standing rule".
+  - Treat an agent or job that ends on a network/API error (ENOTFOUND, "Can't reach the API server") as interrupted, not done.
+  - Check connectivity (`Test-NetConnection api.anthropic.com -Port 443`) and wait for reconnection with a Monitor until-loop.
+  - Then resume via SendMessage, telling the agent to check what is already on disk or in git first.
 - NO full backend suite, NO demo prepare, NO baseline build until end-game, except Architect-ruled scratch prepares under the gate: one heavy job, ≥2.5 GB free RAM for 2 min, keep-awake running, stop under 1 GB. Memory pressure reaps background shells — prefer foreground commands <10 min and Wait-Process on PIDs.
 - DBs: `*_test` and `<prefix>_audit*` only; never `assetops_demo3_full_test`. Host 127.0.0.1:55432; credentials `assetops`/`assetops-local-dev`.
 - NEVER pass `-ExecutionPolicy`. Kill by PID only. Keep-awake: the coordinator's copy was reaped by memory pressure; another copy (PID 23744) was running. Restart only if the owner asks.
