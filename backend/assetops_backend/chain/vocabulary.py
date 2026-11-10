@@ -22,6 +22,8 @@ VALUE_LINE_ONE = "{lo} kW over {h} on every eligible day"
 LIMIT_MIXED = "Limited evidence: readings come from mixed sources, so the size is not worked out yet"
 LIMIT_DAYS = "Limited evidence: {n} of the 5 study days lack a reading needed to size it"
 LIMIT_UNKNOWN = "Not judged yet: {n} of the 5 study days have no reading"
+#: D-E5.13 item 5: the singular form (one empty study day, e.g. the v4 calendar's gateway-offline day).
+LIMIT_UNKNOWN_ONE = "Not judged yet: 1 of the 5 study days has no reading"
 EVIDENCE_LABEL = {"SUPPORTED": "Supported", "LIMITED": "Limited evidence", "UNKNOWN": "Not judged yet"}
 #: MA-1 M4 timeline words; CH-5a2 reuses them for Finding threads.
 THREAD_STATE_WORDS = {"OPEN": "Open", "ACTION_IN_HAND": "Action agreed", "CHANGE_APPLIED": "Change made",
@@ -79,7 +81,8 @@ def limit_line(status: str | None, limitation_codes: Sequence[str], decisions: S
             return LIMIT_MIXED
         return LIMIT_DAYS.format(n=sum(1 for d in decisions if d in ("LIMITED", "CONFLICT")))
     if status == "UNKNOWN":
-        return LIMIT_UNKNOWN.format(n=sum(1 for d in decisions if d is None))
+        n = sum(1 for d in decisions if d is None)
+        return LIMIT_UNKNOWN_ONE if n == 1 else LIMIT_UNKNOWN.format(n=n)
     return None
 
 

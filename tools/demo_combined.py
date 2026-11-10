@@ -1566,7 +1566,8 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--sites", default=",".join(SITES),
                    help="a subset of kobo,cold,ev,kisiwa (K7-F: the default is all four Sites)")
     p.add_argument("--no-finish", action="store_true", help="development only: skip objectives/comparisons/ticks")
-    p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v3.json)")
+    p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v4.json; "
+                   "backend/conversions/demo-story-days-v3.json is the D-E5.12 rollback)")
     p.add_argument("--baseline", default="b22", choices=sorted(sd.BASELINE_FROM),
                    help="b16: the owner's fallback if the rehearsal measures the whole prepare over 3 h")
     p.add_argument("--cap-seconds", type=int, default=None,

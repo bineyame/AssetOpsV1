@@ -19,8 +19,11 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-#: DD1a2-R: the B-22 list. v1 and v2 are kept as history (`--days` takes them).
-DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v3.json"
+#: D-E5.12 (FX-KOBO-GAPS): the week S-6..S has one missed day (S-4) and one partly checked day (S). v1, v2 and v3 are
+#: kept as history (`--days` takes them; `--days backend/conversions/demo-story-days-v3.json` is the rollback).
+DEFAULT_FILE = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-story-days-v4.json"
+#: DD1a2-R: the B-22 list (S-4 and S-2 unbuilt next to the late S-3, BL-25).
+V3_FILE = DEFAULT_FILE.with_name("demo-story-days-v3.json")
 V1_FILE = DEFAULT_FILE.with_name("demo-story-days-v1.json")
 #: DD-1a1 (DD1a1-R Q7): full-day story days. Each Kobo / Cold kind lists its `complement`, so one entry expands into
 #: its story run plus the steady runs (and named placeholders) that tile the Site's local day [00:00, 24:00).

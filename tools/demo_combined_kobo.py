@@ -560,7 +560,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     ids = {
         "manifest": {"base": "backend/conversions/d-verification-window-v3.json",
                      "story": "backend/conversions/demo-combined-story-v1.json",
-                     "days": "backend/conversions/demo-story-days-v3.json", "scenario": M["scenario"],
+                     "days": "backend/conversions/demo-story-days-v4.json", "scenario": M["scenario"],
                      "model_profile": M["model_profile"], "resolved": {k: M[k] for k in ("runs", "action", "plan",
                                                                                           "windows", "evaluate_at")}},
         "finding": str(finding), "finding_revision": rec["revision_id"],
