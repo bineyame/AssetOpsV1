@@ -29,7 +29,22 @@ Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Rev 1–3, R4, R5, R6). Owner
 - OWN-GAPS ALL MERGED: R-1, G3a, G2, G3b, R4.1 (b497d42ef), G1 (575c13222; rehearsal A/B 51/51; clone `assetops_demo3_g1audit_test` + `AssetOpsV1-g1\var\demo3_g1audit` can be dropped). check-all 18/18 after 575c13222.
 - Owner Q&A 2026-11-09: no file upload (BL-59); simulator-dependency audit `.agent/architect-answer-simulator-dependency-2026-11-09.md` (product independent; leaks L1/L4 Medium → BL-53..58).
 - POLISH-1 merged (9bbbb5626). E2 done (`task/E2-endgame` bda19fecf, E2-results.md). E2 fix round A merged (5f67315cd, tests only; rulings D-E2.1–D-E2.13 in the build sheet; BL-60..63).
-- In flight: E3 demo build (Sonnet) in wt `AssetOpsV1-e3`, branch `task/E3-demo-build`, target DB `assetops_polish_client2_test`, S = 2026-11-07.
+- 2026-11-10 state:
+  - **E3/E4 history.** E3 (client2, S=11-07) went 51/51, but E4 found 3 stops. The fixes are merged: C1 Portfolio lifecycle cutoff, C2 prebuild follows the calendar, C3 two-tier gap line, C4 performance-on-change, and C5 board lifecycle cutoff (D-E4.x, D-E3b). A G-m test fix landed too. check-all is 18/18 after b234cea2a. client3 failed F-COH and was dropped.
+  - **E3c (current demo build).** DB `assetops_polish_client4_test` in wt `AssetOpsV1-e3c` (branch task/E3c-demo-build), S = 2026-11-08, 51/51.
+    - It was launched DETACHED, because the harness memory-reaper kills background shells. The launch and watchdog scripts are in scratchpad `e3c\`.
+    - E4b ran 15/15 PASS (commit 5e46dae89). Cold 11-09 was added.
+    - client2 is kept as the fallback.
+  - **E4-RESUME.** Part (a), the NIGHT_NOT_OVER refusal, passed on client2 (bfd384888). Part (b), interrupt-and-resume, can only run after 15:05 local.
+  - **In flight: E5 captures** (Sonnet), branch `task/E5-captures` cut from DS-1a. DS-1f, then the owner walkthrough, follow.
+  - **Owner decision 2026-11-10** (`owner-any-range-speed-2026-11-10.md`): any-range speed ANY-1 (boards, 3.0) and ANY-2 (Portfolio, 3.75) are built BEFORE the client session, after FR-B. Spec: `architect-answer-any-range-speed-2026-11-10.md`, BL-66, D-ANY.1–4.
+  - **Coordinator calls to report:**
+    - merged small verified fixes without a separate reviewer;
+    - ran one check-all after several merges;
+    - S moved to 11-08;
+    - split the resume check;
+    - the detached prepare with its watchdog;
+    - dropped client3.
 - Carry to FR-B (Wed 11–Fri 13): wrapper fixes, T6 w301 golden, `pin_read_at` must patch `EvidenceMoneySnapshot` (base-class leak), FR-A review Lows L1 (`raises=AssertionError` on the BL-63 xfail, test_out_b4:498), L2 (assert kpi not None before ch6b S equality), L3 (w207 exclusion only at :288), I1 docstring; add `OBJECTIVE_BEHIND_PACE` to the xfail verdicts tuple.
 - Carry to E4: E4-K8, E4-env (if not done in E3), E4-GE corrected = check EVERY outcome on the board for Finding- or objective-driven reasons (incl. OBJECTIVE_BEHIND_PACE) on days with no checked readings; E4-GG; Cold/EV rows "Pending"; first real add-dates; forced unfinished-Kisiwa-night resume check.
 - DS-1a client script on `task/DS-1a-client-script` (wt -ds1a, 9bc611cf0, re-review ACCEPT WITH NOTES); merge after DS-1f fills placeholders from E5 captures.
