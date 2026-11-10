@@ -60,10 +60,12 @@ def test_clean_assessment_after_the_failure_keeps_the_repeat_notice(monkeypatch,
             board, _ = _board(c, SITE, "fx_cold_day_board", **{"from": _z(day), "to": _z(day + timedelta(days=1))})
             later, _ = _board(c, SITE, "fx_cold_clean_board",
                               **{"from": _z(clean_start), "to": _z(clean_start + timedelta(minutes=65))})
-            listed = c.get("/api/estate/findings", params={"from": _z(clean_start),
-                                                           "to": _z(clean_start + timedelta(minutes=65))})
+            # the finish bundle's day pair: the day board and the estate Findings list of that day (midnight bounds)
+            listed = c.get("/api/estate/findings", params={"from": _z(day), "to": _z(day + timedelta(days=1))})
             assert listed.status_code == 200, listed.text
-            coh4 = _coh4(tmp_path, later, listed.json())
+            assert listed.json().get("next_cursor") is None, listed.json().get("next_cursor")
+            _record("fx_cold_day_findings", [r.get("finding_id") for r in listed.json().get("rows") or []])
+            coh4 = _coh4(tmp_path, board, listed.json())
 
     # the clean run is a later selected window with no Finding of its own, and the summary reads Cold on it
     assert clean.get("run_id"), clean
