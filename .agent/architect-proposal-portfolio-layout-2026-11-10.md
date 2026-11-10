@@ -3,6 +3,10 @@
 - Architect: Claude (fresh `assetops-architect` instance). Binding checked: `.ai/ROLE_CONFIG.md`, Architect = Claude since 2026-10-27.
 - Owner feedback, verbatim: `.agent/owner-walkthrough-2026-11-10.md` (item 1 money, item 2 coverage and layout).
 - **Status: proposal for discussion. Nothing is built, and no spec, register or product code changes, until the owner approves the mockup draft.**
+- **Approved by the owner (2026-11-10, items 5 and 12):**
+  - the tab set, the top three findings kept on the Overview, and the term family (item 5);
+  - the item 9 scalable outcomes design ("for now"), the region attribute (+0.25 units, so PF is 4.25 units), and "By outcome group" as the default view (§9.8).
+- **Added on 2026-11-10:** one shared date range for every page (SR, 1.75 units, its own slice; §"Item 12.5"). The mockup shows it as Change 0b.
 - Mockup draft: `frontend/mockups/v71/portfolio-tabs.html` (open it in a browser; the top bar switches between Proposed, Current v7.0 and Side by side, and "Show change notes" explains each change in place). v70 is unchanged.
 
 ## 1. In plain words, for the owner
@@ -475,3 +479,154 @@ Two rules:
 1. Do you approve the hybrid design: the four tiles, one Site list with the four groups, and "Every outcome" for each Site type?
 2. Should Sites get a declared region, or another grouping such as client or programme, to filter and group by? Until then, the region control is hidden.
 3. Which view should open by default: "By outcome group" (recommended) or "Every outcome"?
+
+### 9.8 Owner answers (item 12, 2026-11-10)
+
+Verbatim in `.agent/owner-walkthrough-2026-11-10.md` item 12. Recorded by the Architect (Claude, `assetops-architect`; binding checked in `.ai/ROLE_CONFIG.md`).
+- **Q1, the hybrid design (§9.4, `frontend/mockups/v71/estate-outcomes-scale.html`): approved "for now".** It is the layout spec for the "Outcomes by site" tab. The owner's wider ask (how the UI becomes international-grade) is answered separately in `.agent/architect-answer-ui-quality-2026-11-10.md` (BL-69). Nothing in that answer reopens this design before the client session.
+- **Q2, a declared region on Sites: yes.** The optional `site.region` attribute, its import field, and region filtering and grouping are in scope: **+0.25 units**. The PF slice grows from 4.0 to **4.25 units**. Ruling: `region` is a value from a declared list per tenant (no region list in code), optional, and the region control stays hidden while no Site in scope has one. "Client" or "programme" can later use the same mechanism as a second attribute; it is not built now.
+- **Q3, the default view: "By outcome group"**, as recommended. "Every outcome" is the second view. The choice is kept in the address (`view=outcomes`), never as a hidden preference.
+
+## Item 12.5: one shared date range for every page (SR)
+
+- Owner, verbatim (item 12, answer 5): "yes", to "Add one shared date range across all pages to the layout proposal and mockup".
+- **Status: specified, and the mockup is updated.** `frontend/mockups/v71/portfolio-tabs.html` has Change 0b and a working picker. The `estate-outcomes-scale.html` top bar is marked "All pages". Nothing is built until the owner approves the mockup.
+
+### SR.1 In plain words, for the owner
+
+- **One range, at the top, for the whole app.** You pick the dates once. Portfolio, Findings, Actions, Evidence, Financials, every Site page, Incidents, Maintenance and Operational records all show the same dates. The pages lose their own date bars.
+- **It stays when you move.** The left menu, the tabs and the links between pages keep the range. Today the left-menu links drop it, so every page falls back to its own default.
+- **It stays in the address.** A copied link still opens exactly the same view, including "as known at" an earlier time.
+- **Pages that need a finer view pick it inside the range.** A Site board can show one day, the fuel page one night, and the service page one hour. That finer choice stays on that page and is not carried to the others.
+- **Size: 1.75 units.** It is its own slice in the Portfolio-tabs lane. It is built first, before the client session.
+
+### SR.2 What exists today (verified in code)
+
+The product has no shared top bar:
+- `shell/OperatorShellLayout.tsx` renders only the rail, the demonstration banner and the page.
+- The rail items are fixed paths with no query (`operatorRailItems`, lines 57-69). This is why the left menu resets the range.
+
+There are about 20 date forms, with 5 different defaults:
+
+| Pages | Form | Default when the address has none |
+|---|---|---|
+| Portfolio, Findings, Actions, Evidence, Financials | `EstateDateBar` (`estate/estateShared.tsx:98`) | `defaultWindow`: the 7 full UTC days **before** today (S17) |
+| Incidents, Maintenance, Operational records | `work/globalWorkParts.tsx:197` | `defaultGlobalWorkWindow`: 7 UTC days **including** today (R338) |
+| Site Actions and Work cases (all types) | `SiteWorkActions.tsx:177`, `siteWorkCases.tsx:304` | `defaultWorkWindow`: 7 days including today |
+| Site Findings index | `SiteFindingIndex.tsx:333` | its own form |
+| Mini-grid Renewable and Service | `miniDepthClient.ts:334, 358` | one **Site-local day** or one **local hour** (12:00-13:00), via `?date=` |
+| Mini-grid Performance, Dispatch, Scenarios, Site overview, claim limit | `MiniPerformance.tsx:474, 1044`, `PerformanceDispatch.tsx:309`, `MiniScenarios.tsx:303`, `SiteWindowOverview.tsx:273`, `EvidenceClaimLimit.tsx:372` | their own forms, including a single-day picker |
+| Cold and EV Site pages | `coldSiteViews.tsx:458-475` (`SelectedWindowBar`), `EvSiteViews.tsx:328` (`WindowBar`) | **no window**: the server picks the selected event window |
+
+Some of the groundwork already exists:
+- The parameter names are already shared: `from`, `to` and `known_at`.
+- The Site tabs (`operatorSiteTabHref`) and the estate links (`estateHref`) already carry them.
+- The v6.9/v7.0 mock already intended one range. Its picker says "One window for every page" (`v70/screens.js`, `rangePicker`). The product split it up page by page.
+
+### SR.3 The design
+
+**The state lives in the address, and only there.**
+- **Shared parameters:** `from` and `to` (calendar days, `YYYY-MM-DD`, with `to` included), plus an optional `known_at` (an instant).
+- **The two address forms:**
+  - The top bar writes the short day form.
+  - The current instant forms (`from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z`) stay accepted, so every existing link opens the same view as before.
+- **What a day means:**
+  - Estate pages read the days as UTC days. This is today's rule, with the "Times in UTC" note.
+  - Site pages read them as the **Site's local days**. The mini-grid pages already do this; the Cold and EV pages start doing it.
+  - Each page says which, in its time-zone note, so one link is exact on every page.
+- **One hook, `useSharedRange()`:**
+  - It reads both address forms from the address, and returns `{from, to, known_at, preset}`.
+  - It checks the range. A bad range gives the existing `Window not valid` state, which never echoes the dates.
+- **One helper, `withRange(path)`.** It adds the current shared parameters to any in-app path.
+- **The left menu.** `NavRail` takes a `search` from the shell and adds it to every live item, the same way `OperatorSiteTabs` takes `search`.
+- **Other links.** Tabs, breadcrumbs, row links and "Open site" links all use `withRange`.
+- **Links with their own range.** A link that names its own range on purpose (for example a Finding's event window) keeps it. That range becomes the shared range on the page it opens.
+- **An address with no range** (a typed URL or an old bookmark):
+  - The shell replaces the address, without adding a history entry.
+  - It uses the last range chosen in this browser tab, from `sessionStorage`, else the default. If the browser blocks storage, it uses the default.
+  - The address on screen is therefore always complete and can be copied.
+- **No hidden state.** The range is never kept in `localStorage` or on the server.
+
+**Finer views inside the range (parameters for one page only).**
+- **The parameters:**
+  - `day=YYYY-MM-DD` for one day: the Site board day view, Dispatch, Renewable and a fuel night.
+  - `hour=HH` for the Service hour.
+  - `event=<id>` for the Cold or EV event in focus.
+  - They replace today's `date=` parameter and the per-page forms. Old `date=` links redirect to `day=`.
+- **They stay on their page:**
+  - The left menu and links to other pages **never** carry them.
+  - Tabs within the same Site carry them only to a tab that reads them.
+- **The finer picker:**
+  - It offers only days inside the shared range, and says so: "Day shown: 8 Nov (inside 2-8 Nov)".
+  - By default it shows the last day of the range. On Cold and EV pages it shows the latest event inside the range, as the boards choose today.
+- **A `day` outside the range** (for example, an edited link):
+  - The page shows the last day of the range, with the line "8 Nov is outside the date range, so the last day of the range is shown".
+  - A "Show 8 Nov" button widens the shared range to include that day.
+  - The page never changes the range without saying so.
+
+**`known_at` ("as known at" an earlier time).**
+- **Where it is set:** in the same picker, under "View an earlier point in time" (the existing R652 words and closed disclosure).
+- **While it is set,** the top bar on **every** page shows "As known at {time} · every page" and a "Return to latest" button.
+- **Every link carries it,** like `from` and `to`.
+- **A page that cannot use an earlier time** says so in place: "This page shows the latest information; earlier points in time do not apply here." It never shows live data under an "As known at" bar without saying so.
+  - Build check: confirm, read by read, which reads accept `known_at`. The global Work reads already check it (`INVALID_KNOWN_AT`).
+- **Page two of a list** keeps the cutoff of its first page, as today.
+
+**One default for every page.**
+- **The default: the last 7 days, ending yesterday,** with full days only. That means UTC days on estate pages and Site-local days on Site pages.
+  - Why: a day still in progress always reads "partial readings", which makes the first view of every page look broken.
+- **Work pages:**
+  - This changes R338, Work's current "including today".
+  - Work pages add a preset, "Last 7 days, including today".
+  - They show the items open now in one line, for example "Open now: 3 requests, whatever the dates", so nothing current is hidden.
+  - Register rows R338 and S17 are revised at build.
+- **Cold and EV Site pages** lose "no window, so the server picks". With a range, the board picks the latest event inside it, and says "No event in 2-8 Nov" when there is none.
+- **Presets:** Yesterday, Last 7 days, Last 30 days, This month, Last month and Custom.
+  - "Today" is not a preset, because it is a partial day. Custom still allows it.
+- **The demo** opens on explicit links (the DS-1b script), so the default never decides what the client sees first.
+
+**Phones (760 px and below).**
+- The button shows only the dates ("2-8 Nov") and is 44 px high. The preset name and the "All pages" label are hidden.
+- The picker opens as a sheet from the bottom of the screen. It is full width, scrolls, and takes at most 85% of the screen height.
+- The "As known at" label wraps onto its own line under the top bar.
+- The native date inputs stay, so the phone shows its own date picker.
+
+**Accessibility (WCAG 2.2 AA).**
+- **The button** names the whole state, for example "Date range for every page: Last 7 days, 2 to 8 November 2026. Change". It has `aria-expanded` and `aria-controls`.
+- **The picker:**
+  - It is a non-modal dialog with a label.
+  - Focus moves to the selected preset. Escape and Cancel close the picker and return focus to the button.
+  - Nothing changes until "Apply", so the page does not reload on each keystroke (WCAG 3.2.2).
+  - The presets are toggle buttons (`aria-pressed`) and the inputs have visible labels.
+  - The earlier-time state is shown in words, not only in colour.
+- **After Apply:**
+  - A polite live region says "Every page now shows 2-8 Nov 2026", and focus stays on the button.
+  - The content updates in place, under the PL-1 rule (the page never goes blank).
+- **Target size:** at least 24 px (WCAG 2.5.8), and 44 px on phones.
+
+**Consistency and guards.**
+- **Two components:**
+  - `SharedRangeBar`, in the shell top bar.
+  - `FocusPicker`, for `day`, `hour` and `event`.
+- **Checks:**
+  - A new check in `tools/checks` fails when a page under `frontend/src` renders its own `type="date"` range form. The shell and `FocusPicker` are exempt.
+  - The navigation-truthfulness guard also checks that the rail items take the shared `search`.
+- **The frontend hard-wiring ratchet** is unaffected:
+  - No branching on Site type is added.
+  - The Site-local day rule reads the Site's declared time zone, not its type.
+
+### SR.4 Size and sequencing
+
+| Card | Scope | Size |
+|---|---|---|
+| **SR-1** Shell bar and state | `SharedRangeBar` in a new top-bar row of `OperatorShellLayout` (the demonstration banner stays); `useSharedRange`; `withRange`; the rail `search`; filling in the address on entry; the presets; the `known_at` label; the phone sheet; accessibility; tests | 0.5 |
+| **SR-2** Pages move to the shared range | remove the ~20 page forms; each page reads the hook; `day`, `hour` and `event` through `FocusPicker`; old `date=` and instant links keep working; the one default; Cold and EV show the latest event inside the range; R338 and S17 rows revised; the addresses tests expect | 1.0 |
+| **SR-3** Guard and captures | the check for page range forms, with its self-test; the rail check; captures re-baselined against v7.1 | 0.25 |
+
+- **Total: 1.75 units, as a slice of its own.** It is not folded into PF: PF is 4.25 units after the region, so PF + SR would be 6.0, the split threshold.
+- **Order:**
+  1. SR-1 first. PF-T then builds its tabs under the shared bar, so PF-T drops its "move the date bar to the top" step and keeps its 1.0 units as margin.
+  2. Then PF.
+  3. SR-2 and SR-3 run alongside PF-O.
+- **Lane:** the same lane as PF. SR-2 changes the Site page frontends, which ANY-1 (stored board rows, backend) does not touch.
+- **Before the client session: yes. Not before Thursday,** because that build is frozen. With SR, a client who moves between the Portfolio and a Site sees the same dates. Different dates on different pages are the most visible inconsistency in this walkthrough.

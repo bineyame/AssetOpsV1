@@ -78,6 +78,24 @@ body.embed .pf-topbar{top:0}
 .note-pin{display:none;margin:0 0 12px;padding:8px 12px;border-left:3px solid var(--draft);background:#f7f3fe;color:#40306b;font-size:12px;line-height:1.55;border-radius:0 8px 8px 0}
 body.show-notes .note-pin{display:block}
 
+/* Change 0b: one shared date range for every page (owner item 12.5) */
+.sr-shared{font-size:10px;font-weight:650;letter-spacing:.3px;color:#44536b;background:#eef2f8;border-radius:9px;padding:1px 7px}
+.sr-short{display:none;color:var(--muted)}
+.sr-pop[hidden]{display:none}
+.sr-custom{flex-wrap:wrap}
+.sr-custom label,.sr-earlier label{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.sr-earlier summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--blue)}
+.sr-earlier input,.sr-custom input{border:1px solid #cfd9e8;border-radius:4px;padding:4px 6px;font-size:12px}
+.sr-earlier .period-note{margin:6px 0 0}
+.sr-actions{display:flex;gap:10px;align-items:center}
+.sr-cancel{border:0;background:none;color:var(--blue);font-size:12px}
+.sr-asof{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:#5b4413;background:#fffaf0;border:1px solid #f0dcb4;border-radius:6px;padding:4px 8px}
+.sr-asof[hidden]{display:none}
+.sr-asof button{border:0;background:none;color:var(--blue);font-weight:650;font-size:11px;padding:0}
+.chip[aria-pressed="true"]{font-weight:650}
+@media(max-width:1100px){.range-button .sr-short{display:inline}}
+@media(max-width:760px){.range-button .range-name,.range-button .sr-shared{display:none}.range-button{min-height:44px}.sr-pop{top:auto;bottom:0;left:0;right:0;border-radius:12px 12px 0 0;max-height:85vh;overflow:auto}.sr-asof{order:3;flex-basis:100%}}
+
 @media(max-width:1100px){.pf-two{grid-template-columns:1fr}}
 @media(max-width:760px){
  .pf-tabs ol{flex-wrap:wrap;gap:4px 18px}
@@ -114,11 +132,35 @@ body.show-notes .note-pin{display:block}
  <aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div><div class="rail-group"><div class="eyebrow">OPERATIONS</div><a class="active" href="../v70/index.html#/portfolio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"></path></svg>Portfolio</a><a class="" href="../v70/index.html#/sites"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14 M8 21v-5h8v5 M7 8v3 M12 7v4 M17 8v3"></path></svg>Sites</a><a class="" href="../v70/index.html#/assets"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16H7z M10 1h4 M10 8h4 M10 12h4 M10 16h4"></path></svg>Assets</a></div><div class="rail-group"><div class="eyebrow">INTELLIGENCE</div><a class="" href="../v70/index.html#/findings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L2 21h20L12 3z M12 9v5 M12 17v1"></path></svg>Findings</a></div><div class="rail-group"><div class="eyebrow">WORK</div><a class="" href="../v70/index.html#/actions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v17H5V4h3 M9 2h6v4H9z M8 12l3 3 5-6"></path></svg>Actions</a><a class="" href="../v70/index.html#/incidents"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10 M12 17v1 M4 3h16v18H4z"></path></svg>Incidents</a><a class="" href="../v70/index.html#/maintenance"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4a5 5 0 0 0-6 6L2 16l6 6 6-6a5 5 0 0 0 6-6l-4 4-5-5 3-5z"></path></svg>Maintenance</a><a class="" href="../v70/index.html#/oprecords"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4"></path></svg>Operational records</a></div><div class="rail-group"><div class="eyebrow">ASSURANCE</div><a class="" href="../v70/index.html#/globalevidence"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5z M14 3v5h5 M8 12h8 M8 16h6"></path></svg>Evidence</a></div><div class="rail-group"><div class="eyebrow">BUSINESS</div><a class="" href="../v70/index.html#/globalfinancials"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20 M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H6"></path></svg>Financials</a></div><div class="rail-group"><div class="eyebrow">ADMIN</div><a class="" href="../v70/index.html#/settings-policies"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2"></path></svg>Settings</a></div><div class="rail-footer"><div class="eyebrow">WORKSPACE</div><a class="" href="../v70/index.html#/lab"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2v7L3 19q-1 3 3 3h12q4 0 3-3L15 9V2 M7 2h10 M7 15h10"></path></svg>Simulator Lab</a><div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>
  <main class="workspace">
   <!-- Top bar: copied from the rendered v7.0 shell; the date range picker stays here, at the top of the screen, on every tab. -->
-  <header class="topbar pf-topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><button class="searchbox" data-index=""><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M15 15l6 6"></path></svg>Find a screen</button><div class="range-picker"><button class="range-button" data-range-toggle="" aria-expanded="false" aria-label="Choose analysis window"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v6l4 2"></path></svg><span class="range-name">Window: Custom</span><span id="topbar-window">30 Sep – 6 Oct 2026</span><span aria-hidden="true">▾</span></button></div><span class="avatar">BY</span></div></header>
+  <header class="topbar pf-topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><button class="searchbox" data-index=""><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M15 15l6 6"></path></svg>Find a screen</button><span class="sr-asof" id="sr-asof" hidden><span>As known at <b id="sr-asof-at">4 Oct 2026, 12:00</b> · every page</span><button type="button" id="sr-latest">Return to latest</button></span><div class="range-picker"><button class="range-button" id="sr-button" aria-expanded="false" aria-controls="sr-pop" aria-label="Date range for every page: Last 7 days, 30 Sep to 6 Oct 2026. Change"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v6l4 2"></path></svg><span class="range-name" id="sr-name">Last 7 days</span><span id="topbar-window">30 Sep – 6 Oct 2026</span><span class="sr-short" id="sr-short">30 Sep – 6 Oct</span><span class="sr-shared">All pages</span><span aria-hidden="true">▾</span></button>
+   <div class="range-pop sr-pop" id="sr-pop" role="dialog" aria-label="Date range for every page" hidden>
+    <div class="eyebrow">Date range · used by every page</div>
+    <div class="period-presets" role="group" aria-label="Quick ranges">
+     <button type="button" class="chip" data-sr="yesterday" aria-pressed="false">Yesterday</button>
+     <button type="button" class="chip active" data-sr="7d" aria-pressed="true">Last 7 days</button>
+     <button type="button" class="chip" data-sr="30d" aria-pressed="false">Last 30 days</button>
+     <button type="button" class="chip" data-sr="month" aria-pressed="false">This month</button>
+     <button type="button" class="chip" data-sr="lastmonth" aria-pressed="false">Last month</button>
+     <button type="button" class="chip" data-sr="custom" aria-pressed="false">Custom</button>
+    </div>
+    <div class="period-custom sr-custom" id="sr-custom" hidden>
+     <label>From <input type="date" id="sr-from" value="2026-09-30" min="2026-09-07" max="2026-10-07"></label>
+     <label>to (included) <input type="date" id="sr-to" value="2026-10-06" min="2026-09-07" max="2026-10-07"></label>
+    </div>
+    <details class="sr-earlier" id="sr-earlier"><summary>View an earlier point in time</summary>
+     <label>As known at <input type="datetime-local" id="sr-known" value="2026-10-04T12:00"></label>
+     <p class="period-note">Every page then shows what AssetOps knew at that moment, until you return to latest.</p>
+    </details>
+    <p class="period-note">One range for the whole app. Left-menu links, tabs and links between pages keep it, and the page address holds it, so a copied link opens exactly this view. Days are each site's local days on site pages and UTC days on estate pages.</p>
+    <div class="sr-actions"><button type="button" class="button" id="sr-apply">Apply</button><button type="button" class="sr-cancel" id="sr-cancel">Cancel</button></div>
+   </div>
+  </div><span class="avatar">BY</span></div></header>
+  <p class="pf-sr" id="sr-live" aria-live="polite"></p>
   <div class="canvas portfolio-v2">
    <div class="page-heading"><div><div class="title-row"><h1>Portfolio Value &amp; Operations</h1></div><p>Operating decisions across the estate: cost, service, productive use and asset value</p></div></div>
 
    <p class="note-pin"><b>Change 0 · Unchanged frame (owner item 4).</b> The left menu is the v7.0 menu exactly (copied from its shell, not redrawn). The date range picker stays at the top of the screen, in the top bar, and does not move when you change tabs. Current and Side by side show v7.0 itself, which already has both.</p>
+   <p class="note-pin"><b>Change 0b · One date range for every page (owner item 12.5).</b> The range in the top bar is now shared by the whole app: Portfolio, Findings, Actions, Evidence, Financials, every Site page, Incidents, Maintenance and Operational records. Pages no longer have their own date bars. The range lives in the page address (<code>from</code>, <code>to</code>, and <code>known_at</code> when you look at an earlier point in time), so a copied link opens exactly the same view. Left-menu links, tabs and links between pages keep it. Try it: open the range, pick "Last 30 days" or an earlier point in time, then look at the address line under the tabs and the left-menu links. A page that needs a finer view (one day on a Site board, one night of fuel, one hour of service) picks it inside this range, and its own choice is not carried to other pages. On phones the button shows the dates only and the picker opens from the bottom of the screen.</p>
    <p class="note-pin"><b>Change 1 · Coverage once.</b> The date range and this one coverage line sit above the tabs, so they apply to every tab. The per-Site notes in the header row and the days line under every card are gone. A card keeps a days line only when its figures come from different days than this line (see Grow revenue).</p>
 
    <div class="portfolio-context"><div><span class="badge amber">Portfolio: Needs attention</span><span>3 simulated sites · 1 mini-grid / 1 cold room / 1 charging hub</span></div></div>
@@ -283,13 +325,53 @@ body.show-notes .note-pin{display:block}
  notes.addEventListener('change',syncNotes);syncNotes();
  if(params.get('embed')==='1'){document.body.classList.remove('show-notes');}
 
+ // Change 0b: the one shared range. Mock "today" is 7 Oct 2026 (v7.0 data runs 7 Sep to 6 Oct).
+ var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ var RANGE={preset:'7d',from:'2026-09-30',to:'2026-10-06',known:null};
+ var PRESET={yesterday:['Yesterday','2026-10-06','2026-10-06'],'7d':['Last 7 days','2026-09-30','2026-10-06'],'30d':['Last 30 days','2026-09-07','2026-10-06'],month:['This month','2026-10-01','2026-10-06'],lastmonth:['Last month','2026-09-01','2026-09-30'],custom:['Custom',null,null]};
+ var CURRENT_PATH='/portfolio';
+ function d(s){var p=s.split('-');return {y:+p[0],m:+p[1]-1,d:+p[2]};}
+ function longR(a,b){a=d(a);b=d(b);if(a.y===b.y&&a.m===b.m&&a.d===b.d)return a.d+' '+MON[a.m]+' '+a.y;return a.d+' '+MON[a.m]+(a.y!==b.y?' '+a.y:'')+' – '+b.d+' '+MON[b.m]+' '+b.y;}
+ function shortR(a,b){a=d(a);b=d(b);if(a.m===b.m&&a.d===b.d)return a.d+' '+MON[a.m];return a.d+' '+MON[a.m]+' – '+b.d+' '+MON[b.m];}
+ function knownLabel(k){var p=k.split('T'),x=d(p[0]);return x.d+' '+MON[x.m]+' '+x.y+', '+(p[1]||'00:00').slice(0,5);}
+ function rangeQuery(){return '?from='+RANGE.from+'&to='+RANGE.to+(RANGE.known?'&known_at='+RANGE.known+':00Z':'');}
+ function syncRange(){
+  var label=longR(RANGE.from,RANGE.to);
+  document.getElementById('sr-name').textContent=PRESET[RANGE.preset][0];
+  document.getElementById('topbar-window').textContent=label;
+  document.getElementById('sr-short').textContent=shortR(RANGE.from,RANGE.to);
+  document.getElementById('sr-button').setAttribute('aria-label','Date range for every page: '+PRESET[RANGE.preset][0]+', '+label+(RANGE.known?', as known at '+knownLabel(RANGE.known):'')+'. Change');
+  var asof=document.getElementById('sr-asof');asof.hidden=!RANGE.known;if(RANGE.known)document.getElementById('sr-asof-at').textContent=knownLabel(RANGE.known);
+  document.getElementById('urlhint').textContent=CURRENT_PATH+rangeQuery();
+  document.querySelectorAll('.rail a').forEach(function(a){var h=a.getAttribute('href'),hash=h.indexOf('#')>=0?h.slice(h.indexOf('#')):'',file=h.split('#')[0].split('?')[0];a.setAttribute('href',file+rangeQuery()+hash);a.title='Opens with '+label+(RANGE.known?', as known at '+knownLabel(RANGE.known):'');});
+ }
+ var pop=document.getElementById('sr-pop'),btn=document.getElementById('sr-button'),pending=null;
+ function markPreset(k){document.querySelectorAll('[data-sr]').forEach(function(b){var on=b.dataset.sr===k;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});document.getElementById('sr-custom').hidden=k!=='custom';}
+ function openPop(){pending=RANGE.preset;markPreset(pending);document.getElementById('sr-from').value=RANGE.from;document.getElementById('sr-to').value=RANGE.to;document.getElementById('sr-earlier').open=!!RANGE.known;pop.hidden=false;btn.setAttribute('aria-expanded','true');var f=pop.querySelector('[aria-pressed="true"]');if(f)f.focus();}
+ function closePop(){pop.hidden=true;btn.setAttribute('aria-expanded','false');btn.focus();}
+ btn.addEventListener('click',function(){if(pop.hidden)openPop();else closePop();});
+ document.querySelectorAll('[data-sr]').forEach(function(b){b.addEventListener('click',function(){pending=b.dataset.sr;markPreset(pending);});});
+ document.getElementById('sr-cancel').addEventListener('click',closePop);
+ document.getElementById('sr-apply').addEventListener('click',function(){
+  var p=PRESET[pending];
+  if(pending==='custom'){var f=document.getElementById('sr-from').value,t=document.getElementById('sr-to').value;if(!f||!t||f>t)return;RANGE.from=f;RANGE.to=t;}else{RANGE.from=p[1];RANGE.to=p[2];}
+  RANGE.preset=pending;
+  RANGE.known=document.getElementById('sr-earlier').open?(document.getElementById('sr-known').value||null):null;
+  syncRange();closePop();
+  document.getElementById('sr-live').textContent='Every page now shows '+longR(RANGE.from,RANGE.to)+(RANGE.known?', as known at '+knownLabel(RANGE.known):'');
+ });
+ document.getElementById('sr-latest').addEventListener('click',function(){RANGE.known=null;syncRange();document.getElementById('sr-live').textContent='Every page now shows the latest information';});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pop.hidden)closePop();});
+ document.addEventListener('click',function(e){if(!pop.hidden&&!e.target.closest('.range-picker'))closePop();});
+ syncRange();
+
  var TABS=['overview','act-first','outcomes','opportunity','changes','scope'];
  function show(tab,focus){
   if(TABS.indexOf(tab)<0)tab='overview';
   document.querySelectorAll('[data-panel]').forEach(function(p){p.classList.toggle('active',p.dataset.panel===tab);});
   document.querySelectorAll('[data-tab]').forEach(function(a){if(a.dataset.tab===tab)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   var path=tab==='overview'?'/portfolio':'/portfolio/'+tab;
-  document.getElementById('urlhint').textContent=path+'?from=2026-09-30&to=2026-10-06';
+  CURRENT_PATH=path;document.getElementById('urlhint').textContent=path+rangeQuery();
   var cur=document.querySelector('[data-tab="'+tab+'"]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({block:'nearest',inline:'nearest'});
   if(focus){var p=document.getElementById('panel-'+tab);if(p)p.focus({preventScroll:true});}
  }
