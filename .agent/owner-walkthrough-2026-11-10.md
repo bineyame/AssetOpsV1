@@ -72,3 +72,12 @@ What each answer refers to:
 3. The default view is "By outcome group", as recommended.
 4. Specify the "price it" journey for unpriced items (item 10): yes.
 5. Add one shared date range across all pages to the layout proposal and mockup: yes.
+
+## 13. Owner answers on the UI-quality questions (architect-answer-ui-quality-2026-11-10.md)
+"1. english, french and swhaili 2. lets have one, i am not sure 3.dark and white for the user to select 4.absolutely (even anything below 8 uints is ok)"
+
+What each answer refers to:
+1. First languages: English, French and Swahili.
+2. A brand font: yes. The owner is unsure which one, so the Architect recommends.
+3. Themes: dark and light, selectable by the user.
+4. The 0.75-unit quick wins go in before the client session. The owner also accepts up to (below) 8 units of UI-quality work before the client session.
