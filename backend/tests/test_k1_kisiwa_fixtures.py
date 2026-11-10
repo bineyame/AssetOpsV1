@@ -220,3 +220,28 @@ def v3_model(document) -> tuple[str, int]:
         elif isinstance(value, list):
             pending.extend(value)
     raise AssertionError("no mini-grid pin in the v3 manifest")
+
+
+# ---- DATA-1 (D-E5.30): one Kisiwa recording session ------------------------------------------------------------------
+
+def test_data1_every_night_publish_gets_one_epoch_and_one_gateway_dir(tmp_path: Path) -> None:
+    """D-E5.30: both publish paths (the story `build` and `add-day`'s `_publish_night`) go through `publish_night`,
+    never `_publish_and_accept` directly; every night it calls gets one epoch and the one `work/kisiwa-gateway`."""
+    import inspect
+    from types import SimpleNamespace
+
+    import demo_combined_kisiwa as kis
+
+    for fn in (kis.build, kis._publish_night):
+        source = inspect.getsource(fn)
+        assert "publish_night(rp, " in source and "_publish_and_accept" not in source, fn.__name__
+    calls: list[tuple] = []
+    rp = SimpleNamespace(_publish_and_accept=lambda tmp, run, epoch, received, *, gateway_dir=None, keep=None:
+                         calls.append((tmp, epoch, gateway_dir)) or {})
+    received = datetime(2026, 11, 1, 10, 0, tzinfo=timezone.utc)
+    for k in range(1, 11):  # the story's ten nights, then two added ones
+        kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"r{k:02d}", tmp_path, object(), received)
+    for ymd in ("20261107", "20261108"):
+        kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"add-{ymd}", tmp_path, object(), received)
+    assert {(epoch, gw) for _, epoch, gw in calls} == {("kisiwa-gw-1", tmp_path / "kisiwa-gateway")}, calls[:2]
+    assert len({tmp for tmp, _, _ in calls}) == 12

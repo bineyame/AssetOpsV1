@@ -215,6 +215,24 @@ LOG_HEADER = (
     "# (sha256 {sha256}) by a move of {days} whole days; no other change.\n"
     "# Lab-private: the product never reads this file. Never edit by hand.\n"
 )
+#: D-E5.30 (DATA-1): Kisiwa's one recording session. Every night, the story's and every added one, is published on
+#: this one sequence epoch through one persistent gateway state (`gateway_dir`, DD1a1-R5; the Kobo pattern
+#: `tools/demo_combined_kobo.py` `gateway_dir`), so the sequence continues across nights and across processes. A
+#: fresh epoch per night split every 18:00-12:00 night's calendar days across two epochs, and the dispatch cohort
+#: (`cohort.py` `_multi_epoch`) refused them as AMBIGUOUS.
+KISIWA_EPOCH = "kisiwa-gw-1"
+
+
+def kisiwa_gateway(work: Path) -> Path:
+    """D-E5.30: the Site's one gateway state, under the prepare's `work`, shared by `build` and `add-day`."""
+    return work / "kisiwa-gateway"
+
+
+def publish_night(rp, tmp: Path, work: Path, run, received_at: datetime) -> dict:
+    """D-E5.30: one night's readings through the real gateway on Kisiwa's one session (`KISIWA_EPOCH`, reopening
+    `kisiwa_gateway(work)`); `tmp` keeps the night's own host and replay files."""
+    return rp._publish_and_accept(tmp, run, KISIWA_EPOCH, received_at, gateway_dir=kisiwa_gateway(work))
+
 
 def wire(value: datetime) -> str:
     """The Work API's instant form (microseconds, Z), as `tools/demo_combined_mill.py` `wire`."""
@@ -786,8 +804,7 @@ def build(url: str, work: Path) -> dict:
                     raise SystemExit(f"RUN_NOT_READY: run {item}: {run.execution_status} "
                                      f"{[(b.kind, b.subject) for b in run.blocking_reasons]}")
                 guards = run_guards(run, reg, item, handover, actions, placed, log_sha, kisiwa)
-                published = rp._publish_and_accept(work / "kisiwa-replay" / f"r{item:02d}", run, f"epoch-{item}",
-                                                   instant)
+                published = publish_night(rp, work / "kisiwa-replay" / f"r{item:02d}", work, run, instant)
                 out["runs"].append({"k": item, "run_id": run.run_id, "start": r["start"], "end": r["end"],
                                     "received_at": iso(instant), **guards, "published": published,
                                     "seconds": round(clock_time.monotonic() - t0, 1)})
@@ -1186,7 +1203,7 @@ def _publish_night(url: str, work: Path, story: dict, plan: dict, replay: Path) 
                 dips[a["action_id"]] = probe._round_litre(dict(trajectory.boundaries[offset // probe.STEP].stocks)[
                     probe.FUEL])
         received = _db_now(url)
-        published = rp._publish_and_accept(replay, run, f"epoch-add-{_ymd(night)}", received)
+        published = publish_night(rp, replay, work, run, received)  # D-E5.30: the same session continues
     finally:
         pg_harness.dispose(foundation)
     return {"night_date": night.isoformat(), "kind": plan["kind"], "status": "PUBLISHED", "run_id": run.run_id,

@@ -1256,6 +1256,40 @@ def test_kis_ov_is_wired_after_kis7() -> None:
     assert ids.index("KIS-OV") == ids.index("KIS-7") + 1
 
 
+# ---- DATA-1 (D-E5.30): KISIWA-COHORT --------------------------------------------------------------------------------
+
+def _cohort_windows(*statuses: tuple[str, bool]) -> list[dict]:
+    return [{"window_start": datetime(2026, 11, d, 21, 0), "window_end": datetime(2026, 11, d + 1, 21, 0),
+             "cohort_status": s, "has_readings": h} for d, (s, h) in enumerate(statuses, start=1)]
+
+
+def test_kisiwa_cohort_is_wired_and_passes_when_every_read_day_is_selected_unique() -> None:
+    import demo_combined_finish as finish
+
+    assert "KISIWA-COHORT" in [c[0] for c in finish.CHECKS]
+    got = rows.kisiwa_cohort(_cohort_windows(("SELECTED_UNIQUE", True), ("SELECTED_UNIQUE", True), ("EMPTY", False)))
+    assert got == {"windows": 3, "with_readings": 2, "selected_unique": 2}
+
+
+def test_kisiwa_cohort_fails_on_an_ambiguous_day_and_on_an_empty_read() -> None:
+    with pytest.raises(AssertionError, match="not SELECTED_UNIQUE"):
+        rows.kisiwa_cohort(_cohort_windows(("SELECTED_UNIQUE", True), ("AMBIGUOUS", True)))
+    with pytest.raises(AssertionError, match="not SELECTED_UNIQUE"):
+        rows.kisiwa_cohort(_cohort_windows(("EMPTY", True)))  # a day with readings but no cohort chosen
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch window"):
+        rows.kisiwa_cohort(_cohort_windows(("EMPTY", False)))
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch window"):
+        rows.kisiwa_cohort([])
+
+
+def test_kisiwa_cohort_reads_the_latest_dispatch_selection_per_window() -> None:
+    import demo_combined_finish as finish
+
+    sql = finish.KISIWA_COHORT_SQL
+    assert "DISTINCT ON (s.window_start, s.window_end)" in sql and "s.seq DESC" in sql
+    assert "s.analytic_id = 'dispatch'" in sql and "accepted_evidence" in sql
+
+
 _OV_REPORT = {"outcome": "PASSED", "empty_set": True}
 _OV_BOARDS = {"S-5d": "AVAILABLE", "S": "AVAILABLE"}
 
