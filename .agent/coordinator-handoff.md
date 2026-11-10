@@ -24,6 +24,15 @@ Build-sheet rulings: `.agent/build-sheet-DIESEL-1.md` through §9v (R3v).
 - Clone `assetops_k9_audit_r3u` + `C:\Users\assef\Bineyame\AssetOpsV1-k10\var\demo3_r3u` (has K9+K10+K6c verification; evidence/performance reports re-run by product tools). Verification-only int branch `task/DIESEL-int-r3u` (do not merge).
 - `assetops_demo3_kisiwa_test` (K7-F Kisiwa-only).
 
+## Night 2026-11-10→11 state (read first; supersedes items below where they conflict)
+- Owner records: `owner-walkthrough-2026-11-10.md` (items 1–13), `owner-overnight-2026-11-10.md` (coordinator restarts Docker; heavy ops batched at end; efficient usage), `owner-thursday-technical-demo-2026-11-10.md` (Thu morning demo to technical associates; client session ~1–8 Dec).
+- Merged 2026-11-10: E3-gm, C1–C5, E5-FX, FX-EV-TITLE, FX-COLD-LINKED, FX-KOBO-GAPS, FX-KOBO-V3, PL-2, PL-1, DATA-2, FC, DATA-1 (5cc98edfa; review REJECT H1 boundary double-publish → fixed 2bcfb3b31 → re-review ACCEPT WITH NOTES; L2 KISIWA-COHORT only checks windows with a selection — open). check-all 18/18 on 4dd310337 (before DATA-1; DATA-1 touches tools/tests only — run check-all once more after the build).
+- Docker restarted by coordinator 01:05 local; `assetopsv1-postgres-1` healthy; test container stays stopped.
+- **E3d build in flight:** wt `AssetOpsV1-e3d` (task/E3d-demo-build @5cc98edfa), DB `assetops_polish_client5_test`, work `var/polish_client5`, launched detached 01:08 local (prepare PID 5172, watchdog 29168; scripts/logs scratchpad `e3d\`). S = 2026-11-08 (DB UTC was 11-10 22:05). New finish rows: WK-GAP, WK-FILL, KISIWA-COHORT. KIS-7 two-Site path runs on real data for the first time.
+- After the build: serve (adapt scratchpad `walk\launch-serve.ps1`/`launch-web.ps1` to e3d/client5; node_modules junction) → E4 live checks (Cold/EV analysed-period links 4.9 °C / "Stock may be at risk" / USD 4.50; Kisiwa days analysed; lens pages hits; Findings cards; PF1–PF4; Pending) → check-all.
+- Wednesday: add-dates + live dip capture (E5b), retakes, script currency pass then merge DS-1f (157159d33) + DS-1b (46e468427) in wt -ds1a, frontend-only D-E5.29–37 fixes, E4-RESUME (b) on client2, short owner walkthrough in the afternoon. Pre-client plan: `architect-plan-pre-client-2026-11-10.md` (~26 units, two lanes).
+- Report to owner: the DATA-1 fix-round builder's survey script connected read-only to every DB on the server (rule breach, nothing written).
+
 ## Next, in order (updated 2026-11-09 — supersedes earlier)
 Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Rev 1–3, R4, R5, R6). Owner away since 2026-11-08 night with Architect delegation (`owner-away-architect-decides-2026-11-08.md`); report decisions D-R3.7–3.10, D-R4.1–4.2, D-R5.1–5.5, D-R6.1–6.4 on return. Coordinator calls to report: R4.1 stale-fixture fix, G1 L5 (`--dry-run` runs read-only preflight). Owner to set client session date.
 - OWN-GAPS ALL MERGED: R-1, G3a, G2, G3b, R4.1 (b497d42ef), G1 (575c13222; rehearsal A/B 51/51; clone `assetops_demo3_g1audit_test` + `AssetOpsV1-g1\var\demo3_g1audit` can be dropped). check-all 18/18 after 575c13222.
