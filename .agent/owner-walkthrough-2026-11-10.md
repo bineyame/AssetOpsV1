@@ -42,3 +42,6 @@ Coordinator diagnosis, from the code:
 ## 8. Findings cards mockup (frontend/mockups/v71/findings-cards.html, D-E5.25-28)
 Owner answer (selected option, verbatim): "Approve, include tonight" - merge FC-1 and FC-2 before tonight's build.
 
+
+## 9. Scalability of "Outcomes across the estate"
+"on the main portoflio page, "Outcomes across the estate" page, it seems when the number of sites and the number of items under the four groups increase, the UI can't accommodate them well, is there a more scalabel UI design option? if so, update it on the mock-up and let me know once ready for me to review"
