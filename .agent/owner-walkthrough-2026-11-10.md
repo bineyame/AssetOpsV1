@@ -22,3 +22,11 @@ What each answer refers to:
 4. The 80% "complete" threshold: reasonable for now, but it should be configurable per portfolio. At present it is a single global file, config/chain/coverage-policy-v1.json (bands complete 0.80, partial 0.25).
 5. Unexplained fuel stays under Protect (MG-8) for now. The owner asked for confirmation that the mapping is configurable. The coordinator's answer: it is declarative and versioned (outcome-map/1), but it lives in code (backend/assetops_backend/outcomes/outcome_map.py ENTRIES). It is not a runtime config file, so changing it needs a reviewed code change.
 6. The walkthrough is continuing.
+
+## 6. The Portfolio lens chips
+"when i click on cost, risk...etc on portfolio, why is a full page reload triggered?"
+
+Coordinator diagnosis, from the code:
+- `frontend/src/estate/EstatePortfolio.tsx`: a lens click calls navigate(). The data key includes the lens, so `current` becomes null and the WHOLE page is replaced by "Loading the Portfolio across the estate." while the entire Portfolio body is fetched again with `lens=<x>`. It is not a browser reload, but every panel blanks.
+- The prebuilt list only warms `lens=all`. The cost, risks and opportunities lens requests are therefore composed cold, which can take up to about 10 s.
+- The rows already carry `lens_flags`.
