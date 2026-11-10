@@ -3555,3 +3555,97 @@ FX-COLD-LINKED and FX-KOBO-GAPS build in parallel (no shared files), each gets a
 
 1. "On the trial day the example readings cover 06:00 to 14:00 only, so that is the week's partly checked day. Is that acceptable? Making it look like a short gateway dropout instead needs simulator work after the demo."
 2. "The month view still has a 6-day stretch with no readings just after commissioning (12-17 Oct), and the weekly generator days read partly checked. Leave it as is (recommended), or fill those 6 days for about 13 more minutes of build time?"
+
+## Kobo days amendment (2026-11-10)
+
+Claude Architect (binding Claude, `.ai/ROLE_CONFIG.md:9` on main), under the owner's 2026-11-08 delegation. Owner text: `.agent/owner-kobo-gap-pattern-2026-11-10.md` ("is it possible to inject days and extend the scope (or can i just select dates that has longer spans)?"; 12-17 Oct: "Fix it now"). Read at main `2121e3712`: `config/scenarios/kobo-*.yaml`, `backend/conversions/demo-story-days-v3.json`, `kobo-night-handover-v1.json` (`full_days`), `tools/demo_story_days.py`, `tools/demo_combined_finish.py`, DD1a1-R16, DD1a2-R, DD1a2-R3, DD1b2-R Q0/Q3 in `build-sheet-DD-1.md`. Nothing was run. This amends D-E5.12/D-E5.13; everything not named here stands.
+
+### D-E5.16 Longer spans: not available; DD1a1-R16 still holds (READ)
+
+- **No longer recording exists.** The Lab keeps no recorded Kobo runs: every Kobo day is re-simulated at prepare from a registered scenario. Of the 23 Kobo scenarios, none runs longer than 12 h. The trial (`kobo-mini-grid-reserve-trial`), necessary-run, prolonged, stop-60, reserve-matters and degraded scenarios run 8 h (06:00-14:00). The evening run is 12:00-20:00, and the daytime, mill, steady and steady-before runs are 06:00-18:00. A 24 h day exists only as a stitched chain (night 00-06, day 06-18, rest 18-24). Only 3 chains have a measured join that is STOPPED at every seam (`full_days`): `kobo-mill-midday`, `kobo-steady-day` and `kobo-steady-before-mill`.
+- **Choosing other dates does not help.** Every Kobo offset is relative to S, so moving S moves the whole pattern (D-E5.11).
+- **Why R16 still holds.** Its facts are about the scenarios and the model profile, and neither has changed:
+  - The necessary-run (normal and overcast days) is RUNNING at 14:00 and at 24:00.
+  - The R30 and R25 trial runs are RUNNING at 24:00 (from 22:05 and 23:25).
+  - So wrapping a normal day's background around 06:00-14:00 needs a run that starts with the generator RUNNING, or a cut through a running generator. The first needs simulator work (option B, about 1-1.5 units). The second would be a dishonest join.
+  - The trial adds a second bar (DD1a2-R3, BL-26): any other readings inside the trial days' UTC windows take ACT-001 off Verified.
+  - A rest-of-day run on any generator day would add generator minutes. That changes the Findings and the 0.00-15.13 USD idle-fuel range.
+  - A different scenario for the trial is a different trial, so the Verified headline would no longer be the measured one.
+  - Verdict: the trial and generator days stay story-only (06:00-14:00).
+- **A realistic few-hour dropout is not available.** The only truncation mechanism is Kobo `degraded`, which is held (`DEGRADED_DAY_HELD`): it cuts by batch order, which no real outage looks like, and the source-time cut is BL-18. There is a second reason too. The trial day S is in the week and can only be partly checked, so a truncated full day would make a second partly checked day. **S stays the week's one partly checked day.** The presenter line of D-E5.12 stands.
+
+### D-E5.17 Injecting days: yes, through the product's ingest path; fill S-27..S-22 now
+
+- Injecting is what the build already does. Each calendar entry replays its runs through the gateway publication, acceptance and assessment path, exactly as for the existing full days. No reading is written directly.
+- **Fill S-27..S-22 (12-17 Oct for S = 11-08) with the existing before-mill chain:**
+  - S-27 is `steady-before-first`. Its neighbour S-28 is story-only with no measured 24:00, so it takes the fresh declared night (Q8.1).
+  - S-26..S-22 are `steady-before`. Each night starts from the previous day's measured 24:00, the same chain already built on S-19..S-15.
+  - This passes `check_full_day`, `check_full_day_chains`, `check_mill_side` (all before S-9) and `_tiled` by construction.
+  - Every day is after install (S-29) and inside the board window (30 days).
+  - The 06:00 disclosure line applies as on every full day.
+- **No new study is created.** Two new five-day windows have no missing day (S-27..S-23 and S-26..S-22), but no code queues them. Studies are pinned by `reconcile` on S-19..S-15 only (DD1b2-R Q3, BL-32), and the tick's scan reaches only studies ending about S-3 or later. So no new potential, Opportunity or Grow thread appears. The D-E5.14 month note that "it would also create new pre-change studies" is withdrawn.
+- **MILL-3 is unchanged.** `choose_days` takes the complete days nearest the change: S-13..S-11 before and S-8, S-6, S-5 after. ACT-005 stays 17.00 USD.
+- **Two side effects are expected, not measured:**
+  - S-28..S-11 becomes one gateway stream, so the epoch strings of S-21 and S-14 change. Their readings do not change.
+  - The before pattern adds about 42 kWh of daylight mill use per day: about +252 kWh and +63.00 USD in October productive use, wherever an October total is read.
+- **Not filled:**
+  - S-29, the install day.
+  - S-10, kept as the FILL-1 live beat.
+  - S-4, the week's one missed day ("gateway offline").
+  - The generator days S-28, S-21, S-14 and S-7, and the trial days S and S+1 (D-E5.16).
+
+### D-E5.18 The day list (v4 as amended)
+
+| Days | Kind | Reads |
+|---|---|---|
+| S-29 | install | no data |
+| S-28, S-21 | `normal`, `overcast` (unchanged) | partly checked |
+| **S-27** | **`steady-before-first` (new)** | **checked** |
+| **S-26..S-22** | **`steady-before` (new)** | **checked** |
+| S-20..S-15, S-13..S-11 | unchanged | checked |
+| S-14, S-7 | `overuse` (unchanged) | partly checked |
+| S-10 | `missing` (unchanged) | no data (FILL-1) |
+| S-9, S-8, S-6, S-5 | unchanged | checked |
+| S-4 | `missing` (D-E5.12) | no data |
+| S-3, S-2, S-1 | `steady` (D-E5.12) | checked |
+| S, S+1 | trial pair (unchanged) | partly checked |
+
+- **Week S-6..S:** 5 checked, 1 missed (S-4), 1 partly checked (S).
+- **Month [S-29, S]:** 22 checked, 5 partly checked, 3 with no data (S-29, S-10, S-4). Presenter answer: "Readings run daily from 11 October. Two days are gateway outages. The weekly generator days and the trial day carry only the example hours."
+
+### D-E5.19 Card FX-KOBO-GAPS, amended (same branch, same review; about +0.1 unit, about +40 lines)
+
+1. **Data.** `demo-story-days-v4.json` adds six entries: `{"day": "S-27d", "kind": "steady-before-first"}`, then `steady-before` on S-26d..S-22d, in day order. The label reads "v4 (D-E5.12, D-E5.17)".
+2. **L0.**
+   - The v3-equality clause becomes: "v4 minus its 4 week entries and its 6 S-27..S-22 entries equals v3 minus its 2 week entries".
+   - New `test_v4_month_fill`. For S in {11-07, 11-08, 11-09}:
+     - `resolve` passes with installs;
+     - S-27 is `steady-before-first` and S-26..S-22 are `steady-before`, each tiling [00:00, 24:00) local;
+     - the days in [S-28, S] with no run are exactly {S-10, S-4}.
+   - Must-fail: the same test fails on the unamended v4 (S-27..S-22 absent).
+3. **WK-GAP.** Add a month clause. On [S-28, S], NO_DATA is exactly the days of `missing` kind, and PARTIAL is exactly the story-only days. Both come from `ctx.site_days("kobo")` and are never hard-coded.
+4. **Stop rules.** The rows of D-E5.13 §7, plus SP-1 (its window now meets the full day S-27), F-CAL and CO-6: on any failure, stop and report. Also report, not as a fault: any October total read and the epochs of S-21 and S-14.
+5. **Fallback.** `prepare --days backend/conversions/demo-story-days-v3.json` is unchanged.
+
+### D-E5.20 Figures (S = 11-08; expected, the build decides)
+
+- **Unchanged from D-E5.14 (all are week or November figures):**
+  - Coverage line: 6 of 7 assessed, not assessed 4 Nov.
+  - Days line: 5 of 7 checked, 1 partly checked.
+  - Grow: 137.50 USD.
+  - MG-1: 550.0 kWh on 5 of 8 days [S = 11-09: 660.0 kWh on 6 of 9], MET.
+  - Study 3-7 Nov: 4 of 4 well-observed days, 1 of the 5 study days has no reading.
+  - WK-2b on S: not judged yet.
+  - Pinned study S-19..S-15, MILL-3 "Target met", ACT-001 Verified (3.3 L / 4.12 USD), ACT-005 17.00 USD.
+  - Generator Finding: 8 Nov 04:35-07:55, 0.00-15.13 USD.
+- **Board gap line (31 days):** 4 no checked readings · 5 partly checked (no data: S-30, S-29, S-10, S-4; partly: S-28, S-21, S-14, S-7, S). This replaces D-E5.14's 10 · 5.
+- **Month:** 22 checked (up from 16), 5 partly checked, 3 no data.
+- **Prepare time:** 6 more full days at about 131 s each is about +13 min over the v4 card, and about +18 min over v3. Kobo goes from about 29 to about 47 min, and the whole prepare from about 2 h 20 m to about 2 h 38 m. That is still under the 3 h B-16 line. This is estimated, not measured.
+
+### Decisions logged for owner review
+
+- **D-E5.16** Neither longer runs nor other dates exist. The trial and generator days stay 06:00-14:00, and the trial day is the week's one partly checked day.
+- **D-E5.17** Fill 12-17 Oct with six before-mill full days through the normal ingest path. No new study is created.
+- **D-E5.18** The day list above.
+- **D-E5.19** The card is amended: 6 entries, 1 L0 test, a WK-GAP month clause and the added stop rows.
+- **D-E5.20** The figures above.
