@@ -3455,3 +3455,103 @@ Merge FX-COLD-LINKED and FX-EV-TITLE (fresh Claude review each), then prepare on
 - **D-E5.8** The missing Cold notice is a product defect (false "None found"); backend fix and rebuild.
 - **D-E5.9** "Connector 2" is a fixture typo; fixed in the same rebuild.
 - **D-E5.10** One rebuild on 11-11 and E5b moves to it. Owner may veto and keep client4 with the stand-in wording above.
+
+## Kobo gap-pattern ruling (2026-11-10)
+
+Claude Architect (binding Claude, `.ai/ROLE_CONFIG.md:9`), under the owner's 2026-11-08 delegation. Owner text: `.agent/owner-kobo-gap-pattern-2026-11-10.md` ("1 missed day with 1 partly missing would make sense"). Code READ at main `04bbb1b80`. DB = read-only queries on `assetops_polish_client4_test` (S = 11-08) and `assetops_polish_client2_test` (S = 11-07). Nothing was run or built.
+
+### D-E5.11 Root cause: the v3 calendar, not the product (READ + DB)
+
+The week S-6..S comes straight from `backend/conversions/demo-story-days-v3.json` (`sd.DEFAULT_FILE`):
+
+| Day (S = 11-08) | v3 entry | What it reads | Deliberate? |
+|---|---|---|---|
+| S-6, S-5 (2, 3 Nov) | `steady` (3 runs tile 00-24) | COMPLETE 24 h | yes (MILL-3 later days S-8, S-6, S-5) |
+| S-4 (4 Nov) | **no entry** | NO_DATA | **no**: side effect |
+| S-3 (5 Nov) | `late` as `normal` | PARTIAL 8 h | the late kind is a calendar choice; no script beat uses it |
+| S-2 (6 Nov) | **no entry** | NO_DATA | **no**: side effect |
+| S-1 (7 Nov) | `normal` | PARTIAL 8 h | carries finish row WK-2a (42.08 USD) only |
+| S (8 Nov) | `trial-before` | PARTIAL 8 h | **yes**: ACT-001 baseline |
+
+- **Why S-4 and S-2 are empty.** `resolve` refuses a `late` day inside a multi-day stream (`LATE_IN_STREAM`, `tools/demo_story_days.py:390-395`), so DD1a2-R Q4 left both neighbours of the late S-3 unbuilt and logged the fix as BL-25 ("no shown claim needs those two days", `build-sheet-DD-1.md:817-821`). That reason no longer holds: the Portfolio week now shows them.
+- **Why exactly 8 of 24 h.** The story-only kinds replay registered Lab scenarios that run 03:00-11:00Z, i.e. 06:00-14:00 local (`kinds.kobo.normal/overuse/trial-*`: `start D+0d 03:00`, `end D+0d 11:00`). No gateway behaviour causes it. DD1a1-R16 made the necessary-run (N) and trial (R30/R25) days story-only: N is RUNNING at 14:00 and 24:00, and R30/R25 are RUNNING at 24:00, so no honest rest-of-day or night could be joined (`build-sheet-DD-1.md:680-713`). Only the mill and steady chains passed, which is why only `steady*` and `mill-midday` days read 24 h.
+- **Deliberate beats in or near the week:** the trial pair S/S+1 (ACT-001, the "Verified" headline), the weekly generator days S-28/S-21/S-14/S-7 (story-only by R16), the `missing` day S-10 (the FILL-1 beat), and the mill change S-9 with its later days S-8/S-6/S-5. **Side effects:** S-4 and S-2 (BL-25), and the 8 h reads on S-3 and S-1.
+- **S-dependence: none for the pattern.** Every Kobo offset is S-relative; only EV has a weekday rule (`SITE_WEEKDAY`). client2 (S = 11-07) shows the same shape one day earlier: 1-2 Nov COMPLETE, 3 and 5 Nov NO_DATA, 4, 6 and 7 Nov PARTIAL. Only month boundaries move with S. (K7-D/K7-F are Kisiwa plan steps, `demo_combined_kisiwa.py:804`; they do not touch Kobo days.)
+
+### D-E5.12 The fix: calendar v4, S-4 missed, S partly checked, five full days
+
+**`backend/conversions/demo-story-days-v4.json`** (becomes `DEFAULT_FILE`; v3 kept as history, as v1 and v2 were). It is a copy of v3 with three entries changed in the week:
+
+| Day | v3 | v4 | Reads |
+|---|---|---|---|
+| S-4 | none | `{"day": "S-4d", "kind": "missing"}` ("gateway offline: no run, no delivery") | NO_DATA, the week's one missed day |
+| S-3 | `late` as `normal` | `steady` | COMPLETE |
+| S-2 | none | `steady` | COMPLETE |
+| S-1 | `normal` | `steady` | COMPLETE |
+| S | `trial-before` | unchanged | PARTIAL, the week's one partly checked day |
+
+All other entries, kinds and the trial block stay byte-equal. Label and status are updated to say "v4 (D-E5.12)".
+
+- **Why S is the partial day and not a few-hour dropout.** S is ACT-001's baseline. Filling it needs either a rest-of-day run inside S's UTC day after the baseline pin, which moves the selected run and takes the trial off Verified (the DD1a2-R3 H1 mechanism), or a night run whose 06:00 end does not match the trial's declared start. Neither can be made safe tonight, so S stays 06:00-14:00. Presenter line: "8 November is the trial day. Its example readings cover 06:00 to 14:00, the hours the trial needed, so the day reads partly checked." A real few-hour dropout day needs the BL-18 source-time cut (Kobo `degraded` is held, `DEGRADED_PROBE`). That is backlog.
+- **Why S-4 is the missed day.** It is already "4 Nov, not assessed" in the scripts, so the script change is smallest. It keeps the gap away from the trial pair: the trial reads only S and S+1, and the Finding on S does not touch S-4, so the PARTIAL Portfolio still lists it (CO-6). `missing` is the existing, honest kind.
+- **Why this is safe (READ).**
+  - `steady` uses `night-early` (the fresh declared start) and `mill-rest`. The same chain is already built back to back on S-6 and S-5, so `check_full_day`, `check_full_day_chains`, `check_mill_side` (offset > S-9) and `_tiled` pass by construction. S-1's runs end at S-1 21:00Z, outside S's UTC day, so the trial baseline is untouched. `FULL_DAY_AFTER_TRIAL` concerns S+2 only.
+  - No `late` entry remains, so `LATE_IN_STREAM` cannot fire. The late-delivery path is still shown live by script Step 7 (add-dates) and is still covered by the existing L0 tests, which now load `V3_FILE`.
+  - MILL-3 is unchanged: `choose_days` takes the first 3 COMPLETE days nearest the change (`verification_families.py:85-89`), still S-8, S-6, S-5. The baseline S-13..S-11 and the pinned study S-19..S-15 are unchanged. ACT-005 stays 17.00 USD.
+  - No post-change five-day study becomes SUPPORTED: every window from S-8 to S+1 contains S-7 (partly checked), S-4 (missed) or S (partly checked), so each stays UNKNOWN (`projection.frozen_result`).
+  - The extra build time is about +5 min: 3 full days (about 131 s each) replace 2 story-only days (about 38 s each).
+- **Fallback with no code revert:** `prepare --days backend/conversions/demo-story-days-v3.json` rebuilds the old pattern. The restated rows below are written to pass on both calendars.
+
+### D-E5.13 Fix card FX-KOBO-GAPS (Opus, S, about 0.5 unit / about 150 lines; fresh Claude review; parallel with FX-COLD-LINKED, no shared files)
+
+Branch `task/FX-KOBO-GAPS`.
+
+1. **Data.** Add `demo-story-days-v4.json` as in D-E5.12. In `tools/demo_story_days.py`, set `DEFAULT_FILE` to v4 and add `V3_FILE`. Update the manifest label `"days"` in `tools/demo_combined_kobo.py:563` to the v4 path.
+2. **L0, `backend/tests/test_demo_story_days.py`.**
+   - Tests that need a `late` entry or v3's table (`:52`, `:96`, `:109`, `:174`, `:322`, `:510-525`, `:583-612`, `:769`) load `sd.V3_FILE` explicitly. They are not deleted.
+   - New `test_v4_story_week_one_missed_one_partial`. For S in {11-07, 11-08, 11-09}, `resolve(load(), S, installs=...)` gives, on S-6..S: exactly one day with no run (S-4, kind `missing`); exactly one story-only day (S, `trial-before`); five days whose runs tile [00:00, 24:00) local; and no `late` entry. Assert also that `DEFAULT_FILE.name == "demo-story-days-v4.json"` and that v4 minus the 4 week entries equals v3 minus its 2 week entries.
+   - Must-fail: the same test run against v3 fails.
+3. **New finish row `WK-GAP`** (`tools/demo_combined_finish.py`, `idx=True`), with a pure helper `demo_rows.week_gap_pattern(grades_by_measure)` and its own L0 test. Use a must-fail fixture that is client4's real pattern (2 NO_DATA + 3 PARTIAL) and must fail.
+   - The row reads Kobo `site_day_snapshot` (latest revision per day, measure and subject) for `critical_served`, `daylight_headroom_kw`, `productive_kwh` and `avoidable_gen_min` on [S-6, S].
+   - It asserts, for every measure: NO_DATA on exactly {S-4}; PARTIAL on exactly {S}; COMPLETE on the other five days.
+   - It also asserts the served Portfolio week: the Kobo days line reads "5 of 7 days checked · 1 partly checked", and the CO-6 coverage `gaps == [S-4]`.
+   - It derives the expected days from `ctx.site_days("kobo")` (the `missing` kinds and the story-only kinds) and never hard-codes dates, so on a v3 fallback it reports the v3 pattern and fails, which is the intended alarm.
+4. **Restated rows (cause: D-E5.12; not edited to pass).**
+   - **WK-2a.** The S-1 Grow headline is still "estimated productive-use sales". Its money follows S-1's kind: `steady` gives 110.000 kWh × 0.25 = **27.50 USD**, and `normal` (v3) gives 42.08. Docstring: "a mill-working steady day".
+   - **WK-2b.** The potential on S follows the study ending S. If that study has ≥ 1 eligible day, the potential reads `LIMIT_UNKNOWN` ("Not judged yet: 2 of the 5 study days …", for S-4 and S), with no kW and no money. With 0 eligible days it reads "No potential found yet" (v3). The other WK-2b clauses are unchanged.
+   - **WK-6.** Fix the docstring/comment only ("its v3 November days are 8 h runs").
+5. **Copy (client-visible, caused by this change).** `chain/vocabulary.py:24` `LIMIT_UNKNOWN` gets a singular form: "1 of the 5 study days has no reading". The study 3-7 Nov will now have one empty day. Update the test(s) that pin the literal.
+6. **Gates.** Guards A, W, V and N; `test_demo_story_days.py`; the new helper's L0; the vocabulary test. No full suite (demo-sprint policy). `python tools/demo_combined.py`'s offline resolve/`--check` on v4 must pass.
+7. **Stop rules on tonight's build.** If WK-GAP, WK-2a, WK-2b, F-COH, F-CAL, SP-3, SP-4 or the `demo_combined_after.py` reads fail, stop, do not tune, and report to the Architect. One difference is allowed and must be reported, not treated as a failure: the mill thread's RECURRED effective day may move earlier, because the study ending S-4 now holds eligible days from S-8. `recurrence_holds`' hard-coded `"2026-10-31"` is S-dependent (it runs only in `--s2` mode), and the report gives the value read. The fallback is the v3 `--days` rebuild.
+
+### D-E5.14 Downstream figures (for the DS-1 scripts after the fresh build; expected values, confirm from the build)
+
+These are for S = 11-08. If the fresh prepare lands S = 11-09, every date moves +1 day and the month figures are given in brackets. Each is "expected", by the same arithmetic the technical script uses. The build's numbers decide.
+
+| Where | client4 now | After FX-KOBO-GAPS |
+|---|---|---|
+| Coverage line (client `:350`, technical `:535-538`, opening `:984`) | 5 of 7 days assessed · 2 days not available yet · not assessed: 4 Nov, 6 Nov | **6 of 7 days assessed · 1 day not available yet · not assessed: 4 Nov** |
+| Days line under the cards (technical `:541-544`) | 2 of 7 days checked · 3 partly checked | **5 of 7 days checked · 1 partly checked**. Estate: 22 expected, 5 complete, 1 partial, 3 low, 13 no data |
+| Grow card (client `:351`, technical `:547-550`, `:628`) | 139.16 USD over 2 of 7 · 3 partly | **137.50 USD** = 5 × 27.50 + 0.00 (S), "over 5 of 7 days checked · 1 partly checked" |
+| MG-1 line (client `:474`, technical `:556`) | 556.7 kWh so far this month, on 2 of 8 days checked | **550.0 kWh on 5 of 8 days checked** (110 × 5 + 0 on 1 Nov + 0 on 8 Nov) [S = 11-09: 660.0 kWh on 6 of 9]. Target 300, so still **MET / On track** |
+| Daytime-solar study 3-7 Nov (client `:472`) | Seen on 1 of 1 · 4 of the 5 study days have no reading | **Seen on 4 of 4 well-observed days · 1 of the 5 study days has no reading** |
+| Kobo board potential on S (WK-2b) | No potential found yet | **Not judged yet: 2 of the 5 study days have no reading** |
+| Board gap line (31 days) | 11 no checked readings · 7 partly checked | **10 · 5** (S-30, S-29, S-27..S-22, S-10, S-4; partly S-28, S-21, S-14, S-7, S) |
+| Unchanged | | Generator Finding 8 Nov 04:35-07:55 and 0.00-15.13 USD; ACT-001 3.3 L / 4.12 USD, Verified; ACT-005 17.00 USD; MILL-3 "Target met"; Protect 2; Assure 3; Kobo stays PARTIAL, so its Portfolio row is still "Partly checked"; Kisiwa, Cold and EV all unchanged |
+
+**Month view.** It improves but is not clean. On the 30 days [S-29, S]: 16 checked (now 13), 5 partly checked (the four weekly generator days S-28, S-21, S-14, S-7, plus the trial day), 9 with no data. The no-data days are the install day, a 6-day block S-27..S-22 that B-22 never built, S-10 (the FILL-1 beat) and S-4. Presenter answer: "The example starts at commissioning on 10 October. The first week has two example days, and from 19 October the readings run daily apart from two gateway-outage days. The weekly generator days carry only the example hours." Filling S-27..S-22 (`steady-before`, about +13 min of build) would also create new pre-change studies, so it is not tonight's work. It is offered to the owner below.
+
+### D-E5.15 Order
+
+FX-COLD-LINKED and FX-KOBO-GAPS build in parallel (no shared files), each gets a fresh Claude review, then both merge, then one fresh prepare (D-E5.10). The DS-1 script figures are refreshed from that build's finish/after output, not from the table above.
+
+### Decisions logged for owner review
+
+- **D-E5.11** The 2-missed/3-partial week is a calendar side effect (BL-25 and the R16 8-hour story-only days), not a product fault.
+- **D-E5.12** v4: S-4 is the missed day ("gateway offline"), and the trial day S is the one partly checked day (06:00-14:00, the trial hours), not a few-hour dropout. S-3 loses its `late` kind, and S-3, S-2 and S-1 become full steady days.
+- **D-E5.13** Fix card FX-KOBO-GAPS (Opus, S), with a new WK-GAP finish row, WK-2a/WK-2b restated with cause, and a singular "has no reading".
+
+### Questions for the owner (not ruled)
+
+1. "On the trial day the example readings cover 06:00 to 14:00 only, so that is the week's partly checked day. Is that acceptable? Making it look like a short gateway dropout instead needs simulator work after the demo."
+2. "The month view still has a 6-day stretch with no readings just after commissioning (12-17 Oct), and the weekly generator days read partly checked. Leave it as is (recommended), or fill those 6 days for about 13 more minutes of build time?"
