@@ -222,7 +222,7 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
         ) : null}
       </td>
       <td>
-        <CellDisclosure column="By" row={row.code} data={{ "data-global-work-actor": "" }}>
+        <CellDisclosure column="By" row={row.code} data={{ "data-global-work-actor": row.actor_id }}>
           {actorLabel(row.actor_id)}
         </CellDisclosure>
       </td>

@@ -30,7 +30,8 @@ const KNOWN = "2026-10-21T12:00:00Z";
 const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const PAGE = `/operational-records?${WINDOW}`;
 const LONG = "Operator checked the panel and logged readings ".repeat(90).slice(0, 4000);
-const ACTOR128 = "service:".concat("x".repeat(120));
+// A 128-character id that is not a `service:` id, so the By cell still shows it as stored (E5-FX, MD-E5-1).
+const ACTOR128 = "user:".concat("x".repeat(123));
 
 function row(n: number, over: Partial<GlobalOperationalRow> = {}): GlobalOperationalRow {
   const id = `00000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`;
