@@ -49,11 +49,43 @@ warning (REPEATED_MAINTENANCE_NO_RESULT) still fires and the Maintenance "Repeat
   has no `.venv` and the guard refuses).
 - No full suite (demo-sprint policy).
 
+## Fix round 1 (review REJECT b95fe8587: H1, M3)
+- H1 fix `1b0fdb61f`, in the `cold.py` compose and `_finding(..., selected=)`: a row that only the linked re-read
+  returned gets `in_window = False`, whatever its episode bounds. The earlier note ("keeps `in_window = False`") held
+  only for the unit fixture. Real START_RESPONSE revisions have NULL bounds, so they counted as in-window.
+- Approach: forced off, not judged by anchor time. The selection's read (`_finding_ids`) already returns every
+  Finding anchored in the window that has a revision by k. A Finding missing from that read is therefore not this
+  window's Finding, as known at k. The store applies that one rule, and the composer does not re-derive it. Judging
+  by anchor would let a day board claim the 16:00 failure while its overview and Protect come from the clean 18:00
+  selection, which mixes two assessments. The linked rows still feed the REPEATED warning (`open_findings` uses
+  `open`, not `in_window`), CC-3, and Action/case link resolution.
+- M3 tests (`b08d0bcc6`, `9a47f04f3`):
+  - Unit `test_linked_finding_with_null_bounds_never_counts_in_the_clean_window` (NULL bounds): no FINDING issue on
+    any row; the Protect subline is `PROTECT_SUBLINE` and Protect is not NEEDS_ATTENTION; Cost is still
+    NEEDS_ATTENTION; the warning is present.
+  - Postgres: no FINDING issue on the clean board or the day board; Protect is not the start subline; the summary
+    Protect state equals the clean board's.
+  - Postgres, COH-4 run in process: `chain_coherence.coh4_findings_contain` over a one-day bundle (the day board
+    plus `/api/estate/findings` for that day) returns [].
+- Fail-before proof (branch with the tests committed and the fix absent):
+  - Unit: `AssertionError`, because OPTIMIZE_COST carries the FINDING issue "Backup did not start - checked here as
+    a safeguard".
+  - Postgres: `AssertionError` with three board FINDING issues (Cost and Protect for the start failure, Protect for
+    the excursion). At head the clean board's states were [NOT_MEASURED, NEEDS_ATTENTION, NEEDS_ATTENTION, WATCH].
+- COH-4 note: the estate list takes midnight bounds only, and at head the day list held both Findings. So the
+  day-pair COH-4 would not actually have fired. The false Protect claim was real; the COH-4 risk was inferred.
+- Checks after the fix (all passed): test_fx_cold_linked 4, test_out_b3_cold_ev 28, test_out_c_rules 17,
+  test_out_c2_board 13, test_out_c3_cold_cost 6, test_out_d4_board 17, test_out_b4_window 9,
+  tools/checks/test_chain_coherence 181.
+- Postgres via `tools/run-host-tests.ps1`: test_fx_cold_linked_postgres 1 passed (85.5 s); test_out_c3_repeat_visits_postgres
+  1 passed (80.7 s). `tools/check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON`): "Architecture check passed."
+  No full suite (demo-sprint policy). USER_REVIEW: fresh Claude re-review.
+
 ## Known deviations / notes
 - The resolved Finding's links use the window of the analytic run that wrote its revision (it lies outside the
   board's clean window, so the board window would give a dead Finding link).
-- A resolved Finding outside the window keeps `in_window = False`, so Protect does not claim a start failure in a
-  clean window (asserted in unit 1); only the repeat warning and Cost row use it.
+- After the fix, Action/case rows on clean windows resolve their linked Finding, so they lose the
+  " · linked finding outside this view" suffix. That is the review's residual risk: EV-like and intended.
 - Mini check (report only, not widened): mini reads Findings from `chain_findings` over the 31-day work window, not
   a single selected assessment, so the D-E5.8 gap does not occur there as such; a linked Finding whose anchor is
   31-60 days before the end (visits count over 60 days) would still be absent.
