@@ -352,6 +352,44 @@ def test_week_gap_pattern_passes_on_v4_and_fails_on_client4s_v3_pattern() -> Non
         rows.week_gap_pattern(bad, WEEK, v4_missed, v4_partial)
 
 
+def test_gap_gated_keys_on_the_schema_version() -> None:
+    """D-E5.21: gated for schema version >= 4 (dict or bare int); ungated only for an explicit version below 4; fails
+    closed (gated) when the schema or version is missing or unreadable."""
+    assert rows.gap_gated({"id": "x", "version": 4}) and rows.gap_gated({"version": 5}) and rows.gap_gated(4)
+    assert not rows.gap_gated({"id": "x", "version": 3}) and not rows.gap_gated(3)
+    for unreadable in ({}, None, {"id": "x"}, {"version": "4"}, {"version": None}, "3", True, []):
+        assert rows.gap_gated(unreadable), unreadable
+
+
+def _wkgap_ctx(version: int, missed, partial):
+    import demo_combined_finish as finish
+    return finish, finish.Ctx(client=None, work=Path("."), story={"S": "2026-11-08T00:00:00+00:00"},
+                              days=_calendar(missed, partial), days_schema={"id": "x", "version": version})
+
+
+def test_wkgap_row_gates_v4_and_reports_on_client4s_v3(monkeypatch) -> None:
+    """D-E5.21: on client4's v3 fixture (2 NO_DATA + 3 PARTIAL) the WK-GAP row returns `gated: false` with the pattern
+    it read; on v4 the same data raises. Must-fail: a v4 build with a bad pattern still fails, and without the gate
+    (`_wkgap_assert` called directly) the v3 fixture raises."""
+    v4_missed, v4_partial = ["2026-11-04"], ["2026-11-08"]
+    v3_missed, v3_partial = ["2026-11-04", "2026-11-06"], ["2026-11-05", "2026-11-07", "2026-11-08"]
+    finish, v3 = _wkgap_ctx(3, v3_missed, v3_partial)
+    grades = _grades(v3_missed, v3_partial)
+    monkeypatch.setattr(finish, "_week_grades", lambda ctx, lo, hi: {m: {"SITE:SITE": dict(g["SITE:SITE"])}
+                                                                      for m, g in grades.items()})
+    got = finish.wkgap(v3)
+    assert got["gated"] is False and got["calendar"] == 3
+    assert got["missed"] == v3_missed and got["partial"] == v3_partial
+    _, v4_bad = _wkgap_ctx(4, v3_missed, v3_partial)  # must-fail: v4 with the v3 pattern
+    with pytest.raises(AssertionError):
+        finish.wkgap(v4_bad)
+    _, v4_grades_bad = _wkgap_ctx(4, v4_missed, v4_partial)  # must-fail: v4 calendar, snapshots read the v3 pattern
+    with pytest.raises(AssertionError):
+        finish.wkgap(v4_grades_bad)
+    with pytest.raises(AssertionError):  # the ungated case raises once the gate is dropped
+        finish._wkgap_assert(v3, [f"2026-11-0{d}" for d in range(2, 9)], v3_missed, v3_partial)
+
+
 MONTH = [(datetime(2026, 11, 8) + timedelta(days=n)).date().isoformat() for n in range(-28, 1)]  # S-28 .. S
 
 

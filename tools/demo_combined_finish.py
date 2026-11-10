@@ -80,6 +80,7 @@ class Ctx:
     docs: dict = field(default_factory=dict)
     cache: dict = field(default_factory=dict)
     url: str = ""
+    days_schema: dict = field(default_factory=dict)
 
     @property
     def S(self) -> datetime:
@@ -678,12 +679,25 @@ def wkgap(ctx: Ctx) -> dict:
     NO_DATA on exactly the one missed day, PARTIAL on exactly the one partly checked day and COMPLETE on the other
     five; the Portfolio week's Kobo days line reads "5 of 7 days checked · 1 partly checked" and the CO-6 coverage
     names only the missed day. The expected days come from the built calendar (`days.json`), so a v3 (`--days`)
-    rebuild, with 2 missed and 3 partly checked days, fails here: that is the intended alarm.
-    D-E5.19 adds the month clause on [S-28, S] (`demo_rows.month_gap_pattern`)."""
-    from assetops_backend.chain.vocabulary import days_line
-
+    rebuild, with 2 missed and 3 partly checked days, would fail the assertions below.
+    D-E5.19 adds the month clause on [S-28, S] (`demo_rows.month_gap_pattern`).
+    D-E5.21 (supersedes D-E5.13's "intended alarm"): the assertions gate only when the built `days.json` schema
+    version is 4 or higher (`demo_rows.gap_gated`). On v3, the presentable fallback, the row reports the pattern it
+    read with `gated: false` and passes."""
     week = [ctx.day(n).date().isoformat() for n in range(-6, 1)]
     missed, partial = demo_rows.week_day_classes(ctx.site_days("kobo"), week)
+    if demo_rows.gap_gated(ctx.days_schema):
+        return {**_wkgap_assert(ctx, week, missed, partial), "gated": True}
+    try:
+        read = _wkgap_assert(ctx, week, missed, partial)
+    except AssertionError as exc:
+        read = {"missed": missed, "partial": partial, "not_the_v4_pattern": str(exc)[:300]}
+    return {**read, "gated": False, "calendar": ctx.days_schema.get("version")}
+
+
+def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[str]) -> dict:
+    from assetops_backend.chain.vocabulary import days_line
+
     out = demo_rows.week_gap_pattern(_week_grades(ctx, week[0], week[-1]), week, missed, partial)
     _, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     gaps = [g["day"] for g in ((coverage.get(KOBO) or {}).get("days") or {}).get("gaps", [])]
@@ -1618,7 +1632,9 @@ def kis_8(ctx: Ctx) -> dict:
 
 def load(work: Path, client) -> Ctx:
     read = lambda name: json.loads((work / name).read_text(encoding="utf-8"))
-    ctx = Ctx(client=client, work=work, story=read("story.json"), days=read("days.json")["days"])
+    days_doc = read("days.json")
+    ctx = Ctx(client=client, work=work, story=read("story.json"), days=days_doc["days"],
+              days_schema=days_doc.get("schema") or {})
     ctx.docs["kobo"] = read("kobo.json")
     cold, ev = read("cold.json"), read("ev.json")
     ctx.docs["cold_work"] = next(d["work"] for d in cold["days"] if d["kind"] == "failure")

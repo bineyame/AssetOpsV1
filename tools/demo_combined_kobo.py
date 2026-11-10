@@ -495,6 +495,13 @@ def build(url: str, work: Path, story: dict) -> dict:
     return ids
 
 
+def days_label(work: Path) -> str:
+    """D-E5.21 / FX-KOBO review Low 2: the manifest's `days` label names the calendar the build used, read from
+    `<work>/days.json` `source` (a v3 `--days` build is not labelled v4). `tmp` is a folder of `work`."""
+    source = Path(json.loads((work / "days.json").read_text(encoding="utf-8"))["source"])
+    return f"backend/conversions/{source.name}"
+
+
 def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict, epoch: str,
                  admit=lambda until: None) -> dict:
     """The DEMO-A chain (s602b REPLAY body) at the trial pair's place: baseline run, accept, apply, freeze, later
@@ -560,7 +567,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     ids = {
         "manifest": {"base": "backend/conversions/d-verification-window-v3.json",
                      "story": "backend/conversions/demo-combined-story-v1.json",
-                     "days": "backend/conversions/demo-story-days-v4.json", "scenario": M["scenario"],
+                     "days": days_label(tmp.parent), "scenario": M["scenario"],
                      "model_profile": M["model_profile"], "resolved": {k: M[k] for k in ("runs", "action", "plan",
                                                                                           "windows", "evaluate_at")}},
         "finding": str(finding), "finding_revision": rec["revision_id"],
