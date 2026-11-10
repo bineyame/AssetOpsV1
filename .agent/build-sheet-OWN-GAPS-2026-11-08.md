@@ -3427,3 +3427,31 @@ This is not a defect.
 1. **On-screen dip today.** It cannot be done honestly on client4 today. Would you rather watch the E5b rehearsal tomorrow, or see its pictures?
 2. **Label wording.** Records that came with the example sites will read "Prepared example record". Keep this, or use other wording on a client screen?
 3. **Session date and build.** Please confirm the client session date and which build serves it. The live beat needs a build prepared at least the day before.
+
+## DS-1f anomaly rulings (2026-11-10)
+
+Claude Architect (binding Claude, `.ai/ROLE_CONFIG.md:9`), under the owner's 2026-11-08 delegation. Code READ at e3c `5e46dae89` (= client4 code); DB = read-only queries on `assetops_polish_client4_test`.
+
+### D-E5.8 Cold third visit: product defect (Cold composer lacks the linked-Finding resolve); fix with the rebuild
+
+- **Facts (DB).** Backup generator: WR-000007 10-15, WR-000008 10-28, WR-000006 11-08, all COMPLETE. Only WR-000006 links a Finding (`3733fcfd…`, COLD_START_FAILURE, rev 1 OPENED/SUPPORTED, never closed). Cold also has a clean assessment pair for **11-09** (created 11-10 05:26 by the E5 add-dates/tick), with no Findings.
+- **Rule (READ).** `outcomes/warnings.py:_repeated` fires on ≥2 completed visits to one asset in `[to-60 d, to)` with at least one linked Finding open in `open_findings`. The board 08 (day 11-08) shows it correctly: "3 visits (15 Oct, 28 Oct, 8 Nov)".
+- **Root cause.** 09b uses the window `S-28 d .. S+3 d` (`demo_combined.py:293`). The estate summary reads Cold over that period, `cold_findings` returns only the *selected* (latest) assessment's Findings (`postgres_assessment_store.py:2548`), i.e. the clean 11-09 pair, so the still-open start failure is absent from `open_findings` and the warning is dropped. The card then claims "None found at GreenHarvest", a false all-clear. EV already resolves linked Findings that the selection lacks (`site_outcomes/ev.py:149-162`, addendum 3 (d)); Cold does not (`site_outcomes/cold.py:121-135`). The S shift exposed it only because a post-S Cold day now sits inside the window. Not the warning's window or rule.
+- **Ruling: defect.** **Fix card FX-COLD-LINKED (Opus, S, ~60 lines):** `site_outcomes/cold.py` mirrors the EV block: for each visit/action-linked Finding id missing from `findings`, read it through a new `ColdPorts.finding` (bound in `site_outcomes/read.py:cold_ports` to `cold_reads.finding`); a refused read unsettles CC-3 and lists `cold_findings` in `reads.failed`. The read must return the Finding's current revision as of `known_at` independent of the selected assessment; if `cold_reads.finding` filters by the snapshot, add an id read that does not. Check mini for the same gap (report, do not widen). Tests: a backend unit test with a later clean assessment in the window (warning still fires, cites WR-006); a Postgres summary test over a window that contains a clean post-failure day. **Backend: needs a rebuild.**
+- **Script.** Before the rebuild, never use the S+3 d window for this beat: take Maintenance with `from=S-28 d&to=S+1 d`. Wording: "The maintenance page flags the backup generator: three visits in 60 days, and the automatic start failure is still open."
+
+### D-E5.9 EV "connector 2": data/story defect (fixture literal); fix with the rebuild
+
+- **Root cause (READ).** `tools/w504_ev_work_cases.py:52` hard-codes `ACTION.title = "Investigate connector 2"` (a v6.9 mock literal). The registered replay `ev-interrupted` faults connector c1, and the board derives "Connector c1" from data (`ev.py:connector_name`). The product renders both correctly.
+- **Ruling: defect in the story data.** **Fix card FX-EV-TITLE (Sonnet, XS):** set the title to "Investigate connector c1"; update `backend/tests/test_w504_ev_work_cases.py`, `test_w504_ev_intent_api.py`, `test_w504_ev_work_producer_postgres.py` and the frontend EV fixtures (`evWorkFixtures.ts` and its tests) that assert the literal. Tools-only code, but the title is stored in the DB, so **client4 keeps the old title; it needs the rebuild.**
+- **Script.** After the rebuild: "ACT-003 · Investigate connector c1". On client4 (presenter note): "The example action's title says connector 2; it was raised from this connector c1 fault."
+
+### D-E5.10 One rebuild
+
+Merge FX-COLD-LINKED and FX-EV-TITLE (fresh Claude review each), then prepare one new build on 11-11 (~2 h 20 m). It also satisfies D-E5.1 for a Thursday session. E5b and the DS-1f picture retakes (09b, 10) run on that build.
+
+### Decisions logged for owner review
+
+- **D-E5.8** The missing Cold notice is a product defect (false "None found"); backend fix and rebuild.
+- **D-E5.9** "Connector 2" is a fixture typo; fixed in the same rebuild.
+- **D-E5.10** One rebuild on 11-11 and E5b moves to it. Owner may veto and keep client4 with the stand-in wording above.
