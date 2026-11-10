@@ -23,7 +23,8 @@ for extra in (REPO / "tools", REPO / "backend" / "tests", REPO / "host" / "tests
 import demo_combined as dc  # noqa: E402
 import demo_combined_kisiwa as kis  # noqa: E402
 import demo_combined_rows as rows  # noqa: E402
-from k7_story_pins import THREE_SITE_STORY_PINS  # noqa: E402
+import demo_story_days as sd  # noqa: E402
+from k7_story_pins import THREE_SITE_STORY_PINS, THREE_SITE_STORY_PINS_V3  # noqa: E402
 
 S = datetime(2026, 11, 6, tzinfo=timezone.utc)  # the story day of a prepare whose DB now is 2026-11-08 (S = floor - 2 d)
 DB_NOW = datetime(2026, 11, 8, 10, 0, tzinfo=timezone.utc)
@@ -57,10 +58,12 @@ def story_runs(k: dict | None = None) -> list[tuple[datetime, datetime]]:
 
 # ---- 1. the three-Site story stays byte-equal ---------------------------------------------------------------------
 
-@pytest.mark.parametrize("db_now, sha, length, S", THREE_SITE_STORY_PINS)
-def test_1_three_site_story_is_byte_equal(db_now: str, sha: str, length: int, S: str) -> None:
-    """Must fail if any core loop iterates `SITES` (with Kisiwa in it) or Kisiwa leaks into a three-Site story."""
-    story = dc.resolve_story(_at(db_now))
+@pytest.mark.parametrize("days_file, db_now, sha, length, S",
+                         [(None, *p) for p in THREE_SITE_STORY_PINS] + [(sd.V3_FILE, *p) for p in THREE_SITE_STORY_PINS_V3])
+def test_1_three_site_story_is_byte_equal(days_file, db_now: str, sha: str, length: int, S: str) -> None:
+    """Must fail if any core loop iterates `SITES` (with Kisiwa in it) or Kisiwa leaks into a three-Site story.
+    FX-KOBO-GAPS (D-E5.12): the default (v4) day list has its own pins; the K7 pins stay asserted on the v3 list."""
+    story = dc.resolve_story(_at(db_now), days_doc=None if days_file is None else sd.load(days_file))
     text = json.dumps(story, indent=2)
     assert story["S"] == S
     assert (hashlib.sha256(text.encode("utf-8")).hexdigest(), len(text)) == (sha, length)
