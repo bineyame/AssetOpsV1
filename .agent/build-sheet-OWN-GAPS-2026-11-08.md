@@ -3649,3 +3649,24 @@ Claude Architect (binding Claude, `.ai/ROLE_CONFIG.md:9` on main), under the own
 - **D-E5.18** The day list above.
 - **D-E5.19** The card is amended: 6 entries, 1 L0 test, a WK-GAP month clause and the added stop rows.
 - **D-E5.20** The figures above.
+
+## v3 fallback ruling (2026-11-10)
+
+Claude Architect (binding Claude, `.ai/ROLE_CONFIG.md:9` on main), under the owner's 2026-11-08 delegation. Read at main `06a921a94`: FX-KOBO-GAPS review finding 1 (Medium) and Lows 2-4, `tools/demo_combined_finish.py:674-706`, `tools/demo_combined.py:872-873`. Nothing was run.
+
+### D-E5.21 WK-GAP gates the v4 calendar only; on v3 it reports (option a)
+
+- **Ruling.** D-E5.12's "pass on both calendars" stands, and D-E5.13 item 3's "fails on v3, the intended alarm" is withdrawn. The alarm was meant to catch a wrong default calendar, not an explicit fallback; the v4 L0 test and `DEFAULT_FILE` already catch the former.
+- **Why not a diagnostic-only fallback (b).** Thursday-morning case: if tonight's v4 build fails its stop rules, the v3 calendar is the last accepted demo build (honest data, the older 2 missed / 3 partly checked week) and about 2 h 20 m to rebuild, so it is the realistic thing to present. A build that ends SELF-CHECK FAILED cannot be presented, and `add-dates` (script Step 7) would print a failure in front of the audience. The fallback must be presentable.
+- **Rule.** WK-GAP gates (asserts the week and month patterns) only when the built `days.json` `schema.version` is 4 or higher. Below 4 it returns the read pattern with `"gated": false, "calendar": <source>` and passes. Key on the schema version, not the file name.
+
+### Card FX-KOBO-V3 (Sonnet, XS, about 40 lines; fresh Claude review; may merge Wednesday)
+
+Branch `task/FX-KOBO-V3`.
+1. `tools/demo_rows.py`: pure `gap_gated(days_schema) -> bool` (version >= 4). `tools/demo_combined_finish.py` `wkgap`: compute both patterns as now; raise only when gated; on v3 return them with `gated: false`. Docstring cites D-E5.21.
+2. `tools/demo_combined_kobo.py:563` (review Low 2): the manifest `"days"` label comes from `days.json` `source`.
+3. L0: `gap_gated` true for v4, false for v3; the client4 v3 fixture (2 NO_DATA + 3 PARTIAL) raises when gated and returns `gated: false` when not (must-fail: drop the gate and the ungated case raises). Review Low 3: a v4 parametrisation of the positive half of the S-10 fillable test.
+4. Gates: guards A, W, V and N, `test_demo_story_days.py`, the demo_rows L0. No build, no full suite. Tonight's v4 build does not wait for this card.
+5. Review Low 4 (B-16 keeps the six fill days): no change; backlog.
+
+Decision logged for owner review: **D-E5.21** the v3 fallback is a presentable build; WK-GAP gates v4 only.
