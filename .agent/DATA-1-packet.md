@@ -103,4 +103,36 @@ not this change. Not run: the full suites, `check-architecture`, and a prepare.
 - D-E5.30: Kisiwa may gain dispatch Findings it never had before. The coordinator should read the Kisiwa board for
   2–8 Nov in the fresh build before the demo.
 
+## Fix round 1 (review REJECT: H1, M1, L1, L2), commit 2bcfb3b31
+
+- H1: `publish_night(..., previous_end)` passes `keep=after_previous_night(previous_end)` (instants strictly after
+  the previous night's end), Kobo's `keep` seam (`demo_combined_kisiwa.py` `after_previous_night`,
+  `story_previous_end`). `build` passes run k-1's end (None for run 1), `_publish_night` passes
+  `night_end(night - 1 day)`. The previous night keeps the boundary reading. KISIWA-COHORT now also reads
+  `r.cohort -> 'limits'` and fails on any `REPORTS_OVERLAP` (`demo_rows.kisiwa_cohort`). The SQL was run read-only
+  on `assetops_polish_client4_test`: 11 windows, `limits` = [] each (that build is pre-DATA-1: 9 AMBIGUOUS).
+- Behavioural tests, each failing with the fix disabled (seen, then `git checkout`): the real `add_night` keeps,
+  applied to 5-minute readings of two nights, give the boundary once and no overlap limit, with a control showing
+  REPORTS_OVERLAP without them (`test_own_g1_add_dates`); the story nights' keeps send every instant once, none
+  lost (`test_k1`, source inspection removed); a real `select_cohort` payload with the boundary twice fails the
+  row (`test_demo_combined_finish_rows`).
+- L1: the PARTIAL_NIGHT message says what to do (do not delete the gateway state or night folder; fresh prepare or
+  Architect). L2 not done: checking every day with readings needs every window assessed when the row runs, and
+  the drain does not count Kisiwa dispatch jobs; a false failure would abort the 2h45m build. Left open.
+
+M1 (read-only on client4, scripts in the session scratchpad `data1fix/`): the real cohort, `dispatch_v3.assess`
+and `finding_episode.plan_pass` over the stored evidence with the epochs merged and boundaries keep-filtered.
+Check: the harness gives the stored 10-30 basis exactly (intervals, 433 reports) and gives the 2 stored Findings.
+With DATA-1: all 11 windows SELECTED_UNIQUE, no limits; 20 SUPPORTED Findings (2 per night, 30 Oct to 8 Nov, each
+17:40-19:05Z and 22:55-00:15Z); generator energy per episode is the same every night (646 / 432).
+- KIS-2 holds: diesel v1 PRICED (one revision) for every day; current Foundation since 28 Oct 09:57 has no-load 4.9
+  GENERIC_DEFAULT; 20 items are within `consequence_items_per_site` 50.
+- KIS-4 holds: fuel Findings unchanged; dispatch amounts are the stored two values (26.2774, 17.5725); no
+  k*A + m*B (k, m <= 10) equals a forbidden sum.
+- KIS-6 holds: derived from data; Assure is unaffected.
+- KIS-7: d1 is unchanged (30 Oct). New: Kisiwa is now priced on S (8 Nov local holds two heads), so items 1 and 4
+  take the two-Site path for the first time on real data. The product `_optimize_card` matches what the row expects
+  (code read). Residual risk: a coincidental "41.40/41.41" string (Kobo 15.125 + Kisiwa 26.2774) in a body.
+  CH5D1-O1 also allows Kisiwa.
+
 USER_REVIEW_REQUIRED: no (tools only; a fresh Claude review is required by the card).
