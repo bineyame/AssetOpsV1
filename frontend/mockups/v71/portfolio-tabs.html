@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Tabs Draft</title>
+<!-- v7.1 DRAFT for owner approval (2026-11-10). Not the layout spec until the owner approves it.
+     Reuses the v7.0 stylesheets unchanged; only the additions below are new. v70 itself is not changed.
+     Data is v7.0's own illustrative data (Kobo F-104/F-109, GreenHarvest F-118, Depot F-130), not demo-build numbers.
+     Proposal: .agent/architect-proposal-portfolio-layout-2026-11-10.md -->
+<link rel="stylesheet" href="../v70/mockups.css">
+<link rel="stylesheet" href="../v70/portfolio.css">
+<link rel="stylesheet" href="../v70/outcomes.css">
+<style>
+/* v7.1 additions only */
+:root{--draft:#7552ab}
+body{background:var(--page)}
+.draftbar{position:sticky;top:0;z-index:20;min-height:46px;padding:8px 20px;background:#f3eefc;border-bottom:1px solid #dccff5;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#40306b}
+.draftbar strong{letter-spacing:.4px}
+.seg{display:inline-flex;border:1px solid #cbbcec;border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 12px;font-size:12px;color:#40306b}
+.seg button[aria-pressed="true"]{background:var(--draft);color:#fff;font-weight:650}
+.notes-toggle{font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.compare{display:none;grid-template-columns:1fr 1fr;gap:0;height:calc(100vh - 46px)}
+.compare.only-current{grid-template-columns:1fr}
+.compare figure{margin:0;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+.compare figcaption{padding:7px 14px;font-size:11px;font-weight:650;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);background:#fff;border-bottom:1px solid var(--line)}
+.compare iframe{flex:1;border:0;width:100%;background:#fff}
+body.mode-current .proposed,body.mode-side .proposed{display:none}
+body.mode-current .compare,body.mode-side .compare{display:grid}
+body.embed .draftbar{display:none}
+
+/* Change 1: evidence coverage shown once */
+.pf-coverage{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;margin:0 0 14px;background:#fffaf0;border:1px solid #f0dcb4;border-radius:10px;font-size:12px;color:#5b4413}
+.pf-coverage .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex:none}
+.pf-coverage b{font-weight:650;color:#3d2e0d}
+.pf-coverage .sites{display:flex;flex-wrap:wrap;gap:4px 12px}
+.pf-coverage .sites span{white-space:nowrap}
+.pf-coverage .rule{color:#6f5a2a}
+.pf-coverage a{margin-left:auto;font-weight:650}
+.oc-pfexception{display:block;margin-top:6px;font-size:11px;color:var(--amber)}
+
+/* Change 2: Portfolio section tabs (same row as the Site tabs: links, aria-current, wraps under 760px) */
+.pf-tabs{margin:0 0 18px;border-bottom:1px solid var(--line)}
+.pf-tabs ol{list-style:none;margin:0;padding:0;display:flex;gap:24px;overflow-x:auto;scrollbar-width:thin}
+.pf-tabs a{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#58667f;padding:11px 0 12px;border-bottom:2px solid transparent;white-space:nowrap}
+.pf-tabs a[aria-current="page"]{color:var(--blue);border-color:var(--blue);font-weight:650}
+.pf-tabs a:hover{text-decoration:none;color:var(--blue)}
+.pf-tabs .count{font-size:10px;font-weight:650;background:#eef2f8;color:#44536b;border-radius:9px;padding:1px 7px}
+.pf-tabs a[aria-current="page"] .count{background:#e3ebff;color:var(--blue)}
+.pf-tabs .deep{margin-left:auto}
+.pf-panel{display:none}
+.pf-panel.active{display:block}
+.pf-panel:focus{outline:none}
+.pf-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pf-urlhint{font:11px Consolas,monospace;color:var(--muted);margin:-8px 0 14px;overflow-wrap:anywhere}
+
+.pf-pulse a{color:inherit}
+.pf-pulse a:hover{color:var(--blue)}
+.pf-top3{margin-top:16px}
+.pf-top3 ol{list-style:none;margin:0;padding:0}
+.pf-top3 li{display:grid;grid-template-columns:28px minmax(0,1.4fr) minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-top:1px solid #edf1f6}
+.pf-top3 li:first-child{border-top:0}
+.pf-top3 .rank{width:24px;height:24px;border-radius:50%;background:#eef2f8;display:grid;place-items:center;font-size:11px;font-weight:700;color:#44536b}
+.pf-top3 small{display:block}
+.pf-two{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:16px;align-items:start}
+.pf-scope table{width:100%}
+.note-pin{display:none;margin:0 0 12px;padding:8px 12px;border-left:3px solid var(--draft);background:#f7f3fe;color:#40306b;font-size:12px;line-height:1.55;border-radius:0 8px 8px 0}
+body.show-notes .note-pin{display:block}
+
+@media(max-width:1100px){.pf-two{grid-template-columns:1fr}}
+@media(max-width:760px){
+ .pf-tabs ol{flex-wrap:wrap;gap:4px 18px}
+ .pf-tabs .deep{margin-left:0}
+ .pf-coverage a{margin-left:0}
+ .pf-top3 li{grid-template-columns:28px minmax(0,1fr)}
+ .pf-top3 li > :nth-child(3),.pf-top3 li > :nth-child(4){grid-column:2}
+ .compare{grid-template-columns:1fr;height:auto}
+ .compare iframe{height:80vh}
+}
+</style>
+</head>
+<body class="mode-proposed">
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <div><strong>v7.1 DRAFT · Portfolio</strong> · for owner approval · coverage shown once and section tabs</div>
+ <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+  <div class="seg" role="group" aria-label="View">
+   <button type="button" data-mode="proposed" aria-pressed="true">Proposed</button>
+   <button type="button" data-mode="current" aria-pressed="false">Current (v7.0)</button>
+   <button type="button" data-mode="side" aria-pressed="false">Side by side</button>
+  </div>
+  <label class="notes-toggle"><input type="checkbox" id="notes" checked> Show change notes</label>
+ </div>
+</div>
+
+<div class="compare" id="compare">
+ <figure id="fig-current"><figcaption>Current · v7.0 Portfolio</figcaption><iframe title="Current v7.0 Portfolio" data-src="../v70/index.html#/portfolio"></iframe></figure>
+ <figure id="fig-proposed"><figcaption>Proposed · v7.1 draft</figcaption><iframe title="Proposed v7.1 Portfolio" data-src="portfolio-tabs.html?embed=1#overview"></iframe></figure>
+</div>
+
+<div class="proposed shell">
+ <nav class="rail" aria-label="Main">
+  <div style="color:#fff;font-weight:700;font-size:15px;padding:0 8px">AssetOps</div>
+  <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;padding:0 8px">
+   <span style="color:#fff;font-weight:650">Portfolio</span><span>Sites</span><span>Findings</span><span>Actions</span><span>Evidence</span><span>Financials</span>
+  </div>
+ </nav>
+ <main class="workspace">
+  <header class="topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><span class="badge">30 Sep – 6 Oct 2026</span><span class="avatar">BY</span></div></header>
+  <div class="canvas portfolio-v2">
+   <div class="page-heading"><div><div class="title-row"><h1>Portfolio Value &amp; Operations</h1></div><p>Operating decisions across the estate: cost, service, productive use and asset value</p></div></div>
+
+   <p class="note-pin"><b>Change 1 · Coverage once.</b> The date range and this one coverage line sit above the tabs, so they apply to every tab. The per-Site notes in the header row and the days line under every card are gone. A card keeps a days line only when its figures come from different days than this line (see Grow revenue).</p>
+
+   <div class="portfolio-context"><div><span class="badge amber">Portfolio: Needs attention</span><span>3 simulated sites · 1 mini-grid / 1 cold room / 1 charging hub</span></div></div>
+
+   <div class="pf-coverage" role="note" aria-label="Days checked">
+    <span class="dot" aria-hidden="true"></span>
+    <b>Some days are not fully checked yet.</b>
+    <span class="sites"><span>Kobo: 6 Oct partly checked</span><span>GreenHarvest: 7 of 7 days checked</span><span>Depot: 6 Oct, 7 of 8 hours checked</span></span>
+    <span class="rule">Every figure on this page uses only the checked days.</span>
+    <a href="#scope" data-tab-link="scope">Which days, and why →</a>
+   </div>
+
+   <p class="note-pin"><b>Change 2 · Section tabs.</b> One row of links, the same row the Site pages use. Each tab has its own address, and the date range travels with it, so a tab can be bookmarked or shared. The counts say what is inside before you open it.</p>
+
+   <nav class="pf-tabs" aria-label="Portfolio sections">
+    <ol>
+     <li><a href="#overview" data-tab="overview" aria-current="page">Overview</a></li>
+     <li><a href="#act-first" data-tab="act-first">Act first <span class="count">6</span></a></li>
+     <li><a href="#outcomes" data-tab="outcomes">Outcomes by site</a></li>
+     <li><a href="#opportunity" data-tab="opportunity">Opportunity <span class="count">1</span></a></li>
+     <li><a href="#changes" data-tab="changes">What changed <span class="count">3</span></a></li>
+     <li class="deep"><a href="#scope" data-tab="scope">Scope &amp; coverage</a></li>
+    </ol>
+   </nav>
+   <p class="pf-urlhint" id="urlhint">/portfolio?from=2026-09-30&amp;to=2026-10-06</p>
+
+   <!-- OVERVIEW -->
+   <section class="pf-panel active" id="panel-overview" data-panel="overview" tabindex="-1" aria-labelledby="h-overview">
+    <h2 id="h-overview" class="pf-sr">Overview</h2>
+    <div class="value-grid oc-pfgrid">
+     <div class="value-card green oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/renewable"><span>Grow revenue</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Capture more value from existing infrastructure and expand earning potential</p><div class="oc-pfval"><div class="value-number">18–20 <small>kW unused</small></div><button class="why-btn" type="button">Why?</button></div>
+      <small class="oc-pfexception">Different days: Kobo potential comes from a separate 5-day study, 3 of 5 days checked</small>
+      <dl class="oc-pfgrow"><div><dt>Target</dt><dd>No target set yet at any site</dd></div><div><dt>Potential</dt><dd>Kobo: 18–20 kW of daytime solar · Depot: chargers under a fifth used</dd></div><div><dt>Estimated income</dt><dd>Kobo: $7.50 over 3 checked study days ($2.50 per window) · Depot: $36.00 on 6 Oct · GreenHarvest: not measured yet</dd><dd class="oc-pfnote">Different days at each site, so not added together · not billed or collected</dd></div></dl>
+      <div class="oc-sitedots"><span class="tone-green"><i></i>Kobo</span><span class="tone-none"><i></i>GreenHarvest</span><span class="tone-blue"><i></i>Depot</span></div><div class="value-basis">Opportunities · revenue not measured yet</div></div>
+     <div class="value-card amber oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/financials"><span>Optimize cost and efficiency</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Eliminate avoidable expenditure and get more output from operational resources</p><div class="oc-pfval"><div class="value-number">$3.31–3.97</div><button class="why-btn" type="button">Why?</button></div>
+      <p>Kobo generator time, 1 trial in hand · 3 repair visits without a result at GreenHarvest, cost not recorded</p>
+      <div class="oc-sitedots"><span class="tone-amber"><i></i>Kobo</span><span class="tone-amber"><i></i>GreenHarvest</span><span class="tone-none"><i></i>Depot</span></div><div class="value-basis">Modelled + scenario · one-hour window · reliability checked as a safeguard</div></div>
+     <div class="value-card red oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/findings-risks"><span>Protect asset and capital</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Preserve asset value, avoid premature replacement and reduce service disruption</p><div class="oc-pfval"><div class="value-number">2 <small>sites disrupted</small></div><button class="why-btn" type="button">Why?</button></div>
+      <p>Cold-room exposure · interrupted charging · 4 early warnings on battery, generator, charger and backup · Depot peak at 95% of its limit</p>
+      <div class="oc-sitedots"><span class="tone-blue"><i></i>Kobo</span><span class="tone-amber"><i></i>GreenHarvest</span><span class="tone-amber"><i></i>Depot</span></div><div class="value-basis">Measured events and early warnings, counted separately · loss not priced</div></div>
+     <div class="value-card neutral oc-pfcard"><a class="value-label oc-cardlink" href="../v70/index.html#/globalevidence"><span>Assure performance and returns</span><span class="icon" aria-hidden="true">→</span></a><p class="oc-pfdef">Establish with defensible evidence whether the infrastructure is delivering expected results</p><div class="oc-pfval"><div class="value-number">Not established</div><button class="why-btn" type="button">Why?</button></div>
+      <p>No verified result yet · no targets declared · evidence gaps at all 3 sites</p>
+      <div class="oc-sitedots"><span class="tone-blue"><i></i>Kobo</span><span class="tone-blue"><i></i>GreenHarvest</span><span class="tone-blue"><i></i>Depot</span></div><div class="value-basis">Completed work does not establish savings</div></div>
+    </div>
+
+    <p class="note-pin" style="margin-top:14px">The strip below already counted what sits in the other tabs. Each count is now a link to its tab, so the Overview is also the table of contents.</p>
+    <div class="portfolio-pulse pf-pulse">
+     <span><a href="#act-first" data-tab-link="act-first"><strong>3</strong> priority sites</a></span>
+     <span><a href="#opportunity" data-tab-link="opportunity"><strong>1</strong> opportunity: Kobo daytime solar</a></span>
+     <span><a href="#scope" data-tab-link="scope"><strong>3</strong> site evidence gaps</a></span>
+     <span><a href="#changes" data-tab-link="changes"><strong>3</strong> accepted actions</a></span>
+     <span><a href="#act-first" data-tab-link="act-first"><strong>8</strong> warnings not yet priced</a></span>
+     <span class="pulse-note">Distinct consequence categories · no combined savings total</span>
+    </div>
+
+    <p class="note-pin" style="margin-top:14px"><b>Kept on the Overview on purpose.</b> The top three of "Where management should act first" stay on the landing view, because what to do first is the point of the page. The full ranked list, lenses and warnings are on the Act first tab.</p>
+    <section class="panel pf-top3" aria-labelledby="h-top3">
+     <div class="panel-head"><div><h2 id="h-top3">Where management should act first</h2><p>The three highest-priority findings. Priority and confidence answer different questions.</p></div><a href="#act-first" data-tab-link="act-first">See all 6 findings →</a></div>
+     <ol>
+      <li><span class="rank">1</span><div><a class="strong" href="../v70/index.html#/cold-finding">Backup response failed</a><small>GreenHarvest · Automatic start failed; cooling interrupted</small></div><div><strong class="impact red">Product conditions exposed</strong><small>Measured peak 8.2°C · loss unpriced</small></div><span class="badge amber">High</span></li>
+      <li><span class="rank">2</span><div><a class="strong" href="../v70/index.html#/finding">Extended generator support</a><small>Kobo · 30 min candidate; charging trade-off remains</small></div><div><strong class="impact amber">$3.31–3.97</strong><small>Modelled fuel + scenario maintenance</small></div><span class="badge amber">High</span></li>
+      <li><span class="rank">3</span><div><a class="strong" href="../v70/index.html#/ev-finding">Charging session interrupted</a><small>Depot · Fault-aborted session; root cause unknown</small></div><div><strong class="impact blue">1 interrupted session</strong><small>Measured events · revenue loss unpriced</small></div><span class="badge blue">Medium</span></li>
+     </ol>
+    </section>
+   </section>
+
+   <!-- ACT FIRST -->
+   <section class="pf-panel" id="panel-act-first" data-panel="act-first" tabindex="-1" aria-labelledby="h-act">
+    <div class="pf-two">
+     <section class="panel priority-panel"><div class="panel-head"><div><h2 id="h-act">Where management should act first</h2><p>Findings ranked by consequence and urgency, with evidence confidence alongside.</p></div><span class="eyebrow">6 findings</span></div>
+      <div class="portfolio-lenses" role="group" aria-label="Finding lens"><button class="chip active" aria-pressed="true">All priorities</button><button class="chip" aria-pressed="false">Cost</button><button class="chip" aria-pressed="false">Risks</button><button class="chip" aria-pressed="false">Opportunities</button><span>6 findings</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Site</th><th>Finding / operating mechanism</th><th>Value / consequence</th><th>Priority</th><th>Confidence</th><th>Action / next move</th></tr></thead><tbody>
+       <tr><td><strong>GreenHarvest</strong><small>Cold-chain</small></td><td><a class="strong" href="../v70/index.html#/cold-finding">Backup response failed</a><small>F-118 · Automatic start failed; cooling interrupted</small></td><td><strong class="impact red">Product conditions exposed</strong><small>Measured peak 8.2°C · loss unpriced</small><small>6 Oct · 19:00–20:00</small></td><td><span class="badge amber">High</span></td><td><span class="badge">High</span><small>Observed sequence</small></td><td><strong>ACT-051 · Witness automatic-start test</strong><small>Witness an automatic-start test</small><span class="workflow-text">Open</span></td></tr>
+       <tr><td><strong>Kobo</strong><small>Mini-grid</small></td><td><a class="strong" href="../v70/index.html#/finding">Extended generator support</a><small>F-104 · 30 min candidate; charging trade-off remains</small></td><td><strong class="impact amber">$3.31–3.97</strong><small>Modelled fuel + scenario maintenance</small><small>6 Oct · 14:20–15:20</small></td><td><span class="badge amber">High</span></td><td><span class="badge">Low</span><small>PCS capability gap</small></td><td><strong>ACT-048 · Generator stop trial</strong><small>Verify the policy trial</small><span class="workflow-text">Outcome pending</span></td></tr>
+       <tr><td><strong>Depot</strong><small>EV charging</small></td><td><a class="strong" href="../v70/index.html#/ev-finding">Charging session interrupted</a><small>F-130 · Fault-aborted session; root cause unknown</small></td><td><strong class="impact blue">1 interrupted session</strong><small>Measured events · revenue loss unpriced</small><small>6 Oct · 08:00–16:00</small></td><td><span class="badge blue">Medium</span></td><td><span class="badge">Medium</span><small>1 other outcome unknown</small></td><td><strong>ACT-061 · Investigate connector 2</strong><small>Investigate connector 2</small><span class="workflow-text">Open</span></td></tr>
+       <tr><td><strong>GreenHarvest</strong><small>Cold-chain</small></td><td><a class="strong" href="../v70/index.html#/cold-finding-excursion">Temperature excursion</a><small>F-119 · Chamber above 4°C after backup failed</small></td><td><strong class="impact blue">25–35 min above policy</strong><small>Measured peak 8.2°C · no spoilage determination</small><small>6 Oct · 19:00–20:00</small></td><td><span class="badge blue">Medium</span></td><td><span class="badge">High</span><small>Stock and loading not recorded</small></td><td><strong>Review recommendation</strong> <span class="oc-noact">· No action agreed yet</span><small>Record stock and connect the door log</small></td></tr>
+       <tr><td><strong>Kobo</strong><small>Mini-grid</small></td><td><a class="strong" href="../v70/index.html#/evidence">Battery output-limit report missing</a><small>F-108 · One 14:50 report absent from the battery controller</small></td><td><strong class="impact blue">30 min unclassified</strong><small>Evidence gap · limits F-104</small><small>6 Oct · 14:20–15:20</small></td><td><span class="badge blue">Medium</span></td><td><span class="badge">High</span><small>Reporting cause unknown</small></td><td><strong>ACT-049 · Restore battery-limit reporting</strong><small>Restore battery-limit reporting</small><span class="workflow-text">Open</span></td></tr>
+       <tr><td><strong>Kobo</strong><small>Mini-grid</small></td><td><a class="strong" href="../v70/index.html#/opportunity-finding">Productive-use headroom</a><small>F-109 · Recurring renewable capacity available</small></td><td><strong class="impact green">18–20 kW usable</strong><small>Modelled headroom · $2.50 scenario sales</small><small>Separate 5-day study · 3 eligible days</small></td><td><span class="badge blue">Medium</span></td><td><span class="badge">Medium</span><small>Limited evidence: demand not measured yet</small></td><td><strong>Review recommendation</strong> <span class="oc-noact">· No action agreed yet</span><small>Evaluate a 10 kW productive load</small></td></tr>
+      </tbody></table></div>
+      <div class="oc-warn"><div class="oc-warn-head"><h3>Early warnings · not priced yet</h3></div><ul>
+       <li><span class="oc-kind risk">Risk</span> <b>Repeated maintenance without a result</b> · GreenHarvest · backup generator visited 3 times in 60 days; the automatic start still failed</li>
+       <li><span class="oc-kind stress">Early warning</span> <b>Battery below its reserve</b> · Kobo · 5 of the last 30 days · lowest 22%</li>
+       <li><span class="oc-kind stress">Early warning</span> <b>Backup start test overdue</b> · GreenHarvest · monthly test due 2 Oct, not done</li>
+       <li><span class="oc-kind stress">Early warning</span> <b>Charger fault and overdue inspection</b> · Depot · connector 2 fault on 6 Oct</li>
+      </ul></div>
+      <div class="panel-bottom"><a href="../v70/index.html#/findings">Open all Findings →</a><span>Priority and confidence answer different questions.</span></div>
+     </section>
+     <aside class="portfolio-side">
+      <section class="portfolio-evidence"><div><h3>Evidence that would change a decision</h3></div><p>Restore Kobo’s missing PCS capability report to resolve two indeterminate dispatch intervals.</p><a href="../v70/index.html#/evidence">Inspect the constraint →</a></section>
+      <p class="note-pin" style="margin-top:12px">The evidence prompt moves with the ranked list: in v7.0 it already sits beside it, and it is about which finding could change.</p>
+     </aside>
+    </div>
+   </section>
+
+   <!-- OUTCOMES BY SITE -->
+   <section class="pf-panel" id="panel-outcomes" data-panel="outcomes" tabindex="-1" aria-labelledby="h-out">
+    <section class="panel"><div class="panel-head"><div><h2 id="h-out">Outcomes across the estate</h2><p>How each site is doing on what matters</p></div></div>
+     <div class="oc-matrix" role="table" aria-label="Outcomes across the estate" style="--oc-sites:3">
+      <div class="oc-mrow oc-mhead" role="row"><span role="columnheader"></span><span role="columnheader"><a href="../v70/index.html#/mini">Kobo</a></span><span role="columnheader"><a href="../v70/index.html#/cold">GreenHarvest</a></span><span role="columnheader"><a href="../v70/index.html#/ev">Depot</a></span></div>
+      <div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><span>Grow revenue</span></span><span role="cell"><a class="oc-cell tone-green" href="#"><b>Opportunity</b><small>Productive electricity sales</small></a></span><span role="cell"><a class="oc-cell tone-none" href="#"><b>Not measured yet</b><small>Paid cold-room use</small></a></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Charger use</small></a></span></div>
+      <div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><span>Optimize cost and efficiency</span></span><span role="cell"><a class="oc-cell tone-amber" href="#"><b>Needs attention</b><small>Supply cost per kWh</small></a></span><span role="cell"><a class="oc-cell tone-amber" href="#"><b>Needs attention</b><small>Cost per cooling unit</small></a></span><span role="cell"><a class="oc-cell tone-none" href="#"><b>Not measured yet</b><small>Energy cost per km</small></a></span></div>
+      <div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><span>Protect asset and capital</span></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Battery and generator life</small></a></span><span role="cell"><a class="oc-cell tone-amber" href="#"><b>Needs attention</b><small>Stock kept saleable</small></a></span><span role="cell"><a class="oc-cell tone-amber" href="#"><b>Needs attention</b><small>Buses ready to run</small></a></span></div>
+      <div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><span>Assure performance and returns</span></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Evidence quality</small></a></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Evidence quality</small></a></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Evidence quality</small></a></span></div>
+     </div>
+     <div class="oc-key"><span><i class="tone-amber"></i>Needs attention</span><span><i class="tone-blue"></i>Watch</span><span><i class="tone-green"></i>Opportunity</span><span><i class="tone-green"></i>On track</span><span><i class="tone-gray"></i>Unknown</span><span><i class="tone-none"></i>Not measured yet</span></div>
+    </section>
+    <p class="note-pin" style="margin-top:12px">With a whole tab, the matrix gets the full page width instead of a side column, so a larger estate still fits. Each cell opens that Site's outcome board for the same dates.</p>
+   </section>
+
+   <!-- OPPORTUNITY -->
+   <section class="pf-panel" id="panel-opportunity" data-panel="opportunity" tabindex="-1" aria-labelledby="h-opp">
+    <section class="panel opportunity-panel"><div class="panel-head"><div><div class="eyebrow">GROW USEFUL DEMAND</div><h2 id="h-opp">An opportunity beyond reducing cost</h2></div><span class="badge green">Scenario</span></div>
+     <div class="opportunity-story"><div><span class="opportunity-quantity">10 <small>kW × 1 h</small></span><p>Grain-mill evaluation at Kobo</p></div><span class="story-arrow">→</span><div><span class="opportunity-quantity">$2.50</span><p>Scenario gross sales per eligible window</p></div></div>
+     <p class="chart-note">Within 18–20 kW headroom · $0.25/kWh assumed tariff · before costs. Validate demand and service guardrails before committing.</p>
+     <div class="panel-bottom"><a href="../v70/index.html#/opportunity-finding">Review opportunity Finding →</a><a href="../v70/index.html#/renewable">Inspect physical headroom →</a></div></section>
+   </section>
+
+   <!-- WHAT CHANGED -->
+   <section class="pf-panel" id="panel-changes" data-panel="changes" tabindex="-1" aria-labelledby="h-chg">
+    <section class="panel progress-panel"><div class="panel-head"><div><div class="eyebrow">CLOSE THE LOOP</div><h2 id="h-chg">What changed in this review</h2></div><a href="#scope" data-tab-link="scope">Inspect basis →</a></div>
+     <div class="change-line"><span class="change-dot blue"></span><strong>1 maintenance activity completed</strong><span>Outcome unverified</span></div>
+     <div class="change-line"><span class="change-dot amber"></span><strong>1 policy trial awaiting outcome evidence</strong><span>Guardrails incomplete</span></div>
+     <div class="change-line"><span class="change-dot gray"></span><strong>0 verified resolutions in these examples</strong><span>Value not yet recovered</span></div>
+     <div class="outcome-note">Observed change → comparable evidence → verified outcome → eligible financial value</div></section>
+   </section>
+
+   <!-- SCOPE & COVERAGE (deep tab) -->
+   <section class="pf-panel pf-scope" id="panel-scope" data-panel="scope" tabindex="-1" aria-labelledby="h-scope">
+    <p class="note-pin">The deep tab. It holds what v7.0 puts in the "Assessment scope &amp; periods" drawer and the page footer: each Site's days, the days not checked, the assessment periods, what is left out and why, and the source records. The coverage line above links here.</p>
+    <section class="panel"><div class="panel-head"><div><h2 id="h-scope">Days checked, per site</h2><p>A day counts as checked when its readings are complete and assessed. Figures elsewhere on this page use only these days.</p></div></div>
+     <div class="table-wrap"><table><thead><tr><th>Site</th><th>Type</th><th>Days checked</th><th>Not checked yet</th><th>Assessment period</th></tr></thead><tbody>
+      <tr><td><strong>Kobo</strong></td><td>Mini-grid</td><td>6 Oct partly checked</td><td>6 Oct · 14:50 battery report missing</td><td>30 Sep – 6 Oct · study 1–5 Oct</td></tr>
+      <tr><td><strong>GreenHarvest</strong></td><td>Cold room</td><td>7 of 7 days</td><td>None · door and loading not recorded</td><td>30 Sep – 6 Oct</td></tr>
+      <tr><td><strong>Depot</strong></td><td>EV charging</td><td>6 Oct, 7 of 8 hours</td><td>6 Oct · 1 hour partly checked</td><td>6 Oct</td></tr>
+     </tbody></table></div>
+    </section>
+    <section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2>What is left out, and why</h2></div></div>
+     <p>Categories and windows remain separate. Amounts in different currencies or from different days are never added together. Other sites lack comparable full-window energy coverage.</p>
+     <details style="margin-top:10px"><summary>Assessment and source references</summary><p class="mono">Kobo assessment · GreenHarvest assessment · Depot assessment (reference ids shown here, as in v7.0's scope drawer)</p></details>
+    </section>
+    <div class="portfolio-context-footer" style="margin-top:16px"><span>Business context: Depot delivered <strong>120 kWh</strong> in complete records; <strong>$36.00</strong> scenario tariff estimate.</span><a href="../v70/index.html#/energy">Inspect energy basis →</a></div>
+   </section>
+  </div>
+ </main>
+</div>
+
+<script>
+(function(){
+ var params=new URLSearchParams(location.search);
+ if(params.get('embed')==='1'){document.body.classList.add('embed');document.getElementById('notes').checked=false;document.body.classList.remove('show-notes');}
+ var notes=document.getElementById('notes');
+ function syncNotes(){document.body.classList.toggle('show-notes',notes.checked);}
+ notes.addEventListener('change',syncNotes);syncNotes();
+ if(params.get('embed')==='1'){document.body.classList.remove('show-notes');}
+
+ var TABS=['overview','act-first','outcomes','opportunity','changes','scope'];
+ function show(tab,focus){
+  if(TABS.indexOf(tab)<0)tab='overview';
+  document.querySelectorAll('[data-panel]').forEach(function(p){p.classList.toggle('active',p.dataset.panel===tab);});
+  document.querySelectorAll('[data-tab]').forEach(function(a){if(a.dataset.tab===tab)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  var path=tab==='overview'?'/portfolio':'/portfolio/'+tab;
+  document.getElementById('urlhint').textContent=path+'?from=2026-09-30&to=2026-10-06';
+  var cur=document.querySelector('[data-tab="'+tab+'"]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({block:'nearest',inline:'nearest'});
+  if(focus){var p=document.getElementById('panel-'+tab);if(p)p.focus({preventScroll:true});}
+ }
+ window.addEventListener('hashchange',function(){show(location.hash.slice(1),true);});
+ show(location.hash.slice(1)||'overview',false);
+
+ var compare=document.getElementById('compare');
+ function mode(m){
+  document.body.classList.remove('mode-proposed','mode-current','mode-side');document.body.classList.add('mode-'+m);
+  document.querySelectorAll('[data-mode]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.mode===m));});
+  compare.classList.toggle('only-current',m==='current');
+  document.getElementById('fig-proposed').style.display=m==='side'?'':'none';
+  if(m!=='proposed'){compare.querySelectorAll('iframe').forEach(function(f){if(!f.src)f.src=f.dataset.src;});}
+ }
+ document.querySelectorAll('[data-mode]').forEach(function(b){b.addEventListener('click',function(){mode(b.dataset.mode);});});
+})();
+</script>
+</body>
+</html>
