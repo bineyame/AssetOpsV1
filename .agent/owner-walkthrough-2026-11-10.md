@@ -59,3 +59,6 @@ Coordinator findings, from the code:
   - PEAK: "Needs a demand forecast"
 - A price-publishing API exists, `POST /api/sites/{site}/financial-assumptions` (`financial_api.py`). It refuses with 401: "Sign in to edit Site prices. Interactive price editing awaits an authenticated operator." It waits on sign-in (BL-54).
 - Today prices are declared through a tool (`publish_assumption.py`).
+
+## 11. Non-Kobo Site pages look empty
+"Another obervation is for non-kobo sites, the site pate doesn't really seem to have a lot of data and most of the counters and data points show all sorts of effectively not resolved values. i want the architect to review and say if this is data issue or product bug. it should address this problem whichever category it falls for a converting client demo"
