@@ -2,9 +2,10 @@
 a case that must fail, so none is vacuous."""
 from __future__ import annotations
 
+import copy
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -349,6 +350,65 @@ def test_week_gap_pattern_passes_on_v4_and_fails_on_client4s_v3_pattern() -> Non
     del bad["productive_kwh"]["SITE:SITE"]["2026-11-04"]  # a day with no snapshot row
     with pytest.raises(AssertionError):
         rows.week_gap_pattern(bad, WEEK, v4_missed, v4_partial)
+
+
+MONTH = [(datetime(2026, 11, 8) + timedelta(days=n)).date().isoformat() for n in range(-28, 1)]  # S-28 .. S
+
+
+def _month(s_offsets_missing, s_offsets_partial, unbuilt=()):
+    """A `days.json` Kobo month: `missing` entries, story-only entries, full days (with complements), and unbuilt
+    offsets with no entry at all; plus the grades such a build reads (unbuilt days read NO_DATA)."""
+    cal, by_day = [], {}
+    for n, day in zip(range(-28, 1), MONTH):
+        if n in unbuilt:
+            by_day[day] = "NO_DATA"
+        elif n in s_offsets_missing:
+            cal.append({"site": "kobo", "day": day, "kind": "missing", "has_run": False})
+            by_day[day] = "NO_DATA"
+        elif n in s_offsets_partial:
+            cal.append({"site": "kobo", "day": day, "kind": "overuse"})
+            by_day[day] = "PARTIAL"
+        else:
+            cal += [{"site": "kobo", "day": day, "kind": "steady-before"},
+                    {"site": "kobo", "day": day, "kind": "night-early", "complement_of": "steady-before"}]
+            by_day[day] = "COMPLETE"
+    return cal, {m: {"SITE:SITE": dict(by_day)} for m in rows.WEEK_GAP_MEASURES}
+
+
+V4_MONTH_MISSING, V4_MONTH_PARTIAL = (-10, -4), (-28, -21, -14, -7, 0)
+
+
+def test_month_gap_clause_passes_on_amended_v4_and_fails_on_the_unbuilt_stretch() -> None:
+    """D-E5.19 item 3: the month clause passes when NO_DATA is exactly the `missing` days (S-10, S-4) and PARTIAL
+    exactly the story-only days; it fails on the un-amended v4 (S-27..S-22 unbuilt, reading NO_DATA), on v3 (also
+    S-4, S-2 unbuilt) and when one measure reads a full day PARTIAL."""
+    cal, grades = _month(V4_MONTH_MISSING, V4_MONTH_PARTIAL)
+    missed, partial = rows.month_day_classes(cal, MONTH)
+    assert missed == ["2026-10-29", "2026-11-04"]
+    assert partial == ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08"]
+    got = rows.month_gap_pattern(grades, MONTH, missed, partial)
+    assert got["days"] == 29 and len(got["measures"]) == 4
+    for unbuilt in ((-27, -26, -25, -24, -23, -22), (-27, -26, -25, -24, -23, -22, -4, -2)):  # un-amended v4; v3
+        cal, grades = _month((-10,), V4_MONTH_PARTIAL, unbuilt)
+        missed, partial = rows.month_day_classes(cal, MONTH)
+        assert missed == ["2026-10-29"]  # an unbuilt day is not a `missing` day
+        with pytest.raises(AssertionError):
+            rows.month_gap_pattern(grades, MONTH, missed, partial)
+    cal, grades = _month(V4_MONTH_MISSING, V4_MONTH_PARTIAL)
+    missed, partial = rows.month_day_classes(cal, MONTH)
+    for measure in rows.WEEK_GAP_MEASURES:
+        bad = copy.deepcopy(grades)
+        bad[measure]["SITE:SITE"]["2026-10-15"] = "PARTIAL"
+        with pytest.raises(AssertionError):
+            rows.month_gap_pattern(bad, MONTH, missed, partial)
+    bad = copy.deepcopy(grades)
+    del bad["critical_served"]["SITE:SITE"]["2026-10-15"]  # no snapshot on a full day counts as NO_DATA: fails
+    with pytest.raises(AssertionError):
+        rows.month_gap_pattern(bad, MONTH, missed, partial)
+    ok = copy.deepcopy(grades)
+    del ok["critical_served"]["SITE:SITE"]["2026-11-04"]  # no snapshot on a `missing` day is no checked reading: passes
+    assert rows.month_gap_pattern(ok, MONTH, missed, partial)["measures"]["critical_served|SITE:SITE"][
+        "no_snapshot"] == ["2026-11-04"]
 
 
 def test_site_days_segment_reads_one_site_part() -> None:

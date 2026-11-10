@@ -678,7 +678,8 @@ def wkgap(ctx: Ctx) -> dict:
     NO_DATA on exactly the one missed day, PARTIAL on exactly the one partly checked day and COMPLETE on the other
     five; the Portfolio week's Kobo days line reads "5 of 7 days checked · 1 partly checked" and the CO-6 coverage
     names only the missed day. The expected days come from the built calendar (`days.json`), so a v3 (`--days`)
-    rebuild, with 2 missed and 3 partly checked days, fails here: that is the intended alarm."""
+    rebuild, with 2 missed and 3 partly checked days, fails here: that is the intended alarm.
+    D-E5.19 adds the month clause on [S-28, S] (`demo_rows.month_gap_pattern`)."""
     from assetops_backend.chain.vocabulary import days_line
 
     week = [ctx.day(n).date().isoformat() for n in range(-6, 1)]
@@ -695,7 +696,23 @@ def wkgap(ctx: Ctx) -> dict:
              for cat in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}
     for cat, line in lines.items():
         assert demo_rows.site_days_segment(line, name) == want, (cat, line, want)
-    return {**out, "coverage_gaps": gaps, "days_line": lines["PROTECT_ASSET"], "kobo_days_line": want}
+    # D-E5.19 item 3, the month clause: on [S-28, S] NO_DATA is exactly the `missing`-kind days and PARTIAL exactly
+    # the story-only days, both from the built calendar (v4 as amended: S-10, S-4; S-28, S-21, S-14, S-7, S)
+    month = [ctx.day(n).date().isoformat() for n in range(-28, 1)]
+    m_missed, m_partial = demo_rows.month_day_classes(ctx.site_days("kobo"), month)
+    month_out = demo_rows.month_gap_pattern(_week_grades(ctx, month[0], month[-1]), month, m_missed, m_partial)
+    return {**out, "coverage_gaps": gaps, "days_line": lines["PROTECT_ASSET"], "kobo_days_line": want,
+            "month": month_out}
+
+
+@row("WK-FILL")
+def wk_fill(ctx: Ctx) -> dict:
+    """D-E5.19 item 4, reported and never failed: S-28..S-11 is one gateway stream on v4 as amended, so the epoch
+    strings of S-21 and S-14 change (their readings do not). Records each Kobo story day's epoch on [S-28, S-11] and
+    the kinds built on S-27..S-22, for the build report."""
+    kobo = [d for d in ctx.site_days("kobo") if -28 <= d.get("offset", 1) <= -11 and not d.get("complement_of")]
+    return {"epochs": {f"S{d['offset']:+d}": d.get("epoch") for d in kobo},
+            "fill": {f"S{d['offset']:+d}": d.get("kind") for d in kobo if -27 <= d["offset"] <= -22}}
 
 
 @row("WK-6")
@@ -860,8 +877,8 @@ def f_coh3(ctx: Ctx) -> dict:
 
 @row("F-CAL")
 def f_cal(ctx: Ctx) -> dict:
-    """R6 O4 / Q11: every Kobo local day from first evidence to today is read. A day with no built run (S-10, S-4, S-2,
-    and any day after the last built one) is asserted NO_DATA; a built day is only recorded (no grade asserted)."""
+    """R6 O4 / Q11: every Kobo local day from first evidence to today is read. A day with no built run (S-10, S-4 on v4;
+    v3 also S-2 and S-27..S-22; and any day after the last built one) is asserted NO_DATA; a built day is only recorded (no grade asserted)."""
     kobo = ctx.site_days("kobo")
     built = {at(d["start"]).astimezone(timezone(timedelta(hours=3))).date() for d in kobo
              if d.get("has_run", True) and d["kind"] != "missing"}

@@ -59,7 +59,7 @@ def test_build_order_is_by_received_at_with_fresh_epochs():
 
 
 @pytest.mark.parametrize("path,full,story_only", [
-    (sd.DEFAULT_FILE, 16, 6),  # D-E5.12 (v4): S-3, S-2 and S-1 become full steady days; S-4 is missing
+    (sd.DEFAULT_FILE, 22, 6),  # D-E5.12/D-E5.17 (v4): S-3..S-1 and S-27..S-22 are full days; S-4 is missing
     (sd.V3_FILE, 13, 8),  # DD1a2-R (v3, the `--days` rollback)
 ])
 @pytest.mark.parametrize("s", [S, datetime(2027, 3, 1, tzinfo=timezone.utc)])
@@ -635,11 +635,55 @@ def test_v3_story_only_days_equal_v1_except_their_epoch():
 
 # ---- D-E5.12 (FX-KOBO-GAPS): the story week S-6..S has one missed day and one partly checked day --------------
 WEEK_S = [datetime(2026, 11, d, tzinfo=timezone.utc) for d in (7, 8, 9)]
+#: The ruled v4 week (D-E5.12): offset -> kind of the one missed day and of the one partly checked day; every other
+#: day of S-6..S is a full day.
+V4_MISSED = {-4: "missing"}
+V4_PARTIAL = {0: "trial-before"}
+V4_FULL = [n for n in range(-6, 1) if n not in V4_MISSED and n not in V4_PARTIAL]
+#: The Kobo entries v4 changes against v3 (v4's days; the v3 days they replace). Everything else is v3, byte-equal.
+V4_CHANGED_DAYS = {"S-4d", "S-3d", "S-2d", "S-1d"}
+V3_REPLACED_DAYS = {"S-3d", "S-1d"}
+#: D-E5.17/D-E5.19: the six before-mill full days v4 adds on S-27..S-22 (no v3 entry is replaced).
+V4_MONTH_FILL = {-27: "steady-before-first", **{n: "steady-before" for n in range(-26, -21)}}
+V4_MONTH_DAYS = {f"S{n}d" for n in V4_MONTH_FILL}
+#: The only days in [S-28, S] with no run on v4 as amended: the FILL-1 beat S-10 and the week's missed day S-4.
+V4_MONTH_NO_RUN = {-10, -4}
+
+
+def _tiles(kobo: list, s: datetime, n: int) -> bool:
+    """The Kobo runs on S+n tile [00:00, 24:00) local, back to back, with more than one run."""
+    day = sorted((r for r in kobo if r.offset == n and r.has_run), key=lambda r: r.start)
+    lo = s + timedelta(days=n) + sd.LOCAL_DAY_START
+    cursor = lo
+    for r in day:
+        if r.start != cursor:
+            return False
+        cursor = r.covers_end or r.end
+    return len(day) > 1 and cursor == lo + timedelta(hours=24)
+
+
+def _month_fill_problems(doc: dict, s: datetime) -> list[str]:
+    """Every way the Kobo month [S-28, S] differs from D-E5.18: S-27 `steady-before-first`, S-26..S-22
+    `steady-before`, each tiling the local day, and no run only on `V4_MONTH_NO_RUN`. Empty means it holds."""
+    installs = {"kobo": s + timedelta(days=-29, hours=11), "cold": s + timedelta(days=-26, hours=6),
+                "ev": s + timedelta(days=-26, hours=6, minutes=30)}
+    kobo = [r for r in sd.resolve(doc, s, installs=installs) if r.site == "kobo"]
+    problems = []
+    for n, kind in V4_MONTH_FILL.items():
+        kinds = {r.kind for r in kobo if r.offset == n and not r.complement_of}
+        if kinds != {kind}:
+            problems.append(f"S{n:+d} kinds {sorted(kinds)}, want {kind}")
+        elif not _tiles(kobo, s, n):
+            problems.append(f"S{n:+d} does not tile the local day")
+    no_run = {n for n in range(-28, 1) if not any(r.offset == n and r.has_run for r in kobo)}
+    if no_run != V4_MONTH_NO_RUN:
+        problems.append(f"days with no run {sorted(no_run)}, want {sorted(V4_MONTH_NO_RUN)}")
+    return problems
 
 
 def _week_pattern_problems(doc: dict, s: datetime) -> list[str]:
-    """Every way the Kobo week S-6..S differs from the owner's 2026-11-10 pattern: exactly one day with no run (S-4,
-    kind `missing`), exactly one story-only day (S, `trial-before`), five days whose runs tile [00:00, 24:00) local,
+    """Every way the Kobo week S-6..S differs from the owner's 2026-11-10 pattern: exactly one day with no run
+    (`V4_MISSED`), exactly one story-only day (`V4_PARTIAL`), the other five days' runs tile [00:00, 24:00) local,
     and no `late` entry. Empty means the pattern holds."""
     installs = {"kobo": s + timedelta(days=-29, hours=11), "cold": s + timedelta(days=-26, hours=6),
                 "ev": s + timedelta(days=-26, hours=6, minutes=30)}
@@ -667,14 +711,14 @@ def _week_pattern_problems(doc: dict, s: datetime) -> list[str]:
             full.append(n)
         else:
             problems.append(f"S{n:+d} does not tile the local day")
-    missing = [r.offset for r in kobo if -6 <= r.offset <= 0 and r.kind == "missing" and not r.has_run]
-    if no_run != [-4] or missing != [-4]:
-        problems.append(f"days with no run {no_run} (missing kind on {missing}), want [-4]")
-    trial = [r.offset for r in kobo if r.offset == 0 and r.kind == "trial-before"]
-    if story_only != [0] or trial != [0]:
-        problems.append(f"story-only days {story_only}, want [0] (trial-before)")
-    if full != [-6, -5, -3, -2, -1]:
-        problems.append(f"full days {full}, want [-6, -5, -3, -2, -1]")
+    missed = {r.offset: r.kind for r in kobo if -6 <= r.offset <= 0 and not r.has_run}
+    if no_run != sorted(V4_MISSED) or missed != V4_MISSED:
+        problems.append(f"days with no run {no_run} (kinds {missed}), want {V4_MISSED}")
+    partial = {r.offset: r.kind for r in kobo if r.offset in story_only}
+    if story_only != sorted(V4_PARTIAL) or partial != V4_PARTIAL:
+        problems.append(f"story-only days {partial}, want {V4_PARTIAL}")
+    if full != V4_FULL:
+        problems.append(f"full days {full}, want {V4_FULL}")
     return problems
 
 
@@ -682,17 +726,32 @@ def _week_pattern_problems(doc: dict, s: datetime) -> list[str]:
 def test_v4_story_week_one_missed_one_partial(s):
     assert sd.DEFAULT_FILE.name == "demo-story-days-v4.json"
     assert _week_pattern_problems(sd.load(), s) == []
-    # v4 is v3 with only the week entries changed (S-4, S-3, S-2, S-1 in v4; S-3, S-1 in v3)
+    # D-E5.19: v4 minus its 4 week entries and its 6 S-27..S-22 entries equals v3 minus its 2 week entries; the kinds,
+    # the trial block and every other key are byte-equal
     v4, v3 = sd.load(), sd.load(sd.V3_FILE)
-    week4, week3 = {"S-4d", "S-3d", "S-2d", "S-1d"}, {"S-3d", "S-1d"}
-    assert [e["day"] for e in v4["sites"]["kobo"] if e["day"] in week4] == sorted(week4, reverse=True)
-    assert [e["day"] for e in v3["sites"]["kobo"] if e["day"] in week4] == sorted(week3, reverse=True)
-    assert [e for e in v4["sites"]["kobo"] if e["day"] not in week4] == [
-        e for e in v3["sites"]["kobo"] if e["day"] not in week3]
-    rest = ("schema", "label", "status")
-    assert {k: v for k, v in v4.items() if k not in rest + ("sites",)} == {
-        k: v for k, v in v3.items() if k not in rest + ("sites",)}
+    added = V4_CHANGED_DAYS | V4_MONTH_DAYS
+    assert {e["day"] for e in v4["sites"]["kobo"]} >= added
+    assert {e["day"] for e in v3["sites"]["kobo"] if e["day"] in added | V3_REPLACED_DAYS} == V3_REPLACED_DAYS
+    assert [e for e in v4["sites"]["kobo"] if e["day"] not in added] == [
+        e for e in v3["sites"]["kobo"] if e["day"] not in V3_REPLACED_DAYS]
+    rest = ("schema", "label", "status", "sites")
+    assert {k: v for k, v in v4.items() if k not in rest} == {k: v for k, v in v3.items() if k not in rest}
     assert {k: v for k, v in v4["sites"].items() if k != "kobo"} == {k: v for k, v in v3["sites"].items() if k != "kobo"}
+    assert "D-E5.12, D-E5.17" in v4["label"]
+
+
+@pytest.mark.parametrize("s", WEEK_S, ids=lambda s: s.date().isoformat())
+def test_v4_month_fill(s):
+    """D-E5.19: S-27 `steady-before-first` and S-26..S-22 `steady-before`, each a full local day through the normal
+    resolve (installs given); the only days in [S-28, S] with no run are S-10 and S-4. Must-fail: the un-amended v4
+    (the six entries removed) fails."""
+    assert _month_fill_problems(sd.load(), s) == []
+    unamended = copy.deepcopy(sd.load())
+    unamended["sites"]["kobo"] = [e for e in unamended["sites"]["kobo"] if e["day"] not in V4_MONTH_DAYS]
+    assert _week_pattern_problems(unamended, s) == []  # the week alone still holds there
+    problems = _month_fill_problems(unamended, s)
+    assert len(problems) == 7 and problems[-1].startswith("days with no run [-27, -26, -25, -24, -23, -22, -10, -4]"), \
+        problems
 
 
 @pytest.mark.parametrize("s", WEEK_S, ids=lambda s: s.date().isoformat())

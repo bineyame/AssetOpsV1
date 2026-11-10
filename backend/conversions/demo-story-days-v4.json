@@ -3,8 +3,8 @@
     "id": "assetops.demo-story-days",
     "version": 4
   },
-  "label": "Story calendar (v4, D-E5.12): 16 of the 22 Kobo days in [S-20, S+1] are full days (night, 06:00-18:00 day, rest of day); the generator and trial days stay story-only and read partly checked; S-10 and S-4 have no data. The week S-6..S has one missed day (S-4) and one partly checked day (S, the trial baseline)",
-  "status": "FX-KOBO-GAPS (D-E5.12, owner 2026-11-10). Example data. Each full example day starts at 06:00 from a declared battery level and fuel level. Before `mill_change_day` the days run the mill's authored 'before' pattern; after it, the kobo-daytime pattern. S-4 is the gateway-offline day; S-3, S-2 and S-1 are full steady days; no late Kobo day remains (the late path is shown live by script Step 7). Cold stays its 3 story days (Q5). EV adds S-14 (3 Tuesdays). v1, v2 and v3 are kept as history.",
+  "label": "Story calendar (v4, D-E5.12, D-E5.17): 22 of the 30 Kobo days in [S-28, S+1] are full days (night, 06:00-18:00 day, rest of day); the generator and trial days stay story-only and read partly checked; S-10 and S-4 have no data. The week S-6..S has one missed day (S-4) and one partly checked day (S, the trial baseline)",
+  "status": "FX-KOBO-GAPS (D-E5.12, D-E5.17, owner 2026-11-10). Example data. S-27..S-22 are full before-mill days (S-27 takes the fresh declared night; S-26..S-22 chain from the previous day's 24:00, as S-19..S-15). Each full example day starts at 06:00 from a declared battery level and fuel level. Before `mill_change_day` the days run the mill's authored 'before' pattern; after it, the kobo-daytime pattern. S-4 is the gateway-offline day; S-3, S-2 and S-1 are full steady days; no late Kobo day remains (the late path is shown live by script Step 7). Cold stays its 3 story days (Q5). EV adds S-14 (3 Tuesdays). v1, v2 and v3 are kept as history.",
   "kinds": {
     "kobo": {
       "normal": {
@@ -259,6 +259,30 @@
       {
         "day": "S-28d",
         "kind": "normal"
+      },
+      {
+        "day": "S-27d",
+        "kind": "steady-before-first"
+      },
+      {
+        "day": "S-26d",
+        "kind": "steady-before"
+      },
+      {
+        "day": "S-25d",
+        "kind": "steady-before"
+      },
+      {
+        "day": "S-24d",
+        "kind": "steady-before"
+      },
+      {
+        "day": "S-23d",
+        "kind": "steady-before"
+      },
+      {
+        "day": "S-22d",
+        "kind": "steady-before"
       },
       {
         "day": "S-21d",

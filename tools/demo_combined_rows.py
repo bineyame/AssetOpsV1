@@ -630,6 +630,32 @@ def week_gap_pattern(grades_by_measure: dict[str, dict[str, dict[str, str]]], we
     return {"missed": missed, "partial": partial, "complete": complete, "measures": out}
 
 
+def month_day_classes(site_days: list[dict], days: list[str]) -> tuple[list[str], list[str]]:
+    """WK-GAP month clause (D-E5.19 item 3): (missing-kind, story-only) days of `days` from the built calendar. Unlike
+    the week, a day with no entry at all is in neither list, so if it reads NO_DATA the clause fails (an unbuilt
+    stretch such as v3's S-27..S-22 is the alarm)."""
+    missing = {d["day"] for d in site_days if d.get("kind") == "missing"}
+    ran = {d["day"] for d in site_days if d.get("kind") != "missing" and d.get("has_run", True)}
+    full = {d["day"] for d in site_days if d.get("complement_of")}
+    return [d for d in days if d in missing], [d for d in days if d in ran and d not in full]
+
+
+def month_gap_pattern(grades_by_measure: dict[str, dict[str, dict[str, str]]], days: list[str], missed: list[str],
+                      partial: list[str]) -> dict:
+    """WK-GAP month clause (D-E5.19 item 3): on [S-28, S], for every measure and subject, NO_DATA on exactly the
+    `missing`-kind days and PARTIAL on exactly the story-only days. A day with no snapshot row counts as NO_DATA (no
+    checked reading), so it passes only on a `missing` day. Other grades are not judged here."""
+    out = {}
+    for m in WEEK_GAP_MEASURES:
+        subjects = grades_by_measure.get(m) or {}
+        assert subjects, ("no day snapshot for the measure", m)
+        for subject, by_day in sorted(subjects.items()):
+            got = {g: [d for d in days if by_day.get(d, "NO_DATA") == g] for g in ("NO_DATA", "PARTIAL")}
+            assert got == {"NO_DATA": missed, "PARTIAL": partial}, (m, subject, "month", got, missed, partial)
+            out[f"{m}|{subject}"] = {**got, "no_snapshot": [d for d in days if d not in by_day]}
+    return {"missed": missed, "partial": partial, "days": len(days), "measures": out}
+
+
 def site_days_segment(line: str | None, name: str) -> str | None:
     """The "{name}: ..." part of a card days line ("{Site}: {line}" parts, " · "-joined), up to the next Site part."""
     i = (line or "").find(f"{name}: ")
