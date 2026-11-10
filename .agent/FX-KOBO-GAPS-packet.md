@@ -69,7 +69,8 @@ ruling says the kinds stay byte-equal and they do, so `kinds` is compared strict
 | test_k7_kisiwa_story.py (K7 + plan-freeze) | 101 passed (2 failed before the v4 re-pin) |
 | test_k7f_kis10_window.py | 3 passed |
 | test_ch4_opportunities.py (vocabulary pin) | 16 passed |
-| Guards: check-architecture.ps1, check-agent-workflow.ps1 | see "Guards" below |
+| check-architecture.ps1 (ASSETOPS_GUARD_PYTHON = plan2 venv; the worktree has no .venv) | Architecture check passed |
+| check-agent-workflow.ps1 | Agent workflow check passed |
 
 Not run: no prepare, no Postgres finish run, no full suite (demo-sprint policy). `demo_combined.py` has no offline
 `--check` subcommand; the offline resolve on v4 and on v3 (the `--days` rollback) is exercised by
