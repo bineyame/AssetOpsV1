@@ -3208,3 +3208,45 @@ review; only High or Medium findings block. Do the pre-flight questions before w
 - **D-E3b.2** The board reads thread lifecycle at the request cutoff. COH-13 now refuses a listed Finding with no
   state.
 - **D-E3b.3** A fresh prepare after C5. client3 is retired. The Kisiwa resume check runs on client2.
+
+## Any-range speed ruling (2026-11-10)
+
+- Architect: Claude (fresh `assetops-architect`). Full answer, measurements and design:
+  `.agent/architect-answer-any-range-speed-2026-11-10.md`. Owner question verbatim:
+  `.agent/owner-any-range-speed-2026-11-10.md`. Owner away, verbatim: "no cutting corners on fundamentals".
+- Measured on client2, store off, cold: Kobo board day 11.2 s, Kisiwa board day 11.3 s, Cold board week 1.6 s,
+  Portfolio week 12.1 s, Portfolio 10-12..10-19 4.2 s, Portfolio month 36.1 s. 80-85% of a mini board is the on-read
+  hourly currentness re-fingerprint; the Portfolio is per-Site-day dispatch, claim and provenance recompute. Day
+  snapshots themselves read in 2-160 ms.
+
+### D-ANY.1 The full fix is BL-66, and it reverses CH5c-R2's substitution
+
+The page cache (CH-5c option A) stands in for the stored daily read model the owner asked for on 2026-11-03. BL-66
+moves every range-bound read onto revisioned per-period rows rebuilt per event through the existing register (cards
+AR-0 to AR-6, 6.75 units, slices ANY-1 and ANY-2). ANY-2 is demo-critical if the owner sets the client session after
+it can land; the date is the owner's.
+
+### D-ANY.2 Pre-demo partial step: slice ANY-1 (boards), after FR-B
+
+AR-0 (parity and arbitrary-range speed guard, 0.5), AR-1 (read-row foundation, 1.0), AR-2 (board mini depth on rows,
+1.5): 3.0 units. It is the first slice of the real fix, not a workaround. It starts after FR-B (Wed 11 to Fri 13)
+merges and does not displace it. Done when every mini-grid board day composes in 2 s or less cold with the store off,
+and AR-0 parity holds byte for byte on the story requests and seeded random days, live and historical.
+
+### D-ANY.3 No range-agnostic warm-up and no longer pre-load list
+
+Pre-building more pages on data arrival cannot cover arbitrary ranges, multiplies the Site-wide rebuild after each
+`add-dates`, and is thrown away by BL-66. Refused. D-E4.1 and D-E4.10 stand unchanged until AR-5 retires the list.
+
+### D-ANY.4 Presenter rule until the fix lands
+
+At the walkthrough, at FR-B and at any client session before ANY-2: stay on the script's ranges, and use the
+Portfolio selector only for the pre-built week, S and month. Off-script, the presenter says the range is being
+computed and moves on. The owner is shown the measured numbers before the walkthrough.
+
+### Decisions logged for owner review
+
+- **D-ANY.1** The full fix (BL-66, 6.75 units) replaces the page cache as the speed mechanism.
+- **D-ANY.2** ANY-1 (boards, 3.0 units) is built before the client session, after FR-B.
+- **D-ANY.3** No warm-up of more pages.
+- **D-ANY.4** Presenter stays on script ranges until the fix lands.
