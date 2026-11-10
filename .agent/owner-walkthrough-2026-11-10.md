@@ -38,3 +38,7 @@ Coordinator diagnosis, from the code:
 - `frontend/src/estate/findingIndex.tsx:136-170`. "High priority" and "Low confidence" are hard-coded "Not assessed". They come from the v69 mockup slots, and no backend produces them.
 - In `backend/assetops_backend/estate/index.py:415-424`, `supported_findings` and `awaiting_verification` stay null, and the card shows "Some data missing", unless Finding coverage is complete for EVERY Site in the window.
 - `awaiting_verification` only counts MINI_GRID Sites. Cold and EV Actions awaiting verification are never counted.
+
+## 8. Findings cards mockup (frontend/mockups/v71/findings-cards.html, D-E5.25-28)
+Owner answer (selected option, verbatim): "Approve, include tonight" - merge FC-1 and FC-2 before tonight's build.
+
