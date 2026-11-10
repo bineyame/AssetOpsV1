@@ -45,3 +45,17 @@ Owner answer (selected option, verbatim): "Approve, include tonight" - merge FC-
 
 ## 9. Scalability of "Outcomes across the estate"
 "on the main portoflio page, "Outcomes across the estate" page, it seems when the number of sites and the number of items under the four groups increase, the UI can't accommodate them well, is there a more scalabel UI design option? if so, update it on the mock-up and let me know once ready for me to review"
+
+## 10. Pricing early warnings and unpriced items
+"FOr early warning and general unpriced items on the main page, what is the action from the user to make them priced if needed, is that specified anywhere or is it permaneltyl not supported?"
+
+Coordinator findings, from the code:
+- Each early warning names what it needs to be priced (`outcomes/warnings.py` PRICE_NEEDS):
+  - REPEATED: "A cost per visit is not set for this site"
+  - PLAN_OVERDUE and PLAN_DUE_SOON: "Needs repair cost and wear history"
+  - BATTERY: "Needs a tested battery wear model"
+  - CHARGER_FAULT: "Needs repair cost and fault history"
+  - CONNECTOR_OUT: "Needs the bus roster"
+  - PEAK: "Needs a demand forecast"
+- A price-publishing API exists, `POST /api/sites/{site}/financial-assumptions` (`financial_api.py`). It refuses with 401: "Sign in to edit Site prices. Interactive price editing awaits an authenticated operator." It waits on sign-in (BL-54).
+- Today prices are declared through a tool (`publish_assumption.py`).
