@@ -8,3 +8,6 @@
 
 ## 3. Wording of "checked"
 "the user facing text for 'checked' should tell exactly what it means on the mock-up(perhaps use a better term to not imply the system failed to 'check' what is otherwise available). also '7 of 8 hours checked' doesn't make much sense."
+
+## 4. Mockup layout: date selector and left menu
+"also the date selection should be at the top of the screen and left side menu should be exactly as before in the new mock-up as well"
