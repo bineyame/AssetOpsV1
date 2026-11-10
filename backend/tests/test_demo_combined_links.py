@@ -65,6 +65,18 @@ def test_cold_and_ev_boards_open_the_whole_utc_day() -> None:
     assert urls["EV-LAB-001 board, missing day S-1d (2026-10-28), no event: whole day"] == f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-28T00:00:00Z&to=2026-10-29T00:00:00Z"
 
 
+def test_cold_and_ev_event_days_also_link_the_exact_analysed_period() -> None:
+    """DATA-2 (D-E5.32): a Cold or EV day with an event window gets a second link on exactly that window; a day with
+    no event gets none; the whole-day link stays."""
+    urls = dict(_links())
+    cold = "COLD-LAB-001 analysed period, failure day S+0d (2026-10-29) 16:00-17:05Z"
+    ev = "EV-LAB-001 analysed period, fault day S-2d (2026-10-27) 08:00-09:00Z"
+    assert urls[cold] == f"{BASE}/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z"
+    assert urls[ev] == f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z"
+    assert sum("analysed period" in label for label in urls) == 2
+    assert "COLD-LAB-001 board, failure day S+0d (2026-10-29)" in urls
+
+
 def test_every_story_day_has_one_row_and_no_kobo_doc_drops_only_the_action_rows() -> None:
     labels = [label for label, _ in _links(kobo=None)]
     assert sum(" board, " in label for label in labels) == len(DAYS)

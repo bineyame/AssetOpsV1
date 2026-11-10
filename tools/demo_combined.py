@@ -313,6 +313,13 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
                 label += ", no event: whole day"
             path = f"/sites/{code}/ev" if site == "ev" else f"/sites/{code}"
             rows.append((label, f"{base}{path}?from={start}&to={end}"))
+            # DATA-2 (D-E5.32): the exact analysed period too. Cold and EV Site reads select an analysis only when the
+            # stored window contains / equals the requested one, so only this link shows the peak, the stock risk and
+            # the USD estimate; the whole-day link above stays for Work and Actions.
+            if d.get("start") and d.get("end"):
+                t0, t1 = at(d["start"]), at(d["end"])
+                rows.append((f"{code} analysed period, {d['kind']} day S{d['offset']:+d}d ({d['day']}) "
+                             f"{t0:%H:%M}-{t1:%H:%M}Z", f"{base}{path}?from={iso(t0)}&to={iso(t1)}"))
     if kobo is not None:
         rows += [("KOBO-001 Overview, day S", f"{base}/sites/KOBO-001?date={story['S_date']}"),
                  (f"Action {kobo.get('action_code')} verification",
@@ -437,6 +444,8 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
         elif len(segs) in (2, 3) and segs[0] == "sites" and (len(segs) == 2 or segs[2] == "ev"):
             params = dict(parse_qsl(parts.query))
             day = params.get("date") or params.get("from", "")[:10]
+            if not params.get("date") and not params.get("from", "").endswith("T00:00:00Z"):
+                day = params["from"]  # DATA-2: an analysed-period window; its id stays distinct from the day's
             add(f"board.day:{code_site.get(segs[1], segs[1])}:{day}", f"/api/sites/{segs[1]}/outcome-board",
                 _api_query(parts.query))
         elif len(segs) == 3 and segs[0] == "sites" and segs[2] == "findings":

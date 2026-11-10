@@ -119,6 +119,18 @@ def test_no_date_falls_outside_the_story_calendar_or_the_added_dates() -> None:
     assert len({r["id"] for r in requests}) == len(requests)
 
 
+def test_the_analysed_period_links_are_stored_hits_with_distinct_ids() -> None:
+    """DATA-2: the Cold and EV analysed-period links map to board requests on their exact window."""
+    requests = _routes()
+    by_key = {(r["path"], r["query"]): r for r in requests}
+    cold = by_key[("/api/sites/COLD-LAB-001/outcome-board", "from=2026-11-07T16%3A00%3A00Z&to=2026-11-07T17%3A05%3A00Z")]
+    ev = by_key[("/api/sites/EV-LAB-001/outcome-board", "from=2026-11-03T08%3A00%3A00Z&to=2026-11-03T09%3A00%3A00Z")]
+    assert cold["id"] == "board.day:cold:2026-11-07T16:00:00Z" and ev["id"].startswith("board.day:ev:")
+    assert ("/api/sites/COLD-LAB-001/outcome-board",
+            "from=2026-11-07T00%3A00%3A00Z&to=2026-11-08T00%3A00%3A00Z") in by_key  # the whole day stays
+    assert len({r["id"] for r in requests}) == len(requests)
+
+
 def test_a_site_findings_link_warms_the_board_its_warnings_panel_reads() -> None:
     """C2 review M1: the "KISIWA-001 Findings, story nights S-9d to S+1d" link (`to` = S+2d, a UTC midnight) opens a
     page whose warnings panel reads `/api/sites/KISIWA-001/outcome-board?date=miniBoardDay(to)` = S+1, even with no
