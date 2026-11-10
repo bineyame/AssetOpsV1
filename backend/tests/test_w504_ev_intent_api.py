@@ -228,7 +228,7 @@ def test_producer_k0_route_shape_and_positive_payloads(ev) -> None:
             raised = c.execute(text("SELECT clock_timestamp()")).scalar_one() - _timedelta(seconds=1)
         posted = producer.action_body(selected, raised, "w504a-producer-action")
         assert (posted["title"], posted["owner_label"], posted["due_at"]) == (
-            "Investigate connector 2", "Charging operations", None)
+            "Investigate connector c1", "Charging operations", None)
         action = api.post("", posted)
         assert action.status_code == 201, action.text
         body = action.json()
@@ -248,13 +248,13 @@ def test_producer_k0_route_shape_and_positive_payloads(ev) -> None:
             row = c.execute(text(
                 "SELECT a.title, a.owner_label, a.due_at, i.basis FROM domain_action a JOIN domain_action_intent i "
                 "ON i.action_id = a.id WHERE a.id = :a"), {"a": body["id"]}).one()
-        assert (row[0], row[1], row[2]) == ("Investigate connector 2", "Charging operations", None)
+        assert (row[0], row[1], row[2]) == ("Investigate connector c1", "Charging operations", None)
         assert row[3] == wanted
         detail = api.get(f"/actions/{body['id']}")
         assert detail.status_code == 200, detail.text
         shown = detail.json()
         assert (shown["action"]["title"], shown["action"]["owner_label"], shown["action"]["due_at"]) == (
-            "Investigate connector 2", "Charging operations", None)
+            "Investigate connector c1", "Charging operations", None)
         assert shown["intent"]["basis"] == wanted and shown["intent"]["id"] == intent.json()["intent_id"]
     finally:
         api.close()

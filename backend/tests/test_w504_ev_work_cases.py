@@ -160,7 +160,7 @@ def test_payload_literals() -> None:
     raised = R
     action = P.action_body(selected, raised, "k", db_now=R)
     assert {k: action[k] for k in ("domain", "title", "owner_label", "due_at")} == {
-        "domain": "EV_CHARGING", "title": "Investigate connector 2", "owner_label": "Charging operations",
+        "domain": "EV_CHARGING", "title": "Investigate connector c1", "owner_label": "Charging operations",
         "due_at": None}
     assert action["raised_at"] == "2026-10-24T13:05:07.123456Z"  # current DB time, not the 2026-10-06 clock
     with pytest.raises(P.ProducerRefused):

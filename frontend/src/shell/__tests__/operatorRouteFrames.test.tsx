@@ -403,7 +403,7 @@ describe("cold Site Work and domain Action route frames", () => {
       id: EV_ACTION_ID,
       action_code: "ACT-000061",
       domain: "EV_CHARGING",
-      title: "Investigate connector 2",
+      title: "Investigate connector c1",
       owner_label: "Charging operations",
       due_at: null,
       raised_at: "2026-10-06T09:10:00Z",
@@ -450,7 +450,7 @@ describe("cold Site Work and domain Action route frames", () => {
     await settledScreen();
     const main = document.querySelector("main") as HTMLElement;
     expect(main.getAttribute("data-domain-action-shell")).toBe("loaded");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("ACT-061 · Investigate connector 2");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("ACT-061 · Investigate connector c1");
     expect(Array.from(main.querySelectorAll("section.panel h2")).map((h) => h.textContent)).toEqual(["Declared verification plan"]);
     expect(screen.queryByRole("heading", { level: 2, name: "Related activity" })).toBeNull();
     expect(urls.some((u) => u.split("?")[0] === evDetailPath)).toBe(true);

@@ -236,7 +236,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     // Ruling 67: the selected Work window and explicit cutoff ride on the detail address.
     expect(link?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`);
     expect(link?.getAttribute("data-domain-work-action-link")).toBe("domain");
-    expect(text(link)).toBe("ACT-061 · Investigate connector 2");
+    expect(text(link)).toBe("ACT-061 · Investigate connector c1");
     expect(cells[0].querySelector("[data-domain-work-action-plain]")).toBeNull();
     expect(text(cells[2])).toBe("Charging operations");
     expect(text(cells[3])).toBe("Not set");
@@ -550,7 +550,7 @@ describe("EV Work Action link carries the selected from,to,known_at (ruling 67)"
       schema_version: "domain-action-intent-read-1" as const,
       site_code: EV_SITE_CODE,
       action: {
-        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING" as const, title: "Investigate connector 2", owner_label: "Charging operations",
+        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING" as const, title: "Investigate connector c1", owner_label: "Charging operations",
         due_at: null, raised_at: "2026-10-06T09:10:00Z", recorded_at: "2026-10-06T09:10:01Z", state: "OPEN" as const,
       },
       known_at: EV_KNOWN,

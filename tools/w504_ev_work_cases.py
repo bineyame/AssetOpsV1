@@ -49,7 +49,7 @@ ISOLATED_STATES = {"pending": "PENDING_RECOMPUTE", "stale": "STALE_SOURCE", "unk
 _FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 #: "EV producer, UI and registry": exact literals.
-ACTION = {"title": "Investigate connector 2", "owner_label": "Charging operations", "due_at": None}
+ACTION = {"title": "Investigate connector c1", "owner_label": "Charging operations", "due_at": None}
 INCIDENT = {"title": "Charging session fault",
             "narrative": "Connector fault ended a charging session; outcome remains unverified"}
 #: Ruling 37: the WR `narrative` is exactly the attested activity text.

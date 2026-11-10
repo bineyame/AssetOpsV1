@@ -50,7 +50,7 @@ export function evRow(over: Partial<DomainIndexRow> = {}): DomainIndexRow {
     action_id: EV_ACTION_ID,
     action_code: "ACT-000061",
     domain: "EV_CHARGING",
-    title: "Investigate connector 2",
+    title: "Investigate connector c1",
     owner_label: "Charging operations",
     due_at: null,
     raised_at: "2026-10-06T09:10:00Z",

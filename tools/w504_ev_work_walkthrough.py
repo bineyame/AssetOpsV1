@@ -11,7 +11,7 @@
   scenario UNMODIFIED through the registered parser/Host stage/gateway upload/Batch V2 ingestion and the selected
   EV worker (`native_replay`; ruling 36: the only importer of the existing `backend/tests`/`host/tests` helpers),
   then reads K0 over the evidence window E through the public EV routes (readiness 29) and posts the positive Action
-  ('Investigate connector 2' / 'Charging operations' / due null, raised at current DB time) and its intent through
+  ('Investigate connector c1' / 'Charging operations' / due null, raised at current DB time) and its intent through
   the public domain-work routes. `zero` never gets an INC or WR and both W4 case reads over W are complete zero.
   `worstcase` (W5-04 V2b, re-review M1; the W5-02 cold precedent) replays the same positive scenario into its own DB,
   declares the positive Action, then posts four more EV Actions (ACT-000002..5) with 160-code-point title and owner and

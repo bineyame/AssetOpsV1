@@ -402,7 +402,7 @@ describe("EV case-row Action link in `UTC and IDs` (ruling 71)", () => {
       schema_version: "domain-action-intent-read-1",
       site_code: EV_SITE_CODE,
       action: {
-        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING", title: "Investigate connector 2", owner_label: "Charging operations",
+        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING", title: "Investigate connector c1", owner_label: "Charging operations",
         due_at: null, raised_at: "2026-10-06T09:10:00Z", recorded_at: "2026-10-06T09:10:01Z", state: "OPEN",
       },
       known_at: EV_KNOWN,
