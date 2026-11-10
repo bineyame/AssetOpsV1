@@ -1818,3 +1818,105 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("GROW_REVENUE")).toBe("Not known yet");
   });
 });
+
+describe("PL-1: a lens change keeps the page and loads the panel only", () => {
+  type Answer = EstateResult<EstatePortfolioBody>;
+  function deferredClient(first: Answer) {
+    const pending: Array<{ query: EstatePortfolioQuery; resolve: (a: Answer) => void }> = [];
+    const client: EstateClient = {
+      findings: () => Promise.reject(new Error("no")),
+      actions: () => Promise.reject(new Error("no")),
+      scope: () => Promise.reject(new Error("no")),
+      portfolio: (query) =>
+        query.lens === "all"
+          ? Promise.resolve(first)
+          : new Promise<Answer>((resolve) => {
+              pending.push({ query, resolve });
+            }),
+    };
+    return { client, pending };
+  }
+  const heldRow = row({ finding_id: "aaaaaaaa-0000-4000-8000-00000000000a", finding_revision_id: "bbbbbbbb-0000-4000-8000-00000000000a", title: "Held all-lens row", finding_label: "Held all-lens row" });
+  const costRow = row({ finding_id: "cccccccc-0000-4000-8000-00000000000c", finding_revision_id: "dddddddd-0000-4000-8000-00000000000c", title: "Fresh cost row", finding_label: "Fresh cost row" });
+  const riskRow = row({ finding_id: "eeeeeeee-0000-4000-8000-00000000000e", finding_revision_id: "ffffffff-0000-4000-8000-00000000000e", title: "Fresh risk row", finding_label: "Fresh risk row" });
+  const start = async (first: Answer) => {
+    const d = deferredClient(first);
+    renderAt(ENTRY, d.client);
+    await settledScreen();
+    return d;
+  };
+  const click = async (label: string) => {
+    await act(async () => {
+      fireEvent.click(within(panel("Where management should act first")).getByRole("button", { name: label }));
+    });
+  };
+  const priority = () => document.querySelector("[data-portfolio-panel='priority']") as HTMLElement;
+
+  it("keeps the cards, pulse and context while the lens read is pending", async () => {
+    await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    expect(document.querySelector("[data-estate-loading]")).toBeNull();
+    expect(document.querySelector("[data-portfolio-context]")).not.toBeNull();
+    expect(document.querySelector("[data-portfolio-pulse]")).not.toBeNull();
+    expect(document.querySelector("[data-portfolio-panel='objectives']")).not.toBeNull();
+  });
+
+  it("shows a loading row, aria-busy and no held row on the priority panel", async () => {
+    await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    const p = priority();
+    expect(p.getAttribute("aria-busy")).toBe("true");
+    expect(within(p).getByRole("button", { name: "Cost" }).getAttribute("aria-pressed")).toBe("true");
+    expect(within(p).getByRole("button", { name: "All findings" }).getAttribute("aria-pressed")).toBe("false");
+    expect(text(p.querySelector("[data-portfolio-loading-rows]"))).toBe("Loading the Cost findings.");
+    expect(text(p)).not.toContain("Held all-lens row");
+    expect(text(p.querySelector("[data-portfolio-count]"))).toBe("Loading findings");
+    expect(within(p).queryByText("Load more Findings")).toBeNull();
+  });
+
+  it("replaces the page with the lens response: new rows and total_count", async () => {
+    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    await act(async () => {
+      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 7, lens: "cost" })));
+    });
+    await settledScreen();
+    const p = priority();
+    expect(p.getAttribute("aria-busy")).not.toBe("true");
+    expect(p.querySelector("[data-portfolio-loading-rows]")).toBeNull();
+    expect(text(p)).toContain("Fresh cost row");
+    expect(text(p)).not.toContain("Held all-lens row");
+    expect(text(p.querySelector("[data-portfolio-count]"))).toContain("7 findings");
+  });
+
+  it("a refusal on the lens read replaces the page", async () => {
+    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    await act(async () => {
+      d.pending[0].resolve(refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable."));
+    });
+    await settledScreen();
+    expect(document.querySelector("[data-portfolio-panel='priority']")).toBeNull();
+    expect(document.querySelector("[data-portfolio-pulse]")).toBeNull();
+    expect(document.body.textContent).toContain("The estate store is unavailable.");
+  });
+
+  it("cost then risks quickly shows the risks body only", async () => {
+    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
+    await click("Cost");
+    await click("Risks");
+    expect(d.pending.map((c) => c.query.lens)).toEqual(["cost", "risks"]);
+    await act(async () => {
+      d.pending[1].resolve(loadedPortfolio(portfolioBody({ rows: [riskRow], total_count: 3, lens: "risks" })));
+    });
+    await act(async () => {
+      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 9, lens: "cost" })));
+    });
+    await settledScreen();
+    const p = priority();
+    expect(text(p)).toContain("Fresh risk row");
+    expect(text(p)).not.toContain("Fresh cost row");
+    expect(text(p)).not.toContain("Held all-lens row");
+    expect(within(p).getByRole("button", { name: "Risks" }).getAttribute("aria-pressed")).toBe("true");
+  });
+});

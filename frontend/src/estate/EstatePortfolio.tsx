@@ -257,6 +257,7 @@ function PriorityPanel({
   body,
   rows,
   lens,
+  pending,
   onLens,
   window,
   loadMore,
@@ -265,16 +266,24 @@ function PriorityPanel({
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
   lens: EstateLens;
+  /** PL-1: the lens being read; the held rows belong to another lens and are not shown. */
+  pending: EstateLens | null;
   onLens: (lens: EstateLens) => void;
   window: Window;
   loadMore: (() => void) | null;
   warnings: readonly OutcomeWarning[];
 }) {
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
-  const incomplete = body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN";
-  const count = body.total_count === null ? "Unknown" : String(body.total_count);
+  const incomplete = pending === null && (body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN");
+  const count = pending !== null ? "Loading" : body.total_count === null ? "Unknown" : String(body.total_count);
+  const pendingLabel = LENS_LABELS.find(([value]) => value === pending)?.[1] ?? "";
   return (
-    <section className="panel priority-panel" aria-labelledby="portfolio-priority-heading" data-portfolio-panel="priority">
+    <section
+      className="panel priority-panel"
+      aria-labelledby="portfolio-priority-heading"
+      aria-busy={pending !== null ? "true" : undefined}
+      data-portfolio-panel="priority"
+    >
       <div className="panel-head">
         <div>
           <h2 id="portfolio-priority-heading">{PRIORITY_PANEL}</h2>
@@ -312,7 +321,13 @@ function PriorityPanel({
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 ? (
+            {pending !== null ? (
+              <tr>
+                <td colSpan={6} data-portfolio-loading-rows>
+                  Loading the {pendingLabel} findings.
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={6} data-portfolio-empty>
                   {lens === "all" ? "No selected Findings for this window" : "No matching supported Findings"}
@@ -343,7 +358,7 @@ function PriorityPanel({
       ) : null}
       <div className="panel-bottom">
         <Link to={estateHref("/findings", window)}>Open all Findings →</Link>
-        {rows.length > 0 ? <span>{PRIORITY_BOTTOM_LINE}</span> : null}
+        {pending === null && rows.length > 0 ? <span>{PRIORITY_BOTTOM_LINE}</span> : null}
       </div>
     </section>
   );
@@ -752,6 +767,7 @@ function Loaded({
   body,
   rows,
   lens,
+  pending,
   onLens,
   window,
   loadMore,
@@ -762,6 +778,7 @@ function Loaded({
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
   lens: EstateLens;
+  pending: EstateLens | null;
   onLens: (lens: EstateLens) => void;
   window: Window;
   loadMore: (() => void) | null;
@@ -821,6 +838,7 @@ function Loaded({
           body={body}
           rows={rows}
           lens={lens}
+          pending={pending}
           onLens={onLens}
           window={window}
           loadMore={loadMore}
@@ -840,7 +858,7 @@ function Loaded({
   );
 }
 
-type Read = { key: string; first: EstateResult<EstatePortfolioBody>; more: EstatePortfolioRow[]; next: string | null };
+type Read = { key: string; windowKey: string; lens: EstateLens; first: EstateResult<EstatePortfolioBody>; more: EstatePortfolioRow[]; next: string | null };
 
 export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
@@ -856,7 +874,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   useEffect(() => {
     let live = true;
     void reads.portfolio(query).then((first) => {
-      if (live) setRead({ key, first, more: [], next: first.status === "loaded" ? first.value.next_cursor : null });
+      if (live) setRead({ key, windowKey: `${window.from}|${window.to}|${window.known_at ?? ""}`, lens, first, more: [], next: first.status === "loaded" ? first.value.next_cursor : null });
     });
     return () => {
       live = false;
@@ -884,6 +902,8 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   const currentSummary = summaryRead?.key === windowKey ? summaryRead.result : null;
 
   const current = read?.key === key ? read : null;
+  // PL-1 (D-E5.22): when only the lens changed, the held loaded read stays on screen whole until the new one replaces it.
+  const held = current === null && read !== null && read.windowKey === windowKey && read.first.status === "loaded" ? read : null;
   const loadMore =
     current === null || current.next === null
       ? null
@@ -899,7 +919,8 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
           });
         };
 
-  const first = current?.first ?? null;
+  const shown = current ?? held;
+  const first = shown?.first ?? null;
   const body = first?.status === "loaded" ? first.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="portfolio">
@@ -925,13 +946,14 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
       ) : (
         <Loaded
           body={first.value}
-          rows={[...first.value.rows, ...(current?.more ?? [])]}
+          rows={[...first.value.rows, ...(shown?.more ?? [])]}
           lens={lens}
+          pending={held !== null ? lens : null}
           onLens={(next) => navigate(portfolioHref(window, next))}
           window={window}
           loadMore={loadMore}
           summary={currentSummary}
-          loadIds={reads.portfolioScopeIds ? () => reads.portfolioScopeIds!(query) : undefined}
+          loadIds={reads.portfolioScopeIds ? () => reads.portfolioScopeIds!({ ...query, lens: shown?.lens ?? lens }) : undefined}
         />
       )}
     </div>
