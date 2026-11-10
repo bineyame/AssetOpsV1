@@ -130,44 +130,109 @@ export function consequenceWords(consequence: EstateConsequence, rowStatus: stri
   return "Source not checked";
 }
 
-function count(value: number | null): string {
-  return value === null ? "Some data missing" : String(value);
+export const NOT_COUNTED_YET = "Not counted yet";
+export const COUNTED_WHEN_ANALYSED = "Counted once every site is fully analysed";
+export const NOT_YET_CONFIRMED_NOTE = "Seen, but the readings do not yet confirm it · read with care";
+export const AWAITING_MINI_GRID_ONLY = "mini-grid sites only; cold room and EV charging are not counted here yet";
+export const SO_FAR_EXPLAINED =
+  "\"So far\" because findings on days not analysed yet are not shown, so more may appear once those days are analysed.";
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/**
+ * FC-1 (D-E5.26): the Site breakdown behind the "So far" note, in the analysis words of the proposal's term table,
+ * from `coverage.sites` (NOT_APPLICABLE sites leave the denominator). Returns null when every applicable Site is fully
+ * analysed.
+ */
+function siteBreakdown(body: EstateFindingsBody): { full: number; applicable: number; parts: string[] } | null {
+  const sites = body.coverage.sites.filter((x) => x.state !== "NOT_APPLICABLE");
+  const full = sites.filter((x) => x.state === "CURRENT" || x.state === "HISTORICAL").length;
+  if (full === sites.length) return null;
+  const of = (...states: string[]) => sites.filter((x) => states.includes(x.state)).length;
+  const known = ["CURRENT", "HISTORICAL", "PARTIAL", "PENDING_RECOMPUTE", "STALE_SOURCE"];
+  const parts: string[] = [];
+  const add = (n: number, one: string, many: string) => n > 0 && parts.push(plural(n, one, many));
+  add(of("PARTIAL"), "site with days not analysed yet", "sites with days not analysed yet");
+  add(of("PENDING_RECOMPUTE"), "site still processing", "sites still processing");
+  add(of("STALE_SOURCE"), "site with no new readings received", "sites with no new readings received");
+  add(sites.filter((x) => !known.includes(x.state)).length, "site not analysed yet", "sites not analysed yet");
+  return { full, applicable: sites.length, parts };
 }
 
+const withParts = (lead: string, parts: string[]) => [lead, ...parts].join(" · ");
+
+/**
+ * FC-1 (D-E5.25 to D-E5.28; MOCK DEVIATION MD-FC-1..4, register R715-R718, v71 findings-cards draft): three cards.
+ * The counts are over the rows read; when the coverage is not complete each carries "So far" and the Site breakdown,
+ * and a null count (an older backend) reads "Not counted yet".
+ */
 function Cards({ body }: { body: EstateFindingsBody }) {
   const s = body.summary;
-  const awaitingNote =
-    s.awaiting_verification === null ? undefined : s.awaiting_verification === 0 ? AWAITING_ZERO : "Action taken; outcome open";
+  const breakdown = siteBreakdown(body);
+  const complete = body.coverage.state === "COMPLETE";
+  const parts = breakdown?.parts ?? [];
+  const soFar = withParts(
+    breakdown === null ? "So far" : `So far: ${breakdown.full} of ${plural(breakdown.applicable, "site", "sites")} fully analysed`,
+    parts,
+  );
+  const unconfirmed = s.unconfirmed_findings ?? null;
+  const anyCounted = [s.supported_findings, unconfirmed, s.awaiting_verification].some((v) => v !== null);
+  const awaitingBase = s.awaiting_verification === 0 ? AWAITING_ZERO : "Action taken; outcome open";
+  const card = (key: string, label: string, value: number | null, note: string, extra?: React.ReactNode) => (
+    <MetricCard
+      label={label}
+      value={value === null ? NOT_COUNTED_YET : String(value)}
+      word={value === null}
+      tone={value === null ? "amber" : undefined}
+      note={
+        <>
+          {note}
+          {extra}
+        </>
+      }
+      data={{ "data-estate-card": key }}
+    />
+  );
   return (
-    <MetricCards label="Findings summary" data={{ "data-estate-cards": "" }}>
-      <MetricCard
-        label="Supported findings"
-        value={count(s.supported_findings)}
-        word={s.supported_findings === null}
-        tone={s.supported_findings === null ? "amber" : undefined}
-        note={s.supported_findings === null ? undefined : `Across ${body.scope.authorized_site_count} sites`}
-        data={{ "data-estate-card": "supported_findings" }}
-      />
-      <MetricCard label="High priority" value="Not assessed" word data={{ "data-estate-card": "high_priority" }} />
-      <MetricCard label="Low confidence" value="Not assessed" word data={{ "data-estate-card": "low_confidence" }} />
-      <MetricCard
-        label="Awaiting verification"
-        value={count(s.awaiting_verification)}
-        word={s.awaiting_verification === null}
-        tone={s.awaiting_verification === null ? "amber" : undefined}
-        note={
-          awaitingNote === undefined ? undefined : (
+    <>
+      <MetricCards columns={3} label="Findings summary" data={{ "data-estate-cards": "" }}>
+        {card(
+          "supported_findings",
+          "Confirmed findings",
+          s.supported_findings,
+          s.supported_findings === null
+            ? withParts(COUNTED_WHEN_ANALYSED, parts)
+            : complete
+              ? `Across ${body.scope.authorized_site_count} sites`
+              : soFar,
+        )}
+        {card(
+          "unconfirmed_findings",
+          "Not yet confirmed",
+          unconfirmed,
+          unconfirmed === null ? COUNTED_WHEN_ANALYSED : complete ? NOT_YET_CONFIRMED_NOTE : soFar,
+        )}
+        {card(
+          "awaiting_verification",
+          "Awaiting verification",
+          s.awaiting_verification,
+          s.awaiting_verification === null
+            ? COUNTED_WHEN_ANALYSED
+            : complete
+              ? `${awaitingBase} · ${AWAITING_MINI_GRID_ONLY}`
+              : `So far · ${AWAITING_MINI_GRID_ONLY}`,
+          s.awaiting_verification === null ? undefined : (
             <>
-              {awaitingNote}{" "}
+              {" "}
               <Disclosure summary="How this is counted" name="estate-awaiting-rule" variant="inline">
                 {AWAITING_RULE}
               </Disclosure>
             </>
-          )
-        }
-        data={{ "data-estate-card": "awaiting_verification" }}
-      />
-    </MetricCards>
+          ),
+        )}
+      </MetricCards>
+      {!complete && anyCounted ? <p className="estate-cards-note" data-estate-so-far>{SO_FAR_EXPLAINED}</p> : null}
+    </>
   );
 }
 
