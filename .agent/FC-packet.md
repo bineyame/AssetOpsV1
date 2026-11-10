@@ -34,8 +34,8 @@ frontend: `estate/findingIndex.tsx`, `estateClient.ts`, `__tests__/estateRoots.t
 
 ## Known deviations / notes for review
 - Golden diff is NOT only the three summary keys: regeneration also added `summary.claims` (`count.opportunities`,
-  NOT_KNOWN) to the 23 Findings bodies, which the golden did not carry before (CH-5a2b output; the replay evidently
-  tolerates it). Counts changed as intended: `awaiting_verification` null->0, `supported_findings` null->n, plus
+  NOT_KNOWN) to the 23 Findings bodies. This drift predates the branch: CH-5a2b (c10d51658) added `claims` and main's
+  golden was stale (T6 deferral 733eaf75c); it is not part of this change. Counts changed as intended: `awaiting_verification` null->0, `supported_findings` null->n, plus
   `unconfirmed_findings`.
 - Mockup vs spec: the spec says the null note is followed by "the same parts" on every card; the draft (section C) shows
   the parts on Confirmed findings only. Built to the draft. The draft's partial Awaiting note is "So far · mini-grid ..."

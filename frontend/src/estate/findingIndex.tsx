@@ -2,7 +2,7 @@
  * W3-01 commit 3: the four estate Finding lens roots (v6.9 `findings`, `findings-cost`, `findings-risks`,
  * `findings-opportunities`) read from `GET /api/estate/findings` (`estate-finding-index-2`). Copy and states follow
  * `.agent/W3-01-build-spec.md` "Per-screen panel/copy/layout dry-read", Review closure B3/B7/S19, Run 6 Blocker 2,
- * Run 8 rulings 3-5 and Run 12 ruling 3. Priority and confidence stay `Not assessed`; Risks and Opportunities stay
+ * Run 8 rulings 3-5 and Run 12 ruling 3. Priority and confidence stay `Not assessed` in the row columns (the summary cards no longer show them, FC-1); Risks and Opportunities stay
  * honestly empty until a stored eligible kind exists. No mock ID, count, price or savings is rendered.
  */
 import { useEffect, useMemo, useState } from "react";
@@ -162,7 +162,7 @@ function siteBreakdown(body: EstateFindingsBody): { full: number; applicable: nu
 const withParts = (lead: string, parts: string[]) => [lead, ...parts].join(" · ");
 
 /**
- * FC-1 (D-E5.25 to D-E5.28; MOCK DEVIATION MD-FC-1..4, register R715-R718, v71 findings-cards draft): three cards.
+ * FC-1 (D-E5.25 to D-E5.28; MOCK DEVIATION MD-FC-1..3, register R715-R717, v71 findings-cards draft): three cards.
  * The counts are over the rows read; when the coverage is not complete each carries "So far" and the Site breakdown,
  * and a null count (an older backend) reads "Not counted yet".
  */

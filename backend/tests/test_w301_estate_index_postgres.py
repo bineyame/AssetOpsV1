@@ -495,9 +495,10 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     (site,) = before["coverage"]["sites"]
     assert (site["state"], site["match_state"]) == ("UNKNOWN", "PENDING")
     assert before["rows"] == [] and before["total_count"] is None
-    # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; every count stays null.
+    # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; basis_count stays null, the FC-2 counts are 0.
     assert before["summary"].pop("as_of") == before["window"]["known_at"]
-    assert all(v is None for k, v in before["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert all(v is None for k, v in before["summary"].items() if k not in COUNTS_ANYWAY)
+    assert before["summary"]["supported_findings"] == before["summary"]["awaiting_verification"] == 0
     # At the exact cutoff and live: the NO_LONGER_SUPPORTED revision, in All, outside Supported.
     assert rows_of(exact) == rows_of(live) == [(finding_id, rev3, "NO_LONGER_SUPPORTED", "2026-10-21T08:00:00Z")]
     assert exact["status"] == "HISTORICAL" and live["status"] == "CURRENT"
@@ -512,7 +513,7 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     pending = estate.ok("findings", **day)
     (site,) = pending["coverage"]["sites"]
     assert pending["status"] == site["state"] == "PENDING_RECOMPUTE" and site["job_state"] == "PENDING"
-    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k not in ("opportunity_count", "claims"))
+    assert pending["total_count"] is None and all(v is None for k, v in pending["summary"].items() if k not in COUNTS_ANYWAY)
     held = estate.ok("findings", **day, known_at=iso(c3))
     assert held["rows"] == exact["rows"] and held["selection_token"] == exact["selection_token"]
     assert held["coverage"] == exact["coverage"] and held["status"] == "HISTORICAL"
@@ -734,6 +735,14 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
         assert at_accept["summary"]["awaiting_verification"] == 0
         # Controls: later_end is exclusive (the window is closed at it).
         assert estate.ok("findings", **f01_day, known_at=iso(end))["summary"]["awaiting_verification"] == 0
+        # FC-2 (D-E5.26): a PARTIAL scope (an unanalysed second Site) still runs the awaiting join and returns the
+        # number over the rows read, equal to the complete-scope read of the same Site (an honest zero here).
+        empty = add_empty_site(engine, runner.site, "W301-EMPTY-002")
+        imported_before(engine, runner.tenant, empty, datetime(2026, 10, 1, tzinfo=timezone.utc))
+        partial_read = estate.ok("findings", **f01_day, known_at=iso(start))
+        assert partial_read["coverage"]["state"] == "PARTIAL"
+        assert partial_read["summary"]["awaiting_verification"] == in_window["summary"]["awaiting_verification"] == 0
+        assert partial_read["summary"]["basis_count"] is None
         # VERIFIED: RESOLVED closes the Action; the 30-day lookback counts the outcome's recorded instant.
         h.clock.at = CLOSED + timedelta(hours=1)
         outcome = evaluate(h, action_id, "eval-0001").json()["outcome"]
