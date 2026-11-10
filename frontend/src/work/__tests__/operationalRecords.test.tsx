@@ -286,7 +286,8 @@ describe("W6-01e E2: global Operational records", () => {
     expect(cell(first, 1).querySelector(".v69-chip, .w1f4-action-badge")).toBeNull();
     expect(within(cell(first, 2)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
     expect(text(cell(first, 3))).toBe("18 Oct 2026, 09:00");
-    expect(text(cell(first, 4))).toBe("service:w401-fixture");
+    expect(text(cell(first, 4))).toBe("Prepared example record");
+    expect(cell(first, 4).querySelector("[data-global-work-actor]")?.getAttribute("data-global-work-actor")).toBe("service:w401-fixture");
     expect(text(cell(first, 5).querySelector("[data-global-work-body]"))).toBe(
       "Shift note at KOBO-001: generator stop handed over to the next shift.",
     );

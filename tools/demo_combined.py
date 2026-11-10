@@ -317,7 +317,7 @@ def story_links(story: dict, days: list[dict], kobo: dict | None, web: int,
         rows += [("KOBO-001 Overview, day S", f"{base}/sites/KOBO-001?date={story['S_date']}"),
                  (f"Action {kobo.get('action_code')} verification",
                   f"{base}/sites/KOBO-001/actions/{kobo['action']}/verification"),
-                 ("Finding", f"{base}/sites/KOBO-001/findings/{kobo['finding']}?revision_id={kobo['finding_revision']}")]
+                 ("Finding", f"{base}/sites/KOBO-001/findings/{kobo['finding']}")]
     if kisiwa is not None and "kisiwa" in story["sites"]:
         day = lambda n: (S + timedelta(days=n)).date().isoformat()  # noqa: E731
         rows += [("KISIWA-001 board, morning after the unexplained-fuel night (S-5d)",

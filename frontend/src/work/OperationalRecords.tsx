@@ -88,7 +88,20 @@ export const RECORDS_USED_THIRD =
 /** §3.1 Rev 1 (MD-OWN-G3-4): the server entry service's id and its By label; other ids show as stored. */
 export const OPERATOR_ENTRY_ACTOR = "service:operator-entry";
 export const OPERATOR_ENTRY_LABEL = "Entered by site admin";
-export const actorLabel = (actorId: string): string => (actorId === OPERATOR_ENTRY_ACTOR ? OPERATOR_ENTRY_LABEL : actorId);
+/**
+ * MOCK DEVIATION MD-E5-1 (R714, amends R30 for the By cell only): the prepare seeds example records as
+ * `service:w401-fixture`; any other `service:` id is a system service. Other values show as stored.
+ * The raw id stays on `data-global-work-actor` as a test hook.
+ */
+export const W401_FIXTURE_ACTOR = "service:w401-fixture";
+export const W401_FIXTURE_LABEL = "Prepared example record";
+export const SYSTEM_SERVICE_LABEL = "Entered by a system service";
+export const actorLabel = (actorId: string): string => {
+  if (actorId === OPERATOR_ENTRY_ACTOR) return OPERATOR_ENTRY_LABEL;
+  if (actorId === W401_FIXTURE_ACTOR) return W401_FIXTURE_LABEL;
+  if (actorId.startsWith("service:")) return SYSTEM_SERVICE_LABEL;
+  return actorId;
+};
 
 /** §3.3: the Reading options, in order, with each one's unit suffix and Value placeholder (MD-OWN-G3-1). */
 export const READING_OPTIONS: readonly { entry: OperationalEntryKind; label: string; unit: string; placeholder: string }[] = [
