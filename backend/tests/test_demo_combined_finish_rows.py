@@ -353,10 +353,12 @@ def test_week_gap_pattern_passes_on_v4_and_fails_on_client4s_v3_pattern() -> Non
 
 
 def test_gap_gated_keys_on_the_schema_version() -> None:
-    """D-E5.21: gated for schema version >= 4 (dict or bare int), not for v3, an unreadable schema or a bool."""
+    """D-E5.21: gated for schema version >= 4 (dict or bare int); ungated only for an explicit version below 4; fails
+    closed (gated) when the schema or version is missing or unreadable."""
     assert rows.gap_gated({"id": "x", "version": 4}) and rows.gap_gated({"version": 5}) and rows.gap_gated(4)
     assert not rows.gap_gated({"id": "x", "version": 3}) and not rows.gap_gated(3)
-    assert not rows.gap_gated({}) and not rows.gap_gated(None) and not rows.gap_gated(True)
+    for unreadable in ({}, None, {"id": "x"}, {"version": "4"}, {"version": None}, "3", True, []):
+        assert rows.gap_gated(unreadable), unreadable
 
 
 def _wkgap_ctx(version: int, missed, partial):

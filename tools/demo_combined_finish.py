@@ -698,7 +698,6 @@ def wkgap(ctx: Ctx) -> dict:
 def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[str]) -> dict:
     from assetops_backend.chain.vocabulary import days_line
 
-
     out = demo_rows.week_gap_pattern(_week_grades(ctx, week[0], week[-1]), week, missed, partial)
     _, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     gaps = [g["day"] for g in ((coverage.get(KOBO) or {}).get("days") or {}).get("gaps", [])]
