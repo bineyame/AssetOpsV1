@@ -77,7 +77,7 @@ def test_declare_and_attest_use_current_work_window(replayed, tmp_path) -> None:
     assert P.instant(w["from"]) <= k1 < P.instant(w["to"]) and built["evidence_window_E"]["from"] == P.iso(P.E_START)
     assert built["intent_posted"]["basis"]["finding_revision_id"] == built["selection"]["finding_revision_id"]
     assert (built["action_posted"]["title"], built["action_posted"]["owner_label"]) == (
-        "Investigate connector 2", "Charging operations")
+        "Investigate connector c1", "Charging operations")
     submitted = walk._attest(URL, "fx", built)
     assert submitted["wr_narrative"] == "Inspect connector and witness a charging session"
     assert submitted["posted"]["request"]["narrative"] == "Inspect connector and witness a charging session"

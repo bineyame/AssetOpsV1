@@ -400,7 +400,7 @@ function evDetail(over: Partial<DomainActionDetail> = {}): DomainActionDetail {
       id: EV_ACTION_ID,
       action_code: "ACT-000061",
       domain: "EV_CHARGING",
-      title: "Investigate connector 2",
+      title: "Investigate connector c1",
       owner_label: "Charging operations",
       due_at: null,
       raised_at: "2026-10-06T09:10:00Z",
@@ -455,7 +455,7 @@ describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
     expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map(text)).toEqual(["Actions", "ACT-061", "Verification"]);
     expect(main.querySelector("[data-domain-action-crumbs] a")?.getAttribute("href")).toBe("/actions");
     expect(text(main.querySelector("[data-domain-action-crumb-site]"))).toBe(`· site: ${EV_SITE_NAME}`);
-    expect(text(main.querySelector("h1"))).toBe("ACT-061 · Investigate connector 2");
+    expect(text(main.querySelector("h1"))).toBe("ACT-061 · Investigate connector c1");
     expect(main.textContent).toContain("What would establish successful service restoration?");
     expect(main.querySelector("[data-domain-action-open-site]")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}`);
     // One Verification tab only.
