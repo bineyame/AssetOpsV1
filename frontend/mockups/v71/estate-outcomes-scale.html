@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estate Outcomes Scale</title>
+<!-- v7.1 DRAFT for owner review (2026-11-10, walkthrough item 9). Not the layout spec until the owner approves it.
+     The "Outcomes by site" tab of portfolio-tabs.html, redesigned to scale from 4 to hundreds of Sites.
+     Reuses the v7.0 stylesheets unchanged; only the additions below are new. v69 and v70 are not changed.
+     Demo scale: v7.0's illustrative records plus an illustrative Kisiwa (diesel). Large estate: SYNTHETIC, illustrative only.
+     Proposal: .agent/architect-proposal-portfolio-layout-2026-11-10.md, section "Item 9: scalable estate outcomes". -->
+<link rel="stylesheet" href="../v70/mockups.css">
+<link rel="stylesheet" href="../v70/portfolio.css">
+<link rel="stylesheet" href="../v70/outcomes.css">
+<style>
+/* v7.1 additions only (draft bar, coverage line and tab row copied from portfolio-tabs.html) */
+:root{--draft:#7552ab}
+body{background:var(--page)}
+.draftbar{position:sticky;top:0;z-index:20;min-height:46px;padding:8px 20px;background:#f3eefc;border-bottom:1px solid #dccff5;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#40306b}
+.draftbar strong{letter-spacing:.4px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid #cbbcec;border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 12px;font-size:12px;color:#40306b}
+.seg button[aria-pressed="true"]{background:var(--draft);color:#fff;font-weight:650}
+.notes-toggle{font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.pf-topbar{position:sticky;top:46px;z-index:15}
+.pf-coverage{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;margin:0 0 14px;background:#fffaf0;border:1px solid #f0dcb4;border-radius:10px;font-size:12px;color:#5b4413}
+.pf-coverage .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex:none}
+.pf-coverage b{font-weight:650;color:#3d2e0d}
+.pf-coverage .sites{display:flex;flex-wrap:wrap;gap:4px 12px}
+.pf-coverage .sites span{white-space:nowrap}
+.pf-coverage .rule{color:#6f5a2a}
+.pf-coverage a{margin-left:auto;font-weight:650}
+.pf-tabs{margin:0 0 18px;border-bottom:1px solid var(--line)}
+.pf-tabs ol{list-style:none;margin:0;padding:0;display:flex;gap:24px;overflow-x:auto;scrollbar-width:thin}
+.pf-tabs a{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#58667f;padding:11px 0 12px;border-bottom:2px solid transparent;white-space:nowrap}
+.pf-tabs a[aria-current="page"]{color:var(--blue);border-color:var(--blue);font-weight:650}
+.pf-tabs a:hover{text-decoration:none;color:var(--blue)}
+.pf-tabs .count{font-size:10px;font-weight:650;background:#eef2f8;color:#44536b;border-radius:9px;padding:1px 7px}
+.pf-tabs .deep{margin-left:auto}
+.note-pin{display:none;margin:0 0 12px;padding:8px 12px;border-left:3px solid var(--draft);background:#f7f3fe;color:#40306b;font-size:12px;line-height:1.55;border-radius:0 8px 8px 0}
+body.show-notes .note-pin{display:block}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.illus{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:650;color:#6b3fa0;background:#f3eefc;border:1px dashed #b9a3e3;border-radius:6px;padding:3px 8px}
+
+/* Item 9: pillar tiles */
+.eo-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:0 0 6px}
+.eo-tile{background:#fff;border:1px solid var(--line);border-radius:9px;padding:13px 14px;min-width:0}
+.eo-tile[data-active="true"]{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.eo-tile h3{display:flex;align-items:center;gap:7px;font-size:13px;margin:0 0 9px}
+.eo-tile h3 svg{width:18px;height:18px;color:#44536b}
+.eo-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#eef1f6;margin:0 0 9px}
+.eo-bar span{display:block;height:100%}
+.eo-dist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.eo-dist button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:3px 7px;font-size:11px;color:#2c3c55}
+.eo-dist button:hover{border-color:#9fb4d8}
+.eo-dist button[aria-pressed="true"]{border-color:var(--blue);background:#eef3ff;color:var(--blue);font-weight:650}
+.eo-dist b{font-weight:700}
+.eo-tilefoot{display:block;margin-top:8px;font-size:10.5px;color:var(--muted)}
+.eo-sumnote{font-size:11px;color:var(--muted);margin:0 0 14px}
+/* state swatches and glyphs (shape + text, never colour alone: WCAG 1.4.1) */
+.sw{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:4px;font-size:9px;font-weight:800;line-height:1;flex:none}
+.sw.s-needs{background:#f1d9a6;color:#7d4d0b}.sw.s-watch{background:#c4d6f5;color:#22508f}.sw.s-opp{background:#b9e2d0;color:#145c45}
+.sw.s-ontrack{background:#dff1e8;color:#145c45}.sw.s-unknown{background:#d6dde7;color:#4f5f76}.sw.s-notyet{background:#fff;color:#7d8a9c;border:1px dashed #b9c4d3}
+.eo-bar .s-needs{background:#e2b65e}.eo-bar .s-watch{background:#8fb0e6}.eo-bar .s-opp{background:#5fbf98}.eo-bar .s-ontrack{background:#a9dcc4}.eo-bar .s-unknown{background:#b7c2d1}.eo-bar .s-notyet{background:repeating-linear-gradient(45deg,#fff 0 3px,#d6dde7 3px 5px)}
+
+/* toolbar */
+.eo-toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:9px;margin:0 0 10px}
+.eo-field{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);min-width:0}
+.eo-field select,.eo-field input[type=search]{border:1px solid #cdd5e1;border-radius:6px;padding:6px 8px;font-size:12px;color:var(--ink);background:#fff;min-width:0;max-width:100%}
+.eo-field input[type=search]{width:200px}
+.eo-types{display:flex;flex-wrap:wrap;gap:4px}
+.eo-types .chip[aria-pressed="true"]{border-color:var(--blue);color:var(--blue);background:#eef3ff;font-weight:650}
+.eo-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);padding-bottom:6px}
+.eo-view{margin-left:auto}
+.eo-view .seg{border-color:#cdd5e1}.eo-view .seg button{color:#44536b}.eo-view .seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.eo-status{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 14px;font-size:12px;color:#44536b;margin:0 0 8px}
+.eo-status button{border:0;background:none;color:var(--blue);padding:0;font-size:12px}
+.eo-sortnote{color:var(--muted);font-size:11px}
+
+/* list table (sites as rows, the four groups as columns) */
+.eo-frame{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:auto;max-height:72vh;position:relative}
+.eo-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
+.eo-table th,.eo-table td,.eo-grid th{text-transform:none;letter-spacing:0}
+.eo-table th,.eo-table td{padding:7px 8px;border-bottom:1px solid #edf1f6;text-align:left;vertical-align:top}
+.eo-table thead th{position:sticky;top:0;z-index:3;background:#f7f9fc;font-size:11px;font-weight:650;color:#44536b;border-bottom:1px solid var(--line)}
+.eo-table thead th button{border:0;background:none;padding:0;font:inherit;color:inherit;display:inline-flex;align-items:center;gap:5px;text-align:left}
+.eo-table thead th[aria-sort] button::after{content:"▼";font-size:8px;color:var(--blue)}
+.eo-table thead th[aria-sort="ascending"] button::after{content:"▲"}
+.eo-table tbody th{position:sticky;left:0;z-index:2;background:#fff;font-weight:400;font-size:12.5px;color:var(--ink);min-width:150px}
+.eo-table td.go{white-space:nowrap}
+.eo-table tbody th a{font-weight:650}
+.eo-table tbody th small,.eo-table td small{display:block}
+.eo-table td.eo-pc{min-width:150px;width:19%}
+.eo-cell{display:flex;flex-direction:column;gap:2px;border-radius:6px;padding:6px 8px;text-decoration:none;min-height:44px;line-height:1.25}
+.eo-cell:hover{text-decoration:none;filter:brightness(.97)}
+.eo-cell .st{display:flex;align-items:center;gap:5px;font-weight:650;font-size:11.5px}
+.eo-cell small{font-size:10.5px;opacity:.9;color:inherit}
+.eo-cell .more{opacity:.75}
+.eo-cell.s-needs{background:#fbf0da;color:#7d4d0b}.eo-cell.s-watch{background:#e9f0fd;color:#22508f}.eo-cell.s-opp,.eo-cell.s-ontrack{background:#e3f4ed;color:#145c45}
+.eo-cell.s-unknown{background:#eef1f6;color:#4f5f76}.eo-cell.s-notyet{background:#fff;color:#6a788c;border:1px dashed #cdd5e1}
+.rd{display:inline-flex;align-items:center;gap:5px;font-weight:650;font-size:11.5px;white-space:nowrap}
+.rd i{width:8px;height:8px;border-radius:50%;flex:none}
+.rd.r-complete i{background:var(--green)}.rd.r-partial i{background:var(--amber)}.rd.r-toofew i{background:#c26a2e}
+.rd.r-none i{background:var(--red)}.rd.r-processing i{background:#8fb0e6}.rd.r-notanalysed i{background:#b7c2d1}
+.eo-group th{position:sticky;left:0;background:#f3f6fb !important;font-size:12px;padding:8px}
+.eo-group button{border:0;background:none;padding:0;font:inherit;font-weight:650;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.eo-group .gsum{font-weight:400;color:var(--muted);margin-left:8px}
+.eo-moreRow td{text-align:center;padding:9px}
+.eo-moreRow button,.eo-pager button{border:1px solid #cdd5e1;background:#fff;border-radius:6px;padding:6px 14px;font-size:12px;color:var(--blue)}
+.eo-pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;padding:12px;font-size:12px;color:var(--muted)}
+.eo-empty{padding:26px;text-align:center;color:var(--muted)}
+
+/* every-outcome grid (one table per Site type, since each type has its own outcomes) */
+.eo-typeblock{margin:0 0 16px}
+.eo-typeblock h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:13px;margin:0 0 7px}
+.eo-typeblock h3 small{font-weight:400}
+.eo-grid{border-collapse:separate;border-spacing:0;font-size:11px}
+.eo-grid th,.eo-grid td{border-bottom:1px solid #edf1f6;padding:3px}
+.eo-grid thead th{position:sticky;background:#f7f9fc;z-index:3;color:#44536b;font-weight:650;vertical-align:bottom}
+.eo-grid thead tr:first-child th{top:0;height:34px;border-left:2px solid #fff}
+.eo-grid thead tr:nth-child(2) th{top:34px;font-weight:500;font-size:10px;line-height:1.2;width:76px;min-width:76px;max-width:76px;white-space:normal;text-align:center;hyphens:auto}
+.eo-grid thead th.pill{text-align:left;padding:4px 8px}
+.eo-grid thead th.pill button{border:0;background:none;padding:0;font:inherit;color:inherit;display:inline-flex;gap:5px;align-items:center;text-align:left}
+.eo-grid thead th.corner{left:0;z-index:4;text-align:left;padding:4px 8px;min-width:150px}
+.eo-grid tbody th{position:sticky;left:0;z-index:2;background:#fff;text-align:left;font-weight:600;font-size:12px;padding:3px 8px;white-space:nowrap}
+.eo-grid tbody th small{font-weight:400;margin-left:6px}
+.eo-sq{display:grid;place-items:center;height:28px;border-radius:5px;text-decoration:none;font-weight:800;font-size:11px}
+.eo-sq:hover{text-decoration:none;filter:brightness(.95)}
+.eo-sq.s-needs{background:#f1d9a6;color:#7d4d0b}.eo-sq.s-watch{background:#c4d6f5;color:#22508f}.eo-sq.s-opp{background:#b9e2d0;color:#145c45}
+.eo-sq.s-ontrack{background:#dff1e8;color:#145c45}.eo-sq.s-unknown{background:#d6dde7;color:#4f5f76}.eo-sq.s-notyet{background:#fff;color:#9aa6b6;border:1px dashed #cdd5e1}
+.eo-grid td.lead{min-width:120px}
+.eo-grid td.lead .eo-cell{min-height:28px;padding:4px 7px}
+.x-mark{color:#7552ab;font-weight:800}
+.eo-key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;font-size:11px;color:#44536b}
+.eo-key span{display:inline-flex;align-items:center;gap:5px}
+
+@media(max-width:1100px){.eo-view{margin-left:0}}
+/* Phones: the list becomes one card per Site; the four groups sit 2 x 2 */
+@media(max-width:760px){
+ .draftbar{padding:8px 12px;position:static}
+ .pf-topbar{top:0}
+ .pf-tabs ol{flex-wrap:wrap;gap:4px 18px}.pf-tabs .deep{margin-left:0}
+ .pf-coverage a{margin-left:0}
+ .pf-coverage .sites span{white-space:normal}
+ .eo-field input[type=search]{width:100%}
+ .eo-grid tbody th{white-space:normal;min-width:96px;max-width:120px}.eo-grid tbody th small{display:block;margin-left:0}
+ .eo-grid thead th.corner{min-width:96px}
+ .eo-field{flex:1 1 140px}
+ .eo-frame.list{max-height:none;overflow:hidden;border:0;background:none}
+ .eo-table.list thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .eo-table.list,.eo-table.list tbody{display:block}
+ .eo-table.list tr.site{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px;margin:0 0 10px}
+ .eo-table.list tr.site > *{border:0;padding:0;min-width:0;width:auto}
+ .eo-table.list tr.site th,.eo-table.list tr.site td.rdc{grid-column:1/-1;position:static}
+ .eo-table.list tr.site td.eo-pc::before{content:attr(data-label);display:block;font-size:10px;color:var(--muted);margin:0 0 3px}
+ .eo-table.list tr.site td.go{display:none}
+ .eo-table.list tr.eo-group{display:block;margin:12px 0 8px}.eo-table.list tr.eo-group th{display:block;background:none !important;padding:0}
+ .eo-table.list tr.eo-moreRow{display:block}.eo-table.list tr.eo-moreRow td{display:block}
+}
+</style>
+</head>
+<body class="show-notes">
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <div><strong>v7.1 DRAFT · Outcomes by site at scale</strong> · walkthrough item 9 · for owner review</div>
+ <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+  <div class="seg" role="group" aria-label="Estate size">
+   <button type="button" data-scale="demo" aria-pressed="true">Demo estate · 4 sites</button>
+   <button type="button" data-scale="large" aria-pressed="false">Large estate · 120 sites (illustrative)</button>
+  </div>
+  <label class="notes-toggle"><input type="checkbox" id="notes" checked> Show change notes</label>
+  <a href="portfolio-tabs.html#outcomes">Back to the tabs draft</a>
+ </div>
+</div>
+
+<div class="shell">
+ <!-- Left menu: copied verbatim from portfolio-tabs.html, which copied it from the rendered v7.0 shell. -->
+ <aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div><div class="rail-group"><div class="eyebrow">OPERATIONS</div><a class="active" href="../v70/index.html#/portfolio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"></path></svg>Portfolio</a><a class="" href="../v70/index.html#/sites"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14 M8 21v-5h8v5 M7 8v3 M12 7v4 M17 8v3"></path></svg>Sites</a><a class="" href="../v70/index.html#/assets"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16H7z M10 1h4 M10 8h4 M10 12h4 M10 16h4"></path></svg>Assets</a></div><div class="rail-group"><div class="eyebrow">INTELLIGENCE</div><a class="" href="../v70/index.html#/findings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L2 21h20L12 3z M12 9v5 M12 17v1"></path></svg>Findings</a></div><div class="rail-group"><div class="eyebrow">WORK</div><a class="" href="../v70/index.html#/actions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v17H5V4h3 M9 2h6v4H9z M8 12l3 3 5-6"></path></svg>Actions</a><a class="" href="../v70/index.html#/incidents"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10 M12 17v1 M4 3h16v18H4z"></path></svg>Incidents</a><a class="" href="../v70/index.html#/maintenance"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4a5 5 0 0 0-6 6L2 16l6 6 6-6a5 5 0 0 0 6-6l-4 4-5-5 3-5z"></path></svg>Maintenance</a><a class="" href="../v70/index.html#/oprecords"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4"></path></svg>Operational records</a></div><div class="rail-group"><div class="eyebrow">ASSURANCE</div><a class="" href="../v70/index.html#/globalevidence"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5z M14 3v5h5 M8 12h8 M8 16h6"></path></svg>Evidence</a></div><div class="rail-group"><div class="eyebrow">BUSINESS</div><a class="" href="../v70/index.html#/globalfinancials"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20 M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H6"></path></svg>Financials</a></div><div class="rail-group"><div class="eyebrow">ADMIN</div><a class="" href="../v70/index.html#/settings-policies"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2"></path></svg>Settings</a></div><div class="rail-footer"><div class="eyebrow">WORKSPACE</div><a class="" href="../v70/index.html#/lab"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2v7L3 19q-1 3 3 3h12q4 0 3-3L15 9V2 M7 2h10 M7 15h10"></path></svg>Simulator Lab</a><div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>
+ <main class="workspace">
+  <!-- Top bar: copied from portfolio-tabs.html (v7.0 shell); the date range picker stays at the top of the screen. -->
+  <header class="topbar pf-topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><button class="searchbox" data-index=""><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M15 15l6 6"></path></svg>Find a screen</button><div class="range-picker"><button class="range-button" data-range-toggle="" aria-expanded="false" aria-label="Choose analysis window"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v6l4 2"></path></svg><span class="range-name">Window: Custom</span><span id="topbar-window">30 Sep – 6 Oct 2026</span><span aria-hidden="true">▾</span></button></div><span class="avatar">BY</span></div></header>
+  <div class="canvas portfolio-v2">
+   <div class="page-heading"><div><div class="title-row"><h1>Portfolio Value &amp; Operations</h1></div><p>Operating decisions across the estate: cost, service, productive use and asset value</p></div></div>
+
+   <p class="note-pin"><b>Item 9 · Why this changes.</b> Today's grid puts one column per site and one row per outcome group. At 4 sites it reads well; at 25 each column is about 40 px wide and the outcome names no longer fit; at 100 or more it cannot be read at all, and only the single lead outcome of each group is visible. This draft turns it round: <b>sites are rows</b> (rows can grow without limit, columns cannot), the <b>four groups are columns</b> (always four), and a <b>summary for each group</b> sits on top. Use the switch at the top right to compare 4 sites with an illustrative estate of 120.</p>
+
+   <div class="portfolio-context"><div><span class="badge amber">Portfolio: Needs attention</span> <span id="ctx-count"></span></div><span class="illus" id="illus" hidden>Illustrative data · synthetic estate of 120 sites, not real records</span></div>
+
+   <div class="pf-coverage" role="note" aria-label="Readings" id="coverage"></div>
+
+   <nav class="pf-tabs" aria-label="Portfolio sections">
+    <ol>
+     <li><a href="portfolio-tabs.html#overview">Overview</a></li>
+     <li><a href="portfolio-tabs.html#act-first">Act first <span class="count">6</span></a></li>
+     <li><a href="estate-outcomes-scale.html" aria-current="page">Outcomes by site</a></li>
+     <li><a href="portfolio-tabs.html#opportunity">Opportunity <span class="count">1</span></a></li>
+     <li><a href="portfolio-tabs.html#changes">What changed <span class="count">3</span></a></li>
+     <li class="deep"><a href="portfolio-tabs.html#scope">Scope &amp; coverage</a></li>
+    </ol>
+   </nav>
+
+   <section aria-labelledby="h-out">
+    <div class="panel-head" style="margin-bottom:12px"><div><h2 id="h-out">Outcomes across the estate</h2><p>How each site is doing on what matters</p></div></div>
+
+    <p class="note-pin"><b>1 · A summary for each outcome group.</b> Each tile counts <b>sites</b> by their state in that group, for example "2 need attention · 1 watch". These are counts of sites, never a sum of money, energy or hours: those stay on each site's own figures. Select a state to list only those sites. The tiles follow the site type, region, readings and search filters, so "Cold room" shows the cold rooms only.</p>
+    <div class="eo-tiles" id="tiles"></div>
+    <p class="eo-sumnote">Counts of sites. Values are never added across sites here; each site's figures are on its own board.</p>
+
+    <p class="note-pin"><b>2 · Find and narrow.</b> Search by site name; filter by site type, region and readings; group by site type or region; sort by need for attention (the default), name, type or readings. With 8 sites or fewer, only the type chips and the view switch show, so the demo estate stays as simple as today.</p>
+    <div class="eo-toolbar" role="search" aria-label="Find sites" id="toolbar">
+     <label class="eo-field big" for="q">Search sites<input type="search" id="q" placeholder="Site name" autocomplete="off"></label>
+     <div class="eo-field"><span id="types-l">Site type</span><div class="eo-types" role="group" aria-labelledby="types-l" id="types"></div></div>
+     <label class="eo-field big" for="region">Region<select id="region"></select></label>
+     <label class="eo-field big" for="readings">Readings<select id="readings"></select></label>
+     <label class="eo-field big" for="groupby">Group by<select id="groupby"><option value="none">No grouping</option><option value="type">Site type</option><option value="region">Region</option></select></label>
+     <label class="eo-field big" for="sort">Sort<select id="sort"><option value="need">Need for attention</option><option value="name">Site name</option><option value="type">Site type</option><option value="readings">Readings, least complete first</option></select></label>
+     <label class="eo-check"><input type="checkbox" id="exceptions"> Only sites that need attention</label>
+     <div class="eo-field eo-view"><span id="view-l">Show</span><div class="seg" role="group" aria-labelledby="view-l"><button type="button" data-view="list" aria-pressed="true">By outcome group</button><button type="button" data-view="grid" aria-pressed="false">Every outcome</button></div></div>
+    </div>
+
+    <div class="eo-status"><span id="status" role="status" aria-live="polite"></span><span class="eo-sortnote" id="sortnote"></span></div>
+
+    <p class="note-pin" id="note-list"><b>3 · One row per site.</b> Each group cell keeps what today's grid shows (the state and the lead outcome) and adds how many of that site's outcomes in the group need attention. The site name and every cell open the site's outcome board for the same dates. The header stays in view while scrolling, and the site name stays in view when scrolling sideways. 25 sites load at a time; on a phone each site becomes a card.</p>
+    <p class="note-pin" id="note-grid" hidden><b>3 · Every outcome.</b> Each site type has its own outcomes, so this view has one table per type. Each group can be folded to its lead outcome or opened to every outcome (3 to 8 per group). Each square is one outcome and shows its state by shape as well as colour. Outcomes marked <span class="x-mark">◦</span> are illustrative extras, added to show groups of up to 8.</p>
+
+    <div id="results"></div>
+    <div class="eo-key" id="key"></div>
+   </section>
+  </div>
+ </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var notes=document.getElementById('notes');
+function syncNotes(){document.body.classList.toggle('show-notes',notes.checked);}
+notes.addEventListener('change',syncNotes);syncNotes();
+
+/* ---------- vocabulary (v7.0 words; readings words as approved 2026-11-10) ---------- */
+var ST={needs:{l:'Needs attention',g:'!',lead:0},watch:{l:'Watch',g:'~',lead:1},opp:{l:'Opportunity',g:'+',lead:2},
+ ontrack:{l:'On track',g:'✓',lead:3},unknown:{l:'Unknown',g:'?',lead:4},notyet:{l:'Not measured yet',g:'–',lead:5}};
+var ST_ORDER=['needs','watch','opp','ontrack','unknown','notyet'];
+function stCount(k,n){var w={needs:n===1?'needs attention':'need attention',watch:'watch',opp:n===1?'opportunity':'opportunities',ontrack:'on track',unknown:'unknown',notyet:'not measured yet'}[k];return n+' '+w;}
+var RD={complete:{l:'Complete readings',rank:5},partial:{l:'Partial readings',rank:3},toofew:{l:'Too few readings',rank:2},
+ none:{l:'No readings received',rank:0},processing:{l:'Still processing',rank:4},notanalysed:{l:'Not analysed yet',rank:1}};
+var RD_ORDER=['complete','partial','toofew','none','processing','notanalysed'];
+var RD_DEF={complete:'Readings arrived for at least 80% of the hours the day needed. The day is counted.',partial:'Readings arrived for 25–80% of those hours. The day is shown, and named wherever it is used.',toofew:'Readings arrived for under 25% of those hours. The day is not counted.',none:'Nothing arrived from the site for that day.',processing:'Readings arrived and are being analysed; results follow.',notanalysed:'The day has not been through the site analysis yet.'};
+var PILLARS=[
+ {k:'grow',n:'Grow revenue',icon:'M3 17l6-6 4 4 7-7 M14 8h6v6'},
+ {k:'cost',n:'Optimize cost and efficiency',icon:'M3.5 17a8.5 8.5 0 0 1 17 0 M12 17l4-5.5 M7 17h.01 M17 17h.01 M12 8.5v1.5'},
+ {k:'protect',n:'Protect asset and capital',icon:'M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z'},
+ {k:'assure',n:'Assure performance and returns',icon:'M9 12l2 2 4-4 M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18'}];
+var TYPES={mini:{l:'Mini-grid',board:'../v70/index.html#/mini'},cold:{l:'Cold room',board:'../v70/index.html#/cold'},
+ ev:{l:'EV charging',board:'../v70/index.html#/ev'},diesel:{l:'Diesel',board:'../v70/index.html#/mini'}};
+var TYPE_ORDER=['mini','cold','ev','diesel'];
+
+/* Outcomes per Site type and group: the product catalogue (outcomes/catalogue.py); x:1 = illustrative extra (large estate only) */
+var MG={grow:[['MG-1','Productive electricity sales'],['MG-6','Cash collected'],['MG-3','Site profitability'],['X','Connections added',1],['X','Daytime sales to businesses',1]],
+ cost:[['MG-2','Supply cost per kWh'],['X','Fuel cost per kWh',1],['X','Network losses',1],['X','Cost per connection',1],['X','Maintenance cost per kWh',1]],
+ protect:[['MG-5','Reliable service'],['MG-4','Battery and generator life'],['X','Inverter life',1],['X','Panel output kept up',1],['X','Spare parts on hand',1],['X','Safe operation',1],['X','Theft and tampering',1]],
+ assure:[['MG-7','Evidence quality'],['X','Targets met',1],['X','Meter accuracy',1]]};
+var CAT={mini:MG,
+ diesel:{grow:MG.grow,cost:MG.cost,protect:MG.protect.concat([['MG-8','Fuel accounted for']]),assure:MG.assure},
+ cold:{grow:[['CC-2','Paid cold-room use'],['CC-4','Market value of produce'],['X','Occupancy',1],['X','Contracts renewed',1]],
+  cost:[['CC-3','Cost per cooling unit'],['X','Energy per tonne stored',1],['X','Door-open losses',1]],
+  protect:[['CC-1','Stock kept saleable'],['CC-6','Cooling continuity'],['CC-5','Compressor life'],['X','Insulation kept intact',1],['X','Backup ready to start',1]],
+  assure:[['CC-7','Evidence quality'],['X','Targets met',1],['X','Sensor accuracy',1]]},
+ ev:{grow:[['EV-3','Charger use'],['EV-6','Energy billed against metered'],['X','Paid sessions',1],['X','Peak-time use',1]],
+  cost:[['EV-2','Energy cost per km'],['X','Demand charge kept low',1],['X','Energy per session',1]],
+  protect:[['EV-1','Buses ready for service'],['EV-4','Charger life'],['EV-5','Room before expansion'],['X','Connector condition',1],['X','Bus battery health',1],['X','Site power headroom',1]],
+  assure:[['EV-7','Evidence quality'],['X','Targets met',1],['X','Meter accuracy',1]]}};
+function outcomes(type,p,large){var l=CAT[type][p];return large?l:l.filter(function(o){return !o[2];});}
+
+/* ---------- demo estate: v7.0's illustrative records, plus an illustrative Kisiwa ---------- */
+function demoSites(){
+ function S(name,type,rd,rdText,st){var s={name:name,type:type,region:'Not set',rd:rd,rdText:rdText,out:{}};
+  PILLARS.forEach(function(p){s.out[p.k]=outcomes(type,p.k,false).map(function(o,i){return {key:o[0],n:o[1],x:false,s:st[p.k][i]};});});return s;}
+ return [
+  S('Kobo','mini','partial','6 Oct partial · complete on 6 of 7 days',{grow:['opp','notyet','notyet'],cost:['needs'],protect:['ontrack','watch'],assure:['watch']}),
+  S('GreenHarvest','cold','complete','on 7 of 7 days',{grow:['notyet','notyet'],cost:['needs'],protect:['needs','needs','watch'],assure:['watch']}),
+  S('Depot','ev','complete','on 6 Oct · 1 of 8 operating hours missing',{grow:['watch','notyet'],cost:['notyet'],protect:['needs','watch','ontrack'],assure:['watch']}),
+  S('Kisiwa','diesel','complete','on 7 of 7 days',{grow:['notyet','notyet','notyet'],cost:['watch'],protect:['ontrack','watch','needs'],assure:['watch']})];
+}
+
+/* ---------- large estate: SYNTHETIC, seeded so it is the same on every load ---------- */
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pick(r,w){var tot=0,k;for(k in w)tot+=w[k];var x=r()*tot;for(k in w){x-=w[k];if(x<0)return k;}return k;}
+function largeSites(){
+ var r=rng(20261110),out=[];
+ var towns=['Amani','Baraka','Chemba','Dodoma Road','Ekuru','Fumba','Gilgil','Hanang','Ilula','Jambiani','Kalenga','Lindi Hill','Mafinga','Nakuru East','Ole Sereni','Pangani','Rombo','Sigiti','Tanga Bay','Ugweno','Vikindu','Wete','Yombo','Zanaki','Bariadi','Kibaha','Lushoto','Mbinga','Njombe','Ruangwa'];
+ var regions=['North','Coast','Lake','Highlands','Central'];
+ var plan=[['mini',48],['cold',30],['ev',24],['diesel',18]],used={};
+ plan.forEach(function(pt){for(var i=0;i<pt[1];i++){
+  var base=towns[Math.floor(r()*towns.length)],name=base;used[base]=(used[base]||0)+1;if(used[base]>1)name=base+' '+used[base];
+  var rd=pick(r,{complete:70,partial:14,toofew:5,none:4,processing:3,notanalysed:4}),days=7;
+  var rdText={complete:'on 7 of 7 days',partial:null,toofew:null,none:'for the last 7 days',processing:'readings arrived, results follow',notanalysed:'for this period'}[rd];
+  if(rd==='partial'){var p=1+Math.floor(r()*3);rdText=p+' of '+days+' days partial · complete on '+(days-p);}
+  if(rd==='toofew'){var q=1+Math.floor(r()*3);rdText='on '+q+' of '+days+' days · '+(days-q)+' complete';}
+  var s={name:name,type:pt[0],region:regions[Math.floor(r()*regions.length)],rd:rd,rdText:rdText,out:{}};
+  var blank=(rd==='none'||rd==='processing'||rd==='notanalysed');
+  PILLARS.forEach(function(pl){s.out[pl.k]=outcomes(pt[0],pl.k,true).map(function(o){
+   var st=blank?'unknown':pick(r,pl.k==='grow'?{ontrack:28,watch:8,needs:3,notyet:50,opp:11}:pl.k==='assure'?{ontrack:45,watch:30,needs:6,notyet:19}:{ontrack:70,watch:9,needs:3.5,notyet:17.5});
+   return {key:o[0],n:o[1],x:!!o[2],s:st};});});
+  out.push(s);}});
+ return out;
+}
+
+/* ---------- derived values (the product's board decides the lead; here: the most pressing measured state) ---------- */
+function lead(site,p){var l=site.out[p];var best=l[0];l.forEach(function(o){if(ST[o.s].lead<ST[best.s].lead)best=o;});return best;}
+function needCount(site){return PILLARS.filter(function(p){return lead(site,p.k).s==='needs';}).length;}
+function watchCount(site){return PILLARS.filter(function(p){return lead(site,p.k).s==='watch';}).length;}
+function needScore(site){return needCount(site)*10+watchCount(site);}
+
+/* ---------- state ---------- */
+var state={scale:'demo',q:'',types:{},region:'all',readings:'all',groupby:'none',sort:'need',sortDir:'desc',sortPillar:null,
+ exceptions:false,view:'list',pill:null,pillState:null,shown:25,groupOpen:{},groupShown:{},folded:{}};
+var DATA={demo:demoSites(),large:largeSites()};
+function sites(){return DATA[state.scale];}
+var big=function(){return sites().length>8;};
+
+function inScope(s){ /* filters that the tiles follow */
+ if(state.q&&s.name.toLowerCase().indexOf(state.q.toLowerCase())<0)return false;
+ var anyType=Object.keys(state.types).some(function(k){return state.types[k];});
+ if(anyType&&!state.types[s.type])return false;
+ if(state.region!=='all'&&s.region!==state.region)return false;
+ if(state.readings!=='all'&&s.rd!==state.readings)return false;
+ return true;}
+function matches(s){
+ if(!inScope(s))return false;
+ if(state.exceptions&&needCount(s)===0)return false;
+ if(state.pill&&state.pillState&&lead(s,state.pill).s!==state.pillState)return false;
+ return true;}
+function sorted(list){
+ var dir=state.sortDir==='asc'?1:-1;
+ return list.slice().sort(function(a,b){var d=0;
+  if(state.sortPillar){d=ST[lead(a,state.sortPillar).s].lead-ST[lead(b,state.sortPillar).s].lead;if(state.sortDir==='asc')d=-d;}
+  else if(state.sort==='need')d=needScore(b)-needScore(a);
+  else if(state.sort==='name')d=a.name.localeCompare(b.name);
+  else if(state.sort==='type')d=TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type);
+  else if(state.sort==='readings')d=RD[a.rd].rank-RD[b.rd].rank;
+  return d||a.name.localeCompare(b.name);});}
+
+/* ---------- rendering helpers ---------- */
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function sw(k){return '<span class="sw s-'+k+'" aria-hidden="true">'+ST[k].g+'</span>';}
+function icon(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"></path></svg>';}
+function board(s){return TYPES[s.type].board;}
+function rdHtml(s){return '<span class="rd r-'+s.rd+'" title="'+esc(RD[s.rd].l+': '+RD_DEF[s.rd])+'"><i aria-hidden="true"></i>'+RD[s.rd].l+'</span><small>'+esc(s.rdText)+'</small>';}
+
+function renderCoverage(){
+ var all=sites(),c=document.getElementById('coverage'),h='<span class="dot" aria-hidden="true"></span>';
+ if(state.scale==='demo'){
+  h+='<b>Some days have incomplete readings.</b><span class="sites"><span>Kobo: 6 Oct partial readings</span><span>GreenHarvest: complete readings on 7 of 7 days</span><span>Depot: 6 Oct complete readings · 1 of 8 operating hours missing</span><span>Kisiwa: complete readings on 7 of 7 days</span></span>';
+ } else {
+  var n={};RD_ORDER.forEach(function(k){n[k]=0;});all.forEach(function(s){n[s.rd]++;});
+  h+='<b>Readings across '+all.length+' sites.</b><span class="sites">'+RD_ORDER.filter(function(k){return n[k];}).map(function(k){return '<span>'+RD[k].l+': '+n[k]+' sites</span>';}).join('')+'</span>';
+ }
+ h+='<span class="rule">Figures on this page count days with complete readings.</span><a href="portfolio-tabs.html#scope">Which days, and why →</a>';
+ c.innerHTML=h;
+ document.getElementById('ctx-count').textContent=state.scale==='demo'?'4 sites · 1 mini-grid / 1 cold room / 1 EV charging / 1 diesel':all.length+' sites · '+TYPE_ORDER.map(function(t){return all.filter(function(s){return s.type===t;}).length+' '+(t==='ev'?'EV charging':TYPES[t].l.toLowerCase());}).join(' / ');
+ document.getElementById('illus').hidden=state.scale==='demo';
+}
+
+function renderTiles(){
+ var scope=sites().filter(inScope),h='';
+ PILLARS.forEach(function(p){
+  var n={};ST_ORDER.forEach(function(k){n[k]=0;});scope.forEach(function(s){n[lead(s,p.k).s]++;});
+  var total=scope.length||1,active=state.pill===p.k;
+  h+='<section class="eo-tile" data-active="'+active+'" aria-labelledby="t-'+p.k+'"><h3 id="t-'+p.k+'">'+icon(p.icon)+esc(p.n)+'</h3>';
+  h+='<div class="eo-bar" aria-hidden="true">'+ST_ORDER.map(function(k){return n[k]?'<span class="s-'+k+'" style="width:'+(n[k]/total*100)+'%"></span>':'';}).join('')+'</div>';
+  h+='<ul class="eo-dist" aria-label="Sites by state">'+ST_ORDER.filter(function(k){return n[k];}).map(function(k){
+   var on=active&&state.pillState===k;
+   return '<li><button type="button" data-pill="'+p.k+'" data-pstate="'+k+'" aria-pressed="'+on+'" aria-label="'+esc(p.n)+': '+stCount(k,n[k])+'. Show only these sites">'+sw(k)+'<span><b>'+n[k]+'</b> '+stCount(k,n[k]).replace(/^\d+ /,'')+'</span></button></li>';}).join('')+'</ul>';
+  h+='<small class="eo-tilefoot">'+scope.length+' site'+(scope.length===1?'':'s')+' · each counted once, by its lead outcome in this group</small></section>';
+ });
+ document.getElementById('tiles').innerHTML=h;
+}
+
+function renderToolbar(){
+ var all=sites();
+ document.getElementById('types').innerHTML=TYPE_ORDER.map(function(t){var c=all.filter(function(s){return s.type===t;}).length;
+  return '<button type="button" class="chip" data-type="'+t+'" aria-pressed="'+!!state.types[t]+'">'+TYPES[t].l+' <span class="muted">'+c+'</span></button>';}).join('');
+ var regs=[];all.forEach(function(s){if(regs.indexOf(s.region)<0)regs.push(s.region);});regs.sort();
+ document.getElementById('region').innerHTML='<option value="all">All regions</option>'+regs.map(function(g){return '<option'+(state.region===g?' selected':'')+'>'+esc(g)+'</option>';}).join('');
+ document.getElementById('readings').innerHTML='<option value="all">Any readings</option>'+RD_ORDER.map(function(k){return '<option value="'+k+'"'+(state.readings===k?' selected':'')+'>'+RD[k].l+'</option>';}).join('');
+ document.querySelectorAll('.eo-field.big,.eo-check').forEach(function(el){el.hidden=!big();});
+}
+
+function cellHtml(s,p){
+ var l=lead(s,p.k),list=s.out[p.k],needs=list.filter(function(o){return o.s==='needs';}).length;
+ var more=needs?needs+' of '+list.length+' outcome'+(list.length===1?'':'s')+' '+(needs===1?'needs':'need')+' attention':list.length+' outcome'+(list.length===1?'':'s')+' · none need attention';
+ var reason=l.s==='unknown'?RD[s.rd].l:l.n;
+ return '<a class="eo-cell s-'+l.s+'" href="'+board(s,p.k)+'" aria-label="'+esc(s.name+', '+p.n+': '+ST[l.s].l+', '+reason+'. '+more+'. Open the site board')+'"><span class="st">'+sw(l.s)+ST[l.s].l+'</span><small>'+esc(reason)+'</small><small class="more">'+more+'</small></a>';
+}
+function rowHtml(s){
+ return '<tr class="site"><th scope="row"><a href="'+board(s)+'">'+esc(s.name)+'</a><small>'+TYPES[s.type].l+(s.region!=='Not set'?' · '+esc(s.region):'')+'</small></th><td class="rdc">'+rdHtml(s)+'</td>'+
+  PILLARS.map(function(p){return '<td class="eo-pc" data-label="'+esc(p.n)+'">'+cellHtml(s,p)+'</td>';}).join('')+
+  '<td class="go"><a href="'+board(s)+'" aria-label="Open the '+esc(s.name)+' board">Board →</a></td></tr>';
+}
+function sortAttr(key){
+ if(state.sortPillar===key)return ' aria-sort="'+(state.sortDir==='asc'?'ascending':'descending')+'"';
+ if(!state.sortPillar&&state.sort===key)return ' aria-sort="descending"';return '';}
+function groupKey(s){return state.groupby==='type'?TYPES[s.type].l:s.region;}
+
+function renderList(list){
+ var h='<div class="eo-frame list"><table class="eo-table list"><caption class="sr">Outcomes across the estate: one row per site, one column per outcome group</caption><thead><tr>'+
+  '<th scope="col"'+sortAttr('name')+'><button type="button" data-sortby="name">Site</button></th>'+
+  '<th scope="col"'+sortAttr('readings')+'><button type="button" data-sortby="readings">Readings</button></th>'+
+  PILLARS.map(function(p){return '<th scope="col"'+sortAttr(p.k)+'><button type="button" data-sortpill="'+p.k+'" title="Sort by this group, most pressing first">'+esc(p.n)+'</button></th>';}).join('')+
+  '<th scope="col"><span class="sr">Open board</span></th></tr></thead><tbody>';
+ if(!list.length){h+='<tr><td colspan="7" class="eo-empty">No sites match these filters. <button type="button" data-clear="1" class="chip">Clear filters</button></td></tr>';}
+ else if(state.groupby==='none'||!big()){
+  list.slice(0,state.shown).forEach(function(s){h+=rowHtml(s);});
+ } else {
+  var groups={},order=[];list.forEach(function(s){var g=groupKey(s);if(!groups[g]){groups[g]=[];order.push(g);}groups[g].push(s);});
+  if(state.groupby==='type')order.sort(function(a,b){return TYPE_ORDER.indexOf(keyOfType(a))-TYPE_ORDER.indexOf(keyOfType(b));});else order.sort();
+  order.forEach(function(g){var gl=groups[g],open=state.groupOpen[g]!==false,cap=state.groupShown[g]||8;
+   var nNeed=gl.filter(function(s){return needCount(s)>0;}).length;
+   h+='<tr class="eo-group"><th colspan="7" scope="colgroup"><button type="button" data-group="'+esc(g)+'" aria-expanded="'+open+'">'+(open?'▾':'▸')+' '+esc(g)+' · '+gl.length+' sites</button><span class="gsum">'+nNeed+' with at least one group needing attention</span></th></tr>';
+   if(open){gl.slice(0,cap).forEach(function(s){h+=rowHtml(s);});
+    if(gl.length>cap)h+='<tr class="eo-moreRow"><td colspan="7"><button type="button" data-gmore="'+esc(g)+'">Show all '+gl.length+' '+esc(g)+' sites</button></td></tr>';}
+  });
+ }
+ h+='</tbody></table></div>';
+ if(list.length&&(state.groupby==='none'||!big())&&list.length>state.shown)h+='<div class="eo-pager"><span>Showing 1–'+Math.min(state.shown,list.length)+' of '+list.length+'</span><button type="button" data-more="1">Show 25 more</button></div>';
+ return h;
+}
+function keyOfType(label){for(var k in TYPES)if(TYPES[k].l===label)return k;return label;}
+
+function renderGrid(list){
+ var h='';
+ if(!list.length)return '<div class="eo-frame"><p class="eo-empty">No sites match these filters. <button type="button" data-clear="1" class="chip">Clear filters</button></p></div>';
+ TYPE_ORDER.forEach(function(t){
+  var gl=list.filter(function(s){return s.type===t;});if(!gl.length)return;
+  var cap=state.groupShown['grid-'+t]||15,ex=gl[0];
+  h+='<div class="eo-typeblock"><h3>'+TYPES[t].l+' <small class="muted">'+gl.length+' site'+(gl.length===1?'':'s')+' · '+PILLARS.map(function(p){return outcomes(t,p.k,state.scale==='large').length;}).reduce(function(a,b){return a+b;},0)+' outcomes</small></h3>';
+  h+='<div class="eo-frame"><table class="eo-grid"><caption class="sr">'+TYPES[t].l+' sites: every outcome</caption><thead><tr><th class="corner" rowspan="2" scope="col">Site</th>';
+  PILLARS.forEach(function(p){var f=!!state.folded[t+p.k],n=ex.out[p.k].length;
+   h+='<th class="pill" scope="colgroup" colspan="'+(f?1:n)+'"><button type="button" data-fold="'+t+p.k+'" aria-expanded="'+!f+'">'+(f?'▸':'▾')+' '+esc(p.n)+' <span class="muted">'+n+'</span></button></th>';});
+  h+='</tr><tr>';
+  PILLARS.forEach(function(p){if(state.folded[t+p.k]){h+='<th scope="col">Lead outcome</th>';return;}
+   ex.out[p.k].forEach(function(o){h+='<th scope="col">'+esc(o.n)+(o.x?' <span class="x-mark" title="Illustrative extra outcome">◦</span>':'')+'</th>';});});
+  h+='</tr></thead><tbody>';
+  gl.slice(0,cap).forEach(function(s){
+   h+='<tr><th scope="row"><a href="'+board(s)+'">'+esc(s.name)+'</a><small class="muted">'+RD[s.rd].l+'</small></th>';
+   PILLARS.forEach(function(p){
+    if(state.folded[t+p.k]){var l=lead(s,p.k);h+='<td class="lead"><a class="eo-cell s-'+l.s+'" href="'+board(s,p.k)+'"><span class="st">'+sw(l.s)+ST[l.s].l+'</span><small>'+esc(l.s==='unknown'?RD[s.rd].l:l.n)+'</small></a></td>';return;}
+    s.out[p.k].forEach(function(o){h+='<td><a class="eo-sq s-'+o.s+'" href="'+board(s,p.k)+'" title="'+esc(s.name+' · '+o.n+': '+ST[o.s].l)+'"><span aria-hidden="true">'+ST[o.s].g+'</span><span class="sr">'+esc(s.name+', '+o.n+': '+ST[o.s].l)+'</span></a></td>';});
+   });
+   h+='</tr>';});
+  h+='</tbody></table></div>';
+  if(gl.length>cap)h+='<div class="eo-pager"><span>Showing '+cap+' of '+gl.length+'</span><button type="button" data-gmore="grid-'+t+'">Show all '+gl.length+'</button></div>';
+  h+='</div>';
+ });
+ return h;
+}
+
+function render(){
+ renderCoverage();renderTiles();renderToolbar();
+ var list=sorted(sites().filter(matches)),all=sites().length;
+ document.getElementById('results').innerHTML=state.view==='list'?renderList(list):renderGrid(list);
+ var f=[];if(state.pill&&state.pillState)f.push(PILLARS.filter(function(p){return p.k===state.pill;})[0].n+': '+ST[state.pillState].l);
+ if(state.exceptions)f.push('needing attention');
+ var shown=state.view==='list'&&(state.groupby==='none'||!big())?Math.min(state.shown,list.length):list.length;
+ document.getElementById('status').innerHTML=(list.length===all?all+' sites':list.length+' of '+all+' sites match')+(f.length?' · '+esc(f.join(' · '))+' <button type="button" data-clearpill="1">Clear</button>':'')+(state.view==='list'&&shown<list.length?' · showing '+shown:'');
+ document.getElementById('sortnote').textContent=state.sortPillar?'Sorted by '+PILLARS.filter(function(p){return p.k===state.sortPillar;})[0].n+', most pressing first':
+  {need:'Sorted by need for attention: most groups needing attention first, then most on Watch',name:'Sorted by site name',type:'Sorted by site type',readings:'Sorted by readings, least complete first'}[state.sort];
+ document.getElementById('note-list').hidden=state.view!=='list';document.getElementById('note-grid').hidden=state.view!=='grid';
+ document.getElementById('key').innerHTML=ST_ORDER.map(function(k){return '<span>'+sw(k)+ST[k].l+'</span>';}).join('')+'<span class="muted">· Readings: '+RD_ORDER.map(function(k){return RD[k].l.toLowerCase();}).join(', ')+'</span>';
+ document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view===state.view));});
+ document.getElementById('sort').value=state.sort;document.getElementById('groupby').value=state.groupby;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+ var b=e.target.closest('button');if(!b)return;var d=b.dataset;
+ if(d.scale){state.scale=d.scale;state.shown=25;state.types={};state.region='all';state.readings='all';state.q='';document.getElementById('q').value='';state.pill=null;state.pillState=null;
+  document.querySelectorAll('[data-scale]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.scale===state.scale));});}
+ else if(d.view){state.view=d.view;}
+ else if(d.type){state.types[d.type]=!state.types[d.type];state.shown=25;}
+ else if(d.pill){if(state.pill===d.pill&&state.pillState===d.pstate){state.pill=null;state.pillState=null;}else{state.pill=d.pill;state.pillState=d.pstate;}state.shown=25;}
+ else if(d.clearpill){state.pill=null;state.pillState=null;state.exceptions=false;document.getElementById('exceptions').checked=false;}
+ else if(d.clear){state.types={};state.region='all';state.readings='all';state.q='';document.getElementById('q').value='';state.pill=null;state.pillState=null;state.exceptions=false;document.getElementById('exceptions').checked=false;}
+ else if(d.more){state.shown+=25;}
+ else if(d.group){state.groupOpen[d.group]=state.groupOpen[d.group]===false;}
+ else if(d.gmore){state.groupShown[d.gmore]=100000;}
+ else if(d.fold){state.folded[d.fold]=!state.folded[d.fold];}
+ else if(d.sortpill){if(state.sortPillar===d.sortpill)state.sortDir=state.sortDir==='asc'?'desc':'asc';else{state.sortPillar=d.sortpill;state.sortDir='desc';}}
+ else if(d.sortby){state.sortPillar=null;state.sort=d.sortby;state.sortDir='desc';}
+ else return;
+ render();
+});
+document.getElementById('q').addEventListener('input',function(e){state.q=e.target.value;state.shown=25;render();});
+document.getElementById('region').addEventListener('change',function(e){state.region=e.target.value;render();});
+document.getElementById('readings').addEventListener('change',function(e){state.readings=e.target.value;render();});
+document.getElementById('groupby').addEventListener('change',function(e){state.groupby=e.target.value;render();});
+document.getElementById('sort').addEventListener('change',function(e){state.sort=e.target.value;state.sortPillar=null;render();});
+document.getElementById('exceptions').addEventListener('change',function(e){state.exceptions=e.target.checked;render();});
+var qs=new URLSearchParams(location.search);if(qs.get('scale')==='large'){state.scale='large';document.querySelectorAll('[data-scale]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.scale==='large'));});}
+if(qs.get('view')==='grid')state.view='grid';
+if(qs.get('notes')==='0'){notes.checked=false;syncNotes();}
+render();
+})();
+</script>
+</body>
+</html>

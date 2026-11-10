@@ -218,3 +218,260 @@ Neither is called "checked", so they can no longer look like one number that dis
 - **Date range.** The mock uses v7.0's top-bar date picker. It sits at the top of the screen, stays there while scrolling, and is the same on every tab.
 - **Current and Side by side** show v7.0 itself, which already has both.
 - **Build note.** The app today shows the Portfolio date bar (`EstateDateBar`) below the page title, not in the top bar. PF-T moves it to the top, above the coverage line and the tabs. This is inside PF-T's 1.0 units.
+
+## Item 9: scalable estate outcomes
+
+- Architect: Claude (`assetops-architect`). Binding checked in `.ai/ROLE_CONFIG.md`: Architect = Claude since 2026-10-27.
+- Owner, verbatim (`.agent/owner-walkthrough-2026-11-10.md` item 9): "on the main portoflio page, "Outcomes across the estate" page, it seems when the number of sites and the number of items under the four groups increase, the UI can't accommodate them well, is there a more scalabel UI design option? if so, update it on the mock-up and let me know once ready for me to review"
+- **Status: draft for owner review. Nothing is built, and no spec, register or product code changes, until the owner approves.**
+- **Mockup:** `frontend/mockups/v71/estate-outcomes-scale.html`. It is linked from the "Outcomes by site" tab of `portfolio-tabs.html`.
+  - The switch at the top right moves between the demo estate (4 sites) and a synthetic estate of 120 sites. The synthetic estate is labelled as illustrative.
+  - v69 and v70 are unchanged.
+
+### 9.1 In plain words, for the owner
+
+- **Yes, there is a more scalable design, and the draft is ready to review.**
+  - Today's grid gives every site its own column.
+  - Columns run out of room at about 25 sites.
+  - For each site, the grid shows only one outcome per group.
+- **The fix is to turn the grid round.**
+  - Each site becomes a row, and the four outcome groups become four columns.
+  - A page can grow downwards without limit, but not sideways.
+  - There are always exactly four groups, so the columns always fit.
+- **A summary for each group sits on top.**
+  - Each of the four tiles counts sites by state, for example "16 need attention · 28 watch · 62 on track · 14 unknown".
+  - Selecting a state lists only those sites.
+  - The tiles count sites. They never add up money, energy or hours.
+- **Finding a site.**
+  - Search by name.
+  - Filter by site type (mini-grid, cold room, EV charging, diesel), by readings, and by region.
+  - Group by type or region.
+  - Sort by "need for attention" (the default).
+  - 25 sites load at a time.
+  - With 8 sites or fewer, only the type chips and the view switch show, so the demo estate looks as simple as it does today.
+- **Every outcome, when you want it.**
+  - The "Every outcome" view shows one square per outcome for each site.
+  - There is one table per site type, because each type has its own outcomes.
+  - Each group can be opened to all of its outcomes (3 to 8) or folded to its lead outcome.
+- **What stays from today:**
+  - the state words and colours;
+  - the lead outcome, named in each cell;
+  - every cell opening that site's board for the same dates;
+  - the four groups, in the same order.
+- **Phones.** Each site becomes a card, with the four groups in a 2 × 2 grid.
+- **Size and timing.**
+  - This is about **1.75 build units**. It is added to the Portfolio tabs slice (2.25 units), so that slice becomes 4.0 units.
+  - **It is not for Thursday.** It lands with the tabs before the client session.
+  - At 100 or more sites, the server work needs ANY-2's stored rows (+0.75 units there). The page itself does not change again when that work lands.
+
+### 9.2 How today's grid breaks (verified in code)
+
+**The current grid.** It is built by `frontend/src/estate/PortfolioOutcomes.tsx` (`OutcomeMatrix`, lines 270-325) and styled in `frontend/src/sites/outcomes.css:146-162`.
+- It has one row per outcome group and one column per Site.
+- `.oc-mrow` is `repeat(var(--oc-sites), minmax(0, 1fr))`, with a 4 px gap.
+- Each cell shows the state word and the group's **lead outcome only**.
+- v70 hard-codes 3 columns (`outcomes.js:196`, `outcomes.css:40`).
+
+**The usable width:**
+- In the Portfolio side column today, about 285 px inside the panel at 1440 (`estatePortfolio.css:39`: `minmax(290px, 1fr)` beside `2.7fr`).
+- In the v7.1 full-width tab, about 1,140 px.
+- On a phone at 390, about 360 px.
+
+| Sites | Side column (today) | Full-width tab (v7.1) | Phone (390) | What the user sees |
+|---|---|---|---|---|
+| 4 | ~68 px a cell | ~282 px | ~87 px | Readable. "Battery and generator life" wraps to 2-3 lines in the side column |
+| 25 | ~8 px | ~42 px | ~11 px | Names and states no longer fit. The cell becomes a colour stripe, and its meaning is only in the tooltip. Phone and keyboard users do not get tooltips, so this fails WCAG 1.4.1 (colour alone) |
+| 100 | the gaps alone are 396 px, wider than the column, so it overflows | ~7 px | overflows | Not readable. The page scrolls sideways |
+| 500 | the gaps are 1,996 px, so it overflows | the gaps are 1,996 px, so it overflows | overflows | Not usable |
+
+**Outcomes per group (3-8).**
+- Today the catalogue (`outcomes/catalogue.py:44-67`) has 1-4 outcomes per group for each Site type. Mini-grid Protect, for example, has MG-5, MG-4 and MG-8.
+- The board row already carries all of them (`OutcomeBoardRow.outcomes`, `outcomeBoardClient.ts:185`).
+- The estate summary keeps only `lead_outcome` (`site_outcomes/read.py:892-899`, `_summary_row`).
+- So the Portfolio cannot say "2 of 7 Protect outcomes need attention". The other outcomes stay hidden until you open each board.
+- More outcomes per group make this gap bigger; they do not cause the layout break.
+
+**Other parts that also do not scale:**
+- **The Overview card dots.** `SiteDots` (`PortfolioOutcomes.tsx:146-170`) draws one named chip per Site on each of the four cards. At 120 Sites, that is 120 chips on every card.
+- **The server.** `summary()` (`read.py:571-578`, with `_summary` from line 642) composes **one full board per Site, one after another**. Off-list boards measured 10-36 s each (`.agent/architect-answer-any-range-speed-2026-11-10.md` §2), so an estate of 100 Sites cannot be composed on read at all. ANY-2 fixes the same root cause.
+
+### 9.3 Options weighed
+
+**What mature products do.** Real-estate portfolio dashboards, energy-fleet and infrastructure monitoring dashboards all follow one pattern:
+- status tiles that count assets by state;
+- an exceptions-first asset list that can be sorted and filtered;
+- a dense status grid behind a view switch, for analysts.
+
+Data-table guidance points the same way (Carbon, the Atlassian dynamic table, GOV.UK "filter a list"):
+- a sticky header and filters above the table;
+- paging or "load more";
+- on phones, the table becomes cards.
+
+NN/g dashboard guidance adds three rules: lead with exceptions, reveal detail on demand, and never show meaning by colour alone.
+
+| Option | Scales to 500 | Shows the "why" | Works across Site types | Phone | Verdict |
+|---|---|---|---|---|---|
+| (a) Group tiles, each opening a Site list | Yes | Only after a click | Yes | Good | Good for the summary, but four lists behind four tiles are four lists to learn |
+| (b) Heat-map grid, with Sites as rows and outcomes as columns | Yes, as rows | Weakly (colour plus a symbol) | **No**: each type has its own outcomes, so one grid across types has uneven columns | Poor | Right for the analyst view, **within one Site type only** |
+| (c) Exceptions-first list, with the full grid behind a switch | Yes | Yes | Yes | Good | Right for the default, but the healthy Sites stay hidden unless you sort |
+| **(d) Hybrid: (a)'s tiles, one Site list with the four group columns sorted as in (c), and (b)'s grid per Site type as a second view** | **Yes** | **Yes** | **Yes** | **Good** | **Chosen** |
+
+**Why (d):**
+1. Sites are rows and the four groups never change, so the default table never runs out of width, whatever the estate size.
+2. The tiles show at a glance how the estate is doing on each group, and they also work as filters.
+3. The default sort, need for attention, gives the exceptions-first reading of (c). "Only sites that need attention" gives the pure exception list.
+4. The analyst grid (b) appears only where it is honest: within one Site type, with groups that fold.
+
+**Pushback: what stays.**
+- Every cell keeps both the state word **and** the lead outcome. A colour-only heat map would lose the "why" and fail WCAG 1.4.1.
+- The v7.0 state words and key stay.
+- Every cell still opens that Site's board for the same dates.
+- The full outcome grid is not the default view: it is for analysts.
+- Sites do not go back to being columns for small estates. One layout at every size, with the controls hidden at 8 Sites or fewer, is simpler to build, test and learn than two layouts.
+
+### 9.4 The design in detail (as in the mockup)
+
+**Tiles (one per group).**
+- The bar and the state buttons follow the key order: Needs attention, Watch, Opportunity, On track, Unknown, Not measured yet.
+- Each tile counts a Site once, by its lead outcome in that group.
+- The tiles follow the type, region, readings and search filters. They ignore their own state filter, so selecting a state never shrinks a tile to one colour (the usual faceted-search rule).
+- The footer reads "Counts of sites. Values are never added across sites here."
+
+**Coverage words.**
+- At estate scale, the shared coverage line above the tabs counts Sites by reading word, for example: "Complete readings: 80 sites · Partial readings: 20 sites · Too few readings: 6 · No readings received: 8 · Still processing: 2 · Not analysed yet: 4".
+- Each row's Readings column uses the approved words with the days: "Partial readings · 1 of 7 days partial · complete on 6".
+- A Site whose readings are "no readings received", "still processing" or "not analysed yet" shows "Unknown" in every group. The cell names the reading word as the reason. It never shows a guessed state.
+
+**List (the default view).**
+- Columns: Site (with its type and region), Readings, and the four groups.
+- Each group cell shows the state, the lead outcome, and either "{k} of {n} outcomes need attention" or "{n} outcomes · none need attention".
+- Sort options:
+  - need for attention (the default): most groups needing attention first, then most on Watch, then name;
+  - name;
+  - type;
+  - readings, least complete first;
+  - any group column (`aria-sort`).
+- The header and the Site column stay in view while scrolling.
+- 25 rows show at a time, with "Show 25 more".
+- Grouped by type or region:
+  - each group can be collapsed;
+  - it shows 8 rows, with "Show all {n}";
+  - its header counts the Sites with at least one group needing attention.
+
+**Every outcome.**
+- One table per Site type.
+- Each group's header folds between all of the group's outcomes and its lead outcome alone.
+- One square per outcome. Each square shows a symbol (! ~ + ✓ ? –) as well as a colour, and carries a hidden text label for screen readers.
+- The Site column and both header rows stay in view while scrolling.
+- The table scrolls sideways inside its frame, never the whole page.
+- 15 rows show per type, with "Show all".
+- Outcomes marked ◦ in the mockup are illustrative extras, added to show groups of up to 8.
+
+**Phones (≤760 px).**
+- The list becomes one card per Site: its name, its readings, and the four groups in a labelled 2 × 2 grid.
+- The every-outcome view keeps its frame, which scrolls sideways.
+
+**Accessibility (WCAG 2.2 AA).**
+- A real `<table>`, with a caption, `scope` and `aria-sort`.
+- The toolbar has `role="search"`, and every control has a label.
+- The status line is `aria-live`, for example: "24 of 120 sites match · Protect asset and capital: Needs attention · Clear".
+- Each cell link has a full accessible name, for example: "Kobo, Grow revenue: Opportunity, Productive electricity sales. 3 outcomes · none need attention. Open the site board".
+
+**Reaching a Site's board.**
+- The Site name and every cell link to `/sites/:code/overview` with `from`, `to` and `known_at`, as `overview_href` does today.
+- A group cell also adds that group's anchor, so the board opens at the row.
+
+**The Overview card dots (same slice).**
+- At 8 Sites or fewer, the dots stay as they are.
+- Above 8, each card shows its tile's distribution bar and "{n} sites need attention →", which opens this tab already filtered.
+
+**Checked in headless Chrome.**
+- Widths: 1440 and 320 px.
+- Views: demo and large; list and grid; grouped; filtered from a tile.
+- Results: no horizontal page overflow, and no script errors.
+
+### 9.5 Backend implications
+
+**What exists today.**
+- `estate/portfolio.py` serves the **Finding** rows of "Act first". They are already paged on the server (`limit`, `next_cursor`, `PORTFOLIO_ORDER`, full-scope token) and need nothing new.
+- The outcome grid reads `GET /api/estate/outcome-summary` (`outcome_api.py:45`). That read has no filter, sort or paging, keeps only the lead outcome, and composes one board per Site on read.
+
+**New contract, built once in the PF slice.** A new route, `GET /api/estate/outcome-sites`, sits beside the summary. The summary body stays as it is, for the cards.
+
+Parameters:
+- `from`, `to` and `known_at`, under the W3-01 scope, cutoff and envelope;
+- filters: `q`, `site_type[]`, `region[]`, `readings[]`, `pillar` with `state`, and `attention_only`;
+- order: `sort` (`need` | `name` | `type` | `readings` | `pillar:<category>`) and `dir`;
+- grouping: `group_by` (`type` | `region`);
+- paging: `limit` (25 by default, at most 100) and `cursor`. The cursor is bound to the selection token, so page 2 reads the same snapshot;
+- `detail=outcomes` with one `site_type`, for the every-outcome grid.
+
+Body:
+- `facets`:
+  - Site counts per (pillar, state), over the filtered scope **before** the pillar and state filter;
+  - Site counts per type, region and reading word.
+- `total_count`, `match_count`, and `groups` (key, label, count, and how many need attention).
+- `rows`, each with:
+  - the Site's identity, type, region and `overview_href`;
+  - `readings {word_key, label, text}`;
+  - four `pillars`, each with `state`, `state_label`, `tone`, `lead {key, label}`, `outcomes_total` and `outcomes_needing_attention`, plus `outcomes[]` only with `detail=outcomes`.
+- `columns`, with `detail=outcomes`: the type's catalogue outcomes for each group.
+- `next_cursor`.
+
+Two rules:
+- Every word is server text (the CH-6b2 rule).
+- The server computes the need-for-attention order, with a stable tie key (`site_code`, `site_id`), so the cursor is stable.
+
+**Never-total.**
+- Facets count Sites only. The route carries **no** summed amount field.
+- A row's `short_value` or `headline_money` is that one Site's own value.
+- MN-3's no-total guard (AR-4) extends to this route: a contract test asserts there is no amount field in the body or the facets.
+
+**The readings word.**
+- It comes from PF-C1's per-Site grade, built from the same `counted.days` as the cards and the coverage line. It is not a second rule.
+- "Not analysed yet" is the estate's analysis status (§10.4).
+
+**Region.**
+- The Site has no region attribute today (`SiteRef`, `site_outcomes/read.py:73`).
+- Ruling: region filtering and grouping appear only once the Site has a declared, optional `region`. Until then the control is hidden. The mockup shows it only on the illustrative estate.
+- Adding the attribute costs 0.25 units, if the owner wants it (Q2).
+
+**How it fits ANY-2 and the money receipts, so nothing is built twice.**
+- **PF step (demo scale).**
+  - The route works in memory over the existing `summary()` composition: it filters, sorts and pages those rows.
+  - It adds `outcomes[]` from the board row the summary already reads (`_summary_row` stops dropping it).
+  - This is correct and fast for 4-25 Sites.
+  - The frontend uses the server parameters from day one.
+- **ANY-2 (scale): new card AR-7, "Outcome rows on stored rows" (0.75 units).**
+  - A new kind, `outcome.site_row`, in `site_period_read`.
+  - Mini-grid rows are keyed per Site-local day (DAY basis). Cold and EV rows are keyed per selected event window (PERIOD basis), and the read takes the latest one inside the range.
+  - Its body is exactly the `_summary_row` fragment, plus `outcomes[]`.
+  - The existing event register marks it for rebuilding, like the other AR kinds.
+  - Filter, sort, facets and the cursor become one indexed query over stored rows. The page reads one small row per Site and never composes a board.
+  - Before the switch, AR-0's parity harness proves the stored rows equal today's compose. A Site type that cannot be proven equal stays on compose and is reported (the ANY risk rule).
+- **Money receipts (MN-1/2/3).** These are untouched. The route shows no money beyond each Site's own value line, so AR-4 needs only MN-3's guard extended to it.
+- **1,000+ Sites.** The estate roll-up rows in the ANY scale path (§4) also hold each tenant's facet counts, so the tiles read one row per scope.
+
+### 9.6 Size and sequencing
+
+| Card | Scope | Size |
+|---|---|---|
+| **PF-O1** Outcomes tab, frontend | tiles; toolbar, kept compact at 8 Sites or fewer; list with sticky header and Site column; need-for-attention sort; grouping; paging; every-outcome grid per type, with folding; phone cards; accessibility; empty and loading states; tests; captures re-baselined against this mockup | 1.0 |
+| **PF-O2** `outcome-sites` route, in memory | the contract above, over `summary()`; `outcomes[]` kept; facets; need-for-attention order; cursor; never-total contract test; readings word from PF-C1 | 0.5 |
+| **PF-O3** Overview card dots at scale | above 8 Sites, the distribution bar and "{n} sites need attention →" | 0.25 |
+| **AR-7** (in ANY-2) | the `outcome.site_row` stored kind; its register entry; the route re-sourced from stored rows; AR-0 parity cases | 0.75 |
+| Region attribute (only if the owner wants it, Q2) | a declared, optional `site.region`; its import field; filtering and grouping turned on | 0.25 |
+
+- **The PF slice grows from 2.25 to 4.0 units.** That is under the 6-unit split rule.
+  - PF-O depends on PF-T (the tab) and PF-C1 (the readings word), so it runs last in the slice.
+- **ANY-2 grows from 4.75 to 5.5 units.** It stays one slice. If anything else joins ANY-2, AR-7 splits out as ANY-3.
+- **Not for Thursday.**
+  - It lands with the Portfolio tabs slice, **before the client session**.
+  - It also lands before ANY-2 starts, as the tabs proposal already sequences (§8).
+  - Later, ANY-2 changes only where the route reads its data from. The page and the contract stay the same.
+
+### 9.7 Questions for the owner
+
+1. Do you approve the hybrid design: the four tiles, one Site list with the four groups, and "Every outcome" for each Site type?
+2. Should Sites get a declared region, or another grouping such as client or programme, to filter and group by? Until then, the region control is hidden.
+3. Which view should open by default: "By outcome group" (recommended) or "Every outcome"?

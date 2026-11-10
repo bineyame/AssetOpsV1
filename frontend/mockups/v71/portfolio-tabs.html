@@ -83,6 +83,7 @@ body.show-notes .note-pin{display:block}
  .pf-tabs ol{flex-wrap:wrap;gap:4px 18px}
  .pf-tabs .deep{margin-left:0}
  .pf-coverage a{margin-left:0}
+ .pf-coverage .sites span{white-space:normal}
  .pf-top3 li{grid-template-columns:28px minmax(0,1fr)}
  .pf-top3 li > :nth-child(3),.pf-top3 li > :nth-child(4){grid-column:2}
  .compare{grid-template-columns:1fr;height:auto}
@@ -223,7 +224,7 @@ body.show-notes .note-pin{display:block}
 
    <!-- OUTCOMES BY SITE -->
    <section class="pf-panel" id="panel-outcomes" data-panel="outcomes" tabindex="-1" aria-labelledby="h-out">
-    <section class="panel"><div class="panel-head"><div><h2 id="h-out">Outcomes across the estate</h2><p>How each site is doing on what matters</p></div></div>
+    <section class="panel"><div class="panel-head"><div><h2 id="h-out">Outcomes across the estate</h2><p>How each site is doing on what matters</p></div><a href="estate-outcomes-scale.html">Scalable design for larger estates (draft) →</a></div>
      <div class="oc-matrix" role="table" aria-label="Outcomes across the estate" style="--oc-sites:3">
       <div class="oc-mrow oc-mhead" role="row"><span role="columnheader"></span><span role="columnheader"><a href="../v70/index.html#/mini">Kobo</a></span><span role="columnheader"><a href="../v70/index.html#/cold">GreenHarvest</a></span><span role="columnheader"><a href="../v70/index.html#/ev">Depot</a></span></div>
       <div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><span>Grow revenue</span></span><span role="cell"><a class="oc-cell tone-green" href="#"><b>Opportunity</b><small>Productive electricity sales</small></a></span><span role="cell"><a class="oc-cell tone-none" href="#"><b>Not measured yet</b><small>Paid cold-room use</small></a></span><span role="cell"><a class="oc-cell tone-blue" href="#"><b>Watch</b><small>Charger use</small></a></span></div>
@@ -233,7 +234,7 @@ body.show-notes .note-pin{display:block}
      </div>
      <div class="oc-key"><span><i class="tone-amber"></i>Needs attention</span><span><i class="tone-blue"></i>Watch</span><span><i class="tone-green"></i>Opportunity</span><span><i class="tone-green"></i>On track</span><span><i class="tone-gray"></i>Unknown</span><span><i class="tone-none"></i>Not measured yet</span></div>
     </section>
-    <p class="note-pin" style="margin-top:12px">With a whole tab, the matrix gets the full page width instead of a side column, so a larger estate still fits. Each cell opens that Site's outcome board for the same dates.</p>
+    <p class="note-pin" style="margin-top:12px">With a whole tab, the matrix gets the full page width instead of a side column. <b>Item 9 (owner, 2026-11-10):</b> one column per site still breaks at about 25 sites, so the proposed design for this tab is in <a href="estate-outcomes-scale.html">estate-outcomes-scale.html</a>: a summary for each outcome group, then one row per site with search, filters, grouping and paging, and an "Every outcome" view. It replaces this matrix once approved. Each cell opens that Site's outcome board for the same dates.</p>
    </section>
 
    <!-- OPPORTUNITY -->
