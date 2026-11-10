@@ -1296,6 +1296,32 @@ def kis_ov(ctx: Ctx) -> dict:
     return {"kisiwa": "present", **demo_rows.kis_ov(reads, basis, states, report, bodies["S-5d"], second_read)}
 
 
+#: KISIWA-COHORT's read: the latest `dispatch` selection per window of the Site, and whether the window has readings.
+KISIWA_COHORT_SQL = (
+    "SELECT DISTINCT ON (s.window_start, s.window_end) s.window_start, s.window_end, r.cohort_status, "
+    "EXISTS (SELECT 1 FROM accepted_evidence e WHERE e.site_id = s.site_id AND e.source_time >= s.window_start "
+    "AND e.source_time < s.window_end) AS has_readings, r.cohort -> 'limits' AS limits "
+    "FROM analytic_run_selection s JOIN analytic_run r ON r.id = s.run_id "
+    "WHERE s.tenant_id = %s AND s.site_id = %s AND s.analytic_id = 'dispatch' "
+    "ORDER BY s.window_start, s.window_end, s.seq DESC")
+
+
+@row("KISIWA-COHORT")
+def kisiwa_cohort(ctx: Ctx) -> dict:
+    """KISIWA-COHORT (D-E5.30, DATA-1): Kisiwa publishes every night on one recording session, so every Kisiwa
+    `dispatch` window whose day has readings has its latest selection `SELECTED_UNIQUE` (`demo_rows.kisiwa_cohort`);
+    it fails otherwise. No Kisiwa: `KisiwaMissing`."""
+    import psycopg
+
+    with psycopg.connect(ctx.url.replace("+psycopg", "")) as c:
+        site = c.execute("SELECT tenant_id, id FROM site WHERE site_code_key = lower(%s)", (KISIWA,)).fetchone()
+        if site is None:
+            raise KisiwaMissing()
+        windows = [{"window_start": a, "window_end": b, "cohort_status": s, "has_readings": h, "limits": lim}
+                   for a, b, s, h, lim in c.execute(KISIWA_COHORT_SQL, site).fetchall()]
+    return {"kisiwa": "present", **demo_rows.kisiwa_cohort(windows)}
+
+
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:
     """DIESEL-K6b: the Kisiwa FUEL_BALANCE Action with its fuel plan context, outcome, windows and threads, read once
     through the backend's own stores (None: no Kisiwa Site in this dataset; the rows then fail, carry R3k2 L2)."""

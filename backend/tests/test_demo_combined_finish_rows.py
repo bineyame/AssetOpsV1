@@ -1256,6 +1256,86 @@ def test_kis_ov_is_wired_after_kis7() -> None:
     assert ids.index("KIS-OV") == ids.index("KIS-7") + 1
 
 
+# ---- DATA-1 (D-E5.30): KISIWA-COHORT --------------------------------------------------------------------------------
+
+def _cohort_windows(*statuses: tuple[str, bool]) -> list[dict]:
+    return [{"window_start": datetime(2026, 11, d, 21, 0), "window_end": datetime(2026, 11, d + 1, 21, 0),
+             "cohort_status": s, "has_readings": h} for d, (s, h) in enumerate(statuses, start=1)]
+
+
+def test_kisiwa_cohort_is_wired_and_passes_when_every_read_day_is_selected_unique() -> None:
+    import demo_combined_finish as finish
+
+    assert "KISIWA-COHORT" in [c[0] for c in finish.CHECKS]
+    got = rows.kisiwa_cohort(_cohort_windows(("SELECTED_UNIQUE", True), ("SELECTED_UNIQUE", True), ("EMPTY", False)))
+    assert got == {"windows": 3, "with_readings": 2, "selected_unique": 2}
+
+
+def test_kisiwa_cohort_fails_on_an_ambiguous_day_and_on_an_empty_read() -> None:
+    with pytest.raises(AssertionError, match="not SELECTED_UNIQUE"):
+        rows.kisiwa_cohort(_cohort_windows(("SELECTED_UNIQUE", True), ("AMBIGUOUS", True)))
+    with pytest.raises(AssertionError, match="not SELECTED_UNIQUE"):
+        rows.kisiwa_cohort(_cohort_windows(("EMPTY", True)))  # a day with readings but no cohort chosen
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch window"):
+        rows.kisiwa_cohort(_cohort_windows(("EMPTY", False)))
+    with pytest.raises(AssertionError, match="no Kisiwa dispatch window"):
+        rows.kisiwa_cohort([])
+
+
+def _stored_cohort(times: list[datetime]) -> dict:
+    """A real `select_cohort` over battery-soc readings on one epoch at `times` (a repeated time is a night boundary
+    published by both nights), as the selected run stores it (`payload()` through JSON, the `analytic_run.cohort`
+    column the row reads)."""
+    import json
+    from uuid import UUID, uuid4
+
+    from assetops_backend.analytics.assessment_inputs import AcceptedReading, Window
+    from assetops_backend.analytics.cohort import select_cohort
+
+    from datetime import timezone
+
+    utc = [t.replace(tzinfo=timezone.utc) for t in times]
+    readings = tuple(AcceptedReading(
+        evidence_id=uuid4(), envelope_sha256=f"sha-{n}", batch_id=UUID(int=9), gateway_id=UUID(int=1),
+        source_id=UUID(int=2), sequence_epoch="kisiwa-gw-1", sequence=n, role="battery-soc", asset_id=UUID(int=3),
+        source_time=t, interval_start=None, interval_end=None, published_at=t, received_at=t, accepted_at=t,
+        quality="GOOD", value="90", unit="%", foundation_revision_id=UUID(int=4), binding_set_revision_id=UUID(int=5),
+        binding_revision_id=UUID(int=6), source_mode="SIMULATED") for n, t in enumerate(utc, start=1))
+    lo = utc[0].replace(hour=0, minute=0)
+    got = select_cohort(readings, Window(lo, lo + timedelta(days=1)))
+    return json.loads(json.dumps(got.payload()))
+
+
+def test_kisiwa_cohort_fails_on_a_boundary_instant_published_by_two_nights() -> None:
+    """DATA-1 fix H1: two readings of one channel at the nights' shared boundary on the one session give a cohort
+    that is SELECTED_UNIQUE yet holds a REPORTS_OVERLAP limit (dispatch answers it AMBIGUOUS_SERIES); the row fails
+    on it, and passes on the same day with the boundary sent once."""
+    boundary = datetime(2026, 10, 31, 12, 0)
+    once = _stored_cohort([boundary - timedelta(minutes=5), boundary, boundary + timedelta(minutes=5)])
+    twice = _stored_cohort([boundary - timedelta(minutes=5), boundary, boundary, boundary + timedelta(minutes=5)])
+    assert once["status"] == twice["status"] == "SELECTED_UNIQUE", (once["status"], twice["status"])
+
+    def window(cohort: dict) -> dict:
+        return {"window_start": datetime(2026, 10, 31), "window_end": datetime(2026, 11, 1),
+                "cohort_status": cohort["status"], "has_readings": True, "limits": cohort["limits"]}
+
+    assert rows.kisiwa_cohort([window(once)]) == {"windows": 1, "with_readings": 1, "selected_unique": 1}
+    with pytest.raises(AssertionError, match="REPORTS_OVERLAP") as caught:
+        rows.kisiwa_cohort([window(once), window(twice)])
+    assert "2026-10-31T12:00:00" in str(caught.value), caught.value
+
+
+def test_kisiwa_cohort_reads_the_latest_dispatch_selection_per_window() -> None:
+    """The row's read: the latest selection per window, its run's status and stored cohort limits, and whether the
+    window has readings (validated against a built database's Kisiwa windows during the DATA-1 fix, read-only)."""
+    import demo_combined_finish as finish
+
+    sql = finish.KISIWA_COHORT_SQL
+    assert "DISTINCT ON (s.window_start, s.window_end)" in sql and "s.seq DESC" in sql
+    assert "s.analytic_id = 'dispatch'" in sql and "accepted_evidence" in sql
+    assert "r.cohort -> 'limits' AS limits" in sql
+
+
 _OV_REPORT = {"outcome": "PASSED", "empty_set": True}
 _OV_BOARDS = {"S-5d": "AVAILABLE", "S": "AVAILABLE"}
 

@@ -666,3 +666,177 @@ def test_kis_rows_are_bounded_to_the_story_calendar_with_an_added_night() -> Non
     dispatch = [{"finding_id": "a", "episode_start": cal["runs"][2]["start"]},
                 {"finding_id": "b", "episode_start": "2026-11-07T20:00:00Z"}]
     assert [r["finding_id"] for r in rows.kis_story_dispatch(dispatch, cal)] == ["a"]
+
+
+# ---- DATA-1 (D-E5.30): Kisiwa's added nights continue the Site's one recording session --------------------------------
+
+def _fake_gateway(monkeypatch) -> list[dict]:
+    """The real `add_night` / `_publish_night` with the database, the simulator and the gateway replaced: each
+    `_publish_and_accept` call is recorded (its night folder, epoch and gateway state)."""
+    from types import SimpleNamespace
+
+    import execution_adapter
+    import pg_harness
+    import probe_kisiwa_nights as nights
+    import test_s6_verification_replay as rp
+    from assetops_backend.sites.adapters import postgres_foundation_store as pfs
+
+    calls: list[dict] = []
+    run = SimpleNamespace(execution_status="READY", registered_basis=object(), run_id="run-fake", blocking_reasons=())
+    reg = SimpleNamespace(draft=lambda *a, **k: run, sim=lambda version: None)
+    stocks = {nights.SOC: Fraction(90), nights.FUEL: Fraction(500)}
+    trajectory = SimpleNamespace(boundaries=[SimpleNamespace(stocks=stocks)] * 400)
+    monkeypatch.setattr(kis, "story_registered", lambda *a, **k: reg)
+    monkeypatch.setattr(kis, "_db_now", lambda url: LATER)
+    monkeypatch.setattr(kis, "_wait", lambda url, entry: None)
+    monkeypatch.setattr(pfs, "PostgresFoundationStore", lambda url: object())
+    monkeypatch.setattr(pg_harness, "dispose", lambda *a, **k: None)
+    monkeypatch.setattr(nights, "day_document", lambda *a, **k: {})
+    monkeypatch.setattr(execution_adapter, "run_to_end", lambda *a, **k: SimpleNamespace(trajectory=trajectory))
+    monkeypatch.setattr(rp, "_publish_and_accept", lambda tmp, run_, epoch, received, *, gateway_dir=None, keep=None:
+                        calls.append({"tmp": tmp, "epoch": epoch, "gateway_dir": gateway_dir, "keep": keep})
+                        or {"batches": 1})
+    monkeypatch.setenv(kis.ENTRY_ENV, "on")
+    return calls
+
+
+def _kisiwa_work(tmp_path: Path) -> Path:
+    story, _ = build()
+    (tmp_path / "story.json").write_text(json.dumps(story), encoding="utf-8")
+    (tmp_path / "kisiwa.json").write_text(json.dumps(_kisiwa_build()), encoding="utf-8")
+    return tmp_path
+
+
+def _finish(work: Path, night: str) -> None:
+    """What `verify-day` leaves behind: the night's entry DONE."""
+    kis.write_days(work, [{**e, "status": "DONE"} if e["night_date"] == night else e for e in kis.read_days(work)])
+
+
+def _added_nights(monkeypatch, tmp_path: Path) -> tuple[Path, list[dict]]:
+    calls = _fake_gateway(monkeypatch)
+    monkeypatch.setattr(kis, "_post_records", lambda *a, **k: [])
+    work = _kisiwa_work(tmp_path)
+    for night in ("2026-11-07", "2026-11-08", "2026-11-09"):
+        kis.add_night("postgresql://fake", work, {"night_date": night, "kind": None})
+        _finish(work, night)
+    return work, calls
+
+
+def test_data1_every_added_night_continues_one_session_on_one_gateway_state(monkeypatch, tmp_path: Path) -> None:
+    """D-E5.30: three added nights publish on one epoch through the Site's one gateway state `work/kisiwa-gateway`
+    (the same as the story build's, so the sequence continues across processes); each keeps its own night folder."""
+    work, calls = _added_nights(monkeypatch, tmp_path)
+    assert len(calls) == 3
+    assert len({c["epoch"] for c in calls}) == 1, [c["epoch"] for c in calls]
+    assert {c["gateway_dir"] for c in calls} == {work / "kisiwa-gateway"}, [c["gateway_dir"] for c in calls]
+    assert len({c["tmp"] for c in calls}) == 3
+
+
+def test_data1_a_calendar_day_spanning_two_nights_resolves_to_one_session(monkeypatch, tmp_path: Path) -> None:
+    """D-E5.30: 8 Nov (Site-local) holds night 7 Nov's 00:00-12:00 and night 8 Nov's 18:00-24:00. With the epochs
+    the tool publishes them under, the dispatch cohort for that day is SELECTED_UNIQUE, not AMBIGUOUS."""
+    from uuid import UUID, uuid4
+
+    from assetops_backend.analytics.assessment_inputs import AcceptedReading, Window
+    from assetops_backend.analytics.cohort import select_cohort
+
+    _, calls = _added_nights(monkeypatch, tmp_path)
+    by_night = dict(zip(("2026-11-07", "2026-11-08"), (c["epoch"] for c in calls)))
+    gateway, source = UUID(int=1), UUID(int=2)
+
+    def reading(when: datetime, epoch: str, seq: int) -> AcceptedReading:
+        return AcceptedReading(
+            evidence_id=uuid4(), envelope_sha256=f"sha-{seq}", batch_id=UUID(int=9), gateway_id=gateway,
+            source_id=source, sequence_epoch=epoch, sequence=seq, role="battery-soc", asset_id=UUID(int=3),
+            source_time=when, interval_start=None, interval_end=None, published_at=when, received_at=when,
+            accepted_at=when, quality="GOOD", value="90", unit="%", foundation_revision_id=UUID(int=4),
+            binding_set_revision_id=UUID(int=5), binding_revision_id=UUID(int=6), source_mode="SIMULATED")
+
+    day = Window(datetime(2026, 11, 7, 21, 0, tzinfo=timezone.utc), datetime(2026, 11, 8, 21, 0, tzinfo=timezone.utc))
+    morning = datetime(2026, 11, 8, 6, 0, tzinfo=timezone.utc)  # 09:00 local, night 7 Nov
+    evening = datetime(2026, 11, 8, 16, 0, tzinfo=timezone.utc)  # 19:00 local, night 8 Nov
+    got = select_cohort((reading(morning, by_night["2026-11-07"], 200), reading(evening, by_night["2026-11-08"], 201)),
+                        day)
+    assert got.status == "SELECTED_UNIQUE", (got.status, got.reason)
+
+
+def _night_readings(start: datetime, end: datetime, epoch: str, keep, first_seq: int) -> list:
+    """One night's battery-soc readings as the simulator emits them: every 5 minutes from its start to its end, both
+    instants included (so consecutive nights both emit their shared boundary), filtered by the `keep` the tool
+    passed to `_publish_and_accept` (None sends all), numbered on the session in publish order."""
+    from uuid import UUID, uuid4
+
+    from assetops_backend.analytics.assessment_inputs import AcceptedReading
+
+    out, t = [], start
+    while t <= end:
+        if keep is None or keep(t.strftime("%Y-%m-%dT%H:%M:%SZ")):
+            seq = first_seq + len(out)
+            out.append(AcceptedReading(
+                evidence_id=uuid4(), envelope_sha256=f"sha-{epoch}-{seq}", batch_id=UUID(int=9), gateway_id=UUID(int=1),
+                source_id=UUID(int=2), sequence_epoch=epoch, sequence=seq, role="battery-soc", asset_id=UUID(int=3),
+                source_time=t, interval_start=None, interval_end=None, published_at=t, received_at=t, accepted_at=t,
+                quality="GOOD", value="90", unit="%", foundation_revision_id=UUID(int=4),
+                binding_set_revision_id=UUID(int=5), binding_revision_id=UUID(int=6), source_mode="SIMULATED"))
+        t += timedelta(minutes=5)
+    return out
+
+
+def _boundary_cohort(calls: list[dict], kisiwa: dict, *, honour_keep: bool):
+    """Nights 7 and 8 Nov published as the recorded calls say, and the dispatch cohort of the UTC day holding their
+    shared boundary instant (night 7 Nov's end = night 8 Nov's start)."""
+    from assetops_backend.analytics.assessment_inputs import Window
+    from assetops_backend.analytics.cohort import select_cohort
+
+    readings: list = []
+    for call, night in zip(calls, (D("2026-11-07"), D("2026-11-08"))):
+        readings += _night_readings(kis.night_start(kisiwa, night), kis.night_end(kisiwa, night), call["epoch"],
+                                    call["keep"] if honour_keep else None, len(readings) + 1)
+    boundary = kis.night_end(kisiwa, D("2026-11-07")).astimezone(timezone.utc)
+    lo = boundary.replace(hour=0, minute=0)
+    window = Window(lo, lo + timedelta(days=1))
+    inside = tuple(r for r in readings if lo - timedelta(hours=1) <= r.source_time < lo + timedelta(days=1, hours=1))
+    return select_cohort(inside, window), sum(r.source_time == boundary for r in inside), boundary
+
+
+def test_data1_a_shared_boundary_instant_is_published_once_on_the_session(monkeypatch, tmp_path: Path) -> None:
+    """DATA-1 fix H1: consecutive nights share their boundary instant (night 7 Nov ends where night 8 Nov starts) and
+    the simulator emits it in both. On one epoch two readings at one instant are a REPORTS_OVERLAP (`cohort.py`
+    `series_limits`), which dispatch answers AMBIGUOUS_SERIES. With the `keep` `add_night` passes, the boundary is
+    published once and the day's cohort has no overlap limit; sending both nights whole (the control) does."""
+    work, calls = _added_nights(monkeypatch, tmp_path)
+    kisiwa = json.loads((work / "story.json").read_text(encoding="utf-8"))["kisiwa"]
+    got, at_boundary, boundary = _boundary_cohort(calls[:2], kisiwa, honour_keep=True)
+    assert got.status == "SELECTED_UNIQUE", (got.status, got.reason)
+    assert at_boundary == 1, (boundary, at_boundary)
+    assert [x.kind for x in got.limits if x.kind == "REPORTS_OVERLAP"] == [], got.limits
+    control, twice, _ = _boundary_cohort(calls[:2], kisiwa, honour_keep=False)
+    assert twice == 2 and any(x.kind == "REPORTS_OVERLAP" and x.start == boundary for x in control.limits), (
+        twice, control.limits)
+    # the first added night continues after the story's last night, so its own start is not sent again
+    first = kis.night_start(kisiwa, D("2026-11-07"))
+    assert calls[0]["keep"] is not None and calls[0]["keep"](first.strftime("%Y-%m-%dT%H:%M:%SZ")) is False
+    assert calls[0]["keep"]((first + timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")) is True
+
+
+def test_data1_resume_after_an_interrupted_night_publishes_once_on_the_same_session(monkeypatch,
+                                                                                    tmp_path: Path) -> None:
+    """D-E5.30 with R1 step 9: a night interrupted after its readings (PUBLISHED, records not posted) resumes without
+    publishing again; the next night then continues the same session on the same gateway state."""
+    calls = _fake_gateway(monkeypatch)
+    work = _kisiwa_work(tmp_path)
+
+    def interrupted(*a, **k):
+        raise RuntimeError("interrupted before the records")
+
+    monkeypatch.setattr(kis, "_post_records", interrupted)
+    with pytest.raises(RuntimeError):
+        kis.add_night("postgresql://fake", work, {"night_date": "2026-11-07", "kind": None})
+    assert [e["status"] for e in kis.read_days(work)] == ["PUBLISHED"] and len(calls) == 1
+    monkeypatch.setattr(kis, "_post_records", lambda *a, **k: [{"code": "R-1"}])
+    resumed = kis.add_night("postgresql://fake", work, {"night_date": "2026-11-07", "kind": None})
+    assert resumed["records"] == [{"code": "R-1"}] and len(calls) == 1  # resumed at step 5, never republished
+    _finish(work, "2026-11-07")
+    kis.add_night("postgresql://fake", work, {"night_date": "2026-11-08", "kind": None})
+    assert len(calls) == 2 and calls[0]["epoch"] == calls[1]["epoch"], [c["epoch"] for c in calls]
+    assert calls[0]["gateway_dir"] == calls[1]["gateway_dir"] == work / "kisiwa-gateway"
