@@ -3860,3 +3860,66 @@ It is not demo-critical, and Opus, about 1 unit.
 
 Decisions logged for owner review: **D-E5.25** to **D-E5.28**. The owner approves `frontend/mockups/v71/findings-cards.html`
 before FC-1 merges.
+
+## Non-Kobo Site pages ruling (2026-11-10)
+
+Walkthrough item 11 (`.agent/owner-walkthrough-2026-11-10.md`). Architect: Claude, under the owner's delegation
+(`.agent/owner-away-architect-decides-2026-11-08.md`). Full answer, table (56 values: A 17 · B 17 · C 16 · D 6) and
+cards: `.agent/architect-answer-non-kobo-sites-2026-11-10.md`.
+
+### D-E5.29 Verdict: product bug for Cold and EV, story data defect for Kisiwa
+- Cold and EV: Site reads select an analysis only when the stored window contains the requested one (Cold,
+  `postgres_assessment_store.py:2222-2228`) or equals it (EV, `:2933-2941`). The story analyses 16:00–17:05 and
+  08:00–09:05, so day and week views read "Unknown" or "Not assessed". The exact window shows the 4.9 °C peak and
+  the USD 4.50 estimate.
+- Kisiwa: `tools/demo_combined_kisiwa.py:789,1189` publishes one epoch per night (18:00–12:00) on a fresh gateway.
+  Every day therefore holds two epochs, and `cohort.py:93-101` marks it AMBIGUOUS (9 of 11 days).
+- This also explains the Portfolio's "Kisiwa 0 of 7 days checked" and corrects `architect-combined-pass-2026-11-08.md` row 4.
+
+### D-E5.30 DATA-1 (Opus, 0.5 unit): one Kisiwa recording session; MUST merge before tonight's build
+- One epoch `kisiwa-gw-1` on one persistent `work/"kisiwa-gateway"` (`gateway_dir`, DD1a1-R5), in both publish paths.
+- New finish check `KISIWA-COHORT`.
+- New Kisiwa dispatch content is read from the build before the demo; its figures are quoted from the build.
+- Fallback if DATA-1 misses the build: present Kisiwa through Fuel nights, the Finding and verification only.
+
+### D-E5.31 PB-1 (Opus, 2 units, plus Sonnet 0.25 frontend): analysed periods inside a window; before the client session
+- A selection that contains or equals the window is unchanged.
+- Otherwise the periods wholly inside the window are listed; the status uses the most recent one with an open
+  Finding, or else the most recent one.
+- Window-bar literals: `Analysed period: {from}–{to}` and `Analysed periods in this range: {n} · showing {from}–{to}`;
+  with no period inside, `No analysed period in this range`.
+- Pinned mode is unchanged. EV provenance is judged per period.
+- MOCK DEVIATION: one window-bar line; owner informed.
+
+### D-E5.32 Thursday mitigation: analysed-period story links (DATA-2, Sonnet, 0.25 unit; before the build)
+- A second link per Cold and EV day for the exact analysed period; the whole-day link stays for Work and Actions.
+
+### D-E5.33 Kisiwa objectives MG-2 and MG-5, after DATA-1 (DATA-6, Sonnet, 0.25 unit; before the client session)
+- Reverses DIESEL-1 §9p.4. CO-6 / `objective_site_count` changes from 3 to 4. Story change; owner informed.
+
+### D-E5.34 NOT BUILT values become plain roadmap wording (RM-1, Sonnet, 0.5 unit)
+- RM-2 hides the unsupported Site lens chips on client screens. **Owner approval needed (mockup).**
+
+### D-E5.35 Integration ranking for the client
+1. Billing and collections.
+2. Sign-in.
+3. Work-order cost (CMMS).
+4. Fleet roster and telematics.
+5. Cold stock value and occupancy.
+
+### D-E5.36 Story order
+- Kobo, then Kisiwa. Cold and EV are brief beats on their analysed periods.
+- Until PB-1 lands, no Cold or EV Health, Performance or Financials on a day or week window.
+
+### D-E5.37 More Cold and EV days only after PB-1 (DATA-11, Sonnet, 0.5 unit, about +10 min prepare)
+- Story change; owner informed.
+
+Other cards (answer file):
+- Thursday frontend: PB-5 Kisiwa feeder legend uses Foundation display names (`SiteWindowOverview.tsx:701`);
+  PB-6 copy batch; PB-8 Fuel tab loading (`MiniPerformance.tsx:1633`).
+- Before the client session: PB-3 EV event-driven grading; PB-4 an AMBIGUOUS day is "not analysed yet", never
+  "Checked: nothing to report"; PB-7 the coverage denominator counts from the Site's first reading.
+- Optional: DATA-5 story diagnostics; DATA-10 Kisiwa generator plan.
+- Backlog: DATA-4, DATA-7, DATA-8 (owner approval).
+
+Decisions logged for owner review: **D-E5.29** to **D-E5.37**.
