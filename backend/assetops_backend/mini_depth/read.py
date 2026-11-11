@@ -351,10 +351,13 @@ class MiniDepthRead:
     """The read-only mini-depth reader (closure 1 Q6-Q8, Q14, Q15, Q18, Q31; q6 rulings 1 and 5)."""
 
     def __init__(self, engine: Engine, link_rows: LinkRowsOn, *,
-                 test_read_clock_override: Callable[[], datetime] | None = None) -> None:
+                 test_read_clock_override: Callable[[], datetime] | None = None,
+                 period_rows: Any = None) -> None:
         self._engine = engine
         self._link_rows = link_rows
         self.test_read_clock_override = test_read_clock_override
+        #: ANY-1 AR-2: `(PeriodReader, PeriodReadStore)`; with a kind in `served_kinds()` the board's hours read rows.
+        self.period_rows = period_rows
 
     @classmethod
     def from_url(cls, database_url: str, link_rows: LinkRowsOn, **options: Any) -> "MiniDepthRead":
@@ -445,12 +448,22 @@ class MiniDepthRead:
         historical = explicit is not None and explicit < read_time
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": t, "s": s}).scalar_one_or_none()
-        windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
-        hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
+        from_rows = self._row_hours(t, s, code, domain, lo, hi, tz_name, explicit, historical)
+        if from_rows is not None:  # ANY-1 AR-2: stored hour facts; no raw reading, no on-read `_cutoff_sha`
+            hours, link_rows = from_rows
+        else:
+            windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
+            hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
+            link_rows = self._link_rows
+        return self._envelope(c, link_rows, t, s, code, domain, lo, hi, known, tz_name, hours)
 
+    def _envelope(self, c: Connection | None, link_rows: LinkRowsOn, t: UUID, s: UUID, code: str, domain: str,
+                  lo: datetime, hi: datetime, known: datetime, tz_name: str | None,
+                  hours: Sequence[_Hour]) -> dict[str, Any]:
+        """The one envelope composition over the request's hours, from compose (`_hour`) or stored rows alike."""
         live = [h for h in hours if h.pending_ids is not None]
         blocks = mini_blocks(
-            c, self._link_rows, t, s, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
+            c, link_rows, t, s, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
             selected_evidence_ids=[i for h in hours if h.head for i in h.head.evidence_ids],
             pending_evidence_ids=None if not live else [i for h in live for i in (h.pending_ids or ())])
         state = aggregate_state(h.state for h in hours)
@@ -514,6 +527,99 @@ class MiniDepthRead:
         else:
             state = "HISTORICAL" if historical else "CURRENT"
         return _Hour(day, window, head, job_state, state, pending_ids, tuple(sorted(str(j[0]) for j in jobs)))
+
+    # --- ANY-1 AR-2: the board's hours from stored read-period rows (`mini_depth/period_rows.py`) ---------------
+
+    def _row_hours(self, t: UUID, s: UUID, code: str, domain: str, lo: datetime, hi: datetime,
+                   tz_name: str | None, explicit: datetime | None,
+                   historical: bool) -> tuple[list[_Hour], LinkRowsOn] | None:
+        """The request's hours from `site_period_read` when its kind is served (`ASSETOPS_PERIOD_READ_KINDS`; empty
+        = today's compose) and the request is a stored shape (renewable: 1-5 whole local days; fuel, service and
+        backup: the local noon hour the board reads). None = compose. No raw reading and no `_cutoff_sha` here."""
+        from assetops_backend.chain.grading import PENDING
+        from assetops_backend.chain.period_read import served_kinds
+        from assetops_backend.chain.ports import SiteRef
+        from assetops_backend.mini_depth import period_rows as pr
+
+        kind = pr.kind_of(domain)
+        if self.period_rows is None or not tz_name or kind not in served_kinds():
+            return None
+        windows = hour_windows(domain, lo, hi, tz_name)  # the compose's own validation and refusals
+        if domain == "renewable":
+            days = sorted({d for d, _w in windows})
+        else:
+            if windows[0][1] != local_hour(windows[0][0], 12, tz_name):
+                return None  # only the board's hour is stored for the hourly domains
+            days = [windows[0][0]]
+        reader, store = self.period_rows
+        try:
+            result = reader.read(t, [SiteRef(t, s, code, MINIGRID, tz_name)], [kind], days[0], days[-1], explicit)
+        except Exception as error:  # the row store failing is a 503, never a guessed empty page
+            raise MiniReadUnavailable(f"The mini-depth row read failed: {error.__class__.__name__}") from error
+        by_day = {r.row.local_day: r for r in result.rows if r.row.kind == kind and r.row.site_id == s}
+        hours: list[_Hour] = []
+        stored_links: dict[str, Any] = {}
+        for day in days:
+            read = by_day.get(day)
+            if read is None:  # D-ANY.5 M1: absent renders as compose renders nothing known at k
+                found = (pr.absent_renewable_windows(code, tz_name, day) if domain == "renewable"
+                         else [(day, windows[0][1])])
+                hours += [pr.absent_hour(d, w) for d, w in found]
+                continue
+            pending = bool(read.pending) or result.day_state(s, day, kind) == PENDING
+            for value in read.row.body.get("hours") or ():
+                hours.append(pr.hour_from_json(value, historical=historical, pending=pending))
+                stored_links.update(value.get("pending_link_rows") or {})
+        if domain != "renewable" and [h.window for h in hours] != [windows[0][1]]:
+            raise MiniReadUnavailable("A stored mini-depth hour does not match the requested hour.")
+        revisions = sorted({h.head.revision_id for h in hours if h.head}, key=str)
+        if revisions:
+            try:
+                blocks = store.provenance(t, revisions, pr.BUILDER_VERSION)
+            except Exception as error:
+                raise MiniReadUnavailable(f"The mini-depth provenance read failed: {error.__class__.__name__}") \
+                    from error
+            if len(blocks) != len(revisions):
+                raise MiniReadUnavailable("A selected mini-depth revision has no stored provenance.")
+            for block in blocks.values():
+                stored_links.update(block.get("link_rows") or {})
+        return hours, pr.StoredLinkRows(stored_links)
+
+    def build_period(self, *, tenant_id: UUID, site_id: UUID, domain: str, local_day: date
+                     ) -> tuple[datetime, datetime, list[dict[str, Any]], dict[str, dict[str, Any]]] | None:
+        """AR-2 builder: one stored period of a kind at this transaction's clock, through `_hour` (the compose's own
+        head, job, `_cutoff_sha` and pending logic). Returns `(start, end, hour facts, {revision_id: link rows})`;
+        None when the day has no such period (an unknown zone or a nonexistent local hour)."""
+        from assetops_backend.mini_depth import period_rows as pr
+
+        def work(c: Connection, known: datetime) -> Any:
+            tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                                {"t": tenant_id, "s": site_id}).scalar_one_or_none()
+            if not tz_name:
+                return None
+            try:
+                if domain == "renewable":
+                    start = _local_midnight(local_day, tz_name)
+                    end = _local_midnight(local_day + timedelta(days=1), tz_name)
+                    windows = hour_windows(domain, start, end, tz_name,
+                                           lambda d: daylight_hours(c, tenant_id, site_id, d, known))
+                else:
+                    w = local_hour(local_day, 12, tz_name)
+                    start, end, windows = w.start, w.end, [(local_day, w)]
+            except (MiniReadRefused, MiniInputsRefused):
+                return None
+            hours = [self._hour(c, tenant_id, site_id, domain, d, w, known, False) for d, w in windows]
+            ids = sorted({str(i).lower() for h in hours if h.head for i in h.head.evidence_ids}
+                         | {str(i).lower() for h in hours for i in (h.pending_ids or ())})
+            grouped = pr.group_link_rows(self._link_rows(c, tenant_id, site_id, ids)) if ids else {}
+            facts = [pr.hour_json(h, pending_link_rows=None if h.pending_ids is None else
+                                  {i.lower(): grouped[i.lower()] for i in h.pending_ids if i.lower() in grouped})
+                     for h in hours]
+            provenance = {str(h.head.revision_id): {str(i).lower(): grouped[str(i).lower()]
+                                                    for i in h.head.evidence_ids if str(i).lower() in grouped}
+                          for h in hours if h.head}
+            return start, end, facts, provenance
+        return self._readonly(work, None)
 
     # --- W4-03 closure 4 S9: the one selected-renewable basis reader -------------------------------------------
 

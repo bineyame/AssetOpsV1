@@ -196,6 +196,7 @@ from assetops_backend.sites.foundation_service import (
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
 from assetops_backend.chain.composition import (
     build_estate_claims,
+    build_mini_period_rows,
     chain_policy_versions,
     check_declared_chain_graph,
     thread_lifecycle_policy,
@@ -525,9 +526,15 @@ def create_app(
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
                                                 performance_report))
     # W4-02 unit 5: the mini-grid depth reads; no Dispatch gate (closure 4 S1); typed 503 without a database.
-    mini_reads = MiniDepthRead.from_url(database_url(), build_link_rows_reader()) if database_url() else None
+    # ANY-1 AR-2: the board's mini depth reads stored rows for the kinds in ASSETOPS_PERIOD_READ_KINDS (empty =
+    # today's compose); the row reader's engine connects on first use only.
+    mini_period_rows = build_mini_period_rows(database_url()) if database_url() else None
+    mini_reads = MiniDepthRead.from_url(database_url(), build_link_rows_reader(),
+                                        period_rows=mini_period_rows) if database_url() else None
     if mini_reads is not None:
         app.router.on_shutdown.append(mini_reads.dispose)
+    if mini_period_rows is not None:
+        app.router.on_shutdown.append(mini_period_rows[1].dispose)
     app.include_router(build_mini_depth_router(mini_reads, registry))
     # W4-03 unit 2b (closure 2 Q1, closure 4 B2): mini scenarios. Writes need the two explicit injections; the
     # default composition refuses every write. Reads use the existing Site-scoped development access.

@@ -28,5 +28,13 @@ inputs:
   charging_kwh:       {analytics: [ev-session/1], assumption_keys: [ev_gross_tariff_per_kwh], job_domains: [ev_charging]}
 # ANY-1 AR-1: stored read-period kinds (`site_period_read`, migration 0059), dirtied like measures through the same
 # snapshot_dirty queue: kind '<area>.<name>' -> {grain: hour | s3_day | local_day, site_types: [...], inputs: {the
-# measure input keys}}. A kind is declared with its builder (AR-2 to AR-4); AR-1 declares none.
-kinds: {}
+# measure input keys}}. A kind is declared with its builder (AR-2 to AR-4).
+# AR-2 (mini_depth/period_rows.py): the board's mini depth. Every mini input role (mini_depth/inputs.py QUERY_ROLES;
+# an hour's `_cutoff_sha` digests them, renewable's daylight hours read pv_available_power), its own selection and
+# job domain, and Foundation dirty it. Renewable is a Site-local day row of hours; the hourly domains store the hour
+# the board reads.
+kinds:
+  mini_depth.renewable: {grain: local_day, site_types: [MINIGRID], inputs: {roles: &mini_roles [generator_state, generator_power, feeder_demand, battery_soc, pv_power, pv_irradiance, battery_power, fuel_level, pv_available_power, pcs_discharge_capability, critical_load_requested_power, critical_load_delivered_power, storage_charge_requested_power, feeder_requested_power, site_supply_state, mini_backup_start_event, mini_backup_bus_state], mini_depth: [renewable], job_domains: [mini_renewable], foundation: true}}
+  mini_depth.fuel:      {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [fuel], job_domains: [mini_fuel], foundation: true}}
+  mini_depth.service:   {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [service], job_domains: [mini_service], foundation: true}}
+  mini_depth.backup:    {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [backup], job_domains: [mini_backup], foundation: true}}
