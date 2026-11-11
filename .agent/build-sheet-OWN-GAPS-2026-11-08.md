@@ -4236,3 +4236,22 @@ Context: the owner raised DATA-11 to IN and will show the demo to mini-grid and 
 **BL-72 (post-demo, about 1.0 unit).** The Cold producer attests per run (a continuous stream), and the EV depot gets weekday charging hours with an EV story backfill for the earlier weeks.
 
 Decision logged for owner review: **D-E5.48**.
+
+## D-E5.49 EV fault day over the full recorded day: c1 stays out of service until repaired (Architect, Claude, 2026-11-11, owner-delegated, logged for owner review)
+
+**Ruling: option (a).**
+- c1 is FAULTED from 08:16 and still out at 16:00. Clients read "out of service for 7 h 44 min".
+- This is the honest consequence of recording the whole declared day under D-E5.48. The story already says no repair happened and the repair Action is still Pending, so a fault that cleared itself after 44 min would contradict it. It would also weaken the Action.
+- For EV executives, "a charger has been down most of its charging day and the repair is still pending" is the more believable and more useful beat.
+- What does not change:
+  - the single Finding and its size;
+  - per-session money (30/15 kWh, USD 9.00/4.50);
+  - the Action's state.
+- What does change: the CONNECTOR_OUT_OF_SERVICE warning duration, and "16 min unknown" disappears because status is known all day. This is a sanctioned exception to D-E5.48's "every other row stays equal". E5/WK-1 counting USD 9.00/9.00/4.50 (the day is now COMPLETE) is intended.
+
+**Fix round (Sonnet, about 0.1 unit, same branch):**
+1. Pin the 7 h 44 min out-of-service duration and its warning in `site_outcomes` tests and in the `demo_combined_finish` rows. List them in the EV-HB packet's rows table with the reason "D-E5.49".
+2. Add a prepare-checklist line: on the EV fault day, c1 is out of service for 7 h 44 min, there is 0 min unknown, there is one Finding, the Action is Pending, and per-session USD is 9.00/4.50.
+3. In `Docs/demo-sprint/implementation-logic-portfolio-sites-findings-actions.html` and the demo script, replace "44 min out, 16 min unknown" with "out of service from 08:16 for the rest of the charging day (7 h 44 min); repair still pending".
+
+Decision logged for owner review: **D-E5.49**.
