@@ -19,3 +19,8 @@ Owner, 2026-11-11 (verbatim): "also, i want everything merged to main and pushed
 
 Coordinator note: no git bundle / file copy of code. Reviewed (ACCEPTed) work is merged to main before the push; unreviewed in-flight work is either finished+reviewed before cutover or (owner to choose) pushed as its branch to GitHub — never merged to main unreviewed.
 
+
+Owner answers, 2026-11-11 ~18:10 (verbatim): "1. Option B , I'll hold until then to start work on the vps 2.i don't see option for the user to enter the price, am i missing something? 3.i'll set ssh config, and inform you so you can just connect"
+
+Coordinator reading: (1) Option B: hold the VPS move until all in-flight work is reviewed and merged to main, then push main; (2) price entry question — see price-it; (3) owner will set SSH config and tell the coordinator.
+
