@@ -90,7 +90,9 @@ def test_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa: F811
             svc._snapshot(c, t, s, CODE, snaps[0]["lo"], snaps[0]["hi"], k, selection_cutoff=k,
                           selection_seqs=snaps[0]["selection_seqs"])
         outside = svc.estate_snapshots_on(c, t, s, CODE, day + timedelta(days=2), day + timedelta(days=3), wm, k)
-    assert whole_day["selected"] is None  # the equality predicate discards every stored session window
+    # PB-1b (D-E5.31 ii): the whole day reads its shown analysed period, never the union of the day.
+    assert whole_day["shown_period"] in whole_day["analysed_periods"]
+    assert (whole_day["lo"], whole_day["hi"]) == whole_day["shown_period"] and whole_day["selected"] is not None
     assert keys == [{"analytic_id": EV, "window_start": lo, "window_end": hi, "seq": seq}
                     for (lo, hi), seq in sorted(latest.items())]
     assert [((x["lo"], x["hi"]), x["selection_seqs"]) for x in snaps] == [(w, {EV: q}) for w, q in sorted(latest.items())]

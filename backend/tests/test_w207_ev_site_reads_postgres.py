@@ -130,7 +130,8 @@ def analysis_all(c: TestClient, query: str, limit: int) -> list:
 def check_shape(reads: dict, w206: dict) -> None:
     """Every route carries W2-06's public envelope verbatim, with its own W2-07 fields alongside."""
     for name, body in reads.items():
-        assert set(body) == set(ENVELOPE) | FIELDS[name], (name, sorted(body))
+        # PB-1b: the Site reads add the D-E5.31 analysed-period fields beside the W2-06 envelope.
+        assert set(body) == set(ENVELOPE) | FIELDS[name] | {"analysed_periods", "shown_period"}, (name, sorted(body))
         assert {k: body[k] for k in ENVELOPE} == {k: w206[k] for k in ENVELOPE}, name
         assert set(body["currentness"]) == {"state", "as_of", "limitation"}
         assert set(body["source_provenance"]) == DTO or body["source_provenance"] == EMPTY_ALIAS
