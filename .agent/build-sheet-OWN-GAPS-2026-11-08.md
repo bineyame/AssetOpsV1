@@ -4100,3 +4100,67 @@ DATA-12-FX's `NOT_ANALYSED` tests only (c). A day in (a) or (b) that has a selec
 - **PF-W:** adds the two new terms and "incomplete days" to `portfolioWords.ts`, and replaces "days not analysed yet" in the coverage line.
 
 Decision logged for owner review: **D-E5.46**.
+
+## D-E5.47 An infrastructure read failure is never stored and never shown as a data fact (Architect, Claude, 2026-11-11, owner-delegated, logged for owner review)
+
+**Defect (E3d, client6, 2-8 Nov outcome summary).** serve's prebuild rebuilt `/api/estate/outcome-summary` in 3.8 s during 88 "too many clients already" refusals. Every Site showed PARTIAL/Unknown and Kobo "No target set yet" although its objective rows were intact. The degraded body was stored and served until `valid_until`.
+
+**Cause in code.**
+- `site_outcomes/mini.py` `Reads.call`: `except Exception` records the read name in `failed` and returns None. The composer turns that into UNKNOWN and `read_state` PARTIAL (`site_outcomes/read.py` docstring lines 9-10). An objectives read that fails looks like "no objectives".
+- `site_outcomes/read.py` `_summary`: `except Exception` gives `read_state = UNAVAILABLE` (line ~684). Other broad catches are at ~405, ~597, ~635 and ~721.
+- `chain/response_store.py` `ResponseStore.serve`: it stores whatever `compose()` returns once the watermark is unchanged. Nothing tells it that the compose was degraded.
+- `chain/prebuild.py` `run`: it counts only non-200 responses, and a degraded 200 reports OK.
+- Connection pressure: about 20 adapters each call `create_engine(..., pool_pre_ping=True)` with the default pool (5+10). The prebuild's in-process `TestClient(create_app())` doubles that inside a server that is already running.
+
+### Rule
+1. **What counts as infrastructure (transient).** A failure is transient when the exception, or anything in its `__cause__`/`__context__` chain, is one of these:
+   - `sqlalchemy.exc.OperationalError`, `InterfaceError`, `DisconnectionError` or `TimeoutError` (the pool timeout);
+   - `psycopg.OperationalError` or `psycopg.errors.TooManyConnections`;
+   - a `DBAPIError` with `connection_invalidated`;
+   - `ConnectionError`, `OSError` or `socket.timeout`.
+
+   A wrapper class on its own is NOT transient. `LedgerUnavailable`, `*StoreUnavailable` and `PortUnavailable` are also raised for deterministic states ("DATABASE_URL is not set", "tenant/Site not found", "not wired"), and those keep today's honest PARTIAL/UNKNOWN. One function decides: `infra.is_transient(error) -> bool` in a new `backend/assetops_backend/infra.py`.
+2. **How composers signal it: a mark on the read scope, never a body field.** Add `ReadScope.degraded: list[str]` and `read_scope.note_failure(name, error)`, which appends when `is_transient(error)`. Calls go in:
+   - `Reads.call`'s except;
+   - the five broad catches in `site_outcomes/read.py`;
+   - any other `except Exception` reached from a stored-route compose (the implementer greps `chain/`, `estate/` and `site_outcomes/` and lists every site in the packet).
+
+   Backstop: one global `event.listen(Engine, "handle_error", ...)`, registered in `create_app`. It marks the current scope when `ctx.is_disconnect` is set or `ctx.original_exception` is an OperationalError. Wrappers that re-raise a DB error without `from error` get `from error` added (mechanical; listed in the packet).
+3. **What the store does** (`ResponseStore.serve`, compose-only path included). After the compose, if `sc.degraded` is non-empty it does NOT insert. Instead:
+   - (a) it serves the newest stored row for (route, request_key, code_version), whatever its W and even past `valid_until`. This is a new port method `latest_good(route, key, version)` on `postgres_response_store.py`; pruning keeps 3 rows, so one normally exists. The response gets the header `X-AssetOps-Stored: stale` and `Retry-After: 30`, with no ETag.
+   - (b) with no such row, it answers **503** `{"code":"TEMPORARILY_UNAVAILABLE","message":"This view is temporarily unavailable. Retrying."}` with `Retry-After: 5`, and stores nothing.
+   - It logs `stored_route_degraded` with the read names. An exception from the lookup path itself (the existing `unstored` branch) follows the same rule when it is transient.
+4. **Frontend (minimal).** The board and summary fetches treat 503 `TEMPORARILY_UNAVAILABLE` as the state "Temporarily unavailable. Retrying...". They retry after 2, 4 and 8 s, then show "Still unavailable. Refresh to try again." It is never rendered as Unknown, PARTIAL or "No target set yet".
+5. **Prebuild.** A path whose response is 503 or carries the `stale` header is retried 3 times, after 2, 5 and 10 s. The summary gains `degraded: {path: attempts}`, and `code` is `DEGRADED` when any path still fails. `tools/demo_combined.py` treats `DEGRADED` like `FAILED`: it prints the paths and exits non-zero. Before it starts, the prebuild logs the `pg_stat_activity` count.
+
+### Card INFRA-1 (Opus, 0.75 unit server + Sonnet 0.15 frontend; lane C)
+**Files:**
+- new `backend/assetops_backend/infra.py`;
+- `read_scope.py`;
+- `site_outcomes/mini.py`;
+- `site_outcomes/read.py`;
+- `chain/response_store.py`;
+- `chain/adapters/postgres_response_store.py`;
+- `chain/prebuild.py`;
+- `main.py` (the hook);
+- `tools/demo_combined.py`;
+- the frontend fetch helper for the summary and board.
+
+**Pinned tests:**
+- (T1, no DB) A fake rows port holds a good row. The compose calls a `Reads.call` whose fn raises `OperationalError("too many clients already")` halfway through. Assert: nothing inserted, the old bytes served, header `stale`, no ETag.
+- (T2) The same with an empty store gives 503 `TEMPORARILY_UNAVAILABLE` and nothing inserted.
+- (T3) `LedgerUnavailable("DATABASE_URL is not set")` without a cause still gives PARTIAL, and it is stored (the honest state is kept).
+- (T4) `is_transient` table: a wrapped cause gives true, a bare wrapper gives false, and the pool `TimeoutError` gives true.
+- (T5, `*_test` DB) The `handle_error` hook marks the scope when a connect to a closed port is refused.
+- (T6) A prebuild against a client that returns 503 once and then 200 retries and reports OK. Always 503 reports `DEGRADED`, and `demo_combined` exits non-zero.
+- (T7, frontend) 503 shows the retrying state, never "No target set yet".
+
+**Fit in the 17 Nov plan (`architect-sequence-client-scope-2026-11-11.md` C.5).** Lane C, right after A4 PB-1b, in the wait for AR-1's merge before AR-3 + AR-6. It displaces nothing there. If PB-1b has not merged by Thu 18:00, INFRA-1 moves to the head of lane A after A2 and pushes A5/A6 by about 0.9 unit. AR-2 then follows the existing no-slack rule: held, and the boards use the pre-built ranges. **INFRA-1 must merge before the Sat 12:00 freeze and the rehearsal build**, because this defect can hit the client session.
+
+### Ops mitigation until INFRA-1 is in every demo build
+- **No test suite, check-all or ad-hoc DB script** runs against `assetopsv1-postgres-1` during add-dates, prepare, the prebuild, live checks, recapture or a demo. The coordinator pauses the lanes' DB work for those windows. The same machine rule goes into C.6.
+- At the next safe container restart (not during E3d's life, and never touching client6), start Postgres with `-c max_connections=300`. Until then, check `SELECT count(*) FROM pg_stat_activity` before a prebuild and wait while it is above 60.
+- After any prebuild, check `/api/estate/outcome-summary` for the demo ranges: no Site may be PARTIAL/UNAVAILABLE unless the story says so. If one is, rerun the prebuild once the server is quiet. The bad row expires at `valid_until`, or a new commit moves W.
+- Deferred to BL-71: one shared engine factory with a capped pool (`ASSETOPS_DB_POOL_SIZE`), the prebuild reusing the serve's engines (out of process, over HTTP), and the degraded rule for non-stored routes.
+
+Decision logged for owner review: **D-E5.47**.
