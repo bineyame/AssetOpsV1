@@ -112,6 +112,14 @@ SELECT max(decided_at) FROM ingestion_disposition
  WHERE tenant_id = :t AND site_id = :s AND (CAST(:k AS timestamptz) IS NULL OR decided_at <= CAST(:k AS timestamptz))
 """)
 
+#: PB-7 `readings_began`: the measurement start of the Site's earliest ACCEPTED reading decided by the cutoff.
+_READINGS_BEGAN = text("""
+SELECT min(COALESCE(e.interval_start, e.source_time))
+  FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal
+ WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' AND d.accepted_evidence_id = e.id
+   AND (CAST(:k AS timestamptz) IS NULL OR d.decided_at <= CAST(:k AS timestamptz))
+""")
+
 #: CH-5a2b R1 (§B14 Q1/Q2) `placement_facts`: per selected Finding revision, its cited evidence ids (the lineage
 #: `finding_revision_evidence`, as `coverage.py` reads it) and its Finding's `recurs_after` id and title (the latest
 #: revision's title at `k`, the index head title).
@@ -277,6 +285,11 @@ class PostgresChainRead:
     def evidence_cutoff(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None:
         with self._engine.connect() as c:
             return c.execute(_EVIDENCE_CUTOFF, {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()
+
+    def readings_began(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None:
+        """PB-7: the measurement start of the Site's earliest ACCEPTED reading decided by `known_at`."""
+        with self._engine.connect() as c:
+            return c.execute(_READINGS_BEGAN, {"t": tenant_id, "s": site_id, "k": known_at}).scalar_one()
 
     def placement_facts(self, tenant_id: UUID, site_id: UUID, revision_ids: Sequence[str],
                         known_at: datetime | None) -> Mapping[str, Any]:

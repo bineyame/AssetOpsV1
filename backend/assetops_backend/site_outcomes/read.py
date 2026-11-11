@@ -245,6 +245,9 @@ class SiteOutcomeBoardService:
         def findings_settled() -> bool:
             return chain().findings_settled(sid)
 
+        def readings_began() -> datetime | None:  # PB-7
+            return chain().readings_began(sid)
+
         def action_facts(action_ids: list[str]) -> Any:
             return chain().action_facts(sid, c, action_ids)
 
@@ -330,6 +333,7 @@ class SiteOutcomeBoardService:
 
         return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
                               chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
+                              readings_began=readings_began,
                               placement_facts=placement_facts, action_rows=action_rows, action_index=action_index, action_facts=action_facts, money=money,
                               work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
                               pin=pin, productive_users=productive_users,
