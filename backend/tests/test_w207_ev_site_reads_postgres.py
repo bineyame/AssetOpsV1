@@ -769,8 +769,10 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     assert set(f) == REVISION_KEYS | {"source_provenance"} and set(f["source_provenance"]) == DTO
     assert set(reads["overview"]["consequence_summary"]) == SUMMARY_KEYS
     assert {"configured_service_window", "configured_service_windows"} <= set(reads["overview"]["objective"])
-    # Without a selected current tariff-bearing consequence: explicit nulls.
-    empty = all_five(c, "from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")
+    # Without a selected current tariff-bearing consequence: explicit nulls. PB-1b: a window holding the replay's
+    # analysed period now reads that period (D-E5.31 ii), so the empty window lies outside every stored period.
+    empty = all_five(c, "from=2026-10-27T08:00:00Z&to=2026-10-27T16:00:00Z")
+    assert empty["overview"]["analysed_periods"] == [] and empty["overview"]["status"]["state"] == "UNKNOWN"
     assert (empty["assumptions"]["consequence_tariff"], empty["assumptions"]["publication_note"]) == (None, None)
     assert set(empty["overview"]["consequence_summary"]) == SUMMARY_KEYS
 

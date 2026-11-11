@@ -418,8 +418,8 @@ def test_exact_window_does_not_use_covering_selection(chain) -> None:  # noqa: F
     lo, hi, known = (_at(body["window"][k]) for k in ("from", "to", "known_at"))
     assert body["currentness"]["state"] == "CURRENT" and body["items"]
     assert get(c, f"sessions?{_q(body)}")["currentness"]["state"] == "CURRENT"
-    # A narrower window the selection covers, and a wider window covering it: neither is the exact selected window.
-    for a, b in ((lo, hi - timedelta(minutes=1)), (lo + timedelta(minutes=1), hi), (lo - timedelta(hours=1), hi)):
+    # A narrower window the selection covers: not the exact selected window, and no analysed period inside it.
+    for a, b in ((lo, hi - timedelta(minutes=1)), (lo + timedelta(minutes=1), hi)):
         q = f"from={_iso(a)}&to={_iso(b)}&known_at={_iso(known)}"
         for route in ("sessions", "findings"):
             other = get(c, f"{route}?{q}")
@@ -427,6 +427,12 @@ def test_exact_window_does_not_use_covering_selection(chain) -> None:  # noqa: F
             assert other["window"]["from"] == _iso(a) and other["window"]["to"] == _iso(b)
         assert all(get(c, f"sessions?{q}")["denominator"][k] is None for k in COUNTS - {"limitation"})
         assert error(c, f"sessions/{body['items'][0]['session_id']}?{q}", 404) == "EV_RECORD_NOT_FOUND"
+    # PB-1b (D-E5.31 ii): a wider window holding the selected window reads that analysed period, not the union.
+    q = f"from={_iso(lo - timedelta(hours=1))}&to={_iso(hi)}&known_at={_iso(known)}"
+    wider = get(c, f"sessions?{q}")
+    assert wider["currentness"]["state"] == "CURRENT"
+    assert [x["session_id"] for x in wider["items"]] == [x["session_id"] for x in body["items"]]
+    assert (wider["window"]["from"], wider["window"]["to"]) == (body["window"]["from"], body["window"]["to"])
 
 
 def test_ev_source_age_never_emits_stale_source(chain) -> None:  # noqa: F811
