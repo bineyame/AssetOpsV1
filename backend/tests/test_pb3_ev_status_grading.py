@@ -172,3 +172,42 @@ def test_status_spans_keep_the_reported_state_including_plugged_and_charging() -
     assert spans == {"A1": [(_t(8), _t(8, 1), "UNPLUGGED"), (_t(8, 1), _t(8, 2), "PLUGGED"),
                             (_t(8, 2), _t(8, 3), "CHARGING"), (_t(8, 3), _t(8, 4), "UNKNOWN")]}
     assert ev_availability.status_spans(None, [("c1", "A1")], rows, _t(8), _t(9)) == {}
+
+
+# --- Postgres: the registered `complete` EV replay through the real read service --------------------------------
+
+from ev_depth_cases import HI, LO, URL, chain, settled  # noqa: E402,F401
+
+
+@pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+def test_complete_replay_is_status_known_for_its_whole_window(chain) -> None:  # noqa: F811
+    """The stored `complete` run (c1 charges 08:01-08:31, c2 unplugged; a state report every minute): every second of
+    the window is energy-known (PLUGGED/AUTHORIZING and UNPLUGGED at zero energy, CHARGING under its meter), and on
+    this window the PB-3 coverage equals the prior meter ∪ known-availability coverage (no stored value moves)."""
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.chain.adapters.postgres_chain_inputs import instant
+
+    built = settled(chain, "complete")
+    reads = build_ev_read_service(URL)
+    try:
+        def work(c):
+            snap, _ = reads.open_on(c, built.tenant_id, built.site_id, built.site_code, LO, HI, None)
+            return (snap, ev_availability.status_spans_on(reads, c, snap),
+                    ev_availability.availability_on(reads, c, snap), reads.accepted_on(c, snap))
+        snap, spans, body, accepted = reads.within(work)
+    finally:
+        reads.dispose()
+    assert snap["state"] == "CURRENT" and len(spans) == 2
+    states = {s for rows in spans.values() for _a, _b, s in rows}
+    assert {"UNPLUGGED", "CHARGING"} <= states and "UNKNOWN" not in states
+    connectors = {asset: {"states": rows, "meter": [
+        (r["interval_start"], r["interval_end"]) for r in accepted if r["role"] == "ev_connector_energy"
+        and r["use"] == "SUPPORT" and r["interval_start"] is not None
+        and str(r.get("asset_id")).lower() == str(asset).lower()]} for asset, rows in spans.items()}
+    window = int((HI - LO).total_seconds())
+    assert grading.covered_seconds(grading.status_known_spans(connectors), LO, HI) == window
+    prior = [(r["interval_start"], r["interval_end"]) for r in accepted if r["role"] == "ev_connector_energy"
+             and r["use"] == "SUPPORT" and r["interval_start"] is not None] + [
+        (instant(x["from"]), instant(x["to"])) for row in body["connectors"] for x in row["spans"]
+        if x["state"] != ev_availability.UNKNOWN]
+    assert grading.covered_seconds(prior, LO, HI) == window
