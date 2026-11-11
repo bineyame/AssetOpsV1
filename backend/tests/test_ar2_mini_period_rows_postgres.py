@@ -33,6 +33,7 @@ if URL:
     from assetops_backend.chain.ports import SiteRef
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
     from assetops_backend.mini_depth import period_rows as pr
+    from assetops_backend.mini_depth import read as mread
     from assetops_backend.mini_depth.inputs import local_noon
     from assetops_backend.mini_depth.read import MiniDepthRead
 
@@ -111,15 +112,56 @@ def test_board_rows_equal_compose_live_historical_and_after_a_late_job(store, en
     with engine.begin() as c:
         c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_service', :lo, :hi, NULL, clock_timestamp())"),
                   {"t": t, "s": s, "lo": noon.start, "hi": noon.end})
+    # The job has no outbox event (0029 `mini_enqueue_hour`): the rows path's live `_JOBS` check (D-ANY.6a) sees it.
+    reader.test_read_clock_override = _now_clock(engine)
+    fallback_before = mread.job_fallback_count()
     compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end)
     assert json.loads(compose)["currentness"]["state"] == "PENDING_RECOMPUTE"
     assert body["currentness"]["state"] == "PENDING_RECOMPUTE"  # never a silently CURRENT stored row
+    assert rows == compose and mread.job_fallback_count() == fallback_before + 1
+    reader.test_read_clock_override = None
+    with engine.connect() as c:
+        k_job = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+    compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end, known_at=k_job)
+    assert rows == compose and body["currentness"]["state"] == "PENDING_RECOMPUTE"  # historical k as well
     _build(engine, t, s, [w402.DAYS[2]])
     _consume_all(engine)
     reader.test_read_clock_override = _now_clock(engine)
     compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end)
     assert rows == compose and body["currentness"]["job_state"] == "PENDING"
     assert body["pending_source_provenance"] is not None
+    assert mread.job_fallback_count() == fallback_before + 2  # the rebuilt row holds the job: no fallback now
+
+
+def test_rows_follow_a_job_moved_later_than_the_read(store, engine, monkeypatch) -> None:  # noqa: F811
+    """D-ANY.6a: a row built while a PENDING job was visible must not keep reading PENDING_RECOMPUTE once that job's
+    `available_at` is moved past the read (0029 `mini_enqueue_hour` coalescing; no event): the hour falls back."""
+    installed, t, s = w402._setup(store, engine)
+    w402._ingest(engine, installed)
+    w402._reconcile(engine, w402.DAYS)
+    noon = local_noon(w402.DAYS[2], w402.ZONE)
+    p = {"t": t, "s": s, "lo": noon.start, "hi": noon.end}
+    with engine.begin() as c:
+        c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_service', :lo, :hi, NULL, clock_timestamp())"), p)
+    _build(engine, t, s, [w402.DAYS[2]])
+    _consume_all(engine)
+    reader = _reader(engine)
+    reader.test_read_clock_override = _now_clock(engine)
+    compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end)
+    assert rows == compose and body["currentness"]["job_state"] == "PENDING"  # the row holds the visible job
+    with engine.begin() as c:  # the same PENDING job, moved one hour past now
+        c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_service', :lo, :hi, NULL, "
+                       "clock_timestamp() + interval '1 hour')"), p)
+        moved = c.execute(text("SELECT count(*) FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
+                               "AND domain = 'mini_service' AND window_start = :lo AND status = 'PENDING' "
+                               "AND available_at > clock_timestamp()"), p).scalar_one()
+    assert moved == 1
+    reader.test_read_clock_override = _now_clock(engine)
+    before = mread.job_fallback_count()
+    compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end)
+    assert json.loads(compose)["currentness"]["state"] != "PENDING_RECOMPUTE"
+    assert rows == compose and body["currentness"]["state"] != "PENDING_RECOMPUTE"
+    assert mread.job_fallback_count() == before + 1
 
 
 def test_rows_read_no_raw_reading(store, engine, monkeypatch) -> None:  # noqa: F811

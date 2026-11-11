@@ -28,6 +28,7 @@ CODE, TZ = "KOBO-001", "Africa/Nairobi"
 D0 = date(2026, 10, 21)
 REV = [UUID(f"00000000-0000-0000-0000-00000000c0{i:02d}") for i in range(12)]
 ALL_KINDS = ",".join(pr.KINDS)
+K = datetime(2026, 10, 27, tzinfo=timezone.utc)
 
 
 def _ev(i: int) -> str:
@@ -147,10 +148,36 @@ def _compose(hours, domain, lo, hi, known, historical=False):
     return mini._envelope(None, _db_link_rows, T, S, CODE, domain, lo, hi, known, TZ, hours)
 
 
+class JobsConn:
+    """D-ANY.6a: answers the rows path's one batched `_JOBS` statement. `live` maps an hour's `window_start` (as
+    stored) to its live (job id, status) list at k; default = exactly the stored jobs (no fallback)."""
+
+    def __init__(self, live: dict[str, list[tuple[str, str]]]) -> None:
+        self.live, self.calls = live, 0
+
+    @classmethod
+    def as_stored(cls, stored_by_day) -> "JobsConn":
+        return cls({f["window_start"]: [(j, f["job_state"]) for j in f["job_ids"]]
+                    for facts in stored_by_day.values() for f in facts})
+
+    def execute(self, stmt, p=None):
+        assert stmt is mread._JOBS_BATCH
+        self.calls += 1
+        rows = [(i + 1, j, st) for i, lo in enumerate(p["los"]) for j, st in self.live.get(mread.iso(lo), [])]
+
+        class R:
+            def all(self_inner):
+                return rows
+        return R()
+
+
 def _rows_envelope(stored_by_day, prov, domain, lo, hi, known, explicit, *, pending=None):
     reader = FakeReader(stored_by_day, pr.kind_of(domain), pending=pending)
     mini = MiniDepthRead(None, _no_link_rows, period_rows=(reader, FakeStore(prov)))
-    got = mini._row_hours(T, S, CODE, domain, lo, hi, TZ, explicit, explicit is not None and explicit < known)
+    conn = JobsConn.as_stored(stored_by_day)
+    got = mini._row_hours(conn, T, S, CODE, domain, lo, hi, TZ, explicit, explicit or known,
+                          explicit is not None and explicit < known)
+    assert conn.calls == 1  # one batched job statement per read
     assert got is not None
     hours, links = got
     return mini._envelope(None, links, T, S, CODE, domain, lo, hi, explicit or known, TZ, hours), reader
@@ -209,21 +236,21 @@ def test_kill_switch_empty_keeps_the_compose_path(monkeypatch) -> None:
     mini = MiniDepthRead(None, _db_link_rows, period_rows=(reader, FakeStore({})))
     w = local_hour(D0, 12, TZ)
     monkeypatch.setenv(SERVED_KINDS_ENV, "")
-    assert mini._row_hours(T, S, CODE, "fuel", w.start, w.end, TZ, None, False) is None
+    assert mini._row_hours(JobsConn({}), T, S, CODE, "fuel", w.start, w.end, TZ, None, K, False) is None
     monkeypatch.delenv(SERVED_KINDS_ENV)
-    assert mini._row_hours(T, S, CODE, "fuel", w.start, w.end, TZ, None, False) is None
+    assert mini._row_hours(JobsConn({}), T, S, CODE, "fuel", w.start, w.end, TZ, None, K, False) is None
     monkeypatch.setenv(SERVED_KINDS_ENV, "mini_depth.renewable")  # another kind served: fuel still composes
-    assert mini._row_hours(T, S, CODE, "fuel", w.start, w.end, TZ, None, False) is None
+    assert mini._row_hours(JobsConn({}), T, S, CODE, "fuel", w.start, w.end, TZ, None, K, False) is None
     assert reader.calls == []
     monkeypatch.setenv(SERVED_KINDS_ENV, "mini_depth.fuel")
-    assert mini._row_hours(T, S, CODE, "fuel", w.start, w.end, TZ, None, False) is not None
+    assert mini._row_hours(JobsConn({}), T, S, CODE, "fuel", w.start, w.end, TZ, None, K, False) is not None
     assert len(reader.calls) == 1
     # an hour the board does not read stays on the compose path
     w9 = local_hour(D0, 9, TZ)
-    assert mini._row_hours(T, S, CODE, "fuel", w9.start, w9.end, TZ, None, False) is None
+    assert mini._row_hours(JobsConn({}), T, S, CODE, "fuel", w9.start, w9.end, TZ, None, K, False) is None
     # no row reader configured: compose
-    assert MiniDepthRead(None, _db_link_rows)._row_hours(T, S, CODE, "fuel", w.start, w.end, TZ, None,
-                                                         False) is None
+    assert MiniDepthRead(None, _db_link_rows)._row_hours(JobsConn({}), T, S, CODE, "fuel", w.start, w.end, TZ,
+                                                         None, K, False) is None
 
 
 def test_kill_switch_routes_read_to_compose(monkeypatch) -> None:
@@ -236,6 +263,9 @@ def test_kill_switch_routes_read_to_compose(monkeypatch) -> None:
             class R:
                 def scalar_one_or_none(self_inner):
                     return TZ
+
+                def all(self_inner):  # the rows path's batched `_JOBS`: no live job
+                    return []
             return R()
 
     mini = MiniDepthRead(None, _db_link_rows, period_rows=(FakeReader({}, "mini_depth.fuel"), FakeStore({})))
@@ -302,3 +332,34 @@ def test_kind_builder_fragment_and_versions() -> None:
     from assetops_backend.chain.period_read import validate_body
 
     validate_body("mini_depth.fuel", frag.body)  # the stored-row contract holds for the mini facts
+
+
+@pytest.mark.parametrize("change", ["new_job", "moved_later", "status"])
+def test_job_set_differs_falls_back_to_hour_for_that_hour_only(monkeypatch, change) -> None:
+    """D-ANY.6a: an hour whose live jobs at k (the `_JOBS` predicate) differ from its row's is served by `_hour`
+    (logged `period_row_job_fallback`, counted); every other hour stays on its row; link rows then read live."""
+    monkeypatch.setenv(SERVED_KINDS_ENV, ALL_KINDS)
+    hours = _renewable_hours()  # hour n=5 (D0+2 11:00) holds job-1 PENDING; the others none
+    facts, prov = _stored(hours)
+    rows = _by_day(facts)
+    conn = JobsConn.as_stored(rows)
+    target = {"new_job": hours[1], "moved_later": hours[5], "status": hours[5]}[change]
+    key = mread.iso(target.window.start)
+    conn.live[key] = {"new_job": [("job-9", "PENDING")], "moved_later": [],
+                      "status": [("job-1", "FAILED")]}[change]
+    replaced = []
+    mini = MiniDepthRead(None, _db_link_rows, period_rows=(FakeReader(rows, "mini_depth.renewable"), FakeStore(prov)))
+    sentinel = _hour(target.day, 12, 9, state="STALE_SOURCE")
+    monkeypatch.setattr(mini, "_hour", lambda c, t, s, d, day, w, k, hist: replaced.append(w) or sentinel)
+    lo, hi = _bounds(D0, 5)
+    before = mread.job_fallback_count()
+    got = mini._row_hours(conn, T, S, CODE, "renewable", lo, hi, TZ, None, K, False)
+    assert got is not None
+    out, links = got
+    assert replaced == [target.window] and mread.job_fallback_count() == before + 1
+    assert [h for h in out if h is sentinel] == [sentinel] and len(out) == len(hours)
+    assert links == mini._link_rows  # a fallback read takes link rows as the compose does
+    conn.live[key] = [(j, f["job_state"]) for f in facts if f["window_start"] == key for j in f["job_ids"]]
+    replaced.clear()
+    mini._row_hours(conn, T, S, CODE, "renewable", lo, hi, TZ, None, K, False)
+    assert replaced == []  # the stored job set again: every hour from its row

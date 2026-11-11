@@ -22,6 +22,7 @@ Nothing is computed into a claim or persisted: the read never writes.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
@@ -171,12 +172,29 @@ _HEAD = text(
     "AND s.selected_at <= :k AND r.knowledge_cutoff <= :k "
     "ORDER BY s.selected_at DESC, s.seq DESC LIMIT 1")
 # A live job overlapping the hour that no later selection of that job's hour (visible at the cutoff) has cleared.
-_JOBS = text(
-    "SELECT j.id, j.status FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
-    "AND j.window_start < :hi AND j.window_end > :lo AND j.status IN ('PENDING', 'LEASED', 'FAILED') "
+_JOBS_WHERE = (
+    "j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
+    "AND j.window_start < {hi} AND j.window_end > {lo} AND j.status IN ('PENDING', 'LEASED', 'FAILED') "
     "AND j.available_at <= :k AND NOT EXISTS (SELECT 1 FROM mini_depth_selection x WHERE x.tenant_id = j.tenant_id "
     "AND x.site_id = j.site_id AND x.domain = :d AND x.window_start = j.window_start "
     "AND x.window_end = j.window_end AND x.selected_at > j.available_at AND x.selected_at <= :k)")
+_JOBS = text("SELECT j.id, j.status FROM recompute_job j WHERE " + _JOBS_WHERE.format(lo=":lo", hi=":hi"))
+# D-ANY.6a: the same `_JOBS` predicate over many hours in one statement (the rows path's live job check at k).
+_JOBS_BATCH = text(
+    "SELECT w.n, j.id, j.status FROM unnest(CAST(:los AS timestamptz[]), CAST(:his AS timestamptz[])) "
+    "WITH ORDINALITY AS w(lo, hi, n) JOIN recompute_job j ON " + _JOBS_WHERE.format(lo="w.lo", hi="w.hi"))
+LOG = logging.getLogger("assetops.mini_depth.read")
+JOB_FALLBACK_LOG_EVENT = "period_row_job_fallback"
+_JOB_FALLBACK_SEEN = [0]
+
+
+def job_fallback_count() -> int:
+    """Hours the rows path served through `_hour` because the live jobs at k differ from the row's (D-ANY.6a)."""
+    return _JOB_FALLBACK_SEEN[0]
+
+
+def _job_state(statuses: set[str], has_head: bool) -> str:
+    return next((x for x in ("FAILED", "LEASED", "PENDING") if x in statuses), "SETTLED" if has_head else "NONE")
 
 
 def _cutoff_sha(c: Connection, tenant_id: UUID, site_id: UUID, window: rules.Window, known: datetime,
@@ -448,7 +466,7 @@ class MiniDepthRead:
         historical = explicit is not None and explicit < read_time
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": t, "s": s}).scalar_one_or_none()
-        from_rows = self._row_hours(t, s, code, domain, lo, hi, tz_name, explicit, historical)
+        from_rows = self._row_hours(c, t, s, code, domain, lo, hi, tz_name, explicit, known, historical)
         if from_rows is not None:  # ANY-1 AR-2: stored hour facts; no raw reading, no on-read `_cutoff_sha`
             hours, link_rows = from_rows
         else:
@@ -515,8 +533,7 @@ class MiniDepthRead:
             head = _Head(int(row[0]), row[1], row[2], row[3], result, tuple(row[8]))
         jobs = c.execute(_JOBS, p).all()
         statuses = {str(j[1]) for j in jobs}
-        job_state = next((x for x in ("FAILED", "LEASED", "PENDING") if x in statuses),
-                         "SETTLED" if head else "NONE")
+        job_state = _job_state(statuses, head is not None)
         pending_ids = tuple(_hour_ids(c, t, s, window, known)) if statuses else None
         if head is None:
             state = "UNKNOWN"
@@ -530,12 +547,13 @@ class MiniDepthRead:
 
     # --- ANY-1 AR-2: the board's hours from stored read-period rows (`mini_depth/period_rows.py`) ---------------
 
-    def _row_hours(self, t: UUID, s: UUID, code: str, domain: str, lo: datetime, hi: datetime,
-                   tz_name: str | None, explicit: datetime | None,
+    def _row_hours(self, c: Connection, t: UUID, s: UUID, code: str, domain: str, lo: datetime, hi: datetime,
+                   tz_name: str | None, explicit: datetime | None, known: datetime,
                    historical: bool) -> tuple[list[_Hour], LinkRowsOn] | None:
         """The request's hours from `site_period_read` when its kind is served (`ASSETOPS_PERIOD_READ_KINDS`; empty
         = today's compose) and the request is a stored shape (renewable: 1-5 whole local days; fuel, service and
-        backup: the local noon hour the board reads). None = compose. No raw reading and no `_cutoff_sha` here."""
+        backup: the local noon hour the board reads). None = compose. No raw reading and no `_cutoff_sha` here,
+        except for an hour whose live jobs at k differ from its row's (D-ANY.6a): that hour alone is `_hour`."""
         from assetops_backend.chain.grading import PENDING
         from assetops_backend.chain.period_read import served_kinds
         from assetops_backend.chain.ports import SiteRef
@@ -572,6 +590,8 @@ class MiniDepthRead:
                 stored_links.update(value.get("pending_link_rows") or {})
         if domain != "renewable" and [h.window for h in hours] != [windows[0][1]]:
             raise MiniReadUnavailable("A stored mini-depth hour does not match the requested hour.")
+        if self._job_fallback(c, t, s, code, domain, hours, known, historical):
+            return hours, self._link_rows  # a recompute in flight: link rows read live, as the compose reads them
         revisions = sorted({h.head.revision_id for h in hours if h.head}, key=str)
         if revisions:
             try:
@@ -584,6 +604,35 @@ class MiniDepthRead:
             for block in blocks.values():
                 stored_links.update(block.get("link_rows") or {})
         return hours, pr.StoredLinkRows(stored_links)
+
+    def _job_fallback(self, c: Connection, t: UUID, s: UUID, code: str, domain: str, hours: list[_Hour],
+                      known: datetime, historical: bool) -> int:
+        """D-ANY.6a: the compose's own `_JOBS` predicate, one statement over the request's hours at k (live and
+        historical). An hour whose job set at k (IDs and the job state they give) equals its stored row's renders
+        from the row; any other hour is replaced in place by `_hour` (the D-ANY.1 "cannot be proven equal stays on
+        the old path" rule), logged `period_row_job_fallback` and counted. Returns the number replaced."""
+        if not hours:
+            return 0
+        p = {"t": t, "s": s, "d": domain, "jd": JOB_DOMAIN[domain], "k": known,
+             "los": [h.window.start for h in hours], "his": [h.window.end for h in hours]}
+        live: dict[int, list[tuple[str, str]]] = {}
+        for n, job_id, status in c.execute(_JOBS_BATCH, p).all():
+            live.setdefault(int(n) - 1, []).append((str(job_id), str(status)))
+        replaced = []
+        for i, h in enumerate(hours):
+            jobs = live.get(i, [])
+            ids = tuple(sorted(j for j, _ in jobs))
+            statuses = {st for _, st in jobs}
+            if ids == tuple(h.job_ids) and (not statuses or _job_state(statuses, h.head is not None) == h.job_state):
+                continue
+            hours[i] = self._hour(c, t, s, domain, h.day, h.window, known, historical)
+            replaced.append(h)
+        if replaced:
+            _JOB_FALLBACK_SEEN[0] += len(replaced)
+            LOG.warning(JOB_FALLBACK_LOG_EVENT, extra={
+                "event": JOB_FALLBACK_LOG_EVENT, "tenant_id": str(t), "site": code, "domain": domain,
+                "count": len(replaced), "first": iso(replaced[0].window.start), "known_at": iso(known)})
+        return len(replaced)
 
     def build_period(self, *, tenant_id: UUID, site_id: UUID, domain: str, local_day: date
                      ) -> tuple[datetime, datetime, list[dict[str, Any]], dict[str, dict[str, Any]]] | None:
