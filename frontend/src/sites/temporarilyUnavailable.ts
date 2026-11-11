@@ -24,11 +24,11 @@ const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, 
 
 /**
  * `fetch(path)` and its JSON body, retried after each of `delays` while the answer is 503 `TEMPORARILY_UNAVAILABLE`;
- * `onRetrying` is told before each wait. A network failure throws, as `fetch` does; an unreadable body is null.
+ * `onRetrying` is told before each wait; returning `false` (the caller is gone) stops the retries. A network failure throws, as `fetch` does; an unreadable body is null.
  */
 export async function fetchRetrying(
   path: string,
-  onRetrying?: () => void,
+  onRetrying?: () => void | boolean,
   delays: readonly number[] = RETRY_DELAYS_MS,
 ): Promise<{ response: Response; body: unknown }> {
   for (let attempt = 0; ; attempt += 1) {
@@ -40,7 +40,7 @@ export async function fetchRetrying(
       body = null;
     }
     if (!isTemporarilyUnavailable(response.status, body) || attempt >= delays.length) return { response, body };
-    onRetrying?.();
+    if (onRetrying?.() === false) return { response, body }; // the caller unmounted: no further attempts
     await wait(delays[attempt]);
   }
 }

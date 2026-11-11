@@ -43,6 +43,16 @@ describe("INFRA-1 temporarily unavailable", () => {
     expect(onRetrying).toHaveBeenCalledTimes(1);
   });
 
+  it("fetchRetrying stops retrying once onRetrying returns false (the caller unmounted)", async () => {
+    vi.useFakeTimers();
+    const fetch = vi.fn().mockImplementation(async () => UNAVAILABLE_503());
+    vi.stubGlobal("fetch", fetch);
+    const pending = fetchRetrying("/x", () => false, [1000, 1000, 1000]);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect((await pending).response.status).toBe(503);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it("the board client retries after 2, 4 and 8 s and then reads TEMPORARILY_UNAVAILABLE", async () => {
     vi.useFakeTimers();
     const fetch = vi.fn().mockImplementation(async () => UNAVAILABLE_503());

@@ -1121,6 +1121,7 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
         : reads.getOutcomeSummary(window, () => {
             // INFRA-1: while the summary waits to retry a 503 TEMPORARILY_UNAVAILABLE, the retrying state shows.
             if (live) setSummaryRead({ key: windowKey, result: SUMMARY_RETRYING });
+            return live; // false after unmount: the client stops retrying
           });
     void pending.then((result) => {
       if (live) setSummaryRead({ key: windowKey, result });

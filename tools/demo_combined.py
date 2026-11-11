@@ -83,6 +83,10 @@ class StoryClockError(SystemExit):
     pass
 
 
+class PrebuildRefused(SystemExit):
+    """INFRA-1 fix round: a DEGRADED/FAILED prebuild. Build paths let it exit; the serve loop and the drain catch it."""
+
+
 def prebuild_refusal(stdout: str) -> str | None:
     """INFRA-1 (D-E5.47) rule 5: the prebuild's last JSON line with `code` FAILED or DEGRADED gives the message the
     build exits with, naming the paths; any other code (or no JSON line) gives None."""
@@ -1121,7 +1125,7 @@ class Demo:
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
         refusal = prebuild_refusal(done.stdout)
         if refusal is not None:  # INFRA-1 (D-E5.47) rule 5: a DEGRADED prebuild fails the build like FAILED
-            raise SystemExit(refusal)
+            raise PrebuildRefused(refusal)
 
     # ---- the R8 drain (DD1b2-R6 O2, R7 Q1-Q4) -----------------------------------------------------------------
     def counts(self) -> dict:
@@ -1184,12 +1188,21 @@ class Demo:
         (self.work / f"{name}.json").write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
         if failure and not self.defer_drain:
             raise SystemExit(f"DRAIN FAILED: {name}: {failure}")
-        self.performance_and_prebuild()
+        refused = None
+        try:
+            self.performance_and_prebuild()
+        except PrebuildRefused as exc:  # INFRA-1 fix round: recorded, not raised mid-drain (the self-check still runs)
+            refused = str(exc.code)
+            say(f"  {name}: PREBUILD REFUSED (deferred): {refused[:300]}")
         if failure:
             self.drain_failures = (*self.drain_failures, f"{name}: {failure}")
             say(f"  {name}: FAILED (deferred): {failure[:300]}")
         else:
             say(f"  {name}: drained in {ticks} ticks (N={n}, over_n={over_n}) [{self.drains[name]} s]")
+        if refused:
+            self.drain_failures = (*self.drain_failures, f"{name}: {refused}")
+            if not self.defer_drain:
+                raise SystemExit(f"DRAIN FAILED: {name}: {refused}")
         return record
 
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
@@ -1546,7 +1559,10 @@ class Demo:
         try:
             warmed = False
             while api.poll() is None:
-                self.tick()
+                try:
+                    self.tick()
+                except PrebuildRefused as exc:  # INFRA-1 fix round: a degraded tick is logged; the API keeps serving
+                    say(f"  PREBUILD REFUSED (serving continues): {str(exc.code)[:300]}")
                 if not warmed:
                     # Review item 8: after the first tick, warm the story-week Portfolio once before "ready:".
                     warmed = True

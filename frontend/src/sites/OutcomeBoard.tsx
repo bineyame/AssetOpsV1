@@ -398,6 +398,7 @@ export function OutcomeBoard({
     let live = true;
     void client.getOutcomeBoard(siteCode, query, () => {
       if (live) setRetrying(key);
+      return live; // false after unmount: the client stops retrying
     }).then((r) => {
       if (!live) return;
       setRetrying(null);

@@ -99,3 +99,17 @@ Fail-before method: build committed, then `git checkout main -- <changed sources
 
 ## User-review focus
 Deviation 1 (file `OSError`s) and 2 (`FAILED` now stops `demo_combined`).
+
+## Fix round 1 (review REJECT: High + 2 Low)
+- High: `performance_and_prebuild` now raises `PrebuildRefused` (a `SystemExit` subclass; build paths still exit). The
+  serve loop catches it, prints "PREBUILD REFUSED (serving continues)" and keeps serving (API not killed). `drain`
+  catches it, prints it, appends it to `drain_failures` after the failure record (self-check still runs; `prepare` ends
+  non-zero at the end via `raise_deferred_drain`; `tick --until-drained` raises `DRAIN FAILED` at the end of the drain).
+  Tests (`test_dd1b2b_drain_failure.py`): degraded drain deferred then non-zero; serve loop survives a degraded tick.
+  Both fail on the old code (no `PrebuildRefused`; the old `SystemExit` escaped).
+- Low 1: `fetchRetrying` stops when `onRetrying` returns `false`; `OutcomeBoard` and `EstatePortfolio` return `live`
+  (false after unmount). Test added in `temporarilyUnavailable.test.tsx`.
+- Low 2 (note, not stored): with the response store off, `serve` is bypassed and a degraded compose still renders
+  PARTIAL; INFRA-1 protects only stored routes.
+- Checks: pytest INFRA-1 + `test_dd1b2b_drain*` + `test_e4_performance*` 49 passed, 0 skipped (pg_stat_activity 109);
+  vitest temporarilyUnavailable 7 passed; tsc clean.
