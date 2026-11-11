@@ -11,3 +11,6 @@ Coordinator reading:
 - Cut over after Thursday's demo. Tonight's rebuild and the demo stay on the laptop.
 - Pushing `main` to the private GitHub remote is authorized by the owner for the move (only main, after branches are merged). Unmerged in-flight branches at cutover are either merged first (if ACCEPTed) or carried as a git bundle so no work is lost.
 - The VPS is Linux; the owner runs a Claude Code session there, and the laptop may also reach it over SSH for copying and setup.
+
+Owner, 2026-11-11 (verbatim): "the vps is ubuntu btw"
+
