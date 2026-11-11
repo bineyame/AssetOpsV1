@@ -222,10 +222,11 @@ def _child_path(url: str, work: Path, path: str) -> int:
     c = probe.client(url, work)
     res = probe.one(c, kept, path)
     # D-ANY.5 M1: live (Site, day, kind) reads with no stored row; never a fallback compose, so counted here
-    from assetops_backend.estate.period_rows import row_misses
+    from assetops_backend.estate.period_rows import no_revision_days, row_misses
 
-    # AR-4: claim days a row could not serve (read as today, D-ANY.6a), counted beside the absent rows
-    print("RESULT " + json.dumps({**res, "period_row_absent": absent_count(), "claim_row_misses": row_misses()}))
+    # AR-4: claim days a row could not serve (read as today, D-ANY.6a/7) and no-revision days (D-ANY.5)
+    print("RESULT " + json.dumps({**res, "period_row_absent": absent_count(), "claim_row_misses": row_misses(),
+                                  "claim_no_revision": no_revision_days()}))
     return 0
 
 
