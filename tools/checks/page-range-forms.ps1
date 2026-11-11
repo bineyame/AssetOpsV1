@@ -59,7 +59,7 @@ function Invoke-PageRangeFormsCheck {
 
     $exempt = @(
         "frontend/src/shell/SharedRangeBar.tsx",
-        "frontend/src/shell/FocusPicker.tsx"
+        "frontend/src/ui/FocusPicker.tsx"
     )
     # SR-2 remaining (Site pages); counts are today's, and only shrink.
     $pending = @{

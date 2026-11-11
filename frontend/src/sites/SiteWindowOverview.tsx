@@ -22,8 +22,8 @@ import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { WorkedOut } from "../ui/TechnicalDetails";
 import { Link, useSearchParams } from "react-router-dom";
-import { FocusPicker } from "../shell/FocusPicker";
-import { withFocusDay } from "../shell/sharedRange";
+import { FocusPicker } from "../ui/FocusPicker";
+import { withFocusDay } from "../ui/sharedRange";
 
 import {
   currentnessWords,

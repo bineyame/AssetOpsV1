@@ -23,7 +23,7 @@ import { HourNotSelected, OverviewGrid, OverviewRefused } from "./overviewSlots"
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { LEGACY_FOCUS_DAY, focusDayOf, withFocusDay } from "../shell/sharedRange";
+import { LEGACY_FOCUS_DAY, focusDayOf, withFocusDay } from "../ui/sharedRange";
 import { SiteWindowOverview, type OverviewMiniReads, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 

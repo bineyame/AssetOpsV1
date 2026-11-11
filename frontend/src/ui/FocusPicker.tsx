@@ -19,7 +19,7 @@
 import { type InputHTMLAttributes } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
-import { formatDay } from "../ui/time";
+import { formatDay } from "./time";
 import { useDeclareRangeFocus } from "./rangeFocus";
 import { dayInRange, rangeParams, useSharedRange, validDay, widenToDay } from "./sharedRange";
 

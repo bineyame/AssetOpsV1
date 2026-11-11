@@ -15,7 +15,7 @@
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FocusPicker } from "../shell/FocusPicker";
+import { FocusPicker } from "../ui/FocusPicker";
 
 import {
   ChartNote,

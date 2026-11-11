@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useOutletContext, useSearchParams } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
-import { RangeFocusProvider } from "./rangeFocus";
+import { RangeFocusProvider } from "../ui/rangeFocus";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
 import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";

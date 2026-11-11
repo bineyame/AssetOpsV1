@@ -42,7 +42,7 @@ import {
   type RangePreset,
   dayInRange,
 } from "./sharedRange";
-import { useRangeFocus } from "./rangeFocus";
+import { useRangeFocus } from "../ui/rangeFocus";
 import "./sharedRangeBar.css";
 
 export const RANGE_ERROR = `Choose a first day on or before the last day, ${RANGE_MAX_DAYS} days at most.`;
