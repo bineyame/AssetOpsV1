@@ -450,13 +450,13 @@ def test_month_gap_clause_passes_on_amended_v4_and_fails_on_the_unbuilt_stretch(
 
 
 def test_site_days_segment_reads_one_site_part() -> None:
-    line = ("Kobo mini-grid: 5 of 7 days checked · 1 partly checked · GreenHarvest Cold Room: 3 of 7 days checked "
-            "· 1 with too little data, not counted")
-    assert rows.site_days_segment(line, "Kobo mini-grid") == "5 of 7 days checked · 1 partly checked"
+    line = ("Kobo mini-grid: Complete readings on 5 of 7 days · 1 with partial readings · GreenHarvest Cold Room: Complete readings on 3 of 7 days "
+            "· 1 with too few readings, not counted")
+    assert rows.site_days_segment(line, "Kobo mini-grid") == "Complete readings on 5 of 7 days · 1 with partial readings"
     assert rows.site_days_segment(line, "GreenHarvest Cold Room") == \
-        "3 of 7 days checked · 1 with too little data, not counted"
-    assert rows.site_days_segment("Kobo mini-grid: 2 of 7 days checked · 3 partly checked", "Kobo mini-grid") == \
-        "2 of 7 days checked · 3 partly checked"
+        "Complete readings on 3 of 7 days · 1 with too few readings, not counted"
+    assert rows.site_days_segment("Kobo mini-grid: Complete readings on 2 of 7 days · 3 with partial readings", "Kobo mini-grid") == \
+        "Complete readings on 2 of 7 days · 3 with partial readings"
     assert rows.site_days_segment(None, "Kobo mini-grid") is None
 
 
@@ -536,8 +536,8 @@ def test_o12_needs_no_potential_and_a_contributor_with_spare_solar_seen() -> Non
     import demo_combined_after as after
 
     assert after.o12_grow_nodes(_o12_grow())["potential"] == "No potential found yet"
-    for bad in (_o12_grow(potential="96 kW of daytime solar unused"), _o12_grow(solar="Not available yet · spare solar "
-                "not checked on the last 5 days"), _o12_grow(solar="Spare solar on 0 of 3 well-observed days")):
+    for bad in (_o12_grow(potential="96 kW of daytime solar unused"), _o12_grow(solar="Not available yet · spare solar: "
+                "no complete readings on the last 5 days"), _o12_grow(solar="Spare solar on 0 of 3 well-observed days")):
         with pytest.raises(AssertionError):
             after.o12_grow_nodes(bad)
 
@@ -649,7 +649,7 @@ def test_unknown_outcomes_pass_only_as_not_judged() -> None:
 
 
 def test_wk4_has_three_branches_and_each_can_fail() -> None:
-    early = "Productive electricity sales: at least 300 kWh · too early to judge (needs 3 checked days)"
+    early = "Productive electricity sales: at least 300 kWh · too early to judge (needs 3 days with complete readings)"
     none = "Productive electricity sales: at least 300 kWh sold for productive use a month · " + MG1_NO_DAY
     judged = "Productive electricity sales: 120 kWh so far this month"
     assert rows.wk4("UNKNOWN", early, 1) == "TOO_EARLY"
@@ -694,7 +694,7 @@ def _ev(money, line, headline="estimated charging income"):
 
 
 def test_wk1_money_needs_a_counted_day_and_a_counted_day_needs_money() -> None:
-    unknown = "Not known yet · 0 of 1 day checked · 1 with too little data, not counted"
+    unknown = "Not known yet · Complete readings on 0 of 1 day · 1 with too few readings, not counted"
     assert rows.wk1(_ev(None, unknown))["known"] is False
     m = {"amount_high": "9.00", "currency": "USD"}
     assert rows.wk1(_ev(m, "12 kWh with a complete meter record"))["known"] is True
@@ -1622,8 +1622,11 @@ def _kd_ctx(monkeypatch, coverage_kobo, *, week_gaps=None):
         finish.COLD: {"window_basis": "PERIOD"}, finish.EV: {"window_basis": "PERIOD"}}
     body = {"objectives": [{"site_code": c} for c in (finish.KOBO, finish.COLD, finish.EV)], "status": "PARTIAL",
             "rows": [{"site_code": finish.KOBO, "finding_id": "f1"}], "coverage": {"state": "PARTIAL"}}
-    line = "Kobo mini-grid: 5 of 7 days checked · 1 partly checked"
-    summary = {"objective_site_count": 3, "cards": {c: {"days_line": line} for c in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}}
+    # The REAL shape (PF-C2): Protect and Assure have no days line of their own; the shared coverage line carries the
+    # days, with the no-readings part (a reader of `cards.*.days_line` fails here, as it would on a real build).
+    line = "Kobo mini-grid: Complete readings on 5 of 7 days · 1 with partial readings · 1 with no readings received"
+    summary = {"objective_site_count": 3, "coverage_line": {"days_text": line},
+               "cards": {c: {"days_line": None} for c in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}}
     monkeypatch.setattr(finish, "_estate", lambda c, lo, hi: (body, summary, {finish.KOBO: coverage_kobo}, by_code))
     monkeypatch.setattr(finish, "_kisiwa_present", lambda c: False)
     monkeypatch.setattr(finish, "_kobo_zone", lambda c: finish.timezone.utc)

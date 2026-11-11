@@ -126,7 +126,7 @@ def _judge(*specs, now=None) -> dict:
 def test_3_three_passes_verified() -> None:
     r = _judge({}, {}, {})
     assert (r["decided"], r["outcome"], r["reasons"]) == (True, fv.VERIFIED, [fv.TARGET_MET])
-    assert r["sentence"] == fv.VERIFIED_TEXT.format(n=3) and r["sentence"].startswith("On 3 fully checked nights")
+    assert r["sentence"] == fv.VERIFIED_TEXT.format(n=3) and r["sentence"].startswith("On 3 nights with complete readings")
 
 
 def test_3_band_and_gap_failures_name_the_first_failing_night() -> None:

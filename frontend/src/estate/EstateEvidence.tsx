@@ -82,7 +82,7 @@ const CONTEXT_WORDS: Readonly<Record<string, { text: string; tone: string }>> = 
   UNASSESSED: { text: "Not assessed", tone: "gray" },
   UNKNOWN: { text: "Not assessed", tone: "gray" },
   // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
-  PARTIAL: { text: "Some days not checked yet", tone: "amber" },
+  PARTIAL: { text: "Incomplete days", tone: "amber" },
 };
 
 export function historicalAsOf(instant: string): string {

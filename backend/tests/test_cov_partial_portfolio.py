@@ -199,7 +199,7 @@ def test_x2_partial_row_is_placed_on_the_not_covered_path(partial_estate) -> Non
 
 # --- WALK1-1 (WN-2): Portfolio counts over the checked days of a PARTIAL estate ---------------------------------
 
-DAYS = {"policy": "x", "requested": 7, "checked": 5, "gaps": [], "withheld": False, "text": "5 of 7 days checked"}
+DAYS = {"policy": "x", "requested": 7, "checked": 5, "gaps": [], "withheld": False, "text": "Complete readings on 5 of 7 days"}
 
 
 class DaysWorld(StateWorld):

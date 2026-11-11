@@ -125,9 +125,9 @@ def test_verified_stores_one_domain_outcome_reads_back_and_links_to_lifecycle(mi
         assert _count(mill, "SELECT count(*) FROM verification_evaluation_request") == 0
         body = svc.domain_summary(mill.t, mill.s, aid)
         assert body["state"] == "VERIFIED" and body["cost_check"] is None and body["trial_hours"] is None
-        assert body["sentence"] == "Midday use rose by at least the declared 10% on fully checked days"
-        assert body["line"] == ("Midday use before and after the change: 10.00 → 11.50 kWh a day on 3 fully "
-                                "checked days each")
+        assert body["sentence"] == "Midday use rose by at least the declared 10% on days with complete readings"
+        assert body["line"] == ("Midday use before and after the change: 10.00 → 11.50 kWh a day on 3 days "
+                                "with complete readings each")
         assert body["metrics"][0]["before"] == "10.00" and body["metrics"][0]["after"] == "11.50"
         assert body["plan"]["later_days"] == [(eff + timedelta(days=d)).isoformat() for d in (1, 2, 3)]
         with mill.engine.connect() as c:  # Q10: the lifecycle read links the outcome to its domain Action
@@ -160,7 +160,7 @@ def test_short_baseline_stores_nothing_and_reads_not_judged(mill) -> None:
         assert _count(mill, "SELECT count(*) FROM verification_outcome") == 0
         body = svc.domain_summary(mill.t, mill.s, aid)
         assert body["state"] == "NOT_JUDGED" and body["outcome"] is None
-        assert body["not_judged_text"] == "Not judged yet: only 2 of 3 fully checked days before the change"
+        assert body["not_judged_text"] == "Not judged yet: only 2 of 3 days with complete readings before the change"
     finally:
         _close(mill)
 
@@ -173,13 +173,13 @@ def test_later_short_waits_then_is_inconclusive_once_the_look_ahead_closes(mill)
         clock.at = _after(eff, tz, 10)
         assert svc.evaluate_domain_plan(mill.t, mill.s, aid)["stored"] is False
         assert svc.domain_summary(mill.t, mill.s, aid)["not_judged_text"] == \
-            "Not judged yet: only 2 of 3 fully checked days after the change"
+            "Not judged yet: only 2 of 3 days with complete readings after the change"
         clock.at = _after(eff, tz, 15)
         got = svc.evaluate_domain_plan(mill.t, mill.s, aid)
         assert got["state"] == "INCONCLUSIVE" and got["stored"] is True
         body = svc.domain_summary(mill.t, mill.s, aid)
         assert body["reasons"] == ["LATER_SHORT"]
-        assert body["line"].startswith("Only 2 of 3 fully checked days after the change in the 14 days allowed")
+        assert body["line"].startswith("Only 2 of 3 days with complete readings after the change in the 14 days allowed")
     finally:
         _close(mill)
 

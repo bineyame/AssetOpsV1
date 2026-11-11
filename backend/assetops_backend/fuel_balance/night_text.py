@@ -25,7 +25,7 @@ STATUS = {
     "WITHIN_MARGIN": "Fuel balance: accounted for within the margin",
     "BELOW_MATERIALITY": "Fuel balance: a small difference, below the 40 L the check flags",
     "EXCESS": "Fuel balance: more fuel than recorded",
-    "NOT_ASSESSED": "Fuel balance: not checked",
+    "NOT_ASSESSED": "Fuel balance: not analysed",
 }
 STATUS_TONE = {"UNEXPLAINED": "amber", "WITHIN_MARGIN": "neutral", "BELOW_MATERIALITY": "neutral",
                "EXCESS": "amber", "NOT_ASSESSED": "neutral"}
@@ -39,7 +39,7 @@ FUEL_REASON_WORDS = {  # K4b imports these (amended, §9l.4); §9j.11's literals
     "GENERATOR_KWH_UNKNOWN": "generator power readings incomplete",
     "IDLE_SECONDS_UNKNOWN": "generator state readings incomplete",
 }
-NOT_CHECKED = "Not checked: {why}"
+NOT_CHECKED = "Not analysed: {why}"
 # cards (label, value, note); labels are the existing ones (MiniPerformance.tsx:1417-1444)
 OPENING_NOTE = "Tank reading at {hh_mm}"
 DELIVERIES_NONE = "None recorded"
@@ -68,7 +68,7 @@ RECORD_KIND = {"FUEL_DELIVERY": "Fuel delivery", "TANK_DIP": "Tank dip"}        
 RECORD_WHEN = "{hh_mm}, {date}"
 RECORDS_EMPTY = "No delivery or tank dip recorded this night"
 DIP_CONFLICT = "A tank dip differs from the nearest tank reading by more than the declared accuracy plus 10 L."
-DELIVERY_LATE = "A delivery was first recorded after the night could be checked."
+DELIVERY_LATE = "A delivery was first recorded after the night could be analysed."
 # Finding panel on the night page
 FINDING_NONE_WITHIN = "No finding: the fuel was accounted for within the margin."
 FINDING_NONE = "No finding for this night."

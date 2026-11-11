@@ -138,6 +138,8 @@ function PortfolioGrowParts({ parts }: { parts: NonNullable<EstatePortfolioCard[
  * target for this outcome" rather than "No objective declared". Card dots only; the board chips keep the server word.
  */
 export const DOT_NO_OBJECTIVE = "No target for this outcome";
+/** PF-C2 (proposal §4): the label of a card's own days line, shown only when its days differ from the coverage line. */
+export const DIFFERENT_DAYS = "Different days:";
 export function dotStateWord(row: Pick<EstateOutcomeSummaryRow, "state" | "state_label">): string {
   return row.state === "NO_OBJECTIVE" ? DOT_NO_OBJECTIVE : row.state_label;
 }
@@ -217,10 +219,11 @@ export function CategoryCards({
                   {c.value}
                 </div>
               </OutcomeCardValue>
-              {/* CH-6b2 (mock `oc-pfdays`): the server's days line; MD-CH5b-4 kept for Optimize only (CH6b2-R Q3). */}
+              {/* PF-C2 (v71 `.oc-pfexception`): the server sends a card's days line only when its days differ from
+                  the one coverage line above the tabs, so the line is labelled as the exception. */}
               {c.days ? (
-                <small className="ob-days oc-pfdays" data-portfolio-card-days>
-                  {c.days}
+                <small className="ob-days oc-pfdays oc-pfexception" data-portfolio-card-days>
+                  {DIFFERENT_DAYS} {c.days}
                 </small>
               ) : null}
               {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}

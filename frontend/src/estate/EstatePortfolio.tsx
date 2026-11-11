@@ -44,7 +44,7 @@ import {
   ACTION_WINDOW_NOTE,
   ASSESSMENT_IDS,
   coverageStateWords,
-  gapDayList,
+  gapReasonClause,
   exclusionLineLabel,
   exclusionReasonWords,
   selectedAssessmentWords,
@@ -93,6 +93,7 @@ import { CategoryTags } from "../sites/outcomeCategories";
 import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
+import { PortfolioCoverage } from "./PortfolioCoverage";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -147,9 +148,13 @@ function PulseCount({ value, missing, label, checkedDays, data, to }: { value: n
   );
 }
 
-/** COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none). */
+/**
+ * COV-PARTIAL: a Site with incomplete days never shows an amount on its rows (the backend sends none). PF-C (proposal
+ * §4 C7) shortens the words to the reason alone; PF-W (D-E5.46) says "incomplete days", never "checked".
+ */
+export const VALUE_WITHHELD = "Value not shown while this site has incomplete days";
 export function partialConsequence(c: { state: string; source_revision_id: string | null }): string {
-  return `Partly checked · ${c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : "value shown once every day is checked"}`;
+  return c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : VALUE_WITHHELD;
 }
 
 function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined): string {
@@ -324,9 +329,7 @@ function PriorityPanel({
           <h2 id="portfolio-priority-heading">{PRIORITY_PANEL}</h2>
           <p>{PRIORITY_SUBTITLE}</p>
         </div>
-        <span className="eyebrow">
-          {count} findings{incomplete ? " · some days not checked" : ""}
-        </span>
+        {/* PF-C (proposal §4 C6): one copy of the count, on the lens row; the coverage line states the days. */}
       </div>
       <div className="portfolio-lenses" role="group" aria-label="Finding lens">
         {LENS_LABELS.map(([value, label]) => (
@@ -341,7 +344,7 @@ function PriorityPanel({
           </button>
         ))}
         <span data-portfolio-count>
-          {count} findings{incomplete ? " · some days not checked" : ""}
+          {count} findings{incomplete ? " · so far, some days incomplete" : ""}
         </span>
       </div>
       <div className="portfolio-findings" data-portfolio-scroll="findings">
@@ -443,7 +446,7 @@ function EvidenceAside({ body, window }: { body: EstatePortfolioBody; window: Wi
 export const OPPORTUNITY_NONE = "No opportunity found in this period";
 export const OPPORTUNITY_UNREAD = "Opportunities could not be read";
 export const OPPORTUNITY_UNREAD_DETAIL = "Nothing can be said about opportunities until they can be read";
-export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on the days checked";
+export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on days with complete readings";
 export const OPPORTUNITY_SIZE_UNKNOWN_PANEL = "Size not worked out yet";
 export const OPPORTUNITY_NO_WHAT_IF = "No what-if yet";
 export const OPPORTUNITY_NO_WHAT_IF_DETAIL = "No what-if value worked out yet";
@@ -685,11 +688,12 @@ function ScopeDisclosure({
                 </td>
                 <td data-portfolio-scope-coverage>
                   {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}
-                  {/* COV-PARTIAL MOCK DEVIATION R620: the unchecked days on their own line; v70 has no day gaps. */}
+                  {/* COV-PARTIAL MOCK DEVIATION R620: the incomplete days on their own line, every day with its
+                      D-E5.46 reason (the deep tab never shortens to a count). */}
                   {s.coverage.state === "PARTIAL" && (s.coverage.days?.gaps.length ?? 0) > 0 ? (
                     <>
                       <br />
-                      <small data-portfolio-scope-gaps>Days not checked yet: {gapDayList(s.coverage.days)}</small>
+                      <small data-portfolio-scope-gaps>Incomplete days: {gapReasonClause(s.coverage.days, Infinity)}</small>
                     </>
                   ) : null}
                   {s.source_provenance === null ? <small> · No selected source basis</small> : null}
@@ -943,19 +947,16 @@ function Loaded({
           </Badge>
           <span data-portfolio-sentence>{ctx.sentence}</span>
           <span data-portfolio-domains>{domainSummary(body)}</span>
-          {/* COV-PARTIAL MOCK DEVIATION R620: one note per partly checked Site; v70 shows the badge and counts only. */}
-          {body.scope_disclosure.sites
-            .filter((site) => site.coverage.state === "PARTIAL" && site.coverage.days?.text)
-            .map((site) => (
-              <span key={site.site_id} className="portfolio-partial" data-portfolio-partial={site.site_code}>
-                {site.site_name}: {site.coverage.days?.text}
-                {(site.coverage.days?.gaps.length ?? 0) <= 7
-                  ? ` · not assessed: ${gapDayList(site.coverage.days)}`
-                  : " · the days are listed under Assessment scope & periods"}
-              </span>
-            ))}
         </div>
       </div>
+      {/* PF-C1 (v71 `.pf-coverage`): coverage shown once, above the tabs; replaces R620's per-Site notes. */}
+      <PortfolioCoverage
+        line={summary?.status === "loaded" ? (summary.value.coverage_line ?? null) : null}
+        partial={body.scope_disclosure.sites
+          .filter((site) => site.coverage.state === "PARTIAL")
+          .map((site) => ({ site_code: site.site_code, site_name: site.site_name, days: site.coverage.days }))}
+        scopeHref={portfolioHref(window, lens, "scope")}
+      />
       <PortfolioTabs
         current={tab}
         window={window}

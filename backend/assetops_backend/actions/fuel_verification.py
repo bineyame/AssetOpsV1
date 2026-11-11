@@ -63,7 +63,7 @@ BAND, GAP = "BAND", "GAP"
 HEADLINE = {"VERIFIED": "Fuel stayed accounted for", "INEFFECTIVE": "Target not met",
             "INCONCLUSIVE": "Could not conclude", "NOT_JUDGED": "Not judged yet",
             "NO_PLAN": "No verification plan yet"}
-VERIFIED_TEXT = ("On {n} fully checked nights after the change, the fuel in the tank matched the generator's "
+VERIFIED_TEXT = ("On {n} nights with complete readings after the change, the fuel in the tank matched the generator's "
                  "modelled use and the recorded deliveries within the stated margin, and the tank sensor sent "
                  "readings all night.")
 FIXED_LINE = ("This check shows the fuel stayed accounted for after the change; it does not measure how much the "
@@ -71,12 +71,12 @@ FIXED_LINE = ("This check shows the fuel stayed accounted for after the change; 
 MISS_BAND_TEXT = ("On the night of {date}, after the change, the fuel in the tank did not match the generator's "
                   "modelled use and the recorded deliveries within the stated margin.")
 MISS_GAP_TEXT = "On the night of {date}, after the change, the tank sensor did not send readings all night."
-LATER_TEXT = "Not judged yet: only {n} of 3 fully checked nights after the change"
-LATER_SHORT_TEXT = ("Only {n} of 3 fully checked nights after the change in the 14 nights allowed, so no verdict "
+LATER_TEXT = "Not judged yet: only {n} of 3 nights with complete readings after the change"
+LATER_SHORT_TEXT = ("Only {n} of 3 nights with complete readings after the change in the 14 nights allowed, so no verdict "
                     "is given")
-CRITERION_TEXT = ("3 fully checked nights after the change within the stated margin, with the tank sensor sending "
+CRITERION_TEXT = ("3 nights with complete readings after the change within the stated margin, with the tank sensor sending "
                   "readings all night")
-RULE_TEXT = ("Rule fixed before the check: the first 3 fully checked nights after the change must each stay within "
+RULE_TEXT = ("Rule fixed before the check: the first 3 nights with complete readings after the change must each stay within "
              "the stated margin, with the tank sensor sending readings all night.")
 ACTIVITY_NOTE = "Completed work is evidence of activity, not resolution."     # v69 :502, verbatim
 NIGHT_TEXT = "{date} (6 pm to noon)"
@@ -86,8 +86,8 @@ SENSOR_GAP = "No readings for {m} min"
 RESULT_PASS, RESULT_BAND, RESULT_GAP = "Within the margin", "Outside the margin", "Sensor gap"
 BASELINE_ROW = "The night of the finding"
 BASELINE_RESULT = "Unexplained fuel found"
-NOT_CHECKED = "Not checked yet"
-CARDS = (("Nights checked after the change", "{n} of 3", "Chosen by data quality, never by result"),
+NOT_CHECKED = "Not judged yet"
+CARDS = (("Nights with complete readings after the change", "{n} of 3", "Chosen by data quality, never by result"),
          ("Fuel accounted for", "{k} of {n} nights", "Within the stated margin"),
          ("Tank sensor", "Readings all night on {g} of {n} nights", "A gap is more than 60 minutes without a reading"),
          ("Final outcome", "{headline}", "Decided by the rule fixed before the check"))

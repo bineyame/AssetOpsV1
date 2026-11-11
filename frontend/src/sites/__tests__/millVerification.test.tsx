@@ -47,8 +47,8 @@ const VERIFIED: MillVerification = {
   title: "Run the mill at midday",
   state: "VERIFIED",
   reasons: ["TARGET_MET"],
-  sentence: "Midday use rose by at least the declared 10% on fully checked days",
-  line: "Midday use before and after the change: 10.00 → 11.50 kWh a day on 3 fully checked days each",
+  sentence: "Midday use rose by at least the declared 10% on days with complete readings",
+  line: "Midday use before and after the change: 10.00 → 11.50 kWh a day on 3 days with complete readings each",
   not_judged_text: null,
   outcome: { outcome_id: "o1", outcome: "VERIFIED", recorded_at: "2026-10-25T09:00:00+00:00" },
   plan: { effective_day: "2026-10-20", baseline_days: ["2026-10-17", "2026-10-18", "2026-10-19"], later_days: ["2026-10-21", "2026-10-22", "2026-10-23"] },
@@ -60,7 +60,7 @@ const VERIFIED: MillVerification = {
 
 // MV-1: the server's strings, copied from `verification_families.VALUE_TEXT` / `VALUE_COST_TEXT` with the demo figures
 const PRICED_TEXT =
-  "About 17.00 USD a day more in estimated sales to productive users: (110.00 − 42.00) kWh a day × your declared 0.25 USD per kWh, on 3 fully checked days before and after the change";
+  "About 17.00 USD a day more in estimated sales to productive users: (110.00 − 42.00) kWh a day × your declared 0.25 USD per kWh, on 3 days with complete readings before and after the change";
 const COST_TEXT = "No cost is recorded for this change";
 const PRICED: MillValue = {
   state: "PRICED",
@@ -140,7 +140,7 @@ describe("mill verdict page", () => {
 
   it("INEFFECTIVE TARGET_MISS reads 'Target not met' with the before/after line", async () => {
     const body = { ...VERIFIED, state: "INEFFECTIVE" as const, reasons: ["TARGET_MISS"], sentence: null,
-      line: "Midday use before and after the change: 10.00 → 10.50 kWh a day on 3 fully checked days each",
+      line: "Midday use before and after the change: 10.00 → 10.50 kWh a day on 3 days with complete readings each",
       metrics: [{ ...VERIFIED.metrics[0], after: "10.50", state: "FAIL" }] };
     renderAt(client({ status: "loaded", body }));
     await settledScreen();
@@ -150,14 +150,14 @@ describe("mill verdict page", () => {
   });
 
   it("INCONCLUSIVE LATER_SHORT and BASELINE_ZERO read 'Could not conclude' with their own line", async () => {
-    const later = "Only 2 of 3 fully checked days after the change in the 14 days allowed, so no verdict is given";
+    const later = "Only 2 of 3 days with complete readings after the change in the 14 days allowed, so no verdict is given";
     renderAt(client({ status: "loaded", body: { ...VERIFIED, state: "INCONCLUSIVE", reasons: ["LATER_SHORT"], sentence: null, line: later,
       metrics: [{ ...VERIFIED.metrics[0], after: null, days_after: 2, state: "UNKNOWN" }] } }));
     await settledScreen();
     expect(main().querySelector("[data-mill-state]")?.textContent).toBe("Could not conclude");
     expect(screen.getByText(later)).toBeTruthy();
     clean();
-    expect(screen.getByText("Too few fully checked days")).toBeTruthy();
+    expect(screen.getByText("Too few days with complete readings")).toBeTruthy();
     cleanup();
     const zero = "No midday use was measured before the change, so a 10% rise cannot be measured";
     renderAt(client({ status: "loaded", body: { ...VERIFIED, state: "INCONCLUSIVE", reasons: ["BASELINE_ZERO"], sentence: zero } }));
@@ -168,7 +168,7 @@ describe("mill verdict page", () => {
   });
 
   it("NOT_JUDGED shows the server's not-judged text and no verdict; NO_PLAN says no plan yet", async () => {
-    const text = "Not judged yet: only 1 of 3 fully checked days after the change";
+    const text = "Not judged yet: only 1 of 3 days with complete readings after the change";
     renderAt(client({ status: "loaded", body: { ...VERIFIED, state: "NOT_JUDGED", reasons: [], sentence: null, line: null, not_judged_text: text, outcome: null,
       metrics: [{ ...VERIFIED.metrics[0], after: null, days_after: 1, state: "UNKNOWN" }] } }));
     await settledScreen();

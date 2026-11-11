@@ -444,14 +444,14 @@ describe("W3-01 estate roots", () => {
     const partial = findingsBody("all", { rows, coverage: { state: "PARTIAL", sites }, total_count: null });
     view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(partial)));
     await settledScreen();
-    const soFar = "So far: 1 of 3 sites fully analysed · 1 site with days not analysed yet · 1 site still processing";
+    const soFar = "So far: 1 of 3 sites fully analysed · 1 site with incomplete days · 1 site still processing";
     expect(notes()).toEqual([
       ["1", soFar],
       ["1", soFar],
       ["0", expect.stringContaining(`So far · ${MINI}`)],
     ]);
     expect(main().querySelector("[data-estate-so-far]")?.textContent).toBe(
-      "\"So far\" because findings on days not analysed yet are not shown, so more may appear once those days are analysed.",
+      "\"So far\" because findings on incomplete days are not shown, so more may appear once those days have a usable result.",
     );
     expect(screen.getByRole("list", { name: "Findings summary" }).textContent).not.toMatch(/Some data missing|Not assessed|High priority|Low confidence|Supported findings/);
     view.unmount();
@@ -810,14 +810,14 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       const view = renderAt(`${ESTATE_FINDING_LENS_PATHS[lens]}?${WINDOW}`, client);
       await settledScreen();
       expect(Array.from(main().querySelectorAll("[data-estate-partial]")).map((p) => p.textContent)).toEqual([
-        "Kobo Mini-grid is partly checked; totals are unknown.",
+        "Kobo Mini-grid has incomplete days; totals are unknown.",
       ]);
       expect(Array.from(main().querySelectorAll(".estate-limitation__line")).map((l) => l.textContent?.trim())).toEqual([
         "Kobo Mini-grid: 5 of 7 days checked · 2 days not available yet.",
       ]);
       const tr = main().querySelector("tbody tr") as HTMLElement;
-      expect(tr.querySelector("[data-estate-site-state='PARTIAL']")?.textContent).toBe("Some days not checked yet");
-      expect(tr.querySelector("[data-estate-consequence]")?.textContent).toBe("Partly checked · value shown once every day is checked");
+      expect(tr.querySelector("[data-estate-site-state='PARTIAL']")?.textContent).toBe("Incomplete days");
+      expect(tr.querySelector("[data-estate-consequence]")?.textContent).toBe("Value not shown while this site has incomplete days");
       expect(main().textContent).not.toMatch(/PARTIAL|UNASSESSED|estate-coverage/);
       view.unmount();
     }
@@ -825,7 +825,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     const generic = fakeClient((l) => loaded(body(l)));
     const view = renderAt(`/findings?${WINDOW}`, generic);
     await settledScreen();
-    expect(main().textContent).toContain("Some sites have days not checked yet.");
+    expect(main().textContent).toContain("Some sites have incomplete days.");
     expect(main().textContent).toContain("Some sites are not yet assessed; estate totals are unknown.");
     view.unmount();
   });

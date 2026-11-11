@@ -38,16 +38,16 @@ def test_count_basis_takes_grade_counts() -> None:
 @pytest.mark.parametrize("key, value, d, text", [
     ("count.open_threads", 1, days(complete=7), "1 open finding"),
     ("count.open_threads", 3, days(complete=7), "3 open findings"),
-    ("count.open_threads", 2, days(complete=5, partial=2), "2 open on the days checked"),
-    ("count.open_threads", 0, days(complete=5, partial=2), "None open on the days checked"),
+    ("count.open_threads", 2, days(complete=5, partial=2), "2 open on days with complete readings"),
+    ("count.open_threads", 0, days(complete=5, partial=2), "None open on days with complete readings"),
     ("count.verified_results", 1, days(complete=7), "1 fix confirmed"),
     ("count.verified_results", 2, days(complete=7), "2 fixes confirmed"),
-    ("count.verified_results", 1, days(complete=1, low=1), "1 confirmed, from the days checked"),
-    ("count.verified_results", 0, days(complete=1, low=1), "None confirmed on the days checked"),
+    ("count.verified_results", 1, days(complete=1, low=1), "1 confirmed, from days with complete readings"),
+    ("count.verified_results", 0, days(complete=1, low=1), "None confirmed on days with complete readings"),
     ("count.opportunities", 1, days(complete=7), "1 opportunity"),
     ("count.opportunities", 0, days(complete=7), "0 opportunities"),
-    ("count.opportunities", 1, days(complete=6, no_data=1), "1 found on the days checked"),
-    ("count.opportunities", 0, days(complete=6, no_data=1), "None found on the days checked"),
+    ("count.opportunities", 1, days(complete=6, no_data=1), "1 found on days with complete readings"),
+    ("count.opportunities", 0, days(complete=6, no_data=1), "None found on days with complete readings"),
     ("count.opportunities", 1, None, "Not known yet"),
     ("count.opportunities", None, days(complete=7), "Not known yet")])
 def test_count_claim_texts(key, value, d, text) -> None:

@@ -49,7 +49,7 @@ EVERY_END = "Every session has an accepted end"
 NO_STATUS_GAP = "No status gap"
 TARIFF_ESTIMATE = "estimated charging income"  # WALK1-2 §3.2 (R674; mock "gross tariff estimate")
 NO_TARIFF = "Charging income estimate not available yet"
-NO_INCOME_FIGURE = "No income figure for this day: it is not fully checked"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
+NO_INCOME_FIGURE = "No income figure for this day: it does not have complete readings"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
 #: WALK1-2 §3.2 (R674/R676): the priced Grow subline and the declared-tariff contributor. The tariff is declared,
 #: never measured; the amount is an estimate, never billed or collected income.
 PRICED_SUBLINE = ("{kwh} kWh with a complete meter record, at the declared tariff of {p} {cur} per kWh · "

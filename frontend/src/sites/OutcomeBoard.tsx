@@ -50,7 +50,7 @@ export const EMPTY = {
   prev: "None recorded",
 } as const;
 /** WALK1-1 (WN-2, R673): when the board names days without assessed readings, "none" is a claim on checked days only. */
-export const EMPTY_ISSUES_CHECKED = "None found on the days checked";
+export const EMPTY_ISSUES_CHECKED = "None found on days with complete readings";
 /** WALK1-1 fix round (M1): Findings next to the unchecked days were left out, so "none" cannot be claimed. */
 export const EMPTY_ISSUES_WITHHELD = "None shown yet";
 
@@ -90,7 +90,7 @@ export function countsText(issues: number, inHand: number, checkedDaysOnly: bool
     checkedDaysOnly === "withheld"
       ? "No open issues shown yet"
       : checkedDaysOnly
-        ? "No open issues on the days checked"
+        ? "No open issues on days with complete readings"
         : "No open issues";
   const head = issues === 0 ? none : `${issues} issue${issues === 1 ? "" : "s"}`;
   return inHand > 0 ? `${head} · ${inHand} in hand` : head;

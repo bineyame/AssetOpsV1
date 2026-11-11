@@ -204,16 +204,16 @@ describe("OUT-B B5 Site outcome board", () => {
 
   it("walk1QualifiesNoneOnTheDaysCheckedWhenTheBoardNamesDayGaps", async () => {
     // WALK1-1 (WN-2, R673): with `finding_gaps`, "none" is a claim on the checked days only.
-    expect(countsText(0, 0, true)).toBe("No open issues on the days checked");
-    expect(countsText(0, 1, true)).toBe("No open issues on the days checked · 1 in hand");
+    expect(countsText(0, 0, true)).toBe("No open issues on days with complete readings");
+    expect(countsText(0, 1, true)).toBe("No open issues on days with complete readings · 1 in hand");
     expect(countsText(2, 0, true)).toBe("2 issues");
     await renderBoard({
       status: "loaded",
       value: boardBody({ finding_gaps: { text: "No assessed readings on 3 Oct", days: ["2026-10-03"] } }),
     });
     const protect = rowEl("PROTECT_ASSET");
-    expect(protect.querySelector("[data-outcome-col='issues'] .ob-none")?.textContent).toBe("None found on the days checked");
-    expect(protect.querySelector("[data-outcome-counts]")?.textContent).toBe("No open issues on the days checked");
+    expect(protect.querySelector("[data-outcome-col='issues'] .ob-none")?.textContent).toBe("None found on days with complete readings");
+    expect(protect.querySelector("[data-outcome-counts]")?.textContent).toBe("No open issues on days with complete readings");
     expect(rowEl("OPTIMIZE_COST").querySelector("[data-outcome-counts]")?.textContent).toBe("2 issues · 1 in hand");
     expect(describeViolations(scanProductVocabulary(board(), "site-overview", { set: "w1" }).violations)).toBe("");
   });

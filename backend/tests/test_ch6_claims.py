@@ -37,8 +37,8 @@ def test_money_text_one_amount_and_money2():
 
 
 A4 = {
-    "money.days": "{amount} over {k} of {m} days checked",
-    "money.days_partial": "{amount} over {k} of {m} days checked · {p} partly checked",
+    "money.days": "{amount} over {k} of {m} days with complete readings",
+    "money.days_partial": "{amount} over {k} of {m} days with complete readings · {p} with partial readings",
     "money.income_suffix": " · not billed or collected",
     "money.not_known": "Not known yet",
     "money.currency_mixed": "Not shown · amounts in more than one currency",
@@ -48,16 +48,16 @@ A4 = {
     "potential.none": "No potential found yet",
     "target.none": "No target set yet",
     "target.days_none": "No target, so no days are judged yet",
-    "days_line.many": "{k} of {m} days checked",
-    "days_line.partial": " · {p} partly checked",
-    "days_line.low": " · {n} with too little data, not counted",
-    "days_line.no_data_one": "No readings on {day}",
+    "days_line.many": "Complete readings on {k} of {m} days",
+    "days_line.partial": " · {p} with partial readings",
+    "days_line.low": " · {n} with too few readings, not counted",
+    "days_line.no_data_one": "No readings received on {day}",
     "row.target_note": "{k} of {m} outcomes have a target",
     # CH-6b1: the income earnings nodes
-    "income.at_least": "At least {total} estimated income, from checked days",
+    "income.at_least": "At least {total} estimated income, from days with complete readings",
     "income.site": "{site}: {text}",
     "income.site_not_known": "{site}: not known yet",
-    "income.total": "Estimated income from checked days: {total}",
+    "income.total": "Estimated income from days with complete readings: {total}",
 }
 
 
@@ -66,11 +66,12 @@ def test_templates_are_the_a4_table():
 
 
 def test_mg1_texts_moved_unchanged_and_mini_imports_them():
-    assert v.MG1_SO_FAR == "{mtd} kWh so far this month, on {c} of {e} days checked"
+    # PF-W (proposal §10.2): reworded from "checked" to the readings words.
+    assert v.MG1_SO_FAR == "{mtd} kWh so far this month, on {c} of {e} days with complete readings"
     assert v.MG1_PACE == v.MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
-    assert v.MG1_TOO_EARLY == ("{mtd} kWh so far this month, on {c} checked {d}; too early to judge "
-                               "(needs {k} checked days)")
-    assert v.MG1_MISSED == "{mtd} kWh this month, all {m} days checked"
+    assert v.MG1_TOO_EARLY == ("{mtd} kWh so far this month, on {c} {d} with complete readings; too early to judge "
+                               "(needs {k} days with complete readings)")
+    assert v.MG1_MISSED == "{mtd} kWh this month, complete readings on all {m} days"
     for name in ("MG1_SO_FAR", "MG1_PACE", "MG1_TOO_EARLY", "MG1_MISSED"):
         assert getattr(mini, name) is getattr(v, name)
     assert v.MG1_NO_DAY == mini.MG1_ACTUAL
@@ -84,7 +85,7 @@ def _mg1(target="300", k=3):
 def test_mg1_text_with_no_counted_day():
     assert v.mg1_text("NOT_JUDGED", None, 0, 5, 31, Decimal("300"), 3) == v.MG1_NO_DAY
     # WD-1 / MD-WD1-2: the no-checked-day words say why there is no figure
-    assert v.MG1_NO_DAY == "no fully checked day counted yet this month" and "sales not recorded" not in v.MG1_NO_DAY
+    assert v.MG1_NO_DAY == "no day with complete readings yet this month" and "sales not recorded" not in v.MG1_NO_DAY
 
 
 def test_verdict_claim():
@@ -100,10 +101,10 @@ def test_verdict_claim():
 def test_money_claim_texts():
     m = {"amount": Decimal("7.5"), "currency": "USD"}
     c = v.money_claim("estimated_income", m, _days(complete=3))
-    assert c.text == "7.50 USD over 3 of 3 days checked · not billed or collected" and c.basis == "COMPLETE"
+    assert c.text == "7.50 USD over 3 of 3 days with complete readings · not billed or collected" and c.basis == "COMPLETE"
     assert c.to_json()["value"] == {"amount": "7.5", "currency": "USD"}
     c = v.money_claim("estimated_income", m, _days(complete=6, partial=1, low=1))
-    assert c.text == "7.50 USD over 6 of 8 days checked · 1 partly checked · not billed or collected"
+    assert c.text == "7.50 USD over 6 of 8 days with complete readings · 1 with partial readings · not billed or collected"
     assert c.basis == "CHECKED_DAYS"
     c = v.money_claim("estimated_income", None, _days(complete=2), "CURRENCY_MIXED")
     assert (c.value, c.basis, c.text) == (None, "NOT_KNOWN", "Not shown · amounts in more than one currency")
@@ -128,7 +129,7 @@ def test_potential_claim_lines():
 def test_days_line():
     assert v.days_line(None) is None
     assert v.days_line(_days(complete=3, partial=1, low=1)) == (
-        "3 of 5 days checked · 1 partly checked · 1 with too little data, not counted")
-    assert v.days_line(_days(complete=2, pending=1)) == "2 of 3 days checked"
-    assert v.days_line(_days(no_data=1), date(2026, 11, 1)) == "No readings on 1 Nov"
-    assert v.days_line(_days(no_data=1)) == "0 of 1 day checked"
+        "Complete readings on 3 of 5 days · 1 with partial readings · 1 with too few readings, not counted")
+    assert v.days_line(_days(complete=2, pending=1)) == "Complete readings on 2 of 3 days"
+    assert v.days_line(_days(no_data=1), date(2026, 11, 1)) == "No readings received on 1 Nov"
+    assert v.days_line(_days(no_data=1)) == "Complete readings on 0 of 1 day"

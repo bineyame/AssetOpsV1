@@ -49,8 +49,8 @@ def test_row_nodes_selects_the_lead_kpi_and_the_first_money_and_potential() -> N
              "MG-2": {"kpi": claim("verdict.MG-2", "MISSED", TWO), "earnings": None, "potential": None}}
     both = [objective("MG-1", "productive_use_kwh"), objective("MG-2", "avoidable_generator_minutes")]
     out = row_nodes(facts(nodes, both), ["MG-1", "MG-2"], "MG-2", "WATCH", [])
-    assert out["nodes"]["kpi"] == {**nodes["MG-2"]["kpi"], "days_line": "2 of 2 days checked"}  # the lead's kpi
-    assert out["nodes"]["earnings"]["days_line"] == "2 of 2 days checked"
+    assert out["nodes"]["kpi"] == {**nodes["MG-2"]["kpi"], "days_line": "Complete readings on 2 of 2 days"}  # the lead's kpi
+    assert out["nodes"]["earnings"]["days_line"] == "Complete readings on 2 of 2 days"
     assert out["nodes"]["potential"]["days_line"] is None and "days_line" not in out
     # the lead has no objective: the first declared outcome's kpi
     out = row_nodes(facts(nodes, both[:1]), ["MG-1", "MG-2"], "MG-2", "WATCH", [])
@@ -72,14 +72,14 @@ def test_row_nodes_fills_a_missing_target_and_gives_each_part_its_own_days_line(
     nodes = {"EV-3": {"kpi": None, "earnings": claim("money.x", None, TWO), "potential": None}}
     n = row_nodes(facts(nodes), ["EV-3"], "EV-3", "UNKNOWN", [])["nodes"]
     assert n["kpi"]["text"] == "No target set yet" and n["kpi"]["days_line"] == "No target, so no days are judged yet"
-    assert n["earnings"]["days_line"] == "2 of 2 days checked" and n["potential"]["days_line"] is None
+    assert n["earnings"]["days_line"] == "Complete readings on 2 of 2 days" and n["potential"]["days_line"] is None
 
 
 def test_row_nodes_dates_a_no_data_day_only_for_a_one_day_window() -> None:
-    """CH6a3-R2 M4: "No readings on {day}" names the board day only when the window is that one Site-local day."""
+    """CH6a3-R2 M4: "No readings received on {day}" names the board day only when the window is that one Site-local day."""
     nodes = {"EV-3": {"kpi": None, "earnings": claim("money.estimated_charging_income", None, NO_DATA),
                       "potential": None}}
-    assert row_nodes(facts(nodes), ["EV-3"], "EV-3", "UNKNOWN", [])["nodes"]["earnings"]["days_line"] == "No readings on 24 Oct"
+    assert row_nodes(facts(nodes), ["EV-3"], "EV-3", "UNKNOWN", [])["nodes"]["earnings"]["days_line"] == "No readings received on 24 Oct"
     many = row_nodes(facts(nodes, one_day=False), ["EV-3"], "EV-3", "UNKNOWN", [])["nodes"]["earnings"]["days_line"]
     assert many is not None and "24 Oct" not in many
 
