@@ -4319,3 +4319,23 @@ Decision logged for owner review: **D-ANY.6a**.
   - Rerun CO-10 on the Monday build.
 
 Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
+
+## D-PRICE.1 Prices typed on screen are saved as "Entered by site admin" (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
+- Design: `.agent/architect-sequence-client-scope-2026-11-11.md` revision 5 (card PR-3).
+
+**Rule.** A price saved from the Site price page is written by the same server-configured entry service as the dip form (§3.1 above, owner Q3): actor `service:operator-entry` (`ENTRY_PRINCIPAL`, `work/operational_entry.py:25`), labelled **"Entered by site admin"**.
+- The browser never sends an actor, a change kind or an instant. A body naming an actor stays 422 `CLIENT_ACTOR_FORBIDDEN`.
+- It is stored as `actor_kind = 'SYSTEM'` with no `author_id`, on the new channel **`SITE_ADMIN_ENTRY`** (a migration widens the channel CHECK).
+  - `authorization_basis` reads: "entered on screen through the server-configured entry service … no signed-in person (D-PRICE.1)".
+  - Provenance: `{"service": "operator-entry", "job": "site-admin-price-entry", "rule": "price-entry/1"}`.
+- It is switched on by the same `ASSETOPS_OPERATIONAL_ENTRY=on` (`host/lab_app.py:77-97`). Off: 403 `PRICE_ENTRY_OFF`, and no form is shown.
+- The label names the role of the entry point, not a person. In the demo, the presenter is the site admin.
+- After the demo, a signed-in pricing editor (BL-54, spec §4.3) replaces it. Revisions already saved keep their stored actor and label; nothing is rewritten.
+- The tool path `SYSTEM_PUBLISHER` stays, labelled "AssetOps administrator".
+- The human route `POST /financial-assumptions` stays refused (`HUMAN_PRINCIPAL_REQUIRED`).
+- Only the three stored keys may be saved for 17 Nov. A future key is refused with 422 `PRICE_KEY_NOT_ENTERABLE`, because no figure reads it.
+
+Decision logged for owner review: **D-PRICE.1**.
