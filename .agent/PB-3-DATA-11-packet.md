@@ -52,7 +52,7 @@ One file at a time, python `AssetOpsV1-plan2\.venv`, DB `assetops_pb3_test` (pg_
   (Kobo verification); recorded as order/DB-state dependent, not a pass of the file.
 - Not run: `host/tests/test_dd1a2_r3_add_day_after_trial.py` (skipped without DB in the batch; a Kobo trial
   producer run, Kobo epochs grouping unchanged), `test_demo_combined_postgres.py` (prepare-sized).
-- `tools/check-architecture.ps1`: see the result line at the end of this packet.
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): "Architecture check passed.", exit 0.
 
 ## Known deviations
 
