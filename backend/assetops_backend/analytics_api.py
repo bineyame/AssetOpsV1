@@ -14,6 +14,7 @@ from assetops_backend.analytics.declaration import applicable, site_declaration
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.evidence.ports import EvidenceStore, EvidenceStoreUnavailable
+from assetops_backend.i18n import message, render
 from assetops_backend.sites.models import SiteRecord
 from assetops_backend.sites.ports import (
     SiteAwaitingMigration,
@@ -54,7 +55,8 @@ def build_analytics_router(
         except SiteNotFound as error:
             raise HTTPException(
                 status_code=404,
-                detail={"code": "SITE_NOT_FOUND", "message": f"No Site {site_id} is configured."},
+                detail={"code": "SITE_NOT_FOUND",
+                        "message": render(message("analytics.site_not_found", site_id=site_id))},
             ) from error
 
     def guarded(read):
