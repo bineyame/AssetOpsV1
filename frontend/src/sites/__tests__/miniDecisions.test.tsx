@@ -1927,25 +1927,24 @@ describe("post-W6 W4 Q5/R325/R450: Scenarios refusals, rows and the Site-time Wi
     for (const [i, r] of cells().entries()) expect(r[0]).toContain(`${i + 1} ${long}`);
   });
 
-  it("SR-2: the Window is the date range at the top; the page names its Site-local days and has no date form", async () => {
-    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+  it("SR-2/M1: the Window is the date range at the top; the page names the UTC days the bar wrote and has no date form", async () => {
+    // The bar writes UTC-midnight bounds ("14-20 Oct"); Kisiwa is EAT but the read uses them as given: UTC days.
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
     await settledScreen();
     await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(1));
-    // Africa/Nairobi (EAT, UTC+3): 21:00Z is the next local midnight. Build ruling 7: the end day is included, so the
-    // exclusive bound 2026-10-20T21:00Z names its preceding Site-local date.
     const line = document.querySelector("[data-scenarios-window='range']")?.textContent ?? "";
-    expect(line).toBe("Window: 14 Oct to 20 Oct (EAT, last day included), from the date range at the top.");
+    expect(line).toBe("Window: 14 Oct to 20 Oct (UTC days, last day included), from the date range at the top.");
     expect(main().querySelector("input[type='date']")).toBeNull();
     expect(screen.queryByRole("form", { name: "Window" })).toBeNull();
     expect(document.querySelector("[data-mock-deviation='R450']")).toBeNull();
-    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-13T21:00:00Z", to: "2026-10-20T21:00:00Z", known_at: KNOWN, cursor: null });
+    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-14T00:00:00Z", to: "2026-10-21T00:00:00Z", known_at: KNOWN, cursor: null });
   });
 
-  it("build ruling 7: a single included month-end day reads to the next Site-local midnight", async () => {
-    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-30T21:00:00Z&to=2026-10-31T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+  it("M1: a single included month-end UTC day is named as one day", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-31T00:00:00Z&to=2026-11-01T00:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
     await settledScreen();
     await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(1));
-    expect(document.querySelector("[data-scenarios-window='range']")?.textContent).toContain("31 Oct to 31 Oct (EAT, last day included)");
-    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-30T21:00:00Z", to: "2026-10-31T21:00:00Z", known_at: KNOWN, cursor: null });
+    expect(document.querySelector("[data-scenarios-window='range']")?.textContent).toContain("31 Oct to 31 Oct (UTC days, last day included)");
+    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-31T00:00:00Z", to: "2026-11-01T00:00:00Z", known_at: KNOWN, cursor: null });
   });
 });

@@ -21,7 +21,6 @@ import {
   type ScenarioScope,
 } from "./miniDecisionsClient";
 import { ClaimLabel } from "./ClaimLabel";
-import { siteLocalDate, siteLocalLastDay, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 import { formatDay, formatDayTime } from "../ui/time";
@@ -268,13 +267,13 @@ export function ScenariosWindow({ scope, timeZone }: { scope: ScenarioScope; tim
       </p>
     );
   }
-  const zone = siteZoneDisplayLabel(timeZone, scope.from);
+  // M1: the bar writes UTC-midnight bounds and the read uses them as given, so name the UTC days.
   const day = (iso: string) => formatDay(`${iso}T00:00:00Z`, { year: false });
-  const first = day(siteLocalDate(scope.from, timeZone));
-  const last = day(siteLocalLastDay(scope.to, timeZone));
+  const first = day(new Date(scope.from).toISOString().slice(0, 10));
+  const last = day(new Date(new Date(scope.to).getTime() - 1).toISOString().slice(0, 10));
   return (
-    <p className="site-date-bar mini-scenarios-window" data-scenarios-window="range">
-      {`Window: ${first} to ${last} (${zone}, last day included), from the date range at the top.`}
+    <p className="site-date-bar mini-scenarios-window" data-scenarios-window="range" data-timezone={timeZone ?? undefined}>
+      {`Window: ${first} to ${last} (UTC days, last day included), from the date range at the top.`}
     </p>
   );
 }

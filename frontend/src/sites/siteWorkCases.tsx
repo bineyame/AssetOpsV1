@@ -312,9 +312,12 @@ function WindowLine({ copy, scope, timeZone }: { copy: KindCopy; scope: WorkScop
   let days = "the requested days";
   if (valid) {
     const word = (day: string) => formatDay(`${day}T00:00:00Z`, { year: false });
-    const first = firstDay(scope.from, timeZone);
-    const last = lastDay(scope.to, timeZone);
-    days = `${first === last ? word(first) : `${word(first)} to ${word(last)}`} (${siteZoneDisplayLabel(timeZone, scope.from)}, last day included)`;
+    // M1: the bar writes UTC-midnight bounds and the read uses them as given, so a range names UTC days (as
+    // SiteFindingIndex). The page's own default window is Site-local midnights, so it names Site-local days.
+    const first = fromRange ? new Date(scope.from).toISOString().slice(0, 10) : firstDay(scope.from, timeZone);
+    const last = fromRange ? new Date(new Date(scope.to).getTime() - 1).toISOString().slice(0, 10) : lastDay(scope.to, timeZone);
+    const zone = fromRange ? "UTC days" : siteZoneDisplayLabel(timeZone, scope.from);
+    days = `${first === last ? word(first) : `${word(first)} to ${word(last)}`} (${zone}, last day included)`;
   }
   return (
     <div className="v69-chips w1f4-work-window" data-work-window={fromRange ? "range" : "default"} aria-label={`${copy.global} window`}>
