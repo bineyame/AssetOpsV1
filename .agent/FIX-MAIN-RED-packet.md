@@ -21,7 +21,17 @@ Branch `task/FIX-MAIN-RED` from main 626e3b94e.
    `chain_threads`. Making 10-11 and 10-21 COMPLETE means adding readings (changes the pinned readiness/gaps and board
    states on the same fixture) or hand-inserting chain rows and moving the assertions after the settle. Either changes
    what the fixture says. Needs a fixture-intent decision: readable on those two days, or (b) per addendum 6
-   (PARTIAL, 0 rows). Nothing changed for item 2.
+   (PARTIAL, 0 rows).
+   RESOLVED by coordinator ruling (b): `estate_assertions` in tools/s602b_test_scoped_cases.py now asserts, for 10-21 and
+   10-11, status PARTIAL, exactly one NO_READINGS gap day, 0 rows, all-zero placement counts, plus the unchanged
+   double-count / numeric-priority / one-page checks (comment cites D-E5.38 and addendum 6). Returns F05=None, rows={}.
+   Proof (env var set, pg conns 123 < 150): test_out_d5_objectives_postgres 3 passed; test_out_b4_board_postgres
+   5 passed, 1 xfailed (the existing strict BL-63 xfail), 0 skipped.
+   Gaps for the Architect: (i) F05 placement is no longer asserted on this fixture; other Portfolio Finding-row
+   placement coverage exists (grep: test_w303_selectors_postgres, test_w303_portfolio_scope_snapshot_postgres,
+   test_s4_finding_index_postgres) but I did not verify they use a fixture with readings. (ii)
+   tools/s602b-verification-evidence.mjs (lines ~292-301) captures the Portfolio F05 `data-portfolio-row` from the
+   case file's `rows.F05`; it will find no row, so that capture needs the combined-dataset acceptance (not run).
 3. siteFoundationChange.test.tsx (FIXED). Cause: SR-1 (66a38d849) put the shared date-range button in the shell
    top bar; the "read-only, no button" check now excludes `[data-shared-range-button]` via `pageButtons()`. 18 passed
    (was 3 failed); tsc clean. Non-vacuity: the check still lists any other button's outerHTML.
