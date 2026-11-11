@@ -105,7 +105,7 @@ export function SharedRangeBar() {
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
 
-  const here = readsSharedRange(location.pathname);
+  const here = readsSharedRange(location.pathname, params);
 
   const close = (returnFocus: boolean) => {
     setOpen(false);
@@ -211,7 +211,7 @@ export function SharedRangeBar() {
         {name === null ? null : <span className="shared-range__name">{name}</span>}
         <span className="shared-range__dates">{dates}</span>
         <span className="shared-range__short">{short}</span>
-        {set === null || here ? (
+        {set === null ? null : here ? (
           <span className="shared-range__tag">All pages</span>
         ) : (
           <span className="shared-range__tag shared-range__tag--elsewhere" data-shared-range-elsewhere>

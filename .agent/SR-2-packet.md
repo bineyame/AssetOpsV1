@@ -57,3 +57,15 @@ D-UI.2; v71 `portfolio-tabs.html` Change 0b.
 - Work pages without a range still use R338's default and the bar says "This page's own dates" (honest; SR-2 default
   change pending). Work tests asserting the old form were rewritten to assert its absence.
 - Site pages still have their own forms under the bar; the bar says "Not used on this page" there.
+  (Superseded by the fix round below.)
+
+## Fix round (review Medium + Low)
+- Medium: `readsSharedRange(pathname, params?)` in `sharedRange.ts` now also counts `/sites/:id...` and
+  `/performance/*` as range-using when the address carries from/to (readers: SiteEvidence, coldWindowFromParams,
+  miniDepthClient, EvFoundationViews, MiniOpportunity, SiteAnalyticsFrames). Without from/to those pages show their own
+  day and make no claim. Record pages and the Site directory stay "Not used on this page".
+- Low: with no range in the address the bar shows "This page's own dates" with no tag (was "All pages").
+- Tests (`sharedRange.test.tsx`): per route class label (estate, Site story link, Site page with no range, record
+  page) plus `readsSharedRange` with params for demo story link shapes.
+- Checks: vitest sharedRange 22 pass, sr2RequestUrls 3 pass, tsc clean, check-architecture (see commit message).
+- Known limit: a Site page type that ignores from/to still reads as range-using when its address carries one.

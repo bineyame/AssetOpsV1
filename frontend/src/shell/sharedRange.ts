@@ -174,7 +174,14 @@ export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.tes
  */
 const RANGE_PAGES =
   /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence|financials|incidents|maintenance(?:\/preventive)?|operational-records)\/?$/;
-export const readsSharedRange = (pathname: string): boolean => RANGE_PAGES.test(pathname);
+/**
+ * SR-2 review (Medium): Site pages (Evidence, Findings, Cold, Renewable, Service, EV) load their content from the
+ * address's from/to/known_at, so a Site or performance page whose address carries a range IS using it. A Site page
+ * without one shows its own day, so the bar does not claim the range there. Record pages read none of it.
+ */
+const SITE_RANGE_PAGES = /^\/(?:sites\/[^/]+(?:\/.*)?|performance\/[^/]+(?:\/.*)?)$/;
+export const readsSharedRange = (pathname: string, params?: URLSearchParams): boolean =>
+  RANGE_PAGES.test(pathname) || (SITE_RANGE_PAGES.test(pathname) && !!params && (params.has("from") || params.has("to")));
 
 /** The range to fill an empty address with: the last one chosen in this tab, else Last 7 days. Blocked storage falls back to the default. */
 export function entryRange(now: number = Date.now()): URLSearchParams {
