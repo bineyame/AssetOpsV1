@@ -145,7 +145,10 @@ def test_trial_comparison_writer_registered() -> None:
     real = (ROOT / TRIAL_WRITER).read_text(encoding="utf-8")
     assert TRIAL_INSERT in real and "from sqlalchemy" in real
     assert isolated_copy(lambda copy: None).returncode == 0
-    out = isolated_copy(lambda copy: _replace(copy, TRIAL_GUARD, ", $trialComparisonWriter)", ")"))
+    # ANY-1 AR-1 appended `$periodWriter` after this entry in the `$pgWriters` list, so the probe removes the
+    # `$trialComparisonWriter, ` element itself rather than relying on it being the list's last entry.
+    out = isolated_copy(lambda copy: _replace(copy, TRIAL_GUARD, ", $trialComparisonWriter, $periodWriter)",
+                                              ", $periodWriter)"))
     found = failures(out)
     assert out.returncode == 1
     assert any("Database driver imported outside" in line and TRIAL_WRITER in line for line in found), found
@@ -240,6 +243,34 @@ def test_snapshot_writer_insert_only_and_not_vacuous() -> None:
                         '\n_PROBE = text("DELETE FROM site_day_snapshot WHERE tenant_id = :t")\n', encoding="utf-8")
     found = failures(isolated_copy(delete))
     assert any("day-snapshot store never updates" in line or "insert-only" in line for line in found), found
+
+
+PERIOD_WRITER = "backend/assetops_backend/chain/adapters/postgres_period_read_store.py"
+PERIOD_INSERT = "INSERT INTO site_period_read ("
+PROVENANCE_INSERT = "INSERT INTO revision_provenance ("
+
+
+def test_period_writer_insert_only_and_not_vacuous() -> None:
+    """ANY-1 AR-1: the stored read-period store keeps one owner INSERT per table, never deletes or upserts, and is
+    the only writer of its tables."""
+    real = (ROOT / PERIOD_WRITER).read_text(encoding="utf-8")
+    assert PERIOD_INSERT in real and PROVENANCE_INSERT in real and "from sqlalchemy" in real
+    found = failures(isolated_copy(lambda copy: _replace(copy, PERIOD_WRITER, PERIOD_INSERT,
+                                                         "INSERT INTO site_period_read_probe (")))
+    assert any("found no INSERT INTO site_period_read" in line for line in found), found
+    found = failures(isolated_copy(lambda copy: _replace(copy, PERIOD_WRITER, "VALUES (:r, :v, :t, CAST(:block AS jsonb))",
+                                                         "VALUES (:r, :v, :t, CAST(:block AS jsonb)) "
+                                                         "ON CONFLICT (assessment_revision_id, builder_version) "
+                                                         "DO NOTHING")))
+    assert any("period read store never updates" in line or "insert-only" in line for line in found), found
+
+    def delete(copy: Path) -> None:
+        file = copy / SNAPSHOT_WRITER
+        file.write_text(file.read_text(encoding="utf-8") +
+                        '\n_PROBE = text("DELETE FROM site_period_read WHERE tenant_id = :t")\n', encoding="utf-8")
+    found = failures(isolated_copy(delete))
+    assert any("Only backend/assetops_backend/chain/adapters/postgres_period_read_store.py writes" in line
+               for line in found), found
 
 
 EVENT_WRITER = "backend/assetops_backend/chain/adapters/postgres_event_store.py"

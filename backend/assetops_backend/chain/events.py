@@ -13,6 +13,7 @@ transaction with the page's marks coalesced (ruling CH1b-R2). The ``threads`` co
 
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
@@ -26,6 +27,10 @@ CONSUMERS = ("snapshots", "threads", "lifecycle")
 DAY_RULES = ("span_local", "windows_local", "window_local", "valid_local", "from_valid_local_to_today", "none")
 MEASURE_RULES = ("by_role", "by_analytic", "by_job_domain", "by_assumption_key", "all_of_site")
 INPUT_KEYS = ("roles", "analytics", "mini_depth", "job_domains", "assumption_keys", "foundation")
+#: ANY-1 AR-1: the native grains of a stored read-period kind (`site_period_read`); `local_day` is the register's day.
+KIND_GRAINS = ("hour", "s3_day", "local_day")
+KIND_SITE_TYPES = ("MINIGRID", "COLDCHAIN", "EV_CHARGING")
+KIND_PATTERN = re.compile(r"^[a-z][a-z0-9_]{1,40}\.[a-z][a-z0-9_]{1,40}$")
 
 
 class RegisterError(ValueError):
@@ -51,13 +56,26 @@ class InputRule:
 
 
 @dataclass(frozen=True)
+class KindRule:
+    """ANY-1 AR-1: a stored read-period kind, dirtied like a measure (its `inputs` use the measure input keys)."""
+    kind: str
+    grain: str
+    site_types: frozenset[str]
+    inputs: InputRule
+
+
+@dataclass(frozen=True)
 class EventRegister:
     register_version: int
     events: Mapping[str, EventRule]
     inputs: Mapping[str, InputRule]
+    kinds: Mapping[str, KindRule] = field(default_factory=dict)
 
     def rule(self, type_: str, schema_version: int) -> EventRule | None:
         return self.events.get(f"{type_}@{schema_version}")
+
+    def kinds_for(self, site_type: str) -> list[str]:
+        return sorted(k for k, r in self.kinds.items() if site_type in r.site_types)
 
     def consumes(self, consumer: str) -> list[str]:
         """The `type@version` keys a consumer reads."""
@@ -98,17 +116,41 @@ def parse_register(payload: Any, source: str = "event register") -> EventRegiste
         out_events[str(key)] = EventRule(str(key), spec["days"], measures, consumers)
     out_inputs: dict[str, InputRule] = {}
     for measure, spec in inputs.items():
-        if not isinstance(spec, dict) or set(spec) - set(INPUT_KEYS):
-            raise RegisterError(f"{source}: inputs.{measure} keys must be among {INPUT_KEYS}")
-        where = f"{source}: inputs.{measure}"
-        out_inputs[str(measure)] = InputRule(
-            roles=_strings(spec.get("roles"), where + ".roles"),
-            analytics=_strings(spec.get("analytics"), where + ".analytics"),
-            mini_depth=_strings(spec.get("mini_depth"), where + ".mini_depth"),
-            job_domains=_strings(spec.get("job_domains"), where + ".job_domains"),
-            assumption_keys=_strings(spec.get("assumption_keys"), where + ".assumption_keys"),
-            foundation=bool(spec.get("foundation", False)))
-    return EventRegister(1, out_events, out_inputs)
+        out_inputs[str(measure)] = _input_rule(spec, f"{source}: inputs.{measure}")
+    kinds = payload.get("kinds") or {}
+    if not isinstance(kinds, dict):
+        raise RegisterError(f"{source}: kinds must be a mapping")
+    out_kinds: dict[str, KindRule] = {}
+    for kind, spec in kinds.items():
+        where = f"{source}: kinds.{kind}"
+        if not KIND_PATTERN.match(str(kind)):
+            raise RegisterError(f"{where}: a kind is '<area>.<name>' in lower case (e.g. mini_depth.renewable)")
+        if str(kind) in out_inputs:
+            raise RegisterError(f"{where}: a kind and a measure share a name")
+        if not isinstance(spec, dict) or set(spec) - {"grain", "site_types", "inputs"}:
+            raise RegisterError(f"{where}: keys must be among ('grain', 'site_types', 'inputs')")
+        if spec.get("grain") not in KIND_GRAINS:
+            raise RegisterError(f"{where}: grain must be in {KIND_GRAINS}")
+        site_types = _strings(spec.get("site_types"), where + ".site_types")
+        if not site_types or site_types - set(KIND_SITE_TYPES):
+            raise RegisterError(f"{where}: site_types must name some of {KIND_SITE_TYPES}")
+        rule = _input_rule(spec.get("inputs") or {}, where + ".inputs")
+        if rule == InputRule():
+            raise RegisterError(f"{where}: a kind declares what dirties it (inputs)")
+        out_kinds[str(kind)] = KindRule(str(kind), spec["grain"], site_types, rule)
+    return EventRegister(1, out_events, out_inputs, out_kinds)
+
+
+def _input_rule(spec: Any, where: str) -> InputRule:
+    if not isinstance(spec, dict) or set(spec) - set(INPUT_KEYS):
+        raise RegisterError(f"{where} keys must be among {INPUT_KEYS}")
+    return InputRule(
+        roles=_strings(spec.get("roles"), where + ".roles"),
+        analytics=_strings(spec.get("analytics"), where + ".analytics"),
+        mini_depth=_strings(spec.get("mini_depth"), where + ".mini_depth"),
+        job_domains=_strings(spec.get("job_domains"), where + ".job_domains"),
+        assumption_keys=_strings(spec.get("assumption_keys"), where + ".assumption_keys"),
+        foundation=bool(spec.get("foundation", False)))
 
 
 # --- resolution -------------------------------------------------------------------------------------------------
@@ -168,27 +210,27 @@ def local_days(start: Any, end: Any, tz: str, today: date | None = None) -> list
     return out
 
 
+def _hit(measures_rule: str | None, inp: InputRule, subject: Mapping[str, Any]) -> bool:
+    if measures_rule == "by_role":
+        return bool(inp.roles & set(subject.get("roles") or ()))
+    if measures_rule == "by_analytic":
+        return (bool(inp.analytics & set(subject.get("analytic_ids") or ()))
+                or (subject.get("domain") is not None and subject.get("domain") in inp.mini_depth))
+    if measures_rule == "by_job_domain":
+        return subject.get("domain") in inp.job_domains
+    if measures_rule == "by_assumption_key":
+        return subject.get("key") in inp.assumption_keys
+    return False
+
+
 def _measures(register: EventRegister, rule: EventRule, subject: Mapping[str, Any], site_type: str) -> list[str]:
+    """The measures, then the stored read-period kinds (AR-1), the event dirties for this Site type."""
     keys = [m.key for m in measures_for(site_type)]
+    kinds = register.kinds_for(site_type)
     if rule.measures == "all_of_site":
-        return keys
-    picked = []
-    for key in keys:
-        inp = register.inputs.get(key, InputRule())
-        if rule.measures == "by_role":
-            hit = bool(inp.roles & set(subject.get("roles") or ()))
-        elif rule.measures == "by_analytic":
-            hit = (bool(inp.analytics & set(subject.get("analytic_ids") or ()))
-                   or (subject.get("domain") is not None and subject.get("domain") in inp.mini_depth))
-        elif rule.measures == "by_job_domain":
-            hit = subject.get("domain") in inp.job_domains
-        elif rule.measures == "by_assumption_key":
-            hit = subject.get("key") in inp.assumption_keys
-        else:
-            hit = False
-        if hit:
-            picked.append(key)
-    return picked
+        return keys + kinds
+    picked = [k for k in keys if _hit(rule.measures, register.inputs.get(k, InputRule()), subject)]
+    return picked + [k for k in kinds if _hit(rule.measures, register.kinds[k].inputs, subject)]
 
 
 def _days(rule: EventRule, subject: Mapping[str, Any], tz: str, today: date | None) -> list[date]:
@@ -212,7 +254,8 @@ def _days(rule: EventRule, subject: Mapping[str, Any], tz: str, today: date | No
 
 def resolve(register: EventRegister, event: Event, *, site_type: str, tz: str,
             today: date | None) -> list[tuple[date, str]]:
-    """The (Site-local day, measure) pairs an event dirties; empty for a `days: none` event or an unknown type."""
+    """The (Site-local day, measure or read-period kind) pairs an event dirties; empty for a `days: none` event or an
+    unknown type. A kind's pairs go through the same `snapshot_dirty` queue (its `measure` column holds the kind)."""
     rule = register.rule(event.type, event.schema_version)
     if rule is None or "snapshots" not in rule.consumers:
         return []
@@ -356,6 +399,6 @@ def consume_exactly(port: EventPort, consumer: str, events: Sequence[Event]) -> 
     return report
 
 
-__all__ = ["CONSUMERS", "ConsumeReport", "Event", "EventPort", "EventRegister", "EventRule", "InputRule", "Mark",
+__all__ = ["CONSUMERS", "ConsumeReport", "Event", "EventPort", "EventRegister", "EventRule", "InputRule", "KindRule", "Mark",
            "RegisterError", "SiteInfo", "coalesce", "consume", "consume_exactly", "local_days", "parse_register",
            "resolve"]

@@ -4289,3 +4289,53 @@ Decision logged for owner review: **D-E5.49**.
 - Any other self-check or live-check failure, or no green result by **05:00**: the demo uses `assetops_polish_client6_test` (tag demo/2026-11-11-e3d, runbook as planned). client6 is never modified.
 
 Decision logged for owner review: **D-ANY.6**.
+
+### D-ANY.6a AR-2 rows path misses a recompute job created after the row build (Architect, Claude, 2026-11-11 ~17:55, owner-delegated, logged for owner review)
+
+- **Defect.** On the rows path, PENDING-at-k reads only unconsumed outbox events and snapshot dirty marks. The old compose path decides PENDING_RECOMPUTE from `recompute_job` itself (`mini_depth/read.py` `_JOBS`: status PENDING, LEASED or FAILED, `available_at <= k`, and no later selection), and it does so both live and at a historical k. A job raised by `mini_enqueue_hour` with no outbox event is therefore missed, and so is an existing PENDING job whose `available_at` was moved later.
+- **Live-demo impact.** Tomorrow's add-dates enqueues exactly these jobs. Rows would read CURRENT while a recompute is pending, which is a false statement on the board. The fix is required, not optional.
+- **Fix, ruled.** Do not emit events from the SQL function (a 0029 change with a wider blast radius). Do not use timing heuristics.
+  - The rows path runs the oracle's own `_JOBS` predicate, batched: one statement over Sites × hours × mini domains at k.
+  - An hour whose live job set at k equals the job set stored in its row renders from the row.
+  - An hour with any other job set is served by the old `_hour` for that hour only. This is the D-ANY.1 rule "a case that cannot be proven equal stays on the old path". It is logged (`period_row_job_fallback`) and counted.
+  - Byte-equal by construction. Expected cost is one extra statement per read; fallback hours are rare (only while a recompute is in flight).
+- **Size and timing.** About 0.3 unit. Build by 19:45, Postgres test plus client4 parity by 20:30, review by 21:30.
+- **If not ACCEPTed by 21:30: hold AR-2 entirely.** Do not merge it with the kill switch off. That gives the demo no speed, adds an unexercised prepare step, and leaves a latent false-CURRENT path. Tonight's build then uses main plus AR-1 (if its parity passed), and the boards stay on the pre-stored ranges.
+
+Decision logged for owner review: **D-ANY.6a**.
+
+### D-ANY.6b / D-E5.49a Tonight's build fails one check, CO-10 ("16 min unknown"): use client7 (Architect, Claude, 2026-11-11 ~22:10, owner-delegated, logged for owner review)
+
+- **Finding.** In client7, the c1 warning reads "7 h 44 min out and 16 min unknown on 3 Nov".
+  - 7 h 44 min + 16 min = 8 h, the whole charging day. The out-of-service part (08:16-16:00) is right.
+  - The 16 min are 08:00-08:16, before the fault. The generated full-day heartbeat carries no connector status for c1 until the fault notice at 08:16.
+  - The product is correct not to guess a status it never received. This is a data and story detail, not a product defect.
+  - The D-E5.49 pin assumed status "known all day". The data does not give that.
+- **Thursday demo:** use **client7**. The D-ANY.6 fallback covers failures that make the build untrustworthy. This one is an honest sentence about real data gaps, and the other 53 checks pass. client6 stays untouched as the fallback for any other failure.
+- **Presenter line:** "c1 was out of service from 08:16 for the rest of the charging day; the first 16 minutes have no status reading; repair still pending."
+- **17 Nov fix (data, about 0.1 unit, Sonnet):**
+  - The EV-HB generator emits a c1 Available status with the day's first heartbeat at 08:00, so status is known all day.
+  - Keep the D-E5.49 pin at 0 min unknown. Do not relax it.
+  - Rerun CO-10 on the Monday build.
+
+Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
+
+## D-PRICE.1 Prices typed on screen are saved as "Entered by site admin" (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
+- Design: `.agent/architect-sequence-client-scope-2026-11-11.md` revision 5 (card PR-3).
+
+**Rule.** A price saved from the Site price page is written by the same server-configured entry service as the dip form (§3.1 above, owner Q3): actor `service:operator-entry` (`ENTRY_PRINCIPAL`, `work/operational_entry.py:25`), labelled **"Entered by site admin"**.
+- The browser never sends an actor, a change kind or an instant. A body naming an actor stays 422 `CLIENT_ACTOR_FORBIDDEN`.
+- It is stored as `actor_kind = 'SYSTEM'` with no `author_id`, on the new channel **`SITE_ADMIN_ENTRY`** (a migration widens the channel CHECK).
+  - `authorization_basis` reads: "entered on screen through the server-configured entry service … no signed-in person (D-PRICE.1)".
+  - Provenance: `{"service": "operator-entry", "job": "site-admin-price-entry", "rule": "price-entry/1"}`.
+- It is switched on by the same `ASSETOPS_OPERATIONAL_ENTRY=on` (`host/lab_app.py:77-97`). Off: 403 `PRICE_ENTRY_OFF`, and no form is shown.
+- The label names the role of the entry point, not a person. In the demo, the presenter is the site admin.
+- After the demo, a signed-in pricing editor (BL-54, spec §4.3) replaces it. Revisions already saved keep their stored actor and label; nothing is rewritten.
+- The tool path `SYSTEM_PUBLISHER` stays, labelled "AssetOps administrator".
+- The human route `POST /financial-assumptions` stays refused (`HUMAN_PRINCIPAL_REQUIRED`).
+- Only the three stored keys may be saved for 17 Nov. A future key is refused with 422 `PRICE_KEY_NOT_ENTERABLE`, because no figure reads it.
+
+Decision logged for owner review: **D-PRICE.1**.
