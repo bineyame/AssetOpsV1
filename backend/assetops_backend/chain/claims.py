@@ -26,7 +26,7 @@ from typing import Any, Callable, Mapping, Sequence
 from assetops_backend import read_scope
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.measures import measures_for
-from assetops_backend.chain.read import MINI_DOMAIN, SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, window_day, window_days
+from assetops_backend.chain.read import MINI_DOMAIN, SITE_TYPE_OF_DOMAIN, day_grade, lifecycle_cutoff, window_day, window_days
 from assetops_backend.chain.reader import grade_counts_of
 from assetops_backend.chain.threads import classify
 from assetops_backend.chain.vocabulary import Claim, count_claim, sum_days
@@ -173,6 +173,28 @@ class EstateClaims:
                  resolve: Callable[[str], Any], unavailable: tuple[type[BaseException], ...] = ()) -> None:
         self._reader, self._opportunities, self._resolve = chain_reader, opportunities, resolve
         self._unavailable = unavailable
+
+    def day_grades(self, tenant_id: Any, site_code: str, lo: datetime, hi: datetime,
+                   known_at: datetime | None) -> tuple[dict[date, str], str | None] | None:
+        """DATA-12 (D-E5.38): the Site's stored chain day grade (weakest expected row, `chain.read.day_grade`; a day
+        with no expected row is NOT_EXPECTED) per `window_days` day, with the Site zone, from the same memoised
+        `req.day` read `claim_days` makes; None when unreadable."""
+        reader = self._reader()
+        if reader is None:
+            return None
+        try:
+            site = self._resolve(site_code)
+            if site is None:
+                return None
+            domain = SITE_TYPE_OF_DOMAIN[site.domain]
+            facts = reader.request(tenant_id, known_at).day(site.site_id, domain,
+                                                             window_days(lo, hi, site.timezone))
+        except self._unavailable:
+            return None
+        measures = _measures(site.domain)
+        return ({d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
+                              measures, none_declared=facts.none_declared.get(d, ()))
+                 for d in facts.days}, site.timezone)
 
     def __call__(self, tenant_id: Any, site_codes: Sequence[str], lo: datetime, hi: datetime,
                  known_at: datetime | None) -> EstateCounts | None:

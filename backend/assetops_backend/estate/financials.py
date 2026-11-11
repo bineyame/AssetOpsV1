@@ -24,7 +24,7 @@ from typing import Any
 from assetops_backend.chain import refs
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE,
-    not_applicable, site_coverage)
+    local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.evidence_money import (
     CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _window_state, group_key_for_partition, site_home_ref,
     window_link_refs)
@@ -414,7 +414,8 @@ def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope:
         if domain is None:
             per_site.append((site, NOT_APPLICABLE, {**not_applicable(), "_pending_guard": False}, []))
             continue
-        cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
+        cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k,
+                            **local_day_grades_kw(site, req, scope, tenant_id))
         if domain == MINI_GRID:
             site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if cov["state"] in COVERED else []
             covered, sessions, pending_guard = cov["state"] in COVERED, [], False

@@ -139,19 +139,6 @@ def walk(node: Any):
 CHECKS: list[tuple[str, bool, bool, Callable[[Ctx], dict]]] = []
 
 
-#: D-E5.40: rows whose Portfolio coverage failure is the known UTC-day defect (DATA-12 removes this map). Only the
-#: coverage signature is exempt; any other failure in these rows still fails.
-KNOWN_DEFECTS = {"CO-6": "D-E5.38", "WK-GAP": "D-E5.38"}
-
-
-class KnownDefect(Exception):
-    """Raised after a listed row's other assertions all passed; carries the row's read and the coverage failure."""
-
-    def __init__(self, text: str, read: dict):
-        super().__init__(text)
-        self.read = read
-
-
 def row(check_id: str, *, idx: bool = False, mutates: bool = False):
     def wrap(fn):
         CHECKS.append((check_id, idx, mutates, fn))
@@ -493,23 +480,20 @@ def co6(ctx: Ctx) -> dict:
     kobo = coverage.get(KOBO)
     assert kobo is not None, coverage
     days = kobo.get("days") or {}
-    # D-E5.40 known defect: the UTC-day count leaves Kobo not PARTIAL with no gaps. Only that exact signature is
-    # exempt; the coverage block is then skipped and every other assertion below still runs.
-    known = kobo["state"] != "PARTIAL" and not days.get("gaps")
-    if not known:
-        assert kobo["state"] == "PARTIAL", (_cov(kobo), days)
-        assert [g["day"] for g in days.get("gaps", [])] == unassessed, (days.get("gaps"), unassessed)
-        assert days.get("requested") == 7 and days.get("checked") == 7 - len(unassessed), days
-        g = len(unassessed)
-        text = DAYS_CHECKED.format(c=7 - g, n=7, g=g, unit="day" if g == 1 else "days")
-        if days.get("withheld"):
-            text += DAYS_WITHHELD
-        assert days.get("text") == text, (days.get("text"), text)
-        assert body["status"] in ("PARTIAL", "UNKNOWN") and body["status"] != "CURRENT", (
-            body["status"], body.get("coverage", {}).get("state"))
+    # DATA-12 (D-E5.38): coverage counts the Site-local graded days, so the local gap day is named.
+    assert kobo["state"] == "PARTIAL", (_cov(kobo), days)
+    assert [g["day"] for g in days.get("gaps", [])] == unassessed, (days.get("gaps"), unassessed)
+    assert days.get("requested") == 7 and days.get("checked") == 7 - len(unassessed), days
+    g = len(unassessed)
+    text = DAYS_CHECKED.format(c=7 - g, n=7, g=g, unit="day" if g == 1 else "days")
+    if days.get("withheld"):
+        text += DAYS_WITHHELD
+    assert days.get("text") == text, (days.get("text"), text)
+    assert body["status"] in ("PARTIAL", "UNKNOWN") and body["status"] != "CURRENT", (
+        body["status"], body.get("coverage", {}).get("state"))
     listed = [r["finding_id"] for r in body.get("rows", []) if r.get("site_code") == KOBO]
     finding_listed = ctx.docs["kobo"]["finding"] in listed
-    if not days.get("withheld") and not known:
+    if not days.get("withheld"):
         assert finding_listed, (listed, body.get("total_count"))
     # DD1b2-R10 (CH-5a1): the Kobo board day is the Site-local day, so its window opens at the Site-local midnight of S
     local_s = iso(demo_rows.site_day_start(ctx.S.date(), _kobo_zone(ctx)))
@@ -522,9 +506,6 @@ def co6(ctx: Ctx) -> dict:
     read = {"status": body["status"], "kisiwa_present": kisiwa, "kobo_coverage": _cov(kobo), "kobo_days": days,
             "kobo_unassessed_days": unassessed, "kobo_finding_in_rows": finding_listed,
             "cold_ev_coverage": others, "window_basis": basis, "kobo_cells_from_day_S": cells}
-    if known:
-        raise KnownDefect(f"Kobo coverage state {kobo['state']} with gaps [] (expected PARTIAL, gaps {unassessed})",
-                          read)
     return read
 
 
@@ -722,10 +703,7 @@ def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[st
     out = demo_rows.week_gap_pattern(_week_grades(ctx, week[0], week[-1]), week, missed, partial)
     _, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     gaps = [g["day"] for g in ((coverage.get(KOBO) or {}).get("days") or {}).get("gaps", [])]
-    # D-E5.40 known defect: the Portfolio names no gap day at all (UTC-day count). Any other gap list still fails.
-    known = gaps == [] and bool(missed)
-    if not known:
-        assert gaps == missed, ("CO-6 coverage gaps", gaps, missed)
+    assert gaps == missed, ("CO-6 coverage gaps", gaps, missed)
     want = days_line({"complete": len(out["complete"]), "expected": len(week), "partial": len(partial), "low": 0,
                       "no_data": len(missed), "pending": 0})
     assert want == "5 of 7 days checked · 1 partly checked", want
@@ -741,8 +719,6 @@ def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[st
     month_out = demo_rows.month_gap_pattern(_week_grades(ctx, month[0], month[-1]), month, m_missed, m_partial)
     read = {**out, "coverage_gaps": gaps, "days_line": lines["PROTECT_ASSET"], "kobo_days_line": want,
             "month": month_out}
-    if known:
-        raise KnownDefect(f"CO-6 coverage gaps {gaps} (expected {missed})", read)
     return read
 
 
@@ -1707,25 +1683,13 @@ def app_client(url: str, work: Path):
 def run(url: str, work: Path) -> int:
     ctx = load(work, app_client(url, work))
     ctx.url = url
-    have_idx, results, failed, known = idx_present(), {}, [], []
+    have_idx, results, failed = idx_present(), {}, []
     for check_id, idx, mutates, fn in CHECKS:
         if mutates or (idx and not have_idx):
             results[check_id] = {"status": "skipped", "reason": "build test only" if mutates else "needs IDX-GAPS"}
             continue
         try:
             results[check_id] = {"status": "pass", "read": fn(ctx)}
-            if check_id in KNOWN_DEFECTS:
-                results[check_id]["note"] = "known defect no longer reproduces; remove the marker"
-                print(f"{check_id}: known defect no longer reproduces; remove the marker")
-        except KnownDefect as exc:
-            if check_id not in KNOWN_DEFECTS:
-                results[check_id] = demo_rows.failed_result(exc)
-                failed.append(check_id)
-                continue
-            results[check_id] = {"status": "known_defect", "known_defect": KNOWN_DEFECTS[check_id],
-                                 "error": str(exc)[:2000], "read": exc.read}
-            known.append(check_id)
-            print(f"{check_id}: KNOWN DEFECT {KNOWN_DEFECTS[check_id]} (DATA-12 fixes it): {exc}")
         except Exception as exc:  # recorded per row; the prepare fails after all rows ran
             results[check_id] = demo_rows.failed_result(exc)
             failed.append(check_id)
@@ -1733,8 +1697,7 @@ def run(url: str, work: Path) -> int:
                                      encoding="utf-8")
     passed = sum(r["status"] == "pass" for r in results.values())
     skipped = sum(r["status"] == "skipped" for r in results.values())
-    print(f"self-check: {passed} pass, {len(failed)} fail {failed}, {skipped} skipped, "
-          f"{len(known)} known defect {known}")
+    print(f"self-check: {passed} pass, {len(failed)} fail {failed}, {skipped} skipped")
     return 1 if failed else 0
 
 
