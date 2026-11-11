@@ -416,6 +416,8 @@ export interface SiteWindowSummary {
     errors: unknown[];
     source_open: boolean;
     source_reason: string;
+    /** HON-1 (D-E5.46): READINGS_CONFLICT | NOT_ENOUGH_READINGS when the analysis could not use the day; optional. */
+    data_gap_reason?: string | null;
   };
   watermarks: {
     accepted_source: { count: number; sha256: string } | null;
