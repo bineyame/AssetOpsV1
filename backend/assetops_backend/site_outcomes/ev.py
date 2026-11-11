@@ -62,7 +62,7 @@ TARIFF_UNKNOWN = "Not available yet"
 TARIFF_MISSING = "TARIFF_MISSING"  # `financials/ev_money.py` reason: no declared tariff covers the window
 #: The stored EV consequence state of a priced window (`financials/ev_money.py` ESTIMATED).
 PRICED_STATE = "ESTIMATED"
-PROTECT_SUBLINE = "Charger condition is not assessed"
+PROTECT_SUBLINE = "Charger condition needs a wear model, which is not connected yet"
 EVIDENCE_LIMITED = "Evidence limited · no verified result yet"
 NO_VERIFIED = "No verified result yet"
 OPTION_WHAT_IFS = "Charging what-ifs"

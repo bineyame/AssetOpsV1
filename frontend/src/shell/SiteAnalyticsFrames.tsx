@@ -570,6 +570,7 @@ export function SiteFindingsFrame({
           <SiteFindingIndex
             siteId={site.site_id}
             opportunityHelper={site.site_type === "MINIGRID"}
+            lensesSupported={site.lenses_supported === true}
             client={findingIndex}
             scope={scope}
             fuelChecks={

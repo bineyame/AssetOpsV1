@@ -402,7 +402,7 @@
    "potential": null,
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
-   "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected needs bus rosters, which are not connected yet. Charger condition is not assessed",
+   "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected needs bus rosters, which are not connected yet. Charger condition needs a wear model, which is not connected yet",
    "target_note": null,
    "thread_lines": [],
    "tone": "amber"

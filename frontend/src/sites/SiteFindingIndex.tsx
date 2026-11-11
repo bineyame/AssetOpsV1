@@ -126,14 +126,6 @@ function OpportunityHelper({ shown, findings, renewable }: { shown: boolean; fin
   );
 }
 
-/**
- * RM-2: a Site supports lenses when its own Findings read classifies a Finding under one (`lens_flags` non-empty).
- * Derived from the read, not from a Site code. A Site with no classified Finding in the window shows no lens row.
- */
-export function siteSupportsLenses(rows: readonly { lens_flags?: readonly string[] }[]): boolean {
-  return rows.some((row) => row.lens_flags !== undefined && row.lens_flags.length > 0);
-}
-
 /** A future Site-scoped lens; the unbuilt entries stay literal (navigation-truthfulness inventory). */
 function LiveLens({ label, href }: { label: string; href: string }) {
   return (
@@ -145,8 +137,9 @@ function LiveLens({ label, href }: { label: string; href: string }) {
 
 /**
  * MOCK DEVIATION D5 (R394): Cost, Risks and Opportunities stay disabled until Site-scoped lenses exist (Q18/Q49).
- * RM-2 (owner-approved, D-E5.34): a Site whose Findings read carries no lens classification does not get this row
- * (see `siteSupportsLenses`); a Site that does keeps it exactly as before.
+ * RM-2 (owner-approved, D-E5.34): a Site whose configuration does not declare lens support (the Site's
+ * `lenses_supported`, passed as `lensesSupported`) does not get this row; a Site that does keeps it exactly as
+ * before, whether or not the window has Findings.
  */
 export function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
   return (
@@ -207,6 +200,8 @@ export interface SiteFindingIndexProps {
   fallback: ReactNode;
   /** W4-03 S11: a MINIGRID Site states where its typed five-day opportunity is reached. */
   opportunityHelper?: boolean;
+  /** RM-2: the Site's declared `lenses_supported`; false (the default) draws no lens row. */
+  lensesSupported?: boolean;
   /** OUT-C U5: the Site's early warnings (from its outcome board), under the list. */
   earlyWarnings?: ReactNode;
   /** DIESEL-K5 (MD-FUEL-K5-3): a MINIGRID Site's "Fuel checks" panel, after the dispatch table; renders nothing without rows. */
@@ -1047,6 +1042,7 @@ export function SiteFindingIndex({
   links,
   fallback,
   opportunityHelper = false,
+  lensesSupported = false,
   earlyWarnings = null,
   fuelChecks = null,
 }: SiteFindingIndexProps) {
@@ -1072,7 +1068,7 @@ export function SiteFindingIndex({
     <div className="finding-index" data-findings-index="site-window">
       <ManageHref.Provider value={links.manage ?? null}>
       <PanelWarnings.Provider value={result.status === "loaded" ? earlyWarnings : null}>
-      <LensRow.Provider value={result.status === "loaded" && siteSupportsLenses(result.value.rows) ? <LensChips /> : null}>
+      <LensRow.Provider value={lensesSupported ? <LensChips /> : null}>
       <PanelControls.Provider
         value={
           <div className="site-findings-controls" data-site-findings-controls>

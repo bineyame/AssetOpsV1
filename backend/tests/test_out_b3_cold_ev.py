@@ -293,7 +293,7 @@ def test_depot_board_from_ports() -> None:
     assert contributor(rows[PROTECT], "site_power")["text"] == "Peak 76 kW of the 120 kW import limit"
     assert rows[PROTECT]["headline"] == "1 interrupted · 1 unknown of 6 sessions"  # addendum 3 (c)
     assert rows[PROTECT]["subline"] == ("Connector C2 was out of service for 1 h 30 min; which departures were "
-                                        "affected needs bus rosters, which are not connected yet. Charger condition is not assessed")
+                                        "affected needs bus rosters, which are not connected yet. Charger condition needs a wear model, which is not connected yet")
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
         ("Investigate Connector C2", f"/sites/{E}/actions/ea1/verification")]  # CH-5a2a: a domain intent
     assert contributor(rows[ASSURE], "session_records")["text"] == "1 session has no accepted end"
@@ -352,7 +352,7 @@ def test_ev_depth_refusals_degrade_contributors() -> None:
     assert contributor(rows[PROTECT], "connector_availability")["text"] == "All connectors available"
     assert contributor(rows[PROTECT], "charger_condition")["text"] == "No charger fault recorded"
     assert contributor(rows[ASSURE], "connector_status")["text"] == "No status gap"
-    assert rows[PROTECT]["subline"] == "Charger condition is not assessed"
+    assert rows[PROTECT]["subline"] == "Charger condition needs a wear model, which is not connected yet"
 
 
 def test_ev_unpriced_and_declared_limit() -> None:

@@ -57,6 +57,12 @@ Guard: ui/__tests__/roadmapWords.test.ts (each line ends coming / later / not co
 Derived from data, not Site codes: `siteSupportsLenses(rows)` is true when a row of the Site's own Findings read carries a non-empty `lens_flags`. The mini-grid index draws the chips (unchanged) only then; Cold and EV never draw them (`lenses={null}`, EvFindingIndex no longer renders them). Tests: Kobo-type (rows with a lens) keeps All/Cost/Risks/Opportunities, Kisiwa-type (no lens flags) none (s404SiteFindingIndex); Cold (coldFindingIndex), EV (evFindingIndex), mini fixtures (w301, miniDecisions); unit (rm2LensChips).
 Caveat: no Site supplies lens destinations today, so Kobo's chips remain "Not available yet" chips; and a Kobo day whose Findings carry no lens flag would also show no row.
 
+## Fix round (review REJECT on RM-2)
+- Row-derived `siteSupportsLenses` removed. The Site summary (`sites_api.site_summary`) now carries `lenses_supported`, declared by configuration: a MINIGRID Site whose Foundation declares a LOAD with `supply-use = PRODUCTIVE` (Kobo's mill; Kisiwa declares none; Cold/EV never; a registered Site with no effective Foundation: false). Frontend: `SiteSummary.lenses_supported`, `SiteFindingIndex lensesSupported` prop; the row no longer depends on the Findings rows or read status. (Wire key avoids the substring "findings", which test_sites_api forbids.)
+- Tests: s404 Kobo-type keeps chips with Findings, with zero Findings and on a refused read; Kisiwa-type hides them with real `["COST"]` flags; backend `test_c1_lenses_supported.py`. Cold/EV unchanged.
+- Low fixes: stale comment reworded; EV Protect line now "Charger condition needs a wear model, which is not connected yet" (ev.py, ev_2026-10-27.json golden, test_out_b3_cold_ev).
+- Caveat: the real Kobo Foundation must declare `supply-use` (demo configuration); not verified against a live DB here.
+
 ## Not done
 - C17 (Due dates), E6 and shared `target.none` ("No target set yet": backlog per card), C13 (kept honest per card).
 - F5b tab-row "Not available yet" entries are unchanged (outside C1).
