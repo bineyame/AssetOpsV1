@@ -20,6 +20,7 @@ import os
 import sys
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import UUID
@@ -72,13 +73,16 @@ def _declared_hours() -> tuple[str, str]:
 
 
 def test_every_ev_story_kind_records_the_declared_charging_hours() -> None:
-    """The v4 EV kinds that run record the calendar's declared hours, received 30 min after they close (as the
-    one-hour day was received 30 min after 09:00)."""
+    """The v4 EV story kinds record the calendar's declared hours, received 30 min after they close (as the
+    one-hour day was received 30 min after 09:00). `late` (add-day only, never a story day) keeps its one hour:
+    its record is held to a 09:05 release, which a 16:00 first cutoff would no longer make late."""
     lo, hi = _declared_hours()
     kinds = sd.load()["kinds"]["ev"]
-    for name in ("normal", "fault", "late"):
+    for name in ("normal", "fault"):
         k = kinds[name]
         assert (k["start"], k["end"], k["received_at"]) == (f"D+0d {lo}", f"D+0d {hi}", "D+0d 16:30"), name
+    assert (kinds["late"]["start"], kinds["late"]["end"]) == ("D+0d 08:00", "D+0d 09:00")
+    assert {e["kind"] for e in sd.load()["sites"]["ev"]} == {"normal", "fault"}
 
 
 def test_story_window_is_the_day_entry_and_the_parser_takes_it() -> None:
@@ -131,7 +135,7 @@ def _records(definition) -> tuple:
 
 def _one_hour(day: sd.DayRun):
     """The registered one-hour scenario on the same day (the build before EV-HB)."""
-    doc = dev.shifted_document(day.scenario["scenario_id"], day.start.replace(hour=0) - dev.BASE_DAY, "one-hour")
+    doc = dev.shifted_document(day.scenario["scenario_id"], day.start.replace(hour=0) - dev.BASE_DAY, "ev-one-hour")
     saved = ev_parsing.EV_WINDOW
     ev_parsing.EV_WINDOW = {**saved, "start": doc["window"]["start"], "end": doc["window"]["end"]}
     try:
@@ -141,8 +145,10 @@ def _one_hour(day: sd.DayRun):
 
 
 def _key(r) -> tuple:
+    """Every public record field but the scoped session token, which hashes the scenario document (its id and
+    window) and so already differs per story day (`<scenario>-<epoch>`) before EV-HB."""
     return (r.connector, r.channel, r.source_time, r.published_at, r.transition_ordinal, r.family, r.measurement,
-            r.interval_start, r.value, r.unit, r.record_kind, r.outcome, r.session_id, r.connector_id)
+            r.interval_start, r.value, r.unit, r.record_kind, r.outcome, r.session_id is None, r.connector_id)
 
 
 @pytest.mark.parametrize("index", [0, 1, 2], ids=["S-14-normal", "S-7-normal", "S-fault"])
@@ -309,6 +315,26 @@ def test_run_day_records_and_grades_the_declared_day(tmp_path) -> None:
         else:
             want.append((lo + MINUTE, lo + 31 * MINUTE, "COMPLETED", "30.000"))
     assert got_sessions == sorted(want)
+    # the tariff publication enqueues the EV money recompute (0026 trigger); the prepare's ticks drain it with the
+    # EV worker, as here
+    from test_w206_ev_store_postgres import _dispose
+
+    from assetops_backend.analytics.composition import build_ev_assessment_worker
+
+    worker = build_ev_assessment_worker(URL)
+    try:
+        drained = worker.run_pending(tenant_id=tenant, site_id=site)
+    finally:
+        _dispose(worker)
+    assert all(o.status == "DONE" for o in drained), [(o.status, o.error) for o in drained]
+    import subprocess
+
+    from demo_combined import TICK
+
+    for _ in range(2):  # the prepare's scheduled tick (`demo_combined.TICK`) drains the money consequence
+        done = subprocess.run([sys.executable, *TICK, "--no-prebuild"], capture_output=True, text=True, timeout=600,
+                              env={**os.environ, "DATABASE_URL": URL}, cwd=str(ROOT))
+        assert done.returncode == 0, (done.stdout[-2000:], done.stderr[-2000:])
     ref = SiteRef(tenant, site, "EV-LAB-001", "EV_CHARGING", "UTC")
     builder = build_snapshot_builder(URL, store=_Store())
     for day in days:
@@ -316,5 +342,33 @@ def test_run_day_records_and_grades_the_declared_day(tmp_path) -> None:
         row = written.row
         assert (row.required_seconds, row.covered_seconds, row.grade) == (8 * 3600, 8 * 3600, grading.COMPLETE), row
         assert row.value["kwh"] in (KWH[day.kind], f"{KWH[day.kind]}.000"), row.value
-        print("EV-HB", day.day, day.kind, row.grade, row.covered_seconds, row.value, row.money)
+        print("EV-HB", day.day, day.kind, row.grade, row.covered_seconds, row.value, row.money, len(drained))
+        # the declared 0.30 USD/kWh: USD 9.00 on an ordinary day, USD 4.50 on the fault day (15 kWh), as before
+        assert row.money is not None and row.money.get("currency") == "USD", row.money
+        assert Decimal(str(row.money["amount"])) == {"normal": Decimal("9.00"), "fault": Decimal("4.50")}[day.kind]
     assert Counter(d.kind for d in days) == {"normal": 1, "fault": 1}
+    # PB-1b: a whole-UTC-day EV read (the board link) shows the one analysed period, the recorded window; the fault
+    # day's Finding is anchored inside it
+    from assetops_backend.analytics.composition import build_ev_read_service
+
+    reads = build_ev_read_service(URL)
+    try:
+        for day in days:
+            lo, hi = dev.story_window(day)
+            midnight = lo.replace(hour=0)
+            snap, _ = reads.within(lambda c: reads.open_on(c, tenant, site, "EV-LAB-001", midnight,
+                                                           midnight + timedelta(days=1), None))
+            # the EV worker's job window closes 5 min after the recorded window (08:00-09:05 over 08:00-09:00 before
+            # EV-HB); `widest_periods` lists it alone, so the shown period is 08:00-16:05
+            assert (snap["lo"], snap["hi"]) == (lo, hi + 5 * MINUTE), (day.day, snap["lo"], snap["hi"])
+    finally:
+        reads.dispose()
+    engine = create_engine(URL)
+    try:
+        with engine.connect() as c:
+            anchors = c.execute(text("SELECT anchor_start FROM finding WHERE site_id = :s AND domain = 'ev_charging'"),
+                                {"s": site}).scalars().all()
+    finally:
+        engine.dispose()
+    fault = next(d for d in days if d.kind == "fault")
+    assert anchors == [fault.start + MINUTE], anchors  # one Finding, on the interrupted session (start 08:01)

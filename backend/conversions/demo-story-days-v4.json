@@ -235,19 +235,19 @@
         "scenario_id": "ev-complete",
         "scenario_version": 1,
         "start": "D+0d 08:00",
-        "end": "D+0d 09:00",
-        "received_at": "D+0d 09:30",
+        "end": "D+0d 16:00",
+        "received_at": "D+0d 16:30",
         "assess": "build",
-        "note": "charging session completed"
+        "note": "charging session completed; EV-HB (D-E5.48): the whole declared charging day is recorded"
       },
       "fault": {
         "scenario_id": "ev-interrupted",
         "scenario_version": 1,
         "start": "D+0d 08:00",
-        "end": "D+0d 09:00",
-        "received_at": "D+0d 09:30",
+        "end": "D+0d 16:00",
+        "received_at": "D+0d 16:30",
         "assess": "build",
-        "note": "charging session ended by a charger fault (w504 positive scenario; ev-fault.yaml faults before any session and gives no Finding, first dev prepare 2026-10-31)"
+        "note": "EV-HB (D-E5.48): the whole declared charging day is recorded. charging session ended by a charger fault (w504 positive scenario; ev-fault.yaml faults before any session and gives no Finding, first dev prepare 2026-10-31)"
       },
       "late": {
         "scenario_id": "ev-late-record",
