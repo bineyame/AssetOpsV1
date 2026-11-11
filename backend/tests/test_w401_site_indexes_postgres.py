@@ -469,3 +469,31 @@ def test_cold_ev_pinned_list_fence_and_reselection(chain, ev_chain, monkeypatch)
     [fence] = chosen["linked_selection_fences"]
     assert (fence["root_id"], fence["selected_id"]) == (fid, frev)
     assert fence["selection_token"].startswith("wce1-") and fence["state"] != "UNKNOWN", fence
+
+
+def test_read_many_equals_single_reads_at_one_instant(runner) -> None:  # noqa: F811
+    """ANY-2 AR-6: `read_many` (ONE snapshot) returns for each request exactly what `read` returns at the same
+    read instant, incidents and maintenance, live and at an explicit cutoff."""
+    t, s = runner.tenant, runner.site
+    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))
+    try:
+        ctx.case(incident("w401-rm-a", occurred_at="2026-10-06T10:00:00Z"))
+        ctx.case(incident("w401-rm-b", occurred_at="2026-10-06T12:00:00Z"))
+        _, r1 = ctx.case(request("w401-rm-r1", occurred_at="2026-10-05T08:00:00Z"))
+        ctx.record(r1["id"], record("w401-rm-rec1", activity="Inspection", occurred_at="2026-11-01T00:30:00Z"))
+    finally:
+        ctx.close()
+    at = POSITIVE_NOW + timedelta(minutes=1)
+    maint = ("2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z")
+    k = iso(POSITIVE_NOW + timedelta(seconds=2))
+    lists = Lists(at)
+    try:
+        cases = [("incidents", DAY, None), ("maintenance", maint, None), ("incidents", DAY, k),
+                 ("incidents", maint, None)]
+        reqs = [(kind, parse_list_request(w[0], w[1], None, [] if ka is None else [ka], None)) for kind, w, ka in cases]
+        many = lists.svc.read_many(t, s, "KOBO-001", reqs, access_basis=ACCESS_BASIS)
+        singles = [lists.svc.read(t, s, "KOBO-001", kind, req, access_basis=ACCESS_BASIS) for kind, req in reqs]
+    finally:
+        lists.close()
+    assert many == singles
+    assert many[0]["rows"], "the incidents window must not be empty (non-vacuous)"
