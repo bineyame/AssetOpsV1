@@ -14,3 +14,8 @@ Coordinator reading:
 
 Owner, 2026-11-11 (verbatim): "the vps is ubuntu btw"
 
+
+Owner, 2026-11-11 (verbatim): "also, i want everything merged to main and pushed, no separte file transfer of code"
+
+Coordinator note: no git bundle / file copy of code. Reviewed (ACCEPTed) work is merged to main before the push; unreviewed in-flight work is either finished+reviewed before cutover or (owner to choose) pushed as its branch to GitHub — never merged to main unreviewed.
+
