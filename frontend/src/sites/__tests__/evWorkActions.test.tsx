@@ -81,7 +81,6 @@ function Where() {
 }
 const where = () => screen.getByTestId("where").textContent ?? "";
 const text = (el: Element | null | undefined) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
-const setDate = (input: Element | null, value: string) => fireEvent.change(input as HTMLInputElement, { target: { value } });
 const workPath = (query = `from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`) =>
   `/sites/${EV_SITE_CODE}/work?${query}`;
 const loaded = (value: ReturnType<typeof evIndexBody>): DomainIndexResult => ({ status: "loaded", value });
@@ -265,7 +264,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     expect(coldNames(main)).toEqual([]);
     expect(main.getAttribute("data-domain-work-page")).toBe("actions");
     expect(main.querySelector("[data-domain-work='actions']")).not.toBeNull();
-    expect(main.querySelector("form[data-domain-work-window]")).not.toBeNull();
+    expect(main.querySelector("[data-domain-work-window]")).not.toBeNull();
     expect(main.querySelector(".domain-work-actions")).not.toBeNull();
   });
 
@@ -406,9 +405,10 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const { main, work } = await mountWork(`/sites/${EV_SITE_CODE}/work?known_at=${encodeURIComponent(EV_KNOWN)}`, client);
     const expected = defaultWorkWindow();
     expect(calls.some((c) => c.scope.from === expected.from && c.scope.to === expected.to && c.scope.knownAt === EV_KNOWN)).toBe(true);
-    const form = main.querySelector("[data-domain-work-window]") as HTMLFormElement;
-    expect((form.querySelector("[data-domain-work-window-from]") as HTMLInputElement).value).toBe(expected.from.slice(0, 10));
-    expect((form.querySelector("[data-domain-work-window-to]") as HTMLInputElement).value).toBe(expected.to.slice(0, 10));
+    const form = main.querySelector("[data-domain-work-window]") as HTMLElement;
+    // SR-2: no range in the address, so the line says the days are the page default and points to the top bar.
+    expect(form.getAttribute("data-window-source")).toBe("default");
+    expect(text(form)).toMatch(/this page's default\. Choose other days in the date range at the top\./);
     // post-W6 R338 (W5 rulings 1): the shared default includes today, and EV states the same Actions listing basis.
     const today = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
     expect(expected.from <= today && today < expected.to).toBe(true);
@@ -427,27 +427,15 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     await waitFor(() => expect(text(main.querySelector(".site-subtabs a[aria-current='page']"))).toBe("Actions (1)"));
   });
 
-  it("applies a window keeping known_at and dropping the cursor; an invalid window reads nothing (ruling 14, R112)", async () => {
+  it("SR-2: a range in the address is the window; the line names it and the page renders no date form (R112)", async () => {
     const { client, calls } = domainClient(() => loaded(evIndexBody([evRow()])));
     const { main } = await mountWork(workPath(`${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN, cursor: "c9" })}`), client);
-    const form = main.querySelector("[data-domain-work-window]") as HTMLFormElement;
-    expect(text(form)).toContain("From ");
-    expect(text(form)).toContain("To (not included)");
-    const before = calls.length;
-    setDate(form.querySelector("[data-domain-work-window-from]"), "2026-09-01");
-    setDate(form.querySelector("[data-domain-work-window-to]"), "2026-10-03");
-    fireEvent.click(form.querySelector("[data-domain-work-window-apply]") as HTMLButtonElement);
-    expect(text(form.querySelector("[data-domain-work-window-error]"))).toBe("The window may span at most 31 days.");
-    expect(calls.length).toBe(before);
-    setDate(form.querySelector("[data-domain-work-window-from]"), "2026-10-01");
-    setDate(form.querySelector("[data-domain-work-window-to]"), "2026-10-08");
-    fireEvent.click(form.querySelector("[data-domain-work-window-apply]") as HTMLButtonElement);
-    await waitFor(() => expect(where()).toContain("from=2026-10-01"));
-    const url = new URL(where(), "http://x");
-    expect(url.searchParams.get("from")).toBe("2026-10-01T00:00:00Z");
-    expect(url.searchParams.get("to")).toBe("2026-10-08T00:00:00Z");
-    expect(url.searchParams.get("known_at")).toBe(EV_KNOWN);
-    expect(url.searchParams.get("cursor")).toBeNull();
+    // SR-2: the window is the date range at the top; the page names its days and has no date form.
+    const line = main.querySelector("[data-domain-work-window]") as HTMLElement;
+    expect(line.getAttribute("data-window-source")).toBe("range");
+    expect(text(line)).toMatch(/^Window: .+, from the date range at the top\./);
+    expect(main.querySelectorAll("input[type=date]").length).toBe(0);
+    expect(calls.some((c) => c.scope.from === EV_FROM && c.scope.to === EV_TO && c.scope.knownAt === EV_KNOWN)).toBe(true);
   });
 });
 
@@ -530,10 +518,9 @@ describe("EV Work case tabs: subtitle and subrow (ruling 45, R78)", () => {
     const href = main.querySelector(".site-subtabs a")?.getAttribute("href") ?? "";
     expect(new URL(href, "http://x").searchParams.get("known_at")).toBe(EV_KNOWN);
     expect(coldNames(main)).toEqual([]);
-    // Ruling 57: V3a mounted the page-local Window together with `windowForm=false`, so the one form is that Window
-    // (the exactly-one-form case-tab assertion itself lives in evWorkCases.test.tsx).
-    expect(main.querySelector("form[data-domain-work-window]")).not.toBeNull();
-    expect(main.querySelectorAll("form").length).toBe(1);
+    // Ruling 57 / SR-2: one Window line (with `windowForm=false` on the cases) and no page date form.
+    expect(main.querySelectorAll("[data-domain-work-window]").length).toBe(1);
+    expect(main.querySelectorAll("input[type=date]").length).toBe(0);
   });
 });
 

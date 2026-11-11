@@ -171,7 +171,8 @@ describe("S5-02 Overview Finding list: request scope", () => {
       },
     ]);
     // The served day, not the browser clock, is the window; the address keeps S5-01's keys.
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
+    // SR-2: the board names its day as `day=` (an old `date=` link reads the same day and is rewritten).
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
   });
 
   it("a legacy (not imported) Overview issues no index request and shows no list", async () => {
@@ -406,7 +407,7 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     await settledScreen();
     expect(listState()).toBe("current-empty");
     expect(rowIds()).toEqual([]);
-    expect(where()).toContain("date=2026-10-16");
+    expect(where()).toContain("day=2026-10-16");
     // The date change dropped the old day's Finding pin from the request.
     expect(overview.getOverview.mock.calls[1][2]).toMatchObject({ date: "2026-10-16", finding_id: null });
   });
@@ -425,7 +426,7 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     fireEvent.click(document.querySelector("[data-back]") as HTMLElement);
     await settledScreen();
     expect(where()).toBe(before);
-    expect(where()).toContain(`date=${DAY}`);
+    expect(where()).toContain(`day=${DAY}`);
   });
 });
 

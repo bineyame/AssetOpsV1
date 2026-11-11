@@ -15,6 +15,7 @@
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { FocusPicker } from "../ui/FocusPicker";
 
 import {
   ChartNote,
@@ -302,16 +303,16 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
       <button type="button" className="button" onClick={() => onDay(shiftDay(day, -1))}>
         Previous day
       </button>
-      <label className="dispatch-day__label">
-        Day{" "}
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          data-dispatch-day={day}
-        />
-      </label>
+      {/* SR-2: the one day picker (FocusPicker) says which day of the shared range Dispatch shows. */}
+      <FocusPicker
+        day={day}
+        inputProps={{
+          className: "v69-chip-control",
+          value: draft,
+          onChange: (event) => setDraft(event.target.value),
+          "data-dispatch-day": day,
+        }}
+      />
       <button type="submit" className="button">
         Show
       </button>

@@ -260,6 +260,17 @@ describe("SR-1 the shared range bar", () => {
     expect(document.querySelector("[data-shared-range-live]")?.textContent).toBe("Every page now shows 7 Sep – 6 Oct 2026");
   });
 
+  it("SR-2b L1: a range change clears an open record as well as the cursor, and keeps the lens", async () => {
+    renderApp(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9&record=r1`);
+    await settledScreen();
+    fireEvent.click(rangeButton());
+    const dialog = screen.getByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Last 30 days" }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
+    await settledScreen();
+    expect(where()).toBe("/portfolio/act-first?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
+  });
+
   it("a custom range has labelled date inputs and rejects a backwards range", async () => {
     renderApp(`/portfolio?${WEEK}`);
     await settledScreen();

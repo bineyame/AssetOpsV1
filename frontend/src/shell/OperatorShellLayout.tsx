@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useOutletContext, useSearchParams } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
+import { RangeFocusProvider } from "../ui/rangeFocus";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
 import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
@@ -137,6 +138,7 @@ export function OperatorShellLayout() {
         </div>
       </div>
 
+      <RangeFocusProvider>
       <div className="app-frame__body">
         {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
         <header className="app-topbar" data-shared-range-topbar>
@@ -149,6 +151,7 @@ export function OperatorShellLayout() {
           <SharedRangeOutlet />
         </div>
       </div>
+      </RangeFocusProvider>
     </div>
   );
 }

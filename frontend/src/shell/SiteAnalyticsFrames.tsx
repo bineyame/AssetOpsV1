@@ -1,5 +1,6 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { displayCode } from "../ui/displayCode";
+import { useLegacyFocusDayRewrite } from "../ui/sharedRange";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -260,6 +261,8 @@ export function SitePerformanceFrame({
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
+  // SR.3: an old `date=` Renewable/Service link reads the same day and is rewritten to `day=`.
+  useLegacyFocusDayRewrite();
   // W1-F2: the Dispatch route (and its Analysis view) carries the v69 Site page heading; the other
   // Performance subtabs keep the shared "Performance" heading until their own fidelity pass.
   const dispatchRoute = capabilityId === undefined || capabilityId === "dispatch";

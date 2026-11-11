@@ -23,7 +23,7 @@
 import { SITE_ZONE_UNAVAILABLE_LABEL, siteTime, siteZoneLabel } from "./siteTime";
 import { findingLocalTime } from "./findingTime";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import {
@@ -151,15 +151,6 @@ function readingName(item: { role: string | null; signal_id: string }): string {
   if (!item.role) return idWords(item.signal_id);
   const words = roleWords(item.role);
   return words === item.role.replace(/_/g, " ") ? idWords(item.role) : words;
-}
-
-/** `datetime-local` text for an instant, or "" (minutes, UTC). */
-function localInput(instant: string | null): string {
-  return instant === null ? "" : instant.slice(0, 16);
-}
-
-function instantFromInput(text: string): string | null {
-  return text === "" ? null : `${text.length === 16 ? `${text}:00` : text}Z`;
 }
 
 export interface LedgerSiteEvidenceProps {
@@ -318,29 +309,10 @@ export function LedgerSiteEvidence({
 
 // --- selected period -------------------------------------------------------------
 
+// SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the period is the shared date range in the top bar, read
+// from the address as before (the request is unchanged). The page no longer renders its own From/To form.
 function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: ReactNode }) {
-  const [params, setParams] = useSearchParams();
   const { start, end } = evidence.window;
-  const [from, setFrom] = useState(localInput(start));
-  const [to, setTo] = useState(localInput(end));
-
-  const apply = (event: FormEvent) => {
-    event.preventDefault();
-    const next = new URLSearchParams(params);
-    for (const name of ["record", "cursor"]) next.delete(name);
-    const a = instantFromInput(from);
-    const b = instantFromInput(to);
-    if (a === null) next.delete("from");
-    else next.set("from", a);
-    if (b === null) next.delete("to");
-    else next.set("to", b);
-    setParams(next);
-  };
-  const all = () => {
-    const next = new URLSearchParams(params);
-    for (const name of ["from", "to", "record", "cursor"]) next.delete(name);
-    setParams(next);
-  };
 
   let period: string;
   if (start !== null && end !== null) {
@@ -356,26 +328,11 @@ function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: 
   return (
     // W1-F2: the window chooser as the v69 chip row (chip-sized controls, `.button`), the app-only control before panel 1.
     <div className="v69-chips evidence-window evidence-toolbar" data-evidence-window={evidence.window.basis}>
-      <form className="evidence-toolbar__controls" onSubmit={apply}>
-        <label className="evidence-toolbar__field">
-          <span>From</span>
-          <input className="v69-chip-control" type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </label>
-        <label className="evidence-toolbar__field">
-          <span>To</span>
-          <input className="v69-chip-control" type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
-        </label>
-        <button type="submit" className="button">
-          Show this period
-        </button>
-        <button type="button" className="button" onClick={all}>
-          Show all readings
-        </button>
-      </form>
       <TimeZoneNote />
       {extra}
-      <p className="evidence-toolbar__period">
+      <p className="evidence-toolbar__period" data-evidence-period>
         <strong>Selected period:</strong> {period}. Periods are chosen by the time each reading was taken.
+        {start === null && end === null ? " To narrow it, choose the days in the date range at the top." : null}
         {evidence.extent.first_source_time === null || evidence.extent.last_source_time === null
           ? " This site has no accepted readings yet."
           : ` Accepted readings for this site span ${readablePeriod(evidence.extent.first_source_time, evidence.extent.last_source_time)}.`}
