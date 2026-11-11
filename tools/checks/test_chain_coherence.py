@@ -1298,7 +1298,7 @@ def test_clean_full_passes_and_compares_every_row() -> None:
     ("L2", {"summary.week.json": lambda b: b.update(verified_result_count=9)}),
     ("L3", {"portfolio.S.p1.json": lambda b: b["rows"][0].update(workflow_label="No action agreed yet")}),
     ("W3", {"why_estate.week.PROTECT_ASSET.json": lambda b: b["text"].update(days_used="other")}),
-    ("N1", {"portfolio.S.p1.json": lambda b: b["summary"].update(card_notes={"PROTECT_ASSET": "5 of 7 days checked at Kobo"})}),
+    ("N1", {"portfolio.S.p1.json": lambda b: b["summary"].update(card_notes={"PROTECT_ASSET": "Complete readings on 5 of 7 days at Kobo"})}),
     # both sides absent: the old `{} == {}` passed this
     ("C2", {"chain_estate.week.json": lambda b: (b["cards"]["ASSURE_PERFORMANCE"].pop("claim"),
                                                  b["counts"].pop("count.verified_results"))}),

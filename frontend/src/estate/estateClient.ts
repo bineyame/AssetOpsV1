@@ -665,6 +665,17 @@ export interface EstateOutcomeSummaryBody {
   verified_sites_unread?: number;
   /** CH6b2-R Q1, CH5d1-R: the four Portfolio cards (`portfolio_cards`); absent on an older body. */
   cards?: Partial<Record<"GROW_REVENUE" | "OPTIMIZE_COST" | "PROTECT_ASSET" | "ASSURE_PERFORMANCE", EstatePortfolioCard>>;
+  /** PF-C1: the one Portfolio coverage line (`portfolio_coverage`), server text; absent on an older body. */
+  coverage_line?: EstateCoverageLine;
+}
+
+/** PF-C1: the chain day grades of every Site, from the same days the cards count. */
+export interface EstateCoverageLine {
+  state: "COMPLETE" | "INCOMPLETE" | "NOT_KNOWN";
+  lead: string;
+  rule: string | null;
+  sites: { site_code: string; site_name: string; complete: boolean; text: string }[];
+  days_text: string | null;
 }
 
 /** CH-6b2 (§B2): one server-built Portfolio card; the browser renders its markup only. */

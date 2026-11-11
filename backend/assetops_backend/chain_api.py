@@ -350,6 +350,7 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
                 "window": {"from": wire(lo), "to": wire(hi), "known_at": wire(parsed.known_at)},
                 "sites": out, "counts": counted.claims_json(),
                 "money_total": money_total, "cards": summary["cards"],   # CH6b2-R Q1: the summary's one builder
+                "coverage_line": summary.get("coverage_line"),   # PF-C1: the same one line
                 "policy_versions": _versions(policy_versions)})}
 
         return estate_served(ESTATE_CHAIN_ROUTE, request, items, {}, compose)
@@ -384,8 +385,11 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
             comes_from = why.disrupted_lines(disrupted) if category == PROTECT_ASSET else None
             # CH6b3-R3 M2: the "Why?" days are the card's own days line (Optimize has none: Protect's, the Sites'
             # days), and "Checking n more days" counts the estate window's unchecked days, not the board day's.
-            cards = service.summary(sites, lo, hi, parsed.known_at)["cards"]
-            days_used = (cards.get(category) or {}).get("days_line") or (cards.get(PROTECT_ASSET) or {}).get("days_line")
+            # PF-C2: a card without its own days line counts the shared coverage line's days (`days_text`).
+            summary = service.summary(sites, lo, hi, parsed.known_at)
+            cards = summary["cards"]
+            days_used = ((cards.get(category) or {}).get("days_line")
+                         or (summary.get("coverage_line") or {}).get("days_text"))
             counts = service.estate_counts(sites, lo, hi, parsed.known_at)
             window_open = None if counts is None else {
                 (ref.site_name or ref.site_code): max(0, d.expected - d.complete)

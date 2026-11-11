@@ -80,7 +80,7 @@ def test_complete_week_for_each_category_and_site_type(domain: str, category: st
           for i in range(len(threads))}
     t = why.trace(_input(domain, category, _facts(domain, [COMPLETE] * 7), threads, actions, tf=tf))
     _non_root_have_ids(t)
-    assert t.text["days_used"] == "7 of 7 days checked"
+    assert t.text["days_used"] == "Complete readings on 7 of 7 days"
     assert t.text["would_change"] == "New readings that differ"
     assert 1 <= len(t.text["comes_from"]) <= 4
     related = why.related_threads(threads, category)
@@ -93,7 +93,7 @@ def test_complete_week_for_each_category_and_site_type(domain: str, category: st
         assert {"finding", "thread", "action", "analytic"} <= kinds
         assert ("measure_day" in kinds) == bool(used)
         for m in used:
-            assert f"{why.MEASURE_LABEL[m]} on 7 checked days" in t.text["comes_from"]
+            assert f"{why.MEASURE_LABEL[m]} on 7 days with complete readings" in t.text["comes_from"]
     assert t.text["title"] == f"{NAMES[domain]} · " + {"GROW_REVENUE": "Grow revenue",
                                                        "OPTIMIZE_COST": "Optimize cost and efficiency",
                                                        "PROTECT_ASSET": "Protect asset and capital",
@@ -105,17 +105,17 @@ def test_complete_week_for_each_category_and_site_type(domain: str, category: st
 def test_gap_k7_no_data_day_is_checking_more_days() -> None:
     gen = _thread(MINI, "GENERATOR_SUPPORT_CANDIDATE", "t1", "OPEN")
     t = why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [NO_DATA]), [gen]))
-    assert t.text["days_used"] == "1 Oct: too little data, not counted"
-    assert t.text["would_change"] == "Checking 1 more day"
+    assert t.text["days_used"] == "1 Oct: too few readings, not counted"
+    assert t.text["would_change"] == "Complete readings on 1 more day"
     # a missing snapshot row is NO_DATA too (Q9), and LOW is not counted as checked (CH5b2-R Q6, `readiness_of`)
     assert why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [None]), [gen])).text["days_used"] \
-        == "1 Oct: too little data, not counted"
+        == "1 Oct: too few readings, not counted"
     assert why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [LOW]), [gen])).text["days_used"] \
-        == "1 Oct: too little data, not counted"
+        == "1 Oct: too few readings, not counted"
 
 
-@pytest.mark.parametrize("grade,line", [(COMPLETE, "1 Oct checked"), (PARTIAL, "1 Oct partly checked"),
-                                        (PENDING, "1 Oct: not in yet")])
+@pytest.mark.parametrize("grade,line", [(COMPLETE, "1 Oct: complete readings"), (PARTIAL, "1 Oct: partial readings"),
+                                        (PENDING, "1 Oct: still processing")])
 def test_one_day_lines(grade: str, line: str) -> None:
     assert why.trace(_input(EV, "PROTECT_ASSET", _facts(EV, [grade]))).text["days_used"] == line
 
@@ -123,16 +123,16 @@ def test_one_day_lines(grade: str, line: str) -> None:
 def test_several_days_line_counts_each_class_and_skips_not_expected() -> None:
     facts = _facts(MINI, [COMPLETE, COMPLETE, COMPLETE, PARTIAL, LOW, NO_DATA, PENDING, NOT_EXPECTED])
     t = why.trace(_input(MINI, "OPTIMIZE_COST", facts))
-    assert t.text["days_used"] == ("3 of 7 days checked · 1 partly checked · 2 with too little data, not counted"
-                                   " · 1 not in yet")
-    assert t.text["would_change"] == "Checking 4 more days"
+    assert t.text["days_used"] == ("Complete readings on 3 of 7 days · 1 with partial readings · 2 with too few readings, not counted"
+                                   " · 1 still processing")
+    assert t.text["would_change"] == "Complete readings on 4 more days"
 
 
 def test_open_thread_without_an_action_needs_an_agreed_action() -> None:
     gen = _thread(MINI, "GENERATOR_SUPPORT_CANDIDATE", "t1", "OPEN")
     t = why.trace(_input(MINI, "OPTIMIZE_COST", _facts(MINI, [COMPLETE] * 3), [gen]))
     assert t.text["would_change"] == "An agreed action"
-    assert t.text["comes_from"] == ["Generator time beyond need on 3 checked days"]
+    assert t.text["comes_from"] == ["Generator time beyond need on 3 days with complete readings"]
     assert t.unmatched == 1  # Q8: no board issue for f1, so no finding line
 
 
@@ -186,7 +186,7 @@ def test_estate_text_sums_no_money_and_picks_the_first_real_change() -> None:
     text = why.estate_text("OPTIMIZE_COST", [("GreenHarvest", cold), ("Kobo", kobo)])
     assert text["say"] == "Optimize cost and efficiency at 2 sites"
     assert text["comes_from"] == ["GreenHarvest: On track", "Kobo: On track"]
-    assert text["days_used"] == "GreenHarvest: 1 Oct checked · Kobo: 1 Oct checked"
+    assert text["days_used"] == "GreenHarvest: 1 Oct: complete readings · Kobo: 1 Oct: complete readings"
     assert text["would_change"] == "An agreed action"
     assert text["evidence_ref"] == {"kind": "ESTATE", "view": "findings"}
     assert "money" not in repr(text) and "amount" not in repr(text)
@@ -198,13 +198,13 @@ def test_estate_text_takes_the_cards_days_and_the_windows_open_days() -> None:
     base = {"say": "s", "comes_from": [], "days_used": "board day", "evidence_ref": {}, "evidence_label": "e"}
     def trace(open_days, change):
         return why.Trace({**base, "would_change": change}, [], 0, open_days)
-    kobo = trace(32, "Checking 32 more days")
+    kobo = trace(32, "Complete readings on 32 more days")
     cold = trace(0, "An agreed action")
     sites = [("Kobo", kobo), ("Cold", cold)]
-    assert why.estate_text("PROTECT_ASSET", sites)["would_change"] == "Checking 32 more days"      # unchanged default
+    assert why.estate_text("PROTECT_ASSET", sites)["would_change"] == "Complete readings on 32 more days"      # unchanged default
     assert why.estate_text("PROTECT_ASSET", sites)["days_used"] == "Kobo: board day · Cold: board day"
-    text = why.estate_text("PROTECT_ASSET", sites, None, "Kobo: 3 of 7 days checked", {"Kobo": 1})
-    assert text["would_change"] == "Checking 1 more day" and text["days_used"] == "Kobo: 3 of 7 days checked"
+    text = why.estate_text("PROTECT_ASSET", sites, None, "Kobo: Complete readings on 3 of 7 days", {"Kobo": 1})
+    assert text["would_change"] == "Complete readings on 1 more day" and text["days_used"] == "Kobo: Complete readings on 3 of 7 days"
     skipped = why.estate_text("PROTECT_ASSET", sites, None, "x", {"Kobo": 0})
     assert skipped["would_change"] == "An agreed action"
 
@@ -304,11 +304,14 @@ def test_estate_why_has_a_trace_per_site_and_no_money() -> None:
 @pytest.mark.parametrize("category", ["PROTECT_ASSET", "OPTIMIZE_COST", "ASSURE_PERFORMANCE"])
 def test_estate_why_days_are_the_cards_days_and_never_the_board_days(category) -> None:
     """CH6b3-R3 M2 (route test): on a month window the "Why?" `days_used` equals the card's `days_line`
-    (Optimize has none: Protect's), and "Checking n more days" is not the board day's 32-day count."""
+    (PF-C2: a card without its own line, the shared coverage line's `days_text`), and "Complete readings on n more
+    days" is not the board day's 32-day count."""
     month = {"from": "2026-10-01T00:00:00Z", "to": "2026-11-01T00:00:00Z", **K}
     c = _client()
-    cards = c.get("/api/estate/chain", params=month).json()["cards"]
-    want = (cards.get(category) or {}).get("days_line") or cards["PROTECT_ASSET"]["days_line"]
+    body = c.get("/api/estate/chain", params=month).json()
+    cards = body["cards"]
+    want = (cards.get(category) or {}).get("days_line") or body["coverage_line"]["days_text"]
+    assert want   # non-vacuous: the month has days
     text = c.get("/api/estate/chain/why", params={**month, "category": category}).json()["text"]
     assert text["days_used"] == want
     assert "32" not in text["would_change"]

@@ -110,7 +110,7 @@ def wk4(state: str, text: str, complete: int | None) -> str:
     (R10: UNKNOWN, `kpi.days.complete == 0`, the line ends with `MG1_NO_DAY`); otherwise on pace or behind."""
     from assetops_backend.chain.vocabulary import MG1_NO_DAY
     if "too early to judge" in text:
-        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
+        assert state == "UNKNOWN" and text.endswith("(needs 3 days with complete readings)"), (state, text)
         return "TOO_EARLY"
     if complete == 0:
         assert state == "UNKNOWN" and text.endswith(MG1_NO_DAY), (state, text)

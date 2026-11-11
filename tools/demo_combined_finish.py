@@ -679,7 +679,7 @@ def wkgap(ctx: Ctx) -> dict:
     """D-E5.13 item 3 (owner 2026-11-10: "1 missed day with 1 partly missing would make sense"): on the story week
     S-6..S Kobo's day snapshots for critical_served, daylight_headroom_kw, productive_kwh and avoidable_gen_min are
     NO_DATA on exactly the one missed day, PARTIAL on exactly the one partly checked day and COMPLETE on the other
-    five; the Portfolio week's Kobo days line reads "5 of 7 days checked · 1 partly checked" and the CO-6 coverage
+    five; the Portfolio week's Kobo days line reads "Complete readings on 5 of 7 days · 1 with partial readings" and the CO-6 coverage
     names only the missed day. The expected days come from the built calendar (`days.json`), so a v3 (`--days`)
     rebuild, with 2 missed and 3 partly checked days, would fail the assertions below.
     D-E5.19 adds the month clause on [S-28, S] (`demo_rows.month_gap_pattern`).
@@ -706,7 +706,7 @@ def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[st
     assert gaps == missed, ("CO-6 coverage gaps", gaps, missed)
     want = days_line({"complete": len(out["complete"]), "expected": len(week), "partial": len(partial), "low": 0,
                       "no_data": len(missed), "pending": 0})
-    assert want == "5 of 7 days checked · 1 partly checked", want
+    assert want == "Complete readings on 5 of 7 days · 1 with partial readings", want
     name = by_code[KOBO].get("site_name") or KOBO
     lines = {cat: ((summary.get("cards") or {}).get(cat) or {}).get("days_line")
              for cat in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}

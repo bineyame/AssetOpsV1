@@ -61,6 +61,8 @@ const LEADING_SELECTOR =
   '[data-mock-deviation="R383"], ' +
   // PF-T: the Portfolio date bar, context row and section tab row sit above the tab's panel (v71 portfolio-tabs.html).
   ".pf-datebar, [data-portfolio-datebar], [data-portfolio-context], [data-portfolio-tabs], " +
+  // PF-C1: the one coverage line between the context row and the tab row (v71 portfolio-tabs.html `.pf-coverage`).
+  "[data-portfolio-coverage], " +
 
   // post-W6 W4 R325/Q14: the mini Scenarios page-local Window row (MOCK DEVIATION D2 R450), directly in the page body.
   ".mini-scenarios > .mini-scenarios-window-row, " +

@@ -13,15 +13,15 @@
      "pending": 0
     },
     "key": "count.verified_results",
-    "text": "None confirmed on the days checked",
+    "text": "None confirmed on days with complete readings",
     "value": 0
    },
-   "days_line": "Kobo: 6 of 7 days checked · 1 partly checked · GreenHarvest: 0 of 7 days checked · 2 partly checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "days_line": null,
    "detail": null,
    "missing": false,
    "tone": "neutral",
    "value": {
-    "small": "on the days checked",
+    "small": "on days with complete readings",
     "text": "None confirmed"
    },
    "value_lines": [],
@@ -40,7 +40,7 @@
     "text": "Not known yet",
     "value": null
    },
-   "days_line": "Kobo: 7 of 7 days checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "days_line": "Kobo: Complete readings on 7 of 7 days · Depot: Complete readings on 0 of 7 days · 1 with too few readings, not counted",
    "detail": null,
    "missing": true,
    "parts": {
@@ -91,17 +91,17 @@
      "pending": 0
     },
     "key": "count.sites_disrupted",
-    "text": "None found on the days checked",
+    "text": "None found on days with complete readings",
     "value": 0
    },
-   "days_line": "Kobo: 6 of 7 days checked · 1 partly checked · GreenHarvest: 0 of 7 days checked · 2 partly checked · Depot: 0 of 7 days checked · 1 with too little data, not counted",
+   "days_line": null,
    "detail": "Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced",
    "fuel_lines": [],
    "fuel_note": null,
    "missing": false,
    "tone": "neutral",
    "value": {
-    "small": "on the days checked",
+    "small": "on days with complete readings",
     "text": "None found"
    }
   }
@@ -118,7 +118,7 @@
     "pending": 0
    },
    "key": "count.open_threads",
-   "text": "1 open on the days checked",
+   "text": "1 open on days with complete readings",
    "value": 1
   },
   "count.opportunities": {
@@ -132,7 +132,7 @@
     "pending": 0
    },
    "key": "count.opportunities",
-   "text": "1 found on the days checked",
+   "text": "1 found on days with complete readings",
    "value": 1
   },
   "count.sites_disrupted": {
@@ -146,7 +146,7 @@
     "pending": 0
    },
    "key": "count.sites_disrupted",
-   "text": "None found on the days checked",
+   "text": "None found on days with complete readings",
    "value": 0
   },
   "count.verified_results": {
@@ -160,9 +160,35 @@
     "pending": 0
    },
    "key": "count.verified_results",
-   "text": "None confirmed on the days checked",
+   "text": "None confirmed on days with complete readings",
    "value": 0
   }
+ },
+ "coverage_line": {
+  "days_text": "Kobo: Complete readings on 6 of 7 days · 1 with partial readings · GreenHarvest: Complete readings on 0 of 7 days · 2 with partial readings · Depot: Complete readings on 0 of 7 days · 1 with too few readings, not counted",
+  "lead": "Some days have incomplete readings",
+  "rule": "Figures on this page count days with complete readings.",
+  "sites": [
+   {
+    "complete": false,
+    "site_code": "KOBO-001",
+    "site_name": "Kobo",
+    "text": "Kobo: complete readings on 6 of 7 days · 1 with partial readings"
+   },
+   {
+    "complete": false,
+    "site_code": "COLD-LAB-001",
+    "site_name": "GreenHarvest",
+    "text": "GreenHarvest: complete readings on 0 of 7 days · 2 with partial readings · 5 with no readings received"
+   },
+   {
+    "complete": false,
+    "site_code": "EV-LAB-001",
+    "site_name": "Depot",
+    "text": "Depot: complete readings on 0 of 7 days · 1 with too few readings, not counted · 6 with no readings received"
+   }
+  ],
+  "state": "INCOMPLETE"
  },
  "money_total": {
   "basis": "NOT_KNOWN",
@@ -262,7 +288,7 @@
         "partial": 0,
         "pending": 0
        },
-       "days_line": "7 of 7 days checked",
+       "days_line": "Complete readings on 7 of 7 days",
        "key": "money.estimated_income",
        "span": {
         "first": "2026-10-25",
@@ -430,7 +456,7 @@
         "partial": 0,
         "pending": 0
        },
-       "days_line": "2 of 7 days checked",
+       "days_line": "Complete readings on 2 of 7 days",
        "key": "verdict.CC-1",
        "span": {
         "first": "2026-10-25",
@@ -524,7 +550,7 @@
         "partial": 0,
         "pending": 0
        },
-       "days_line": "0 of 7 days checked · 1 with too little data, not counted",
+       "days_line": "Complete readings on 0 of 7 days · 1 with too few readings, not counted",
        "key": "money.estimated_charging_income",
        "span": {
         "first": "2026-10-25",

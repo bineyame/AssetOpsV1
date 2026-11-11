@@ -196,7 +196,28 @@
 .estate-portfolio .pf-top3 .rank{width:24px;height:24px;border-radius:50%;background:#eef2f8;display:grid;place-items:center;font-size:11px;font-weight:700;color:#44536b}
 .estate-portfolio .pf-top3 small{display:block;font-size:10px;color:var(--muted, #6b7a90)}
 .estate-portfolio .pf-top3 .strong{font-weight:650}
+/* PF-C1: the one coverage line above the tabs (v71 `portfolio-tabs.html` .pf-coverage / .pf-glossary). */
+.estate-portfolio .pf-coverage{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;margin:0 0 14px;background:#fffaf0;border:1px solid #f0dcb4;border-radius:10px;font-size:12px;color:#5b4413}
+.estate-portfolio .pf-coverage .dot{width:8px;height:8px;border-radius:50%;background:var(--amber, #c48e32);flex:none}
+.estate-portfolio .pf-coverage b{font-weight:650;color:#3d2e0d}
+.estate-portfolio .pf-coverage .sites{display:flex;flex-wrap:wrap;gap:4px 12px}
+.estate-portfolio .pf-coverage .sites span{white-space:nowrap}
+.estate-portfolio .pf-coverage .rule{color:#6f5a2a}
+.estate-portfolio .pf-coverage>a{margin-left:auto;font-weight:650}
+.estate-portfolio .pf-coverage--complete{background:#f1f9f4;border-color:#bfe3cc;color:#24553a}
+.estate-portfolio .pf-coverage--complete .dot{background:var(--green, #2e8a57)}
+.estate-portfolio .pf-coverage--complete b{color:#1b4029}
+.estate-portfolio .pf-coverage .disclosure{flex-basis:100%;font-size:12px}
+.estate-portfolio .pf-glossary{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:8px 0 4px}
+.estate-portfolio .pf-glossary>div{display:contents}
+.estate-portfolio .pf-glossary dt{font-weight:650}
+.estate-portfolio .pf-glossary dd{margin:0}
+.estate-portfolio .oc-pfexception{color:#6f5a2a}
 @media (max-width: 760px) {
+.estate-portfolio .pf-coverage>a{margin-left:0}
+.estate-portfolio .pf-coverage .sites span{white-space:normal}
+.estate-portfolio .pf-glossary{grid-template-columns:1fr}
+.estate-portfolio .pf-glossary dd{margin-bottom:6px}
 .estate-portfolio .pf-tabs .site-tabs__list{flex-wrap: wrap;overflow-x:visible;overflow-y:visible;row-gap:4px;column-gap:18px}
 .estate-portfolio .pf-tabs .pf-tabs__deep{margin-left:0}
 .estate-portfolio .pf-top3 li{grid-template-columns:28px minmax(0,1fr)}

@@ -3,6 +3,7 @@ vocabulary layer. Every client-facing literal of an opportunity item comes from 
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, InvalidOperation
@@ -93,17 +94,19 @@ CLAIM_DAY_KEYS = ("complete", "partial", "low", "no_data", "pending", "expected"
 NOT_KNOWN_TEXT = "Not known yet"
 #: §B13 R3 texts: (COMPLETE one, COMPLETE many, CHECKED_DAYS n >= 1, CHECKED_DAYS n = 0).
 COUNT_TEXT = {
-    "count.open_threads": ("{n} open finding", "{n} open findings", "{n} open on the days checked",
-                           "None open on the days checked"),
-    "count.verified_results": ("{n} fix confirmed", "{n} fixes confirmed", "{n} confirmed, from the days checked",
-                               "None confirmed on the days checked"),
-    "count.opportunities": ("{n} opportunity", "{n} opportunities", "{n} found on the days checked",
-                            "None found on the days checked"),
-    # MOCK DEVIATION MD-CH6-8: "{n} confirmed, from the days checked" (CH6b3-R3): no mock example of this form.
+    # PF-W (proposal §10.2): the CHECKED_DAYS forms say which days, "on days with complete readings".
+    "count.open_threads": ("{n} open finding", "{n} open findings", "{n} open on days with complete readings",
+                           "None open on days with complete readings"),
+    "count.verified_results": ("{n} fix confirmed", "{n} fixes confirmed",
+                               "{n} confirmed, from days with complete readings",
+                               "None confirmed on days with complete readings"),
+    "count.opportunities": ("{n} opportunity", "{n} opportunities", "{n} found on days with complete readings",
+                            "None found on days with complete readings"),
+    # MOCK DEVIATION MD-CH6-8: "{n} confirmed, from days with complete readings" (CH6b3-R3): no mock example.
     # CH6b2-R Q2: Sites with a primary Protect thread OPEN, RECURRED or ACTION_IN_HAND (`chain/claims.py`); the
     # §B2 forms. MOCK DEVIATION MD-CH6-4: the CHECKED_DAYS forms have no mock example.
-    "count.sites_disrupted": ("{n} site disrupted", "{n} sites disrupted", "{n} found on the days checked",
-                              "None found on the days checked"),
+    "count.sites_disrupted": ("{n} site disrupted", "{n} sites disrupted", "{n} found on days with complete readings",
+                              "None found on days with complete readings"),
 }
 #: CH6b2-R Q2: the COMPLETE zero form of a count, where it differs from "{n} ..." (the §B2 "No sites disrupted").
 COUNT_ZERO = {"count.sites_disrupted": "No sites disrupted"}
@@ -150,6 +153,10 @@ def _days_of(days: Any) -> Mapping[str, int] | None:
     return {k: int(getattr(days, k)) for k in CLAIM_DAY_KEYS}
 
 
+#: PF-C: the §S.2 day counts as a plain dict (None without days), for the Portfolio coverage line.
+day_counts = _days_of
+
+
 def count_basis(days: Any) -> str:
     """§S.2, the one basis rule: NOT_KNOWN when `days` is None, `expected == 0`, or every expected day is PENDING or
     NO_DATA; COMPLETE when `complete == expected`; else CHECKED_DAYS. `days` is a `GradeCounts` or its §S.2 subset."""
@@ -191,7 +198,7 @@ def count_claim(key: str, value: int | None, days: Any) -> Claim:
 
 WHY_TEXT = {
     "why.title": "{site} · {category}",
-    "why.from.measure": "{label} on {k} checked day{s}",
+    "why.from.measure": "{label} on {k} day{s} with complete readings",
     "why.from.finding": "{title}, seen {n} time{s} since {first}",
     "why.from.action": "{code} · {label}",
     # CH6a3-R Q3: the price basis of a money claim.
@@ -205,20 +212,21 @@ WHY_TEXT = {
                                   "estimate does, at the declared idle fuel rate, so the two differ",
     # MOCK DEVIATION (CH5b2-R Q7): the mock always has 2-4 lines; a trace with none says so.
     "why.from.none": "Nothing has been recorded for this yet",
-    "why.change.days": "Checking {n} more day{s}",
+    "why.change.days": "Complete readings on {n} more day{s}",
     "why.change.action": "An agreed action",
     "why.change.verdict": "The check after the change",
     "why.change.readings": "New readings that differ",
     "why.evidence": "{site} evidence →",
-    "why.days.many": "{c} of {e} day{s} checked",
-    "why.days.partial": " · {p} partly checked",
-    "why.days.low": " · {n} with too little data, not counted",
+    # PF-W (proposal §10.2, D-E5.46): the days say what arrived, never "checked".
+    "why.days.many": "Complete readings on {c} of {e} day{s}",
+    "why.days.partial": " · {p} with partial readings",
+    "why.days.low": " · {n} with too few readings, not counted",
     # MOCK DEVIATION (CH5b2-R Q6): the mock has no pending case.
-    "why.days.pending": " · {q} not in yet",
-    "why.days.one.checked": "{d} checked",
-    "why.days.one.partial": "{d} partly checked",
-    "why.days.one.low": "{d}: too little data, not counted",
-    "why.days.one.pending": "{d}: not in yet",
+    "why.days.pending": " · {q} still processing",
+    "why.days.one.checked": "{d}: complete readings",
+    "why.days.one.partial": "{d}: partial readings",
+    "why.days.one.low": "{d}: too few readings, not counted",
+    "why.days.one.pending": "{d}: still processing",
     # MOCK DEVIATION (CH5b2-R Q9): the estate chain carries no Portfolio headline per category, so the mock's `pf:`
     # sentences are replaced by this count.
     "why.estate.say": "{category} at {n} site{s}",
@@ -275,17 +283,18 @@ def why_days(days: Sequence[date], counts: Mapping[str, int], one: str | None) -
 
 #: WALK1-3b §A2.2/§A2.5, moved unchanged from `site_outcomes/mini.py` (§A4 `verdict.*`; CH6a2-R Q3). `{c}` is the
 #: COMPLETE-day count; `{e}` days have elapsed; `{k}` is the objective's checked-day minimum.
-MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
+MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days with complete readings"
 MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
-MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
-MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
-#: The words for no checked day (CH6a2-R Q5); `site_outcomes/mini.py` `MG1_ACTUAL` is this same literal by import
-#: (WD-1, MOCK DEVIATION MD-WD1-2).
-MG1_NO_DAY = "no fully checked day counted yet this month"
+MG1_TOO_EARLY = ("{mtd} kWh so far this month, on {c} {d} with complete readings; too early to judge (needs {k} "
+                 "days with complete readings)")
+MG1_MISSED = "{mtd} kWh this month, complete readings on all {m} days"
+#: The words for no counted day (CH6a2-R Q5); `site_outcomes/mini.py` `MG1_ACTUAL` is this same literal by import
+#: (WD-1, MOCK DEVIATION MD-WD1-2). PF-W: says what arrived.
+MG1_NO_DAY = "no day with complete readings yet this month"
 
 NODE_TEXT = {
-    "money.days": "{amount} over {k} of {m} days checked",
-    "money.days_partial": "{amount} over {k} of {m} days checked · {p} partly checked",
+    "money.days": "{amount} over {k} of {m} days with complete readings",
+    "money.days_partial": "{amount} over {k} of {m} days with complete readings · {p} with partial readings",
     "money.income_suffix": " · not billed or collected",
     "money.not_known": NOT_KNOWN_TEXT,
     "money.currency_mixed": "Not shown · amounts in more than one currency",
@@ -296,16 +305,17 @@ NODE_TEXT = {
     "potential.none": "No potential found yet",
     "target.none": "No target set yet",
     "target.days_none": "No target, so no days are judged yet",
-    "days_line.many": "{k} of {m} days checked",
-    "days_line.partial": " · {p} partly checked",
-    "days_line.low": " · {n} with too little data, not counted",
-    "days_line.no_data_one": "No readings on {day}",
+    # PF-W (proposal §10.2, D-E5.46): the days line says what arrived.
+    "days_line.many": "Complete readings on {k} of {m} days",
+    "days_line.partial": " · {p} with partial readings",
+    "days_line.low": " · {n} with too few readings, not counted",
+    "days_line.no_data_one": "No readings received on {day}",
     # CH-6 R7 (design A3; MD-CH6-3: no mock place, it sits in the row subline).
     "row.target_note": "{k} of {m} outcomes have a target",
     # OWN-1104 R10 (replaced), CH6b1-R Q5: the Portfolio Grow income total and its per-Site lines (mock v70
     # `pfGrowParts`). MOCK DEVIATION MD-CH6-5: the mock's note says the Sites are not added together; OWN-1104 adds them.
-    "income.total": "Estimated income from checked days: {total}",
-    "income.at_least": "At least {total} estimated income, from checked days",
+    "income.total": "Estimated income from days with complete readings: {total}",
+    "income.at_least": "At least {total} estimated income, from days with complete readings",
     "income.site": "{site}: {text}",
     "income.site_not_known": "{site}: not known yet",
 }
@@ -317,9 +327,9 @@ COST_SMALL = {"possible_extra_fuel_cost": "possible extra fuel cost"}
 
 
 def node_text(key: str, **fields: Any) -> str:
-    """One §A4 template. CH6b2-R Q7a: "{k} of 1 days checked" reads "{k} of 1 day checked" (`m == 1`)."""
+    """One §A4 template. CH6b2-R Q7a: "{k} of 1 days" reads "{k} of 1 day" (`m == 1`)."""
     text = NODE_TEXT[key].format(**fields)
-    return text.replace(" of 1 days checked", " of 1 day checked") if fields.get("m") == 1 else text
+    return re.sub(r" of 1 days\b", " of 1 day", text) if fields.get("m") == 1 else text
 
 
 def money2(value: Any) -> str:
@@ -535,7 +545,7 @@ CARD_TEXT = {
     "protect.detail": "Service disruptions recorded as findings · {w} early {warnings}, counted separately · "
                       "loss not priced",
     "protect.basis": "Measured events, counted separately · loss not priced",
-    "protect.small.checked": "on the days checked",
+    "protect.small.checked": "on days with complete readings",
     # DIESEL-1-R3j (§9j.11): the Protect card's unexplained-fuel lines (one per Finding, never added) and their clause.
     "protect.fuel_line": "{site} · {text}",
     "protect.fuel_separate": "Unexplained fuel is shown on its own and never added to any other money",
@@ -543,13 +553,13 @@ CARD_TEXT = {
     "assure.basis": "Completed work does not establish savings",
     "assure.zero": "No verified result yet",
     "assure.targets_none": "no targets declared",
-    "assure.targets": "targets declared at {sites}, for any outcome{unchecked}",
-    "assure.unchecked": ", {sites} not checked",
+    "assure.targets": "targets declared at {sites}, for any outcome{unjudged}",
+    "assure.unchecked": ", {sites} not judged yet",
     # PV-1-R §2: the Assure card's verified-value lines (one per result, never added) and their clause.
     "assure.value_line": "{site} · {text}",
     "assure.values_separate": "Each result's money is shown on its own and never added together",
     # The Portfolio-body clauses (`card_notes`, CH6b2-R Q1), today's `checkedDaysClause` / `evidenceGapText`.
-    "note.withheld_one": " · findings next to unchecked days not shown yet",
+    "note.withheld_one": " · findings next to incomplete days not shown yet",
     "note.withheld_many": " · findings next to those days not shown yet",
     "note.gap.unknown": "evidence gaps not assessed",
     "note.gap.zero": "no evidence gaps",
@@ -569,7 +579,53 @@ CARD_TEXT = {
     "cost.sites": "Costs at {sites}",
     "cost.basis.money": "Modelled from the stored record and the declared price · not a saving",
     "cost.basis.none": "A cost needs a priced record",
+    # PF-C1 (proposal §4, v71 `pf-coverage`): the Portfolio's one coverage line, shown once above the tabs.
+    "coverage.lead.complete": "Complete readings on every day",
+    "coverage.lead.incomplete": "Some days have incomplete readings",
+    "coverage.lead.not_known": "Day readings are not known yet",
+    "coverage.rule": "Figures on this page count days with complete readings.",
+    "coverage.site": "{site}: {line}",
+    "coverage.site_not_known": "{site}: readings not known yet",
+    "coverage.no_data": " · {x} with no readings received",
+    "coverage.pending": " · {q} still processing",
 }
+
+# ---- PF-W (proposal §10.2; D-E5.46, owner-directed 2026-11-11): the readings term family ------------------------
+# Data words say what arrived, never whether anyone "checked". "Not analysed yet" and "still processing" are kept for
+# system work only. `frontend/src/estate/portfolioWords.ts` holds these strings byte for byte
+# (`test_pfc_coverage_line.py`), so the GAP-REASONS card only wires `READINGS_CONFLICT` / `NOT_ENOUGH_READINGS`.
+
+#: (key, term, one-line definition), in the order of the "What these words mean" list.
+READINGS_TERMS = (
+    ("COMPLETE", "Complete readings",
+     "Readings arrived for at least 80% of the hours the day needed (for spare solar: every daylight hour). "
+     "The day is counted."),
+    ("PARTIAL", "Partial readings",
+     "Readings arrived for 25–80% of those hours. The day is shown, and named wherever it is used."),
+    ("LOW", "Too few readings", "Readings arrived for under 25% of those hours. The day is not counted."),
+    ("NO_DATA", "No readings received", "Nothing arrived from the site for that day."),
+    ("NOT_ENOUGH_READINGS", "Not enough readings", "Some readings arrived, but not enough to analyse the day."),
+    ("READINGS_CONFLICT", "Conflicting readings",
+     "Readings for the day conflict (duplicate or overlapping reports), so it can't be analysed."),
+    ("PENDING", "Still processing", "Readings arrived and are being analysed; results follow."),
+    ("NOT_ANALYSED", "Not analysed yet", "AssetOps has not analysed the day yet; it will, without any action from you."),
+)
+#: D-E5.46 table, one gap reason per day: reason -> (full words, short form). Full words for Site, Findings and day
+#: boards; the short form for Portfolio, coverage and money lines.
+GAP_REASON_WORDS = {
+    "NO_READINGS": ("No readings received for this day", "no readings"),
+    "READINGS_CONFLICT": ("Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed",
+                          "conflicting readings"),
+    "NOT_ENOUGH_READINGS": ("Not enough readings received to analyse this day", "not enough readings"),
+    "NOT_ANALYSED": ("Not analysed yet", "not analysed yet"),
+}
+#: D-E5.46: the Site state PENDING_RECOMPUTE (grade PENDING or an outstanding job).
+STILL_PROCESSING = "Still processing"
+
+
+def incomplete_sites(n: int) -> str:
+    """D-E5.46 (amends D-E5.26): a Site PARTIAL count, "{n} site(s) with incomplete days"."""
+    return f"{n} site with incomplete days" if n == 1 else f"{n} sites with incomplete days"
 
 
 def card_text(key: str, **fields: Any) -> str:

@@ -363,7 +363,7 @@ def test_ev_unpriced_and_declared_limit() -> None:
     # CH6a3-R2 H3 ONE-SOURCE: unpriced, the stored row has no money, so the earnings claim is NOT_KNOWN: no subline,
     # and the charging line states no live kWh beside it
     assert rows[GROW]["subline"] is None
-    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · 1 of 1 day checked"  # UTC: one day
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · Complete readings on 1 of 1 day"  # UTC: one day
     assert contributor(rows[GROW], "charging_tariff")["text"] == "Not available yet"  # cause not known here
     assert rows[COST]["not_measured_text"] == (
         "Energy cost per km needs odometer readings and a published charging tariff")
@@ -466,7 +466,7 @@ def test_ev_low_day_states_only_not_known_with_its_days_line() -> None:
     assert earn["value"] is None and earn["days"]["low"] == 1
     assert rows[GROW]["headline_money"] is None and rows[GROW]["subline"] is None
     text = contributor(rows[GROW], "charging_delivered")["text"]
-    assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too little data" in text
+    assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too few readings" in text
 
 
 def test_ev_priced_day_with_unknown_claim_never_names_an_estimate_without_a_figure() -> None:

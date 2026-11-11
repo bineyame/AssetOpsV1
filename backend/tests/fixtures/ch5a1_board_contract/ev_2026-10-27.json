@@ -27,7 +27,7 @@
      "key": "charging_delivered",
      "label": "Charging delivered",
      "link_ref": null,
-     "text": "Not known yet · 0 of 1 day checked · 1 with too little data, not counted"
+     "text": "Not known yet · Complete readings on 0 of 1 day · 1 with too few readings, not counted"
     },
     {
      "confidence": {
@@ -126,7 +126,7 @@
       "partial": 0,
       "pending": 0
      },
-     "days_line": "0 of 1 day checked · 1 with too little data, not counted",
+     "days_line": "Complete readings on 0 of 1 day · 1 with too few readings, not counted",
      "key": "money.estimated_charging_income",
      "span": {
       "first": "2026-10-27",

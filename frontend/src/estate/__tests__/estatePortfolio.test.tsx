@@ -194,7 +194,7 @@ describe("estate Portfolio page", () => {
       "Confidence",
       "Action / next move",
     ]);
-    expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 findings · some days not checked");
+    expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 findings · so far, some days incomplete");
     const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
     expect(text(partialObjectives)).not.toContain("Site detail is unavailable for these cells.");
     expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
@@ -450,7 +450,7 @@ describe("estate Portfolio page", () => {
     expect(opportunity.getAttribute("data-portfolio-opportunity-state")).toBe("NONE");
     expect(text(opportunity)).toContain("GROW USEFUL DEMAND");
     expect(text(opportunity.querySelector("[data-portfolio-opportunity-quantity]"))).toBe(
-      "No opportunity found in this periodNothing seen on the days checked",
+      "No opportunity found in this periodNothing seen on days with complete readings",
     );
     expect(text(opportunity)).toContain("No what-if yet");
     expect(text(opportunity)).toContain("No what-if value worked out yet");
@@ -535,7 +535,7 @@ describe("estate Portfolio page", () => {
     expect(p.getAttribute("data-portfolio-opportunity-state")).toBe("UNKNOWN");
     expect(text(p)).toContain("Opportunities could not be read");
     expect(text(p)).not.toContain("No opportunity found");
-    expect(text(p)).not.toContain("Nothing seen on the days checked");
+    expect(text(p)).not.toContain("Nothing seen on days with complete readings");
   });
 
   it("rendersChangeDisclosureWithoutRecoveredMoney", async () => {
@@ -588,7 +588,7 @@ describe("estate Portfolio page", () => {
       CURRENT: "Selected Site records",
       HISTORICAL: "Historical as of 30 Sep 2026, 00:00",
       PENDING: "Updating selected Sites",
-      PARTIAL: "Some days not checked yet",
+      PARTIAL: "Some days incomplete",
       UNKNOWN: "Some Sites cannot be compared yet",
       EMPTY_SCOPE: "No accessible Sites",
     };
@@ -604,7 +604,7 @@ describe("estate Portfolio page", () => {
       if (status === "PENDING") expect(text(document.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-value]"))).toBe("Updating · Unpriced");
       if (status === "EMPTY_SCOPE") {
         expect(text(document.querySelector("[data-portfolio-count]"))).toBe("0 findings");
-        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/some days not checked/i);
+        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/some days incomplete/i);
         expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No selected Findings for this window");
         expect(text(document.querySelector("[data-portfolio-domains]"))).toBe("0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV charging");
       }
@@ -1479,73 +1479,124 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
-  // COV-PARTIAL U3 (MOCK DEVIATION R620): a partly checked Site never reads zero, Current or on track.
-  it("partlyCheckedSiteNamesItsDaysAndWithholdsValue", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody())));
+  // COV-PARTIAL U3 + PF-C1/PF-W: a Site with incomplete days never reads zero, Current or on track; its days are
+  // stated once, in the coverage line above the tabs, in the D-E5.46 words.
+  it("incompleteSiteNamesItsDaysOnceAndWithholdsValue", async () => {
+    const body = partialBody();
+    const kobo = body.scope_disclosure.sites[0].coverage.days!;
+    kobo.gaps = [
+      { day: "2026-10-11", state: "UNASSESSED", reason: "NO_READINGS" },
+      { day: "2026-10-12", state: "UNASSESSED", reason: "NOT_ANALYSED" },
+    ];
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
     const context = document.querySelector("[data-portfolio-context]") as HTMLElement;
     expect(context.getAttribute("data-portfolio-context")).toBe("PARTIAL");
-    expect(text(context.querySelector(".portfolio-badge"))).toBe("Some days not checked yet");
-    expect(text(context.querySelector("[data-portfolio-sentence]"))).toBe("Portfolio: Partly checked");
-    expect(text(context.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 5 of 7 days assessed · 2 days not available yet · not assessed: 11 Oct, 12 Oct",
-    );
-    expect(context.querySelectorAll("[data-portfolio-partial]")).toHaveLength(1);
-    // PF-T: the scope drawer is on the Scope & coverage tab, the ranked rows on Act first.
+    expect(text(context.querySelector(".portfolio-badge"))).toBe("Some days incomplete");
+    expect(text(context.querySelector("[data-portfolio-sentence]"))).toBe("Portfolio: Some sites have incomplete days");
+    expect(context.querySelector("[data-portfolio-partial]")).toBeNull(); // R620's per-Site notes are gone
+    const line = await coverageLine();
+    expect(line.getAttribute("data-portfolio-coverage")).toBe("INCOMPLETE");
+    expect(text(line.querySelector("[data-portfolio-coverage-lead]"))).toBe("Some days have incomplete readings · 1 site with incomplete days");
+    expect(Array.from(line.querySelectorAll("[data-portfolio-coverage-site]")).map(text)).toEqual([
+      "Kobo: complete readings on 5 of 7 days · 1 with partial readings · 11 Oct: no readings · 12 Oct: not analysed yet",
+      "GreenHarvest: complete readings on 7 of 7 days",
+    ]);
     showTab("Scope & coverage");
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
-    const kobo = drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]");
-    // review L1: the unchecked days sit on their own line under the coverage words
-    const beforeBreak = Array.from(kobo?.childNodes ?? []);
+    const cell = drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]");
+    // review L1: the incomplete days sit on their own line under the coverage words
+    const beforeBreak = Array.from(cell?.childNodes ?? []);
     expect(beforeBreak.slice(0, beforeBreak.findIndex((n) => n.nodeName === "BR")).map((n) => n.textContent).join("")).toBe(
-      "Mini-grid · Partly checked",
+      "Mini-grid · Incomplete days",
     );
-    expect(kobo?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
-    expect(text(kobo?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Days not checked yet: 11 Oct, 12 Oct");
+    expect(cell?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
+    expect(text(cell?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Incomplete days: 11 Oct: no readings · 12 Oct: not analysed yet");
     showTab("Act first");
-    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Partly checked · value shown once every day is checked");
-    // no state code on screen, in a title or in an aria-label
+    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Value not shown while this site has incomplete days");
+    // the coverage line stays above the tabs on every tab
+    expect(document.querySelectorAll("[data-portfolio-coverage]")).toHaveLength(1);
+    // no state code on screen, in a title or in an aria-label; no "checked" for data anywhere on the page
     const page = document.body.textContent ?? "";
-    expect(page).not.toMatch(/PARTIAL|UNASSESSED|NO_ASSESSED_SELECTION|estate-coverage/);
+    expect(page).not.toMatch(/PARTIAL|UNASSESSED|NO_ASSESSED_SELECTION|NO_READINGS|NOT_ANALYSED|estate-coverage/);
+    expect(page).not.toMatch(/days? checked|partly checked|not checked yet/i);
     const attrs = Array.from(document.querySelectorAll("[title],[aria-label]")).map((e) => `${e.getAttribute("title") ?? ""} ${e.getAttribute("aria-label") ?? ""}`);
-    expect(attrs.join(" ")).not.toMatch(/PARTIAL|UNASSESSED/);
+    expect(attrs.join(" ")).not.toMatch(/PARTIAL|UNASSESSED|checked/i);
   });
 
-  it("partlyCheckedSiteWithManyGapsPointsToTheScopeList", async () => {
-    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"];
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
+  // D-E5.46: days sharing a reason are grouped; more than 3 gap days read as one count (the deep tab lists all).
+  it("incompleteSiteWithManyGapsReadsACountAndTheScopeTabListsThem", async () => {
+    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"];
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(partialBody(gaps, 14))), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 6 of 14 days assessed · 8 days not available yet · the days are listed under Assessment scope & periods",
+    const line = await coverageLine();
+    expect(text(line.querySelector("[data-portfolio-coverage-site]"))).toBe(
+      "Kobo: complete readings on 5 of 7 days · 1 with partial readings · 4 days without a usable result",
     );
     showTab("Scope & coverage");
-    expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe(
-      "Days not checked yet: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct, 8 Oct",
-    );
+    // an older body's reason (NO_ASSESSED_SELECTION) reads as system work, never as a code
+    expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe("Incomplete days: 1, 2, 3, 4 Oct: not analysed yet");
   });
 
-  // review L7: exactly 7 unchecked days still list them in the note (the switch is > 7)
-  it("partlyCheckedSiteWithSevenGapsStillListsTheDays", async () => {
-    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"];
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
+  it("coverageLineCollapsesWhenEveryDayIsCompleteAndExplainsItsWords", async () => {
+    const complete = { ...COVERAGE_INCOMPLETE, state: "COMPLETE" as const, lead: "Complete readings on every day" };
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ coverage_line: complete }) }));
     await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
-      "Kobo: 7 of 14 days assessed · 7 days not available yet · not assessed: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct",
-    );
+    const line = await coverageLine();
+    expect(line.getAttribute("data-portfolio-coverage")).toBe("COMPLETE");
+    expect(line.getAttribute("role")).toBe("note");
+    expect(text(line.querySelector("[data-portfolio-coverage-lead]"))).toBe("Complete readings on every day");
+    expect(line.querySelectorAll("[data-portfolio-coverage-site]")).toHaveLength(0);
+    expect(Array.from(line.querySelectorAll("[data-portfolio-glossary] dt")).map(text)).toEqual([
+      "Complete readings", "Partial readings", "Too few readings", "No readings received",
+      "Not enough readings", "Conflicting readings", "Still processing", "Not analysed yet",
+    ]);
+    expect(line.querySelector("[data-portfolio-coverage-link]")?.getAttribute("href")).toContain("/portfolio/scope");
+    // placement (v71): after the context row, before the tabs
+    const order = ["[data-portfolio-context]", "[data-portfolio-coverage]", "[data-portfolio-tabs]"].map((s) => document.querySelector(s)!);
+    expect(order[0].compareDocumentPosition(order[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(order[1].compareDocumentPosition(order[2]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("nonPartialBodiesShowNoPartialNote", async () => {
+  it("coverageLineSaysNotKnownUntilTheSummaryLoads", async () => {
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const line = document.querySelector("[data-portfolio-coverage]") as HTMLElement;
+    expect(line.getAttribute("data-portfolio-coverage")).toBe("LOADING");
+    expect(text(line.querySelector("[data-portfolio-coverage-lead]"))).toBe("Day readings are not known yet");
+  });
+
+  it("nonPartialBodiesShowNoGapLine", async () => {
     for (const body of [portfolioBody(), STATUS_BODIES.UNKNOWN]) {
       // PF-T: on the Scope & coverage tab, where the scope drawer (and its gap lines) render.
       const view = renderAt(tabEntry("scope"), portfolioClient(loadedPortfolio(body)));
       await settledScreen();
       expect(document.querySelector("[data-portfolio-drawer='scope']")).not.toBeNull();
-      expect(document.querySelector("[data-portfolio-partial]")).toBeNull();
       expect(document.querySelector("[data-portfolio-scope-gaps]")).toBeNull();
       view.unmount();
     }
   });
 });
+
+/** PF-C1: a server coverage line (Kobo incomplete, GreenHarvest complete), as `portfolio_coverage` builds it. */
+const COVERAGE_INCOMPLETE = {
+  state: "INCOMPLETE" as const,
+  lead: "Some days have incomplete readings",
+  rule: "Figures on this page count days with complete readings.",
+  sites: [
+    { site_code: "KOBO-001", site_name: "Kobo", complete: false, text: "Kobo: complete readings on 5 of 7 days · 1 with partial readings" },
+    { site_code: "COLD-001", site_name: "GreenHarvest", complete: true, text: "GreenHarvest: complete readings on 7 of 7 days" },
+  ],
+  days_text: "Kobo: Complete readings on 5 of 7 days · 1 with partial readings · GreenHarvest: Complete readings on 7 of 7 days",
+};
+
+/** The coverage line once the summary read has settled (it loads after the Portfolio body). */
+async function coverageLine(): Promise<HTMLElement> {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  return document.querySelector("[data-portfolio-coverage]") as HTMLElement;
+}
 
 describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   const card = (key: string) => document.querySelector(`[data-portfolio-card='${key}']`) as HTMLElement;
@@ -1589,11 +1640,11 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   const noteText = (key: string) => text(card(key).querySelector("[data-portfolio-card-note]"));
 
   it("serverTextsRenderVerbatimOnCheckedDaysOneSite", async () => {
-    const clause = "5 of 7 days checked at Kobo";
+    const clause = "Kobo: Complete readings on 5 of 7 days";
     renderServer(
       {
         PROTECT_ASSET: serverCard({
-          value: { text: "None found", small: "on the days checked" },
+          value: { text: "None found", small: "on days with complete readings" },
           detail: "Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced",
           days_line: clause,
         }),
@@ -1606,10 +1657,10 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
       { count_basis: "CHECKED_DAYS", checked_days: [kobo], evidence_gap_site_count: 0 },
     );
     await settledScreen();
-    expect(value("PROTECT_ASSET")).toBe("None found on the days checked");
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("on the days checked");
+    expect(value("PROTECT_ASSET")).toBe("None found on days with complete readings");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("on days with complete readings");
     expect(card("PROTECT_ASSET").className).toContain("neutral");
-    expect(dayText("PROTECT_ASSET")).toBe(clause);
+    expect(dayText("PROTECT_ASSET")).toBe(`Different days: ${clause}`);   // PF-C2: the exception label
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
     // CH6b2-R Q1: the Portfolio-body clause is its own line; the detail is the server's detail, not joined with it.
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
@@ -1628,20 +1679,21 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
 
   it("twoSiteDaysLineAndNonZeroCountRenderServerText", async () => {
     renderServer(
-      { PROTECT_ASSET: serverCard({ value: { text: "2", small: "sites disrupted" }, tone: "red", days_line: "Days not checked yet at 2 sites" }) },
+      { PROTECT_ASSET: serverCard({ value: { text: "2", small: "sites disrupted" }, tone: "red", days_line: "Kobo: Complete readings on 3 of 5 days · Harbour: Complete readings on 2 of 5 days" }) },
       {},
       { count_basis: "CHECKED_DAYS", checked_days: [kobo, harbour] },
     );
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("2 sites disrupted");
-    expect(dayText("PROTECT_ASSET")).toBe("Days not checked yet at 2 sites");
+    // PF-C2: a card days line is the exception to the coverage line, so it is labelled "Different days:"
+    expect(dayText("PROTECT_ASSET")).toBe("Different days: Kobo: Complete readings on 3 of 5 days · Harbour: Complete readings on 2 of 5 days");
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("1 site evidence gaps");
   });
 
   it("withheldFindingsRenderTheServerValueAndNote", async () => {
     renderServer(
-      { PROTECT_ASSET: serverCard({ value: { text: "None shown yet", small: null }, days_line: "5 of 7 days checked at Kobo" }) },
+      { PROTECT_ASSET: serverCard({ value: { text: "None shown yet", small: null }, days_line: "Kobo: Complete readings on 5 of 7 days" }) },
       { PROTECT_ASSET: "Findings next to unchecked days are not shown yet" },
       { count_basis: "CHECKED_DAYS", checked_days: [{ ...kobo, withheld: true }], evidence_gap_site_count: 0 },
     );
