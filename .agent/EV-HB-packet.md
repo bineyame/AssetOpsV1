@@ -49,8 +49,15 @@ times are same length); `backend/tests/test_demo_story_days.py` (v4-vs-v3 diff r
   12, `test_demo_combined_finish_rows` 77, `test_demo_combined_finish_days` 1, `test_own_g1_add_dates` 49,
   `test_ch1a_grading` 25, `test_demo_combined_ex1` 9, `test_demo_combined_mill` 15, `host/tests/test_ev_lab_execution`
   44, `host/tests/test_ev_publication` 28, `simulator/tests/test_ev_pack` 78, `test_ev_public_transform` 10: all passed.
-- Postgres adjacent: RESULTS_PG
-- `tools/check-architecture.ps1`: RESULT_ARCH
+- Generated days (simulator, host side): `host/tests/test_evhb_generated_days.py` 5 passed (moved out of the backend
+  file at `a5b6f6fad`: the dependency-direction guard bans simulator imports in backend tests; they failed before
+  the change while still in `76b6634ec`). Backend file afterwards: 6 passed + the Postgres test (12 passed earlier
+  in its combined form).
+- Postgres adjacent (0 skipped): `test_pb3_ev_status_grading` 10 passed (53 s); `test_pb1b_ev_periods_postgres` 9
+  (322 s); `test_w205b_ev_replay_postgres` 13 (606 s; one-hour registered replays unchanged under the host change);
+  `test_w503_ev_availability_postgres` 15 (154 s).
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv) at `a5b6f6fad`: "Architecture check passed.",
+  exit 0 (the first run failed on the simulator import, fixed by the move).
 
 ## Rows that change (each with its reason)
 
