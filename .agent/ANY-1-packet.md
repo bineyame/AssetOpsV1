@@ -43,6 +43,7 @@ Commits: `db3fe0734` (AR-1), `d7ffd0314` (AR-0).
   a neutered `compare` makes the self-test fail (`test_self_test_is_not_vacuous`). perf any-range fixtures include
   the measured 11.2 s / 36.1 s breach.
 - `python -m assetops_backend.chain.graph check`: exit 0 (existing warnings only).
+- `tools/check-architecture.ps1` on `d7ffd0314`: "Architecture check passed." (exit 0).
 
 ### Known deviations
 
