@@ -709,6 +709,11 @@ function Get-OperatorRailFailures {
                     $constants[$Matches[1]] -eq $target.To) {
                     $registered = $true
                 }
+                # PF-T: an optional trailing segment (`${CONST}/:tab?`) also registers the bare constant path.
+                elseif ($line -match 'path\s*=\s*\{`\$\{(\w+)\}/:\w+\?`\}' -and $constants.ContainsKey($Matches[1]) -and
+                    $constants[$Matches[1]] -eq $target.To) {
+                    $registered = $true
+                }
             }
             if (-not $registered) {
                 $failures.Add(("The live operator rail root '$($target.Label)' points at " +

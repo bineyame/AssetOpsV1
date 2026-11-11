@@ -6,7 +6,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { Route, Routes, useLocation } from "react-router-dom";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
-import { panelTitled, renderedPanelTitles } from "../../test/panelStructure";
+import { leadingIntruders, panelTitled, renderedPanelTitles, strayBetweenPanels, strayOutsidePanels, stripIntruders } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type {
@@ -754,6 +754,22 @@ describe("estate Portfolio page", () => {
     for (const [label, titles] of perTab) {
       showTab(label);
       expect(renderedPanelTitles(), label).toEqual(titles);
+      expect(leadingIntruders(main, "portfolio"), `${label}: before panel 1`).toEqual([]);
+      expect(strayOutsidePanels(main), `${label}: outside panels`).toEqual([]);
+      expect(stripIntruders(main), `${label}: in a status strip`).toEqual([]);
+      expect(strayBetweenPanels(main), `${label}: between panels`).toEqual([]);
+      // Non-vacuity: a planted panel on this tab is rejected by the same checks, then removed.
+      const first = main.querySelector("[data-portfolio-tab-panel] section.panel") as HTMLElement;
+      const plant = document.createElement("section");
+      plant.className = "panel";
+      plant.innerHTML = "<h2>Planted extra panel</h2>";
+      first.parentElement!.insertBefore(plant, first);
+      try {
+        expect(renderedPanelTitles(), `${label}: planted`).not.toEqual(titles);
+      } finally {
+        plant.remove();
+      }
+      expect(renderedPanelTitles(), `${label}: plant removed`).toEqual(titles);
     }
     showTab("Outcomes by site");
     // OUT-B B6 (R521): the outcome matrix replaces the objectives matrix in the same scroll container.
@@ -2077,6 +2093,23 @@ describe("PF-T Portfolio section tabs", () => {
     expect(client.calls.length).toBe(1);
     expect(screen.getByRole("heading", { level: 1 })).toBe(h1);
     expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, name: OPPORTUNITY_PANEL }));
+  });
+
+  it("moving from Act first lens=cost to another tab, and back, reads nothing again", async () => {
+    const client = portfolioClient(loadedPortfolio(portfolioBody()));
+    renderTabs(`/portfolio/act-first?${WINDOW_QUERY}&lens=cost`, client);
+    await settledScreen();
+    expect(client.calls.map((c) => c.lens)).toEqual(["cost"]);
+    fireEvent.click(tabLink("Opportunity"));
+    await settledScreen();
+    // The whole list is read once for the other tabs; a lens read is not repeated and nothing re-reads after.
+    const after = client.calls.length;
+    fireEvent.click(tabLink("What changed"));
+    await settledScreen();
+    fireEvent.click(tabLink("Opportunity"));
+    await settledScreen();
+    expect(client.calls.length).toBe(after);
+    expect(client.calls.map((c) => c.lens)).toEqual(["cost", "all"]);
   });
 
   it("Overview shows the four cards, the counts strip as tab links and the top 3 with See all", async () => {

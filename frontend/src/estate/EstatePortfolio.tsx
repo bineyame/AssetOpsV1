@@ -9,6 +9,8 @@
  *   periods" drawer and the business-context footer.
  * MOCK DEVIATION PF-T-3: the Overview top-3 rows show the placement group, not v71's High/Medium priority badge
  *   (CC-R2-Q3: the table ranks by placement, not priority).
+ * MOCK DEVIATION PF-T-5: the What changed "Inspect basis" stays the inline disclosure (its change-and-verification basis
+ *   table is in the panel), not v71's link to the Scope tab, because the basis table belongs to this panel's data.
  * MOCK DEVIATION PF-T-4: the Act first count is the read's `total_count` for the lens being read (the panel eyebrow's
  *   count), so it follows the lens on Act first.
  */
@@ -1073,10 +1075,22 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
   const window: Window = { from: base.from, to: base.to, known_at: base.known_at };
   const key = `${window.from}|${window.to}|${window.known_at ?? ""}|${lens}`;
   const [read, setRead] = useState<Read | null>(null);
+  // PF-T (proposal §6): the whole-list read is kept by key, so moving from Act first?lens=cost to another tab, or back, shows it with no new read.
+  const cache = useRef(new Map<string, Read>());
+  useEffect(() => {
+    if (read !== null && read.lens === "all") cache.current.set(read.key, read);
+  }, [read]);
   const query: EstatePortfolioQuery = { ...window, lens, limit: PORTFOLIO_PAGE_SIZE, cursor: null };
 
   useEffect(() => {
     let live = true;
+    const hit = lens === "all" ? cache.current.get(key) : undefined;
+    if (hit !== undefined) {
+      setRead(hit);
+      return () => {
+        live = false;
+      };
+    }
     void reads.portfolio(query).then((first) => {
       if (live) setRead({ key, windowKey: `${window.from}|${window.to}|${window.known_at ?? ""}`, lens, first, more: [], next: first.status === "loaded" ? first.value.next_cursor : null });
     });
