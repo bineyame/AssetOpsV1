@@ -11,7 +11,7 @@ Card: A5 in `.agent/architect-sequence-client-scope-2026-11-11.md`; spec UQ-6a r
     (inserted verbatim); unknown key raises `KeyError`; locale defaults to the request locale.
   - `locale.py`: `resolve(Accept-Language)` by q-value then header order, primary subtag, against `SUPPORTED`
     (`("en",)` per D-I18N.3); else `en`. `LocaleMiddleware` (pure ASGI) sets a context var for the request and adds
-    `Content-Language` to every HTTP response. Outside a request (pre-build, tick) the locale is `en`.
+    `Content-Language` to every response the app answers (not an unhandled 500; see Residual risk). Outside a request (pre-build, tick) the locale is `en`.
 - `chain/response_store.py`: `request_key(..., locale="en")` always includes `"locale"`; `StoredRoute.locale`
   defaults to `current_locale()` at construction (inside the request); lookup and insert use it (D-I18N.2).
 - `main.py`: `create_app` adds `LocaleMiddleware`.
@@ -39,9 +39,16 @@ any code change re-keys them; the next pre-build rewrites them under the new key
   `test_ch5c2_store_safety_postgres.py` 10 passed; `test_ch5c_store_off.py` 17 passed; `test_ch5b_why.py` 48 passed;
   `test_ch5c2_clock_guard.py` 8 passed; `test_health.py` 4 passed; `test_sites_api.py` 62 passed.
   DB base `assetops_uq6a_test` (created for this slice).
-- `test_ch5c2_real_composers_postgres.py`: NOT VERIFIED. Run 1: 3 failed, 3 passed; runs 2-3: errors
-  `FATAL: sorry, too many clients already` (server max 200; `assetops_polish_client6_test` held 77-82 connections
-  at the time). Environment-blocked; rerun when the server is quiet.
+- `test_ch5c2_real_composers_postgres.py` (env var set on every run): NOT VERIFIED GREEN. These failures are not
+  caused by this branch. Every failure seen is `FATAL: sorry, too many clients already`: a 503
+  `SITE_STORE_UNAVAILABLE` or a fixture connect. None is an assertion on keys, bodies or the module list.
+  - f6_summary + f4_no_unlisted alone on the branch: 2 passed.
+  - A/B: the file's connections on its case DB `assetops_out_ch5c2_guardrail_test` climb over the run with the
+    middleware (sampled peak 86) and **without it** (`add_middleware` line removed: peak 73+). Both runs fail the same
+    way once the server total reaches 200. `assetops_polish_client6_test` held 71-115 of those connections.
+  - `request_key` adds a JSON field and opens nothing, so the climb is pre-existing. The case DB name is fixed: two
+    concurrent runs of this file (e.g. the coordinator's and mine) share and drop the same DB.
+  - Rerun on a quiet server.
 - `tools\check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): "Architecture check passed."
 
 ## Known deviations
@@ -49,7 +56,10 @@ any code change re-keys them; the next pre-build rewrites them under the new key
 - The slice commit message was passed by heredoc (rule breach in process, not in content).
 
 ## Residual risk
-- `real_composers` unverified (above). Middleware adds one header to every response, including 304s and errors.
+- `real_composers` unverified (above).
+- `Content-Language` is on every response the app itself answers: 2xx, 304, and `HTTPException` 4xx/5xx. It is NOT
+  on an unhandled-exception 500. Starlette's `ServerErrorMiddleware` is always outermost, so it builds that 500
+  outside `LocaleMiddleware` (review Low, claim corrected rather than adding an error handler).
 - Out of scope, as the card says: catalogue move (UQ-6b), Babel formatting (UQ-4).
 
 USER_REVIEW: not required (server seam, no UI change); Reviewer review then merge before AR-1.
