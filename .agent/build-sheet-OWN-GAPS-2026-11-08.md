@@ -4164,3 +4164,31 @@ Decision logged for owner review: **D-E5.46**.
 - Deferred to BL-71: one shared engine factory with a capped pool (`ASSETOPS_DB_POOL_SIZE`), the prebuild reusing the serve's engines (out of process, over HTTP), and the degraded rule for non-stored routes.
 
 Decision logged for owner review: **D-E5.47**.
+
+## D-ANY.5 ANY-1 Phase 1 review M1/M2: period-row knowledge time is transaction time (Architect, Claude, 2026-11-11, owner-delegated, logged for owner review)
+
+**Facts in code.**
+- The existing compose binds `known_at` as **transaction time** only. CH5a1-R2 R-1 (`chain/adapters/postgres_chain_read.py` lines 30-31) says "a story-time evidence cutoff never reaches it".
+- The tables already work this way: `site_day_snapshot.computed_at <= k` (`postgres_snapshot_store.py:111`), `created_at`/`source_known_at`/`decided_at <= k`, and `event_outbox.recorded_at` defaults to `clock_timestamp()` (0044).
+- Story time bounds evidence only (`chain/read.py` `site_cutoff`).
+- A day with no snapshot row at k reads `NO_DATA` (`chain/reader.py:111`).
+
+**M1 ruling.**
+- `site_period_read.computed_at`, `event_outbox.recorded_at` and `event_consumption.processed_at` stay wall-clock transaction time. Rows are never backdated to story time, because that would disagree with the snapshot and Finding reads at the same k.
+- A historical read uses `computed_at <= k`, the latest revision (as built), with PENDING-at-k on the same clock.
+- An October k on a November-built DB therefore truthfully sees "nothing known yet", and today's compose sees the same.
+- A requested (site, day, kind) that has no row is never silent. `PeriodReadResult` gains `absent: tuple[(site_id, day, kind)]`, and each kind renders it exactly as today's compose renders no stored input at k (day grades give `NO_DATA`).
+- There is no fallback compose on the serve path. Live absent rows are logged as `period_row_absent` and counted in perf.
+
+**M2.** No bound now. The AR-0 baseline times `_UNCONSUMED_AT` on client6. If it exceeds 20 ms p95, add a low-water bound and drop `payload` from the select (if `resolve` does not read it) in AR-2.
+
+**Phase-2 builder instruction.**
+1. Write the Postgres tests first (M3): migration up/down, an adapter round-trip, and a late reading live and historical.
+2. In the historical test, k falls between revision 1's and revision 2's `computed_at`, so revision 1 is served. A k before revision 1 gives `absent` and renders `NO_DATA`. A k after an outbox event but before its consumption gives PENDING.
+3. Keep every `<= k` comparison on the transaction-time columns. Do not add a story-time clock.
+4. Add `absent` to `PeriodReadResult`. Every AR-2 kind renders absent rows through the existing no-row rule.
+5. The parity harness keeps its story-time k cases ("nothing known yet" parity). It adds one k taken from a real `computed_at` between two revisions on the parity DB.
+6. Low items: unaligned Portfolio cases also randomise the end (`period_read_parity.py:115`), and `perf_budget --any-range` gains `--kinds`.
+7. Time `_UNCONSUMED_AT` in the baseline and report the p95 in the packet (M2).
+
+Decision logged for owner review: **D-ANY.5**.
