@@ -101,7 +101,10 @@ def test_claim_rows_equal_compose_live_historical_and_after_a_late_revision(mini
     for step in F02["steps"][3:5]:
         runner.step(step)
     compose, rows, misses = _both(monkeypatch, evidence, **window)
-    assert rows == compose and misses == 2  # read as today, both days counted
+    assert rows == compose and misses == 2  # PENDING at k: read as today, both days counted
+    _consume_all(engine)  # no input event left: only the revision check keeps the stale rows off (D-ANY.6a)
+    compose, rows, misses = _both(monkeypatch, evidence, **window)
+    assert rows == compose and misses == 2
     _build(engine, evidence.read, site)
     _consume_all(engine)
     compose, rows, misses = _both(monkeypatch, evidence, **window)
