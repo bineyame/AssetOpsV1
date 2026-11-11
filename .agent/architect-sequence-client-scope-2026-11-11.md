@@ -6,57 +6,82 @@
 - **Status:** a recommendation. Nothing is scheduled until you decide (section 4). No code changes.
 - Already merged, so not in the table: Kobo gap pattern, lens keeps the page and pre-built lens pages, Findings cards, Cold/EV analysed-period story links, Kisiwa one recording session, the E5 fixes, C1-C5. The Wednesday frontend fixes (Kisiwa chart legend, copy batch, Fuel tab loading; 0.6 units) are planned before Thursday; if any slips, it goes first in lane B on Mon 16.
 
-## 0. By Friday 13 Nov (added 2026-11-11 after your reply; it replaces the calendar in sections 1 and 3.2, the scope and order stay)
+## 0. Agent-pace plan, re-assess Thu 12 Nov morning (added 2026-11-11; replaces the working-day calendar in sections 1 and 3.2; scope, order and decisions stay)
 
-Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "the time estimates are for human developement, we should be able to do the indicated units in time for Friday"
+Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "the time estimates are for human developement, we should be able to do the indicated units in time for Friday" and then "let it not say which would land by Friday, we wait until Thursday morning for re-assessment".
 
-**Short answer: you are right that my calendar was too slow, and wrong that 22.7 units fit by Friday.** I sized lanes at 1.5 units per *working* day; agents run most of the 24 hours and every day of the week. On the evidence below, all IN items can be built by about **Tue 17 to Thu 19 Nov**, not 25-26 Nov. **By Friday 13, about 8.5 IN units plus FR-B land**, not 22.7.
+- **You are right that my calendar was too slow.** I sized lanes at 1.5 units per *working* day. Agents run most of the 24 hours, every day of the week.
+- **This section therefore sets the lanes and the order at agent pace, starting now.** It does not forecast what lands by Friday. Progress is re-assessed Thursday morning against the actual merges.
 
 ### 0.1 What agents actually delivered (git log on main, 8-11 Nov)
 
 | Day | Merged slices (unit sizes from the build sheets; a few estimated) | Units merged | What else that day used |
 |---|---|---|---|
 | Sun 8 | Kisiwa K4b, K5, K6a, K6b, K6c, K7-D/F, K8, K9, K10; G3a; R-1; idle fuel A3 | about 7 | four lanes, owner away, specs already closed |
-| Mon 9 | G1 1.75, G2 2.25, G3b 1.25, R4.1, POLISH-1, E2 fix A, C1-C4 (about 2.0) | about 8 | G1-G3b were built mostly on Sun 8; E2 suites and E3 build |
+| Mon 9 | G1 1.75, G2 2.25, G3b 1.25, R4.1, POLISH-1, E2 fix A, C1-C4 (about 2.0) | about 8 | G1-G3b built mostly on Sun 8; E2 suites and E3 build |
 | Tue 10 | C5, E5-FX, FX-EV-TITLE, FX-COLD-LINKED, FX-KOBO-GAPS 0.6, V3, PL-1, PL-2, DATA-2, FC 0.75 | about 3.8 | E3c/E4 checks, your walkthrough, six Architect answers |
 | Wed 11 (to 05:00) | DATA-1 0.5 | 0.5 | E3d demo build |
 
-- **Average: about 6 units per calendar day across 3-4 lanes, about 1.75 per lane per day, and only about 4 on a day with a build and a walkthrough.** 110 review commits and 34 fix commits in four days: most slices get one fix round, and DATA-1, PL-1 and FX-COLD-LINKED were each rejected once first.
-- **Those were small fixes to closed specs.** The IN list is heavier: ANY-1/2 is a new migration with byte-for-byte parity proofs; the design tokens and dark theme touch 35 CSS files and ~19 SVGs and need recaptures; the Portfolio is a new tab layout. Expect the lower end of the rate.
-- **What bounds it:**
-  - **Your approvals.** Mockup first: SR and PF need the final v7.1 mockup approved; UQ-1 to UQ-3 need the v7.2 sheet, which does not exist yet (0.5 to draw); PB-1c and RM-2 need your nod. No approval, no build.
-  - **Review gates.** One Opus review per slice; only High and Medium findings block.
-  - **This machine.** 16 GB. Free RAM fell to 1.71 GB with one build plus serve, and Docker's VM crashed once at 02:05. Safe limit: **3 builder lanes on targeted tests**, and one heavy job at a time. Thursday morning the e3d serve and `assetops_polish_client6_test` must not be disturbed: 2 lanes until the demo ends.
-  - **Wednesday's fixed work** (add-dates and live dip capture, retakes, script pass and DS-1f/DS-1b merge, D-E5.29-37 frontend fixes, E4-RESUME (b), KD-COVERAGE, your afternoon walkthrough) takes the coordinator and 1-2 lanes all day.
-  - **The end check** (full suites, check-all, a fresh demo build of about 2 h 45 min, live checks) needs about 6-8 hours of a quiet machine.
+- **Average: about 6 units per calendar day across 3-4 lanes, about 1.75 per lane per day.** It fell to about 4 on a day with a demo build and a walkthrough.
+- **Review and fix rounds are part of that rate.** The four days had 110 review commits and 34 fix commits. Most slices take one fix round, and DATA-1, PL-1 and FX-COLD-LINKED were each rejected once first.
+- **Those were small fixes to closed specs. The IN list is heavier, so expect the lower end of the rate:**
+  - ANY-1/2 is a new migration with byte-for-byte parity proofs;
+  - the tokens and dark theme touch 35 CSS files and about 19 SVGs, and need recaptures;
+  - the Portfolio is a new tab layout.
+- **At that rate the 22.7 IN units are several calendar days of agent work, not hours.** Thursday's re-assessment measures the real rate on this work.
 
-### 0.2 The by-Friday plan (3 lanes at most, each in its own worktree)
+**What bounds the pace:**
+- **Your approvals.** Mockup first:
+  - SR and PF need the final v7.1 mockup approved.
+  - UQ-1 to UQ-3 need the v7.2 sheet, which does not exist yet (0.5 units to draw).
+  - PB-1c and RM-2 need your nod.
+  - No approval, no build.
+- **Review gates.** One Opus review per slice; only High and Medium findings block a merge.
+- **This machine (16 GB):**
+  - Free RAM fell to 1.71 GB with one build plus serve, and Docker's VM crashed once at 02:05.
+  - Safe limit: **3 builder lanes on targeted tests only**, and one heavy job at a time.
+  - Until the Thursday demo ends, **2 lanes**, so the e3d serve and `assetops_polish_client6_test` are not disturbed.
+- **Wednesday's fixed work** takes the coordinator and 1-2 lanes:
+  - add-dates and the live dip capture, retakes;
+  - the script pass and the DS-1f/DS-1b merge;
+  - the D-E5.29-37 frontend fixes, E4-RESUME (b), KD-COVERAGE;
+  - your afternoon walkthrough.
+- **The end check** needs about 6-8 hours of a quiet machine: full suites, check-all, a fresh demo build (about 2 h 45 min) and live checks.
 
-| Lane | Wed 11 | Thu 12 (2 lanes until the demo ends) | Fri 13 | Lands by Fri 13 |
-|---|---|---|---|---|
-| A, server | PB-1a Cold analysed periods (1.0) | PB-1b EV (1.0) | PB-4, PB-7, DATA-6 + L2, BL-50 (1.35); UQ-6a (0.25) | 3.6 |
-| B, screens | UQ-0 v7.2 sheet (0.5), for your approval by Thu noon | UQ-1 tokens, type, Inter (1.25); SR-1 shared bar (0.5) after v7.1 approval | UQ-3 states (0.5); PF-C + PF-W coverage once and new words (1.25) | 4.0 |
-| C, fixes | FR-B starts (about 1.0) | FR-B ends; RM-1 roadmap words (0.5) + RM-2 (0.1) | review and fix rounds for A and B | FR-B + 0.6 |
-| **Total** | | | | **about 8.2 IN units (8.5 with PILOT-1 in the script pass) + FR-B** |
+### 0.2 Lane setup and order, starting now
 
-**Does not land by Friday, and why:**
-- **ANY-1 (3.0):** its parity baseline must be taken after PB-1, PB-4 and PB-7 merge (Fri). AR-1 is a migration that needs a quiet machine for its Postgres tests. Earliest finish Sun 15.
-- **ANY-2 core (4.0):** needs ANY-1's stored rows and the Portfolio server parts. Earliest finish Tue 17.
-- **UQ-2 dark theme, UQ-4 formats, PF-T tabs, PF-O outcomes list, SR-2/3, PB-1c (about 6.0):** they queue behind UQ-1, SR-1 and your approvals in the one screens lane. A second screens lane would collide in the same files (the shell, tokens and Portfolio). Earliest finish Mon 16 to Tue 17.
-- **E-final (1.5):** must be last, once.
+- **Lanes.** Three lanes at most, each in its own worktree and branch. Every lane runs targeted tests only. No full suites, no demo prepares and no recaptures until the end check.
+- **Lanes A and B always run.** Lane C runs only while memory allows: the coordinator checks free RAM before each dispatch and pauses C first.
+- **Lane C runs FR-B first.** FR-B was planned Wed 11-Fri 13 beside the IN work, and Wednesday's fixed work comes before both.
 
-### 0.3 When the end check runs
+| Lane | Order (each item merges on review ACCEPT before the next one that depends on it starts) |
+|---|---|
+| **A, server and data** | PB-1a Cold analysed periods (1.0) → PB-1b EV (1.0) → PB-4, PB-7, DATA-6 + DATA-1 L2, BL-50 (1.35) → UQ-6a message seam (0.25) → ANY-1: AR-0 parity baseline, AR-1 stored rows, AR-2 board depth (3.0) → ANY-2: AR-3, AR-6 (1.5) → AR-4 money and evidence rows (2.5, after PF-C and PF-O2 merge) |
+| **B, screens** | UQ-0 v7.2 sheet (0.5, then your approval) → UQ-1 tokens, type, Inter (1.25) → SR-1 shared bar (0.5, after v7.1 approval) → UQ-2 themes, UQ-3 states (1.5) → PF-C, PF-W, PF-T, PF-O2, PF-O1 (3.75) → SR-2/3, PB-1c (1.5) → UQ-4 formats (0.75) |
+| **C, fixes (memory permitting)** | FR-B (about 1.0) → RM-1 roadmap words + RM-2 (0.6) → then OPTIONAL items in the section 3.3 order. Before Thursday's demo ends, lane C waits. |
 
-- **Recommended: once, after all IN items merge, about Wed 18 Nov**: full suites, check-all, one fresh demo build, live checks, recapture and script refresh. Your full walkthrough is then about **Thu 19 Nov**, a fix round Fri 20, and **a client session from about Mon 23 Nov** is credible. **Tue 1 Dec is now safe with every IN item and most OPTIONAL items**, and 8 Dec is no longer needed for scope.
-- **A Friday end check is not recommended.** It would test a half-built Portfolio and repeat the 6-8 heavy hours next week, which goes against your overnight instruction to batch heavy work at the end. On Friday night only check-all runs, on main.
+**Why only one screens lane:** a second one would collide in the same files (the shell, the tokens and the Portfolio). Lane C takes the screens work that does not touch them.
 
-### 0.4 Approvals needed today to keep this pace
+**Rules that keep it safe at speed:**
+1. **ANY-1's parity baseline (AR-0) is taken only after PB-1, PB-4 and PB-7 merge.** Otherwise its proofs are redone.
+2. **AR-1's migration tests run in a quiet window,** never beside a build or serve.
+3. **Builder briefs stay small** (code and tests first, captures last). The end check does every recapture once.
+4. **Small fix rounds go to Sonnet,** and the coordinator verifies mechanical closures from the diff.
 
-1. **The final v7.1 Portfolio mockup** (`frontend/mockups/v71/portfolio-tabs.html` with the shared date range, Change 0b). It gates SR-1 Thursday and PF Friday.
-2. **The v7.2 foundation sheet, by Thu noon** (drawn Wednesday), with **Inter** and **theme follows the computer's setting**. It gates UQ-1.
-3. **The item 11 changes:** RM-2 hide lens chips, the "Analysed period" line (PB-1c), Kisiwa targets (DATA-6), extra Cold and EV days (DATA-11).
-4. **Present in English** (French and Swahili stay OPTIONAL).
-5. **Three lanes and weekend agent runs**, so ANY-1 runs Sat-Sun; the coordinator holds heavy jobs to one at a time.
+### 0.3 The end check: once, at the end
+
+- **It runs once, after every IN item has merged:** full suites, check-all, one fresh demo build, live checks, recapture in both themes, and the PILOT-1 page with the script refresh. Your full walkthrough follows it.
+- **Check-all alone runs on main after each batch of merges** (it is light).
+- **No mid-way demo build.** It would test a half-built Portfolio and repeat the 6-8 heavy hours, which goes against your overnight instruction to batch heavy work at the end.
+- **On Thursday morning I re-assess from the merges and the measured rate:** the order, the session date (sections 3.2 and 5), and whether any OPTIONAL items fit.
+
+### 0.4 Approvals needed today to unblock this
+
+1. **The final v7.1 Portfolio mockup** (`frontend/mockups/v71/portfolio-tabs.html`, with the shared date range in Change 0b). It gates SR-1 and all of PF.
+2. **The v7.2 foundation sheet** as soon as it is drawn (lane B's first item). Also **Inter** as the font, and **the theme follows the computer's setting**. They gate UQ-1, which every later screens item builds on.
+3. **The item 11 changes:** hide the lens chips (RM-2), the "Analysed period" line (PB-1c), the Kisiwa targets (DATA-6), and the extra Cold and EV days (DATA-11, for OPTIONAL #1).
+4. **Present the session in English.** French and Swahili stay OPTIONAL, so lane B does not carry 3.25 units of catalogue work.
+5. **Three lanes, with agents running overnight and at the weekend.** The coordinator keeps heavy jobs to one at a time and pauses lane C when memory is short.
 
 ## 1. In plain words
 
