@@ -32,3 +32,13 @@ Owner, after the coordinator's explanation of the short Cold/EV analysis windows
 
 Coordinator reading: PB-1c ('Analysed period' line) approved; DATA-11 raised from stretch to IN for 17 Nov (with PB-3, which it pairs with).
 
+
+Kobo 11-10 half-loaded on the E3d build (66 midday pv readings missing after a load timeout; retry is a no-op). Options: A leave the build as is, check how 11-10 reads after the next tick, run Thursday-morning add-dates for 11-11 with all builders paused; B rebuild the demo DB tonight from the tagged code. Owner reply, 2026-11-11 (verbatim):
+
+"option A"
+
+
+Builder lanes overnight and at weekends (Architect approval item 5, three lanes), 2026-11-11 (verbatim):
+
+"builder lane overnight and weekend, yes"
+
