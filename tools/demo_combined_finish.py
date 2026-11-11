@@ -426,7 +426,10 @@ def co10(ctx: Ctx) -> dict:
     ev = [(w["kind"], w["title"]) for w in _ev_board(ctx)["warnings"]]
     assert ("PLAN_OVERDUE", "Connector inspection overdue") in ev, ev
     assert "CHARGER_FAULT_OVERDUE_INSPECTION" in [k for k, _ in ev], ev
-    return {"kobo": kobo, "ev": ev}
+    # EV-HB / D-E5.49: c1 stays FAULTED 08:16-16:00 on the fault day: out 7 h 44 min, 0 min unknown
+    out = [w for w in _ev_board(ctx)["warnings"] if w["kind"] == "CONNECTOR_OUT_OF_SERVICE"]
+    assert len(out) == 1 and out[0]["seen"].startswith("7 h 44 min out") and "unknown" not in out[0]["seen"], out
+    return {"kobo": kobo, "ev": ev, "connector_out": out[0]["seen"]}
 
 
 # ---- estate and every Site -------------------------------------------------------------------------------------
@@ -587,7 +590,7 @@ def co12(ctx: Ctx) -> dict:
 def wk1(ctx: Ctx) -> dict:
     """WALK1-2: the Depot Grow row carries the estimated charging income at the declared tariff."""
     grow = rows(_ev_board(ctx))["GROW_REVENUE"]
-    # DD1b2-R10: the earnings claim decides (CH-6a3 ONE-SOURCE); the fault run is 1 h of the session, so no day counts
+    # DD1b2-R10: the earnings claim decides (CH-6a3 ONE-SOURCE); the EV days are recorded 08:00-16:00 (EV-HB) and grade COMPLETE, so the days count
     return demo_rows.wk1(grow)
 
 

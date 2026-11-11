@@ -70,6 +70,19 @@ times are same length); `backend/tests/test_demo_story_days.py` (v4-vs-v3 diff r
 - **PB-1b shown period** on an EV day: 08:00-16:05 (was 08:00-09:05; the worker's job window closes 5 min after).
   The DATA-2 "analysed period" link reads `HH:MM` from the day entry: now "08:00-16:00Z".
 - EV availability on the fault day: c1 is FAULTED (known unavailable) 08:16-16:00 instead of 08:16-09:00.
+- **D-E5.49 (sanctioned exception to "every other row stays equal")**: on the fault day clients read c1 "out of
+  service for 7 h 44 min" (464 min, 0 min unknown) with one CONNECTOR_OUT_OF_SERVICE warning ("7 h 44 min out on
+  3 Nov"; was "44 min out and 16 min unknown"). Pinned in `backend/tests/test_out_c4_mini_ev.py::
+  test_ev_fault_day_connector_out_7h44_with_no_unknown_time` (warning title/seen, Protect contributor "Connector c1:
+  7 h 44 min out, 0 min unknown", subline) and in finish row CO-10 (`tools/demo_combined_finish.py`: exactly one
+  CONNECTOR_OUT_OF_SERVICE, `seen` starts "7 h 44 min out", no "unknown"; returned as `connector_out`).
+- Script-refresh strings (DS-1f/DS-1b, NOT edited; replace with "out of service from 08:16 for the rest of the
+  charging day (7 h 44 min); repair still pending"): `Docs/demo-sprint/demo-script-img/e5/text/01-portfolio-week-{390,1440}.txt:260`
+  "Depot - Protect asset and capital - 44 min out and 16 min unknown on 3 Nov"; `.../10-ev-board-fault-1103-{390,1440}.txt:42`
+  "Connector c1 was out of service for 44 min; ..." and `:49` "Connector c1: 44 min out, 16 min unknown";
+  `frontend/src/sites/__tests__/evFindingIndex.test.tsx:148,157` use "44 min out and 16 min unknown on 6 Oct" as a fixture
+  string only (independent of the data; may stay). `implementation-logic-portfolio-sites-findings-actions.html:709,1031`
+  already updated here on this branch. Captured pngs of those screens are stale too.
 
 ## Known deviations
 
@@ -90,8 +103,19 @@ times are same length); `backend/tests/test_demo_story_days.py` (v4-vs-v3 diff r
    plan as before; EV Site whole-day read shows the period 08:00-16:05; WK-1 green.
 5. CO-6 green; record `cold_ev_coverage` and compare EV with the last build (expected more known time, no failure).
 6. Cold: session counts on any client page that shows them (8 daily uploads S-7..S, DATA-11) unchanged by EV-HB.
+6a. Fault day S (D-E5.49): c1 out of service 7 h 44 min, 0 min unknown, one Finding, Action Pending, USD 9.00 / 4.50;
+   E5 / WK-1 count 9.00 / 9.00 / 4.50; CO-10 `connector_out` reads "7 h 44 min out on 3 Nov".
 7. All other finish rows green and equal; record the prepare time and the EV step's seconds (`EXPECTED_SECONDS["ev"]`
    is 200) against the last build.
+
+## Fix round (D-E5.49 + review Lows)
+
+Merged main. Added: 7 h 44 min pins (above); `host/tests/test_ev_lab_execution.py::test_ev_artifact_window_boundary_edges`
+(481 and 61 pass the window check; 482, 60 and an incomplete window are refused with the window reason); stale comments
+fixed (`host/ev_publication.py:146`, `tools/demo_combined_finish.py` WK-1); the implementation-logic html updated.
+
+Checks: `test_out_c4_mini_ev` 13, `test_ev_lab_execution` 49, `test_demo_combined_finish_rows` 77 passed;
+`test_evhb_ev_window.py` (Postgres, 0 skipped) run twice, 7 passed both times (257 s, 224 s); no failure recurred.
 
 ## User review
 

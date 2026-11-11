@@ -143,7 +143,7 @@ def ev_channels(rows: Iterable[Mapping[str, Any]]) -> dict[tuple[str | None, str
 
 
 def ev_execution(definition: EvScenarioDefinition, parameters: EvParameters) -> EvRun:
-    """Execute the scenario's whole window once: 60 minutes and the closing boundary (61 documents)."""
+    """Execute the scenario's whole window once: 60 to 480 minutes and the closing boundary (61 to 481 documents)."""
     forcing = tuple(EvForcingRow(at=_at(f.time), kind=f.kind, connector=f.connector, value=f.value)
                     for f in definition.forcing)
     pack = EvChargerPack(parameters, scenario_sha256=definition.scenario_sha256)
