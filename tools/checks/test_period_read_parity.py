@@ -44,9 +44,28 @@ def test_no_row_with_two_revisions_is_a_failure_not_a_skip(monkeypatch, tmp_path
 
 def test_self_test_is_not_vacuous(monkeypatch) -> None:
     """Break the comparison (a compare that never reports): the self-test must then fail."""
-    monkeypatch.setattr(parity, "compare", lambda cases, oracle, candidate: parity.Report(
+    monkeypatch.setattr(parity, "compare", lambda cases, oracle, candidate, *clock: parity.Report(
         [parity.Outcome(c, "PASS") for c in cases]))
     problems = parity.self_test()
     assert any("deliberate byte mismatch" in p for p in problems), problems
     assert any("unstable oracle" in p for p in problems), problems
+    assert any("real body difference" in p for p in problems), problems
     assert parity.main(["--self-test"]) == 1
+
+
+def test_live_now_normaliser_is_not_vacuous(monkeypatch) -> None:
+    """No normalising: the live echo is caught. Normalising every known_at: historical and stored values are caught."""
+    monkeypatch.setattr(parity, "normalise_live_now", lambda body, before, after: body)
+    assert any("echoed now was not normalised" in p for p in parity.self_test())
+    monkeypatch.setattr(parity, "normalise_live_now",
+                        lambda body, before, after: parity._KNOWN_AT.sub(parity.LIVE_NOW, body))
+    assert any("stored (not now)" in p for p in parity.self_test())
+    monkeypatch.setattr(parity, "is_live", lambda path: True)
+    assert any("historical read's known_at was normalised" in p for p in parity.self_test())
+
+
+def test_live_now_normaliser_touches_only_the_now_echo() -> None:
+    body = b'{"known_at":"2026-11-11T13:52:51Z","w":{"known_at":"2026-11-07T21:00:00Z"},"day":"2026-11-11T13:52:51Z"}'
+    at = parity.datetime(2026, 11, 11, 13, 52, 51, tzinfo=parity.UTC).timestamp()
+    assert parity.normalise_live_now(body, at - 0.4, at + 0.2) == (
+        b'{"known_at":"<live-now>","w":{"known_at":"2026-11-07T21:00:00Z"},"day":"2026-11-11T13:52:51Z"}')

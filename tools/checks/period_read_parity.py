@@ -16,6 +16,7 @@ is pre-built or read from `chain_response`:
 
 Each request is fetched oracle, candidate, oracle. A status or byte difference between oracle and candidate is a
 MISMATCH; two different oracle bodies are UNSTABLE (the request is not deterministic, so parity cannot be judged).
+A live request (no `known_at`) echoes the server's now as `known_at`; only that echo is normalised (`normalise_live_now`).
 Either fails the run (exit 1). A kind that cannot be proven equal stays on the old path and is reported, never
 approximated (architect answer §4 risks). With no `--kinds` (AR-1: no kind is served from rows) the run is the
 baseline: it proves the oracle deterministic on every case.
@@ -29,6 +30,7 @@ import argparse
 import json
 import os
 import random
+import re
 import sys
 import time
 from dataclasses import dataclass, field
@@ -191,16 +193,43 @@ def _first_difference(a: bytes, b: bytes) -> str:
 
 Fetch = Callable[[str], tuple[int, bytes]]
 
+#: A live read (no `known_at` in the request) echoes the server's "now" as `known_at`, so two fetches seconds apart
+#: differ there and nowhere else. Only a `"known_at"` value that falls inside that fetch's own wall-clock window (whole
+#: seconds on the wire, so the window is widened by 1 s each side) is the now echo; it is replaced by `LIVE_NOW`. Any
+#: other `known_at` (story time, a stored `computed_at`) and every other byte are compared as served.
+_KNOWN_AT = re.compile(rb'"known_at":\s*"(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?)(Z|\+00:00)"')
+LIVE_NOW = b'"known_at":"<live-now>"'
 
-def compare(cases: Sequence[Case], oracle: Fetch, candidate: Fetch) -> Report:
+
+def is_live(path: str) -> bool:
+    return "known_at=" not in path
+
+
+def normalise_live_now(body: bytes, before: float, after: float) -> bytes:
+    lo, hi = before - 1.0, after + 1.0
+
+    def one(m: re.Match) -> bytes:
+        at = datetime.fromisoformat(m.group(1).decode()).replace(tzinfo=UTC).timestamp()
+        return LIVE_NOW if lo <= at <= hi else m.group(0)
+
+    return _KNOWN_AT.sub(one, body)
+
+
+def compare(cases: Sequence[Case], oracle: Fetch, candidate: Fetch,
+            clock: Callable[[], float] = time.time) -> Report:
     report = Report()
     for case in cases:
+        def get(fetch: Fetch) -> tuple[int, bytes]:
+            w0 = clock()
+            s, body = fetch(case.path)
+            return s, (normalise_live_now(body, w0, clock()) if is_live(case.path) else body)
+
         t0 = time.perf_counter()
-        s1, a = oracle(case.path)
+        s1, a = get(oracle)
         t1 = time.perf_counter()
-        s2, b = candidate(case.path)
+        s2, b = get(candidate)
         t2 = time.perf_counter()
-        s3, c = oracle(case.path)
+        s3, c = get(oracle)
         o = Outcome(case, "PASS", oracle_ms=round((t1 - t0) * 1000, 1), candidate_ms=round((t2 - t1) * 1000, 1))
         if (s1, a) != (s3, c):
             o.verdict, o.detail = "UNSTABLE", f"oracle not deterministic: {_first_difference(a, c)}" \
@@ -288,6 +317,38 @@ def self_test() -> list[str]:
 
     if [o.verdict for o in compare(cases, drifting, same).failed] != ["UNSTABLE"]:
         problems.append("an unstable oracle was not caught")
+    problems += _live_now_self_test()
+    return problems
+
+
+def _live_now_self_test() -> list[str]:
+    """A live read's echoed now is normalised; a real body difference, a historical `known_at` and a stored (not now)
+    `known_at` in a live read still fail. A fake clock moves 5 s per tick, so every fetch stamps a different now."""
+    problems: list[str] = []
+    live, hist = (Case("live", "/api/estate/portfolio?from=a&to=b", "story"),
+                  Case("hist", "/api/estate/portfolio?from=a&to=b&known_at=2026-11-01T00%3A00%3A00Z", "story"))
+    tick = [1_794_000_000.0]
+
+    def clock() -> float:
+        tick[0] += 5.0
+        return tick[0]
+
+    def stamped(extra: bytes = b"", stored: str | None = None) -> Fetch:
+        def go(path: str) -> tuple[int, bytes]:
+            now = _z(datetime.fromtimestamp(tick[0] + 2.0, UTC))
+            inner = f'"known_at":"{stored}"' if stored else '"x":1'
+            return 200, f'{{"known_at":"{now}","rows":[{{{inner}}}]}}'.encode() + extra
+        return go
+
+    if compare([live], stamped(), stamped(), clock).failed:
+        problems.append("a live read differing only at its echoed now was not normalised")
+    if [o.verdict for o in compare([live], stamped(), stamped(b" "), clock).failed] != ["MISMATCH"]:
+        problems.append("a live read with a real body difference passed")
+    if [o.verdict for o in compare([hist], stamped(), stamped(), clock).failed] != ["UNSTABLE"]:
+        problems.append("a historical read's known_at was normalised")
+    if [o.verdict for o in compare([live], stamped(stored="2026-11-07T21:00:00Z"),
+                                   stamped(stored="2026-11-07T21:00:01Z"), clock).failed] != ["MISMATCH"]:
+        problems.append("a stored (not now) known_at in a live read was normalised")
     return problems
 
 
