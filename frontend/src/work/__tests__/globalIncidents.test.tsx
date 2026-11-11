@@ -324,6 +324,32 @@ describe("W6-01a A2: global Incidents", () => {
     expect(document.querySelector("[data-global-work-pager]")).toBeNull();
   });
 
+  it("OPEN-NOW: names what is open now above the list, from the server's line, even when the window is empty", async () => {
+    const line = "Open now: 1 incident, 3 requests, whatever the dates";
+    const reads = client({
+      "page-one": loaded(body([], {
+        state_counts: { OPEN: 0, IN_PROGRESS: 0, CLOSED: 0 },
+        open_now: { incidents: 1, requests: 3, line },
+      })),
+    });
+    mount(PAGE, reads);
+    await settled();
+    const shown = document.querySelector("[data-work-open-now]");
+    expect(text(shown)).toBe(line);
+    expect(shown?.getAttribute("data-work-open-now")).toBe("some");
+    // It sits above the list (the zero statement here), inside the cases panel.
+    const zero = document.querySelector("[data-global-work-zero]")!;
+    expect(shown!.compareDocumentPosition(zero) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    cleanup();
+    mount(PAGE, client({ "page-one": loaded(body([row(1)], { open_now: { incidents: 0, requests: 0, line: "Nothing open now" } })) }));
+    await settled();
+    expect(text(document.querySelector("[data-work-open-now='none']"))).toBe("Nothing open now");
+    cleanup();
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
+    await settled();
+    expect(document.querySelector("[data-work-open-now]")).toBeNull(); // no value, no invented line
+  });
+
   it("states no accessible Sites without cards or a zero (typed EMPTY_SCOPE only)", async () => {
     const reads = client({
       "page-one": loaded(
