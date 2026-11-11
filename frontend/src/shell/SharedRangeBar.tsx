@@ -20,14 +20,17 @@
  *   pages move onto the range in SR-2. Until then a page whose address has no range says "This page's own dates".
  */
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { WINDOW_NOT_VALID } from "../estate/estateClient";
 import { formatDay, formatDayRange, formatDayTime } from "../ui/time";
 import {
   RANGE_MAX_DAYS,
   RANGE_PRESETS,
+  entryRange,
+  fillsRangeOnEntry,
   presetLabel,
+  readSharedRange,
   presetRange,
   rangeDays,
   rangeParams,
@@ -63,6 +66,20 @@ const spokenLabel = (range: DayRange): string => {
 
 /** A `datetime-local` value as the UTC instant the pages read (the picker says times are UTC). */
 const cutoffInstant = (value: string): string => `${value.length === 16 ? `${value}:00` : value}Z`;
+
+/**
+ * SR.3 "An address with no range": the shell's outlet. On an estate page (`fillsRangeOnEntry`) whose address has no
+ * range, it replaces the address with the same path plus the tab's last range (else Last 7 days), with no history
+ * entry, before the page mounts; the page then reads once, for the range the address shows. Otherwise the page.
+ */
+export function SharedRangeOutlet() {
+  const location = useLocation();
+  const [params] = useSearchParams();
+  if (!fillsRangeOnEntry(location.pathname) || readSharedRange(params).status !== "absent") return <Outlet />;
+  const next = entryRange();
+  for (const [key, value] of params) next.append(key, value);
+  return <Navigate replace to={`${location.pathname}?${next.toString()}${location.hash}`} state={location.state} />;
+}
 
 export function SharedRangeBar() {
   const state = useSharedRange();

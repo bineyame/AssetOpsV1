@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Navigate, Outlet, useLocation, useOutletContext, useSearchParams } from "react-router-dom";
+import { useLocation, useOutletContext, useSearchParams } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
-import { SharedRangeBar } from "./SharedRangeBar";
-import { entryRange, fillsRangeOnEntry, rangeSearch, readSharedRange } from "./sharedRange";
+import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
+import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
 
@@ -101,20 +101,12 @@ export function OperatorShellLayout() {
   // The button exists only at that width: elsewhere the rail is always shown, so the shell adds no control.
   const narrow = useNarrowViewport();
   const [railOpen, setRailOpen] = useState(false);
-  const location = useLocation();
-  const { pathname } = location;
+  const { pathname } = useLocation();
   useEffect(() => setRailOpen(false), [pathname]);
-  // SR-1 (SR.3): the rail keeps the address range; an estate address with none is completed before the page mounts
-  // (replace, no history entry), so its first read is for the range the address then shows.
+  // SR-1 (SR.3): the rail keeps the address range. `SharedRangeOutlet` completes an estate address that has none
+  // before the page mounts (same path, replace, no history entry).
   const [params] = useSearchParams();
   const railSearch = rangeSearch(params);
-  const fill = fillsRangeOnEntry(pathname) && readSharedRange(params).status === "absent";
-  let filled: string | null = null;
-  if (fill) {
-    const next = entryRange();
-    for (const [key, value] of params) next.append(key, value);
-    filled = `${pathname}?${next.toString()}${location.hash}`;
-  }
 
   return (
     <div
@@ -154,7 +146,7 @@ export function OperatorShellLayout() {
           {DEMONSTRATION_BANNER}
         </p>
         <div className="app-frame__content">
-          {filled === null ? <Outlet /> : <Navigate replace to={filled} state={location.state} />}
+          <SharedRangeOutlet />
         </div>
       </div>
     </div>
