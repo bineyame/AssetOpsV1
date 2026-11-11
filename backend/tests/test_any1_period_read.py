@@ -327,6 +327,29 @@ def test_pending_live_dirty_marks_and_old_builder_versions() -> None:
     assert all(r.pending == ("builder_version",) for r in got.rows)
 
 
+def test_absent_rows_are_reported_rendered_no_data_and_logged_live(caplog) -> None:
+    from assetops_backend.chain.period_read import ABSENT_LOG_EVENT, NO_ROW_STATE, absent_count
+
+    store, kind, b = _built()
+    reader = PeriodReader(store, _register(), b.versions(), now=lambda: store.clock[0])
+    before = absent_count()
+    with caplog.at_level("WARNING", logger="assetops.chain.period_read"):
+        live = reader.read(T, [KOBO, COLD], [KIND], D, D + timedelta(days=1))
+    assert live.absent == tuple(sorted([(COLD.site_id, D, KIND), (COLD.site_id, D + timedelta(days=1), KIND),
+                                        (KOBO.site_id, D + timedelta(days=1), KIND)],
+                                       key=lambda a: (str(a[0]), a[1], a[2])))
+    assert live.day_state(KOBO.site_id, D, KIND) is None
+    assert live.day_state(COLD.site_id, D, KIND) == NO_ROW_STATE == "NO_DATA"
+    assert absent_count() == before + 3 and [r.message for r in caplog.records] == [ABSENT_LOG_EVENT]
+    caplog.clear()
+    k = store.clock[0] - timedelta(minutes=1)  # nothing known yet at k: absent, not logged (historical)
+    hist = reader.read(T, [KOBO], [KIND], D, D, known_at=k)
+    assert hist.rows == [] and hist.absent == ((KOBO.site_id, D, KIND),) and not caplog.records
+    assert absent_count() == before + 3
+    store.dirty.append((COLD.site_id, D, KIND))  # a missing period on a pending day renders PENDING
+    assert reader.read(T, [COLD], [KIND], D, D).day_state(COLD.site_id, D, KIND) == "PENDING"
+
+
 def test_served_kinds_switch(monkeypatch) -> None:
     monkeypatch.delenv("ASSETOPS_PERIOD_READ_KINDS", raising=False)
     assert served_kinds() == frozenset()

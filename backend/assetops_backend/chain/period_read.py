@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import re
 from dataclasses import dataclass, field, replace
@@ -33,8 +34,10 @@ from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from .events import EventRegister, KIND_PATTERN, resolve
+from .grading import NO_DATA, PENDING
 from .ports import DayCtx, PeriodKey, PeriodReadStore, PeriodRow, ProvenanceBlock, SiteRef
 
+LOG = logging.getLogger("assetops.chain.period_read")
 SERVED_KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
 STATE_PATTERN = re.compile(r"^[A-Z][A-Z_]{0,39}$")
 #: Body fields that hold words: their value is a message `{key, params}` (or null), never composed text (D-I18N.1).
@@ -312,6 +315,18 @@ class PeriodRead:
     pending: tuple[str, ...] = ()  # reasons: "event", "dirty", "builder_version"
 
 
+#: D-ANY.5 M1: a requested (Site, day, kind) with no row at k renders exactly as today's compose renders no stored
+#: input at k (`chain/reader.py`: a requested measure with no snapshot row is NO_DATA).
+NO_ROW_STATE = NO_DATA
+ABSENT_LOG_EVENT = "period_row_absent"
+_ABSENT_SEEN = [0]
+
+
+def absent_count() -> int:
+    """Live absent (Site, day, kind) reads since process start (perf reports it; D-ANY.5 M1)."""
+    return _ABSENT_SEEN[0]
+
+
 @dataclass
 class PeriodReadResult:
     rows: list[PeriodRead]
@@ -319,9 +334,22 @@ class PeriodReadResult:
     #: without a stored row: a missing period on a pending day is pending, not absent).
     pending: dict[tuple[UUID, date, str], tuple[str, ...]]
     statements: int = 0
+    #: D-ANY.5 M1: every requested (site_id, local_day, kind) with no stored row at k, sorted; never silent.
+    absent: tuple[tuple[UUID, date, str], ...] = ()
 
     def is_pending(self, site_id: UUID, local_day: date, kind: str) -> bool:
         return (site_id, local_day, kind) in self.pending
+
+    def is_absent(self, site_id: UUID, local_day: date, kind: str) -> bool:
+        return (site_id, local_day, kind) in self.absent
+
+    def day_state(self, site_id: UUID, local_day: date, kind: str) -> str | None:
+        """PENDING at k, else the no-row rule's state for an absent day, else None (the stored rows render)."""
+        if self.is_pending(site_id, local_day, kind):
+            return PENDING
+        if self.is_absent(site_id, local_day, kind):
+            return NO_ROW_STATE
+        return None
 
 
 class PeriodReader:
@@ -368,9 +396,23 @@ class PeriodReader:
                 reasons.add("builder_version")
                 add((r.site_id, r.local_day, r.kind), "builder_version")
             out.append(PeriodRead(r, tuple(sorted(reasons))))
+        have = {(r.site_id, r.local_day, r.kind) for r in rows}
+        absent: list[tuple[UUID, date, str]] = []
+        day = from_day
+        while day <= to_day:
+            for site_id in site_ids:
+                absent.extend((site_id, day, kind) for kind in wanted if (site_id, day, kind) not in have)
+            day += timedelta(days=1)
+        absent.sort(key=lambda a: (str(a[0]), a[1], a[2]))
+        if absent and known_at is None:  # no fallback compose on the serve path: log and count (D-ANY.5 M1)
+            _ABSENT_SEEN[0] += len(absent)
+            LOG.warning(ABSENT_LOG_EVENT, extra={"event": ABSENT_LOG_EVENT, "tenant_id": str(tenant_id),
+                                                 "count": len(absent), "first": [str(absent[0][0]),
+                                                                                 absent[0][1].isoformat(),
+                                                                                 absent[0][2]]})
         return PeriodReadResult(out, {k: tuple(sorted(v)) for k, v in sorted(pending.items(),
                                                                                key=lambda kv: str(kv[0]))},
-                                statements)
+                                statements, tuple(absent))
 
 
 def stale_rows(rows: Iterable[PeriodRow], versions: Mapping[str, str]) -> list[PeriodRow]:
@@ -378,7 +420,7 @@ def stale_rows(rows: Iterable[PeriodRow], versions: Mapping[str, str]) -> list[P
     return [r for r in rows if versions.get(r.kind) != r.builder_version]
 
 
-__all__ = ["KindBuilder", "PeriodContractError", "PeriodFragment", "PeriodRead", "PeriodReadBuilder",
+__all__ = ["ABSENT_LOG_EVENT", "NO_ROW_STATE", "absent_count", "KindBuilder", "PeriodContractError", "PeriodFragment", "PeriodRead", "PeriodReadBuilder",
            "PeriodReadResult", "PeriodReader", "PeriodWritten", "SERVED_KINDS_ENV", "day_bounds", "is_message",
            "money_amount", "money_line", "period_fp", "rate_refs", "served_kinds", "stale_rows", "validate_body",
            "validate_money_line"]
