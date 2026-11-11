@@ -13,6 +13,15 @@ Branch `task/FIX-MAIN-RED` from main 626e3b94e.
    PARTIAL, `withheld` True and F05 is withheld (0 rows). Windows cannot be shifted (INVALID_WINDOW unless UTC-aligned).
    Decision needed: (a) seed chain day grades in the estate fixture so F05 shows again (the placement/capture
    `data-portfolio-row` output depends on it), or (b) accept PARTIAL and rewrite the assertions (loses F05 placement).
+   Follow-up (coordinator ruled (a), seed grades): NOT done, the premise does not hold for this fixture. The `estate`
+   fixture deliberately has no readings: `test_out_b4_board_postgres.py` pins `S602B_CHAIN_DAY = {settled, readiness
+   NONE, gaps 31}` and its line 542 comment says "estate 10-21 has no Finding rows while coverage is not current"
+   (addendum 6, moved to the combined-dataset acceptance). Stored chain grades come only from readings
+   (`performance_migration`, run AFTER `s602b.build`, where `estate_assertions` runs) plus backfill a-d and
+   `chain_threads`. Making 10-11 and 10-21 COMPLETE means adding readings (changes the pinned readiness/gaps and board
+   states on the same fixture) or hand-inserting chain rows and moving the assertions after the settle. Either changes
+   what the fixture says. Needs a fixture-intent decision: readable on those two days, or (b) per addendum 6
+   (PARTIAL, 0 rows). Nothing changed for item 2.
 3. siteFoundationChange.test.tsx (FIXED). Cause: SR-1 (66a38d849) put the shared date-range button in the shell
    top bar; the "read-only, no button" check now excludes `[data-shared-range-button]` via `pageButtons()`. 18 passed
    (was 3 failed); tsc clean. Non-vacuity: the check still lists any other button's outerHTML.
