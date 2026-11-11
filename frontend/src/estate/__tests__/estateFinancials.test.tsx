@@ -264,7 +264,7 @@ describe("PARTIAL-MONEY estate Financials", () => {
     renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(partial(block({ state: "CURRENCY_MIXED", amount: null })))));
     await settledScreen();
     expect(main().querySelector("[data-estate-partial-money='MINI-001']")?.textContent).toBe(
-      "Kobo: amounts in more than one currency, not added for 6 of 7 days analysed · 4 Nov: no readings",
+      "Kobo: amounts in more than one currency are not added · 6 of 7 days analysed · 4 Nov: no readings",
     );
   });
 

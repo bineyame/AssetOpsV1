@@ -389,7 +389,6 @@ export function SitePerformanceFrame({
                   siteCode={site.site_id}
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
-                  pageHref={pageHref}
                 />
               )}
             </main>
