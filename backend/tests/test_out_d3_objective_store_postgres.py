@@ -29,7 +29,7 @@ if URL:
     from assetops_backend.objectives.model import SYSTEM_DECLARER, Declaration, ObjectiveRefused
 
 DEMO = Path(__file__).resolve().parents[1] / "conversions" / "demo-objectives.json"
-SITES = ("KOBO-001", "COLD-LAB-001", "EV-LAB-001")
+SITES = ("KOBO-001", "COLD-LAB-001", "EV-LAB-001", "KISIWA-001")  # DATA-6: Kisiwa MG-2, MG-5
 
 
 def run(objectives, capsys) -> list[dict]:
@@ -53,12 +53,13 @@ def test_declare_idempotent_chain_reproducible_reads_and_refusals(store, engine,
         first = run(objectives, capsys)
         assert [(o["site_code"], o["outcome_key"], o["inserted"], o["revision_no"]) for o in first] == [
             ("KOBO-001", "MG-2", True, 1), ("KOBO-001", "MG-1", True, 1), ("KOBO-001", "MG-5", True, 1),
-            ("COLD-LAB-001", "CC-6", True, 1), ("EV-LAB-001", "EV-1", True, 1), ("EV-LAB-001", "EV-2", True, 1)]
+            ("COLD-LAB-001", "CC-6", True, 1), ("EV-LAB-001", "EV-1", True, 1), ("EV-LAB-001", "EV-2", True, 1),
+            ("KISIWA-001", "MG-2", True, 1), ("KISIWA-001", "MG-5", True, 1)]
         again = run(objectives, capsys)
-        assert [o["inserted"] for o in again] == [False] * 6
+        assert [o["inserted"] for o in again] == [False] * 8
         assert [o["revision_id"] for o in again] == [o["revision_id"] for o in first]
         with engine.connect() as c:
-            assert c.execute(text("SELECT count(*) FROM outcome_objective_revision")).scalar() == 6
+            assert c.execute(text("SELECT count(*) FROM outcome_objective_revision")).scalar() == 8
             ev2 = c.execute(text("SELECT measure_kind, comparison, unit, currency, window_rule, target, actor_id, "
                                  "source_channel FROM outcome_objective_revision WHERE outcome_key = 'EV-2'")).one()
         assert tuple(ev2) == ("VALUE", "AT_MOST", "currency/km", "USD", "BOARD_WINDOW", Decimal("0.20"),
@@ -114,7 +115,7 @@ def test_declare_idempotent_chain_reproducible_reads_and_refusals(store, engine,
                                                      "SYSTEM_CLI"))
         assert (invalid.status, invalid.code) == (422, "OBJECTIVE_INVALID")
         with engine.connect() as c:
-            assert c.execute(text("SELECT count(*) FROM outcome_objective_revision")).scalar() == 7
+            assert c.execute(text("SELECT count(*) FROM outcome_objective_revision")).scalar() == 9
 
         with pytest.raises(DBAPIError, match="append only"):
             with engine.begin() as c:
