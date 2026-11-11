@@ -168,16 +168,25 @@ describe("Site Evidence from the central ledger: overview", () => {
     expect(document.querySelector("[data-evidence-store]")).toBeNull();
   });
 
-  it("writes a chosen period into the address as a half-open UTC window", async () => {
-    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
+  it("SR-2: takes its period from the shared range in the address and renders no From/To form of its own", async () => {
+    const ranged = `${EVIDENCE_URL}?from=2026-09-22T00%3A00%3A00Z&to=2026-09-23T00%3A00%3A00Z`;
+    renderAt(ranged, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
     await settledScreen();
-    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-09-22T08:00" } });
-    fireEvent.change(screen.getByLabelText("To"), { target: { value: "2026-09-22T09:00" } });
-    fireEvent.click(screen.getByRole("button", { name: "Show this period" }));
+    expect(document.querySelector("main input[type='datetime-local'], main input[type='date']")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Show this period" })).toBeNull();
+    expect(loc()).toContain("from=2026-09-22T00%3A00%3A00Z");
+    expect(document.querySelector("[data-evidence-period]")?.textContent).not.toMatch(/choose the days in the date range at the top/);
+  });
+
+  it("SR-2: with no range, says the period is every reading and points to the date range at the top", async () => {
+    renderAt(
+      EVIDENCE_URL,
+      ledgerClient({ status: "loaded", value: { ...LEDGER_EVIDENCE, window: { ...LEDGER_EVIDENCE.window, start: null, end: null } } }),
+    );
     await settledScreen();
-    expect(loc()).toContain("from=2026-09-22T08%3A00%3A00Z");
-    expect(loc()).toContain("to=2026-09-22T09%3A00%3A00Z");
-    expect(screen.getAllByText(/up to but not including the end time/).length).toBeGreaterThan(0);
+    expect(document.querySelector("[data-evidence-period]")?.textContent).toMatch(
+      /all readings this site has received.*choose the days in the date range at the top/,
+    );
   });
 });
 

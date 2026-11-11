@@ -7,7 +7,7 @@
  * reload (closure 4 S15). A row's `url:null` is the noninteractive `Scenario detail unavailable`; creation is the
  * noninteractive `Scenario creation unavailable`. The notice is always shown.
  */
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import {
@@ -21,10 +21,10 @@ import {
   type ScenarioScope,
 } from "./miniDecisionsClient";
 import { ClaimLabel } from "./ClaimLabel";
-import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
+import { siteLocalDate, siteLocalLastDay, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
-import { formatDayTime } from "../ui/time";
+import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 export const SCENARIOS_HEADING_ID = "mini-scenarios-heading";
@@ -256,69 +256,26 @@ function Loaded({
 }
 
 /**
- * post-W6 W4 R325 (Q14), MOCK DEVIATION D2 (R450): a compact page-local Window in Site-local calendar days, after the
- * subtabs (the DomainWorkWindow pattern). The address keeps UTC bounds; Apply keeps the cutoff and reads page one.
- * Invalid input stays on the page with its reason and makes no new read.
+ * SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the Window is the shared date range in the top bar. The page
+ * names the days it reads (Site-local, last day included, build ruling 7) and renders no date form of its own; the
+ * address keeps the UTC bounds, so the request is unchanged. Replaces the page-local Window (MOCK DEVIATION D2, R450).
  */
-export function ScenariosWindow({
-  scope,
-  timeZone,
-  onApply,
-}: {
-  scope: ScenarioScope;
-  timeZone: string | null;
-  onApply: (next: ScenarioScope) => void;
-}) {
-  const [first, setFirst] = useState(siteLocalDate(scope.from, timeZone));
-  const [last, setLast] = useState(siteLocalLastDay(scope.to, timeZone));
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    setFirst(siteLocalDate(scope.from, timeZone));
-    setLast(siteLocalLastDay(scope.to, timeZone));
-    setError(null);
-  }, [scope.from, scope.to, timeZone]);
-  const zone = siteZoneDisplayLabel(timeZone, scope.from);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const from = first ? siteLocalMidnightUtc(first, timeZone) : "";
-    // build ruling 7: the chosen end day is included; the half-open URL bound is the next Site-local midnight.
-    const to = last ? siteLocalEndUtc(last, timeZone) : "";
-    if (from === "" || to === "") {
-      setError("Choose both dates.");
-      return;
-    }
-    if (Date.parse(to) <= Date.parse(from)) {
-      setError("The end must be after the start.");
-      return;
-    }
-    setError(null);
-    onApply({ from, to, known_at: scope.known_at, cursor: null });
-  };
-  return (
-    <div className="mini-scenarios-window-row">
-      <form className="site-date-bar mini-scenarios-window" onSubmit={submit} aria-label="Window" data-scenarios-window>
-        <span className="mini-scenarios-window__lead">Window</span>
-        <label className="mini-scenarios-window__field">
-          {`From (${zone}) `}
-          <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} data-scenarios-window-from />
-        </label>
-        <label className="mini-scenarios-window__field">
-          {`To (${zone}, included) `}
-          <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} data-scenarios-window-to />
-        </label>
-        <button className="button" type="submit" data-scenarios-window-apply>
-          Apply
-        </button>
-        {error === null ? null : (
-          <span className="mini-scenarios-window__error" role="alert" data-scenarios-window-error>
-            {error}
-          </span>
-        )}
-      </form>
-      <p className="mock-deviation-line" data-mock-deviation="R450">
-        MOCK DEVIATION D2 (R450)
+export function ScenariosWindow({ scope, timeZone }: { scope: ScenarioScope; timeZone: string | null }) {
+  if (scope.from === null || scope.to === null) {
+    return (
+      <p className="site-date-bar mini-scenarios-window" data-scenarios-window="absent">
+        Choose the days in the date range at the top.
       </p>
-    </div>
+    );
+  }
+  const zone = siteZoneDisplayLabel(timeZone, scope.from);
+  const day = (iso: string) => formatDay(`${iso}T00:00:00Z`, { year: false });
+  const first = day(siteLocalDate(scope.from, timeZone));
+  const last = day(siteLocalLastDay(scope.to, timeZone));
+  return (
+    <p className="site-date-bar mini-scenarios-window" data-scenarios-window="range">
+      {`Window: ${first} to ${last} (${zone}, last day included), from the date range at the top.`}
+    </p>
   );
 }
 
@@ -383,7 +340,7 @@ export function MiniScenarios({
   }, [client, siteCode, from, to, known_at, cursor, onScope]);
   return (
     <div className="mini-scenarios" data-mini-scenarios>
-      <ScenariosWindow scope={scope} timeZone={timeZone} onApply={(next) => onScope(next, false)} />
+      <ScenariosWindow scope={scope} timeZone={timeZone} />
       <Panel heading="Financial scenarios" headingId={SCENARIOS_HEADING_ID} description={SCENARIOS_PANEL_DESCRIPTION}>
         {result === null ? (
           <p data-scenarios-loading>Loading the site&apos;s scenarios.</p>
