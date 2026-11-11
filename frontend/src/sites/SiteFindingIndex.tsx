@@ -25,9 +25,9 @@
  * No amount is shown: exact-revision money provenance is not in this read.
  * A Site with no imported record keeps the older summary (`fallback`).
  */
-import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import {
   DataTable,
@@ -189,8 +189,8 @@ export interface SiteFindingIndexProps {
   client: FindingIndexClient;
   scope: FindingIndexScope;
   links: FindingIndexLinks;
-  /** Apply a new window (a navigation, so reload and back keep it). */
-  onScope: (scope: FindingIndexScope) => void;
+  /** Unused since SR-2 (the window is the shared range in the top bar); kept so callers stay unchanged. */
+  onScope?: (scope: FindingIndexScope) => void;
   /** Rendered for a Site with no imported record (the older summary). */
   fallback: ReactNode;
   /** W4-03 S11: a MINIGRID Site states where its typed five-day opportunity is reached. */
@@ -333,49 +333,29 @@ function windowScope(scope: FindingIndexScope): string {
   return `Mini-grid dispatch Findings at this site · ${days}`;
 }
 
-function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (scope: FindingIndexScope) => void }) {
-  const valid = validWindow(scope);
-  const [first, setFirst] = useState(valid ? dayOf(scope.from) : "");
-  const [last, setLast] = useState(valid ? lastDayOf(scope.to) : "");
-  useEffect(() => {
-    if (valid) {
-      setFirst(dayOf(scope.from));
-      setLast(lastDayOf(scope.to));
-    }
-  }, [scope.from, scope.to, valid]);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first || !last) return;
-    const to = new Date(`${last}T00:00:00Z`);
-    to.setUTCDate(to.getUTCDate() + 1);
-    onScope({
-      domain: scope.domain,
-      from: `${first}T00:00:00Z`,
-      to: `${to.toISOString().slice(0, 10)}T00:00:00Z`,
-      limit: scope.limit ?? null,
-      cursor: null,
-    });
-  };
+/**
+ * SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the Findings window is the shared date range in the top bar.
+ * The page names the days it reads and renders no date form; the request still uses the scope's bounds unchanged.
+ * Without a range in the address the read keeps its default (today, UTC), and the line says so.
+ */
+function WindowLine({ scope }: { scope: FindingIndexScope }) {
+  const [params] = useSearchParams();
+  const fromRange = params.has("from") && params.has("to");
+  let days = "the requested days";
+  if (validWindow(scope)) {
+    const first = dayOf(scope.from);
+    const last = lastDayOf(scope.to);
+    days = first === last ? plainDay(first) : `${plainDay(first)} to ${plainDay(last)}`;
+  }
   return (
-    <form
-      className="v69-chips site-findings-window"
-      onSubmit={submit}
-      data-finding-index-window
-      aria-label="Findings window"
-    >
-      <label className="v69-chip-field">
-        {"From"}
-        <input type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
-      </label>
-      <label className="v69-chip-field">
-        {"To (included)"}
-        <input type="date" value={last} onChange={(event) => setLast(event.target.value)} />
-      </label>
-      <button className="button" type="submit">
-        Show Findings
-      </button>
+    <div className="v69-chips site-findings-window" data-finding-index-window={fromRange ? "range" : "default"}>
+      <p className="site-findings-window__days">
+        {fromRange
+          ? `Days shown: ${days} (last day included), from the date range at the top.`
+          : `Days shown: ${days}, this page's default. Choose other days in the date range at the top.`}
+      </p>
       <TimeZoneNote />
-    </form>
+    </div>
   );
 }
 
@@ -1053,7 +1033,6 @@ export function SiteFindingIndex({
   client,
   scope,
   links,
-  onScope,
   fallback,
   opportunityHelper = false,
   earlyWarnings = null,
@@ -1087,7 +1066,7 @@ export function SiteFindingIndex({
           <div className="site-findings-controls" data-site-findings-controls>
             {/* The opportunity helper stays in the panel beside the window form; since Q20 its line carries a link. */}
             <OpportunityHelper shown={opportunityHelper} findings={links.opportunities} renewable={links.renewable} />
-            <WindowForm scope={scope} onScope={onScope} />
+            <WindowLine scope={scope} />
           </div>
         }
       >

@@ -63,7 +63,6 @@ function Invoke-PageRangeFormsCheck {
     )
     # SR-2 remaining (Site pages); counts are today's, and only shrink.
     $pending = @{
-        "frontend/src/sites/SiteFindingIndex.tsx"    = 2
         "frontend/src/sites/SiteWorkActions.tsx"     = 4
         "frontend/src/sites/siteWorkCases.tsx"       = 2
     }
