@@ -409,9 +409,9 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     // SR-2: no range in the address, so the line says the days are the page default and points to the top bar.
     expect(form.getAttribute("data-window-source")).toBe("default");
     expect(text(form)).toMatch(/this page's default\. Choose other days in the date range at the top\./);
-    // post-W6 R338 (W5 rulings 1): the shared default includes today, and EV states the same Actions listing basis.
+    // SR-2: the shared default ends yesterday (today is a partial day), and EV states the same Actions listing basis.
     const today = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
-    expect(expected.from <= today && today < expected.to).toBe(true);
+    expect(expected.to).toBe(today);
     expect(text(form.querySelector("[data-domain-work-window-basis='actions']"))).toBe("Listed by the time each Action was raised.");
     const subtabs = Array.from(main.querySelectorAll(".site-subtabs a")).map((a) => a.getAttribute("href") ?? "");
     for (const href of subtabs) {

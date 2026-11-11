@@ -27,6 +27,7 @@ import { formatDay, formatDayRange, formatDayTime } from "../ui/time";
 import {
   RANGE_MAX_DAYS,
   RANGE_PRESETS,
+  isWorkPage,
   entryRange,
   fillsRangeOnEntry,
   presetLabel,
@@ -256,7 +257,7 @@ export function SharedRangeBar() {
           <>
             <p className="shared-range__eyebrow">Date range · used by every page</p>
             <div className="shared-range__presets" role="group" aria-label="Quick ranges">
-              {RANGE_PRESETS.map((preset) => (
+              {RANGE_PRESETS.filter((preset) => preset.key !== "7dwork" || isWorkPage(location.pathname) || set?.preset === "7dwork").map((preset) => (
                 <button
                   key={preset.key}
                   type="button"

@@ -53,6 +53,8 @@ import "../ui/mock-deviation.css";
 import { OutcomeBoard } from "./OutcomeBoard";
 import type { OutcomeBoardClient, OutcomeBoardRead, OutcomeLinkItem } from "./outcomeBoardClient";
 import { displayCode } from "../ui/displayCode";
+import { AnalysedPeriodsLine } from "./AnalysedPeriodsLine";
+import type { AnalysedPeriodsRead } from "./coldAssessmentClient";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -455,17 +457,26 @@ function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSit
  * immediately below the tabs (no shared date-bar component exists to carry a sub-day window and cutoff).
  * `extra` carries the pending/historical sentence on `cold-assumptions`, which has no status strip.
  */
-export function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } | null; extra?: string | null }) {
+export function SelectedWindowBar({
+  read,
+  extra,
+}: {
+  read: ({ window: ColdWindowQuery; currentness?: { watermark?: { assessment_revision_ids?: string[] } } } & AnalysedPeriodsRead) | null;
+  extra?: string | null;
+}) {
   if (read === null) return null;
   return (
-    <p className="site-date-bar" data-cold-date-bar>
-      <span className="site-date-bar__window">{windowText(read.window.from, read.window.to)}</span>
-      <span className="site-date-bar__cutoff">
-        {`· information up to ${upTo(read.window.known_at, read.window.from)}`}
-        {extra ? ` · ${extra}` : null}
-      </span>
-      <TimeZoneNote />
-    </p>
+    <>
+      <p className="site-date-bar" data-cold-date-bar>
+        <span className="site-date-bar__window">{windowText(read.window.from, read.window.to)}</span>
+        <span className="site-date-bar__cutoff">
+          {`· information up to ${upTo(read.window.known_at, read.window.from)}`}
+          {extra ? ` · ${extra}` : null}
+        </span>
+        <TimeZoneNote />
+      </p>
+      <AnalysedPeriodsLine read={read} none={read.currentness !== undefined && !isSelected({ currentness: read.currentness })} />
+    </>
   );
 }
 /**

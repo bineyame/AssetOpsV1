@@ -256,6 +256,9 @@ function RegisterTable({ body }: { body: EstateFinancialsBody }) {
  * PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): one line per partly covered Site, its server-summed amount
  * for the analysed days only, `{Site}: {amount} for {n} of {m} days analysed · {gap clause}`. Never a cross-Site or
  * cross-currency total; nothing is estimated for a gap day.
+ *
+ * MOCK DEVIATION (v6.9 Financials): this per-Site note under the status bar is not in the mock; the mock has no
+ * partly covered Site. It states an amount only for the analysed days (D-E5.45 option 2, D-E5.46). Owner informed.
  */
 function PartialMoneyNotes({ body }: { body: EstateFinancialsBody }) {
   const blocks = body.coverage.sites.flatMap((s) => (s.money ? [s.money] : []));
@@ -276,6 +279,7 @@ function RegisterNotes({ body }: { body: EstateFinancialsBody }) {
   const notes: [string, string][] = [];
   if (body.status === "EMPTY_SCOPE") notes.push(["empty-scope", NO_ACCESSIBLE_SITES]);
   else if (body.total_count === 0) notes.push(["no-selection", NO_CONSEQUENCE_LINES]);
+  // MOCK DEVIATION (v6.9 Financials): the "partial" register note row is not in the mock (PARTIAL-MONEY, D-E5.46).
   if (body.status !== "EMPTY_SCOPE" && body.coverage.state !== "COMPLETE") notes.push(["partial", STILL_ASSESSED]);
   if (body.groups.some((g) => g.category === "CANDIDATE_OPERATING_COST_EXPOSURE" && g.state === "UNKNOWN_COVERAGE")) {
     notes.push(["prior-mini-grid", PRIOR_MINI_GRID_UNAVAILABLE]);

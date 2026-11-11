@@ -870,8 +870,6 @@ export function MiniRenewable({
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
-  /** No longer used (SR-2 M2: the page has no range form); kept so callers need not change. */
-  pageHref?: (search: string) => string;
 }): ReactNode {
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;

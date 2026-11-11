@@ -44,6 +44,7 @@ import type {
 import { EvScenarios } from "./EvScenarios";
 import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
 import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { AnalysedPeriodsLine } from "./AnalysedPeriodsLine";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 import { OutcomeBoard } from "./OutcomeBoard";
@@ -336,11 +337,14 @@ function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | nu
   // POLISH §3.1 EV row, done in PB-1 (Addendum 7 Q1a): `27 Oct 2026, 08:00–09:00 · as of 27 Oct, 09:00`.
   const text = w.from === null || w.to === null ? "No window selected" : `${windowText(w.from, w.to)} · as of ${dayHm(w.known_at)}`;
   return (
-    <p className="site-date-bar" data-ev-window>
-      <span className="site-date-bar__window">{text}</span>
-      {extra ? <span className="site-date-bar__cutoff">{extra}</span> : null}
-      <TimeZoneNote />
-    </p>
+    <>
+      <p className="site-date-bar" data-ev-window>
+        <span className="site-date-bar__window">{text}</span>
+        {extra ? <span className="site-date-bar__cutoff">{extra}</span> : null}
+        <TimeZoneNote />
+      </p>
+      <AnalysedPeriodsLine read={env} none={env.currentness.state === "UNKNOWN"} />
+    </>
   );
 }
 

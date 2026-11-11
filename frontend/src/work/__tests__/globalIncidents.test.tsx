@@ -525,17 +525,17 @@ describe("Post-W6 W6: global Incidents corrections", () => {
     expect(document.querySelector("[data-global-work-showing]")?.textContent).not.toMatch(/\d+–\d+/);
   });
 
-  it("Q7: the default window is seven UTC days including today, the membership line is stated, an explicit window is kept", async () => {
+  it("SR-2: the default window is the seven full UTC days ending yesterday, the membership line is stated, an explicit window is kept", async () => {
     const now = Date.parse("2026-10-25T09:30:00Z");
-    expect(defaultGlobalWorkWindow(now)).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
+    expect(defaultGlobalWorkWindow(now)).toEqual({ from: "2026-10-18T00:00:00Z", to: "2026-10-25T00:00:00Z" });
     expect(globalWorkPageQuery(new URLSearchParams(), now)).toEqual({
       status: "valid",
-      query: { from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z", known_at: null, cursor: null },
+      query: { from: "2026-10-18T00:00:00Z", to: "2026-10-25T00:00:00Z", known_at: null, cursor: null },
     });
-    // A row recorded today falls inside the default window's exclusive end.
+    // A row recorded today is outside the default window (today is a partial day; the bar's "including today" preset adds it).
     const today = Date.parse("2026-10-25T08:00:00Z");
     const window = defaultGlobalWorkWindow(now);
-    expect(Date.parse(window.from) <= today && today < Date.parse(window.to)).toBe(true);
+    expect(Date.parse(window.from) <= today && today < Date.parse(window.to)).toBe(false);
     expect(globalWorkPageQuery(new URLSearchParams({ from: FROM, to: TO }), now)).toEqual({
       status: "valid",
       query: { from: FROM, to: TO, known_at: null, cursor: null },
