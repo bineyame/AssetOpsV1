@@ -1525,6 +1525,41 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(attrs.join(" ")).not.toMatch(/PARTIAL|UNASSESSED|checked/i);
   });
 
+  // PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): a Finding on an analysed day shows its amount, named as
+  // the analysed days' only, and its gap clause is the coverage line's, from the same `days` block.
+  it.each([
+    ["NO_READINGS", "4 Nov: no readings"],
+    ["READINGS_CONFLICT", "4 Nov: conflicting readings"],
+    ["NOT_ENOUGH_READINGS", "4 Nov: not enough readings"],
+  ])("partialSiteShowsTheAnalysedDaysAmountWithItsLabel %s", async (reason, clause) => {
+    const body = partialBody(["2026-11-04"]);
+    const kobo = body.coverage.sites[0].days!;
+    kobo.gaps = [{ day: "2026-11-04", state: "UNASSESSED", reason }];
+    body.rows = [COLD_ROW, row()]; // the analysed-day row carries its stored amount
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    await settledScreen();
+    const line = await coverageLine();
+    showTab("Act first");
+    const value = text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"));
+    expect(value).toBe(`$3.31–$3.97 for 6 of 7 days analysed · ${clause}`);
+    // one day set: the coverage line names the same gap day with the same words, and the count excludes it
+    expect(text(line.querySelector("[data-portfolio-coverage-site]"))).toBe(
+      `Kobo: complete readings on 5 of 7 days · 1 with partial readings · ${clause}`,
+    );
+    expect(value).not.toMatch(/estimate|NO_READINGS|READINGS_CONFLICT|NOT_ENOUGH/);
+  });
+
+  it("partialSiteMoreThanThreeGapDaysReadAsACountInTheMoneyLabel", async () => {
+    const body = partialBody(["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"], 14);
+    body.rows = [COLD_ROW, row()];
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    await settledScreen();
+    showTab("Act first");
+    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe(
+      "$3.31–$3.97 for 10 of 14 days analysed · 4 days without a usable result",
+    );
+  });
+
   // D-E5.46: days sharing a reason are grouped; more than 3 gap days read as one count (the deep tab lists all).
   it("incompleteSiteWithManyGapsReadsACountAndTheScopeTabListsThem", async () => {
     const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"];

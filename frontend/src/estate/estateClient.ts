@@ -55,6 +55,21 @@ export interface EstateCoverageSite {
   source_freshness: string;
   /** COV-PARTIAL (`estate-coverage/2`): mini-grid day coverage; null for cold, EV and Actions. */
   days?: EstateCoverageDays | null;
+  /** PARTIAL-MONEY (D-E5.45): on a PARTIAL mini-grid Site only (Financials and Portfolio), its analysed days' money. */
+  money?: EstatePartialMoney;
+}
+
+/** PARTIAL-MONEY: the exact sum of a PARTIAL Site's eligible lines, all on analysed days; never an estimate. */
+export interface EstatePartialMoney {
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  state: "SUMMED" | "CURRENCY_MIXED" | "OVERLAPPING" | "NO_ELIGIBLE_LINES";
+  amount: { low: string; high: string; currency: string } | null;
+  line_count: number;
+  analysed_days: number;
+  requested_days: number;
+  gaps: EstateCoverageDays["gaps"];
 }
 
 /** COV-PARTIAL: the checked and unchecked days of one mini-grid Site's period; `text` only when PARTIAL. */
