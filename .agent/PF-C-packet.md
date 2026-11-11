@@ -32,10 +32,10 @@
   - frontend `estatePortfolio.test.tsx` (R620 tests replaced by 5 PF-C tests), `estateRoots.test.tsx`, `outcomeBoard.test.tsx`.
 
 ## Checks
-- **Tests first:** `test_pfc_coverage_line.py` failed at collection before the code (ImportError `portfolio_coverage`). The frontend PF-C tests were proven failing against main's `EstatePortfolio.tsx` (see below).
+- **Tests first:** `test_pfc_coverage_line.py` failed at collection before the code (ImportError `portfolio_coverage`). Frontend: with main's `EstatePortfolio.tsx` over 5d76e193f, `vitest -t "coverageLine|incompleteSite"` = 4 failed; reverted with `git checkout HEAD --`.
 - **Backend pytest, one file at a time,** final: test_pfc_coverage_line 123 passed; ch6b2_portfolio_cards 55; ch6_claims 9; ch5b_why 48; ch5a2_contract 26; ch5a1_board_contract 13; demo_combined_finish_rows 75; out_b2_vocabulary 4; out_b3_cold_ev 28; idx_gaps_board 6; walk1_5_solar_window 11; mb1_thread_line 42; ch3_rows 42; walk1_3b 16; demo_story_days 92; out_b2_mini 32; out_d4_board 17; ch5d1_optimize_card 7; ch6_contract 12; out_b1_board 29; out_w2_summary_window 9; k10 10; cov_partial 20; out_c2_board 13; qw2_reuse 4; out_b4_read 11; ch6b_estate_chain 20; ch5a2b_claims 31; ch6_evaluator 46; ch6_r2a_rows 6; cov_partial_portfolio 13; walk1_productive_sales 22; tools/checks/test_chain_coherence 181. All 0 failed.
 - **Vitest per file:** estatePortfolio 85/85, estateRoots 23/23, outcomeBoard 27/27, estateEvidence 17, estatePortfolioRoutes 4, estateFinancials 11, s5SiteWindowOverview 63, w302 2.
-- **Other checks:** `tsc --noEmit` clean. `check-architecture.ps1`: see the commit note / final report.
+- **Other checks:** `tsc --noEmit` clean. `check-architecture.ps1` (ASSETOPS_GUARD_PYTHON=plan2 venv): "Architecture check passed." (code at 5d76e193f).
 - Not run: Postgres test files that pin the old strings (sed-updated only; e.g. `test_ch6b_estate_postgres.py`, `test_ch9b3_mill_verdict_postgres.py`); no full suites (rule).
 
 ## MOCK DEVIATIONs
