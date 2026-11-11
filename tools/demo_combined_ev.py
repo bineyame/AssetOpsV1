@@ -10,7 +10,9 @@ Every EV entry of `<work>/days.json` is one registered replay of the W2-05b chai
 this child swaps, in its own process only (the w601 module-swap pattern, `tools/w601_seed.py:529-545`):
 
 - the w205b clock constants by the whole-day delta D - 2026-10-06 (`WINDOW`, `RELEASE`, `ATTEST_FROM/TO`,
-  `FIRST/LATE_DECISION`, `ATTESTED_AT`), and `INSTALL_AT`/`SETUP_AT` to `ev.install_at` and +1 h (Addendum 1 R3);
+  `FIRST/LATE_DECISION`, `ATTESTED_AT`), and `INSTALL_AT`/`SETUP_AT` to `ev.install_at` and +1 h (Addendum 1 R3).
+  EV-HB (D-E5.48): `WINDOW` is the day's `story_window` (v4: the declared charging hours 08:00-16:00), and the
+  clocks tied to its close (`RELEASE`, `FIRST/LATE_DECISION`, `ATTESTED_AT`) move with that close;
 - `registered.RunSetupService` so `Chain.open`'s fixed `now` ("2026-10-06T07:00:00Z", w205b :261) reads `SETUP_AT`;
 - `ev_parsing.EV_WINDOW` and an in-memory shifted copy of the kind's scenario document (`open(scenarios=,
   scenario_id=)`), since a Draft's interval must equal its scenario's (`runs/service.py:562-571`);
@@ -50,13 +52,47 @@ def _shift_text(value: str, delta: timedelta) -> str:
     return iso(at(value) + delta)
 
 
-def shifted_document(scenario_id: str, delta: timedelta, new_id: str) -> dict:
-    """The registered scenario document moved by whole days: window, forcing and observation instants only."""
+def story_window(day: "sd.DayRun") -> tuple[datetime, datetime]:
+    """EV-HB (D-E5.48): the one window an EV story day records, its day-list entry `[start, end)` (v4: the declared
+    charging hours 08:00-16:00 of its Tuesday). The scenario window, the parser window (`ev_parsing.EV_WINDOW`), the
+    w205b clocks and the w504 evidence window all take it from here. It opens where the registered scenario opens
+    (the forcing is anchored there) and may only run longer."""
+    delta = at(day.day + "T00:00:00Z") - BASE_DAY
+    doc = yaml.safe_load((SCENARIOS / f"{day.scenario['scenario_id']}.yaml").read_text(encoding="utf-8"))
+    opens, closes = at(doc["window"]["start"]) + delta, at(doc["window"]["end"]) + delta
+    if day.start != opens or day.end is None or day.end < closes:
+        raise SystemExit(f"EV day {day.day} {day.kind}: window {day.start}-{day.end} does not extend the registered "
+                         f"{iso(opens)}-{iso(closes)}")
+    return day.start, day.end
+
+
+def story_definition(day: "sd.DayRun"):
+    """The day's scenario definition on its `story_window`, parsed with `ev_parsing.EV_WINDOW` equal to that window
+    for the call only."""
+    from assetops_backend.scenarios import ev_parsing
+
+    lo, hi = story_window(day)
+    doc = shifted_document(day.scenario["scenario_id"], at(day.day + "T00:00:00Z") - BASE_DAY,
+                           f"{day.scenario['scenario_id']}-{day.epoch}", window=(lo, hi))
+    saved = ev_parsing.EV_WINDOW
+    ev_parsing.EV_WINDOW = {**saved, "start": iso(lo), "end": iso(hi)}
+    try:
+        return ev_parsing.parse_ev_scenario_document(doc)
+    finally:
+        ev_parsing.EV_WINDOW = saved
+
+
+def shifted_document(scenario_id: str, delta: timedelta, new_id: str,
+                     window: tuple[datetime, datetime] | None = None) -> dict:
+    """The registered scenario document moved by whole days: window, forcing and observation instants only.
+    EV-HB: `window` (the day's `story_window`) replaces the moved window; forcing and observations only move."""
     doc = yaml.safe_load((SCENARIOS / f"{scenario_id}.yaml").read_text(encoding="utf-8"))
     out = copy.deepcopy(doc)
     out["scenario_id"] = new_id
     out["window"] = {**doc["window"], "start": _shift_text(doc["window"]["start"], delta),
                      "end": _shift_text(doc["window"]["end"], delta)}
+    if window is not None:
+        out["window"].update({"start": iso(window[0]), "end": iso(window[1])})
     for entry in out.get("forcing") or []:
         entry["time"] = _shift_text(entry["time"], delta)
     for entry in out.get("observations") or []:
@@ -67,21 +103,26 @@ def shifted_document(scenario_id: str, delta: timedelta, new_id: str) -> dict:
 
 
 def _swaps(registered, P, day: "sd.DayRun", install_at: datetime) -> dict:
-    """Move the w205b/w504 constants onto `day`; returns the saved values for `_restore`."""
+    """Move the w205b/w504 constants onto `day`; returns the saved values for `_restore`. EV-HB: the window is the
+    day's `story_window`; the clocks tied to the window's close (the first and late decisions, the late release and
+    the attestation instant) move with its close, by `longer` = how much later it closes than the registered hour."""
     from assetops_backend.scenarios import ev_parsing
 
     delta = at(day.day + "T00:00:00Z") - BASE_DAY
+    lo, hi = story_window(day)
     names = ("INSTALL_AT", "SETUP_AT", "WINDOW", "RELEASE", "ATTEST_FROM", "ATTEST_TO", "FIRST_DECISION",
              "LATE_DECISION", "ATTESTED_AT")
     saved = {n: getattr(registered, n) for n in names}
     saved.update({"_EV_WINDOW": ev_parsing.EV_WINDOW, "_E": (P.E_START, P.E_END),
                   "_RunSetupService": registered.RunSetupService})
+    longer = hi - (at(saved["WINDOW"]["end"]) + delta)
     registered.INSTALL_AT, registered.SETUP_AT = install_at, install_at + timedelta(hours=1)
-    registered.WINDOW = {**saved["WINDOW"], "start": _shift_text(saved["WINDOW"]["start"], delta),
-                         "end": _shift_text(saved["WINDOW"]["end"], delta)}
-    registered.RELEASE = _shift_text(saved["RELEASE"], delta)
-    for n in ("ATTEST_FROM", "ATTEST_TO", "FIRST_DECISION", "LATE_DECISION", "ATTESTED_AT"):
+    registered.WINDOW = {**saved["WINDOW"], "start": iso(lo), "end": iso(hi)}
+    registered.RELEASE = _shift_text(saved["RELEASE"], delta + longer)
+    for n in ("ATTEST_FROM", "ATTEST_TO"):
         setattr(registered, n, saved[n] + delta)
+    for n in ("FIRST_DECISION", "LATE_DECISION", "ATTESTED_AT"):
+        setattr(registered, n, saved[n] + delta + longer)
     ev_parsing.EV_WINDOW = {**ev_parsing.EV_WINDOW, "start": registered.WINDOW["start"],
                             "end": registered.WINDOW["end"]}
     P.E_START, P.E_END = at(registered.WINDOW["start"]), at(registered.WINDOW["end"])
@@ -207,7 +248,6 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
     from run_fixtures import FakeScenarios
     from test_w206_ev_store_postgres import run_worker, select_exact
     from assetops_backend.analytics.composition import build_ev_assessment_worker
-    from assetops_backend.scenarios.ev_parsing import parse_ev_scenario_document
 
     clock = None
     if story_clock:
@@ -237,8 +277,8 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
     if clock is not None:  # `select_exact` builds its own worker through this name
         w206.build_ev_assessment_worker = lambda u, **kw: saved_worker(u, clock=clock, **kw)
     try:
-        definition = parse_ev_scenario_document(shifted_document(base_id, at(day.day + "T00:00:00Z") - BASE_DAY,
-                                                                 scenario_id))
+        definition = story_definition(day)  # EV-HB: the day's recorded window (`story_window`)
+        assert definition.scenario_id == scenario_id, (definition.scenario_id, scenario_id)
         built = DayChain(case, tmp / f"{day.day}-{day.kind}")
         try:
             built.open(fresh=False, install=_install(registered), scenarios=FakeScenarios((definition,)),

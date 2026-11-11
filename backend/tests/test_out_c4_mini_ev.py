@@ -120,6 +120,20 @@ def test_connector_text_has_no_double_prefix() -> None:
     assert rows[ev.PROTECT]["subline"].startswith("Connector c1 was out of service for 10 min")
 
 
+def test_ev_fault_day_connector_out_7h44_with_no_unknown_time() -> None:
+    """EV-HB / D-E5.49: c1 stays FAULTED 08:16-16:00 on the fault day, so 464 min (7 h 44 min) out, 0 min unknown,
+    one CONNECTOR_OUT_OF_SERVICE warning; the Protect text reads the same duration."""
+    avail = {"availability": {"connectors": [
+        {"asset_id": "a-c1", "label": "Connector c1", "known_unavailable_seconds": 464 * 60, "unknown_seconds": 0}]}}
+    comp, rows = ev_run(ev_availability=avail)
+    out = [w for w in comp.facts.warnings if w.kind == "CONNECTOR_OUT_OF_SERVICE"]
+    assert [(w.title, w.seen) for w in out] == [
+        ("Connector c1 out of service", "7 h 44 min out between 20 Oct and 21 Oct")]
+    assert b3.contributor(rows[ev.PROTECT], "connector_availability")["text"] == (
+        "Connector c1: 7 h 44 min out, 0 min unknown")
+    assert rows[ev.PROTECT]["subline"].startswith("Connector c1 was out of service for 7 h 44 min")
+
+
 def test_peak_fires_only_close_to_the_limit_and_needs_both_numbers() -> None:
     assert "PEAK_NEAR_IMPORT_LIMIT" not in kinds(ev_run()[0])  # 76 of 120 kW
     near = dict(b3.EV_OVERVIEW, site_power={"observed_peak_kw": "76", "configured_limit_kw": "80"})

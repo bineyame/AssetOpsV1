@@ -218,8 +218,10 @@ def _sum(values) -> int | float:
 
 
 #: PB-3: the ev-charger/1 connector states as reported (energy grading, not availability: a CHARGING or PLUGGED
-#: report is a known state here, while `CATEGORY` leaves it Unknown for availability).
-REPORTED_STATES = {s: s for s in ("UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED")}
+#: report is a known state here, while `CATEGORY` leaves it Unknown for availability). EV-HB (PB-3 review Low): every
+#: declared connector state (`sites/binding_roles.EV_CONNECTOR_STATES`), AVAILABLE and DISABLED included.
+REPORTED_STATES = {s: s for s in ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED",
+                                  "DISABLED")}
 
 
 def status_spans(foundation: dict[str, Any] | None, connectors: list[tuple[str, str]],

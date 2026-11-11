@@ -25,9 +25,11 @@ THREE_SITE_STORY_PINS_V3 = (
 #: moved them). Superseded v4 (D-E5.12 only) pins: 91ea68a9... / 50821 and 9fe1af48... / 50819.
 #: DATA-11 (D-E5.37): the five Cold `ordinary` days S-6, S-5, S-4, S-2, S-1 moved them again (the v3 pins above are
 #: unchanged); superseded FX-KOBO-GAPS v4 pins: 1d50fb8f... / 65083 and 1bfc7592... / 65081.
+#: EV-HB (D-E5.48): the three EV story days record 08:00-16:00, received 16:30 (+186 characters: the two kinds' notes);
+#: superseded DATA-11 pins: 1b181fd3... / 68273 and cc4b3650... / 68271.
 THREE_SITE_STORY_PINS = (
-    ("2026-11-08T10:00:00Z", "1b181fd3fb35c6b5f3229778f24f7aa85453bfab37996880be8bdba88a01d5ff", 68273,
+    ("2026-11-08T10:00:00Z", "64dd3d2ec56d13b1d1b56174722f47120eea8c521afd875614773b3bdcba8127", 68459,
      "2026-11-06T00:00:00Z"),
-    ("2026-12-03T23:30:00Z", "cc4b36503e6a38116cd2aefc47e1ecbc9a0cc06900e56ca64c66c668ba09ad47", 68271,
+    ("2026-12-03T23:30:00Z", "bc2e250801a852638771956aa2a21d38543c24c271c0acfc7c85a149a603a90e", 68457,
      "2026-12-01T00:00:00Z"),
 )

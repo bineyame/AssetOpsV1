@@ -751,6 +751,11 @@ def test_v4_story_week_one_missed_one_partial(s):
         "S-1d", "S-2d", "S-4d", "S-5d", "S-6d"]
     v4["sites"]["cold"] = [e for e in v4["sites"]["cold"] if e["kind"] != "ordinary"]
     v4["kinds"]["cold"].pop("ordinary")
+    # EV-HB (D-E5.48): the EV story kinds record the declared 08:00-16:00 (received 16:30); with v3's hour back, equal
+    for name in ("normal", "fault"):
+        k = v4["kinds"]["ev"][name]
+        assert (k["start"], k["end"], k["received_at"]) == ("D+0d 08:00", "D+0d 16:00", "D+0d 16:30")
+        k.update({key: v3["kinds"]["ev"][name][key] for key in ("end", "received_at", "note")})
     assert {k: v for k, v in v4.items() if k not in rest} == {k: v for k, v in v3.items() if k not in rest}
     assert {k: v for k, v in v4["sites"].items() if k != "kobo"} == {k: v for k, v in v3["sites"].items() if k != "kobo"}
     assert "D-E5.12, D-E5.17" in v4["label"]

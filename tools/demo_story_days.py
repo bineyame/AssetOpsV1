@@ -47,8 +47,8 @@ LATE_AS = ("normal", "overuse")
 #: the listed day (Monday = 0). ev-charger/1 is ruled TUESDAY 08:00-16:00 and refuses any other day
 #: (`host/ev_publication.py` `ev_parameters`, "the run window ... is not within one TUESDAY").
 SITE_WEEKDAY = {"ev": 1}
-#: DATA-11 (D-E5.37): a Site whose story day is one short recording session (Cold 16:00-17:05Z, EV 08:00-09:00Z on
-#: its ruled Tuesday) takes one sequence epoch per Site-day, as `add-day` already mints for every added day: its
+#: DATA-11 (D-E5.37): a Site whose story day is one short recording session (Cold 16:00-17:05Z, EV 08:00-16:00Z on
+#: its ruled Tuesday, EV-HB D-E5.48) takes one sequence epoch per Site-day, as `add-day` already mints for every added day: its
 #: consecutive days never merge into a DD1a1-R8 stream. Its producer attests and keeps gateway state per epoch
 #: (`demo_combined_cold._day_swaps`), so a merged multi-day epoch would leave the later days unattested.
 SESSION_PER_DAY_SITES = ("cold", "ev")

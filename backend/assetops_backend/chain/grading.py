@@ -78,7 +78,9 @@ def covered_seconds(
 
 #: PB-3: the coverage bases (`policy.BASES`) a measure may declare in the coverage policy. ev-charger/1 connector states that carry no energy: a connector reported in one is known at zero energy.
 #: CHARGING carries energy, so it is known only where a meter interval covers it; any other value is unknown.
-ZERO_ENERGY_STATES = frozenset({"UNPLUGGED", "PLUGGED", "AUTHORIZING", "FAULTED"})
+#: EV-HB (PB-3 review Low): AVAILABLE and DISABLED, the other declared connector states
+#: (`sites/binding_roles.EV_CONNECTOR_STATES`), carry no energy either.
+ZERO_ENERGY_STATES = frozenset({"AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "FAULTED", "DISABLED"})
 
 
 def _union(spans: Iterable[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
