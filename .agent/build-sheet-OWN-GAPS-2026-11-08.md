@@ -4033,3 +4033,29 @@ The selection, match-pass and S3 rules are unchanged.
 - **Question for the owner (plain language):** "When one day in a week has no readings, the Portfolio now hides that Site's money for the whole week (Kobo's week of 2-8 Nov, because 4 Nov has no readings). Option 1: keep hiding it until every day is analysed. Option 2 (recommended): show the money for the days that were analysed, clearly labelled '6 of 7 days analysed · 4 Nov not analysed', never estimating the missing day. Option 2 is about half a day of work before 17 Nov."
 
 Decisions logged for owner review: **D-E5.41** to **D-E5.44**.
+
+### D-E5.45 Owner answer to D-E5.44: option 2 (2026-11-11)
+Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "option 2 for money".
+
+**Card PARTIAL-MONEY.** Opus. About 0.5 unit. Wt `AssetOpsV1-pmoney`, branch `task/PARTIAL-MONEY`, cut from main after DATA-12 and DATA-12-FX merge.
+- **Rule:**
+  - A PARTIAL mini-grid Site's money uses only the lines of its checked local days (D-E5.42).
+  - Never estimate, scale or fill the gap days.
+  - The no-total and receipt rules are unchanged.
+  - PENDING, STALE, UNKNOWN and HISTORICAL keep today's withholding.
+- **Label:**
+  - Literal: `{amount} for {n} of {m} days analysed · {gap days} not analysed`.
+  - Gap days are given as Site-local dates ("4 Nov"). More than 3 gap days read `{g} days not analysed`.
+- **Files:**
+  - `estate/financials.py` `select_financial_scope` (`covered` admits PARTIAL; `mini_grid_lines` filtered to checked days);
+  - `estate/evidence_money.py` (Portfolio cards and rows, same filter);
+  - `frontend/src/estate/EstatePortfolio.tsx` (`partialConsequence` and `consequenceFirst` show the amount with the label);
+  - the Financials page label; `portfolioWords.ts`.
+- **Pinned tests:**
+  1. A week with one NO_DATA day: the amount equals the sum of the other 6 days' lines exactly, and the label is as above.
+  2. A gap day's own line is never included.
+  3. Categories stay "covered" only for PARTIAL with at least 1 checked day.
+  4. A PENDING Site is still withheld.
+  5. Frontend: `estatePortfolio.test.tsx` for the label and amount.
+  6. No total across currencies.
+- **Lane A,** after A2 and before UQ-6a. It displaces nothing by name; it consumes about 0.5 of option Y's buffer. If Thursday's re-assessment shows lag, AR-6 (Cold/EV boards under 1 s) moves after 17 Nov first.
