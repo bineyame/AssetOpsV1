@@ -348,6 +348,20 @@ class WorkIndexService:
 
     def read(self, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, request: ListRequest, *,
              access_basis: str) -> dict[str, Any]:
+        return self._reads.snapshot(tenant_id, site_id, site_code, lambda rx: self._page(
+            rx, tenant_id, site_id, site_code, kind, request, access_basis))
+
+    def read_many(self, tenant_id: UUID, site_id: UUID, site_code: str,
+                  requests: Sequence[tuple[str, ListRequest]], *, access_basis: str) -> list[dict[str, Any]]:
+        """ANY-2 AR-6: several list reads of one Site in ONE snapshot (one connection, one read instant): each body
+        is exactly what `read` returns for that request at that snapshot. A refusal of any request refuses the
+        batch (the caller then reads them one by one)."""
+        return self._reads.snapshot(tenant_id, site_id, site_code, lambda rx: [
+            self._page(rx, tenant_id, site_id, site_code, kind, request, access_basis) for kind, request in requests])
+
+    @staticmethod
+    def _page(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, request: ListRequest,
+              access_basis: str) -> dict[str, Any]:
         scope = {"tenant_id": str(tenant_id), "site_id": str(site_id), "kind": kind, "from": m.iso(request.start),
                  "to": m.iso(request.end)}
 
@@ -395,4 +409,4 @@ class WorkIndexService:
                 "selection_token": chosen["selection_token"],
             }
 
-        return self._reads.snapshot(tenant_id, site_id, site_code, work)
+        return work(rx)
