@@ -69,7 +69,9 @@ Fail-before method: build committed, then `git checkout main -- <changed sources
   10 passed, 0 skipped.
 - Vitest: `temporarilyUnavailable` 6, `outcomeBoard` + `estatePortfolio` + `estatePortfolioRoutes` 116,
   `estateRoots` + `globalMaintenance` + `workRequestOverview` 92: all passed. `tsc --noEmit` clean.
-- `tools/check-architecture.ps1`: ARCH_RESULT
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): first run FAILED (configuration-persistence:
+  "Database driver imported outside ..." for `infra.py`, 4 lines); after `ad8db2a5f`: "Architecture check passed."
+  The T1-T6 files and `test_ch5c_response_store_postgres` (9 passed) were rerun after that fix.
 - Not run (per dispatch): full suites, check-all, captures, layout evidence (`layout evidence: not run`, a status
   line only; no layout claim made).
 
