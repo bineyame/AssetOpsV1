@@ -8,7 +8,7 @@
  * server field: the page groups, sums and scores nothing, builds no Site route and shows no estate total.
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import type { EstateEnvelope } from "./estateClient";
@@ -31,7 +31,7 @@ import {
   quantityText,
   reasonText,
 } from "./estateFinancialsWords";
-import { EstateDateBar, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
+import { EstateCutoffLine, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import { BENEFICIARY_WORDS, type Beneficiary } from "../sites/actionPresentation";
 import "./estateEvidence.css";
 import "./estateFinancials.css";
@@ -378,7 +378,6 @@ function barBody(body: EstateFinancialsBody | null): EstateEnvelope | null {
 export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClient }) {
   const reads = useMemo(() => client ?? createEstateFinancialsClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EvidenceResult<EstateFinancialsBody> } | null>(null);
@@ -403,13 +402,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
   return (
     <div className="estate-page estate-evidence estate-financials" data-estate-root="financials">
       <PageHeader eyebrow={FINANCIALS_EYEBROW} title={FINANCIALS_TITLE} subtitle={FINANCIALS_SUBTITLE} />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={barBody(body)}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(nextQuery) => navigate(estateHref(ESTATE_FINANCIALS_PATH, nextQuery))}
-      />
+      <EstateCutoffLine query={query} body={barBody(body)} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading" data-estate-loading>
           Loading financials across the estate.
