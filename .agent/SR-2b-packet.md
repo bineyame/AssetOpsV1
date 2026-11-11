@@ -90,7 +90,14 @@ Merged main (`a382448ee`, PB-1a/PB-1b). Commits `c39119359`, `f0ba00be3`, `2e291
   prove it (planted `Routed.tsx` fails; the one-hour `Hour.tsx` fixture passes, the Service hour bar is a finer view).
   Test: UTC-bounds Renewable address, no input/select/button in `[data-mini-period]`.
 - **L1 done.** `SharedRangeBar.go` also deletes `record`; test in `sharedRange.test.tsx`.
-- Not done: items 3 and 4 below stay open (see resume list; context).
+- Checks (one file at a time): siteWorkCases 25/25, miniDecisions 55/55, miniRenewableRoutes 19/19, miniServiceRoutes
+  16/16, miniFuelNights 8/8, sharedRange 23/23, sr2RequestUrls 15/15 (request pins green); `tsc --noEmit` clean;
+  `check-architecture.ps1` (plan2 venv) "Architecture check passed." (it failed first on the real tree when the guard
+  was too broad: MiniPerformance and SiteWindowOverview; narrowed to a days window handed to onApply/navigate).
+- NOT done (stopped for context; resume): "Still NOT done" items 3 and 4 above. Anchors: R338 defaults at
+  `work/globalWorkClient.ts:771` (`defaultGlobalWorkWindow`), `sites/workClient.ts:184`, `siteTime.ts:199`,
+  `shell/SiteAnalyticsFrames.tsx:2197,2469,2476`; estate `defaultWindow` at `estate/estateShared.tsx:31`; presets in
+  `ui/sharedRange.ts:24`. "Open now" needs an unfiltered open-count read (not checked whether the backend has one).
 
 ## Known deviations (MOCK DEVIATION, in `FocusPicker.tsx`)
 - SR-2-1: a `day` outside the range is still the day shown (said in words, "Show 24 Oct" offered), not the range's
