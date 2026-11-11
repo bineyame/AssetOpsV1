@@ -57,11 +57,20 @@ def test_live_now_normaliser_is_not_vacuous(monkeypatch) -> None:
     """No normalising: the live echo is caught. Normalising every known_at: historical and stored values are caught."""
     monkeypatch.setattr(parity, "normalise_live_now", lambda body, before, after: body)
     assert any("echoed now was not normalised" in p for p in parity.self_test())
-    monkeypatch.setattr(parity, "normalise_live_now",
-                        lambda body, before, after: parity._KNOWN_AT.sub(parity.LIVE_NOW, body))
+    monkeypatch.setattr(parity, "normalise_live_now", lambda body, before, after: parity._SELECTION_TOKEN.sub(
+        parity.LIVE_TOKEN, parity._KNOWN_AT.sub(parity.LIVE_NOW, body)))
     assert any("stored (not now)" in p for p in parity.self_test())
     monkeypatch.setattr(parity, "is_live", lambda path: True)
-    assert any("historical read's known_at was normalised" in p for p in parity.self_test())
+    problems = parity.self_test()
+    assert any("historical read's known_at was normalised" in p for p in problems)
+    assert any("historical read's selection_token difference was normalised" in p for p in problems)
+
+
+def test_live_selection_token_normaliser_is_not_vacuous(monkeypatch) -> None:
+    """The now echo normalised but not the live `selection_token` (which hashes now): the live case is caught."""
+    monkeypatch.setattr(parity, "normalise_live_now",
+                        lambda body, before, after: parity._KNOWN_AT.sub(parity.LIVE_NOW, body))
+    assert any("echoed now was not normalised" in p for p in parity.self_test())
 
 
 def test_live_now_normaliser_touches_only_the_now_echo() -> None:

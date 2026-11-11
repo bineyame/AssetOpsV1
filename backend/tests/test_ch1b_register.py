@@ -19,11 +19,14 @@ ADDIS = "Africa/Addis_Ababa"  # UTC+3, no DST
 TODAY = date(2026, 11, 3)
 D = date
 
+#: ANY-1 AR-2: the board's stored mini depth kinds (`config/chain/event-register-v1.yaml` kinds).
+MINI_KINDS = ("mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable", "mini_depth.service")
 #: type@version -> (subject, site type, timezone, expected (day, measure) marks, consumers)
 EVENT_FIXTURES = {
     "reading.accepted@1": (
         {"roles": ["feeder_demand"], "asset_ids": [], "span": ["2026-10-30T20:30:00Z", "2026-10-30T21:30:00Z"]},
-        "MINIGRID", ADDIS, {(D(2026, 10, 30), "productive_kwh"), (D(2026, 10, 31), "productive_kwh")},
+        "MINIGRID", ADDIS, {(d, m) for d in (D(2026, 10, 30), D(2026, 10, 31))
+                            for m in ("productive_kwh", *MINI_KINDS)},  # AR-2: every mini role dirties the kinds
         ("snapshots",)),
     "assessment.revised@1": (
         {"analytic_ids": ["cold-start-response"], "windows": [["2026-10-31T00:00:00Z", "2026-10-31T01:00:00Z"]]},
@@ -38,8 +41,9 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min",
-                   "evidence.claim")}, ("snapshots",)),  # AR-4: the claim day is a mini-grid kind
+         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS,
+                   "evidence.claim")},  # AR-4: the claim day is a mini-grid kind
+        ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),
     "opportunity.revised@1": ({"ids": ["p1"]}, "MINIGRID", "UTC", set(), ("threads",)),
@@ -71,7 +75,7 @@ def test_mini_depth_assessment_dirties_headroom_only() -> None:
     subject = {"domain": "renewable", "windows": [["2026-11-01T09:00:00Z", "2026-11-01T10:00:00Z"]]}
     marks = resolve(load_event_register(), _event("assessment.revised@1", subject), site_type="MINIGRID", tz="UTC",
                     today=TODAY)
-    assert marks == [(D(2026, 11, 1), "daylight_headroom_kw")]
+    assert marks == [(D(2026, 11, 1), "daylight_headroom_kw"), (D(2026, 11, 1), "mini_depth.renewable")]
 
 
 def test_a_measure_of_another_site_type_is_never_marked() -> None:

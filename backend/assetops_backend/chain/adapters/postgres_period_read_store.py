@@ -57,12 +57,29 @@ _PROVENANCE = text(
 
 #: PENDING-at-k (architect answer §4 "Late and corrected data"): recorded at or before k and not consumed by the
 #: snapshots consumer by k. Live (k null): the transaction's clock.
+#:
+#: Low-water lower bound (D-ANY.5 M2 / D-ANY.6 §2): the snapshots consumer always selects the oldest unconsumed
+#: events first (`PostgresEventStore._UNCONSUMED`, ORDER BY recorded_at) and drains until empty, so for each
+#: (Site, type) every event recorded before the newest one consumed by k was consumed too - except one whose
+#: inserting transaction was still open when that newer event was selected. `LOW_WATER_MARGIN` covers that window.
+#: The low water is one backward index probe per (Site, type) on `event_outbox_site_type_order`; the anti-join then
+#: probes only the events recorded from (low water - margin) to k. No low water (nothing consumed by k): no bound.
+#: `payload` is not selected: `resolve` reads type, version, occurred_at and subject only.
+#: client4 (2026-11-11, Kobo 62k events, bulk-recorded): 15 min left 28.7k probes (p95 96 ms); 1 min p95 13.1 ms.
+LOW_WATER_MARGIN = "1 minute"
+
 _UNCONSUMED_AT = (
+    "WITH lw AS MATERIALIZED (SELECT s.id AS site_id, ty.name AS type, COALESCE((SELECT w.recorded_at "
+    "FROM event_outbox w WHERE w.site_id = s.id AND w.type = ty.name AND w.recorded_at <= {k} "
+    "AND EXISTS (SELECT 1 FROM event_consumption y WHERE y.consumer = 'snapshots' AND y.event_id = w.event_id "
+    "AND y.processed_at <= {k}) ORDER BY w.recorded_at DESC LIMIT 1) - CAST(:margin AS interval), "
+    "'-infinity'::timestamptz) AS low FROM unnest(CAST(:sites AS uuid[])) AS s(id) "
+    "CROSS JOIN unnest(CAST(:types AS text[])) AS ty(name)) "
     "SELECT o.event_id, o.type, o.schema_version, o.occurred_at, o.recorded_at, o.source, o.tenant_id, o.site_id, "
-    "o.subject, o.payload FROM event_outbox o WHERE o.tenant_id = :t AND o.site_id = ANY(CAST(:sites AS uuid[])) "
-    "AND o.type = ANY(CAST(:types AS text[])) AND o.recorded_at <= {k} "
+    "o.subject FROM lw CROSS JOIN LATERAL (SELECT * FROM event_outbox o WHERE o.site_id = lw.site_id "
+    "AND o.type = lw.type AND o.recorded_at >= lw.low AND o.recorded_at <= {k} AND o.tenant_id = :t "
     "AND NOT EXISTS (SELECT 1 FROM event_consumption x WHERE x.consumer = 'snapshots' "
-    "AND x.event_id = o.event_id AND x.processed_at <= {k}) ORDER BY o.recorded_at, o.event_id"
+    "AND x.event_id = o.event_id AND x.processed_at <= {k})) o ORDER BY o.recorded_at, o.event_id"
 )
 
 _DIRTY = text(
@@ -153,7 +170,8 @@ class PostgresPeriodReadStore:
     def unconsumed_at(self, tenant_id: UUID, site_ids: Sequence[UUID], types: Sequence[str],
                       known_at: datetime | None) -> list[Event]:
         names = sorted({t.partition("@")[0] for t in types})
-        params: dict[str, Any] = {"t": tenant_id, "sites": [str(s) for s in site_ids], "types": names}
+        params: dict[str, Any] = {"t": tenant_id, "sites": [str(s) for s in site_ids], "types": names,
+                                  "margin": LOW_WATER_MARGIN}
         k = "clock_timestamp()"
         if known_at is not None:
             k = ":k"
@@ -165,8 +183,7 @@ class PostgresPeriodReadStore:
         for r in rows:
             if f"{r[1]}@{int(r[2])}" not in wanted:
                 continue
-            out.append(Event(r[0], r[1], int(r[2]), r[3], r[4], r[5], r[6], r[7], _json(r[8]),
-                             _json(r[9]) or {}))
+            out.append(Event(r[0], r[1], int(r[2]), r[3], r[4], r[5], r[6], r[7], _json(r[8])))
         return out
 
     def dirty_marks(self, tenant_id: UUID, site_ids: Sequence[UUID], kinds: Sequence[str],

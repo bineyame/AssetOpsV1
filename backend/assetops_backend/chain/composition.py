@@ -33,7 +33,8 @@ __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
            "build_event_store", "build_estate_claims", "PostgresPeriodReadStore", "build_period_read_store",
-           "build_period_read_builder", "build_period_reader", "period_kind_builders"]
+           "build_period_read_builder", "build_period_reader", "period_kind_builders", "period_kind_versions",
+           "build_mini_period_rows"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -75,20 +76,28 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
-    AR-1 declares none, so nothing is built or read from rows yet; AR-2 to AR-4 add theirs here.
+    AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one).
     AR-4: `evidence.claim` over the read-only estate Evidence reader (built on first use; none without inputs)."""
     if inputs is None:
         return {}
+    builders: dict[str, Any] = {}
+    mini = getattr(inputs, "mini", None)
+    if mini is not None:
+        from assetops_backend.mini_depth.period_rows import kind_builders
+
+        builders.update(kind_builders(mini))
     from assetops_backend.estate.period_rows import kind_builders as estate_kind_builders
 
-    return {**estate_kind_builders(_estate_evidence_read)}
+    builders.update(estate_kind_builders(_estate_evidence_read))
+    return builders
 
 
 def period_kind_versions() -> dict[str, str]:
     """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
     from assetops_backend.estate.period_rows import kind_versions as estate_kind_versions
+    from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
 
-    return {**estate_kind_versions()}
+    return {**{k: BUILDER_VERSION for k in KINDS}, **estate_kind_versions()}
 
 
 @lru_cache(maxsize=1)
@@ -112,6 +121,14 @@ def build_estate_evidence_rows(database_url: str | None) -> Any:
     from assetops_backend.estate.period_rows import EvidenceRows
 
     return EvidenceRows(PeriodReader(store, load_event_register(), period_kind_versions()), store)
+
+
+def build_mini_period_rows(database_url: str | None) -> tuple[PeriodReader, PostgresPeriodReadStore] | None:
+    """AR-2: the `(reader, store)` pair `MiniDepthRead(period_rows=...)` serves the board's mini depth from."""
+    store = build_period_read_store(database_url)
+    if store is None:
+        return None
+    return PeriodReader(store, load_event_register(), period_kind_versions()), store
 
 
 def build_period_read_store(database_url: str | None, *, engine: Any = None) -> PostgresPeriodReadStore | None:

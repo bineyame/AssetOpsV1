@@ -58,6 +58,7 @@ def main(argv: Sequence[str] | None = None, *, services: Any = None, register: A
         p.add_argument("--site", required=True)
         p.add_argument("--kind", action="append", default=None)
         p.add_argument("--tenant", default=DEVELOPMENT_TENANT_SLUG)
+    build.add_argument("--quiet", action="store_true", help="AR-2: print only the closing summary line")
     build.add_argument("--from", dest="from_day", type=_day)
     build.add_argument("--to", dest="to_day", type=_day)
     build.add_argument("--stale-only", action="store_true")
@@ -110,7 +111,7 @@ def main(argv: Sequence[str] | None = None, *, services: Any = None, register: A
             else:
                 out = builder.build_range(tenant_id, site, from_day, to_day, kinds) if kinds else []
             elapsed = time.perf_counter() - started
-            for w in out:
+            for w in () if args.quiet else out:
                 print(json.dumps({**w.row.to_json(), "site_code": site.site_code, "written": w.written},
                                  sort_keys=True))
             print(json.dumps({"site_code": site.site_code, "from": from_day.isoformat(), "to": to_day.isoformat(),

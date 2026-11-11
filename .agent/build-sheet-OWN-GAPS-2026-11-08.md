@@ -4289,3 +4289,33 @@ Decision logged for owner review: **D-E5.49**.
 - Any other self-check or live-check failure, or no green result by **05:00**: the demo uses `assetops_polish_client6_test` (tag demo/2026-11-11-e3d, runbook as planned). client6 is never modified.
 
 Decision logged for owner review: **D-ANY.6**.
+
+### D-ANY.6a AR-2 rows path misses a recompute job created after the row build (Architect, Claude, 2026-11-11 ~17:55, owner-delegated, logged for owner review)
+
+- **Defect.** On the rows path, PENDING-at-k reads only unconsumed outbox events and snapshot dirty marks. The old compose path decides PENDING_RECOMPUTE from `recompute_job` itself (`mini_depth/read.py` `_JOBS`: status PENDING, LEASED or FAILED, `available_at <= k`, and no later selection), and it does so both live and at a historical k. A job raised by `mini_enqueue_hour` with no outbox event is therefore missed, and so is an existing PENDING job whose `available_at` was moved later.
+- **Live-demo impact.** Tomorrow's add-dates enqueues exactly these jobs. Rows would read CURRENT while a recompute is pending, which is a false statement on the board. The fix is required, not optional.
+- **Fix, ruled.** Do not emit events from the SQL function (a 0029 change with a wider blast radius). Do not use timing heuristics.
+  - The rows path runs the oracle's own `_JOBS` predicate, batched: one statement over Sites × hours × mini domains at k.
+  - An hour whose live job set at k equals the job set stored in its row renders from the row.
+  - An hour with any other job set is served by the old `_hour` for that hour only. This is the D-ANY.1 rule "a case that cannot be proven equal stays on the old path". It is logged (`period_row_job_fallback`) and counted.
+  - Byte-equal by construction. Expected cost is one extra statement per read; fallback hours are rare (only while a recompute is in flight).
+- **Size and timing.** About 0.3 unit. Build by 19:45, Postgres test plus client4 parity by 20:30, review by 21:30.
+- **If not ACCEPTed by 21:30: hold AR-2 entirely.** Do not merge it with the kill switch off. That gives the demo no speed, adds an unexercised prepare step, and leaves a latent false-CURRENT path. Tonight's build then uses main plus AR-1 (if its parity passed), and the boards stay on the pre-stored ranges.
+
+Decision logged for owner review: **D-ANY.6a**.
+
+### D-ANY.6b / D-E5.49a Tonight's build fails one check, CO-10 ("16 min unknown"): use client7 (Architect, Claude, 2026-11-11 ~22:10, owner-delegated, logged for owner review)
+
+- **Finding.** In client7, the c1 warning reads "7 h 44 min out and 16 min unknown on 3 Nov".
+  - 7 h 44 min + 16 min = 8 h, the whole charging day. The out-of-service part (08:16-16:00) is right.
+  - The 16 min are 08:00-08:16, before the fault. The generated full-day heartbeat carries no connector status for c1 until the fault notice at 08:16.
+  - The product is correct not to guess a status it never received. This is a data and story detail, not a product defect.
+  - The D-E5.49 pin assumed status "known all day". The data does not give that.
+- **Thursday demo:** use **client7**. The D-ANY.6 fallback covers failures that make the build untrustworthy. This one is an honest sentence about real data gaps, and the other 53 checks pass. client6 stays untouched as the fallback for any other failure.
+- **Presenter line:** "c1 was out of service from 08:16 for the rest of the charging day; the first 16 minutes have no status reading; repair still pending."
+- **17 Nov fix (data, about 0.1 unit, Sonnet):**
+  - The EV-HB generator emits a c1 Available status with the day's first heartbeat at 08:00, so status is known all day.
+  - Keep the D-E5.49 pin at 0 min unknown. Do not relax it.
+  - Rerun CO-10 on the Monday build.
+
+Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
