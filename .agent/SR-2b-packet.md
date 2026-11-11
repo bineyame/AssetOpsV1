@@ -42,6 +42,40 @@ D-UI.2; v71 `portfolio-tabs.html` Change 0b. Every commit leaves the screen hone
    not read yet; backend untouched.
 5. Then empty `$pending` (and drop the ratchet branch or keep it empty).
 
+## Continuation (2026-11-11): items 1, 2, 5 done; 3, 4 NOT done
+Merged main (`a382448ee`, PB-1a/PB-1b). Commits `c39119359`, `f0ba00be3`, `2e291ecc1`, `f08403595`.
+- **Item 1 done, item 5 done.** No page date form left; `page-range-forms.ps1` `$pending = @{}` (ratchet branch kept,
+  self-test still proves it). Each page keeps reading the address exactly as before (requests unchanged) and shows a
+  line instead of the form: Evidence ("Selected period ... To narrow it, choose the days in the date range at the
+  top."), Scenarios ("Window: 14 Oct to 20 Oct (EAT, last day included), from the date range at the top.";
+  replaces MOCK DEVIATION D2 R450), Site Findings / Work cases ("Days shown: ..., from the date range at the top." or
+  "..., this page's default. Choose other days in the date range at the top."), mini Actions ("Actions created ..." /
+  "Choose the days in the date range at the top."), cold/EV `DomainWorkWindow` ("Window: 15 Oct to 21 Oct, from the
+  date range at the top." / default wording; `data-window-source`). Unused `onScope`/`onApply` props kept optional.
+- **Item 2 done.** `renewable/serviceWindowFromParams` read `focusDayOf` (day, else legacy date); new
+  `useLegacyFocusDayRewrite()` in `ui/sharedRange.ts`, called in `SitePerformanceFrame`, rewrites `date=` -> `day=`.
+- **Pins extended** (`sr2RequestUrls` 15/15): Renewable/Service `date=` and `day=` give the same request; the Kobo
+  board now answers the overview (s5 `summary(day)`) so the **outcome-board request is reached and pinned** for
+  `date=`, `day=` and `day=` inside a range. Proven on pre-change sources (miniDepthClient/SiteAnalyticsFrames at
+  `2e291ecc1`, SiteOverview/SiteWindowOverview at `bfb2376f5`, restored): every `date=` case passes; `day=` fails
+  there as expected.
+- Also fixed: `s502OverviewFindingList` 3 address asserts `date=` -> `day=` (they failed since step 2's rewrite).
+- Checks: vitest one at a time — s2LedgerEvidence 26/26, miniDecisions 55/55, s404SiteFindingIndex 44/44,
+  s502OverviewFindingList 37/37, siteWorkActions 27/27, w1f4ChangesWorkStructure 19/19, coldWorkCases 35/35,
+  evWorkCases 34/34, evWorkActions 25/25, coldWorkActions 43/43, sr2RequestUrls 15/15, sharedRange 22/22,
+  miniRenewableRoutes 18/18, miniServiceRoutes 16/16. `tsc --noEmit` clean. `check-architecture.ps1` (plan2 venv):
+  "Architecture check passed." (run at `2e291ecc1`'s tree; f08403595 adds no guard-relevant import beyond ui/).
+- Risk: Evidence no longer clears `record`/`cursor` when the range changes (the bar owns the range now); a stale
+  cursor could show a later page of the new period.
+
+### Still NOT done (resume here)
+3. One default (R338/S17): Work "Last 7 days, including today" preset, "Open now" line, register rows R338/S17.
+   Defaults still differ per page (mini Actions: none -> asks; cold/EV Work: 7 UTC days incl. today; Findings:
+   today; Scenarios: server window adopted into the address); each line says "this page's default" honestly.
+4. Cold/EV "No event in 2-8 Nov" wording from `analysed_periods`/`shown_period` (PB-1a/PB-1b on main; backend
+   untouched; not read in the frontend yet).
+- Not run (brief): full suites, captures, layout evidence (the new lines are layout-sensitive: unmeasured).
+
 ## Known deviations (MOCK DEVIATION, in `FocusPicker.tsx`)
 - SR-2-1: a `day` outside the range is still the day shown (said in words, "Show 24 Oct" offered), not the range's
   last day: keeps every old `date=` story link reading the same day and request.
