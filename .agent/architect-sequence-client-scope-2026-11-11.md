@@ -1,131 +1,176 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
-## Client demo Tue 17 Nov: cut and start order (Architect, Claude, 2026-11-11 ~06:30; supersedes the dates in sections 0-5, keeps their scope rationale)
+## Client demo Tue 17 Nov: cut and start order (Architect, Claude, 2026-11-11; revision 2 after the owner's answers; revision 1 is in git at 22d877b1d)
 
-- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude since 2026-10-27. Fresh instance.
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude since 2026-10-27.
 - Owner, verbatim (`.agent/owner-tag-optionb-client-date-2026-11-11.md`): "yes tag it and add the backlog item, lets go with option B for now. Also, lets proceed with the items for today right away, and i want my walkthrough comment items to start building. THe client demo will be on 17-Nov"
-- Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "let it not say which would land by Friday, we wait until Thursday morning for re-assessment". This section sets the cut and the order. Thursday morning re-assesses against real merges and applies the cut order in C.4.
+- Owner answers, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "here is my response 1. No 2.No 3. yes 4. yes 5.I need more context on this 6. I need more context on this 7.I will start talking to different client starting with Minigrid and EV , likely executives 8.Sunday 3PM ready for walkthrough or am available finished earlier too"
+- What that means:
+  - **IN for 17 Nov:** any-range speed (ANY-1 and ANY-2), the shared date range (SR), and the design foundation with light and dark themes.
+  - **Approved:** `portfolio-tabs.html` is the layout spec, and RM-2 is approved.
+  - **Pending, being explained to the owner:** PB-1c and DATA-6.
+  - **Audience:** mini-grid and EV operators, likely executives. EV fixes (PB-3 + DATA-11) and visual quality gain value. BeagleBone loses it, so it moves to after.
+  - **Walkthrough:** Sun 15 at 15:00, or earlier.
+- Status at writing: A1 DATA-12 is built (fd85f1d31) and in review. B1 PF-T is building.
 
-### C.1 Backwards schedule from Tue 17 Nov
+### C.1 Schedule (skeleton kept; one adjustment recommended)
 
-| When | What | Machine |
-|---|---|---|
-| Tue 17 | Client demo. Morning: 30-min smoke check on the serve. | serve only |
-| Mon 16 | **Final demo build** (prepare ~2 h 45, S = Mon 16, so "yesterday arrives" works live), finish checks, live checks (~1.5 h), figures quoted into both scripts, tag `demo/2026-11-16-final`. Only a blocking frontend fix may land (serve restart, no prepare). | one heavy job |
-| Sun 15 | **Owner walkthrough** on the rehearsal build (morning). One Sonnet fix round in the afternoon, targeted tests, merged by 22:00. | light |
-| Sat 14 noon -> Sun 15 morning | **Freeze at 12:00 Sat (last feature merge).** Full suites + check-all + fixes (~6 h, lanes stopped). Rehearsal demo build overnight (~2 h 45), live checks, recapture (light theme only), script refresh with PILOT-1 (0.25). | quiet machine, one heavy job at a time |
-
-- **End work needs 2.5 days** (Sat noon to Mon evening). It cannot shrink: the rehearsal build is the only place DATA-12's CO-6/WK-GAP proof, PB-1 and the new Portfolio run together on real data, and the walkthrough needs a build.
-- **Real build window: now (Wed 06:30) to Sat 12:00, about 3.2 days.**
-  - Wed 06:30 -> Thu 12:00: 2 lanes; Wednesday's fixed work (E5b, retakes, script pass, DS-1f/DS-1b merge, the owner's afternoon walkthrough) uses the coordinator and part of a lane. About 1.7 lane-days.
-  - Thu 12:00 -> Sat 12:00: 3 lanes (lane C only while free RAM allows). About 5.5 lane-days.
-  - **About 7.2 lane-days, so 10.8 units at 1.5 per lane-day, 12.6 at the measured 1.75.** The cut below is 10.55 units, plus PILOT-1 in the script refresh.
-
-### C.2 The cut, in plain language
-
-**IN for 17 Nov (10.55 units).** Chosen by: what the client sees first, what reads as untrue or broken, and what the owner raised in the walkthrough.
-1. **Coverage counts the Site's own local days (DATA-12, 1.0).** The "checked" honesty fix: the Portfolio stops calling Kobo fully checked when its 4 Nov has no readings. Removes the D-E5.40 known-defect marker.
-2. **Days never analysed stop saying "nothing to report" (PB-4, 0.5); coverage counts from when a Site's readings began (PB-7, 0.25).** Same honesty theme as DATA-12.
-3. **The new coverage words (PF-W, 0.75)**: complete / partial / too few / no readings received / still processing / not analysed yet. Owner items 3 and 5.3.
-4. **Portfolio tabs with coverage shown once (PF-T 1.0, PF-C 0.5).** The opening page; owner item 2. PF-T also moves the Portfolio's date bar to the top (owner item 4; left menu unchanged).
-5. **Scalable "Outcomes across the estate" (PF-O2 0.5, PF-O1 1.0).** Owner item 9, design approved; default view by outcome group.
-6. **Cold and EV pages show their analysed periods on any day or week (PB-1a 1.0, PB-1b 1.0, PB-1c 0.25).** Owner item 11: today they read "Unknown" off-script.
-7. **Unbuilt integrations read as a short roadmap (RM-1 0.5; RM-2 0.1 if approved).** Owner item 11: 16 error-looking values.
-8. **Small screen fixes (PB-5 legend names, PB-6 copy, PB-8 Fuel tab loading; 0.6).** Owner item 11, already specified.
-9. **"Why?" sees the same issues as the board (BL-50, 0.25); Kisiwa finish check covers days without a selection (DATA-1 L2, 0.1); Kisiwa targets (DATA-6, 0.25, if approved).**
-10. **FR-B test fix round (1.0).** Invisible, but Saturday's full suites are only readable with it.
-11. PILOT-1 "how a client starts" page in the script (0.25, with the script refresh).
-
-**Stretch, in this order, only if Thursday's re-assessment shows room:** UQ quick wins (0.75: larger type floor, thousands separators, one empty/loading style, no ISO dates in link text); then PB-3 + DATA-11 if the client runs EV or cold rooms; then BeagleBone TEL-08 if the evaluator is technical.
-
-**After 17 Nov (in this order):** any-range speed ANY-1/ANY-2 (~7 units, with UQ-6a first; the presenter stays on the pre-built ranges, which already cover the script and the lens variants); one shared date range on every page (SR-1..3, 1.75; the Portfolio already gets its date at the top); the design foundation (v7.2 sheet, Inter, light/dark themes, states, formats; ~4); FCF-1; price-it first step; DATA-4/5/7/8/10/13; French and Swahili; region, PF-O3, AR-5/7; BL-70; the rest of section 2.
-- **Why ANY and SR go after:** ANY-1 alone is 3.0 units with a migration whose tests need a quiet machine, and its parity baseline must wait for PB-1/PB-4/PB-7; it cannot land safely by Saturday. SR touches every page frontend and would collide with PF and PB-1c in the same week.
-- **Id note:** DATA-12 here is D-E5.38's coverage fix. The older backlog item "DATA-12 longer Cold failure window" (non-Kobo answer) is renamed **DATA-14**.
-
-### C.3 Order and lanes
-
-| Lane | Order (each merges on review ACCEPT; only High/Medium block) |
+| When | What |
 |---|---|
-| **A, server and data** (starts now) | DATA-12 -> PB-4 + PB-7 + BL-50 + L2 (+ DATA-6 if approved) -> PB-1a -> PB-1b |
-| **B, Portfolio screens** (starts now) | PF-T -> PF-C + PF-W (after DATA-12 merges) -> PF-O2 + PF-O1 |
-| **C, fixes** (from Thu ~12:00, memory permitting) | PB-5/6/8 + RM-1 (+ RM-2) -> PB-1c (after PB-1a/b and PF-T) -> FR-B -> stretch |
+| Tue 17 | Client demo. 30-min smoke check in the morning. |
+| Mon 16 | **Final demo build** (S = Mon 16, prepare about 2 h 45), finish and live checks, figures into both scripts, tag `demo/2026-11-16-final`. Only a blocking frontend fix may land. |
+| Sun 15 | **Owner walkthrough at 15:00.** One Sonnet fix round afterwards, merged by 22:00. |
+| Sat 14 | **Last feature merge 12:00 (kept).** Then full suites and check-all with the lanes stopped (about 6 h). Rehearsal build overnight. Sun morning: live checks, recapture in both themes, script refresh with PILOT-1 (0.25). |
 
-Causal reasons: DATA-12 changes what the coverage line says, so PF-C and PF-W build on it. PB-4 lands before PF-W because both touch the Site Findings words. PB-1a and PB-1b share `postgres_assessment_store.py`, so one lane. DATA-12 and DATA-6 both edit CO-6 in `tools/demo_combined_finish.py`, so one lane.
+- **Recommended adjustment, for the owner to choose (C.4 option Y):** last merge **Sat 20:00** instead of 12:00.
+  - Suites run overnight (20:00 to 02:00) and the rehearsal build runs 02:00 to 05:00.
+  - Checks, recapture and script run Sun 05:00 to 14:00. The 15:00 walkthrough stays.
+  - It buys about 8 hours on 3 lanes, about 1.5-2 units.
+  - The cost: no buffer on Sunday morning. If the suites or the build find a break, the walkthrough runs on a build with known issues, listed for the owner.
 
-### C.4 Cut order if Thursday shows lag (first cut first)
-1. Stretch items. 2. FR-B (its known failures are listed as known in Saturday's suite run). 3. PF-O1/PF-O2 (today's outcomes grid fits 4 Sites). 4. PB-1b (EV stays on its analysed-period story link, D-E5.36).
-Never cut: DATA-12, PB-4, PB-7, PF-W, PF-T, PF-C, PB-1a, RM-1, PB-5/6/8.
+### C.2 Demand against capacity (honest)
 
-### C.5 Machine rules for every brief
-- 16 GB, ~3.5 GB free with the demo app up; Docker's VM crashed once last night. **One heavy job at a time.** Builders run only the named test files; no full suites, no prepares, no recaptures, no Playwright captures until Saturday.
-- Until Thursday's demo ends: never touch wt `AssetOpsV1-e3d`, DB `assetops_polish_client6_test`, ports 8990/5490; no Docker restarts; Postgres tests only on the builder's own `*_test` DB. The coordinator checks free RAM before each dispatch and pauses lane C first.
-- Builders: Write/Edit only, no subagents, PYTHONPATH absolute under the worktree (incl. `contracts`, `simulator`), commits end with the Co-Authored-By line, never push, `git add -f` for `.agent`.
+**What the owner now wants IN, in units:**
 
-### C.6 Start-now briefs (no pending owner approval)
+| Group | Items | Units |
+|---|---|---|
+| Honesty and Site pages | DATA-12 (built), PB-4, PB-7, BL-50, L2, PB-1a, PB-1b, PB-5/6/8, RM-1, RM-2; PB-1c and DATA-6 if approved | 6.4 |
+| EV for EV executives | PB-3 + DATA-11 | 1.25 |
+| Portfolio | PF-T (building), PF-C + PF-W, PF-O2 + PF-O1 | 3.75 |
+| Shared date range | SR-1, SR-2, SR-3 | 1.75 |
+| Design foundation | UQ-0 sheet, UQ-1 tokens/type/Inter, UQ-3 states + quick wins, UQ-2 light/dark, UQ-4 formats | 4.0 |
+| Any-range speed | UQ-6a 0.25; ANY-1 = AR-0, AR-1, AR-2 (3.0); ANY-2 core = AR-3, AR-6 (1.5), AR-4 with money receipts (2.5) | 7.25 |
+| Test hygiene | FR-B | 1.0 |
+| **Total** | | **about 25.4** |
 
-**A1 DATA-12 coverage on Site-local graded days.** Sonnet (precise spec). Wt `AssetOpsV1-data12`, branch `task/DATA-12-coverage-local-days`. 1.0 unit. **Start now.**
-- Goal: Portfolio coverage counts the Site's local days from the stored chain day grades; one day definition on the screen.
-- Spec: D-E5.38 in `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (the "Spec for the fix" bullet is the card); D-E5.40.
-- Files: `backend/assetops_backend/estate/coverage.py` (`site_coverage`, `_mini_grid`: keyword `day_grades: Mapping[date, str] | None = None`); callers `estate/index.py:148`, `estate/evidence_money.py:463`, `estate/financials.py:417` pass grades from the same memoised `req.day(site_id, site_type, window_days(...))` read the claims use; `tools/demo_combined_finish.py`: remove `KNOWN_DEFECTS` and set CO-6/WK-GAP to expect Kobo PARTIAL with the local gap.
-- States: NO_DATA -> gap (`UNASSESSED`, `NO_READINGS`); PENDING -> Site PENDING_RECOMPUTE; COMPLETE/PARTIAL/LOW -> checked. `None` keeps today's behaviour.
-- Tests that pin it: in `backend/tests/test_w301_estate_coverage.py` (or a new `test_estate_coverage_local_days.py`), a UTC+3 Site whose local day D is NO_DATA while both UTC windows touching D have selections -> PARTIAL, `gaps == [D]`, requested 7, checked 6, `text` set; `None` path unchanged; `backend/tests/test_demo_combined_finish_rows.py` CO-6/WK-GAP rows. CO-6/WK-GAP on a real build are proven at Saturday's rehearsal build, not now.
+**Capacity to Sat 12:00, at the observed 1.5-1.75 units per lane-day:**
+- 3 lanes from now and a 4th from Thu ~13:00 (only if the e3d serve is stopped after the demo and free RAM stays at 3 GB or more): about 10.5 lane-days, so **15.5-18 units**.
+- With option Y (Sat 20:00): **17-20 units**.
 
-**B1 PF-T Portfolio section tabs.** Opus. Wt `AssetOpsV1-pft`, branch `task/PF-T-portfolio-tabs`. 1.0 unit. **Start now.**
-- Goal: Overview (four cards, counts strip, top 3 act-first) plus Act first, Outcomes by site, Opportunity, What changed, Scope & coverage tabs; date bar at the top; left menu unchanged.
-- Spec: `.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11; layout `frontend/mockups/v71/portfolio-tabs.html` (label any MOCK DEVIATION in a header comment). Tab names owner-approved (walkthrough item 5.1).
-- Files: `frontend/src/estate/EstatePortfolio.tsx`, `estatePortfolio.css`, `portfolioWords.ts`, the router entry for `/portfolio/:tab?`.
-- Rules: one mounted route (tab switch = no refetch); tab links carry `from`/`to`/`known_at`; `lens` only on Act first; `/portfolio?lens=X` -> `/portfolio/act-first?lens=X`; unknown tab -> Overview; unknown count = no badge, never "0"; `<nav aria-label="Portfolio sections">` with `aria-current`; focus to panel heading; wrap at <=760 px. Do not touch the coverage line (PF-C).
-- Tests: `frontend/src/estate/__tests__/estatePortfolio.test.tsx`, `estatePortfolioRoutes.test.tsx` (each rule above one assertion). Vitest on those files only; no captures.
+**It does not fit. The gap is about 6-10 units.**
+- More lanes do not close it. The screens work shares the shell, the tokens and the Portfolio files, and ANY is a serial chain: PB-1 → AR-0 baseline → AR-1 → AR-2, AR-3, AR-4.
+- **ANY-2's AR-4 is the item that cannot land in any arrangement.** It needs AR-1, PF-C and PF-O2 merged first, that is Fri afternoon at best, and it is 2.5 units.
 
-**A2 PB-4 + PB-7 + BL-50 + DATA-1 L2.** Opus. Wt `AssetOpsV1-pb4`, branch `task/PB-4-honest-days`. 1.1 units. After A1 merges.
-- Spec: PB-4, PB-7 cards in `.agent/architect-answer-non-kobo-sites-2026-11-10.md` (Cards, "Before the client session"); BL-50 row in `.agent/backlog-post-demo.md`; L2 in the DATA-1 re-review (`KISIWA-COHORT` also fails a Kisiwa day with readings and no dispatch selection).
-- Files: Site Findings list-state builder (pre-flight names it, behind `sfi2` and the Overview list); `site_outcomes/mini.py:362-392`; `chain/why.py:282-285`, `site_outcomes/read.py:455-457`; `tools/demo_combined_finish.py`.
-- Literals: "not analysed yet"; `since readings began on {d}: {g} of {n} days …`.
-- Tests: a list-state test with an AMBIGUOUS day (never CURRENT or "Checked: nothing to report"); `frontend/src/shell/__tests__/s404SiteFindingIndex.test.tsx`; mini outcome tests + golden rows; `backend/tests/test_ch5b_why.py` (Cold failure-day Protect "Why?" names both threads); `test_demo_combined_finish_rows.py` L2 row.
+### C.3 What a third lane starting NOW buys
+- **About 1.2 lane-days (about 2 units) before Thursday noon.**
+- **More importantly, it makes ANY-1 possible at all.** Lane C builds PB-1a, then PB-1b, while lane A builds PB-4/PB-7, so all of them merge by about Thu 12:00-15:00. AR-0's baseline can then run Thursday afternoon.
+- Without lane C, PB-1b merges about Fri midday, AR-1/AR-2 cannot finish by Saturday, and ANY-1 drops.
+- **Memory rule:**
+  - Lane C pauses during the E5b live capture and Thu 07:00-12:30.
+  - Targeted tests only.
+  - The coordinator checks free RAM before each dispatch and pauses lane D first, then C.
+  - AR-1's migration tests are the single heavy slot, never beside a build or serve.
+- **Recommend yes: start lane C now with PB-1a.**
 
-**A3 PB-1a Cold analysed periods.** Opus. Wt `AssetOpsV1-pb1`, branch `task/PB-1a-cold-periods`. 1.0 unit. After A2.
-- Spec: D-E5.31; PB-1a card (same answer file). Files: `postgres_assessment_store.py:2168-2240` `_snapshot` default mode; `analytics/cold_site_reads.py` adds `analysed_periods: [{from,to,href}]`, `shown_period`.
-- Tests: day window over one period; week over four (failure day wins, open Finding); window with none; pinned unchanged; Site read + API tests. Named Cold store test files only.
+### C.4 The trade the owner must make (one answer; my recommendation first)
 
-**A4 PB-1b EV analysed periods.** Opus. Same wt, branch `task/PB-1b-ev-periods` from main after A3 merges. 1.0 unit.
-- Spec: PB-1b card. `postgres_assessment_store.py:2895-2945`; same start -> widest wins (08:00-09:05); `ev_site_reads.py` provenance per period.
-- Tests: as A3 plus E4 provenance, in `backend/tests/test_w206_ev_store_postgres.py` and the EV read tests.
+**Option X (recommended): keep the skeleton; move about 7 units after 17 Nov.**
+- **Trades (moved after 17 Nov):**
+  - AR-4, Portfolio money and evidence on stored rows (2.5). This is a workaround, named as one: the Portfolio stays fast only on pre-built ranges, which are the script ranges, the lens variants and the shared-range presets (last 7 days, last 30 days) added to the pre-build list. Other Portfolio ranges take about 10 s.
+  - UQ-4, formats and language switcher (1.0 with its share of UQ-6a's formatting). The session is in English; thousands separators come with the quick wins.
+  - FR-B (1.0). Its known failures are listed as known in Saturday's suite run.
+  - PF-O1/O2, the scalable outcomes list (1.5). With 4-5 Sites today's grid fits. The approved design is built first thing after the demo.
+  - Total about 6.0, plus option Y as the buffer.
+- **Kept IN:**
+  - every honesty and Site-page fix;
+  - PB-3 + DATA-11 (EV);
+  - Portfolio tabs, coverage once and the new words;
+  - the shared date range;
+  - the design foundation with **both** themes;
+  - UQ-6a, ANY-1 (Site boards fast for any range) and AR-3 + AR-6 (Portfolio coverage on rows; Cold/EV boards under 1 s).
+- **Risk stated plainly:**
+  - ANY-1 finishes at the end of lane A with no slack. If AR-2 is not ACCEPTed by the freeze, it is held unmerged, and the boards use the pre-built ranges in the session.
+  - UQ-2 (dark theme) is last in lane D. If it misses, the session uses the light theme.
 
-**B2 PF-C + PF-W coverage once and the new words.** Opus. Wt `AssetOpsV1-pft` (new branch `task/PF-CW-coverage-words` from main). 1.25 units. After B1 and A1 merge (A2 too if it has merged; else rebase).
-- Spec: proposal §4 (PF-C), §10 incl. the §10 inventory (PF-W); term family owner-accepted (item 5.3).
-- Files: server `coverage_line` from `counted.days` + exception-only card `days_line` (`site_outcomes/read.py` portfolio cards); backend vocabulary and frontend words files per §10; R620/R622 register rows.
-- Tests: expected strings in the affected backend and frontend tests; one test that "checked" never appears in a coverage sentence; "7 of 8 hours" form replaced per §10.3.
+**Option Z: everything IN.** Only by moving the session, or by accepting unreviewed merges. Neither is recommended.
 
-**B3 PF-O2 + PF-O1 scalable outcomes.** Opus. Branch `task/PF-O-outcomes-scale`. 1.5 units. After B2.
-- Spec: proposal §9.4-9.6 and §9.8; layout `frontend/mockups/v71/estate-outcomes-scale.html` (approved, item 12.1); default view "By outcome group". No region, no PF-O3, no AR-7.
-- Files: `outcome-sites` route in memory over `summary()` (`outcomes[]` kept, facets, need-for-attention order, cursor); `frontend/src/estate/PortfolioOutcomes.tsx`, `useOutcomeSummary.ts`.
-- Tests: route contract incl. the never-total test; frontend sort, grouping, paging, empty/loading states.
+### C.5 Order and lanes (option X)
 
-**C1 PB-5/6/8 + RM-1 screen fixes.** Sonnet. Wt `AssetOpsV1-pbfix`, branch `task/PB-fixes-RM-1`. 1.1 units. From Thu ~12:00.
-- Spec: PB-5, PB-6, PB-8, RM-1 cards and the C rows of the table in the non-Kobo answer; D-E5.34 (each literal names what is missing; none reads as an error).
-- Tests: `s5SiteWindowOverview.test.tsx` (Kisiwa "Households meter", "Cold store meter", "Water pump meter"); MiniPerformance (no "Fuel balance: Unknown" before nights resolve); `dispatchWords` split; EV Financials row and empty total; ColdHealthDepth id in Technical details; one test per RM-1 literal.
+| Lane | Order | Start rule |
+|---|---|---|
+| **A, server** | A2 PB-4 + PB-7 + BL-50 + L2 (+DATA-6 if approved) → A5 UQ-6a → A6 AR-0 + AR-1 → AR-2 | A2 the moment A1 merges |
+| **B, Portfolio and shell** | PF-T (building) → B2 PF-C + PF-W → B4 SR-1 → SR-2 + SR-3 | B2 the moment B1 merges (A1 merged too) |
+| **C, Cold/EV then server** (**now**) | A3 PB-1a → A4 PB-1b → AR-3 + AR-6 (after AR-1 merges) → PB-3 + DATA-11 → PB-1c if approved | now |
+| **D, look** (Thu ~13:00, memory permitting) | UQ-0 sheet (owner approves Thu evening) → UQ-1 → UQ-3 + quick wins → C1 PB-5/6/8 + RM-1 + RM-2 → UQ-2 themes | after Thursday's demo |
 
-**C2 PB-1c analysed-period line.** Sonnet. Branch `task/PB-1c-window-line`. 0.25 unit. After A4 and B1 merge, and the owner's nod.
-- D-E5.31 literals in the Cold and EV window bars with period links; MOCK DEVIATION header comment; Cold and EV view tests.
+**ANY-1 baseline ordering (rule 1 of section 0.2, kept):**
+- AR-0's harness code may be written as soon as UQ-6a merges.
+- The **baseline run** happens only after PB-4, PB-7, PB-1a and PB-1b have all merged. Expected Thu ~15:00 with lane C now.
+- AR-1's migration freezes the stored body shape, so UQ-6a must merge before AR-1's first commit.
+- AR-1's Postgres tests wait until the Thursday demo has ended.
+- **DATA-12 already changed coverage, so AR-3 builds on the graded local days,** not on `dispatch_days`.
 
-**C3 FR-B test fix round.** Sonnet. Branch `task/FR-B`. ~1.0 unit. After C1.
-- Scope: the "Carry to FR-B" list in `.agent/coordinator-handoff.md` (wrapper fixes, T6 w301 golden, `pin_read_at` patches `EvidenceMoneySnapshot`, FR-A Lows L1-L3, I1, `OBJECTIVE_BEHIND_PACE` in the xfail tuple). Only the named test files.
+**Collision rules:**
+- UQ-1 touches about 35 CSS files. Lane B rebases on UQ-1 once, and new lane B CSS uses semantic tokens only.
+- SR-1 lays the top-bar row once. UQ-2's theme control goes into that row.
+- C1 runs in lane D after UQ-3 because its files (Site pages) are the ones UQ-3's empty/loading states touch.
 
-### C.7 Owner approvals to ask today (one message)
-1. **Move any-range speed (ANY-1/ANY-2, ~7 units) to after 17 Nov; the presenter stays on the pre-built ranges.** Recommend yes: it cannot land safely by Saturday.
-2. **Move the shared date range on every page (SR) and the design foundation (Inter, light/dark themes, v7.2 sheet) to after 17 Nov.** Recommend yes; the Portfolio still gets its date bar at the top, and the UI quick wins stay first stretch.
-3. **Confirm `portfolio-tabs.html` as the approved layout spec** (its header still says "Draft"). Recommend yes.
-4. **Hide the lens chips on Cold, EV and Kisiwa (RM-2).** Recommend yes.
-5. **Add the "Analysed period" line under the date bar on Cold and EV (PB-1c).** Recommend yes.
-6. **Kisiwa targets set to 0 for avoidable generator minutes and unserved critical supply (DATA-6).** Recommend yes.
-7. **What does the client operate (mini-grids, diesel, cold rooms, EV depots), and is the evaluator technical?** Recommend answering by Thu morning; it decides the stretch order and BeagleBone.
-8. **Schedule: last merge Sat 14 noon, your walkthrough Sun 15 morning, final build Mon 16.** Recommend yes; tell us your Sunday time.
+### C.6 Machine rules for every brief
+- 16 GB machine, about 3.5 GB free with the demo app up. Docker's VM crashed once.
+- **One heavy job at a time.** Named test files only: no full suites, prepares, recaptures or captures until the freeze.
+- **Until Thursday's demo ends, do not touch:**
+  - wt `AssetOpsV1-e3d`;
+  - DB `assetops_polish_client6_test`;
+  - ports 8990/5490;
+  - Docker (no restarts).
+- Each builder uses its own `*_test` DB.
+- Builders:
+  - Write/Edit only, no subagents.
+  - PYTHONPATH absolute under the worktree (incl. `contracts`, `simulator`).
+  - Commits end with the Co-Authored-By line. Never push. `git add -f` for `.agent`.
 
-- Architect: Claude (`assetops-architect`). Binding checked in `.ai/ROLE_CONFIG.md`: Architect = Claude since 2026-10-27.
-- Owner, verbatim (`.agent/owner-client-scope-sequencing-2026-11-11.md`): "the architect need to sequence the walkthough comment implementations as well as overall backlog so i can see what is worth putting in scope of client demo"
-- Inputs: `owner-walkthrough-2026-11-10.md` (items 1-13), `backlog-post-demo.md` (BL-01..69), `architect-plan-pre-client-2026-11-10.md` (the ~26-unit plan), `architect-answer-non-kobo-sites-2026-11-10.md` (item 11 audit), the 2026-11-10 answers on speed, money, layout, price-it and UI quality, `coordinator-handoff.md`.
-- **Status:** a recommendation. Nothing is scheduled until you decide (section 4). No code changes.
-- Already merged, so not in the table: Kobo gap pattern, lens keeps the page and pre-built lens pages, Findings cards, Cold/EV analysed-period story links, Kisiwa one recording session, the E5 fixes, C1-C5. The Wednesday frontend fixes (Kisiwa chart legend, copy batch, Fuel tab loading; 0.6 units) are planned before Thursday; if any slips, it goes first in lane B on Mon 16.
+### C.7 Briefs
+
+Briefs already written, unchanged in content (dispatch per C.5):
+- **A2** PB-4 + PB-7 + BL-50 + L2: Opus, 1.1. Dispatch on A1 merge.
+- **A3** PB-1a: Opus, 1.0. **Now, lane C.** Wt `AssetOpsV1-pb1`.
+- **A4** PB-1b: Opus, 1.0. Lane C, after A3.
+- **B2** PF-C + PF-W: Opus, 1.25. On B1 merge.
+- **C1** PB-5/6/8 + RM-1: Sonnet, 1.1. Lane D. RM-2 is now approved, so it is added (0.1): hide the Findings lens chips on Cold, EV and Kisiwa client screens, with a test per Site type.
+- **C2** PB-1c: on approval only.
+
+Moved after 17 Nov: B3 PF-O and C3 FR-B.
+
+**A5 UQ-6a server message seam.** Opus. Wt `AssetOpsV1-uq6a`, branch `task/UQ-6a-message-seam`. 0.25 unit. Lane A, after A2. **Must merge before AR-1's first commit.**
+- **Goal:** server words are stored and sent as `{key, params}` and rendered for the request locale at read; never stored as composed text.
+- **Spec:** `.agent/architect-plan-pre-client-2026-11-10.md` UQ-6a row (section 1 table) and §4.3 D-I18N.1, D-I18N.2.
+- **Scope now, English only:**
+  - the contract type and the render function;
+  - `Accept-Language` resolution falling back to `en`, and `Content-Language` on responses;
+  - the locale in the response-store key.
+  - No catalogue move of existing words (UQ-6b, after).
+  - No Babel formatting: it goes with UQ-4, after.
+- **Files:** a new `backend/assetops_backend/i18n/` module (messages, render, locale); the response-store key builder; one existing server body converted as the reference user (the Pre-flight names the smallest one).
+- **Tests:** render of `{key, params}`; unknown locale falls back to `en`; the cache key differs by locale; `Content-Language` header; the converted body is byte-equal in English to today.
+
+**A6 AR-0 + AR-1 parity guard and read-row foundation (start of ANY-1).** Opus. Wt `AssetOpsV1-any1`, branch `task/ANY-1-rows`. 1.5 units. Lane A after A5.
+- **Spec:** `.agent/architect-answer-any-range-speed-2026-11-10.md` §4 (cards AR-0, AR-1; risks table); D-ANY.1-4 and D-MONEY.1-4 in `build-sheet-OWN-GAPS-2026-11-08.md` (the generic row contract carries money receipts); D-I18N.1 (row bodies hold keys).
+- **Order inside the slice:**
+  1. The AR-0 harness: every story request plus seeded random ranges (board any day; Portfolio any from/to up to 31 days; historical `known_at`); row-based compose equals today's compose byte for byte. `perf_budget.py` arbitrary-range cases with the store off and no pre-build: board 2 s or less, Portfolio month 2 s or less.
+  2. **The baseline run only after PB-4, PB-7, PB-1a and PB-1b are on main** (the coordinator confirms).
+  3. AR-1: migration at the next free number (`0059` on main today) (`site_period_read`, `revision_provenance`); port and Postgres adapter; one query per Sites x range x kinds; PENDING-at-k from outbox/consumption; register schema accepts the new kinds; backfill CLI.
+- **Tests:** migration up/down on the builder's own `*_test` DB (heavy slot, after the Thursday demo); adapter round-trip; PENDING-at-k; register accepts kinds; parity harness self-test (one deliberate mismatch fails).
+- **Next card (AR-2, lane A) and AR-3 + AR-6 (lane C)** are dispatched on AR-1's merge, from the same answer file.
+
+**B4 SR-1 shared range bar and state.** Opus. Wt `AssetOpsV1-pft`, branch `task/SR-1-shared-range`. 0.5 unit. Lane B after B2.
+- **Goal:** one date range in a new top-bar row on every page; left menu unchanged.
+- **Spec:** `.agent/architect-proposal-portfolio-layout-2026-11-10.md` "Item 12.5", SR.3 and SR.4; layout: `frontend/mockups/v71/portfolio-tabs.html` Change 0b (approved spec), top bar "All pages" in `estate-outcomes-scale.html`; D-UI.2 (the range lives in the address only).
+- **Files:**
+  - `SharedRangeBar` in `OperatorShellLayout`; the demonstration banner stays;
+  - `useSharedRange`, returning `{from, to, known_at, preset}` and reading both address forms;
+  - `withRange`; the rail `search`;
+  - filling in the address on entry;
+  - presets (no "Today" preset); the `known_at` label;
+  - phone sheet; button 44 px, dates only;
+  - picker accessibility (`aria-pressed` presets, labelled inputs, Escape and Cancel return focus).
+  - PF-T's Portfolio date bar is replaced by this bar.
+- **Tests:** the hook parses both address forms; rail links carry the range; presets; focus handling; the Portfolio reads the shared range. Vitest on the named files only. SR-2 (pages onto the range) follows on merge.
+
+### C.8 Still pending with the owner
+- **PB-1c** ("Analysed period" line): context being given.
+- **DATA-6** (Kisiwa targets): context being given.
+- **Choose option X (recommended) or say which trade differs, and option Y (last merge Sat 20:00) yes or no.**
+- **Approve the UQ-0 v7.2 sheet** on Thu evening when it is drawn.
 
 ## 0. Agent-pace plan, re-assess Thu 12 Nov morning (added 2026-11-11; replaces the working-day calendar in sections 1 and 3.2; scope, order and decisions stay)
 
