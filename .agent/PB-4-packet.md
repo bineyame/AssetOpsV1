@@ -71,7 +71,13 @@ Kobo source note) in `demo-objectives.json`; `objectives_instants` adds KISIWA-0
   test_demo_combined_finish_co1 7; test_k7_kisiwa_story 101; test_dd1b1_prepare_clock 17;
   test_demo_combined_finish_days 1; test_out_d3_declare 17; test_out_d4_board 17; test_walk1_productive_sales 22.
 - Postgres on `assetops_pb4_test`: test_idx_gaps_postgres 7 passed; test_s4_finding_index_postgres 11 passed;
-  test_ch5a1_reader_postgres 8 passed. Objective Postgres files: see the report line below.
+  test_ch5a1_reader_postgres 8 passed; test_out_d3_objective_store_postgres 1 passed (after declaring Kisiwa too,
+  commit bf87678fc). `test_out_d5_objectives_postgres.py::test_kobo_estate_objectives_and_reproducibility` FAILS:
+  its s602b world build asserts the UTC-day Portfolio is CURRENT and gets `status PARTIAL` for 10-21 and 10-11
+  (0 rows). The same failure occurs with all eight changed backend files restored to main `502829266`
+  (`git checkout 502829266 -- ...`, run, `git checkout HEAD -- ...`), so it is pre-existing on main (likely DATA-12's
+  Site-local coverage days), not this branch. The other 2 tests in that file passed.
+  `test_ch6b_estate_postgres.py` errors on `TEMPLATE_STALE` (precondition, not run).
 - Frontend (vitest per file): pb4DataGapDays 6; idxGapsFindingIndex 9; s404SiteFindingIndex 43;
   s502OverviewFindingList 37; productStatus 28; `tsc --noEmit` exit 0.
 - Not run: `test_ch5b_why_postgres.py` errors on its precondition `TEMPLATE_STALE` (mechanism dataset template must be
