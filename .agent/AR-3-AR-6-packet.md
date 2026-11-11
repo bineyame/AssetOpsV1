@@ -33,8 +33,9 @@ Commits: `0ea0bcdbc` (AR-3), `38a7c748e` (AR-6), then this packet.
 - `pytest test_*cov*.py test_estate_*.py` (non-Postgres): 47 passed, 1 skipped.
 - `pytest test_ar6_work_batch` + 18 board/work no-DB files (`site_outcome|out_b|work_index|site_index|outc_|visits|board`): 272 passed.
 - `create_app()` without a database: provider None; `build_dispatch_day_rows` with a dummy URL constructs without connecting.
-- `tools/check-architecture.ps1`: see "Guard" below.
-- Non-vacuity: see below.
+- `tools/check-architecture.ps1` (`ASSETOPS_GUARD_PYTHON` = plan2 venv) on `38a7c748e`: "Architecture check passed." exit 0.
+- Non-vacuity (committed first, reverted with `git checkout`): coverage ignoring the provider + `S3_BRACKET = 0` + board
+  port without prefetch: 14 failed / 16 passed in the two new test files; after revert 30 passed, tree clean.
 
 ## Known deviations
 
