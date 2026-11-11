@@ -212,6 +212,13 @@ def read_watermark(c: Any, tenant_id: Any, site_ids: Any) -> str:
     return read(c, tenant_id, site_ids)
 
 
+def install_handle_error_hook() -> None:
+    """INFRA-1 (D-E5.47 rule 2): the global SQLAlchemy `handle_error` backstop (the driver stays in the adapter)."""
+    from assetops_backend.chain.adapters.postgres_response_store import install_handle_error_hook as install
+
+    install()
+
+
 def prebuilt_requests() -> Any:
     """CH-5c Q8: the pre-built route list (`config/chain/prebuilt-routes-v1.json`)."""
     from assetops_backend.chain.adapters.file_chain_config import load_prebuilt_routes

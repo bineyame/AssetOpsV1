@@ -10,7 +10,8 @@ from sqlalchemy import create_engine, event, text
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.engine import Engine, make_url
 
-from assetops_backend import infra, read_scope
+from assetops_backend import read_scope
+from assetops_backend.chain.adapters import postgres_response_store as infra
 
 #: Only `SELECT 1` and a statement error are run, on no table, so the base `*_test` database serves (the harness's
 #: routed, migrated clone is not needed: `pg_harness` keeps the base URL in `ASSETOPS_TEST_DATABASE_BASE_URL`).

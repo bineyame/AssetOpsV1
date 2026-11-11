@@ -11,7 +11,11 @@ from __future__ import annotations
 from typing import Any, Callable, Iterable, Sequence
 from uuid import UUID
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.engine import Engine
+
+from assetops_backend import read_scope
+from assetops_backend.infra import is_connection_error
 
 _SITES = "SELECT id, site_code, timezone FROM site WHERE tenant_id = :t ORDER BY id"
 _LOOKUP = ("SELECT body, etag FROM chain_response WHERE route = :r AND request_key = :k AND watermark = :w "
@@ -65,6 +69,22 @@ class _Snapshot:
         row = self._c.execute(text(_LOOKUP), {"r": route, "k": key, "w": watermark, "v": version,
                                               "now": now}).first()
         return None if row is None else (bytes(row.body), row.etag)
+
+
+def _on_handle_error(ctx: Any) -> None:
+    """INFRA-1 (D-E5.47 rule 2) backstop: mark the current read scope when the engine reports a disconnect or an
+    `OperationalError`, so a composer catch that drops the cause still cannot store a degraded body. A pre-ping
+    failure is the pool recovering a stale connection (it reconnects), never a failed read."""
+    if getattr(ctx, "is_pre_ping", False):
+        return
+    if ctx.is_disconnect or is_connection_error(ctx.original_exception):
+        read_scope.mark_degraded("db.handle_error")
+
+
+def install_handle_error_hook() -> None:
+    """Register the one global `handle_error` listener on every `Engine` (idempotent; `create_app` calls it)."""
+    if not event.contains(Engine, "handle_error", _on_handle_error):
+        event.listen(Engine, "handle_error", _on_handle_error)
 
 
 class PostgresResponseRows:

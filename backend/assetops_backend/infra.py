@@ -10,29 +10,33 @@ raised for deterministic states ("DATABASE_URL is not set", "not wired"), which 
 
 The deterministic file-system `OSError` subclasses (a missing file, a permission refusal) are not connection errors
 and are not transient (packet, Known Deviations): a missing manifest is a stable state, never "retry later".
+
+The driver classes are matched by their defining module and name along the exception's MRO, so this module imports
+no database driver (the configuration-persistence guard keeps drivers in the adapters). The global `handle_error`
+backstop lives in the response-store adapter (`chain/adapters/postgres_response_store.install_handle_error_hook`).
 """
 from __future__ import annotations
 
 import socket
 from typing import Any
 
-from sqlalchemy import exc as sa_exc
-
-try:  # psycopg is the production driver; a process without it still decides on the SQLAlchemy classes
-    import psycopg as _psycopg
-except ImportError:  # pragma: no cover - the backend always installs psycopg
-    _psycopg = None
-
-_SA = (sa_exc.OperationalError, sa_exc.InterfaceError, sa_exc.DisconnectionError, sa_exc.TimeoutError)
+_SA_TRANSIENT = frozenset({"OperationalError", "InterfaceError", "DisconnectionError", "TimeoutError"})
 _FILE_STATES = (FileNotFoundError, FileExistsError, IsADirectoryError, NotADirectoryError, PermissionError)
 
 
+def _driver_class(error: BaseException, package: str, names: frozenset[str]) -> bool:
+    """`error` is (a subclass of) a class named in `names` defined in `package` (or a submodule)."""
+    return any(c.__name__ in names and (c.__module__ == package or c.__module__.startswith(package + "."))
+               for c in type(error).__mro__)
+
+
 def _one(error: BaseException) -> bool:
-    if isinstance(error, _SA):
+    if _driver_class(error, "sqlalchemy", _SA_TRANSIENT):
         return True
-    if _psycopg is not None and isinstance(error, _psycopg.OperationalError):  # incl. errors.TooManyConnections
+    if _driver_class(error, "psycopg", frozenset({"OperationalError"})):  # incl. errors.TooManyConnections
         return True
-    if isinstance(error, sa_exc.DBAPIError) and getattr(error, "connection_invalidated", False):
+    if _driver_class(error, "sqlalchemy", frozenset({"DBAPIError"})) and getattr(error, "connection_invalidated",
+                                                                               False):
         return True
     if isinstance(error, _FILE_STATES):
         return False
@@ -58,23 +62,8 @@ def is_transient(error: BaseException | None) -> bool:
     return False
 
 
-def _on_handle_error(ctx: Any) -> None:
-    """The backstop (D-E5.47 rule 2): mark the current read scope when the engine reports a disconnect or an
-    `OperationalError`, so a composer catch that drops the cause still cannot store a degraded body. A pre-ping
-    failure is the pool recovering a stale connection (it reconnects), never a failed read."""
-    if getattr(ctx, "is_pre_ping", False):
-        return
-    if ctx.is_disconnect or isinstance(ctx.original_exception, (sa_exc.OperationalError,)) or (
-            _psycopg is not None and isinstance(ctx.original_exception, _psycopg.OperationalError)):
-        from assetops_backend import read_scope
-
-        read_scope.mark_degraded("db.handle_error")
-
-
-def install_handle_error_hook() -> None:
-    """Register the one global `handle_error` listener on every `Engine` (idempotent; `create_app` calls it)."""
-    from sqlalchemy import event
-    from sqlalchemy.engine import Engine
-
-    if not event.contains(Engine, "handle_error", _on_handle_error):
-        event.listen(Engine, "handle_error", _on_handle_error)
+def is_connection_error(error: BaseException | None) -> bool:
+    """The `handle_error` backstop's test on `ctx.original_exception`: a SQLAlchemy or psycopg
+    `OperationalError` (a statement error such as `ProgrammingError` is not)."""
+    return error is not None and (_driver_class(error, "sqlalchemy", frozenset({"OperationalError"}))
+                                  or _driver_class(error, "psycopg", frozenset({"OperationalError"})))
