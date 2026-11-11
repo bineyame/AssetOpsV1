@@ -12,6 +12,7 @@ from link_parity import checked
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from assetops_backend.chain.read import ActionFacts, DayFacts, FindingHead, MoneyHead
 from assetops_backend.site_outcomes import mini
@@ -125,6 +126,7 @@ class Fake:
             chain_day=chain_day,
             chain_findings=lambda lo, hi: self._go("chain_findings", (F104, F090), lo, hi),
             findings_settled=lambda: self._go("findings_settled", True),
+            readings_began=lambda: self._go("readings_began", None),
             placement_facts=lambda ids: self._go("placement_facts",
                                                  {k: v for k, v in PLACEMENT_F104.items() if k in ids}, tuple(ids)),
             action_rows=lambda: self._go("action_rows", (CHAIN_A48,)),
@@ -362,6 +364,19 @@ def test_gap_line_names_the_gap_days_by_day_grade() -> None:
     comp, _ = run(Fake(day={"gaps": two, "grades": pending}))
     assert comp.facts.finding_gaps["text"] == "Not available yet · 2 of 31 days are not assessed yet"
     assert run()[0].facts.finding_gaps is None
+
+
+def test_pb7_gap_line_counts_from_the_first_accepted_reading() -> None:
+    """PB-7: the board reads the Site's first accepted reading; the count runs from its Site-local day."""
+    every = tuple(date.fromisoformat(d) for d in REQUESTED)
+    began = datetime.combine(every[20], datetime.min.time(), tzinfo=ZoneInfo(ZONE)) + timedelta(hours=6)
+    comp, _ = run(Fake(day={"gaps": every}, readings_began=began))
+    assert comp.facts.finding_gaps == {
+        "text": f"Since readings began on {every[20].day} {every[20]:%b}: 11 of 11 days have no checked readings yet",
+        "days": REQUESTED[20:], "withheld": False}
+    early = datetime.combine(every[0], datetime.min.time(), tzinfo=ZoneInfo(ZONE)) - timedelta(days=40)
+    comp, _ = run(Fake(day={"gaps": every[:2]}, readings_began=early))
+    assert comp.facts.finding_gaps["text"] == "2 of the last 31 days have no checked readings yet"
 
 
 def test_unsettled_board_day_unsettles_measured_outcomes() -> None:

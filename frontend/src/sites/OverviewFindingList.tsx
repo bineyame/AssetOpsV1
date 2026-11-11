@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 
 import {
   currentnessWords,
+  dayGapWords,
   Disclosure,
   ProductStatus,
   readResultWords,
@@ -30,6 +31,7 @@ import {
   type FindingIndexClient,
   type FindingIndexResult,
   type FindingIndexScope,
+  dataGapDays,
   listsRows,
 } from "./findingIndexClient";
 import { OVERVIEW_PARTIAL } from "./SiteFindingIndex";
@@ -300,6 +302,22 @@ function Loaded({
       <div data-overview-finding-list={body.status}>
         <ProductStatus words={listWords(body)} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
+        <FullList href={full} />
+        <ListReferences summary={summary} body={body} withBasis={false} />
+      </div>
+      </>
+    );
+  }
+  const dataGap = body.status === "PARTIAL" && body.total_count === 0 ? dataGapDays(body)[0] : undefined;
+  const gapWords = dayGapWords(dataGap?.reason);
+  if (gapWords !== null) {
+    // PB-4 (D-E5.46): the day's readings could not be analysed: state the data fact, never the proved-empty words.
+    return (
+      <>
+      {chosenLine}
+      <div data-overview-finding-list="data-gap">
+        <ProductStatus words={gapWords} scope={listScope(summary)} asOf={body.knowledge_at} />
+        <p>No Findings are listed for this day and no count is given.</p>
         <FullList href={full} />
         <ListReferences summary={summary} body={body} withBasis={false} />
       </div>

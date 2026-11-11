@@ -272,17 +272,20 @@ def trace(x: SiteTraceInput) -> Trace:
 
 def site_trace(req: Any, ref: Any, *, category: str, board: Mapping[str, Any], facts: DayFacts,
                site_measures: Sequence[str], clean_measures: Mapping[str, Sequence[str]],
-               verification: Any) -> Trace:
+               verification: Any, known_at: Any = None) -> Trace:
     """The route's one call (`chain_api.py`): the Site's thread history through the board's window
-    (`site_chain.threads_through`, read on the board day at the window's cutoff), their Actions, one `trace_facts`
-    read for their Findings, then `trace`. `req` is the request's `ChainRequest` (its thread read is the Site chain's
-    memoised one); `verification(rows, thread_ids)` is the route's Action verification read."""
+    (`site_chain.threads_through`, read on the board day), their Actions, one `trace_facts` read for their Findings,
+    then `trace`. `req` is the request's `ChainRequest` (its thread read is the Site chain's memoised one);
+    `verification(rows, thread_ids)` is the route's Action verification read.
+    BL-50: threads and Actions are read at the board's visibility, `lifecycle_cutoff(known_at)` (the request's cutoff,
+    None = now), never the window's `known_at` (Cold/EV's evidence-end cutoff hides a Finding assessed after its
+    evidence ends)."""
     from assetops_backend.chain import site_chain
-    from assetops_backend.chain.read import window_day
+    from assetops_backend.chain.read import lifecycle_cutoff, window_day
 
     w = board["window"]
     lo, hi = _instant(w["from"]), _instant(w["to"])
-    cutoff = _instant(w["known_at"])
+    cutoff = lifecycle_cutoff(known_at)
     rows = req.threads(ref.site_id)
     threads = site_chain.threads_through(rows, site=ref.site_code, domain=ref.domain, tz=ref.timezone, hi=hi,
                                          day=window_day(lo, hi, ref.timezone), cutoff=cutoff)

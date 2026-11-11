@@ -65,3 +65,23 @@ def test_the_safeguards_sentence_and_display_code_are_required() -> None:
         row["must_not_harm"]["text"] = row["must_not_harm"]["text"].replace(old, new)
         with pytest.raises(AssertionError):
             _check(row)
+
+
+# ---- DATA-6: Kisiwa declares MG-2 and MG-5 (target 0), so CO-6 counts four objective Sites ------------------------
+
+def test_data6_co6_counts_kisiwa_as_an_objective_site() -> None:
+    assert finish.expected_objective_site_count(kisiwa=True) == 4
+    assert finish.expected_objective_site_count(kisiwa=False) == 3  # a three-Site partial prepare stays green
+
+
+def test_data6_kisiwa_objectives_are_mg2_and_mg5_at_zero_with_the_kobo_source_note() -> None:
+    import json
+
+    doc = json.loads((REPO / "backend" / "conversions" / "demo-objectives.json").read_text(encoding="utf-8"))
+    lines = {o["outcome_key"]: o for o in doc["objectives"] if o["site_code"] == "KISIWA-001"}
+    kobo = {o["outcome_key"]: o for o in doc["objectives"] if o["site_code"] == "KOBO-001"}
+    assert sorted(lines) == ["MG-2", "MG-5"]
+    for key in ("MG-2", "MG-5"):
+        assert lines[key]["target"] == "0" and lines[key]["measure_key"] == kobo[key]["measure_key"]
+        assert (lines[key]["source"], lines[key]["source_note"]) == (kobo[key]["source"], kobo[key]["source_note"])
+        assert lines[key]["idempotency_key"] == f"out-d-kisiwa-001-{key.lower()}-v1"

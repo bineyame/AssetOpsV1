@@ -38,6 +38,7 @@ OUTSIDE = " · linked finding outside this view"
 #: POLISH PA-2a (review M2): the trial cost line prefix, `site_outcomes/board.py` COST_PREFIX (was "not realised savings").
 NOT_REALISED = "Estimated effect of the trial (not money saved): "
 GAPS_TEXT = "{g} of the last 31 days have no checked readings yet"
+GAPS_SINCE_TEXT = "Since readings began on {d}: {g} of {n} days have no checked readings yet"  # PB-7
 IDX_POLICY = "finding-index/2"
 #: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
 #: FUEL-1 A3-R §3.9: with the declared idle fuel rate the trial hour is a `/2` MODELLED_IMPROVEMENT (was
@@ -303,10 +304,16 @@ def sp3(ctx: Ctx) -> dict:
     gaps = next((n["finding_gaps"] for n in walk(body) if isinstance(n.get("finding_gaps"), dict)), None)
     assert gaps is not None, "no finding_gaps on the Kobo board"
     lo = ctx.day(-30).date()
-    assessed = {d["day"] for d in ctx.site_days("kobo") if d["received_at"] is not None and lo <= at(d["day"] + "T00:00:00Z").date()
+    received = sorted(at(d["day"] + "T00:00:00Z").date() for d in ctx.site_days("kobo") if d["received_at"] is not None)
+    # PB-7: the count starts on the day readings began when that falls inside the 31-day window
+    began = received[0] if received and received[0] > lo else None
+    first = began or lo
+    assessed = {d["day"] for d in ctx.site_days("kobo") if d["received_at"] is not None and first <= at(d["day"] + "T00:00:00Z").date()
                 <= ctx.S.date()}
-    g = 31 - len(assessed)
-    assert gaps["text"] == GAPS_TEXT.format(g=g), (gaps["text"], g)
+    n = 31 if began is None else (ctx.S.date() - began).days + 1
+    g = n - len(assessed)
+    want = GAPS_TEXT.format(g=g) if began is None else GAPS_SINCE_TEXT.format(d=f"{began.day} {began:%b}", g=g, n=n)
+    assert gaps["text"] == want, (gaps["text"], want)
     listed = {str(x)[:10] for x in gaps.get("days") or []}
     assert ctx.day(-10).date().isoformat() in listed, listed
     assert not (listed & assessed), listed & assessed
@@ -440,6 +447,11 @@ def expected_site_codes(kisiwa: bool) -> list[str]:
     return sorted([KOBO, COLD, EV] + ([KISIWA_SITE] if kisiwa else []))
 
 
+def expected_objective_site_count(kisiwa: bool) -> int:
+    """DATA-6: the Sites with declared objectives: the core three, plus Kisiwa (MG-2, MG-5) iff present."""
+    return 4 if kisiwa else 3
+
+
 def _estate(ctx: Ctx, lo: datetime, hi: datetime) -> tuple[dict, dict, dict, dict]:
     """(portfolio, outcome summary, Finding coverage by Site code, summary Site by code) over [lo, hi)."""
     days = {"from": iso(lo), "to": iso(hi)}
@@ -469,7 +481,8 @@ def co6(ctx: Ctx) -> dict:
     kisiwa = _kisiwa_present(ctx)
     assert codes == expected_site_codes(kisiwa), codes  # DIESEL-1-R3p: the core three, plus Kisiwa iff present
     assert double_count_violations(body, financials=None) == []
-    assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
+    want = expected_objective_site_count(kisiwa)  # DATA-6: Kisiwa declares MG-2 and MG-5
+    assert summary["objective_site_count"] == want, (summary.get("objective_site_count"), want)
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == basis.get(EV) == "PERIOD", basis  # CH6b1-R Q2: the requested window
     # the gap days, from the data: Kobo days in the week with no run (so no available selection)
@@ -1307,6 +1320,12 @@ KISIWA_COHORT_SQL = (
     "FROM analytic_run_selection s JOIN analytic_run r ON r.id = s.run_id "
     "WHERE s.tenant_id = %s AND s.site_id = %s AND s.analytic_id = 'dispatch' "
     "ORDER BY s.window_start, s.window_end, s.seq DESC")
+#: DATA-1 L2: the Kisiwa readings that no `dispatch` selection window covers, per UTC day (day, reading count).
+KISIWA_UNSELECTED_SQL = (
+    "SELECT (e.source_time AT TIME ZONE 'UTC')::date AS day, count(*) FROM accepted_evidence e "
+    "WHERE e.tenant_id = %s AND e.site_id = %s AND NOT EXISTS (SELECT 1 FROM analytic_run_selection s "
+    "WHERE s.tenant_id = e.tenant_id AND s.site_id = e.site_id AND s.analytic_id = 'dispatch' "
+    "AND e.source_time >= s.window_start AND e.source_time < s.window_end) GROUP BY 1 ORDER BY 1")
 
 
 @row("KISIWA-COHORT")
@@ -1322,7 +1341,8 @@ def kisiwa_cohort(ctx: Ctx) -> dict:
             raise KisiwaMissing()
         windows = [{"window_start": a, "window_end": b, "cohort_status": s, "has_readings": h, "limits": lim}
                    for a, b, s, h, lim in c.execute(KISIWA_COHORT_SQL, site).fetchall()]
-    return {"kisiwa": "present", **demo_rows.kisiwa_cohort(windows)}
+        unselected = [(d, n) for d, n in c.execute(KISIWA_UNSELECTED_SQL, site).fetchall()]
+    return {"kisiwa": "present", **demo_rows.kisiwa_cohort(windows, unselected)}
 
 
 def _kisiwa_fuel(ctx: Ctx) -> dict | None:

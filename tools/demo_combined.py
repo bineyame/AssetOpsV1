@@ -114,11 +114,20 @@ def at(value: str) -> datetime:
 def objectives_instants(story: dict) -> dict[str, datetime]:
     """DD1b1-R2 S3: each Site's objective lines are recorded at that Site's own first declared knowledge instant
     (Kobo `price_recorded_at`; Cold and EV `install_at` + `TARIFF_AFTER_INSTALL`). Each must precede that Site's first
-    built day's start; otherwise the prepare stops, never a moved date."""
+    built day's start; otherwise the prepare stops, never a moved date.
+    DATA-6: when the story builds Kisiwa, it declares MG-2 and MG-5 at its `install_at` + `TARIFF_AFTER_INSTALL`,
+    which must precede its run 1."""
     instants = {"KOBO-001": at(story["kobo"]["price_recorded_at"]),
                 "COLD-LAB-001": at(story["cold"]["install_at"]) + TARIFF_AFTER_INSTALL,
                 "EV-LAB-001": at(story["ev"]["install_at"]) + TARIFF_AFTER_INSTALL}
-    for site in CORE_SITES:  # K7: Kisiwa declares no objectives (K8 rules on them)
+    kisiwa = story.get("kisiwa") if "kisiwa" in (story.get("sites") or ()) else None
+    if kisiwa:
+        instant = at(kisiwa["install_at"]) + TARIFF_AFTER_INSTALL
+        if instant >= at(kisiwa["run1_start"]):
+            raise SystemExit(f"OBJECTIVES_INSTANT_CONFLICT: the KISIWA-001 objectives instant {iso(instant)} is not "
+                             f"before its run 1 ({kisiwa['run1_start']}).")
+        instants["KISIWA-001"] = instant
+    for site in CORE_SITES:
         code = SITE_CODE[site]
         built = [d for d in story["days"] if d.get("site") == site and d.get("start")]
         if not built:

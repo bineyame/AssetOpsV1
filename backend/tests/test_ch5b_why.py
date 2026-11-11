@@ -209,6 +209,32 @@ def test_estate_text_takes_the_cards_days_and_the_windows_open_days() -> None:
     assert skipped["would_change"] == "An agreed action"
 
 
+def test_bl50_site_trace_sees_threads_at_the_request_cutoff_not_the_evidence_end(monkeypatch) -> None:
+    """BL-50: a Cold board's window `known_at` is its evidence-end cutoff; a Finding assessed after its evidence ends
+    is not visible there. The "Why?" reads threads and Actions at the board's visibility, the request's cutoff
+    (`lifecycle_cutoff(known_at)`: None = now), as the board and `site_parts` do."""
+    from types import SimpleNamespace
+
+    from assetops_backend.chain import site_chain
+
+    seen: dict[str, list] = {"threads": [], "actions": []}
+    monkeypatch.setattr(site_chain, "threads_through",
+                        lambda rows, **kw: seen["threads"].append(kw["cutoff"]) or [])
+    monkeypatch.setattr(site_chain, "actions_of",
+                        lambda rows, ids, **kw: seen["actions"].append(kw["cutoff"]) or [])
+    req = SimpleNamespace(threads=lambda site_id: {}, trace_facts=lambda site_id, fids: {})
+    ref = SimpleNamespace(site_id="s", site_code="COLD-1", site_name="GreenHarvest", domain=COLD, timezone="UTC")
+    board = {"window": {"from": "2026-10-31T00:00:00Z", "to": "2026-11-01T00:00:00Z",
+                        "known_at": "2026-10-31T23:59:00Z"}, "rows": []}
+    args = dict(category="PROTECT_ASSET", board=board, facts=_facts(COLD, [COMPLETE]),
+                site_measures=_measures(COLD), clean_measures=CLEAN, verification=lambda rows, ids: {})
+    why.site_trace(req, ref, known_at=None, **args)
+    from datetime import datetime, timezone
+    k = datetime(2026, 11, 3, 12, tzinfo=timezone.utc)
+    why.site_trace(req, ref, known_at=k, **args)
+    assert seen == {"threads": [None, k], "actions": [None, k]}
+
+
 def test_category_outside_the_four_is_refused() -> None:
     with pytest.raises(why.CategoryUnknown):
         why.check_category("GROW")

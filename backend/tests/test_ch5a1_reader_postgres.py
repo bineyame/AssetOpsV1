@@ -25,7 +25,7 @@ from __future__ import annotations
 import hashlib
 from contextlib import contextmanager
 from dataclasses import replace
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
@@ -162,6 +162,18 @@ def test_finding_heads_follow_the_index_head_rule(world) -> None:
 def test_findings_settled_after_the_seed(world) -> None:
     runner, port, _, _ = world
     assert port.findings_settled(runner.tenant, runner.site, None) is True
+
+
+def test_pb7_readings_began_is_the_earliest_accepted_reading(world) -> None:
+    runner, port, _, _ = world
+    with runner.engine.connect() as c:
+        expected = c.execute(text(
+            "SELECT min(COALESCE(interval_start, source_time)) FROM accepted_evidence "
+            "WHERE tenant_id = :t AND site_id = :s"), {"t": runner.tenant, "s": runner.site}).scalar_one()
+    assert expected is not None  # the seed holds readings: the comparison is not vacuous
+    assert port.readings_began(runner.tenant, runner.site, None) == expected
+    before = expected - timedelta(days=3650)
+    assert port.readings_began(runner.tenant, runner.site, before) is None  # nothing decided by then
 
 
 def test_board_route_has_one_read_per_key_and_no_deleted_read(world, monkeypatch) -> None:

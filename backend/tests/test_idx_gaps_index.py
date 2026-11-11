@@ -71,16 +71,23 @@ class Dispatch:
     """Per day: status (default CURRENT) and optional Candidate segments (start, end)."""
 
     def __init__(self, status: dict[date, str] | None = None,
-                 segments: dict[date, list[tuple[datetime, datetime]]] | None = None) -> None:
-        self.status, self.segments = status or {}, segments or {}
+                 segments: dict[date, list[tuple[datetime, datetime]]] | None = None,
+                 indeterminate: dict[date, tuple[str, str]] | None = None) -> None:
+        """`indeterminate` (PB-4): day -> (selected run cohort status, window limitation) of an INDETERMINATE window."""
+        self.status, self.segments, self.indeterminate = status or {}, segments or {}, indeterminate or {}
 
     def window(self, t, s, day):
         status = self.status.get(day, "CURRENT")
         segs = [{"classification": dispatch_contract.CANDIDATE, "start": a.isoformat(), "end": b.isoformat()}
                 for a, b in self.segments.get(day, [])]
+        cohort, limit = self.indeterminate.get(day, ("SELECTED_UNIQUE", None))
+        limits = [] if limit is None else [limit]
+        window_rev = {} if limit is None else {"claim_level": "INDETERMINATE",
+                                               "result": {"claim_level": "INDETERMINATE", "limitations": limits}}
         return {"status": status, "status_reasons": [] if status == "CURRENT" else [f"{status}: fake"],
-                "selection": {"run_id": "r", "knowledge_cutoff": None}, "window_assessment": {},
-                "watermarks": None, "coverage": None, "limitations": [], "current_basis": {},
+                "selection": {"run_id": "r", "knowledge_cutoff": None, "cohort_status": cohort},
+                "window_assessment": window_rev,
+                "watermarks": None, "coverage": None, "limitations": limits, "current_basis": {},
                 "intervals": [{"result": {"segments": segs}}] if segs else []}
 
 
@@ -274,3 +281,51 @@ def test_t8_pending_day_is_named_pending() -> None:
     body = read(store, Dispatch(), D6, date(2026, 10, 9))
     assert body["status"] == PARTIAL and [r["title"] for r in body["rows"]] == ["F1"]
     assert body["gaps"] == [{"day": "2026-10-07", "state": "PENDING", "reason": "NOT_CURRENT"}]
+
+
+# ------------------------------------------------------------------ PB-4: a day that cannot be analysed is a gap
+
+CONFLICT = ("AMBIGUOUS", "AMBIGUOUS_COHORT: two report series overlap for one channel")
+TOO_FEW = ("EMPTY", "NO_COHORT: no accepted reading in the window")
+
+
+def test_pb4_ambiguous_day_mid_window_is_partial_and_named_conflicting() -> None:
+    """A selected run whose cohort is AMBIGUOUS is CURRENT in S3, yet the day was never analysed: the list is
+    PARTIAL (never CURRENT) and the day carries the D-E5.46 reason READINGS_CONFLICT."""
+    store = Store([head(1, at(D6, 8), at(D6, 9))], [D6, D7, D8])
+    body = read(store, Dispatch(indeterminate={D7: CONFLICT}), D6, date(2026, 10, 9))
+    assert body["status"] == PARTIAL and body["is_current"] is False
+    assert [r["title"] for r in body["rows"]] == ["F1"] and body["total_count"] == 1
+    assert body["gaps"] == [{"day": "2026-10-07", "state": "CURRENT", "reason": "READINGS_CONFLICT"}]
+    assert body["withheld"] is False  # a data gap holds no analysis to wait for: nothing is withheld for it
+
+
+def test_pb4_one_day_window_on_an_ambiguous_day_is_never_current() -> None:
+    body = read(Store([], [D6]), Dispatch(indeterminate={D6: CONFLICT}), D6, D7)
+    assert body["status"] == PARTIAL and body["is_current"] is False
+    assert body["rows"] == [] and body["total_count"] == 0
+    assert body["gaps"] == [{"day": "2026-10-06", "state": "CURRENT", "reason": "READINGS_CONFLICT"}]
+
+
+def test_pb4_no_cohort_day_is_not_enough_readings() -> None:
+    body = read(Store([], [D6, D7]), Dispatch(indeterminate={D7: TOO_FEW}), D6, D8)
+    assert body["status"] == PARTIAL
+    assert body["gaps"] == [{"day": "2026-10-07", "state": "CURRENT", "reason": "NOT_ENOUGH_READINGS"}]
+
+
+def test_pb4_system_work_takes_precedence_over_the_data_reason() -> None:
+    """A day still waiting on the system keeps NOT_CURRENT ("not analysed yet" is only for system work)."""
+    body = read(Store([], [D6, D7]), Dispatch({D7: "PENDING"}, indeterminate={D7: CONFLICT}), D6, D8)
+    assert body["gaps"] == [{"day": "2026-10-07", "state": "PENDING", "reason": "NOT_CURRENT"}]
+
+
+def test_pb4_limited_window_is_not_a_gap() -> None:
+    """A LIMITED (not INDETERMINATE) window with an ordinary limitation stays an analysed day."""
+    class Limited(Dispatch):
+        def window(self, t, s, day):
+            out = super().window(t, s, day)
+            out["limitations"] = ["MISSING_ROLE: pv_available is not bound"]
+            out["window_assessment"] = {"claim_level": "LIMITED", "result": {"claim_level": "LIMITED"}}
+            return out
+    body = read(Store([], [D6]), Limited(), D6, D7)
+    assert body["status"] == "CURRENT" and body["gaps"] == []
