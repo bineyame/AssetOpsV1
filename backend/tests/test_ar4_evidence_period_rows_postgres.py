@@ -73,7 +73,8 @@ def test_claim_rows_equal_compose_live_historical_and_after_a_late_revision(mini
     cutoff = runner.now
     site = _site(engine, runner.tenant, runner.site)
     written = _build(engine, evidence.read, site)
-    assert written and all(w.written for w in written)
+    # a UTC claim day is touched by two Site-local days: the second build of the same day writes nothing new
+    assert {w.row.local_day for w in written if w.written} >= {F02_DAY.date(), F02_DAY.date() + timedelta(days=1)}
     assert not any(w.written for w in _build(engine, evidence.read, site))  # unchanged: no new revision
     _consume_all(engine)
     store = PostgresPeriodReadStore(engine=engine)
@@ -92,9 +93,9 @@ def test_claim_rows_equal_compose_live_historical_and_after_a_late_revision(mini
     assert rows == compose and json.loads(rows)["status"] == "HISTORICAL"
     compose, rows, _ = _both(monkeypatch, evidence, **window, known_at=iso(before_any))  # before revision 1
     assert rows == compose
-    unaligned = {"from": iso(F02_DAY + timedelta(hours=5)), "to": iso(F02_DAY + timedelta(days=1, hours=7))}
-    compose, rows, _ = _both(monkeypatch, evidence, **unaligned)  # an unaligned UTC window
-    assert rows == compose
+    one = {"from": iso(F02_DAY + timedelta(days=1)), "to": iso(F02_DAY + timedelta(days=2))}
+    compose, rows, misses = _both(monkeypatch, evidence, **one)  # a sub-range (the API refuses unaligned windows)
+    assert rows == compose and misses == 0
 
     # A late assessment selects new window revisions: the stored rows are never served for them.
     for step in F02["steps"][3:5]:
