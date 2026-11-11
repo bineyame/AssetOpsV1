@@ -166,6 +166,23 @@ export function useSharedRange(): SharedRangeState {
 const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence|financials)\/?$/;
 export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.test(pathname);
 
+/**
+ * SR-1 review (Medium): the pages whose content follows the shared range. The bar says "All pages" only on these.
+ * Everywhere else (the Site directory and Site pages, whose boards show one day, one hour or one analysed event; a
+ * record page) the bar says the range is not used on this page, so it never claims a range over content that ignores
+ * it. SR-2 adds a page here when it moves onto the range.
+ */
+const RANGE_PAGES =
+  /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence|financials|incidents|maintenance(?:\/preventive)?|operational-records)\/?$/;
+/**
+ * SR-2 review (Medium): Site pages (Evidence, Findings, Cold, Renewable, Service, EV) load their content from the
+ * address's from/to/known_at, so a Site or performance page whose address carries a range IS using it. A Site page
+ * without one shows its own day, so the bar does not claim the range there. Record pages read none of it.
+ */
+const SITE_RANGE_PAGES = /^\/(?:sites\/[^/]+(?:\/.*)?|performance\/[^/]+(?:\/.*)?)$/;
+export const readsSharedRange = (pathname: string, params?: URLSearchParams): boolean =>
+  RANGE_PAGES.test(pathname) || (SITE_RANGE_PAGES.test(pathname) && !!params && (params.has("from") || params.has("to")));
+
 /** The range to fill an empty address with: the last one chosen in this tab, else Last 7 days. Blocked storage falls back to the default. */
 export function entryRange(now: number = Date.now()): URLSearchParams {
   let stored: string | null = null;
@@ -181,7 +198,11 @@ export function entryRange(now: number = Date.now()): URLSearchParams {
   return rangeParams({ ...presetRange("7d", now), known_at: null });
 }
 
-/** Remembers a valid address range (its days only, never `known_at`) for this browser tab. */
+/**
+ * Remembers a range the user chose in the bar (its days only, never `known_at`) for this browser tab. SR-1 review
+ * (Low): only Apply calls this, never a range that merely arrived in an address (a Cold analysed-period link would
+ * otherwise make a bare `/portfolio` open one day).
+ */
 export function rememberRange(params: URLSearchParams): void {
   const state = readSharedRange(params);
   if (state.status !== "set") return;

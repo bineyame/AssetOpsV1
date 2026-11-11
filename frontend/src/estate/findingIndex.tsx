@@ -6,7 +6,7 @@
  * honestly empty until a stored eligible kind exists. No mock ID, count, price or savings is rendered.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";
@@ -32,7 +32,7 @@ import {
 import { linkFor } from "../shell/operatorSiteRoutes";
 import {
   EARLIER_CUTOFF,
-  EstateDateBar,
+  EstateCutoffLine,
   EstateRefusal,
   LimitationNotice,
   PARTIAL_COVERAGE,
@@ -538,7 +538,6 @@ export interface EstateFindingsPageProps {
 export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EstateResult<EstateFindingsBody> } | null>(null);
@@ -587,13 +586,7 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
     <div className="estate-page" data-estate-root={lens}>
       <PageHeader title="Findings" subtitle={SUBTITLE[lens]} />
       <LensTabs lens={lens} href={lensHref} />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={body}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(next) => navigate(estateHref(path, next, { state: query.state }))}
-      />
+      <EstateCutoffLine query={query} body={body} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading">Loading the findings across the estate.</p>
       ) : read.status === "refused" ? (

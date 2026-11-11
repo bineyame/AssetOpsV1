@@ -9,7 +9,7 @@
  * operational-only kind validator; with it, an invalid or repeated `kind` is a no-fetch `INVALID_KIND` refusal, and a
  * valid kind rides through Show, Reload, the first-page link and the pager. Without it the other roots ignore `kind`.
  */
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -168,45 +168,17 @@ export function dateOf(instant: string | null): string {
   return instant && /^\d{4}-\d{2}-\d{2}T/.test(instant) ? instant.slice(0, 10) : "";
 }
 
-/** The shared control bar (section 2): `From (UTC)`, `To (UTC, exclusive)`, `Show records`, `Reload`. */
-export function ControlBar({
-  label,
-  from,
-  to,
-  onShow,
-  onReload,
-}: {
-  /** The form's accessible name, e.g. `Incidents window` or `Maintenance window`. */
-  label: string;
-  from: string;
-  to: string;
-  onShow: (from: string, to: string) => void;
-  onReload: () => void;
-}) {
-  const [first, setFirst] = useState(from);
-  const [last, setLast] = useState(to);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first || !last) return;
-    onShow(`${first}T00:00:00Z`, `${last}T00:00:00Z`);
-  };
+/**
+ * The control row (section 2). SR-2: the dates are set in the shell's shared range bar (the page reads the address's
+ * `from`/`to`/`known_at` exactly as before, so its request for a range is unchanged); only `Reload` stays here.
+ */
+export function ControlBar({ label, onReload }: { label: string; onReload: () => void }) {
   return (
-    <form className="global-work-controls" onSubmit={submit} data-global-work-controls aria-label={label}>
-      <label className="global-work-controls__field">
-        {"From "}
-        <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} />
-      </label>
-      <label className="global-work-controls__field">
-        {"To (not included) "}
-        <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} />
-      </label>
-      <button className="button" type="submit" data-global-work-show>
-        Show records
-      </button>
+    <div className="global-work-controls" role="group" data-global-work-controls aria-label={label}>
       <button className="button" type="button" onClick={onReload} data-global-work-reload>
         Reload
       </button>
-    </form>
+    </div>
   );
 }
 
@@ -388,19 +360,10 @@ export function GlobalWorkBar<B extends GlobalWorkBodyBase>({
   /** POLISH Addendum 7 Q6: pages that list Site-local due dates (Preventive, Maintenance) use the two-part note. */
   dueDates?: boolean;
 }) {
-  const { query, rawFrom, rawTo, body } = page;
+  const { body } = page;
   return (
     <div className="site-date-bar global-work-bar" data-global-work-bar>
-      <ControlBar
-        key={`${rawFrom ?? query?.from ?? ""}|${rawTo ?? query?.to ?? ""}`}
-        label={label}
-        from={query ? dateOf(query.from) : dateOf(rawFrom)}
-        to={query ? dateOf(query.to) : dateOf(rawTo)}
-        onShow={(from, to) =>
-          page.go({ from, to, known_at: query?.known_at ?? null, ...(query?.kind ? { kind: query.kind } : {}) }, null, [])
-        }
-        onReload={page.reload}
-      />
+      <ControlBar label={label} onReload={page.reload} />
       <p className="global-work-membership" data-global-work-membership>
         {membership}
       </p>

@@ -33,6 +33,7 @@ import {
   readSharedRange,
   presetRange,
   rangeDays,
+  readsSharedRange,
   rangeParams,
   rangeWindow,
   rememberRange,
@@ -44,6 +45,9 @@ import "./sharedRangeBar.css";
 
 export const RANGE_ERROR = `Choose a first day on or before the last day, ${RANGE_MAX_DAYS} days at most.`;
 export const OWN_DATES = "This page's own dates";
+/** SR-1 review (Medium): the tag on a page whose content does not follow the shared range (`readsSharedRange`). */
+export const NOT_THIS_PAGE = "Not used on this page";
+const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
 const LATEST_ANNOUNCEMENT = "Every page now shows the latest information";
 
 /** `30 Sep – 6 Oct 2026` (one day: `6 Oct 2026`). */
@@ -65,7 +69,7 @@ const spokenLabel = (range: DayRange): string => {
 };
 
 /** A `datetime-local` value as the UTC instant the pages read (the picker says times are UTC). */
-const cutoffInstant = (value: string): string => `${value.length === 16 ? `${value}:00` : value}Z`;
+const cutoffInstant = (value: string): string => `${value.length === 16 ? `${value}:00` : value.replace(/\.0+$/, "")}Z`;
 
 /**
  * SR.3 "An address with no range": the shell's outlet. On an estate page (`fillsRangeOnEntry`) whose address has no
@@ -101,9 +105,7 @@ export function SharedRangeBar() {
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
 
-  useEffect(() => {
-    rememberRange(params);
-  }, [params]);
+  const here = readsSharedRange(location.pathname, params);
 
   const close = (returnFocus: boolean) => {
     setOpen(false);
@@ -116,7 +118,8 @@ export function SharedRangeBar() {
     setFirst(shown.from);
     setLast(shown.to);
     setEarlier(shown.known_at !== null);
-    setCutoff(shown.known_at ? shown.known_at.slice(0, 16) : "");
+    // SR-1 review (Low): keep the seconds, so reopening the picker and pressing Apply leaves the cutoff as it was.
+    setCutoff(shown.known_at ? shown.known_at.slice(0, 19) : "");
     setError(null);
     setOpen(true);
   };
@@ -156,6 +159,7 @@ export function SharedRangeBar() {
     const next = new URLSearchParams(params);
     next.delete("known_at");
     for (const [key, value] of rangeParams({ ...range, known_at })) next.set(key, value);
+    rememberRange(next);
     go(next, `Every page now shows ${longLabel(range)}${known_at ? `, as known at ${formatDayTime(known_at)}` : ""}`);
     close(true);
   };
@@ -175,6 +179,7 @@ export function SharedRangeBar() {
     dates = longLabel(set);
     short = shortLabel(set);
     spoken = `${presetLabel(set.preset)}, ${spokenLabel(set)}${set.known_at ? `, as known at ${formatDayTime(set.known_at)}` : ""}`;
+    if (!here) spoken = `${spoken}. ${NOT_THIS_PAGE_SPOKEN}`;
   } else if (state.status === "invalid") {
     dates = short = spoken = WINDOW_NOT_VALID;
   } else {
@@ -186,7 +191,7 @@ export function SharedRangeBar() {
       {set?.known_at ? (
         <span className="shared-range__asof" data-shared-range-asof>
           <span>
-            As known at <b>{formatDayTime(set.known_at)}</b> · every page
+            As known at <b>{formatDayTime(set.known_at)}</b> · {here ? "every page" : "other pages"}
           </span>
           <button type="button" onClick={returnToLatest}>
             Return to latest
@@ -199,14 +204,20 @@ export function SharedRangeBar() {
         className="shared-range__button"
         aria-expanded={open}
         aria-controls={dialogId}
-        aria-label={`Date range for every page: ${spoken}. Change`}
+        aria-label={`${set === null || here ? "Date range for every page" : "Date range for the other pages"}: ${spoken}. Change`}
         onClick={() => (open ? close(true) : openPicker())}
         data-shared-range-button
       >
         {name === null ? null : <span className="shared-range__name">{name}</span>}
         <span className="shared-range__dates">{dates}</span>
         <span className="shared-range__short">{short}</span>
-        <span className="shared-range__tag">All pages</span>
+        {set === null ? null : here ? (
+          <span className="shared-range__tag">All pages</span>
+        ) : (
+          <span className="shared-range__tag shared-range__tag--elsewhere" data-shared-range-elsewhere>
+            {NOT_THIS_PAGE}
+          </span>
+        )}
         <span aria-hidden="true">▾</span>
       </button>
       <div

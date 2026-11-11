@@ -7,7 +7,7 @@
  */
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { linkFor, siteDetailHref } from "../shell/operatorSiteRoutes";
 import { DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import {
@@ -18,7 +18,7 @@ import {
   type EstateResult,
 } from "./estateClient";
 import {
-  EstateDateBar,
+  EstateCutoffLine,
   EstateRefusal,
   LimitationNotice,
   PARTIAL_COVERAGE,
@@ -175,7 +175,6 @@ function ActionRowsTable({ body }: { body: EstateActionsBody }) {
 export function EstateActionsPage({ client }: { client?: EstateClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EstateResult<EstateActionsBody> } | null>(null);
@@ -200,13 +199,7 @@ export function EstateActionsPage({ client }: { client?: EstateClient }) {
   return (
     <div className="estate-page" data-estate-root="actions">
       <PageHeader title="Actions" subtitle="Interventions, owners and declared outcome criteria" />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={body}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(nextQuery) => navigate(estateHref(ESTATE_ACTIONS_PATH, nextQuery))}
-      />
+      <EstateCutoffLine query={query} body={body} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading">Loading the Actions across the estate.</p>
       ) : read.status === "refused" ? (

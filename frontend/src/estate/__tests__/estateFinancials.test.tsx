@@ -251,7 +251,9 @@ describe("W3-02 estate Financials root", () => {
     const header = screen.getByRole("heading", { level: 1 }).closest("header") as HTMLElement;
     expect(within(header).getByText("Financials", { selector: ".page-header__eyebrow" })).toBeTruthy();
     expect(header.textContent).toContain("Estate consequences with source-site ownership and bounded interpretation");
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
+    expect(main().querySelector("[data-estate-window]")).toBeNull();
+    expect(main().querySelector("[data-estate-cutoff-line]")).not.toBeNull();
     // Static status bar: blue chip and subcopy, no assessment enum.
     const status = screen.getByRole("status", { name: "Financial status" });
     expect(status.querySelector("[data-estate-status-chip]")?.textContent).toBe("Site-owned consequences");
@@ -627,7 +629,7 @@ describe("post-W6 W3-estate refused window", () => {
     const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    expect(main().querySelector("[data-estate-window]")).toBeNull(); // SR-2: a valid range is in the shared bar
     view.unmount();
   });
 });

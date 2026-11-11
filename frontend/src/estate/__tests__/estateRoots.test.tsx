@@ -860,7 +860,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     const view = renderAt(`/findings?${WINDOW}`, fakeClient(() => store));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(store.copy);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    expect(main().querySelector("[data-estate-window]")).toBeNull(); // SR-2: a valid range is in the shared bar
     view.unmount();
   });
 

@@ -194,10 +194,9 @@ describe("W6-01a A2: global Incidents", () => {
 
     // Controls (section 2) and the status line; no cutoff input (A2Q5).
     const bar = document.querySelector("[data-global-work-bar]") as HTMLElement;
-    expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
-    expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
-    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Show records", "Reload"]);
-    expect(bar.querySelectorAll("input")).toHaveLength(2);
+    // SR-2: the dates are set in the shell's shared range bar; the page keeps Reload only.
+    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Reload"]);
+    expect(bar.querySelectorAll("input")).toHaveLength(0);
     expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // A2Q1 cards: Open = OPEN + IN_PROGRESS over the full selection, not the page.
@@ -386,23 +385,16 @@ describe("W6-01a A2: global Incidents", () => {
     expect(cards()).toBeNull();
   });
 
-  it("uses the seven complete UTC days when both bounds are absent, and Show records restarts at page one", async () => {
+  it("uses the seven complete UTC days when both bounds are absent, and Reload re-reads the same query", async () => {
     const reads = client({ "page-one": loaded(body([row(1)])) });
     mount("/incidents", reads);
     await settled();
     expect(reads.calls[0]).toEqual({ ...defaultGlobalWorkWindow(), known_at: null, cursor: null });
-    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-10-01" } });
-    fireEvent.change(screen.getByLabelText("To (not included)"), { target: { value: "2026-10-08" } });
-    fireEvent.click(screen.getByRole("button", { name: "Show records" }));
-    await settled();
-    expect(screen.getByTestId("where").textContent).toBe(
-      "/incidents?from=2026-10-01T00%3A00%3A00Z&to=2026-10-08T00%3A00%3A00Z",
-    );
-    expect(reads.calls[1]).toEqual({ from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z", known_at: null, cursor: null });
-    // Reload re-reads the same query.
+    // SR-2: no page date form (the shared range bar writes the address the page reads).
+    expect(screen.queryByRole("button", { name: "Show records" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     await settled();
-    expect(reads.calls[2]).toEqual(reads.calls[1]);
+    expect(reads.calls[1]).toEqual(reads.calls[0]);
   });
 });
 
@@ -467,7 +459,8 @@ describe("W6-01a A2: the /incidents route in the app shell", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     const link = within(rail).getByRole("link", { name: "Incidents" });
-    expect(link).toHaveAttribute("href", "/incidents");
+    // SR-1: the rail link carries the address's shared range.
+    expect(link.getAttribute("href")?.split("?")[0]).toBe("/incidents");
     expect(link).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
   });

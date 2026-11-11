@@ -23,6 +23,7 @@ import {
   presetRange,
   rangeSearch,
   readSharedRange,
+  readsSharedRange,
   useSharedRange,
   withRange,
 } from "../sharedRange";
@@ -298,6 +299,74 @@ describe("SR-1 the shared range bar", () => {
     await settledScreen();
     expect(rangeButton().textContent).toContain("Window not valid");
     expect(rangeButton().textContent).not.toContain("Oct");
+  });
+});
+
+describe("SR-1 review notes closed in SR-2", () => {
+  it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
+    for (const path of ["/portfolio", "/portfolio/act-first", "/findings/risks", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/operational-records"]) {
+      expect(readsSharedRange(path)).toBe(true);
+    }
+    for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {
+      expect(readsSharedRange(path)).toBe(false);
+    }
+    const withRange = new URLSearchParams(WEEK);
+    for (const path of ["/sites/KISIWA-001/findings", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/performance/service"]) {
+      expect(readsSharedRange(path, withRange)).toBe(true);
+    }
+    expect(readsSharedRange("/sites", withRange)).toBe(false);
+    expect(readsSharedRange("/findings/f-1", withRange)).toBe(false);
+  });
+
+  it("the label is true per route class, including a demo story link", async () => {
+    // Estate page: the range is used.
+    const estate = renderApp(`/findings?${WEEK}`);
+    await settledScreen();
+    expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
+    estate.unmount();
+    // Site page that reads the range (demo story link shape).
+    const story = renderApp(`/sites/KISIWA-001/findings?${WEEK}`);
+    await settledScreen();
+    expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
+    expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
+    story.unmount();
+    // Site day board with no range in the address: no claim of a shared range, and no self-contradiction.
+    const board = renderApp("/sites/MG-002");
+    await settledScreen();
+    expect(rangeButton().textContent).toContain("This page's own dates");
+    expect(within(rangeButton()).queryByText("All pages")).toBeNull();
+    expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
+    board.unmount();
+    // Record page that ignores the range.
+    renderApp(`/maintenance/requests/c-1?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`);
+    await settledScreen();
+    const button = screen.getByRole("button", { name: /^Date range for the other pages: Last 7 days/ });
+    expect(button.getAttribute("aria-label")).toContain("This page shows its own dates, not this range. Change");
+    expect(within(button).queryByText("All pages")).toBeNull();
+    expect(within(button).getByText("Not used on this page")).toBeTruthy();
+    expect(document.querySelector("[data-shared-range-asof]")?.textContent).toContain("· other pages");
+  });
+
+  it("Low: reopening the picker and pressing Apply keeps the cutoff's seconds", async () => {
+    renderApp(`/findings?${WEEK}&known_at=2026-10-04T12%3A00%3A30Z`);
+    await settledScreen();
+    fireEvent.click(rangeButton());
+    const dialog = screen.getByRole("dialog");
+    expect((within(dialog).getByLabelText("As known at") as HTMLInputElement).value).toMatch(/^2026-10-04T12:00:30(\.000)?$/);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
+    await settledScreen();
+    expect(where()).toBe(`/findings?${WEEK}&known_at=2026-10-04T12%3A00%3A30Z`);
+  });
+
+  it("Low: only a range chosen in the bar is remembered, never one that arrived in an address", async () => {
+    renderApp("/portfolio?from=2026-10-01T10%3A00%3A00Z&to=2026-10-01T14%3A00%3A00Z");
+    await settledScreen();
+    expect(window.sessionStorage.getItem(SHARED_RANGE_SESSION_KEY)).toBeNull();
+    fireEvent.click(rangeButton());
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Last 30 days" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Apply" }));
+    await settledScreen();
+    expect(window.sessionStorage.getItem(SHARED_RANGE_SESSION_KEY)).toBe("from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
   });
 });
 

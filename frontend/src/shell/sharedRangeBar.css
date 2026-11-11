@@ -177,6 +177,10 @@
   .shared-range__tag {
     display: none;
   }
+  /* SR-1 review (Medium): "Not used on this page" stays on phones, so the dates never read as this page's. */
+  .shared-range__tag.shared-range__tag--elsewhere {
+    display: inline;
+  }
   .shared-range__button {
     min-height: 44px;
   }
