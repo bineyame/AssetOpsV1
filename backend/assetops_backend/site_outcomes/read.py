@@ -21,7 +21,7 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 
-from assetops_backend import perf
+from assetops_backend import perf, read_scope
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.chain.outcomes import site_nodes
@@ -403,6 +403,7 @@ class SiteOutcomeBoardService:
                     site.tenant_id, site.site_code, lo, hi, known_at)
             return latest_contained_window(contained_windows(windows, lo, hi))
         except Exception as error:  # noqa: BLE001 - the window choice never fails a Site
+            read_scope.note_failure("site_selected_windows", error)
             perf.record("summary.window_fallback", 0.0)
             LOG.warning("outcome board: contained windows for %s fell back to the requested window (%s)",
                         site.site_code, type(error).__name__)
@@ -595,6 +596,7 @@ class SiteOutcomeBoardService:
             with perf.timed("summary.contained_windows"):
                 return dict(estate.site_selected_windows_many(next(iter(tenants)), codes, lo, hi, known_at))
         except Exception as error:  # noqa: BLE001 - an optimization; each board reads its own windows
+            read_scope.note_failure("site_selected_windows_many", error)
             perf.record("summary.window_fallback", 0.0)
             LOG.warning("outcome summary: the batched window read fell back to per-Site reads (%s)",
                         type(error).__name__)
@@ -633,6 +635,7 @@ class SiteOutcomeBoardService:
                 with perf.timed("summary.seed_snapshots"):
                     placed = self.s.chain_reader.request(next(iter(tenants)), known_at).seed_days(specs)
         except Exception as error:  # noqa: BLE001 - the batch is an optimization; each Site reads its own range
+            read_scope.note_failure("seed_snapshots", error)
             LOG.warning("outcome summary: the one snapshot read fell back to per-Site reads (%s)",
                         type(error).__name__)
             placed = None
@@ -681,8 +684,9 @@ class SiteOutcomeBoardService:
                 if body.get("objectives_read"):
                     read_sites += 1
                     objective_sites += 1 if body.get("objectives") else 0
-            except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
-                rows = [_unknown_row(cat) for cat in CATEGORIES]
+            except Exception as error:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
+                read_scope.note_failure(f"board.{site.site_code}", error)
+                rows =[_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
                 window, window_basis = None, None
             out.append({"site_id": str(site.site_id), "site_code": site.site_code, "site_name": site.site_name,
@@ -721,6 +725,7 @@ class SiteOutcomeBoardService:
             found = opportunity_items(self.s.threads, sites, lo, hi, known_at)
             return estate_count_claims(req, sites, lo, hi, found, (Exception,))
         except Exception as error:  # noqa: BLE001 - a failed count is NOT_KNOWN on the card, never zero
+            read_scope.note_failure("estate_counts", error)
             LOG.warning("outcome summary: the estate counts could not be read (%s)", type(error).__name__)
             return None
 

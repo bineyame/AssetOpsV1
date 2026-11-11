@@ -16,6 +16,7 @@ import type {
 } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import { estateHref } from "./estateShared";
+import { TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
 
 type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
 
@@ -355,6 +356,14 @@ export function OutcomeMatrix({ summary }: { summary: EstateOutcomeSummaryBody }
 /** The matrix panel body for one summary read: loading, unavailable, or the matrix. */
 export function OutcomeMatrixBody({ read }: { read: EstateResult<EstateOutcomeSummaryBody> | null }) {
   if (read === null) return <p role="status">{OUTCOME_MATRIX_LOADING}</p>;
+  if (read.status === "refused" && read.code === TEMPORARILY_UNAVAILABLE) {
+    // INFRA-1 (D-E5.47): "Retrying…" while it waits, then "Still unavailable…"; never a data state.
+    return (
+      <p role="status" data-temporarily-unavailable>
+        {read.copy}
+      </p>
+    );
+  }
   if (read.status !== "loaded") return <p role="alert">{OUTCOME_MATRIX_UNAVAILABLE}</p>;
   return <OutcomeMatrix summary={read.value} />;
 }

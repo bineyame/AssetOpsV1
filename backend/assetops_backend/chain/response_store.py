@@ -33,6 +33,11 @@ CH-5c2 (CH5c-R7 H1, H2, M1, L1):
 The store is ON unless `ASSETOPS_RESPONSE_STORE=off` (CH-5c2); off, every request composes (the uncached probe);
 `compose` composes every request inside the compose scope and stores nothing (the W6 guard). It never changes body bytes, so it is not a `COMPOSER_ENV` setting.
 
+INFRA-1 (D-E5.47): a compose whose read scope recorded an infrastructure failure (`read_scope.degraded`, from
+`read_scope.note_failure` or the global `handle_error` hook) is never stored: the newest stored row for (route,
+request_key, code_version) is served as `stale` (even past `valid_until`, `Retry-After: 30`, no ETag), else a 503
+`TEMPORARILY_UNAVAILABLE` (`Retry-After: 5`). A transient failure of the lookup itself follows the same rule.
+
 CH5c-R6: the SQL lives below the port in `chain/adapters/postgres_response_store.py` (the sole writer of
 `chain_response`); `chain.composition.build_response_store` wires it with `code_version`.
 """
@@ -55,9 +60,14 @@ from fastapi.responses import Response
 
 from assetops_backend import perf, read_scope
 from assetops_backend.i18n.locale import DEFAULT_LOCALE, current_locale
+from assetops_backend.infra import is_transient
 
 LOG = logging.getLogger("assetops.chain.response_store")
-HEADER = "X-AssetOps-Stored"  # hit | stored | race | unstored (a store failure) | composed; never body bytes
+#: hit | stored | race | unstored (a store failure) | composed | stale | unavailable (INFRA-1); never body bytes
+HEADER = "X-AssetOps-Stored"
+#: INFRA-1 (D-E5.47): the 503 body of a degraded compose with no stored copy.
+UNAVAILABLE_CODE = "TEMPORARILY_UNAVAILABLE"
+UNAVAILABLE_BODY = {"code": UNAVAILABLE_CODE, "message": "This view is temporarily unavailable. Retrying."}
 
 def render(body: Any) -> bytes:
     """The bytes FastAPI's `JSONResponse` would send for `body` (serialised once, served and stored as is)."""
@@ -152,7 +162,11 @@ class ResponseStore:
         CH-5b2 (CH5b2-R Q2): a live row whose `etag` matches `if_none_match` (a list, `*` for any live row) is a
         `304` with no body, answered from (a) alone: no compose. In compose-only mode there is no ETag, so no 304."""
         if self.compose_only:
-            bodies, _ = self._composed(req, compose)
+            bodies, sc = self._composed(req, compose)
+            if sc.degraded:  # INFRA-1: compose-only touches no store row, so no old copy: the 503
+                LOG.warning(json.dumps({"event": "stored_route_degraded", "route": req.route,
+                                        "reads": list(sc.degraded)}))
+                return _unavailable()
             return _response(render(bodies[req.route]), None, "composed")
         version = self._version()
         now = read_scope.clock()
@@ -167,6 +181,8 @@ class ResponseStore:
                 w, sites, zones, row = self._rows.read(lookup)
         except Exception as error:  # noqa: BLE001 - the store never fails a request: compose, do not store
             _warn("stored_route_lookup_failed", req, error)
+            if is_transient(error):  # INFRA-1: the same rule as a degraded compose; nothing is composed or stored
+                return self._degraded(req, version, None, ["store.lookup"])
             bodies, _ = self._composed(req, compose)
             return _response(render(bodies[req.route]), None, "unstored")
         if row is not None:
@@ -175,6 +191,8 @@ class ResponseStore:
             return _response(row[0], row[1], "hit")
         started = time.perf_counter()
         bodies, sc = self._composed(req, compose)  # (b) the compose memo starts after (a)
+        if sc.degraded:  # INFRA-1 (D-E5.47): a connection failure mid-compose is never stored nor served as data
+            return self._degraded(req, version, sites, sc.degraded)
         build_ms = int((time.perf_counter() - started) * 1000)
         rendered = {route: render(body) for route, body in bodies.items()}
         try:
@@ -197,6 +215,34 @@ class ResponseStore:
         if req.route not in inserted:  # L1: `ON CONFLICT` kept another row; this body's tag is not stored
             return _response(rendered[req.route], None, "race")
         return _response(rendered[req.route], tags[req.route], "stored")
+
+    def _degraded(self, req: StoredRoute, version: str, sites: tuple[str, ...] | None,
+                  reads: Sequence[str]) -> Response:
+        """INFRA-1 (D-E5.47) rule 3: store nothing; serve the newest stored row for (route, request_key,
+        code_version) whatever its W and even past `valid_until` (`stale`, `Retry-After: 30`, no ETag), else a 503
+        `TEMPORARILY_UNAVAILABLE` (`Retry-After: 5`). `sites` None (the lookup itself failed) re-reads the admitted
+        set once; any failure there is the 503."""
+        LOG.warning(json.dumps({"event": "stored_route_degraded", "route": req.route, "reads": list(reads)}))
+        body = None
+        latest = getattr(self._rows, "latest_good", None)
+        if latest is not None:
+            try:
+                if sites is None:
+                    sites = self._rows.read(lambda c: self._state(c, req))[1]
+                body = latest(req.route, request_key(req.route, req.tenant_id, sites, req.request, req.locale),
+                              version)
+            except Exception as error:  # noqa: BLE001 - no old copy is reachable: the 503 below
+                _warn("stored_route_latest_failed", req, error)
+                body = None
+        if body is not None:
+            out = _response(body, None, "stale")
+            out.headers["Retry-After"] = "30"
+            return out
+        return _unavailable()
+
+    def connections(self) -> int:
+        """INFRA-1: the server's connection count (`pg_stat_activity`), logged by the prebuild before it starts."""
+        return self._rows.connections()
 
     def prune(self) -> int:
         """Q8 (CH5c-R6): keep the latest `keep` rows per (route, request_key, code_version); a version never evicts
@@ -238,6 +284,12 @@ def _response(body: bytes, tag: str | None, state: str) -> Response:
     if tag is not None:
         headers["ETag"] = f'"{tag}"'
     return Response(content=body, media_type="application/json", headers=headers)
+
+
+def _unavailable() -> Response:
+    """INFRA-1 (D-E5.47) rule 3(b): the 503 of a degraded compose with no stored copy."""
+    return Response(content=render(UNAVAILABLE_BODY), status_code=503, media_type="application/json",
+                    headers={"Retry-After": "5", HEADER: "unavailable"})
 
 
 def tag_matches(header: str | None, tag: str) -> bool:

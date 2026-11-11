@@ -20,6 +20,7 @@ import type {
   OutcomeMoney,
 } from "./outcomeBoardClient";
 import { useLinkFor, type Ref } from "./chainRef";
+import { RETRYING_COPY, STILL_UNAVAILABLE_COPY, TEMPORARILY_UNAVAILABLE } from "./temporarilyUnavailable";
 import "./outcomes.css";
 
 /**
@@ -389,13 +390,18 @@ export function OutcomeBoard({
     query.finding_id ?? ""
   }|${query.finding_revision_id ?? ""}`;
   const [read, setRead] = useState<{ key: string; read: OutcomeBoardRead } | null>(null);
+  const [retrying, setRetrying] = useState<string | null>(null); // INFRA-1: the key whose read is waiting to retry
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const [whyOpen, setWhyOpen] = useState<{ row: OutcomeBoardRow; button: HTMLButtonElement } | null>(null);
   useEffect(() => {
     let live = true;
-    void client.getOutcomeBoard(siteCode, query).then((r) => {
+    void client.getOutcomeBoard(siteCode, query, () => {
+      if (live) setRetrying(key);
+      return live; // false after unmount: the client stops retrying
+    }).then((r) => {
       if (!live) return;
+      setRetrying(null);
       setRead({ key, read: r });
       onRead?.(r);
     });
@@ -413,7 +419,13 @@ export function OutcomeBoard({
         <InfoButton opener={opener} onOpen={() => setOpen(true)} hidden={body === null} />
       </div>
       {current === null ? (
-        <p role="status">{BOARD_LOADING}</p>
+        <p role="status" data-temporarily-unavailable={retrying === key ? "retrying" : undefined}>
+          {retrying === key ? RETRYING_COPY : BOARD_LOADING}
+        </p>
+      ) : current.status === "refused" && current.code === TEMPORARILY_UNAVAILABLE ? (
+        <p role="alert" className="v69-notice" data-temporarily-unavailable="still">
+          {STILL_UNAVAILABLE_COPY}
+        </p>
       ) : body === null ? (
         <p role="alert" className="v69-notice">
           {BOARD_REFUSED}

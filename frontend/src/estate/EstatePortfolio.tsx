@@ -93,6 +93,15 @@ import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 import { PortfolioCoverage } from "./PortfolioCoverage";
+import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
+
+/** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
+const SUMMARY_RETRYING: EstateResult<EstateOutcomeSummaryBody> = {
+  status: "refused",
+  httpStatus: 503,
+  code: TEMPORARILY_UNAVAILABLE,
+  copy: RETRYING_COPY,
+};
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -1108,7 +1117,11 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
     const pending =
       reads.getOutcomeSummary === undefined
         ? Promise.resolve<EstateResult<EstateOutcomeSummaryBody>>({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" })
-        : reads.getOutcomeSummary(window);
+        : reads.getOutcomeSummary(window, () => {
+            // INFRA-1: while the summary waits to retry a 503 TEMPORARILY_UNAVAILABLE, the retrying state shows.
+            if (live) setSummaryRead({ key: windowKey, result: SUMMARY_RETRYING });
+            return live; // false after unmount: the client stops retrying
+          });
     void pending.then((result) => {
       if (live) setSummaryRead({ key: windowKey, result });
     });
