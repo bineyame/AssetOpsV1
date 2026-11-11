@@ -224,6 +224,20 @@ class ColdSiteReadService:
     def _link(self, snap: dict[str, Any], suffix: str) -> str:
         return f"/api/sites/{quote(snap['code'], safe='')}/cold/{suffix}{self._query(snap)}"
 
+    def _envelope(self, c, snap: dict[str, Any]) -> dict[str, Any]:
+        """The W2-03 envelope plus the PB-1a analysed periods (D-E5.31): `analysed_periods` lists the selected
+        periods wholly inside a requested window no stored selection contains, each with `href` to the overview
+        read of its exact window at the same cutoff; `shown_period` is the one this read is about. Both are empty
+        (`[]`, null) when the window itself is analysed or when no period lies inside it."""
+        def period(lo, hi) -> dict[str, Any]:
+            return {"from": _plain(lo), "to": _plain(hi)}
+
+        exact = [{**period(lo, hi), "href": self._link({**snap, "lo": lo, "hi": hi}, "overview")}
+                 for lo, hi in snap.get("analysed_periods", ())]
+        shown = snap.get("shown_period")
+        return {**self._reads.envelope_on(c, snap, (EXC, START)), "analysed_periods": exact,
+                "shown_period": None if shown is None else period(*shown)}
+
     def _created(self, c, snap: dict[str, Any], analytic: str) -> dict[str, Any] | None:
         sel = snap["selected"].get(analytic)
         if sel is None:
@@ -348,7 +362,7 @@ class ColdSiteReadService:
     def overview(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(c, snap, (EXC, START))
+            body = self._envelope(c, snap)
             temp = self._reads.temperature_on(c, t, s, code, lo, hi, known_at)
             back = self._reads.backup_on(c, t, s, code, lo, hi, known_at)
             exc, st = snap["selected"].get(EXC), snap["selected"].get(START)
@@ -502,7 +516,7 @@ class ColdSiteReadService:
     def evidence(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(c, snap, (EXC, START))
+            body = self._envelope(c, snap)
             links = {"analysis": self._link(snap, "evidence/analysis"),
                      "temperature": self._link(snap, "temperature"), "backup": self._link(snap, "backup-chain"),
                      "foundation": None if snap["hi"] is None else (  # Q-R6: the Foundation read takes `at=to`
@@ -608,7 +622,7 @@ class ColdSiteReadService:
                  limit: int = DEFAULT_LIMIT) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(c, snap, (EXC, START))
+            body = self._envelope(c, snap)
             basis = self._reads.selected_basis(snap, (EXC, START)) or "none"
             after = None if cursor is None else decode_cursor(cursor, basis)
             links = {"evidence": self._link(snap, "evidence"), "findings": self._link(snap, "findings")}
@@ -681,7 +695,7 @@ class ColdSiteReadService:
     def financials(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(c, snap, (EXC, START))
+            body = self._envelope(c, snap)
             links = {"assumptions": self._link(snap, "financial-assumptions"),
                      "findings": self._link(snap, "findings"), "evidence": self._link(snap, "evidence")}
             if not snap["selected"]:
@@ -705,7 +719,7 @@ class ColdSiteReadService:
     def assumptions(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(c, snap, (EXC, START))
+            body = self._envelope(c, snap)
             return {**body, "items": [], "missing_keys": list(MISSING_KEYS),
                     "publication_state": "NOT_SUPPORTED_IN_W2", "currency_state": "UNDECLARED",
                     "links": {"financials": self._link(snap, "financials")}}

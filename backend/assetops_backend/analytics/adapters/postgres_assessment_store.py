@@ -2131,6 +2131,36 @@ def selected_windows_on(c: Connection, t: UUID, s: UUID, analytics: tuple[str, .
     return sorted(out, key=lambda k: (k["window_start"], k["window_end"], k["analytic_id"], k["seq"]))
 
 
+def analysed_periods_in(c: Connection, t: UUID, s: UUID, analytics: tuple[str, ...], lo: datetime, hi: datetime,
+                        known: datetime) -> list[tuple[datetime, datetime]]:
+    """PB-1 (D-E5.31 ii): the distinct stored selected windows of `analytics` lying wholly inside `[lo, hi]`
+    whose run is known by `known`, ordered by `(window_start, window_end)`. Default-mode selection only (the
+    same knowledge bound as the covering read); read on the caller's `c`. Shared by the Cold and EV reads."""
+    return [(r[0], r[1]) for r in c.execute(text(
+        "SELECT DISTINCT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
+        "ON r.id = sel.run_id WHERE sel.tenant_id = :t AND sel.site_id = :s AND sel.analytic_id = ANY(:as) "
+        "AND sel.window_start >= :lo AND sel.window_end <= :hi AND r.knowledge_cutoff <= :k "
+        "ORDER BY sel.window_start, sel.window_end"),
+        {"t": t, "s": s, "as": list(analytics), "lo": lo, "hi": hi, "k": known}).all()]
+
+
+def shown_analysed_period(c: Connection, t: UUID, s: UUID, domain: str, periods: list[tuple[datetime, datetime]],
+                          known: datetime) -> tuple[datetime, datetime]:
+    """PB-1 (D-E5.31 ii): of non-empty `periods`, the most recent one holding an open Finding of `domain` (one
+    anchored in it whose latest revision known by `known` is SUPPORTED), or else the most recent one. Most recent
+    is the latest `(window_end, window_start)`."""
+    lo, hi = min(p[0] for p in periods), max(p[1] for p in periods)
+    anchors = [r[0] for r in c.execute(text(
+        "SELECT f.anchor_start FROM finding f WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d "
+        "AND f.anchor_start >= :lo AND f.anchor_start < :hi AND (SELECT r.lifecycle FROM finding_revision r "
+        "JOIN analytic_run ar ON ar.id = r.analytic_run_id WHERE r.finding_id = f.id AND ar.knowledge_cutoff <= :k "
+        "ORDER BY r.revision_no DESC LIMIT 1) = 'SUPPORTED'"),
+        {"t": t, "s": s, "d": domain, "lo": lo, "hi": hi, "k": known}).all()]
+    recent = sorted(periods, key=lambda p: (p[1], p[0]))
+    flagged = [p for p in recent if any(p[0] <= a < p[1] for a in anchors)]
+    return (flagged or recent)[-1]
+
+
 class ColdReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
                  clock: Callable[[], datetime] = lambda: read_scope.clock(),
@@ -2167,10 +2197,13 @@ class ColdReadService:
 
     def _snapshot(self, c: Connection, t: UUID, s: UUID, code: str, lo: datetime | None, hi: datetime | None,
                   known_at: datetime | None, *, selection_cutoff: datetime | None = None,
-                  selection_seqs: dict[str, int] | None = None) -> dict[str, Any]:
+                  selection_seqs: dict[str, int] | None = None, analysed_periods: bool = True) -> dict[str, Any]:
         """The cold read snapshot on the caller's `c` (never a connection or transaction of its own).
 
-        Default (no `selection_cutoff`): the W2 Site selection, unchanged. Pinned mode (W3-01 Run 6 Blocker 1,
+        Default (no `selection_cutoff`): the W2 Site selection, plus the PB-1a analysed-period rule (D-E5.31) for
+        an explicit window no stored selection contains; `analysed_periods=False` keeps the requested window as
+        is (the single-Finding read). The snapshot carries `analysed_periods` (the periods listed under rule ii,
+        else empty) and `shown_period` (the period read, else None). Pinned mode (W3-01 Run 6 Blocker 1,
         W4-01 Run 3 ruling 6): `lo`/`hi` are one exact stored selected window and `selection_seqs` maps each
         analytic to select to its exact `analytic_run_selection.seq`; that row must also be selected, its run
         completed and its assessment revision created by `selection_cutoff`, or `SelectionPinRefused` is raised
@@ -2191,6 +2224,7 @@ class ColdReadService:
         if pinned and known is None:
             raise SelectionPinRefused(sorted(selection_seqs)[0], selection_seqs[sorted(selection_seqs)[0]], lo, hi,
                                       selection_cutoff)
+        explicit = lo is not None and hi is not None
         if lo is None and known is not None:  # no explicit window: the latest selected cold window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -2199,38 +2233,19 @@ class ColdReadService:
                 {**p, "a": cold.EXCURSION_ANALYTIC, "b": cold.START_RESPONSE_ANALYTIC, "k": known}).first()
             if row is not None:
                 lo, hi = row[0], row[1]
-        selected: dict[str, ColdSelected] = {}
-        if lo is not None and known is not None:
-            for analytic in (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC):
-                if pinned:
-                    if analytic not in selection_seqs:
-                        continue
-                    r = c.execute(text(
-                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
-                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
-                        "ON r.id = sel.run_id AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id "
-                        "JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
-                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
-                        "AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
-                        "AND sel.seq = :seq AND sel.selected_at <= :sk AND r.completed_at <= :sk "
-                        "AND ar.created_at <= :sk AND r.knowledge_cutoff <= :k LIMIT 1"),
-                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known, "seq": selection_seqs[analytic],
-                         "sk": selection_cutoff}).first()
-                    if r is None:
-                        raise SelectionPinRefused(analytic, selection_seqs[analytic], lo, hi, selection_cutoff)
-                else:
-                    r = c.execute(text(
-                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
-                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
-                        "ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
-                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
-                        "AND sel.analytic_id = :a AND sel.window_start <= :lo AND sel.window_end >= :hi "
-                        "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
-                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known}).first()
-                if r is not None:
-                    result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
-                    ids = r[4] if isinstance(r[4], list) else json.loads(r[4])
-                    selected[analytic] = ColdSelected(analytic, r[0], r[1], r[2], result, list(ids), r[5], r[6], r[7])
+        selected = self._select(c, p, lo, hi, known, selection_seqs, selection_cutoff)
+        # PB-1a (D-E5.31): default mode, an explicit window no stored selection contains or equals (i): the
+        # selected analysed periods wholly inside it are listed and the most recent one with an open Finding, or
+        # else the most recent one, becomes the snapshot's window (ii); none inside keeps the empty selection (iii).
+        periods: list[tuple[datetime, datetime]] = []
+        shown: tuple[datetime, datetime] | None = None
+        if analysed_periods and not pinned and explicit and not selected and known is not None:
+            periods = analysed_periods_in(c, t, s, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC), lo, hi,
+                                          known)
+            if periods:
+                shown = shown_analysed_period(c, t, s, cold.DOMAIN, periods, known)
+                lo, hi = shown
+                selected = self._select(c, p, lo, hi, known, selection_seqs, selection_cutoff)
         # W3-01 r1 M3.2: an explicit historical cutoff precedes pending-job selection (job status has no as-of
         # ledger); a current read ignores a job created after the requested `known_at`.
         historical = known_at is not None and watermark is not None and known_at < watermark
@@ -2266,11 +2281,51 @@ class ColdReadService:
                                else NO_PROBE_NOTE)
         snap = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known, "watermark": watermark,
                 "selected": selected, "pending_since": pending_since, "evidence": evidence, "probes": probes,
-                "latest_probe": latest_probe, "state": state, "limitations": limitations}
+                "latest_probe": latest_probe, "state": state, "limitations": limitations,
+                "analysed_periods": periods, "shown_period": shown}
         if pinned:
             snap["selection_seqs"] = {a: int(selection_seqs[a]) for a in selected}
             snap["selection_cutoff"] = selection_cutoff
         return snap
+
+    def _select(self, c: Connection, p: dict[str, Any], lo: datetime | None, hi: datetime | None,
+                known: datetime | None, selection_seqs: dict[str, int] | None,
+                selection_cutoff: datetime | None) -> dict[str, ColdSelected]:
+        """The selected cold assessments of one window: pinned to `selection_seqs`, or the default covering head."""
+        pinned = selection_cutoff is not None
+        selected: dict[str, ColdSelected] = {}
+        if lo is not None and known is not None:
+            for analytic in (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC):
+                if pinned:
+                    if analytic not in selection_seqs:
+                        continue
+                    r = c.execute(text(
+                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
+                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
+                        "ON r.id = sel.run_id AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id "
+                        "JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
+                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
+                        "AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+                        "AND sel.seq = :seq AND sel.selected_at <= :sk AND r.completed_at <= :sk "
+                        "AND ar.created_at <= :sk AND r.knowledge_cutoff <= :k LIMIT 1"),
+                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known, "seq": selection_seqs[analytic],
+                         "sk": selection_cutoff}).first()
+                    if r is None:
+                        raise SelectionPinRefused(analytic, selection_seqs[analytic], lo, hi, selection_cutoff)
+                else:
+                    r = c.execute(text(
+                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
+                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
+                        "ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
+                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
+                        "AND sel.analytic_id = :a AND sel.window_start <= :lo AND sel.window_end >= :hi "
+                        "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
+                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known}).first()
+                if r is not None:
+                    result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
+                    ids = r[4] if isinstance(r[4], list) else json.loads(r[4])
+                    selected[analytic] = ColdSelected(analytic, r[0], r[1], r[2], result, list(ids), r[5], r[6], r[7])
+        return selected
 
     def estate_snapshots_on(self, c: Connection, t: UUID, s: UUID, code: str, from_: datetime, to: datetime,
                             known_at: datetime | None, selection_cutoff: datetime) -> list[dict[str, Any]]:
@@ -2564,7 +2619,8 @@ class ColdReadService:
     def finding(self, tenant_id: UUID, site_id: UUID, code: str, finding_id: UUID, lo: datetime | None,
                 hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
         def work(c):
-            snap = self._snapshot(c, tenant_id, site_id, code, lo, hi, known_at)
+            # PB-1a: a Finding link keeps its requested window (the Finding is found by its anchor, not a period).
+            snap = self._snapshot(c, tenant_id, site_id, code, lo, hi, known_at, analysed_periods=False)
             body = self._envelope(c, snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
             if snap["lo"] is None:
                 return None
