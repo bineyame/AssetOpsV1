@@ -44,8 +44,16 @@ old code never produced)
   (every day COMPLETE-graded by the chain; the conflict day is out of the lines, `analysed_days == days.checked == 6`,
   `money.gaps == days.gaps`); frontend asserts the money label's gap clause equals the coverage line's.
 
-## Checks run (revision abe3d4bdd unless noted)
-See "Check results" below.
+## Checks run (revision abe3d4bdd; Postgres `assetops_pmoney_test`, conns < 150 before each file, one file at a time)
+- test_partial_money 10 passed; test_cov_partial 20 passed; test_cov_partial_portfolio 13 passed (0 skipped, DB
+  set); test_gap_reasons 12; test_estate_coverage_local_days 12; test_w302_money_api 12; test_w303_portfolio_api 7
+  (0 skipped); test_w303_portfolio_reduction 44; test_post_w6_w3_estate_links 7; test_w302_money_comparability_postgres
+  6; test_w302_financials_links_postgres 3 (first run: 1 failed "too many clients already", rerun 3 passed);
+  test_w303_portfolio_scope_snapshot_postgres 10; test_k8_estate_fuel_postgres 1; test_w302_evidence_api 19.
+- test_w303_selectors_postgres: 2 failed, 1 passed (`SimpleNamespace has no attribute 'known_at'` in
+  `local_day_grades_kw`); identical 2 failures with main's three source files restored, so pre-existing (DATA-12).
+- vitest estateFinancials + estatePortfolio + estateRoots: 3 files, 126 passed. `tsc --noEmit`: clean.
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): "Architecture check passed."
 
 ## Known deviations
 - Card file list names `evidence_money.py`; it holds no money for mini-grid (evidence rows only), so it is unchanged.
