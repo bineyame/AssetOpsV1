@@ -58,7 +58,8 @@ lines 29-34. Build commit 7e99b8e48.
   - `test_qw2_reuse` 4
   - `test_idx_gaps_index` 22
 - vitest on `s5SiteWindowOverview` and `s502OverviewFindingList`: 104 passed. `tsc --noEmit`: clean.
-- Guard: see the "Architecture check" line below.
+- Architecture check (`tools/check-architecture.ps1`, ASSETOPS_GUARD_PYTHON set to the plan2 venv), run on
+  7e99b8e48: "Architecture check passed."
 
 ## Golden changes
 None. No fixture has a data-gap day, so `estate_week_2026-10-25.json` and every exact-equality test are unchanged.
