@@ -49,3 +49,11 @@ Spec: `.agent/architect-sequence-client-scope-2026-11-11.md` C.6 B1; proposal 20
 - Layout at 390/760/1440 has not been checked. The sticky date bar and the tab wrap are verified on CSS only.
 - An `act(...)` warning appears in stderr for a few older tests. It does not fail any test.
 - PF-C (coverage line) is not touched.
+
+## Fix round (review REJECT: H1, M1, M2, Low)
+
+- H1: kept the single mounted `${PORTFOLIO_ROOT_PATH}/:tab?` route (splitting it would remount the page) and taught `tools/checks/navigation-truthfulness.ps1` the optional-segment form: it now registers the bare constant path. navigation-truthfulness and the rail-fixture baseline no longer fail on /portfolio.
+- M1: `PortfolioTabsPage` keeps whole-list (`lens=all`) reads in a per-key cache; a hit is shown with no read. New test "moving from Act first lens=cost to another tab reads nothing again" (Overview, then Cost lens, then Opportunity and What changed: calls stay `["all","cost"]`). Proven: it fails on the previous code (`["all","cost","all"]`) and passes now.
+- M2: `rendersMeasuredPanelHierarchyAndScrollContainers` runs leadingIntruders, strayOutsidePanels, stripIntruders and strayBetweenPanels on every tab, plus a planted-panel check per tab. Allowlist additions in `frontend/src/test/panelStructure.ts`: the date bar/context row/tab row (leading), and inside `[data-portfolio-tab-panel]` only the Overview sr title, outcome cards, counts strip and the Act first evidence aside (between panels).
+- Low: labelled MOCK DEVIATION PF-T-5 (header of EstatePortfolio.tsx): "Inspect basis" stays the inline disclosure because the basis table is this panel's data.
+- Checks: vitest estatePortfolio 84/84, estatePortfolioRoutes 4, operatorRailInventory 31, w301EstateShellRoutes 3, operatorRouteFrames 22; `tsc --noEmit` clean. check-architecture: see the final result in the report (Python guards need ASSETOPS_GUARD_PYTHON set to the plan2 .venv).
