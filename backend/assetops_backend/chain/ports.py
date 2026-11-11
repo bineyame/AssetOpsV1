@@ -122,6 +122,101 @@ class SnapshotStore(Protocol):
         """Latest revision per (site, day, subject, measure), in ONE statement."""
 
 
+@dataclass(frozen=True)
+class PeriodKey:
+    """ANY-1 AR-1: one stored read period (`site_period_read`, migration 0059) without its revision."""
+    tenant_id: UUID
+    site_id: UUID
+    kind: str
+    period_start: datetime
+
+
+@dataclass(frozen=True)
+class PeriodRow:
+    """One revision of a stored read period: the fragment today's compose builds for that period (`body`, words as
+    `{key, params}` per D-I18N.1), at its native grain, revisioned by input fingerprint (the `site_day_snapshot`
+    rules: append-only, `computed_at` for "as known at k")."""
+    tenant_id: UUID
+    site_id: UUID
+    kind: str
+    period_start: datetime
+    period_end: datetime
+    local_day: date
+    revision: int
+    builder_version: str
+    input_fp: str
+    state: str
+    body: dict[str, Any]
+    computed_at: datetime | None = None
+
+    def key(self) -> PeriodKey:
+        return PeriodKey(self.tenant_id, self.site_id, self.kind, self.period_start)
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "site_id": str(self.site_id), "kind": self.kind,
+            "period_start": self.period_start.isoformat(), "period_end": self.period_end.isoformat(),
+            "local_day": self.local_day.isoformat(), "revision": self.revision,
+            "builder_version": self.builder_version, "input_fp": self.input_fp, "state": self.state,
+            "body": self.body,
+            "computed_at": None if self.computed_at is None else self.computed_at.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
+class ProvenanceBlock:
+    """The provenance of one selected assessment revision (`revision_provenance`): immutable, computed once per
+    builder version."""
+    tenant_id: UUID
+    assessment_revision_id: UUID
+    builder_version: str
+    block: dict[str, Any]
+    computed_at: datetime | None = None
+
+
+@dataclass(frozen=True)
+class PendingEvent:
+    """An input event recorded at or before `k` and not consumed by the snapshots consumer by `k` (AR-1
+    PENDING-at-k), or a still-queued dirty mark (live reads only)."""
+    site_id: UUID
+    local_day: date
+    kind: str
+    source: str  # "event" | "dirty"
+
+
+class PeriodReadStore(Protocol):
+    def latest(self, key: PeriodKey) -> tuple[int, str, str] | None:
+        """(revision, input_fp, builder_version) of the latest revision, or None."""
+
+    def append(self, row: PeriodRow) -> None: ...
+
+    def read_latest(
+        self,
+        tenant_id: UUID,
+        site_ids: Sequence[UUID],
+        kinds: Sequence[str],
+        from_day: date,
+        to_day: date,
+        known_at: datetime | None,
+    ) -> list[PeriodRow]:
+        """Latest revision per (Site, kind, period) with `local_day` in the range, in ONE statement."""
+
+    def provenance(self, tenant_id: UUID, revision_ids: Sequence[UUID],
+                   builder_version: str) -> dict[UUID, dict[str, Any]]: ...
+
+    def append_provenance(self, block: ProvenanceBlock) -> bool:
+        """Insert once; False when that (revision, builder version) is already stored (never overwritten)."""
+
+    def unconsumed_at(self, tenant_id: UUID, site_ids: Sequence[UUID], types: Sequence[str],
+                      known_at: datetime | None) -> list[Any]:
+        """The `chain.events.Event`s recorded at or before `known_at` (live: now) that the snapshots consumer had
+        not consumed by then, from the append-only `event_outbox` and `event_consumption` ledgers."""
+
+    def dirty_marks(self, tenant_id: UUID, site_ids: Sequence[UUID], kinds: Sequence[str],
+                    from_day: date, to_day: date) -> list[tuple[UUID, date, str]]:
+        """Live only: the `snapshot_dirty` marks of these kinds still queued for a rebuild."""
+
+
 class ChainInputReader(Protocol):
     """The single read port every measure adapter reads through (implemented in
     ``chain/adapters/postgres_chain_inputs.py``)."""
