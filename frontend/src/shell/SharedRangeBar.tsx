@@ -155,6 +155,7 @@ export function SharedRangeBar() {
 
   const go = (next: URLSearchParams, words: string) => {
     next.delete("cursor"); // a new range or cutoff restarts at page one
+    next.delete("record"); // and an old record's detail must not stay open under the new period (SR-2b L1)
     navigate({ pathname: location.pathname, search: `?${next.toString()}` }, { state: location.state });
     setAnnouncement(words);
   };
