@@ -24,7 +24,19 @@ export interface ColdWindowQuery {
   known_at: string | null;
 }
 
-export interface ColdEnvelope {
+/** PB-1a/PB-1b: one analysed period inside a requested range; `href` is an API route, so the UI builds its own link. */
+export interface AnalysedPeriod {
+  from: string;
+  to: string;
+  href?: string;
+}
+/** The analysed periods a Cold or EV Site read carries (absent on an older read). */
+export interface AnalysedPeriodsRead {
+  analysed_periods?: AnalysedPeriod[];
+  shown_period?: { from: string; to: string } | null;
+}
+
+export interface ColdEnvelope extends AnalysedPeriodsRead {
   site_id: string;
   window: { from: string | null; to: string | null; known_at: string | null };
   currentness: {

@@ -59,7 +59,7 @@ def test_fewer_than_three_complete_days_freezes_short_with_the_not_judged_text()
     rows = [row(d, "COMPLETE") for d in days_before(2, 13)] + [row(EFF - timedelta(days=15), "COMPLETE")]
     sel = vf.baseline_selection(grades_of(rows, cand), EFF)
     assert sel["state"] == "SHORT" and sel["found"] == 2  # day 15 is outside the 14-day look-back
-    assert vf.short_text(sel) == "Not judged yet: only 2 of 3 fully checked days before the change"
+    assert vf.short_text(sel) == "Not judged yet: only 2 of 3 days with complete readings before the change"
     full = vf.baseline_selection(grades_of([row(d, "COMPLETE") for d in days_before(1, 2, 3)], cand), EFF)
     assert vf.short_text(full) is None
 

@@ -3,11 +3,12 @@
  * date/cutoff bar (spec S17), the URL query state, the Site basis-state chip (Run 12 ruling 3), the coverage
  * limitation sentence and the refusal view. Nothing here reads a mock value.
  */
-import { useState, type FormEvent, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../ui";
-import { formatDayRange, formatDayTime } from "../ui/time";
+import { formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { rangeWindow, validDay } from "../shell/sharedRange";
 import {
   FIRST_PAGE_CODES,
   WINDOW_NOT_VALID,
@@ -38,9 +39,14 @@ const STATE_FILTERS: readonly EstateStateFilter[] = ["all", "supported", "unconf
 export function queryFromParams(params: URLSearchParams, now?: number): EstateQuery & { state: EstateStateFilter } {
   const fallback = defaultWindow(now);
   const state = params.get("state");
+  // SR-1 (SR.3): the shared range's short day form (`to` included) reads as the same UTC window as the instant form,
+  // so both address forms make the same request. Any other value is passed on unchanged for the server to judge.
+  const from = params.get("from");
+  const to = params.get("to");
+  const days = from !== null && to !== null && validDay(from) && validDay(to) ? rangeWindow({ from, to }) : null;
   return {
-    from: params.get("from") ?? fallback.from,
-    to: params.get("to") ?? fallback.to,
+    from: days?.from ?? from ?? fallback.from,
+    to: days?.to ?? to ?? fallback.to,
     known_at: params.get("known_at"),
     cursor: params.get("cursor"),
     state: STATE_FILTERS.includes(state as EstateStateFilter) ? (state as EstateStateFilter) : "all",
@@ -67,11 +73,6 @@ export function utcInstant(wire: string): string {
   return formatDayTime(wire);
 }
 
-/** The last included day of a half-open `[from, to)` whole-day window. */
-function lastDay(to: string): string {
-  return new Date(Date.parse(to) - 1).toISOString().slice(0, 10);
-}
-
 export const EARLIER_CUTOFF = "Showing an earlier point in time.";
 /** POLISH §3.1 / Addendum 7 Q5 (R652): the closed disclosure that holds the earlier-cutoff picker. */
 export const EARLIER_POINT_SUMMARY = "View an earlier point in time";
@@ -91,71 +92,36 @@ function cutoffBarText(query: Pick<EstateQuery, "known_at"> & { cursor?: string 
 }
 
 /**
- * The one UTC date/cutoff bar (S17, Run 12 ruling 3). It shows the request window and the effective cutoff the
- * read reports; a historical top-level read (an explicit earlier cutoff, or a page two read after its cutoff)
- * says `This is an earlier evidence cutoff.`. Changing the window or cutoff restarts at page one.
+ * SR-1/SR-2: every estate page's range is set in the shell's shared bar (the per-page `EstateDateBar` form is gone, so
+ * no page shows two date controls). The page keeps only the read's cutoff line here - the effective
+ * cutoff, the earlier-cutoff words, `Window not valid` for a refused window (never the dates) and the UTC note.
  */
-export function EstateDateBar({
+export function EstateCutoffLine({
   query,
   body,
-  onApply,
   windowRefused = false,
 }: {
-  query: Pick<EstateQuery, "from" | "to" | "known_at" | "cursor">;
+  query: Pick<EstateQuery, "known_at" | "cursor">;
   body: EstateEnvelope | null;
-  onApply: (next: Pick<EstateQuery, "from" | "to" | "known_at">) => void;
-  /** Post-W6 W3-estate Q14: a refused `INVALID_WINDOW` read says `Window not valid` and never echoes the dates. */
   windowRefused?: boolean;
 }) {
-  const [first, setFirst] = useState(query.from.slice(0, 10));
-  const [last, setLast] = useState(lastDay(query.to));
-  const [cutoff, setCutoff] = useState(query.known_at ? query.known_at.slice(0, 19) : "");
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first || !last) return;
-    const to = midnight(Date.parse(`${last}T00:00:00Z`) + DAY_MS);
-    onApply({ from: `${first}T00:00:00Z`, to, known_at: cutoff ? `${cutoff.length === 16 ? `${cutoff}:00` : cutoff}Z` : null });
-  };
-  const cutoffText = cutoffBarText(query, body);
   return (
-    <form className="site-date-bar estate-date-bar" onSubmit={submit} data-estate-date-bar>
-      <span className="site-date-bar__window" data-estate-window>
-        {windowRefused ? WINDOW_NOT_VALID : formatDayRange(query.from, query.to)}
-      </span>
+    <p className="site-date-bar estate-date-bar estate-cutoff-line" data-estate-cutoff-line>
+      {windowRefused ? (
+        <span className="site-date-bar__window" data-estate-window>
+          {WINDOW_NOT_VALID}
+        </span>
+      ) : null}
       <span className="site-date-bar__cutoff" data-estate-cutoff>
-        {cutoffText}
+        {cutoffBarText(query, body)}
       </span>
       {body?.status === "HISTORICAL" ? (
         <span className="estate-date-bar__historical" data-estate-historical>
           {EARLIER_CUTOFF}
         </span>
       ) : null}
-      <label className="v69-chip-field">
-        From{" "}
-        <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} />
-      </label>
-      <label className="v69-chip-field">
-        to (included){" "}
-        <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} />
-      </label>
-      <button className="v69-chip" type="submit">
-        Show
-      </button>
-      <details className="estate-date-bar__earlier" open={query.known_at ? true : undefined} data-estate-earlier-point>
-        <summary>{EARLIER_POINT_SUMMARY}</summary>
-        <label className="v69-chip-field">
-          Point in time{" "}
-          <input
-            className="v69-chip-control"
-            type="datetime-local"
-            step={1}
-            value={cutoff}
-            onChange={(e) => setCutoff(e.target.value)}
-          />
-        </label>
-      </details>
       <TimeZoneNote />
-    </form>
+    </p>
   );
 }
 
@@ -165,7 +131,7 @@ const SITE_STATE_WORDS: Readonly<Partial<Record<EstateSiteState, { text: string;
   HISTORICAL: { text: "Earlier evidence cutoff", tone: "neutral" },
   UNKNOWN: { text: "Not yet assessed", tone: "amber" },
   // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
-  PARTIAL: { text: "Some days not checked yet", tone: "amber" },
+  PARTIAL: { text: "Incomplete days", tone: "amber" },
 };
 
 /**
@@ -193,7 +159,7 @@ export function limitationSentences(body: EstateEnvelope, partial: string): stri
   if (states.has("PENDING_RECOMPUTE")) out.push(PENDING_EVIDENCE);
   if (states.has("STALE_SOURCE")) out.push("Some sites' results may miss newer readings.");
   // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
-  if (states.has("PARTIAL")) out.push("Some sites have days not checked yet.");
+  if (states.has("PARTIAL")) out.push("Some sites have incomplete days.");
   if (body.coverage.state !== "COMPLETE") out.push(partial);
   return out;
 }

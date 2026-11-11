@@ -321,7 +321,7 @@ def test_v2_one_epoch_per_stream():
             seen |= epochs
 
 
-def test_v2_epoch_guards():
+def test_v2_epoch_guards(monkeypatch):
     doc = _v2()
     kobo = doc["sites"]["kobo"]
     late = next(e for e in kobo if e["kind"] == "late")
@@ -331,9 +331,19 @@ def test_v2_epoch_guards():
     with pytest.raises(sd.StoryDaysError) as e:
         sd.resolve(bad, S)
     assert e.value.error_code == "LATE_IN_STREAM"
+    # DATA-11 (D-E5.37, `sd.SESSION_PER_DAY_SITES`): a Cold day is one recording session, so a Cold degraded day with
+    # a built day after it is no stream; each Cold day keeps its own epoch
+    ok = copy.deepcopy(doc)
+    ok["sites"]["cold"] = [{**x, "day": "S-4d"} if x["day"] == "S-3d" else x for x in ok["sites"]["cold"]]
+    ok["sites"]["cold"].append({"day": "S-3d", "kind": "normal"})
+    cold = [r for r in sd.resolve(ok, S) if r.site == "cold" and r.has_run]
+    assert len({r.epoch for r in cold}) == len(cold) == len({r.day for r in cold})
+    # the DD1a1-R8 refusal still holds for a Kobo stream (a degraded Kobo day, under the DD-1a1 probe switch)
+    monkeypatch.setattr(sd, "DEGRADED_PROBE", True)
     bad = copy.deepcopy(doc)
-    bad["sites"]["cold"] = [{**x, "day": "S-4d"} if x["day"] == "S-3d" else x for x in bad["sites"]["cold"]]
-    bad["sites"]["cold"].append({"day": "S-3d", "kind": "normal"})
+    days = {sd.day_offset(e["day"]) for e in bad["sites"]["kobo"] if e["kind"] not in ("missing", "late")}
+    first = next(e for e in bad["sites"]["kobo"] if e["kind"] == "normal" and sd.day_offset(e["day"]) + 1 in days)
+    first["kind"] = "degraded"
     with pytest.raises(sd.StoryDaysError) as e:
         sd.resolve(bad, S)
     assert e.value.error_code == "BUILT_DAY_AFTER_DEGRADED"
@@ -735,6 +745,17 @@ def test_v4_story_week_one_missed_one_partial(s):
     assert [e for e in v4["sites"]["kobo"] if e["day"] not in added] == [
         e for e in v3["sites"]["kobo"] if e["day"] not in V3_REPLACED_DAYS]
     rest = ("schema", "label", "status", "sites")
+    # DATA-11 (D-E5.37): v4 adds the Cold `ordinary` kind and its five story-week entries; without them v4 equals v3
+    v4 = copy.deepcopy(v4)
+    assert sorted(e["day"] for e in v4["sites"]["cold"] if e["kind"] == "ordinary") == [
+        "S-1d", "S-2d", "S-4d", "S-5d", "S-6d"]
+    v4["sites"]["cold"] = [e for e in v4["sites"]["cold"] if e["kind"] != "ordinary"]
+    v4["kinds"]["cold"].pop("ordinary")
+    # EV-HB (D-E5.48): the EV story kinds record the declared 08:00-16:00 (received 16:30); with v3's hour back, equal
+    for name in ("normal", "fault"):
+        k = v4["kinds"]["ev"][name]
+        assert (k["start"], k["end"], k["received_at"]) == ("D+0d 08:00", "D+0d 16:00", "D+0d 16:30")
+        k.update({key: v3["kinds"]["ev"][name][key] for key in ("end", "received_at", "note")})
     assert {k: v for k, v in v4.items() if k not in rest} == {k: v for k, v in v3.items() if k not in rest}
     assert {k: v for k, v in v4["sites"].items() if k != "kobo"} == {k: v for k, v in v3["sites"].items() if k != "kobo"}
     assert "D-E5.12, D-E5.17" in v4["label"]

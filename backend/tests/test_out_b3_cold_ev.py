@@ -157,7 +157,7 @@ def test_no_start_failure_and_no_plans() -> None:
     _, rows = run_cold(Fake(cold_overview=calm, cold_findings=items, plans=[]))
     assert contributor(rows[PROTECT], "backup_start")["text"] == "Automatic start recorded"
     assert contributor(rows[PROTECT], "backup_generator")["text"] == "No preventive plan recorded"
-    assert rows[PROTECT]["subline"] == "Compressor and backup condition are not assessed"
+    assert rows[PROTECT]["subline"] == "Compressor and backup condition need a wear model, which is not connected yet"
     assert [o["text"] for o in rows[PROTECT]["options"]] == ["Stock value what-if"]
 
 
@@ -286,14 +286,14 @@ def test_depot_board_from_ports() -> None:
         "charging_delivered", "charging_tariff", "charger_use", "energy_billed"]
     # P-11: a priced tariff keeps the catalogue Optimize sentence (no "published charging tariff" clause).
     assert rows[COST]["not_measured_text"] == (
-        "Energy cost per km needs odometer readings; a tariff estimate exists in Financials")
+        "Odometer readings are not connected yet; a tariff estimate exists in Financials")
     assert contributor(rows[PROTECT], "session_service")["text"] == "1 fault-aborted session, 1 outcome unknown"
     assert contributor(rows[PROTECT], "connector_availability")["text"] == "Connector C2: 1 h 30 min out, 30 min unknown"
     assert contributor(rows[PROTECT], "charger_condition")["text"] == "Fault recorded on C2"
     assert contributor(rows[PROTECT], "site_power")["text"] == "Peak 76 kW of the 120 kW import limit"
     assert rows[PROTECT]["headline"] == "1 interrupted · 1 unknown of 6 sessions"  # addendum 3 (c)
     assert rows[PROTECT]["subline"] == ("Connector C2 was out of service for 1 h 30 min; which departures were "
-                                        "affected is not known yet. Charger condition is not assessed")
+                                        "affected needs bus rosters, which are not connected yet. Charger condition needs a wear model, which is not connected yet")
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
         ("Investigate Connector C2", f"/sites/{E}/actions/ea1/verification")]  # CH-5a2a: a domain intent
     assert contributor(rows[ASSURE], "session_records")["text"] == "1 session has no accepted end"
@@ -352,7 +352,7 @@ def test_ev_depth_refusals_degrade_contributors() -> None:
     assert contributor(rows[PROTECT], "connector_availability")["text"] == "All connectors available"
     assert contributor(rows[PROTECT], "charger_condition")["text"] == "No charger fault recorded"
     assert contributor(rows[ASSURE], "connector_status")["text"] == "No status gap"
-    assert rows[PROTECT]["subline"] == "Charger condition is not assessed"
+    assert rows[PROTECT]["subline"] == "Charger condition needs a wear model, which is not connected yet"
 
 
 def test_ev_unpriced_and_declared_limit() -> None:
@@ -363,10 +363,10 @@ def test_ev_unpriced_and_declared_limit() -> None:
     # CH6a3-R2 H3 ONE-SOURCE: unpriced, the stored row has no money, so the earnings claim is NOT_KNOWN: no subline,
     # and the charging line states no live kWh beside it
     assert rows[GROW]["subline"] is None
-    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · 1 of 1 day checked"  # UTC: one day
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "Not known yet · Complete readings on 1 of 1 day"  # UTC: one day
     assert contributor(rows[GROW], "charging_tariff")["text"] == "Not available yet"  # cause not known here
     assert rows[COST]["not_measured_text"] == (
-        "Energy cost per km needs odometer readings and a published charging tariff")
+        "Odometer readings are not connected yet, and no charging tariff is published for this window")
     power = contributor(rows[PROTECT], "site_power")
     assert power["confidence"] == {"label": "Declared", "tone": "neutral"}
     assert contributor(rows[ASSURE], "connector_status")["text"] == (
@@ -466,7 +466,7 @@ def test_ev_low_day_states_only_not_known_with_its_days_line() -> None:
     assert earn["value"] is None and earn["days"]["low"] == 1
     assert rows[GROW]["headline_money"] is None and rows[GROW]["subline"] is None
     text = contributor(rows[GROW], "charging_delivered")["text"]
-    assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too little data" in text
+    assert text.startswith("Not known yet · ") and "182.5" not in text and "1 with too few readings" in text
 
 
 def test_ev_priced_day_with_unknown_claim_never_names_an_estimate_without_a_figure() -> None:
@@ -483,13 +483,13 @@ def test_ev_priced_flag_sets_the_optimize_not_measured_text() -> None:
     comp, rows = run_ev()
     assert comp.facts.ev_priced is True
     assert rows[COST]["not_measured_text"] == (
-        "Energy cost per km needs odometer readings; a tariff estimate exists in Financials")
+        "Odometer readings are not connected yet; a tariff estimate exists in Financials")
     unpriced = dict(EV_OVERVIEW, consequence_summary={"state": "UNPRICED", "reason": "TARIFF_MISSING",
                                                       "tariff_value": None, "amount": None, "currency": None})
     comp, rows = run_ev(Fake(ev_overview=unpriced))
     assert comp.facts.ev_priced is False
     assert rows[COST]["not_measured_text"] == (
-        "Energy cost per km needs odometer readings and a published charging tariff")
+        "Odometer readings are not connected yet, and no charging tariff is published for this window")
 
 
 # ================================================================ DD1b1-R2: the Action read runs to the requested end

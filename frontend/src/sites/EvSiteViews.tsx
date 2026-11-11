@@ -1,3 +1,4 @@
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
@@ -44,6 +45,7 @@ import type {
 import { EvScenarios } from "./EvScenarios";
 import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
 import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { AnalysedPeriodsLine } from "./AnalysedPeriodsLine";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 import { OutcomeBoard } from "./OutcomeBoard";
@@ -336,11 +338,14 @@ function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | nu
   // POLISH §3.1 EV row, done in PB-1 (Addendum 7 Q1a): `27 Oct 2026, 08:00–09:00 · as of 27 Oct, 09:00`.
   const text = w.from === null || w.to === null ? "No window selected" : `${windowText(w.from, w.to)} · as of ${dayHm(w.known_at)}`;
   return (
-    <p className="site-date-bar" data-ev-window>
-      <span className="site-date-bar__window">{text}</span>
-      {extra ? <span className="site-date-bar__cutoff">{extra}</span> : null}
-      <TimeZoneNote />
-    </p>
+    <>
+      <p className="site-date-bar" data-ev-window>
+        <span className="site-date-bar__window">{text}</span>
+        {extra ? <span className="site-date-bar__cutoff">{extra}</span> : null}
+        <TimeZoneNote />
+      </p>
+      <AnalysedPeriodsLine read={env} none={env.currentness.state === "UNKNOWN"} />
+    </>
   );
 }
 
@@ -759,7 +764,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
               <p className="prose">{next.why}</p>
             </div>
           )}
-          {refused !== null ? null : <UnavailableLinkEntry label="Review recommendation" />}
+          {refused !== null ? null : <UnavailableLinkEntry label="Review recommendation" roadmap={ROADMAP_WORDS.reviewRecommendation} />}
         </Panel>
       </div>
     </>
@@ -1036,7 +1041,7 @@ function SourceRow({ s }: { s: EvSource }) {
   const accepted = s.quality.accepted_count > 0;
   const what =
     s.slot === "BILLING"
-      ? "No payment feed"
+      ? ROADMAP_WORDS.evNoPaymentFeed
       : s.slot === "SITE_METER"
         ? accepted && s.roles.includes("site_import")
           ? "Import power"
@@ -1278,11 +1283,11 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       <WindowBar env={f} />
       {f === null ? <RefusedHead read={financials} window={p.window} label="Financials state" tiles={FINANCIAL_TILES} /> : null}
       {f === null ? null : (
-        <StatusBar label="Financials state" action={<UnavailableInline label="Portfolio roll-up" />}>
+        <StatusBar label="Financials state" action={<UnavailableInline label="Portfolio roll-up" roadmap={ROADMAP_WORDS.portfolioRollUp} />}>
           <Badge tone="neutral" className="ev-site-chip">
             <span data-ev-line-count={lines}>{`${lines} consequence ${lines === 1 ? "line" : "lines"}`}</span>
           </Badge>
-          {` ${currency ?? "Currency not declared"} · selected window · charging income estimate only · Displayed rows include unpriced context`}
+          {` ${estimated && currency !== null ? `${currency} · selected window` : "Selected window"} · charging income estimate only · Displayed rows include unpriced context`}
           <Provenance env={f} />
           <StateNote env={f} />
         </StatusBar>
@@ -1292,7 +1297,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
           <MetricCard label="Delivered energy" value={energyKwh === null ? "Unknown" : `${energyKwh} kWh`} note="Metered, complete sessions" data={{ "data-ev-fin-card": "energy" }} />
           <MetricCard label="Estimated charging income" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Estimate · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
           <MetricCard label="Lost revenue" value="Unknown" note="Unmet demand not established" data={{ "data-ev-fin-card": "lost" }} />
-          <MetricCard label="Collections" value="Not recorded" note="No accepted payment record" data={{ "data-ev-fin-card": "collections" }} />
+          <MetricCard label="Collections" value={ROADMAP_WORDS.evCollectionsValue} note={ROADMAP_WORDS.evCollectionsNote} data={{ "data-ev-fin-card": "collections" }} />
         </MetricCards>
       )}
       <Panel
@@ -1318,7 +1323,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                 {!bridgeRows.includes("scenario") ? (
                   <tr data-bridge-row="none">
                     <th scope="row">No eligible delivered-energy consequence</th>
-                    <td>Tariff not declared</td>
+                    <td>No analysed charging session in this window</td>
                     <td>
                       <Chip word={NO_SCENARIO} />
                     </td>

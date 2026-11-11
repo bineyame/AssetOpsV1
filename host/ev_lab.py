@@ -108,6 +108,10 @@ def ev_delay_event_id(report_key: str) -> str:
     return "ev-delay-" + hashlib.sha256(report_key.encode("utf-8")).hexdigest()
 
 
+#: EV-HB (D-E5.48): one hour (the registered scenarios) to the ruled 8-hour enable schedule (a recorded story day).
+EV_MIN_BOUNDARIES, EV_MAX_BOUNDARIES = 61, 481
+
+
 def _boundaries(start: str, end: str) -> int:
     first = datetime.strptime(start, _INSTANT)
     last = datetime.strptime(end, _INSTANT)
@@ -266,7 +270,7 @@ def _require(condition: bool, reason: str) -> None:
 
 
 def parse_ev_artifact(document: dict) -> EvArtifact:
-    """Strictly read a schema-7 EV artifact: exact keys, terminal EV pair, 61/60/end projection facts, frozen
+    """Strictly read a schema-7 EV artifact: exact keys, terminal EV pair, complete-window/end projection facts, frozen
     ID/SHA syntax, and an ordered unique public series whose count and digest reproduce."""
     _require(isinstance(document, dict) and tuple(document) == EV_ARTIFACT_KEYS, "the EV artifact keys are not exact")
     _require(type(document["artifact_schema_version"]) is int
@@ -292,10 +296,14 @@ def parse_ev_artifact(document: dict) -> EvArtifact:
         total = _boundaries(document["interval_start_time"], document["interval_end_time"])
     except ValueError as error:
         raise EvArtifactUnreadable(f"the EV interval is not UTC instants: {error}") from error
-    _require(document["timestep_minutes"] == 1 and document["boundaries_total"] == total == 61
-             and document["boundaries_completed"] == 61 and document["offset_minutes"] == 60
+    # EV-HB (D-E5.48): a registered EV window is 60 minutes up to the ruled 8-hour enable schedule (TUESDAY
+    # 08:00-16:00, `ev_publication.ev_parameters` keeps the window inside it), so 61 to 481 boundaries.
+    _require(document["timestep_minutes"] == 1 and document["boundaries_total"] == total
+             and EV_MIN_BOUNDARIES <= total <= EV_MAX_BOUNDARIES
+             and document["boundaries_completed"] == total and document["offset_minutes"] == total - 1
              and document["simulation_time"] == document["interval_end_time"],
-             "an EV artifact is the complete 61-boundary, 60-minute window ending at its interval end")
+             "an EV artifact is a complete 60-minute to 8-hour window of 1-minute boundaries ending at its "
+             "interval end")
     notes = document["notes"]
     _require(isinstance(notes, list) and all(isinstance(n, str) for n in notes), "notes are not strings")
     raw = document["failure"]

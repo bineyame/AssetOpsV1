@@ -25,10 +25,10 @@ def test_gap_line_counts_the_gap_days_by_day_grade() -> None:
     assert finding_gap_line(None, 31) is None
     assert finding_gap_line(facts([]), 31) is None
     one = finding_gap_line(facts([DAYS[2]]), 31)
-    assert one == {"text": "1 of the last 31 days has no checked readings yet", "days": [REQUESTED[2]],
+    assert one == {"text": "1 of the last 31 days has no complete readings yet", "days": [REQUESTED[2]],
                    "withheld": False}
     many = finding_gap_line(facts(DAYS[:23]), 31)
-    assert many["text"] == "23 of the last 31 days have no checked readings yet"
+    assert many["text"] == "23 of the last 31 days have no complete readings yet"
     assert many["days"] == REQUESTED[:23]
     mixed = facts([DAYS[9], DAYS[1]], pending=[DAYS[9]])
     assert finding_gap_line(mixed, 31) == {"text": "Not available yet · 2 of 31 days are not assessed yet",
@@ -38,51 +38,51 @@ def test_gap_line_counts_the_gap_days_by_day_grade() -> None:
     assert single["text"] == "Not available yet · 1 of 31 days is not assessed yet"
     # a PENDING grade on a day that is not a gap day never makes the line "not assessed"
     assert finding_gap_line(facts([DAYS[5]], pending=[DAYS[4]]), 31)["text"] == (
-        "1 of the last 31 days has no checked readings yet")
+        "1 of the last 31 days has no complete readings yet")
 
 
 def test_gap_line_separates_no_readings_from_only_partly_checked() -> None:
-    """D-E4.6: a gap day with some counted measure (COMPLETE/PARTIAL/LOW) is "only partly checked"."""
+    """D-E4.6: a gap day with some counted measure (COMPLETE/PARTIAL/LOW) is "only partial readings"."""
     def f(gaps, grades):
         return DayFacts(DAYS, grades, True, "LIMITED", tuple(gaps))
 
     partial = {"critical_served": {"s": "COMPLETE"}, "generator_runtime": {"gen": "NO_DATA"}}
     nodata = {"critical_served": {"s": "NO_DATA"}}
     only = finding_gap_line(f(DAYS[:28], {d: partial for d in DAYS[:28]}), 31)
-    assert only["text"] == "28 of the last 31 days are only partly checked"
+    assert only["text"] == "28 of the last 31 days are only partial readings"
     assert only["days"] == REQUESTED[:28]
     one = finding_gap_line(f([DAYS[0]], {DAYS[0]: partial}), 31)
-    assert one["text"] == "1 of the last 31 days is only partly checked"
+    assert one["text"] == "1 of the last 31 days is only partial readings"
     both = finding_gap_line(f(DAYS[:3], {DAYS[0]: nodata, DAYS[1]: partial, DAYS[2]: partial}), 31)
-    assert both["text"] == ("1 of the last 31 days has no checked readings yet"
-                            " · 2 of the last 31 days are only partly checked")
-    assert "only partly checked" in finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": "PARTIAL"}}}), 31)["text"]
+    assert both["text"] == ("1 of the last 31 days has no complete readings yet"
+                            " · 2 of the last 31 days are only partial readings")
+    assert "only partial readings" in finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": "PARTIAL"}}}), 31)["text"]
     # LOW is "too little data, not counted": a LOW-only day keeps the no-readings wording
     assert finding_gap_line(f([DAYS[0]], {DAYS[0]: {"m": {"s": "LOW"}}}), 31)["text"] == (
-        "1 of the last 31 days has no checked readings yet")
-    # a day with no grades at all (missing rows) is still "no checked readings"
-    assert finding_gap_line(f([DAYS[0]], {}), 31)["text"] == "1 of the last 31 days has no checked readings yet"
+        "1 of the last 31 days has no complete readings yet")
+    # a day with no grades at all (missing rows) is still "no complete readings"
+    assert finding_gap_line(f([DAYS[0]], {}), 31)["text"] == "1 of the last 31 days has no complete readings yet"
 
 
 def test_pb7_denominator_starts_when_readings_began() -> None:
     """PB-7: `requested = min(31, days since the Site's first accepted reading)`; the days before it are not gaps."""
     began = DAYS[20]  # 11 days up to and including the board day
     line = finding_gap_line(facts(DAYS[:23]), 31, began)
-    assert line == {"text": "Since readings began on 10 Oct: 3 of 11 days have no checked readings yet",
+    assert line == {"text": "Since readings began on 10 Oct: 3 of 11 days have no complete readings yet",
                     "days": REQUESTED[20:23], "withheld": False}
     pending = finding_gap_line(facts([DAYS[1], DAYS[25]], pending=[DAYS[25]]), 31, began)
     assert pending["text"] == "Not available yet · since readings began on 10 Oct: 1 of 11 days is not assessed yet"
     partial = {"critical_served": {"s": "COMPLETE"}}
     both = finding_gap_line(DayFacts(DAYS, {DAYS[21]: partial}, True, "LIMITED", (DAYS[20], DAYS[21])), 31, began)
-    assert both["text"] == ("Since readings began on 10 Oct: 1 of 11 days has no checked readings yet"
-                            " · 1 of 11 days is only partly checked")
+    assert both["text"] == ("Since readings began on 10 Oct: 1 of 11 days has no complete readings yet"
+                            " · 1 of 11 days is only partial readings")
     # only gap days before readings began: no line
     assert finding_gap_line(facts(DAYS[:5]), 31, began) is None
     # readings began on or before the first window day: the 31-day wording is unchanged
-    assert finding_gap_line(facts([DAYS[2]]), 31, DAYS[0])["text"] == "1 of the last 31 days has no checked readings yet"
+    assert finding_gap_line(facts([DAYS[2]]), 31, DAYS[0])["text"] == "1 of the last 31 days has no complete readings yet"
     assert finding_gap_line(facts([DAYS[2]]), 31, DAY - timedelta(days=90))["text"] == (
-        "1 of the last 31 days has no checked readings yet")
-    assert finding_gap_line(facts([DAYS[2]]), 31, None)["text"] == "1 of the last 31 days has no checked readings yet"
+        "1 of the last 31 days has no complete readings yet")
+    assert finding_gap_line(facts([DAYS[2]]), 31, None)["text"] == "1 of the last 31 days has no complete readings yet"
 
 
 def test_index_settledness_is_gone() -> None:

@@ -1,5 +1,6 @@
 import type { Ref } from "./chainRef";
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import { TEMPORARILY_UNAVAILABLE, fetchRetrying, isTemporarilyUnavailable } from "./temporarilyUnavailable";
 
 /**
  * OUT-B B5: the typed client for `GET /api/sites/{site_code}/outcome-board` (build spec §B.1, wire
@@ -227,7 +228,8 @@ export type OutcomeBoardRead =
   | { status: "unavailable" };
 
 export interface OutcomeBoardClient {
-  getOutcomeBoard(siteCode: string, query: OutcomeBoardQuery): Promise<OutcomeBoardRead>;
+  /** INFRA-1: `onRetrying` is told before each wait while the board answers 503 `TEMPORARILY_UNAVAILABLE`. */
+  getOutcomeBoard(siteCode: string, query: OutcomeBoardQuery, onRetrying?: () => void): Promise<OutcomeBoardRead>;
 }
 
 const QUERY_KEYS = ["date", "from", "to", "known_at", "finding_id", "finding_revision_id"] as const;
@@ -252,22 +254,21 @@ function isBoard(value: unknown): value is OutcomeBoardBody {
 
 export function createOutcomeBoardClient(basePath: string = SITES_API_PATH): OutcomeBoardClient {
   return {
-    async getOutcomeBoard(siteCode, query) {
+    async getOutcomeBoard(siteCode, query, onRetrying) {
       let response: Response;
+      let body: unknown;
       try {
-        response = await fetch(`${basePath}/${encodeURIComponent(siteCode)}/outcome-board${outcomeBoardSearch(query)}`, {
-          headers: { Accept: "application/json" },
-        });
+        ({ response, body } = await fetchRetrying(
+          `${basePath}/${encodeURIComponent(siteCode)}/outcome-board${outcomeBoardSearch(query)}`,
+          onRetrying,
+        ));
       } catch {
         return { status: "unavailable" };
       }
-      let body: unknown = null;
-      try {
-        body = await response.json();
-      } catch {
-        body = null;
-      }
       if (response.ok) return isBoard(body) ? { status: "loaded", value: body } : { status: "unavailable" };
+      if (isTemporarilyUnavailable(response.status, body)) {
+        return { status: "refused", httpStatus: 503, code: TEMPORARILY_UNAVAILABLE };
+      }
       const detail = isObject(body) && isObject(body.detail) ? body.detail : null;
       const code = detail !== null && typeof detail.code === "string" ? detail.code : "";
       return { status: "refused", httpStatus: response.status, code };

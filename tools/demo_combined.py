@@ -83,6 +83,28 @@ class StoryClockError(SystemExit):
     pass
 
 
+class PrebuildRefused(SystemExit):
+    """INFRA-1 fix round: a DEGRADED/FAILED prebuild. Build paths let it exit; the serve loop and the drain catch it."""
+
+
+def prebuild_refusal(stdout: str) -> str | None:
+    """INFRA-1 (D-E5.47) rule 5: the prebuild's last JSON line with `code` FAILED or DEGRADED gives the message the
+    build exits with, naming the paths; any other code (or no JSON line) gives None."""
+    lines = [x for x in (stdout or "").splitlines() if x.startswith("{")]
+    if not lines:
+        return None
+    try:
+        out = json.loads(lines[-1])
+    except ValueError:
+        return None
+    code = out.get("code")
+    if code == "DEGRADED":
+        return f"PREBUILD DEGRADED: still degraded {out.get('still_degraded')}; attempts {out.get('degraded')}"
+    if code == "FAILED":
+        return f"PREBUILD FAILED: non-200 {out.get('non_200')}"
+    return None
+
+
 def kobo_expected_seconds(days_doc: dict) -> int:
     return 110 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
 
@@ -1018,6 +1040,7 @@ class Demo:
         steps["finish-ticks"] = round(time.monotonic() - t0, 1)
         if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
+            self.build_period_rows(story, steps)
             t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
                            cwd=self.tree / "backend" / "tests", label="self-check", check=False)
@@ -1027,6 +1050,47 @@ class Demo:
             if done.returncode != 0:
                 deferred = f" (and DRAIN FAILED (deferred): {list(self.drain_failures)})" if self.drain_failures else ""
                 raise SystemExit(f"SELF-CHECK FAILED; see {self.work / 'check.json'}{deferred}")
+
+    #: ANY-1 AR-2 (D-ANY.6): the board's stored mini depth rows are built within this many seconds.
+    PERIOD_ROWS_CAP_SECONDS = 15 * 60
+
+    def build_period_rows(self, story: dict, steps: dict[str, float]) -> bool:
+        """AR-2: build the `mini_depth.*` read-period rows of every mini Site after the last drain (the backfill CLI;
+        an unchanged fingerprint writes nothing). Timed per Site and in total, capped at 15 minutes. Over the cap or
+        on a failure it says so and the prepare goes on: the boards then need the kill switch
+        `ASSETOPS_PERIOD_READ_KINDS=` (empty, today's compose) - never silent."""
+        say("=== Stored board rows (AR-2: mini depth) ===")
+        codes = [SITE_CODE[s] for s in ("kobo", "kisiwa") if s in story["sites"]]
+        began, saved, ok = time.monotonic(), self.deadline, True
+        cap = began + self.PERIOD_ROWS_CAP_SECONDS
+        self.deadline = cap if saved is None else min(saved, cap)
+        try:
+            for code in codes:
+                t0 = time.monotonic()
+                done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               label=f"period-rows {code}", check=False)
+                steps[f"period-rows {code}"] = round(time.monotonic() - t0, 1)
+                tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200]
+                say(f"  period-rows {code}: {tail}  [{steps[f'period-rows {code}']} s]")
+                if done.returncode != 0:
+                    ok = False
+                    say(f"  ROW BUILD FAILED for {code} (exit {done.returncode}): serve the boards with "
+                        "ASSETOPS_PERIOD_READ_KINDS= (empty)")
+        except SystemExit as stopped:  # the 15-minute cap (or the prepare's own wall cap) stopped the child
+            ok = False
+            say(f"  ROW BUILD INCOMPLETE ({stopped}): serve the boards with ASSETOPS_PERIOD_READ_KINDS= (empty)")
+            if saved is not None and time.monotonic() >= saved:
+                self.deadline = saved
+                raise
+        finally:
+            self.deadline = saved
+        steps["period-rows"] = round(time.monotonic() - began, 1)
+        say(f"  period-rows total: {steps['period-rows']} s (cap {self.PERIOD_ROWS_CAP_SECONDS} s)"
+            + ("" if ok else "  NOT COMPLETE"))
+        (self.work / "period-rows.json").write_text(json.dumps(
+            {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
+             "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
+        return ok
 
     def drain_mini(self, limit: int = 500) -> None:
         """WALK1-4 F2: the Kobo mini-depth jobs (roles-4 from commissioning) number in the hundreds and the tick's mini
@@ -1101,6 +1165,9 @@ class Demo:
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        refusal = prebuild_refusal(done.stdout)
+        if refusal is not None:  # INFRA-1 (D-E5.47) rule 5: a DEGRADED prebuild fails the build like FAILED
+            raise PrebuildRefused(refusal)
 
     # ---- the R8 drain (DD1b2-R6 O2, R7 Q1-Q4) -----------------------------------------------------------------
     def counts(self) -> dict:
@@ -1163,12 +1230,21 @@ class Demo:
         (self.work / f"{name}.json").write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
         if failure and not self.defer_drain:
             raise SystemExit(f"DRAIN FAILED: {name}: {failure}")
-        self.performance_and_prebuild()
+        refused = None
+        try:
+            self.performance_and_prebuild()
+        except PrebuildRefused as exc:  # INFRA-1 fix round: recorded, not raised mid-drain (the self-check still runs)
+            refused = str(exc.code)
+            say(f"  {name}: PREBUILD REFUSED (deferred): {refused[:300]}")
         if failure:
             self.drain_failures = (*self.drain_failures, f"{name}: {failure}")
             say(f"  {name}: FAILED (deferred): {failure[:300]}")
         else:
             say(f"  {name}: drained in {ticks} ticks (N={n}, over_n={over_n}) [{self.drains[name]} s]")
+        if refused:
+            self.drain_failures = (*self.drain_failures, f"{name}: {refused}")
+            if not self.defer_drain:
+                raise SystemExit(f"DRAIN FAILED: {name}: {refused}")
         return record
 
     # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
@@ -1263,7 +1339,7 @@ class Demo:
         days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
         say(f"added {site_code} {planned.day} {planned.kind}" +
             ("" if not planned.has_run else
-             " (assessed now)" if planned.assess == "build" else " (not checked yet: the next serve tick assesses it)"))
+             " (assessed now)" if planned.assess == "build" else " (not analysed yet: the next serve tick assesses it)"))
         return out
 
     def add_dates_line(self) -> str:
@@ -1525,7 +1601,10 @@ class Demo:
         try:
             warmed = False
             while api.poll() is None:
-                self.tick()
+                try:
+                    self.tick()
+                except PrebuildRefused as exc:  # INFRA-1 fix round: a degraded tick is logged; the API keeps serving
+                    say(f"  PREBUILD REFUSED (serving continues): {str(exc.code)[:300]}")
                 if not warmed:
                     # Review item 8: after the first tick, warm the story-week Portfolio once before "ready:".
                     warmed = True

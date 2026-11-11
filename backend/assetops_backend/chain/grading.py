@@ -15,6 +15,8 @@ from typing import Iterable, Sequence
 from zoneinfo import ZoneInfo
 
 from .policy import (
+    BASIS_CONNECTOR_STATUS_KNOWN,
+    BASIS_INTERVALS,
     PERIOD_OPERATING_HOURS,
     Bands,
     CalendarEntry,
@@ -74,6 +76,48 @@ def covered_seconds(
     return int(total)
 
 
+#: PB-3: the coverage bases (`policy.BASES`) a measure may declare in the coverage policy. ev-charger/1 connector states that carry no energy: a connector reported in one is known at zero energy.
+#: CHARGING carries energy, so it is known only where a meter interval covers it; any other value is unknown.
+#: EV-HB (PB-3 review Low): AVAILABLE and DISABLED, the other declared connector states
+#: (`sites/binding_roles.EV_CONNECTOR_STATES`), carry no energy either.
+ZERO_ENERGY_STATES = frozenset({"AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "FAULTED", "DISABLED"})
+
+
+def _union(spans: Iterable[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
+    out: list[list[datetime]] = []
+    for a, b in sorted(s for s in spans if s[1] > s[0]):
+        if out and a <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], b)
+        else:
+            out.append([a, b])
+    return [(a, b) for a, b in out]
+
+
+def _intersect(xs: list[tuple[datetime, datetime]], ys: list[tuple[datetime, datetime]]):
+    out, i, j = [], 0, 0
+    while i < len(xs) and j < len(ys):
+        a, b = max(xs[i][0], ys[j][0]), min(xs[i][1], ys[j][1])
+        if b > a:
+            out.append((a, b))
+        if xs[i][1] < ys[j][1]:
+            i += 1
+        else:
+            j += 1
+    return out
+
+
+def status_known_spans(connectors) -> list[tuple[datetime, datetime]]:
+    """PB-3: the Site's energy-known spans for a metered-when-charging measure. Per connector (`{asset: {"states":
+    [(from, to, state)], "meter": [(from, to)]}}`): the spans of a zero-energy reported state, plus its meter
+    intervals. The Site is known only where every connector is; no connector, no known time."""
+    out: list[tuple[datetime, datetime]] | None = None
+    for item in connectors.values():
+        known = _union([(a, b) for a, b, state in item.get("states") or () if state in ZERO_ENERGY_STATES]
+                       + [(a, b) for a, b in item.get("meter") or ()])
+        out = known if out is None else _intersect(out, known)
+    return out or []
+
+
 def classify_day(
     expected: bool,
     required: int,
@@ -112,16 +156,20 @@ def input_fp(
     calendar_version: str,
     catalogue_version: int,
     adapter_key: str,
+    coverage_basis: str = BASIS_INTERVALS,
 ) -> str:
+    body = {
+        "ids": sorted(str(i) for i in ids),
+        "pending": bool(pending),
+        "policy_version": policy_version,
+        "calendar_version": calendar_version,
+        "catalogue_version": catalogue_version,
+        "adapter_key": adapter_key,
+    }
+    if coverage_basis != BASIS_INTERVALS:  # PB-3: a declared basis moves the fingerprint; the default stays byte-equal
+        body["coverage_basis"] = coverage_basis
     payload = json.dumps(
-        {
-            "ids": sorted(str(i) for i in ids),
-            "pending": bool(pending),
-            "policy_version": policy_version,
-            "calendar_version": calendar_version,
-            "catalogue_version": catalogue_version,
-            "adapter_key": adapter_key,
-        },
+        body,
         sort_keys=True,
         separators=(",", ":"),
     )

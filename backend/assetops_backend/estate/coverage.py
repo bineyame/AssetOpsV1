@@ -13,13 +13,14 @@ Run 7 q7-1 (the requested cutoff and the Site evidence cutoff are separate).
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Callable, Mapping
+from zoneinfo import ZoneInfo
 
 from assetops_backend import read_scope
 from assetops_backend.actions import lifecycle
-from assetops_backend.analytics.finding_index import touched
+from assetops_backend.analytics.finding_index import DATA_GAP_REASONS, data_gap_reason, touched
 from assetops_backend.evidence.provenance_read import source_gate
 from assetops_backend.estate.scope import EstateSelectionInconsistent
 from assetops_backend.outcomes.display_code import display_code
@@ -31,7 +32,8 @@ CURRENT, PENDING, STALE, HISTORICAL, UNKNOWN, NOT_APPLICABLE = (
     "CURRENT", "PENDING_RECOMPUTE", "STALE_SOURCE", "HISTORICAL", "UNKNOWN", "NOT_APPLICABLE")
 COVERED = (CURRENT, HISTORICAL)
 # COV-PARTIAL (D-2026-10-31-estate-coverage-v2): a live mini-grid period with unchecked days and clean checked days.
-# Not in COVERED: every consumer still reads it as not covered (no money, no count, no covered Site).
+# Not in COVERED: no covered-Site count and no Current root. PARTIAL-MONEY (D-E5.45): its money is the lines of its
+# analysed days only (`on_gap_day`; `financials.select_financial_scope`), never estimated for a gap day.
 PARTIAL = "PARTIAL"
 DAYS_POLICY = "estate-coverage/2"
 DAYS_CHECKED = "{c} of {n} days assessed · {g} {unit} not available yet"
@@ -171,6 +173,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         # readings is checked only if the dispatch day with D's date has an available selection, else a NOT_ANALYSED
         # gap. Selection, match-pass and S3-status rules above are unchanged.
         analysed = {_day_of(d) for d in days if d.get("available") and d.get("selection") is not None}
+        data_reasons = _data_gap_reasons(days)
         gap_reasons = {}
         for d, g in day_grades.items():
             if g == _NOT_EXPECTED:
@@ -181,6 +184,8 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                 pending = True
             elif d not in analysed:
                 gap_reasons[d] = "NOT_ANALYSED"
+            elif d in data_reasons:  # D-E5.46: selected by the system, but the readings could not be analysed
+                gap_reasons[d] = data_reasons[d]
         gap_days = sorted(gap_reasons)
         gap = bool(gap_days)
     match_state = "MISSING" if match_pass is None or not selected_days else "PENDING" if unmatched else "COMPLETE"
@@ -221,9 +226,11 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     heads = [h for h in index.get("heads") or () if h.get("merged_into_finding_id") is None
              and _intersects(h.get("episode_start"), h.get("episode_end"), from_, to, k)]
     if state == PARTIAL:  # §2.5: drop every head that touches an unchecked day (open end read through `k`)
+        # A data-fact gap (D-E5.46) holds no analysis to wait for, so it withholds nothing (as in the Finding index).
+        waiting = [d for d in gap_days if gap_reasons is None or gap_reasons[d] not in DATA_GAP_REASONS]
         kept = [h for h in heads if not touched(
             {"episode_start": h["episode_start"], "episode_end": k if h.get("episode_end") is None
-             else h["episode_end"]}, gap_days, tz=day_tz if gap_reasons is not None else None)]
+             else h["episode_end"]}, waiting, tz=day_tz if gap_reasons is not None else None)]
         withheld, heads = len(kept) != len(heads), kept
     out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, reasons=gap_reasons)
     lineage = snapshot.finding_lineage(t, s, [h["finding_revision_id"] for h in heads], k) if heads else {}
@@ -237,8 +244,10 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     for h in heads:
         frid = str(h["finding_revision_id"])
         cited |= set(cited_by.get(frid, ()))
-        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []),
-                                       withhold=state == PARTIAL)
+        # PARTIAL-MONEY (D-E5.45): a PARTIAL Site's money is its analysed days' only; a head on a gap day (any
+        # reason) shows no current amount and is never a money line. Nothing is estimated for the gap day.
+        on_gap = state == PARTIAL and on_gap_day(h, gap_days, k, day_tz if gap_reasons is not None else None)
+        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []), withhold=on_gap)
         if consequence.pop("_id", None) is not None:
             consequences.add(consequence["source_revision_id"])
         assumptions |= set(consequence.pop("_assumptions", ()))
@@ -252,7 +261,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                      "recurs_after_title": (None if h.get("recurs_after_finding_id") is None
                                             else head_titles.get(str(h["recurs_after_finding_id"]))),
                      "revision_no": h.get("revision_no"), "transition": h.get("transition"),
-                     "consequence": consequence,
+                     "consequence": consequence, "_on_gap_day": on_gap,
                      "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
                selected_assessment_revision_ids=sorted(assessments), cited_accepted_evidence_ids=sorted(cited),
@@ -261,12 +270,44 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     return out
 
 
+def on_gap_day(head: Mapping[str, Any], gaps: list[date], k: datetime, tz: str | None) -> bool:
+    """PARTIAL-MONEY: the episode `[start, end)` (open end read through `k`) overlaps a gap day's own bounds, the
+    Site-local midnights when `tz` is given, else UTC. No continuity tolerance: a line wholly on an analysed day is
+    that day's money; the waiting-gap tolerance (`touched`) has already dropped the heads next to NOT_ANALYSED days."""
+    zone = ZoneInfo(tz) if tz else timezone.utc
+    start, end = head["episode_start"], k if head.get("episode_end") is None else head["episode_end"]
+    for d in gaps:
+        lo = datetime.combine(d, time(0), tzinfo=zone).astimezone(timezone.utc)
+        hi = datetime.combine(d + timedelta(days=1), time(0), tzinfo=zone).astimezone(timezone.utc)
+        if start < hi and end > lo:
+            return True
+    return False
+
+
 def _requested_days(from_: datetime, to: datetime) -> int:
     """C5: the number of UTC midnights in `[from_, to)`."""
     first = datetime.combine(from_.astimezone(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
     if first < from_:
         first += timedelta(days=1)
     return 0 if first >= to else (to - first - timedelta(microseconds=1)) // timedelta(days=1) + 1
+
+
+def _data_gap_reasons(days: list[dict[str, Any]]) -> dict[date, str]:
+    """D-E5.46 (GAP-REASONS): per dispatch day, READINGS_CONFLICT or NOT_ENOUGH_READINGS from the selected window's
+    claim and limitation prefixes (`finding_index.data_gap_reason`, the one rule the Finding index uses). Only a
+    selected CURRENT day with no open work: system work keeps its NOT_ANALYSED/PENDING precedence."""
+    out: dict[date, str] = {}
+    for d in days:
+        if not d.get("available") or d.get("selection") is None or d.get("status") != _S3_CURRENT:
+            continue
+        if {j.get("status") for j in d.get("jobs") or ()} & {"PENDING", "LEASED", "FAILED"}:
+            continue
+        why = data_gap_reason({"window_assessment": {"claim_level": d.get("window_claim_level")},
+                               "selection": {"cohort_status": d.get("cohort_status")},
+                               "limitations": d.get("window_limitations") or []})
+        if why is not None:
+            out[_day_of(d)] = why
+    return out
 
 
 def _day_of(day: dict[str, Any]) -> date:
@@ -320,7 +361,7 @@ def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: dat
              "_cited": [str(x) for x in cited.get("power_evidence_ids") or ()]}
     if selected.get("consequence_state") != "PRICED":
         return _consequence("UNPRICED", cid, **extra)
-    if historical or withhold:  # a prior amount, or one from a partly checked period (C6), is never current money
+    if historical or withhold:  # a prior amount, or one on a gap day (C6, D-E5.45), is never current money
         return _consequence("UNKNOWN", cid, **extra)
     block = snapshot.consequence_provenance(t, s, cid, head["finding_revision_id"],
                                             sorted({*finding_cited, *extra["_cited"]}))

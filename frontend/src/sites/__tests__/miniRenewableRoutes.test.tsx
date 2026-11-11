@@ -236,6 +236,15 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local days 2026-10-06 to 2026-10-08 (${TZ})`);
   });
 
+  it("SR-2 M2: bounds the bar writes (UTC midnights) are named as UTC days; the page has no range form", async () => {
+    renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z`);
+    await settledScreen();
+    await screen.findByText("Watch");
+    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("UTC days 2026-10-14 to 2026-10-20");
+    expect(document.querySelector("[data-mini-period] input, [data-mini-period] select, [data-mini-period] button")).toBeNull();
+    expect(document.querySelector("[data-mini-range-note]")?.textContent).toBe("Choose the days in the date range at the top.");
+  });
+
   it("no selected revision keeps the page shell: Not assessed, Unknown cards and the empty-table copy", async () => {
     const empty = read({
       status: "UNKNOWN",
@@ -330,7 +339,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     await settledScreen();
     expect(await screen.findByText("Choose a valid Site-local window.")).toBeTruthy();
     expect(main().textContent).not.toContain(message);
-    expect(document.querySelector("[data-mini-period] select")).not.toBeNull();
+    expect(document.querySelector("[data-mini-period] select, [data-mini-period] input")).toBeNull();
   });
 
   it("the period bar sends one to five site-local days as UTC bounds", () => {
@@ -452,6 +461,7 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
     expect(panelTitled("Productive-use evaluation").textContent).toContain("Not assessed");
     expect(panelTitled("Eligible and excluded windows").textContent).toContain("Not assessed");
     expect(screen.getAllByText(reason)).toHaveLength(1);
-    expect(document.querySelector("[data-mini-period] select")).not.toBeNull();
+    // SR-2 M2: no range form of its own; the period is the date range at the top.
+    expect(document.querySelector("[data-mini-period] select, [data-mini-period] input, [data-mini-period] button")).toBeNull();
   });
 });

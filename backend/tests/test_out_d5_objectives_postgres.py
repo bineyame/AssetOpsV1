@@ -26,7 +26,7 @@ if URL:
 
 DEMO = Path(__file__).resolve().parents[1] / "conversions" / "demo-objectives.json"
 LABEL = "Declared objective"
-CHIPS = {"Met", "Missed", "Not checked yet"}
+CHIPS = {"Met", "Missed", "Not judged yet"}
 
 
 def _record(key: str, value: object) -> None:

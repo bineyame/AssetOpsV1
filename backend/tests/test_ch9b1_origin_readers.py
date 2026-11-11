@@ -50,7 +50,10 @@ ALLOWLIST: dict[str, tuple[str, int]] = {
     "work/domain_action_index.py": ("finding_fed", 12),
     "work/site_index.py": ("finding_fed", 14),
     "work/adapters/postgres_work_store.py": ("finding_fed", 1),
-    "site_outcomes/cold.py": ("finding_fed", 1),
+    # FX-COLD-LINKED (D-E5.8): 3 = the file's original marker-line mention, plus two Finding-origin reads of the
+    # Finding-only `domain_action_index` rows (`a.origin_finding_id`: linked-Finding resolution and start-action
+    # pick). Neither names the opportunity origin; the class (finding_fed) is unchanged.
+    "site_outcomes/cold.py": ("finding_fed", 3),
     "site_outcomes/ev.py": ("finding_fed", 3),
 }
 

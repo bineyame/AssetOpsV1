@@ -21,7 +21,7 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 
-from assetops_backend import perf
+from assetops_backend import perf, read_scope
 from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.chain.outcomes import site_nodes
@@ -31,8 +31,8 @@ from assetops_backend.chain.read import board_day as local_board_day
 from assetops_backend.chain.claims import (SITES_DISRUPTED, VERIFIED_RESULTS, EstateCounts, estate_count_claims,
                                            opportunity_items)
 from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, COST_SMALL, INCOME_LABELS, NOT_KNOWN_TEXT,
-                                               card_text, count_card_value, days_line, estate_income, money_text,
-                                               node_text, sites_text)
+                                               card_text, count_card_value, day_counts, days_line, estate_income,
+                                               money_text, node_text, sites_text)
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI,
     SITE_OUTCOMES)
@@ -429,6 +429,7 @@ class SiteOutcomeBoardService:
                     site.tenant_id, site.site_code, lo, hi, known_at)
             return latest_contained_window(contained_windows(windows, lo, hi))
         except Exception as error:  # noqa: BLE001 - the window choice never fails a Site
+            read_scope.note_failure("site_selected_windows", error)
             perf.record("summary.window_fallback", 0.0)
             LOG.warning("outcome board: contained windows for %s fell back to the requested window (%s)",
                         site.site_code, type(error).__name__)
@@ -621,6 +622,7 @@ class SiteOutcomeBoardService:
             with perf.timed("summary.contained_windows"):
                 return dict(estate.site_selected_windows_many(next(iter(tenants)), codes, lo, hi, known_at))
         except Exception as error:  # noqa: BLE001 - an optimization; each board reads its own windows
+            read_scope.note_failure("site_selected_windows_many", error)
             perf.record("summary.window_fallback", 0.0)
             LOG.warning("outcome summary: the batched window read fell back to per-Site reads (%s)",
                         type(error).__name__)
@@ -659,6 +661,7 @@ class SiteOutcomeBoardService:
                 with perf.timed("summary.seed_snapshots"):
                     placed = self.s.chain_reader.request(next(iter(tenants)), known_at).seed_days(specs)
         except Exception as error:  # noqa: BLE001 - the batch is an optimization; each Site reads its own range
+            read_scope.note_failure("seed_snapshots", error)
             LOG.warning("outcome summary: the one snapshot read fell back to per-Site reads (%s)",
                         type(error).__name__)
             placed = None
@@ -707,8 +710,9 @@ class SiteOutcomeBoardService:
                 if body.get("objectives_read"):
                     read_sites += 1
                     objective_sites += 1 if body.get("objectives") else 0
-            except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
-                rows = [_unknown_row(cat) for cat in CATEGORIES]
+            except Exception as error:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
+                read_scope.note_failure(f"board.{site.site_code}", error)
+                rows =[_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
                 window, window_basis = None, None
             out.append({"site_id": str(site.site_id), "site_code": site.site_code, "site_name": site.site_name,
@@ -732,7 +736,9 @@ class SiteOutcomeBoardService:
                 "verified_sites_unread": len(sites) - verified_read, "money_total": money_total,
                 # CH6b2-R Q1: the ONE card builder; `/api/estate/chain` carries the same `cards`.
                 "cards": portfolio_cards(out, counted, money_total, categories,
-                                         objective_sites if read_sites else None, len(sites) - read_sites)}
+                                         objective_sites if read_sites else None, len(sites) - read_sites),
+                # PF-C1: the one coverage line, from the same `counted.days` the cards count.
+                "coverage_line": portfolio_coverage(out, counted)}
 
     def estate_counts(self, sites: list[SiteRef], lo: datetime, hi: datetime,
                       known_at: datetime | None) -> EstateCounts | None:
@@ -745,6 +751,7 @@ class SiteOutcomeBoardService:
             found = opportunity_items(self.s.threads, sites, lo, hi, known_at)
             return estate_count_claims(req, sites, lo, hi, found, (Exception,))
         except Exception as error:  # noqa: BLE001 - a failed count is NOT_KNOWN on the card, never zero
+            read_scope.note_failure("estate_counts", error)
             LOG.warning("outcome summary: the estate counts could not be read (%s)", type(error).__name__)
             return None
 
@@ -774,14 +781,66 @@ GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 COST = "OPTIMIZE_COST"
 
 
-def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any]) -> str | None:
-    """The card's M1 days line (mock `PFDAYS`): "{Site}: {line}" per Site with days, " · "-joined."""
+def _coverage_days(d: dict[str, Any]) -> str:
+    """One Site's days as the coverage line reads them: the days line, then the days with no readings received and
+    the days still processing (PF-C review Low: the "Why?" days say what the coverage line says)."""
+    line = days_line(d) or ""
+    if d["no_data"]:
+        line += card_text("coverage.no_data", x=d["no_data"])
+    if d["pending"]:
+        line += card_text("coverage.pending", q=d["pending"])
+    return line
+
+
+def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any], *, full: bool = False) -> str | None:
+    """The card's M1 days line (mock `PFDAYS`): "{Site}: {line}" per Site with days, " · "-joined. `full` adds the
+    coverage line's no-readings and still-processing parts."""
     lines = []
     for s in sites:
-        line = days_line(days_of(s))
+        d = days_of(s)
+        line = (_coverage_days(c) if (c := day_counts(d)) is not None else None) if full else days_line(d)
         if line:
             lines.append(card_text("days.site", site=s.get("site_name") or s["site_code"], line=line))
     return " · ".join(lines) or None
+
+
+def _own_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any],
+              counted: EstateCounts | None, all_sites: list[dict[str, Any]] | None = None) -> str | None:
+    """PF-C2 (proposal §4): a card's own days line only when its day set differs from the shared coverage line's (a
+    Site whose claim days are not that Site's counted days, e.g. a separate study); else None, the line says it.
+    A card over only some Sites (`all_sites` given: Grow, the income Sites) names just those Sites' days, so its
+    "Why?" days never name a Site its figure does not use (PF-C review Low)."""
+    shared = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
+    if counted is not None and all(day_counts(days_of(s)) == day_counts(shared(s)) for s in sites):
+        return None if all_sites is None or len(sites) == len(all_sites) else _site_days(sites, shared, full=True)
+    return _site_days(sites, days_of)
+
+
+def portfolio_coverage(sites: list[dict[str, Any]], counted: EstateCounts | None) -> dict[str, Any]:
+    """PF-C1 (proposal §4, v71 `pf-coverage`; owner walkthrough 2026-11-10 item 2): the ONE coverage line of the
+    Portfolio, built from the same `counted.days` (the chain day grades) the cards count, so the line and the card
+    figures cannot disagree. Server text only (CH-6b2: the browser renders, never composes). `days_text` is every
+    Site's days line, the "Why?" days of a card that has no line of its own."""
+    if counted is None:
+        return {"state": "NOT_KNOWN", "lead": card_text("coverage.lead.not_known"), "rule": None, "sites": [],
+                "days_text": None}
+    rows = []
+    for s in sites:
+        name = s.get("site_name") or s["site_code"]
+        d = day_counts(counted.days.get(s["site_code"]))
+        if d is None:
+            rows.append({"site_code": s["site_code"], "site_name": name, "complete": False,
+                         "text": card_text("coverage.site_not_known", site=name)})
+            continue
+        line = _coverage_days(d)
+        line = line[:1].lower() + line[1:]
+        rows.append({"site_code": s["site_code"], "site_name": name, "complete": d["complete"] == d["expected"],
+                     "text": card_text("coverage.site", site=name, line=line)})
+    complete = all(r["complete"] for r in rows)
+    return {"state": "COMPLETE" if complete else "INCOMPLETE",
+            "lead": card_text("coverage.lead.complete" if complete else "coverage.lead.incomplete"),
+            "rule": card_text("coverage.rule"), "sites": rows,
+            "days_text": _site_days(sites, lambda s: counted.days.get(s["site_code"]), full=True)}
 
 
 def _income_days(s: dict[str, Any]) -> Any:
@@ -789,7 +848,8 @@ def _income_days(s: dict[str, Any]) -> Any:
     return next((earnings[k].get("days") for k in INCOME_LABELS if earnings.get(k)), None)
 
 
-def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict[str, Any]:
+def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any],
+               counted: EstateCounts | None = None) -> dict[str, Any]:
     """CH6b2-R Q4/Q5: the Grow value from `money_total` (its own "At least" form; mixed currencies -> its text),
     else NOT_KNOWN (the kept gap `G-portfolio-grow-revenue`; the "possible" short-value fallback was dead code and is
     removed, CH6b2-R2 L3, BL-22); and the three parts Target, Potential, Estimated income."""
@@ -819,7 +879,7 @@ def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any]) -> dict
     note = money_total.get("text")
     return {"value": value, "missing": missing, "detail": None,
             "basis_text": card_text("grow.basis.income" if total is not None or mixed else "grow.basis.none"),
-            "days_line": _site_days([s for s in sites if _income_days(s) is not None], _income_days),
+            "days_line": _own_days([s for s in sites if _income_days(s) is not None], _income_days, counted, sites),
             "tone": "green" if total is not None or mixed else "neutral", "claim": money_total,
             "parts": {"target": " · ".join(target) or card_text("grow.target.none"),
                       "potential": " · ".join(potential) or card_text("grow.potential.none"),
@@ -834,7 +894,7 @@ def _cost_claim(s: dict[str, Any]) -> dict[str, Any] | None:
     return (row.get("nodes") or {}).get("earnings")
 
 
-def _optimize_card(sites: list[dict[str, Any]]) -> dict[str, Any]:
+def _optimize_card(sites: list[dict[str, Any]], counted: EstateCounts | None = None) -> dict[str, Any]:
     """CH5d1-R 2.1: the Optimize card from each Site's chain cost claim (`avoided_cost@1` over `money_head`), the
     claim the board shows, so the card and its "Why?" share one source. Never summed across Sites (design A6,
     D-AW-5): one priced Site shows its claim text byte-equal; two or more list each Site's claim."""
@@ -855,7 +915,7 @@ def _optimize_card(sites: list[dict[str, Any]]) -> dict[str, Any]:
         basis, tone = card_text("cost.basis.money"), "amber"
     days = {s["site_code"]: c.get("days") for s, c in priced}
     return {"value": value, "missing": False, "detail": detail, "basis_text": basis,
-            "days_line": _site_days([s for s, _ in priced], lambda s: days[s["site_code"]]),
+            "days_line": _own_days([s for s, _ in priced], lambda s: days[s["site_code"]], counted),
             "tone": tone, "claim": claim}
 
 
@@ -865,10 +925,10 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
     """CH6b2-R Q1 (build sheet CH-6 §B2): the ONE builder of the Portfolio's four cards (Grow, Optimize, Protect,
     Assure), called by the summary and carried by `/api/estate/chain`, so they agree by construction. Each card is
     `{value: {text, small}, missing, detail, basis_text, days_line, tone, claim, parts?}`; the browser renders markup
-    only. Optimize is each Site's chain cost claim (CH5d1-R 2.1). The Portfolio-body clauses are its `card_notes`."""
+    only. Optimize is each Site's chain cost claim (CH5d1-R 2.1). The Portfolio-body clauses are its `card_notes`.
+    PF-C2: Protect and Assure count every Site's days, the shared coverage line's (`portfolio_coverage`), so they
+    carry no days line; Grow and Optimize carry theirs only when their days differ."""
     claims = {} if counted is None else counted.claims_json()
-    days = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
-    site_days = _site_days(sites, days)
 
     def claim(key: str) -> dict[str, Any]:
         return claims.get(key) or {"key": key, "value": None, "basis": "NOT_KNOWN", "days": None,
@@ -883,8 +943,8 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
     elif n == 0:
         assure_detail = card_text("assure.targets_none")
     else:
-        unchecked = card_text("assure.unchecked", sites=sites_text(objectives_unread)) if objectives_unread else ""
-        assure_detail = card_text("assure.targets", sites=sites_text(n), unchecked=unchecked)
+        unjudged = card_text("assure.unchecked", sites=sites_text(objectives_unread)) if objectives_unread else ""
+        assure_detail = card_text("assure.targets", sites=sites_text(n), unjudged=unjudged)
     # PV-1-R §2: one line per verified result with money, Site order then code order; no total, no sum.
     value_lines = [card_text("assure.value_line", site=s.get("site_name") or s["site_code"], text=e["text"])
                    for s in sites
@@ -897,17 +957,17 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
                   for r in s.get("rows") or () if r["category"] == PROTECT
                   for e in (r.get("nodes") or {}).get("unexplained_fuel") or ()]
     return {
-        GROW: _grow_card(sites, money_total),
-        COST: _optimize_card(sites),
+        GROW: _grow_card(sites, money_total, counted),
+        COST: _optimize_card(sites, counted),
         PROTECT: {"value": count_card_value(disrupted), "missing": False,
                   "detail": card_text("protect.detail.none") if w is None
                   else card_text("protect.detail", w=w, warnings="warning" if w == 1 else "warnings"),
-                  "basis_text": card_text("protect.basis"), "days_line": site_days,
+                  "basis_text": card_text("protect.basis"), "days_line": None,
                   "tone": "red" if (disrupted.get("value") or 0) >= 1 else "neutral", "claim": disrupted,
                   "fuel_lines": fuel_lines,
                   "fuel_note": card_text("protect.fuel_separate") if fuel_lines else None},
         ASSURE: {"value": count_card_value(verified, card_text("assure.zero")), "missing": False,
-                 "detail": assure_detail, "basis_text": card_text("assure.basis"), "days_line": site_days,
+                 "detail": assure_detail, "basis_text": card_text("assure.basis"), "days_line": None,
                  "tone": "neutral", "claim": verified, "value_lines": value_lines,
                  "value_note": card_text("assure.values_separate") if value_lines else MONEY_NOT_CREDITED},
     }

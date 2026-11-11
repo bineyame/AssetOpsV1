@@ -23,7 +23,7 @@ from typing import Any
 
 from assetops_backend.chain import refs
 from assetops_backend.estate.coverage import (
-    COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE,
+    COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.evidence_money import (
     CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _window_state, group_key_for_partition, site_home_ref,
@@ -161,12 +161,61 @@ def money_link_refs(code: str, domain: str, pin: dict[str, Any] | None, cutoff: 
     return {"site": home, "bridge": bridge, "evidence": shown["site_readiness"], "current_view_label": None}
 
 
+# --- PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46) -------------------------------------------------------
+
+def money_covered(cov: dict[str, Any]) -> bool:
+    """A mini-grid Site's money is read on CURRENT/HISTORICAL, and on PARTIAL with at least one analysed day (its
+    analysed days' lines only). PENDING, STALE and UNKNOWN keep today's withholding."""
+    if cov["state"] in COVERED:
+        return True
+    return cov["state"] == PARTIAL and ((cov.get("days") or {}).get("checked") or 0) >= 1
+
+
+def partial_money(site: dict[str, Any], cov: dict[str, Any], lines: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The PARTIAL Site's analysed-days amount: the exact sum of its ELIGIBLE lines (all on analysed days), with the
+    day counts and gaps of the same `days` block the coverage line names, so the money, its "n of m days analysed"
+    and the gap clause read one day set. Never scaled or filled for a gap day. No sum across currencies
+    (`CURRENCY_MIXED`) or over overlapping lines (`OVERLAPPING`); `NO_ELIGIBLE_LINES` when none is priced. None for
+    any Site that is not a PARTIAL mini-grid Site with an analysed day."""
+    if DOMAIN_OF_SITE_TYPE.get(site.get("site_type")) != MINI_GRID or cov["state"] != PARTIAL \
+            or not money_covered(cov):
+        return None
+    days = cov["days"]
+    eligible = [x for x in lines if x["eligibility"] == ELIGIBLE and x["amount"] is not None]
+    currencies = {x["amount"]["currency"] for x in eligible}
+    groups = [x["overlap_group"] for x in eligible if x["overlap_group"] is not None]
+    amount, state = None, "SUMMED"
+    if not eligible:
+        state = "NO_ELIGIBLE_LINES"
+    elif len(currencies) > 1:
+        state = "CURRENCY_MIXED"
+    elif len(groups) != len(set(groups)):
+        state = "OVERLAPPING"
+    else:
+        amount = {"low": str(sum(Decimal(str(x["amount"]["low"])) for x in eligible)),
+                  "high": str(sum(Decimal(str(x["amount"]["high"])) for x in eligible)),
+                  "currency": currencies.pop()}
+    return {"site_id": str(site["site_id"]), "site_code": site["site_code"], "site_name": site["site_name"],
+            "state": state, "amount": amount, "line_count": len(eligible),
+            "analysed_days": days["checked"], "requested_days": days["requested"], "gaps": days["gaps"]}
+
+
+def coverage_site_money(site: dict[str, Any], cov: dict[str, Any], lines: list[dict[str, Any]]) -> dict[str, Any]:
+    """A `coverage.sites[]` entry; a PARTIAL mini-grid Site's also carries `money` (`partial_money`), over its full
+    unpaged line set. Every other Site's entry is unchanged (no key)."""
+    entry = _coverage_site(site, cov)
+    block = partial_money(site, cov, lines)
+    return entry if block is None else {**entry, "money": block}
+
+
 # --- per-domain selected heads -------------------------------------------------------------------------------
 
 def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any], k: datetime) -> list[dict]:
     lines = []
     links = money_link_refs(site["site_code"], MINI_GRID, None, None, k)
     for row in cov.get("rows") or ():
+        if row.get("_on_gap_day"):  # PARTIAL-MONEY: a gap day's own line is never included (D-E5.45)
+            continue
         sel = snap.consequence(t, site["site_id"], row["finding_revision_id"], k)
         cid = sel.get("consequence_revision_id")
         if cid is None:  # no head, no line (closure 1 Q18)
@@ -417,8 +466,8 @@ def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope:
         cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k,
                             **local_day_grades_kw(site, req, scope, tenant_id))
         if domain == MINI_GRID:
-            site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if cov["state"] in COVERED else []
-            covered, sessions, pending_guard = cov["state"] in COVERED, [], False
+            covered, sessions, pending_guard = money_covered(cov), [], False
+            site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if covered else []
         else:
             site_lines, windows_covered, sessions, pending_guard = windowed_lines(
                 snap, tenant_id, site, domain, req, k, cov["state"])
@@ -468,7 +517,8 @@ def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest,
     covered_count = sum(1 for s in states if s in COVERED)
     body = service._envelope(FINANCIALS_SCHEMA, tenant_id, req, scope, covered_count, status,
                              {"state": EMPTY if empty else _coverage_state([c["state"] for _, _, c, _ in per_site]),
-                              "sites": [_coverage_site(site, cov) for site, _, cov, _ in per_site]})
+                              "sites": [coverage_site_money(site, cov, site_lines)
+                                        for site, _, cov, site_lines in per_site]})
     body.update({"summary": summary, "order": FINANCIALS_ORDER, "total_count": len(lines),
                  "rows": [{k2: v for k2, v in x.items() if not k2.startswith("_")} for x in page],
                  "groups": [] if empty else groups, "exclusions": [] if empty else exclusions,

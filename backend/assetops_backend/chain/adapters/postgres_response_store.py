@@ -11,12 +11,20 @@ from __future__ import annotations
 from typing import Any, Callable, Iterable, Sequence
 from uuid import UUID
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.engine import Engine
+
+from assetops_backend import read_scope
+from assetops_backend.infra import is_connection_error
 
 _SITES = "SELECT id, site_code, timezone FROM site WHERE tenant_id = :t ORDER BY id"
 _LOOKUP = ("SELECT body, etag FROM chain_response WHERE route = :r AND request_key = :k AND watermark = :w "
            "AND code_version = :v "
            "AND (valid_until IS NULL OR valid_until > greatest(clock_timestamp(), CAST(:now AS timestamptz)))")
+#: INFRA-1 (D-E5.47): the newest stored row for (route, request_key, code_version), whatever its watermark and even
+#: past `valid_until`: what a degraded compose serves instead of storing its body.
+_LATEST_GOOD = ("SELECT body FROM chain_response WHERE route = :r AND request_key = :k AND code_version = :v "
+                "ORDER BY built_at DESC LIMIT 1")
 #: CH5c-R7 C2: a live row is a miss once either clock passes `valid_until` (the DB clock, and the app clock
 #: `read_scope.clock()` the compose compares with): the earlier expiry, the safe direction.
 _INSERT = ("INSERT INTO chain_response (tenant_id, route, request_key, watermark, code_version, etag, body, build_ms, "
@@ -63,6 +71,22 @@ class _Snapshot:
         return None if row is None else (bytes(row.body), row.etag)
 
 
+def _on_handle_error(ctx: Any) -> None:
+    """INFRA-1 (D-E5.47 rule 2) backstop: mark the current read scope when the engine reports a disconnect or an
+    `OperationalError`, so a composer catch that drops the cause still cannot store a degraded body. A pre-ping
+    failure is the pool recovering a stale connection (it reconnects), never a failed read."""
+    if getattr(ctx, "is_pre_ping", False):
+        return
+    if ctx.is_disconnect or is_connection_error(ctx.original_exception):
+        read_scope.mark_degraded("db.handle_error")
+
+
+def install_handle_error_hook() -> None:
+    """Register the one global `handle_error` listener on every `Engine` (idempotent; `create_app` calls it)."""
+    if not event.contains(Engine, "handle_error", _on_handle_error):
+        event.listen(Engine, "handle_error", _on_handle_error)
+
+
 class PostgresResponseRows:
     def __init__(self, database_url: str | None = None, *, engine: Any = None) -> None:
         self._url, self._engine = database_url, engine
@@ -79,6 +103,17 @@ class PostgresResponseRows:
     def read(self, work: Callable[[_Snapshot], Any]) -> Any:
         with self._e().connect().execution_options(isolation_level="REPEATABLE READ") as c, c.begin():
             return work(_Snapshot(c))
+
+    def latest_good(self, route: str, key: str, version: str) -> bytes | None:
+        """INFRA-1: the newest stored body for (route, request_key, code_version), or None."""
+        with self._e().connect() as c:
+            row = c.execute(text(_LATEST_GOOD), {"r": route, "k": key, "v": version}).first()
+        return None if row is None else bytes(row.body)
+
+    def connections(self) -> int:
+        """INFRA-1: the server's `pg_stat_activity` count (the prebuild logs it before it starts)."""
+        with self._e().connect() as c:
+            return int(c.execute(text("SELECT count(*) FROM pg_stat_activity")).scalar_one())
 
     def insert(self, tenant_id: UUID, watermark: str, version: str, build_ms: int, valid_until: Any,
                rows: Sequence[tuple[str, str, str, bytes]], now: Any = None) -> set[str]:

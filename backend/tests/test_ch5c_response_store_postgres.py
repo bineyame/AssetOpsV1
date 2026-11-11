@@ -142,6 +142,25 @@ def test_a_change_committed_during_the_compose_is_served_and_not_stored(engine) 
     assert quiet.headers[HEADER] == "stored" and len(_rows(engine, tenant)) == 1
 
 
+def test_infra1_a_degraded_compose_serves_the_newest_stored_row_of_an_older_watermark(engine) -> None:  # noqa: F811
+    """INFRA-1 (D-E5.47 rule 3a, the real `latest_good` SQL): after W moves, a compose marked degraded stores
+    nothing and serves the row stored under the older W as `stale`, with no ETag."""
+    from assetops_backend import read_scope
+
+    tenant, sites = _seed(engine)
+    composer = Composer(engine)
+    client = _client(engine, tenant, composer)
+    good = client.get(Q)
+    assert good.headers[HEADER] == "stored"
+    with engine.begin() as c:
+        _outbox(c, tenant, sites[0], f"move-{uuid4().hex}")  # W moves: the stored row is no longer a live hit
+    composer.during = lambda: read_scope.mark_degraded("objectives")
+    stale = client.get(Q)
+    assert stale.status_code == 200 and stale.headers[HEADER] == "stale" and "etag" not in stale.headers
+    assert stale.content == good.content and stale.headers["retry-after"] == "30"
+    assert len(_rows(engine, tenant)) == 1  # nothing stored under the new W
+
+
 def test_prune_keeps_the_latest_three_per_route_and_key(engine) -> None:  # noqa: F811
     tenant = uuid4()
     route, key = f"/test/{tenant.hex}", "k"

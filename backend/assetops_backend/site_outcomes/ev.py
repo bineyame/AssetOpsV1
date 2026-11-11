@@ -24,6 +24,7 @@ from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
     finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend import read_scope
 from assetops_backend.chain import refs
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action, finding_window_link
 from assetops_backend.outcomes.objectives import Reading
@@ -38,18 +39,18 @@ GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", 
 
 NO_SESSION_ASSESSMENT = "Not available yet · no session assessment covers this window"
 CHARGER_USE = "Not available yet · connector capacity not read"
-NO_SETTLEMENT = "Not available yet · no settlement records"
-NO_SETTLEMENT_ASSURE = "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue"
+NO_SETTLEMENT = "Billing records are not connected yet"
+NO_SETTLEMENT_ASSURE = "Billing records are not connected yet · reconciles the revenue shown under Grow revenue"
 ALL_AVAILABLE = "All connectors available"
 NO_FAULT = "No charger fault recorded"
 SITE_POWER_NOT_READ = "Not available yet · site power not read"
-NO_WARRANTY = "Not available yet · no warranty record"
-NO_ROSTER = "Not available yet · no bus roster connected"
+NO_WARRANTY = "Warranty records are not connected yet"
+NO_ROSTER = "Bus rosters are not connected yet"
 EVERY_END = "Every session has an accepted end"
 NO_STATUS_GAP = "No status gap"
 TARIFF_ESTIMATE = "estimated charging income"  # WALK1-2 §3.2 (R674; mock "gross tariff estimate")
 NO_TARIFF = "Charging income estimate not available yet"
-NO_INCOME_FIGURE = "No income figure for this day: it is not fully checked"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
+NO_INCOME_FIGURE = "No income figure for this day: it does not have complete readings"  # WD-1 (BL-48); MOCK DEVIATION MD-WD1-1
 #: WALK1-2 §3.2 (R674/R676): the priced Grow subline and the declared-tariff contributor. The tariff is declared,
 #: never measured; the amount is an estimate, never billed or collected income.
 PRICED_SUBLINE = ("{kwh} kWh with a complete meter record, at the declared tariff of {p} {cur} per kWh · "
@@ -61,7 +62,7 @@ TARIFF_UNKNOWN = "Not available yet"
 TARIFF_MISSING = "TARIFF_MISSING"  # `financials/ev_money.py` reason: no declared tariff covers the window
 #: The stored EV consequence state of a priced window (`financials/ev_money.py` ESTIMATED).
 PRICED_STATE = "ESTIMATED"
-PROTECT_SUBLINE = "Charger condition is not assessed"
+PROTECT_SUBLINE = "Charger condition needs a wear model, which is not connected yet"
 EVIDENCE_LIMITED = "Evidence limited · no verified result yet"
 NO_VERIFIED = "No verified result yet"
 OPTION_WHAT_IFS = "Charging what-ifs"
@@ -153,7 +154,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
         for fid in (x for x in linked if x not in known):
             try:
                 row = ports.finding(fid, lo, hi)
-            except Exception:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+            except Exception as error:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+                read_scope.note_failure("ev_findings", error)
                 findings_ok = False
                 if "ev_findings" not in reads.failed:
                     reads.failed.append("ev_findings")
@@ -215,8 +217,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     if out_connectors:
         first = out_connectors[0]
         out_text = (f"{connector_name(first.get('label'))} was out of service for "
-                    f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected is "
-                    "not known yet.")
+                    f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected "
+                    "needs bus rosters, which are not connected yet.")
     missing_seconds = sum(int(x.get("unknown_seconds") or 0) for x in connectors) if availability else 0
     assure_sub = None
     n = incomplete or 0

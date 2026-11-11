@@ -309,8 +309,12 @@ def estate_assertions(spec: dict) -> dict:
         if response.status_code != 200:
             raise SystemExit(f"estate: Portfolio read {path} {response.status_code}: {response.text[:400]}")
         body = response.json()
-        if body["status"] != "CURRENT":
-            failures.append(f"{path}: status {body['status']}")
+        # D-E5.38 (DATA-12) + build addendum 6: this fixture stores no readings, so every requested local day is a
+        # NO_READINGS gap, coverage is honestly PARTIAL and the Findings next to the gap day are withheld.
+        gaps = [g for s in body["coverage"]["sites"] for g in s["days"]["gaps"]]
+        if body["status"] != "PARTIAL" or [g["reason"] for g in gaps] != ["NO_READINGS"] or body["rows"]:
+            failures.append(f"{path}: status {body['status']}, gaps {gaps}, {len(body['rows'])} rows; expected PARTIAL, "
+                            "one NO_READINGS day, 0 rows")
         violations = double_count_violations(body)
         if violations:
             failures.append(f"{path}: double-count violations: {violations}")
@@ -321,31 +325,16 @@ def estate_assertions(spec: dict) -> dict:
         return body
 
     body, mg_b = read(ESTATE_PORTFOLIO), read(ESTATE_MG_B)
-    rows = body["rows"]
-    f05 = rows[0] if len(rows) == 1 else None
-    if f05 is None:
-        failures.append(f"10-21: {len(rows)} rows, expected exactly one (F05)")
-    else:
-        facts = (f05["episode_start"], f05["lifecycle"], f05["mechanism"], f05["workflow_label"],
-                 f05["source_provenance"]["state"], _placed(f05), f05["confidence"], f05["confidence_reasons"])
-        want = ("2026-10-21T08:00:00Z", "UNCONFIRMED", "GENERATOR_SUPPORT_CANDIDATE", "No action agreed yet",
-                "UNKNOWN", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"]), "UNKNOWN",
-                ["Unconfirmed finding", "Source not resolved"])
-        if facts != want:
-            failures.append(f"10-21 F05 {facts}")
-    counts = {"NEEDS_INVESTIGATION": 1, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}
-    if body["summary"]["placement_counts"] != counts:
-        failures.append(f"10-21 counts {body['summary']['placement_counts']}")
-    got_b = [(r["episode_start"], r["lifecycle"], _placed(r)) for r in mg_b["rows"]]
-    if got_b != [(at, "SUPPORTED", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN"]))
-                 for at in ("2026-10-11T09:30:00Z", "2026-10-11T08:00:00Z")]:
-        failures.append(f"10-11 rows {got_b}")
+    # The F05 (UNCONFIRMED GENERATOR_SUPPORT_CANDIDATE, 2026-10-21T08:00Z) and MG-B (10-11) row placements the old
+    # assertions pinned need readings on those days; with none stored they are withheld (above), so there are no rows.
+    counts = {"NEEDS_INVESTIGATION": 0, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}
+    for name, served in (("10-21", body), ("10-11", mg_b)):
+        if served["summary"]["placement_counts"] != counts:
+            failures.append(f"{name} counts {served['summary']['placement_counts']}")
     if failures:
         raise SystemExit("estate: placement assertions failed:\n  " + "\n  ".join(failures))
-    print("estate: F05 ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED']); "
-          "10-11: 2 rows NEEDS_INVESTIGATION; no double count")
-    key = f"{f05['finding_id']}|{f05['finding_revision_id']}"  # the page's data-portfolio-row
-    return {"F05": _placed(f05), "counts": body["summary"]["placement_counts"], "rows": {"F05": key}}
+    print("estate: 10-21 and 10-11 PARTIAL (NO_READINGS day), 0 rows, no placements; no double count")
+    return {"F05": None, "counts": counts, "rows": {}}
 
 
 def serve(url: str, work: Path, case: str, port: int) -> None:

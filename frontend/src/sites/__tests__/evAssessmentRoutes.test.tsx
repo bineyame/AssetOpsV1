@@ -643,7 +643,7 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expect(context).toEqual([["Session", "SES S-11"], ["Connector", "Connector c2"], ["Energy delta", "12.500 kWh"], ["Outcome", "Observed abort"]]);
     const next = panelTitled("Recommended next step");
     expect(next.textContent).toContain("Retrieve charger diagnostics and witness a complete session with start, end and meter records.");
-    expect(next.querySelector('[data-link-unavailable="Review recommendation"]')?.textContent).toBe("Review recommendation · Not available yet");
+    expect(next.querySelector('[data-link-unavailable="Review recommendation"]')?.textContent).toBe("Reviewing a recommendation needs sign-in, which is coming");
     expect(next.querySelector("a, button")).toBeNull();
     expect(document.querySelector('[data-tab-unavailable="Recommendation"]')).not.toBeNull();
     // r7 P8: live Overview, then the unbuilt Recommendation entry.

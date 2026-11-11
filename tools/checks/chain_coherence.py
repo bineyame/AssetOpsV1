@@ -1502,8 +1502,10 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
                   f"{len(verified)} distinct Verified threads in the table + {mill} verified opportunity Actions, "
                   f"claim {want!r}", where)
         # CH6b3-R3 N1: "days checked" means graded COMPLETE; no card note speaks of the coverage count with it.
+        # PF-W: the same count now reads "Complete readings on {k} of {m} days"; neither form belongs in a note.
         for card, note in sorted((s.get("card_notes") or {}).items()):
-            check("N1", "days checked" not in str(note or ""), f"{card} note {note!r} holds \"days checked\"", where)
+            day_count = re.search(r"days checked|complete readings on \d+ of \d+", str(note or ""), re.I)
+            check("N1", day_count is None, f"{card} note {note!r} holds a day count", where)
 
     for cat in _categories():
         name = f"why_estate.{w}.{cat}"
@@ -1520,7 +1522,9 @@ def _coh17_full(bundle: Bundle, w: str, chain: dict, counts: dict, tally: dict[s
             say, want_say = (t.get("text") or {}).get("say"), row.get("headline") or row.get("state_label")
             check("W1", say == want_say, f"{cat}: Why? says {say!r}, the summary row {want_say!r}", where, code)
         # CH6b3-R3 W3: the Why? days are the card's own days line (Optimize has none: Protect's).
-        want_days = (cards.get(cat) or {}).get("days_line") or (cards.get(PROTECT) or {}).get("days_line")
+        # PF-C2: a card without its own line uses the shared coverage line's `days_text` (older bundles: Protect's).
+        want_days = ((cards.get(cat) or {}).get("days_line") or (chain.get("coverage_line") or {}).get("days_text")
+                     or (cards.get(PROTECT) or {}).get("days_line"))
         used = (why.get("text") or {}).get("days_used")
         if want_days is not None:
             check("W3", used == want_days, f"{cat}: Why? days {used!r}, card days {want_days!r}", where)

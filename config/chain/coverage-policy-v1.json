@@ -1,4 +1,6 @@
 {"schema": "coverage-policy", "version": 1, "policy_version": "coverage-policy/1",
  "bands": {"complete": 0.80, "partial": 0.25},
  "objective_min_complete_days": 3,
- "share_of_expected_days": null}
+ "share_of_expected_days": null,
+ "measures": {"charging_kwh": {"covered": "connector_status_known",
+                               "reason": "PB-3: a charger meter reports only while charging; an idle connector with a known reported state is known at zero energy"}}}

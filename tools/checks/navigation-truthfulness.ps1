@@ -644,10 +644,18 @@ function Get-OperatorRailFailures {
     # The shell renders this inventory, and no destination outside it.
     # W5-02c K4a (.agent/W5-02c-K4-preflight-rulings.md rulings 1-2): the call also passes the pathname-scoped
     # Actions selection, and nothing else may choose the active root.
-    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s+activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}\s*/>') {
+    # SR-1 (proposal "Item 12.5", SR.3): the call also passes the shared range as the rail `search`, so the left menu
+    # keeps the range; it is the shell's `railSearch` (from `rangeSearch`), never a page-only parameter.
+    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s+activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}(?:\s+search=\{\s*railSearch\s*\})?\s*/>') {
         $failures.Add(("$railPath does not pass operatorRailItems and activeLabel={railActiveLabel(pathname)} " +
             "to the 'Operator routes' NavRail, so the checked inventory or the Action-detail selection is not what " +
             "renders.")) | Out-Null
+    }
+    $railJoined = $RailLines -join "`n"
+    if ($railJoined -notmatch '<NavRail\s[^>]*\bsearch=\{\s*railSearch\s*\}' -or
+        $railJoined -notmatch 'const\s+railSearch\s*=\s*rangeSearch\(\s*params\s*\);') {
+        $failures.Add(("$railPath does not pass the shared range (search={railSearch}, railSearch = rangeSearch(params)) " +
+            "to the 'Operator routes' NavRail, so the left menu drops the date range (SR-1).")) | Out-Null
     }
     # The selection helper is exactly the ruled source line (whitespace-flexible): Actions only for a Site Action
     # detail path, Findings only for a Site Finding detail path (post-W6 W1-b pre-flight ruling 6), null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.

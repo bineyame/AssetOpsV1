@@ -95,19 +95,19 @@ def _constants() -> list[str]:
              board.COST_PRICED.format(l="3.3", amount="4.12 USD", p="1.25", cur="USD")]
     sample = {"site": "Kobo", "category": "Grow revenue", "label": "Unused daytime solar", "k": 3, "s": "s",
               "title": "Generator on longer than needed", "n": 2, "first": "6 Oct", "code": "ACT-048",
-              "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct checked",
+              "c": 3, "e": 5, "p": 1, "q": 1, "d": "6 Oct", "say": "On track", "days": "6 Oct: complete readings",
               # CH-6a3: the price lines of "Why?" (kWh x price, litres x price)
               "kwh": "168.3", "price": "0.25", "cur": "USD", "lo": "12", "hi": "18", "state": "Open"}
     copy += [cv.WHY_TEXT[key].format(**sample) for key in cv.WHY_TEXT] + list(cv.MEASURE_LABEL.values())
     # CH-6a2: every node template (§A4), formatted with plain sample values.
     node = {"amount": "7.50 USD", "k": 3, "m": 5, "p": 1, "n": 1, "lo": "18", "hi": "20", "cur": "USD",
-            "day": "1 Nov", "total": "7.50 USD", "site": "Kobo mini-grid", "text": "7.50 USD over 3 of 3 days checked"}
+            "day": "1 Nov", "total": "7.50 USD", "site": "Kobo mini-grid", "text": "7.50 USD over 3 of 3 days with complete readings"}
     copy += [cv.NODE_TEXT[key].format(**node) for key in cv.NODE_TEXT]
     # CH-6b2: every Portfolio card template (the browser's card rules before CH-6b2), and the headroom units.
-    card = {"amount": "7.50 USD", "site": "Kobo", "text": "7.50 USD over 3 of 3 days checked", "w": 2,
-            "warnings": "warnings", "sites": "2 sites", "unchecked": ", 1 site not checked", "checked": 3,
-            "requested": 5, "n": 2, "gaps": 2, "line": "3 of 3 days checked",
-            "small": "possible extra fuel cost"}   # CH-5d1: the Optimize `cost.site` line
+    card = {"amount": "7.50 USD", "site": "Kobo", "text": "7.50 USD over 3 of 3 days with complete readings", "w": 2,
+            "warnings": "warnings", "sites": "2 sites", "unjudged": ", 1 site not judged yet", "checked": 3,
+            "requested": 5, "n": 2, "gaps": 2, "line": "Complete readings on 3 of 3 days",
+            "small": "possible extra fuel cost", "x": 1, "q": 1}   # CH-5d1: `cost.site`; PF-C1: `coverage.*`
     copy += [cv.CARD_TEXT[key].format(**card) for key in cv.CARD_TEXT] + [cv.headroom_unit(4), cv.headroom_unit(None)]
     copy += list(cv.COST_SMALL.values())
     # DIESEL-K7 (§9l.3): the Kisiwa story's Action, request and record literals (calendar and injector templates).
@@ -178,7 +178,7 @@ def test_finding_gap_line_strings_are_scanned() -> None:
     """IDX-GAPS U2: the board gap strings are in the scanned set. CH-5a1 (CH5a1-R Q4): the board never withholds
     Findings next to gap days, so the withheld suffix is no longer board copy (the estate keeps its own)."""
     copy = _constants()
-    for text in ("23 of the last 31 days have no checked readings yet",
+    for text in ("23 of the last 31 days have no complete readings yet",
                  "Not available yet · 2 of 31 days are not assessed yet"):
         assert text.strip(" ·") in copy, text
     assert "; Findings next to those days are not shown yet".strip(" ·") not in copy

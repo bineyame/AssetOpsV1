@@ -706,7 +706,7 @@ ol.rank>li{margin:8px 0}
   <li><b>Finding.</b> One session is fault-aborted, with one connector fault on c1 inside the tolerance: EV_INTERRUPTION <code>274196f4</code>, episode 08:01–08:16.</li>
   <li><b>Objective.</b> EV-1 target 0, reading 1 → MISSED ("Buses ready for service: no interrupted charging sessions · 1 interrupted").</li>
   <li><b>State.</b> <span class="chip a">Needs attention</span>.</li>
-  <li><b>Warning.</b> Separately, CONNECTOR_OUT_OF_SERVICE: "44 min out and 16 min unknown on 27 Oct".</li>
+  <li><b>Warning.</b> Separately, CONNECTOR_OUT_OF_SERVICE: "7 h 44 min out on 3 Nov" (out of service from 08:16 for the rest of the charging day; repair still pending; 0 min unknown).</li>
 </ol>
 <p class="from">Source: <code>GET /api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</code> → <code>rows[2]</code>, <code>warnings[0]</code>.</p>
 </div>
@@ -1028,7 +1028,7 @@ ol.rank>li{margin:8px 0}
 <ul>
   <li><b>Grow</b> <span class="chip b">Watch</span>: "estimated charging income" 4.50 USD, "15 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh".</li>
   <li><b>Optimize</b>: Not measured.</li>
-  <li><b>Protect</b> <span class="chip a">Needs attention</span>: "1 interrupted · 0 unknown of 1 session"; Connector c1 44 min out, 16 min unknown.</li>
+  <li><b>Protect</b> <span class="chip a">Needs attention</span>: "1 interrupted · 0 unknown of 1 session"; Connector c1 out of service from 08:16 for the rest of the charging day (7 h 44 min, 0 min unknown); repair still pending.</li>
   <li><b>Assure</b> <span class="chip b">Watch</span>: "Evidence limited · no verified result yet".</li>
 </ul>
 <div class="gap">

@@ -58,7 +58,7 @@ from assetops_backend.fuel_balance.composition import build_fuel_balance_store
 from assetops_backend.fuel_balance.night_read import FuelNightRead
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
-from assetops_backend.chain.composition import build_response_store
+from assetops_backend.chain.composition import build_response_store, install_handle_error_hook
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
@@ -196,6 +196,7 @@ from assetops_backend.sites.foundation_service import (
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
 from assetops_backend.chain.composition import (
     build_estate_claims,
+    build_mini_period_rows,
     chain_policy_versions,
     check_declared_chain_graph,
     thread_lifecycle_policy,
@@ -318,6 +319,7 @@ def create_app(
     development operator everywhere; estate roots and other Site reads are not threaded here (R374).
     """
     resolved_flags = load_feature_flags() if flags is None else flags
+    install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language
@@ -525,9 +527,15 @@ def create_app(
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
                                                 performance_report))
     # W4-02 unit 5: the mini-grid depth reads; no Dispatch gate (closure 4 S1); typed 503 without a database.
-    mini_reads = MiniDepthRead.from_url(database_url(), build_link_rows_reader()) if database_url() else None
+    # ANY-1 AR-2: the board's mini depth reads stored rows for the kinds in ASSETOPS_PERIOD_READ_KINDS (empty =
+    # today's compose); the row reader's engine connects on first use only.
+    mini_period_rows = build_mini_period_rows(database_url()) if database_url() else None
+    mini_reads = MiniDepthRead.from_url(database_url(), build_link_rows_reader(),
+                                        period_rows=mini_period_rows) if database_url() else None
     if mini_reads is not None:
         app.router.on_shutdown.append(mini_reads.dispose)
+    if mini_period_rows is not None:
+        app.router.on_shutdown.append(mini_period_rows[1].dispose)
     app.include_router(build_mini_depth_router(mini_reads, registry))
     # W4-03 unit 2b (closure 2 Q1, closure 4 B2): mini scenarios. Writes need the two explicit injections; the
     # default composition refuses every write. Reads use the existing Site-scoped development access.

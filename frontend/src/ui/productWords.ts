@@ -60,64 +60,65 @@ function lookup(table: Readonly<Record<string, Entry>>, code: string | null | un
   return unrecognised(key);
 }
 
-// --- Currentness: is this answer using the latest checked readings? --------
+// --- Currentness: is this answer using the latest complete readings? --------
+// D-E5.46 term family: complete readings / incomplete days / not analysed yet (system work only). No "checked".
 
 const CURRENTNESS: Readonly<Record<string, Entry>> = {
   CURRENT: {
-    label: "Using the latest checked readings",
-    sentence: "This answer uses the latest readings that have been checked.",
+    label: "Complete readings, analysed",
+    sentence: "This answer uses the latest readings, and they have all been analysed.",
     tone: "positive",
   },
   PARTIAL: {
-    label: "Some days are not checked yet",
+    label: "Some days are incomplete",
     sentence:
-      "This list uses the days that have been checked. The days not checked yet are named below, and nothing is concluded about them.",
-    next: "Look again after the remaining days have been checked.",
+      "This list uses the days that were analysed. The incomplete days are named below, and nothing is concluded about them.",
+    next: "Look again after the readings for the remaining days are in and analysed.",
     tone: "limited",
   },
   PENDING_REASSESSMENT: {
     label: "New readings call for another assessment",
-    sentence: "Newer readings mean this period should be checked again. Until it is, the earlier answer is not current.",
-    next: "Look again after the period has been checked again.",
+    sentence: "Newer readings mean this period should be analysed again. Until it is, the earlier answer is not current.",
+    next: "Look again after the period has been analysed again.",
     tone: "waiting",
   },
   REASSESSMENT_PENDING: {
     label: "New readings call for another assessment",
-    sentence: "Newer readings mean this should be checked again. Until it is, the earlier answer is not current.",
-    next: "Look again after it has been checked again.",
+    sentence: "Newer readings mean this should be analysed again. Until it is, the earlier answer is not current.",
+    next: "Look again after it has been analysed again.",
     tone: "waiting",
   },
   PENDING: {
-    label: "Not checked yet",
-    sentence: "This period is waiting to be checked. Nothing is concluded about it yet.",
-    next: "Look again after the period has been checked.",
+    label: "Not analysed yet",
+    sentence: "This period is waiting to be analysed. Nothing is concluded about it yet.",
+    next: "Look again after the period has been analysed.",
     tone: "waiting",
   },
   STALE: {
     label: "This result may miss newer readings",
     sentence: "Readings arrived after this answer was worked out, so it may not reflect them.",
-    next: "Treat it as out of date until it is checked again.",
+    next: "Treat it as out of date until it is analysed again.",
     tone: "limited",
   },
   STALE_PROJECTION: {
     label: "This result may miss newer readings",
     sentence: "Readings arrived after this answer was worked out, so it may not reflect them.",
-    next: "Treat it as out of date until it is checked again.",
+    next: "Treat it as out of date until it is analysed again.",
     tone: "limited",
   },
   FAILED: {
-    label: "The latest check could not be completed",
-    sentence: "The most recent check of this period did not finish, so no current answer is shown.",
-    next: "Look again later; the period will need to be checked again.",
+    label: "The latest analysis could not be completed",
+    sentence: "The most recent analysis of this period did not finish, so no current answer is shown.",
+    next: "Look again later; the period will need to be analysed again.",
     tone: "problem",
   },
   UNASSESSED: {
-    label: "We have not checked this period",
+    label: "This period has not been analysed",
     sentence: "No assessment exists for this period, so nothing is concluded about it.",
     tone: "neutral",
   },
   NOT_ASSESSED: {
-    label: "We have not checked this period",
+    label: "This period has not been analysed",
     sentence: "No assessment exists for this period, so nothing is concluded about it.",
     tone: "neutral",
   },
@@ -220,8 +221,8 @@ const READ_RESULT: Readonly<Record<ReadResultKind, Entry>> = {
     tone: "neutral",
   },
   "proved-empty": {
-    label: "Checked: nothing to report",
-    sentence: "This was checked and there is nothing to report for the time shown.",
+    label: "Analysed: nothing to report",
+    sentence: "Complete readings were analysed and there is nothing to report for the time shown.",
     tone: "neutral",
   },
 };
@@ -242,7 +243,7 @@ const MONEY: Readonly<Record<string, Entry>> = {
   WITHHELD_GENERATOR_SERIES: {
     label: "No current amount can be shown",
     sentence: "The generator records are not in a proven time order, so no current amount is shown. This is not zero.",
-    next: "Look again after the generator records are checked.",
+    next: "Look again after the generator records are analysed.",
     tone: "limited",
   },
   MIXED_OR_UNKNOWN_SOURCE: {
@@ -252,7 +253,7 @@ const MONEY: Readonly<Record<string, Entry>> = {
   },
   PENDING_REASSESSMENT: {
     label: "No current amount can be shown",
-    sentence: "Newer readings mean this should be checked again, so no current amount is shown yet. This is not zero.",
+    sentence: "Newer readings mean this should be analysed again, so no current amount is shown yet. This is not zero.",
     tone: "waiting",
   },
   NO_PRICE: {
@@ -409,7 +410,7 @@ const LIMITATIONS: Readonly<Record<string, Entry>> = {
   LATE_EVIDENCE: {
     label: "Readings arrived late",
     sentence: "Some readings arrived after the answer was worked out, so it may not reflect them.",
-    next: "Look again after the period has been checked again.",
+    next: "Look again after the period has been analysed again.",
     tone: "limited",
   },
   SOURCE_NOT_COHERENT: {
@@ -445,6 +446,14 @@ export function limitationWords(code: string | null | undefined): ProductWords {
 // --- The plain "as of" bound -------------------------------------------------
 
 
+// --- Analysed periods inside a range (D-E5.31 / PB-1c) -----------------------
+
+/** `Analysed period: ` (one period) or `Analysed periods in this range: {n} · showing ` (more than one); the links follow. */
+export const analysedPeriodsLead = (count: number): string =>
+  count === 1 ? "Analysed period: " : `Analysed periods in this range: ${count} · showing `;
+/** No stored analysed period lies inside the requested range. */
+export const NO_ANALYSED_PERIOD = "No analysed period in this range";
+
 /** A plain instant: "16 Oct 2026, 10:05" (POLISH §3 Times: `ui/time.ts`, UTC named by the page note), or null when missing or unreadable. */
 export function plainTime(instant: string | null | undefined): string | null {
   if (instant === null || instant === undefined || instant.length === 0) return null;
@@ -459,3 +468,20 @@ export function asOfText(instant: string | null | undefined): string {
   const text = plainTime(instant);
   return text === null ? "As of: time not recorded" : `As of ${text}`;
 }
+
+/**
+ * D-E5.34 / RM-1: a feature or record that is not built keeps its slot but reads as a short roadmap fact in plain
+ * words, never "error" and never a code. One table, so a reviewer checks every roadmap line in one place.
+ */
+export const ROADMAP_WORDS = {
+  coldFindingsNotGlobal: "Cold-room findings are listed here; the estate list adds them later",
+  evFindingsNotGlobal: "EV charging findings are listed here; the estate list adds them later",
+  coldWorkNotGlobal: "Cold-room actions are listed here; the estate list adds them later.",
+  evWorkNotGlobal: "EV charging actions are listed here; the estate list adds them later.",
+  manageFindings: "Managing findings from this list is coming",
+  reviewRecommendation: "Reviewing a recommendation needs sign-in, which is coming",
+  portfolioRollUp: "Rolling EV money up to the estate is coming",
+  evCollectionsValue: "Not connected yet",
+  evCollectionsNote: "Payment records are not connected yet",
+  evNoPaymentFeed: "Payment records are not connected yet",
+} as const;

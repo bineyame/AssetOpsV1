@@ -1,3 +1,4 @@
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
@@ -20,7 +21,7 @@ import {
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
 import { TECHNICAL_DETAILS, TechnicalReferences } from "../ui/TechnicalDetails";
 import { coldWindowSearch } from "./coldAssessmentClient";
-import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { ReportSelected, renderEvTabs, selectedWindowSearch, shownWindow, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
 import { date, dayHm, hm, windowText } from "./coldFormat";
@@ -938,7 +939,7 @@ function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingD
         </Panel>
         <Panel heading="Recommended next step" headingId="ev-next-step-heading">
           <p className="prose">{EV_COPY.nextStep}</p>
-          <UnavailableLinkEntry label="Review recommendation" />
+          <UnavailableLinkEntry label="Review recommendation" roadmap={ROADMAP_WORDS.reviewRecommendation} />
         </Panel>
       </div>
     </>
@@ -957,7 +958,7 @@ function FindingSkeleton({ read }: { read: EvRead<unknown> }) {
         </Panel>
         <Panel heading="Recommended next step" headingId="ev-next-step-heading">
           <Gap id="ev-next-step">{NOT_ASSESSED}</Gap>
-          <UnavailableLinkEntry label="Review recommendation" />
+          <UnavailableLinkEntry label="Review recommendation" roadmap={ROADMAP_WORDS.reviewRecommendation} />
         </Panel>
       </div>
     </>
@@ -969,7 +970,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
   const finding = useRead(() => client.getFinding(siteId, findingId, window), `f|${siteId}|${findingId}|${windowKey(window)}`);
   const detail = finding !== null && finding.status === "loaded" ? finding.value : null;
   // The connector display name: follow the claim's session at the Finding's own selected window (handoff r5 note).
-  const own: EvWindowQuery | null = detail === null ? null : { ...detail.window };
+  const own: EvWindowQuery | null = detail === null ? null : { ...shownWindow(detail) };
   const sessionId = detail?.claim.session_id ?? null;
   const session = useRead(
     own !== null && sessionId !== null ? () => client.getSession(siteId, sessionId, own) : null,

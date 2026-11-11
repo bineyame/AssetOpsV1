@@ -78,11 +78,11 @@ def validate(decl: Declaration) -> None:
     if decl.min_checked_days is not None:
         low, high = MIN_CHECKED_DAYS_RANGE
         if type(decl.min_checked_days) is not int:  # bool, 2.5 and "3" are refused, never coerced
-            raise _invalid("The minimum of checked days is a whole number.")
+            raise _invalid("The minimum of days with complete readings is a whole number.")
         if not low <= decl.min_checked_days <= high:
-            raise _invalid(f"The minimum of checked days is {low} to {high}.")
+            raise _invalid(f"The minimum of days with complete readings is {low} to {high}.")
         if not measure.monthly:
-            raise _invalid(f"Measure {decl.measure_key!r} is not judged by month; no minimum of checked days applies.")
+            raise _invalid(f"Measure {decl.measure_key!r} is not judged by month; no minimum of days with complete readings applies.")
     if decl.source not in SOURCES:
         raise _invalid(f"Source {decl.source!r} is not one of {SOURCES}.")
     if not 1 <= len(decl.source_note) <= 500:

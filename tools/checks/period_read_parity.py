@@ -27,6 +27,7 @@ and one deliberate mismatch, a status difference and an unstable oracle each fai
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import random
@@ -212,7 +213,14 @@ def normalise_live_now(body: bytes, before: float, after: float) -> bytes:
         at = datetime.fromisoformat(m.group(1).decode()).replace(tzinfo=UTC).timestamp()
         return LIVE_NOW if lo <= at <= hi else m.group(0)
 
-    return _KNOWN_AT.sub(one, body)
+    return _SELECTION_TOKEN.sub(LIVE_TOKEN, _KNOWN_AT.sub(one, body))
+
+
+#: A live estate read's `selection_token` hashes its scope at the live now (`estate/scope.py` `selection_token(...,
+#: token_k, ...)`), so it differs between two live fetches exactly as the echoed now does. Only in a live read (this
+#: function is called for live requests only) and only that field is replaced; a historical read's token is compared.
+_SELECTION_TOKEN = re.compile(rb'"selection_token":\s*"sha256:[0-9a-f]+"')
+LIVE_TOKEN = b'"selection_token":"<live-token>"'
 
 
 def compare(cases: Sequence[Case], oracle: Fetch, candidate: Fetch,
@@ -337,7 +345,9 @@ def _live_now_self_test() -> list[str]:
         def go(path: str) -> tuple[int, bytes]:
             now = _z(datetime.fromtimestamp(tick[0] + 2.0, UTC))
             inner = f'"known_at":"{stored}"' if stored else '"x":1'
-            return 200, f'{{"known_at":"{now}","rows":[{{{inner}}}]}}'.encode() + extra
+            token = hashlib.sha256(now.encode()).hexdigest()[:40]  # hashes the live now, as the estate token does
+            return 200, (f'{{"known_at":"{now}","rows":[{{{inner}}}],'
+                         f'"page":{{"selection_token":"sha256:{token}"}}}}').encode() + extra
         return go
 
     if compare([live], stamped(), stamped(), clock).failed:
@@ -349,6 +359,17 @@ def _live_now_self_test() -> list[str]:
     if [o.verdict for o in compare([live], stamped(stored="2026-11-07T21:00:00Z"),
                                    stamped(stored="2026-11-07T21:00:01Z"), clock).failed] != ["MISMATCH"]:
         problems.append("a stored (not now) known_at in a live read was normalised")
+
+    def fixed_token(token: str, extra: bytes = b"") -> Fetch:  # a historical read: the token is served as is
+        def go(path: str) -> tuple[int, bytes]:
+            return 200, f'{{"rows":[],"page":{{"selection_token":"sha256:{token}"}}}}'.encode() + extra
+        return go
+    if [o.verdict for o in compare([hist], fixed_token("aa" * 20), fixed_token("bb" * 20), clock).failed] != \
+            ["MISMATCH"]:
+        problems.append("a historical read's selection_token difference was normalised")
+    if [o.verdict for o in compare([live], fixed_token("aa" * 20), fixed_token("bb" * 20, b" "), clock).failed] != \
+            ["MISMATCH"]:
+        problems.append("a live read with a real body difference beside its selection_token passed")
     return problems
 
 

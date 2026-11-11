@@ -177,7 +177,7 @@ class TestMovingAndBoard:
         """CH-5a1 (deleted read: the board no longer reads `finding_index`; base R4, gaps R8/Q9 from the chain
         snapshots via `ChainRequest.day`). Adapted, not loosened: the index-era p5 settled 10-06 on the dispatch
         assessment; the chain grades measure readings, and this S4 case delivers dispatch blocks only, so step (a)
-        writes NO_DATA snapshots and every window day - 10-06 included - is a "no checked readings" gap and the
+        writes NO_DATA snapshots and every window day - 10-06 included - is a "no complete readings" gap and the
         board day is unsettled. Gap lines over real readings are the L2m mechanism_db cases (MD-0).
         K10 v2 (56256bbc9, E2 FR-A): a declared-absent measure no longer blocks settling, so 10-06 (NO_DATA rows for
         every applicable measure, `productive_kwh` declared absent) settles but still reads NONE and a gap."""
@@ -217,7 +217,7 @@ class TestMovingAndBoard:
                 gaps = mini.finding_gap_line(f, mini.FINDING_WINDOW_DAYS)
                 # The declared-absent note follows the gap text; it states the absence in plain words and does not name
                 # the measure key.
-                assert gaps["text"] == ("31 of the last 31 days have no checked readings yet · Productive use not "
+                assert gaps["text"] == ("31 of the last 31 days have no complete readings yet · Productive use not "
                                         "assessed: no productive-use equipment declared for this site (0 kWh)"), gaps["text"]
                 assert "productive_kwh" not in gaps["text"]
                 assert gaps["days"][0] == (board - timedelta(days=30)).isoformat() and "2026-10-06" in gaps["days"]

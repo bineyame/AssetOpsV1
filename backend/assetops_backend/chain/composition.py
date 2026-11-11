@@ -33,8 +33,8 @@ __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
            "build_event_store", "build_estate_claims", "PostgresPeriodReadStore", "build_period_read_store",
-           "build_period_read_builder", "build_period_reader", "period_kind_builders", "dispatch_day_builders",
-           "build_dispatch_day_rows"]
+           "build_period_read_builder", "build_period_reader", "period_kind_builders", "period_kind_versions",
+           "build_mini_period_rows", "dispatch_day_builders", "build_dispatch_day_rows"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -76,8 +76,23 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
-    AR-1 declares none, so nothing is built or read from rows yet; AR-2 to AR-4 add theirs here."""
-    return {**dispatch_day_builders(inputs)}
+    AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one);
+    ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store."""
+    out: dict[str, Any] = dict(dispatch_day_builders(inputs))
+    mini = getattr(inputs, "mini", None)
+    if mini is not None:
+        from assetops_backend.mini_depth.period_rows import kind_builders
+
+        out.update(kind_builders(mini))
+    return out
+
+
+def period_kind_versions() -> dict[str, str]:
+    """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
+    from assetops_backend.chain import dispatch_day_rows
+    from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
+
+    return {**{k: BUILDER_VERSION for k in KINDS}, dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION}
 
 
 def dispatch_day_builders(inputs: Any = None) -> dict[str, Any]:
@@ -95,14 +110,22 @@ def build_dispatch_day_rows(database_url: str | None) -> tuple[Any, PostgresPeri
     """ANY-2 AR-3: `(provider, period store, event store)`; the provider is `estate.coverage.dispatch_rows_provider`
     (the Portfolio's mini-grid dispatch days from `dispatch.day` rows while the kind is served). Engines connect on
     first use only."""
-    from assetops_backend.chain.dispatch_day_rows import BUILDER_VERSION, KIND, DispatchDayRows
+    from assetops_backend.chain.dispatch_day_rows import KIND, DispatchDayRows
 
     if not database_url:
         return None
     store = PostgresPeriodReadStore(database_url)
     events = PostgresEventStore(database_url)
-    reader = PeriodReader(store, load_event_register(), {KIND: BUILDER_VERSION})
+    reader = PeriodReader(store, load_event_register(), period_kind_versions())
     return DispatchDayRows(reader, events.site), store, events
+
+
+def build_mini_period_rows(database_url: str | None) -> tuple[PeriodReader, PostgresPeriodReadStore] | None:
+    """AR-2: the `(reader, store)` pair `MiniDepthRead(period_rows=...)` serves the board's mini depth from."""
+    store = build_period_read_store(database_url)
+    if store is None:
+        return None
+    return PeriodReader(store, load_event_register(), period_kind_versions()), store
 
 
 def build_period_read_store(database_url: str | None, *, engine: Any = None) -> PostgresPeriodReadStore | None:
@@ -117,7 +140,7 @@ def build_period_read_builder(store: Any, inputs: Any = None) -> PeriodReadBuild
 
 def build_period_reader(store: Any, builder: PeriodReadBuilder | None = None) -> PeriodReader:
     """The one row reader (one statement per Sites x range x kinds, then PENDING-at-k)."""
-    versions = (builder or build_period_read_builder(store)).versions()
+    versions = builder.versions() if builder is not None else period_kind_versions()
     return PeriodReader(store, load_event_register(), versions)
 
 
@@ -266,6 +289,13 @@ def read_watermark(c: Any, tenant_id: Any, site_ids: Any) -> str:
     from assetops_backend.chain.adapters.postgres_response_store import read_watermark as read
 
     return read(c, tenant_id, site_ids)
+
+
+def install_handle_error_hook() -> None:
+    """INFRA-1 (D-E5.47 rule 2): the global SQLAlchemy `handle_error` backstop (the driver stays in the adapter)."""
+    from assetops_backend.chain.adapters.postgres_response_store import install_handle_error_hook as install
+
+    install()
 
 
 def prebuilt_requests() -> Any:

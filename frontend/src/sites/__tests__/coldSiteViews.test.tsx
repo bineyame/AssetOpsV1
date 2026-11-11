@@ -501,6 +501,45 @@ describe("W2-04: Run-7 date bar", () => {
   });
 });
 
+describe("PB-1c: Cold analysed-period line under the window bar", () => {
+  const P1 = { from: "2026-10-06T16:00:00Z", to: "2026-10-06T17:05:00Z", href: "/api/sites/COLD-001/cold/overview?from=x&to=y" };
+  const P2 = { from: "2026-10-07T08:00:00Z", to: "2026-10-07T08:50:00Z", href: "/api/sites/COLD-001/cold/overview?from=x2&to=y2" };
+  const RANGE = "?from=2026-10-06T00:00:00Z&to=2026-10-13T00:00:00Z";
+  const line = () => document.querySelector("[data-analysed-periods]");
+
+  it("one period: names it and links its exact window on the same page (not the API href)", async () => {
+    renderCold(`/sites/COLD-001${RANGE}`, { ...STOCKED, overview: ok({ ...STOCKED_OVERVIEW, analysed_periods: [P1], shown_period: P1 } as never) });
+    await settledScreen();
+    expect(text(line()!)).toBe("Analysed period: 6 Oct 2026, 16:00–17:05");
+    const href = line()!.querySelector("a")!.getAttribute("href")!;
+    expect(href.startsWith("/sites/COLD-001?")).toBe(true);
+    const params = new URLSearchParams(href.split("?")[1]);
+    expect(params.get("from")).toBe(P1.from);
+    expect(params.get("to")).toBe(P1.to);
+    expect(href).not.toContain("/api/");
+  });
+
+  it("several periods: counts them, shows the shown one and links each", async () => {
+    renderCold(`/sites/COLD-001${RANGE}`, { ...STOCKED, overview: ok({ ...STOCKED_OVERVIEW, analysed_periods: [P1, P2], shown_period: P2 } as never) });
+    await settledScreen();
+    expect(text(line()!)).toContain("Analysed periods in this range: 2 · showing 7 Oct 2026, 08:00–08:50");
+    const hrefs = Array.from(line()!.querySelectorAll("a")).map((a) => new URLSearchParams(a.getAttribute("href")!.split("?")[1]).get("from"));
+    expect(hrefs).toEqual([P2.from, P1.from]);
+  });
+
+  it("none inside the range: says so", async () => {
+    renderCold(`/sites/COLD-001${RANGE}`, { ...EMPTY, overview: ok({ ...EMPTY_OVERVIEW, analysed_periods: [], shown_period: null } as never) });
+    await settledScreen();
+    expect(text(line()!)).toBe("No analysed period in this range");
+  });
+
+  it("a read that carries no periods (the window itself is analysed) adds no line", async () => {
+    renderCold(`/sites/COLD-001${Q}`, { ...STOCKED, overview: ok({ ...STOCKED_OVERVIEW, analysed_periods: [], shown_period: null } as never) });
+    await settledScreen();
+    expect(line()).toBeNull();
+  });
+});
+
 describe("W2-04: Run-7 Evidence status chip", () => {
   const withCaps = (states: Record<string, string>): Reads => ({
     ...STOCKED,

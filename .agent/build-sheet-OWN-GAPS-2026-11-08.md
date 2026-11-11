@@ -4192,3 +4192,130 @@ Decision logged for owner review: **D-E5.47**.
 7. Time `_UNCONSUMED_AT` in the baseline and report the p95 in the packet (M2).
 
 Decision logged for owner review: **D-ANY.5**.
+
+## D-E5.48 DATA-11 Cold epochs and the EV depot's sparse look (Architect, Claude, 2026-11-11, owner-delegated, logged for owner review)
+
+Context: the owner raised DATA-11 to IN and will show the demo to mini-grid and EV executives. The builder's report is in `.agent/PB-3-DATA-11-packet.md` (head ae41f5ba7, Known Deviations 1 and 2).
+
+### (1) Cold: one recording session per ordinary day is CONFIRMED for 17 Nov
+- **It is faithful to the hardware.** A cold-room temperature logger normally uploads a signed daily batch, so each day's batch is its own attested session. Kisiwa (DATA-1) is different: there a single continuous gateway stream was split for no device reason.
+- **Splitting around S-3 does not help.** The Cold producer attests once per epoch, over the first run's window (`tools/demo_combined_cold.py:90-101`). Any session holding more than one day would leave its later days unattested, which is a worse honesty failure.
+- **Condition for the client.** If any client-facing page counts "sessions" for Cold, the rehearsal check reads that number, and the script calls them "daily uploads".
+- **Deferred to BL-72.** The producer will attest per run, so a continuous Cold stream becomes possible.
+
+### (2) EV: record the depot's whole declared charging hours (card EV-HB)
+**Why EV looks sparse.**
+- EV-LAB-001 declares charging hours as Tuesday 08:00-16:00 (`config/chain/operating-calendar-v1.json`, `SITE_WEEKDAY={"ev":1}`). The story records only 1 of those 8 hours (`ev_parsing.EV_WINDOW`).
+- So the expected hours are mostly unrecorded, and E5 reads LOW.
+- The connector model already reports status every minute (`observation/transform.py:600-603`). With PB-3, idle connectors count as known zero energy.
+
+**Ruling.**
+- Record the full declared window on every EV story day (the ordinary Tuesdays and the fault Tuesday). The charging sessions, kWh and USD 4.50 stay as they are.
+- Do NOT change the Tuesday-only calendar before 17 Nov. Adding weekdays would turn every earlier story week's EV weekdays into expected days with no data, so the depot would look worse, not better. That change goes to BL-72 post-demo with the matching backfill.
+- The script says: "The depot's declared charging day is Tuesday; AssetOps checks every declared hour and counts idle chargers as known."
+
+**Card EV-HB** (Opus, 0.5 unit, lane C after PB-3 + DATA-11 merge; same worktree or a new one, `task/EV-HB-window`):
+1. The registered EV window, the w205b/w504 window constants the producer moves per day, `received_at`, and the analysis window all become 08:00-16:00 local on each EV story day. The parser window comes from one constant.
+2. The charging sessions (08:01-08:31) and the fault-day fault evidence keep their values byte-for-byte. Status minutes outside the sessions are UNPLUGGED/PLUGGED heartbeats.
+3. Tests first:
+   - (a) A pure test: a full-window ordinary day grades COMPLETE for `charging_kwh`.
+   - (b) Story plan pins: kWh, USD and the fault findings are unchanged.
+   - (c) One EV worker run of the 8-hour window in a scratch `<prefix>_audit` prepare, where the EV day row is not LOW.
+4. Finish rows that must change, each with a reason in the packet:
+   - E5 (EV estimated income: no longer "with too little data" for the declared days);
+   - CO-6 `cold_ev_coverage`;
+   - the EV `charging_kwh` grade/coverage pins in `demo_combined_finish` rows and `k7_story_pins.py`.
+
+   Every other row stays equal.
+5. Report the prepare-time delta. The estimate is about +5-10 min (8x the EV minute rows on each EV day).
+
+**Gate.**
+- If (c) is not green by Fri 13 Nov 18:00, EV-HB is dropped. E5 stays LOW, and the script line becomes: "We record one hour of the depot's charging day in this demo; it reads as too little data, honestly."
+- The Saturday-night rehearsal prepare verifies E5 and the prepare time either way.
+
+**BL-72 (post-demo, about 1.0 unit).** The Cold producer attests per run (a continuous stream), and the EV depot gets weekday charging hours with an EV story backfill for the earlier weeks.
+
+Decision logged for owner review: **D-E5.48**.
+
+## D-E5.49 EV fault day over the full recorded day: c1 stays out of service until repaired (Architect, Claude, 2026-11-11, owner-delegated, logged for owner review)
+
+**Ruling: option (a).**
+- c1 is FAULTED from 08:16 and still out at 16:00. Clients read "out of service for 7 h 44 min".
+- This is the honest consequence of recording the whole declared day under D-E5.48. The story already says no repair happened and the repair Action is still Pending, so a fault that cleared itself after 44 min would contradict it. It would also weaken the Action.
+- For EV executives, "a charger has been down most of its charging day and the repair is still pending" is the more believable and more useful beat.
+- What does not change:
+  - the single Finding and its size;
+  - per-session money (30/15 kWh, USD 9.00/4.50);
+  - the Action's state.
+- What does change: the CONNECTOR_OUT_OF_SERVICE warning duration, and "16 min unknown" disappears because status is known all day. This is a sanctioned exception to D-E5.48's "every other row stays equal". E5/WK-1 counting USD 9.00/9.00/4.50 (the day is now COMPLETE) is intended.
+
+**Fix round (Sonnet, about 0.1 unit, same branch):**
+1. Pin the 7 h 44 min out-of-service duration and its warning in `site_outcomes` tests and in the `demo_combined_finish` rows. List them in the EV-HB packet's rows table with the reason "D-E5.49".
+2. Add a prepare-checklist line: on the EV fault day, c1 is out of service for 7 h 44 min, there is 0 min unknown, there is one Finding, the Action is Pending, and per-session USD is 9.00/4.50.
+3. In `Docs/demo-sprint/implementation-logic-portfolio-sites-findings-actions.html` and the demo script, replace "44 min out, 16 min unknown" with "out of service from 08:16 for the rest of the charging day (7 h 44 min); repair still pending".
+
+Decision logged for owner review: **D-E5.49**.
+
+## D-ANY.6 Tonight's speed build for the Thursday 12 Nov technical demo (Architect, Claude, 2026-11-11 16:50, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-speed-before-thursday-2026-11-11.md`): "the speed work has to be done before Tursday demo"; chose "Rebuild tonight" (option b), accepting the risk.
+- Supersedes for tonight only: the ANY-1 packet line "baseline after the Thursday demo" and the D-ANY.4 timing. D-ANY.1-5 rules otherwise stand.
+
+**1. Slice and cutoffs.** Tonight = ANY-1 only (AR-0 baseline, AR-1, AR-2). AR-3, AR-4, AR-5 and AR-6 are not built for Thursday.
+- 21:30 last ACCEPT. 22:00 go/no-go and merge. 22:15 build tag `demo/2026-11-12-rows`, fresh worktree `AssetOpsV1-e3e`. **22:30 latest prepare start** (about 2 h 45 min plus EV-HB 10 min, plus the AR-2 row build of at most 15 min, so done by about 01:45). 01:45-02:15 self-check plus full parity on the new DB. 02:15-03:15 live checks. 06:30 runbook and add-dates as planned.
+- After the prepare starts, no full rerun fits. Only a single failed step can be rerun.
+- **Fast on Thursday:** Site boards (mini depth: renewable, fuel, service, backup) for any day, about 1-1.5 s cold on Mini-grid and Diesel Sites.
+- **Still slow off the pre-stored ranges:** Cold and EV boards (work-list reads; AR-6, about 2-3 s); the Portfolio for any range (AR-3/AR-4); every other page off the stored ranges.
+- The pre-load list stays (AR-5 not built), so stored ranges are as fast as in client6. The presenter rule D-ANY.4 still holds for the Portfolio and for non-board pages.
+- If AR-2 is not ACCEPTed by 22:00, it is held. The build still goes ahead at 22:30 from main (today's fixes, plus AR-1 only if its parity passed), and the boards stay on the pre-stored ranges.
+
+**2. Baseline.**
+- Run it now on `assetops_polish_client4_test` (not the fallback; 0059 is applied there). **Never on client6.** client2 is the spare.
+- Parity must pass before AR-1 or AR-2 merges.
+- To keep it fast: run the story requests plus `--random 16` (the default), not a wider sweep. Apply the AR-2 kinds only to client4 rows built by the backfill CLI.
+- The full parity runs again on the new DB after the prepare, as part of its self-check.
+- Time `_UNCONSUMED_AT` and record p95 in the packet. Above 20 ms p95: apply the low-water bound and drop `payload` from the select (inside AR-2).
+- A fresh Claude reviewer reviews ANY-1 phase 2 now, in parallel.
+
+**3. Other merges and machine rule.**
+- C1 merges if it is ACCEPTed by 21:30.
+- HON-1 and OPEN-NOW are not Thursday-critical (they target 17 Nov). They are held out of tonight's tag. They may merge to main after the tag is cut, once reviewed.
+- Until 22:00, only the baseline and AR-2's own Postgres tests may touch Postgres, one at a time. Other builders run no-DB tests only.
+- From 22:15 until the live checks end, **all builders stop**: no tests, no prepares, no Postgres. Code edits are allowed.
+
+**4. Fallback.**
+- If parity alone fails on the new DB: set the AR-2 kill switch (`ASSETOPS_PERIOD_READ_KINDS=` empty, so the old compose path is used) and rerun the board live checks (15 min).
+- Any other self-check or live-check failure, or no green result by **05:00**: the demo uses `assetops_polish_client6_test` (tag demo/2026-11-11-e3d, runbook as planned). client6 is never modified.
+
+Decision logged for owner review: **D-ANY.6**.
+
+### D-ANY.6a AR-2 rows path misses a recompute job created after the row build (Architect, Claude, 2026-11-11 ~17:55, owner-delegated, logged for owner review)
+
+- **Defect.** On the rows path, PENDING-at-k reads only unconsumed outbox events and snapshot dirty marks. The old compose path decides PENDING_RECOMPUTE from `recompute_job` itself (`mini_depth/read.py` `_JOBS`: status PENDING, LEASED or FAILED, `available_at <= k`, and no later selection), and it does so both live and at a historical k. A job raised by `mini_enqueue_hour` with no outbox event is therefore missed, and so is an existing PENDING job whose `available_at` was moved later.
+- **Live-demo impact.** Tomorrow's add-dates enqueues exactly these jobs. Rows would read CURRENT while a recompute is pending, which is a false statement on the board. The fix is required, not optional.
+- **Fix, ruled.** Do not emit events from the SQL function (a 0029 change with a wider blast radius). Do not use timing heuristics.
+  - The rows path runs the oracle's own `_JOBS` predicate, batched: one statement over Sites × hours × mini domains at k.
+  - An hour whose live job set at k equals the job set stored in its row renders from the row.
+  - An hour with any other job set is served by the old `_hour` for that hour only. This is the D-ANY.1 rule "a case that cannot be proven equal stays on the old path". It is logged (`period_row_job_fallback`) and counted.
+  - Byte-equal by construction. Expected cost is one extra statement per read; fallback hours are rare (only while a recompute is in flight).
+- **Size and timing.** About 0.3 unit. Build by 19:45, Postgres test plus client4 parity by 20:30, review by 21:30.
+- **If not ACCEPTed by 21:30: hold AR-2 entirely.** Do not merge it with the kill switch off. That gives the demo no speed, adds an unexercised prepare step, and leaves a latent false-CURRENT path. Tonight's build then uses main plus AR-1 (if its parity passed), and the boards stay on the pre-stored ranges.
+
+Decision logged for owner review: **D-ANY.6a**.
+
+### D-ANY.6b / D-E5.49a Tonight's build fails one check, CO-10 ("16 min unknown"): use client7 (Architect, Claude, 2026-11-11 ~22:10, owner-delegated, logged for owner review)
+
+- **Finding.** In client7, the c1 warning reads "7 h 44 min out and 16 min unknown on 3 Nov".
+  - 7 h 44 min + 16 min = 8 h, the whole charging day. The out-of-service part (08:16-16:00) is right.
+  - The 16 min are 08:00-08:16, before the fault. The generated full-day heartbeat carries no connector status for c1 until the fault notice at 08:16.
+  - The product is correct not to guess a status it never received. This is a data and story detail, not a product defect.
+  - The D-E5.49 pin assumed status "known all day". The data does not give that.
+- **Thursday demo:** use **client7**. The D-ANY.6 fallback covers failures that make the build untrustworthy. This one is an honest sentence about real data gaps, and the other 53 checks pass. client6 stays untouched as the fallback for any other failure.
+- **Presenter line:** "c1 was out of service from 08:16 for the rest of the charging day; the first 16 minutes have no status reading; repair still pending."
+- **17 Nov fix (data, about 0.1 unit, Sonnet):**
+  - The EV-HB generator emits a c1 Available status with the day's first heartbeat at 08:00, so status is known all day.
+  - Keep the D-E5.49 pin at 0 min unknown. Do not relax it.
+  - Rerun CO-10 on the Monday build.
+
+Decision logged for owner review: **D-ANY.6b / D-E5.49a**.

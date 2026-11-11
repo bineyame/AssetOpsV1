@@ -14,10 +14,10 @@ POLICY = "outcome-objectives/2"
 MET, MISSED, NOT_JUDGED = "MET", "MISSED", "NOT_JUDGED"
 #: WALK1-3b (build sheet Addendum 2 §A2.2): the month-to-date verdicts of a monthly measure (`judge_month`).
 ON_PACE, BEHIND_PACE, TOO_EARLY = "ON_PACE", "BEHIND_PACE", "TOO_EARLY"
-VERDICT_LABEL = {MET: "Met", MISSED: "Missed", NOT_JUDGED: "Not checked yet", ON_PACE: "On pace",
+VERDICT_LABEL = {MET: "Met", MISSED: "Missed", NOT_JUDGED: "Not judged yet", ON_PACE: "On pace",
                  BEHIND_PACE: "Behind pace", TOO_EARLY: "Too early to judge"}
 VERDICT_CHIP = {MET: {"label": "Met", "tone": "green"}, MISSED: {"label": "Missed", "tone": "amber"},
-                NOT_JUDGED: {"label": "Not checked yet", "tone": "gray"},
+                NOT_JUDGED: {"label": "Not judged yet", "tone": "gray"},
                 ON_PACE: {"label": "On pace", "tone": "green"}, BEHIND_PACE: {"label": "Behind pace", "tone": "amber"},
                 TOO_EARLY: {"label": "Too early to judge", "tone": "gray"}}
 #: WALK1-3b §A2.5 (owner ruling on D-W1-6): the checked-day minimum before a monthly target is judged for pace, when

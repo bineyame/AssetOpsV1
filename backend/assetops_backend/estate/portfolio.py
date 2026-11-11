@@ -30,7 +30,7 @@ from assetops_backend.estate.evidence_money import (
     select_evidence_scope, site_home_ref)
 from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
 from assetops_backend.estate.financials import (
-    APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
+    APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, partial_money, select_financial_scope)
 from assetops_backend.estate.index import (
     LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, opportunity_read, select_action_scope,
     select_finding_scope)
@@ -850,7 +850,10 @@ class EstatePortfolioService(EstateEvidenceService):
         body = self._envelope(PORTFOLIO_SCHEMA, tenant_id, req, scope, covered, status,
                               {"state": coverage_state, "finding_state": states["F"],
                                "evidence_state": states["E"], "money_state": states["M"],
-                               "sites": [_coverage_site(site, cov) for site, _, cov in f_sites]})
+                               # PARTIAL-MONEY: a PARTIAL Site's analysed-days amount from its money lines.
+                               "sites": [{**_coverage_site(site, cov), **({} if (m := partial_money(
+                                   site, money_by[str(site["site_id"])][2], money_by[str(site["site_id"])][3])) is None
+                                   else {"money": m})} for site, _, cov in f_sites]})
         empty = count == 0
         gaps = evidence_gap_groups(e_rows_all)
         prog, actions_complete = progress(a_sites, a_rows, scope["k"],

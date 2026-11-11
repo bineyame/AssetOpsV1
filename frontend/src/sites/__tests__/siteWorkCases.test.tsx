@@ -443,13 +443,13 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 
   it("narrow_mock_panels_and_unavailable_links", async () => {
-    // post-W6 final-fix M1: a mini Site's first load with no window reads seven Site-local (EAT) calendar days including
-    // today, [local midnight today−6d, local midnight tomorrow), as UTC instants.
+    // post-W6 final-fix M1: a mini Site's first load with no window reads the seven full Site-local (EAT) days ending
+    // yesterday (SR-2), [local midnight today−7d, local midnight today), as UTC instants.
     const w = siteSevenDayWindow("Africa/Addis_Ababa");
     expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(7 * 86_400_000);
     expect(w.to.endsWith("T21:00:00Z")).toBe(true);
     const now = new Date().toISOString();
-    expect(w.from <= now && now < w.to).toBe(true);
+    expect(w.to <= now && Date.parse(now) - Date.parse(w.to) < 86_400_000).toBe(true); // SR-2: ends at local midnight today
     const requests = serve({
       [api("maintenance", w)]: { status: 200, body: body([]) },
       [api("incidents", w)]: { status: 200, body: body([]) },
@@ -553,9 +553,9 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
     mount(page("incidents", DAY));
     await settledScreen();
     await vi.waitFor(() => expect(labels()).toEqual(["Actions (5)", "Incidents (6)", "Maintenance (7)"]));
-    fireEvent.change(document.querySelector("[data-work-window] input") as HTMLElement, { target: { value: "2026-10-08" } });
-    fireEvent.change(document.querySelectorAll("[data-work-window] input")[1] as HTMLElement, { target: { value: "2026-10-08" } });
-    fireEvent.click(screen.getByRole("button", { name: "Show incidents" }));
+    // SR-2: the page has no date form; the bar changes the address, which this re-mount stands in for.
+    cleanup();
+    mount(page("incidents", W2));
     await settledScreen();
     // Maintenance for the new window is unserved (599): unknown, and the old 7 is gone.
     await vi.waitFor(() => expect(labels()).toEqual(["Actions (8)", "Incidents (9)", "Maintenance (—)"]));
@@ -826,53 +826,43 @@ describe("post-W6 shell R319: count strip grammar", () => {
 });
 
 describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and long text", () => {
-  it("R320: the window form shows Site-local days with the zone and writes local midnights as UTC bounds", async () => {
-    const LOCAL = { from: "2026-10-05T21:00:00Z", to: "2026-10-06T21:00:00Z" };
-    serve({ [api("incidents", LOCAL)]: { status: 200, body: body([incidentRow(1, { occurred_at: "2026-10-06T21:00:00Z" })]) } });
-    mount(page("incidents", LOCAL));
+  it("R320/M1: a range from the bar (UTC-midnight bounds) names UTC days, not Site-local ones; rows stay in Site time", async () => {
+    // Kobo is EAT, but the bar writes 6 Oct 00:00Z to 7 Oct 00:00Z for "6 Oct": the read covers UTC day 6 Oct.
+    const UTC = { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" };
+    serve({ [api("incidents", UTC)]: { status: 200, body: body([incidentRow(1, { occurred_at: "2026-10-06T21:00:00Z" })]) } });
+    mount(page("incidents", UTC));
     await settledScreen();
-    const inputs = document.querySelectorAll<HTMLInputElement>("[data-work-window] input");
-    // Local midnight boundary: [06 Oct 00:00 EAT, 07 Oct 00:00 EAT) is the one local day 6 Oct.
-    await vi.waitFor(() => expect([inputs[0].value, inputs[1].value]).toEqual(["2026-10-06", "2026-10-06"]));
-    expect(text(document.querySelector("[data-work-window]"))).toContain("(EAT)");
-    // build ruling 7: the end field carries the zone and says the day is included.
-    expect(text(document.querySelector("[data-work-window]"))).toContain("to (EAT, included)");
+    await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 6 Oct (UTC days, last day included), from the date range at the top."));
+    expect(document.querySelector("[data-work-window] input")).toBeNull();
     // 21:00Z is the next local day at 00:00 EAT.
     expect(text(document.querySelector("main tbody tr [data-work-window]"))).toBe("7 Oct · from 00:00 EAT");
     expect(text(strip())).not.toContain("UTC+3");
   });
 
-  it("final-fix M1: the untouched form of a bare mini address shows the same seven Site-local days it reads, and Search keeps them", async () => {
+  it("final-fix M1: a bare mini address reads and names its seven Site-local default days (this page's default)", async () => {
     // 26 Oct 22:30Z is already 27 Oct 01:30 in EAT: today is the 27th at the Site.
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-10-26T22:30:00Z"));
     try {
-      const W = { from: "2026-10-20T21:00:00Z", to: "2026-10-27T21:00:00Z" };
+      const W = { from: "2026-10-19T21:00:00Z", to: "2026-10-26T21:00:00Z" }; // SR-2: ends at local midnight today (27 Oct)
       const requests = serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
       mount("/sites/KOBO-001/work/incidents");
       await settledScreen();
-      const inputs = document.querySelectorAll<HTMLInputElement>("[data-work-window] input");
-      await vi.waitFor(() => expect([inputs[0].value, inputs[1].value]).toEqual(["2026-10-21", "2026-10-27"]));
+      await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 20 Oct to 26 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
       expect(requests).toEqual([api("incidents", W)]);
-      fireEvent.submit(document.querySelector("[data-work-window]") as HTMLElement);
-      await settledScreen();
-      // No edit: the Search bounds equal the default bounds (same API read, now explicit in the address).
-      expect(requests.every((r) => r === api("incidents", W))).toBe(true);
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it("final-fix L6: a missing Site zone names itself beside both date fields", async () => {
+  it("final-fix L6: a range names UTC days even when the Site zone is missing", async () => {
     zoneOverride = "";
     try {
       const W = { from: "2026-10-05T00:00:00Z", to: "2026-10-06T00:00:00Z" };
       serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
       mount(page("incidents", W));
       await settledScreen();
-      const form = text(document.querySelector("[data-work-window]"));
-      expect(form).toContain("(UTC (Site time zone unavailable))");
-      expect(form).toContain("to (UTC (Site time zone unavailable), included)");
+      expect(text(document.querySelector(".w1f4-work-window"))).toContain("5 Oct (UTC days, last day included)");
     } finally {
       zoneOverride = null;
     }

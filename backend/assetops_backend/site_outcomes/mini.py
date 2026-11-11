@@ -62,10 +62,10 @@ UTC_SUFFIX = " · UTC (Site time zone unavailable)"
 GAP_GENERIC = "An evidence gap limits this conclusion"
 NO_VERIFIED = "No verified result yet"
 GROW_SUBLINE = "Sales to productive users are not metered, so revenue itself is not measured yet"
-PROTECT_HEADLINE = "Battery and generator condition are not assessed"
+PROTECT_HEADLINE = "Battery and generator condition need a wear model, which is not connected yet"
 #: Rulings C final review L2: the Protect headline when no warning moves MG-4 and m >= 1 periods were assessed.
 PROTECT_CLEAR = "Battery stayed clear of its reserve in {m} assessed generator {periods}"
-PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are early warnings only. Power was "
+PROTECT_SUBLINE = ("Battery and generator condition needs a wear model, which is not connected yet; these are early warnings only. Power was "
                    "delivered, but what customers needed is not measured")
 COST_NO_MONEY = "No fuel cost estimated for this day"
 COST_MONEY = "possible extra fuel cost on this day"
@@ -79,8 +79,8 @@ COST_ZERO = "No fuel cost estimated: the generator was on but delivered no measu
 #: The sheet's "No generator run to check ..." fails the product vocabulary guard ("run"), so the wording avoids it.
 NO_RUN_READINGS = "Generator not used on this day, so nothing to check · readings complete"
 FIXED = {
-    "cash": "Not available yet · no billing or payment records",
-    "earnings": "Not available yet · needs site income, operating cost and capital records",
+    "cash": "Billing and payment records are not connected yet",
+    "earnings": "Site income, operating cost and capital records are not connected yet",
     "plan_target": "Not available yet · no target declared for this site",
 }
 #: C (U4): the battery contributor from the dispatch body's binding constraints (no reserve %, R562).
@@ -91,9 +91,9 @@ PRICE_FALLBACK = "Declared price · see Assumptions"
 NO_GEN_PLAN = "No preventive plan recorded"
 SERVICE_MEASURED = "Delivered power measured; demand not measured"
 NO_BACKUP_EVENT = "No backup event in this window"
-SOLAR_NOT_READ = "Not available yet · spare solar not checked on the last 5 days"  # WALK1 Addendum 4
+SOLAR_NOT_READ = "Not available yet · spare solar: no complete readings on the last 5 days"  # WALK1 Addendum 4; PF-W D-E5.46
 SOLAR_WELL_OBSERVED = "Spare solar on {e} of {a} well-observed {days}"
-SOLAR_NOT_CHECKED = " · {n} of the last 5 days not checked"  # WALK1-5 (WN-2 on the Site row), R685
+SOLAR_NOT_CHECKED = " · {n} of the last 5 days without complete readings"  # WALK1-5 (WN-2 on the Site row), R685
 SERVICE_NOT_READ = "Not available yet · delivered power not read for this hour"
 HEADROOM_ISSUE = "Productive-use headroom"
 OPTION_WHAT_IF = "Productive-use what-if"
@@ -130,15 +130,15 @@ SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
 SOURCE_UNRESOLVED = "Source not resolved"
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
-GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
-GAPS_PARTLY_CHECKED = "{p} of the last {n} days {verb} only partly checked"
+GAPS_NO_READINGS = "{g} of the last {n} days {verb} no complete readings yet"
+GAPS_PARTLY_CHECKED = "{p} of the last {n} days {verb} only partial readings"
 _COUNTED_GRADES = frozenset({"COMPLETE", "PARTIAL"})  # LOW is "too little data, not counted"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
 #: PB-7: when the Site's readings began inside the window, the count runs from that day (`since readings began on
 #: {d}: {g} of {n} days …`); the "of the last {n} days" wording becomes "of {n} days" after the prefix.
 GAPS_SINCE = "since readings began on {d}: "
-GAPS_NO_READINGS_SINCE = "{g} of {n} days {verb} no checked readings yet"
-GAPS_PARTLY_CHECKED_SINCE = "{p} of {n} days {verb} only partly checked"
+GAPS_NO_READINGS_SINCE = "{g} of {n} days {verb} no complete readings yet"
+GAPS_PARTLY_CHECKED_SINCE = "{p} of {n} days {verb} only partial readings"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
 FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
@@ -188,7 +188,7 @@ FINDING_TITLE_BY_MECHANISM = {FUEL_MECHANISM: {
 #: DIESEL-1-R3j (§9j.11), MOCK DEVIATION MD-FUEL-K4-2: the Protect contributor "Fuel in the tank" for night D − 1.
 FUEL_STOCK_KEY, FUEL_STOCK_LABEL = "fuel_stock", "Fuel in the tank"
 FUEL_NO_WINDOW = "Not available yet · no fuel check for the night of {date}"
-FUEL_NOT_CHECKED = "Not available yet · the night of {date} could not be checked: {why}"
+FUEL_NOT_CHECKED = "Not available yet · the night of {date} could not be analysed: {why}"
 FUEL_WITHIN = "Accounted for within the margin on the night of {date}"
 FUEL_BELOW = "About {lo}–{hi} L unexplained on the night of {date}, below the 40 L the check flags"
 FUEL_UNEXPLAINED = "About {lo}–{hi} L unexplained on the night of {date}"
@@ -336,7 +336,8 @@ class Reads:
         started = time.perf_counter()
         try:
             out = (read_scope.thaw(read_scope.memo(name, fn, *args, key=key)) if memo else fn(*args))
-        except Exception:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
+        except Exception as error:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
+            read_scope.note_failure(name, error)  # INFRA-1: a connection failure is never stored as "no data"
             if name not in self.failed:
                 self.failed.append(name)
             return None

@@ -31,8 +31,8 @@ def test_financial_scope_carries_private_per_site_windows_covered(monkeypatch) -
     ev_type = next(t for t, d in types.items() if d == "ev_charging")
     mini_type = next(t for t, d in types.items() if d == financials.MINI_GRID)
     scope = {"k": None, "sites": [{"site_id": "a", "site_type": ev_type}, {"site_id": "b", "site_type": ev_type},
-                                  {"site_id": "m", "site_type": mini_type}]}
-    per_site, *_ = financials.select_financial_scope(None, None, SimpleNamespace(from_=None, to=None), scope)
+                                  {"site_id": "m", "site_code": "m", "site_type": mini_type}]}
+    per_site, *_ = financials.select_financial_scope(None, None, SimpleNamespace(from_=None, to=None, known_at=None), scope)
     assert [ps[2]["_windows_covered"] for ps in per_site] == [True, False, True]
 
 
@@ -124,7 +124,7 @@ def test_financial_scope_pending_guard_without_line(monkeypatch) -> None:
     from assetops_backend.estate import financials as fin
 
     monkeypatch.setattr(fin, "_money_links", lambda *a: {})
-    req = SimpleNamespace(from_=datetime(2026, 10, 1, tzinfo=timezone.utc), to=datetime(2026, 10, 8, tzinfo=timezone.utc))
+    req = SimpleNamespace(from_=datetime(2026, 10, 1, tzinfo=timezone.utc), to=datetime(2026, 10, 8, tzinfo=timezone.utc), known_at=None)
     k = req.to
     cold_clear = {"withheld": False, "consequences": [], "finding_ids": {}, "hold": None}
     cold_withheld = {**cold_clear, "withheld": True}

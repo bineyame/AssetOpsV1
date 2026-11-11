@@ -1851,9 +1851,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
         </MemoryRouter>,
       );
       await settledScreen();
-      const chipEl = document.querySelector('[data-site-findings-lenses] [data-chip-unavailable="Opportunities"], [data-site-findings-lenses] li:last-child');
-      expect(chipEl?.textContent).toContain("Opportunities");
-      expect(chipEl?.querySelector("a")).toBeNull();
+      // RM-2: no lens is supported, so no lens chip row is drawn at all.
+      expect(document.querySelector("[data-site-findings-lenses]")).toBeNull();
       const note = document.querySelector("[data-opportunity-index-helper]");
       if (helper) {
         // CH-4 (§4.3): with no renewable address the helper links only to Findings › Opportunities.
@@ -1927,47 +1926,24 @@ describe("post-W6 W4 Q5/R325/R450: Scenarios refusals, rows and the Site-time Wi
     for (const [i, r] of cells().entries()) expect(r[0]).toContain(`${i + 1} ${long}`);
   });
 
-  it("R450: the Window shows Site-local days with the zone, writes UTC midnight bounds, keeps the cutoff and reads page one", async () => {
-    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+  it("SR-2/M1: the Window is the date range at the top; the page names the UTC days the bar wrote and has no date form", async () => {
+    // The bar writes UTC-midnight bounds ("14-20 Oct"); Kisiwa is EAT but the read uses them as given: UTC days.
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
     await settledScreen();
-    const form = await screen.findByRole("form", { name: "Window" });
-    const from = form.querySelector("[data-scenarios-window-from]") as HTMLInputElement;
-    const to = form.querySelector("[data-scenarios-window-to]") as HTMLInputElement;
-    // Africa/Nairobi (EAT, UTC+3): 21:00Z is the next local midnight. Build ruling 7: the end day is included, so the
-    // exclusive bound 2026-10-20T21:00Z shows its preceding Site-local date.
-    expect([from.value, to.value]).toEqual(["2026-10-14", "2026-10-20"]);
-    expect(form.textContent).toContain("From (EAT)");
-    expect(form.textContent).toContain("To (EAT, included)");
-    expect(form.textContent).not.toContain("exclusive");
-    expect(document.querySelector("[data-mock-deviation='R450']")?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R450)");
-    fireEvent.change(from, { target: { value: "2026-10-01" } });
-    fireEvent.change(to, { target: { value: "2026-10-03" } });
-    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-    await waitFor(() => expect(location()).toContain("from=2026-09-30T21%3A00%3A00Z"));
-    expect(location()).toContain("to=2026-10-03T21%3A00%3A00Z");
-    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-09-30T21:00:00Z", to: "2026-10-03T21:00:00Z", known_at: KNOWN, cursor: null }));
-  });
-
-  it("build ruling 7: a single included day and a month-end day give the next Site-local midnight", async () => {
-    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
-    await settledScreen();
-    const form = await screen.findByRole("form", { name: "Window" });
-    fireEvent.change(form.querySelector("[data-scenarios-window-from]") as HTMLInputElement, { target: { value: "2026-10-31" } });
-    fireEvent.change(form.querySelector("[data-scenarios-window-to]") as HTMLInputElement, { target: { value: "2026-10-31" } });
-    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-    await waitFor(() => expect(vi.mocked(client.getScenarios).mock.calls.at(-1)?.[1]).toEqual({ from: "2026-10-30T21:00:00Z", to: "2026-10-31T21:00:00Z", known_at: KNOWN, cursor: null }));
-    expect(screen.queryByRole("alert")).toBeNull();
-  });
-
-  it("R450: a reversed Window stays on the page with its reason and makes no new read", async () => {
-    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-13T21:00:00Z&to=2026-10-20T21:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
-    await settledScreen();
-    const form = await screen.findByRole("form", { name: "Window" });
     await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(1));
-    fireEvent.change(form.querySelector("[data-scenarios-window-from]") as HTMLInputElement, { target: { value: "2026-10-05" } });
-    fireEvent.change(form.querySelector("[data-scenarios-window-to]") as HTMLInputElement, { target: { value: "2026-10-02" } });
-    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-    expect((await screen.findByRole("alert")).textContent).toBe("The end must be after the start.");
-    expect(client.getScenarios).toHaveBeenCalledTimes(1);
+    const line = document.querySelector("[data-scenarios-window='range']")?.textContent ?? "";
+    expect(line).toBe("Window: 14 Oct to 20 Oct (UTC days, last day included), from the date range at the top.");
+    expect(main().querySelector("input[type='date']")).toBeNull();
+    expect(screen.queryByRole("form", { name: "Window" })).toBeNull();
+    expect(document.querySelector("[data-mock-deviation='R450']")).toBeNull();
+    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-14T00:00:00Z", to: "2026-10-21T00:00:00Z", known_at: KNOWN, cursor: null });
+  });
+
+  it("M1: a single included month-end UTC day is named as one day", async () => {
+    const client = renderAt(`/sites/${CODE}/financials/scenarios?from=2026-10-31T00:00:00Z&to=2026-11-01T00:00:00Z&known_at=${KNOWN}`, [ok(list([row()]))]);
+    await settledScreen();
+    await waitFor(() => expect(client.getScenarios).toHaveBeenCalledTimes(1));
+    expect(document.querySelector("[data-scenarios-window='range']")?.textContent).toContain("31 Oct to 31 Oct (UTC days, last day included)");
+    expect(vi.mocked(client.getScenarios).mock.calls[0]?.[1]).toEqual({ from: "2026-10-31T00:00:00Z", to: "2026-11-01T00:00:00Z", known_at: KNOWN, cursor: null });
   });
 });

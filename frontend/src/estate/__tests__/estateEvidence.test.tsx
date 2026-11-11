@@ -4,7 +4,7 @@
  * panel structure, with every card, column, chip, link, inert example and state-table string asserted. Bodies are
  * shaped as the reviewed `estate-evidence-1` wire; IDs are synthetic, and no mock count, Site or Action survives.
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -235,7 +235,9 @@ describe("W3-02 estate Evidence root", () => {
     expectV69Panels("globalevidence");
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio evidence");
     expect(main().textContent).toContain("Cross-site claim readiness, recurring gaps and instrumentation priorities");
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
+    expect(main().querySelector("[data-estate-window]")).toBeNull();
+    expect(main().querySelector("[data-estate-cutoff-line]")).not.toBeNull();
     expect(cards()).toEqual([
       { label: "Sites with limited claims", value: "1 of 3", note: "Sites with a selected limited capability" },
       { label: "Priority evidence actions", value: "Not assessed", note: "Priority is not recorded for estate evidence gaps" },
@@ -514,13 +516,9 @@ describe("W3-02 estate Evidence root", () => {
     const next = within(panelTitled(COVERAGE_PANEL)).getByRole("link", { name: "Next page" });
     expect(decodeURIComponent(next.getAttribute("href") ?? "")).toBe(`${ESTATE_EVIDENCE_PATH}?from=${FROM}&to=${TO}&cursor=opaque-cursor`);
     expect(client.calls[0]).toMatchObject({ from: FROM, to: TO, known_at: null, cursor: null });
-    // Applying a new window restarts at page one.
-    fireEvent.change(main().querySelector("input[type=date]") as HTMLInputElement, { target: { value: "2026-10-12" } });
-    fireEvent.click(screen.getByRole("button", { name: "Show" }));
-    await settledScreen();
-    expect(decodeURIComponent(screen.getByTestId("location").textContent ?? "")).toBe(
-      `${ESTATE_EVIDENCE_PATH}?from=2026-10-12T00:00:00Z&to=${TO}`,
-    );
+    // SR-2: the page has no date form of its own; the shell's shared range bar sets the range (and drops the cursor).
+    expect(main().querySelector("input[type=date]")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Show" })).toBeNull();
   });
 
   it("readsTheEvidenceWireAndMapsRefusals", async () => {
@@ -735,7 +733,8 @@ describe("post-W6 W3-estate refused window", () => {
     const view = renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    // SR-2: a valid range is shown in the shell's shared bar, not on the page.
+    expect(main().querySelector("[data-estate-window]")).toBeNull();
     view.unmount();
   });
 });

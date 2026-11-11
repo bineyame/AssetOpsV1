@@ -103,7 +103,7 @@ def _usable(row: dict[str, Any], component_id: str) -> bool:
 
 
 def _observations(rows: list[dict[str, Any]], component_id: str, cadence: timedelta | None,
-                  hi: datetime) -> list[tuple[datetime, datetime, str, list[str]]]:
+                  hi: datetime, classify: dict[str, str] = CATEGORY) -> list[tuple[datetime, datetime, str, list[str]]]:
     """Classified observation intervals `(from, to, category, evidence_ids)` from one connector's rows. Equal-time
     rows form one transition: equal values merge, different values (or an unusable row) conflict and that whole
     cadence-sized interval is Unknown. Evidence-ID order never chooses a winner."""
@@ -125,7 +125,7 @@ def _observations(rows: list[dict[str, Any]], component_id: str, cadence: timede
             continue
         values = {str(r.get("value")) for r in group}
         usable = all(_usable(r, component_id) for r in group)
-        category = CATEGORY.get(values.pop(), UNKNOWN) if usable and len(values) == 1 else UNKNOWN
+        category = classify.get(values.pop(), UNKNOWN) if usable and len(values) == 1 else UNKNOWN
         ids = sorted({str(r["evidence_id"]).lower() for r in group}) if category != UNKNOWN else []
         out.append((at, end, category, ids))
     return out
@@ -215,6 +215,48 @@ def availability(foundation: dict[str, Any] | None, assets: dict[str, str], acce
 
 def _sum(values) -> int | float:
     return _seconds(sum((timedelta(seconds=v) for v in values), _ZERO))
+
+
+#: PB-3: the ev-charger/1 connector states as reported (energy grading, not availability: a CHARGING or PLUGGED
+#: report is a known state here, while `CATEGORY` leaves it Unknown for availability). EV-HB (PB-3 review Low): every
+#: declared connector state (`sites/binding_roles.EV_CONNECTOR_STATES`), AVAILABLE and DISABLED included.
+REPORTED_STATES = {s: s for s in ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED",
+                                  "DISABLED")}
+
+
+def status_spans(foundation: dict[str, Any] | None, connectors: list[tuple[str, str]],
+                 accepted: list[dict[str, Any]] | None, lo: datetime | None,
+                 hi: datetime | None) -> dict[str, list[tuple[datetime, datetime, str]]]:
+    """PB-3: each connector's reported-state observation intervals `{asset_id: [(from, to, state)]}` inside
+    `[lo, hi)`, by the same cadence rule as `availability` (a report classifies `[at, min(next, at + cadence))`;
+    an unusable or conflicting report, or an unrecognised value, is UNKNOWN). `connectors` are `(component_id,
+    asset_id)` pairs. No selected Foundation or no selected head: nothing is known (`{}`)."""
+    if foundation is None or accepted is None or lo is None or hi is None:
+        return {}
+    components = {c.get("component_id"): c for c in foundation["content"].get("components") or ()
+                  if c.get("component_type") == "EV_CONNECTOR"}
+    out: dict[str, list[tuple[datetime, datetime, str]]] = {}
+    for component_id, asset_id in connectors:
+        mine = [r for r in accepted if r.get("role") == STATE_ROLE
+                and str(r.get("asset_id")).lower() == str(asset_id).lower()]
+        cadence = _cadence(components.get(component_id) or {})
+        out[asset_id] = [(max(a, lo), min(b, hi), state)
+                         for a, b, state, _ids in _observations(mine, component_id, cadence, hi, REPORTED_STATES)
+                         if min(b, hi) > max(a, lo)]
+    return out
+
+
+def status_spans_on(reads: Any, c: Any, snap: dict[str, Any]) -> dict[str, list[tuple[datetime, datetime, str]]]:
+    """`status_spans` over one selected snapshot connection, on `availability_on`'s inputs (every enabled connector
+    of the selected head's time-valid Foundation revision)."""
+    lo, hi = snap["lo"], snap["hi"]
+    revision = selected_foundation(reads.foundation_revision_on(c, snap), snap, lo, hi)
+    rows = selected_rows(reads.accepted_on(c, snap), snap)
+    if revision is None or rows is None:
+        return {}
+    windows = connector_service_windows(revision, reads.assets_on(c, snap), lo, hi)
+    pairs = [(w["component_id"], w["asset_id"]) for w in windows]
+    return status_spans(revision, pairs, rows, lo, hi)
 
 
 def availability_on(reads: Any, c: Any, snap: dict[str, Any]) -> dict[str, Any]:

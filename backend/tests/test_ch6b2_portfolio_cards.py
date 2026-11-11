@@ -69,8 +69,8 @@ def test_sites_disrupted_basis_forms(monkeypatch) -> None:
     one = {**none, "C": THREADS["C"]}
     assert _counts(monkeypatch, threads=one).claims[CL.SITES_DISRUPTED].text == "1 site disrupted"
     # MD-CH6-4: the CHECKED_DAYS forms
-    assert _counts(monkeypatch, PART).claims[CL.SITES_DISRUPTED].text == "2 found on the days checked"
-    assert _counts(monkeypatch, PART, none).claims[CL.SITES_DISRUPTED].text == "None found on the days checked"
+    assert _counts(monkeypatch, PART).claims[CL.SITES_DISRUPTED].text == "2 found on days with complete readings"
+    assert _counts(monkeypatch, PART, none).claims[CL.SITES_DISRUPTED].text == "None found on days with complete readings"
     failed = _counts(monkeypatch, fail="B")
     assert (failed.claims[CL.SITES_DISRUPTED].basis, failed.claims[CL.SITES_DISRUPTED].text) == ("NOT_KNOWN",
                                                                                                 "Not known yet")
@@ -93,8 +93,8 @@ def test_count_card_value_splits_the_claim_text() -> None:
     assert v.count_card_value(claim(2, "COMPLETE", "2 sites disrupted")) == {"text": "2", "small": "sites disrupted"}
     assert v.count_card_value(claim(0, "COMPLETE", "No sites disrupted")) == {"text": "No sites disrupted",
                                                                                "small": None}
-    assert v.count_card_value(claim(0, "CHECKED_DAYS", "None found on the days checked")) == {
-        "text": "None found", "small": "on the days checked"}
+    assert v.count_card_value(claim(0, "CHECKED_DAYS", "None found on days with complete readings")) == {
+        "text": "None found", "small": "on days with complete readings"}
     assert v.count_card_value(claim(None, "NOT_KNOWN", "Not known yet")) == {"text": "Not known yet", "small": None}
     assert v.count_card_value(claim(0, "COMPLETE", "0 fixes confirmed"), "No verified result yet")["text"] \
         == "No verified result yet"
@@ -120,15 +120,15 @@ def _cards(sites, counted=None, categories=(), objective_sites=None, unread=0):
 def test_grow_value_follows_money_total_form() -> None:
     complete = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")})])["GROW_REVENUE"]
     assert complete["value"] == {"text": "7.50 USD", "small": "estimated"} and complete["tone"] == "green"
-    assert complete["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days checked"
-    assert complete["parts"]["income_note"] == "Estimated income from checked days: 7.50 USD · not billed or collected"
-    assert complete["days_line"] == "Kobo: 7 of 7 days checked"
+    assert complete["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days with complete readings"
+    assert complete["parts"]["income_note"] == "Estimated income from days with complete readings: 7.50 USD · not billed or collected"
+    assert complete["days_line"] == "Kobo: Complete readings on 7 of 7 days"
     assert complete["basis_text"] == "Declared price × measured kWh · not billed or collected"
     # CH6b2-R Q4: "At least" whenever the claim says so, including a named NOT_KNOWN Site (not only CHECKED_DAYS)
     named = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")}),
                     _site("D", "Depot", {"estimated_income": _income(None, None, "NOT_KNOWN")})])["GROW_REVENUE"]
     assert named["value"] == {"text": "At least 7.50 USD", "small": "estimated"}
-    assert named["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days checked · Depot: not known yet"
+    assert named["parts"]["income"] == "Kobo: 7.50 USD over 7 of 7 days with complete readings · Depot: not known yet"
     mixed = _cards([_site("K", "Kobo", {"estimated_income": _income("7.50")}),
                     _site("D", "Depot", {"estimated_income": _income("1.00", cur="EUR")})])["GROW_REVENUE"]
     assert mixed["value"] == {"text": "Not shown · amounts in more than one currency", "small": None}
@@ -167,11 +167,11 @@ def test_protect_and_assure_cards_carry_the_count_claims(monkeypatch) -> None:
     assert protect["value"] == {"text": "2", "small": "sites disrupted"} and protect["tone"] == "red"
     assert protect["detail"] == ("Service disruptions recorded as findings · 1 early warning, counted separately · "
                                  "loss not priced")
-    assert protect["days_line"] == ("GreenHarvest: 7 of 7 days checked · Kobo: 7 of 7 days checked · "
-                                    "Depot: 7 of 7 days checked")
+    # PF-C2: the shared coverage line carries every Site's days; Protect and Assure no longer repeat it.
+    assert protect["days_line"] is None and assure["days_line"] is None
     assert assure["value"] == {"text": "1", "small": "fix confirmed"}   # Depot c2 CLOSED
     assert assure["claim"] == counted.claims[CL.VERIFIED_RESULTS].to_json()
-    assert assure["detail"] == "targets declared at 2 sites, for any outcome, 1 site not checked"
+    assert assure["detail"] == "targets declared at 2 sites, for any outcome, 1 site not judged yet"
     unknown = portfolio_cards(sites, None, v.estate_income([]), [], None, 3)
     assert unknown["PROTECT_ASSET"]["value"] == {"text": "Not known yet", "small": None}
     assert unknown["PROTECT_ASSET"]["detail"] == "Service disruptions recorded as findings · loss not priced"
@@ -208,9 +208,9 @@ def test_card_notes_are_one_server_line_each() -> None:
 
 @pytest.mark.parametrize(("nodes", "expected"), [
     (None, None),
-    ({"earnings": {"text": "7.50 USD over 3 of 3 days checked", "basis": "COMPLETE"},
+    ({"earnings": {"text": "7.50 USD over 3 of 3 days with complete readings", "basis": "COMPLETE"},
       "potential": {"text": "18–20 kW of daytime solar unused"}, "kpi": {"text": "No target set yet"}},
-     "7.50 USD over 3 of 3 days checked"),
+     "7.50 USD over 3 of 3 days with complete readings"),
     ({"earnings": {"text": "Not known yet", "basis": "NOT_KNOWN"},
       "potential": {"text": "18–20 kW of daytime solar unused\n1–2 USD per hour"}, "kpi": {"text": "No target"}},
      "18–20 kW of daytime solar unused"),
@@ -223,10 +223,10 @@ def test_board_grow_headline_order(nodes, expected) -> None:
 
 def test_copy_preferences() -> None:
     one = {"complete": 1, "partial": 0, "low": 0, "no_data": 0, "pending": 0, "expected": 1}
-    assert v.days_line(one) == "1 of 1 day checked"                               # Q7a
+    assert v.days_line(one) == "Complete readings on 1 of 1 day"                               # Q7a
     assert v.money_claim("estimated_income", {"amount": "2", "currency": "USD"}, one).text \
-        == "2.00 USD over 1 of 1 day checked · not billed or collected"
-    assert v.days_line(FULL) == "7 of 7 days checked"
+        == "2.00 USD over 1 of 1 day with complete readings · not billed or collected"
+    assert v.days_line(FULL) == "Complete readings on 7 of 7 days"
     assert (v.headroom_unit(1), v.headroom_unit(6), v.headroom_unit(None)) == (   # Q7c
         "kW over 1 daylight hour", "kW over 6 daylight hours", "kW over daylight hours")
 
@@ -259,8 +259,8 @@ def test_evidence_gap_text_never_says_days_checked(gaps, checked) -> None:
     (3, 0, "targets declared at 3 sites, for any outcome"),
     (1, 0, "targets declared at 1 site, for any outcome"),
     (0, 0, "no targets declared"),                                  # only when every Site was read as None
-    (2, 1, "targets declared at 2 sites, for any outcome, 1 site not checked"),
-    (1, 2, "targets declared at 1 site, for any outcome, 2 sites not checked"),
+    (2, 1, "targets declared at 2 sites, for any outcome, 1 site not judged yet"),
+    (1, 2, "targets declared at 1 site, for any outcome, 2 sites not judged yet"),
     (0, 1, None),                                                   # n == 0 and unread > 0: no clause
     (None, 3, None),
 ])

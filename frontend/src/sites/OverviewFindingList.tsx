@@ -201,7 +201,7 @@ function listScope(summary: SiteWindowSummary): string {
 const NOT_CONFIRMED_WORDS: ProductWords = {
   label: "Not confirmed as current yet",
   sentence: "This list is not confirmed as current for this day, so no Findings are listed and no count is given.",
-  next: "Look again after the day has been checked.",
+  next: "Look again after the day has been analysed.",
   tone: "waiting",
   code: "CURRENT",
   unrecognised: false,

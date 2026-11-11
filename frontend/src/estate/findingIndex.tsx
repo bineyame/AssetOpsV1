@@ -6,7 +6,7 @@
  * honestly empty until a stored eligible kind exists. No mock ID, count, price or savings is rendered.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";
@@ -32,7 +32,7 @@ import {
 import { linkFor } from "../shell/operatorSiteRoutes";
 import {
   EARLIER_CUTOFF,
-  EstateDateBar,
+  EstateCutoffLine,
   EstateRefusal,
   LimitationNotice,
   PARTIAL_COVERAGE,
@@ -120,9 +120,10 @@ export function consequenceWords(consequence: EstateConsequence, rowStatus: stri
   if (consequence.state === "PRICED" && consequence.amount_low !== null && consequence.amount_high !== null) {
     return `${consequence.amount_low}–${consequence.amount_high} ${consequence.currency ?? ""}`.trim();
   }
-  // COV-PARTIAL MOCK DEVIATION R622: a partly checked Site's row never shows an amount (the backend sends none).
+  // COV-PARTIAL MOCK DEVIATION R622: a row of a Site with incomplete days never shows an amount (the backend sends
+  // none). PF-W (D-E5.46): "incomplete days", never "checked".
   if (rowStatus === "PARTIAL") {
-    return `Partly checked · ${consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "value shown once every day is checked"}`;
+    return consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "Value not shown while this site has incomplete days";
   }
   if (consequence.source_revision_id === null) return "No consequence recorded";
   if (consequence.state === "UNPRICED") return "Unpriced";
@@ -135,7 +136,7 @@ export const COUNTED_WHEN_ANALYSED = "Counted once every site is fully analysed"
 export const NOT_YET_CONFIRMED_NOTE = "Seen, but the readings do not yet confirm it · read with care";
 export const AWAITING_MINI_GRID_ONLY = "mini-grid sites only; cold room and EV charging are not counted here yet";
 export const SO_FAR_EXPLAINED =
-  "\"So far\" because findings on days not analysed yet are not shown, so more may appear once those days are analysed.";
+  "\"So far\" because findings on incomplete days are not shown, so more may appear once those days have a usable result.";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -152,7 +153,8 @@ function siteBreakdown(body: EstateFindingsBody): { full: number; applicable: nu
   const known = ["CURRENT", "HISTORICAL", "PARTIAL", "PENDING_RECOMPUTE", "STALE_SOURCE"];
   const parts: string[] = [];
   const add = (n: number, one: string, many: string) => n > 0 && parts.push(plural(n, one, many));
-  add(of("PARTIAL"), "site with days not analysed yet", "sites with days not analysed yet");
+  // D-E5.46 (amends D-E5.26): a PARTIAL Site has incomplete days (no readings, or not analysed yet).
+  add(of("PARTIAL"), "site with incomplete days", "sites with incomplete days");
   add(of("PENDING_RECOMPUTE"), "site still processing", "sites still processing");
   add(of("STALE_SOURCE"), "site with no new readings received", "sites with no new readings received");
   add(sites.filter((x) => !known.includes(x.state)).length, "site not analysed yet", "sites not analysed yet");
@@ -312,7 +314,7 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
   const missing = body.coverage.sites.filter(
     (site) => !(site.state === "PENDING_RECOMPUTE" && site.selection_id !== null) && (site.state === "UNKNOWN" || site.selection_id === null),
   );
-  // COV-PARTIAL MOCK DEVIATION R622: partly checked Sites name their checked days from the backend's `days.text`.
+  // COV-PARTIAL MOCK DEVIATION R622: Sites with incomplete days name their days from the backend's `days.text`.
   const partial = body.coverage.sites.filter((site) => site.state === "PARTIAL" && site.days?.text);
   if ([...pending, ...missing, ...partial].some((site) => !names.has(site.site_id))) return generic;
   const partialNames = partial.map((site) => names.get(site.site_id));
@@ -327,7 +329,7 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
     }
     if (missing.length > 0) panel.push(`${missingNames} has no selected result; totals are unknown.`);
     if (partial.length > 0) {
-      panel.push(`${partialNames.join(", ")} ${partial.length === 1 ? "is" : "are"} partly checked; totals are unknown.`);
+      panel.push(`${partialNames.join(", ")} ${partial.length === 1 ? "has" : "have"} incomplete days; totals are unknown.`);
     }
     if (panel.length === 0) panel.push(PARTIAL_TOTALS);
   }
@@ -536,7 +538,6 @@ export interface EstateFindingsPageProps {
 export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EstateResult<EstateFindingsBody> } | null>(null);
@@ -585,13 +586,7 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
     <div className="estate-page" data-estate-root={lens}>
       <PageHeader title="Findings" subtitle={SUBTITLE[lens]} />
       <LensTabs lens={lens} href={lensHref} />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={body}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(next) => navigate(estateHref(path, next, { state: query.state }))}
-      />
+      <EstateCutoffLine query={query} body={body} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading">Loading the findings across the estate.</p>
       ) : read.status === "refused" ? (

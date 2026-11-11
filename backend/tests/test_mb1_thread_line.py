@@ -1,6 +1,6 @@
 """MB-1b (FUEL-1 MB-1-R §3.4, MB-1a-R2 §1): the mill's thread line on the Kobo board's Grow row (L0, no DB).
 
-The line function's kinds, the compose-side view (occurrence selection, the runner's fully checked days, the
+The line function's kinds, the compose-side view (occurrence selection, the runner's days with complete readings, the
 work-window guard, no policy -> no line), the category, the subline join, the other rows byte-equal, and the MILL-4
 finish row's self-test."""
 from __future__ import annotations
@@ -57,7 +57,7 @@ def test_monitoring_counts_the_remaining_fully_checked_days_from_the_view() -> N
     item = _line(_fact(_view("RESOLVED_MONITORING", checked=4)))
     assert item["kind"] == "MONITORING" and item["remaining_days"] == 3 and item["clean_days"] is None
     assert item["text"] == board.OPP_THREAD_MONITORING.format(code=display_code(CODE), k=3)
-    assert item["text"] == f"Change checked and working ({SHOWN}) · 3 more fully checked days to close"
+    assert item["text"] == f"Change checked and working ({SHOWN}) · 3 more days with complete readings to close"
     assert item["action_code"] == CODE and item["thread_id"] == MILL_T and item["effective_day"] == "2026-10-07"
     assert item["ref"]["kind"] == "THREAD" and item["after"] is None
     assert _line(_fact(_view("RESOLVED_MONITORING", checked=9)))["remaining_days"] == 0  # never negative
@@ -158,7 +158,7 @@ def test_s8_shape_excludes_an_occurrence_starting_after_the_board_day() -> None:
     assert (o.view["segment_no"], o.view["state"], o.action_segment) == (1, "RESOLVED_MONITORING", 1)
     (line,) = rows[mini.GROW]["thread_lines"]
     assert line["kind"] == "MONITORING" and line["remaining_days"] == 7 - 5  # 11-14 Oct and 18 Oct
-    assert line["text"] == f"Change checked and working ({SHOWN}) · 2 more fully checked days to close"
+    assert line["text"] == f"Change checked and working ({SHOWN}) · 2 more days with complete readings to close"
 
 
 def test_s0_shape_reads_the_recurrence_started_by_the_board_day() -> None:

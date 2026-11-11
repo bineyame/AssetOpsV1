@@ -12,7 +12,7 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
-   "headline": "No income figure for this day: it is not fully checked",
+   "headline": "No income figure for this day: it does not have complete readings",
    "nodes": {
     "earnings": {
      "basis": "NOT_KNOWN",
@@ -24,7 +24,7 @@
       "partial": 0,
       "pending": 0
      },
-     "days_line": "0 of 1 day checked · 1 with too little data, not counted",
+     "days_line": "Complete readings on 0 of 1 day · 1 with too few readings, not counted",
      "key": "money.estimated_charging_income",
      "span": {
       "first": "2026-10-27",

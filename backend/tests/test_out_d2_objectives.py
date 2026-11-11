@@ -147,12 +147,12 @@ def test_every_template_passes_vocabulary() -> None:
 
 
 def test_assure_text_parts_and_order() -> None:
-    """D-W1-14: met first, then on pace, behind pace, too early, not checked yet; each only when counted."""
+    """D-W1-14: met first, then on pace, behind pace, too early, not judged yet; each only when counted."""
     from assetops_backend.site_outcomes.objective_facts import assure_text
     assert assure_text([obj.MET]) == "1 of 1 declared objectives met"
     assert assure_text([obj.ON_PACE, obj.MISSED]) == "0 of 2 declared objectives met · 1 on pace"
     assert assure_text([obj.BEHIND_PACE]) == "0 of 1 declared objectives met · 1 behind pace"
     assert assure_text([obj.TOO_EARLY]) == "0 of 1 declared objectives met · 1 too early to judge"
-    assert assure_text([obj.NOT_JUDGED, None]) == "0 of 2 declared objectives met · 2 not checked yet"
+    assert assure_text([obj.NOT_JUDGED, None]) == "0 of 2 declared objectives met · 2 not judged yet"
     assert assure_text([obj.MET, obj.TOO_EARLY, obj.NOT_JUDGED, obj.BEHIND_PACE, obj.ON_PACE]) == (
-        "1 of 5 declared objectives met · 1 on pace · 1 behind pace · 1 too early to judge · 1 not checked yet")
+        "1 of 5 declared objectives met · 1 on pace · 1 behind pace · 1 too early to judge · 1 not judged yet")

@@ -22,6 +22,15 @@ PERIOD_OPERATING_HOURS = "operating_hours"
 PERIODS = (PERIOD_OPERATING_HOURS,)
 
 
+#: PB-3: the coverage basis a measure may declare (`measures.<key>.covered` in the coverage policy).
+#: `intervals` (the default for every measure not listed): covered time is the union of the adapter's intervals.
+#: `connector_status_known`: a metered-when-charging measure; covered time is connector-status-known time
+#: (`grading.status_known_spans`).
+BASIS_INTERVALS = "intervals"
+BASIS_CONNECTOR_STATUS_KNOWN = "connector_status_known"
+BASES = (BASIS_INTERVALS, BASIS_CONNECTOR_STATUS_KNOWN)
+
+
 class ChainConfigError(ValueError):
     """A declared chain config file does not match its schema."""
 
@@ -38,6 +47,11 @@ class CoveragePolicy:
     bands: Bands
     objective_min_complete_days: int
     share_of_expected_days: float | None
+    #: PB-3: (measure key, basis) pairs declared under `measures`; a measure not listed is `intervals`.
+    coverage_bases: tuple[tuple[str, str], ...] = ()
+
+    def basis_for(self, measure: str) -> str:
+        return dict(self.coverage_bases).get(measure, BASIS_INTERVALS)
 
 
 @dataclass(frozen=True)
@@ -90,11 +104,19 @@ def parse_coverage_policy(payload: dict[str, Any], path: str) -> CoveragePolicy:
     )
     share = payload.get("share_of_expected_days")
     _require(share is None or _fraction(share), path, "share_of_expected_days must be null or a fraction")
+    measures = payload.get("measures", {})
+    _require(isinstance(measures, dict), path, "measures must be an object")
+    bases: list[tuple[str, str]] = []
+    for key, entry in sorted(measures.items()):
+        _require(isinstance(entry, dict) and entry.get("covered") in BASES, path,
+                 f"measures.{key}.covered must be one of {BASES}")
+        bases.append((key, entry["covered"]))
     return CoveragePolicy(
         policy_version=policy_version,
         bands=Bands(complete=float(complete), partial=float(partial)),
         objective_min_complete_days=min_days,
         share_of_expected_days=None if share is None else float(share),
+        coverage_bases=tuple(bases),
     )
 
 

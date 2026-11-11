@@ -27,7 +27,7 @@
      "key": "charging_delivered",
      "label": "Charging delivered",
      "link_ref": null,
-     "text": "Not known yet · 0 of 1 day checked · 1 with too little data, not counted"
+     "text": "Not known yet · Complete readings on 0 of 1 day · 1 with too few readings, not counted"
     },
     {
      "confidence": {
@@ -58,7 +58,7 @@
      "key": "energy_billed",
      "label": "Energy billed against metered",
      "link_ref": null,
-     "text": "Not available yet · no settlement records"
+     "text": "Billing records are not connected yet"
     }
    ],
    "counts": {
@@ -78,7 +78,7 @@
     }
    },
    "grow_headline": "No target set yet",
-   "headline": "No income figure for this day: it is not fully checked",
+   "headline": "No income figure for this day: it does not have complete readings",
    "headline_money": null,
    "icon": "grow",
    "in_hand": [
@@ -126,7 +126,7 @@
       "partial": 0,
       "pending": 0
      },
-     "days_line": "0 of 1 day checked · 1 with too little data, not counted",
+     "days_line": "Complete readings on 0 of 1 day · 1 with too few readings, not counted",
      "key": "money.estimated_charging_income",
      "span": {
       "first": "2026-10-27",
@@ -213,7 +213,7 @@
     "kpi": null,
     "potential": null
    },
-   "not_measured_text": "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
+   "not_measured_text": "Odometer readings are not connected yet; a tariff estimate exists in Financials",
    "options": [],
    "outcomes": [
     {
@@ -284,7 +284,7 @@
      "key": "warranty",
      "label": "Warranty",
      "link_ref": null,
-     "text": "Not available yet · no warranty record"
+     "text": "Warranty records are not connected yet"
     }
    ],
    "counts": {
@@ -402,7 +402,7 @@
    "potential": null,
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
-   "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected is not known yet. Charger condition is not assessed",
+   "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected needs bus rosters, which are not connected yet. Charger condition needs a wear model, which is not connected yet",
    "target_note": null,
    "thread_lines": [],
    "tone": "amber"
@@ -416,7 +416,7 @@
      "key": "departures",
      "label": "Departures against the timetable",
      "link_ref": null,
-     "text": "Not available yet · no bus roster connected"
+     "text": "Bus rosters are not connected yet"
     },
     {
      "confidence": null,
@@ -428,7 +428,7 @@
       "site": "EV-LAB-001",
       "view": "ev_financials"
      },
-     "text": "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue"
+     "text": "Billing records are not connected yet · reconciles the revenue shown under Grow revenue"
     },
     {
      "confidence": {

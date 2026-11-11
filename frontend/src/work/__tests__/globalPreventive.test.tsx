@@ -200,7 +200,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     const bar = document.querySelector("[data-global-work-bar]") as HTMLElement;
     expect(bar.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(strip.compareDocumentPosition(cards()!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(bar).getByRole("form", { name: "Preventive window" })).toBeInTheDocument();
+    expect(within(bar).getByRole("group", { name: "Preventive window" })).toBeInTheDocument(); // SR-2: Reload only
 
     // P-B3-3: the four mock card headings; Scheduled items is the full selected count.
     expect(
