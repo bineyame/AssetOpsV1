@@ -435,34 +435,28 @@ function MiniNotLoaded({
 
 /* ---------- period selector (Q5, q9-1: site-local days, sent as UTC bounds) ---------- */
 
-function MiniPeriodBar({
-  timeZone,
-  window,
-  maxDays,
-  onApply,
-}: {
-  timeZone: string;
-  window: MiniWindowQuery;
-  maxDays: number;
-  onApply: (next: MiniWindowQuery) => void;
-}) {
+function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
   const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
   const toMs = window.to === null ? Number.NaN : Date.parse(window.to);
   const firstDay = Number.isNaN(fromMs) ? "" : localDateOf(timeZone, fromMs);
   const lastDay = Number.isNaN(toMs) ? "" : localDateOf(timeZone, toMs - 1);
   const span = firstDay && lastDay ? Math.round((Date.parse(lastDay) - Date.parse(firstDay)) / 86_400_000) + 1 : 1;
-  const [first, setFirst] = useState(firstDay);
-  const [days, setDays] = useState(String(Math.min(Math.max(span, 1), maxDays)));
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first) return;
-    onApply({ ...localDaysWindow(timeZone, first, Number(days)), known_at: window.known_at });
-  };
+  // SR-2 M2: no range form of its own; the period is the date range at the top. The bar writes UTC-midnight bounds, so
+  // days are named Site-local only when the bounds are Site-local midnights (story links), else as UTC days.
+  const aligned =
+    firstDay !== "" &&
+    lastDay !== "" &&
+    localDaysWindow(timeZone, firstDay, span).from === new Date(fromMs).toISOString() &&
+    localDaysWindow(timeZone, firstDay, span).to === new Date(toMs).toISOString();
+  const utcFirst = Number.isNaN(fromMs) ? "" : new Date(fromMs).toISOString().slice(0, 10);
+  const utcLast = Number.isNaN(toMs) ? "" : new Date(toMs - 1).toISOString().slice(0, 10);
   return (
-    <form className="site-date-bar mini-period-bar" onSubmit={submit} data-mini-period>
+    <div className="site-date-bar mini-period-bar" data-mini-period>
       <span className="site-date-bar__window" data-mini-local-period>
         {firstDay && lastDay
-          ? `Site-local ${firstDay === lastDay ? `day ${firstDay}` : `days ${firstDay} to ${lastDay}`} (${timeZone})`
+          ? aligned
+            ? `Site-local ${firstDay === lastDay ? `day ${firstDay}` : `days ${firstDay} to ${lastDay}`} (${timeZone})`
+            : `UTC ${utcFirst === utcLast ? `day ${utcFirst}` : `days ${utcFirst} to ${utcLast}`}`
           : "No period selected"}
       </span>
       <span className="site-date-bar__cutoff" data-mini-utc-bounds>
@@ -470,28 +464,8 @@ function MiniPeriodBar({
         {window.known_at === null ? "" : ` · evidence cutoff ${formatDayTime(window.known_at)}`}
       </span>
       <TimeZoneNote />
-      {/* SR-2: the first day goes through the one day picker (FocusPicker). One day declares its day to the bar;
-          several days are the address's own range, which the bar then names. */}
-      <FocusPicker
-        day={span === 1 && firstDay !== "" ? firstDay : null}
-        label="First day"
-        labelClassName="v69-chip-field"
-        inputProps={{ className: "v69-chip-control", value: first, onChange: (e) => setFirst(e.target.value) }}
-      />
-      <label className="v69-chip-field">
-        Days{" "}
-        <select className="v69-chip-control" value={days} onChange={(e) => setDays(e.target.value)}>
-          {Array.from({ length: maxDays }, (_, i) => String(i + 1)).map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="submit" className="v69-chip-control">
-        Apply
-      </button>
-    </form>
+      <span className="site-date-bar__note" data-mini-range-note>Choose the days in the date range at the top.</span>
+    </div>
   );
 }
 
@@ -888,7 +862,6 @@ export function MiniRenewable({
   siteCode,
   timeZone,
   window,
-  pageHref,
 }: {
   client: MiniDepthClient;
   /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
@@ -897,10 +870,9 @@ export function MiniRenewable({
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
-  /** The page address for a new window (search included). */
-  pageHref: (search: string) => string;
+  /** No longer used (SR-2 M2: the page has no range form); kept so callers need not change. */
+  pageHref?: (search: string) => string;
 }): ReactNode {
-  const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<RenewableRead>(
@@ -911,13 +883,7 @@ export function MiniRenewable({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
-      <MiniPeriodBar
-        key={key}
-        timeZone={timeZone}
-        window={window}
-        maxDays={5}
-        onApply={(next) => navigate(pageHref(miniWindowSearch(next)))}
-      />
+      <MiniPeriodBar key={key} timeZone={timeZone} window={window} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (

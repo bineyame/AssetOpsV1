@@ -24,6 +24,17 @@ function Get-PageRangeInputCount {
     return $date + $named
 }
 
+# M2 (SR-2b review): FocusPicker is for a finer view (a day, an hour, an event). A file that uses it AND builds a
+# multi-day from/to window (`localDaysWindow(`, or sets the `from`/`to` address params directly) is still a page range
+# form, routed through the exempt picker; the first-day-plus-Days form of Renewable was exactly that.
+function Get-FocusPickerRangeWriteCount {
+    param([string]$Text)
+    if ($Text -notmatch '<FocusPicker\b') { return 0 }
+    # A write: a days window handed to onApply/navigate/setSearchParams in one statement, or the params set directly.
+    # (Building a fixed read window with localDaysWindow, as the Site board does, is not a write.)
+    return [regex]::Matches($Text, '(onApply|navigate|setSearchParams)\([^;]*localDaysWindow\(|\.set\(\s*"(from|to)"').Count
+}
+
 function Get-PageRangeFormFailures {
     param(
         [hashtable]$Files,      # relative path -> text
@@ -33,6 +44,11 @@ function Get-PageRangeFormFailures {
     $out = New-Object System.Collections.Generic.List[string]
     foreach ($path in ($Files.Keys | Sort-Object)) {
         if ($Exempt -contains $path) { continue }
+        $routed = Get-FocusPickerRangeWriteCount -Text $Files[$path]
+        if ($routed -gt 0) {
+            $out.Add("$path uses FocusPicker and also writes a from/to range ($routed writes). FocusPicker is for one day, hour or event; read the shared range (useSharedRange) instead of a page range form.")
+            continue
+        }
         $count = Get-PageRangeInputCount -Text $Files[$path]
         if ($Pending.ContainsKey($path)) {
             $allowed = [int]$Pending[$path]
@@ -80,9 +96,12 @@ function Invoke-PageRangeFormsCheck {
         "frontend/src/sites/Ledger.tsx"      = '<input type="datetime-local" name="from" value={from} />'
         "frontend/src/sites/Pending.tsx"     = '<input type="date" /><input type="date" />'
         "frontend/src/sites/Entry.tsx"       = '<input type="datetime-local" name="effective" />'
+        "frontend/src/sites/Routed.tsx"      = '<FocusPicker day={d} label="First day" />; onApply(localDaysWindow(tz, first, 3));'
+        "frontend/src/sites/Hour.tsx"        = '<FocusPicker day={d} label="Day" />; onApply(localHourWindow(tz, day, 12));'
+        "frontend/src/sites/Board.tsx"       = '<FocusPicker day={d} label="Day" />; const day = { ...localDaysWindow(tz, d, 1) };'
     }
     $got = @(Get-PageRangeFormFailures -Files $fixtures -Pending @{ "frontend/src/sites/Pending.tsx" = 1 } -Exempt @("frontend/src/shell/SharedRangeBar.tsx"))
-    $expect = @("frontend/src/estate/Fixture.tsx", "frontend/src/sites/Ledger.tsx", "frontend/src/sites/Pending.tsx")
+    $expect = @("frontend/src/estate/Fixture.tsx", "frontend/src/sites/Ledger.tsx", "frontend/src/sites/Pending.tsx", "frontend/src/sites/Routed.tsx")
     $flagged = @($got | ForEach-Object { ($_ -split ' ')[0] } | Sort-Object)
     if (($flagged -join ",") -ne ($expect -join ",")) {
         $failures.Add("page-range-forms self-test: expected failures for $($expect -join ', '), got: $($flagged -join ', ')")
