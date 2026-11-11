@@ -44,6 +44,8 @@ CODE = "COLD-READ"
 W = "from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"
 TO = datetime(2026, 10, 6, 20, 5, tzinfo=timezone.utc)
 EMPTY = "from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
+DAY = "from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"  # PB-1a: holds the replay's one analysed period
+EMPTY_WEEK = "from=2026-10-20T00:00:00Z&to=2026-10-27T00:00:00Z"
 ROUTES = ("overview", "evidence", "evidence/analysis", "financials", "financial-assumptions")
 # W3-01 Run 3 q3: the three literal provenance siblings; each non-null block is the six-key DTO + `detail`.
 ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "selected_source_provenance",
@@ -575,3 +577,35 @@ def test_w2f_recovery_and_exposure_truth_across_selected_reads(chain, case, excu
     if excursion:
         assert ov["consequence_summary"]["quantity"] == {"low": "19", "high": None, "unit": "degC_min"}
     assert get(c, f"financial-assumptions?{W}")["items"] == []  # S4: no declared product basis in W2
+
+
+@needs_db
+def test_pb1a_day_window_reads_its_analysed_period(chain) -> None:  # noqa: F811
+    """PB-1a (D-E5.31 ii) through the router: a whole-day window over the excursion replay's one analysed period
+    reads that period on all five Site reads and lists it with an exact-window `href`; the exact window (i)
+    and an empty week (iii) list nothing."""
+    built = opened("excursion", chain)
+    run(built)
+    drain(built)
+    c = client(built)
+    exact = {route: get(c, f"{route}?{W}") for route in ROUTES}
+    day = {route: get(c, f"{route}?{DAY}") for route in ROUTES}
+    none = get(c, f"overview?{EMPTY_WEEK}")
+    period = {"from": exact["overview"]["window"]["from"], "to": exact["overview"]["window"]["to"]}
+    for route in ROUTES:
+        assert exact[route]["analysed_periods"] == [] and exact[route]["shown_period"] is None, route
+        body = day[route]
+        assert body["shown_period"] == period, route
+        [listed] = body["analysed_periods"]
+        assert {k: listed[k] for k in ("from", "to")} == period, route
+        assert body["window"] == exact[route]["window"], route  # the read is about the analysed period
+        assert body["currentness"]["watermark"] == exact[route]["currentness"]["watermark"], route
+    ov = day["overview"]
+    assert ov["status"] == exact["overview"]["status"] and ov["status"]["state"] == "OBSERVED_EXCURSION"
+    assert ov["needs_attention"] == exact["overview"]["needs_attention"] and ov["needs_attention"]
+    assert ov["findings"]["count"] == exact["overview"]["findings"]["count"] >= 1
+    linked = follow(c, ov["analysed_periods"][0]["href"])  # the exact period window: rule (i), unchanged
+    assert linked["window"] == ov["window"] and linked["status"] == ov["status"]
+    assert linked["analysed_periods"] == [] and linked["shown_period"] is None
+    assert none["analysed_periods"] == [] and none["shown_period"] is None
+    assert none["status"]["state"] == "UNKNOWN" and none["window"]["from"] == "2026-10-20T00:00:00.000000Z"

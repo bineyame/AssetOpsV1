@@ -78,7 +78,10 @@ def test_cold_day_intersection_selects_exact_windows(chain) -> None:  # noqa: F8
         site = svc._snapshot(c, t, s, CODE, snap["lo"], snap["hi"], wm)  # the W2 Site read of that exact window
         outside = svc.estate_snapshots_on(c, t, s, CODE, DAY + timedelta(days=2), DAY + timedelta(days=3), wm, k)
         before_selection = selected_windows_on(c, t, s, ANALYTICS, DAY, DAY + timedelta(days=1), wm)
-    assert whole_day["selected"] == {}  # the covering predicate discards the hour-scale selected window
+    # The covering predicate discards the hour-scale selected window; PB-1a (D-E5.31 ii) then reads the one
+    # analysed period lying wholly inside the day.
+    assert whole_day["analysed_periods"] == [(rows[0]["window_start"], rows[0]["window_end"])]
+    assert revision_ids(whole_day) == revision_ids(snap) and "selection_seqs" not in whole_day
     assert keys == [{"analytic_id": r["analytic_id"], "window_start": r["window_start"],
                      "window_end": r["window_end"], "seq": r["seq"]} for r in rows]
     assert (snap["lo"], snap["hi"]) == (rows[0]["window_start"], rows[0]["window_end"])
