@@ -8,8 +8,9 @@ declared day is connector-status-known, so `charging_kwh` grades COMPLETE where 
 Also (PB-3 review, Low): AVAILABLE and DISABLED, declared connector states (`sites/binding_roles.py`), are known
 zero-energy status, not unknown time.
 
-Pure tests generate the story days with the producer's own helpers (`tools/demo_combined_ev.py`) and the host's
-EV execution; the Postgres test runs the producer's `run_day` (gateway, Batch V2, the EV worker) on one ordinary and
+The generated story days (heartbeat, sessions, kWh, grade) are tested in `host/tests/test_evhb_generated_days.py`
+(backend tests may not import the simulator). Here: the day list, the producer's window swaps, the state sets, and
+the Postgres test, which runs the producer's `run_day` (gateway, Batch V2, the EV worker) on one ordinary and
 one fault story day of an 8-hour window and grades them with the real chain builder. Skipped (never passed) without
 `ASSETOPS_TEST_DATABASE_URL`.
 """
@@ -19,11 +20,10 @@ from __future__ import annotations
 import os
 import sys
 from collections import Counter
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from uuid import UUID
 
 import pytest
 
@@ -36,21 +36,13 @@ import demo_combined_ev as dev  # noqa: E402
 import demo_story_days as sd  # noqa: E402
 from assetops_backend.analytics import ev_availability  # noqa: E402
 from assetops_backend.chain import grading  # noqa: E402
-from assetops_backend.chain.builder import SnapshotBuilder  # noqa: E402
-from assetops_backend.chain.composition import load_coverage_policy, load_operating_calendar  # noqa: E402
-from assetops_backend.chain.ports import InputSet, SiteRef  # noqa: E402
+from assetops_backend.chain.ports import SiteRef  # noqa: E402
 from assetops_backend.scenarios import ev_parsing  # noqa: E402
 from assetops_backend.sites.binding_roles import EV_CONNECTOR_STATES  # noqa: E402
-from assetops_simulator.observation.transform import EV_CONNECTOR_CHANNELS, EvChannel, ev_public_records  # noqa: E402
-from assetops_simulator.packs.ev_charger import DEFAULT_PARAMETERS  # noqa: E402
 
 UTC = timezone.utc
 #: A story date (Friday): EV days S-14, S-7 (`normal`) and S (`fault`) fall back to Tue 20 Oct, 27 Oct and 3 Nov.
 S = datetime(2026, 11, 6, tzinfo=UTC)
-CHANNELS = {
-    **{(c, name): EvChannel(f"{c}-{name}-device", name, c) for c in ("c1", "c2") for name in EV_CONNECTOR_CHANNELS},
-    (None, "import"): EvChannel("site-meter", "import", None),
-}
 #: The w205b pins of the registered one-hour replays (`test_w205b_ev_replay_postgres.RAW_ACCEPTED_KWH`).
 KWH = {"normal": "30", "fault": "15"}
 MINUTE = timedelta(minutes=1)
@@ -124,117 +116,16 @@ def test_swaps_move_every_window_clock_to_the_recorded_day() -> None:
     assert (dict(vars(registered)), dict(vars(P)), dict(ev_parsing.EV_WINDOW)) == before
 
 
-# ---- the generated story days --------------------------------------------------------------------------------
+# The generated story days (heartbeat, sessions, kWh, grade) are tested host side, where the simulator may be
+# imported: `host/tests/test_evhb_generated_days.py`.
 
 
-def _records(definition) -> tuple:
-    from ev_publication import ev_execution
-
-    return ev_public_records(ev_execution(definition, DEFAULT_PARAMETERS), channels=CHANNELS)
-
-
-def _one_hour(day: sd.DayRun):
-    """The registered one-hour scenario on the same day (the build before EV-HB)."""
-    doc = dev.shifted_document(day.scenario["scenario_id"], day.start.replace(hour=0) - dev.BASE_DAY, "ev-one-hour")
-    saved = ev_parsing.EV_WINDOW
-    ev_parsing.EV_WINDOW = {**saved, "start": doc["window"]["start"], "end": doc["window"]["end"]}
-    try:
-        return ev_parsing.parse_ev_scenario_document(doc)
-    finally:
-        ev_parsing.EV_WINDOW = saved
-
-
-def _key(r) -> tuple:
-    """Every public record field but the scoped session token, which hashes the scenario document (its id and
-    window) and so already differs per story day (`<scenario>-<epoch>`) before EV-HB."""
-    return (r.connector, r.channel, r.source_time, r.published_at, r.transition_ordinal, r.family, r.measurement,
-            r.interval_start, r.value, r.unit, r.record_kind, r.outcome, r.session_id is None, r.connector_id)
-
-
-@pytest.mark.parametrize("index", [0, 1, 2], ids=["S-14-normal", "S-7-normal", "S-fault"])
-def test_generated_day_heartbeat_sessions_and_kwh(index: int) -> None:
-    day = _ev_days()[index]
-    lo, hi = dev.story_window(day)
-    full, hour = _records(dev.story_definition(day)), _records(_one_hour(day))
-    # heartbeat: each connector reports its state at every minute boundary of [lo, hi], once (no duplicate instant)
-    for connector in ("c1", "c2"):
-        times = [r.source_time for r in full if r.connector == connector and r.channel == "state"]
-        assert times == [lo + n * MINUTE for n in range(int((hi - lo) / MINUTE) + 1)], connector
-    keys = [(r.connector, r.channel, r.source_time, r.interval_start, r.record_kind) for r in full]
-    assert len(keys) == len(set(keys))
-    # the first hour is the one-hour day, byte for byte (its closing 09:00 snapshot is an ordinary boundary here)
-    assert [_key(r) for r in full if r.source_time <= lo + timedelta(hours=1)] == [_key(r) for r in hour]
-    # sessions, faults and energy: equal to the one-hour day; nothing charges after it
-    for channel in ("session-event", "fault-event", "energy"):
-        assert [_key(r) for r in full if r.channel == channel] == [_key(r) for r in hour if r.channel == channel]
-    assert sum(float(r.value) for r in full if r.channel == "energy") == float(KWH[day.kind])
-    later = {(r.connector, r.value) for r in full if r.channel == "state" and r.source_time >= lo + timedelta(hours=1)}
-    assert later == ({("c1", "FAULTED"), ("c2", "UNPLUGGED")} if day.kind == "fault"
-                     else {("c1", "UNPLUGGED"), ("c2", "UNPLUGGED")})
-
-
-# ---- grading the generated days (E5: charging_kwh no longer LOW on the declared day) ------------------------
-
-
-def _connector_status(records, lo: datetime, hi: datetime) -> dict:
-    """Each connector's reported-state spans by the shipped cadence rule (`ev_availability.status_spans`, a 1-min
-    `ev-status-cadence` as in `ev-lab-001.yaml`) and its meter intervals, as the chain adapter carries them."""
-    foundation = {"content": {"components": [
-        {"component_id": c, "component_type": "EV_CONNECTOR", "properties": [
-            {"property_key": "ev-status-cadence", "value": "1.0", "unit": "min"}]} for c in ("c1", "c2")]}}
-    rows = [{"role": "ev_connector_state", "asset_id": r.connector, "connector_id": None, "value": r.value,
-             "use": "SUPPORT", "quality": "GOOD", "reason": None, "source_time": r.source_time,
-             "sent_at": r.published_at, "received_at": r.published_at + timedelta(seconds=1),
-             "evidence_id": f"{r.connector}-{r.transition_ordinal}"} for r in records if r.channel == "state"]
-    spans = ev_availability.status_spans(foundation, [("c1", "c1"), ("c2", "c2")], rows, lo, hi)
-    return {c: {"states": spans[c], "meter": [(r.interval_start, r.source_time) for r in records
-                                              if r.channel == "energy" and r.connector == c]} for c in ("c1", "c2")}
-
-
-class _Store:
+class _Store:  # a snapshot store that writes nothing (the Postgres test grades without appending)
     def latest(self, key):
         return None
 
     def append(self, row) -> None:
         pass
-
-
-class _Adapter:
-    key = "ev.charging_energy@1"
-
-    def __init__(self, status, kwh) -> None:
-        self.status, self.kwh = status, kwh
-
-    def subjects(self, ctx):
-        return ["SITE"]
-
-    def inputs(self, ctx, subject_ref):
-        return InputSet(("run:x",), [], False, None, self.status)
-
-    def measure(self, ctx, subject_ref, inputs):
-        return {"kwh": self.kwh}
-
-    def money(self, ctx, subject_ref, value):
-        return None
-
-
-def _grade(status, local_day: date):
-    site = SiteRef(UUID(int=1), UUID(int=2), "EV-LAB-001", "EV_CHARGING", "UTC")
-    builder = SnapshotBuilder(_Store(), {"ev.charging_energy@1": _Adapter(status, "x")}, load_coverage_policy(),
-                              load_operating_calendar())
-    [written] = builder.build(site.tenant_id, site, local_day, "charging_kwh")
-    return written.row.required_seconds, written.row.covered_seconds, written.row.grade
-
-
-@pytest.mark.parametrize("index", [1, 2], ids=["S-7-normal", "S-fault"])
-def test_recorded_declared_day_grades_complete_where_the_hour_graded_low(index: int) -> None:
-    day = _ev_days()[index]
-    lo, hi = dev.story_window(day)
-    full = _connector_status(_records(dev.story_definition(day)), lo, hi)
-    hour = _connector_status(_records(_one_hour(day)), lo, lo + timedelta(hours=1))
-    assert "UNKNOWN" not in {s for c in full.values() for _a, _b, s in c["states"]}
-    assert _grade(full, lo.date()) == (8 * 3600, 8 * 3600, grading.COMPLETE)
-    assert _grade(hour, lo.date()) == (8 * 3600, 3600, grading.LOW)
 
 
 # ---- PB-3 review Low: AVAILABLE and DISABLED are known zero-energy states ------------------------------------
