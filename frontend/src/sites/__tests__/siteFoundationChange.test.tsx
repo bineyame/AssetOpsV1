@@ -97,6 +97,14 @@ function noVocabularyViolations(page: string) {
   expect(violations, describeViolations(violations)).toEqual([]);
 }
 
+// The change page itself is read-only. SR-1 (merge 66a38d849) added the shell's shared date-range button to the top
+// bar on every page; it is chrome, not page content, so it is the one button this read-only check allows.
+function pageButtons(): string[] {
+  return screen.queryAllByRole("button")
+    .filter((b) => !b.hasAttribute("data-shared-range-button"))
+    .map((b) => b.outerHTML);
+}
+
 function foundationTabCurrent() {
   const current = qa('[aria-current="page"]').map((el) => el.textContent);
   expect(current).toContain("Foundation");
@@ -164,7 +172,7 @@ describe("Foundation change (changes:1#a)", () => {
     // No measured-effect verdict, saving or approval.
     const main = (q("main")?.textContent ?? "").replace(/no effect or saving is claimed/g, "");
     expect(main).not.toMatch(/saved|savings|improved|reduced|effective change|approved|verified\b(?! yet)/i);
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(pageButtons()).toEqual([]);
     foundationTabCurrent();
     noVocabularyViolations("changes:1#a");
   });
@@ -213,7 +221,7 @@ describe("Foundation change (changes:1#a)", () => {
       await settledScreen();
       expect(q("[data-change-values]")).not.toBeNull();
       expect(qa("[data-change-revision]")).toHaveLength(3);
-      expect(screen.queryByRole("button")).toBeNull();
+      expect(pageButtons()).toEqual([]);
       foundationTabCurrent();
     });
   }
