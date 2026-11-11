@@ -4289,3 +4289,17 @@ Decision logged for owner review: **D-E5.49**.
 - Any other self-check or live-check failure, or no green result by **05:00**: the demo uses `assetops_polish_client6_test` (tag demo/2026-11-11-e3d, runbook as planned). client6 is never modified.
 
 Decision logged for owner review: **D-ANY.6**.
+
+### D-ANY.6a AR-2 rows path misses a recompute job created after the row build (Architect, Claude, 2026-11-11 ~17:55, owner-delegated, logged for owner review)
+
+- **Defect.** On the rows path, PENDING-at-k reads only unconsumed outbox events and snapshot dirty marks. The old compose path decides PENDING_RECOMPUTE from `recompute_job` itself (`mini_depth/read.py` `_JOBS`: status PENDING, LEASED or FAILED, `available_at <= k`, and no later selection), and it does so both live and at a historical k. A job raised by `mini_enqueue_hour` with no outbox event is therefore missed, and so is an existing PENDING job whose `available_at` was moved later.
+- **Live-demo impact.** Tomorrow's add-dates enqueues exactly these jobs. Rows would read CURRENT while a recompute is pending, which is a false statement on the board. The fix is required, not optional.
+- **Fix, ruled.** Do not emit events from the SQL function (a 0029 change with a wider blast radius). Do not use timing heuristics.
+  - The rows path runs the oracle's own `_JOBS` predicate, batched: one statement over Sites × hours × mini domains at k.
+  - An hour whose live job set at k equals the job set stored in its row renders from the row.
+  - An hour with any other job set is served by the old `_hour` for that hour only. This is the D-ANY.1 rule "a case that cannot be proven equal stays on the old path". It is logged (`period_row_job_fallback`) and counted.
+  - Byte-equal by construction. Expected cost is one extra statement per read; fallback hours are rare (only while a recompute is in flight).
+- **Size and timing.** About 0.3 unit. Build by 19:45, Postgres test plus client4 parity by 20:30, review by 21:30.
+- **If not ACCEPTed by 21:30: hold AR-2 entirely.** Do not merge it with the kill switch off. That gives the demo no speed, adds an unexercised prepare step, and leaves a latent false-CURRENT path. Tonight's build then uses main plus AR-1 (if its parity passed), and the boards stay on the pre-stored ranges.
+
+Decision logged for owner review: **D-ANY.6a**.
