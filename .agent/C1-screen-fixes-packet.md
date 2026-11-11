@@ -53,14 +53,14 @@ Frontend (ROADMAP_WORDS table in ui/productWords.ts; UnavailableInline/Unavailab
 
 Guard: ui/__tests__/roadmapWords.test.ts (each line ends coming / later / not connected yet; no error/fail/code).
 
-## RM-2
-`LensChips` returns nothing when no lens has an href. Per-type tests: Cold (coldFindingIndex), EV (evFindingIndex), mini-grid (w301EstateShellRoutes, s404, miniDecisions), component (rm2LensChips, including that the row returns when a lens is supplied).
-**Review note:** the mini-grid index is one component, so Kobo's lens chips are hidden too (no Site supplies a lens href). Kobo was not in the named list; if Kobo must keep them, a per-Site flag is needed.
+## RM-2 (revised after coordinator correction)
+Derived from data, not Site codes: `siteSupportsLenses(rows)` is true when a row of the Site's own Findings read carries a non-empty `lens_flags`. The mini-grid index draws the chips (unchanged) only then; Cold and EV never draw them (`lenses={null}`, EvFindingIndex no longer renders them). Tests: Kobo-type (rows with a lens) keeps All/Cost/Risks/Opportunities, Kisiwa-type (no lens flags) none (s404SiteFindingIndex); Cold (coldFindingIndex), EV (evFindingIndex), mini fixtures (w301, miniDecisions); unit (rm2LensChips).
+Caveat: no Site supplies lens destinations today, so Kobo's chips remain "Not available yet" chips; and a Kobo day whose Findings carry no lens flag would also show no row.
 
 ## Not done
 - C17 (Due dates), E6 and shared `target.none` ("No target set yet": backlog per card), C13 (kept honest per card).
 - F5b tab-row "Not available yet" entries are unchanged (outside C1).
-- `test_out_c3_repeat_visits_postgres.py` and `test_out_c4_ev_warnings_postgres.py` need a database and were not run (the first has its subline literal updated).
+- `test_out_c3_repeat_visits_postgres.py` and `test_out_c4_ev_warnings_postgres.py`: run against scratch DB assetops_c1_test (dropped after): 1 passed, 0 skipped each.
 
 ## Checks
 Frontend vitest, one file at a time, on every touched file; `tsc --noEmit`; backend focused: test_out_*, test_polish_*, test_ch5*, test_ch6*, test_e3b*, test_idx_*, w601b. check-architecture result in the final report.
