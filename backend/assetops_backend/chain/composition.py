@@ -33,7 +33,8 @@ __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
            "build_event_store", "build_estate_claims", "PostgresPeriodReadStore", "build_period_read_store",
-           "build_period_read_builder", "build_period_reader", "period_kind_builders"]
+           "build_period_read_builder", "build_period_reader", "period_kind_builders", "dispatch_day_builders",
+           "build_dispatch_day_rows"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -76,7 +77,32 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
     AR-1 declares none, so nothing is built or read from rows yet; AR-2 to AR-4 add theirs here."""
-    return {}
+    return {**dispatch_day_builders(inputs)}
+
+
+def dispatch_day_builders(inputs: Any = None) -> dict[str, Any]:
+    """ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store (`inputs.dispatch.store`, the
+    `PostgresAssessmentStore` its dispatch read service wraps); none without one."""
+    from assetops_backend.chain.dispatch_day_rows import KIND, DispatchDayKindBuilder
+
+    store = getattr(getattr(inputs, "dispatch", None), "store", None)
+    day_now = getattr(store, "dispatch_day_now", None)
+    return {} if day_now is None else {KIND: DispatchDayKindBuilder(day_now)}
+
+
+def build_dispatch_day_rows(database_url: str | None) -> tuple[Any, PostgresPeriodReadStore,
+                                                                PostgresEventStore] | None:
+    """ANY-2 AR-3: `(provider, period store, event store)`; the provider is `estate.coverage.dispatch_rows_provider`
+    (the Portfolio's mini-grid dispatch days from `dispatch.day` rows while the kind is served). Engines connect on
+    first use only."""
+    from assetops_backend.chain.dispatch_day_rows import BUILDER_VERSION, KIND, DispatchDayRows
+
+    if not database_url:
+        return None
+    store = PostgresPeriodReadStore(database_url)
+    events = PostgresEventStore(database_url)
+    reader = PeriodReader(store, load_event_register(), {KIND: BUILDER_VERSION})
+    return DispatchDayRows(reader, events.site), store, events
 
 
 def build_period_read_store(database_url: str | None, *, engine: Any = None) -> PostgresPeriodReadStore | None:

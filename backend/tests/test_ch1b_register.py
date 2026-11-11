@@ -23,7 +23,9 @@ D = date
 EVENT_FIXTURES = {
     "reading.accepted@1": (
         {"roles": ["feeder_demand"], "asset_ids": [], "span": ["2026-10-30T20:30:00Z", "2026-10-30T21:30:00Z"]},
-        "MINIGRID", ADDIS, {(D(2026, 10, 30), "productive_kwh"), (D(2026, 10, 31), "productive_kwh")},
+        "MINIGRID", ADDIS, {(D(2026, 10, 30), "productive_kwh"), (D(2026, 10, 31), "productive_kwh"),
+                            # AR-3: the UTC days of [20:30Z - 6 h, 21:30Z + 6 h) (s3_day grain)
+                            (D(2026, 10, 30), "dispatch.day"), (D(2026, 10, 31), "dispatch.day")},
         ("snapshots",)),
     "assessment.revised@1": (
         {"analytic_ids": ["cold-start-response"], "windows": [["2026-10-31T00:00:00Z", "2026-10-31T01:00:00Z"]]},
@@ -38,7 +40,10 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min")}, ("snapshots",)),
+         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min")}
+        # AR-3: UTC days from valid_from - 6 h through today + 1 (a UTC day can be one past the Site-local today)
+        | {(d, "dispatch.day") for d in (D(2026, 11, 1), D(2026, 11, 2), D(2026, 11, 3), D(2026, 11, 4))},
+        ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),
     "opportunity.revised@1": ({"ids": ["p1"]}, "MINIGRID", "UTC", set(), ("threads",)),

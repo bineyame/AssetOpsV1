@@ -29,4 +29,8 @@ inputs:
 # ANY-1 AR-1: stored read-period kinds (`site_period_read`, migration 0059), dirtied like measures through the same
 # snapshot_dirty queue: kind '<area>.<name>' -> {grain: hour | s3_day | local_day, site_types: [...], inputs: {the
 # measure input keys}}. A kind is declared with its builder (AR-2 to AR-4); AR-1 declares none.
-kinds: {}
+# ANY-2 AR-3 (chain/dispatch_day_rows.py): the Portfolio's S3 dispatch day per UTC day (grain s3_day: events resolve
+# to the UTC days of the window plus its 6 h bracket). Its accepted basis (assessment_worker.DISPATCH_ROLES), its
+# selection and jobs (analytic and job domain dispatch) and Foundation (configuration sha) dirty it.
+kinds:
+  dispatch.day: {grain: s3_day, site_types: [MINIGRID], inputs: {roles: [generator_state, generator_power, feeder_demand, pv_available_power, pcs_discharge_capability, battery_soc], analytics: [dispatch], job_domains: [dispatch], foundation: true}}

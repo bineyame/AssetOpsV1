@@ -80,7 +80,8 @@ def test_register_accepts_kinds_and_the_live_register_parses() -> None:
     from assetops_backend.chain.adapters.file_chain_config import load_event_register
 
     live = load_event_register()
-    assert live.kinds == {}  # AR-1 declares no kind
+    assert sorted(live.kinds) == ["dispatch.day"]  # AR-3 declares the Portfolio's S3 dispatch day
+    assert live.kinds["dispatch.day"].grain == "s3_day"
     assert "productive_kwh" in live.inputs
 
 

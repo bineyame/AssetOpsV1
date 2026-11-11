@@ -203,8 +203,8 @@ def test_consume_is_idempotent_and_marks_once() -> None:
     register = load_event_register()
     first = consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 10)
     second = consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 10)
-    assert (first.consumed, first.marked, second.consumed) == (1, 1, 0)
-    assert port.marks == [(DAY, "productive_kwh")]
+    assert (first.consumed, first.marked, second.consumed) == (1, 2, 0)
+    assert port.marks == [(DAY, "dispatch.day"), (DAY, "productive_kwh")]  # AR-3: the s3_day kind shares the queue
 
 
 def test_consume_pages_until_the_queue_is_empty() -> None:
@@ -216,7 +216,7 @@ def test_consume_pages_until_the_queue_is_empty() -> None:
     assert [ids for ids, _ in port.pages] == [[e.event_id for e in events[i:i + 2]] for i in (0, 2, 4)]
     # one coalesced mark per page, whose first event is the page's earliest in read order
     assert [[(m.local_day, m.measure, m.first_event_id) for m in marks] for _, marks in port.pages] == [
-        [(DAY, "productive_kwh", events[i].event_id)] for i in (0, 2, 4)]
+        [(DAY, m, events[i].event_id) for m in ("dispatch.day", "productive_kwh")] for i in (0, 2, 4)]
     assert len(report.select_ms) == 3
 
 
