@@ -42,8 +42,8 @@ def _o(key: str, domain: str, category: str, label: str, missing: str | None = N
 # Order is the tie-break for a row's lead outcome (§1.2).
 SITE_OUTCOMES = (
     _o("MG-1", MINI, "GROW_REVENUE", "Productive electricity sales"),
-    _o("MG-6", MINI, "GROW_REVENUE", "Cash collected", "no billing or payment records"),
-    _o("MG-3", MINI, "GROW_REVENUE", "Site profitability", "needs site income, operating cost and capital records"),
+    _o("MG-6", MINI, "GROW_REVENUE", "Cash collected", "billing and payment records are not connected yet"),
+    _o("MG-3", MINI, "GROW_REVENUE", "Site profitability", "site income, operating cost and capital records are not connected yet"),
     _o("MG-2", MINI, "OPTIMIZE_COST", "Supply cost per kWh"),
     _o("MG-5", MINI, "PROTECT_ASSET", "Reliable service"),
     _o("MG-4", MINI, "PROTECT_ASSET", "Battery and generator life"),  # measured from C (R541 resolved)
@@ -51,15 +51,15 @@ SITE_OUTCOMES = (
     _o("MG-8", MINI, "PROTECT_ASSET", "Fuel accounted for"),
     _o("MG-7", MINI, "ASSURE_PERFORMANCE", "Evidence quality"),
     _o("EV-3", EV, "GROW_REVENUE", "Charger use"),
-    _o("EV-6", EV, "GROW_REVENUE", "Energy billed against metered", "no settlement records"),
+    _o("EV-6", EV, "GROW_REVENUE", "Energy billed against metered", "billing records are not connected yet"),
     _o("EV-2", EV, "OPTIMIZE_COST", "Energy cost per km",
-       "needs odometer readings; a tariff estimate exists in Financials"),
+       "odometer readings are not connected yet; a tariff estimate exists in Financials"),
     _o("EV-1", EV, "PROTECT_ASSET", "Buses ready for service"),  # R520: mock "ready to run" (vocabulary guard)
     _o("EV-4", EV, "PROTECT_ASSET", "Charger life"),
     _o("EV-5", EV, "PROTECT_ASSET", "Room before expansion"),
     _o("EV-7", EV, "ASSURE_PERFORMANCE", "Evidence quality"),
-    _o("CC-2", COLD, "GROW_REVENUE", "Paid cold-room use", "needs occupancy, storage contract, income and sales records"),
-    _o("CC-4", COLD, "GROW_REVENUE", "Market value of produce", "needs market and sales records"),
+    _o("CC-2", COLD, "GROW_REVENUE", "Paid cold-room use", "occupancy, storage contract, income and sales records are not connected yet"),
+    _o("CC-4", COLD, "GROW_REVENUE", "Market value of produce", "market and sales records are not connected yet"),
     _o("CC-3", COLD, "OPTIMIZE_COST", "Cost per cooling unit"),  # measured from C (R541 resolved)
     _o("CC-1", COLD, "PROTECT_ASSET", "Stock kept saleable"),
     _o("CC-6", COLD, "PROTECT_ASSET", "Cooling continuity"),
@@ -70,12 +70,12 @@ OUTCOME_BY_KEY = {o.key: o for o in SITE_OUTCOMES}
 
 # Row-level sentence when every outcome in a (domain, category) row is not measured (§1.2).
 ROW_NOT_MEASURED = {
-    (COLD, "GROW_REVENUE"): "Needs occupancy, storage contract, income and sales records",
-    (EV, "OPTIMIZE_COST"): "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
+    (COLD, "GROW_REVENUE"): "Occupancy, storage contract, income and sales records are not connected yet",
+    (EV, "OPTIMIZE_COST"): "Odometer readings are not connected yet; a tariff estimate exists in Financials",
 }
 ROW_NOT_MEASURED_PREFIX = "Not measured yet · "
 #: POLISH §1.6 (R635): the EV Optimize sentence when no priced charging tariff is held for the window.
-ROW_NOT_MEASURED_EV_COST_UNPRICED = "Energy cost per km needs odometer readings and a published charging tariff"
+ROW_NOT_MEASURED_EV_COST_UNPRICED = "Odometer readings are not connected yet, and no charging tariff is published for this window"
 
 
 def row_not_measured(domain: str, category: str, lead: SiteOutcome) -> str:

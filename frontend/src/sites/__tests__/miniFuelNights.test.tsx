@@ -270,3 +270,21 @@ describe("DIESEL-K5 F4: hour mode is unchanged", () => {
     expect(document.querySelector("[data-fuel-nights]")).not.toBeNull();
   });
 });
+
+describe("PB-8: the Fuel tab shows loading, not hour mode, while the nights read is in flight", () => {
+  it("no 'Fuel balance: Unknown' before the nights resolve, then the nights", async () => {
+    let release: (v: MiniRead<FuelNightsBody>) => void = () => undefined;
+    const pending = new Promise<MiniRead<FuelNightsBody>>((resolve) => {
+      release = resolve;
+    });
+    const base = fuelClient(nightsBody("NIGHTS"));
+    renderFuel({ ...base, getNights: vi.fn(() => pending) } as FuelBalanceClient);
+    await flush();
+    expect(screen.queryByText("Fuel balance: Unknown")).toBeNull();
+    expect(document.querySelector("[data-mini-period]")).toBeNull();
+    expect(screen.getByRole("status").textContent).toContain("Loading");
+    release(nightsBody("NIGHTS"));
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(screen.queryByText("Fuel balance: Unknown")).toBeNull();
+  });
+});

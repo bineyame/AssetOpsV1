@@ -75,6 +75,8 @@ try {
     Invoke-Guard "Chain graph check (CH-5b1)" $Python @("-m", "assetops_backend.chain.graph", "check")
     $env:PYTHONPATH = $previousPythonPath
     Invoke-Guard "Perf budget fixtures (CH-5b1)" $Python @("tools/checks/perf_budget.py", "--fixture")
+    # ANY-1 AR-0: the stored read-period parity harness self-test (one deliberate mismatch must fail).
+    Invoke-Guard "Period read parity self-test (ANY-1 AR-0)" $Python @("tools/checks/period_read_parity.py", "--self-test")
     Invoke-Guard "Frontend hard-wiring ratchet (CH-5b1)" $Node @("tools/checks/frontend-hardwiring.mjs")
 
     $failed = @($results | Where-Object { $_.Status -ne "PASS" })

@@ -1,3 +1,4 @@
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedSourceBlock } from "./sourceProvenance";
@@ -1214,7 +1215,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
 /* ---------- cold-findings (Site Findings index) ---------- */
 
 export const COLD_FINDINGS_EMPTY = "No Findings at this site in the selected window.";
-export const COLD_FINDINGS_NOT_GLOBAL = "Cold-chain Findings are not in the global Findings list";
+export const COLD_FINDINGS_NOT_GLOBAL = ROADMAP_WORDS.coldFindingsNotGlobal;
 export const coldFindingsCursorNote = (n: number) => `Showing the first ${n} Findings; paging is not available on this page.`;
 const COLD_FINDINGS_HEADING_ID = "cold-findings-heading";
 
@@ -1282,7 +1283,7 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
   return (
     <>
       {props.lenses}
-      <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" />} data={{ "data-cold-findings-status": "" }}>
+      <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" roadmap={ROADMAP_WORDS.manageFindings} />} data={{ "data-cold-findings-status": "" }}>
         <strong>Scoped to {props.siteName}</strong>
         {` · ${open} open${r.next_cursor === null ? "" : ` in the first ${r.items.length}`} · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}{" "}
         <TimeZoneNote />

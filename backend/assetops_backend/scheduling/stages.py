@@ -303,7 +303,8 @@ def chain_snapshots(url: str, args: dict[str, Any]) -> dict[str, Any]:
         pending = services.events.pending("snapshots", t, s, types)
         drain_started = time.perf_counter()
         drained = drain(services.events, services.builder, t, site, int(args.get("items", 200)),
-                        None if at is None else Deadline(float(at), time.time))
+                        None if at is None else Deadline(float(at), time.time),
+                        period_builder=getattr(services, "period_builder", None))
         drain_ms = (time.perf_counter() - drain_started) * 1000
         verification = _evaluate_mill_plans(url, t, s, site, services.reader, today)
     finally:

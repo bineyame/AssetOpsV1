@@ -113,6 +113,8 @@ export interface SiteWindowOverviewProps {
   mini?: OverviewMiniReads;
   /** OUT-B B5: the Site outcome board read; the board replaces the Service, Fuel and Renewable cards. */
   outcomeBoard?: OutcomeBoardClient;
+  /** PB-5: the Foundation device display names by device id, for the readings legend; without one the id is spoken. */
+  deviceNames?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -600,7 +602,7 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
           {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code, n) => (
             <span key={code} data-assessment-limitation={code}>
               {n === 0 ? "" : " · "}
-              {limitationWords(code)}
+              {limitationWords(code, a.limitations.map(String).filter((l) => limitationCode(l) === code))}
             </span>
           ))}
         </ChartNote>
@@ -651,7 +653,7 @@ const TIMELINE_LEGEND: { key: string; label: string }[] = [
  * readable legend and a text description. It draws only the read's periods and reading spans; a not-current
  * day says so beside the drawing.
  */
-function Timeline({ summary }: { summary: SiteWindowSummary }) {
+function Timeline({ summary, deviceNames }: { summary: SiteWindowSummary; deviceNames?: Readonly<Record<string, string>> }) {
   const day = summary.window.utc_date;
   const intervals = summary.assessment.dispatch_intervals;
   const coverage = summary.context.coverage ?? [];
@@ -708,7 +710,7 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
             const hi = dayPercent(c.last_source_time, summary.window.start);
             return (
               <div className="window-timeline__row" key={`${c.device_id}/${c.signal_id}`}>
-                <span className="window-timeline__label">{repeats ? `${name} · ${idWords(c.device_id)}` : name}</span>
+                <span className="window-timeline__label">{repeats ? `${name} · ${deviceNames?.[c.device_id] ?? idWords(c.device_id)}` : name}</span>
                 <div className="window-timeline__track">
                   {lo === null || hi === null ? null : (
                     <span
@@ -1127,6 +1129,7 @@ export function SiteWindowOverview({
   onReload,
   mini,
   outcomeBoard,
+  deviceNames,
 }: SiteWindowOverviewProps) {
   const day = summary.window.utc_date;
   const miniState = useOverviewMini(mini, day);
@@ -1177,7 +1180,7 @@ export function SiteWindowOverview({
             ),
           body: (
             <>
-              <Timeline summary={summary} />
+              <Timeline summary={summary} deviceNames={deviceNames} />
               <Context summary={summary} links={links} />
             </>
           ),

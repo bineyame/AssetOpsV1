@@ -1,0 +1,6 @@
+{"note": "the measured 2026-11-10 numbers (architect answer section 2): Kobo board day 11.2 s, Portfolio month 36.1 s cold",
+ "record": {"params": {"runs": 1, "store": "off", "cases": 2},
+  "cases": {
+   "any.board.0": {"family": "board_any_day", "path": "/api/sites/KOBO-001/outcome-board?date=2026-10-21", "cold_ms": [11200.0], "status": [200]},
+   "any.portfolio.3": {"family": "portfolio_any_range", "path": "/api/estate/portfolio?from=2026-10-07T00%3A00%3A00Z&to=2026-11-07T00%3A00%3A00Z&lens=all", "cold_ms": [36100.0], "status": [200]}}},
+ "expect": {"breaches": [["any.board.0", "cold_ms"], ["any.portfolio.3", "cold_ms"]], "not_measured": [], "verdict": "FAIL"}}

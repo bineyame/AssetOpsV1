@@ -896,7 +896,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         ) : (
           groups.map((g) => (
             <li key={g.code} data-limitation={g.code}>
-              {limitationWords(g.code)}
+              {limitationWords(g.code, g.items)}
               {g.items.length > 1 ? ` (${g.items.length} places)` : ""}.
             </li>
           ))

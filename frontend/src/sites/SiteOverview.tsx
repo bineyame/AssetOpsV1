@@ -74,6 +74,8 @@ export interface SiteOverviewProps {
   findingIndex?: FindingIndexClient;
   /** W4-02 B3: the mini-grid reads behind a MINIGRID Site's Service, Fuel and Renewable cards. */
   mini?: OverviewMiniReads;
+  /** PB-5: Foundation device display names by device id. */
+  deviceNames?: Readonly<Record<string, string>>;
   /** OUT-B B5: the Site outcome board read. */
   outcomeBoard?: OutcomeBoardClient;
 }
@@ -115,6 +117,7 @@ export function SiteOverview({
   windowLinks,
   findingIndex,
   mini,
+  deviceNames,
   outcomeBoard,
 }: SiteOverviewProps) {
   const [result, setResult] =
@@ -235,6 +238,7 @@ export function SiteOverview({
         findingIndex={findingIndex}
         onReload={reload}
         mini={mini}
+        deviceNames={deviceNames}
         outcomeBoard={outcomeBoard}
       />
     );

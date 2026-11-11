@@ -1040,6 +1040,7 @@ class Demo:
         steps["finish-ticks"] = round(time.monotonic() - t0, 1)
         if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
+            self.build_period_rows(story, steps)
             t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
                            cwd=self.tree / "backend" / "tests", label="self-check", check=False)
@@ -1049,6 +1050,47 @@ class Demo:
             if done.returncode != 0:
                 deferred = f" (and DRAIN FAILED (deferred): {list(self.drain_failures)})" if self.drain_failures else ""
                 raise SystemExit(f"SELF-CHECK FAILED; see {self.work / 'check.json'}{deferred}")
+
+    #: ANY-1 AR-2 (D-ANY.6): the board's stored mini depth rows are built within this many seconds.
+    PERIOD_ROWS_CAP_SECONDS = 15 * 60
+
+    def build_period_rows(self, story: dict, steps: dict[str, float]) -> bool:
+        """AR-2: build the `mini_depth.*` read-period rows of every mini Site after the last drain (the backfill CLI;
+        an unchanged fingerprint writes nothing). Timed per Site and in total, capped at 15 minutes. Over the cap or
+        on a failure it says so and the prepare goes on: the boards then need the kill switch
+        `ASSETOPS_PERIOD_READ_KINDS=` (empty, today's compose) - never silent."""
+        say("=== Stored board rows (AR-2: mini depth) ===")
+        codes = [SITE_CODE[s] for s in ("kobo", "kisiwa") if s in story["sites"]]
+        began, saved, ok = time.monotonic(), self.deadline, True
+        cap = began + self.PERIOD_ROWS_CAP_SECONDS
+        self.deadline = cap if saved is None else min(saved, cap)
+        try:
+            for code in codes:
+                t0 = time.monotonic()
+                done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               label=f"period-rows {code}", check=False)
+                steps[f"period-rows {code}"] = round(time.monotonic() - t0, 1)
+                tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200]
+                say(f"  period-rows {code}: {tail}  [{steps[f'period-rows {code}']} s]")
+                if done.returncode != 0:
+                    ok = False
+                    say(f"  ROW BUILD FAILED for {code} (exit {done.returncode}): serve the boards with "
+                        "ASSETOPS_PERIOD_READ_KINDS= (empty)")
+        except SystemExit as stopped:  # the 15-minute cap (or the prepare's own wall cap) stopped the child
+            ok = False
+            say(f"  ROW BUILD INCOMPLETE ({stopped}): serve the boards with ASSETOPS_PERIOD_READ_KINDS= (empty)")
+            if saved is not None and time.monotonic() >= saved:
+                self.deadline = saved
+                raise
+        finally:
+            self.deadline = saved
+        steps["period-rows"] = round(time.monotonic() - began, 1)
+        say(f"  period-rows total: {steps['period-rows']} s (cap {self.PERIOD_ROWS_CAP_SECONDS} s)"
+            + ("" if ok else "  NOT COMPLETE"))
+        (self.work / "period-rows.json").write_text(json.dumps(
+            {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
+             "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
+        return ok
 
     def drain_mini(self, limit: int = 500) -> None:
         """WALK1-4 F2: the Kobo mini-depth jobs (roles-4 from commissioning) number in the hundreds and the tick's mini

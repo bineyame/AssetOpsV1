@@ -62,10 +62,10 @@ UTC_SUFFIX = " · UTC (Site time zone unavailable)"
 GAP_GENERIC = "An evidence gap limits this conclusion"
 NO_VERIFIED = "No verified result yet"
 GROW_SUBLINE = "Sales to productive users are not metered, so revenue itself is not measured yet"
-PROTECT_HEADLINE = "Battery and generator condition are not assessed"
+PROTECT_HEADLINE = "Battery and generator condition need a wear model, which is not connected yet"
 #: Rulings C final review L2: the Protect headline when no warning moves MG-4 and m >= 1 periods were assessed.
 PROTECT_CLEAR = "Battery stayed clear of its reserve in {m} assessed generator {periods}"
-PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are early warnings only. Power was "
+PROTECT_SUBLINE = ("Battery and generator condition needs a wear model, which is not connected yet; these are early warnings only. Power was "
                    "delivered, but what customers needed is not measured")
 COST_NO_MONEY = "No fuel cost estimated for this day"
 COST_MONEY = "possible extra fuel cost on this day"
@@ -79,8 +79,8 @@ COST_ZERO = "No fuel cost estimated: the generator was on but delivered no measu
 #: The sheet's "No generator run to check ..." fails the product vocabulary guard ("run"), so the wording avoids it.
 NO_RUN_READINGS = "Generator not used on this day, so nothing to check · readings complete"
 FIXED = {
-    "cash": "Not available yet · no billing or payment records",
-    "earnings": "Not available yet · needs site income, operating cost and capital records",
+    "cash": "Billing and payment records are not connected yet",
+    "earnings": "Site income, operating cost and capital records are not connected yet",
     "plan_target": "Not available yet · no target declared for this site",
 }
 #: C (U4): the battery contributor from the dispatch body's binding constraints (no reserve %, R562).

@@ -64,7 +64,7 @@
      "key": "cash_collected",
      "label": "Cash collected",
      "link_ref": null,
-     "text": "Not available yet · no billing or payment records"
+     "text": "Billing and payment records are not connected yet"
     },
     {
      "confidence": null,
@@ -72,7 +72,7 @@
      "key": "site_earnings",
      "label": "Site earnings",
      "link_ref": null,
-     "text": "Not available yet · needs site income, operating cost and capital records"
+     "text": "Site income, operating cost and capital records are not connected yet"
     }
    ],
    "counts": {
@@ -558,7 +558,7 @@
    "potential": null,
    "state": "UNKNOWN",
    "state_label": "Unknown",
-   "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "subline": "Battery and generator condition needs a wear model, which is not connected yet; these are early warnings only. Power was delivered, but what customers needed is not measured",
    "target_note": null,
    "thread_lines": [],
    "tone": "gray"

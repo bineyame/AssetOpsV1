@@ -1,0 +1,4 @@
+{"record": {"params": {"runs": 1, "store": "off", "cases": 1},
+  "cases": {
+   "any.board.0": {"family": "board_any_day", "path": "/api/sites/KOBO-001/outcome-board?date=2026-10-21", "cold_ms": [], "status": [-1]}}},
+ "expect": {"breaches": [["any.board.0", "status"]], "not_measured": ["any.board.0", "portfolio_any_range"], "verdict": "FAIL"}}

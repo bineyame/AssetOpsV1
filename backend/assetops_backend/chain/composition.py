@@ -18,19 +18,23 @@ from assetops_backend.chain.adapters.file_chain_config import (
 )
 from assetops_backend.chain.adapters.postgres_event_store import EventStoreUnavailable, PostgresEventStore
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
+from assetops_backend.chain.adapters.postgres_period_read_store import PostgresPeriodReadStore
 from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
 from assetops_backend.chain.adapters.postgres_thread_sources import PostgresThreadSources
 from assetops_backend.chain.adapters.postgres_thread_store import PostgresThreadStore, ThreadStoreUnavailable
 from assetops_backend.chain.builder import SnapshotBuilder
 from assetops_backend.chain.claims import EstateClaims
 from assetops_backend.chain.measure_impls import build_measure_set
+from assetops_backend.chain.period_read import PeriodReadBuilder, PeriodReader
 from assetops_backend.chain.reader import SnapshotReader
 
 __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "build_chain_services",
            "build_chain_inputs", "build_snapshot_store", "build_snapshot_reader", "build_snapshot_builder",
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
-           "build_event_store", "build_estate_claims"]
+           "build_event_store", "build_estate_claims", "PostgresPeriodReadStore", "build_period_read_store",
+           "build_period_read_builder", "build_period_reader", "period_kind_builders", "period_kind_versions",
+           "build_mini_period_rows"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -70,6 +74,48 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
                            load_coverage_policy(), load_operating_calendar())
 
 
+def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
+    """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
+    AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one)."""
+    mini = getattr(inputs, "mini", None)
+    if mini is None:
+        return {}
+    from assetops_backend.mini_depth.period_rows import kind_builders
+
+    return dict(kind_builders(mini))
+
+
+def period_kind_versions() -> dict[str, str]:
+    """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
+    from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
+
+    return {k: BUILDER_VERSION for k in KINDS}
+
+
+def build_mini_period_rows(database_url: str | None) -> tuple[PeriodReader, PostgresPeriodReadStore] | None:
+    """AR-2: the `(reader, store)` pair `MiniDepthRead(period_rows=...)` serves the board's mini depth from."""
+    store = build_period_read_store(database_url)
+    if store is None:
+        return None
+    return PeriodReader(store, load_event_register(), period_kind_versions()), store
+
+
+def build_period_read_store(database_url: str | None, *, engine: Any = None) -> PostgresPeriodReadStore | None:
+    if not (database_url or engine is not None):
+        return None
+    return PostgresPeriodReadStore(database_url, engine=engine)
+
+
+def build_period_read_builder(store: Any, inputs: Any = None) -> PeriodReadBuilder:
+    return PeriodReadBuilder(store, period_kind_builders(inputs))
+
+
+def build_period_reader(store: Any, builder: PeriodReadBuilder | None = None) -> PeriodReader:
+    """The one row reader (one statement per Sites x range x kinds, then PENDING-at-k)."""
+    versions = builder.versions() if builder is not None else period_kind_versions()
+    return PeriodReader(store, load_event_register(), versions)
+
+
 @dataclass
 class ChainServices:
     builder: SnapshotBuilder
@@ -77,6 +123,8 @@ class ChainServices:
     inputs: Any
     dispose: Callable[[], None]
     events: Any = None  # CH-1b: the event store (the backfill records its `backfill.site` provenance event)
+    period_builder: PeriodReadBuilder | None = None  # ANY-1 AR-1: the stored read-period builder
+    periods: Any = None  # ANY-1 AR-1: the stored read-period store
 
 
 def build_chain_services(database_url: str | None) -> ChainServices | None:
@@ -87,13 +135,16 @@ def build_chain_services(database_url: str | None) -> ChainServices | None:
     inputs = build_chain_inputs(database_url)
     builder = build_snapshot_builder(database_url, inputs, store)
     events = PostgresEventStore(database_url)
+    periods = PostgresPeriodReadStore(database_url)  # the engine connects on first use only
 
     def dispose() -> None:
         inputs.dispose()
         store.dispose()
         events.dispose()
+        periods.dispose()
 
-    return ChainServices(builder, SnapshotReader(store), inputs, dispose, events)
+    return ChainServices(builder, SnapshotReader(store), inputs, dispose, events,
+                         build_period_read_builder(periods, inputs), periods)
 
 
 def build_thread_store(database_url: str | None) -> PostgresThreadStore | None:
