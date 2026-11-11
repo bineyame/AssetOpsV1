@@ -3,7 +3,7 @@
  * closure 1 navigation, closure 4 S17/N9). Portfolio becomes the first live OPERATIONS root; the remaining
  * unavailable roots keep their closed multiset, and the estate Findings risk root still owns `/findings/risks`.
  */
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -22,7 +22,8 @@ const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ stat
 const DETAIL: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }) };
 
 function LocationProbe() {
-  return <output data-location>{useLocation().pathname}</output>;
+  const location = useLocation();
+  return <output data-location>{`${location.pathname}${location.search}`}</output>;
 }
 
 function estate(): EstateClient & { portfolioCalls: number } {
@@ -74,5 +75,39 @@ describe("W3-03 Portfolio shell route", () => {
     expect(document.querySelector("[data-location]")?.textContent).toBe("/findings/risks");
     expect(screen.queryByRole("main", { name: "Portfolio" })).toBeNull();
     expect(second.portfolioCalls).toBe(0);
+  });
+});
+
+/** PF-T: one mounted route `/portfolio/:tab?`, the old lens address and an unknown tab. */
+describe("PF-T Portfolio tab routes", () => {
+  const WINDOW = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
+  const where = () => document.querySelector("[data-location]")?.textContent;
+  const tabRow = () => screen.getByRole("navigation", { name: "Portfolio sections" });
+
+  it("a tab switch stays on the one mounted route and does not read again", async () => {
+    const client = estate();
+    renderAt(`/portfolio?${WINDOW}`, client);
+    await settledScreen();
+    const main = screen.getByRole("main", { name: "Portfolio" });
+    fireEvent.click(within(tabRow()).getByRole("link", { name: /^What changed/ }));
+    await settledScreen();
+    expect(where()).toBe(`/portfolio/changes?${WINDOW}`);
+    expect(screen.getByRole("main", { name: "Portfolio" })).toBe(main);
+    expect(client.portfolioCalls).toBe(1);
+  });
+
+  it("an old /portfolio?lens=X address redirects to /portfolio/act-first?lens=X", async () => {
+    const client = estate();
+    renderAt(`/portfolio?${WINDOW}&lens=risks`, client);
+    await settledScreen();
+    expect(where()).toBe(`/portfolio/act-first?${WINDOW}&lens=risks`);
+    expect(client.portfolioCalls).toBe(1);
+  });
+
+  it("an unknown tab redirects to Overview", async () => {
+    renderAt(`/portfolio/nonsense?${WINDOW}`, estate());
+    await settledScreen();
+    expect(where()).toBe(`/portfolio?${WINDOW}`);
+    expect(within(tabRow()).getByRole("link", { current: "page" }).querySelector("[data-pf-tab-label]")?.textContent).toBe("Overview");
   });
 });

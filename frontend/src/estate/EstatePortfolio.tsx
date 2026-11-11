@@ -1,10 +1,27 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+/*
+ * PF-T (2026-11-11): Portfolio section tabs, layout `frontend/mockups/v71/portfolio-tabs.html`; proposal
+ * `.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11.
+ * MOCK DEVIATION PF-T-1: the product shell has no top bar, so the Portfolio date bar (`EstateDateBar`) sits at the top
+ *   of the page, above the title, and stays in view while scrolling (sticky). The v71 shared top-bar range picker is
+ *   card SR, not PF-T.
+ * MOCK DEVIATION PF-T-2: the v71 coverage line above the tabs and the "Readings per site" table are card PF-C; the
+ *   context row keeps today's per-Site partial notes and the Scope & coverage tab holds today's "Assessment scope &
+ *   periods" drawer and the business-context footer.
+ * MOCK DEVIATION PF-T-3: the Overview top-3 rows show the placement group, not v71's High/Medium priority badge
+ *   (CC-R2-Q3: the table ranks by placement, not priority).
+ * MOCK DEVIATION PF-T-5: the What changed "Inspect basis" stays the inline disclosure (its change-and-verification basis
+ *   table is in the panel), not v71's link to the Scope tab, because the basis table belongs to this panel's data.
+ * MOCK DEVIATION PF-T-4: the Act first count is the read's `total_count` for the lens being read (the panel eyebrow's
+ *   count), so it follows the lens on Act first.
+ */
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { formatDayRange, formatDayTime } from "../ui/time";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import {
   createEstateClient,
   type EstateClient,
@@ -46,9 +63,15 @@ import {
   OPPORTUNITY_PANEL,
   OUTCOME_NOTE,
   PORTFOLIO_PAGE_SIZE,
-  PORTFOLIO_PATH,
   PORTFOLIO_SUBTITLE,
+  PORTFOLIO_TABS,
+  PORTFOLIO_TABS_LABEL,
   PORTFOLIO_TITLE,
+  portfolioTabFrom,
+  portfolioTabPath,
+  type PortfolioTab,
+  TOP3_SEE_ALL,
+  TOP3_SUBTITLE,
   PLACEMENT_CONFIDENCE_WORDS,
   PLACEMENT_GROUP_LABEL,
   PLACEMENT_POLICY_FOOTER,
@@ -86,10 +109,13 @@ function lensFrom(params: URLSearchParams): EstateLens {
   return LENSES.includes(lens as EstateLens) ? (lens as EstateLens) : "all";
 }
 
-/** A Portfolio URL: the accepted window and explicit cutoff, a non-default lens, never a cursor. */
-export function portfolioHref(window: Window, lens: EstateLens): string {
-  const href = estateHref(PORTFOLIO_PATH, window);
-  return lens === "all" ? href : `${href}&lens=${lens}`;
+/**
+ * A Portfolio URL: the tab's address with the accepted window and explicit cutoff, never a cursor. PF-T: a
+ * non-default lens travels on Act first only.
+ */
+export function portfolioHref(window: Window, lens: EstateLens, tab: PortfolioTab = "overview"): string {
+  const href = estateHref(portfolioTabPath(tab), window);
+  return lens === "all" || tab !== "act-first" ? href : `${href}&lens=${lens}`;
 }
 
 /** The shared date bar reads only `status` and `window`; its HISTORICAL line keys off the same status word. */
@@ -100,19 +126,23 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
 /** WALK1-1 (WN-2, R670): on a partly checked estate a zero count is a claim on the checked days only. */
 export const NONE_ON_CHECKED_DAYS = "None found on the days assessed";
-function PulseCount({ value, missing, label, checkedDays, data }: { value: number | null; missing: string; label: string; checkedDays: boolean; data?: string }) {
+function PulseCount({ value, missing, label, checkedDays, data, to }: { value: number | null; missing: string; label: string; checkedDays: boolean; data?: string; to: string }) {
   const attrs = data === undefined ? {} : { [data]: "" };
   if (value === 0 && checkedDays) {
     // MOCK DEVIATION (R670): the label leads so the qualified "none" reads as a sentence; v70 shows "{n} {label}".
     return (
       <span {...attrs}>
-        {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_ON_CHECKED_DAYS}</strong>
+        <Link to={to}>
+          {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_ON_CHECKED_DAYS}</strong>
+        </Link>
       </span>
     );
   }
   return (
     <span {...attrs}>
-      <strong>{countText(value, missing)}</strong> {label}
+      <Link to={to}>
+        <strong>{countText(value, missing)}</strong> {label}
+      </Link>
     </span>
   );
 }
@@ -139,11 +169,16 @@ function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined
   return base;
 }
 
-function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
-  // PB-3 review M1: an open episode shows its recorded start; "No time recorded yet" only when neither end is held.
-  const episode =
+/** PB-3 review M1: an open episode shows its recorded start; "No time recorded yet" only when neither end is held. */
+function episodeText(row: EstatePortfolioRow): string {
+  return (
     moneyWindowText(row.episode_start, row.episode_end) ??
-    (row.episode_start !== null ? `From ${formatDayTime(row.episode_start)} · no end time yet` : "No time recorded yet");
+    (row.episode_start !== null ? `From ${formatDayTime(row.episode_start)} · no end time yet` : "No time recorded yet")
+  );
+}
+
+function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
+  const episode = episodeText(row);
   // CH5a2-R4(c): every row link renders from its `link_refs` sibling; a row without one renders no link.
   const links = {
     site: linkFor(row.link_refs?.site),
@@ -763,7 +798,114 @@ function ContextFooter({ body }: { body: EstatePortfolioBody }) {
   );
 }
 
+/**
+ * PF-T: the section tab row. The Site tab family (`site-tabs` links with `aria-current`, not an ARIA tablist): each
+ * tab is an address carrying the window and cutoff; `lens` only on Act first. A count that is unknown shows no badge.
+ */
+function PortfolioTabs({
+  current,
+  window,
+  lens,
+  counts,
+}: {
+  current: PortfolioTab;
+  window: Window;
+  lens: EstateLens;
+  counts: Partial<Record<PortfolioTab, number | null | undefined>>;
+}) {
+  const rowRef = useCurrentTabInView<HTMLElement>();
+  return (
+    <nav className="site-tabs pf-tabs" aria-label={PORTFOLIO_TABS_LABEL} ref={rowRef} data-portfolio-tabs>
+      <ol className="site-tabs__list">
+        {PORTFOLIO_TABS.map(({ tab, label }) => {
+          const n = counts[tab];
+          return (
+            <li key={tab} className={tab === "scope" ? "site-tabs__item pf-tabs__deep" : "site-tabs__item"}>
+              <Link className="site-tabs__link" to={portfolioHref(window, lens, tab)} aria-current={tab === current ? "page" : undefined}>
+                <span data-pf-tab-label>{label}</span>
+                {typeof n === "number" ? (
+                  <span className="pf-tabs__count" data-pf-tab-count>
+                    {n}
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+/** PF-T: the Overview keeps the first three ranked findings of "Where management should act first" (v71 `pf-top3`). */
+function TopThree({ body, rows, pending, window }: { body: EstatePortfolioBody; rows: EstatePortfolioRow[]; pending: EstateLens | null; window: Window }) {
+  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
+  const top = rows.slice(0, 3);
+  return (
+    <section className="panel pf-top3" aria-labelledby="portfolio-top3-heading" data-portfolio-panel="top3">
+      <div className="panel-head">
+        <div>
+          <h2 id="portfolio-top3-heading">{PRIORITY_PANEL}</h2>
+          <p>{TOP3_SUBTITLE}</p>
+        </div>
+        <Link to={portfolioHref(window, "all", "act-first")}>{TOP3_SEE_ALL(pending !== null ? null : body.total_count)}</Link>
+      </div>
+      {pending !== null ? (
+        <p data-portfolio-loading-rows>Loading the findings.</p>
+      ) : top.length === 0 ? (
+        <p data-portfolio-empty>No selected Findings for this window</p>
+      ) : (
+        <ol>
+          {top.map((row, i) => {
+            const finding = linkFor(row.link_refs?.finding);
+            return (
+              <li key={`${row.finding_id}|${row.finding_revision_id}`} data-portfolio-top3-row>
+                <span className="rank" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div>
+                  {finding !== null ? (
+                    <Link className="strong" to={finding} data-pf-top3-title>
+                      {row.title}
+                    </Link>
+                  ) : (
+                    <strong data-pf-top3-title>{row.title}</strong>
+                  )}
+                  <small>
+                    {row.site_name} · {mechanismWords(row.mechanism)}
+                  </small>
+                </div>
+                <div>
+                  <strong className="impact">{consequenceFirst(row, siteState.get(row.site_id))}</strong>
+                  <small>{episodeText(row)}</small>
+                </div>
+                <span className="badge badge--neutral">{PLACEMENT_GROUP_LABEL[row.placement.group]}</span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+/** PF-T: on a tab change (not on first paint) focus moves to the shown panel's heading. */
+function useFocusPanelHeading(tab: PortfolioTab) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const shown = useRef(tab);
+  useEffect(() => {
+    if (shown.current === tab) return;
+    shown.current = tab;
+    const heading = panelRef.current?.querySelector<HTMLElement>("h2");
+    if (!heading) return;
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+  }, [tab]);
+  return panelRef;
+}
+
 function Loaded({
+  tab,
   body,
   rows,
   lens,
@@ -774,6 +916,7 @@ function Loaded({
   summary,
   loadIds,
 }: {
+  tab: PortfolioTab;
   loadIds?: () => Promise<EstateResult<EstatePortfolioScopeIdsBody>>;
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
@@ -790,6 +933,7 @@ function Loaded({
   // OUT-C U5: the estate summary's early warnings; Unknown until the summary loads.
   const warnings = summary?.status === "loaded" ? summary.value.warnings : null;
   const warningCount = warnings === null ? null : warnings.length;
+  const panelRef = useFocusPanelHeading(tab);
   return (
     <>
       <div className="portfolio-context" data-portfolio-context={body.status}>
@@ -811,68 +955,142 @@ function Loaded({
               </span>
             ))}
         </div>
-        <ScopeDisclosure key={`${body.window.from}|${body.window.to}|${body.window.known_at ?? ""}|${body.lens}`} body={body} loadIds={loadIds} />
       </div>
-      {/* OUT-A A6: four outcome category cards replace the five value cards (mock pfCard). */}
-      <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
-      <div className="portfolio-pulse" data-portfolio-pulse>
-        <span>
-          <strong>{countText(s.priority_site_count, "Not assessed")}</strong> {s.priority_site_count === 1 ? "priority site" : "priority sites"}
-        </span>
-        {/* CH-4: one count from the opportunity read, each item named by its short label (mock `portfolio.js:45`). */}
-        <span data-portfolio-pulse-opportunity>
-          <strong>{countText(s.opportunity_count ?? null, "Unknown")}</strong> {s.opportunity_count === 1 ? "opportunity" : "opportunities"}
-          {(s.opportunity_labels ?? []).length > 0 ? `: ${(s.opportunity_labels ?? []).join(" · ")}` : ""}
-        </span>
-        <PulseCount value={s.evidence_gap_site_count} missing="Unknown" label="site evidence gaps" checkedDays={checkedDays} />
-        <span>
-          <strong>{countText(s.accepted_action_count, "Unknown")}</strong> accepted actions
-        </span>
-        <span data-portfolio-pulse-warnings>
-          <strong>{countText(warningCount, "Unknown")}</strong> {warningCount === 1 ? "warning" : "warnings"} not yet priced
-        </span>
-        <span className="pulse-note">{PULSE_NOTE}</span>
-      </div>
-      <div className="portfolio-main">
-        <PriorityPanel
-          body={body}
-          rows={rows}
-          lens={lens}
-          pending={pending}
-          onLens={onLens}
-          window={window}
-          loadMore={loadMore}
-          warnings={warnings ?? []}
-        />
-        <aside className="portfolio-side" data-portfolio-side>
+      <PortfolioTabs
+        current={tab}
+        window={window}
+        lens={lens}
+        counts={{
+          "act-first": pending !== null ? null : body.total_count,
+          opportunity: s.opportunity_count,
+          changes: s.accepted_action_count,
+        }}
+      />
+      <div className="pf-panel" data-portfolio-tab-panel={tab} ref={panelRef}>
+        {tab === "overview" ? (
+          <>
+            <h2 className="pf-sr">Overview</h2>
+            {/* OUT-A A6: four outcome category cards replace the five value cards (mock pfCard). */}
+            <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
+            {/* PF-T: each count links to the tab that holds it (v71 `pf-pulse`), so the Overview is also the contents. */}
+            <div className="portfolio-pulse pf-pulse" data-portfolio-pulse>
+              <span>
+                <Link to={portfolioHref(window, "all", "act-first")}>
+                  <strong>{countText(s.priority_site_count, "Not assessed")}</strong> {s.priority_site_count === 1 ? "priority site" : "priority sites"}
+                </Link>
+              </span>
+              {/* CH-4: one count from the opportunity read, each item named by its short label (mock `portfolio.js:45`). */}
+              <span data-portfolio-pulse-opportunity>
+                <Link to={portfolioHref(window, "all", "opportunity")}>
+                  <strong>{countText(s.opportunity_count ?? null, "Unknown")}</strong> {s.opportunity_count === 1 ? "opportunity" : "opportunities"}
+                  {(s.opportunity_labels ?? []).length > 0 ? `: ${(s.opportunity_labels ?? []).join(" · ")}` : ""}
+                </Link>
+              </span>
+              <PulseCount
+                value={s.evidence_gap_site_count}
+                missing="Unknown"
+                label="site evidence gaps"
+                checkedDays={checkedDays}
+                to={portfolioHref(window, "all", "scope")}
+              />
+              <span>
+                <Link to={portfolioHref(window, "all", "changes")}>
+                  <strong>{countText(s.accepted_action_count, "Unknown")}</strong> accepted actions
+                </Link>
+              </span>
+              <span data-portfolio-pulse-warnings>
+                <Link to={portfolioHref(window, "all", "act-first")}>
+                  <strong>{countText(warningCount, "Unknown")}</strong> {warningCount === 1 ? "warning" : "warnings"} not yet priced
+                </Link>
+              </span>
+              <span className="pulse-note">{PULSE_NOTE}</span>
+            </div>
+            <TopThree body={body} rows={rows} pending={pending} window={window} />
+          </>
+        ) : tab === "act-first" ? (
+          <div className="portfolio-main">
+            <PriorityPanel
+              body={body}
+              rows={rows}
+              lens={lens}
+              pending={pending}
+              onLens={onLens}
+              window={window}
+              loadMore={loadMore}
+              warnings={warnings ?? []}
+            />
+            <aside className="portfolio-side" data-portfolio-side>
+              <EvidenceAside body={body} window={window} />
+            </aside>
+          </div>
+        ) : tab === "outcomes" ? (
           <ObjectivesPanel summary={summary} />
-          <EvidenceAside body={body} window={window} />
-        </aside>
+        ) : tab === "opportunity" ? (
+          <OpportunityPanel body={body} window={window} />
+        ) : tab === "changes" ? (
+          <ProgressPanel body={body} />
+        ) : (
+          <section className="panel pf-scope" aria-labelledby="portfolio-scope-heading" data-portfolio-panel="scope">
+            <div className="panel-head">
+              <div>
+                <h2 id="portfolio-scope-heading">Scope &amp; coverage</h2>
+              </div>
+            </div>
+            <ScopeDisclosure key={`${body.window.from}|${body.window.to}|${body.window.known_at ?? ""}|${body.lens}`} body={body} loadIds={loadIds} />
+            <ContextFooter body={body} />
+          </section>
+        )}
       </div>
-      <div className="portfolio-bottom">
-        <OpportunityPanel body={body} window={window} />
-        <ProgressPanel body={body} />
-      </div>
-      <ContextFooter body={body} />
     </>
   );
 }
 
 type Read = { key: string; windowKey: string; lens: EstateLens; first: EstateResult<EstatePortfolioBody>; more: EstatePortfolioRow[]; next: string | null };
 
+/**
+ * PF-T: the one mounted route `/portfolio/:tab?`. An unknown tab redirects to Overview; an old `/portfolio?lens=X`
+ * address redirects to `/portfolio/act-first?lens=X`. Both keep the window and cutoff, and redirect before any read.
+ */
 export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
+  const { tab: segment } = useParams();
+  const [params] = useSearchParams();
+  const tab = portfolioTabFrom(segment);
+  if (tab === null || (tab === "overview" && params.get("lens") !== null)) {
+    const next = new URLSearchParams(params);
+    if (tab === null) next.delete("lens");
+    const path = tab === null ? portfolioTabPath("overview") : portfolioTabPath("act-first");
+    const search = next.toString();
+    return <Navigate replace to={search === "" ? path : `${path}?${search}`} />;
+  }
+  return <PortfolioTabsPage client={client} tab={tab} />;
+}
+
+function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: PortfolioTab }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const base = queryFromParams(params);
-  const lens = lensFrom(params);
+  // PF-T: the lens belongs to Act first; every other tab reads (and keeps) the whole list.
+  const lens = tab === "act-first" ? lensFrom(params) : "all";
   const window: Window = { from: base.from, to: base.to, known_at: base.known_at };
   const key = `${window.from}|${window.to}|${window.known_at ?? ""}|${lens}`;
   const [read, setRead] = useState<Read | null>(null);
+  // PF-T (proposal §6): the whole-list read is kept by key, so moving from Act first?lens=cost to another tab, or back, shows it with no new read.
+  const cache = useRef(new Map<string, Read>());
+  useEffect(() => {
+    if (read !== null && read.lens === "all") cache.current.set(read.key, read);
+  }, [read]);
   const query: EstatePortfolioQuery = { ...window, lens, limit: PORTFOLIO_PAGE_SIZE, cursor: null };
 
   useEffect(() => {
     let live = true;
+    const hit = lens === "all" ? cache.current.get(key) : undefined;
+    if (hit !== undefined) {
+      setRead(hit);
+      return () => {
+        live = false;
+      };
+    }
     void reads.portfolio(query).then((first) => {
       if (live) setRead({ key, windowKey: `${window.from}|${window.to}|${window.known_at ?? ""}`, lens, first, more: [], next: first.status === "loaded" ? first.value.next_cursor : null });
     });
@@ -924,14 +1142,17 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   const body = first?.status === "loaded" ? first.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="portfolio">
+      {/* PF-T (proposal §11, MOCK DEVIATION PF-T-1): the date range sits at the top, the same on every tab. */}
+      <div className="pf-datebar" data-portfolio-datebar>
+        <EstateDateBar
+          key={`${window.from}|${window.to}|${window.known_at ?? ""}`}
+          query={{ ...window, cursor: null }}
+          body={barBody(body)}
+          windowRefused={first?.status === "refused" && first.code === "INVALID_WINDOW"}
+          onApply={(next) => navigate(portfolioHref(next, lens, tab))}
+        />
+      </div>
       <PageHeader title={PORTFOLIO_TITLE} subtitle={PORTFOLIO_SUBTITLE} />
-      <EstateDateBar
-        key={`${window.from}|${window.to}|${window.known_at ?? ""}`}
-        query={{ ...window, cursor: null }}
-        body={barBody(body)}
-        windowRefused={first?.status === "refused" && first.code === "INVALID_WINDOW"}
-        onApply={(next) => navigate(portfolioHref(next, lens))}
-      />
       {first === null ? (
         <div className="portfolio-loading" data-estate-loading>
           <p>Loading the Portfolio across the estate.</p>
@@ -942,14 +1163,15 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
           </ul>
         </div>
       ) : first.status === "refused" ? (
-        <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, lens)} />
+        <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, lens, tab)} />
       ) : (
         <Loaded
+          tab={tab}
           body={first.value}
           rows={[...first.value.rows, ...(shown?.more ?? [])]}
           lens={lens}
           pending={held !== null ? lens : null}
-          onLens={(next) => navigate(portfolioHref(window, next))}
+          onLens={(next) => navigate(portfolioHref(window, next, "act-first"))}
           window={window}
           loadMore={loadMore}
           summary={currentSummary}

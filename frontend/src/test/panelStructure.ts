@@ -59,6 +59,8 @@ const LEADING_SELECTOR =
   ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper], [data-alternatives-finding-unavailable], " +
   // post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION D2 (R383) line below a retained Finding Site tab row.
   '[data-mock-deviation="R383"], ' +
+  // PF-T: the Portfolio date bar, context row and section tab row sit above the tab's panel (v71 portfolio-tabs.html).
+  ".pf-datebar, [data-portfolio-datebar], [data-portfolio-context], [data-portfolio-tabs], " +
 
   // post-W6 W4 R325/Q14: the mini Scenarios page-local Window row (MOCK DEVIATION D2 R450), directly in the page body.
   ".mini-scenarios > .mini-scenarios-window-row, " +
@@ -176,7 +178,12 @@ export function strayOutsidePanels(scope?: HTMLElement): string[] {
 }
 
 /** Trailing or between-panel notes the v69 mock allows outside a panel. */
-const ALLOWED_BETWEEN_SELECTOR = ".notice, .note, [data-readiness-scope], [data-page-refusal]";
+const ALLOWED_BETWEEN_SELECTOR =
+  ".notice, .note, [data-readiness-scope], [data-page-refusal], " +
+  // PF-T: the Overview tab's own screen-reader title, outcome category cards and counts strip (v71 `pf-pulse`), inside the tab panel only.
+  "[data-portfolio-tab-panel] > h2.pf-sr, [data-portfolio-tab-panel] > .oc-pfgrid, [data-portfolio-tab-panel] > .pf-pulse, " +
+  // PF-T: Act first keeps the evidence prompt aside beside the ranked list (v70 composition).
+  "[data-portfolio-tab-panel] aside[data-portfolio-side], [data-portfolio-tab-panel] aside.portfolio-side";
 
 /**
  * Content inside a status strip that is not a one-line `status-strip__*` part:

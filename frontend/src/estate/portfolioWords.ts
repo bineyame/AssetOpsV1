@@ -20,6 +20,32 @@ export const PORTFOLIO_TITLE = "Portfolio Value & Operations";
 export const PORTFOLIO_SUBTITLE = "Operating decisions across the estate: cost, service, productive use and asset value";
 export const PORTFOLIO_PAGE_SIZE = 50;
 
+/**
+ * PF-T: the Portfolio section tabs (owner-approved names, walkthrough item 5.1; proposal 2026-11-10 §6). Each tab is
+ * an address under `/portfolio/:tab?`; Overview is the bare root. `scope` is the deep tab, set apart at the right.
+ */
+export type PortfolioTab = "overview" | "act-first" | "outcomes" | "opportunity" | "changes" | "scope";
+export const PORTFOLIO_TABS: readonly { tab: PortfolioTab; label: string; segment: string | null }[] = [
+  { tab: "overview", label: "Overview", segment: null },
+  { tab: "act-first", label: "Act first", segment: "act-first" },
+  { tab: "outcomes", label: "Outcomes by site", segment: "outcomes" },
+  { tab: "opportunity", label: "Opportunity", segment: "opportunity" },
+  { tab: "changes", label: "What changed", segment: "changes" },
+  { tab: "scope", label: "Scope & coverage", segment: "scope" },
+];
+export const PORTFOLIO_TABS_LABEL = "Portfolio sections";
+/** The tab a `:tab` segment names; `null` for a segment that names no tab (the page redirects to Overview). */
+export function portfolioTabFrom(segment: string | undefined): PortfolioTab | null {
+  if (segment === undefined || segment === "") return "overview";
+  return PORTFOLIO_TABS.find((t) => t.segment === segment)?.tab ?? null;
+}
+export function portfolioTabPath(tab: PortfolioTab): string {
+  const segment = PORTFOLIO_TABS.find((t) => t.tab === tab)?.segment ?? null;
+  return segment === null ? PORTFOLIO_PATH : `${PORTFOLIO_PATH}/${segment}`;
+}
+export const TOP3_SEE_ALL = (n: number | null) => (n === null ? "See all findings →" : `See all ${n} findings →`);
+export const TOP3_SUBTITLE = "The three highest-placed findings. Placement and confidence answer different questions.";
+
 export const PRIORITY_PANEL = "Where management should act first";
 /**
  * CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:133`) says "ranked by consequence and urgency"; groups are not a

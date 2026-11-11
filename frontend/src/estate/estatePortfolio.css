@@ -176,3 +176,29 @@
 @media screen and (max-width:1200px){.estate-portfolio .value-grid.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* COV-PARTIAL (MOCK DEVIATION R620): the partly checked Site note in the context row; wraps with the row. */
 .estate-portfolio .portfolio-context .portfolio-partial{color:#916220;min-width:0;overflow-wrap:anywhere}
+
+/* PF-T: Portfolio section tabs (v71 `portfolio-tabs.html` .pf-tabs / .pf-top3 / .pf-pulse); Site tab family links. */
+.estate-portfolio .pf-datebar{position:sticky;top:0;z-index:5;background:var(--surface-page, #f5f7fb);padding:6px 0 2px;margin-bottom:6px}
+.estate-portfolio .pf-tabs{margin:0 0 18px}
+.estate-portfolio .pf-tabs .site-tabs__list{column-gap:24px}
+.estate-portfolio .pf-tabs .site-tabs__link{display:inline-flex;align-items:center;gap:6px}
+.estate-portfolio .pf-tabs .pf-tabs__deep{margin-left:auto}
+.estate-portfolio .pf-tabs__count{font-size:10px;font-weight:650;background:#eef2f8;color:#44536b;border-radius:9px;padding:1px 7px}
+.estate-portfolio .pf-tabs .site-tabs__link[aria-current="page"] .pf-tabs__count{background:#e3ebff;color:var(--accent, #245ac0)}
+.estate-portfolio .pf-panel h2:focus{outline:none}
+.estate-portfolio .pf-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.estate-portfolio .pf-pulse a{color:inherit;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.estate-portfolio .pf-pulse a:hover{color:var(--accent, #245ac0)}
+.estate-portfolio .pf-top3{margin-top:16px}
+.estate-portfolio .pf-top3 ol{list-style:none;margin:0;padding:0}
+.estate-portfolio .pf-top3 li{display:grid;grid-template-columns:28px minmax(0,1.4fr) minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-top:1px solid #edf1f6;font-size:11px}
+.estate-portfolio .pf-top3 li:first-child{border-top:0}
+.estate-portfolio .pf-top3 .rank{width:24px;height:24px;border-radius:50%;background:#eef2f8;display:grid;place-items:center;font-size:11px;font-weight:700;color:#44536b}
+.estate-portfolio .pf-top3 small{display:block;font-size:10px;color:var(--muted, #6b7a90)}
+.estate-portfolio .pf-top3 .strong{font-weight:650}
+@media (max-width: 760px) {
+.estate-portfolio .pf-tabs .site-tabs__list{flex-wrap: wrap;overflow-x:visible;overflow-y:visible;row-gap:4px;column-gap:18px}
+.estate-portfolio .pf-tabs .pf-tabs__deep{margin-left:0}
+.estate-portfolio .pf-top3 li{grid-template-columns:28px minmax(0,1fr)}
+.estate-portfolio .pf-top3 li > :nth-child(3),.estate-portfolio .pf-top3 li > :nth-child(4){grid-column:2}
+}
