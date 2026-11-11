@@ -22,9 +22,9 @@ Phase 1 (this module): kind `evidence.claim`, the mini-grid Evidence row's W1 cl
 - Rulings applied: a day whose page selection names no revision is projected with no stored input and no compose
   (D-ANY.5: absence renders as today renders no stored input). A row that exists but cannot be proven equal
   (PENDING on a touched local day, an older builder, another revision) is read as today for that day only, logged and
-  counted (D-ANY.6a, the D-ANY.1 rule). OPEN Architect question: the page selected a revision (its dispatch day is
-  still composed live, AR-3's `dispatch.day`) but no row is known at k. The claim-limit contract has no NO_DATA
-  state that would not contradict the page's own selection, so that day is also read as today and flagged.
+  counted (D-ANY.6a, the D-ANY.1 rule). Ruled D-ANY.7: the page selected a revision (its dispatch day is still
+  composed live, AR-3's `dispatch.day`) but no row is known at k - the row build has not caught up - so that day is
+  read as today's compose, logged and counted, never NO_DATA.
 """
 
 from __future__ import annotations
@@ -283,7 +283,7 @@ class RequestRows:
             return service.project_claim_limit(t, s, day, None, k, selected, None, basis_mode=basis_mode)
         served, _ = self._load(sid)
         body = served.get(day)
-        if body is None:  # see module doc: the page selected a revision no row at k holds (Architect question)
+        if body is None:  # see module doc: the page selected a revision no row at k holds (D-ANY.7)
             return self._miss(t, s, day, "absent")
         if body.get("revision_id") != _key(rid) or body.get("detail") is None:  # D-ANY.6a: not provably equal
             return self._miss(t, s, day, "revision differs")
