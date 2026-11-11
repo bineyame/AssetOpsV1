@@ -34,6 +34,10 @@ TOOLS = CHECKS.parent
 REPO = TOOLS.parent
 BUDGETS_PATH = REPO / "config" / "chain" / "perf-budgets-v1.json"
 FIXTURES = CHECKS / "fixtures" / "perf_budget"
+#: ANY-1 AR-0: arbitrary-range cases (any board day, any Portfolio range up to 31 days, historical `known_at`), cold,
+#: store off, no pre-build; the cases are `period_read_parity.seeded_cases` (one generator for parity and speed).
+ANY_RANGE_BUDGETS_PATH = REPO / "config" / "chain" / "perf-budgets-any-range-v1.json"
+ANY_RANGE_FIXTURES = CHECKS / "fixtures" / "perf_budget_any_range"
 
 WEEK = "from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z"
 #: The four chain routes, on the probe's windows (`tools/chain_perf_probe.py` URLS).
@@ -120,6 +124,97 @@ def run_fixtures(budgets: dict, folder: Path = FIXTURES) -> int:
                   f"{len(got['not_measured'])} not measured)")
     print(f"perf_budget fixtures: {len(files) - bad}/{len(files)} as expected")
     return 1 if bad else 0
+
+
+# --- ANY-1 AR-0: arbitrary-range cases ----------------------------------------------------------------------------
+
+
+def evaluate_any_range(budgets: dict, record: dict) -> list[tuple[str, str, object, object, str]]:
+    """Rows per case (cold median against its family's limit; a non-200 is a breach), plus a NOT_MEASURED row for a
+    budget family with no case (never a pass)."""
+    rows: list[tuple[str, str, object, object, str]] = []
+    if record.get("params", {}).get("store") != "off":
+        rows.append(("params", "store", record.get("params", {}).get("store"), "off", "BREACH"))
+    cases = record.get("cases", {})
+    for family, b in sorted(budgets["families"].items()):
+        if not any(c.get("family") == family for c in cases.values()):
+            rows.append((family, "cases", 0, ">=1", "NOT_MEASURED"))
+    for case_id, data in sorted(cases.items()):
+        family = data.get("family")
+        if family not in budgets["families"]:
+            rows.append((case_id, "family", family, "declared", "BREACH"))
+            continue
+        bad = sorted({s for s in data.get("status", []) if s != 200})
+        if bad or not data.get("status"):
+            rows.append((case_id, "status", bad or "none", 200, "BREACH"))
+        limit = budgets["families"][family]["cold_ms"]
+        if not data.get("cold_ms"):
+            rows.append((case_id, "cold_ms", None, limit, "NOT_MEASURED"))
+        else:
+            value = statistics.median(data["cold_ms"])
+            rows.append((case_id, "cold_ms", value, limit, "PASS" if value <= limit else "BREACH"))
+    return rows
+
+
+def run_any_range_fixtures(budgets: dict, folder: Path = ANY_RANGE_FIXTURES) -> int:
+    files = sorted(folder.glob("*.json"))
+    if not files:
+        print(f"FAIL no fixtures under {folder}: the any-range self-test would be vacuous")
+        return 1
+    bad = 0
+    for path in files:
+        fx = json.loads(path.read_text(encoding="utf-8"))
+        rows = evaluate_any_range(budgets, fx["record"])
+        got = {"breaches": sorted([r[0], r[1]] for r in rows if r[4] == "BREACH"),
+               "not_measured": sorted(r[0] for r in rows if r[4] == "NOT_MEASURED"),
+               "verdict": "FAIL" if failed(rows) else "PASS"}
+        want = {"breaches": sorted(fx["expect"]["breaches"]), "not_measured": sorted(fx["expect"]["not_measured"]),
+                "verdict": fx["expect"]["verdict"]}
+        if got != want:
+            bad += 1
+            print(f"FAIL {path.name}: expected {want}, got {got}")
+        else:
+            print(f"ok   {path.name}: {got['verdict']} ({len(got['breaches'])} breach, "
+                  f"{len(got['not_measured'])} not measured)")
+    print(f"perf_budget any-range fixtures: {len(files) - bad}/{len(files)} as expected")
+    return 1 if bad else 0
+
+
+def any_range_cases(seed: int, count: int, story: Path | None) -> list:
+    sys.path.insert(0, str(CHECKS))
+    import period_read_parity as parity
+
+    first, last = parity._range_from_story(story)
+    return parity.seeded_cases(seed, count, first, last)
+
+
+def measure_any_range(url: str, work: Path, runs: int, cases: list) -> dict:
+    """Cold only: one fresh process per run per case, the response store off (nothing pre-built is read)."""
+    os.environ["ASSETOPS_RESPONSE_STORE"] = "off"
+    record: dict = {"params": {"runs": runs, "store": "off", "cases": len(cases)}, "cases": {}}
+    for case in cases:
+        cold, status = [], []
+        for _ in range(runs):
+            cmd = [sys.executable, __file__, "--database-url", url, "--work", str(work), "--child-path", case.path]
+            out = subprocess.run(cmd, capture_output=True, text=True)
+            line = next((ln for ln in out.stdout.splitlines() if ln.startswith("RESULT ")), None)
+            if line is None:
+                print(f"cold {case.id}: child failed rc={out.returncode}: {out.stderr[-300:]}")
+                status.append(-1)
+                continue
+            res = json.loads(line[7:])
+            cold.append(res["ms"])
+            status.append(res["status"])
+        record["cases"][case.id] = {"family": case.family, "path": case.path, "cold_ms": cold, "status": status}
+    return record
+
+
+def _child_path(url: str, work: Path, path: str) -> int:
+    probe = _probe()
+    kept = probe.capture_scopes()
+    c = probe.client(url, work)
+    print("RESULT " + json.dumps(probe.one(c, kept, path)))
+    return 0
 
 
 # --- database mode (the probe's helpers, unchanged) ---------------------------------------------------------------
@@ -232,15 +327,37 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--record", type=Path, help="write the measured record (fixture format) here")
     p.add_argument("--story", type=Path, help="<work>/story.json: measure the route windows on the build's story days "
                    "(sibling days.json); omitted, the fixed probe dates are used")
+    p.add_argument("--any-range", action="store_true",
+                   help="ANY-1 AR-0: seeded arbitrary-range cases, cold, store off, against the any-range budgets")
+    p.add_argument("--seed", type=int, default=20261111)
+    p.add_argument("--random", type=int, default=16)
     p.add_argument("--child", help=argparse.SUPPRESS)
+    p.add_argument("--child-path", help=argparse.SUPPRESS)
     args = p.parse_args(argv)
+    if args.child_path:
+        return _child_path(args.database_url, args.work, args.child_path)
     if args.child:
         return _child(args.database_url, args.work, args.child, args.story)
     budgets = load_budgets()
     if args.fixture:
-        return run_fixtures(budgets)
+        rc = run_fixtures(budgets)
+        return run_any_range_fixtures(load_budgets(ANY_RANGE_BUDGETS_PATH)) or rc
     if not args.database_url or not args.work:
         p.error("--fixture, or --database-url with --work")
+    if args.any_range:
+        if args.store != "off":
+            p.error("--any-range measures with the response store off only")
+        record = measure_any_range(args.database_url, args.work, args.runs,
+                                   any_range_cases(args.seed, args.random, args.story))
+        if args.record:
+            args.record.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+        rows = evaluate_any_range(load_budgets(ANY_RANGE_BUDGETS_PATH), record)
+        print_rows(rows)
+        verdict = "FAIL" if failed(rows) else "PASS"
+        print(f"perf_budget any-range: {verdict} ({sum(r[4] == 'BREACH' for r in rows)} breach, "
+              f"{sum(r[4] == 'NOT_MEASURED' for r in rows)} not measured)"
+              f"{' [report mode: exit 0]' if args.report else ''}")
+        return 0 if args.report or verdict == "PASS" else 1
     record = measure(args.database_url, args.work, args.runs, args.store, sorted(budgets["routes"]), args.story)
     if args.record:
         args.record.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n", encoding="utf-8")

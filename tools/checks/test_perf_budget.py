@@ -138,3 +138,45 @@ def test_main_passes_story_to_measure(monkeypatch, tmp_path: Path) -> None:
     story = _story_files(tmp_path)
     perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--story", str(story), "--report"])
     assert seen["args"][-1] == story
+
+
+# --- ANY-1 AR-0: arbitrary-range cases --------------------------------------------------------------------------
+
+
+def test_any_range_budgets_are_the_architect_numbers() -> None:
+    b = perf_budget.load_budgets(perf_budget.ANY_RANGE_BUDGETS_PATH)
+    assert b["store"] == "off"
+    assert b["families"] == {"board_any_day": {"cold_ms": 2000}, "portfolio_any_range": {"cold_ms": 2000}}
+
+
+def test_any_range_fixtures_as_expected_and_not_vacuous(tmp_path: Path) -> None:
+    budgets = perf_budget.load_budgets(perf_budget.ANY_RANGE_BUDGETS_PATH)
+    assert perf_budget.run_any_range_fixtures(budgets) == 0
+    assert perf_budget.run_any_range_fixtures(budgets, tmp_path) == 1  # no fixtures: a failure
+    fx = json.loads((perf_budget.ANY_RANGE_FIXTURES / "breach-cold.json").read_text(encoding="utf-8"))
+    fx["expect"] = {"breaches": [], "not_measured": [], "verdict": "PASS"}
+    (tmp_path / "wrong.json").write_text(json.dumps(fx), encoding="utf-8")
+    assert perf_budget.run_any_range_fixtures(budgets, tmp_path) == 1
+    assert perf_budget.main(["--fixture"]) == 0
+
+
+def test_any_range_cases_cover_both_families_and_a_month(tmp_path: Path) -> None:
+    cases = perf_budget.any_range_cases(3, 12, _story_files(tmp_path))
+    assert {c.family for c in cases} == {"board_any_day", "portfolio_any_range"}
+    import period_read_parity
+
+    assert any(period_read_parity.portfolio_days(c.path) == 31 for c in cases if c.family == "portfolio_any_range")
+
+
+def test_any_range_refuses_the_store_on_and_measures_cold_store_off(monkeypatch, tmp_path: Path) -> None:
+    import pytest
+
+    with pytest.raises(SystemExit):
+        perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "on"])
+    seen: dict = {}
+    rec = json.loads((perf_budget.ANY_RANGE_FIXTURES / "breach-cold.json").read_text(encoding="utf-8"))["record"]
+    monkeypatch.setattr(perf_budget, "measure_any_range", lambda *a, **k: seen.update(args=a) or rec)
+    assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "off"]) == 1
+    assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "off",
+                             "--report"]) == 0
+    assert len(seen["args"][-1]) == 16
