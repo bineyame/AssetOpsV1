@@ -423,12 +423,13 @@ def public(item: dict[str, Any]) -> dict[str, Any]:
 
 
 def _card(key: str, state: str, *, line_keys: Iterable[str] = (), group_key: str | None = None,
-          currency: str | None = None, detail: str | None = None) -> dict[str, Any]:
+          currency: str | None = None, detail: str | None = None,
+          price_action: dict[str, Any] | None = None) -> dict[str, Any]:
     slot_detail, basis_text, tone = CARD_SLOTS[(key, state)]
     return {"key": key, "state": state, "display_value": DISPLAYED_VALUE.get(state), "currency": currency,
             "line_keys": sorted(line_keys), "group_key": group_key, "basis": None,
             **_destination(CARD_DESTINATION[key]), "detail": detail if slot_detail is None else slot_detail,
-            "basis_text": basis_text, "tone": tone}
+            "basis_text": basis_text, "tone": tone, "price_action": price_action}
 
 
 def operating_cost_card(lines: list[dict[str, Any]], applicable: dict[str, bool],
@@ -449,7 +450,8 @@ def operating_cost_card(lines: list[dict[str, Any]], applicable: dict[str, bool]
                      currency=(heads[0]["amount"] or {}).get("currency"))
     if len(heads) == 1 and heads[0]["eligibility"] == UNPRICED:
         return _card("OPERATING_COST", "UNPRICED", line_keys=keys,
-                     detail=f"{heads[0]['site_name']} · consequence recorded without a price")
+                     detail=f"{heads[0]['site_name']} · consequence recorded without a price",
+                     price_action=heads[0].get("price_action"))  # PR-1: the one unpriced line's link
     if not heads:
         return _card("OPERATING_COST", "NO_LINE")
     return _card("OPERATING_COST", "WITHHELD", line_keys=keys)

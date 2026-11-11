@@ -22,6 +22,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from assetops_backend.chain import refs
+from assetops_backend.outcomes import price_action
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     local_day_grades_kw, not_applicable, site_coverage)
@@ -135,6 +136,9 @@ def _line(site: dict[str, Any], domain: str, category: str, revision_id: str, *,
         "limit": limit, "source_provenance": provenance, **refs.split_links(links),
         "disclosure": {"pinned_amount": amount, **(disclosure or {})},
         "group_key": None,
+        # PR-1: an UNPRICED line says how it gets a price (the Site price page); every other line has none.
+        "price_action": price_action.wire(price_action.MONEY_CATEGORY_SPEC.get(category), site["site_code"],
+                                          site["site_name"], refs) if eligibility == UNPRICED else None,
         "_ws": ws, "_we": we, "_currency": None if amount is None else amount.get("currency"),
         "_key": (ws, str(site["site_code_key"]), str(site["site_id"]).lower(), category, line_key)}
 

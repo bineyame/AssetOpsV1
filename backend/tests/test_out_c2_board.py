@@ -226,8 +226,11 @@ def test_board_and_summary_wire(monkeypatch) -> None:
     w = body["warnings"][0]
     assert set(w) == {"key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                       "persistence_label", "price_needs", "status_effect", "categories", "site_code", "site_name",
-                      "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name"}
+                      "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name", "price_action"}
     assert (w["site_code"], w["site_name"]) == ("COLD-LAB-001", "GreenHarvest")
+    # PR-1: the board wire carries the server's price link, built for this Site.
+    assert w["price_action"]["href"] == "/sites/COLD-LAB-001/financials/prices?key=repair_visit_cost"
+    assert w["price_action"]["label"] == "Set a cost per visit for GreenHarvest →"
     assert money_hits(body["warnings"]) == []
 
     out = svc.summary([KOBO, COLD_SITE, ODD], TO - timedelta(days=1), TO)

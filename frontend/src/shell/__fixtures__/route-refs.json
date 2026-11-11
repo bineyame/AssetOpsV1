@@ -562,5 +562,31 @@
    "view": "operational_records"
   },
   "path": "/operational-records"
+ },
+ {
+  "name": "prices",
+  "ref": {
+   "kind": "PRICES",
+   "site": "KOBO-001"
+  },
+  "path": "/sites/KOBO-001/financials/prices"
+ },
+ {
+  "name": "prices at a key",
+  "ref": {
+   "kind": "PRICES",
+   "site": "KOBO-001",
+   "key": "repair_visit_cost"
+  },
+  "path": "/sites/KOBO-001/financials/prices?key=repair_visit_cost"
+ },
+ {
+  "name": "prices at a need",
+  "ref": {
+   "kind": "PRICES",
+   "site": "GH 01/a",
+   "need": "battery_wear_model"
+  },
+  "path": "/sites/GH%2001%2Fa/financials/prices?need=battery_wear_model"
  }
 ]

@@ -16,6 +16,8 @@ Kinds:
 - ESTATE {view}: one enumerated estate path (`ESTATE_VIEWS`). No estate builder takes a query today.
 - FUEL_FINDING {site, id, revision?}: an unexplained-fuel Finding's own page (DIESEL-1-R3l).
 - FUEL_VERDICT {site, id}: a fuel domain Action's verdict page (DIESEL-1-R3m); no query.
+- PRICES {site, key?, need?}: PR-1 (BL-68 §4.1), the Site price page `/sites/{site}/financials/prices`, opened at one
+  price key or one model/data need. The frontend appends the shared range and `return`; the server never does.
 
 Encoding is the frontend builders' own: path segments as `encodeURIComponent` (`quote(safe="")`), queries as
 `URLSearchParams` (`urlencode`). There is no free path, and no outcome id (OL-1).
@@ -28,7 +30,10 @@ from urllib.parse import parse_qsl, quote, urlencode
 Ref = Mapping[str, Any]
 
 KINDS = ("THREAD", "FINDING", "ACTION", "DOMAIN_VERDICT", "OPPORTUNITY", "CASE", "EVIDENCE", "SITE", "ESTATE",
-         "FUEL_FINDING", "FUEL_VERDICT")
+         "FUEL_FINDING", "FUEL_VERDICT", "PRICES")
+
+#: PR-1: the Site price page (`sitePricesHref`), under the Site's Financials tab (architect-answer-price-it §4.1).
+PRICES_SUFFIX = "/financials/prices"
 
 #: `siteFindingViewHref` (`FINDING_CHILD_VIEWS`).
 FINDING_VIEWS = ("evidence", "history", "recommendation", "alternatives")
@@ -125,6 +130,8 @@ def href_for(ref: Ref | None) -> str | None:
         return _with(f"{_site(ref)}/fuel-findings/{_seg(ref['id'])}", [("revision_id", ref.get("revision"))])
     if kind == "FUEL_VERDICT":  # DIESEL-1-R3m: a fuel domain Action's verdict page (`siteFuelVerificationHref`)
         return f"{_site(ref)}/domain-actions/{_seg(ref['id'])}/fuel-verification"
+    if kind == "PRICES":  # PR-1: the Site price page at one price key or one need (`sitePricesHref`)
+        return _with(f"{_site(ref)}{PRICES_SUFFIX}", [("key", ref.get("key")), ("need", ref.get("need"))])
     if kind == "OPPORTUNITY":
         return _with(f"{_site(ref)}/opportunities/{_seg(ref['id'])}", [("known_at", ref.get("known_at"))])
     if kind == "CASE":
@@ -198,6 +205,13 @@ def fuel_finding_ref(site: str, finding_id: str, revision: str | None = None) ->
 def fuel_verdict_ref(site: str, action_id: str) -> dict[str, Any]:
     """DIESEL-1-R3m: the verdict page of a fuel domain Action (`/sites/{site}/domain-actions/{id}/fuel-verification`)."""
     return _ref("FUEL_VERDICT", site=site, id=str(action_id))
+
+
+def prices_ref(site: str, *, key: str | None = None, need: str | None = None) -> dict[str, Any]:
+    """PR-1: the Site price page, opened at one price `key` (SET_PRICE) or one `need` (NEEDS_MODEL), never both."""
+    if key is not None and need is not None:
+        raise ValueError("a PRICES ref names a price key or a need, not both")
+    return _ref("PRICES", site=site, key=key, need=need)
 
 
 def opportunity_ref(site: str, opportunity_id: str, known_at: str | None = None) -> dict[str, Any]:
