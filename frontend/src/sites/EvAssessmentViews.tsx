@@ -1,3 +1,4 @@
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
@@ -938,7 +939,7 @@ function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingD
         </Panel>
         <Panel heading="Recommended next step" headingId="ev-next-step-heading">
           <p className="prose">{EV_COPY.nextStep}</p>
-          <UnavailableLinkEntry label="Review recommendation" />
+          <UnavailableLinkEntry label="Review recommendation" roadmap={ROADMAP_WORDS.reviewRecommendation} />
         </Panel>
       </div>
     </>
@@ -957,7 +958,7 @@ function FindingSkeleton({ read }: { read: EvRead<unknown> }) {
         </Panel>
         <Panel heading="Recommended next step" headingId="ev-next-step-heading">
           <Gap id="ev-next-step">{NOT_ASSESSED}</Gap>
-          <UnavailableLinkEntry label="Review recommendation" />
+          <UnavailableLinkEntry label="Review recommendation" roadmap={ROADMAP_WORDS.reviewRecommendation} />
         </Panel>
       </div>
     </>

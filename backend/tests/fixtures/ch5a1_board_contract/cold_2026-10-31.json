@@ -55,7 +55,7 @@
     "kpi": null,
     "potential": null
    },
-   "not_measured_text": "Needs occupancy, storage contract, income and sales records",
+   "not_measured_text": "Occupancy, storage contract, income and sales records are not connected yet",
    "options": [],
    "outcomes": [
     {
@@ -103,7 +103,7 @@
       "site": "COLD-LAB-001",
       "view": "financials"
      },
-     "text": "No repair or call-out cost recorded"
+     "text": "Repair and call-out costs are not connected yet"
     },
     {
      "confidence": null,
@@ -392,7 +392,7 @@
    "potential": null,
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
-   "subline": "Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed",
+   "subline": "Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition need a wear model, which is not connected yet",
    "target_note": null,
    "thread_lines": [],
    "tone": "amber"
@@ -414,7 +414,7 @@
      "key": "storage_service_level",
      "label": "Storage service level",
      "link_ref": null,
-     "text": "Not available yet · no storage contract recorded"
+     "text": "Storage contracts are not connected yet"
     },
     {
      "confidence": {
@@ -433,7 +433,7 @@
      "key": "loading_door_records",
      "label": "Loading and door records",
      "link_ref": null,
-     "text": "Not available yet"
+     "text": "Loading and door records are not connected yet"
     }
    ],
    "counts": {

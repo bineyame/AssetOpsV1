@@ -4,7 +4,6 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
-import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -38,9 +37,6 @@ import type { OutcomeBoardClient } from "../../sites/outcomeBoardClient";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
-const DETAIL: SiteDetailClient = {
-  getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }),
-};
 const WINDOW = "from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch";
 const PATH = `/sites/${SITE_ID}/findings?${WINDOW}`;
 
@@ -49,13 +45,17 @@ function LocationProbe() {
   return <output data-location>{`${location.pathname}${location.search}`}</output>;
 }
 
-function renderAt(path: string, index: FindingIndexClient, outcomeBoard?: OutcomeBoardClient) {
+/** RM-2: the Kobo-type Site declares lens support (a productive-use load); the fixture's own Site (Kisiwa-type) does not. */
+const KOBO_TYPE_SITE = { ...HYBRID_MINI_GRID_SITE, lenses_supported: true };
+
+function renderAt(path: string, index: FindingIndexClient, outcomeBoard?: OutcomeBoardClient, site = HYBRID_MINI_GRID_SITE) {
+  const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
   return render(
     <MemoryRouter initialEntries={[path]}>
       <App
         flags={featureFlagsWith(false)}
         siteDirectory={DIRECTORY}
-        siteDetail={DETAIL}
+        siteDetail={detail}
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteAnalytics={analyticsClient(SITE_ID)}
         siteFindingIndex={index}
@@ -321,6 +321,48 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     return (card().textContent ?? "").replace(details?.textContent ?? "", "");
   }
 
+  const lensLabels = (lenses: HTMLElement) =>
+    Array.from(lenses.querySelectorAll("li")).map((li) => li.getAttribute("data-lens") ?? li.getAttribute("data-chip-unavailable"));
+
+  it("RM-2: a Site that declares lens support (Kobo-type) keeps its lens chips with Findings", async () => {
+    // The backend gives every mini-grid Finding the same flags: ["COST"].
+    const body = indexBody({
+      rows: [indexRow(FID_B, RID_B, "2026-10-25T18:00:00Z", "2026-10-25T19:00:00Z", { lens_flags: ["COST"] })],
+      total_count: 1,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client, undefined, KOBO_TYPE_SITE);
+    await settledScreen();
+    expect(lensLabels(screen.getByRole("list", { name: "Finding lenses" }))).toEqual(["all", "Cost", "Risks", "Opportunities"]);
+  });
+
+  it("RM-2: a Kobo-type Site keeps its lens chips in a window with no Findings", async () => {
+    const body = indexBody({ rows: [], total_count: 0 });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client, undefined, KOBO_TYPE_SITE);
+    await settledScreen();
+    expect(lensLabels(screen.getByRole("list", { name: "Finding lenses" }))).toEqual(["all", "Cost", "Risks", "Opportunities"]);
+  });
+
+  it("RM-2: a Kobo-type Site keeps its lens chips when the read is refused (no layout jump)", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: notCurrent("STALE_PROJECTION", "The read is stale.") }));
+    renderAt(PATH, client, undefined, KOBO_TYPE_SITE);
+    await settledScreen();
+    expect(screen.getByRole("list", { name: "Finding lenses" })).not.toBeNull();
+  });
+
+  it("RM-2: a Site that does not declare lens support (Kisiwa-type) shows no lens chips even with ['COST'] Findings", async () => {
+    const body = indexBody({
+      rows: [indexRow(FID_A, RID_A, "2026-10-25T06:00:00Z", "2026-10-25T07:00:00Z", { lens_flags: ["COST"] })],
+      total_count: 1,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(screen.queryByRole("list", { name: "Finding lenses" })).toBeNull();
+    expect(document.querySelector("[data-chip-unavailable]")).toBeNull();
+  });
+
   it("CH-5a2 B5: the Lens cell renders the server's one lens, and an empty lens says so", async () => {
     const body = indexBody({
       rows: [
@@ -513,24 +555,14 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
     expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const controls = panel.querySelector("[data-site-findings-controls]") as HTMLElement;
     expect(controls, "the window control row is in the panel").not.toBeNull();
-    const lenses = screen.getByRole("list", { name: "Finding lenses" });
-    expect(panel.contains(lenses), "the lens row is outside the panel").toBe(false);
-    expect(lenses.compareDocumentPosition(statusBar()) & Node.DOCUMENT_POSITION_FOLLOWING, "lenses above the strip").toBeTruthy();
+    // RM-2: this fixture Site declares no lens support (Kisiwa-type), so its lens row is hidden on client screens.
+    expect(screen.queryByRole("list", { name: "Finding lenses" })).toBeNull();
     const manage = statusBar().querySelector("[data-site-findings-manage]") as HTMLAnchorElement;
     expect(manage.textContent).toBe("Manage in Findings →");
     expect(manage.getAttribute("href")).toBe("/findings");
-    expect(rowLabels(lenses)).toEqual([
-      "All",
-      `Cost (${UNAVAILABLE_STATUS})`,
-      `Risks (${UNAVAILABLE_STATUS})`,
-      `Opportunities (${UNAVAILABLE_STATUS})`,
-    ]);
-    expect(lenses.querySelector("[data-lens='all']")).toHaveAttribute("aria-current", "true");
-    for (const lens of ["Cost", "Risks", "Opportunities"]) expectUnavailableEntry(lenses, lens);
     const windowRow = document.querySelector("[data-finding-index-window]") as HTMLElement;
     expect(windowRow.classList.contains("v69-chips"), "the window form is the mock's chips row").toBe(true);
     expect(controls.contains(windowRow)).toBe(true);
-    expect(lenses.compareDocumentPosition(windowRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const heading = within(panel).getByRole("heading", { name: "Findings at this site" });
     expect(heading.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(statusBar().querySelector("[data-product-status]"), "the shared state line is in the statusbar").not.toBeNull();

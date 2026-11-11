@@ -1851,9 +1851,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
         </MemoryRouter>,
       );
       await settledScreen();
-      const chipEl = document.querySelector('[data-site-findings-lenses] [data-chip-unavailable="Opportunities"], [data-site-findings-lenses] li:last-child');
-      expect(chipEl?.textContent).toContain("Opportunities");
-      expect(chipEl?.querySelector("a")).toBeNull();
+      // RM-2: no lens is supported, so no lens chip row is drawn at all.
+      expect(document.querySelector("[data-site-findings-lenses]")).toBeNull();
       const note = document.querySelector("[data-opportunity-index-helper]");
       if (helper) {
         // CH-4 (§4.3): with no renewable address the helper links only to Findings › Opportunities.
