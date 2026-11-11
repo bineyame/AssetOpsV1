@@ -5,6 +5,7 @@
  * browser's); `known_at` is optional.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import { focusDayOf } from "../ui/sharedRange";
 
 /** The served mini tabs, in the backend's order (S6). */
 export const MINI_DOMAINS = ["service", "fuel", "renewable", "backup"] as const;
@@ -329,15 +330,15 @@ export function localDaysWindow(timeZone: string, first: string, days: number): 
 
 /**
  * The renewable page's window (Q5, q9-1): the address's `from`/`to`/`known_at` when both bounds are present;
- * otherwise one site-local day, the local date of the shell's UTC day start (`?date=`, else today's UTC day).
+ * otherwise one site-local day, the local date of the shell's UTC day start (`?day=`, else the legacy `?date=`, else
+ * today's UTC day; SR.3).
  */
 export function renewableWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
   const from = params.get("from");
   const to = params.get("to");
   const known_at = params.get("known_at");
   if (from !== null && to !== null) return { from, to, known_at };
-  const date = params.get("date");
-  const utcDay = date !== null && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : now.toISOString().slice(0, 10);
+  const utcDay = focusDayOf(params) ?? now.toISOString().slice(0, 10);
   const first = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
   return { ...localDaysWindow(timeZone, first, 1), known_at };
 }
@@ -353,15 +354,15 @@ export const DEFAULT_SERVICE_HOUR = 12;
 
 /**
  * The service page's window (Q5): the address's `from`/`to`/`known_at` when both bounds are present; otherwise the
- * local 12:00-13:00 hour of the local date of the shell's UTC day start (`?date=`, else today's UTC day).
+ * local 12:00-13:00 hour of the local date of the shell's UTC day start (`?day=`, else the legacy `?date=`, else
+ * today's UTC day; SR.3).
  */
 export function serviceWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
   const from = params.get("from");
   const to = params.get("to");
   const known_at = params.get("known_at");
   if (from !== null && to !== null) return { from, to, known_at };
-  const date = params.get("date");
-  const utcDay = date !== null && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : now.toISOString().slice(0, 10);
+  const utcDay = focusDayOf(params) ?? now.toISOString().slice(0, 10);
   const day = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
   return { ...localHourWindow(timeZone, day, DEFAULT_SERVICE_HOUR), known_at };
 }

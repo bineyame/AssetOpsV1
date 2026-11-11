@@ -145,20 +145,25 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     expect(new Date(scope.to).getTime() - new Date(scope.from).getTime()).toBe(86400000);
   });
 
-  it("changing the dates writes a new window to the address and reads again", async () => {
+  it("SR-2: reads the shared range in the address, names its days and renders no date form of its own", async () => {
     const { client, getFindingIndex } = indexClient(() => ({ status: "loaded", value: indexBody() }));
-    renderAt(PATH, client);
+    renderAt(`/sites/${SITE_ID}/findings?from=2026-10-20T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&domain=mini-grid-dispatch`, client);
     await settledScreen();
-    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-10-20" } });
-    fireEvent.change(screen.getByLabelText("To (included)"), { target: { value: "2026-10-21" } });
-    expect(screen.getByLabelText("From")).toHaveValue("2026-10-20");
-    fireEvent.click(screen.getByRole("button", { name: "Show Findings" }));
-    await waitFor(() => expect(query().get("from")).toBe("2026-10-20T00:00:00Z"));
+    expect(getFindingIndex.mock.calls[0][1].from).toBe("2026-10-20T00:00:00Z");
+    expect(getFindingIndex.mock.calls[0][1].to).toBe("2026-10-22T00:00:00Z");
+    const line = document.querySelector("[data-finding-index-window='range']")?.textContent ?? "";
+    expect(line).toMatch(/Days shown: .*20.* to .*21.*from the date range at the top/);
+    expect(document.querySelector("main input[type='date']")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Show Findings" })).toBeNull();
+  });
+
+  it("SR-2: with no range, says the days are the page default and points to the date range at the top", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
+    renderAt(`/sites/${SITE_ID}/findings`, client);
     await settledScreen();
-    expect(query().get("to")).toBe("2026-10-22T00:00:00Z");
-    expect(query().get("cursor")).toBeNull();
-    expect(getFindingIndex).toHaveBeenCalledTimes(2);
-    expect(getFindingIndex.mock.calls[1][1].from).toBe("2026-10-20T00:00:00Z");
+    expect(document.querySelector("[data-finding-index-window='default']")?.textContent).toMatch(
+      /this page's default\. Choose other days in the date range at the top/,
+    );
   });
 });
 

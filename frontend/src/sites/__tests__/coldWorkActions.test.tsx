@@ -149,7 +149,6 @@ async function mountCases(kind: "incidents" | "maintenance", path: string, domai
   return { main: document.querySelector("main") as HTMLElement, work };
 }
 
-const setDate = (input: Element | null, value: string) => fireEvent.change(input as HTMLInputElement, { target: { value } });
 
 const workPath = (query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`) => `/sites/${SITE}/work?${query}`;
 const text = (el: Element | null | undefined) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
@@ -355,8 +354,9 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
       expect(main.textContent).not.toContain(gone);
     }
     expect(main.querySelector("[data-site-work-window]")).toBeNull();
-    // K2 ruling 1: the only form is the page-local cold `Window` control (R88).
-    expect(Array.from(main.querySelectorAll("form")).map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
+    // SR-2: the cold `Window` (R88) is a line naming the days of the date range at the top; no page date form.
+    expect(main.querySelector("[data-cold-work-window]")).not.toBeNull();
+    expect(main.querySelectorAll("input[type=date]").length).toBe(0);
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 action");
   });
 
@@ -377,7 +377,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelector("[data-domain-work-source-unavailable]")).toBeNull();
     for (const call of vi.mocked(client.getIndex).mock.calls) expect(call).toHaveLength(2);
     // V2a review Low-1: the K2 presence-only cold attributes keep their `="true"` rendering byte-for-byte.
-    for (const name of ["strip", "global-gap", "revision", "owner", "due", "criterion", "window", "window-from", "window-to", "window-apply"]) {
+    for (const name of ["strip", "global-gap", "revision", "owner", "due", "criterion", "window", "window-days"]) {
       expect(main.querySelector(`[data-cold-work-${name}]`)?.getAttribute(`data-cold-work-${name}`), name).toBe("true");
       expect(main.querySelector(`[data-domain-work-${name}]`)?.getAttribute(`data-domain-work-${name}`), name).toBe("");
     }
@@ -627,18 +627,19 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelectorAll(".cold-work-actions thead th").length).toBe(6);
   });
 
-  it("puts the page-local Window control after the Work subtabs and before the scope strip, showing the default dates (ruling 1, R88)", async () => {
-    const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+  it("SR-2: the Window line sits after the Work subtabs and before the scope strip; without a range it names the default days (R88)", async () => {
+    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
     const { main } = await mountWork(`/sites/${SITE}/work`, client);
-    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
-    expect(form.getAttribute("aria-label")).toBe("Window");
-    expect(form.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
-    expect(form.nextElementSibling?.firstElementChild?.hasAttribute("data-cold-work-strip")).toBe(true);
+    const line = main.querySelector("[data-cold-work-window]") as HTMLElement;
+    expect(line.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
+    expect(line.nextElementSibling?.firstElementChild?.hasAttribute("data-cold-work-strip")).toBe(true);
     const expected = defaultWorkWindow();
-    expect((form.querySelector("[data-cold-work-window-from]") as HTMLInputElement).value).toBe(expected.from.slice(0, 10));
-    expect((form.querySelector("[data-cold-work-window-to]") as HTMLInputElement).value).toBe(expected.to.slice(0, 10));
-    expect(text(form.querySelector("[data-cold-work-window-apply]"))).toBe("Apply");
-    expect(form.querySelector("[data-cold-work-window-error]")).toBeNull();
+    expect(indexCalls[0].scope).toMatchObject({ from: expected.from, to: expected.to });
+    expect(line.getAttribute("data-window-source")).toBe("default");
+    expect(text(line.querySelector("[data-cold-work-window-days]"))).toMatch(
+      /^Window: .+, this page's default\. Choose other days in the date range at the top\.$/,
+    );
+    expect(main.querySelectorAll("input[type=date]").length).toBe(0);
     expectV69Panels("cold-work");
   });
 
@@ -662,87 +663,37 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(text(basis)).toBe("Listed by the time each Action was raised.");
   });
 
-  it("Apply writes from,to into the URL, keeps an explicit known_at, drops the cursor and reads page one (ruling 1)", async () => {
+  it("SR-2: a range in the address is the Window: the read uses it with the explicit known_at and the line names its days", async () => {
     const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
-    const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
+    const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
     const { main } = await mountWork(workPath(query), client);
-    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
-    expect((form.querySelector("[data-cold-work-window-from]") as HTMLInputElement).value).toBe("2026-10-15");
-    expect((form.querySelector("[data-cold-work-window-to]") as HTMLInputElement).value).toBe("2026-10-22");
-    setDate(form.querySelector("[data-cold-work-window-from]"), "2026-10-01");
-    setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-20");
-    fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
-    const want = `/sites/${SITE}/work?from=${encodeURIComponent("2026-10-01T00:00:00Z")}&to=${encodeURIComponent("2026-10-20T00:00:00Z")}&known_at=${encodeURIComponent(KNOWN)}`;
-    await waitFor(() => expect(where()).toBe(want));
-    await settledScreen();
-    expect(indexCalls.at(-1)?.scope).toEqual({ from: "2026-10-01T00:00:00Z", to: "2026-10-20T00:00:00Z", knownAt: KNOWN, cursor: null });
-    cleanup();
-    // No explicit known_at in the URL: none is invented.
-    const plain = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
-    const plainMain = (await mountWork(`/sites/${SITE}/work`, plain.client)).main;
-    setDate(plainMain.querySelector("[data-cold-work-window-from]"), "2026-10-01");
-    setDate(plainMain.querySelector("[data-cold-work-window-to]"), "2026-11-01");
-    fireEvent.click(plainMain.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
-    await waitFor(() => expect(where()).toBe(`/sites/${SITE}/work?from=${encodeURIComponent("2026-10-01T00:00:00Z")}&to=${encodeURIComponent("2026-11-01T00:00:00Z")}`));
-    await settledScreen();
+    expect(indexCalls.at(-1)?.scope).toMatchObject({ from: FROM, to: TO, knownAt: KNOWN });
+    const line = main.querySelector("[data-cold-work-window]") as HTMLElement;
+    expect(line.getAttribute("data-window-source")).toBe("range");
+    expect(text(line.querySelector("[data-cold-work-window-days]"))).toBe("Window: 15 Oct to 21 Oct, from the date range at the top.");
   });
 
-  it("invalid Window input stays on the page with the window error and makes no new read (ruling 1)", async () => {
-    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
-    const { main } = await mountWork(workPath(), client);
-    const before = where();
-    const reads = indexCalls.length;
-    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
-    for (const [from, to] of [
-      ["2026-10-20", "2026-10-20"],
-      ["2026-10-20", "2026-10-10"],
-      ["2026-09-01", "2026-10-03"],
-      ["", "2026-10-03"],
-      ["2026-10-01", ""],
-    ]) {
-      setDate(form.querySelector("[data-cold-work-window-from]"), from);
-      setDate(form.querySelector("[data-cold-work-window-to]"), to);
-      fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
-      expect(text(form.querySelector("[data-cold-work-window-error]"))).toBe("The window may span at most 31 days.");
-      expect(where()).toBe(before);
-    }
-    await settledScreen();
-    expect(indexCalls.length).toBe(reads);
-    // Exactly 31 days is a valid window.
-    setDate(form.querySelector("[data-cold-work-window-from]"), "2026-09-01");
-    setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-02");
-    fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
-    await waitFor(() => expect(where()).toContain(`from=${encodeURIComponent("2026-09-01T00:00:00Z")}`));
-    await settledScreen();
-    expect(main.querySelector("[data-cold-work-window-error]")).toBeNull();
-  });
-
-  it("keeps the Window control on cold Incidents and Maintenance; Apply preserves known_at and drops the cursor (ruling 1)", async () => {
+  it("keeps the Window line on cold Incidents and Maintenance and from,to,known_at on every subtab href (ruling 1)", async () => {
     for (const kind of ["incidents", "maintenance"] as const) {
       const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
       const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
       const { main, work } = await mountCases(kind, `/sites/${SITE}/work/${kind}?${query}`, client);
-      const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
-      expect(form.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
+      const line = main.querySelector("[data-cold-work-window]") as HTMLElement;
+      expect(line.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
+      expect(line.getAttribute("data-window-source")).toBe("range");
       const keep = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
       expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual([
         `/sites/${SITE}/work?${keep}`,
         `/sites/${SITE}/work/incidents?${keep}`,
         `/sites/${SITE}/work/maintenance?${keep}`,
       ]);
-      setDate(form.querySelector("[data-cold-work-window-from]"), "2026-10-02");
-      setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-09");
-      fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
-      const want = `/sites/${SITE}/work/${kind}?from=${encodeURIComponent("2026-10-02T00:00:00Z")}&to=${encodeURIComponent("2026-10-09T00:00:00Z")}&known_at=${encodeURIComponent(KNOWN)}`;
-      await waitFor(() => expect(where()).toBe(want));
-      await settledScreen();
       const last = work.calls.filter((c) => c.kind === kind).at(-1);
-      expect(last?.scope).toMatchObject({ from: "2026-10-02T00:00:00Z", to: "2026-10-09T00:00:00Z", knownAt: KNOWN, cursor: null });
+      expect(last?.scope).toMatchObject({ from: FROM, to: TO, knownAt: KNOWN });
       cleanup();
     }
   });
 
-  it("shows exactly one visible date form on each cold Work subtab and keeps from,to,known_at on every subtab href (ruling 23)", async () => {
+  it("SR-2: no page date form and one Window line on each cold Work subtab; from,to,known_at on every subtab href (ruling 23)", async () => {
     const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
     const keep = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
     const hrefs = [`/sites/${SITE}/work?${keep}`, `/sites/${SITE}/work/incidents?${keep}`, `/sites/${SITE}/work/maintenance?${keep}`];
@@ -752,23 +703,24 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
         kind === "actions"
           ? (await mountWork(workPath(query), client)).main
           : (await mountCases(kind, `/sites/${SITE}/work/${kind}?${query}`, client)).main;
-      const forms = Array.from(main.querySelectorAll("form")).filter((f) => !f.closest("[hidden], details:not([open])"));
-      expect(forms.map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
-      expect(main.querySelector("form[data-work-window]")).toBeNull();
+      expect(main.querySelectorAll("input[type=date]").length).toBe(0);
+      expect(main.querySelectorAll("[data-cold-work-window]").length).toBe(1);
+      expect(main.querySelector(".w1f4-work-window[data-work-window]")).toBeNull();
       expect(main.querySelector("[data-site-work-window]")).toBeNull();
       expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual(hrefs);
       cleanup();
     }
   });
 
-  it("keeps the W4 in-panel window form on MINIGRID Incidents and Maintenance (ruling 23)", async () => {
+  it("keeps the W4 in-panel window line on MINIGRID Incidents and Maintenance (ruling 23; SR-2: no date form)", async () => {
     const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
     for (const kind of ["incidents", "maintenance"] as const) {
       const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
       const { main } = await mountCases(kind, `/sites/${SITE}/work/${kind}`, client, mini);
-      const form = main.querySelector("form[data-work-window]") as HTMLFormElement;
+      const form = main.querySelector(".w1f4-work-window[data-work-window]") as HTMLElement;
       expect(form).not.toBeNull();
       expect(form.closest("section.panel")).not.toBeNull();
+      expect(main.querySelectorAll("input[type=date]").length).toBe(0);
       expect(main.querySelector("[data-cold-work-window]")).toBeNull();
       expect(indexCalls).toEqual([]);
       cleanup();

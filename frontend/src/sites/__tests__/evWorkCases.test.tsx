@@ -191,31 +191,22 @@ describe("W5-04 V3a: EV Site > Work > Incidents (v69 ev-work-incidents)", () => 
     expectNoColdNames(main);
   });
 
-  it("mounts exactly one date form: the page-local Window after the subtabs, no W4 in-panel form (ruling 57, R112)", async () => {
+  it("SR-2: no page date form; the Window line after the subtabs names the days from the date range at the top (R112)", async () => {
     for (const kind of ["incidents", "maintenance"] as const) {
-      const { main } = await mountCases(kind, loaded(evCaseBody([kind === "incidents" ? evIncident(1) : evRequest(1)])));
-      expect(main.querySelectorAll("form").length).toBe(1);
-      const window = main.querySelector("form[data-domain-work-window]") as HTMLFormElement;
+      const { main, work } = await mountCases(kind, loaded(evCaseBody([kind === "incidents" ? evIncident(1) : evRequest(1)])));
+      expect(main.querySelectorAll("input[type=date]").length).toBe(0);
+      const window = main.querySelector("[data-domain-work-window]") as HTMLElement;
       expect(window).not.toBeNull();
-      expect(main.querySelector("form[data-work-window]")).toBeNull();
+      expect(main.querySelector(".w1f4-work-window[data-work-window]")).toBeNull();
       expect(window.previousElementSibling?.matches("nav.site-subtabs")).toBe(true);
-      expect(window.nextElementSibling?.querySelector(".status-strip") ?? window.nextElementSibling).not.toBeNull();
-      expect(text(window)).toContain("From ");
-      expect(text(window)).toContain("To (not included)");
+      expect(window.getAttribute("data-window-source")).toBe("range");
+      expect(text(window)).toMatch(/^Window: .+, from the date range at the top\./);
       expect(window.querySelector("[data-cold-work-window]")).toBeNull();
+      // The read is the address's window, unchanged.
+      const page = work.calls.filter((c) => c.kind === kind && c.scope.limit !== 1).at(-1)!;
+      expect(page.scope).toMatchObject({ knownAt: EV_KNOWN });
       cleanup();
     }
-  });
-
-  it("applies the Window: keeps the explicit cutoff, drops the cursor and reads page one", async () => {
-    const { main, work } = await mountCases("incidents", loaded(evCaseBody([evIncident(1)])), EV_SITE, `${query()}&cursor=c2`);
-    const window = main.querySelector("form[data-domain-work-window]") as HTMLFormElement;
-    fireEvent.change(window.querySelector("[data-domain-work-window-from]") as HTMLInputElement, { target: { value: "2026-10-01" } });
-    fireEvent.change(window.querySelector("[data-domain-work-window-to]") as HTMLInputElement, { target: { value: "2026-10-03" } });
-    fireEvent.submit(window);
-    await settledScreen();
-    const page = work.calls.filter((c) => c.kind === "incidents" && c.scope.limit !== 1).at(-1)!;
-    expect(page.scope).toMatchObject({ from: "2026-10-01T00:00:00Z", to: "2026-10-03T00:00:00Z", knownAt: EV_KNOWN, cursor: null });
   });
 
   it("keeps the W4 refusal: title and fixed sentence, no server message, no Retry, no zero, no notice", async () => {
