@@ -128,7 +128,7 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     // per-day basis into the day strip (checked and matched).
     expect(exactValue("List reference")).toBe(TOKEN);
     expect(dayStep("25 Oct 2026")?.getAttribute("data-step")).toBe("done");
-    expect(dayStep("25 Oct 2026")?.textContent).toContain("Checked, and Findings matched");
+    expect(dayStep("25 Oct 2026")?.textContent).toContain("Analysed, and Findings matched");
     expect(document.querySelector("[data-finding-index-row]")).toBeNull();
     const { violations } = scanProductVocabulary(document.body, "site findings empty");
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -337,7 +337,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     renderAt(PATH, client);
     await settledScreen();
     expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
-    expect(expectStateLineVisible(statusBar())).toBe("Using the latest checked readings");
+    expect(expectStateLineVisible(statusBar())).toBe("Complete readings, analysed");
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     expect(statusBar().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
     expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
@@ -382,7 +382,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     await settledScreen();
     expect(state()).toBe("current-empty");
     expect(claim()).toBe("No Findings in this window");
-    expect(expectStateLineVisible(statusBar())).toBe("Checked: nothing to report");
+    expect(expectStateLineVisible(statusBar())).toBe("Analysed: nothing to report");
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     w1Scans("site findings empty");
@@ -390,10 +390,10 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
   });
 
   const notCurrentCases: [string, Parameters<typeof notCurrent>[0], string, string, string][] = [
-    ["pending", "PENDING", "MATCH_PENDING", "Not checked yet", "waiting"],
-    ["unassessed", "UNASSESSED", "no selection", "We have not checked this period", "not-known"],
+    ["pending", "PENDING", "MATCH_PENDING", "Not analysed yet", "waiting"],
+    ["unassessed", "UNASSESSED", "no selection", "This period has not been analysed", "not-known"],
     ["stale (late readings)", "STALE_PROJECTION", "late evidence", "This result may miss newer readings", "waiting"],
-    ["failed", "FAILED", "RECOMPUTE_FAILED", "The latest check could not be completed", "problem"],
+    ["failed", "FAILED", "RECOMPUTE_FAILED", "The latest analysis could not be completed", "problem"],
   ];
   it.each(notCurrentCases)("%s: a non-positive state line, no count, no rows, no zero claim", async (_n, status, reason, label, step) => {
     const body = notCurrent(status, reason);

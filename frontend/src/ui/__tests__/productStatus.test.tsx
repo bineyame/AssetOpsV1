@@ -39,12 +39,12 @@ const NON_CURRENT = [
 
 describe("W1 shared vocabulary: currentness matrix", () => {
   it("each currentness code reads as the reviewed sentence", () => {
-    expect(currentnessWords("UNASSESSED").label).toBe("We have not checked this period");
+    expect(currentnessWords("UNASSESSED").label).toBe("This period has not been analysed");
     expect(currentnessWords("PENDING_REASSESSMENT").label).toBe("New readings call for another assessment");
     expect(currentnessWords("STALE").label).toBe("This result may miss newer readings");
     expect(currentnessWords("STALE_PROJECTION").label).toBe("This result may miss newer readings");
     expect(currentnessWords("UNKNOWN").label).toBe("We cannot judge this yet");
-    expect(currentnessWords("CURRENT").label).toBe("Using the latest checked readings");
+    expect(currentnessWords("CURRENT").label).toBe("Complete readings, analysed");
     expect(currentnessWords("CURRENT").tone).toBe("positive");
   });
 
@@ -85,7 +85,7 @@ describe("W1 shared vocabulary: refusal, empty and money", () => {
     const empty = readResultWords("proved-empty");
     expect(refused.sentence).toMatch(/not empty/);
     expect(unavailable.sentence).toMatch(/not empty/);
-    expect(empty.label).toBe("Checked: nothing to report");
+    expect(empty.label).toBe("Analysed: nothing to report");
     expect(new Set([refused.label, unavailable.label, empty.label]).size).toBe(3);
     for (const words of [refused, unavailable, empty]) expect(words.tone).not.toBe("positive");
   });

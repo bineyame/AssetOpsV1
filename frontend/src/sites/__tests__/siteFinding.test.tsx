@@ -264,7 +264,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-finding-card='MONEY'] .v69-metric__value")?.textContent).toBe("Not available");
     expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/No fuel or money estimate is made on this page/);
     // W1-UX-02: the shared currentness words replace "Up to date".
-    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Using the latest checked readings");
+    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Complete readings, analysed");
     // S6-01b: "What to do next" links to the Recommendation view at the exact version read.
     const next = panelTitled("What to do next").querySelector("[data-finding-recommendation-link] a");
     expect(next?.getAttribute("href")).toContain(`/sites/KOBO-001/findings/${F}/recommendation?revision_id=`);
@@ -359,7 +359,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(expectFindingStateVisible(lead)).toBe("For the record only");
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("For the record only");
     expect(container.textContent).not.toMatch(/Up to date/);
-    expect(container.textContent).not.toMatch(/Using the latest checked readings/);
+    expect(container.textContent).not.toMatch(/Complete readings, analysed/);
     expect(container.querySelector("[data-finding-dispatch-closed]")).not.toBeNull();
     expect(container.querySelector("[data-finding-dispatch-day]")).toBeNull();
   });
@@ -401,8 +401,8 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
   it.each([
     ["STALE", "This result may miss newer readings"],
     ["FINDING_MATCH_PENDING", "Being compared with a newer assessment"],
-    ["FAILED", "The latest check could not be completed"],
-    ["PENDING", "Not checked yet"],
+    ["FAILED", "The latest analysis could not be completed"],
+    ["PENDING", "Not analysed yet"],
   ])("shows a %s latest version as %s, keeping the recorded version visible", async (state, label) => {
     const value = body([summary(1, "OPENED")]);
     value.revision.currentness = { state, windows: [] };
@@ -674,7 +674,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     const answer = happened();
     expect(answer.querySelector("[data-finding-claim]")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
-    expect(expectFindingStateVisible(answer)).toBe("Using the latest checked readings");
+    expect(expectFindingStateVisible(answer)).toBe("Complete readings, analysed");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01");
     // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
     // PB-3 L4 (Addendum 13): the period reads in UTC like every other screen; the page's one note names the zone.
@@ -743,11 +743,11 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
 
   it.each([
     ["STALE", "This result may miss newer readings"],
-    ["PENDING", "Not checked yet"],
+    ["PENDING", "Not analysed yet"],
     ["PENDING_REASSESSMENT", "New readings call for another assessment"],
     ["FINDING_MATCH_PENDING", "Being compared with a newer assessment"],
-    ["FAILED", "The latest check could not be completed"],
-    ["NOT_ASSESSED", "We have not checked this period"],
+    ["FAILED", "The latest analysis could not be completed"],
+    ["NOT_ASSESSED", "This period has not been analysed"],
     ["SOMETHING_NEW", "We cannot judge this yet"],
   ])("W1-UX-02: a %s latest version keeps a non-positive state line visible with the disclosure closed", async (state, label) => {
     const value = body([summary(1, "OPENED")]);

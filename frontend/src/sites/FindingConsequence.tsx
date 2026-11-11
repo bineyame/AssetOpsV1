@@ -129,7 +129,7 @@ const LOCAL_MONEY_WORDS: Readonly<Record<string, Omit<ProductWords, "code" | "un
   STALE: {
     label: NO_AMOUNT,
     sentence: "Readings arrived after this cost was worked out, so it is out of date and no current amount is shown. This is not zero.",
-    next: "Look again after the finding has been checked again.",
+    next: "Look again after the finding has been analysed again.",
     tone: "limited",
   },
   PENDING: {
@@ -168,7 +168,7 @@ const SHARED_MONEY_STATES = new Set(["WITHHELD_GENERATOR_SERIES", "MIXED_OR_UNKN
 export function consequenceWords(c: FindingFinancialsBody["consequence"], shown: boolean): ProductWords {
   if (shown) {
     return {
-      label: "Modelled range, using the latest checked readings",
+      label: "Modelled range, using the latest complete readings",
       sentence:
         "This is a modelled range of potential fuel cost, from zero up to an upper amount. It is not measured fuel saved, money spent or a physical maximum.",
       tone: "positive",

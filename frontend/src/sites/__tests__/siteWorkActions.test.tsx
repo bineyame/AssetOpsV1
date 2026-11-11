@@ -373,7 +373,7 @@ describe("W1-F4: the former Site Work answer card, merged into the strip and the
     mount(workUrl(ZERO_WINDOW));
     await settledScreen();
     w1Scan("sitework (W1) zero");
-    expect(strip().querySelector("[data-site-work-status]")?.textContent).toBe("Checked: nothing to report");
+    expect(strip().querySelector("[data-site-work-status]")?.textContent).toBe("Analysed: nothing to report");
     expect(q("[data-site-work-proved-zero]")?.getAttribute("data-site-work-proved-zero")).toBe(ZERO.read_at);
     expect(strip().querySelector("[data-site-work-read-at]")?.textContent).toBe(`Read ${utcText(ZERO.read_at)}`);
     expect(strip().querySelector("[data-site-work-scope]")?.textContent).toContain("0 Actions created");

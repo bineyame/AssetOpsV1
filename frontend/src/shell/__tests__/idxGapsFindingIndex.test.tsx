@@ -90,13 +90,13 @@ describe("IDX-GAPS Site Findings page on a PARTIAL index", () => {
     expect(claim()).toBe("1 Finding on the assessed days");
     expect(card.querySelector(`[data-finding-index-row='${FID_A}']`)).not.toBeNull();
     expect(card.querySelector("[data-site-findings-gap-days]")?.textContent).toBe(
-      "1 of 3 days in this window is not checked yet, so nothing is concluded about it.",
+      "1 of 3 days in this window is not analysed yet, so nothing is concluded about it.",
     );
-    expect(screen.getAllByText("Some days are not checked yet").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Some days are incomplete").length).toBeGreaterThan(0);
     const steps = Array.from(card.querySelectorAll<HTMLElement>("[data-step-strip] [data-step]"));
     expect(steps.length).toBe(3);
-    expect(steps[1]?.textContent).toContain("We have not checked this period");
-    expect(card.textContent).not.toContain("A Finding that reaches into one of the unchecked days");
+    expect(steps[1]?.textContent).toContain("This period has not been analysed");
+    expect(card.textContent).not.toContain("A Finding that reaches into one of the incomplete days");
     for (const never of NEVER) expect(document.body.textContent).not.toMatch(never);
     for (const set of [undefined, "w1"] as const) {
       const { violations } = scanProductVocabulary(document.body, "sitefindings partial", set ? { set } : {});
@@ -109,7 +109,7 @@ describe("IDX-GAPS Site Findings page on a PARTIAL index", () => {
     expect(claim()).toBe("No Findings on the assessed days");
     expect(card.querySelector("[data-finding-index-row]")).toBeNull();
     expect(card.textContent).toContain(
-      "A Finding that reaches into one of the unchecked days is not shown until that day is checked.",
+      "A Finding that reaches into one of the incomplete days is not shown until that day is analysed.",
     );
     for (const never of NEVER) expect(document.body.textContent).not.toMatch(never);
     expect(document.body.textContent).not.toContain("No Findings are listed and no count is given");
@@ -120,7 +120,7 @@ describe("IDX-GAPS Site Findings page on a PARTIAL index", () => {
       partialBody([ROW], { gaps: [{ day: "2026-10-28", state: "PENDING", reason: "NOT_CURRENT" }] }),
     );
     expect(card.querySelector("[data-site-findings-gap-days]")).toBeNull();
-    expect(card.textContent).toContain("A Finding that reaches into a neighbouring day not checked yet is not shown.");
+    expect(card.textContent).toContain("A Finding that reaches into a neighbouring day not analysed yet is not shown.");
   });
 
   it("keeps the CURRENT rows view unchanged", async () => {
@@ -167,7 +167,7 @@ describe("IDX-GAPS Overview day list on a PARTIAL index", () => {
     );
     expect(document.querySelector(`[data-overview-finding-row='${FID_A}']`)).not.toBeNull();
     expect(document.querySelector("[data-overview-finding-partial]")?.textContent).toBe(
-      "A Finding that reaches into a neighbouring day not checked yet is not shown.",
+      "A Finding that reaches into a neighbouring day not analysed yet is not shown.",
     );
   });
 

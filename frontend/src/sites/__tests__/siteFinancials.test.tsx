@@ -1006,7 +1006,7 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     // W1-UX-02 (shared money words): was "Being reassessed: no current cost yet".
     expect(bridge.querySelector("[data-product-status-label]")).toHaveTextContent(/^No current amount can be shown$/);
     expect(bridge).toHaveTextContent(
-      "Newer readings mean this should be checked again, so no current amount is shown yet. This is not zero.",
+      "Newer readings mean this should be analysed again, so no current amount is shown yet. This is not zero.",
     );
     expect(bridge.querySelector("[data-financials-pending-reassessment='true']")).not.toBeNull();
     expect(bridge.querySelector(`[data-financials-recorded-link='${C1}']`)).not.toBeNull();
@@ -1465,7 +1465,7 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
     // W1-F3: the answer card's question line is gone; the screen renders exactly the three v69 panels.
     expectV69Panels("financials");
     expect(c.querySelector("[data-financials-metric='operating-cost'] [data-financials-headline='amount']")).toHaveTextContent("0.00 to 16.20 USD");
-    expect(expectStateLineVisible(c)).toBe("Modelled range, using the latest checked readings");
+    expect(expectStateLineVisible(c)).toBe("Modelled range, using the latest complete readings");
     // The bound is the time the shown range was worked out, as the read returned it.
     expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 14 Oct 2026, 10:00$/);
     // S4-05 source provenance stays beside the headline, outside the disclosure.

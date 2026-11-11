@@ -355,8 +355,8 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-11-10`, client);
     await settledScreen();
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Unknown").
-    expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("We have not checked this period");
-    expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("This period has not been analysed");
+    expect(expectStateLineVisible(freshnessCard())).toBe("This period has not been analysed");
     expect(freshnessCard().querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("no");
     // W1-UX-01: the shared state words; the state line stays outside the closed exact-reference disclosure.
     const unknownState = document.querySelector('[data-assessment-state="UNKNOWN"]') as HTMLElement;
@@ -413,8 +413,8 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-freshness-state="FAILED"]')).not.toBeNull();
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
-    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
-    expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
+    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest analysis could not be completed");
+    expect(expectStateLineVisible(objectiveCard())).toBe("The latest analysis could not be completed");
     expect(moneyCard().getAttribute("data-money-state")).toBe("UPSTREAM_FAILED");
   });
 
@@ -647,7 +647,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("No amount yet: checks still waiting");
-    expect(expectStateLineVisible(objectiveCard())).toBe("Not checked yet");
+    expect(expectStateLineVisible(objectiveCard())).toBe("Not analysed yet");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("waiting");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview pending (W1)", { set: "w1" });
@@ -668,7 +668,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-11-10`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(expectStateLineVisible(freshnessCard())).toBe("This period has not been analysed");
     expect(expectStateLineVisible(objectiveCard())).toBe("We cannot judge this yet");
     expect(expectStateLineVisible(moneyCard())).toBe("No amount: day not checked");
     expect(moneyCard().querySelector("[data-money-qualifier]")).toBeNull();
@@ -733,7 +733,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     await settledScreen();
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
-    expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
+    expect(expectStateLineVisible(objectiveCard())).toBe("The latest analysis could not be completed");
     expect(expectStateLineVisible(moneyCard())).toBe("No amount: a check did not finish");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview failed (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
