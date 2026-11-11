@@ -35,3 +35,20 @@ Branch `task/DATA-12-coverage-local-days` (wt `AssetOpsV1-data12`, from main 22d
   near a local gap day). Not in the card; flag for review.
 - Postgres test files (`*_postgres.py` that touch these modules) not run; portfolio pairs need recapture (D-E5.38).
 - Process note: one file edit (coverage.py first pass) was made with a Python heredoc via Bash, against rule C.5; later edits used Edit.
+
+## Fix round DATA-12-FX (D-E5.41 to D-E5.43)
+- M1 / L4 (D-E5.42, `estate/coverage.py`): per requested local day the grade decides first: NOT_EXPECTED dropped from requested and
+  checked; NO_DATA gap `NO_READINGS`; PENDING -> PENDING_RECOMPUTE; data day whose same-date UTC dispatch day has no available
+  selection -> gap `NOT_ANALYSED`; else checked. `_days_block` takes per-day `reasons`.
+- L1: `local_day_grades_kw(site, req, scope, tenant_id)` reads grades at `req.known_at` on page one, `scope["k"]` on cursor pages
+  (the claims' memo key, so one `chain.day` read per Site). Callers in index/evidence_money/financials updated.
+- L3: `finding_index.touched(head, days, tz=None)` uses Site-local midnights when `tz` is given; coverage passes the Site zone
+  (`EstateClaims.day_grades` now returns `(grades, tz)`, `site_coverage(..., day_tz=)`).
+- Money withholding unchanged (D-E5.44 open). L2 not done.
+- Tests (new, failed first: 7 failed before code): `test_estate_coverage_local_days.py` now 12 tests, incl. M1 NOT_ANALYSED, L4 requested/
+  checked, L3 (UTC+3 finding at local D+1 01:00 kept; one inside D withheld), L1 provider known_at and one `chain.day` read per Site.
+  Non-vacuity: forcing `known_at = k` made the two L1 tests fail; reverted.
+- Same file sweep re-run one at a time (35 non-Postgres files now match the pattern, adding finding_index users): 852 passed; one file
+  fails: `test_ch9b1_origin_readers.py` 8 failed, 1 passed (`site_outcomes/cold.py: 3 origin references, allowlist 1`). `cold.py` and
+  that test are not in this branch's diff, so it is pre-existing on the base (not re-run on main). CORRECTION: the first-round
+  "660 passed, 0 failed" filter hid "N failed, M passed in" lines, so this failure was missed then. Proof-mutation used Set-Content once (reverted via git checkout).
