@@ -6,6 +6,7 @@
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FocusPicker } from "../shell/FocusPicker";
 
 import {
   Badge,
@@ -469,10 +470,14 @@ function MiniPeriodBar({
         {window.known_at === null ? "" : ` · evidence cutoff ${formatDayTime(window.known_at)}`}
       </span>
       <TimeZoneNote />
-      <label className="v69-chip-field">
-        First day{" "}
-        <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} />
-      </label>
+      {/* SR-2: the first day goes through the one day picker (FocusPicker). One day declares its day to the bar;
+          several days are the address's own range, which the bar then names. */}
+      <FocusPicker
+        day={span === 1 && firstDay !== "" ? firstDay : null}
+        label="First day"
+        labelClassName="v69-chip-field"
+        inputProps={{ className: "v69-chip-control", value: first, onChange: (e) => setFirst(e.target.value) }}
+      />
       <label className="v69-chip-field">
         Days{" "}
         <select className="v69-chip-control" value={days} onChange={(e) => setDays(e.target.value)}>
@@ -1039,10 +1044,12 @@ function MiniHourBar({
         {window.known_at === null ? "" : ` · evidence cutoff ${formatDayTime(window.known_at)}`}
       </span>
       <TimeZoneNote />
-      <label className="v69-chip-field">
-        Day{" "}
-        <input className="v69-chip-control" type="date" value={day} onChange={(e) => setDay(e.target.value)} />
-      </label>
+      {/* SR-2: the hour's day goes through the one day picker (FocusPicker); the hour stays this page's own. */}
+      <FocusPicker
+        day={day0 === "" ? null : day0}
+        labelClassName="v69-chip-field"
+        inputProps={{ className: "v69-chip-control", value: day, onChange: (e) => setDay(e.target.value) }}
+      />
       <label className="v69-chip-field">
         Hour{" "}
         <select className="v69-chip-control" value={hour} onChange={(e) => setHour(e.target.value)}>

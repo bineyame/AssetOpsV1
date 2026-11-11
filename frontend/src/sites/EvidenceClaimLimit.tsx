@@ -19,6 +19,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
+import { FocusPicker } from "../shell/FocusPicker";
 
 import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
 import { PeriodStrip, type StripTone } from "./periodStrip";
@@ -365,16 +366,18 @@ function DayChooser({ day }: { day: string | null }) {
   };
   return (
     <form className="claim-limit__day" onSubmit={submit} data-claim-limit-day-form>
-      <label className="evidence-toolbar__field">
-        <span>Assessment day</span>
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          aria-label="Assessment day"
-        />
-      </label>
+      {/* SR-2: the one day picker (FocusPicker) says which day of the shared range this page shows. */}
+      <FocusPicker
+        day={day}
+        label="Assessment day"
+        labelClassName="evidence-toolbar__field"
+        inputProps={{
+          className: "v69-chip-control",
+          value: draft,
+          onChange: (event) => setDraft(event.target.value),
+          "aria-label": "Assessment day",
+        }}
+      />
       <button type="submit" className="button">
         Show this day
       </button>
