@@ -221,7 +221,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     // Ruling 19 / R79: singular `1 action`; R111: the stored Site name's short name.
     expect(text(strip?.querySelector("[data-site-work-scope]"))).toBe("Scoped to EV · 1 action");
     expect(text(strip)).toContain("EV Actions recorded at this site");
-    expect(text(strip)).toContain("Global Actions does not include EV Actions yet.");
+    expect(text(strip)).toContain("EV charging actions are listed here; the estate list adds them later.");
     expect(text(strip)).not.toContain("Manage in Actions");
     expect(strip?.querySelector("a")).toBeNull();
     expect(Array.from(main.querySelectorAll("thead th")).map(text)).toEqual(["Action", "Source", "Owner", "Due", "State", "Success criterion"]);

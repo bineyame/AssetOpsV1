@@ -43,11 +43,11 @@ export function UnavailableChip({ label }: { label: string }) {
  * W2-05a: one unbuilt in-page link entry of a v69 attention row (for example an Action the mock links to that this
  * build cannot open), in the mock link's position. Same semantics as a tab or chip: a muted list item, not a control.
  */
-export function UnavailableLinkEntry({ label }: { label: string }) {
+export function UnavailableLinkEntry({ label, roadmap }: { label: string; roadmap?: string }) {
   return (
     <ul className="v69-unavailable-links">
-      <li className="v69-unavailable-link" aria-label={`${label}, ${IN_PAGE_UNAVAILABLE_STATUS}`} data-link-unavailable={label}>
-        {`${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`}
+      <li className="v69-unavailable-link" aria-label={roadmap ?? `${label}, ${IN_PAGE_UNAVAILABLE_STATUS}`} data-link-unavailable={label}>
+        {roadmap ?? `${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`}
       </li>
     </ul>
   );
@@ -56,10 +56,10 @@ export function UnavailableLinkEntry({ label }: { label: string }) {
 /**
  * W2-06: the same status inline, for a table cell or a status strip where a list block cannot sit (an EV session
  * row's Next step with no proved destination). Muted text, not a control; with a `label`, it reads
- * "{label} · Not available yet".
+ * "{label} · Not available yet"; with a `roadmap` (RM-1) it reads that plain roadmap fact instead.
  */
-export function UnavailableInline({ label }: { label?: string }) {
-  const text = label === undefined ? IN_PAGE_UNAVAILABLE_STATUS : `${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`;
+export function UnavailableInline({ label, roadmap }: { label?: string; roadmap?: string }) {
+  const text = roadmap ?? (label === undefined ? IN_PAGE_UNAVAILABLE_STATUS : `${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`);
   return (
     <span className="v69-unavailable-inline" data-link-unavailable={label ?? "next-step"}>
       {text}

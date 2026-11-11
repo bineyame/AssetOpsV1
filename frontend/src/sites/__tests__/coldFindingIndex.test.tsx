@@ -121,8 +121,8 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     expect(findingIndex.getFindingIndex).not.toHaveBeenCalled();
     expect(document.querySelector("[data-site-findings-lenses]")).not.toBeNull();
     expect(text(strip())).toContain("Scoped to Kobo vaccine cold store · 2 open");
-    expect(text(strip())).toContain("Cold-chain Findings are not in the global Findings list");
-    expect(text(strip())).toContain("Manage in Findings");
+    expect(text(strip())).toContain("Cold-room findings are listed here; the estate list adds them later");
+    expect(text(strip())).toContain("Managing findings from this list is coming");
     expect(strip().querySelector("a")).toBeNull();
     expect(Array.from(panel().querySelectorAll("thead th")).map((h) => h.textContent)).toEqual([
       "Finding",

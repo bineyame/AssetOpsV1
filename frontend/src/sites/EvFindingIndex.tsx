@@ -1,3 +1,4 @@
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -13,7 +14,7 @@ import { CategoryTags } from "./outcomeCategories";
 
 export const EV_FINDING_INDEX_HEADING_ID = "ev-finding-index-heading";
 export const EV_FINDING_INDEX_EMPTY = "No Findings at this site in the selected window.";
-export const EV_FINDING_INDEX_GLOBAL_NOTE = "EV charging Findings are not in the global Findings list";
+export const EV_FINDING_INDEX_GLOBAL_NOTE = ROADMAP_WORDS.evFindingsNotGlobal;
 const NOT_ASSESSED = "Not assessed";
 const HEADERS = ["Finding", "Domain", "Priority", "Confidence", "State", "Main consequence", "Lens"];
 
@@ -83,7 +84,7 @@ export function EvFindingIndex({
     <div className="finding-index" data-ev-findings-index="loaded">
       {tabRow}
       <LensChips />
-      <StatusBar label="EV Findings" action={<UnavailableInline label="Manage in Findings" />}>
+      <StatusBar label="EV Findings" action={<UnavailableInline label="Manage in Findings" roadmap={ROADMAP_WORDS.manageFindings} />}>
         <strong>{`Scoped to ${siteName} · ${open} open`}</strong>
         <span>{` · ${windowText(body.window.from, body.window.to)}`}</span>
         <span data-ev-findings-global-note>{` · ${EV_FINDING_INDEX_GLOBAL_NOTE}`}</span>

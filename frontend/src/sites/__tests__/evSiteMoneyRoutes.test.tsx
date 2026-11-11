@@ -382,7 +382,7 @@ describe("W2-07 EV Site routes", () => {
     expect(srcRows.map((r) => r.querySelector("th")?.firstChild?.textContent)).toEqual(["Connector 1", "Connector 2", "Site meter", "Billing system"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Mixed", "Recent", "Unknown", "Unknown"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[1].textContent)).toEqual(["Good", "Good", "No fact", "No fact"]);
-    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "No payment feed"]);
+    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "Payment records are not connected yet"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[3].textContent)).toEqual(["Sessions", "Sessions", "Site power", "Collections not assessed"]);
     expect(srcRows[0].querySelector(".ev-tone--amber")?.textContent).toBe("Mixed");
     expect(sources.querySelector("[data-ev-contact-checked]")?.textContent).toBe("Contact checked at 6 Oct, 09:00");
@@ -555,7 +555,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("KES");
     const cards = Array.from(document.querySelectorAll("[data-ev-fin-card] .v69-metric__value")).map((x) => x.textContent);
-    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
+    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not connected yet"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
     expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 estimated charging income", "What-if", "Metered with complete coverage", "Energy ↗"]);
@@ -720,7 +720,7 @@ describe("W2-07 EV Site routes", () => {
     const next = panelTitled("Next step");
     expect(next.textContent).toContain("Recover the missing session end report");
     const rec = next.querySelector('[data-link-unavailable="Review recommendation"]') as HTMLElement;
-    expect(rec.getAttribute("aria-label")).toBe("Review recommendation, Not available yet");
+    expect(rec.getAttribute("aria-label")).toBe("Reviewing a recommendation needs sign-in, which is coming");
     expect(rec.querySelector("a, button")).toBeNull();
     expect(strip()).toContain("Evidence limited");
     expect(strip()).toContain("Example data");
