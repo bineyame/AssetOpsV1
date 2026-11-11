@@ -17,7 +17,7 @@ from assetops_backend.chain.read import site_cutoff
 from assetops_backend.chain.vocabulary import count_claim
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
-    UNKNOWN, not_applicable, site_coverage)
+    UNKNOWN, local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
@@ -145,7 +145,8 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
         domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
         rec = None if domain in (None, MINI_GRID) else _WindowRecorder(snap)
         cov = (not_applicable() if domain is None
-               else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
+               else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"],
+                                  **local_day_grades_kw(site, req.from_, req.to, scope["k"], tenant_id)))
         per_site.append((site, domain or NOT_APPLICABLE, cov))
         recorders[str(site["site_id"])] = rec
         if cutoffs is not None:

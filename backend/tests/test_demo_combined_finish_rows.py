@@ -1589,7 +1589,7 @@ def test_closing_tick_retries_at_most_two_more_ticks_30_s_apart() -> None:
     assert dc.retry_until_visited(_tick_report(_FUEL_OK), lambda: 1 / 0) == (_tick_report(_FUEL_OK), 0)
 
 
-# ---- D-E5.40: the CO-6 / WK-GAP known-defect marker (DATA-12 removes it) -------------------------------------------
+# ---- DATA-12 (D-E5.38): CO-6 / WK-GAP expect Kobo PARTIAL with the Site-local gap (the D-E5.40 marker is gone) -----
 
 def _kd_ctx(monkeypatch, coverage_kobo, *, week_gaps=None):
     """A client6-shaped fake: Kobo missed 2026-11-04 (the v4 calendar), Portfolio coverage as given."""
@@ -1602,8 +1602,8 @@ def _kd_ctx(monkeypatch, coverage_kobo, *, week_gaps=None):
     by_code = {finish.KOBO: {"site_name": "Kobo mini-grid", "window_basis": "DAY", "rows": [
         {"category": "GROW_REVENUE", "state": "NO_DATA"}], "window": {"from": finish.iso(S.replace(tzinfo=finish.timezone.utc))}},
         finish.COLD: {"window_basis": "PERIOD"}, finish.EV: {"window_basis": "PERIOD"}}
-    body = {"objectives": [{"site_code": c} for c in (finish.KOBO, finish.COLD, finish.EV)], "status": "CURRENT",
-            "rows": [], "coverage": {"state": "CURRENT"}}
+    body = {"objectives": [{"site_code": c} for c in (finish.KOBO, finish.COLD, finish.EV)], "status": "PARTIAL",
+            "rows": [{"site_code": finish.KOBO, "finding_id": "f1"}], "coverage": {"state": "PARTIAL"}}
     line = "Kobo mini-grid: 5 of 7 days checked · 1 partly checked"
     summary = {"objective_site_count": 3, "cards": {c: {"days_line": line} for c in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}}
     monkeypatch.setattr(finish, "_estate", lambda c, lo, hi: (body, summary, {finish.KOBO: coverage_kobo}, by_code))
@@ -1616,57 +1616,36 @@ def _kd_ctx(monkeypatch, coverage_kobo, *, week_gaps=None):
 
 _UTC_DEFECT = {"state": "CURRENT", "days": {"gaps": []}}
 _PARTIAL_OK = {"state": "PARTIAL", "days": {"gaps": [{"day": "2026-11-04"}], "requested": 7, "checked": 6,
-                                            "text": None}}
+                                            "text": "6 of 7 days assessed · 1 day not available yet"}}
 
 
-def test_co6_and_wkgap_report_the_known_coverage_defect_and_other_failures_still_fail(monkeypatch) -> None:
-    finish, ctx = _kd_ctx(monkeypatch, _UTC_DEFECT)
-    with pytest.raises(finish.KnownDefect) as co6:  # the exact coverage signature: reported, not an AssertionError
-        finish.co6(ctx)
-    assert "gaps []" in str(co6.value) and co6.value.read["kobo_days"] == {"gaps": []}
-    with pytest.raises(finish.KnownDefect) as wk:
-        finish.wkgap(ctx)
-    assert "CO-6 coverage gaps []" in str(wk.value) and wk.value.read["kobo_days_line"].startswith("5 of 7")
-    assert finish.KNOWN_DEFECTS == {"CO-6": "D-E5.38", "WK-GAP": "D-E5.38"}
-    # must-fail: a different assertion in CO-6 / WK-GAP (not the coverage signature) still fails
-    with pytest.raises(AssertionError):  # a wrong gap day is not the signature
-        _, c2 = _kd_ctx(monkeypatch, {"state": "PARTIAL", "days": {"gaps": [{"day": "2026-11-05"}]}})
+def test_co6_and_wkgap_expect_kobo_partial_with_the_local_gap_and_the_utc_defect_now_fails(monkeypatch) -> None:
+    finish, ctx = _kd_ctx(monkeypatch, _PARTIAL_OK)
+    read = finish.co6(ctx)  # D-E5.38 fixed: Kobo PARTIAL, gaps [2026-11-04], requested 7, checked 6
+    assert read["kobo_days"]["gaps"] == [{"day": "2026-11-04"}]
+    assert finish.wkgap(ctx)["coverage_gaps"] == ["2026-11-04"]
+    assert not hasattr(finish, "KNOWN_DEFECTS") and not hasattr(finish, "KnownDefect")
+    # must-fail: the old UTC-day signature (CURRENT, no gaps) is no longer exempt
+    _, c2 = _kd_ctx(monkeypatch, _UTC_DEFECT)
+    with pytest.raises(AssertionError):
+        finish.co6(c2)
+    with pytest.raises(AssertionError):
         finish.wkgap(c2)
-    finish, c3 = _kd_ctx(monkeypatch, _UTC_DEFECT)
-    monkeypatch.setattr(finish, "_kobo_board_s", lambda c: {"rows": [{"category": "GROW_REVENUE", "state": "COMPLETE"}]})
-    with pytest.raises(AssertionError):  # the defect is present AND the board cells disagree: still fails
-        finish.co6(c3)
-    finish, c4 = _kd_ctx(monkeypatch, {"state": "PARTIAL", "days": {"gaps": [{"day": "2026-11-05"}]}})
-    with pytest.raises(AssertionError):  # PARTIAL with the wrong gaps is not the signature
-        finish.co6(c4)
+    _, c3 = _kd_ctx(monkeypatch, {"state": "PARTIAL", "days": {"gaps": [{"day": "2026-11-05"}]}})
+    with pytest.raises(AssertionError):  # a wrong gap day
+        finish.wkgap(c3)
 
 
-def test_run_keeps_a_known_defect_out_of_failed_and_the_exit_code(monkeypatch, tmp_path, capsys) -> None:
-    import json
+def test_run_fails_a_failing_co6_row(monkeypatch, tmp_path) -> None:
     import demo_combined_finish as finish
 
-    def known(ctx):
-        raise finish.KnownDefect("Kobo coverage state CURRENT with gaps []", {"x": 1})
-
     def bad(ctx):
-        raise AssertionError("other")
+        raise AssertionError("coverage")
 
     monkeypatch.setattr(finish, "load", lambda work, client: type("C", (), {})())
     monkeypatch.setattr(finish, "app_client", lambda url, work: None)
     monkeypatch.setattr(finish, "idx_present", lambda: True)
-    monkeypatch.setattr(finish, "CHECKS", [("CO-6", True, False, known), ("WK-GAP", True, False, known),
-                                           ("CO-1", False, False, lambda c: {})])
-    assert finish.run("u", tmp_path) == 0
-    out = capsys.readouterr().out
-    assert "KNOWN DEFECT D-E5.38" in out and "2 known defect" in out
-    saved = json.loads((tmp_path / "check.json").read_text(encoding="utf-8"))["rows"]
-    assert saved["CO-6"]["status"] == "known_defect" and saved["CO-6"]["known_defect"] == "D-E5.38"
-    import demo_combined as dc
-    assert dc.failed_rows(tmp_path / "check.json") == []  # add-dates reads no failed row
-    monkeypatch.setattr(finish, "CHECKS", [("CO-6", True, False, known), ("CO-6b", True, False, bad)])
-    assert finish.run("u", tmp_path) == 1  # any other failing row still fails
+    monkeypatch.setattr(finish, "CHECKS", [("CO-6", True, False, bad), ("CO-1", False, False, lambda c: {})])
+    assert finish.run("u", tmp_path) == 1
     monkeypatch.setattr(finish, "CHECKS", [("CO-6", True, False, lambda c: {})])
     assert finish.run("u", tmp_path) == 0
-    assert "no longer reproduces; remove the marker" in capsys.readouterr().out
-    monkeypatch.setattr(finish, "CHECKS", [("CO-1", False, False, known)])
-    assert finish.run("u", tmp_path) == 1  # an unlisted row cannot use the marker

@@ -676,6 +676,9 @@ def create_app(
     for estate_service in (estate_index, estate_portfolio):
         if estate_service is not None:
             estate_service.count_claims = estate_claims
+    # DATA-12 (D-E5.38): coverage counts the same Site-local graded days the claims do.
+    from assetops_backend.estate import coverage as estate_coverage
+    estate_coverage.day_grades_provider = estate_claims.day_grades
     # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
     # allow defaults too; pass the same callables to the board if that changes.
 

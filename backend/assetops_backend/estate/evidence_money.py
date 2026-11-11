@@ -30,7 +30,7 @@ from assetops_backend.analytics.cold_site_reads import (  # noqa: F401 (re-expor
 from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as EV_NEXT, TARIFF_ROLE, EvSiteReads
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
-    not_applicable, site_coverage)
+    local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
 from assetops_backend.estate.scope import (
@@ -460,7 +460,8 @@ def select_evidence_scope(snap: Any, tenant_id: Any, req: EstateRequest,
         if domain is None:
             per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
             continue
-        cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
+        cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k,
+                            **local_day_grades_kw(site, req.from_, req.to, k, tenant_id))
         site_rows = (mini_grid_rows(snap, tenant_id, site, req, k) if domain == MINI_GRID
                      else windowed_rows(snap, tenant_id, site, domain, req, k, cov["state"]))
         for row in site_rows:
