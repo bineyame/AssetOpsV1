@@ -16,7 +16,6 @@ import { FINDINGS_API_PATH, type SiteAnalyticsClient } from "../../sites/siteAna
 import type { FindingIndexClient } from "../../sites/findingIndexClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
-import { expectUnavailableEntry } from "../../test/unavailableEntry";
 import {
   ACTIONS_PATH,
   FINDINGS_COST_PATH,

@@ -4,7 +4,6 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
-import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";

@@ -1601,7 +1601,7 @@ export function MiniFuel({
     key,
     attempt,
   );
-  if (fuelBalance !== undefined && nights === "loading") return <p role="status">{MINI_LOADING}</p>;
+  if (nights === "loading") return <p role="status">{MINI_LOADING}</p>;
   if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} />;
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
