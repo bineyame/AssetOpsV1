@@ -18,8 +18,8 @@ layout `frontend/mockups/v71/portfolio-tabs.html` Change 0b; D-UI.2 (range in th
   every page" + "Return to latest". Apply keeps page params (e.g. `lens`) and drops `cursor`. Phones (<=760 px): dates
   only, 44 px button, bottom sheet (85vh, scrolls), as-of label on its own line.
 - `shell/OperatorShellLayout.tsx`: new sticky `<header class="app-topbar">` row with the bar, above the demonstration
-  banner (kept); rail gets `search={railSearch}`; an estate address with no range renders `<Navigate replace>` to the
-  filled address before the page mounts (so the page reads once, for the range the address then shows).
+  banner (kept); rail gets `search={railSearch}`; the outlet is `SharedRangeOutlet`, which on an estate address with
+  no range renders `<Navigate replace>` to the filled address before the page mounts (one read, for that range).
 - `ui/NavRail.tsx`: optional `search` added to every live item's href; matching stays on the path.
 - `estate/estateShared.tsx`: `queryFromParams` maps the day form to the same UTC instants (instant addresses
   unchanged); new `EstateCutoffLine` (cutoff, earlier-cutoff words, `Window not valid` on a refused window, UTC note).
@@ -57,7 +57,11 @@ makes the same request as before. Work and Site pages are not filled and read no
 - Touched: `estatePortfolio` 85/85, `estatePortfolioRoutes` 4/4, `operatorRailInventory` 31/31, `operatorRouteFrames`
   22/22. Adjacent, unchanged: `w301EstateShellRoutes` 3/3, `t028Screens` 25/25, `estateRoots` 23/23.
 - `tsc --noEmit`: clean.
-- check-architecture: see below.
+- `tools\check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 .venv) on `cbc8e5435`: "Architecture check passed."
+  The first run failed: navigation truthfulness flagged the fill `<Navigate>` in `OperatorShellLayout.tsx` as a
+  destination outside the inventory, so the redirect moved to `SharedRangeOutlet` in `SharedRangeBar.tsx` (same path,
+  replace only). The two new rail fixtures (search dropped / raw `location.search`) fail the guard as expected inside
+  that pass, which shows the new rail-search check can fail.
 
 ## Not run / risks
 - No full suite, layout evidence or captures (brief). Layout (sticky row, 760 px sheet, 1100 px short label) is
