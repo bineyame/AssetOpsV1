@@ -68,6 +68,14 @@ def _both(monkeypatch, reader, t, s, domain, lo, hi, known_at=None) -> tuple[str
     return json.dumps(out[0], default=str), json.dumps(out[1], default=str), out[1]
 
 
+def _now_clock(engine):
+    from assetops_backend import read_scope
+
+    with engine.connect() as c:
+        at = read_scope.read_instant(c.execute(text("SELECT clock_timestamp()")).scalar_one())
+    return lambda: at
+
+
 def _cases():
     noon = local_noon(w402.DAYS[2], w402.ZONE)
     return [("renewable", w402._midnight(w402.DAYS[0]), w402._midnight(w402.DAYS[-1] + timedelta(days=1))),
@@ -84,10 +92,14 @@ def test_board_rows_equal_compose_live_historical_and_after_a_late_job(store, en
     assert not any(w.written for w in _build(engine, t, s, w402.DAYS))  # unchanged: no new revision
     _consume_all(engine)
     reader = _reader(engine)
+    # A live read echoes its own clock_timestamp() as window.known_at; the two reads run apart, so one pinned read
+    # clock (taken after the build) makes that echo equal and every other byte is compared as served.
+    reader.test_read_clock_override = _now_clock(engine)
     for domain, lo, hi in _cases():
         compose, rows, body = _both(monkeypatch, reader, t, s, domain, lo, hi)
         assert rows == compose, (domain, lo)
         assert body["currentness"]["windows"] and any(w["selection_id"] for w in body["currentness"]["windows"])
+    reader.test_read_clock_override = None
     with engine.connect() as c:
         k = c.execute(text("SELECT clock_timestamp()")).scalar_one()
     for domain, lo, hi in _cases():  # an explicit cutoff after the build: HISTORICAL in both
@@ -104,6 +116,7 @@ def test_board_rows_equal_compose_live_historical_and_after_a_late_job(store, en
     assert body["currentness"]["state"] == "PENDING_RECOMPUTE"  # never a silently CURRENT stored row
     _build(engine, t, s, [w402.DAYS[2]])
     _consume_all(engine)
+    reader.test_read_clock_override = _now_clock(engine)
     compose, rows, body = _both(monkeypatch, reader, t, s, "service", noon.start, noon.end)
     assert rows == compose and body["currentness"]["job_state"] == "PENDING"
     assert body["pending_source_provenance"] is not None

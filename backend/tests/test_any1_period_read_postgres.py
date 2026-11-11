@@ -191,6 +191,47 @@ def test_late_reading_live_and_as_known_at_k(store, engine) -> None:  # noqa: F8
         periods.dispose()
 
 
+def _reading_at(engine, t, s, ago: timedelta):
+    """A reading event whose recorded_at is `ago` before now (an insert that committed late); returns its id."""
+    subject = {"roles": ["pv_available_power"], "span": ["2026-10-21T06:00:00Z", "2026-10-21T07:00:00Z"]}
+    with engine.begin() as c:
+        return c.execute(text(
+            "INSERT INTO event_outbox (type, schema_version, occurred_at, recorded_at, source, tenant_id, site_id, "
+            "subject, idempotency_key, payload) VALUES ('reading.accepted', 1, :o, clock_timestamp() - :ago, "
+            "'accepted_evidence', :t, :s, CAST(:subj AS jsonb), :idem, '{\"big\": 1}'::jsonb) RETURNING event_id"),
+            {"o": datetime.fromisoformat("2026-10-21T06:00:00+00:00"), "ago": ago, "t": t, "s": s,
+             "subj": json.dumps(subject), "idem": f"any1-lw-{uuid4()}"}).scalar_one()
+
+
+def test_unconsumed_at_low_water_bound(store, engine) -> None:  # noqa: F811
+    """D-ANY.6 §2 M2: unconsumed events from (newest consumed - LOW_WATER_MARGIN) to k are reported; an older
+    unconsumed one is below the low water (the consumer drains oldest first) unless nothing was consumed by k.
+    `payload` is not read."""
+    from assetops_backend.chain.adapters import postgres_period_read_store as m
+
+    _, t, s = w402._setup(store, engine)
+    periods = PostgresPeriodReadStore(URL)
+    types = ["reading.accepted@1"]
+    try:
+        assert m.LOW_WATER_MARGIN == "1 minute"
+        old = _reading_at(engine, t, s, timedelta(minutes=5))  # below low water - margin once `new` is consumed
+        near = _reading_at(engine, t, s, timedelta(seconds=30))  # inside the margin
+        before = {e.event_id for e in periods.unconsumed_at(t, [s], types, None)}
+        assert {old, near} <= before  # nothing consumed yet: no bound
+        with engine.connect() as c:
+            k0 = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+        new = _reading_at(engine, t, s, timedelta(0))
+        _consume(engine, new)
+        live = periods.unconsumed_at(t, [s], types, None)
+        assert near in {e.event_id for e in live} and old not in {e.event_id for e in live}
+        assert new not in {e.event_id for e in live}
+        assert all(e.payload == {} for e in live)
+        hist = {e.event_id for e in periods.unconsumed_at(t, [s], types, k0)}
+        assert {old, near} <= hist and new not in hist  # at k0 nothing was consumed: no bound at k
+    finally:
+        periods.dispose()
+
+
 def test_downgrade_refused_with_rows_then_allowed(store, engine) -> None:  # noqa: F811
     from alembic import command
 
