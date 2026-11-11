@@ -643,21 +643,22 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expectV69Panels("cold-work");
   });
 
-  it("post-W6 R338: the default window is seven UTC calendar days including today, and states its listing basis", async () => {
-    // A row raised today at 23:59Z is inside the default [today−6d, tomorrow); one raised seven days ago is not.
+  it("SR-2: the default window is the seven full UTC days ending yesterday, and states its listing basis", async () => {
+    // A row raised today is outside the default [today−7d, today); one raised yesterday is inside.
     const now = new Date("2026-10-25T23:59:00Z");
     const w = defaultWorkWindow(now);
-    expect(w).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
+    expect(w).toEqual({ from: "2026-10-18T00:00:00Z", to: "2026-10-25T00:00:00Z" });
     const inside = (raisedAt: string) => raisedAt >= w.from && raisedAt < w.to;
-    expect(inside("2026-10-25T23:59:00Z")).toBe(true);
-    expect(inside("2026-10-19T00:00:00Z")).toBe(true);
-    expect(inside("2026-10-18T23:59:59Z")).toBe(false);
-    // Month boundary: today 2026-11-01 keeps the six earlier October days.
-    expect(defaultWorkWindow(new Date("2026-11-01T00:00:00Z"))).toEqual({ from: "2026-10-26T00:00:00Z", to: "2026-11-02T00:00:00Z" });
+    expect(inside("2026-10-25T23:59:00Z")).toBe(false);
+    expect(inside("2026-10-24T23:59:00Z")).toBe(true);
+    expect(inside("2026-10-18T00:00:00Z")).toBe(true);
+    expect(inside("2026-10-17T23:59:59Z")).toBe(false);
+    // Month boundary: today 2026-11-01 gives the seven October days before it.
+    expect(defaultWorkWindow(new Date("2026-11-01T00:00:00Z"))).toEqual({ from: "2026-10-25T00:00:00Z", to: "2026-11-01T00:00:00Z" });
     const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
     const { main } = await mountWork(`/sites/${SITE}/work`, client);
     const today = new Date().toISOString().slice(0, 10);
-    expect(indexCalls[0].scope.to > `${today}T00:00:00Z`).toBe(true);
+    expect(indexCalls[0].scope.to).toBe(`${today}T00:00:00Z`);
     const basis = main.querySelector("[data-cold-work-window] [data-domain-work-window-basis]");
     expect(basis?.getAttribute("data-domain-work-window-basis")).toBe("actions");
     expect(text(basis)).toBe("Listed by the time each Action was raised.");

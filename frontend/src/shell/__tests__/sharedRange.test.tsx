@@ -19,6 +19,7 @@ import {
   RANGE_PRESETS,
   SHARED_RANGE_SESSION_KEY,
   fillsRangeOnEntry,
+  isWorkPage,
   presetOf,
   presetRange,
   rangeSearch,
@@ -129,8 +130,15 @@ describe("SR-1 useSharedRange reads both address forms", () => {
 });
 
 describe("SR-1 presets", () => {
-  it("offers Yesterday, Last 7 days, Last 30 days, This month, Last month and Custom, and no Today", () => {
-    expect(RANGE_PRESETS.map((p) => p.label)).toEqual(["Yesterday", "Last 7 days", "Last 30 days", "This month", "Last month", "Custom"]);
+  it("offers Yesterday, Last 7 days, Last 30 days, This month, Last month and Custom, and no Today; Work pages add Last 7 days, including today", () => {
+    expect(RANGE_PRESETS.map((p) => p.label)).toEqual(["Yesterday", "Last 7 days", "Last 7 days, including today", "Last 30 days", "This month", "Last month", "Custom"]);
+    expect(presetRange("7dwork", NOW)).toEqual({ from: "2026-10-01", to: "2026-10-07" });
+    expect(presetOf("2026-10-01", "2026-10-07", NOW)).toBe("7dwork");
+    expect(isWorkPage("/incidents")).toBe(true);
+    expect(isWorkPage("/maintenance/preventive")).toBe(true);
+    expect(isWorkPage("/sites/KOBO-001/work/incidents")).toBe(true);
+    expect(isWorkPage("/portfolio")).toBe(false);
+    expect(isWorkPage("/actions")).toBe(false);
   });
 
   it("computes each preset from full UTC days ending yesterday, and recognises it back", () => {
@@ -145,7 +153,7 @@ describe("SR-1 presets", () => {
       expect(presetRange(key as keyof typeof expected, NOW)).toEqual(range);
       expect(presetOf(range.from, range.to, NOW)).toBe(key);
     }
-    expect(presetOf("2026-10-01", "2026-10-07", NOW)).toBe("custom");
+    expect(presetOf("2026-10-01", "2026-10-08", NOW)).toBe("custom");
   });
 });
 

@@ -443,13 +443,13 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 
   it("narrow_mock_panels_and_unavailable_links", async () => {
-    // post-W6 final-fix M1: a mini Site's first load with no window reads seven Site-local (EAT) calendar days including
-    // today, [local midnight today−6d, local midnight tomorrow), as UTC instants.
+    // post-W6 final-fix M1: a mini Site's first load with no window reads the seven full Site-local (EAT) days ending
+    // yesterday (SR-2), [local midnight today−7d, local midnight today), as UTC instants.
     const w = siteSevenDayWindow("Africa/Addis_Ababa");
     expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(7 * 86_400_000);
     expect(w.to.endsWith("T21:00:00Z")).toBe(true);
     const now = new Date().toISOString();
-    expect(w.from <= now && now < w.to).toBe(true);
+    expect(w.to <= now && Date.parse(now) - Date.parse(w.to) < 86_400_000).toBe(true); // SR-2: ends at local midnight today
     const requests = serve({
       [api("maintenance", w)]: { status: 200, body: body([]) },
       [api("incidents", w)]: { status: 200, body: body([]) },
@@ -844,11 +844,11 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-10-26T22:30:00Z"));
     try {
-      const W = { from: "2026-10-20T21:00:00Z", to: "2026-10-27T21:00:00Z" };
+      const W = { from: "2026-10-19T21:00:00Z", to: "2026-10-26T21:00:00Z" }; // SR-2: ends at local midnight today (27 Oct)
       const requests = serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
       mount("/sites/KOBO-001/work/incidents");
       await settledScreen();
-      await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 21 Oct to 27 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
+      await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 20 Oct to 26 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
       expect(requests).toEqual([api("incidents", W)]);
     } finally {
       vi.useRealTimers();

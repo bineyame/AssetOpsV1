@@ -765,13 +765,14 @@ const MIDNIGHT = /^\d{4}-\d{2}-\d{2}T00:00:00Z$/;
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/;
 
 /**
- * Post-W6 W6 Q7 (the global half of R338): seven UTC calendar days including today, `[today − 6 days 00:00Z,
- * tomorrow 00:00Z)`. An explicit URL window is kept exactly.
+ * SR-2 (one default, R338 revised by SR.3): the last seven full UTC days, ending yesterday, `[today − 7 days 00:00Z,
+ * today 00:00Z)`, the one default every page uses. "Last 7 days, including today" is a preset in the date range
+ * bar on Work pages. An explicit URL window is kept exactly.
  */
 export function defaultGlobalWorkWindow(now: number = Date.now()): { from: string; to: string } {
   const today = Date.parse(`${new Date(now).toISOString().slice(0, 10)}T00:00:00Z`);
   const day = (ms: number) => `${new Date(ms).toISOString().slice(0, 10)}T00:00:00Z`;
-  return { from: day(today - 6 * DAY_MS), to: day(today + DAY_MS) };
+  return { from: day(today - 7 * DAY_MS), to: day(today) };
 }
 
 function validMidnight(value: string): boolean {

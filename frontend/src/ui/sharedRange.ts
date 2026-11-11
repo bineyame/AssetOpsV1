@@ -18,13 +18,18 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export const RANGE_MAX_DAYS = 31;
 export const SHARED_RANGE_SESSION_KEY = "assetops.sharedRange";
 
-export type RangePreset = "yesterday" | "7d" | "30d" | "month" | "lastmonth" | "custom";
+export type RangePreset = "yesterday" | "7d" | "7dwork" | "30d" | "month" | "lastmonth" | "custom";
 export type FixedPreset = Exclude<RangePreset, "custom">;
 
-/** SR.3: Yesterday, Last 7 days, Last 30 days, This month, Last month and Custom. "Today" is a partial day, so it is not a preset. */
+/**
+ * SR.3: Yesterday, Last 7 days, Last 30 days, This month, Last month and Custom. "Today" is a partial day, so it is
+ * not a preset, except "Last 7 days, including today" (`7dwork`), which the bar offers on Work pages only
+ * (`isWorkPage`) so nothing current is hidden there.
+ */
 export const RANGE_PRESETS: readonly { key: RangePreset; label: string }[] = [
   { key: "yesterday", label: "Yesterday" },
   { key: "7d", label: "Last 7 days" },
+  { key: "7dwork", label: "Last 7 days, including today" },
   { key: "30d", label: "Last 30 days" },
   { key: "month", label: "This month" },
   { key: "lastmonth", label: "Last month" },
@@ -78,6 +83,8 @@ export function presetRange(preset: FixedPreset, now: number = Date.now()): DayR
       return { from: yesterday, to: yesterday };
     case "7d":
       return { from: dayOf(today - 7 * DAY_MS), to: yesterday };
+    case "7dwork":
+      return { from: dayOf(today - 6 * DAY_MS), to: dayOf(today) };
     case "30d":
       return { from: dayOf(today - 30 * DAY_MS), to: yesterday };
     case "month": {
@@ -181,7 +188,11 @@ const RANGE_PAGES =
  * without one shows its own day, so the bar does not claim the range there. Record pages read none of it.
  */
 const SITE_RANGE_PAGES = /^\/(?:sites\/[^/]+(?:\/.*)?|performance\/[^/]+(?:\/.*)?)$/;
-export const readsSharedRange = (pathname: string, params?: URLSearchParams): boolean =>
+/** SR.3: the Work pages (global Incidents, Maintenance, Operational records and a Site's Work and Actions pages), which offer "Last 7 days, including today". */
+const WORK_PAGES = /^\/(?:incidents|maintenance(?:\/preventive)?|operational-records)\/?$|^\/sites\/[^/]+\/(?:actions|work|incidents|maintenance)(?:\/.*)?$/;
+export const isWorkPage = (pathname: string): boolean => WORK_PAGES.test(pathname);
+
+export const readsSharedRange =(pathname: string, params?: URLSearchParams): boolean =>
   RANGE_PAGES.test(pathname) || (SITE_RANGE_PAGES.test(pathname) && !!params && (params.has("from") || params.has("to")));
 
 /**
