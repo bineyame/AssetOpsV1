@@ -419,6 +419,7 @@ class ChargingEnergy(_Cached):
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
         covered: list[Span] = []
+        connectors: dict[str, dict[str, list]] = {}
         ids: set[str] = set()
         reads = []
         for ws, we, run_id in self.r.selected_windows(ctx, [EV_SESSION_ANALYTIC]):
@@ -428,6 +429,11 @@ class ChargingEnergy(_Cached):
                 continue
             # §5c Q1: meter intervals ∪ reported known-status spans; unknown meter seconds are in neither set
             covered += list(w["meter"]) + list(w["status"])
+            # PB-3: the per-connector reported states and meter intervals the declared basis grades on
+            for asset, item in (w.get("connectors") or {}).items():
+                mine = connectors.setdefault(asset, {"states": [], "meter": []})
+                mine["states"] += list(item.get("states") or ())
+                mine["meter"] += list(item.get("meter") or ())
             ids |= set(w["evidence_ids"])
             money = w.get("money") or {}
             for k in ("revision_id", "tariff_revision_id"):
@@ -435,7 +441,7 @@ class ChargingEnergy(_Cached):
                     ids.add(f"{k}:{str(money[k]).lower()}")
             reads.append(w)
         self._put(ctx, subject_ref, [w.get("money") for w in reads])
-        return InputSet(tuple(sorted(ids)), covered, self.r.pending_jobs(ctx, ["ev_charging"]), reads)
+        return InputSet(tuple(sorted(ids)), covered, self.r.pending_jobs(ctx, ["ev_charging"]), reads, connectors)
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
         reads = inputs.payload or []
