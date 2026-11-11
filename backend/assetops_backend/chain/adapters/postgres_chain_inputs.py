@@ -25,7 +25,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from assetops_backend.analytics.ev_availability import UNKNOWN as EV_UNKNOWN
-from assetops_backend.analytics.ev_availability import availability_on
+from assetops_backend.analytics.ev_availability import availability_on, status_spans_on
 from assetops_backend.chain.ports import DayCtx, SiteRef
 
 _LIVE = ("PENDING", "LEASED")
@@ -315,11 +315,18 @@ class PostgresChainInputs:
             availability = availability_on(reads, c, snap)
             status = [(instant(x["from"]), instant(x["to"])) for row in availability["connectors"]
                       for x in row["spans"] if x["state"] != EV_UNKNOWN]
+            # PB-3: per connector, its reported states and its SUPPORT meter intervals (`grading.status_known_spans`)
+            connectors = {asset: {"states": spans, "meter": [
+                (r["interval_start"], r["interval_end"]) for r in accepted
+                if r["role"] == "ev_connector_energy" and r["use"] == "SUPPORT" and r["interval_start"] is not None
+                and r["interval_end"] is not None and str(r.get("asset_id")).lower() == str(asset).lower()]}
+                for asset, spans in status_spans_on(reads, c, snap).items()}
             energy, _ = site.energy_on(ev_ctx)
             _, denominator = reads.status_on(snap)
             money = site.consequence_on(ev_ctx)
             ids = sorted({str(r["evidence_id"]).lower() for r in accepted})
-            return {"selected": snap["selected"] is not None, "meter": meter, "status": status, "energy": energy,
+            return {"selected": snap["selected"] is not None, "meter": meter, "status": status,
+                    "connectors": connectors, "energy": energy,
                     "denominator": denominator, "money": money, "evidence_ids": ids}
 
         return reads.within(work)

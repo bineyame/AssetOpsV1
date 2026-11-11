@@ -61,10 +61,17 @@ class SnapshotBuilder:
     def _one(self, ctx: DayCtx, spec: MeasureSpec, adapter: MeasureAdapter, subject_ref: str,
              bounds: tuple[datetime, datetime] | None) -> Written:
         expected = bounds is not None
+        basis = self._policy.basis_for(spec.key)
         if expected:
             inputs = adapter.inputs(ctx, subject_ref)
             required = int((bounds[1] - bounds[0]).total_seconds())
-            covered = grading.covered_seconds(inputs.covered, bounds[0], bounds[1])
+            spans = inputs.covered
+            if basis == grading.BASIS_CONNECTOR_STATUS_KNOWN:  # PB-3: connector-status-known time
+                if inputs.connector_status is None:
+                    raise ValueError(f"{spec.key}: the policy declares {basis}, and {adapter.key} carries no "
+                                     f"connector status")
+                spans = grading.status_known_spans(inputs.connector_status)
+            covered = grading.covered_seconds(spans, bounds[0], bounds[1])
             ids, pending = inputs.ids, inputs.pending
         else:
             inputs, required, covered, ids, pending = None, 0, 0, (), False
@@ -72,7 +79,7 @@ class SnapshotBuilder:
         value = adapter.measure(ctx, subject_ref, inputs) if (expected and covered > 0) else None
         money = adapter.money(ctx, subject_ref, value) if value is not None else None
         fp = grading.input_fp(ids, pending, self._policy.policy_version, self._calendar.calendar_version,
-                              self._catalogue_version, adapter.key)
+                              self._catalogue_version, adapter.key, coverage_basis=basis)
         key = SnapshotKey(ctx.tenant_id, ctx.site_id, ctx.local_day, spec.subject_kind, subject_ref, spec.key)
         latest = self._store.latest(key)
         row = SnapshotRow(

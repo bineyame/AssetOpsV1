@@ -23,9 +23,11 @@ THREE_SITE_STORY_PINS_V3 = (
 #: FX-KOBO-GAPS (D-E5.12, D-E5.17): the same recipe on the default v4 day list as amended (S-27..S-22 filled),
 #: taken on the FX-KOBO-GAPS tree whose v3 result still equals the pins above byte for byte (so only the day list
 #: moved them). Superseded v4 (D-E5.12 only) pins: 91ea68a9... / 50821 and 9fe1af48... / 50819.
+#: DATA-11 (D-E5.37): the five Cold `ordinary` days S-6, S-5, S-4, S-2, S-1 moved them again (the v3 pins above are
+#: unchanged); superseded FX-KOBO-GAPS v4 pins: 1d50fb8f... / 65083 and 1bfc7592... / 65081.
 THREE_SITE_STORY_PINS = (
-    ("2026-11-08T10:00:00Z", "1d50fb8fe637ba2a6d739a916bba8622524811440e2f47acd511257a1fbf97ba", 65083,
+    ("2026-11-08T10:00:00Z", "1b181fd3fb35c6b5f3229778f24f7aa85453bfab37996880be8bdba88a01d5ff", 68273,
      "2026-11-06T00:00:00Z"),
-    ("2026-12-03T23:30:00Z", "1bfc759279bc94a37fb7d9832c4be4014fdbcb285cca34733de2223c6986640f", 65081,
+    ("2026-12-03T23:30:00Z", "cc4b36503e6a38116cd2aefc47e1ecbc9a0cc06900e56ca64c66c668ba09ad47", 68271,
      "2026-12-01T00:00:00Z"),
 )
