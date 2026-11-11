@@ -336,7 +336,8 @@ class Reads:
         started = time.perf_counter()
         try:
             out = (read_scope.thaw(read_scope.memo(name, fn, *args, key=key)) if memo else fn(*args))
-        except Exception:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
+        except Exception as error:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
+            read_scope.note_failure(name, error)  # INFRA-1: a connection failure is never stored as "no data"
             if name not in self.failed:
                 self.failed.append(name)
             return None

@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from assetops_backend import read_scope
 from assetops_backend.chain import refs
 from assetops_backend.estate.evidence_money import finding_window_ref
 from assetops_backend.work.domain_action_index import W1_DOMAIN
@@ -142,7 +143,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
         for fid in (x for x in linked if x not in known):
             try:
                 row = ports.finding(fid, lo, hi)
-            except Exception:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+            except Exception as error:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+                read_scope.note_failure("cold_findings", error)
                 findings_ok = False
                 if "cold_findings" not in reads.failed:
                     reads.failed.append("cold_findings")

@@ -30,6 +30,7 @@ import os
 from datetime import datetime
 
 from assetops_backend.i18n import LocaleMiddleware
+from assetops_backend.infra import install_handle_error_hook
 
 from typing import Callable, Sequence
 
@@ -318,6 +319,7 @@ def create_app(
     development operator everywhere; estate roots and other Site reads are not threaded here (R374).
     """
     resolved_flags = load_feature_flags() if flags is None else flags
+    install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language

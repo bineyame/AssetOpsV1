@@ -24,6 +24,7 @@ from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
     finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend import read_scope
 from assetops_backend.chain import refs
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action, finding_window_link
 from assetops_backend.outcomes.objectives import Reading
@@ -153,7 +154,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
         for fid in (x for x in linked if x not in known):
             try:
                 row = ports.finding(fid, lo, hi)
-            except Exception:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+            except Exception as error:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+                read_scope.note_failure("ev_findings", error)
                 findings_ok = False
                 if "ev_findings" not in reads.failed:
                     reads.failed.append("ev_findings")

@@ -11,7 +11,7 @@ import logging
 from datetime import datetime
 from typing import Any, Callable
 
-from assetops_backend import perf
+from assetops_backend import perf, read_scope
 from assetops_backend.chain import refs
 from assetops_backend.chain.read import site_cutoff
 from assetops_backend.chain.vocabulary import count_claim
@@ -127,7 +127,8 @@ def opportunity_read(snap: Any, tenant_id: Any, scope: dict[str, Any], req: Esta
         return []
     try:
         return reader(tenant_id, sorted(scope["ids"]), req.from_, req.to, scope["k"])
-    except Exception:  # noqa: BLE001 - stated in the packet: the count reads "Unknown", never a guess
+    except Exception as error:  # noqa: BLE001 - stated in the packet: the count reads "Unknown", never a guess
+        read_scope.note_failure("estate.opportunity_threads", error)
         _LOG.exception("opportunity read failed; the opportunity count and items are reported as not read")
         return None
 

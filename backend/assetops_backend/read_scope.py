@@ -81,6 +81,9 @@ class ReadScope:
         self.boundaries: list[tuple[datetime, datetime]] = []
         #: CH5c2 fix M-A: every DB read instant the compose captured through `read_instant` (the liveness floor)
         self.instants: list[datetime] = []
+        #: INFRA-1 (D-E5.47): the read names that failed on an infrastructure (connection) error; non-empty, the
+        #: stored route stores nothing (`chain.response_store`). A mark on the scope, never a body field.
+        self.degraded: list[str] = []
 
     def count(self, name: str, key: tuple[Any, ...], ms: float) -> None:
         k = (name, key)
@@ -166,6 +169,27 @@ def memo(name: str, fn: Callable[..., Any], *args: Any, key: tuple[Any, ...] | N
     frozen = freeze(out)
     sc._memo[k] = frozen
     return frozen
+
+
+def note_failure(name: str, error: BaseException | None) -> bool:
+    """INFRA-1 (D-E5.47): record read `name` as degraded in the current scope when `error` is an infrastructure
+    failure (`infra.is_transient`); a deterministic failure (a bare wrapper) records nothing. Returns whether it
+    recorded. Every composer catch-all calls it; the global `handle_error` hook is the backstop."""
+    from assetops_backend.infra import is_transient
+
+    sc = _SCOPE.get()
+    if sc is None or not is_transient(error):
+        return False
+    if name not in sc.degraded:
+        sc.degraded.append(name)
+    return True
+
+
+def mark_degraded(name: str) -> None:
+    """INFRA-1: the `handle_error` backstop's mark (the event already decided it is a connection failure)."""
+    sc = _SCOPE.get()
+    if sc is not None and name not in sc.degraded:
+        sc.degraded.append(name)
 
 
 def memoised(name: str, key: tuple[Any, ...]) -> bool:

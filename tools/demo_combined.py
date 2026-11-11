@@ -83,6 +83,24 @@ class StoryClockError(SystemExit):
     pass
 
 
+def prebuild_refusal(stdout: str) -> str | None:
+    """INFRA-1 (D-E5.47) rule 5: the prebuild's last JSON line with `code` FAILED or DEGRADED gives the message the
+    build exits with, naming the paths; any other code (or no JSON line) gives None."""
+    lines = [x for x in (stdout or "").splitlines() if x.startswith("{")]
+    if not lines:
+        return None
+    try:
+        out = json.loads(lines[-1])
+    except ValueError:
+        return None
+    code = out.get("code")
+    if code == "DEGRADED":
+        return f"PREBUILD DEGRADED: still degraded {out.get('still_degraded')}; attempts {out.get('degraded')}"
+    if code == "FAILED":
+        return f"PREBUILD FAILED: non-200 {out.get('non_200')}"
+    return None
+
+
 def kobo_expected_seconds(days_doc: dict) -> int:
     return 110 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
 
@@ -1101,6 +1119,9 @@ class Demo:
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        refusal = prebuild_refusal(done.stdout)
+        if refusal is not None:  # INFRA-1 (D-E5.47) rule 5: a DEGRADED prebuild fails the build like FAILED
+            raise SystemExit(refusal)
 
     # ---- the R8 drain (DD1b2-R6 O2, R7 Q1-Q4) -----------------------------------------------------------------
     def counts(self) -> dict:
