@@ -522,7 +522,8 @@ export function App({
           {/* W3-02 commit 4: the estate Financials root (`ESTATE_FINANCIALS_PATH`; a shell test pins the equality). */}
           <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
           {/* W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH`; a shell test pins the equality). */}
-          <Route path={PORTFOLIO_ROOT_PATH} element={<EstatePortfolioFrame client={estateIndex} />} />
+          {/* PF-T: one mounted route for every Portfolio section tab, so a tab switch keeps the page and its reads. */}
+          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab?`} element={<EstatePortfolioFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
           <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
           {/* W6-01b: the global Maintenance root, Corrective view (`MAINTENANCE_PATH`). */}
