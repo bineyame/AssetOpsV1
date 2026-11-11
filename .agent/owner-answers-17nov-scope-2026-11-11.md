@@ -42,3 +42,10 @@ Builder lanes overnight and at weekends (Architect approval item 5, three lanes)
 
 "builder lane overnight and weekend, yes"
 
+
+Owner, 2026-11-11 ~16:25 (verbatim), after the v7.2 design sheet (UQ-0) was offered for approval:
+
+"lets depriortize the UI asepct for now in the backlog and we'll come back to it later, lets focus on the functional ones"
+
+Coordinator reading: the design foundation (UQ-0 v7.2 sheet on unmerged branch task/UQ-0-v72-sheet, UQ-1 tokens/type/Inter, UQ-2 light/dark themes, UQ-3 states/quick wins, UQ-4..8) moves to the backlog, after 17 Nov. Functional/honesty work (incl. C1 screen fixes and roadmap wording, ANY-1, EV-HB gate, INFRA-1, etc.) continues.
+
