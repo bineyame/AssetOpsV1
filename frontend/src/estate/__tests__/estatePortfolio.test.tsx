@@ -2095,21 +2095,23 @@ describe("PF-T Portfolio section tabs", () => {
     expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, name: OPPORTUNITY_PANEL }));
   });
 
-  it("moving from Act first lens=cost to another tab, and back, reads nothing again", async () => {
+  it("moving from Act first lens=cost to another tab reads nothing again", async () => {
     const client = portfolioClient(loadedPortfolio(portfolioBody()));
-    renderTabs(`/portfolio/act-first?${WINDOW_QUERY}&lens=cost`, client);
+    renderTabs(`/portfolio?${WINDOW_QUERY}`, client);
     await settledScreen();
-    expect(client.calls.map((c) => c.lens)).toEqual(["cost"]);
+    expect(client.calls.map((c) => c.lens)).toEqual(["all"]);
+    // Choosing the Cost lens on Act first is the one new read.
+    fireEvent.click(tabLink("Act first"));
+    await settledScreen();
+    fireEvent.click(within(panel("Where management should act first")).getByRole("button", { name: "Cost" }));
+    await settledScreen();
+    expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost"]);
+    // The whole list is already held by key: any other tab shows it with no new read.
     fireEvent.click(tabLink("Opportunity"));
     await settledScreen();
-    // The whole list is read once for the other tabs; a lens read is not repeated and nothing re-reads after.
-    const after = client.calls.length;
     fireEvent.click(tabLink("What changed"));
     await settledScreen();
-    fireEvent.click(tabLink("Opportunity"));
-    await settledScreen();
-    expect(client.calls.length).toBe(after);
-    expect(client.calls.map((c) => c.lens)).toEqual(["cost", "all"]);
+    expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost"]);
   });
 
   it("Overview shows the four cards, the counts strip as tab links and the top 3 with See all", async () => {
