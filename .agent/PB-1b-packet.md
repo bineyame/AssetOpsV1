@@ -19,7 +19,15 @@ Branch `task/PB-1b-ev-periods` (wt `AssetOpsV1-pb1b`), rebased onto main `987d48
 - Updated: `test_w207_ev_site_reads_postgres.py` `check_shape` (two new Site-read keys); `test_w301_ev_selection_on_postgres.py` (whole-day snapshot now reads its shown period, not `selected is None`).
 - Importers of the changed modules: see the results table below.
 
-RESULTS_TABLE
+| File | Result (rebased head) |
+|---|---|
+| `test_pb1b_ev_periods_postgres` | 9 passed |
+| `test_w207_ev_site_reads_postgres` | 19 passed (after fix: its "empty" window 2026-10-07 08-16 held the replay period, now reads it; moved to 10-27) |
+| `test_w206_ev_reads_postgres` | 23 passed (after fix: the wider-window case of `test_exact_window_does_not_use_covering_selection` now reads its period; asserted) |
+| `test_w301_ev_selection_on_postgres` | 3 passed |
+| `test_w206_ev_store_postgres` | 12 passed + 1 failed in the first run (`[missing-meter]`); rerun of `test_six_cases_persist_the_vectors`: 6 passed |
+| `test_w207_ev_money_postgres` | 4 failed / 10 passed in the first run (0026 trigger, money vectors complete/interrupted/fault); rerun of the file: 14 passed. Neither file reads `EvReadService._snapshot`; the first-run failures did not reproduce (machine shared with other agents) |
+| `test_polish_pa3_ev_tariff_copy` 2, `test_w301_provenance_dto_postgres` 7, `test_w302_evidence_links_postgres` 3, `test_w302_financials_links_postgres` 3, `test_w302_pinned_facades` 21, `test_w302_pinned_facades_postgres` 8, `test_w503_ev_availability_postgres` 15, `test_w503_ev_depth_postgres` 15, `test_w503_ev_scenarios_postgres` 15, `test_w504_ev_intent_api` 6, `test_w504_ev_intent_postgres` 15 | all passed |
 
 ## Notes / risks
 
