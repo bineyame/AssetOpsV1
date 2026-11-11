@@ -4059,3 +4059,44 @@ Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "option 2 fo
   5. Frontend: `estatePortfolio.test.tsx` for the label and amount.
   6. No total across currencies.
 - **Lane A,** after A2 and before UQ-6a. It displaces nothing by name; it consumes about 0.5 of option Y's buffer. If Thursday's re-assessment shows lag, AR-6 (Cold/EV boards under 1 s) moves after 17 Nov first.
+
+## D-E5.46 Day-gap words state the data fact; "not analysed yet" only when the system still has work to do (Architect, Claude, 2026-11-11, owner-directed, logged for owner review)
+Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`, last entry): "not analysed yet only makes sense when system action is pending, for when the data is not complete, that fact need to be stated 'not enough data received for the day' or something similar or 'data received is invalid' or something better".
+
+**Code facts.** A local day with readings and no trustworthy result has one of three causes:
+- (a) the run's cohort is `AMBIGUOUS` (`assessment_inputs.py` CohortSelection) or its generator series is ambiguous (`dispatch_v3.py`, limitations `AMBIGUOUS_COHORT`, `GENERATOR_SERIES_AMBIGUOUS`; the window claim is `WINDOW_INDETERMINATE`). These are conflicting reports for the same channel and time, such as the Kisiwa boundary duplicates.
+- (b) there is no usable cohort (`EMPTY`, limitation `NO_COHORT`) or no generator state (`NO_GENERATOR_STATE`). The claim is also `WINDOW_INDETERMINATE`.
+- (c) the dispatch day has no available selection (`coverage.py`: `not day["available"] or selection is None`), with or without an outstanding job.
+
+DATA-12-FX's `NOT_ANALYSED` tests only (c). A day in (a) or (b) that has a selection counts as checked today, which overstates coverage.
+
+**Rule: one gap reason per day.** Precedence follows the order of the table.
+
+| Gap reason (backend) | When | Full words (Site, Findings, day boards) | Short form (Portfolio / coverage / money) |
+|---|---|---|---|
+| `NO_READINGS` | grade NO_DATA | No readings received for this day | no readings |
+| `READINGS_CONFLICT` | selected window INDETERMINATE with `AMBIGUOUS_COHORT` or `GENERATOR_SERIES_AMBIGUOUS` | Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed | conflicting readings |
+| `NOT_ENOUGH_READINGS` | selected window INDETERMINATE with `NO_COHORT` or `NO_GENERATOR_STATE` | Not enough readings received to analyse this day | not enough readings |
+| `NOT_ANALYSED` | no available selection (cause c), including an outstanding or failed job | Not analysed yet | not analysed yet |
+| (Site state PENDING_RECOMPUTE) | grade PENDING or an outstanding job | Still processing | still processing |
+
+- Never "error", "invalid", codes, or wording that blames the system for a data fact.
+- "Not analysed yet" and "still processing" are kept only for system work.
+- **Money label** (amends D-E5.45): `{amount} for {n} of {m} days analysed · {day list}: {short reason}`, with one group per reason, for example `6 of 7 days analysed · 4 Nov: no readings`. Days that share a reason are grouped (`3, 4 Nov: conflicting readings`). More than 3 gap days reads `· {g} days without a usable result`.
+- **Portfolio coverage line** (amends D-E5.26): Site PARTIAL reads `{n} site(s) with incomplete days` in place of "with days not analysed yet". The Site's days line lists each gap day with its short reason. UNKNOWN keeps "not analysed yet".
+
+**Updated owner-facing term family** (supersedes the walkthrough 5.3 list): complete readings / partial readings / too few readings / no readings received / not enough readings received (day) / conflicting readings (day) / still processing / not analysed yet (system work only) / incomplete days (Site summary).
+- A day with no readings at all keeps "no readings received".
+
+**Cards**
+- **DATA-12-FX:** unchanged; finish and merge as built. Its `NOT_ANALYSED` is exactly cause (c), which is already correct.
+- **GAP-REASONS (new, Sonnet, about 0.35 unit, lane A, cut from main after DATA-12-FX merges, before PARTIAL-MONEY):**
+  - `coverage.py` reads the selected window's claim and limitation prefixes, and turns an INDETERMINATE (a) or (b) day into a gap with `READINGS_CONFLICT` or `NOT_ENOUGH_READINGS`;
+  - `_days_block` carries the reason;
+  - pinned tests cover one day per reason and the precedence;
+  - verify on client6 Kisiwa that the boundary-duplicate day reads `READINGS_CONFLICT`.
+- **PB-4 (A2):** the AMBIGUOUS day reads "Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed" in place of "not analysed yet" (`SiteFindingIndex.tsx`, `OverviewFindingList.tsx`). It is never "Checked: nothing to report". If A2 has already committed the old words, change them in the same branch.
+- **PARTIAL-MONEY:** uses the money label above, keyed on each gap's reason.
+- **PF-W:** adds the two new terms and "incomplete days" to `portfolioWords.ts`, and replaces "days not analysed yet" in the coverage line.
+
+Decision logged for owner review: **D-E5.46**.
