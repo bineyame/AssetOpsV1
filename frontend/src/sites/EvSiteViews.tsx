@@ -1286,7 +1286,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
           <Badge tone="neutral" className="ev-site-chip">
             <span data-ev-line-count={lines}>{`${lines} consequence ${lines === 1 ? "line" : "lines"}`}</span>
           </Badge>
-          {` ${currency ?? "Currency not declared"} · selected window · charging income estimate only · Displayed rows include unpriced context`}
+          {` ${estimated && currency !== null ? `${currency} · selected window` : "Selected window"} · charging income estimate only · Displayed rows include unpriced context`}
           <Provenance env={f} />
           <StateNote env={f} />
         </StatusBar>
@@ -1322,7 +1322,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                 {!bridgeRows.includes("scenario") ? (
                   <tr data-bridge-row="none">
                     <th scope="row">No eligible delivered-energy consequence</th>
-                    <td>Tariff not declared</td>
+                    <td>No analysed charging session in this window</td>
                     <td>
                       <Chip word={NO_SCENARIO} />
                     </td>

@@ -602,7 +602,7 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
           {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code, n) => (
             <span key={code} data-assessment-limitation={code}>
               {n === 0 ? "" : " · "}
-              {limitationWords(code)}
+              {limitationWords(code, a.limitations.map(String).filter((l) => limitationCode(l) === code))}
             </span>
           ))}
         </ChartNote>

@@ -588,6 +588,7 @@ describe("W2-07 EV Site routes", () => {
     // W2-F M5: the displayed withheld scenario row is counted (unpriced context), never a priced revision.
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("Displayed rows include unpriced context");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
     expect(main().textContent).not.toContain("8.33");
 
@@ -595,9 +596,12 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "No analysed charging session in this window", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
-    expect(strip()).toContain("Currency not declared");
+    // PB-6: with no amount there is no currency lead (no empty " USD · selected window").
+    expect(strip()).not.toContain("Currency not declared");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
+    expect(strip()).toContain("Selected window · charging income estimate only");
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No charging income estimate yet");
 
     // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
