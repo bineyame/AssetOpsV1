@@ -49,7 +49,8 @@ D-UI.2; v71 `portfolio-tabs.html` Change 0b.
   `globalPreventive`, `operationalRecords` all passing (exit 0).
 - Rail-href assertions in `globalIncidents`/`globalMaintenance` App tests were failing on main since SR-1 (rail carries
   the range); now compare the path part.
-- `tsc --noEmit`: clean. Architecture guard: see final line below.
+- `tsc --noEmit`: clean. `tools\check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 .venv) on the tree of
+  `aef240f15`: "Architecture check passed."
 - Not run: full suites, layout evidence, captures (brief).
 
 ## Known deviations / risks
