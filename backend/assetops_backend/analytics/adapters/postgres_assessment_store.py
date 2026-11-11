@@ -1109,6 +1109,11 @@ class PostgresAssessmentStore:
                 "run_id": None if run is None else run["id"],
                 "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
                 "window_assessment_revision_id": None if window_rev is None else window_rev["id"],
+                # GAP-REASONS (D-E5.46): the selected window's claim and limitations, and the run's cohort status.
+                "window_claim_level": None if window_rev is None else window_rev["claim_level"],
+                "window_limitations": [] if window_rev is None
+                else list((window_rev["result"] or {}).get("limitations", [])),
+                "cohort_status": None if run is None else run["cohort_status"],
                 "accepted_reading_count": snap.reading_count, "input_sha256": snap.current_input_sha256,
                 "configuration_sha256": snap.current_configuration_sha256,
                 "accepted_watermarks": None if run is None else run["watermarks"], "jobs": snap.jobs}
