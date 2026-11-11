@@ -17,9 +17,33 @@ Spec: `.agent/architect-answer-any-range-speed-2026-11-10.md` §4 card AR-2; D-A
 | Wiring: `period_kind_builders(inputs)` (tick drain + backfill), `period_kind_versions()`, `build_mini_period_rows()`; `main.py` gives the board's `MiniDepthRead` the row reader | `chain/composition.py`, `main.py` |
 | Prepare: `build_period_rows` after `drain-2`, before the self-check; backfill CLI `--quiet` per mini Site, timed per Site and total, 15-minute cap; over cap/failure prints "serve with ASSETOPS_PERIOD_READ_KINDS= (empty)", writes `period-rows.json`, prepare goes on | `tools/demo_combined.py`, `chain/period_backfill.py` |
 
+## D-ANY.6a fix (commit `28dd36c84`)
+
+`mini_depth/read.py`: `_JOBS` is now built from one predicate `_JOBS_WHERE`; `_JOBS_BATCH` runs that same predicate
+over all the request's hours in one statement (`unnest(...) WITH ORDINALITY`) at k, live and historical.
+`MiniDepthRead._job_fallback`: an hour whose live job IDs (and the job state they give) equal its row's renders from
+the row; any other hour (absent rows included, stored set empty) is replaced by `_hour` for that hour only, logged
+`period_row_job_fallback` (WARNING, `assetops.mini_depth.read`) and counted (`job_fallback_count()`); a read with any
+fallback takes link rows live, as the compose does. Migration 0029 untouched; no events, no timing rules.
+
 ## Checks run
 
-PLACEHOLDER
+- No-DB `backend/tests/test_ar2_mini_period_rows.py`: 14 passed (new `test_job_set_differs_falls_back_...` x3:
+  new job, moved-later job, status change). Non-vacuity: `_job_fallback` returning 0 -> 9 failed (the three fallback
+  cases among them); reverted by `git checkout`.
+- Postgres, own `assetops_ar2_test` (created, routed run DBs, dropped after), rev `28dd36c84`:
+  `pytest test_ar2_mini_period_rows_postgres.py test_ar2_mini_period_rows.py` -> **17 passed**, wall 415 s, JUnit
+  tests 17 / failures 0 / errors 0 / skipped 0. `:116` passes (rows == compose, PENDING_RECOMPUTE, live and at a
+  historical k, one fallback each); new `test_rows_follow_a_job_moved_later_than_the_read` passes.
+- client4 (`assetops_polish_client4_test`, 0059) row build: KOBO-001 128/128 written 69.1 s; KISIWA-001 52/52
+  written 38.7 s; **total 107.8 s** (cap 15 min).
+- client4 parity `--kinds mini_depth.{renewable,fuel,service,backup}` (seed 20261111, random 16, `--work`/`--story`
+  e3c polish_client4, prebuilt routes), rev `28dd36c84`, wall 976.7 s:
+  **`period_read_parity: FAIL (59 cases, 0 mismatch, 7 unstable)`**, exit 1. All 7 UNSTABLE are live estate reads
+  (story.0/3/36/39, any.portfolio.1/3/5: `/api/estate/portfolio`, `/api/estate/findings`); the oracle differs from
+  itself at `selection_token` (`estate/scope.py` `selection_token(..., token_k, ...)` hashes the live now), which
+  `normalise_live_now` does not normalise. No mini-depth/board case is unstable or mismatched. Stopped here to report.
+- Full parity (no `--kinds`), `perf_budget --any-range --report` rows on/off: **not run** (stopped on the failure).
 
 ## Known deviations
 
