@@ -28,9 +28,17 @@ class PostgresEvidenceMoneyRead(PostgresEstateRead):
     """The W3-01 estate read plus the W1 claim-limit service; `read(work)` runs one transaction."""
 
     def __init__(self, database_url: str | None, *, claim_limits: Any, claim_limit_refused: tuple[
-                 type[BaseException], ...] = (), **kwargs: Any) -> None:
+                 type[BaseException], ...] = (), period_rows: Any = None, **kwargs: Any) -> None:
         super().__init__(database_url, **kwargs)
         self.claim_limits, self.claim_limit_refused = claim_limits, claim_limit_refused
+        # ANY-2 AR-4: `estate.period_rows.EvidenceRows` (stored `evidence.claim` days), or None = today's compose.
+        self.period_rows = period_rows
+
+    def dispose(self) -> None:
+        super().dispose()
+        store = getattr(self.period_rows, "store", None)
+        if store is not None and hasattr(store, "dispose"):
+            store.dispose()
 
     def read(self, work: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
         try:
@@ -52,15 +60,57 @@ W1_RECONSTRUCTION_REFUSALS = frozenset({"UNSUPPORTED_RULE_VERSION", "ASSESSMENT_
                                         "REVISION_OUTSIDE_WINDOW", "REVISION_NOT_WINDOW", "ACCEPTED_LINEAGE_ABSENT"})
 
 
+_UNSET = object()
+
+
+def _rows_of(snap: Any) -> Any:
+    """AR-4: the snapshot's stored claim days (`estate.period_rows.RequestRows`, made once per snapshot), or None
+    when its owner has no `period_rows` or the kind is not served (`ASSETOPS_PERIOD_READ_KINDS`)."""
+    cached = getattr(snap, "_ar4_rows", _UNSET)
+    if cached is _UNSET:
+        source = getattr(getattr(snap, "_o", None), "period_rows", None)
+        cached = None if source is None else source.request(snap)
+        snap._ar4_rows = cached
+    return cached
+
+
 class EvidenceMoneySnapshot(EstateSnapshot):
     """W3-01 `EstateSnapshot` reads plus the W3-02 connection-taking projections, every one on `self._c`."""
+
+    def _period_rows(self) -> Any:
+        return _rows_of(self)
+
+    def dispatch_days(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> list[dict[str, Any]]:
+        days = super().dispatch_days(t, s, from_, to, k)
+        rows = self._period_rows()
+        if rows is not None:  # AR-4: the page's own dispatch days are the claim days' selection
+            rows.note_days(t, s, from_, to, k, days)
+        return days
+
+    def cited_provenance(self, t: UUID, s: UUID, cited: list[str], selected: list[str]) -> dict[str, Any]:
+        """AR-4: today's projection over the stored link rows when every cited ID's rows are stored."""
+        rows = self._period_rows()
+        stored = None if rows is None else rows.link_rows(s, cited)
+        if stored is None:
+            return super().cited_provenance(t, s, cited, selected)
+        from assetops_backend.estate.adapters.postgres_estate_read import _Prefetched
+        from assetops_backend.evidence.public_provenance import PublicProvenance, estate_projection
+
+        reads = _Prefetched(stored, str(s).lower(), self._o.provenance_reads(self._c))
+        return estate_projection(PublicProvenance(reads).cited_set(t, s, cited, selected, detail=False))
 
     def claim_limit_on(self, t: UUID, s: UUID, day: date, window_revision_id: Any,
                        k: datetime, basis_mode: str) -> dict[str, Any]:
         """0b: one UTC day's selected interval claim limits at `k`; a refused stored lineage is an inconsistent
         selection (409 after the W3-01 retry), never a guessed row. `basis_mode` is the estate request's frozen
-        `page_one_mode` (c1-q7), so a live cursor's page two never relabels an identical live day HISTORICAL."""
+        `page_one_mode` (c1-q7), so a live cursor's page two never relabels an identical live day HISTORICAL.
+        AR-4: a stored `evidence.claim` day is projected by the same pure rule; any other day is read as today."""
         try:
+            rows = _rows_of(self)
+            served = None if rows is None else rows.claim(self._o.claim_limits, t, s, day, window_revision_id, k,
+                                                          basis_mode)
+            if served is not None:
+                return served
             return self._o.claim_limits.claim_limit_on(self._c, t, s, day, window_revision_id, k,
                                                        basis_mode=basis_mode)
         except self._o.claim_limit_refused as error:

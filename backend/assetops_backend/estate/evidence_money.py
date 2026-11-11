@@ -31,6 +31,7 @@ from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
     local_day_grades_kw, not_applicable, site_coverage)
+from assetops_backend.estate.period_rows import day_revision
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
 from assetops_backend.estate.scope import (
@@ -252,8 +253,7 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
     s = site["site_id"]
     rows = []
     for day in snap.dispatch_days(t, s, req.from_, req.to, k):
-        revision = (day.get("window_assessment_revision_id")
-                    if day.get("available") and day.get("selection") is not None else None)
+        revision = day_revision(day)  # AR-4: the one rule the stored `evidence.claim` days are built on
         projection = snap.claim_limit_on(t, s, day["day"], revision, k,
                                          "historical" if snap.basis_historical else "live")
         reduced = w1.reduce_day(projection)

@@ -29,4 +29,8 @@ inputs:
 # ANY-1 AR-1: stored read-period kinds (`site_period_read`, migration 0059), dirtied like measures through the same
 # snapshot_dirty queue: kind '<area>.<name>' -> {grain: hour | s3_day | local_day, site_types: [...], inputs: {the
 # measure input keys}}. A kind is declared with its builder (AR-2 to AR-4); AR-1 declares none.
-kinds: {}
+# AR-4 (estate/period_rows.py): the Portfolio's mini-grid Evidence claim day (a UTC S3 day; stored with its own date,
+# rebuilt from every Site-local day it touches). The selected window revision comes from the S3 dispatch analytic and
+# its jobs, as for avoidable_gen_min.
+kinds:
+  evidence.claim: {grain: s3_day, site_types: [MINIGRID], inputs: {analytics: [dispatch], job_domains: [dispatch]}}

@@ -75,8 +75,43 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
-    AR-1 declares none, so nothing is built or read from rows yet; AR-2 to AR-4 add theirs here."""
-    return {}
+    AR-1 declares none, so nothing is built or read from rows yet; AR-2 to AR-4 add theirs here.
+    AR-4: `evidence.claim` over the read-only estate Evidence reader (built on first use; none without inputs)."""
+    if inputs is None:
+        return {}
+    from assetops_backend.estate.period_rows import kind_builders as estate_kind_builders
+
+    return {**estate_kind_builders(_estate_evidence_read)}
+
+
+def period_kind_versions() -> dict[str, str]:
+    """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
+    from assetops_backend.estate.period_rows import kind_versions as estate_kind_versions
+
+    return {**estate_kind_versions()}
+
+
+@lru_cache(maxsize=1)
+def _estate_evidence_read() -> Any:
+    """AR-4: the estate Evidence reader the `evidence.claim` builder reads through."""
+    from assetops_backend.config import database_url
+    from assetops_backend.estate.composition import build_estate_evidence_service
+
+    service = build_estate_evidence_service(database_url())
+    if service is None:
+        raise RuntimeError("No product database is configured; evidence.claim rows cannot be built.")
+    return service.store
+
+
+def build_estate_evidence_rows(database_url: str | None) -> Any:
+    """AR-4: the `EvidenceRows` the estate Evidence reader serves `evidence.claim` days from (None without a
+    database); the store's engine connects on first use only."""
+    store = build_period_read_store(database_url)
+    if store is None:
+        return None
+    from assetops_backend.estate.period_rows import EvidenceRows
+
+    return EvidenceRows(PeriodReader(store, load_event_register(), period_kind_versions()), store)
 
 
 def build_period_read_store(database_url: str | None, *, engine: Any = None) -> PostgresPeriodReadStore | None:
@@ -91,7 +126,7 @@ def build_period_read_builder(store: Any, inputs: Any = None) -> PeriodReadBuild
 
 def build_period_reader(store: Any, builder: PeriodReadBuilder | None = None) -> PeriodReader:
     """The one row reader (one statement per Sites x range x kinds, then PENDING-at-k)."""
-    versions = (builder or build_period_read_builder(store)).versions()
+    versions = builder.versions() if builder is not None else period_kind_versions()
     return PeriodReader(store, load_event_register(), versions)
 
 
