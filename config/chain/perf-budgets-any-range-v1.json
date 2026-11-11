@@ -1,0 +1,6 @@
+{"schema": "perf-budgets-any-range", "version": 1,
+ "source": ".agent/architect-answer-any-range-speed-2026-11-10.md section 4 card AR-0 and D-ANY.2: any board day and any Portfolio range up to a month, cold, store off, no pre-build; copied, never edited to pass",
+ "store": "off",
+ "families": {
+   "board_any_day":       {"cold_ms": 2000},
+   "portfolio_any_range": {"cold_ms": 2000}}}
