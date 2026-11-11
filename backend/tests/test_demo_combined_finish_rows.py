@@ -1325,6 +1325,24 @@ def test_kisiwa_cohort_fails_on_a_boundary_instant_published_by_two_nights() -> 
     assert "2026-10-31T12:00:00" in str(caught.value), caught.value
 
 
+def test_kisiwa_cohort_fails_on_a_day_with_readings_and_no_selection() -> None:
+    """DATA-1 L2: a Kisiwa day with readings that no `dispatch` selection window covers fails the row (the
+    selection-driven read alone never sees it)."""
+    ok = _cohort_windows(("SELECTED_UNIQUE", True))
+    assert rows.kisiwa_cohort(ok, unselected=[]) == {"windows": 1, "with_readings": 1, "selected_unique": 1}
+    with pytest.raises(AssertionError, match="no dispatch selection") as caught:
+        rows.kisiwa_cohort(ok, unselected=[(date(2026, 11, 4), 288)])
+    assert "2026-11-04" in str(caught.value), caught.value
+
+
+def test_kisiwa_cohort_reads_the_readings_outside_every_selection_window() -> None:
+    import demo_combined_finish as finish
+
+    sql = finish.KISIWA_UNSELECTED_SQL
+    assert "accepted_evidence" in sql and "NOT EXISTS" in sql and "analytic_run_selection" in sql
+    assert "analytic_id = 'dispatch'" in sql and "GROUP BY" in sql
+
+
 def test_kisiwa_cohort_reads_the_latest_dispatch_selection_per_window() -> None:
     """The row's read: the latest selection per window, its run's status and stored cohort limits, and whether the
     window has readings (validated against a built database's Kisiwa windows during the DATA-1 fix, read-only)."""
