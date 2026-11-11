@@ -172,8 +172,11 @@ def test_late_reading_live_and_as_known_at_k(store, engine) -> None:  # noqa: F8
         assert hist.absent == ((s, D, KIND),) and hist.day_state(s, D, KIND) == NO_ROW_STATE == "NO_DATA"
 
         # the parity harness takes its between-revisions k from the same rows (D-ANY.5 step 5)
+        import sys
+        from pathlib import Path
         from urllib.parse import parse_qs, urlsplit
 
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "checks"))
         import period_read_parity
 
         case = period_read_parity.between_revisions_case(URL)
