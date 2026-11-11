@@ -4303,3 +4303,19 @@ Decision logged for owner review: **D-ANY.6**.
 - **If not ACCEPTed by 21:30: hold AR-2 entirely.** Do not merge it with the kill switch off. That gives the demo no speed, adds an unexercised prepare step, and leaves a latent false-CURRENT path. Tonight's build then uses main plus AR-1 (if its parity passed), and the boards stay on the pre-stored ranges.
 
 Decision logged for owner review: **D-ANY.6a**.
+
+### D-ANY.6b / D-E5.49a Tonight's build fails one check, CO-10 ("16 min unknown"): use client7 (Architect, Claude, 2026-11-11 ~22:10, owner-delegated, logged for owner review)
+
+- **Finding.** In client7, the c1 warning reads "7 h 44 min out and 16 min unknown on 3 Nov".
+  - 7 h 44 min + 16 min = 8 h, the whole charging day. The out-of-service part (08:16-16:00) is right.
+  - The 16 min are 08:00-08:16, before the fault. The generated full-day heartbeat carries no connector status for c1 until the fault notice at 08:16.
+  - The product is correct not to guess a status it never received. This is a data and story detail, not a product defect.
+  - The D-E5.49 pin assumed status "known all day". The data does not give that.
+- **Thursday demo:** use **client7**. The D-ANY.6 fallback covers failures that make the build untrustworthy. This one is an honest sentence about real data gaps, and the other 53 checks pass. client6 stays untouched as the fallback for any other failure.
+- **Presenter line:** "c1 was out of service from 08:16 for the rest of the charging day; the first 16 minutes have no status reading; repair still pending."
+- **17 Nov fix (data, about 0.1 unit, Sonnet):**
+  - The EV-HB generator emits a c1 Available status with the day's first heartbeat at 08:00, so status is known all day.
+  - Keep the D-E5.49 pin at 0 min unknown. Do not relax it.
+  - Rerun CO-10 on the Monday build.
+
+Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
