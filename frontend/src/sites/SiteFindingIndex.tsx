@@ -43,6 +43,8 @@ import {
   ShowAll,
   StepStrip,
   currentnessWords,
+  DATA_GAP_LIST_WORDS,
+  dayGapWords,
   readResultWords,
   type ExactReference,
   type ProductWords,
@@ -56,7 +58,7 @@ import type {
   FindingIndexRow,
   FindingIndexScope,
 } from "./findingIndexClient";
-import { gapDays, listsRows } from "./findingIndexClient";
+import { dataGapDays, gapDays, isDataGap, listsRows } from "./findingIndexClient";
 import { LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 import "./w1ux02-findings-index.css";
@@ -211,7 +213,8 @@ export const OVERVIEW_PARTIAL = "A Finding that reaches into a neighbouring day 
 
 /** IDX-GAPS: "{g} of {N} days in this window are not checked yet, …"; null when no requested day is a gap. */
 export function partialGapSentence(body: FindingIndexBody): string | null {
-  const g = gapDays(body).length;
+  // PB-4: a data-gap day is named by its data fact (`dataGapDays`), never as "not checked yet".
+  const g = gapDays(body).filter((x) => !isDataGap(x)).length;
   const n = body.discovery.requested_days.length;
   if (g === 0) return null;
   return `${g} of ${n} ${n === 1 ? "day" : "days"} in this window ${g === 1 ? "is" : "are"} not checked yet, so nothing is concluded about ${g === 1 ? "it" : "them"}.`;
@@ -433,8 +436,13 @@ export function Basis({ body }: { body: FindingIndexBody }) {
 }
 
 /** One day of the window as a step: checked and matched, waiting, failed or not known. */
-function dayStep(day: FindingIndexDayWatermark): Step {
+function dayStep(day: FindingIndexDayWatermark, gapReason?: string): Step {
   const label = plainDay(day.day);
+  const gap = dayGapWords(gapReason);
+  if (day.status === "CURRENT" && gap !== null) {
+    // PB-4: the run was selected but its readings could not be analysed: the data fact, never "Checked".
+    return { label, state: "not-known", detail: gap.short.charAt(0).toUpperCase() + gap.short.slice(1) };
+  }
   if (day.status === "CURRENT") {
     return day.s4.matched
       ? { label, state: "done", detail: "Checked, and Findings matched" }
@@ -454,7 +462,10 @@ function DayStrip({ body, rows = false }: { body: FindingIndexBody; rows?: boole
   // W1-F3 height phase: the days read as one compact line of marks; a day that is not done keeps its detail.
   return (
     <div className="v69-step-line">
-      <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />
+      <StepStrip
+        title="Days in this window"
+        steps={body.watermarks.days.map((day) => dayStep(day, dataGapDays(body).find((g) => g.day === day.day)?.reason))}
+      />
     </div>
   );
 }
@@ -809,12 +820,22 @@ function Partial({
   const newest = body.rows[0];
   const firstPage = links.scope({ ...scope, cursor: null });
   const sentence = partialGapSentence(body);
+  const dataGaps = dataGapDays(body);
+  // PB-4: only data-gap days (no system work outstanding) read "could not be analysed", never "not checked yet".
+  const onlyData = dataGaps.length > 0 && (body.gaps ?? []).every((g) => isDataGap(g) || g.reason === "WITHHELD_FINDING");
   return (
     <View
       state="partial"
       attributes={{ "data-site-findings": "partial" }}
       claim={total === 0 ? "No Findings on the assessed days" : `${total} ${total === 1 ? "Finding" : "Findings"} on the assessed days`}
-      status={<ProductStatus inline words={currentnessWords("PARTIAL")} scope={windowScope(scope)} asOf={body.knowledge_at} />}
+      status={
+        <ProductStatus
+          inline
+          words={onlyData ? DATA_GAP_LIST_WORDS : currentnessWords("PARTIAL")}
+          scope={windowScope(scope)}
+          asOf={body.knowledge_at}
+        />
+      }
       body={
         <>
           {shown > 0 ? <Rows body={body} links={links} /> : null}
@@ -835,7 +856,16 @@ function Partial({
           ) : null}
           <Gap>
             {sentence === null ? null : <p data-site-findings-gap-days>{sentence}</p>}
-            {body.withheld ? <p>{PARTIAL_WITHHELD}</p> : sentence === null ? <p>{OVERVIEW_PARTIAL}</p> : null}
+            {dataGaps.map((g) => (
+              <p key={g.day} data-site-findings-data-gap={g.day}>
+                {plainDay(g.day)}: {dayGapWords(g.reason)?.label}.
+              </p>
+            ))}
+            {body.withheld ? (
+              <p>{PARTIAL_WITHHELD}</p>
+            ) : sentence === null && dataGaps.length === 0 ? (
+              <p>{OVERVIEW_PARTIAL}</p>
+            ) : null}
           </Gap>
           <DayStrip body={body} rows />
         </>

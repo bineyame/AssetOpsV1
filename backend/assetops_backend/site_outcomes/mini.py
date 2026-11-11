@@ -134,6 +134,11 @@ GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
 GAPS_PARTLY_CHECKED = "{p} of the last {n} days {verb} only partly checked"
 _COUNTED_GRADES = frozenset({"COMPLETE", "PARTIAL"})  # LOW is "too little data, not counted"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
+#: PB-7: when the Site's readings began inside the window, the count runs from that day (`since readings began on
+#: {d}: {g} of {n} days …`); the "of the last {n} days" wording becomes "of {n} days" after the prefix.
+GAPS_SINCE = "since readings began on {d}: "
+GAPS_NO_READINGS_SINCE = "{g} of {n} days {verb} no checked readings yet"
+GAPS_PARTLY_CHECKED_SINCE = "{p} of {n} days {verb} only partly checked"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
 FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
@@ -211,6 +216,9 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG5_PARTIAL, MG2_LONGER.format(m="12"), MG2_
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
         GAPS_PARTLY_CHECKED.format(p=1, n=31, verb="is"), GAPS_PARTLY_CHECKED.format(p=28, n=31, verb="are"),
+        "Since readings began on 30 Oct: " + GAPS_NO_READINGS_SINCE.format(g=3, n=11, verb="have"),
+        "Since readings began on 30 Oct: " + GAPS_PARTLY_CHECKED_SINCE.format(p=1, n=11, verb="is"),
+        "Not available yet · " + GAPS_SINCE.format(d="30 Oct") + "1 of 11 days is not assessed yet",
         *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
         SALES_NO_USERS, SALES_NONE_DECLARED, GROW_NONE_HEADLINE, GAPS_NONE_DECLARED,
         SALES_NO_READINGS.format(names="Grain mill"),
@@ -256,6 +264,8 @@ class MiniPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
+    #: PB-7: the Site's first accepted reading instant (`ChainRequest.readings_began`), or None when not known.
+    readings_began: Callable[[], datetime | None] = lambda: None
     pin: tuple[Any, Any] | None = None                                           # the route's pinned Finding
     #: WALK1-3 §4.3: the LOAD components declared `supply-use = PRODUCTIVE` in the Foundation in force at an instant
     #: ({"asset_code", "asset_id", "name"}), their accepted `feeder_demand` readings in `[lo, hi)`, and the
@@ -361,38 +371,53 @@ class Reads:
 
 # ---------------------------------------------------------------- Finding index (IDX-GAPS U2)
 
-def finding_gap_line(day_facts: Any, requested: int) -> dict[str, Any] | None:
+def finding_gap_line(day_facts: Any, requested: int, began: date | None = None) -> dict[str, Any] | None:
     """R8 / CH5a1-R Q9: the note under the board rows naming the requested days whose day grade is PENDING or
     NO_DATA (a missing row is NO_DATA), or None. "No checked readings" when no gap day holds a PENDING row.
     The index's PARTIAL-mode withholding is not reproduced (CH5a1-R Q4), so `withheld` is always False.
     K10 v2 (R3t): when any window day has a declared-absent measure, the stated note `GAPS_NONE_DECLARED` follows
-    the gap text (or stands alone, with no days, when there is no gap day)."""
+    the gap text (or stands alone, with no days, when there is no gap day).
+    PB-7: `began` is the Site-local day of the Site's first accepted reading. When it falls after the first window
+    day, `requested = min(requested, days from it to the board day)`, the days before it are not gaps, and the line
+    reads `since readings began on {d}: {g} of {n} days …`."""
     if day_facts is None:
         return None
     declared = getattr(day_facts, "none_declared", None) or {}
     note = any(declared.get(d) for d in day_facts.days)
-    if not day_facts.gaps:
+    since = None
+    gap_days = tuple(day_facts.gaps)
+    if began is not None and day_facts.days and began > day_facts.days[0]:
+        requested = max(0, min(requested, (day_facts.days[-1] - began).days + 1))
+        gap_days = tuple(d for d in gap_days if d >= began)
+        since = GAPS_SINCE.format(d=day_month(began))
+    if not gap_days:
         return {"text": GAPS_NONE_DECLARED, "days": [], "withheld": False} if note else None
-    g = len(day_facts.gaps)
-    pending = any("PENDING" in subjects.values() for d in day_facts.gaps
+    g = len(gap_days)
+    pending = any("PENDING" in subjects.values() for d in gap_days
                   for subjects in (day_facts.grades.get(d) or {}).values())
     if not pending:
         # D-E4.6: a day with some counted measure is only partly checked, not a day without readings.
-        part = sum(1 for d in day_facts.gaps
+        part = sum(1 for d in gap_days
                    if any(gr in _COUNTED_GRADES for subjects in (day_facts.grades.get(d) or {}).values()
                           for gr in subjects.values()))
         none = g - part
+        no_readings, partly = ((GAPS_NO_READINGS, GAPS_PARTLY_CHECKED) if since is None
+                               else (GAPS_NO_READINGS_SINCE, GAPS_PARTLY_CHECKED_SINCE))
         tiers = []
         if none:
-            tiers.append(GAPS_NO_READINGS.format(g=none, n=requested, verb="has" if none == 1 else "have"))
+            tiers.append(no_readings.format(g=none, n=requested, verb="has" if none == 1 else "have"))
         if part:
-            tiers.append(GAPS_PARTLY_CHECKED.format(p=part, n=requested, verb="is" if part == 1 else "are"))
+            tiers.append(partly.format(p=part, n=requested, verb="is" if part == 1 else "are"))
         text = " · ".join(tiers)
+        if since is not None:
+            text = since[0].upper() + since[1:] + text
     else:
         text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
+        if since is not None:
+            text = text.replace(f"{g} of {requested} days", since + f"{g} of {requested} days", 1)
     if note:
         text += " · " + GAPS_NONE_DECLARED
-    return {"text": text, "days": sorted(d.isoformat() for d in day_facts.gaps), "withheld": False}
+    return {"text": text, "days": sorted(d.isoformat() for d in gap_days), "withheld": False}
 
 
 # ---------------------------------------------------------------- formatting
@@ -435,6 +460,13 @@ def site_zone(name: str | None) -> ZoneInfo | None:
 
 
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _local_day(instant: datetime | None, zone: str | None) -> date | None:
+    """PB-7: an instant as its Site-local date (UTC without a zone); None stays None."""
+    if instant is None:
+        return None
+    return (instant.astimezone(ZoneInfo(zone)) if zone else instant.astimezone(timezone.utc)).date()
 
 
 def day_month(d: Any) -> str:
@@ -656,7 +688,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       signals_extra=signals, headline=headline, headline_money=headline_money, subline=subline,
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
                       findings_settled=findings_ok, objectives=objectives,
-                      finding_gaps=finding_gap_line(day_facts, FINDING_WINDOW_DAYS), readings=readings,
+                      finding_gaps=finding_gap_line(day_facts, FINDING_WINDOW_DAYS,
+                                                    _local_day(reads.call("readings_began", ports.readings_began),
+                                                               zone_name or site_timezone)),
+                      readings=readings,
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
                       work_window=(work_lo, end),  # WALK1-3b §A2.3: (a), then (b), then (c)

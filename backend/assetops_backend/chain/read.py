@@ -329,6 +329,9 @@ class ChainReadPort(Protocol):
     #                        known_at: datetime | None) -> frozenset[date]
     # The days of `days` whose site setup declares no subject of `measure` at the day's local start and end (exactly
     # one Foundation revision in force at each bound, known at `known_at`). Never infers absence from a missing row.
+    # PB-7, OPTIONAL (read by `getattr`; without it the board keeps the 31-day count):
+    # def readings_began(self, tenant_id: UUID, site_id: UUID, known_at: datetime | None) -> datetime | None
+    # The measurement start of the Site's earliest ACCEPTED reading decided by `known_at`.
 
 
 @dataclass(frozen=True)
@@ -422,6 +425,14 @@ class ChainRequest:
         `EstateSnapshot.evidence_cutoff`), the cold/EV input of `site_cutoff`; one memoised call."""
         return read_scope.memo("chain.evidence_cutoff", self.reader.ports.evidence_cutoff, self.tenant_id, site_id,
                                self.k)
+
+    def readings_began(self, site_id: UUID) -> datetime | None:
+        """PB-7: the start of the Site's first accepted reading known at `k`, or None (no reading, or a port without
+        the OPTIONAL `readings_began`); one memoised call."""
+        port = getattr(self.reader.ports, "readings_began", None)
+        if port is None:
+            return None
+        return read_scope.memo("chain.readings_began", port, self.tenant_id, site_id, self.k)
 
     def placement_facts(self, site_id: UUID, revision_ids: Sequence[str]) -> Mapping[str, Any]:
         """CH-5a2b R1 (§B14 Q1/Q2): per Finding revision id (lowercase) its source provenance state and

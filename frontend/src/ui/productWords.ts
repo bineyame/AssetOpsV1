@@ -143,6 +143,60 @@ export function currentnessWords(code: string | null | undefined): ProductWords 
   return lookup(CURRENTNESS, code);
 }
 
+// --- Day gaps: why a day holds no usable result (D-E5.46) ------------------
+
+/** The full words lead (Site, Findings, day boards); `short` is the Portfolio / coverage / money form. */
+export interface DayGapWords extends ProductWords {
+  short: string;
+}
+
+const DAY_GAP: Readonly<Record<string, Entry & { short: string }>> = {
+  NO_READINGS: {
+    label: "No readings received for this day",
+    short: "no readings",
+    sentence: "Nothing is concluded about this day.",
+    tone: "limited",
+  },
+  READINGS_CONFLICT: {
+    label: "Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed",
+    short: "conflicting readings",
+    sentence: "Nothing is concluded about this day.",
+    tone: "limited",
+  },
+  NOT_ENOUGH_READINGS: {
+    label: "Not enough readings received to analyse this day",
+    short: "not enough readings",
+    sentence: "Nothing is concluded about this day.",
+    tone: "limited",
+  },
+  // "Not analysed yet" is kept for system work only.
+  NOT_ANALYSED: {
+    label: "Not analysed yet",
+    short: "not analysed yet",
+    sentence: "This day has not been analysed yet, and nothing is concluded about it.",
+    tone: "waiting",
+  },
+};
+
+/** The data-fact gap reasons: a day the system cannot analyse from what was received, not system work. */
+export const DATA_GAP_REASONS: ReadonlySet<string> = new Set(["NO_READINGS", "READINGS_CONFLICT", "NOT_ENOUGH_READINGS"]);
+
+/** Words for a day's gap reason; null for a code that is not a day-gap reason. */
+export function dayGapWords(reason: string | null | undefined): DayGapWords | null {
+  if (!reason || !Object.prototype.hasOwnProperty.call(DAY_GAP, reason)) return null;
+  return { ...DAY_GAP[reason], code: reason, unrecognised: false };
+}
+
+/** A list whose only gaps are data-fact days: it uses the analysed days, and names the others by their data fact. */
+export const DATA_GAP_LIST_WORDS: ProductWords = {
+  label: "Some days could not be analysed",
+  sentence:
+    "This list uses the days that were analysed. The days whose readings could not be analysed are named below, and nothing is concluded about them.",
+  tone: "limited",
+  code: "PARTIAL",
+  unrecognised: false,
+};
+
 // --- Read results: refused, unavailable and proved-empty are different -----
 
 export type ReadResultKind = "refused" | "unavailable" | "not-found" | "proved-empty";

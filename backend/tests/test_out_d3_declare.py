@@ -81,7 +81,9 @@ def test_principal_and_demo_file() -> None:
         ("KOBO-001", "MG-5", "unserved_critical_kwh", "0", None),
         ("COLD-LAB-001", "CC-6", "backup_start_failures", "0", None),
         ("EV-LAB-001", "EV-1", "interrupted_sessions", "0", None),
-        ("EV-LAB-001", "EV-2", "energy_cost_per_km", "0.20", "USD")]
+        ("EV-LAB-001", "EV-2", "energy_cost_per_km", "0.20", "USD"),
+        ("KISIWA-001", "MG-2", "avoidable_generator_minutes", "0", None),  # DATA-6
+        ("KISIWA-001", "MG-5", "unserved_critical_kwh", "0", None)]
     assert not any(r["outcome_key"] == "CC-1" for r in rows)  # CC-1 reads the chamber range (U4)
     for r in rows:
         assert r["source"] == "DECLARED"
@@ -125,7 +127,7 @@ def test_fixture_skips_unimported_sites_and_is_idempotent(capsys) -> None:
     out = lines(capsys)
     assert [o.get("inserted") for o in out if "skipped" not in o] == [True, True, True]
     assert [o["site_code"] for o in out if o.get("skipped") == "SITE_NOT_IMPORTED"] == [
-        "COLD-LAB-001", "EV-LAB-001", "EV-LAB-001"]
+        "COLD-LAB-001", "EV-LAB-001", "EV-LAB-001", "KISIWA-001", "KISIWA-001"]
     assert all(c[1] is SYSTEM_DECLARER and c[2] == "SYSTEM_FIXTURE" for c in store.calls)
     assert declare_objective.main(["fixture", "--file", str(DEMO), "--site", "kobo-001"], store=store) == 0
     assert [o["inserted"] for o in lines(capsys)] == [False, False, False]

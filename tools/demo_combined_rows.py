@@ -520,13 +520,18 @@ def kis8_wording(bodies: dict[str, object], site: str = "KISIWA-001") -> dict:
     return {"bodies": len(bodies), "naming_site": len(naming), "hits": 0}
 
 
-def kisiwa_cohort(windows: list[dict]) -> dict:
+def kisiwa_cohort(windows: list[dict], unselected: list | tuple = ()) -> dict:
     """KISIWA-COHORT (D-E5.30, DATA-1): every Kisiwa `dispatch` window whose day has readings has its latest
     selection `SELECTED_UNIQUE` with no `REPORTS_OVERLAP` limit in its cohort (DATA-1 fix H1). `windows`: one dict
     per selected window (`window_start`, `cohort_status` of the latest selection, `has_readings`, `limits`: the
-    selected run's stored cohort limits). Not vacuous: at least one window has readings."""
+    selected run's stored cohort limits). Not vacuous: at least one window has readings.
+    DATA-1 L2: `unselected` is `(UTC day, reading count)` per day holding readings that no `dispatch` selection
+    window covers; any such day fails the row."""
     read = [w for w in windows if w.get("has_readings")]
     assert read, ("KISIWA-COHORT: no Kisiwa dispatch window with readings", len(windows))
+    missing = [(str(d), n) for d, n in unselected]
+    assert not missing, ("KISIWA-COHORT: Kisiwa days with readings and no dispatch selection", missing[:5],
+                         len(missing))
     bad = [(str(w.get("window_start")), w.get("cohort_status")) for w in read
            if w.get("cohort_status") != "SELECTED_UNIQUE"]
     assert not bad, ("KISIWA-COHORT: Kisiwa days with readings not SELECTED_UNIQUE", bad)

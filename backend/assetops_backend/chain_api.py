@@ -188,7 +188,8 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
                                             verification=_verification(req, ref, rows, ids))
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error
-        return {"board": board, "window": w, "req": req, "facts": facts, "threads": threads, "actions": actions}
+        return {"board": board, "window": w, "req": req, "facts": facts, "threads": threads, "actions": actions,
+                "known_at": known_at}  # BL-50: the "Why?" reads threads at the same request cutoff
 
     def site_trace(ref: SiteRef, parts: dict[str, Any], category: str) -> why.Trace:
         """`chain.why.site_trace` over the Site chain's reads (its thread history, Actions and `trace_facts`)."""
@@ -196,7 +197,8 @@ def build_chain_router(service: SiteOutcomeBoardService | None, registry: Import
         try:
             return why.site_trace(req, ref, category=category, board=parts["board"], facts=parts["facts"],
                                   site_measures=_measures(ref), clean_measures=clean_measures(),
-                                  verification=lambda rows, ids: _verification(req, ref, rows, ids))
+                                  verification=lambda rows, ids: _verification(req, ref, rows, ids),
+                                  known_at=parts["known_at"])
         except (SiteStoreUnavailable, *unavailable) as error:
             raise _refuse(503, "SITE_CHAIN_UNAVAILABLE", str(error)) from error
 

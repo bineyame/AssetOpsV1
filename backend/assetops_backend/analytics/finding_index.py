@@ -62,6 +62,11 @@ AMOUNT_UNAVAILABLE = {"state": "UNAVAILABLE",
 PARTIAL_STATEMENT = ("Rows from assessed days only: a Finding that touches a day listed in gaps is not shown, and the "
                      "count covers the shown rows only.")
 _RANK = (FAILED, STALE, PENDING, UNASSESSED)
+# PB-4 / D-E5.46: a requested day whose selected run is CURRENT in S3 but whose window could not be analysed for a
+# data fact. It is a gap (the list is PARTIAL, never CURRENT) named by the data fact, never "not analysed yet".
+READINGS_CONFLICT, NOT_ENOUGH_READINGS = "READINGS_CONFLICT", "NOT_ENOUGH_READINGS"
+DATA_GAP_REASONS = frozenset({READINGS_CONFLICT, NOT_ENOUGH_READINGS})
+_INDETERMINATE = "INDETERMINATE"
 
 
 class IndexRefusal(Exception):
@@ -280,6 +285,30 @@ def gap_days(inspected: list[dict[str, Any]], reach: Callable[[date], tuple[bool
     return gaps
 
 
+def status_of(inspected: list[dict[str, Any]], day: date) -> str | None:
+    return next((d["status"] for d in inspected if d["day"] == day.isoformat()), None)
+
+
+def data_gap_reason(read: dict[str, Any]) -> str | None:
+    """PB-4 / D-E5.46: why a selected run's day holds no analysis, as a data fact, or None for an analysed day.
+    READINGS_CONFLICT: the cohort is AMBIGUOUS, or the window is INDETERMINATE with `AMBIGUOUS_COHORT` or
+    `GENERATOR_SERIES_AMBIGUOUS`. NOT_ENOUGH_READINGS: the cohort is EMPTY, or the window is INDETERMINATE with
+    `NO_COHORT` or `NO_GENERATOR_STATE`."""
+    rev = read.get("window_assessment") or {}
+    claim = rev.get("claim_level") or (rev.get("result") or {}).get("claim_level")
+    cohort = (read.get("selection") or {}).get("cohort_status")
+    limits = [str(x) for x in read.get("limitations") or []]
+
+    def has(*codes: str) -> bool:
+        return claim == _INDETERMINATE and any(x.startswith(f"{c}:") for x in limits for c in codes)
+
+    if cohort == "AMBIGUOUS" or has("AMBIGUOUS_COHORT", "GENERATOR_SERIES_AMBIGUOUS"):
+        return READINGS_CONFLICT
+    if cohort == "EMPTY" or has("NO_COHORT", "NO_GENERATOR_STATE"):
+        return NOT_ENOUGH_READINGS
+    return None
+
+
 def _token(payload: dict[str, Any]) -> str:
     return "sfi2-" + hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
@@ -339,13 +368,22 @@ class FindingIndexService:
         rows = sorted((h for h in canonical if h["episode_start"] < request.end and h["episode_end"] > request.start),
                       key=sort_key)
         gaps = gap_days(inspected, lambda day: candidate_reach(window(day), day))
+        asked = requested_days(request.start, request.end)
+        # PB-4: a requested CURRENT day that could not be analysed for a data fact (D-E5.46 precedence: a day
+        # still waiting on the system keeps NOT_CURRENT). It holds no analysis to wait for, so it withholds nothing.
+        for d in asked:
+            if d not in gaps and status_of(inspected, d) == CURRENT:
+                why = data_gap_reason(window(d))
+                if why is not None:
+                    gaps[d] = (CURRENT, why)
+        pending = {d for d, (_, why) in gaps.items() if why not in DATA_GAP_REASONS}
         eligible, withheld = rows, False
         if not moved and gaps:
-            if any(d not in gaps for d in requested_days(request.start, request.end)):
+            if not pending or any(d not in gaps for d in asked):
                 status, eligible, extra = PARTIAL, [], {}
                 for h in rows:
                     hit = touched(h, days)
-                    if hit & gaps.keys():
+                    if hit & pending:
                         withheld = True
                         extra.update({d: (CURRENT, "WITHHELD_FINDING") for d in hit if d not in gaps})
                     else:
