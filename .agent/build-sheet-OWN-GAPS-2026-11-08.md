@@ -3985,3 +3985,51 @@ the one estate reader still on UTC days, so this is two day definitions on one s
   492 once on client6 with the coverage block skipped, so the marker hides nothing else. DATA-12 removes the map.
 
 Decisions logged for owner review: **D-E5.38** to **D-E5.40**.
+
+## D-E5.41 to D-E5.44: DATA-12 review rulings (Architect, Claude, 2026-11-11; review ACCEPT WITH NOTES on fd85f1d31)
+
+### D-E5.41 Fix before merge, one Sonnet round (card DATA-12-FX, about 0.35 unit)
+- Not merged as is. M1 would regress Kisiwa honesty on the current rule: today an unselected UTC day is a gap, and with the grades it reads CURRENT with its findings and money silently missing.
+- Lane A is not blocked. A2 (PB-4 + PB-7 + BL-50 + L2) starts now from main and rebases once DATA-12 merges. Its only shared file is `tools/demo_combined_finish.py`.
+
+### D-E5.42 Day rule, completing D-E5.38 (the M1 and L4 answers)
+For each requested local day D (`window_days`, the CH-5a2a frame: the UTC dispatch day with D's calendar date is D's analysis window), the grade decides first:
+- **NOT_EXPECTED:** dropped from both requested and checked. The Site does not operate that day.
+- **NO_DATA:** a gap, reason `NO_READINGS`.
+- **PENDING:** the Site is PENDING_RECOMPUTE.
+- **COMPLETE, PARTIAL or LOW, but the dispatch day with D's date has no available selection:** a gap, reason `NOT_ANALYSED` (the words "not analysed yet"). This is the M1 fix.
+- **Otherwise:** checked.
+
+The selection, match-pass and S3 rules are unchanged.
+
+### D-E5.43 L1 and L3 fixed in the same round; L2 deferred
+- **L1:** grades are read at `req.known_at` on page one (the claims' key) and at `k` on cursor pages.
+- **L3:** `analytics/finding_index.touched` takes an optional `tz`. When gap days are local, the day bounds are Site-local midnights ± `CONTINUITY_TOLERANCE`. Without this, Kobo night findings starting between local 00:00 and 03:20 are wrongly withheld.
+- **L2** (module-global provider in `main.py`) goes to the backlog, after 17 Nov. It has no effect in a single served app.
+
+**Card DATA-12-FX (Sonnet, same branch and worktree `AssetOpsV1-data12`):**
+1. `coverage.py`: apply the D-E5.42 rule.
+2. Callers: L1.
+3. `touched(..., tz=None)` with local bounds when given; pass the Site tz from the gap-day caller.
+4. Tests, each pinned:
+   - a local day with data whose same-date dispatch day has no selection reads PARTIAL with `gaps == [D]` and reason `NOT_ANALYSED`;
+   - a NOT_EXPECTED day changes neither requested nor checked;
+   - a UTC+3 finding starting at local D+1 01:00 is not withheld when D is a gap;
+   - a live request makes one `chain.day` read per mini-grid Site (count the calls).
+5. Coordinator verifies the diff; a fresh Sonnet re-review covers M1 and L3 only.
+
+### D-E5.44 Money on a partly covered Site: owner question (story-visible)
+- **Today's rule (COV-PARTIAL §2.5)** withholds a PARTIAL Site's money for the whole range:
+  - `financials.py:420-426` keeps only CURRENT and HISTORICAL;
+  - `EstatePortfolio.tsx` shows "Partly checked · value shown once every day is checked".
+- **With DATA-12, Kobo is PARTIAL on any week that contains 4 Nov.** So the default week loses Kobo's money: the client script's main money beat.
+- **The Architect's view:** withholding is honest but unhelpful for an executive. The honest and useful form is money for the analysed days only, named as such, never extrapolated to the missing day. It is a reversal of an earlier ruling, so the owner decides.
+- **Card if approved: PARTIAL-MONEY** (Opus, about 0.5 unit, lane A after A2, before 17 Nov).
+  - Financials and the Portfolio row and cards sum the lines of checked days only.
+  - Each label reads `{amount} for {n} of {m} days analysed · {gap list} not analysed`.
+  - The no-total and receipt rules are unchanged.
+  - It is folded into AR-4's design later.
+- **Until the owner answers:** DATA-12 merges with today's withholding, and the script refresh moves the money beat to ranges without a gap.
+- **Question for the owner (plain language):** "When one day in a week has no readings, the Portfolio now hides that Site's money for the whole week (Kobo's week of 2-8 Nov, because 4 Nov has no readings). Option 1: keep hiding it until every day is analysed. Option 2 (recommended): show the money for the days that were analysed, clearly labelled '6 of 7 days analysed · 4 Nov not analysed', never estimating the missing day. Option 2 is about half a day of work before 17 Nov."
+
+Decisions logged for owner review: **D-E5.41** to **D-E5.44**.
