@@ -366,10 +366,15 @@ def test_8_finish_build_after_children_path(monkeypatch, sites: list[str], after
     assert called == (["after", "finish"] if after else ["finish"])
 
 
-def test_8_objectives_never_see_kisiwa_and_links_use_route_forms() -> None:
+def test_8_objectives_include_kisiwa_and_links_use_route_forms() -> None:
     story = dc.resolve_story(DB_NOW, kisiwa=True)
     story["sites"] = ["kobo", "cold", "ev", "kisiwa"]
-    assert set(dc.objectives_instants(story)) == {"KOBO-001", "COLD-LAB-001", "EV-LAB-001"}
+    instants = dc.objectives_instants(story)  # DATA-6: Kisiwa declares MG-2 and MG-5 at install + 30 min
+    assert set(instants) == {"KOBO-001", "COLD-LAB-001", "EV-LAB-001", "KISIWA-001"}
+    assert instants["KISIWA-001"] == dc.at(story["kisiwa"]["install_at"]) + dc.TARIFF_AFTER_INSTALL
+    assert instants["KISIWA-001"] < dc.at(story["kisiwa"]["run1_start"])
+    three = {**story, "sites": ["kobo", "cold", "ev"]}
+    assert set(dc.objectives_instants(three)) == {"KOBO-001", "COLD-LAB-001", "EV-LAB-001"}
     links = dc.story_links(story, [], None, 5490, {"finding": {"id": "f-9"}})
     kisiwa = [(label, url) for label, url in links if "KISIWA-001" in url]
     assert len(kisiwa) == 6  # OWN-GAPS R2-DS1a 1: + the story-nights Findings and the story-hour Service links

@@ -447,6 +447,11 @@ def expected_site_codes(kisiwa: bool) -> list[str]:
     return sorted([KOBO, COLD, EV] + ([KISIWA_SITE] if kisiwa else []))
 
 
+def expected_objective_site_count(kisiwa: bool) -> int:
+    """DATA-6: the Sites with declared objectives: the core three, plus Kisiwa (MG-2, MG-5) iff present."""
+    return 4 if kisiwa else 3
+
+
 def _estate(ctx: Ctx, lo: datetime, hi: datetime) -> tuple[dict, dict, dict, dict]:
     """(portfolio, outcome summary, Finding coverage by Site code, summary Site by code) over [lo, hi)."""
     days = {"from": iso(lo), "to": iso(hi)}
@@ -476,7 +481,8 @@ def co6(ctx: Ctx) -> dict:
     kisiwa = _kisiwa_present(ctx)
     assert codes == expected_site_codes(kisiwa), codes  # DIESEL-1-R3p: the core three, plus Kisiwa iff present
     assert double_count_violations(body, financials=None) == []
-    assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
+    want = expected_objective_site_count(kisiwa)  # DATA-6: Kisiwa declares MG-2 and MG-5
+    assert summary["objective_site_count"] == want, (summary.get("objective_site_count"), want)
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == basis.get(EV) == "PERIOD", basis  # CH6b1-R Q2: the requested window
     # the gap days, from the data: Kobo days in the week with no run (so no available selection)
