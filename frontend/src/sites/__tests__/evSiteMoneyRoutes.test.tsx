@@ -382,7 +382,7 @@ describe("W2-07 EV Site routes", () => {
     expect(srcRows.map((r) => r.querySelector("th")?.firstChild?.textContent)).toEqual(["Connector 1", "Connector 2", "Site meter", "Billing system"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Mixed", "Recent", "Unknown", "Unknown"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[1].textContent)).toEqual(["Good", "Good", "No fact", "No fact"]);
-    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "No payment feed"]);
+    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "Payment records are not connected yet"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[3].textContent)).toEqual(["Sessions", "Sessions", "Site power", "Collections not assessed"]);
     expect(srcRows[0].querySelector(".ev-tone--amber")?.textContent).toBe("Mixed");
     expect(sources.querySelector("[data-ev-contact-checked]")?.textContent).toBe("Contact checked at 6 Oct, 09:00");
@@ -555,7 +555,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("KES");
     const cards = Array.from(document.querySelectorAll("[data-ev-fin-card] .v69-metric__value")).map((x) => x.textContent);
-    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
+    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not connected yet"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
     expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 estimated charging income", "What-if", "Metered with complete coverage", "Energy ↗"]);
@@ -588,6 +588,7 @@ describe("W2-07 EV Site routes", () => {
     // W2-F M5: the displayed withheld scenario row is counted (unpriced context), never a priced revision.
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("Displayed rows include unpriced context");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
     expect(main().textContent).not.toContain("8.33");
 
@@ -595,9 +596,12 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "No analysed charging session in this window", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
-    expect(strip()).toContain("Currency not declared");
+    // PB-6: with no amount there is no currency lead (no empty " USD · selected window").
+    expect(strip()).not.toContain("Currency not declared");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
+    expect(strip()).toContain("Selected window · charging income estimate only");
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No charging income estimate yet");
 
     // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
@@ -716,7 +720,7 @@ describe("W2-07 EV Site routes", () => {
     const next = panelTitled("Next step");
     expect(next.textContent).toContain("Recover the missing session end report");
     const rec = next.querySelector('[data-link-unavailable="Review recommendation"]') as HTMLElement;
-    expect(rec.getAttribute("aria-label")).toBe("Review recommendation, Not available yet");
+    expect(rec.getAttribute("aria-label")).toBe("Reviewing a recommendation needs sign-in, which is coming");
     expect(rec.querySelector("a, button")).toBeNull();
     expect(strip()).toContain("Evidence limited");
     expect(strip()).toContain("Example data");

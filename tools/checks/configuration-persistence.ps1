@@ -912,6 +912,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $snapshotTables = @('site_day_snapshot')
     $snapshotInsertsSeen = @{}
     foreach ($table in $snapshotTables) { $snapshotInsertsSeen[$table] = 0 }
+    # ANY-1 AR-1 (architect answer 2026-11-10 section 4; migration 0059): the period read store is the sole runtime
+    # writer of the stored read-period tables, INSERT-only (the 0059 triggers refuse UPDATE/DELETE; no upsert,
+    # TRUNCATE, MERGE, COPY or DDL), and it writes no other table. Each table keeps one owner INSERT (anti-vacuity below).
+    $periodWriter = "$backendRoot/chain/adapters/postgres_period_read_store.py"
+    $periodTables = @('site_period_read', 'revision_provenance')
+    $periodInsertsSeen = @{}
+    foreach ($table in $periodTables) { $periodInsertsSeen[$table] = 0 }
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -971,7 +978,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
         $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter,
-        $responseWriter, $fuelBalanceWriter, $trialComparisonWriter)
+        $responseWriter, $fuelBalanceWriter, $trialComparisonWriter, $periodWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1038,13 +1045,14 @@ function Invoke-ConfigurationPersistenceCheck {
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
         $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
-        $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0; $responseWriter = 0; $fuelBalanceWriter = 0 }
+        $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0; $responseWriter = 0; $fuelBalanceWriter = 0
+        $periodWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
         $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false
-        $eventWriter = $false; $responseWriter = $false; $fuelBalanceWriter = $false }
+        $eventWriter = $false; $responseWriter = $false; $fuelBalanceWriter = $false; $periodWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1132,6 +1140,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $snapshotWriter -and $line -match $actionForbidden) {
                 $failures.Add("The day-snapshot store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $periodWriter -and $line -match $actionForbidden) {
+                $failures.Add("The period read store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1414,6 +1426,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $snapshotInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $periodWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $periodTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The period read store only inserts into $($periodTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $periodTables -contains $target) {
+                    if ($module.Path -ne $periodWriter) {
+                        $failures.Add(("Only $periodWriter writes stored read-period table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Stored read-period table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $periodInsertsSeen[$target]++
                     }
                 }
                 if ($module.Path -eq $eventWriter) {
@@ -1719,6 +1747,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $snapshotTables) {
         if ($extractorRan -and $snapshotInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $snapshotWriter, so the day-snapshot insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($table in $periodTables) {
+        if ($extractorRan -and $periodInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $periodWriter, so the stored read-period insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }

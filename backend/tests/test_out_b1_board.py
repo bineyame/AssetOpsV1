@@ -214,7 +214,7 @@ def test_cold_grid_and_not_measured_rows() -> None:
     # C: CC-3 is measured (R541 resolved); with no warning the Cost row has no objective declared
     assert [rows[c]["state"] for c in CATEGORIES] == ["NOT_MEASURED", "NO_OBJECTIVE", "NEEDS_ATTENTION", "WATCH"]
     grow = rows[GROW]
-    assert grow["not_measured_text"] == "Needs occupancy, storage contract, income and sales records"
+    assert grow["not_measured_text"] == "Occupancy, storage contract, income and sales records are not connected yet"
     assert grow["evidence_link"] is None and grow["headline"] is None
     assert grow["earlier"] == [] and grow["earlier_empty_text"] is None and grow["must_not_harm"] is None
     for key in ("contributors", "issues", "options", "in_hand"):
@@ -315,7 +315,7 @@ def test_ev_grid_headline_fallback_money_passthrough_and_contributors() -> None:
     assert rows[GROW]["options"] == [{"text": "Charging what-ifs", "href": "/sites/EV-LAB-001/ev/financials/scenarios"}]
     assert rows[GROW]["evidence_link"]["href"] == "/sites/EV-LAB-001/ev/financials"
     assert rows[COST]["evidence_link"] is None
-    assert rows[COST]["not_measured_text"].startswith("Energy cost per km needs odometer readings")
+    assert rows[COST]["not_measured_text"].startswith("Odometer readings are not connected yet")
 
 
 def test_secondary_headline_fallback_uses_finding_moving_lead() -> None:

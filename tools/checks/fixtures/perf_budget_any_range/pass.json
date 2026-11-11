@@ -1,0 +1,5 @@
+{"record": {"params": {"runs": 3, "store": "off", "cases": 2},
+  "cases": {
+   "any.board.0": {"family": "board_any_day", "path": "/api/sites/KOBO-001/outcome-board?date=2026-10-21", "cold_ms": [1500.0, 1900.0, 2600.0], "status": [200, 200, 200]},
+   "any.portfolio.3": {"family": "portfolio_any_range", "path": "/api/estate/portfolio?from=2026-10-07T00%3A00%3A00Z&to=2026-11-07T00%3A00%3A00Z&lens=all", "cold_ms": [1200.0, 1300.0, 1250.0], "status": [200, 200, 200]}}},
+ "expect": {"breaches": [], "not_measured": [], "verdict": "PASS"}}

@@ -297,7 +297,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const strip = main.querySelector("[data-cold-work-strip]");
     expect(text(strip?.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 2 actions");
     expect(text(strip)).toContain("Cold-chain Actions recorded at this site");
-    expect(text(strip)).toContain("Global Actions does not include cold-chain Actions yet.");
+    expect(text(strip)).toContain("Cold-room actions are listed here; the estate list adds them later.");
     // post-W6 W1-b pre-flight 10: the mini-only "Manage in Actions" link is absent on cold.
     expect(text(strip)).not.toContain("Manage in Actions");
     expect(strip?.querySelector("a")).toBeNull();

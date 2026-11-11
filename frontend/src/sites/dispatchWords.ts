@@ -69,7 +69,16 @@ export function limitationCode(limitation: string): string {
   return limitation.split(/[: ]/)[0];
 }
 
-export function limitationWords(code: string): string {
+/** PB-6 (K5): the successive-epochs reason of `cohort.py` ("central evidence does not attest that they are one physical stream"). */
+const SUCCESSIVE_EPOCHS_MARK = "does not attest that they are one physical stream";
+export const SEPARATE_SESSIONS_WORDS =
+  "Readings for this day came from two separate recording sessions of one source; they are not joined, so the day is not analysed";
+
+/** The words for one limitation code; `items` (the grouped raw limitation strings) tells the two AMBIGUOUS_COHORT reasons apart. */
+export function limitationWords(code: string, items?: readonly string[]): string {
+  if (code === "AMBIGUOUS_COHORT" && items !== undefined && items.length > 0 && items.every((i) => i.includes(SUCCESSIVE_EPOCHS_MARK))) {
+    return SEPARATE_SESSIONS_WORDS;
+  }
   return LIMITATION_WORDS[code] ?? "Another limitation is recorded; see Analysis";
 }
 

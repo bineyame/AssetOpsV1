@@ -66,8 +66,8 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
     assert repeats[0]["fault_name"] == "automatic start failure", repeats[0]
     assert repeats[0]["seen"].endswith("; the automatic start failure is still open"), repeats[0]["seen"]
     assert repeats[0]["badge"] == "RISK"
-    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair cost is not "
-                               "recorded"), cost["subline"]
+    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair costs are not "
+                               "connected yet"), cost["subline"]
     effect = next(x for x in cost["contributors"] if x["key"] == "maintenance_effectiveness")
     assert effect["text"].endswith("; the automatic start failure is still open"), effect["text"]
     start_option = [o for o in protect["options"] if o["text"] == "Witnessed automatic-start test"]

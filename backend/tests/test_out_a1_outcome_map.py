@@ -114,9 +114,9 @@ def test_catalogue_copy_passes_vocabulary() -> None:
 
 def test_row_not_measured_sentences() -> None:
     assert catalogue.row_not_measured(COLD, "GROW_REVENUE", OUTCOME_BY_KEY["CC-2"]) == (
-        "Needs occupancy, storage contract, income and sales records")
+        "Occupancy, storage contract, income and sales records are not connected yet")
     assert catalogue.row_not_measured(MINI, "GROW_REVENUE", OUTCOME_BY_KEY["MG-6"]) == (
-        "Not measured yet · no billing or payment records")
+        "Not measured yet · billing and payment records are not connected yet")
 
 
 def test_outcomes_package_is_pure() -> None:

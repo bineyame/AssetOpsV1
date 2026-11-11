@@ -1111,4 +1111,38 @@ describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-
       errors.mockRestore();
     }
   });
+
+  it("PB-5: two meters of one reading kind are told apart by their Foundation device names, not their ids", async () => {
+    const href = () => "/x";
+    const links = { dispatchDay: href, finding: href, financials: href, assumption: href, evidenceRecord: href };
+    const base = summary("2026-10-23");
+    const cov = base.context.coverage ?? [];
+    const withTwo = {
+      ...base,
+      context: {
+        ...base.context,
+        coverage: [
+          { ...cov[0], device_id: "CLINIC-METER-1", signal_id: "P", role: "load_power" },
+          { ...cov[0], device_id: "COLD-METER-1", signal_id: "P", role: "load_power" },
+          { ...cov[0], device_id: "PUMP-METER-1", signal_id: "P", role: "load_power" },
+        ],
+      },
+    };
+    render(
+      <MemoryRouter>
+        <SiteWindowOverview
+          summary={withTwo}
+          links={links}
+          onSelectDay={() => undefined}
+          deviceNames={{ "CLINIC-METER-1": "Households meter", "COLD-METER-1": "Cold store meter", "PUMP-METER-1": "Water pump meter" }}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const labels = Array.from(document.querySelectorAll(".window-timeline__label")).map((n) => n.textContent ?? "");
+    expect(labels.some((l) => l.endsWith("· Households meter"))).toBe(true);
+    expect(labels.some((l) => l.endsWith("· Cold store meter"))).toBe(true);
+    expect(labels.some((l) => l.endsWith("· Water pump meter"))).toBe(true);
+    expect(labels.join("|")).not.toMatch(/Clinic meter/i);
+  });
 });

@@ -1,5 +1,58 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 4 (Architect, Claude, 2026-11-11 ~18:00): any-range speed first, "price it" next
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-price-it-and-speed-priority-2026-11-11.md`): "i want pricing early warnings and unpriced items to be done and the speedup for any date range priortised"
+- Tonight is unchanged (D-ANY.6, build sheet): AR-0 baseline, AR-2, prepare by 22:30. The machine is reserved 22:15 to about 03:30. HON-1 and OPEN-NOW merge after the tag.
+
+**Ruling on AR-4 and PF-O2: PF-O2 is not required.**
+- PF-O2 is a new in-memory route over `summary()`. AR-4 changes what `summary()` reads (evidence and money from rows); it does not need the route.
+- The dependency was only a guard against changing the same Portfolio read twice. PF-O1/O2 stays out for 17 Nov, so there is nothing to change twice. If PF-O2 is built later, it inherits the rows.
+- PF-C is merged, so its money receipts are in place. AR-4 = 1.5 (spec) + 0.5 for parity on the PF-C receipt lines = **2.0**.
+- AR-4 needs only AR-1 merged (tonight, if the baseline parity passes). It runs in its own lane beside AR-3 (spec: "AR-3/AR-4 can run in two lanes after AR-1").
+
+**"Price it" for 17 Nov: the honest half only.**
+- PR-1 `price_action` on unpriced items: early warnings, money cells, Finding cost tiles, verification value (0.5).
+- PR-2a read-only Site price page: current prices, history, and "Prices are set by your AssetOps administrator until sign-in is available" (0.4). A v7.1 page draft goes to the owner first.
+- **Out, and why:** PR-3 write path and PR-4 recalculation-on-publish need BL-54 sign-in (a hard dependency). PR-5 "what is needed" blocks (0.5) are out unless buffer remains on Fri. Without sign-in, saving a price is not possible in the session; the presenter says so.
+
+**Order, Thu ~12:30 to Sat 20:00 (last merge), all Postgres one job at a time.**
+
+| Lane | Thu pm | Fri | Sat (to 20:00) |
+|---|---|---|---|
+| A | AR-3 + AR-6 (1.5): code started tonight; Postgres and client4 parity Thu pm | review, merge by Fri 14:00 | buffer, Sunday fix round prep |
+| C | AR-4 (2.0): code started tonight; parity Fri on client4 | Postgres and parity Fri pm (Postgres priority 2) | review, merge by Sat 16:00; held unmerged if not ACCEPTed by 20:00 |
+| B | price-page v7.1 draft to the owner (tonight); PR-1 (0.5) | PR-2a (0.4) after owner approval | FR-B trimmed (0.5), CLEAN-1 (0.25) |
+
+- **Postgres priority when slots clash:** AR-3 > AR-4 > PR-1/PR-2a > FR-B.
+- **Moves out to fit:** PR-3, PR-4, PR-5; FR-B halved (only failures in the Sat freeze suites); AR-5 (pre-load stays as the safety net). Already out: PF-O1/O2 and UQ.
+- **Honest risk:** AR-4 is the long pole. Its slack is about 4 h, and its parity gates the merge. If it slips, the Portfolio is fast for any range on coverage (AR-3) but money and evidence stay on pre-built ranges, and price-it is unaffected.
+- Price-it does not compete with AR-4: different files and lane, and only light Postgres. Both land if AR-4's parity passes first time.
+
+### Dispatch briefs (revision 4)
+
+**AR-3 + AR-6.** Opus. Wt `AssetOpsV1-ar3`, branch `task/ANY-2-AR3-AR6` from `task/ANY-1-rows` (rebase onto main after ANY-1 merges). 1.5 units.
+- Spec: `.agent/architect-answer-any-range-speed-2026-11-10.md` AR-3, AR-6, D-ANY.1-6.
+- AR-3: kind `dispatch.day` on DATA-12 graded local days (not `dispatch_days`); `coverage._mini_grid_basis` reads rows; match pass unchanged.
+- AR-6: the board's 4 work-index reads become one; Cold/EV boards under 1 s cold.
+- Kill switch: the D-ANY.6 env list (an omitted kind = old path).
+- Tonight: code and no-DB tests only, no heavy CPU after 22:15. Thu after 12:30: Postgres tests on the own `*_test` DB, then parity `--kinds dispatch.day` on client4 (never client6).
+- Packet lists the added parity cases and the `perf_budget --any-range` before/after.
+
+**AR-4 Portfolio evidence and money rows.** Opus. Wt `AssetOpsV1-ar4`, branch `task/ANY-2-AR4` from `task/ANY-1-rows` (rebase onto main after ANY-1 merges). 2.0 units.
+- Kinds `evidence.claim`, `evidence.provenance`, `money.lines`; roll-ups read by `summary()`; no PF-O2.
+- Every kind is proven byte-equal by AR-0 parity, including PF-C receipt lines and unaligned UTC windows. A kind that fails stays on the old path and is reported, never approximated.
+- Tonight: code and no-DB tests only. Postgres from Thu 12:30, after AR-3's slot; parity on client4.
+- Do not touch `estate/coverage` (AR-3's files); coordinate the shared register file by rebasing.
+
+**PR-1 + price-page draft.** Opus. Wt `AssetOpsV1-pr1`, branch `task/PR-1-price-action` from main. 0.5 unit plus the draft.
+- Spec: `.agent/architect-answer-price-it-2026-11-10.md` sections 3 and 7.
+- Tonight: a v7.1 price-page mockup draft (read-only view, history, the administrator sentence) for the owner, in `frontend/mockups/`.
+- PR-1: server `price_action` (two shapes) on every unpriced item; words server-side; frontend link to `/sites/:id/prices` with `return`. Until PR-2a lands, the target shows an honest "not available yet".
+- No write path; `HUMAN_PRINCIPAL_REQUIRED` unchanged.
+- Postgres tests only from Thu 12:30, own `*_test` DB.
+
 ## Revision 3 (Architect, Claude, 2026-11-11 evening): UI deferred, functional pull-in
 
 - Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "lets depriortize the UI asepct for now in the backlog and we'll come back to it later, lets focus on the functional ones".

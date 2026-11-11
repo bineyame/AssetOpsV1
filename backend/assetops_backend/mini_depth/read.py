@@ -22,6 +22,7 @@ Nothing is computed into a claim or persisted: the read never writes.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
@@ -171,12 +172,29 @@ _HEAD = text(
     "AND s.selected_at <= :k AND r.knowledge_cutoff <= :k "
     "ORDER BY s.selected_at DESC, s.seq DESC LIMIT 1")
 # A live job overlapping the hour that no later selection of that job's hour (visible at the cutoff) has cleared.
-_JOBS = text(
-    "SELECT j.id, j.status FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
-    "AND j.window_start < :hi AND j.window_end > :lo AND j.status IN ('PENDING', 'LEASED', 'FAILED') "
+_JOBS_WHERE = (
+    "j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
+    "AND j.window_start < {hi} AND j.window_end > {lo} AND j.status IN ('PENDING', 'LEASED', 'FAILED') "
     "AND j.available_at <= :k AND NOT EXISTS (SELECT 1 FROM mini_depth_selection x WHERE x.tenant_id = j.tenant_id "
     "AND x.site_id = j.site_id AND x.domain = :d AND x.window_start = j.window_start "
     "AND x.window_end = j.window_end AND x.selected_at > j.available_at AND x.selected_at <= :k)")
+_JOBS = text("SELECT j.id, j.status FROM recompute_job j WHERE " + _JOBS_WHERE.format(lo=":lo", hi=":hi"))
+# D-ANY.6a: the same `_JOBS` predicate over many hours in one statement (the rows path's live job check at k).
+_JOBS_BATCH = text(
+    "SELECT w.n, j.id, j.status FROM unnest(CAST(:los AS timestamptz[]), CAST(:his AS timestamptz[])) "
+    "WITH ORDINALITY AS w(lo, hi, n) JOIN recompute_job j ON " + _JOBS_WHERE.format(lo="w.lo", hi="w.hi"))
+LOG = logging.getLogger("assetops.mini_depth.read")
+JOB_FALLBACK_LOG_EVENT = "period_row_job_fallback"
+_JOB_FALLBACK_SEEN = [0]
+
+
+def job_fallback_count() -> int:
+    """Hours the rows path served through `_hour` because the live jobs at k differ from the row's (D-ANY.6a)."""
+    return _JOB_FALLBACK_SEEN[0]
+
+
+def _job_state(statuses: set[str], has_head: bool) -> str:
+    return next((x for x in ("FAILED", "LEASED", "PENDING") if x in statuses), "SETTLED" if has_head else "NONE")
 
 
 def _cutoff_sha(c: Connection, tenant_id: UUID, site_id: UUID, window: rules.Window, known: datetime,
@@ -351,10 +369,13 @@ class MiniDepthRead:
     """The read-only mini-depth reader (closure 1 Q6-Q8, Q14, Q15, Q18, Q31; q6 rulings 1 and 5)."""
 
     def __init__(self, engine: Engine, link_rows: LinkRowsOn, *,
-                 test_read_clock_override: Callable[[], datetime] | None = None) -> None:
+                 test_read_clock_override: Callable[[], datetime] | None = None,
+                 period_rows: Any = None) -> None:
         self._engine = engine
         self._link_rows = link_rows
         self.test_read_clock_override = test_read_clock_override
+        #: ANY-1 AR-2: `(PeriodReader, PeriodReadStore)`; with a kind in `served_kinds()` the board's hours read rows.
+        self.period_rows = period_rows
 
     @classmethod
     def from_url(cls, database_url: str, link_rows: LinkRowsOn, **options: Any) -> "MiniDepthRead":
@@ -445,12 +466,22 @@ class MiniDepthRead:
         historical = explicit is not None and explicit < read_time
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": t, "s": s}).scalar_one_or_none()
-        windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
-        hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
+        from_rows = self._row_hours(c, t, s, code, domain, lo, hi, tz_name, explicit, known, historical)
+        if from_rows is not None:  # ANY-1 AR-2: stored hour facts; no raw reading, no on-read `_cutoff_sha`
+            hours, link_rows = from_rows
+        else:
+            windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
+            hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
+            link_rows = self._link_rows
+        return self._envelope(c, link_rows, t, s, code, domain, lo, hi, known, tz_name, hours)
 
+    def _envelope(self, c: Connection | None, link_rows: LinkRowsOn, t: UUID, s: UUID, code: str, domain: str,
+                  lo: datetime, hi: datetime, known: datetime, tz_name: str | None,
+                  hours: Sequence[_Hour]) -> dict[str, Any]:
+        """The one envelope composition over the request's hours, from compose (`_hour`) or stored rows alike."""
         live = [h for h in hours if h.pending_ids is not None]
         blocks = mini_blocks(
-            c, self._link_rows, t, s, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
+            c, link_rows, t, s, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
             selected_evidence_ids=[i for h in hours if h.head for i in h.head.evidence_ids],
             pending_evidence_ids=None if not live else [i for h in live for i in (h.pending_ids or ())])
         state = aggregate_state(h.state for h in hours)
@@ -502,8 +533,7 @@ class MiniDepthRead:
             head = _Head(int(row[0]), row[1], row[2], row[3], result, tuple(row[8]))
         jobs = c.execute(_JOBS, p).all()
         statuses = {str(j[1]) for j in jobs}
-        job_state = next((x for x in ("FAILED", "LEASED", "PENDING") if x in statuses),
-                         "SETTLED" if head else "NONE")
+        job_state = _job_state(statuses, head is not None)
         pending_ids = tuple(_hour_ids(c, t, s, window, known)) if statuses else None
         if head is None:
             state = "UNKNOWN"
@@ -514,6 +544,131 @@ class MiniDepthRead:
         else:
             state = "HISTORICAL" if historical else "CURRENT"
         return _Hour(day, window, head, job_state, state, pending_ids, tuple(sorted(str(j[0]) for j in jobs)))
+
+    # --- ANY-1 AR-2: the board's hours from stored read-period rows (`mini_depth/period_rows.py`) ---------------
+
+    def _row_hours(self, c: Connection, t: UUID, s: UUID, code: str, domain: str, lo: datetime, hi: datetime,
+                   tz_name: str | None, explicit: datetime | None, known: datetime,
+                   historical: bool) -> tuple[list[_Hour], LinkRowsOn] | None:
+        """The request's hours from `site_period_read` when its kind is served (`ASSETOPS_PERIOD_READ_KINDS`; empty
+        = today's compose) and the request is a stored shape (renewable: 1-5 whole local days; fuel, service and
+        backup: the local noon hour the board reads). None = compose. No raw reading and no `_cutoff_sha` here,
+        except for an hour whose live jobs at k differ from its row's (D-ANY.6a): that hour alone is `_hour`."""
+        from assetops_backend.chain.grading import PENDING
+        from assetops_backend.chain.period_read import served_kinds
+        from assetops_backend.chain.ports import SiteRef
+        from assetops_backend.mini_depth import period_rows as pr
+
+        kind = pr.kind_of(domain)
+        if self.period_rows is None or not tz_name or kind not in served_kinds():
+            return None
+        windows = hour_windows(domain, lo, hi, tz_name)  # the compose's own validation and refusals
+        if domain == "renewable":
+            days = sorted({d for d, _w in windows})
+        else:
+            if windows[0][1] != local_hour(windows[0][0], 12, tz_name):
+                return None  # only the board's hour is stored for the hourly domains
+            days = [windows[0][0]]
+        reader, store = self.period_rows
+        try:
+            result = reader.read(t, [SiteRef(t, s, code, MINIGRID, tz_name)], [kind], days[0], days[-1], explicit)
+        except Exception as error:  # the row store failing is a 503, never a guessed empty page
+            raise MiniReadUnavailable(f"The mini-depth row read failed: {error.__class__.__name__}") from error
+        by_day = {r.row.local_day: r for r in result.rows if r.row.kind == kind and r.row.site_id == s}
+        hours: list[_Hour] = []
+        stored_links: dict[str, Any] = {}
+        for day in days:
+            read = by_day.get(day)
+            if read is None:  # D-ANY.5 M1: absent renders as compose renders nothing known at k
+                found = (pr.absent_renewable_windows(code, tz_name, day) if domain == "renewable"
+                         else [(day, windows[0][1])])
+                hours += [pr.absent_hour(d, w) for d, w in found]
+                continue
+            pending = bool(read.pending) or result.day_state(s, day, kind) == PENDING
+            for value in read.row.body.get("hours") or ():
+                hours.append(pr.hour_from_json(value, historical=historical, pending=pending))
+                stored_links.update(value.get("pending_link_rows") or {})
+        if domain != "renewable" and [h.window for h in hours] != [windows[0][1]]:
+            raise MiniReadUnavailable("A stored mini-depth hour does not match the requested hour.")
+        if self._job_fallback(c, t, s, code, domain, hours, known, historical):
+            return hours, self._link_rows  # a recompute in flight: link rows read live, as the compose reads them
+        revisions = sorted({h.head.revision_id for h in hours if h.head}, key=str)
+        if revisions:
+            try:
+                blocks = store.provenance(t, revisions, pr.BUILDER_VERSION)
+            except Exception as error:
+                raise MiniReadUnavailable(f"The mini-depth provenance read failed: {error.__class__.__name__}") \
+                    from error
+            if len(blocks) != len(revisions):
+                raise MiniReadUnavailable("A selected mini-depth revision has no stored provenance.")
+            for block in blocks.values():
+                stored_links.update(block.get("link_rows") or {})
+        return hours, pr.StoredLinkRows(stored_links)
+
+    def _job_fallback(self, c: Connection, t: UUID, s: UUID, code: str, domain: str, hours: list[_Hour],
+                      known: datetime, historical: bool) -> int:
+        """D-ANY.6a: the compose's own `_JOBS` predicate, one statement over the request's hours at k (live and
+        historical). An hour whose job set at k (IDs and the job state they give) equals its stored row's renders
+        from the row; any other hour is replaced in place by `_hour` (the D-ANY.1 "cannot be proven equal stays on
+        the old path" rule), logged `period_row_job_fallback` and counted. Returns the number replaced."""
+        if not hours:
+            return 0
+        p = {"t": t, "s": s, "d": domain, "jd": JOB_DOMAIN[domain], "k": known,
+             "los": [h.window.start for h in hours], "his": [h.window.end for h in hours]}
+        live: dict[int, list[tuple[str, str]]] = {}
+        for n, job_id, status in c.execute(_JOBS_BATCH, p).all():
+            live.setdefault(int(n) - 1, []).append((str(job_id), str(status)))
+        replaced = []
+        for i, h in enumerate(hours):
+            jobs = live.get(i, [])
+            ids = tuple(sorted(j for j, _ in jobs))
+            statuses = {st for _, st in jobs}
+            if ids == tuple(h.job_ids) and (not statuses or _job_state(statuses, h.head is not None) == h.job_state):
+                continue
+            hours[i] = self._hour(c, t, s, domain, h.day, h.window, known, historical)
+            replaced.append(h)
+        if replaced:
+            _JOB_FALLBACK_SEEN[0] += len(replaced)
+            LOG.warning(JOB_FALLBACK_LOG_EVENT, extra={
+                "event": JOB_FALLBACK_LOG_EVENT, "tenant_id": str(t), "site": code, "domain": domain,
+                "count": len(replaced), "first": iso(replaced[0].window.start), "known_at": iso(known)})
+        return len(replaced)
+
+    def build_period(self, *, tenant_id: UUID, site_id: UUID, domain: str, local_day: date
+                     ) -> tuple[datetime, datetime, list[dict[str, Any]], dict[str, dict[str, Any]]] | None:
+        """AR-2 builder: one stored period of a kind at this transaction's clock, through `_hour` (the compose's own
+        head, job, `_cutoff_sha` and pending logic). Returns `(start, end, hour facts, {revision_id: link rows})`;
+        None when the day has no such period (an unknown zone or a nonexistent local hour)."""
+        from assetops_backend.mini_depth import period_rows as pr
+
+        def work(c: Connection, known: datetime) -> Any:
+            tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                                {"t": tenant_id, "s": site_id}).scalar_one_or_none()
+            if not tz_name:
+                return None
+            try:
+                if domain == "renewable":
+                    start = _local_midnight(local_day, tz_name)
+                    end = _local_midnight(local_day + timedelta(days=1), tz_name)
+                    windows = hour_windows(domain, start, end, tz_name,
+                                           lambda d: daylight_hours(c, tenant_id, site_id, d, known))
+                else:
+                    w = local_hour(local_day, 12, tz_name)
+                    start, end, windows = w.start, w.end, [(local_day, w)]
+            except (MiniReadRefused, MiniInputsRefused):
+                return None
+            hours = [self._hour(c, tenant_id, site_id, domain, d, w, known, False) for d, w in windows]
+            ids = sorted({str(i).lower() for h in hours if h.head for i in h.head.evidence_ids}
+                         | {str(i).lower() for h in hours for i in (h.pending_ids or ())})
+            grouped = pr.group_link_rows(self._link_rows(c, tenant_id, site_id, ids)) if ids else {}
+            facts = [pr.hour_json(h, pending_link_rows=None if h.pending_ids is None else
+                                  {i.lower(): grouped[i.lower()] for i in h.pending_ids if i.lower() in grouped})
+                     for h in hours]
+            provenance = {str(h.head.revision_id): {str(i).lower(): grouped[str(i).lower()]
+                                                    for i in h.head.evidence_ids if str(i).lower() in grouped}
+                          for h in hours if h.head}
+            return start, end, facts, provenance
+        return self._readonly(work, None)
 
     # --- W4-03 closure 4 S9: the one selected-renewable basis reader -------------------------------------------
 

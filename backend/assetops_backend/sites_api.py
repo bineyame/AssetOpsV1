@@ -66,9 +66,30 @@ REFUSAL_SITE_NOT_FOUND = "SITE_NOT_FOUND"
 REFUSAL_STORE_UNAVAILABLE = "SITE_STORE_UNAVAILABLE"
 
 
+def findings_lenses_supported(record: SiteRecord) -> bool:
+    """RM-2 (D-E5.34): whether this Site's Findings index can classify under a lens (Cost, Risks, Opportunities).
+
+    Declared configuration, never Finding rows: a MINIGRID Site supports the lenses when its Foundation declares a
+    productive-use load (a LOAD with `supply-use = PRODUCTIVE`), the load the Opportunity and Cost lenses are about.
+    Kisiwa declares none; Kobo declares its mill. Cold and EV Sites never do. The answer is the same whether or not
+    the window has Findings, so a screen can decide before its Findings read returns.
+    """
+    if record.site_type != "MINIGRID":
+        return False
+    return any(
+        component.component_type == "LOAD"
+        and any(
+            prop.property_key == "supply-use" and prop.value == "PRODUCTIVE"
+            for prop in component.properties or ()
+        )
+        for component in record.foundation.components
+    )
+
+
 def site_summary(record: SiteRecord) -> dict[str, object]:
     """The Sites index shape: identity, configuration, and provenance."""
     return {
+        "lenses_supported": findings_lenses_supported(record),
         "site_id": record.site_id,
         "display_name": record.display_name,
         "site_type": record.site_type,
@@ -209,6 +230,7 @@ def _stored_summary(entry: ProductSiteEntry) -> dict[str, object]:
     """Summary of an imported Site with no Foundation effective now."""
     site = entry.stored
     return {
+        "lenses_supported": False,
         "site_id": site.site_code,
         "display_name": site.name,
         "site_type": site.site_type,

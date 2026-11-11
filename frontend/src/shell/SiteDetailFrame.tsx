@@ -166,6 +166,7 @@ export function SiteDetailFrame({
         siteHref={siteDetailHref}
         overview={(canonicalId, site) => (
           <SiteOverview
+            deviceNames={Object.fromEntries((site.foundation.devices ?? []).map((d) => [d.device_id, d.display_name]))}
             mini={
               miniDepth !== undefined && site.site_type === "MINIGRID" && site.timezone
                 ? {

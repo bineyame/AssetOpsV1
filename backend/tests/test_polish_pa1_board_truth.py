@@ -20,8 +20,8 @@ from assetops_backend.site_outcomes import board, mini
 from assetops_backend.site_outcomes.board import SiteFacts
 
 GROW, COST, ASSURE = mini.GROW, mini.COST, mini.ASSURE
-PRICED_EV_SENTENCE = "Energy cost per km needs odometer readings; a tariff estimate exists in Financials"
-UNPRICED_EV_SENTENCE = "Energy cost per km needs odometer readings and a published charging tariff"
+PRICED_EV_SENTENCE = "Odometer readings are not connected yet; a tariff estimate exists in Financials"
+UNPRICED_EV_SENTENCE = "Odometer readings are not connected yet, and no charging tariff is published for this window"
 
 
 # --------------------------------------------------------------- §1.1 zero priced amount

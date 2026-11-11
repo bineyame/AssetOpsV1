@@ -59,15 +59,19 @@ class DrainReport:
 
 
 def drain(queue: DirtyQueue, builder: Builder, tenant_id: UUID, site: SiteRef, limit: int,
-          deadline: Callable[[], bool] | None = None) -> DrainReport:
+          deadline: Callable[[], bool] | None = None, period_builder: Any = None) -> DrainReport:
+    """ANY-1 AR-1: a dirty row whose `measure` is a stored read-period kind (`period_builder.kinds`) is rebuilt by
+    the period builder through the same queue; a row naming neither is dropped, as before."""
     report = DrainReport()
     rows = queue.pop(tenant_id, site.site_id, limit)
+    kinds = frozenset() if period_builder is None else period_builder.kinds
     for row in rows:
         if deadline is not None and deadline():
             report.stopped = "deadline"
             break
-        if row.measure in MEASURES:
-            out = builder.build(tenant_id, site, row.local_day, row.measure)
+        target = builder if row.measure in MEASURES else period_builder if row.measure in kinds else None
+        if target is not None:
+            out = target.build(tenant_id, site, row.local_day, row.measure)
             wrote = sum(1 for w in out if getattr(w, "written", False))
             report.written += wrote
             report.unchanged += len(out) - wrote

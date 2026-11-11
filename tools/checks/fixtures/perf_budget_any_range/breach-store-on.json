@@ -1,0 +1,6 @@
+{"note": "a pre-built (store on) measurement is not an any-range measurement",
+ "record": {"params": {"runs": 1, "store": "on", "cases": 2},
+  "cases": {
+   "any.board.0": {"family": "board_any_day", "path": "/api/sites/KOBO-001/outcome-board?date=2026-10-21", "cold_ms": [90.0], "status": [200]},
+   "any.portfolio.1": {"family": "portfolio_any_range", "path": "/api/estate/portfolio?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&lens=all", "cold_ms": [80.0], "status": [200]}}},
+ "expect": {"breaches": [["params", "store"]], "not_measured": [], "verdict": "FAIL"}}
