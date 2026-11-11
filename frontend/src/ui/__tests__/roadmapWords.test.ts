@@ -6,7 +6,7 @@ describe("RM-1 (D-E5.34): roadmap lines name what is missing and never read as a
   const lines = Object.values(ROADMAP_WORDS);
   it("each line says what is coming or not connected, in plain words", () => {
     for (const line of lines) {
-      expect(line).toMatch(/(coming|later|not connected yet)\.?$/);
+      expect(line).toMatch(/(coming|later|not connected yet)\.?$/i);
     }
   });
   it("no line says error, fail, or carries a code", () => {

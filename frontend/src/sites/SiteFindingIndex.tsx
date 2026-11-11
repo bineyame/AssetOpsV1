@@ -135,8 +135,13 @@ function LiveLens({ label, href }: { label: string; href: string }) {
   );
 }
 
-/** MOCK DEVIATION D5 (R394): Cost, Risks and Opportunities stay disabled until Site-scoped lenses exist (Q18/Q49). */
+/**
+ * MOCK DEVIATION D5 (R394): Cost, Risks and Opportunities stay disabled until Site-scoped lenses exist (Q18/Q49).
+ * RM-2 (owner-approved, D-E5.34): where no lens is supported (no href given) the whole row is hidden on client
+ * screens, instead of three "Not available yet" chips; a Site that supplies an href gets the row back.
+ */
 export function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
+  if (hrefs.Cost === undefined && hrefs.Risks === undefined && hrefs.Opportunities === undefined) return null;
   return (
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
       <li className="v69-chip" aria-current="true" data-lens="all">

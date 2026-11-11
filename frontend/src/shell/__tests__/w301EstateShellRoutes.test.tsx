@@ -114,13 +114,9 @@ describe("W3-01 estate roots in the operator shell", () => {
     await settledScreen();
     expect(getFindingIndex).toHaveBeenCalled();
 
-    // The Site lens row keeps exactly its three "Not available yet" chips; the estate lens tabs are not here.
-    const lenses = document.querySelector("[data-site-findings-lenses]") as HTMLElement;
-    expect(lenses).not.toBeNull();
-    for (const label of ["Cost", "Risks", "Opportunities"]) expectUnavailableEntry(lenses, label);
-    expect(Array.from(lenses.querySelectorAll("[data-chip-unavailable]")).map((chip) =>
-      chip.getAttribute("data-chip-unavailable"))).toEqual(["Cost", "Risks", "Opportunities"]);
-    expect(within(lenses).queryAllByRole("link")).toEqual([]);
+    // RM-2: no lens is supported on this Site, so the Site lens row is hidden (no "Not available yet" chips); the estate lens tabs are not here either.
+    expect(document.querySelector("[data-site-findings-lenses]")).toBeNull();
+    expect(document.querySelector("[data-chip-unavailable]")).toBeNull();
     expect(document.querySelector("[data-estate-lenses]")).toBeNull();
     expect(document.querySelector("[data-estate-root]")).toBeNull();
     expect(estate.calls).toEqual([]);

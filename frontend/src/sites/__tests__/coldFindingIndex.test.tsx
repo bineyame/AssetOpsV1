@@ -119,7 +119,9 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     await settledScreen();
     expect(cold.listFindings).toHaveBeenCalledWith("COLD-001", { from: FROM, to: TO, known_at: KNOWN });
     expect(findingIndex.getFindingIndex).not.toHaveBeenCalled();
-    expect(document.querySelector("[data-site-findings-lenses]")).not.toBeNull();
+    // RM-2: no lens is supported on a cold Site, so the lens chips are hidden.
+    expect(document.querySelector("[data-site-findings-lenses]")).toBeNull();
+    expect(document.querySelector("[data-chip-unavailable]")).toBeNull();
     expect(text(strip())).toContain("Scoped to Kobo vaccine cold store · 2 open");
     expect(text(strip())).toContain("Cold-room findings are listed here; the estate list adds them later");
     expect(text(strip())).toContain("Managing findings from this list is coming");

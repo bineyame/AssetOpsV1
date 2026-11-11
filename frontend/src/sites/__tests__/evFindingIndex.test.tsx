@@ -77,6 +77,9 @@ describe("EV Site Findings", () => {
     expect(document.querySelector("[data-ev-findings-index='loaded']")).not.toBeNull();
     expect(document.body.textContent).toContain("Scoped to EV lab depot · 1 open");
     expect(document.body.textContent).toContain("EV charging findings are listed here; the estate list adds them later");
+    // RM-2: no lens is supported on an EV Site, so the lens chips are hidden.
+    expect(document.querySelector("[data-site-findings-lenses]")).toBeNull();
+    expect(document.querySelector("[data-chip-unavailable]")).toBeNull();
     expect(document.querySelectorAll("[data-ev-finding-row] td")).toHaveLength(7);
     // Q26 cap fallback: the mini index row class gives the title a readable column; the strip parts are separated.
     expect(document.querySelector("[data-ev-finding-row]")?.classList.contains("finding-index-row")).toBe(true);

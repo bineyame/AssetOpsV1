@@ -513,24 +513,14 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
     expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const controls = panel.querySelector("[data-site-findings-controls]") as HTMLElement;
     expect(controls, "the window control row is in the panel").not.toBeNull();
-    const lenses = screen.getByRole("list", { name: "Finding lenses" });
-    expect(panel.contains(lenses), "the lens row is outside the panel").toBe(false);
-    expect(lenses.compareDocumentPosition(statusBar()) & Node.DOCUMENT_POSITION_FOLLOWING, "lenses above the strip").toBeTruthy();
+    // RM-2: no lens is supported on a mini-grid Site, so the lens row is hidden on client screens.
+    expect(screen.queryByRole("list", { name: "Finding lenses" })).toBeNull();
     const manage = statusBar().querySelector("[data-site-findings-manage]") as HTMLAnchorElement;
     expect(manage.textContent).toBe("Manage in Findings →");
     expect(manage.getAttribute("href")).toBe("/findings");
-    expect(rowLabels(lenses)).toEqual([
-      "All",
-      `Cost (${UNAVAILABLE_STATUS})`,
-      `Risks (${UNAVAILABLE_STATUS})`,
-      `Opportunities (${UNAVAILABLE_STATUS})`,
-    ]);
-    expect(lenses.querySelector("[data-lens='all']")).toHaveAttribute("aria-current", "true");
-    for (const lens of ["Cost", "Risks", "Opportunities"]) expectUnavailableEntry(lenses, lens);
     const windowRow = document.querySelector("[data-finding-index-window]") as HTMLElement;
     expect(windowRow.classList.contains("v69-chips"), "the window form is the mock's chips row").toBe(true);
     expect(controls.contains(windowRow)).toBe(true);
-    expect(lenses.compareDocumentPosition(windowRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const heading = within(panel).getByRole("heading", { name: "Findings at this site" });
     expect(heading.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(statusBar().querySelector("[data-product-status]"), "the shared state line is in the statusbar").not.toBeNull();
