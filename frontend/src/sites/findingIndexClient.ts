@@ -16,6 +16,7 @@
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
 import type { OutcomeCategories } from "./outcomeCategories";
+import { DATA_GAP_REASONS } from "../ui/productWords";
 
 /** The one supported domain token (`mini_grid` / `dispatch` on the server). */
 export const FINDING_INDEX_DOMAIN = "mini-grid-dispatch";
@@ -26,7 +27,7 @@ export type FindingIndexStatus = "CURRENT" | "PARTIAL" | "PENDING" | "UNASSESSED
 export interface FindingIndexGap {
   day: string;
   state: FindingIndexStatus;
-  /** NOT_CURRENT | EDGE_NEXT_TO_GAP | WITHHELD_FINDING */
+  /** NOT_CURRENT | EDGE_NEXT_TO_GAP | WITHHELD_FINDING | (PB-4) READINGS_CONFLICT | NOT_ENOUGH_READINGS */
   reason: string;
 }
 
@@ -154,10 +155,20 @@ export function listsRows(body: FindingIndexBody): boolean {
   return (body.status === "CURRENT" && body.is_current) || body.status === "PARTIAL";
 }
 
-/** IDX-GAPS: the requested days of the window whose index state is not CURRENT. */
+/** IDX-GAPS: the requested days of the window whose index state is not CURRENT, or (PB-4) that hold a data gap. */
 export function gapDays(body: FindingIndexBody): FindingIndexGap[] {
   const requested = new Set(body.discovery.requested_days);
-  return (body.gaps ?? []).filter((g) => requested.has(g.day) && g.state !== "CURRENT");
+  return (body.gaps ?? []).filter((g) => requested.has(g.day) && (g.state !== "CURRENT" || isDataGap(g)));
+}
+
+/** PB-4 (D-E5.46): a day that could not be analysed from what was received (a data fact, not system work). */
+export function isDataGap(gap: FindingIndexGap): boolean {
+  return DATA_GAP_REASONS.has(gap.reason);
+}
+
+/** PB-4: the requested data-gap days. */
+export function dataGapDays(body: FindingIndexBody): FindingIndexGap[] {
+  return gapDays(body).filter(isDataGap);
 }
 
 function isIndexBody(value: unknown): value is FindingIndexBody {

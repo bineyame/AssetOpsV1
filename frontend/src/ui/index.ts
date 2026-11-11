@@ -66,6 +66,9 @@ export { isKnownGapPlacement, UI_GAP_CATALOGUE, type GapId, type GapPlacement } 
 export {
   asOfText,
   currentnessWords,
+  DATA_GAP_LIST_WORDS,
+  DATA_GAP_REASONS,
+  dayGapWords,
   DEMONSTRATION_OUTCOME_NOTE,
   limitationWords,
   moneyWords,
@@ -75,6 +78,7 @@ export {
   REASON_GUARDRAIL_FAIL,
   sourceQualification,
   UNRECOGNISED_SENTENCE,
+  type DayGapWords,
   type OutcomeWords,
   type ProductTone,
   type ProductWords,
