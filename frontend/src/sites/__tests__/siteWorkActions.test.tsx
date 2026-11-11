@@ -175,19 +175,24 @@ describe("Site Work Actions list", () => {
     noVocabularyViolations("site work zero");
   });
 
-  it("asks for a window and reads nothing until one is chosen; the chosen window lands in the URL", async () => {
+  it("SR-2: asks for the date range at the top and reads nothing until one is chosen; no page date form", async () => {
     const { requests } = serve({});
     mount("/sites/KOBO-001/work");
     await settledScreen();
     expect(q("[data-site-work-state]")?.getAttribute("data-site-work-state")).toBe("choose-window");
     expect(requests.filter((u) => u.includes("action-index"))).toEqual([]);
     expect(document.body.textContent).not.toMatch(/No Actions created/);
-    const [first, last] = qa("[data-site-work-window] input") as HTMLInputElement[];
-    fireEvent.change(first, { target: { value: "2026-11-01" } });
-    fireEvent.change(last, { target: { value: "2026-11-01" } });
+    expect(q("[data-site-work-window='absent']")?.textContent).toMatch(/Choose the days in the date range at the top/);
+    expect(qa("main input[type=date]")).toEqual([]);
+    expect(screen.queryByRole("button", { name: "Show Actions" })).toBeNull();
+  });
+
+  it("SR-2: a range in the address is the window: rows load and the line names its days", async () => {
     serve({ [apiKey(WINDOW)]: ok(POSITIVE) });
-    fireEvent.click(screen.getByRole("button", { name: "Show Actions" }));
+    mount(workUrl(WINDOW));
+    await settledScreen();
     await waitFor(() => expect(qa("[data-site-work-row]")).toHaveLength(POSITIVE.rows.length));
+    expect(q("[data-site-work-window='range']")?.textContent).toMatch(/^Actions created 1 Nov \(last day included\), from the date range at the top\./);
     expect(where()).toBe(workUrl(WINDOW));
   });
 
@@ -296,7 +301,7 @@ describe("Site Work Actions list", () => {
     expect(tr.textContent).toContain("Being checked again");
   });
 
-  it("uses native keyboard controls: real links, a labelled form and a submit button", async () => {
+  it("uses native keyboard controls: real links and a labelled pages navigation; no page date form (SR-2)", async () => {
     serve({ [apiKey(WINDOW, { limit: "1" })]: ok(PAGE1) });
     mount(workUrl(WINDOW, { limit: "1" }));
     await settledScreen();
@@ -305,10 +310,8 @@ describe("Site Work Actions list", () => {
       expect(link.getAttribute("href")).toMatch(/^\/sites\/KOBO-001\//);
       expect(link.getAttribute("tabindex")).toBeNull();
     }
-    const form = screen.getByRole("form", { name: "Actions window" });
-    expect(form.querySelectorAll("input[type=date]")).toHaveLength(2);
-    expect(screen.getByLabelText(/Created from/)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Show Actions" }).getAttribute("type")).toBe("submit");
+    expect(screen.queryByRole("form", { name: "Actions window" })).toBeNull();
+    expect(qa("main input[type=date]")).toEqual([]);
     expect(screen.getByRole("navigation", { name: "Actions pages" })).toBeTruthy();
   });
 

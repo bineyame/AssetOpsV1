@@ -28,17 +28,16 @@
  * none of them, and the list derives none.
  */
 import { displayCode } from "../ui/displayCode";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIcon, readResultWords, type ProductWords } from "../ui";
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
 import {
   COLD_DOMAIN,
   EV_DOMAIN,
-  invalidScope,
   isUtcInstant,
   type DomainActionClient,
   type DomainActionDomain,
@@ -113,8 +112,8 @@ export interface SiteWorkActionsProps {
   /** Null when the URL names no window: the choose-window state. */
   scope: ActionIndexScope | null;
   links: SiteWorkLinks;
-  /** Apply a new window (a navigation, so reload and back keep it). */
-  onScope: (scope: ActionIndexScope) => void;
+  /** Unused since SR-2 (the window is the shared range in the top bar); kept so callers stay unchanged. */
+  onScope?: (scope: ActionIndexScope) => void;
 }
 
 const HEADING_ID = "site-work-actions-heading";
@@ -166,47 +165,30 @@ function stateTone(row: Pick<ActionIndexRow, "state">): "green" | "amber" | "blu
   return row.state.application === "APPLIED" ? "blue" : "amber";
 }
 
-/** A default window for the chooser: the 30 UTC days ending today. */
-function suggestedDays(now: Date = new Date()): { first: string; last: string } {
-  const last = now.toISOString().slice(0, 10);
-  const first = new Date(`${last}T00:00:00Z`);
-  first.setUTCDate(first.getUTCDate() - 29);
-  return { first: first.toISOString().slice(0, 10), last };
-}
-
-function WindowForm({ scope, onScope }: { scope: ActionIndexScope | null; onScope: (scope: ActionIndexScope) => void }) {
+/**
+ * SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the Actions window is the shared date range in the top bar.
+ * The line names the creation days the read uses; with no range in the address it says to choose one there (the read
+ * is unchanged).
+ */
+function WindowLine({ scope }: { scope: ActionIndexScope | null }) {
   const valid = scope !== null && !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
-  const initial = valid && scope ? { first: dayOf(scope.from), last: lastDayOf(scope.to) } : suggestedDays();
-  const [first, setFirst] = useState(initial.first);
-  const [last, setLast] = useState(initial.last);
-  useEffect(() => {
-    if (valid && scope) {
-      setFirst(dayOf(scope.from));
-      setLast(lastDayOf(scope.to));
-    }
-  }, [scope, valid]);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first || !last) return;
-    const to = new Date(`${last}T00:00:00Z`);
-    to.setUTCDate(to.getUTCDate() + 1);
-    onScope({ from: `${first}T00:00:00Z`, to: `${to.toISOString().slice(0, 10)}T00:00:00Z`, limit: scope?.limit ?? null, cursor: null });
-  };
+  if (!valid || scope === null) {
+    return (
+      <div className="v69-chips w1f4-work-window" data-site-work-window="absent">
+        <p className="w1f4-work-window__days">Choose the days in the date range at the top.</p>
+        <TimeZoneNote />
+      </div>
+    );
+  }
+  const first = dayOf(scope.from);
+  const last = lastDayOf(scope.to);
+  const word = (day: string) => formatDay(`${day}T00:00:00Z`, { year: false });
+  const days = first === last ? word(first) : `${word(first)} to ${word(last)}`;
   return (
-    <form onSubmit={submit} className="v69-chips w1f4-work-window" data-site-work-window aria-label="Actions window">
-      <label className="w1f4-work-window__field">
-        {"Created from "}
-        <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
-      </label>
-      <label className="w1f4-work-window__field">
-        {"to (included) "}
-        <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} />
-      </label>
-      <button className="button" type="submit">
-        Show Actions
-      </button>
+    <div className="v69-chips w1f4-work-window" data-site-work-window="range">
+      <p className="w1f4-work-window__days">{`Actions created ${days} (last day included), from the date range at the top.`}</p>
       <TimeZoneNote />
-    </form>
+    </div>
   );
 }
 
@@ -555,7 +537,7 @@ function WorkStrip({
   );
 }
 
-export function SiteWorkActions({ siteId, siteName, client, scope, links, onScope }: SiteWorkActionsProps) {
+export function SiteWorkActions({ siteId, siteName, client, scope, links }: SiteWorkActionsProps) {
   const [result, setResult] = useState<ActionIndexResult | null>(null);
   const from = scope?.from;
   const to = scope?.to;
@@ -580,13 +562,13 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
       <Panel
         heading={SITE_WORK_PANEL_TITLE}
         headingId={HEADING_ID}
-        actions={<WindowForm scope={scope} onScope={onScope} />}
+        actions={<WindowLine scope={scope} />}
       >
         {scope === null ? (
           <PanelState state="choose-window" title="Choose a window">
             <ChartNote>
-              Pick the days the Actions were created in (at most 31) and select Show Actions. Nothing is listed until a
-              window is chosen.
+              Choose the days the Actions were created in with the date range at the top (at most 31). Nothing is
+              listed until a range is chosen.
             </ChartNote>
           </PanelState>
         ) : result === null ? (
@@ -777,74 +759,45 @@ const utcDay = (instant: string) => (isUtcInstant(instant) ? new Date(instant).t
  */
 export function DomainWorkWindow({
   scope,
-  onApply,
   legacyCold,
   basis,
 }: {
   scope: DomainWorkWindowScope;
-  onApply: (next: DomainWorkWindowScope) => void;
+  /** Unused since SR-2: the window is the shared date range in the top bar. Kept so callers stay unchanged. */
+  onApply?: (next: DomainWorkWindowScope) => void;
   /** post-W6 R338: which listing basis line to state under the control. */
   basis: DomainWorkWindowBasis;
   /** True on a COLDCHAIN Site: keep the K2 `data-cold-work-window*` attributes and classes. */
   legacyCold: boolean;
 }) {
-  const [first, setFirst] = useState(utcDay(scope.from));
-  const [last, setLast] = useState(utcDay(scope.to));
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    setFirst(utcDay(scope.from));
-    setLast(utcDay(scope.to));
-    setError(null);
-  }, [scope.from, scope.to]);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const next = { from: first ? `${first}T00:00:00Z` : "", to: last ? `${last}T00:00:00Z` : "", knownAt: scope.knownAt };
-    // The client's own window check (the server's INVALID_WINDOW literal); nothing is navigated or read when it fails.
-    const invalid = invalidScope({ from: next.from, to: next.to, knownAt: null, cursor: null });
-    if (invalid !== null) {
-      setError(invalid.message);
-      return;
-    }
-    setError(null);
-    onApply(next);
-  };
+  // SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the window is the shared date range in the top bar; this
+  // line names the days the read uses (unchanged: the frame still reads the address, or its default without one).
+  const [params] = useSearchParams();
+  const fromRange = params.has("from") && params.has("to");
   return (
-    <form className={`site-date-bar ${workClass(legacyCold, "window")}`} onSubmit={submit} aria-label="Window" {...workAttrs(legacyCold, "window")}>
-      <span className={workClass(legacyCold, "window__lead")}>Window</span>
-      <label className={workClass(legacyCold, "window__field")}>
-        {"From "}
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={first}
-          onChange={(event) => setFirst(event.target.value)}
-          {...workAttrs(legacyCold, "window-from")}
-        />
-      </label>
-      <label className={workClass(legacyCold, "window__field")}>
-        {"To (not included) "}
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={last}
-          onChange={(event) => setLast(event.target.value)}
-          {...workAttrs(legacyCold, "window-to")}
-        />
-      </label>
-      <button className="button" type="submit" {...workAttrs(legacyCold, "window-apply")}>
-        Apply
-      </button>
+    <div
+      className={`site-date-bar ${workClass(legacyCold, "window")}`}
+      data-window-source={fromRange ? "range" : "default"}
+      {...workAttrs(legacyCold, "window")}
+    >
+      <p className={workClass(legacyCold, "window__days")} {...workAttrs(legacyCold, "window-days")}>
+        {`Window: ${windowDays(scope.from, scope.to)}${fromRange ? ", from the date range at the top." : ", this page's default. Choose other days in the date range at the top."}`}
+      </p>
       <TimeZoneNote />
-      {error === null ? null : (
-        <span className={workClass(legacyCold, "window__error")} role="alert" {...workAttrs(legacyCold, "window-error")}>
-          {error}
-        </span>
-      )}
       <p className="domain-work-window__basis" data-domain-work-window-basis={basis}>
         {DOMAIN_WORK_WINDOW_BASIS[basis]}
       </p>
-    </form>
+    </div>
   );
+}
+
+/** The included UTC days of a half-open `[from,to)` window, in words ("15 Oct to 21 Oct"). */
+function windowDays(from: string, to: string): string {
+  const first = utcDay(from);
+  if (first === "" || !isUtcInstant(to)) return "the requested days";
+  const last = new Date(Date.parse(to) - 1).toISOString().slice(0, 10);
+  const word = (day: string) => formatDay(`${day}T00:00:00Z`, { year: false });
+  return first >= last ? word(first) : `${word(first)} to ${word(last)}`;
 }
 
 /**

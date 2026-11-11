@@ -454,7 +454,9 @@ describe("W5-02 K3a: mini-grid isolation", () => {
     expect(main.querySelector("[data-work-status]")).not.toBeNull();
     expect(main.querySelector("[data-cold-work-currentness]")).toBeNull();
     expect(text(main.querySelector("[data-work-notice]"))).toBe(WORK_CONTEXT_NOTICE);
-    expect(main.querySelector("form[data-work-window]")).not.toBeNull();
+    // SR-2: the window line (the range is set at the top; no page date form).
+    expect(main.querySelector(".w1f4-work-window[data-work-window]")).not.toBeNull();
+    expect(main.querySelector("input[type=date]")).toBeNull();
     expect(main.querySelector("a[data-work-finding-link]")).not.toBeNull();
     expect(main.querySelector("[data-work-finding-revision]")).toBeNull();
     // W5-02c K5 (ruling 12): the cold case-cell CSS scope never applies to a mini-grid Site.

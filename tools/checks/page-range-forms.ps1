@@ -8,10 +8,9 @@
 # What counts as a page date form: an `<input type="date">`, or an `<input type="datetime-local">` named `from` or
 # `to`, in a non-test `.tsx` file under `frontend/src`.
 #
-# Ratchet: SR-2 moved the estate and Work pages onto the range. The Site pages listed in `$pending` still carry their
-# own forms (SR-2 remaining work, recorded in `.agent/SR-2-packet.md`). Each entry names the number of date inputs the
-# file has today; the check fails when a file grows past it, when a file not listed adds one, and when a listed file
-# no longer has any (remove the entry, so the list only shrinks).
+# Ratchet: SR-2 moved the estate and Work pages onto the range and SR-2b the Site pages, so `$pending` is empty and
+# any page date input fails. The ratchet branch stays (proved by the self-test) for a future staged migration: an
+# entry names a file's allowed count; the check fails when it grows past it or no longer has any.
 #
 # The self-test at the bottom runs the same scanner over fixed text and fails the seam if it would pass a page form
 # or fail an exempt file, so the check cannot silently become vacuous.
@@ -61,11 +60,8 @@ function Invoke-PageRangeFormsCheck {
         "frontend/src/shell/SharedRangeBar.tsx",
         "frontend/src/ui/FocusPicker.tsx"
     )
-    # SR-2 remaining (Site pages); counts are today's, and only shrink.
-    $pending = @{
-        "frontend/src/sites/SiteWorkActions.tsx"     = 4
-        "frontend/src/sites/siteWorkCases.tsx"       = 2
-    }
+    # SR-2b emptied this list: every page reads the shared range. Keep it empty; the self-test still proves the ratchet.
+    $pending = @{}
 
     $root = (Get-Location).Path
     $files = @{}

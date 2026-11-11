@@ -24,14 +24,14 @@
  */
 import { displayCode } from "../ui/displayCode";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
-import { formatDayTime } from "../ui/time";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { formatDay, formatDayTime } from "../ui/time";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
-import { siteDateTimeText, siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteLocalParts, siteZoneDisplayLabel } from "./siteTime";
+import { siteDateTimeText, siteLocalDate, siteLocalLastDay, siteLocalParts, siteZoneDisplayLabel } from "./siteTime";
 import type { DomainStatus } from "./domainActionClient";
 import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE, evActionHref } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
@@ -301,48 +301,29 @@ export const shortName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 const firstDay = (instant: string, timeZone: string | null) => siteLocalDate(instant, timeZone);
 const lastDay = (to: string, timeZone: string | null) => siteLocalLastDay(to, timeZone);
 
-function WindowForm({
-  copy,
-  scope,
-  timeZone,
-  onScope,
-}: {
-  copy: KindCopy;
-  scope: WorkScope;
-  timeZone: string | null;
-  onScope: SiteWorkCasesProps["onScope"];
-}) {
+/**
+ * SR-2 (proposal 2026-11-10 "Item 12.5", SR.3; D-UI.2): the window is the shared date range in the top bar. The line
+ * names the Site-local days the read uses (build ruling 7: the end day is included); the read is unchanged.
+ */
+function WindowLine({ copy, scope, timeZone }: { copy: KindCopy; scope: WorkScope; timeZone: string | null }) {
+  const [params] = useSearchParams();
+  const fromRange = params.has("from") && params.has("to");
   const valid = !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
-  const [first, setFirst] = useState(valid ? firstDay(scope.from, timeZone) : "");
-  const [last, setLast] = useState(valid ? lastDay(scope.to, timeZone) : "");
-  useEffect(() => {
-    if (valid) {
-      setFirst(firstDay(scope.from, timeZone));
-      setLast(lastDay(scope.to, timeZone));
-    }
-  }, [scope.from, scope.to, valid, timeZone]);
-  const zone = siteZoneDisplayLabel(timeZone, scope.from);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!first || !last) return;
-    // A new window clears the cutoff, the cursor and the earlier pages; Site-local midnights, sent as UTC.
-    onScope({ from: siteLocalMidnightUtc(first, timeZone), to: siteLocalEndUtc(last, timeZone), knownAt: null, cursor: null }, []);
-  };
+  let days = "the requested days";
+  if (valid) {
+    const word = (day: string) => formatDay(`${day}T00:00:00Z`, { year: false });
+    const first = firstDay(scope.from, timeZone);
+    const last = lastDay(scope.to, timeZone);
+    days = `${first === last ? word(first) : `${word(first)} to ${word(last)}`} (${siteZoneDisplayLabel(timeZone, scope.from)}, last day included)`;
+  }
   return (
-    <form onSubmit={submit} className="v69-chips w1f4-work-window" data-work-window aria-label={`${copy.global} window`}>
-      <label className="w1f4-work-window__field">
-        {`${copy.windowStart} (${zone}) `}
-        <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
-      </label>
-      <label className="w1f4-work-window__field">
-        {/* post-W6 W4 build ruling 7: both fields carry the Site zone; the end day is included. */}
-        {`to (${zone}, included) `}
-        <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} />
-      </label>
-      <button className="button" type="submit">
-        {copy.submit}
-      </button>
-    </form>
+    <div className="v69-chips w1f4-work-window" data-work-window={fromRange ? "range" : "default"} aria-label={`${copy.global} window`}>
+      <p className="w1f4-work-window__days">
+        {fromRange
+          ? `Days shown: ${days}, from the date range at the top.`
+          : `Days shown: ${days}, this page's default. Choose other days in the date range at the top.`}
+      </p>
+    </div>
   );
 }
 
@@ -1235,7 +1216,7 @@ export function SiteWorkCases({
         heading={copy.title}
         headingId={`site-work-${kind}-heading`}
         description={copy.subcopy}
-        actions={windowForm ? <WindowForm copy={copy} scope={scope} timeZone={timeZone} onScope={onScope} /> : undefined}
+        actions={windowForm ? <WindowLine copy={copy} scope={scope} timeZone={timeZone} /> : undefined}
       >
         {result === null ? (
           <p data-work-loading>Loading the site&apos;s work records.</p>
