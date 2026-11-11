@@ -83,6 +83,48 @@ Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "the time estima
 4. **Present the session in English.** French and Swahili stay OPTIONAL, so lane B does not carry 3.25 units of catalogue work.
 5. **Three lanes, with agents running overnight and at the weekend.** The coordinator keeps heavy jobs to one at a time and pauses lane C when memory is short.
 
+### 0.5 BeagleBone (TEL-08): OPTIONAL for the client demo, after the IN items in lane C
+
+Owner, verbatim (same file): "on a side note, i have also obtained SD card and will get the beaglebone ready by EOD today"
+
+**Where it stands.** The spec is `.agent/build-spec-telemetry-2026-10-27.md` §TEL-08; the board ruling is `.agent/architect-beaglebone-wheezy-2026-10-29.md`.
+- The field poller (`field/assetops_field`), the GX-shaped emulator and the gateway are built and proven on the laptop (TEL-01 to TEL-06).
+- TEL-08 itself was never built. `host/tests/field_bench.py` has helpers only; its `setup`, `activate` and `read` commands do not exist yet.
+- The board's own OS (Debian 7, Python 2.7) cannot run the code (requires Python 3.12+). Hence the SD card.
+
+**What you do (about 30-40 min, no code):**
+1. **Flash the card.** Write the official BeagleBone Black **Debian 13 IoT** microSD image (kernel 6.x, Python 3.13) from beagleboard.org to the card with Balena Etcher or Raspberry Pi Imager. If only an "eMMC flasher" image is offered, do not use it.
+2. **Boot from the card.** Hold the **S2 button** while you power on (5 V 2 A barrel, or USB power). The board's own memory is left untouched, so this is reversible.
+3. **Network.** Connect the board by **Ethernet to the same router as the laptop**, with internet through it (for `apt` and time sync). Do not use USB networking.
+4. **Access.** Log in once (default user `debian`) and add the coordinator's SSH public key to `~/.ssh/authorized_keys`. No passwords are shared in chat. The coordinator then creates the non-root `assetops` user.
+5. **Laptop firewall (admin).** Allow inbound TCP **8443** (upload server) and **5020** (device emulator) on the Private/LAN profile.
+6. **Report:** the board's IP, `uname -r`, `python3 --version`, and `timedatectl show -p NTPSynchronized` (must be `yes`).
+
+You create no upload credentials. The bench `setup` command issues the gateway's upload credential and a 7-day self-signed TLS certificate, and they are copied to the board.
+
+**What we build and verify once it is up (about 0.75 units, plus one heavy run slot of about 1 hour):**
+- **Build** `field_bench.py` `setup`, `activate` and `read`, per §TEL-08. They use their own test database, `assetops_tel_bbb_test`, never the demo database.
+- **Copy** the code to `/opt/assetops/src` and record matching tree hashes on the laptop and the board. Nothing is pip-installed on the board.
+- **Run** gateway and poller on the board, with the emulator and the TLS upload server on the laptop. The replay is the Kobo GX-shaped window at rate 12.
+- **Gates (TEL-05):** every upload receipt COMPLETED, accepted evidence for every role, and the assessment completes.
+- **Uplink fault test:** stop the laptop upload server for 5 min. The board's queue must rise and drain back to 0, with no gap in the evidence.
+- **Clock:** offsets within ±50 ms on the board and the laptop.
+- **Record:** a claim line, "BeagleBone Black · Debian 13 IoT · kernel … · Python … · commit … · tree …".
+- **Stop and report** if Linux needs any code change, or if the clock offset cannot be met.
+
+**Where it sits.**
+- Lane C, after FR-B and RM-1/RM-2, ahead of the other OPTIONAL items.
+- Its 1-hour run takes the single heavy-job slot, never beside a build, a serve or AR-1's migration tests.
+- It must finish before the end check. It never touches the Thursday e3d build.
+- The code copy and the clock setup can be done as soon as you report the IP. They are light.
+
+**Why OPTIONAL, not IN:**
+- **For a business buyer the value is Low-Med.** The story screens already show the readings arriving.
+- **For a technical buyer, or a client asking "what hardware sits on site?", the value is Med-High.** It turns "the gateway was tested on a laptop" into "it runs on a $60 edge box and survives a 5-minute uplink loss without losing data".
+- **Best use:** one slide or a 2-minute live clip in the technical script, and a pilot-readiness line in PILOT-1 ("tested on BeagleBone Black"). It is not a beat in the client story.
+- **Not shown live in the session.** A live board adds a network and clock dependency to the room.
+- **It moves to IN** if you tell me the client's evaluator is technical or asks about on-site hardware.
+
 ## 1. In plain words
 
 - **The test I used:** would a client deciding whether to buy notice it, and would leaving it out make something on screen look broken, contradictory or untrue? Speed, honesty and the first impression score high. Things that only matter at 100+ Sites, in a second language nobody has reviewed, or behind sign-in score low for this session.
