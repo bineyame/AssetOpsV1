@@ -16,6 +16,7 @@ import { EV_SITE } from "../../sites/__tests__/evWorkFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
+import { summary } from "./s5WindowFixtures";
 
 let urls: string[] = [];
 
@@ -42,6 +43,21 @@ const SITE_KISIWA_FINDINGS = [
 const SITE_KISIWA_SERVICE = [
   "/api/sites/KISIWA-001/performance/mini/capabilities",
   "/api/sites/KISIWA-001/performance/mini/service?from=2026-10-31T09%3A00%3A00Z&to=2026-10-31T10%3A00%3A00Z",
+];
+// Old `date=` Renewable/Service links (Site-local day of the UTC day; KISIWA fixture zone UTC+3) and the Kobo board
+// with its overview answered: recorded on the pre-change sources (miniDepthClient at 2e291ecc1; SiteOverview and
+// SiteWindowOverview at bfb2376f5), restored after.
+const SITE_KISIWA_SERVICE_DATE = [
+  "/api/sites/KISIWA-001/performance/mini/capabilities",
+  "/api/sites/KISIWA-001/performance/mini/service?from=2026-10-31T09%3A00%3A00.000Z&to=2026-10-31T10%3A00%3A00.000Z",
+];
+const SITE_KISIWA_RENEWABLE_DATE = [
+  "/api/sites/KISIWA-001/performance/mini/capabilities",
+  "/api/sites/KISIWA-001/performance/mini/renewable?from=2026-10-30T21%3A00%3A00.000Z&to=2026-10-31T21%3A00%3A00.000Z",
+];
+const SITE_KOBO_BOARD = [
+  "/api/sites/KOBO-001/outcome-board?date=2026-11-03&finding_id=11111111-1111-4111-8111-111111111111&finding_revision_id=22222222-2222-4222-8222-222222222222",
+  "/api/sites/KOBO-001/overview?date=2026-11-03",
 ];
 
 beforeEach(() => {
@@ -108,6 +124,46 @@ describe("SR-2b the demo's Site board requests are byte-identical", () => {
     ],
   ])("%s requests exactly what it did before SR-2b", async (_label, path, site, expected) => {
     expect(await siteRequestsAt(path, site)).toEqual(expected);
+  });
+});
+
+describe("SR-2b old date= links on Renewable and Service read the same day as day=", () => {
+  // The legacy `date=` and the new `day=` must request exactly the same window; `date=` strings recorded on the sources
+  // before this change (main's miniDepthClient read `date` only).
+  it.each([
+    ["service", SITE_KISIWA_SERVICE_DATE],
+    ["renewable", SITE_KISIWA_RENEWABLE_DATE],
+  ])("%s: date= and day= request the same window, unchanged from before", async (page, expected) => {
+    const site = as(HYBRID_MINI_GRID_SITE, "KISIWA-001");
+    const legacy = await siteRequestsAt(`/sites/KISIWA-001/performance/${page}?date=2026-10-31`, site);
+    urls = [];
+    const current = await siteRequestsAt(`/sites/KISIWA-001/performance/${page}?day=2026-10-31`, site);
+    expect(legacy).toEqual(expected);
+    expect(current).toEqual(expected);
+  });
+});
+
+describe("SR-2b the Kobo board's outcome-board request is byte-identical", () => {
+  // The overview read answers (s5 window fixture for the served day) so the board reaches its outcome-board read.
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        const day = /\/overview\?date=(\d{4}-\d{2}-\d{2})/.exec(url)?.[1];
+        if (day) return Promise.resolve(new Response(JSON.stringify(summary(day)), { status: 200, headers: { "Content-Type": "application/json" } }));
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+  });
+  it.each([
+    ["old date= link", "/sites/KOBO-001?date=2026-11-03"],
+    ["day= link", "/sites/KOBO-001?day=2026-11-03"],
+    ["day= inside a shared range", "/sites/KOBO-001?from=2026-11-01T00:00:00Z&to=2026-11-04T00:00:00Z&day=2026-11-03"],
+  ])("%s", async (_label, path) => {
+    const got = await siteRequestsAt(path, as(HYBRID_MINI_GRID_SITE, "KOBO-001"));
+    expect(got.filter((u) => u.includes("/overview") || u.includes("/outcome-board"))).toEqual(SITE_KOBO_BOARD);
   });
 });
 

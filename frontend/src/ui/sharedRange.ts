@@ -10,6 +10,7 @@
  * it exactly as it reads its links today and each page's API request for a range is unchanged (MOCK DEVIATION SR-1-1
  * in `SharedRangeBar.tsx`).
  */
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -207,6 +208,22 @@ export function withFocusDay(params: URLSearchParams, day: string | null): URLSe
   if (day === null) next.delete(FOCUS_DAY);
   else next.set(FOCUS_DAY, day);
   return next;
+}
+
+/**
+ * SR.3: an old `date=` link on a page that reads its day with `focusDayOf` is rewritten to `day=` (replace, no history
+ * entry). The day read is the same, so the page's request is unchanged. A malformed `date` is left as it is.
+ */
+export function useLegacyFocusDayRewrite(): void {
+  const [params, setParams] = useSearchParams();
+  const legacy = params.get(LEGACY_FOCUS_DAY);
+  useEffect(() => {
+    if (legacy === null) return;
+    const day = focusDayOf(params);
+    if (day === null) return;
+    setParams(withFocusDay(params, day), { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per legacy value
+  }, [legacy]);
 }
 
 /** Whether a calendar day lies inside a range (`to` included). */
