@@ -4,7 +4,7 @@
     "version": 4
   },
   "label": "Story calendar (v4, D-E5.12, D-E5.17): 22 of the 30 Kobo days in [S-28, S+1] are full days (night, 06:00-18:00 day, rest of day); the generator and trial days stay story-only and read partly checked; S-10 and S-4 have no data. The week S-6..S has one missed day (S-4) and one partly checked day (S, the trial baseline)",
-  "status": "FX-KOBO-GAPS (D-E5.12, D-E5.17, owner 2026-11-10). Example data. S-27..S-22 are full before-mill days (S-27 takes the fresh declared night; S-26..S-22 chain from the previous day's 24:00, as S-19..S-15). Each full example day starts at 06:00 from a declared battery level and fuel level. Before `mill_change_day` the days run the mill's authored 'before' pattern; after it, the kobo-daytime pattern. S-4 is the gateway-offline day; S-3, S-2 and S-1 are full steady days; no late Kobo day remains (the late path is shown live by script Step 7). Cold stays its 3 story days (Q5). EV adds S-14 (3 Tuesdays). v1, v2 and v3 are kept as history.",
+  "status": "FX-KOBO-GAPS (D-E5.12, D-E5.17, owner 2026-11-10). Example data. S-27..S-22 are full before-mill days (S-27 takes the fresh declared night; S-26..S-22 chain from the previous day's 24:00, as S-19..S-15). Each full example day starts at 06:00 from a declared battery level and fuel level. Before `mill_change_day` the days run the mill's authored 'before' pattern; after it, the kobo-daytime pattern. S-4 is the gateway-offline day; S-3, S-2 and S-1 are full steady days; no late Kobo day remains (the late path is shown live by script Step 7). Cold stays its 3 story days (Q5); DATA-11 (D-E5.37) adds an ordinary Cold day on S-6, S-5, S-4, S-2 and S-1, each its own recording session (one epoch per Cold day). EV adds S-14 (3 Tuesdays). v1, v2 and v3 are kept as history.",
   "kinds": {
     "kobo": {
       "normal": {
@@ -189,6 +189,15 @@
         "received_at": "D+0d 17:05",
         "assess": "build",
         "note": "backup cooling held the room"
+      },
+      "ordinary": {
+        "scenario_id": "cold-normal",
+        "scenario_version": 1,
+        "start": "D+0d 16:00",
+        "end": "D+0d 17:05",
+        "received_at": "D+0d 17:05",
+        "assess": "build",
+        "note": "DATA-11 (D-E5.37): an ordinary day in the story week; backup cooling held the room"
       },
       "degraded": {
         "scenario_id": "cold-missing-probe",
@@ -383,8 +392,28 @@
         "kind": "normal"
       },
       {
+        "day": "S-6d",
+        "kind": "ordinary"
+      },
+      {
+        "day": "S-5d",
+        "kind": "ordinary"
+      },
+      {
+        "day": "S-4d",
+        "kind": "ordinary"
+      },
+      {
         "day": "S-3d",
         "kind": "degraded"
+      },
+      {
+        "day": "S-2d",
+        "kind": "ordinary"
+      },
+      {
+        "day": "S-1d",
+        "kind": "ordinary"
       },
       {
         "day": "S+0d",
