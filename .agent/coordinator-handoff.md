@@ -34,6 +34,7 @@ Build-sheet rulings: `.agent/build-sheet-DIESEL-1.md` through §9v (R3v).
 - Docker restarted (memory); demo app (client7 serve/web) STOPPED to free memory — restart via walk7 scripts at 12:00.
 - Lanes (rules `.agent/lane-rules-2026-11-12.md`, stop by 12:00): A AR-3+AR-6 finish (Sonnet, wt ar3); C AR-4 continue (Opus, wt ar4); Postgres runner HON-1 then OPEN-NOW (Sonnet); reviewer OPEN-NOW + PR-1 (Opus, read-only).
 - Architect rev 5 (b80a49cbd, D-PRICE.1 d4532e9e0): PR-3 IN, 1.0 unit, lane B. Owner approved ALL defaults (`owner-price-entry-defaults-2026-11-12.md`). Next: PR-3 server half starts when the HON-1/OPEN-NOW Postgres runner frees its slot (memory); PR-1 fix round must switch future-key link words to "What pricing this needs →" (default 4) — fold into PR-1 review fixes; PR-2a + PR-3 form Fri; PR-3 merged by Sat 18:00.
+- **VPS move TODAY Thu ~16:00 after the demo** (owner, `owner-vps-move-after-thursday-demo-2026-11-12.md`): merge ACCEPTed, check-all, push main + unfinished task branches (authorized), then VPS setup per `.agent/vps-migration-plan.md` cutover section. Needs owner SSH config before then.
 - Runbook shifts: 12:00 pause lanes → (Docker restart) → walk7 serve+web → add-dates → Portfolio week check → warm-up → DS-1f/DS-1b refresh; ready 13:30.
 
 ### 2026-11-11 22:15 status
