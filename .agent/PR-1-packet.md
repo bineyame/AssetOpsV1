@@ -63,7 +63,7 @@ Where it appears:
 - `frontend-hardwiring.mjs`: pass, no cell raised.
 - `missing-claim-scan.mjs`: pass.
 - `mock-deviation-labels.mjs`: pass.
-- `tools/check-architecture.ps1`: see the final line below.
+- `tools/check-architecture.ps1`: "Architecture check passed.", exit 0. It needs `ASSETOPS_GUARD_PYTHON=<plan2 .venv python>` because the worktree has no `.venv`; without it, rule 8 refuses to run.
 
 **Not run:** full suites, production build, layout evidence. Tonight's rules exclude them, so layout is **unverified**: the link sits under a table cell or metric card at narrow widths.
 
