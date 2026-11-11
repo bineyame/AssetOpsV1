@@ -178,7 +178,7 @@
 .estate-portfolio .portfolio-context .portfolio-partial{color:#916220;min-width:0;overflow-wrap:anywhere}
 
 /* PF-T: Portfolio section tabs (v71 `portfolio-tabs.html` .pf-tabs / .pf-top3 / .pf-pulse); Site tab family links. */
-.estate-portfolio .pf-datebar{position:sticky;top:0;z-index:5;background:var(--surface-page, #f5f7fb);padding:6px 0 2px;margin-bottom:6px}
+.estate-portfolio .pf-cutoff{margin:0 0 6px}
 .estate-portfolio .pf-tabs{margin:0 0 18px}
 .estate-portfolio .pf-tabs .site-tabs__list{column-gap:24px}
 .estate-portfolio .pf-tabs .site-tabs__link{display:inline-flex;align-items:center;gap:6px}

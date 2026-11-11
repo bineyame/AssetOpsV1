@@ -1,9 +1,8 @@
 /*
  * PF-T (2026-11-11): Portfolio section tabs, layout `frontend/mockups/v71/portfolio-tabs.html`; proposal
  * `.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11.
- * MOCK DEVIATION PF-T-1: the product shell has no top bar, so the Portfolio date bar (`EstateDateBar`) sits at the top
- *   of the page, above the title, and stays in view while scrolling (sticky). The v71 shared top-bar range picker is
- *   card SR, not PF-T.
+ * PF-T-1 (closed by SR-1): the Portfolio date bar is gone; the range is the shell's shared top-bar range
+ *   (`shell/SharedRangeBar.tsx`, v71 Change 0b). The page keeps only the read's cutoff line under the title.
  * MOCK DEVIATION PF-T-2: the v71 coverage line above the tabs and the "Readings per site" table are card PF-C; the
  *   context row keeps today's per-Site partial notes and the Scope & coverage tab holds today's "Assessment scope &
  *   periods" drawer and the business-context footer.
@@ -38,7 +37,7 @@ import {
   type EstateResult,
   type EstateSourceBlock,
 } from "./estateClient";
-import { EstateDateBar, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
+import { EstateCutoffLine, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
 import { moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityText } from "./estateFinancialsWords";
 import {
   ACTION_WINDOW_NOTE,
@@ -1143,17 +1142,15 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
   const body = first?.status === "loaded" ? first.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="portfolio">
-      {/* PF-T (proposal §11, MOCK DEVIATION PF-T-1): the date range sits at the top, the same on every tab. */}
-      <div className="pf-datebar" data-portfolio-datebar>
-        <EstateDateBar
-          key={`${window.from}|${window.to}|${window.known_at ?? ""}`}
-          query={{ ...window, cursor: null }}
+      <PageHeader title={PORTFOLIO_TITLE} subtitle={PORTFOLIO_SUBTITLE} />
+      {/* SR-1: the range is set in the shell's shared top bar (every page, every tab); this line keeps the read's cutoff. */}
+      <div className="pf-cutoff" data-portfolio-cutoff>
+        <EstateCutoffLine
+          query={{ known_at: window.known_at, cursor: null }}
           body={barBody(body)}
           windowRefused={first?.status === "refused" && first.code === "INVALID_WINDOW"}
-          onApply={(next) => navigate(portfolioHref(next, lens, tab))}
         />
       </div>
-      <PageHeader title={PORTFOLIO_TITLE} subtitle={PORTFOLIO_SUBTITLE} />
       {first === null ? (
         <div className="portfolio-loading" data-estate-loading>
           <p>Loading the Portfolio across the estate.</p>

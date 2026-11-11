@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Outlet, useLocation, useOutletContext } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useOutletContext, useSearchParams } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
+import { SharedRangeBar } from "./SharedRangeBar";
+import { entryRange, fillsRangeOnEntry, rangeSearch, readSharedRange } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
 
@@ -99,8 +101,20 @@ export function OperatorShellLayout() {
   // The button exists only at that width: elsewhere the rail is always shown, so the shell adds no control.
   const narrow = useNarrowViewport();
   const [railOpen, setRailOpen] = useState(false);
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   useEffect(() => setRailOpen(false), [pathname]);
+  // SR-1 (SR.3): the rail keeps the address range; an estate address with none is completed before the page mounts
+  // (replace, no history entry), so its first read is for the range the address then shows.
+  const [params] = useSearchParams();
+  const railSearch = rangeSearch(params);
+  const fill = fillsRangeOnEntry(pathname) && readSharedRange(params).status === "absent";
+  let filled: string | null = null;
+  if (fill) {
+    const next = entryRange();
+    for (const [key, value] of params) next.append(key, value);
+    filled = `${pathname}?${next.toString()}${location.hash}`;
+  }
 
   return (
     <div
@@ -126,17 +140,21 @@ export function OperatorShellLayout() {
           ) : null}
         </div>
         <div className="app-frame__rail-body" id="operator-rail-body">
-          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} />
+          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} search={railSearch} />
           {chrome?.footer ?? null}
         </div>
       </div>
 
       <div className="app-frame__body">
+        {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
+        <header className="app-topbar" data-shared-range-topbar>
+          <SharedRangeBar />
+        </header>
         <p className="demonstration-banner" role="note" data-demonstration-banner>
           {DEMONSTRATION_BANNER}
         </p>
         <div className="app-frame__content">
-          <Outlet />
+          {filled === null ? <Outlet /> : <Navigate replace to={filled} state={location.state} />}
         </div>
       </div>
     </div>

@@ -128,7 +128,12 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "W1-b: Findings selection widened to the Site Findings index"; Expect = "does not declare the ruled rail selection helper";
                Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '\/findings(?:\/.*)?$/') },
             @{ Name = "W1-b: Findings selection widened to a prefix lookalike"; Expect = "does not declare the ruled rail selection helper";
-               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+' '\/findings[^/]*\/[^/]+') }
+               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+' '\/findings[^/]*\/[^/]+') },
+            # SR-1: the left menu keeps the shared range; dropping the rail search, or feeding it the raw address, fails.
+            @{ Name = "SR-1: rail search dropped"; Expect = "does not pass the shared range";
+               Rail = (Edit-Lines $rail '\s+search=\{railSearch\}' '') },
+            @{ Name = "SR-1: rail search is the raw address"; Expect = "does not pass the shared range";
+               Rail = (Edit-Lines $rail 'const railSearch = rangeSearch\(params\);' 'const railSearch = location.search;') }
         )
     }
     catch {

@@ -59,8 +59,9 @@ const LEADING_SELECTOR =
   ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper], [data-alternatives-finding-unavailable], " +
   // post-W6 W1-b Q26/Q52: the visible MOCK DEVIATION D2 (R383) line below a retained Finding Site tab row.
   '[data-mock-deviation="R383"], ' +
-  // PF-T: the Portfolio date bar, context row and section tab row sit above the tab's panel (v71 portfolio-tabs.html).
-  ".pf-datebar, [data-portfolio-datebar], [data-portfolio-context], [data-portfolio-tabs], " +
+  // PF-T: the Portfolio context row and section tab row sit above the tab's panel (v71 portfolio-tabs.html); SR-1
+  // replaced the PF-T date bar with the read's cutoff line (the range is in the shell's shared top bar).
+  ".pf-cutoff, [data-portfolio-cutoff], [data-portfolio-context], [data-portfolio-tabs], " +
   // PF-C1: the one coverage line between the context row and the tab row (v71 portfolio-tabs.html `.pf-coverage`).
   "[data-portfolio-coverage], " +
 
