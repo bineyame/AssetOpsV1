@@ -27,7 +27,7 @@ backend/assetops_backend/work/{open_now.py (new), site_index.py, global_index.py
 - vitest: globalIncidents + globalMaintenance + siteWorkCases 91 passed; coldWorkCases + evWorkCases + globalWorkClient 74 passed.
 - `tsc --noEmit`: clean (no output).
 - Non-DB import and wording check: ok.
-- `check-architecture.ps1` and `check-agent-workflow.ps1`: result below.
+- `check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): "Architecture check passed." `check-agent-workflow.ps1`: "Agent workflow check passed." (exit 0, on `df60697a1`).
 
 ## Known deviations
 1. Actions are not counted. The card's example says "1 action", but the Action index has no `known_at` cutoff, and an Action has no "open" state (ACCEPTED → PENDING → APPLIED; resolution is separate). The Architect needs to define "open action" before actions can be counted. The Site Actions subtab and the global Preventive and Operational records pages get no line, because plans and records have no open state.
