@@ -4339,3 +4339,42 @@ Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
 - Only the three stored keys may be saved for 17 Nov. A future key is refused with 422 `PRICE_KEY_NOT_ENTERABLE`, because no figure reads it.
 
 Decision logged for owner review: **D-PRICE.1**.
+
+## D-OPEN.1, D-ANY.7, D-HON.1, D-F05.1 Batched rulings (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+
+### D-OPEN.1 What "open now" means on the Work lists (OPEN-NOW review, `task/OPEN-NOW-work-read` a2e792ddb)
+
+- **Definition.** An item is "open now" when it is an incident or a maintenance request whose reduced W4 case state at the read's `known_at` is OPEN or IN_PROGRESS, at the list's admitted Sites, with no date-window filter. This is what the code does (`work_open_now.py:15`, `work/open_now.py:23-29`). Accepted as built.
+- **Actions are not counted.** An Action's lifecycle (ACCEPTED, PENDING, APPLIED) has no "open" state, and the Action index has no `known_at` cutoff, so any count would be invented. The Site Actions subtab carries no open-now line. The card wording "requests, actions … 1 action" is amended to "incidents, requests".
+- **Exact copy (as built, no change):** "Open now: {n} incident(s), {n} request(s), whatever the dates"; a zero kind is left out; nothing open reads "Nothing open now".
+- **Low 1, fix before merge (about 0.1 unit).** The open-now line must never take down the list it sits on. In `global_index.py:537-542` and the Site list (`site_index.py` ~390), a reduction failure in the open-now count omits `open_now` from the wire, logs `open_now_unavailable`, and the list is served as before. The frontend already shows no line when `open_now` is absent. Add one no-DB test per list.
+- **Low 2, no change.** The count uses the list's own Site scope (`imported_sites(.., request.to)`); "whatever the dates" refers to the cases' dates, not Site import. Accepted.
+- **Low 3, fix before merge.** Add a real cursor page-two read (non-empty window, `limit=1`, next cursor) to `test_open_now_postgres.py`, in the same pending Postgres run.
+- **Low 4 (one events query per case):** backlog; demo scale.
+- Merge condition: Lows 1 and 3 done, the packet's 8 Postgres files pass, fresh-reviewer re-check of the diff.
+
+Decision logged for owner review: **D-OPEN.1**.
+
+### D-ANY.7 AR-4 claim-day rows vs D-ANY.5 (commit 5f82f5fa0, `task/ANY-2-AR4`)
+
+- **Confirmed.** A day whose page selection names no revision is projected with no stored input and no compose (D-ANY.5). A row that exists but is not provably equal (other revision, older builder, PENDING on a touched local day) is read as today for that day only, logged and counted (D-ANY.6a / D-ANY.1).
+- **Open question ruled: the page selected a revision but no row is known at k.** The page's own live selection proves a revision exists at k, so the missing row means the row build has not caught up. That is "cannot be proven equal", not "nothing known": read that day as today (`_miss(..., "absent")`), logged `period_row_absent` and counted. Never render NO_DATA against the page's own selection. The builder's code is right.
+- **Builder change:** none to the logic. Replace the module-doc line "OPEN Architect question" with "Ruled D-ANY.7". Parity must include one no-revision day and one selected-revision-without-row day (a k between the revision's `computed_at` and the row's `computed_at`), both byte-equal to today's compose.
+
+Decision logged for owner review: **D-ANY.7**.
+
+### D-HON.1 HON-1 Low: the Site Overview card's "Why?" days
+
+- **Backlog, with a rehearsal trigger.** A card's own days line is still read from claim days when its day set differs from the coverage line's (packet, Known deviations). This is honest per card (its own days), and the Site Overview day line now names the gap.
+- **Trigger:** if the 17 Nov rehearsal shows a card's "Why?" day count contradicting the coverage line for the same days on a demo Site (for example "7 of 7" beside "6 of 7"), apply the same `_own_days` arrival-day rule to the Site Overview cards (about 0.1 unit, Sonnet) before the demo. Otherwise it stays in the backlog. HON-1 merges without it.
+
+Decision logged for owner review: **D-HON.1**.
+
+### D-F05.1 F05 placement test coverage after the s602b estate assertions moved to PARTIAL
+
+- **Backlog; not required before 17 Nov.** It is a test-coverage gap, not a product behaviour change, and no 17 Nov card depends on new F05 placement logic. The demo build's live checks are the demo-time guard.
+- **Builder change:** none now. Backlog item: add one fixture with complete readings that asserts F05 placement, so the placement path is again covered by a test with readings.
+
+Decision logged for owner review: **D-F05.1**.
