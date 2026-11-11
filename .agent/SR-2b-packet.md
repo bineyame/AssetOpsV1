@@ -60,4 +60,9 @@ D-UI.2; v71 `portfolio-tabs.html` Change 0b. Every commit leaves the screen hone
 
 ## Review focus
 - Bar wording on a one-day board ("Day shown" / "range not used"); the `date=` -> `day=` rewrite on the board.
-- Sites now import from `shell/` (FocusPicker, sharedRange) for the first time.
+- The range modules live in `frontend/src/ui/` (`sharedRange.ts`, `FocusPicker.tsx`, `rangeFocus.tsx`): the Site
+  substrate may not import `shell/` (`site-substrate.ps1` failed the first architecture run). `shell/sharedRange.ts`
+  re-exports; the guard's FocusPicker exemption moved to `ui/FocusPicker.tsx` (still one file). Where this packet
+  says `shell/FocusPicker.tsx` / `shell/rangeFocus.tsx`, read `ui/`.
+- Architecture check after the move: "Architecture check passed." Post-move reruns: tsc clean, sharedRange 22/22,
+  sr2RequestUrls 10/10, performanceDispatch 44/44.
