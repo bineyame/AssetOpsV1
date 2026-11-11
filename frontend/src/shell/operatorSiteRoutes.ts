@@ -251,6 +251,22 @@ export function siteFinancialAssumptionsHref(
 }
 
 /**
+ * PR-1 (BL-68, architect-answer-price-it §4.1): the Site price page, opened at one price `key` or one `need`. The
+ * server's `price_action.link_ref` (kind PRICES) is the only source of these links; the page itself is PR-2a, and
+ * until then the address shows an honest "not available yet" with a way back (`return`).
+ */
+export const SITE_PRICES_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/prices`;
+
+export function sitePricesHref(siteId: string, at?: { key?: string | null; need?: string | null }): string {
+  const base = `${siteDetailHref(siteId)}/financials/prices`;
+  const query = new URLSearchParams();
+  if (at?.key) query.set("key", at.key);
+  if (at?.need) query.set("need", at.need);
+  const text = query.toString();
+  return text ? `${base}?${text}` : base;
+}
+
+/**
  * W2-07: the five EV Site screens of an EV_CHARGING Site (q5 dry-read), each read with the selected
  * `?from=&to=&known_at=`: `/sites/{site}/ev`, `/ev/evidence`, `/ev/evidence/analysis`, `/ev/financials`,
  * `/ev/financial-assumptions`.
@@ -622,6 +638,8 @@ export function routeFor(r: Ref): string | null {
       return withWindow(SITE_VIEW_HREF[r.view ?? "home"](r.site), r.window);
     case "ESTATE":
       return ESTATE_VIEW_PATH[r.view];
+    case "PRICES": // PR-1: the Site price page at one key or need
+      return sitePricesHref(r.site, { key: r.key, need: r.need });
     default: {
       const unreachable: never = r;
       throw new Error(`unknown Ref ${JSON.stringify(unreachable)}`);

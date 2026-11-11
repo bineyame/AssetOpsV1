@@ -7,6 +7,7 @@
  * unavailable. A bad or foreign revision is `not_found`; the latest price is never substituted.
  */
 import { hasKeys, isObject } from "./evidenceRead";
+import type { PriceAction } from "./PriceAction";
 import type { FindingReadResult } from "./findingClient";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import type { SourceProvenance, SourceProvenancePair } from "./sourceProvenance";
@@ -142,6 +143,8 @@ export interface FindingConsequence {
   /** S4-05b phase 2: the stored source gate and every failed typed gate at once. */
   source_gate?: SourceGate | null;
   withheld_reasons?: string[];
+  /** PR-1 (BL-68): an UNPRICED fuel cost's link to the Site price page (server words); null otherwise. */
+  price_action?: PriceAction | null;
 }
 
 /** S4-05b phase 2: only a positive stored class may carry a current amount; otherwise `MIXED_OR_UNKNOWN_SOURCE`. */
