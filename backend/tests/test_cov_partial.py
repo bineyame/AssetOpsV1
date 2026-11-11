@@ -149,11 +149,14 @@ def test_t7_head_next_to_a_gap_is_withheld() -> None:
     assert body["rows"] == [] and body["days"]["withheld"] is True
 
 
-def test_t8_priced_head_on_partial_site_carries_no_amount() -> None:
+def test_t8_priced_head_on_an_analysed_day_of_a_partial_site_carries_its_amount() -> None:
+    """PARTIAL-MONEY (D-E5.45, owner option 2) reverses C6: a head on an analysed day is current money; a head on a
+    gap day never is (`test_partial_money.py`)."""
     body = cov([day(0), day(1, selected=False)], heads=[head(D0 + timedelta(hours=8), D0 + timedelta(hours=9))],
                consequence=PRICED)
     (row,) = body["rows"]
-    assert row["consequence"] == {"state": "UNKNOWN", **NULL_AMOUNTS, "source_revision_id": "c1"}
+    assert row["consequence"] == {"state": "PRICED", "amount": "10.00", "amount_low": "10.00",
+                                  "amount_high": "12.50", "currency": "USD", "source_revision_id": "c1"}
     assert body["selected_consequence_revision_ids"] == ["c1"]
 
 

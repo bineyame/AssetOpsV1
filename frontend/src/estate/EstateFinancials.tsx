@@ -33,6 +33,7 @@ import {
 } from "./estateFinancialsWords";
 import { EstateCutoffLine, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import { BENEFICIARY_WORDS, type Beneficiary } from "../sites/actionPresentation";
+import { partialMoneyText } from "./portfolioWords";
 import "./estateEvidence.css";
 import "./estateFinancials.css";
 
@@ -251,6 +252,25 @@ function RegisterTable({ body }: { body: EstateFinancialsBody }) {
   );
 }
 
+/**
+ * PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): one line per partly covered Site, its server-summed amount
+ * for the analysed days only, `{Site}: {amount} for {n} of {m} days analysed · {gap clause}`. Never a cross-Site or
+ * cross-currency total; nothing is estimated for a gap day.
+ */
+function PartialMoneyNotes({ body }: { body: EstateFinancialsBody }) {
+  const blocks = body.coverage.sites.flatMap((s) => (s.money ? [s.money] : []));
+  if (blocks.length === 0) return null;
+  return (
+    <>
+      {blocks.map((m) => (
+        <p key={m.site_id} className="estate-evidence-note" data-estate-partial-money={m.site_code}>
+          {partialMoneyText(m, m.amount === null ? null : moneyText(m.amount, "outward"))}
+        </p>
+      ))}
+    </>
+  );
+}
+
 /** The state table's register notes (outside the table, headers kept). */
 function RegisterNotes({ body }: { body: EstateFinancialsBody }) {
   const notes: [string, string][] = [];
@@ -417,6 +437,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
           <Panel heading={REGISTER_PANEL} headingId="estate-financials-register-heading" description={REGISTER_SUBTITLE}>
             <RegisterTable body={read.value} />
             <RegisterNotes body={read.value} />
+            <PartialMoneyNotes body={read.value} />
             <Pager next={next} first={firstPage} paged={query.cursor !== null} />
           </Panel>
           <Notice tone="amber" data={{ "data-estate-notice": "" }}>

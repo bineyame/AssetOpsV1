@@ -34,6 +34,7 @@ import {
   type EstatePortfolioRow,
   type EstatePortfolioScopeIdsBody,
   type EstateQuery,
+  type EstateCoverageSite,
   type EstateResult,
   type EstateSourceBlock,
 } from "./estateClient";
@@ -43,6 +44,7 @@ import {
   ACTION_WINDOW_NOTE,
   ASSESSMENT_IDS,
   coverageStateWords,
+  analysedDaysMoney,
   gapReasonClause,
   exclusionLineLabel,
   exclusionReasonWords,
@@ -157,7 +159,8 @@ function PulseCount({ value, missing, label, checkedDays, data, to }: { value: n
 }
 
 /**
- * COV-PARTIAL: a Site with incomplete days never shows an amount on its rows (the backend sends none). PF-C (proposal
+ * COV-PARTIAL: a Finding on a gap day of a Site with incomplete days shows no amount (the backend sends none; PARTIAL-
+ * MONEY D-E5.45 shows an analysed day's amount with `analysedDaysMoney`). PF-C (proposal
  * §4 C7) shortens the words to the reason alone; PF-W (D-E5.46) says "incomplete days", never "checked".
  */
 export const VALUE_WITHHELD = "Value not shown while this site has incomplete days";
@@ -165,9 +168,15 @@ export function partialConsequence(c: { state: string; source_revision_id: strin
   return c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : VALUE_WITHHELD;
 }
 
-function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined): string {
+function consequenceFirst(row: EstatePortfolioRow, site: EstateCoverageSite | undefined): string {
   const c = row.consequence;
+  const siteState = site?.state;
   if (siteState === "PARTIAL" && !(c.state === "PRICED" && (c.amount_low ?? c.amount) != null)) return partialConsequence(c);
+  // PARTIAL-MONEY (D-E5.45): a head on an analysed day carries its amount, named as the analysed days' only.
+  if (siteState === "PARTIAL" && site?.days) {
+    const amount = moneyText({ low: c.amount_low ?? c.amount, high: c.amount_high ?? c.amount, currency: c.currency }, "outward");
+    return amount === null ? NOT_DISPLAYABLE : analysedDaysMoney(amount, site.days);
+  }
   const base =
     c.source_revision_id === null && c.state !== "PRICED"
       ? "No consequence recorded"
@@ -190,7 +199,7 @@ function episodeText(row: EstatePortfolioRow): string {
   );
 }
 
-function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
+function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: EstateCoverageSite | undefined }) {
   const episode = episodeText(row);
   // CH5a2-R4(c): every row link renders from its `link_refs` sibling; a row without one renders no link.
   const links = {
@@ -279,7 +288,7 @@ const TABLE_HEADS = ["Site", "Finding / operating mechanism", "Value / consequen
 function placementRows(
   rows: EstatePortfolioRow[],
   counts: EstatePortfolioBody["summary"]["placement_counts"],
-  siteState: Map<string, string>,
+  siteState: Map<string, EstateCoverageSite>,
 ) {
   const out: ReactNode[] = [];
   let group: string | null = null;
@@ -321,7 +330,7 @@ function PriorityPanel({
   loadMore: (() => void) | null;
   warnings: readonly OutcomeWarning[];
 }) {
-  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
+  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
   const incomplete = pending === null && (body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN");
   const count = pending !== null ? "Loading" : body.total_count === null ? "Unknown" : String(body.total_count);
   const pendingLabel = LENS_LABELS.find(([value]) => value === pending)?.[1] ?? "";
@@ -851,7 +860,7 @@ function PortfolioTabs({
 
 /** PF-T: the Overview keeps the first three ranked findings of "Where management should act first" (v71 `pf-top3`). */
 function TopThree({ body, rows, pending, window }: { body: EstatePortfolioBody; rows: EstatePortfolioRow[]; pending: EstateLens | null; window: Window }) {
-  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
+  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
   const top = rows.slice(0, 3);
   return (
     <section className="panel pf-top3" aria-labelledby="portfolio-top3-heading" data-portfolio-panel="top3">

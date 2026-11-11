@@ -6,6 +6,7 @@
 import type {
   EstateCoverageDays,
   EstateDomain,
+  EstatePartialMoney,
   EstatePortfolioBody,
   EstatePortfolioExclusion,
   EstatePortfolioStatus,
@@ -228,7 +229,7 @@ export function incompleteSites(n: number): string {
  * D-E5.46 short form of a Site's gap days: one group per reason, days sharing a reason grouped (`3, 4 Nov:
  * conflicting readings`), groups " · "-joined; more than 3 gap days read `{g} days without a usable result`.
  */
-export function gapReasonClause(days: EstateCoverageDays | null | undefined, max: number = GAPS_LISTED_MAX): string {
+export function gapReasonClause(days: Pick<EstateCoverageDays, "gaps"> | null | undefined, max: number = GAPS_LISTED_MAX): string {
   const gaps = days?.gaps ?? [];
   if (gaps.length === 0) return "";
   if (gaps.length > max) return `${gaps.length} days without a usable result`;
@@ -238,6 +239,30 @@ export function gapReasonClause(days: EstateCoverageDays | null | undefined, max
     groups.set(short, [...(groups.get(short) ?? []), new Date(`${gap.day}T00:00:00Z`)]);
   }
   return Array.from(groups, ([short, list]) => `${dayGroup(list)}: ${short}`).join(" · ");
+}
+
+/**
+ * PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): a partly covered Site's money, named as the analysed days'
+ * only: `{amount} for {n} of {m} days analysed · {gap clause}`. The gap clause is `gapReasonClause` of the same
+ * `days` block the coverage line names, so the money and the line read one day set. Nothing is estimated for a gap.
+ */
+export function analysedDaysMoney(amount: string, days: Pick<EstateCoverageDays, "checked" | "requested" | "gaps">): string {
+  const clause = gapReasonClause(days);
+  return `${amount} for ${days.checked} of ${days.requested} days analysed${clause ? ` · ${clause}` : ""}`;
+}
+
+/** PARTIAL-MONEY: a Site's analysed-days amount that cannot be one figure says why; never a sum across currencies. */
+export const PARTIAL_MONEY_NOT_ADDED: Readonly<Record<string, string>> = {
+  CURRENCY_MIXED: "amounts in more than one currency, not added",
+  OVERLAPPING: "overlapping amounts, not added",
+  NO_ELIGIBLE_LINES: "no priced amount",
+};
+
+/** The Financials Site note: `{Site}: {amount} for {n} of {m} days analysed · {gap clause}`. */
+export function partialMoneyText(block: EstatePartialMoney, amount: string | null): string {
+  const days = { checked: block.analysed_days, requested: block.requested_days, gaps: block.gaps };
+  const shown = amount ?? PARTIAL_MONEY_NOT_ADDED[block.state] ?? PARTIAL_MONEY_NOT_ADDED.NO_ELIGIBLE_LINES;
+  return `${block.site_name}: ${analysedDaysMoney(shown, days)}`;
 }
 
 function dayGroup(list: Date[]): string {

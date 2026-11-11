@@ -13,9 +13,10 @@ Run 7 q7-1 (the requested cutoff and the Site evidence cutoff are separate).
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Callable, Mapping
+from zoneinfo import ZoneInfo
 
 from assetops_backend import read_scope
 from assetops_backend.actions import lifecycle
@@ -31,7 +32,8 @@ CURRENT, PENDING, STALE, HISTORICAL, UNKNOWN, NOT_APPLICABLE = (
     "CURRENT", "PENDING_RECOMPUTE", "STALE_SOURCE", "HISTORICAL", "UNKNOWN", "NOT_APPLICABLE")
 COVERED = (CURRENT, HISTORICAL)
 # COV-PARTIAL (D-2026-10-31-estate-coverage-v2): a live mini-grid period with unchecked days and clean checked days.
-# Not in COVERED: every consumer still reads it as not covered (no money, no count, no covered Site).
+# Not in COVERED: no covered-Site count and no Current root. PARTIAL-MONEY (D-E5.45): its money is the lines of its
+# analysed days only (`on_gap_day`; `financials.select_financial_scope`), never estimated for a gap day.
 PARTIAL = "PARTIAL"
 DAYS_POLICY = "estate-coverage/2"
 DAYS_CHECKED = "{c} of {n} days assessed · {g} {unit} not available yet"
@@ -225,8 +227,10 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     for h in heads:
         frid = str(h["finding_revision_id"])
         cited |= set(cited_by.get(frid, ()))
-        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []),
-                                       withhold=state == PARTIAL)
+        # PARTIAL-MONEY (D-E5.45): a PARTIAL Site's money is its analysed days' only; a head on a gap day (any
+        # reason) shows no current amount and is never a money line. Nothing is estimated for the gap day.
+        on_gap = state == PARTIAL and on_gap_day(h, gap_days, k, day_tz if gap_reasons is not None else None)
+        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []), withhold=on_gap)
         if consequence.pop("_id", None) is not None:
             consequences.add(consequence["source_revision_id"])
         assumptions |= set(consequence.pop("_assumptions", ()))
@@ -240,13 +244,27 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                      "recurs_after_title": (None if h.get("recurs_after_finding_id") is None
                                             else head_titles.get(str(h["recurs_after_finding_id"]))),
                      "revision_no": h.get("revision_no"), "transition": h.get("transition"),
-                     "consequence": consequence,
+                     "consequence": consequence, "_on_gap_day": on_gap,
                      "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
                selected_assessment_revision_ids=sorted(assessments), cited_accepted_evidence_ids=sorted(cited),
                selected_consequence_revision_ids=sorted(consequences),
                selected_assumption_revision_ids=sorted(assumptions))
     return out
+
+
+def on_gap_day(head: Mapping[str, Any], gaps: list[date], k: datetime, tz: str | None) -> bool:
+    """PARTIAL-MONEY: the episode `[start, end)` (open end read through `k`) overlaps a gap day's own bounds, the
+    Site-local midnights when `tz` is given, else UTC. No continuity tolerance: a line wholly on an analysed day is
+    that day's money; the waiting-gap tolerance (`touched`) has already dropped the heads next to NOT_ANALYSED days."""
+    zone = ZoneInfo(tz) if tz else timezone.utc
+    start, end = head["episode_start"], k if head.get("episode_end") is None else head["episode_end"]
+    for d in gaps:
+        lo = datetime.combine(d, time(0), tzinfo=zone).astimezone(timezone.utc)
+        hi = datetime.combine(d + timedelta(days=1), time(0), tzinfo=zone).astimezone(timezone.utc)
+        if start < hi and end > lo:
+            return True
+    return False
 
 
 def _requested_days(from_: datetime, to: datetime) -> int:
@@ -326,7 +344,7 @@ def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: dat
              "_cited": [str(x) for x in cited.get("power_evidence_ids") or ()]}
     if selected.get("consequence_state") != "PRICED":
         return _consequence("UNPRICED", cid, **extra)
-    if historical or withhold:  # a prior amount, or one from a partly checked period (C6), is never current money
+    if historical or withhold:  # a prior amount, or one on a gap day (C6, D-E5.45), is never current money
         return _consequence("UNKNOWN", cid, **extra)
     block = snapshot.consequence_provenance(t, s, cid, head["finding_revision_id"],
                                             sorted({*finding_cited, *extra["_cited"]}))
