@@ -12,7 +12,7 @@
  * `{error:{code,message}}`. `source_provenance.classification` is read, never the persisted result's `class`.
  */
 
-import { coldWindowSearch, type ColdRead, type ColdWindowQuery } from "./coldAssessmentClient";
+import { coldWindowSearch, type AnalysedPeriodsRead, type ColdRead, type ColdWindowQuery } from "./coldAssessmentClient";
 import { isObject } from "./evidenceRead";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import type { OutcomeCategories } from "./outcomeCategories";
@@ -20,7 +20,7 @@ import type { OutcomeCategories } from "./outcomeCategories";
 export type EvRead<T> = ColdRead<T>;
 export type EvWindowQuery = ColdWindowQuery;
 
-export interface EvEnvelope {
+export interface EvEnvelope extends AnalysedPeriodsRead {
   site_id: string;
   window: { from: string | null; to: string | null; known_at: string | null };
   currentness: { state: string; as_of: string | null; limitation: string | null };

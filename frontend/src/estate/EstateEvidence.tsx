@@ -7,7 +7,7 @@
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatRange } from "../ui/time";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { UnavailableInline } from "../ui/UnavailableEntry";
@@ -22,7 +22,7 @@ import {
   type EvidenceRow,
 } from "./estateEvidenceMoneyClient";
 import { gapWord, observationSummary, priorSelectionText, reasonSentences } from "./estateEvidenceWords";
-import { EstateDateBar, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
+import { EstateCutoffLine, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import "./estateEvidence.css";
 
 export const ESTATE_EVIDENCE_PATH = "/evidence";
@@ -82,7 +82,7 @@ const CONTEXT_WORDS: Readonly<Record<string, { text: string; tone: string }>> = 
   UNASSESSED: { text: "Not assessed", tone: "gray" },
   UNKNOWN: { text: "Not assessed", tone: "gray" },
   // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
-  PARTIAL: { text: "Some days not checked yet", tone: "amber" },
+  PARTIAL: { text: "Incomplete days", tone: "amber" },
 };
 
 export function historicalAsOf(instant: string): string {
@@ -419,7 +419,6 @@ function barBody(body: EstateEvidenceBody | null): EstateEnvelope | null {
 export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyClient }) {
   const reads = useMemo(() => client ?? createEstateEvidenceMoneyClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EvidenceResult<EstateEvidenceBody> } | null>(null);
@@ -444,13 +443,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
   return (
     <div className="estate-page estate-evidence" data-estate-root="evidence">
       <PageHeader eyebrow={EVIDENCE_EYEBROW} title={EVIDENCE_TITLE} subtitle={EVIDENCE_SUBTITLE} />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={barBody(body)}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(nextQuery) => navigate(estateHref(ESTATE_EVIDENCE_PATH, nextQuery))}
-      />
+      <EstateCutoffLine query={query} body={barBody(body)} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading" data-estate-loading>
           Loading evidence across the estate.

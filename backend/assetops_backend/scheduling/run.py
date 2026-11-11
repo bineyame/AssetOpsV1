@@ -77,7 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         out = prebuild(url, {})
         print(json.dumps(out, default=str))
-        return 0 if out.get("code") != "FAILED" else 1
+        return 0 if out.get("code") not in ("FAILED", "DEGRADED") else 1  # INFRA-1: DEGRADED is a failure
     if args.command == "heads":
         store = build_schedule_store(url)
         print(json.dumps({"tick": store.tick_head(args.environment), "sites": store.site_heads()}, default=str))

@@ -181,14 +181,13 @@ export function createWorkClient(basePath: string = SITES_API_PATH): WorkClient 
 }
 
 /**
- * post-W6 W5-cold R338 (B14-09; W5 rulings 1, as W6 Q7): seven UTC calendar days including today,
- * `[today − 6 days 00:00Z, tomorrow 00:00Z)`. Shared by cold/EV Actions and every Site type's Work cases.
+ * SR-2 (one default, R338 revised by SR.3): the last seven full UTC days, ending yesterday, `[today − 7 days 00:00Z,
+ * today 00:00Z)`. Shared by cold/EV Actions and every Site type's Work cases. "Last 7 days, including today" is a
+ * preset in the date range bar on Work pages.
  */
 export function defaultWorkWindow(now: Date = new Date()): { from: string; to: string } {
   const today = new Date(`${now.toISOString().slice(0, 10)}T00:00:00Z`);
   const from = new Date(today);
-  from.setUTCDate(from.getUTCDate() - 6);
-  const to = new Date(today);
-  to.setUTCDate(to.getUTCDate() + 1);
-  return { from: `${from.toISOString().slice(0, 10)}T00:00:00Z`, to: `${to.toISOString().slice(0, 10)}T00:00:00Z` };
+  from.setUTCDate(from.getUTCDate() - 7);
+  return { from: `${from.toISOString().slice(0, 10)}T00:00:00Z`, to: `${today.toISOString().slice(0, 10)}T00:00:00Z` };
 }

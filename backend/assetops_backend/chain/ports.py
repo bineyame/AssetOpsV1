@@ -41,6 +41,9 @@ class InputSet:
     pending: bool = False
     # Adapter-private carry from inputs() to measure(); never stored, never fingerprinted.
     payload: Any = None
+    # PB-3: per-connector reported states and meter intervals (`grading.status_known_spans`), for a measure whose
+    # declared coverage basis is `connector_status_known`; None for every other adapter.
+    connector_status: Any = None
 
 
 @dataclass(frozen=True)

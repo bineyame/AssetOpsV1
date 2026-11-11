@@ -58,7 +58,7 @@ from assetops_backend.fuel_balance.composition import build_fuel_balance_store
 from assetops_backend.fuel_balance.night_read import FuelNightRead
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
                                                  build_estate_portfolio_service, registry_tenant)
-from assetops_backend.chain.composition import build_response_store
+from assetops_backend.chain.composition import build_response_store, install_handle_error_hook
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
@@ -318,6 +318,7 @@ def create_app(
     development operator everywhere; estate roots and other Site reads are not threaded here (R374).
     """
     resolved_flags = load_feature_flags() if flags is None else flags
+    install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language

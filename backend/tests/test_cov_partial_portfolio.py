@@ -163,7 +163,8 @@ def test_x1_partial_site_never_reads_on_track(partial_estate) -> None:
     assert findings["status"] != "CURRENT" and findings["status"] == "UNKNOWN"
     assert findings["total_count"] is None
     kobo_rows = [r for r in findings["rows"] if r["site_id"] == str(MG)]
-    assert kobo_rows and all(r["consequence"]["amount"] is None and r["consequence"]["amount_low"] is None
+    # PARTIAL-MONEY (D-E5.45, reverses the C6 withholding): a head on an analysed day carries its stored amount
+    assert kobo_rows and all(r["consequence"]["state"] == "PRICED" and r["consequence"]["amount_low"] == "10.00"
                              for r in kobo_rows)
 
     evidence = partial_estate("evidence")
@@ -172,7 +173,12 @@ def test_x1_partial_site_never_reads_on_track(partial_estate) -> None:
 
     money = partial_estate("financials")
     assert money["status"] != "CURRENT"
-    assert not [line for line in money["rows"] if line.get("site_id") == str(MG)]
+    # PARTIAL-MONEY: the analysed days' lines, with the analysed-day count beside them; never an estate total
+    # (the W3-02 money snapshot stores no consequence for this head, so the Site has no line to sum)
+    block = _site(money)["money"]
+    assert block["state"] == "NO_ELIGIBLE_LINES" and block["amount"] is None
+    assert (block["analysed_days"], block["requested_days"], len(block["gaps"])) == (5, 7, 2)
+    assert money["summary"]["estate_total"] is None
 
     scope = partial_estate("scope")
     assert next(x for x in scope["sites"] if x["site_id"] == str(MG))["coverage_state"] == "PARTIAL"
@@ -182,8 +188,7 @@ def test_x1_partial_site_never_reads_on_track(partial_estate) -> None:
     # the other fake Sites carry W3-02 limits (U units), so PARTIAL or UNKNOWN; never CURRENT (S1 proves PARTIAL)
     assert body["status"] in ("PARTIAL", "UNKNOWN") and body["status"] != "CURRENT"
     assert body["summary"].get("finding_count") is None
-    assert all(r.get("amount") is None and (r.get("consequence") or {}).get("amount") is None
-               for r in body["rows"] if r.get("site_id") == str(MG))
+    assert _site(body)["money"]["analysed_days"] == 5
     disclosed = next(s for s in body["scope_disclosure"]["sites"] if s["site_id"] == str(MG))
     assert disclosed["coverage"]["state"] == "PARTIAL" and disclosed["coverage"]["days"]["checked"] == 5
 
@@ -199,7 +204,7 @@ def test_x2_partial_row_is_placed_on_the_not_covered_path(partial_estate) -> Non
 
 # --- WALK1-1 (WN-2): Portfolio counts over the checked days of a PARTIAL estate ---------------------------------
 
-DAYS = {"policy": "x", "requested": 7, "checked": 5, "gaps": [], "withheld": False, "text": "5 of 7 days checked"}
+DAYS = {"policy": "x", "requested": 7, "checked": 5, "gaps": [], "withheld": False, "text": "Complete readings on 5 of 7 days"}
 
 
 class DaysWorld(StateWorld):

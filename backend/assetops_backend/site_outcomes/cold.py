@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from assetops_backend import read_scope
 from assetops_backend.chain import refs
 from assetops_backend.estate.evidence_money import finding_window_ref
 from assetops_backend.work.domain_action_index import W1_DOMAIN
@@ -49,13 +50,13 @@ COOLING_TEXT = {
 }
 NO_PLAN_RECORDED = "No preventive plan recorded"
 NO_VERIFIED = "No verified result yet"
-STORAGE_LEVEL = "Not available yet · no storage contract recorded"
+STORAGE_LEVEL = "Storage contracts are not connected yet"
 CHAIN_COMPLETE = "Every step recorded"
 NO_CHAIN = "Not available yet · no power interruption in this window"  # reading 19: an empty causal strip
-LOADING_RECORDS = "Not available yet"
+LOADING_RECORDS = "Loading and door records are not connected yet"
 PROTECT_SUBLINE_START = ("Backup did not start by itself; cooling stopped until it was started by hand. Compressor "
-                         "and backup condition are not assessed")
-PROTECT_SUBLINE = "Compressor and backup condition are not assessed"
+                         "and backup condition need a wear model, which is not connected yet")
+PROTECT_SUBLINE = "Compressor and backup condition need a wear model, which is not connected yet"
 ASSURE_FULL = "Event fully reconstructed · no verified result yet"
 ASSURE_PART = "Event partly reconstructed · no verified result yet"
 ASSURE_SUBLINE = "Loading and door records are not connected, so stock impact cannot be judged"
@@ -67,11 +68,11 @@ PLAN_TYPE_TOKENS = {"backup_generator": ("GENERATOR",), "compressor": ("COMPRESS
 UNKNOWN_CHIP = {"label": "Unknown", "tone": "gray"}
 #: C (U3): the Cost row, measured from catalogue/2 (R541 resolved).
 NO_REPEAT = "No repeated visit without a result in 60 days"
-NO_REPAIR_COST = "No repair or call-out cost recorded"
+NO_REPAIR_COST = "Repair and call-out costs are not connected yet"
 NO_COOLING_METER = "Not available yet · no cooling energy meter"
-COST_SUBLINE = "None of the visits resolved the linked finding; repair cost is not recorded"
+COST_SUBLINE = "None of the visits resolved the linked finding; repair costs are not connected yet"
 #: Rulings C final review H1-3: the subline when the repeat warning names its fault (R572).
-COST_SUBLINE_FAULT = "None of the visits has fixed the {fault} yet; repair cost is not recorded"
+COST_SUBLINE_FAULT = "None of the visits has fixed the {fault} yet; repair costs are not connected yet"
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 
 #: OUT-D U4: the objective actual texts.
@@ -142,7 +143,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
         for fid in (x for x in linked if x not in known):
             try:
                 row = ports.finding(fid, lo, hi)
-            except Exception:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+            except Exception as error:  # noqa: BLE001 - a refused single read unsettles the Finding source (M1)
+                read_scope.note_failure("cold_findings", error)
                 findings_ok = False
                 if "cold_findings" not in reads.failed:
                     reads.failed.append("cold_findings")
@@ -375,7 +377,7 @@ def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[C
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
     done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))
     repair = Contributor("repair_cost", "Repair and call-out",
-                         f"No cost on work record {display_code(done[-1].code)}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
+                         f"Repair costs are not connected yet; work record {display_code(done[-1].code)} has no cost" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
                          refs.site_ref(c, "financials"))
     cooling = Contributor("cooling_energy", "Cooling energy", NO_COOLING_METER)
     return effect, repair, cooling

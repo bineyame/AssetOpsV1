@@ -58,21 +58,21 @@ def test_mg1_mix_complete_partial_low_no_data_and_a_declared_row():
     assert r.value == Decimal("25")          # PARTIAL added unscaled, LOW never, DECLARED ignored
     assert (r.checked_days, r.elapsed_days, r.month_days, r.complete) == (2, 13, 31, False)
     kpi = EV.nodes(i, "MG-1")["kpi"]
-    assert kpi.value == "MET"                # met on 2 checked days (missing days can only add)
+    assert kpi.value == "MET"                # met on 2 days with complete readings (missing days can only add)
     assert kpi.days == {"complete": 2, "partial": 1, "low": 1, "no_data": 9, "pending": 0, "expected": 13}
-    assert kpi.basis == "CHECKED_DAYS" and kpi.text == "25 kWh so far this month, on 2 of 13 days checked"
+    assert kpi.basis == "CHECKED_DAYS" and kpi.text == "25 kWh so far this month, on 2 of 13 days with complete readings"
 
 
 def test_mg1_too_early_on_one_day_and_pace():
     i = inp([row(1, "COMPLETE", kwh="5")], [mg1("1000")], hi=3)
     kpi = EV.nodes(i, "MG-1")["kpi"]
-    assert kpi.value == "TOO_EARLY" and "on 1 checked day; too early to judge (needs 3 checked days)" in kpi.text
+    assert kpi.value == "TOO_EARLY" and "on 1 day with complete readings; too early to judge (needs 3 days with complete readings)" in kpi.text
     on = [row(d, "COMPLETE", kwh="40") for d in (1, 2, 3)]
     assert EV.nodes(inp(on, [mg1("310")], hi=3), "MG-1")["kpi"].value == "ON_PACE"
     behind = [row(d, "COMPLETE", kwh="5") for d in (1, 2, 3)]
     kpi = EV.nodes(inp(behind, [mg1("310")], hi=3), "MG-1")["kpi"]
     assert kpi.value == "BEHIND_PACE" and kpi.basis == "COMPLETE"
-    assert kpi.text == "15 kWh so far this month, on 3 of 3 days checked · averages 5 kWh a day; the target needs " \
+    assert kpi.text == "15 kWh so far this month, on 3 of 3 days with complete readings · averages 5 kWh a day; the target needs " \
                        "10 kWh a day"
 
 
@@ -155,12 +155,12 @@ def test_earnings_partial_unscaled_and_days():
     e = EV.nodes(inp(rows, hi=9, lo=7), "MG-1")["earnings"]
     # CH6a3-R Q3: kWh of the counted days only (the LOW day adds neither money nor kWh); no declared price given.
     assert e.value == {"amount": "3.25", "currency": "USD", "kwh": "20"} and e.basis == "CHECKED_DAYS"
-    assert e.text == "3.25 USD over 1 of 3 days checked · 1 partly checked · not billed or collected"
+    assert e.text == "3.25 USD over 1 of 3 days with complete readings · 1 with partial readings · not billed or collected"
 
 
 def test_earnings_zero_kwh_priced_is_zero_money():
     e = EV.nodes(inp([row(7, "COMPLETE", kwh="0", amount="0")], hi=7), "MG-1")["earnings"]
-    assert e.text == "0.00 USD over 1 of 1 day checked · not billed or collected" and e.basis == "COMPLETE"
+    assert e.text == "0.00 USD over 1 of 1 day with complete readings · not billed or collected" and e.basis == "COMPLETE"
 
 
 def test_earnings_currency_mixed():
@@ -171,7 +171,7 @@ def test_earnings_currency_mixed():
 
 def test_ev_earnings_reads_charging_kwh():
     e = EV.nodes(inp([row(9, "COMPLETE", "charging_kwh", amount="36")], hi=9), "EV-3")["earnings"]
-    assert e.key == "money.estimated_charging_income" and e.text.startswith("36.00 USD over 1 of 1 day checked")
+    assert e.key == "money.estimated_charging_income" and e.text.startswith("36.00 USD over 1 of 1 day with complete readings")
 
 
 def test_mg2_earnings_is_the_stored_consequence_with_no_days():

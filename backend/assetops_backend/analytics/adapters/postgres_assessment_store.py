@@ -1109,6 +1109,11 @@ class PostgresAssessmentStore:
                 "run_id": None if run is None else run["id"],
                 "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
                 "window_assessment_revision_id": None if window_rev is None else window_rev["id"],
+                # GAP-REASONS (D-E5.46): the selected window's claim and limitations, and the run's cohort status.
+                "window_claim_level": None if window_rev is None else window_rev["claim_level"],
+                "window_limitations": [] if window_rev is None
+                else list((window_rev["result"] or {}).get("limitations", [])),
+                "cohort_status": None if run is None else run["cohort_status"],
                 "accepted_reading_count": snap.reading_count, "input_sha256": snap.current_input_sha256,
                 "configuration_sha256": snap.current_configuration_sha256,
                 "accepted_watermarks": None if run is None else run["watermarks"], "jobs": snap.jobs}
@@ -2144,6 +2149,14 @@ def analysed_periods_in(c: Connection, t: UUID, s: UUID, analytics: tuple[str, .
         {"t": t, "s": s, "as": list(analytics), "lo": lo, "hi": hi, "k": known}).all()]
 
 
+def widest_periods(periods: list[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
+    """PB-1b (D-E5.31, PB-1a review L1): drop every period lying wholly inside another listed one, so of two
+    stored windows sharing a start only the widest is listed (08:00-09:05 over 08:00-09:00) and a nested window
+    is never listed (or shown) on its own. Order by `(start, end)` is kept."""
+    unique = sorted(set(periods))
+    return [p for p in unique if not any(q != p and q[0] <= p[0] and p[1] <= q[1] for q in unique)]
+
+
 def shown_analysed_period(c: Connection, t: UUID, s: UUID, domain: str, periods: list[tuple[datetime, datetime]],
                           known: datetime) -> tuple[datetime, datetime]:
     """PB-1 (D-E5.31 ii): of non-empty `periods`, the most recent one holding an open Finding of `domain` (one
@@ -2945,7 +2958,9 @@ class EvReadService:
                   known_at: datetime | None, *, selection_cutoff: datetime | None = None,
                   selection_seqs: dict[str, int] | None = None) -> dict[str, Any]:
         """The EV read snapshot on the caller's `c` (never a connection or transaction of its own). Default: the W2
-        Site selection, unchanged. Pinned mode (W3-01 Run 6 Blocker 1, W4-01 Run 3 ruling 6): `lo`/`hi` are one
+        Site selection, plus the PB-1b analysed-period rule (D-E5.31) for an explicit window no stored selection
+        equals; the snapshot carries `analysed_periods` (the periods listed under rule ii, else empty) and
+        `shown_period` (the period read, else None). Pinned mode (W3-01 Run 6 Blocker 1, W4-01 Run 3 ruling 6): `lo`/`hi` are one
         exact stored selected window and `selection_seqs` maps the session analytic to its exact selected seq; the
         row must be selected, its run completed and its revision created by `selection_cutoff`, or
         `SelectionPinRefused`. The snapshot then also carries `selection_seqs`."""
@@ -2964,6 +2979,7 @@ class EvReadService:
         if pinned and known is None:
             raise SelectionPinRefused(ev.SESSION_ANALYTIC, selection_seqs[ev.SESSION_ANALYTIC], lo, hi,
                                       selection_cutoff)
+        explicit = lo is not None and hi is not None
         if lo is None and known is not None:  # the paired default: the latest selected EV window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -2988,14 +3004,20 @@ class EvReadService:
                 raise SelectionPinRefused(ev.SESSION_ANALYTIC, selection_seqs[ev.SESSION_ANALYTIC], lo, hi,
                                           selection_cutoff)
         elif lo is not None and known is not None:
-            selected = c.execute(text(
-                "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, ar.created_at, "
-                "ar.claim_level, r.id, r.knowledge_cutoff, r.foundation_revision_ids FROM analytic_run_selection sel "
-                "JOIN analytic_run r ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id "
-                "JOIN assessment_revision ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t "
-                "AND sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
-                "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
-                {**p, "lo": lo, "hi": hi, "k": known}).first()
+            selected = self._head(c, p, lo, hi, known)
+        # PB-1b (D-E5.31): default mode, an explicit window no stored selection equals (i): the selected session
+        # periods wholly inside it are listed (two sharing a start list only the widest) and the most recent one
+        # with an open Finding, or else the most recent one, becomes the snapshot's window (ii); none inside keeps
+        # the empty selection (iii). Everything below, the source provenance (E4) included, then reads that one
+        # period, never the union of the requested window.
+        periods: list[tuple[datetime, datetime]] = []
+        shown: tuple[datetime, datetime] | None = None
+        if not pinned and explicit and selected is None and known is not None:
+            periods = widest_periods(analysed_periods_in(c, t, s, (ev.SESSION_ANALYTIC,), lo, hi, known))
+            if periods:
+                shown = shown_analysed_period(c, t, s, ev.DOMAIN, periods, known)
+                lo, hi = shown
+                selected = self._head(c, p, lo, hi, known)
         # W3-01 Run 3 q1: the overlapping job is read whenever the window exists, with or without a selected head;
         # it gates only the public pending block when nothing is selected (currentness is unchanged).
         historical = known_at is not None and watermark is not None and known_at < watermark
@@ -3018,7 +3040,8 @@ class EvReadService:
             note = ev.SOURCE_UNASSESSABLE
         snap: dict[str, Any] = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known,
                                 "watermark": watermark, "state": state, "note": note, "selected": None,
-                                "unassessable": unassessable, "job": job}
+                                "unassessable": unassessable, "job": job, "analysed_periods": periods,
+                                "shown_period": shown}
         if selected is not None:
             result = _ev_json(selected[3])
             snap["selected"] = {
@@ -3030,6 +3053,18 @@ class EvReadService:
             snap["selection_seqs"] = {ev.SESSION_ANALYTIC: int(selection_seqs[ev.SESSION_ANALYTIC])}
             snap["selection_cutoff"] = selection_cutoff
         return snap
+
+    @staticmethod
+    def _head(c: Connection, p: dict[str, Any], lo: datetime, hi: datetime, known: datetime) -> Any:
+        """The default selected EV head of exactly `[lo, hi)` at the cutoff (the W2 equality rule), or None."""
+        return c.execute(text(
+            "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, ar.created_at, "
+            "ar.claim_level, r.id, r.knowledge_cutoff, r.foundation_revision_ids FROM analytic_run_selection sel "
+            "JOIN analytic_run r ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id "
+            "JOIN assessment_revision ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t "
+            "AND sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+            "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
+            {**p, "lo": lo, "hi": hi, "k": known}).first()
 
     def estate_snapshots_on(self, c: Connection, t: UUID, s: UUID, code: str, from_: datetime, to: datetime,
                             known_at: datetime | None, selection_cutoff: datetime) -> list[dict[str, Any]]:

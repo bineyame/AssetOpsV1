@@ -23,6 +23,7 @@ import { HourNotSelected, OverviewGrid, OverviewRefused } from "./overviewSlots"
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { LEGACY_FOCUS_DAY, focusDayOf, withFocusDay } from "../ui/sharedRange";
 import { SiteWindowOverview, type OverviewMiniReads, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 
@@ -73,6 +74,8 @@ export interface SiteOverviewProps {
   findingIndex?: FindingIndexClient;
   /** W4-02 B3: the mini-grid reads behind a MINIGRID Site's Service, Fuel and Renewable cards. */
   mini?: OverviewMiniReads;
+  /** PB-5: Foundation device display names by device id. */
+  deviceNames?: Readonly<Record<string, string>>;
   /** OUT-B B5: the Site outcome board read. */
   outcomeBoard?: OutcomeBoardClient;
 }
@@ -82,7 +85,9 @@ const SELECTION_KEYS = ["date", "finding_id", "finding_revision_id"] as const;
 
 function selectionOf(params: URLSearchParams): OverviewSelection {
   return {
-    date: params.get("date"),
+    // SR-2: the address names the day as `day=` (an old `date=` link still reads the same day); the read's own
+    // parameter stays `date`, so the API request is unchanged.
+    date: focusDayOf(params) ?? params.get("day") ?? params.get(LEGACY_FOCUS_DAY),
     finding_id: params.get("finding_id"),
     finding_revision_id: params.get("finding_revision_id"),
   };
@@ -112,6 +117,7 @@ export function SiteOverview({
   windowLinks,
   findingIndex,
   mini,
+  deviceNames,
   outcomeBoard,
 }: SiteOverviewProps) {
   const [result, setResult] =
@@ -145,9 +151,11 @@ export function SiteOverview({
         const served = servedSelection(read.value);
         const servedKey = selectionKey(served);
         answered.current = `${siteId}#${servedKey}`;
-        if (servedKey !== key) {
-          const next = new URLSearchParams(params);
+        if (servedKey !== key || params.has(LEGACY_FOCUS_DAY)) {
+          // SR-2: the served day is written as `day=`; an old `date=` is replaced (no history entry).
+          const next = withFocusDay(params, served.date ?? null);
           for (const k of SELECTION_KEYS) {
+            if (k === "date") continue;
             const v = served[k];
             if (v) {
               next.set(k, v);
@@ -169,8 +177,7 @@ export function SiteOverview({
   }, [client, siteId, key, reloads]);
 
   const selectDay = (day: string) => {
-    const next = new URLSearchParams(params);
-    next.set("date", day);
+    const next = withFocusDay(params, day);
     next.delete("finding_id");
     next.delete("finding_revision_id");
     setParams(next);
@@ -231,6 +238,7 @@ export function SiteOverview({
         findingIndex={findingIndex}
         onReload={reload}
         mini={mini}
+        deviceNames={deviceNames}
         outcomeBoard={outcomeBoard}
       />
     );

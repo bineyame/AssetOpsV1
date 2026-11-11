@@ -91,6 +91,52 @@ def test_the_wall_cap_is_not_absorbed_by_the_drain(tmp_path) -> None:
         demo.drain("drain-1")
 
 
+class DegradedFake(Fake):
+    def performance_and_prebuild(self) -> None:
+        self.prebuilds += 1
+        raise dc.PrebuildRefused("prebuild DEGRADED: /api/x")
+
+
+def test_a_degraded_prebuild_in_the_drain_is_deferred_and_the_prepare_ends_non_zero_after_the_self_check(tmp_path) -> None:
+    demo = DegradedFake(tmp_path, [{"K": ZERO}, {"K": ZERO}])
+    demo.defer_drain = True
+    record = demo.drain("drain-1")  # returns: the prepare goes on to drain_failures and the self-check
+    assert record["verdict"] == "done" and demo.drain_failures and "DEGRADED" in demo.drain_failures[0]
+    with pytest.raises(SystemExit) as stop:
+        demo.raise_deferred_drain()
+    assert "DRAIN FAILED (deferred)" in str(stop.value) and "DEGRADED" in str(stop.value)
+    direct = DegradedFake(tmp_path, [{"K": ZERO}, {"K": ZERO}])  # `tick --until-drained`: raises at the end
+    with pytest.raises(SystemExit) as stop:
+        direct.drain("tick-until-drained")
+    assert "DRAIN FAILED" in str(stop.value) and "DEGRADED" in str(stop.value)
+
+
+def test_a_degraded_prebuild_tick_does_not_stop_the_serve_loop(tmp_path, monkeypatch) -> None:
+    import urllib.request
+
+    state = {"ticked": False, "killed": False}
+    api = type("Api", (), {"pid": 1, "poll": lambda self: 0 if state["ticked"] else None})()
+    monkeypatch.setattr(dc.subprocess, "Popen", lambda *a, **k: api)
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *a, **k: type("R", (), {"read": lambda s: b"ok"})())
+    monkeypatch.setattr(dc, "_kill_tree", lambda pid: state.update(killed=True))
+    monkeypatch.setattr(dc, "prewarm", lambda *a: None)
+    monkeypatch.setattr(dc.time, "sleep", lambda s: None)
+    demo = object.__new__(dc.Demo)
+    demo.work = demo.tree = tmp_path
+    demo.story = lambda: {}
+    demo.write_prebuilt_routes = lambda: None
+    demo.serve_env = lambda: {}
+    demo.links = lambda web: None
+
+    def tick(times=1):
+        state["ticked"] = True
+        raise dc.PrebuildRefused("prebuild DEGRADED: /api/x")
+
+    demo.tick = tick
+    demo.serve(8000, 5000)  # returns normally: the refusal is logged, not raised
+    assert state["ticked"] and not state["killed"]
+
+
 STORY = {"S": "2026-11-07", "code": "abc", "sites": ["kobo"], "installs": {"kobo": "x"}}
 
 

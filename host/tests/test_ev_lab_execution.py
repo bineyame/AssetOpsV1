@@ -500,6 +500,39 @@ def test_a_damaged_schema_7_artifact_reads_unreadable(tmp_path, world, damage) -
     assert refused.value.kind == "ARTIFACT_UNREADABLE"
 
 
+WINDOW_REASON = "complete 60-minute to 8-hour window"
+
+
+def _with_boundaries(document: dict, total: int, *, complete: bool = True) -> dict:
+    """The persisted complete document re-stated as a window of `total` 1-minute boundaries from 08:00 UTC."""
+    end = datetime(2026, 10, 6, 8, tzinfo=timezone.utc) + timedelta(minutes=total - 1)
+    stamp = end.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return {**document, "interval_end_time": stamp, "simulation_time": stamp, "boundaries_total": total,
+            "boundaries_completed": total if complete else total - 1, "offset_minutes": total - 1}
+
+
+@pytest.mark.parametrize("total,complete,accepted", [(481, True, True), (482, True, False), (60, True, False),
+                                                     (61, True, True), (200, False, False)])
+def test_ev_artifact_window_boundary_edges(tmp_path, world, total, complete, accepted) -> None:
+    """EV-HB D-E5.48: the structural window check takes 61..481 complete boundaries (60 minutes to the ruled 8
+    hours) and refuses 482, 60 and an incomplete window with the window reason. Accepted edges may still fail a
+    later check (the digest or the reports are of the one-hour run); they never fail this one."""
+    from ev_lab import EvArtifactUnreadable, parse_ev_artifact
+
+    run = _draft(world, "complete")
+    _host(tmp_path, _Inputs(world), _Gateway()).start(run)
+    document = yaml.safe_load(_artifact_path(tmp_path, run).read_text(encoding="utf-8"))
+    try:
+        parse_ev_artifact(_with_boundaries(document, total, complete=complete))
+        reason = None
+    except EvArtifactUnreadable as error:
+        reason = str(error)
+    if accepted:
+        assert reason is None or WINDOW_REASON not in reason, reason
+    else:
+        assert reason is not None and WINDOW_REASON in reason, reason
+
+
 def test_a_missing_or_mismatched_schedule_refuses_closed_after_restart(tmp_path, world) -> None:
     run = _draft(world, "late-record")
     gateway = _Gateway()

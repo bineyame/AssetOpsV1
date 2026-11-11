@@ -171,7 +171,8 @@ describe("S5-02 Overview Finding list: request scope", () => {
       },
     ]);
     // The served day, not the browser clock, is the window; the address keeps S5-01's keys.
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
+    // SR-2: the board names its day as `day=` (an old `date=` link reads the same day and is rewritten).
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
   });
 
   it("a legacy (not imported) Overview issues no index request and shows no list", async () => {
@@ -406,7 +407,7 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     await settledScreen();
     expect(listState()).toBe("current-empty");
     expect(rowIds()).toEqual([]);
-    expect(where()).toContain("date=2026-10-16");
+    expect(where()).toContain("day=2026-10-16");
     // The date change dropped the old day's Finding pin from the request.
     expect(overview.getOverview.mock.calls[1][2]).toMatchObject({ date: "2026-10-16", finding_id: null });
   });
@@ -425,7 +426,7 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     fireEvent.click(document.querySelector("[data-back]") as HTMLElement);
     await settledScreen();
     expect(where()).toBe(before);
-    expect(where()).toContain(`date=${DAY}`);
+    expect(where()).toContain(`day=${DAY}`);
   });
 });
 
@@ -449,7 +450,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     await settledScreen();
     // Review fix M3: the list state equals the statusbar's, so it is said once there; the list's own as-of is a
     // labelled reference in the one closed disclosure.
-    expect(document.querySelector("[data-overview-status] [data-product-status-label]")?.textContent).toBe("Latest checked readings");
+    expect(document.querySelector("[data-overview-status] [data-product-status-label]")?.textContent).toBe("Latest complete readings");
     expect(listCard().querySelector(".product-status")).toBeNull();
     expect(exactValue(listCard(), "List known as of")).toBe(body.knowledge_at);
     // Review fix M4: the mock's numbered items - rank, title, one-line reason, link; item 1 is the chosen Finding.
@@ -483,7 +484,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
       indexOf(() => ({ status: "loaded", value: body })).client);
     await settledScreen();
     expect(listState()).toBe("current-empty");
-    expect(expectStateLineVisible(listCard())).toBe("Checked: nothing to report");
+    expect(expectStateLineVisible(listCard())).toBe("Analysed: nothing to report");
     expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview list zero (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -491,9 +492,9 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
 
   it.each([
     ["STALE_PROJECTION", "S3_DIRTY", "This result may miss newer readings"],
-    ["PENDING", "S4_MATCH_DEFERRED_WINDOW", "Not checked yet"],
-    ["UNASSESSED", "S3_UNASSESSED", "We have not checked this period"],
-    ["FAILED", "S3_FAILED", "The latest check could not be completed"],
+    ["PENDING", "S4_MATCH_DEFERRED_WINDOW", "Not analysed yet"],
+    ["UNASSESSED", "S3_UNASSESSED", "This period has not been analysed"],
+    ["FAILED", "S3_FAILED", "The latest analysis could not be completed"],
   ] as const)("a %s (late or not current) list names its state with as-of and the raw reason only in detail", async (status, reason, label) => {
     const body = { ...notCurrent(status, reason), window: aligned(DAY).window };
     const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client,

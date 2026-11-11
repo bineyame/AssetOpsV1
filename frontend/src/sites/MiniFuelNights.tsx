@@ -272,10 +272,11 @@ export function FuelNightView({ night }: { night: FuelNightBody }) {
 }
 
 /**
- * The nights list, when the Site has stored windows (`mode: "NIGHTS"`); null while it loads, for `NONE`, for a failed
- * read and with no client, so the hour mode renders exactly as before in each of those cases.
+ * The nights list, when the Site has stored windows (`mode: "NIGHTS"`); "loading" while the read is in flight (PB-8: the
+ * page shows its loading line, not hour mode); null for `NONE`, for a failed read and with no client, so the hour mode
+ * renders exactly as before in each of those cases.
  */
-export function useFuelNights(client: FuelBalanceClient | undefined, siteCode: string): FuelNightSummary[] | null {
+export function useFuelNights(client: FuelBalanceClient | undefined, siteCode: string): FuelNightSummary[] | "loading" | null {
   const [state, setState] = useState<{ code: string; nights: FuelNightSummary[] | null } | null>(null);
   useEffect(() => {
     if (client === undefined) return undefined;
@@ -287,7 +288,8 @@ export function useFuelNights(client: FuelBalanceClient | undefined, siteCode: s
       active = false;
     };
   }, [client, siteCode]);
-  return client !== undefined && state !== null && state.code === siteCode ? state.nights : null;
+  if (client === undefined) return null;
+  return state !== null && state.code === siteCode ? state.nights : "loading";
 }
 
 export function MiniFuelNightsPage({

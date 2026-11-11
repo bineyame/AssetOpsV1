@@ -126,7 +126,8 @@ def opportunity_items(port: Any, sites: Sequence[Any], lo: datetime, hi: datetim
     try:
         return list(read_scope.memo("chain.opportunities", port.opportunity_threads, minis[0].tenant_id,
                                     tuple(str(s.site_id) for s in minis), lo, hi, known_at))
-    except Exception:  # noqa: BLE001 - a failed read is a null count (NOT_KNOWN), never zero
+    except Exception as error:  # noqa: BLE001 - a failed read is a null count (NOT_KNOWN), never zero
+        read_scope.note_failure("chain.opportunities", error)
         return None
 
 
@@ -140,7 +141,8 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
     for site in sites:
         try:
             days[site.site_code] = claim_days(req, site, lo, hi)
-        except unavailable:
+        except unavailable as error:
+            read_scope.note_failure("chain.claim_days", error)
             days[site.site_code] = None
         try:
             counted = counted_threads(req, site, lo, hi)
@@ -148,7 +150,8 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
                                        "verified_actions": len(verified_actions(req, site, lo, hi,
                                                                                 {t["id"] for t in counted}))}
             disrupted[site.site_code] = disrupting(counted)
-        except unavailable:
+        except unavailable as error:
+            read_scope.note_failure("chain.counted_threads", error)
             threads[site.site_code] = disrupted[site.site_code] = None
     summed = sum_days([days[s.site_code] for s in sites])
     per = list(threads.values())
@@ -189,7 +192,8 @@ class EstateClaims:
             domain = SITE_TYPE_OF_DOMAIN[site.domain]
             facts = reader.request(tenant_id, known_at).day(site.site_id, domain,
                                                              window_days(lo, hi, site.timezone))
-        except self._unavailable:
+        except self._unavailable as error:
+            read_scope.note_failure("chain.day_grades", error)
             return None
         measures = _measures(site.domain)
         return ({d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
@@ -203,7 +207,8 @@ class EstateClaims:
             return None
         try:
             sites = [s for s in (self._resolve(c) for c in site_codes) if s is not None]
-        except self._unavailable:
+        except self._unavailable as error:
+            read_scope.note_failure("chain.site_registry", error)
             return None  # the Site registry could not be read: every claim NOT_KNOWN
         req = reader.request(tenant_id, known_at)
         items = opportunity_items(self._opportunities(), sites, lo, hi, known_at)

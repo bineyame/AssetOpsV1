@@ -105,7 +105,7 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     renderAt(`/sites/${SITE_ID}`, client);
     await settledScreen();
     expect(screen.getByText("0.00 to 15.82 USD")).toBeTruthy();
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
     expect(getOverview).toHaveBeenCalledTimes(1);
     expect(getOverview.mock.calls[0][2]).toEqual({ date: null, finding_id: null, finding_revision_id: null });
   });
@@ -126,12 +126,45 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     fireEvent.click(screen.getByRole("link", { name: "Next day" }));
     await settledScreen();
     expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
-    expect(where()).toContain("date=2026-10-24");
+    // SR-2: the address names the day as `day=` (the old `date=` link was rewritten on the first read).
+    expect(where()).toContain("day=2026-10-24");
+    expect(where()).not.toContain("date=");
     fireEvent.change(document.querySelector("[data-window-date-input]") as HTMLInputElement, {
       target: { value: "2026-11-10" },
     });
     await settledScreen();
     expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-11-10", finding_id: null, finding_revision_id: null });
+  });
+
+  it("SR-2: a one-day board with a range in its address names its day on the bar, never All pages", async () => {
+    const tag = () => document.querySelector("[data-shared-range-focus]");
+    const button = () => screen.getByRole("button", { name: /^Date range for the other pages/ });
+    // Inside the range: the old `date=` link reads the same day (same API selection) and is rewritten to `day=`.
+    const inside = clientOf(() => summary("2026-10-24"));
+    const first = renderAt(`/sites/${SITE_ID}?from=2026-10-20T00:00:00Z&to=2026-10-27T00:00:00Z&date=2026-10-24`, inside.client);
+    await settledScreen();
+    expect(inside.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
+    expect(within(button()).queryByText("All pages")).toBeNull();
+    expect(document.querySelector('[data-focus-picker="inside"]')?.textContent).toContain("Day shown: 24 Oct (inside 20 Oct – 26 Oct)");
+    expect(where()).toContain("day=2026-10-24");
+    expect(where()).toContain("from=2026-10-20T00%3A00%3A00Z");
+    expect(where()).not.toContain("date=");
+    // Day navigation keeps the shared range.
+    expect(document.querySelector('[data-window-day-link="next"]')?.getAttribute("href")).toContain("from=");
+    first.unmount();
+    // Outside the range: the board still shows the address's day and says the range is not used here.
+    const outside = clientOf(() => summary("2026-10-24"));
+    renderAt(`/sites/${SITE_ID}?from=2026-10-01T00:00:00Z&to=2026-10-08T00:00:00Z&date=2026-10-24`, outside.client);
+    await settledScreen();
+    expect(outside.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
+    expect(tag()?.textContent).toBe("Showing 24 Oct · range not used");
+    expect(button().getAttribute("aria-label")).toContain("outside this range; the range is not used here");
+    expect(within(button()).queryByText("All pages")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show 24 Oct" }));
+    await settledScreen();
+    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
   });
 
   it("follows the server when the settled Finding version changes (new version after reassessment)", async () => {
@@ -175,7 +208,7 @@ describe("S5-01 selected-window Overview: money states", () => {
     // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
     // Final review ruling 1 (H3): a MINIGRID Overview states the mini-grid objective, not the dispatch-only line.
     expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
-    expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Checked (possibly avoidable): 1 period of generator use");
+    expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Analysed (possibly avoidable): 1 period of generator use");
     const financials = card.querySelector("[data-window-financials-link]")?.getAttribute("href");
     expect(financials).toContain(`finding_id=${FID}`);
     expect(financials).toContain(`revision_id=${RID}`);
@@ -224,15 +257,15 @@ describe("S5-01 selected-window Overview: money states", () => {
   });
 
   it("POLISH §3.1 Kobo: the day reading line names periods of generator use, and the zero case says it was not used", () => {
-    expect(dayReadingLine("COMPLETE", 1, { a: 1, b: 2 })).toBe("Checked: 1 period of generator use, from 2 measured inputs");
-    expect(dayReadingLine("COMPLETE", 3, { a: 1 })).toBe("Checked: 3 periods of generator use, from 1 measured input");
+    expect(dayReadingLine("COMPLETE", 1, { a: 1, b: 2 })).toBe("Analysed: 1 period of generator use, from 2 measured inputs");
+    expect(dayReadingLine("COMPLETE", 3, { a: 1 })).toBe("Analysed: 3 periods of generator use, from 1 measured input");
     expect(dayReadingLine("COMPLETE", 0, Object.fromEntries(Array.from({ length: 13 }, (_, i) => [`r${i}`, 1])))).toBe(
-      "Checked: generator not used on this day, from 13 measured inputs",
+      "Analysed: generator not used on this day, from 13 measured inputs",
     );
     expect(dayReadingLine("COMPLETE", 0, null)).not.toMatch(/\brun\b|\bran\b|\brunning\b/);
     // PB-2 review L1: missing coverage is its own clause.
     expect(dayReadingLine("COMPLETE", 1, null)).toBe(
-      "Checked: 1 period of generator use; the measured inputs for this day were not recorded",
+      "Analysed: 1 period of generator use; the measured inputs for this day were not recorded",
     );
   });
 
@@ -355,8 +388,8 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-11-10`, client);
     await settledScreen();
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Unknown").
-    expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("We have not checked this period");
-    expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("This period has not been analysed");
+    expect(expectStateLineVisible(freshnessCard())).toBe("This period has not been analysed");
     expect(freshnessCard().querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("no");
     // W1-UX-01: the shared state words; the state line stays outside the closed exact-reference disclosure.
     const unknownState = document.querySelector('[data-assessment-state="UNKNOWN"]') as HTMLElement;
@@ -366,7 +399,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-overview-finding-list="unavailable"]')?.textContent).toContain("no count is given");
     expect(document.body.textContent).not.toMatch(/no findings (for|in) this/i);
     expect(document.querySelector('[data-overview-finding-list="current-empty"]')).toBeNull();
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-11-10`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-11-10`);
   });
 
   it("states the server's gap reason in plain words, never verbatim (review fix M5a)", async () => {
@@ -391,7 +424,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-previous-pin="NOT_IN_SELECTED_DAY"]')?.textContent).toContain(
       "does not overlap this day",
     );
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-24`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-24`);
   });
 
   it("a failed day reads Failed", async () => {
@@ -413,8 +446,8 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-freshness-state="FAILED"]')).not.toBeNull();
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
-    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
-    expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
+    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest analysis could not be completed");
+    expect(expectStateLineVisible(objectiveCard())).toBe("The latest analysis could not be completed");
     expect(moneyCard().getAttribute("data-money-state")).toBe("UPSTREAM_FAILED");
   });
 
@@ -477,11 +510,11 @@ describe("DIESEL-1-R3p R-LOAD: minigridObjective", () => {
  * W1-F2: the former objective answer card is gone (v69 `mini` has no leading card). Its state line is the mock's
  * statusbar above the panels; its exact references sit with the day reading in panel 1.
  */
-/** The CURRENT state line reads "Latest checked readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09" (PB-1). */
+/** The CURRENT state line reads "Latest complete readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09" (PB-1). */
 function expectLatestCheckedLine(card: HTMLElement): void {
   const status = card.querySelector("[data-product-status]");
   expect(status).not.toBeNull();
-  expect(status!.querySelector("[data-product-status-label]")?.textContent).toBe("Latest checked readings");
+  expect(status!.querySelector("[data-product-status-label]")?.textContent).toBe("Latest complete readings");
   expect(status!.querySelector("[data-product-status-scope]")?.textContent).toMatch(/^[0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}$/);
   expect(status!.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^updated [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}, [0-9]{2}:[0-9]{2}$/);
 }
@@ -647,7 +680,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("No amount yet: checks still waiting");
-    expect(expectStateLineVisible(objectiveCard())).toBe("Not checked yet");
+    expect(expectStateLineVisible(objectiveCard())).toBe("Not analysed yet");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("waiting");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview pending (W1)", { set: "w1" });
@@ -668,9 +701,9 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-11-10`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(expectStateLineVisible(freshnessCard())).toBe("This period has not been analysed");
     expect(expectStateLineVisible(objectiveCard())).toBe("We cannot judge this yet");
-    expect(expectStateLineVisible(moneyCard())).toBe("No amount: day not checked");
+    expect(expectStateLineVisible(moneyCard())).toBe("No amount: day not analysed");
     expect(moneyCard().querySelector("[data-money-qualifier]")).toBeNull();
     expect(container.querySelector("[data-window-timeline-figure]")?.getAttribute("aria-label")).toContain("No assessed period is drawn");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview unassessed (W1)", { set: "w1" });
@@ -733,7 +766,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     await settledScreen();
     // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
     expectFreshnessInStatusbar();
-    expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
+    expect(expectStateLineVisible(objectiveCard())).toBe("The latest analysis could not be completed");
     expect(expectStateLineVisible(moneyCard())).toBe("No amount: a check did not finish");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview failed (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -1055,5 +1088,39 @@ describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-
     } finally {
       errors.mockRestore();
     }
+  });
+
+  it("PB-5: two meters of one reading kind are told apart by their Foundation device names, not their ids", async () => {
+    const href = () => "/x";
+    const links = { dispatchDay: href, finding: href, financials: href, assumption: href, evidenceRecord: href };
+    const base = summary("2026-10-23");
+    const cov = base.context.coverage ?? [];
+    const withTwo = {
+      ...base,
+      context: {
+        ...base.context,
+        coverage: [
+          { ...cov[0], device_id: "CLINIC-METER-1", signal_id: "P", role: "load_power" },
+          { ...cov[0], device_id: "COLD-METER-1", signal_id: "P", role: "load_power" },
+          { ...cov[0], device_id: "PUMP-METER-1", signal_id: "P", role: "load_power" },
+        ],
+      },
+    };
+    render(
+      <MemoryRouter>
+        <SiteWindowOverview
+          summary={withTwo}
+          links={links}
+          onSelectDay={() => undefined}
+          deviceNames={{ "CLINIC-METER-1": "Households meter", "COLD-METER-1": "Cold store meter", "PUMP-METER-1": "Water pump meter" }}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const labels = Array.from(document.querySelectorAll(".window-timeline__label")).map((n) => n.textContent ?? "");
+    expect(labels.some((l) => l.endsWith("· Households meter"))).toBe(true);
+    expect(labels.some((l) => l.endsWith("· Cold store meter"))).toBe(true);
+    expect(labels.some((l) => l.endsWith("· Water pump meter"))).toBe(true);
+    expect(labels.join("|")).not.toMatch(/Clinic meter/i);
   });
 });

@@ -8,7 +8,7 @@
  * server field: the page groups, sums and scores nothing, builds no Site route and shows no estate total.
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import type { EstateEnvelope } from "./estateClient";
@@ -31,8 +31,9 @@ import {
   quantityText,
   reasonText,
 } from "./estateFinancialsWords";
-import { EstateDateBar, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
+import { EstateCutoffLine, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import { BENEFICIARY_WORDS, type Beneficiary } from "../sites/actionPresentation";
+import { partialMoneyText } from "./portfolioWords";
 import "./estateEvidence.css";
 import "./estateFinancials.css";
 
@@ -251,11 +252,34 @@ function RegisterTable({ body }: { body: EstateFinancialsBody }) {
   );
 }
 
+/**
+ * PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): one line per partly covered Site, its server-summed amount
+ * for the analysed days only, `{Site}: {amount} for {n} of {m} days analysed · {gap clause}`. Never a cross-Site or
+ * cross-currency total; nothing is estimated for a gap day.
+ *
+ * MOCK DEVIATION (v6.9 Financials): this per-Site note under the status bar is not in the mock; the mock has no
+ * partly covered Site. It states an amount only for the analysed days (D-E5.45 option 2, D-E5.46). Owner informed.
+ */
+function PartialMoneyNotes({ body }: { body: EstateFinancialsBody }) {
+  const blocks = body.coverage.sites.flatMap((s) => (s.money ? [s.money] : []));
+  if (blocks.length === 0) return null;
+  return (
+    <>
+      {blocks.map((m) => (
+        <p key={m.site_id} className="estate-evidence-note" data-estate-partial-money={m.site_code}>
+          {partialMoneyText(m, m.amount === null ? null : moneyText(m.amount, "outward"))}
+        </p>
+      ))}
+    </>
+  );
+}
+
 /** The state table's register notes (outside the table, headers kept). */
 function RegisterNotes({ body }: { body: EstateFinancialsBody }) {
   const notes: [string, string][] = [];
   if (body.status === "EMPTY_SCOPE") notes.push(["empty-scope", NO_ACCESSIBLE_SITES]);
   else if (body.total_count === 0) notes.push(["no-selection", NO_CONSEQUENCE_LINES]);
+  // MOCK DEVIATION (v6.9 Financials): the "partial" register note row is not in the mock (PARTIAL-MONEY, D-E5.46).
   if (body.status !== "EMPTY_SCOPE" && body.coverage.state !== "COMPLETE") notes.push(["partial", STILL_ASSESSED]);
   if (body.groups.some((g) => g.category === "CANDIDATE_OPERATING_COST_EXPOSURE" && g.state === "UNKNOWN_COVERAGE")) {
     notes.push(["prior-mini-grid", PRIOR_MINI_GRID_UNAVAILABLE]);
@@ -378,7 +402,6 @@ function barBody(body: EstateFinancialsBody | null): EstateEnvelope | null {
 export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClient }) {
   const reads = useMemo(() => client ?? createEstateFinancialsClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const query = queryFromParams(params);
   const key = params.toString();
   const [result, setResult] = useState<{ key: string; read: EvidenceResult<EstateFinancialsBody> } | null>(null);
@@ -403,13 +426,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
   return (
     <div className="estate-page estate-evidence estate-financials" data-estate-root="financials">
       <PageHeader eyebrow={FINANCIALS_EYEBROW} title={FINANCIALS_TITLE} subtitle={FINANCIALS_SUBTITLE} />
-      <EstateDateBar
-        key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
-        query={query}
-        body={barBody(body)}
-        windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"}
-        onApply={(nextQuery) => navigate(estateHref(ESTATE_FINANCIALS_PATH, nextQuery))}
-      />
+      <EstateCutoffLine query={query} body={barBody(body)} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading" data-estate-loading>
           Loading financials across the estate.
@@ -424,6 +441,7 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
           <Panel heading={REGISTER_PANEL} headingId="estate-financials-register-heading" description={REGISTER_SUBTITLE}>
             <RegisterTable body={read.value} />
             <RegisterNotes body={read.value} />
+            <PartialMoneyNotes body={read.value} />
             <Pager next={next} first={firstPage} paged={query.cursor !== null} />
           </Panel>
           <Notice tone="amber" data={{ "data-estate-notice": "" }}>

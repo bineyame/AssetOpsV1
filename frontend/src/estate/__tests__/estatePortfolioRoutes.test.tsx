@@ -59,7 +59,9 @@ describe("W3-03 Portfolio shell route", () => {
     expect(client.portfolioCalls).toBe(1);
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     const portfolio = within(rail).getByRole("link", { name: "Portfolio" });
-    expect(portfolio.getAttribute("href")).toBe("/portfolio");
+    // SR-1: the shell filled the empty address with the default range, and the rail carries it.
+    expect(portfolio.getAttribute("href")).toBe(`/portfolio${document.querySelector("[data-location]")?.textContent?.slice("/portfolio".length)}`);
+    expect(document.querySelector("[data-location]")?.textContent).toMatch(/^\/portfolio\?from=\d{4}-\d{2}-\d{2}T00%3A00%3A00Z&to=\d{4}-\d{2}-\d{2}T00%3A00%3A00Z$/);
     expect(portfolio.getAttribute("aria-current")).toBe("page");
     const unavailable = Array.from(rail.querySelectorAll("li"))
       .filter((li) => li.querySelector("a") === null && li.querySelector(".nav-rail__label") !== null)
@@ -72,7 +74,8 @@ describe("W3-03 Portfolio shell route", () => {
     const second = estate();
     renderAt("/findings/risks", second);
     await settledScreen();
-    expect(document.querySelector("[data-location]")?.textContent).toBe("/findings/risks");
+    // SR-1: the shell fills the empty estate address with the shared range; the path is unchanged.
+    expect(document.querySelector("[data-location]")?.textContent).toMatch(/^\/findings\/risks\?from=[^&]+&to=[^&]+$/);
     expect(screen.queryByRole("main", { name: "Portfolio" })).toBeNull();
     expect(second.portfolioCalls).toBe(0);
   });

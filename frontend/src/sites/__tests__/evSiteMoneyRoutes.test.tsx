@@ -285,6 +285,50 @@ const subtabs = (label: string) =>
     current: li.querySelector("a")?.getAttribute("aria-current") ?? null,
   }));
 
+describe("PB-1c: EV analysed-period line under the window bar", () => {
+  const P1 = { from: "2026-10-06T08:00:00Z", to: "2026-10-06T09:05:00Z", href: `/api/sites/${CODE}/ev/overview?from=a&to=b` };
+  const P2 = { from: "2026-10-07T10:00:00Z", to: "2026-10-07T10:40:00Z", href: `/api/sites/${CODE}/ev/overview?from=c&to=d` };
+  const RANGE = "?from=2026-10-06T00:00:00Z&to=2026-10-13T00:00:00Z";
+  const line = () => document.querySelector("[data-analysed-periods]");
+  async function at(extra: Record<string, unknown>, state = "CURRENT") {
+    const evSite = { ...client(), getOverview: vi.fn(() => Promise.resolve(ok({ ...overview({}), currentness: { ...env(state).currentness }, ...extra } as never))) } as EvSiteClient;
+    render(
+      <MemoryRouter initialEntries={[`/sites/${CODE}/ev${RANGE}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} outcomeBoard={fakeOutcomeBoard({ status: "loaded", value: EV_BOARD }).client} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+  }
+
+  it("one period: names it and links its exact window on the same page", async () => {
+    await at({ analysed_periods: [P1], shown_period: P1 });
+    expect(line()!.textContent).toBe("Analysed period: 6 Oct 2026, 08:00–09:05");
+    const href = line()!.querySelector("a")!.getAttribute("href")!;
+    expect(href.startsWith(`/sites/${CODE}/ev?`)).toBe(true);
+    const params = new URLSearchParams(href.split("?")[1]);
+    expect([params.get("from"), params.get("to")]).toEqual([P1.from, P1.to]);
+  });
+
+  it("several periods: counts them, shows the shown one, links each", async () => {
+    await at({ analysed_periods: [P1, P2], shown_period: P2 });
+    expect(line()!.textContent).toContain("Analysed periods in this range: 2 · showing 7 Oct 2026, 10:00–10:40");
+    const froms = Array.from(line()!.querySelectorAll("a")).map((a) => new URLSearchParams(a.getAttribute("href")!.split("?")[1]).get("from"));
+    expect(froms).toEqual([P2.from, P1.from]);
+  });
+
+  it("none inside the range: says so", async () => {
+    await at({ analysed_periods: [], shown_period: null }, "UNKNOWN");
+    expect(line()!.textContent).toBe("No analysed period in this range");
+  });
+
+  it("the main tabs carry the shown period's window (PB-1b review L2)", async () => {
+    await at({ analysed_periods: [P1, P2], shown_period: P2 });
+    const tab = Array.from(document.querySelectorAll("main nav a")).map((a) => a.getAttribute("href") ?? "").find((h) => h.includes("/evidence"));
+    expect(tab).toBeDefined();
+    expect(new URLSearchParams(tab!.split("?")[1]).get("from")).toBe(P2.from);
+  });
+});
+
 describe("W2-07 EV Site routes", () => {
   it("analysis_source_unverified_shows_full_id_and_sentence", async () => {
     await renderAt(PATHS["ev-evidence-analysis"], client());
@@ -338,7 +382,7 @@ describe("W2-07 EV Site routes", () => {
     expect(srcRows.map((r) => r.querySelector("th")?.firstChild?.textContent)).toEqual(["Connector 1", "Connector 2", "Site meter", "Billing system"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Mixed", "Recent", "Unknown", "Unknown"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[1].textContent)).toEqual(["Good", "Good", "No fact", "No fact"]);
-    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "No payment feed"]);
+    expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "Payment records are not connected yet"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[3].textContent)).toEqual(["Sessions", "Sessions", "Site power", "Collections not assessed"]);
     expect(srcRows[0].querySelector(".ev-tone--amber")?.textContent).toBe("Mixed");
     expect(sources.querySelector("[data-ev-contact-checked]")?.textContent).toBe("Contact checked at 6 Oct, 09:00");
@@ -511,7 +555,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("KES");
     const cards = Array.from(document.querySelectorAll("[data-ev-fin-card] .v69-metric__value")).map((x) => x.textContent);
-    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
+    expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not connected yet"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
     expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 estimated charging income", "What-if", "Metered with complete coverage", "Energy ↗"]);
@@ -544,6 +588,7 @@ describe("W2-07 EV Site routes", () => {
     // W2-F M5: the displayed withheld scenario row is counted (unpriced context), never a priced revision.
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("Displayed rows include unpriced context");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
     expect(main().textContent).not.toContain("8.33");
 
@@ -551,9 +596,12 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "No analysed charging session in this window", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
-    expect(strip()).toContain("Currency not declared");
+    // PB-6: with no amount there is no currency lead (no empty " USD · selected window").
+    expect(strip()).not.toContain("Currency not declared");
+    expect(strip()).not.toMatch(/[A-Z]{3} · selected window/);
+    expect(strip()).toContain("Selected window · charging income estimate only");
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No charging income estimate yet");
 
     // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
@@ -672,7 +720,7 @@ describe("W2-07 EV Site routes", () => {
     const next = panelTitled("Next step");
     expect(next.textContent).toContain("Recover the missing session end report");
     const rec = next.querySelector('[data-link-unavailable="Review recommendation"]') as HTMLElement;
-    expect(rec.getAttribute("aria-label")).toBe("Review recommendation, Not available yet");
+    expect(rec.getAttribute("aria-label")).toBe("Reviewing a recommendation needs sign-in, which is coming");
     expect(rec.querySelector("a, button")).toBeNull();
     expect(strip()).toContain("Evidence limited");
     expect(strip()).toContain("Example data");

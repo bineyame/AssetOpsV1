@@ -173,9 +173,9 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
 
   it.each([
     ["STALE_PROJECTION", "RECOMPUTE_OUTSTANDING: job j1 PENDING", /This result may miss newer readings/],
-    ["FAILED", "RECOMPUTE_FAILED: job j1: RuntimeError", /The latest check could not be completed/],
-    ["PENDING", "RECOMPUTE_OUTSTANDING: job j1 LEASED", /Not checked yet/],
-    ["UNASSESSED", "NOT_ASSESSED: accepted evidence exists", /We have not checked this period/],
+    ["FAILED", "RECOMPUTE_FAILED: job j1: RuntimeError", /The latest analysis could not be completed/],
+    ["PENDING", "RECOMPUTE_OUTSTANDING: job j1 LEASED", /Not analysed yet/],
+    ["UNASSESSED", "NOT_ASSESSED: accepted evidence exists", /This period has not been analysed/],
   ] as const)("shows %s honestly with its reason and keeps any prior result marked", async (status, reason, words) => {
     const stale = status === "STALE_PROJECTION" || status === "FAILED";
     const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ status, status_reasons: [reason], stale,
@@ -493,7 +493,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     expect(card.querySelector("[data-dispatch-headline]")?.textContent).toBe(
       "The generator operated for 30 min to 1 h: 15 min possibly avoidable, 15 min needed and 0 min that cannot be determined.",
     );
-    expect(expectStateLineVisible(card)).toBe("Using the latest checked readings");
+    expect(expectStateLineVisible(card)).toBe("Complete readings, analysed");
     const strip = card.querySelector("[data-period-strip='dispatch-day-blocks']") as HTMLElement;
     const links = Array.from(strip.querySelectorAll<HTMLAnchorElement>("a[data-period-strip-segment]"));
     expect(links.map((a) => a.dataset.periodStripSegment)).toEqual(["necessary", "avoidable"]);
@@ -593,9 +593,9 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
       expect(container.querySelector("[data-dispatch-pinned]")?.textContent).toMatch(/stored result that is not the current one for 2026-10-02/);
       const line = container.querySelector(".dispatch-status") as HTMLElement;
       expect(line.getAttribute("data-dispatch-shown")).toBe("stored-not-current");
-      expect(expectStateLineVisible(line)).not.toBe("Using the latest checked readings");
+      expect(expectStateLineVisible(line)).not.toBe("Complete readings, analysed");
       expect(line.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-      expect(line.textContent).not.toMatch(/latest checked readings/);
+      expect(line.textContent).not.toMatch(/Complete readings, analysed/);
     };
 
     // Directly by address, on a CURRENT day.

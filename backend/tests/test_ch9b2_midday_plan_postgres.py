@@ -142,7 +142,7 @@ def test_short_baseline_freezes_with_the_not_judged_text(mill) -> None:
         assert status == 201, body
         assert body["plan"]["baseline_selection"]["state"] == "SHORT"
         assert body["plan"]["baseline_selection"]["found"] == 2
-        assert body["plan"]["not_judged_text"] == "Not judged yet: only 2 of 3 fully checked days before the change"
+        assert body["plan"]["not_judged_text"] == "Not judged yet: only 2 of 3 days with complete readings before the change"
     finally:
         _close(mill)
 

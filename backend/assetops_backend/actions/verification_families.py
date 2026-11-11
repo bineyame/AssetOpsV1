@@ -54,7 +54,7 @@ FREEZE_COMMAND = "FREEZE_DOMAIN_VERIFICATION_PLAN"
 #: CH9b1-R P1 (owner 2026-11-05, `.agent/owner-mill-pass-margin-2026-11-05.md`), verbatim; never fitted.
 TARGET = {"rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
           "over": "COMPLETE days of each window", "ratio": [11, 10], "declared_by": "owner 2026-11-05"}
-SHORT_TEXT = "Not judged yet: only {n} of 3 fully checked days before the change"
+SHORT_TEXT = "Not judged yet: only {n} of 3 days with complete readings before the change"
 DAY_RULE = ("A day counts only when every productive_kwh row of the Site that day is COMPLETE (the SnapshotReader "
             "weakest-row day rule); days are chosen by grade only, never by value.")
 BASIS_TEXT = ("SYSTEM_DEMONSTRATION: story-time freeze of a domain Action's verification plan after its work case "
@@ -227,21 +227,21 @@ TARGET_MET, LATER_SHORT, BASELINE_ZERO = "TARGET_MET", "LATER_SHORT", "BASELINE_
 METRIC_KEY = "midday_productive_kwh"
 EVALUATOR_JOB = "midday-verification-evaluator"
 #: CH9b3-R Q2 (MOCK DEVIATION, mirrors `SHORT_TEXT`): the later window is still open with fewer than 3 days.
-LATER_TEXT = "Not judged yet: only {n} of 3 fully checked days after the change"
+LATER_TEXT = "Not judged yet: only {n} of 3 days with complete readings after the change"
 #: CH9b3-R Q2: the look-ahead closed with fewer than 3 days (INCONCLUSIVE LATER_SHORT; MOCK DEVIATION).
-LATER_SHORT_TEXT = "Only {n} of 3 fully checked days after the change in the 14 days allowed, so no verdict is given"
+LATER_SHORT_TEXT = "Only {n} of 3 days with complete readings after the change in the 14 days allowed, so no verdict is given"
 #: CH9b3-R Q3 verbatim (MOCK DEVIATION).
 BASELINE_ZERO_TEXT = "No midday use was measured before the change, so a 10% rise cannot be measured"
 #: SCOPE-1 / CH9b3-R Q7 verbatim: the VERIFIED sentence.
-VERIFIED_TEXT = "Midday use rose by at least the declared 10% on fully checked days"
+VERIFIED_TEXT = "Midday use rose by at least the declared 10% on days with complete readings"
 #: R7 (CH9b3-R Q7): the before/after line of a judged outcome.
-R7_TEXT = "Midday use before and after the change: {b} → {a} kWh a day on {n} fully checked days each"
+R7_TEXT = "Midday use before and after the change: {b} → {a} kWh a day on {n} days with complete readings each"
 CENT = Decimal("0.01")
 #: MV-1 (FUEL-1 §2): the mill value line of a VERIFIED outcome. The arithmetic uses the SHOWN means and the shown
 #: price, so the line reproduces by hand.
 VALUE_BASIS = "ESTIMATED_SALES_AT_DECLARED_PRICE"
 VALUE_TEXT = ("About {d} {cur} a day more in estimated sales to productive users: ({a} − {b}) kWh a day × your "
-              "declared {p} {cur} per kWh, on {n} fully checked days before and after the change")
+              "declared {p} {cur} per kWh, on {n} days with complete readings before and after the change")
 VALUE_COST_TEXT = "No cost is recorded for this change"
 VALUE_UNPRICED_TEXT = "No sales estimate: {why}"
 VALUE_UNPRICED_WHY = {
@@ -373,7 +373,7 @@ def outcome_rows(plan: Mapping[str, Any], result: Mapping[str, Any], now: dateti
 
     def window(name: str, days: list[str], mean: str | None) -> dict[str, Any]:
         return rules._metric(METRIC_KEY, name, "PASS" if len(days) == MIN_DAYS else "UNKNOWN", value=mean,
-                             unit=unit, reason=f"{len(days)} of {MIN_DAYS} fully checked days: {', '.join(days)}")
+                             unit=unit, reason=f"{len(days)} of {MIN_DAYS} days with complete readings:{', '.join(days)}")
 
     comparison = {VERIFIED: "PASS", INEFFECTIVE: "FAIL"}.get(result["outcome"], "UNKNOWN")
     metrics = [window("BASELINE", base, result.get("baseline_mean")),

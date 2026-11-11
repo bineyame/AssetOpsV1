@@ -196,13 +196,13 @@ export function shiftIsoDate(isoDate: string, days: number): string {
 }
 
 /**
- * post-W6 final-fix M1: the mini Site Work default, seven Site-local calendar days including today, from local
- * midnight six days before the Site's current date to local midnight tomorrow, as UTC instants. A missing or
- * invalid zone uses UTC (callers say so in the date-field labels).
+ * SR-2 (one default, R338 revised by SR.3): the mini Site Work default, the last seven full Site-local days, ending
+ * yesterday: from local midnight seven days before the Site's current date to local midnight today, as UTC
+ * instants. A missing or invalid zone uses UTC (callers say so in the date-field labels).
  */
 export function siteSevenDayWindow(timeZone: string | null | undefined, now: Date = new Date()): { from: string; to: string } {
   const today = siteLocalDate(now.toISOString(), timeZone);
-  return { from: siteLocalMidnightUtc(shiftIsoDate(today, -6), timeZone), to: siteLocalEndUtc(today, timeZone) };
+  return { from: siteLocalMidnightUtc(shiftIsoDate(today, -7), timeZone), to: siteLocalMidnightUtc(today, timeZone) };
 }
 
 /** The unavailable-zone label for display beside Site-time fields (UI guide section 4). */

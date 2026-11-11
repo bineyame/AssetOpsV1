@@ -242,6 +242,39 @@ describe("CC-R1 estate Financials beneficiary line", () => {
   });
 });
 
+describe("PARTIAL-MONEY estate Financials", () => {
+  const gaps = [{ day: "2026-11-04", state: "UNASSESSED", reason: "NO_READINGS" }];
+  const days = { policy: "estate-coverage/2", requested: 7, checked: 6, gaps, withheld: false, text: null };
+  const block = (over: Partial<NonNullable<EstateCoverageSite["money"]>> = {}) => ({
+    site_id: MINI, site_code: "MINI-001", site_name: "Kobo", state: "SUMMED" as const,
+    amount: { low: "24.00", high: "33.00", currency: "USD" }, line_count: 6, analysed_days: 6, requested_days: 7, gaps, ...over,
+  });
+  const partial = (money: NonNullable<EstateCoverageSite["money"]>) =>
+    body({ status: "UNKNOWN", coverage: { state: "PARTIAL", sites: [{ ...coverageSite(MINI, "PARTIAL"), days, money }, coverageSite(COLD), coverageSite(EV)] } });
+
+  it("namesThePartlyCoveredSitesAmountAsTheAnalysedDaysOnly", async () => {
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(partial(block()))));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-partial-money='MINI-001']")?.textContent).toBe(
+      "Kobo: $24.00–$33.00 for 6 of 7 days analysed · 4 Nov: no readings",
+    );
+  });
+
+  it("neverAddsAcrossCurrencies", async () => {
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(partial(block({ state: "CURRENCY_MIXED", amount: null })))));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-partial-money='MINI-001']")?.textContent).toBe(
+      "Kobo: amounts in more than one currency are not added · 6 of 7 days analysed · 4 Nov: no readings",
+    );
+  });
+
+  it("showsNoAnalysedDaysLineForACompleteSelection", async () => {
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body())));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-partial-money]")).toBeNull();
+  });
+});
+
 describe("W3-02 estate Financials root", () => {
   it("rendersMockFinancialPanelsAndUnpricedRows", async () => {
     renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body())));
@@ -251,7 +284,9 @@ describe("W3-02 estate Financials root", () => {
     const header = screen.getByRole("heading", { level: 1 }).closest("header") as HTMLElement;
     expect(within(header).getByText("Financials", { selector: ".page-header__eyebrow" })).toBeTruthy();
     expect(header.textContent).toContain("Estate consequences with source-site ownership and bounded interpretation");
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
+    expect(main().querySelector("[data-estate-window]")).toBeNull();
+    expect(main().querySelector("[data-estate-cutoff-line]")).not.toBeNull();
     // Static status bar: blue chip and subcopy, no assessment enum.
     const status = screen.getByRole("status", { name: "Financial status" });
     expect(status.querySelector("[data-estate-status-chip]")?.textContent).toBe("Site-owned consequences");
@@ -627,7 +662,7 @@ describe("post-W6 W3-estate refused window", () => {
     const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
+    expect(main().querySelector("[data-estate-window]")).toBeNull(); // SR-2: a valid range is in the shared bar
     view.unmount();
   });
 });

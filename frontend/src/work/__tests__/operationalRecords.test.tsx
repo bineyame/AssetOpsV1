@@ -218,7 +218,7 @@ describe("W6-01e E2: global Operational records", () => {
     expect(crumbs.querySelector("a")).toBeNull();
     expect(document.body.textContent).toContain("Operator logs, manual readings, shift notes and site visits");
     expect(document.querySelector("[data-global-work-tabs], nav[aria-label='Context tabs']")).toBeNull();
-    expect(screen.getByRole("form", { name: "Operational records window" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Operational records window" })).toBeInTheDocument(); // SR-2: Reload only
 
     // P-E2-3: the four mock headings and first note; amber fourth card; card values bound to total_count.
     const list = Array.from(cards()!.querySelectorAll("li")).map((li) => ({
@@ -439,10 +439,8 @@ describe("W6-01e E2: global Operational records", () => {
     expect(chip("Shift note")).toHaveAttribute("aria-pressed", "true");
     expect(chip("All")).toHaveAttribute("aria-pressed", "false");
     expect(reads.calls[1]).toEqual({ from: FROM, to: TO, known_at: KNOWN, cursor: null, kind: "SHIFT_NOTE" });
-    // Show keeps the kind (and the cutoff), and drops the cursor
-    fireEvent.click(screen.getByRole("button", { name: "Show records" }));
-    await settled();
-    expect(text(where())).toBe(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}&kind=SHIFT_NOTE`);
+    // SR-2: no page date form (the shared range bar keeps page params such as kind and drops the cursor)
+    expect(screen.queryByRole("button", { name: "Show records" })).toBeNull();
     // Reload re-reads the same query, kind included
     fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     await settled();

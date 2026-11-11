@@ -138,9 +138,9 @@ UNKNOWN = {"label": "Unknown", "tone": "gray"}
 CASES = [
     ([], "Not available yet · no fuel check for the night of 19 Oct", None),
     ([window("NOT_ASSESSED", reason="MISSING_OPENING")],
-     "Not available yet · the night of 19 Oct could not be checked: no tank reading at 6 pm", UNKNOWN),
+     "Not available yet · the night of 19 Oct could not be analysed: no tank reading at 6 pm", UNKNOWN),
     ([window("NOT_ASSESSED", reason="NO_LOAD_RATE_MISSING")],
-     "Not available yet · the night of 19 Oct could not be checked: no generator idle fuel rate declared", UNKNOWN),
+     "Not available yet · the night of 19 Oct could not be analysed: no generator idle fuel rate declared", UNKNOWN),
     ([window("WITHIN_MARGIN")], "Accounted for within the margin on the night of 19 Oct",
      {"label": "High", "tone": "green"}),
     ([window("BELOW_MATERIALITY", low="12.04", high="30.46")],

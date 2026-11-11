@@ -23,7 +23,7 @@ ASSURE_MET = "{met} of {n} declared objectives met"
 ASSURE_ON_PACE = " · {p} on pace"
 ASSURE_BEHIND = " · {b} behind pace"
 ASSURE_TOO_EARLY = " · {t} too early to judge"
-ASSURE_UNCHECKED = " · {u} not checked yet"
+ASSURE_UNCHECKED = " · {u} not judged yet"
 #: Every fixed viewer string, for the vocabulary scan (with the measure templates of `outcomes/objectives.py`).
 COPY = (CONTRIBUTOR_LABEL, ASSURE_MET.format(met=1, n=3), ASSURE_ON_PACE.format(p=1),
         ASSURE_BEHIND.format(b=1), ASSURE_TOO_EARLY.format(t=1), ASSURE_UNCHECKED.format(u=2),

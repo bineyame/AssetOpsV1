@@ -31,7 +31,8 @@ try {
         @{ Seam = "Shared visual vocabulary";        File = "ui-primitives.ps1";             Function = "Invoke-UiPrimitivesCheck" },
         @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" },
         @{ Seam = "Operator rail guard fixtures";    File = "navigation-rail-fixtures.ps1";  Function = "Invoke-NavigationRailFixturesCheck" },
-        @{ Seam = "Shell overflow containment";      File = "shell-overflow.ps1";            Function = "Invoke-ShellOverflowCheck" },
+        @{ Seam = "One shared date range";           File = "page-range-forms.ps1";          Function = "Invoke-PageRangeFormsCheck" },
+        @{ Seam = "Shell overflow containment";     File = "shell-overflow.ps1";            Function = "Invoke-ShellOverflowCheck" },
         @{ Seam = "Analytic capability declaration"; File = "analytic-declaration.ps1";      Function = "Invoke-AnalyticDeclarationCheck" },
         @{ Seam = "Outcome chain structure";         File = "chain-structure.ps1";           Function = "Invoke-ChainStructureCheck" }
     )

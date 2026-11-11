@@ -1,12 +1,111 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 4 (Architect, Claude, 2026-11-11 ~18:00): any-range speed first, "price it" next
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-price-it-and-speed-priority-2026-11-11.md`): "i want pricing early warnings and unpriced items to be done and the speedup for any date range priortised"
+- Tonight is unchanged (D-ANY.6, build sheet): AR-0 baseline, AR-2, prepare by 22:30. The machine is reserved 22:15 to about 03:30. HON-1 and OPEN-NOW merge after the tag.
+
+**Ruling on AR-4 and PF-O2: PF-O2 is not required.**
+- PF-O2 is a new in-memory route over `summary()`. AR-4 changes what `summary()` reads (evidence and money from rows); it does not need the route.
+- The dependency was only a guard against changing the same Portfolio read twice. PF-O1/O2 stays out for 17 Nov, so there is nothing to change twice. If PF-O2 is built later, it inherits the rows.
+- PF-C is merged, so its money receipts are in place. AR-4 = 1.5 (spec) + 0.5 for parity on the PF-C receipt lines = **2.0**.
+- AR-4 needs only AR-1 merged (tonight, if the baseline parity passes). It runs in its own lane beside AR-3 (spec: "AR-3/AR-4 can run in two lanes after AR-1").
+
+**"Price it" for 17 Nov: the honest half only.**
+- PR-1 `price_action` on unpriced items: early warnings, money cells, Finding cost tiles, verification value (0.5).
+- PR-2a read-only Site price page: current prices, history, and "Prices are set by your AssetOps administrator until sign-in is available" (0.4). A v7.1 page draft goes to the owner first.
+- **Out, and why:** PR-3 write path and PR-4 recalculation-on-publish need BL-54 sign-in (a hard dependency). PR-5 "what is needed" blocks (0.5) are out unless buffer remains on Fri. Without sign-in, saving a price is not possible in the session; the presenter says so.
+
+**Order, Thu ~12:30 to Sat 20:00 (last merge), all Postgres one job at a time.**
+
+| Lane | Thu pm | Fri | Sat (to 20:00) |
+|---|---|---|---|
+| A | AR-3 + AR-6 (1.5): code started tonight; Postgres and client4 parity Thu pm | review, merge by Fri 14:00 | buffer, Sunday fix round prep |
+| C | AR-4 (2.0): code started tonight; parity Fri on client4 | Postgres and parity Fri pm (Postgres priority 2) | review, merge by Sat 16:00; held unmerged if not ACCEPTed by 20:00 |
+| B | price-page v7.1 draft to the owner (tonight); PR-1 (0.5) | PR-2a (0.4) after owner approval | FR-B trimmed (0.5), CLEAN-1 (0.25) |
+
+- **Postgres priority when slots clash:** AR-3 > AR-4 > PR-1/PR-2a > FR-B.
+- **Moves out to fit:** PR-3, PR-4, PR-5; FR-B halved (only failures in the Sat freeze suites); AR-5 (pre-load stays as the safety net). Already out: PF-O1/O2 and UQ.
+- **Honest risk:** AR-4 is the long pole. Its slack is about 4 h, and its parity gates the merge. If it slips, the Portfolio is fast for any range on coverage (AR-3) but money and evidence stay on pre-built ranges, and price-it is unaffected.
+- Price-it does not compete with AR-4: different files and lane, and only light Postgres. Both land if AR-4's parity passes first time.
+
+### Dispatch briefs (revision 4)
+
+**AR-3 + AR-6.** Opus. Wt `AssetOpsV1-ar3`, branch `task/ANY-2-AR3-AR6` from `task/ANY-1-rows` (rebase onto main after ANY-1 merges). 1.5 units.
+- Spec: `.agent/architect-answer-any-range-speed-2026-11-10.md` AR-3, AR-6, D-ANY.1-6.
+- AR-3: kind `dispatch.day` on DATA-12 graded local days (not `dispatch_days`); `coverage._mini_grid_basis` reads rows; match pass unchanged.
+- AR-6: the board's 4 work-index reads become one; Cold/EV boards under 1 s cold.
+- Kill switch: the D-ANY.6 env list (an omitted kind = old path).
+- Tonight: code and no-DB tests only, no heavy CPU after 22:15. Thu after 12:30: Postgres tests on the own `*_test` DB, then parity `--kinds dispatch.day` on client4 (never client6).
+- Packet lists the added parity cases and the `perf_budget --any-range` before/after.
+
+**AR-4 Portfolio evidence and money rows.** Opus. Wt `AssetOpsV1-ar4`, branch `task/ANY-2-AR4` from `task/ANY-1-rows` (rebase onto main after ANY-1 merges). 2.0 units.
+- Kinds `evidence.claim`, `evidence.provenance`, `money.lines`; roll-ups read by `summary()`; no PF-O2.
+- Every kind is proven byte-equal by AR-0 parity, including PF-C receipt lines and unaligned UTC windows. A kind that fails stays on the old path and is reported, never approximated.
+- Tonight: code and no-DB tests only. Postgres from Thu 12:30, after AR-3's slot; parity on client4.
+- Do not touch `estate/coverage` (AR-3's files); coordinate the shared register file by rebasing.
+
+**PR-1 + price-page draft.** Opus. Wt `AssetOpsV1-pr1`, branch `task/PR-1-price-action` from main. 0.5 unit plus the draft.
+- Spec: `.agent/architect-answer-price-it-2026-11-10.md` sections 3 and 7.
+- Tonight: a v7.1 price-page mockup draft (read-only view, history, the administrator sentence) for the owner, in `frontend/mockups/`.
+- PR-1: server `price_action` (two shapes) on every unpriced item; words server-side; frontend link to `/sites/:id/prices` with `return`. Until PR-2a lands, the target shows an honest "not available yet".
+- No write path; `HUMAN_PRINCIPAL_REQUIRED` unchanged.
+- Postgres tests only from Thu 12:30, own `*_test` DB.
+
+## Revision 3 (Architect, Claude, 2026-11-11 evening): UI deferred, functional pull-in
+
+- Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "lets depriortize the UI asepct for now in the backlog and we'll come back to it later, lets focus on the functional ones".
+- **Out of 17 Nov, to the backlog (BL-69):** UQ-0 sheet (built, branch `task/UQ-0-v72-sheet`, kept unmerged, awaits approval later), UQ-1 tokens/type/Inter, UQ-2 themes, UQ-3 states/quick wins, UQ-4..UQ-8. The session uses today's light look, English only. Lane D's C1 (PB-5/6/8, RM-1, RM-2, in review) stays IN: it is honesty and wording, not look. The C.5 collision rules about UQ-1 and UQ-2 no longer apply.
+- **Freed: about 4 units** (UQ-0 0.5 done but parked, UQ-1 1.25, UQ-3 0.5, UQ-2 1.0, plus lane D time from Thu ~13:00).
+
+**Pull-in, in order (functional only; each is small, reviewable and has no hidden dependency):**
+
+| # | Id | What | Units | Why now | Depends on |
+|---|---|---|---|---|---|
+| 1 | HON-1 | "Complete readings" count excludes READINGS_CONFLICT and NOT_ENOUGH_READINGS days (Architect ruling on question 1: count them out) | 0.3 | The opening page now reads "complete readings on 7 of 7 days" next to "4 Nov: conflicting readings" (PARTIAL-MONEY packet residual risk). An executive sees a contradiction on page one; the owner's 2026-11-11 wording rule says incomplete or invalid data must be stated | none |
+| 2 | OPEN-NOW | Server read of items open now, unfiltered by the range, and the Work pages' one line "Open now: 3 requests, whatever the dates" (approved Portfolio layout proposal, line 581) | 0.5 | Work pages now default to the last 7 full days (PB-1c), so an older open item is hidden. Operators ask "what is open"; this is the honesty half of R338 | none (SR merged) |
+| 3 | AR-3 + AR-6 | ANY-2 core, already IN: coverage on rows; Cold/EV board work lists in one read | 1.5 | Starts now stacked on `task/ANY-1-rows` (code and unit tests only); Postgres tests after Thursday's demo and never beside the scratch prepare or the ANY-1 baseline | AR-1 (on the stack); merges only after ANY-1 merges |
+| 4 | FR-B | Test hygiene fix round (carry list in the handoff "Carry to FR-B") | 1.0 | Saturday 20:00 suites decide whether the freeze build is trusted; fewer known failures means a break is visible. Lane D after Thursday's demo, targeted test files only | none |
+| 5 | CLEAN-1 | Sonnet cleanup card: handoff follow-ups (UQ-6a unhandled-500 Content-Language, ch5c2 rerun when quiet) plus the F05 check below | 0.25 | Cheap; before the Sat suites | none |
+
+- **Kept out (unchanged, still option X):**
+  - **AR-4** (2.5). It needs AR-1 merged (Fri at best, after Thursday's baseline and AR-2) and PF-O2, which is not built. Freed units do not shorten that chain. The named workaround stays: Portfolio fast on pre-built ranges only (script ranges, lens variants, last 7 and 30 days).
+  - **PF-O1/O2** (1.5). Layout work; today's grid fits 4-5 Sites; the owner's instruction puts layout after.
+  - **UQ-4** (formats, language switcher). UI; English session.
+- **Ruling on question 2 (F05 placement after s602b moved to PARTIAL):** a test gap, not a demo defect. CLEAN-1 confirms that one of `test_w303_selectors_postgres`, `test_w303_portfolio_scope_snapshot_postgres` or `test_s4_finding_index_postgres` asserts a Portfolio Finding row's placement on a fixture with chain day grades (AVAILABLE Site). If none does, add one assertion to the first of them by seeding grades, and drop the `rows.F05` expectation from `tools/s602b-verification-evidence.mjs` with a comment citing D-E5.38. Do not re-seed the s602b estate fixture.
+- **Machine rule (unchanged, sharpened):** one heavy job at a time. Thu 06:30-12:30 every lane pauses. Thu afternoon the scratch prepare (about 2 h 45, EV-HB gate by Fri 18:00), then the ANY-1 baseline, run alone: builders write code and run non-Postgres tests only while either runs. Last merge Sat 20:00; anything not ACCEPTed is held unmerged.
+- **Buffer:** about 0.5-1.0 of the freed units is left unassigned on purpose, for the EV-HB gate (revert or fix) and the Sunday fix round. ANY-1 still has no slack.
+
+### Start-now briefs (revision 3)
+
+**HON-1 complete-readings honesty.** Opus. Wt `AssetOpsV1-hon1`, branch `task/HON-1-complete-readings` from main. 0.3 unit. Lane C (or the first free lane).
+- **Ruling:** a day graded READINGS_CONFLICT or NOT_ENOUGH_READINGS is not a "complete readings" day. The count reads "complete readings on 6 of 7 days" and the existing gap clause names the day and reason. No new wording beyond what GAP-REASONS already composes; if a count phrase must change, server text only via `card_text` (CH-6b2).
+- **Where:** the day counts behind `portfolio_coverage` / `_coverage_days` (`backend/assetops_backend/site_outcomes/read.py` ~758-812) and the source of `day_counts` / `days_line` (`chain/vocabulary.py`). A Site with a conflict day is `complete: False`, so the Portfolio lead reads incomplete.
+- **Check the same count on the Site Overview readings line and the Finding/cards "Why?" days**; one rule everywhere (the line and the cards cannot disagree, PF-C1).
+- **Tests:** a targeted test per reason (conflict, not-enough) and one all-good week unchanged; update only goldens the change explains, listing each in the packet.
+- Named test files only, own `*_test` DB, no prepare. Do not touch wt `AssetOpsV1-e3d`, DB client6, ports 8990/5490, Docker until Thursday's demo ends.
+
+**OPEN-NOW Work pages "open now" line.** Opus. Wt `AssetOpsV1-opennow`, branch `task/OPEN-NOW-work-read` from main. 0.5 unit. Lane B.
+- **Spec:** `.agent/architect-proposal-portfolio-layout-2026-11-10.md` line ~581; PB-1c packet note (global Work `state_counts` are window-filtered).
+- **Backend:** add `open_now` counts (by work kind: requests, actions, as the Work pages show them) to the existing global and Site Work list responses, computed with no date filter but the same `known_at` cutoff and Site scope. No new endpoint unless the list contract cannot carry it; contract type in `contracts`.
+- **Frontend:** one line above each Work list, "Open now: 3 requests, 1 action, whatever the dates"; zero reads "Nothing open now". Words server-side or in the existing Work words file, never composed from raw codes.
+- **Tests:** backend count ignores the range but obeys `known_at`; one frontend test per Work page; revise register rows R338/S17 if found, else note in packet.
+- Same machine rules as HON-1.
+
+**AR-3 + AR-6 (ANY-2 core).** Opus. Wt `AssetOpsV1-ar3`, branch `task/ANY-2-AR3-AR6` from `task/ANY-1-rows` (bb3d7645c). 1.5 units. Lane A or C.
+- **Spec:** `.agent/architect-answer-any-range-speed-2026-11-10.md` rows AR-3, AR-6 and D-ANY.1-5. AR-3 builds on DATA-12's graded local days, not `dispatch_days` (C.5).
+- **Now:** code and non-Postgres tests only. Postgres tests only after the coordinator's go (after Thursday's demo, never beside the scratch prepare or the ANY-1 baseline).
+- **Merge:** after ANY-1 (AR-0..AR-2) merges; rebase then. Held unmerged if not ACCEPTed by Sat 20:00; the Portfolio then uses pre-built ranges.
+- Packet lists the parity cases it adds to AR-0's harness.
+
 ## Client demo Tue 17 Nov: cut and start order (Architect, Claude, 2026-11-11; revision 2 after the owner's answers; revision 1 is in git at 22d877b1d)
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude since 2026-10-27.
 - Owner, verbatim (`.agent/owner-tag-optionb-client-date-2026-11-11.md`): "yes tag it and add the backlog item, lets go with option B for now. Also, lets proceed with the items for today right away, and i want my walkthrough comment items to start building. THe client demo will be on 17-Nov"
 - Owner answers, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "here is my response 1. No 2.No 3. yes 4. yes 5.I need more context on this 6. I need more context on this 7.I will start talking to different client starting with Minigrid and EV , likely executives 8.Sunday 3PM ready for walkthrough or am available finished earlier too"
 - What that means:
-  - **IN for 17 Nov:** any-range speed (ANY-1 and ANY-2), the shared date range (SR), and the design foundation with light and dark themes.
+  - **IN for 17 Nov:** any-range speed (ANY-1 and ANY-2), the shared date range (SR), and the design foundation with light and dark themes. (Revision 3: the design foundation moved to the backlog, owner 2026-11-11.)
   - **Approved:** `portfolio-tabs.html` is the layout spec, and RM-2 is approved.
   - **Pending, being explained to the owner:** PB-1c and DATA-6.
   - **Audience:** mini-grid and EV operators, likely executives. EV fixes (PB-3 + DATA-11) and visual quality gain value. BeagleBone loses it, so it moves to after.

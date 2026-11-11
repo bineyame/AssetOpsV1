@@ -6,12 +6,14 @@
 import type {
   EstateCoverageDays,
   EstateDomain,
+  EstatePartialMoney,
   EstatePortfolioBody,
   EstatePortfolioExclusion,
   EstatePortfolioStatus,
   EstateSiteState,
   EstateValueCardKey,
 } from "./estateClient";
+import { dayGapWords } from "../ui/productWords";
 import { formatDayTime } from "../ui/time";
 import { hasReasonWord, reasonText } from "./estateFinancialsWords";
 
@@ -120,7 +122,8 @@ export function contextWords(status: EstatePortfolioStatus, knownAt: string): { 
     case "PENDING":
       return { badge: "Updating selected Sites", tone: "amber", sentence: "Portfolio: Some Sites unavailable" };
     case "PARTIAL":
-      return { badge: "Some days not checked yet", tone: "amber", sentence: "Portfolio: Partly checked" };
+      // PF-W (D-E5.46): the estate PARTIAL state is "incomplete days", never "not checked".
+      return { badge: "Some days incomplete", tone: "amber", sentence: "Portfolio: Some sites have incomplete days" };
     case "UNKNOWN":
       return { badge: "Some Sites cannot be compared yet", tone: "amber", sentence: "Portfolio: Some Sites unavailable" };
     default:
@@ -171,7 +174,7 @@ export const COVERAGE_STATE_WORDS: Readonly<Record<EstateSiteState, string>> = {
   HISTORICAL: "Earlier evidence cutoff",
   UNKNOWN: "Not yet assessed",
   NOT_APPLICABLE: "Not applicable",
-  PARTIAL: "Partly checked",
+  PARTIAL: "Incomplete days",
 };
 
 export function coverageStateWords(state: string): string {
@@ -180,9 +183,95 @@ export function coverageStateWords(state: string): string {
 
 const GAP_DAY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 
-/** COV-PARTIAL: a partly checked Site's unchecked days as `26 Oct, 27 Oct` (UTC days, ascending as sent). */
+/** COV-PARTIAL: a Site's gap days as `26 Oct, 27 Oct` (UTC days, ascending as sent). */
 export function gapDayList(days: EstateCoverageDays | null | undefined): string {
   return (days?.gaps ?? []).map((gap) => GAP_DAY.format(new Date(`${gap.day}T00:00:00Z`))).join(", ");
+}
+
+/*
+ * PF-W (proposal §10.2; D-E5.46, owner-directed 2026-11-11): the readings term family. Data words say what arrived,
+ * never whether anyone "checked"; "Not analysed yet" and "Still processing" are system work only. The backend
+ * `chain/vocabulary.py` holds these strings byte for byte (`test_pfc_coverage_line.py`).
+ * MOCK DEVIATION PF-C-1: 8 terms against the v71 mock's 6 (adds "Not enough readings" and "Conflicting readings", the
+ * D-E5.46 data-gap reasons the Site rows name), and "Not analysed yet" uses the D-E5.46 definition, not the mock's
+ * (`portfolio-tabs.html:178`).
+ */
+
+/** The "What these words mean" list: [term, one-line definition], in order. */
+export const READINGS_TERMS: readonly (readonly [string, string])[] = [
+  ["Complete readings", "Readings arrived for at least 80% of the hours the day needed (for spare solar: every daylight hour). The day is counted."],
+  ["Partial readings", "Readings arrived for 25–80% of those hours. The day is shown, and named wherever it is used."],
+  ["Too few readings", "Readings arrived for under 25% of those hours. The day is not counted."],
+  ["No readings received", "Nothing arrived from the site for that day."],
+  ["Not enough readings", "Some readings arrived, but not enough to analyse the day."],
+  ["Conflicting readings", "Readings for the day conflict (duplicate or overlapping reports), so it can't be analysed."],
+  ["Still processing", "Readings arrived and are being analysed; results follow."],
+  ["Not analysed yet", "AssetOps has not analysed the day yet; it will, without any action from you."],
+];
+export const READINGS_GLOSSARY_NOTE = "AssetOps looks at every day. These words describe the data that arrived, not whether anyone looked.";
+
+/** D-E5.46 table, one gap reason per day: the ONE table lives in `ui/productWords.ts` (`dayGapWords`, PB-4). */
+function gapShort(reason: string): string | null {
+  return dayGapWords(reason)?.short ?? null;
+}
+export const STILL_PROCESSING = "Still processing";
+/** A gap whose reason has no words (an older body's `NO_ASSESSED_SELECTION`) reads as system work. */
+const UNKNOWN_GAP_SHORT = "not analysed yet";
+/** D-E5.46: more than 3 gap days read as one count. */
+export const GAPS_LISTED_MAX = 3;
+
+/** D-E5.46 (amends D-E5.26): the Site PARTIAL count, `{n} site(s) with incomplete days`. */
+export function incompleteSites(n: number): string {
+  return `${n} ${n === 1 ? "site with incomplete days" : "sites with incomplete days"}`;
+}
+
+/**
+ * D-E5.46 short form of a Site's gap days: one group per reason, days sharing a reason grouped (`3, 4 Nov:
+ * conflicting readings`), groups " · "-joined; more than 3 gap days read `{g} days without a usable result`.
+ */
+export function gapReasonClause(days: Pick<EstateCoverageDays, "gaps"> | null | undefined, max: number = GAPS_LISTED_MAX): string {
+  const gaps = days?.gaps ?? [];
+  if (gaps.length === 0) return "";
+  if (gaps.length > max) return `${gaps.length} days without a usable result`;
+  const groups = new Map<string, Date[]>();
+  for (const gap of gaps) {
+    const short = gapShort(gap.reason) ?? UNKNOWN_GAP_SHORT;
+    groups.set(short, [...(groups.get(short) ?? []), new Date(`${gap.day}T00:00:00Z`)]);
+  }
+  return Array.from(groups, ([short, list]) => `${dayGroup(list)}: ${short}`).join(" · ");
+}
+
+/**
+ * PARTIAL-MONEY (D-E5.45 owner option 2; label D-E5.46): a partly covered Site's money, named as the analysed days'
+ * only: `{amount} for {n} of {m} days analysed · {gap clause}`. The gap clause is `gapReasonClause` of the same
+ * `days` block the coverage line names, so the money and the line read one day set. Nothing is estimated for a gap.
+ */
+export function analysedDaysMoney(amount: string, days: Pick<EstateCoverageDays, "checked" | "requested" | "gaps">): string {
+  const clause = gapReasonClause(days);
+  return `${amount} for ${days.checked} of ${days.requested} days analysed${clause ? ` · ${clause}` : ""}`;
+}
+
+/** PARTIAL-MONEY: a Site's analysed-days amount that cannot be one figure says why; never a sum across currencies. */
+export const PARTIAL_MONEY_NOT_ADDED: Readonly<Record<string, string>> = {
+  CURRENCY_MIXED: "amounts in more than one currency are not added",
+  OVERLAPPING: "overlapping amounts are not added",
+  NO_ELIGIBLE_LINES: "no priced amount",
+};
+
+/** The Financials Site note: `{Site}: {amount} for {n} of {m} days analysed · {gap clause}`. */
+export function partialMoneyText(block: EstatePartialMoney, amount: string | null): string {
+  const days = { checked: block.analysed_days, requested: block.requested_days, gaps: block.gaps };
+  if (amount !== null) return `${block.site_name}: ${analysedDaysMoney(amount, days)}`;
+  // No amount: the reason leads, then the days (`Kobo: amounts in more than one currency are not added · 6 of 7 days analysed`).
+  const reason = PARTIAL_MONEY_NOT_ADDED[block.state] ?? PARTIAL_MONEY_NOT_ADDED.NO_ELIGIBLE_LINES;
+  const clause = gapReasonClause(days);
+  return `${block.site_name}: ${reason} · ${days.checked} of ${days.requested} days analysed${clause ? ` · ${clause}` : ""}`;
+}
+
+function dayGroup(list: Date[]): string {
+  const month = (d: Date) => GAP_DAY.format(d).split(" ").slice(1).join(" ");
+  if (list.every((d) => month(d) === month(list[0]))) return `${list.map((d) => d.getUTCDate()).join(", ")} ${month(list[0])}`;
+  return list.map((d) => GAP_DAY.format(d)).join(", ");
 }
 
 /** `{n} selected assessment(s)` or `No selected assessment`. */

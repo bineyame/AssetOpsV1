@@ -57,6 +57,11 @@ export interface SiteSummary {
    * from an older backend.
    */
   configuration_store?: string;
+  /**
+   * RM-2: whether this Site's Findings index supports the Cost / Risks / Opportunities lenses, declared by the
+   * Site's configuration (a productive-use load), never by the Findings rows. Absent from an older backend: no lenses.
+   */
+  lenses_supported?: boolean;
 }
 
 /**

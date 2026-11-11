@@ -112,7 +112,7 @@ def test_mg2_unclear_minutes_are_not_checked_yet() -> None:
     assert state(rows[COST], "MG-2") == ("UNKNOWN", "OBJECTIVE_NOT_JUDGED")
     [line] = declared(rows[COST])
     assert line["text"] == f"{MG2_ZERO} · 7 min not yet clear on this day"
-    assert line["confidence"] == {"label": "Not checked yet", "tone": "gray"}
+    assert line["confidence"] == {"label": "Not judged yet", "tone": "gray"}
 
 
 def test_mg1_with_headroom_is_unknown_with_the_opportunity_as_potential() -> None:
@@ -123,7 +123,7 @@ def test_mg1_with_headroom_is_unknown_with_the_opportunity_as_potential() -> Non
     [line] = declared(rows[GROW])
     assert line["text"] == ("Productive electricity sales: at least 300 kWh sold for productive use a month · "
                             + MG1_NO_DAY)
-    assert line["confidence"]["label"] == "Not checked yet"
+    assert line["confidence"]["label"] == "Not judged yet"
 
 
 def test_mg5_unmeasured_and_measured() -> None:
@@ -158,7 +158,7 @@ def test_mini_assure_counts_declared_objectives() -> None:
     _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0"), day=complete_day()))
     plan = next(c for c in rows[ASSURE]["contributors"] if c["key"] == "actual_against_plan")
     assert plan == {"key": "actual_against_plan", "label": "Actual against plan",
-                    "text": "1 of 3 declared objectives met · 2 not checked yet", "confidence": None, "href": None}
+                    "text": "1 of 3 declared objectives met · 2 not judged yet", "confidence": None, "href": None}
     _, rows = run_mini(rows=[])
     plan = next(c for c in rows[ASSURE]["contributors"] if c["key"] == "actual_against_plan")
     assert plan["text"] == mini.FIXED["plan_target"]  # no objective: unchanged
@@ -201,7 +201,7 @@ def test_unsettled_outcome_has_no_verdict() -> None:
     wire = {o["outcome_key"]: o for o in objectives_wire(comp.facts)}
     assert wire["MG-2"]["verdict"] is None
     [line] = declared(rows[COST])
-    assert line["text"] == MG2_ZERO and line["confidence"]["label"] == "Not checked yet"
+    assert line["text"] == MG2_ZERO and line["confidence"]["label"] == "Not judged yet"
 
 
 def test_board_wire_objectives_and_policy() -> None:

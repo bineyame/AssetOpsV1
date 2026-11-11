@@ -15,6 +15,8 @@ every serve key (`watermark.SERVE_KEYS`) stores nothing and reports `SKIPPED_NO_
 """
 from __future__ import annotations
 
+import json
+import logging
 import os
 import time
 from collections import Counter
@@ -25,6 +27,7 @@ from assetops_backend.chain.response_store import HEADER, mode
 from assetops_backend.chain.watermark import SERVE_KEYS
 
 SCOPE_IDS = "/api/estate/portfolio/scope-ids"
+LOG = logging.getLogger("assetops.chain.prebuild")
 
 
 def paths() -> list[str]:
@@ -56,15 +59,51 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
         client = TestClient(create_app())
     states: Counter[str] = Counter()
     failed: dict[str, int] = {}
+    degraded: dict[str, int] = {}  # INFRA-1: path -> attempts, for every path that was degraded at least once
+    still: list[str] = []  # INFRA-1: the paths still degraded after every retry
+    connections = _connections(store)
+    LOG.info(json.dumps({"event": "prebuild_start", "pg_stat_activity": connections}))
     try:
         for path in paths():
             response = client.get(path)
-            if response.status_code != 200:
+            attempts = 1
+            for wait in RETRY_WAITS:  # INFRA-1 (D-E5.47) rule 5: a 503 or a stale copy is retried after 2, 5, 10 s
+                if not _is_degraded(response):
+                    break
+                _sleep(wait)
+                response = client.get(path)
+                attempts += 1
+            if attempts > 1:
+                degraded[path] = attempts
+            if _is_degraded(response):
+                still.append(path)
+            elif response.status_code != 200:
                 failed[path] = response.status_code
             else:
                 states[response.headers.get(HEADER, "none")] += 1
         pruned = store.prune()
     finally:
         store.dispose()
-    return {"code": "OK" if not failed else "FAILED", "requests": len(paths()), "states": dict(states),
-            "non_200": failed, "pruned": pruned, "code_version": version, "prebuild_ms": int((time.perf_counter() - started) * 1000)}
+    code = "DEGRADED" if still else ("FAILED" if failed else "OK")
+    return {"code": code, "requests": len(paths()), "states": dict(states), "non_200": failed,
+            "degraded": degraded, "still_degraded": still, "pg_stat_activity": connections,
+            "pruned": pruned, "code_version": version, "prebuild_ms": int((time.perf_counter() - started) * 1000)}
+
+
+#: INFRA-1 (D-E5.47) rule 5: the waits before each of the 3 retries of a degraded path.
+RETRY_WAITS = (2, 5, 10)
+_sleep = time.sleep  # a test moves it
+
+
+def _is_degraded(response: Any) -> bool:
+    """A 503 (`TEMPORARILY_UNAVAILABLE`) or a stale copy served in place of a degraded compose."""
+    return response.status_code == 503 or response.headers.get(HEADER) == "stale"
+
+
+def _connections(store: Any) -> int | None:
+    """The `pg_stat_activity` count, logged before the prebuild starts (None when it cannot be read)."""
+    try:
+        return store.connections()
+    except Exception as error:  # noqa: BLE001 - a diagnostic; it never stops the prebuild
+        LOG.warning(json.dumps({"event": "prebuild_connections_unread", "error": type(error).__name__}))
+        return None

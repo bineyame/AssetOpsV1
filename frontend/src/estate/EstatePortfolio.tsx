@@ -1,9 +1,8 @@
 /*
  * PF-T (2026-11-11): Portfolio section tabs, layout `frontend/mockups/v71/portfolio-tabs.html`; proposal
  * `.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11.
- * MOCK DEVIATION PF-T-1: the product shell has no top bar, so the Portfolio date bar (`EstateDateBar`) sits at the top
- *   of the page, above the title, and stays in view while scrolling (sticky). The v71 shared top-bar range picker is
- *   card SR, not PF-T.
+ * PF-T-1 (closed by SR-1): the Portfolio date bar is gone; the range is the shell's shared top-bar range
+ *   (`shell/SharedRangeBar.tsx`, v71 Change 0b). The page keeps only the read's cutoff line under the title.
  * MOCK DEVIATION PF-T-2: the v71 coverage line above the tabs and the "Readings per site" table are card PF-C; the
  *   context row keeps today's per-Site partial notes and the Scope & coverage tab holds today's "Assessment scope &
  *   periods" drawer and the business-context footer.
@@ -35,16 +34,18 @@ import {
   type EstatePortfolioRow,
   type EstatePortfolioScopeIdsBody,
   type EstateQuery,
+  type EstateCoverageSite,
   type EstateResult,
   type EstateSourceBlock,
 } from "./estateClient";
-import { EstateDateBar, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
+import { EstateCutoffLine, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
 import { moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityText } from "./estateFinancialsWords";
 import {
   ACTION_WINDOW_NOTE,
   ASSESSMENT_IDS,
   coverageStateWords,
-  gapDayList,
+  analysedDaysMoney,
+  gapReasonClause,
   exclusionLineLabel,
   exclusionReasonWords,
   selectedAssessmentWords,
@@ -93,6 +94,16 @@ import { CategoryTags } from "../sites/outcomeCategories";
 import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
+import { PortfolioCoverage } from "./PortfolioCoverage";
+import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
+
+/** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
+const SUMMARY_RETRYING: EstateResult<EstateOutcomeSummaryBody> = {
+  status: "refused",
+  httpStatus: 503,
+  code: TEMPORARILY_UNAVAILABLE,
+  copy: RETRYING_COPY,
+};
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -147,14 +158,25 @@ function PulseCount({ value, missing, label, checkedDays, data, to }: { value: n
   );
 }
 
-/** COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none). */
+/**
+ * COV-PARTIAL: a Finding on a gap day of a Site with incomplete days shows no amount (the backend sends none; PARTIAL-
+ * MONEY D-E5.45 shows an analysed day's amount with `analysedDaysMoney`). PF-C (proposal
+ * §4 C7) shortens the words to the reason alone; PF-W (D-E5.46) says "incomplete days", never "checked".
+ */
+export const VALUE_WITHHELD = "Value not shown while this site has incomplete days";
 export function partialConsequence(c: { state: string; source_revision_id: string | null }): string {
-  return `Partly checked · ${c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : "value shown once every day is checked"}`;
+  return c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : VALUE_WITHHELD;
 }
 
-function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined): string {
+function consequenceFirst(row: EstatePortfolioRow, site: EstateCoverageSite | undefined): string {
   const c = row.consequence;
+  const siteState = site?.state;
   if (siteState === "PARTIAL" && !(c.state === "PRICED" && (c.amount_low ?? c.amount) != null)) return partialConsequence(c);
+  // PARTIAL-MONEY (D-E5.45): a head on an analysed day carries its amount, named as the analysed days' only.
+  if (siteState === "PARTIAL" && site?.days) {
+    const amount = moneyText({ low: c.amount_low ?? c.amount, high: c.amount_high ?? c.amount, currency: c.currency }, "outward");
+    return amount === null ? NOT_DISPLAYABLE : analysedDaysMoney(amount, site.days);
+  }
   const base =
     c.source_revision_id === null && c.state !== "PRICED"
       ? "No consequence recorded"
@@ -177,7 +199,7 @@ function episodeText(row: EstatePortfolioRow): string {
   );
 }
 
-function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
+function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: EstateCoverageSite | undefined }) {
   const episode = episodeText(row);
   // CH5a2-R4(c): every row link renders from its `link_refs` sibling; a row without one renders no link.
   const links = {
@@ -266,7 +288,7 @@ const TABLE_HEADS = ["Site", "Finding / operating mechanism", "Value / consequen
 function placementRows(
   rows: EstatePortfolioRow[],
   counts: EstatePortfolioBody["summary"]["placement_counts"],
-  siteState: Map<string, string>,
+  siteState: Map<string, EstateCoverageSite>,
 ) {
   const out: ReactNode[] = [];
   let group: string | null = null;
@@ -308,7 +330,7 @@ function PriorityPanel({
   loadMore: (() => void) | null;
   warnings: readonly OutcomeWarning[];
 }) {
-  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
+  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
   const incomplete = pending === null && (body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN");
   const count = pending !== null ? "Loading" : body.total_count === null ? "Unknown" : String(body.total_count);
   const pendingLabel = LENS_LABELS.find(([value]) => value === pending)?.[1] ?? "";
@@ -324,9 +346,7 @@ function PriorityPanel({
           <h2 id="portfolio-priority-heading">{PRIORITY_PANEL}</h2>
           <p>{PRIORITY_SUBTITLE}</p>
         </div>
-        <span className="eyebrow">
-          {count} findings{incomplete ? " · some days not checked" : ""}
-        </span>
+        {/* PF-C (proposal §4 C6): one copy of the count, on the lens row; the coverage line states the days. */}
       </div>
       <div className="portfolio-lenses" role="group" aria-label="Finding lens">
         {LENS_LABELS.map(([value, label]) => (
@@ -341,7 +361,7 @@ function PriorityPanel({
           </button>
         ))}
         <span data-portfolio-count>
-          {count} findings{incomplete ? " · some days not checked" : ""}
+          {count} findings{incomplete ? " · so far, some days incomplete" : ""}
         </span>
       </div>
       <div className="portfolio-findings" data-portfolio-scroll="findings">
@@ -443,7 +463,7 @@ function EvidenceAside({ body, window }: { body: EstatePortfolioBody; window: Wi
 export const OPPORTUNITY_NONE = "No opportunity found in this period";
 export const OPPORTUNITY_UNREAD = "Opportunities could not be read";
 export const OPPORTUNITY_UNREAD_DETAIL = "Nothing can be said about opportunities until they can be read";
-export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on the days checked";
+export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on days with complete readings";
 export const OPPORTUNITY_SIZE_UNKNOWN_PANEL = "Size not worked out yet";
 export const OPPORTUNITY_NO_WHAT_IF = "No what-if yet";
 export const OPPORTUNITY_NO_WHAT_IF_DETAIL = "No what-if value worked out yet";
@@ -685,11 +705,12 @@ function ScopeDisclosure({
                 </td>
                 <td data-portfolio-scope-coverage>
                   {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}
-                  {/* COV-PARTIAL MOCK DEVIATION R620: the unchecked days on their own line; v70 has no day gaps. */}
+                  {/* COV-PARTIAL MOCK DEVIATION R620: the incomplete days on their own line, every day with its
+                      D-E5.46 reason (the deep tab never shortens to a count). */}
                   {s.coverage.state === "PARTIAL" && (s.coverage.days?.gaps.length ?? 0) > 0 ? (
                     <>
                       <br />
-                      <small data-portfolio-scope-gaps>Days not checked yet: {gapDayList(s.coverage.days)}</small>
+                      <small data-portfolio-scope-gaps>Incomplete days: {gapReasonClause(s.coverage.days, Infinity)}</small>
                     </>
                   ) : null}
                   {s.source_provenance === null ? <small> · No selected source basis</small> : null}
@@ -839,7 +860,7 @@ function PortfolioTabs({
 
 /** PF-T: the Overview keeps the first three ranked findings of "Where management should act first" (v71 `pf-top3`). */
 function TopThree({ body, rows, pending, window }: { body: EstatePortfolioBody; rows: EstatePortfolioRow[]; pending: EstateLens | null; window: Window }) {
-  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
+  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
   const top = rows.slice(0, 3);
   return (
     <section className="panel pf-top3" aria-labelledby="portfolio-top3-heading" data-portfolio-panel="top3">
@@ -943,19 +964,16 @@ function Loaded({
           </Badge>
           <span data-portfolio-sentence>{ctx.sentence}</span>
           <span data-portfolio-domains>{domainSummary(body)}</span>
-          {/* COV-PARTIAL MOCK DEVIATION R620: one note per partly checked Site; v70 shows the badge and counts only. */}
-          {body.scope_disclosure.sites
-            .filter((site) => site.coverage.state === "PARTIAL" && site.coverage.days?.text)
-            .map((site) => (
-              <span key={site.site_id} className="portfolio-partial" data-portfolio-partial={site.site_code}>
-                {site.site_name}: {site.coverage.days?.text}
-                {(site.coverage.days?.gaps.length ?? 0) <= 7
-                  ? ` · not assessed: ${gapDayList(site.coverage.days)}`
-                  : " · the days are listed under Assessment scope & periods"}
-              </span>
-            ))}
         </div>
       </div>
+      {/* PF-C1 (v71 `.pf-coverage`): coverage shown once, above the tabs; replaces R620's per-Site notes. */}
+      <PortfolioCoverage
+        line={summary?.status === "loaded" ? (summary.value.coverage_line ?? null) : null}
+        partial={body.scope_disclosure.sites
+          .filter((site) => site.coverage.state === "PARTIAL")
+          .map((site) => ({ site_code: site.site_code, site_name: site.site_name, days: site.coverage.days }))}
+        scopeHref={portfolioHref(window, lens, "scope")}
+      />
       <PortfolioTabs
         current={tab}
         window={window}
@@ -1108,7 +1126,11 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
     const pending =
       reads.getOutcomeSummary === undefined
         ? Promise.resolve<EstateResult<EstateOutcomeSummaryBody>>({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" })
-        : reads.getOutcomeSummary(window);
+        : reads.getOutcomeSummary(window, () => {
+            // INFRA-1: while the summary waits to retry a 503 TEMPORARILY_UNAVAILABLE, the retrying state shows.
+            if (live) setSummaryRead({ key: windowKey, result: SUMMARY_RETRYING });
+            return live; // false after unmount: the client stops retrying
+          });
     void pending.then((result) => {
       if (live) setSummaryRead({ key: windowKey, result });
     });
@@ -1142,17 +1164,15 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
   const body = first?.status === "loaded" ? first.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="portfolio">
-      {/* PF-T (proposal §11, MOCK DEVIATION PF-T-1): the date range sits at the top, the same on every tab. */}
-      <div className="pf-datebar" data-portfolio-datebar>
-        <EstateDateBar
-          key={`${window.from}|${window.to}|${window.known_at ?? ""}`}
-          query={{ ...window, cursor: null }}
+      <PageHeader title={PORTFOLIO_TITLE} subtitle={PORTFOLIO_SUBTITLE} />
+      {/* SR-1: the range is set in the shell's shared top bar (every page, every tab); this line keeps the read's cutoff. */}
+      <div className="pf-cutoff" data-portfolio-cutoff>
+        <EstateCutoffLine
+          query={{ known_at: window.known_at, cursor: null }}
           body={barBody(body)}
           windowRefused={first?.status === "refused" && first.code === "INVALID_WINDOW"}
-          onApply={(next) => navigate(portfolioHref(next, lens, tab))}
         />
       </div>
-      <PageHeader title={PORTFOLIO_TITLE} subtitle={PORTFOLIO_SUBTITLE} />
       {first === null ? (
         <div className="portfolio-loading" data-estate-loading>
           <p>Loading the Portfolio across the estate.</p>

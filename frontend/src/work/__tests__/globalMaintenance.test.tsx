@@ -212,10 +212,9 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
 
     // Controls (section 2) and the status line; no cutoff input (A2Q5).
     expect(bar.getAttribute("class")).toContain("site-date-bar");
-    expect(within(bar).getByRole("form", { name: "Maintenance window" })).toBeInTheDocument();
-    expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
-    expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
-    expect(bar.querySelectorAll("input")).toHaveLength(2);
+    // SR-2: the dates are set in the shell's shared range bar; the page's control row keeps Reload only.
+    expect(within(bar).getByRole("group", { name: "Maintenance window" })).toBeInTheDocument();
+    expect(bar.querySelectorAll("input")).toHaveLength(0);
     expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // P-B2-3/4: the four mock cards; Open work over the full selection; the separate View detail slot unavailable.
@@ -482,7 +481,7 @@ describe("W6-01b B2: the /maintenance route in the app shell", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     const link = within(rail).getByRole("link", { name: "Maintenance" });
-    expect(link).toHaveAttribute("href", "/maintenance");
+    expect(link.getAttribute("href")?.split("?")[0]).toBe("/maintenance"); // SR-1: the rail carries the range
     expect(link).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
   });

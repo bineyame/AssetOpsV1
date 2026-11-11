@@ -6,7 +6,7 @@
   "stored": true
  },
  "evaluate_not_judged": {
-  "not_judged_text": "Not judged yet: only 0 of 3 fully checked days after the change",
+  "not_judged_text": "Not judged yet: only 0 of 3 days with complete readings after the change",
   "state": "NOT_JUDGED",
   "stored": false
  },
@@ -143,7 +143,7 @@
   "action_code": "ACT-000001",
   "action_id": "<uuid:0>",
   "cost_check": null,
-  "line": "Midday use before and after the change: 10.00 \u2192 11.50 kWh a day on 3 fully checked days each",
+  "line": "Midday use before and after the change: 10.00 \u2192 11.50 kWh a day on 3 days with complete readings each",
   "metrics": [
    {
     "after": "11.50",
@@ -190,7 +190,7 @@
    "TARGET_MET"
   ],
   "rule_id": "midday-productive-shift-1",
-  "sentence": "Midday use rose by at least the declared 10% on fully checked days",
+  "sentence": "Midday use rose by at least the declared 10% on days with complete readings",
   "state": "VERIFIED",
   "target": {
    "declared_by": "owner 2026-11-05",
@@ -235,7 +235,7 @@
     "unit": "kWh a day"
    }
   ],
-  "not_judged_text": "Not judged yet: only 0 of 3 fully checked days after the change",
+  "not_judged_text": "Not judged yet: only 0 of 3 days with complete readings after the change",
   "outcome": null,
   "plan": {
    "baseline_days": [

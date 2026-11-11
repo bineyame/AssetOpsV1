@@ -54,35 +54,35 @@ const assetName = (asset: ColdHealthRow["assets"][number]) => asset.display_name
 
 /**
  * C3 Asset cell rule, in order of precedence. Q-C3-6 M1: at phone width a matching asset shows its selected
- * `asset_code` with the full ID behind a `Full ID` disclosure; the desktop copy keeps name and full ID inline.
+ * `asset_code`; PB-6: the full ID is never inline, it sits behind Technical details at every width.
  */
 function AssetCell({ row }: { row: ColdHealthRow }) {
   if (row.asset_id !== null) {
     const match = row.assets.find((asset) => asset.asset_id === row.asset_id);
-    if (match === undefined) {
-      return (
+    // PB-6: the asset id is a reference, so it lives behind Technical details, never in the cell text.
+    const technical = (
+      <details data-technical-details>
+        <summary>Technical details</summary>
         <code data-vocabulary-exempt="source-reference" data-health-asset-id>
           {row.asset_id}
         </code>
+      </details>
+    );
+    if (match === undefined) {
+      return (
+        <>
+          {row.label}
+          {technical}
+        </>
       );
     }
     return (
       <>
-        <span className="cold-health-asset__desktop">
-          {assetName(match)}{" "}
-          <code data-vocabulary-exempt="source-reference" data-health-asset-id>
-            {row.asset_id}
-          </code>
+        <span className="cold-health-asset__desktop">{assetName(match)}</span>
+        <span className="cold-health-asset__mobile" data-health-asset-code>
+          {match.asset_code}
         </span>
-        <span className="cold-health-asset__mobile">
-          <span data-health-asset-code>{match.asset_code}</span>
-          <details>
-            <summary>Full ID</summary>
-            <code data-vocabulary-exempt="source-reference" data-health-asset-id>
-              {row.asset_id}
-            </code>
-          </details>
-        </span>
+        {technical}
       </>
     );
   }

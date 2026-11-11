@@ -2,6 +2,7 @@
  * W5-02 K2a ("Shared Site UI and mock slots", "Mock element and literal ledger", U2, U3, P-K2a-41/43): the cold-chain
  * Work and domain Action words. No fetches; `domainActionClient.ts` owns the reads. A mini-grid Site never reads these.
  */
+import { ROADMAP_WORDS } from "../ui/productWords";
 import type { DomainActionPresentation } from "./DomainActionVerification";
 import type { DomainStatus } from "./domainActionClient";
 import { formatDayTime } from "../ui/time";
@@ -14,7 +15,7 @@ export const COLD_WORK_COLUMNS = ["Action", "Source", "Owner", "Due", "State", "
 // "Manage in Actions →"; the global Actions root reads battery Actions only, so the strip states the cold-only scope
 // and the plain gap instead of a link to a list that omits these rows.
 export const COLD_WORK_STRIP_DETAIL = "Cold-chain Actions recorded at this site";
-export const COLD_WORK_GLOBAL_GAP = "Global Actions does not include cold-chain Actions yet.";
+export const COLD_WORK_GLOBAL_GAP = ROADMAP_WORDS.coldWorkNotGlobal;
 
 // MOCK DEVIATION (D4) R67 (spec M1/P-K2a-41): the mock's "Due dates are not yet set in this example" describes its
 // fixture; the subtitle appears only when the full selected set has no due date (`all_due_dates_unset`).

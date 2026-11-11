@@ -3,6 +3,7 @@
  * readiness rulings 14, 19, 20, 44-46): the EV charging Site Work words. No fetches; `domainActionClient.ts` owns the
  * reads. Cold literals stay in `coldWorkPresentation.ts` (ruling 47 moves shared literals only in V4a).
  */
+import { ROADMAP_WORDS } from "../ui/productWords";
 import { coldCurrentnessNotice, coldCurrentnessTone } from "./coldWorkPresentation";
 import { invalidScope, isUtcInstant, type DomainIndexScope } from "./domainActionClient";
 import { EV_WINDOW_INVALID_TEXT, EV_WINDOW_TOO_LONG_TEXT } from "./EvAssessmentViews";
@@ -15,7 +16,7 @@ export const EV_WORK_PANEL_TITLE = "Actions at this site";
 // "Manage in Actions →"; W3 global Actions excludes EV domain roots, so the strip states the EV-only scope and the plain
 // gap instead of a link to a list that omits these rows.
 export const EV_WORK_STRIP_DETAIL = "EV Actions recorded at this site";
-export const EV_WORK_GLOBAL_GAP = "Global Actions does not include EV Actions yet.";
+export const EV_WORK_GLOBAL_GAP = ROADMAP_WORDS.evWorkNotGlobal;
 
 // MOCK DEVIATION (D4) R76 (pre-flight 25): the mock's "Due dates are not yet set in this example" describes its
 // fixture; the subtitle appears only when the full selected set has no due date (`all_due_dates_unset`).

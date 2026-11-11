@@ -21,7 +21,9 @@ import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { WorkedOut } from "../ui/TechnicalDetails";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { FocusPicker } from "../ui/FocusPicker";
+import { withFocusDay } from "../ui/sharedRange";
 
 import {
   currentnessWords,
@@ -111,6 +113,8 @@ export interface SiteWindowOverviewProps {
   mini?: OverviewMiniReads;
   /** OUT-B B5: the Site outcome board read; the board replaces the Service, Fuel and Renewable cards. */
   outcomeBoard?: OutcomeBoardClient;
+  /** PB-5: the Foundation device display names by device id, for the readings legend; without one the id is spoken. */
+  deviceNames?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -139,7 +143,7 @@ const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
     "limited",
   ),
   UPSTREAM_UNASSESSED: localMoney(
-    "No amount: day not checked",
+    "No amount: day not analysed",
     "This day has not been assessed, so no amount is shown. This is not zero.",
     "neutral",
   ),
@@ -147,13 +151,13 @@ const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
     "No amount yet: checks still waiting",
     "A check this day depends on is still waiting, or changed while it was read, so no amount is shown. This is not zero.",
     "waiting",
-    "Look again after the day has been checked.",
+    "Look again after the day has been analysed.",
   ),
   UPSTREAM_STALE: localMoney(
     "Upstream out of date",
     "Something this day depends on is out of date, or its checks have stopped, so no amount is shown. This is not zero.",
     "limited",
-    "Treat the day as out of date until it is checked again.",
+    "Treat the day as out of date until it is analysed again.",
   ),
   UPSTREAM_FAILED: localMoney(
     "No amount: a check did not finish",
@@ -227,9 +231,9 @@ function dayScope(summary: SiteWindowSummary): string {
 
 /**
  * POLISH §3.1 Kobo row, done in PB-1 (Addendum 7 Q1a): the current-readings state line reads
- * `Latest checked readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09`. Every other state keeps the shared line.
+ * `Latest complete readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09`. Every other state keeps the shared line.
  */
-export const LATEST_CHECKED_READINGS = "Latest checked readings";
+export const LATEST_CHECKED_READINGS = "Latest complete readings";
 function DayStateLine({ words, summary }: { words: ProductWords; summary: SiteWindowSummary }) {
   if (words.code !== "CURRENT") return <ProductStatus inline words={words} scope={dayScope(summary)} asOf={summary.db_now} />;
   const updated = plainTime(summary.db_now);
@@ -263,28 +267,36 @@ function dayPercent(instant: string | null, start: string): number | null {
 
 function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onSelectDay: (day: string) => void }) {
   const day = summary.window.utc_date;
+  const [params] = useSearchParams();
+  // SR-2: day navigation keeps the shared range (and `known_at`) and writes the page's `day`; the Finding pin drops.
+  const dayHref = (next: string) => {
+    const query = withFocusDay(params, next);
+    query.delete("finding_id");
+    query.delete("finding_revision_id");
+    return `?${query.toString()}`;
+  };
   return (
     <>
     <div className="v69-chips window-day" data-window-date={day}>
-      <label className="dispatch-day__label">
-        <span>Day</span>
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={day}
-          data-window-date-input
-          onChange={(event) => {
+      {/* SR-2: the one day picker (FocusPicker) says which day of the shared range this board shows. */}
+      <FocusPicker
+        day={day}
+        inputProps={{
+          className: "v69-chip-control",
+          value: day,
+          "data-window-date-input": "",
+          onChange: (event) => {
             if (isDay(event.target.value)) {
               onSelectDay(event.target.value);
             }
-          }}
-        />
-      </label>
-      {/* Day navigation is navigation: links to the same page with another `date` (and no Finding pin). */}
-      <Link className="button" to={`?date=${shiftDay(day, -1)}`} data-window-day-link="previous">
+          },
+        }}
+      />
+      {/* Day navigation is navigation: links to the same page with another `day` (and no Finding pin). */}
+      <Link className="button" to={dayHref(shiftDay(day, -1))} data-window-day-link="previous">
         Previous day
       </Link>
-      <Link className="button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
+      <Link className="button" to={dayHref(shiftDay(day, 1))} data-window-day-link="next">
         Next day
       </Link>
       {/* POLISH §3.1 Kobo row (done in PB-1): the day's bounds sentence is deleted; one page note names the zone. */}
@@ -386,7 +398,7 @@ function coverageInputs(coverage: unknown): string {
  */
 export function dayReadingLine(claimLevel: string, periods: number, coverage: unknown): string {
   const word = OUTCOME_WORDS[claimLevel];
-  const lead = word === undefined ? "Checked" : `Checked (${word.toLowerCase()})`;
+  const lead = word === undefined ? "Analysed" : `Analysed (${word.toLowerCase()})`;
   const used =
     periods === 0 ? "generator not used on this day" : `${periods} ${periods === 1 ? "period" : "periods"} of generator use`;
   return `${lead}: ${used}${coverageInputs(coverage)}`;
@@ -590,7 +602,7 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
           {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code, n) => (
             <span key={code} data-assessment-limitation={code}>
               {n === 0 ? "" : " · "}
-              {limitationWords(code)}
+              {limitationWords(code, a.limitations.map(String).filter((l) => limitationCode(l) === code))}
             </span>
           ))}
         </ChartNote>
@@ -641,7 +653,7 @@ const TIMELINE_LEGEND: { key: string; label: string }[] = [
  * readable legend and a text description. It draws only the read's periods and reading spans; a not-current
  * day says so beside the drawing.
  */
-function Timeline({ summary }: { summary: SiteWindowSummary }) {
+function Timeline({ summary, deviceNames }: { summary: SiteWindowSummary; deviceNames?: Readonly<Record<string, string>> }) {
   const day = summary.window.utc_date;
   const intervals = summary.assessment.dispatch_intervals;
   const coverage = summary.context.coverage ?? [];
@@ -698,7 +710,7 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
             const hi = dayPercent(c.last_source_time, summary.window.start);
             return (
               <div className="window-timeline__row" key={`${c.device_id}/${c.signal_id}`}>
-                <span className="window-timeline__label">{repeats ? `${name} · ${idWords(c.device_id)}` : name}</span>
+                <span className="window-timeline__label">{repeats ? `${name} · ${deviceNames?.[c.device_id] ?? idWords(c.device_id)}` : name}</span>
                 <div className="window-timeline__track">
                   {lo === null || hi === null ? null : (
                     <span
@@ -1117,6 +1129,7 @@ export function SiteWindowOverview({
   onReload,
   mini,
   outcomeBoard,
+  deviceNames,
 }: SiteWindowOverviewProps) {
   const day = summary.window.utc_date;
   const miniState = useOverviewMini(mini, day);
@@ -1147,7 +1160,7 @@ export function SiteWindowOverview({
           </>
         }
         happened={{
-          description: `${formatDay(day)} · the periods we checked; Dispatch has the detail`,
+          description: `${formatDay(day)} · the periods we analysed; Dispatch has the detail`,
           body: (
             <>
               <PeriodStrip summary={summary} links={links} />
@@ -1167,7 +1180,7 @@ export function SiteWindowOverview({
             ),
           body: (
             <>
-              <Timeline summary={summary} />
+              <Timeline summary={summary} deviceNames={deviceNames} />
               <Context summary={summary} links={links} />
             </>
           ),

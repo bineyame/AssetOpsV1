@@ -218,7 +218,9 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
     const actions = links.find((l) => l.textContent === "Actions") as HTMLElement;
     const sites = links.find((l) => l.textContent === "Sites") as HTMLElement;
     expect(actions.className).toBe("nav-rail__link active");
-    expect(actions.getAttribute("href")).toBe("/actions");
+    // SR-1: every live rail link carries the address range, when the address has one.
+    const carried = path.includes("?") ? `?${path.split("?")[1]}` : "";
+    expect(actions.getAttribute("href")).toBe(`/actions${carried}`);
     expect(sites.className).toBe("nav-rail__link");
     expect(sites.getAttribute("aria-current")).toBeNull();
     // Same nine live links, hrefs and focus order as every other route.
@@ -227,9 +229,11 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
       (element) => element.getAttribute("tabindex") !== "-1",
     );
     expect(focusable.map((element) => element.textContent)).toEqual(LIVE);
-    expect(links.map((l) => l.getAttribute("href"))).toEqual([
-      "/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials",
-    ]);
+    expect(links.map((l) => l.getAttribute("href"))).toEqual(
+      ["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials"].map(
+        (to) => `${to}${carried}`,
+      ),
+    );
   });
 
   // post-W6 W1-b Q25 / R202 (pre-flight ruling 6): every Site Finding detail path and child selects Findings.

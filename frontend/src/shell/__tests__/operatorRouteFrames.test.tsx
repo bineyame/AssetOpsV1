@@ -218,22 +218,28 @@ describe("operator route navigation", () => {
     // cannot name which site it would open. Findings (T028,
     // `D-2026-10-02-grammar-ownership-test`) names no site either: it is the
     // INTELLIGENCE rail root and owns the global Findings index.
+    // SR-1: the estate Actions page filled its empty address with the shared range and the rail carried it to Sites,
+    // so every rail link carries that one range.
+    const carried = within(operatorNavigation).getByRole("link", { name: "Sites" }).getAttribute("href")!.slice("/sites".length);
+    expect(carried).toMatch(/^\?from=[^&]+&to=[^&]+$/);
     expect(
       within(operatorNavigation)
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     // W6-01e: Operational records rail root is live.
-    ).toEqual([
-      ["Portfolio", "/portfolio"],
-      ["Sites", "/sites"],
-      ["Findings", "/findings"],
-      ["Actions", "/actions"],
-      ["Incidents", "/incidents"],
-      ["Maintenance", "/maintenance"],
-      ["Operational records", "/operational-records"],
-      ["Evidence", "/evidence"],
-      ["Financials", "/financials"],
-    ]);
+    ).toEqual(
+      [
+        ["Portfolio", "/portfolio"],
+        ["Sites", "/sites"],
+        ["Findings", "/findings"],
+        ["Actions", "/actions"],
+        ["Incidents", "/incidents"],
+        ["Maintenance", "/maintenance"],
+        ["Operational records", "/operational-records"],
+        ["Evidence", "/evidence"],
+        ["Financials", "/financials"],
+      ].map(([label, to]) => [label, `${to}${carried}`]),
+    );
   });
 
   it("heads each of the six v6.9 rail groups over its roots, in order", async () => {

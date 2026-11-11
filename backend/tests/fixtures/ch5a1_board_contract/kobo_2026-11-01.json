@@ -56,7 +56,7 @@
        "to": "2026-11-01T21:00:00Z"
       }
      },
-     "text": "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days not checked"
+     "text": "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days without complete readings"
     },
     {
      "confidence": null,
@@ -64,7 +64,7 @@
      "key": "cash_collected",
      "label": "Cash collected",
      "link_ref": null,
-     "text": "Not available yet · no billing or payment records"
+     "text": "Billing and payment records are not connected yet"
     },
     {
      "confidence": null,
@@ -72,7 +72,7 @@
      "key": "site_earnings",
      "label": "Site earnings",
      "link_ref": null,
-     "text": "Not available yet · needs site income, operating cost and capital records"
+     "text": "Site income, operating cost and capital records are not connected yet"
     }
    ],
    "counts": {
@@ -131,7 +131,7 @@
       "partial": 0,
       "pending": 0
      },
-     "days_line": "1 of 1 day checked",
+     "days_line": "Complete readings on 1 of 1 day",
      "key": "money.estimated_income",
      "span": {
       "first": "2026-11-01",
@@ -558,7 +558,7 @@
    "potential": null,
    "state": "UNKNOWN",
    "state_label": "Unknown",
-   "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "subline": "Battery and generator condition needs a wear model, which is not connected yet; these are early warnings only. Power was delivered, but what customers needed is not measured",
    "target_note": null,
    "thread_lines": [],
    "tone": "gray"

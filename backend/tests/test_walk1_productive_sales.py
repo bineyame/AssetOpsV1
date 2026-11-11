@@ -187,7 +187,7 @@ def test_measured_use_without_a_price() -> None:
     sales = contributor(row, "productive_sales")
     # CH6a3-R2 H3 ONE-SOURCE: an unpriced day's stored row has no money, so the earnings claim is NOT_KNOWN and the
     # line states no live kWh beside it; the price line still says why.
-    assert sales["text"] == "Not known yet · 1 of 1 day checked"
+    assert sales["text"] == "Not known yet · Complete readings on 1 of 1 day"
     assert sales["confidence"] is None
     assert checked(contributor(row, "productive_price")) == {
         "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
@@ -248,7 +248,7 @@ def test_priced_estimate_leads_the_grow_row() -> None:
         "confidence": {"label": "Declared", "tone": "neutral"}, "href": ASSUMPTIONS}
     # spare solar stays in its contributor and the Portfolio fallback value
     assert contributor(row, "productive_use")["text"] == ("Spare solar on 1 of 1 well-observed day"
-                                                     " · 4 of the last 5 days not checked")
+                                                     " · 4 of the last 5 days without complete readings")
     assert comp.short_values == {GROW: "18–24.3 kW unused"}
     # WALK1-3b: MG-1 carries the month-to-date kWh (only this day has readings) and is complete only at month end
     mg1 = assert_mg1(comp, snapshot(story_day("12.6225")), readings=story_day("12.6225"))
@@ -265,7 +265,7 @@ def test_low_day_states_nothing_but_not_known_with_its_days_line() -> None:
     assert earn["value"] is None and earn["text"] == "Not known yet"
     assert row["headline_money"] is None and row["subline"] is None
     line = days_line(earn["days"], DAY)
-    assert line == "0 of 1 day checked · 1 with too little data, not counted"
+    assert line == "Complete readings on 0 of 1 day · 1 with too few readings, not counted"
     assert contributor(row, "productive_sales")["text"] == f"Not known yet · {line}"
     assert "101" not in str(row["subline"]) and all("kWh used" not in c["text"] for c in row["contributors"])
 

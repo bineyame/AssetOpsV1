@@ -1,14 +1,26 @@
 import { createContext, useContext, useEffect, type ReactNode } from "react";
 
-import { coldWindowSearch } from "./coldAssessmentClient";
+import { coldWindowSearch, type AnalysedPeriodsRead } from "./coldAssessmentClient";
+
+type SelectedRead = { window: { from: string | null; to: string | null; known_at: string | null } } & AnalysedPeriodsRead;
+
+/**
+ * PB-1c (PB-1b review L2): when a range holds analysed periods the read is about its `shown_period`, so the links
+ * built from it (tabs, sessions, Findings) carry that period's exact window, not the requested range.
+ */
+export function shownWindow(read: SelectedRead): { from: string | null; to: string | null; known_at: string | null } {
+  const w = read.window;
+  const shown = read.shown_period;
+  return shown ? { from: shown.from, to: shown.to, known_at: w.known_at } : w;
+}
 
 /**
  * post-W6 W2-EV (ruling Q14/Q23): the main-tab query an EV page carries is its loaded read's own selected
  * `from`, `to` and `known_at`, never the raw address. A refused, loading or no-window read carries none.
  */
-export function selectedWindowSearch(read: { window: { from: string | null; to: string | null; known_at: string | null } } | null | undefined): string {
+export function selectedWindowSearch(read: SelectedRead | null | undefined): string {
   if (read === null || read === undefined) return "";
-  const w = read.window;
+  const w = shownWindow(read);
   if (w.from === null || w.to === null) return "";
   return coldWindowSearch({ from: w.from, to: w.to, known_at: w.known_at });
 }
@@ -27,7 +39,7 @@ export function renderEvTabs(tabs: EvTabs, search: string): ReactNode {
 export const ReportSelected = createContext<((search: string) => void) | null>(null);
 
 /** Report the loaded read's selected query (`""` for a refused, loading or no-window read) to the frame, if it listens. */
-export function useReportSelectedWindow(read: { window: { from: string | null; to: string | null; known_at: string | null } } | null | undefined): void {
+export function useReportSelectedWindow(read: SelectedRead | null | undefined): void {
   const report = useContext(ReportSelected);
   const search = selectedWindowSearch(read);
   useEffect(() => {

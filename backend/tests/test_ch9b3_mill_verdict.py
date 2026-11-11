@@ -48,8 +48,8 @@ def test_verified_at_exactly_ten_percent_is_exact_decimal() -> None:
     out = vf.assess(plan(), baseline("10.0") + later(1, 2, 4, kwh="11.0") + [row(EFF, "999")], TODAY)
     assert out["decided"] and out["outcome"] == "VERIFIED" and out["reasons"] == ["TARGET_MET"]
     assert out["later_days"] == [EFF + timedelta(days=o) for o in (1, 2, 4)]  # the effective day is not used
-    assert out["sentence"] == "Midday use rose by at least the declared 10% on fully checked days"
-    assert out["line"] == "Midday use before and after the change: 10.00 → 11.00 kWh a day on 3 fully checked days each"
+    assert out["sentence"] == "Midday use rose by at least the declared 10% on days with complete readings"
+    assert out["line"] == "Midday use before and after the change: 10.00 → 11.00 kWh a day on 3 days with complete readings each"
 
 
 def test_just_under_ten_percent_is_ineffective_target_miss() -> None:
@@ -58,7 +58,7 @@ def test_just_under_ten_percent_is_ineffective_target_miss() -> None:
     # L2: cents would show 11.00 beside 11.00 and "Target not met"; the shown figures agree with the verdict.
     assert out["baseline_mean"] == "10.00" and out["later_mean"] == "10.999" and out["threshold"] == "11.000"
     assert Decimal(out["later_mean"]) < Decimal(out["threshold"])
-    assert out["line"].endswith("10.00 → 10.999 kWh a day on 3 fully checked days each")
+    assert out["line"].endswith("10.00 → 10.999 kWh a day on 3 days with complete readings each")
 
 
 def test_a_miss_far_from_the_threshold_keeps_cent_figures() -> None:
@@ -76,7 +76,7 @@ def test_not_judged_table_count_is_the_lines_count() -> None:  # L3
     ctx = {"action": {"id": p["domain_action_id"], "action_code": "A", "title": "t"}, "plan": p}
     live = vf.assess(p, [row(BASE[0], grade="PARTIAL"), row(BASE[1]), row(BASE[2])] + later(1, 2, 3), TODAY)
     body = vf.summary_wire(ctx, [], live)
-    assert body["not_judged_text"].endswith("only 2 of 3 fully checked days before the change")
+    assert body["not_judged_text"].endswith("only 2 of 3 days with complete readings before the change")
     assert body["metrics"][0]["days_before"] == 2
 
 
@@ -90,21 +90,21 @@ def test_short_baseline_is_not_judged_with_the_frozen_text() -> None:
     p = plan("SHORT", BASE[:2])
     out = vf.assess(p, [row(d) for d in BASE[:2]] + later(1, 2, 3), TODAY)
     assert not out["decided"] and out["outcome"] is None
-    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 fully checked days before the change"
+    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 days with complete readings before the change"
 
 
 def test_a_frozen_baseline_day_no_longer_complete_is_not_judged() -> None:
     rows = [row(BASE[0], grade="PARTIAL"), row(BASE[1]), row(BASE[2])] + later(1, 2, 3)
     out = vf.assess(plan(), rows, TODAY)
     assert not out["decided"]
-    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 fully checked days before the change"
+    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 days with complete readings before the change"
 
 
 def test_later_window_open_with_fewer_than_three_days_is_not_judged() -> None:
     rows = baseline() + later(1, 3) + [row(EFF + timedelta(days=2), grade="LOW")]
     out = vf.assess(plan(), rows, EFF + timedelta(days=14))  # day +14 has not ended: the look-ahead is open
     assert not out["decided"] and not out["look_ahead_closed"]
-    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 fully checked days after the change"
+    assert out["not_judged_text"] == "Not judged yet: only 2 of 3 days with complete readings after the change"
 
 
 def test_a_day_not_yet_ended_never_counts() -> None:
@@ -116,7 +116,7 @@ def test_look_ahead_closed_with_fewer_than_three_days_is_inconclusive_later_shor
     rows = baseline() + later(1, 9) + later(15, 16)  # +15, +16 are outside the 14-day look-ahead
     out = vf.assess(plan(), rows, EFF + timedelta(days=15))
     assert out["decided"] and out["outcome"] == "INCONCLUSIVE" and out["reasons"] == ["LATER_SHORT"]
-    assert out["line"].startswith("Only 2 of 3 fully checked days after the change in the 14 days allowed")
+    assert out["line"].startswith("Only 2 of 3 days with complete readings after the change in the 14 days allowed")
 
 
 def test_zero_baseline_is_inconclusive_baseline_zero_even_when_later_is_zero() -> None:
@@ -190,7 +190,7 @@ def test_summary_wire_reads_the_stored_outcome_and_the_not_judged_state() -> Non
     live = vf.assess(p, baseline() + later(1), TODAY)
     waiting = vf.summary_wire(ctx, [], live)
     assert waiting["state"] == "NOT_JUDGED" and waiting["outcome"] is None
-    assert waiting["not_judged_text"] == "Not judged yet: only 1 of 3 fully checked days after the change"
+    assert waiting["not_judged_text"] == "Not judged yet: only 1 of 3 days with complete readings after the change"
     assert vf.summary_wire({**ctx, "plan": None}, [], None)["state"] == "NO_PLAN"
     # MV-1 test 5: every state carries `value` (null here), and the pre-existing keys keep their order
     keys = ["action_id", "action_code", "title", "rule_id", "target", "cost_check", "trial_hours", "value", "state"]

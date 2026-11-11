@@ -198,11 +198,11 @@ def test_every_node_and_the_site_days_cover_the_same_day_set(monkeypatch):
                         named[node["key"]] = node["days_line"]
     # non-vacuous (R4): CC-1, earnings, MG-1, MG-2 and EV-1 are all in the checked set
     assert "verdict.MG-1" in named and named["verdict.MG-1"].startswith("1–31 Oct · "), named
-    assert named["verdict.MG-2"].startswith("31 Oct · 1 of 1 day checked"), named   # H2: the board day, not the week
+    assert named["verdict.MG-2"].startswith("31 Oct · Complete readings on 1 of 1 day"), named   # H2: the board day, not the week
     assert "verdict.EV-1" not in named, named   # R4 H1: record-based EV-1 judges the window, never dated
     ev1 = next(n for r in by["EV-LAB-001"]["rows"] for n in (r["nodes"] or {}).values()
                if n and n["key"] == "verdict.EV-1")
-    assert ev1["days"]["expected"] == 1 and ev1["days_line"] == "1 of 1 day checked", ev1   # the one TUE, undated
+    assert ev1["days"]["expected"] == 1 and ev1["days_line"] == "Complete readings on 1 of 1 day", ev1   # the one TUE, undated
 
 
 def test_kobo_six_of_seven_cold_seven_of_seven_ev_one_tuesday(run):
@@ -269,8 +269,8 @@ def test_money_total_rounds_each_site_then_sums(run):
     total = body["money_total"]
     # 6.015 -> 6.02 and 0.015 -> 0.02: the shown lines add to 6.04; the raw sum 6.030 would show 6.03
     assert total["value"] == {"amount": "6.04", "currency": "USD"} and total["basis"] == "CHECKED_DAYS"
-    assert total["text"] == "At least 6.04 USD estimated income, from checked days · not billed or collected"
-    assert total["lines"] == ["Kobo: 6.02 USD over 6 of 7 days checked", "Depot: 0.02 USD over 1 of 1 day checked"]
+    assert total["text"] == "At least 6.04 USD estimated income, from days with complete readings · not billed or collected"
+    assert total["lines"] == ["Kobo: 6.02 USD over 6 of 7 days with complete readings", "Depot: 0.02 USD over 1 of 1 day with complete readings"]
     assert total["days"]["expected"] == 8 and total["days"]["complete"] == 7
 
 
@@ -284,11 +284,11 @@ def _claim(amount=None, cur="USD", complete=3, expected=3, partial=0, basis=None
 
 def test_complete_form_and_partly_checked_line():
     t = v.estate_income([("A", _claim("1.00")), ("B", _claim("2.50"))])
-    assert t["text"] == "Estimated income from checked days: 3.50 USD · not billed or collected"
-    assert t["basis"] == "COMPLETE" and t["lines"] == ["A: 1.00 USD over 3 of 3 days checked",
-                                                        "B: 2.50 USD over 3 of 3 days checked"]
+    assert t["text"] == "Estimated income from days with complete readings: 3.50 USD · not billed or collected"
+    assert t["basis"] == "COMPLETE" and t["lines"] == ["A: 1.00 USD over 3 of 3 days with complete readings",
+                                                        "B: 2.50 USD over 3 of 3 days with complete readings"]
     t = v.estate_income([("A", _claim("1.00", complete=2, partial=1))])
-    assert t["lines"] == ["A: 1.00 USD over 2 of 3 days checked · 1 partly checked"]
+    assert t["lines"] == ["A: 1.00 USD over 2 of 3 days with complete readings · 1 with partial readings"]
     assert t["text"].startswith("At least 1.00 USD")
 
 
@@ -372,12 +372,12 @@ def test_reading_verdict_without_a_kpi_record_names_its_last_window_day(tz, lo, 
     facts = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": kpi}}, day=wd[-1], one_day=False,
                       window_span=window)
     line = row_nodes(facts, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"]
-    assert line == f"{v.day_text(wd[-1])} · 1 of 1 day checked"
-    assert line != "1 of 1 day checked"
+    assert line == f"{v.day_text(wd[-1])} · Complete readings on 1 of 1 day"
+    assert line != "Complete readings on 1 of 1 day"
     one = SiteFacts(domain="solar", site_code="S", objectives=obj, nodes={"MG-5": {"kpi": kpi}}, day=wd[-1], one_day=True,
                     window_span=(wd[-1], wd[-1]))
     assert row_nodes(one, ["MG-5"], "MG-5", "ON_TRACK", [("MG-5", "ON_TRACK")])["nodes"]["kpi"]["days_line"] \
-        == "1 of 1 day checked"   # a one-day board: no span named (CH6b2-R Q7a: "1 day")
+        == "Complete readings on 1 of 1 day"   # a one-day board: no span named (CH6b2-R Q7a: "1 day")
 
 
 # ---------------------------------------------------------------- CH6b1-R3: events inside a PERIOD window

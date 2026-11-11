@@ -15,6 +15,7 @@
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { FocusPicker } from "../ui/FocusPicker";
 
 import {
   ChartNote,
@@ -302,16 +303,16 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
       <button type="button" className="button" onClick={() => onDay(shiftDay(day, -1))}>
         Previous day
       </button>
-      <label className="dispatch-day__label">
-        Day{" "}
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          data-dispatch-day={day}
-        />
-      </label>
+      {/* SR-2: the one day picker (FocusPicker) says which day of the shared range Dispatch shows. */}
+      <FocusPicker
+        day={day}
+        inputProps={{
+          className: "v69-chip-control",
+          value: draft,
+          onChange: (event) => setDraft(event.target.value),
+          "data-dispatch-day": day,
+        }}
+      />
       <button type="submit" className="button">
         Show
       </button>
@@ -799,7 +800,7 @@ function LimitationSummary({ read }: { read: DispatchWindow }) {
   // W1-F2: one chart-note line beside the strip; the full list stays in the coverage panel.
   return (
     <ChartNote data={{ "data-dispatch-limitation-summary": "" }}>
-      Limits: {groups.map((g) => limitationWords(g.code)).join("; ")}.
+      Limits: {groups.map((g) => limitationWords(g.code, g.items)).join("; ")}.
     </ChartNote>
   );
 }
@@ -1051,7 +1052,7 @@ function SelectedPeriod({
         {revision.result.limitations?.length ? (
           <Fact term="Limits on this period">
             {groupLimitations(revision.result.limitations)
-              .map((group) => limitationWords(group.code))
+              .map((group) => limitationWords(group.code, group.items))
               .join("; ")}
           </Fact>
         ) : null}
@@ -1105,7 +1106,7 @@ function LimitationsList({ read }: { read: DispatchWindow }) {
     <ul className="dispatch-limits" aria-label="What limits this day's result">
       {groups.map((group) => (
         <li key={group.code} data-limitation={group.code}>
-          {limitationWords(group.code)}
+          {limitationWords(group.code, group.items)}
           {group.items.length > 1 ? ` (${group.items.length} places)` : ""}.
         </li>
       ))}
@@ -1459,7 +1460,7 @@ function ReadingsToOutcome({
           </p>
           {limits.length === 0 ? null : (
             <p className="v69-chart-note" data-dispatch-story-limits>
-              Limits: {limits.map((g) => limitationWords(g.code)).join("; ")}.
+              Limits: {limits.map((g) => limitationWords(g.code, g.items)).join("; ")}.
             </p>
           )}
           <p className="v69-chart-note">This says nothing about fuel, savings or money.</p>

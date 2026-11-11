@@ -8,6 +8,13 @@
 import type { Ref } from "../shell/operatorSiteRoutes";
 import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
 import type { OutcomeMoney, OutcomeRef, OutcomeState, OutcomeTone, OutcomeWarning } from "../sites/outcomeBoardClient";
+import {
+  RETRY_DELAYS_MS,
+  STILL_UNAVAILABLE_COPY,
+  TEMPORARILY_UNAVAILABLE,
+  fetchRetrying,
+  isTemporarilyUnavailable,
+} from "../sites/temporarilyUnavailable";
 
 export const ESTATE_API_PATH = "/api/estate";
 
@@ -48,6 +55,21 @@ export interface EstateCoverageSite {
   source_freshness: string;
   /** COV-PARTIAL (`estate-coverage/2`): mini-grid day coverage; null for cold, EV and Actions. */
   days?: EstateCoverageDays | null;
+  /** PARTIAL-MONEY (D-E5.45): on a PARTIAL mini-grid Site only (Financials and Portfolio), its analysed days' money. */
+  money?: EstatePartialMoney;
+}
+
+/** PARTIAL-MONEY: the exact sum of a PARTIAL Site's eligible lines, all on analysed days; never an estimate. */
+export interface EstatePartialMoney {
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  state: "SUMMED" | "CURRENCY_MIXED" | "OVERLAPPING" | "NO_ELIGIBLE_LINES";
+  amount: { low: string; high: string; currency: string } | null;
+  line_count: number;
+  analysed_days: number;
+  requested_days: number;
+  gaps: EstateCoverageDays["gaps"];
 }
 
 /** COV-PARTIAL: the checked and unchecked days of one mini-grid Site's period; `text` only when PARTIAL. */
@@ -549,6 +571,8 @@ export const REFUSAL_COPY: Readonly<Record<string, string>> = {
   INVALID_LIMIT: "Choose a page size from 1 to 100.",
   INVALID_CURSOR: "Reload the first page.",
   ESTATE_STORE_UNAVAILABLE: "Estate records are unavailable right now. Try again.",
+  // INFRA-1 (D-E5.47): a stored route that could not read its data, after the summary's retries.
+  [TEMPORARILY_UNAVAILABLE]: STILL_UNAVAILABLE_COPY,
 };
 
 /**
@@ -665,6 +689,17 @@ export interface EstateOutcomeSummaryBody {
   verified_sites_unread?: number;
   /** CH6b2-R Q1, CH5d1-R: the four Portfolio cards (`portfolio_cards`); absent on an older body. */
   cards?: Partial<Record<"GROW_REVENUE" | "OPTIMIZE_COST" | "PROTECT_ASSET" | "ASSURE_PERFORMANCE", EstatePortfolioCard>>;
+  /** PF-C1: the one Portfolio coverage line (`portfolio_coverage`), server text; absent on an older body. */
+  coverage_line?: EstateCoverageLine;
+}
+
+/** PF-C1: the chain day grades of every Site, from the same days the cards count. */
+export interface EstateCoverageLine {
+  state: "COMPLETE" | "INCOMPLETE" | "NOT_KNOWN";
+  lead: string;
+  rule: string | null;
+  sites: { site_code: string; site_name: string; complete: boolean; text: string }[];
+  days_text: string | null;
 }
 
 /** CH-6b2 (§B2): one server-built Portfolio card; the browser renders its markup only. */
@@ -695,7 +730,11 @@ export interface EstateClient {
   /** CH-5c Q9: optional so existing fakes stay valid; an absent method reads as unavailable. */
   portfolioScopeIds?(query: EstatePortfolioQuery): Promise<EstateResult<EstatePortfolioScopeIdsBody>>;
   /** OUT-B B6: optional so existing fakes stay valid; an absent method reads as unavailable. */
-  getOutcomeSummary?(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateOutcomeSummaryBody>>;
+  /** INFRA-1: `onRetrying` is told before each wait while the summary answers 503 `TEMPORARILY_UNAVAILABLE`. */
+  getOutcomeSummary?(
+    query: Pick<EstateQuery, "from" | "to" | "known_at">,
+    onRetrying?: () => void,
+  ): Promise<EstateResult<EstateOutcomeSummaryBody>>;
 }
 
 function unavailable<T>(): EstateResult<T> {
@@ -728,25 +767,27 @@ async function readEstate<T>(
   path: string,
   schema: string,
   window?: { from?: string | null; to?: string | null },
+  onRetrying?: () => void,
+  delays: readonly number[] = [],
 ): Promise<EstateResult<T>> {
   let response: Response;
+  let body: unknown;
   try {
-    response = await fetch(path, { headers: { Accept: "application/json" } });
+    ({ response, body } = await fetchRetrying(path, onRetrying, delays));
   } catch {
     return unavailable();
   }
-  let body: unknown = null;
-  try {
-    body = await response.json();
-  } catch {
-    return unavailable();
-  }
+  if (body === null) return unavailable();
   if (response.ok) {
     if (isObject(body) && body.schema_version === schema) return { status: "loaded", value: body as T };
     return unavailable();
   }
   const detail = isObject(body) && isObject(body.detail) ? body.detail : null;
-  const code = detail !== null && typeof detail.code === "string" ? detail.code : "";
+  const code = isTemporarilyUnavailable(response.status, body)
+    ? TEMPORARILY_UNAVAILABLE
+    : detail !== null && typeof detail.code === "string"
+      ? detail.code
+      : "";
   const copy = code === "INVALID_WINDOW" && window !== undefined ? invalidWindowCopy(window) : REFUSAL_COPY[code];
   if (copy === undefined) return unavailable();
   return { status: "refused", httpStatus: response.status, code, copy };
@@ -787,11 +828,13 @@ export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateCl
         PORTFOLIO_SCOPE_IDS_SCHEMA,
         query,
       ),
-    getOutcomeSummary: (query) =>
+    getOutcomeSummary: (query, onRetrying) =>
       readEstate(
         `${basePath}/outcome-summary${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at })}`,
         OUTCOME_SUMMARY_SCHEMA,
         query,
+        onRetrying,
+        RETRY_DELAYS_MS, // INFRA-1: the summary retries a 503 TEMPORARILY_UNAVAILABLE after 2, 4 and 8 s
       ),
   };
 }
