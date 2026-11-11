@@ -84,3 +84,22 @@ Known deviations (phase 2): 6. The test sleeps 1.0 s between revisions so a whol
   `perf_budget.py --any-range --report`.
 - D-ANY.5 step 7 / M2: time `_UNCONSUMED_AT` in the baseline and report p95 here; above 20 ms p95 → low-water bound
   and drop `payload` from the select in AR-2.
+
+## Phase 3 baseline (D-ANY.6 §2, 2026-11-11, `assetops_polish_client4_test`, S = 2026-11-08) - FAIL (harness)
+
+- Migration: client4 was at `0058_fuel_watermark_inputs`; `alembic upgrade 0059_site_period_read` from this branch;
+  `alembic current` = `0059_site_period_read (head)`. client6 / demo3_full not touched. No backfill (no kind declared).
+- Parity (no `--kinds`, seed 20261111, `--random 16`, `--work AssetOpsV1-e3c\var\polish_client4`, `--story` its
+  `story.json`, `ASSETOPS_PREBUILT_ROUTES` = its `prebuilt-routes.json`), revision bb3d7645c, wall 22 min 08 s:
+  **`period_read_parity: FAIL (59 cases, 0 mismatch, 10 unstable)`**, exit 1. 49 PASS, 0 MISMATCH, 10 UNSTABLE.
+  `any.between_revisions.site_day_snapshot` **PASS** (KISIWA-001 2026-11-10, k 2026-11-10T04:13:13Z), not MISSING.
+- All 10 UNSTABLE are live (no `known_at`) estate reads: story.0/1/3/36/37/39/40, any.portfolio.1/3/5
+  (`/api/estate/portfolio`, `/scope-ids`, `/findings`). Each differs only at the echoed live `known_at`
+  (e.g. `"known_at":"2026-11-11T13:52:51Z"` vs `"...13:53:32Z"`, equal lengths): the response stamps wall-clock now,
+  so the oracle-candidate-oracle byte comparison cannot be stable. Harness defect (live `known_at` not normalised),
+  not a compose difference. Not fixed here (scope: baseline run only).
+- `perf_budget.py --any-range --report`: **not run** (stopped to report the parity failure first).
+- `_UNCONSUMED_AT` (`PostgresPeriodReadStore.unconsumed_at`, 11 outbox types, 4 Sites, outbox 109,535 rows,
+  consumption 109,532, 10 runs after 1 warm): live k per Site median 80.5 ms, **p95 229.9 ms**, max 243.3 ms; all
+  Sites in one call p95 500.5 ms. k = S and S-14d (story time, before every wall-clock `recorded_at`) p95 5.1 / 5.9 ms.
+  Above 20 ms → AR-2 applies the low-water bound and drops `payload` (D-ANY.6 §2).
