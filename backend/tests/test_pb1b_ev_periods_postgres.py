@@ -66,10 +66,8 @@ def windows(built) -> list[tuple[datetime, datetime]]:
 
 
 def widest(ws: list[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
-    ends: dict[datetime, datetime] = {}
-    for lo, hi in ws:
-        ends[lo] = max(hi, ends.get(lo, hi))
-    return sorted(ends.items())
+    """Expected listing: no period lying wholly inside another (shared start or nested)."""
+    return [p for p in sorted(set(ws)) if not any(q != p and q[0] <= p[0] and p[1] <= q[1] for q in ws)]
 
 
 def day_of(at: datetime) -> tuple[datetime, datetime]:
@@ -161,6 +159,33 @@ def test_shared_start_lists_only_the_widest(chain) -> None:  # noqa: F811
     assert whole["analysed_periods"] == widest(inside)
     assert (LATE_LO, LATE_HI) not in whole["analysed_periods"]  # the narrower 08:00 window is not listed
     assert whole["shown_period"] in whole["analysed_periods"] and whole["selected"] is not None
+
+
+def test_nested_window_is_never_listed_or_shown(chain) -> None:  # noqa: F811
+    """PB-1a review L1: a stored window wholly inside another is dropped, so the shown period is never a nested
+    duplicate (and never reads UNKNOWN for that reason)."""
+    built = settled(chain, "complete")
+    lo, hi = windows(built)[0]
+    nested = (lo + timedelta(minutes=10), hi - timedelta(minutes=10))
+    select_exact(built, *nested)  # the latest selection, so "most recent by seq" would not save the outer one
+    assert nested in windows(built)  # non-vacuous: the nested window is stored and selected
+    wm, _ = clocks(built)
+    svc, t, s = service(built), built.tenant_id, built.site_id
+    with snapshot(built) as c:
+        whole = svc._snapshot(c, t, s, CODE, *day_of(lo), wm)
+    assert whole["analysed_periods"] == [(lo, hi)] and whole["shown_period"] == (lo, hi)
+    assert whole["selected"] is not None and whole["state"] != "UNKNOWN"
+
+
+def test_widest_periods_unit() -> None:
+    from assetops_backend.analytics.adapters.postgres_assessment_store import widest_periods
+
+    def at(h: int, m: int = 0) -> datetime:
+        return datetime(2026, 11, 3, h, m, tzinfo=timezone.utc)
+
+    got = widest_periods([(at(8), at(9)), (at(8), at(9, 5)), (at(8, 10), at(8, 20)), (at(10), at(11)),
+                          (at(10), at(11)), (at(10, 30), at(12))])
+    assert got == [(at(8), at(9, 5)), (at(10), at(11)), (at(10, 30), at(12))]  # overlapping, not nested: both kept
 
 
 def test_window_with_no_period_inside(chain) -> None:  # noqa: F811

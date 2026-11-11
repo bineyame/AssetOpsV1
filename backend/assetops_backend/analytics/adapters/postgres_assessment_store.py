@@ -2144,6 +2144,14 @@ def analysed_periods_in(c: Connection, t: UUID, s: UUID, analytics: tuple[str, .
         {"t": t, "s": s, "as": list(analytics), "lo": lo, "hi": hi, "k": known}).all()]
 
 
+def widest_periods(periods: list[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
+    """PB-1b (D-E5.31, PB-1a review L1): drop every period lying wholly inside another listed one, so of two
+    stored windows sharing a start only the widest is listed (08:00-09:05 over 08:00-09:00) and a nested window
+    is never listed (or shown) on its own. Order by `(start, end)` is kept."""
+    unique = sorted(set(periods))
+    return [p for p in unique if not any(q != p and q[0] <= p[0] and p[1] <= q[1] for q in unique)]
+
+
 def shown_analysed_period(c: Connection, t: UUID, s: UUID, domain: str, periods: list[tuple[datetime, datetime]],
                           known: datetime) -> tuple[datetime, datetime]:
     """PB-1 (D-E5.31 ii): of non-empty `periods`, the most recent one holding an open Finding of `domain` (one
@@ -3000,10 +3008,7 @@ class EvReadService:
         periods: list[tuple[datetime, datetime]] = []
         shown: tuple[datetime, datetime] | None = None
         if not pinned and explicit and selected is None and known is not None:
-            ends: dict[datetime, datetime] = {}
-            for start, end in analysed_periods_in(c, t, s, (ev.SESSION_ANALYTIC,), lo, hi, known):
-                ends[start] = max(end, ends.get(start, end))
-            periods = sorted(ends.items())
+            periods = widest_periods(analysed_periods_in(c, t, s, (ev.SESSION_ANALYTIC,), lo, hi, known))
             if periods:
                 shown = shown_analysed_period(c, t, s, ev.DOMAIN, periods, known)
                 lo, hi = shown
