@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Notice } from "../ui";
 import { formatDayRange, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { rangeWindow, validDay } from "../shell/sharedRange";
 import {
   FIRST_PAGE_CODES,
   WINDOW_NOT_VALID,
@@ -38,9 +39,14 @@ const STATE_FILTERS: readonly EstateStateFilter[] = ["all", "supported", "unconf
 export function queryFromParams(params: URLSearchParams, now?: number): EstateQuery & { state: EstateStateFilter } {
   const fallback = defaultWindow(now);
   const state = params.get("state");
+  // SR-1 (SR.3): the shared range's short day form (`to` included) reads as the same UTC window as the instant form,
+  // so both address forms make the same request. Any other value is passed on unchanged for the server to judge.
+  const from = params.get("from");
+  const to = params.get("to");
+  const days = from !== null && to !== null && validDay(from) && validDay(to) ? rangeWindow({ from, to }) : null;
   return {
-    from: params.get("from") ?? fallback.from,
-    to: params.get("to") ?? fallback.to,
+    from: days?.from ?? from ?? fallback.from,
+    to: days?.to ?? to ?? fallback.to,
     known_at: params.get("known_at"),
     cursor: params.get("cursor"),
     state: STATE_FILTERS.includes(state as EstateStateFilter) ? (state as EstateStateFilter) : "all",
@@ -156,6 +162,39 @@ export function EstateDateBar({
       </details>
       <TimeZoneNote />
     </form>
+  );
+}
+
+/**
+ * SR-1: a page whose range is set in the shell's shared bar keeps only the read's cutoff line here - the effective
+ * cutoff, the earlier-cutoff words, `Window not valid` for a refused window (never the dates) and the UTC note.
+ */
+export function EstateCutoffLine({
+  query,
+  body,
+  windowRefused = false,
+}: {
+  query: Pick<EstateQuery, "known_at" | "cursor">;
+  body: EstateEnvelope | null;
+  windowRefused?: boolean;
+}) {
+  return (
+    <p className="site-date-bar estate-date-bar estate-cutoff-line" data-estate-cutoff-line>
+      {windowRefused ? (
+        <span className="site-date-bar__window" data-estate-window>
+          {WINDOW_NOT_VALID}
+        </span>
+      ) : null}
+      <span className="site-date-bar__cutoff" data-estate-cutoff>
+        {cutoffBarText(query, body)}
+      </span>
+      {body?.status === "HISTORICAL" ? (
+        <span className="estate-date-bar__historical" data-estate-historical>
+          {EARLIER_CUTOFF}
+        </span>
+      ) : null}
+      <TimeZoneNote />
+    </p>
   );
 }
 

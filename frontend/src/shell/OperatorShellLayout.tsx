@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Outlet, useLocation, useOutletContext } from "react-router-dom";
+import { useLocation, useOutletContext, useSearchParams } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
+import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
+import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
 
@@ -101,6 +103,10 @@ export function OperatorShellLayout() {
   const [railOpen, setRailOpen] = useState(false);
   const { pathname } = useLocation();
   useEffect(() => setRailOpen(false), [pathname]);
+  // SR-1 (SR.3): the rail keeps the address range. `SharedRangeOutlet` completes an estate address that has none
+  // before the page mounts (same path, replace, no history entry).
+  const [params] = useSearchParams();
+  const railSearch = rangeSearch(params);
 
   return (
     <div
@@ -126,17 +132,21 @@ export function OperatorShellLayout() {
           ) : null}
         </div>
         <div className="app-frame__rail-body" id="operator-rail-body">
-          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} />
+          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} search={railSearch} />
           {chrome?.footer ?? null}
         </div>
       </div>
 
       <div className="app-frame__body">
+        {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
+        <header className="app-topbar" data-shared-range-topbar>
+          <SharedRangeBar />
+        </header>
         <p className="demonstration-banner" role="note" data-demonstration-banner>
           {DEMONSTRATION_BANNER}
         </p>
         <div className="app-frame__content">
-          <Outlet />
+          <SharedRangeOutlet />
         </div>
       </div>
     </div>

@@ -70,13 +70,18 @@ export interface NavRailProps {
    * carries `active` and `aria-current="page"`. When absent or null, `NavLink` path matching applies unchanged.
    */
   activeLabel?: string | null;
+  /**
+   * SR-1 (proposal "Item 12.5", SR.3): the shell's shared range (`?from=..&to=..[&known_at=..]`), added to every live
+   * item's href so the left menu keeps the range. Matching stays on the item's path. Absent or empty: bare paths.
+   */
+  search?: string;
 }
 
 function itemKey(item: NavRailItem): string {
   return item.kind === "unavailable" ? `unavailable:${item.label}` : item.to;
 }
 
-function railItem(item: NavRailItem, activeLabel: string | null): ReactNode {
+function railItem(item: NavRailItem, activeLabel: string | null, search: string): ReactNode {
   if (item.kind === "unavailable") {
     return (
       <li
@@ -94,13 +99,14 @@ function railItem(item: NavRailItem, activeLabel: string | null): ReactNode {
       </li>
     );
   }
+  const to = search === "" ? item.to : { pathname: item.to, search };
   if (activeLabel !== null) {
     const active = item.label === activeLabel;
     return (
       <li>
         <Link
           className={active ? "nav-rail__link active" : "nav-rail__link"}
-          to={item.to}
+          to={to}
           aria-current={active ? "page" : undefined}
         >
           {item.icon === undefined ? null : <RailIcon name={item.icon} />}
@@ -111,7 +117,7 @@ function railItem(item: NavRailItem, activeLabel: string | null): ReactNode {
   }
   return (
     <li>
-      <NavLink className="nav-rail__link" to={item.to} end={item.end}>
+      <NavLink className="nav-rail__link" to={to} end={item.end}>
         {item.icon === undefined ? null : <RailIcon name={item.icon} />}
         <span className="nav-rail__label">{item.label}</span>
       </NavLink>
@@ -119,7 +125,7 @@ function railItem(item: NavRailItem, activeLabel: string | null): ReactNode {
   );
 }
 
-export function NavRail({ label, items, activeLabel = null }: NavRailProps) {
+export function NavRail({ label, items, activeLabel = null, search = "" }: NavRailProps) {
   const sections: { group: string | undefined; items: NavRailItem[] }[] = [];
   for (const item of items) {
     const last = sections[sections.length - 1];
@@ -140,7 +146,7 @@ export function NavRail({ label, items, activeLabel = null }: NavRailProps) {
           )}
           <ul className="nav-rail__list">
             {section.items.map((item) => (
-              <Fragment key={itemKey(item)}>{railItem(item, activeLabel)}</Fragment>
+              <Fragment key={itemKey(item)}>{railItem(item, activeLabel, search)}</Fragment>
             ))}
           </ul>
         </div>

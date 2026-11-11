@@ -729,9 +729,9 @@ describe("estate Portfolio page", () => {
     expect(visible.textContent).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-|Finding KOBO-001/);
     expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     const main = document.querySelector(".estate-portfolio") as HTMLElement;
-    // PF-T (v71 `portfolio-tabs.html` supersedes the v69 one-page composition): the date bar, title and context row
-    // sit above the tab row, and the tab's panel follows it.
-    const order = ["[data-portfolio-datebar]", "h1", "[data-portfolio-context]", "[data-portfolio-tabs]", "[data-portfolio-tab-panel]"];
+    // PF-T (v71 `portfolio-tabs.html` supersedes the v69 one-page composition): the title, the cutoff line (SR-1: the
+    // range itself is in the shell's shared top bar) and the context row sit above the tab row, and the panel follows.
+    const order = ["h1", "[data-portfolio-cutoff]", "[data-portfolio-context]", "[data-portfolio-tabs]", "[data-portfolio-tab-panel]"];
     const nodes = order.map((sel) => main.querySelector(sel) as HTMLElement);
     nodes.forEach((n) => expect(n).not.toBeNull());
     for (let i = 1; i < nodes.length; i += 1) {
@@ -999,14 +999,15 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
       expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] p"))).toBe(copy);
       expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW'] [data-refusal-title]"))).toBe("Window cannot be read");
       expect(text(document.querySelector("[data-estate-window]"))).toBe("Window not valid");
-      expect(text(document.querySelector("[data-estate-date-bar]"))).not.toContain("2026-10-07 to");
+      expect(text(document.querySelector("[data-estate-cutoff-line]"))).not.toMatch(/2026-10-07|Oct/);
       view.unmount();
     }
-    // A non-window refusal keeps its own copy and the requested window line.
+    // A non-window refusal keeps its own copy; the requested range is the shell's shared bar (SR-1), so the page's
+    // cutoff line says nothing about the window.
     const view = renderAt(ENTRY, portfolioClient(refused(503, "ESTATE_STORE_UNAVAILABLE", "Estate records are unavailable right now. Try again.")));
     await settledScreen();
     expect(text(document.querySelector("[data-page-refusal]"))).toBe("Estate records are unavailable right now. Try again.");
-    expect(text(document.querySelector("[data-estate-window]"))).toBe("6 Oct 2026");
+    expect(document.querySelector("[data-estate-window]")).toBeNull();
     view.unmount();
   });
 });
@@ -2187,13 +2188,15 @@ describe("PF-T Portfolio section tabs", () => {
     expect(screen.queryByRole("group", { name: "Finding lens" })).toBeNull();
   });
 
-  it("the date bar sits at the top, above the page title and the tabs", async () => {
+  it("SR-1: the page has no date form of its own; the cutoff line sits under the title, above the tabs", async () => {
     renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
-    const bar = document.querySelector("[data-estate-date-bar]")!;
+    expect(document.querySelector("[data-estate-date-bar]")).toBeNull();
+    expect(document.querySelector('.estate-portfolio input[type="date"]')).toBeNull();
+    const line = document.querySelector("[data-estate-cutoff-line]")!;
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(bar.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(bar.compareDocumentPosition(tabRow()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(h1.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(line.compareDocumentPosition(tabRow()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("the tab row wraps at 760 px and below", async () => {
