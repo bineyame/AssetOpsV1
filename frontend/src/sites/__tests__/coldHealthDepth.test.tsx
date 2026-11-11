@@ -206,7 +206,7 @@ describe("health_dto_rendering", () => {
     expect(headers).toEqual(["Asset", "Supported assessment", "Next evidence"]);
   });
 
-  it("Asset cell: matching asset name and ID (mobile: selected code + Full ID); missing match: the ID; else every asset name; else the row label", async () => {
+  it("Asset cell: matching asset name (mobile: selected code), the ID only behind Technical details; missing match: the row label; else every asset name; else the row label", async () => {
     const { container } = await renderHealth(
       loaded([
         generator(),
@@ -215,15 +215,15 @@ describe("health_dto_rendering", () => {
       ]),
     );
     const gen = row(container, "BACKUP_GENERATOR").querySelector("th") as HTMLElement;
-    expect(gen.querySelector(".cold-health-asset__desktop")?.textContent).toBe(`Backup generator GEN-CR-01 ${GEN}`);
-    const mobile = gen.querySelector(".cold-health-asset__mobile") as HTMLElement;
-    expect(mobile.querySelector("[data-health-asset-code]")?.textContent).toBe("gen-1");
-    // Both full-ID copies are the complete source-reference UUID.
+    expect(gen.querySelector(".cold-health-asset__desktop")?.textContent).toBe("Backup generator GEN-CR-01");
+    expect(gen.querySelector("[data-health-asset-code]")?.textContent).toBe("gen-1");
+    // PB-6: the only copy of the UUID is behind a closed Technical details, never in the cell text.
     const ids = Array.from(gen.querySelectorAll('code[data-vocabulary-exempt="source-reference"][data-health-asset-id]'));
-    expect(ids.map((c) => c.textContent)).toEqual([GEN, GEN]);
-    const details = mobile.querySelector("details") as HTMLDetailsElement;
+    expect(ids.map((c) => c.textContent)).toEqual([GEN]);
+    expect(Array.from(gen.childNodes).filter((n) => n.nodeName !== "DETAILS").map((n) => n.textContent).join(" ")).not.toContain(GEN);
+    const details = gen.querySelector("details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
-    expect(details.querySelector("summary")?.textContent).toBe("Full ID");
+    expect(details.querySelector("summary")?.textContent).toBe("Technical details");
     fireEvent.click(details.querySelector("summary") as HTMLElement);
     expect(details.open).toBe(true);
     expect(details.querySelector("code")?.textContent).toBe(GEN);
@@ -232,17 +232,17 @@ describe("health_dto_rendering", () => {
     expect(cells(row(container, "TEMPERATURE_SENSING"))[0]).toBe("Temperature sensing");
     cleanup();
     const second = await renderHealth(loaded([generator(), plant(), sensing()]));
-    expect(row(second.container, "COOLING_PLANT").querySelector(".cold-health-asset__desktop")?.textContent).toBe(`cmp-1 ${CMP}`);
+    expect(row(second.container, "COOLING_PLANT").querySelector(".cold-health-asset__desktop")?.textContent).toBe("cmp-1");
     expect(row(second.container, "COOLING_PLANT").querySelector("[data-health-asset-code]")?.textContent).toBe("cmp-1");
-    expect(row(second.container, "TEMPERATURE_SENSING").querySelector(".cold-health-asset__desktop")?.textContent).toBe(`Chamber probe ${PROBE}`);
+    expect(row(second.container, "TEMPERATURE_SENSING").querySelector(".cold-health-asset__desktop")?.textContent).toBe("Chamber probe");
     expect(row(second.container, "TEMPERATURE_SENSING").querySelector("[data-health-asset-code]")?.textContent).toBe("probe-1");
     cleanup();
-    // Missing match: the full ID is the primary text (no inferred code, no disclosure).
+    // Missing match: the row label is the primary text; the ID stays behind Technical details.
     const third = await renderHealth(loaded([generator({ asset_id: AMBIENT }), plant(), sensing()]));
     const missing = row(third.container, "BACKUP_GENERATOR").querySelector("th") as HTMLElement;
-    expect(missing.textContent).toBe(AMBIENT);
+    expect(missing.firstChild?.textContent).not.toBe(AMBIENT);
     expect(missing.querySelector("[data-health-asset-code]")).toBeNull();
-    expect(missing.querySelector("details")).toBeNull();
+    expect(missing.querySelector("details code")?.textContent).toBe(AMBIENT);
   });
 
   it("the 390 rule fits the table: no 840/240 px sticky rule remains in primitives.css", async () => {
