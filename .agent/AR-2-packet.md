@@ -42,8 +42,23 @@ fallback takes link rows live, as the compose does. Migration 0029 untouched; no
   **`period_read_parity: FAIL (59 cases, 0 mismatch, 7 unstable)`**, exit 1. All 7 UNSTABLE are live estate reads
   (story.0/3/36/39, any.portfolio.1/3/5: `/api/estate/portfolio`, `/api/estate/findings`); the oracle differs from
   itself at `selection_token` (`estate/scope.py` `selection_token(..., token_k, ...)` hashes the live now), which
-  `normalise_live_now` does not normalise. No mini-depth/board case is unstable or mismatched. Stopped here to report.
-- Full parity (no `--kinds`), `perf_budget --any-range --report` rows on/off: **not run** (stopped on the failure).
+  `normalise_live_now` does not normalise. No mini-depth/board case is unstable or mismatched. Harness defect.
+- Harness fix `aa5a6c9b3` (`tools/checks/period_read_parity.py`): in a live request only, `"selection_token"` is
+  normalised to `<live-token>` like the `known_at` echo. Self-test PASS; `test_period_read_parity.py` 7 passed; new
+  self-test cases: a historical request's token difference -> MISMATCH, a live real body difference beside the token
+  -> MISMATCH; non-vacuity tests: normalising the token on historical reads, or not normalising the live token, each
+  make the self-test fail.
+- client4 parity `--kinds` (four kinds), rev `aa5a6c9b3`, start 18:20, wall 785.7 s:
+  **`period_read_parity: PASS (59 cases, 0 mismatch, 0 unstable)`**, exit 0. `any.between_revisions.site_day_snapshot`
+  PASS.
+- client4 full parity (no `--kinds`), rev `aa5a6c9b3`, start 18:33, wall 872.7 s:
+  **`period_read_parity: PASS (59 cases, 0 mismatch, 0 unstable)`**, exit 0.
+- `perf_budget.py --any-range --store off --runs 1 --report` (client4, `--story`), rows off / on (`--kinds` four):
+  verdict both `FAIL (12 breach, 0 not measured) [report mode: exit 0]`. Board cold ms off -> on:
+  KISIWA 10-25 (board.0) 1580.9 -> 1763.5; board.6 1625.7 -> 1693.9; KISIWA 10-17 (board.10) 1303.3 -> **2187.0
+  BREACH**; KOBO 10-20 (board.14) **4189.8 BREACH** -> 1922.1; KISIWA 10-22 (board.15) 1468.3 -> 1448.2.
+  Portfolio (not touched by AR-2): portfolio.1/3/5 10.8-26.3 s breach in both; portfolio.2/4/7/8/9/11/12/13 return
+  **422** in both (pre-existing, not AR-2). One run each: single-sample noise is large.
 
 ## Known deviations
 
@@ -62,4 +77,24 @@ fallback takes link rows live, as the compose does. Migration 0029 untouched; no
 
 ## Residual risk
 
-PLACEHOLDER
+1. Speed gain is modest and uneven: the worst board (KOBO 10-20) drops 4.2 s -> 1.9 s; the others stay ~1.4-1.8 s
+   (mini depth was not their dominant cost). One cold run per case, so no p95 claim.
+2. Rows exist only for the built range (KOBO 10-11..11-11, KISIWA 10-30..11-11). Earlier days read as absent
+   (`period_row_absent`, nothing known at k); parity shows this equals the compose on client4, but a database whose
+   selections predate its row range would show UNKNOWN where the compose shows a head. Rebuild rows after add-dates.
+3. While a recompute is in flight (add-dates), affected hours take `_hour` (old speed) until the row is rebuilt;
+   watch `period_row_job_fallback` in the log. Correct by construction, not faster.
+4. Deviation 4 (provenance link rows frozen at build) remains.
+5. The Postgres test uses the W4-02 fixture; client4 parity (59 cases, seed 20261111) is the only real-data proof.
+
+## Prepare-time impact
+
+`build_period_rows` after `drain-2`: client4 KOBO-001 69.1 s (128 periods) + KISIWA-001 38.7 s (52) = **107.8 s**
+(cap 15 min). Over the cap or on failure, prepare continues and prints the kill-switch line; see `period-rows.json`.
+
+## Kill switch (demo fallback)
+
+Set `ASSETOPS_PERIOD_READ_KINDS=` (empty, or unset it) in the backend's environment and restart the backend: every
+board reads today's compose (the oracle); stored rows are ignored and nothing needs deleting. To serve rows:
+`ASSETOPS_PERIOD_READ_KINDS=mini_depth.renewable,mini_depth.fuel,mini_depth.service,mini_depth.backup`. Rebuild a
+Site's rows: `python -m assetops_backend.chain.period_backfill build --site KOBO-001 --quiet` (`DATABASE_URL` set).
