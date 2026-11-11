@@ -449,7 +449,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     await settledScreen();
     // Review fix M3: the list state equals the statusbar's, so it is said once there; the list's own as-of is a
     // labelled reference in the one closed disclosure.
-    expect(document.querySelector("[data-overview-status] [data-product-status-label]")?.textContent).toBe("Latest checked readings");
+    expect(document.querySelector("[data-overview-status] [data-product-status-label]")?.textContent).toBe("Latest complete readings");
     expect(listCard().querySelector(".product-status")).toBeNull();
     expect(exactValue(listCard(), "List known as of")).toBe(body.knowledge_at);
     // Review fix M4: the mock's numbered items - rank, title, one-line reason, link; item 1 is the chosen Finding.

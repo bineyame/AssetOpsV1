@@ -18,3 +18,6 @@ Branch `task/GAP-REASONS` from main 44bab5d50. Card: `.agent/build-sheet-OWN-GAP
 ## Not done / deviations
 - NOT verified on client6 Kisiwa (demo DB frozen): the boundary-duplicate day reading READINGS_CONFLICT is for Saturday's rehearsal build.
 - Left "Checked:" in `SiteWindowOverview` day-reading line (Kobo generator line, not a findings list), work actions ("being checked again"), CapabilityReadiness, MiniOpportunity; backend `DAYS_CHECKED`/`DAYS_WITHHELD` portfolio text ("assessed", "not available yet") untouched (PF-W area).
+
+## Fix round (review M1 + L1)
+All strings are composed in the frontend (no API source). Readings-meaning "checked" converted to D-E5.46 terms: SiteWindowOverview "Latest complete readings", day line "Analysed: ...", "day not analysed", "analysed again", "the periods we analysed"; SiteMillVerification "Days with complete readings"; FindingConsequence "analysed inputs" (x3). Verified/compared uses kept. Tests updated (s5SiteWindowOverview, s502OverviewFindingList). Supersedes the "Left Checked:" deviation above. Vitest and tsc: see commit message.

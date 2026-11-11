@@ -139,7 +139,7 @@ const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
     "limited",
   ),
   UPSTREAM_UNASSESSED: localMoney(
-    "No amount: day not checked",
+    "No amount: day not analysed",
     "This day has not been assessed, so no amount is shown. This is not zero.",
     "neutral",
   ),
@@ -147,13 +147,13 @@ const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
     "No amount yet: checks still waiting",
     "A check this day depends on is still waiting, or changed while it was read, so no amount is shown. This is not zero.",
     "waiting",
-    "Look again after the day has been checked.",
+    "Look again after the day has been analysed.",
   ),
   UPSTREAM_STALE: localMoney(
     "Upstream out of date",
     "Something this day depends on is out of date, or its checks have stopped, so no amount is shown. This is not zero.",
     "limited",
-    "Treat the day as out of date until it is checked again.",
+    "Treat the day as out of date until it is analysed again.",
   ),
   UPSTREAM_FAILED: localMoney(
     "No amount: a check did not finish",
@@ -227,9 +227,9 @@ function dayScope(summary: SiteWindowSummary): string {
 
 /**
  * POLISH §3.1 Kobo row, done in PB-1 (Addendum 7 Q1a): the current-readings state line reads
- * `Latest checked readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09`. Every other state keeps the shared line.
+ * `Latest complete readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09`. Every other state keeps the shared line.
  */
-export const LATEST_CHECKED_READINGS = "Latest checked readings";
+export const LATEST_CHECKED_READINGS = "Latest complete readings";
 function DayStateLine({ words, summary }: { words: ProductWords; summary: SiteWindowSummary }) {
   if (words.code !== "CURRENT") return <ProductStatus inline words={words} scope={dayScope(summary)} asOf={summary.db_now} />;
   const updated = plainTime(summary.db_now);
@@ -386,7 +386,7 @@ function coverageInputs(coverage: unknown): string {
  */
 export function dayReadingLine(claimLevel: string, periods: number, coverage: unknown): string {
   const word = OUTCOME_WORDS[claimLevel];
-  const lead = word === undefined ? "Checked" : `Checked (${word.toLowerCase()})`;
+  const lead = word === undefined ? "Analysed" : `Analysed (${word.toLowerCase()})`;
   const used =
     periods === 0 ? "generator not used on this day" : `${periods} ${periods === 1 ? "period" : "periods"} of generator use`;
   return `${lead}: ${used}${coverageInputs(coverage)}`;
@@ -1147,7 +1147,7 @@ export function SiteWindowOverview({
           </>
         }
         happened={{
-          description: `${formatDay(day)} · the periods we checked; Dispatch has the detail`,
+          description: `${formatDay(day)} · the periods we analysed; Dispatch has the detail`,
           body: (
             <>
               <PeriodStrip summary={summary} links={links} />

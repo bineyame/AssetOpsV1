@@ -87,7 +87,7 @@ const QUANTITY_WORDS: Record<string, string> = {
   POWER_OVERLAP_CONFLICT: "Two generator power readings overlap or disagree, so neither is chosen.",
   POWER_NEGATIVE: "A generator power reading is below zero, so it is not used.",
   POWER_INVALID: "A generator power reading is not a usable value.",
-  POWER_NOT_IN_ASSESSMENT_INPUTS: "A generator power reading was not among this finding's checked inputs.",
+  POWER_NOT_IN_ASSESSMENT_INPUTS: "A generator power reading was not among this finding's analysed inputs.",
   SFC_MISSING: "The site model has no fuel use per kWh for the generator over this time.",
   SFC_NONPOSITIVE: "The generator's fuel use per kWh in the site model is not a positive value.",
   SFC_INVALID: "The generator's fuel use per kWh in the site model is not a usable value.",
@@ -98,8 +98,8 @@ const QUANTITY_WORDS: Record<string, string> = {
   BINDING_CHANGES_WITHIN_INTERVAL: "Which meter reports the generator's power changes part-way through a reading.",
   FINDING_NOT_SUPPORTED: "This finding is not a supported finding, so no fuel amount is worked out for it.",
   NO_CANDIDATE_TIME: "This finding has no observed avoidable generator time to count.",
-  CANDIDATE_SPAN_UNVERIFIED: "The finding's avoidable generator time could not be confirmed from its checked inputs.",
-  ASSESSMENT_LINEAGE_INVALID: "The finding's checked inputs could not be confirmed, so nothing is counted.",
+  CANDIDATE_SPAN_UNVERIFIED: "The finding's avoidable generator time could not be confirmed from its analysed inputs.",
+  ASSESSMENT_LINEAGE_INVALID: "The finding's analysed inputs could not be confirmed, so nothing is counted.",
 };
 
 const PRICE_WORDS: Record<string, string> = {

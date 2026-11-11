@@ -98,7 +98,7 @@ export function MillVerificationPanel({ body }: { body: MillVerification }) {
               <th scope="col">Measure</th>
               <th scope="col">Before the change</th>
               <th scope="col">After the change</th>
-              <th scope="col">Fully checked days (before, after)</th>
+              <th scope="col">Days with complete readings (before, after)</th>
               <th scope="col">Needed to pass</th>
             </tr>
           </thead>
