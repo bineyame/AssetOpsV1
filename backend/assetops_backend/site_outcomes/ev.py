@@ -39,13 +39,13 @@ GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", 
 
 NO_SESSION_ASSESSMENT = "Not available yet · no session assessment covers this window"
 CHARGER_USE = "Not available yet · connector capacity not read"
-NO_SETTLEMENT = "Not available yet · no settlement records"
-NO_SETTLEMENT_ASSURE = "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue"
+NO_SETTLEMENT = "Billing records are not connected yet"
+NO_SETTLEMENT_ASSURE = "Billing records are not connected yet · reconciles the revenue shown under Grow revenue"
 ALL_AVAILABLE = "All connectors available"
 NO_FAULT = "No charger fault recorded"
 SITE_POWER_NOT_READ = "Not available yet · site power not read"
-NO_WARRANTY = "Not available yet · no warranty record"
-NO_ROSTER = "Not available yet · no bus roster connected"
+NO_WARRANTY = "Warranty records are not connected yet"
+NO_ROSTER = "Bus rosters are not connected yet"
 EVERY_END = "Every session has an accepted end"
 NO_STATUS_GAP = "No status gap"
 TARIFF_ESTIMATE = "estimated charging income"  # WALK1-2 §3.2 (R674; mock "gross tariff estimate")
@@ -217,8 +217,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     if out_connectors:
         first = out_connectors[0]
         out_text = (f"{connector_name(first.get('label'))} was out of service for "
-                    f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected is "
-                    "not known yet.")
+                    f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected "
+                    "needs bus rosters, which are not connected yet.")
     missing_seconds = sum(int(x.get("unknown_seconds") or 0) for x in connectors) if availability else 0
     assure_sub = None
     n = incomplete or 0

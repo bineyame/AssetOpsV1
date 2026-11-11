@@ -27,8 +27,8 @@ def test_repeat_visits_fill_the_cost_row() -> None:
     cost = rows[COST]
     assert cost["state"] == "NEEDS_ATTENTION" and cost["lead_outcome"]["key"] == "CC-3"
     assert cost["headline"] == "3 repair visits in 60 days without a result"
-    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair cost is not "
-                               "recorded")
+    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair costs are not "
+                               "connected yet")
     eff = contributor(cost, "maintenance_effectiveness")
     assert eff["text"] == "3 visits (2 Oct, 12 Oct, 20 Oct); the automatic start failure is still open"
     # H1-4a: the repeat warning reuses Protect's start-test option (same href); CH-5a2a: a domain intent
@@ -40,7 +40,7 @@ def test_repeat_visits_fill_the_cost_row() -> None:
     assert eff["confidence"] == {"label": "Limited", "tone": "amber"} and eff["href"] == "/maintenance/requests/mr5"
     rep = contributor(cost, "repair_cost")
     assert (rep["text"], rep["confidence"], rep["href"]) == (
-        "No cost on work record MR-005", {"label": "Unknown", "tone": "gray"}, f"/sites/{C}/financials")
+        "Repair costs are not connected yet; work record MR-005 has no cost", {"label": "Unknown", "tone": "gray"}, f"/sites/{C}/financials")
     cool = contributor(cost, "cooling_energy")
     assert (cool["text"], cool["confidence"], cool["href"]) == (cold.NO_COOLING_METER, None, None)
     assert [e["result_label"] for e in cost["earlier"]] == ["Did not fix it", "Did not fix it", "Not yet verified"]
