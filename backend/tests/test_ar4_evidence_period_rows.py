@@ -200,6 +200,18 @@ def test_request_misses_are_read_as_today() -> None:
     assert svc.calls == [] and pr.row_misses() == before + 3
 
 
+def test_no_revision_selected_is_projected_without_a_row_or_compose() -> None:
+    """D-ANY.5: a page day with no selected revision needs no stored input: projected, never composed, no miss."""
+    store, svc = FakeStore(clock=[NOW]), Service()  # no row was ever built
+    before = pr.row_misses()
+    rows = request_rows(store)
+    rows.note_days(T, S, datetime(2026, 10, 13, tzinfo=UTC), datetime(2026, 10, 14, tzinfo=UTC), NOW,
+                   [page_day(rid=None)])
+    assert rows.claim(svc, T, S, DAY, None, NOW, "live") == {"served": True, "day": "2026-10-13"}
+    assert svc.calls[0][1] is None and svc.calls[0][4] is None and pr.row_misses() == before
+    assert rows.statements == 0  # no row read at all
+
+
 def test_pending_local_day_and_old_builder_are_read_as_today() -> None:
     store, svc = built_store(), Service()
     store.dirty.append((S, date(2026, 10, 14), pr.KIND_CLAIM))  # Nairobi 14th is part of UTC day 13
