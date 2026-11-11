@@ -24,6 +24,8 @@ Spec: `.agent/architect-answer-price-it-2026-11-10.md` §3, §4.1, §4.2, §5, �
 4. **Half-simple warnings** (plan overdue or due soon, charger fault). **Recommend "Set a repair cost →"** (the simple part), with the "fault history" half named on the page. The alternative is "What is needed" only.
 5. **Model items before PR-5.** **Recommend:** they open the same price page with the Part C block, and no "Tell your contact" button yet.
 
+6. **Where the user enters a price** (owner, 18:10: "i don't see option for the user to enter the price"). Revision 4 leaves the form out because saving needs sign-in (BL-54, PR-3). **Recommend:** the next draft adds the form as a greyed preview labelled "Comes with sign-in": amount, currency, basis, applies from, reason, and the "what will change" preview (spec §4.2). It would not be built for 17 Nov. The alternative is to build PR-3 after BL-54, which revision 4 has out.
+
 ## Until PR-2a lands
 
-The PR-1 link opens `/sites/:id/financials/prices`, which says plainly that the price page is not available yet. It keeps the item's "what it needs" words, a link back, and a link to Financials > Assumptions where that exists.
+The PR-1 link opens `/sites/:id/financials/prices`, which says plainly that the price page is not available yet. It also gives the sign-in line and a link back. It has no link to Assumptions, because that page's address differs by Site type (EV Sites use their own).
