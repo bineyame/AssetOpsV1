@@ -50,11 +50,17 @@ KINDS: tuple[str, ...] = (KIND_CLAIM,)
 BUILDER_VERSION = "estate-evidence-rows-1"
 MINIGRID = "MINIGRID"
 _MISSES = [0]
+_NO_REVISION = [0]
 
 
 def row_misses() -> int:
     """Claim days read as today because no current row could serve them, since process start."""
     return _MISSES[0]
+
+
+def no_revision_days() -> int:
+    """Claim days projected with no revision selected (no row, no compose), since process start."""
+    return _NO_REVISION[0]
 
 
 # --- tagged JSON: the stored detail comes back as the same Python types ------------------------------------------
@@ -280,6 +286,7 @@ class RequestRows:
             return self._miss(t, s, day, "no page day")
         selected = {**page_day, "transaction_time": self._snap.read_at}
         if rid is None:  # D-ANY.5: no revision selected needs no stored input; never a compose, never a row
+            _NO_REVISION[0] += 1
             return service.project_claim_limit(t, s, day, None, k, selected, None, basis_mode=basis_mode)
         served, _ = self._load(sid)
         body = served.get(day)
@@ -312,5 +319,5 @@ class RequestRows:
 
 __all__ = ["BUILDER_VERSION", "EvidenceClaimKindBuilder", "EvidenceRows", "KIND_CLAIM", "KIND_MONEY",
            "KIND_PROVENANCE", "KINDS", "RequestRows", "day_revision", "decode", "encode", "interval_evidence_ids",
-           "kind_builders", "kind_versions", "link_row_decode", "link_row_encode", "local_days_of", "row_misses",
+           "kind_builders", "kind_versions", "link_row_decode", "link_row_encode", "local_days_of", "no_revision_days", "row_misses",
            "utc_days"]
