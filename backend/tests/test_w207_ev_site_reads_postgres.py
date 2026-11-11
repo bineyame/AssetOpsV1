@@ -130,7 +130,8 @@ def analysis_all(c: TestClient, query: str, limit: int) -> list:
 def check_shape(reads: dict, w206: dict) -> None:
     """Every route carries W2-06's public envelope verbatim, with its own W2-07 fields alongside."""
     for name, body in reads.items():
-        assert set(body) == set(ENVELOPE) | FIELDS[name], (name, sorted(body))
+        # PB-1b: the Site reads add the D-E5.31 analysed-period fields beside the W2-06 envelope.
+        assert set(body) == set(ENVELOPE) | FIELDS[name] | {"analysed_periods", "shown_period"}, (name, sorted(body))
         assert {k: body[k] for k in ENVELOPE} == {k: w206[k] for k in ENVELOPE}, name
         assert set(body["currentness"]) == {"state", "as_of", "limitation"}
         assert set(body["source_provenance"]) == DTO or body["source_provenance"] == EMPTY_ALIAS
@@ -768,8 +769,10 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     assert set(f) == REVISION_KEYS | {"source_provenance"} and set(f["source_provenance"]) == DTO
     assert set(reads["overview"]["consequence_summary"]) == SUMMARY_KEYS
     assert {"configured_service_window", "configured_service_windows"} <= set(reads["overview"]["objective"])
-    # Without a selected current tariff-bearing consequence: explicit nulls.
-    empty = all_five(c, "from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")
+    # Without a selected current tariff-bearing consequence: explicit nulls. PB-1b: a window holding the replay's
+    # analysed period now reads that period (D-E5.31 ii), so the empty window lies outside every stored period.
+    empty = all_five(c, "from=2026-10-27T08:00:00Z&to=2026-10-27T16:00:00Z")
+    assert empty["overview"]["analysed_periods"] == [] and empty["overview"]["status"]["state"] == "UNKNOWN"
     assert (empty["assumptions"]["consequence_tariff"], empty["assumptions"]["publication_note"]) == (None, None)
     assert set(empty["overview"]["consequence_summary"]) == SUMMARY_KEYS
 

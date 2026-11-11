@@ -31,7 +31,7 @@ const PATH = `/sites/${SITE_ID}/findings?${WINDOW}`;
 const ROW = indexRow(FID_A, RID_A, "2026-10-25T08:00:00Z", "2026-10-25T09:00:00Z");
 const CONFLICT = "Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed";
 const TOO_FEW = "Not enough readings received to analyse this day";
-const NEVER = [/Checked: nothing to report/, /not analysed yet/i, /not checked yet/, /No Findings in this window/];
+const NEVER = [/(Checked|Analysed): nothing to report/, /not analysed yet/i, /not checked yet/, /No Findings in this window/];
 
 /** Every day CURRENT in S3; the named day is a data gap. */
 function dataGapBody(rows: FindingIndexBody["rows"], reason: string, over: Partial<FindingIndexBody> = {}) {

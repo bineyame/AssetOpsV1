@@ -19,7 +19,7 @@ from typing import Any, Callable, Mapping
 
 from assetops_backend import read_scope
 from assetops_backend.actions import lifecycle
-from assetops_backend.analytics.finding_index import touched
+from assetops_backend.analytics.finding_index import DATA_GAP_REASONS, data_gap_reason, touched
 from assetops_backend.evidence.provenance_read import source_gate
 from assetops_backend.estate.scope import EstateSelectionInconsistent
 from assetops_backend.outcomes.display_code import display_code
@@ -154,6 +154,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         # readings is checked only if the dispatch day with D's date has an available selection, else a NOT_ANALYSED
         # gap. Selection, match-pass and S3-status rules above are unchanged.
         analysed = {_day_of(d) for d in days if d.get("available") and d.get("selection") is not None}
+        data_reasons = _data_gap_reasons(days)
         gap_reasons = {}
         for d, g in day_grades.items():
             if g == _NOT_EXPECTED:
@@ -164,6 +165,8 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                 pending = True
             elif d not in analysed:
                 gap_reasons[d] = "NOT_ANALYSED"
+            elif d in data_reasons:  # D-E5.46: selected by the system, but the readings could not be analysed
+                gap_reasons[d] = data_reasons[d]
         gap_days = sorted(gap_reasons)
         gap = bool(gap_days)
     match_state = "MISSING" if match_pass is None or not selected_days else "PENDING" if unmatched else "COMPLETE"
@@ -204,9 +207,11 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     heads = [h for h in index.get("heads") or () if h.get("merged_into_finding_id") is None
              and _intersects(h.get("episode_start"), h.get("episode_end"), from_, to, k)]
     if state == PARTIAL:  # §2.5: drop every head that touches an unchecked day (open end read through `k`)
+        # A data-fact gap (D-E5.46) holds no analysis to wait for, so it withholds nothing (as in the Finding index).
+        waiting = [d for d in gap_days if gap_reasons is None or gap_reasons[d] not in DATA_GAP_REASONS]
         kept = [h for h in heads if not touched(
             {"episode_start": h["episode_start"], "episode_end": k if h.get("episode_end") is None
-             else h["episode_end"]}, gap_days, tz=day_tz if gap_reasons is not None else None)]
+             else h["episode_end"]}, waiting, tz=day_tz if gap_reasons is not None else None)]
         withheld, heads = len(kept) != len(heads), kept
     out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, reasons=gap_reasons)
     lineage = snapshot.finding_lineage(t, s, [h["finding_revision_id"] for h in heads], k) if heads else {}
@@ -250,6 +255,24 @@ def _requested_days(from_: datetime, to: datetime) -> int:
     if first < from_:
         first += timedelta(days=1)
     return 0 if first >= to else (to - first - timedelta(microseconds=1)) // timedelta(days=1) + 1
+
+
+def _data_gap_reasons(days: list[dict[str, Any]]) -> dict[date, str]:
+    """D-E5.46 (GAP-REASONS): per dispatch day, READINGS_CONFLICT or NOT_ENOUGH_READINGS from the selected window's
+    claim and limitation prefixes (`finding_index.data_gap_reason`, the one rule the Finding index uses). Only a
+    selected CURRENT day with no open work: system work keeps its NOT_ANALYSED/PENDING precedence."""
+    out: dict[date, str] = {}
+    for d in days:
+        if not d.get("available") or d.get("selection") is None or d.get("status") != _S3_CURRENT:
+            continue
+        if {j.get("status") for j in d.get("jobs") or ()} & {"PENDING", "LEASED", "FAILED"}:
+            continue
+        why = data_gap_reason({"window_assessment": {"claim_level": d.get("window_claim_level")},
+                               "selection": {"cohort_status": d.get("cohort_status")},
+                               "limitations": d.get("window_limitations") or []})
+        if why is not None:
+            out[_day_of(d)] = why
+    return out
 
 
 def _day_of(day: dict[str, Any]) -> date:

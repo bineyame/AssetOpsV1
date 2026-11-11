@@ -207,17 +207,17 @@ const PANEL_DESCRIPTION = "Domain links back to the Performance view that produc
 const NOT_A_ZERO =
   "No Findings are listed and no count is given. This is not a statement that the window has no Findings.";
 
-/** IDX-GAPS: the PARTIAL list's gap sentences (a Finding reaching into a day not checked yet is left out). */
-export const PARTIAL_WITHHELD = "A Finding that reaches into one of the unchecked days is not shown until that day is checked.";
-export const OVERVIEW_PARTIAL = "A Finding that reaches into a neighbouring day not checked yet is not shown.";
+/** IDX-GAPS: the PARTIAL list's gap sentences (a Finding reaching into a day not analysed yet is left out). */
+export const PARTIAL_WITHHELD = "A Finding that reaches into one of the incomplete days is not shown until that day is analysed.";
+export const OVERVIEW_PARTIAL = "A Finding that reaches into a neighbouring day not analysed yet is not shown.";
 
-/** IDX-GAPS: "{g} of {N} days in this window are not checked yet, …"; null when no requested day is a gap. */
+/** IDX-GAPS: "{g} of {N} days in this window are not analysed yet, …"; null when no requested day is a gap. */
 export function partialGapSentence(body: FindingIndexBody): string | null {
-  // PB-4: a data-gap day is named by its data fact (`dataGapDays`), never as "not checked yet".
+  // PB-4: a data-gap day is named by its data fact (`dataGapDays`), never as "not analysed yet" (system work only).
   const g = gapDays(body).filter((x) => !isDataGap(x)).length;
   const n = body.discovery.requested_days.length;
   if (g === 0) return null;
-  return `${g} of ${n} ${n === 1 ? "day" : "days"} in this window ${g === 1 ? "is" : "are"} not checked yet, so nothing is concluded about ${g === 1 ? "it" : "them"}.`;
+  return `${g} of ${n} ${n === 1 ? "day" : "days"} in this window ${g === 1 ? "is" : "are"} not analysed yet, so nothing is concluded about ${g === 1 ? "it" : "them"}.`;
 }
 
 const NOT_CURRENT_CODES = ["PENDING", "UNASSESSED", "STALE_PROJECTION", "FAILED"] as const;
@@ -435,18 +435,18 @@ export function Basis({ body }: { body: FindingIndexBody }) {
   );
 }
 
-/** One day of the window as a step: checked and matched, waiting, failed or not known. */
+/** One day of the window as a step: analysed and matched, waiting, failed or not known. */
 function dayStep(day: FindingIndexDayWatermark, gapReason?: string): Step {
   const label = plainDay(day.day);
   const gap = dayGapWords(gapReason);
   if (day.status === "CURRENT" && gap !== null) {
-    // PB-4: the run was selected but its readings could not be analysed: the data fact, never "Checked".
+    // PB-4: the run was selected but its readings could not be analysed: the data fact, never "Analysed".
     return { label, state: "not-known", detail: gap.short.charAt(0).toUpperCase() + gap.short.slice(1) };
   }
   if (day.status === "CURRENT") {
     return day.s4.matched
-      ? { label, state: "done", detail: "Checked, and Findings matched" }
-      : { label, state: "waiting", detail: "Checked; Findings not matched yet" };
+      ? { label, state: "done", detail: "Analysed, and Findings matched" }
+      : { label, state: "waiting", detail: "Analysed; Findings not matched yet" };
   }
   const words = currentnessWords(day.status);
   if (words.unrecognised) return { label, state: "not-known", detail: words.label };
@@ -725,7 +725,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
           <>
             <Gap>
               <p>{NOT_A_ZERO}</p>
-              {words.next === undefined ? <p>Look again after every day in this window has been checked.</p> : null}
+              {words.next === undefined ? <p>Look again after every day in this window has been analysed.</p> : null}
             </Gap>
             <DayStrip body={body} />
           </>
@@ -803,7 +803,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
   );
 }
 
-/** IDX-GAPS: rows from the checked days only, with the days not checked yet named and never counted as none. */
+/** IDX-GAPS: rows from the analysed days only, with the days not analysed yet named and never counted as none. */
 function Partial({
   body,
   scope,
@@ -821,7 +821,7 @@ function Partial({
   const firstPage = links.scope({ ...scope, cursor: null });
   const sentence = partialGapSentence(body);
   const dataGaps = dataGapDays(body);
-  // PB-4: only data-gap days (no system work outstanding) read "could not be analysed", never "not checked yet".
+  // PB-4: only data-gap days (no system work outstanding) read "could not be analysed", never "not analysed yet".
   const onlyData = dataGaps.length > 0 && (body.gaps ?? []).every((g) => isDataGap(g) || g.reason === "WITHHELD_FINDING");
   return (
     <View

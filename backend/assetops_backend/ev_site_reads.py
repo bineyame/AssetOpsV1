@@ -18,6 +18,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Callable
+from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.analytics.ev import SESSION_ANALYTIC, plain
@@ -309,9 +310,25 @@ class EvSiteReads:
 
     def _ctx(self, c, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         snap, body = self._reads.open_on(c, t, s, code, lo, hi, known_at)
-        ctx = {"c": c, "t": t, "s": s, "code": code, "snap": snap, "body": body}
+        ctx = {"c": c, "t": t, "s": s, "code": code, "snap": snap, "body": {**body, **self._periods(snap)}}
         ctx["money"] = self._select(ctx)
         return ctx
+
+    @staticmethod
+    def _periods(snap: dict[str, Any]) -> dict[str, Any]:
+        """PB-1b (D-E5.31), as PB-1a's Cold reads: `analysed_periods` lists the selected session periods wholly
+        inside a requested window no stored selection equals, each with `href` to the overview read of its exact
+        window at the same cutoff; `shown_period` is the one this read is about. Both are empty (`[]`, null) when
+        the window itself is analysed or no period lies inside it. The snapshot reads only the shown period, so its
+        source provenance (and the unassessable note, E4) is that period's own, never the union's."""
+        def period(lo, hi) -> dict[str, Any]:
+            return {"from": plain(lo), "to": plain(hi)}
+
+        base = f"/api/sites/{quote(snap['code'], safe='')}/ev/overview"
+        exact = [{**period(lo, hi), "href": f"{base}?from={plain(lo)}&to={plain(hi)}&known_at={plain(snap['known'])}"}
+                 for lo, hi in snap.get("analysed_periods") or ()]
+        shown = snap.get("shown_period")
+        return {"analysed_periods": exact, "shown_period": None if shown is None else period(*shown)}
 
     def _select(self, ctx: dict[str, Any], cutoff: datetime | None = None) -> dict[str, Any]:
         """q4: the one shared current-revision selector. Default (`cutoff` None) unchanged; a pinned estate
