@@ -29,6 +29,8 @@ import os
 
 from datetime import datetime
 
+from assetops_backend.i18n import LocaleMiddleware
+
 from typing import Callable, Sequence
 
 from fastapi import APIRouter, FastAPI
@@ -318,6 +320,7 @@ def create_app(
     resolved_flags = load_feature_flags() if flags is None else flags
 
     app = FastAPI(title="AssetOps", version="0.0.0")
+    app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language
     app.include_router(health_router)
 
     legacy_repository = (

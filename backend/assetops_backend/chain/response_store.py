@@ -43,7 +43,7 @@ import json
 import logging
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from datetime import time as dtime
 from typing import Any, Callable, Iterable, Mapping, Sequence
@@ -54,6 +54,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
 
 from assetops_backend import perf, read_scope
+from assetops_backend.i18n.locale import DEFAULT_LOCALE, current_locale
 
 LOG = logging.getLogger("assetops.chain.response_store")
 HEADER = "X-AssetOps-Stored"  # hit | stored | race | unstored (a store failure) | composed; never body bytes
@@ -68,9 +69,13 @@ def _canonical(value: Any) -> str:
     return json.dumps(jsonable_encoder(value), sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
-def request_key(route: str, tenant_id: UUID, site_ids: Iterable[Any], request: Mapping[str, Any]) -> str:
+def request_key(route: str, tenant_id: UUID, site_ids: Iterable[Any], request: Mapping[str, Any],
+                locale: str = DEFAULT_LOCALE) -> str:
+    """UQ-6a (D-I18N.2): the locale is part of the key, so a body rendered for one language is never served for
+    another. The pre-build composes outside a request (English) and a request with no or an English
+    `Accept-Language` resolves to `en`, so both share one key."""
     return _canonical({"route": route, "tenant": str(tenant_id), "sites": sorted(str(s) for s in site_ids),
-                       "request": dict(request)})
+                       "request": dict(request), "locale": locale})
 
 
 def etag(route: str, key: str, watermark: str, version: str, until: datetime | None = None) -> str:
@@ -97,6 +102,8 @@ class StoredRoute:
     admit: Callable[[str], bool] | None = None
     sites: tuple[UUID, ...] | None = None
     watermark_sites: tuple[UUID, ...] | None = None
+    #: UQ-6a: the request's locale (`i18n.current_locale` when built), part of the stored key.
+    locale: str = field(default_factory=current_locale)
 
 
 class ResponseStore:
@@ -152,7 +159,7 @@ class ResponseStore:
 
         def lookup(c: Any) -> tuple[str, tuple[str, ...], tuple[str, ...], Any]:
             w, sites, zones = self._state(c, req)
-            key = request_key(req.route, req.tenant_id, sites, req.request)
+            key = request_key(req.route, req.tenant_id, sites, req.request, req.locale)
             return w, sites, zones, c.lookup(req.route, key, w, version, now)
 
         try:
@@ -173,7 +180,7 @@ class ResponseStore:
         try:
             until = valid_until(sc.boundaries, now, zones, live=req.request.get("known_at") is None,
                                 instants=sc.instants)  # L-1: a bad Site timezone serves the body unstored
-            keys = {route: request_key(route, req.tenant_id, sites, req.request) for route in rendered}
+            keys = {route: request_key(route, req.tenant_id, sites, req.request, req.locale) for route in rendered}
             tags = {route: etag(route, keys[route], w, version, until) for route in rendered}
             with perf.timed("store.recheck"):
                 after = self.watermark(req)  # (c) a new short transaction
