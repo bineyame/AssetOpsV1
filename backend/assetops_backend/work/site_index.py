@@ -41,7 +41,7 @@ from assetops_backend.work.domain_action import FUEL_DOMAIN
 from assetops_backend.work.link_coverage import (CURRENT, DOMAIN_ACTION, HISTORICAL, UNKNOWN, coverage_of,
                                                  link_state, worst)
 from assetops_backend.work.model import WorkRefused
-from assetops_backend.work.open_now import open_now_wire, site_open_now
+from assetops_backend.work.open_now import guarded_open_now, open_now_wire, site_open_now
 from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
                                            provenance_dto)
 
@@ -387,7 +387,7 @@ class WorkIndexService:
                 status = HISTORICAL
             coverage_state, reason = coverage_of(states)
             # OPEN-NOW: open requests and incidents at the same K and Site, with no date filter; outside the token.
-            open_now = open_now_wire([site_open_now(rx, known_at)])
+            open_now = guarded_open_now(lambda: open_now_wire([site_open_now(rx, known_at)]))  # D-OPEN.1
             return {
                 "schema_version": m.SCHEMA_INDEX, "site_code": site_code, "site_name": rx.site_name(),
                 "window": {"from": scope["from"], "to": scope["to"], "bounds": "[from, to)"},
@@ -395,7 +395,8 @@ class WorkIndexService:
                 "coverage": {"state": coverage_state, "reason": reason},
                 "source_provenance": chosen["source_provenance"], "total_count": len(chosen["rows"]),
                 "rows": [r["wire"] for r in page], "next_cursor": next_cursor,
-                "selection_token": chosen["selection_token"], "open_now": open_now,
+                "selection_token": chosen["selection_token"],
+                **({} if open_now is None else {"open_now": open_now}),
             }
 
         return self._reads.snapshot(tenant_id, site_id, site_code, work)

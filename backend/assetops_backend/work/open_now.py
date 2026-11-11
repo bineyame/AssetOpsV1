@@ -7,14 +7,16 @@ The sentence is written here, never composed by the page from raw codes.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 from assetops_contracts.work_open_now import OPEN_STATES, OpenNowCounts
 
 from assetops_backend.work import model as m
 
-EARLIEST = datetime(1, 1, 1, tzinfo=timezone.utc)
+LOG = logging.getLogger(__name__)
+EARLIEST =datetime(1, 1, 1, tzinfo=timezone.utc)
 LATEST = datetime(9999, 12, 31, tzinfo=timezone.utc)
 _NOUNS = (("incidents", "incident", "incidents"), ("requests", "request", "requests"))
 NOTHING_OPEN = "Nothing open now"
@@ -35,6 +37,16 @@ def open_now_line(counts: Mapping[str, Any]) -> str:
     "Nothing open now"."""
     parts = [f"{counts[key]} {one if counts[key] == 1 else many}" for key, one, many in _NOUNS if counts[key]]
     return f"Open now: {', '.join(parts)}, whatever the dates" if parts else NOTHING_OPEN
+
+
+def guarded_open_now(compute: Callable[[], dict[str, int | str]]) -> dict[str, int | str] | None:
+    """D-OPEN.1: the line is an extra. If counting fails, log `open_now_unavailable` and return None so the caller
+    omits `open_now` and still serves the list."""
+    try:
+        return compute()
+    except Exception:  # noqa: BLE001 - any failure of the extra count must not fail the list
+        LOG.warning("open_now_unavailable", exc_info=True)
+        return None
 
 
 def open_now_wire(totals: Iterable[OpenNowCounts]) -> dict[str, int | str]:

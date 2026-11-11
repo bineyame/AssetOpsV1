@@ -58,12 +58,18 @@ def test_site_open_now_ignores_the_window_and_obeys_known_at(runner) -> None:  #
         maint = lists.get(t, s, "maintenance", empty_day)
         at_k = lists.get(t, s, "maintenance", empty_day, known_at=iso(k))
         page_two = lists.get(t, s, "incidents", empty_day, limit="1")
+        wide = ("2026-10-01T00:00:00Z", "2026-11-01T00:00:00Z")  # D-OPEN.1: a real cursor page two, three rows
+        first = lists.get(t, s, "incidents", wide, limit="1")
+        lists.at = POSITIVE_NOW + timedelta(minutes=6)  # page two reads later; the cursor's K stays fixed
+        second = lists.get(t, s, "incidents", wide, limit="1", cursor=first["next_cursor"])
     finally:
         lists.close()
+    assert first["next_cursor"] is not None and len(first["rows"]) == 1 and len(second["rows"]) == 1
+    assert second["rows"][0]["case_id"] != first["rows"][0]["case_id"] and second["known_at"] == first["known_at"]
     assert day["total_count"] == 1 and [r["case_id"] for r in day["rows"]] == [a["id"]]
     assert nothing["total_count"] == 0 and maint["total_count"] == 0  # the window holds nothing
     now = {"incidents": 2, "requests": 2, "line": "Open now: 2 incidents, 2 requests, whatever the dates"}
-    for body in (day, nothing, maint, page_two):  # closed `shut` never counts; `old` counts at any window
+    for body in (day, nothing, maint, page_two, first, second):  # closed `shut` never counts; `old` counts at any window
         assert body["open_now"] == now, body["open_now"]
     assert old["id"] and r1["id"]
     assert at_k["open_now"] == {"incidents": 2, "requests": 1,
@@ -85,6 +91,9 @@ def test_global_open_now_ignores_the_window_and_obeys_known_at(store, monkeypatc
         maintenance = api.client.get("/api/work/maintenance", params=NARROW).json()
         preventive = api.client.get("/api/work/preventive", params=NARROW).json()
         empty = nobody.ok(**NARROW)
+        first = api.ok(limit="1")  # D-OPEN.1: a real cursor page two
+        assert first["next_cursor"], first
+        second = api.ok(limit="1", cursor=first["next_cursor"])
     finally:
         api.close()
         nobody.close()
@@ -96,6 +105,8 @@ def test_global_open_now_ignores_the_window_and_obeys_known_at(store, monkeypatc
     assert old_narrow["open_now"]["incidents"] == opened(old_full) == old_full["open_now"]["incidents"]
     assert now_narrow["open_now"]["incidents"] == opened(now_full) == now_full["open_now"]["incidents"]
     assert now_narrow["open_now"]["incidents"] > old_narrow["open_now"]["incidents"]  # the later case is open
+    assert len(second["rows"]) == 1 and second["rows"][0]["case_id"] != first["rows"][0]["case_id"]
+    assert first["open_now"] == now_full["open_now"] == second["open_now"]  # the cursor changes no count
     assert maintenance["open_now"] == now_narrow["open_now"]
     assert now_narrow["open_now"]["line"] == open_now_line(now_narrow["open_now"])
     assert "open_now" not in preventive

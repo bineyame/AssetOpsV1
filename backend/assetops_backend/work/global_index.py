@@ -34,7 +34,7 @@ from assetops_backend.estate.evidence_money import site_home_href
 from assetops_backend.estate.scope import access_basis, encode_cursor, token_time, wire_time
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
-from assetops_backend.work.open_now import open_now_wire, site_open_now
+from assetops_backend.work.open_now import guarded_open_now, open_now_wire, site_open_now
 from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
                                            provenance_dto)
 from assetops_backend.work.site_index import (_action_link, _finding_link, action_label, action_selection_key,
@@ -535,11 +535,10 @@ class GlobalWorkIndexService:
                 extra["summary"] = {"overdue_count": due.count(OVERDUE), "due_soon_count": due.count(DUE_SOON),
                                     "not_assessed_count": due.count(NOT_ASSESSED)}
             if kind in OPEN_NOW_KINDS:  # OPEN-NOW: same K and admitted Sites, no date filter; outside the token
-                try:
-                    extra["open_now"] = open_now_wire(
-                        site_open_now(gx.site(tenant_id, s["site_id"], s["site_code"]), k) for s in sites)
-                except (ValueError, m.WorkRefused) as error:  # an event chain W4 cannot reduce
-                    raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE") from error
+                counted = guarded_open_now(lambda: open_now_wire(  # D-OPEN.1: a failed count omits the line
+                    site_open_now(gx.site(tenant_id, s["site_id"], s["site_code"]), k) for s in sites))
+                if counted is not None:
+                    extra["open_now"] = counted
             return {
                 "schema_version": SCHEMA,
                 "scope": {"tenant_id": None if tenant_id is None else str(tenant_id),
