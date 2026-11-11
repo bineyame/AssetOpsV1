@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import date, datetime, timedelta
 from uuid import uuid4
 
@@ -143,6 +144,7 @@ def test_late_reading_live_and_as_known_at_k(store, engine) -> None:  # noqa: F8
         assert live.day_state(s, D, KIND) == "PENDING" and live.day_state(s, D2, KIND) == NO_ROW_STATE
 
         processed = _consume(engine, event_id)
+        time.sleep(1.0)  # revision 2 a whole second after revision 1: `known_at` travels in whole seconds
         kind.inputs = {"ids": ["r1", "r2"]}  # the late reading lands: revision 2
         assert {w.row.revision for w in builder.build(t, site, D, KIND) if w.written} == {2}
         rev2_lo, _ = _computed(engine, s, 2)
@@ -168,6 +170,20 @@ def test_late_reading_live_and_as_known_at_k(store, engine) -> None:  # noqa: F8
         hist = reader.read(t, [site], [KIND], D, D, known_at=k)
         assert hist.rows == [] and not hist.pending
         assert hist.absent == ((s, D, KIND),) and hist.day_state(s, D, KIND) == NO_ROW_STATE == "NO_DATA"
+
+        # the parity harness takes its between-revisions k from the same rows (D-ANY.5 step 5)
+        from urllib.parse import parse_qs, urlsplit
+
+        import period_read_parity
+
+        case = period_read_parity.between_revisions_case(URL)
+        assert case.id == "any.between_revisions.site_period_read"
+        q = parse_qs(urlsplit(case.path).query)
+        assert case.path.startswith(f"/api/sites/{w402.CODE}/outcome-board?") and q["date"] == [D.isoformat()]
+        k = datetime.fromisoformat(q["known_at"][0].replace("Z", "+00:00"))
+        assert rev1_hi < k < rev2_lo and k.microsecond == 0  # whole seconds on the wire, strictly between
+        served = reader.read(t, [site], [KIND], D, D, known_at=k)
+        assert [r.row.revision for r in served.rows] == [1, 1]
     finally:
         periods.dispose()
 

@@ -188,15 +188,17 @@ def any_range_cases(seed: int, count: int, story: Path | None) -> list:
     return parity.seeded_cases(seed, count, first, last)
 
 
-def measure_any_range(url: str, work: Path, runs: int, cases: list) -> dict:
-    """Cold only: one fresh process per run per case, the response store off (nothing pre-built is read)."""
+def measure_any_range(url: str, work: Path, runs: int, cases: list, kinds: str = "") -> dict:
+    """Cold only: one fresh process per run per case, the response store off (nothing pre-built is read). `kinds`
+    (D-ANY.5 Low) is the candidate's served kinds (`ASSETOPS_PERIOD_READ_KINDS`); empty = today's compose."""
     os.environ["ASSETOPS_RESPONSE_STORE"] = "off"
-    record: dict = {"params": {"runs": runs, "store": "off", "cases": len(cases)}, "cases": {}}
+    record: dict = {"params": {"runs": runs, "store": "off", "cases": len(cases), "kinds": kinds}, "cases": {}}
+    env = {**os.environ, "ASSETOPS_PERIOD_READ_KINDS": kinds}
     for case in cases:
-        cold, status = [], []
+        cold, status, absent = [], [], []
         for _ in range(runs):
             cmd = [sys.executable, __file__, "--database-url", url, "--work", str(work), "--child-path", case.path]
-            out = subprocess.run(cmd, capture_output=True, text=True)
+            out = subprocess.run(cmd, capture_output=True, text=True, env=env)
             line = next((ln for ln in out.stdout.splitlines() if ln.startswith("RESULT ")), None)
             if line is None:
                 print(f"cold {case.id}: child failed rc={out.returncode}: {out.stderr[-300:]}")
@@ -205,15 +207,21 @@ def measure_any_range(url: str, work: Path, runs: int, cases: list) -> dict:
             res = json.loads(line[7:])
             cold.append(res["ms"])
             status.append(res["status"])
-        record["cases"][case.id] = {"family": case.family, "path": case.path, "cold_ms": cold, "status": status}
+            absent.append(res.get("period_row_absent", 0))
+        record["cases"][case.id] = {"family": case.family, "path": case.path, "cold_ms": cold, "status": status,
+                                    "period_row_absent": absent}
     return record
 
 
 def _child_path(url: str, work: Path, path: str) -> int:
+    from assetops_backend.chain.period_read import absent_count
+
     probe = _probe()
     kept = probe.capture_scopes()
     c = probe.client(url, work)
-    print("RESULT " + json.dumps(probe.one(c, kept, path)))
+    res = probe.one(c, kept, path)
+    # D-ANY.5 M1: live (Site, day, kind) reads with no stored row; never a fallback compose, so counted here
+    print("RESULT " + json.dumps({**res, "period_row_absent": absent_count()}))
     return 0
 
 
@@ -331,6 +339,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="ANY-1 AR-0: seeded arbitrary-range cases, cold, store off, against the any-range budgets")
     p.add_argument("--seed", type=int, default=20261111)
     p.add_argument("--random", type=int, default=16)
+    p.add_argument("--kinds", default="", help="--any-range: comma-separated kinds served from stored rows "
+                   "(ASSETOPS_PERIOD_READ_KINDS); empty = today's compose")
     p.add_argument("--child", help=argparse.SUPPRESS)
     p.add_argument("--child-path", help=argparse.SUPPRESS)
     args = p.parse_args(argv)
@@ -344,11 +354,13 @@ def main(argv: list[str] | None = None) -> int:
         return run_any_range_fixtures(load_budgets(ANY_RANGE_BUDGETS_PATH)) or rc
     if not args.database_url or not args.work:
         p.error("--fixture, or --database-url with --work")
+    if args.kinds and not args.any_range:
+        p.error("--kinds applies to --any-range only")
     if args.any_range:
         if args.store != "off":
             p.error("--any-range measures with the response store off only")
         record = measure_any_range(args.database_url, args.work, args.runs,
-                                   any_range_cases(args.seed, args.random, args.story))
+                                   any_range_cases(args.seed, args.random, args.story), args.kinds)
         if args.record:
             args.record.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n", encoding="utf-8")
         rows = evaluate_any_range(load_budgets(ANY_RANGE_BUDGETS_PATH), record)

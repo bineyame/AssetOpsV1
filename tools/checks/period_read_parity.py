@@ -111,8 +111,12 @@ def seeded_cases(seed: int, count: int, first_day: date, last_day: date,
         lo = datetime.combine(start_day, datetime.min.time(), UTC)
         hi = lo + timedelta(days=n)
         if unaligned if unaligned is not None else rng.random() < 0.5:
-            # a partial first day (a Site-local day against a UTC window); the end stays a UTC midnight
-            lo += timedelta(hours=rng.randint(1, 23))
+            # a partial first and last day (a Site-local day against a UTC window, D-ANY.5 Low): both ends off a
+            # UTC midnight, the span still more than 0 and at most `n` days
+            h = rng.randint(1, 23)
+            lo += timedelta(hours=h)
+            end = rng.choice([x for x in range(1, 24) if (h + x) % 24])
+            hi = lo + timedelta(days=n - 1, hours=end)
         path = f"/api/estate/portfolio?from={_q(lo)}&to={_q(hi)}&lens=all"
         if known:
             path += f"&known_at={_q(hi + timedelta(hours=rng.randint(0, 48)))}"
@@ -133,6 +137,50 @@ def portfolio_days(path: str) -> float:
     lo = datetime.fromisoformat(unquote(q["from"][0]).replace("Z", "+00:00"))
     hi = datetime.fromisoformat(unquote(q["to"][0]).replace("Z", "+00:00"))
     return (hi - lo).total_seconds() / 86400
+
+
+def _end_unaligned(path: str) -> bool:
+    from urllib.parse import parse_qs, unquote, urlsplit
+
+    hi = datetime.fromisoformat(unquote(parse_qs(urlsplit(path).query)["to"][0]).replace("Z", "+00:00"))
+    return (hi.hour, hi.minute, hi.second) != (0, 0, 0)
+
+
+#: D-ANY.5 step 5: one historical k taken from the database's own transaction-time clock, between a stored row's
+#: revision 1 and revision 2 (the read-period rows when any kind has two revisions, else the day snapshots that
+#: today's compose reads at k), so parity covers "revision 1 served at k", not only "nothing known yet".
+#: `known_at` travels in whole seconds (`outcome_api._instant`), so k is the first whole second after revision 1,
+#: and only a pair whose revision 2 came later than that qualifies.
+_BETWEEN_REVISIONS = (
+    "SELECT s.site_code, r1.local_day, date_trunc('second', r1.computed_at) + interval '1 second' AS k "
+    "FROM {table} r1 JOIN {table} r2 ON r2.tenant_id = r1.tenant_id AND r2.site_id = r1.site_id "
+    "AND {same} AND r2.revision = 2 AND r2.computed_at > date_trunc('second', r1.computed_at) + interval '1 second' "
+    "JOIN site s ON s.tenant_id = r1.tenant_id AND s.id = r1.site_id "
+    "WHERE r1.revision = 1 ORDER BY r1.local_day DESC, s.site_code LIMIT 1"
+)
+_REVISION_TABLES = (
+    ("site_period_read", "r2.kind = r1.kind AND r2.period_start = r1.period_start"),
+    ("site_day_snapshot", "r2.local_day = r1.local_day AND r2.measure = r1.measure "
+                          "AND r2.subject_kind = r1.subject_kind AND r2.subject_ref = r1.subject_ref "
+                          "AND r2.evidence_class = r1.evidence_class"),
+)
+
+
+def between_revisions_case(url: str) -> Case | None:
+    """A board read on the day of the first row with two revisions, known at the instant between them."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(url)
+    try:
+        with engine.connect() as c:
+            for table, same in _REVISION_TABLES:
+                r = c.execute(text(_BETWEEN_REVISIONS.format(table=table, same=same))).first()
+                if r is not None:
+                    path = f"/api/sites/{r[0]}/outcome-board?date={r[1].isoformat()}&known_at={_q(r[2])}"
+                    return Case(f"any.between_revisions.{table}", path, "historical_between_revisions")
+    finally:
+        engine.dispose()
+    return None
 
 
 def _first_difference(a: bytes, b: bytes) -> str:
@@ -206,6 +254,8 @@ def self_test() -> list[str]:
         problems.append("no 31-day Portfolio case")
     if not any(portfolio_days(c.path) % 1 for c in a if c.family == "portfolio_any_range"):
         problems.append("no unaligned Portfolio case")
+    if not any(_end_unaligned(c.path) for c in a if c.family == "portfolio_any_range"):
+        problems.append("no Portfolio case whose end is off a UTC midnight")
 
     cases = [Case("story.0", "/api/estate/portfolio?from=a&to=b", "story")] + a[:4]
     bodies = {c.path: json.dumps({"path": c.path, "n": i}).encode() for i, c in enumerate(cases)}
@@ -266,6 +316,9 @@ def run(url: str, work: Path, story: Path | None, seed: int, count: int, kinds: 
     c = chain_perf_probe.client(url, work)
     first, last = _range_from_story(story)
     cases = story_cases() + seeded_cases(seed, count, first, last)
+    between = between_revisions_case(url)
+    if between is not None:
+        cases.append(between)
 
     def fetch(value: str) -> Fetch:
         def go(path: str) -> tuple[int, bytes]:
@@ -275,9 +328,13 @@ def run(url: str, work: Path, story: Path | None, seed: int, count: int, kinds: 
         return go
 
     try:
-        return compare(cases, fetch(""), fetch(kinds))
+        report = compare(cases, fetch(""), fetch(kinds))
     finally:
         os.environ.pop(KINDS_ENV, None)
+    if between is None:  # never silent: a parity DB with no second revision cannot prove the historical case
+        report.outcomes.append(Outcome(Case("any.between_revisions", "-", "historical_between_revisions"),
+                                       "MISSING", "no stored row with a revision 2 on this database"))
+    return report
 
 
 def main(argv: list[str] | None = None) -> int:

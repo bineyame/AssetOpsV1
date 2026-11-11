@@ -179,4 +179,26 @@ def test_any_range_refuses_the_store_on_and_measures_cold_store_off(monkeypatch,
     assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "off"]) == 1
     assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "off",
                              "--report"]) == 0
-    assert len(seen["args"][-1]) == 16
+    assert len(seen["args"][3]) == 16 and seen["args"][4] == ""
+    assert perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--any-range", "--store", "off",
+                             "--report", "--kinds", "mini_depth.renewable"]) == 0
+    assert seen["args"][4] == "mini_depth.renewable"
+    with pytest.raises(SystemExit):  # --kinds names the candidate of an any-range run only
+        perf_budget.main(["--database-url", "x", "--work", str(tmp_path), "--kinds", "mini_depth.renewable"])
+
+
+def test_any_range_children_serve_the_kinds_and_report_absent_rows(monkeypatch, tmp_path: Path) -> None:
+    import period_read_parity as parity
+
+    envs: list = []
+
+    def run(cmd, capture_output, text, env):
+        envs.append(env["ASSETOPS_PERIOD_READ_KINDS"])
+        return type("P", (), {"stdout": 'RESULT {"ms": 5.0, "status": 200, "period_row_absent": 2}\n',
+                              "stderr": "", "returncode": 0})()
+
+    monkeypatch.setattr(perf_budget.subprocess, "run", run)
+    rec = perf_budget.measure_any_range("x", tmp_path, 2, [parity.Case("a", "/p", "board_any_day")],
+                                        "mini_depth.renewable")
+    assert envs == ["mini_depth.renewable"] * 2 and rec["params"]["kinds"] == "mini_depth.renewable"
+    assert rec["cases"]["a"]["period_row_absent"] == [2, 2]
