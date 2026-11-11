@@ -145,7 +145,10 @@ def test_trial_comparison_writer_registered() -> None:
     real = (ROOT / TRIAL_WRITER).read_text(encoding="utf-8")
     assert TRIAL_INSERT in real and "from sqlalchemy" in real
     assert isolated_copy(lambda copy: None).returncode == 0
-    out = isolated_copy(lambda copy: _replace(copy, TRIAL_GUARD, ", $trialComparisonWriter)", ")"))
+    # ANY-1 AR-1 appended `$periodWriter` after this entry in the `$pgWriters` list, so the probe removes the
+    # `$trialComparisonWriter, ` element itself rather than relying on it being the list's last entry.
+    out = isolated_copy(lambda copy: _replace(copy, TRIAL_GUARD, ", $trialComparisonWriter, $periodWriter)",
+                                              ", $periodWriter)"))
     found = failures(out)
     assert out.returncode == 1
     assert any("Database driver imported outside" in line and TRIAL_WRITER in line for line in found), found
