@@ -9,7 +9,6 @@ import { windowText } from "./coldFormat";
 import type { EvAssessmentClient, EvFindingsRead, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { RefusedGap, RefusedHead } from "./EvAssessmentViews";
-import { LensChips } from "./SiteFindingIndex";
 import { CategoryTags } from "./outcomeCategories";
 
 export const EV_FINDING_INDEX_HEADING_ID = "ev-finding-index-heading";
@@ -83,7 +82,6 @@ export function EvFindingIndex({
   return (
     <div className="finding-index" data-ev-findings-index="loaded">
       {tabRow}
-      <LensChips />
       <StatusBar label="EV Findings" action={<UnavailableInline label="Manage in Findings" roadmap={ROADMAP_WORDS.manageFindings} />}>
         <strong>{`Scoped to ${siteName} · ${open} open`}</strong>
         <span>{` · ${windowText(body.window.from, body.window.to)}`}</span>

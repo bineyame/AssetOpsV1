@@ -53,7 +53,7 @@ import {
   type FindingIndexClient,
   type FindingIndexScope,
 } from "../sites/findingIndexClient";
-import { LensChips, SiteFindingIndex } from "../sites/SiteFindingIndex";
+import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
 import { ChangesWorkPageHeader, NoChangeSelected, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
@@ -541,7 +541,7 @@ export function SiteFindingsFrame({
               window={coldWindowFromParams(params)}
               client={coldAssessment}
               routes={coldSiteRoutes(site.site_id)}
-              lenses={<LensChips />}
+              lenses={null} /* RM-2: no lens is supported on a cold Site */
               earlyWarnings={
                 outcomeBoard === undefined ? null : (
                   <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />

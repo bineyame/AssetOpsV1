@@ -320,6 +320,30 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     return (card().textContent ?? "").replace(details?.textContent ?? "", "");
   }
 
+  it("RM-2: a Site whose Findings read classifies a Finding under a lens (Kobo-type) keeps its lens chips", async () => {
+    const body = indexBody({
+      rows: [indexRow(FID_B, RID_B, "2026-10-25T18:00:00Z", "2026-10-25T19:00:00Z", { lens_flags: ["COST"] })],
+      total_count: 1,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    const lenses = screen.getByRole("list", { name: "Finding lenses" });
+    expect(Array.from(lenses.querySelectorAll("li")).map((li) => li.getAttribute("data-lens") ?? li.getAttribute("data-chip-unavailable"))).toEqual(["all", "Cost", "Risks", "Opportunities"]);
+  });
+
+  it("RM-2: a Site whose Findings read classifies nothing under a lens (Kisiwa-type) shows no lens chips", async () => {
+    const body = indexBody({
+      rows: [indexRow(FID_A, RID_A, "2026-10-25T06:00:00Z", "2026-10-25T07:00:00Z", { lens_flags: [] })],
+      total_count: 1,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(screen.queryByRole("list", { name: "Finding lenses" })).toBeNull();
+    expect(document.querySelector("[data-chip-unavailable]")).toBeNull();
+  });
+
   it("CH-5a2 B5: the Lens cell renders the server's one lens, and an empty lens says so", async () => {
     const body = indexBody({
       rows: [

@@ -126,6 +126,14 @@ function OpportunityHelper({ shown, findings, renewable }: { shown: boolean; fin
   );
 }
 
+/**
+ * RM-2: a Site supports lenses when its own Findings read classifies a Finding under one (`lens_flags` non-empty).
+ * Derived from the read, not from a Site code. A Site with no classified Finding in the window shows no lens row.
+ */
+export function siteSupportsLenses(rows: readonly { lens_flags?: readonly string[] }[]): boolean {
+  return rows.some((row) => row.lens_flags !== undefined && row.lens_flags.length > 0);
+}
+
 /** A future Site-scoped lens; the unbuilt entries stay literal (navigation-truthfulness inventory). */
 function LiveLens({ label, href }: { label: string; href: string }) {
   return (
@@ -137,11 +145,10 @@ function LiveLens({ label, href }: { label: string; href: string }) {
 
 /**
  * MOCK DEVIATION D5 (R394): Cost, Risks and Opportunities stay disabled until Site-scoped lenses exist (Q18/Q49).
- * RM-2 (owner-approved, D-E5.34): where no lens is supported (no href given) the whole row is hidden on client
- * screens, instead of three "Not available yet" chips; a Site that supplies an href gets the row back.
+ * RM-2 (owner-approved, D-E5.34): a Site whose Findings read carries no lens classification does not get this row
+ * (see `siteSupportsLenses`); a Site that does keeps it exactly as before.
  */
 export function LensChips({ hrefs = {} }: { hrefs?: SiteLensHrefs }) {
-  if (hrefs.Cost === undefined && hrefs.Risks === undefined && hrefs.Opportunities === undefined) return null;
   return (
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
       <li className="v69-chip" aria-current="true" data-lens="all">
@@ -1065,7 +1072,7 @@ export function SiteFindingIndex({
     <div className="finding-index" data-findings-index="site-window">
       <ManageHref.Provider value={links.manage ?? null}>
       <PanelWarnings.Provider value={result.status === "loaded" ? earlyWarnings : null}>
-      <LensRow.Provider value={<LensChips />}>
+      <LensRow.Provider value={result.status === "loaded" && siteSupportsLenses(result.value.rows) ? <LensChips /> : null}>
       <PanelControls.Provider
         value={
           <div className="site-findings-controls" data-site-findings-controls>
