@@ -285,6 +285,50 @@ const subtabs = (label: string) =>
     current: li.querySelector("a")?.getAttribute("aria-current") ?? null,
   }));
 
+describe("PB-1c: EV analysed-period line under the window bar", () => {
+  const P1 = { from: "2026-10-06T08:00:00Z", to: "2026-10-06T09:05:00Z", href: `/api/sites/${CODE}/ev/overview?from=a&to=b` };
+  const P2 = { from: "2026-10-07T10:00:00Z", to: "2026-10-07T10:40:00Z", href: `/api/sites/${CODE}/ev/overview?from=c&to=d` };
+  const RANGE = "?from=2026-10-06T00:00:00Z&to=2026-10-13T00:00:00Z";
+  const line = () => document.querySelector("[data-analysed-periods]");
+  async function at(extra: Record<string, unknown>, state = "CURRENT") {
+    const evSite = { ...client(), getOverview: vi.fn(() => Promise.resolve(ok({ ...overview({}), currentness: { ...env(state).currentness }, ...extra } as never))) } as EvSiteClient;
+    render(
+      <MemoryRouter initialEntries={[`/sites/${CODE}/ev${RANGE}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} outcomeBoard={fakeOutcomeBoard({ status: "loaded", value: EV_BOARD }).client} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+  }
+
+  it("one period: names it and links its exact window on the same page", async () => {
+    await at({ analysed_periods: [P1], shown_period: P1 });
+    expect(line()!.textContent).toBe("Analysed period: 6 Oct 2026, 08:00–09:05");
+    const href = line()!.querySelector("a")!.getAttribute("href")!;
+    expect(href.startsWith(`/sites/${CODE}/ev?`)).toBe(true);
+    const params = new URLSearchParams(href.split("?")[1]);
+    expect([params.get("from"), params.get("to")]).toEqual([P1.from, P1.to]);
+  });
+
+  it("several periods: counts them, shows the shown one, links each", async () => {
+    await at({ analysed_periods: [P1, P2], shown_period: P2 });
+    expect(line()!.textContent).toContain("Analysed periods in this range: 2 · showing 7 Oct 2026, 10:00–10:40");
+    const froms = Array.from(line()!.querySelectorAll("a")).map((a) => new URLSearchParams(a.getAttribute("href")!.split("?")[1]).get("from"));
+    expect(froms).toEqual([P2.from, P1.from]);
+  });
+
+  it("none inside the range: says so", async () => {
+    await at({ analysed_periods: [], shown_period: null }, "UNKNOWN");
+    expect(line()!.textContent).toBe("No analysed period in this range");
+  });
+
+  it("the main tabs carry the shown period's window (PB-1b review L2)", async () => {
+    await at({ analysed_periods: [P1, P2], shown_period: P2 });
+    const tab = Array.from(document.querySelectorAll("main nav a")).map((a) => a.getAttribute("href") ?? "").find((h) => h.includes("/evidence"));
+    expect(tab).toBeDefined();
+    expect(new URLSearchParams(tab!.split("?")[1]).get("from")).toBe(P2.from);
+  });
+});
+
 describe("W2-07 EV Site routes", () => {
   it("analysis_source_unverified_shows_full_id_and_sentence", async () => {
     await renderAt(PATHS["ev-evidence-analysis"], client());

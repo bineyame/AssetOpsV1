@@ -20,7 +20,7 @@ import {
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
 import { TECHNICAL_DETAILS, TechnicalReferences } from "../ui/TechnicalDetails";
 import { coldWindowSearch } from "./coldAssessmentClient";
-import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { ReportSelected, renderEvTabs, selectedWindowSearch, shownWindow, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
 import { date, dayHm, hm, windowText } from "./coldFormat";
@@ -969,7 +969,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
   const finding = useRead(() => client.getFinding(siteId, findingId, window), `f|${siteId}|${findingId}|${windowKey(window)}`);
   const detail = finding !== null && finding.status === "loaded" ? finding.value : null;
   // The connector display name: follow the claim's session at the Finding's own selected window (handoff r5 note).
-  const own: EvWindowQuery | null = detail === null ? null : { ...detail.window };
+  const own: EvWindowQuery | null = detail === null ? null : { ...shownWindow(detail) };
   const sessionId = detail?.claim.session_id ?? null;
   const session = useRead(
     own !== null && sessionId !== null ? () => client.getSession(siteId, sessionId, own) : null,

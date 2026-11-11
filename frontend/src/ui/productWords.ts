@@ -446,6 +446,14 @@ export function limitationWords(code: string | null | undefined): ProductWords {
 // --- The plain "as of" bound -------------------------------------------------
 
 
+// --- Analysed periods inside a range (D-E5.31 / PB-1c) -----------------------
+
+/** `Analysed period: ` (one period) or `Analysed periods in this range: {n} · showing ` (more than one); the links follow. */
+export const analysedPeriodsLead = (count: number): string =>
+  count === 1 ? "Analysed period: " : `Analysed periods in this range: ${count} · showing `;
+/** No stored analysed period lies inside the requested range. */
+export const NO_ANALYSED_PERIOD = "No analysed period in this range";
+
 /** A plain instant: "16 Oct 2026, 10:05" (POLISH §3 Times: `ui/time.ts`, UTC named by the page note), or null when missing or unreadable. */
 export function plainTime(instant: string | null | undefined): string | null {
   if (instant === null || instant === undefined || instant.length === 0) return null;
