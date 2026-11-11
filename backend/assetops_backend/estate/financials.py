@@ -415,7 +415,7 @@ def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope:
             per_site.append((site, NOT_APPLICABLE, {**not_applicable(), "_pending_guard": False}, []))
             continue
         cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k,
-                            **local_day_grades_kw(site, req.from_, req.to, k, tenant_id))
+                            **local_day_grades_kw(site, req, scope, tenant_id))
         if domain == MINI_GRID:
             site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if cov["state"] in COVERED else []
             covered, sessions, pending_guard = cov["state"] in COVERED, [], False

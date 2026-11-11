@@ -175,9 +175,10 @@ class EstateClaims:
         self._unavailable = unavailable
 
     def day_grades(self, tenant_id: Any, site_code: str, lo: datetime, hi: datetime,
-                   known_at: datetime | None) -> dict[date, str] | None:
-        """DATA-12 (D-E5.38): the Site's stored chain day grade (weakest expected row, `chain.read.day_grade`) per
-        `window_days` day, from the same memoised `req.day` read `claim_days` makes; None when unreadable."""
+                   known_at: datetime | None) -> tuple[dict[date, str], str | None] | None:
+        """DATA-12 (D-E5.38): the Site's stored chain day grade (weakest expected row, `chain.read.day_grade`; a day
+        with no expected row is NOT_EXPECTED) per `window_days` day, with the Site zone, from the same memoised
+        `req.day` read `claim_days` makes; None when unreadable."""
         reader = self._reader()
         if reader is None:
             return None
@@ -191,9 +192,9 @@ class EstateClaims:
         except self._unavailable:
             return None
         measures = _measures(site.domain)
-        return {d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
-                             measures, none_declared=facts.none_declared.get(d, ()))
-                for d in facts.days}
+        return ({d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
+                              measures, none_declared=facts.none_declared.get(d, ()))
+                 for d in facts.days}, site.timezone)
 
     def __call__(self, tenant_id: Any, site_codes: Sequence[str], lo: datetime, hi: datetime,
                  known_at: datetime | None) -> EstateCounts | None:

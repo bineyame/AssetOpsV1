@@ -146,7 +146,7 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
         rec = None if domain in (None, MINI_GRID) else _WindowRecorder(snap)
         cov = (not_applicable() if domain is None
                else site_coverage(rec or snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"],
-                                  **local_day_grades_kw(site, req.from_, req.to, scope["k"], tenant_id)))
+                                  **local_day_grades_kw(site, req, scope, tenant_id)))
         per_site.append((site, domain or NOT_APPLICABLE, cov))
         recorders[str(site["site_id"])] = rec
         if cutoffs is not None:

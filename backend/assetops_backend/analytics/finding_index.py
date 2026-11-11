@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Any, Callable, Protocol
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from assetops_backend.analytics import dispatch as dispatch_contract
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
@@ -245,12 +246,20 @@ def sort_key(row: dict[str, Any]) -> tuple[float, str]:
     return (-row["episode_start"].timestamp(), str(row["finding_id"]))
 
 
-def touched(head: dict[str, Any], days: list[date]) -> set[date]:
+def touched(head: dict[str, Any], days: list[date], tz: str | None = None) -> set[date]:
     """Inspected days the episode touches: those it intersects, widened by the continuity tolerance either side.
     Both bounds are inclusive, as `reaches` and the matcher's `margin_ok`: an episode exactly the tolerance from an
-    edge is continuous with the neighbouring day."""
-    return {d for d in days if head["episode_start"] <= _day_start(d + timedelta(days=1)) + CONTINUITY_TOLERANCE
-            and head["episode_end"] >= _day_start(d) - CONTINUITY_TOLERANCE}
+    edge is continuous with the neighbouring day. `tz` (D-E5.43 L3): when the days are Site-local, the day bounds are
+    the Site-local midnights; None keeps the UTC midnights."""
+    zone = None if not tz else ZoneInfo(tz)
+
+    def start(day: date) -> datetime:
+        if zone is None:
+            return _day_start(day)
+        return datetime.combine(day, time(0), tzinfo=zone).astimezone(timezone.utc)
+
+    return {d for d in days if head["episode_start"] <= start(d + timedelta(days=1)) + CONTINUITY_TOLERANCE
+            and head["episode_end"] >= start(d) - CONTINUITY_TOLERANCE}
 
 
 def gap_days(inspected: list[dict[str, Any]], reach: Callable[[date], tuple[bool, bool]]

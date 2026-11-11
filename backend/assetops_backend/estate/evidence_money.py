@@ -461,7 +461,7 @@ def select_evidence_scope(snap: Any, tenant_id: Any, req: EstateRequest,
             per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
             continue
         cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k,
-                            **local_day_grades_kw(site, req.from_, req.to, k, tenant_id))
+                            **local_day_grades_kw(site, req, scope, tenant_id))
         site_rows = (mini_grid_rows(snap, tenant_id, site, req, k) if domain == MINI_GRID
                      else windowed_rows(snap, tenant_id, site, domain, req, k, cov["state"]))
         for row in site_rows:

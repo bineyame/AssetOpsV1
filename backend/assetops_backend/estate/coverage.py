@@ -52,27 +52,30 @@ def _empty(state: str, **values: Any) -> dict[str, Any]:
 
 # DATA-12 (D-E5.38): injected by `main.py` (`EstateClaims.day_grades`); None -> no `day_grades` keyword is passed and
 # coverage keeps its UTC dispatch-day rule.
-day_grades_provider: Callable[..., Mapping[date, str] | None] | None = None
-_NO_DATA, _PENDING_GRADE = "NO_DATA", "PENDING"
+day_grades_provider: Callable[..., tuple[Mapping[date, str], str | None] | None] | None = None
+_NO_DATA, _PENDING_GRADE, _NOT_EXPECTED = "NO_DATA", "PENDING", "NOT_EXPECTED"
 
 
-def local_day_grades_kw(site: Mapping[str, Any], from_: datetime, to: datetime, known_at: datetime,
-                        tenant_id: Any) -> dict[str, Mapping[date, str]]:
-    """`{"day_grades": ...}` for a mini-grid Site: its stored chain day grade per Site-local day of `[from_, to)` (the
-    frame the summary claims read), from the same memoised read; `{}` for any other Site, with no provider, or when
-    the read is unavailable (so `site_coverage` is called exactly as before)."""
+def local_day_grades_kw(site: Mapping[str, Any], req: Any, scope: Mapping[str, Any], tenant_id: Any) -> dict[str, Any]:
+    """`{"day_grades": ..., "day_tz": ...}` for a mini-grid Site: its stored chain day grade per Site-local day of the
+    request window (the frame the summary claims read) and the Site zone; `{}` for any other Site, with no provider,
+    or when the read is unavailable (so `site_coverage` is called exactly as before). D-E5.43 L1: grades are read at
+    `req.known_at` on page one (the claims' memo key, one `chain.day` read per Site) and at `k` on a cursor page."""
     if day_grades_provider is None or DOMAIN_OF_SITE_TYPE.get(site.get("site_type")) != MINI_GRID:
         return {}
-    grades = day_grades_provider(tenant_id, site["site_code"], from_, to, known_at)
-    return {} if grades is None else {"day_grades": grades}
+    known_at = scope["k"] if scope.get("cursor") is not None else req.known_at
+    read = day_grades_provider(tenant_id, site["site_code"], req.from_, req.to, known_at)
+    return {} if read is None else {"day_grades": read[0], "day_tz": read[1]}
 
 
 def site_coverage(snapshot: Any, tenant_id: Any, site_id: Any, domain: str, from_: datetime, to: datetime,
-                  known_at: datetime, *, day_grades: Mapping[date, str] | None = None) -> dict[str, Any]:
+                  known_at: datetime, *, day_grades: Mapping[date, str] | None = None,
+                  day_tz: str | None = None) -> dict[str, Any]:
     """One Site's coverage for one estate domain at the requested cutoff `known_at`. `day_grades` (mini-grid only)
-    are the chain's Site-local day grades: they define the requested days, the gaps and PENDING (D-E5.38)."""
+    are the chain's Site-local day grades (D-E5.38/D-E5.42): they define the requested days, the gaps and PENDING;
+    `day_tz` is the Site zone, for the Site-local day bounds of the gap-day Finding match (D-E5.43 L3)."""
     if domain == MINI_GRID:
-        return _mini_grid(snapshot, tenant_id, site_id, from_, to, known_at, day_grades)
+        return _mini_grid(snapshot, tenant_id, site_id, from_, to, known_at, day_grades, day_tz)
     if domain in (COLD, EV):
         return _windowed(snapshot, tenant_id, site_id, domain, from_, to, known_at)
     if domain == ACTIONS:
@@ -99,14 +102,14 @@ def _intersects(start: datetime | None, end: datetime | None, from_: datetime, t
 # --- mini-grid --------------------------------------------------------------------------------------------
 
 def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime,
-               day_grades: Mapping[date, str] | None = None) -> dict[str, Any]:
+               day_grades: Mapping[date, str] | None = None, day_tz: str | None = None) -> dict[str, Any]:
     """c2 r1 M1 and q12 ruling 1: gates, rows, arrays and the Site `state` come from page one's basis mode; a
     continuation's HISTORICAL label is the top-level response's only, never the Site coverage state."""
-    return _mini_grid_basis(snapshot, t, s, from_, to, k, day_grades)
+    return _mini_grid_basis(snapshot, t, s, from_, to, k, day_grades, day_tz)
 
 
 def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime,
-                     day_grades: Mapping[date, str] | None = None) -> dict[str, Any]:
+                     day_grades: Mapping[date, str] | None = None, day_tz: str | None = None) -> dict[str, Any]:
     historical = snapshot.basis_historical
     watermark = snapshot.evidence_cutoff(t, s, k)
     days = snapshot.dispatch_days(t, s, from_, to, k)
@@ -144,16 +147,32 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
             stale = True
         elif day.get("status") != _S3_CURRENT:
             unknown = True
+    gap_reasons: dict[date, str] | None = None
     if day_grades is not None:
-        # D-E5.38: requested days, gaps and PENDING come from the Site-local stored grades; selection, match-pass
-        # and S3-status rules above are unchanged.
-        gap_days = sorted(d for d, g in day_grades.items() if g == _NO_DATA)
+        # D-E5.42: each requested Site-local day D decides on its stored grade first. NOT_EXPECTED is dropped from
+        # requested and checked; NO_DATA is a NO_READINGS gap; PENDING makes the Site PENDING_RECOMPUTE; a day with
+        # readings is checked only if the dispatch day with D's date has an available selection, else a NOT_ANALYSED
+        # gap. Selection, match-pass and S3-status rules above are unchanged.
+        analysed = {_day_of(d) for d in days if d.get("available") and d.get("selection") is not None}
+        gap_reasons = {}
+        for d, g in day_grades.items():
+            if g == _NOT_EXPECTED:
+                continue
+            if g == _NO_DATA:
+                gap_reasons[d] = "NO_READINGS"
+            elif g == _PENDING_GRADE:
+                pending = True
+            elif d not in analysed:
+                gap_reasons[d] = "NOT_ANALYSED"
+        gap_days = sorted(gap_reasons)
         gap = bool(gap_days)
-        pending = pending or any(g == _PENDING_GRADE for g in day_grades.values())
     match_state = "MISSING" if match_pass is None or not selected_days else "PENDING" if unmatched else "COMPLETE"
     aligned = day_grades is not None or len(days) == _requested_days(from_, to)
-    requested = len(day_grades) if day_grades is not None else len(days)
-    checked = requested - len(gap_days) if day_grades is not None else len(selected_days)
+    if day_grades is not None:
+        requested = sum(1 for g in day_grades.values() if g != _NOT_EXPECTED)
+        checked = requested - len(gap_days)
+    else:
+        requested, checked = len(days), len(selected_days)
     # §2.3: PARTIAL only on a live, day-aligned read whose checked days are all clean. Any other gap is today's
     # rule byte for byte (C2, C4/R621, C5): the gap reads as `unknown`.
     partial = gap and aligned and not historical and bool(selected_days) and not (unknown or pending or stale)
@@ -177,7 +196,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     out["selected_assessment_revision_ids"] = sorted(assessments)
     withheld = False
     if state not in COVERED and state != PARTIAL:  # reading 6: rows only from a CURRENT, PARTIAL or HISTORICAL Site
-        out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, local=day_grades is not None)
+        out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, reasons=gap_reasons)
         return out
     # POLISH Addendum 6 Q3: every head's stored title by Finding, before the window filter, so a recurrence can
     # name the earlier Finding it followed.
@@ -187,9 +206,9 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     if state == PARTIAL:  # §2.5: drop every head that touches an unchecked day (open end read through `k`)
         kept = [h for h in heads if not touched(
             {"episode_start": h["episode_start"], "episode_end": k if h.get("episode_end") is None
-             else h["episode_end"]}, gap_days)]
+             else h["episode_end"]}, gap_days, tz=day_tz if gap_reasons is not None else None)]
         withheld, heads = len(kept) != len(heads), kept
-    out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, local=day_grades is not None)
+    out["days"] = _days_block(state, aligned, requested, checked, gap_days, withheld, reasons=gap_reasons)
     lineage = snapshot.finding_lineage(t, s, [h["finding_revision_id"] for h in heads], k) if heads else {}
     cited_by: dict[str, list[str]] = {}
     for row in lineage.get("evidence") or ():
@@ -245,7 +264,7 @@ def _day_of(day: dict[str, Any]) -> date:
 
 
 def _days_block(state: str, aligned: bool, requested: int, checked: int, gaps: list[date],
-                withheld: bool, local: bool = False) -> dict[str, Any] | None:
+                withheld: bool, reasons: Mapping[date, str] | None = None) -> dict[str, Any] | None:
     """§2.6: the mini-grid `days` block (any state); `text` only when PARTIAL; `None` on a day-count mismatch (C5,
     Addendum 1 Q3: no day count is published from a mismatched read)."""
     if not aligned:
@@ -258,7 +277,8 @@ def _days_block(state: str, aligned: bool, requested: int, checked: int, gaps: l
         if withheld:
             text_value += DAYS_WITHHELD
     return {"policy": DAYS_POLICY, "requested": requested, "checked": checked,
-            "gaps": [{"day": d.isoformat(), "state": "UNASSESSED", "reason": "NO_READINGS" if local else "NO_ASSESSED_SELECTION"} for d in gaps],
+            "gaps": [{"day": d.isoformat(), "state": "UNASSESSED",
+                      "reason": "NO_ASSESSED_SELECTION" if reasons is None else reasons[d]} for d in gaps],
             "withheld": withheld, "text": text_value}
 
 
