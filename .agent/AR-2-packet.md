@@ -55,8 +55,8 @@ fallback takes link rows live, as the compose does. Migration 0029 untouched; no
    request properties); the stored body is facts, not the final fragment.
 4. Provenance link rows are stored as of build time; today's compose reads them live without a cutoff. A link row
    added later for an old evidence ID is not seen until the day is rebuilt.
-5. A job whose `available_at` is later than the build but `<= k` has no event at that instant; it becomes visible
-   when its `job.changed` event dirties the day.
+5. (Closed by D-ANY.6a.) A job created, moved later, or changed in status after the build is seen at read time by the
+   batched `_JOBS` check; that hour is served by `_hour` until the row is rebuilt.
 6. The risks-table AST guard is a runtime guard instead: the no-DB and Postgres tests make every raw-read function
    raise on the row path.
 
