@@ -76,6 +76,22 @@ Merged main (`a382448ee`, PB-1a/PB-1b). Commits `c39119359`, `f0ba00be3`, `2e291
    untouched; not read in the frontend yet).
 - Not run (brief): full suites, captures, layout evidence (the new lines are layout-sensitive: unmeasured).
 
+## Fix round (2026-11-11; review REJECT: M1, M2, L1)
+- **M1 done** (`90ebb90e1`). A range from the bar is UTC-midnight bounds the read uses as given, so `siteWorkCases`
+  `WindowLine` and `MiniScenarios` `ScenariosWindow` now name "UTC days, last day included" (same convention as
+  `SiteFindingIndex`). `siteWorkCases` keeps Site-local days for its own bare-address default (Site-local midnights).
+  Tests use UTC-midnight bounds (Kisiwa scenarios `14-21 Oct` -> "14 Oct to 20 Oct (UTC days ...)", month-end one day;
+  Kobo Work cases `6-7 Oct` -> "6 Oct (UTC days ...)", missing-zone case). Also repaired three `siteWorkCases.test`
+  cases and the counts re-window case that still drove the removed form (they had been stale since item 1).
+- **M2 done.** `MiniPeriodBar` (Renewable) is no longer a form: no First day / Days / Apply, a note "Choose the days
+  in the date range at the top.", and the period named Site-local only when the bounds are Site-local midnights
+  (story links), else "UTC days a to b". Guard `page-range-forms.ps1`: `Get-FocusPickerRangeWriteCount` fails a file
+  that uses `<FocusPicker` and builds a days window (`localDaysWindow(`, or `.set("from"|"to"`); self-test fixtures
+  prove it (planted `Routed.tsx` fails; the one-hour `Hour.tsx` fixture passes, the Service hour bar is a finer view).
+  Test: UTC-bounds Renewable address, no input/select/button in `[data-mini-period]`.
+- **L1 done.** `SharedRangeBar.go` also deletes `record`; test in `sharedRange.test.tsx`.
+- Not done: items 3 and 4 below stay open (see resume list; context).
+
 ## Known deviations (MOCK DEVIATION, in `FocusPicker.tsx`)
 - SR-2-1: a `day` outside the range is still the day shown (said in words, "Show 24 Oct" offered), not the range's
   last day: keeps every old `date=` story link reading the same day and request.
