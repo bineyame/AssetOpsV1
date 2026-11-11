@@ -178,7 +178,7 @@ def test_finding_gap_line_strings_are_scanned() -> None:
     """IDX-GAPS U2: the board gap strings are in the scanned set. CH-5a1 (CH5a1-R Q4): the board never withholds
     Findings next to gap days, so the withheld suffix is no longer board copy (the estate keeps its own)."""
     copy = _constants()
-    for text in ("23 of the last 31 days have no checked readings yet",
+    for text in ("23 of the last 31 days have no complete readings yet",
                  "Not available yet · 2 of 31 days are not assessed yet"):
         assert text.strip(" ·") in copy, text
     assert "; Findings next to those days are not shown yet".strip(" ·") not in copy

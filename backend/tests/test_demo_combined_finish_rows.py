@@ -536,8 +536,8 @@ def test_o12_needs_no_potential_and_a_contributor_with_spare_solar_seen() -> Non
     import demo_combined_after as after
 
     assert after.o12_grow_nodes(_o12_grow())["potential"] == "No potential found yet"
-    for bad in (_o12_grow(potential="96 kW of daytime solar unused"), _o12_grow(solar="Not available yet · spare solar "
-                "not checked on the last 5 days"), _o12_grow(solar="Spare solar on 0 of 3 well-observed days")):
+    for bad in (_o12_grow(potential="96 kW of daytime solar unused"), _o12_grow(solar="Not available yet · spare solar: "
+                "no complete readings on the last 5 days"), _o12_grow(solar="Spare solar on 0 of 3 well-observed days")):
         with pytest.raises(AssertionError):
             after.o12_grow_nodes(bad)
 
@@ -1622,8 +1622,11 @@ def _kd_ctx(monkeypatch, coverage_kobo, *, week_gaps=None):
         finish.COLD: {"window_basis": "PERIOD"}, finish.EV: {"window_basis": "PERIOD"}}
     body = {"objectives": [{"site_code": c} for c in (finish.KOBO, finish.COLD, finish.EV)], "status": "PARTIAL",
             "rows": [{"site_code": finish.KOBO, "finding_id": "f1"}], "coverage": {"state": "PARTIAL"}}
-    line = "Kobo mini-grid: Complete readings on 5 of 7 days · 1 with partial readings"
-    summary = {"objective_site_count": 3, "cards": {c: {"days_line": line} for c in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}}
+    # The REAL shape (PF-C2): Protect and Assure have no days line of their own; the shared coverage line carries the
+    # days, with the no-readings part (a reader of `cards.*.days_line` fails here, as it would on a real build).
+    line = "Kobo mini-grid: Complete readings on 5 of 7 days · 1 with partial readings · 1 with no readings received"
+    summary = {"objective_site_count": 3, "coverage_line": {"days_text": line},
+               "cards": {c: {"days_line": None} for c in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}}
     monkeypatch.setattr(finish, "_estate", lambda c, lo, hi: (body, summary, {finish.KOBO: coverage_kobo}, by_code))
     monkeypatch.setattr(finish, "_kisiwa_present", lambda c: False)
     monkeypatch.setattr(finish, "_kobo_zone", lambda c: finish.timezone.utc)

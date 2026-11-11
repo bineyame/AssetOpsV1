@@ -12,7 +12,7 @@
  "outcomes": [
   {
    "category": "GROW_REVENUE",
-   "headline": "No income figure for this day: it is not fully checked",
+   "headline": "No income figure for this day: it does not have complete readings",
    "nodes": {
     "earnings": {
      "basis": "NOT_KNOWN",

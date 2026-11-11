@@ -169,7 +169,7 @@ def test_kobo_board_from_ports() -> None:
     assert [w.kind for w in comp.facts.warnings] == ["PLAN_DUE_SOON"]
     assert rows[GROW]["headline"] == "18–24.3 kW of daytime solar unused"
     assert contributor(rows[GROW], "productive_use")["text"] == ("Spare solar on 1 of 1 well-observed day"
-                                                                " · 4 of the last 5 days not checked")
+                                                                " · 4 of the last 5 days without complete readings")
     assert rows[COST]["headline"] == "possible extra fuel cost on this day"
     assert rows[COST]["headline_money"] == {"amount_low": "3.31", "amount_high": "3.97", "currency": "USD"}
     assert rows[COST]["subline"] == "Generator stayed on 45 minutes longer than needed"
@@ -354,11 +354,11 @@ def test_gap_line_names_the_gap_days_by_day_grade() -> None:
     every = tuple(date.fromisoformat(d) for d in REQUESTED)
     comp, rows = run(Fake(day={"gaps": every}))
     assert comp.facts.findings_settled and outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
-    assert comp.facts.finding_gaps == {"text": "31 of the last 31 days have no checked readings yet",
+    assert comp.facts.finding_gaps == {"text": "31 of the last 31 days have no complete readings yet",
                                        "days": REQUESTED, "withheld": False}
     two = every[:2]
     comp, _ = run(Fake(day={"gaps": two}))
-    assert comp.facts.finding_gaps == {"text": "2 of the last 31 days have no checked readings yet",
+    assert comp.facts.finding_gaps == {"text": "2 of the last 31 days have no complete readings yet",
                                        "days": REQUESTED[:2], "withheld": False}
     pending = {two[1]: {"generator_runtime": {"gen": "PENDING"}}}
     comp, _ = run(Fake(day={"gaps": two, "grades": pending}))
@@ -372,11 +372,11 @@ def test_pb7_gap_line_counts_from_the_first_accepted_reading() -> None:
     began = datetime.combine(every[20], datetime.min.time(), tzinfo=ZoneInfo(ZONE)) + timedelta(hours=6)
     comp, _ = run(Fake(day={"gaps": every}, readings_began=began))
     assert comp.facts.finding_gaps == {
-        "text": f"Since readings began on {every[20].day} {every[20]:%b}: 11 of 11 days have no checked readings yet",
+        "text": f"Since readings began on {every[20].day} {every[20]:%b}: 11 of 11 days have no complete readings yet",
         "days": REQUESTED[20:], "withheld": False}
     early = datetime.combine(every[0], datetime.min.time(), tzinfo=ZoneInfo(ZONE)) - timedelta(days=40)
     comp, _ = run(Fake(day={"gaps": every[:2]}, readings_began=early))
-    assert comp.facts.finding_gaps["text"] == "2 of the last 31 days have no checked readings yet"
+    assert comp.facts.finding_gaps["text"] == "2 of the last 31 days have no complete readings yet"
 
 
 def test_unsettled_board_day_unsettles_measured_outcomes() -> None:
@@ -451,7 +451,7 @@ def test_singular_for_one_in_count_templates() -> None:
     _, rows = run(Fake(cards=cards, dispatch=one_minute, plans=plans))
     assert contributor(rows[PROTECT], "backup_readiness")["text"] == "1 backup start recorded"
     assert contributor(rows[GROW], "productive_use")["text"] == ("Spare solar on 2 of 3 well-observed days"
-                                                                " · 2 of the last 5 days not checked")
+                                                                " · 2 of the last 5 days without complete readings")
     assert rows[COST]["subline"] == "Generator stayed on 1 minute longer than needed"
     assert contributor(rows[PROTECT], "generator")["text"].startswith("Service due at 1 operating hour ·")
     assert any(i["state_label"] == "Due at 1 operating hour" for i in rows[PROTECT]["in_hand"])

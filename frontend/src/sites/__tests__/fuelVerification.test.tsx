@@ -90,13 +90,13 @@ function wire(state: FuelState, over: Partial<FuelVerification> = {}): FuelVerif
     sentence: null,
     not_judged_text: null,
     fixed_line: FIXED,
-    criterion_text: "3 fully checked nights after the change within the stated margin, with the tank sensor sending readings all night",
+    criterion_text: "3 nights with complete readings after the change within the stated margin, with the tank sensor sending readings all night",
     rule_text:
-      "Rule fixed before the check: the first 3 fully checked nights after the change must each stay within the stated margin, with the tank sensor sending readings all night.",
+      "Rule fixed before the check: the first 3 nights with complete readings after the change must each stay within the stated margin, with the tank sensor sending readings all night.",
     cards: [
-      { label: "Nights checked after the change", value: `${n} of 3`, note: "Chosen by data quality, never by result" },
-      { label: "Fuel accounted for", value: n === 0 ? "Not checked yet" : `${n} of ${n} nights`, note: "Within the stated margin" },
-      { label: "Tank sensor", value: n === 0 ? "Not checked yet" : `Readings all night on ${n} of ${n} nights`, note: "A gap is more than 60 minutes without a reading" },
+      { label: "Nights with complete readings after the change", value: `${n} of 3`, note: "Chosen by data quality, never by result" },
+      { label: "Fuel accounted for", value: n === 0 ? "Not judged yet" : `${n} of ${n} nights`, note: "Within the stated margin" },
+      { label: "Tank sensor", value: n === 0 ? "Not judged yet" : `Readings all night on ${n} of ${n} nights`, note: "A gap is more than 60 minutes without a reading" },
       { label: "Final outcome", value: HEADLINE[state], note: "Decided by the rule fixed before the check" },
     ],
     origin: {
@@ -133,16 +133,16 @@ function wire(state: FuelState, over: Partial<FuelVerification> = {}): FuelVerif
 const STATES: Record<FuelState, FuelVerification> = {
   VERIFIED: wire("VERIFIED", {
     sentence:
-      "On 3 fully checked nights after the change, the fuel in the tank matched the generator's modelled use and the recorded deliveries within the stated margin, and the tank sensor sent readings all night.",
+      "On 3 nights with complete readings after the change, the fuel in the tank matched the generator's modelled use and the recorded deliveries within the stated margin, and the tank sensor sent readings all night.",
   }),
   INEFFECTIVE: wire("INEFFECTIVE", {
     sentence: "On the night of 23 Oct, after the change, the tank sensor did not send readings all night.",
     nights: [BASELINE_ROW, later("22 Oct", 1), later("23 Oct", 2, "Sensor gap", false, "No readings for 90 min"), later("24 Oct", 3)],
   }),
   INCONCLUSIVE: wire("INCONCLUSIVE", {
-    sentence: "Only 2 of 3 fully checked nights after the change in the 14 nights allowed, so no verdict is given",
+    sentence: "Only 2 of 3 nights with complete readings after the change in the 14 nights allowed, so no verdict is given",
   }),
-  NOT_JUDGED: wire("NOT_JUDGED", { not_judged_text: "Not judged yet: only 2 of 3 fully checked nights after the change" }),
+  NOT_JUDGED: wire("NOT_JUDGED", { not_judged_text: "Not judged yet: only 2 of 3 nights with complete readings after the change" }),
   NO_PLAN: wire("NO_PLAN"),
 };
 

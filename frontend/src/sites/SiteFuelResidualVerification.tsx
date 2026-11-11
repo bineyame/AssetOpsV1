@@ -108,7 +108,7 @@ export function FuelVerificationView({ body }: { body: FuelVerification }) {
             label={c.label}
             value={c.value}
             note={c.note}
-            word={i === 3 || c.value === "Not checked yet"}
+            word={i === 3 || c.value === "Not judged yet"}
             assessment={i === 3}
             tone={i === 3 ? tone(body.state) : undefined}
             data={{ "data-fuel-card": CARD_KEYS[i] }}

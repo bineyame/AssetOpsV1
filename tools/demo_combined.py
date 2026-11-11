@@ -1263,7 +1263,7 @@ class Demo:
         days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
         say(f"added {site_code} {planned.day} {planned.kind}" +
             ("" if not planned.has_run else
-             " (assessed now)" if planned.assess == "build" else " (not checked yet: the next serve tick assesses it)"))
+             " (assessed now)" if planned.assess == "build" else " (not analysed yet: the next serve tick assesses it)"))
         return out
 
     def add_dates_line(self) -> str:

@@ -63,10 +63,13 @@ def test_readings_terms_cover_the_family_and_never_say_checked() -> None:
 def test_frontend_words_carry_the_same_gap_reason_and_term_strings() -> None:
     """One shared vocabulary: the browser's words file holds the backend strings byte for byte, so GAP-REASONS only
     wires the reasons (it adds no words)."""
-    words = (Path(__file__).resolve().parents[2] / "frontend" / "src" / "estate" / "portfolioWords.ts").read_text(
-        encoding="utf-8")
+    root = Path(__file__).resolve().parents[2] / "frontend" / "src"
+    words = (root / "estate" / "portfolioWords.ts").read_text(encoding="utf-8")
+    # The gap-reason table is ONE table, `ui/productWords.ts` DAY_GAP (PB-4); portfolioWords imports it, never copies it.
+    gap_table = (root / "ui" / "productWords.ts").read_text(encoding="utf-8")
+    assert "dayGapWords" in words and '"no readings"' not in words
     for full, short in v.GAP_REASON_WORDS.values():
-        assert f'"{full}"' in words and f'"{short}"' in words, (full, short)
+        assert f'"{full}"' in gap_table and f'"{short}"' in gap_table, (full, short)
     for _, term, definition in v.READINGS_TERMS:
         assert f'"{term}"' in words and f'"{definition}"' in words, term
     assert '"site with incomplete days"' in words and '"sites with incomplete days"' in words
@@ -110,8 +113,13 @@ def test_coverage_line_names_each_site_in_reading_words() -> None:
         {"site_code": "G", "site_name": "GreenHarvest", "complete": True,
          "text": "GreenHarvest: complete readings on 7 of 7 days"}]
     # the Why? days of a card without its own line: every Site's days line, built once
+    # (PF-C review Low: the same parts the line shows, including the days with no readings received)
     assert line["days_text"] == ("Kobo: Complete readings on 4 of 7 days · 1 with partial readings · 1 with too few "
-                                 "readings, not counted · GreenHarvest: Complete readings on 7 of 7 days")
+                                 "readings, not counted · 1 with no readings received · "
+                                 "GreenHarvest: Complete readings on 7 of 7 days")
+    for row in line["sites"]:  # parity: each Site's days_text part is its coverage text, first letter capitalised
+        text = row["text"]
+        assert text[len(row["site_name"]) + 2:].lower() in line["days_text"].lower(), row
 
 
 def test_coverage_line_collapses_when_every_day_is_complete_and_says_not_known_without_counts() -> None:
@@ -139,9 +147,14 @@ def test_protect_and_assure_drop_the_shared_days_line() -> None:
 
 def test_grow_keeps_its_days_line_only_when_its_days_differ() -> None:
     counted = _Counted({"K": FULL, "G": FULL})
-    same = [_site("K", "Kobo", {"estimated_income": _income(FULL)}), _site("G", "GreenHarvest")]
-    total = v.estate_income([("Kobo", _income(FULL))])
-    assert portfolio_cards(same, counted, total, [], None, 0)["GROW_REVENUE"]["days_line"] is None
+    both = [_site("K", "Kobo", {"estimated_income": _income(FULL)}),
+            _site("G", "GreenHarvest", {"estimated_income": _income(FULL)})]
+    total = v.estate_income([("Kobo", _income(FULL)), ("GreenHarvest", _income(FULL))])
+    assert portfolio_cards(both, counted, total, [], None, 0)["GROW_REVENUE"]["days_line"] is None
+    # PF-C review Low: with only Kobo earning, the Why? days name Kobo alone, never a Site the figure does not use
+    one = [_site("K", "Kobo", {"estimated_income": _income(FULL)}), _site("G", "GreenHarvest")]
+    card = portfolio_cards(one, counted, v.estate_income([("Kobo", _income(FULL))]), [], None, 0)["GROW_REVENUE"]
+    assert card["days_line"] == "Kobo: Complete readings on 7 of 7 days"
     study = [_site("K", "Kobo", {"estimated_income": _income(STUDY)}), _site("G", "GreenHarvest")]
     card = portfolio_cards(study, counted, v.estate_income([("Kobo", _income(STUDY))]), [], None, 0)["GROW_REVENUE"]
     assert card["days_line"] == "Kobo: Complete readings on 3 of 5 days · 2 with partial readings"

@@ -248,7 +248,7 @@ def test_priced_estimate_leads_the_grow_row() -> None:
         "confidence": {"label": "Declared", "tone": "neutral"}, "href": ASSUMPTIONS}
     # spare solar stays in its contributor and the Portfolio fallback value
     assert contributor(row, "productive_use")["text"] == ("Spare solar on 1 of 1 well-observed day"
-                                                     " · 4 of the last 5 days not checked")
+                                                     " · 4 of the last 5 days without complete readings")
     assert comp.short_values == {GROW: "18–24.3 kW unused"}
     # WALK1-3b: MG-1 carries the month-to-date kWh (only this day has readings) and is complete only at month end
     mg1 = assert_mg1(comp, snapshot(story_day("12.6225")), readings=story_day("12.6225"))

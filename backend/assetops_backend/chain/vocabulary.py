@@ -594,6 +594,10 @@ CARD_TEXT = {
 # Data words say what arrived, never whether anyone "checked". "Not analysed yet" and "still processing" are kept for
 # system work only. `frontend/src/estate/portfolioWords.ts` holds these strings byte for byte
 # (`test_pfc_coverage_line.py`), so the GAP-REASONS card only wires `READINGS_CONFLICT` / `NOT_ENOUGH_READINGS`.
+# MOCK DEVIATION PF-C-1: the glossary has 8 terms against the v71 mock's 6 (`portfolio-tabs.html:174-179`): it adds
+# "Not enough readings" and "Conflicting readings" (the D-E5.46 data-gap reasons the Site rows name), and "Not
+# analysed yet" reads "AssetOps has not analysed the day yet; it will, without any action from you." where the mock
+# says "The day has not been through the site analysis yet, whatever readings it has." (D-E5.46 owns the content).
 
 #: (key, term, one-line definition), in the order of the "What these words mean" list.
 READINGS_TERMS = (

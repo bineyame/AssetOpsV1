@@ -68,7 +68,7 @@ def test_line_before_the_change_not_judged_and_judged():
     f = _finding("CHANGE_APPLIED", _view())
     day = date(2026, 10, 31)
     assert board.thread_line(f, _facts(f, [_action()], day)) == (
-        "Before the change on 1 Nov · after the change: not judged yet, no fully checked day since 1 Nov")
+        "Before the change on 1 Nov · after the change: not judged yet, no day with complete readings since 1 Nov")
     judged = _finding("CHANGE_APPLIED", _view(first_complete_after_change=date(2026, 11, 3)))
     assert board.thread_line(judged, _facts(judged, [_action()], day), lambda d: "On track") == (
         "Before the change on 1 Nov · after the change: On track from 3 Nov")
@@ -77,16 +77,16 @@ def test_line_before_the_change_not_judged_and_judged():
 def test_line_monitoring_counts_fully_checked_days_left():
     f = _finding("RESOLVED_MONITORING", _view(checked_days=2))
     assert board.thread_line(f, _facts(f, [_action()])) == (
-        "Fix verified, monitoring (ACT-001) · 5 more fully checked days to close")
+        "Fix verified, monitoring (ACT-001) · 5 more days with complete readings to close")
     none_yet = _finding("RESOLVED_MONITORING", _view())
     assert board.thread_line(none_yet, _facts(none_yet, [_action()])) == (
-        "Fix verified, monitoring (ACT-001) · 7 more fully checked days to close")
+        "Fix verified, monitoring (ACT-001) · 7 more days with complete readings to close")
 
 
 def test_line_closed():
     f = _finding("CLOSED", _view(closed_day=date(2026, 11, 9)))
     assert board.thread_line(f, _facts(f, [_action()], date(2026, 11, 10))) == (
-        "Fix verified and closed (ACT-001) · no return in 7 fully checked days")
+        "Fix verified and closed (ACT-001) · no return in 7 days with complete readings")
 
 
 def test_line_recurred_names_the_earlier_action_and_it_is_never_in_hand():
@@ -263,7 +263,7 @@ def test_mini_board_day_after_the_episode_carries_fix_verified_monitoring():
     a = _action(verification="VERIFIED")
     rows = board.assemble(_work_facts(f, [a]))
     sub = [r["subline"] for r in rows if r.get("subline")]
-    assert any("Fix verified, monitoring (ACT-001) · 7 more fully checked days to close" in x for x in sub), sub
+    assert any("Fix verified, monitoring (ACT-001) · 7 more days with complete readings to close" in x for x in sub), sub
     assert any(e["text"].startswith("ACT-001") for r in rows for e in r.get("earlier") or ()), rows
 
 

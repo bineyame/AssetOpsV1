@@ -12,6 +12,7 @@ import type {
   EstateSiteState,
   EstateValueCardKey,
 } from "./estateClient";
+import { dayGapWords } from "../ui/productWords";
 import { formatDayTime } from "../ui/time";
 import { hasReasonWord, reasonText } from "./estateFinancialsWords";
 
@@ -190,6 +191,9 @@ export function gapDayList(days: EstateCoverageDays | null | undefined): string 
  * PF-W (proposal §10.2; D-E5.46, owner-directed 2026-11-11): the readings term family. Data words say what arrived,
  * never whether anyone "checked"; "Not analysed yet" and "Still processing" are system work only. The backend
  * `chain/vocabulary.py` holds these strings byte for byte (`test_pfc_coverage_line.py`).
+ * MOCK DEVIATION PF-C-1: 8 terms against the v71 mock's 6 (adds "Not enough readings" and "Conflicting readings", the
+ * D-E5.46 data-gap reasons the Site rows name), and "Not analysed yet" uses the D-E5.46 definition, not the mock's
+ * (`portfolio-tabs.html:178`).
  */
 
 /** The "What these words mean" list: [term, one-line definition], in order. */
@@ -205,13 +209,10 @@ export const READINGS_TERMS: readonly (readonly [string, string])[] = [
 ];
 export const READINGS_GLOSSARY_NOTE = "AssetOps looks at every day. These words describe the data that arrived, not whether anyone looked.";
 
-/** D-E5.46 table, one gap reason per day: reason -> [full words, short form]. GAP-REASONS only wires the reasons. */
-export const GAP_REASON_WORDS: Readonly<Record<string, readonly [string, string]>> = {
-  NO_READINGS: ["No readings received for this day", "no readings"],
-  READINGS_CONFLICT: ["Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed", "conflicting readings"],
-  NOT_ENOUGH_READINGS: ["Not enough readings received to analyse this day", "not enough readings"],
-  NOT_ANALYSED: ["Not analysed yet", "not analysed yet"],
-};
+/** D-E5.46 table, one gap reason per day: the ONE table lives in `ui/productWords.ts` (`dayGapWords`, PB-4). */
+function gapShort(reason: string): string | null {
+  return dayGapWords(reason)?.short ?? null;
+}
 export const STILL_PROCESSING = "Still processing";
 /** A gap whose reason has no words (an older body's `NO_ASSESSED_SELECTION`) reads as system work. */
 const UNKNOWN_GAP_SHORT = "not analysed yet";
@@ -233,7 +234,7 @@ export function gapReasonClause(days: EstateCoverageDays | null | undefined, max
   if (gaps.length > max) return `${gaps.length} days without a usable result`;
   const groups = new Map<string, Date[]>();
   for (const gap of gaps) {
-    const short = GAP_REASON_WORDS[gap.reason]?.[1] ?? UNKNOWN_GAP_SHORT;
+    const short = gapShort(gap.reason) ?? UNKNOWN_GAP_SHORT;
     groups.set(short, [...(groups.get(short) ?? []), new Date(`${gap.day}T00:00:00Z`)]);
   }
   return Array.from(groups, ([short, list]) => `${dayGroup(list)}: ${short}`).join(" · ");

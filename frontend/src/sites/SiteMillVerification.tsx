@@ -56,8 +56,8 @@ export function useMillVerification(client: MillVerificationClient, siteCode: st
 }
 
 function kwh(value: string | null): string {
-  // No mean without 3 fully checked days: the cell says so (never a zero, never a missing-capability claim).
-  return value === null ? "Too few fully checked days" : `${value} kWh a day`;
+  // No mean without 3 days with complete readings: the cell says so (never a zero, never a missing-capability claim).
+  return value === null ? "Too few days with complete readings" : `${value} kWh a day`;
 }
 
 function days(n: number): string {

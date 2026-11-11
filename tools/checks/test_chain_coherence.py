@@ -706,7 +706,7 @@ def _thread_level(verdict: str):
     def edit(body: dict) -> None:
         row = next(r for r in body["rows"] if r["category"] == "PROTECT_ASSET")
         row["issues"] = [i for i in row["issues"] if not (i.get("kind") == "FINDING" and i.get("role") == "MOVES")]
-        row["subline"] = "Fix verified, monitoring (ACT-001) · 7 more fully checked days to close"
+        row["subline"] = "Fix verified, monitoring (ACT-001) · 7 more days with complete readings to close"
         for o in row["outcomes"]:
             o["state"], o["reason"] = (verdict, "PRIMARY_FINDING_OPEN" if verdict == "NEEDS_ATTENTION" else None)
     return edit
@@ -1309,6 +1309,31 @@ def test_clean_full_passes_and_compares_every_row() -> None:
 def test_coh17_each_row_fails_on_its_planted_break(tmp_path: Path, row: str, files: dict) -> None:
     got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **files))
     assert row in {f["subject"] for f in got}, got
+
+
+_COVERAGE_DAYS = "Kobo mini-grid: Complete readings on 3 of 7 days"
+
+
+def _no_own_days_line(b: dict) -> None:
+    """The real PF-C2 shape: no card has a days line of its own; the shared coverage line carries the days."""
+    for card in b["cards"].values():
+        card["days_line"] = None
+    b["coverage_line"] = {"days_text": _COVERAGE_DAYS}
+
+
+def _w3_over_coverage_line(tmp_path: Path, **why_edits) -> list[dict]:
+    files = {"chain_estate.week.json": _no_own_days_line,
+             **{f"why_estate.week.{cat}.json": (lambda b: b["text"].update(days_used=_COVERAGE_DAYS)) for cat in cc._categories()}}
+    files.update(why_edits)
+    got = cc.coh17_count_claims(_edited(tmp_path, "clean_full", None, **files))
+    return [f for f in got if f["subject"] == "W3"]
+
+
+def test_w3_reads_the_coverage_lines_days_for_a_card_with_no_days_line(tmp_path: Path) -> None:
+    assert _w3_over_coverage_line(tmp_path / "pass") == []  # the Why? days equal `coverage_line.days_text`
+    planted = _w3_over_coverage_line(
+        tmp_path / "fail", **{"why_estate.week.GROW_REVENUE.json": lambda b: b["text"].update(days_used="other")})
+    assert [f["detail"] for f in planted] and "GROW_REVENUE: Why? days 'other'" in planted[0]["detail"], planted
 
 
 # ---- MB-1-R Q5 (MB-1a): L3 with the verified opportunity-origin Actions, and the board-internal A1 row --------------

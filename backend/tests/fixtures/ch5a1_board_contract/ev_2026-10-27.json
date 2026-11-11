@@ -78,7 +78,7 @@
     }
    },
    "grow_headline": "No target set yet",
-   "headline": "No income figure for this day: it is not fully checked",
+   "headline": "No income figure for this day: it does not have complete readings",
    "headline_money": null,
    "icon": "grow",
    "in_hand": [

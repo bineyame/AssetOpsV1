@@ -750,23 +750,38 @@ GROW, PROTECT, ASSURE = "GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 COST = "OPTIMIZE_COST"
 
 
-def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any]) -> str | None:
-    """The card's M1 days line (mock `PFDAYS`): "{Site}: {line}" per Site with days, " · "-joined."""
+def _coverage_days(d: dict[str, Any]) -> str:
+    """One Site's days as the coverage line reads them: the days line, then the days with no readings received and
+    the days still processing (PF-C review Low: the "Why?" days say what the coverage line says)."""
+    line = days_line(d) or ""
+    if d["no_data"]:
+        line += card_text("coverage.no_data", x=d["no_data"])
+    if d["pending"]:
+        line += card_text("coverage.pending", q=d["pending"])
+    return line
+
+
+def _site_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any], *, full: bool = False) -> str | None:
+    """The card's M1 days line (mock `PFDAYS`): "{Site}: {line}" per Site with days, " · "-joined. `full` adds the
+    coverage line's no-readings and still-processing parts."""
     lines = []
     for s in sites:
-        line = days_line(days_of(s))
+        d = days_of(s)
+        line = (_coverage_days(c) if (c := day_counts(d)) is not None else None) if full else days_line(d)
         if line:
             lines.append(card_text("days.site", site=s.get("site_name") or s["site_code"], line=line))
     return " · ".join(lines) or None
 
 
 def _own_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], Any],
-              counted: EstateCounts | None) -> str | None:
+              counted: EstateCounts | None, all_sites: list[dict[str, Any]] | None = None) -> str | None:
     """PF-C2 (proposal §4): a card's own days line only when its day set differs from the shared coverage line's (a
-    Site whose claim days are not that Site's counted days, e.g. a separate study); else None, the line says it."""
+    Site whose claim days are not that Site's counted days, e.g. a separate study); else None, the line says it.
+    A card over only some Sites (`all_sites` given: Grow, the income Sites) names just those Sites' days, so its
+    "Why?" days never name a Site its figure does not use (PF-C review Low)."""
     shared = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
     if counted is not None and all(day_counts(days_of(s)) == day_counts(shared(s)) for s in sites):
-        return None
+        return None if all_sites is None or len(sites) == len(all_sites) else _site_days(sites, shared, full=True)
     return _site_days(sites, days_of)
 
 
@@ -786,19 +801,15 @@ def portfolio_coverage(sites: list[dict[str, Any]], counted: EstateCounts | None
             rows.append({"site_code": s["site_code"], "site_name": name, "complete": False,
                          "text": card_text("coverage.site_not_known", site=name)})
             continue
-        line = days_line(d) or ""
+        line = _coverage_days(d)
         line = line[:1].lower() + line[1:]
-        if d["no_data"]:
-            line += card_text("coverage.no_data", x=d["no_data"])
-        if d["pending"]:
-            line += card_text("coverage.pending", q=d["pending"])
         rows.append({"site_code": s["site_code"], "site_name": name, "complete": d["complete"] == d["expected"],
                      "text": card_text("coverage.site", site=name, line=line)})
     complete = all(r["complete"] for r in rows)
     return {"state": "COMPLETE" if complete else "INCOMPLETE",
             "lead": card_text("coverage.lead.complete" if complete else "coverage.lead.incomplete"),
             "rule": card_text("coverage.rule"), "sites": rows,
-            "days_text": _site_days(sites, lambda s: counted.days.get(s["site_code"]))}
+            "days_text": _site_days(sites, lambda s: counted.days.get(s["site_code"]), full=True)}
 
 
 def _income_days(s: dict[str, Any]) -> Any:
@@ -837,7 +848,7 @@ def _grow_card(sites: list[dict[str, Any]], money_total: dict[str, Any],
     note = money_total.get("text")
     return {"value": value, "missing": missing, "detail": None,
             "basis_text": card_text("grow.basis.income" if total is not None or mixed else "grow.basis.none"),
-            "days_line": _own_days([s for s in sites if _income_days(s) is not None], _income_days, counted),
+            "days_line": _own_days([s for s in sites if _income_days(s) is not None], _income_days, counted, sites),
             "tone": "green" if total is not None or mixed else "neutral", "claim": money_total,
             "parts": {"target": " · ".join(target) or card_text("grow.target.none"),
                       "potential": " · ".join(potential) or card_text("grow.potential.none"),

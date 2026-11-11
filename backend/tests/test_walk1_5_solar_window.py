@@ -48,12 +48,12 @@ def test_window_is_five_local_days_ending_on_the_board_day_and_the_read_accepts_
 
 
 def test_story_day_s_shape_no_spare_solar_on_two_checked_days() -> None:
-    """Sheet: S board "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days not checked"."""
+    """Sheet: S board "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days without complete readings"."""
     c = cards(None, hour("LIMITED"), hour("EXCLUDED", head=("-4", "0")), None, hour("EXCLUDED", head=("-2", "0")))
     assert (c["eligible_days"], c["assessed_days"]) == (0, 2)
     comp, row = grow(c)
     assert contributor(row, "productive_use")["text"] == (
-        "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days not checked")
+        "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days without complete readings")
     assert not any(i["kind"] == "OPPORTUNITY" for i in row["issues"])
     assert row["headline"] is None or "solar" not in row["headline"]
 
@@ -64,7 +64,7 @@ def test_mixed_days_give_headroom_headline_issue_and_suffix() -> None:
     assert (c["eligible_days"], c["assessed_days"]) == (2, 3)
     comp, row = grow(c)
     assert contributor(row, "productive_use")["text"] == (
-        "Spare solar on 2 of 3 well-observed days · 2 of the last 5 days not checked")
+        "Spare solar on 2 of 3 well-observed days · 2 of the last 5 days without complete readings")
     assert row["headline"] == "20–29 kW of daytime solar unused"  # span over the eligible days, form unchanged
     assert comp.short_values[GROW] == "20–29 kW unused"
     assert any(i["kind"] == "OPPORTUNITY" and i["text"] == "Productive-use headroom" for i in row["issues"])
@@ -80,7 +80,7 @@ def test_all_five_days_checked_has_no_suffix() -> None:
 def test_one_checked_day_reads_singular() -> None:
     _, row = grow(cards(None, None, None, None, hour("ELIGIBLE")))
     assert contributor(row, "productive_use")["text"] == (
-        "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days not checked")
+        "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days without complete readings")
 
 
 def test_no_checked_day_in_the_window_states_it() -> None:
@@ -89,7 +89,7 @@ def test_no_checked_day_in_the_window_states_it() -> None:
         assert (c["eligible_days"], c["assessed_days"]) == (None, None)
         comp, row = grow(c)
         assert contributor(row, "productive_use")["text"] == (
-            "Not available yet · spare solar not checked on the last 5 days")
+            "Not available yet · spare solar: no complete readings on the last 5 days")
         assert GROW not in comp.short_values
         assert not any(i["kind"] == "OPPORTUNITY" for i in row["issues"])
 
@@ -101,8 +101,8 @@ def test_refused_renewable_read_stays_not_available() -> None:
 
 
 def test_new_strings_are_in_the_vocabulary_copy() -> None:
-    assert "Not available yet · spare solar not checked on the last 5 days" in mini.COPY
-    assert "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days not checked" in mini.COPY
+    assert "Not available yet · spare solar: no complete readings on the last 5 days" in mini.COPY
+    assert "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days without complete readings" in mini.COPY
 
 
 def test_productive_use_and_headroom_issue_link_to_the_same_five_local_days() -> None:

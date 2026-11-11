@@ -37,8 +37,8 @@ SAFEGUARD = " · checked here as a safeguard"
 OUTSIDE = " · linked finding outside this view"
 #: POLISH PA-2a (review M2): the trial cost line prefix, `site_outcomes/board.py` COST_PREFIX (was "not realised savings").
 NOT_REALISED = "Estimated effect of the trial (not money saved): "
-GAPS_TEXT = "{g} of the last 31 days have no checked readings yet"
-GAPS_SINCE_TEXT = "Since readings began on {d}: {g} of {n} days have no checked readings yet"  # PB-7
+GAPS_TEXT = "{g} of the last 31 days have no complete readings yet"
+GAPS_SINCE_TEXT = "Since readings began on {d}: {g} of {n} days have no complete readings yet"  # PB-7
 IDX_POLICY = "finding-index/2"
 #: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
 #: FUEL-1 A3-R §3.9: with the declared idle fuel rate the trial hour is a `/2` MODELLED_IMPROVEMENT (was
@@ -721,10 +721,14 @@ def _wkgap_assert(ctx: Ctx, week: list[str], missed: list[str], partial: list[st
                       "no_data": len(missed), "pending": 0})
     assert want == "Complete readings on 5 of 7 days · 1 with partial readings", want
     name = by_code[KOBO].get("site_name") or KOBO
-    lines = {cat: ((summary.get("cards") or {}).get(cat) or {}).get("days_line")
-             for cat in ("PROTECT_ASSET", "ASSURE_PERFORMANCE")}
-    for cat, line in lines.items():
-        assert demo_rows.site_days_segment(line, name) == want, (cat, line, want)
+    # PF-C2: Protect and Assure have no days line of their own (None); their "Why?" days are the shared coverage
+    # line's `days_text`, which also names the days with no readings received.
+    from assetops_backend.chain.vocabulary import card_text
+
+    line = (summary.get("coverage_line") or {}).get("days_text")
+    want_full = want + (card_text("coverage.no_data", x=len(missed)) if missed else "")
+    assert demo_rows.site_days_segment(line, name) == want_full, ("coverage_line days_text", line, want_full)
+    lines = {"PROTECT_ASSET": line}
     # D-E5.19 item 3, the month clause: on [S-28, S] NO_DATA is exactly the `missing`-kind days and PARTIAL exactly
     # the story-only days, both from the built calendar (v4 as amended: S-10, S-4; S-28, S-21, S-14, S-7, S)
     month = [ctx.day(n).date().isoformat() for n in range(-28, 1)]
