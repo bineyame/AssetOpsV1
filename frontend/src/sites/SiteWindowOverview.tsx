@@ -21,7 +21,9 @@ import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { WorkedOut } from "../ui/TechnicalDetails";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { FocusPicker } from "../shell/FocusPicker";
+import { withFocusDay } from "../shell/sharedRange";
 
 import {
   currentnessWords,
@@ -263,28 +265,36 @@ function dayPercent(instant: string | null, start: string): number | null {
 
 function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onSelectDay: (day: string) => void }) {
   const day = summary.window.utc_date;
+  const [params] = useSearchParams();
+  // SR-2: day navigation keeps the shared range (and `known_at`) and writes the page's `day`; the Finding pin drops.
+  const dayHref = (next: string) => {
+    const query = withFocusDay(params, next);
+    query.delete("finding_id");
+    query.delete("finding_revision_id");
+    return `?${query.toString()}`;
+  };
   return (
     <>
     <div className="v69-chips window-day" data-window-date={day}>
-      <label className="dispatch-day__label">
-        <span>Day</span>
-        <input
-          className="v69-chip-control"
-          type="date"
-          value={day}
-          data-window-date-input
-          onChange={(event) => {
+      {/* SR-2: the one day picker (FocusPicker) says which day of the shared range this board shows. */}
+      <FocusPicker
+        day={day}
+        inputProps={{
+          className: "v69-chip-control",
+          value: day,
+          "data-window-date-input": "",
+          onChange: (event) => {
             if (isDay(event.target.value)) {
               onSelectDay(event.target.value);
             }
-          }}
-        />
-      </label>
-      {/* Day navigation is navigation: links to the same page with another `date` (and no Finding pin). */}
-      <Link className="button" to={`?date=${shiftDay(day, -1)}`} data-window-day-link="previous">
+          },
+        }}
+      />
+      {/* Day navigation is navigation: links to the same page with another `day` (and no Finding pin). */}
+      <Link className="button" to={dayHref(shiftDay(day, -1))} data-window-day-link="previous">
         Previous day
       </Link>
-      <Link className="button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
+      <Link className="button" to={dayHref(shiftDay(day, 1))} data-window-day-link="next">
         Next day
       </Link>
       {/* POLISH §3.1 Kobo row (done in PB-1): the day's bounds sentence is deleted; one page note names the zone. */}

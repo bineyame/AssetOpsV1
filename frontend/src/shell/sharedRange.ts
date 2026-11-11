@@ -183,6 +183,45 @@ const SITE_RANGE_PAGES = /^\/(?:sites\/[^/]+(?:\/.*)?|performance\/[^/]+(?:\/.*)
 export const readsSharedRange = (pathname: string, params?: URLSearchParams): boolean =>
   RANGE_PAGES.test(pathname) || (SITE_RANGE_PAGES.test(pathname) && !!params && (params.has("from") || params.has("to")));
 
+/**
+ * SR.3 finer views: `day=YYYY-MM-DD` names one day on a page that shows one day (the Kobo/Kisiwa board, Dispatch, the
+ * claim limit, the Service hour's day). It replaces the old `date=`; an old `date=` link still opens the same day and
+ * the page rewrites it to `day=` (replace, no history entry). Both stay page-only: the rail and `withRange` never
+ * carry them. The API request is unchanged: the page still sends the day as its read's own `date` parameter.
+ */
+export const FOCUS_DAY = "day";
+export const LEGACY_FOCUS_DAY = "date";
+
+/** The page's day in the address: a valid `day`, else a valid legacy `date`, else none. */
+export function focusDayOf(params: URLSearchParams): string | null {
+  const day = params.get(FOCUS_DAY);
+  if (day !== null && validDay(day)) return day;
+  const legacy = params.get(LEGACY_FOCUS_DAY);
+  return legacy !== null && validDay(legacy) ? legacy : null;
+}
+
+/** The address with the page's day set (as `day`, the legacy `date` dropped); `null` removes it. */
+export function withFocusDay(params: URLSearchParams, day: string | null): URLSearchParams {
+  const next = new URLSearchParams(params);
+  next.delete(LEGACY_FOCUS_DAY);
+  if (day === null) next.delete(FOCUS_DAY);
+  else next.set(FOCUS_DAY, day);
+  return next;
+}
+
+/** Whether a calendar day lies inside a range (`to` included). */
+export const dayInRange = (day: string, range: DayRange): boolean => day >= range.from && day <= range.to;
+
+/**
+ * SR.3 "Show 8 Nov": the shared range widened to include `day`. A widening past 31 days becomes the 7 days ending
+ * on `day` (the longest range stays valid).
+ */
+export function widenToDay(range: DayRange, day: string): DayRange {
+  const widened = { from: day < range.from ? day : range.from, to: day > range.to ? day : range.to };
+  if (rangeDays(widened) <= RANGE_MAX_DAYS) return widened;
+  return { from: dayOf(dayMs(day) - 6 * DAY_MS), to: day };
+}
+
 /** The range to fill an empty address with: the last one chosen in this tab, else Last 7 days. Blocked storage falls back to the default. */
 export function entryRange(now: number = Date.now()): URLSearchParams {
   let stored: string | null = null;

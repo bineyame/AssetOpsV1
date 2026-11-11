@@ -105,7 +105,7 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     renderAt(`/sites/${SITE_ID}`, client);
     await settledScreen();
     expect(screen.getByText("0.00 to 15.82 USD")).toBeTruthy();
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
     expect(getOverview).toHaveBeenCalledTimes(1);
     expect(getOverview.mock.calls[0][2]).toEqual({ date: null, finding_id: null, finding_revision_id: null });
   });
@@ -126,12 +126,45 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     fireEvent.click(screen.getByRole("link", { name: "Next day" }));
     await settledScreen();
     expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
-    expect(where()).toContain("date=2026-10-24");
+    // SR-2: the address names the day as `day=` (the old `date=` link was rewritten on the first read).
+    expect(where()).toContain("day=2026-10-24");
+    expect(where()).not.toContain("date=");
     fireEvent.change(document.querySelector("[data-window-date-input]") as HTMLInputElement, {
       target: { value: "2026-11-10" },
     });
     await settledScreen();
     expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-11-10", finding_id: null, finding_revision_id: null });
+  });
+
+  it("SR-2: a one-day board with a range in its address names its day on the bar, never All pages", async () => {
+    const tag = () => document.querySelector("[data-shared-range-focus]");
+    const button = () => screen.getByRole("button", { name: /^Date range for the other pages/ });
+    // Inside the range: the old `date=` link reads the same day (same API selection) and is rewritten to `day=`.
+    const inside = clientOf(() => summary("2026-10-24"));
+    const first = renderAt(`/sites/${SITE_ID}?from=2026-10-20T00:00:00Z&to=2026-10-27T00:00:00Z&date=2026-10-24`, inside.client);
+    await settledScreen();
+    expect(inside.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
+    expect(within(button()).queryByText("All pages")).toBeNull();
+    expect(document.querySelector('[data-focus-picker="inside"]')?.textContent).toContain("Day shown: 24 Oct (inside 20 Oct – 26 Oct)");
+    expect(where()).toContain("day=2026-10-24");
+    expect(where()).toContain("from=2026-10-20T00%3A00%3A00Z");
+    expect(where()).not.toContain("date=");
+    // Day navigation keeps the shared range.
+    expect(document.querySelector('[data-window-day-link="next"]')?.getAttribute("href")).toContain("from=");
+    first.unmount();
+    // Outside the range: the board still shows the address's day and says the range is not used here.
+    const outside = clientOf(() => summary("2026-10-24"));
+    renderAt(`/sites/${SITE_ID}?from=2026-10-01T00:00:00Z&to=2026-10-08T00:00:00Z&date=2026-10-24`, outside.client);
+    await settledScreen();
+    expect(outside.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
+    expect(tag()?.textContent).toBe("Showing 24 Oct · range not used");
+    expect(button().getAttribute("aria-label")).toContain("outside this range; the range is not used here");
+    expect(within(button()).queryByText("All pages")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show 24 Oct" }));
+    await settledScreen();
+    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
   });
 
   it("follows the server when the settled Finding version changes (new version after reassessment)", async () => {
@@ -366,7 +399,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-overview-finding-list="unavailable"]')?.textContent).toContain("no count is given");
     expect(document.body.textContent).not.toMatch(/no findings (for|in) this/i);
     expect(document.querySelector('[data-overview-finding-list="current-empty"]')).toBeNull();
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-11-10`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-11-10`);
   });
 
   it("states the server's gap reason in plain words, never verbatim (review fix M5a)", async () => {
@@ -391,7 +424,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-previous-pin="NOT_IN_SELECTED_DAY"]')?.textContent).toContain(
       "does not overlap this day",
     );
-    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-24`);
+    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-24`);
   });
 
   it("a failed day reads Failed", async () => {
