@@ -20,3 +20,15 @@ Option X (move ~6 units after 17 Nov: AR-4 Portfolio money/evidence rows for any
 
 "Option X yes, option Y yes."
 
+
+Owner reply to the remaining questions (1. PB-1c 'Analysed period' line on Cold/EV; 2. DATA-6 Kisiwa targets MG-2/MG-5 = 0; 3. v7.2 design sheet on Thursday evening, theme follows the computer setting), 2026-11-11 (verbatim):
+
+"1.why is the analyis window so small for these site types? 2.Those targets are ok for now 3.yes"
+
+
+Owner, after the coordinator's explanation of the short Cold/EV analysis windows (story data records ~1 h per event day; DATA-11 adds more Cold/EV days and an all-day status heartbeat, ~+10 min prepare), 2026-11-11 (verbatim):
+
+"yes to the line, and raise DATA-11"
+
+Coordinator reading: PB-1c ('Analysed period' line) approved; DATA-11 raised from stretch to IN for 17 Nov (with PB-3, which it pairs with).
+
