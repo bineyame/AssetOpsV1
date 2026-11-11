@@ -44,6 +44,7 @@ NEED_TEXT = {
                           "record.",
 }
 NEEDS_LABEL = "What is needed to price this →"
+FUTURE_KEY_LABEL = "What pricing this needs →"
 #: The site words when the reader has no Site name (a Site page, where the Site is the context).
 THIS_SITE = "this site"
 
@@ -101,7 +102,9 @@ def wire(spec: Spec | None, site_code: str, site_name: str | None, links: Any) -
     link_ref = ref(spec, site_code, links)
     href = links.href_for(link_ref)
     if spec.kind == SET_PRICE:
-        label = f"Set a {PRICE_NOUN[spec.key]} for {site_name or THIS_SITE} →"
+        # Default 4 (rev 5): a key with no stored price yet must not promise a save that cannot happen.
+        label = (f"Set a {PRICE_NOUN[spec.key]} for {site_name or THIS_SITE} →" if spec.key in STORED_KEYS
+                 else FUTURE_KEY_LABEL)
         return {"kind": SET_PRICE, "key": spec.key, "label": label, "href": href, "link_ref": link_ref}
     return {"kind": NEEDS_MODEL, "need_key": spec.need, "text": NEED_TEXT[spec.need], "label": NEEDS_LABEL,
             "href": href, "link_ref": link_ref}

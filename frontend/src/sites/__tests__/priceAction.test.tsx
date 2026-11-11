@@ -18,7 +18,7 @@ import { MillVerificationBody } from "../SiteMillVerification";
 const SET: PriceAction = {
   kind: "SET_PRICE",
   key: "repair_visit_cost",
-  label: "Set a cost per visit for GreenHarvest →",
+  label: "What pricing this needs →",
   href: "/sites/COLD-LAB-001/financials/prices?key=repair_visit_cost",
   link_ref: { kind: "PRICES", site: "COLD-LAB-001", key: "repair_visit_cost" },
 };
@@ -79,7 +79,7 @@ describe("PR-1 price action link", () => {
     );
     const items = Array.from(document.querySelectorAll("[data-early-warnings] ul > li")) as HTMLElement[];
     expect(items).toHaveLength(2);
-    const set = within(items[0]).getByText("Set a cost per visit for GreenHarvest →");
+    const set = within(items[0]).getByText("What pricing this needs →");
     expect(set.closest("a")?.getAttribute("href")).toMatch(/^\/sites\/COLD-LAB-001\/financials\/prices\?key=repair_visit_cost&return=/);
     expect(items[1].querySelector("[data-price-action]")).toBeNull();
   });

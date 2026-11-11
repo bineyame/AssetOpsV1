@@ -26,6 +26,8 @@ def _shape_ok(action: dict, site: str) -> None:
     assert action["link_ref"]["kind"] == "PRICES" and action["link_ref"]["site"] == site
     assert action["href"].startswith(f"/sites/{site}{PRICES}")
     assert action["label"].endswith(" →")
+    if action["kind"] == pa.SET_PRICE and action["key"] not in pa.STORED_KEYS:
+        assert action["label"] == "What pricing this needs →"
     if action["kind"] == pa.SET_PRICE:
         assert set(action) == {"kind", "key", "label", "href", "link_ref"}
         assert action["key"] in pa.PRICE_NOUN and action["href"].endswith(f"?key={action['key']}")
@@ -66,9 +68,9 @@ def test_every_warning_wires_a_price_action_without_money() -> None:
 
 def test_warning_words_follow_the_spec() -> None:
     by_kind = {w.kind: w.wire("GH-01", "GreenHarvest")["price_action"] for w in every_rule()}
-    assert by_kind["REPEATED_MAINTENANCE_NO_RESULT"]["label"] == "Set a cost per visit for GreenHarvest →"
+    assert by_kind["REPEATED_MAINTENANCE_NO_RESULT"]["label"] == "What pricing this needs →"
     assert by_kind["REPEATED_MAINTENANCE_NO_RESULT"]["key"] == "repair_visit_cost"
-    assert by_kind["CHARGER_FAULT_OVERDUE_INSPECTION"]["label"] == "Set a repair cost for GreenHarvest →"
+    assert by_kind["CHARGER_FAULT_OVERDUE_INSPECTION"]["label"] == "What pricing this needs →"
     assert by_kind["PLAN_OVERDUE"]["key"] == by_kind["PLAN_DUE_SOON"]["key"] == "planned_service_cost"
     assert by_kind["BATTERY_NEAR_RESERVE"]["label"] == "What is needed to price this →"
     assert by_kind["BATTERY_NEAR_RESERVE"]["text"].startswith("Battery wear is measured, not priced.")

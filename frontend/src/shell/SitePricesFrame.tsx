@@ -8,7 +8,7 @@ import { SiteScoped } from "./SiteAnalyticsFrames";
 export const SITE_PRICES_HEADING_ID = "site-prices-heading";
 /** The plain sign-in line (owner 2026-11-11; card PR-1): a roadmap fact, never an error. */
 export const PRICES_SIGN_IN_TEXT =
-  "Prices are set by your AssetOps administrator until sign-in is available. Saving a price from this page comes with sign-in.";
+  "Prices are set by your AssetOps administrator until sign-in is available.";
 
 /**
  * PR-1 (BL-68): the target of every `price_action` link, `/sites/:siteId/financials/prices?key=|need=&return=`.
