@@ -4255,3 +4255,37 @@ Decision logged for owner review: **D-E5.48**.
 3. In `Docs/demo-sprint/implementation-logic-portfolio-sites-findings-actions.html` and the demo script, replace "44 min out, 16 min unknown" with "out of service from 08:16 for the rest of the charging day (7 h 44 min); repair still pending".
 
 Decision logged for owner review: **D-E5.49**.
+
+## D-ANY.6 Tonight's speed build for the Thursday 12 Nov technical demo (Architect, Claude, 2026-11-11 16:50, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-speed-before-thursday-2026-11-11.md`): "the speed work has to be done before Tursday demo"; chose "Rebuild tonight" (option b), accepting the risk.
+- Supersedes for tonight only: the ANY-1 packet line "baseline after the Thursday demo" and the D-ANY.4 timing. D-ANY.1-5 rules otherwise stand.
+
+**1. Slice and cutoffs.** Tonight = ANY-1 only (AR-0 baseline, AR-1, AR-2). AR-3, AR-4, AR-5 and AR-6 are not built for Thursday.
+- 21:30 last ACCEPT. 22:00 go/no-go and merge. 22:15 build tag `demo/2026-11-12-rows`, fresh worktree `AssetOpsV1-e3e`. **22:30 latest prepare start** (about 2 h 45 min plus EV-HB 10 min, plus the AR-2 row build of at most 15 min, so done by about 01:45). 01:45-02:15 self-check plus full parity on the new DB. 02:15-03:15 live checks. 06:30 runbook and add-dates as planned.
+- After the prepare starts, no full rerun fits. Only a single failed step can be rerun.
+- **Fast on Thursday:** Site boards (mini depth: renewable, fuel, service, backup) for any day, about 1-1.5 s cold on Mini-grid and Diesel Sites.
+- **Still slow off the pre-stored ranges:** Cold and EV boards (work-list reads; AR-6, about 2-3 s); the Portfolio for any range (AR-3/AR-4); every other page off the stored ranges.
+- The pre-load list stays (AR-5 not built), so stored ranges are as fast as in client6. The presenter rule D-ANY.4 still holds for the Portfolio and for non-board pages.
+- If AR-2 is not ACCEPTed by 22:00, it is held. The build still goes ahead at 22:30 from main (today's fixes, plus AR-1 only if its parity passed), and the boards stay on the pre-stored ranges.
+
+**2. Baseline.**
+- Run it now on `assetops_polish_client4_test` (not the fallback; 0059 is applied there). **Never on client6.** client2 is the spare.
+- Parity must pass before AR-1 or AR-2 merges.
+- To keep it fast: run the story requests plus `--random 16` (the default), not a wider sweep. Apply the AR-2 kinds only to client4 rows built by the backfill CLI.
+- The full parity runs again on the new DB after the prepare, as part of its self-check.
+- Time `_UNCONSUMED_AT` and record p95 in the packet. Above 20 ms p95: apply the low-water bound and drop `payload` from the select (inside AR-2).
+- A fresh Claude reviewer reviews ANY-1 phase 2 now, in parallel.
+
+**3. Other merges and machine rule.**
+- C1 merges if it is ACCEPTed by 21:30.
+- HON-1 and OPEN-NOW are not Thursday-critical (they target 17 Nov). They are held out of tonight's tag. They may merge to main after the tag is cut, once reviewed.
+- Until 22:00, only the baseline and AR-2's own Postgres tests may touch Postgres, one at a time. Other builders run no-DB tests only.
+- From 22:15 until the live checks end, **all builders stop**: no tests, no prepares, no Postgres. Code edits are allowed.
+
+**4. Fallback.**
+- If parity alone fails on the new DB: set the AR-2 kill switch (`ASSETOPS_PERIOD_READ_KINDS=` empty, so the old compose path is used) and rerun the board live checks (15 min).
+- Any other self-check or live-check failure, or no green result by **05:00**: the demo uses `assetops_polish_client6_test` (tag demo/2026-11-11-e3d, runbook as planned). client6 is never modified.
+
+Decision logged for owner review: **D-ANY.6**.
