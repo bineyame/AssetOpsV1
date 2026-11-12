@@ -46,7 +46,7 @@ import {
   isSiteContentPage,
   weekEnding,
 } from "./sharedRange";
-import { useRangeFocus } from "../ui/rangeFocus";
+import { useRangeFocus, type RangeNotUsedNote } from "../ui/rangeFocus";
 import "./sharedRangeBar.css";
 
 export const RANGE_ERROR = `Choose a first day on or before the last day, ${RANGE_MAX_DAYS} days at most.`;
@@ -62,6 +62,12 @@ const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
 export const FOCUS_INSIDE = "of the range";
 export const FOCUS_OUTSIDE = "range not used";
 export const RANGE_NOT_USED = "Range not used";
+/** The spoken form of each "now" note ("This page shows <it>"); the tag keeps the short note. */
+const NOW_SPOKEN: Record<RangeNotUsedNote, string> = {
+  "shows now": "the present state",
+  "current settings": "the current settings",
+  "prices valid now": "the prices valid now",
+};
 const focusDayLabel = (day: string): string => formatDay(`${day}T00:00:00Z`, { year: false });
 /** `9 Nov` or `5–9 Nov` (`30 Oct – 2 Nov` across months). */
 const focusSpanLabel = (from: string, to: string): string => {
@@ -237,7 +243,7 @@ export function SharedRangeBar() {
           : `This page shows ${focusSpanSpoken(span.from, span.to)}, outside this range; the range is not used here`
       }`;
     } else if (now !== null) {
-      spoken = `${spoken}. This page shows ${now.note}; the range is not used here`;
+      spoken = `${spoken}. This page shows ${NOW_SPOKEN[now.note]}; the range is not used here`;
     } else if (!here) spoken = `${spoken}. ${NOT_THIS_PAGE_SPOKEN}`;
   } else if (state.status === "invalid") {
     dates = short = spoken = WINDOW_NOT_VALID;

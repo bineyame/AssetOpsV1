@@ -66,6 +66,9 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
+/** SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`, `/analytics`). */
+export const PANEL_ALL_DATES = "All dates, not only the date range";
+
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
 const REJECTION_UNAVAILABLE =
   "This record was not accepted. A plain description of the reason is not available.";
@@ -289,6 +292,12 @@ export function SiteEvidence({
             )}
           </Panel>
           <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
+            {/* SR-4c (D-SR.7): the analytics declaration route takes no from/to; the line says so. */}
+            {loaded.declaration?.status !== "loaded" ? null : (
+              <p className="muted" data-panel-range="all-dates" data-panel-range-for="analytics">
+                {PANEL_ALL_DATES}
+              </p>
+            )}
             <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
             <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
             {analytics === undefined || params.get("assessment") === null ? null : (
@@ -647,6 +656,10 @@ function Rejections({
 }) {
   return (
     <Part heading="Rejected records" headingId="site-evidence-rejections-heading">
+      {/* SR-4c (D-SR.7): the rejections route takes no from/to; the line says so. */}
+      <p className="muted" data-panel-range="all-dates" data-panel-range-for="rejections">
+        {PANEL_ALL_DATES}
+      </p>
       <p data-evidence-rejection-count={count}>
         {count === 0
           ? "No record has been rejected for this site."

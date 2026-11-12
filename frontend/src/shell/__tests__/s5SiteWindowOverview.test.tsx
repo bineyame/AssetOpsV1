@@ -177,7 +177,9 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     await settledScreen();
     expect(inside.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
     expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
-    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
+    // SR-4c (rev 8 8.2): the tag names the day as part of the range, and the spoken name says so.
+    expect(tag()?.textContent).toBe("Showing 24 Oct of the range");
+    expect(button().getAttribute("aria-label")).toContain("This page shows one day of it: 24 Oct 2026");
     expect(within(button()).queryByText("All pages")).toBeNull();
     expect(document.querySelector('[data-focus-picker="inside"]')?.textContent).toContain("Day shown: 24 Oct (inside 20 Oct – 26 Oct)");
     expect(where()).toContain("day=2026-10-24");
@@ -196,7 +198,7 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     expect(within(button()).queryByText("All pages")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Show 24 Oct" }));
     await settledScreen();
-    expect(tag()?.textContent).toBe("Day shown: 24 Oct");
+    expect(tag()?.textContent).toBe("Showing 24 Oct of the range");
   });
 
   it("follows the server when the settled Finding version changes (new version after reassessment)", async () => {

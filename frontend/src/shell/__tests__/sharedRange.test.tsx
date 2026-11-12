@@ -349,11 +349,14 @@ describe("SR-1 review notes closed in SR-2", () => {
     expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
     expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
     story.unmount();
-    // Site day board with no range in the address: no claim of a shared range, and no self-contradiction.
+    // Site day board with no range in the address: SR-4a's safety net gives it the 7-day range, so the bar names that
+    // range and never says the page has its own dates or ignores the range. (With its board read, the tag names the
+    // day it shows as "Showing <day> of the range": `s5SiteWindowOverview.test.tsx`.)
     const board = renderApp("/sites/MG-002");
     await settledScreen();
-    expect(rangeButton().textContent).toContain("This page's own dates");
-    expect(within(rangeButton()).queryByText("All pages")).toBeNull();
+    expect(where()).toMatch(/^\/sites\/MG-002\?from=2026-09-30T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z/);
+    expect(rangeButton().textContent).not.toContain("This page's own dates");
+    expect(rangeButton().textContent).toContain("30 Sep – 6 Oct");
     expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
     board.unmount();
     // Record page that ignores the range.

@@ -117,6 +117,7 @@ import {
   findingHref,
   siteActionHref,
   siteDetailHref,
+  siteEvHref,
   siteEvidenceHref,
   siteEvidenceAssessmentHref,
   siteEvidenceRecordHref,
@@ -143,6 +144,7 @@ import {
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
+import { RangeNotUsed } from "../ui/rangeFocus";
 import { createFuelBalanceClient, type FuelBalanceClient } from "../sites/fuelBalanceClient";
 import { SiteFuelChecks, SiteFuelFindingBody, useFuelFinding } from "../sites/SiteFuelFinding";
 import { AffectsLine, type OutcomeCategories } from "../sites/outcomeCategories";
@@ -1521,6 +1523,12 @@ export function SiteFinancialsFrame({
             sitesPath,
           });
         }
+        if (site.site_type === "EV_CHARGING" && view === "overview") {
+          // SR-4c (rev 8 8.2): the generic Financials page is the diesel price page, which does not apply to an EV
+          // Site; it forwards to the EV financials route and keeps the query (range, known_at).
+          const text = params.toString();
+          return <Navigate replace to={`${siteEvHref(site.site_id, "financials")}${text ? `?${text}` : ""}`} />;
+        }
         if (forwardBareAssumptions && view === "assumptions" && !ASSUMPTION_PINS.some((name) => params.has(name))) {
           const range = new URLSearchParams();
           for (const name of ["from", "to", "known_at"]) {
@@ -1567,6 +1575,8 @@ export function SiteFinancialsFrame({
               description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
+            {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
+            {site.site_type === "MINIGRID" ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
@@ -2150,6 +2160,8 @@ export function SiteFoundationChangeFrame({
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
+          <RangeNotUsed note="current settings" />
           <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <SiteFoundationChange
             siteId={site.site_id}
@@ -2179,6 +2191,8 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
           />
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
+          <RangeNotUsed note="current settings" />
           <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           {/* W1-F5b: the changes screen's two v69 slots, with the no-selection gap inside each. */}
           <NoChangeSelected foundationHref={siteFoundationHref(site.site_id)} />
