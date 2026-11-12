@@ -1,4 +1,4 @@
-# AR-4 packet: Portfolio evidence and money on stored rows - `evidence.claim` DONE and proven; `evidence.provenance` and `money.lines` NOT BUILT
+# AR-4 packet: Portfolio evidence and money on stored rows - `evidence.claim` DONE and proven; dispatch.day switch and `money.lines` write side built (no-DB); money read side, Postgres and parity NOT DONE; `evidence.provenance` backlog
 
 Branch `task/ANY-2-AR4` (worktree `AssetOpsV1-ar4`). main `30a50b2cd` (ANY-1 + AR-2) merged at `6cbdfd5af`. Spec: architect
 answer 2026-11-10 §4 AR-4; sequence rev 4; D-ANY.1-7, D-MONEY.1-5. USER_REVIEW_REQUIRED: no (review ACCEPT gates
@@ -57,12 +57,27 @@ the merge). Kill switch: `ASSETOPS_PERIOD_READ_KINDS` without `evidence.claim` =
 - Estate guard self-tests: 3 failures with the same cause. Not rerun (41 min under load).
 - Missing-claim scan and its fixtures: `Cannot find module 'typescript'`. The worktree has no `frontend/node_modules`, so this is environment; it passes on the main checkout.
 
-## Not built (resume here)
+## Session 2026-11-12 (D-ANY.8 steps 1 and 3, code + no-DB only)
 
-1. `evidence.provenance` for the cold/EV pinned windows (`pinned_windows`, `cold_/ev_capabilities`, their `cited_provenance`). It is small in the Portfolio's hot path on client4 (`windowed_rows` about 1 s profiled).
-2. `money.lines` per D-MONEY.1-4 with MN-1/2/3: `financials.mini_grid_lines` (consequence, `consequence_provenance`, eligibility) and `windowed_lines`. Rev 5 adds that stored money lines must refresh when a price is saved (PR-3); not built.
-3. Rerun `tools/checks/test_estate_guard.py` after `1d01db95e`. Its 3 failures assert that the architecture guard passes, so they should now pass.
-4. To serve `evidence.claim` on a demo DB: run the v2 row build, then add `evidence.claim` to `ASSETOPS_PERIOD_READ_KINDS`.
+| Commit | What |
+|---|---|
+| `714650582` | Merge main `4099e40fb` (one import conflict in `evidence_money.py`) |
+| `e265813b0` | **MN-1**: `productive_kwh` day money gains `basis` + `receipt{v, formula, qty (unrounded), unit, rate, rate_unit, rate_ref, rounding, segments, fx}`; amount unchanged; adapter `mini.productive_energy@2` (new input_fp, so a rebuild appends). **MN-2**: kind `money.lines` (`estate/money_rows.py`), per (mini-grid Site, local day) the potential line (study headroom x 1 h x the productive price valid at the day start, receipt shape, byte-equal to `PricedEnergy._potential`), body names the `study` and `price` it used. **MN-3**: `financials/money_lines.refuse_totals` enforced at build + AST no-`sum` scan of the money writers. **Rev-5 contract**: register `money.lines` inputs `assumption_keys: [productive_use_price_per_kwh]` (+ the renewable inputs); `price.revised@1` (0044 trigger, the event PR-3's `SITE_ADMIN_ENTRY` insert raises) with an open `valid` dirties every day from its applies-from date to today; the drain rebuilds them |
+| `e37294b73` | Merge main `ef02bd649` (AR-3 + AR-6). Conflicts in `chain/composition.py` and 3 pin tests resolved: all kinds built side by side. `evidence.claim` (an `s3_day` kind) now takes AR-3's UTC-day rule for Foundation events (pinned in `test_ch1b_register`) |
+| `36d15fd70` | **Step 3 switch**: `evidence_money.mini_grid_rows` reads `coverage.dispatch_days` (AR-3 rows when served, else compose) and notes those days for the claim rows (`EvidenceMoneySnapshot.note_page_days`). Non-vacuity: reverting to `snap.dispatch_days` fails the new test (1 failed), reverted with `git checkout` |
+
+Checks: `test_ar4_money_lines.py` 15 passed; `test_ar4_evidence_period_rows.py` 17 passed; register/drain/any1/ar2/ar3/ch6/k10/pb3 adjacents green (numbers in the report); `check-architecture.ps1` "Architecture check passed." (needs `ASSETOPS_GUARD_PYTHON`). `tools/checks/test_estate_guard.py` from Git Bash: 16 failed, all `_common.ps1 cannot be loaded because running scripts is disabled` (execution policy, environment); a PowerShell-launched rerun was still running at handoff.
+
+## Not built (resume here, D-ANY.8 order)
+
+1. **money.lines read side (MN-2 rest):** `site_outcomes/mini.py` -> `NodeInputs` gains the stored day line; `OutcomeEvaluator._potential` uses it only when the row is current at k (not PENDING) and its `study`/`price` equal the page's item and `sales["price"]`, else today's compose (D-ANY.6a). Kill switch: `money.lines` in `ASSETOPS_PERIOD_READ_KINDS`.
+2. **Postgres (one file at a time, own `assetops_ar4_test`):** `test_ar4_money_lines_postgres.py` - rows equal to compose for a priced and an unpriced day; a PR-3-style `SITE_ADMIN_ENTRY` revision mid-range -> `price.revised` -> drain -> rows from the valid date to today are new revisions with the new `rate_ref`, still equal to compose before and after. Rerun `test_ch1a_snapshot_postgres.py` (its money asserts were updated for MN-1, not run).
+3. (D-ANY.8 4a) Parity on client4 with `--kinds evidence.claim,dispatch.day` over the switch, keeping the D-ANY.5/7 cases; timings (week, 22 days, 31 days) cold, store off, with profiles.
+4. (4b) money.lines parity incl. the price-save case; build `money.lines` rows on client4 (`period_backfill build --kind money.lines`). If not passing by Sat 12:00, move commits `e265813b0` (and the read side) to `task/ANY-2-AR4b`.
+5. Rerun `test_estate_guard.py` from PowerShell (not Git Bash).
+6. PR-3's Postgres flow test is rerun by whichever of AR-4 / PR-3 merges second.
+7. Backlog: `evidence.provenance` (cold/EV pinned windows); the Portfolio consequence money (`_mini_grid_money` / `consequence_provenance`, ~4 s on client4) is NOT covered by `money.lines` as built - needs an Architect call (store the per-(consequence, Finding) revision provenance like `revision_provenance`?).
+8. To serve on a demo DB: build rows, then add the kinds to `ASSETOPS_PERIOD_READ_KINDS`.
 
 ## Known deviations
 
@@ -70,3 +85,8 @@ the merge). Kill switch: `ASSETOPS_PERIOD_READ_KINDS` without `evidence.claim` =
 2. Link rows are stored as of build time (same as AR-2 deviation 4).
 3. Rows are read once per Site: one reader read plus one provenance statement.
 4. The stored detail is pruned to the Evidence fields the projection reads (`claim_inputs`). A future reader of any other stored field must bump the builder version.
+5. MN-1 says old rows "read PENDING until the backfill". `site_day_snapshot` has no adapter-version PENDING rule, so old productive rows keep serving their (unchanged) amount without a receipt until rebuilt. Readers use only `amount`/`currency`/`assumption_revision_id`, so values are equal.
+6. `money.lines` holds the potential line only. The spec's "per (Site, day) money lines" for the Portfolio consequence path is not stored (Not built 7).
+7. An opportunity study revision raises no day event (`opportunity.revised@1` is `days: none`), so the read side must compare the stored `study` with the page's (Not built 1).
+8. The `money.lines` price is read at the local day start (`valid_at`), as the board's `productive_price(start)` does.
+9. The step-3 mutation proof used `sed -i` on a committed file and was reverted with `git checkout` (lane rules prefer Edit).
