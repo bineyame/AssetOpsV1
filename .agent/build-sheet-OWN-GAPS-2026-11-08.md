@@ -5110,3 +5110,58 @@ Decisions logged for owner review: **D-SR.56**.
   - Each of those slices adds one vitest that the focus slot is declared once in the hour view.
 
 Decisions logged for owner review: **D-SR.57**.
+
+## D-SR.58 SR-11 Q1-Q3 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-11-packet.md` (`task/SR-11-backup-range` 713bbf7d8).
+- **Q1: yes.** On an absent day (`stored: false`) `sequences` is null, like every other D-SR.51.3 figure. A stored day with no sequence has `[]`. Pin both cases in the pure test.
+- **Q2: count start successes from the sequences, not from the hour cards.**
+  - Why: the hour card (`mini_depth/rules.py:1072`) counts SUCCEEDED `start_pair`s over that hour's chains. A sequence that spans hours is counted in every hour, so the sum double-counts within a day as well as across midnight.
+  - Change (shared `day_summary.py`):
+    - Each `sequences` entry gains `start_pair`, copied from the head's chain.
+    - The day `start_success_count` is the number of de-duplicated sequences with `start_pair == "SUCCEEDED"`. It is null when every sequence's `start_pair` is null or there is no sequence.
+    - The window total counts the same thing over the sequences de-duplicated across the window (D-SR.51.4).
+  - If the stored head result does not carry a per-chain `start_pair`, stop and ask; do not recompute.
+  - Tests:
+    - one sequence over two hours gives 1;
+    - one sequence over midnight gives 1 in the window total, while each day's own count still shows it;
+    - the null rule.
+  - The UI wording stays "backup starts". About 0.05 units, SR-11 fix round.
+- **Q3: acceptable.** The grade order is pure and pinned in the stubs. The day rows in the Postgres test are real. The real grade path is closed by parity:
+  - the SR-10 and SR-11 parity runs call each live range route (real `PostgresChainRead`) for KOBO-001 and KISIWA-001;
+  - they compare every `days[].state` NOT_EXPECTED / grade-derived outcome with `chain.read.day_grade` for the same day;
+  - the gate is 0 mismatches.
+
+Decisions logged for owner review: **D-SR.58**.
+
+## D-SR.59 SR-4a+b review H-1, L-1, L-4: short ranges on the mini depth tabs (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-4ab-review.md` (7f9a0bd9e, REJECT). Rev 8 §8.2's "pass the address window through" is withdrawn for these tabs. It is an Architect spec defect, not a builder one.
+- **H-1: the fix is in the client. The server stays strict.**
+  - The one-hour and one-to-five-day reads (`mini_depth/read.py:112-138` `hour_windows`) are point reads. The SR-10/11 `hour_link` and the FocusPicker send them exact Site-local windows, and every range view gets its days on the server by D-SR.45 `window_days` (SR-7a/8/10b/11). So the client turns the range into the Site-local window the server takes, by the same `window_days` rule: **a range of UTC dates names the Site-local days of those same dates.**
+  - Do not loosen `hour_windows`. It is the contract that refuses a malformed drill-in.
+- **Change: `frontend/src/sites/miniDepthClient.ts`.**
+  - **Renewable** (`renewableWindowFromParams`, `:342`):
+    1. Pass the address through only when both bounds are exact Site-local midnights 1-5 days apart (as `hour_windows` checks).
+    2. Otherwise take the range from `addressRange(params)` (the `readSharedRange` result). If it spans 5 days or fewer, send `localDaysWindow(tz, range.from, n)`, where `range.from` is the date string itself, not `localDateOf` of an instant, so a negative-offset zone gets the same dates.
+    3. A longer range keeps the existing "last 5 local days" rule.
+    4. No range: as now.
+  - **Service, Backup and Fuel** (`serviceWindowFromParams`, `:384`):
+    1. Pass the address through only when it is exactly one Site-local clock hour (span 1 h and the local minute, second and millisecond are 0).
+    2. The `DAY_MS` pass-through is removed. A one-day range, "Yesterday" included, gives the 12:00 local hour of `pageDay`, like a longer range.
+    3. The reversed or unparseable pass-through stays, so the page still names why it is refused.
+  - `known_at` is carried unchanged.
+- **L-4: fix now, in the same lines.** Both functions measure the range through `addressRange` / `readSharedRange`, never raw `from`/`to` strings. The only raw-instant parses left are the two exact pass-through checks above. A hand-typed day-form `from=2026-11-08&to=2026-11-08` then reads as one day and gets 12:00 (Service) or that local day (Renewable).
+- **L-1: yes, per key.** The safety net (`SharedRangeBar.tsx:124-132`) applies the D-SR.42(d)/D-SR.57 rule: an address key wins over the copied previous range per key (`from`, `to`, `known_at`), and the result never holds a key twice. Test: a bare Site address with its own `known_at` plus a previous range with another `known_at` gives exactly one `known_at`, the address's.
+- **Tests that stop this class from coming back.**
+  1. **Vitest, pure** (`sharedRange.test.tsx` cases re-pinned, not deleted), for zones Africa/Addis_Ababa (+3) and America/Bogota (−5).
+     - Every bar preset (Yesterday, Last 7 days, Last 30 days), custom 2- and 5-day ranges, a one-hour story address, and a day-form address.
+     - The renewable window is exact local midnights covering the same dates. The service window is one local clock hour.
+  2. **Shared fixture contract.**
+     - The vitest writes nothing. A checked-in `frontend/src/sites/__tests__/fixtures/mini-windows-contract.json` lists those inputs and the expected `{from, to}`, and vitest asserts the functions equal it.
+     - A new no-DB `backend/tests/test_sr4_mini_windows_contract.py` feeds every expected window to `hour_windows` (and the `fuel`/`backup`/`service` domains) and asserts none is `INVALID_WINDOW`.
+     - So a client or server change that breaks the pair fails one side.
+  3. **App level** (`sr2RequestUrls.test.tsx`): Kobo Renewable and Kobo Service under the "Yesterday" preset each send one request with the pinned local bounds, and render no refusal.
+- Size about 0.15 units, in the SR-4 fix round, then a fresh review. SR-4 stays first in the merge order.
+
+Decisions logged for owner review: **D-SR.59**.
