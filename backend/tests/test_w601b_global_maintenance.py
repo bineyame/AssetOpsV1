@@ -150,7 +150,7 @@ def test_state_counts_cover_full_selection(store, key) -> None:  # noqa: F811
     finally:
         api.close()
         nobody.close()
-    assert set(one) == ENVELOPE and one["schema_version"] == "global-work-index-1"
+    assert set(one) == ENVELOPE | {"open_now"} and one["schema_version"] == "global-work-index-1"  # OPEN-NOW
     assert one["total_count"] == 7 and len(one["rows"]) == 5 and len(two["rows"]) == 2
     assert two["next_cursor"] is None and two["status"] == "CURRENT"
     assert one["state_counts"] == expected and two["state_counts"] == expected

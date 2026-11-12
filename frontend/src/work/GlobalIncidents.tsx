@@ -35,6 +35,7 @@ import {
   joined,
   useGlobalWorkPage,
 } from "./globalWorkParts";
+import { OpenNowLine } from "./openNow";
 import "./globalWork.css";
 
 // W6-01b P-B2-1: the shared parts moved to `globalWorkParts.tsx`; these names stay importable from this page.
@@ -226,6 +227,7 @@ export function GlobalIncidentsPage({ client }: { client?: GlobalWorkClient }) {
         cards={(value) => <Cards body={value} />}
       />
       <Panel heading="Incident cases" headingId={TABLE_HEADING_ID} description={INCIDENT_CASES_FOOTER}>
+        {shown && body !== null ? <OpenNowLine openNow={body.open_now} /> : null}
         {shown && body !== null ? (
           body.total_count === 0 ? (
             <div className="global-work-empty" data-global-work-zero>

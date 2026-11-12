@@ -492,6 +492,32 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 });
 
+describe("OPEN-NOW: Site > Work open-now line", () => {
+  it("shows the server's open-now line above the list, and Nothing open now on an empty window", async () => {
+    const line = "Open now: 2 incidents, 1 request, whatever the dates";
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body([incidentRow(1)], { open_now: { incidents: 2, requests: 1, line } }) },
+      [api("maintenance", DAY)]: {
+        status: 200,
+        body: body([], { open_now: { incidents: 0, requests: 0, line: "Nothing open now" } }),
+      },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    const panel = panelTitled("Incidents at this site");
+    const shown = panel.querySelector("[data-work-open-now='some']");
+    expect(text(shown)).toBe(line);
+    const table = panel.querySelector("table")!;
+    expect(shown!.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    cleanup();
+    mount(page("maintenance", DAY));
+    await settledScreen();
+    const empty = panelTitled("Maintenance at this site");
+    expect(text(empty.querySelector("[data-work-open-now='none']"))).toBe("Nothing open now");
+    expect(empty.querySelector("[data-work-empty]")).not.toBeNull();
+  });
+});
+
 describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
   const labels = () =>
     within(screen.getByRole("navigation", { name: "Work lists" })).getAllByRole("link").map((l) => l.textContent);

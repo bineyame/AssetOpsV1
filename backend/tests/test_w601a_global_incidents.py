@@ -145,7 +145,7 @@ def test_authorized_denied_site_and_two_tenants(store, key) -> None:  # noqa: F8
     finally:
         for api in (full, denied, foreign):
             api.close()
-    assert set(body) == ENVELOPE and body["schema_version"] == "global-work-index-1"
+    assert set(body) == ENVELOPE | {"open_now"} and body["schema_version"] == "global-work-index-1"  # OPEN-NOW
     assert body["scope"]["tenant_id"] == demo and body["scope"]["authorized_site_count"] == 2
     assert body["scope"]["covered_site_count"] == 2 and body["total_count"] == 6 and body["status"] == "CURRENT"
     assert [s["site_code"] for s in body["coverage"]["sites"]] == ["KOBO-001", "KOBO-002"]
