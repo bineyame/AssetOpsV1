@@ -23,25 +23,34 @@ Spec: rev 10 §10.4, rev 10a §10a.3, D-SR.15/16/23/27. Page not started (waits 
 
 ## Tests
 
-- `backend/tests/test_sr8_renewable_range_route.py` (stubs, real `ChainReader` over a fake port): **24 passed**.
+- `backend/tests/test_sr8_renewable_range_route.py` (stubs, real `ChainReader` over a fake port): **26 passed** (incl. D-SR.47 LOW-with-value and PARTIAL-counted tests).
   Covers every state, absent-row NO_DATA (D-SR.16), averages/partial, hours, link, known_at passed to the read,
   31-day window, 7 window refusals, admission/type/503 refusals, stored-route key + watermark, perf line.
   Non-vacuity: mapping EXCLUDED → COUNTED fails 2 tests (reverted).
 - Adjacent: `test_w402_reads.py`, `test_ch5a2_contract.py` with the above: 71 passed, 3 skipped (no DB).
-- `backend/tests/test_sr8_renewable_range_postgres.py` (DB `assetops_sr8_test`): **written, NOT RUN** (lane rule:
-  Postgres only when the coordinator frees the DB; load avg ~8 with the demo build). Covers stored-row equality,
+- `backend/tests/test_sr8_renewable_range_postgres.py` (DB `assetops_sr8_test`): **1 passed** (61 s). Covers stored-row equality,
   MISSING_HOUR day, absent-row day, 3 sampled days vs the one-day depth `headroom_kw` card, totals.
 - check-all: **All 19 guards passed** (957 s under load ~10; a first run hit a 900 s cap I set, not a failure).
 
 ## Pending (coordinator turn)
 
-1. `ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_sr8_test`
-   run of the Postgres file (single file). Risk: if a sampled day is EXCLUDED, the depth card may be null while the
-   range shows the bounds; the assertion would then show it.
+1. (done) Postgres file run.
 2. Parity and timing (KOBO-001, KISIWA-001 × 7/14/31 days), output `.agent/SR-8-parity.json`.
 3. Page (Renewable tab, R726), vitest, `sr2RequestUrls` pin, `RANGE_MATRIX` Renewable D→R: after SR-4 merges.
 
-## Questions (Architect)
+## Rulings applied
+
+- D-SR.45: `window_days` (Q1). D-SR.47: NO_VALUE, 0.01 rounding on averages only, codes and `known_at` in the key
+  confirmed; LOW grade -> NOT_ENOUGH_READINGS, never counted; PARTIAL-grade COUNTED/EXCLUDED day has `partial: true`.
+
+## Open question
+
+- Q6 The one-day depth `headroom_kw` card is `observed_headroom_range` (min low, MAX high over ELIGIBLE hours; null
+  on an EXCLUDED day); the stored snapshot is min low, MIN high. Rev 10 §10.4's "row equals the depth card" holds
+  for low only. The Postgres test asserts low equal and stored high <= card high. The page shows the two figures
+  differently on range vs drill-in for the same day; Architect to rule which wording/figure.
+
+## Questions (Architect, answered by D-SR.45/47)
 
 - Q1 Days of the window: used `window_days` (UTC-midnight window → its UTC dates read as Site-local days, the
   estate frame rule), so 7 UTC days = 7 rows. `local_days(from, to, tz)` (as rev 10.3 names for SR-7) would give 8
