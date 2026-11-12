@@ -94,7 +94,22 @@ Checks: `test_ar4_money_lines.py` 15 passed; `test_ar4_evidence_period_rows.py` 
 
 ## Resume points (first = next)
 
-0. **Wait for `fix/AR-3-absent-compose` (D-ANY.10 items 1-3, another lane) to merge to main.** Then `git merge main` here and run the full parity on client4 (`--kinds evidence.claim,dispatch.day`, seed 20261111, random 16): expect 0/61 mismatches (the `any.claim_rows.before_build` failure is item 1-3's), then timings week/22/31 days. Do not run parity before that merge.
+0. DONE 07:25: main merged, parity 0/61, timings and the `select_dispatch_days_on` cause recorded above. Next is the D-ANY.9 `evidence.consequence_money` decision (the `for_finding_on` calls).
+
+## Session 2026-11-12 07:00-07:25 (after merging main `eedd2659f`, AR-3 absent-compose; client4, read-only)
+
+- No-DB after merge: 75 passed (ar4 x2, ar3_dispatch_day_rows, estate_coverage_local_days, w301_estate_coverage).
+- **Parity** `--kinds evidence.claim,dispatch.day --seed 20261111 --random 16`, e3c polish_client4 work/story, prebuilt routes, ~21 min: **PASS (61 cases, 0 mismatch, 0 unstable)**; `any.claim_rows.before_build` now PASS.
+- **Timings** (cold fresh process, store off, rows `evidence.claim,dispatch.day` on, `/api/estate/portfolio?...&lens=all`, wall under cProfile; one run, +-15%):
+
+| Request | 917a90724 (rows on, no item 4) | now |
+|---|---|---|
+| week 10-19..10-26 | 9.3 s | 8.7 s (8.1, 9.5 on two other runs) |
+| 22 days 10-14..11-05 | 24.8 s | 22.2 s |
+| 31 days 10-10..11-10 | 29.0 s | 27.1 s |
+
+  `claims._data_gaps` is 0.10 / 0.13 / 0.16 s (was 16.1 s in the week profile). Probe: scratchpad `prof_win.py` (not committed).
+- **The four `select_dispatch_days_on` calls (week 1.7-2.3 s; 12 calls 6.5 s at 22 days; 16 calls 6.8 s at 31 days):** `print_callers` shows ALL come from `financials/money_eligibility.py:192 for_finding_on` (W3-01 per-bracketed-UTC-day money-eligibility selector), reached through the money path. None come from `_mini_grid_basis` or `mini_grid_rows` (those go through `coverage.dispatch_days`). `for_finding_on` is outside AR-4's files and calls the store directly through its own `days` port. The fix is the D-ANY.9 backlog `evidence.consequence_money` (read stored `dispatch.day` rows there). Not fixed on AR-4: above 0.3 units and not AR-4's files.
 
 ## Not built (resume here, D-ANY.8 order)
 
