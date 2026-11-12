@@ -69,5 +69,5 @@ D-ANY.5/6a/7/8/9/10 on reading; nothing new is served with `ASSETOPS_PERIOD_READ
   ar4_evidence_period_rows, ar4_money_lines, ch1b_register, ch1b_drain, any1_period_read, ar2_mini_period_rows,
   ar3_dispatch_day_rows, ar4_evidence_period_rows_postgres (skipped), tools/checks test_period_read_parity +
   test_perf_budget: **182 passed, 1 skipped**, 14.9 s.
-- `tools/check-architecture.ps1`: see report line (run under load).
+- `tools/check-architecture.ps1` (`ASSETOPS_GUARD_PYTHON` = plan2 venv): "Architecture check passed.", exit 0.
 - Not run (lane rules): Postgres files, client4 parity, timings, frontend (diff is backend-only).
