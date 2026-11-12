@@ -16,7 +16,7 @@ from assetops_contracts.work_open_now import OPEN_STATES, OpenNowCounts
 from assetops_backend.work import model as m
 
 LOG = logging.getLogger(__name__)
-EARLIEST =datetime(1, 1, 1, tzinfo=timezone.utc)
+EARLIEST = datetime(1, 1, 1, tzinfo=timezone.utc)
 LATEST = datetime(9999, 12, 31, tzinfo=timezone.utc)
 _NOUNS = (("incidents", "incident", "incidents"), ("requests", "request", "requests"))
 NOTHING_OPEN = "Nothing open now"
