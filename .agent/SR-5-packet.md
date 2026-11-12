@@ -17,6 +17,22 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
 - Spec deviation (route test file name): one file `test_sr5_range_overview.py` holds both the body and the route
   tests the spec splits into `..._route.py`.
 
+## Update after rev 10a (D-SR.19-30)
+- 034852bb2: day rule extracted to `backend/assetops_backend/estate/range_days.py` (D-SR.22):
+  `range_day_states(snap, tenant_id, site, req, scope, cov) -> {date: {"state", "row"}}`, step 6 = ANALYSED,
+  coverage-wins logged `site_range_day_mismatch`; `site_range.py` maps ANALYSED to FINDINGS/CLEAR. SR-6 merges
+  this commit. D-SR.28: `CLOSED_LABELS` imported from `site_outcomes/mini.py`; `findings.count` null unless F is
+  COMPLETE/EMPTY or the status is PARTIAL. No-DB file: 31 passed (adds coverage-wins log pin, finding_known pin).
+- 66b800d3e: `backend/tests/test_sr5_range_overview_postgres.py` on `assetops_sr5_test`: 2 passed (re-run on
+  034852bb2: 2 passed). Pins on the S4 F01 world (2 days): coverage entry, partial money and status equal the
+  Portfolio's; days FINDINGS/NOT_ANALYSED equal the coverage gaps; rows on (provider served, every day an absent
+  run, provider proven called) == rows off (D-SR.16).
+- Still to add to the Postgres file (needs fixture work beyond the S4 cases): NO_READINGS / READINGS_CONFLICT /
+  STILL_PROCESSING / NOT_EXPECTED days, the overlap day (OVERLAPPING), drill-in vs `/overview?date=D`.
+- Gates waiting for the demo build on `assetops_polish_vps1_test` and WARM-1: parity (KOBO-001, KISIWA-001;
+  7/14/31 days ending on the last complete UTC day with readings, D-SR.29; mismatch log count in the JSON),
+  rows on/off on real data, stored <= 2.0 s.
+
 ## Resume points, in order
 1. DONE. Fix `_status` in `site_range.py`: pass the evidence tuple's own domain (`e_sites[0][1]`) to `evidence_unit`,
    as `_portfolio` does (`portfolio.py:804-807`).
