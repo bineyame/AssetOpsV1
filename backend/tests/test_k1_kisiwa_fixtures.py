@@ -179,7 +179,7 @@ def assert_registered_facts(found: dict) -> None:
     assert props["generator"]["generator-no-load-fuel-rate-basis"] == "GENERIC_DEFAULT"
     assert TEMPLATE_GENERATOR_PROPERTIES <= set(props["generator"])
     assert {code: props[code].get("supply-use") for code in ("load-clinic", "load-res", "load-mill")} == {
-        "load-clinic": "ESSENTIAL_SERVICE", "load-res": "HOUSEHOLD", "load-mill": "HOUSEHOLD"}
+        "load-clinic": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-mill": "PRODUCTIVE"}  # DATA-8
     assert (found["role_set"], found["bindings"]) == ("minigrid-roles-4", 15)
 
 

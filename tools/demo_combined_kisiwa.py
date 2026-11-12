@@ -62,11 +62,15 @@ IMPORT_PATH = "var/sites/kisiwa-001.yaml"
 BINDINGS = json.loads((CONVERSIONS / "kisiwa-001-bindings.json").read_text(encoding="utf-8"))
 ROLES4 = json.loads((CONVERSIONS / "kisiwa-001-minigrid-roles-demo-config.json").read_text(encoding="utf-8"))
 FIXTURE_PRICES = CONVERSIONS / "demo-diesel-price-publications.json"
+#: DATA-8 (D-17N.4, K11; owner "both" 2026-11-12): the declared price per kWh for productive users, Kobo's fixture
+#: (`demo_combined_kobo.FIXTURE_PRODUCTIVE_PRICE`; the Site is named on the command line), at the diesel price's instant.
+FIXTURE_PRODUCTIVE_PRICE = CONVERSIONS / "demo-productive-price-publications.json"
 
 CONFIG_OFFSETS = {"uses": timedelta(minutes=25), "roles4": timedelta(minutes=27), "known": timedelta(minutes=30),
                   "price": timedelta(hours=1)}
 #: DIESEL-1 §2.2: what each Kisiwa feeder supplies (load-clinic is the cold store, load-mill the water pump).
-SUPPLY_USES = {"load-clinic": "ESSENTIAL_SERVICE", "load-res": "HOUSEHOLD", "load-mill": "HOUSEHOLD"}
+#: DATA-8 (K10): the cold store (ice and fish) and the water pump are productive users; households stay households.
+SUPPLY_USES = {"load-clinic": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-mill": "PRODUCTIVE"}
 SUPPLY_USE_NOTE = "Demonstration supply use declared at commissioning"
 NO_LOAD = [
     {"property_key": "generator-no-load-fuel-rate", "value": 4.9, "unit": "L/h", "source": "SITE",
@@ -149,16 +153,18 @@ def register_in(store, import_at: datetime, install_at: datetime) -> dict:
 
 
 def publish_price(url: str, recorded_at: datetime) -> None:
-    """Diesel price v1 only, recorded at `recorded_at` through the test-only recorded-time seam (Kobo's pattern)."""
+    """Diesel price v1 and (DATA-8) the productive-use price v1, recorded at `recorded_at` through the test-only
+    recorded-time seam (Kobo's pattern, `demo_combined_kobo.publish_price`)."""
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.publish_assumption import main as publish
     import pg_harness
 
     store = PostgresAssumptionStore(url, test_recorded_clock_override=lambda: recorded_at)
     try:
-        code = publish(["fixture", "--site", SITE_CODE, "--file", str(FIXTURE_PRICES), "--step", "v1"], store=store)
-        if code != 0:
-            raise SystemExit(f"diesel price v1 publication failed ({code})")
+        for name, fixture in (("diesel price", FIXTURE_PRICES), ("productive-use price", FIXTURE_PRODUCTIVE_PRICE)):
+            code = publish(["fixture", "--site", SITE_CODE, "--file", str(fixture), "--step", "v1"], store=store)
+            if code != 0:
+                raise SystemExit(f"{name} v1 publication failed ({code})")
     finally:
         pg_harness.dispose(store)
 
