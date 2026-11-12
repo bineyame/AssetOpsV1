@@ -28,6 +28,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from assetops_backend.i18n import LocaleMiddleware
 
@@ -92,6 +93,7 @@ from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_ac
                                                build_domain_intent_service, build_global_work_detail_service,
                                                build_global_work_index_service, build_work_detail_service,
                                                build_work_index_service, build_work_service)
+from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.operational_entry import entry_site_context
 from assetops_backend.work_api import Principal, WorkGate, build_work_router, no_service_principal
 from assetops_backend.domain_work_api import build_domain_work_router
@@ -103,6 +105,7 @@ from assetops_backend.financials.composition import (
     CONSEQUENCE_UNAVAILABLE,
     AssumptionStoreUnavailable,
     build_assumption_read_service,
+    build_assumption_store,
     build_cold_consequence_store,
     build_consequence_history_service,
     build_consequence_read_service,
@@ -643,7 +646,16 @@ def create_app(
         access=site_read_access, unavailable=(SiteStoreUnavailable,),
         details=build_global_work_detail_service(database_url()), scope=registry.ledger_scope))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
-    app.include_router(build_financial_assumption_router(registry.ledger_scope))
+    # PR-3 (D-PRICE.1): the site-admin price entry route on the same router, behind the dip form's one switch
+    # (`operational_entry_principal`), the price read's access and the Site time zone the entry route reads.
+    entry_store = build_assumption_store(database_url()) if database_url() else None
+    if entry_store is not None:
+        app.router.on_shutdown.append(entry_store.dispose)
+    entry_site = entry_site_context(fuel_store.night_context) if fuel_store is not None else None
+    app.include_router(build_financial_assumption_router(
+        registry.ledger_scope, entry_principal=operational_entry_principal, store=entry_store,
+        site_zone=(lambda t, s: ZoneInfo(entry_site(t, s)[0])) if entry_site is not None else None,
+        read_access=development_access, unavailable=(AssumptionStoreUnavailable, WorkStoreUnavailable)))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
     # `/financial-assumptions/consequences` is not taken for a price revision ID.
     app.include_router(build_consequence_history_router(

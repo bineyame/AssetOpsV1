@@ -27,6 +27,8 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
 
+from assetops_backend.work.operational_entry import ENTRY_PRINCIPAL
+
 ASSUMPTION_KEYS = ("diesel_price_per_litre", "ev_gross_tariff_per_kwh", "productive_use_price_per_kwh")
 UNIT = "currency/L"
 # W2-07 (migration 0026): the EV gross tariff is the only new key. Its unit is literally `currency/kWh`, its value is
@@ -54,7 +56,10 @@ def unit_for(key: str) -> str:
     return UNITS[key]
 BASES = ("AUTHORED_ESTIMATE", "CONTRACT_RATE", "RECORDED_PURCHASE")
 CHANGE_KINDS = ("INITIAL", "SUCCESSION", "CORRECTION")
-SYSTEM_CHANNELS = ("SYSTEM_CLI", "SYSTEM_FIXTURE")
+# PR-3 (D-PRICE.1, migration 0060): a price typed on the Site price page is published on its own channel by the
+# server-configured entry service, still a SYSTEM actor with no author; the human channel stays refused here.
+SITE_ADMIN_CHANNEL = "SITE_ADMIN_ENTRY"
+SYSTEM_CHANNELS = ("SYSTEM_CLI", "SYSTEM_FIXTURE", SITE_ADMIN_CHANNEL)
 
 
 @dataclass(frozen=True)
@@ -71,6 +76,13 @@ SYSTEM_PUBLISHER = SystemPrincipal(
     authorization_basis=("SERVER_ADMINISTRATIVE_TRIGGER: published by the server-side assumption publisher "
                          "run by an operator with database access; no human sign-in exists yet "
                          "(D-2026-10-13-s4-bounded-financial-basis)"))
+
+# PR-3 (D-PRICE.1): the dip form's entry service publishes typed prices, labelled "Entered by site admin" on screen.
+SITE_ADMIN_PRICE_PUBLISHER = SystemPrincipal(
+    actor_id=ENTRY_PRINCIPAL,
+    authorization_basis=("SITE_ADMIN_ENTRY: entered on screen through the server-configured entry service, "
+                         "labelled 'Entered by site admin'; no signed-in person (D-PRICE.1)"))
+SITE_ADMIN_PROVENANCE = {"service": "operator-entry", "job": "site-admin-price-entry", "rule": "price-entry/1"}
 
 
 class PublicationRefused(Exception):
