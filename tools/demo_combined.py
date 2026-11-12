@@ -795,7 +795,8 @@ class Demo:
         log = open(self.work / "logs" / f"warm-{port}.log", "w", encoding="utf-8")
         return subprocess.Popen([str(PY), str(script), "--base-url", f"http://127.0.0.1:{port}", "--work",
                                  str(self.work), "--db-url", self.url], cwd=str(self.tree), env=self.env(),
-                                stdout=log, stderr=subprocess.STDOUT)
+                                stdout=log, stderr=subprocess.STDOUT,
+                                start_new_session=(os.name == "posix"))  # L4: `_kill_tree` must not reach serve
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S

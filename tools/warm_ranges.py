@@ -48,6 +48,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, timedelta, timezone
+from datetime import time as time_
 from pathlib import Path
 from typing import Any, Callable, Iterable
 from urllib.parse import urlencode
@@ -229,9 +230,27 @@ def story_windows(routes: dict | None) -> list[tuple[str, str]]:
     return out
 
 
+def midnight_range(f: str, t: str) -> Range | None:
+    """The `Range` whose `window()` is exactly `f`..`t`, when both are UTC midnights (half-open), else None."""
+    try:
+        a = datetime.strptime(f, "%Y-%m-%dT%H:%M:%SZ")
+        b = datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None
+    if a.time() != time_.min or b.time() != time_.min or b <= a:
+        return None
+    return Range("story", a.date(), b.date() - timedelta(days=1))
+
+
 def story_requests(routes: dict | None) -> list[Req]:
     """The pre-built route list's requests, as they are (`chain-prebuilt-routes-1`)."""
     return [Req(f"story.{r['id']}", r["path"], r["query"]) for r in (routes or {}).get("requests", [])]
+
+
+def report_path(work: Path | None, verify: bool) -> Path:
+    """L3: `--verify` has its own default file, so serve's background warm never overwrites the gate's report."""
+    name = "warm-verify.json" if verify else "warm-report.json"
+    return (work / name) if work else Path(name)
 
 
 def data_window(sites: dict[str, tuple[date, date]]) -> tuple[date, date]:
@@ -262,6 +281,9 @@ def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None =
     reqs += day_requests(sites) + story_requests(routes)
     for f, t in story_windows(routes):
         reqs += findings_lens_requests(f, t, f"story:{f}..{t}")
+        story = midnight_range(f, t)  # M1 / D-SR.9: the story ranges get every page x Site request too
+        if story is not None:
+            reqs += range_requests(story, sites)
     return rs, _dedupe(reqs)
 
 
@@ -470,7 +492,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--verify", action="store_true")
     p.add_argument("--dry-run", action="store_true", help="count ranges and requests; send nothing")
     p.add_argument("--list", action="store_true", help="with --dry-run, print every request")
-    p.add_argument("--report", type=Path, help="default <work>/warm-report.json, else ./warm-report.json")
+    p.add_argument("--report", type=Path, help="default <work>/warm-report.json (--verify: warm-verify.json), else ./")
     a = p.parse_args(argv)
 
     sites: dict[str, tuple[date, date]] = sites_from_work(a.work) if a.work else {}
@@ -509,7 +531,7 @@ def main(argv: list[str] | None = None) -> int:
     report.update({"workaround": "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)", "today": str(today),
                    "data_window": [str(first), str(last)], "ranges": len(rs), "workers": workers,
                    "base_url": a.base_url})
-    out = a.report or ((a.work / "warm-report.json") if a.work else Path("warm-report.json"))
+    out = a.report or report_path(a.work, a.verify)
     out.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"{report['mode']}: {'PASS' if report['pass'] else 'FAIL'} - {report['requests']} requests, "
           f"{report['hit_percent']}% hits, max {report['max_ms']} ms, {len(report['degraded'])} degraded, "

@@ -21,7 +21,7 @@
   - Findings page 1: `/api/estate/findings?from&to[&lens=..]`.
   - Cold and EV boards, and their Site Findings warnings panel: `/api/sites/{code}/outcome-board?from&to`.
   - Kobo and Kisiwa Site Findings panel: `?date=miniBoardDay(to)`.
-  - Kobo and Kisiwa Site Overview board: reads the served day, so each mini-grid day is warmed.
+  - Kobo and Kisiwa Site Overview board: `?date=D` is warmed for each mini-grid day. On a day with an intersecting Finding the page adds `finding_id` and `finding_revision_id` (a different board key), so those pinned requests are not warmed (see the outside list).
 - **DS-1f `links`:** `demo_combined.py links` (`story_links`). Its API requests are `<work>/prebuilt-routes.json` (`prebuilt_routes`), which is part 3 of the set.
 
 ## What landed
@@ -31,7 +31,8 @@
     1. the 5 presets, plus their Findings lens pages (D-WARM.5);
     2. every 7/14/30/31-day window, newest first;
     3. mini-grid days;
-    4. the story list, plus the story ranges' Findings lens pages.
+    4. the story list, plus the story ranges' Findings lens pages;
+    5. (review M1) every story window on UTC midnights, incl. the S day, the month and windows before the data window, gets the full `range_requests` set (Findings page 1, Cold and EV boards). `--verify` replays the same plan.
   - `unstored_plan()` (D-WARM.2) lists the unstored reads for the presets and the story ranges:
     - estate `scope`, `actions`, `evidence`, `financials`;
     - Kobo and Kisiwa: `overview?date=` and `findings?from&to`;
@@ -104,7 +105,7 @@
    python tools/warm_ranges.py --base-url http://127.0.0.1:<p> --work var/polish_client4 --db-url <url>
    ```
    Record the warm `wall_seconds`.
-3. Run `... --verify`.
+3. Run `... --verify` (writes `<work>/warm-verify.json`, not serve's `warm-report.json`; run it under `serve --no-warm` after a manual warm, so no background warm competes).
    - **Gate:** `pass: true`, `hit_percent` 100, `max_ms` ≤ 2000, `degraded` [].
    - Copy `unstored.max_ms` and `unstored.over_2s` into the packet. Any of those over 2 s goes to the presenter notes and to the Architect as a finding. It is not a blocker (D-WARM.2).
 4. A miss: compare `reasons` and `url` with the page's network request.
@@ -123,9 +124,18 @@
 - chain "Why?" routes outside `prebuilt-routes.json`;
 - `7dwork`;
 - a Portfolio visit after the MB-1 or UP-1 field beats;
-- the unstored reads (measured, not gated).
+- the unstored reads (measured, not gated);
+- the Site Overview board with a Finding pin (`finding_id`/`finding_revision_id`) on mini-grid Finding days (ANY-1 gates it cold);
+- a Cold or EV Site page opened with no range (parameterless board request).
 
 ## Residual risks
 
 - **The mini-grid Site Findings read path is an inference.** It is `/api/sites/{code}/findings?from&to`, from D-WARM.2's wording. `siteAnalyticsClient.getSiteFindings` sends no query. A mismatch only affects an ungated timing.
 - **Estimates are from AR-4 single-request figures.** The 4-worker contention on one Postgres has not been measured.
+
+## Review fix round (VPS, review-vps.md)
+
+- M1 fixed (`midnight_range`, `plan`); no-DB test `test_story_windows_get_every_page_site_request` fails on the old `warm_ranges.py` (checked by stashing it: 2 new tests failed, 18 passed), passes now.
+- L1 wording corrected above. L3: `report_path`, test `test_verify_report_has_its_own_default_file`.
+- L4: the warm child starts with `start_new_session=True` on POSIX. The API Popen on main has the same group pattern (a kill of the API's group would reach serve); left alone, noted for the coordinator.
+- **L2, Architect question (not fixed):** the Findings "Workflow state" chips (`state=` values) and the Portfolio `scope-ids` disclosure are stored routes one click away. Add them to "outside the claim", or warm them?

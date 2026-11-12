@@ -268,3 +268,26 @@ def test_prebuild_http_mode_reads_status_and_header(monkeypatch):
     assert prebuild.http_client() is None
     monkeypatch.setenv(prebuild.BASE_URL_ENV, "http://127.0.0.1:8990")
     assert prebuild.http_client().base_url == "http://127.0.0.1:8990"
+
+
+def test_story_windows_get_every_page_site_request():
+    # M1 / D-SR.9: a story window on UTC midnights (also one starting before the data window) gets Findings page 1
+    # and every Cold and EV board, like any other range.
+    routes = {"requests": [
+        {"id": "s", "path": "/api/estate/portfolio", "query": "from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&lens=all"},
+        {"id": "m", "path": "/api/estate/portfolio", "query": "from=2026-10-03T00%3A00%3A00Z&to=2026-11-03T00%3A00%3A00Z&lens=all"}]}
+    rs, reqs = wr.plan(D("2026-11-17"), SITES, routes)
+    targets = {q.target for q in reqs}
+    for f, t in (("2026-10-31", "2026-11-01"), ("2026-10-03", "2026-11-03")):
+        w = f"from={f}T00%3A00%3A00Z&to={t}T00%3A00%3A00Z"
+        assert any(x.startswith("/api/estate/findings?") and w in x and "lens=" not in x for x in targets), (f, t)
+        for site in ("COLD-LAB-001", "EV-LAB-001"):
+            assert any(x.startswith(f"/api/sites/{site}/outcome-board?") and w in x for x in targets), (site, f, t)
+    assert wr.midnight_range("2026-10-31T12:00:00Z", "2026-11-01T00:00:00Z") is None
+
+
+def test_verify_report_has_its_own_default_file(tmp_path):
+    # L3
+    assert wr.report_path(tmp_path, True).name == "warm-verify.json"
+    assert wr.report_path(tmp_path, False).name == "warm-report.json"
+    assert wr.report_path(None, True) == Path("warm-verify.json")
