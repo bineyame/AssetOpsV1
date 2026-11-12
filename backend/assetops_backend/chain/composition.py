@@ -78,7 +78,7 @@ def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
     AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one);
     ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store.
-    AR-4: `evidence.claim` and `money.lines` over the read-only estate reader (built on first use; none without
+    AR-4: `evidence.claim` over the read-only estate reader (built on first use; none without
     inputs)."""
     if inputs is None:
         return {}

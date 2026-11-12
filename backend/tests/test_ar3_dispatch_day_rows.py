@@ -379,5 +379,5 @@ def test_composition_wires_the_builder_only_with_an_assessment_store() -> None:
     inputs = SimpleNamespace(dispatch=SimpleNamespace(store=SimpleNamespace(dispatch_day_now=lambda t, s, d: None)))
     built = period_kind_builders(inputs)
     # AR-4's estate kinds (built lazily, no store needed) sit beside it
-    assert sorted(built) == sorted([ddr.KIND, "evidence.claim", "money.lines"])
+    assert sorted(built) == sorted([ddr.KIND, "evidence.claim"])
     assert built[ddr.KIND].builder_version == ddr.BUILDER_VERSION

@@ -1,4 +1,6 @@
-# AR-4 packet: Portfolio evidence and money on stored rows - `evidence.claim` DONE and proven; dispatch.day switch and `money.lines` write side built (no-DB); money read side, Postgres and parity NOT DONE; `evidence.provenance` backlog
+# AR-4 packet: Portfolio evidence on stored rows - `evidence.claim` DONE and proven; dispatch.day switch built; `money.lines` and MN-1 MOVED to `task/ANY-2-AR4b`; `evidence.provenance` backlog
+
+**2026-11-12 review M1 closure (D-ANY.8 item 5):** commit `e265813b0` (MN-1 `mini.productive_energy@2` receipts, MN-2 `money.lines` kind/builder/register line/`_assumption_read`, MN-3 no-total guard, pin-test and `test_ch1a_snapshot_postgres.py` MN-1 edits) is reverted on this branch by a revert commit. All of that work stays on `task/ANY-2-AR4b`. Statements below about `money.lines`, MN-1/2/3, its tests and its resume items 1, 2, 4b describe AR4b, not this branch. Claim parity 61/0/0 stays valid: `money.lines` was never served and MN-1 changed no amount. With `ASSETOPS_PERIOD_READ_KINDS` unset the builders are the pre-e265813b0 set (`dispatch.day`, `evidence.claim`, four `mini_depth.*`).
 
 Branch `task/ANY-2-AR4` (worktree `AssetOpsV1-ar4`). main `30a50b2cd` (ANY-1 + AR-2) merged at `6cbdfd5af`. Spec: architect
 answer 2026-11-10 §4 AR-4; sequence rev 4; D-ANY.1-7, D-MONEY.1-5. USER_REVIEW_REQUIRED: no (review ACCEPT gates
