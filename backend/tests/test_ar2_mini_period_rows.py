@@ -323,7 +323,9 @@ def test_kind_builder_fragment_and_versions() -> None:
 
     builders = period_kind_builders(type("I", (), {"mini": Mini()})())
     assert sorted(builders) == sorted(pr.KINDS) and period_kind_builders(None) == {}
-    assert period_kind_versions() == {k: pr.BUILDER_VERSION for k in pr.KINDS}
+    from assetops_backend.chain import dispatch_day_rows  # AR-3's kind joins the reader's version map
+    assert period_kind_versions() == {**{k: pr.BUILDER_VERSION for k in pr.KINDS},
+                                      dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION}
     site = SiteRef(T, S, CODE, "MINIGRID", TZ)
     ctx = DayCtx(T, S, CODE, "MINIGRID", TZ, D0, None, None, None)
     (frag,) = builders["mini_depth.fuel"].fragments(ctx, site)
