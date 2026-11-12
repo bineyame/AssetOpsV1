@@ -157,6 +157,7 @@ class Derived:
     reason_required: bool
     expected_prior_revision_id: UUID | None
     current: tuple[Current, ...]
+    replay: bool = False
 
 
 def series_state(snapshot: dict[str, Any]) -> tuple[list[Current], dict[str, Any] | None]:
@@ -179,6 +180,13 @@ def derive(entry: Entry, zone: ZoneInfo, now: datetime, snapshot: dict[str, Any]
         raise EntryRefused("CURRENCY_DIFFERS", MESSAGES["CURRENCY_DIFFERS"].format(
             noun=PRICE_NOUN[entry.key], currency=head["currency"]))
     valid_from = local_midnight_utc(entry.applies_from, zone)
+    if head is not None and head.get("idempotency_key") == entry.idempotency_key:
+        # A retry of the save that made the head (e.g. after a lost response): derive what that save derived, so
+        # an identical body replays (200) and a changed one is the store's IDEMPOTENCY_KEY_REUSED.
+        kind = head["change_kind"]
+        if kind == "CORRECTION" and require_reason and entry.reason is None:
+            raise EntryRefused("REASON_REQUIRED")
+        return Derived(valid_from, kind, kind == "CORRECTION", head["prior_revision_id"], tuple(current), True)
     overlaps = [c for c in current if c.valid_to is None or valid_from < c.valid_to]
     if not overlaps:
         kind = "INITIAL"

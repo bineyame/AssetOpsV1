@@ -144,7 +144,8 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
             raise store_down(str(error)) from error
         try:
             derived = pe.derive(entry, zone, now, snapshot, require_reason=not entry.dry_run)
-            pe.plan(derived, now)
+            if not derived.replay:
+                pe.plan(derived, now)
         except pe.EntryRefused as refused:
             raise HTTPException(status_code=422, detail=refused.detail()) from None
         except PublicationRefused as refused:

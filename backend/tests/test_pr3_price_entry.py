@@ -268,6 +268,18 @@ class TestDerivation:
         post(client(empty), body())
         assert empty.published[0][2].expected_prior_revision_id is None
 
+    def test_a_retry_of_the_head_save_rederives_that_save(self):
+        # The INITIAL just saved under KEY is now the open current price: a naive re-derivation would read
+        # CORRECTION against a new head. The retry derives the head's own kind and prior, so the store replays it.
+        snap = series((datetime(2026, 11, 9, 21, tzinfo=timezone.utc), None))
+        (head,) = snap["cited"].values()
+        head.update(idempotency_key=KEY, change_kind="INITIAL", prior_revision_id=None)
+        store = Store(snap, replayed=True)
+        r = post(client(store), body(applies_from="2026-11-10"))
+        assert (r.status_code, r.json()["change_kind"], r.json()["replayed"]) == (200, "INITIAL", True)
+        p = store.published[0][2]
+        assert (p.change_kind, p.expected_prior_revision_id) == ("INITIAL", None)
+
     def test_any_active_currency_without_a_series(self):
         assert post(client(), body(currency="KES")).status_code == 201
 
