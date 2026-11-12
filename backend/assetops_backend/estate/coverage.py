@@ -71,8 +71,32 @@ def dispatch_days(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, 
         explicit = bool(snapshot.basis_historical) or bool(getattr(snapshot, "continuation", False))
         days = dispatch_rows_provider(t, s, from_, to, k, explicit)
         if days is not None:
-            return days
+            return _fill_absent_runs(snapshot, t, s, k, days)
     return snapshot.dispatch_days(t, s, from_, to, k)
+
+
+_ABSENT_MARK = "_absent_row"  # `chain.dispatch_day_rows.ABSENT_MARK` (estate does not import chain)
+
+
+def _fill_absent_runs(snapshot: Any, t: Any, s: Any, k: datetime, days: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """D-ANY.10: a day with no stored row at k is today's compose of that day at the same k, one compose per
+    contiguous run of absent days over that run's window; stored days are never composed. Compose returning no such
+    day leaves the provider's `absent_day`."""
+    out: list[dict[str, Any]] = []
+    i = 0
+    while i < len(days):
+        if not days[i].get(_ABSENT_MARK):
+            out.append(days[i])
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(days) and days[j + 1].get(_ABSENT_MARK) and days[j + 1]["day"] == days[j]["day"] + timedelta(days=1):
+            j += 1
+        run = days[i:j + 1]
+        composed = {d["day"]: d for d in snapshot.dispatch_days(t, s, run[0]["window_start"], run[-1]["window_end"], k)}
+        out.extend(composed.get(d["day"]) or {x: v for x, v in d.items() if x != _ABSENT_MARK} for d in run)
+        i = j + 1
+    return out
 
 
 def local_day_grades_kw(site: Mapping[str, Any], req: Any, scope: Mapping[str, Any], tenant_id: Any) -> dict[str, Any]:
