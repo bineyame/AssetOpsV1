@@ -71,3 +71,34 @@ def test_finish_calls_the_row_build_after_drain_2() -> None:
     body = src[src.index("    def finish(self"):src.index("    #: ANY-1 AR-2 (D-ANY.6)")]
     assert body.index('self.drain("drain-2")') < body.index("self.build_period_rows(story, steps)") \
         < body.index("self-check")
+
+
+def _serve_demo(tmp_path: Path, ok):
+    demo = dc.Demo.__new__(dc.Demo)
+    demo.work = tmp_path
+    demo.env = lambda keys=False: {}
+    if ok is not None:
+        (tmp_path / "period-rows.json").write_text(json.dumps({"ok": ok}))
+    return demo
+
+
+def test_serve_env_sets_the_six_kinds_only_when_the_rows_are_ok(tmp_path, monkeypatch) -> None:
+    monkeypatch.delenv("ASSETOPS_PERIOD_READ_KINDS", raising=False)
+    got = _serve_demo(tmp_path, True).serve_env()["ASSETOPS_PERIOD_READ_KINDS"]
+    assert got.split(",") == ["dispatch.day", "evidence.claim", "mini_depth.renewable", "mini_depth.fuel",
+                              "mini_depth.service", "mini_depth.backup"]
+    assert "fuel_day" not in got and "backup_day" not in got  # D-SR.52: day kinds are not gated by this list
+
+
+def test_serve_env_leaves_the_kinds_off_when_failed_or_no_file(tmp_path, monkeypatch) -> None:
+    monkeypatch.delenv("ASSETOPS_PERIOD_READ_KINDS", raising=False)
+    assert _serve_demo(tmp_path, False).serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == ""
+    assert _serve_demo(tmp_path / "none", None).serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == ""
+
+
+def test_serve_env_operator_value_wins_including_empty(tmp_path, monkeypatch) -> None:
+    demo = _serve_demo(tmp_path, True)
+    monkeypatch.setenv("ASSETOPS_PERIOD_READ_KINDS", "dispatch.day")
+    assert demo.serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == "dispatch.day"
+    monkeypatch.setenv("ASSETOPS_PERIOD_READ_KINDS", "")
+    assert demo.serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == ""

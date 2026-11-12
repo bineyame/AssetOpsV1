@@ -735,6 +735,11 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
     return lines
 
 
+PERIOD_READ_KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
+PERIOD_READ_KINDS = ("dispatch.day", "evidence.claim", "mini_depth.renewable", "mini_depth.fuel",
+                     "mini_depth.service", "mini_depth.backup")
+
+
 class Demo:
     step = ""  # DD1b2-R8 C2: the label of the last child started (the manifest's `failed_at`)
     defer_drain = False  # DD1b2-R8 C1: inside `prepare` a drain failure is recorded and the prepare goes on
@@ -780,7 +785,22 @@ class Demo:
         routes = self.work / PREBUILT_ROUTES_FILE
         if routes.is_file():  # E4 D-E4.1: the tool's and the serve loop's prebuild read the story's own list
             out[PREBUILT_ROUTES_ENV] = str(routes)
+        # D-SR.63: the stored-row read kinds are on only when the prepare's row step reported ok; an operator's own
+        # value (including empty = off) wins; no file or not ok = off (the existing failure line already said why).
+        if PERIOD_READ_KINDS_ENV in os.environ:
+            out[PERIOD_READ_KINDS_ENV] = os.environ[PERIOD_READ_KINDS_ENV]
+        else:
+            out[PERIOD_READ_KINDS_ENV] = ",".join(self.period_read_kinds())
         return out
+
+    def period_read_kinds(self) -> tuple[str, ...]:
+        """D-SR.63: the six board kinds when `period-rows.json` reads `ok: true`, else none. The day kinds
+        (fuel_day/backup_day) read rows regardless (D-SR.52), so `day-rows.json` does not gate this list."""
+        try:
+            doc = json.loads((self.work / "period-rows.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return ()
+        return PERIOD_READ_KINDS if isinstance(doc, dict) and doc.get("ok") is True else ()
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
