@@ -87,6 +87,24 @@ SR-8 server: `task/SR-8-renewable-range` 2fc5ffdf6. Q1 (`window_days`) is covere
 | Q4 Grade precedence | **Corrected for LOW.** A PENDING, NO_DATA or NOT_EXPECTED grade wins, as built. **A LOW grade reads NOT_ENOUGH_READINGS and is never counted, even with a value**, as D-SR.45 J2 and SR-5a's `GAP_STATES` rule. A PARTIAL-grade ELIGIBLE day is COUNTED and carries `partial: true`, so the page shows the D-E5.45 PARTIAL label, as SR-7a does. COMPLETE reads the value. Add a test for a LOW day that has a value. |
 | Q5 Codes and `known_at` | **Confirmed.** `RENEWABLE_RANGE_NOT_APPLICABLE` (404) and `SITE_RENEWABLE_RANGE_UNAVAILABLE` (503) match SR-6/SR-7. The optional `known_at` is required in practice: the shared range carries it (D-SR.2), and the StoredRoute key is `{site, from, to, known_at}`, as SR-6/7. Spec 10.4 is amended to `?from&to[&known_at]`. |
 
+### 10d.8 SR-8 Q6: which headroom figure the range shows (D-SR.48)
+
+- **Facts** (SR-8 packet, 909affc1d):
+  - The one-day depth card `observed_headroom_range` is min low and **max** high over the ELIGIBLE hours: the envelope across hours.
+  - The stored `daylight_headroom_kw` day value is min low and **min** high: the headroom available in *every* eligible hour.
+  - The lows match. The stored high can be lower.
+- **Ruling.**
+  - **The range page shows the stored day figure.** D-SR.15 allows stored rows only. The chain measure feeds day grades and the Portfolio, so it is not changed (10b ruled out chain-measure changes).
+  - Range page wording, per day and in the totals: **"Headroom available in every eligible hour: low–high kW"**. The totals read "average headroom available in every eligible hour".
+  - **The one-day page adds the same figure, so the drill-in matches.** The backend depth envelope gains `all_hours_headroom_kw: {low, high}`: min low and min high over the same ELIGIBLE hours. It is null when the card is null.
+  - The page shows one line under the existing card, with the same wording as the range row.
+  - The existing card keeps its envelope, renamed in words only to "Range across eligible hours". The card is not trimmed. This is an addition inside the v69 `renewable` card, recorded under MOCK DEVIATION R726: the mock element is kept, and a second figure is needed so that the range and the day agree.
+- **Tests and parity.**
+  - Postgres: for each sampled day, stored low = `all_hours_headroom_kw.low` = card low; stored high = `all_hours_headroom_kw.high` (exact equality); card high ≥ stored high.
+  - The parity JSON compares the stored day value to `all_hours_headroom_kw`, and the gate is 0 mismatches.
+  - Vitest pins the one-day line and the range wording.
+- **Size:** about 0.1 (backend field 0.04, page line 0.03, tests 0.03). SR-8 goes to about 0.6, and the package to about 18.3.
+
 ### 10d.6 Sizes and order
 
 - SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.

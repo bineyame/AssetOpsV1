@@ -5007,3 +5007,12 @@ Decisions logged for owner review: **D-SR.40-46, D-WARM.8**.
 - Q5: the codes and the optional `known_at` (in the stored key) are confirmed.
 
 Decisions logged for owner review: **D-SR.47**.
+
+## D-SR.48 SR-8 Q6: the range shows the stored "every eligible hour" headroom; the day page adds the same figure (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.8.
+- Range page: the stored `daylight_headroom_kw` (min low, min high), worded "Headroom available in every eligible hour". The chain measure is unchanged.
+- One-day page: the envelope adds `all_hours_headroom_kw` (min low, min high over ELIGIBLE hours), shown as one line with the same words. The existing card keeps its envelope, worded "Range across eligible hours" (inside R726).
+- Parity: the stored day value equals `all_hours_headroom_kw` exactly, and the card high is at least the stored high. About +0.1 units.
+
+Decisions logged for owner review: **D-SR.48**.
