@@ -33,6 +33,23 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   7/14/31 days ending on the last complete UTC day with readings, D-SR.29; mismatch log count in the JSON),
   rows on/off on real data, stored <= 2.0 s.
 
+## Update after rev 10b/10c (main 9afb0bcee merged)
+- `test_sr5_range_overview_postgres.py` on `assetops_sr5_test`: **5 passed** (75 s); without the DB 5 skipped. Existing
+  worlds only: S4 F01 (+ the stale step -> STILL_PROCESSING for an open job and for an unmatched day; + chain
+  backfill step (a) with the real `EstateClaims.day_grades` -> NO_READINGS both days), and all S4 cases + the clean
+  day (21 days: FINDINGS, CLEAR, NOT_ANALYSED; totals; Portfolio coverage/card/partial/status equality; gaps ==
+  coverage; coverage-wins log pinned on F08's 10-19 READINGS_CONFLICT; drill-in vs `/overview?date=D`).
+- Not reached on any existing Postgres world (question, not designed around): NOT_EXPECTED (S4 worlds hold no
+  readings, so grades are NO_DATA, never before-first-reading); READINGS_CONFLICT with day grades on (needs a
+  graded day with readings plus an ambiguous cohort; MD-0 `--variant states` template may have it, but it needs a
+  ~15 min template build and cloned DBs outside `assetops_sr5_test`); SUMMED / OVERLAPPING day money (no priced
+  mini-grid line in the S4 worlds; `overlap_group` fixtures exist for EV only).
+- Spec conflict found (Architect): drill-in check fails on 10-21. F05's Finding there is NO_LONGER_SUPPORTED; the
+  range day counts MEMBERS (SUPPORTED/UNCONFIRMED, §9.4), so CLEAR, while the one-day board's `known_finding`
+  selects the latest revision of every canonical Finding, so it shows one. Test pins the disagreement set
+  == {10-21} and its lifecycle; which side changes is for the Architect.
+- No-DB: sr5 + cov_partial(_portfolio) + ch5a1_board_contract: 77 passed.
+
 ## Resume points, in order
 1. DONE. Fix `_status` in `site_range.py`: pass the evidence tuple's own domain (`e_sites[0][1]`) to `evidence_unit`,
    as `_portfolio` does (`portfolio.py:804-807`).
@@ -54,7 +71,7 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
 4. DONE. Contract golden `backend/tests/fixtures/sr5_range_overview/kobo_partial.json` from that world (regen env var,
    like `test_ch5a1_board_contract.py`).
 5. PENDING (WARM-1 not on main yet, no `tools/warm_ranges.py`). WARM-1: add `range-overview` to `tools/warm_ranges.py` if WARM-1 merged first.
-6. PENDING, DB not ready on the VPS. New file `backend/tests/test_sr5_range_overview_postgres.py` (spec fixture:
+6. DONE except the states above (see "Update after rev 10b/10c"). New file `backend/tests/test_sr5_range_overview_postgres.py` (spec fixture:
    7 days FINDINGS/CLEAR/NO_READINGS/READINGS_CONFLICT/STILL_PROCESSING/NOT_EXPECTED, overlap day OVERLAPPING,
    Portfolio equality on a one-Site estate, drill-in vs `/overview?date=D`, rows on/off incl. one absent-k row,
    D-SR.16). Run: `cd backend && ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_sr5_test
