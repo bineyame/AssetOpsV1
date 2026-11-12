@@ -1,8 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { safeReturn } from "../sites/PriceAction";
+import { createPriceEntryClient, type PriceEntryClient } from "../sites/priceEntryClient";
 import { createPricePageClient, type PricePageClient, type PricePageResult, type PriceRowBody } from "../sites/pricePageClient";
+import { PriceEntrySlot } from "../sites/SitePriceEntry";
 import { SitePricesBody } from "../sites/SitePrices";
 import { Breadcrumbs, PageHeader, Panel } from "../ui";
 import { coldTabSearch } from "./coldSiteRoutes";
@@ -26,6 +28,7 @@ export const PRICES_LOADING = "Loading the site's prices.";
 const RETURN_WORDS = "← Back to where you were";
 const RANGE_KEPT = "Your date range is kept.";
 const DEFAULT_CLIENT = createPricePageClient();
+const DEFAULT_ENTRY_CLIENT = createPriceEntryClient();
 
 /** The shared range (`from`, `to`, `known_at`) the page was opened with, carried on its Financials links. */
 function rangeSearch(params: URLSearchParams): string {
@@ -66,19 +69,37 @@ function PricesSubtabs({ site, search }: { site: { site_id: string; site_type: s
   );
 }
 
-function usePricePage(client: PricePageClient, siteId: string, need: string | null, knownAt: string | null) {
+/**
+ * The page read. `version` re-reads after a PR-3 save; the previous body stays on screen until the new one arrives,
+ * so the open row's success note is not replaced by the loading line.
+ */
+function usePricePage(client: PricePageClient, siteId: string, need: string | null, knownAt: string | null, version: number) {
   const key = `${siteId}|${need ?? ""}|${knownAt ?? ""}`;
   const [state, setState] = useState<{ key: string; result: PricePageResult } | null>(null);
   useEffect(() => {
     let live = true;
     void client.getPrices(siteId, { need, knownAt }).then((result) => {
-      if (live) setState({ key, result });
+      if (!live) return;
+      // A failed re-read after a save keeps the body (and the success note) already on screen.
+      setState((was) =>
+        result.status !== "loaded" && was !== null && was.key === key && was.result.status === "loaded"
+          ? was
+          : { key, result },
+      );
     });
     return () => {
       live = false;
     };
-  }, [client, siteId, need, knownAt, key]);
+  }, [client, siteId, need, knownAt, key, version]);
   return state === null || state.key !== key ? null : state.result;
+}
+
+/** The same address without `known_at`: the live view, where a price can be set. */
+function liveViewHref(pathname: string, params: URLSearchParams): string {
+  const keep = new URLSearchParams(params);
+  keep.delete("known_at");
+  const text = keep.toString();
+  return `${pathname}${text ? `?${text}` : ""}`;
 }
 
 const REFUSED: Record<Exclude<PricePageResult["status"], "loaded">, string> = {
@@ -116,23 +137,28 @@ function PricesRead({
 /**
  * PR-2a (BL-68): the read-only Site price page, `/sites/:siteId/financials/prices?key=|need=&from=&to=&known_at=&return=`
  * (default 1). Every unpriced item's `price_action` link lands here (PR-1). It lists every price the Site's figures
- * use, set or not, with History; a `need` opens Part C. Read-only: no form and no Save. PR-3 hosts its inline form
- * through `renderBelow` (see `SitePricesBody`).
+ * use, set or not, with History; a `need` opens Part C. PR-3 (D-PRICE.1): when the body's `entry.enabled` is true
+ * (entry service on, live view), each entry-key row hosts the inline price form through `renderBelow`; otherwise the
+ * page stays read-only and, under `known_at`, says where a price can be set.
  */
 export function SitePricesFrame({
   detail,
   client = DEFAULT_CLIENT,
+  entryClient = DEFAULT_ENTRY_CLIENT,
   renderBelow,
 }: {
   detail: SiteDetailClient;
   client?: PricePageClient;
+  entryClient?: PriceEntryClient;
   renderBelow?: (row: PriceRowBody) => ReactNode;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Prices" headingId={SITE_PRICES_HEADING_ID}>
-      {(site) => <PricesMain site={site} client={client} params={params} renderBelow={renderBelow} />}
+      {(site) => (
+        <PricesMain site={site} client={client} entryClient={entryClient} params={params} renderBelow={renderBelow} />
+      )}
     </SiteScoped>
   );
 }
@@ -140,17 +166,47 @@ export function SitePricesFrame({
 function PricesMain({
   site,
   client,
+  entryClient,
   params,
   renderBelow,
 }: {
   site: { site_id: string; site_type: string; display_name: string };
   client: PricePageClient;
+  entryClient: PriceEntryClient;
   params: URLSearchParams;
   renderBelow?: (row: PriceRowBody) => ReactNode;
 }) {
   const back = safeReturn(params.get("return"));
   const search = rangeSearch(params);
-  const result = usePricePage(client, site.site_id, params.get("need"), params.get("known_at"));
+  const { pathname } = useLocation();
+  const [version, setVersion] = useState(0);
+  const [saved, setSaved] = useState<Record<string, string>>({});
+  const result = usePricePage(client, site.site_id, params.get("need"), params.get("known_at"), version);
+  const entry = result?.status === "loaded" ? result.value.entry : undefined;
+  const focusKey = params.get("key");
+  // PR-3: rows of entry keys take the inline form (stored keys only, live view, entry service on).
+  const below =
+    entry !== undefined && entry.enabled
+      ? (row: PriceRowBody) =>
+          entry.keys.includes(row.key) && row.stored ? (
+            <PriceEntrySlot
+              siteId={site.site_id}
+              row={row}
+              entry={entry}
+              client={entryClient}
+              openOnArrival={row.key === focusKey}
+              savedSummary={saved[row.key] ?? null}
+              onSaved={(key, summary) => {
+                setSaved((was) => ({ ...was, [key]: summary }));
+                setVersion((v) => v + 1);
+              }}
+              back={back}
+              backWords={RETURN_WORDS}
+            />
+          ) : (
+            renderBelow?.(row)
+          )
+      : renderBelow;
   return (
     <main aria-labelledby={SITE_PRICES_HEADING_ID} data-site-prices>
       <Breadcrumbs
@@ -181,7 +237,15 @@ function PricesMain({
           <span>{RANGE_KEPT}</span>
         </div>
       ) : null}
-      <PricesRead result={result} params={params} renderBelow={renderBelow} />
+      {entry?.live_view ? (
+        <p className="site-prices__live" data-prices-live-view>
+          {entry.live_view.text}{" "}
+          <Link to={liveViewHref(pathname, params)} data-prices-live-link>
+            {entry.live_view.link_label}
+          </Link>
+        </p>
+      ) : null}
+      <PricesRead result={result} params={params} renderBelow={below} />
     </main>
   );
 }
