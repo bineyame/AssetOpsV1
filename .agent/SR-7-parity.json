@@ -1,0 +1,345 @@
+{
+ "branch": "task/SR-7-service-claim-range",
+ "db": "assetops_polish_vps1_test",
+ "window_end_day": "2026-11-10",
+ "routes": {
+  "service-range": [
+   {
+    "case": "KOBO-001/7",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.3,
+    "cold_compose_seconds_rows_off": 0.3,
+    "stored": {
+     "s": 200,
+     "first": 0.57,
+     "hits": [
+      0.09,
+      0.08
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/7",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.0,
+    "cold_compose_seconds_rows_off": 0.0,
+    "stored": {
+     "s": 200,
+     "first": 0.18,
+     "hits": [
+      0.07,
+      0.08
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KOBO-001/14",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.0,
+    "cold_compose_seconds_rows_off": 0.0,
+    "stored": {
+     "s": 200,
+     "first": 0.15,
+     "hits": [
+      0.08,
+      0.08
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/14",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.0,
+    "cold_compose_seconds_rows_off": 0.0,
+    "stored": {
+     "s": 200,
+     "first": 0.15,
+     "hits": [
+      0.07,
+      0.07
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KOBO-001/31",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.0,
+    "cold_compose_seconds_rows_off": 0.0,
+    "stored": {
+     "s": 200,
+     "first": 0.16,
+     "hits": [
+      0.07,
+      0.08
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/31",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 0.0,
+    "cold_compose_seconds_rows_off": 0.0,
+    "stored": {
+     "s": 200,
+     "first": 0.18,
+     "hits": [
+      0.08,
+      0.07
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   }
+  ],
+  "claim-limit-range": [
+   {
+    "case": "KOBO-001/7",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 1.1,
+    "cold_compose_seconds_rows_off": 4.1,
+    "stored": {
+     "s": 200,
+     "first": 1.29,
+     "hits": [
+      0.28,
+      0.25
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/7",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 1.1,
+    "cold_compose_seconds_rows_off": 4.8,
+    "stored": {
+     "s": 200,
+     "first": 1.13,
+     "hits": [
+      0.15,
+      0.16
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KOBO-001/14",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 1.3,
+    "cold_compose_seconds_rows_off": 6.9,
+    "stored": {
+     "s": 200,
+     "first": 1.31,
+     "hits": [
+      0.29,
+      0.26
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/14",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 1.2,
+    "cold_compose_seconds_rows_off": 6.9,
+    "stored": {
+     "s": 200,
+     "first": 1.32,
+     "hits": [
+      0.15,
+      0.15
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KOBO-001/31",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 2.5,
+    "cold_compose_seconds_rows_off": 16.3,
+    "stored": {
+     "s": 200,
+     "first": 2.59,
+     "hits": [
+      0.23,
+      0.24
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   },
+   {
+    "case": "KISIWA-001/31",
+    "status": 200,
+    "rows_on_equals_rows_off": true,
+    "cold_compose_seconds_rows_on_store_off": 1.4,
+    "cold_compose_seconds_rows_off": 7.0,
+    "stored": {
+     "s": 200,
+     "first": 1.41,
+     "hits": [
+      0.14,
+      0.17
+     ],
+     "equal": true
+    },
+    "stored_hit_le_2s": true
+   }
+  ]
+ },
+ "service_check_vs_one_hour_route": {
+  "method": "for every counted day of the 31-day window: sum of 24 hourly cards.critical_delivered_kw from /performance/mini/service over the Site-local day == stored served_kwh",
+  "by_site": {
+   "KOBO-001": {
+    "counted_days_checked": 27,
+    "hours_read": 648,
+    "mismatches": [],
+    "no_value_days": [],
+    "state_counts": {
+     "NO_READINGS": 4,
+     "SERVED_ALL": 27
+    },
+    "totals": {
+     "served_kwh": "2548",
+     "unserved_kwh": "0",
+     "demand_kwh": "2548",
+     "days_counted": 27,
+     "days_requested": 31
+    }
+   },
+   "KISIWA-001": {
+    "counted_days_checked": 10,
+    "hours_read": 240,
+    "mismatches": [],
+    "no_value_days": [],
+    "state_counts": {
+     "NO_READINGS": 21,
+     "SERVED_ALL": 10
+    },
+    "totals": {
+     "served_kwh": "900",
+     "unserved_kwh": "0",
+     "demand_kwh": "900",
+     "days_counted": 10,
+     "days_requested": 31
+    }
+   }
+  },
+  "days_with_readings_but_no_critical_served_row": {
+   "KOBO-001": [],
+   "KISIWA-001": []
+  }
+ },
+ "claim_limit_check_vs_one_day_route": {
+  "by_site": {
+   "KOBO-001": {
+    "links_opened_200": 29,
+    "mismatches": [],
+    "claim_limit_keys": [
+     "ceiling",
+     "current_positive_claim",
+     "historical_ceiling",
+     "interval_ceilings",
+     "model_version",
+     "reasons",
+     "rule_id",
+     "statement",
+     "support",
+     "supported_minutes"
+    ],
+    "state_counts": {
+     "FULL": 27,
+     "NO_SELECTION": 2,
+     "UNKNOWN": 2
+    },
+    "summary": {
+     "days_with_positive_claim": 27,
+     "days_indeterminate": 2,
+     "days_without_selection": 2,
+     "days_requested": 31
+    }
+   },
+   "KISIWA-001": {
+    "links_opened_200": 10,
+    "mismatches": [],
+    "claim_limit_keys": [
+     "ceiling",
+     "current_positive_claim",
+     "historical_ceiling",
+     "interval_ceilings",
+     "model_version",
+     "reasons",
+     "rule_id",
+     "statement",
+     "support",
+     "supported_minutes"
+    ],
+    "state_counts": {
+     "FULL": 10,
+     "NO_SELECTION": 21
+    },
+    "summary": {
+     "days_with_positive_claim": 0,
+     "days_indeterminate": 0,
+     "days_without_selection": 21,
+     "days_requested": 31
+    }
+   }
+  },
+  "ceiling_implication_check": {
+   "KOBO-001": {
+    "compared": 29,
+    "ceiling_mismatches": [],
+    "n_mismatch": 0
+   },
+   "KISIWA-001": {
+    "compared": 10,
+    "ceiling_mismatches": [],
+    "n_mismatch": 0
+   }
+  },
+  "note": "each row's link route opens 200 and its revision equals the row revision; a non-null day ceiling implies every one-day interval carries that ceiling (exact single-ceiling rule is the reduce_day equality pinned in the Postgres test; the one-day body has no per-interval statement)"
+ },
+ "gates": {
+  "service-range": {
+   "rows_on_equals_rows_off": true,
+   "stored_hit_max_seconds": 0.09,
+   "all_200": true,
+   "stored_equal": true
+  },
+  "claim-limit-range": {
+   "rows_on_equals_rows_off": true,
+   "stored_hit_max_seconds": 0.29,
+   "all_200": true,
+   "stored_equal": true
+  },
+  "service_hour_mismatches": 0,
+  "claim_limit_mismatches": 0
+ },
+ "note": "Service and claim-limit ranges read stored chain snapshots / evidence.claim rows. Stored first serve is a hit (store warm); cold = store-off compose. Kisiwa 31-day: 21 days before readings began read NO_READINGS / NO_SELECTION (not NOT_EXPECTED)."
+}
