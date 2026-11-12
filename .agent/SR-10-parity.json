@@ -1,0 +1,370 @@
+{
+  "S": "2026-11-10",
+  "domain": "fuel",
+  "pass": true,
+  "rows": [
+    {
+      "site": "KOBO-001",
+      "window_days": 7,
+      "status": 200,
+      "response_seconds_cold": 0.399,
+      "response_seconds_warm": 0.077,
+      "rows_on_off_equal": true,
+      "days": 7,
+      "missing_rows": [],
+      "no_data_days": [
+        {
+          "day": "2026-11-06",
+          "state": "ASSESSED",
+          "stored": true,
+          "heads": 24,
+          "ok": true
+        }
+      ],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    },
+    {
+      "site": "KOBO-001",
+      "window_days": 14,
+      "status": 200,
+      "response_seconds_cold": 0.171,
+      "response_seconds_warm": 0.113,
+      "rows_on_off_equal": true,
+      "days": 14,
+      "missing_rows": [],
+      "no_data_days": [
+        {
+          "day": "2026-10-31",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-11-06",
+          "state": "ASSESSED",
+          "stored": true,
+          "heads": 24,
+          "ok": true
+        }
+      ],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [
+        {
+          "day": "2026-11-03",
+          "hour": "2026-11-02T21:00:00.000000Z"
+        },
+        {
+          "day": "2026-11-03",
+          "hour": "2026-11-03T11:00:00.000000Z"
+        }
+      ],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    },
+    {
+      "site": "KOBO-001",
+      "window_days": 31,
+      "status": 200,
+      "response_seconds_cold": 0.402,
+      "response_seconds_warm": 0.278,
+      "rows_on_off_equal": true,
+      "days": 31,
+      "missing_rows": [],
+      "no_data_days": [
+        {
+          "day": "2026-10-11",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-12",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-31",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-11-06",
+          "state": "ASSESSED",
+          "stored": true,
+          "heads": 24,
+          "ok": true
+        }
+      ],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [
+        {
+          "day": "2026-10-13",
+          "hour": "2026-10-13T11:00:00.000000Z"
+        },
+        {
+          "day": "2026-10-20",
+          "hour": "2026-10-19T21:00:00.000000Z"
+        },
+        {
+          "day": "2026-10-20",
+          "hour": "2026-10-20T11:00:00.000000Z"
+        },
+        {
+          "day": "2026-10-27",
+          "hour": "2026-10-26T21:00:00.000000Z"
+        },
+        {
+          "day": "2026-10-27",
+          "hour": "2026-10-27T11:00:00.000000Z"
+        },
+        {
+          "day": "2026-11-03",
+          "hour": "2026-11-02T21:00:00.000000Z"
+        },
+        {
+          "day": "2026-11-03",
+          "hour": "2026-11-03T11:00:00.000000Z"
+        }
+      ],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    },
+    {
+      "site": "KISIWA-001",
+      "window_days": 7,
+      "status": 200,
+      "response_seconds_cold": 0.141,
+      "response_seconds_warm": 0.093,
+      "rows_on_off_equal": true,
+      "days": 7,
+      "missing_rows": [],
+      "no_data_days": [],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    },
+    {
+      "site": "KISIWA-001",
+      "window_days": 14,
+      "status": 200,
+      "response_seconds_cold": 0.131,
+      "response_seconds_warm": 0.116,
+      "rows_on_off_equal": true,
+      "days": 14,
+      "missing_rows": [],
+      "no_data_days": [
+        {
+          "day": "2026-10-28",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-29",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-30",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-31",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        }
+      ],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    },
+    {
+      "site": "KISIWA-001",
+      "window_days": 31,
+      "status": 200,
+      "response_seconds_cold": 0.157,
+      "response_seconds_warm": 0.12,
+      "rows_on_off_equal": true,
+      "days": 31,
+      "missing_rows": [],
+      "no_data_days": [
+        {
+          "day": "2026-10-11",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-12",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-13",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-14",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-15",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-16",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-17",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-18",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-19",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-20",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-21",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-22",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-23",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-24",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-25",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-26",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-27",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-28",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-29",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-30",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        },
+        {
+          "day": "2026-10-31",
+          "state": "NO_ASSESSMENT",
+          "stored": true,
+          "heads": 0,
+          "ok": true
+        }
+      ],
+      "head_gaps": [],
+      "hours_with_evidence_no_head": [],
+      "hours_mismatch_days": [],
+      "state_mismatch": [],
+      "pass": true
+    }
+  ]
+}
