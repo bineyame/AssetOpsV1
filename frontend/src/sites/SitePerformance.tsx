@@ -23,7 +23,8 @@ import {
 } from "./performanceDispatchClient";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { ChartNote, DataTable, Fact, FactList, Panel, StatusBar } from "../ui";
 import { AssessmentAnalysis } from "./assessmentAnalysis";

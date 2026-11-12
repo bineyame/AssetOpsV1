@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { safeReturn } from "../sites/PriceAction";
 import { createPriceEntryClient, type PriceEntryClient } from "../sites/priceEntryClient";

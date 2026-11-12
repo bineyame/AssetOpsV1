@@ -5,7 +5,8 @@
  * Every number is the selected read's; a missing value reads `Unknown`, never a mock literal.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
 import {

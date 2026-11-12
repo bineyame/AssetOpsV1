@@ -8,7 +8,8 @@
  * v69 `fuel`'s hour bar (index.html:623-630 shows Kobo's selected hour).
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, ChartNote, DataTable, MetricCard, MetricCards, Notice, Panel, ShowAll, StatusBar, ValueBars } from "../ui";
 import { sourceQualification } from "../ui/productWords";

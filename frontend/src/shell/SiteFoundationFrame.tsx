@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
 import { FOUNDATION_SUBTABS, FoundationSubtabs, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";

@@ -14,7 +14,8 @@
  * Demonstration-data notes sit apart from the accepted-record provenance.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
 import {

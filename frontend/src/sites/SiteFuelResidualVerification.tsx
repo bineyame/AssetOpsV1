@@ -17,7 +17,7 @@
  * are replaced by the server's sentence and the fixed H1 line.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, ChartNote, DataTable, KeyValues, MetricCard, MetricCards, MetricHeader, Panel, StatusBar, displayCode } from "../ui";
 import { useLinkFor, type Ref } from "./chainRef";

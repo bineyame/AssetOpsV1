@@ -42,6 +42,9 @@ import {
   type DayRange,
   type RangePreset,
   dayInRange,
+  focusDayOf,
+  isSiteContentPage,
+  weekEnding,
 } from "./sharedRange";
 import { useRangeFocus } from "../ui/rangeFocus";
 import "./sharedRangeBar.css";
@@ -86,8 +89,26 @@ const cutoffInstant = (value: string): string => `${value.length === 16 ? `${val
 export function SharedRangeOutlet() {
   const location = useLocation();
   const [params] = useSearchParams();
-  if (!fillsRangeOnEntry(location.pathname) || readSharedRange(params).status !== "absent") return <Outlet />;
-  const next = entryRange();
+  // SR-4a (D-SR.3): the range of the previous in-app address, kept on every render whose address carries a valid one.
+  const previous = useRef<URLSearchParams | null>(null);
+  const state = readSharedRange(params);
+  if (state.status === "set") previous.current = rangeParams(state);
+  if (state.status !== "absent") return <Outlet />;
+  let next: URLSearchParams;
+  if (fillsRangeOnEntry(location.pathname)) {
+    next = entryRange();
+  } else if (isSiteContentPage(location.pathname)) {
+    // SR-4a safety net: a Site content page reached by `navigate()` or a data-built link takes, in order, the previous
+    // in-app range, the 7 days ending on the address's day, or the entry range (the bar's presets, so WARM-1 still hits).
+    const day = focusDayOf(params);
+    next = previous.current
+      ? new URLSearchParams(previous.current)
+      : day !== null
+        ? rangeParams({ ...weekEnding(day), known_at: null })
+        : entryRange();
+  } else {
+    return <Outlet />;
+  }
   for (const [key, value] of params) next.append(key, value);
   return <Navigate replace to={`${location.pathname}?${next.toString()}${location.hash}`} state={location.state} />;
 }

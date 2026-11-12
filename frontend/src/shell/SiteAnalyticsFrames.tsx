@@ -3,7 +3,8 @@ import { displayCode } from "../ui/displayCode";
 import { useLegacyFocusDayRewrite } from "../ui/sharedRange";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { SiteFindings } from "../sites/FindingsIndexes";

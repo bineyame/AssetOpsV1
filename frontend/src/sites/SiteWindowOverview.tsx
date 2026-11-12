@@ -21,7 +21,8 @@ import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { WorkedOut } from "../ui/TechnicalDetails";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 import { withFocusDay } from "../ui/sharedRange";
 

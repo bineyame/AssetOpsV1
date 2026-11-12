@@ -11,7 +11,7 @@
  * in `SharedRangeBar.tsx`).
  */
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, type To } from "react-router-dom";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** The longest range any shared-range page accepts (estate and Work: 1-31 days). */
@@ -158,6 +158,46 @@ export function withRange(path: string, params: URLSearchParams): string {
   const own = new URLSearchParams(query);
   if (own.has("from") || own.has("to")) return path;
   return query === "" ? `${pathname}${search}` : `${pathname}?${query}&${search.slice(1)}`;
+}
+
+/** SR-4a (D-SR.2): the in-app paths whose links carry the shared range: the Sites index, every Site page and `/performance/...`. */
+export const SITE_PATH = /^\/(?:sites(?:\/.*)?|performance\/.+)$/;
+
+/**
+ * SR-4a (D-SR.2): a link target with the address's shared range added when it is a Site path (`SITE_PATH`). A target
+ * that names its own `from`/`to` keeps them; a relative or non-Site target, or an address without a valid range, is
+ * returned unchanged. Only `from`, `to` and `known_at` travel, never page-only parameters (`day`, `hour`, `event`,
+ * `cursor`). A `#hash` stays after the query.
+ */
+export function carryRange(to: To, params: URLSearchParams): To {
+  if (rangeSearch(params) === "") return to;
+  if (typeof to === "string") {
+    const hashAt = to.indexOf("#");
+    const head = hashAt < 0 ? to : to.slice(0, hashAt);
+    const hash = hashAt < 0 ? "" : to.slice(hashAt);
+    if (!SITE_PATH.test(head.split("?", 1)[0])) return to;
+    return `${withRange(head, params)}${hash}`;
+  }
+  const pathname = to.pathname;
+  if (pathname === undefined || !SITE_PATH.test(pathname)) return to;
+  const search = to.search ?? "";
+  const carried = withRange(`${pathname}${search.startsWith("?") || search === "" ? search : `?${search}`}`, params);
+  const at = carried.indexOf("?");
+  return { ...to, search: at < 0 ? "" : carried.slice(at) };
+}
+
+/**
+ * SR-4a (D-SR.3): the Site content pages the shell's safety net completes when their address has no range: the
+ * Site Overview, Performance, Findings, Evidence, Work, Financials, Health and every `/ev/...` page. Record pages, the
+ * Foundation, Prices and the Sites index are left as they are (their links still carry the range).
+ */
+const SITE_CONTENT_PAGES =
+  /^\/sites\/[^/]+(?:\/(?:performance(?:\/[^/]+)?|findings|evidence|work(?:\/(?:incidents|maintenance))?|financials(?:\/(?:assumptions|scenarios))?|health|ev(?:\/.*)?))?\/?$/;
+export const isSiteContentPage = (pathname: string): boolean => SITE_CONTENT_PAGES.test(pathname);
+
+/** SR-4a (D-SR.3): the 7 days ending on `day` (the safety net's range for an address that names a day and no range). */
+export function weekEnding(day: string): DayRange {
+  return { from: dayOf(dayMs(day) - 6 * DAY_MS), to: day };
 }
 
 /** SR.3: the shared range of the current address. */
