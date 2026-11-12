@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import date, timedelta
+from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import urlencode
@@ -20,9 +20,11 @@ from fastapi.testclient import TestClient
 from assetops_backend.estate import coverage, evidence_money, financials, index, site_range
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import EstateRequest, EstateStoreUnavailable, PORTFOLIO_CURSOR_KEY_ENV
-from assetops_backend.estate.site_range import (
-    CLEAR, FINDINGS, NO_READINGS, NOT_ANALYSED, NOT_ENOUGH_READINGS, NOT_EXPECTED, READINGS_CONFLICT,
-    STILL_PROCESSING, _day_state, site_range_body)
+from assetops_backend.estate import range_days
+from assetops_backend.estate.range_days import (
+    ANALYSED, NO_READINGS, NOT_ANALYSED, NOT_ENOUGH_READINGS, NOT_EXPECTED, READINGS_CONFLICT, STILL_PROCESSING,
+    day_state)
+from assetops_backend.estate.site_range import CLEAR, FINDINGS, site_range_body
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from assetops_backend.outcome_api import RANGE_ROUTE, build_outcome_router
 from test_cov_partial import PRICED, Snap
@@ -79,7 +81,7 @@ def world(monkeypatch):
                 "source_freshness": "RECENT"}
     for module in (index, evidence_money, financials):
         monkeypatch.setattr(module, "site_coverage", fake)
-    monkeypatch.setattr(site_range, "dispatch_days", lambda snap, t, s, lo, hi, k: snap_days.dispatch_days(
+    monkeypatch.setattr(range_days, "dispatch_days", lambda snap, t, s, lo, hi, k: snap_days.dispatch_days(
         t, s, lo, hi, k) if str(s) == str(MG) else [])
 
     class PortfolioSnap(MoneySnapshot):
@@ -224,23 +226,42 @@ def test_stored_response_key_watermark_and_perf_line(world, caplog) -> None:
 
 # --- the day precedence table (D-E5.46 order) --------------------------------------------------------------------
 
-D = date(2026, 10, 13)
 SELECTED = {"available": True, "selection": {"seq": 5}, "jobs": []}
 
 
-@pytest.mark.parametrize("row,grade,reasons,count,state", [
-    (SELECTED, "NOT_EXPECTED", {D: READINGS_CONFLICT}, 2, NOT_EXPECTED),
-    (SELECTED, "NO_DATA", {D: READINGS_CONFLICT}, 2, NO_READINGS),
-    (SELECTED, "PENDING", {D: READINGS_CONFLICT}, 2, STILL_PROCESSING),
-    ({**SELECTED, "jobs": [{"status": "LEASED"}]}, None, {D: READINGS_CONFLICT}, 2, STILL_PROCESSING),
-    (SELECTED, None, {D: READINGS_CONFLICT}, 2, READINGS_CONFLICT),
-    (SELECTED, None, {D: NOT_ENOUGH_READINGS}, 0, NOT_ENOUGH_READINGS),
-    ({**SELECTED, "selection": None}, None, {}, 2, NOT_ANALYSED),
-    ({**SELECTED, "available": False}, None, {}, 2, NOT_ANALYSED),
-    (None, None, {}, 0, NOT_ANALYSED),
-    ({**SELECTED, "_unmatched": True}, None, {}, 2, STILL_PROCESSING),
-    (SELECTED, "COMPLETE", {}, 2, FINDINGS),
-    (SELECTED, None, {}, 0, CLEAR),
+@pytest.mark.parametrize("row,grade,reason,state", [
+    (SELECTED, "NOT_EXPECTED", READINGS_CONFLICT, NOT_EXPECTED),
+    (SELECTED, "NO_DATA", READINGS_CONFLICT, NO_READINGS),
+    (SELECTED, "PENDING", READINGS_CONFLICT, STILL_PROCESSING),
+    ({**SELECTED, "jobs": [{"status": "LEASED"}]}, None, READINGS_CONFLICT, STILL_PROCESSING),
+    (SELECTED, None, READINGS_CONFLICT, READINGS_CONFLICT),
+    (SELECTED, None, NOT_ENOUGH_READINGS, NOT_ENOUGH_READINGS),
+    ({**SELECTED, "selection": None}, None, None, NOT_ANALYSED),
+    ({**SELECTED, "available": False}, None, None, NOT_ANALYSED),
+    (None, None, None, NOT_ANALYSED),
+    ({**SELECTED, "_unmatched": True}, None, None, STILL_PROCESSING),
+    (SELECTED, "COMPLETE", None, ANALYSED),
+    (SELECTED, None, None, ANALYSED),
 ])
-def test_day_state_precedence(row, grade, reasons, count, state) -> None:
-    assert _day_state(D, row, grade, reasons, count) == state
+def test_day_state_precedence(row, grade, reason, state) -> None:
+    """D-SR.22: the one rule in `estate/range_days.py`; SR-5a maps ANALYSED to FINDINGS/CLEAR by its count."""
+    assert day_state(row, grade, reason) == state
+
+
+def test_coverage_wins_and_is_logged(world, monkeypatch, caplog) -> None:
+    """A day the rule calls analysed but the coverage lists as a gap takes the coverage's reason, logged."""
+    real = range_days.day_state
+    monkeypatch.setattr(range_days, "day_state", lambda row, grade, reason: ANALYSED if row and not row.get(
+        "selection") else real(row, grade, reason))
+    with caplog.at_level(logging.WARNING, logger="assetops.site_range"):
+        body = site_range_body(world.service, T, KOBO, _req())
+    assert [d["state"] for d in body["days"]][5:] == [NOT_ANALYSED, NOT_ANALYSED]
+    assert sum("site_range_day_mismatch" in r.getMessage() for r in caplog.records) == 2
+
+
+def test_finding_count_follows_the_portfolio_finding_known_rule(world, monkeypatch) -> None:
+    """D-SR.28: numeric on COMPLETE/EMPTY Finding coverage or a PARTIAL status (checked days); else null."""
+    assert site_range_body(world.service, T, KOBO, _req())["findings"]["count"] == 1  # PARTIAL: checked days
+    monkeypatch.setattr(site_range, "_status", lambda *a: "UNKNOWN")
+    findings = site_range_body(world.service, T, KOBO, _req())["findings"]
+    assert findings["count"] is None and findings["confirmed"] == 1

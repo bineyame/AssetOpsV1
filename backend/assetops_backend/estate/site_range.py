@@ -11,51 +11,31 @@ snapshot `service.read_snapshot` hands `work`.
 """
 from __future__ import annotations
 
-import logging
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
-from assetops_backend.estate.coverage import (
-    DOMAIN_OF_SITE_TYPE, MINI_GRID, PENDING, _day_of, data_gap_days, dispatch_days, local_day_grades_kw)
+from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE, MINI_GRID, PENDING
 from assetops_backend.estate.evidence_money import select_evidence_scope
 from assetops_backend.estate.financials import ELIGIBLE, money_covered, partial_money, select_financial_scope
 from assetops_backend.estate.index import _coverage_site, select_action_scope, select_finding_scope
 from assetops_backend.estate.portfolio import (
-    COMPLETE, CURRENT_STATUS, HISTORICAL_STATUS, MEMBERS, PARTIAL, PARTIAL_STATUS, PENDING_STATUS, U,
+    COMPLETE, CURRENT_STATUS, EMPTY, HISTORICAL_STATUS, MEMBERS, PARTIAL, PARTIAL_STATUS, PENDING_STATUS, U,
     UNKNOWN_STATUS, VERIFIED_CLAIM, attach_threads, evidence_unit, finding_unit, money_pending, money_units,
     operating_cost_card, progress, public, reduce_units, thread_progress, workflow_label)
+from assetops_backend.estate.range_days import (  # noqa: F401 - the state names are this module's wire values
+    ANALYSED, GAP_STATES, NO_READINGS, NOT_ANALYSED, NOT_ENOUGH_READINGS, NOT_EXPECTED, READINGS_CONFLICT,
+    STATE_OF_REASON, STILL_PROCESSING, range_day_states)
 from assetops_backend.estate.scope import EstateRequest, wire_time
+from assetops_backend.site_outcomes.mini import CLOSED_LABELS
 from assetops_backend.site_overview.read import intersects
 
 SCHEMA = "site-range-overview-1"
-LOG = logging.getLogger("assetops.site_range")
-
-FINDINGS, CLEAR, NO_READINGS, READINGS_CONFLICT, NOT_ENOUGH_READINGS, NOT_ANALYSED, STILL_PROCESSING, NOT_EXPECTED = (
-    "FINDINGS", "CLEAR", "NO_READINGS", "READINGS_CONFLICT", "NOT_ENOUGH_READINGS", "NOT_ANALYSED",
-    "STILL_PROCESSING", "NOT_EXPECTED")
-#: The four gap states and the coverage `days.gaps[].reason` each one equals (D-E5.46). A coverage read without day
-#: grades names an unchecked day NO_ASSESSED_SELECTION; it is the same fact as NOT_ANALYSED.
-GAP_STATES = (NO_READINGS, READINGS_CONFLICT, NOT_ENOUGH_READINGS, NOT_ANALYSED)
-STATE_OF_REASON = {"NO_READINGS": NO_READINGS, "READINGS_CONFLICT": READINGS_CONFLICT,
-                   "NOT_ENOUGH_READINGS": NOT_ENOUGH_READINGS, "NOT_ANALYSED": NOT_ANALYSED,
-                   "NO_ASSESSED_SELECTION": NOT_ANALYSED}
-_OPEN_JOBS = {"PENDING", "LEASED"}
-_NO_DATA, _PENDING_GRADE, _NOT_EXPECTED = "NO_DATA", "PENDING", "NOT_EXPECTED"
-_CLOSED_LABELS = ("Verified", "Resolution withdrawn")
+FINDINGS, CLEAR = "FINDINGS", "CLEAR"
 
 
 class RangeOverviewNotApplicable(Exception):
     """The Site is not a mini-grid Site: its Overview already reads the range (route 404)."""
-
-
-def _range_days(from_: datetime, to: datetime) -> list[date]:
-    """The UTC calendar days of `[from_, to)` (the `dispatch.day` grain; `from_`/`to` are UTC midnights)."""
-    first, out = from_.astimezone(timezone.utc).date(), []
-    while datetime.combine(first, time(0), tzinfo=timezone.utc) < to:
-        out.append(first)
-        first += timedelta(days=1)
-    return out
 
 
 def _dec(value: Any) -> Decimal:
@@ -114,26 +94,6 @@ def _status(historical: bool, domain: str, cov: dict, e_domain: str, e_cov: dict
     return CURRENT_STATUS
 
 
-def _day_state(d: date, row: dict[str, Any] | None, grade: str | None, reasons: dict[date, str],
-               finding_count: int) -> str:
-    """§9.4 state precedence (D-E5.46 table order). An available, selected but not yet matched day is system work
-    still to do, as the coverage reads it (`_mini_grid_basis`: unmatched is PENDING, never a gap): STILL_PROCESSING."""
-    if grade == _NOT_EXPECTED:
-        return NOT_EXPECTED
-    if grade == _NO_DATA:
-        return NO_READINGS
-    jobs = {j.get("status") for j in (row or {}).get("jobs") or ()}
-    if grade == _PENDING_GRADE or jobs & _OPEN_JOBS:
-        return STILL_PROCESSING
-    if d in reasons:
-        return reasons[d]
-    if row is None or not row.get("available") or row.get("selection") is None:
-        return NOT_ANALYSED
-    if row.get("_unmatched"):
-        return STILL_PROCESSING
-    return FINDINGS if finding_count > 0 else CLEAR
-
-
 def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest) -> dict[str, Any] | None:
     """The `site-range-overview-1` body, or None when the Site is not in the authorized imported set (route 404).
     Raises `RangeOverviewNotApplicable` for a Site that is not a mini-grid Site."""
@@ -154,46 +114,23 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
         e_sites, _ = select_evidence_scope(snap, tenant_id, req, scope)
         m_sites, m_lines, applicable, groups, _, _ = select_financial_scope(snap, tenant_id, req, scope)
         _, domain, cov = f_sites[0]
+        f_state = reduce_units(1, [finding_unit(domain, cov)])
         _, e_domain, e_cov, e_rows = e_sites[0]
         _, m_domain, m_cov, m_site_lines = m_sites[0]  # the per-site tuple lines `_portfolio` passes on
         site_lines = [x for x in m_lines if x["site_id"] == sid]
 
-        rows = dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, k)
-        reasons = {d: STATE_OF_REASON[r] for d, r in data_gap_days(rows).items()}
-        grades = local_day_grades_kw(site, req, scope, tenant_id).get("day_grades")
-        index = snap.finding_index(tenant_id, site["site_id"], k) if hasattr(snap, "finding_index") else {}
-        match = (index or {}).get("match_pass")
-        deferred = set((index or {}).get("deferred_windows") or ())
-        by_day: dict[date, dict[str, Any]] = {}
-        for row in rows:
-            sel = row.get("selection")
-            unmatched = sel is not None and row.get("available") and (
-                match is None or match["matched_through_selection_seq"] < int(sel["seq"])
-                or row.get("window_start") in deferred)
-            by_day[_day_of(row)] = {**row, "_unmatched": bool(unmatched)}
-
+        day_rule = range_day_states(snap, tenant_id, site, req, scope, cov)  # D-SR.22, the one day rule
         members = [r for r in f_rows if r["lifecycle"] in MEMBERS]
         cov_days = cov.get("days") or None
-        cov_gaps = None if cov_days is None else {
-            date.fromisoformat(g["day"]): STATE_OF_REASON.get(g["reason"], NOT_ANALYSED) for g in cov_days["gaps"]}
         money_read = money_covered(m_cov)
         days_out = []
-        for d in _range_days(req.from_, req.to):
-            row = by_day.get(d)
+        for d, rule in day_rule.items():
+            row, state = rule["row"], rule["state"]
             lo = datetime.combine(d, time(0), tzinfo=timezone.utc)
             hi = lo + timedelta(days=1)
             count = sum(1 for r in members if intersects(r["_at"], r.get("_episode_end"), lo, hi))
-            state = _day_state(d, row, None if grades is None else grades.get(d), reasons, count)
-            if cov_gaps is not None:  # §9.4 consistency: the coverage's gap set wins
-                want = cov_gaps.get(d)
-                if want is not None and state != want:
-                    LOG.warning("site_range_day_mismatch site=%s day=%s state=%s coverage=%s",
-                                site_code, d.isoformat(), state, want)
-                    state = want
-                elif want is None and state in GAP_STATES:
-                    LOG.warning("site_range_day_mismatch site=%s day=%s state=%s coverage=none",
-                                site_code, d.isoformat(), state)
-                    state = FINDINGS if count > 0 else CLEAR
+            if state == ANALYSED:
+                state = FINDINGS if count > 0 else CLEAR
             gap = state in GAP_STATES or state in (STILL_PROCESSING, NOT_EXPECTED)
             day_lines = [x for x in site_lines if (x.get("window_start") or "")[:10] == d.isoformat()]
             if gap or not money_read:
@@ -217,6 +154,10 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
         pairs = [(r["finding_id"], r["finding_revision_id"]) for r in f_rows]
         awaiting = snap.awaiting_verification(tenant_id, site["site_id"], pairs, k) if pairs else 0
 
+        status = _status(bool(snap.basis_historical), domain, cov, e_domain, e_cov, e_rows, m_domain, m_cov,
+                         m_site_lines)
+        # D-SR.28: the Portfolio's `finding_known` rule (`portfolio.py:870-872`) for this one Site
+        finding_known = f_state in (COMPLETE, EMPTY) or status == PARTIAL_STATUS
         analysed = [x for x in days_out if x["state"] in (FINDINGS, CLEAR)]
         values = [x["accepted_readings"] for x in analysed]
         coverage_entry = _coverage_site(site, cov)
@@ -228,17 +169,16 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
                      "timezone": site.get("timezone")},
             "window": {"from": wire_time(req.from_), "to": wire_time(req.to), "known_at": wire_time(k),
                        "basis": "HISTORICAL" if snap.basis_historical else "CURRENT"},
-            "status": _status(bool(snap.basis_historical), domain, cov, e_domain, e_cov, e_rows, m_domain, m_cov,
-                              m_site_lines),
+            "status": status,
             "coverage": coverage_entry,
             "money": {"card": public(operating_cost_card(site_lines, applicable, groups)),
                       "partial": partial_money(site, m_cov, m_site_lines),
                       "quantity": _quantity(site_lines)},
-            "findings": {"count": len(members),
+            "findings": {"count": len(members) if finding_known else None,
                          "confirmed": sum(1 for r in members if r["lifecycle"] == "SUPPORTED"),
                          "not_confirmed": sum(1 for r in members if r["lifecycle"] == "UNCONFIRMED"),
                          "awaiting_verification": awaiting},
-            "actions": {"open": sum(1 for a in a_rows if workflow_label(a) not in _CLOSED_LABELS)
+            "actions": {"open": sum(1 for a in a_rows if workflow_label(a) not in CLOSED_LABELS)
                         if complete_actions else None,
                         "awaiting_verification": prog["pending_trial_count"],
                         "verified_resolution_count": prog["verified_resolution_count"]},
