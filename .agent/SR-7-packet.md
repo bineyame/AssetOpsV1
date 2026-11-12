@@ -43,7 +43,8 @@ Spec: sequence doc rev 10 §10.3 + rev 10a §10a.2; D-SR.15/16/23-26. Pages not 
 
 - `test_sr7_claim_limit_range_postgres.py` on `assetops_sr7_test` (harness clone): **2 passed** in 15.5 s (rows =
   `reduce_day(claim_limit_on)` with at least one selected day compared; rows on with absent runs == rows off).
-- **Not written:** `test_sr7_service_range_postgres.py` (needs `mini_service` heads → chain snapshots; start from
+- `backend/tests/test_sr7_service_range_postgres.py` WRITTEN, on `assetops_sr7_test`: **2 passed** in 72 s (day 1 derived from 24 `mini-service/2` heads via `CriticalServed` = 144/156.0/12.0 kWh, 24 h; PARTIAL 5.5 h of 8; NO_VALUE; LOW -> NOT_ENOUGH_READINGS value hidden/not counted; NO_DATA; absent row; totals 164/12.0/176.0, 2 of 6 days; stored (first serve + hit) == live). Depends on Q-J1 (UTC dates as local days) and Q-J2 (LOW never counted). Not done: the 3 sampled hours vs `/performance/mini/service` CRITICAL rows.
+- (superseded plan) `test_sr7_service_range_postgres.py` (needs `mini_service` heads → chain snapshots; start from
   `tests/test_ch9_service_v2_postgres.py` `_installed` + `append_selection`, then the chain snapshot writer, then
   the route with the real Postgres chain reader: shortfall / served / gap / PENDING / absent-row days, totals, and
   3 sampled hours vs the one-hour `/performance/mini/service` CRITICAL rows).
