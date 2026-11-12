@@ -602,7 +602,7 @@ def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -
     from test_w401_work_service_postgres import ACTOR, PRINCIPAL, oprec
 
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
-    from demo_story_clock import StepClock
+    from demo_story_clock import StepClock, story_action_due
 
     a = kisiwa["action"]
     domain, work = build_domain_intent_service(url), build_work_service(url)
@@ -612,7 +612,8 @@ def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -
         status, action = domain.create_action(tenant, site, SITE_CODE, {
             "domain": "FUEL_BALANCE", "origin_finding_id": finding["finding_id"],
             "origin_finding_revision_id": finding["revision_id"], "title": a["title"],
-            "owner_label": a["owner_label"], "due_at": None, "raised_at": wire(raised), "actor": dict(ACTOR),
+            "owner_label": a["owner_label"], "due_at": wire(story_action_due(raised)), "raised_at": wire(raised),
+            "actor": dict(ACTOR),
             "idempotency_key": "kisiwa-fuel-action"}, PRINCIPAL)
         if status != 201:
             raise SystemExit(f"ACTION_REFUSED (stop S-7; a K6a defect): create_action answered {status}: {action}")

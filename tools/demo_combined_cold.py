@@ -132,7 +132,10 @@ def _failure_day(url: str, out: Path, day: "sd.DayRun", story_clock: bool) -> di
     import w502_cold_work_walkthrough as W
 
     # POLISH Addendum 9 Q2: the demo build passes each request title as its narrative; standalone w502 does not.
-    ns = {"__name__": "__w502_build__", "DEMO_NARRATIVES": True}
+    from demo_story_clock import STORY_ACTION_DUE
+
+    # DATA-13: the story Action has a due date (STORY_ACTION_DUE after it is raised).
+    ns = {"__name__": "__w502_build__", "DEMO_NARRATIVES": True, "DEMO_ACTION_DUE": STORY_ACTION_DUE}
 
     def build() -> None:
         argv = sys.argv

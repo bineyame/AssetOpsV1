@@ -24,6 +24,14 @@ WORKER_AFTER = timedelta(minutes=5)
 WORK_AFTER = timedelta(minutes=6)
 ACTION_AFTER = timedelta(minutes=10)
 STEP = timedelta(seconds=1)
+#: DATA-13 (D-17N.4, C17): the Cold, EV and Kisiwa story Actions are due this long after they are raised. 14 days keeps
+#: Kisiwa's (raised S-5d) in the future through a demo up to S+8d.
+STORY_ACTION_DUE = timedelta(days=14)
+
+
+def story_action_due(raised: datetime) -> datetime:
+    """DATA-13: a story Action's `due_at` (within the domain service's 365-day due limit)."""
+    return raised + STORY_ACTION_DUE
 
 
 class StepClock:

@@ -192,9 +192,11 @@ try:
     raised = globals().get("DEMO_ACTION_AT") or k0.known_at + step
     # K2 ruling 17: every Action raised_at is strictly after K0 and no later than the DB read before the POST.
     assert k0.known_at < raised <= db_now, (k0.known_at, raised, db_now)
+    # DATA-13: `demo_combined_cold` sets DEMO_ACTION_DUE (a timedelta after `raised`); standalone w502 posts no due date.
+    fixture_due = None if globals().get("DEMO_ACTION_DUE") is None else iso(raised + globals()["DEMO_ACTION_DUE"])
     action = post("/actions", {"domain": "COLDCHAIN", "origin_finding_id": finding_id,
                                "origin_finding_revision_id": revision_id, "title": "Witness automatic-start test",
-                               "owner_label": "Maintenance lead", "due_at": None, "raised_at": iso(raised),
+                               "owner_label": "Maintenance lead", "due_at": fixture_due, "raised_at": iso(raised),
                                "actor": dict(ACTOR), "idempotency_key": f"w502b-{mode}-action-{tag}"})
     aid = action["id"]
     flink = [{"finding_id": finding_id, "finding_revision_id": revision_id}]
@@ -266,7 +268,7 @@ try:
                                   "K3": "intent recorded_at"}}
     doc["fixture"] = {"action": {"id": aid, "code": action["action_code"], "recorded_at": action["recorded_at"],
                                  "raised_at": iso(raised), "title": "Witness automatic-start test",
-                                 "owner_label": "Maintenance lead", "due_at": None},
+                                 "owner_label": "Maintenance lead", "due_at": fixture_due},
                       "incident": {"id": inc["id"], "revision_id": inc["revision"]["id"], "occurred_at": iso(inc_at),
                                    "finding_links": inc_links, "returned_finding_links": got_links,
                                    "source_window": [iso(d16), iso(d16 + timedelta(hours=1))],
@@ -280,7 +282,7 @@ try:
                                   "events": wr_events},
                       "case_links": links, "intent": intent}
     actions = [{"id": aid, "code": action["action_code"], "raised_at": iso(raised),
-                "recorded_at": action["recorded_at"], "due_at": None}]
+                "recorded_at": action["recorded_at"], "due_at": fixture_due}]
     if mode == "worstcase":
         dues = [None, timedelta(days=1), None, timedelta(days=30), timedelta(days=200)]
         for n, due in enumerate(dues):

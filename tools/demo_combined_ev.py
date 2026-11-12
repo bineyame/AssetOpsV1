@@ -198,13 +198,16 @@ def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: d
     import w504_ev_work_walkthrough as W
 
     tag = f"demo3-{day.epoch}"
+    from demo_story_clock import STORY_ACTION_DUE
+
     with story_commands(url, day.received_at) as (_work, domain):
-        saved = W._db_now
+        saved, saved_due = W._db_now, W.P.DEMO_ACTION_DUE
         W._db_now = lambda _url: domain()
+        W.P.DEMO_ACTION_DUE = STORY_ACTION_DUE  # DATA-13: the story Action has a due date
         try:
             declared = W._declare(url, "positive", tag, replayed)
         finally:
-            W._db_now = saved
+            W._db_now, W.P.DEMO_ACTION_DUE = saved, saved_due
         asset_id = declared["selection"]["connector_asset_id"]
         if not asset_id:
             raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")

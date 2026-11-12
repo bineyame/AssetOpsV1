@@ -50,6 +50,8 @@ _FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 #: "EV producer, UI and registry": exact literals.
 ACTION = {"title": "Investigate connector c1", "owner_label": "Charging operations", "due_at": None}
+#: DATA-13: the demo prepare sets this (a timedelta); the Action is then due that long after `raised_at`.
+DEMO_ACTION_DUE = None
 INCIDENT = {"title": "Charging session fault",
             "narrative": "Connector fault ended a charging session; outcome remains unverified"}
 #: Ruling 37: the WR `narrative` is exactly the attested activity text.
@@ -281,8 +283,13 @@ def action_body(selected: SelectedEv, raised_at: datetime, key: str, actor: Mapp
     if db_now is not None and not (db_now - BACKDATE_LIMIT <= raised_at <= db_now + FUTURE_SLACK):
         raise ProducerRefused(f"raised_at {iso(raised_at)} is outside the DB-time window around {iso(db_now)}")
     return {"domain": SITE_TYPE, "origin_finding_id": selected.finding_id,
-            "origin_finding_revision_id": selected.finding_revision_id, **ACTION, "raised_at": iso(raised_at),
-            "actor": dict(actor), "idempotency_key": key}
+            "origin_finding_revision_id": selected.finding_revision_id, **ACTION, **action_due(raised_at),
+            "raised_at": iso(raised_at), "actor": dict(actor), "idempotency_key": key}
+
+
+def action_due(raised_at: datetime) -> dict[str, Any]:
+    """DATA-13: `{"due_at": ...}` from `DEMO_ACTION_DUE` when the demo prepare set it; else ACTION's (None)."""
+    return {} if DEMO_ACTION_DUE is None else {"due_at": iso(raised_at + DEMO_ACTION_DUE)}
 
 
 def ev_criteria() -> list[dict[str, Any]]:
