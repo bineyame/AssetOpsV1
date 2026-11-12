@@ -171,7 +171,20 @@ saved."; network loss on save "We could not confirm the save. Saving again is sa
   present with width > 0, inside the viewport, page scrollWidth ≤ viewport (1425/1440, 375/390). Captures in
   `var/pr3-evidence/` (untracked). At 390 the fields stack to one column; the success note sits under the updated
   row with the Back link.
-- check-all: see below.
+- check-all (`tools\check-all.ps1 -Python <plan2 venv>`, on `bb61216fb`): **17/19 PASS** first run (estate guard 22 min).
+  The 2 failures were real and fixed in `528b7c8f6`: (a) Evidence width check — the new evidence script's navigation
+  and post-capture resize lacked `requireWidth` within 6 lines; added (`test_evidence_checks.mjs` 12 pass, 0 fail).
+  (b) Architecture seams, SR-2 `page-range-forms.ps1`: "SitePriceEntry.tsx renders its own date range form (1 date
+  inputs)". The one date is rev 5 §5.3's "Applies from" value recorded on the price, not a page range; added a
+  **narrow, commented exemption for that one file** (Q3). `check-architecture.ps1` then passes (needs
+  `ASSETOPS_GUARD_PYTHON`). The other 17 guards were not rerun (no file they read changed). → 19/19 after the fixes.
+
+### Questions for the Architect (form half)
+
+- **Q3** Confirm the SR-2 exemption for `SitePriceEntry.tsx` (an entry date, not a page date range), or name the
+  input the price form should use instead (FocusPicker is range-scoped and would declare a "Day shown").
+- **Q4** Confirm deviations 7-9 (extra `entry` fields, no default basis, button in the row slot).
+- Not done: AR-4 rerun of the Postgres flow (AR-4 not on main yet).
 
 ## Resume points for the form half (Friday, on PR-2a) — done above except where noted
 
