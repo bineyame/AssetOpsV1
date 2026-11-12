@@ -131,6 +131,8 @@ def test_a_new_accepted_reading_dirties_and_the_tick_rebuilds_the_day_rows(store
     _consume_all(engine)
     before = {k: _stored(engine, t, s, day, k)[0].row.revision for k in DAY_KINDS}
     w = local_hour(day, 9, w402.ZONE)
+    # D-SR.53: hand-built (the ingest path has no Python event helper; the 0044 SQL producer emits it); the Site-local
+    # 00:30 boundary case is `test_reading_at_site_local_0030_dirties_the_local_day_not_the_utc_day`.
     with engine.begin() as c:  # the ledger's accepted-reading event for a fuel_level reading in the 09:00 hour
         c.execute(text(
             "INSERT INTO event_outbox (type, schema_version, occurred_at, source, tenant_id, site_id, subject, "
