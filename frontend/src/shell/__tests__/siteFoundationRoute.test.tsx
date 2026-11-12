@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -205,7 +206,7 @@ describe("a site's Foundation is addressed under that site", () => {
 
     const link = screen.getByRole("link", { name: "Foundation" });
 
-    expect(link.getAttribute("href")).toBe("/sites/MG-002/foundation");
+    expect(rangeless(link.getAttribute("href"))).toBe("/sites/MG-002/foundation");
 
     fireEvent.click(link);
     await settledScreen();

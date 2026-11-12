@@ -6,6 +6,7 @@
  * views, the Finding Analysis tab, Dispatch Overview | Analysis, and the
  * card and index links into Analysis.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation, useNavigate } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -125,9 +126,7 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(necessary).toHaveAttribute("data-claim-level", "NECESSARY");
     expect(candidate).toHaveTextContent("Possibly avoidable");
     expect(necessary).toHaveTextContent("Needed");
-    expect(
-      within(candidate as HTMLElement).getByRole("link", { name: "Open finding" }),
-    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}`);
+    expect(rangeless((within(candidate as HTMLElement).getByRole("link", { name: "Open finding" }))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);
     expect(within(necessary as HTMLElement).queryByRole("link", { name: "Open finding" })).toBeNull();
     expect(necessary).toHaveTextContent("Battery charge was at or below its minimum reserve.");
     expect(necessary).toHaveTextContent("No Finding (needed)");
@@ -158,7 +157,7 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     renderAt(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);
     await settledScreen();
     const link = document.querySelector("[data-analysis-coverage-link]") as HTMLElement;
-    expect(link).toHaveAttribute("href", `/sites/${SITE_ID}/evidence?view=analysis&assessment=${NECESSARY_ID}`);
+    expect(rangeless((link)?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/evidence?view=analysis&assessment=${NECESSARY_ID}`);
     fireEvent.click(link);
     await settledScreen();
     const block = document.querySelector(`[data-evidence-assessment-coverage="${NECESSARY_ID}"]`) as HTMLElement;
@@ -186,10 +185,10 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(selected).toHaveTextContent("The generator was needed during this period.");
     expect(selected.querySelector("[data-dispatch-meaning]")).toHaveTextContent("Needed means");
     expect(selected.querySelector('[data-next-step="CHECK_CONSTRAINT_IF_UNEXPECTED"]')).not.toBeNull();
-    expect(location()).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
+    expect(rangeless(location())).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
     fireEvent.click(within(selected).getByRole("link", { name: "View the analysis of this period" }));
     await settledScreen();
-    expect(location()).toBe(
+    expect(rangeless(location())).toBe(
       `/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`,
     );
   });
@@ -221,14 +220,11 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(gap?.querySelector("a")).toBeNull();
     expect(analysis.querySelector('a[href*="/alternatives"]')).toBeNull();
     // Record links open the Site Evidence inspector, not the Lab.
-    expect(analysis.querySelector("[data-analysis-record]")).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/evidence?signal=GEN-1/output_kw&record=${RECORD_DETAIL.message_id}`,
-    );
+    expect(rangeless((analysis.querySelector("[data-analysis-record]"))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/evidence?signal=GEN-1/output_kw&record=${RECORD_DETAIL.message_id}`);
     // Overview keeps the selection; switching views keeps `interval`.
     fireEvent.click(within(views).getByRole("link", { name: "Overview" }));
     await settledScreen();
-    expect(location()).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
+    expect(rangeless(location())).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
     expect(document.querySelector(`[data-dispatch-selected="${NECESSARY_ID}"]`)).not.toBeNull();
   });
 
@@ -378,20 +374,12 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     );
     // Next steps are the backend's, linked to what they concern, framed as checks.
     const confirm = page.querySelector('[data-next-step="CONFIRM_OPERATOR_INSTRUCTION"]') as HTMLElement;
-    expect(within(confirm).getByRole("link")).toHaveAttribute(
-      "href",
-      `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-UNOBSERVED_OVERRIDE`,
-    );
-    expect(
-      within(page.querySelector('[data-next-step="CHECK_BATTERY_CAPABILITY"]') as HTMLElement).getByRole("link"),
-    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-PCS_CAPABILITY_UNAVAILABLE`);
+    expect(rangeless((within(confirm).getByRole("link"))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-UNOBSERVED_OVERRIDE`);
+    expect(rangeless((within(page.querySelector('[data-next-step="CHECK_BATTERY_CAPABILITY"]') as HTMLElement).getByRole("link"))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-PCS_CAPABILITY_UNAVAILABLE`);
     expect(page.querySelector("[data-next-step-framing]")).toHaveTextContent(
       "not an instruction to stop the generator",
     );
-    expect(within(page).getByRole("link", { name: "See how this conclusion was reached" })).toHaveAttribute(
-      "href",
-      `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`,
-    );
+    expect(rangeless((within(page).getByRole("link", { name: "See how this conclusion was reached" }))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`);
     expect(page.textContent ?? "").not.toMatch(/\$|USD|saving of/i);
   });
 
@@ -428,10 +416,7 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     expect(references).toHaveTextContent(`Assessment reference${CANDIDATE_ID}`);
     expect(references).toHaveTextContent("Record set check referenceabc123");
     // Links to Evidence and Alternatives instead of copying their lists.
-    expect(within(analysis).getByRole("link", { name: "Other possible explanations (Alternatives)" })).toHaveAttribute(
-      "href",
-      `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives`,
-    );
+    expect(rangeless((within(analysis).getByRole("link", { name: "Other possible explanations (Alternatives)" }))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives`);
     expect(analysis.querySelectorAll("[data-alternative]")).toHaveLength(0);
     expect(analysis.textContent ?? "").not.toMatch(/\bruntime\b|\brunning\b|binding|Indeterminate|segment|digest/i);
   });
@@ -489,10 +474,7 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     renderAt(`/findings/${SITE_ID}/dispatch-nope/analysis`);
     await settledScreen();
     expect(screen.getByRole("heading", { name: "No such assessment" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /See the current results/ })).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/performance/dispatch`,
-    );
+    expect(rangeless((screen.getByRole("link", { name: /See the current results/ }))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/performance/dispatch`);
   });
 });
 
@@ -534,9 +516,7 @@ describe("the Findings rail root and Site > Findings (AC21)", () => {
     fireEvent.change(index.querySelector("[data-findings-filter]") as HTMLSelectElement, {
       target: { value: "" },
     });
-    expect(
-      index.querySelector(`[data-finding-row-analysis="${CANDIDATE_ID}"]`),
-    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`);
+    expect(rangeless((index.querySelector(`[data-finding-row-analysis="${CANDIDATE_ID}"]`))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`);
     fireEvent.click(index.querySelector(`[data-finding-row="${CANDIDATE_ID}"]`) as HTMLElement);
     await settledScreen();
     expect(location()).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);
@@ -574,14 +554,10 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
   it("the Dispatch card and the Findings panel open the same Finding; the card links its Analysis", async () => {
     renderAt(`/sites/${SITE_ID}`, { overview: overviewWith(CANDIDATE_ID, [CANDIDATE_SUMMARY]) });
     await settledScreen();
-    expect(
-      document.querySelector(`[data-overview-card-finding="${CANDIDATE_ID}"]`),
-    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}`);
-    expect(
-      document.querySelector(`[data-overview-card-analysis="${CANDIDATE_ID}"]`),
-    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`);
+    expect(rangeless((document.querySelector(`[data-overview-card-finding="${CANDIDATE_ID}"]`))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);
+    expect(rangeless((document.querySelector(`[data-overview-card-analysis="${CANDIDATE_ID}"]`))?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`);
     const panelLink = document.querySelector(`[data-overview-finding-link="${CANDIDATE_ID}"]`);
-    expect(panelLink).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}`);
+    expect(rangeless((panelLink)?.getAttribute("href") ?? "")).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);
     expect(panelLink).toHaveTextContent(
       "Possibly avoidable: The generator may have operated longer than needed.",
     );
@@ -634,14 +610,9 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
     renderAt(`/sites/${SITE_ID}`, { overview: overviewWith(NECESSARY_ID, [], true) });
     await settledScreen();
     expect(document.querySelector("[data-overview-card-finding]")).toBeNull();
-    expect(
-      document.querySelector(`[data-overview-card-dispatch="${NECESSARY_ID}"]`),
-    ).toHaveAttribute("href", `/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
+    expect(rangeless((document.querySelector(`[data-overview-card-dispatch="${NECESSARY_ID}"]`))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
     const analysis = document.querySelector(`[data-overview-card-analysis="${NECESSARY_ID}"]`) as HTMLElement;
-    expect(analysis).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`,
-    );
+    expect(rangeless((analysis)?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);
     fireEvent.click(analysis);
     await settledScreen();
     expect(document.querySelector(`[data-analysis="${NECESSARY_ID}"]`)).not.toBeNull();

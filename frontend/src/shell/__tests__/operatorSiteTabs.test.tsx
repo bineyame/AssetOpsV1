@@ -1,4 +1,5 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -221,7 +222,7 @@ describe.each(SITE_SURFACES)(
       expect(
         within(tabRow())
           .getAllByRole("link")
-          .map((link) => [link.textContent, link.getAttribute("href")]),
+          .map((link) => [link.textContent, rangeless(link.getAttribute("href") ?? "")]),
       ).toEqual([
         ["Overview", "/sites/MG-002"],
         ["Foundation", "/sites/MG-002/foundation"],
@@ -451,11 +452,15 @@ describe("Work subtab query preservation by Site type", () => {
     });
   }
 
-  it("a mini-grid Site's Work subtab hrefs stay bare even with a cutoff in the URL", async () => {
+  it("a mini-grid Site's Work subtab hrefs carry the shared range and cutoff, never the cursor (SR-4a, D-SR.2)", async () => {
     vi.stubGlobal("fetch", coldFetch().fetchStub);
     renderAt(`/sites/MG-002/work/incidents?${query}`);
     await settledScreen();
-    expect(subtabHrefs()).toEqual(["/sites/MG-002/work", "/sites/MG-002/work/incidents", "/sites/MG-002/work/maintenance"]);
+    expect(subtabHrefs()).toEqual([
+      `/sites/MG-002/work?${kept}`,
+      `/sites/MG-002/work/incidents?${kept}`,
+      `/sites/MG-002/work/maintenance?${kept}`,
+    ]);
   });
 });
 
