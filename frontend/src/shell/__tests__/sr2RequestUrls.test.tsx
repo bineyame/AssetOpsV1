@@ -4,7 +4,7 @@
  * the `story_links` web link with `URLSearchParams` encoding) and the demo-script links keep matching. Each case opens
  * a story-link address in the whole App with the real clients and records the URLs the page fetches.
  */
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,6 +17,9 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
+import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
+import { localDateOf, localDaysWindow, localHourWindow } from "../../sites/miniDepthClient";
+import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
 
@@ -191,5 +194,44 @@ describe("SR-2 the demo's API requests are byte-identical", () => {
     for (const url of expected) expect(got).toContain(url);
     // Nothing else on the estate or Work APIs: no second read for a reshaped range.
     expect(got.filter((u) => u.startsWith("/api/estate/") || u.startsWith("/api/work/")).sort()).toEqual([...expected].sort());
+  });
+});
+
+describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send Site-local bounds and show no refusal", () => {
+  // The stub refuses (INVALID_WINDOW, like `hour_windows`) every mini read except the pinned Site-local window, so a
+  // client that sends the raw UTC day gets the refusal on screen and a different URL.
+  const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
+  const tz = site.timezone as string;
+  const yesterday = presetRange("yesterday");
+  const address = rangeParams({ ...yesterday, known_at: null }).toString();
+  const mini = (page: string, w: { from: string; to: string }) =>
+    `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
+  it.each([
+    ["renewable", mini("renewable", localDaysWindow(tz, yesterday.from, 1))],
+    ["service", mini("service", localHourWindow(tz, localDateOf(tz, Date.parse(`${yesterday.to}T00:00:00Z`)), 12))],
+  ])("%s", async (page, expected) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        if (url.includes(`/performance/mini/${page}?`) && url !== expected) {
+          return Promise.resolve(new Response(JSON.stringify({ detail: { code: "INVALID_WINDOW" } }), { status: 422, headers: { "Content-Type": "application/json" } }));
+        }
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
+    const view = render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/${page}?${address}`]}>
+        <App flags={featureFlagsWith(false)} siteDetail={detail} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(urls.filter((u) => u.includes(`/performance/mini/${page}?`))).toEqual([expected]);
+    for (const copy of [MINI_RENEWABLE_DAYS, MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_REVERSED_WINDOW]) {
+      expect(screen.queryByText(copy)).toBeNull();
+    }
+    view.unmount();
   });
 });
