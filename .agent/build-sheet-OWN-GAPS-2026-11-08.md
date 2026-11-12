@@ -4632,3 +4632,16 @@ Decisions logged for owner review: **D-UP.1-11**.
 - Lane A next: build the D-WARM.2 and D-WARM.5 additions first (small, no DB), then run the VPS gate (packet resume points 1-4). Fresh Claude reviewer.
 
 Decisions logged for owner review: **D-WARM.1-6**.
+
+## D-PRICE.4 PR-3 form half: the "Applies from" date exemption, extra `entry` fields, no default basis, button under the row (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/PR-3-price-entry` head `d4c0935c0`, packet `.agent/PR-3-packet.md` (form-half deviations 7-10, Q3-Q4). D-PRICE.1-3 stand.
+- **Q3 keep the SR-2 exemption for `SitePriceEntry.tsx`.** SR-2 stops a page from choosing its own date range. "Applies from" is a value typed into a record (rev 5 §5.3), like an amount; it never changes what the page shows. FocusPicker would be wrong: it is range-scoped and would declare a "Day shown". Conditions: the comment in `page-range-forms.ps1` cites D-PRICE.4 instead of "pending Architect confirmation"; the file keeps exactly one date input. A second date input or any range control in that file needs a new ruling. No other guard change.
+- **Q4 deviations 7-9 confirmed.**
+  - 7: the extra `entry` fields `today`, `unit_text`, `currencies` and `live_view` are confirmed beside `enabled` and `keys`. The browser has no Site zone, so `today` must come from the server, and the honest-state words stay server-side. All of them are empty or None when entry is off.
+  - 8: no default basis is confirmed. A preselected basis would let a typed price be saved under a basis nobody chose. The server refusal "Check: Basis." is the guard.
+  - 9: the "Set a new price" button and form sit in the row slot under the row. This is owner default 6 (form inline under the row) and keeps the PR-2a seam the only change to the table.
+  - 10 (MOCK DEVIATION D-PRICE.3, no form in v7.1) stands as labelled.
+- Not blocking: the AR-4 rerun of the Postgres flow happens after AR-4 merges to main. Next: fresh Claude reviewer on the form half.
+
+Decision logged for owner review: **D-PRICE.4**.
