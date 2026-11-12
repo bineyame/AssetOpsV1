@@ -64,11 +64,17 @@ describe("SR-4a carryRange", () => {
 
 describe("SR-4 D-SR.42 (d): a link's own from, to and known_at take precedence over the address's", () => {
   const params = ranged("&known_at=2026-11-09T12:00:00Z");
-  it("own from and to are kept as written, and the address range is not added over them", () => {
-    expect(carryRange("/sites/KOBO-001/findings?from=A&to=B", params)).toBe("/sites/KOBO-001/findings?from=A&to=B");
+  it("own from and to are kept as written; the address range is not added over them, its known_at is (D-SR.57 L3)", () => {
+    const K = "known_at=2026-11-09T12%3A00%3A00Z";
+    expect(carryRange("/sites/KOBO-001/findings?from=A&to=B", params)).toBe(`/sites/KOBO-001/findings?from=A&to=B&${K}`);
     // One bound named is still the link's own range: the address's other bound is never mixed in.
-    expect(carryRange("/sites/KOBO-001/findings?from=A", params)).toBe("/sites/KOBO-001/findings?from=A");
-    expect(carryRange("/sites/KOBO-001/findings?to=B", params)).toBe("/sites/KOBO-001/findings?to=B");
+    expect(carryRange("/sites/KOBO-001/findings?from=A", params)).toBe(`/sites/KOBO-001/findings?from=A&${K}`);
+    expect(carryRange("/sites/KOBO-001/findings?to=B", params)).toBe(`/sites/KOBO-001/findings?to=B&${K}`);
+    // An address with no known_at adds nothing to a link with its own range.
+    expect(carryRange("/sites/KOBO-001/findings?from=A&to=B", ranged(""))).toBe("/sites/KOBO-001/findings?from=A&to=B");
+  });
+  it("a link with its own from, to and known_at keeps all three (D-SR.57 L3)", () => {
+    expect(carryRange("/sites/KOBO-001/findings?from=A&to=B&known_at=OWN", params)).toBe("/sites/KOBO-001/findings?from=A&to=B&known_at=OWN");
   });
   it("an own known_at wins over the address's, which is not added a second time", () => {
     const out = String(carryRange("/sites/KOBO-001/findings?known_at=OWN", params));

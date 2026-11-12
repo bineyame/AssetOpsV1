@@ -440,8 +440,8 @@ function MiniNotLoaded({
 
 /**
  * SR-4c (rev 8 8.2): the Site-local days a mini page reads, declared to the date-range bar when they are not the whole
- * range (Renewable over 5 days reads its last 5 days; Service, Backup and Fuel read one hour of one day). The bar then
- * says "Showing <days> of the range" instead of "All pages".
+ * range (Renewable over 5 days reads its last 5 days). The bar then says "Showing <days> of the range" instead of
+ * "All pages". D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
  */
 function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
   const [params] = useSearchParams();
@@ -1307,8 +1307,8 @@ export function MiniService({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
-      <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
@@ -1632,8 +1632,8 @@ export function MiniFuel({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
-      <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
@@ -1979,8 +1979,8 @@ export function MiniBackup({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
-      <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (

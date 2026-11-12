@@ -152,13 +152,21 @@ export function rangeSearch(params: URLSearchParams): string {
   return state.status === "set" ? `?${rangeParams(state).toString()}` : "";
 }
 
-/** An in-app path with the current shared range added. A path that names its own range keeps it. */
+/**
+ * An in-app path with the current shared range added, per key (D-SR.42d, D-SR.57 L3): a path's own `from`, `to` and
+ * `known_at` win. A path that names its own `from`/`to` keeps them and, when it names no `known_at`, gets the
+ * address's `known_at` (a drill-in from a range pinned to a cutoff reads at the same cutoff).
+ */
 export function withRange(path: string, params: URLSearchParams): string {
   const search = rangeSearch(params);
   if (search === "") return path;
   const [pathname, query = ""] = path.split("?", 2);
   const own = new URLSearchParams(query);
-  if (own.has("from") || own.has("to")) return path;
+  if (own.has("from") || own.has("to")) {
+    const known = new URLSearchParams(search).get("known_at");
+    if (own.has("known_at") || known === null) return path;
+    return `${path}&${new URLSearchParams({ known_at: known }).toString()}`;
+  }
   // A target that names its own cutoff keeps it; the range's `known_at` is not added a second time.
   const carried = new URLSearchParams(search);
   if (own.has("known_at")) carried.delete("known_at");
