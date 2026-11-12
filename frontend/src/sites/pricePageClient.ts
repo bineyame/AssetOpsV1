@@ -3,7 +3,7 @@
  *
  * Every word on the page is the server's (`financials/price_page.py`): row labels, "Not set", the future-key
  * sentence, basis, History headlines and "Set by". The page renders them and never classifies a key. Status mapping
- * is the price read's: 401, 403, 404 / 422 as not found, 503 or a network failure as unavailable.
+ * is the price read's: 401, 403, 404 as not found, 422 as invalid, 503 or a network failure as unavailable.
  */
 import { arrayOf, hasKeys, isObject } from "./evidenceRead";
 import type { FindingReadResult } from "./findingClient";
@@ -56,6 +56,8 @@ export interface PriceRowBody {
   used_by: { text: string; detail: string };
   history: PriceHistoryEntry[];
   history_title: string | null;
+  /** One line when the server read stopped at its cap and older versions are not shown, else null/absent. */
+  history_capped_text?: string | null;
 }
 
 export interface NeedBlock {
@@ -80,7 +82,8 @@ export interface PricePage {
   need: NeedBlock | null;
 }
 
-export type PricePageResult = FindingReadResult<PricePage>;
+/** A 422 (a `known_at` without an offset) is its own refusal: it is not a missing Site (PR-2a review L1). */
+export type PricePageResult = FindingReadResult<PricePage> | { status: "invalid"; message: string | null };
 
 export interface PricePageClient {
   getPrices(siteId: string, query: { need?: string | null; knownAt?: string | null }): Promise<PricePageResult>;
@@ -128,8 +131,9 @@ export function createPricePageClient(basePath: string = SITES_API_PATH): PriceP
         case 403:
           return { status: "forbidden", message: said };
         case 404:
-        case 422:
           return { status: "not_found", message: said };
+        case 422:
+          return { status: "invalid", message: said };
         default:
           return { status: "unavailable", message: said };
       }

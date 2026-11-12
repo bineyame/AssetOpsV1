@@ -29,6 +29,9 @@ export interface SitePricesBodyProps {
  */
 export function PricesSignIn({ text }: { text: string }) {
   return (
+    // MOCK DEVIATION (D-PRICE.3, deviation 3): one sentence, not the mock's three; no "Not in this step" section.
+    // MOCK DEVIATION (D-PRICE.3, deviation 8): no lock icon (shell-overflow guard refuses an inline svg).
+    // MOCK DEVIATION (D-PRICE.3, deviation 1): the "item you came to price" focus block is not built; the row is highlighted.
     <div className="site-prices__signin" role="note" data-prices-sign-in>
       <p>
         <b>{text}</b>
@@ -131,6 +134,7 @@ export function PriceRowGroup({ row, focused, below }: { row: PriceRowBody; focu
                   </li>
                 ))}
               </ol>
+              {row.history_capped_text ? <p data-price-history-capped>{row.history_capped_text}</p> : null}
             </details>
           </td>
         </tr>

@@ -131,6 +131,29 @@ function renderPrices(entry: string, client: PricePageClient = fakeClient().clie
 const row = (key: string) => document.querySelector(`[data-price-row="${key}"]`) as HTMLElement;
 
 describe("PR-2a Site price page", () => {
+  it("shows the server's intro as the subtitle, and a capped History says so (review L2, L4)", async () => {
+    const capped = { ...DIESEL, history_capped_text: "Only the newest 200 versions are shown." };
+    const { client } = fakeClient({ ...PAGE, intro: "The server's own intro.", prices: [capped, ...PAGE.prices.slice(1)] });
+    renderPrices("/sites/KOBO-001/financials/prices", client);
+    await settledScreen();
+    expect(screen.getByText("The server's own intro.")).toBeInTheDocument();
+    expect(document.querySelector("[data-price-history-capped]")).toHaveTextContent("Only the newest 200 versions are shown.");
+  });
+
+  it("a 422 does not read as a missing site (review L1)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ detail: { code: "INSTANT_NOT_ZONED", message: "known_at must carry a timezone offset." } }), { status: 422 })),
+    );
+    renderPrices("/sites/KOBO-001/financials/prices?known_at=2026-10-01T00:00:00", createPricePageClient());
+    await settledScreen();
+    const refused = document.querySelector("[data-prices-refused]") as HTMLElement;
+    expect(refused).toHaveAttribute("data-prices-refused", "invalid");
+    expect(refused).toHaveTextContent("known_at must carry a timezone offset.");
+    expect(refused).not.toHaveTextContent("No prices can be read for this site.");
+    vi.unstubAllGlobals();
+  });
+
   it("lists every price with the server's words, the sign-in line, and no form or Save", async () => {
     renderPrices("/sites/KOBO-001/financials/prices");
     await settledScreen();

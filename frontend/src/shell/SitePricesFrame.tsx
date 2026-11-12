@@ -22,6 +22,7 @@ export const SITE_PRICES_HEADING_ID = "site-prices-heading";
 export const PRICES_SIGN_IN_TEXT =
   "Prices are set by your AssetOps administrator until sign-in is available.";
 export const PRICES_LOADING = "Loading the site's prices.";
+// MOCK DEVIATION (D-PRICE.3, deviation 2): `return` is a path with no item name, so no "You came from '...'".
 const RETURN_WORDS = "← Back to where you were";
 const RANGE_KEPT = "Your date range is kept.";
 const DEFAULT_CLIENT = createPricePageClient();
@@ -82,6 +83,7 @@ function usePricePage(client: PricePageClient, siteId: string, need: string | nu
 
 const REFUSED: Record<Exclude<PricePageResult["status"], "loaded">, string> = {
   not_found: "No prices can be read for this site.",
+  invalid: "The date this page was opened with cannot be read.",
   forbidden: "You cannot read this site's prices.",
   unauthenticated: "Sign in to read this site's prices.",
   closed: "The prices cannot be read right now.",
@@ -89,17 +91,14 @@ const REFUSED: Record<Exclude<PricePageResult["status"], "loaded">, string> = {
 };
 
 function PricesRead({
-  siteId,
-  client,
+  result,
   params,
   renderBelow,
 }: {
-  siteId: string;
-  client: PricePageClient;
+  result: PricePageResult | null;
   params: URLSearchParams;
   renderBelow?: (row: PriceRowBody) => ReactNode;
 }) {
-  const result = usePricePage(client, siteId, params.get("need"), params.get("known_at"));
   if (result === null) return <p>{PRICES_LOADING}</p>;
   if (result.status !== "loaded") {
     return (
@@ -131,43 +130,58 @@ export function SitePricesFrame({
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
-  const back = safeReturn(params.get("return"));
-  const search = rangeSearch(params);
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Prices" headingId={SITE_PRICES_HEADING_ID}>
-      {(site) => (
-        <main aria-labelledby={SITE_PRICES_HEADING_ID} data-site-prices>
-          <Breadcrumbs
-            trail={[
-              { label: "Sites", to: SITES_PATH },
-              { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Financials", to: `${evRoutesOf(site)?.financials ?? siteFinancialsHref(site.site_id)}${search}` },
-              { label: "Prices" },
-            ]}
-          />
-          <PageHeader
-            title={`${site.display_name} · Prices`}
-            headingId={SITE_PRICES_HEADING_ID}
-            subtitle="Every price this site's figures use: the current value, where it came from, and every earlier version."
-          />
-          <OperatorSiteTabs
-            siteId={site.site_id}
-            current="Financials"
-            hrefs={evWorkTabHrefs(site)}
-            search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)}
-          />
-          <PricesSubtabs site={site} search={search} />
-          {back ? (
-            <div className="site-prices__return">
-              <Link to={back} data-price-return>
-                {RETURN_WORDS}
-              </Link>
-              <span>{RANGE_KEPT}</span>
-            </div>
-          ) : null}
-          <PricesRead siteId={site.site_id} client={client} params={params} renderBelow={renderBelow} />
-        </main>
-      )}
+      {(site) => <PricesMain site={site} client={client} params={params} renderBelow={renderBelow} />}
     </SiteScoped>
+  );
+}
+
+function PricesMain({
+  site,
+  client,
+  params,
+  renderBelow,
+}: {
+  site: { site_id: string; site_type: string; display_name: string };
+  client: PricePageClient;
+  params: URLSearchParams;
+  renderBelow?: (row: PriceRowBody) => ReactNode;
+}) {
+  const back = safeReturn(params.get("return"));
+  const search = rangeSearch(params);
+  const result = usePricePage(client, site.site_id, params.get("need"), params.get("known_at"));
+  return (
+    <main aria-labelledby={SITE_PRICES_HEADING_ID} data-site-prices>
+      <Breadcrumbs
+        trail={[
+          { label: "Sites", to: SITES_PATH },
+          { label: site.display_name, to: siteDetailHref(site.site_id) },
+          { label: "Financials", to: `${evRoutesOf(site)?.financials ?? siteFinancialsHref(site.site_id)}${search}` },
+          { label: "Prices" },
+        ]}
+      />
+      <PageHeader
+        title={`${site.display_name} · Prices`}
+        headingId={SITE_PRICES_HEADING_ID}
+        subtitle={result?.status === "loaded" ? result.value.intro : undefined}
+      />
+      <OperatorSiteTabs
+        siteId={site.site_id}
+        current="Financials"
+        hrefs={evWorkTabHrefs(site)}
+        search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)}
+      />
+      <PricesSubtabs site={site} search={search} />
+      {back ? (
+        <div className="site-prices__return">
+          <Link to={back} data-price-return>
+            {RETURN_WORDS}
+          </Link>
+          <span>{RANGE_KEPT}</span>
+        </div>
+      ) : null}
+      <PricesRead result={result} params={params} renderBelow={renderBelow} />
+    </main>
   );
 }

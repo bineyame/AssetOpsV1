@@ -17,7 +17,8 @@ from fastapi.testclient import TestClient
 
 from assetops_backend.financials.assumption_read import AssumptionReadService
 from assetops_backend.financials.price_page import (
-    FUTURE_KEY_NOTE, SET_BY_LABEL, SIGN_IN_TEXT, SITE_KEYS, amount_text, compose)
+    FUTURE_KEY_NOTE, HISTORY_CAP, HISTORY_CAPPED_TEXT, INTRO_TEXT, SET_BY_LABEL, SIGN_IN_TEXT, SITE_KEYS,
+    amount_text, compose)
 from assetops_backend.outcomes.price_action import NEED_TEXT, PRICE_NOUN, STORED_KEYS
 from assetops_backend.price_page_api import build_price_page_router
 
@@ -160,6 +161,15 @@ class TestRows:
                                                  "AssetOps administrator"]
         assert [x["replaced"] for x in h] == [False, True, False]
         assert h[1]["replaced_text"] == "replaced by a later correction" and h[0]["replaced_text"] is None
+
+    def test_history_says_so_when_the_series_read_hit_its_cap(self) -> None:
+        """Review L4: the service reads at most HISTORY_CAP revisions, so the page must not claim 'every' one."""
+        body = client(Rows({"diesel_price_per_litre": DIESEL})).get(PAGE).json()
+        assert body["intro"] == INTRO_TEXT
+        assert body["prices"][0]["history_capped_text"] is None
+        full = {**DIESEL, "revisions": [FIRST] * (HISTORY_CAP - 1) + [FIX]}
+        capped = client(Rows({"diesel_price_per_litre": full})).get(PAGE).json()["prices"][0]
+        assert capped["history_capped_text"] == HISTORY_CAPPED_TEXT == "Only the newest 200 versions are shown."
 
     def test_set_by_map_has_both_actors_and_an_unknown_actor_is_not_guessed(self) -> None:
         assert SET_BY_LABEL == {"service:assetops-assumption-publisher": "AssetOps administrator",

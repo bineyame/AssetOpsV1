@@ -157,9 +157,20 @@ def history(series: Mapping[str, Any], zone: ZoneInfo) -> list[dict[str, Any]]:
             "reason": p["correction_reason"], "set_by_label": set_by(p),
             "recorded_text": f"recorded {moment_text(p['recorded_at'], zone)}",
             "replaced": p["revision_id"] not in cited,
+            # MOCK DEVIATION (D-PRICE.3): the mock says "replaced by the correction above"; History can be filtered
+            # (and capped), so the correction may not be above. Wording kept: "a later correction".
             "replaced_text": "replaced by a later correction" if p["revision_id"] not in cited else None,
         })
     return out
+
+
+HISTORY_CAP = 200  # `AssumptionReadService.series` reads at most this many revisions per key
+HISTORY_CAPPED_TEXT = f"Only the newest {HISTORY_CAP} versions are shown."
+
+
+def capped_text(series: Mapping[str, Any] | None) -> str | None:
+    """The one honest line when the series read stopped at its cap, so the History may be cut (review L4)."""
+    return HISTORY_CAPPED_TEXT if series is not None and len(series["revisions"]) >= HISTORY_CAP else None
 
 
 def row(key: str, series: Mapping[str, Any] | None, zone: ZoneInfo) -> dict[str, Any]:
@@ -167,7 +178,8 @@ def row(key: str, series: Mapping[str, Any] | None, zone: ZoneInfo) -> dict[str,
     stored = key in STORED_KEYS
     base = {"key": key, "noun": PRICE_NOUN.get(key, words.label.lower()), "label": words.label,
             "detail": words.detail, "stored": stored,
-            "used_by": {"text": words.used_by, "detail": words.used_by_detail}}
+            "used_by": {"text": words.used_by, "detail": words.used_by_detail},
+            "history_capped_text": capped_text(series)}
     current = None if series is None else _current(series)
     if current is None:
         return {**base, "state": "NOT_SET", "current": None, "not_set_text": NOT_SET,
