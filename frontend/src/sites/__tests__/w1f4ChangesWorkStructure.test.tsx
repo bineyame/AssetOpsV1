@@ -8,6 +8,7 @@
  * contracts (`s6_action_api_contract.json`, `s6_site_action_index_contract.json`);
  * derived bodies say so where they are built.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -166,7 +167,7 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     // H1: each label carries its count slot; this fixture serves no count read, so each is unknown (a dash, not 0).
     expect(within(row).getAllByRole("link").map((l) => l.textContent)).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (—)"]);
     const links = within(row).getAllByRole("link");
-    expect(links.map((l) => [l.textContent?.replace(/ \(.*\)$/, ""), l.getAttribute("href"), l.getAttribute("aria-current")])).toEqual([
+    expect(rangeless(links.map((l) => [l.textContent?.replace(/ \(.*\)$/, ""), l.getAttribute("href"), l.getAttribute("aria-current")]))).toEqual([
       ["Actions", "/sites/KOBO-001/work", "page"],
       ["Incidents", "/sites/KOBO-001/work/incidents", null],
       ["Maintenance", "/sites/KOBO-001/work/maintenance", null],

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -325,7 +326,7 @@ describe("W5-03a E3: EV Energy", () => {
     cleanup();
     renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
     await settledScreen();
-    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);
   });
 

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -334,7 +335,7 @@ describe("W5-03a E2: EV Availability", () => {
     expect(link === null).toBe(!windowRefusal);
     if (link !== null) {
       expect(link.textContent).toBe("Read without a selected window");
-      expect(link.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability?known_at=${encodeURIComponent(KNOWN)}`);
+      expect(rangeless(link.getAttribute("href"))).toBe(`/sites/${CODE}/performance/availability?known_at=${encodeURIComponent(KNOWN)}`);
     }
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Reload" }) !== null).toBe(httpStatus === 503);
@@ -371,7 +372,7 @@ describe("W5-03a E2: EV Availability", () => {
     cleanup();
     renderAvailability({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
     await settledScreen();
-    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);
   });
 

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -797,7 +798,7 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     // Selected: the selected window end, the exact Site code and the cutoff-loss label.
     await renderAt(PATHS.ev, { ...client(), getOverview: vi.fn(() => Promise.resolve(ok(withWindowEnd(overview())))) });
     const link = within(sldLink()).getByRole("link", { name: "Single line diagram →" });
-    expect(link.getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(SELECTED_TO)}`);
+    expect(rangeless(link.getAttribute("href"))).toBe(`${SLD}?at=${encodeURIComponent(SELECTED_TO)}`);
     expect(sldLink().querySelector("[data-ev-sld-cutoff-note]")?.textContent).toBe(CUTOFF_NOTE);
     expect(sldLink().textContent).not.toContain("Not available yet");
     fireEvent.click(link);
@@ -974,7 +975,7 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     for (const path of Object.values(PATHS)) {
       await renderAt(path, client({}, refused(503, "EV_READ_UNAVAILABLE")));
       const tabs = tabHrefs();
-      expect(tabs.Overview, path).toBe(`/sites/${CODE}/ev`);
+      expect(rangeless(tabs.Overview, path)).toBe(`/sites/${CODE}/ev`);
       expect(Object.values(tabs).some((h) => (h ?? "").includes("?")), path).toBe(false);
       cleanup();
     }
@@ -1005,7 +1006,7 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Kalangala mini-grid");
     expect(main().getAttribute("data-ev-site-view")).toBeNull();
     expect(evSite.getOverview).not.toHaveBeenCalled();
-    expect(tabHrefs().Overview).toBe("/sites/MINI-001");
+    expect(rangeless(tabHrefs().Overview)).toBe("/sites/MINI-001");
   });
 });
 

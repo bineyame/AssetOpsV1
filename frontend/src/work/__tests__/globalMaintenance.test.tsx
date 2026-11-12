@@ -4,6 +4,7 @@
  * positive, zero, historical, refused, cursor-changed, stress and linked states are captured against the real API in
  * `.agent/W6-01-evidence/B2/`.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -272,7 +273,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(text(cell(first, 0).querySelector("[data-global-work-lineage]"))).toBe("No linked finding or action");
     expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(text(cell(first, 1))).toBe("No asset recorded · Kobo");
-    expect(within(cell(first, 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(rangeless((within(cell(first, 1)).getByRole("link", { name: "Kobo" }))?.getAttribute("href") ?? "")).toBe("/sites/KOBO-001");
     expect(text(cell(first, 2))).toBe(OWNER128);
     expect(text(cell(first, 3))).toBe("In progress");
     expect(cell(first, 3).querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "blue");
@@ -517,7 +518,7 @@ describe("Post-W6 W6: global Maintenance corrections", () => {
     await settled();
     const lineage = Array.from(document.querySelectorAll('[data-global-work-lineage="linked"]'));
     expect(lineage).toHaveLength(3);
-    expect(within(lineage[0] as HTMLElement).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", finding.href);
+    expect(rangeless((within(lineage[0] as HTMLElement).getByRole("link", { name: "Finding a1b2c3d4" }))?.getAttribute("href") ?? "")).toBe(finding.href);
     for (const cell of lineage.slice(1)) {
       expect(text(cell)).toBe("Finding a1b2c3d4");
       expect(within(cell as HTMLElement).queryByRole("link")).toBeNull();

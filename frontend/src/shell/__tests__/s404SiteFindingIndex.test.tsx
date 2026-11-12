@@ -4,6 +4,7 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
+import { rangeless } from "../../test/rangeless";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -141,7 +142,7 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     const scope = getFindingIndex.mock.calls[0][1];
     const today = new Date().toISOString().slice(0, 10);
     expect(scope.domain).toBe("mini-grid-dispatch");
-    expect(scope.from).toBe(`${today}T00:00:00Z`);
+    expect(rangeless(scope.from)).toBe(`${today}T00:00:00Z`);
     expect(new Date(scope.to).getTime() - new Date(scope.from).getTime()).toBe(86400000);
   });
 
@@ -177,7 +178,7 @@ describe("S4-04 Site Findings index: positive rows (sitefindings:1#b)", () => {
     const rows = Array.from(document.querySelectorAll("[data-finding-index-row]"));
     expect(rows.map((r) => r.getAttribute("data-finding-index-row"))).toEqual([FID_B, FID_A]);
     const links = Array.from(document.querySelectorAll("[data-finding-index-link]"));
-    expect(links.map((a) => a.getAttribute("href"))).toEqual([
+    expect(rangeless(links.map((a) => a.getAttribute("href")))).toEqual([
       `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
       `/sites/${SITE_ID}/findings/${FID_A}?revision_id=${RID_A}`,
     ]);
@@ -401,10 +402,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
       expect(row.querySelector("[data-finding-index-confidence]")?.textContent).toBe("Not assessed");
       expect(row.querySelector("[data-finding-index-lens]")?.textContent).toBe("Not assessed");
     }
-    expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
-    );
+    expect(rangeless((within(card()).getByRole("link", { name: "Open the newest Finding" }))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`);
     // Opaque page and list references live only in the closed disclosure, not in the default reading.
     expect(exactValue("Next page reference")).toBe("cursor-page-2");
     expect(exactValue("List reference")).toBe(TOKEN);
@@ -653,7 +651,7 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     const { client } = indexClient(() => ({ status: "loaded", value: BODY }));
     renderAt(PATH, client);
     await settledScreen();
-    expect(within(domain(FID_B)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25&revision=iv-1`);
+    expect(rangeless((within(domain(FID_B)).getByRole("link", { name: "Dispatch" }))?.getAttribute("href") ?? "")).toBe(`${dispatch}?day=2026-10-25&revision=iv-1`);
     // 23:30 at +03:00 is 20:30 UTC on the same day; the whole-window primary is never selected.
     expect(within(domain(FID_A)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25`);
     expect(within(domain("f-missing-list")).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-24`);
@@ -670,7 +668,7 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     expect(helper.textContent).toBe("Opportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.");
     expect(within(helper).getByRole("link", { name: "Findings › Opportunities" })).toHaveAttribute("href", "/findings/opportunities");
     const link = within(helper).getByRole("link", { name: "renewable page" });
-    expect(link).toHaveAttribute("href", sitePerformanceHref(SITE_ID, "renewable"));
+    expect(rangeless((link)?.getAttribute("href") ?? "")).toBe(sitePerformanceHref(SITE_ID, "renewable"));
     expect(within(helper).getAllByRole("link")).toHaveLength(2);
   });
 });

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -259,7 +260,7 @@ describe("W4-02 unit 6: backup keeps the v69 strip, cards, chains, readiness, op
     expect(count.querySelector("summary")?.textContent).toBe("Inspect IDs");
     expect(count.firstChild?.textContent).toBe("2 cited records · ");
     expect(count.querySelector('[data-mini-ids="Supply interruption"]')).not.toBeNull();
-    expect(panelTitled("Operating evidence").querySelector("a")?.getAttribute("href")).toBe(`/sites/${CODE}/performance/dispatch`);
+    expect(rangeless(panelTitled("Operating evidence").querySelector("a")?.getAttribute("href"))).toBe(`/sites/${CODE}/performance/dispatch`);
   });
 
   it("no selected revision keeps the page shell: Unknown cards, the No event row and the readiness gaps", async () => {

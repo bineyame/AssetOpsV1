@@ -157,7 +157,11 @@ export function withRange(path: string, params: URLSearchParams): string {
   const [pathname, query = ""] = path.split("?", 2);
   const own = new URLSearchParams(query);
   if (own.has("from") || own.has("to")) return path;
-  return query === "" ? `${pathname}${search}` : `${pathname}?${query}&${search.slice(1)}`;
+  // A target that names its own cutoff keeps it; the range's `known_at` is not added a second time.
+  const carried = new URLSearchParams(search);
+  if (own.has("known_at")) carried.delete("known_at");
+  const add = carried.toString();
+  return query === "" ? `${pathname}?${add}` : `${pathname}?${query}&${add}`;
 }
 
 /** SR-4a (D-SR.2): the in-app paths whose links carry the shared range: the Sites index, every Site page and `/performance/...`. */

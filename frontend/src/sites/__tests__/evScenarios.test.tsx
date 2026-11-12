@@ -2,6 +2,7 @@
  * W5-03b E6: EV Site Financials > Scenarios (v6.9 `ev-scenarios`) from the authored E5 list
  * (`.agent/W5-03-build-spec.md` E6 card and consolidated correction; `.agent/W5-03b-ui-preflight-rulings.md` 11-16).
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -350,7 +351,7 @@ describe("W5-03b E6: EV Scenarios", () => {
     cleanup();
     renderScenarios({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`);
     await settledScreen();
-    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
   });
 

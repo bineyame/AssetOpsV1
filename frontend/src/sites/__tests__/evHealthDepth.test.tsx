@@ -2,6 +2,7 @@
  * W5-03b E4: EV Site Health (v6.9 `ev-health`) from the selected `/ev/health` depth read
  * (`.agent/W5-03-build-spec.md` E4 card and pre-flight E4 correction; `.agent/W5-03b-ui-preflight-rulings.md` 2-8).
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -296,7 +297,7 @@ describe("W5-03b E4: EV Health", () => {
     cleanup();
     renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
     await settledScreen();
-    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
   });
 

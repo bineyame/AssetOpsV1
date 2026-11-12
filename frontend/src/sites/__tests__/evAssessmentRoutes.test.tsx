@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -304,7 +305,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", false]]);
     for (const label of ["Availability", "Energy / site power"]) expect(document.querySelector(`[data-tab-unavailable="${label}"]`)).toBeNull();
     const availabilityTab = document.querySelector('[data-performance-subtab="availability"]') as HTMLAnchorElement;
-    expect(availabilityTab.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability`);
+    expect(rangeless(availabilityTab.getAttribute("href"))).toBe(`/sites/${CODE}/performance/availability`);
     expect(availabilityTab.hasAttribute("aria-current")).toBe(false);
     const energyTab = document.querySelector('[data-performance-subtab="energy"]') as HTMLAnchorElement;
     expect(energyTab.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy`);
@@ -888,7 +889,7 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
   it("sessions refused and finding refused: tabs carry no window", async () => {
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}`, refused(503, "EV_READ_UNAVAILABLE"));
     await settledScreen();
-    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(rangeless(tabHrefs().Overview)).toBe(`/sites/${CODE}/ev`);
     expect(Object.values(tabHrefs()).some((h) => (h ?? "").includes("?"))).toBe(false);
     cleanup();
     renderEv(FINDING_PATH, ok(STATES.complete), refused(404, "EV_FINDING_NOT_FOUND"));

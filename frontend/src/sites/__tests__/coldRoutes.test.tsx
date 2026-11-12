@@ -1,4 +1,5 @@
 import { cleanup, render } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -357,7 +358,7 @@ describe("W2-03: temperature", () => {
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();
     const link = panelTitled("Excursion context").querySelector(`[data-finding-link="${EXC_FINDING}"]`);
-    expect(link?.getAttribute("href")).toBe(`/sites/COLD-001/findings/${EXC_FINDING}`);
+    expect(rangeless(link?.getAttribute("href"))).toBe(`/sites/COLD-001/findings/${EXC_FINDING}`);
     cleanup();
     renderCold(ROUTES[0][1], { ...STOCKED, findings: ok({ ...STOCKED_FINDINGS, items: [] }) });
     await settledScreen();

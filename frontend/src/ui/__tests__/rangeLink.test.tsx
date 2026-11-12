@@ -53,6 +53,13 @@ describe("SR-4a carryRange", () => {
     const params = ranged("&day=2026-11-05&hour=12&event=E1&cursor=c2&known_at=2026-11-09T12:00:00Z");
     expect(carryRange("/sites/KOBO-001", params)).toBe(`/sites/KOBO-001?${RANGE}&known_at=2026-11-09T12%3A00%3A00Z`);
   });
+
+  it("a target that names its own known_at keeps it and gets the range without a second known_at", () => {
+    const params = ranged("&known_at=2026-11-09T12:00:00Z");
+    expect(carryRange("/sites/EV-LAB-001/performance/availability?known_at=X", params)).toBe(
+      `/sites/EV-LAB-001/performance/availability?known_at=X&${RANGE}`,
+    );
+  });
 });
 
 describe("SR-4a RangeLink", () => {

@@ -8,6 +8,7 @@
  * (`backend/tests/test_w401_site_indexes_postgres.py` COMMON/MAINTENANCE). The
  * IDs are test constants, not product seed.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -362,7 +363,7 @@ describe("W4-01: Site > Work > Incidents", () => {
     expectSlots("sitework-incidents");
     const panel = panelTitled("Incidents at this site");
     const link = within(panel).getByRole("link", { name: `Finding ${FINDING.slice(0, 8)}` });
-    expect(link.getAttribute("href")).toBe(siteFindingHref("KOBO-001", FINDING, FINDING_REV));
+    expect(rangeless(link.getAttribute("href"))).toBe(siteFindingHref("KOBO-001", FINDING, FINDING_REV));
     expect(link.getAttribute("href")).toContain(`revision_id=${FINDING_REV}`);
     // A pin without selectable lineage is plain text: no dead link.
     const unlinked = panel.querySelector("[data-work-finding-unlinked]") as HTMLElement;
@@ -456,7 +457,7 @@ describe("W4-01: Site > Work > Maintenance", () => {
     });
     mount("/sites/KOBO-001/work/maintenance");
     await settledScreen();
-    expect(requests).toEqual([api("maintenance", w)]);
+    expect(rangeless(requests)).toEqual([api("maintenance", w)]);
     expectSlots("sitework-maintenance");
     const empty = panelTitled("Maintenance at this site").querySelector("[data-work-empty]") as HTMLElement;
     expect(empty.querySelector("[data-work-empty-icon] svg[data-rail-icon='evidence']")).not.toBeNull();
@@ -559,7 +560,7 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
     mount("/sites/KOBO-001/work");
     await settledScreen();
     expect(labels()).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (—)"]);
-    expect(idle).toEqual([]);
+    expect(rangeless(idle)).toEqual([]);
     expect(countRequests).toEqual([]);
     cleanup();
     vi.unstubAllGlobals();
@@ -673,7 +674,7 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     const findingEl = linkedCell.querySelector("[data-work-finding]") as HTMLElement;
     const context = linkedCell.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
     expect(findingEl.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(linkedCell).getByRole("link", { name: "OPP-000001" }).getAttribute("href")).toBe(
+    expect(rangeless(within(linkedCell).getByRole("link", { name: "OPP-000001" }).getAttribute("href"))).toBe(
       `/sites/KOBO-001/opportunities/${OPP}`,
     );
     expect(within(linkedCell).queryByRole("link", { name: /SCN-000002/ })).toBeNull();
@@ -874,7 +875,7 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
       const requests = serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
       mount("/sites/KOBO-001/work/incidents");
       await settledScreen();
-      await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 20 Oct to 26 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
+      await vi.waitFor(() => expect(rangeless(text(document.querySelector(".w1f4-work-window")))).toBe("Days shown: 20 Oct to 26 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
       expect(requests).toEqual([api("incidents", W)]);
     } finally {
       vi.useRealTimers();

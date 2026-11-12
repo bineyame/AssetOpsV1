@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { act } from "react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -442,10 +443,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       ["Prices", null],
       ["Scenarios", "page"],
     ]);
-    expect(document.querySelector('[data-financials-section="scenarios"]')).toHaveAttribute(
-      "href",
-      `/sites/${CODE}/financials/scenarios`,
-    );
+    expect(rangeless((document.querySelector('[data-financials-section="scenarios"]'))?.getAttribute("href") ?? "")).toBe(`/sites/${CODE}/financials/scenarios`);
     expect(document.querySelector("[data-tab-unavailable]")).toBeNull();
     expect(main().textContent).toContain("Financials · scenarios");
     expect(main().textContent).not.toContain("(placeholder)");
