@@ -148,6 +148,39 @@ def test_run_throttles_before_each_batch_and_keeps_order():
     assert counter["n"] == 3  # batches of 2: 2 + 2 + 1
 
 
+def test_serve_ticks_over_http_then_starts_the_warm(tmp_path, monkeypatch):
+    import urllib.request
+
+    import demo_combined as dc
+
+    state = {"polls": 0, "warm": [], "envs": []}
+
+    class Api:
+        pid = 1
+
+        def poll(self):  # alive for the first tick, then gone
+            state["polls"] += 1
+            return None if state["polls"] <= 3 else 0
+
+    monkeypatch.setattr(dc.subprocess, "Popen", lambda *a, **k: Api())
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *a, **k: type("R", (), {"read": lambda s: b"ok"})())
+    monkeypatch.setattr(dc, "_kill_tree", lambda pid: None)
+    monkeypatch.setattr(dc, "prewarm", lambda *a: None)
+    monkeypatch.setattr(dc.time, "sleep", lambda s: None)
+    demo = object.__new__(dc.Demo)
+    demo.work = demo.tree = tmp_path
+    demo.story = lambda: {}
+    demo.write_prebuilt_routes = lambda: None
+    demo.links = lambda web: None
+    demo.env = lambda keys=False: {}
+    demo.tick = lambda times=1: state["envs"].append(dc.Demo.serve_env(demo).get(dc.PREBUILD_BASE_ENV))
+    demo.start_warm = lambda port: state["warm"].append(port) or Api()
+    demo.serve(8990, 5490)
+    assert state["envs"] == ["http://127.0.0.1:8990"]  # the tick's prebuild env names the serve
+    assert state["warm"] == [8990]
+    assert dc.PREBUILD_BASE_ENV == prebuild.BASE_URL_ENV
+
+
 def test_prebuild_http_mode_reads_status_and_header(monkeypatch):
     import io
     import urllib.error

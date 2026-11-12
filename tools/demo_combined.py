@@ -1629,7 +1629,7 @@ class Demo:
                 if ranges is not None and ranges.poll() is not None:
                     say(f"  warm ranges: exit {ranges.returncode} (WARM-1 workaround; <work>/warm-report.json)")
                     ranges = None
-                if warm and ranges is None:  # WARM-1: after each tick's prebuild; a hit costs about 50 ms
+                if warm and ranges is None and api.poll() is None:  # WARM-1: after each tick's prebuild
                     ranges = self.start_warm(port)
                 for _ in range(TICK_EVERY_SECONDS):
                     if api.poll() is not None:
