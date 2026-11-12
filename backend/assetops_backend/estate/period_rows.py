@@ -37,8 +37,6 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import text
-
 from assetops_backend.chain.period_read import ABSENT_LOG_EVENT, PeriodFragment, served_kinds
 from assetops_backend.evidence.source_provenance import LinkRow
 
@@ -247,11 +245,7 @@ class RequestRows:
         if sid in self._loaded:
             return self._loaded[sid]
         t, lo, hi, k = self._ranges[sid]
-        from assetops_backend.chain.ports import SiteRef
-
-        r = self._snap._c.execute(text("SELECT site_code, site_type, timezone FROM site WHERE tenant_id = :t "
-                                       "AND id = :s"), {"t": t, "s": UUID(sid)}).one()
-        site = SiteRef(t, UUID(sid), r[0], r[1], r[2])
+        site = self._snap.site_ref(t, UUID(sid))  # the adapter's read on the page's one connection
         days = utc_days(lo, hi)
         known = None if not self._snap.basis_historical else k
         result = self._rows.reader.read(t, [site], [KIND_CLAIM], days[0] - timedelta(days=1),

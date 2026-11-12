@@ -80,6 +80,14 @@ class EvidenceMoneySnapshot(EstateSnapshot):
     def _period_rows(self) -> Any:
         return _rows_of(self)
 
+    def site_ref(self, t: UUID, s: UUID) -> Any:
+        """AR-4: the Site's `SiteRef` on this snapshot's connection (the stored-row reader's grain)."""
+        from assetops_backend.chain.ports import SiteRef
+
+        r = self._c.execute(text("SELECT site_code, site_type, timezone FROM site WHERE tenant_id = :t "
+                                 "AND id = :s"), {"t": t, "s": s}).one()
+        return SiteRef(t, s, r[0], r[1], r[2])
+
     def dispatch_days(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> list[dict[str, Any]]:
         days = super().dispatch_days(t, s, from_, to, k)
         rows = self._period_rows()

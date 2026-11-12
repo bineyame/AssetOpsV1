@@ -171,7 +171,7 @@ def built_store(days=(DAY,)):
 
 def request_rows(store, historical=False):
     reader = PeriodReader(store, load_event_register(), pr.kind_versions(), now=lambda: NOW)
-    snap = SimpleNamespace(_c=Conn(), read_at=NOW, basis_historical=historical)
+    snap = SimpleNamespace(_c=Conn(), read_at=NOW, basis_historical=historical, site_ref=lambda t, s: SITE)
     return pr.RequestRows(pr.EvidenceRows(reader, store), snap)
 
 
