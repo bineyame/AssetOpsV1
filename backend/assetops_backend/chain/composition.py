@@ -34,7 +34,7 @@ __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "
            "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
            "build_event_store", "build_estate_claims", "PostgresPeriodReadStore", "build_period_read_store",
            "build_period_read_builder", "build_period_reader", "period_kind_builders", "period_kind_versions",
-           "build_mini_period_rows"]
+           "build_mini_period_rows", "dispatch_day_builders", "build_dispatch_day_rows"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -76,20 +76,48 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
-    AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one)."""
+    AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one);
+    ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store."""
+    out: dict[str, Any] = dict(dispatch_day_builders(inputs))
     mini = getattr(inputs, "mini", None)
-    if mini is None:
-        return {}
-    from assetops_backend.mini_depth.period_rows import kind_builders
+    if mini is not None:
+        from assetops_backend.mini_depth.period_rows import kind_builders
 
-    return dict(kind_builders(mini))
+        out.update(kind_builders(mini))
+    return out
 
 
 def period_kind_versions() -> dict[str, str]:
     """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
+    from assetops_backend.chain import dispatch_day_rows
     from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
 
-    return {k: BUILDER_VERSION for k in KINDS}
+    return {**{k: BUILDER_VERSION for k in KINDS}, dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION}
+
+
+def dispatch_day_builders(inputs: Any = None) -> dict[str, Any]:
+    """ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store (`inputs.dispatch.store`, the
+    `PostgresAssessmentStore` its dispatch read service wraps); none without one."""
+    from assetops_backend.chain.dispatch_day_rows import KIND, DispatchDayKindBuilder
+
+    store = getattr(getattr(inputs, "dispatch", None), "store", None)
+    day_now = getattr(store, "dispatch_day_now", None)
+    return {} if day_now is None else {KIND: DispatchDayKindBuilder(day_now)}
+
+
+def build_dispatch_day_rows(database_url: str | None) -> tuple[Any, PostgresPeriodReadStore,
+                                                                PostgresEventStore] | None:
+    """ANY-2 AR-3: `(provider, period store, event store)`; the provider is `estate.coverage.dispatch_rows_provider`
+    (the Portfolio's mini-grid dispatch days from `dispatch.day` rows while the kind is served). Engines connect on
+    first use only."""
+    from assetops_backend.chain.dispatch_day_rows import KIND, DispatchDayRows
+
+    if not database_url:
+        return None
+    store = PostgresPeriodReadStore(database_url)
+    events = PostgresEventStore(database_url)
+    reader = PeriodReader(store, load_event_register(), period_kind_versions())
+    return DispatchDayRows(reader, events.site), store, events
 
 
 def build_mini_period_rows(database_url: str | None) -> tuple[PeriodReader, PostgresPeriodReadStore] | None:

@@ -57,6 +57,23 @@ def _empty(state: str, **values: Any) -> dict[str, Any]:
 day_grades_provider: Callable[..., tuple[Mapping[date, str], str | None] | None] | None = None
 _NO_DATA, _PENDING_GRADE, _NOT_EXPECTED = "NO_DATA", "PENDING", "NOT_EXPECTED"
 
+# ANY-2 AR-3: injected by `main.py` (`chain.dispatch_day_rows.DispatchDayRows`): `(t, s, from_, to, k, explicit)` ->
+# the stored `dispatch.day` rows as dispatch days, or None while the kind is not served (then today's compose).
+dispatch_rows_provider: Callable[..., list[dict[str, Any]] | None] | None = None
+
+
+def dispatch_days(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime) -> list[dict[str, Any]]:
+    """The Site's S3 dispatch days of `[from_, to)` at `k`: stored rows when served, else the on-read compose. An
+    explicit cutoff (a historical basis or a continuation page) reads the rows computed by `k`; a live page one
+    reads the latest rows. (Other per-day readers of the same days, e.g. `evidence_money.mini_grid_rows`, can call
+    this instead of `snapshot.dispatch_days` to read the same rows.)"""
+    if dispatch_rows_provider is not None:
+        explicit = bool(snapshot.basis_historical) or bool(getattr(snapshot, "continuation", False))
+        days = dispatch_rows_provider(t, s, from_, to, k, explicit)
+        if days is not None:
+            return days
+    return snapshot.dispatch_days(t, s, from_, to, k)
+
 
 def local_day_grades_kw(site: Mapping[str, Any], req: Any, scope: Mapping[str, Any], tenant_id: Any) -> dict[str, Any]:
     """`{"day_grades": ..., "day_tz": ...}` for a mini-grid Site: its stored chain day grade per Site-local day of the
@@ -114,7 +131,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                      day_grades: Mapping[date, str] | None = None, day_tz: str | None = None) -> dict[str, Any]:
     historical = snapshot.basis_historical
     watermark = snapshot.evidence_cutoff(t, s, k)
-    days = snapshot.dispatch_days(t, s, from_, to, k)
+    days = dispatch_days(snapshot, t, s, from_, to, k)  # AR-3: `dispatch.day` rows when served
     index = snapshot.finding_index(t, s, k)
     match_pass = index.get("match_pass")
     deferred = set(index.get("deferred_windows") or ())

@@ -696,6 +696,13 @@ def create_app(
     chain_claims.data_gap_provider = (
         estate_portfolio.site_data_gap_days_many
         if estate_portfolio is not None and hasattr(estate_portfolio, "site_data_gap_days_many") else None)
+    # ANY-2 AR-3: with `dispatch.day` in ASSETOPS_PERIOD_READ_KINDS the mini-grid dispatch days come from stored rows
+    # (empty or without it: today's compose); engines connect on first use only.
+    from assetops_backend.chain.composition import build_dispatch_day_rows
+    dispatch_rows = build_dispatch_day_rows(database_url())
+    estate_coverage.dispatch_rows_provider = None if dispatch_rows is None else dispatch_rows[0]
+    if dispatch_rows is not None:
+        app.router.on_shutdown.extend([dispatch_rows[1].dispose, dispatch_rows[2].dispose])
     # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
     # allow defaults too; pass the same callables to the board if that changes.
 
