@@ -83,3 +83,13 @@ One Medium blocks: the story ranges do not get their full page × Site set. Fix 
 ## Residual risk not in the packet
 
 - A tick that moves the watermark during a warm gives `race`, and that warm exits 1. Serve logs the exit and starts a new warm on the next tick, but nothing alerts the presenter. The 17 Nov checklist should read the last warm's exit line, or the report, before the session.
+
+## Re-review (fix round dfd8f9768..5b22462ce, VPS)
+
+**Verdict: ACCEPT.** M1, L1-L4 closed; D-WARM.7 implemented as ruled. No findings.
+
+- M1: `midnight_range` + `plan()` (`tools/warm_ranges.py:241-253, 292-294`) give every UTC-midnight story window the full `range_requests` set, including windows before the data window; non-midnight windows return None. Test `test_story_windows_get_every_page_site_request` covers both.
+- L1: packet wording corrected and both cases listed under outside the claim. L3: `report_path` gives `--verify` `warm-verify.json`; packet resume point 3 says to run it under `serve --no-warm`. L4: `start_new_session=(os.name == "posix")` on the warm Popen (`demo_combined.py:799`); the API Popen is left as on main, noted in the packet.
+- D-WARM.7: 4 chip `state=` requests (no `state` for "all") plus `scope-ids` page 1 per range (`warm_ranges.py:151-168`), so `--verify` replays them. Lens x state, `scope-ids` page 2+ and non-all lens variants are listed as outside the claim. The Python literals match the real `createEstateClient` output in `warmUrls.test.ts`.
+- Ran (lane python and PYTHONPATH): `test_warm1_ranges.py` 21 passed. `warmUrls.test.ts` 1 passed (vitest run directly, so it works on this VPS). On a scratch copy with `warm_ranges.py` at dfd8f9768, 4 tests fail: board forms, story windows, verify report name, URL equality. The packet said 2 failed; it is 4, which is fine.
+- Not verified: the live gate (warm, `--verify`, 100% hit, max <=2 s) and Postgres. It stays the merge gate. The request count per range is now 15, so warm wall time is above the earlier estimate and must be re-measured in the gate run.
