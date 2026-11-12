@@ -352,3 +352,30 @@ def test_mini_grid_rows_reads_the_coverage_dispatch_days_and_notes_them(monkeypa
         evidence_money.mini_grid_rows(Snap(), T, {"site_id": S, "site_code": "KOBO-001"}, req, NOW)
     expected = row_day if provided else composed
     assert noted == [[expected]] and asked == ([False] if provided else [])
+
+
+def test_data_gaps_read_through_the_coverage_dispatch_days(monkeypatch) -> None:
+    """D-ANY.10 item 4: `site_data_gap_days_many` (the `_data_gaps` read) takes its days from
+    `coverage.dispatch_days` (AR-3 rows when served), never straight from `snapshot.dispatch_days`."""
+    from assetops_backend.estate import coverage, evidence_money
+    from assetops_backend.estate.evidence_money import EstateEvidenceService
+
+    row_day = {"day": DAY, "source": "rows"}
+    asked: list = []
+    monkeypatch.setattr(coverage, "dispatch_rows_provider",
+                        lambda t, s, lo, hi, k, explicit: asked.append(explicit) or [row_day])
+    seen: list = []
+    monkeypatch.setattr(evidence_money, "data_gap_days", lambda days: seen.append(days) or {DAY: "NOT_ENOUGH_READINGS"})
+
+    class Snap:
+        basis_historical = False
+
+        def dispatch_days(self, t, s, lo, hi, k):
+            raise AssertionError("the snapshot compose must not be read directly")
+
+    svc = object.__new__(EstateEvidenceService)
+    monkeypatch.setattr(svc, "_scope", lambda snap, t, req, admit: {
+        "sites": [{"site_id": S, "site_code": "KOBO-001", "site_type": "MINIGRID"}], "k": NOW}, raising=False)
+    out = svc.site_data_gap_days_many(T, ["KOBO-001"], datetime(2026, 11, 1, tzinfo=UTC),
+                                      datetime(2026, 11, 2, tzinfo=UTC), None, snap=Snap())
+    assert out == {"KOBO-001": {DAY: "NOT_ENOUGH_READINGS"}} and seen == [[row_day]] and asked == [False]

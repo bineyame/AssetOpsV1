@@ -86,6 +86,16 @@ Checks: `test_ar4_money_lines.py` 15 passed; `test_ar4_evidence_period_rows.py` 
   Gain is 1.7-4 s, not the ~13 s the earlier profile promised.
 - **Why (cProfile, week, rows on, 41 s under profile):** `claims._data_gaps` -> `data_gap_provider` -> `evidence_money.py:577` `data_gap_days(snap.dispatch_days(...))` composes the dispatch days again, 16.1 s cumulative. It is a second caller `36d15fd70` did not switch (it switched only `mini_grid_rows`). Next: `_mini_grid_basis` 8.7 s (3 calls), `_mini_grid_money` 6.2 s, `consequence_provenance` 0.5 s (profile). **The ~4 s in `_mini_grid_money`/`consequence_provenance` stays unstored for 17 Nov (backlog `evidence.consequence_money`, D-ANY.9).** Likely fix, not done here: point `evidence_money.py:577` at `coverage.dispatch_days`, then re-measure.
 
+## Session 2026-11-12 (D-ANY.10 item 4: `_data_gaps` through `coverage.dispatch_days`)
+
+- `estate/evidence_money.py` `site_data_gap_days_many` now calls `coverage.dispatch_days(snap, ...)` (was `snap.dispatch_days`). New no-DB test `test_data_gaps_read_through_the_coverage_dispatch_days` (`test_ar4_evidence_period_rows.py`); non-vacuity: temporarily reverted with Edit -> 1 failed, restored.
+- No-DB: AR-4 files 33 passed; with adjacent estate/claims/gap files (15 files) 257 passed.
+- Profile (client4 read-only, no DB writes, cold process, store off, `evidence.claim,dispatch.day` rows on, unlisted week 10-19..10-26 portfolio lens=all): **8.1 s total (8.6 s under cProfile)** vs 9.3 s before. `claims._data_gaps` 0.094 s cumulative (was 16.1 s under profile); `snapshot.dispatch_days` no longer under it (`select_dispatch_days_on` 4 calls 2.2 s, all from `_mini_grid_basis`/`mini_grid_rows`). Probe script: scratchpad `prof_week.py`, not committed.
+
+## Resume points (first = next)
+
+0. **Wait for `fix/AR-3-absent-compose` (D-ANY.10 items 1-3, another lane) to merge to main.** Then `git merge main` here and run the full parity on client4 (`--kinds evidence.claim,dispatch.day`, seed 20261111, random 16): expect 0/61 mismatches (the `any.claim_rows.before_build` failure is item 1-3's), then timings week/22/31 days. Do not run parity before that merge.
+
 ## Not built (resume here, D-ANY.8 order)
 
 1. **money.lines read side (MN-2 rest):** `site_outcomes/mini.py` -> `NodeInputs` gains the stored day line; `OutcomeEvaluator._potential` uses it only when the row is current at k (not PENDING) and its `study`/`price` equal the page's item and `sales["price"]`, else today's compose (D-ANY.6a). Kill switch: `money.lines` in `ASSETOPS_PERIOD_READ_KINDS`.
@@ -98,6 +108,8 @@ Checks: `test_ar4_money_lines.py` 15 passed; `test_ar4_evidence_period_rows.py` 
 8. To serve on a demo DB: build rows, then add the kinds to `ASSETOPS_PERIOD_READ_KINDS`.
 
 ## Known deviations
+
+0. (D-ANY.10 item 4) `site_data_gap_days_many` calls `coverage.dispatch_days` rather than `snap.dispatch_days`; `period_rows.fragment` is a row builder and keeps composing.
 
 1. The dispatch-day selection is not stored. It is the page's own `select_dispatch_days_on` (AR-3's `dispatch.day`), and it stays the dominant cost.
 2. Link rows are stored as of build time (same as AR-2 deviation 4).

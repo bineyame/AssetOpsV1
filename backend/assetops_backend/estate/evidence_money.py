@@ -574,7 +574,7 @@ class EstateEvidenceService(EstateIndexService):
             for site in scope["sites"]:
                 if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:
                     continue
-                gaps = data_gap_days(snap.dispatch_days(tenant_id, site["site_id"], req.from_, req.to, scope["k"]))
+                gaps = data_gap_days(dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, scope["k"]))
                 if gaps:
                     out[site["site_code"]] = gaps
             return out
