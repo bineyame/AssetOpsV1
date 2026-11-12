@@ -4645,3 +4645,120 @@ Decisions logged for owner review: **D-WARM.1-6**.
 - Not blocking: the AR-4 rerun of the Postgres flow happens after AR-4 merges to main. Next: fresh Claude reviewer on the form half.
 
 Decision logged for owner review: **D-PRICE.4**.
+
+## D-DATA.1-6 DATA-17N packet Q1-Q6: diagnostics clocks, due dates, the Kisiwa plan date, the DATA-4 spec, Kisiwa productive users (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/DATA-17N-coverage` head `18cdea7ea`, packet `.agent/DATA-17N-packet.md`. Owner approved DATA-4 and DATA-8 ("both", `.agent/owner-17nov-package-2026-11-12.md`). D-17N.4 gate stands: the Sat-night rehearsal finish check gates each data merge, and a failure reverts that merge. Honesty rules D-E5.46 and D-E5.47 apply to every line below.
+
+### D-DATA.1 (Q1) Kobo diagnostics forwarding stays off.
+- Kobo already has `gateway_diagnostic` rows from its own path, and MB-1 posts live Kobo diagnostics at the field beat. A second, harness-built diagnostic stream on the same Site would compete with both for "latest report".
+- `demo_combined_kobo` is unchanged. The card's "recapture Kobo Health" becomes a no-change check: Kobo Health pairs are recaptured and must match the previous capture.
+
+### D-DATA.2 (Q2) Health reads the real server clock; a forwarded diagnostic is received on the clock that sealed it.
+- **Health "now" is the real server clock** (`source_health_api`'s `clock()`). There is no demo "now". A demo override would make Health claim contact that did not happen.
+- **Defect in the built version.** The gateway seals each diagnostic on its own clock (`observed_at`, device contacts), but the harness stores it with a story `received_at` days earlier. Every forwarded row is then `observed_at` > `received_at` + 5 s, so `fact_age` returns `OBSERVED_AFTER_RECEIPT`. Health would read "Unknown age: its reported time is later than the server received it". That is a harness artefact shown as a data fact (D-E5.47). Separately, a story `received_at` later than the read time makes `check_consistent` refuse the whole read with 409.
+- **Rule.** The forwarding service's clock is the harness gateway's own clock (its `_clock`, the clock that sets `observed_at`), for all three paths:
+  - Cold `w202.DIAGNOSTIC_CLOCK`;
+  - EV `w205b.FORWARD_DIAGNOSTICS`;
+  - the Kisiwa replay `_publish_and_accept(..., diagnostics=True)`.
+
+  Do not use the story `received` clock or the chain decision clock. The packet reports that clock as the real wall clock, so `received_at` becomes the real time of the prepare.
+- **"Stale" on demo day is accepted. It is the fact.** The last report was received when the data was loaded. The existing words state it in plain terms: "Stale: nothing received for {age} (limit {limit}); when it stopped is not known". Do not build anything to make it read "Current".
+- Presenter line: "These sites are replayed recordings; their gateways last reported when the recording was loaded."
+- **VPS gate (added to resume point 2).**
+  - For Cold, EV and Kisiwa: `SELECT count(*) FROM gateway_diagnostic WHERE observed_at > received_at + interval '5 seconds'` = 0, and no `received_at` is later than the real time of the query.
+  - Health on each of the three Sites returns 200, with no "Unknown age" line and no clock-untrusted line.
+  - If the harness gateway's clock turns out to be a story clock, the same rule holds (`received_at` = that clock). Report the observed receipt lag in the packet.
+- Test (no DB): one `test_data5_story_diagnostics.py` case. The forwarded receipt's `received_at` equals the injected gateway clock, not the story instant. Replace the current assertion that pins `received_at` to the story clock.
+
+### D-DATA.3 (Q3) Due = raised + 14 days, confirmed. Kobo's Actions are unchanged.
+- One explainable rule: "due two weeks after it was agreed". It applies to the Cold, EV and Kisiwa story Actions.
+- Kobo's battery and mill Actions keep no due date. That story is proven, and re-proving it is out of scope (owner 2026-11-05, demo-critical only). Their rows keep the honest "no due date set" state.
+- An Action whose due date falls before the demo day reads overdue. That is a fact of the story data, and it stays.
+- The VPS proof lists each story Action's `raised_at`, `due_at` and its state on Mon 17 Nov. The coordinator copies any overdue Action into the presenter notes.
+- No clamp or special case.
+
+### D-DATA.4 (Q4) Kisiwa service plan: written S-8d 09:00 is confirmed; due moves to S+10d 00:00 Site-local, CALENDAR.
+- `plan_due.py` makes a plan OVERDUE when it is due strictly before the range end `to`.
+- S is the prepare date minus 2 days, so a Sat-night prepare gives S = 12 Nov and the demo on Mon 17 Nov is S+5d. With due S+5d 00:00, any range that ends after the start of the demo day (the "today" preset after add-dates) would read OVERDUE.
+- S+10d keeps DUE_SOON for every range end from S-3d through S+10d. That covers the story week `[S-6d, S+1d)` and every demo day up to S+9d, and stays "within the story month" (the test's S+30d bound).
+- RUN_HOURS ("not assessed") is refused. It removes the K14 value the item exists to show.
+- Update the story doc `service_plan.due_at` and its test expectation.
+
+### D-DATA.5 (Q5) DATA-4 spec: Charger use from declared ratings; the diagram's feeder meter from config; no new Foundation vocabulary. About 0.5 unit, Sonnet, lane B, before the Sat 20:00 freeze.
+
+**Why the scope is this size.** The Foundation vocabulary (`sites/models.py` `COMPONENT_TYPES`) has no grid-connection, circuit-breaker, load-manager or auxiliary-feeder component. Feeding the Grid supply, Main CB, Feeder CB, Load manager and Depot auxiliary slots from config needs a schema change (component types, validation, import, read model). That is a BL item, not a two-day item. Those slots keep "Not declared", which is true. What the config already declares (charger 60 kW, connectors c1/c2 60 kW each with meter properties, the site import meter, the 80 kW import limit, the connector enable schedules) is now read.
+
+**A. Backend: the availability read carries ratings** (`analytics/ev_availability.py` `availability()`, same selected Foundation revision as the schedules).
+- Each connector row gains:
+  - `connector_rated_kw` (`ev-connector-max-power`, decimal text or null);
+  - `charger_asset_id` (the EV_CHARGER that has a SIGNAL edge to this connector, or null);
+  - `charger_rated_kw` (`ev-charger-max-power`, or null).
+- The fields are additive. Existing keys and values are unchanged.
+
+**B. Backend: the Charger use rule** (`site_outcomes/ev.py`, new pure `charger_use(kwh, availability_body, limit_kw, rc)`, replacing the constant `CHARGER_USE` contributor).
+- Capacity kWh: sum over chargers of `rating_kw x hours`.
+  - `rating_kw` is `charger_rated_kw` when declared, otherwise the sum of its connectors' `connector_rated_kw`.
+  - `hours` is the largest `scheduled_seconds` among that charger's connectors, divided by 3600. In the declared case all connectors share one schedule, so this is exact. The docstring says so.
+  - Connectors with no charger count individually as `connector_rated_kw x scheduled_seconds / 3600`.
+  - If the sum of charger ratings is above the declared import limit, the import limit replaces that sum (one line, `site_power.configured_limit_kw`).
+- Share: `kwh / capacity x 100`. The kWh is the one printed on the same response's "Charging delivered" line: the overview's `complete_kwh` in `compose`, and the EV-3 claim's `parts["kwh"]` in `_charging_from_claim`, which replaces the charger_use contributor as it replaces charging_delivered.
+- Words (label "Charger use"; one decimal for kWh as `num`; hours via `duration_text`; whole percent):
+  - normal: `{p}% of declared charging capacity · {kwh} kWh with a complete meter record in {h} of scheduled charging at {r} kW`. `{r}` is the single rating when all chargers share one; otherwise the words read "at the declared ratings". Confidence `rc`.
+  - 0 < share < 1: `{p}` reads `under 1`, giving "under 1% of declared charging capacity …". A share of 0 reads `0%`.
+  - availability read failed: `NOT_LOADED`.
+  - no kWh (`kwh is None`, or the claim is not known): `NO_SESSION_ASSESSMENT`.
+  - no rating declared on any scheduled charger or connector: `Not available yet · charger rating not declared`.
+  - total scheduled seconds 0 or null: `Not available yet · no scheduled charging hours in this window`.
+  - share above 100: `Not available yet · delivered energy is more than the declared rating allows in the scheduled hours`. This is a data fact, never "error".
+- Charger use is a contributor only. It enters no verdict, money or objective.
+
+**C. Frontend: `SiteSingleLineDiagram.tsx` `EvSingleLineDiagram`** (no read-model change; `chargers[].connectors[].meter_resolution_kwh` already exists).
+- Feeder meter slot `j`: when the group has at least one connector and every connector's `meter_resolution_kwh` is not null, the box drops `ev-sld__box--missing`, gets `data-ev-declared="yes"`, and the line under "kWh" reads `At each connector`. Otherwise it stays `Not declared` with `data-ev-declared="no"`.
+- Empty feeder slot (no charger in the group): the label stays `Charger {n} · Not declared` and the second line (`Rating not declared · No connector declared`) is not drawn. It repeated the label. The slot, box and position are unchanged.
+- Footnote `data-ev-sld-undeclared`, plain words: "Grid supply, circuit breakers, the load manager and depot auxiliary are not part of this site's declared configuration, so they are drawn as empty slots. Energy is metered at each connector and at the site import meter where declared. Reporting is not assessed on this diagram."
+- **MOCK DEVIATION D-DATA.5:** none in layout. Every v6.9 slot keeps its place, and only the slot words change.
+
+**D. Tests.**
+- `test_data4_charger_use.py` (pure): one case per state above. Also:
+  - the charger rating taking precedence over the connector sum (60, not 120);
+  - the import-limit cap;
+  - the claim-path kWh replacing the overview kWh;
+  - the fixture `ev-lab-001.yaml` read through `availability()` giving `charger_rated_kw` "60.0" and `connector_rated_kw` "60.0" for c1 and c2.
+- Frontend `SiteSingleLineDiagram` test:
+  - feeder 1 meter `At each connector` and `data-ev-declared="yes"`;
+  - feeder 2 has no "Rating not declared" text;
+  - the new footnote;
+  - every v6.9 slot is still present (`data-ev-slot` count unchanged).
+- Run the guards and `check-all`.
+- VPS:
+  - EV Overview › Grow on the story day shows a percentage line;
+  - recapture the EV Overview and Foundation pairs;
+  - the finish check is green (no EV row reads this contributor; if one does, it is updated from stored data in the same branch, citing D-DATA.5).
+
+### D-DATA.6 (Q6) Cold store and water pump PRODUCTIVE: accepted. Kisiwa does **not** declare MG-1 for 17 Nov.
+- **Supply use.** The cold store (ice and fish) is a business, so PRODUCTIVE is the accurate supply use. The water pump moving off HOUSEHOLD corrects the template.
+- Its critical status is not lost. Its first place in `critical-load-priority` and its `critical_load_requested/delivered_power` bindings (roles4 config) are unchanged, so MG-5 and Assure are unchanged.
+- The Foundation's displayed supply use changes from "Essential service" to "Productive". Both feeders have `feeder_demand` bindings, so the productive kWh is measured on both. The Grow copy names the measured hours (`productive_use.py`), so night-only runs are stated, not scaled.
+- **Price.** The fixture is neutral (it names no Site) and its idempotency is Site-scoped (`financial_assumption_publication_key_unique`), so reusing it is correct.
+- **Finish rows.**
+  - KIS-7 item 3 already asserts (`KIS7_ITEM3_REPORT_ONLY = False`, R3u U8). It was waiting for exactly this `productive_kwh` subject, and DATA-8 is what makes it pass. A failure there is a real defect: revert DATA-8 per D-17N.4. Never set report-only.
+  - KIS-6 derives from data: no change.
+  - KIS-1: before the VPS run, confirm `kis1` reads diesel prices by assumption key. If it counts every Kisiwa price, filter it to the diesel key (its subject). Do not raise a literal count.
+  - CO-6 is unchanged, because no objective is added.
+- **MG-1 not declared.** MG-1 is a month-to-date productive kWh target. Kisiwa has night runs only (DATA-7 full-day runs are OUT, D-17N.4), so a monthly target would be judged on a fraction of the hours, and a "behind pace" verdict would describe the recording, not the Site.
+- The Grow row shows the measured productive kWh and estimated sales, and keeps "No objective declared". That is true, and it is now one line, not three (D-E5.33).
+- MG-1 for Kisiwa goes to the backlog with DATA-7.
+
+**Builder order (lane B, VPS).**
+1. D-DATA.2 clock fix and its test, then the D-DATA.4 date and its test (no DB).
+2. Build D-DATA.5 as a separate commit (no DB, plus the frontend test).
+3. On the VPS, merge main and run a scratch prepare on `<prefix>_audit*`, then:
+   - packet resume point 2 plus the D-DATA.2 gate;
+   - the D-DATA.3 due list;
+   - the KIS-1 check;
+   - the EV Charger use line.
+4. Run the packet's Postgres files one at a time.
+5. Send it to a fresh Claude reviewer. Merge only after the Sat-night rehearsal finish check is green.
+
+Decisions logged for owner review: **D-DATA.1-6**.
