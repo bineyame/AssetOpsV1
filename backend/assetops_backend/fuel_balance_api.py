@@ -1,7 +1,8 @@
 """DIESEL-K5 (`.agent/build-sheet-DIESEL-1.md` §9l.2, ruling DIESEL-1-R3l): the fuel-balance night and fuel Finding
 reads.
 
-- `GET /api/sites/{site_code}/fuel-balance/nights?from=&to=&known_at=` (dates `[from, to)`, at most 31 nights)
+- `GET /api/sites/{site_code}/fuel-balance/nights?from=&to=&known_at=` (dates `[from, to)`, at most 31 nights; SR-10k:
+  or the date range's UTC instants, listing the nights of its Site-local days, `INVALID_WINDOW` otherwise)
 - `GET /api/sites/{site_code}/fuel-balance/nights/{night_date}?known_at=`
 - `GET /api/sites/{site_code}/fuel-findings?from=&to=&known_at=` (UTC instants)
 - `GET /api/sites/{site_code}/fuel-findings/{finding_id}?revision_id=&known_at=`
@@ -30,6 +31,9 @@ FINDING_NOT_FOUND = ("FUEL_FINDING_NOT_FOUND", "No such fuel finding for this Si
 #: fuel-findings window refusal reuses the nights range refusal.
 KNOWN_AT_INVALID = ("INVALID_KNOWN_AT", MESSAGES["INVALID_KNOWN_AT"])
 WINDOW_INVALID = RANGE_INVALID
+#: SR-10k: the date-range form of the nights list (UTC instants) refuses with the range code `INVALID_WINDOW` and the
+#: nights range sentence (no new wording).
+RANGE_WINDOW_INVALID = ("INVALID_WINDOW", RANGE_INVALID[1])
 UNAVAILABLE = ("FUEL_BALANCE_STORE_UNAVAILABLE", MESSAGES["MINI_DEPTH_STORE_UNAVAILABLE"])
 
 
@@ -88,7 +92,8 @@ def build_fuel_balance_router(reads: FuelNightRead | None, scope: Scope,
         try:
             body = work()
         except FuelNightRefused as refused:
-            raise _refuse(422, KNOWN_AT_INVALID) from refused
+            pair = RANGE_WINDOW_INVALID if refused.code == "INVALID_WINDOW" else KNOWN_AT_INVALID
+            raise _refuse(422, pair) from refused
         except FuelNightUnavailable as error:
             raise _refuse(503, UNAVAILABLE) from error
         if body is None:
@@ -98,7 +103,16 @@ def build_fuel_balance_router(reads: FuelNightRead | None, scope: Scope,
     @router.get("/api/sites/{site_code}/fuel-balance/nights")
     def nights(request: Request, site_code: str) -> dict[str, Any]:
         code, tenant_id, site_id = open_scope(request, site_code)
-        lo, hi = _day(_one(request, "from")), _day(_one(request, "to"))
+        raw_lo, raw_hi = _one(request, "from"), _one(request, "to")
+        if any(raw is not None and "T" in raw for raw in (raw_lo, raw_hi)):
+            # SR-10k: the date range's UTC instants (both or neither); the read names the Site-local days.
+            start, end = _instant(raw_lo, RANGE_WINDOW_INVALID), _instant(raw_hi, RANGE_WINDOW_INVALID)
+            if start is None or end is None or start >= end:
+                raise _refuse(422, RANGE_WINDOW_INVALID)
+            known = _instant(_one(request, "known_at"), KNOWN_AT_INVALID)
+            return served(lambda: reads.nights(tenant_id=tenant_id, site_id=site_id, code=code, lo=None, hi=None,
+                                               known_at=known, window=(start, end)), NIGHT_NOT_FOUND)
+        lo, hi = _day(raw_lo), _day(raw_hi)
         known = _instant(_one(request, "known_at"), KNOWN_AT_INVALID)
         if (lo is None) != (hi is None):
             raise _refuse(422, RANGE_INVALID)
@@ -145,4 +159,4 @@ def build_fuel_balance_router(reads: FuelNightRead | None, scope: Scope,
     return router
 
 
-__all__ = ["FINDING_NOT_FOUND", "NIGHT_NOT_FOUND", "RANGE_INVALID", "build_fuel_balance_router"]
+__all__ = ["FINDING_NOT_FOUND", "NIGHT_NOT_FOUND", "RANGE_INVALID", "RANGE_WINDOW_INVALID", "build_fuel_balance_router"]
