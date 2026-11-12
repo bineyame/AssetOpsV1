@@ -90,3 +90,11 @@ USER_REVIEW_REQUIRED: no (server slice; the page waits for SR-4).
 - `mini_depth/day_summary.py`: `no_reading_days(facts)`; `day_state(..., no_readings, pending)` order NOT_EXPECTED, pending, NO_DATA, absent row, rest; NO_DATA entry = `absent_day` with `stored` true/false, nulls, not counted, `partial` false. Wired in `mini_depth_api.py` (one `day()` read gives grades and no_readings). Prepare unchanged.
 - Tests: pure (3 new), route (`test_no_reading_days_read_no_data...`), Postgres `test_pre_data_day_with_no_row_reads_no_data` on assetops_sr10_test: 5 passed (140 s). Pure+route: 33 passed.
 - Parity script (copy `.agent/SR-10-parity-script.py` + working `sr10_sr11_parity.py`): D-SR.71 enqueue-rule gate (DOMAIN_ROLES loaded from 0029, half-open overlap, +1 us, binding eligibility), cross-check, both gated at 0; `ineligible_hours`, `heads_without_evidence` reported; NO_DATA days now from `no_reading_days`, must read NO_DATA. Parity rerun: pending (coordinator). check-all: for coordinator.
+
+## D-SR.70-72 review fix round
+M-1: `range_days` starts `pending` from `result.is_pending(...)` and ORs `read.pending` when a row exists (pinning test
+`test_pending_without_stored_row_reads_still_processing_not_no_data`, fails on the prior code). L-1: added
+`test_not_expected_measures_are_left_out_of_applicable`; none_declared asserts now non-vacuous. Note: a measure with no
+row already grades NOT_EXPECTED, so `none_declared` exclusion in `no_reading_days` is redundant with the NOT_EXPECTED
+exclusion (tests say so). L-3: parity NO_DATA cross-check is role + overlap only (committed and working copies).
+Pure + route tests: 35 passed.
