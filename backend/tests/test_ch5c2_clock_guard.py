@@ -105,7 +105,8 @@ PY_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
         _WRITER + " (the recompute worker's default clock; only ConsequenceRecomputeWorker.run reads it; derive reads none)",
     (_B + "chain.period_read", "PeriodReader.__init__"):
         "the period read's default read-instant (`at = known_at or self._now()`), used only when the caller passes no"
-        " known_at (CLEAN-1: the AR-3/AR-4 modules were missing from the module list; Architect to confirm the allowance)",
+        " known_at: a live read's wall-clock knowledge time, as ruled in D-ANY.5 (CLEAN-1 added the AR-3/AR-4 modules to the"
+        " module list, which surfaced it)",
 }
 
 _PY_CLOCK_ATTRS = {("datetime", "now"), ("datetime", "utcnow"), ("date", "today"), ("time", "time")}
