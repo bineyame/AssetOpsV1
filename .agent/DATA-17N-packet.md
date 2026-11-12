@@ -20,7 +20,7 @@ No item names a finish (self-check) row in its spec, so none was added; the Satu
 
 - New: `test_data5_story_diagnostics.py` (6), `test_data10_kisiwa_service_plan.py` (5), `test_data13_story_action_due.py` (6), `test_data8_kisiwa_productive.py` (4); updated fakes in `test_k1_kisiwa_fixtures.py`, `test_own_g1_add_dates.py`, `test_evhb_ev_window.py`.
 - Every non-Postgres backend/host test file importing a changed module (22 files): **367 passed, 31 skipped** (skips are DB-gated).
-- `tools\check-all.ps1`: see the result line at the end of this packet.
+- `tools\check-all.ps1` (plan2 venv python): 17 of 19 PASS; the 2 FAILs were "Missing-claim orphan scan" and "Missing-claim scan fixtures", both `Cannot find module 'typescript'` (the fresh worktree has no `frontend/node_modules`; environment). Rerun with `NODE_PATH=<AssetOpsV1-plan2>\frontend\node_modules`: scan passed (merge-base f4850ee2c), fixtures 26 pass / 0 fail. No frontend file is changed on this branch.
 - Not run: Postgres files, prepare, finish check (lane rules: no DB jobs on this laptop before 16:00; VPS).
 
 ## VPS resume points (scratch prepare proves them)
