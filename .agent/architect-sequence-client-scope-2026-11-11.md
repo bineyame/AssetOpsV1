@@ -1,5 +1,25 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10c (Architect, Claude, 2026-11-12 night): range = telemetry and its consequences (D-SR.39)
+
+- Owner, verbatim (`.agent/owner-all-tabs-respect-range-2026-11-12.md`): "the data range does not affect facts such as the ones you mentioned: foundation, its views, SLD..etc. The point is relevant to telemetry data and its consequence."
+- **Principle.** The range applies to telemetry data and what follows from it: readings, assessments, findings, money, evidence and work. Configuration and assumption facts (Foundation, its views, SLD, changes history, prices, EV assumptions, battery configuration) are not ranged. A fact is still *applied* per day where telemetry uses it.
+
+| Card | Under the principle | Verdict |
+|---|---|---|
+| SR-10 Fuel, SR-11 Backup | modelled fuel use and backup sequences come from readings | **IN** |
+| SR-10k Kisiwa fuel checks | nights are assessed from tank and generator readings | **IN** |
+| SR-12a Evidence rejections | rejected and duplicate readings are telemetry | **IN** |
+| SR-12b Analytics readiness | readiness is scored on assessments, which are a consequence of telemetry. The declaration list (which analytics apply) stays unranged | **IN** (readiness only) |
+| SR-13 Foundation changes list | a configuration edit history | **OUT**: N, not a period |
+| SR-14 Prices / EV assumption history | assumption facts | **OUT**: N. R729 is withdrawn, and SR-5d keeps "Prices valid now" |
+
+- **Unaffected:** "Still being prepared" (STILL_PROCESSING) describes telemetry rows not yet built, so it stays. Per-day money already applies each day's price to that day's telemetry (rev 9 SR-5d, D-SR.14), so it stays.
+- **Size:** 18.6 − 0.2 − 0.3 = **about 18.1 units**.
+- **Lanes:** lane G runs SR-4, then SR-12a, then SR-12b. Lane H runs SR-5, then SR-5c, then SR-5d, then the non-range items.
+- **Merge order:** SR-13 and SR-14 are removed from the order.
+- **Saturday list (D-SR.38):** DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1, then SR-12b.
+
 ## Revision 10b (Architect, Claude, 2026-11-12 night): every tab follows the range; SR-10 to SR-14; nothing drops before Saturday
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.31-38** (build sheet), owner-directed, logged for owner review.
