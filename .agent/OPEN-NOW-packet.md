@@ -29,6 +29,12 @@ backend/assetops_backend/work/{open_now.py (new), site_index.py, global_index.py
 - Non-DB import and wording check: ok.
 - `check-architecture.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): "Architecture check passed." `check-agent-workflow.ps1`: "Agent workflow check passed." (exit 0, on `df60697a1`).
 
+## D-OPEN.1 follow-up and Postgres run (2026-11-12, after `git merge main`, merge d8733388b)
+- Ruling items: (1) card wording "requests, actions" is not in the code or the packet; the line and the wording stay "incidents, requests" and "Nothing open now"; Actions subtab gets no line (unchanged). (2) `guarded_open_now` in `work/open_now.py`: a failed count omits `open_now`, logs `open_now_unavailable`, still serves the list; wired in `global_index.py` (~537) and `site_index.py` (~390). New no-DB `backend/tests/test_open_now_failure.py`, 2 tests (one per list); both fail when the guard re-raises, pass with it. (3) `test_open_now_postgres.py` now reads a real cursor page two on the Site list (wide window, limit 1, cursor, later read instant) and on the global list; counts equal on both pages.
+- Postgres on `assetops_opennow_test`, one file at a time, all after the D-OPEN.1 changes: `test_open_now_postgres` 3, `test_w401_site_indexes_postgres` 5, `test_w601a_global_incidents` 20, `test_w601b_global_maintenance` 17, `test_w403_work_links_postgres` 3 (11:00), `test_k6a_fuel_action_origin_postgres` 7, `test_w601c_request_detail` 18, `test_w601e_operational_index` 12. 0 failed, 0 skipped.
+- vitest (6 files: globalIncidents, globalMaintenance, siteWorkCases, coldWorkCases, evWorkCases, globalWorkClient) 165 passed; `tsc --noEmit` clean (run on the merge, frontend unchanged since).
+- check-all (19 guards) on the merge before the D-OPEN.1 commit: all 19 passed; rerun on the final revision (after the D-OPEN.1 commit): All 19 guards passed.
+
 ## Known deviations
 1. Actions are not counted. The card's example says "1 action", but the Action index has no `known_at` cutoff, and an Action has no "open" state (ACCEPTED → PENDING → APPLIED; resolution is separate). The Architect needs to define "open action" before actions can be counted. The Site Actions subtab and the global Preventive and Operational records pages get no line, because plans and records have no open state.
 2. Every line counts both kinds (incidents and requests), whichever page it is on.
