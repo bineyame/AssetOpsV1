@@ -19,6 +19,7 @@
       "response": {
         "body": {
           "display_name": "Kalangala Mini-Grid",
+          "lenses_supported": false,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -287,6 +288,7 @@
             "version": 1
           },
           "foundation_revision_id": null,
+          "lenses_supported": false,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -321,6 +323,7 @@
               "configuration_store": "LEGACY_FILE",
               "display_name": "Kalangala Mini-Grid",
               "foundation_revision_id": null,
+              "lenses_supported": false,
               "lifecycle_status": "PLANNED",
               "location": {
                 "country": "Uganda",
@@ -439,6 +442,7 @@
             "version": 1
           },
           "foundation_revision_id": null,
+          "lenses_supported": false,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -581,6 +585,7 @@
             "version": 1
           },
           "foundation_revision_id": null,
+          "lenses_supported": false,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -660,6 +665,7 @@
               "configuration_store": "LEGACY_FILE",
               "display_name": "Kalangala Mini-Grid",
               "foundation_revision_id": null,
+              "lenses_supported": false,
               "lifecycle_status": "PLANNED",
               "location": {
                 "country": "Uganda",
