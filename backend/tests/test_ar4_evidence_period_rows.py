@@ -213,6 +213,20 @@ def test_no_revision_selected_is_projected_without_a_row_or_compose() -> None:
     assert rows.statements == 0  # no row read at all
 
 
+def test_claim_inputs_keep_only_accepted_evidence_fields_the_projection_reads() -> None:
+    full = {"id": RID, "evidence": [{"evidence_id": "e0", "disposition": "REJECTED", "role": "x"}],
+            "run": {"id": "run-1", "revisions": [], "evidence": [
+                {"evidence_id": "e1", "disposition": "ACCEPTED", "role": "generator_state", "payload": {"big": 1},
+                 "interval_end": None, "source_time": NOW, "accepted_at": NOW, "quality": "GOOD"},
+                {"evidence_id": "e2", "disposition": "HELD", "role": "feeder_demand"}]}}
+    out = pr.claim_inputs(full)
+    assert out["evidence"] == [] and out["run"]["revisions"] == [] and out["id"] == RID
+    assert out["run"]["evidence"] == [{"evidence_id": "e1", "disposition": "ACCEPTED", "role": "generator_state",
+                                       "interval_end": None, "source_time": NOW, "accepted_at": NOW}]
+    assert full["run"]["evidence"][0]["payload"] == {"big": 1}  # the input is not mutated
+    assert pr.claim_inputs(None) is None and pr.claim_inputs(DETAIL) == DETAIL
+
+
 def test_pending_local_day_and_old_builder_are_read_as_today() -> None:
     store, svc = built_store(), Service()
     store.dirty.append((S, date(2026, 10, 14), pr.KIND_CLAIM))  # Nairobi 14th is part of UTC day 13
