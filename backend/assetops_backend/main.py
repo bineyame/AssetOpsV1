@@ -670,7 +670,8 @@ def create_app(
         registry.ledger_scope, (AssumptionStoreUnavailable,)))
     # PR-2a (BL-68): the read-only Site price page over the same price reads.
     app.include_router(build_price_page_router(
-        assumption_reads, registry_site_facts(registry), (AssumptionStoreUnavailable, SiteStoreUnavailable)))
+        assumption_reads, registry_site_facts(registry), (AssumptionStoreUnavailable, SiteStoreUnavailable),
+        entry_principal=operational_entry_principal))
     # OUT-B4 (§B.3): the Site outcome board and the estate outcome summary over the instances composed above
     # (no new store except the preventive-plan global work read, disposed at shutdown).
     outcome_board, outcome_board_dispose = build_outcome_board_service(

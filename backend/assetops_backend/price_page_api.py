@@ -9,7 +9,7 @@ Nothing here writes; PR-3 adds the entry route and the body's `entry` block.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 from fastapi import APIRouter, HTTPException, Request
@@ -18,6 +18,7 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend.finding_api import ACCESS_BASIS, Access, development_access
 from assetops_backend.financials.assumption_read import AssumptionReadService
 from assetops_backend.financials.price_page import compose, stored_keys
+from assetops_backend.work_api import Principal, no_service_principal
 
 #: Site code -> `(site_code, site_name, site_type, timezone, tenant_id, site_id)`, or None for an unknown Site.
 SiteFacts = Callable[[str], "tuple[str, str, str, str, Any, Any] | None"]
@@ -34,7 +35,11 @@ def registry_site_facts(registry: Any) -> SiteFacts:
 
 def build_price_page_router(reads: AssumptionReadService | None, site: SiteFacts,
                             unavailable: tuple[type, ...] = (), access: Access = development_access,
-                            access_basis: str = ACCESS_BASIS) -> APIRouter:
+                            access_basis: str = ACCESS_BASIS, entry_principal: Principal = no_service_principal,
+                            clock: Callable[[], datetime] = lambda: datetime.now(UTC)) -> APIRouter:
+    """`entry_principal` is the same injected switch the PR-3 entry route uses (`ASSETOPS_OPERATIONAL_ENTRY`); it
+    only decides the body's `entry` block and sign-in sentence here. `clock` is a server-side injection (Site-local
+    "today" for the form's default); no request field sets it."""
     router = APIRouter()
 
     def store_down(message: str) -> HTTPException:
@@ -67,7 +72,9 @@ def build_price_page_router(reads: AssumptionReadService | None, site: SiteFacts
                       for key in stored_keys(site_type)}
         except unavailable as error:
             raise store_down(str(error)) from error
+        entry_on = entry_principal(request, site_code) is not None
         return jsonable_encoder(compose(site_code=code, site_name=name, site_type=site_type, timezone=timezone,
-                                        series=series, need=need, known_at=known_at, access_basis=access_basis))
+                                        series=series, need=need, known_at=known_at, access_basis=access_basis,
+                                        entry_on=entry_on, now=clock()))
 
     return router
