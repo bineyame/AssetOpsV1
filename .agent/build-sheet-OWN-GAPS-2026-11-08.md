@@ -5065,3 +5065,103 @@ Decisions logged for owner review: **D-SR.50**.
 - SR-10 fix round about 0.1 units (51.3, 51.4, 52, 53, 54 prepare split), on a Sonnet builder. Package about 18.3 units.
 
 Decisions logged for owner review: **D-SR.51-54**.
+
+## D-SR.55 SR-10k Q1-Q4 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Branch `task/SR-10k-kisiwa-fuel-nights` (server 931c4b783, page bf9ca80e6), packet `.agent/SR-10k-packet.md`.
+- Q1: **keep both forms.** The K5 night-date form (`FUEL_BALANCE_RANGE_INVALID`, pinned by K5 B2) stays for its existing callers. The instant form is the range form. The route docstring names both and the rule that tells them apart (a `T` in either value). A mix of the two forms is refused with 422 `INVALID_WINDOW`, and a stub test pins this.
+- Q2: **confirmed.** `INVALID_WINDOW` uses the nights sentence ("Choose up to 31 nights, with the first night before the last.").
+- Q3: **both send `known_at` when the range has one**, through `rangeParams` as every other range read does (SR-6/7a/8/10b keep `known_at` in the stored key). Without one, the request is unchanged. The server already accepts `known_at` on the list and on the detail, so this is a page change only. Add a vitest pin that the list and detail URLs carry the same `known_at`.
+- Q4: **corrected.** A `?night=` link names one record (N, D-SR.44), so it opens that night and never swaps it silently. The list stays filtered to the range. Above the detail, one line reads "This night (4 Nov) is outside the selected date range", without widening the range. A night that does not exist keeps the existing NIGHT_NOT_FOUND refusal. Add a vitest pin.
+- Size about +0.05 units (page only). Package about 18.35 units.
+
+Decisions logged for owner review: **D-SR.55**.
+
+## D-SR.56 SR-6 review M2 and L1: the local-day grade on UTC days, and Health's watermark (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-6-review-server.md` (04e468a60), M2 and L1.
+- **M2: the mapping stays as ruled.** `estate/range_days.py` gives a UTC dispatch day the chain grade of the Site-local day with the same date. That is coverage's D-E5.42 rule (`estate/coverage.py:194-211`). The range Overview's whole job is to equal the Portfolio day by day (D-SR.22, SR-5 parity), so changing the mapping in `range_days` alone would break that parity. Changing it estate-wide is a coverage change, which is out of scope for the freeze. So there is no code change to the mapping.
+- **Where it can show.** NOT_EXPECTED is a grade only for local days before readings began. For a UTC+3 Site, the UTC day whose date is the last local NOT_EXPECTED day holds at most the 3 hours `[21:00, 24:00) UTC` of the next local day. So **at most one day per Site** is affected: the day readings began, and only if they began between local 00:00 and 03:00. At 5-minute cadence that day has at most about 36 accepted readings. The review probe's 288 readings cannot occur on real data. The SR-6 fix ("readings above 0 win" in the cell and the summary) stays, because Health counts readings (D-SR.49 Q1).
+- **SR-5 change (wording only, about 0.02 units).** The state stays NOT_EXPECTED, so the Portfolio parity holds. When the day's dispatch row has `accepted_reading_count > 0`, the Overview day cell reads "Readings began late this day · not counted", not "Before readings began". Add one no-DB test.
+- **Parity must catch it.** The SR-5 and SR-6 parity JSONs gain `not_expected_with_readings: [{site, day, accepted_readings, readings_began_local, readings_began_utc}]`.
+  - **Gate:** at most one such day per Site, and it must be the UTC day whose date is the last local day before `readings_began`. Any other day, or more than `12 x UTC offset hours` readings on it (36 for UTC+3), fails the gate: that would mean the mapping is wrong beyond the zone edge.
+  - The existing comparisons stay as they are. They are the gap set == coverage gaps and members == Portfolio (SR-5), and the per-day `accepted_readings` == the SR-5a dispatch row (SR-6). They cannot detect this, because both sides use the same mapping. That is why the new check is added.
+- **L1: accepted as a known limit for the demo.** The demo windows are historical (D-SR.29), and diagnostics do not change after the prepare, so no stale contact can show in the demo. The "Contact now" panel stays the point-in-time view.
+  - The packet and the Health range code name the limit. Without `known_at`, contact and registration flags refresh at `valid_until` (the next local midnight) or on the next readings arrival.
+  - Backlog, after the freeze: add `gateway_diagnostic` (and `gateway` and `source` for registration flags) to the watermark input tables. That is a migration-level change to 0047's inputs plus a watermark test.
+
+Decisions logged for owner review: **D-SR.56**.
+
+## D-SR.57 SR-4c review L2, L3 and the two-declarer risk (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-4c-review.md` (5b1eba3b1, `/opt/assetecon/AssetOpsV1-sr4`).
+- **L2: intended. S15's cutoff pin gives way to the shared range.**
+  - Scenarios reads under the shared range's `known_at` when the address has one. Otherwise it reads live, like every other range page.
+  - It does **not** adopt the server's `known_at` into the address. An adopted `known_at` would travel on the rail to every other tab (D-SR.2) and silently turn the whole Site historical.
+  - Cursor pages keep the body's bound, as now. `miniDecisions.test.tsx:309-311` ("no adoption") stays.
+  - Fix: rewrite the header at `MiniScenarios.tsx:4-7` to say this. The adoption branch stays only for the address-free case, which happens outside the shell. Cite D-SR.57.
+- **L3: corrected to per key.** `withRange` adds the address `known_at` to a target that names `from`/`to` but no `known_at`. The target's own `from`, `to` and `known_at` still win.
+  - Reason: a drill-in from a range pinned to a cutoff must read at the same cutoff. The SR-10/11 `hour_link` and the SR-5/6/7 day links name `from`/`to` only, so otherwise they would read live and could disagree with the row the user clicked.
+  - Change `sharedRange.ts:160`: keep the target's `from`/`to`, and when the target has no `known_at`, append the address `known_at` if the address has one. Update `rangeLink.test.tsx:67-72` to the new expectation; do not delete the case. Add one case: a target with its own `known_at` keeps it.
+  - Size about 0.03 units; SR-4 fix round.
+- **Two declarers: one declarer per view.**
+  - In the hour view of Service, Backup and Fuel, FocusPicker is the only declarer. `WindowSpan` keeps its visible text but stops declaring into the focus slot.
+  - Its range-without-hour declaration (D-SR.42a) is removed when that page's range view lands: SR-10c for Fuel, SR-11 for Backup, SR-7's page for Service. The range view then declares nothing (rev 10b.2).
+  - Each of those slices adds one vitest that the focus slot is declared once in the hour view.
+
+Decisions logged for owner review: **D-SR.57**.
+
+## D-SR.58 SR-11 Q1-Q3 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-11-packet.md` (`task/SR-11-backup-range` 713bbf7d8).
+- **Q1: yes.** On an absent day (`stored: false`) `sequences` is null, like every other D-SR.51.3 figure. A stored day with no sequence has `[]`. Pin both cases in the pure test.
+- **Q2: count start successes from the sequences, not from the hour cards.**
+  - Why: the hour card (`mini_depth/rules.py:1072`) counts SUCCEEDED `start_pair`s over that hour's chains. A sequence that spans hours is counted in every hour, so the sum double-counts within a day as well as across midnight.
+  - Change (shared `day_summary.py`):
+    - Each `sequences` entry gains `start_pair`, copied from the head's chain.
+    - The day `start_success_count` is the number of de-duplicated sequences with `start_pair == "SUCCEEDED"`. It is null when every sequence's `start_pair` is null or there is no sequence.
+    - The window total counts the same thing over the sequences de-duplicated across the window (D-SR.51.4).
+  - If the stored head result does not carry a per-chain `start_pair`, stop and ask; do not recompute.
+  - Tests:
+    - one sequence over two hours gives 1;
+    - one sequence over midnight gives 1 in the window total, while each day's own count still shows it;
+    - the null rule.
+  - The UI wording stays "backup starts". About 0.05 units, SR-11 fix round.
+- **Q3: acceptable.** The grade order is pure and pinned in the stubs. The day rows in the Postgres test are real. The real grade path is closed by parity:
+  - the SR-10 and SR-11 parity runs call each live range route (real `PostgresChainRead`) for KOBO-001 and KISIWA-001;
+  - they compare every `days[].state` NOT_EXPECTED / grade-derived outcome with `chain.read.day_grade` for the same day;
+  - the gate is 0 mismatches.
+
+Decisions logged for owner review: **D-SR.58**.
+
+## D-SR.59 SR-4a+b review H-1, L-1, L-4: short ranges on the mini depth tabs (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-4ab-review.md` (7f9a0bd9e, REJECT). Rev 8 §8.2's "pass the address window through" is withdrawn for these tabs. It is an Architect spec defect, not a builder one.
+- **H-1: the fix is in the client. The server stays strict.**
+  - The one-hour and one-to-five-day reads (`mini_depth/read.py:112-138` `hour_windows`) are point reads. The SR-10/11 `hour_link` and the FocusPicker send them exact Site-local windows, and every range view gets its days on the server by D-SR.45 `window_days` (SR-7a/8/10b/11). So the client turns the range into the Site-local window the server takes, by the same `window_days` rule: **a range of UTC dates names the Site-local days of those same dates.**
+  - Do not loosen `hour_windows`. It is the contract that refuses a malformed drill-in.
+- **Change: `frontend/src/sites/miniDepthClient.ts`.**
+  - **Renewable** (`renewableWindowFromParams`, `:342`):
+    1. Pass the address through only when both bounds are exact Site-local midnights 1-5 days apart (as `hour_windows` checks).
+    2. Otherwise take the range from `addressRange(params)` (the `readSharedRange` result). If it spans 5 days or fewer, send `localDaysWindow(tz, range.from, n)`, where `range.from` is the date string itself, not `localDateOf` of an instant, so a negative-offset zone gets the same dates.
+    3. A longer range keeps the existing "last 5 local days" rule.
+    4. No range: as now.
+  - **Service, Backup and Fuel** (`serviceWindowFromParams`, `:384`):
+    1. Pass the address through only when it is exactly one Site-local clock hour (span 1 h and the local minute, second and millisecond are 0).
+    2. The `DAY_MS` pass-through is removed. A one-day range, "Yesterday" included, gives the 12:00 local hour of `pageDay`, like a longer range.
+    3. The reversed or unparseable pass-through stays, so the page still names why it is refused.
+  - `known_at` is carried unchanged.
+- **L-4: fix now, in the same lines.** Both functions measure the range through `addressRange` / `readSharedRange`, never raw `from`/`to` strings. The only raw-instant parses left are the two exact pass-through checks above. A hand-typed day-form `from=2026-11-08&to=2026-11-08` then reads as one day and gets 12:00 (Service) or that local day (Renewable).
+- **L-1: yes, per key.** The safety net (`SharedRangeBar.tsx:124-132`) applies the D-SR.42(d)/D-SR.57 rule: an address key wins over the copied previous range per key (`from`, `to`, `known_at`), and the result never holds a key twice. Test: a bare Site address with its own `known_at` plus a previous range with another `known_at` gives exactly one `known_at`, the address's.
+- **Tests that stop this class from coming back.**
+  1. **Vitest, pure** (`sharedRange.test.tsx` cases re-pinned, not deleted), for zones Africa/Addis_Ababa (+3) and America/Bogota (−5).
+     - Every bar preset (Yesterday, Last 7 days, Last 30 days), custom 2- and 5-day ranges, a one-hour story address, and a day-form address.
+     - The renewable window is exact local midnights covering the same dates. The service window is one local clock hour.
+  2. **Shared fixture contract.**
+     - The vitest writes nothing. A checked-in `frontend/src/sites/__tests__/fixtures/mini-windows-contract.json` lists those inputs and the expected `{from, to}`, and vitest asserts the functions equal it.
+     - A new no-DB `backend/tests/test_sr4_mini_windows_contract.py` feeds every expected window to `hour_windows` (and the `fuel`/`backup`/`service` domains) and asserts none is `INVALID_WINDOW`.
+     - So a client or server change that breaks the pair fails one side.
+  3. **App level** (`sr2RequestUrls.test.tsx`): Kobo Renewable and Kobo Service under the "Yesterday" preset each send one request with the pinned local bounds, and render no refusal.
+- Size about 0.15 units, in the SR-4 fix round, then a fresh review. SR-4 stays first in the merge order.
+
+Decisions logged for owner review: **D-SR.59**.
