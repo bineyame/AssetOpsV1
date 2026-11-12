@@ -28,7 +28,14 @@ MB-1 follows in this lane after UP-1's server.
 - `field/tests/test_field_csv_upload.py` + `test_field_export_csv.py`: 61 passed.
 - `backend/tests/test_up1_reading_upload.py` + `test_uq6a_message_seam.py`: 62 passed.
 - `host/tests/test_up1_reading_upload_process.py`: 16 passed (runs the real field process on the fixture).
-- `tools/check-all.ps1`: see the final line of this packet.
+- `tools/check-all.ps1` on eb05fa18f: **4 of 19 FAIL**.
+  - Architecture seams (UP-1's fault): `configuration-persistence.ps1` refuses the database driver in
+    `reading_upload/postgres_store.py`; the new store is not registered as the sole INSERT-only writer of
+    `reading_upload`.
+  - Estate guard self-tests (3 of 16, 26 min): they run the architecture check, so this is probably the same cause.
+    Not proven.
+  - Missing-claim orphan scan and its fixtures: node `Cannot find module` (the fresh worktree has no
+    `node_modules`). This is the environment, not UP-1.
 - Postgres: none run (lane rule: server + no-DB only today).
 
 ## Questions (batched; not designed around)
@@ -63,6 +70,13 @@ MB-1 follows in this lane after UP-1's server.
   re-checked by its tests afterwards.
 
 ## Resume points (VPS, after ~16:00)
+0. **Fix the guard first.**
+   - Move the store to `backend/assetops_backend/reading_upload/adapters/postgres_reading_upload_store.py`.
+   - Make its INSERT column list literal: the f-string renders as `{?}`, which the policy refuses.
+   - Register it in `tools/checks/configuration-persistence.ps1`, following the `$periodWriter` /
+     `$fuelBalanceWriter` pattern: driver allowlist, sole writer of `reading_upload`, INSERT-only, anti-vacuity.
+   - Prove the guard is non-vacuous: add a second writer, watch it fail, revert.
+   - Rerun `tools/check-all.ps1` with `node_modules` present.
 1. Get Q1-Q3 answers (Q2/Q3 gate the send and the Analysed state).
 2. `GET /api/sites/{code}/reading-uploads/template` (header row from the profile, via the host).
 3. Demo upload gateway in `tools/demo_combined.py serve` writing the `ASSETOPS_READING_UPLOAD_GATEWAY` file (per Q2);
