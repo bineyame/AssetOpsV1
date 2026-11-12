@@ -122,7 +122,58 @@ this idempotency key, re-derive that save's kind and prior; unit test `test_a_re
   the saved revision.
 - Results: no-DB `test_pr3_price_entry.py` 88 passed; Postgres file 4 passed, 0 skipped (41 s, main merged first).
 
-## Resume points for the form half (Friday, on PR-2a)
+## Form half (2026-11-12, after merging main `adf869b08`, which carries PR-2a)
+
+Merge was clean; migration head stays single (`0060_site_admin_price_entry` → `0059_site_period_read`).
+
+| Piece | Where |
+|---|---|
+| `entry` block + entry-on sign-in sentence (default 7) on the PR-2a page read | `financials/price_page.py` `entry_block`, `compose(entry_on=, now=)`; `ENTRY_SIGN_IN_TEXT`, `LIVE_VIEW_LINK` |
+| Page router takes the same `entry_principal` switch + server-only `clock` | `price_page_api.py` `build_price_page_router`; `main.py` passes `operational_entry_principal` |
+| Entry client (dry run / save, refusal mapping, `price-entry-<32 hex>` key) | `frontend/src/sites/priceEntryClient.ts` (new) |
+| Inline form, words file `PRICE_ENTRY_WORDS`, states | `frontend/src/sites/SitePriceEntry.tsx` (new) |
+| Frame wiring: form via the `renderBelow` seam on `entry.keys` rows when `enabled`; `?key=` opens on arrival; re-read after save keeps the old body on screen; known_at live-view line + link without `known_at` | `frontend/src/shell/SitePricesFrame.tsx` |
+| CSS (all font sizes `var(--text-*)`; one column ≤760 px) | `frontend/src/sites/sitePrices.css` (`.price-entry*`) |
+
+Flow: closed ("Set a new price") → open (Amount + unit suffix, Currency fixed text when a series exists else
+select, Basis radios, Where this price comes from, Applies from = `entry.today`) → Continue = dry run → confirm panel
+with the server's one sentence (default 8) and Reason when `reason_required` (Save waits for it) → Saving… →
+success note = server `summary` (it says figures read "Updating…" for a few minutes) + "← Back to where you were";
+the page re-reads (row value, History "Entered by site admin"). Refusals show the server message + "Check: <fields>."
++ "Nothing was saved."; REASON_REQUIRED on save reopens Reason; 503 "Prices cannot be saved right now. Nothing was
+saved."; network loss on save "We could not confirm the save. Saving again is safe." with the same key.
+
+### Form-half deviations (Architect to confirm)
+
+7. **`entry` carries four fields beyond `{enabled, keys}`:** `today` (Site-local date; the browser has no Site zone),
+   `unit_text` (unit suffix for a key with no price yet), `currencies` (the select for a key with no series; sorted
+   `ISO_4217`, default USD), `live_view` (the known_at honest-state words, server-side). All empty/None when disabled.
+8. **Basis has no default selection**; an unchosen basis is refused by the server (`fields: ["basis"]`), shown as
+   "Check: Basis."
+9. **The "Set a new price" button sits in the row's slot** (`data-price-slot`) under the row, not in a table cell, so
+   the PR-2a seam is the only change to the table.
+10. **MOCK DEVIATION (D-PRICE.3):** v7.1 `price-it.html` has no form (Part B read-only; Part D "Comes with sign-in");
+    the form layout follows rev 5 §5.3 inside Part B's table. Labelled in `SitePriceEntry.tsx`.
+
+### Form-half checks (revision after the form-half commits)
+
+- No-DB: `test_pr3_price_page_entry.py` (4, new) + `test_pr2a_price_page.py` + `test_pr3_price_entry.py`: **107 passed**.
+- Postgres (`assetops_pr3_test`, PYTHONPATH incl. `gateway;field`): `test_pr3_price_entry_postgres.py` **4 passed,
+  0 failed, 0 skipped** (JUnit tests=4), wall 34 s, after the merge; `test_pr2a_price_page_postgres.py` 4 passed.
+- Vitest: `sitePriceEntry.test.tsx` **18 passed** (closed, entry off, known_at, open/`?key=`, currency select,
+  confirm→saving→saved + re-read + body keys, reason required, 7 save refusals through the real client with their
+  server words, dry-run refusal, 503, network loss + same-key retry, client lost mapping); `sitePrices.test.tsx` 14
+  passed. Non-vacuity: forcing the form onto every row fails the "entry-key rows only" test (reverted).
+- `tsc --noEmit` clean. `npm ci` replaced the `node_modules` junction (with the junction, jest-dom matchers did not
+  register: two vitest instances).
+- Layout evidence: `node tools/pr3-price-entry-evidence.mjs http://localhost:5496 8996 var/pr3-evidence` (fixture API,
+  vite 5496; not the demo ports): open / confirm (Reason) / saved at 1440 and 390 px, **6/6 PASS** — form or note
+  present with width > 0, inside the viewport, page scrollWidth ≤ viewport (1425/1440, 375/390). Captures in
+  `var/pr3-evidence/` (untracked). At 390 the fields stack to one column; the success note sits under the updated
+  row with the Back link.
+- check-all: see below.
+
+## Resume points for the form half (Friday, on PR-2a) — done above except where noted
 
 1. Rebase/merge onto PR-2a; add `entry: {"enabled", "keys"}` to the PR-2a page read (`enabled` false without the
    principal or under `known_at`) and the `set_by_label` map (`service:operator-entry` → "Entered by site admin").
