@@ -49,11 +49,20 @@ Spec: rev 10b.1/10b.3, 10d.4 (D-SR.45 `window_days`), D-SR.31/33/36/51-54.
 - Q1 applied: SR-10's ee97829ef already nulls `sequences` on an absent day; pinned in `test_an_absent_day_is_unknown_not_zero`
   (absent `sequences` null, stored NO_SEQUENCE day `[]`). 17 no-DB passed.
 - Q3: accepted, no change.
-- **Q2 STOPPED (per the ruling):** the stored backup head does not carry a per-chain `start_pair`. `projection._backup`
-  (`mini_depth/projection.py:181-188`) writes each row as chain_id, outage_start, steps, service_outcome, result,
-  critical_recovery, coverage, evidence_ids; `start_pair` exists only on `rules` chains (`rules.py:825`) and in the
-  hour card count (`rules.py:1072`). Start successes are still the hour-card sum. Awaiting a ruling (e.g. add
-  `start_pair` to the projection rows, which changes stored heads and may need a builder/projection version bump).
+- Q2: withdrawn by **D-SR.60**. Start successes stay the hour-card sum (null rule unchanged), no label, no
+  `start_pair`. Premise pinned by `test_chain_ids_are_unique_across_one_stored_days_hours` (pure: 24 projected hours of
+  `rules.assess_backup_hour`, outages spanning an hour and local midnight, 3 chain_ids, unique; next day's 00:00 hour
+  adds none). The D-SR.51.4 chain_id de-dup of `sequence_counts` stays as a guard.
+
+## Parity spec additions (SR-11 parity JSON)
+- `duplicate_chain_ids` per Site (KOBO-001, KISIWA-001) and window (7/14/31 days): chain_ids appearing in more than one
+  stored hour of a `mini_depth.backup_day` row or across days of the window. **Gate 0**; non-zero means the hour rule
+  changed: stop and ask (D-SR.60).
+- Each live range route's `days[].state` vs `chain.read.day_grade` for the same day (D-SR.58 Q3), gate 0.
+
+## Re-check after merging main + SR-10 guard fix 95a71e92d
+- No-DB SR-11 + SR-10 route/summary tests: 46 passed.
+- `tools/check-architecture.ps1`: "Architecture check passed." (the DBAPIError import is gone). Full check-all not rerun.
 
 ## Residual risk
 - `main.py`: SR-8's renewable range router lands next to the same block; the second merger resolves.

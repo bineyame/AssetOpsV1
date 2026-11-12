@@ -254,3 +254,32 @@ def test_main_wires_both_day_range_routes():
 
     paths = set(app.openapi()["paths"])
     assert {DAY_RANGE_ROUTES["fuel"], DAY_RANGE_ROUTES["backup"]} <= paths
+
+
+def test_chain_ids_are_unique_across_one_stored_days_hours():
+    """D-SR.60: a chain belongs to the one hour holding its LOSS (`rules.assess_backup_hour` bounds it at the hour
+    end), so summing hour-card start successes over a day or window never double counts. Outages here span an hour
+    boundary and local midnight; the 24 projected hours of the day hold each chain_id once. Non-vacuous: 3 chains."""
+    from decimal import Decimal
+
+    from assetops_backend.mini_depth import projection, rules
+
+    day, src = _d(0), uuid4()
+    midnight = local_hour(day, 0, TZ).start
+
+    def supply(minutes: float, state: str) -> rules.Observation:
+        return rules.Observation(uuid4(), src, "site_supply_state", midnight + timedelta(minutes=minutes), "GOOD",
+                                 state, None, None, None)
+
+    series = [supply(-60, "ENERGIZED"),
+              supply(11 * 60 + 50, "LOST"), supply(13 * 60 + 20, "ENERGIZED"),  # 11:50-13:20: spans two hours
+              supply(15 * 60 + 10, "LOST"), supply(15 * 60 + 20, "ENERGIZED"),  # inside one hour
+              supply(23 * 60 + 40, "LOST"), supply(24 * 60 + 30, "ENERGIZED")]  # 23:40-00:30: crosses midnight
+    ids = []
+    for h in range(24):
+        hour = rules.assess_backup_hour(local_hour(day, h, TZ), series, [], Decimal("5"), critical_asset_id=None)
+        ids += [str(r["chain_id"]) for r in projection._backup(hour)["rows"]]
+    nxt = rules.assess_backup_hour(local_hour(day + timedelta(1), 0, TZ), series, [], Decimal("5"),
+                                   critical_asset_id=None)
+    assert len(ids) == 3 and len(set(ids)) == 3
+    assert not set(str(r["chain_id"]) for r in projection._backup(nxt)["rows"]) & set(ids)
