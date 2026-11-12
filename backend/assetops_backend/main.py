@@ -100,6 +100,7 @@ from assetops_backend.domain_work_api import build_domain_work_router
 from assetops_backend.global_work_api import build_global_work_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
+from assetops_backend.price_page_api import build_price_page_router, registry_site_facts
 from assetops_backend.consequence_history_api import build_consequence_history_router
 from assetops_backend.financials.composition import (
     CONSEQUENCE_UNAVAILABLE,
@@ -667,6 +668,9 @@ def create_app(
     app.include_router(build_financial_read_router(
         assumption_reads,
         registry.ledger_scope, (AssumptionStoreUnavailable,)))
+    # PR-2a (BL-68): the read-only Site price page over the same price reads.
+    app.include_router(build_price_page_router(
+        assumption_reads, registry_site_facts(registry), (AssumptionStoreUnavailable, SiteStoreUnavailable)))
     # OUT-B4 (§B.3): the Site outcome board and the estate outcome summary over the instances composed above
     # (no new store except the preventive-plan global work read, disposed at shutdown).
     outcome_board, outcome_board_dispose = build_outcome_board_service(

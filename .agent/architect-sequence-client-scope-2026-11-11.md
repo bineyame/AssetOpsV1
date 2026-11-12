@@ -1,5 +1,326 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 7 (Architect, Claude, 2026-11-12 ~07:10): the owner's 17 Nov expectations, answered item by item
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
+- Owner, verbatim (`.agent/owner-17nov-expectations-2026-11-12.md`): "why is the ~2 sec target not done sooner than nov 17, especially with the new macine, i expect both a super modern UI and all performance related things as well as signifiant data converage to be in for client demo. i also expect client data upload and modbus to be in by then."
+- Rulings **D-17N.1-7** (`build-sheet-OWN-GAPS-2026-11-08.md`), logged for owner review. Revisions 4-6 stand except where 7.8 changes the lanes, the priority and the late-merge window.
+- Units are agent-pace build units (each includes review and one fix round). Measured rate (section 0.1): about 1.75 units per lane per day, 4-8 units per calendar day across 3-4 lanes; lower on days with a prepare or a walkthrough.
+
+### 7.0 Capacity (what the new machine changes, and what it does not)
+
+| | Laptop (until Thu ~16:00) | VPS (from Thu ~16:00) |
+|---|---|---|
+| Builder lanes | 3 (16 GB; Docker VM crashed once) | 5-6; 2 of them frontend-only (no Postgres) |
+| Heavy jobs (parity, prepare, Postgres suites, bench run) | one at a time | still **one at a time**: they compete for the same Postgres and disk; this, not RAM, is the real limit |
+| DB connections | default 100; BL-71 exhaustion seen | `max_connections 300` (D-E5.47 mitigation in place) |
+| Speed of ONE request | about 8 s for an unprepared Portfolio week | **about the same** (see 7.1); measured once as the VPS's first job |
+
+- **Window to the freeze:** Thu 16:00 to Sat 20:00 is about 52 hours. After VPS set-up (DB restore of client4/client7, venv, `node_modules`; about 2-4 hours, Thu evening), about 48 lane-hours remain. At the measured rate that is **about 11-13 units across 5-6 lanes**, after review and fix rounds.
+- **Already committed in that window (rev 4-6): about 4.2 units.** AR-4 remainder 1.0, PR-2a merge, PR-3 remainder 0.5, UQ-FI 1.9, FR-B 0.5, CLEAN-1 0.25.
+- **So about 7-8 units are free.** The six asks, in full, add about 22 units. The rest of this revision chooses which 7-8.
+
+### 7.1 Ask 1: "~2 s for any range" (D-17N.1)
+
+**Why the bigger machine does not fix it by itself (plain words).**
+- One page request runs as **one sequential piece of work in one Python process**. It reads every Site, works out each day's dispatch selection, the evidence, the money and where each figure came from, and then writes the answer.
+- 8 cores let us run **more requests and more builders at the same time**. They do not split one request into eight. A cloud vCPU is usually no faster on one thread than a recent laptop core, and is often slower.
+- So the fix is to **do less work per request**: store each day's answer once, as revisioned rows, and read the rows (BL-66, cards AR-0 to AR-7). Each stored kind must be proven byte-for-byte equal to today's answer before it is switched on (parity). Each proof run takes 25-40 minutes, and two of them found real defects that would have shown wrong answers (D-ANY.7, D-ANY.10). That proof is why it is not done sooner. It is also what makes the fast answer the same as the slow one.
+
+**Where it stands today (cited).**
+- **Site boards: done.** ANY-1 (AR-0, AR-1, AR-2) merged `5ffe50d09`. It gates every mini-grid board day at ≤2 s cold, with parity 59/0/0. AR-6 (Cold/EV boards under 1 s) merged `ef02bd649`. The rows serve only when `ASSETOPS_PERIOD_READ_KINDS` names them. The walk7 serve sets the four `mini_depth.*` kinds; `dispatch.day` stays off until combined parity passes (handoff 06:40).
+- **Portfolio: not done.** AR-4 (`task/ANY-2-AR4`, packet `AssetOpsV1-ar4/.agent/AR-4-packet.md`). Client4, cold, store off:
+
+| Request | rows off | claim + dispatch.day rows, first switch | after the second switch (D-ANY.10 item 4) |
+|---|---|---|---|
+| week 10-19..10-26 | 10.9 s | 9.3 s | **8.1 s** |
+| 22 days | 27.0 s | 24.8 s | not yet measured |
+| 31 days | 33.0 s | 29.0 s | not yet measured |
+
+- **Where the 8.1 s goes** (packet, profile after the second switch):
+  - `select_dispatch_days_on`: 4 calls, about **2.2 s**, all from `coverage._mini_grid_basis` / `evidence_money.mini_grid_rows`. That is dispatch-day composing on a path that should read rows. Not yet explained. Candidates: absent rows composed under D-ANY.10, or `_mini_grid_basis` reading three times.
+  - `_mini_grid_money` + `consequence_provenance`: about **4 s**. Not stored by any kind (D-ANY.9 backlog `evidence.consequence_money`).
+  - The other ~1.9 s has not been profiled (the summary, the Cold/EV Sites, serialisation).
+
+**What ≤2 s for any range would take, honestly.**
+
+| Step | What | Units | Order |
+|---|---|---|---|
+| S1 | Finish AR-4: merge main (D-ANY.10 is on main), combined parity 0/61, timings week/22/31 with profiles (resume point 0) | in the 1.0 already committed | Thu eve |
+| S2 | **DISP-1**: explain and remove the 2.2 s of dispatch lookups. If the cause is fixable in AR-4's files at ≤0.3 units, fix it on AR-4; otherwise it is its own card after AR-4 merges | 0.3 | Fri, on AR-4 |
+| S3 | money.lines read side (MN-2 rest) | in the 1.0 already committed; IN only if parity passes by Sat 12:00 (D-ANY.8) | Fri |
+| S4 | `evidence.consequence_money`: a new stored kind per (Site, consequence revision, Finding revision), invalidated by Finding recompute, consequence revision and price revision; parity + price-save case | 1.5 | after S1-S3, same files |
+| S5 | Profile and remove the remaining ~1.9 s | 0.5-1.0 (unknown until profiled) | after S4 |
+
+- S1-S5 run in **one lane, in sequence**, because they edit the same two files (`estate/coverage.py`, `estate/evidence_money.py`) and each needs the previous profile. That is about 2.5-3 units of serial work after AR-4's own review, so it ends **Mon at the earliest**. Even then, ≤2 s on the 31-day Portfolio is not certain. Every step so far gained less than its profile promised (13 s expected, 1.7-4 s measured).
+- **Verdict: ≤2 s for any range, unprepared (computed live), is OUT for 17 Nov.** S4-S5 go to the backlog as `ANY-3` (D-ANY.9 shape, confirmed after the S1 profile).
+
+**What we can honestly deliver instead: ≤2 s on every range the presenter can reach by clicking, prepared ahead.** This is a **workaround**, and it is called one.
+- **WARM-1 (0.6 units, IN):** after each data change, the demo machine pre-computes and stores the answer for every range the shared date bar offers, plus every day-aligned 7-, 14-, 30- and 31-day range in the demo data window. A stored answer serves in well under a second (the D-ANY.4 pre-built ranges today).
+- **This reverses D-ANY.3 for the 17 Nov build only.** D-ANY.3 refused it as throw-away work. It still is throw-away once ANY-3 lands, but ANY-3 cannot land by 17 Nov, and the owner has raised the bar. The tool lives in `tools/`, and the product code gains only the HTTP prebuild path (BL-71, part 2).
+- **Custom ranges** (the bar's "Custom" dates outside the set) still compute live: about 8 s for a Portfolio week, 25-30 s for a month, and less once DISP-1 and money.lines land. The page shows its existing loading state. Presenter rule D-ANY.4 is narrowed to "Custom on the Portfolio".
+- **Verdict: IN-if WARM-1 passes its gate. ≤2 s is then true for every preset and every 7/14/30/31-day range in the data window, on every page; it is not true for arbitrary custom ranges.**
+
+**WARM-1 technical design (builders do not design).**
+- Branch `task/WARM-1-range-warm` from main. Opus builder. Files: `tools/warm_ranges.py` (new), `chain/prebuild.py` (an HTTP mode), `tools/demo_combined.py` (calls it after its prebuild), `backend/tests/test_warm1_ranges.py` (no DB).
+- **Range set**, generated from the demo clock and each Site's first reading day:
+  1. The five presets as the shared bar sends them: Yesterday, Last 7 days, Last 30 days, This month, Last month. The query strings must be byte-identical to what `RANGE_PRESETS` produces, or the store misses. The pre-flight captures them from the live bar.
+  2. Every window of 7, 14, 30 and 31 days that ends on a day boundary and lies inside the data window. The day boundaries are the ones the bar uses, which the pre-flight confirms (UTC or Site-local).
+  3. The story ranges already in `config/chain/prebuilt-routes-v1.json`.
+  - Expected size: about 75 ranges.
+- **Routes per range:** every API request the script pages make for that range: Portfolio (each PF-T tab's request), outcome summary, Findings index page 1, each demo Site board, and the Site Findings page. The pre-flight lists them from DS-1f's `links` output; nothing is guessed.
+- **Execution:** over HTTP against the running serve, not an in-process `TestClient` (BL-71: the in-process path doubled the connection pools and caused D-E5.47).
+  - `--workers 4` by default. Newest ranges first, presets first of all.
+  - Before each batch, it waits while `pg_stat_activity` is above 150.
+  - A 503 or `stale` response is retried 2, 5 and 10 s later (D-E5.47 rule). A response that stays degraded fails the run with exit code non-zero.
+- **Verify pass**, the same tool with `--verify`: it replays every URL and records the client-side time. Every request must be a store hit, and the maximum must be ≤2.0 s. It writes `warm-report.json` with per-request milliseconds, hit or stored, and total wall time.
+- **Re-warm** after anything that moves the estate watermark: add-dates, a drain, the live dip, UP-1 and MB-1. The estate response key carries the estate-wide `cic:` count (D-E4.8), so **any new reading on any Site invalidates every stored estate page.** The measured re-warm time goes into the presenter notes. The estimate is 20-25 minutes with 4 workers; the first job measures it.
+- **Tests (no DB):** the range enumeration (presets byte-equal to the frontend's, window edges, no range before a Site's first day), the worker throttle, the retry and degraded rules, and that `--verify` fails on one miss or on one request over 2 s.
+- **Gate for merge:** on the VPS, with a prepared DB (client4, or the rehearsal DB when it exists): warm, then verify. The gate is 100% hits, maximum ≤2.0 s, 0 degraded, and re-warm wall time recorded. Fresh Claude reviewer.
+
+**Also required for the demo build (SPEED-0, 0.1 units, coordinator checklist):** the final build's serve sets `ASSETOPS_PERIOD_READ_KINDS` to every kind whose parity passed on that build: the four `mini_depth.*`, `dispatch.day`, `evidence.claim`, and `money.lines` if it is IN. The prepare builds those rows. The VPS's first job is one cold timing of the unprepared Portfolio week on client4 (10 min), to replace the laptop's number.
+
+### 7.2 Ask 2: "a super modern UI" (D-17N.2)
+
+| | UQ-FI (rev 6, owner chose option 1) | Full plan (`architect-answer-ui-quality-2026-11-10.md`) |
+|---|---|---|
+| What | Inter, the 8-step type scale with a 12 px floor, the spacing scale on demo pages, one headline per demo page, repeated gap lines collapsed, the style ratchet | Stage 1 (3.5): three-tier tokens, 13 components, the chart standard, guards incl. axe. Stage 2 (4.5): page-by-page uplift of 7 page families, each from an owner-approved page mockup |
+| Units | 1.9 | about 8.0, plus about 0.25 per page-family mockup |
+| Mockups | the v7.2 sheet (built, `task/UQ-0-v72-sheet`, parked) | the sheet + 7 page-family mockups that **do not exist yet** |
+
+- **Why the full plan cannot land by 17 Nov, even with 3 UI lanes:**
+  - Stage 2 needs stage 1's components.
+  - Each page family needs a mockup that you approve before its build (the standing mockup-first rule). None of the 7 is drawn.
+  - All three lanes would edit the same shell, tokens and page CSS, so they collide.
+  - Every demo page would change two days before the session, with no walkthrough slack. A mismatch with the mock is a High finding.
+- **What can honestly be in, mockup-first, from the sheet you see after today's 14:00 demo:**
+
+| Card | What | Units | Needs |
+|---|---|---|---|
+| UQ-FI-1, -2 | as rev 6 | 1.9 | sheet approval (type, Inter) by Fri 12:00 (rev 6) |
+| **UQ-FI-3** (new) | **The one-figure Portfolio outcome card** that is already drawn on the v7.2 sheet: one figure, one sentence, the basis line, qualifiers behind "Why?". **The new status colours and symbols** for the six reading states (on the sheet), applied through one `StatusPill` used by the Portfolio and the board outcome rows. Light theme only | 0.75 | owner approves those two sheet panels for 17 Nov |
+
+- **IN:** UQ-FI-1 and UQ-FI-2 as in rev 6.
+- **IN-if:** UQ-FI-3, if you approve its two sheet panels by **Fri 09:00**. It goes in lane D after UQ-FI-1. It is held whole if it is not ACCEPTed by Sat 20:00, and it never holds UQ-FI-1/2.
+  - Design: the card renders today's server fields only, so no new words. The figure is the outcome's existing headline value, the sentence its existing summary, and the basis its existing coverage line. Anything else moves behind the existing "Why?" disclosure.
+  - `StatusPill` in `frontend/src/ui/StatusPill.tsx` maps the six existing state codes to the sheet's colour + symbol + word. It adds no `site_type` branch (hard-wiring ratchet).
+  - Tests: one per state, and the Portfolio page test (one figure per card, the "Why?" content set unchanged).
+  - Evidence: before/after captures in the UQ-FI capture run.
+- **OUT for 17 Nov:**
+  - the component library and catalogue (1.5) and the chart standard (0.75);
+  - the dark theme and theme switch (0.5);
+  - stage 2 for the Site board, Finding, lists, Financials, Work and Foundation pages (3.75 + mockups);
+  - the axe pass.
+- **Verdict:** "super modern" across the whole app is **OUT** (about 8 units plus 7 mockups). The demo path looks modern: new type, clean headlines, one gap line per section, and a modern Portfolio card. That is **IN / IN-if** (2.65 units), and each part rests on your sheet approval.
+
+### 7.3 Ask 3: "all performance-related things" (D-17N.3)
+
+| Item | What it does | Units | Verdict for 17 Nov | Why |
+|---|---|---|---|---|
+| AR-4 claim rows + both switches | Portfolio evidence on rows | committed | **IN** | built; parity after the D-ANY.10 merge is the gate (D-ANY.8) |
+| money.lines (MN-1/2/3) | Portfolio potential money on rows; price save rebuilds them | committed | **IN-if** parity incl. price-save passes by Sat 12:00 | D-ANY.8 unchanged |
+| DISP-1 | the 2.2 s of dispatch lookups | 0.3 | **IN** | largest known, unexplained cost; small |
+| WARM-1 + SPEED-0 | ≤2 s on every clickable range (workaround) | 0.7 | **IN** | the only route to ≤2 s on the Portfolio by 17 Nov |
+| BL-71 part 2 | prebuild over HTTP, not in-process | inside WARM-1 | **IN** | WARM-1 needs it; it avoids connection exhaustion |
+| BL-ANY-absent | AR-2 kinds compose an absent row per run (as D-ANY.10 did for dispatch.day) | 0.5 | **IN-if** a lane is free after FR-B (Sonnet, lane A) | correctness on historical reads, not speed; the demo reads live or post-prepare k |
+| `evidence.consequence_money` (ANY-3a) | the ~4 s money and provenance | 1.5 | **OUT** (backlog ANY-3) | new stored kind; serial after AR-4; cannot pass parity by the freeze |
+| Remaining ~1.9 s (ANY-3b) | not profiled | 0.5-1.0 | **OUT** | unknown until S4 |
+| `evidence.provenance` | Cold/EV pinned windows | ~0.5 | **OUT** | D-ANY.8 backlog; Cold/EV are already under 1 s |
+| AR-5 | retire the pre-load list | 0.75 | **OUT** | it is the opposite of WARM-1; it only makes sense once every kind is stored |
+| AR-7 | outcome rows from stored rows for 100+ Sites | 0.75 | **OUT** | invisible below about 25 Sites |
+| BL-71 part 1 | one shared engine factory with a capped pool | ~0.5 | **OUT** | `max_connections 300` on the VPS covers 17 Nov |
+
+- **Verdict:** every performance item that changes what the client sees by 17 Nov is IN or IN-if. "All" of them is OUT. ANY-3 (consequence money + the rest, about 2-2.5 units) is the honest remainder, and it is first in the queue after the demo.
+
+### 7.4 Ask 4: "significant data coverage" (D-17N.4)
+
+**Definition for 17 Nov.**
+- On each demo Site, every board outcome row and every tab on the script path shows a figure, a dated event or a roadmap line (RM-1), not "Unknown", "Not known yet" or "No objective declared".
+- Day coverage in the demo window is stated as it is:
+  - Kobo: whole days;
+  - Kisiwa: 6 pm to noon ("partly covered"), unless DATA-7;
+  - Cold room: one recording session a day (D-E5.48);
+  - EV depot: declared charging hours 08:00-16:00 (EV-HB).
+- **Measure:** the count of visible gap lines per script page, from UQ-FI's `measure.json` (it already counts them). It is taken before and after.
+
+**Already done:** PB-1a/b, PB-4, PB-7, DATA-1, DATA-2, DATA-6, DATA-11 + PB-3 (merged; EV charging graded by charger status, ordinary Cold/EV weeks), EV-HB, DATA-12, RM-1/RM-2.
+
+| Item | Site | Visible effect | Units | Prepare cost | Approval | Verdict |
+|---|---|---|---|---|---|---|
+| DATA-5 | Cold, EV, Kisiwa | Health tab: 8 "Unknown" become gateway health values | 0.5 | small (health records) | no | **IN** |
+| DATA-4 | EV depot | site diagram: connector rating and grid meter; removes "connector capacity not read" | 0.5 | none (configuration) | yes | **IN-if** approved by Fri 09:00; **an EV buyer is in the room** |
+| DATA-8 | Kisiwa | productive loads (pump, cold store) + a price per kWh: the Grow card gains a figure | 0.5 | small | yes | **IN-if** approved by Fri 09:00 |
+| DATA-10, DATA-13 | Kisiwa; story Actions | generator service plan; due dates on story Actions | 0.4 | none | no | **IN** (drops first if lane B runs late) |
+| BL-48 | Kobo/Kisiwa | Grow lines on days without complete readings | 0.25 | none | no | **OUT** (partly addressed already; low) |
+| FCF-1 (+BL-47) | Cold, EV | Findings card counts Cold/EV "awaiting verification"; Portfolio rows read "Action agreed" | 1.0 | none | no | **OUT** (no lane; the note it removes is honest) |
+| DATA-7 | Kisiwa | whole simulated days instead of 6 pm-noon; removes "partly covered" on every Kisiwa day | 1.5 | **+15-25 min per prepare** (about +33% Kisiwa readings); all Kisiwa finish rows and story words re-proven | yes | **OUT**: it changes the diesel story's evidence two days before the session, with only the Saturday rehearsal to prove it. Presenter line: "this Site's logger records 6 pm to noon" |
+
+- **Lane B, after PR-3's builder finishes (Fri evening):** DATA-5 → DATA-4 → DATA-8 → DATA-10/13, about 1.9 units, merging by Sat 20:00.
+- **The Saturday-night rehearsal build is their gate:** the finish check must be green, as with the EV-HB gate. A failure reverts that merge before Sunday.
+- **Verdict: IN / IN-if, about 1.9 units.** Every demo Site gains visible values: EV (Health, connector), Cold (Health), Kisiwa (Health, Grow figure, service plan). Kisiwa's partial days stay and are stated.
+
+### 7.5 Ask 5: client data upload (D-17N.5)
+
+**What exists (cited).**
+- `field/assetops_field/export_csv.py` (TEL-06, merged `2599d34b7`): `CsvCollector` validates a whole file in the illustrative format `assetops-generic-interval-csv/1` (8 refusal codes), then admits it to a gateway over IPC and seals it.
+- The profile is `field/profiles/generic-interval-csv-illustrative-1.json`: Kobo's PV and three feeder meters, 4 kW rows.
+- TEL-06b (`host/tests/test_field_modbus_tcp_acceptance_postgres.py`) proved the path CSV → gateway → upload over TLS (`serve_tls`, port 8443) → **accepted evidence** for KOBO-001, on a test DB.
+- The gateway uploads over the Batch path (`gateway/assetops_gateway/uploader.py`).
+- **Not there:**
+  - a browser file upload anywhere (no `type="file"` in `frontend/src`);
+  - an API that takes a file from a person;
+  - any mapping of unknown columns, any vendor format, and creating a Site from a file;
+  - historical bulk import (BL-59) and the public upload path (BL-57) are backlog;
+  - there is no sign-in (BL-54).
+
+**What "upload" means for 17 Nov (UP-1, minimal and honest).**
+- On **Kobo** (the only Site with a CSV profile), a site admin opens **Upload readings**. They download the template, choose a CSV in that format and see a dry-run preview: the period, the row count, each column matched to a meter, and the blanks. They confirm. The page then follows the readings through these states:
+  - **Checked**;
+  - **Sent**;
+  - **Accepted** (n of m readings);
+  - **Still processing**;
+  - **Analysed**, which links to that day on the board.
+- A refusal says which of the 8 file rules failed, in plain words. The whole file is refused, and nothing is admitted.
+- A wrong unit is "held" at the gateway, as TEL-06 does, and the page says so.
+- Attribution follows D-PRICE.1: "Uploaded by site admin". The entry service is server-configured; there is no signed-in person, and `HUMAN_PRINCIPAL_REQUIRED` is unchanged elsewhere.
+- **Demo beat:** the presenter uploads a prepared file for the demo day's early hours (00:00 to one hour before the session). Kobo's board then shows that day analysed. The file is generated by `host/tests/field_observation_fixtures.py interval-csv`, extended with a `--day` option.
+- **Not in UP-1:** any other format or Site, column mapping, corrections or re-uploads of days that already have readings, bulk history, a new Site.
+
+**Technical design (pre-flight confirms the starred items).**
+- Server, `POST /api/sites/{site_id}/reading-uploads?dry_run=true|false` (multipart, one file, ≤ 2 MB).
+  - Steps: validate with `CsvCollector.reports` (no IPC); run the overlap rule; then admit it.
+  - Overlap rule: refuse the whole file with `ALREADY_RECORDED` if any interval ends at or before the Site's latest accepted evidence for that role.
+  - Admit through a **demo upload gateway**: a normal gateway process with its own provisioned credential, started by `tools/demo_combined.py serve` (the TEL-06a Bench start sequence*). Nothing new is admitted inside the API process, so the gateway stays the only way in.
+- `GET /api/sites/{site_id}/reading-uploads/{upload_id}` returns the state above. "Still processing" ends when the serve tick drains and assesses that day*.
+- New table `reading_upload` (id, site, file SHA-256, profile SHA-256, state, counts, refusal code, entered_by, timestamps). Migration number: the next free one.
+- Words are server-side, through the UQ-6a message keys.
+- Frontend: `/sites/:id/uploads`, reached from the Site's data or Health area*. **Mockup first:** one page in `frontend/mockups/v72/upload-readings.html` (0.25 units), shown to you with the v7.2 sheet tonight. Light theme, UQ-FI tokens.
+- Tests:
+  - no-DB: the 8 codes + `ALREADY_RECORDED` + too large + wrong Site + not Kobo; a dry run writes nothing;
+  - Postgres flow on its own `*_test` DB: upload → accepted evidence → drain → that day assessed. The result is byte-equal to the same file admitted through the TEL-06b path.
+- Gate: the flow test, the refusal table as tested, and a capture of the page in each state.
+
+- **Units:** server 1.0, page 0.5 + mockup 0.25, flow and demo file 0.5 = **2.25**.
+- **Risks:**
+  1. **The watermark.** An upload moves the estate watermark, so every warmed page misses (7.1). The field beats therefore go **last in the script**. A Portfolio visit after them is unprepared, unless a re-warm has finished.
+  2. **Time to "Analysed"** is a drain and an assessment, possibly minutes. The page states "Still processing" honestly. The flow test measures the time, and the script fills it.
+  3. It is a new way in for data, without sign-in. It is reachable only on the demo build, behind `ASSETOPS_READING_UPLOAD_SITES=KOBO-001` (off by default).
+- **Verdict: IN-if.**
+  - You approve the one-page mockup by **Fri 09:00**.
+  - Lane F starts the server half Thu 16:00 on the VPS; the server needs no mockup.
+  - It merges in the **late window, by Sun 12:00** (7.8), behind its switch.
+  - Not ACCEPTed by then: held, and the presenter shows the format and the TEL-06b proof on a slide.
+
+### 7.6 Ask 6: Modbus (D-17N.6)
+
+**What exists (cited).**
+- `field/assetops_field/modbus_tcp.py` (TEL-02): a read-only client for function codes 01-04; any write is refused before a byte is sent.
+- `field/assetops_field/modbus_poller.py` (TEL-04): the CLI that polls, aggregates and admits to the gateway.
+- The GX-shaped emulator `field/tests/field_emulators/gx_server.py` (port 5020).
+- Host proofs:
+  - `host/tests/test_field_modbus_tcp_proof.py`;
+  - `test_field_modbus_tcp_acceptance_postgres.py` (TEL-05/05b: accepted evidence, the assessment completes, Finding money withheld where it should be).
+- **Not built:**
+  - TEL-08: `host/tests/field_bench.py` has helpers only; `setup`, `activate` and `read` do not exist (section 0.5);
+  - TEL-07: the runbook is parked on `task/TEL-07-claims-runbook`;
+  - the BeagleBone's readiness is unknown (you have the SD card).
+
+**What "Modbus in" means for 17 Nov.**
+- **MB-1 (IN-if, 1.0 unit): live Modbus on the demo stack.**
+  - The GX-shaped emulator replays Kobo's readings for the demo day at real time. The poller reads it over Modbus TCP and passes the readings to a gateway, which uploads them over TLS to the demo server. Kobo's **today** then fills on screen, and the Health tab shows the gateway's last upload.
+  - Design: the TEL-08 `setup`, `activate` and `read` commands are built as specified in §TEL-08, and they also serve MB-1. `tools/demo_combined.py live-field --site KOBO-001 --from <session start>` starts the emulator, poller and gateway. It never writes an interval that UP-1's file covers (MB-1 starts after UP-1's span). A finish check confirms no overlapping (Site, role, interval).
+  - Gate: TEL-05's gates on the demo DB copy: every upload receipt COMPLETED, accepted evidence for every role, and the day assessed. Plus a 5-minute uplink stop with the queue draining to 0 and no evidence gap.
+  - Same watermark rule as UP-1: script beat last.
+- **TEL-08 BeagleBone (IN-if, +0.5 unit on top of MB-1, plus one 1-hour heavy slot):** only if the board is reachable by **Fri 12:00**. That means SSH working, Debian 13 IoT, Python 3.13 and `NTPSynchronized=yes` (owner steps in section 0.5).
+  - The poller and gateway run on the board and upload to the **VPS's** `serve_tls` on 8443. That is the realistic shape: an edge box uploading to the cloud. The VPS firewall opens 8443 to the board's public IP only.
+  - **Shown as a recorded 2-minute clip and a claim line, not live in the room.** A live board adds the room's network and the clock to the session's risks.
+- **Verdict:** MB-1 is **IN-if** it is ACCEPTed by the Sun 12:00 late window. The BeagleBone is **IN-if** the board is up by Fri 12:00; otherwise it stays OPTIONAL (section 0.5).
+
+### 7.7 The recommended package (fits; D-17N.7)
+
+| Lane (VPS from Thu 16:00) | Thu eve | Fri | Sat (core freeze 20:00) | Sun (late window to 12:00) |
+|---|---|---|---|---|
+| **C speed** (Opus) | AR-4: merge main, parity, timings | DISP-1, money.lines read side + Postgres | review by 12:00, merge by 16:00 | - |
+| **A tools** (Opus, then Sonnet) | VPS set-up help; CLEAN-1 | **WARM-1** | FR-B trimmed; BL-ANY-absent if free | WARM-1 runs in the final build Mon |
+| **B price + data** (Opus) | PR-3 frontend | PR-3 flow; then DATA-5 → DATA-4 → DATA-8 | DATA-10/13; merges by 20:00 | - |
+| **D UI** (Opus, frontend only) | - | UQ-FI-1 (starts on your sheet approval), then UQ-FI-3 | captures, review, merge by 18:00 | - |
+| **E UI** (Opus, frontend only) | - | UQ-FI-2 | as rev 6 | - |
+| **F field** (Opus) | UP-1 server | UP-1 page (after mockup approval), flow test | MB-1 (+ TEL-08 if the board is up) | UP-1 + MB-1 review, merge by 12:00 behind switches |
+
+- **New units:**
+
+| Item | Units |
+|---|---|
+| DISP-1 | 0.3 |
+| WARM-1 + SPEED-0 | 0.7 |
+| UQ-FI-3 | 0.75 |
+| DATA-5, -4, -8, -10/13 | 1.9 |
+| UP-1 | 2.25 |
+| MB-1 | 1.0 |
+| **Total** | **≈ 6.9** (+0.5 for the BeagleBone, +0.5 for BL-ANY-absent if lanes allow) |
+
+  With the 4.2 already committed, that is about 11 units. It sits at the measured rate's lower-middle, which is right for a week with a rehearsal build and a walkthrough.
+- **Priority when anything clashes:** AR-4 > PR-3 > WARM-1 > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > UQ-FI-3 > DATA-10/13 > FR-B > CLEAN-1 > BL-ANY-absent. Items drop from the right.
+- **Heavy-job queue (one at a time):** AR-4 parity > money.lines parity > PR-3 flow > UP-1 flow > WARM-1 gate run > MB-1 bench (1 h) > the Sat-night rehearsal build (about 2 h 45).
+- **Freeze, D-17N.7:**
+  - The **core freeze stays Sat 20:00** for anything that changes existing reads, money, analysis or demo data: AR-4, PR-3, UQ-FI, DATA.
+  - A **late window to Sun 12:00** is opened **only for additive, switched features**: UP-1 and MB-1, each off by default. WARM-1 is a tool and also merges by Sat 20:00.
+  - After a Sun merge, the serve restarts on main against the rehearsal DB, with migrations applied. The 15:00 walkthrough then includes them. The Mon final build turns their switches on, and Monday's live checks cover them.
+  - **Risk this adds:** UP-1 and MB-1 miss Saturday's full suite. Their proof is their own tests, the Postgres flow and Monday's live checks. If a Monday live check fails, the switch stays off and the presenter uses the slide fallback. Because they are switched off by default, they cannot break the existing pages.
+- **Merge evidence (every item):** a fresh Claude reviewer ACCEPT, plus the per-item gate named above (parity, the WARM-1 verify, the flow tests, the before/after captures, the rehearsal finish check for DATA). Only High and Medium findings block.
+
+**Alternative if you insist on everything (not recommended).**
+- It adds:
+
+| Item | Units |
+|---|---|
+| ANY-3 (consequence money + the rest), for ≤2 s computed live | 2.0-2.5 |
+| DATA-7 | 1.5 |
+| FCF-1 | 1.0 |
+| Stage 1 components + charts | 2.25 |
+| Stage 2 board, Finding and lists, with mockups | 2.5 |
+| Dark theme | 0.5 |
+| **Total** | **about +10 units, about 21 units in all** |
+
+- **It does not fit even with the freeze moved to Mon 16 12:00.**
+  - With that move, the most that fits is ANY-3, DATA-7 and FCF-1 (about +5 units).
+  - The UI stages do not fit at any freeze: they need 7 page mockups and your approval of each first.
+- **Risks the Mon 12:00 freeze adds:**
+  - (1) no full suite before the final build;
+  - (2) your Sunday walkthrough sees a build without most of it, so the demo shows work you never walked;
+  - (3) the final build (about 3 hours) and live checks run Monday afternoon on an untested tree; a defect found Monday evening or Tuesday morning has no fix time;
+  - (4) DATA-7 changes the Kisiwa story's evidence the day before the session;
+  - (5) ANY-3 is a new stored money kind whose first full parity would run Monday morning. **Even then, ≤2 s computed live for a 31-day Portfolio is not certain.**
+
+### 7.8 Changes to earlier revisions
+
+- Rev 6, 6.5 "Nothing" pushed out and the priority line: replaced by 7.7's priority. FR-B and CLEAN-1 now sit below the owner's new asks.
+- D-ANY.3 is reversed for the 17 Nov build only (WARM-1). D-ANY.4 is narrowed to "Custom ranges on the Portfolio".
+- Section 0.5: the BeagleBone becomes IN-if (board up by Fri 12:00), uploads to the VPS, and is shown as a recorded clip.
+- Section 2.1: DATA-5 and DATA-10/13 move to IN. DATA-4 and DATA-8 become IN-if approved by Fri 09:00. DATA-7 and FCF-1 stay OUT.
+
+### 7.9 For the owner (the coordinator relays these)
+
+1. **Why 2 s is not there yet:** the new machine runs more work side by side, but one page is still one sequence of work. Speed comes from storing each day's answer and proving it equal to the slow answer, and each proof caught real errors. The boards already open in under 2 s. The Portfolio is down to about 8 s for an unprepared week.
+2. **≤2 s for *any* range, computed live, will not be ready by 17 Nov.** About 2.5 units of work remain, in sequence, and they would end Monday at the earliest with no guarantee.
+3. **What you get instead: under 2 s on every range the date bar offers,** and every 7, 14, 30 and 31-day range in the demo data, because the demo machine prepares them ahead. This is a workaround, and we call it one. Only hand-typed custom dates on the Portfolio still take 8-30 s.
+4. **Modern UI for 17 Nov:** the new font and type sizes, clean page headlines and fewer repeated "not available" lines (as you chose), **plus** the modern one-figure Portfolio card and new status colours from the same sheet, if you approve them by Fri 09:00. A full redesign of every page (about 8 units plus 7 page mockups) comes after 17 Nov.
+5. **Data coverage:** Health values for Cold, EV and Kisiwa, the EV connector and grid meter, Kisiwa's productive loads with a figure, and Kisiwa's service plan. Please approve DATA-4 and DATA-8 by Fri 09:00. Kisiwa's 6 pm-to-noon days stay as they are and are stated.
+6. **Client data upload: in, in a first honest form.** Upload a CSV of a Site's readings in our standard format on Kobo, see it checked, accepted and analysed on the board. One page mockup comes to you tonight with the v7.2 sheet. Other formats, column mapping and history import come after 17 Nov.
+7. **Modbus: in, live on the demo machine.** A device emulator is read over Modbus, and the readings flow through the gateway into Kobo's today. The BeagleBone joins as a recorded clip if it is reachable by Fri 12:00.
+8. **Freeze:** the core stays at Sat 20:00. Upload and Modbus may merge until Sun 12:00, switched off by default, so they cannot break the rest. You see them at the Sun 15:00 walkthrough.
+9. **Upload and Modbus go last in the script.** New readings make the system refresh the prepared ranges, which takes about 20-25 minutes (estimated, to be measured).
+10. **If you want everything:** it is about 21 units. It does not fit even with the freeze moved to Monday noon, and that move would leave no tested build and no fix time before Tuesday. I recommend against it.
+
+### Dispatch briefs (revision 7)
+
+- **DISP-1** (lane C, on AR-4). First the S1 profile after the merge of main. Then the cause of the four `select_dispatch_days_on` calls. Fix on AR-4 only if it is ≤0.3 units and inside AR-4's files; otherwise report to the Architect. **Update D-ANY.11:** the cause is `for_finding_on` (money eligibility); fix on `fix/DISP-1-money-eligibility` off main, 0.25 units, IN, parity and timings after AR-4 merges.
+- **WARM-1** (lane A, Opus, wt `AssetOpsV1-warm1`, branch `task/WARM-1-range-warm`). Spec 7.1. Pre-flight, in one batch: the exact query strings the bar sends per preset, its day boundary, and the route list per page from DS-1f `links`.
+- **UQ-FI-3** (lane D after UQ-FI-1). Spec 7.2 + the two approved sheet panels. Starts only on approval.
+- **DATA-5/-4/-8/-10/13** (lane B after PR-3). Specs in section 2.1 and the W-11 rulings. DATA-4 and DATA-8 start only on approval. Each changes producer data, so each merge is gated by the Sat-night rehearsal finish check.
+- **UP-1** (lane F, Opus, wt `AssetOpsV1-up1`, branch `task/UP-1-reading-upload`). Spec 7.5. Thu: server and no-DB tests. Pre-flight: the TEL-06a gateway start sequence, how the serve tick drains an upload, and the Site page that links to it. The mockup page goes to the coordinator by Thu 20:00.
+- **MB-1** (lane F after UP-1's server, Opus, branch `task/MB-1-live-modbus`). Spec 7.6 + §TEL-08. The bench run uses its own `*_test` DB copy, never the rehearsal DB.
+
 ## Revision 6 (Architect, Claude, 2026-11-12): UQ-FI, a first-impression UI pass for 17 Nov
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).

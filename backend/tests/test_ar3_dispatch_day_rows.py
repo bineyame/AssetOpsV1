@@ -19,7 +19,7 @@ import pytest
 from assetops_backend.chain import dispatch_day_rows as ddr
 from assetops_backend.chain.adapters.file_chain_config import load_event_register
 from assetops_backend.chain.events import Event, S3_BRACKET, resolve
-from assetops_backend.chain.period_read import (SERVED_KINDS_ENV, PeriodReadBuilder, PeriodReader, served_kinds,
+from assetops_backend.chain.period_read import (SERVED_KINDS_ENV, absent_count, PeriodReadBuilder, PeriodReader, served_kinds,
                                                 validate_body)
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.estate import coverage
@@ -162,12 +162,92 @@ def test_absent_day_renders_nothing_stored_and_pending_adds_an_outstanding_job(s
     d1, d2 = _provider(store)(T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
                               datetime(2026, 10, 22, tzinfo=UTC), k, True)
     assert d1["jobs"][-1] == ddr.PENDING_JOB and d1["selection"]["seq"] == 5
-    assert d2 == ddr.absent_day(D2, k) and d2["selection"] is None and d2["status"] == "UNASSESSED"
-    # an explicit cutoff before the build: nothing computed by then
+    assert d2 == {**ddr.absent_day(D2, k), ddr.ABSENT_MARK: True}  # D-ANY.10: marked for compose, not rendered
+    # an explicit cutoff before the build: no row at k, marked the same way
     early = built_at - timedelta(hours=1)
     first, = _provider(store)(T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
                               datetime(2026, 10, 21, tzinfo=UTC), early, True)
-    assert first == ddr.absent_day(D1, early)
+    assert first == {**ddr.absent_day(D1, early), ddr.ABSENT_MARK: True}
+
+
+class CountingSnap:
+    """Compose double that returns the day dicts it holds for the asked window and records each window."""
+
+    def __init__(self, days) -> None:
+        self.basis_historical, self.continuation, self._days = True, False, days
+        self.compose_calls = 0
+        self.windows = []
+
+    def dispatch_days(self, t, s, from_, to, k):
+        self.compose_calls += 1
+        self.windows.append((from_, to, k))
+        return [d for d in self._days if d["window_end"] > from_ and d["window_start"] < to]
+
+
+def _absent_logs(caplog):
+    return [r for r in caplog.records if getattr(r, "event", None) == "period_row_absent"]
+
+
+def test_absent_day_at_explicit_k_is_the_compose_day_and_logged(served, caplog) -> None:
+    k = datetime(2026, 10, 23, 9, tzinfo=UTC)
+    store, _ = _built({})  # nothing built
+    composed = [compose_day(d, k=k) for d in (D1, D2)]
+    snap = CountingSnap(composed)
+    before = absent_count()
+    with caplog.at_level("WARNING"):
+        out = coverage.dispatch_days(snap, T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
+                                     datetime(2026, 10, 22, tzinfo=UTC), k) \
+            if _with_provider(store, coverage) else None
+    assert out == composed and snap.compose_calls == 1  # one run, one compose, the compose day exactly
+    assert absent_count() - before == 1
+    logs = _absent_logs(caplog)
+    assert len(logs) == 1 and logs[0].days == [D1.isoformat(), D2.isoformat()] and logs[0].kind == ddr.KIND
+
+
+def test_two_absent_runs_compose_twice_and_a_stored_day_is_never_composed(served, caplog) -> None:
+    k = datetime(2026, 10, 24, 9, tzinfo=UTC)
+    d4 = date(2026, 10, 23)
+    stored = compose_day(D2, k=k)
+    store, _ = _built({D2: stored})
+    composed = [compose_day(d, k=k, seq=9) for d in (D1, D3, d4)]
+    snap = CountingSnap(composed + [compose_day(D2, k=k, seq=99)])  # compose holds a DIFFERENT D2: must not surface
+    before = absent_count()
+    with caplog.at_level("WARNING"):
+        _with_provider(store, coverage)
+        out = coverage.dispatch_days(snap, T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
+                                     datetime(2026, 10, 24, tzinfo=UTC), k)
+    assert [d["day"] for d in out] == [D1, D2, D3, d4]
+    assert out[1] == {**stored, "known_at": k} and out[1]["selection"]["seq"] == 5  # the stored row, not compose
+    assert out[0]["selection"]["seq"] == out[2]["selection"]["seq"] == out[3]["selection"]["seq"] == 9
+    assert snap.compose_calls == 2  # runs [D1] and [D3, D4]
+    assert absent_count() - before == 2 and len(_absent_logs(caplog)) == 2
+    assert all(ddr.ABSENT_MARK not in d for d in out)
+
+
+def test_all_stored_days_never_compose_and_kill_switch_unchanged(served, monkeypatch) -> None:
+    k = datetime(2026, 10, 23, 9, tzinfo=UTC)
+    store, _ = _built({d: compose_day(d, k=k) for d in (D1, D2)})
+    snap = CountingSnap([])
+    _with_provider(store, coverage)
+    coverage.dispatch_days(snap, T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
+                           datetime(2026, 10, 22, tzinfo=UTC), k)
+    assert snap.compose_calls == 0
+    monkeypatch.setenv(SERVED_KINDS_ENV, "mini_depth.fuel")  # kill switch: today's compose, unmarked
+    out = coverage.dispatch_days(snap, T, KOBO.site_id, datetime(2026, 10, 20, tzinfo=UTC),
+                                 datetime(2026, 10, 22, tzinfo=UTC), k)
+    assert out == [] and snap.compose_calls == 1
+
+
+@pytest.fixture(autouse=True)
+def _restore_provider():
+    before = coverage.dispatch_rows_provider
+    yield
+    coverage.dispatch_rows_provider = before
+
+
+def _with_provider(store, cov) -> bool:
+    cov.dispatch_rows_provider = _provider(store)
+    return True
 
 
 def test_unknown_site_is_unavailable_not_guessed(served) -> None:
@@ -230,11 +310,12 @@ def test_coverage_pending_and_absent_rows(served, monkeypatch) -> None:
                                                                                       status="UNASSESSED")]),
                        monkeypatch, None)
     assert absent == oracle  # today's compose of a day with nothing selected reads the same
+    assert snap.compose_calls == 1  # D-ANY.10: the one absent run (D3) composed (this double returns no day)
     store, _ = _built({d: compose_day(d, k=k) for d in (D1, D2, D3)})
     store.dirty.append((KOBO.site_id, D2, ddr.KIND))  # a live dirty mark not drained yet
     pending = _coverage(snap, monkeypatch, _provider(store))
     assert pending["state"] == "PENDING_RECOMPUTE" and pending["job_state"] == "PENDING"
-    assert snap.compose_calls == 0
+    assert snap.compose_calls == 1  # all rows stored: no further compose
 
 
 def test_explicit_cutoff_reads_rows_by_k(served, monkeypatch) -> None:
@@ -297,4 +378,6 @@ def test_composition_wires_the_builder_only_with_an_assessment_store() -> None:
     assert dispatch_day_builders(None) == {} and period_kind_builders(None) == {}
     inputs = SimpleNamespace(dispatch=SimpleNamespace(store=SimpleNamespace(dispatch_day_now=lambda t, s, d: None)))
     built = period_kind_builders(inputs)
-    assert list(built) == [ddr.KIND] and built[ddr.KIND].builder_version == ddr.BUILDER_VERSION
+    # AR-4's estate kinds (built lazily, no store needed) sit beside it
+    assert sorted(built) == sorted([ddr.KIND, "evidence.claim"])
+    assert built[ddr.KIND].builder_version == ddr.BUILDER_VERSION

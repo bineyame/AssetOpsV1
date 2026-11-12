@@ -220,6 +220,9 @@ class PeriodFragment:
     body: dict[str, Any]
     inputs: Any = None
     provenance: Mapping[UUID, dict[str, Any]] = field(default_factory=dict)
+    #: AR-4: the row's register day when it is not the built day (a UTC-day period such as an `evidence.claim`
+    #: claim day is keyed by its own date, whichever Site-local day dirtied it); None = the built day.
+    local_day: date | None = None
 
 
 class KindBuilder(Protocol):
@@ -284,6 +287,7 @@ class PeriodReadBuilder:
             self._store.append_provenance(ProvenanceBlock(tenant_id, rev_id, builder.builder_version, block))
         fp = period_fp(builder.kind, builder.builder_version, frag.inputs, frag.body)
         key = PeriodKey(tenant_id, site.site_id, builder.kind, frag.period_start)
+        local_day = frag.local_day or local_day
         latest = self._store.latest(key)
         row = PeriodRow(tenant_id=tenant_id, site_id=site.site_id, kind=builder.kind,
                         period_start=frag.period_start, period_end=frag.period_end, local_day=local_day,
@@ -327,6 +331,13 @@ def absent_count() -> int:
     return _ABSENT_SEEN[0]
 
 
+def record_absent_run(tenant_id: UUID, kind: str, site_id: UUID, days: Sequence[date]) -> None:
+    """D-ANY.10: one contiguous run of absent days that the caller composes instead; logged and counted, never silent."""
+    _ABSENT_SEEN[0] += 1
+    LOG.warning(ABSENT_LOG_EVENT, extra={"event": ABSENT_LOG_EVENT, "tenant_id": str(tenant_id), "kind": kind,
+                                         "site_id": str(site_id), "days": [d.isoformat() for d in days]})
+
+
 @dataclass
 class PeriodReadResult:
     rows: list[PeriodRead]
@@ -361,7 +372,7 @@ class PeriodReader:
         self._now = now or (lambda: datetime.now(timezone.utc))
 
     def read(self, tenant_id: UUID, sites: Sequence[SiteRef], kinds: Sequence[str], from_day: date,
-             to_day: date, known_at: datetime | None = None) -> PeriodReadResult:
+             to_day: date, known_at: datetime | None = None, log_absent: bool = True) -> PeriodReadResult:
         site_ids = [s.site_id for s in sites]
         wanted = sorted(set(kinds))
         rows = self._store.read_latest(tenant_id, site_ids, wanted, from_day, to_day, known_at)
@@ -404,7 +415,7 @@ class PeriodReader:
                 absent.extend((site_id, day, kind) for kind in wanted if (site_id, day, kind) not in have)
             day += timedelta(days=1)
         absent.sort(key=lambda a: (str(a[0]), a[1], a[2]))
-        if absent and known_at is None:  # no fallback compose on the serve path: log and count (D-ANY.5 M1)
+        if absent and known_at is None and log_absent:  # no fallback compose on the serve path: log and count (D-ANY.5 M1)
             _ABSENT_SEEN[0] += len(absent)
             LOG.warning(ABSENT_LOG_EVENT, extra={"event": ABSENT_LOG_EVENT, "tenant_id": str(tenant_id),
                                                  "count": len(absent), "first": [str(absent[0][0]),
@@ -420,7 +431,7 @@ def stale_rows(rows: Iterable[PeriodRow], versions: Mapping[str, str]) -> list[P
     return [r for r in rows if versions.get(r.kind) != r.builder_version]
 
 
-__all__ = ["ABSENT_LOG_EVENT", "NO_ROW_STATE", "absent_count", "KindBuilder", "PeriodContractError", "PeriodFragment", "PeriodRead", "PeriodReadBuilder",
+__all__ = ["ABSENT_LOG_EVENT", "NO_ROW_STATE", "absent_count", "record_absent_run", "KindBuilder", "PeriodContractError", "PeriodFragment", "PeriodRead", "PeriodReadBuilder",
            "PeriodReadResult", "PeriodReader", "PeriodWritten", "SERVED_KINDS_ENV", "day_bounds", "is_message",
            "money_amount", "money_line", "period_fp", "rate_refs", "served_kinds", "stale_rows", "validate_body",
            "validate_money_line"]

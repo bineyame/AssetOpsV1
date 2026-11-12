@@ -439,7 +439,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     await screen.findByText("No scenario defined yet");
     expect(subtabs()).toEqual([
       ["Overview", null],
-      ["Assumptions", null],
+      ["Prices", null],
       ["Scenarios", "page"],
     ]);
     expect(document.querySelector('[data-financials-section="scenarios"]')).toHaveAttribute(
@@ -460,7 +460,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     );
     expect(subtabs()).toEqual([
       ["Overview", "page"],
-      ["Assumptions", null],
+      ["Prices", null],
       ["Scenarios · Not available yet", null],
     ]);
     expect(document.querySelector('[data-financials-section="scenarios"]')).toBeNull();
@@ -469,7 +469,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       const other = renderAt(`/sites/OTHER-1/financials/scenarios`, [ok(list([]))], siteType, "OTHER-1");
       await settledScreen();
       await screen.findByText("Scenarios are read for mini-grid sites only.");
-      expect(subtabs().map(([label]) => label)).toEqual(["Overview", "Assumptions", "Scenarios · Not available yet"]);
+      expect(subtabs().map(([label]) => label)).toEqual(["Overview", "Prices", "Scenarios · Not available yet"]);
       expect(document.querySelector('[data-financials-section="scenarios"]')).toBeNull();
       expect(other.getScenarios).not.toHaveBeenCalled();
       expect(main().textContent).not.toContain("No scenario defined yet");

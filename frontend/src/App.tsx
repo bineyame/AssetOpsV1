@@ -467,13 +467,13 @@ export function App({
           />
           <Route
             path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="assumptions" coldSite={coldSite} coldAssessment={coldAssessment} />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="assumptions" coldSite={coldSite} coldAssessment={coldAssessment} forwardBareAssumptions />}
           />
           <Route
             path={SITE_FINANCIAL_SCENARIOS_ROUTE_PATH}
             element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} coldScenarioList={coldScenarioList} />}
           />
-          {/* PR-1: the target of every price_action link; the read-only price page itself is PR-2a. */}
+          {/* PR-1 + PR-2a: the target of every price_action link, the read-only Site price page. */}
           <Route path={SITE_PRICES_ROUTE_PATH} element={<SitePricesFrame detail={siteDetail} />} />
           <Route
             path={SITE_OPPORTUNITY_ROUTE_PATH}
