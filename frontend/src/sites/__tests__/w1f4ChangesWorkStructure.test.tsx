@@ -8,6 +8,7 @@
  * contracts (`s6_action_api_contract.json`, `s6_site_action_index_contract.json`);
  * derived bodies say so where they are built.
  */
+import { entryRange } from "../../ui/sharedRange";
 import { rangeless } from "../../test/rangeless";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -175,7 +176,10 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     expect(row.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
     // W1-F5b carry 11: the breadcrumb names the site, not its raw code.
     const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(within(trail).getByRole("link", { name: HYBRID_MINI_GRID_SITE.display_name })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(within(trail).getByRole("link", { name: HYBRID_MINI_GRID_SITE.display_name })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001?from=${encodeURIComponent(WINDOW.from)}&to=${encodeURIComponent(WINDOW.to)}`, // SR-4: carries the range
+    );
     expect(trail.textContent).not.toContain("KOBO-001");
   });
 
@@ -189,13 +193,22 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     expect(panel.querySelector("[data-panel-gap]")).toBeNull();
   });
 
-  it("no window chosen: the slot asks for a window and nothing is read", async () => {
+  it("no window chosen: an invalid address range asks for a window and nothing is read; a bare address reads the entry range", async () => {
+    // SR-4 (D-SR.40): a one-sided address is invalid, so the slot still asks for a window and nothing is read.
     const requests = serve({});
-    mount("/sites/KOBO-001/work");
+    mount(`/sites/KOBO-001/work?from=${encodeURIComponent(WINDOW.from)}`);
     await settledScreen();
     expectV69Panels("sitework");
     expect(panelTitled("Actions at this site").querySelector("[data-panel-gap]")?.textContent).toContain("Choose a window");
     expect(requests.filter((r) => r.includes("action-index"))).toEqual([]);
+    cleanup();
+    // A bare address opens on the entry range and reads it once.
+    const entry = entryRange();
+    const entryWindow = { from: entry.get("from") as string, to: entry.get("to") as string };
+    const bare = serve({ [indexApi(entryWindow)]: { status: 200, body: D.positive } });
+    mount("/sites/KOBO-001/work");
+    await settledScreen();
+    expect(bare.filter((r) => r.includes("action-index") && !r.includes("limit=1"))).toEqual([decodeURIComponent(indexApi(entryWindow))]);
   });
 
   it.each([

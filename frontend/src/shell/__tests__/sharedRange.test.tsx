@@ -115,6 +115,10 @@ describe("SR-1 useSharedRange reads both address forms", () => {
     });
   });
 
+  it("SR-4 D-SR.41a: an hour inside one day is a valid range (the raw instants are compared before rounding to days)", () => {
+    expect(readSharedRange(new URLSearchParams("from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"), NOW)).toMatchObject({ status: "set", from: "2026-10-06", to: "2026-10-06" });
+  });
+
   it("an address without a range is absent; a bad range is invalid and never echoes dates", () => {
     expect(hookAt("/portfolio")).toEqual({ status: "absent" });
     for (const bad of [
@@ -123,6 +127,9 @@ describe("SR-1 useSharedRange reads both address forms", () => {
       "from=2026-08-01&to=2026-10-01",
       "from=yesterday&to=2026-10-01",
       "from=2026-10-01&to=2026-10-02&known_at=noon",
+      // SR-4 D-SR.41a: a first instant that is not before the last is invalid, though both round to one valid day.
+      "from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "from=2026-10-06T09:00:00Z&to=2026-10-06T09:00:00Z",
     ]) {
       expect(readSharedRange(new URLSearchParams(bad), NOW)).toEqual({ status: "invalid" });
     }

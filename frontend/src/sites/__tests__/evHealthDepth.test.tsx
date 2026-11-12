@@ -2,7 +2,7 @@
  * W5-03b E4: EV Site Health (v6.9 `ev-health`) from the selected `/ev/health` depth read
  * (`.agent/W5-03-build-spec.md` E4 card and pre-flight E4 correction; `.agent/W5-03b-ui-preflight-rulings.md` 2-8).
  */
-import { rangeless } from "../../test/rangeless";
+import { entryRange } from "../../ui/sharedRange";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -203,7 +203,7 @@ describe("W5-03b E4: EV Health", () => {
     expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("The selected window needs both a start and an end, with the start before the end.");
     expect(main().textContent).not.toContain("EV_WINDOW_INVALID 'from'");
     expect(document.querySelector("[data-ev-health-card]")).toBeNull();
-    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Open with the default date range");
     expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
     cleanup();
     // A 503 reloads the same read (R244).
@@ -238,10 +238,12 @@ describe("W5-03b E4: EV Health", () => {
     expect(text(main())).not.toContain("Feeder meter");
     cleanup();
 
-    // Ruling 2: a bare route reads with no window; without a returned pair no Sessions link is offered.
+    // Ruling 2 (SR-4, D-SR.40): a bare route is opened on the entry range, so the read gets the shared range's
+    // from/to; without a returned pair no Sessions link is offered.
     const bare = renderHealth(loaded(read("UNKNOWN", [C1, C2], { window: { from: null, to: null, known_at: null, committed_watermark: null } })), "");
     await settledScreen();
-    expect(bare.getHealth).toHaveBeenCalledWith(CODE, { from: null, to: null, known_at: null });
+    const entry = entryRange();
+    expect(bare.getHealth).toHaveBeenCalledWith(CODE, { from: entry.get("from"), to: entry.get("to"), known_at: null });
     expect(document.querySelectorAll("[data-ev-health-card] a")).toHaveLength(0);
     expect(document.querySelector("[data-ev-health-open-sessions]")).toBeNull();
     expect(text(document.querySelector("[data-ev-health-session]"))).toBe(`Session ${id(70)}`);
@@ -295,9 +297,17 @@ describe("W5-03b E4: EV Health", () => {
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
     cleanup();
+    // SR-4 (D-SR.40, R347 kept in purpose): a refused read leaks nothing of its own body. With a valid address range
+    // the tabs carry exactly the address range (the bar's, as days); with an invalid (reversed) one they carry none.
+    const addressRange = "?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
     renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
     await settledScreen();
-    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${addressRange}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${addressRange}`);
+    cleanup();
+    renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${TO}&to=${FROM}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
   });
 

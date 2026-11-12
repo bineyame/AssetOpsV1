@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -299,7 +298,7 @@ describe("W5-03a E3: EV Energy", () => {
       "Declared site limit",
       "Estimated charging income",
     ]);
-    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Open with the default date range");
     expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
     cleanup();
     const getEnergy = renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
@@ -324,9 +323,17 @@ describe("W5-03a E3: EV Energy", () => {
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
     cleanup();
+    // SR-4 (D-SR.40, R347 kept in purpose): a refused read leaks nothing of its own body. With a valid address range
+    // the tabs carry exactly the address range (the bar's, as days); with an invalid (reversed) one they carry none.
+    const addressRange = "?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
     renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
     await settledScreen();
-    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${addressRange}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${addressRange}`);
+    cleanup();
+    renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${TO}&to=${FROM}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);
   });
 

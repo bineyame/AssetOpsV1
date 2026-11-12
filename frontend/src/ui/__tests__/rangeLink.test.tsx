@@ -62,6 +62,24 @@ describe("SR-4a carryRange", () => {
   });
 });
 
+describe("SR-4 D-SR.42 (d): a link's own from, to and known_at take precedence over the address's", () => {
+  const params = ranged("&known_at=2026-11-09T12:00:00Z");
+  it("own from and to are kept as written, and the address range is not added over them", () => {
+    expect(carryRange("/sites/KOBO-001/findings?from=A&to=B", params)).toBe("/sites/KOBO-001/findings?from=A&to=B");
+    // One bound named is still the link's own range: the address's other bound is never mixed in.
+    expect(carryRange("/sites/KOBO-001/findings?from=A", params)).toBe("/sites/KOBO-001/findings?from=A");
+    expect(carryRange("/sites/KOBO-001/findings?to=B", params)).toBe("/sites/KOBO-001/findings?to=B");
+  });
+  it("an own known_at wins over the address's, which is not added a second time", () => {
+    const out = String(carryRange("/sites/KOBO-001/findings?known_at=OWN", params));
+    expect(new URLSearchParams(out.split("?")[1]).getAll("known_at")).toEqual(["OWN"]);
+    expect(out).toContain(RANGE);
+  });
+  it("with none named, the address's from, to and known_at are all added", () => {
+    expect(carryRange("/sites/KOBO-001/findings", params)).toBe(`/sites/KOBO-001/findings?${RANGE}&known_at=2026-11-09T12%3A00%3A00Z`);
+  });
+});
+
 describe("SR-4a RangeLink", () => {
   it("renders the carried href", () => {
     render(

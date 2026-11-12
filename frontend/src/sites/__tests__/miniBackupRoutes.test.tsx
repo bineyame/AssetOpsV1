@@ -340,8 +340,20 @@ describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
     expect(tones).toEqual(["green", "red", "amber"]);
     expect(screen.getByText("Backup readiness: Unknown").className).toContain("status-tone--neutral");
   });
+  it("SR-4b (D-SR.40, D-SR.42a): a two-hour address reads the 12:00 local hour of its day; the bar says it shows one day of the range", async () => {
+    // Was the "two hours" refused row: the page now sends one hour of `pageDay`. The refused frame stays pinned below
+    // with a reversed window. SR-10/SR-11 later replace this with a range view.
+    const client = renderBackup([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message: "x" }], `/sites/${CODE}/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z`);
+    await settledScreen();
+    const [, query] = (client.getBackup as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(Date.parse(query.to) - Date.parse(query.from)).toBe(3_600_000);
+    expect(query.from.slice(0, 10)).toBe("2026-10-06");
+    expect(new Date(query.from).getUTCHours()).toBe(9); // 12:00 Site-local (EAT), as a UTC instant
+    expect(screen.queryByText("Choose one complete Site-local hour or one day.")).toBeNull();
+    expect(document.querySelector(".shared-range__tag")?.textContent).toMatch(/^Showing 6 Oct of the range/);
+  });
+
   const CASES: Array<[string, string, string]> = [
-    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
     ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
     ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
   ];

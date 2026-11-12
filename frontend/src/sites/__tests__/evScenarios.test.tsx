@@ -2,7 +2,6 @@
  * W5-03b E6: EV Site Financials > Scenarios (v6.9 `ev-scenarios`) from the authored E5 list
  * (`.agent/W5-03-build-spec.md` E6 card and consolidated correction; `.agent/W5-03b-ui-preflight-rulings.md` 11-16).
  */
-import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -187,7 +186,7 @@ describe("W5-03b E6: EV Scenarios", () => {
     expect(renderedPanelTitles()).toEqual(["Financial scenarios"]);
     expect(text(main())).not.toContain("EV_WINDOW_INVALID 'from'");
     expect(text(main())).not.toContain("No scenario defined yet");
-    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Open with the default date range");
     expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
     cleanup();
     const r = renderScenarios({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
@@ -349,9 +348,17 @@ describe("W5-03b E6: EV Scenarios", () => {
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
     cleanup();
+    // SR-4 (D-SR.40, R347 kept in purpose): a refused read leaks nothing of its own body. With a valid address range
+    // the tabs carry exactly the address range (the bar's, as days); with an invalid (reversed) one they carry none.
+    const addressRange = "?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
     renderScenarios({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`);
     await settledScreen();
-    expect(rangeless(tabs().Overview)).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${addressRange}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${addressRange}`);
+    cleanup();
+    renderScenarios({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${encodeURIComponent(TO)}&to=${encodeURIComponent(FROM)}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
   });
 

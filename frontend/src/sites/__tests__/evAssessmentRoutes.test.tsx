@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { entryRange } from "../../ui/sharedRange";
 import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -232,6 +233,8 @@ function renderEv(path: string, list: EvRead<EvSessionsRead>, finding: EvRead<Ev
 }
 
 const SESSIONS = `/sites/${CODE}/performance/sessions`;
+/** SR-4: the day range the 08:00-09:00 address above is read as (the shared range's day form). */
+const DAY_Q = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
 const EV_COPY_NO_SESSIONS = "No charging sessions were observed in this window.";
 const PENDING_COPY = "New evidence is being assessed. The previous result may change.";
 const M1_SOURCE = "EV source provenance is mixed or unverified; session outcomes cannot be assessed.";
@@ -308,10 +311,10 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(rangeless(availabilityTab.getAttribute("href"))).toBe(`/sites/${CODE}/performance/availability`);
     expect(availabilityTab.hasAttribute("aria-current")).toBe(false);
     const energyTab = document.querySelector('[data-performance-subtab="energy"]') as HTMLAnchorElement;
-    expect(energyTab.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy`);
+    expect(energyTab.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy?${entryRange().toString()}`); // SR-4: a bare address opens on the entry range
     expect(energyTab.hasAttribute("aria-current")).toBe(false);
     expect((document.querySelector('[data-performance-subtab="sessions"]') as HTMLElement).getAttribute("aria-current")).toBe("page");
-    expect(document.querySelector("[data-ev-energy-summary]")?.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy`);
+    expect(document.querySelector("[data-ev-energy-summary]")?.getAttribute("href")).toBe(`/sites/${CODE}/performance/energy?${entryRange().toString()}`);
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
       expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
     }
@@ -886,16 +889,22 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
     expect(Object.values(tabs).some((h) => (h ?? "").includes("gateway"))).toBe(false);
   });
 
-  it("sessions refused and finding refused: tabs carry no window", async () => {
+  it("sessions refused and finding refused: tabs carry the address range, never the refused body's window", async () => {
+    // SR-4 (D-SR.40, R347 kept in purpose): a valid address range is carried as it is; an invalid one carries none.
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}`, refused(503, "EV_READ_UNAVAILABLE"));
     await settledScreen();
-    expect(rangeless(tabHrefs().Overview)).toBe(`/sites/${CODE}/ev`);
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev?${DAY_Q}`);
+    expect(Object.values(tabHrefs()).every((h) => (h ?? "").includes(DAY_Q))).toBe(true);
+    cleanup();
+    renderEv(`${SESSIONS}?from=${TO}&to=${FROM}`, refused(503, "EV_READ_UNAVAILABLE"));
+    await settledScreen();
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(Object.values(tabHrefs()).some((h) => (h ?? "").includes("?"))).toBe(false);
     cleanup();
     renderEv(FINDING_PATH, ok(STATES.complete), refused(404, "EV_FINDING_NOT_FOUND"));
     await settledScreen();
-    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
-    expect(tabHrefs().Findings).toBe(`/sites/${CODE}/findings`);
+    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev?${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
+    expect(tabHrefs().Findings).toBe(`/sites/${CODE}/findings?${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
   });
 
   it("finding: EV destinations at the Finding read's selected window", async () => {
@@ -999,8 +1008,10 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
         `/sites/${CODE}/findings/${FINDING}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`,
       );
       const tabs = document.querySelector('nav[aria-label="Site sections"]') as HTMLElement;
-      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/ev/evidence"]'), child).not.toBeNull();
-      expect(tabs.querySelector('a[href="/sites/EV-LAB-001/evidence"]'), child).toBeNull();
+      // SR-4: the tabs carry the range, so the tab is found by its range-less address.
+      const tabPaths = Array.from(tabs.querySelectorAll("a")).map((a) => rangeless(a.getAttribute("href") ?? ""));
+      expect(tabPaths, child).toContain("/sites/EV-LAB-001/ev/evidence");
+      expect(tabPaths, child).not.toContain("/sites/EV-LAB-001/evidence");
       cleanup();
     }
   });

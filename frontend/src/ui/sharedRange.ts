@@ -123,6 +123,8 @@ export function readSharedRange(params: URLSearchParams, now: number = Date.now(
   if (froms.length !== 1 || tos.length !== 1) return { status: "invalid" };
   const from = boundDay(froms[0], false);
   const to = boundDay(tos[0], true);
+  // Compare the raw instants before rounding to days: a reversed hour pair (09:00 to 08:00) rounds to one valid day.
+  if (INSTANT.test(tos[0]) && Date.parse(tos[0]) <= Date.parse(froms[0])) return { status: "invalid" };
   if (from === null || to === null || from > to || rangeDays({ from, to }) > RANGE_MAX_DAYS) return { status: "invalid" };
   const knowns = params.getAll("known_at");
   if (knowns.length > 1) return { status: "invalid" };

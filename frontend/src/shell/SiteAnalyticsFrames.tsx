@@ -1510,13 +1510,17 @@ export function SiteFinancialsFrame({
             site,
             params,
             sections: (
-              <FinancialsSections
-                siteId={site.site_id}
-                view={view}
-                search={coldWindowSearch(coldWindowFromParams(params))}
-                scenarios="live"
-                scenariosQuery={coldWindowFromParams(params)}
-              />
+              <>
+                {/* SR-4c (D-SR.44): Cold financial assumptions are assumption facts, not ranged. */}
+                {view === "assumptions" ? <RangeNotUsed note="prices valid now" /> : null}
+                <FinancialsSections
+                  siteId={site.site_id}
+                  view={view}
+                  search={coldWindowSearch(coldWindowFromParams(params))}
+                  scenarios="live"
+                  scenariosQuery={coldWindowFromParams(params)}
+                />
+              </>
             ),
             coldSite,
             coldAssessment,

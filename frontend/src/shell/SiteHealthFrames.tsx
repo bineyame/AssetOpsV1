@@ -141,6 +141,8 @@ export function SiteAssetsFrame({
           />
           <PageHeader title="Battery" headingId={SITE_BATTERY_HEADING_ID} subtitle={`Site: ${site.display_name}`} />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          {/* SR-4c (D-SR.43): the battery list and page are Foundation configuration, not ranged. */}
+          <RangeNotUsed note="current settings" />
           <HealthLinksContext.Provider value={LINKS}>
             <SiteBatteryEntry siteId={site.site_id} client={health} />
           </HealthLinksContext.Provider>
@@ -189,6 +191,7 @@ export function SiteAssetFrame({
             }
           />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <RangeNotUsed note="current settings" />
           <HealthLinksContext.Provider value={LINKS}>
             <SiteBattery
               siteId={site.site_id}

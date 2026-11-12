@@ -89,6 +89,19 @@ describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2
     await expectTag("/sites/KOBO-001/foundation/changes", "Range not used · current settings", "now", NOW("the current settings"));
   });
 
+  it("D-SR.43: the Assets list and the battery page are configuration on every Site type: range not used, current settings", async () => {
+    for (const code of ["KOBO-001", "COLD-LAB-001", "EV-LAB-001"]) {
+      await expectTag(`/sites/${code}/assets`, "Range not used · current settings", "now", NOW("the current settings"));
+      await expectTag(`/sites/${code}/assets/BAT-1`, "Range not used · current settings", "now", NOW("the current settings"));
+    }
+  });
+
+  it("D-SR.44: Cold and EV financial assumptions say prices valid now; their range-money pages follow the range", async () => {
+    await expectTag("/sites/COLD-LAB-001/financials/assumptions", "Range not used · prices valid now", "now", NOW("the prices valid now"));
+    await expectTag("/sites/EV-LAB-001/ev/financial-assumptions", "Range not used · prices valid now", "now", NOW("the prices valid now"));
+    await expectTag("/sites/EV-LAB-001/ev/financials", "All pages", null, FOLLOWS);
+  });
+
   it("mini-grid: Service shows one day of the range, Renewable over 5 days its last 5 days", async () => {
     await expectTag(
       "/sites/KOBO-001/performance/service",

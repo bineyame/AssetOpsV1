@@ -43,6 +43,8 @@ const CODE = "EV-LAB-001";
 const FROM = "2026-10-06T08:00:00.000000Z";
 const TO = "2026-10-06T09:05:00.000000Z";
 const KNOWN = "2026-10-06T09:00:00.000000Z";
+/** SR-4: the day range the 08:00-09:00 window is read as (the shared range's day form). */
+const DAY_Q = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
 const Q = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
 const RAW_Q = `?from=${FROM}&to=${TO}&known_at=${KNOWN}`;
 const id = (n: number) => `0000${String(n).padStart(4, "0")}-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -262,9 +264,9 @@ const PATHS = {
 const EV_BOARD = boardBody({ site_code: CODE, rows: boardRows().map((r) => ({ ...r, headline_money: null })) });
 const OLD_EV_CARDS = ["[data-ev-card]"];
 
-async function renderAt(path: string, evSite: EvSiteClient, outcomeBoard: OutcomeBoardClient = fakeOutcomeBoard({ status: "loaded", value: EV_BOARD }).client) {
+async function renderAt(path: string, evSite: EvSiteClient, outcomeBoard: OutcomeBoardClient = fakeOutcomeBoard({ status: "loaded", value: EV_BOARD }).client, search = Q) {
   render(
-    <MemoryRouter initialEntries={[`${path}${Q}`]}>
+    <MemoryRouter initialEntries={[`${path}${search}`]}>
       <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} outcomeBoard={outcomeBoard} />
     </MemoryRouter>,
   );
@@ -807,13 +809,14 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     cleanup();
     // Refused: the requested window end.
     await renderAt(PATHS.ev, client({}, refused(503, "EV_SITE_UNAVAILABLE")));
-    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}`);
+    // SR-4 (D-SR.2/D-SR.40): the link keeps its own `at=` and carries the address range; the Foundation page ignores it (N).
+    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}&${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
     expect(sldLink().textContent).toContain(CUTOFF_NOTE);
     cleanup();
     // No selected version: the requested window end, not the read's.
     const none = withWindowEnd(overview({ empty: true, state: "UNKNOWN", consequence: null }));
     await renderAt(PATHS.ev, { ...client({ empty: true, state: "UNKNOWN", consequence: null }), getOverview: vi.fn(() => Promise.resolve(ok(none))) });
-    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}`);
+    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}&${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
     cleanup();
     // No requested window end on a refusal: an honest null target, never a current SLD.
     render(
@@ -971,11 +974,20 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     }
   });
 
-  it("a refused read carries no window on the main tabs", async () => {
+  it("a refused read carries the address range on the main tabs, never the refused body's window", async () => {
+    // SR-4 (D-SR.40, R347 kept in purpose). A valid address range is what every tab carries.
     for (const path of Object.values(PATHS)) {
       await renderAt(path, client({}, refused(503, "EV_READ_UNAVAILABLE")));
       const tabs = tabHrefs();
-      expect(rangeless(tabs.Overview), path).toBe(`/sites/${CODE}/ev`);
+      expect(tabs.Overview, path).toBe(`/sites/${CODE}/ev?${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
+      expect(Object.values(tabs).every((h) => (h ?? "").includes(DAY_Q)), path).toBe(true);
+      cleanup();
+    }
+    // An invalid (one-sided) address range carries none.
+    for (const path of Object.values(PATHS)) {
+      await renderAt(path, client({}, refused(503, "EV_READ_UNAVAILABLE")), undefined, `?from=${encodeURIComponent(FROM)}`);
+      const tabs = tabHrefs();
+      expect(tabs.Overview, path).toBe(`/sites/${CODE}/ev`);
       expect(Object.values(tabs).some((h) => (h ?? "").includes("?")), path).toBe(false);
       cleanup();
     }

@@ -1,4 +1,4 @@
-# SR-4 packet: Site pages follow the shared date range (lane G) — PARTIAL, resume on the VPS
+# SR-4 packet: Site pages follow the shared date range (lane G)
 
 Spec: architect rev 8 (`architect-sequence-client-scope-2026-11-11.md` top), D-SR.1-8 (`build-sheet-OWN-GAPS-2026-11-08.md`), register R718/R719. Branch `task/SR-4-site-range` (fast-forwarded to main a6d40513f before the build).
 
@@ -45,17 +45,15 @@ Review plan: review 4a and 4b together. 4a alone makes Service/Renewable worse: 
 - Tests: new `shell/__tests__/siteRangeTags.test.tsx` 7/7 (tags + spoken name for mini/Cold/EV Health, Financials, Prices, Foundation, Performance, Service, Renewable; EV redirect); `siteEvidenceScreen` 16/16 (2 new); `sharedRange` (shell) 23/23 and `s5SiteWindowOverview` 69/69 updated; `rangeLink` 9/9. `test/rangeless.ts` now also takes arrays/nullables. tsc clean.
 - Mini Overview/Dispatch tag needs a loaded board (FocusPicker): pinned in `s5SiteWindowOverview` only.
 
-## App-level Site vitest (87 files, batches of 8)
-- First pass: 11 batches, 45 failing tests in 26 files. Fixed so far: all of batches 0-3 (t028Screens, siteOverviewScreen, siteFoundationRoute, operatorSiteTabs, siteDetailRoute, siteDetailScreen) and the href-exactness lines elsewhere.
-- **Still failing: 31 tests in 18 files** (list: rerun `grep -rl "<App\b" --include=*.test.tsx src | xargs grep -l "/sites/"`, or the files below). They are not href exactness; each tests behaviour the SR-4a safety net or 4b defaults superseded, and needs a per-test ruling, not a mechanical rewrite:
-  - "no range / no window chosen / bare address" cases now get the 7-day range: `s404SiteFindingIndex` (4), `coldScenarios` (1), `w1f4ChangesWorkStructure` (2), `siteWorkCases` (3), `coldFindingIndex` (1), `evSiteMoneyRoutes` (2).
-  - "a refused read carries no window on the tabs" (R347/Q14): tabs now carry the address range: `evDepth` (4), `evEnergy`, `evHealthDepth` (2), `evScenarios`, `evAssessmentRoutes` (3).
-  - Mini refused window "two hours" (R313) now replaced by the 4b hour rule: `miniBackupRoutes`, `miniFuelRoutes` (same as the Service row already replaced in 4b).
-  - `coldDepth` 422 invalid window, `miniDecisions` scenario time bounds (spy args), `evFoundation` source control "only a valid window", `globalIncidents`/`globalMaintenance` (global Work links to `/incidents`/`/maintenance` expected the range; check whether RangeLink should carry on non-Site Work paths — it does not today).
+## Fix round (Revision 10d, D-SR.40-44): ready for review
+Branch merged with main bbec56c26. Rulings applied as written; no design.
+- **D-SR.40 (26 tests):** updated to positive tests, none deleted: `s404SiteFindingIndex` (4), `coldScenarios` (1), `coldFindingIndex` (1), `w1f4ChangesWorkStructure` (2), `siteWorkCases` (M1 and `work_subtab_counts`: 2), `evDepth` (availability crumbs, R347), `evEnergy`, `evHealthDepth` (R347 + spy now gets the shared range), `evScenarios` (R347), `evAssessmentRoutes` (3), `evSiteMoneyRoutes` (SLD link + R347), `miniDecisions` (spy gets the shared range; the address is no longer rewritten because it already names a range), `miniBackupRoutes`/`miniFuelRoutes` (two-hour address reads the 12:00 local hour; bar tag "Showing 6 Oct of the range"; refused frame stays pinned by the reversed case), `globalIncidents`/`globalMaintenance` (Site links carry the page's range). R347 tests assert both cases: a valid address range is carried exactly, a reversed or one-sided one carries none.
+- **D-SR.41:** (a) `readSharedRange` compares the raw instants first: a `to` instant not after the `from` instant is invalid (`ui/sharedRange.ts`); unit cases added (reversed and equal instants invalid, an hour in one day valid); `evFoundation` E4 passes unchanged. (b) Cold and EV correction links read "Open with the default date range" (`ColdDepthRefusal.tsx`, `EvAvailability.tsx`); `evDepth` R244 now compares the exact href (`...availability?known_at=<KNOWN>`), and `coldDepth` pins the exact valid-range href plus a reversed case with none. (c) **Site Maintenance list read already sends the range**: the raw request is `/work/maintenance?from=<range.from>&to=<range.to>&limit=5` (and the Incidents read likewise). The old test failed only because it ran `rangeless()` on the received requests but not on the expectation. The test now compares raw requests against the entry range. No code change, nothing unwindowed.
+- **D-SR.42 (d):** pinned in `ui/__tests__/rangeLink.test.tsx` (3 cases). Implementation reading: a target that names its own `from` or `to` is returned as written (the address's other bound is never mixed in; a half range is the link's own choice); an own `known_at` wins and is not added twice; with none named, from/to/known_at are all added.
+- **D-SR.43:** `SiteAssetsFrame` and `SiteAssetFrame` declare "current settings"; pinned in `siteRangeTags.test.tsx` for mini, Cold and EV.
+- **D-SR.44:** Backup/Fuel keep the day tag (tests above). EV evidence and analysis reads: `evSiteClient` `getEvidence` and `getAnalysis` (`ev/evidence`, `ev/evidence/analysis`) send `from`/`to`/`known_at` from the address through `coldWindowSearch`, so **no SR-9 card is needed**. Cold and EV financial assumptions declare "prices valid now" (`evSiteRoutes.tsx`, `SiteAnalyticsFrames.tsx` cold branch); pinned in `siteRangeTags.test.tsx`; their range-money pages still say "All pages".
+- Checks: results at the end of this section.
 
-## Resume point
-1. Fix the 31 above one file at a time (replace superseded assertions with positive tests of the new rule; never delete).
-2. Guards (b6d7124fe): 18 of 19 pass. The one failure is "Estate guard self-tests", because `powershell` is not found on Linux (being fixed on main). The CH-5b1 ratchet was shrunk by `--shrink` (SiteAnalyticsFrames cmp 27->26, lit 31->30). tsc is clean.
 ## Pre-flight answers (8.5)
 - (a) Route classes, every route under `/sites` in `App.tsx` (no operator `/performance/...` routes exist):
   - R: Findings, Work, Evidence, Scenarios, Cold/EV pages, Renewable ≤5 days.

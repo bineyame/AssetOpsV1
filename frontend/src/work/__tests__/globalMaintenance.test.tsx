@@ -32,6 +32,7 @@ import {
 const FROM = "2026-10-14T00:00:00Z";
 const TO = "2026-10-21T00:00:00Z";
 const KNOWN = "2026-10-21T12:00:00Z";
+const RANGE_Q = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const PAGE = `/maintenance?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const SITE_MAINTENANCE = `/sites/KOBO-001/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z`;
 const TITLE200 = "Startermotorandcontrolpanelinspection".repeat(6).slice(0, 200);
@@ -291,8 +292,8 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
         .getAllByRole("link")
         .map((a) => [a.textContent, a.getAttribute("href")]),
     ).toEqual([
-      ["Finding a1b2c3d4", "/sites/KOBO-001/findings/f1?revision_id=r1"],
-      ["Action e5f6a7b8", "/sites/KOBO-001/actions/a1"],
+      ["Finding a1b2c3d4", `/sites/KOBO-001/findings/f1?revision_id=r1&${RANGE_Q}`], // SR-4 (D-SR.2): Site links carry the page's range
+      ["Action e5f6a7b8", `/sites/KOBO-001/actions/a1?${RANGE_Q}`],
     ]);
     expect(text(cell(second, 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
     expect(text(cell(second, 2))).toBe("Field team C");

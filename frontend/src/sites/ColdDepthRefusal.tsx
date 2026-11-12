@@ -68,7 +68,7 @@ export function ColdDepthRefusal({ read, window, label, tiles, panels, unavailab
         <p className="ev-depth-refusal__actions" data-cold-depth-refusal-actions="">
           {correction === null ? null : (
             <Link to={correction} className="ev-depth-refusal__link" data-cold-depth-correction="">
-              Read without a selected window
+              Open with the default date range
             </Link>
           )}
           {recoverable ? (
