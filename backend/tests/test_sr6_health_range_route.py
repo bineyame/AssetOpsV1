@@ -171,8 +171,21 @@ def test_source_day_not_expected_follows_the_day_state(health, monkeypatch) -> N
     states = {d: {"state": NOT_EXPECTED if d == DAY[0] else ANALYSED, "row": None} for d in DAY}
     monkeypatch.setattr(site_health_range, "range_day_states", lambda *a: states)
     s1 = _body(health)["sources"][0]
-    assert s1["days"][0]["state"] == NOT_EXPECTED and s1["days"][0]["accepted_readings"] == 288
+    # accepted readings win over a NOT_EXPECTED day state, in the cell and in the summary (D-SR.20, D-SR.49 Q1)
+    assert s1["days"][0]["state"] == READINGS and s1["days"][0]["accepted_readings"] == 288
     assert s1["days"][2]["state"] == READINGS
+    assert _body(health)["summary"]["days_with_readings"] == 3
+
+
+def test_gateway_registered_mid_window_counts_when_in_contact_after(health) -> None:
+    """D-SR.49 Q2: edge-2 (registered on day 2) in contact every day from then on counts 1; own earlier days skip."""
+    full = {"n": FULL, "first_at": D0, "last_at": D0}
+    diag = {(str(G2), d): full for d in DAY[2:]}
+    health.calls.counts = lambda c, t, s, lo, hi, k: (diag, READS)
+    body = health_range_body(health.service, T, KOBO, _req(), health.calls.registration, health.calls.counts)
+    g2 = body["gateways"][1]
+    assert [x["contact"] for x in g2["days"]] == [NOT_EXPECTED, NOT_EXPECTED] + [IN_CONTACT] * 5
+    assert body["summary"]["gateways_in_contact_all_days"] == 1
 
 
 H = datetime(2026, 10, 13, tzinfo=timezone.utc)
@@ -193,7 +206,7 @@ def test_gateway_contact_rule(diag, reads, hi, registered, want) -> None:
 
 
 @pytest.mark.parametrize("day_state,reads,want", [
-    (NOT_EXPECTED, 0, NOT_EXPECTED), (ANALYSED, 1, READINGS), (ANALYSED, 0, NO_READINGS),
+    (NOT_EXPECTED, 0, NOT_EXPECTED), (NOT_EXPECTED, 288, READINGS), (ANALYSED, 1, READINGS), (ANALYSED, 0, NO_READINGS),
     (NO_READINGS, 0, NO_READINGS)])
 def test_source_state_rule(day_state, reads, want) -> None:
     assert source_state(day_state, reads) == want

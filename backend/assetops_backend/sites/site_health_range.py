@@ -66,11 +66,13 @@ def gateway_contact(d: date, diagnostics: int, readings: int, cadence_seconds: i
 
 
 def source_state(day_state: str, readings: int, after_cutoff: bool = False) -> str:
+    if readings > 0:  # accepted readings always win (D-SR.20 principle)
+        return READINGS
     if day_state == NOT_EXPECTED:
         return NOT_EXPECTED
-    if after_cutoff and readings == 0:
+    if after_cutoff:
         return AFTER_CUTOFF
-    return READINGS if readings > 0 else NO_READINGS
+    return NO_READINGS
 
 
 def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest,
@@ -129,14 +131,17 @@ def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateR
                              "accepted_readings": None if state in GAP_STATES else readings})
         totals = {d: sum(got["n"] for (_, day), got in reads.items() if day == d) for d in days}
         # D-SR.49 Q1: one class per day; with + without + not expected + after cutoff = requested.
-        klass = {d: ("not_expected" if day_rule[d]["state"] == NOT_EXPECTED else
-                     "after_cutoff" if after[d] else "with" if totals[d] > 0 else "without") for d in days}
+        klass = {d: ("with" if totals[d] > 0 else "not_expected" if day_rule[d]["state"] == NOT_EXPECTED else
+                     "after_cutoff" if after[d] else "without") for d in days}
         expected = {d for d in days if klass[d] in ("with", "without")}
         n = lambda c: sum(1 for d in days if klass[d] == c)  # noqa: E731
-        in_contact_all = sum(
-            1 for g in gateways_out
-            if any(date.fromisoformat(x["day"]) in expected for x in g["days"])
-            and all(x["contact"] == IN_CONTACT for x in g["days"] if date.fromisoformat(x["day"]) in expected))
+        skipped = (NOT_EXPECTED, AFTER_CUTOFF)  # D-SR.49 Q2: a gateway's own pre-registration / post-cutoff days
+
+        def own_days(g):
+            return [x for x in g["days"] if x["contact"] not in skipped and date.fromisoformat(x["day"]) in expected]
+
+        in_contact_all = sum(1 for g in gateways_out
+                             if own_days(g) and all(x["contact"] == IN_CONTACT for x in own_days(g)))
         return {
             "schema_version": SCHEMA,
             "site": {"site_code": site["site_code"], "site_name": site["site_name"], "timezone": site.get("timezone")},
