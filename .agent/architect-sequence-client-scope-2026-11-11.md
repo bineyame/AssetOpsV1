@@ -76,6 +76,17 @@ Rule for every "update": replace the superseded assertion with a positive test o
 - **Still outside the claim:** scope-ids page 2 and later, and lens × state chip combinations.
 - Size: about 3 requests per warmed range, about 0.02 units, inside WARM-1's fix round.
 
+### 10d.7 SR-8 builder questions Q2-Q5 (D-SR.47)
+
+SR-8 server: `task/SR-8-renewable-range` 2fc5ffdf6. Q1 (`window_days`) is covered by D-SR.45.
+
+| Q | Ruling |
+|---|---|
+| Q2 A graded row with no value, or an unknown decision, reads NO_VALUE | **Confirmed.** NO_VALUE is added to D-SR.27's state list with the words "No headroom figure for this day". It is never counted. |
+| Q3 Averages rounded to 0.01 kW, half-up | **Confirmed.** This applies only to the two totals (mean `low_kw`, mean `high_kw`). The per-day `low_kw`/`high_kw` are the stored values, unrounded. The page formats both with the Renewable tab's existing kW formatter. |
+| Q4 Grade precedence | **Corrected for LOW.** A PENDING, NO_DATA or NOT_EXPECTED grade wins, as built. **A LOW grade reads NOT_ENOUGH_READINGS and is never counted, even with a value**, as D-SR.45 J2 and SR-5a's `GAP_STATES` rule. A PARTIAL-grade ELIGIBLE day is COUNTED and carries `partial: true`, so the page shows the D-E5.45 PARTIAL label, as SR-7a does. COMPLETE reads the value. Add a test for a LOW day that has a value. |
+| Q5 Codes and `known_at` | **Confirmed.** `RENEWABLE_RANGE_NOT_APPLICABLE` (404) and `SITE_RENEWABLE_RANGE_UNAVAILABLE` (503) match SR-6/SR-7. The optional `known_at` is required in practice: the shared range carries it (D-SR.2), and the StoredRoute key is `{site, from, to, known_at}`, as SR-6/7. Spec 10.4 is amended to `?from&to[&known_at]`. |
+
 ### 10d.6 Sizes and order
 
 - SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.
