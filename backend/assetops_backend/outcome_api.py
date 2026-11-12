@@ -19,6 +19,7 @@ over HTTP; a refused producer read inside a board is that board's PARTIAL, never
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import UUID
@@ -30,7 +31,9 @@ from assetops_backend import perf
 from assetops_backend.chain.read import board_day, window_day
 from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish, parsed_key
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
-from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
+from assetops_backend.estate.scope import (
+    EstateRefusal, EstateStoreUnavailable, estate_request, parse_request as parse_estate)
+from assetops_backend.estate.site_range import RangeOverviewNotApplicable, site_range_body
 from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.estate_portfolio_api import refusal as estate_refusal
 from assetops_backend.finding_api import Access, development_access
@@ -43,6 +46,7 @@ from assetops_backend.sites.ports import SiteStoreUnavailable
 
 BOARD_ROUTE = "/api/sites/{site_code}/outcome-board"
 SUMMARY_ROUTE = "/api/estate/outcome-summary"
+RANGE_ROUTE = "/api/sites/{site_code}/range-overview"
 MAX_WINDOW = timedelta(days=31)
 _INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z")
 
@@ -218,6 +222,56 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
                "pin": None if pin is None else [str(x) if x is not None else None for x in pin]}
         site = UUID(str(ref.site_id))
         return responses.serve(StoredRoute(BOARD_ROUTE, ref.tenant_id, key, sites=(site,),
+                                           watermark_sites=(site,)), compose)
+
+    @router.get(RANGE_ROUTE)
+    def range_overview(site_code: str, request: Request, response: Response) -> dict[str, Any]:
+        with perf.route(RANGE_ROUTE, response):  # QW-1: one `assetops.perf` line per request
+            out = _range_overview(site_code, request)
+        return finish(out, response) if isinstance(out, Response) else out
+
+    def _range_overview(site_code: str, request: Request) -> Any:
+        """SR-5a (rev 9 §9.4): one mini-grid Site over a range, on the Portfolio's selectors. Admission as the
+        board; the window is the estate's (midnight UTC, at most 31 days, 422 INVALID_WINDOW)."""
+        ref = board_site(admitted, registry, site_code, "Site range overview", request)
+        if ref.domain != MINI:
+            raise _refuse(404, "RANGE_OVERVIEW_NOT_APPLICABLE",
+                          f"Site {site_code!r} reads its date range on its own Overview.")
+        if not disclosed(ref):
+            raise _refuse(403, DISCLOSURE_REFUSAL[ref.domain],
+                          f"The source provenance of Site {site_code!r} may not be disclosed to this caller.")
+        params = request.query_params
+        lo, hi, known_at = _instant(params, "from"), _instant(params, "to"), _instant(params, "known_at")
+        if lo is None or hi is None:
+            raise _refuse(422, "INVALID_WINDOW", "Give both 'from' and 'to' (UTC midnights, at most 31 days).")
+        try:
+            req = replace(estate_request("portfolio", lo, hi, known_at), lens="all")
+        except EstateRefusal as error:
+            raise _refuse(error.status, error.code, error.detail["message"]) from error
+        if estate is None:
+            raise _refuse(503, "SITE_RANGE_OVERVIEW_UNAVAILABLE", "No product database is configured.")
+
+        def compose() -> dict[str, Any]:
+            try:
+                body = site_range_body(estate, ref.tenant_id, ref.site_code, req)
+            except RangeOverviewNotApplicable as error:
+                raise _refuse(404, "RANGE_OVERVIEW_NOT_APPLICABLE",
+                              f"Site {site_code!r} reads its date range on its own Overview.") from error
+            except (EstateStoreUnavailable, SiteStoreUnavailable, *unavailable) as error:
+                raise _refuse(503, "SITE_RANGE_OVERVIEW_UNAVAILABLE", str(error)) from error
+            except EstateRefusal as error:
+                if error.status == 503:
+                    raise _refuse(503, "SITE_RANGE_OVERVIEW_UNAVAILABLE", error.detail["message"]) from error
+                raise _refuse(error.status, error.code, error.detail["message"]) from error
+            if body is None:
+                raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site {site_code!r} with a range overview.")
+            return {RANGE_ROUTE: _public(body)}
+
+        if responses is None:
+            return compose()[RANGE_ROUTE]
+        site = UUID(str(ref.site_id))
+        key = {"site": ref.site_id, "from": lo, "to": hi, "known_at": known_at}
+        return responses.serve(StoredRoute(RANGE_ROUTE, ref.tenant_id, key, sites=(site,),
                                            watermark_sites=(site,)), compose)
 
     @router.get(SUMMARY_ROUTE)
