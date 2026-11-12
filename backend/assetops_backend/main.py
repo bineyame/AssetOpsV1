@@ -194,6 +194,9 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
+from assetops_backend.sites.foundation_records import FoundationStoreError
+from assetops_backend.reading_upload.service import ReadingUploadService
+from assetops_backend.reading_upload_api import build_reading_upload_router
 from assetops_backend.chain.composition import (
     build_estate_claims,
     build_mini_period_rows,
@@ -246,6 +249,8 @@ def create_app(
     domain_work_principal: Principal = no_service_principal,
     site_read_access: Access = development_access,
     operational_entry_principal: Principal = no_service_principal,
+    reading_uploads: ReadingUploadService | None = None,
+    reading_upload_sites: frozenset[str] = frozenset(),
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -626,6 +631,11 @@ def create_app(
         # when ASSETOPS_OPERATIONAL_ENTRY=on; by default none, so an entry is 403.
         entry_principal=operational_entry_principal,
         site_context=entry_site_context(fuel_store.night_context) if fuel_store is not None else None))
+    # UP-1 (rev 7 section 7.5, D-17N.5): the reading-upload routes. The service is injected only by `host/lab_app.py`
+    # when ASSETOPS_READING_UPLOAD_SITES names a Site; by default none, so every upload is 403 READING_UPLOAD_OFF.
+    app.include_router(build_reading_upload_router(
+        reading_uploads, registry.ledger_scope, reading_upload_sites, access=site_read_access,
+        unavailable=(SiteStoreUnavailable, FoundationStoreError)))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(

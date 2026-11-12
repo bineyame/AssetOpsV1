@@ -45,6 +45,7 @@ from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.sites.composition import build_foundation_store
 
 from lab_execution import HostLabExecution
+import reading_upload_process as upload_process
 from cold_lab import StoreColdInputs
 from ev_lab import StoreEvInputs
 from gateway_publication import RegisteredGatewayPublisher
@@ -85,6 +86,24 @@ def operational_entry_from_environment() -> Principal | None:
     return operational_entry_principal
 
 
+def reading_uploads_from_environment(overrides: dict[str, object]) -> None:
+    """UP-1 (rev 7 section 7.5, D-17N.5): `ASSETOPS_READING_UPLOAD_SITES` (off by default) switches the upload
+    routes on for the named Sites (Kobo only). The checker and sender are field processes; the uploads are
+    attributed to the server-configured entry service ("Uploaded by site admin", D-PRICE.1 precedent)."""
+    sites = upload_process.sites_from_environment()
+    if not sites or "reading_uploads" in overrides:
+        return
+    from assetops_backend.reading_upload.postgres_store import PostgresReadingUploadStore
+    from assetops_backend.reading_upload.service import ReadingUploadService
+
+    gateway = upload_process.gateway_from_environment()
+    overrides["reading_upload_sites"] = sites
+    overrides["reading_uploads"] = ReadingUploadService(
+        upload_process.ProcessFileChecker(),
+        None if gateway is None else upload_process.ProcessReadingSender(gateway),
+        PostgresReadingUploadStore(database_url()), entered_by=ENTRY_PRINCIPAL)
+
+
 def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI:
     """The product application with an execution port behind the gated Lab.
 
@@ -95,6 +114,7 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     entry = operational_entry_from_environment()  # OWN-G3a: refuses startup before anything is built
     if entry is not None:
         overrides.setdefault("operational_entry_principal", entry)
+    reading_uploads_from_environment(overrides)  # UP-1: refuses startup on an unsupported Site code
     perf.enable_log()  # CH0-R: QW-1's request lines and the tick line reach the serve log (idempotent)
     resolved = load_feature_flags() if flags is None else flags
     execution = None
