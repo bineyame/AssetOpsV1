@@ -71,3 +71,8 @@ USER_REVIEW_REQUIRED: no (server slice; the page waits for SR-4).
 
 ## Merge of SR-10 D-SR.70-72 (2026-11-12)
 Merged task/SR-10-fuel-range (347d9765a): NO_DATA day state, no_reading_days, parity gate. No merge conflicts; added route test for backup NO_DATA (D3 absent, D5 stored). No-DB tests: 51+ passed (sr11 route 19, sr10 summary/route 32). Parity rerun and Postgres: pending (coordinator). check-all: for coordinator.
+
+## D-SR.70-72 review fix round
+Merged task/SR-10-fuel-range (M-1: pending computed with no stored row). L-2: the tautology in
+`test_no_reading_days_read_no_data...` is replaced by a `totals` assertion (3 counted of 7, partial, sequence_counts
+unchanged). SR-11 route tests: 19 passed.
