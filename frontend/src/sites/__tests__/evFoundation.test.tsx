@@ -1,5 +1,4 @@
 import { cleanup, render, within } from "@testing-library/react";
-import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -622,7 +621,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
         expect(a.textContent, query).toBe("Evidence › Data sources →");
         const url = new URL(a.getAttribute("href")!, "http://x");
         expect(url.pathname, query).toBe("/sites/EV-LAB-001/ev/evidence");
-        expect(rangeless(url.search, query)).toBe(expected);
+        expect(url.search, query).toBe(expected);
         expect(url.hash, query).toBe("#ev-site-sources-heading");
         expect(url.searchParams.has("gateway"), query).toBe(false);
       }

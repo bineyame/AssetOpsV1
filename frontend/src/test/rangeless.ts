@@ -5,7 +5,15 @@
  */
 const RANGE_KEYS = new Set(["from", "to", "known_at"]);
 
-export function rangeless(href: string): string {
+/** `rangeless` over a value: a string is stripped, an array element by element; anything else is returned as it is. */
+export function rangeless<T>(value: T): T;
+export function rangeless(value: unknown): unknown {
+  if (typeof value === "string") return rangelessHref(value);
+  if (Array.isArray(value)) return value.map((item) => rangeless(item));
+  return value;
+}
+
+function rangelessHref(href: string): string {
   const hashAt = href.indexOf("#");
   const head = hashAt < 0 ? href : href.slice(0, hashAt);
   const hash = hashAt < 0 ? "" : href.slice(hashAt);

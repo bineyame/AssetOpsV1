@@ -975,7 +975,7 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     for (const path of Object.values(PATHS)) {
       await renderAt(path, client({}, refused(503, "EV_READ_UNAVAILABLE")));
       const tabs = tabHrefs();
-      expect(rangeless(tabs.Overview, path)).toBe(`/sites/${CODE}/ev`);
+      expect(rangeless(tabs.Overview), path).toBe(`/sites/${CODE}/ev`);
       expect(Object.values(tabs).some((h) => (h ?? "").includes("?")), path).toBe(false);
       cleanup();
     }
