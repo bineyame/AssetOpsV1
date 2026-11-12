@@ -48,7 +48,7 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   range day counts MEMBERS (SUPPORTED/UNCONFIRMED, §9.4), so CLEAR, while the one-day board's `known_finding`
   selects the latest revision of every canonical Finding, so it shows one. Test pins the disagreement set
   == {10-21} and its lifecycle; which side changes is for the Architect.
-- No-DB: sr5 + cov_partial(_portfolio) + ch5a1_board_contract: 77 passed.
+- No-DB: sr5 + cov_partial(_portfolio) + ch5a1_board_contract: 77 passed. check-all: All 19 guards passed (2nd run; the 1st hit my 900 s cap at load ~12).
 
 ## Resume points, in order
 1. DONE. Fix `_status` in `site_range.py`: pass the evidence tuple's own domain (`e_sites[0][1]`) to `evidence_unit`,
