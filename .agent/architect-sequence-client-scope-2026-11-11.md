@@ -1,5 +1,86 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8** (build sheet), owner-delegated, logged for owner review.
+- Basis: D-SR.2/3 (every Site link carries the range; safety net), D-SR.9 and D-SR.39 (the range covers telemetry and its consequences; configuration and assumption facts are not ranged), D-SR.30/35 (one record and configuration are N).
+- Evidence: the 18 files re-run on `task/SR-4-site-range` 582019b0e (16 files: 29 failed / 383 passed; `globalIncidents` + `globalMaintenance`: 2 failed). 31 failures, as the packet says.
+- **Process defect found and repaired here (D-SR.46).** The rev 10b, 10b.6 and 10c commits (d7288e5d6, ef18dad9d, 23459a1f9) each *replaced* `build-sheet-OWN-GAPS-2026-11-08.md` instead of appending to it: main held 7 lines, not ~4,960. This branch restores the 13dbe4cab content, then D-SR.31-38, D-WARM.7 and D-SR.39 in order, then appends D-SR.40+. Rulings are appended, never written over the sheet. A reviewer checks `git diff --stat` on the build sheet: only additions.
+
+### 10d.1 SR-4: the 31 App-level tests (D-SR.40, D-SR.41)
+
+Rule for every "update": replace the superseded assertion with a positive test of the new behaviour in the same `it` (rename the title to say what it now proves); never delete a case. "Rangeless" means `test/rangeless.ts` for the path **plus** one assertion that `from`/`to` (and `known_at` when the address names it) equal the address range.
+
+| # | File(s), test | Old pin | Ruling | The updated test asserts |
+|---|---|---|---|---|
+| 1 | `globalIncidents` A2 render, `globalMaintenance` B2 render | Site record links from global Work had no range | **Update** | Finding and Action links are rangeless-equal and carry the global page's `from`/`to`. D-SR.2: every Site link carries the range, wherever it starts. Global Work's own R338 default (`workClient.ts:192`) is unchanged. |
+| 2 | `s404SiteFindingIndex` "defaults to today's UTC day…" | bare address read today | **Update** | A bare address opens on `entryRange()` (safety net); the request names those 7 days and the supported domain. |
+| 3 | `s404SiteFindingIndex` "SR-2: with no range, says … page default" | page-default sentence | **Update** | The bare address ends on the shared range, and the page names its days with no "page default" sentence. The page-default copy stays reachable only below the outlet; keep it covered if a component-level test exists, otherwise this replacement is the record. |
+| 4 | `s404SiteFindingIndex` revision links; W1-b Dispatch `?day=` link; `evAssessmentRoutes` stocked energy link and R280 tab query; `evDepth` availability breadcrumbs; `evSiteMoneyRoutes` w2f SLD link; `w1f4ChangesWorkStructure` Work row `/sites/KOBO-001` href | exact hrefs without range | **Update** (href exactness) | Rangeless equality plus the range. R280 finds the tab by rangeless pathname. The SLD keeps its own `at=`; the Foundation page itself ignores the range (N). |
+| 5 | `coldScenarios` "propagates nothing when the address has no selection" | bare tabs | **Update** | A bare address reaches the entry range, and every tab carries it. |
+| 6 | `coldFindingIndex` r253 "…keeps the mini index" (`known_at`) | no `known_at` on the Site link | **Update** | A valid address `known_at` travels with the range (`withRange`, D-SR.2). |
+| 7 | R347 group: `evDepth`, `evEnergy`, `evHealthDepth`, `evScenarios` "…a refused read carries none"; `evAssessmentRoutes` "sessions refused and finding refused: tabs carry no window"; `evSiteMoneyRoutes` "a refused read carries no window on the main tabs" | refused read: tabs bare | **Update** | On a refused read with a **valid** address range, the tabs carry exactly the address range (the bar's), never a window derived from the refused body. With an **invalid** address range (one-sided or reversed), the tabs carry none (D-SR.41a makes reversed invalid). Both cases are asserted. R347's purpose holds: nothing from the refused read leaks. |
+| 8 | `evHealthDepth` health_states_loading (spy `from/to: null`); `miniDecisions` scenario_creation_time_bounds (spy `from/to: null`) | read with no window | **Update** | The read receives the shared range's `from`/`to`. EV Health and Scenarios are R (rev 8 8.1; scenarios are computed over telemetry, D-SR.39). |
+| 9 | `siteWorkCases` work_subtab_counts (no action-index read) | bare address read nothing | **Update** | With the safety-net range, the Actions count reads `action-index` once, with the range's `from`/`to`. |
+| 10 | `siteWorkCases` final-fix M1 "a bare mini address … seven Site-local default days" | R338 Site-local default copy | **Update** | A bare mini Work address opens on the shared range, and "Days shown" names the range's days in the page's own UTC-day wording. This is the intended D-SR.3 consequence (rev 8 8.2: "Site Work pages now open on the shared range, not on R338's own default"). |
+| 11 | `w1f4ChangesWorkStructure` "no window chosen: the slot asks for a window and nothing is read" | bare address | **Update** | Same case with an **invalid** address range (one-sided): the slot asks for a window and nothing is read. A second assertion: a bare address reads the entry range. |
+| 12 | `miniBackupRoutes`, `miniFuelRoutes` R313 "two hours" | two-hour window refused | **Update**, as the Service row in 4b | A two-hour address reads the 12:00-13:00 local hour of `pageDay`, and the bar tag reads "Showing <day> of the range". The refused frame (strip, muted tiles, named panels, one client reason) stays pinned with a **reversed** window. SR-10/SR-11 later replace both with range views. |
+| 13 | `siteWorkCases` narrow_mock_panels (Maintenance read `?limit=5`, no window) | read with the R338 window | **SR-4 must change (D-SR.41c)** | Site Maintenance is R (D-SR.9). The list read must send the address range: `/api/sites/KOBO-001/work/maintenance?from=<range.from>&to=<range.to>&limit=5`. The builder finds where the window is lost and fixes it. If the builder proves this call is a by-design unwindowed read (for example an open-now panel), stop and ask; do not just re-pin it. |
+| 14 | `evFoundation` W5-03b E4 "…with only a valid window", case `?from=09:00&to=08:00&known_at=…` | no query | **SR-4 must change (D-SR.41a)** | `readSharedRange` rounds the reversed same-day hour pair to one valid day, so `RangeLink` adds a day range and `known_at`. An address whose `from` instant is not before its `to` instant is **invalid**: compare the raw instants before rounding to days. The test stays as written. |
+| 15 | `evDepth` R244 EV_WINDOW_INVALID / EV_WINDOW_TOO_LONG; `coldDepth` "a 422 invalid window hides the requested date line" | correction link with no range | **SR-4 must change (D-SR.41a, D-SR.41b)** | After 41a the reversed address is invalid, so the correction link carries no range. `evDepth:338` compares the exact href `…/performance/availability?known_at=<KNOWN>`, **not** `rangeless(...)` (the current edit strips `known_at` from one side only). Copy (D-SR.41b): the link now lands on the safety-net range, so "Read without a selected window" becomes **"Open with the default date range"** on the Cold and EV correction links, and the tests pin that text. |
+
+- **Counted:** rows 1-12 are updates (26 tests); rows 13-15 need SR-4 code changes (5 tests); 31 in all.
+- **Size:** about +0.1 on SR-4 (41a validation and its tests, 41b copy, 41c window).
+
+### 10d.2 SR-4 builder calls (D-SR.42)
+
+| Call | Ruling |
+|---|---|
+| (a) Backup and Fuel get the "Showing <day> of the range" span tag | **Confirmed.** It is the honest D-class tag (D-SR.6) for the hour view they already read; it is a labelled extension, not a design change. SR-10c and SR-11's pages remove it from the range view (10b.2: "the bar declares nothing"); the hour drill-in keeps it. |
+| (b) Spoken "shows shows now" → "the present state" | **Confirmed.** The visible tag stays `Range not used · shows now`; only the spoken name changes. |
+| (c) Guard baseline shrink (SiteAnalyticsFrames site-type checks 27→26, literals 31→30) | **Confirmed.** A ratchet may only shrink, and this one shrank by `--shrink` after a check moved into the EV redirect. The reviewer confirms the diff touches only those two numbers. |
+| (d) A link naming its own `known_at` no longer gets a second one | **Confirmed.** This is a defect fix inside SR-4a. Rule: a target's own `from`/`to`/`known_at` win per key; the address `known_at` is added only when the target names none. `rangeLink.test.tsx` pins it. |
+
+### 10d.3 SR-4 pre-flight (f) and the routes missing from 10.5 (D-SR.43, D-SR.44)
+
+- **Assets list and battery page: confirmed N (configuration) on every Site type** (D-SR.43). `/api/sites/{code}/battery` and `/assets/{id}/battery` take no query and return Foundation configuration, with condition always UNKNOWN (`battery_boundary.py`). No readings means no SR-9 card. Close the builder's open point: `SiteAssetsFrame` and `SiteAssetFrame` declare `useDeclareRangeNotUsed("current settings")`, so the tag reads "Range not used · current settings", as Foundation does. Pin one case in `siteRangeTags.test.tsx`. Size about 0.02, inside SR-4.
+- **Unlisted routes** (D-SR.44), by the telemetry principle (D-SR.39) and D-SR.30/35:
+
+| Route | Class | Reason and what happens |
+|---|---|---|
+| Performance **Backup**, **Fuel** (mini) | **R** via SR-11 / SR-10 (Kisiwa's Fuel tab via SR-10k) | Telemetry. Until those merge: D with the 10d.2 (a) tag. |
+| **Fuel finding** `fuel-findings/:id` | N (one record) | Its own night window. Links carry the range (D-SR.30). |
+| **Mill / Fuel verification** `domain-actions/:id/verification`, `…/fuel-verification` | N (one record) | A verification is a consequence of telemetry, but it is **one** record with its own before/after windows; the range does not re-cut it (as Finding detail, 10.5). Links carry the range. |
+| **Opportunity detail** (five-day, from the Renewable CTA) | N (one record) | Its five days are the record's own window. SR-8's range view links to it with that window; the page keeps it. |
+| **Action pages** `actions/:id(/:view)` | N (one record) | As D-SR.30. |
+| **EV evidence** `/ev/evidence`, **EV analysis** `/ev/analysis` | **R** | Telemetry and its consequences; already in rev 8's "every `/ev/...` page is R". The data-sources panel on EV evidence is configuration and contact state, labelled point-in-time where it shows contact. Pre-flight check (no DB needed): each request sends `from`/`to`. A request that does not becomes card SR-9 (≤0.25). |
+| **Cold / EV financial assumptions** | N, tag "Range not used · prices valid now" | Assumption facts (D-SR.39; SR-14 OUT). Range money already applies each day's value. |
+| **Cold / EV scenarios** | **R** | A scenario is computed over the range's telemetry. The SR-5e matrix test proves it; otherwise SR-9. |
+
+- The (f) DB checks (Cold/EV on a range with no event; EV `/ev/financials` fingerprint) remain pending. They run in the next DB slot and need no new ruling unless they fail.
+
+### 10d.4 SR-7 builder questions Q-J1 to Q-J5 (D-SR.45)
+
+| Q | Ruling |
+|---|---|
+| Q-J1 `window_days` instead of `local_days` | **Confirmed, and generalised.** `local_days` gives N+1 days for a UTC-midnight window at a positive offset. The estate rule (`chain/read.py:162` `window_days`: UTC-midnight windows name their UTC dates, each read as the Site's local day of that date) is what the Portfolio and SR-5 use (D-SR.28 "same date"). **Every new range read uses `window_days`:** SR-6, SR-7a, SR-8, SR-10b and SR-11 (10b.2 says `local_days`: corrected here). Each read's tests pin a 7-day Nairobi window to 7 rows. |
+| Q-J2 grade → state | **Confirmed.** LOW → NOT_ENOUGH_READINGS is a gap state and is **never counted**, even with a value (as SR-5a's `GAP_STATES`). A PARTIAL day with a value is counted, and the row carries `partial: true` so the page shows the D-E5.45 PARTIAL label. Absent snapshot row: keep the chain rule (CH5a1-R Q9: a missing row is NO_DATA → NO_READINGS), so the Service range says the same as the Portfolio and SR-5 for that day. The parity job also counts days with accepted readings but no `critical_served` row; any such day is reported before merge (D-SR.16). |
+| Q-J3 refusal codes and the 409 | **Confirmed.** 404 `SERVICE_RANGE_NOT_APPLICABLE` / `CLAIM_LIMIT_RANGE_NOT_APPLICABLE`, 503 `SITE_SERVICE_RANGE_UNAVAILABLE` / `SITE_CLAIM_LIMIT_RANGE_UNAVAILABLE`, matching SR-6 (`HEALTH_RANGE_NOT_APPLICABLE`, `SITE_HEALTH_RANGE_UNAVAILABLE`). The 409 `PERFORMANCE_CUTOVER_CLOSED` gate is required: a range must never show a ceiling the one-day route refuses. Pin all of them in the route tests and in the frontend refusal copy. |
+| Q-J4 test target | **Confirmed.** Compare each row to `reduce_day(ClaimLimitReadService.claim_limit_on(...))` for the same day, revision and cutoff. That projection is what D-SR.25 meant by "the one-day route's projection". Add one drill-in check: for each compared day with a revision, the row's link target (`/sites/{code}/evidence?day=&revision=`), read through the one-day claim-limit route, answers 200 (not refused). Named-field comparison is not required. |
+| Q-J5 `estate_request("evidence", …)` | **Confirmed.** Same window rule, and `estate/evidence_money.py` already reads claim days this way. `"portfolio"` would demand the Portfolio cursor key for a one-Site read, which is wrong. |
+
+### 10d.5 WARM-1: scope-ids under the lenses (D-WARM.8)
+
+- **Warm them.** `EstatePortfolio.tsx:1198` sends `lens: shown?.lens ?? lens` to `/portfolio/scope-ids`, and the route parses the `portfolio` key (lens included), so each lens has its own stored answer. The disclosure is one click from a lens page that is already warmed (D-WARM.5/7), so the D-WARM.7 reasoning applies.
+- In `tools/warm_ranges.py`, beside `scope-ids.{tag}`, add `scope-ids.{lens}.{tag}` for `PORTFOLIO_LENSES`, with exactly the client's `estateQueryString({from, to, known_at, lens})` order. The URL-equality test covers all four, and `--verify` times them.
+- **Still outside the claim:** scope-ids page 2 and later, and lens × state chip combinations.
+- Size: about 3 requests per warmed range, about 0.02 units, inside WARM-1's fix round.
+
+### 10d.6 Sizes and order
+
+- SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.
+- Lanes and merge order are unchanged (rev 10c). SR-4 returns to its builder for 10d.1 rows 13-15 and the asset tags, then a fresh review. SR-7 continues: the Postgres service test, then pages after SR-4 merges. SR-10b and SR-11 builders read Q-J1 before coding.
+
 ## Revision 10c (Architect, Claude, 2026-11-12 night): range = telemetry and its consequences (D-SR.39)
 
 - Owner, verbatim (`.agent/owner-all-tabs-respect-range-2026-11-12.md`): "the data range does not affect facts such as the ones you mentioned: foundation, its views, SLD..etc. The point is relevant to telemetry data and its consequence."
