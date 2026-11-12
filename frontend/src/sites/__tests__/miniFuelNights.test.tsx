@@ -389,4 +389,20 @@ describe("SR-10k: the nights list is the date range's nights", () => {
     await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
     expect(document.querySelector("[data-fuel-night-outside-range]")).toBeNull();
   });
+
+  it("SR-10k fix: with no range in the address, a night outside the list shows no outside-range line", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(document.querySelector("[data-fuel-night-outside-range]")).toBeNull();
+  });
+
+  it("SR-10k fix: an empty range with a ?night= link opens the named night; no night named shows the empty page", async () => {
+    const client = fuelClient(nightsBody("NIGHTS", []));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, "2026-11-04");
+    expect(document.querySelector("[data-fuel-nights-empty]")).toBeNull();
+    expect(document.querySelector("[data-fuel-night-outside-range]")).not.toBeNull();
+  });
 });

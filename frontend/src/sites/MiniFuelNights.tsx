@@ -328,7 +328,8 @@ export function MiniFuelNightsPage({
   const latest = nights.length === 0 ? null : nights[nights.length - 1].night_date;
   // D-SR.55: a `?night=` link names one night and opens it, even outside the range; the list stays on the range.
   const current = asked !== null && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : latest;
-  const outside = current !== null && !nights.some((n) => n.night_date === current);
+  const hasRange = params.has("from") || params.has("to");
+  const outside = hasRange && current !== null && !nights.some((n) => n.night_date === current);
   const key = `${siteCode}|${current ?? ""}|${knownAt ?? ""}`;
   const night = useRead<FuelNightBody>(
     () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : (knownAt === null ? client.getNight(siteCode, current) : client.getNight(siteCode, current, knownAt))),
@@ -339,10 +340,10 @@ export function MiniFuelNightsPage({
     copy.set("night", next);
     setParams(copy);
   };
-  if (nights.length === 0) return <p data-fuel-nights-empty>{FUEL_NIGHTS_EMPTY}</p>;
+  if (nights.length === 0 && current === null) return <p data-fuel-nights-empty>{FUEL_NIGHTS_EMPTY}</p>;
   return (
     <>
-      {current === null ? null : <NightSelector nights={nights} current={current} onPick={pick} />}
+      {current === null || nights.length === 0 ? null : <NightSelector nights={nights} current={current} onPick={pick} />}
       {outside && current !== null ? (
         <p className="prose" data-fuel-night-outside-range>
           This night ({shortDay(current)}) is outside the selected date range
