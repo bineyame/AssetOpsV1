@@ -255,3 +255,22 @@ def test_the_route_writes_a_perf_line(caplog):
     caplog.set_level("INFO")
     assert client().get(URL, params=WEEK).status_code == 200
     assert any(ROUTE in r.getMessage() for r in caplog.records)
+
+
+class ProgrammingError(Exception):
+    """Stands in for a driver ProgrammingError (a bug, not an outage); no driver import in tests either."""
+
+
+def test_transient_error_is_503_and_a_programming_error_propagates():
+    class Boom(Periods):
+        def __init__(self, error):
+            super().__init__()
+            self.error = error
+
+        def read(self, *a, **k):
+            raise self.error
+
+    response = client(periods=Boom(ConnectionError("reset"))).get(URL, params=WEEK)
+    assert (response.status_code, response.json()["detail"]["code"]) == (503, "SITE_FUEL_RANGE_UNAVAILABLE")
+    with pytest.raises(ProgrammingError):
+        client(periods=Boom(ProgrammingError("bad sql"))).get(URL, params=WEEK)
