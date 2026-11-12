@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Readings Draft</title>
+<!-- v7.2 DRAFT for owner approval (2026-11-12). Not the layout spec until the owner approves it.
+     Spec: .agent/architect-sequence-client-scope-2026-11-11.md revision 7 section 7.5 (UP-1) and ruling D-17N.5 in
+     .agent/build-sheet-OWN-GAPS-2026-11-08.md. Attribution follows D-PRICE.1 ("Uploaded by site admin").
+     Reuses the v7.0 stylesheet for the shell only; every font size on this page is a UQ-FI token (12 px floor,
+     section 6.3 D-UQFI.2). Light theme only. Data is illustrative (Kobo, a demo day of 17 Nov 2026), not demo-build numbers.
+     The words in Parts C, D and E are the server's message catalogue (UQ-6a keys), drafted here for approval. -->
+<link rel="stylesheet" href="../v70/mockups.css">
+<style>
+/* UQ-FI primitive tier (D-UQFI.2) and role tokens, re-pointed as UQ-FI-1 will re-point them */
+:root{
+ --font-size-100:.75rem;--font-size-200:.8125rem;--font-size-300:.875rem;--font-size-400:1rem;
+ --font-size-500:1.125rem;--font-size-600:1.25rem;--font-size-700:1.5rem;--font-size-800:1.875rem;
+ --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+ --font-sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+ --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--leading-body:1.5;
+ --text-xs:var(--font-size-100);--text-sm:var(--font-size-200);--text-base:var(--font-size-300);
+ --text-lg:var(--font-size-400);--text-page-title:var(--font-size-700);--text-panel-title:var(--font-size-400);
+ --text-panel-note:var(--font-size-200);--text-table:var(--font-size-200);--text-table-head:var(--font-size-100);
+ --text-cell-secondary:var(--font-size-100);--text-tab:var(--font-size-300);--text-rail:var(--font-size-200);
+ --text-rail-eyebrow:var(--font-size-100);
+ --draft:#7552ab;--ok:#166b50;--ok-bg:#e3f4ed;--warn:#8e580c;--warn-bg:#fff1d9;--bad:#a13838;--bad-bg:#fcebea;
+ font-family:var(--font-sans);font-size:var(--text-base)
+}
+body{background:var(--page);line-height:var(--leading-body)}
+/* shell typography onto the scale (the v7.0 sheet has 9-12 px sizes) */
+h1{font-size:var(--text-page-title)}h2{font-size:var(--text-panel-title)}h3{font-size:var(--text-base)}
+small,.small,.eyebrow,.breadcrumbs,.badge,.button,.topbar .right,.portfolio-name,.rail-footer,.rail-group .eyebrow{font-size:var(--text-xs)}
+.rail a{font-size:var(--text-rail)}.tabs a{font-size:var(--text-tab)}.page-heading p,.panel-head p{font-size:var(--text-panel-note)}
+table{font-size:var(--text-table)}th{font-size:var(--text-table-head)}td small{font-size:var(--text-cell-secondary)}
+.mono{font-family:var(--font-mono);font-size:var(--text-xs)}
+table,.num{font-variant-numeric:tabular-nums}
+
+.draftbar{position:sticky;top:0;z-index:20;min-height:46px;padding:var(--space-2) var(--space-5);background:#f3eefc;border-bottom:1px solid #dccff5;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font-size:var(--text-sm);color:#40306b}
+.notes-toggle{font-size:var(--text-sm);display:inline-flex;align-items:center;gap:6px}
+.note-pin{display:none;margin:0 0 var(--space-3);padding:var(--space-2) var(--space-3);border-left:3px solid var(--draft);background:#f7f3fe;color:#40306b;font-size:var(--text-sm);line-height:1.55;border-radius:0 8px 8px 0}
+body.show-notes .note-pin{display:block}
+.part{margin:0 0 var(--space-8)}
+.part > .eyebrow{display:block;margin:0 0 10px;color:var(--draft)}
+
+/* Part A: the entry point on Kobo Health */
+.entry{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3);background:#fff;border:1px solid var(--line);border-radius:7px;padding:var(--space-4)}
+.entry p{font-size:var(--text-sm);color:#46566e;max-width:640px}
+/* Part B: choose the file */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3);margin:0 0 var(--space-4)}
+.step{background:#fff;border:1px solid var(--line);border-radius:7px;padding:var(--space-4);min-width:0}
+.step .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e9f0fd;color:#275ba8;font-weight:650;font-size:var(--text-xs);margin-bottom:var(--space-2)}
+.step p{font-size:var(--text-sm);color:#46566e;margin-top:var(--space-1)}
+.drop{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-6) var(--space-4);border:1.5px dashed #b9c8e0;border-radius:8px;background:#fbfcfe;text-align:center}
+.drop p{font-size:var(--text-sm);color:var(--muted)}
+.attrib{display:flex;gap:10px;align-items:flex-start;padding:var(--space-3) var(--space-4);background:#f7f9fc;border:1px solid #dfe6f0;border-radius:6px;font-size:var(--text-sm);color:#3c4d66;margin:0 0 var(--space-4)}
+.attrib .icon{width:16px;height:16px;margin-top:2px;color:#607087}
+/* Part C: the preview */
+.preview-head{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3);margin:0 0 var(--space-4)}
+.fact{background:#fff;border:1px solid var(--line);border-radius:7px;padding:var(--space-3) var(--space-4)}
+.fact span{display:block;font-size:var(--text-xs);color:var(--muted)}
+.fact b{display:block;font-size:var(--font-size-500);font-weight:600;margin-top:var(--space-1)}
+.matched{color:var(--ok);font-weight:600}
+.blank{color:var(--warn)}
+.confirm{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);margin-top:var(--space-4)}
+.confirm p{font-size:var(--text-sm);color:var(--muted)}
+/* Part D: the states */
+.track-states{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-2)}
+.track-states li{position:relative;border:1px solid var(--line);border-top:4px solid #cfd8e6;border-radius:6px;background:#fff;padding:var(--space-3);min-width:0}
+.track-states li.done{border-top-color:#35a280}
+.track-states li.now{border-top-color:var(--blue);background:#f4f8ff}
+.track-states li.todo{color:var(--muted)}
+.track-states b{display:block;font-size:var(--text-sm)}
+.track-states span{display:block;font-size:var(--text-xs);color:var(--muted);margin-top:var(--space-1)}
+.state-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:var(--text-xs);font-weight:600}
+.state-pill.ok{background:var(--ok-bg);color:var(--ok)}.state-pill.now{background:#e9f0fd;color:#275ba8}
+.state-pill.held{background:var(--warn-bg);color:var(--warn)}.state-pill.refused{background:var(--bad-bg);color:var(--bad)}
+.variants{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);margin-top:var(--space-4)}
+.variant{background:#fff;border:1px solid var(--line);border-radius:7px;padding:var(--space-4)}
+.variant p{font-size:var(--text-sm);color:#46566e;margin-top:var(--space-2)}
+/* Part E: refusals */
+.refusal{border:1px solid #f0d6d6;border-left:4px solid #d26565;border-radius:7px;background:#fff;padding:var(--space-4);margin:0 0 var(--space-4)}
+.refusal p{font-size:var(--text-sm);color:#46566e;margin-top:var(--space-2)}
+.refusal .where{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--bad);margin-top:var(--space-2)}
+.words td:first-child{white-space:nowrap}
+.later{font-size:var(--text-sm);line-height:1.7;color:#46566e}
+@media(max-width:1000px){.steps,.preview-head{grid-template-columns:repeat(2,minmax(0,1fr))}.track-states{grid-template-columns:repeat(2,minmax(0,1fr))}.variants{grid-template-columns:1fr}}
+@media(max-width:760px){
+ .shell{grid-template-columns:1fr}.rail{display:none}.topbar{padding:0 var(--space-4)}.canvas{padding:var(--space-4)}
+ .steps,.preview-head,.track-states{grid-template-columns:1fr}
+ .cols thead,.words thead{display:none}.cols tr,.words tr{display:block;border-bottom:1px solid var(--line);padding:6px 0}.cols td,.words td{display:block;border:0;padding:4px 0}
+}
+</style>
+</head>
+<body class="show-notes">
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <div><strong>v7.2 DRAFT · Upload readings</strong> · for owner approval · Kobo only, our own CSV format</div>
+ <label class="notes-toggle"><input type="checkbox" id="notes" checked> Show change notes</label>
+</div>
+
+<div class="shell">
+ <aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div><div class="rail-group"><div class="eyebrow">OPERATIONS</div><a href="../v71/portfolio-tabs.html">Portfolio</a><a class="active" href="../v70/index.html#/sites">Sites</a><a href="../v70/index.html#/assets">Assets</a></div><div class="rail-group"><div class="eyebrow">INTELLIGENCE</div><a href="../v70/index.html#/findings">Findings</a></div><div class="rail-group"><div class="eyebrow">WORK</div><a href="../v70/index.html#/actions">Actions</a><a href="../v70/index.html#/maintenance">Maintenance</a></div><div class="rail-group"><div class="eyebrow">ASSURANCE</div><a href="../v70/index.html#/globalevidence">Evidence</a></div><div class="rail-group"><div class="eyebrow">BUSINESS</div><a href="../v70/index.html#/globalfinancials">Financials</a></div><div class="rail-footer"><div class="eyebrow">WORKSPACE</div><div style="margin-top:6px">Demo workspace<br>illustrative records</div></div></aside>
+ <main class="workspace">
+  <header class="topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><span>17 Nov 2026</span><span class="avatar">SA</span></div></header>
+  <div class="canvas">
+
+   <!-- ============ PART A ============ -->
+   <section class="part" aria-labelledby="h-a">
+    <span class="eyebrow">Part A · where it starts</span>
+    <div class="breadcrumbs"><a href="../v70/index.html#/sites">Sites</a><span>›</span><a href="#">Kobo</a><span>›</span><span>Health</span></div>
+    <div class="page-heading"><div><h1 id="h-a">Kobo · Health</h1><p>Whether the site's readings are arriving, and from where.</p></div></div>
+    <nav class="tabs" aria-label="Site sections"><a href="#">Overview</a><a href="#">Foundation</a><a class="active" href="#" aria-current="page">Health</a><a href="#">Performance</a><a href="#">Findings</a><a href="#">Work</a><a href="#">Financials</a><a href="#">Evidence</a></nav>
+    <div class="entry">
+     <div><h2>Readings from a file</h2><p>When the site's connection is down, its readings can be sent as a file in the AssetOps template: solar output and the three feeder meters, every 15 minutes.</p></div>
+     <a class="button primary" href="#h-b">Upload readings</a>
+    </div>
+    <p class="note-pin">Change: one panel on Kobo's Health tab with an "Upload readings" button. It appears only on Kobo and only when the upload switch is on (off by default). No other Site shows it. Open question for the Architect: Health or Evidence as the home (the spec says "the Site's data or Health area").</p>
+   </section>
+
+   <!-- ============ PART B ============ -->
+   <section class="part" aria-labelledby="h-b">
+    <span class="eyebrow">Part B · the upload page · choose a file</span>
+    <div class="breadcrumbs"><a href="../v70/index.html#/sites">Sites</a><span>›</span><a href="#">Kobo</a><span>›</span><a href="#h-a">Health</a><span>›</span><span>Upload readings</span></div>
+    <div class="page-heading"><div><h1 id="h-b">Upload readings</h1><p>Send Kobo's readings as a file. You see what will be saved before anything is saved.</p></div></div>
+    <p class="note-pin">Address: <span class="mono">/sites/KOBO-001/uploads</span>. One page; the steps below replace each other in place.</p>
+    <div class="steps">
+     <div class="step"><span class="n">1</span><h3>Get the template</h3><p>A CSV with the time in UTC and Kobo's four meters, each with its unit.</p><p><a href="#">Download the template (CSV)</a></p></div>
+     <div class="step"><span class="n">2</span><h3>Fill it in</h3><p>One row per 15 minutes, times like <span class="mono">2026-11-17T03:15:00Z</span>. Leave a cell empty when there is no reading.</p></div>
+     <div class="step"><span class="n">3</span><h3>Check, then save</h3><p>AssetOps checks the whole file first and shows you what it found. Nothing is saved until you confirm.</p></div>
+    </div>
+    <div class="drop">
+     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px;height:28px;color:#8a9bb3"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"></path></svg>
+     <label class="button" for="file">Choose a CSV file</label><input id="file" type="file" accept=".csv,text/csv" class="sr-only">
+     <p>One file, up to 2 MB. Only Kobo, only the AssetOps template.</p>
+    </div>
+    <div class="attrib" role="note" style="margin-top:var(--space-4)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"></path></svg><p>Readings you send here are recorded as <b>"Uploaded by site admin"</b>. Each reading keeps the file it came from.</p></div>
+    <p class="note-pin">Same rule as the dip form and the price page (D-PRICE.1): the label names the role of this entry point, not a person, because there is no sign-in yet. The browser never says who uploaded.</p>
+   </section>
+
+   <!-- ============ PART C ============ -->
+   <section class="part" aria-labelledby="h-c">
+    <span class="eyebrow">Part C · the check before saving (nothing saved yet)</span>
+    <section class="panel" aria-labelledby="h-c">
+     <div class="panel-head"><div><h2 id="h-c">kobo-2026-11-17-early.csv · ready to save</h2><p>Checked the whole file. Nothing is saved until you confirm.</p></div><span class="state-pill ok">Checked</span></div>
+     <div class="preview-head">
+      <div class="fact"><span>Period (Kobo time)</span><b class="num">17 Nov, 03:00 – 13:00</b></div>
+      <div class="fact"><span>Rows</span><b class="num">40</b><small>one every 15 minutes</small></div>
+      <div class="fact"><span>Readings</span><b class="num">160</b><small>40 rows × 4 meters</small></div>
+      <div class="fact"><span>Empty cells</span><b class="num">4</b><small>saved as "no reading"</small></div>
+     </div>
+     <div class="table-wrap"><table class="cols">
+      <thead><tr><th>Column in your file</th><th>Matched to</th><th>Unit</th><th>Readings</th><th>Empty</th></tr></thead>
+      <tbody>
+       <tr><td class="mono">pv_ac_power [kW]</td><td><span class="matched">✓</span> Solar inverter output<small>Solar power</small></td><td>kW</td><td class="num">40</td><td class="num">1<small class="blank">03:00</small></td></tr>
+       <tr><td class="mono">clinic_feeder_power [kW]</td><td><span class="matched">✓</span> Clinic feeder meter<small>Feeder demand</small></td><td>kW</td><td class="num">40</td><td class="num">1<small class="blank">03:00</small></td></tr>
+       <tr><td class="mono">mill_feeder_power [kW]</td><td><span class="matched">✓</span> Mill feeder meter<small>Feeder demand</small></td><td>kW</td><td class="num">40</td><td class="num">1<small class="blank">03:00</small></td></tr>
+       <tr><td class="mono">residential_feeder_power [kW]</td><td><span class="matched">✓</span> Residential feeder meter<small>Feeder demand</small></td><td>kW</td><td class="num">40</td><td class="num">1<small class="blank">03:00</small></td></tr>
+      </tbody>
+     </table></div>
+     <div class="confirm"><a class="button primary" href="#h-d">Save 160 readings</a><a class="button" href="#h-b">Choose another file</a><p>Kobo's latest saved reading is 16 Nov, 23:45. This file starts after it.</p></div>
+    </section>
+    <p class="note-pin">This is the dry run (<span class="mono">dry_run=true</span>): the server checks the whole file with the same rules as the gateway and writes nothing. Columns are matched by name to the template, never guessed; mapping other column names is not in this step.</p>
+   </section>
+
+   <!-- ============ PART D ============ -->
+   <section class="part" aria-labelledby="h-d">
+    <span class="eyebrow">Part D · after saving · following the readings</span>
+    <section class="panel" aria-labelledby="h-d">
+     <div class="panel-head"><div><h2 id="h-d">kobo-2026-11-17-early.csv</h2><p>Uploaded by site admin · 17 Nov 2026, 13:05</p></div><span class="state-pill now">Still processing</span></div>
+     <ol class="track-states" aria-label="Where the readings are">
+      <li class="done"><b>Checked</b><span>The whole file passed. 13:05</span></li>
+      <li class="done"><b>Sent</b><span>Handed to the site's data gateway. 13:05</span></li>
+      <li class="done"><b>Accepted</b><span class="num">160 of 160 readings. 13:06</span></li>
+      <li class="now"><b>Still processing</b><span>AssetOps is working out what the readings mean for 17 Nov. Usually a few minutes.</span></li>
+      <li class="todo"><b>Analysed</b><span>Kobo's board for 17 Nov will show these readings.</span></li>
+     </ol>
+    </section>
+    <p class="note-pin">The page asks the server every few seconds while a step is under way. "Still processing" ends when the regular background run has assessed that day; the last step then links to that day on Kobo's board.</p>
+    <div class="variants">
+     <div class="variant"><span class="state-pill ok">Analysed</span><h3 style="margin-top:var(--space-2)">160 of 160 readings accepted and analysed</h3><p>Kobo's board now includes 17 Nov, 03:00 – 13:00. <a href="#">Open Kobo's board for 17 Nov →</a></p></div>
+     <div class="variant"><span class="state-pill held">Held</span><h3 style="margin-top:var(--space-2)">120 of 160 readings accepted · 40 held</h3><p>40 solar readings are held: the file says <b>W</b>, but this meter reports <b>kW</b>. They are kept aside and not used. The other 120 readings are accepted. Correct the unit and send the solar column again once corrections are possible.</p></div>
+    </div>
+    <p class="note-pin">"Held" is what the gateway already does with a wrong unit (TEL-06): those readings are kept but never used. Sending a corrected file for readings already saved is not in this step, so the words do not promise it today.</p>
+   </section>
+
+   <!-- ============ PART E ============ -->
+   <section class="part" aria-labelledby="h-e">
+    <span class="eyebrow">Part E · when the file is refused (nothing saved)</span>
+    <div class="refusal" role="alert">
+     <span class="state-pill refused">Refused</span>
+     <h2 id="h-e" style="margin-top:var(--space-2)">The file was not saved: a time is not on a 15-minute step</h2>
+     <p>Every time must end on :00, :15, :30 or :45 (UTC). Row 7 says 2026-11-17T04:40:00Z. Nothing from this file was saved; correct it and choose it again.</p>
+     <div class="where">row 7 · timestamp_utc</div>
+    </div>
+    <section class="panel" aria-labelledby="h-words">
+     <div class="panel-head"><div><h2 id="h-words">Every refusal, in the words the page shows</h2><p>The whole file is refused on the first problem found; the page names the row and column.</p></div><span class="badge">11 reasons</span></div>
+     <div class="table-wrap"><table class="words">
+      <thead><tr><th>Reason</th><th>What the page says</th></tr></thead>
+      <tbody>
+       <tr><td>Not plain text</td><td>The file is not plain CSV text (UTF-8). Save it as "CSV" without a byte-order mark and try again.</td></tr>
+       <tr><td>Empty</td><td>The file has no readings in it.</td></tr>
+       <tr><td>Headings</td><td>The column headings do not match the template. Column 3 is "pv_power"; the template calls it "pv_ac_power [kW]".</td></tr>
+       <tr><td>Time format</td><td>A time is not written like 2026-11-17T03:15:00Z (UTC, ending in Z). Row 4.</td></tr>
+       <tr><td>Time step</td><td>A time is not on a 15-minute step (:00, :15, :30, :45). Row 7.</td></tr>
+       <tr><td>Repeated time</td><td>The same time appears twice. Row 12.</td></tr>
+       <tr><td>Order</td><td>The rows are not in time order. Row 9 is earlier than the row before it.</td></tr>
+       <tr><td>Reading</td><td>A reading is not a plain number (use a dot for decimals, no thousands separator, at most 3 decimals), or the row has the wrong number of cells. Row 5, mill_feeder_power.</td></tr>
+       <tr><td>Already saved</td><td>Kobo already has solar readings up to 16 Nov, 23:45. This file starts at or before that; only readings after it can be uploaded.</td></tr>
+       <tr><td>Too large</td><td>The file is larger than 2 MB.</td></tr>
+       <tr><td>Not this Site</td><td>Uploading readings is not available for this site.</td></tr>
+      </tbody>
+     </table></div>
+    </section>
+    <p class="note-pin">The first eight are the gateway's file rules (TEL-06), the same checks the server runs. "Already saved" is new: a file may not overlap readings Kobo already has, so nothing is ever overwritten or doubled. The page shows the plain words; the code and row stay underneath for support.</p>
+   </section>
+
+   <section class="part" aria-labelledby="h-f">
+    <span class="eyebrow">Not in this step</span>
+    <h2 id="h-f" style="margin-bottom:var(--space-2)">Comes later</h2>
+    <ul class="later"><li>Other sites, other file formats and vendor exports, and matching unfamiliar column names.</li><li>Correcting or re-sending readings for times already saved; loading months of history at once.</li><li>Creating a new site from a file; uploads by a signed-in person with their own name.</li></ul>
+   </section>
+
+  </div>
+ </main>
+</div>
+<script>
+document.getElementById('notes').addEventListener('change',function(e){document.body.classList.toggle('show-notes',e.target.checked)});
+</script>
+</body>
+</html>
