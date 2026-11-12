@@ -596,10 +596,11 @@ describe("Site > Financials > Overview: the Finding bridge", () => {
     await settledScreen();
     expect(screen.getByRole("link", { name: "Financials", current: "page" })).toBeInTheDocument();
     const sections = screen.getByRole("navigation", { name: "Financials sections" });
-    expect(within(sections).getAllByRole("link").map((l) => l.textContent)).toEqual(["Overview", "Assumptions"]);
+    expect(within(sections).getAllByRole("link").map((l) => l.textContent)).toEqual(["Overview", "Prices"]);
     expect(within(sections).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
-    // D-2026-10-17-f5-subtabs-and-contact: v69 order Overview, Assumptions, Scenarios; Scenarios has no route.
-    expect(rowLabels(sections)).toEqual(["Overview", "Assumptions", `Scenarios (${UNAVAILABLE_STATUS})`]);
+    // PR-2a default 2: v7.1 order Overview, Prices, Scenarios ("Assumptions" became "Prices"); Scenarios has no route.
+    expect(within(sections).getByRole("link", { name: "Prices" })).toHaveAttribute("href", "/sites/KOBO-001/financials/prices");
+    expect(rowLabels(sections)).toEqual(["Overview", "Prices", `Scenarios (${UNAVAILABLE_STATUS})`]);
     expectUnavailableEntry(sections, "Scenarios");
     expect(document.querySelectorAll('a[href*="scenario" i]')).toHaveLength(0);
     // Nothing outside the row names Scenarios.
