@@ -139,4 +139,4 @@
 - L1 wording corrected above. L3: `report_path`, test `test_verify_report_has_its_own_default_file`.
 - L4: the warm child starts with `start_new_session=True` on POSIX. The API Popen on main has the same group pattern (a kill of the API's group would reach serve); left alone, noted for the coordinator.
 - **L2 -> D-WARM.7 (coordinator ruling):** `range_requests` now also warms `/api/estate/findings?from&to&state=<v>` for the four chip values and `/api/estate/portfolio/scope-ids?from&to` page 1 (the all-lens disclosure), per warmed range; `--verify` replays them. URL equality: `test_state_chip_and_scope_ids_urls_equal_the_frontend_request` and `frontend/src/estate/__tests__/warmUrls.test.ts` (the real client, same literals).
-- **Added to outside the claim:** lens x state combinations, `scope-ids` page 2+, and `scope-ids` under a non-all lens (the ruling names one query per range; say if lens variants should be warmed).
+- **Added to outside the claim:** lens x state combinations, `scope-ids` page 2+, (`scope-ids` under each lens is now warmed per D-WARM.8; page 2+ stays outside).

@@ -68,7 +68,9 @@ def test_requests_per_range_and_board_forms():
     for state in ("supported", "unconfirmed", "no_longer_supported", "merged"):  # D-WARM.7
         assert f"/api/estate/findings?{f}&{t}&state={state}" in reqs
     assert f"/api/estate/portfolio/scope-ids?{f}&{t}" in reqs
-    assert len(reqs) == 15
+    for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
+        assert f"/api/estate/portfolio/scope-ids?{f}&{t}&lens={lens}" in reqs
+    assert len(reqs) == 18
 
 
 def test_plan_dedupes_and_adds_mini_days_and_story():
@@ -303,3 +305,5 @@ def test_state_chip_and_scope_ids_urls_equal_the_frontend_request():
     w = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
     assert f"/api/estate/findings?{w}&state=no_longer_supported" in targets
     assert f"/api/estate/portfolio/scope-ids?{w}" in targets
+    for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
+        assert f"/api/estate/portfolio/scope-ids?{w}&lens={lens}" in targets

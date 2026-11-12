@@ -19,4 +19,8 @@ it("sends the state chip and scope-ids requests exactly as the warm tool does", 
     `/api/estate/findings?${W}&state=no_longer_supported`,
   );
   expect(await urlOf((c) => c.portfolioScopeIds?.({ ...q, lens: "all" } as never))).toBe(`/api/estate/portfolio/scope-ids?${W}`);
+  for (const lens of ["cost", "risks", "opportunities"]) {
+    // D-WARM.8
+    expect(await urlOf((c) => c.portfolioScopeIds?.({ ...q, lens } as never))).toBe(`/api/estate/portfolio/scope-ids?${W}&lens=${lens}`);
+  }
 });

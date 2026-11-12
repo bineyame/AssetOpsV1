@@ -166,6 +166,9 @@ def range_requests(r: Range, sites: dict[str, tuple[date, date]]) -> list[Req]:
     out += [Req(f"findings.state.{state}.{tag}", "/api/estate/findings", _q(("from", f), ("to", t), ("state", state)))
             for state in STATE_CHIPS]
     out.append(Req(f"scope-ids.{tag}", "/api/estate/portfolio/scope-ids", _q(("from", f), ("to", t))))
+    # D-WARM.8: scope-ids under each lens (the client appends `lens=` last); page 2+ stays outside the claim.
+    out += [Req(f"scope-ids.{lens}.{tag}", "/api/estate/portfolio/scope-ids", _q(("from", f), ("to", t), ("lens", lens)))
+            for lens in PORTFOLIO_LENSES]
     for code in sorted(sites):
         path = f"/api/sites/{code}/outcome-board"
         if code in MINI_GRID:  # `miniBoardDay(to)`: the range's last day
