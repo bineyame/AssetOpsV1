@@ -113,3 +113,19 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
 - No-DB stubs: `_sum_lines` SUMMED / OVERLAPPING / NO_ELIGIBLE_LINES / CURRENCY_MIXED; retired-count shape test. Golden `kobo_partial.json` regenerated (new keys only).
 - Results: no-DB file 33 passed; Postgres file (assetops_sr5_test) 5 passed, 66 s.
 - Not done (page): row wording "Checked: no current findings · 1 finding no longer supported" and the totals line live in the range page, which is not in this server round; the API fields it needs are in place.
+
+## Review fix round (SR-5 server review, 2026-11-12)
+- M1: `test_day_money_composes_per_day_through_the_body` runs priced stub lines through `site_range_body` (SUMMED day 0,
+  OVERLAPPING day 1, NO_ELIGIBLE_LINES day 2, WITHHELD on a gap day holding a line; `world` dispatch rows). Proven: with
+  `day_lines = []` at the per-day filter it fails; reverted.
+- M2: `findings.confirmed` and `findings.not_confirmed` are null whenever `findings.count` is null (10a.4 / D-SR.28, as the Portfolio).
+- L1: malformed `known_at` -> 422 `INVALID_KNOWN_AT` (outcome_api range route). L2: guard removed, retired-count test non-zero
+  (retired head on day 1). L3: no-DB pin of "coverage names no gap" -> ANALYSED + logged.
+- D-SR.56 (wording only): a NOT_EXPECTED day with `accepted_reading_count > 0` keeps its state and carries
+  `note: "Readings began late this day · not counted"` (key absent otherwise; golden unchanged). The page shows `note` in place of
+  "Before readings began". One no-DB test.
+- **Parity spec addition (D-SR.56).** `.agent/SR-5-parity.json` gains `not_expected_with_readings: [{site, day, accepted_readings,
+  readings_began_local, readings_began_utc}]`. Gate: at most one such day per Site, and it must be the UTC day whose date is the last
+  local day before `readings_began`; any other day, or more than `12 x UTC offset hours` readings on it (36 for UTC+3), fails the
+  gate (the mapping would be wrong beyond the zone edge). The existing comparisons (gap set == coverage gaps, members == Portfolio)
+  stay; they cannot see this, as both sides share the mapping.
