@@ -24,7 +24,7 @@ Task: cleanup card (revision 3 table row 5 plus gathered items). No product beha
 
 ## Checks
 - Targeted: disp1 + ar3 + uq6a + clock guard all pass (no-DB).
-- check-all: see below.
+- check-all (revision 232d2f020): All 19 guards passed (estate guard self-tests 16 passed in 21m50s).
 
 ## Known deviations / risk
 - The PY clock allowance for `PeriodReader.__init__` is my call; Architect to confirm (default only when `known_at` is None).
