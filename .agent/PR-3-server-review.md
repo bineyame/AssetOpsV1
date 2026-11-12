@@ -59,6 +59,9 @@ instead of refusing): noted only.
 - No-DB pytest, worktree PYTHONPATH (`backend;backend\tests;contracts;simulator;gateway;field;host;tools`), plan2
   venv: `test_pr3_price_entry.py test_s4_assumption_publication.py test_s4_assumption_read_api.py` -> **139 passed**,
   0 failed, 22.7 s.
-- GUARDS_PLACEHOLDER
+- `tools/check-agent-workflow.ps1`: passed. `tools/check-architecture.ps1`: first run without a guard Python failed
+  (chain-structure "no Python interpreter", plus Rule 8 "no INSERT INTO ev_consequence_*" although the inserts are
+  present and the file is untouched by PR-3), environmental; rerun with
+  `ASSETOPS_GUARD_PYTHON=<plan2 venv python>`: **Architecture check passed** (exit 0).
 - Not verified by me: the Postgres flow (2 passed per packet on `51da89871`), check-all 19/19, full backend suite
   (not run, demo-sprint policy). No frontend in this half; layout evidence not applicable.
