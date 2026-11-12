@@ -239,12 +239,12 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local days 2026-10-06 to 2026-10-08 (${TZ})`);
   });
 
-  it("SR-2 M2: bounds the bar writes (UTC midnights) are named as UTC days; the page has no range form", async () => {
-    // SR-4b (D-SR.5): a range of up to 5 days is read as it is; a longer one is its last 5 Site-local days (below).
+  it("SR-2 M2 / D-SR.59: a range the bar writes (UTC midnights) reads the Site-local days of the same dates; no range form", async () => {
+    // D-SR.59: a range of up to 5 days reads the Site-local days of its dates; a longer one its last 5 Site-local days (below).
     renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-16T00:00:00Z&to=2026-10-21T00:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
-    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("UTC days 2026-10-16 to 2026-10-20");
+    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("Site-local days 2026-10-16 to 2026-10-20 (Africa/Addis_Ababa)");
     expect(document.querySelector("[data-mini-period] input, [data-mini-period] select, [data-mini-period] button")).toBeNull();
     expect(document.querySelector("[data-mini-range-note]")?.textContent).toBe("Choose the days in the date range at the top.");
   });

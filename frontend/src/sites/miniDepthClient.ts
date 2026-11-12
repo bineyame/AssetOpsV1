@@ -344,6 +344,8 @@ export function renewableWindowFromParams(params: URLSearchParams, timeZone: str
   if (from !== null && to !== null && exactLocalDays(timeZone, from, to) !== null) return { from, to, known_at };
   // D-SR.59 L-4: the range is measured through `readSharedRange`, never the raw bounds.
   const range = addressRange(params, now.getTime());
+  // A reversed or unparseable pair goes as it is, so the page names why it is refused (R313).
+  if (from !== null && to !== null && range === null && !(Date.parse(to) > Date.parse(from))) return { from, to, known_at };
   if (range !== null && focus === null) {
     const n = rangeDays(range);
     if (n <= MINI_RENEWABLE_DAYS) return { ...localDaysWindow(timeZone, range.from, n), known_at };

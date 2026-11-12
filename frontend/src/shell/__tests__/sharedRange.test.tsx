@@ -172,7 +172,8 @@ describe("SR-1 withRange and the rail search", () => {
     expect(withRange("/findings", params)).toBe(`/findings?${carried}`);
     expect(withRange("/findings?state=merged", params)).toBe(`/findings?state=merged&${carried}`);
     // A link that names its own range keeps it.
-    expect(withRange("/sites/X?from=2026-01-01&to=2026-01-02", params)).toBe("/sites/X?from=2026-01-01&to=2026-01-02");
+    // D-SR.57 L3: a link's own from/to are kept; the address known_at is added when the link names none.
+    expect(withRange("/sites/X?from=2026-01-01&to=2026-01-02", params)).toBe("/sites/X?from=2026-01-01&to=2026-01-02&known_at=2026-10-04T12%3A00%3A00Z");
     // No range, or a bad one, carries nothing.
     expect(withRange("/findings", new URLSearchParams(""))).toBe("/findings");
     expect(withRange("/findings", new URLSearchParams("from=2026-10-06"))).toBe("/findings");
