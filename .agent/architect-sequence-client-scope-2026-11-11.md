@@ -314,7 +314,7 @@
 
 ### Dispatch briefs (revision 7)
 
-- **DISP-1** (lane C, on AR-4). First the S1 profile after the merge of main. Then the cause of the four `select_dispatch_days_on` calls. Fix on AR-4 only if it is ≤0.3 units and inside AR-4's files; otherwise report to the Architect.
+- **DISP-1** (lane C, on AR-4). First the S1 profile after the merge of main. Then the cause of the four `select_dispatch_days_on` calls. Fix on AR-4 only if it is ≤0.3 units and inside AR-4's files; otherwise report to the Architect. **Update D-ANY.11:** the cause is `for_finding_on` (money eligibility); fix on `fix/DISP-1-money-eligibility` off main, 0.25 units, IN, parity and timings after AR-4 merges.
 - **WARM-1** (lane A, Opus, wt `AssetOpsV1-warm1`, branch `task/WARM-1-range-warm`). Spec 7.1. Pre-flight, in one batch: the exact query strings the bar sends per preset, its day boundary, and the route list per page from DS-1f `links`.
 - **UQ-FI-3** (lane D after UQ-FI-1). Spec 7.2 + the two approved sheet panels. Starts only on approval.
 - **DATA-5/-4/-8/-10/13** (lane B after PR-3). Specs in section 2.1 and the W-11 rulings. DATA-4 and DATA-8 start only on approval. Each changes producer data, so each merge is gated by the Sat-night rehearsal finish check.

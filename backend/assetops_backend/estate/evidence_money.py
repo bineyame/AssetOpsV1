@@ -30,7 +30,8 @@ from assetops_backend.analytics.cold_site_reads import (  # noqa: F401 (re-expor
 from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as EV_NEXT, TARIFF_ROLE, EvSiteReads
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
-    data_gap_days, local_day_grades_kw, not_applicable, site_coverage)
+    data_gap_days, dispatch_days, local_day_grades_kw, not_applicable, site_coverage)
+from assetops_backend.estate.period_rows import day_revision
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
 from assetops_backend.estate.scope import (
@@ -251,9 +252,14 @@ def _unique_reasons(reasons: Any) -> list[dict[str, Any]]:
 def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, k: datetime) -> list[dict[str, Any]]:
     s = site["site_id"]
     rows = []
-    for day in snap.dispatch_days(t, s, req.from_, req.to, k):
-        revision = (day.get("window_assessment_revision_id")
-                    if day.get("available") and day.get("selection") is not None else None)
+    # D-ANY.8 step 3: the same S3 dispatch days the coverage reads (AR-3's `dispatch.day` rows when served, else the
+    # compose); the claim rows are matched against exactly these days (`note_page_days`).
+    days = dispatch_days(snap, t, s, req.from_, req.to, k)
+    note = getattr(snap, "note_page_days", None)
+    if note is not None:
+        note(t, s, req.from_, req.to, k, days)
+    for day in days:
+        revision = day_revision(day)  # AR-4: the one rule the stored `evidence.claim` days are built on
         projection = snap.claim_limit_on(t, s, day["day"], revision, k,
                                          "historical" if snap.basis_historical else "live")
         reduced = w1.reduce_day(projection)
@@ -568,7 +574,7 @@ class EstateEvidenceService(EstateIndexService):
             for site in scope["sites"]:
                 if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:
                     continue
-                gaps = data_gap_days(snap.dispatch_days(tenant_id, site["site_id"], req.from_, req.to, scope["k"]))
+                gaps = data_gap_days(dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, scope["k"]))
                 if gaps:
                     out[site["site_code"]] = gaps
             return out

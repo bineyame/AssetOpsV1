@@ -1,15 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
-import { Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { outcomeWarning } from "../../test/outcomeBoardFixture";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
-import { settledScreen } from "../../test/settled";
-import { PRICES_SIGN_IN_TEXT, SitePricesFrame } from "../../shell/SitePricesFrame";
-import { SITE_PRICES_ROUTE_PATH, routeFor } from "../../shell/operatorSiteRoutes";
+import { routeFor } from "../../shell/operatorSiteRoutes";
 import { EarlyWarningList } from "../EarlyWarnings";
 import { PriceActionLink, priceActionTarget, safeReturn, type PriceAction } from "../PriceAction";
-import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { MillValue, MillVerification } from "../millVerificationClient";
 import { MillVerificationBody } from "../SiteMillVerification";
 
@@ -117,39 +113,4 @@ describe("PR-1 mill verification value without a price", () => {
   });
 });
 
-const detail = {
-  async getSite() {
-    return { status: "loaded", site: { site_id: "KOBO-001", display_name: "Kobo" } } as never;
-  },
-} as unknown as SiteDetailClient;
-
-function renderPrices(entry: string) {
-  return render(
-    <MemoryRouter initialEntries={[entry]}>
-      <Routes>
-        <Route path={SITE_PRICES_ROUTE_PATH} element={<SitePricesFrame detail={detail} />} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
-describe("PR-1 price page target (until PR-2a)", () => {
-  it("says plainly the page is not available yet, who sets prices, and offers the way back", async () => {
-    renderPrices("/sites/KOBO-001/financials/prices?key=diesel_price_per_litre&return=%2Fportfolio%3Ffrom%3Da");
-    await settledScreen();
-    expect(screen.getByRole("heading", { level: 1, name: "Kobo · Prices" })).toBeInTheDocument();
-    expect(screen.getByText(/Not available yet/)).toBeInTheDocument();
-    expect(document.querySelector("[data-prices-sign-in]")).toHaveTextContent(PRICES_SIGN_IN_TEXT);
-    expect(screen.getByRole("link", { name: "← Back to where you were" })).toHaveAttribute("href", "/portfolio?from=a");
-    // No write path: no form, no input, no Save.
-    expect(document.querySelector("form, input, button[type='submit']")).toBeNull();
-    expect(screen.queryByRole("button", { name: /save/i })).toBeNull();
-  });
-
-  it("offers no way back for a foreign return", async () => {
-    renderPrices("/sites/KOBO-001/financials/prices?return=%2F%2Fevil.example");
-    await settledScreen();
-    expect(screen.getByRole("heading", { level: 1, name: "Kobo · Prices" })).toBeInTheDocument();
-    expect(document.querySelector("[data-price-return]")).toBeNull();
-  });
-});
+// The price page itself (PR-2a) is tested in `sitePrices.test.tsx`.
