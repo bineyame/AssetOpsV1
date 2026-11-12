@@ -262,7 +262,47 @@ def resolve(register: EventRegister, event: Event, *, site_type: str, tz: str,
     measures = _measures(register, rule, event.subject, site_type)
     if not measures:
         return []
-    return [(d, m) for d in _days(rule, event.subject, tz, today) for m in measures]
+    s3 = [m for m in measures if m in register.kinds and register.kinds[m].grain == "s3_day"]
+    out = [(d, m) for d in _days(rule, event.subject, tz, today) for m in measures if m not in s3]
+    if s3:  # ANY-2 AR-3: an s3_day kind's day is the UTC day of its S3 window, never the Site-local day
+        out += [(d, m) for d in _s3_days(rule, event.subject, today) for m in s3]
+    return out
+
+
+#: ANY-2 AR-3: the S3 evidence bracket (`analytics/assessment_inputs.py` BRACKET): a reading this close to a UTC day's
+#: window is in that window's evidence query, so it dirties that day too.
+S3_BRACKET = timedelta(hours=6)
+
+
+def _s3_days(rule: EventRule, subject: Mapping[str, Any], today: date | None) -> list[date]:
+    """The UTC days whose S3 dispatch window (with its bracket) the event's spans touch. `today` is the Site-local
+    day; a UTC day can be one later, so the clamp is `today + 1` (over-dirtying a day only rebuilds it)."""
+    clamp = None if today is None else today + timedelta(days=1)
+
+    def utc(lo: Any, hi: Any) -> list[date]:
+        a = _instant(lo)
+        if a is None:
+            return []
+        b = _instant(hi)
+        if b is None and clamp is None:
+            b = a
+        return local_days(a - S3_BRACKET, None if b is None else max(b, a) + S3_BRACKET, "UTC", clamp)
+
+    if rule.days == "none":
+        return []
+    if rule.days == "span_local":
+        spans = [subject.get("span") or [None, None]]
+    elif rule.days == "windows_local":
+        spans = list(subject.get("windows") or ())
+    elif rule.days == "window_local":
+        spans = [subject.get("window") or [None, None]]
+    elif rule.days == "valid_local":
+        spans = [subject.get("valid") or [None, None]]
+    elif rule.days == "from_valid_local_to_today":
+        spans = [[subject.get("valid_from"), None]]
+    else:
+        raise RegisterError(f"unknown day rule {rule.days!r}")
+    return sorted({d for w in spans for d in utc(w[0], w[1])})
 
 
 # --- the port and the consumer ----------------------------------------------------------------------------------

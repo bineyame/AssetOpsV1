@@ -40,6 +40,9 @@ SQL_CLOCK_ALLOWLIST: dict[tuple[str, str], str] = {
      "PostgresAssessmentStore.lease_opportunity_job.work"): _WRITER,
     (_B + "analytics.adapters.postgres_assessment_store",
      "PostgresAssessmentStore.fail_opportunity_job.work"): _WRITER,
+    (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore.dispatch_day_now.work"):
+        "AR-3 row builder: the dispatch.day row is built as of its own read instant (D-ANY.5 as-built), in a"
+        " worker, never in a stored compose",
     (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore._window_snapshot"): _CAPTURE,
     (_B + "analytics.adapters.postgres_assessment_store", "PostgresAssessmentStore._transaction_time"):
         _WRITER + " (the assessment write transaction's instant)",

@@ -185,10 +185,36 @@ class SiteOutcomeBoardService:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
         known = [] if known_at is None else [wire(known_at)]
 
+        prefetched: dict[tuple[str, datetime, datetime], dict[str, Any]] = {}
+
         def work(kind: str, lo: datetime, hi: datetime, cursor: str | None) -> dict[str, Any]:
+            if cursor is None and (kind, lo, hi) in prefetched:
+                return prefetched.pop((kind, lo, hi))
+            if cursor is None and kind == "incidents" and not prefetched:
+                prefetched.update(_work_batch(hi))
+                if (kind, lo, hi) in prefetched:
+                    return prefetched.pop((kind, lo, hi))
             req = _need(s.parse_work_list, "work parser")(wire(lo), wire(hi), None, known, cursor)
             return jsonable_encoder(_need(s.work_index, "work_index").read(
                 t, sid, c, kind, req, access_basis=s.work_access_basis))
+
+        def _work_batch(to: datetime) -> dict[tuple[str, datetime, datetime], dict[str, Any]]:
+            """ANY-2 AR-6: the board's four first-page work-index reads (incidents over the 31-day work window, the
+            three maintenance recorded-time windows of `visits.record_windows`) in ONE snapshot; each body equals
+            that read on its own at the same instant. Any failure leaves nothing prefetched and the four reads run
+            one by one exactly as before (their own failure handling)."""
+            from assetops_backend.site_outcomes.visits import record_windows
+
+            specs = [("incidents", to - mini.WORK_WINDOW, to), *(("maintenance", a, b) for a, b in record_windows(to))]
+            service = s.work_index
+            if service is None or s.parse_work_list is None or not hasattr(service, "read_many"):
+                return {}
+            try:
+                reqs = [(kind, s.parse_work_list(wire(a), wire(b), None, known, None)) for kind, a, b in specs]
+                bodies = service.read_many(t, sid, c, reqs, access_basis=s.work_access_basis)
+            except Exception:  # noqa: BLE001 - B.3: the single reads below own the refusal and its PARTIAL board
+                return {}
+            return {spec: jsonable_encoder(body) for spec, body in zip(specs, bodies)}
 
         def plans(lo: datetime, hi: datetime) -> list[dict[str, Any]]:
             select = _need(s.select_preventive, "select_preventive")
