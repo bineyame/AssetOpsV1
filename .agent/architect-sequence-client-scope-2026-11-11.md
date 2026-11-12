@@ -105,6 +105,21 @@ SR-8 server: `task/SR-8-renewable-range` 2fc5ffdf6. Q1 (`window_days`) is covere
   - Vitest pins the one-day line and the range wording.
 - **Size:** about 0.1 (backend field 0.04, page line 0.03, tests 0.03). SR-8 goes to about 0.6, and the package to about 18.3.
 
+### 10d.9 SR-6a builder questions (D-SR.49)
+
+SR-6 server: `task/SR-6-health-range` 4f450d065.
+
+| Q | Ruling |
+|---|---|
+| Q1 `days_without_readings` | **Corrected.** Health reports whether readings arrived, so its summary counts readings, not analysis states. `days_with_readings` = days with at least one accepted reading from any source (step 3), as built. **`days_without_readings` = the expected days with zero accepted readings**: days not NOT_EXPECTED and not AFTER_CUTOFF (Q4), whatever their SR-5a state. Add `days_not_expected` and `days_after_cutoff`, so with + without + not expected + after cutoff = requested. Status-line wording: "Readings on 1 of 4 days · 3 days with no readings" (the not-expected and after-cutoff days are named separately when non-zero). `days[].state` keeps the SR-5a state, so a day can read "no readings" in the summary and "Not analysed" in its state cell. Both are true, and the page shows both. Test: on the 4-day Postgres world, with = 1 and without = 3. |
+| Q2 `gateways_in_contact_all_days` | **Confirmed with one refinement.** Every **expected** day must be IN_CONTACT. NOT_EXPECTED (before registration) and AFTER_CUTOFF days are skipped, and they do not break the count. NO_CONTACT, PARTIAL_CONTACT and READINGS_ONLY break it. A gateway with no expected day is not counted. Wording: "Gateways in contact on every expected day: n of m". |
+| Q3 `days[].accepted_readings` | **Confirmed:** the SR-5a dispatch row's `accepted_reading_count` (null on gap states), so Health and the range Overview agree day by day (the spec's pin). **Yes, it can differ** from the per-source sum: non-dispatch-role sources and source-time vs dispatch-day framing. So the page never shows the two under one name. The day row reads "Readings used for analysis", and the source cells read "Readings received". Parity reports the difference per day, explained by role (not gated, as 10.2). |
+| Q4 Days wholly after the cutoff | **Its own state.** A day whose start is at or after `min(to, known_at or now)` reads **AFTER_CUTOFF** in gateway `contact` and source `state`, worded "Not reached yet". It is never NO_CONTACT or NO_READINGS. `days[].state` keeps the SR-5a value, so Overview parity holds. A day partly after the cutoff already uses the seconds inside `[from, min(to, k))` for contact (10.2 rule). Test: a window ending after k has AFTER_CUTOFF days, and the summary excludes them. |
+| Q5 Battery block | **Drop `battery` from the body.** The SR-6b page renders "Battery (current settings)" from the existing `/battery` read, which it already makes today. The block is configuration, not ranged (D-SR.39/43). This removes the stale-under-watermark risk and the whole-route 409: the route no longer reads Foundation for battery, and it has no `FOUNDATION_BASIS_UNAVAILABLE`. Registration refusals keep their existing codes. Size −0.02. |
+| Guard policy | **Confirmed, as the sanctioned pattern** (W3-01/W4-01 precedent). The single read-only adapter file is named in `$pgReaders`; the SQL-write refusal still applies to it; and reads reach the module through `evidence/composition.py` / `sites/composition.py`, not by direct import. Reviewer checks: the `$pgReaders` entry is that one file path (no glob or directory), the guard self-test still fails a write in a listed reader, and no other guard line changed. |
+
+- SR-6 size is unchanged at about 1.1.
+
 ### 10d.6 Sizes and order
 
 - SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.

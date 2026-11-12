@@ -5016,3 +5016,15 @@ Decisions logged for owner review: **D-SR.47**.
 - Parity: the stored day value equals `all_hours_headroom_kw` exactly, and the card high is at least the stored high. About +0.1 units.
 
 Decisions logged for owner review: **D-SR.48**.
+
+## D-SR.49 SR-6a Q1-Q5 and guard policy (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.9.
+- Q1: corrected. `days_without_readings` = expected days with zero accepted readings, whatever the SR-5a state. `days_not_expected` and `days_after_cutoff` are added, and the four sum to `days_requested`. The status line counts readings.
+- Q2: confirmed, over expected days only (NOT_EXPECTED and AFTER_CUTOFF are skipped).
+- Q3: confirmed: the dispatch-row count. It can differ from the per-source sum, so the labels are "Readings used for analysis" and "Readings received".
+- Q4: new state AFTER_CUTOFF ("Not reached yet") for gateway and source days wholly after `min(to, k)`. `days[].state` is unchanged.
+- Q5: `battery` is dropped from the body. The page uses the existing `/battery` read. There is no Foundation 409 on the route.
+- Guard: the one read-only adapter in `$pgReaders`, with the write refusal kept and reads through the compositions, is the sanctioned pattern.
+
+Decisions logged for owner review: **D-SR.49**.
