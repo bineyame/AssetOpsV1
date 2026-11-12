@@ -16,8 +16,10 @@ Read rules (D-ANY.5):
 - a day PENDING at k (an unconsumed input event, a live dirty mark, an older builder version) keeps its stored facts
   and gains one outstanding job, so the Site reads PENDING_RECOMPUTE and its job state PENDING (today's compose sees
   the recompute job the input created);
-- a day with no row at k renders as today's compose renders a day with nothing stored by k (no selection,
-  UNASSESSED, no jobs); live absences are logged and counted by the reader. There is no fallback compose.
+- a day with no row at k (live or explicit) is marked `ABSENT_MARK`; `coverage.dispatch_days` fills it from today's
+  compose, once per contiguous run of absent days at the same k; each run is logged/counted `period_row_absent` here.
+  Ruled D-ANY.10 (overrides D-ANY.5's no-fallback rule for this kind only): rows built later than their input would
+  otherwise read as "nothing known" at a k between the input and the build.
 
 `ASSETOPS_PERIOD_READ_KINDS` without `dispatch.day` (the D-ANY.6 kill switch) leaves coverage on today's compose.
 """
@@ -31,7 +33,7 @@ from uuid import UUID
 
 from assetops_backend.analytics.dispatch_read import UNASSESSED, day_window
 
-from .period_read import PeriodFragment, PeriodReader, served_kinds
+from .period_read import PeriodFragment, PeriodReader, record_absent_run, served_kinds
 from .ports import SiteRef
 
 KIND = "dispatch.day"
@@ -41,6 +43,9 @@ UNAVAILABLE_STATE = "UNAVAILABLE"
 #: The synthetic outstanding job a day PENDING at k carries (never stored).
 PENDING_JOB = {"id": None, "status": "PENDING", "source": "period_read"}
 ABSENT_REASON = "NOT_BUILT: no stored dispatch.day row at the cutoff"
+#: D-ANY.10: the key on a day the provider found no row for; `coverage.dispatch_days` replaces it with today's compose
+#: (and strips the key from the `absent_day` it falls back to when compose returns no such day).
+ABSENT_MARK = "_absent_row"
 _TAGS = {"$dt": datetime.fromisoformat, "$date": date.fromisoformat, "$uuid": UUID, "$dec": Decimal}
 
 
@@ -172,20 +177,28 @@ class DispatchDayRows:
         site = self._site_ref(tenant_id, site_id)
         if site is None:
             raise DispatchRowsUnavailable(f"no Site {site_id} for its stored dispatch days")
-        result = self._reader.read(tenant_id, [site], [KIND], days[0], days[-1], known_at if explicit else None)
+        result = self._reader.read(tenant_id, [site], [KIND], days[0], days[-1], known_at if explicit else None,
+                                   log_absent=False)
         sid = str(site.site_id).lower()
         stored = {r.row.local_day: r for r in result.rows if str(r.row.site_id).lower() == sid and r.row.kind == KIND}
         out = []
         for d in days:
             pending = result.is_pending(site.site_id, d, KIND)
             r = stored.get(d)
-            if r is None:
-                out.append(absent_day(d, known_at, pending))
+            if r is None:  # D-ANY.10: marked, not rendered; `coverage.dispatch_days` composes each run
+                out.append({**absent_day(d, known_at, pending), ABSENT_MARK: True})
             else:
                 out.append(day_from_body(r.row.body, known_at, pending or bool(r.pending)))
+        run: list[date] = []
+        for day in [*(x["day"] for x in out if x.get(ABSENT_MARK)), None]:  # one log + count per contiguous run
+            if run and (day is None or day != run[-1] + timedelta(days=1)):
+                record_absent_run(tenant_id, KIND, site.site_id, run)
+                run = []
+            if day is not None:
+                run.append(day)
         return out
 
 
-__all__ = ["ABSENT_REASON", "BUILDER_VERSION", "DispatchDayKindBuilder", "DispatchDayRows", "DispatchRowsUnavailable",
+__all__ = ["ABSENT_MARK", "ABSENT_REASON", "BUILDER_VERSION", "DispatchDayKindBuilder", "DispatchDayRows", "DispatchRowsUnavailable",
            "KIND", "PENDING_JOB", "UNAVAILABLE_STATE", "absent_day", "body_of", "day_from_body", "decode",
            "dispatch_spans", "encode", "state_of"]

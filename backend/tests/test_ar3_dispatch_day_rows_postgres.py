@@ -30,6 +30,7 @@ if URL:
     import pg_harness
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.chain import dispatch_day_rows as ddr
+    from assetops_backend.estate import coverage
     from assetops_backend.chain.adapters.file_chain_config import load_event_register
     from assetops_backend.chain.adapters.postgres_event_store import PostgresEventStore
     from assetops_backend.chain.adapters.postgres_period_read_store import PostgresPeriodReadStore
@@ -70,6 +71,7 @@ class Rig:
         self.lo, self.hi = F06_DAY - timedelta(hours=12), F06_DAY + timedelta(days=1, hours=6)
         self.days = ddr.dispatch_spans(self.lo, self.hi)
         monkeypatch.setenv(SERVED_KINDS_ENV, ddr.KIND)
+        self.mp = monkeypatch
 
     def build(self) -> None:
         for d in self.days:
@@ -83,13 +85,29 @@ class Rig:
 
     def serve(self, k=None, explicit=False) -> list[dict]:
         k = k or _db_now(self.engine)
-        days = self.provider(self.t, self.s, self.lo, self.hi, k, explicit)
+        self.mp.setattr(coverage, "dispatch_rows_provider", self.provider)
+        # D-ANY.10: absent days are composed by `coverage.dispatch_days` at the same k (the real compose, not a double)
+        days = coverage.dispatch_days(_ComposeSnap(self, explicit), self.t, self.s, self.lo, self.hi, k)
         assert days is not None
         return days
 
     def dispose(self) -> None:
         for p in (self.assess, self.events, self.rows):
             pg_harness.dispose(p)
+
+
+class _ComposeSnap:
+    """The slice of the estate snapshot `coverage.dispatch_days` uses, composing on the real store at k."""
+
+    continuation = False
+
+    def __init__(self, rig, historical: bool) -> None:
+        self._rig, self.basis_historical = rig, historical
+
+    def dispatch_days(self, t, s, from_, to, k):
+        with self._rig.engine.connect().execution_options(isolation_level="REPEATABLE READ") as c:
+            with c.begin():
+                return self._rig.assess.select_dispatch_days_on(c, t, s, from_, to, k)
 
 
 def _same(a: list[dict], b: list[dict]) -> bool:
@@ -119,9 +137,12 @@ def test_rows_equal_compose_historical_cutoffs_and_pending(rig) -> None:
     assert _same(rig.serve(), composed)
     assert _same([rig.assess.dispatch_day_now(rig.t, rig.s, d) for d in rig.days], composed)
 
-    # (b) a cutoff before any build reads every day absent; the row bodies stay as built after a later revision
+    # (b) D-ANY.10: a cutoff after the revision but before any build has no row, so it reads today's compose of the
+    # day at that k (the selection), not "nothing known"; the row bodies stay as built after a later revision
     absent = rig.serve(before_any_build, explicit=True)
-    assert all(d["status_reasons"] == [ddr.ABSENT_REASON] for d in absent)
+    assert any(d["selection"] for d in absent), "k between the revision and its row's build must read the selection"
+    assert all(d["status_reasons"] != [ddr.ABSENT_REASON] for d in absent)
+    assert _same(absent, composed)
     for step in F06["steps"][3:5]:  # release, assess: a later selection of the same day
         runner.step(step)
     _drain(rig.engine)
