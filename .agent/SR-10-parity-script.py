@@ -7,6 +7,12 @@
 Per Site (KOBO-001, KISIWA-001) x window (7/14/31 days ending S) x domain (fuel, backup):
   missing_rows        D-SR.69: a stored row absent on a non-NO_DATA day (gate 0); NO_DATA days are listed in no_data_days,
                       expect 0 heads and must not read STILL_PROCESSING
+  hours_with_evidence_no_head  D-SR.71 (gate 0): an hour with an accepted row the 0029 enqueue trigger would enqueue for
+                      (DOMAIN_ROLES loaded from the migration, half-open overlap of coalesce(interval_start, source_time) ..
+                      coalesce(interval_end, source_time + 1 us) with the hour, minigrid-roles-4 binding in force) but no
+                      head, on a day not in no_data_days. Hours with no binding go to ineligible_hours (reported);
+                      heads without matching evidence go to heads_without_evidence (reported)
+  no_data_with_matching_hour  D-SR.71 cross-check (gate 0): a no_data_days day with an hour matching the predicate
   head_gaps           D-SR.69: stored hours with a live/FAILED job (job_state not SETTLED/NONE) or with accepted evidence
                       in the hour (any family, coarse) but no head (gate 0); partial days are expected
   hours_mismatch      stored day-row hours vs live `build_period(..., whole_day=True)` hours (gate 0)
@@ -26,6 +32,19 @@ SITES = ("KOBO-001", "KISIWA-001")
 WINDOWS = (7, 14, 31)
 DOMAINS = {"fuel": ("mini_depth.fuel_day", "fuel-range"), "backup": ("mini_depth.backup_day", "backup-range")}
 KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
+
+
+JOB = {"fuel": "mini_fuel", "backup": "mini_backup"}
+
+
+def load_domain_roles() -> dict:
+    """The 0029 DOMAIN_ROLES relation, loaded from the migration file (never retyped)."""
+    import importlib.util
+    from assetops_backend.mini_depth import day_summary as _ds
+    f = Path(_ds.__file__).parents[2] / "migrations" / "versions" / "0029_w4_mini_depth.py"
+    spec = importlib.util.spec_from_file_location("m0029", f)
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    return {d: tuple(r) for d, r in mod.DOMAIN_ROLES}
 
 
 def main() -> int:
@@ -54,6 +73,24 @@ def main() -> int:
         with eng.connect() as cx:
             return bool(cx.execute(text("select 1 from accepted_evidence where site_id=:s and source_time>=:a and source_time<:b limit 1"),
                                    {"s": site.site_id, "a": w0, "b": w1}).first())
+    roles = load_domain_roles()
+    cache: dict = {}
+
+    def trigger_match(domain, w0, w1):
+        """D-SR.71: (matches, eligible) for the hour [w0, w1) by the 0029 enqueue rule, instants +1 us, half-open."""
+        key = (site.site_id, domain, str(w0), str(w1))
+        if key not in cache:
+            with eng.connect() as cx:
+                m = cx.execute(text("select 1 from accepted_evidence where site_id=:s and role = any(:r) "
+                                    "and coalesce(interval_start, source_time) < :b "
+                                    "and coalesce(interval_end, source_time + interval '1 microsecond') > :a limit 1"),
+                               {"s": site.site_id, "r": list(roles[JOB[domain]]), "a": w0, "b": w1}).first() is not None
+                n, cov = cx.execute(text("select count(*), bool_and(valid_from <= :a and (valid_to is null or valid_to >= :b)) "
+                                         "from signal_binding_set_revision where site_id=:s and role_set='minigrid-roles-4' "
+                                         "and superseded_at is null and valid_from < :b and (valid_to is null or valid_to > :a)"),
+                                    {"s": site.site_id, "a": w0, "b": w1}).first()
+            cache[key] = (m, n == 1 and bool(cov))
+        return cache[key]
     report: dict[str, list] = {"fuel": [], "backup": []}
     failures: list[str] = []
     for code in SITES:
@@ -79,21 +116,28 @@ def main() -> int:
                 row["days"] = len(days)
                 # live hours per day through the kind builder's own MiniDepthRead (`build_period`, whole day)
                 mini = services.period_builder._builders[kind]._mini
-                grades = ds.day_grades(chain.request(tenant, None).day(site.site_id, "MINIGRID", day_dates))
-                hm, sm, nodata, gaps, edge = [], [], [], [], []
+                facts = chain.request(tenant, None).day(site.site_id, "MINIGRID", day_dates)
+                grades = ds.day_grades(facts)
+                nr = ds.no_reading_days(facts)   # D-SR.70
+                hm, sm, nodata, gaps, edge, inelig, nohead_ev, cross = [], [], [], [], [], [], [], []
                 stored = {x.local_day: x for x in services.periods.read_latest(tenant, [site.site_id], [kind], day_dates[0], day_dates[-1], None)}
                 for d in days:
                     ld = date.fromisoformat(d["local_day"])
                     built = mini.build_period(tenant_id=tenant, site_id=site.site_id, domain=domain, local_day=ld, whole_day=True)
                     live_hours = [] if built is None else built[2]
-                    nd = grades.get(ld) == "NO_DATA"
+                    nd = ld in nr
                     if nd:
                         nodata.append({"day": d["local_day"], "state": d["state"], "stored": d.get("stored"),
                                        "heads": sum(1 for h in live_hours if h.get("head")),
-                                       "ok": d["state"] != "STILL_PROCESSING"})
+                                       "ok": d["state"] == "NO_DATA"})
                     for h in live_hours:
-                        if h.get("head") is None and not nd and h.get("job_state") in ("SETTLED", "NONE") and evid(h["window_start"], h["window_end"]):
-                            edge.append({"day": d["local_day"], "hour": h["window_start"]})
+                        match, eligible = trigger_match(domain, h["window_start"], h["window_end"])
+                        if nd and match and eligible:
+                            cross.append({"day": d["local_day"], "hour": h["window_start"]})
+                        if not nd and match and h.get("head") is None:
+                            (edge if eligible else inelig).append({"day": d["local_day"], "hour": h["window_start"]})
+                        if h.get("head") is not None and not match:
+                            nohead_ev.append({"day": d["local_day"], "hour": h["window_start"]})
                         if h.get("job_state") not in ("SETTLED", "NONE"):
                             gaps.append({"day": d["local_day"], "hour": h["window_start"], "job_state": h.get("job_state"), "head": h.get("head") is not None})
                     if ld in stored and json.dumps(stored[ld].body.get("hours"), sort_keys=True, default=str) != json.dumps(live_hours, sort_keys=True, default=str):
@@ -102,13 +146,16 @@ def main() -> int:
                         summ = (ds.fuel_day_summary if domain == "fuel" else ds.backup_day_summary)(ld, [pr.hour_from_json(h, historical=False, pending=False) for h in live_hours])
                     else:
                         summ = None
-                    want, _ = ds.day_state(domain, summ, grades.get(ld))
+                    want, _ = ds.day_state(domain, summ, grades.get(ld), no_readings=ld in nr, pending=False)
                     if want != d["state"]:
                         sm.append({"day": d["local_day"], "route": d["state"], "recomputed": want})
-                row["missing_rows"] = [d["local_day"] for d in days if d.get("stored") is False and grades.get(date.fromisoformat(d["local_day"])) != "NO_DATA"]
+                row["missing_rows"] = [d["local_day"] for d in days if d.get("stored") is False and date.fromisoformat(d["local_day"]) not in nr]
                 row["no_data_days"] = nodata
                 row["head_gaps"] = gaps  # live/FAILED jobs: gate 0
-                row["hours_with_evidence_no_head"] = edge  # reported, not gated: D-SR.69 "the partial days are expected"
+                row["hours_with_evidence_no_head"] = edge  # D-SR.71: gate 0
+                row["no_data_with_matching_hour"] = cross  # D-SR.71 cross-check: gate 0
+                row["ineligible_hours"] = inelig           # reported, not gated
+                row["heads_without_evidence"] = nohead_ev  # reported, not gated
                 row["hours_mismatch_days"] = hm
                 row["state_mismatch"] = sm
                 if domain == "backup":
@@ -125,7 +172,7 @@ def main() -> int:
                             for s in (res.get("sequences") or ()):
                                 per[s.get("chain_id")] += 1
                         row.setdefault("duplicate_chain_ids_in_row", []).extend(k for k, v in per.items() if v > 1 and k)
-                bad = (row["missing_rows"] or gaps or any(not x["ok"] for x in nodata) or hm or sm or row.get("duplicate_chain_ids") or row.get("duplicate_chain_ids_in_row")
+                bad = (row["missing_rows"] or gaps or edge or cross or any(not x["ok"] for x in nodata) or hm or sm or row.get("duplicate_chain_ids") or row.get("duplicate_chain_ids_in_row")
                        or cold > 2.0 or not row["rows_on_off_equal"])
                 row["pass"] = not bad
                 if bad: failures.append(f"{code} {n} {domain}")

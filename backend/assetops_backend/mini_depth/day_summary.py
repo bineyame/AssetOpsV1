@@ -24,6 +24,7 @@ _LIVE_JOBS = frozenset({"PENDING", "LEASED"})
 NOT_EXPECTED = "NOT_EXPECTED"
 STILL_PROCESSING = "STILL_PROCESSING"
 NO_ASSESSMENT = "NO_ASSESSMENT"
+NO_DATA = "NO_DATA"
 ASSESSED = "ASSESSED"
 SEQUENCE_FAILED = "SEQUENCE_FAILED"
 SEQUENCE_INCOMPLETE = "SEQUENCE_INCOMPLETE"
@@ -110,12 +111,19 @@ def absent_day(domain: str, local_day: date) -> dict[str, Any]:
     return out
 
 
-def day_state(domain: str, summary: Mapping[str, Any] | None, grade: str | None) -> tuple[str, bool]:
-    """Rev 10b.1 "Day state", first match wins; plus `partial` (missing hours or a LIMITED hour, D-E5.45).
-    `summary` None is an absent row: "Still being prepared", never "nothing known" (D-SR.16)."""
+def day_state(domain: str, summary: Mapping[str, Any] | None, grade: str | None, *, no_readings: bool = False,
+              pending: bool = False) -> tuple[str, bool]:
+    """Rev 10b.1 "Day state" as amended by D-SR.70, first match wins: NOT_EXPECTED, pending (STILL_PROCESSING), NO_DATA
+    (no readings that day, stored row or not), absent row (STILL_PROCESSING), then the rest; plus `partial` (missing
+    hours or a LIMITED hour, D-E5.45). `summary` None is an absent row: "Still being prepared", never "nothing known"
+    (D-SR.16)."""
     if grade == NOT_EXPECTED:
         state = NOT_EXPECTED
-    elif summary is None or summary["hours_pending"] > 0:
+    elif pending or (summary is not None and summary["hours_pending"] > 0):
+        state = STILL_PROCESSING
+    elif no_readings:
+        return NO_DATA, False
+    elif summary is None:
         state = STILL_PROCESSING
     elif summary["hours_assessed"] == 0:
         state = NO_ASSESSMENT
@@ -155,7 +163,8 @@ def hour_link(domain: str, site_code: str, local_day: date, tz: str) -> str:
 
 
 def range_days(domain: str, site_code: str, tz: str, site_id: Any, days: Sequence[date], result: Any,
-               grades: Mapping[date, str], *, historical: bool) -> list[dict[str, Any]]:
+               grades: Mapping[date, str], *, historical: bool,
+               no_readings: frozenset[date] = frozenset()) -> list[dict[str, Any]]:
     """One entry per requested day from one `PeriodReader.read` result of `DAY_KIND[domain]`: the day summary, its
     state and `partial`, and the hour link. An absent row is STILL_PROCESSING (no compose fallback, D-SR.31)."""
     kind = DAY_KIND[domain]
@@ -165,12 +174,16 @@ def range_days(domain: str, site_code: str, tz: str, site_id: Any, days: Sequenc
     for d in days:
         read = by_day.get(d)
         summary = None
+        pending = False
         if read is not None:
             pending = bool(read.pending) or result.is_pending(site_id, d, kind)
             summary = reduce(d, hours_of(read.row.body, historical=historical, pending=pending))
-        state, partial = day_state(domain, summary, grades.get(d))
-        out.append({**(summary if summary is not None else absent_day(domain, d)), "state": state, "partial": partial,
-                    "hour_link": hour_link(domain, site_code, d, tz)})
+        state, partial = day_state(domain, summary, grades.get(d), no_readings=d in no_readings, pending=pending)
+        if state == NO_DATA:   # D-SR.70: no counts, no figures, whether or not a row is stored
+            entry = {**absent_day(domain, d), "stored": read is not None}
+        else:
+            entry = summary if summary is not None else absent_day(domain, d)
+        out.append({**entry, "state": state, "partial": partial, "hour_link": hour_link(domain, site_code, d, tz)})
     return out
 
 
@@ -211,18 +224,33 @@ def day_grades(facts: Any) -> dict[date, str]:
             for e in days_of(facts, tuple(m.key for m in measures_for("MINIGRID")))}
 
 
+def no_reading_days(facts: Any) -> frozenset[date]:
+    """D-SR.70: the days on which every applicable mini measure grade is NO_DATA (`days_of` `measures`, minus
+    `none_declared` and NOT_EXPECTED, at least one left). A missing snapshot is NO_DATA (CH5a1-R Q9)."""
+    from assetops_backend.chain.measures import measures_for
+    from assetops_backend.chain.site_chain import days_of
+
+    out = set()
+    for e in days_of(facts, tuple(m.key for m in measures_for("MINIGRID"))):
+        left = [g for m, g in e["measures"].items() if m not in e.get("none_declared", ()) and g != NOT_EXPECTED]
+        if left and all(g == "NO_DATA" for g in left):
+            out.add(date.fromisoformat(e["day"]))
+    return frozenset(out)
+
+
 def compose(domain: str, site: Mapping[str, Any], window: Mapping[str, Any], days: Sequence[date], result: Any,
-            grades: Mapping[date, str], *, historical: bool) -> dict[str, Any]:
+            grades: Mapping[date, str], *, historical: bool,
+            no_readings: frozenset[date] = frozenset()) -> dict[str, Any]:
     """The `site-fuel-range-1` / `site-backup-range-1` body. `site` = {id, site_code, site_name, timezone};
     `window` = {from, to, known_at} as UTC text; `grades` = the chain day grade of each day (`ChainRequest.day`)."""
     rows = range_days(domain, site["site_code"], site["timezone"], site["id"], days, result, grades,
-                      historical=historical)
+                      historical=historical, no_readings=no_readings)
     shown = {k: v for k, v in site.items() if k != "id"}
     return {"schema_version": SCHEMA_VERSION[domain], "site": shown, "window": dict(window), "days": rows,
             "totals": totals(domain, rows)}
 
 
-__all__ = ["ASSESSED", "COUNTED_STATES", "DAY_KIND", "SCHEMA_VERSION", "compose", "day_grades", "hour_link", "range_days",
+__all__ = ["ASSESSED", "COUNTED_STATES", "DAY_KIND", "SCHEMA_VERSION", "compose", "day_grades", "no_reading_days", "NO_DATA", "hour_link", "range_days",
            "totals", "NOT_EXPECTED", "NO_ASSESSMENT", "NO_SEQUENCE", "SEQUENCES_PASSED", "SEQUENCE_FAILED",
            "SEQUENCE_INCOMPLETE", "STILL_PROCESSING", "absent_day", "backup_day_summary", "slowest_recovery", "day_state", "fuel_day_summary",
            "hours_of"]

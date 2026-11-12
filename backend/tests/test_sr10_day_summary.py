@@ -213,3 +213,55 @@ def test_reading_at_site_local_0030_dirties_the_local_day_not_the_utc_day() -> N
     marks = resolve(load_event_register(), event, site_type="MINIGRID", tz="Africa/Nairobi", today=date(2026, 11, 4))
     for kind in pr.DAY_KINDS:
         assert (date(2026, 11, 3), kind) in marks and (date(2026, 11, 2), kind) not in marks
+
+
+def _facts(days: list[date], grades: dict, none_declared: dict | None = None) -> SimpleNamespace:
+    return SimpleNamespace(days=days, grades=grades, none_declared=none_declared or {})
+
+
+def test_no_reading_days_every_applicable_measure_no_data() -> None:
+    from assetops_backend.chain.measures import measures_for
+
+    keys = [m.key for m in measures_for("MINIGRID")]
+    d0, d1, d2, d3 = (DAY + timedelta(days=i) for i in range(4))
+    nd = {k: {"i": "NO_DATA"} for k in keys}
+    mixed = {k: {"i": "NO_DATA"} for k in keys}
+    mixed[keys[0]] = {"i": "PARTIAL"}                      # one weak measure is not "no readings"
+    half = {k: {"i": "NO_DATA"} for k in keys[1:]}          # a missing snapshot is NO_DATA (Q9)
+    facts = _facts([d0, d1, d2, d3], {d0: nd, d1: mixed, d2: half, d3: {}},
+                   {d1: (keys[1],)})
+    assert ds.no_reading_days(facts) == {d0, d2, d3}
+    # none_declared measures are left out: only the PARTIAL one remains on d1, so not NO_DATA; declare it and none is left
+    assert ds.no_reading_days(_facts([d1], {d1: mixed}, {d1: tuple(keys)})) == frozenset()
+
+
+def test_no_data_beats_absent_and_stored_rows_and_pending_beats_no_data() -> None:
+    full = ds.fuel_day_summary(DAY, [_hour(h, _fuel()) for h in range(24)])
+    empty = ds.fuel_day_summary(DAY, [_hour(0, None)])
+    pend = ds.fuel_day_summary(DAY, [_hour(0, _fuel(), state="PENDING_RECOMPUTE", job_state="PENDING")])
+    assert ds.day_state("fuel", None, "NO_DATA", no_readings=True, pending=False) == ("NO_DATA", False)
+    assert ds.day_state("fuel", full, "NO_DATA", no_readings=True, pending=False)[0] == "NO_DATA"
+    assert ds.day_state("fuel", empty, "NO_DATA", no_readings=True, pending=False)[0] == "NO_DATA"
+    assert ds.day_state("backup", ds.backup_day_summary(DAY, [_hour(0, _backup([]))]), "NO_DATA",
+                        no_readings=True, pending=False)[0] == "NO_DATA"
+    assert ds.day_state("fuel", pend, "NO_DATA", no_readings=True, pending=False)[0] == "STILL_PROCESSING"
+    assert ds.day_state("fuel", full, "NO_DATA", no_readings=True, pending=True)[0] == "STILL_PROCESSING"
+    assert ds.day_state("fuel", full, "NOT_EXPECTED", no_readings=True, pending=True)[0] == "NOT_EXPECTED"
+    assert ds.day_state("fuel", None, "COMPLETE", no_readings=False, pending=False)[0] == "STILL_PROCESSING"
+
+
+def test_compose_no_data_day_is_not_counted_and_nulls_figures() -> None:
+    site = uuid4()
+    days = [DAY, DAY + timedelta(days=1), DAY + timedelta(days=2)]
+    rows = [_row(site, days[0], "mini_depth.fuel_day", [_hour(0, _fuel(use=(1, 2)))]),
+            _row(site, days[1], "mini_depth.fuel_day", [_hour(h, _fuel(use=(3, 4))) for h in range(24)])]
+    result = SimpleNamespace(rows=rows, is_pending=lambda s, d, k: False)
+    body = ds.compose("fuel", {"id": site, "site_code": "K", "site_name": None, "timezone": "Africa/Nairobi"},
+                      {"from": "a", "to": "b", "known_at": None}, days, result, {}, historical=False,
+                      no_readings=frozenset(days[1:]))
+    states = [(d["state"], d["stored"]) for d in body["days"]]
+    assert states == [("ASSESSED", True), ("NO_DATA", True), ("NO_DATA", False)]
+    for d in body["days"][1:]:
+        assert d["partial"] is False and d["expected_use_l"] is None and d["hours_assessed"] is None
+        assert d["hour_link"]
+    assert body["totals"]["days_counted"] == 1 and body["totals"]["partial"] is True
