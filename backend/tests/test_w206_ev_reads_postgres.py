@@ -909,6 +909,7 @@ def test_finding_detail_without_window_reads_its_own_period(chain) -> None:  # n
     own = get(c, f"findings/{item['finding_id']}")
     assert own["finding_id"] == item["finding_id"]
     assert (own["window"]["from"], own["window"]["to"]) == (body["window"]["from"], body["window"]["to"])
-    later = f"from={_iso(lo + timedelta(days=1))}&to={_iso(hi + timedelta(days=1))}"
-    assert error(c, f"findings/{item['finding_id']}?{later}", 404) == "EV_RECORD_NOT_FOUND"
+    # An explicit window keeps today's rule: one with no stored selection of this Finding still answers 404.
+    narrow = f"from={_iso(lo)}&to={_iso(hi - timedelta(minutes=1))}"
+    assert error(c, f"findings/{item['finding_id']}?{narrow}", 404) == "EV_RECORD_NOT_FOUND"
     assert error(c, f"findings/{uuid4()}", 404) == "EV_RECORD_NOT_FOUND"
