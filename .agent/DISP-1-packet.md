@@ -24,3 +24,11 @@ Spec: D-ANY.11 in `.agent/build-sheet-OWN-GAPS-2026-11-08.md`.
    `select_dispatch_days_on` under `for_finding_on` on a fully built range. Report saving as measured. Check memory first (>=1.5 GB free),
    one DB job at a time, client4 not client7.
 6. Open: the D-ANY.6 kill-switch fallback (`coverage.dispatch_days` falls back to `self.dispatch_days`) is covered only by existing coverage tests.
+
+## Session 2026-11-12 (steps 4-5; main 118866a17 merged; client4, read-only)
+- No-DB after merge: 92 passed, 6 skipped (Postgres files, not run): disp1, lr01, estate_coverage_local_days, w301_estate_coverage, ar2/ar3/ar4/ar6 files.
+- **Parity** `--kinds evidence.claim,dispatch.day --seed 20261111 --random 16`, e3c polish_client4 work/story, prebuilt routes, 1382 s: **PASS (61 cases, 0 mismatch, 0 unstable)**, exit 0.
+- Coverage of Finding money cases (by case type; bodies not inspected for ELIGIBLE/PENDING strings): Portfolio cases with `lens=all` (story + any.portfolio.* at 4-31 days, aligned/unaligned) run `for_finding_on` per Finding; `any.claim_rows.before_build` / `after_build` give historical k before/after the first and last row; `any.portfolio.4/8/12` are historical known_at; bracket days outside the request range arise on unaligned windows (any.portfolio.2/7/9/11/13). GAP: no case is asserted to contain an ELIGIBLE-with-amount or PENDING finding, or a bracket day outside the stored range; the harness does not label them.
+- **Timings** (cold, store off, rows `evidence.claim,dispatch.day` on, wall under cProfile, one run): week 8.6 s (AR-4: 8.7), 22 d 17.4 s (22.2), 31 d 21.2 s (27.1). Saving 0.1 / 4.8 / 5.9 s (~+-15% noise on the week).
+- Profile: `print_callers("select_dispatch_days_on")` returns no callers in all three runs (was 4 / 12 / 16 calls from `for_finding_on`) -> zero under `for_finding_on`. `_data_gaps` 0.15 / 0.13 / 0.15 s.
+- Probe: scratchpad `prof_win.py`, not committed. Open: item 6 (kill-switch fallback) unchanged.
